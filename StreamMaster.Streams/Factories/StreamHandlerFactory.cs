@@ -11,9 +11,10 @@ public sealed class StreamHandlerFactory(IInputStatisticsManager inputStatistics
     {
         SMStream smStream = channelStatus.SMStream;
         SMChannel smChannel = channelStatus.SMChannel;
+        VideoOutputProfileDto videoProfile = channelStatus.VideoProfile;
         int rank = channelStatus.Rank;
 
-        (Stream? stream, int processId, ProxyStreamError? error) = await proxyFactory.GetProxy(smStream.Url, smStream.Name, smChannel.StreamingProxyType, cancellationToken).ConfigureAwait(false);
+        (Stream? stream, int processId, ProxyStreamError? error) = await proxyFactory.GetProxy(smStream.Url, smStream.Name, videoProfile, cancellationToken).ConfigureAwait(false);
         if (stream == null || error != null || processId == 0)
         {
             return null;

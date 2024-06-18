@@ -5,7 +5,7 @@
 public record CreateSMChannelRequest(
     string Name,
     List<string>? SMStreamsIds,
-    StreamingProxyTypes? StreamingProxyType,
+    string? StreamingProxyType,
     int? ChannelNumber,
     int? TimeShift,
     string? Group,
@@ -38,7 +38,7 @@ public class CreateSMChannelRequestHandler(ILogger<CreateSMChannelRequest> Logge
                 EPGId = request.EPGId ?? string.Empty,
                 Logo = request.Logo ?? string.Empty,
                 VideoStreamHandler = request.VideoStreamHandler ?? VideoStreamHandlers.SystemDefault,
-                StreamingProxyType = request.StreamingProxyType ?? StreamingProxyTypes.SystemDefault
+                StreamingProxyType = request.StreamingProxyType ?? "SystemDefault"
             };
 
             Repository.SMChannel.Create(smChannel);

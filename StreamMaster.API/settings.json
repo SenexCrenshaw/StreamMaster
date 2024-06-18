@@ -16,9 +16,7 @@
   "FFMpegOptions": "-hide_banner -loglevel error -i {streamUrl} -c copy -f mpegts pipe:1",
   "FFProbeExecutable": "ffprobe",
   "GlobalStreamLimit": 5,
-  "LogPerformance": [
-    "*"
-  ],
+  "LogPerformance": ["*"],
   "MaxConcurrentDownloads": 8,
   "MaxConnectRetry": 20,
   "MaxConnectRetryTimeMS": 200,
@@ -36,7 +34,7 @@
   "SSLCertPath": "",
   "ShowClientHostNames": false,
   "StreamingClientUserAgent": "Mozilla/5.0 (compatible; streammaster/1.0)",
-  "StreamingProxyType": 2,
+  "StreamingProxyType": "StreamMaster",
   "UiFolder": "wwwroot",
   "UrlBase": "",
   "VideoStreamAlwaysUseEPGLogo": true

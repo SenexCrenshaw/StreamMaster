@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 
 using StreamMaster.Application.StreamGroups.CommandsOld;
 using StreamMaster.Domain.Authentication;
-using StreamMaster.Domain.Enums;
 using StreamMaster.Domain.Repository;
 using StreamMaster.Infrastructure.Clients;
 using StreamMaster.Streams.Domain.Interfaces;
@@ -61,8 +60,8 @@ public class VideoStreamsController(IChannelManager channelManager, IRepositoryW
 
         HttpContext.Session.Remove("ClientId");
 
-        StreamingProxyTypes proxyType = GetStreamingProxyType(smChannel);
-        bool redirect = proxyType == StreamingProxyTypes.None;
+        var proxyType = GetStreamingProxyType(smChannel);
+        bool redirect = proxyType == "None";
 
         if (redirect)
         {
@@ -81,9 +80,9 @@ public class VideoStreamsController(IChannelManager channelManager, IRepositoryW
         return stream != null ? new FileStreamResult(stream, "video/mp4") : StatusCode(StatusCodes.Status404NotFound);
     }
 
-    private StreamingProxyTypes GetStreamingProxyType(SMChannel smChannel)
+    private string GetStreamingProxyType(SMChannel smChannel)
     {
-        return smChannel.StreamingProxyType == StreamingProxyTypes.SystemDefault
+        return smChannel.StreamingProxyType == "SystemDefault"
             ? Settings.StreamingProxyType
             : smChannel.StreamingProxyType;
     }

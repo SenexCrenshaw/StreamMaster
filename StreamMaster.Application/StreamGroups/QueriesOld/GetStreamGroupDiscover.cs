@@ -2,7 +2,6 @@
 
 using Microsoft.AspNetCore.Http;
 
-using StreamMaster.Application.Common.Extensions;
 using StreamMaster.Application.Common.Models;
 
 using System.Text.Json;
@@ -10,7 +9,7 @@ using System.Text.Json;
 namespace StreamMaster.Application.StreamGroups.QueriesOld;
 
 [RequireAll]
-public record GetStreamGroupDiscover(int StreamGroupId) : IRequest<string>;
+public record GetStreamGroupDiscover(int StreamGroupId, int StreamGroupProfileId) : IRequest<string>;
 
 public class GetStreamGroupDiscoverValidator : AbstractValidator<GetStreamGroupDiscover>
 {

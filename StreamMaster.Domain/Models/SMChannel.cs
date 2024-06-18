@@ -24,10 +24,9 @@ public class SMChannel
     [IgnoreMember]
     public ICollection<StreamGroupSMChannelLink> StreamGroups { get; set; } = [];
     public static string APIName => "SMChannels";
-    public StreamingProxyTypes StreamingProxyType { get; set; } = StreamingProxyTypes.SystemDefault;
+    public string StreamingProxyType { get; set; } = "SystemDefault";
     public bool IsHidden { get; set; } = false;
 
-    [Column(TypeName = "citext")]
     public int ChannelNumber { get; set; } = 0;
     public int TimeShift { get; set; } = 0;
 

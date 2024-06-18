@@ -39,7 +39,7 @@ public class BaseSettings
     public string SSLCertPassword { get; set; } = string.Empty;
     public string SSLCertPath { get; set; } = string.Empty;
     public string StreamingClientUserAgent { get; set; } = "VLC/3.0.20-git LibVLC/3.0.20-git";
-    public StreamingProxyTypes StreamingProxyType { get; set; } = StreamingProxyTypes.StreamMaster;
+    public string StreamingProxyType { get; set; } = "StreamMaster";
     public bool VideoStreamAlwaysUseEPGLogo { get; set; } = true;
     public bool ShowClientHostNames { get; set; }
 }

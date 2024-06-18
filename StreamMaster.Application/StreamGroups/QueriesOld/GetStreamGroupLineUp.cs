@@ -1,6 +1,4 @@
-﻿using FluentValidation;
-
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 
 using StreamMaster.SchedulesDirect.Domain.Extensions;
 
@@ -10,16 +8,8 @@ using System.Web;
 namespace StreamMaster.Application.StreamGroups.QueriesOld;
 
 [RequireAll]
-public record GetStreamGroupLineup(int StreamGroupId) : IRequest<string>;
+public record GetStreamGroupLineup(int StreamGroupId, int StreamGroupProfileId) : IRequest<string>;
 
-public class GetStreamGroupLineupValidator : AbstractValidator<GetStreamGroupLineup>
-{
-    public GetStreamGroupLineupValidator()
-    {
-        _ = RuleFor(v => v.StreamGroupId)
-            .NotNull().GreaterThanOrEqualTo(0);
-    }
-}
 
 [LogExecutionTimeAspect]
 public class GetStreamGroupLineupHandler(IHttpContextAccessor httpContextAccessor, IIconHelper iconHelper, IEPGHelper epgHelper, ISchedulesDirectDataService schedulesDirectDataService, ILogger<GetStreamGroupLineup> logger, IRepositoryWrapper Repository, IOptionsMonitor<HLSSettings> inthlssettings, IOptionsMonitor<Setting> intsettings)

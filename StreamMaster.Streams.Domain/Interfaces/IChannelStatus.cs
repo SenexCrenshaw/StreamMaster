@@ -7,6 +7,7 @@ namespace StreamMaster.Streams.Domain.Interfaces;
 /// </summary>
 public interface IChannelStatus
 {
+    VideoOutputProfileDto VideoProfile { get; set; }
     string OverrideVideoStreamId { get; set; }
 
     /// <summary>

@@ -20,6 +20,7 @@ export interface M3UFileDialogProperties {
 }
 
 export interface M3UFileDialogRef {
+  hide: () => void;
   reset: () => void;
   save: () => void;
 }
@@ -61,6 +62,10 @@ const M3UFileDialog = forwardRef<M3UFileDialogRef, M3UFileDialogProperties>(({ o
   useImperativeHandle(
     ref,
     () => ({
+      hide: () => {
+        setM3UFileDto(undefined);
+        setOriginalM3UFileDto(undefined);
+      },
       reset: () => {
         if (originalM3UFileDto) {
           setM3UFileDto({ ...originalM3UFileDto });
@@ -178,14 +183,14 @@ const M3UFileDialog = forwardRef<M3UFileDialogRef, M3UFileDialogProperties>(({ o
       </div>
 
       <div className="layout-padding-bottom-lg" />
-      {/* {showUrlEditor === true && (
+      {showUrlEditor === true && (
         <>
           <div className="w-12">
             <StringEditor showClear disableDebounce darkBackGround label="URL" value={m3uFileDto?.Url} onChange={(e) => updateStateAndRequest({ Url: e })} />
           </div>
           <div className="layout-padding-bottom-lg" />
         </>
-      )} */}
+      )}
       <div className="w-12">
         <div className="flex gap-1">
           <div className="flex w-6 gap-1">

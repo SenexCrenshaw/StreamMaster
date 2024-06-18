@@ -25,6 +25,6 @@ public class StreamingWorkerStatusDto : StreamingClientInformation
     public int RingBufferSize { get; set; }
     public string? StreamingUrl { get; set; }
     public string? StreamName { get; set; }
-    public StreamingProxyTypes StreamProxyType { get; set; }
+    public string StreamProxyType { get; set; }
     public Guid StreamWorkerId { get; set; }
 }

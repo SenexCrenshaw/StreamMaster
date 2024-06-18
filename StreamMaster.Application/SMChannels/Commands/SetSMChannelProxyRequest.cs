@@ -2,7 +2,7 @@
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record SetSMChannelProxyRequest(int SMChannelId, int StreamingProxy) : IRequest<APIResponse>;
+public record SetSMChannelProxyRequest(int SMChannelId, string StreamingProxy) : IRequest<APIResponse>;
 
 internal class SetSMChannelProxyRequestHandler(IRepositoryWrapper Repository, IMessageService messageService, IDataRefreshService dataRefreshService) : IRequestHandler<SetSMChannelProxyRequest, APIResponse>
 {

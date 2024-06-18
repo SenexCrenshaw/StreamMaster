@@ -31,7 +31,7 @@ public class UpdateSettingParameters
     public string? SSLCertPassword { get; set; }
     public string? SSLCertPath { get; set; }
     public string? StreamingClientUserAgent { get; set; }
-    public StreamingProxyTypes? StreamingProxyType { get; set; }
+    public string? StreamingProxyType { get; set; }
     public bool? VideoStreamAlwaysUseEPGLogo { get; set; }
     public bool? EnablePrometheus { get; set; }
     public int? MaxLogFiles { get; set; }
@@ -382,7 +382,7 @@ public partial class UpdateSettingRequestHandler(IBackgroundTaskQueue taskQueue,
 
         if (request.parameters.StreamingProxyType != null && request.parameters.StreamingProxyType != currentSetting.StreamingProxyType)
         {
-            currentSetting.StreamingProxyType = (StreamingProxyTypes)request.parameters.StreamingProxyType;
+            currentSetting.StreamingProxyType = request.parameters.StreamingProxyType;
         }
 
         if (request.parameters.AuthenticationMethod != null && request.parameters.AuthenticationMethod != currentSetting.AuthenticationMethod)

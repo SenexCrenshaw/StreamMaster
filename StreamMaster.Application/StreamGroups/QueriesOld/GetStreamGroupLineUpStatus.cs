@@ -7,7 +7,7 @@ using System.Text.Json;
 namespace StreamMaster.Application.StreamGroups.QueriesOld;
 
 [RequireAll]
-public record GetStreamGroupLineupStatus(int StreamGroupId) : IRequest<string>;
+public record GetStreamGroupLineupStatus(int StreamGroupId, int StreamGroupProfileId) : IRequest<string>;
 
 public class GetStreamGroupLineupStatusValidator : AbstractValidator<GetStreamGroupLineupStatus>
 {

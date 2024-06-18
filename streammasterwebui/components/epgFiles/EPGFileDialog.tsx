@@ -112,7 +112,7 @@ const EPGFileDialog = forwardRef<EPGFileDialogRef, EPGFileDialogProperties>(({ o
   }, [code, isSaveEnabled, onUpdated]);
 
   if (epgFileDto !== undefined) {
-    Logger.debug('M3UFileDialog', { isSaveEnabled, epgFileDto: epgFileDto.Url, originalEPGFileDto: originalEPGFileDto?.Url });
+    Logger.debug('EPGFileDialog', { isSaveEnabled, epgFileDto: epgFileDto.Url, originalEPGFileDto: originalEPGFileDto?.Url });
   }
 
   if (selectedFile === undefined) {

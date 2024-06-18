@@ -55,7 +55,7 @@ public interface ISMChannelsRepository : IRepositoryBase<SMChannel>
 
     Task<APIResponse> SetSMChannelName(int sMChannelId, string name);
 
-    Task<APIResponse> SetSMChannelProxy(int sMChannelId, int streamingProxy);
+    Task<APIResponse> SetSMChannelProxy(int sMChannelId, string streamingProxy);
 
     Task<List<FieldData>> SetSMChannelsLogoFromEPGFromIds(List<int> ids, CancellationToken cancellationToken);
 

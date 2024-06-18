@@ -91,8 +91,6 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
     [LogExecutionTimeAspect]
     public async Task<string> Handle(GetStreamGroupM3U request, CancellationToken cancellationToken)
     {
-
-
         string url = httpContextAccessor.GetUrl();
         string requestPath = httpContextAccessor.HttpContext.Request.Path.Value.ToString();
         byte[]? iv = requestPath.GetIVFromPath(settings.ServerKey, 128);

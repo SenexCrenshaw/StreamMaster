@@ -1,6 +1,4 @@
-﻿using StreamMaster.Domain.Enums;
-
-namespace StreamMaster.Streams.Domain.Interfaces;
+﻿namespace StreamMaster.Streams.Domain.Interfaces;
 
 public class M3UStreamHealth
 {
@@ -31,7 +29,7 @@ public class StreamingClientConfiguration : StreamingClientInformation
     public CancellationToken CancellationToken { get; set; }
     public int CurrentM3UStreamId { get; set; }
     public string CurrentM3UStreamName { get; set; } = string.Empty;
-    public StreamingProxyTypes CurrentM3UStreamProxyType { get; set; }
+    public string CurrentM3UStreamProxyType { get; set; }
     public string CurrentM3UStreamUrl { get; set; } = string.Empty;
     public Guid Id { get; set; } = Guid.NewGuid();
     public bool IsReader { get; set; }

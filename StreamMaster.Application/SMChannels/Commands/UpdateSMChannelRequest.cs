@@ -3,7 +3,7 @@
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record UpdateSMChannelRequest(int Id, string? Name, List<string>? SMStreamsIds, StreamingProxyTypes? StreamingProxyType, int? ChannelNumber, int? TimeShift, string? Group, string? EPGId, string? Logo, VideoStreamHandlers? VideoStreamHandler)
+public record UpdateSMChannelRequest(int Id, string? Name, List<string>? SMStreamsIds, string? StreamingProxyType, int? ChannelNumber, int? TimeShift, string? Group, string? EPGId, string? Logo, VideoStreamHandlers? VideoStreamHandler)
     : IRequest<APIResponse>;
 
 [LogExecutionTimeAspect]
@@ -48,9 +48,9 @@ public class UpdateSMChannelRequestHandler(IRepositoryWrapper Repository, IDataR
                 ret.Add(new FieldData(() => smChannel.Logo));
             }
 
-            if (smChannel.StreamingProxyType != request.StreamingProxyType)
+            if (!string.IsNullOrEmpty(request.StreamingProxyType) && request.StreamingProxyType != smChannel.StreamingProxyType)
             {
-                smChannel.StreamingProxyType = request.StreamingProxyType.Value;
+                smChannel.StreamingProxyType = request.StreamingProxyType;
                 ret.Add(new FieldData(() => smChannel.StreamingProxyType));
             }
 

@@ -1,7 +1,7 @@
 import OKButton from '@components/buttons/OKButton';
 import ResetButton from '@components/buttons/ResetButton';
 import SMFileUpload, { SMFileUploadRef } from '@components/sm/SMFileUpload';
-import SMPopUp from '@components/sm/SMPopUp';
+import SMPopUp, { SMPopUpRef } from '@components/sm/SMPopUp';
 import { useStringValue } from '@lib/redux/hooks/stringValue';
 import { CreateM3UFile } from '@lib/smAPI/M3UFiles/M3UFilesCommands';
 import { CreateM3UFileRequest, M3UFileDto } from '@lib/smAPI/smapiTypes';
@@ -21,6 +21,7 @@ export const M3UFileCreateDialog = ({ onHide, onUploadComplete, showButton }: M3
   const { stringValue, setStringValue } = useStringValue('m3uName');
   const fileUploadReference = useRef<FileUpload>(null);
   const smFileUploadRef = useRef<SMFileUploadRef>(null);
+  const dialogRef = useRef<SMPopUpRef>(null);
   const fileDialogRef = useRef<M3UFileDialogRef>(null);
   const [isSaveEnabled, setIsSaveEnabled] = React.useState<boolean>(false);
 
@@ -65,6 +66,8 @@ export const M3UFileCreateDialog = ({ onHide, onUploadComplete, showButton }: M3
           console.error('Error uploading M3U', error);
         })
         .finally(() => {
+          fileDialogRef.current?.hide();
+          dialogRef.current?.hide();
           setStringValue('');
           ReturnToParent();
         });
@@ -123,6 +126,7 @@ export const M3UFileCreateDialog = ({ onHide, onUploadComplete, showButton }: M3
       iconFilled
       modal
       placement="bottom-end"
+      ref={dialogRef}
       title="Add M3U"
       zIndex={10}
     >

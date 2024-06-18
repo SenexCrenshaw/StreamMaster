@@ -1,4 +1,5 @@
 import SMPopUp from '@components/sm/SMPopUp';
+import useSelectedSMItems from '@features/streameditor/useSelectedSMItems';
 import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
 import { DeleteSMChannel } from '@lib/smAPI/SMChannels/SMChannelsCommands';
 import { DeleteSMChannelRequest, SMChannelDto, SMStreamDto } from '@lib/smAPI/smapiTypes';
@@ -12,11 +13,14 @@ const DeleteSMChannelDialog = ({ smChannel }: DeleteSMChannelProperties) => {
   const dataKey = 'SMChannelSMStreamDialog-SMStreamDataForSMChannelSelector';
   const { setSelectedItems } = useSelectedItems<SMStreamDto>(dataKey);
   const [isCalled, setIsCalled] = useState(false);
-
+  const { selectedSMChannel, setSelectedSMChannel } = useSelectedSMItems();
   const ReturnToParent = React.useCallback(() => {
     setSelectedItems([]);
     setIsCalled(false);
-  }, [setSelectedItems]);
+    if (selectedSMChannel?.Id === smChannel.Id) {
+      setSelectedSMChannel(undefined);
+    }
+  }, [selectedSMChannel?.Id, setSelectedItems, setSelectedSMChannel, smChannel.Id]);
 
   const accept = React.useCallback(() => {
     if (isCalled) return;

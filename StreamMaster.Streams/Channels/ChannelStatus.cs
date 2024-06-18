@@ -14,6 +14,8 @@ public sealed class ChannelStatus(SMChannel smChannel) : IChannelStatus
     public SMStream SMStream { get; private set; }
     public SMChannel SMChannel => smChannel;
 
+    public VideoOutputProfileDto VideoProfile { get; set; }
+
     public void SetCurrentSMStream(SMStream smStream)
     {
         SMStream = smStream;

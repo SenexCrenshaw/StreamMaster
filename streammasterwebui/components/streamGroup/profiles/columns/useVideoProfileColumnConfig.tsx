@@ -51,7 +51,7 @@ export const useVideoProfileColumnConfig = ({ field, header, width = 80 }: IntVi
         <StringEditor
           onSave={(e) => {
             if (e !== undefined) {
-              const updateVideoProfileRequest = { Name: videoOutputProfile.Name } as UpdateVideoProfileRequest;
+              const updateVideoProfileRequest = { ProfileName: videoOutputProfile.ProfileName } as UpdateVideoProfileRequest;
               var key = field as keyof UpdateVideoProfileRequest;
               updateProfile(updateVideoProfileRequest, key, e);
 

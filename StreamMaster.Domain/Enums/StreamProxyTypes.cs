@@ -1,12 +1,10 @@
-﻿using Reinforced.Typings.Attributes;
+﻿namespace StreamMaster.Domain.Enums;
 
-namespace StreamMaster.Domain.Enums;
-
-[TsEnum]
-public enum StreamingProxyTypes
-{
-    SystemDefault = 0,
-    None = 1,
-    StreamMaster = 2,
-    FFMpeg = 3
-}
+//[TsEnum]
+//public enum StreamingProxyTypes
+//{
+//    SystemDefault = 0,
+//    None = 1,
+//    StreamMaster = 2,
+//    FFMpeg = 3
+//}

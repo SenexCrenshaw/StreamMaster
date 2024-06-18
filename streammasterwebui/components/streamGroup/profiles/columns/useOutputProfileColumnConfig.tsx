@@ -2,7 +2,7 @@ import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 import { Logger } from '@lib/common/logger';
 import { OutputProfileDto } from '@lib/smAPI/smapiTypes';
 import { useCallback } from 'react';
-import FileProfileValueDropDown from './OutputProfileValueDropDown';
+import OutputProfileValueDropDown from './OutputProfileValueDropDown';
 
 export interface OutputProfileColumnConfigProps {
   readonly field?: string;
@@ -31,7 +31,7 @@ export const useOutputProfileColumnConfig = ({ field, header, width = 80 }: IntO
       // }
 
       Logger.debug('value', key, value, field);
-      return <FileProfileValueDropDown header={header} value={value} field={field} name={fileOutputProfile.ProfileName} />;
+      return <OutputProfileValueDropDown header={header} value={value} field={field} name={fileOutputProfile.ProfileName} />;
     },
     [field, header]
   );

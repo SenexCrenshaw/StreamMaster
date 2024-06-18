@@ -1,20 +1,16 @@
-﻿using MediatR;
-
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 using StreamMaster.Application.Common.Extensions;
 using StreamMaster.Domain.Authentication;
 using StreamMaster.Domain.Repository;
-using StreamMaster.Domain.Requests;
 
-using System.Text;
 using System.Web;
 
 namespace StreamMaster.API.Controllers;
 
 
-public class VController(IRepositoryWrapper Repository, ISender sender, IOptionsMonitor<HLSSettings> inthlssettings, IOptionsMonitor<Setting> intsettings, IHttpContextAccessor httpContextAccessor) : Controller
+public class VController(IRepositoryWrapper Repository, IOptionsMonitor<HLSSettings> inthlssettings, IOptionsMonitor<Setting> intsettings, IHttpContextAccessor httpContextAccessor) : Controller
 {
     private readonly Setting settings = intsettings.CurrentValue;
     private readonly HLSSettings hlssettings = inthlssettings.CurrentValue;
@@ -75,25 +71,25 @@ public class VController(IRepositoryWrapper Repository, ISender sender, IOptions
     //    };
     //}
 
-    [Authorize(Policy = "SGLinks")]
-    [HttpGet]
-    [Route("v/s/{streamGroupName}.xml")]
-    public async Task<IActionResult> GetStreamGroupEPG(string streamGroupName)
-    {
-        StreamGroupDto? sg = await GetStreamGroupDto(streamGroupName);
+    //[Authorize(Policy = "SGLinks")]
+    //[HttpGet]
+    //[Route("v/s/{streamGroupName}.xml")]
+    //public async Task<IActionResult> GetStreamGroupEPG(string streamGroupName)
+    //{
+    //    StreamGroupDto? sg = await GetStreamGroupDto(streamGroupName);
 
-        if (sg == null)
-        {
-            return new NotFoundResult();
-        }
+    //    if (sg == null)
+    //    {
+    //        return new NotFoundResult();
+    //    }
 
-        string encodedName = GetEncodedName(streamGroupName);
-        string xml = await sender.Send(new GetStreamGroupEPG(sg.Id)).ConfigureAwait(false);
-        return new FileContentResult(Encoding.UTF8.GetBytes(xml), "application/xml")
-        {
-            FileDownloadName = $"epg-{encodedName}.xml"
-        };
-    }
+    //    string encodedName = GetEncodedName(streamGroupName);
+    //    string xml = await sender.Send(new GetStreamGroupEPG(sg.Id)).ConfigureAwait(false);
+    //    return new FileContentResult(Encoding.UTF8.GetBytes(xml), "application/xml")
+    //    {
+    //        FileDownloadName = $"epg-{encodedName}.xml"
+    //    };
+    //}
 
     private static string GetEncodedName(string name)
     {

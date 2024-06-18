@@ -67,7 +67,7 @@ public static class SettingFiles
                  new VideoOutputProfile
                  { IsReadOnly=true,
                      Command="ffmpeg",
-                     Parameters = "-i {streamUrl} -c copy -f mpegts pipe:1"
+                     Parameters = "-hide_banner -loglevel error -i {streamUrl} -c copy -f mpegts pipe:1"
                  }
              },
             {
@@ -75,7 +75,7 @@ public static class SettingFiles
                  new VideoOutputProfile
                  { IsReadOnly=true,
                      Command="ffmpeg",
-                     Parameters = "-i {streamUrl} -c copy -f mp4 pipe:1"
+                     Parameters = "-hide_banner -loglevel error -i {streamUrl} -c copy -f mpegts pipe:1"
                  }
              }
         }

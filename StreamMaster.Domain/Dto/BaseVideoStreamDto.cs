@@ -68,7 +68,7 @@ public class BaseVideoStreamDto /*: IMapFrom<VideoStream>*/
     /// Gets or sets the type of streaming proxy to use.
     /// </summary>
     /// <value>The type of streaming proxy to use.</value>
-    public StreamingProxyTypes StreamingProxyType { get; set; } = StreamingProxyTypes.SystemDefault;
+    public string StreamingProxyType { get; set; } = "SystemDefault";
     public string GroupTitle { get; set; } = string.Empty;
     /// <summary>
     /// Gets or sets the channel number for the video stream.

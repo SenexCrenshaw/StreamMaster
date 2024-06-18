@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using StreamMaster.Application.StreamGroups.Queries;
 using StreamMaster.Application.StreamGroups.QueriesOld;
 using StreamMaster.Domain.Authentication;
-using StreamMaster.Domain.Requests;
 
 using System.Text;
 
@@ -119,13 +118,13 @@ public class StreamGroupsController()
     public async Task<IActionResult> GetStreamGroupCapability(string encodedId)
     {
 
-        int? streamGroupId = encodedId.DecodeValue128(Settings.ServerKey);
-        if (streamGroupId == null)
+        (int? streamGroupId, int? streamGroupProfileId) = encodedId.DecodeValues128(Settings.ServerKey);
+        if (!streamGroupId.HasValue || !streamGroupProfileId.HasValue)
         {
             return new NotFoundResult();
         }
 
-        string xml = await Mediator.Send(new GetStreamGroupCapability((int)streamGroupId)).ConfigureAwait(false);
+        string xml = await Mediator.Send(new GetStreamGroupCapability(streamGroupId.Value, streamGroupProfileId.Value)).ConfigureAwait(false);
         return new ContentResult
         {
             Content = xml,
@@ -139,14 +138,13 @@ public class StreamGroupsController()
     [Route("{encodedId}/discover.json")]
     public async Task<IActionResult> GetStreamGroupDiscover(string encodedId)
     {
-
-        int? streamGroupNumber = encodedId.DecodeValue128(Settings.ServerKey);
-        if (streamGroupNumber == null)
+        (int? streamGroupId, int? streamGroupProfileId) = encodedId.DecodeValues128(Settings.ServerKey);
+        if (!streamGroupId.HasValue || !streamGroupProfileId.HasValue)
         {
             return new NotFoundResult();
         }
 
-        string json = await Mediator.Send(new GetStreamGroupDiscover((int)streamGroupNumber)).ConfigureAwait(false);
+        string json = await Mediator.Send(new GetStreamGroupDiscover(streamGroupId.Value, streamGroupProfileId.Value)).ConfigureAwait(false);
         return new ContentResult
         {
             Content = json,
@@ -161,16 +159,18 @@ public class StreamGroupsController()
     public async Task<IActionResult> GetStreamGroupEPG(string encodedId)
     {
 
-        int? streamGroupNumber = encodedId.DecodeValue128(Settings.ServerKey);
-        if (streamGroupNumber == null)
+        (int? streamGroupId, int? streamGroupProfileId) = encodedId.DecodeValues128(Settings.ServerKey);
+        if (!streamGroupId.HasValue || !streamGroupProfileId.HasValue)
         {
             return new NotFoundResult();
         }
 
-        string xml = await Mediator.Send(new GetStreamGroupEPG((int)streamGroupNumber)).ConfigureAwait(false);
+        var profile = Repository.StreamGroupProfile.GetStreamGroupProfile(streamGroupId.Value, streamGroupProfileId.Value);
+
+        string xml = await Mediator.Send(new GetStreamGroupEPG(streamGroupId.Value, streamGroupProfileId.Value)).ConfigureAwait(false);
         return new FileContentResult(Encoding.UTF8.GetBytes(xml), "application/xml")
         {
-            FileDownloadName = $"epg-{streamGroupNumber}.xml"
+            FileDownloadName = $"epg-{profile?.OutputProfileName ?? streamGroupProfileId.Value.ToString()}.xml"
         };
     }
 
@@ -180,14 +180,13 @@ public class StreamGroupsController()
     [Route("{encodedId}/lineup.json")]
     public async Task<IActionResult> GetStreamGroupLineup(string encodedId)
     {
-
-        int? streamGroupNumber = encodedId.DecodeValue128(Settings.ServerKey);
-        if (streamGroupNumber == null)
+        (int? streamGroupId, int? streamGroupProfileId) = encodedId.DecodeValues128(Settings.ServerKey);
+        if (!streamGroupId.HasValue || !streamGroupProfileId.HasValue)
         {
             return new NotFoundResult();
         }
 
-        string json = await Mediator.Send(new GetStreamGroupLineup((int)streamGroupNumber)).ConfigureAwait(false);
+        string json = await Mediator.Send(new GetStreamGroupLineup(streamGroupId.Value, streamGroupProfileId.Value)).ConfigureAwait(false);
         return new ContentResult
         {
             Content = json,
@@ -202,12 +201,13 @@ public class StreamGroupsController()
     public async Task<IActionResult> GetStreamGroupLineupStatus(string encodedId)
     {
 
-        int? streamGroupNumber = encodedId.DecodeValue128(Settings.ServerKey);
-        if (streamGroupNumber == null)
+        (int? streamGroupId, int? streamGroupProfileId) = encodedId.DecodeValues128(Settings.ServerKey);
+        if (!streamGroupId.HasValue || !streamGroupProfileId.HasValue)
         {
             return new NotFoundResult();
         }
-        string json = await Mediator.Send(new GetStreamGroupLineupStatus((int)streamGroupNumber)).ConfigureAwait(false);
+
+        string json = await Mediator.Send(new GetStreamGroupLineupStatus(streamGroupId.Value, streamGroupProfileId.Value)).ConfigureAwait(false);
         return new ContentResult
         {
             Content = json,

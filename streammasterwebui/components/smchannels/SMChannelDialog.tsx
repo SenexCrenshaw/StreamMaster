@@ -115,7 +115,7 @@ const SMChannelDialog = forwardRef<SMChannelDialogRef, SMChannelDialogProperties
   );
 
   const setProxy = useCallback(
-    (value: number) => {
+    (value: string) => {
       if (request.StreamingProxyType !== value) {
         setRequest((prevRequest) => ({ ...prevRequest, StreamingProxyType: value }));
       }

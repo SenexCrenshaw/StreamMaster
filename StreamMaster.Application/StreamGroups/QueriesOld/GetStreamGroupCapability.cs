@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 
 using StreamMaster.Application.Common.Models;
-using StreamMaster.Domain.Configuration;
 
 using System.Xml.Serialization;
 
@@ -10,7 +9,7 @@ using static StreamMaster.Domain.Common.GetStreamGroupEPGHandler;
 namespace StreamMaster.Application.StreamGroups.QueriesOld;
 
 [RequireAll]
-public record GetStreamGroupCapability(int StreamGroupId) : IRequest<string>;
+public record GetStreamGroupCapability(int StreamGroupId, int StreamGroupProfileId) : IRequest<string>;
 
 [LogExecutionTimeAspect]
 public class GetStreamGroupCapabilityHandler(IHttpContextAccessor httpContextAccessor, ILogger<GetStreamGroupCapability> logger, IRepositoryWrapper Repository, IOptionsMonitor<Setting> intsettings)

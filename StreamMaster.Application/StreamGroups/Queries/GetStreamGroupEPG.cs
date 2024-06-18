@@ -2,25 +2,16 @@
 
 using Microsoft.AspNetCore.Http;
 
-using StreamMaster.Domain.Requests;
-
 using System.Net;
 using System.Xml;
 using System.Xml.Serialization;
 
 using static StreamMaster.Domain.Common.GetStreamGroupEPGHandler;
 
-namespace StreamMaster.Application.StreamGroups.QueriesOld;
+namespace StreamMaster.Application.StreamGroups.Queries;
 
-public class GetStreamGroupEPGValidator : AbstractValidator<GetStreamGroupEPG>
-{
-    public GetStreamGroupEPGValidator()
-    {
-        _ = RuleFor(v => v.StreamGroupId)
-            .NotNull().GreaterThanOrEqualTo(0);
-    }
-}
-
+[RequireAll]
+public record GetStreamGroupEPG(int StreamGroupId, int StreamGroupProfileId) : IRequest<string>;
 public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, IEPGHelper epgHelper, IXMLTVBuilder xMLTVBuilder, ILogger<GetStreamGroupEPG> logger, ISchedulesDirectDataService schedulesDirectDataService, IRepositoryWrapper Repository, IOptionsMonitor<Setting> intsettings)
     : IRequestHandler<GetStreamGroupEPG, string>
 {
@@ -37,9 +28,16 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
     public async Task<string> Handle(GetStreamGroupEPG request, CancellationToken cancellationToken)
     {
 
-        List<SMChannel> smChannels = request.StreamGroupId == 0
-            ? await Repository.SMChannel.GetQuery().ToListAsync(cancellationToken: cancellationToken)
-                : await Repository.SMChannel.GetSMChannelsFromStreamGroup(request.StreamGroupId);
+        List<SMChannel> smChannels = await Repository.SMChannel.GetSMChannelsFromStreamGroup(request.StreamGroupId);
+
+        if (!smChannels.Any())
+        {
+            return "";
+        }
+
+        //List<SMChannel> smChannels = request.StreamGroupId == 0
+        //    ? await Repository.SMChannel.GetQuery().ToListAsync(cancellationToken: cancellationToken)
+        //        : await Repository.SMChannel.GetSMChannelsFromStreamGroup(request.StreamGroupId);
 
         List<VideoStreamConfig> videoStreamConfigs = [];
 

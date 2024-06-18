@@ -1,8 +1,4 @@
-﻿
-
-using StreamMaster.Domain.Enums;
-
-/// <summary>
+﻿/// <summary>
 /// Defines the contract for creating proxy streams.
 /// </summary>
 public interface IProxyFactory
@@ -18,5 +14,5 @@ public interface IProxyFactory
     /// - <see cref="int"/>: The process ID associated with the stream. -1 if not applicable.
     /// - <see cref="ProxyStreamError"/>: An error object containing details of any error that occurred. Null if the operation was successful.
     /// </returns>
-    Task<(Stream? stream, int processId, ProxyStreamError? error)> GetProxy(string streamUrl, string streamName, StreamingProxyTypes streamProxyType, CancellationToken cancellationToken);
+    Task<(Stream? stream, int processId, ProxyStreamError? error)> GetProxy(string streamUrl, string streamName, VideoOutputProfileDto videoProfile, CancellationToken cancellationToken);
 }

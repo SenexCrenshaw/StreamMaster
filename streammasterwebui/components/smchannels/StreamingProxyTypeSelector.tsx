@@ -2,8 +2,9 @@ import SMDropDown from '@components/sm/SMDropDown';
 import { isNumber } from '@lib/common/common';
 import { Logger } from '@lib/common/logger';
 import useIsCellLoading from '@lib/redux/hooks/useIsCellLoading';
+import useGetVideoProfiles from '@lib/smAPI/Profiles/useGetVideoProfiles';
 import { SetSMChannelProxy } from '@lib/smAPI/SMChannels/SMChannelsCommands';
-import { SMChannelDto, SetSMChannelProxyRequest, StreamingProxyTypes } from '@lib/smAPI/smapiTypes';
+import { SMChannelDto, SetSMChannelProxyRequest } from '@lib/smAPI/smapiTypes';
 import { SelectItem } from 'primereact/selectitem';
 import React, { ReactNode, useCallback, useMemo } from 'react';
 
@@ -21,16 +22,26 @@ const StreamingProxyTypeSelector: React.FC<StreamingProxyTypeSelectorProperties>
     Id: data?.Id.toString() ?? ''
   });
 
-  const getHandlersOptions = useMemo((): SelectItem[] => {
-    const options = Object.keys(StreamingProxyTypes)
-      .filter((key) => isNaN(Number(key)))
-      .map((key) => ({
-        label: key,
-        value: StreamingProxyTypes[key as keyof typeof StreamingProxyTypes]
-      }));
+  const { data: videoProfiles } = useGetVideoProfiles();
 
+  const getHandlersOptions = useMemo((): SelectItem[] => {
+    const DefaultStreamingProxyTypes = ['SystemDefault', 'None', 'StreamMaster'];
+
+    const options = DefaultStreamingProxyTypes.map((type) => ({
+      label: type,
+      value: type
+    }));
+
+    if (videoProfiles) {
+      videoProfiles.forEach((profile) => {
+        options.push({
+          label: profile.ProfileName,
+          value: profile.ProfileName
+        });
+      });
+    }
     return options;
-  }, []);
+  }, [videoProfiles]);
 
   const getEnumKeyByValue = useCallback(<T,>(enumObj: T, value: number): string | null => {
     const entries = Object.entries(enumObj as unknown as Record<string, number>);

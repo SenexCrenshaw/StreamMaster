@@ -231,7 +231,7 @@ export interface SettingDto
 	SSLCertPassword: string;
 	SSLCertPath: string;
 	StreamingClientUserAgent: string;
-	StreamingProxyType: StreamingProxyTypes;
+	StreamingProxyType: string;
 	UiFolder: string;
 	UrlBase: string;
 	Version: string;
@@ -255,7 +255,7 @@ export interface SMChannelDto
 	StationId: string;
 	StreamGroupIds: number[];
 	StreamGroups: StreamGroupSMChannelLink[];
-	StreamingProxyType: StreamingProxyTypes;
+	StreamingProxyType: string;
 	TimeShift: number;
 	VideoStreamHandler: VideoStreamHandlers;
 }
@@ -598,7 +598,7 @@ export interface CreateSMChannelRequest
 	Logo?: string;
 	Name: string;
 	SMStreamsIds?: string[];
-	StreamingProxyType?: StreamingProxyTypes;
+	StreamingProxyType?: string;
 	TimeShift?: number;
 	VideoStreamHandler?: VideoStreamHandlers;
 }
@@ -642,7 +642,7 @@ export interface SetSMChannelNumberRequest
 export interface SetSMChannelProxyRequest
 {
 	SMChannelId: number;
-	StreamingProxy: number;
+	StreamingProxy: string;
 }
 export interface SetSMChannelsLogoFromEPGFromParametersRequest
 {
@@ -673,7 +673,7 @@ export interface UpdateSMChannelRequest
 	Logo?: string;
 	Name?: string;
 	SMStreamsIds?: string[];
-	StreamingProxyType?: StreamingProxyTypes;
+	StreamingProxyType?: string;
 	TimeShift?: number;
 	VideoStreamHandler?: VideoStreamHandlers;
 }
@@ -728,7 +728,7 @@ export interface UpdateSettingParameters
 	SSLCertPassword?: string;
 	SSLCertPath?: string;
 	StreamingClientUserAgent?: string;
-	StreamingProxyType?: StreamingProxyTypes;
+	StreamingProxyType?: string;
 	VideoStreamAlwaysUseEPGLogo?: boolean;
 }
 export interface UpdateSettingRequest
@@ -1006,12 +1006,6 @@ export enum SMFileTypes {
 	ChannelIcon = 9,
 	SDImage = 10,
 	SDStationLogo = 11
-}
-export enum StreamingProxyTypes {
-	SystemDefault = 0,
-	None = 1,
-	StreamMaster = 2,
-	FFMpeg = 3
 }
 export enum ValidM3USetting {
 	NotMapped = 0,

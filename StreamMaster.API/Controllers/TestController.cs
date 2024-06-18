@@ -2,6 +2,7 @@
 
 using StreamMaster.Application.ChannelGroups.Commands;
 using StreamMaster.Application.General.Commands;
+using StreamMaster.Application.M3UFiles.Commands;
 using StreamMaster.Application.SchedulesDirect.Commands;
 using StreamMaster.Application.Services;
 
@@ -14,6 +15,14 @@ public class TestController(IBackgroundTaskQueue backgroundTaskQueue) : ApiContr
     public async Task<ActionResult<bool>> EPGSync()
     {
         return await Mediator.Send(new EPGSync()).ConfigureAwait(false);
+    }
+
+    [HttpPut]
+    [Route("[action]")]
+    public async Task<IActionResult> ScanDirectoryForM3UFiles()
+    {
+        await Mediator.Send(new ScanDirectoryForM3UFilesRequest()).ConfigureAwait(false);
+        return Ok();
     }
 
     [HttpPut]
