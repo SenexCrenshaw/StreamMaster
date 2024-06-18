@@ -19,7 +19,7 @@ public class RemoveFileProfileRequestHandler(IOptionsMonitor<FileOutputProfiles>
             Logger.LogInformation("RemoveFileProfileRequest");
 
             SettingsHelper.UpdateSetting(profileSettings);
-
+            await dataRefreshService.RefreshFileProfiles();
         }
 
         //SettingDto settingsDto = Mapper.Map<SettingDto>(profileSettings);

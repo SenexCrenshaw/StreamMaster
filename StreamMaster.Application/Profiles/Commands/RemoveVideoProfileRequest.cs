@@ -22,8 +22,7 @@ public class RemoveVideoProfileRequestHandler(IOptionsMonitor<VideoOutputProfile
 
         }
 
-        //SettingDto settingsDto = Mapper.Map<SettingDto>(profileSettings);
-        //APIResponse.Success(new UpdateSettingResponse { Settings = settingsDto, NeedsLogOut = false });
+        await dataRefreshService.RefreshVideoProfiles();
         return APIResponse.Ok;
 
     }

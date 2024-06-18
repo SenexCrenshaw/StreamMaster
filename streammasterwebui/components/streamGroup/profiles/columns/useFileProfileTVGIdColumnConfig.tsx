@@ -1,6 +1,6 @@
-import { useFileProfileColumnConfig } from './useFileProfileColumnConfig';
+import { FileProfileColumnConfigProps, useFileProfileColumnConfig } from './useFileProfileColumnConfig';
 
-export const useFileProfileTVGIdColumnConfig = () => {
-  const test = useFileProfileColumnConfig({ field: 'TVGId', header: 'TVG Id' });
+export const useFileProfileTVGIdColumnConfig = (props?: FileProfileColumnConfigProps) => {
+  const test = useFileProfileColumnConfig({ ...props, field: 'TVGId', header: 'TVG Id' });
   return test;
 };

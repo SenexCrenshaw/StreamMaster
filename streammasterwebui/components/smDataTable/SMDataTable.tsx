@@ -316,7 +316,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
       if (state.sortField !== field || state.sortOrder === 0) {
         return 'pi-sort-alt';
       }
-      return state.sortOrder === 1 ? 'pi-sort-amount-up' : 'pi-sort-amount-down';
+      return state.sortOrder === 1 ? 'pi-sort-amount-down-alt' : 'pi-sort-amount-up';
     },
     [state.sortField, state.sortOrder]
   );

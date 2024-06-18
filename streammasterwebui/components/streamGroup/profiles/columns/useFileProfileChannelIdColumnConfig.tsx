@@ -1,6 +1,6 @@
-import { useFileProfileColumnConfig } from './useFileProfileColumnConfig';
+import { FileProfileColumnConfigProps, useFileProfileColumnConfig } from './useFileProfileColumnConfig';
 
-export const useFileProfileChannelIdColumnConfig = () => {
-  const test = useFileProfileColumnConfig({ field: 'ChannelId', header: 'Channel Id' });
+export const useFileProfileChannelIdColumnConfig = (props?: FileProfileColumnConfigProps) => {
+  const test = useFileProfileColumnConfig({ ...props, field: 'ChannelId', header: 'Channel Id' });
   return test;
 };

@@ -1,11 +1,13 @@
 export interface FileOutputProfile
 {
-	APIName: string;
 	EPGOutputProfile: EPGOutputProfile;
 	IsReadOnly: boolean;
 	M3UOutputProfile: M3UOutputProfile;
 }
 export interface EPGOutputProfile
+{
+}
+export interface EPGOutputProfileRequest
 {
 }
 export interface M3UOutputProfile
@@ -18,11 +20,37 @@ export interface M3UOutputProfile
 	TVGId: string;
 	TVGName: string;
 }
+export interface M3UOutputProfileRequest
+{
+	ChannelId?: string;
+	ChannelNumber?: string;
+	EnableIcon?: boolean;
+	GroupTitle?: string;
+	TVGGroup?: string;
+	TVGId?: string;
+	TVGName?: string;
+}
+export interface FileOutputProfileDto
+{
+	EPGOutputProfile: EPGOutputProfile;
+	IsReadOnly: boolean;
+	M3UOutputProfile: M3UOutputProfile;
+	Name: string;
+}
 export interface VideoOutputProfile
 {
 	Command: string;
 	IsM3U8: boolean;
 	IsReadOnly: boolean;
+	Parameters: string;
+	Timeout: number;
+}
+export interface VideoOutputProfileDto
+{
+	Command: string;
+	IsM3U8: boolean;
+	IsReadOnly: boolean;
+	Name: string;
 	Parameters: string;
 	Timeout: number;
 }
@@ -719,14 +747,15 @@ export interface GetVideoProfilesRequest
 }
 export interface AddFileProfileRequest
 {
-	FileOutputProfileDto: any;
+	FileOutputProfileDto: FileOutputProfileDto;
 }
 export interface AddVideoProfileRequest
 {
+	Command: string;
 	IsM3U8: boolean;
 	Name: string;
 	Parameters: string;
-	TimeOut: number;
+	Timeout: number;
 }
 export interface RemoveFileProfileRequest
 {
@@ -738,16 +767,20 @@ export interface RemoveVideoProfileRequest
 }
 export interface UpdateFileProfileRequest
 {
-	FileOutputProfileDto: any;
+	EPGOutputProfile?: EPGOutputProfileRequest;
+	IsReadOnly?: boolean;
+	M3UOutputProfile?: M3UOutputProfileRequest;
+	Name: string;
 	NewName?: string;
 }
 export interface UpdateVideoProfileRequest
 {
+	Command?: string;
 	IsM3U8?: boolean;
 	Name: string;
 	NewName?: string;
 	Parameters?: string;
-	TimeOut?: number;
+	Timeout?: number;
 }
 export interface GetM3UFileNamesRequest
 {
@@ -950,7 +983,7 @@ export enum StreamingProxyTypes {
 	FFMpeg = 3
 }
 export enum ValidM3USetting {
-	None = 0,
+	NotMapped = 0,
 	Id = 1,
 	Name = 2,
 	Group = 3,

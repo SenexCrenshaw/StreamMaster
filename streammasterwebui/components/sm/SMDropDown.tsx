@@ -1,3 +1,4 @@
+import { Logger } from '@lib/common/logger';
 import { ReactNode, forwardRef, useCallback, useImperativeHandle, useMemo, useRef } from 'react';
 import SMOverlay, { SMOverlayRef } from './SMOverlay';
 import SMScroller from './SMScroller';
@@ -32,12 +33,12 @@ const SMDropDown = forwardRef<SMDropDownRef, ExtendedSMDropDownProperties>(
     const smOverlayRef = useRef<SMOverlayRef | null>(null);
 
     const getDiv = useMemo(() => {
-      if (props.label) {
+      if (props.label && !labelInline) {
         return 'flex-column';
       }
 
       return '';
-    }, [props.label]);
+    }, [labelInline, props.label]);
 
     const getSMOverlay = useCallback(
       (children: ReactNode) => {
@@ -61,16 +62,16 @@ const SMDropDown = forwardRef<SMDropDownRef, ExtendedSMDropDownProperties>(
       [autoPlacement, getDiv, isLoading, props, zIndex]
     );
 
+    Logger.debug('SMDropDown', { value: props.value, label: props.label });
     const spreadProps = props as Required<SMDropDownProperties>;
     return (
       <>
         {props.label && !labelInline && (
-          <div className="w-6 ">
-            <label className="pl-14">{props.label.toUpperCase()}</label>
-            <div className="pt-small" />
-          </div>
+          <>
+            <label className="pl-15">{props.label.toUpperCase()}</label>
+          </>
         )}
-        <>
+        <div className={getDiv}>
           {props.label && labelInline && <div className={labelInline ? 'w-4' : 'w-6'}>{props.label.toUpperCase()}</div>}
           {props.children
             ? getSMOverlay(props.children)
@@ -84,7 +85,7 @@ const SMDropDown = forwardRef<SMDropDownRef, ExtendedSMDropDownProperties>(
                   }}
                 />
               )}
-        </>
+        </div>
       </>
     );
   }

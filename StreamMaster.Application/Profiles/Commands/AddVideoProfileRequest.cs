@@ -1,11 +1,10 @@
-﻿
-namespace StreamMaster.Application.Profiles.Commands;
+﻿namespace StreamMaster.Application.Profiles.Commands;
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record AddVideoProfileRequest(string Name, string Parameters, int TimeOut, bool IsM3U8) : IRequest<APIResponse> { }
+public record AddVideoProfileRequest(string Name, string Command, string Parameters, int Timeout, bool IsM3U8) : IRequest<APIResponse> { }
 
-public class AddVideoVideoProfileRequestHandler(ILogger<AddVideoProfileRequest> Logger, ISender Sender, IOptionsMonitor<VideoOutputProfiles> intprofilesettings, IMapper Mapper)
+public class AddVideoVideoProfileRequestHandler(ILogger<AddVideoProfileRequest> Logger, IDataRefreshService dataRefreshService, IOptionsMonitor<VideoOutputProfiles> intprofilesettings, IMapper Mapper)
 : IRequestHandler<AddVideoProfileRequest, APIResponse>
 {
 
@@ -16,14 +15,15 @@ public class AddVideoVideoProfileRequestHandler(ILogger<AddVideoProfileRequest> 
 
         VideoOutputProfile profile = new()
         {
+            Command = request.Command,
             Parameters = request.Parameters,
-            Timeout = request.TimeOut,
+            Timeout = request.Timeout,
             IsM3U8 = request.IsM3U8
         };
 
         if (profileSettings.VideoProfiles.TryGetValue(request.Name, out VideoOutputProfile? existingProfile))
         {
-            profileSettings.VideoProfiles[request.Name] = profile;
+            return APIResponse.ErrorWithMessage("Profile already exists");
         }
         else
         {
@@ -34,9 +34,7 @@ public class AddVideoVideoProfileRequestHandler(ILogger<AddVideoProfileRequest> 
         Logger.LogInformation("AddVideoProfileRequest");
 
         SettingsHelper.UpdateSetting(profileSettings);
-
-        DataResponse<SettingDto> ret = await Sender.Send(new GetSettingsRequest(), cancellationToken);
-        //return APIResponse.Success(new UpdateSettingResponse { Settings = ret.Data, NeedsLogOut = false });
+        await dataRefreshService.RefreshVideoProfiles();
         return APIResponse.Ok;
     }
 

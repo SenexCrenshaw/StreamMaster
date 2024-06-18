@@ -18,7 +18,6 @@ export const StreamGroupProfileButton = () => {
       icon="pi-file-edit"
       iconFilled
       info=""
-      modal
       modalCentered
       title="PROFILES"
     >

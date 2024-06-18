@@ -5,8 +5,9 @@ namespace StreamMaster.Application.Profiles.Commands;
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record AddFileProfileRequest(FileOutputProfileDto FileOutputProfileDto) : IRequest<APIResponse> { }
 
-public class AddFileVideoProfileRequestHandler(ILogger<AddFileProfileRequest> Logger, ISender Sender,
-    IOptionsMonitor<FileOutputProfiles> intprofilesettings, IMapper Mapper)
+public class AddFileVideoProfileRequestHandler(ILogger<AddFileProfileRequest> Logger,
+    IMessageService messageService,
+    IOptionsMonitor<FileOutputProfiles> intprofilesettings, IDataRefreshService dataRefreshService)
 : IRequestHandler<AddFileProfileRequest, APIResponse>
 {
 
@@ -15,10 +16,11 @@ public class AddFileVideoProfileRequestHandler(ILogger<AddFileProfileRequest> Lo
     public async Task<APIResponse> Handle(AddFileProfileRequest request, CancellationToken cancellationToken)
     {
 
-
         if (profileSettings.FileProfiles.TryGetValue(request.FileOutputProfileDto.Name, out FileOutputProfile? existingProfile))
         {
-            profileSettings.FileProfiles[request.FileOutputProfileDto.Name] = request.FileOutputProfileDto;
+            //profileSettings.FileProfiles[request.FileOutputProfileDto.Name] = request.FileOutputProfileDto;
+            await messageService.SendError("Profile already exists");
+            return APIResponse.ErrorWithMessage("Profile already exists");
         }
         else
         {
@@ -30,8 +32,9 @@ public class AddFileVideoProfileRequestHandler(ILogger<AddFileProfileRequest> Lo
 
         SettingsHelper.UpdateSetting(profileSettings);
 
-        DataResponse<SettingDto> ret = await Sender.Send(new GetSettingsRequest(), cancellationToken);
+        //DataResponse<SettingDto> ret = await Sender.Send(new GetSettingsRequest(), cancellationToken);
         //return APIResponse.Success(new UpdateSettingResponse { Settings = ret.Data, NeedsLogOut = false });
+        await dataRefreshService.RefreshFileProfiles();
         return APIResponse.Ok;
     }
 

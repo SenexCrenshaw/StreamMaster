@@ -71,7 +71,7 @@ public static class SettingFiles
             {
                 "HLS",
                  new VideoOutputProfile
-                 {
+                 { IsReadOnly=true,
                      Command="ffmpeg",
                      Parameters = "-i {streamUrl} -start_at_zero -copyts -flags +global_header -reconnect 1 -reconnect_at_eof 1 -reconnect_streamed 1 -reconnect_on_network_error 1 -reconnect_on_http_error 1 -reconnect_delay_max 4096 -c:a copy -c:v copy -fps_mode passthrough -y -nostats -hide_banner -f hls -hls_segment_type mpegts -hls_init_time 1 -hls_allow_cache 0 -hls_flags temp_file -hls_flags +omit_endlist -hls_flags +discont_start -hls_flags +delete_segments -hls_flags +split_by_time",
                      IsM3U8 = true,
@@ -80,7 +80,7 @@ public static class SettingFiles
             {
                  "MPEGTS",
                  new VideoOutputProfile
-                 {
+                 { IsReadOnly=true,
                      Command="ffmpeg",
                      Parameters = "-i {streamUrl} -c copy -f mpegts pipe:1"
                  }
@@ -88,7 +88,7 @@ public static class SettingFiles
             {
                  "MP4",
                  new VideoOutputProfile
-                 {
+                 { IsReadOnly=true,
                      Command="ffmpeg",
                      Parameters = "-i {streamUrl} -c copy -f mp4 pipe:1"
                  }

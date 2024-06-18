@@ -1,17 +1,30 @@
+import StringEditor from '@components/inputs/StringEditor';
 import SMDataTable from '@components/smDataTable/SMDataTable';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 import { useFilters } from '@lib/redux/hooks/filters';
 import { useSortInfo } from '@lib/redux/hooks/sortInfo';
+import { UpdateVideoProfile } from '@lib/smAPI/Profiles/ProfilesCommands';
 import useGetVideoProfiles from '@lib/smAPI/Profiles/useGetVideoProfiles';
-import { VideoOutputProfile } from '@lib/smAPI/smapiTypes';
+import { UpdateVideoProfileRequest, VideoOutputProfileDto } from '@lib/smAPI/smapiTypes';
 import { DataTableRowClickEvent } from 'primereact/datatable';
 import { memo, useCallback, useMemo } from 'react';
+import CreateVideoProfileDialog from './CreateVideoProfileDialog';
+import RemoveVideoProfileDialog from './RemoveVideoProfileDialog';
+import { useVideoIsM3U8ColumnConfig } from './columns/useVideoIsM3U8ColumnConfig';
+import { useVideoProfileCommandColumnConfig } from './columns/useVideoProfileCommandColumnConfig';
+import { useVideoProfileParametersColumnConfig } from './columns/useVideoProfileParametersColumnConfig';
+import { useVideoProfileTimeoutColumnConfig } from './columns/useVideoProfileTimeoutColumnConfig';
 
 const StreamGroupVideoProfileDataSelector = () => {
   const id = 'StreamGroupVideoProfileDataSelector';
   const { filters } = useFilters(id);
   const { sortInfo } = useSortInfo(id);
   const { data } = useGetVideoProfiles();
+
+  const videoProfileCommandColumnConfig = useVideoProfileCommandColumnConfig({ width: 40 });
+  const videoProfileParametersColumnConfig = useVideoProfileParametersColumnConfig({ width: 200 });
+  const videoProfileTimeoutColumnConfig = useVideoProfileTimeoutColumnConfig({ width: 20 });
+  const videoProfilIsM3U8ColumnConfig = useVideoIsM3U8ColumnConfig({ width: 20 });
 
   const filteredValues = useMemo(() => {
     if (!data) {
@@ -51,9 +64,10 @@ const StreamGroupVideoProfileDataSelector = () => {
     return ret;
   }, [data, filters, sortInfo]);
 
-  const actionTemplate = useCallback((rowData: VideoOutputProfile) => {
+  const actionTemplate = useCallback((rowData: VideoOutputProfileDto) => {
     return (
       <div className="flex justify-content-center align-items-center">
+        <RemoveVideoProfileDialog videoOutputProfileDto={rowData} />
         {/* <StreamGroupDeleteDialog streamGroup={rowData} /> */}
         {/* <M3UFileRefreshDialog selectedFile={rowData} />
          <M3UFileRemoveDialog selectedFile={rowData} /> */}
@@ -62,15 +76,58 @@ const StreamGroupVideoProfileDataSelector = () => {
     );
   }, []);
 
+  const headerRightTemplate = useMemo(() => {
+    return (
+      <>
+        <CreateVideoProfileDialog />
+      </>
+    );
+  }, []);
+
+  const update = useCallback((request: UpdateVideoProfileRequest) => {
+    console.log('update', request);
+
+    UpdateVideoProfile(request)
+      .then((res) => {})
+      .catch((error) => {
+        console.log('error', error);
+      })
+      .finally();
+  }, []);
+
+  const nameTemplate = useCallback(
+    (rowData: VideoOutputProfileDto) => {
+      if (rowData.IsReadOnly === true) {
+        return <div className="text-container pl-1">{rowData.Name}</div>;
+      }
+      return (
+        <StringEditor
+          value={rowData.Name}
+          onSave={(e) => {
+            if (e !== undefined) {
+              const ret = { Name: rowData.Name, NewName: e } as UpdateVideoProfileRequest;
+              update(ret);
+            }
+          }}
+        />
+      );
+    },
+    [update]
+  );
+
   const columns = useMemo(
     (): ColumnMeta[] => [
       {
+        bodyTemplate: nameTemplate,
         field: 'Name',
         filter: true,
         sortable: true,
-        width: 150
+        width: 40
       },
-
+      videoProfileCommandColumnConfig,
+      videoProfileParametersColumnConfig,
+      videoProfileTimeoutColumnConfig,
+      videoProfilIsM3U8ColumnConfig,
       {
         align: 'center',
         bodyTemplate: actionTemplate,
@@ -79,7 +136,14 @@ const StreamGroupVideoProfileDataSelector = () => {
         width: 40
       }
     ],
-    [actionTemplate]
+    [
+      actionTemplate,
+      nameTemplate,
+      videoProfilIsM3U8ColumnConfig,
+      videoProfileCommandColumnConfig,
+      videoProfileParametersColumnConfig,
+      videoProfileTimeoutColumnConfig
+    ]
   );
 
   return (
@@ -92,6 +156,7 @@ const StreamGroupVideoProfileDataSelector = () => {
       enableClick
       enableExport={false}
       headerName="Video Profiles"
+      headerRightTemplate={headerRightTemplate}
       id={id}
       lazy
       onRowClick={(e: DataTableRowClickEvent) => {}}

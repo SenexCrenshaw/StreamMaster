@@ -1,6 +1,6 @@
-import { useFileProfileColumnConfig } from './useFileProfileColumnConfig';
+import { FileProfileColumnConfigProps, useFileProfileColumnConfig } from './useFileProfileColumnConfig';
 
-export const useFileProfileTVGGroupColumnConfig = () => {
-  const test = useFileProfileColumnConfig({ field: 'TVGGroup', header: 'TVG Group' });
+export const useFileProfileTVGGroupColumnConfig = (props?: FileProfileColumnConfigProps) => {
+  const test = useFileProfileColumnConfig({ ...props, field: 'TVGGroup', header: 'TVG Group' });
   return test;
 };

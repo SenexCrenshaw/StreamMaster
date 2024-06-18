@@ -3,7 +3,7 @@
 [TsEnum]
 public enum ValidM3USetting
 {
-    None = 0,
+    NotMapped = 0,
     Id = 1,
     Name = 2,
     Group = 3,

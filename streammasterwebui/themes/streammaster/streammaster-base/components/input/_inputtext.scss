@@ -6,14 +6,13 @@
   border: $inputBorder-size solid transparent;
   transition: $formElementTransition;
   appearance: none;
-  height: $input-height-with-no-borders !important;
-  max-height: $input-height-with-no-borders !important;
-  min-height: $input-height-with-no-borders !important;
-  // &:not(.p-disabled):hover {
-  //   background: $shade900;
-  //   border: $inputBorder-size solid $inputHoverBorderColor;
-  //   border-radius: $borderRadius;
-  // }
+  height: $input-height-with-no-borders;
+
+  &:not(.p-inputtextarea) {
+
+    max-height: $input-height-with-no-borders !important;
+    min-height: $input-height-with-no-borders !important;
+  }
 
   &:enabled:focus {
     @include focused-input();

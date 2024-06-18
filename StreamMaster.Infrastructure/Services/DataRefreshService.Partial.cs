@@ -18,6 +18,20 @@ public partial class DataRefreshService : IDataRefreshServicePartial
 
     }
 
+    public async Task RefreshFileProfiles()
+    {
+
+        await hub.Clients.All.DataRefresh("GetFileProfiles");
+
+    }
+
+    public async Task RefreshVideoProfiles()
+    {
+
+        await hub.Clients.All.DataRefresh("GetVideoProfiles");
+
+    }
+
     public async Task Refresh(string command)
     {
         if (!BuildInfo.IsSystemReady)

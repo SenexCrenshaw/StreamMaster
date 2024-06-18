@@ -26,6 +26,8 @@ using StreamMaster.Infrastructure.Services.QueueService;
 
 using StreamMasterAPI.SchemaHelpers;
 
+using System.Reflection;
+
 namespace StreamMaster.API;
 
 public static class ConfigureServices
@@ -99,13 +101,18 @@ public static class ConfigureServices
 
         services.AddDatabaseDeveloperPageExceptionFilter();
 
+        var assembly = Assembly.Load("StreamMaster.Application");
+
         services.AddControllers(options =>
             {
                 options.RespectBrowserAcceptHeader = true;
                 options.ReturnHttpNotAcceptable = true;
             })
             .AddApplicationPart(typeof(StaticResourceController).Assembly)
+             .AddApplicationPart(assembly)
             .AddControllersAsServices();
+
+
 
         services.AddScoped<IAuthenticationService, AuthenticationService>();
 

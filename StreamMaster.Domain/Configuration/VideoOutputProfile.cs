@@ -5,10 +5,11 @@ public class VideoOutputProfile
     public string Command { get; set; } = "ffmpeg";
     public string Parameters { get; set; } = "";
     public int Timeout { get; set; } = 20;
-    public bool IsM3U8 { get; set; } = true;
+    public bool IsM3U8 { get; set; } = false;
 
 }
 
+[TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public class VideoOutputProfileDto : VideoOutputProfile
 {
     public string Name { get; set; } = "";

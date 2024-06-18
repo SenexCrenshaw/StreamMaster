@@ -1,6 +1,7 @@
 import useScrollAndKeyEvents from '@lib/hooks/useScrollAndKeyEvents';
 import { useClickOutside } from 'primereact/hooks';
 import { InputText } from 'primereact/inputtext';
+import { InputTextarea } from 'primereact/inputtextarea';
 import { type TooltipOptions } from 'primereact/tooltip/tooltipoptions';
 import { forwardRef, memo, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
@@ -25,6 +26,7 @@ export interface StringEditorBodyTemplateProperties {
   readonly tooltip?: string | undefined;
   readonly tooltipOptions?: TooltipOptions | undefined;
   readonly value: string | undefined;
+  readonly isLarge?: boolean;
 }
 
 export interface StringEditorRef {
@@ -40,6 +42,7 @@ const StringEditor = forwardRef<StringEditorRef, StringEditorBodyTemplatePropert
       disabled = false,
       disableDebounce = false,
       isLoading = false,
+      isLarge = false,
       label,
       labelInline = false,
       labelInlineSmall = false,
@@ -63,7 +66,7 @@ const StringEditor = forwardRef<StringEditorRef, StringEditorBodyTemplatePropert
     const [inputValue, setInputValue] = useState<string | undefined | null>(value);
     const { code } = useScrollAndKeyEvents();
     const inputRef = useRef<HTMLInputElement>(null);
-
+    const inputLargeRef = useRef<HTMLTextAreaElement>(null);
     useImperativeHandle(
       ref,
       () => ({
@@ -148,23 +151,27 @@ const StringEditor = forwardRef<StringEditorRef, StringEditorBodyTemplatePropert
       if (darkBackGround) {
         ret += '-dark';
       }
+      if (isLarge) {
+        ret += ' w-full';
+      }
       if (labelInline) {
         ret += ' w-12';
       }
 
       return ret;
-    }, [darkBackGround, labelInline]);
+    }, [darkBackGround, isLarge, labelInline]);
 
     const doShowClear = useMemo((): boolean => {
       const ret = showClear === true && darkBackGround === true && inputValue !== ''; //&& originalValue !== inputValue;
-      // Logger.debug('StringEditor', { inputValue, originalValue, showClear, ret });
-      // Logger.debug('StringEditor', { darkBackGround, inputValue, originalValue, showClear, ret });
       return ret;
     }, [inputValue, darkBackGround, showClear]);
 
     const getDiv = useMemo(() => {
-      let ret = 'flex stringeditor justify-content-center';
+      let ret = 'flex justify-content-center';
 
+      if (!isLarge) {
+        ret += ' stringeditor';
+      }
       if (label && !labelInline) {
         ret += ' flex-column';
       }
@@ -176,28 +183,26 @@ const StringEditor = forwardRef<StringEditorRef, StringEditorBodyTemplatePropert
       }
 
       return ret;
-    }, [label, labelInline]);
+    }, [isLarge, label, labelInline]);
 
     useEffect(() => {
       if (autoFocus && inputRef.current) {
         inputRef.current.focus();
       }
+      if (autoFocus && inputLargeRef.current) {
+        inputLargeRef.current.focus();
+      }
     }, [autoFocus]);
 
-    return (
-      <>
-        {label && !labelInline && (
-          <>
-            <label className="pl-15">{label.toUpperCase()}</label>
-          </>
-        )}
-        <div ref={divReference} className={getDiv}>
-          {label && labelInline && <div className={labelInline ? 'w-4' : 'w-6'}>{label.toUpperCase()}</div>}
-          <InputText
-            ref={inputRef}
+    const getControl = useMemo(() => {
+      if (isLarge) {
+        return (
+          <InputTextarea
+            ref={inputLargeRef}
             className={inputGetDiv}
             disabled={disabled || isLoading}
             id={uuid}
+            keyfilter={/[^\r\n]+/}
             onChange={(e) => {
               const newValue = e.target.value as string;
               setInputValue(newValue);
@@ -214,6 +219,43 @@ const StringEditor = forwardRef<StringEditorRef, StringEditorBodyTemplatePropert
             tooltipOptions={tooltipOptions}
             value={inputValue ?? ''}
           />
+        );
+      }
+      return (
+        <InputText
+          ref={inputRef}
+          className={inputGetDiv}
+          disabled={disabled || isLoading}
+          id={uuid}
+          onChange={(e) => {
+            const newValue = e.target.value as string;
+            setInputValue(newValue);
+            if (!disableDebounce) {
+              debounced(newValue);
+            } else {
+              onChange?.(newValue);
+            }
+          }}
+          onClick={onClick}
+          onFocus={() => setIsFocused(true)}
+          placeholder={placeholder}
+          tooltip={tooltip}
+          tooltipOptions={tooltipOptions}
+          value={inputValue ?? ''}
+        />
+      );
+    }, [debounced, disableDebounce, disabled, inputGetDiv, inputValue, isLarge, isLoading, onChange, onClick, placeholder, tooltip, tooltipOptions, uuid]);
+
+    return (
+      <>
+        {label && !labelInline && (
+          <>
+            <label className="pl-15">{label.toUpperCase()}</label>
+          </>
+        )}
+        <div ref={divReference} className={getDiv}>
+          {label && labelInline && <div className={labelInline ? 'w-4' : 'w-6'}>{label.toUpperCase()}</div>}
+          {getControl}
           {doShowClear && (
             <i className="input-icon">
               <i

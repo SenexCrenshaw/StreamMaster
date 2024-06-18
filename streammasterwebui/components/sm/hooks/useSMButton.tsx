@@ -9,7 +9,7 @@ export const useSMButton = ({
   buttonDisabled = false,
   buttonLabel,
   buttonLarge = false,
-  buttonTemplate: buttonTemplate,
+  buttonTemplate,
   getReferenceProps,
   icon,
   iconFilled = false,
@@ -69,7 +69,7 @@ export const useSMButton = ({
               iconFilled={iconFilled}
               icon={icon}
               buttonIsLoading={isLoading}
-              large={buttonLarge}
+              buttonLabel={buttonLarge}
               tooltip={tooltip}
               label={buttonLabel}
             >
@@ -96,7 +96,7 @@ export const useSMButton = ({
             iconFilled={iconFilled}
             icon={icon}
             buttonIsLoading={isLoading}
-            large={buttonLarge}
+            buttonLarge={buttonLarge}
             tooltip={tooltip}
             label={buttonLabel}
           />

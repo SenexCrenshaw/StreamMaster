@@ -2,6 +2,8 @@ namespace StreamMaster.Domain.Services
 {
     public interface IDataRefreshServicePartial
     {
+        Task RefreshFileProfiles();
+        Task RefreshVideoProfiles();
         Task IsSystemReady();
         Task TaskIsRunning();
         Task SendMessage(SMMessage smMessage);

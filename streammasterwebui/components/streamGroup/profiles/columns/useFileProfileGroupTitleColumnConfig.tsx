@@ -1,6 +1,6 @@
-import { useFileProfileColumnConfig } from './useFileProfileColumnConfig';
+import { FileProfileColumnConfigProps, useFileProfileColumnConfig } from './useFileProfileColumnConfig';
 
-export const useFileProfileGroupTitleColumnConfig = () => {
-  const test = useFileProfileColumnConfig({ field: 'GroupTitle', header: 'Group Title' });
+export const useFileProfileGroupTitleColumnConfig = (props?: FileProfileColumnConfigProps) => {
+  const test = useFileProfileColumnConfig({ ...props, field: 'GroupTitle', header: 'Group Title' });
   return test;
 };

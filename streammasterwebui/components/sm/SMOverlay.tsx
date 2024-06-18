@@ -126,11 +126,11 @@ const SMOverlayInner = forwardRef<SMOverlayRef, ExtendedSMOverlayProperties>(
     }, [openPanel, props]);
 
     const getStyle = useMemo((): CSSProperties => {
-      if (props.modal && props.modalCentered) {
+      if (props.modalCentered) {
         return { left: '50%', position: 'absolute', top: '50%', transform: 'translate(-50%, -50%)', width: '100%' };
       }
       return floatingStyles;
-    }, [props.modal, props.modalCentered, floatingStyles]);
+    }, [props.modalCentered, floatingStyles]);
 
     const z = useMemo(() => {
       if (props.modal) {

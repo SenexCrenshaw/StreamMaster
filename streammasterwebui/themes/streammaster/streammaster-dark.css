@@ -9230,7 +9230,9 @@ div[aria-haspopup=dialog] {
   border: 0.1rem solid transparent;
   transition: background-color 0.3s, color 0.3s, border-color 0.3s, box-shadow 0.3s;
   appearance: none;
-  height: 1.4rem !important;
+  height: 1.4rem;
+}
+.p-inputtext:not(.p-inputtextarea) {
   max-height: 1.4rem !important;
   min-height: 1.4rem !important;
 }

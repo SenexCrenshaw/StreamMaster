@@ -4,7 +4,7 @@
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record GetFileProfilesRequest : IRequest<DataResponse<List<FileOutputProfileDto>>>;
 
-internal class GetFileProfilesRequestHandler(IOptionsMonitor<FileOutputProfiles> intprofilesettings)
+internal class GetFileProfilesRequestHandler(IOptionsMonitor<FileOutputProfiles> intprofilesettings, IMapper mapper)
     : IRequestHandler<GetFileProfilesRequest, DataResponse<List<FileOutputProfileDto>>>
 {
     public async Task<DataResponse<List<FileOutputProfileDto>>> Handle(GetFileProfilesRequest request, CancellationToken cancellationToken)

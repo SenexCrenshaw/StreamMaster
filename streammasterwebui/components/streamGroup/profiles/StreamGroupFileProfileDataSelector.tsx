@@ -1,11 +1,15 @@
+import StringEditor from '@components/inputs/StringEditor';
 import SMDataTable from '@components/smDataTable/SMDataTable';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 import { useFilters } from '@lib/redux/hooks/filters';
 import { useSortInfo } from '@lib/redux/hooks/sortInfo';
+import { UpdateFileProfile } from '@lib/smAPI/Profiles/ProfilesCommands';
 import useGetFileProfiles from '@lib/smAPI/Profiles/useGetFileProfiles';
-import { FileOutputProfile } from '@lib/smAPI/smapiTypes';
+import { FileOutputProfileDto, UpdateFileProfileRequest } from '@lib/smAPI/smapiTypes';
 import { DataTableRowClickEvent } from 'primereact/datatable';
 import { memo, useCallback, useMemo } from 'react';
+import CreateFileProfileDialog from './CreateFileProfileDialog';
+import RemoveFileProfileDialog from './RemoveFileProfileDialog';
 import { useFileProfileChannelIdColumnConfig } from './columns/useFileProfileChannelIdColumnConfig';
 import { useFileProfileChannelNumberColumnConfig } from './columns/useFileProfileChannelNumberColumnConfig';
 import { useFileProfileGroupTitleColumnConfig } from './columns/useFileProfileGroupTitleColumnConfig';
@@ -19,12 +23,12 @@ const StreamGroupFileProfileDataSelector = () => {
   const { sortInfo } = useSortInfo(id);
   const { data } = useGetFileProfiles();
 
-  const tvgNameColumnConfig = useFileProfileTVGNameColumnConfig();
-  const channelIdColumnConfig = useFileProfileChannelIdColumnConfig();
-  const tvgGroupColumnConfig = useFileProfileTVGGroupColumnConfig();
-  const tvgIDColumnConfig = useFileProfileTVGIdColumnConfig();
-  const groupTitleColumnConfig = useFileProfileGroupTitleColumnConfig();
-  const channelNumberColumnConfig = useFileProfileChannelNumberColumnConfig();
+  const tvgNameColumnConfig = useFileProfileTVGNameColumnConfig({ width: 40 });
+  const channelIdColumnConfig = useFileProfileChannelIdColumnConfig({ width: 40 });
+  const tvgGroupColumnConfig = useFileProfileTVGGroupColumnConfig({ width: 40 });
+  const tvgIDColumnConfig = useFileProfileTVGIdColumnConfig({ width: 40 });
+  const groupTitleColumnConfig = useFileProfileGroupTitleColumnConfig({ width: 40 });
+  const channelNumberColumnConfig = useFileProfileChannelNumberColumnConfig({ width: 40 });
 
   const filteredValues = useMemo(() => {
     if (!data) {
@@ -64,9 +68,10 @@ const StreamGroupFileProfileDataSelector = () => {
     return ret;
   }, [data, filters, sortInfo]);
 
-  const actionTemplate = useCallback((rowData: FileOutputProfile) => {
+  const actionTemplate = useCallback((rowData: FileOutputProfileDto) => {
     return (
       <div className="flex justify-content-center align-items-center">
+        <RemoveFileProfileDialog fileOutputProfileDto={rowData} />
         {/* <StreamGroupDeleteDialog streamGroup={rowData} /> */}
         {/* <M3UFileRefreshDialog selectedFile={rowData} />
          <M3UFileRemoveDialog selectedFile={rowData} /> */}
@@ -75,13 +80,45 @@ const StreamGroupFileProfileDataSelector = () => {
     );
   }, []);
 
+  const update = useCallback((request: UpdateFileProfileRequest) => {
+    console.log('update', request);
+
+    UpdateFileProfile(request)
+      .then((res) => {})
+      .catch((error) => {
+        console.log('error', error);
+      })
+      .finally();
+  }, []);
+
+  const nameTemplate = useCallback(
+    (rowData: FileOutputProfileDto) => {
+      if (rowData.IsReadOnly === true) {
+        return <div className="text-container pl-1">{rowData.Name}</div>;
+      }
+      return (
+        <StringEditor
+          value={rowData.Name}
+          onSave={(e) => {
+            if (e !== undefined) {
+              const ret = { Name: rowData.Name, NewName: e } as UpdateFileProfileRequest;
+              update(ret);
+            }
+          }}
+        />
+      );
+    },
+    [update]
+  );
+
   const columns = useMemo(
     (): ColumnMeta[] => [
       {
+        bodyTemplate: nameTemplate,
         field: 'Name',
         filter: true,
         sortable: true,
-        width: 60
+        width: 40
       },
       tvgNameColumnConfig,
       channelIdColumnConfig,
@@ -95,11 +132,28 @@ const StreamGroupFileProfileDataSelector = () => {
         field: 'action',
         filter: false,
         header: 'Actions',
-        width: 40
+        width: 20
       }
     ],
-    [tvgNameColumnConfig, channelIdColumnConfig, channelNumberColumnConfig, tvgIDColumnConfig, tvgGroupColumnConfig, groupTitleColumnConfig, actionTemplate]
+    [
+      nameTemplate,
+      tvgNameColumnConfig,
+      channelIdColumnConfig,
+      channelNumberColumnConfig,
+      tvgIDColumnConfig,
+      tvgGroupColumnConfig,
+      groupTitleColumnConfig,
+      actionTemplate
+    ]
   );
+
+  const headerRightTemplate = useMemo(() => {
+    return (
+      <>
+        <CreateFileProfileDialog />
+      </>
+    );
+  }, []);
 
   return (
     <SMDataTable
@@ -111,6 +165,7 @@ const StreamGroupFileProfileDataSelector = () => {
       enableClick
       enableExport={false}
       headerName="M3U/EPG Profiles"
+      headerRightTemplate={headerRightTemplate}
       id={id}
       lazy
       onRowClick={(e: DataTableRowClickEvent) => {}}
