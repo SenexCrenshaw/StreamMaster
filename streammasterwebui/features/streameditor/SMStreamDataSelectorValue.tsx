@@ -74,7 +74,7 @@ const SMStreamDataSelectorValue = ({ id, smChannel }: SMStreamDataSelectorValueP
     >
       <SMDataTable
         headerSize="small"
-        enablePaginator
+        enablePaginator={false}
         rows={5}
         noSourceHeader
         reorderable

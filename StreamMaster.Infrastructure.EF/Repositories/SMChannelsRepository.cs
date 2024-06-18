@@ -584,7 +584,13 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
 
     public SMChannel? GetSMChannelFromStreamGroup(int smChannelId, int streamGroupId)
     {
-        IQueryable<SMChannel> channels = RepositoryContext.StreamGroupSMChannelLinks.Where(a => a.StreamGroupId == streamGroupId && a.SMChannelId == smChannelId).Include(a => a.SMChannel).Select(a => a.SMChannel);
+        IQueryable<SMChannel> channels = RepositoryContext.StreamGroupSMChannelLinks
+            .Where(a => a.StreamGroupId == streamGroupId && a.SMChannelId == smChannelId)
+            .Include(a => a.SMChannel)
+            .ThenInclude(a => a.SMStreams)
+            .ThenInclude(a => a.SMStream)
+            .Select(a => a.SMChannel);
+        var ret = channels.FirstOrDefault();
         return channels.FirstOrDefault();
     }
 }

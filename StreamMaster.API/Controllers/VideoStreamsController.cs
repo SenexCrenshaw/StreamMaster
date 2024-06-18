@@ -45,6 +45,7 @@ public class VideoStreamsController(IChannelManager channelManager, IRepositoryW
         SMChannel? smChannel = streamGroupId == 0
             ? repositoryWrapper.SMChannel.GetSMChannel(smChannelId)
             : repositoryWrapper.SMChannel.GetSMChannelFromStreamGroup(smChannelId, streamGroupId);
+
         if (smChannel == null)
         {
             logger.LogInformation("GetStreamGroupVideoStream request. SG Number {id} ChannelId {channelId} not found exiting", streamGroupId, smChannelId);
