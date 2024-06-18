@@ -1,23 +1,38 @@
 import { GetMessage } from '@lib/common/intl';
-import React from 'react';
 import { Fieldset } from 'primereact/fieldset';
 import { SelectItem } from 'primereact/selectitem';
+import React, { useMemo } from 'react';
 import { getCheckBoxLine } from './components/getCheckBoxLine';
 import { getDropDownLine } from './components/getDropDownLine';
 import { getInputNumberLine } from './components/getInputNumberLine';
 import { getInputTextLine } from './components/getInputTextLine';
 import { useSettingChangeHandler } from './hooks/useSettingChangeHandler';
-import { StreamingProxyTypes } from '@lib/smAPI/smapiTypes';
+
 import { SMCard } from '@components/sm/SMCard';
+import useGetVideoProfiles from '@lib/smAPI/Profiles/useGetVideoProfiles';
 
 export function StreamingSettings(): React.ReactElement {
   const { onChange, currentSettingRequest } = useSettingChangeHandler();
+  const { data: videoProfiles } = useGetVideoProfiles();
 
-  const getHandlersOptions = (): SelectItem[] => {
-    return Object.entries(StreamingProxyTypes)
-      .splice(0, Object.keys(StreamingProxyTypes).length / 2)
-      .map(([number, word]) => ({ label: word, value: number } as SelectItem));
-  };
+  const getHandlersOptions = useMemo((): SelectItem[] => {
+    const DefaultStreamingProxyTypes = ['SystemDefault', 'None', 'StreamMaster'];
+
+    const options = DefaultStreamingProxyTypes.map((type) => ({
+      label: type,
+      value: type
+    }));
+
+    if (videoProfiles) {
+      videoProfiles.forEach((profile) => {
+        options.push({
+          label: profile.ProfileName,
+          value: profile.ProfileName
+        });
+      });
+    }
+    return options;
+  }, [videoProfiles]);
 
   if (!currentSettingRequest) {
     return (
@@ -33,7 +48,7 @@ export function StreamingSettings(): React.ReactElement {
         <div className="sm-card-children-content">
           <div className="layout-padding-bottom" />
           <div className="settings-lines">
-            {getDropDownLine({ currentSettingRequest, field: 'StreamingProxyType', onChange, options: getHandlersOptions() })}
+            {getDropDownLine({ currentSettingRequest, field: 'StreamingProxyType', onChange, options: getHandlersOptions })}
             {getInputNumberLine({ currentSettingRequest, field: 'GlobalStreamLimit', onChange })}
             {getInputTextLine({ currentSettingRequest, field: 'ClientUserAgent', onChange })}
             {getInputTextLine({ currentSettingRequest, field: 'StreamingClientUserAgent', onChange })}

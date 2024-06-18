@@ -1,5 +1,4 @@
 import SMDropDown from '@components/sm/SMDropDown';
-import { isNumber } from '@lib/common/common';
 import { Logger } from '@lib/common/logger';
 import useIsCellLoading from '@lib/redux/hooks/useIsCellLoading';
 import useGetVideoProfiles from '@lib/smAPI/Profiles/useGetVideoProfiles';
@@ -12,7 +11,7 @@ interface StreamingProxyTypeSelectorProperties {
   readonly data?: SMChannelDto;
   readonly darkBackGround?: boolean;
   readonly label?: string;
-  readonly onChange?: (value: number) => void;
+  readonly onChange?: (value: string) => void;
 }
 
 const StreamingProxyTypeSelector: React.FC<StreamingProxyTypeSelectorProperties> = ({ darkBackGround, data, label, onChange: clientOnChange }) => {
@@ -43,17 +42,17 @@ const StreamingProxyTypeSelector: React.FC<StreamingProxyTypeSelectorProperties>
     return options;
   }, [videoProfiles]);
 
-  const getEnumKeyByValue = useCallback(<T,>(enumObj: T, value: number): string | null => {
-    const entries = Object.entries(enumObj as unknown as Record<string, number>);
-    for (const [key, val] of entries) {
-      if (val === value) {
-        return key;
-      }
-    }
-    return null;
-  }, []);
+  // const getEnumKeyByValue = useCallback(<T,>(enumObj: T, value: number): string | null => {
+  //   const entries = Object.entries(enumObj as unknown as Record<string, number>);
+  //   for (const [key, val] of entries) {
+  //     if (val === value) {
+  //       return key;
+  //     }
+  //   }
+  //   return null;
+  // }, []);
 
-  const onChange = async (option: number) => {
+  const onChange = async (option: string) => {
     if (option === null || option === undefined) return;
     // setSelectedStreamProxyType(option);
     await onSave(option);
@@ -63,7 +62,7 @@ const StreamingProxyTypeSelector: React.FC<StreamingProxyTypeSelectorProperties>
   };
 
   const onSave = useCallback(
-    async (option: number) => {
+    async (option: string) => {
       if (!data) {
         Logger.warn('No data available for saving', { option });
         return;
@@ -89,21 +88,21 @@ const StreamingProxyTypeSelector: React.FC<StreamingProxyTypeSelectorProperties>
       return <div className="text-xs text-container text-white-alpha-40 pl-1">None</div>;
     }
 
-    if (isNumber(data.StreamingProxyType)) {
-      const enumKey = getEnumKeyByValue(StreamingProxyTypes, data.StreamingProxyType);
-      return (
-        <div className="sm-epg-selector">
-          <div className="text-container pl-1">{enumKey}</div>
-        </div>
-      );
-    }
+    // if (isNumber(data.StreamingProxyType)) {
+    //   const enumKey = getEnumKeyByValue(StreamingProxyTypes, data.StreamingProxyType);
+    //   return (
+    //     <div className="sm-epg-selector">
+    //       <div className="text-container pl-1">{enumKey}</div>
+    //     </div>
+    //   );
+    // }
 
     return (
       <div className="sm-epg-selector">
         <div className="text-container pl-1">{data.StreamingProxyType}</div>
       </div>
     );
-  }, [data, getEnumKeyByValue]);
+  }, [data]);
 
   const itemTemplate = useCallback((option: SelectItem): JSX.Element => {
     return <div className="text-xs text-container">{option?.label ?? ''}</div>;

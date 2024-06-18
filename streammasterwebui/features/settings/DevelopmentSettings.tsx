@@ -13,7 +13,7 @@ export function DevelopmentSettings(): React.ReactElement {
             <SMButton
               icon="pi-bookmark-fill"
               iconFilled
-              className="icon-blue"
+              buttonClassName="icon-blue"
               label="Swagger"
               onClick={() => {
                 const link = `${baseHostURL}/swagger`;
