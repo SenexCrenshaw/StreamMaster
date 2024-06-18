@@ -10,7 +10,6 @@ import { memo, useCallback, useMemo } from 'react';
 import CreateStreamGroupProfileDialog from './profiles/CreateStreamGroupProfileDialog';
 import OutputProfileDropDown from './profiles/OutputProfileDropDown';
 import RemoveStreamGroupProfileDialog from './profiles/RemoveStreamGroupProfileDialog';
-import VideoProfileDropDown from './profiles/VideoProfileDropDown';
 
 interface StreamGroupDataSelectorValueProperties {
   readonly id: string;
@@ -81,28 +80,28 @@ const StreamGroupDataSelectorValue = ({ id, streamGroupDto }: StreamGroupDataSel
     [update]
   );
 
-  const videoProfileTemplate = useCallback(
-    (rowData: StreamGroupProfile) => {
-      return (
-        <VideoProfileDropDown
-          value={rowData.VideoProfileName}
-          onChange={(e) => {
-            if (e !== undefined) {
-              const ret = { Name: rowData.Name, VideoProfileName: e.Name } as UpdateStreamGroupProfileRequest;
-              update(ret);
-            }
-          }}
-        />
-      );
-    },
-    [update]
-  );
+  // const videoProfileTemplate = useCallback(
+  //   (rowData: StreamGroupProfile) => {
+  //     return (
+  //       <VideoProfileDropDown
+  //         value={rowData.VideoProfileName}
+  //         onChange={(e) => {
+  //           if (e !== undefined) {
+  //             const ret = { Name: rowData.Name, VideoProfileName: e.Name } as UpdateStreamGroupProfileRequest;
+  //             update(ret);
+  //           }
+  //         }}
+  //       />
+  //     );
+  //   },
+  //   [update]
+  // );
 
   const columns = useMemo(
     (): ColumnMeta[] => [
       { bodyTemplate: nameTemplate, field: 'Name', sortable: false, width: 54 },
       { bodyTemplate: fileProfileTemplate, field: 'OutputProfileName', header: 'Output', sortable: false, width: 50 },
-      { bodyTemplate: videoProfileTemplate, field: 'VideoProfileName', header: 'Video', sortable: false, width: 50 },
+      // { bodyTemplate: videoProfileTemplate, field: 'VideoProfileName', header: 'Video', sortable: false, width: 50 },
       {
         align: 'center',
         field: 'HDHRLink',
@@ -128,7 +127,7 @@ const StreamGroupDataSelectorValue = ({ id, streamGroupDto }: StreamGroupDataSel
         width: 36
       }
     ],
-    [actionTemplate, fileProfileTemplate, nameTemplate, videoProfileTemplate]
+    [actionTemplate, fileProfileTemplate, nameTemplate]
   );
 
   const actionHeaderTemplate = useMemo(() => {
