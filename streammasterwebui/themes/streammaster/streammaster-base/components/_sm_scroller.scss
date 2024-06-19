@@ -4,69 +4,71 @@
 
 .sm-scroller-items {
     .p-virtualscroller-content {
-        .sm-scroller-item:nth-child(odd) {
-            background: $tableBodyRowEvenBg;
-        }
-    }
-}
+        .sm-scroller-item {
+            @include text-overflow();
+            @extend .sm-border-top;
+            // margin: $inputListItemMargin;
+
+            // background-color: $bgColor;
+            // border-radius: 0; // $inputListItemBorderRadius;
+            // border: $inputListItemBorder;
+            color: $inputListItemTextColor;
 
 
+            // height: $input-height-with-no-borders;
+            // max-height: $input-height-with-no-borders;
+            // min-height: $input-height-with-no-borders;
 
-.sm-scroller-item {
-    @include text-overflow();
-    // margin: $inputListItemMargin;
+            padding: 0.24rem;
+            transition: $listItemTransition;
 
-    // background: $inputListItemBg;
-    border-radius: 0; // $inputListItemBorderRadius;
-    border: $inputListItemBorder;
-    color: $inputListItemTextColor;
+            // height: $datatable-row-height;
+            // max-height: $datatable-row-height;
 
-    // height: $input-height-with-no-borders;
-    // max-height: $input-height-with-no-borders;
-    // min-height: $input-height-with-no-borders;
+            &:first-child {
 
-    padding: $inputListItemPadding;
-    transition: $listItemTransition;
+                margin-top: 0;
+            }
 
-    // height: $datatable-row-height;
-    // max-height: $datatable-row-height;
+            &:last-child {
+                margin-bottom: 0;
+            }
 
-    &:first-child {
-        margin-top: 0;
-    }
+            &:not(.p-highlight):not(.p-disabled) {
 
-    &:last-child {
-        margin-bottom: 0;
-    }
+                &.p-focus {
+                    color: $inputListItemTextHoverColor;
+                    background: $inputListItemHoverBg;
+                }
+            }
 
-    &:not(.p-highlight):not(.p-disabled) {
-        &.p-focus {
-            color: $inputListItemTextHoverColor;
-            background: $inputListItemHoverBg;
-        }
-    }
+            .p-dropdown-check-icon {
+                position: relative;
+                margin-left: -1 * $inlineSpacing;
+                margin-right: $inlineSpacing;
+            }
 
-    .p-dropdown-check-icon {
-        position: relative;
-        margin-left: -1 * $inlineSpacing;
-        margin-right: $inlineSpacing;
-    }
+            &:not(.p-disabled):hover {
+                // background: $highlightBg;
+                border-color: $highlightBg;
+                border-radius: 0; // $borderRadius;
+                border-style: solid;
+                border-width: 1px;
+                color: $highlightTextColor;
+            }
 
-    &:not(.p-disabled):hover {
-        background: $highlightBg;
-        border-color: $highlightBg;
-        border-radius: 0; // $borderRadius;
-        border-style: solid;
-        border-width: 1px;
-        color: $highlightTextColor;
-    }
+            &.p-highlight {
+                color: $highlightTextColor !important;
+                background: $highlightBg !important;
 
-    &.p-highlight {
-        color: $highlightTextColor !important;
-        background: $highlightBg !important;
+                &.p-focus {
+                    background: $highlightFocusBg !important;
+                }
+            }
 
-        &.p-focus {
-            background: $highlightFocusBg !important;
+            &:nth-child(odd) {
+                background: $tableBodyRowEvenBg;
+            }
         }
     }
 }

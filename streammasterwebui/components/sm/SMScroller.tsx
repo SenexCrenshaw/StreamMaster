@@ -172,24 +172,26 @@ const SMScroller: React.FC<SMScrollerProperties> = ({ filter = false, itemSize =
       if (props.select === true) {
         const ss = isSelectedItem(item);
         return (
-          <div className="sm-scroller-item flex align-items-center justify-content-start pl-1">
-            <div className="sm-w-1">
-              <Checkbox
-                onChange={(e) => {
-                  e.preventDefault();
-                  if (props.selectedItemsKey !== undefined && props.selectedItemsKey !== 'NONE') {
-                    if (e.checked) {
-                      setSelectedItems([...selectedItems, item]);
-                      props.onChange && props.onChange([...selectedItems, item]);
-                    } else {
-                      removeSelectedItem(item);
+          <div className="sm-scroller-item sm-border-top">
+            <div className="flex align-items-center justify-content-start w-full">
+              <div className="pr-1 sm-border-right">
+                <Checkbox
+                  onChange={(e) => {
+                    e.preventDefault();
+                    if (props.selectedItemsKey !== undefined && props.selectedItemsKey !== 'NONE') {
+                      if (e.checked) {
+                        setSelectedItems([...selectedItems, item]);
+                        props.onChange && props.onChange([...selectedItems, item]);
+                      } else {
+                        removeSelectedItem(item);
+                      }
                     }
-                  }
-                }}
-                checked={ss}
-              />
+                  }}
+                  checked={ss}
+                />
+              </div>
+              <div className="pl-1 flex align-items-center justify-content-start w-full">{props.itemTemplate?.(item) ?? ''}</div>
             </div>
-            <div className="sm-w-11 pl-1">{props.itemTemplate?.(item) ?? ''}</div>
           </div>
         );
       }

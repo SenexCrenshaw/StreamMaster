@@ -70,11 +70,11 @@
 .sm-card-simple {
     @extend .sm-card;
 
-    .sm-card-children {
-        border: unset !important;
-        // background-color: unset !important;
-        background-color: $headerBg !important;
-    }
+    // .sm-card-children {
+    //     // border: unset !important;
+    //     // background-color: unset !important;
+    //     background-color: $headerBg !important;
+    // }
 
     .sm-card-children-info {
         background-color: $headerBg !important;
