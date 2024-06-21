@@ -19,8 +19,8 @@ const StreamGroupButton = ({ className = 'sm-w-10rem sm-input-dark' }: StreamGro
   const headerTemplate = useMemo(() => {
     return (
       <>
-        <StreamGroupCreateDialog />
         <StreamGroupProfileButton />
+        <StreamGroupCreateDialog />
       </>
     );
   }, []);

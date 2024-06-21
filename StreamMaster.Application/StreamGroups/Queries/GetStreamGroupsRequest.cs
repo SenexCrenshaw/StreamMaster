@@ -11,6 +11,10 @@ internal class GetStreamGroupsRequestHandler(IRepositoryWrapper Repository, IMap
     public async Task<DataResponse<List<StreamGroupDto>>> Handle(GetStreamGroupsRequest request, CancellationToken cancellationToken = default)
     {
         List<StreamGroupDto> streamGroups = await Repository.StreamGroup.GetStreamGroups(cancellationToken);
+        foreach (var streamGroupDto in streamGroups)
+        {
+            streamGroupDto.ChannelCount = Repository.StreamGroupSMChannelLink.GetQuery().Count(a => a.StreamGroupId == streamGroupDto.Id);
+        }
         return DataResponse<List<StreamGroupDto>>.Success(streamGroups);
     }
 }

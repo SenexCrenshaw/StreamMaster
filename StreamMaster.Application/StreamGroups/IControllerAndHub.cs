@@ -15,6 +15,7 @@ namespace StreamMaster.Application.StreamGroups
         Task<ActionResult<APIResponse>> DeleteStreamGroup(DeleteStreamGroupRequest request);
         Task<ActionResult<APIResponse>> RemoveStreamGroupProfile(RemoveStreamGroupProfileRequest request);
         Task<ActionResult<APIResponse>> UpdateStreamGroupProfile(UpdateStreamGroupProfileRequest request);
+        Task<ActionResult<APIResponse>> UpdateStreamGroup(UpdateStreamGroupRequest request);
     }
 }
 
@@ -31,5 +32,6 @@ namespace StreamMaster.Application.Hubs
         Task<APIResponse> DeleteStreamGroup(DeleteStreamGroupRequest request);
         Task<APIResponse> RemoveStreamGroupProfile(RemoveStreamGroupProfileRequest request);
         Task<APIResponse> UpdateStreamGroupProfile(UpdateStreamGroupProfileRequest request);
+        Task<APIResponse> UpdateStreamGroup(UpdateStreamGroupRequest request);
     }
 }

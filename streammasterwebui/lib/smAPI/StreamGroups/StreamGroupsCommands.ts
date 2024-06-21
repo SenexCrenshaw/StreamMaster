@@ -1,5 +1,5 @@
 import SignalRService from '@lib/signalr/SignalRService';
-import { APIResponse,AddProfileToStreamGroupRequest,CreateStreamGroupRequest,DeleteStreamGroupRequest,RemoveStreamGroupProfileRequest,UpdateStreamGroupProfileRequest,StreamGroupDto,StreamGroupProfile,GetStreamGroupRequest,PagedResponse,QueryStringParameters } from '@lib/smAPI/smapiTypes';
+import { APIResponse,AddProfileToStreamGroupRequest,CreateStreamGroupRequest,DeleteStreamGroupRequest,RemoveStreamGroupProfileRequest,UpdateStreamGroupProfileRequest,UpdateStreamGroupRequest,StreamGroupDto,StreamGroupProfile,GetStreamGroupRequest,PagedResponse,QueryStringParameters } from '@lib/smAPI/smapiTypes';
 
 export const GetPagedStreamGroups = async (parameters: QueryStringParameters): Promise<PagedResponse<StreamGroupDto> | undefined> => {
   const signalRService = SignalRService.getInstance();
@@ -44,5 +44,10 @@ export const RemoveStreamGroupProfile = async (request: RemoveStreamGroupProfile
 export const UpdateStreamGroupProfile = async (request: UpdateStreamGroupProfileRequest): Promise<APIResponse | undefined> => {
   const signalRService = SignalRService.getInstance();
   return await signalRService.invokeHubCommand<APIResponse>('UpdateStreamGroupProfile', request);
+};
+
+export const UpdateStreamGroup = async (request: UpdateStreamGroupRequest): Promise<APIResponse | undefined> => {
+  const signalRService = SignalRService.getInstance();
+  return await signalRService.invokeHubCommand<APIResponse>('UpdateStreamGroup', request);
 };
 

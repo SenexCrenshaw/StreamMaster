@@ -7,7 +7,7 @@ public class StreamGroupDto : IMapFrom<StreamGroup>
     public bool IsLoading { get; set; } = false;
     public bool IsReadOnly { get; set; } = false;
     public bool AutoSetChannelNumbers { get; set; } = false;
-    //public int StreamCount { get; set; } = 0;
+    public int ChannelCount { get; set; } = 0;
     public int Id { get; set; }
     public string Name { get; set; } = string.Empty;
 

@@ -1,10 +1,12 @@
+import StringEditor from '@components/inputs/StringEditor';
 import SMDataTable from '@components/smDataTable/SMDataTable';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 import StreamGroupDeleteDialog from '@components/streamGroup/StreamGroupDeleteDialog';
 import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
 import { useSelectedStreamGroup } from '@lib/redux/hooks/selectedStreamGroup';
+import { UpdateStreamGroup } from '@lib/smAPI/StreamGroups/StreamGroupsCommands';
 import useGetPagedStreamGroups from '@lib/smAPI/StreamGroups/useGetPagedStreamGroups';
-import { StreamGroupDto } from '@lib/smAPI/smapiTypes';
+import { StreamGroupDto, UpdateStreamGroupRequest } from '@lib/smAPI/smapiTypes';
 import { DataTableRowClickEvent, DataTableRowData, DataTableRowExpansionTemplate } from 'primereact/datatable';
 import { memo, useCallback, useMemo } from 'react';
 import StreamGroupDataSelectorValue from './StreamGroupDataSelectorValue';
@@ -43,13 +45,52 @@ const StreamGroupDataSelector = ({ id }: StreamGroupDataSelectorProperties) => {
     );
   }, []);
 
+  const update = useCallback((request: UpdateStreamGroupRequest) => {
+    console.log('update', request);
+
+    UpdateStreamGroup(request)
+      .then((res) => {})
+      .catch((error) => {
+        console.log('error', error);
+      })
+      .finally();
+  }, []);
+
+  const nameTemplate = useCallback(
+    (rowData: StreamGroupDto) => {
+      if (rowData.IsReadOnly === true || rowData.Name.toLowerCase() === 'default') {
+        return <div className="text-container pl-1">{rowData.Name}</div>;
+      }
+      return (
+        <StringEditor
+          value={rowData.Name}
+          onSave={(e) => {
+            if (e !== undefined) {
+              const ret = { NewName: e, StreamGroupId: rowData.Id } as UpdateStreamGroupRequest;
+              update(ret);
+            }
+          }}
+        />
+      );
+    },
+    [update]
+  );
+
   const columns = useMemo(
     (): ColumnMeta[] => [
       {
+        bodyTemplate: nameTemplate,
         field: 'Name',
         filter: true,
         sortable: true,
         width: 141
+      },
+      {
+        align: 'right',
+        field: 'ChannelCount',
+        // filter: true,
+        // sortable: true,
+        width: 20
       },
       {
         align: 'center',
@@ -76,7 +117,7 @@ const StreamGroupDataSelector = ({ id }: StreamGroupDataSelectorProperties) => {
         width: 39
       }
     ],
-    [actionTemplate]
+    [actionTemplate, nameTemplate]
   );
 
   return (

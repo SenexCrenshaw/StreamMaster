@@ -21,6 +21,7 @@ export const LinkButton = ({
   return (
     <SMButton
       icon={copied ? 'pi-copy' : icon}
+      buttonClassName={bolt ? 'icon-yellow' : 'icon-orange'}
       iconFilled={false}
       onClick={() => {
         copyToClipboard(link).then((ifCopied) => {

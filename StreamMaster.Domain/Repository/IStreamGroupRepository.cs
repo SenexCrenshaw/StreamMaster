@@ -1,6 +1,5 @@
 ﻿using StreamMaster.Domain.API;
 using StreamMaster.Domain.Pagination;
-using StreamMaster.Domain.Requests;
 
 namespace StreamMaster.Domain.Repository
 {
@@ -17,7 +16,7 @@ namespace StreamMaster.Domain.Repository
 
         void CreateStreamGroup(StreamGroup StreamGroup);
 
-        Task<StreamGroupDto?> UpdateStreamGroup(UpdateStreamGroupRequest request);
+        Task<StreamGroupDto?> UpdateStreamGroup(int StreamGroupId, string? NewName, bool? AutoSetChannelNumbers);
         Task<int?> DeleteStreamGroup(int streamGroupId);
 
         //IQueryable<StreamGroup> GetStreamGroupQuery();

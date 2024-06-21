@@ -18,28 +18,26 @@ const SMStreamDataSelectorValue = ({ id, smChannel }: SMStreamDataSelectorValueP
 
   const actionTemplate = useCallback(
     (smStream: SMStreamDto) => (
-      <div className="flex align-content-center justify-content-end">
-        <SMButton
-          icon="pi-minus"
-          buttonClassName="w-2rem border-noround icon-red"
-          iconFilled={false}
-          onClick={() => {
-            if (!smStream.Id || smChannel === undefined) {
-              return;
-            }
+      <SMButton
+        icon="pi-minus"
+        buttonClassName="w-2rem border-noround icon-red"
+        iconFilled={false}
+        onClick={() => {
+          if (!smStream.Id || smChannel === undefined) {
+            return;
+          }
 
-            const request: RemoveSMStreamFromSMChannelRequest = { SMChannelId: smChannel.Id, SMStreamId: smStream.Id };
-            RemoveSMStreamFromSMChannel(request)
-              .then((response) => {
-                console.log('Remove Stream', response);
-              })
-              .catch((error) => {
-                console.error('Remove Stream', error.message);
-              });
-          }}
-          tooltip="Remove Stream"
-        />
-      </div>
+          const request: RemoveSMStreamFromSMChannelRequest = { SMChannelId: smChannel.Id, SMStreamId: smStream.Id };
+          RemoveSMStreamFromSMChannel(request)
+            .then((response) => {
+              console.log('Remove Stream', response);
+            })
+            .catch((error) => {
+              console.error('Remove Stream', error.message);
+            });
+        }}
+        tooltip="Remove Stream"
+      />
     ),
     [smChannel]
   );

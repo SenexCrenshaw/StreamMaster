@@ -34,11 +34,7 @@ const StreamGroupDataSelectorValue = ({ id, streamGroupDto }: StreamGroupDataSel
   );
 
   const actionTemplate = useCallback(
-    (streamGroupProfile: StreamGroupProfile) => (
-      <div className="flex align-content-center justify-content-end">
-        <RemoveStreamGroupProfileDialog streamGroupProfile={streamGroupProfile} />
-      </div>
-    ),
+    (streamGroupProfile: StreamGroupProfile) => <RemoveStreamGroupProfileDialog streamGroupProfile={streamGroupProfile} />,
     []
   );
 
@@ -119,25 +115,16 @@ const StreamGroupDataSelectorValue = ({ id, streamGroupDto }: StreamGroupDataSel
         width: 30
       },
       {
-        align: 'right',
+        align: 'center',
         bodyTemplate: actionTemplate,
         field: '',
         fieldType: 'actions',
         header: 'Actions',
-        width: 36
+        width: 12
       }
     ],
     [actionTemplate, fileProfileTemplate, nameTemplate]
   );
-
-  const actionHeaderTemplate = useMemo(() => {
-    return (
-      <div className="flex justify-content-around">
-        Actions
-        <CreateStreamGroupProfileDialog streamGroupDto={streamGroupDto} />
-      </div>
-    );
-  }, [streamGroupDto]);
 
   if (!streamGroupDto?.StreamGroupProfiles) {
     return null;
@@ -146,7 +133,7 @@ const StreamGroupDataSelectorValue = ({ id, streamGroupDto }: StreamGroupDataSel
   return (
     <div onClick={() => {}}>
       <SMDataTable
-        actionHeaderTemplate={actionHeaderTemplate}
+        actionHeaderTemplate={<CreateStreamGroupProfileDialog streamGroupDto={streamGroupDto} />}
         columns={columns}
         dataSource={streamGroupDto.StreamGroupProfiles}
         defaultSortField="Name"

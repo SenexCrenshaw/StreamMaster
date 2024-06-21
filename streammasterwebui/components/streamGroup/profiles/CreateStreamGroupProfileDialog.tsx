@@ -47,7 +47,7 @@ const CreateStreamGroupProfileDialog = ({ streamGroupDto }: CreateStreamGroupPro
     <SMPopUp
       contentWidthSize="3"
       buttonClassName="icon-green"
-      icon="pi-plus"
+      icon="pi-plus-circle"
       title="Create Profile"
       ref={smPopUpRef}
       modal

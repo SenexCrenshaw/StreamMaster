@@ -283,7 +283,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
       if (props.selectRow === true && state.selectedItems !== undefined) {
         const id = getRecord(data, 'Id') as number;
         if (state.selectedItems.some((item) => item.Id === id)) {
-          return 'bg-orange-900';
+          return 'channel-row-selected';
         }
       }
 
