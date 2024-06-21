@@ -1,92 +1,88 @@
 .p-datatable {
+  .p-datatable-tbody {
+    > tr {
+      padding-top: 0rem;
+      padding-bottom: 0rem;
 
-    .p-datatable-tbody {
-        >tr {
-            padding-top: 0rem;
-            padding-bottom: 0rem;
-
-            >td {
-                padding: $datatable-padding 0;
-                height: $datatable-row-height;
-                max-height: $datatable-row-height;
-            }
-        }
-
-        // >tr:first-child {
-        //     >td:first-child {
-        //         border-top-left-radius: $borderRadius;
-        //     }
-
-        //     >td:last-child {
-        //         border-top-right-radius: $borderRadius;
-        //     }
-        // }
-
-        // >tr:last-child {
-        //     >td:first-child {
-        //         border-bottom-left-radius: $borderRadius;
-        //     }
-
-        //     >td:last-child {
-        //         border-bottom-right-radius: $borderRadius;
-        //     }
-        // }
+      > td {
+        padding: $datatable-padding 0;
+        height: $datatable-row-height;
+        max-height: $datatable-row-height;
+      }
     }
 
-    .p-datatable-thead {
-        >tr {
+    // >tr:first-child {
+    //     >td:first-child {
+    //         border-top-left-radius: $borderRadius;
+    //     }
 
-            // >th:first-child {
-            //     border-top-left-radius: $borderRadius;
-            // }
-            >th {
-                background-color: $headerBg !important;
-            }
+    //     >td:last-child {
+    //         border-top-right-radius: $borderRadius;
+    //     }
+    // }
 
-            >th:last-child {
-                border-top-right-radius: $borderRadius !important;
-            }
+    // >tr:last-child {
+    //     >td:first-child {
+    //         border-bottom-left-radius: $borderRadius;
+    //     }
 
-            // height: 1rem;
-            background-color: $headerBg !important;
+    //     >td:last-child {
+    //         border-bottom-right-radius: $borderRadius;
+    //     }
+    // }
+  }
 
-        }
+  .p-datatable-thead {
+    > tr {
+      // >th:first-child {
+      //     border-top-left-radius: $borderRadius;
+      // }
+      > th {
+        background-color: $headerBg !important;
+      }
 
-        >tr:nth-child(1) {
-            display: none;
-        }
+      > th:last-child {
+        border-top-right-radius: $borderRadius !important;
+      }
 
+      // height: 1rem;
+      background-color: $headerBg !important;
     }
 
-    .p-button.p-button-icon-only {
-        // padding: 0.5rem 0;
-        // // width: $input-height;
-        // border: none;
+    > tr:nth-child(1) {
+      display: none;
     }
+  }
 
-    .p-button.p-button-icon-only.p-button-rounded {
-        // height: $input-height;
-        // padding: 0rem 0;
-    }
+  .p-button.p-button-icon-only {
+    // padding: 0.5rem 0;
+    // // width: $input-height;
+    // border: none;
+  }
 
-    .p-column-filter-clear-button.p-link.p-hidden-space {
-        display: none;
-    }
+  .p-button.p-button-icon-only.p-button-rounded {
+    // height: $input-height;
+    // padding: 0rem 0;
+  }
 
-    font-size: $common-font-size;
+  .p-column-filter-clear-button.p-link.p-hidden-space {
+    display: none;
+  }
+
+  font-size: $common-font-size;
 }
 
 .p-filter-column {
-    padding-top: $datatable-padding !important;
-    padding-bottom: $datatable-padding !important;
-    padding-left: $datatable-x-padding !important;
-    padding-right: $datatable-x-padding !important;
+  padding-top: $datatable-padding !important;
+  padding-bottom: $datatable-padding !important;
+  padding-left: $datatable-x-padding !important;
+  padding-right: $datatable-x-padding !important;
 
-    .p-inputtext {
-        @include datatable-text-style;
-    }
+  .p-inputtext {
+    @include datatable-text-style;
+  }
 
-    .p-multiselect-clear-icon {
-        right: 1.2rem;
-    }
+  .p-multiselect-clear-icon {
+    right: 1.2rem;
+  }
 }

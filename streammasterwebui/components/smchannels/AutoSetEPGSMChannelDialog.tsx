@@ -70,7 +70,7 @@ const AutoSetEPGSMChannelDialog = ({ menu, smChannel }: AutoSetEPGSMChannelDialo
       <SMPopUp
         icon="pi-book"
         label="Auto Set EPG"
-        hollow
+        menu
         iconFilled
         title="Auto Set EPG"
         buttonClassName="icon-blue"

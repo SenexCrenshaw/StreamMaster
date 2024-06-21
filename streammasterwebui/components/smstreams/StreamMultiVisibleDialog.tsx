@@ -69,15 +69,7 @@ const StreamMultiVisibleDialog = ({ id, label, onClose, selectedItemsKey }: Stre
   }, [selectedItems, selectAll, ReturnToParent, queryFilter]);
 
   return (
-    <SMButton
-      hollow
-      buttonClassName="icon-red"
-      buttonDisabled={getTotalCount === 0}
-      icon="pi-eye-slash"
-      iconFilled
-      label={label ?? ''}
-      onClick={onVisiblesClick}
-    />
+    <SMButton menu buttonClassName="icon-blue" buttonDisabled={getTotalCount === 0} icon="pi-eye" iconFilled label={label ?? ''} onClick={onVisiblesClick} />
   );
 };
 

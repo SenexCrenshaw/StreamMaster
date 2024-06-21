@@ -248,12 +248,12 @@ $shadow-color-sg: rgba($iconSG, $shadow-opacity); // Define the shadow color wit
 
 .sm-menuitem {
     align-items: center;
-    border-bottom-left-radius: $borderRadius* 2;
-    border-bottom-right-radius: $borderRadius;
-    border-style: solid;
-    border-top-left-radius: $borderRadius * 2;
-    border-top-right-radius: $borderRadius;
-    border-width: 1px;
+    // border-bottom-left-radius: $borderRadius* 2;
+    // border-bottom-right-radius: $borderRadius;
+    // border-style: solid;
+    // border-top-left-radius: $borderRadius * 2;
+    // border-top-right-radius: $borderRadius;
+    // border-width: 1px;
     display: flex;
     height: $input-height-with-no-borders;
     justify-content: center;

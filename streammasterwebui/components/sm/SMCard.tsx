@@ -36,7 +36,7 @@ export const SMCard = ({
         <div className="sm-card-header flex flex-row justify-content-between align-items-center w-full">
           <div className="header-text-sub w-4 flex justify-content-start">{title}</div>
           <div className="w-4 flex justify-content-center">{props.center}</div>
-          <div className="flex justify-content-end w-4 gap-1">
+          <div className="flex justify-content-end w-4 gap-1 pr-1">
             {header}
             {!hasCloseButton && openPanel && <CloseButton onClick={(e) => openPanel(false)} tooltip="Close" />}
           </div>
@@ -54,7 +54,7 @@ export const SMCard = ({
     <div className={getDiv}>
       <div className="sm-card-header flex flex-row justify-content-between align-items-center w-full">
         <div className="header-text-sub flex justify-content-start">{title}</div>
-        <div className="flex justify-content-end gap-1">
+        <div className="flex justify-content-end gap-1 pr-1">
           {header}
           {!hasCloseButton && openPanel && <CloseButton onClick={(e) => openPanel(false)} tooltip="Close" />}
         </div>

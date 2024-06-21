@@ -11,7 +11,7 @@ export interface SMButtonProperties extends SMModalProperties {
   readonly buttonLarge?: boolean;
   readonly buttonLargeImage?: boolean;
   readonly color?: string;
-  readonly hollow?: boolean;
+  readonly menu?: boolean;
   readonly icon?: string;
   readonly iconFilled?: boolean;
   readonly isLeft?: boolean;

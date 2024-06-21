@@ -18,7 +18,7 @@ const SMButton = forwardRef<Button, InternalSMButtonProperties>(
       buttonClassName = 'icon-blue',
       buttonDarkBackground = false,
       buttonDisabled = false,
-      hollow = false,
+      menu = false,
       iconFilled = false,
       isLeft = false,
       buttonIsLoading: isLoading = false,
@@ -163,7 +163,7 @@ const SMButton = forwardRef<Button, InternalSMButtonProperties>(
       );
     }
 
-    if (hollow) {
+    if (menu) {
       return (
         <div
           onClick={(e) => {

@@ -50,7 +50,7 @@ const AutoSetSMChannelNumbersDialog = ({ disabled }: AutoSetSMChannelNumbersDial
       iconFilled
       label="AutoSet Channel #s for SG"
       title="AutoSet Channel #s for SG"
-      hollow
+      menu
       hasCloseButton={false}
       onCloseClick={() => ReturnToParent()}
       buttonClassName="icon-yellow"

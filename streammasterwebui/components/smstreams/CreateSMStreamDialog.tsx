@@ -38,7 +38,7 @@ const CreateSMStreamDialog = ({ label }: CreateSMStreamDialogProperties) => {
     <SMPopUp
       buttonClassName="icon-green"
       contentWidthSize="5"
-      hollow
+      menu
       icon="pi-plus"
       iconFilled
       buttonLabel={label}

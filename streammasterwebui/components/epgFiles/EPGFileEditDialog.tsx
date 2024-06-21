@@ -18,7 +18,7 @@ const EPGFileEditDialog = ({ selectedFile }: EPGFileEditDialogProperties) => {
   return (
     <SMPopUp
       hasCloseButton={false}
-      contentWidthSize="4"
+      contentWidthSize="3"
       title="EDIT EPG"
       icon="pi-pencil"
       modal
@@ -44,6 +44,7 @@ const EPGFileEditDialog = ({ selectedFile }: EPGFileEditDialogProperties) => {
         </div>
       }
     >
+      <div className="layout-padding-bottom-lg" />
       <EPGFileDialog ref={epgDialogRef} onSaveEnabled={setSaveEnabled} selectedFile={selectedFile} />
     </SMPopUp>
   );

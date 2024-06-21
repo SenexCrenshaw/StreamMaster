@@ -8,7 +8,7 @@ const getStyle = (width?: string | number, minWidth?: string | number, maxWidth?
       return `${value}px`;
     }
     // If value is a string and does not end in a CSS unit, assume 'px'
-    if (typeof value === 'string' && !/^\d+(px|rem|em|%)$/.test(value)) {
+    if (typeof value === 'string' && !/^\d+(\.\d+)?(px|rem|em|%)$/.test(value)) {
       return `${value}px`;
     }
     return value;

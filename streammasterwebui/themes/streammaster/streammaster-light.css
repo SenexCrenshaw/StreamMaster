@@ -7811,12 +7811,6 @@
 
 .sm-menuitem {
   align-items: center;
-  border-bottom-left-radius: 12px;
-  border-bottom-right-radius: 6px;
-  border-style: solid;
-  border-top-left-radius: 12px;
-  border-top-right-radius: 6px;
-  border-width: 1px;
   display: flex;
   height: 1.4rem;
   justify-content: center;

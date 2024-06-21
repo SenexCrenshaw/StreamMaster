@@ -102,7 +102,7 @@ const AddSMChannelsToSGEditor = () => {
     <SMPopUp
       icon="pi-book"
       label="Add to SG"
-      hollow
+      menu
       iconFilled
       title="Add to SG"
       buttonClassName="icon-green"

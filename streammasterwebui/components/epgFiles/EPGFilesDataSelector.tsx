@@ -148,9 +148,10 @@ const EPGFilesDataSelector = () => {
     (): ColumnMeta[] => [
       {
         bodyTemplate: colorTemplate,
+        className: 'px-1',
         field: 'color',
-        header: 'Color',
-        width: 20
+        header: 'ID',
+        width: '1.2rem'
       },
       {
         bodyTemplate: nameEditorTemplate,

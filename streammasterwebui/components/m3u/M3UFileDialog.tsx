@@ -141,7 +141,7 @@ const M3UFileDialog = forwardRef<M3UFileDialogRef, M3UFileDialogProperties>(({ o
   }
 
   return (
-    <div className="w-12  px-2">
+    <div className="w-12 px-2">
       <div className="flex gap-1">
         <div className="w-6">
           <StringEditor

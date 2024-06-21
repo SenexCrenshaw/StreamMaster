@@ -82,7 +82,7 @@ export const EPGFileCreateDialog = ({ onHide, onUploadComplete, showButton }: EP
   return (
     <SMPopUp
       buttonClassName="icon-green"
-      contentWidthSize="4"
+      contentWidthSize="3"
       hasCloseButton={false}
       icon="pi-plus"
       onCloseClick={() => {
@@ -117,7 +117,7 @@ export const EPGFileCreateDialog = ({ onHide, onUploadComplete, showButton }: EP
       zIndex={10}
     >
       <div className="layout-padding-bottom-lg" />
-      <div className="w-12">
+      <div className="w-12 px-2">
         <SMFileUpload
           isM3U={false}
           onSaveEnabled={(enabled) => {
