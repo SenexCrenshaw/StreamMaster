@@ -8,6 +8,8 @@ namespace StreamMaster.Streams.Domain.Interfaces;
 /// </summary>
 public interface IStreamManager
 {
+    Task AddClientsToHandler(List<IClientStreamerConfiguration> clientIds, IStreamHandler streamHandler);
+    Task AddClientToHandler(SMChannel smChannel, IClientStreamerConfiguration streamerConfiguration, IStreamHandler streamHandler);
     VideoInfo GetVideoInfo(string streamUrl);
 
     event EventHandler<IStreamHandler> OnStreamingStoppedEvent;

@@ -8,6 +8,7 @@ namespace StreamMaster.Domain.Services
         Task Refresh(string command);
         Task RefreshStreamGroups(bool alwaysRun = false);
         Task RefreshStreamGroupSMChannelLinks(bool alwaysRun = false);
+        Task RefreshStatistics(bool alwaysRun = false);
         Task RefreshSMTasks(bool alwaysRun = false);
         Task RefreshSMStreams(bool alwaysRun = false);
         Task RefreshSMChannels(bool alwaysRun = false);

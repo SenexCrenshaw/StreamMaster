@@ -5,7 +5,7 @@ namespace StreamMaster.Streams.Factories;
 public sealed class StreamHandlerFactory(IInputStatisticsManager inputStatisticsManager, IOptionsMonitor<Setting> intsettings, ILoggerFactory loggerFactory, IProxyFactory proxyFactory)
     : IStreamHandlerFactory
 {
-    private readonly Setting settings = intsettings.CurrentValue;
+    private readonly Setting Settings = intsettings.CurrentValue;
 
     public async Task<IStreamHandler?> CreateStreamHandlerAsync(IChannelStatus channelStatus, CancellationToken cancellationToken)
     {

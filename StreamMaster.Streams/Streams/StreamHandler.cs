@@ -47,7 +47,7 @@ public sealed partial class StreamHandler
     {
         VideoStreamingCancellationToken = new();
 
-        logger.LogInformation("Starting video read streaming, chunk size is {ChunkSize}, for stream: {StreamUrl} name: {name}", ChunkSize, StreamUrl, VideoStreamName);
+        logger.LogInformation("Starting video read streaming, chunk size is {ChunkSize}, for stream: {StreamUrl} name: {name}", ChunkSize, SMStream.Url, SMStream.Name);
 
         bool inputStreamError = false;
         CancellationTokenSource linkedToken = VideoStreamingCancellationToken;
@@ -73,7 +73,7 @@ public sealed partial class StreamHandler
 
                 try
                 {
-                    _writeLogger.LogDebug("-------------------{VideoStreamName}-----------------------------", VideoStreamName);
+                    _writeLogger.LogDebug("-------------------{VideoStreamName}-----------------------------", SMStream.Name);
                     int readBytes = await stream.ReadAsync(bufferMemory, linkedToken.Token).ConfigureAwait(false);
                     _writeLogger.LogDebug("End bytes read from input stream: {byteswritten}", readBytes);
                     if (readBytes == 0)
@@ -91,8 +91,10 @@ public sealed partial class StreamHandler
                     byte[] clientDataToSend = new byte[readBytes];
                     bufferMemory[..readBytes].CopyTo(clientDataToSend);
                     await WriteToAllClientsAsync(clientDataToSend, linkedToken.Token).ConfigureAwait(false);
-
                     videoBuffer.Write(clientDataToSend);
+
+                    SetMetrics(readBytes);
+
                     accumulatedBytes += readBytes;
 
                     TimeSpan lastRun = SMDT.UtcNow - LastVideoInfoRun;
@@ -109,30 +111,30 @@ public sealed partial class StreamHandler
                 }
                 catch (TaskCanceledException)
                 {
-                    logger.LogInformation("Stream requested to stop for: {StreamUrl} {name}", StreamUrl, VideoStreamName);
+                    logger.LogInformation("Stream requested to stop for: {StreamUrl} {name}", SMStream.Url, SMStream.Name);
                     logger.LogInformation("Stream requested to stop for: {VideoStreamingCancellationToken}", VideoStreamingCancellationToken.IsCancellationRequested);
                     break;
                 }
                 catch (OperationCanceledException)
                 {
-                    logger.LogInformation("Stream Operation stopped for: {StreamUrl} {name}", StreamUrl, VideoStreamName);
+                    logger.LogInformation("Stream Operation stopped for: {StreamUrl} {name}", SMStream.Url, SMStream.Name);
                     break;
                 }
                 catch (EndOfStreamException ex)
                 {
                     inputStreamError = true;
-                    logger.LogInformation("End of Stream reached for: {StreamUrl} {name}. Error: {ErrorMessage} at {Time} {test}", StreamUrl, VideoStreamName, ex.Message, SMDT.UtcNow, stream.CanRead);
+                    logger.LogInformation("End of Stream reached for: {StreamUrl} {name}. Error: {ErrorMessage} at {Time} {test}", SMStream.Url, SMStream.Name, ex.Message, SMDT.UtcNow, stream.CanRead);
                     break;
                 }
                 catch (HttpIOException ex)
                 {
                     inputStreamError = true;
-                    logger.LogInformation(ex, "HTTP IO for: {StreamUrl} {name}", StreamUrl, VideoStreamName);
+                    logger.LogInformation(ex, "HTTP IO for: {StreamUrl} {name}", SMStream.Url, SMStream.Name);
                     break;
                 }
                 catch (Exception ex)
                 {
-                    logger.LogError(ex, "Stream error for: {StreamUrl} {name}", StreamUrl, VideoStreamName);
+                    logger.LogError(ex, "Stream error for: {StreamUrl} {name}", SMStream.Url, SMStream.Name);
                     break;
                 }
             }

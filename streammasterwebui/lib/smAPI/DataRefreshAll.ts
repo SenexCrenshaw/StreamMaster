@@ -1,11 +1,13 @@
 import store from '@lib/redux/store';
 import { setIsForced as GetChannelGroupsSetIsForced } from '@lib/smAPI/ChannelGroups/GetChannelGroupsSlice';
 import { setIsForced as GetChannelGroupsFromSMChannelsSetIsForced } from '@lib/smAPI/ChannelGroups/GetChannelGroupsFromSMChannelsSlice';
+import { setIsForced as GetClientStreamingStatisticsSetIsForced } from '@lib/smAPI/Statistics/GetClientStreamingStatisticsSlice';
 import { setIsForced as GetEPGColorsSetIsForced } from '@lib/smAPI/EPG/GetEPGColorsSlice';
 import { setIsForced as GetEPGFilePreviewByIdSetIsForced } from '@lib/smAPI/EPGFiles/GetEPGFilePreviewByIdSlice';
 import { setIsForced as GetEPGFilesSetIsForced } from '@lib/smAPI/EPGFiles/GetEPGFilesSlice';
 import { setIsForced as GetEPGNextEPGNumberSetIsForced } from '@lib/smAPI/EPGFiles/GetEPGNextEPGNumberSlice';
 import { setIsForced as GetIconsSetIsForced } from '@lib/smAPI/Icons/GetIconsSlice';
+import { setIsForced as GetInputStatisticsSetIsForced } from '@lib/smAPI/Statistics/GetInputStatisticsSlice';
 import { setIsForced as GetIsSystemReadySetIsForced } from '@lib/smAPI/General/GetIsSystemReadySlice';
 import { setIsForced as GetM3UFileNamesSetIsForced } from '@lib/smAPI/M3UFiles/GetM3UFileNamesSlice';
 import { setIsForced as GetM3UFilesSetIsForced } from '@lib/smAPI/M3UFiles/GetM3UFilesSlice';
@@ -34,11 +36,13 @@ import { setIsForced as GetVideoProfilesSetIsForced } from '@lib/smAPI/Profiles/
 export const DataRefreshAll = () => {
   store.dispatch(GetChannelGroupsSetIsForced({ force: true }));
   store.dispatch(GetChannelGroupsFromSMChannelsSetIsForced({ force: true }));
+  store.dispatch(GetClientStreamingStatisticsSetIsForced({ force: true }));
   store.dispatch(GetEPGColorsSetIsForced({ force: true }));
   store.dispatch(GetEPGFilePreviewByIdSetIsForced({ force: true }));
   store.dispatch(GetEPGFilesSetIsForced({ force: true }));
   store.dispatch(GetEPGNextEPGNumberSetIsForced({ force: true }));
   store.dispatch(GetIconsSetIsForced({ force: true }));
+  store.dispatch(GetInputStatisticsSetIsForced({ force: true }));
   store.dispatch(GetIsSystemReadySetIsForced({ force: true }));
   store.dispatch(GetM3UFileNamesSetIsForced({ force: true }));
   store.dispatch(GetM3UFilesSetIsForced({ force: true }));

@@ -241,7 +241,7 @@ public class StreamGroupsController()
     [Route("[action]")]
     public ActionResult<string?> GetStreamGroupVideoStreamUrl(string VideoStreamId)
     {
-        //string? res = await Mediator.Send(new GetStreamGroupVideoStreamUrl(VideoStreamId)).ConfigureAwait(false);
+        //string? res = await Mediator.Send(new GetStreamGroupVideoStreamUrl(StreamId)).ConfigureAwait(false);
         //return Ok(res);
         return Ok("hello");
     }

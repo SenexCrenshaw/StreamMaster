@@ -7,11 +7,12 @@ using System.Net.Sockets;
 
 namespace StreamMaster.Streams.Statistics;
 
-public sealed class StreamStatisticService(IInputStatisticsManager inputStatisticsManager, IMemoryCache memoryCache, IStatisticsManager statisticsManager, IOptionsMonitor<Setting> intsettings) : IStreamStatisticService
+public sealed class StreamStatisticService(IInputStatisticsManager inputStatisticsManager, IMemoryCache memoryCache, IClientStatisticsManager statisticsManager, IOptionsMonitor<Setting> intsettings)
+    : IStreamStatisticService
 {
     private readonly Setting settings = intsettings.CurrentValue;
 
-    public async Task<List<InputStreamingStatistics>> GetInputStatistics(CancellationToken cancellationToken = default)
+    public List<InputStreamingStatistics> GetInputStatistics()
     {
 
         return inputStatisticsManager.GetAllInputStreamStatistics();

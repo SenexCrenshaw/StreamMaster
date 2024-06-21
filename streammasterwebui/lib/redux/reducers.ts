@@ -3,11 +3,13 @@ import currentSettingRequest from '@lib/redux/hooks/currentSettingRequest';
 import filters from '@lib/redux/hooks/filters';
 import GetChannelGroupsReducer from '@lib/smAPI/ChannelGroups/GetChannelGroupsSlice';
 import GetChannelGroupsFromSMChannelsReducer from '@lib/smAPI/ChannelGroups/GetChannelGroupsFromSMChannelsSlice';
+import GetClientStreamingStatisticsReducer from '@lib/smAPI/Statistics/GetClientStreamingStatisticsSlice';
 import GetEPGColorsReducer from '@lib/smAPI/EPG/GetEPGColorsSlice';
 import GetEPGFilePreviewByIdReducer from '@lib/smAPI/EPGFiles/GetEPGFilePreviewByIdSlice';
 import GetEPGFilesReducer from '@lib/smAPI/EPGFiles/GetEPGFilesSlice';
 import GetEPGNextEPGNumberReducer from '@lib/smAPI/EPGFiles/GetEPGNextEPGNumberSlice';
 import GetIconsReducer from '@lib/smAPI/Icons/GetIconsSlice';
+import GetInputStatisticsReducer from '@lib/smAPI/Statistics/GetInputStatisticsSlice';
 import GetIsSystemReadyReducer from '@lib/smAPI/General/GetIsSystemReadySlice';
 import GetM3UFileNamesReducer from '@lib/smAPI/M3UFiles/GetM3UFileNamesSlice';
 import GetM3UFilesReducer from '@lib/smAPI/M3UFiles/GetM3UFilesSlice';
@@ -122,11 +124,13 @@ export const rootReducer = combineReducers({
   filters: persistReducer(filtersConfig, filters),
   GetChannelGroups: GetChannelGroupsReducer,
   GetChannelGroupsFromSMChannels: GetChannelGroupsFromSMChannelsReducer,
+  GetClientStreamingStatistics: GetClientStreamingStatisticsReducer,
   GetEPGColors: GetEPGColorsReducer,
   GetEPGFilePreviewById: GetEPGFilePreviewByIdReducer,
   GetEPGFiles: GetEPGFilesReducer,
   GetEPGNextEPGNumber: GetEPGNextEPGNumberReducer,
   GetIcons: GetIconsReducer,
+  GetInputStatistics: GetInputStatisticsReducer,
   GetIsSystemReady: GetIsSystemReadyReducer,
   GetM3UFileNames: GetM3UFileNamesReducer,
   GetM3UFiles: GetM3UFilesReducer,

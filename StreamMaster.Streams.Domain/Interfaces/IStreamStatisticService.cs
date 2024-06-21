@@ -2,7 +2,7 @@
 {
     public interface IStreamStatisticService
     {
-        Task<List<InputStreamingStatistics>> GetInputStatistics(CancellationToken cancellationToken = default);
+        List<InputStreamingStatistics> GetInputStatistics();
         Task<List<ClientStreamingStatistics>> GetClientStatistics(CancellationToken cancellationToken = default);
     }
 }

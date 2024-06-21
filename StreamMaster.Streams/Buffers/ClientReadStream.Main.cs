@@ -4,14 +4,13 @@ namespace StreamMaster.Streams.Buffers;
 
 public sealed partial class ClientReadStream : Stream, IClientReadStream
 {
-    private readonly CancellationTokenSource _clientMasterToken;
     private readonly ILogger<ClientReadStream> logger;
     private readonly IClientStreamerConfiguration config;
-    private readonly IStatisticsManager _statisticsManager;
+    private readonly IClientStatisticsManager _clientStatisticsManager;
 
     public string VideoStreamName { get; set; }
 
-    public ClientReadStream(IStatisticsManager _statisticsManager, ILoggerFactory loggerFactory, IClientStreamerConfiguration config)
+    public ClientReadStream(IClientStatisticsManager clientStatisticsManager, ILoggerFactory loggerFactory, IClientStreamerConfiguration config)
     {
 
         this.config = config ?? throw new ArgumentNullException(nameof(config));
@@ -20,11 +19,10 @@ public sealed partial class ClientReadStream : Stream, IClientReadStream
         _readLogger = loggerFactory.CreateLogger<ReadsLogger>();
 
         ClientId = config.ClientId;
-        _clientMasterToken = config.ClientMasterToken;
 
-        this._statisticsManager = _statisticsManager;
+        _clientStatisticsManager = clientStatisticsManager;
 
-        _statisticsManager.RegisterClient(config);
+        _clientStatisticsManager.RegisterClient(config);
         UnboundedChannelOptions options = new()
         {
             SingleReader = true,
@@ -71,7 +69,7 @@ public sealed partial class ClientReadStream : Stream, IClientReadStream
             //
             //if (setting.EnablePrometheus)
             //{
-            //    _readErrorsCounter.WithLabels(ClientId.ToString(), VideoStreamName).Inc();
+            //    _readErrorsCounter.WithLabels(ClientId.ToString(), StreamName).Inc();
             //}
 
             logger.LogError(ex, "Error reading buffer for ClientId: {ClientId}", ClientId);
@@ -111,18 +109,18 @@ public sealed partial class ClientReadStream : Stream, IClientReadStream
         {
             if (disposing)
             {
-                _statisticsManager.UnRegisterClient(ClientId);
-                if (!string.IsNullOrEmpty(VideoStreamName))
-                {
-                    _bitsPerSecond.RemoveLabelled(ClientId.ToString(), VideoStreamName);
-                    _bytesReadCounter.RemoveLabelled(ClientId.ToString(), VideoStreamName);
-                    _readErrorsCounter.RemoveLabelled(ClientId.ToString(), VideoStreamName);
-                }
-                _bitsPerSecond.Unpublish();
+                _clientStatisticsManager.UnRegisterClient(ClientId);
+                //if (!string.IsNullOrEmpty(StreamName))
+                //{
+                //    _bitsPerSecond.RemoveLabelled(ClientId.ToString(), StreamName);
+                //    _bytesReadCounter.RemoveLabelled(ClientId.ToString(), StreamName);
+                //    _readErrorsCounter.RemoveLabelled(ClientId.ToString(), StreamName);
+                //}
+                //_bitsPerSecond.Unpublish();
 
-                _bitsPerSecond.Unpublish();
+                //_bitsPerSecond.Unpublish();
 
-                _readErrorsCounter.Unpublish();
+                //_readErrorsCounter.Unpublish();
 
             }
 

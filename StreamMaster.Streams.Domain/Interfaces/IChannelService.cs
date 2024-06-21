@@ -3,6 +3,7 @@
 namespace StreamMaster.Streams.Domain.Interfaces;
 public interface IChannelService
 {
+    Task<bool> SwitchChannelToNextStream(IChannelStatus channelStatus, string? overrideNextVideoStreamId = null);
     void Dispose();
     IChannelStatus? GetChannelStatus(int smChannelId);
     List<IChannelStatus> GetChannelStatuses();
@@ -10,7 +11,9 @@ public interface IChannelService
     List<IChannelStatus> GetChannelStatusesFromSMStreamId(string smStreamId);
     int GetGlobalStreamsCount();
     bool HasChannel(int SMChannelId);
-    Task<IChannelStatus?> RegisterChannel(SMChannel smChannel, bool fetch = false);
-    Task SetNextChildVideoStream(int smChannelId, string? overrideNextVideoStreamId = null);
+    Task<IChannelStatus?> RegisterChannel(IClientStreamerConfiguration config);
+
+    Task<IChannelStatus?> SetupChannel(SMChannel smChannel);
+    Task SetNextChildVideoStream(IChannelStatus channelStatus, string? overrideNextVideoStreamId = null);
     void UnRegisterChannel(int smChannelId);
 }

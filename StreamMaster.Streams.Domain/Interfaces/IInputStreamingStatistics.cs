@@ -1,24 +1,32 @@
-﻿namespace StreamMaster.Streams.Domain.Interfaces;
-
-public interface IInputStreamingStatistics
+﻿namespace StreamMaster.Streams.Domain.Interfaces
 {
-    string? StreamUrl { get; }
-    int ChannelId { get; }
-    public string Id { get; }
-    double BitsPerSecond { get; }
-    long BytesRead { get; set; }
-    long BytesWritten { get; set; }
-    public string ElapsedTime { get; }
-    DateTimeOffset StartTime { get; set; }
-    public int Rank { get; }
-    public string ChannelName { get; }
-    public string? Logo { get; set; }
-    int Clients { get; set; }
+    public interface IInputStreamingStatistics
+    {
+        double BitsPerSecond { get; }
+        long BytesRead { get; }
+        long BytesWritten { get; }
+        int ChannelId { get; }
+        string ChannelName { get; }
+        int Clients { get; }
+        string ElapsedTime { get; }
+        string Id { get; }
 
-    void AddBytesRead(long bytesRead);
-    void AddBytesWritten(long bytesWritten);
-    void DecrementClient();
-    void IncrementBytesRead();
-    void IncrementBytesWritten();
-    void IncrementClient();
+        string? ChannelLogo { get; }
+
+        string StreamId { get; }
+        string StreamName { get; }
+        string? StreamLogo { get; }
+
+        int Rank { get; }
+        DateTimeOffset StartTime { get; }
+        StreamInfo StreamInfo { get; }
+        string? StreamUrl { get; }
+
+        void AddBytesRead(long bytesRead);
+        void AddBytesWritten(long bytesWritten);
+        void DecrementClient();
+        void IncrementBytesRead();
+        void IncrementBytesWritten();
+        void IncrementClient();
+    }
 }

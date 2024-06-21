@@ -7,6 +7,7 @@ namespace StreamMaster.Streams.Domain.Interfaces;
 /// </summary>
 public interface IChannelStatus
 {
+    //int ClientCount { get; set; }
     VideoOutputProfileDto VideoProfile { get; set; }
     string OverrideVideoStreamId { get; set; }
 
@@ -34,7 +35,7 @@ public interface IChannelStatus
     /// <summary>
     /// Gets or sets the ID of the SM Channel
     /// </summary>
-    int Id { get; set; }
+    //int Id { get; set; }
 
     ///// <summary>
     ///// Gets or sets the name of the video stream associated with this channel.

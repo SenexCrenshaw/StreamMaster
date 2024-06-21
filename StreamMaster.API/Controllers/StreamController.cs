@@ -26,7 +26,7 @@ namespace StreamMaster.API.Controllers
                 return NotFound();
             }
 
-            IChannelStatus? channelStatus = await channelService.RegisterChannel(mapper.Map<SMChannelDto>(smChannel), true);
+            IChannelStatus? channelStatus = await channelService.SetupChannel(smChannel: mapper.Map<SMChannelDto>(smChannel));
 
             if (channelStatus == null || channelStatus.SMStream == null)
             {

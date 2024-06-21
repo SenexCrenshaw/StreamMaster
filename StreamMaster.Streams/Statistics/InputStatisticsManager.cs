@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 
 namespace StreamMaster.Streams.Statistics;
 
@@ -11,12 +9,12 @@ public sealed class InputStatisticsManager(ILogger<InputStatisticsManager> logge
 
     public IInputStreamingStatistics RegisterInputReader(StreamInfo StreamInfo)
     {
-        if (!_inputStatistics.ContainsKey(StreamInfo.VideoStreamId))
-        {
-            _inputStatistics.TryAdd(StreamInfo.VideoStreamId, new InputStreamingStatistics(StreamInfo));
-        }
+        return _inputStatistics.GetOrAdd(StreamInfo.SMStream.Id, _ => new InputStreamingStatistics(StreamInfo));
+    }
 
-        return _inputStatistics[StreamInfo.VideoStreamId];
+    public bool UnRegister(string smStreamId)
+    {
+        return _inputStatistics.TryRemove(smStreamId, out _);
     }
 
     public IInputStreamingStatistics? GetInputStreamStatistics(string videoStreamId)

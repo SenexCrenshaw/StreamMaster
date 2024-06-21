@@ -4,12 +4,16 @@ namespace StreamMaster.Streams.Domain.Interfaces;
 
 public interface IStreamHandler : IDisposable
 {
+
+    IEnumerable<IClientStreamerConfiguration> GetClientStreamerClientIdConfigs { get; }
     Task StartVideoStreamingAsync(Stream stream);
     int ProcessId { get; set; }
     SMStream SMStream { get; }
+    SMChannel SMChannel { get; }
+
     bool IsFailed { get; }
     VideoInfo GetVideoInfo();
-    string VideoStreamName { get; }
+    //string StreamName { get; }
 
     event EventHandler<StreamHandlerStopped> OnStreamingStoppedEvent;
 
@@ -22,12 +26,12 @@ public interface IStreamHandler : IDisposable
     /// <summary>
     /// Gets or sets the M3U file ID.
     /// </summary>
-    int M3UFileId { get; }
+   // int M3UFileId { get; }
 
     /// <summary>
     /// Gets or sets the URL of the stream.
     /// </summary>
-    string StreamUrl { get; }
+   // string StreamUrl { get; }
 
     //int SMStreamId { get; }
 

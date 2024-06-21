@@ -19,22 +19,20 @@ public class ClientStreamingStatistics
         ClientIPAddress = StreamerConfiguration.ClientIPAddress;
     }
 
-    public ClientStreamingStatistics() { }
-
     public double ReadBitsPerSecond
     {
         get
         {
-            TimeSpan elapsedTime = DateTimeOffset.UtcNow - StartTime;
+            TimeSpan elapsedTime = SMDT.UtcNow - StartTime;
             double elapsedTimeInSeconds = elapsedTime.TotalSeconds;
             return elapsedTimeInSeconds > 0 ? BytesRead * 8 / elapsedTimeInSeconds : 0;
         }
     }
 
     public long BytesRead { get; set; }
-    public string ChannelName => StreamerConfiguration.ChannelName;
+    public string ChannelName => StreamerConfiguration.SMChannel.Name;
 
-    public string VideoStreamName => StreamerConfiguration.VideoStreamName;
+    //public string VideoStreamName => StreamerConfiguration.snmc
     public Guid ClientId => StreamerConfiguration.ClientId;
     public string ClientAgent => StreamerConfiguration.ClientUserAgent;
     public string ClientIPAddress { get; set; }

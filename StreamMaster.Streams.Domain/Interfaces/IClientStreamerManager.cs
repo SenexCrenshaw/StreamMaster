@@ -3,27 +3,23 @@
 
 public interface IClientStreamerManager
 {
-    Task AddClientToHandler(Guid clientId, IStreamHandler streamHandler);
-    Task AddClientsToHandler(int smChannelId, IStreamHandler streamHandler);
 
     List<IClientStreamerConfiguration> GetClientStreamerConfigurationsBySMChannelId(int smChannelId);
-
+    //ICollection<IClientStreamerConfiguration> GetAllClientStreamerConfigurations { get; }
+    //List<IClientStreamerConfiguration> GetClientStreamerConfigurationFromIds(List<Guid> clientIds);
+    //bool HasClient(string VideoStreamId, Guid ClientId);
+    Task CancelClient(Guid clientId, bool includeAbort = true);
     int ClientCount(int ClientCount);
 
-    Task<bool> CancelClient(Guid clientId, bool includeAbort);
+    //Task<bool> CancelClient(Guid clientId, bool includeAbort);
 
     void Dispose();
 
     Task<IClientStreamerConfiguration?> GetClientStreamerConfiguration(Guid clientId, CancellationToken cancellationToken = default);
 
-
-    ICollection<IClientStreamerConfiguration> GetAllClientStreamerConfigurations { get; }
-
-    List<IClientStreamerConfiguration> GetClientStreamerConfigurationFromIds(List<Guid> clientIds);
-
-    bool HasClient(string VideoStreamId, Guid ClientId);
-
-    void RegisterClient(IClientStreamerConfiguration clientStreamerConfiguration);
+    bool RegisterClient(IClientStreamerConfiguration config);
 
     Task UnRegisterClient(Guid clientId);
+
+
 }

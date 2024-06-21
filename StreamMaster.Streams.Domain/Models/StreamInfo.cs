@@ -4,15 +4,7 @@ namespace StreamMaster.Streams.Domain.Models;
 
 public class StreamInfo
 {
-    public string? Logo => SMChannel?.Logo;
-
     public int Rank { get; set; }
-    public string StreamingProxyType => SMChannel.StreamingProxyType;
-
-    public string? StreamUrl { get; set; }
-
-    public string VideoStreamId { get; set; }
-    public string VideoStreamName { get; set; }
-
+    public SMStream SMStream { get; set; }
     public SMChannel SMChannel { get; set; }
 }

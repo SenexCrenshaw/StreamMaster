@@ -9,20 +9,20 @@ namespace StreamMaster.Streams.Streams;
 public sealed partial class StreamHandler
 {
     private DateTime _lastUpdateTime = SMDT.UtcNow;
-    private int acculmativeBytesWritten = 0;
+    //private int acculmativeBytesWritten = 0;
     private void SetMetrics(int bytesWritten)
     {
         //DateTime currentTime = SMDT.UtcNow;
 
-        //
+
 
         //if (setting.EnablePrometheus && (currentTime - _lastUpdateTime > TimeSpan.FromSeconds(5)))
         //{
-        //    inputStreamStatistics.AddBytesWritten(acculmativeBytesWritten);
-        //    _lastUpdateTime = currentTime;
-        //    acculmativeBytesWritten = 0;
+        inputStreamStatistics.AddBytesWritten(bytesWritten);
+        //_lastUpdateTime = currentTime;
+        //acculmativeBytesWritten = 0;
         //}
 
-        acculmativeBytesWritten += bytesWritten;
+        //acculmativeBytesWritten += bytesWritten;
     }
 }

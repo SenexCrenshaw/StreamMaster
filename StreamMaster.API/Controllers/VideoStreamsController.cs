@@ -4,8 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using StreamMaster.Application.StreamGroups.CommandsOld;
 using StreamMaster.Domain.Authentication;
 using StreamMaster.Domain.Repository;
-using StreamMaster.Infrastructure.Clients;
 using StreamMaster.Streams.Domain.Interfaces;
+using StreamMaster.Streams.Domain.Models;
 
 namespace StreamMaster.API.Controllers;
 
@@ -73,8 +73,7 @@ public class VideoStreamsController(IChannelManager channelManager, IRepositoryW
         string? ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
 
         ClientStreamerConfiguration config = new(smChannel, streamGroupId, Request.Headers.UserAgent.ToString(), ipAddress ?? "unknown", HttpContext.Response, cancellationToken);
-
-        Stream? stream = await channelManager.GetChannelAsync(config, cancellationToken);
+        Stream? stream = await channelManager.GetChannelAsync(config);
 
         HttpContext.Response.RegisterForDispose(new UnregisterClientOnDispose(channelManager, config));
         return stream != null ? new FileStreamResult(stream, "video/mp4") : StatusCode(StatusCodes.Status404NotFound);

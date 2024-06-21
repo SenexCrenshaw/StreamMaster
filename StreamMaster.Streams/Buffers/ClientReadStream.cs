@@ -1,11 +1,9 @@
-﻿using Microsoft.Extensions.Logging;
-
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Threading.Channels;
 
 namespace StreamMaster.Streams.Buffers;
 
-public sealed partial class ClientReadStream : Stream, IClientReadStream
+public sealed partial class ClientReadStream
 {
     private readonly CancellationTokenSource _readCancel = new();
     private readonly ILogger<ReadsLogger> _readLogger;
@@ -68,7 +66,7 @@ public sealed partial class ClientReadStream : Stream, IClientReadStream
             }
         }
 
-        _statisticsManager.AddBytesRead(ClientId, bytesRead);
+        //_clientStatisticsManager.AddBytesRead(ClientId, bytesRead);
         return bytesRead;
     }
 

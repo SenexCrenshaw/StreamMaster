@@ -9,7 +9,7 @@ public sealed partial class StreamHandler : IStreamHandler
     public event EventHandler<StreamHandlerStopped> OnStreamingStoppedEvent;
 
     private readonly ILogger<WriteLogger> _writeLogger;
-
+    //private readonly IStatisticsManager statisticsManager;
     private readonly ConcurrentDictionary<Guid, IClientStreamerConfiguration> clientStreamerConfigs = new();
     private readonly ILogger<IStreamHandler> logger;
 
@@ -19,20 +19,17 @@ public sealed partial class StreamHandler : IStreamHandler
 
     public SMChannel SMChannel { get; }
     public SMStream SMStream { get; }
-    public int M3UFileId { get; }
     public int ProcessId { get; set; }
-    public string StreamUrl { get; }
-    public string VideoStreamId { get; }
-    public string VideoStreamName { get; set; }
 
     private VideoInfo? _videoInfo = null;
     private CancellationTokenSource VideoStreamingCancellationToken { get; set; } = new();
-
+    private readonly ILoggerFactory loggerFactory;
     public int ClientCount { get; private set; } = 0;
 
     public bool IsFailed { get; private set; }
     public int RestartCount { get; set; }
     public readonly StreamInfo StreamInfo;
+
 
     /// <summary>
     /// Initializes a new instance of the StreamHandler class, setting up the video stream handling,
@@ -48,29 +45,26 @@ public sealed partial class StreamHandler : IStreamHandler
     /// <param name="inputStatisticsManager">An IInputStatisticsManager instance for managing and tracking input statistics.</param>
     public StreamHandler(IChannelStatus channelStatus, int processId, IOptionsMonitor<Setting> intSettings, ILoggerFactory loggerFactory, IInputStatisticsManager inputStatisticsManager)
     {
-        SMStream smStream = channelStatus.SMStream;
-        SMChannel smChannel = channelStatus.SMChannel;
+        logger = loggerFactory.CreateLogger<StreamHandler>();
+        this.loggerFactory = loggerFactory;
+
+        SMChannel = channelStatus.SMChannel;
+        SMStream = channelStatus.SMStream;
+
         int rank = channelStatus.Rank;
 
         settings = intSettings.CurrentValue;
-        logger = loggerFactory.CreateLogger<StreamHandler>();
-        SMStream = smStream;
-        SMChannel = smChannel;
-        M3UFileId = smStream.M3UFileId;
+
         ProcessId = processId;
-        StreamUrl = smStream.Url;
-        VideoStreamId = smStream.Id;
-        VideoStreamName = smStream.Name;
+
         this.inputStatisticsManager = inputStatisticsManager;
 
         _writeLogger = loggerFactory.CreateLogger<WriteLogger>();
 
         StreamInfo = new StreamInfo
         {
-            SMChannel = SMChannel,
-            VideoStreamId = smStream.Id,
-            VideoStreamName = smStream.Name,
-            StreamUrl = smStream.Url,
+            SMChannel = channelStatus.SMChannel,
+            SMStream = channelStatus.SMStream,
             Rank = rank
         };
 
@@ -80,12 +74,14 @@ public sealed partial class StreamHandler : IStreamHandler
 
     private void OnStreamingStopped(bool InputStreamError)
     {
-        OnStreamingStoppedEvent?.Invoke(this, new StreamHandlerStopped { StreamUrl = StreamUrl, InputStreamError = InputStreamError });
+        OnStreamingStoppedEvent?.Invoke(this, new StreamHandlerStopped { StreamUrl = SMStream.Url, InputStreamError = InputStreamError });
     }
+
+
 
     public void Dispose()
     {
-
+        inputStatisticsManager.UnRegister(SMStream.Id);
         clientStreamerConfigs.Clear();
         Stop();
         GC.SuppressFinalize(this);
@@ -129,13 +125,13 @@ public sealed partial class StreamHandler : IStreamHandler
                 inputStreamStatistics.IncrementClient();
                 ++ClientCount;
 
-                logger.LogInformation("RegisterClientStreamer for Client ID {ClientId} to Video Stream Id {videoStreamId} {name}", streamerConfiguration.ClientId, VideoStreamId, VideoStreamName);
+                logger.LogInformation("RegisterClientStreamer for Client ID {ClientId} to Video Stream Id {videoStreamId} {name}", streamerConfiguration.ClientId, SMStream.Id, SMStream.Name);
             }
 
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error registering stream configuration for client {ClientId} {name}", streamerConfiguration.ClientId, VideoStreamName);
+            logger.LogError(ex, "Error registering stream configuration for client {ClientId} {name}", streamerConfiguration.ClientId, SMStream.Name);
         }
     }
 
@@ -144,7 +140,7 @@ public sealed partial class StreamHandler : IStreamHandler
     {
         try
         {
-            logger.LogInformation("UnRegisterClientStreamer ClientId: {ClientId} {name}", ClientId, VideoStreamName);
+            logger.LogInformation("UnRegisterClientStreamer ClientId: {ClientId} {name}", ClientId, SMStream.Name);
             bool result = clientStreamerConfigs.TryRemove(ClientId, out _);
             inputStreamStatistics.DecrementClient();
             --ClientCount;
@@ -153,10 +149,12 @@ public sealed partial class StreamHandler : IStreamHandler
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error unregistering stream configuration for client {ClientId} {name}", ClientId, VideoStreamName);
+            logger.LogError(ex, "Error unregistering stream configuration for client {ClientId} {name}", ClientId, SMStream.Name);
             return false;
         }
     }
+
+    public IEnumerable<IClientStreamerConfiguration> GetClientStreamerClientIdConfigs => clientStreamerConfigs.Values;
 
 
     public IEnumerable<Guid> GetClientStreamerClientIds()

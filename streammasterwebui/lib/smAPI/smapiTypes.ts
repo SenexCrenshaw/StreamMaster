@@ -477,6 +477,12 @@ export interface RemoveSMChannelFromStreamGroupRequest
 	SMChannelId: number;
 	StreamGroupId: number;
 }
+export interface GetClientStreamingStatisticsRequest
+{
+}
+export interface GetInputStatisticsRequest
+{
+}
 export interface GetSMTasksRequest
 {
 }
