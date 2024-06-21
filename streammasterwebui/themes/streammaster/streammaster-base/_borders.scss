@@ -55,6 +55,40 @@
     @include sm-border-top();
 }
 
+@mixin sm-border-bottom() {
+
+    border-top-style: none !important;
+    border-bottom-style: solid !important;
+    border-left-style: none !important;
+    border-right-style: none !important;
+
+    border-color: $inputBorderColor !important;
+    border-radius: 0 !important;
+    border-width: 1px !important;
+}
+
+.sm-border-bottom {
+    @include sm-border-bottom();
+}
+
+@mixin sm-border-roundtop() {
+    border-top-style: none !important;
+    border-bottom-style: solid !important;
+    border-left-style: none !important;
+    border-right-style: none !important;
+
+    border-top-left-radius: $borderRadius !important;
+    border-top-right-radius: $borderRadius !important;
+
+    border-color: $inputBorderColor !important;
+    // border-radius: 0 !important;
+    border-width: 1px !important;
+}
+
+.sm-border-roundtop {
+    @include sm-border-roundtop();
+}
+
 @mixin sm-border-transparent() {
     border-radius: $borderRadius !important;
     border-color: transparent;

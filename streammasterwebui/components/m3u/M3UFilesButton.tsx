@@ -12,7 +12,7 @@ const M3UFilesButton = () => {
     <SMPopUp
       buttonClassName="sm-w-4rem icon-green"
       buttonLabel="M3U"
-      contentWidthSize="5"
+      contentWidthSize="4"
       header={<M3UFileCreateDialog onUploadComplete={closeOverlay} />}
       icon="pi-upload"
       iconFilled

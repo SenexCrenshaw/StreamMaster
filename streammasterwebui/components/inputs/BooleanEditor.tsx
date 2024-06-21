@@ -22,7 +22,7 @@ const BooleanEditor = ({ isValid = true, checked, label, labelSmall = false, lab
           <div className="pt-small" />
         </>
       )}
-      <div className={`flex ${labelInline ? 'align-items-center ' : 'flex-column align-items-start'}`}>
+      <div className={`flex ${labelInline ? 'align-items-center ' : 'flex-column align-items-center'}`}>
         {label && labelInline && <div className={`text-container pr-1 ${labelSmall ? 'sm-text-xs font-italic' : ''}`}>{label.toUpperCase()}</div>}
         <Checkbox
           invalid={!isValid}

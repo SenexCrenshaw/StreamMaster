@@ -55,7 +55,7 @@
   width: calc(50% - 0.4rem);
 }
 
-.width-100, .stringeditorbody-inputtext-buttons .p-inputnumber-input, .stringeditor .p-inputnumber-input, .stringeditor .sm-input .p-inputnumber-input, .stringeditor .stringeditorbody-inputtext-buttons .p-inputnumber-input, .sm-iconselector-lg {
+.width-100, .stringeditor .p-inputnumber-input, .stringeditor .sm-input .p-inputnumber-input, .sm-iconselector-lg {
   width: calc(100% - 0.4rem);
 }
 
@@ -7720,6 +7720,27 @@
   border-width: 1px !important;
 }
 
+.sm-border-bottom {
+  border-top-style: none !important;
+  border-bottom-style: solid !important;
+  border-left-style: none !important;
+  border-right-style: none !important;
+  border-color: #263238 !important;
+  border-radius: 0 !important;
+  border-width: 1px !important;
+}
+
+.sm-border-roundtop {
+  border-top-style: none !important;
+  border-bottom-style: solid !important;
+  border-left-style: none !important;
+  border-right-style: none !important;
+  border-top-left-radius: 6px !important;
+  border-top-right-radius: 6px !important;
+  border-color: #263238 !important;
+  border-width: 1px !important;
+}
+
 .sm-border-transparent {
   border-radius: 6px !important;
   border-color: transparent;
@@ -8105,17 +8126,10 @@ div[aria-haspopup=dialog] {
   color: #bcbfbf;
   position: relative;
 }
-.stringeditor .p-inputtext.p-inputnumber-input {
-  border-color: transparent;
-}
 .stringeditor .p-inputtext.p-inputnumber-input:focus {
   outline: none;
   box-shadow: none;
   border-color: transparent;
-}
-.stringeditor .stringeditorbody-inputtext-buttons {
-  border-top-right-radius: 0 !important;
-  border-bottom-right-radius: 0 !important;
 }
 .stringeditor .sm-input {
   background-color: transparent;
@@ -8222,10 +8236,6 @@ div[aria-haspopup=dialog] {
   height: 100%;
 }
 
-.stringeditorbody-inputtext-buttons {
-  border-top-right-radius: 0 !important;
-  border-bottom-right-radius: 0 !important;
-}
 .numeric-field {
   font-family: "Courier New", Courier, monospace;
   font-weight: bold;

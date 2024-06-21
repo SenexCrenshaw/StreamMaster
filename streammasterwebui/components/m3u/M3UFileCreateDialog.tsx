@@ -95,7 +95,7 @@ export const M3UFileCreateDialog = ({ onHide, onUploadComplete, showButton }: M3
   return (
     <SMPopUp
       buttonClassName="icon-green"
-      contentWidthSize="4"
+      contentWidthSize="3"
       hasCloseButton={false}
       icon="pi-plus"
       onCloseClick={() => {
@@ -131,7 +131,7 @@ export const M3UFileCreateDialog = ({ onHide, onUploadComplete, showButton }: M3
       zIndex={10}
     >
       <div className="layout-padding-bottom-lg" />
-      <div className="w-12">
+      <div className="w-12 px-2">
         <SMFileUpload
           isM3U
           onSaveEnabled={(enabled) => {
@@ -144,7 +144,7 @@ export const M3UFileCreateDialog = ({ onHide, onUploadComplete, showButton }: M3
             ReturnToParent(true);
           }}
         />
-        <div className="layout-padding-bottom-lg" />
+
         <M3UFileDialog
           ref={fileDialogRef}
           selectedFile={m3uFileDto}
@@ -152,7 +152,6 @@ export const M3UFileCreateDialog = ({ onHide, onUploadComplete, showButton }: M3
             setM3UFileDto(e);
           }}
         />
-        <div className="layout-padding-bottom-lg" />
       </div>
     </SMPopUp>
   );

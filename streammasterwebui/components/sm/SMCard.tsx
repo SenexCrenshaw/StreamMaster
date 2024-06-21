@@ -24,7 +24,7 @@ export const SMCard = ({
     return ret;
   }, [darkBackGround, simpleChildren]);
 
-  const borderClass = info !== '' ? 'info-header-text-bottom-border' : 'info-header-text';
+  const borderClass = info !== '' ? 'sm-border-bottom sm-border-roundtop' : 'info-header-text';
 
   if (simple === true || title === undefined || title === '') {
     return <div>{children}</div>;

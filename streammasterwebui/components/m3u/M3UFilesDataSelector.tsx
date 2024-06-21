@@ -133,7 +133,7 @@ const M3UFilesDataSelector = () => {
         field: 'Name',
         header: 'Name',
         sortable: true,
-        width: '50%'
+        width: 100
       },
       {
         align: 'left',
@@ -161,13 +161,13 @@ const M3UFilesDataSelector = () => {
 
   return (
     <SMDataTable
-      noSourceHeader
       columns={columns}
       defaultSortField="Name"
       defaultSortOrder={1}
       emptyMessage="No M3U Files"
       enableExport={false}
       id="m3ufilesdataselector"
+      noSourceHeader
       queryFilter={useGetPagedM3UFiles}
     />
   );

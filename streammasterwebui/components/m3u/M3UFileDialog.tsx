@@ -141,24 +141,24 @@ const M3UFileDialog = forwardRef<M3UFileDialogRef, M3UFileDialogProperties>(({ o
   }
 
   return (
-    <div className="w-12">
+    <div className="w-12  px-2">
       <div className="flex gap-1">
         <div className="w-6">
           <StringEditor
-            disableDebounce
-            darkBackGround
             autoFocus
+            darkBackGround
+            disableDebounce
             label="NAME"
-            value={m3uFileDto.Name}
             onChange={(e) => {
               updateStateAndRequest({ Name: e });
               setStringValue(e);
             }}
+            value={m3uFileDto.Name}
           />
         </div>
         <div className="w-6">
           <div className="flex gap-1">
-            <div className="w-6 ">
+            <div className="w-6">
               <NumberEditor
                 darkBackGround
                 disableDebounce
@@ -172,9 +172,8 @@ const M3UFileDialog = forwardRef<M3UFileDialogRef, M3UFileDialogProperties>(({ o
               <NumberEditor
                 darkBackGround
                 disableDebounce
-                label="START CHANNEL #"
+                label="START CH #"
                 onChange={(e) => updateStateAndRequest({ StartingChannelNumber: e })}
-                showButtons
                 value={m3uFileDto?.StartingChannelNumber}
               />
             </div>
@@ -186,7 +185,7 @@ const M3UFileDialog = forwardRef<M3UFileDialogRef, M3UFileDialogProperties>(({ o
       {showUrlEditor === true && (
         <>
           <div className="w-12">
-            <StringEditor showClear disableDebounce darkBackGround label="URL" value={m3uFileDto?.Url} onChange={(e) => updateStateAndRequest({ Url: e })} />
+            <StringEditor disableDebounce darkBackGround label="URL" value={m3uFileDto?.Url} onChange={(e) => updateStateAndRequest({ Url: e })} />
           </div>
           <div className="layout-padding-bottom-lg" />
         </>
@@ -194,15 +193,6 @@ const M3UFileDialog = forwardRef<M3UFileDialogRef, M3UFileDialogProperties>(({ o
       <div className="w-12">
         <div className="flex gap-1">
           <div className="flex w-6 gap-1">
-            <div className="w-6">
-              <div className="sm-sourceorfiledialog-toggle">
-                <BooleanEditor
-                  label="AUTO CH.#:"
-                  checked={m3uFileDto?.OverwriteChannelNumbers}
-                  onChange={(e) => updateStateAndRequest({ OverwriteChannelNumbers: e })}
-                />
-              </div>
-            </div>
             <div className="w-6">
               <NumberEditor
                 darkBackGround
@@ -214,11 +204,21 @@ const M3UFileDialog = forwardRef<M3UFileDialogRef, M3UFileDialogProperties>(({ o
                 value={m3uFileDto?.HoursToUpdate}
               />
             </div>
+            <div className="w-6">
+              <div className="sm-sourceorfiledialog-toggle">
+                <BooleanEditor
+                  label="AUTO CH.#"
+                  checked={m3uFileDto?.OverwriteChannelNumbers}
+                  onChange={(e) => updateStateAndRequest({ OverwriteChannelNumbers: e })}
+                />
+              </div>
+            </div>
           </div>
           <div className="w-6">
             <M3UFileTags vodTags={m3uFileDto?.VODTags} onChange={(e) => updateStateAndRequest({ VODTags: e })} />
           </div>
         </div>
+        <div className="layout-padding-bottom-lg" />
       </div>
     </div>
   );

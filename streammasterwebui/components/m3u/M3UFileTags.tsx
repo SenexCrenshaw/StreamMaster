@@ -1,4 +1,4 @@
-import SMOverlay from '@components/sm/SMOverlay';
+import SMPopUp from '@components/sm/SMPopUp';
 import { M3UFileDto } from '@lib/smAPI/smapiTypes';
 import { Chips } from 'primereact/chips';
 import React, { useMemo } from 'react';
@@ -26,7 +26,13 @@ const M3UFileTags = ({ m3uFileDto, onChange, vodTags }: M3UFileTagsProperties) =
   }, [intTags]);
 
   const buttonTemplate = useMemo(() => {
-    return <div className="text-container pl-1">{buttonTags}</div>;
+    return (
+      <div className="flex w-full justify-content-center align-items-center">
+        <div className="text-container pl-1" style={{ color: '#d3d88e' }}>
+          {buttonTags}
+        </div>
+      </div>
+    );
   }, [buttonTags]);
 
   return (
@@ -35,7 +41,7 @@ const M3UFileTags = ({ m3uFileDto, onChange, vodTags }: M3UFileTagsProperties) =
         URL REGEX
       </label>
       <div id={uuid} className="stringeditor">
-        <SMOverlay
+        <SMPopUp
           className="w-full"
           buttonDarkBackground
           buttonTemplate={buttonTemplate}
@@ -54,7 +60,7 @@ const M3UFileTags = ({ m3uFileDto, onChange, vodTags }: M3UFileTagsProperties) =
               variant="filled"
             />
           </div>
-        </SMOverlay>
+        </SMPopUp>
       </div>
     </div>
   );

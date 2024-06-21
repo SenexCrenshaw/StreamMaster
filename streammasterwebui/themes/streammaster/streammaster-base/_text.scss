@@ -111,17 +111,17 @@ div[aria-haspopup="dialog"] {
             border-color: transparent;
         }
 
-        border-color: transparent;
+        // border-color: transparent;
     }
 
-    .stringeditorbody-inputtext-buttons {
-        border-top-right-radius: 0 !important;
-        border-bottom-right-radius: 0 !important;
+    // .stringeditorbody-inputtext-buttons {
+    //     // border-top-right-radius: 0 !important;
+    //     // border-bottom-right-radius: 0 !important;
 
-        .p-inputnumber-input {
-            @extend .width-100;
-        }
-    }
+    //     .p-inputnumber-input {
+    //         @extend .width-100;
+    //     }
+    // }
 
     .sm-input {
         @extend .text-container;
@@ -274,14 +274,14 @@ div[aria-haspopup="dialog"] {
     }
 }
 
-.stringeditorbody-inputtext-buttons {
-    border-top-right-radius: 0 !important;
-    border-bottom-right-radius: 0 !important;
+// .stringeditorbody-inputtext-buttons {
+//     border-top-right-radius: 0 !important;
+//     border-bottom-right-radius: 0 !important;
 
-    .p-inputnumber-input {
-        @extend .width-100;
-    }
-}
+//     .p-inputnumber-input {
+//         @extend .width-100;
+//     }
+// }
 
 .numeric-field {
     font-family: 'Courier New', Courier, monospace;
