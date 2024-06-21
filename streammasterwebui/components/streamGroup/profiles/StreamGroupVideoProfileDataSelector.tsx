@@ -70,14 +70,6 @@ const StreamGroupVideoProfileDataSelector = () => {
     );
   }, []);
 
-  const headerRightTemplate = useMemo(() => {
-    return (
-      <>
-        <CreateVideoProfileDialog />
-      </>
-    );
-  }, []);
-
   const update = useCallback((request: UpdateVideoProfileRequest) => {
     UpdateVideoProfile(request)
       .then((res) => {})
@@ -97,7 +89,7 @@ const StreamGroupVideoProfileDataSelector = () => {
           value={rowData.ProfileName}
           onSave={(e) => {
             if (e !== undefined) {
-              const ret = { Name: rowData.ProfileName, NewName: e } as UpdateVideoProfileRequest;
+              const ret = { ProfileName: rowData.ProfileName, NewName: e } as UpdateVideoProfileRequest;
               update(ret);
             }
           }}
@@ -124,7 +116,7 @@ const StreamGroupVideoProfileDataSelector = () => {
         align: 'center',
         bodyTemplate: actionTemplate,
         field: 'autoUpdate',
-        header: 'Actions',
+        fieldType: 'actions',
         width: 40
       }
     ],
@@ -140,6 +132,7 @@ const StreamGroupVideoProfileDataSelector = () => {
 
   return (
     <SMDataTable
+      actionHeaderTemplate={<CreateVideoProfileDialog />}
       columns={columns}
       dataSource={filteredValues}
       defaultSortField="Name"
@@ -148,7 +141,6 @@ const StreamGroupVideoProfileDataSelector = () => {
       enableClick
       enableExport={false}
       headerName="Video Profiles"
-      headerRightTemplate={headerRightTemplate}
       id={id}
       lazy
       onRowClick={(e: DataTableRowClickEvent) => {}}

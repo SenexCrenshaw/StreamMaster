@@ -345,3 +345,9 @@ $shadow-color-sg: rgba($iconSG, $shadow-opacity); // Define the shadow color wit
         border-top-width: 0 !important;
     }
 }
+
+.sm-card-children-noborder {
+    .p-datatable {
+        @extend .sm-border;
+    }
+}

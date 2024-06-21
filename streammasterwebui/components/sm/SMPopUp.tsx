@@ -93,15 +93,16 @@ const SMPopUp = forwardRef<SMPopUpRef, SMPopUpProperties>(
                 tooltip="Ok"
               />
             )}
-
-            <SMButton
-              icon="pi-times"
-              iconFilled
-              buttonClassName="icon-red"
-              buttonDisabled={disabled || closeButtonDisabled}
-              onClick={() => closed()}
-              tooltip="Close"
-            />
+            {props.showClose !== false && (
+              <SMButton
+                icon="pi-times"
+                iconFilled
+                buttonClassName="icon-red"
+                buttonDisabled={disabled || closeButtonDisabled}
+                onClick={() => closed()}
+                tooltip="Close"
+              />
+            )}
           </div>
         }
         answer={remember?.checked ? remember?.value : undefined ?? undefined}

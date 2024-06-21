@@ -10,7 +10,6 @@ export interface OutputProfile {
   Name: string;
 }
 export interface OutputProfileDto {
-  APIName: string;
   EnableChannelNumber: boolean;
   EnableGroupTitle: boolean;
   EnableIcon: boolean;

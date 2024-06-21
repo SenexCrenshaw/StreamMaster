@@ -10,13 +10,14 @@ import FileProfileValueDropDown from './columns/OutputProfileValueDropDown';
 
 const CreateFileProfileDialog = () => {
   const defaultValues = {
-    ChannelId: getEnumKeyByValue(ValidM3USetting, ValidM3USetting.Id),
-    ChannelNumber: getEnumKeyByValue(ValidM3USetting, ValidM3USetting.ChannelNumber),
+    EnableChannelNumber: true,
+    EnableGroupTitle: true,
     EnableIcon: true,
-    GroupTitle: getEnumKeyByValue(ValidM3USetting, ValidM3USetting.Group),
-    TVGGroup: getEnumKeyByValue(ValidM3USetting, ValidM3USetting.Group),
-    TVGId: getEnumKeyByValue(ValidM3USetting, ValidM3USetting.EPGID),
-    TVGName: getEnumKeyByValue(ValidM3USetting, ValidM3USetting.Name)
+    EnableId: true,
+    EPGId: getEnumKeyByValue(ValidM3USetting, ValidM3USetting.EPGId),
+    Group: getEnumKeyByValue(ValidM3USetting, ValidM3USetting.Group),
+    IsReadOnly: false,
+    Name: getEnumKeyByValue(ValidM3USetting, ValidM3USetting.Name)
   } as OutputProfileDto;
 
   const [fileProfile, setFileProfile] = useState<OutputProfileDto>(defaultValues);
@@ -58,8 +59,7 @@ const CreateFileProfileDialog = () => {
     <SMPopUp
       contentWidthSize="6"
       buttonClassName="icon-green"
-      iconFilled
-      icon="pi-plus"
+      icon="pi-plus-circle"
       title="Create Profile"
       ref={smPopUpRef}
       modal
@@ -68,7 +68,7 @@ const CreateFileProfileDialog = () => {
         save();
       }}
       okButtonDisabled={!name}
-      tooltip="Create File Profile"
+      tooltip="Create Profile"
       zIndex={10}
     >
       <>
@@ -94,19 +94,21 @@ const CreateFileProfileDialog = () => {
               <div className={dropdownClass}>
                 <FileProfileValueDropDown
                   darkBackGround
-                  header="TVG Name"
-                  label="TVG Name"
-                  value={fileProfile.TVGName}
+                  header="Name"
+                  label="Name"
+                  name={name}
+                  value={fileProfile.Name}
                   onChange={(e) => {
-                    updateM3UOutputProfileStateAndRequest({ TVGName: e.label });
+                    updateM3UOutputProfileStateAndRequest({ Name: e.label });
                   }}
                 />
               </div>
-              <div className={dropdownClass}>
+              {/* <div className={dropdownClass}>
                 <FileProfileValueDropDown
                   darkBackGround
                   header="Channel Id"
                   label="Channel Id"
+                  name={name}
                   value={fileProfile.ChannelId}
                   onChange={(e) => {
                     updateM3UOutputProfileStateAndRequest({ ChannelId: e.label });
@@ -118,6 +120,7 @@ const CreateFileProfileDialog = () => {
                   darkBackGround
                   header="Channel #"
                   label="Channel #"
+                  name={name}
                   value={fileProfile.ChannelNumber}
                   onChange={(e) => {
                     updateM3UOutputProfileStateAndRequest({ ChannelNumber: e.label });
@@ -129,12 +132,13 @@ const CreateFileProfileDialog = () => {
                   darkBackGround
                   header="TVG Id"
                   label="TVG Id"
+                  name={name}
                   value={fileProfile.TVGId}
                   onChange={(e) => {
                     updateM3UOutputProfileStateAndRequest({ TVGId: e.label });
                   }}
                 />
-              </div>
+              </div> */}
             </div>
           </div>
         </div>

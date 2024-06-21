@@ -1,6 +1,16 @@
+using AutoMapper.Configuration.Annotations;
+
+using MessagePack;
+
+using System.Text.Json.Serialization;
+
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public class OutputProfile
 {
+    [Ignore]
+    [JsonIgnore]
+    [IgnoreMember]
+
     public static string APIName => "GetOutputProfiles";
 
     public bool IsReadOnly { get; set; } = false;

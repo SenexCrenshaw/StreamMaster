@@ -415,7 +415,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
 
       if (col.fieldType === 'actions') {
         if (props.actionHeaderTemplate) {
-          return props.actionHeaderTemplate;
+          return <div className={`flex ${justify} align-items-center align-content-center`}>{props.actionHeaderTemplate}</div>;
         }
 
         let selectedCols = [] as ColumnMeta[];

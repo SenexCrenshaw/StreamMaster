@@ -27,8 +27,7 @@ const CreateVideoProfileDialog = () => {
     <SMPopUp
       contentWidthSize="6"
       buttonClassName="icon-green"
-      iconFilled
-      icon="pi-plus"
+      icon="pi-plus-circle"
       title="Create Profile"
       ref={smPopUpRef}
       modal

@@ -56,7 +56,7 @@ const CreateStreamGroupProfileDialog = ({ streamGroupDto }: CreateStreamGroupPro
         save();
       }}
       okButtonDisabled={!name}
-      tooltip="Create File Profile"
+      tooltip="Create Profile"
       zIndex={10}
     >
       <>

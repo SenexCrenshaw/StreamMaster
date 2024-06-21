@@ -7785,7 +7785,7 @@
   border-width: 1px !important;
 }
 
-.sm-border, .p-datatable-wrapper, .sm-datatable-header, .sm-card .sm-card-children, .sm-card-dark .sm-card-children, .sm-card-simple .sm-card-children, .sm-card .sm-card-info, .sm-card-dark .sm-card-info, .sm-card-simple .sm-card-info, .sm-card .sm-card-header, .sm-card-dark .sm-card-header, .sm-card-simple .sm-card-header, .sm-standard-header, .sm-iconselector-lg {
+.sm-border, .p-datatable-wrapper, .sm-datatable-header, .sm-card .sm-card-children, .sm-card-dark .sm-card-children, .sm-card-simple .sm-card-children, .sm-card .sm-card-info, .sm-card-dark .sm-card-info, .sm-card-simple .sm-card-info, .sm-card .sm-card-header, .sm-card-dark .sm-card-header, .sm-card-simple .sm-card-header, .sm-standard-header, .sm-iconselector-lg, .sm-card-children-noborder .p-datatable {
   border-radius: 6px !important;
   border-color: #263238 !important;
   border-width: 0.1rem !important;

@@ -11,7 +11,7 @@ import { ReactNode, useCallback, useMemo } from 'react';
 interface OutputProfileValueDropDownProps {
   readonly darkBackGround?: boolean;
   readonly header: string;
-  readonly name: string;
+  readonly name: string | undefined;
   readonly field?: string;
   readonly label?: string;
   readonly labelInline?: boolean;
@@ -22,6 +22,9 @@ interface OutputProfileValueDropDownProps {
 const OutputProfileValueDropDown = ({ ...props }: OutputProfileValueDropDownProps) => {
   const update = useCallback(
     (request: UpdateOutputProfileRequest) => {
+      if (props.name === undefined) {
+        return;
+      }
       Logger.debug('OutputProfileValueDropDown', request);
       request.ProfileName = props.name;
 

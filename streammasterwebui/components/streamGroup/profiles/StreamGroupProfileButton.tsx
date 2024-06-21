@@ -1,28 +1,26 @@
 import SMPopUp from '@components/sm/SMPopUp';
-import React, { useMemo } from 'react';
-import StreamGroupOutputProfileDataSelector from './StreamGroupOutputProfileDataSelector';
-import StreamGroupVideoProfileDataSelector from './StreamGroupVideoProfileDataSelector';
+import StreamGroupOutputProfileDataSelector from '@components/streamGroup/profiles/StreamGroupOutputProfileDataSelector';
+import StreamGroupVideoProfileDataSelector from '@components/streamGroup/profiles/StreamGroupVideoProfileDataSelector';
+import React from 'react';
 
 export const StreamGroupProfileButton = () => {
-  const headerTemplate = useMemo(() => {
-    return <>Hey</>;
-  }, []);
-
   return (
     <SMPopUp
       buttonClassName="sm-w-5rem icon-sg"
       buttonLabel="Profiles"
-      contentWidthSize="7"
-      hasCloseButton={false}
-      header={headerTemplate}
+      contentWidthSize="6"
+      showClose={false}
       icon="pi-file-edit"
       iconFilled
       info=""
       modalCentered
+      noBorderChildren
       showRemember={false}
       title="PROFILES"
     >
       <StreamGroupOutputProfileDataSelector />
+
+      <div className="layout-padding-bottom-lg" />
       <StreamGroupVideoProfileDataSelector />
     </SMPopUp>
   );
