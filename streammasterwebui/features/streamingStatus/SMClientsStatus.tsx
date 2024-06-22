@@ -4,6 +4,7 @@ import { formatJSONDateString, getElapsedTimeString } from '@lib/common/dateTime
 import { useSMContext } from '@lib/signalr/SMProvider';
 import { ClientStreamingStatistics } from '@lib/smAPI/smapiTypes';
 import { useCallback, useMemo } from 'react';
+import { VideoInfoDisplay } from './VideoInfoDisplay';
 
 const SMClientsStatus = () => {
   const { clientStreamingStatistics } = useSMContext();
@@ -23,16 +24,25 @@ const SMClientsStatus = () => {
 
   const clientStartTimeTemplate = (rowData: ClientStreamingStatistics) => <div>{formatJSONDateString(rowData.StartTime ?? '')}</div>;
 
+  const actionTemplate = useCallback((data: ClientStreamingStatistics) => {
+    return (
+      <div className="flex p-0 justify-content-end align-items-center">
+        <VideoInfoDisplay channelId={data.ChannelId} />
+      </div>
+    );
+  }, []);
+
   const columns = useMemo(
     (): ColumnMeta[] => [
       { align: 'left', field: 'ChannelName', filter: true, header: 'Channel', sortable: true, width: 120 },
       { align: 'center', field: 'ClientIPAddress', filter: true, header: 'IPAddress', sortable: true, width: 100 },
       { align: 'center', field: 'ClientAgent', filter: true, header: 'Agent', sortable: true, width: 180 },
       { align: 'right', bodyTemplate: clientBitsPerSecondTemplate, field: 'BitsPerSecond', header: 'Kbps', width: 60 },
-      { align: 'center', bodyTemplate: clientStartTimeTemplate, field: 'StartTime', header: 'StartTime', width: 180 },
-      { align: 'right', bodyTemplate: elapsedTSTemplate, field: 'ElapsedTime', header: '(d hh:mm:ss:ms)', width: 150 }
+      { align: 'center', bodyTemplate: clientStartTimeTemplate, field: 'StartTime', header: 'StartTime', width: 150 },
+      { align: 'right', bodyTemplate: elapsedTSTemplate, field: 'ElapsedTime', header: '(d hh:mm:ss:ms)', width: 150 },
+      { align: 'right', bodyTemplate: actionTemplate, field: 'IsHidden', fieldType: 'actions', header: '', width: 40 }
     ],
-    [elapsedTSTemplate]
+    [actionTemplate, elapsedTSTemplate]
   );
 
   if (clientStreamingStatistics === undefined) return <div>Loading...</div>;

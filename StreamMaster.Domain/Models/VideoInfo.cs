@@ -3,6 +3,7 @@
 namespace StreamMaster.Domain.Models;
 
 // Root myDeserializedClass = JsonSerializer.Deserialize<Root>(myJsonResponse);
+[TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public class Disposition
 {
     [JsonPropertyName("default")]
@@ -41,7 +42,7 @@ public class Disposition
     [JsonPropertyName("timed_thumbnails")]
     public int TimedThumbnails { get; set; }
 }
-
+[TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public class Format
 {
     [JsonPropertyName("filename")]
@@ -66,6 +67,7 @@ public class Format
     public int ProbeScore { get; set; }
 }
 
+[TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public class VideoInfo
 {
     [JsonPropertyName("streams")]
@@ -75,6 +77,7 @@ public class VideoInfo
     public Format Format { get; set; }
 }
 
+[TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public class VideoStreamInfo
 {
     [JsonPropertyName("index")]

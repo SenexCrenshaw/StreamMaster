@@ -114,6 +114,79 @@ export interface StreamGroupSMChannelLink
 	StreamGroup: any;
 	StreamGroupId: number;
 }
+export interface Disposition
+{
+	AttachedPic: number;
+	CleanEffects: number;
+	Comment: number;
+	Default: number;
+	Dub: number;
+	Forced: number;
+	HearingImpaired: number;
+	Karaoke: number;
+	Lyrics: number;
+	Original: number;
+	TimedThumbnails: number;
+	VisualImpaired: number;
+}
+export interface Format
+{
+	Filename: string;
+	FormatLongName: string;
+	FormatName: string;
+	NbPrograms: number;
+	NbStreams: number;
+	ProbeScore: number;
+	StartTime: string;
+}
+export interface VideoInfo
+{
+	Format: Format;
+	Streams: VideoStreamInfo[];
+}
+export interface VideoStreamInfo
+{
+	AvgFrameRate: string;
+	BitRate: string;
+	BitsPerRawSample: string;
+	BitsPerSample?: number;
+	ChannelLayout: string;
+	Channels?: number;
+	ChromaLocation: string;
+	ClosedCaptions: number;
+	CodecLongName: string;
+	CodecName: string;
+	CodecTag: string;
+	CodecTagString: string;
+	CodecType: string;
+	CodedHeight: number;
+	CodedWidth: number;
+	ColorPrimaries: string;
+	ColorRange: string;
+	ColorSpace: string;
+	ColorTransfer: string;
+	DisplayAspectRatio: string;
+	Disposition: Disposition;
+	FieldOrder: string;
+	HasBFrames: number;
+	Height: number;
+	Id: string;
+	Index: number;
+	IsAvc: string;
+	Level: number;
+	NalLengthSize: string;
+	PixFmt: string;
+	Profile: string;
+	Refs: number;
+	RFrameRate: string;
+	SampleAspectRatio: string;
+	SampleFmt: string;
+	SampleRate: string;
+	StartPts: any;
+	StartTime: string;
+	TimeBase: string;
+	Width: number;
+}
 export interface ChannelGroupDto
 {
 	ActiveCount: number;
@@ -569,6 +642,10 @@ export interface GetSMChannelNamesRequest
 {
 }
 export interface GetSMChannelRequest
+{
+	SMChannelId: number;
+}
+export interface GetVideoInfoFromIdRequest
 {
 	SMChannelId: number;
 }

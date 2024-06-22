@@ -31,6 +31,7 @@ import { setIsForced as GetStreamGroupsSetIsForced } from '@lib/smAPI/StreamGrou
 import { setIsForced as GetStreamGroupSMChannelsSetIsForced } from '@lib/smAPI/StreamGroupSMChannelLinks/GetStreamGroupSMChannelsSlice';
 import { setIsForced as GetSystemStatusSetIsForced } from '@lib/smAPI/General/GetSystemStatusSlice';
 import { setIsForced as GetTaskIsRunningSetIsForced } from '@lib/smAPI/General/GetTaskIsRunningSlice';
+import { setIsForced as GetVideoInfoFromIdSetIsForced } from '@lib/smAPI/SMChannels/GetVideoInfoFromIdSlice';
 import { setIsForced as GetVideoProfilesSetIsForced } from '@lib/smAPI/Profiles/GetVideoProfilesSlice';
 
 export const DataRefreshAll = () => {
@@ -66,5 +67,6 @@ export const DataRefreshAll = () => {
   store.dispatch(GetStreamGroupSMChannelsSetIsForced({ force: true }));
   store.dispatch(GetSystemStatusSetIsForced({ force: true }));
   store.dispatch(GetTaskIsRunningSetIsForced({ force: true }));
+  store.dispatch(GetVideoInfoFromIdSetIsForced({ force: true }));
   store.dispatch(GetVideoProfilesSetIsForced({ force: true }));
 };

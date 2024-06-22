@@ -10,7 +10,7 @@ namespace StreamMaster.Streams.Streams;
 /// </summary>
 public sealed partial class StreamHandler
 {
-    private const int videoBufferSize = 1 * 1024 * 1000;
+    private const int videoBufferSize = 4 * 1024 * 1000;
     public const int ChunkSize = 64 * 1024;
 
     private readonly CircularBuffer videoBuffer = new(videoBufferSize);

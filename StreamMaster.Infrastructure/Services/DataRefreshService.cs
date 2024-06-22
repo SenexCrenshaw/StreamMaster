@@ -152,6 +152,7 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
         await hub.Clients.All.DataRefresh("GetPagedSMChannels");
         await hub.Clients.All.DataRefresh("GetSMChannel");
         await hub.Clients.All.DataRefresh("GetSMChannelNames");
+        await hub.Clients.All.DataRefresh("GetVideoInfoFromId");
     }
 
     public async Task RefreshSMChannelStreamLinks(bool alwaysRun = false)

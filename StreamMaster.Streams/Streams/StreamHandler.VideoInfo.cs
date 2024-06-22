@@ -68,10 +68,7 @@ public sealed partial class StreamHandler
         }
         finally
         {
-            if (isLocked)
-            {
-                buildVideoInfoSemaphore.Release();
-            }
+            buildVideoInfoSemaphore.Release();
         }
     }
 
@@ -111,17 +108,25 @@ public sealed partial class StreamHandler
                 return null;
             }
 
-            using var stdin = process.StandardInput.BaseStream;
-            await stdin.WriteAsync(videoMemory, cancellationToken).ConfigureAwait(false);
-            await stdin.FlushAsync(cancellationToken).ConfigureAwait(false);
+            using Timer timer = new(delegate { process.Kill(); }, null, 5000, Timeout.Infinite);
 
-            if (!process.WaitForExit(5000))
+            using (Stream stdin = process.StandardInput.BaseStream)
             {
-                logger.LogWarning("FFProbe process did not exit within the expected time.");
-                process.Kill();
+                await stdin.WriteAsync(videoMemory);
+                await stdin.FlushAsync();
             }
 
-            string output = await process.StandardOutput.ReadToEndAsync().ConfigureAwait(false);
+            if (!process.WaitForExit(5000)) // 5000 ms timeout
+            {
+                // Handle the case where process doesn't exit in time
+                logger.LogWarning("Process did not exit within the expected time.");
+            }
+
+            // Reading from the process's standard output
+            string output = await process.StandardOutput.ReadToEndAsync();
+
+            string error = await process.StandardError.ReadToEndAsync().ConfigureAwait(false);
+
             return JsonSerializer.Deserialize<VideoInfo>(output);
         }
         catch (IOException ex)
