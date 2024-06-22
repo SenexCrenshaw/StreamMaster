@@ -75,16 +75,16 @@ public static class TypeScriptFetchGenerator
 
         content.AppendLine($"export const fetch{method.Name} = createAsyncThunk('cache/get{method.Name}', async ({paramName}: {param}, thunkAPI) => {{");
         content.AppendLine("  try {");
-        content.AppendLine($"    console.log('Fetching {method.Name}');");
+        //content.AppendLine($"    console.log('Fetching {method.Name}');");
         content.AppendLine($"    const response = await {method.Name}({paramName2});");
-        if (method.IsList)
-        {
-            content.AppendLine($"    console.log('Fetched {method.Name} ',response?.length);");
-        }
-        else
-        {
-            content.AppendLine($"    console.log('Fetched {method.Name}',response);");
-        }
+        //if (method.IsList)
+        //{
+        //    content.AppendLine($"    console.log('Fetched {method.Name} ',response?.length);");
+        //}
+        //else
+        //{
+        //    content.AppendLine($"    console.log('Fetched {method.Name}',response);");
+        //}
 
 
         content.AppendLine($"    return {{param: {paramName}, value: response }};");
@@ -103,10 +103,10 @@ public static class TypeScriptFetchGenerator
         content.AppendLine($"export const fetch{method.Name} = createAsyncThunk('cache/get{method.Name}', async (query: string, thunkAPI) => {{");
         content.AppendLine("  try {");
         content.AppendLine("    if (query === undefined) return;");
-        content.AppendLine($"    console.log('Fetching {method.Name}');");
+        //content.AppendLine($"    console.log('Fetching {method.Name}');");
         content.AppendLine("    const params = JSON.parse(query);");
         content.AppendLine($"    const response = await {method.Name}(params);");
-        content.AppendLine($"    console.log('Fetched {method.Name} ',response?.Data.length);");
+        //content.AppendLine($"    console.log('Fetched {method.Name} ',response?.Data.length);");
         content.AppendLine("    return { query: query, value: response };");
         content.AppendLine("  } catch (error) {");
         content.AppendLine("    console.error('Failed to fetch', error);");

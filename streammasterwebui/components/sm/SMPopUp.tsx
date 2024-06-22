@@ -32,6 +32,7 @@ const SMPopUp = forwardRef<SMPopUpRef, SMPopUpProperties>(
       onCloseClick,
       onOkClick,
       rememberKey,
+
       showRemember = false,
       ...props
     },

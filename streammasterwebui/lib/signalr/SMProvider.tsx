@@ -56,8 +56,6 @@ export const SMProvider: React.FC<SMProviderProps> = ({ children }) => {
     settings
   };
 
-  Logger.debug('SMProvider', isSystemReady);
-
   useEffect(() => {
     const checkSystemReady = async () => {
       try {

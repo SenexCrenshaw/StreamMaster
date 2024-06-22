@@ -1,6 +1,6 @@
 import log from 'loglevel';
 
-log.setLevel(process.env.NODE_ENV === 'production' ? 'error' : 'debug');
+log.setLevel(process.env.NODE_ENV === 'production' ? 'error' : 'error');
 
 function getCallerInfo() {
   const stack = new Error().stack;

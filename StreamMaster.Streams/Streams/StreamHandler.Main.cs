@@ -48,6 +48,15 @@ public sealed partial class StreamHandler : IStreamHandler
         logger = loggerFactory.CreateLogger<StreamHandler>();
         this.loggerFactory = loggerFactory;
 
+        //BoundedChannelOptions options = new(1 * 1024)
+        //{
+        //    FullMode = BoundedChannelFullMode.DropWrite,
+        //    SingleReader = true,
+        //    SingleWriter = true
+        //};
+
+        //videoBuffer = Channel.CreateBounded<byte[]>(options);
+
         SMChannel = channelStatus.SMChannel;
         SMStream = channelStatus.SMStream;
 

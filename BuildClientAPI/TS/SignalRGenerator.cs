@@ -110,7 +110,7 @@ public static class SignalRGenerator
             content.AppendLine("    }");
             deps.Add(method.Name.ToCamelCase());
         }
-        content.AppendLine("    console.log('ClearByTag', Entity, Tag);");
+        //content.AppendLine("    console.log('ClearByTag', Entity, Tag);");
         content.AppendLine("  }");
         content.AppendLine(",");
         string depString = string.Join(",", deps);

@@ -78,11 +78,11 @@ const SMOverlayInner = forwardRef<SMOverlayRef, ExtendedSMOverlayProperties>(
         }
 
         if (!event?.type || (!closeOnLostFocus && event.type === 'focusout') || (props.modal && event.type === 'focusout')) {
-          setIsOpen(nextOpen ?? false);
+          changeOpen(nextOpen ?? false);
           return;
         }
 
-        setIsOpen(nextOpen ?? false);
+        changeOpen(nextOpen ?? false);
       },
       open: isOpen,
       placement,
@@ -94,12 +94,20 @@ const SMOverlayInner = forwardRef<SMOverlayRef, ExtendedSMOverlayProperties>(
     const { styles: transitionStyles } = useTransitionStyles(context);
     const { getReferenceProps, getFloatingProps } = useInteractions([useClick(context), useDismiss(context), useRole(context)]);
 
+    const changeOpen = useCallback(
+      (open: boolean) => {
+        setIsOpen(open);
+        props.onOpen?.(open);
+      },
+      [props]
+    );
+
     useImperativeHandle(ref, () => ({
       getOpen: () => {
         return isOpen;
       },
-      hide: () => setIsOpen(false),
-      show: () => setIsOpen(true)
+      hide: () => changeOpen(false),
+      show: () => changeOpen(true)
     }));
 
     const openPanel = useCallback(
@@ -108,13 +116,12 @@ const SMOverlayInner = forwardRef<SMOverlayRef, ExtendedSMOverlayProperties>(
           props.onAnswered?.();
           return;
         }
-        // setIsOpen((prev) => !prev);
-        setIsOpen(isOpen);
+        changeOpen(isOpen);
         if (isOpen === false) {
           props.onCloseClick?.();
         }
       },
-      [props]
+      [changeOpen, props]
     );
 
     const content = useMemo(() => {

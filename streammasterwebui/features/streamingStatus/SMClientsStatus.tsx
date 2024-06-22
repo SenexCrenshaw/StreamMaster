@@ -25,11 +25,7 @@ const SMClientsStatus = () => {
   const clientStartTimeTemplate = (rowData: ClientStreamingStatistics) => <div>{formatJSONDateString(rowData.StartTime ?? '')}</div>;
 
   const actionTemplate = useCallback((data: ClientStreamingStatistics) => {
-    return (
-      <div className="flex p-0 justify-content-end align-items-center">
-        <VideoInfoDisplay channelId={data.ChannelId} />
-      </div>
-    );
+    return <VideoInfoDisplay channelId={data.ChannelId} />;
   }, []);
 
   const columns = useMemo(
@@ -37,10 +33,10 @@ const SMClientsStatus = () => {
       { align: 'left', field: 'ChannelName', filter: true, header: 'Channel', sortable: true, width: 120 },
       { align: 'center', field: 'ClientIPAddress', filter: true, header: 'IPAddress', sortable: true, width: 100 },
       { align: 'center', field: 'ClientAgent', filter: true, header: 'Agent', sortable: true, width: 180 },
-      { align: 'right', bodyTemplate: clientBitsPerSecondTemplate, field: 'BitsPerSecond', header: 'Kbps', width: 60 },
+      { align: 'right', bodyTemplate: clientBitsPerSecondTemplate, field: 'BitsPerSecond', header: 'Kbps', width: 50 },
       { align: 'center', bodyTemplate: clientStartTimeTemplate, field: 'StartTime', header: 'StartTime', width: 150 },
-      { align: 'right', bodyTemplate: elapsedTSTemplate, field: 'ElapsedTime', header: '(d hh:mm:ss:ms)', width: 150 },
-      { align: 'right', bodyTemplate: actionTemplate, field: 'IsHidden', fieldType: 'actions', header: '', width: 40 }
+      { align: 'right', bodyTemplate: elapsedTSTemplate, field: 'ElapsedTime', header: '(d hh:mm:ss)', width: 85 },
+      { align: 'center', bodyTemplate: actionTemplate, field: 'IsHidden', fieldType: 'actions', header: '', width: 24 }
     ],
     [actionTemplate, elapsedTSTemplate]
   );

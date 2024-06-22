@@ -5,9 +5,7 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 
 export const fetchGetSMChannel = createAsyncThunk('cache/getGetSMChannel', async (param: GetSMChannelRequest, thunkAPI) => {
   try {
-    console.log('Fetching GetSMChannel');
     const response = await GetSMChannel(param);
-    console.log('Fetched GetSMChannel',response);
     return {param: param, value: response };
   } catch (error) {
     console.error('Failed to fetch', error);

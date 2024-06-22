@@ -1,8 +1,9 @@
+import { SMCard } from '@components/sm/SMCard';
 import SMPopUp from '@components/sm/SMPopUp';
-import { Logger } from '@lib/common/logger';
 import { GetVideoInfoFromId } from '@lib/smAPI/SMChannels/SMChannelsCommands';
 import { GetVideoInfoFromIdRequest, VideoInfo } from '@lib/smAPI/smapiTypes';
-import { useEffect, useState } from 'react';
+import { ScrollPanel } from 'primereact/scrollpanel';
+import { useCallback, useState } from 'react';
 
 type VideoInfoProps = {
   channelId: number;
@@ -12,12 +13,12 @@ const DisplayTable: React.FC<{ data: any; title?: string }> = ({ data, title }) 
   return (
     <div>
       {title && <h4>{title}</h4>}
-      <table style={{ borderCollapse: 'collapse', width: '100%' }}>
-        <tbody>
+      <table style={{ width: '100%' }}>
+        <tbody className="videoinfo-selector">
           {Object.entries(data).map(([key, value]) => (
             <tr key={key}>
-              <td style={{ border: '1px solid black', padding: '5px' }}>{key}</td>
-              <td style={{ border: '1px solid black', padding: '5px' }}>
+              <td style={{ padding: '5px' }}>{key}</td>
+              <td style={{ padding: '5px' }}>
                 {value !== null && typeof value === 'object' ? <DisplayTable data={value} /> : value !== null && value !== undefined ? value.toString() : 'N/A'}
               </td>
             </tr>
@@ -31,10 +32,11 @@ const DisplayTable: React.FC<{ data: any; title?: string }> = ({ data, title }) 
 export const VideoInfoDisplay: React.FC<VideoInfoProps> = ({ channelId }) => {
   const [videoInfo, setVideoInfo] = useState<VideoInfo | null>(null);
 
-  useEffect(() => {
-    if (channelId === 0) return;
+  const getVideoInfo = useCallback(() => {
+    if (channelId === 0 || videoInfo?.Format !== undefined) return;
+
     const request = { SMChannelId: channelId } as GetVideoInfoFromIdRequest;
-    Logger.debug('VideoInfoDisplay', request);
+
     GetVideoInfoFromId(request)
       .then((data) => {
         if (data === null || data === undefined) return;
@@ -44,32 +46,54 @@ export const VideoInfoDisplay: React.FC<VideoInfoProps> = ({ channelId }) => {
       .catch((error) => {
         console.error(error);
       });
-  }, [channelId]);
+  }, [channelId, videoInfo?.Format]);
 
-  if (!videoInfo) return null;
-
-  return (
-    <SMPopUp title="Video Info">
+  const getContent = useCallback(() => {
+    if (!videoInfo) return <div>Loading...</div>;
+    return (
       <div>
         {videoInfo.Format && (
-          <div>
-            <h2>Format</h2>
+          <SMCard title="Format" info="">
             <DisplayTable data={videoInfo.Format} />
-          </div>
+          </SMCard>
         )}
 
         {videoInfo.Streams && videoInfo.Streams.length > 0 && (
-          <div>
-            <h2>Video Streams</h2>
-            {videoInfo.Streams.map((stream, index) => (
-              <div key={index}>
-                <h3 className="orange-color">Stream {index + 1}</h3>
-                <DisplayTable data={stream} />
-              </div>
-            ))}
-          </div>
+          <>
+            <div className="layout-padding-bottom-lg" />
+            <SMCard title="Video Streams" info="" noBorderChildren>
+              {videoInfo.Streams.map((stream, index) => (
+                <div key={index}>
+                  <div className="layout-padding-bottom" />
+                  <SMCard title={'Stream ' + (index + 1)} info="">
+                    <DisplayTable data={stream} />
+                  </SMCard>
+                </div>
+              ))}
+            </SMCard>
+          </>
         )}
       </div>
+    );
+  }, [videoInfo]);
+
+  return (
+    <SMPopUp
+      onOpen={(e) => {
+        if (e === true) {
+          getVideoInfo();
+        }
+      }}
+      info=""
+      noBorderChildren
+      contentWidthSize="4"
+      placement="bottom-end"
+      icon="pi-id-card"
+      title="Video Info"
+      tooltip="Stream Info"
+      isLeft
+    >
+      <ScrollPanel style={{ height: '50vh', width: '100%' }}>{getContent()}</ScrollPanel>
     </SMPopUp>
   );
 };

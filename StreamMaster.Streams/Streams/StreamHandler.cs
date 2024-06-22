@@ -1,5 +1,4 @@
-﻿using StreamMaster.Domain;
-using StreamMaster.Domain.Extensions;
+﻿using StreamMaster.Domain.Extensions;
 
 using System.Diagnostics;
 
@@ -10,12 +9,13 @@ namespace StreamMaster.Streams.Streams;
 /// </summary>
 public sealed partial class StreamHandler
 {
-    private const int videoBufferSize = 4 * 1024 * 1000;
+    private const int videoBufferSize = 1 * 1024 * 1000;
     public const int ChunkSize = 64 * 1024;
 
-    private readonly CircularBuffer videoBuffer = new(videoBufferSize);
+    private readonly Memory<byte> videoBuffer = new byte[videoBufferSize];
 
     private DateTime LastVideoInfoRun = DateTime.MinValue;
+
 
     private async Task WriteToAllClientsAsync(byte[] data, CancellationToken cancellationToken)
     {
@@ -53,8 +53,12 @@ public sealed partial class StreamHandler
         CancellationTokenSource linkedToken = VideoStreamingCancellationToken;
         bool ran = false;
         int accumulatedBytes = 0;
+
         Stopwatch testSw = Stopwatch.StartNew();
+
         Memory<byte> bufferMemory = new byte[ChunkSize];
+        List<byte> intervalBuffer = new List<byte>();
+        Task? runTask = null;
 
         using (stream)
         {
@@ -90,24 +94,37 @@ public sealed partial class StreamHandler
 
                     byte[] clientDataToSend = new byte[readBytes];
                     bufferMemory[..readBytes].CopyTo(clientDataToSend);
-                    await WriteToAllClientsAsync(clientDataToSend, linkedToken.Token).ConfigureAwait(false);
-                    videoBuffer.Write(clientDataToSend);
 
-                    SetMetrics(readBytes);
-
+                    intervalBuffer.AddRange(clientDataToSend);
                     accumulatedBytes += readBytes;
 
-                    TimeSpan lastRun = SMDT.UtcNow - LastVideoInfoRun;
-                    if (lastRun.TotalMinutes >= 10)
-                    {
-                        if (accumulatedBytes > videoBufferSize)
-                        {
-                            byte[] processData = videoBuffer.ReadLatestData();
-                            _ = BuildVideoInfoAsync(processData);
 
-                            accumulatedBytes = 0;
+                    await WriteToAllClientsAsync(clientDataToSend, linkedToken.Token).ConfigureAwait(false);
+
+                    if (intervalBuffer.Count > videoBufferSize)
+                    {
+                        // Keep only the latest videoBufferSize bytes
+                        intervalBuffer = intervalBuffer.Skip(intervalBuffer.Count - videoBufferSize).ToList();
+                    }
+
+
+                    if (runTask == null || runTask.IsCompleted)
+                    {
+                        if (accumulatedBytes >= videoBufferSize)
+                        {
+                            TimeSpan lastRun = SMDT.UtcNow - LastVideoInfoRun;
+                            if (_videoInfo == null || lastRun.TotalMinutes >= 10)
+                            {
+                                runTask = BuildVideoInfoAsync(intervalBuffer.ToArray());
+
+                                // Reset the buffer and accumulated bytes after triggering the task
+                                accumulatedBytes = 0;
+                                intervalBuffer.Clear();
+                            }
                         }
                     }
+                    SetMetrics(readBytes);
+
                 }
                 catch (TaskCanceledException)
                 {

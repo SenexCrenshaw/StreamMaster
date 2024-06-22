@@ -14,3 +14,12 @@
         background: $tableBodyRowEvenBg;
     }
 }
+
+.videoinfo-selector {
+    background-color: $bgColor;
+
+    >tr:nth-child(odd) {
+        @extend .sm-border;
+        background: $tableBodyRowEvenBg;
+    }
+}

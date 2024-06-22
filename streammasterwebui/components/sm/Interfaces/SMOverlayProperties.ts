@@ -15,5 +15,6 @@ export interface SMOverlayProperties extends SMButtonProperties, SMCardPropertie
   readonly placement?: Placement;
   readonly showClose?: boolean;
   readonly zIndex?: number;
+  onOpen?: (open: boolean) => void;
   onAnswered?(): void;
 }

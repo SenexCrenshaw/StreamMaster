@@ -15,26 +15,37 @@ public sealed partial class StreamHandler
 {
     private readonly CancellationTokenSource cancellationTokenSource = new();
 
-    private readonly int GetVideoInfoCount = 0;
-    private int GetVideoInfoErrors = 0;
     private readonly SemaphoreSlim buildVideoInfoSemaphore = new(1, 1);
+    private readonly FileSaver fileSaver = new(5);
 
     public VideoInfo GetVideoInfo()
     {
-        return _videoInfo ?? new VideoInfo();
+        return _videoInfo ?? new();
     }
-    public async Task BuildVideoInfoAsync(byte[] videoMemory, CancellationToken cancellationToken = default)
+
+    public async Task BuildVideoInfoAsync(byte[] videoMemory)
     {
+        // string testDir = Path.Combine(BuildInfo.AppDataFolder, "test.mp4");
+        //await fileSaver.SaveVideoWithRevisionsAsync(videoMemory, testDir);
         bool isLocked = false;
         try
         {
-            isLocked = await buildVideoInfoSemaphore.WaitAsync(0, cancellationToken).ConfigureAwait(false);
-            if (!isLocked || GetVideoInfoErrors > 3)
+            // Try to enter the semaphore, skip execution if already entered
+            isLocked = await buildVideoInfoSemaphore.WaitAsync(0).ConfigureAwait(false);
+            if (!isLocked)
             {
+                logger.LogWarning("BuildVideoInfo execution is skipped because another operation is already running.");
+                return;
+            }
+
+            if (GetVideoInfoErrors > 3)
+            {
+                logger.LogWarning("Skipped BuildVideoInfo due to excessive errors.");
                 return;
             }
 
             string ffprobeExec = GetFFProbeExecutablePath(settings);
+
             if (string.IsNullOrEmpty(ffprobeExec))
             {
                 logger.LogError("FFProbe executable not found.");
@@ -42,67 +53,64 @@ public sealed partial class StreamHandler
                 return;
             }
 
-            try
-            {
-                VideoInfo? videoInfo = await CreateFFProbeStreamAsync(ffprobeExec, videoMemory, cancellationToken).ConfigureAwait(false);
-                if (videoInfo == null || !videoInfo.IsValid())
-                {
-                    GetVideoInfoErrors++;
-                    logger.LogError("Failed to deserialize FFProbe output.");
-                    return;
-                }
+            VideoInfo? videoInfo = await CreateFFProbeStream(ffprobeExec, videoMemory).ConfigureAwait(false);
 
-                _videoInfo = videoInfo;
-                GetVideoInfoErrors = 0; // Reset errors on successful info retrieval
-                logger.LogInformation("Retrieved video information for {VideoStreamName}.", SMStream.Name);
-            }
-            catch (OperationCanceledException)
-            {
-                logger.LogWarning("BuildVideoInfo operation was canceled.");
-            }
-            catch (Exception ex)
+            if (!videoInfo.IsValid())
             {
                 GetVideoInfoErrors++;
-                logger.LogError(ex, "An unexpected error occurred while building video info.");
+                logger.LogError("Failed to deserialize FFProbe output.");
+                return;
             }
+
+            LastVideoInfoRun = SMDT.UtcNow;
+            _videoInfo = videoInfo;
+            logger.LogInformation("Retrieved video information for {VideoStreamName}.", SMStream.Name);
+        }
+        catch (OperationCanceledException)
+        {
+            logger.LogWarning("BuildVideoInfo operation was canceled.");
+        }
+        catch (Exception ex)
+        {
+            GetVideoInfoErrors++;
+            logger.LogError(ex, "An unexpected error occurred while building video info.");
         }
         finally
         {
-            buildVideoInfoSemaphore.Release();
+            if (isLocked)
+            {
+                buildVideoInfoSemaphore.Release();
+            }
         }
     }
+
 
 
     private string GetFFProbeExecutablePath(Setting settings)
     {
         string ffprobeExec = Path.Combine(BuildInfo.AppDataFolder, settings.FFProbeExecutable);
-        if (!File.Exists(ffprobeExec) && !File.Exists(ffprobeExec + ".exe") && !IsFFProbeAvailable())
-        {
-            return string.Empty;
-        }
-
-        return File.Exists(ffprobeExec) ? ffprobeExec : "ffprobe";
+        return File.Exists(ffprobeExec) || File.Exists(ffprobeExec + ".exe") || IsFFProbeAvailable()
+            ? ffprobeExec
+            : string.Empty;
     }
 
-    private async Task<VideoInfo?> CreateFFProbeStreamAsync(string ffProbeExec, byte[] videoMemory, CancellationToken cancellationToken)
+    private readonly int GetVideoInfoCount = 0;
+    private int GetVideoInfoErrors = 0;
+    private async Task<VideoInfo?> CreateFFProbeStream(string ffProbeExec, byte[] videoMemory)
     {
-        using var process = new Process();
+        using Process process = new();
         try
         {
-            var startInfo = new ProcessStartInfo
-            {
-                FileName = ffProbeExec,
-                Arguments = "-loglevel error -print_format json -show_format -sexagesimal -show_streams -",
-                CreateNoWindow = true,
-                UseShellExecute = false,
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                RedirectStandardInput = true
-            };
-            process.StartInfo = startInfo;
+            string options = "-loglevel error -print_format json -show_format -sexagesimal -show_streams - ";
+            process.StartInfo.FileName = ffProbeExec;
+            process.StartInfo.Arguments = options;
+            process.StartInfo.CreateNoWindow = true;
+            process.StartInfo.UseShellExecute = false;
+            process.StartInfo.RedirectStandardOutput = true;
+            process.StartInfo.RedirectStandardError = true;
+            process.StartInfo.RedirectStandardInput = true;
 
-            bool processStarted = process.Start();
-            if (!processStarted)
+            if (!process.Start())
             {
                 logger.LogError("CreateFFProbeStream Error: Failed to start FFProbe process");
                 return null;
@@ -118,45 +126,42 @@ public sealed partial class StreamHandler
 
             if (!process.WaitForExit(5000)) // 5000 ms timeout
             {
-                // Handle the case where process doesn't exit in time
                 logger.LogWarning("Process did not exit within the expected time.");
             }
 
-            // Reading from the process's standard output
             string output = await process.StandardOutput.ReadToEndAsync();
+            VideoInfo? videoInfo = JsonSerializer.Deserialize<VideoInfo>(output);
 
-            string error = await process.StandardError.ReadToEndAsync().ConfigureAwait(false);
-
-            return JsonSerializer.Deserialize<VideoInfo>(output);
+            if (videoInfo == null)
+            {
+                var jsonString = JsonSerializer.Serialize(videoInfo);
+                logger.LogError("CreateFFProbeStream Error: Failed to deserialize FFProbe output");
+                logger.LogDebug(jsonString);
+                return null;
+            }
+            _videoInfo = videoInfo;
+            return videoInfo;
         }
-        catch (IOException ex)
+        catch (Exception ex) when (ex is IOException or JsonException)
         {
-            logger.LogError(ex, "CreateFFProbeStream Error: IO Exception occurred");
+            logger.LogError(ex, "CreateFFProbeStream Error: {ErrorMessage}");
             process.Kill();
+            return null;
         }
-        catch (JsonException ex)
-        {
-            logger.LogError(ex, "CreateFFProbeStream Error: Failed to deserialize FFProbe output");
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "CreateFFProbeStream Error: Unexpected exception");
-            process.Kill();
-        }
-
-        return null;
     }
 
     private static bool IsFFProbeAvailable()
     {
         string command = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "where" : "which";
-        var startInfo = new ProcessStartInfo(command, "ffprobe")
+        ProcessStartInfo startInfo = new(command, "ffprobe")
         {
             RedirectStandardOutput = true,
             UseShellExecute = false
         };
-
-        using var process = new Process { StartInfo = startInfo };
+        using Process process = new()
+        {
+            StartInfo = startInfo
+        };
         process.Start();
         process.WaitForExit();
         return process.ExitCode == 0;

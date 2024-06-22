@@ -683,7 +683,6 @@ export const SignalRProvider: React.FC<SignalRProviderProps> = ({ children }) =>
       getVideoProfiles.ClearByTag(Tag)
       return;
     }
-    console.log('ClearByTag', Entity, Tag);
   }
 ,
     [getChannelGroups,getChannelGroupsFromSMChannels,getClientStreamingStatistics,getEPGColors,getEPGFilePreviewById,getEPGFiles,getEPGNextEPGNumber,getIcons,getInputStatistics,getIsSystemReady,getM3UFileNames,getM3UFiles,getOutputProfile,getOutputProfiles,getPagedChannelGroups,getPagedEPGFiles,getPagedM3UFiles,getPagedSMChannels,getPagedSMStreams,getPagedStreamGroups,getSettings,getSMChannel,getSMChannelNames,getSMChannelStreams,getSMTasks,getStationChannelNames,getStreamGroup,getStreamGroupProfiles,getStreamGroups,getStreamGroupSMChannels,getSystemStatus,getTaskIsRunning,getVideoInfoFromId,getVideoProfiles]
