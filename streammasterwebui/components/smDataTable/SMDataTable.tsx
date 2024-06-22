@@ -653,6 +653,13 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
   //   Logger.debug('DataTable', { a: state?.dataSource?.[0].Name, datasource: state.dataSource, id: props.id });
   // }
 
+  const getColClassName = useCallback((col: ColumnMeta) => {
+    if (getAlign(col.align, col.fieldType) === 'right') {
+      return col.className + ' pr-1';
+    }
+    return col.className;
+  }, []);
+
   return (
     <div
       id={props.id}
@@ -796,7 +803,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
               .map((col) => (
                 <Column
                   align={getAlign(col.align, col.fieldType)}
-                  className={col.className}
+                  className={getColClassName(col)}
                   filter
                   filterElement={col.headerTemplate ? col.headerTemplate : colFilterTemplate}
                   filterPlaceholder={col.filter === true ? (col.fieldType === 'epg' ? 'EPG' : col.header ? col.header : camel2title(col.field)) : undefined}
