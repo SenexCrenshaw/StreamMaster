@@ -1,4 +1,6 @@
 import AddButton from '@components/buttons/AddButton';
+import { AddLineup } from '@lib/smAPI/SchedulesDirect/SchedulesDirectCommands';
+import { AddLineupRequest, HeadendDto } from '@lib/smAPI/smapiTypes';
 
 import { memo } from 'react';
 
@@ -7,8 +9,6 @@ interface SchedulesDirectAddHeadendDialogProperties {
 }
 
 const SchedulesDirectAddHeadendDialog = ({ value }: SchedulesDirectAddHeadendDialogProperties) => {
-  const [schedulesDirectAddLineupMutation] = useSchedulesDirectAddLineupMutation();
-
   const addHeadEnd = async () => {
     if (!value) {
       return;
@@ -16,9 +16,9 @@ const SchedulesDirectAddHeadendDialog = ({ value }: SchedulesDirectAddHeadendDia
 
     console.log(value);
 
-    const toSend: SchedulesDirectAddLineupApiArg = { lineup: value.lineup };
+    const toSend: AddLineupRequest = { Lineup: value.Lineup };
 
-    schedulesDirectAddLineupMutation(toSend)
+    AddLineup(toSend)
       .then((result) => {
         console.log(result);
       })

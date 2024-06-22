@@ -111,7 +111,7 @@ public class TimerService(IServiceProvider serviceProvider, IOptionsMonitor<Sett
                     {
                         logger.LogInformation("SDSync started. {status}", jobManager.Status);
 
-                        _ = await mediator.Send(new EPGSync(), cancellationToken).ConfigureAwait(false);
+                        _ = await mediator.Send(new EPGSyncRequest(), cancellationToken).ConfigureAwait(false);
                         //await hubContext.Clients.All.EPGFilesRefresh().ConfigureAwait(false);
 
                         logger.LogInformation("SDSync completed. {status}", jobManager.Status);

@@ -2,6 +2,7 @@
 
 namespace StreamMaster.SchedulesDirect.Domain.Models;
 
+[TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public class Logo
 {
     [JsonPropertyName("URL")]

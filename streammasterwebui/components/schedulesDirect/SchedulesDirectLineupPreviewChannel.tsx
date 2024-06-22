@@ -1,5 +1,8 @@
-import DataSelector from '@components/dataSelector/DataSelector';
-import { ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
+import SMDataTable from '@components/smDataTable/SMDataTable';
+import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
+
+import { GetLineupPreviewChannel } from '@lib/smAPI/SchedulesDirect/SchedulesDirectCommands';
+import { LineupPreviewChannel } from '@lib/smAPI/smapiTypes';
 
 import { Dialog } from 'primereact/dialog';
 import { memo, useEffect, useMemo, useState } from 'react';
@@ -18,7 +21,7 @@ const SchedulesDirectLineupPreviewChannel = ({ children, lineup, onHide }: Sched
       return;
     }
 
-    GetLineupPreviewChannel({ lineup: lineup })
+    GetLineupPreviewChannel({ Lineup: lineup })
       .then((data) => {
         setDataSource(data ?? []);
       })
@@ -52,14 +55,12 @@ const SchedulesDirectLineupPreviewChannel = ({ children, lineup, onHide }: Sched
         }}
       >
         <div className="flex grid flex-col">
-          <DataSelector
+          <SMDataTable
             // isLoading={getPreviewQuery.isLoading}
             columns={columns}
             dataSource={dataSource}
             defaultSortField="name"
-            disableSelectAll
             emptyMessage="No Line Ups"
-            enableState={false}
             headerName="Line Up Preview"
             id="queustatus"
             selectedItemsKey="queustatus"

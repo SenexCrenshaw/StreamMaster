@@ -51,7 +51,8 @@ public partial class DataRefreshService : IDataRefreshServicePartial
         }
         await RefreshEPGFiles();
         await RefreshEPG();
-        await RefreshSchedulesDirect();
+        await hub.Clients.All.DataRefresh("GetChannelNames");
+
     }
 
     public async Task RefreshAllM3U()

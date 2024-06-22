@@ -1,16 +1,21 @@
 import { combineReducers } from 'redux';
 import currentSettingRequest from '@lib/redux/hooks/currentSettingRequest';
 import filters from '@lib/redux/hooks/filters';
+import GetAvailableCountriesReducer from '@lib/smAPI/SchedulesDirect/GetAvailableCountriesSlice';
 import GetChannelGroupsReducer from '@lib/smAPI/ChannelGroups/GetChannelGroupsSlice';
 import GetChannelGroupsFromSMChannelsReducer from '@lib/smAPI/ChannelGroups/GetChannelGroupsFromSMChannelsSlice';
+import GetChannelNamesReducer from '@lib/smAPI/SchedulesDirect/GetChannelNamesSlice';
 import GetChannelStreamingStatisticsReducer from '@lib/smAPI/Statistics/GetChannelStreamingStatisticsSlice';
 import GetClientStreamingStatisticsReducer from '@lib/smAPI/Statistics/GetClientStreamingStatisticsSlice';
 import GetEPGColorsReducer from '@lib/smAPI/EPG/GetEPGColorsSlice';
 import GetEPGFilePreviewByIdReducer from '@lib/smAPI/EPGFiles/GetEPGFilePreviewByIdSlice';
 import GetEPGFilesReducer from '@lib/smAPI/EPGFiles/GetEPGFilesSlice';
 import GetEPGNextEPGNumberReducer from '@lib/smAPI/EPGFiles/GetEPGNextEPGNumberSlice';
+import GetHeadendsReducer from '@lib/smAPI/SchedulesDirect/GetHeadendsSlice';
 import GetIconsReducer from '@lib/smAPI/Icons/GetIconsSlice';
 import GetIsSystemReadyReducer from '@lib/smAPI/General/GetIsSystemReadySlice';
+import GetLineupPreviewChannelReducer from '@lib/smAPI/SchedulesDirect/GetLineupPreviewChannelSlice';
+import GetLineupsReducer from '@lib/smAPI/SchedulesDirect/GetLineupsSlice';
 import GetM3UFileNamesReducer from '@lib/smAPI/M3UFiles/GetM3UFileNamesSlice';
 import GetM3UFilesReducer from '@lib/smAPI/M3UFiles/GetM3UFilesSlice';
 import GetOutputProfileReducer from '@lib/smAPI/Profiles/GetOutputProfileSlice';
@@ -21,12 +26,16 @@ import GetPagedM3UFilesReducer from '@lib/smAPI/M3UFiles/GetPagedM3UFilesSlice';
 import GetPagedSMChannelsReducer from '@lib/smAPI/SMChannels/GetPagedSMChannelsSlice';
 import GetPagedSMStreamsReducer from '@lib/smAPI/SMStreams/GetPagedSMStreamsSlice';
 import GetPagedStreamGroupsReducer from '@lib/smAPI/StreamGroups/GetPagedStreamGroupsSlice';
+import GetSelectedStationIdsReducer from '@lib/smAPI/SchedulesDirect/GetSelectedStationIdsSlice';
+import GetServiceReducer from '@lib/smAPI/SchedulesDirect/GetServiceSlice';
 import GetSettingsReducer from '@lib/smAPI/Settings/GetSettingsSlice';
 import GetSMChannelReducer from '@lib/smAPI/SMChannels/GetSMChannelSlice';
 import GetSMChannelNamesReducer from '@lib/smAPI/SMChannels/GetSMChannelNamesSlice';
 import GetSMChannelStreamsReducer from '@lib/smAPI/SMChannelStreamLinks/GetSMChannelStreamsSlice';
 import GetSMTasksReducer from '@lib/smAPI/SMTasks/GetSMTasksSlice';
+import GetStationChannelMapsReducer from '@lib/smAPI/SchedulesDirect/GetStationChannelMapsSlice';
 import GetStationChannelNamesReducer from '@lib/smAPI/SchedulesDirect/GetStationChannelNamesSlice';
+import GetStationPreviewsReducer from '@lib/smAPI/SchedulesDirect/GetStationPreviewsSlice';
 import GetStreamGroupReducer from '@lib/smAPI/StreamGroups/GetStreamGroupSlice';
 import GetStreamGroupProfilesReducer from '@lib/smAPI/StreamGroups/GetStreamGroupProfilesSlice';
 import GetStreamGroupsReducer from '@lib/smAPI/StreamGroups/GetStreamGroupsSlice';
@@ -35,6 +44,7 @@ import GetStreamingStatisticsForChannelReducer from '@lib/smAPI/Statistics/GetSt
 import GetStreamStreamingStatisticsReducer from '@lib/smAPI/Statistics/GetStreamStreamingStatisticsSlice';
 import GetSystemStatusReducer from '@lib/smAPI/General/GetSystemStatusSlice';
 import GetTaskIsRunningReducer from '@lib/smAPI/General/GetTaskIsRunningSlice';
+import GetUserStatusReducer from '@lib/smAPI/SchedulesDirect/GetUserStatusSlice';
 import GetVideoInfoFromIdReducer from '@lib/smAPI/SMChannels/GetVideoInfoFromIdSlice';
 import GetVideoProfilesReducer from '@lib/smAPI/Profiles/GetVideoProfilesSlice';
 import isTrue from '@lib/redux/hooks/isTrue';
@@ -125,16 +135,21 @@ const stringValueConfig = {
 export const rootReducer = combineReducers({
   currentSettingRequest: currentSettingRequest,
   filters: persistReducer(filtersConfig, filters),
+  GetAvailableCountries: GetAvailableCountriesReducer,
   GetChannelGroups: GetChannelGroupsReducer,
   GetChannelGroupsFromSMChannels: GetChannelGroupsFromSMChannelsReducer,
+  GetChannelNames: GetChannelNamesReducer,
   GetChannelStreamingStatistics: GetChannelStreamingStatisticsReducer,
   GetClientStreamingStatistics: GetClientStreamingStatisticsReducer,
   GetEPGColors: GetEPGColorsReducer,
   GetEPGFilePreviewById: GetEPGFilePreviewByIdReducer,
   GetEPGFiles: GetEPGFilesReducer,
   GetEPGNextEPGNumber: GetEPGNextEPGNumberReducer,
+  GetHeadends: GetHeadendsReducer,
   GetIcons: GetIconsReducer,
   GetIsSystemReady: GetIsSystemReadyReducer,
+  GetLineupPreviewChannel: GetLineupPreviewChannelReducer,
+  GetLineups: GetLineupsReducer,
   GetM3UFileNames: GetM3UFileNamesReducer,
   GetM3UFiles: GetM3UFilesReducer,
   GetOutputProfile: GetOutputProfileReducer,
@@ -145,12 +160,16 @@ export const rootReducer = combineReducers({
   GetPagedSMChannels: GetPagedSMChannelsReducer,
   GetPagedSMStreams: GetPagedSMStreamsReducer,
   GetPagedStreamGroups: GetPagedStreamGroupsReducer,
+  GetSelectedStationIds: GetSelectedStationIdsReducer,
+  GetService: GetServiceReducer,
   GetSettings: GetSettingsReducer,
   GetSMChannel: GetSMChannelReducer,
   GetSMChannelNames: GetSMChannelNamesReducer,
   GetSMChannelStreams: GetSMChannelStreamsReducer,
   GetSMTasks: GetSMTasksReducer,
+  GetStationChannelMaps: GetStationChannelMapsReducer,
   GetStationChannelNames: GetStationChannelNamesReducer,
+  GetStationPreviews: GetStationPreviewsReducer,
   GetStreamGroup: GetStreamGroupReducer,
   GetStreamGroupProfiles: GetStreamGroupProfilesReducer,
   GetStreamGroups: GetStreamGroupsReducer,
@@ -159,6 +178,7 @@ export const rootReducer = combineReducers({
   GetStreamStreamingStatistics: GetStreamStreamingStatisticsReducer,
   GetSystemStatus: GetSystemStatusReducer,
   GetTaskIsRunning: GetTaskIsRunningReducer,
+  GetUserStatus: GetUserStatusReducer,
   GetVideoInfoFromId: GetVideoInfoFromIdReducer,
   GetVideoProfiles: GetVideoProfilesReducer,
   isTrue: persistReducer(isTrueConfig, isTrue),

@@ -88,6 +88,15 @@ const App = (): JSX.Element => {
         {/* <Route
           element={
             <Suspense>
+              <SDEditorHeadEndsAndLineUps />
+            </Suspense>
+          }
+          path="/editor/sdHeadEndLineUps"
+        /> */}
+
+        {/* <Route
+          element={
+            <Suspense>
               <TestPanel />
             </Suspense>
           }

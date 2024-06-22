@@ -5,6 +5,8 @@ using System.Text.RegularExpressions;
 
 namespace StreamMaster.SchedulesDirect.Domain.JsonClasses
 {
+
+    [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
     public class StationChannelMap
     {
         [JsonIgnore]
@@ -22,6 +24,8 @@ namespace StreamMaster.SchedulesDirect.Domain.JsonClasses
         [JsonPropertyName("metadata")]
         public LineupMetadata? Metadata { get; set; }
     }
+
+    [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
     public class LineupChannelStation
     {
         [JsonPropertyName("channel")]
@@ -31,6 +35,7 @@ namespace StreamMaster.SchedulesDirect.Domain.JsonClasses
         public string StationId { get; set; }
     }
 
+    [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
     public class LineupChannel
     {
         public string ChannelNumber => $"{myChannelNumber}{(myChannelSubnumber > 0 ? $".{myChannelSubnumber}" : "")}";
@@ -163,6 +168,7 @@ namespace StreamMaster.SchedulesDirect.Domain.JsonClasses
         public string MatchType { get; set; }
     }
 
+    [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
     public class LineupStation
     {
         [JsonPropertyName("stationID")]
@@ -199,6 +205,7 @@ namespace StreamMaster.SchedulesDirect.Domain.JsonClasses
         public StationImage Logo { get; set; }
     }
 
+    [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
     public class StationImage
     {
         [JsonPropertyName("URL")]
@@ -220,6 +227,7 @@ namespace StreamMaster.SchedulesDirect.Domain.JsonClasses
         public string Category { get; set; }
     }
 
+    [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
     public class StationBroadcaster
     {
         [JsonPropertyName("city")]
@@ -234,7 +242,7 @@ namespace StreamMaster.SchedulesDirect.Domain.JsonClasses
         [JsonPropertyName("country")]
         public string Country { get; set; }
     }
-
+    [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
     public class LineupMetadata
     {
         [JsonPropertyName("lineup")]

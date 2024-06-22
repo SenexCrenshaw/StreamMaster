@@ -1,4 +1,6 @@
 import MinusButton from '@components/buttons/MinusButton';
+import { RemoveLineup } from '@lib/smAPI/SchedulesDirect/SchedulesDirectCommands';
+import { HeadendDto, RemoveLineupRequest } from '@lib/smAPI/smapiTypes';
 
 import { memo } from 'react';
 
@@ -7,8 +9,6 @@ interface SchedulesDirectAddHeadendDialogProperties {
 }
 
 const SchedulesDirectAddHeadendDialog = ({ value }: SchedulesDirectAddHeadendDialogProperties) => {
-  const [schedulesDirectRemoveLineupMutation] = useSchedulesDirectRemoveLineupMutation();
-
   const addHeadEnd = async () => {
     if (!value) {
       return;
@@ -16,9 +16,9 @@ const SchedulesDirectAddHeadendDialog = ({ value }: SchedulesDirectAddHeadendDia
 
     console.log(value);
 
-    const toSend: SchedulesDirectRemoveLineupApiArg = { lineup: value.lineup };
+    const request: RemoveLineupRequest = { Lineup: value.Lineup };
 
-    schedulesDirectRemoveLineupMutation(toSend)
+    RemoveLineup(request)
       .then((result) => {
         console.log(result);
       })

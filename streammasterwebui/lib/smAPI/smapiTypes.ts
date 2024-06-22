@@ -471,12 +471,166 @@ export interface PagedResponse<T>
 	TotalItemCount: number;
 	TotalPageCount: number;
 }
+export interface CountryData
+{
+	Countries: Country[];
+	Id: string;
+	Key: string;
+}
+export interface Logo
+{
+	Height: number;
+	Md5: string;
+	URL: string;
+	Width: number;
+}
 export interface StationChannelName
 {
 	Channel: string;
 	ChannelName: string;
 	DisplayName: string;
 	Id: string;
+}
+export interface StationPreview
+{
+	Affiliate: string;
+	Callsign: string;
+	Id: string;
+	Lineup: string;
+	Logo: Logo;
+	Name: string;
+	StationId: string;
+}
+export interface Country
+{
+	FullName: string;
+	OnePostalCode: boolean;
+	PostalCode: string;
+	PostalCodeExample: string;
+	ShortName: string;
+}
+export interface BaseResponse
+{
+	Code: number;
+	Datetime: any;
+	Message: string;
+	Response: string;
+	ServerId: string;
+	Uuid: string;
+}
+export interface LineupPreviewChannel
+{
+	Affiliate: string;
+	Callsign: string;
+	Channel: string;
+	Id: number;
+	Name: string;
+}
+export interface StationChannelMap
+{
+	Id: any;
+	Map: LineupChannelStation[];
+	Metadata?: LineupMetadata;
+	Stations: LineupStation[];
+}
+export interface LineupChannelStation
+{
+	Channel: string;
+	StationId: string;
+}
+export interface LineupChannel
+{
+	AtscMajor?: number;
+	AtscMinor?: number;
+	AtscType: string;
+	Channel: string;
+	ChannelMajor?: number;
+	ChannelMinor?: number;
+	ChannelNumber: string;
+	DeliverySystem: string;
+	Fec: string;
+	FrequencyHz?: number;
+	LogicalChannelNumber: string;
+	MatchName: string;
+	MatchType: string;
+	ModulationSystem: string;
+	myChannelNumber: number;
+	myChannelSubnumber: number;
+	NetworkId?: number;
+	Polarization: string;
+	ProviderCallsign: string;
+	ProviderChannel: string;
+	ServiceId?: number;
+	StationId: string;
+	Symbolrate?: number;
+	TransportId?: number;
+	UhfVhf?: number;
+	VirtualChannel: string;
+}
+export interface LineupStation
+{
+	Affiliate: string;
+	Broadcaster: StationBroadcaster;
+	BroadcastLanguage: string[];
+	Callsign: string;
+	DescriptionLanguage: string[];
+	IsCommercialFree?: boolean;
+	Logo: StationImage;
+	Name: string;
+	StationId: string;
+	StationLogos: StationImage[];
+}
+export interface StationImage
+{
+	Category: string;
+	Height: number;
+	Md5: string;
+	Source: string;
+	Url: string;
+	Width: number;
+}
+export interface StationBroadcaster
+{
+	City: string;
+	Country: string;
+	Postalcode: string;
+	State: string;
+}
+export interface LineupMetadata
+{
+	Lineup: string;
+	Modified: string;
+	Modulation: string;
+	Transport: string;
+}
+export interface LineupResponse
+{
+	Code: number;
+	Datetime: any;
+	Lineups: SubscribedLineup[];
+	Message: string;
+	Response: string;
+	ServerId: string;
+	Uuid: string;
+}
+export interface SubscribedLineup
+{
+	Id: string;
+	IsDeleted: boolean;
+	Lineup: string;
+	Location: string;
+	Name: string;
+	Transport: string;
+	Uri: string;
+}
+export interface HeadendDto
+{
+	HeadendId: string;
+	Id: string;
+	Lineup: string;
+	Location: string;
+	Name: string;
+	Transport: string;
 }
 export interface GetPagedStreamGroupsRequest
 {
@@ -834,30 +988,64 @@ export interface UpdateSettingRequest
 {
 	parameters: UpdateSettingParameters;
 }
+export interface GetAvailableCountriesRequest
+{
+}
+export interface GetChannelNamesRequest
+{
+}
+export interface GetHeadendsRequest
+{
+	country: string;
+	postalCode: string;
+}
+export interface GetLineupPreviewChannelRequest
+{
+	Lineup: string;
+}
+export interface GetLineupsRequest
+{
+}
+export interface GetSelectedStationIdsRequest
+{
+}
+export interface GetServiceRequest
+{
+	stationId: string;
+}
+export interface GetStationChannelMapsRequest
+{
+}
 export interface GetStationChannelNamesRequest
 {
 }
-export interface EPGSync
+export interface GetStationPreviewsRequest
 {
 }
-export interface AddLineup
+export interface GetUserStatusRequest
 {
-	lineup: string;
+}
+export interface AddLineupRequest
+{
+	Lineup: string;
 }
 export interface StationRequest
 {
 	LineUp: string;
 	StationId: string;
 }
-export interface AddStation
+export interface AddStationRequest
 {
 	Requests: StationRequest[];
 }
-export interface RemoveLineup
+export interface EPGSyncRequest
 {
-	lineup: string;
 }
-export interface RemoveStation
+export interface RemoveLineupRequest
+{
+	Lineup: string;
+}
+export interface RemoveStationRequest
 {
 	Requests: StationRequest[];
 }

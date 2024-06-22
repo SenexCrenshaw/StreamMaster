@@ -1,10 +1,11 @@
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
-import { type ColumnMeta } from '../dataSelector/DataSelectorTypes';
 
-import { useSelectedCountry } from '@lib/redux/slices/selectedCountrySlice';
-import { useSelectedPostalCode } from '@lib/redux/slices/selectedPostalCodeSlice';
-
-import DataSelector from '../dataSelector/DataSelector';
+import SMDataTable from '@components/smDataTable/SMDataTable';
+import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
+import { useSelectedCountry } from '@lib/redux/hooks/selectedCountry';
+import { useSelectedPostalCode } from '@lib/redux/hooks/selectedPostalCode';
+import { GetHeadends } from '@lib/smAPI/SchedulesDirect/SchedulesDirectCommands';
+import { GetHeadendsRequest, HeadendDto } from '@lib/smAPI/smapiTypes';
 import SchedulesDirectAddHeadendDialog from './SchedulesDirectAddHeadendDialog';
 import SchedulesDirectCountrySelector from './SchedulesDirectCountrySelector';
 import SchedulesDirectLineupPreviewChannel from './SchedulesDirectLineupPreviewChannel';
@@ -20,7 +21,7 @@ const SchedulesDirectHeadendDataSelector = () => {
   //   ({ country: selectedCountry ?? 'USA', postalCode: selectedPostalCode ?? '0000' } as SchedulesDirectGetHeadendsApiArg) ?? skipToken
   // );
   useEffect(() => {
-    GetHeadends({ country: selectedCountry ?? 'USA', postalCode: selectedPostalCode ?? '00000' } as SchedulesDirectGetHeadendsApiArg)
+    GetHeadends({ country: selectedCountry ?? 'USA', postalCode: selectedPostalCode ?? '00000' } as GetHeadendsRequest)
       .then((data) => {
         setDataSource(data ?? []);
       })
@@ -73,7 +74,7 @@ const SchedulesDirectHeadendDataSelector = () => {
       </h3>
 
       <SchedulesDirectLineupPreviewChannel lineup={lineupToPreview} onHide={() => setLineupToPreview(undefined)} />
-      <DataSelector
+      <SMDataTable
         columns={columns}
         defaultSortField="name"
         dataSource={dataSource}
@@ -81,8 +82,8 @@ const SchedulesDirectHeadendDataSelector = () => {
         id="StreamingServerStatusPanel"
         headerRightTemplate={rightHeaderTemplate}
         onRowClick={(e) => {
-          const data: HeadendDto = e.data;
-          setLineupToPreview(data.lineup);
+          const headEndDto: HeadendDto = e.data;
+          setLineupToPreview(headEndDto.Lineup);
         }}
         selectedItemsKey="selectedItems"
         style={{ height: 'calc(100vh - 120px)' }}

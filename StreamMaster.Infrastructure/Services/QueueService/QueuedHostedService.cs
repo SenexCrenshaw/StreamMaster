@@ -80,7 +80,7 @@ public sealed class QueuedHostedService(
                         }
                         break;
                     case SMQueCommand.EPGSync:
-                        _ = await _sender.Send(new EPGSync(), cancellationToken).ConfigureAwait(false);
+                        _ = await _sender.Send(new EPGSyncRequest(), cancellationToken).ConfigureAwait(false);
                         break;
 
                     case SMQueCommand.ProcessM3UFile:

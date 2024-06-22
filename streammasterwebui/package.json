@@ -1,12 +1,12 @@
 {
   "type": "module",
   "dependencies": {
-    "@floating-ui/react": "^0.26.16",
+    "@floating-ui/react": "^0.26.17",
     "@microsoft/signalr": "^8.0.0",
     "@microsoft/signalr-protocol-msgpack": "^8.0.0",
     "@reduxjs/toolkit": "^2.2.5",
     "@uiw/react-color-sketch": "^2.3.0",
-    "@vidstack/react": "^1.11.22",
+    "@vidstack/react": "^1.11.24",
     "axios": "^1.7.2",
     "hls.js": "^1.5.11",
     "loglevel": "^1.9.1",
@@ -24,14 +24,14 @@
     "uuid": "^9.0.1"
   },
   "devDependencies": {
-    "@mui/icons-material": "^5.15.19",
-    "@types/node": "^20.14.2",
+    "@mui/icons-material": "^5.15.20",
+    "@types/node": "^20.14.8",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "@types/react-redux": "^7.1.33",
     "@types/uuid": "^9.0.8",
     "@typescript-eslint/eslint-plugin": "^7.13.0",
-    "@typescript-eslint/parser": "^7.13.0",
+    "@typescript-eslint/parser": "^7.13.1",
     "@vitejs/plugin-react": "^4.3.1",
     "esbuild": "^0.20.2",
     "esbuild-runner": "^2.2.2",
@@ -43,18 +43,18 @@
     "eslint-plugin-etc": "^2.0.3",
     "eslint-plugin-html": "^8.1.1",
     "eslint-plugin-import": "^2.29.1",
-    "eslint-plugin-jsx-a11y": "^6.8.0",
-    "eslint-plugin-react": "^7.34.2",
+    "eslint-plugin-jsx-a11y": "^6.9.0",
+    "eslint-plugin-react": "^7.34.3",
     "eslint-plugin-react-hooks": "^4.6.2",
     "eslint-plugin-react-hooks-addons": "^0.3.1",
     "eslint-plugin-sort-keys-fix": "^1.1.2",
-    "eslint-plugin-tailwindcss": "^3.17.3",
+    "eslint-plugin-tailwindcss": "^3.17.4",
     "eslint-plugin-typescript-sort-keys": "^3.2.0",
     "eslint-plugin-unicorn": "^52.0.0",
     "eslint-plugin-unused-imports": "^3.2.0",
     "primeflex": "^3.3.1",
-    "typescript": "^5.4.5",
-    "vite": "^5.2.13"
+    "typescript": "^5.5.2",
+    "vite": "^5.3.1"
   },
   "eslintConfig": {
     "extends": [

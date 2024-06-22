@@ -3,17 +3,18 @@ import SchedulesDirectHeadendDataSelector from '@components/schedulesDirect/Sche
 
 import SchedulesDirectLineUpsDataSelector from '@components/schedulesDirect/SchedulesDirectLineUpsDataSelector';
 import { SDIcon } from '@lib/common/icons';
-import useSettings from '@lib/useSettings';
+import { useSMContext } from '@lib/signalr/SMProvider';
+
 import { BlockUI } from 'primereact/blockui';
 
 import { memo, useMemo } from 'react';
 
 const SDEditorHeadEndsAndLineUps = () => {
-  const settings = useSettings();
+  const { settings } = useSMContext();
 
   const isSDReady = useMemo((): boolean => {
-    return settings.data?.sdSettings?.sdEnabled ?? false;
-  }, [settings.data?.sdSettings?.sdEnabled]);
+    return settings.SDSettings?.SDEnabled ?? false;
+  }, [settings]);
 
   const status = useMemo(() => {
     if (isSDReady) {

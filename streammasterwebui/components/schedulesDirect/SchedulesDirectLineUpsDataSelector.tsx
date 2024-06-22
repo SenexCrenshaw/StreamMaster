@@ -1,13 +1,15 @@
 import { memo, useCallback, useMemo } from 'react';
-import { type ColumnMeta } from '../dataSelector/DataSelectorTypes';
 
-import DataSelector from '../dataSelector/DataSelector';
+import SMDataTable from '@components/smDataTable/SMDataTable';
+import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
+import useGetLineups from '@lib/smAPI/SchedulesDirect/useGetLineups';
+import { HeadendDto } from '@lib/smAPI/smapiTypes';
 import SchedulesDirectRemoveHeadendDialog from './SchedulesDirectRemoveHeadendDialog';
 interface SchedulesDirectLineUpsDataSelectorProperties {
   id: string;
 }
 const SchedulesDirectLineUpsDataSelector = ({ id }: SchedulesDirectLineUpsDataSelectorProperties) => {
-  const getLineUpsQuery = useSchedulesDirectGetLineupsQuery();
+  const { data, isLoading } = useGetLineups();
 
   const actionBodyTemplate = useCallback((data: HeadendDto) => {
     return (
@@ -38,13 +40,13 @@ const SchedulesDirectLineUpsDataSelector = ({ id }: SchedulesDirectLineUpsDataSe
 
   return (
     <div className="flex flex-column">
-      <DataSelector
+      <SMDataTable
         columns={columns}
         defaultSortField="name"
-        dataSource={getLineUpsQuery.data}
+        dataSource={data}
         emptyMessage="No Streams"
         id={id}
-        isLoading={getLineUpsQuery.isLoading}
+        isLoading={isLoading}
         selectionMode="single"
         selectedItemsKey="sdEditorselectedItems"
         style={{ height: 'calc(100vh - 120px)' }}

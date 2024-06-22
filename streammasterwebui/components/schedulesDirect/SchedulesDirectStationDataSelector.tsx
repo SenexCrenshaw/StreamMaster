@@ -1,21 +1,25 @@
 import { useLineUpColumnConfig } from '@components/columns/useLineUpColumnConfig';
+import SMDataTable from '@components/smDataTable/SMDataTable';
+import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 import { compareStationPreviews, findDifferenceStationIdLineUps } from '@lib/common/common';
-
 import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
-
-import { AddStation, RemoveStation } from '@lib/smAPI/SchedulesDirect/SchedulesDirectMutateAPI';
+import { AddStation, RemoveStation } from '@lib/smAPI/SchedulesDirect/SchedulesDirectCommands';
+import useGetSelectedStationIds from '@lib/smAPI/SchedulesDirect/useGetSelectedStationIds';
+import useGetStationPreviews from '@lib/smAPI/SchedulesDirect/useGetStationPreviews';
+import { AddStationRequest, RemoveStationRequest, StationIdLineup, StationPreview, StationRequest } from '@lib/smAPI/smapiTypes';
 import { Toast } from 'primereact/toast';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import DataSelector from '../dataSelector/DataSelector';
-import { type ColumnMeta } from '../dataSelector/DataSelectorTypes';
 
 const SchedulesDirectStationDataSelector = () => {
   const toast = useRef<Toast>(null);
 
   const { selectedItems, setSelectedItems } = useSelectedItems<StationPreview>('SchedulesDirectSchedulesDataSelector');
 
-  const schedulesDirectGetSelectedStationIdsQuery = useSchedulesDirectGetSelectedStationIdsQuery();
-  const stationPreviews = useSchedulesDirectGetStationPreviewsQuery();
+  // const schedulesDirectGetSelectedStationIdsQuery = useSchedulesDirectGetSelectedStationIdsQuery();
+  // const stationPreviews = useSchedulesDirectGetStationPreviewsQuery();
+
+  const schedulesDirectGetSelectedStationIdsQuery = useGetSelectedStationIds();
+  const stationPreviews = useGetStationPreviews();
   const [isLoading, setIsLoading] = useState(false);
 
   const { columnConfig: lineUpColumnConfig } = useLineUpColumnConfig();
@@ -32,7 +36,7 @@ const SchedulesDirectStationDataSelector = () => {
     const sp = schedulesDirectGetSelectedStationIdsQuery.data
       .map((stationIdLineUp) =>
         stationPreviews.data?.find(
-          (stationPreview) => stationPreview.stationId === stationIdLineUp.stationId && stationPreview.lineup === stationIdLineUp.lineup
+          (stationPreview) => stationPreview.StationId === stationIdLineUp.StationId && stationPreview.Lineup === stationIdLineUp.Lineup
         )
       )
       .filter((station) => station !== undefined) as StationPreview[];
@@ -62,12 +66,10 @@ const SchedulesDirectStationDataSelector = () => {
       setIsLoading(true);
 
       if (added !== undefined && added.length > 0) {
-        const toSend: SchedulesDirectAddStationApiArg = {};
+        const toSend = {} as AddStationRequest;
 
-        toSend.requests = added.map((station) => {
-          const request: StationRequest = {};
-          request.stationId = station.stationId;
-          request.lineUp = station.lineup;
+        toSend.Requests = added.map((station) => {
+          const request: StationRequest = { LineUp: station.lineup, StationId: station.stationId };
           return request;
         });
 
@@ -99,12 +101,10 @@ const SchedulesDirectStationDataSelector = () => {
       }
 
       if (removed !== undefined && removed.length > 0) {
-        const toSend: SchedulesDirectRemoveStationApiArg = {};
+        const toSend = {} as RemoveStationRequest;
 
-        toSend.requests = removed.map((station) => {
-          const request: StationRequest = {};
-          request.stationId = station.stationId;
-          request.lineUp = station.lineup;
+        toSend.Requests = removed.map((station) => {
+          const request: StationRequest = { LineUp: station.lineup, StationId: station.stationId };
           return request;
         });
 
@@ -139,13 +139,13 @@ const SchedulesDirectStationDataSelector = () => {
   );
 
   function imageBodyTemplate(data: StationPreview) {
-    if (!data?.logo || data.logo.URL === '') {
+    if (!data?.Logo || data.Logo.URL === '') {
       return <div />;
     }
 
     return (
       <div className="flex flex-nowrap justify-content-center align-items-center p-0">
-        <img loading="lazy" alt={data.logo.URL ?? 'Logo'} className="max-h-1rem max-w-full p-0" src={`${encodeURI(data.logo.URL ?? '')}`} />
+        <img loading="lazy" alt={data.Logo.URL ?? 'Logo'} className="max-h-1rem max-w-full p-0" src={`${encodeURI(data.Logo.URL ?? '')}`} />
       </div>
     );
   }
@@ -168,13 +168,13 @@ const SchedulesDirectStationDataSelector = () => {
     <>
       <Toast position="bottom-right" ref={toast} />
       <div className="m3uFilesEditor flex flex-column border-2 border-round surface-border w-full p-0">
-        <DataSelector
+        <SMDataTable
           columns={columns}
           dataSource={stationPreviews.data}
           defaultSortField="name"
-          disableSelectAll
+          // disableSelectAll
           emptyMessage="No Line Ups"
-          enableState={false}
+          // enableState={false}
           headerName="Line Up Preview"
           id="SchedulesDirectStationDataSelector"
           isLoading={stationPreviews.isLoading || isLoading}

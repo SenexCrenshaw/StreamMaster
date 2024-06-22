@@ -1,25 +1,22 @@
 import SMLoader from '@components/loader/SMLoader';
-import { DataRefreshAll } from '@lib/smAPI/DataRefreshAll';
-
 import { Logger } from '@lib/common/logger';
-
+import { DataRefreshAll } from '@lib/smAPI/DataRefreshAll';
 import { GetIsSystemReady } from '@lib/smAPI/General/GeneralCommands';
 import useGetIsSystemReady from '@lib/smAPI/General/useGetIsSystemReady';
 import useGetTaskIsRunning from '@lib/smAPI/General/useGetTaskIsRunning';
 import useGetSettings from '@lib/smAPI/Settings/useGetSettings';
 import { GetChannelStreamingStatistics, GetClientStreamingStatistics, GetStreamStreamingStatistics } from '@lib/smAPI/Statistics/StatisticsCommands';
-
 import { ChannelStreamingStatistics, ClientStreamingStatistics, SettingDto, StreamStreamingStatistic } from '@lib/smAPI/smapiTypes';
 import { BlockUI } from 'primereact/blockui';
-import React, { ReactNode, createContext, useContext, useEffect, useState } from 'react';
+import React, { ReactNode, createContext, useCallback, useContext, useEffect, useState } from 'react';
 
 interface SMContextState {
   clientStreamingStatistics: ClientStreamingStatistics[];
   channelStreamingStatistics: ChannelStreamingStatistics[];
   isSystemReady: boolean;
   isTaskRunning: boolean;
-  setSettings: React.Dispatch<React.SetStateAction<SettingDto>>;
-  setSystemReady: React.Dispatch<React.SetStateAction<boolean>>;
+  // setSettings: React.Dispatch<React.SetStateAction<SettingDto>>;
+  // setSystemReady: React.Dispatch<React.SetStateAction<boolean>>;
   settings: SettingDto;
   streamStreamingStatistics: StreamStreamingStatistic[];
 }
@@ -36,6 +33,7 @@ export const SMProvider: React.FC<SMProviderProps> = ({ children }) => {
   const [channelStreamingStatistics, setChannelStreamingStatistics] = useState<ChannelStreamingStatistics[]>([]);
   const [clientStreamingStatistics, setClientStreamingStatistics] = useState<ClientStreamingStatistics[]>([]);
   const [streamStreamingStatistics, setStreamStreamingStatistics] = useState<StreamStreamingStatistic[]>([]);
+
   const settingsQuery = useGetSettings();
   const { data: isSystemReadyQ } = useGetIsSystemReady();
   const { data: isTaskRunning } = useGetTaskIsRunning();
@@ -46,62 +44,56 @@ export const SMProvider: React.FC<SMProviderProps> = ({ children }) => {
     }
   }, [settingsQuery.data]);
 
-  const value = {
+  // Function to check system readiness and update statistics
+  const checkSystemReady = useCallback(async () => {
+    try {
+      const systemReady = await GetIsSystemReady();
+      if (systemReady !== isSystemReady) {
+        setSystemReady(systemReady ?? false);
+        if (systemReady === true && settingsQuery.data) {
+          await DataRefreshAll();
+        }
+      }
+
+      const [channelStats, clientStats, streamStats] = await Promise.all([
+        GetChannelStreamingStatistics(),
+        GetClientStreamingStatistics(),
+        GetStreamStreamingStatistics()
+      ]);
+
+      setChannelStreamingStatistics(channelStats ?? []);
+      setClientStreamingStatistics(clientStats ?? []);
+      setStreamStreamingStatistics(streamStats ?? []);
+    } catch (error) {
+      Logger.error('Error checking system readiness', { error });
+      setSystemReady(false);
+    }
+  }, [isSystemReady, settingsQuery.data]);
+
+  useEffect(() => {
+    // Initial check
+    checkSystemReady();
+
+    // Interval to check system readiness
+    const intervalId = setInterval(checkSystemReady, 2000);
+
+    // Clean up interval on component unmount
+    return () => clearInterval(intervalId);
+  }, [checkSystemReady]);
+
+  const contextValue = {
     channelStreamingStatistics,
     clientStreamingStatistics,
     isSystemReady: isSystemReadyQ === true && settingsQuery.data !== undefined,
     isTaskRunning: isTaskRunning ?? false,
-    setSettings,
-    setSystemReady,
     settings,
     streamStreamingStatistics
   };
 
-  useEffect(() => {
-    const checkSystemReady = async () => {
-      try {
-        const t = await GetChannelStreamingStatistics();
-        if (t !== undefined) {
-          setChannelStreamingStatistics(t);
-        }
-        const c = await GetClientStreamingStatistics();
-        if (c !== undefined) {
-          setClientStreamingStatistics(c);
-        }
-        const s = await GetStreamStreamingStatistics();
-        if (s !== undefined) {
-          setStreamStreamingStatistics(s);
-        }
-        // getInputStatistics.SetIsForced(true);
-        const result = await GetIsSystemReady();
-        if (result !== isSystemReady) {
-          setSystemReady(result ?? false);
-          if (result === true && settingsQuery.data !== undefined) {
-            await DataRefreshAll();
-          }
-        }
-      } catch (error) {
-        Logger.error('Error checking system readiness', { error });
-        setSystemReady(false);
-      }
-    };
-
-    const intervalId = setInterval(checkSystemReady, 1000);
-
-    return () => clearInterval(intervalId);
-  }, [isSystemReady, settingsQuery.data]);
-
-  // return (
-  //   <SMContext.Provider value={value}>
-  //     {value.isSystemReady && <SMLoader />}
-  //     <BlockUI blocked={value.isSystemReady}>{children}</BlockUI>
-  //   </SMContext.Provider>
-  // );
-
   return (
-    <SMContext.Provider value={value}>
-      {isSystemReady !== true && <SMLoader />}
-      <BlockUI blocked={isSystemReady !== true}>{children}</BlockUI>
+    <SMContext.Provider value={contextValue}>
+      {!contextValue.isSystemReady && <SMLoader />}
+      <BlockUI blocked={!contextValue.isSystemReady}>{children}</BlockUI>
     </SMContext.Provider>
   );
 };
