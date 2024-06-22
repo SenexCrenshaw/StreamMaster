@@ -9,7 +9,14 @@ public sealed class InputStatisticsManager(ILogger<InputStatisticsManager> logge
 
     public IInputStreamingStatistics RegisterInputReader(StreamInfo StreamInfo)
     {
-        return _inputStatistics.GetOrAdd(StreamInfo.SMStream.Id, _ => new InputStreamingStatistics(StreamInfo));
+        if (!_inputStatistics.TryGetValue(StreamInfo.SMStream.Id, out InputStreamingStatistics streamInfo))
+        {
+            streamInfo = new InputStreamingStatistics();
+            streamInfo.SetStreamInfo(StreamInfo);
+            _inputStatistics.TryAdd(StreamInfo.SMStream.Id, streamInfo);
+
+        }
+        return streamInfo;
     }
 
     public bool UnRegister(string smStreamId)

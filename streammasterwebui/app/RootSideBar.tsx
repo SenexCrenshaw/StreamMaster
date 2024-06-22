@@ -1,5 +1,5 @@
 import MenuItemSM from '@components/MenuItemSM';
-import { HelpIcon, PlayListEditorIcon, SettingsEditorIcon, SideBarMenuIcon } from '@lib/common/icons';
+import { HelpIcon, PlayListEditorIcon, SettingsEditorIcon, SideBarMenuIcon, StreamingStatusIcon } from '@lib/common/icons';
 import { useSMContext } from '@lib/signalr/SMProvider';
 import { useLocalStorage } from 'primereact/hooks';
 import { Tooltip } from 'primereact/tooltip';
@@ -83,6 +83,7 @@ export const RootSideBar = () => {
           </div>
           {/* <MenuItemSM collapsed={collapsed} icon={<PlayListEditorIcon />} link="/testpanel" name='Test Panel' /> */}
           <MenuItemSM collapsed={collapsed} icon={<PlayListEditorIcon />} link="/editor/streams" name="Streams" />
+          <MenuItemSM collapsed={collapsed} icon={<StreamingStatusIcon />} link="/streamingstatus" name="Status" />
           {/* <MenuItemSM collapsed={collapsed} icon={<PlayListEditorIcon />} link="/editor/playlist" name="Playlist" />
         <MenuItemSM collapsed={collapsed} icon={<StreamGroupEditorIcon />} link="/editor/streamgroup" name="Stream Group" />
         <MenuItemSM collapsed={collapsed} icon={<FilesEditorIcon />} link="/editor/files" name="Files" />

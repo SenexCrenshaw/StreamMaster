@@ -80,5 +80,6 @@
 		<RtAdditionalAssembly Include="StreamMaster.Domain" />
 		<RtAdditionalAssembly Include="StreamMaster.SchedulesDirect.Domain" />
 		<RtAdditionalAssembly Include="StreamMaster.Application" />
+		<RtAdditionalAssembly Include="StreamMaster.Streams.Domain" />
 	</ItemGroup>
 </Project>

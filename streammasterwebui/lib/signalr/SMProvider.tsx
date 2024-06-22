@@ -7,16 +7,20 @@ import { GetIsSystemReady } from '@lib/smAPI/General/GeneralCommands';
 import useGetIsSystemReady from '@lib/smAPI/General/useGetIsSystemReady';
 import useGetTaskIsRunning from '@lib/smAPI/General/useGetTaskIsRunning';
 import useGetSettings from '@lib/smAPI/Settings/useGetSettings';
-import { SettingDto } from '@lib/smAPI/smapiTypes';
+import { GetClientStreamingStatistics, GetInputStatistics } from '@lib/smAPI/Statistics/StatisticsCommands';
+import useGetInputStatistics from '@lib/smAPI/Statistics/useGetInputStatistics';
+import { ClientStreamingStatistics, InputStreamingStatistics, SettingDto } from '@lib/smAPI/smapiTypes';
 import { BlockUI } from 'primereact/blockui';
 import React, { ReactNode, createContext, useContext, useEffect, useState } from 'react';
 
 interface SMContextState {
+  clientStreamingStatistics: ClientStreamingStatistics[];
+  inputStatistics: InputStreamingStatistics[];
   isSystemReady: boolean;
   isTaskRunning: boolean;
+  setSettings: React.Dispatch<React.SetStateAction<SettingDto>>;
   setSystemReady: React.Dispatch<React.SetStateAction<boolean>>;
   settings: SettingDto;
-  setSettings: React.Dispatch<React.SetStateAction<SettingDto>>;
 }
 
 const SMContext = createContext<SMContextState | undefined>(undefined);
@@ -28,9 +32,13 @@ interface SMProviderProps {
 export const SMProvider: React.FC<SMProviderProps> = ({ children }) => {
   const [isSystemReady, setSystemReady] = useState<boolean>(false);
   const [settings, setSettings] = useState<SettingDto>({} as SettingDto);
+  const [inputStatistics, setInputStatistics] = useState<InputStreamingStatistics[]>([]);
+  const [clientStreamingStatistics, setClientStreamingStatistics] = useState<ClientStreamingStatistics[]>([]);
   const settingsQuery = useGetSettings();
   const { data: isSystemReadyQ } = useGetIsSystemReady();
   const { data: isTaskRunning } = useGetTaskIsRunning();
+
+  const getInputStatistics = useGetInputStatistics();
 
   useEffect(() => {
     if (settingsQuery.data) {
@@ -39,6 +47,8 @@ export const SMProvider: React.FC<SMProviderProps> = ({ children }) => {
   }, [settingsQuery.data]);
 
   const value = {
+    clientStreamingStatistics,
+    inputStatistics,
     isSystemReady: isSystemReadyQ === true && settingsQuery.data !== undefined,
     isTaskRunning: isTaskRunning ?? false,
     setSettings,
@@ -51,6 +61,15 @@ export const SMProvider: React.FC<SMProviderProps> = ({ children }) => {
   useEffect(() => {
     const checkSystemReady = async () => {
       try {
+        const t = await GetInputStatistics();
+        if (t !== undefined) {
+          setInputStatistics(t);
+        }
+        const c = await GetClientStreamingStatistics();
+        if (c !== undefined) {
+          setClientStreamingStatistics(c);
+        }
+        getInputStatistics.SetIsForced(true);
         const result = await GetIsSystemReady();
         if (result !== isSystemReady) {
           setSystemReady(result ?? false);
@@ -67,7 +86,7 @@ export const SMProvider: React.FC<SMProviderProps> = ({ children }) => {
     const intervalId = setInterval(checkSystemReady, 1000);
 
     return () => clearInterval(intervalId);
-  }, [isSystemReady, settingsQuery.data]);
+  }, [getInputStatistics, isSystemReady, settingsQuery.data]);
 
   // return (
   //   <SMContext.Provider value={value}>

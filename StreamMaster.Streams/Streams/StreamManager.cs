@@ -183,15 +183,15 @@ public class StreamManager(IStreamHandlerFactory streamHandlerFactory, IClientSt
         }
     }
 
-    public async Task AddClientsToHandler(List<IClientStreamerConfiguration> clientIds, IStreamHandler streamHandler)
+    public async Task AddClientsToHandler(List<ClientStreamerConfiguration> clientIds, IStreamHandler streamHandler)
     {
-        foreach (IClientStreamerConfiguration clientId in clientIds)
+        foreach (ClientStreamerConfiguration clientId in clientIds)
         {
             await AddClientToHandler(clientIds[0].SMChannel, clientId, streamHandler).ConfigureAwait(false);
         }
     }
 
-    public async Task AddClientToHandler(SMChannel smChannel, IClientStreamerConfiguration streamerConfiguration, IStreamHandler streamHandler)
+    public async Task AddClientToHandler(SMChannel smChannel, ClientStreamerConfiguration streamerConfiguration, IStreamHandler streamHandler)
     {
         if (streamerConfiguration != null)
         {

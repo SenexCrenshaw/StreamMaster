@@ -1,6 +1,4 @@
 ﻿using Microsoft.AspNetCore.Http;
-
-using StreamMaster.Domain.Models;
 namespace StreamMaster.Streams.Domain.Interfaces;
 
 public interface IClientStreamerConfiguration
@@ -8,7 +6,7 @@ public interface IClientStreamerConfiguration
     CancellationToken ClientCancellationToken { get; }
 
     string HttpContextId { get; }
-    SMChannel SMChannel { get; set; }
+    SMChannelDto SMChannel { get; set; }
     Guid ClientId { get; set; }
     string ClientIPAddress { get; set; }
     string ClientUserAgent { get; set; }

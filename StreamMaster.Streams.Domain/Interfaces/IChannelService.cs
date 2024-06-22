@@ -1,6 +1,4 @@
-﻿using StreamMaster.Domain.Models;
-
-namespace StreamMaster.Streams.Domain.Interfaces;
+﻿namespace StreamMaster.Streams.Domain.Interfaces;
 public interface IChannelService
 {
     Task<bool> SwitchChannelToNextStream(IChannelStatus channelStatus, string? overrideNextVideoStreamId = null);
@@ -11,9 +9,9 @@ public interface IChannelService
     List<IChannelStatus> GetChannelStatusesFromSMStreamId(string smStreamId);
     int GetGlobalStreamsCount();
     bool HasChannel(int SMChannelId);
-    Task<IChannelStatus?> RegisterChannel(IClientStreamerConfiguration config);
+    Task<IChannelStatus?> RegisterChannel(ClientStreamerConfiguration config);
 
-    Task<IChannelStatus?> SetupChannel(SMChannel smChannel);
+    Task<IChannelStatus?> SetupChannel(SMChannelDto smChannel);
     Task SetNextChildVideoStream(IChannelStatus channelStatus, string? overrideNextVideoStreamId = null);
     void UnRegisterChannel(int smChannelId);
 }

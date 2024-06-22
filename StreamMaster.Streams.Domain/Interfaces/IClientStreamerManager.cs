@@ -4,7 +4,7 @@
 public interface IClientStreamerManager
 {
 
-    List<IClientStreamerConfiguration> GetClientStreamerConfigurationsBySMChannelId(int smChannelId);
+    List<ClientStreamerConfiguration> GetClientStreamerConfigurationsBySMChannelId(int smChannelId);
     //ICollection<IClientStreamerConfiguration> GetAllClientStreamerConfigurations { get; }
     //List<IClientStreamerConfiguration> GetClientStreamerConfigurationFromIds(List<Guid> clientIds);
     //bool HasClient(string VideoStreamId, Guid ClientId);
@@ -15,9 +15,9 @@ public interface IClientStreamerManager
 
     void Dispose();
 
-    Task<IClientStreamerConfiguration?> GetClientStreamerConfiguration(Guid clientId, CancellationToken cancellationToken = default);
+    Task<ClientStreamerConfiguration?> GetClientStreamerConfiguration(Guid clientId, CancellationToken cancellationToken = default);
 
-    bool RegisterClient(IClientStreamerConfiguration config);
+    bool RegisterClient(ClientStreamerConfiguration config);
 
     Task UnRegisterClient(Guid clientId);
 

@@ -1,87 +1,117 @@
-﻿using StreamMaster.Domain.Extensions;
+﻿using MessagePack;
+
+using Reinforced.Typings.Attributes;
+
+using StreamMaster.Domain.Extensions;
 
 namespace StreamMaster.Streams.Domain.Models;
 
+[TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public class InputStreamingStatistics : IInputStreamingStatistics
 {
-    private readonly StreamInfo streamInfo;
-    private long bytesRead;
-    private long bytesWritten;
-    private int clients;
+    //private readonly StreamInfo streamInfo;
 
-    public InputStreamingStatistics(StreamInfo streamInfo)
+    //public InputStreamingStatistics()
+    //{
+    //    this.streamInfo = streamInfo ?? throw new ArgumentNullException(nameof(streamInfo));
+    //    BytesRead = 0;
+    //    BytesWritten = 0;
+    //    StartTime = SMDT.UtcNow;
+    //    Rank = streamInfo.Rank;
+    //    StreamUrl = streamInfo.SMStream.Url;
+    //    ChannelName = streamInfo.SMChannel.Name;
+    //    ChannelId = streamInfo.SMChannel.Id;
+    //    Id = streamInfo.SMStream.Id;
+    //    ChannelLogo = streamInfo.SMChannel.Logo;
+    //    StreamName = streamInfo.SMStream.Name;
+    //    StreamId = streamInfo.SMStream.Id;
+    //    StreamLogo = streamInfo.SMStream.Logo;
+    //}
+
+    public InputStreamingStatistics() { }
+
+
+    [IgnoreMember]
+    public StreamInfo StreamInfo { get; set; }
+
+
+    public double BitsPerSecond { get; set; }
+
+    public int Rank { get; set; }
+
+    public string? StreamUrl { get; set; }
+    public long BytesRead { get; set; }
+    public long BytesWritten { get; set; }
+
+    public DateTimeOffset StartTime { get; set; }
+    public string Id { get; set; }
+    public string ChannelName { get; set; }
+    public int ChannelId { get; set; }
+
+    public string? ChannelLogo { get; set; }
+
+    public string StreamName { get; set; }
+    public string StreamId { get; set; }
+    public string? StreamLogo { get; set; }
+
+    public int Clients { get; set; }
+
+    public string ElapsedTime { get; set; }
+
+    public void UpdateValues()
     {
-        this.streamInfo = streamInfo ?? throw new ArgumentNullException(nameof(streamInfo));
-        bytesRead = 0;
-        bytesWritten = 0;
-        StartTime = SMDT.UtcNow;
 
-    }
-
-    public StreamInfo StreamInfo => streamInfo;
-
-    public double BitsPerSecond
-    {
-        get
-        {
-            TimeSpan elapsedTime = SMDT.UtcNow - StartTime;
-            double elapsedTimeInSeconds = elapsedTime.TotalSeconds;
-            return elapsedTimeInSeconds > 0 ? (bytesRead + bytesWritten) * 8 / elapsedTimeInSeconds : 0;
-        }
-    }
-
-    public int Rank => streamInfo.Rank;
-    public string? StreamUrl => streamInfo.SMStream.Url;
-    public long BytesRead => Interlocked.Read(ref bytesRead);
-    public long BytesWritten => Interlocked.Read(ref bytesWritten);
-    public DateTimeOffset StartTime { get; }
-    public string Id => streamInfo.SMStream.Id;
-    public string ChannelName => streamInfo.SMChannel.Name;
-    public int ChannelId => streamInfo.SMChannel.Id;
-
-    public string? ChannelLogo => streamInfo.SMChannel.Logo;
-
-    public string StreamName => streamInfo.SMStream.Name;
-    public string StreamId => streamInfo.SMStream.Id;
-    public string? StreamLogo => streamInfo.SMStream.Logo;
-
-    public int Clients => Interlocked.CompareExchange(ref clients, 0, 0);
-
-    public string ElapsedTime => GetElapsedTimeFormatted();
-
-    private string GetElapsedTimeFormatted()
-    {
         TimeSpan elapsedTime = SMDT.UtcNow - StartTime;
-        return $"{elapsedTime.Days} {elapsedTime.Hours:00}:{elapsedTime.Minutes:00}:{elapsedTime.Seconds:00}";
+        double elapsedTimeInSeconds = elapsedTime.TotalSeconds;
+        BitsPerSecond = elapsedTimeInSeconds > 0 ? (BytesRead + BytesWritten) * 8 / elapsedTimeInSeconds : 0;
+
+        ElapsedTime = $"{elapsedTime.Days} {elapsedTime.Hours:00}:{elapsedTime.Minutes:00}:{elapsedTime.Seconds:00}";
     }
 
     public void AddBytesRead(long bytesRead)
     {
-        Interlocked.Add(ref this.bytesRead, bytesRead);
+        this.BytesRead += bytesRead;
     }
 
     public void AddBytesWritten(long bytesWritten)
     {
-        Interlocked.Add(ref this.bytesWritten, bytesWritten);
+        BytesWritten += bytesWritten;
     }
 
     public void IncrementBytesRead()
     {
-        Interlocked.Increment(ref this.bytesRead);
+        ++BytesRead;
     }
 
     public void IncrementBytesWritten()
     {
-        Interlocked.Increment(ref this.bytesWritten);
+        ++BytesWritten;
     }
 
     public void DecrementClient()
     {
-        Interlocked.Decrement(ref this.clients);
+        --Clients;
     }
 
     public void IncrementClient()
     {
-        Interlocked.Increment(ref this.clients);
+        ++Clients;
+    }
+
+    public void SetStreamInfo(StreamInfo streamInfo)
+    {
+        StreamInfo = streamInfo;
+        BytesRead = 0;
+        BytesWritten = 0;
+        StartTime = SMDT.UtcNow;
+        Rank = streamInfo.Rank;
+        StreamUrl = streamInfo.SMStream.Url;
+        ChannelName = streamInfo.SMChannel.Name;
+        ChannelId = streamInfo.SMChannel.Id;
+        Id = streamInfo.SMStream.Id;
+        ChannelLogo = streamInfo.SMChannel.Logo;
+        StreamName = streamInfo.SMStream.Name;
+        StreamId = streamInfo.SMStream.Id;
+        StreamLogo = streamInfo.SMStream.Logo;
     }
 }

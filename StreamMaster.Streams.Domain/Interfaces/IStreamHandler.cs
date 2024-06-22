@@ -5,7 +5,7 @@ namespace StreamMaster.Streams.Domain.Interfaces;
 public interface IStreamHandler : IDisposable
 {
 
-    IEnumerable<IClientStreamerConfiguration> GetClientStreamerClientIdConfigs { get; }
+    IEnumerable<ClientStreamerConfiguration> GetClientStreamerClientIdConfigs { get; }
     Task StartVideoStreamingAsync(Stream stream);
     int ProcessId { get; set; }
     SMStream SMStream { get; }
@@ -46,7 +46,7 @@ public interface IStreamHandler : IDisposable
     /// Registers a client streamer with the given configuration.
     /// </summary>
     /// <param name="streamerConfiguration">The configuration for the client streamer.</param>
-    void RegisterClientStreamer(IClientStreamerConfiguration streamerConfiguration);
+    void RegisterClientStreamer(ClientStreamerConfiguration streamerConfiguration);
 
     /// <summary>
     /// Stops all video streaming activities.

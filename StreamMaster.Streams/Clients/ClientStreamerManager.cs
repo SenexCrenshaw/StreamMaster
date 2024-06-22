@@ -4,7 +4,7 @@ namespace StreamMaster.Streams.Clients;
 public sealed class ClientStreamerManager(ILogger<ClientStreamerManager> logger, IClientStatisticsManager clientStatisticsManager)
     : IClientStreamerManager
 {
-    private readonly ConcurrentDictionary<Guid, IClientStreamerConfiguration> clientStreamerConfigurations = new();
+    private readonly ConcurrentDictionary<Guid, ClientStreamerConfiguration> clientStreamerConfigurations = new();
     private readonly object _disposeLock = new();
     private bool _disposed = false;
 
@@ -40,11 +40,11 @@ public sealed class ClientStreamerManager(ILogger<ClientStreamerManager> logger,
 
     public int ClientCount(int smChannelId)
     {
-        ConcurrentDictionary<Guid, IClientStreamerConfiguration> a = clientStreamerConfigurations;
+        ConcurrentDictionary<Guid, ClientStreamerConfiguration> a = clientStreamerConfigurations;
         return clientStreamerConfigurations.Count(a => a.Value.SMChannel.Id == smChannelId);
     }
 
-    public bool RegisterClient(IClientStreamerConfiguration config)
+    public bool RegisterClient(ClientStreamerConfiguration config)
     {
         if (!clientStreamerConfigurations.TryAdd(config.ClientId, config))
         {
@@ -114,10 +114,10 @@ public sealed class ClientStreamerManager(ILogger<ClientStreamerManager> logger,
 
     }
 
-    public async Task<IClientStreamerConfiguration?> GetClientStreamerConfiguration(Guid clientId, CancellationToken cancellationToken = default)
+    public async Task<ClientStreamerConfiguration?> GetClientStreamerConfiguration(Guid clientId, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        if (clientStreamerConfigurations.TryGetValue(clientId, out IClientStreamerConfiguration? clientConfig))
+        if (clientStreamerConfigurations.TryGetValue(clientId, out ClientStreamerConfiguration? clientConfig))
         {
             return await Task.FromResult(clientConfig).ConfigureAwait(false);
         }
@@ -131,10 +131,10 @@ public sealed class ClientStreamerManager(ILogger<ClientStreamerManager> logger,
     //}
 
 
-    public List<IClientStreamerConfiguration> GetClientStreamerConfigurationsBySMChannelId(int smChannelId)
+    public List<ClientStreamerConfiguration> GetClientStreamerConfigurationsBySMChannelId(int smChannelId)
     {
-        ConcurrentDictionary<Guid, IClientStreamerConfiguration> a = clientStreamerConfigurations;
-        List<IClientStreamerConfiguration> client = GetAllClientStreamerConfigurations.Where(a => a.SMChannel.Id.Equals(smChannelId)).ToList();
+        ConcurrentDictionary<Guid, ClientStreamerConfiguration> a = clientStreamerConfigurations;
+        List<ClientStreamerConfiguration> client = GetAllClientStreamerConfigurations.Where(a => a.SMChannel.Id.Equals(smChannelId)).ToList();
 
         return client;
     }
@@ -147,7 +147,7 @@ public sealed class ClientStreamerManager(ILogger<ClientStreamerManager> logger,
 
 
 
-    public ICollection<IClientStreamerConfiguration> GetAllClientStreamerConfigurations => clientStreamerConfigurations.Values;
+    public ICollection<ClientStreamerConfiguration> GetAllClientStreamerConfigurations => clientStreamerConfigurations.Values;
 
     //public bool HasClient(string ChannelVideoStreamId, Guid ClientId)
     //{

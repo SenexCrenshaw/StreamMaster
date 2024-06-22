@@ -69,7 +69,7 @@ public static class ConfigureServices
     public static IServiceCollection AddInfrastructureServicesEx(this IServiceCollection services)
     {
 
-        //_ = services.AddSingleton<IBroadcastService, BroadcastService>();
+        _ = services.AddSingleton<IBroadcastService, BroadcastService>();
 
         _ = services.AddHostedService<TimerService>();
 

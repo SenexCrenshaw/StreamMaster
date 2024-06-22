@@ -68,13 +68,6 @@ public class TimerService(IServiceProvider serviceProvider, IOptionsMonitor<Sett
             isActive = true;
         }
 
-        using IServiceScope scope = serviceProvider.CreateScope();
-        IMediator mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-        IHubContext<StreamMasterHub, IStreamMasterHub> hubContext = scope.ServiceProvider.GetRequiredService<IHubContext<StreamMasterHub, IStreamMasterHub>>();
-        IBackgroundTaskQueue backgroundTask = scope.ServiceProvider.GetRequiredService<IBackgroundTaskQueue>();
-
-        //await hubContext.Clients.All.TaskQueueStatusUpdate(await backgroundTask.GetQueueStatus()).ConfigureAwait(false);
-
         SDSystemStatus status = new() { IsSystemReady = BuildInfo.IsSystemReady };
 
         lock (Lock)
@@ -86,6 +79,12 @@ public class TimerService(IServiceProvider serviceProvider, IOptionsMonitor<Sett
             }
             isActive = true;
         }
+
+        using IServiceScope scope = serviceProvider.CreateScope();
+        IMediator mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+        IHubContext<StreamMasterHub, IStreamMasterHub> hubContext = scope.ServiceProvider.GetRequiredService<IHubContext<StreamMasterHub, IStreamMasterHub>>();
+        IBackgroundTaskQueue backgroundTask = scope.ServiceProvider.GetRequiredService<IBackgroundTaskQueue>();
+
 
         IRepositoryWrapper repository = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
         ISchedulesDirect schedulesDirect = scope.ServiceProvider.GetRequiredService<ISchedulesDirect>();

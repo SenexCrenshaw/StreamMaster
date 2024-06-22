@@ -998,6 +998,44 @@ export interface UpdateChannelGroupsRequest
 {
 	requests: UpdateChannelGroupRequest[];
 }
+export interface ClientStreamingStatistics
+{
+	BytesRead: number;
+	ChannelId: number;
+	ChannelName: string;
+	ClientAgent: string;
+	ClientId: any;
+	ClientIPAddress: string;
+	ElapsedTime: string;
+	ReadBitsPerSecond: number;
+	StartTime: any;
+	StreamerConfiguration: any;
+}
+export interface InputStreamingStatistics
+{
+	BitsPerSecond: number;
+	BytesRead: number;
+	BytesWritten: number;
+	ChannelId: number;
+	ChannelLogo?: string;
+	ChannelName: string;
+	Clients: number;
+	ElapsedTime: string;
+	Id: string;
+	Rank: number;
+	StartTime: any;
+	StreamId: string;
+	StreamInfo: StreamInfo;
+	StreamLogo?: string;
+	StreamName: string;
+	StreamUrl?: string;
+}
+export interface StreamInfo
+{
+	Rank: number;
+	SMChannel: SMChannelDto;
+	SMStream: SMStreamDto;
+}
 export enum AuthenticationType {
 	None = 0,
 	Forms = 2

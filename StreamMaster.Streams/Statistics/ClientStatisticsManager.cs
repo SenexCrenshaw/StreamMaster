@@ -7,9 +7,16 @@ public sealed class ClientStatisticsManager(ILogger<ClientStatisticsManager> log
     private readonly ConcurrentDictionary<Guid, ClientStreamingStatistics> _clientStatistics = new();
     private readonly ILogger<ClientStatisticsManager> _logger = logger;
 
-    public void RegisterClient(IClientStreamerConfiguration streamerConfiguration)
+    public void RegisterClient(ClientStreamerConfiguration streamerConfiguration)
     {
-        _clientStatistics.TryAdd(streamerConfiguration.ClientId, new ClientStreamingStatistics(streamerConfiguration));
+        if (!_clientStatistics.ContainsKey(streamerConfiguration.ClientId))
+        {
+            var c = new ClientStreamingStatistics();
+            c.SetStreamerConfiguration(streamerConfiguration);
+            _clientStatistics.TryAdd(streamerConfiguration.ClientId, c);
+
+        }
+        return;
     }
 
     public bool UnRegisterClient(Guid clientId)

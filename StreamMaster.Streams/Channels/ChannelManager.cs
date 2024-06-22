@@ -8,23 +8,28 @@ public sealed class ChannelManager : IChannelManager
     private readonly IChannelService channelService;
     private readonly IStreamManager streamManager;
     private readonly IClientStreamerManager clientStreamerManager;
+    private readonly IBroadcastService broadcastService;
+
     private bool _disposed = false;
     public ChannelManager(
     ILogger<ChannelManager> logger,
     IChannelService channelService,
     IStreamManager streamManager,
-    IClientStreamerManager clientStreamerManager
+    IClientStreamerManager clientStreamerManager,
+    IBroadcastService broadcastService
     )
     {
         this.logger = logger;
         this.channelService = channelService;
+        this.broadcastService = broadcastService;
         this.streamManager = streamManager;
         this.clientStreamerManager = clientStreamerManager;
         this.streamManager.OnStreamingStoppedEvent += StreamManager_OnStreamingStoppedEvent;
+        //broadcastService.StartBroadcasting();
     }
 
 
-    public async Task<Stream?> GetChannelAsync(IClientStreamerConfiguration config, CancellationToken cancellationToken = default)
+    public async Task<Stream?> GetChannelAsync(ClientStreamerConfiguration config, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -176,13 +181,13 @@ public sealed class ChannelManager : IChannelManager
     }
 
 
-    public async Task RemoveClientAsync(IClientStreamerConfiguration config)
+    public async Task RemoveClientAsync(ClientStreamerConfiguration config)
     {
         logger.LogInformation("Client exited");
         await UnRegisterWithChannelManager(config);
     }
 
-    private async Task UnRegisterWithChannelManager(IClientStreamerConfiguration config)
+    private async Task UnRegisterWithChannelManager(ClientStreamerConfiguration config)
     {
         try
         {

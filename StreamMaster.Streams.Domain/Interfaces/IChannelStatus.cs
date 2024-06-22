@@ -1,6 +1,4 @@
-﻿using StreamMaster.Domain.Models;
-
-namespace StreamMaster.Streams.Domain.Interfaces;
+﻿namespace StreamMaster.Streams.Domain.Interfaces;
 
 /// <summary>
 /// Provides methods and properties to manage the status and configuration of a channel.
@@ -15,7 +13,7 @@ public interface IChannelStatus
     /// Sets the channel to a global state.
     /// </summary>
     void SetIsGlobal();
-    void SetCurrentSMStream(SMStream? smStream);
+    void SetCurrentSMStream(SMStreamDto? smStream);
 
     /// <summary>
     /// Indicates whether a failover operation is currently in progress.
@@ -46,7 +44,7 @@ public interface IChannelStatus
     /// <summary>
     /// Gets or sets the name of the video stream associated with this channel.
     /// </summary>
-    SMStream SMStream { get; }
-    SMChannel SMChannel { get; }
+    SMStreamDto SMStream { get; }
+    SMChannelDto SMChannel { get; }
 
 }

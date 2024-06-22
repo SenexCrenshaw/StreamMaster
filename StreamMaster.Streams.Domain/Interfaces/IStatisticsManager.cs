@@ -8,6 +8,6 @@
         void AddBytesRead(Guid clientId, int bytesRead);
         List<ClientStreamingStatistics> GetAllClientStatistics();
         void IncrementBytesRead(Guid clientId);
-        void RegisterClient(IClientStreamerConfiguration streamerConfiguration);
+        void RegisterClient(ClientStreamerConfiguration streamerConfiguration);
     }
 }

@@ -4,6 +4,7 @@ import { ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
 import { VideoStreamSelector } from '@components/videoStream/VideoStreamSelector';
 import { formatJSONDateString, getIconUrl, getTopToolOptions } from '@lib/common/common';
 
+import { InputStreamingStatistics } from '@lib/smAPI/smapiTypes';
 import useSettings from '@lib/useSettings';
 import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';

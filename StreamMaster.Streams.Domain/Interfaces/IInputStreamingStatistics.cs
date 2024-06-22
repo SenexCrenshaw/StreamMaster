@@ -2,6 +2,7 @@
 {
     public interface IInputStreamingStatistics
     {
+        void UpdateValues();
         double BitsPerSecond { get; }
         long BytesRead { get; }
         long BytesWritten { get; }

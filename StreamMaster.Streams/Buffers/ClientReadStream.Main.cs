@@ -10,7 +10,7 @@ public sealed partial class ClientReadStream : Stream, IClientReadStream
 
     public string VideoStreamName { get; set; }
 
-    public ClientReadStream(IClientStatisticsManager clientStatisticsManager, ILoggerFactory loggerFactory, IClientStreamerConfiguration config)
+    public ClientReadStream(IClientStatisticsManager clientStatisticsManager, ILoggerFactory loggerFactory, ClientStreamerConfiguration config)
     {
 
         this.config = config ?? throw new ArgumentNullException(nameof(config));

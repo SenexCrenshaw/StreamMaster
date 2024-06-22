@@ -1,4 +1,6 @@
-﻿using MediatR;
+﻿using AutoMapper;
+
+using MediatR;
 
 using Microsoft.Extensions.DependencyInjection;
 
@@ -13,6 +15,7 @@ public sealed class ChannelService(
     IOptionsMonitor<VideoOutputProfiles> intprofilesettings,
     ISender sender,
     IServiceProvider serviceProvider,
+    IMapper mapper,
     IOptionsMonitor<Setting> settingsMonitor
     ) : IChannelService, IDisposable
 {
@@ -70,7 +73,7 @@ public sealed class ChannelService(
 
 
     }
-    public async Task<IChannelStatus?> RegisterChannel(IClientStreamerConfiguration config)
+    public async Task<IChannelStatus?> RegisterChannel(ClientStreamerConfiguration config)
     {
 
 
@@ -123,7 +126,7 @@ public sealed class ChannelService(
     }
 
 
-    public async Task<IChannelStatus?> SetupChannel(SMChannel smChannel)
+    public async Task<IChannelStatus?> SetupChannel(SMChannelDto smChannel)
     {
         if (smChannel == null)
         {
@@ -360,7 +363,8 @@ public sealed class ChannelService(
             }
 
             logger.LogDebug("Exiting SetNextChildVideoStream with to Return: {Id} {Name}", toReturn.Id, toReturn.Name);
-            channelStatus.SetCurrentSMStream(toReturn);
+            var a = mapper.Map<SMStreamDto>(toReturn);
+            channelStatus.SetCurrentSMStream(a);
             return;
         }
 

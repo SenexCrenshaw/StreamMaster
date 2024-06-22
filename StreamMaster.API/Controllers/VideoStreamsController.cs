@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AutoMapper;
+
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 using StreamMaster.Application.StreamGroups.CommandsOld;
@@ -9,7 +11,7 @@ using StreamMaster.Streams.Domain.Models;
 
 namespace StreamMaster.API.Controllers;
 
-public class VideoStreamsController(IChannelManager channelManager, IRepositoryWrapper repositoryWrapper, ILogger<VideoStreamsController> logger) : ApiControllerBase
+public class VideoStreamsController(IChannelManager channelManager, IMapper mapper, IRepositoryWrapper repositoryWrapper, ILogger<VideoStreamsController> logger) : ApiControllerBase
 {
     [HttpPost]
     [Route("[action]")]
@@ -72,7 +74,8 @@ public class VideoStreamsController(IChannelManager channelManager, IRepositoryW
 
         string? ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
 
-        ClientStreamerConfiguration config = new(smChannel, streamGroupId, Request.Headers.UserAgent.ToString(), ipAddress ?? "unknown", HttpContext.Response, cancellationToken);
+        var smChannelDto = mapper.Map<SMChannelDto>(smChannel);
+        ClientStreamerConfiguration config = new(smChannelDto, streamGroupId, Request.Headers.UserAgent.ToString(), ipAddress ?? "unknown", HttpContext.Response, cancellationToken);
         Stream? stream = await channelManager.GetChannelAsync(config);
 
         HttpContext.Response.RegisterForDispose(new UnregisterClientOnDispose(channelManager, config));

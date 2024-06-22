@@ -10,7 +10,7 @@ public sealed partial class StreamHandler : IStreamHandler
 
     private readonly ILogger<WriteLogger> _writeLogger;
     //private readonly IStatisticsManager statisticsManager;
-    private readonly ConcurrentDictionary<Guid, IClientStreamerConfiguration> clientStreamerConfigs = new();
+    private readonly ConcurrentDictionary<Guid, ClientStreamerConfiguration> clientStreamerConfigs = new();
     private readonly ILogger<IStreamHandler> logger;
 
     private readonly IInputStatisticsManager inputStatisticsManager;
@@ -115,7 +115,7 @@ public sealed partial class StreamHandler : IStreamHandler
 
     }
 
-    public void RegisterClientStreamer(IClientStreamerConfiguration streamerConfiguration)
+    public void RegisterClientStreamer(ClientStreamerConfiguration streamerConfiguration)
     {
         try
         {
@@ -154,7 +154,7 @@ public sealed partial class StreamHandler : IStreamHandler
         }
     }
 
-    public IEnumerable<IClientStreamerConfiguration> GetClientStreamerClientIdConfigs => clientStreamerConfigs.Values;
+    public IEnumerable<ClientStreamerConfiguration> GetClientStreamerClientIdConfigs => clientStreamerConfigs.Values;
 
 
     public IEnumerable<Guid> GetClientStreamerClientIds()

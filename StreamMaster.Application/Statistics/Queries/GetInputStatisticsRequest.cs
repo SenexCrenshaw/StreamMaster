@@ -10,6 +10,10 @@ internal class GetInputStatisticsHandler(IStreamStatisticService streamStatistic
     public async Task<DataResponse<List<InputStreamingStatistics>>> Handle(GetInputStatisticsRequest request, CancellationToken cancellationToken)
     {
         var inputStatistics = streamStatisticService.GetInputStatistics();
+        foreach (var inputStatistic in inputStatistics)
+        {
+            inputStatistic.UpdateValues();
+        }
         return DataResponse<List<InputStreamingStatistics>>.Success(inputStatistics);
 
     }

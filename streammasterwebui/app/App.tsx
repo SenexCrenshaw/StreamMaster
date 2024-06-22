@@ -34,7 +34,7 @@ const App = (): JSX.Element => {
   // const SDEditorHeadEndsAndLineUps = lazy(() => import('@features/sdEditor/SDEditorHeadEndsAndLineUps'));
   // const SettingsEditor = lazy(() => import('@features/settings/SettingsEditor'));
   // const StreamGroupEditor = lazy(() => import('@features/streamGroupEditor/StreamGroupEditor'));
-  // const StreamingStatus = lazy(() => import('@features/streamingStatus/StreamingStatus'));
+  const StreamingStatus = lazy(() => import('@features/streamingStatus/StreamingStatus'));
   // const VideoPlayer = lazy(() => import('@features/videoPlayer/VideoPlayer'));
 
   const persistor = persistStore(store, {}, () => {
@@ -68,6 +68,14 @@ const App = (): JSX.Element => {
             </Suspense>
           }
           path="/settings"
+        />
+        <Route
+          element={
+            <Suspense>
+              <StreamingStatus />
+            </Suspense>
+          }
+          path="/streamingstatus"
         />
         <Route
           element={

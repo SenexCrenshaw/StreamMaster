@@ -13,7 +13,7 @@ export function formatJSONDateString(jsonDate: string | undefined): string {
   return returnValue;
 }
 
-export const getElapsedTimeString = (start: string, stop: string): string => {
+export const getElapsedTimeString = (start: string, stop: string, noms: boolean = false): string => {
   const startDate = new Date(start);
 
   let stopDate = new Date(stop);
@@ -33,6 +33,9 @@ export const getElapsedTimeString = (start: string, stop: string): string => {
   const minutes = totalMinutes % 60;
   const hours = Math.floor(totalMinutes / 60);
 
+  if (noms === true) {
+    return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+  }
   // Format to "hh:mm:ss:ms"
   return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}:${String(milliseconds).padStart(3, '0')}`;
 };

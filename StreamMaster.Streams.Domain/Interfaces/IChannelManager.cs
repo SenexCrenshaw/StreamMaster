@@ -36,14 +36,14 @@ public interface IChannelManager : IDisposable
     /// <param name="config">The configuration settings for the client streamer.</param>
     /// <param name="cancellationToken">A cancellation token to observe while waiting for the task to complete.</param>
     /// <returns>A Task returning the stream. Returns null if the stream could not be obtained.</returns>
-    Task<Stream?> GetChannelAsync(IClientStreamerConfiguration config, CancellationToken cancellationToken = default);
+    Task<Stream?> GetChannelAsync(ClientStreamerConfiguration config, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Asynchronously removes a client based on the given client streamer configuration.
     /// </summary>
     /// <param name="config">The configuration settings for the client to be removed.</param>
     /// <returns>A Task representing the asynchronous operation.</returns>
-    Task RemoveClientAsync(IClientStreamerConfiguration config);
+    Task RemoveClientAsync(ClientStreamerConfiguration config);
 
     /// <summary>
     /// Simulates a stream failure for testing purposes.
