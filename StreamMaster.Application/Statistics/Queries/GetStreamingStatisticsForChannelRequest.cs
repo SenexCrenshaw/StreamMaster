@@ -18,7 +18,7 @@ internal class GetStreamingStatisticsForChannelRequestHandler(IStreamStatisticSe
 
         var smStreamIds = smChannel.SMStreams.Select(a => a.SMStreamId).ToList();
 
-        var channelStreamingStatistics = streamingStatistics.Where(a => smStreamIds.Contains(a.Id)).ToList();
+        var channelStreamingStatistics = streamingStatistics.Where(a => smStreamIds.Contains(a.Id)).DeepCopy().ToList();
         var channelStreamingStatisticsIds = channelStreamingStatistics.Select(a => a.Id).ToList();
 
         var smStreamsToCreate = smChannel.SMStreams.Where(a => !channelStreamingStatisticsIds.Contains(a.SMStreamId)).ToList();

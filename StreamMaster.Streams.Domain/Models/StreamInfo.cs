@@ -2,6 +2,7 @@
 
 using Reinforced.Typings.Attributes;
 
+using StreamMaster.Domain.Extensions;
 using StreamMaster.Streams.Domain.Statistics;
 
 namespace StreamMaster.Streams.Domain.Models;
@@ -24,15 +25,15 @@ public class StreamInfo
             var ret = new List<StreamStreamingStatistic>();
             if (SMChannel != null && SMChannel.SMStreams != null)
             {
-                foreach (var stream in SMChannel.SMStreams.OrderBy(a => a.Rank))
+                foreach (var smStream in SMChannel.SMStreams.OrderBy(a => a.Rank))
                 {
-
                     ret.Add(new StreamStreamingStatistic
                     {
-                        Id = stream.Id,
-                        StreamName = stream.Name,
-                        StreamLogo = stream.Logo,
-                        Rank = stream.Rank
+                        StreamName = smStream.Name,
+                        StreamLogo = smStream.Logo,
+                        StartTime = SMDT.UtcNow,
+                        StreamUrl = smStream.Url,
+                        Id = smStream.Id
                     });
                 }
             }

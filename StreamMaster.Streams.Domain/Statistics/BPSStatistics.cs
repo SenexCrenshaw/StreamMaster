@@ -66,7 +66,22 @@ public class BPSStatistics : ClientStatistics
         BytesWritten = stat.BytesWritten;
         BitsPerSecond = stat.BitsPerSecond;
         StartTime = stat.StartTime;
+
         //UpdateValueStats();
+    }
+
+    public BPSStatistics Copy()
+    {
+        return new BPSStatistics
+        {
+            BitsPerSecond = this.BitsPerSecond,
+            StreamUrl = this.StreamUrl,
+            BytesRead = this.BytesRead,
+            BytesWritten = this.BytesWritten,
+            StartTime = this.StartTime,
+            IsSet = this.IsSet,
+            Clients = this.Clients
+        };
     }
 
     public void AddBytesRead(long bytesRead)

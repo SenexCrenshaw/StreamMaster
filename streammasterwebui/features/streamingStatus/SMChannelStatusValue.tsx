@@ -52,9 +52,9 @@ const SMChannelStatusValue = ({ ChannelId, CurrentRank, StreamStreamingStatistic
 
   const columns = useMemo(
     (): ColumnMeta[] => [
-      { align: 'right', field: 'Rank', sortable: true, width: 50 },
+      { align: 'right', field: 'Rank', width: 50 },
       { bodyTemplate: logoTemplate, field: 'Logo', fieldType: 'image', header: '' },
-      { field: 'StreamName', filter: true, sortable: true, width: 200 },
+      { field: 'StreamName', filter: true, width: 200 },
       { align: 'right', bodyTemplate: clientBitsPerSecondTemplate, field: 'BitsPerSecond', header: 'Input Kbps', width: 80 },
       { align: 'center', bodyTemplate: clientStartTimeTemplate, field: 'StartTime', header: 'Start', width: 180 },
       { align: 'right', bodyTemplate: elapsedTSTemplate, field: 'ElapsedTime', header: '(d hh:mm:ss)', width: 85 }
@@ -71,9 +71,19 @@ const SMChannelStatusValue = ({ ChannelId, CurrentRank, StreamStreamingStatistic
 
   // if (dataSource === undefined) return <div>Loading...</div>;
 
-  Logger.debug('SMChannelStatusValue', 'dataSource', StreamStreamingStatistics);
+  Logger.debug('SMChannelStatusValue', ChannelId, 'dataSource', StreamStreamingStatistics);
 
-  return <SMDataTable headerName="Streams" rowClass={rowClass} columns={columns} id="channelStatus" dataSource={StreamStreamingStatistics} />;
+  return (
+    <SMDataTable
+      defaultSortField="Rank"
+      defaultSortOrder={1}
+      headerName="Streams"
+      rowClass={rowClass}
+      columns={columns}
+      id="channelStatus"
+      dataSource={StreamStreamingStatistics}
+    />
+  );
 };
 
 export default SMChannelStatusValue;

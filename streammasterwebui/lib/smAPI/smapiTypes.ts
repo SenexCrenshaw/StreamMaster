@@ -142,6 +142,7 @@ export interface Format
 export interface VideoInfo
 {
 	Format: Format;
+	StreamName: string;
 	Streams: VideoStreamInfo[];
 }
 export interface VideoStreamInfo

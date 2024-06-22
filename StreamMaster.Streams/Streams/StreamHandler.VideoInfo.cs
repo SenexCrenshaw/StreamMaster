@@ -55,13 +55,15 @@ public sealed partial class StreamHandler
 
             VideoInfo? videoInfo = await CreateFFProbeStream(ffprobeExec, videoMemory).ConfigureAwait(false);
 
-            if (!videoInfo.IsValid())
+
+            if (videoInfo == null || !videoInfo.IsValid())
             {
                 GetVideoInfoErrors++;
                 logger.LogError("Failed to deserialize FFProbe output.");
                 return;
             }
 
+            videoInfo.StreamName = SMStream.Name;
             LastVideoInfoRun = SMDT.UtcNow;
             _videoInfo = videoInfo;
             logger.LogInformation("Retrieved video information for {VideoStreamName}.", SMStream.Name);

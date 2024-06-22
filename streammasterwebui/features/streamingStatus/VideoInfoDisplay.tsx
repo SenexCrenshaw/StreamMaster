@@ -89,7 +89,7 @@ export const VideoInfoDisplay: React.FC<VideoInfoProps> = ({ channelId }) => {
       contentWidthSize="4"
       placement="bottom-end"
       icon="pi-id-card"
-      title="Video Info"
+      title={'Video Info : ' + videoInfo?.StreamName}
       tooltip="Stream Info"
       isLeft
     >

@@ -70,6 +70,8 @@ public class Format
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public class VideoInfo
 {
+    [JsonPropertyName("streamName")]
+    public string StreamName { get; set; }
     [JsonPropertyName("streams")]
     public List<VideoStreamInfo> Streams { get; set; }
 

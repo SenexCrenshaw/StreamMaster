@@ -10,7 +10,7 @@ export const StreamingStatus = (): JSX.Element => (
       <div className="sm-w-6">
         <SMChannelStatus />
       </div>
-      {/* <StreamingClientsPanel style={{ height: 'calc(50vh + 50px)' }} /> */}
+
       <div className="sm-w-6">
         <SMClientsStatus />
       </div>

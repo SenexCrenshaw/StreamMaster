@@ -23,5 +23,22 @@ public class StreamStreamingStatistic : BPSStatistics
         Id = smStream.Id;
     }
 
+    public StreamStreamingStatistic Copy()
+    {
+        return new StreamStreamingStatistic
+        {
+            Rank = this.Rank,
+            StreamName = this.StreamName,
+            StreamLogo = this.StreamLogo,
+            Id = this.Id,
+
+            BytesRead = this.BytesRead,
+            BytesWritten = this.BytesWritten,
+            BitsPerSecond = this.BitsPerSecond,
+            StreamUrl = this.StreamUrl,
+            StartTime = this.StartTime
+
+        };
+    }
 
 }

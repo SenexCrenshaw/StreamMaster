@@ -10,9 +10,9 @@ const SMClientsStatus = () => {
   const { clientStreamingStatistics } = useSMContext();
 
   const clientBitsPerSecondTemplate = (rowData: ClientStreamingStatistics) => {
-    if (rowData.ReadBitsPerSecond === undefined) return <div />;
+    if (rowData.BitsPerSecond === undefined) return <div />;
 
-    const kbps = rowData.ReadBitsPerSecond / 1000;
+    const kbps = rowData.BitsPerSecond / 1000;
     const roundedKbps = Math.ceil(kbps);
 
     return <div>{roundedKbps.toLocaleString('en-US')}</div>;
@@ -31,8 +31,8 @@ const SMClientsStatus = () => {
   const columns = useMemo(
     (): ColumnMeta[] => [
       { align: 'left', field: 'ChannelName', filter: true, header: 'Channel', sortable: true, width: 120 },
-      { align: 'center', field: 'ClientIPAddress', filter: true, header: 'IPAddress', sortable: true, width: 100 },
-      { align: 'center', field: 'ClientAgent', filter: true, header: 'Agent', sortable: true, width: 180 },
+      { align: 'right', field: 'ClientIPAddress', filter: true, header: 'IPAddress', sortable: true, width: 100 },
+      { align: 'right', field: 'ClientAgent', filter: true, header: 'Agent', sortable: true, width: 180 },
       { align: 'right', bodyTemplate: clientBitsPerSecondTemplate, field: 'BitsPerSecond', header: 'Kbps', width: 50 },
       { align: 'center', bodyTemplate: clientStartTimeTemplate, field: 'StartTime', header: 'StartTime', width: 150 },
       { align: 'right', bodyTemplate: elapsedTSTemplate, field: 'ElapsedTime', header: '(d hh:mm:ss)', width: 85 },
