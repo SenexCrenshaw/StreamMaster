@@ -19,7 +19,8 @@ public static class ConfigureServices
         _ = services.AddSingleton<IStreamHandlerFactory, StreamHandlerFactory>();
         _ = services.AddSingleton<IStreamStatisticService, StreamStatisticService>();
         _ = services.AddSingleton<IClientStatisticsManager, ClientStatisticsManager>();
-        _ = services.AddSingleton<IInputStatisticsManager, InputStatisticsManager>();
+        _ = services.AddSingleton<IChannelStreamingStatisticsManager, ChannelStreamingStatisticsManager>();
+        _ = services.AddSingleton<IStreamStreamingStatisticsManager, StreamStreamingStatisticsManager>();
         _ = services.AddSingleton<IStreamManager, StreamManager>();
         _ = services.AddSingleton<IHLSManager, HLSManager>();
 

@@ -8,8 +8,8 @@ public interface IStreamHandler : IDisposable
     IEnumerable<ClientStreamerConfiguration> GetClientStreamerClientIdConfigs { get; }
     Task StartVideoStreamingAsync(Stream stream);
     int ProcessId { get; set; }
-    SMStream SMStream { get; }
-    SMChannel SMChannel { get; }
+    SMStreamDto SMStream { get; }
+    SMChannelDto SMChannel { get; }
 
     bool IsFailed { get; }
     VideoInfo GetVideoInfo();

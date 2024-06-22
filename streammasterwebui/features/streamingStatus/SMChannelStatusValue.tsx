@@ -2,18 +2,17 @@ import SMDataTable from '@components/smDataTable/SMDataTable';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 import { formatJSONDateString, getElapsedTimeString } from '@lib/common/dateTime';
 import { Logger } from '@lib/common/logger';
-import { useSMContext } from '@lib/signalr/SMProvider';
-import { InputStreamingStatistics } from '@lib/smAPI/smapiTypes';
+import { StreamStreamingStatistic } from '@lib/smAPI/smapiTypes';
 import { useCallback, useMemo } from 'react';
 
 interface SMChannelStatusProperties {
-  readonly channelId: number;
+  readonly ChannelId: number;
+  readonly CurrentRank: number;
+  readonly StreamStreamingStatistics: StreamStreamingStatistic[];
 }
 
-const SMChannelStatusValue = ({ channelId }: SMChannelStatusProperties) => {
-  const { clientStreamingStatistics } = useSMContext();
-
-  const clientBitsPerSecondTemplate = (rowData: InputStreamingStatistics) => {
+const SMChannelStatusValue = ({ ChannelId, CurrentRank, StreamStreamingStatistics }: SMChannelStatusProperties) => {
+  const clientBitsPerSecondTemplate = (rowData: StreamStreamingStatistic) => {
     if (rowData.BitsPerSecond === undefined) return <div />;
 
     const kbps = rowData.BitsPerSecond / 1000;
@@ -22,34 +21,59 @@ const SMChannelStatusValue = ({ channelId }: SMChannelStatusProperties) => {
     return <div>{roundedKbps.toLocaleString('en-US')}</div>;
   };
 
-  const elapsedTSTemplate = useCallback((rowData: InputStreamingStatistics) => {
+  const elapsedTSTemplate = useCallback((rowData: StreamStreamingStatistic) => {
     return <div className="numeric-field">{getElapsedTimeString(rowData.StartTime, new Date().toString(), true)}</div>;
   }, []);
 
-  const clientStartTimeTemplate = (rowData: InputStreamingStatistics) => <div>{formatJSONDateString(rowData.StartTime ?? '')}</div>;
+  const clientStartTimeTemplate = (rowData: StreamStreamingStatistic) => <div>{formatJSONDateString(rowData.StartTime ?? '')}</div>;
+
+  const logoTemplate = useCallback((rowData: StreamStreamingStatistic) => {
+    return (
+      <div className="flex icon-button-template justify-content-center align-items-center w-full">
+        <img alt="Icon logo" src={rowData.StreamLogo} />
+      </div>
+    );
+  }, []);
+
+  const rowClass = useCallback(
+    (data: any): string => {
+      if (!data) {
+        return '';
+      }
+
+      if (data.Rank === CurrentRank) {
+        return 'channel-row-selected';
+      }
+
+      return '';
+    },
+    [CurrentRank]
+  );
 
   const columns = useMemo(
     (): ColumnMeta[] => [
-      { field: 'ChannelName', filter: true, sortable: true, width: 300 },
-      { bodyTemplate: clientBitsPerSecondTemplate, field: 'BitsPerSecond', header: 'Kbps', width: 50 },
-      { bodyTemplate: clientStartTimeTemplate, field: 'StartTime', header: 'StartTime', width: 150 },
-      { align: 'right', bodyTemplate: elapsedTSTemplate, field: 'ElapsedTime', header: '(d hh:mm:ss:ms)', width: 150 }
+      { align: 'right', field: 'Rank', sortable: true, width: 50 },
+      { bodyTemplate: logoTemplate, field: 'Logo', fieldType: 'image', header: '' },
+      { field: 'StreamName', filter: true, sortable: true, width: 200 },
+      { align: 'right', bodyTemplate: clientBitsPerSecondTemplate, field: 'BitsPerSecond', header: 'Input Kbps', width: 80 },
+      { align: 'center', bodyTemplate: clientStartTimeTemplate, field: 'StartTime', header: 'Start', width: 180 },
+      { align: 'right', bodyTemplate: elapsedTSTemplate, field: 'ElapsedTime', header: '(d hh:mm:ss)', width: 85 }
     ],
-    [elapsedTSTemplate]
+    [elapsedTSTemplate, logoTemplate]
   );
 
-  const dataSource = useMemo(() => {
-    if (clientStreamingStatistics === undefined || channelId === undefined) return [];
-    const data = clientStreamingStatistics.find((x) => x.ChannelId === channelId);
-    if (data === undefined) return [];
-    return [data];
-  }, [channelId, clientStreamingStatistics]);
+  // const dataSource = useMemo(() => {
+  //   if (streamStreamingStatistics === undefined || channelId === undefined) return [];
+  //   const data = streamStreamingStatistics.find((x) => x.Id === channelId);
+  //   if (data === undefined) return [];
+  //   return [data];
+  // }, [channelId, clientStreamingStatistics]);
 
-  if (dataSource === undefined) return <div>Loading...</div>;
+  // if (dataSource === undefined) return <div>Loading...</div>;
 
-  Logger.debug('SMChannelStatusValue', 'dataSource', dataSource);
+  Logger.debug('SMChannelStatusValue', 'dataSource', StreamStreamingStatistics);
 
-  return <SMDataTable columns={columns} id="channelStatus" dataSource={dataSource} />;
+  return <SMDataTable headerName="Streams" rowClass={rowClass} columns={columns} id="channelStatus" dataSource={StreamStreamingStatistics} />;
 };
 
 export default SMChannelStatusValue;

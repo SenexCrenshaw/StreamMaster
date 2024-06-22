@@ -1,4 +1,6 @@
-﻿namespace StreamMaster.Streams.Channels;
+﻿using Microsoft.Extensions.DependencyInjection;
+
+namespace StreamMaster.Streams.Channels;
 
 public sealed class ChannelManager : IChannelManager
 {
@@ -9,17 +11,19 @@ public sealed class ChannelManager : IChannelManager
     private readonly IStreamManager streamManager;
     private readonly IClientStreamerManager clientStreamerManager;
     private readonly IBroadcastService broadcastService;
-
+    private readonly IServiceProvider serviceProvider;
     private bool _disposed = false;
     public ChannelManager(
     ILogger<ChannelManager> logger,
     IChannelService channelService,
     IStreamManager streamManager,
     IClientStreamerManager clientStreamerManager,
-    IBroadcastService broadcastService
+    IBroadcastService broadcastService,
+    IServiceProvider serviceProvider
     )
     {
         this.logger = logger;
+        this.serviceProvider = serviceProvider;
         this.channelService = channelService;
         this.broadcastService = broadcastService;
         this.streamManager = streamManager;
@@ -40,6 +44,9 @@ public sealed class ChannelManager : IChannelManager
                 logger.LogInformation("Exiting GetChannel due to ClientMasterToken being cancelled");
                 return null;
             }
+
+            using var scope = serviceProvider.CreateScope();
+            var repository = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
 
             var channelStatus = await channelService.RegisterChannel(config);
 
@@ -225,6 +232,12 @@ public sealed class ChannelManager : IChannelManager
 
                         channelService.UnRegisterChannel(config.SMChannel.Id);
                     }
+                }
+
+                if (channelStatus.ClientCount == 0)
+                {
+                    channelService.UnRegisterChannel(channelStatus.SMChannel.Id);
+
                 }
             }
             logger.LogInformation("Finished UnRegisterWithChannelManager with client: {clientId}  {name}", config.ClientId, config.SMChannel.Name);

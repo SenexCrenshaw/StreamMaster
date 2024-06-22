@@ -9,7 +9,7 @@ namespace StreamMaster.Application.EPGFiles.Controllers
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<ActionResult<List<EPGFilePreviewDto>>> GetEPGFilePreviewById(GetEPGFilePreviewByIdRequest request)
+        public async Task<ActionResult<List<EPGFilePreviewDto>>> GetEPGFilePreviewById([FromQuery] GetEPGFilePreviewByIdRequest request)
         {
             try
             {

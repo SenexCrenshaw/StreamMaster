@@ -30,7 +30,7 @@ function getHeader(field: string, header: string | undefined, fieldType: ColumnF
     }
 
     case 'image': {
-      return 'Logo';
+      return '';
     }
 
     case 'streams': {

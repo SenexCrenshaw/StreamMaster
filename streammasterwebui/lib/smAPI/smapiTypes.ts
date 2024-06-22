@@ -550,10 +550,17 @@ export interface RemoveSMChannelFromStreamGroupRequest
 	SMChannelId: number;
 	StreamGroupId: number;
 }
+export interface GetChannelStreamingStatisticsRequest
+{
+}
 export interface GetClientStreamingStatisticsRequest
 {
 }
-export interface GetInputStatisticsRequest
+export interface GetStreamingStatisticsForChannelRequest
+{
+	ChannelId: number;
+}
+export interface GetStreamStreamingStatisticsRequest
 {
 }
 export interface GetSMTasksRequest
@@ -1075,43 +1082,83 @@ export interface UpdateChannelGroupsRequest
 {
 	requests: UpdateChannelGroupRequest[];
 }
-export interface ClientStreamingStatistics
+export interface BaseStatistics
 {
-	BytesRead: number;
-	ChannelId: number;
-	ChannelName: string;
-	ClientAgent: string;
-	ClientId: any;
-	ClientIPAddress: string;
 	ElapsedTime: string;
-	ReadBitsPerSecond: number;
 	StartTime: any;
-	StreamerConfiguration: any;
 }
-export interface InputStreamingStatistics
+export interface BPSStatistics
+{
+	BitsPerSecond: number;
+	BytesRead: number;
+	BytesWritten: number;
+	Clients: number;
+	ElapsedTime: string;
+	IsSet: boolean;
+	StartTime: any;
+	StreamUrl?: string;
+}
+export interface ChannelStreamingStatistics
+{
+	BitsPerSecond: number;
+	BytesRead: number;
+	BytesWritten: number;
+	ChannelLogo?: string;
+	ChannelName: string;
+	ChannelUrl: string;
+	Clients: number;
+	CurrentRank: number;
+	CurrentStreamId: string;
+	ElapsedTime: string;
+	Id: number;
+	IsSet: boolean;
+	StartTime: any;
+	StreamStreamingStatistics: StreamStreamingStatistic[];
+	StreamUrl?: string;
+}
+export interface ClientStatistics
+{
+	Clients: number;
+	ElapsedTime: string;
+	StartTime: any;
+}
+export interface ClientStreamingStatistics
 {
 	BitsPerSecond: number;
 	BytesRead: number;
 	BytesWritten: number;
 	ChannelId: number;
-	ChannelLogo?: string;
 	ChannelName: string;
+	ClientAgent: string;
+	ClientId: any;
+	ClientIPAddress: string;
+	Clients: number;
+	ElapsedTime: string;
+	IsSet: boolean;
+	StartTime: any;
+	StreamUrl?: string;
+}
+export interface StreamStreamingStatistic
+{
+	BitsPerSecond: number;
+	BytesRead: number;
+	BytesWritten: number;
 	Clients: number;
 	ElapsedTime: string;
 	Id: string;
+	IsSet: boolean;
 	Rank: number;
 	StartTime: any;
-	StreamId: string;
-	StreamInfo: StreamInfo;
 	StreamLogo?: string;
 	StreamName: string;
 	StreamUrl?: string;
 }
 export interface StreamInfo
 {
-	Rank: number;
+	CurrentRank: number;
 	SMChannel: SMChannelDto;
 	SMStream: SMStreamDto;
+	StreamStatistics: StreamStreamingStatistic[];
 }
 export enum AuthenticationType {
 	None = 0,

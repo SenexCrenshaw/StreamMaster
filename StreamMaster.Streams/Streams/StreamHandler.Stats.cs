@@ -18,7 +18,7 @@ public sealed partial class StreamHandler
 
         //if (setting.EnablePrometheus && (currentTime - _lastUpdateTime > TimeSpan.FromSeconds(5)))
         //{
-        inputStreamStatistics.AddBytesWritten(bytesWritten);
+        streamStatistics.AddBytesWritten(bytesWritten);
         //_lastUpdateTime = currentTime;
         //acculmativeBytesWritten = 0;
         //}

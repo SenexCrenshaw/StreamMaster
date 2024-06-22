@@ -5,7 +5,7 @@
 /// </summary>
 public interface IChannelStatus
 {
-    //int ClientCount { get; set; }
+    int ClientCount { get; set; }
     VideoOutputProfileDto VideoProfile { get; set; }
     string OverrideVideoStreamId { get; set; }
 
@@ -28,7 +28,7 @@ public interface IChannelStatus
     /// <summary>
     /// Gets or sets the rank of the channel.
     /// </summary>
-    int Rank { get; set; }
+    int CurrentRank { get; set; }
 
     /// <summary>
     /// Gets or sets the ID of the SM Channel

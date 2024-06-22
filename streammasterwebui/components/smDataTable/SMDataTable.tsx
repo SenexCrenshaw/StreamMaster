@@ -649,10 +649,6 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
     return 'RowsPerPageDropdown FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink';
   }, [state.smTableIsSimple]);
 
-  // if (props.id === 'useSMStreamChannelGroupColumnConfig') {
-  //   Logger.debug('DataTable', { a: state?.dataSource?.[0].Name, datasource: state.dataSource, id: props.id });
-  // }
-
   const getColClassName = useCallback((col: ColumnMeta) => {
     if (getAlign(col.align, col.fieldType) === 'right') {
       return col.className + ' pr-1';
@@ -763,7 +759,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
             showFilterOperator={false}
             resizeable={false}
             expander
-            style={getColumnStyles({ width: 24 } as ColumnMeta)}
+            style={getColumnStyles({ width: 20 } as ColumnMeta)}
           />
           <Column
             body={showSelection ? selectionTemplate : undefined}

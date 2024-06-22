@@ -1,12 +1,12 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import { Logger } from '@lib/common/logger';
-import {FieldData, InputStreamingStatistics } from '@lib/smAPI/smapiTypes';
-import { fetchGetInputStatistics } from '@lib/smAPI/Statistics/GetInputStatisticsFetch';
+import {FieldData, ChannelStreamingStatistics } from '@lib/smAPI/smapiTypes';
+import { fetchGetChannelStreamingStatistics } from '@lib/smAPI/Statistics/GetChannelStreamingStatisticsFetch';
 import { updateFieldInData } from '@lib/redux/updateFieldInData';
 
 
 interface QueryState {
-  data: InputStreamingStatistics[] | undefined;
+  data: ChannelStreamingStatistics[] | undefined;
   error: string | undefined;
   isError: boolean;
   isForced: boolean;
@@ -21,46 +21,46 @@ const initialState: QueryState = {
   isLoading: false
 };
 
-const getInputStatisticsSlice = createSlice({
+const getChannelStreamingStatisticsSlice = createSlice({
   initialState,
-  name: 'GetInputStatistics',
+  name: 'GetChannelStreamingStatistics',
   reducers: {
     clear: (state) => {
       state = initialState;
-      Logger.debug('GetInputStatistics clear');
+      Logger.debug('GetChannelStreamingStatistics clear');
     },
 
     clearByTag: (state, action: PayloadAction<{ tag: string }>) => {
       state.data = undefined;
-      Logger.debug('GetInputStatistics clearByTag');
+      Logger.debug('GetChannelStreamingStatistics clearByTag');
     },
 
     setField: (state, action: PayloadAction<{ fieldData: FieldData }>) => {
       const { fieldData } = action.payload;
       state.data = updateFieldInData(state.data, fieldData);
-      Logger.debug('GetInputStatistics setField');
+      Logger.debug('GetChannelStreamingStatistics setField');
     },
     setIsForced: (state, action: PayloadAction<{ force: boolean }>) => {
       const { force } = action.payload;
       state.isForced = force;
       state.data = undefined;
-      Logger.debug('GetInputStatistics  setIsForced ', force);
+      Logger.debug('GetChannelStreamingStatistics  setIsForced ', force);
     },
     setIsLoading: (state, action: PayloadAction<{isLoading: boolean }>) => {
       state.isLoading = action.payload.isLoading;
-      Logger.debug('GetInputStatistics setIsLoading ', action.payload.isLoading);
+      Logger.debug('GetChannelStreamingStatistics setIsLoading ', action.payload.isLoading);
     }
 },
 
   extraReducers: (builder) => {
     builder
-      .addCase(fetchGetInputStatistics.pending, (state, action) => {
+      .addCase(fetchGetChannelStreamingStatistics.pending, (state, action) => {
         state.isLoading = true;
         state.isError = false;
         state.error = undefined;
         state.isForced = false;
       })
-      .addCase(fetchGetInputStatistics.fulfilled, (state, action) => {
+      .addCase(fetchGetChannelStreamingStatistics.fulfilled, (state, action) => {
         if (action.payload) {
           const { value } = action.payload;
           state.data = value ?? undefined;
@@ -71,7 +71,7 @@ const getInputStatisticsSlice = createSlice({
           state.isForced = false;
         }
       })
-      .addCase(fetchGetInputStatistics.rejected, (state, action) => {
+      .addCase(fetchGetChannelStreamingStatistics.rejected, (state, action) => {
         state.error = action.error.message || 'Failed to fetch';
         state.isError = true;
         setIsLoading({ isLoading: false });
@@ -82,5 +82,5 @@ const getInputStatisticsSlice = createSlice({
   }
 });
 
-export const { clear, clearByTag, setIsLoading, setIsForced, setField } = getInputStatisticsSlice.actions;
-export default getInputStatisticsSlice.reducer;
+export const { clear, clearByTag, setIsLoading, setIsForced, setField } = getChannelStreamingStatisticsSlice.actions;
+export default getChannelStreamingStatisticsSlice.reducer;

@@ -1,4 +1,6 @@
-﻿using System.Collections.Concurrent;
+﻿using StreamMaster.Streams.Domain.Statistics;
+
+using System.Collections.Concurrent;
 
 namespace StreamMaster.Streams.Statistics;
 

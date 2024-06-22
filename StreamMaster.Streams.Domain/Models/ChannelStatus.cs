@@ -5,7 +5,7 @@ public sealed class ChannelStatus(SMChannelDto smChannel) : IChannelStatus
     public bool IsStarted { get; set; }
     public bool IsGlobal { get; set; }
     public bool FailoverInProgress { get; set; }
-    public int Rank { get; set; }
+    public int CurrentRank { get; set; } = -1;
     public string OverrideVideoStreamId { get; set; } = string.Empty;
     public int ClientCount { get; set; }
     public SMStreamDto SMStream { get; private set; }

@@ -16,7 +16,8 @@ public sealed class ChannelService(
     ISender sender,
     IServiceProvider serviceProvider,
     IMapper mapper,
-    IOptionsMonitor<Setting> settingsMonitor
+    IOptionsMonitor<Setting> settingsMonitor,
+    IChannelStreamingStatisticsManager channelStreamingStatisticsManager
     ) : IChannelService, IDisposable
 {
     private readonly ILogger<ChannelService> logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -82,6 +83,8 @@ public sealed class ChannelService(
             throw new ArgumentNullException(nameof(config.SMChannel));
         }
 
+
+
         IChannelStatus? channelStatus = GetChannelStatus(config.SMChannel.Id);
 
         clientStreamerManager.RegisterClient(config);
@@ -106,8 +109,11 @@ public sealed class ChannelService(
             await streamManager.AddClientToHandler(channelStatus.SMChannel, config, handler);
             logger.LogInformation("Reuse existing stream handler for {ClientId} {ChannelVideoStreamId} {name}", config.ClientId, config.SMChannel.Id, config.SMChannel.Name);
 
+
+
             return channelStatus;
         }
+
 
         logger.LogInformation("No existing channel for {ClientId} {ChannelVideoStreamId} {name}", config.ClientId, config.SMChannel.Id, config.SMChannel.Name);
 
@@ -119,8 +125,10 @@ public sealed class ChannelService(
 
         _channelStatuses.TryAdd(config.SMChannel.Id, channelStatus);
 
-        await SetNextChildVideoStream(channelStatus).ConfigureAwait(false);
+        //await SetNextChildVideoStream(channelStatus).ConfigureAwait(false);
         await SwitchChannelToNextStream(channelStatus);
+
+        channelStreamingStatisticsManager.RegisterInputReader(channelStatus.SMChannel, channelStatus.CurrentRank, channelStatus.SMStream.Id);
 
         return channelStatus;
     }
@@ -150,6 +158,8 @@ public sealed class ChannelService(
     public void UnRegisterChannel(int smChannelId)
     {
         _channelStatuses.TryRemove(smChannelId, out _);
+        channelStreamingStatisticsManager.DecrementClient(smChannelId);
+        //channelStreamingStatisticsManager.UnRegister(smChannelId);
     }
 
     private List<VideoOutputProfileDto> GetProfiles()
@@ -175,6 +185,8 @@ public sealed class ChannelService(
     public IChannelStatus? GetChannelStatus(int smChannelId)
     {
         _channelStatuses.TryGetValue(smChannelId, out IChannelStatus? channelStatus);
+
+
         return channelStatus;
     }
 
@@ -327,19 +339,31 @@ public sealed class ChannelService(
             return;
         }
 
-        var smStreams = channel.SMStreams.OrderBy(s => s.Rank).Select(a => a.SMStream).ToList();
-        if (!smStreams.Any())
+        //var smStreams = channel.SMStreams.OrderBy(s => s.Rank).Select(a => a.SMStream).ToList();
+        if (!channel.SMStreams.Any())
         {
+            channelStatus.SetCurrentSMStream(null);
+            logger.LogDebug("Exiting SetNextChildVideoStream with null due to no suitable videoStream found");
             channelStatus.SetCurrentSMStream(null);
             return;
         }
 
-        channelStatus.Rank = Math.Min(channelStatus.Rank, smStreams.Count - 1);
+        //int maxRank = channel.SMStreams.Max(a => a.Rank);
 
+        //var rank = channelStatus.CurrentRank + 1;
+        //if (rank > maxRank)
+        //{
+        //    rank = 0;
+        //}
+
+
+        //channelStatus.CurrentRank = rank;
+        var smStreams = channel.SMStreams.OrderBy(a => a.Rank).Select(a => a.SMStream).ToList();
         for (int i = 0; i < smStreams.Count; i++)
         {
-            var toReturn = smStreams[channelStatus.Rank];
-            channelStatus.Rank = (channelStatus.Rank + 1) % smStreams.Count;
+
+            channelStatus.CurrentRank = (channelStatus.CurrentRank + 1) % smStreams.Count;
+            var toReturn = smStreams[channelStatus.CurrentRank];
 
             if (!m3uFilesRepo.TryGetValue(toReturn.M3UFileId, out var m3uFile))
             {
@@ -368,8 +392,7 @@ public sealed class ChannelService(
             return;
         }
 
-        logger.LogDebug("Exiting SetNextChildVideoStream with null due to no suitable videoStream found");
-        channelStatus.SetCurrentSMStream(null);
+
     }
 
     // Helper method to get current stream count for a specific M3U file

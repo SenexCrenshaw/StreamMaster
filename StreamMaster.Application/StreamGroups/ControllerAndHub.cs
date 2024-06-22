@@ -33,7 +33,7 @@ namespace StreamMaster.Application.StreamGroups.Controllers
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<ActionResult<StreamGroupDto>> GetStreamGroup(GetStreamGroupRequest request)
+        public async Task<ActionResult<StreamGroupDto>> GetStreamGroup([FromQuery] GetStreamGroupRequest request)
         {
             try
             {

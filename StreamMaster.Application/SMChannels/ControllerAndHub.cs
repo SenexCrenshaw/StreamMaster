@@ -33,7 +33,7 @@ namespace StreamMaster.Application.SMChannels.Controllers
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<ActionResult<SMChannelDto>> GetSMChannel(GetSMChannelRequest request)
+        public async Task<ActionResult<SMChannelDto>> GetSMChannel([FromQuery] GetSMChannelRequest request)
         {
             try
             {
@@ -49,7 +49,7 @@ namespace StreamMaster.Application.SMChannels.Controllers
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<ActionResult<VideoInfo>> GetVideoInfoFromId(GetVideoInfoFromIdRequest request)
+        public async Task<ActionResult<VideoInfo>> GetVideoInfoFromId([FromQuery] GetVideoInfoFromIdRequest request)
         {
             try
             {

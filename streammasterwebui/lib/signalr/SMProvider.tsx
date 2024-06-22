@@ -7,20 +7,21 @@ import { GetIsSystemReady } from '@lib/smAPI/General/GeneralCommands';
 import useGetIsSystemReady from '@lib/smAPI/General/useGetIsSystemReady';
 import useGetTaskIsRunning from '@lib/smAPI/General/useGetTaskIsRunning';
 import useGetSettings from '@lib/smAPI/Settings/useGetSettings';
-import { GetClientStreamingStatistics, GetInputStatistics } from '@lib/smAPI/Statistics/StatisticsCommands';
-import useGetInputStatistics from '@lib/smAPI/Statistics/useGetInputStatistics';
-import { ClientStreamingStatistics, InputStreamingStatistics, SettingDto } from '@lib/smAPI/smapiTypes';
+import { GetChannelStreamingStatistics, GetClientStreamingStatistics, GetStreamStreamingStatistics } from '@lib/smAPI/Statistics/StatisticsCommands';
+
+import { ChannelStreamingStatistics, ClientStreamingStatistics, SettingDto, StreamStreamingStatistic } from '@lib/smAPI/smapiTypes';
 import { BlockUI } from 'primereact/blockui';
 import React, { ReactNode, createContext, useContext, useEffect, useState } from 'react';
 
 interface SMContextState {
   clientStreamingStatistics: ClientStreamingStatistics[];
-  inputStatistics: InputStreamingStatistics[];
+  channelStreamingStatistics: ChannelStreamingStatistics[];
   isSystemReady: boolean;
   isTaskRunning: boolean;
   setSettings: React.Dispatch<React.SetStateAction<SettingDto>>;
   setSystemReady: React.Dispatch<React.SetStateAction<boolean>>;
   settings: SettingDto;
+  streamStreamingStatistics: StreamStreamingStatistic[];
 }
 
 const SMContext = createContext<SMContextState | undefined>(undefined);
@@ -32,13 +33,12 @@ interface SMProviderProps {
 export const SMProvider: React.FC<SMProviderProps> = ({ children }) => {
   const [isSystemReady, setSystemReady] = useState<boolean>(false);
   const [settings, setSettings] = useState<SettingDto>({} as SettingDto);
-  const [inputStatistics, setInputStatistics] = useState<InputStreamingStatistics[]>([]);
+  const [channelStreamingStatistics, setChannelStreamingStatistics] = useState<ChannelStreamingStatistics[]>([]);
   const [clientStreamingStatistics, setClientStreamingStatistics] = useState<ClientStreamingStatistics[]>([]);
+  const [streamStreamingStatistics, setStreamStreamingStatistics] = useState<StreamStreamingStatistic[]>([]);
   const settingsQuery = useGetSettings();
   const { data: isSystemReadyQ } = useGetIsSystemReady();
   const { data: isTaskRunning } = useGetTaskIsRunning();
-
-  const getInputStatistics = useGetInputStatistics();
 
   useEffect(() => {
     if (settingsQuery.data) {
@@ -47,27 +47,32 @@ export const SMProvider: React.FC<SMProviderProps> = ({ children }) => {
   }, [settingsQuery.data]);
 
   const value = {
+    channelStreamingStatistics,
     clientStreamingStatistics,
-    inputStatistics,
     isSystemReady: isSystemReadyQ === true && settingsQuery.data !== undefined,
     isTaskRunning: isTaskRunning ?? false,
     setSettings,
     setSystemReady,
-    settings
+    settings,
+    streamStreamingStatistics
   };
 
   useEffect(() => {
     const checkSystemReady = async () => {
       try {
-        const t = await GetInputStatistics();
+        const t = await GetChannelStreamingStatistics();
         if (t !== undefined) {
-          setInputStatistics(t);
+          setChannelStreamingStatistics(t);
         }
         const c = await GetClientStreamingStatistics();
         if (c !== undefined) {
           setClientStreamingStatistics(c);
         }
-        getInputStatistics.SetIsForced(true);
+        const s = await GetStreamStreamingStatistics();
+        if (s !== undefined) {
+          setStreamStreamingStatistics(s);
+        }
+        // getInputStatistics.SetIsForced(true);
         const result = await GetIsSystemReady();
         if (result !== isSystemReady) {
           setSystemReady(result ?? false);
@@ -84,7 +89,7 @@ export const SMProvider: React.FC<SMProviderProps> = ({ children }) => {
     const intervalId = setInterval(checkSystemReady, 1000);
 
     return () => clearInterval(intervalId);
-  }, [getInputStatistics, isSystemReady, settingsQuery.data]);
+  }, [isSystemReady, settingsQuery.data]);
 
   // return (
   //   <SMContext.Provider value={value}>

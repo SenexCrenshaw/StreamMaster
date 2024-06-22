@@ -78,21 +78,21 @@ public class BroadcastService(
     {
         try
         {
-            var statisticsResults = streamStatisticService.GetInputStatistics();
-            if (statisticsResults.Any())
-            {
-                dataRefreshService.RefreshStatistics();
-                //_ = hub.Clients.All.ClientStreamingStatisticsUpdate(statisticsResults).ConfigureAwait(false);
+            //var statisticsResults = streamStatisticService.GetInputStatistics();
+            //if (statisticsResults.Any())
+            //{
+            //    dataRefreshService.RefreshStatistics();
+            //    //_ = hub.Clients.All.ClientStreamingStatisticsUpdate(statisticsResults).ConfigureAwait(false);
 
-            }
-            else
-            {
-                //if (!sentEmpty)
-                //{
-                //_ = hub.Clients.All.ClientStreamingStatisticsUpdate(statisticsResults).ConfigureAwait(false);
-                //}
-                //sentEmpty = true;
-            }
+            //}
+            //else
+            //{
+            //    //if (!sentEmpty)
+            //    //{
+            //    //_ = hub.Clients.All.ClientStreamingStatisticsUpdate(statisticsResults).ConfigureAwait(false);
+            //    //}
+            //    //sentEmpty = true;
+            //}
         }
         catch (Exception ex)
         {

@@ -70,12 +70,18 @@ public static class CSharpGenerator
                 }
                 else if (method.IsGetCached)
                 {
-                    if (method.Name == "GetIcons")
-                    {
-                        int aa = 1;
-                    }
+                    string fromQ = "[FromQuery] ";
+                    //if (method.Name == "GetIcons")
+                    //{
+                    //    int aa = 1;
+                    //     fromQ = "[FromQuery] ";
+                    //}
+                    //else
+                    //{
 
-                    controllerContent.AppendLine($"        public async Task<ActionResult<{method.ReturnType}>> {method.Name}({method.Name}Request request)");
+                    //}
+
+                    controllerContent.AppendLine($"        public async Task<ActionResult<{method.ReturnType}>> {method.Name}({fromQ}{method.Name}Request request)");
                     controllerContent.AppendLine($"        {{");
                     controllerContent.AppendLine($"            try");
                     controllerContent.AppendLine($"            {{");

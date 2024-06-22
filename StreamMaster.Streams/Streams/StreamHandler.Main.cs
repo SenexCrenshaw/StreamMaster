@@ -1,4 +1,5 @@
 ﻿using StreamMaster.Domain.Configuration;
+using StreamMaster.Streams.Domain.Statistics;
 
 using System.Collections.Concurrent;
 
@@ -13,12 +14,12 @@ public sealed partial class StreamHandler : IStreamHandler
     private readonly ConcurrentDictionary<Guid, ClientStreamerConfiguration> clientStreamerConfigs = new();
     private readonly ILogger<IStreamHandler> logger;
 
-    private readonly IInputStatisticsManager inputStatisticsManager;
-    private readonly IInputStreamingStatistics inputStreamStatistics;
+    private IStreamStreamingStatisticsManager streamStreamingStatisticsManager;
+    private readonly StreamStreamingStatistic streamStatistics;
     private readonly Setting settings;
 
-    public SMChannel SMChannel { get; }
-    public SMStream SMStream { get; }
+    public SMChannelDto SMChannel { get; }
+    public SMStreamDto SMStream { get; }
     public int ProcessId { get; set; }
 
     private VideoInfo? _videoInfo = null;
@@ -42,8 +43,8 @@ public sealed partial class StreamHandler : IStreamHandler
     /// <param name="rank">The rank or priority of the video stream, used for sorting or prioritization.</param>
     /// <param name="memoryCache">An IMemoryCache instance for caching purposes within the stream handler.</param>
     /// <param name="loggerFactory">An ILoggerFactory instance used to create loggers for logging information and events.</param>
-    /// <param name="inputStatisticsManager">An IInputStatisticsManager instance for managing and tracking input statistics.</param>
-    public StreamHandler(IChannelStatus channelStatus, int processId, IOptionsMonitor<Setting> intSettings, ILoggerFactory loggerFactory, IInputStatisticsManager inputStatisticsManager)
+    /// <param name="inputStatisticsManager">An IChannelStreamingStatisticsManager instance for managing and tracking input statistics.</param>
+    public StreamHandler(IChannelStatus channelStatus, int processId, IOptionsMonitor<Setting> intSettings, ILoggerFactory loggerFactory, IStreamStreamingStatisticsManager streamStreamingStatisticsManager)
     {
         logger = loggerFactory.CreateLogger<StreamHandler>();
         this.loggerFactory = loggerFactory;
@@ -60,29 +61,24 @@ public sealed partial class StreamHandler : IStreamHandler
         SMChannel = channelStatus.SMChannel;
         SMStream = channelStatus.SMStream;
 
-        int rank = channelStatus.Rank;
 
         settings = intSettings.CurrentValue;
 
         ProcessId = processId;
 
-        this.inputStatisticsManager = inputStatisticsManager;
+        this.streamStreamingStatisticsManager = streamStreamingStatisticsManager;
 
         _writeLogger = loggerFactory.CreateLogger<WriteLogger>();
 
-        StreamInfo = new StreamInfo
-        {
-            SMChannel = channelStatus.SMChannel,
-            SMStream = channelStatus.SMStream,
-            Rank = rank
-        };
 
-        inputStreamStatistics = inputStatisticsManager.RegisterInputReader(StreamInfo);
+
+        streamStatistics = streamStreamingStatisticsManager.RegisterStream(channelStatus.SMStream);
 
     }
 
     private void OnStreamingStopped(bool InputStreamError)
     {
+        streamStreamingStatisticsManager.UnRegisterStream(SMStream.Id);
         OnStreamingStoppedEvent?.Invoke(this, new StreamHandlerStopped { StreamUrl = SMStream.Url, InputStreamError = InputStreamError });
     }
 
@@ -90,7 +86,7 @@ public sealed partial class StreamHandler : IStreamHandler
 
     public void Dispose()
     {
-        inputStatisticsManager.UnRegister(SMStream.Id);
+        streamStreamingStatisticsManager.UnRegisterStream(SMStream.Id);
         clientStreamerConfigs.Clear();
         Stop();
         GC.SuppressFinalize(this);
@@ -131,7 +127,7 @@ public sealed partial class StreamHandler : IStreamHandler
 
             if (clientStreamerConfigs.TryAdd(streamerConfiguration.ClientId, streamerConfiguration))
             {
-                inputStreamStatistics.IncrementClient();
+                streamStatistics.IncrementClient();
                 ++ClientCount;
 
                 logger.LogInformation("RegisterClientStreamer for Client ID {ClientId} to Video Stream Id {videoStreamId} {name}", streamerConfiguration.ClientId, SMStream.Id, SMStream.Name);
@@ -151,7 +147,7 @@ public sealed partial class StreamHandler : IStreamHandler
         {
             logger.LogInformation("UnRegisterClientStreamer ClientId: {ClientId} {name}", ClientId, SMStream.Name);
             bool result = clientStreamerConfigs.TryRemove(ClientId, out _);
-            inputStreamStatistics.DecrementClient();
+            streamStatistics.DecrementClient();
             --ClientCount;
 
             return result;

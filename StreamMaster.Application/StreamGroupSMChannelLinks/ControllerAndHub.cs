@@ -9,7 +9,7 @@ namespace StreamMaster.Application.StreamGroupSMChannelLinks.Controllers
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<ActionResult<List<SMChannelDto>>> GetStreamGroupSMChannels(GetStreamGroupSMChannelsRequest request)
+        public async Task<ActionResult<List<SMChannelDto>>> GetStreamGroupSMChannels([FromQuery] GetStreamGroupSMChannelsRequest request)
         {
             try
             {

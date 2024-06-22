@@ -104,7 +104,7 @@ const SMTasksDataSelector = (props: SMTasksDataSelectorProps) => {
   const rowClass = useCallback((task: unknown): string => {
     const smTask = task as SMTask;
     if (smTask.IsRunning === true) {
-      return 'icon-green-filled';
+      return 'channel-row-selected';
     }
 
     return '';

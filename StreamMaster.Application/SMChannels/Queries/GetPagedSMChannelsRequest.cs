@@ -42,6 +42,7 @@ internal class GetPagedSMChannelsRequestHandler(IRepositoryWrapper Repository, I
                 }
             }
 
+            channel.SMStreams = channel.SMStreams.OrderBy(a => a.Rank).ToList();
             channel.StreamGroupIds = channel.StreamGroups.Select(a => a.StreamGroupId).ToList();
 
 

@@ -9,7 +9,7 @@ namespace StreamMaster.Application.SMChannelStreamLinks.Controllers
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<ActionResult<List<SMStreamDto>>> GetSMChannelStreams(GetSMChannelStreamsRequest request)
+        public async Task<ActionResult<List<SMStreamDto>>> GetSMChannelStreams([FromQuery] GetSMChannelStreamsRequest request)
         {
             try
             {

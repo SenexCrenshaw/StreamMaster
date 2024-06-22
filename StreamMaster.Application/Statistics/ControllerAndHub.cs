@@ -8,6 +8,22 @@ namespace StreamMaster.Application.Statistics.Controllers
 
         [HttpGet]
         [Route("[action]")]
+        public async Task<ActionResult<List<ChannelStreamingStatistics>>> GetChannelStreamingStatistics()
+        {
+            try
+            {
+            DataResponse<List<ChannelStreamingStatistics>> ret = await Sender.Send(new GetChannelStreamingStatisticsRequest()).ConfigureAwait(false);
+             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetChannelStreamingStatistics.", statusCode: 500) : Ok(ret.Data);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An unexpected error occurred while processing the request to get GetChannelStreamingStatistics.");
+                return Problem(detail: "An unexpected error occurred. Please try again later.", statusCode: 500);
+            }
+        }
+
+        [HttpGet]
+        [Route("[action]")]
         public async Task<ActionResult<List<ClientStreamingStatistics>>> GetClientStreamingStatistics()
         {
             try
@@ -24,16 +40,32 @@ namespace StreamMaster.Application.Statistics.Controllers
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<ActionResult<List<InputStreamingStatistics>>> GetInputStatistics()
+        public async Task<ActionResult<List<StreamStreamingStatistic>>> GetStreamingStatisticsForChannel([FromQuery] GetStreamingStatisticsForChannelRequest request)
         {
             try
             {
-            DataResponse<List<InputStreamingStatistics>> ret = await Sender.Send(new GetInputStatisticsRequest()).ConfigureAwait(false);
-             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetInputStatistics.", statusCode: 500) : Ok(ret.Data);
+            DataResponse<List<StreamStreamingStatistic>> ret = await Sender.Send(request).ConfigureAwait(false);
+             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetStreamingStatisticsForChannel.", statusCode: 500) : Ok(ret.Data);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An unexpected error occurred while processing the request to get GetInputStatistics.");
+                _logger.LogError(ex, "An unexpected error occurred while processing the request to get GetStreamingStatisticsForChannel.");
+                return Problem(detail: "An unexpected error occurred. Please try again later.", statusCode: 500);
+            }
+        }
+
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<ActionResult<List<StreamStreamingStatistic>>> GetStreamStreamingStatistics()
+        {
+            try
+            {
+            DataResponse<List<StreamStreamingStatistic>> ret = await Sender.Send(new GetStreamStreamingStatisticsRequest()).ConfigureAwait(false);
+             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetStreamStreamingStatistics.", statusCode: 500) : Ok(ret.Data);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An unexpected error occurred while processing the request to get GetStreamStreamingStatistics.");
                 return Problem(detail: "An unexpected error occurred. Please try again later.", statusCode: 500);
             }
         }
@@ -45,15 +77,27 @@ namespace StreamMaster.Application.Hubs
 {
     public partial class StreamMasterHub : IStatisticsHub
     {
+        public async Task<List<ChannelStreamingStatistics>> GetChannelStreamingStatistics()
+        {
+             DataResponse<List<ChannelStreamingStatistics>> ret = await Sender.Send(new GetChannelStreamingStatisticsRequest()).ConfigureAwait(false);
+            return ret.Data;
+        }
+
         public async Task<List<ClientStreamingStatistics>> GetClientStreamingStatistics()
         {
              DataResponse<List<ClientStreamingStatistics>> ret = await Sender.Send(new GetClientStreamingStatisticsRequest()).ConfigureAwait(false);
             return ret.Data;
         }
 
-        public async Task<List<InputStreamingStatistics>> GetInputStatistics()
+        public async Task<List<StreamStreamingStatistic>> GetStreamingStatisticsForChannel(GetStreamingStatisticsForChannelRequest request)
         {
-             DataResponse<List<InputStreamingStatistics>> ret = await Sender.Send(new GetInputStatisticsRequest()).ConfigureAwait(false);
+             DataResponse<List<StreamStreamingStatistic>> ret = await Sender.Send(request).ConfigureAwait(false);
+            return ret.Data;
+        }
+
+        public async Task<List<StreamStreamingStatistic>> GetStreamStreamingStatistics()
+        {
+             DataResponse<List<StreamStreamingStatistic>> ret = await Sender.Send(new GetStreamStreamingStatisticsRequest()).ConfigureAwait(false);
             return ret.Data;
         }
 

@@ -1,12 +1,12 @@
 import { QueryHookResult } from '@lib/apiDefs';
 import store, { RootState } from '@lib/redux/store';
 import { useAppDispatch, useAppSelector } from '@lib/redux/hooks';
-import { clear, clearByTag, setField, setIsForced, setIsLoading } from './GetInputStatisticsSlice';
+import { clear, clearByTag, setField, setIsForced, setIsLoading } from './GetChannelStreamingStatisticsSlice';
 import { useCallback,useEffect } from 'react';
-import { fetchGetInputStatistics } from './GetInputStatisticsFetch';
-import {FieldData, InputStreamingStatistics } from '@lib/smAPI/smapiTypes';
+import { fetchGetChannelStreamingStatistics } from './GetChannelStreamingStatisticsFetch';
+import {FieldData, ChannelStreamingStatistics } from '@lib/smAPI/smapiTypes';
 
-interface ExtendedQueryHookResult extends QueryHookResult<InputStreamingStatistics[] | undefined> {}
+interface ExtendedQueryHookResult extends QueryHookResult<ChannelStreamingStatistics[] | undefined> {}
 interface Result extends ExtendedQueryHookResult {
   Clear: () => void;
   ClearByTag: (tag: string) => void;
@@ -14,9 +14,9 @@ interface Result extends ExtendedQueryHookResult {
   SetIsForced: (force: boolean) => void;
   SetIsLoading: (isLoading: boolean, query: string) => void;
 }
-const useGetInputStatistics = (): Result => {
+const useGetChannelStreamingStatistics = (): Result => {
   const dispatch = useAppDispatch();
-  const isForced = useAppSelector((state) => state.GetInputStatistics.isForced ?? false);
+  const isForced = useAppSelector((state) => state.GetChannelStreamingStatistics.isForced ?? false);
 
   const SetIsForced = useCallback(
     (forceRefresh: boolean): void => {
@@ -40,40 +40,40 @@ const SetIsLoading = useCallback(
   [dispatch]
 );
 const selectData = (state: RootState) => {
-    return state.GetInputStatistics.data;
+    return state.GetChannelStreamingStatistics.data;
   };
 const data = useAppSelector(selectData);
 
 const selectError = (state: RootState) => {
-    return state.GetInputStatistics.error;
+    return state.GetChannelStreamingStatistics.error;
   };
 const error = useAppSelector(selectError);
 
 const selectIsError = (state: RootState) => {
-    return state.GetInputStatistics.isError;
+    return state.GetChannelStreamingStatistics.isError;
   };
 const isError = useAppSelector(selectIsError);
 
 const selectIsLoading = (state: RootState) => {
-    return state.GetInputStatistics.isLoading;
+    return state.GetChannelStreamingStatistics.isLoading;
   };
 const isLoading = useAppSelector(selectIsLoading);
 
 
   useEffect(() => {
-    const state = store.getState().GetInputStatistics;
+    const state = store.getState().GetChannelStreamingStatistics;
     if (data === undefined && state.isLoading !== true && state.isForced !== true) {
       SetIsForced(true);
     }
   }, [SetIsForced, data]);
 
 useEffect(() => {
-  const state = store.getState().GetInputStatistics;
+  const state = store.getState().GetChannelStreamingStatistics;
   if (state.isLoading) return;
   if (data !== undefined && !isForced) return;
 
   SetIsLoading(true);
-  dispatch(fetchGetInputStatistics());
+  dispatch(fetchGetChannelStreamingStatistics());
 }, [SetIsLoading, data, dispatch, isForced]);
 
 const SetField = (fieldData: FieldData): void => {
@@ -97,4 +97,4 @@ return {
 };
 };
 
-export default useGetInputStatistics;
+export default useGetChannelStreamingStatistics;

@@ -9,7 +9,7 @@ namespace StreamMaster.Application.Profiles.Controllers
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<ActionResult<OutputProfileDto>> GetOutputProfile(GetOutputProfileRequest request)
+        public async Task<ActionResult<OutputProfileDto>> GetOutputProfile([FromQuery] GetOutputProfileRequest request)
         {
             try
             {

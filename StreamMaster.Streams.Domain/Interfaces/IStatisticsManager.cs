@@ -1,4 +1,6 @@
-﻿namespace StreamMaster.Streams.Domain.Interfaces
+﻿using StreamMaster.Streams.Domain.Statistics;
+
+namespace StreamMaster.Streams.Domain.Interfaces
 {
     public interface IClientStatisticsManager
     {

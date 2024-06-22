@@ -2,7 +2,7 @@
 using StreamMaster.Streams.Streams;
 namespace StreamMaster.Streams.Factories;
 
-public sealed class StreamHandlerFactory(IInputStatisticsManager inputStatisticsManager, IOptionsMonitor<Setting> intsettings, ILoggerFactory loggerFactory, IProxyFactory proxyFactory)
+public sealed class StreamHandlerFactory(IStreamStreamingStatisticsManager streamStreamingStatisticsManager, IOptionsMonitor<Setting> intsettings, ILoggerFactory loggerFactory, IProxyFactory proxyFactory)
     : IStreamHandlerFactory
 {
     private readonly Setting Settings = intsettings.CurrentValue;
@@ -12,7 +12,7 @@ public sealed class StreamHandlerFactory(IInputStatisticsManager inputStatistics
         SMStream smStream = channelStatus.SMStream;
         SMChannel smChannel = channelStatus.SMChannel;
         VideoOutputProfileDto videoProfile = channelStatus.VideoProfile;
-        int rank = channelStatus.Rank;
+        //int rank = channelStatus.CurrentRank;
 
         (Stream? stream, int processId, ProxyStreamError? error) = await proxyFactory.GetProxy(smStream.Url, smStream.Name, videoProfile, cancellationToken).ConfigureAwait(false);
         if (stream == null || error != null || processId == 0)
@@ -20,7 +20,7 @@ public sealed class StreamHandlerFactory(IInputStatisticsManager inputStatistics
             return null;
         }
 
-        StreamHandler streamHandler = new(channelStatus, processId, intsettings, loggerFactory, inputStatisticsManager);
+        StreamHandler streamHandler = new(channelStatus, processId, intsettings, loggerFactory, streamStreamingStatisticsManager);
 
         _ = Task.Run(() => streamHandler.StartVideoStreamingAsync(stream), cancellationToken);
 
