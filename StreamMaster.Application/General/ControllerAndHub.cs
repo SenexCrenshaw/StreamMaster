@@ -9,6 +9,22 @@ namespace StreamMaster.Application.General.Controllers
 
         [HttpGet]
         [Route("[action]")]
+        public async Task<ActionResult<ImageDownloadServiceStatus>> GetDownloadServiceStatus()
+        {
+            try
+            {
+            DataResponse<ImageDownloadServiceStatus> ret = await Sender.Send(new GetDownloadServiceStatusRequest()).ConfigureAwait(false);
+             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetDownloadServiceStatus.", statusCode: 500) : Ok(ret.Data);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An unexpected error occurred while processing the request to get GetDownloadServiceStatus.");
+                return Problem(detail: "An unexpected error occurred. Please try again later.", statusCode: 500);
+            }
+        }
+
+        [HttpGet]
+        [Route("[action]")]
         public async Task<ActionResult<bool>> GetIsSystemReady()
         {
             try
@@ -70,6 +86,12 @@ namespace StreamMaster.Application.Hubs
 {
     public partial class StreamMasterHub : IGeneralHub
     {
+        public async Task<ImageDownloadServiceStatus> GetDownloadServiceStatus()
+        {
+             DataResponse<ImageDownloadServiceStatus> ret = await Sender.Send(new GetDownloadServiceStatusRequest()).ConfigureAwait(false);
+            return ret.Data;
+        }
+
         public async Task<bool> GetIsSystemReady()
         {
              DataResponse<bool> ret = await Sender.Send(new GetIsSystemReadyRequest()).ConfigureAwait(false);

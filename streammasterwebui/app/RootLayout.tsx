@@ -37,7 +37,7 @@ export const RootLayout = (): JSX.Element => {
         setIsTrue(true);
       }
     }
-  }, [setIsTrue]);
+  }, [setIsTrue, setShowSelected]);
 
   useEffect(() => {
     if (!initialized.current) {

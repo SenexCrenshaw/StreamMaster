@@ -1144,6 +1144,9 @@ export interface UpdateM3UFileRequest
 export interface GetIconsRequest
 {
 }
+export interface GetDownloadServiceStatusRequest
+{
+}
 export interface GetIsSystemReadyRequest
 {
 }

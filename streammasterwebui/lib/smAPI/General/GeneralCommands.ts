@@ -1,5 +1,10 @@
 import SignalRService from '@lib/signalr/SignalRService';
-import { APIResponse,SetTestTaskRequest,SDSystemStatus } from '@lib/smAPI/smapiTypes';
+import { APIResponse,SetTestTaskRequest,ImageDownloadServiceStatus,SDSystemStatus } from '@lib/smAPI/smapiTypes';
+
+export const GetDownloadServiceStatus = async (): Promise<ImageDownloadServiceStatus | undefined> => {
+  const signalRService = SignalRService.getInstance();
+  return await signalRService.invokeHubCommand<ImageDownloadServiceStatus>('GetDownloadServiceStatus');
+};
 
 export const GetIsSystemReady = async (): Promise<boolean | undefined> => {
   const signalRService = SignalRService.getInstance();

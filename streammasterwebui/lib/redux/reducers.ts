@@ -6,6 +6,7 @@ import GetChannelGroupsReducer from '@lib/smAPI/ChannelGroups/GetChannelGroupsSl
 import GetChannelGroupsFromSMChannelsReducer from '@lib/smAPI/ChannelGroups/GetChannelGroupsFromSMChannelsSlice';
 import GetChannelStreamingStatisticsReducer from '@lib/smAPI/Statistics/GetChannelStreamingStatisticsSlice';
 import GetClientStreamingStatisticsReducer from '@lib/smAPI/Statistics/GetClientStreamingStatisticsSlice';
+import GetDownloadServiceStatusReducer from '@lib/smAPI/General/GetDownloadServiceStatusSlice';
 import GetEPGColorsReducer from '@lib/smAPI/EPG/GetEPGColorsSlice';
 import GetEPGFilePreviewByIdReducer from '@lib/smAPI/EPGFiles/GetEPGFilePreviewByIdSlice';
 import GetEPGFilesReducer from '@lib/smAPI/EPGFiles/GetEPGFilesSlice';
@@ -141,6 +142,7 @@ export const rootReducer = combineReducers({
   GetChannelGroupsFromSMChannels: GetChannelGroupsFromSMChannelsReducer,
   GetChannelStreamingStatistics: GetChannelStreamingStatisticsReducer,
   GetClientStreamingStatistics: GetClientStreamingStatisticsReducer,
+  GetDownloadServiceStatus: GetDownloadServiceStatusReducer,
   GetEPGColors: GetEPGColorsReducer,
   GetEPGFilePreviewById: GetEPGFilePreviewByIdReducer,
   GetEPGFiles: GetEPGFilesReducer,

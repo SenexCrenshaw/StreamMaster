@@ -3,6 +3,7 @@ import { StreamingStatusIcon } from '@lib/common/icons';
 import { GetChannelStreamingStatistics, GetClientStreamingStatistics } from '@lib/smAPI/Statistics/StatisticsCommands';
 import { ChannelStreamingStatistics, ClientStreamingStatistics } from '@lib/smAPI/smapiTypes';
 import React, { useCallback, useEffect, useState } from 'react';
+import DownloadStatusDataSelector from './DownloadStatusDataSelector';
 import SMChannelStatus from './SMChannelStatus';
 import SMClientsStatus from './SMClientStatus';
 
@@ -32,14 +33,18 @@ export const StreamingStatus = (): JSX.Element => {
   }, [getStats]);
   return (
     <StandardHeader className="flex-column" displayName="Streaming Status" icon={<StreamingStatusIcon />}>
-      <div className="flex flex-row justify-content-between gap-2 w-full pr-2">
-        <div className="sm-w-6">
-          <SMChannelStatus channelStreamingStatistics={channelStreamingStatistics} />
-        </div>
+      <div className="flex flex-column w-full">
+        <div className="flex flex-row justify-content-between gap-2 w-full pr-2">
+          <div className="sm-w-6">
+            <SMChannelStatus channelStreamingStatistics={channelStreamingStatistics} />
+          </div>
 
-        <div className="sm-w-6">
-          <SMClientsStatus clientStreamingStatistics={clientStreamingStatistics} />
+          <div className="sm-w-6">
+            <SMClientsStatus clientStreamingStatistics={clientStreamingStatistics} />
+          </div>
         </div>
+        <div className="layout-padding-bottom-lg" />
+        <DownloadStatusDataSelector />
       </div>
     </StandardHeader>
   );

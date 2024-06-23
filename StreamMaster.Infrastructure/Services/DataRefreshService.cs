@@ -77,6 +77,7 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
             return;
         }
 
+        await hub.Clients.All.DataRefresh("GetDownloadServiceStatus");
         await hub.Clients.All.DataRefresh("GetIsSystemReady");
         await hub.Clients.All.DataRefresh("GetSystemStatus");
         await hub.Clients.All.DataRefresh("GetTaskIsRunning");

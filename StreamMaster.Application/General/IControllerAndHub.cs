@@ -6,6 +6,7 @@ namespace StreamMaster.Application.General
 {
     public interface IGeneralController
     {        
+        Task<ActionResult<ImageDownloadServiceStatus>> GetDownloadServiceStatus();
         Task<ActionResult<bool>> GetIsSystemReady();
         Task<ActionResult<SDSystemStatus>> GetSystemStatus();
         Task<ActionResult<bool>> GetTaskIsRunning();
@@ -17,6 +18,7 @@ namespace StreamMaster.Application.Hubs
 {
     public interface IGeneralHub
     {
+        Task<ImageDownloadServiceStatus> GetDownloadServiceStatus();
         Task<bool> GetIsSystemReady();
         Task<SDSystemStatus> GetSystemStatus();
         Task<bool> GetTaskIsRunning();
