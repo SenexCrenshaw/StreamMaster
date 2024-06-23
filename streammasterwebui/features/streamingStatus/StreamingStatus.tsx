@@ -1,50 +1,23 @@
 import StandardHeader from '@components/StandardHeader';
+import SMTasksDataSelector from '@components/smtasks/SMTasksDataSelector';
 import { StreamingStatusIcon } from '@lib/common/icons';
-import { GetChannelStreamingStatistics, GetClientStreamingStatistics } from '@lib/smAPI/Statistics/StatisticsCommands';
-import { ChannelStreamingStatistics, ClientStreamingStatistics } from '@lib/smAPI/smapiTypes';
-import React, { useCallback, useEffect, useState } from 'react';
+import React from 'react';
 import DownloadStatusDataSelector from './DownloadStatusDataSelector';
-import SMChannelStatus from './SMChannelStatus';
-import SMClientsStatus from './SMClientStatus';
+import SMStreamingStatus from './SMStreamingStatus';
 
 export const StreamingStatus = (): JSX.Element => {
-  const [channelStreamingStatistics, setChannelStreamingStatistics] = useState<ChannelStreamingStatistics[]>([]);
-  const [clientStreamingStatistics, setClientStreamingStatistics] = useState<ClientStreamingStatistics[]>([]);
-  // const [streamStreamingStatistics, setStreamStreamingStatistics] = useState<StreamStreamingStatistic[]>([]);
-
-  const getStats = useCallback(async () => {
-    try {
-      const [channelStats, clientStats] = await Promise.all([
-        GetChannelStreamingStatistics(),
-        GetClientStreamingStatistics()
-        // GetStreamStreamingStatistics()
-      ]);
-
-      setChannelStreamingStatistics(channelStats ?? []);
-      setClientStreamingStatistics(clientStats ?? []);
-      // setStreamStreamingStatistics(streamStats ?? []);
-    } catch (error) {}
-  }, [setChannelStreamingStatistics, setClientStreamingStatistics]);
-
-  useEffect(() => {
-    getStats();
-    const intervalId = setInterval(getStats, 1000);
-    return () => clearInterval(intervalId);
-  }, [getStats]);
   return (
-    <StandardHeader className="flex-column" displayName="Streaming Status" icon={<StreamingStatusIcon />}>
-      <div className="flex flex-column w-full">
-        <div className="flex flex-row justify-content-between gap-2 w-full pr-2">
-          <div className="sm-w-6">
-            <SMChannelStatus channelStreamingStatistics={channelStreamingStatistics} />
-          </div>
-
-          <div className="sm-w-6">
-            <SMClientsStatus clientStreamingStatistics={clientStreamingStatistics} />
-          </div>
-        </div>
+    <StandardHeader displayName="Streaming Status" icon={<StreamingStatusIcon />}>
+      <div className="flex flex-column justify-content-between min-h-full max-h-full w-full">
+        <SMStreamingStatus />
         <div className="layout-padding-bottom-lg" />
         <DownloadStatusDataSelector />
+        <div className="layout-padding-bottom-lg" />
+        <div className="absolute" style={{ bottom: '0%', width: '97%' }}>
+          <SMTasksDataSelector width="100%" />
+          <div className="layout-padding-bottom-lg" />
+          <div className="layout-padding-bottom-lg" />
+        </div>
       </div>
     </StandardHeader>
   );

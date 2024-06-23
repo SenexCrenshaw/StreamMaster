@@ -6,18 +6,27 @@ import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import useGetSMTasks from '@lib/smAPI/SMTasks/useGetSMTasks';
 import SMDataTable from '../smDataTable/SMDataTable';
 
-interface SMTasksDataSelectorProps {}
+interface SMTasksDataSelectorProps {
+  readonly needsTimer?: boolean;
+  readonly width?: string;
+}
 
-const SMTasksDataSelector = (props: SMTasksDataSelectorProps) => {
+const SMTasksDataSelector = ({ needsTimer = true, width = '40vw' }: SMTasksDataSelectorProps) => {
   const [timer, setTimer] = useState<number>(0);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setTimer((prev) => prev + 1); // Increment timer to force re-render
-    }, 100);
-
-    return () => clearInterval(interval);
-  }, []);
+    let interval = null;
+    if (needsTimer === true) {
+      interval = setInterval(() => {
+        setTimer((prev) => prev + 1); // Increment timer to force re-render
+      }, 100);
+    }
+    return () => {
+      if (interval !== null) {
+        clearInterval(interval);
+      }
+    };
+  }, [needsTimer]);
 
   const isBefore2020 = (dateStr: string): boolean => {
     const givenDate = new Date(dateStr);
@@ -48,7 +57,7 @@ const SMTasksDataSelector = (props: SMTasksDataSelectorProps) => {
     },
     // Needed to update the elapsed time
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [timer]
+    []
   );
 
   const isRunningTemplate = useCallback((smTask: SMTask) => {
@@ -119,7 +128,7 @@ const SMTasksDataSelector = (props: SMTasksDataSelectorProps) => {
       noSourceHeader
       queryFilter={useGetSMTasks}
       rowClass={rowClass}
-      style={{ height: '40vh', width: '40vw' }}
+      style={{ height: '40vh', width: width }}
     />
   );
 };
