@@ -1,7 +1,6 @@
 import SMDataTable from '@components/smDataTable/SMDataTable';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 import { formatJSONDateString, getElapsedTimeString } from '@lib/common/dateTime';
-import { Logger } from '@lib/common/logger';
 import { StreamStreamingStatistic } from '@lib/smAPI/smapiTypes';
 import { useCallback, useMemo } from 'react';
 
@@ -71,7 +70,7 @@ const SMChannelStatusValue = ({ ChannelId, CurrentRank, StreamStreamingStatistic
 
   // if (dataSource === undefined) return <div>Loading...</div>;
 
-  Logger.debug('SMChannelStatusValue', ChannelId, 'dataSource', StreamStreamingStatistics);
+  // Logger.debug('SMChannelStatusValue', ChannelId, 'dataSource', StreamStreamingStatistics);
 
   return (
     <SMDataTable

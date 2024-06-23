@@ -1,12 +1,11 @@
 import SMTasksDataSelector from '@components/smtasks/SMTasksDataSelector';
-import { Logger } from '@lib/common/logger';
 // import { useSMContext } from '@lib/signalr/SMProvider';
 import './ball-beat.css';
 // import './ball-spin-clockwise-fade.css';
 
 const SMLoader = () => {
   // const { isTaskRunning } = useSMContext();
-  Logger.debug('SMLoader');
+  // Logger.debug('SMLoader');
 
   return (
     <div className="sm-loader">
