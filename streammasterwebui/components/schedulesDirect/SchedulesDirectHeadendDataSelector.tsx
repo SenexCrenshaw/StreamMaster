@@ -56,7 +56,6 @@ const SchedulesDirectHeadendDataSelector = () => {
       headerCenterTemplate={centerTemplate}
       headerName="LINEUPS"
       id={dataKey}
-      lazy
       selectRow
       selectedItemsKey="sdselectedItems"
       style={{ height: 'calc(100vh - 100px)' }}
