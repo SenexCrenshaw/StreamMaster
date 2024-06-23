@@ -1,7 +1,6 @@
 import StringTracker from '@components/inputs/StringTracker';
 import { camel2title, isEmptyObject } from '@lib/common/common';
 
-import { areArraysEqual } from '@mui/base';
 import { Column, ColumnFilterElementTemplateOptions } from 'primereact/column';
 import {
   DataTable,
@@ -20,7 +19,6 @@ import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import generateFilterData from '@components/dataSelector/generateFilterData';
 import { SMTriSelectShowHidden } from '@components/sm/SMTriSelectShowHidden';
 import { SMTriSelectShowSelect } from '@components/sm/SMTriSelectShowSelect';
-import { PagedResponse } from '@lib/smAPI/smapiTypes';
 import { Checkbox } from 'primereact/checkbox';
 import TableHeader from './helpers/TableHeader';
 import bodyTemplate from './helpers/bodyTemplate';
@@ -32,6 +30,8 @@ import getRecord from './helpers/getRecord';
 import { useSMContext } from '@lib/signalr/SMProvider';
 
 import SMButton from '@components/sm/SMButton';
+import { Logger } from '@lib/common/logger';
+import { PagedResponse } from '@lib/smAPI/smapiTypes';
 import { getColumnStyles } from './helpers/getColumnStyles';
 import isPagedResponse from './helpers/isPagedResponse';
 import useSMDataSelectorValuesState from './hooks/useSMDataTableState';
@@ -84,47 +84,6 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
       observer.disconnect();
     };
   }, []);
-
-  useEffect(() => {
-    if (!data) {
-      return;
-    }
-
-    if (Array.isArray(data)) {
-      if (!state.dataSource || (state.dataSource && !areArraysEqual(data, state.dataSource))) {
-        setters.setDataSource(data);
-        setters.setPagedInformation(undefined);
-
-        if (state.selectAll) {
-          setters.setSelectedItems(data);
-        }
-      }
-
-      return;
-    }
-
-    if (data && isPagedResponse<T>(data)) {
-      if (!state.dataSource || (state.dataSource && !areArraysEqual(data.Data, state.dataSource))) {
-        setters.setDataSource((data as PagedResponse<T>).Data);
-
-        if (state.selectAll && data !== undefined) {
-          setters.setSelectedItems((data as PagedResponse<T>).Data as T[]);
-        }
-      }
-
-      if (data.PageNumber > 1 && data.TotalPageCount === 0) {
-        const newData = { ...data };
-
-        newData.PageNumber += -1;
-        newData.First = (newData.PageNumber - 1) * newData.PageSize;
-        setters.setPage(newData.PageNumber);
-        setters.setFirst(newData.First);
-        setters.setPagedInformation(newData);
-      } else {
-        setters.setPagedInformation(data);
-      }
-    }
-  }, [data, props.id, setters, state.dataSource, state.selectAll]);
 
   useEffect(() => {
     if (!props.defaultSortField) {
@@ -222,51 +181,26 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
     [onSetSelection, props, state.selectAll]
   );
 
-  const selectedData = useCallback(
-    (inputData: T[]): T[] => {
-      if (props.showSelections !== true) {
-        return inputData;
-      }
+  // useEffect(() => {
+  //   if (props.queryFilter || !props.dataSource) {
+  //     return;
+  //   }
 
-      if (state.showSelections === null) {
-        return inputData;
-      }
+  //   const newData = selectedData(props.dataSource);
+  //   if (!state.dataSource || (state.dataSource && !areArraysEqual(newData, state.dataSource))) {
+  //     if (props.reorderable) {
+  //       setters.setDataSource([...newData].sort((a, b) => a.rank - b.rank));
+  //     } else {
+  //       setters.setDataSource([...newData]);
+  //     }
 
-      if (state.showSelections === true) {
-        return state.selectedItems;
-      }
+  //     setters.setPagedInformation(undefined);
 
-      if (!state.selectedItems) {
-        return [] as T[];
-      }
-
-      const returnValue = inputData.filter((d) => !state.selectedItems?.some((s) => s.id === d.id));
-
-      return returnValue;
-    },
-    [props.showSelections, state.selectedItems, state.showSelections]
-  );
-
-  useEffect(() => {
-    if (props.queryFilter || !props.dataSource) {
-      return;
-    }
-
-    const newData = selectedData(props.dataSource);
-    if (!state.dataSource || (state.dataSource && !areArraysEqual(newData, state.dataSource))) {
-      if (props.reorderable) {
-        setters.setDataSource([...newData].sort((a, b) => a.rank - b.rank));
-      } else {
-        setters.setDataSource([...newData]);
-      }
-
-      setters.setPagedInformation(undefined);
-
-      if (state.selectAll) {
-        onSetSelection(newData);
-      }
-    }
-  }, [onSetSelection, props.dataSource, props.id, props.queryFilter, props.reorderable, selectedData, setters, state.dataSource, state.selectAll]);
+  //     if (state.selectAll) {
+  //       onSetSelection(newData);
+  //     }
+  //   }
+  // }, [onSetSelection, props.dataSource, props.id, props.queryFilter, props.reorderable, selectedData, setters, state.dataSource, state.selectAll]);
 
   const onRowReorder = (changed: T[]) => {
     props.onRowReorder?.(changed);
@@ -496,16 +430,79 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
     setters.setFilters(newFilters as any);
   };
 
-  const filteredValues = useMemo(() => {
-    if (data) {
-      return state.dataSource;
-    }
+  // const selectedData = useCallback(
+  //   (inputData: T[]): T[] => {
+  //     if (props.showSelections !== true) {
+  //       return inputData;
+  //     }
 
-    if (!state.dataSource) {
+  //     if (state.showSelections === null) {
+  //       return inputData;
+  //     }
+
+  //     if (state.showSelections === true) {
+  //       return state.selectedItems;
+  //     }
+
+  //     if (!state.selectedItems) {
+  //       return [] as T[];
+  //     }
+
+  //     const returnValue = inputData.filter((d) => !state.selectedItems?.some((s) => s.Id === d.Id));
+
+  //     return returnValue;
+  //   },
+  //   [props.showSelections, state.selectedItems, state.showSelections]
+  // );
+
+  const getDataFromQ = useMemo(() => {
+    if (!data) {
+      if (props.dataSource) {
+        return props.dataSource;
+      }
       return [];
     }
 
-    let ret = state.dataSource;
+    if (Array.isArray(data)) {
+      setters.setPagedInformation(undefined);
+      if (state.selectAll) {
+        setters.setSelectedItems(data);
+      }
+      return data;
+    }
+
+    if (data && isPagedResponse<T>(data)) {
+      if (state.selectAll && data !== undefined) {
+        setters.setSelectedItems((data as PagedResponse<T>).Data as T[]);
+      }
+
+      if (data.PageNumber > 1 && data.TotalPageCount === 0) {
+        const newData = { ...data };
+
+        newData.PageNumber += -1;
+        newData.First = (newData.PageNumber - 1) * newData.PageSize;
+        setters.setPage(newData.PageNumber);
+        setters.setFirst(newData.First);
+        setters.setPagedInformation(newData);
+      } else {
+        setters.setPagedInformation(data);
+      }
+
+      return (data as PagedResponse<T>).Data;
+    }
+    return [];
+  }, [data, state.selectAll]);
+
+  const filteredValues = useMemo(() => {
+    if (data) {
+      return getDataFromQ;
+    }
+
+    if (!props.dataSource) {
+      return [];
+    }
+
+    let ret = [...props.dataSource];
 
     if (state.filters !== undefined) {
       Object.keys(state.filters).forEach((key) => {
@@ -514,6 +511,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
           ret = ret.filter((item: any) => {
             const filterKey = key as keyof typeof item;
             const itemValue = item[filterKey];
+            Logger.debug('DataTable', { filterKey, filterValue: filter.value, itemValue });
             return typeof itemValue === 'string' && itemValue.toLowerCase().includes(filter.value.toLowerCase());
           });
         }
@@ -535,7 +533,8 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
     }
 
     return ret;
-  }, [state.dataSource, state.filters, state.sortOrder, state.sortField, data]);
+  }, [data, props.dataSource, state.filters, state.sortField, state.sortOrder]);
+
   const sourceRenderHeader = useMemo(() => {
     if (props.noSourceHeader === true) {
       return null;
@@ -592,7 +591,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
 
     if (selectAllStatus === null) {
       setters.setSelectAll(true);
-      setters.setSelectedItems(state.dataSource ?? []);
+      setters.setSelectedItems(props.dataSource ?? []);
       return;
     }
 
@@ -696,6 +695,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
     return col.className;
   }, []);
 
+  Logger.debug('DataTable', { id: props.id, dataSource: props.dataSource });
   return (
     <div
       id={props.id}
@@ -775,7 +775,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
             setIsExpanded(true);
             props.onRowExpand?.(e);
           }}
-          value={filteredValues}
+          value={filteredValues} //{state.dataSource}
         >
           <Column
             body={props.addOrRemoveTemplate}

@@ -46,31 +46,24 @@ const SchedulesDirectHeadendDataSelector = () => {
   const centerTemplate = useMemo(() => <SchedulesDirectCountrySelector />, []);
 
   return (
-    <div className="">
-      {/* <h3>
-        <span className="text-bold">TV Headends | </span>
-        <span className="text-bold text-blue-500">{selectedCountry}</span> -<span className="text-bold text-500">{selectedPostalCode}</span>
-      </h3> */}
-
-      {/* <SchedulesDirectLineupPreviewChannel lineup={lineupToPreview} onHide={() => setLineupToPreview(undefined)} /> */}
-      <SMDataTable
-        columns={columns}
-        dataSource={data}
-        defaultSortField="HeadendId"
-        defaultSortOrder={1}
-        emptyMessage="No Streams"
-        headerCenterTemplate={centerTemplate}
-        headerName="LINEUPS"
-        id={dataKey}
-        lazy
-        onRowClick={(e) => {
-          const headEndDto: HeadendDto = e.data;
-          setLineupToPreview(headEndDto.Lineup);
-        }}
-        selectedItemsKey="sdselectedItems"
-        style={{ height: 'calc(100vh - 120px)' }}
-      />
-    </div>
+    <SMDataTable
+      columns={columns}
+      dataSource={data}
+      defaultSortField="HeadendId"
+      defaultSortOrder={1}
+      emptyMessage="No Streams"
+      headerCenterTemplate={centerTemplate}
+      headerName="LINEUPS"
+      id={dataKey}
+      lazy
+      onRowClick={(e) => {
+        const headEndDto: HeadendDto = e.data as unknown as HeadendDto;
+        setLineupToPreview(headEndDto.Lineup);
+      }}
+      selectRow
+      selectedItemsKey="sdselectedItems"
+      style={{ height: 'calc(100vh - 120px)' }}
+    />
   );
 };
 

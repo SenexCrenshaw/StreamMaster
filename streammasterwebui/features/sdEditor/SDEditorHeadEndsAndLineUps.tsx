@@ -1,5 +1,6 @@
 import StandardHeader from '@components/StandardHeader';
 import SchedulesDirectHeadendDataSelector from '@components/schedulesDirect/SchedulesDirectHeadendDataSelector';
+import SchedulesDirectLineUpsDataSelector from '@components/schedulesDirect/SchedulesDirectLineUpsDataSelector';
 import { SDIcon } from '@lib/common/icons';
 import { useSMContext } from '@lib/signalr/SMProvider';
 
@@ -33,12 +34,11 @@ const SDEditorHeadEndsAndLineUps = () => {
   return (
     <BlockUI blocked={!isSDReady}>
       <StandardHeader displayName={status} icon={<SDIcon />}>
-        <div className="col-7 m-0 p-0 pr-1">
+        <div className="sm-w-7 pr-1">
           <SchedulesDirectHeadendDataSelector />
         </div>
-        <div className="col-5 m-0 p-0 border-2 border-round surface-border">
-          <div className="flex grid col-12 pl-1 justify-content-start align-items-center m-0 w-full smallpt"></div>
-          {/* <SchedulesDirectLineUpsDataSelector id={'SDEditor'} /> */}
+        <div className="sm-w-5">
+          <SchedulesDirectLineUpsDataSelector id={'SDEditor'} />
         </div>
       </StandardHeader>
     </BlockUI>

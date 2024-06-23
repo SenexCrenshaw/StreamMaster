@@ -7,11 +7,11 @@ import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
 import { useShowHidden } from '@lib/redux/hooks/showHidden';
 import { useSortInfo } from '@lib/redux/hooks/sortInfo';
 
+import { useFilters } from '@lib/redux/hooks/filters';
 import { useIsTrue } from '@lib/redux/hooks/isTrue';
 import { useShowSelections } from '@lib/redux/hooks/showSelections';
 import { PagedResponse } from '@lib/smAPI/smapiTypes';
 import { ColumnMeta } from '../types/ColumnMeta';
-import { useFilters } from '@lib/redux/hooks/filters';
 
 const SMDataTableState = <T extends DataTableValue>(id: string, selectedItemsKey?: string) => {
   const { sortInfo, setSortInfo } = useSortInfo(id);
@@ -46,7 +46,7 @@ const SMDataTableState = <T extends DataTableValue>(id: string, selectedItemsKey
 
   return {
     setters: {
-      setDataSource,
+      // setDataSource,
       setExpandedRows,
       setFilters,
       setFirst,
@@ -63,7 +63,7 @@ const SMDataTableState = <T extends DataTableValue>(id: string, selectedItemsKey
       setVisibleColumns
     },
     state: {
-      dataSource,
+      // dataSource,
       expandedRows,
       filters,
       first,
