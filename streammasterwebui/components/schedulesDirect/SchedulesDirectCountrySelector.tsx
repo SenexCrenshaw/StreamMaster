@@ -1,5 +1,6 @@
 import SearchButton from '@components/buttons/SearchButton';
 import StringEditor from '@components/inputs/StringEditor';
+import SMDropDown from '@components/sm/SMDropDown';
 import { useSelectedCountry } from '@lib/redux/hooks/selectedCountry';
 import { useSelectedPostalCode } from '@lib/redux/hooks/selectedPostalCode';
 import { useSMContext } from '@lib/signalr/SMProvider';
@@ -8,8 +9,7 @@ import useGetAvailableCountries from '@lib/smAPI/SchedulesDirect/useGetAvailable
 import { UpdateSetting } from '@lib/smAPI/Settings/SettingsCommands';
 import { Country, CountryData, UpdateSettingRequest } from '@lib/smAPI/smapiTypes';
 
-import { Dropdown } from 'primereact/dropdown';
-import React from 'react';
+import React, { useMemo } from 'react';
 
 interface SchedulesDirectCountrySelectorProperties {
   readonly onChange?: (value: string) => void;
@@ -75,30 +75,38 @@ const SchedulesDirectCountrySelector = (props: SchedulesDirectCountrySelectorPro
     return countries.sort((a, b) => a.label.localeCompare(b.label));
   }, [getCountriesQuery.data]);
 
+  const buttonTemplate = useMemo(() => {
+    const found = options.find((o) => o.value === selectedCountry);
+    if (found) {
+      return <div>{found.label}</div>;
+    }
+    return <div>{selectedCountry}</div>;
+  }, [options, selectedCountry]);
+
   return (
-    <div className="flex grid col-12 pl-1 justify-content-start align-items-center p-0 m-0">
-      <div className="flex col-6 p-0 pr-2">
-        <Dropdown
-          className="bordered-text w-full"
+    <div className="flex w-full justify-content-between align-items-center p-0 m-0 ">
+      <div className="sm-w-8">
+        <SMDropDown
+          buttonDarkBackground
+          buttonTemplate={buttonTemplate}
+          contentWidthSize="2"
+          data={options}
+          dataKey="value"
           filter
+          filterBy="label"
+          itemTemplate={(option: CountryOption) => <div className="text-content">{option.label}</div>}
+          placement="bottom"
+          value={selectedCountry}
           onChange={(e) => {
             setSelectedCountry(e.value);
             props.onChange?.(e.value);
           }}
-          options={options}
-          placeholder="Country"
-          style={{
-            backgroundColor: 'var(--mask-bg)',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap'
-          }}
-          value={selectedCountry}
         />
       </div>
-      <div className="flex col-6 p-0">
-        <div className="flex col-6 p-0">
+      <div className="flex sm-w-4 justify-content-between align-items-center p-0 m-0 ">
+        <div className="w-10">
           <StringEditor
+            darkBackGround
             disableDebounce
             placeholder="Postal Code"
             onChange={(e) => {
@@ -109,7 +117,7 @@ const SchedulesDirectCountrySelector = (props: SchedulesDirectCountrySelectorPro
             value={selectedPostalCode ?? ''}
           />
         </div>
-        <div className="flex col-2 pt-2 p-0 pr-3">
+        <div className="w-2">
           <SearchButton
             tooltip="Go"
             onClick={() => {

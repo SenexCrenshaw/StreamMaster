@@ -1,7 +1,14 @@
 import { createSelector, createSlice, type PayloadAction } from '@reduxjs/toolkit';
+import { DataTableFilterMetaData } from 'primereact/datatable';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../store';
-import { DataTableFilterMeta } from 'primereact/datatable';
+
+interface DataTableFilterMeta {
+  /**
+   * Extra options.
+   */
+  [key: string]: DataTableFilterMetaData;
+}
 
 interface SetFiltersPayload {
   value: DataTableFilterMeta;

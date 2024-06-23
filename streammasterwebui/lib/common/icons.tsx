@@ -14,7 +14,11 @@ export { default as VideoIcon, default as VideoPlayerIcon } from '@mui/icons-mat
 export { default as M3UPlaylistEditorIcon, default as PlayListEditorIcon } from '@mui/icons-material/PlaylistAddSharp';
 export { default as ResetLogoIcon } from '@mui/icons-material/RotateLeft';
 export { default as SDChannelIcon } from '@mui/icons-material/ScheduleSend';
-export { default as SDIcon } from '@mui/icons-material/SendTimeExtension';
+// export { default as SDIcon } from '@mui/icons-material/SendTimeExtension';
 export { default as StreamGroupEditorIcon } from '@mui/icons-material/SettingsInputAntenna';
 export { default as SettingsEditorIcon } from '@mui/icons-material/SettingsSharp';
 export { default as StreamingStatusIcon } from '@mui/icons-material/ShowChartSharp';
+
+export const SDIcon = () => {
+  return <img className="p-0 m-0 w-10 h-1rem" alt="SD Logo" src="/images/sd_logo.png" />;
+};

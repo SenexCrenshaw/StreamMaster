@@ -991,9 +991,6 @@ export interface UpdateSettingRequest
 export interface GetAvailableCountriesRequest
 {
 }
-export interface GetChannelNamesRequest
-{
-}
 export interface GetHeadendsRequest
 {
 	country: string;
@@ -1009,20 +1006,10 @@ export interface GetLineupsRequest
 export interface GetSelectedStationIdsRequest
 {
 }
-export interface GetServiceRequest
-{
-	stationId: string;
-}
-export interface GetStationChannelMapsRequest
-{
-}
 export interface GetStationChannelNamesRequest
 {
 }
 export interface GetStationPreviewsRequest
-{
-}
-export interface GetUserStatusRequest
 {
 }
 export interface AddLineupRequest
@@ -1037,9 +1024,6 @@ export interface StationRequest
 export interface AddStationRequest
 {
 	Requests: StationRequest[];
-}
-export interface EPGSyncRequest
-{
 }
 export interface RemoveLineupRequest
 {

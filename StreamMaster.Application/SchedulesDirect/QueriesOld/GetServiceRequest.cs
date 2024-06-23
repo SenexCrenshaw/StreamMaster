@@ -1,7 +1,5 @@
-﻿namespace StreamMaster.Application.SchedulesDirect.Queries;
+﻿namespace StreamMaster.Application.SchedulesDirect.QueriesOld;
 
-[SMAPI]
-[TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record GetServiceRequest(string stationId) : IRequest<DataResponse<MxfService?>>;
 
 internal class GetServiceRequestHandler(ISchedulesDirectDataService schedulesDirectDataService)

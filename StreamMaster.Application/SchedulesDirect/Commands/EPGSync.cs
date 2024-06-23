@@ -1,15 +1,14 @@
 ﻿namespace StreamMaster.Application.SchedulesDirect.Commands;
 
-[SMAPI]
-[TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record EPGSyncRequest() : IRequest<APIResponse>;
 
-public class SDSyncHandler(ISchedulesDirect schedulesDirect, ILogger<EPGSyncRequest> logger, IHubContext<StreamMasterHub, IStreamMasterHub> HubContext, IOptionsMonitor<SDSettings> intsettings)
-: IRequestHandler<EPGSyncRequest, APIResponse>
+public record EPGSync() : IRequest<APIResponse>;
+
+public class EPGSyncHandler(ISchedulesDirect schedulesDirect, ILogger<EPGSync> logger, IHubContext<StreamMasterHub, IStreamMasterHub> HubContext, IOptionsMonitor<SDSettings> intsettings)
+: IRequestHandler<EPGSync, APIResponse>
 {
     private readonly SDSettings settings = intsettings.CurrentValue;
 
-    public async Task<APIResponse> Handle(EPGSyncRequest request, CancellationToken cancellationToken)
+    public async Task<APIResponse> Handle(EPGSync request, CancellationToken cancellationToken)
     {
 
         if (settings.SDEnabled)

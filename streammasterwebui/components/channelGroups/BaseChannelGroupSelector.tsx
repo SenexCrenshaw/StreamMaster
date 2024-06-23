@@ -7,7 +7,6 @@ import useSelectedAndQ from '@lib/hooks/useSelectedAndQ';
 import { useSMContext } from '@lib/signalr/SMProvider';
 import { ChannelGroupDto } from '@lib/smAPI/smapiTypes';
 import { BlockUI } from 'primereact/blockui';
-import { DataTableFilterMetaData } from 'primereact/datatable';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import ChannelGroupAddDialog from './ChannelGroupAddDialog';
@@ -38,7 +37,7 @@ const BaseChannelGroupSelector = memo(
     value,
     getNamesQuery
   }: BaseChannelGroupSelectorProps) => {
-    const { selectedItems, showHidden, sortInfo, filters } = useSelectedAndQ(dataKey);
+    const { selectedItems } = useSelectedAndQ(dataKey);
     const [input, setInput] = useState<string | undefined>(value);
 
     const { isSystemReady } = useSMContext();
@@ -104,43 +103,6 @@ const BaseChannelGroupSelector = memo(
       ),
       []
     );
-
-    const dataSource = useMemo(() => {
-      if (!namesQuery.data) {
-        return [];
-      }
-
-      let data = [] as ChannelGroupDto[];
-
-      if (sortInfo?.sortField !== undefined) {
-        data = [...namesQuery.data].sort((a, b) => {
-          const field = sortInfo.sortField as keyof ChannelGroupDto;
-          if (a[field] < b[field]) {
-            return sortInfo.sortOrder === 1 ? -1 : 1;
-          }
-          if (a[field] > b[field]) {
-            return sortInfo.sortOrder === 1 ? 1 : -1;
-          }
-          return 0;
-        });
-      } else {
-        data = namesQuery.data;
-      }
-
-      if (showHidden !== null) {
-        data = data.filter((x) => (showHidden ? !x.IsHidden : x.IsHidden));
-      }
-
-      if (filters.Name !== null) {
-        const meta = filters.Name as DataTableFilterMetaData;
-        if (meta?.value !== undefined) {
-          data = data.filter((x) => x.Name.toLowerCase().includes(meta.value.toLowerCase()));
-        }
-      }
-
-      return data;
-    }, [namesQuery.data, filters, sortInfo, showHidden]);
-
     const columns = useMemo(
       (): ColumnMeta[] => [
         channelGroupNameColumnConfig,
@@ -149,15 +111,6 @@ const BaseChannelGroupSelector = memo(
       ],
       [actionTemplate, channelGroupNameColumnConfig, streamCountTemplate]
     );
-
-    const getDiv = useMemo(() => {
-      let div = 'w-full pl-1';
-      if (label) {
-        div += ' flex-column';
-      }
-
-      return div;
-    }, [label]);
 
     if (loading) {
       return (
@@ -177,7 +130,7 @@ const BaseChannelGroupSelector = memo(
           <SMDropDown info="" buttonDarkBackground buttonTemplate={buttonTemplate} title="GROUP" contentWidthSize="3">
             <SMDataTable
               columns={columns}
-              dataSource={dataSource}
+              dataSource={namesQuery.data}
               id={dataKey}
               lazy
               noSourceHeader

@@ -1,38 +1,24 @@
-import { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { memo, useCallback, useMemo, useState } from 'react';
 
 import SMDataTable from '@components/smDataTable/SMDataTable';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 import { useSelectedCountry } from '@lib/redux/hooks/selectedCountry';
 import { useSelectedPostalCode } from '@lib/redux/hooks/selectedPostalCode';
-import { GetHeadends } from '@lib/smAPI/SchedulesDirect/SchedulesDirectCommands';
+import useGetHeadends from '@lib/smAPI/SchedulesDirect/useGetHeadends';
 import { GetHeadendsRequest, HeadendDto } from '@lib/smAPI/smapiTypes';
 import SchedulesDirectAddHeadendDialog from './SchedulesDirectAddHeadendDialog';
 import SchedulesDirectCountrySelector from './SchedulesDirectCountrySelector';
-import SchedulesDirectLineupPreviewChannel from './SchedulesDirectLineupPreviewChannel';
 
 const SchedulesDirectHeadendDataSelector = () => {
+  const dataKey = 'SchedulesDirectHeadendDataSelector';
   const { selectedCountry } = useSelectedCountry('Country');
   const { selectedPostalCode } = useSelectedPostalCode('PostalCode');
-  const [dataSource, setDataSource] = useState<HeadendDto[]>([]);
-
+  const { data } = useGetHeadends({ country: selectedCountry ?? 'USA', postalCode: selectedPostalCode ?? '00000' } as GetHeadendsRequest);
   const [lineupToPreview, setLineupToPreview] = useState<string | undefined>(undefined);
-
-  // const getHeadendsQuery = useSchedulesDirectGetHeadendsQuery(
-  //   ({ country: selectedCountry ?? 'USA', postalCode: selectedPostalCode ?? '0000' } as SchedulesDirectGetHeadendsApiArg) ?? skipToken
-  // );
-  useEffect(() => {
-    GetHeadends({ country: selectedCountry ?? 'USA', postalCode: selectedPostalCode ?? '00000' } as GetHeadendsRequest)
-      .then((data) => {
-        setDataSource(data ?? []);
-      })
-      .catch((error) => {
-        setDataSource([]);
-      });
-  }, [selectedCountry, selectedPostalCode]);
 
   const actionBodyTemplate = useCallback((data: HeadendDto) => {
     return (
-      <div className="flex p-0 justify-content-end align-items-center">
+      <div className="flex p-0 justify-content-center align-items-center">
         <SchedulesDirectAddHeadendDialog value={data} />
       </div>
     );
@@ -40,52 +26,48 @@ const SchedulesDirectHeadendDataSelector = () => {
 
   const columns = useMemo(
     (): ColumnMeta[] => [
-      { field: 'headendId', filter: true, sortable: true, width: '6rem' },
-      { field: 'lineup', filter: true, sortable: true },
-      { field: 'location', filter: true, sortable: true },
-      { field: 'name', filter: true, sortable: true },
-      { field: 'transport', sortable: true, width: '6rem' },
+      { field: 'HeadendId', filter: true, sortable: true, width: 80 },
+      { field: 'Lineup', filter: true, sortable: true, width: 80 },
+      { field: 'Location', filter: true, sortable: true, width: 80 },
+      { field: 'Name', filter: true, sortable: true, width: 100 },
+      { field: 'Transport', sortable: true, width: 60 },
       {
         bodyTemplate: actionBodyTemplate,
         field: 'Add',
         header: '',
         resizeable: false,
         sortable: false,
-        width: '3rem'
+        width: 20
       }
     ],
     [actionBodyTemplate]
   );
 
-  const rightHeaderTemplate = useMemo(
-    () => (
-      <div className="flex justify-content-end align-items-center w-full gap-1">
-        <SchedulesDirectCountrySelector />
-      </div>
-    ),
-    []
-  );
+  const centerTemplate = useMemo(() => <SchedulesDirectCountrySelector />, []);
 
   return (
-    <div className="m3uFilesEditor flex flex-column border-2 border-round surface-border">
-      <h3>
+    <div className="">
+      {/* <h3>
         <span className="text-bold">TV Headends | </span>
         <span className="text-bold text-blue-500">{selectedCountry}</span> -<span className="text-bold text-500">{selectedPostalCode}</span>
-      </h3>
+      </h3> */}
 
-      <SchedulesDirectLineupPreviewChannel lineup={lineupToPreview} onHide={() => setLineupToPreview(undefined)} />
+      {/* <SchedulesDirectLineupPreviewChannel lineup={lineupToPreview} onHide={() => setLineupToPreview(undefined)} /> */}
       <SMDataTable
         columns={columns}
-        defaultSortField="name"
-        dataSource={dataSource}
+        dataSource={data}
+        defaultSortField="HeadendId"
+        defaultSortOrder={1}
         emptyMessage="No Streams"
-        id="StreamingServerStatusPanel"
-        headerRightTemplate={rightHeaderTemplate}
+        headerCenterTemplate={centerTemplate}
+        headerName="LINEUPS"
+        id={dataKey}
+        lazy
         onRowClick={(e) => {
           const headEndDto: HeadendDto = e.data;
           setLineupToPreview(headEndDto.Lineup);
         }}
-        selectedItemsKey="selectedItems"
+        selectedItemsKey="sdselectedItems"
         style={{ height: 'calc(100vh - 120px)' }}
       />
     </div>

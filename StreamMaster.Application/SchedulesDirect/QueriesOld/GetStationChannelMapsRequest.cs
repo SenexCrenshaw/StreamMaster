@@ -1,7 +1,6 @@
-﻿namespace StreamMaster.Application.SchedulesDirect.Queries;
+﻿namespace StreamMaster.Application.SchedulesDirect.QueriesOld;
 
-[SMAPI]
-[TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
+
 public record GetStationChannelMapsRequest : IRequest<DataResponse<List<StationChannelMap>>>;
 
 internal class GetStationChannelMapsHandler(ILineups lineups) : IRequestHandler<GetStationChannelMapsRequest, DataResponse<List<StationChannelMap>>>

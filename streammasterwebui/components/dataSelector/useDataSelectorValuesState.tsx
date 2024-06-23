@@ -4,15 +4,14 @@ import { useState } from 'react';
 
 import { AdditionalFilterProperties } from '@lib/common/common';
 
+import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 import { useSelectAll } from '@lib/redux/hooks/selectAll';
 import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
+import { useSelectedSMChannel } from '@lib/redux/hooks/selectedSMChannel';
+import { useSelectedSMStream } from '@lib/redux/hooks/selectedSMStream';
 import { useShowHidden } from '@lib/redux/hooks/showHidden';
 import { useShowSelections } from '@lib/redux/hooks/showSelections';
 import { useSortInfo } from '@lib/redux/hooks/sortInfo';
-import { useSelectedSMChannel } from '@lib/redux/slices/selectedSMChannel';
-import { useSelectedSMStream } from '@lib/redux/slices/selectedSMStream';
-
-import { ColumnMeta, PagedTableInformation } from './DataSelectorTypes';
 
 const useDataSelectorValuesState = <T extends DataTableValue>(
   id: string,
@@ -67,12 +66,12 @@ const useDataSelectorValuesState = <T extends DataTableValue>(
       setRows,
       setSelectAll,
       setSelectedItems,
+      setSelectedSMChannel,
+      setSelectedSMStream,
       setShowSelections,
       setSortField,
       setSortOrder,
-      setVisibleColumns,
-      setSelectedSMChannel,
-      setSelectedSMStream
+      setVisibleColumns
     },
     state: {
       additionalFilterProps: additionalFilterProperties,
@@ -88,12 +87,12 @@ const useDataSelectorValuesState = <T extends DataTableValue>(
       selectAll,
       selectedItems,
       selectedSMChannel,
+      selectedSMStream,
       showHidden,
       showSelections,
       sortField,
       sortOrder,
-      visibleColumns,
-      selectedSMStream
+      visibleColumns
     }
   };
 };

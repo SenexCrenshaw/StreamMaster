@@ -1,14 +1,15 @@
 import SMDataTable from '@components/smDataTable/SMDataTable';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 import { formatJSONDateString, getElapsedTimeString } from '@lib/common/dateTime';
-import { useSMContext } from '@lib/signalr/SMProvider';
 import { ClientStreamingStatistics } from '@lib/smAPI/smapiTypes';
 import { useCallback, useMemo } from 'react';
 import { VideoInfoDisplay } from './VideoInfoDisplay';
 
-const SMClientsStatus = () => {
-  const { clientStreamingStatistics } = useSMContext();
+interface SMClientStatusProps {
+  readonly clientStreamingStatistics: ClientStreamingStatistics[];
+}
 
+const SMClientStatus = ({ clientStreamingStatistics }: SMClientStatusProps) => {
   const clientBitsPerSecondTemplate = (rowData: ClientStreamingStatistics) => {
     if (rowData.BitsPerSecond === undefined) return <div />;
 
@@ -46,4 +47,4 @@ const SMClientsStatus = () => {
   return <SMDataTable headerName="CLIENTS" columns={columns} id="clientStatus" dataSource={clientStreamingStatistics} />;
 };
 
-export default SMClientsStatus;
+export default SMClientStatus;

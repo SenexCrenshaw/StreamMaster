@@ -21,10 +21,10 @@ const SchedulesDirectLineUpsDataSelector = ({ id }: SchedulesDirectLineUpsDataSe
 
   const columns = useMemo(
     (): ColumnMeta[] => [
-      { field: 'lineup', sortable: true },
-      { field: 'location', sortable: true },
-      { field: 'name', sortable: true },
-      { field: 'transport', sortable: true, width: '6rem' },
+      { field: 'Lineup', sortable: true },
+      { field: 'Location', sortable: true },
+      { field: 'Name', sortable: true },
+      { field: 'Transport', sortable: true, width: '6rem' },
       {
         align: 'center',
         bodyTemplate: actionBodyTemplate,

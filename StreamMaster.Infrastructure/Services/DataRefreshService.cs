@@ -128,16 +128,12 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
         }
 
         await hub.Clients.All.DataRefresh("GetAvailableCountries");
-        await hub.Clients.All.DataRefresh("GetChannelNames");
         await hub.Clients.All.DataRefresh("GetHeadends");
         await hub.Clients.All.DataRefresh("GetLineupPreviewChannel");
         await hub.Clients.All.DataRefresh("GetLineups");
         await hub.Clients.All.DataRefresh("GetSelectedStationIds");
-        await hub.Clients.All.DataRefresh("GetService");
-        await hub.Clients.All.DataRefresh("GetStationChannelMaps");
         await hub.Clients.All.DataRefresh("GetStationChannelNames");
         await hub.Clients.All.DataRefresh("GetStationPreviews");
-        await hub.Clients.All.DataRefresh("GetUserStatus");
     }
 
     public async Task RefreshSettings(bool alwaysRun = false)

@@ -1,10 +1,7 @@
 import StringEditor from '@components/inputs/StringEditor';
 import SMDataTable from '@components/smDataTable/SMDataTable';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
-import { useFilters } from '@lib/redux/hooks/filters';
-import { useSortInfo } from '@lib/redux/hooks/sortInfo';
 
-import { Logger } from '@lib/common/logger';
 import { UpdateOutputProfile } from '@lib/smAPI/Profiles/ProfilesCommands';
 import useGetOutputProfiles from '@lib/smAPI/Profiles/useGetOutputProfiles';
 import { OutputProfileDto, UpdateOutputProfileRequest } from '@lib/smAPI/smapiTypes';
@@ -22,8 +19,7 @@ import { useOutputProfileNameColumnConfig } from './columns/useOutputProfileName
 
 const StreamGroupOutputProfileDataSelector = () => {
   const id = 'StreamGroupOutputProfileDataSelector';
-  const { filters } = useFilters(id);
-  const { sortInfo } = useSortInfo(id);
+
   const { data } = useGetOutputProfiles();
 
   const nameColumnConfig = useOutputProfileNameColumnConfig({ width: 40 });
@@ -34,46 +30,6 @@ const StreamGroupOutputProfileDataSelector = () => {
   const channelNumberColumnConfig = useOutputProfileChannelNumberColumnConfig({ width: 40 });
   const epgIdColumnConfig = useOutputProfileEPGIdColumnConfig({ width: 40 });
   const iconColumnConfig = useOutputProfileIconColumnConfig({ width: 40 });
-
-  const filteredValues = useMemo(() => {
-    if (!data) {
-      return [];
-    }
-
-    let ret = [...data];
-
-    if (filters !== undefined && filters['Name'] !== undefined) {
-      ret = ret.filter((item: any) => {
-        const filterKey = 'Name' as keyof typeof item;
-        const itemValue = item[filterKey];
-        return typeof itemValue === 'string' && itemValue.toLowerCase().includes(filters['Name'].value.toLowerCase());
-      });
-    }
-    // else {
-    //   ret = data.filter((item: any) => {
-    //     const filterKey = 'Name' as keyof typeof item;
-    //     const itemValue = item[filterKey];
-
-    //     return typeof itemValue === 'string' && itemValue.toLowerCase().includes('hi');
-    //   });
-    // }
-
-    if (sortInfo !== undefined) {
-      ret = ret.sort((a: any, b: any) => {
-        const sortField = sortInfo.sortField as keyof typeof a;
-        Logger.debug('sortField', sortField, a[sortField], b[sortField]);
-        if (a[sortField] < b[sortField]) {
-          return -1 * sortInfo.sortOrder;
-        }
-        if (a[sortField] > b[sortField]) {
-          return 1 * sortInfo.sortOrder;
-        }
-        return 0;
-      });
-    }
-
-    return ret;
-  }, [data, filters, sortInfo]);
 
   const actionTemplate = useCallback((rowData: OutputProfileDto) => {
     return (
@@ -161,7 +117,7 @@ const StreamGroupOutputProfileDataSelector = () => {
     <SMDataTable
       actionHeaderTemplate={<CreateFileProfileDialog />}
       columns={columns}
-      dataSource={filteredValues}
+      dataSource={data}
       defaultSortField="Name"
       defaultSortOrder={1}
       emptyMessage="No Profiles"

@@ -16,17 +16,17 @@ const useSelectedAndQ = (dataKey: string) => {
   const { queryAdditionalFilters, setQueryAdditionalFilters } = useQueryAdditionalFilters(dataKey);
   const { showHidden } = useShowHidden(dataKey);
   return {
-    selectedItems,
-    setSelectedItems,
-    selectAll,
+    filters,
     queryAdditionalFilters,
+    queryFilter,
+    selectAll,
+    selectedItems,
+    setFilters,
     setQueryAdditionalFilters,
     setSelectAll,
+    setSelectedItems,
     showHidden,
-    queryFilter,
-    sortInfo,
-    filters,
-    setFilters
+    sortInfo
   };
 };
 

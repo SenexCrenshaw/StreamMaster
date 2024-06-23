@@ -1,14 +1,9 @@
 import SignalRService from '@lib/signalr/SignalRService';
-import { APIResponse,AddLineupRequest,AddStationRequest,EPGSyncRequest,RemoveLineupRequest,RemoveStationRequest,CountryData,HeadendDto,LineupPreviewChannel,SubscribedLineup,StationIdLineup,MxfService,StationChannelMap,StationChannelName,StationPreview,UserStatus,GetHeadendsRequest,GetLineupPreviewChannelRequest,GetServiceRequest } from '@lib/smAPI/smapiTypes';
+import { APIResponse,AddLineupRequest,AddStationRequest,RemoveLineupRequest,RemoveStationRequest,CountryData,HeadendDto,LineupPreviewChannel,SubscribedLineup,StationIdLineup,StationChannelName,StationPreview,GetHeadendsRequest,GetLineupPreviewChannelRequest } from '@lib/smAPI/smapiTypes';
 
 export const GetAvailableCountries = async (): Promise<CountryData[] | undefined> => {
   const signalRService = SignalRService.getInstance();
   return await signalRService.invokeHubCommand<CountryData[]>('GetAvailableCountries');
-};
-
-export const GetChannelNames = async (): Promise<string[] | undefined> => {
-  const signalRService = SignalRService.getInstance();
-  return await signalRService.invokeHubCommand<string[]>('GetChannelNames');
 };
 
 export const GetHeadends = async (request: GetHeadendsRequest): Promise<HeadendDto[] | undefined> => {
@@ -31,16 +26,6 @@ export const GetSelectedStationIds = async (): Promise<StationIdLineup[] | undef
   return await signalRService.invokeHubCommand<StationIdLineup[]>('GetSelectedStationIds');
 };
 
-export const GetService = async (request: GetServiceRequest): Promise<MxfService | undefined> => {
-  const signalRService = SignalRService.getInstance();
-  return await signalRService.invokeHubCommand<MxfService>('GetService', request);
-};
-
-export const GetStationChannelMaps = async (): Promise<StationChannelMap[] | undefined> => {
-  const signalRService = SignalRService.getInstance();
-  return await signalRService.invokeHubCommand<StationChannelMap[]>('GetStationChannelMaps');
-};
-
 export const GetStationChannelNames = async (): Promise<StationChannelName[] | undefined> => {
   const signalRService = SignalRService.getInstance();
   return await signalRService.invokeHubCommand<StationChannelName[]>('GetStationChannelNames');
@@ -51,11 +36,6 @@ export const GetStationPreviews = async (): Promise<StationPreview[] | undefined
   return await signalRService.invokeHubCommand<StationPreview[]>('GetStationPreviews');
 };
 
-export const GetUserStatus = async (): Promise<UserStatus | undefined> => {
-  const signalRService = SignalRService.getInstance();
-  return await signalRService.invokeHubCommand<UserStatus>('GetUserStatus');
-};
-
 export const AddLineup = async (request: AddLineupRequest): Promise<APIResponse | undefined> => {
   const signalRService = SignalRService.getInstance();
   return await signalRService.invokeHubCommand<APIResponse>('AddLineup', request);
@@ -64,11 +44,6 @@ export const AddLineup = async (request: AddLineupRequest): Promise<APIResponse 
 export const AddStation = async (request: AddStationRequest): Promise<APIResponse | undefined> => {
   const signalRService = SignalRService.getInstance();
   return await signalRService.invokeHubCommand<APIResponse>('AddStation', request);
-};
-
-export const EPGSync = async (): Promise<APIResponse | undefined> => {
-  const signalRService = SignalRService.getInstance();
-  return await signalRService.invokeHubCommand<APIResponse>('EPGSync');
 };
 
 export const RemoveLineup = async (request: RemoveLineupRequest): Promise<APIResponse | undefined> => {

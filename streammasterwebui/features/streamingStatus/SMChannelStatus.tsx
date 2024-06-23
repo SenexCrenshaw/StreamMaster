@@ -1,15 +1,16 @@
 import SMDataTable from '@components/smDataTable/SMDataTable';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 import { formatJSONDateString, getElapsedTimeString } from '@lib/common/dateTime';
-import { useSMContext } from '@lib/signalr/SMProvider';
 import { ChannelStreamingStatistics } from '@lib/smAPI/smapiTypes';
 import { DataTableRowData, DataTableRowExpansionTemplate } from 'primereact/datatable';
 import { useCallback, useMemo } from 'react';
 import SMChannelStatusValue from './SMChannelStatusValue';
 
-const SMChannelStatus = () => {
-  const { channelStreamingStatistics } = useSMContext();
+interface SMChannelStatusProps {
+  readonly channelStreamingStatistics: ChannelStreamingStatistics[];
+}
 
+const SMChannelStatus = ({ channelStreamingStatistics }: SMChannelStatusProps) => {
   const clientBitsPerSecondTemplate = (rowData: ChannelStreamingStatistics) => {
     if (rowData.BitsPerSecond === undefined) return <div />;
 

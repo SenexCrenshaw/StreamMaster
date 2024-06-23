@@ -32,10 +32,10 @@ const SchedulesDirectLineupPreviewChannel = ({ children, lineup, onHide }: Sched
 
   const columns = useMemo(
     (): ColumnMeta[] => [
-      { field: 'channel', filter: true, sortable: true },
-      { field: 'name', filter: true, sortable: true },
-      { field: 'callsign', filter: true, sortable: true },
-      { field: 'affiliate', filter: true, sortable: true }
+      { field: 'Channel', filter: true, sortable: true },
+      { field: 'Name', filter: true, sortable: true },
+      { field: 'Callsign', filter: true, sortable: true },
+      { field: 'Affiliate', filter: true, sortable: true }
     ],
     []
   );

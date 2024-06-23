@@ -1,8 +1,6 @@
 import StringEditor from '@components/inputs/StringEditor';
 import SMDataTable from '@components/smDataTable/SMDataTable';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
-import { useFilters } from '@lib/redux/hooks/filters';
-import { useSortInfo } from '@lib/redux/hooks/sortInfo';
 import { UpdateVideoProfile } from '@lib/smAPI/Profiles/ProfilesCommands';
 import useGetVideoProfiles from '@lib/smAPI/Profiles/useGetVideoProfiles';
 import { UpdateVideoProfileRequest, VideoOutputProfileDto } from '@lib/smAPI/smapiTypes';
@@ -18,45 +16,11 @@ import { useVideoProfileTimeoutColumnConfig } from './columns/useVideoProfileTim
 
 const StreamGroupVideoProfileDataSelector = () => {
   const id = 'StreamGroupVideoProfileDataSelector';
-  const { filters } = useFilters(id);
-  const { sortInfo } = useSortInfo(id);
   const { data } = useGetVideoProfiles();
-
   const videoProfileCommandColumnConfig = useVideoProfileCommandColumnConfig({ width: 40 });
   const videoProfileParametersColumnConfig = useVideoProfileParametersColumnConfig({ width: 200 });
   const videoProfileTimeoutColumnConfig = useVideoProfileTimeoutColumnConfig({ width: 20 });
   const videoProfilIsM3U8ColumnConfig = useVideoIsM3U8ColumnConfig({ width: 20 });
-
-  const filteredValues = useMemo(() => {
-    if (!data) {
-      return [];
-    }
-
-    let ret = [...data];
-
-    if (filters !== undefined && filters['Name'] !== undefined) {
-      ret = ret.filter((item: any) => {
-        const filterKey = 'Name' as keyof typeof item;
-        const itemValue = item[filterKey];
-        return typeof itemValue === 'string' && itemValue.toLowerCase().includes(filters['Name'].value.toLowerCase());
-      });
-    }
-
-    if (sortInfo !== undefined) {
-      ret = ret.sort((a: any, b: any) => {
-        const sortField = sortInfo.sortField as keyof typeof a;
-        if (a[sortField] < b[sortField]) {
-          return -1 * sortInfo.sortOrder;
-        }
-        if (a[sortField] > b[sortField]) {
-          return 1 * sortInfo.sortOrder;
-        }
-        return 0;
-      });
-    }
-
-    return ret;
-  }, [data, filters, sortInfo]);
 
   const actionTemplate = useCallback((rowData: VideoOutputProfileDto) => {
     return (
@@ -134,7 +98,7 @@ const StreamGroupVideoProfileDataSelector = () => {
     <SMDataTable
       actionHeaderTemplate={<CreateVideoProfileDialog />}
       columns={columns}
-      dataSource={filteredValues}
+      dataSource={data}
       defaultSortField="Name"
       defaultSortOrder={1}
       emptyMessage="No Profiles"

@@ -493,9 +493,49 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
   const onFilter = (event: DataTableStateEvent) => {
     const newFilters = generateFilterData(props.columns, event.filters);
 
-    setters.setFilters(newFilters);
+    setters.setFilters(newFilters as any);
   };
 
+  const filteredValues = useMemo(() => {
+    if (data) {
+      return state.dataSource;
+    }
+
+    if (!state.dataSource) {
+      return [];
+    }
+
+    let ret = state.dataSource;
+
+    if (state.filters !== undefined) {
+      Object.keys(state.filters).forEach((key) => {
+        const filter = state.filters[key];
+        if (filter.value !== undefined && filter.value !== '') {
+          ret = ret.filter((item: any) => {
+            const filterKey = key as keyof typeof item;
+            const itemValue = item[filterKey];
+            return typeof itemValue === 'string' && itemValue.toLowerCase().includes(filter.value.toLowerCase());
+          });
+        }
+      });
+    }
+
+    if (state.sortOrder !== undefined) {
+      ret = ret.sort((a: any, b: any) => {
+        const sortField = state.sortField as keyof typeof a;
+
+        if (a[sortField] < b[sortField]) {
+          return -1 * state.sortOrder;
+        }
+        if (a[sortField] > b[sortField]) {
+          return 1 * state.sortOrder;
+        }
+        return 0;
+      });
+    }
+
+    return ret;
+  }, [state.dataSource, state.filters, state.sortOrder, state.sortField, data]);
   const sourceRenderHeader = useMemo(() => {
     if (props.noSourceHeader === true) {
       return null;
@@ -735,7 +775,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
             setIsExpanded(true);
             props.onRowExpand?.(e);
           }}
-          value={state.dataSource}
+          value={filteredValues}
         >
           <Column
             body={props.addOrRemoveTemplate}

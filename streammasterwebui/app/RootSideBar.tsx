@@ -5,6 +5,8 @@ import { useLocalStorage } from 'primereact/hooks';
 import { Tooltip } from 'primereact/tooltip';
 import { useCallback } from 'react';
 import { Menu, MenuItem, Sidebar, sidebarClasses } from 'react-pro-sidebar';
+// import SDIcon from '/public/icons/sd_logo.png';
+
 export const RootSideBar = () => {
   // const [dark, setDark] = useLocalStorage(true, 'dark');
 
