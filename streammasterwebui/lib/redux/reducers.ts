@@ -57,6 +57,7 @@ import selectedSMStream from '@lib/redux/hooks/selectedSMStream';
 import selectedSMStreams from '@lib/redux/hooks/selectedSMStreams';
 import selectedStreamGroup from '@lib/redux/hooks/selectedStreamGroup';
 import showHidden from '@lib/redux/hooks/showHidden';
+import showSelected from '@lib/redux/hooks/showSelected';
 import showSelections from '@lib/redux/hooks/showSelections';
 import sortInfo from '@lib/redux/hooks/sortInfo';
 import stringValue from '@lib/redux/hooks/stringValue';
@@ -114,6 +115,10 @@ const selectedStreamGroupConfig = {
 };
 const showHiddenConfig = {
   key: 'showHidden',
+  storage
+};
+const showSelectedConfig = {
+  key: 'showSelected',
   storage
 };
 const showSelectionsConfig = {
@@ -187,6 +192,7 @@ export const rootReducer = combineReducers({
   selectedSMStreams: persistReducer(selectedSMStreamsConfig, selectedSMStreams),
   selectedStreamGroup: persistReducer(selectedStreamGroupConfig, selectedStreamGroup),
   showHidden: persistReducer(showHiddenConfig, showHidden),
+  showSelected: persistReducer(showSelectedConfig, showSelected),
   showSelections: persistReducer(showSelectionsConfig, showSelections),
   sortInfo: persistReducer(sortInfoConfig, sortInfo),
   stringValue: persistReducer(stringValueConfig, stringValue),

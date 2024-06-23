@@ -27,6 +27,7 @@ public static class StoreGenerator
         "selectedItems",
         "selectedStreamGroup",
         "showHidden",
+        "showSelected",
         "showSelections",
         "sortInfo",
         "selectedSMStreams",

@@ -39,6 +39,7 @@ interface BaseDataSelectorProperties<T> extends DataTableHeaderProperties {
   showExpand?: boolean;
   showHiddenInSelection?: boolean;
   showSelections?: boolean;
+  showSelected?: boolean;
   style?: CSSProperties;
   useSelectedItemsFilter?: boolean;
   onRowReorder?: (value: T[]) => void;

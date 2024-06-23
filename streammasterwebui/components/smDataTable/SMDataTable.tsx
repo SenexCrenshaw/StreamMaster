@@ -30,6 +30,8 @@ import getRecord from './helpers/getRecord';
 import { useSMContext } from '@lib/signalr/SMProvider';
 
 import SMButton from '@components/sm/SMButton';
+import { SMTriSelectShowSelected } from '@components/sm/SMTriSelectShowSelected';
+import { Logger } from '@lib/common/logger';
 import { PagedResponse } from '@lib/smAPI/smapiTypes';
 import { getColumnStyles } from './helpers/getColumnStyles';
 import isPagedResponse from './helpers/isPagedResponse';
@@ -429,30 +431,32 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
     setters.setFilters(newFilters as any);
   };
 
-  // const selectedData = useCallback(
-  //   (inputData: T[]): T[] => {
-  //     if (props.showSelections !== true) {
-  //       return inputData;
-  //     }
+  const selectedData = useCallback(
+    (inputData: T[]): T[] => {
+      if (props.showSelections !== true) {
+        return inputData;
+      }
 
-  //     if (state.showSelections === null) {
-  //       return inputData;
-  //     }
+      if (state.showSelections === null) {
+        return inputData;
+      }
 
-  //     if (state.showSelections === true) {
-  //       return state.selectedItems;
-  //     }
+      if (state.showSelections === true) {
+        return state.selectedItems;
+      }
 
-  //     if (!state.selectedItems) {
-  //       return [] as T[];
-  //     }
+      if (!state.selectedItems) {
+        return [] as T[];
+      }
 
-  //     const returnValue = inputData.filter((d) => !state.selectedItems?.some((s) => s.Id === d.Id));
+      const returnValue = inputData.filter((d) => !state.selectedItems?.some((s) => s.Id === d.Id));
 
-  //     return returnValue;
-  //   },
-  //   [props.showSelections, state.selectedItems, state.showSelections]
-  // );
+      return returnValue;
+    },
+    [props.showSelections, state.selectedItems, state.showSelections]
+  );
+
+  Logger.debug('DataTable', { id: props.id, selectedData: selectedData(props.dataSource ?? []) });
 
   const getDataFromQ = useMemo(() => {
     if (!data) {
@@ -515,6 +519,16 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
         }
       });
     }
+    Logger.debug('DataTable', { showHidden: state.showSelected });
+    if (state.showSelected === true) {
+      ret = ret.filter((item: any) => {
+        return state.selectedItems.some((selected) => selected.Id === item.Id);
+      });
+    } else if (state.showSelected !== null) {
+      ret = ret.filter((item: any) => {
+        return !state.selectedItems.some((selected) => selected.Id === item.Id);
+      });
+    }
 
     if (state.sortOrder !== undefined) {
       ret = ret.sort((a: any, b: any) => {
@@ -531,7 +545,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
     }
 
     return ret;
-  }, [data, props.dataSource, state.filters, state.sortField, state.sortOrder]);
+  }, [data, props.dataSource, state.filters, state.sortField, state.sortOrder, state.showSelected]);
 
   const sourceRenderHeader = useMemo(() => {
     if (props.noSourceHeader === true) {
@@ -606,7 +620,10 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
     return (
       <div className="flex justify-content-center align-items-center">
         {props.showHiddenInSelection && <SMTriSelectShowHidden dataKey={props.id} />}
-        {showSelection && <SMTriSelectShowSelect selectedItemsKey={props.selectedItemsKey} id={props.id} onToggle={() => toggleAllSelection()} />}
+        {props.showSelections === true && (
+          <SMTriSelectShowSelect selectedItemsKey={props.selectedItemsKey} id={props.id} onToggle={() => toggleAllSelection()} />
+        )}
+        {props.showSelected === true && <SMTriSelectShowSelected dataKey={props.id} />}
       </div>
     );
   }
@@ -808,7 +825,11 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
             showFilterMenu={false}
             showFilterOperator={false}
             hidden={!showSelection}
-            style={getColumnStyles({ width: props.showHiddenInSelection ? 42 : 24 } as ColumnMeta)}
+            style={getColumnStyles({
+              maxWidth: props.showHiddenInSelection ? 42 : 20,
+              minWidth: props.showHiddenInSelection ? 42 : 20,
+              width: props.showHiddenInSelection ? 42 : 20
+            } as ColumnMeta)}
           />
           <Column
             body={

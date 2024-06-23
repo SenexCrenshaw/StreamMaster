@@ -13,11 +13,12 @@ public class StationPreview
         Name = station.Name;
         StationId = station.StationId;
         Logo = station.Logo;
+        Id = Lineup + "|" + StationId;
     }
     public Logo Logo { get; set; }
     public string Affiliate { get; set; }
     public string Callsign { get; set; }
-    public string Id => Lineup + "|" + StationId;
+    public string Id { get; set; }
     public string Lineup { get; set; }
     public string Name { get; set; }
     public string StationId { get; set; }

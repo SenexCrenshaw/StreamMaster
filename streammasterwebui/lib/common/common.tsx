@@ -3,13 +3,13 @@
 import GlobalSearch from '@components/search/GlobalSearch';
 
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
-import { IconFileDto, SMFileTypes } from '@lib/smAPI/smapiTypes';
+import { IconFileDto, SMFileTypes, StationIdLineup } from '@lib/smAPI/smapiTypes';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { Checkbox } from 'primereact/checkbox';
 import { type DataTableFilterMeta, type DataTableFilterMetaData } from 'primereact/datatable';
 import { type TooltipOptions } from 'primereact/tooltip/tooltipoptions';
 import * as React from 'react';
-import { FormattedMessage, useIntl } from 'react-intl';
+import { FormattedMessage } from 'react-intl';
 import { baseHostURL, isDev as isDevelopment } from '../settings';
 import { getColor } from './colors';
 
@@ -433,8 +433,8 @@ function getApiUrl(path: SMFileTypes, originalUrl: string): string {
 }
 
 export function findDifferenceStationIdLineUps(firstArray: StationIdLineup[], secondArray: StationIdLineup[]): StationIdLineup[] {
-  const missingFromFirst = secondArray.filter((item2) => !firstArray.some((item1) => item2.lineup === item1.lineup && item2.stationId === item1.stationId));
-  const missingFromSecond = firstArray.filter((item1) => !secondArray.some((item2) => item1.lineup === item2.lineup && item1.stationId === item2.stationId));
+  const missingFromFirst = secondArray.filter((item2) => !firstArray.some((item1) => item2.Lineup === item1.Lineup && item2.StationId === item1.StationId));
+  const missingFromSecond = firstArray.filter((item1) => !secondArray.some((item2) => item1.Lineup === item2.Lineup && item1.StationId === item2.StationId));
 
   return [...missingFromFirst, ...missingFromSecond];
 }
