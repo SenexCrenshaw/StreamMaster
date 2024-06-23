@@ -2,5 +2,5 @@ import createVideoStreamMultiSelectColumnConfigHook from './createMultiSelectLin
 
 export const useLineUpColumnConfig = createVideoStreamMultiSelectColumnConfigHook({
   headerTitle: 'Line Up',
-  maxWidth: 8
+  width: 60
 });

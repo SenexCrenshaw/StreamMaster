@@ -1,7 +1,7 @@
 import { CSSProperties } from 'react';
 import { ColumnMeta } from '../types/ColumnMeta';
 
-const getStyle = (width?: string | number, minWidth?: string | number, maxWidth?: string | number): CSSProperties => {
+export const getStyle = (width?: string | number, minWidth?: string | number, maxWidth?: string | number): CSSProperties => {
   // Helper function to convert to CSS unit strings
   const toPx = (value: string | number): string => {
     if (typeof value === 'number') {
@@ -33,8 +33,6 @@ const getStyle = (width?: string | number, minWidth?: string | number, maxWidth?
 
   return style;
 };
-
-export default getStyle;
 
 export const getColumnStyles = (col: ColumnMeta): CSSProperties => {
   // if (col.field === 'Group') {

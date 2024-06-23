@@ -12,7 +12,9 @@ const StandardHeader = ({ children, className, displayName, icon }: StandardHead
         <span className="flex ml-1">{icon}</span>
         <span className="flex ml-2">{typeof displayName === 'string' ? displayName.toUpperCase() : displayName}</span>
       </div>
-      <SMTasksButton />
+      <div className="pr-1">
+        <SMTasksButton />
+      </div>
     </div>
     <div className="flex layout-padding-bottom"></div>
     <div className="flex flex-row w-12">{children}</div>

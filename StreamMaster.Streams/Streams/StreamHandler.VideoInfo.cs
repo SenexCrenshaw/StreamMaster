@@ -40,7 +40,7 @@ public sealed partial class StreamHandler
 
             if (GetVideoInfoErrors > 3)
             {
-                logger.LogWarning("Skipped BuildVideoInfo due to excessive errors.");
+                logger.LogDebug("Skipped BuildVideoInfo due to excessive errors.");
                 return;
             }
 

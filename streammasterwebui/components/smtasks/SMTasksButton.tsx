@@ -17,16 +17,16 @@ const SMTasksButton = () => {
 
   return (
     <SMPopUp
-      modal
-      ref={popUpRef}
       buttonClassName={isRunning ? 'icon-green' : 'icon-blue'}
       contentWidthSize="5"
       icon="pi-list-check"
       iconFilled
       info=""
+      modal
       placement="bottom-end"
-      title="Tasks"
+      ref={popUpRef}
       showRemember={false}
+      title="Tasks"
     >
       <SMTasksDataSelector />
     </SMPopUp>

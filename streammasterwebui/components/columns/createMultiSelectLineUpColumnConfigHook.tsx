@@ -1,8 +1,10 @@
+import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 import { isEmptyObject } from '@lib/common/common';
 
+import useGetLineups from '@lib/smAPI/SchedulesDirect/useGetLineups';
+import { StationPreview, SubscribedLineup } from '@lib/smAPI/smapiTypes';
 import { type ColumnFilterElementTemplateOptions } from 'primereact/column';
 import { MultiSelect, type MultiSelectChangeEvent } from 'primereact/multiselect';
-import { type ColumnMeta } from '../dataSelector/DataSelectorTypes';
 
 interface ColumnConfigInputs {
   headerTitle: string;
@@ -15,16 +17,16 @@ interface ColumnConfigInputs {
 const createMultiSelectLineUpColumnConfigHook =
   ({ headerTitle, maxWidth, minWidth, width }: ColumnConfigInputs) =>
   () => {
-    const { data, isLoading, isFetching, isError } = useSchedulesDirectGetLineupsQuery();
+    const { data, isLoading, isFetching, isError } = useGetLineups();
 
     const bodyTemplate = (option: StationPreview) => {
-      return <span>{option.lineup}</span>;
+      return <span>{option.Lineup}</span>;
     };
 
-    const itemTemplate = (option: Lineup) => (
+    const itemTemplate = (option: SubscribedLineup) => (
       <div className="align-items-center gap-1">
         <span>
-          {option.lineup} - {option.name}
+          {option.Lineup} - {option.Name}
         </span>
       </div>
     );
@@ -60,12 +62,13 @@ const createMultiSelectLineUpColumnConfigHook =
       filterField: 'lineup',
       header: headerTitle,
       sortable: true,
-
-      style: {
-        maxWidth: maxWidth === undefined ? (width === undefined ? undefined : `${width}rem`) : `${maxWidth}rem`,
-        minWidth: minWidth === undefined ? (width === undefined ? undefined : `${width}rem`) : `${minWidth}rem`,
-        width: width === undefined ? (minWidth === undefined ? undefined : `${minWidth}rem`) : `${width}rem`
-      }
+      width: width
+      // style: {
+      //   maxWidth: maxWidth === undefined ? (width === undefined ? undefined : `${width}rem`) : `${maxWidth}rem`,
+      //   minWidth: minWidth === undefined ? (width === undefined ? undefined : `${width}rem`) : `${minWidth}rem`,
+      //   width: width === undefined ? (minWidth === undefined ? undefined : `${minWidth}rem`) : `${width}rem`
+      // }
+      // {...props}
     };
 
     columnConfig.filterElement = filterTemplate;

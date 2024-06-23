@@ -1,11 +1,10 @@
 import { DataTableHeaderProperties } from '../types/smDataTableInterfaces';
 
 interface TableHeaderProperties {
-  smTableIsSimple: boolean;
   dataSelectorProps: DataTableHeaderProperties;
   enableExport: boolean;
   exportCSV: () => void;
-  headerName?: string;
+  headerName?: string | React.ReactNode;
   headerClassName?: string;
   onMultiSelectClick?: (value: boolean) => void;
   rowClick: boolean;
@@ -13,7 +12,6 @@ interface TableHeaderProperties {
 }
 
 const TableHeader: React.FC<TableHeaderProperties> = ({
-  smTableIsSimple,
   headerName,
   headerClassName = 'header-text',
   onMultiSelectClick,

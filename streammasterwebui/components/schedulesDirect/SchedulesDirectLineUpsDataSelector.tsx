@@ -21,19 +21,20 @@ const SchedulesDirectLineUpsDataSelector = ({ id }: SchedulesDirectLineUpsDataSe
 
   const columns = useMemo(
     (): ColumnMeta[] => [
-      { field: 'Lineup', sortable: true },
-      { field: 'Location', sortable: true },
-      { field: 'Name', sortable: true },
-      { field: 'Transport', sortable: true, width: '6rem' },
       {
         align: 'center',
         bodyTemplate: actionBodyTemplate,
         field: 'Remove',
+        fieldType: 'actions',
         header: '',
         resizeable: false,
         sortable: false,
-        width: '3rem'
-      }
+        width: 20
+      },
+      { field: 'Lineup', sortable: true, width: 80 },
+      { field: 'Location', sortable: true, width: 80 },
+      { field: 'Name', sortable: true, width: 100 },
+      { field: 'Transport', sortable: true, width: 80 }
     ],
     [actionBodyTemplate]
   );
@@ -45,13 +46,13 @@ const SchedulesDirectLineUpsDataSelector = ({ id }: SchedulesDirectLineUpsDataSe
         defaultSortField="name"
         dataSource={data}
         emptyMessage="No Streams"
+        enablePaginator
         id={id}
         isLoading={isLoading}
         selectionMode="single"
         selectedItemsKey="sdEditorselectedItems"
-        style={{ height: 'calc(100vh - 120px)' }}
+        style={{ height: 'calc(100vh - 100px)' }}
       />
-      {/* <SchedulesDirectLineUpPreviewDataSelector lineUps={getLineUpsQuery.data?.lineups} /> */}
     </div>
   );
 };

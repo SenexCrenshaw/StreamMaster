@@ -152,14 +152,14 @@ const SchedulesDirectStationDataSelector = () => {
 
   const columns = useMemo((): ColumnMeta[] => {
     const columnConfigs: ColumnMeta[] = [
-      { field: 'stationId', filter: true, header: 'Station Id', sortable: true, width: '10rem' },
-      { bodyTemplate: imageBodyTemplate, field: 'logo', fieldType: 'image' }
+      { field: 'StationId', filter: true, header: 'Station Id', sortable: true, width: 40 },
+      { bodyTemplate: imageBodyTemplate, field: 'image', fieldType: 'image', width: 12 }
     ];
     // // columnConfigs.push(channelGroupConfig);
     columnConfigs.push(lineUpColumnConfig);
-    columnConfigs.push({ field: 'name', filter: true, header: 'Name', sortable: true });
-    columnConfigs.push({ field: 'callsign', filter: true, header: 'Call Sign', sortable: true });
-    columnConfigs.push({ field: 'affiliate', filter: true, header: 'Affiliate', sortable: true });
+    columnConfigs.push({ field: 'Name', filter: true, sortable: true, width: 80 });
+    columnConfigs.push({ field: 'Callsign', filter: true, header: 'Call Sign', sortable: true, width: 80 });
+    columnConfigs.push({ field: 'Affiliate', filter: true, sortable: true, width: 80 });
 
     return columnConfigs;
   }, [lineUpColumnConfig]);
@@ -172,10 +172,9 @@ const SchedulesDirectStationDataSelector = () => {
           columns={columns}
           dataSource={stationPreviews.data}
           defaultSortField="name"
-          // disableSelectAll
           emptyMessage="No Line Ups"
-          // enableState={false}
-          headerName="Line Up Preview"
+          enablePaginator
+          headerName="SD Channels"
           id="SchedulesDirectStationDataSelector"
           isLoading={stationPreviews.isLoading || isLoading}
           onSelectionChange={(e) => {
@@ -184,7 +183,7 @@ const SchedulesDirectStationDataSelector = () => {
           selectedItemsKey="SchedulesDirectSchedulesDataSelector"
           selectionMode="multiple"
           showSelections
-          style={{ height: 'calc(100vh - 60px)' }}
+          style={{ height: 'calc(100vh - 100px)' }}
         />
       </div>
     </>

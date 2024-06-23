@@ -30,7 +30,6 @@ import getRecord from './helpers/getRecord';
 import { useSMContext } from '@lib/signalr/SMProvider';
 
 import SMButton from '@components/sm/SMButton';
-import { Logger } from '@lib/common/logger';
 import { PagedResponse } from '@lib/smAPI/smapiTypes';
 import { getColumnStyles } from './helpers/getColumnStyles';
 import isPagedResponse from './helpers/isPagedResponse';
@@ -511,7 +510,6 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
           ret = ret.filter((item: any) => {
             const filterKey = key as keyof typeof item;
             const itemValue = item[filterKey];
-            Logger.debug('DataTable', { filterKey, filterValue: filter.value, itemValue });
             return typeof itemValue === 'string' && itemValue.toLowerCase().includes(filter.value.toLowerCase());
           });
         }
@@ -542,7 +540,6 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
 
     return (
       <TableHeader
-        smTableIsSimple={state.smTableIsSimple ?? false}
         dataSelectorProps={props}
         enableExport={props.enableExport ?? true}
         exportCSV={exportCSV}
@@ -695,7 +692,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
     return col.className;
   }, []);
 
-  Logger.debug('DataTable', { id: props.id, dataSource: props.dataSource });
+  // Logger.debug('DataTable', { id: props.id, dataSource: props.dataSource });
   return (
     <div
       id={props.id}

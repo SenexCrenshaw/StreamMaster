@@ -31,7 +31,7 @@ const App = (): JSX.Element => {
   // const LogViewer = lazy(() => import('@features/logViewer/LogViewer'));
   // const PlayListEditor = lazy(() => import('@features/playListEditor/PlayListEditor'));
   // const QueueStatus = lazy(() => import('@features/queueStatus/QueueStatus'));
-  // const SDEditorChannels = lazy(() => import('@features/sdEditor/SDEditorChannels'));
+  const SDEditorChannels = lazy(() => import('@features/sdEditor/SDEditorChannels'));
   // const SDEditorHeadEndsAndLineUps = lazy(() => import('@features/sdEditor/SDEditorHeadEndsAndLineUps'));
   // const SettingsEditor = lazy(() => import('@features/settings/SettingsEditor'));
   // const StreamGroupEditor = lazy(() => import('@features/streamGroupEditor/StreamGroupEditor'));
@@ -93,6 +93,15 @@ const App = (): JSX.Element => {
             </Suspense>
           }
           path="/editor/sdHeadEndLineUps"
+        />
+
+        <Route
+          element={
+            <Suspense>
+              <SDEditorChannels />
+            </Suspense>
+          }
+          path="/editor/sdChannels"
         />
 
         {/* <Route

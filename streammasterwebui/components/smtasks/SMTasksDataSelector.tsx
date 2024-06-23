@@ -119,7 +119,7 @@ const SMTasksDataSelector = (props: SMTasksDataSelectorProps) => {
       noSourceHeader
       queryFilter={useGetSMTasks}
       rowClass={rowClass}
-      style={{ height: '30vh', width: '40vw' }}
+      style={{ height: '40vh', width: '40vw' }}
     />
   );
 };

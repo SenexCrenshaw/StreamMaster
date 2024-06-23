@@ -1,4 +1,4 @@
-import { memo, useCallback, useMemo, useState } from 'react';
+import { memo, useCallback, useMemo } from 'react';
 
 import SMDataTable from '@components/smDataTable/SMDataTable';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
@@ -8,18 +8,19 @@ import useGetHeadends from '@lib/smAPI/SchedulesDirect/useGetHeadends';
 import { GetHeadendsRequest, HeadendDto } from '@lib/smAPI/smapiTypes';
 import SchedulesDirectAddHeadendDialog from './SchedulesDirectAddHeadendDialog';
 import SchedulesDirectCountrySelector from './SchedulesDirectCountrySelector';
+import SchedulesDirectLineupPreviewChannel from './SchedulesDirectLineupPreviewChannel';
 
 const SchedulesDirectHeadendDataSelector = () => {
   const dataKey = 'SchedulesDirectHeadendDataSelector';
   const { selectedCountry } = useSelectedCountry('Country');
   const { selectedPostalCode } = useSelectedPostalCode('PostalCode');
   const { data } = useGetHeadends({ country: selectedCountry ?? 'USA', postalCode: selectedPostalCode ?? '00000' } as GetHeadendsRequest);
-  const [lineupToPreview, setLineupToPreview] = useState<string | undefined>(undefined);
 
-  const actionBodyTemplate = useCallback((data: HeadendDto) => {
+  const actionBodyTemplate = useCallback((headEndDto: HeadendDto) => {
     return (
       <div className="flex p-0 justify-content-center align-items-center">
-        <SchedulesDirectAddHeadendDialog value={data} />
+        <SchedulesDirectLineupPreviewChannel lineup={headEndDto.Lineup} />
+        <SchedulesDirectAddHeadendDialog value={headEndDto} />
       </div>
     );
   }, []);
@@ -33,11 +34,10 @@ const SchedulesDirectHeadendDataSelector = () => {
       { field: 'Transport', sortable: true, width: 60 },
       {
         bodyTemplate: actionBodyTemplate,
-        field: 'Add',
+        field: 'actions',
+        fieldType: 'actions',
         header: '',
-        resizeable: false,
-        sortable: false,
-        width: 20
+        width: 24
       }
     ],
     [actionBodyTemplate]
@@ -52,17 +52,14 @@ const SchedulesDirectHeadendDataSelector = () => {
       defaultSortField="HeadendId"
       defaultSortOrder={1}
       emptyMessage="No Streams"
+      enablePaginator
       headerCenterTemplate={centerTemplate}
       headerName="LINEUPS"
       id={dataKey}
       lazy
-      onRowClick={(e) => {
-        const headEndDto: HeadendDto = e.data as unknown as HeadendDto;
-        setLineupToPreview(headEndDto.Lineup);
-      }}
       selectRow
       selectedItemsKey="sdselectedItems"
-      style={{ height: 'calc(100vh - 120px)' }}
+      style={{ height: 'calc(100vh - 100px)' }}
     />
   );
 };

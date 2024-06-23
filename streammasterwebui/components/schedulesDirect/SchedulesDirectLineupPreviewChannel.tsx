@@ -1,23 +1,21 @@
+import SMPopUp from '@components/sm/SMPopUp';
 import SMDataTable from '@components/smDataTable/SMDataTable';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
-
 import { GetLineupPreviewChannel } from '@lib/smAPI/SchedulesDirect/SchedulesDirectCommands';
 import { LineupPreviewChannel } from '@lib/smAPI/smapiTypes';
-
-import { Dialog } from 'primereact/dialog';
 import { memo, useEffect, useMemo, useState } from 'react';
 
 type SchedulesDirectLineupPreviewChannelProps = {
   lineup: string | undefined;
-  readonly children?: React.ReactNode;
-  onHide(): void;
 };
 
-const SchedulesDirectLineupPreviewChannel = ({ children, lineup, onHide }: SchedulesDirectLineupPreviewChannelProps) => {
+const SchedulesDirectLineupPreviewChannel = ({ lineup }: SchedulesDirectLineupPreviewChannelProps) => {
+  const dataKey = 'LineupPreviewChannel';
+  const [isOpen, setIsOpen] = useState(false);
   const [dataSource, setDataSource] = useState<LineupPreviewChannel[]>([]);
 
   useEffect(() => {
-    if (!lineup) {
+    if (!lineup || isOpen !== true) {
       return;
     }
 
@@ -27,8 +25,9 @@ const SchedulesDirectLineupPreviewChannel = ({ children, lineup, onHide }: Sched
       })
       .catch((error) => {
         setDataSource([]);
-      });
-  }, [lineup]);
+      })
+      .finally(() => {});
+  }, [lineup, isOpen]);
 
   const columns = useMemo(
     (): ColumnMeta[] => [
@@ -45,31 +44,33 @@ const SchedulesDirectLineupPreviewChannel = ({ children, lineup, onHide }: Sched
   }
 
   return (
-    <div>
-      <Dialog
-        header={lineup ? lineup : ''}
-        visible={lineup !== undefined}
-        style={{ width: '50vw' }}
-        onHide={() => {
-          onHide();
-        }}
-      >
-        <div className="flex grid flex-col">
-          <SMDataTable
-            // isLoading={getPreviewQuery.isLoading}
-            columns={columns}
-            dataSource={dataSource}
-            defaultSortField="name"
-            emptyMessage="No Line Ups"
-            headerName="Line Up Preview"
-            id="queustatus"
-            selectedItemsKey="queustatus"
-            style={{ height: 'calc(50vh)' }}
-          />
-        </div>
-      </Dialog>
-      {children}
-    </div>
+    <SMPopUp
+      onCloseClick={() => console.log('close')}
+      onOpen={setIsOpen}
+      modal
+      modalCentered
+      contentWidthSize="5"
+      icon="pi-id-card"
+      header={lineup ? lineup : ''}
+      hasCloseButton={false}
+    >
+      <SMDataTable
+        enablePaginator
+        columns={columns}
+        dataSource={dataSource}
+        defaultSortField="name"
+        emptyMessage="No Line Ups"
+        headerName={
+          <div className="flex flex-row align-items-center">
+            Line Up Preview: <div className="pl-3 text-sm text-color">{lineup}</div>
+          </div>
+        }
+        id={dataKey}
+        isLoading={!dataSource}
+        style={{ height: 'calc(40vh)' }}
+      />
+      {/* )} */}
+    </SMPopUp>
   );
 };
 

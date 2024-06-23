@@ -25,7 +25,7 @@ interface BaseDataSelectorProperties<T> extends DataTableHeaderProperties {
   enablePaginator?: boolean;
   extraColumns?: Column[];
   headerClassName?: string;
-  headerName?: string;
+  headerName?: string | React.ReactNode;
   headerSize?: 'small' | 'medium' | 'large';
   id: string;
   isLoading?: boolean;

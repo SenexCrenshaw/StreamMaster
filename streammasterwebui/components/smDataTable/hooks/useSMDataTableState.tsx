@@ -25,7 +25,7 @@ const SMDataTableState = <T extends DataTableValue>(id: string, selectedItemsKey
   const { filters, setFilters } = useFilters(id);
 
   const [pagedInformation, setPagedInformation] = useState<PagedResponse<T>>();
-  const [dataSource, setDataSource] = useState<T[]>();
+  // const [dataSource, setDataSource] = useState<T[]>();
   const [first, setFirst] = useState<number>(0);
   const [page, setPage] = useState<number>(1);
 

@@ -1,16 +1,17 @@
 import StandardHeader from '@components/StandardHeader';
 import SchedulesDirectStationDataSelector from '@components/schedulesDirect/SchedulesDirectStationDataSelector';
 import { SDIcon } from '@lib/common/icons';
-import useSettings from '@lib/useSettings';
+import { useSMContext } from '@lib/signalr/SMProvider';
+
 import { BlockUI } from 'primereact/blockui';
 import { memo, useMemo } from 'react';
 
 const SDEditorChannels = () => {
-  const settings = useSettings();
+  const { settings } = useSMContext();
 
   const isSDReady = useMemo((): boolean => {
-    return settings.data?.sdSettings?.sdEnabled ?? false;
-  }, [settings.data?.sdSettings?.sdEnabled]);
+    return settings.SDSettings?.SDEnabled ?? false;
+  }, [settings.SDSettings?.SDEnabled]);
 
   const status = useMemo(() => {
     if (isSDReady) {
