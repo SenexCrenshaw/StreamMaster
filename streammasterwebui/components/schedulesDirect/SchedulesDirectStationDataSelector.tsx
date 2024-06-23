@@ -12,16 +12,10 @@ import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const SchedulesDirectStationDataSelector = () => {
   const toast = useRef<Toast>(null);
-
   const { selectedItems, setSelectedItems } = useSelectedItems<StationPreview>('SchedulesDirectSchedulesDataSelector');
-
-  // const schedulesDirectGetSelectedStationIdsQuery = useSchedulesDirectGetSelectedStationIdsQuery();
-  // const stationPreviews = useSchedulesDirectGetStationPreviewsQuery();
-
   const schedulesDirectGetSelectedStationIdsQuery = useGetSelectedStationIds();
   const stationPreviews = useGetStationPreviews();
   const [isLoading, setIsLoading] = useState(false);
-
   const { columnConfig: lineUpColumnConfig } = useLineUpColumnConfig();
 
   useEffect(() => {
