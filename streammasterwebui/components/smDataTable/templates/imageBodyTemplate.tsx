@@ -1,4 +1,4 @@
-import getRecordString from './getRecordString';
+import getRecordString from '../helpers/getRecordString';
 
 export function imageBodyTemplate(data: object, fieldName: string, defaultIcon: string) {
   const record = getRecordString(data, fieldName);

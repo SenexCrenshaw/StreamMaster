@@ -1,9 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // import ExportButton from '@components/export/ExportButton';
-import GlobalSearch from '@components/search/GlobalSearch';
 
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
-import { IconFileDto, SMFileTypes, StationIdLineup } from '@lib/smAPI/smapiTypes';
+import { IconFileDto, SMFileTypes, StationIdLineup, StationPreview } from '@lib/smAPI/smapiTypes';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { Checkbox } from 'primereact/checkbox';
 import { type DataTableFilterMeta, type DataTableFilterMetaData } from 'primereact/datatable';
@@ -62,14 +61,14 @@ export function compareStationPreviews(source: StationPreview[], changes: Statio
 
   // Find added items by comparing the id property
   for (const change of changes) {
-    if (!source.some((src) => src.id === change.id)) {
+    if (!source.some((src) => src.Id === change.Id)) {
       added.push(change);
     }
   }
 
   // Find removed items by comparing the id property
   for (const src of source) {
-    if (!changes.some((change) => change.id === src.id)) {
+    if (!changes.some((change) => change.Id === src.Id)) {
       removed.push(src);
     }
   }
@@ -352,35 +351,6 @@ export const doSetsContainSameIds = (set1: Set<number | string>, set2: Set<numbe
   return true;
 };
 
-export function isVideoStreamDto(value: unknown): value is VideoStreamDto {
-  // Perform the necessary type checks to determine if 'value' is of type 'VideoStreamDto'
-  if (typeof value === 'object' && value !== null) {
-    const dto = value as VideoStreamDto;
-
-    return dto.rank !== undefined;
-  }
-
-  return false;
-}
-
-export function areVideoStreamsEqual(streams1: VideoStreamDto[] | VideoStreamDto[], streams2: VideoStreamDto[] | VideoStreamDto[]): boolean {
-  if (streams1.length !== streams2.length) {
-    return false;
-  }
-
-  for (const [index, element] of streams1.entries()) {
-    if (element.id !== streams2[index].id) {
-      return false;
-    }
-
-    if (isVideoStreamDto(element) && isVideoStreamDto(streams2[index]) && (element as VideoStreamDto).rank !== (streams2[index] as VideoStreamDto).rank) {
-      return false;
-    }
-  }
-
-  return true;
-}
-
 export function isValidUrl(string: string): boolean {
   try {
     new URL(string);
@@ -556,25 +526,6 @@ export const HeaderLeft: React.FC<{ readonly props: any }> = ({ props }) => (
     }`}
   ></div>
 );
-
-export const GlobalSearchComponent: React.FC<{
-  readonly clearSourceFilter: any;
-  readonly globalSearchName: string;
-  readonly globalSourceFilterValue: string;
-  readonly onGlobalSourceFilterChange: any;
-  readonly props: any;
-}> = ({ clearSourceFilter, props, globalSearchName, globalSourceFilterValue, onGlobalSourceFilterChange }) =>
-  // eslint-disable-next-line react/prop-types
-  props.globalSearchEnabled && (
-    <GlobalSearch
-      clearSourceFilter={clearSourceFilter}
-      // eslint-disable-next-line react/prop-types
-      columns={props.columns}
-      globalSearchName={globalSearchName}
-      globalSourceFilterValue={globalSourceFilterValue}
-      onGlobalSourceFilterChange={onGlobalSourceFilterChange}
-    />
-  );
 
 // export const ExportComponent: React.FC<{ readonly exportCSV: any }> = ({ exportCSV }) => <ExportButton exportCSV={exportCSV} />;
 export interface UserInformation {

@@ -1,6 +1,6 @@
 import { StreamGroupDto } from '@lib/smAPI/smapiTypes';
 import { LinkButton } from '../../buttons/LinkButton';
-import getRecordString from '../../dataSelector/getRecordString';
+import getRecordString from '../helpers/getRecordString';
 
 export function m3uLinkTemplate(data: StreamGroupDto) {
   return (

@@ -16,9 +16,9 @@ import {
 import { MultiSelect, MultiSelectChangeEvent } from 'primereact/multiselect';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import generateFilterData from '@components/dataSelector/generateFilterData';
 import { SMTriSelectShowHidden } from '@components/sm/SMTriSelectShowHidden';
 import { SMTriSelectShowSelect } from '@components/sm/SMTriSelectShowSelect';
+import generateFilterData from '@components/smDataTable/helpers/generateFilterData';
 import { Checkbox } from 'primereact/checkbox';
 import TableHeader from './helpers/TableHeader';
 import bodyTemplate from './helpers/bodyTemplate';
@@ -459,9 +459,6 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
 
   const getDataFromQ = useMemo(() => {
     if (!data) {
-      if (props.dataSource) {
-        return props.dataSource;
-      }
       return [];
     }
 
@@ -543,8 +540,14 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
       });
     }
 
+    const pagedInformation = { First: state.first, PageNumber: state.page, PageSize: state.rows, TotalItemCount: ret.length } as PagedResponse<T>;
+    setters.setPagedInformation(pagedInformation);
+    ret = ret.slice(state.first, state.first + state.rows);
+
+    // Logger.debug('DataTable', { id: props.id, pagedInformation });
+
     return ret;
-  }, [data, props.dataSource, state.filters, state.sortField, state.sortOrder, state.showSelected]);
+  }, [data, props.dataSource, state.filters, state.sortField, state.rows, state.page, state.sortOrder, state.showSelected]);
 
   const sourceRenderHeader = useMemo(() => {
     if (props.noSourceHeader === true) {

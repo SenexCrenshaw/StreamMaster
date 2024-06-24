@@ -1,4 +1,4 @@
-import getRecord from '../smDataTable/helpers/getRecord';
+import getRecord from '../helpers/getRecord';
 
 export function isHiddenTemplate(data: object, fieldName: string) {
   const record = getRecord(data, fieldName);

@@ -1,5 +1,5 @@
 import { camel2title } from '@lib/common/common';
-import getRecord from '../smDataTable/helpers/getRecord';
+import getRecord from '../helpers/getRecord';
 
 export function defaultTemplate(data: object, fieldName: string, camelize?: boolean) {
   let recordJson = JSON.stringify(getRecord(data, fieldName));

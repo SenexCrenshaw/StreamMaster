@@ -1,5 +1,5 @@
 import { LinkButton } from '../../buttons/LinkButton';
-import getRecordString from '../../dataSelector/getRecordString';
+import getRecordString from '../helpers/getRecordString';
 
 export function epgLinkTemplate(data: object) {
   return (

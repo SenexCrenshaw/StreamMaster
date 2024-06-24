@@ -1,16 +1,16 @@
 import { StreamGroupDto } from '@lib/smAPI/smapiTypes';
-import { blankTemplate } from '../../dataSelector/blankTemplate';
-import { defaultTemplate } from '../../dataSelector/defaultTemplate';
-import { epgSourceTemplate } from '../../dataSelector/epgSourceTemplate';
-import getRecordString from '../../dataSelector/getRecordString';
-import { imageBodyTemplate } from '../../dataSelector/imageBodyTemplate';
-import { isHiddenTemplate } from '../../dataSelector/isHiddenTemplate';
-import { streamsBodyTemplate } from '../../dataSelector/streamsBodyTemplate';
 import { epgLinkTemplate } from '../hooks/epgLinkTemplate';
 import { m3uLinkTemplate } from '../hooks/m3uLinkTemplate';
 import { urlTemplate } from '../hooks/urlTemplate';
+import { blankTemplate } from '../templates/blankTemplate';
+import { defaultTemplate } from '../templates/defaultTemplate';
+import { epgSourceTemplate } from '../templates/epgSourceTemplate';
+import { imageBodyTemplate } from '../templates/imageBodyTemplate';
+import { isHiddenTemplate } from '../templates/isHiddenTemplate';
+import { streamsBodyTemplate } from '../templates/streamsBodyTemplate';
 import { ColumnFieldType } from '../types/smDataTableTypes';
 import getRecord from './getRecord';
+import getRecordString from './getRecordString';
 
 function bodyTemplate(data: object, fieldName: string, fieldType: ColumnFieldType, defaultIcon: string, camelize?: boolean) {
   switch (fieldType) {
