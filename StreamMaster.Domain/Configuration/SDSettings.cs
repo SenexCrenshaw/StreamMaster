@@ -1,11 +1,9 @@
-﻿using Reinforced.Typings.Attributes;
-
-
-namespace StreamMaster.Domain.Configuration
+﻿namespace StreamMaster.Domain.Configuration
 {
     [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
     public class SDSettings
     {
+        public int MaxSubscribedLineups { get; set; } = 4;
         public bool AlternateSEFormat { get; set; } = false;
         public string AlternateLogoStyle { get; set; } = "WHITE";
         public bool AppendEpisodeDesc { get; set; } = true;
@@ -20,6 +18,7 @@ namespace StreamMaster.Domain.Configuration
         public string SDPassword { get; set; } = string.Empty;
         public string SDPostalCode { get; set; } = string.Empty;
         public List<StationIdLineup> SDStationIds { get; set; } = [];
+        public List<HeadendToView> HeadendsToView { get; set; } = [];
         public string SDUserName { get; set; } = string.Empty;
         public bool SeasonEventImages { get; set; } = true;
         public bool SeriesPosterArt { get; set; } = true;

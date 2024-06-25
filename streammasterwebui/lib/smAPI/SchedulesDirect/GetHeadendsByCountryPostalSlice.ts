@@ -1,7 +1,7 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import { Logger } from '@lib/common/logger';
 import {FieldData, HeadendDto } from '@lib/smAPI/smapiTypes';
-import { fetchGetHeadends } from '@lib/smAPI/SchedulesDirect/GetHeadendsFetch';
+import { fetchGetHeadendsByCountryPostal } from '@lib/smAPI/SchedulesDirect/GetHeadendsByCountryPostalFetch';
 
 
 interface QueryState {
@@ -20,13 +20,13 @@ const initialState: QueryState = {
   isLoading: {}
 };
 
-const getHeadendsSlice = createSlice({
+const getHeadendsByCountryPostalSlice = createSlice({
   initialState,
-  name: 'GetHeadends',
+  name: 'GetHeadendsByCountryPostal',
   reducers: {
     clear: (state) => {
       state = initialState;
-      Logger.debug('GetHeadends clear');
+      Logger.debug('GetHeadendsByCountryPostal clear');
     },
 
     clearByTag: (state, action: PayloadAction<{ tag: string }>) => {
@@ -36,7 +36,7 @@ const getHeadendsSlice = createSlice({
           state.data[key] = undefined;
         }
       }
-      Logger.debug('GetHeadends clearByTag');
+      Logger.debug('GetHeadendsByCountryPostal clearByTag');
     },
 
     setField: (state, action: PayloadAction<{ fieldData: FieldData }>) => {
@@ -46,7 +46,7 @@ const getHeadendsSlice = createSlice({
         state.data[fieldData.Id] = fieldData.Value;
         return;
       }
-      Logger.debug('GetHeadends setField');
+      Logger.debug('GetHeadendsByCountryPostal setField');
     },
     setIsForced: (state, action: PayloadAction<{ force: boolean }>) => {
       const { force } = action.payload;
@@ -59,7 +59,7 @@ const getHeadendsSlice = createSlice({
         }
       }
       state.data = updatedData;
-      Logger.debug('GetHeadends  setIsForced ', force);
+      Logger.debug('GetHeadendsByCountryPostal  setIsForced ', force);
     },
     setIsLoading: (state, action: PayloadAction<{ param: string; isLoading: boolean }>) => {
       const { param, isLoading } = action.payload;
@@ -71,20 +71,20 @@ const getHeadendsSlice = createSlice({
           state.isLoading[key] = action.payload.isLoading;
         }
       }
-      Logger.debug('GetHeadends setIsLoading ', action.payload.isLoading);
+      Logger.debug('GetHeadendsByCountryPostal setIsLoading ', action.payload.isLoading);
     }
   },
 
   extraReducers: (builder) => {
     builder
-      .addCase(fetchGetHeadends.pending, (state, action) => {
+      .addCase(fetchGetHeadendsByCountryPostal.pending, (state, action) => {
         const paramString = JSON.stringify(action.meta.arg);
         state.isLoading[paramString] = true;
         state.isError[paramString] = false;
         state.isForced = false;
         state.error[paramString] = undefined;
       })
-      .addCase(fetchGetHeadends.fulfilled, (state, action) => {
+      .addCase(fetchGetHeadendsByCountryPostal.fulfilled, (state, action) => {
         if (action.payload) {
           const { param, value } = action.payload;
           const paramString = JSON.stringify(param);
@@ -96,7 +96,7 @@ const getHeadendsSlice = createSlice({
           state.isForced = false;
         }
       })
-      .addCase(fetchGetHeadends.rejected, (state, action) => {
+      .addCase(fetchGetHeadendsByCountryPostal.rejected, (state, action) => {
         const paramString = JSON.stringify(action.meta.arg);
         state.error[paramString] = action.error.message || 'Failed to fetch';
         state.isError[paramString] = true;
@@ -108,5 +108,5 @@ const getHeadendsSlice = createSlice({
   }
 });
 
-export const { clear, clearByTag, setIsLoading, setIsForced, setField } = getHeadendsSlice.actions;
-export default getHeadendsSlice.reducer;
+export const { clear, clearByTag, setIsLoading, setIsForced, setField } = getHeadendsByCountryPostalSlice.actions;
+export default getHeadendsByCountryPostalSlice.reducer;

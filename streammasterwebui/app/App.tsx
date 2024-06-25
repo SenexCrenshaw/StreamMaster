@@ -16,7 +16,8 @@ import 'primeicons/primeicons.css'; //icons
 import 'primereact/resources/primereact.min.css'; //core css
 // import 'primereact/resources/themes/viva-dark/theme.css'; // theme
 import SMLoader from '@components/loader/SMLoader';
-import SDEditorHeadEndsAndLineUps from '@features/sdEditor/SDEditorHeadEndsAndLineUps';
+
+import SDLineUpsDataSelector from '@features/sdEditor/SDLineUpsDataSelector';
 import { Suspense, lazy } from 'react';
 
 const App = (): JSX.Element => {
@@ -89,7 +90,7 @@ const App = (): JSX.Element => {
         <Route
           element={
             <Suspense>
-              <SDEditorHeadEndsAndLineUps />
+              <SDLineUpsDataSelector />
             </Suspense>
           }
           path="/editor/sdHeadEndLineUps"

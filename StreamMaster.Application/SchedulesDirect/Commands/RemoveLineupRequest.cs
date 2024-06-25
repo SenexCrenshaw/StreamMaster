@@ -4,23 +4,25 @@
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record RemoveLineupRequest(string Lineup) : IRequest<APIResponse>;
 
-public class RemoveLineupRequestHandler(ISchedulesDirect schedulesDirect, IJobStatusService jobStatusService, ILogger<RemoveLineupRequest> logger, IHubContext<StreamMasterHub, IStreamMasterHub> HubContext, IOptionsMonitor<SDSettings> intsettings)
+public class RemoveLineupRequestHandler(ISchedulesDirect schedulesDirect, IDataRefreshService dataRefreshService, IMessageService messageService, IJobStatusService jobStatusService, ILogger<RemoveLineupRequest> logger, IHubContext<StreamMasterHub, IStreamMasterHub> HubContext, IOptionsMonitor<SDSettings> intsettings)
 : IRequestHandler<RemoveLineupRequest, APIResponse>
 {
-    private readonly SDSettings sdsettings = intsettings.CurrentValue;
+    private readonly SDSettings sdSettings = intsettings.CurrentValue;
 
     public async Task<APIResponse> Handle(RemoveLineupRequest request, CancellationToken cancellationToken)
     {
         JobStatusManager jobManager = jobStatusService.GetJobManager(JobType.SDSync, EPGHelper.SchedulesDirectId);
 
-        if (!sdsettings.SDEnabled)
+        if (!sdSettings.SDEnabled)
         {
             return APIResponse.ErrorWithMessage("Sd is not enabled");
         }
         logger.LogInformation("Remove line up {lineup}", request.Lineup);
-        if (await schedulesDirect.RemoveLineup(request.Lineup, cancellationToken).ConfigureAwait(false))
+        var changesRemaining = await schedulesDirect.RemoveLineup(request.Lineup, cancellationToken).ConfigureAwait(false);
+
+        if (changesRemaining > -1)
         {
-            APIResponse response = await schedulesDirect.SDSync(cancellationToken);
+            //APIResponse response = await schedulesDirect.SDSync(cancellationToken);
             //if (!response.IsError)
             //{
             //    await HubContext.Clients.All.SchedulesDirectsRefresh();
@@ -31,7 +33,10 @@ public class RemoveLineupRequestHandler(ISchedulesDirect schedulesDirect, IJobSt
             //await hubContext.Clients.All.SchedulesDirectsRefresh();
             schedulesDirect.ResetCache("SubscribedLineups");
             jobManager.SetForceNextRun();
-
+            //await dataRefreshService.Refresh("GetSubscribedLineup");
+            //await dataRefreshService.Refresh("GetSelectedStationIds");
+            await dataRefreshService.RefreshSchedulesDirect();
+            await messageService.SendSuccess($"Unsubscribed lineup, {changesRemaining} changes remaining");
             return APIResponse.Ok;
         }
         return APIResponse.Ok;

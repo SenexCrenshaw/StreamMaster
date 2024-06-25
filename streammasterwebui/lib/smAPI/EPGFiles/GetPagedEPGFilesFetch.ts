@@ -1,5 +1,6 @@
 import { GetPagedEPGFiles } from '@lib/smAPI/EPGFiles/EPGFilesCommands';
 import { createAsyncThunk } from '@reduxjs/toolkit';
+import { Logger } from '@lib/common/logger';
 
 
 export const fetchGetPagedEPGFiles = createAsyncThunk('cache/getGetPagedEPGFiles', async (query: string, thunkAPI) => {

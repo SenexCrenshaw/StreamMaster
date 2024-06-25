@@ -43,6 +43,7 @@ public static class TypeScriptFetchGenerator
         }
 
         content.AppendLine("import { createAsyncThunk } from '@reduxjs/toolkit';");
+        content.AppendLine("import { Logger } from '@lib/common/logger';");
         content.AppendLine();
 
         return content.ToString();
@@ -75,15 +76,15 @@ public static class TypeScriptFetchGenerator
 
         content.AppendLine($"export const fetch{method.Name} = createAsyncThunk('cache/get{method.Name}', async ({paramName}: {param}, thunkAPI) => {{");
         content.AppendLine("  try {");
-        //content.AppendLine($"    console.log('Fetching {method.Name}');");
+        content.AppendLine($"    Logger.debug('Fetching {method.Name}');");
         content.AppendLine($"    const response = await {method.Name}({paramName2});");
         //if (method.IsList)
         //{
-        //    content.AppendLine($"    console.log('Fetched {method.Name} ',response?.length);");
+        //    content.AppendLine($"    Logger.debug('Fetched {method.Name} ',response?.length);");
         //}
         //else
         //{
-        //    content.AppendLine($"    console.log('Fetched {method.Name}',response);");
+        //    content.AppendLine($"    Logger.debug('Fetched {method.Name}',response);");
         //}
 
 
@@ -103,10 +104,10 @@ public static class TypeScriptFetchGenerator
         content.AppendLine($"export const fetch{method.Name} = createAsyncThunk('cache/get{method.Name}', async (query: string, thunkAPI) => {{");
         content.AppendLine("  try {");
         content.AppendLine("    if (query === undefined) return;");
-        //content.AppendLine($"    console.log('Fetching {method.Name}');");
+        //content.AppendLine($"    Logger.debug('Fetching {method.Name}');");
         content.AppendLine("    const params = JSON.parse(query);");
         content.AppendLine($"    const response = await {method.Name}(params);");
-        //content.AppendLine($"    console.log('Fetched {method.Name} ',response?.Data.length);");
+        //content.AppendLine($"    Logger.debug('Fetched {method.Name} ',response?.Data.length);");
         content.AppendLine("    return { query: query, value: response };");
         content.AppendLine("  } catch (error) {");
         content.AppendLine("    console.error('Failed to fetch', error);");

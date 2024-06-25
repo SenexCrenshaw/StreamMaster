@@ -45,14 +45,17 @@ const SchedulesDirectLineupPreviewChannel = ({ lineup }: SchedulesDirectLineupPr
 
   return (
     <SMPopUp
-      onCloseClick={() => console.log('close')}
-      onOpen={setIsOpen}
-      modal
-      modalCentered
+      title={
+        <div className="flex flex-row align-items-center">
+          Line Up Preview: <div className="pl-3 text-sm text-color">{lineup}</div>
+        </div>
+      }
       contentWidthSize="5"
       icon="pi-id-card"
-      header={lineup ? lineup : ''}
-      hasCloseButton={false}
+      modal
+      modalCentered
+      onCloseClick={() => console.log('close')}
+      onOpen={setIsOpen}
     >
       <SMDataTable
         enablePaginator
@@ -60,11 +63,12 @@ const SchedulesDirectLineupPreviewChannel = ({ lineup }: SchedulesDirectLineupPr
         dataSource={dataSource}
         defaultSortField="name"
         emptyMessage="No Line Ups"
-        headerName={
-          <div className="flex flex-row align-items-center">
-            Line Up Preview: <div className="pl-3 text-sm text-color">{lineup}</div>
-          </div>
-        }
+        noSourceHeader
+        // headerName={
+        //   <div className="flex flex-row align-items-center">
+        //     Line Up Preview: <div className="pl-3 text-sm text-color">{lineup}</div>
+        //   </div>
+        // }
         id={dataKey}
         isLoading={!dataSource}
         style={{ height: 'calc(40vh)' }}

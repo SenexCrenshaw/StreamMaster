@@ -8,9 +8,9 @@ import { setIsForced as GetDownloadServiceStatusSetIsForced } from '@lib/smAPI/G
 import { setIsForced as GetEPGColorsSetIsForced } from '@lib/smAPI/EPG/GetEPGColorsSlice';
 import { setIsForced as GetEPGFilesSetIsForced } from '@lib/smAPI/EPGFiles/GetEPGFilesSlice';
 import { setIsForced as GetEPGNextEPGNumberSetIsForced } from '@lib/smAPI/EPGFiles/GetEPGNextEPGNumberSlice';
+import { setIsForced as GetHeadendsToViewSetIsForced } from '@lib/smAPI/SchedulesDirect/GetHeadendsToViewSlice';
 import { setIsForced as GetIconsSetIsForced } from '@lib/smAPI/Icons/GetIconsSlice';
 import { setIsForced as GetIsSystemReadySetIsForced } from '@lib/smAPI/General/GetIsSystemReadySlice';
-import { setIsForced as GetLineupsSetIsForced } from '@lib/smAPI/SchedulesDirect/GetLineupsSlice';
 import { setIsForced as GetM3UFileNamesSetIsForced } from '@lib/smAPI/M3UFiles/GetM3UFileNamesSlice';
 import { setIsForced as GetM3UFilesSetIsForced } from '@lib/smAPI/M3UFiles/GetM3UFilesSlice';
 import { setIsForced as GetOutputProfilesSetIsForced } from '@lib/smAPI/Profiles/GetOutputProfilesSlice';
@@ -23,6 +23,8 @@ import { setIsForced as GetStationPreviewsSetIsForced } from '@lib/smAPI/Schedul
 import { setIsForced as GetStreamGroupProfilesSetIsForced } from '@lib/smAPI/StreamGroups/GetStreamGroupProfilesSlice';
 import { setIsForced as GetStreamGroupsSetIsForced } from '@lib/smAPI/StreamGroups/GetStreamGroupsSlice';
 import { setIsForced as GetStreamStreamingStatisticsSetIsForced } from '@lib/smAPI/Statistics/GetStreamStreamingStatisticsSlice';
+import { setIsForced as GetSubScribedHeadendsSetIsForced } from '@lib/smAPI/SchedulesDirect/GetSubScribedHeadendsSlice';
+import { setIsForced as GetSubscribedLineupsSetIsForced } from '@lib/smAPI/SchedulesDirect/GetSubscribedLineupsSlice';
 import { setIsForced as GetSystemStatusSetIsForced } from '@lib/smAPI/General/GetSystemStatusSlice';
 import { setIsForced as GetTaskIsRunningSetIsForced } from '@lib/smAPI/General/GetTaskIsRunningSlice';
 import { setIsForced as GetVideoProfilesSetIsForced } from '@lib/smAPI/Profiles/GetVideoProfilesSlice';
@@ -37,9 +39,9 @@ export const DataRefreshAll = () => {
   store.dispatch(GetEPGColorsSetIsForced({ force: true }));
   store.dispatch(GetEPGFilesSetIsForced({ force: true }));
   store.dispatch(GetEPGNextEPGNumberSetIsForced({ force: true }));
+  store.dispatch(GetHeadendsToViewSetIsForced({ force: true }));
   store.dispatch(GetIconsSetIsForced({ force: true }));
   store.dispatch(GetIsSystemReadySetIsForced({ force: true }));
-  store.dispatch(GetLineupsSetIsForced({ force: true }));
   store.dispatch(GetM3UFileNamesSetIsForced({ force: true }));
   store.dispatch(GetM3UFilesSetIsForced({ force: true }));
   store.dispatch(GetOutputProfilesSetIsForced({ force: true }));
@@ -52,6 +54,8 @@ export const DataRefreshAll = () => {
   store.dispatch(GetStreamGroupProfilesSetIsForced({ force: true }));
   store.dispatch(GetStreamGroupsSetIsForced({ force: true }));
   store.dispatch(GetStreamStreamingStatisticsSetIsForced({ force: true }));
+  store.dispatch(GetSubScribedHeadendsSetIsForced({ force: true }));
+  store.dispatch(GetSubscribedLineupsSetIsForced({ force: true }));
   store.dispatch(GetSystemStatusSetIsForced({ force: true }));
   store.dispatch(GetTaskIsRunningSetIsForced({ force: true }));
   store.dispatch(GetVideoProfilesSetIsForced({ force: true }));

@@ -25,16 +25,32 @@ namespace StreamMaster.Application.SchedulesDirect.Controllers
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<ActionResult<List<HeadendDto>>> GetHeadends([FromQuery] GetHeadendsRequest request)
+        public async Task<ActionResult<List<HeadendDto>>> GetHeadendsByCountryPostal([FromQuery] GetHeadendsByCountryPostalRequest request)
         {
             try
             {
             DataResponse<List<HeadendDto>> ret = await Sender.Send(request).ConfigureAwait(false);
-             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetHeadends.", statusCode: 500) : Ok(ret.Data);
+             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetHeadendsByCountryPostal.", statusCode: 500) : Ok(ret.Data);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An unexpected error occurred while processing the request to get GetHeadends.");
+                _logger.LogError(ex, "An unexpected error occurred while processing the request to get GetHeadendsByCountryPostal.");
+                return Problem(detail: "An unexpected error occurred. Please try again later.", statusCode: 500);
+            }
+        }
+
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<ActionResult<List<HeadendToView>>> GetHeadendsToView()
+        {
+            try
+            {
+            DataResponse<List<HeadendToView>> ret = await Sender.Send(new GetHeadendsToViewRequest()).ConfigureAwait(false);
+             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetHeadendsToView.", statusCode: 500) : Ok(ret.Data);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An unexpected error occurred while processing the request to get GetHeadendsToView.");
                 return Problem(detail: "An unexpected error occurred. Please try again later.", statusCode: 500);
             }
         }
@@ -51,22 +67,6 @@ namespace StreamMaster.Application.SchedulesDirect.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An unexpected error occurred while processing the request to get GetLineupPreviewChannel.");
-                return Problem(detail: "An unexpected error occurred. Please try again later.", statusCode: 500);
-            }
-        }
-
-        [HttpGet]
-        [Route("[action]")]
-        public async Task<ActionResult<List<SubscribedLineup>>> GetLineups()
-        {
-            try
-            {
-            DataResponse<List<SubscribedLineup>> ret = await Sender.Send(new GetLineupsRequest()).ConfigureAwait(false);
-             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetLineups.", statusCode: 500) : Ok(ret.Data);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "An unexpected error occurred while processing the request to get GetLineups.");
                 return Problem(detail: "An unexpected error occurred. Please try again later.", statusCode: 500);
             }
         }
@@ -119,6 +119,46 @@ namespace StreamMaster.Application.SchedulesDirect.Controllers
             }
         }
 
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<ActionResult<List<HeadendDto>>> GetSubScribedHeadends()
+        {
+            try
+            {
+            DataResponse<List<HeadendDto>> ret = await Sender.Send(new GetSubScribedHeadendsRequest()).ConfigureAwait(false);
+             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetSubScribedHeadends.", statusCode: 500) : Ok(ret.Data);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An unexpected error occurred while processing the request to get GetSubScribedHeadends.");
+                return Problem(detail: "An unexpected error occurred. Please try again later.", statusCode: 500);
+            }
+        }
+
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<ActionResult<List<SubscribedLineup>>> GetSubscribedLineups()
+        {
+            try
+            {
+            DataResponse<List<SubscribedLineup>> ret = await Sender.Send(new GetSubscribedLineupsRequest()).ConfigureAwait(false);
+             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetSubscribedLineups.", statusCode: 500) : Ok(ret.Data);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An unexpected error occurred while processing the request to get GetSubscribedLineups.");
+                return Problem(detail: "An unexpected error occurred. Please try again later.", statusCode: 500);
+            }
+        }
+
+        [HttpPatch]
+        [Route("[action]")]
+        public async Task<ActionResult<APIResponse>> AddHeadendToView(AddHeadendToViewRequest request)
+        {
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            return ret == null ? NotFound(ret) : Ok(ret);
+        }
+
         [HttpPatch]
         [Route("[action]")]
         public async Task<ActionResult<APIResponse>> AddLineup(AddLineupRequest request)
@@ -130,6 +170,14 @@ namespace StreamMaster.Application.SchedulesDirect.Controllers
         [HttpPatch]
         [Route("[action]")]
         public async Task<ActionResult<APIResponse>> AddStation(AddStationRequest request)
+        {
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            return ret == null ? NotFound(ret) : Ok(ret);
+        }
+
+        [HttpDelete]
+        [Route("[action]")]
+        public async Task<ActionResult<APIResponse>> RemoveHeadendToView(RemoveHeadendToViewRequest request)
         {
             APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
@@ -164,21 +212,21 @@ namespace StreamMaster.Application.Hubs
             return ret.Data;
         }
 
-        public async Task<List<HeadendDto>> GetHeadends(GetHeadendsRequest request)
+        public async Task<List<HeadendDto>> GetHeadendsByCountryPostal(GetHeadendsByCountryPostalRequest request)
         {
              DataResponse<List<HeadendDto>> ret = await Sender.Send(request).ConfigureAwait(false);
+            return ret.Data;
+        }
+
+        public async Task<List<HeadendToView>> GetHeadendsToView()
+        {
+             DataResponse<List<HeadendToView>> ret = await Sender.Send(new GetHeadendsToViewRequest()).ConfigureAwait(false);
             return ret.Data;
         }
 
         public async Task<List<LineupPreviewChannel>> GetLineupPreviewChannel(GetLineupPreviewChannelRequest request)
         {
              DataResponse<List<LineupPreviewChannel>> ret = await Sender.Send(request).ConfigureAwait(false);
-            return ret.Data;
-        }
-
-        public async Task<List<SubscribedLineup>> GetLineups()
-        {
-             DataResponse<List<SubscribedLineup>> ret = await Sender.Send(new GetLineupsRequest()).ConfigureAwait(false);
             return ret.Data;
         }
 
@@ -200,6 +248,24 @@ namespace StreamMaster.Application.Hubs
             return ret.Data;
         }
 
+        public async Task<List<HeadendDto>> GetSubScribedHeadends()
+        {
+             DataResponse<List<HeadendDto>> ret = await Sender.Send(new GetSubScribedHeadendsRequest()).ConfigureAwait(false);
+            return ret.Data;
+        }
+
+        public async Task<List<SubscribedLineup>> GetSubscribedLineups()
+        {
+             DataResponse<List<SubscribedLineup>> ret = await Sender.Send(new GetSubscribedLineupsRequest()).ConfigureAwait(false);
+            return ret.Data;
+        }
+
+        public async Task<APIResponse> AddHeadendToView(AddHeadendToViewRequest request)
+        {
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            return ret;
+        }
+
         public async Task<APIResponse> AddLineup(AddLineupRequest request)
         {
             APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
@@ -207,6 +273,12 @@ namespace StreamMaster.Application.Hubs
         }
 
         public async Task<APIResponse> AddStation(AddStationRequest request)
+        {
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            return ret;
+        }
+
+        public async Task<APIResponse> RemoveHeadendToView(RemoveHeadendToViewRequest request)
         {
             APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;

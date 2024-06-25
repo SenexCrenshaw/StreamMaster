@@ -1,7 +1,7 @@
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 import { isEmptyObject } from '@lib/common/common';
+import useGetSubscribedLineup from '@lib/smAPI/SchedulesDirect/useGetSubscribedLineup';
 
-import useGetLineups from '@lib/smAPI/SchedulesDirect/useGetLineups';
 import { StationPreview, SubscribedLineup } from '@lib/smAPI/smapiTypes';
 import { type ColumnFilterElementTemplateOptions } from 'primereact/column';
 import { MultiSelect, type MultiSelectChangeEvent } from 'primereact/multiselect';
@@ -17,7 +17,7 @@ interface ColumnConfigInputs {
 const createMultiSelectLineUpColumnConfigHook =
   ({ headerTitle, maxWidth, minWidth, width }: ColumnConfigInputs) =>
   () => {
-    const { data, isLoading, isFetching, isError } = useGetLineups();
+    const { data, isLoading, isFetching, isError } = useGetSubscribedLineup();
 
     const bodyTemplate = (option: StationPreview) => {
       return <span>{option.Lineup}</span>;

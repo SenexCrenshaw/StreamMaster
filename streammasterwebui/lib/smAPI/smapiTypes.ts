@@ -381,6 +381,8 @@ export interface SDSettings
 	AppendEpisodeDesc: boolean;
 	ArtworkSize: string;
 	ExcludeCastAndCrew: boolean;
+	HeadendsToView: any[];
+	MaxSubscribedLineups: number;
 	PreferredLogoStyle: string;
 	PrefixEpisodeDescription: boolean;
 	PrefixEpisodeTitle: boolean;
@@ -408,6 +410,7 @@ export interface SDSettingsRequest
 	AppendEpisodeDesc?: boolean;
 	ArtworkSize?: string;
 	ExcludeCastAndCrew?: boolean;
+	HeadendsToView?: any[];
 	PreferredLogoStyle?: string;
 	PrefixEpisodeDescription?: boolean;
 	PrefixEpisodeTitle?: boolean;
@@ -495,10 +498,12 @@ export interface StationPreview
 {
 	Affiliate: string;
 	Callsign: string;
+	Country: string;
 	Id: string;
 	Lineup: string;
 	Logo: Logo;
 	Name: string;
+	PostalCode: string;
 	StationId: string;
 }
 export interface Country
@@ -625,11 +630,13 @@ export interface SubscribedLineup
 }
 export interface HeadendDto
 {
+	Country: string;
 	HeadendId: string;
 	Id: string;
 	Lineup: string;
 	Location: string;
 	Name: string;
+	PostCode: string;
 	Transport: string;
 }
 export interface GetPagedStreamGroupsRequest
@@ -991,17 +998,17 @@ export interface UpdateSettingRequest
 export interface GetAvailableCountriesRequest
 {
 }
-export interface GetHeadendsRequest
+export interface GetHeadendsByCountryPostalRequest
 {
-	country: string;
-	postalCode: string;
+	Country: string;
+	PostalCode: string;
+}
+export interface GetHeadendsToViewRequest
+{
 }
 export interface GetLineupPreviewChannelRequest
 {
 	Lineup: string;
-}
-export interface GetLineupsRequest
-{
 }
 export interface GetSelectedStationIdsRequest
 {
@@ -1012,18 +1019,38 @@ export interface GetStationChannelNamesRequest
 export interface GetStationPreviewsRequest
 {
 }
+export interface GetSubScribedHeadendsRequest
+{
+}
+export interface GetSubscribedLineupsRequest
+{
+}
+export interface AddHeadendToViewRequest
+{
+	Country: string;
+	HeadendId: string;
+	Postal: string;
+}
 export interface AddLineupRequest
 {
 	Lineup: string;
 }
 export interface StationRequest
 {
-	LineUp: string;
+	Country: string;
+	Lineup: string;
+	PostalCode: string;
 	StationId: string;
 }
 export interface AddStationRequest
 {
 	Requests: StationRequest[];
+}
+export interface RemoveHeadendToViewRequest
+{
+	Country: string;
+	HeadendId: string;
+	Postal: string;
 }
 export interface RemoveLineupRequest
 {

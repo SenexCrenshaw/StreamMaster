@@ -6,7 +6,7 @@ namespace StreamMaster.Application.SchedulesDirect.Commands;
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record RemoveStationRequest(List<StationRequest> Requests) : IRequest<APIResponse>;
 
-public class RemoveStationRequestHandler(ILogger<RemoveStationRequest> logger, IJobStatusService jobStatusService, ISchedulesDirect schedulesDirect, ISender Sender, IOptionsMonitor<SDSettings> intsettings)
+public class RemoveStationRequestHandler(ILogger<RemoveStationRequest> logger, IDataRefreshService dataRefreshService, IJobStatusService jobStatusService, ISchedulesDirect schedulesDirect, ISender Sender, IOptionsMonitor<SDSettings> intsettings)
 : IRequestHandler<RemoveStationRequest, APIResponse>
 {
     private readonly SDSettings sdsettings = intsettings.CurrentValue;
@@ -21,7 +21,7 @@ public class RemoveStationRequestHandler(ILogger<RemoveStationRequest> logger, I
             return APIResponse.ErrorWithMessage("SD is not enabled");
         }
 
-        UpdateSettingParameters updateSettingRequest = new()
+        UpdateSettingParameters updateSetting = new()
         {
             SDSettings = new SDSettingsRequest
             {
@@ -32,25 +32,28 @@ public class RemoveStationRequestHandler(ILogger<RemoveStationRequest> logger, I
         List<string> toDelete = [];
         foreach (StationRequest stationRequest in request.Requests)
         {
-            StationIdLineup station = new(stationRequest.StationId, stationRequest.LineUp);
-            StationIdLineup? existing = updateSettingRequest.SDSettings.SDStationIds.FirstOrDefault(x => x.Lineup == station.Lineup && x.StationId == station.StationId);
+            //StationIdLineup station = new(stationRequest.StationId, stationRequest.LineUp, request.co);
+            StationIdLineup? existing = updateSetting.SDSettings.SDStationIds.FirstOrDefault(x => x.Lineup == stationRequest.Lineup && x.StationId == stationRequest.StationId);
             if (existing == null)
             {
-                logger.LogInformation("Remove Station: Does not exists {StationIdLineup}", station.StationId);
+                logger.LogInformation("Remove Station: Does not exists {StationIdLineup}", stationRequest.StationId);
                 continue;
             }
-            logger.LogInformation("Remove Station {StationIdLineup}", station.StationId);
-            _ = updateSettingRequest.SDSettings.SDStationIds.Remove(existing);
-            toDelete.Add(station.StationId);
+            logger.LogInformation("Remove Station {StationIdLineup}", stationRequest.StationId);
+            _ = updateSetting.SDSettings.SDStationIds.Remove(existing);
+            toDelete.Add(stationRequest.StationId);
         }
+
 
 
         if (toDelete.Count > 0)
         {
-            _ = await Sender.Send(updateSettingRequest, cancellationToken).ConfigureAwait(false);
+            _ = await Sender.Send(new UpdateSettingRequest(updateSetting), cancellationToken).ConfigureAwait(false);
 
             schedulesDirect.ResetEPGCache();
             jobManager.SetForceNextRun();
+            await dataRefreshService.RefreshSelectedStationIds();
+
 
             //foreach (EPGFileDto epg in await Repository.EPGFile.GetEPGFiles())
             //{

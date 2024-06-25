@@ -2,10 +2,12 @@
 
 using MessagePack;
 
+using StreamMaster.Domain.Attributes;
 using StreamMaster.Domain.Extensions;
 
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
+using System.Xml.Serialization;
 
 namespace StreamMaster.Domain.Models;
 
@@ -17,11 +19,15 @@ public class SMChannel
     [Ignore]
     [JsonIgnore]
     [IgnoreMember]
+    [IgnoreMap]
+    [XmlIgnore]
     public ICollection<SMChannelStreamLink> SMStreams { get; set; } = [];
 
     [Ignore]
     [JsonIgnore]
     [IgnoreMember]
+    [IgnoreMap]
+    [XmlIgnore]
     public ICollection<StreamGroupSMChannelLink> StreamGroups { get; set; } = [];
     public static string APIName => "SMChannels";
     public string StreamingProxyType { get; set; } = "SystemDefault";

@@ -44,13 +44,13 @@ const DownloadStatusDataSelector = () => {
 
   return (
     <SMDataTable
-      headerName="Image Download Status"
-      isLoading={downloadStatus.isLoading}
       columns={downloadColumns}
       dataSource={downloadStatus.data ? [downloadStatus.data] : []}
-      enablePaginator={false}
-      id="queustatus"
       defaultSortField="startTS"
+      enablePaginator={false}
+      headerName="Image Download Status"
+      id="queustatus"
+      isLoading={downloadStatus.isLoading}
       selectedItemsKey="queustatus"
     />
   );

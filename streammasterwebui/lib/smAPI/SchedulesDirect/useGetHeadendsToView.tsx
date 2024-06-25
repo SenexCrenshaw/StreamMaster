@@ -1,12 +1,12 @@
 import { QueryHookResult } from '@lib/apiDefs';
 import store, { RootState } from '@lib/redux/store';
 import { useAppDispatch, useAppSelector } from '@lib/redux/hooks';
-import { clear, clearByTag, setField, setIsForced, setIsLoading } from './GetLineupsSlice';
+import { clear, clearByTag, setField, setIsForced, setIsLoading } from './GetHeadendsToViewSlice';
 import { useCallback,useEffect } from 'react';
-import { fetchGetLineups } from './GetLineupsFetch';
-import {FieldData, SubscribedLineup } from '@lib/smAPI/smapiTypes';
+import { fetchGetHeadendsToView } from './GetHeadendsToViewFetch';
+import {FieldData, HeadendToView } from '@lib/smAPI/smapiTypes';
 
-interface ExtendedQueryHookResult extends QueryHookResult<SubscribedLineup[] | undefined> {}
+interface ExtendedQueryHookResult extends QueryHookResult<HeadendToView[] | undefined> {}
 interface Result extends ExtendedQueryHookResult {
   Clear: () => void;
   ClearByTag: (tag: string) => void;
@@ -14,9 +14,9 @@ interface Result extends ExtendedQueryHookResult {
   SetIsForced: (force: boolean) => void;
   SetIsLoading: (isLoading: boolean, query: string) => void;
 }
-const useGetLineups = (): Result => {
+const useGetHeadendsToView = (): Result => {
   const dispatch = useAppDispatch();
-  const isForced = useAppSelector((state) => state.GetLineups.isForced ?? false);
+  const isForced = useAppSelector((state) => state.GetHeadendsToView.isForced ?? false);
 
   const SetIsForced = useCallback(
     (forceRefresh: boolean): void => {
@@ -40,40 +40,40 @@ const SetIsLoading = useCallback(
   [dispatch]
 );
 const selectData = (state: RootState) => {
-    return state.GetLineups.data;
+    return state.GetHeadendsToView.data;
   };
 const data = useAppSelector(selectData);
 
 const selectError = (state: RootState) => {
-    return state.GetLineups.error;
+    return state.GetHeadendsToView.error;
   };
 const error = useAppSelector(selectError);
 
 const selectIsError = (state: RootState) => {
-    return state.GetLineups.isError;
+    return state.GetHeadendsToView.isError;
   };
 const isError = useAppSelector(selectIsError);
 
 const selectIsLoading = (state: RootState) => {
-    return state.GetLineups.isLoading;
+    return state.GetHeadendsToView.isLoading;
   };
 const isLoading = useAppSelector(selectIsLoading);
 
 
   useEffect(() => {
-    const state = store.getState().GetLineups;
+    const state = store.getState().GetHeadendsToView;
     if (data === undefined && state.isLoading !== true && state.isForced !== true) {
       SetIsForced(true);
     }
   }, [SetIsForced, data]);
 
 useEffect(() => {
-  const state = store.getState().GetLineups;
+  const state = store.getState().GetHeadendsToView;
   if (state.isLoading) return;
   if (data !== undefined && !isForced) return;
 
   SetIsLoading(true);
-  dispatch(fetchGetLineups());
+  dispatch(fetchGetHeadendsToView());
 }, [SetIsLoading, data, dispatch, isForced]);
 
 const SetField = (fieldData: FieldData): void => {
@@ -97,4 +97,4 @@ return {
 };
 };
 
-export default useGetLineups;
+export default useGetHeadendsToView;

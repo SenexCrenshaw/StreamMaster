@@ -154,7 +154,9 @@ public class SeasonImages(ILogger<SeasonImages> logger, IEPGCache<SeasonImages> 
 
             if (season.extras.ContainsKey("artwork"))
             {
-                season.extras["artwork"] += SDHelpers.GetTieredImages(response.Data, ["season"], artworkSize);
+                List<ProgramArtwork> arts = season.extras["artwork"];
+                arts = arts.Concat(SDHelpers.GetTieredImages(response.Data, ["season"], artworkSize)).ToList();
+                season.extras["artwork"] = arts;
                 artwork = season.extras["artwork"];
             }
             else

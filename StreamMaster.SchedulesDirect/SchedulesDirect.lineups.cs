@@ -1,7 +1,6 @@
 ﻿using StreamMaster.Domain.Enums;
 using StreamMaster.Domain.Helpers;
 using StreamMaster.Domain.Models;
-using StreamMaster.SchedulesDirect.Domain.Enums;
 
 
 namespace StreamMaster.SchedulesDirect;
@@ -33,7 +32,7 @@ public partial class SchedulesDirect
         return serializableDataList;
     }
 
-    public async Task<List<Headend>?> GetHeadends(string country, string postalCode, CancellationToken cancellationToken = default)
+    public async Task<List<Headend>?> GetHeadendsByCountryPostal(string country, string postalCode, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(country) || string.IsNullOrEmpty(postalCode))
         {
@@ -89,7 +88,21 @@ public partial class SchedulesDirect
         return ret;
     }
 
-    public async Task<bool> AddLineup(string lineup, CancellationToken cancellationToken)
+    public async Task<int> AddLineup(string lineup, CancellationToken cancellationToken)
+    {
+        AddRemoveLineupResponse? ret = await schedulesDirectAPI.GetApiResponse<AddRemoveLineupResponse>(APIMethod.PUT, $"lineups/{lineup}", cancellationToken: cancellationToken).ConfigureAwait(false);
+        if (ret != null)
+        {
+
+            logger.LogDebug($"Successfully added lineup {lineup} to account. serverID: {ret.ServerId} , message: {ret.Message} , changesRemaining: {ret.ChangesRemaining}");
+            return ret.ChangesRemaining;
+        }
+
+        logger.LogError($"Failed to get a response from Schedules Direct when trying to add lineup {lineup}.");
+        return 0;
+    }
+
+    public async Task<bool> UpdateHeadEnd(string lineup, bool SubScribed, CancellationToken cancellationToken)
     {
         AddRemoveLineupResponse? ret = await schedulesDirectAPI.GetApiResponse<AddRemoveLineupResponse>(APIMethod.PUT, $"lineups/{lineup}", cancellationToken: cancellationToken).ConfigureAwait(false);
         if (ret != null)
@@ -103,7 +116,7 @@ public partial class SchedulesDirect
         return ret != null;
     }
 
-    public async Task<bool> RemoveLineup(string lineup, CancellationToken cancellationToken)
+    public async Task<int> RemoveLineup(string lineup, CancellationToken cancellationToken)
     {
         AddRemoveLineupResponse? ret = await schedulesDirectAPI.GetApiResponse<AddRemoveLineupResponse>(APIMethod.DELETE, $"lineups/{lineup}", cancellationToken: cancellationToken).ConfigureAwait(false);
         if (ret != null)
@@ -111,11 +124,13 @@ public partial class SchedulesDirect
             logger.LogDebug($"Successfully removed lineup {lineup} from account. serverID: {ret.ServerId} , message: {ret.Message} , changesRemaining: {ret.ChangesRemaining}");
             JobStatusManager jobManager = jobStatusService.GetJobManager(JobType.SDSync, EPGHelper.SchedulesDirectId);
             jobManager.SetForceNextRun(true);
+            return ret.ChangesRemaining;
         }
         else
         {
             logger.LogError("Failed to get a response from Schedules Direct when trying to remove lineup {lineup}.", lineup);
+
         }
-        return ret != null;
+        return -1;
     }
 }

@@ -83,6 +83,7 @@ const SMTasksDataSelector = ({ needsTimer = true, width = '40vw' }: SMTasksDataS
       },
       {
         field: 'Command',
+        filter: true,
         width: 60
       },
       {

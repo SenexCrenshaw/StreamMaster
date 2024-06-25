@@ -34,4 +34,8 @@ public class Station
     public string StationId { get; set; }
     [JsonPropertyName("stationLogo")]
     public List<StationLogo> StationLogo { get; set; }
+
+
+    public string Country { get; set; }
+    public string PostalCode { get; set; }
 }

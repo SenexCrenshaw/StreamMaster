@@ -2,14 +2,15 @@ import { memo, useCallback, useMemo } from 'react';
 
 import SMDataTable from '@components/smDataTable/SMDataTable';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
-import useGetLineups from '@lib/smAPI/SchedulesDirect/useGetLineups';
+
+import useGetSubscribedLineup from '@lib/smAPI/SchedulesDirect/useGetSubscribedLineup';
 import { HeadendDto } from '@lib/smAPI/smapiTypes';
 import SchedulesDirectRemoveHeadendDialog from './SchedulesDirectRemoveHeadendDialog';
 interface SchedulesDirectLineUpsDataSelectorProperties {
   id: string;
 }
 const SchedulesDirectLineUpsDataSelector = ({ id }: SchedulesDirectLineUpsDataSelectorProperties) => {
-  const { data, isLoading } = useGetLineups();
+  const { data, isLoading } = useGetSubscribedLineup();
 
   const actionBodyTemplate = useCallback((data: HeadendDto) => {
     return (
@@ -21,6 +22,10 @@ const SchedulesDirectLineUpsDataSelector = ({ id }: SchedulesDirectLineUpsDataSe
 
   const columns = useMemo(
     (): ColumnMeta[] => [
+      { field: 'Lineup', sortable: true, width: 80 },
+      { field: 'Location', sortable: true, width: 80 },
+      { field: 'Name', sortable: true, width: 100 },
+      { field: 'Transport', sortable: true, width: 80 },
       {
         align: 'center',
         bodyTemplate: actionBodyTemplate,
@@ -30,30 +35,30 @@ const SchedulesDirectLineUpsDataSelector = ({ id }: SchedulesDirectLineUpsDataSe
         resizeable: false,
         sortable: false,
         width: 20
-      },
-      { field: 'Lineup', sortable: true, width: 80 },
-      { field: 'Location', sortable: true, width: 80 },
-      { field: 'Name', sortable: true, width: 100 },
-      { field: 'Transport', sortable: true, width: 80 }
+      }
     ],
     [actionBodyTemplate]
   );
 
+  // const rightHeaderTemplate = useMemo(() => {
+  //   return <HeadEndDropDown />;
+  // }, []);
+
   return (
-    <div className="flex flex-column">
-      <SMDataTable
-        columns={columns}
-        defaultSortField="name"
-        dataSource={data}
-        emptyMessage="No Streams"
-        enablePaginator
-        id={id}
-        isLoading={isLoading}
-        selectionMode="single"
-        selectedItemsKey="sdEditorselectedItems"
-        style={{ height: 'calc(100vh - 100px)' }}
-      />
-    </div>
+    <SMDataTable
+      columns={columns}
+      defaultSortField="name"
+      dataSource={data}
+      emptyMessage="No Streams"
+      enablePaginator
+      headerName="Subscribed Line Ups"
+      // headerRightTemplate={rightHeaderTemplate}
+      id={id}
+      isLoading={isLoading}
+      selectionMode="single"
+      selectedItemsKey="sdEditorselectedItems"
+      style={{ height: 'calc(25vh)' }}
+    />
   );
 };
 

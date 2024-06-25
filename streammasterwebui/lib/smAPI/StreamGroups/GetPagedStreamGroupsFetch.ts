@@ -1,5 +1,6 @@
 import { GetPagedStreamGroups } from '@lib/smAPI/StreamGroups/StreamGroupsCommands';
 import { createAsyncThunk } from '@reduxjs/toolkit';
+import { Logger } from '@lib/common/logger';
 
 
 export const fetchGetPagedStreamGroups = createAsyncThunk('cache/getGetPagedStreamGroups', async (query: string, thunkAPI) => {

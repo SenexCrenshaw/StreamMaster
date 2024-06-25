@@ -44,7 +44,14 @@ public class UpdateSettingParameters
 public record UpdateSettingRequest(UpdateSettingParameters parameters) : IRequest<UpdateSettingResponse> { }
 
 
-public partial class UpdateSettingRequestHandler(IBackgroundTaskQueue taskQueue, IOptionsMonitor<SDSettings> intsdsettings, ILogger<UpdateSettingRequest> Logger, IMapper Mapper, IHubContext<StreamMasterHub, IStreamMasterHub> HubContext, IOptionsMonitor<Setting> intsettings)
+public partial class UpdateSettingRequestHandler(
+    IBackgroundTaskQueue taskQueue,
+    IOptionsMonitor<SDSettings> intsdsettings,
+    ILogger<UpdateSettingRequest> Logger,
+    IMapper Mapper,
+    IDataRefreshService dataRefreshService,
+    IOptionsMonitor<Setting> intsettings
+    )
 : IRequestHandler<UpdateSettingRequest, UpdateSettingResponse>
 {
     private readonly Setting settings = intsettings.CurrentValue;

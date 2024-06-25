@@ -46,6 +46,6 @@ public class BaseSettings
 
 public class Setting : BaseSettings
 {
-    [NoMap]
+    [IgnoreMap]
     public string ServerKey { get; set; } = Guid.NewGuid().ToString().Replace("-", "");
 }

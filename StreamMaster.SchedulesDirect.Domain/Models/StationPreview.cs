@@ -14,6 +14,8 @@ public class StationPreview
         StationId = station.StationId;
         Logo = station.Logo;
         Id = Lineup + "|" + StationId;
+        this.Country = station.Country;
+        this.PostalCode = station.PostalCode;
     }
     public Logo Logo { get; set; }
     public string Affiliate { get; set; }
@@ -22,4 +24,6 @@ public class StationPreview
     public string Lineup { get; set; }
     public string Name { get; set; }
     public string StationId { get; set; }
+    public string Country { get; set; }
+    public string PostalCode { get; set; }
 }

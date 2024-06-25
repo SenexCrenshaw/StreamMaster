@@ -1,12 +1,16 @@
-﻿using Reinforced.Typings.Attributes;
-
-using StreamMaster.Domain.Extensions;
+﻿using StreamMaster.Domain.Extensions;
 
 namespace StreamMaster.Domain.Models;
 
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record SMTask(int Id)
+public class SMTask
 {
+    public SMTask() { }
+    public SMTask(int Id)
+    {
+        this.Id = Id;
+    }
+    public int Id { get; set; }
     public bool IsRunning { get; set; }
     public string Command { get; set; } = string.Empty;
     public DateTime QueueTS { get; set; } = SMDT.UtcNow;

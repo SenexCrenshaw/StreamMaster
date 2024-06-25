@@ -1,4 +1,5 @@
 import getHeader from '@components/smDataTable/helpers/getHeader';
+import { PagedResponse } from '@lib/smAPI/smapiTypes';
 import { ColumnMeta } from '../types/ColumnMeta';
 import { ColumnAlign, ColumnFieldType } from '../types/smDataTableTypes';
 
@@ -66,3 +67,7 @@ export const getAlignHeader = (align: ColumnAlign | undefined, fieldType: Column
 
   return align;
 };
+
+export function isPagedResponse<T>(data: any): data is PagedResponse<T> {
+  return data && typeof data.PageNumber === 'number' && Array.isArray(data.Data);
+}

@@ -41,7 +41,6 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
 
         await hub.Clients.All.DataRefresh("GetChannelGroups");
         await hub.Clients.All.DataRefresh("GetChannelGroupsFromSMChannels");
-        await hub.Clients.All.DataRefresh("GetPagedChannelGroups");
     }
 
     public async Task RefreshEPG(bool alwaysRun = false)
@@ -63,10 +62,8 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
             return;
         }
 
-        await hub.Clients.All.DataRefresh("GetEPGFilePreviewById");
         await hub.Clients.All.DataRefresh("GetEPGFiles");
         await hub.Clients.All.DataRefresh("GetEPGNextEPGNumber");
-        await hub.Clients.All.DataRefresh("GetPagedEPGFiles");
     }
 
     public async Task RefreshGeneral(bool alwaysRun = false)
@@ -104,7 +101,6 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
 
         await hub.Clients.All.DataRefresh("GetM3UFileNames");
         await hub.Clients.All.DataRefresh("GetM3UFiles");
-        await hub.Clients.All.DataRefresh("GetPagedM3UFiles");
     }
 
     public async Task RefreshProfiles(bool alwaysRun = false)
@@ -115,7 +111,6 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
             return;
         }
 
-        await hub.Clients.All.DataRefresh("GetOutputProfile");
         await hub.Clients.All.DataRefresh("GetOutputProfiles");
         await hub.Clients.All.DataRefresh("GetVideoProfiles");
     }
@@ -129,12 +124,12 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
         }
 
         await hub.Clients.All.DataRefresh("GetAvailableCountries");
-        await hub.Clients.All.DataRefresh("GetHeadends");
-        await hub.Clients.All.DataRefresh("GetLineupPreviewChannel");
-        await hub.Clients.All.DataRefresh("GetLineups");
+        await hub.Clients.All.DataRefresh("GetHeadendsToView");
         await hub.Clients.All.DataRefresh("GetSelectedStationIds");
         await hub.Clients.All.DataRefresh("GetStationChannelNames");
         await hub.Clients.All.DataRefresh("GetStationPreviews");
+        await hub.Clients.All.DataRefresh("GetSubScribedHeadends");
+        await hub.Clients.All.DataRefresh("GetSubscribedLineups");
     }
 
     public async Task RefreshSettings(bool alwaysRun = false)
@@ -156,10 +151,7 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
             return;
         }
 
-        await hub.Clients.All.DataRefresh("GetPagedSMChannels");
-        await hub.Clients.All.DataRefresh("GetSMChannel");
         await hub.Clients.All.DataRefresh("GetSMChannelNames");
-        await hub.Clients.All.DataRefresh("GetVideoInfoFromId");
     }
 
     public async Task RefreshSMChannelStreamLinks(bool alwaysRun = false)
@@ -170,7 +162,6 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
             return;
         }
 
-        await hub.Clients.All.DataRefresh("GetSMChannelStreams");
     }
 
     public async Task RefreshSMStreams(bool alwaysRun = false)
@@ -181,7 +172,6 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
             return;
         }
 
-        await hub.Clients.All.DataRefresh("GetPagedSMStreams");
     }
 
     public async Task RefreshSMTasks(bool alwaysRun = false)
@@ -205,7 +195,6 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
 
         await hub.Clients.All.DataRefresh("GetChannelStreamingStatistics");
         await hub.Clients.All.DataRefresh("GetClientStreamingStatistics");
-        await hub.Clients.All.DataRefresh("GetStreamingStatisticsForChannel");
         await hub.Clients.All.DataRefresh("GetStreamStreamingStatistics");
     }
 
@@ -217,8 +206,6 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
             return;
         }
 
-        await hub.Clients.All.DataRefresh("GetPagedStreamGroups");
-        await hub.Clients.All.DataRefresh("GetStreamGroup");
         await hub.Clients.All.DataRefresh("GetStreamGroupProfiles");
         await hub.Clients.All.DataRefresh("GetStreamGroups");
     }
@@ -231,6 +218,5 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
             return;
         }
 
-        await hub.Clients.All.DataRefresh("GetStreamGroupSMChannels");
     }
 }

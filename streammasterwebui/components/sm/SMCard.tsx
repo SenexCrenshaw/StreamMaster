@@ -39,7 +39,14 @@ export const SMCard = ({
           <div className="w-4 flex justify-content-center">{props.center}</div>
           <div className="flex justify-content-end w-4 gap-1 pr-1">
             {header}
-            {!hasCloseButton && openPanel && <CloseButton onClick={(e) => openPanel(false)} tooltip="Close" />}
+            {!hasCloseButton && (
+              <CloseButton
+                onClick={(e) => {
+                  openPanel && openPanel(false);
+                }}
+                tooltip="Close"
+              />
+            )}
           </div>
         </div>
         <div className="layout-padding-bottom" />
@@ -57,7 +64,7 @@ export const SMCard = ({
         <div className="header-text-sub flex justify-content-start">{title}</div>
         <div className="flex justify-content-end gap-1 pr-1">
           {header}
-          {!hasCloseButton && openPanel && <CloseButton onClick={(e) => openPanel(false)} tooltip="Close" />}
+          {!hasCloseButton && <CloseButton onClick={(e) => openPanel && openPanel(false)} tooltip="Close" />}
         </div>
       </div>
       <div className="layout-padding-bottom" />

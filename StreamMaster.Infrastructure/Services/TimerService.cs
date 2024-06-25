@@ -11,7 +11,6 @@ using StreamMaster.Application.EPGFiles.Queries;
 using StreamMaster.Application.Hubs;
 using StreamMaster.Application.M3UFiles.Commands;
 using StreamMaster.Application.M3UFiles.Queries;
-using StreamMaster.Application.SchedulesDirect.Commands;
 using StreamMaster.Application.Services;
 using StreamMaster.Domain.API;
 using StreamMaster.Domain.Common;
@@ -111,7 +110,8 @@ public class TimerService(IServiceProvider serviceProvider, IOptionsMonitor<Sett
                     {
                         logger.LogInformation("SDSync started. {status}", jobManager.Status);
 
-                        _ = await mediator.Send(new EPGSync(), cancellationToken).ConfigureAwait(false);
+                        //_ = await mediator.Send(new EPGSync(), cancellationToken).ConfigureAwait(false);
+                        await backgroundTask.EPGSync(cancellationToken).ConfigureAwait(false);
                         //await hubContext.Clients.All.EPGFilesRefresh().ConfigureAwait(false);
 
                         logger.LogInformation("SDSync completed. {status}", jobManager.Status);

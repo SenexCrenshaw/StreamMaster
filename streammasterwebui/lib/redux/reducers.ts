@@ -11,11 +11,11 @@ import GetEPGColorsReducer from '@lib/smAPI/EPG/GetEPGColorsSlice';
 import GetEPGFilePreviewByIdReducer from '@lib/smAPI/EPGFiles/GetEPGFilePreviewByIdSlice';
 import GetEPGFilesReducer from '@lib/smAPI/EPGFiles/GetEPGFilesSlice';
 import GetEPGNextEPGNumberReducer from '@lib/smAPI/EPGFiles/GetEPGNextEPGNumberSlice';
-import GetHeadendsReducer from '@lib/smAPI/SchedulesDirect/GetHeadendsSlice';
+import GetHeadendsByCountryPostalReducer from '@lib/smAPI/SchedulesDirect/GetHeadendsByCountryPostalSlice';
+import GetHeadendsToViewReducer from '@lib/smAPI/SchedulesDirect/GetHeadendsToViewSlice';
 import GetIconsReducer from '@lib/smAPI/Icons/GetIconsSlice';
 import GetIsSystemReadyReducer from '@lib/smAPI/General/GetIsSystemReadySlice';
 import GetLineupPreviewChannelReducer from '@lib/smAPI/SchedulesDirect/GetLineupPreviewChannelSlice';
-import GetLineupsReducer from '@lib/smAPI/SchedulesDirect/GetLineupsSlice';
 import GetM3UFileNamesReducer from '@lib/smAPI/M3UFiles/GetM3UFileNamesSlice';
 import GetM3UFilesReducer from '@lib/smAPI/M3UFiles/GetM3UFilesSlice';
 import GetOutputProfileReducer from '@lib/smAPI/Profiles/GetOutputProfileSlice';
@@ -40,6 +40,8 @@ import GetStreamGroupsReducer from '@lib/smAPI/StreamGroups/GetStreamGroupsSlice
 import GetStreamGroupSMChannelsReducer from '@lib/smAPI/StreamGroupSMChannelLinks/GetStreamGroupSMChannelsSlice';
 import GetStreamingStatisticsForChannelReducer from '@lib/smAPI/Statistics/GetStreamingStatisticsForChannelSlice';
 import GetStreamStreamingStatisticsReducer from '@lib/smAPI/Statistics/GetStreamStreamingStatisticsSlice';
+import GetSubScribedHeadendsReducer from '@lib/smAPI/SchedulesDirect/GetSubScribedHeadendsSlice';
+import GetSubscribedLineupsReducer from '@lib/smAPI/SchedulesDirect/GetSubscribedLineupsSlice';
 import GetSystemStatusReducer from '@lib/smAPI/General/GetSystemStatusSlice';
 import GetTaskIsRunningReducer from '@lib/smAPI/General/GetTaskIsRunningSlice';
 import GetVideoInfoFromIdReducer from '@lib/smAPI/SMChannels/GetVideoInfoFromIdSlice';
@@ -147,11 +149,11 @@ export const rootReducer = combineReducers({
   GetEPGFilePreviewById: GetEPGFilePreviewByIdReducer,
   GetEPGFiles: GetEPGFilesReducer,
   GetEPGNextEPGNumber: GetEPGNextEPGNumberReducer,
-  GetHeadends: GetHeadendsReducer,
+  GetHeadendsByCountryPostal: GetHeadendsByCountryPostalReducer,
+  GetHeadendsToView: GetHeadendsToViewReducer,
   GetIcons: GetIconsReducer,
   GetIsSystemReady: GetIsSystemReadyReducer,
   GetLineupPreviewChannel: GetLineupPreviewChannelReducer,
-  GetLineups: GetLineupsReducer,
   GetM3UFileNames: GetM3UFileNamesReducer,
   GetM3UFiles: GetM3UFilesReducer,
   GetOutputProfile: GetOutputProfileReducer,
@@ -176,6 +178,8 @@ export const rootReducer = combineReducers({
   GetStreamGroupSMChannels: GetStreamGroupSMChannelsReducer,
   GetStreamingStatisticsForChannel: GetStreamingStatisticsForChannelReducer,
   GetStreamStreamingStatistics: GetStreamStreamingStatisticsReducer,
+  GetSubScribedHeadends: GetSubScribedHeadendsReducer,
+  GetSubscribedLineups: GetSubscribedLineupsReducer,
   GetSystemStatus: GetSystemStatusReducer,
   GetTaskIsRunning: GetTaskIsRunningReducer,
   GetVideoInfoFromId: GetVideoInfoFromIdReducer,

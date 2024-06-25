@@ -3,7 +3,7 @@
 
 public record EPGSync() : IRequest<APIResponse>;
 
-public class EPGSyncHandler(ISchedulesDirect schedulesDirect, ILogger<EPGSync> logger, IHubContext<StreamMasterHub, IStreamMasterHub> HubContext, IOptionsMonitor<SDSettings> intsettings)
+public class EPGSyncHandler(ISchedulesDirect schedulesDirect, ILogger<EPGSync> logger, IDataRefreshService dataRefreshService, IOptionsMonitor<SDSettings> intsettings)
 : IRequestHandler<EPGSync, APIResponse>
 {
     private readonly SDSettings settings = intsettings.CurrentValue;
@@ -17,14 +17,14 @@ public class EPGSyncHandler(ISchedulesDirect schedulesDirect, ILogger<EPGSync> l
             if (!response.IsError)
             {
                 logger.LogInformation("Updated Schedules Direct");
-                await HubContext.Clients.All.DataRefresh("SchedulesDirect");
+                await dataRefreshService.RefreshSchedulesDirect();
             }
         }
         else
         {
-            await HubContext.Clients.All.DataRefresh("GetStationChannelNames");
+            await dataRefreshService.RefreshStationPreviews();
         }
-        await HubContext.Clients.All.DataRefresh("GetEPGFiles");
+        //await HubContext.Clients.All.DataRefresh("GetEPGFiles");
 
 
         return APIResponse.Ok;

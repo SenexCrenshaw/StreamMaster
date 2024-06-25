@@ -23,7 +23,7 @@ public static class SignalRGeneratorDataRefreshAll
         List<string> deps = [];
         content.AppendLine("export const DataRefreshAll = () => {");
 
-        foreach (MethodDetails? method in methods.Where(a => a.IsGet & a.ParameterNames == ""))
+        foreach (MethodDetails? method in methods.Where(a => a.IsGet && a.ParameterNames == ""))
         {
             if (method.Name.Contains("GetEPGFilePreviewById"))
             {

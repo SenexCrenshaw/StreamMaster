@@ -7,16 +7,17 @@ import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
 import { AddStation, RemoveStation } from '@lib/smAPI/SchedulesDirect/SchedulesDirectCommands';
 import useGetSelectedStationIds from '@lib/smAPI/SchedulesDirect/useGetSelectedStationIds';
 import useGetStationPreviews from '@lib/smAPI/SchedulesDirect/useGetStationPreviews';
-import { AddStationRequest, RemoveStationRequest, StationIdLineup, StationPreview, StationRequest } from '@lib/smAPI/smapiTypes';
-import { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { AddStationRequest, RemoveStationRequest, StationPreview, StationRequest } from '@lib/smAPI/smapiTypes';
+import { memo, useCallback, useEffect, useMemo } from 'react';
 
 const SchedulesDirectStationDataSelector = () => {
   const dataKey = 'SchedulesDirectSchedulesDataSelector';
   const { selectedItems, setSelectedItems } = useSelectedItems<StationPreview>(dataKey);
   const schedulesDirectGetSelectedStationIdsQuery = useGetSelectedStationIds();
   const stationPreviews = useGetStationPreviews();
-  const [isLoading, setIsLoading] = useState(false);
   const { columnConfig: lineUpColumnConfig } = useLineUpColumnConfig();
+
+  // Logger.debug('SchedulesDirectStationDataSelector', { stationPreviews: stationPreviews.data?.length });
 
   useEffect(() => {
     if (
@@ -27,12 +28,8 @@ const SchedulesDirectStationDataSelector = () => {
       return;
     }
 
-    Logger.debug(
-      'SchedulesDirectStationDataSelector',
-      'useEffect',
-      'schedulesDirectGetSelectedStationIdsQuery.data',
-      schedulesDirectGetSelectedStationIdsQuery.data
-    );
+    const station19614 = stationPreviews.data.find((station) => station.StationId === '19614');
+    const station19614Selected = schedulesDirectGetSelectedStationIdsQuery.data.some((station) => station.StationId === '19614');
 
     const sp = schedulesDirectGetSelectedStationIdsQuery.data
       .map((stationIdLineUp) =>
@@ -46,6 +43,8 @@ const SchedulesDirectStationDataSelector = () => {
     if (findDifferenceStationIdLineUps(sp, selectedItems).length > 0) {
       setSelectedItems(sp as StationPreview[]);
     }
+
+    Logger.debug('SchedulesDirectStationDataSelector', { sp, station19614, station19614Selected });
   }, [
     schedulesDirectGetSelectedStationIdsQuery.data,
     schedulesDirectGetSelectedStationIdsQuery.isLoading,
@@ -55,23 +54,23 @@ const SchedulesDirectStationDataSelector = () => {
   ]);
 
   const onSave = useCallback(
-    (stationIdLineUps: StationIdLineup[]) => {
+    (stationIdLineUps: StationPreview[]) => {
       if (stationIdLineUps === undefined || schedulesDirectGetSelectedStationIdsQuery.data === undefined) {
         return;
       }
 
-      const { added, removed } = compareStationPreviews(schedulesDirectGetSelectedStationIdsQuery.data, stationIdLineUps);
+      const { added, removed } = compareStationPreviews(selectedItems, stationIdLineUps);
 
       if (added.length === 0 && removed.length === 0) {
         return;
       }
-      setIsLoading(true);
+      // setIsLoading(true);
 
       if (added !== undefined && added.length > 0) {
         const toSend = {} as AddStationRequest;
 
         toSend.Requests = added.map((station) => {
-          const request: StationRequest = { LineUp: station.lineup, StationId: station.stationId };
+          const request: StationRequest = { Country: station.Country, PostalCode: station.PostalCode, Lineup: station.Lineup, StationId: station.StationId };
           return request;
         });
 
@@ -82,7 +81,7 @@ const SchedulesDirectStationDataSelector = () => {
           })
           .finally(() => {
             setSelectedItems([] as StationPreview[]);
-            setIsLoading(false);
+            // setIsLoading(false);
           });
       }
 
@@ -90,7 +89,7 @@ const SchedulesDirectStationDataSelector = () => {
         const toSend = {} as RemoveStationRequest;
 
         toSend.Requests = removed.map((station) => {
-          const request: StationRequest = { LineUp: station.lineup, StationId: station.stationId };
+          const request: StationRequest = { Lineup: station.Lineup, StationId: station.StationId };
           return request;
         });
 
@@ -101,11 +100,11 @@ const SchedulesDirectStationDataSelector = () => {
           })
           .finally(() => {
             setSelectedItems([] as StationPreview[]);
-            setIsLoading(false);
+            // setIsLoading(false);
           });
       }
     },
-    [schedulesDirectGetSelectedStationIdsQuery.data, setSelectedItems]
+    [schedulesDirectGetSelectedStationIdsQuery.data, selectedItems, setSelectedItems]
   );
 
   function imageBodyTemplate(data: StationPreview) {
@@ -122,20 +121,20 @@ const SchedulesDirectStationDataSelector = () => {
 
   const columns = useMemo((): ColumnMeta[] => {
     const columnConfigs: ColumnMeta[] = [
-      { field: 'StationId', filter: true, header: 'Station Id', sortable: true, width: 30 },
-      { bodyTemplate: imageBodyTemplate, field: 'image', fieldType: 'image', width: 14 }
+      { field: 'StationId', filter: true, header: 'Station Id', sortable: true, width: 40 },
+      { bodyTemplate: imageBodyTemplate, field: 'image', fieldType: 'image', width: 24 }
     ];
     // // columnConfigs.push(channelGroupConfig);
     columnConfigs.push(lineUpColumnConfig);
-    columnConfigs.push({ field: 'Name', filter: true, sortable: true, width: 200 });
-    columnConfigs.push({ field: 'Callsign', filter: true, header: 'Call Sign', sortable: true, width: 80 });
+    columnConfigs.push({ field: 'Name', filter: true, sortable: true, width: 100 });
+    columnConfigs.push({ field: 'Callsign', filter: true, header: 'Call Sign', sortable: true, width: 50 });
     columnConfigs.push({ field: 'Affiliate', filter: true, sortable: true, width: 80 });
 
     return columnConfigs;
   }, [lineUpColumnConfig]);
 
   return (
-    <div className="m3uFilesEditor flex flex-column border-2 border-round surface-border w-full p-0">
+    <div className="w-full">
       <SMDataTable
         columns={columns}
         dataSource={stationPreviews.data}
@@ -144,7 +143,7 @@ const SchedulesDirectStationDataSelector = () => {
         enablePaginator
         headerName="SD Channels"
         id="SchedulesDirectStationDataSelector"
-        isLoading={stationPreviews.isLoading || isLoading}
+        noIsLoading={true}
         onSelectionChange={(e) => {
           onSave(e);
         }}

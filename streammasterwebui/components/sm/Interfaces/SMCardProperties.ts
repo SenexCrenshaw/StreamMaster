@@ -10,5 +10,5 @@ export interface SMCardProperties {
   readonly openPanel?: (open: boolean) => void;
   readonly simple?: boolean;
   readonly simpleChildren?: boolean;
-  readonly title?: string | undefined;
+  readonly title?: string | React.ReactNode | undefined;
 }

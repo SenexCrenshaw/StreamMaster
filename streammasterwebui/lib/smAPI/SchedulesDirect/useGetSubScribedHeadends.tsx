@@ -1,10 +1,10 @@
 import { QueryHookResult } from '@lib/apiDefs';
 import store, { RootState } from '@lib/redux/store';
 import { useAppDispatch, useAppSelector } from '@lib/redux/hooks';
-import { clear, clearByTag, setField, setIsForced, setIsLoading } from './GetHeadendsSlice';
+import { clear, clearByTag, setField, setIsForced, setIsLoading } from './GetSubScribedHeadendsSlice';
 import { useCallback,useEffect } from 'react';
-import { fetchGetHeadends } from './GetHeadendsFetch';
-import {FieldData, HeadendDto,GetHeadendsRequest } from '@lib/smAPI/smapiTypes';
+import { fetchGetSubScribedHeadends } from './GetSubScribedHeadendsFetch';
+import {FieldData, HeadendDto } from '@lib/smAPI/smapiTypes';
 
 interface ExtendedQueryHookResult extends QueryHookResult<HeadendDto[] | undefined> {}
 interface Result extends ExtendedQueryHookResult {
@@ -14,10 +14,9 @@ interface Result extends ExtendedQueryHookResult {
   SetIsForced: (force: boolean) => void;
   SetIsLoading: (isLoading: boolean, query: string) => void;
 }
-const useGetHeadends = (params?: GetHeadendsRequest): Result => {
+const useGetSubScribedHeadends = (): Result => {
   const dispatch = useAppDispatch();
-  const param = params ? JSON.stringify(params) : undefined;
-  const isForced = useAppSelector((state) => state.GetHeadends.isForced ?? false);
+  const isForced = useAppSelector((state) => state.GetSubScribedHeadends.isForced ?? false);
 
   const SetIsForced = useCallback(
     (forceRefresh: boolean): void => {
@@ -34,55 +33,48 @@ const useGetHeadends = (params?: GetHeadendsRequest): Result => {
 
 
 
-  const SetIsLoading = useCallback(
-    (isLoading: boolean, param: string): void => {
-      dispatch(setIsLoading({ isLoading: isLoading, param: param }));
-    },
-    [dispatch]
-  );
-
+const SetIsLoading = useCallback(
+  (isLoading: boolean): void => {
+    dispatch(setIsLoading({ isLoading: isLoading }));
+  },
+  [dispatch]
+);
 const selectData = (state: RootState) => {
-    if (param === undefined) return undefined;
-    return state.GetHeadends.data[param] || undefined;
+    return state.GetSubScribedHeadends.data;
   };
 const data = useAppSelector(selectData);
 
 const selectError = (state: RootState) => {
-    if (param === undefined) return undefined;
-    return state.GetHeadends.error[param] || undefined;
+    return state.GetSubScribedHeadends.error;
   };
 const error = useAppSelector(selectError);
 
 const selectIsError = (state: RootState) => {
-    if (param === undefined) return false;
-    return state.GetHeadends.isError[param] || false;
+    return state.GetSubScribedHeadends.isError;
   };
 const isError = useAppSelector(selectIsError);
 
 const selectIsLoading = (state: RootState) => {
-    if (param === undefined) return false;
-    return state.GetHeadends.isLoading[param] || false;
+    return state.GetSubScribedHeadends.isLoading;
   };
 const isLoading = useAppSelector(selectIsLoading);
 
 
-useEffect(() => {
-  if (param === undefined) return;
-  const state = store.getState().GetHeadends;
-  if (data === undefined && state.isLoading[param] !== true && state.isForced !== true) {
-    SetIsForced(true);
-  }
-}, [data, param, SetIsForced]);
+  useEffect(() => {
+    const state = store.getState().GetSubScribedHeadends;
+    if (data === undefined && state.isLoading !== true && state.isForced !== true) {
+      SetIsForced(true);
+    }
+  }, [SetIsForced, data]);
 
 useEffect(() => {
-  const state = store.getState().GetHeadends;
-  if (params === undefined || param === undefined || param === '{}' ) return;
-  if (state.isLoading[param]) return;
+  const state = store.getState().GetSubScribedHeadends;
+  if (state.isLoading) return;
   if (data !== undefined && !isForced) return;
 
-  SetIsLoading(true, param);
-  dispatch(fetchGetHeadends(params));
-}, [SetIsLoading, data, dispatch, isForced, param, params]);
+  SetIsLoading(true);
+  dispatch(fetchGetSubScribedHeadends());
+}, [SetIsLoading, data, dispatch, isForced]);
 
 const SetField = (fieldData: FieldData): void => {
   dispatch(setField({ fieldData: fieldData }));
@@ -105,4 +97,4 @@ return {
 };
 };
 
-export default useGetHeadends;
+export default useGetSubScribedHeadends;

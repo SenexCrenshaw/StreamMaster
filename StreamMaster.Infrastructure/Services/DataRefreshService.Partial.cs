@@ -29,7 +29,18 @@ public partial class DataRefreshService : IDataRefreshServicePartial
     {
 
         await hub.Clients.All.DataRefresh("GetVideoProfiles");
+    }
 
+    public async Task RefreshStationPreviews()
+    {
+
+        await hub.Clients.All.DataRefresh("GetStationPreviews");
+
+    }
+    public async Task RefreshSelectedStationIds()
+    {
+
+        await hub.Clients.All.DataRefresh("GetSelectedStationIds");
     }
 
     public async Task Refresh(string command)

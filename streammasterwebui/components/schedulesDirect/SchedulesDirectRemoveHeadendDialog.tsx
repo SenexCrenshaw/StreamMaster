@@ -1,4 +1,4 @@
-import MinusButton from '@components/buttons/MinusButton';
+import SMPopUp from '@components/sm/SMPopUp';
 import { RemoveLineup } from '@lib/smAPI/SchedulesDirect/SchedulesDirectCommands';
 import { HeadendDto, RemoveLineupRequest } from '@lib/smAPI/smapiTypes';
 
@@ -9,7 +9,7 @@ interface SchedulesDirectAddHeadendDialogProperties {
 }
 
 const SchedulesDirectAddHeadendDialog = ({ value }: SchedulesDirectAddHeadendDialogProperties) => {
-  const addHeadEnd = async () => {
+  const removeHeadEnd = async () => {
     if (!value) {
       return;
     }
@@ -28,9 +28,12 @@ const SchedulesDirectAddHeadendDialog = ({ value }: SchedulesDirectAddHeadendDia
   };
 
   return (
-    <div className="flex">
-      <MinusButton iconFilled={false} onClick={async () => await addHeadEnd()} />
-    </div>
+    <SMPopUp title="Unsubscribe Lineup" icon="pi-minus" buttonClassName="icon-red" onOkClick={removeHeadEnd}>
+      <div className="flex flex-column align-content-center justify-content-center align-items-center">
+        <div>Are you sure?</div>
+        <div>You can only do this 6 times per day</div>
+      </div>
+    </SMPopUp>
   );
 };
 

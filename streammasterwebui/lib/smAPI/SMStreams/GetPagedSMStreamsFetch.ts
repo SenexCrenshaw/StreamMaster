@@ -1,5 +1,6 @@
 import { GetPagedSMStreams } from '@lib/smAPI/SMStreams/SMStreamsCommands';
 import { createAsyncThunk } from '@reduxjs/toolkit';
+import { Logger } from '@lib/common/logger';
 
 
 export const fetchGetPagedSMStreams = createAsyncThunk('cache/getGetPagedSMStreams', async (query: string, thunkAPI) => {

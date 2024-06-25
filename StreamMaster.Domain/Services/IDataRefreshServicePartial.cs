@@ -2,6 +2,8 @@ namespace StreamMaster.Domain.Services
 {
     public interface IDataRefreshServicePartial
     {
+        Task RefreshSelectedStationIds();
+        Task RefreshStationPreviews();
         Task RefreshOutputProfiles();
         Task RefreshVideoProfiles();
         Task IsSystemReady();

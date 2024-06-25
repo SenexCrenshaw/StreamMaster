@@ -179,7 +179,6 @@ namespace BuildClientAPI
                 string tsStoreFilePath = Path.Combine(StoreFilePathPrefix, "reducers.ts");
                 StoreGenerator.GenerateFile([.. methodsByNamespace.SelectMany(a => a.Value).Where(a => a.IsGet).OrderBy(a => a.Name)], tsStoreFilePath);
 
-
                 DataRefreshService.GenerateFile(methodsByNamespace, DataRefreshFilePath, IDataRefreshFilePath);
 
                 SignalRGeneratorDataRefreshAll.GenerateFile([.. methodsByNamespace.SelectMany(a => a.Value).Where(a => a.IsGet).OrderBy(a => a.Name)], DataRefreshAllFilePath);

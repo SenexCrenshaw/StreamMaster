@@ -7,10 +7,10 @@ using System.Text.RegularExpressions;
 
 
 namespace StreamMaster.SchedulesDirect;
-public class Lineups(ILogger<Lineups> logger, IOptionsMonitor<SDSettings> intsettings, IIconService iconService, ISchedulesDirectAPIService schedulesDirectAPI, IEPGCache<Lineups> epgCache, ISchedulesDirectDataService schedulesDirectDataService) : ILineups
+public class Lineups(ILogger<Lineups> logger, IOptionsMonitor<SDSettings> intsdSettings, IIconService iconService, ISchedulesDirectAPIService schedulesDirectAPI, IEPGCache<Lineups> epgCache, ISchedulesDirectDataService schedulesDirectDataService) : ILineups
 {
     private List<KeyValuePair<MxfService, string[]>> StationLogosToDownload = [];
-    private readonly SDSettings sdsettings = intsettings.CurrentValue;
+    private readonly SDSettings sdsettings = intsdSettings.CurrentValue;
 
     public void ResetCache()
     {
@@ -374,6 +374,7 @@ public class Lineups(ILogger<Lineups> logger, IOptionsMonitor<SDSettings> intset
     private async Task<List<Station>> GetStations(CancellationToken cancellationToken)
     {
         List<Station> ret = [];
+        var sdsettings = intsdSettings.CurrentValue;
 
         List<SubscribedLineup> lineups = await GetLineups(cancellationToken).ConfigureAwait(false);
         if (lineups?.Any() != true)
@@ -389,16 +390,27 @@ public class Lineups(ILogger<Lineups> logger, IOptionsMonitor<SDSettings> intset
                 continue;
             }
 
-            foreach (Station station in res.Stations)
-            {
-                station.Lineup = lineup.Lineup;
-            }
+            //foreach (Station station in res.Stations)
+            //{
+            //    station.Lineup = lineup.Lineup;
+            //}
 
             ConcurrentHashSet<string> existingIds = new(ret.Select(station => station.StationId));
 
             foreach (Station station in res.Stations)
             {
+                //var s = sdsettings.SDStationIds.FirstOrDefault(a => a.StationId == station.StationId && a.Lineup == lineup.Lineup);
                 station.Lineup = lineup.Lineup;
+                //if (s != null)
+                //{
+                //    station.Country = s.Country;
+                //    station.PostalCode = s.PostalCode;
+                //}
+                //else
+                //{
+
+                //}
+
                 if (!existingIds.Contains(station.StationId))
                 {
                     ret.Add(station);
