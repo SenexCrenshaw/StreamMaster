@@ -1,12 +1,10 @@
 import SMDataTable from '@components/smDataTable/SMDataTable';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
-import { Logger } from '@lib/common/logger';
 import { useSelectedCountry } from '@lib/redux/hooks/selectedCountry';
-import selectedItems from '@lib/redux/hooks/selectedItems';
 import { useSelectedPostalCode } from '@lib/redux/hooks/selectedPostalCode';
 import { useSMContext } from '@lib/signalr/SMProvider';
 import useGetHeadendsByCountryPostal from '@lib/smAPI/SchedulesDirect/useGetHeadendsByCountryPostal';
-import useGetSubscribedLineup from '@lib/smAPI/SchedulesDirect/useGetSubscribedLineup';
+import useGetSubscribedLineups from '@lib/smAPI/SchedulesDirect/useGetSubscribedLineups';
 import { GetHeadendsByCountryPostalRequest, HeadendDto } from '@lib/smAPI/smapiTypes';
 import { memo, useCallback, useMemo } from 'react';
 import SchedulesDirectAddHeadendDialog from './SchedulesDirectAddHeadendDialog';
@@ -22,11 +20,8 @@ const SchedulesDirectHeadendDataSelector = () => {
     Country: selectedCountry ?? 'USA',
     PostalCode: selectedPostalCode ?? '00000'
   } as GetHeadendsByCountryPostalRequest);
-  const { data: subscribedLineups } = useGetSubscribedLineup();
-  // const { data: headendsToView } = useGetHeadendsToView();
+  const { data: subscribedLineups } = useGetSubscribedLineups();
   const { settings } = useSMContext();
-
-  Logger.debug('SchedulesDirectHeadendDataSelector', 'selectedItems', selectedItems);
 
   const actionBodyTemplate = useCallback(
     (headEndDto: HeadendDto) => {
