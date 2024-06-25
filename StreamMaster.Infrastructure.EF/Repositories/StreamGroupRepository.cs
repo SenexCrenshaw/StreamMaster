@@ -60,21 +60,36 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
         //int count = streamGroupDto.IsReadOnly
         //    ? RepositoryContext.SMStreams.Count()
         //    : RepositoryContext.StreamGroupSMChannelLinks.Where(a => a.StreamGroupId == streamGroupDto.Id).Count();
-        foreach (var sgprofile in streamGroupDto.StreamGroupProfiles)
+        if (streamGroupDto.StreamGroupProfiles.Count > 0)
         {
-            //string encodedStreamGroupNumber = streamGroupDto.Id.EncodeValue128(Settings.ServerKey);
-            string encodedStreamGroupNumber = streamGroupDto.Id.EncodeValues128(sgprofile.Id, Settings.ServerKey);
+            foreach (var sgprofile in streamGroupDto.StreamGroupProfiles)
+            {
+                //string encodedStreamGroupNumber = streamGroupDto.Id.EncodeValue128(Settings.ServerKey);
+                string encodedStreamGroupNumber = streamGroupDto.Id.EncodeValues128(sgprofile.Id, Settings.ServerKey);
 
-            string encodedName = HttpUtility.HtmlEncode(streamGroupDto.Name).Trim()
-                        .Replace("/", "")
-                        .Replace(" ", "_");
+                string encodedName = HttpUtility.HtmlEncode(streamGroupDto.Name).Trim()
+                            .Replace("/", "")
+                            .Replace(" ", "_");
 
-            sgprofile.M3ULink = $"{Url}/api/streamgroups/{encodedStreamGroupNumber}/m3u.m3u";
-            sgprofile.ShortM3ULink = $"{Url}/v/s/{encodedName}.m3u";
-            sgprofile.ShortEPGLink = $"{Url}/v/s/{encodedName}.xml";
-            sgprofile.XMLLink = $"{Url}/api/streamgroups/{encodedStreamGroupNumber}/epg.xml";
-            sgprofile.HDHRLink = $"{Url}/api/streamgroups/{encodedStreamGroupNumber}";
+                sgprofile.M3ULink = $"{Url}/api/streamgroups/{encodedStreamGroupNumber}/m3u.m3u";
+                sgprofile.ShortM3ULink = $"{Url}/v/s/{encodedName}.m3u";
+                sgprofile.ShortEPGLink = $"{Url}/v/s/{encodedName}.xml";
+                sgprofile.XMLLink = $"{Url}/api/streamgroups/{encodedStreamGroupNumber}/epg.xml";
+                sgprofile.HDHRLink = $"{Url}/api/streamgroups/{encodedStreamGroupNumber}";
+            }
+
+            var defaultProfile = streamGroupDto.StreamGroupProfiles.FirstOrDefault(a => a.Name == "Default");
+            if (defaultProfile != null)
+            {
+                streamGroupDto.ShortM3ULink = defaultProfile.ShortM3ULink;
+                streamGroupDto.ShortEPGLink = defaultProfile.ShortEPGLink;
+                streamGroupDto.M3ULink = defaultProfile.M3ULink;
+                streamGroupDto.XMLLink = defaultProfile.XMLLink;
+                streamGroupDto.HDHRLink = defaultProfile.HDHRLink;
+            }
         }
+
+
         //streamGroupDto.StreamCount = count;
     }
 

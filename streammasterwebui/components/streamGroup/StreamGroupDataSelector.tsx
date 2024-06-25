@@ -93,7 +93,6 @@ const StreamGroupDataSelector = ({ id }: StreamGroupDataSelectorProperties) => {
         width: 20
       },
       {
-        align: 'center',
         field: 'HDHRLink',
         fieldType: 'url',
         width: 20
@@ -105,7 +104,7 @@ const StreamGroupDataSelector = ({ id }: StreamGroupDataSelectorProperties) => {
         width: 30
       },
       {
-        field: 'm3ulink',
+        field: 'M3ULink',
         fieldType: 'm3ulink',
         width: 30
       },

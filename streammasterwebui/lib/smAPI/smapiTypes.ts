@@ -357,11 +357,16 @@ export interface StreamGroupDto
 {
 	AutoSetChannelNumbers: boolean;
 	ChannelCount: number;
+	HDHRLink: string;
 	Id: number;
 	IsLoading: boolean;
 	IsReadOnly: boolean;
+	M3ULink: string;
 	Name: string;
+	ShortEPGLink: string;
+	ShortM3ULink: string;
 	StreamGroupProfiles: StreamGroupProfileDto[];
+	XMLLink: string;
 }
 export interface HLSSettings
 {

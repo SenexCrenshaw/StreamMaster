@@ -11,4 +11,13 @@ public class StreamGroupDto : IMapFrom<StreamGroup>
     public int Id { get; set; }
     public string Name { get; set; } = string.Empty;
 
+
+    public string ShortM3ULink { get; set; } = string.Empty;
+    public string ShortEPGLink { get; set; } = string.Empty;
+    public string M3ULink { get; set; } = string.Empty;
+    public string XMLLink { get; set; } = string.Empty;
+    public string HDHRLink { get; set; } = string.Empty;
+
+
+
 }
