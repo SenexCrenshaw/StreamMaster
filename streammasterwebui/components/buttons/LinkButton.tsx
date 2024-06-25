@@ -1,18 +1,9 @@
 import SMButton from '@components/sm/SMButton';
+import { Logger } from '@lib/common/logger';
 import useCopyToClipboard from '@lib/hooks/useCopyToClipboard';
 import { useState } from 'react';
 
-export const LinkButton = ({
-  link,
-  filled,
-  title,
-  bolt
-}: {
-  readonly link: string;
-  readonly filled?: boolean;
-  readonly title: string;
-  readonly bolt?: boolean;
-}) => {
+export const LinkButton = ({ link, filled, bolt }: { readonly link: string; readonly filled?: boolean; readonly title: string; readonly bolt?: boolean }) => {
   const [, copyToClipboard] = useCopyToClipboard(true);
   const [copied, setCopied] = useState(false);
 
@@ -24,7 +15,8 @@ export const LinkButton = ({
       buttonClassName={bolt ? 'icon-yellow' : 'icon-orange'}
       iconFilled={false}
       onClick={() => {
-        copyToClipboard(link).then((ifCopied) => {
+        Logger.debug('LinkButton', 'onClick', link.replace(/"/g, ''));
+        copyToClipboard(link.replace(/"/g, '')).then((ifCopied) => {
           setCopied(ifCopied);
           setTimeout(() => setCopied(false), 750);
         });
