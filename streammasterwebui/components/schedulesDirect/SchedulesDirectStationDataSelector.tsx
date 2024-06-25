@@ -70,7 +70,7 @@ const SchedulesDirectStationDataSelector = () => {
         const toSend = {} as AddStationRequest;
 
         toSend.Requests = added.map((station) => {
-          const request: StationRequest = { Country: station.Country, PostalCode: station.PostalCode, Lineup: station.Lineup, StationId: station.StationId };
+          const request: StationRequest = { Lineup: station.Lineup, StationId: station.StationId };
           return request;
         });
 
@@ -133,6 +133,7 @@ const SchedulesDirectStationDataSelector = () => {
     return columnConfigs;
   }, [lineUpColumnConfig]);
 
+  Logger.debug('SchedulesDirectStationDataSelector', { stationPreviews: stationPreviews.data?.length });
   return (
     <div className="w-full">
       <SMDataTable
@@ -143,6 +144,7 @@ const SchedulesDirectStationDataSelector = () => {
         enablePaginator
         headerName="SD Channels"
         id="SchedulesDirectStationDataSelector"
+        lazy
         noIsLoading={true}
         onSelectionChange={(e) => {
           onSave(e);

@@ -32,14 +32,10 @@ const SMDropDown = forwardRef<SMDropDownRef, ExtendedSMDropDownProperties>(
     const smOverlayRef = useRef<SMOverlayRef | null>(null);
 
     const getDiv = useMemo(() => {
-      let ret = 'flex justify-content-start w-12';
-
-      if (props.label && !labelInline) {
-        ret += ' flex-column';
-      }
+      let ret = 'flex-column ';
 
       return ret;
-    }, [labelInline, props.label]);
+    }, []);
 
     const getSMOverlay = useCallback(
       (children: ReactNode) => {

@@ -1038,9 +1038,7 @@ export interface AddLineupRequest
 }
 export interface StationRequest
 {
-	Country: string;
 	Lineup: string;
-	PostalCode: string;
 	StationId: string;
 }
 export interface AddStationRequest

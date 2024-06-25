@@ -3,7 +3,7 @@
 namespace StreamMaster.Application.SchedulesDirect.Commands;
 
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record StationRequest(string StationId, string Lineup, string Country, string PostalCode);
+public record StationRequest(string StationId, string Lineup);
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
@@ -27,7 +27,6 @@ public class AddStationHandler(ILogger<AddStationRequest> logger, IDataRefreshSe
             return APIResponse.Ok;
         }
 
-        JobStatusManager jobManager = jobStatusService.GetJobManager(JobType.SDSync, EPGHelper.SchedulesDirectId);
 
         UpdateSettingParameters updateSetting = new()
         {
@@ -36,6 +35,8 @@ public class AddStationHandler(ILogger<AddStationRequest> logger, IDataRefreshSe
                 SDStationIds = sdsettings.SDStationIds
             }
         };
+
+        bool changed = false;
 
         foreach (StationRequest stationRequest in request.Requests)
         {
@@ -48,15 +49,19 @@ public class AddStationHandler(ILogger<AddStationRequest> logger, IDataRefreshSe
             logger.LogInformation("Added Station {StationIdLineup}", stationRequest.StationId);
             StationIdLineup station = new(stationRequest.StationId, stationRequest.Lineup);
             updateSetting.SDSettings.SDStationIds.Add(station);
+            changed = true;
         }
 
-        if (updateSetting.SDSettings.SDStationIds.Count > 0)
+        if (changed)
         {
             _ = await Sender.Send(new UpdateSettingRequest(updateSetting), cancellationToken).ConfigureAwait(false);
 
             schedulesDirect.ResetCache("SubscribedLineups");
+
+            JobStatusManager jobManager = jobStatusService.GetJobManageSDSync(EPGHelper.SchedulesDirectId);
+
             jobManager.SetForceNextRun();
-            await dataRefreshService.RefreshSelectedStationIds();
+            await dataRefreshService.RefreshSchedulesDirect();
         }
         return APIResponse.Ok;
     }

@@ -1,6 +1,7 @@
 import AddButton from '@components/buttons/AddButton';
 import StringEditor from '@components/inputs/StringEditor';
 import SMDropDown from '@components/sm/SMDropDown';
+import { Logger } from '@lib/common/logger';
 import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
 import { useSMContext } from '@lib/signalr/SMProvider';
 import useGetEPGColors from '@lib/smAPI/EPG/useGetEPGColors';
@@ -86,6 +87,12 @@ const EPGSelector = ({ buttonDarkBackground = false, enableEditMode = true, labe
     if (!query.data) {
       return undefined;
     }
+
+    const test = query.data.filter((x) => {
+      return x.Channel.startsWith('-1');
+    });
+
+    Logger.debug('EPGSelector', { test });
 
     if (selectedItems && selectedItems.length > 0) {
       const epgNumbers = selectedItems.map((x) => x.EPGNumber);
@@ -354,21 +361,22 @@ const EPGSelector = ({ buttonDarkBackground = false, enableEditMode = true, labe
     if (selectedItems && selectedItems.length > 0) {
       const epgNames = selectedItems.slice(0, 2).map((x) => x.Name);
       const suffix = selectedItems.length > 2 ? ',...' : '';
-      return <div className="px-4 w-10rem flex align-content-center justify-content-center min-w-10rem">{epgNames.join(', ') + suffix}</div>;
+      return <div className="px-4 w-10rem flex align-content-center justify-content-center min-w-10rem dark-background">{epgNames.join(', ') + suffix}</div>;
     }
-    return <div className="px-4 w-10rem" style={{ minWidth: '10rem' }} />;
+    return <div className="px-4 w-10rem dark-background" style={{ minWidth: '10rem' }} />;
   }, [selectedItems]);
 
   const headerTemplate = useMemo(() => {
     return (
       <SMDropDown
+        buttonDarkBackground
         buttonTemplate={headerValueTemplate}
+        contentWidthSize="2"
         data={epgFiles}
         dataKey="EPGNumber"
         info=""
-        scrollHeight="20vh"
-        contentWidthSize="2"
         itemTemplate={scrollerItemTemplate}
+        scrollHeight="20vh"
         select
         selectedItemsKey="EPGSelector-EPGFiles"
         simple

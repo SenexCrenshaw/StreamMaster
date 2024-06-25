@@ -138,7 +138,9 @@ public sealed class QueuedHostedService(
             {
                 logger.LogError(ex, "Error occurred executing task work item. {command}", command.Command);
                 await messageSevice.SendError($"Error executing task: {command.Command}, {ex.Message}");
+
                 await taskQueue.SetStop(command.Id).ConfigureAwait(false);
+
             }
         }
         logger.LogInformation("{nameof(QueuedHostedService)} is stopped.{Environment.NewLine}", nameof(QueuedHostedService), Environment.NewLine);

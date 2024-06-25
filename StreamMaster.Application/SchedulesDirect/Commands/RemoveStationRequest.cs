@@ -13,9 +13,6 @@ public class RemoveStationRequestHandler(ILogger<RemoveStationRequest> logger, I
 
     public async Task<APIResponse> Handle(RemoveStationRequest request, CancellationToken cancellationToken)
     {
-        JobStatusManager jobManager = jobStatusService.GetJobManager(JobType.SDSync, EPGHelper.SchedulesDirectId);
-
-
         if (!sdsettings.SDEnabled)
         {
             return APIResponse.ErrorWithMessage("SD is not enabled");
@@ -32,11 +29,11 @@ public class RemoveStationRequestHandler(ILogger<RemoveStationRequest> logger, I
         List<string> toDelete = [];
         foreach (StationRequest stationRequest in request.Requests)
         {
-            //StationIdLineup station = new(stationRequest.StationId, stationRequest.LineUp, request.co);
+
             StationIdLineup? existing = updateSetting.SDSettings.SDStationIds.FirstOrDefault(x => x.Lineup == stationRequest.Lineup && x.StationId == stationRequest.StationId);
             if (existing == null)
             {
-                logger.LogInformation("Remove Station: Does not exists {StationIdLineup}", stationRequest.StationId);
+                logger.LogInformation("Remove Station: No stations exist {StationIdLineup}", stationRequest.StationId);
                 continue;
             }
             logger.LogInformation("Remove Station {StationIdLineup}", stationRequest.StationId);
@@ -51,8 +48,9 @@ public class RemoveStationRequestHandler(ILogger<RemoveStationRequest> logger, I
             _ = await Sender.Send(new UpdateSettingRequest(updateSetting), cancellationToken).ConfigureAwait(false);
 
             schedulesDirect.ResetEPGCache();
+            JobStatusManager jobManager = jobStatusService.GetJobManageSDSync(EPGHelper.SchedulesDirectId);
             jobManager.SetForceNextRun();
-            await dataRefreshService.RefreshSelectedStationIds();
+            await dataRefreshService.RefreshSchedulesDirect();
 
 
             //foreach (EPGFileDto epg in await Repository.EPGFile.GetEPGFiles())

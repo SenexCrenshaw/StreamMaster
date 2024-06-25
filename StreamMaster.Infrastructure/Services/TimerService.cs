@@ -89,7 +89,6 @@ public class TimerService(IServiceProvider serviceProvider, IOptionsMonitor<Sett
         ISchedulesDirect schedulesDirect = scope.ServiceProvider.GetRequiredService<ISchedulesDirect>();
 
 
-
         DateTime now = DateTime.Now;
 
         JobStatusManager jobManager = jobStatusService.GetJobManager(JobType.SDSync, EPGHelper.SchedulesDirectId);

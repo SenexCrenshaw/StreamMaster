@@ -29,6 +29,7 @@ namespace StreamMaster.SchedulesDirect.Domain.Interfaces
 
         ConcurrentDictionary<string, MxfService> Services { get; set; }
 
+        void RemoveLineup(string lineup);
 
         MxfPerson FindOrCreatePerson(string name);
         MxfSeason FindOrCreateSeason(string seriesId, int seasonNumber, string protoTypicalProgram);

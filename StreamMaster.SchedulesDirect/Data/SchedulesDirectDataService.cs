@@ -130,21 +130,21 @@ public class SchedulesDirectDataService : ISchedulesDirectDataService
     {
 
         List<StationChannelName> ret = [];
-        await Task.Run(() =>
-        {
-            foreach (MxfService station in AllServices.Where(a => !a.StationId.StartsWith("DUMMY-")))
-            {
-                string channelNameSuffix = station.CallSign;
 
-                StationChannelName stationChannelName = new()
-                {
-                    Channel = station.StationId,
-                    DisplayName = $"[{station.CallSign}] {station.Name}",
-                    ChannelName = station.CallSign
-                };
-                ret.Add(stationChannelName);
-            }
-        });
+        foreach (MxfService station in AllServices.Where(a => !a.StationId.StartsWith("DUMMY-")))
+        {
+            string channelNameSuffix = station.CallSign;
+
+            StationChannelName stationChannelName = new()
+            {
+                Channel = station.StationId,
+                DisplayName = $"[{station.CallSign}] {station.Name}",
+                ChannelName = station.CallSign
+            };
+            ret.Add(stationChannelName);
+        }
+
+        var test = AllServices.Where(a => a.StationId.StartsWith("-1")).ToList();
 
         return ret.OrderBy(a => a.DisplayName, StringComparer.OrdinalIgnoreCase).ToList();
     }

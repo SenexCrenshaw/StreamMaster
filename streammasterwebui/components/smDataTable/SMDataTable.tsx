@@ -175,27 +175,6 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
     [onSetSelection, props, state.selectAll]
   );
 
-  // useEffect(() => {
-  //   if (props.queryFilter || !props.dataSource) {
-  //     return;
-  //   }
-
-  //   const newData = selectedData(props.dataSource);
-  //   if (!state.dataSource || (state.dataSource && !areArraysEqual(newData, state.dataSource))) {
-  //     if (props.reorderable) {
-  //       setters.setDataSource([...newData].sort((a, b) => a.rank - b.rank));
-  //     } else {
-  //       setters.setDataSource([...newData]);
-  //     }
-
-  //     setters.setPagedInformation(undefined);
-
-  //     if (state.selectAll) {
-  //       onSetSelection(newData);
-  //     }
-  //   }
-  // }, [onSetSelection, props.dataSource, props.id, props.queryFilter, props.reorderable, selectedData, setters, state.dataSource, state.selectAll]);
-
   const onRowReorder = (changed: T[]) => {
     props.onRowReorder?.(changed);
   };
@@ -424,129 +403,6 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
     setters.setFilters(newFilters as any);
   };
 
-  // const selectedData = useCallback(
-  //   (inputData: T[]): T[] => {
-  //     if (props.showSelections !== true) {
-  //       return inputData;
-  //     }
-
-  //     if (state.showSelections === null) {
-  //       return inputData;
-  //     }
-
-  //     if (state.showSelections === true) {
-  //       return state.selectedItems;
-  //     }
-
-  //     if (!state.selectedItems) {
-  //       return [] as T[];
-  //     }
-
-  //     const returnValue = inputData.filter((d) => !state.selectedItems?.some((s) => s.Id === d.Id));
-
-  //     return returnValue;
-  //   },
-  //   [props.showSelections, state.selectedItems, state.showSelections]
-  // );
-
-  // Logger.debug('DataTable', { id: props.id, selectedData: selectedData(props.dataSource ?? []) });
-
-  // useEffect(() => {
-  //   if (!data) {
-  //     return; // dataSource;
-  //   }
-
-  //   // Logger.debug('DataTable', { id: props.id, data: data, isArray: Array.isArray(data) });
-
-  //   // return [];
-  // }, [data, props.id, state.selectAll]);
-
-  // useEffect(() => {
-  //   if (data) {
-  //     if (Array.isArray(data)) {
-  //       setters.setPagedInformation(undefined);
-  //       if (state.selectAll) {
-  //         setters.setSelectedItems(data);
-  //       }
-  //       setDataSource(data);
-  //       return; //data;
-  //     }
-
-  //     if (data && isPagedResponse<T>(data)) {
-  //       if (state.selectAll && data !== undefined) {
-  //         setters.setSelectedItems((data as PagedResponse<T>).Data as T[]);
-  //       }
-
-  //       if (data.PageNumber > 1 && data.TotalPageCount === 0) {
-  //         const newData = { ...data };
-
-  //         newData.PageNumber += -1;
-  //         newData.First = (newData.PageNumber - 1) * newData.PageSize;
-  //         setters.setPage(newData.PageNumber);
-  //         setters.setFirst(newData.First);
-  //         setters.setPagedInformation(newData);
-  //       } else {
-  //         setters.setPagedInformation(data);
-  //       }
-
-  //       setDataSource((data as PagedResponse<T>).Data);
-  //       // return (data as PagedResponse<T>).Data;
-  //     }
-  //     return;
-  //   }
-
-  //   if (!props.dataSource) {
-  //     return; // dataSource; //dataSource;
-  //   }
-
-  //   let ret = [...props.dataSource];
-
-  //   if (state.filters !== undefined) {
-  //     Object.keys(state.filters).forEach((key) => {
-  //       const filter = state.filters[key];
-  //       if (filter.value !== undefined && filter.value !== '') {
-  //         ret = ret.filter((item: any) => {
-  //           const filterKey = key as keyof typeof item;
-  //           const itemValue = item[filterKey];
-  //           return typeof itemValue === 'string' && itemValue.toLowerCase().includes(filter.value.toLowerCase());
-  //         });
-  //       }
-  //     });
-  //   }
-
-  //   if (state.showSelected === true) {
-  //     ret = ret.filter((item: any) => {
-  //       return state.selectedItems.some((selected) => selected.Id === item.Id);
-  //     });
-  //   } else if (state.showSelected !== null) {
-  //     ret = ret.filter((item: any) => {
-  //       return !state.selectedItems.some((selected) => selected.Id === item.Id);
-  //     });
-  //   }
-
-  //   if (state.sortOrder !== undefined) {
-  //     ret = ret.sort((a: any, b: any) => {
-  //       const sortField = state.sortField as keyof typeof a;
-
-  //       if (a[sortField] < b[sortField]) {
-  //         return -1 * state.sortOrder;
-  //       }
-  //       if (a[sortField] > b[sortField]) {
-  //         return 1 * state.sortOrder;
-  //       }
-  //       return 0;
-  //     });
-  //   }
-
-  //   const pagedInformation = { First: state.first, PageNumber: state.page, PageSize: state.rows, TotalItemCount: ret.length } as PagedResponse<T>;
-  //   setters.setPagedInformation(pagedInformation);
-  //   ret = ret.slice(state.first, state.first + state.rows);
-
-  //   // Logger.debug('DataTable', { id: props.id, pagedInformation });
-  //   setDataSource(ret);
-  //   // return ret;
-  // }, [data, props.dataSource, state.sortField, state.sortOrder, state.filters, state.page, state.rows, state.showSelected]);
-
   useEffect(() => {
     if (data) {
       if (Array.isArray(data)) {
@@ -591,6 +447,9 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
         if (filter.value) {
           filteredData = filteredData.filter((item: any) => {
             const itemValue = item[key as keyof typeof item];
+            if (Array.isArray(filter.value)) {
+              return typeof itemValue === 'string' && filter.value.some((val) => typeof val === 'string' && val.toLowerCase() === itemValue.toLowerCase());
+            }
             return typeof itemValue === 'string' && itemValue.toLowerCase().includes(filter.value.toLowerCase());
           });
         }

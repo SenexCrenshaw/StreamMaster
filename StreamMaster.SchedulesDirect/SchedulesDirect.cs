@@ -28,8 +28,6 @@ public partial class SchedulesDirect(
     private readonly TimeSpan CacheDuration = TimeSpan.FromHours(23);
     private readonly SemaphoreSlim _cacheSemaphore = new(1, 1);
     private readonly SemaphoreSlim _syncSemaphore = new(1, 1);
-    private readonly SDSettings sdsettings = intsettings.CurrentValue;
-
 
     public static readonly int MaxQueries = 1250;
     public static readonly int MaxDescriptionQueries = 500;
@@ -38,6 +36,9 @@ public partial class SchedulesDirect(
 
     public async Task<APIResponse> SDSync(CancellationToken cancellationToken)
     {
+        SDSettings sdSettings = intsettings.CurrentValue;
+
+
         JobStatusManager jobManager = jobStatusService.GetJobManageSDSync(EPGHelper.SchedulesDirectId);
 
 
@@ -51,7 +52,7 @@ public partial class SchedulesDirect(
             }
 
 
-            if (!sdsettings.SDEnabled)
+            if (!sdSettings.SDEnabled)
             {
                 jobManager.SetSuccessful();
                 return APIResponse.Ok;
@@ -79,7 +80,7 @@ public partial class SchedulesDirect(
             }
 
 
-            logger.LogInformation($"DaysToDownload: {sdsettings.SDEPGDays}");
+            logger.LogInformation($"DaysToDownload: {sdSettings.SDEPGDays}");
 
             // load cache file
             ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
@@ -261,6 +262,7 @@ public partial class SchedulesDirect(
         lineups.ResetCache();
         schedules.ResetCache();
         programs.ResetCache();
+
 
         movieImages.ResetCache();
         seriesImages.ResetCache();

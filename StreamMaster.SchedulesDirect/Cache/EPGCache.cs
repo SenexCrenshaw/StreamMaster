@@ -1,8 +1,4 @@
-﻿using StreamMaster.Domain.Configuration;
-using StreamMaster.Domain.Models;
-
-using StreamMaster.SchedulesDirect.Domain.Enums;
-using StreamMaster.SchedulesDirect.Helpers;
+﻿using StreamMaster.Domain.Models;
 
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -315,12 +311,12 @@ public class EPGCache<T> : IEPGCache<T>
         else
         {
             string aspect = sdsettings.SeriesPosterArt ? "2x3" : sdsettings.SeriesWsArt ? "16x9" : sdsettings.SeriesPosterAspect;
-            image = artwork.SingleOrDefault(arg => arg.Aspect.ToLower().Equals(aspect));
+            image = artwork.FirstOrDefault(arg => arg.Aspect.ToLower().Equals(aspect));
         }
 
         if (image == null && type == ImageType.Series)
         {
-            image = artwork.SingleOrDefault(arg => arg.Aspect.ToLower().Equals("4x3"));
+            image = artwork.FirstOrDefault(arg => arg.Aspect.ToLower().Equals("4x3"));
         }
         ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
         return image != null ? schedulesDirectData.FindOrCreateGuideImage(image.Uri) : null;

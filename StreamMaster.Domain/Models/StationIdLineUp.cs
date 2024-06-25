@@ -12,11 +12,11 @@ public class StationIdLineup
     //public StationIdLineup(string stationId, string lineup, string Country, string PostalCode)
     public StationIdLineup(string StationId, string Lineup)
     {
-        Lineup = Lineup;
-        StationId = StationId;
+        this.Lineup = Lineup;
+        this.StationId = StationId;
         //this.Country = Country;
         //this.PostalCode = PostalCode;
-        Id = Lineup + "|" + StationId;
+        this.Id = Lineup + "|" + StationId;
     }
 
 }

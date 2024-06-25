@@ -124,6 +124,7 @@ public partial class SchedulesDirect
             logger.LogDebug($"Successfully removed lineup {lineup} from account. serverID: {ret.ServerId} , message: {ret.Message} , changesRemaining: {ret.ChangesRemaining}");
             JobStatusManager jobManager = jobStatusService.GetJobManager(JobType.SDSync, EPGHelper.SchedulesDirectId);
             jobManager.SetForceNextRun(true);
+            schedulesDirectDataService.SchedulesDirectData().RemoveLineup(lineup);
             return ret.ChangesRemaining;
         }
         else
