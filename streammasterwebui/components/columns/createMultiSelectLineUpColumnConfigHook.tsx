@@ -5,7 +5,7 @@ import useGetSubscribedLineups from '@lib/smAPI/SchedulesDirect/useGetSubscribed
 import { StationPreview, SubscribedLineup } from '@lib/smAPI/smapiTypes';
 import { type ColumnFilterElementTemplateOptions } from 'primereact/column';
 import { MultiSelect, type MultiSelectChangeEvent } from 'primereact/multiselect';
-import { useCallback, useState } from 'react';
+import { useCallback } from 'react';
 
 interface ColumnConfigInputs {
   headerTitle: string;
@@ -19,7 +19,6 @@ const createMultiSelectLineUpColumnConfigHook =
   ({ headerTitle, maxWidth, minWidth, width }: ColumnConfigInputs) =>
   () => {
     const { data, isLoading, isFetching, isError } = useGetSubscribedLineups();
-    const [selectedValues, setSelectedValues] = useState<SubscribedLineup[]>([]);
 
     const bodyTemplate = (option: StationPreview) => {
       return <span>{option.Lineup}</span>;
