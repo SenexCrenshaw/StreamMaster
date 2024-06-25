@@ -2,8 +2,8 @@ import { GetMessage } from '@lib/common/intl';
 import { Fieldset } from 'primereact/fieldset';
 import { SelectItem } from 'primereact/selectitem';
 import React, { useMemo } from 'react';
+import { GetDropDownLine } from './components/GetDropDownLine';
 import { getCheckBoxLine } from './components/getCheckBoxLine';
-import { getDropDownLine } from './components/getDropDownLine';
 import { getInputNumberLine } from './components/getInputNumberLine';
 import { getInputTextLine } from './components/getInputTextLine';
 import { useSettingChangeHandler } from './hooks/useSettingChangeHandler';
@@ -43,12 +43,12 @@ export function StreamingSettings(): React.ReactElement {
   }
 
   return (
-    <SMCard darkBackGround={false} title="STREAMING" header={<div className="justify-content-end align-items-center flex-row flex gap-1"></div>}>
+    <SMCard hasCloseButton darkBackGround={false} title="STREAMING" header={<div className="justify-content-end align-items-center flex-row flex gap-1"></div>}>
       <div className="sm-card-children">
         <div className="sm-card-children-content">
           <div className="layout-padding-bottom" />
           <div className="settings-lines">
-            {getDropDownLine({ currentSettingRequest, field: 'StreamingProxyType', onChange, options: getHandlersOptions })}
+            {GetDropDownLine({ currentSettingRequest, field: 'StreamingProxyType', onChange, options: getHandlersOptions })}
             {getInputNumberLine({ currentSettingRequest, field: 'GlobalStreamLimit', onChange })}
             {getInputTextLine({ currentSettingRequest, field: 'ClientUserAgent', onChange })}
             {getInputTextLine({ currentSettingRequest, field: 'StreamingClientUserAgent', onChange })}

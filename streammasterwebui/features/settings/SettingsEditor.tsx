@@ -26,7 +26,7 @@ export const SettingsEditor = () => {
   const { isSystemReady, settings } = useSMContext();
 
   useEffect(() => {
-    if (!isSystemReady) return;
+    if (!isSystemReady || settings.ApiKey === undefined) return;
 
     if (currentSettingRequest.ApiKey === undefined) {
       Logger.info('SettingsEditor', settings);
@@ -84,7 +84,7 @@ export const SettingsEditor = () => {
     setCurrentSettingRequest({ ...settings });
   }, [setCurrentSettingRequest, settings]);
 
-  if (!isSystemReady || settings === undefined) {
+  if (!isSystemReady || settings === undefined || currentSettingRequest.ApiKey === undefined) {
     return <div>Loading</div>;
   }
 

@@ -1,5 +1,5 @@
 import MenuItemSM from '@components/MenuItemSM';
-import { HelpIcon, PlayListEditorIcon, SDChannelIcon, SDIcon, SettingsEditorIcon, SideBarMenuIcon, StreamingStatusIcon } from '@lib/common/icons';
+import { HelpIcon, PlayListEditorIcon, SDIcon, SettingsEditorIcon, SideBarMenuIcon, StreamingStatusIcon } from '@lib/common/icons';
 import { useSMContext } from '@lib/signalr/SMProvider';
 import { useLocalStorage } from 'primereact/hooks';
 import { Tooltip } from 'primereact/tooltip';
@@ -103,9 +103,9 @@ export const RootSideBar = () => {
           {settings.SDSettings?.SDEnabled === true ? (
             <MenuItemSM collapsed={collapsed} icon={<SDIcon />} link="/editor/sdHeadEndLineUps" name="SD HeadEnds" />
           ) : null}
-          {settings.SDSettings?.SDEnabled === true ? (
+          {/* {settings.SDSettings?.SDEnabled === true ? (
             <MenuItemSM collapsed={collapsed} icon={<SDChannelIcon />} link="/editor/sdChannels" name="SD Channels" />
-          ) : null}
+          ) : null} */}
           <MenuItemSM collapsed={collapsed} icon={<SettingsEditorIcon />} link="/settings" name="Settings" />
           <MenuItemSM collapsed={collapsed} icon={<HelpIcon />} link="https://github.com/SenexCrenshaw/StreamMaster/wiki" name="Wiki" newWindow />
 

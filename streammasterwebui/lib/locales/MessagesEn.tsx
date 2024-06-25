@@ -11,6 +11,7 @@ const MessagesEn: messages_enType = {
   'SDSettings.ArtworkSize': 'Artwork Size Md',
   'SDSettings.ExcludeCastAndCrew': 'Exclude Cast and Crew',
   'SDSettings.PreferredLogoStyle': 'Preferred Logo Style',
+  'SDSettings.MaxSubscribedLineups': 'Max Subscribed Lineups',
   'SDSettings.PrefixEpisodeDescription': 'Prefix Episode Description',
   'SDSettings.PrefixEpisodeTitle': 'Prefix Episode Title',
   'SDSettings.SDEnabled': 'ScheduleDirect Enabled',

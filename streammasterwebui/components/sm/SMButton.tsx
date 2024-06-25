@@ -43,7 +43,7 @@ const SMButton = forwardRef<Button, InternalSMButtonProperties>(
       let cClass = buttonClassName;
 
       if (props.label && props.label !== '' && !props.children) {
-        toRet += ' sm-button-with-label';
+        toRet += ' sm-button-with-label pr-2';
       } else {
         if (iconFilled === true) {
           toRet += ' sm-button-icon-filled';

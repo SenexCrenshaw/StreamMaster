@@ -5,7 +5,7 @@ import React from 'react';
 
 export function DevelopmentSettings(): React.ReactElement {
   return (
-    <SMCard darkBackGround={false} title={'DEVELOPER TOOLS'}>
+    <SMCard hasCloseButton darkBackGround={false} title={'DEVELOPER TOOLS'}>
       <div className="sm-card-children w-full">
         <div className="layout-padding-bottom" />
         <div className="sm-card-children-content flex justify-content-center align-items-center ">

@@ -64,14 +64,14 @@ public partial class UpdateSettingRequestHandler(
             return;
         }
 
-        if (source.SeriesPosterArt != null)
+        if (source.SeriesPosterArt.HasValue)
         {
-            destination.SeriesPosterArt = (bool)source.SeriesPosterArt;
+            destination.SeriesPosterArt = source.SeriesPosterArt.HasValue;
         }
 
-        if (source.SeriesWsArt != null)
+        if (source.SeriesWsArt.HasValue)
         {
-            destination.SeriesWsArt = (bool)source.SeriesWsArt;
+            destination.SeriesWsArt = source.SeriesWsArt.Value;
         }
 
         if (source.SeriesPosterAspect != null)
@@ -79,19 +79,21 @@ public partial class UpdateSettingRequestHandler(
             destination.SeriesPosterAspect = source.SeriesPosterAspect;
         }
 
+
+
         if (source.ArtworkSize != null)
         {
             destination.ArtworkSize = source.ArtworkSize;
         }
 
-        if (source.ExcludeCastAndCrew != null)
+        if (source.ExcludeCastAndCrew.HasValue)
         {
-            destination.ExcludeCastAndCrew = (bool)source.ExcludeCastAndCrew;
+            destination.ExcludeCastAndCrew = source.ExcludeCastAndCrew.Value;
         }
 
-        if (source.AlternateSEFormat != null)
+        if (source.AlternateSEFormat.HasValue)
         {
-            destination.AlternateSEFormat = (bool)source.AlternateSEFormat;
+            destination.AlternateSEFormat = source.AlternateSEFormat.Value;
         }
 
         if (source.PrefixEpisodeDescription != null)
@@ -99,9 +101,9 @@ public partial class UpdateSettingRequestHandler(
             destination.PrefixEpisodeDescription = (bool)source.PrefixEpisodeDescription;
         }
 
-        if (source.PrefixEpisodeTitle != null)
+        if (source.PrefixEpisodeTitle.HasValue)
         {
-            destination.PrefixEpisodeTitle = (bool)source.PrefixEpisodeTitle;
+            destination.PrefixEpisodeTitle = source.PrefixEpisodeTitle.Value;
         }
 
         if (source.AlternateLogoStyle != null)
@@ -109,24 +111,24 @@ public partial class UpdateSettingRequestHandler(
             destination.AlternateLogoStyle = source.AlternateLogoStyle;
         }
 
-        if (source.PrefixEpisodeTitle != null)
+        if (source.PrefixEpisodeTitle.HasValue)
         {
-            destination.PrefixEpisodeTitle = (bool)source.PrefixEpisodeTitle;
+            destination.PrefixEpisodeTitle = source.PrefixEpisodeTitle.Value;
         }
 
-        if (source.AppendEpisodeDesc != null)
+        if (source.AppendEpisodeDesc.HasValue)
         {
-            destination.AppendEpisodeDesc = (bool)source.AppendEpisodeDesc;
+            destination.AppendEpisodeDesc = source.AppendEpisodeDesc.Value;
         }
 
-        if (source.SDEPGDays != null)
+        if (source.SDEPGDays.HasValue)
         {
-            destination.SDEPGDays = (int)source.SDEPGDays;
+            destination.SDEPGDays = source.SDEPGDays.Value;
         }
 
-        if (source.SDEnabled != null)
+        if (source.SDEnabled.HasValue)
         {
-            destination.SDEnabled = (bool)source.SDEnabled;
+            destination.SDEnabled = source.SDEnabled.Value;
         }
 
         if (source.SDUserName != null)
@@ -154,34 +156,39 @@ public partial class UpdateSettingRequestHandler(
             destination.SDStationIds = source.SDStationIds;
         }
 
-        if (source.SeasonEventImages != null)
+        if (source.SeasonEventImages.HasValue)
         {
-            destination.SeasonEventImages = (bool)source.SeasonEventImages;
+            destination.SeasonEventImages = source.SeasonEventImages.Value;
         }
 
-        if (source.XmltvAddFillerData != null)
+        if (source.XmltvAddFillerData.HasValue)
         {
-            destination.XmltvAddFillerData = (bool)source.XmltvAddFillerData;
+            destination.XmltvAddFillerData = source.XmltvAddFillerData.Value;
         }
 
-        if (source.XmltvFillerProgramLength != null)
+        if (source.XmltvFillerProgramLength.HasValue)
         {
-            destination.XmltvFillerProgramLength = (int)source.XmltvFillerProgramLength;
+            destination.XmltvFillerProgramLength = source.XmltvFillerProgramLength.Value;
         }
 
-        if (source.XmltvIncludeChannelNumbers != null)
+        if (source.MaxSubscribedLineups.HasValue)
         {
-            destination.XmltvIncludeChannelNumbers = (bool)source.XmltvIncludeChannelNumbers;
+            destination.MaxSubscribedLineups = source.MaxSubscribedLineups.Value;
         }
 
-        if (source.XmltvExtendedInfoInTitleDescriptions != null)
+        if (source.XmltvIncludeChannelNumbers.HasValue)
         {
-            destination.XmltvExtendedInfoInTitleDescriptions = (bool)source.XmltvExtendedInfoInTitleDescriptions;
+            destination.XmltvIncludeChannelNumbers = source.XmltvIncludeChannelNumbers.Value;
         }
 
-        if (source.XmltvSingleImage != null)
+        if (source.XmltvExtendedInfoInTitleDescriptions.HasValue)
         {
-            destination.XmltvSingleImage = (bool)source.XmltvSingleImage;
+            destination.XmltvExtendedInfoInTitleDescriptions = source.XmltvExtendedInfoInTitleDescriptions.Value;
+        }
+
+        if (source.XmltvSingleImage.HasValue)
+        {
+            destination.XmltvSingleImage = source.XmltvSingleImage.Value;
         }
     }
 
@@ -214,14 +221,14 @@ public partial class UpdateSettingRequestHandler(
     {
         bool needsLogOut = false;
         bool needsSetProgrammes = false;
-        if (request.parameters.CacheIcons != null && request.parameters.CacheIcons != currentSetting.CacheIcons)
+        if (request.parameters.CacheIcons.HasValue)
         {
-            currentSetting.CacheIcons = (bool)request.parameters.CacheIcons;
+            currentSetting.CacheIcons = request.parameters.CacheIcons.Value;
         }
 
-        if (request.parameters.CleanURLs != null && request.parameters.CleanURLs != currentSetting.CleanURLs)
+        if (request.parameters.CleanURLs.HasValue)
         {
-            currentSetting.CleanURLs = (bool)request.parameters.CleanURLs;
+            currentSetting.CleanURLs = request.parameters.CleanURLs.Value;
         }
 
         if (request.parameters.SDSettings != null)
@@ -230,14 +237,14 @@ public partial class UpdateSettingRequestHandler(
             SettingsHelper.UpdateSetting(sdsettings);
         }
 
-        if (request.parameters.EnableSSL != null && request.parameters.EnableSSL != currentSetting.EnableSSL)
+        if (request.parameters.EnableSSL.HasValue)
         {
-            currentSetting.EnableSSL = (bool)request.parameters.EnableSSL;
+            currentSetting.EnableSSL = request.parameters.EnableSSL.Value;
         }
 
-        if (request.parameters.VideoStreamAlwaysUseEPGLogo != null && request.parameters.VideoStreamAlwaysUseEPGLogo != currentSetting.VideoStreamAlwaysUseEPGLogo)
+        if (request.parameters.VideoStreamAlwaysUseEPGLogo.HasValue)
         {
-            currentSetting.VideoStreamAlwaysUseEPGLogo = (bool)request.parameters.VideoStreamAlwaysUseEPGLogo;
+            currentSetting.VideoStreamAlwaysUseEPGLogo = request.parameters.VideoStreamAlwaysUseEPGLogo.Value;
         }
 
         if (request.parameters.PrettyEPG.HasValue)
@@ -255,33 +262,33 @@ public partial class UpdateSettingRequestHandler(
         //    currentSetting.M3UUseCUIDForChannelID = (bool)request.parameters.M3UUseCUIDForChannelID;
         //}
 
-        if (request.parameters.MaxLogFiles != null)
+        if (request.parameters.MaxLogFiles.HasValue)
         {
-            currentSetting.MaxLogFiles = (int)request.parameters.MaxLogFiles;
+            currentSetting.MaxLogFiles = request.parameters.MaxLogFiles.Value;
         }
 
-        if (request.parameters.MaxLogFileSizeMB != null)
+        if (request.parameters.MaxLogFileSizeMB.HasValue)
         {
-            currentSetting.MaxLogFileSizeMB = (int)request.parameters.MaxLogFileSizeMB;
+            currentSetting.MaxLogFileSizeMB = request.parameters.MaxLogFileSizeMB.Value;
         }
 
-        if (request.parameters.EnablePrometheus != null)
+        if (request.parameters.EnablePrometheus.HasValue)
         {
-            currentSetting.EnablePrometheus = (bool)request.parameters.EnablePrometheus;
+            currentSetting.EnablePrometheus = request.parameters.EnablePrometheus.Value;
         }
 
-        if (request.parameters.MaxLogFiles != null)
+        if (request.parameters.MaxLogFiles.HasValue)
         {
-            currentSetting.MaxLogFiles = (int)request.parameters.MaxLogFiles;
+            currentSetting.MaxLogFiles = request.parameters.MaxLogFiles.Value;
         }
         //if (request.parameters.M3UUseChnoForId != null)
         //{
         //    currentSetting.M3UUseChnoForId = (bool)request.parameters.M3UUseChnoForId;
         //}
 
-        if (request.parameters.BackupEnabled != null)
+        if (request.parameters.BackupEnabled.HasValue)
         {
-            currentSetting.BackupEnabled = (bool)request.parameters.BackupEnabled;
+            currentSetting.BackupEnabled = request.parameters.BackupEnabled.Value;
         }
 
         if (request.parameters.BackupVersionsToKeep.HasValue)
@@ -294,9 +301,9 @@ public partial class UpdateSettingRequestHandler(
             currentSetting.BackupInterval = request.parameters.BackupInterval.Value;
         }
 
-        if (request.parameters.ShowClientHostNames != null)
+        if (request.parameters.ShowClientHostNames.HasValue)
         {
-            currentSetting.ShowClientHostNames = (bool)request.parameters.ShowClientHostNames;
+            currentSetting.ShowClientHostNames = request.parameters.ShowClientHostNames.Value;
         }
 
         if (request.parameters.DummyRegex != null)

@@ -168,7 +168,7 @@ const NumberEditor = ({
         </>
       )}
       <div ref={divReference} className={getDiv}>
-        {label && labelInline && <div className="w-6">{label.toUpperCase()}</div>}
+        {label && labelInline && <div className="w-12">{label.toUpperCase()}</div>}
         <InputNumber
           className={inputGetDiv}
           disabled={isLoading}

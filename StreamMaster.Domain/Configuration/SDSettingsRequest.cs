@@ -26,6 +26,7 @@ public class SDSettingsRequest
     public bool? XmltvAddFillerData { get; set; }
     //public string? XmltvFillerProgramDescription { get; set; }
     public int? XmltvFillerProgramLength { get; set; }
+    public int? MaxSubscribedLineups { get; set; }
     public bool? XmltvIncludeChannelNumbers { get; set; }
     public bool? XmltvExtendedInfoInTitleDescriptions { get; set; }
     public bool? XmltvSingleImage { get; set; }

@@ -1,13 +1,13 @@
 import SettingsNameRegexDataSelector from '@components/settings/SettingsNameRegexDataSelector';
 import { GetMessage } from '@lib/common/intl';
 
+import { SMCard } from '@components/sm/SMCard';
+import useGetSettings from '@lib/smAPI/Settings/useGetSettings';
 import { Fieldset } from 'primereact/fieldset';
 import React from 'react';
 import { getCheckBoxLine } from './components/getCheckBoxLine';
 import { getInputTextLine } from './components/getInputTextLine';
 import { useSettingChangeHandler } from './hooks/useSettingChangeHandler';
-import useGetSettings from '@lib/smAPI/Settings/useGetSettings';
-import { SMCard } from '@components/sm/SMCard';
 
 export function FilesEPGM3USettings(): React.ReactElement {
   const settingsQuery = useGetSettings();
@@ -23,6 +23,7 @@ export function FilesEPGM3USettings(): React.ReactElement {
 
   return (
     <SMCard
+      hasCloseButton
       darkBackGround={false}
       title="MISC"
       header={<div className="justify-content-end align-items-center flex-row flex gap-1">{/* {header}                */}</div>}

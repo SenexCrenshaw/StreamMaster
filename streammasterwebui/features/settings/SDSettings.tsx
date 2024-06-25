@@ -1,14 +1,14 @@
+import { SMCard } from '@components/sm/SMCard';
 import { GetMessage } from '@lib/common/intl';
 import { Fieldset } from 'primereact/fieldset';
 import { SelectItem } from 'primereact/selectitem';
 import React from 'react';
+import { GetDropDownLine } from './components/GetDropDownLine';
 import { getCheckBoxLine } from './components/getCheckBoxLine';
-import { getDropDownLine } from './components/getDropDownLine';
 import { getInputNumberLine } from './components/getInputNumberLine';
 import { getInputTextLine } from './components/getInputTextLine';
 import { getPasswordLine } from './components/getPasswordLine';
 import { useSettingChangeHandler } from './hooks/useSettingChangeHandler';
-import { SMCard } from '@components/sm/SMCard';
 
 export function SDSettings(): React.ReactElement {
   const { onChange, currentSettingRequest } = useSettingChangeHandler();
@@ -64,24 +64,20 @@ export function SDSettings(): React.ReactElement {
   }
 
   return (
-    <SMCard
-      darkBackGround={false}
-      title="SCHEDULES DIRECT"
-      header={<div className="justify-content-end align-items-center flex-row flex gap-1">{/* {header}                */}</div>}
-    >
+    <SMCard hasCloseButton title="SCHEDULES DIRECT">
       <div className="sm-card-children">
         <div className="sm-card-children-content">
-          <div className="layout-padding-bottom" />
-          <div className="settings-lines ">
+          <div className="settings-lines">
+            {getInputNumberLine({ currentSettingRequest, field: 'SDSettings.MaxSubscribedLineups', onChange })}
             {getCheckBoxLine({ currentSettingRequest, field: 'SDSettings.SDEnabled', onChange })}
             {getInputTextLine({ currentSettingRequest, field: 'SDSettings.SDUserName', onChange })}
             {getPasswordLine({ currentSettingRequest, field: 'SDSettings.SDPassword', onChange })}
-            {getDropDownLine({ currentSettingRequest, field: 'SDSettings.PreferredLogoStyle', onChange, options: getLogoStyleOptions() })}
-            {getDropDownLine({ currentSettingRequest, field: 'SDSettings.AlternateLogoStyle', onChange, options: getLogoStyleOptions() })}
+            {GetDropDownLine({ currentSettingRequest, field: 'SDSettings.PreferredLogoStyle', onChange, options: getLogoStyleOptions() })}
+            {GetDropDownLine({ currentSettingRequest, field: 'SDSettings.AlternateLogoStyle', onChange, options: getLogoStyleOptions() })}
             {getCheckBoxLine({ currentSettingRequest, field: 'SDSettings.SeriesPosterArt', onChange })}
             {getCheckBoxLine({ currentSettingRequest, field: 'SDSettings.SeriesWsArt', onChange })}
-            {getDropDownLine({ currentSettingRequest, field: 'SDSettings.SeriesPosterAspect', onChange, options: getArtworkAspectOptions() })}
-            {getDropDownLine({ currentSettingRequest, field: 'SDSettings.ArtworkSize', onChange, options: getArtworkSizeOptions() })}
+            {GetDropDownLine({ currentSettingRequest, field: 'SDSettings.SeriesPosterAspect', onChange, options: getArtworkAspectOptions() })}
+            {GetDropDownLine({ currentSettingRequest, field: 'SDSettings.ArtworkSize', onChange, options: getArtworkSizeOptions() })}
             {getCheckBoxLine({ currentSettingRequest, field: 'SDSettings.ExcludeCastAndCrew', onChange })}
             {getCheckBoxLine({ currentSettingRequest, field: 'SDSettings.XmltvIncludeChannelNumbers', onChange })}
             {getCheckBoxLine({ currentSettingRequest, field: 'SDSettings.AlternateSEFormat', onChange })}

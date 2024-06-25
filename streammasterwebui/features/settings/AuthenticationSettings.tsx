@@ -6,7 +6,7 @@ import { AuthenticationType } from '@lib/smAPI/smapiTypes';
 import { Fieldset } from 'primereact/fieldset';
 import { SelectItem } from 'primereact/selectitem';
 import React, { useMemo } from 'react';
-import { getDropDownLine } from './components/getDropDownLine';
+import { GetDropDownLine } from './components/GetDropDownLine';
 import { getInputTextLine } from './components/getInputTextLine';
 import { getPasswordLine } from './components/getPasswordLine';
 import { useSettingChangeHandler } from './hooks/useSettingChangeHandler';
@@ -50,6 +50,7 @@ export function AuthenticationSettings(): React.ReactElement {
 
   return (
     <SMCard
+      hasCloseButton
       darkBackGround={false}
       title="AUTHENTICATION"
       header={<div className="justify-content-end align-items-center flex-row flex gap-1">{/* {header}                */}</div>}
@@ -59,7 +60,7 @@ export function AuthenticationSettings(): React.ReactElement {
           <div className="layout-padding-bottom" />
           <div className="settings-lines ">
             {getInputTextLine({ currentSettingRequest, field: 'ApiKey', onChange })}
-            {getDropDownLine({ currentSettingRequest, field: 'AuthenticationMethod', onChange, options: getAuthTypeOptions() })}
+            {GetDropDownLine({ currentSettingRequest, field: 'AuthenticationMethod', onChange, options: getAuthTypeOptions() })}
             {getInputTextLine({ currentSettingRequest, field: 'AdminUserName', onChange, warning: adminUserNameError })}
             {getPasswordLine({ currentSettingRequest, field: 'AdminPassword', onChange, warning: adminPasswordError })}
             <div className="flex w-12 settings-line justify-content-end align-items-center">

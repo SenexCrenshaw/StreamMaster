@@ -18,6 +18,7 @@ const defaultSetting: DefaultSettingType = {
   EnableSSL: 'false',
   FFMpegOptions: '-hide_banner -loglevel error -i {streamUrl} -c copy -f mpegts pipe:1',
   FFMPegExecutable: 'ffmpeg',
+  'SDSettings.MaxSubscribedLineups': '4',
   GlobalStreamLimit: '1',
   MaxLogFiles: '10',
   MaxLogFileSizeMB: '1',

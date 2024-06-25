@@ -1,10 +1,10 @@
+import { SMCard } from '@components/sm/SMCard';
 import { GetMessage } from '@lib/common/intl';
-import React from 'react';
 import { Fieldset } from 'primereact/fieldset';
+import React from 'react';
 import { getCheckBoxLine } from './components/getCheckBoxLine';
 import { getInputNumberLine } from './components/getInputNumberLine';
 import { useSettingChangeHandler } from './hooks/useSettingChangeHandler';
-import { SMCard } from '@components/sm/SMCard';
 
 export function BackupSettings(): React.ReactElement {
   const { onChange, currentSettingRequest } = useSettingChangeHandler();
@@ -19,6 +19,7 @@ export function BackupSettings(): React.ReactElement {
 
   return (
     <SMCard
+      hasCloseButton
       darkBackGround={false}
       title="BACKUPS"
       header={<div className="justify-content-end align-items-center flex-row flex gap-1">{/* {header}                */}</div>}

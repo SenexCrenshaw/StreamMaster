@@ -15,7 +15,7 @@ type DropDownLineProps = {
   onChange: (existing: SettingDto, updatedValues: SettingDto) => void | undefined;
 };
 
-export function getDropDownLine({ field, options, currentSettingRequest, onChange }: DropDownLineProps): React.ReactElement {
+export function GetDropDownLine({ field, options, currentSettingRequest, onChange }: DropDownLineProps): React.ReactElement {
   const label = GetMessage(field);
   const help = getHelp(field);
   const defaultSetting = getDefaultSetting(field);
@@ -27,7 +27,7 @@ export function getDropDownLine({ field, options, currentSettingRequest, onChang
   const value = currentSettingRequest ? getRecordString<SettingDto>(field, currentSettingRequest) : undefined;
 
   const buttonTemplate = (): ReactNode => {
-    return <div className="text-container pl-1">{value}</div>;
+    return <div className="text-container pl-1 sm-w-12">{value}</div>;
   };
 
   return getLine({
@@ -35,6 +35,7 @@ export function getDropDownLine({ field, options, currentSettingRequest, onChang
     help,
     value: (
       <SMDropDown
+        contentWidthSize="2"
         buttonDarkBackground
         label={label}
         labelInline

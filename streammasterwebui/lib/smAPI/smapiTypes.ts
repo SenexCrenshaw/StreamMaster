@@ -411,6 +411,7 @@ export interface SDSettingsRequest
 	ArtworkSize?: string;
 	ExcludeCastAndCrew?: boolean;
 	HeadendsToView?: any[];
+	MaxSubscribedLineups?: number;
 	PreferredLogoStyle?: string;
 	PrefixEpisodeDescription?: boolean;
 	PrefixEpisodeTitle?: boolean;

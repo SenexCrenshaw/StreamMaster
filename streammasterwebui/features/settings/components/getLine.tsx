@@ -51,5 +51,5 @@ export function getLine({ value, help, defaultSetting }: GetLineProps): React.Re
     );
   }
 
-  return <div className="settings-line w-8">{value}</div>;
+  return <div className="settings-line">{value}</div>;
 }

@@ -38,7 +38,7 @@ const SDLineUpsDataSelector = () => {
         <div className="sm-w-12 flex flex-row">
           <div className="sm-w-6 flex flex-column justify-content-between pr-1">
             <SchedulesDirectLineUpsDataSelector id={'SDEditor'} />
-            {/* <div className="layout-padding-bottom-lg" /> */}
+
             <SchedulesDirectHeadendDataSelector />
           </div>
           <SchedulesDirectStationDataSelector />

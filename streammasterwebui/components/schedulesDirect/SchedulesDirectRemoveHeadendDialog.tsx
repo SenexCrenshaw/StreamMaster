@@ -28,7 +28,7 @@ const SchedulesDirectAddHeadendDialog = ({ value }: SchedulesDirectAddHeadendDia
   };
 
   return (
-    <SMPopUp title="Unsubscribe Lineup" icon="pi-minus" buttonClassName="icon-red" onOkClick={removeHeadEnd}>
+    <SMPopUp title="Unsubscribe Lineup" icon="pi-minus" buttonClassName="icon-red" onOkClick={removeHeadEnd} tooltip="Unsubscribe Lineup">
       <div className="flex flex-column align-content-center justify-content-center align-items-center">
         <div>Are you sure?</div>
         <div>You can only do this 6 times per day</div>
