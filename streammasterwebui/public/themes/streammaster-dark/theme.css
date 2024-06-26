@@ -8871,7 +8871,7 @@ div[aria-haspopup=dialog] {
 
 .p-button-icon-only {
   padding: 0;
-  max-width: 1.4rem;
+  /* max-width: 1.4rem; */
   min-width: 1.4rem;
 }
 

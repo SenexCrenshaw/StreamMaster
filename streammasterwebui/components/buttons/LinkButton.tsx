@@ -5,12 +5,14 @@ export const LinkButton = ({
   link,
   filled,
   bolt,
-  title
+  title,
+  justText
 }: {
   readonly link: string;
   readonly filled?: boolean;
   readonly title: string;
   readonly bolt?: boolean;
+  readonly justText?: boolean;
 }) => {
   const [, copyToClipboard] = useCopyToClipboard(true);
   const [copied, setCopied] = useState(false);
@@ -33,7 +35,7 @@ export const LinkButton = ({
         target="_blank"
         title={title}
       >
-        <i className={copied ? 'pi pi-copy' : icon} />
+        {justText === true ? <div className="p-float">{title}</div> : <i className={copied ? 'pi pi-copy' : icon} />}
       </a>
     </div>
   );
