@@ -6,7 +6,7 @@ import { SettingDto } from '@lib/smAPI/smapiTypes';
 import { SelectItem } from 'primereact/selectitem';
 import React, { ReactNode } from 'react';
 import { UpdateChanges, getRecordString } from '../SettingsUtils';
-import { GetLine } from './GetLine';
+import { GetLine } from './getLine';
 
 type DropDownLineProps = {
   field: string;

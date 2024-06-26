@@ -2,14 +2,15 @@ import { GetMessage } from '@lib/common/intl';
 import { Fieldset } from 'primereact/fieldset';
 import { SelectItem } from 'primereact/selectitem';
 import React, { useMemo } from 'react';
-import { GetDropDownLine } from './components/GetDropDownLine';
-import { getCheckBoxLine } from './components/getCheckBoxLine';
+
 import { getInputNumberLine } from './components/getInputNumberLine';
 import { getInputTextLine } from './components/getInputTextLine';
 import { useSettingChangeHandler } from './hooks/useSettingChangeHandler';
 
 import { SMCard } from '@components/sm/SMCard';
 import useGetVideoProfiles from '@lib/smAPI/Profiles/useGetVideoProfiles';
+import { getCheckBoxLine } from './components/getCheckBoxLine';
+import { GetDropDownLine } from './components/getDropDownLine';
 
 export function StreamingSettings(): React.ReactElement {
   const { onChange, currentSettingRequest } = useSettingChangeHandler();

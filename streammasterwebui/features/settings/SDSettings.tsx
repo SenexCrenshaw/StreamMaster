@@ -3,12 +3,13 @@ import { GetMessage } from '@lib/common/intl';
 import { Fieldset } from 'primereact/fieldset';
 import { SelectItem } from 'primereact/selectitem';
 import React from 'react';
-import { GetDropDownLine } from './components/GetDropDownLine';
-import { getCheckBoxLine } from './components/getCheckBoxLine';
+import { GetDropDownLine } from './components/getDropDownLine';
+
 import { getInputNumberLine } from './components/getInputNumberLine';
 import { getInputTextLine } from './components/getInputTextLine';
 import { getPasswordLine } from './components/getPasswordLine';
 import { useSettingChangeHandler } from './hooks/useSettingChangeHandler';
+import { getCheckBoxLine } from './components/getCheckBoxLine';
 
 export function SDSettings(): React.ReactElement {
   const { onChange, currentSettingRequest } = useSettingChangeHandler();
