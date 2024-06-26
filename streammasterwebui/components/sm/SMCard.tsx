@@ -1,5 +1,4 @@
 import CloseButton from '@components/buttons/CloseButton';
-import { Logger } from '@lib/common/logger';
 import { useMemo } from 'react';
 import { SMCardProperties } from './interfaces/SMCardProperties';
 
@@ -59,7 +58,6 @@ export const SMCard = ({
     );
   }
 
-  Logger.debug('SMCard', 'children', children);
   return (
     <div className={getDiv}>
       <div className="sm-card-header flex flex-row justify-content-between align-items-center w-full">

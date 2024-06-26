@@ -38,10 +38,10 @@ export function FilesEPGM3USettings(): React.ReactElement {
             {getCheckBoxLine({ currentSettingRequest, field: 'videoStreamAlwaysUseEPGLogo', onChange })}
             {getInputTextLine({ currentSettingRequest, field: 'dummyRegex', onChange })}
             {getCheckBoxLine({ currentSettingRequest, field: 'm3UIgnoreEmptyEPGID', onChange })}
-            {getCheckBoxLine({ currentSettingRequest, field: 'm3UFieldGroupTitle', onChange })}
-            {getCheckBoxLine({ currentSettingRequest, field: 'm3UUseChnoForId', onChange })}
-            {getCheckBoxLine({ currentSettingRequest, field: 'm3UStationId', onChange })}
-            {getCheckBoxLine({ currentSettingRequest, field: 'm3UUseCUIDForChannelID', onChange })}
+            {/* {getCheckBoxLine({ currentSettingRequest, field: 'm3UFieldGroupTitle', onChange })} */}
+            {/* {getCheckBoxLine({ currentSettingRequest, field: 'm3UUseChnoForId', onChange })} */}
+            {/* {getCheckBoxLine({ currentSettingRequest, field: 'm3UStationId', onChange })} */}
+            {/* {getCheckBoxLine({ currentSettingRequest, field: 'm3UUseCUIDForChannelID', onChange })} */}
             <Fieldset className="mt-4 pt-10" collapsed legend={GetMessage('nameregexSettings')} toggleable>
               <SettingsNameRegexDataSelector data={settingsQuery.data?.NameRegex} />
             </Fieldset>

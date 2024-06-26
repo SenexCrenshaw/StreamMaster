@@ -1,6 +1,5 @@
 import BooleanEditor from '@components/inputs/BooleanEditor';
 import { GetMessage } from '@lib/common/intl';
-import { Logger } from '@lib/common/logger';
 import { getDefaultSetting } from '@lib/locales/default_setting';
 import { getHelp } from '@lib/locales/help_en';
 import { SettingDto } from '@lib/smAPI/smapiTypes';
@@ -17,7 +16,6 @@ type CheckBoxLineProps = {
 export function getCheckBoxLine({ field, currentSettingRequest, onChange }: CheckBoxLineProps): React.ReactElement {
   const help = getHelp(field);
   const defaultSetting = getDefaultSetting(field);
-  Logger.debug('getCheckBoxLine', { field });
 
   return GetLine({
     defaultSetting,

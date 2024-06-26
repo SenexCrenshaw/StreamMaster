@@ -71,6 +71,22 @@
     @include sm-border-bottom();
 }
 
+@mixin sm-border-left() {
+
+    border-top-style: none !important;
+    border-bottom-style: none !important;
+    border-left-style: solid !important;
+    border-right-style: none !important;
+
+    border-color: $inputBorderColor !important;
+    border-radius: 0 !important;
+    border-width: 1px !important;
+}
+
+.sm-border-left {
+    @include sm-border-left();
+}
+
 @mixin sm-border-roundtop() {
     border-top-style: none !important;
     border-bottom-style: solid !important;

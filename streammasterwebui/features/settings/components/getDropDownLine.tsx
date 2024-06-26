@@ -6,7 +6,7 @@ import { SettingDto } from '@lib/smAPI/smapiTypes';
 import { SelectItem } from 'primereact/selectitem';
 import React, { ReactNode } from 'react';
 import { UpdateChanges, getRecordString } from '../SettingsUtils';
-import { GetLine } from './GetLine'; // Import the GetLine function
+import { GetLine } from './GetLine';
 
 type DropDownLineProps = {
   field: string;
@@ -49,9 +49,8 @@ export function GetDropDownLine({ field, options, currentSettingRequest, onChang
             const value = isFinite(+e.value) ? +e.value : e.value;
             UpdateChanges({ currentSettingRequest, field, onChange, value });
           }}
-          hasCloseButton
-          showClose={false}
-          title="Proxy"
+          title={label}
+          value={value}
         />
       </div>
     )
