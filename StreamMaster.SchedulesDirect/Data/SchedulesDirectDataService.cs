@@ -126,7 +126,7 @@ public class SchedulesDirectDataService : ISchedulesDirectDataService
         return ret;
     }
 
-    public List<StationChannelName> GetStationChannelNames()
+    public async Task<List<StationChannelName>> GetStationChannelNames()
     {
 
         List<StationChannelName> ret = [];
@@ -144,7 +144,9 @@ public class SchedulesDirectDataService : ISchedulesDirectDataService
             ret.Add(stationChannelName);
         }
 
-        return [.. ret.OrderBy(a => a.DisplayName, StringComparer.OrdinalIgnoreCase)];
+        var test = AllServices.Where(a => a.StationId.StartsWith("-1")).ToList();
+
+        return ret.OrderBy(a => a.DisplayName, StringComparer.OrdinalIgnoreCase).ToList();
     }
 
     public void ChangeServiceEPGNumber(int oldEPGNumber, int newEPGNumber)

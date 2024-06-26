@@ -1,7 +1,4 @@
-﻿
-using Microsoft.Extensions.Logging;
-
-using StreamMaster.Domain.Logging;
+﻿using StreamMaster.Domain.Logging;
 
 using System.Text.Json;
 
@@ -9,17 +6,20 @@ namespace StreamMaster.Domain.Models;
 
 public class M3UFile : AutoUpdateEntity
 {
-    public void WriteJSON(ILogger logger)
+    public static string APIName => "M3UFiles";
+
+    private readonly JsonSerializerOptions jsonSerializerOptions = new() { WriteIndented = true };
+    public void WriteJSON()
     {
         try
         {
             string jsonPath = Path.Combine(FileDefinitions.M3U.DirectoryLocation, Path.GetFileNameWithoutExtension(Source) + ".json");
-            string jsonString = JsonSerializer.Serialize(this, new JsonSerializerOptions { WriteIndented = true });
+            string jsonString = JsonSerializer.Serialize(this, jsonSerializerOptions);
             File.WriteAllText(jsonPath, jsonString);
         }
-        catch (Exception ex)
+        catch
         {
-            logger.LogError(ex.Message);
+            throw;
         }
     }
 
@@ -47,11 +47,11 @@ public class M3UFile : AutoUpdateEntity
 
 
     [LogExecutionTimeAspect]
-    public async Task<List<VideoStream>?> GetM3U(ILogger logger, CancellationToken cancellationToken)
+    public async Task<List<SMStream>?> GetSMStreamsFromM3U(ILogger logger)
     {
         using Stream dataStream = FileUtil.GetFileDataStream(Path.Combine(FileDefinitions.M3U.DirectoryLocation, Source));
         logger.LogInformation("Reading m3ufile {Name} and ignoring urls with {vods}", Name, string.Join(',', VODTags));
-        List<VideoStream>? ret = await IPTVExtensions.ConvertToVideoStreamAsync(dataStream, Id, Name, VODTags, logger, cancellationToken);
+        List<SMStream>? ret = await IPTVExtensions.ConvertToSMStreamAsync(dataStream, Id, Name, VODTags, logger);
         return ret;
     }
 

@@ -1,14 +1,15 @@
-import AddButton from '@components/buttons/AddButton';
-import { HeadendDto, SchedulesDirectAddLineupApiArg, useSchedulesDirectAddLineupMutation } from '@lib/iptvApi';
+import SMPopUp from '@components/sm/SMPopUp';
+import { AddLineup } from '@lib/smAPI/SchedulesDirect/SchedulesDirectCommands';
+import { AddLineupRequest, HeadendDto } from '@lib/smAPI/smapiTypes';
+
 import { memo } from 'react';
 
 interface SchedulesDirectAddHeadendDialogProperties {
   readonly value: HeadendDto;
+  readonly buttonDisabled?: boolean;
 }
 
-const SchedulesDirectAddHeadendDialog = ({ value }: SchedulesDirectAddHeadendDialogProperties) => {
-  const [schedulesDirectAddLineupMutation] = useSchedulesDirectAddLineupMutation();
-
+const SchedulesDirectAddHeadendDialog = ({ buttonDisabled, value }: SchedulesDirectAddHeadendDialogProperties) => {
   const addHeadEnd = async () => {
     if (!value) {
       return;
@@ -16,9 +17,9 @@ const SchedulesDirectAddHeadendDialog = ({ value }: SchedulesDirectAddHeadendDia
 
     console.log(value);
 
-    const toSend: SchedulesDirectAddLineupApiArg = { lineup: value.lineup };
+    const toSend: AddLineupRequest = { Lineup: value.Lineup };
 
-    schedulesDirectAddLineupMutation(toSend)
+    AddLineup(toSend)
       .then((result) => {
         console.log(result);
       })
@@ -28,9 +29,12 @@ const SchedulesDirectAddHeadendDialog = ({ value }: SchedulesDirectAddHeadendDia
   };
 
   return (
-    <div className="flex">
-      <AddButton iconFilled={false} onClick={async () => await addHeadEnd()} />
-    </div>
+    <SMPopUp buttonDisabled={buttonDisabled} title="Subscribe Lineup" icon="pi-plus" buttonClassName="icon-green" onOkClick={addHeadEnd}>
+      <div className="flex flex-column align-content-center justify-content-center align-items-center">
+        <div>Are you sure?</div>
+        <div>You can only do this 6 times per day</div>
+      </div>
+    </SMPopUp>
   );
 };
 

@@ -1,16 +1,21 @@
-﻿using System.Text.Json.Serialization;
+﻿using MessagePack;
+
+using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 
 namespace StreamMaster.SchedulesDirect.Domain.JsonClasses
 {
+
+    [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
     public class StationChannelMap
     {
         [JsonIgnore]
+        [IgnoreMember]
         public Guid Id { get; set; } = Guid.NewGuid();
 
         [JsonPropertyName("map")]
         //[JsonConverter(typeof(SingleOrListConverter<LineupChannel>))]
-        public List<LineupChannel> Map { get; set; } = [];
+        public List<LineupChannelStation> Map { get; set; } = [];
 
         [JsonPropertyName("stations")]
         //[JsonConverter(typeof(SingleOrListConverter<LineupStation>))]
@@ -20,6 +25,17 @@ namespace StreamMaster.SchedulesDirect.Domain.JsonClasses
         public LineupMetadata? Metadata { get; set; }
     }
 
+    [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
+    public class LineupChannelStation
+    {
+        [JsonPropertyName("channel")]
+        public string Channel { get; set; }
+
+        [JsonPropertyName("stationID")]
+        public string StationId { get; set; }
+    }
+
+    [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
     public class LineupChannel
     {
         public string ChannelNumber => $"{myChannelNumber}{(myChannelSubnumber > 0 ? $".{myChannelSubnumber}" : "")}";
@@ -27,10 +43,25 @@ namespace StreamMaster.SchedulesDirect.Domain.JsonClasses
         {
             get
             {
-                if (string.IsNullOrEmpty(Channel)) return ChannelMajor ?? AtscMajor ?? UhfVhf ?? -1;
-                if (Regex.Match(Channel, @"[A-Za-z]{1}[\d]{4}").Length > 0) return int.Parse(Channel[2..]);
-                if (Regex.Match(Channel, @"[A-Za-z0-9.]\.[A-Za-z]{2}").Length > 0) return -1;
-                if (int.TryParse(Regex.Replace(Channel, "[^0-9.]", ""), out int number)) return number;
+                if (string.IsNullOrEmpty(Channel))
+                {
+                    return ChannelMajor ?? AtscMajor ?? UhfVhf ?? -1;
+                }
+
+                if (Regex.Match(Channel, @"[A-Za-z]{1}[\d]{4}").Length > 0)
+                {
+                    return int.Parse(Channel[2..]);
+                }
+
+                if (Regex.Match(Channel, @"[A-Za-z0-9.]\.[A-Za-z]{2}").Length > 0)
+                {
+                    return -1;
+                }
+
+                if (int.TryParse(Regex.Replace(Channel, "[^0-9.]", ""), out int number))
+                {
+                    return number;
+                }
                 else
                 {
                     // if channel number is not a whole number, must be a decimal number
@@ -48,7 +79,11 @@ namespace StreamMaster.SchedulesDirect.Domain.JsonClasses
         {
             get
             {
-                if (string.IsNullOrEmpty(Channel)) return ChannelMinor ?? AtscMinor ?? 0;
+                if (string.IsNullOrEmpty(Channel))
+                {
+                    return ChannelMinor ?? AtscMinor ?? 0;
+                }
+
                 if (!int.TryParse(Regex.Replace(Channel, "[^0-9.]", ""), out _))
                 {
                     // if channel number is not a whole number, must be a decimal number
@@ -63,6 +98,7 @@ namespace StreamMaster.SchedulesDirect.Domain.JsonClasses
         }
 
         [JsonIgnore]
+        [IgnoreMember]
         public string MatchName { get; set; }
 
         [JsonPropertyName("stationID")]
@@ -132,6 +168,7 @@ namespace StreamMaster.SchedulesDirect.Domain.JsonClasses
         public string MatchType { get; set; }
     }
 
+    [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
     public class LineupStation
     {
         [JsonPropertyName("stationID")]
@@ -168,6 +205,7 @@ namespace StreamMaster.SchedulesDirect.Domain.JsonClasses
         public StationImage Logo { get; set; }
     }
 
+    [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
     public class StationImage
     {
         [JsonPropertyName("URL")]
@@ -189,6 +227,7 @@ namespace StreamMaster.SchedulesDirect.Domain.JsonClasses
         public string Category { get; set; }
     }
 
+    [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
     public class StationBroadcaster
     {
         [JsonPropertyName("city")]
@@ -203,7 +242,7 @@ namespace StreamMaster.SchedulesDirect.Domain.JsonClasses
         [JsonPropertyName("country")]
         public string Country { get; set; }
     }
-
+    [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
     public class LineupMetadata
     {
         [JsonPropertyName("lineup")]

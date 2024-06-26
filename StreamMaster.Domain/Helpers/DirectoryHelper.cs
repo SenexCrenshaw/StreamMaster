@@ -55,12 +55,12 @@ public static class DirectoryHelper
 
         // Combine paths from fields and properties
         IEnumerable<string?> paths = fieldPaths.Concat(propertyPaths);
-        Log("Checking Directories:");
+        Log("Creating Directories");
         foreach (string? newPath in paths)
         {
             string? path = newPath;
 
-            Log($"Directory: {path}");
+            //Log($"Directory: {path}");
             if (!string.IsNullOrEmpty(path) && !Directory.Exists(path))
             {
                 try
@@ -81,7 +81,7 @@ public static class DirectoryHelper
             string subdirectoryName = c.ToString();
             string subdirectoryPath = Path.Combine(BuildInfo.SDImagesFolder, subdirectoryName);
 
-            Log($"Directory: {subdirectoryPath}");
+            //Log($"Directory: {subdirectoryPath}");
             // Create the subdirectory if it doesn't exist
             if (!Directory.Exists(subdirectoryPath))
             {
@@ -93,7 +93,7 @@ public static class DirectoryHelper
         {
             string subdirectoryName = c.ToString();
             string subdirectoryPath = Path.Combine(BuildInfo.SDImagesFolder, subdirectoryName);
-            Log($"Directory: {subdirectoryPath}");
+            //Log($"Directory: {subdirectoryPath}");
             // Create the subdirectory if it doesn't exist
             if (!Directory.Exists(subdirectoryPath))
             {

@@ -1,118 +1,134 @@
-﻿namespace StreamMaster.Application.M3UFiles.Commands;
+﻿using StreamMaster.Application.Services;
 
-public class UpdateM3UFileRequest : BaseFileRequest, IRequest<M3UFile?>
-{
-    //public int? StreamURLPrefixInt { get; set; }
-    public int? MaxStreamCount { get; set; }
-    public int? StartingChannelNumber { get; set; }
-    public bool? OverWriteChannels { get; set; }
-    public List<string>? VODTags { get; set; }
-}
+namespace StreamMaster.Application.M3UFiles.Commands;
 
+[SMAPI]
+[TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
+public record UpdateM3UFileRequest(int? MaxStreamCount, int? StartingChannelNumber, bool? OverWriteChannels, List<string>? VODTags, bool? AutoUpdate, int? HoursToUpdate, int Id, string? Name, string? Url)
+    : IRequest<APIResponse>;
 
 [LogExecutionTimeAspect]
-public class UpdateM3UFileRequestHandler(ILogger<UpdateM3UFileRequest> logger, IRepositoryWrapper Repository, IMapper Mapper, ISender Sender, IHubContext<StreamMasterHub, IStreamMasterHub> HubContext)
-    : IRequestHandler<UpdateM3UFileRequest, M3UFile?>
+public class UpdateM3UFileRequestHandler(IRepositoryWrapper Repository, IRepositoryContext repositoryContext, IBackgroundTaskQueue taskQueue, IJobStatusService jobStatusService, ISender Sender, IDataRefreshService dataRefreshService)
+    : IRequestHandler<UpdateM3UFileRequest, APIResponse>
 {
-    public async Task<M3UFile?> Handle(UpdateM3UFileRequest request, CancellationToken cancellationToken)
+    public async Task<APIResponse> Handle(UpdateM3UFileRequest request, CancellationToken cancellationToken)
     {
+        JobStatusManager jobManager = jobStatusService.GetJobManagerUpdateM3U(request.Id);
+
         try
         {
+            if (jobManager.IsRunning)
+            {
+                return APIResponse.NotFound;
+            }
 
-            M3UFile? m3uFile = await Repository.M3UFile.GetM3UFileById(request.Id).ConfigureAwait(false);
+            List<FieldData> ret = [];
+            M3UFile? m3uFile = await Repository.M3UFile.GetM3UFile(request.Id).ConfigureAwait(false);
             if (m3uFile == null)
             {
-                return null;
+                return APIResponse.NotFound;
             }
+            jobManager.Start();
 
-            bool isChanged = false;
             bool needsUpdate = false;
             bool needsRefresh = false;
-
-            if (!string.IsNullOrEmpty(request.Description) && m3uFile.Description != request.Description)
-            {
-                isChanged = true;
-                m3uFile.Description = request.Description;
-            }
+            bool nameChange = false;
 
             if (request.VODTags != null)
             {
-                isChanged = true;
-                needsUpdate = true;
                 m3uFile.VODTags = request.VODTags;
+
+                ret.Add(new FieldData(() => m3uFile.VODTags));
             }
 
 
             if (!string.IsNullOrEmpty(request.Url) && m3uFile.Url != request.Url)
             {
-                isChanged = true;
-                needsUpdate = true;
+                needsRefresh = true;
                 m3uFile.Url = request.Url;
+                ret.Add(new FieldData(() => m3uFile.Url));
             }
 
-            if (request.OverWriteChannels != null)
+            if (request.OverWriteChannels.HasValue)
             {
-                isChanged = true;
                 needsUpdate = true;
-                m3uFile.OverwriteChannelNumbers = (bool)request.OverWriteChannels;
+                m3uFile.OverwriteChannelNumbers = request.OverWriteChannels.Value;
+                ret.Add(new FieldData(() => m3uFile.OverwriteChannelNumbers));
             }
 
-            if (!string.IsNullOrEmpty(request.Name) && m3uFile.Name != request.Name)
+            if (!string.IsNullOrEmpty(request.Name) && request.Name != m3uFile.Name)
             {
-                isChanged = true;
+                nameChange = true;
                 m3uFile.Name = request.Name;
+                ret.Add(new FieldData(() => m3uFile.Name));
             }
 
-            if (request.MaxStreamCount != null && m3uFile.MaxStreamCount != request.MaxStreamCount)
+            if (request.MaxStreamCount.HasValue)
             {
-                isChanged = true;
-                m3uFile.MaxStreamCount = (int)request.MaxStreamCount;
+                m3uFile.MaxStreamCount = request.MaxStreamCount.Value;
+                ret.Add(new FieldData(() => m3uFile.MaxStreamCount));
             }
 
-            if (request.AutoUpdate != null && m3uFile.AutoUpdate != request.AutoUpdate)
+            if (request.AutoUpdate.HasValue)
             {
-                isChanged = true;
-                m3uFile.AutoUpdate = (bool)request.AutoUpdate;
+                m3uFile.AutoUpdate = request.AutoUpdate.Value;
+                ret.Add(new FieldData(() => m3uFile.AutoUpdate));
             }
 
-            if (request.StartingChannelNumber != null && m3uFile.StartingChannelNumber != request.StartingChannelNumber)
+            if (request.StartingChannelNumber.HasValue)
             {
-                isChanged = true;
-                m3uFile.StartingChannelNumber = (int)request.StartingChannelNumber;
+                needsUpdate = true;
+                m3uFile.StartingChannelNumber = request.StartingChannelNumber.Value;
+
+                ret.Add(new FieldData(() => m3uFile.StartingChannelNumber));
+
             }
 
-            if (request.HoursToUpdate != null && m3uFile.HoursToUpdate != request.HoursToUpdate)
+
+            if (request.HoursToUpdate.HasValue)
             {
-                isChanged = true;
-                m3uFile.HoursToUpdate = (int)request.HoursToUpdate;
+                m3uFile.HoursToUpdate = request.HoursToUpdate.Value;
+                ret.Add(new FieldData(() => m3uFile.HoursToUpdate));
+
             }
 
             Repository.M3UFile.UpdateM3UFile(m3uFile);
             _ = await Repository.SaveAsync().ConfigureAwait(false);
 
+            if (nameChange)
+            {
+                string sql = $"UPDATE public.\"SMStreams\" SET \"M3UFileName\"='{m3uFile.Name}' WHERE \"M3UFileId\"={m3uFile.Id};";
+                await repositoryContext.ExecuteSqlRawAsyncEntities(sql);
+                await dataRefreshService.RefreshSMStreams().ConfigureAwait(false);
+            }
+
             if (needsRefresh)
             {
-
                 await Sender.Send(new RefreshM3UFileRequest(m3uFile.Id, true), cancellationToken).ConfigureAwait(false);
             }
 
-
             if (needsUpdate)
             {
-                await Sender.Send(new ProcessM3UFileRequest(m3uFile.Id, request.OverWriteChannels), cancellationToken).ConfigureAwait(false);
+                ProcessM3UFileRequest processM3UFileRequest = new(m3uFile.Id);
+                await taskQueue.ProcessM3UFile(processM3UFileRequest, cancellationToken: cancellationToken).ConfigureAwait(false);
             }
 
-            M3UFileDto ret = Mapper.Map<M3UFileDto>(m3uFile);
-            if (isChanged)
+            if (ret.Count > 0)
             {
-                await HubContext.Clients.All.M3UFilesRefresh().ConfigureAwait(false);
+                await dataRefreshService.SetField(ret).ConfigureAwait(false);
+                await dataRefreshService.Refresh("GetM3UFileNames").ConfigureAwait(false);
             }
-
-            return m3uFile;
+            jobManager.SetSuccessful();
+            return APIResponse.Success;
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            jobManager.SetError();
+            return APIResponse.ErrorWithMessage(ex, $"Failed M3U update");
         }
-        return null;
+
     }
+
+
+
 }

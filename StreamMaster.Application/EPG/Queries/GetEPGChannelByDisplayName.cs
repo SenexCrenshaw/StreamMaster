@@ -1,5 +1,6 @@
 ﻿using StreamMaster.Application.Programmes.Queries;
 
+
 namespace StreamMaster.Application.EPG.Queries;
 
 public record GetEPGChannelByDisplayName(string DisplayName) : IRequest<ProgrammeNameDto?>;

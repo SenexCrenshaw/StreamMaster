@@ -1,12 +1,5 @@
 import { ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
-import { GetMessage } from '@lib/common/common';
-import {
-  VideoStreamDto,
-  VideoStreamLinksAddVideoStreamToVideoStreamApiArg,
-  useVideoStreamLinksGetVideoStreamVideoStreamIdsQuery,
-  useVideoStreamsGetPagedVideoStreamsQuery
-} from '@lib/iptvApi';
-import { AddVideoStreamToVideoStream } from '@lib/smAPI/VideoStreamLinks/VideoStreamLinksMutateAPI';
+import { GetMessage } from '@lib/common/intl';
 
 import VideoStreamAddDialog from '@components/videoStream/VideoStreamAddDialog';
 import { skipToken } from '@reduxjs/toolkit/dist/query';
@@ -27,9 +20,7 @@ const VideoStreamDataSelector = ({ id, onRowClick, videoStreamId }: VideoStreamD
   const [videoStreamIds, setVideoStreamIds] = useState<string[]>([] as string[]);
 
   const { columnConfig: channelNumberColumnConfig } = useChannelNumberColumnConfig({ enableEdit: false });
-  const { columnConfig: channelNameColumnConfig } = useChannelNameColumnConfig({
-    enableEdit: false
-  });
+  const { columnConfig: channelNameColumnConfig } = useChannelNameColumnConfig({ enableEdit: false });
   const videoStreamLinksGetVideoStreamVideoStreamIdsQuery = useVideoStreamLinksGetVideoStreamVideoStreamIdsQuery(videoStreamId ?? skipToken);
 
   useEffect(() => {

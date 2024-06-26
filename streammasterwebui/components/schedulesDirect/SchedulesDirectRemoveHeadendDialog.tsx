@@ -1,5 +1,7 @@
-import DeleteButton from '@components/buttons/DeleteButton';
-import { HeadendDto, SchedulesDirectRemoveLineupApiArg, useSchedulesDirectRemoveLineupMutation } from '@lib/iptvApi';
+import SMPopUp from '@components/sm/SMPopUp';
+import { RemoveLineup } from '@lib/smAPI/SchedulesDirect/SchedulesDirectCommands';
+import { HeadendDto, RemoveLineupRequest } from '@lib/smAPI/smapiTypes';
+
 import { memo } from 'react';
 
 interface SchedulesDirectAddHeadendDialogProperties {
@@ -7,18 +9,16 @@ interface SchedulesDirectAddHeadendDialogProperties {
 }
 
 const SchedulesDirectAddHeadendDialog = ({ value }: SchedulesDirectAddHeadendDialogProperties) => {
-  const [schedulesDirectRemoveLineupMutation] = useSchedulesDirectRemoveLineupMutation();
-
-  const addHeadEnd = async () => {
+  const removeHeadEnd = async () => {
     if (!value) {
       return;
     }
 
     console.log(value);
 
-    const toSend: SchedulesDirectRemoveLineupApiArg = { lineup: value.lineup };
+    const request: RemoveLineupRequest = { Lineup: value.Lineup };
 
-    schedulesDirectRemoveLineupMutation(toSend)
+    RemoveLineup(request)
       .then((result) => {
         console.log(result);
       })
@@ -28,9 +28,12 @@ const SchedulesDirectAddHeadendDialog = ({ value }: SchedulesDirectAddHeadendDia
   };
 
   return (
-    <div className="flex">
-      <DeleteButton iconFilled={false} onClick={async () => await addHeadEnd()} />
-    </div>
+    <SMPopUp title="Unsubscribe Lineup" icon="pi-minus" buttonClassName="icon-red" onOkClick={removeHeadEnd} tooltip="Unsubscribe Lineup">
+      <div className="flex flex-column align-content-center justify-content-center align-items-center">
+        <div>Are you sure?</div>
+        <div>You can only do this 6 times per day</div>
+      </div>
+    </SMPopUp>
   );
 };
 

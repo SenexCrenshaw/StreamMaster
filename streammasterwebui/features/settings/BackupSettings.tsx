@@ -1,16 +1,15 @@
-import { GetMessage } from '@lib/common/common';
-import React from 'react';
-
+import { SMCard } from '@components/sm/SMCard';
+import { GetMessage } from '@lib/common/intl';
 import { Fieldset } from 'primereact/fieldset';
-import { getCheckBoxLine } from './getCheckBoxLine';
-import { getInputNumberLine } from './getInputNumberLine';
-
-import { useSettingChangeHandler } from './useSettingChangeHandler';
+import React from 'react';
+import { getCheckBoxLine } from './components/getCheckBoxLine';
+import { getInputNumberLine } from './components/getInputNumberLine';
+import { useSettingChangeHandler } from './hooks/useSettingChangeHandler';
 
 export function BackupSettings(): React.ReactElement {
-  const { onChange, selectedCurrentSettingDto } = useSettingChangeHandler();
+  const { onChange, currentSettingRequest } = useSettingChangeHandler();
 
-  if (selectedCurrentSettingDto === null || selectedCurrentSettingDto === undefined) {
+  if (currentSettingRequest === null || currentSettingRequest === undefined) {
     return (
       <Fieldset className="mt-4 pt-10" legend={GetMessage('SD')}>
         <div className="text-center">{GetMessage('loading')}</div>
@@ -19,10 +18,24 @@ export function BackupSettings(): React.ReactElement {
   }
 
   return (
-    <Fieldset className="mt-4 pt-10" legend={GetMessage('backups')} toggleable>
-      {getCheckBoxLine({ field: 'backupEnabled', selectedCurrentSettingDto, onChange })}
-      {getInputNumberLine({ field: 'backupVersionsToKeep', selectedCurrentSettingDto, onChange })}
-      {getInputNumberLine({ field: 'backupInterval', selectedCurrentSettingDto, onChange })}
-    </Fieldset>
+    <SMCard
+      info=""
+      hasCloseButton
+      darkBackGround={false}
+      title="BACKUPS"
+      header={<div className="justify-content-end align-items-center flex-row flex gap-1">{/* {header}                */}</div>}
+    >
+      <div className="sm-card-children">
+        <div className="sm-card-children-content">
+          <div className="layout-padding-bottom" />
+          <div className="settings-lines ">
+            {getCheckBoxLine({ currentSettingRequest, field: 'BackupEnabled', onChange })}
+            {getInputNumberLine({ currentSettingRequest, field: 'BackupVersionsToKeep', onChange })}
+            {getInputNumberLine({ currentSettingRequest, field: 'BackupInterval', onChange })}
+          </div>
+        </div>
+        <div className="layout-padding-bottom" />
+      </div>
+    </SMCard>
   );
 }

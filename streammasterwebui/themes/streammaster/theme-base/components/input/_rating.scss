@@ -1,0 +1,81 @@
+@use 'sass:math';
+
+// core
+.p-rating {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.p-rating-item {
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.p-rating.p-readonly .p-rating-item {
+    cursor: default;
+}
+
+// theme
+.p-rating {
+    gap: $inlineSpacing;
+
+    .p-rating-item {
+        outline-color: transparent;
+        border-radius: 50%;
+        
+        .p-rating-icon {
+            color: $ratingStarIconOffColor;
+            transition: $formElementTransition;   
+            font-size: $ratingIconFontSize;
+
+            &.p-icon {
+                width: $ratingIconFontSize;
+                height: $ratingIconFontSize;
+            }
+    
+            &.p-rating-cancel {
+                color: $ratingCancelIconColor;
+            }
+        }
+
+        &.p-focus {
+            @include focused();
+        }
+
+        &.p-rating-item-active {
+            .p-rating-icon {
+                color: $ratingStarIconOnColor;
+            }
+        }
+    }
+
+    &:not(.p-disabled):not(.p-readonly) {
+        .p-rating-item {
+            &:hover {
+                .p-rating-icon {
+                    color: $ratingStarIconHoverColor;
+
+                    &.p-rating-cancel {
+                        color: $ratingCancelIconHoverColor;
+                    }
+                }
+            }
+        }
+    }
+}
+
+@if ($highlightBg == $ratingStarIconOnColor) {
+    .p-highlight {
+        .p-rating {
+            .p-rating-item {
+                &.p-rating-item-active {
+                    .p-rating-icon {
+                        color: $highlightTextColor;
+                    }
+                }
+            }
+        }
+    }
+}

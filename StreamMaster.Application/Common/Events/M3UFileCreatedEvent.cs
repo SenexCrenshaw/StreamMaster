@@ -1,8 +1,8 @@
 ﻿namespace StreamMaster.Application.Common.Events;
 
-public class M3UFileAddedEvent : BaseEvent
+public class M3UFileProcessEvent : BaseEvent
 {
-    public M3UFileAddedEvent(int M3UFileId, bool ForecRun)
+    public M3UFileProcessEvent(int M3UFileId, bool ForecRun)
     {
         this.M3UFileId = M3UFileId;
         this.ForecRun = ForecRun;

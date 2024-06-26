@@ -1,5 +1,7 @@
-﻿namespace StreamMaster.Domain.Configuration;
+﻿using Reinforced.Typings.Attributes;
 
+namespace StreamMaster.Domain.Configuration;
+[TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public class HLSSettings
 {
     public bool HLSM3U8Enable { get; set; } = false;

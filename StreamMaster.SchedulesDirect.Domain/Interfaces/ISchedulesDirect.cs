@@ -1,20 +1,21 @@
-﻿using StreamMaster.SchedulesDirect.Domain.Models;
+﻿using StreamMaster.Domain.API;
+using StreamMaster.SchedulesDirect.Domain.Models;
 
 namespace StreamMaster.SchedulesDirect.Domain.Interfaces;
 
 public interface ISchedulesDirect
 {
     bool CheckToken(bool forceReset = false);
-    Task<bool> AddLineup(string lineup, CancellationToken cancellationToken);
+    Task<int> AddLineup(string lineup, CancellationToken cancellationToken);
     Task<List<CountryData>?> GetAvailableCountries(CancellationToken cancellationToken);
     Task<List<string>?> GetCustomLogosFromServerAsync(string server);
-    Task<List<Headend>?> GetHeadends(string country, string postalCode, CancellationToken cancellationToken = default);
+    Task<List<Headend>?> GetHeadendsByCountryPostal(string country, string postalCode, CancellationToken cancellationToken = default);
     Task<List<LineupPreviewChannel>?> GetLineupPreviewChannel(string lineup, CancellationToken cancellationToken);
     Task<StationChannelMap?> GetStationChannelMapAsync(string lineup);
     Task<UserStatus> GetUserStatus(CancellationToken cancellationToken);
-    Task<bool> RemoveLineup(string lineup, CancellationToken cancellationToken);
+    Task<int> RemoveLineup(string lineup, CancellationToken cancellationToken);
     void ResetCache(string command);
     void ResetEPGCache();
-    Task<bool> SDSync(CancellationToken cancellationToken);
-
+    Task<APIResponse> SDSync(CancellationToken cancellationToken);
+    Task<bool> UpdateHeadEnd(string lineup, bool subScribed, CancellationToken cancellationToken);
 }

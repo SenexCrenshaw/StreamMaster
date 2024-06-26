@@ -8,7 +8,6 @@ using StreamMaster.Domain.Dto;
 using StreamMaster.Domain.Enums;
 using StreamMaster.Domain.Extensions;
 using StreamMaster.Domain.Services;
-using StreamMaster.SchedulesDirect.Domain.Enums;
 
 using System.Collections.Concurrent;
 using System.Diagnostics;

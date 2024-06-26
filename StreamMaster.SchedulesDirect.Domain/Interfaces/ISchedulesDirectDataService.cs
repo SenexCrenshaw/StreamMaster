@@ -17,7 +17,7 @@ public interface ISchedulesDirectDataService
     /// Gets a list of station channel names.
     /// </summary>
     /// <returns>List of <see cref="StationChannelName"/>.</returns>
-    List<StationChannelName> GetStationChannelNames();
+    Task<List<StationChannelName>> GetStationChannelNames();
 
     /// <summary>
     /// Gets a concurrent dictionary containing SchedulesDirect data, keyed by EPG ID.
@@ -72,6 +72,7 @@ public interface ISchedulesDirectDataService
     ISchedulesDirectData SchedulesDirectData();
     ISchedulesDirectData DummyData();
     void ChangeServiceEPGNumber(int oldEPGNumber, int newEPGNumber);
+
     List<MxfService> GetAllSDServices { get; }
     List<MxfProgram> GetAllSDPrograms { get; }
 }

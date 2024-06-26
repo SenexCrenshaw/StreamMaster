@@ -1,8 +1,4 @@
-﻿using StreamMaster.Domain.Configuration;
-using StreamMaster.SchedulesDirect.Domain.Enums;
-using StreamMaster.SchedulesDirect.Helpers;
-
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Text.Json;
 
 namespace StreamMaster.SchedulesDirect.Images;
@@ -156,7 +152,19 @@ public class SeasonImages(ILogger<SeasonImages> logger, IEPGCache<SeasonImages> 
             // get season images
             List<ProgramArtwork> artwork;
 
-            season.extras.Add("artwork", artwork = SDHelpers.GetTieredImages(response.Data, ["season"], artworkSize));
+            if (season.extras.ContainsKey("artwork"))
+            {
+                List<ProgramArtwork> arts = season.extras["artwork"];
+                arts = arts.Concat(SDHelpers.GetTieredImages(response.Data, ["season"], artworkSize)).ToList();
+                season.extras["artwork"] = arts;
+                artwork = season.extras["artwork"];
+            }
+            else
+            {
+                season.extras.Add("artwork", SDHelpers.GetTieredImages(response.Data, ["season"], artworkSize));
+                artwork = season.extras["artwork"];
+            }
+
 
             // create a season entry in cache
             string uid = $"{season.SeriesId}_{season.SeasonNumber}";

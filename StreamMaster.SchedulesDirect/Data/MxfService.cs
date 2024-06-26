@@ -15,10 +15,10 @@ public partial class SchedulesDirectData
 
     public MxfService FindOrCreateService(string stationId)
     {
-        if (!Services.ContainsKey(stationId))
-        {
-            WriteToCSV(serviceCSV, $"{Services.Count + 1},{stationId}");
-        }
+        //if (!Services.ContainsKey(stationId))
+        //{
+        //    WriteToCSV(serviceCSV, $"{Services.Count + 1},{stationId}");
+        //}
 
         (MxfService service, bool created) = Services.FindOrCreateWithStatus(stationId, key => new MxfService(Services.Count + 1, stationId)
         {

@@ -1,7 +1,4 @@
-﻿using StreamMaster.Domain.Dto;
-using StreamMaster.Domain.Enums;
-
-namespace StreamMaster.Streams.Domain.Interfaces;
+﻿namespace StreamMaster.Streams.Domain.Interfaces;
 
 public class M3UStreamHealth
 {
@@ -20,7 +17,7 @@ public class StreamingClientInformation
     public int ClientErrors { get; set; }
     public string Host { get; set; } = string.Empty;
 
-    public List<M3UStreamHealth> M3UStreamHealths { get; set; } = new();
+    public List<M3UStreamHealth> M3UStreamHealths { get; set; } = [];
     public string RemoteIP { get; set; } = string.Empty;
     public DateTime StartDateTime { get; set; }
     public string UserAgent { get; set; } = string.Empty;
@@ -32,7 +29,7 @@ public class StreamingClientConfiguration : StreamingClientInformation
     public CancellationToken CancellationToken { get; set; }
     public int CurrentM3UStreamId { get; set; }
     public string CurrentM3UStreamName { get; set; } = string.Empty;
-    public StreamingProxyTypes CurrentM3UStreamProxyType { get; set; }
+    public string CurrentM3UStreamProxyType { get; set; }
     public string CurrentM3UStreamUrl { get; set; } = string.Empty;
     public Guid Id { get; set; } = Guid.NewGuid();
     public bool IsReader { get; set; }
@@ -44,8 +41,8 @@ public class StreamingClientConfiguration : StreamingClientInformation
 
     public bool StreamBufferLooped { get; set; } = false;
 
-    public VideoStreamDto? VideoStream { get; set; }
+    public SMStreamDto? SMStream { get; set; }
 
     //public M3UStreamDto M3UStream { get; set; }
-    public List<VideoStreamDto> VideoStreams { get; set; } = new();
+    public List<SMStreamDto> SMStreams { get; set; } = [];
 }

@@ -16,7 +16,7 @@ public sealed partial class StreamHandler
     private readonly CancellationTokenSource cancellationTokenSource = new();
 
     private readonly SemaphoreSlim buildVideoInfoSemaphore = new(1, 1);
-
+    private readonly FileSaver fileSaver = new(5);
 
     public VideoInfo GetVideoInfo()
     {
@@ -25,6 +25,8 @@ public sealed partial class StreamHandler
 
     public async Task BuildVideoInfoAsync(byte[] videoMemory)
     {
+        // string testDir = Path.Combine(BuildInfo.AppDataFolder, "test.mp4");
+        //await fileSaver.SaveVideoWithRevisionsAsync(videoMemory, testDir);
         bool isLocked = false;
         try
         {
@@ -32,16 +34,15 @@ public sealed partial class StreamHandler
             isLocked = await buildVideoInfoSemaphore.WaitAsync(0).ConfigureAwait(false);
             if (!isLocked)
             {
-                //logger.LogWarning("BuildVideoInfo execution is skipped because another operation is already running.");
+                logger.LogWarning("BuildVideoInfo execution is skipped because another operation is already running.");
                 return;
             }
 
             if (GetVideoInfoErrors > 3)
             {
-                //logger.LogWarning("Skipped BuildVideoInfo due to excessive errors.");
+                logger.LogDebug("Skipped BuildVideoInfo due to excessive errors.");
                 return;
             }
-
 
             string ffprobeExec = GetFFProbeExecutablePath(settings);
 
@@ -52,30 +53,29 @@ public sealed partial class StreamHandler
                 return;
             }
 
-            try
-            {
+            VideoInfo? videoInfo = await CreateFFProbeStream(ffprobeExec, videoMemory).ConfigureAwait(false);
 
-                VideoInfo? videoInfo = await CreateFFProbeStream(ffprobeExec, videoMemory).ConfigureAwait(false);
 
-                if (!videoInfo.IsValid())
-                {
-                    GetVideoInfoErrors++;
-                    logger.LogError("Failed to deserialize FFProbe output.");
-                    return;
-                }
-
-                LastVideoInfoRun = SMDT.UtcNow;
-                logger.LogInformation("Retrieved video information for {VideoStreamName}.", VideoStreamName);
-            }
-            catch (OperationCanceledException)
-            {
-                logger.LogWarning("BuildVideoInfo operation was canceled.");
-            }
-            catch (Exception ex)
+            if (videoInfo == null || !videoInfo.IsValid())
             {
                 GetVideoInfoErrors++;
-                logger.LogError(ex, "An unexpected error occurred while building video info.");
+                logger.LogError("Failed to deserialize FFProbe output.");
+                return;
             }
+
+            videoInfo.StreamName = SMStream.Name;
+            LastVideoInfoRun = SMDT.UtcNow;
+            _videoInfo = videoInfo;
+            logger.LogInformation("Retrieved video information for {VideoStreamName}.", SMStream.Name);
+        }
+        catch (OperationCanceledException)
+        {
+            logger.LogWarning("BuildVideoInfo operation was canceled.");
+        }
+        catch (Exception ex)
+        {
+            GetVideoInfoErrors++;
+            logger.LogError(ex, "An unexpected error occurred while building video info.");
         }
         finally
         {
@@ -86,12 +86,14 @@ public sealed partial class StreamHandler
         }
     }
 
+
+
     private string GetFFProbeExecutablePath(Setting settings)
     {
         string ffprobeExec = Path.Combine(BuildInfo.AppDataFolder, settings.FFProbeExecutable);
-        return !File.Exists(ffprobeExec) && !File.Exists(ffprobeExec + ".exe") && !IsFFProbeAvailable()
-            ? string.Empty
-            : File.Exists(ffprobeExec) ? ffprobeExec : "ffprobe";
+        return File.Exists(ffprobeExec) || File.Exists(ffprobeExec + ".exe") || IsFFProbeAvailable()
+            ? ffprobeExec
+            : string.Empty;
     }
 
     private readonly int GetVideoInfoCount = 0;
@@ -101,9 +103,7 @@ public sealed partial class StreamHandler
         using Process process = new();
         try
         {
-
             string options = "-loglevel error -print_format json -show_format -sexagesimal -show_streams - ";
-
             process.StartInfo.FileName = ffProbeExec;
             process.StartInfo.Arguments = options;
             process.StartInfo.CreateNoWindow = true;
@@ -112,8 +112,7 @@ public sealed partial class StreamHandler
             process.StartInfo.RedirectStandardError = true;
             process.StartInfo.RedirectStandardInput = true;
 
-            bool processStarted = process.Start();
-            if (!processStarted)
+            if (!process.Start())
             {
                 logger.LogError("CreateFFProbeStream Error: Failed to start FFProbe process");
                 return null;
@@ -129,29 +128,28 @@ public sealed partial class StreamHandler
 
             if (!process.WaitForExit(5000)) // 5000 ms timeout
             {
-                // Handle the case where process doesn't exit in time
                 logger.LogWarning("Process did not exit within the expected time.");
             }
 
-            // Reading from the process's standard output
             string output = await process.StandardOutput.ReadToEndAsync();
-
             VideoInfo? videoInfo = JsonSerializer.Deserialize<VideoInfo>(output);
+
             if (videoInfo == null)
             {
+                var jsonString = JsonSerializer.Serialize(videoInfo);
                 logger.LogError("CreateFFProbeStream Error: Failed to deserialize FFProbe output");
+                logger.LogDebug(jsonString);
                 return null;
             }
             _videoInfo = videoInfo;
             return videoInfo;
-
         }
-        catch (Exception ex) when (ex is IOException or JsonException or Exception)
+        catch (Exception ex) when (ex is IOException or JsonException)
         {
-            //logger.LogError( "CreateFFProbeStream Error: {ErrorMessage}");
+            logger.LogError(ex, "CreateFFProbeStream Error: {ErrorMessage}");
             process.Kill();
+            return null;
         }
-        return new();
     }
 
     private static bool IsFFProbeAvailable()
@@ -162,11 +160,11 @@ public sealed partial class StreamHandler
             RedirectStandardOutput = true,
             UseShellExecute = false
         };
-        Process process = new()
+        using Process process = new()
         {
             StartInfo = startInfo
         };
-        _ = process.Start();
+        process.Start();
         process.WaitForExit();
         return process.ExitCode == 0;
     }

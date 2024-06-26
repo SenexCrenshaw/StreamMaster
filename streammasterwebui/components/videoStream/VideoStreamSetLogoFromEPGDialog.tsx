@@ -1,6 +1,5 @@
 import { getTopToolOptions } from '@lib/common/common';
-import { type VideoStreamDto, type VideoStreamsSetVideoStreamsLogoFromEpgApiArg } from '@lib/iptvApi';
-import { SetVideoStreamsLogoFromEpg } from '@lib/smAPI/VideoStreams/VideoStreamsMutateAPI';
+
 import { Button } from 'primereact/button';
 import { memo, useCallback } from 'react';
 

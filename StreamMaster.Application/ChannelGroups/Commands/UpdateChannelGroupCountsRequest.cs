@@ -1,95 +1,67 @@
 ﻿using FluentValidation;
 
-using Microsoft.EntityFrameworkCore;
-
 namespace StreamMaster.Application.ChannelGroups.Commands;
 
-public record UpdateChannelGroupCountsRequest(List<ChannelGroupDto>? ChannelGroups) : IRequest<List<ChannelGroupDto>> { }
+public record UpdateChannelGroupCountsRequest(List<ChannelGroup>? ChannelGroups = null)
+    : IRequest
+{ }
 
 [LogExecutionTimeAspect]
-public class UpdateChannelGroupCountsRequestHandler(ILogger<UpdateChannelGroupCountsRequest> Logger, IRepositoryWrapper Repository, IMapper mapper, IMemoryCache MemoryCache) : IRequestHandler<UpdateChannelGroupCountsRequest, List<ChannelGroupDto>>
+public class UpdateChannelGroupCountsRequestHandler(ILogger<UpdateChannelGroupCountsRequest> Logger, IRepositoryWrapper Repository, IMapper mapper, IMemoryCache MemoryCache)
+    : IRequestHandler<UpdateChannelGroupCountsRequest>
 {
-    private class ChannelGroupBrief
-    {
-        public string Name { get; set; }
-        public int Id { get; set; }
-    }
 
-    public async Task<List<ChannelGroupDto>> Handle(UpdateChannelGroupCountsRequest request, CancellationToken cancellationToken)
+    public async Task Handle(UpdateChannelGroupCountsRequest request, CancellationToken cancellationToken)
     {
+
         if (request == null)
         {
+
             throw new ArgumentNullException(nameof(request));
         }
 
         try
         {
+            List<ChannelGroup> cgs = request.ChannelGroups == null || request.ChannelGroups.Count == 0
+                ? Repository.ChannelGroup.GetQuery(true).ToList()
+                : request.ChannelGroups;
 
-            List<ChannelGroupDto> dtos = mapper.Map<List<ChannelGroupDto>>(request.ChannelGroups);
-
-            List<string> cgNames = dtos.ConvertAll(a => a.Name);
-
-            // Fetch relevant video streams.
-            var allVideoStreams = await Repository.VideoStream.GetVideoStreamQuery()
-                .Where(a => cgNames.Contains(a.User_Tvg_group))
-                .Select(vs => new
-                {
-                    vs.Id,
-                    vs.User_Tvg_group,
-                    vs.IsHidden
-                }).ToListAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
-
-            Dictionary<string, List<string>> videoStreamsForGroups = [];
-            Dictionary<string, int> hiddenCounts = [];
-            ChannelGroupDto? c = dtos.Find(a => a.Id == 29);
-
-            foreach (ChannelGroupDto cg in dtos)
+            if (cgs.Count != 0)
             {
-                if (cg == null)
+
+                List<string> cgNames = cgs.ConvertAll(a => a.Name);
+
+                List<SMStream> smStreams = [.. Repository.SMStream.GetQuery().Where(a => cgNames.Contains(a.Group))];
+
+                foreach (ChannelGroup cg in cgs)
                 {
-                    continue;
+                    if (cg == null)
+                    {
+                        continue;
+                    }
+
+                    List<SMStream> relevantStreams = smStreams.Where(vs => vs.Group == cg.Name).ToList();
+
+
+                    var counts = relevantStreams.GroupBy(vs => vs.IsHidden).Select(g => new { IsHidden = g.Key, Count = g.Count() }).ToList();
+                    int totalCount = counts.Sum(c => c.Count);
+                    int hiddenCount = counts.Find(c => c.IsHidden)?.Count ?? 0;
+                    cg.TotalCount = totalCount;
+                    cg.ActiveCount = totalCount - hiddenCount;
+                    cg.HiddenCount = hiddenCount;
                 }
 
-                var relevantStreams = allVideoStreams.Where(vs => vs.User_Tvg_group == cg.Name).ToList();
+                await Repository.SaveAsync();
 
-                videoStreamsForGroups[cg.Name] = relevantStreams.Select(vs => vs.Id).ToList();
-                hiddenCounts[cg.Name] = relevantStreams.Count(vs => vs.IsHidden);
             }
 
-            if (dtos.Any())
-            {
-                foreach (ChannelGroupDto cg in dtos)
-                {
-                    cg.TotalCount = videoStreamsForGroups[cg.Name].Count;
-                    cg.ActiveCount = videoStreamsForGroups[cg.Name].Count - hiddenCounts[cg.Name];
-                    cg.HiddenCount = hiddenCounts[cg.Name];
-                    cg.IsHidden = hiddenCounts[cg.Name] != 0;
-                }
-
-                MemoryCache.AddOrUpdateChannelGroupVideoStreamCounts(dtos);
-                return dtos;
-                //await HubContext.Clients.All.ChannelGroupsRefresh(dtos.ToArray()).ConfigureAwait(false);
-
-                //if (channelGroupStreamCounts.Any())
-                //{
-                //    var a = channelGroupStreamCounts.FirstOrDefault(a => a.ChannelGroupId == 29);
-                //    MemoryCache.AddOrUpdateChannelGroupVideoStreamCounts(channelGroupStreamCounts);
-                //    var b = channelGroupStreamCounts.FirstOrDefault(a => a.ChannelGroupId == 29);
-                //    await HubContext.Clients.All.UpdateChannelGroups(cgs).ConfigureAwait(false);
-                //}
-            }
-
-            //if (channelGroupStreamCounts.Any())
-            //{
-            //    MemoryCache.AddOrUpdateChannelGroupVideoStreamCounts(channelGroupStreamCounts);
-            //    await HubContext.Clients.All.UpdateChannelGroupVideoStreamCounts(channelGroupStreamCounts).ConfigureAwait(false);
-            //}
         }
         catch (Exception ex)
         {
             Logger.LogError(ex, "Error while handling UpdateChannelGroupCountsRequest.");
-            throw; // Re-throw the exception if needed or handle accordingly.
+
+            throw;
         }
-        return [];
+
     }
 }

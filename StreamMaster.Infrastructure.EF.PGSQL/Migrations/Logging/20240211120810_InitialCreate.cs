@@ -77,7 +77,7 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Logging
                     StreamProxyType = table.Column<int>(type: "integer", nullable: false),
                     M3UFileName = table.Column<string>(type: "citext", nullable: false),
                     Tvg_chno = table.Column<int>(type: "integer", nullable: false),
-                    ShortId = table.Column<string>(type: "citext", nullable: false),
+                    SMChannelId = table.Column<string>(type: "citext", nullable: false),
                     TimeShift = table.Column<string>(type: "text", nullable: false),
                     Tvg_group = table.Column<string>(type: "citext", nullable: false),
                     Tvg_ID = table.Column<string>(type: "citext", nullable: false),

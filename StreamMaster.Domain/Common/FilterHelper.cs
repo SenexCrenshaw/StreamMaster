@@ -7,6 +7,7 @@ using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 
 namespace StreamMaster.Domain.Common;
 
@@ -15,17 +16,18 @@ public static class FilterHelper<T> where T : class
     private static readonly ConcurrentDictionary<Type, ParameterExpression> ParameterCache = new();
     private static readonly ConcurrentDictionary<(Type, string), PropertyInfo> PropertyCache = new();
 
+    public static readonly List<string> FiltersToIgnore = ["inSG", "notInSG"];
+
     public static IQueryable<T> ApplyFiltersAndSort(IQueryable<T> query, List<DataTableFilterMetaData>? filters, string orderBy, bool forceToLower = false)
     {
-
         if (filters != null)
         {
-            // Apply filters
-            foreach (DataTableFilterMetaData filter in filters)
+            if (filters.Any(a => !FiltersToIgnore.Contains(a.MatchMode)))
             {
-                query = FilterHelper<T>.ApplyFilter(query, filter, forceToLower);
+                query = FilterHelper<T>.ApplyFilter(query, filters, forceToLower);
             }
         }
+
 
         // Apply sorting
         if (!string.IsNullOrWhiteSpace(orderBy))
@@ -36,31 +38,73 @@ public static class FilterHelper<T> where T : class
         return query;
     }
 
-    public static IQueryable<T> ApplyFilter(IQueryable<T> query, DataTableFilterMetaData filter, bool forceToLower)
+    public static IQueryable<T> ApplyFilter(IQueryable<T> query, List<DataTableFilterMetaData> filters, bool forceToLower)
     {
+        if (filters == null || filters.Count == 0)
+        {
+            return query;
+        }
+
+        Dictionary<string, List<Expression>> filterExpressions = [];
         if (!ParameterCache.TryGetValue(typeof(T), out ParameterExpression? parameter))
         {
             parameter = Expression.Parameter(typeof(T), "entity");
             ParameterCache[typeof(T)] = parameter;
         }
 
-        (Type, string FieldName) propertyKey = (typeof(T), filter.FieldName);
-        if (!PropertyCache.TryGetValue(propertyKey, out PropertyInfo? property))
+        foreach (DataTableFilterMetaData filter in filters)
         {
-            property = typeof(T).GetProperties().FirstOrDefault(p => string.Equals(p.Name, filter.FieldName, StringComparison.OrdinalIgnoreCase));
-            PropertyCache[propertyKey] = property ?? throw new ArgumentException($"Property {filter.FieldName} not found on type {typeof(T).FullName}");
+            if (FiltersToIgnore.Contains(filter.MatchMode))
+            {
+                continue;
+            }
+            (Type, string FieldName) propertyKey = (typeof(T), filter.FieldName);
+            if (!PropertyCache.TryGetValue(propertyKey, out PropertyInfo? property))
+            {
+                property = typeof(T).GetProperties().FirstOrDefault(p => string.Equals(p.Name, filter.FieldName, StringComparison.OrdinalIgnoreCase));
+                PropertyCache[propertyKey] = property ?? throw new ArgumentException($"Property {filter.FieldName} not found on type {typeof(T).FullName}");
+            }
+
+            Expression propertyAccess = Expression.Property(parameter, property);
+            Expression filterExpression = CreateArrayExpression(filter, propertyAccess, forceToLower);
+            if (!filterExpressions.TryGetValue(property.Name, out List<Expression>? expressions))
+            {
+                expressions = [];
+                filterExpressions.Add(property.Name, expressions);
+            }
+            expressions.Add(filterExpression);
         }
 
-        Expression propertyAccess = Expression.Property(parameter, property);
+        List<Expression> combinedPropertyExpressions = [];
+        foreach (List<Expression> propExpressions in filterExpressions.Values)
+        {
+            Expression combinedExpression = propExpressions[0];
+            for (int i = 1; i < propExpressions.Count; i++)
+            {
+                combinedExpression = Expression.OrElse(combinedExpression, propExpressions[i]);
+            }
+            combinedPropertyExpressions.Add(combinedExpression);
+        }
 
-        Expression filterExpression = CreateArrayExpression(filter, propertyAccess, forceToLower);
+        Expression finalExpression = combinedPropertyExpressions[0];
+        for (int i = 1; i < combinedPropertyExpressions.Count; i++)
+        {
+            finalExpression = Expression.AndAlso(finalExpression, combinedPropertyExpressions[i]);
+        }
 
-        Expression<Func<T, bool>> lambda = Expression.Lambda<Func<T, bool>>(filterExpression, parameter);
-        return query.Where(lambda);
+        Expression<Func<T, bool>> finalLambda = Expression.Lambda<Func<T, bool>>(finalExpression, parameter);
+
+
+        return query.Where(finalLambda);
     }
 
     private static MethodInfo? GetMethodCaseInsensitive(Type type, string methodName, Type[] parameterTypes)
     {
+        if (methodName == "notContains")
+        {
+            methodName = "contains";
+
+        }
         return type.GetMethods()
                    .FirstOrDefault(m => string.Equals(m.Name, methodName, StringComparison.OrdinalIgnoreCase)
                                         && m.GetParameters().Select(p => p.ParameterType).SequenceEqual(parameterTypes));
@@ -68,11 +112,42 @@ public static class FilterHelper<T> where T : class
 
     public static MethodCallExpression StringExpression(string MatchMode, Expression stringExpression, Expression searchStringExpression)
     {
+
         MethodInfo? methodInfoString = GetMethodCaseInsensitive(typeof(string), MatchMode, [typeof(string)]);
+
 
         return methodInfoString == null
             ? throw new InvalidOperationException("No suitable Contains method found.")
             : Expression.Call(stringExpression, methodInfoString, searchStringExpression);
+    }
+
+
+    private static List<string> ConvertToJsonStringList(string jsonString)
+    {
+        try
+        {
+            List<string>? stringList = JsonSerializer.Deserialize<List<string>>(jsonString);
+            return stringList == null ? throw new JsonException("Deserialization returned null.") : stringList;
+        }
+        catch (JsonException ex)
+        {
+            Console.WriteLine($"Failed to convert to List<string>: {ex.Message}");
+            return null;
+        }
+    }
+
+    private static List<int> ConvertToJsonIntList(string jsonString)
+    {
+        try
+        {
+            List<int>? intList = JsonSerializer.Deserialize<List<int>>(jsonString);
+            return intList == null ? throw new JsonException("Deserialization returned null.") : intList;
+        }
+        catch (JsonException ex)
+        {
+            Console.WriteLine($"Failed to convert to List<int>: {ex.Message}");
+            return null;
+        }
     }
 
     private static Expression CreateArrayExpression(DataTableFilterMetaData filter, Expression propertyAccess, bool forceToLower)
@@ -88,17 +163,20 @@ public static class FilterHelper<T> where T : class
             filter.MatchMode = "equals";
         }
 
+
         List<Expression> containsExpressions = [];
 
-        if (stringValue.StartsWith("[\"") && stringValue.EndsWith("\"]"))
+        if ((stringValue.StartsWith("[\"") && stringValue.EndsWith("\"]"))
+           ||
+        (stringValue.StartsWith("[") && stringValue.EndsWith(""))
+            )
         {
-            string[] values = JsonSerializer.Deserialize<string[]>(stringValue) ?? Array.Empty<string>();
+            string[] values = ConvertToArray(stringValue);
             foreach (string value in values)
             {
                 if (propertyAccess.Type == typeof(int))
                 {
-                    string newValue = filter.Value.ToString()[2..^2];
-                    BinaryExpression equalExpression = Expression.Equal(propertyAccess, Expression.Constant(int.Parse(newValue)));
+                    BinaryExpression equalExpression = Expression.Equal(propertyAccess, Expression.Constant(int.Parse(value)));
                     containsExpressions.Add(equalExpression);
                 }
                 else
@@ -112,8 +190,19 @@ public static class FilterHelper<T> where T : class
                     }
                     else
                     {
+
                         MethodCallExpression containsCall = StringExpression(filter.MatchMode, propertyAccess, Expression.Constant(value));
-                        containsExpressions.Add(containsCall);
+                        if (filter.MatchMode.Equals("notContains"))
+                        {
+                            UnaryExpression notContainsCall = Expression.Not(containsCall);
+                            containsExpressions.Add(containsCall);
+
+                        }
+                        else
+                        {
+                            containsExpressions.Add(containsCall);
+                        }
+
                     }
                 }
             }
@@ -147,7 +236,16 @@ public static class FilterHelper<T> where T : class
                 else
                 {
                     MethodCallExpression containsCall = StringExpression(filter.MatchMode, propertyAccess, Expression.Constant(stringValue));
-                    containsExpressions.Add(containsCall);
+                    if (filter.MatchMode.Equals("notContains"))
+                    {
+                        UnaryExpression notContainsCall = Expression.Not(containsCall);
+                        containsExpressions.Add(notContainsCall);
+
+                    }
+                    else
+                    {
+                        containsExpressions.Add(containsCall);
+                    }
                 }
             }
         }
@@ -159,6 +257,36 @@ public static class FilterHelper<T> where T : class
         }
 
         return filterExpression;
+    }
+
+    private static string[] ConvertToArray(string stringValue)
+    {
+        // Check if the string contains unquoted numbers
+        //if (Regex.IsMatch(stringValue, @"\[\s*(\d+)\s*(,\s*\d+\s*)*\]"))
+        //{
+        //    // Add quotes around numbers
+        //    stringValue = Regex.Replace(stringValue, @"(\d+)", "\"$1\"");
+        //}
+        if (Regex.IsMatch(stringValue, @"\[\s*(-?\d+)\s*(,\s*-?\d+\s*)*\]"))
+        {
+            // Add quotes around numbers, including negative numbers
+            stringValue = Regex.Replace(stringValue, @"(-?\d+)", "\"$1\"");
+        }
+
+        // Ensure all single quotes are replaced by double quotes
+        string normalizedInput = stringValue.Replace("'", "\"");
+
+
+        try
+        {
+            // Deserialize the string
+            string[] values = JsonSerializer.Deserialize<string[]>(normalizedInput) ?? Array.Empty<string>();
+            return values;
+        }
+        catch (JsonException ex)
+        {
+            throw new InvalidOperationException("Invalid JSON format.", ex);
+        }
     }
 
     private static object? ConvertValue(object value, Type? targetType)

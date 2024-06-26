@@ -82,5 +82,8 @@
     "**/node_modules": true
   },
   "typescript.autoClosingTags": true,
-  "typescript.suggest.autoImports": true
+  "typescript.suggest.autoImports": true,
+  "[scss]": {
+    "editor.defaultFormatter": "vscode.css-language-features"
+  }
 }

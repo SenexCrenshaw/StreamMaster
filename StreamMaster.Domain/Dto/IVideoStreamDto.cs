@@ -1,6 +1,4 @@
-﻿using StreamMaster.Domain.Enums;
-
-namespace StreamMaster.Domain.Dto
+﻿namespace StreamMaster.Domain.Dto
 {
     public interface IVideoStreamDto
     {
@@ -16,7 +14,7 @@ namespace StreamMaster.Domain.Dto
         string? StreamGroup_Tvg_name { get; set; }
         DateTime StreamLastFail { get; set; }
         DateTime StreamLastStream { get; set; }
-        StreamingProxyTypes StreamProxyType { get; set; }
+        string StreamProxyType { get; set; }
         int Tvg_chno { get; set; }
         string Tvg_group { get; set; }
         string Tvg_ID { get; set; }

@@ -1,4 +1,3 @@
-import { VideoStreamDto } from '@lib/iptvApi';
 import { memo } from 'react';
 
 interface VideoStreamGroupTitleProperties {

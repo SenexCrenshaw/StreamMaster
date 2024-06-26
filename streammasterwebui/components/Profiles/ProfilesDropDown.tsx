@@ -1,5 +1,4 @@
-import { useProfilesGetFfmpegProfilesQuery } from '@lib/iptvApi';
-import { useSelectedStreamGroup } from '@lib/redux/slices/useSelectedStreamGroup';
+import { useSelectedStreamGroup } from '@lib/redux/hooks/selectedStreamGroup';
 import { Dropdown } from 'primereact/dropdown';
 import { memo, useEffect, useMemo, useState } from 'react';
 

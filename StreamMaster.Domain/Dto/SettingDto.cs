@@ -1,14 +1,14 @@
+using Reinforced.Typings.Attributes;
+
 using StreamMaster.Domain.Configuration;
 
 using System.Xml.Serialization;
 
 namespace StreamMaster.Domain.Dto;
 
-
+[TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public class SettingDto : BaseSettings, IMapFrom<Setting>
 {
-    //[XmlIgnore]
-    //public FFMPEGProfileDtos FFMPEGProfiles { get; set; } = [];
     [XmlIgnore]
     public SDSettings SDSettings { get; set; } = new();
     [XmlIgnore]

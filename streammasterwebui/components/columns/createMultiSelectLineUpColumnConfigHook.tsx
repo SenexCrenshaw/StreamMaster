@@ -1,8 +1,11 @@
+import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 import { isEmptyObject } from '@lib/common/common';
+import { Logger } from '@lib/common/logger';
+import useGetSubscribedLineups from '@lib/smAPI/SchedulesDirect/useGetSubscribedLineups';
+import { StationPreview, SubscribedLineup } from '@lib/smAPI/smapiTypes';
 import { type ColumnFilterElementTemplateOptions } from 'primereact/column';
 import { MultiSelect, type MultiSelectChangeEvent } from 'primereact/multiselect';
-import { type ColumnMeta } from '../dataSelector/DataSelectorTypes';
-import { Lineup, StationPreview, useSchedulesDirectGetLineupsQuery } from '@lib/iptvApi';
+import { useCallback } from 'react';
 
 interface ColumnConfigInputs {
   headerTitle: string;
@@ -15,57 +18,59 @@ interface ColumnConfigInputs {
 const createMultiSelectLineUpColumnConfigHook =
   ({ headerTitle, maxWidth, minWidth, width }: ColumnConfigInputs) =>
   () => {
-    const { data, isLoading, isFetching, isError } = useSchedulesDirectGetLineupsQuery();
+    const { data, isLoading, isFetching, isError } = useGetSubscribedLineups();
 
     const bodyTemplate = (option: StationPreview) => {
-      return <span>{option.lineup}</span>;
+      return <span>{option.Lineup}</span>;
     };
 
-    const itemTemplate = (option: Lineup) => (
-      <div className="align-items-center gap-2">
+    const itemTemplate = (option: SubscribedLineup) => (
+      <div className="align-items-center gap-1">
         <span>
-          {option.lineup} - {option.name}
+          {option.Lineup} - {option.Name}
         </span>
       </div>
     );
 
-    const filterTemplate = (options: ColumnFilterElementTemplateOptions) => (
-      <>
-        <MultiSelect
-          className="p-column-filter text-xs"
-          filter
-          itemTemplate={itemTemplate}
-          maxSelectedLabels={1}
-          onChange={(e: MultiSelectChangeEvent) => {
-            if (isEmptyObject(e.value)) {
-              options.filterApplyCallback();
-            } else {
-              options.filterApplyCallback([e.value[e.value.length - 1]]);
-            }
-          }}
-          options={data}
-          optionLabel="lineup"
-          optionValue="lineup"
-          placeholder="All"
-          value={options.value}
-        />
-      </>
+    const filterTemplate = useCallback(
+      (options: ColumnFilterElementTemplateOptions) => {
+        return (
+          <MultiSelect
+            filter
+            filterBy="Lineup"
+            itemTemplate={itemTemplate}
+            maxSelectedLabels={1}
+            onChange={(e: MultiSelectChangeEvent) => {
+              //  const b = e.value[e.value.length - 1];
+              // options.filterApplyCallback([e.value.length - 1]);
+              if (isEmptyObject(e.value)) {
+                options.filterApplyCallback();
+              } else {
+                // const lineups = e.value.map((v: SubscribedLineup) => v.Lineup);
+                Logger.debug('options', e.value, options, data);
+                options.filterApplyCallback(e.value);
+              }
+            }}
+            options={data}
+            optionLabel="Lineup"
+            optionValue="Lineup"
+            placeholder="Lineup"
+            value={options.value}
+          />
+        );
+      },
+      [data]
     );
 
     const columnConfig: ColumnMeta = {
       align: 'left',
       bodyTemplate,
-      field: 'lineup',
+      field: 'Lineup',
       filter: true,
-      filterField: 'lineup',
+      filterField: 'Lineup',
       header: headerTitle,
       sortable: true,
-
-      style: {
-        maxWidth: maxWidth === undefined ? (width === undefined ? undefined : `${width}rem`) : `${maxWidth}rem`,
-        minWidth: minWidth === undefined ? (width === undefined ? undefined : `${width}rem`) : `${minWidth}rem`,
-        width: width === undefined ? (minWidth === undefined ? undefined : `${minWidth}rem`) : `${width}rem`
-      }
+      width: width
     };
 
     columnConfig.filterElement = filterTemplate;

@@ -1,48 +1,46 @@
-import { GetMessage } from '@lib/common/common';
-import { AuthenticationType } from '@lib/common/streammaster_enums';
-import useSettings from '@lib/useSettings';
-import { Button } from 'primereact/button';
+import SMButton from '@components/sm/SMButton';
+import { SMCard } from '@components/sm/SMCard';
+import { GetMessage } from '@lib/common/intl';
+import { useSMContext } from '@lib/signalr/SMProvider';
+import { AuthenticationType } from '@lib/smAPI/smapiTypes';
 import { Fieldset } from 'primereact/fieldset';
 import { SelectItem } from 'primereact/selectitem';
 import React, { useMemo } from 'react';
-import { getDropDownLine } from './getDropDownLine';
-import { getInputTextLine } from './getInputTextLine';
-import { getPasswordLine } from './getPasswordLine';
-import { useSettingChangeHandler } from './useSettingChangeHandler';
+import { GetDropDownLine } from './components/GetDropDownLine';
+import { getInputTextLine } from './components/getInputTextLine';
+import { getPasswordLine } from './components/getPasswordLine';
+import { useSettingChangeHandler } from './hooks/useSettingChangeHandler';
 
 export function AuthenticationSettings(): React.ReactElement {
-  const setting = useSettings();
-  const { onChange, selectedCurrentSettingDto } = useSettingChangeHandler();
+  const { settings } = useSMContext();
+  const { onChange, currentSettingRequest } = useSettingChangeHandler();
 
   const adminUserNameError = useMemo((): string | undefined => {
-    if (selectedCurrentSettingDto?.authenticationMethod === AuthenticationType.Forms && selectedCurrentSettingDto?.adminUserName === '')
+    if (currentSettingRequest?.AuthenticationMethod === AuthenticationType.Forms && currentSettingRequest?.AdminUserName === '')
       return GetMessage('formsAuthRequiresAdminUserName');
 
     return undefined;
-  }, [selectedCurrentSettingDto?.adminUserName, selectedCurrentSettingDto?.authenticationMethod]);
+  }, [currentSettingRequest]);
 
   const adminPasswordError = useMemo((): string | undefined => {
-    if (selectedCurrentSettingDto?.authenticationMethod === AuthenticationType.Forms && selectedCurrentSettingDto?.adminPassword === '')
+    if (currentSettingRequest?.AuthenticationMethod === AuthenticationType.Forms && currentSettingRequest?.AdminPassword === '')
       return GetMessage('formsAuthRequiresAdminPassword');
 
     return undefined;
-  }, [selectedCurrentSettingDto?.adminPassword, selectedCurrentSettingDto?.authenticationMethod]);
+  }, [currentSettingRequest]);
 
   const getAuthTypeOptions = (): SelectItem[] => {
-    const test = Object.entries(AuthenticationType)
-      .splice(0, Object.keys(AuthenticationType).length / 2)
-      .map(
-        ([number, word]) =>
-          ({
-            label: word,
-            value: number
-          } as SelectItem)
-      );
+    const options = Object.keys(AuthenticationType)
+      .filter((key) => isNaN(Number(key)))
+      .map((key) => ({
+        label: key,
+        value: AuthenticationType[key as keyof typeof AuthenticationType]
+      }));
 
-    return test;
+    return options;
   };
 
-  if (selectedCurrentSettingDto === null || selectedCurrentSettingDto === undefined) {
+  if (currentSettingRequest === null || currentSettingRequest === undefined) {
     return (
       <Fieldset className="mt-4 pt-10" legend={GetMessage('SD')}>
         <div className="text-center">{GetMessage('loading')}</div>
@@ -51,27 +49,39 @@ export function AuthenticationSettings(): React.ReactElement {
   }
 
   return (
-    <Fieldset className="mt-4 pt-10" legend={GetMessage('authentication')} toggleable>
-      {getInputTextLine({ field: 'apiKey', selectedCurrentSettingDto, onChange })}
-      {getDropDownLine({ field: 'authenticationMethod', options: getAuthTypeOptions(), selectedCurrentSettingDto, onChange })}
-      {getInputTextLine({ field: 'adminUserName', warning: adminUserNameError, selectedCurrentSettingDto, onChange })}
-      {getPasswordLine({ field: 'adminPassword', warning: adminPasswordError, selectedCurrentSettingDto, onChange })}
-      <div className="flex col-12">
-        <div className="flex col-2 col-offset-1">
-          <span>{GetMessage('signout')}</span>
+    <SMCard
+      info=""
+      hasCloseButton
+      darkBackGround={false}
+      title="AUTHENTICATION"
+      header={<div className="justify-content-end align-items-center flex-row flex gap-1">{/* {header}                */}</div>}
+    >
+      <div className="sm-card-children">
+        <div className="sm-card-children-content">
+          <div className="layout-padding-bottom" />
+          <div className="settings-lines ">
+            {getInputTextLine({ currentSettingRequest, field: 'ApiKey', onChange })}
+            {GetDropDownLine({ currentSettingRequest, field: 'AuthenticationMethod', onChange, options: getAuthTypeOptions() })}
+            {getInputTextLine({ currentSettingRequest, field: 'AdminUserName', onChange, warning: adminUserNameError })}
+            {getPasswordLine({ currentSettingRequest, field: 'AdminPassword', onChange, warning: adminPasswordError })}
+            <div className="flex w-12 settings-line justify-content-end align-items-center">
+              <div className="w-2 text-right pr-2">{GetMessage('signout')}</div>
+              <div className="w-2">
+                <SMButton
+                  buttonDisabled={!settings.AuthenticationMethod || (settings.AuthenticationMethod as number) === 0}
+                  icon="pi-check"
+                  label={GetMessage('signout')}
+                  onClick={() => (window.location.href = '/logout')}
+                  rounded
+                  iconFilled
+                  buttonClassName="icon-green"
+                />
+              </div>
+            </div>
+          </div>
         </div>
-        <div className="flex col-3 m-0 p-0 debug">
-          <Button
-            disabled={!setting.authenticationType || (setting.authenticationType as number) === 0}
-            icon="pi pi-check"
-            label={GetMessage('signout')}
-            onClick={() => (window.location.href = '/logout')}
-            rounded
-            severity="success"
-            size="small"
-          />
-        </div>
+        <div className="layout-padding-bottom" />
       </div>
-    </Fieldset>
+    </SMCard>
   );
 }

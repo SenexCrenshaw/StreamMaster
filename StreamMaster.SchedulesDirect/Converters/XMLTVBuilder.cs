@@ -1,17 +1,19 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
 using StreamMaster.Domain.Comparer;
-using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Helpers;
 using StreamMaster.Domain.Models;
 using StreamMaster.Domain.Repository;
+
+using StreamMaster.SchedulesDirect.Domain.Extensions;
 
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Globalization;
 
 namespace StreamMaster.SchedulesDirect.Converters;
-public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IServiceProvider serviceProvider, IOptionsMonitor<Setting> intsettings, IIconHelper iconHelper, IEPGHelper ePGHelper, ISchedulesDirectDataService schedulesDirectDataService, ILogger<XMLTVBuilder> logger) : IXMLTVBuilder
+public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IServiceProvider serviceProvider, IOptionsMonitor<Setting> intsettings, IIconHelper iconHelper, IEPGHelper ePGHelper, ISchedulesDirectDataService schedulesDirectDataService, ILogger<XMLTVBuilder> logger)
+    : IXMLTVBuilder
 {
     private readonly SDSettings sdsettings = intsdsettings.CurrentValue;
     private readonly Setting settings = intsettings.CurrentValue;
@@ -108,7 +110,7 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IServicePro
 
                 if (origService.EPGNumber == EPGHelper.DummyId && !string.IsNullOrEmpty(videoStreamConfig.Tvg_ID))
                 {
-                    //(epgNumber, stationId) = ePGHelper.ExtractEPGNumberAndStationId(videoStreamConfig.Tvg_ID);
+                    //(epgNumber, stationId) = ePGHelper.ExtractEPGNumberAndStationId(videoStreamConfig.EPGId);
                     epgNumber = EPGHelper.DummyId;
                     callSign = videoStreamConfig.Tvg_ID;
                 }
@@ -353,10 +355,10 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IServicePro
     {
 
         string id = mxfService.CallSign;
-        if (settings.M3UUseChnoForId)
-        {
-            id = mxfService.ChNo.ToString();
-        }
+        //if (settings.M3UUseChnoForId)
+        //{
+        //    id = mxfService.ChNo.ToString();
+        //}
 
         //if (sdsettings.M3UUseCUIDForChannelID)
         //{

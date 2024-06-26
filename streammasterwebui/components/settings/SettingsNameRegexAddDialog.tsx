@@ -1,10 +1,11 @@
 import { getTopToolOptions } from '@lib/common/common';
-import { UpdateSettingRequest } from '@lib/iptvApi';
-import { UpdateSetting } from '@lib/smAPI/Settings/SettingsMutateAPI';
+
 import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
 import React from 'react';
 import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
+import { UpdateSettingRequest } from '@lib/smAPI/smapiTypes';
+import { UpdateSetting } from '@lib/smAPI/Settings/SettingsCommands';
 
 const SettingsNameRegexAddDialog = (props: SettingsNameRegexAddDialogProperties) => {
   const [showOverlay, setShowOverlay] = React.useState<boolean>(false);
@@ -31,7 +32,7 @@ const SettingsNameRegexAddDialog = (props: SettingsNameRegexAddDialogProperties)
 
     const tosend = {} as UpdateSettingRequest;
 
-    tosend.nameRegex = [regex, ...props.values];
+    tosend.parameters.NameRegex = [regex, ...props.values];
 
     UpdateSetting(tosend)
       .then(() => {
@@ -57,7 +58,7 @@ const SettingsNameRegexAddDialog = (props: SettingsNameRegexAddDialogProperties)
           <div className="m-3">
             <InputText autoFocus className="withpadding p-inputtext-sm w-full" onChange={(e) => setRegex(e.target.value)} placeholder="Regex" value={regex} />
 
-            <div className="card flex mt-3 flex-wrap gap-2 justify-content-center">
+            <div className="card flex mt-3 flex-wrap gap-1 justify-content-center">
               <Button icon="pi pi-times" label="Cancel" onClick={() => ReturnToParent()} rounded severity="warning" />
               <Button disabled={!regex || regex === ''} icon="pi pi-check" label="Ok" onClick={onSave} rounded severity="success" />
             </div>

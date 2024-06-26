@@ -1,26 +1,27 @@
-﻿using FluentValidation;
+﻿namespace StreamMaster.Application.ChannelGroups.Commands;
 
-namespace StreamMaster.Application.ChannelGroups.Commands;
+[SMAPI]
+[TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
+public record UpdateChannelGroupsRequest(List<UpdateChannelGroupRequest> requests)
+    : IRequest<APIResponse>
+{ }
 
-[RequireAll]
-public record UpdateChannelGroupsRequest(List<UpdateChannelGroupRequest> ChannelGroupRequests) : IRequest
+public class UpdateChannelGroupsRequestHandler(IRepositoryWrapper Repository, IMapper Mapper, IPublisher Publisher, ISender Sender)
+    : IRequestHandler<UpdateChannelGroupsRequest, APIResponse>
 {
-}
-
-public class UpdateChannelGroupsRequestValidator : AbstractValidator<UpdateChannelGroupsRequest>
-{
-}
-
-public class UpdateChannelGroupsRequestHandler(ILogger<UpdateChannelGroupsRequest> logger, ISender Sender) : IRequestHandler<UpdateChannelGroupsRequest>
-{
-    public async Task Handle(UpdateChannelGroupsRequest requests, CancellationToken cancellationToken)
+    public async Task<APIResponse> Handle(UpdateChannelGroupsRequest request, CancellationToken cancellationToken)
     {
-        List<ChannelGroupDto> results = [];
 
-        foreach (UpdateChannelGroupRequest request in requests.ChannelGroupRequests)
+        foreach (UpdateChannelGroupRequest clientRequest in request.requests)
         {
-            results.Add(await Sender.Send(new UpdateChannelGroupRequest(request.ChannelGroupId, request.NewGroupName, request.IsHidden, request.ToggleVisibility), cancellationToken).ConfigureAwait(false));
+            APIResponse res = await Sender.Send(clientRequest, cancellationToken).ConfigureAwait(false);
+            if (res.IsError)
+            {
+                return APIResponse.ErrorWithMessage($"Updating Channel Group {clientRequest.ChannelGroupId} failed");
+
+            }
         }
 
+        return APIResponse.Success;
     }
 }

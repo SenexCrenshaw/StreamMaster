@@ -1,17 +1,15 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-using StreamMaster.Application.Common.Models;
-
 namespace StreamMaster.Application.Queue;
 
 public interface IQueueController
 {
-    Task<ActionResult<List<TaskQueueStatus>>> GetQueueStatus();
+    Task<ActionResult<List<SMTask>>> GetQueueStatus();
 }
 
 
 public interface IQueueHub
 {
-    Task<List<TaskQueueStatus>> GetQueueStatus();
+    Task<List<SMTask>> GetQueueStatus();
 
 }

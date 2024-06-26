@@ -1,0 +1,92 @@
+$layoutPadding: 0.4rem;
+$input-padding: 0.1rem;
+$datatable-padding: $input-padding;
+$datatable-x-padding: $input-padding*2;
+$borderSize: $input-padding;
+$inputBorder-size: $borderSize;
+$datatable-row-height: 1.8rem;
+
+$headerTextLeft: .8rem;
+
+$input-height: $datatable-row-height - ($inputBorder-size*2);
+$input-height-with-no-borders: $input-height - ($inputBorder-size*2);
+$input-height-with-no-borders-md: $input-height - ($inputBorder-size*3);
+$input-height-with-no-borders-sm: $input-height - $inputBorder-size;
+$input-height-with-no-borders-lg: $input-height - ($inputBorder-size*4);
+
+$input-small-height: $input-height * .75;
+$input-small-height-with-no-borders: $input-small-height - ($inputBorder-size*2);
+
+$datatable-header-padding: 0.5rem;
+$actionIconWidth: $input-height !default;
+$actionIconHeight: $input-height !default;
+
+$gridItem-height: 6rem;
+
+$gridItem-width: 2rem;
+
+$gridItem-margin: .15rem;
+$gridItem-image-height: $gridItem-height - ($gridItem-margin*2) - $input-height;
+$gridItem-image-width: $gridItem-width - ($gridItem-margin*2);
+
+
+.blue-header-color {
+    color: $blue-header-color;
+}
+
+.layout-padding {
+    padding: $layoutPadding;
+}
+
+.layout-padding-left {
+    padding: 0;
+    padding-left: $layoutPadding;
+}
+
+.layout-padding-top {
+    padding: 0;
+    padding-top: $layoutPadding;
+}
+
+.layout-padding-bottom {
+    padding: 0;
+    padding-bottom: $layoutPadding;
+}
+
+.layout-padding-bottom-lg {
+    padding: 0;
+    padding-bottom: $layoutPadding*2;
+}
+
+.layout-padding-y {
+    padding: 0;
+    padding-bottom: $layoutPadding;
+    padding-top: $layoutPadding;
+}
+
+
+.default-border {
+    border: 2px solid var(--cyan-600) !important;
+    border-radius: $borderRadius;
+}
+
+
+@mixin text-overflow() {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+@mixin datatable-text-style() {
+    @include text-overflow();
+    padding-left: $datatable-padding !important;
+    padding-top: $datatable-padding !important;
+    padding-bottom: $datatable-padding !important;
+    font-size: $common-font-size;
+    height: $input-height;
+}
+
+@mixin text-wrap() {
+    height: unset;
+    white-space: normal;
+}

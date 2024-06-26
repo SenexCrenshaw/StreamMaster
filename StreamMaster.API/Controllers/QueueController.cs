@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using StreamMaster.Application.Common.Models;
+
 using StreamMaster.Application.Queue;
 using StreamMaster.Application.Queue.Queries;
 
@@ -9,7 +9,7 @@ public class QueueController : ApiControllerBase, IQueueController
 {
     [HttpGet]
     [Route("[action]")]
-    public async Task<ActionResult<List<TaskQueueStatus>>> GetQueueStatus()
+    public async Task<ActionResult<List<SMTask>>> GetQueueStatus()
     {
         return await Mediator.Send(new GetQueueStatus()).ConfigureAwait(false);
     }

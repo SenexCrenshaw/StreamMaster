@@ -1,44 +1,48 @@
-import { type UpdateVideoStreamRequest, type VideoStreamDto } from '@lib/iptvApi';
-import { UpdateVideoStream } from '@lib/smAPI/VideoStreams/VideoStreamsMutateAPI';
-import { memo } from 'react';
+import useIsCellLoading from '@lib/redux/hooks/useIsCellLoading';
+import { SetSMChannelEPGId } from '@lib/smAPI/SMChannels/SMChannelsCommands';
+import { SMChannelDto, SetSMChannelEPGIdRequest } from '@lib/smAPI/smapiTypes';
+import { memo, useCallback } from 'react';
 import EPGSelector from './EPGSelector';
 
 interface EPGEditorProperties {
-  readonly data: VideoStreamDto;
-  readonly enableEditMode?: boolean;
+  readonly smChannelDto: SMChannelDto;
 }
 
-const EPGEditor = ({ data, enableEditMode }: EPGEditorProperties) => {
-  const onUpdateVideoStream = async (epg: string) => {
-    // console.log('onUpdateVideoStream', data);
-    if (data.id === '') {
-      return;
-    }
+const EPGEditor = ({ smChannelDto }: EPGEditorProperties) => {
+  const [isCellLoading, setIsCellLoading] = useIsCellLoading({
+    Entity: 'SMChannel',
+    Field: 'EPGId',
+    Id: smChannelDto.Id.toString()
+  });
 
-    const toSend = {} as UpdateVideoStreamRequest;
-    toSend.id = data.id;
+  const onUpdateVideoStream = useCallback(
+    async (epg: string) => {
+      if (!smChannelDto.Id) {
+        return;
+      }
+      setIsCellLoading(true);
+      const request = {} as SetSMChannelEPGIdRequest;
+      request.SMChannelId = smChannelDto.Id;
+      request.EPGId = epg;
 
-    if (epg && epg !== '' && data.user_Tvg_ID !== epg) {
-      toSend.tvg_ID = epg;
-    }
-    // console.log('onUpdateVideoStream sending', toSend);
-    await UpdateVideoStream(toSend)
-      .then(() => {})
-      .catch((error: unknown) => {
-        console.error(error);
-      });
-  };
+      await SetSMChannelEPGId(request)
+        .then(() => {})
+        .catch((error) => {
+          console.error(error);
+        })
+        .finally(() => setIsCellLoading(false));
+    },
+    [setIsCellLoading, smChannelDto.Id]
+  );
 
   return (
-    <div className="flex w-full">
-      <EPGSelector
-        enableEditMode={enableEditMode}
-        onChange={async (e: string) => {
-          await onUpdateVideoStream(e);
-        }}
-        value={data.user_Tvg_ID}
-      />
-    </div>
+    <EPGSelector
+      isLoading={isCellLoading}
+      onChange={async (e: string) => {
+        await onUpdateVideoStream(e);
+      }}
+      smChannel={smChannelDto}
+    />
   );
 };
 

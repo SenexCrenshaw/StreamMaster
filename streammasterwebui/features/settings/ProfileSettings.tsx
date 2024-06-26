@@ -1,5 +1,5 @@
 import ProfilesDataSelector from '@components/Profiles/ProfilesDataSelector';
-import { GetMessage } from '@lib/common/common';
+import { GetMessage } from '@lib/common/intl';
 import { Fieldset } from 'primereact/fieldset';
 import React from 'react';
 

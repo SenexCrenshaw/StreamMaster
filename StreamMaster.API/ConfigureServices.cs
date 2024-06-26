@@ -15,12 +15,9 @@ using NSwag.Generation.Processors.Security;
 using Prometheus;
 
 using StreamMaster.API.Services;
-using StreamMaster.Application.Common.Interfaces;
-using StreamMaster.Application.Hubs;
 using StreamMaster.Application.Services;
 using StreamMaster.Domain.Enums;
 using StreamMaster.Domain.Logging;
-using StreamMaster.Infrastructure;
 using StreamMaster.Infrastructure.Authentication;
 using StreamMaster.Infrastructure.EF.PGSQL;
 using StreamMaster.Infrastructure.Logger;
@@ -28,6 +25,8 @@ using StreamMaster.Infrastructure.Services.Frontend;
 using StreamMaster.Infrastructure.Services.QueueService;
 
 using StreamMasterAPI.SchemaHelpers;
+
+using System.Reflection;
 
 namespace StreamMaster.API;
 
@@ -102,14 +101,18 @@ public static class ConfigureServices
 
         services.AddDatabaseDeveloperPageExceptionFilter();
 
-        services
-            .AddControllers(options =>
+        var assembly = Assembly.Load("StreamMaster.Application");
+
+        services.AddControllers(options =>
             {
                 options.RespectBrowserAcceptHeader = true;
                 options.ReturnHttpNotAcceptable = true;
             })
             .AddApplicationPart(typeof(StaticResourceController).Assembly)
+             .AddApplicationPart(assembly)
             .AddControllersAsServices();
+
+
 
         services.AddScoped<IAuthenticationService, AuthenticationService>();
 
@@ -130,7 +133,10 @@ public static class ConfigureServices
         services.AddSingleton<IBackgroundTaskQueue>(x =>
        {
            int queueCapacity = 100;
-           return new BackgroundTaskQueue(queueCapacity, x.GetRequiredService<IHubContext<StreamMasterHub, IStreamMasterHub>>(), x.GetRequiredService<ILogger<BackgroundTaskQueue>>(), x.GetRequiredService<ISender>());
+           var logger = x.GetRequiredService<ILogger<BackgroundTaskQueue>>();
+           var sender = x.GetRequiredService<ISender>();
+           var dataRefreshService = x.GetRequiredService<IDataRefreshService>();
+           return new BackgroundTaskQueue(queueCapacity, logger, sender, dataRefreshService);
        });
 
         services.AddOpenApiDocument(configure =>
@@ -176,7 +182,7 @@ public static class ConfigureServices
         });
 
 
-        services.AddSignalR();//.AddMessagePackProtocol();
+        services.AddSignalR().AddMessagePackProtocol();
 
         services.AddDataProtection().PersistKeysToDbContext<PGSQLRepositoryContext>();
 

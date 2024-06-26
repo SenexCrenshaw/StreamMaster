@@ -9,6 +9,10 @@
   <ItemGroup>
     <PackageReference Include="prometheus-net" Version="8.2.1" />
   </ItemGroup>
+	
+	<ItemGroup>
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
+	</ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\StreamMaster.Logging\StreamMaster.Logging.csproj" />

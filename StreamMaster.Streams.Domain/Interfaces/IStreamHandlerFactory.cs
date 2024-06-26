@@ -2,7 +2,7 @@
 {
     public interface IStreamHandlerFactory
     {
-        Task<IStreamHandler?> CreateStreamHandlerAsync(VideoStreamDto videoStreamDto, string ChannelId, string ChannelName, int rank, CancellationToken cancellationToken);
-        Task<IStreamHandler?> RestartStreamHandlerAsync(IStreamHandler StreamHandler);
+        Task<IStreamHandler?> CreateStreamHandlerAsync(IChannelStatus channelStatus, CancellationToken cancellationToken);
+        //Task<IStreamHandler?> RestartStreamHandlerAsync(IStreamHandler StreamHandler);
     }
 }

@@ -1,23 +1,16 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-using StreamMaster.Application.Common.Extensions;
-using StreamMaster.Application.StreamGroups;
-using StreamMaster.Application.StreamGroups.Commands;
 using StreamMaster.Application.StreamGroups.Queries;
+using StreamMaster.Application.StreamGroups.QueriesOld;
 using StreamMaster.Domain.Authentication;
-using StreamMaster.Domain.Helpers;
-using StreamMaster.Domain.Pagination;
-using StreamMaster.Domain.Repository;
-using StreamMaster.Domain.Requests;
-using StreamMaster.SchedulesDirect.Domain.Interfaces;
 
 using System.Text;
-using System.Web;
 
 namespace StreamMaster.API.Controllers;
 
-public class StreamGroupsController(IRepositoryWrapper Repository, IHttpContextAccessor httpContextAccessor, ISchedulesDirectDataService schedulesDirectDataService) : ApiControllerBase, IStreamGroupController
+public class StreamGroupsController()
+    : ApiControllerBase
 {
 
     //private static int GenerateMediaSequence()
@@ -29,37 +22,21 @@ public class StreamGroupsController(IRepositoryWrapper Repository, IHttpContextA
     //    return mediaSequence;
     //}
 
-    [HttpPost]
-    [Route("[action]")]
-    public async Task<ActionResult> CreateStreamGroup(CreateStreamGroupRequest request)
-    {
-        await Mediator.Send(request).ConfigureAwait(false);
-        return Ok();
-    }
+    //[HttpPost]
+    //[Route("[action]")]
+    //public async Task<ActionResult> CreateStreamGroup(CreateStreamGroupRequest request)
+    //{
 
-    [HttpDelete]
-    [Route("[action]")]
-    public async Task<ActionResult> DeleteStreamGroup(DeleteStreamGroupRequest request)
-    {
-        int? data = await Mediator.Send(request).ConfigureAwait(false);
-        return data == null ? NotFound() : NoContent();
-    }
-
-    [HttpGet]
-    [Route("[action]/{id}")]
-    public async Task<ActionResult<StreamGroupDto>> GetStreamGroup(int id)
-    {
-        StreamGroupDto? data = await Mediator.Send(new GetStreamGroup(id)).ConfigureAwait(false);
-
-        return data != null ? (ActionResult<StreamGroupDto>)data : (ActionResult<StreamGroupDto>)NotFound();
-    }
+    //    await Mediator.Send(request).ConfigureAwait(false);
+    //    return Ok();
+    //}
 
 
     [Authorize(Policy = "SGLinks")]
     [HttpGet]
     [HttpHead]
     [Route("{encodedId}/auto/v{channelId}")]
-    public async Task<ActionResult> GetVideoStreamStreamFromAuto(string encodedId, string channelId, CancellationToken cancellationToken)
+    public ActionResult GetVideoStreamStreamFromAuto(string encodedId, string channelId, CancellationToken cancellationToken)
     {
         int? streamGroupId = encodedId.DecodeValue128(Settings.ServerKey);
         if (streamGroupId == null)
@@ -67,68 +44,68 @@ public class StreamGroupsController(IRepositoryWrapper Repository, IHttpContextA
             return new NotFoundResult();
         }
 
-        List<VideoStreamDto> videoStreams = await Repository.StreamGroupVideoStream.GetStreamGroupVideoStreams((int)streamGroupId, cancellationToken);
+        //List<VideoStreamDto> videoStreams = await Repository.StreamGroupVideoStream.GetStreamGroupVideoStreams((int)streamGroupId);
 
-        if (videoStreams.Count == 0)
-        {
-            return NotFound();
-        }
+        //if (videoStreams.Count == 0)
+        //{
+        //    return NotFound();
+        //}
 
 
-        int epgNumber = EPGHelper.DummyId;
+        //int epgNumber = EPGHelper.DummyId;
 
-        foreach (VideoStreamDto videoStream in videoStreams)
-        {
-            string stationId;
+        //foreach (VideoStreamDto videoStream in videoStreams)
+        //{
+        //    string stationId;
 
-            MxfService? service = null;
+        //    MxfService? service = null;
 
-            if (string.IsNullOrEmpty(videoStream.User_Tvg_ID))
-            {
-                stationId = videoStream.User_Tvg_group;
-            }
-            else
-            {
-                if (EPGHelper.IsValidEPGId(videoStream.User_Tvg_ID))
-                {
-                    (epgNumber, stationId) = videoStream.User_Tvg_ID.ExtractEPGNumberAndStationId();
-                    service = schedulesDirectDataService.GetService(stationId);
-                }
-                else
-                {
-                    stationId = videoStream.User_Tvg_ID;
-                    string toTest = $"{stationId}-";
-                    service = schedulesDirectDataService.AllServices.FirstOrDefault(a => a.StationId.StartsWith(toTest));
-                }
-            }
+        //    if (string.IsNullOrEmpty(smChannelDto.EPGId))
+        //    {
+        //        stationId = videoStream.User_Tvg_group;
+        //    }
+        //    else
+        //    {
+        //        if (EPGHelper.IsValidEPGId(smChannelDto.EPGId))
+        //        {
+        //            (epgNumber, stationId) = smChannelDto.EPGId.ExtractEPGNumberAndStationId();
+        //            service = schedulesDirectDataService.GetService(stationId);
+        //        }
+        //        else
+        //        {
+        //            stationId = smChannelDto.EPGId;
+        //            string toTest = $"{stationId}-";
+        //            service = schedulesDirectDataService.AllServices.FirstOrDefault(a => a.StationId.StartsWith(toTest));
+        //        }
+        //    }
 
-            string graceNote = service?.CallSign ?? stationId;
+        //    string graceNote = service?.CallSign ?? stationId;
 
-            string id = graceNote;
-            if (Settings.M3UUseChnoForId)
-            {
-                id = videoStream.User_Tvg_chno.ToString();
-            }
-            if (id.Equals(channelId))
-            {
-                string url = httpContextAccessor.GetUrl();
-                string videoUrl;
-                if (HLSSettings.HLSM3U8Enable)
-                {
-                    videoUrl = $"{url}/api/stream/{videoStream.Id}.m3u8";
-                    return Redirect(videoUrl);
-                }
+        //    string id = graceNote;
+        //    if (Settings.M3UUseChnoForId)
+        //    {
+        //        id = smChannelDto.ChannelNumber.ToString();
+        //    }
+        //    if (id.Equals(channelId))
+        //    {
+        //        string url = httpContextAccessor.GetUrl();
+        //        string videoUrl;
+        //        if (HLSSettings.HLSM3U8Enable)
+        //        {
+        //            videoUrl = $"{url}/api/stream/{videoStream.Id}.m3u8";
+        //            return Redirect(videoUrl);
+        //        }
 
-                string encodedName = HttpUtility.HtmlEncode(videoStream.User_Tvg_name).Trim()
-                    .Replace("/", "")
-                    .Replace(" ", "_");
+        //        string encodedName = HttpUtility.HtmlEncode(smChannelDto.Name).Trim()
+        //            .Replace("/", "")
+        //            .Replace(" ", "_");
 
-                string encodedNumbers = ((int)streamGroupId).EncodeValues128(videoStream.Id, Settings.ServerKey);
-                videoUrl = $"{url}/api/videostreams/stream/{encodedNumbers}/{encodedName}";
+        //        string encodedNumbers = ((int)streamGroupId).EncodeValues128(videoStream.Id, Settings.ServerKey);
+        //        videoUrl = $"{url}/api/videostreams/stream/{encodedNumbers}/{encodedName}";
 
-                return Redirect(videoUrl);
-            }
-        }
+        //        return Redirect(videoUrl);
+        //    }
+        //}
 
         return NotFound();
     }
@@ -141,13 +118,13 @@ public class StreamGroupsController(IRepositoryWrapper Repository, IHttpContextA
     public async Task<IActionResult> GetStreamGroupCapability(string encodedId)
     {
 
-        int? streamGroupId = encodedId.DecodeValue128(Settings.ServerKey);
-        if (streamGroupId == null)
+        (int? streamGroupId, int? streamGroupProfileId) = encodedId.DecodeValues128(Settings.ServerKey);
+        if (!streamGroupId.HasValue || !streamGroupProfileId.HasValue)
         {
             return new NotFoundResult();
         }
 
-        string xml = await Mediator.Send(new GetStreamGroupCapability((int)streamGroupId)).ConfigureAwait(false);
+        string xml = await Mediator.Send(new GetStreamGroupCapability(streamGroupId.Value, streamGroupProfileId.Value)).ConfigureAwait(false);
         return new ContentResult
         {
             Content = xml,
@@ -161,14 +138,13 @@ public class StreamGroupsController(IRepositoryWrapper Repository, IHttpContextA
     [Route("{encodedId}/discover.json")]
     public async Task<IActionResult> GetStreamGroupDiscover(string encodedId)
     {
-
-        int? streamGroupNumber = encodedId.DecodeValue128(Settings.ServerKey);
-        if (streamGroupNumber == null)
+        (int? streamGroupId, int? streamGroupProfileId) = encodedId.DecodeValues128(Settings.ServerKey);
+        if (!streamGroupId.HasValue || !streamGroupProfileId.HasValue)
         {
             return new NotFoundResult();
         }
 
-        string json = await Mediator.Send(new GetStreamGroupDiscover((int)streamGroupNumber)).ConfigureAwait(false);
+        string json = await Mediator.Send(new GetStreamGroupDiscover(streamGroupId.Value, streamGroupProfileId.Value)).ConfigureAwait(false);
         return new ContentResult
         {
             Content = json,
@@ -183,16 +159,18 @@ public class StreamGroupsController(IRepositoryWrapper Repository, IHttpContextA
     public async Task<IActionResult> GetStreamGroupEPG(string encodedId)
     {
 
-        int? streamGroupNumber = encodedId.DecodeValue128(Settings.ServerKey);
-        if (streamGroupNumber == null)
+        (int? streamGroupId, int? streamGroupProfileId) = encodedId.DecodeValues128(Settings.ServerKey);
+        if (!streamGroupId.HasValue || !streamGroupProfileId.HasValue)
         {
             return new NotFoundResult();
         }
 
-        string xml = await Mediator.Send(new GetStreamGroupEPG((int)streamGroupNumber)).ConfigureAwait(false);
+        var profile = Repository.StreamGroupProfile.GetStreamGroupProfile(streamGroupId.Value, streamGroupProfileId.Value);
+
+        string xml = await Mediator.Send(new GetStreamGroupEPG(streamGroupId.Value, streamGroupProfileId.Value)).ConfigureAwait(false);
         return new FileContentResult(Encoding.UTF8.GetBytes(xml), "application/xml")
         {
-            FileDownloadName = $"epg-{streamGroupNumber}.xml"
+            FileDownloadName = $"epg-{profile?.OutputProfileName ?? streamGroupProfileId.Value.ToString()}.xml"
         };
     }
 
@@ -202,14 +180,13 @@ public class StreamGroupsController(IRepositoryWrapper Repository, IHttpContextA
     [Route("{encodedId}/lineup.json")]
     public async Task<IActionResult> GetStreamGroupLineup(string encodedId)
     {
-
-        int? streamGroupNumber = encodedId.DecodeValue128(Settings.ServerKey);
-        if (streamGroupNumber == null)
+        (int? streamGroupId, int? streamGroupProfileId) = encodedId.DecodeValues128(Settings.ServerKey);
+        if (!streamGroupId.HasValue || !streamGroupProfileId.HasValue)
         {
             return new NotFoundResult();
         }
 
-        string json = await Mediator.Send(new GetStreamGroupLineup((int)streamGroupNumber)).ConfigureAwait(false);
+        string json = await Mediator.Send(new GetStreamGroupLineup(streamGroupId.Value, streamGroupProfileId.Value)).ConfigureAwait(false);
         return new ContentResult
         {
             Content = json,
@@ -224,12 +201,13 @@ public class StreamGroupsController(IRepositoryWrapper Repository, IHttpContextA
     public async Task<IActionResult> GetStreamGroupLineupStatus(string encodedId)
     {
 
-        int? streamGroupNumber = encodedId.DecodeValue128(Settings.ServerKey);
-        if (streamGroupNumber == null)
+        (int? streamGroupId, int? streamGroupProfileId) = encodedId.DecodeValues128(Settings.ServerKey);
+        if (!streamGroupId.HasValue || !streamGroupProfileId.HasValue)
         {
             return new NotFoundResult();
         }
-        string json = await Mediator.Send(new GetStreamGroupLineupStatus((int)streamGroupNumber)).ConfigureAwait(false);
+
+        string json = await Mediator.Send(new GetStreamGroupLineupStatus(streamGroupId.Value, streamGroupProfileId.Value)).ConfigureAwait(false);
         return new ContentResult
         {
             Content = json,
@@ -244,69 +222,27 @@ public class StreamGroupsController(IRepositoryWrapper Repository, IHttpContextA
     public async Task<IActionResult> GetStreamGroupM3U(string encodedId)
     {
 
-        int? streamGroupNumber = encodedId.DecodeValue128(Settings.ServerKey);
-        if (streamGroupNumber == null)
+        (int? streamGroupId, int? streamGroupProfileId) = encodedId.DecodeValues128(Settings.ServerKey);
+        if (!streamGroupId.HasValue || !streamGroupProfileId.HasValue)
         {
             return new NotFoundResult();
         }
 
-        string data = await Mediator.Send(new GetStreamGroupM3U((int)streamGroupNumber, false)).ConfigureAwait(false);
+        string data = await Mediator.Send(new GetStreamGroupM3U(streamGroupId.Value, streamGroupProfileId.Value)).ConfigureAwait(false);
 
         return new FileContentResult(Encoding.UTF8.GetBytes(data), "application/x-mpegURL")
         {
-            FileDownloadName = $"m3u-{streamGroupNumber}.m3u"
+            FileDownloadName = $"m3u-{streamGroupId.Value}.m3u"
         };
     }
 
-    [HttpGet]
-    public async Task<ActionResult<PagedResponse<StreamGroupDto>>> GetPagedStreamGroups([FromQuery] StreamGroupParameters parameters)
-    {
-        PagedResponse<StreamGroupDto> res = await Mediator.Send(new GetPagedStreamGroups(parameters)).ConfigureAwait(false);
-        return Ok(res);
-    }
-
-    [HttpPatch]
-    [Route("[action]")]
-    public async Task<ActionResult> UpdateStreamGroup(UpdateStreamGroupRequest request)
-    {
-        StreamGroupDto? entity = await Mediator.Send(request).ConfigureAwait(false);
-        return entity == null ? NotFound() : NoContent();
-    }
-
-    //private ObjectResult Status(ProxyStreamErrorCode proxyStreamErrorCode)
-    //{
-    //    return proxyStreamErrorCode switch
-    //    {
-    //        ProxyStreamErrorCode.FileNotFound => StatusCode(StatusCodes.Status500InternalServerError, "FFmpeg executable not found"),
-    //        ProxyStreamErrorCode.IoError => StatusCode(StatusCodes.Status502BadGateway, "Error connecting to upstream server"),
-    //        ProxyStreamErrorCode.UnknownError => StatusCode(StatusCodes.Status500InternalServerError, "An unknown error occurred"),
-    //        ProxyStreamErrorCode.HttpRequestError => StatusCode(StatusCodes.Status500InternalServerError, "An Http Request Error occurred"),
-    //        ProxyStreamErrorCode.ChannelManagerFinished => StatusCode(200, "Channel Manager Exited"),
-    //        ProxyStreamErrorCode.HttpError => StatusCode(StatusCodes.Status500InternalServerError, "An Http Request Error occurred"),
-    //        ProxyStreamErrorCode.DownloadError => StatusCode(StatusCodes.Status500InternalServerError, "Could not parse stream"),
-    //        ProxyStreamErrorCode.MasterPlayListNotSupported => StatusCode(StatusCodes.Status500InternalServerError, "M3U8 Master playlist not supported"),
-    //        _ => StatusCode(StatusCodes.Status500InternalServerError, "An unknown error occurred"),
-    //    };
-    //}
-
-    //private string GetUrl()
-    //{
-    //    HttpRequest request = HttpContext.Request;
-    //    string scheme = request.Scheme;
-    //    HostString host = request.Host;
-    //    PathString path = request.Path;
-    //    QueryString queryString = request.QueryString;
-
-    //    string url = $"{scheme}://{host}{path}{queryString}";
-
-    //    return url;
-    //}
 
     [HttpGet]
     [Route("[action]")]
-    public async Task<ActionResult<string?>> GetStreamGroupVideoStreamUrl(string VideoStreamId)
+    public ActionResult<string?> GetStreamGroupVideoStreamUrl(string VideoStreamId)
     {
-        string? res = await Mediator.Send(new GetStreamGroupVideoStreamUrl(VideoStreamId)).ConfigureAwait(false);
-        return Ok(res);
+        //string? res = await Mediator.Send(new GetStreamGroupVideoStreamUrl(StreamId)).ConfigureAwait(false);
+        //return Ok(res);
+        return Ok("hello");
     }
 }

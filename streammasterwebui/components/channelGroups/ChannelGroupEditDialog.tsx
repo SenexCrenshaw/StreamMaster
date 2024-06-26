@@ -1,9 +1,12 @@
-import { GetMessage, isFetchBaseQueryError } from '@lib/common/common';
-import { type ChannelGroupDto, type UpdateChannelGroupRequest } from '@lib/iptvApi';
+import { isFetchBaseQueryError } from '@lib/common/common';
+
 import { memo, useCallback, useEffect, useState } from 'react';
 
-import { useSelectedItems } from '@lib/redux/slices/useSelectedItemsSlice';
-import { UpdateChannelGroup } from '@lib/smAPI/ChannelGroups/ChannelGroupsMutateAPI';
+import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
+
+import { GetMessage } from '@lib/common/intl';
+import { UpdateChannelGroup } from '@lib/smAPI/ChannelGroups/ChannelGroupsCommands';
+import { ChannelGroupDto, UpdateChannelGroupRequest } from '@lib/smAPI/smapiTypes';
 import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
 import EditButton from '../buttons/EditButton';
 import TextInput from '../inputs/TextInput';
@@ -21,7 +24,7 @@ const ChannelGroupEditDialog = ({ id, onClose, value }: ChannelGroupEditDialogPr
   const [newGroupName, setNewGroupName] = useState('');
 
   const [channelGroupDto, setChannelGroupDto] = useState<ChannelGroupDto>();
-  const { selectSelectedItems, setSelectSelectedItems } = useSelectedItems<ChannelGroupDto>('selectSelectedChannelGroupDtoItems');
+  const { selectedItems, setSelectedItems } = useSelectedItems<ChannelGroupDto>('selectSelectedChannelGroupDtoItems');
 
   const ReturnToParent = useCallback(() => {
     setShowOverlay(false);
@@ -38,14 +41,14 @@ const ChannelGroupEditDialog = ({ id, onClose, value }: ChannelGroupEditDialogPr
 
   useEffect(() => {
     if (channelGroupDto) {
-      setNewGroupName(channelGroupDto.name);
+      setNewGroupName(channelGroupDto.Name);
       return;
     }
 
-    if (selectSelectedItems && selectSelectedItems.length > 0) {
-      setNewGroupName(selectSelectedItems[0].name);
+    if (selectedItems && selectedItems.length > 0) {
+      setNewGroupName(selectedItems[0].Name);
     }
-  }, [channelGroupDto, selectSelectedItems]);
+  }, [channelGroupDto, selectedItems]);
 
   const changeGroupName = useCallback(() => {
     if (!newGroupName || !value) {
@@ -57,16 +60,16 @@ const ChannelGroupEditDialog = ({ id, onClose, value }: ChannelGroupEditDialogPr
 
     const toSend = {} as UpdateChannelGroupRequest;
 
-    toSend.channelGroupId = value.id;
-    toSend.newGroupName = newGroupName;
+    toSend.ChannelGroupId = value.Id;
+    toSend.NewGroupName = newGroupName;
 
     UpdateChannelGroup(toSend)
       .then(() => {
-        console.log(selectSelectedItems);
+        console.log(selectedItems);
 
-        const updatedSelectSelectedItems = selectSelectedItems.map((item) => (item.id === value.id ? { ...item, name: newGroupName } : item));
-        if (updatedSelectSelectedItems) {
-          setSelectSelectedItems(updatedSelectSelectedItems);
+        const updatedselectedItems = selectedItems.map((item) => (item.Id === value.Id ? { ...item, name: newGroupName } : item));
+        if (updatedselectedItems) {
+          setSelectedItems(updatedselectedItems);
         }
         setInfoMessage('Channel Group Edit Successfully');
       })
@@ -75,7 +78,7 @@ const ChannelGroupEditDialog = ({ id, onClose, value }: ChannelGroupEditDialogPr
           setInfoMessage(`Delete Error: ${error.status}`);
         }
       });
-  }, [ReturnToParent, newGroupName, selectSelectedItems, setSelectSelectedItems, value]);
+  }, [ReturnToParent, newGroupName, selectedItems, setSelectedItems, value]);
 
   return (
     <>
@@ -94,12 +97,12 @@ const ChannelGroupEditDialog = ({ id, onClose, value }: ChannelGroupEditDialogPr
             <TextInput onChange={setNewGroupName} onEnter={changeGroupName} placeHolder="Group Name" value={newGroupName} />
           </div>
           <div className="flex col-12 justify-content-end">
-            <EditButton disabled={value?.name === newGroupName} label="Edit Group" onClick={changeGroupName} tooltip="Edit Group" />
+            <EditButton buttonDisabled={value?.Name === newGroupName} label="Edit Group" onClick={changeGroupName} tooltip="Edit Group" />
           </div>
         </div>
       </InfoMessageOverLayDialog>
 
-      <EditButton disabled={!value || value.isReadOnly === true} iconFilled={false} onClick={() => setShowOverlay(true)} tooltip="Edit Group" />
+      <EditButton buttonDisabled={!value || value.IsReadOnly === true} iconFilled={false} onClick={() => setShowOverlay(true)} tooltip="Edit Group" />
     </>
   );
 };

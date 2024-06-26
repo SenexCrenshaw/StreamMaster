@@ -1,7 +1,4 @@
-﻿using StreamMaster.Domain.Configuration;
-using StreamMaster.SchedulesDirect.Data;
-using StreamMaster.SchedulesDirect.Domain.Enums;
-using StreamMaster.SchedulesDirect.Helpers;
+﻿using StreamMaster.SchedulesDirect.Data;
 
 using System.Collections.Concurrent;
 using System.Globalization;

@@ -1,22 +1,26 @@
-﻿using Microsoft.Extensions.Logging;
-
-using StreamMaster.Domain.Models;
+﻿using StreamMaster.Streams.Buffers;
 
 using System.Collections.Concurrent;
 
 namespace StreamMaster.Streams.Streams;
 
-public sealed class StreamManager(
-    IClientStreamerManager clientStreamerManager,
-    IStreamHandlerFactory streamHandlerFactory,
-    ILogger<StreamManager> logger
-    ) : IStreamManager
+public class StreamManager(IStreamHandlerFactory streamHandlerFactory, IClientStatisticsManager statisticsManager, ILoggerFactory loggerFactory) : IStreamManager
 {
 
     public event EventHandler<IStreamHandler> OnStreamingStoppedEvent;
     private readonly ConcurrentDictionary<string, IStreamHandler> _streamHandlers = new();
     private readonly object _disposeLock = new();
+    private readonly ILogger<StreamManager> logger = loggerFactory.CreateLogger<StreamManager>();
     private bool _disposed = false;
+
+    //public StreamManager(
+    //    IStreamHandlerFactory streamHandlerFactory,
+    //    ILogger<StreamManager> logger
+    //)
+    //{
+    //    this.streamHandlerFactory = streamHandlerFactory;
+    //    this.logger = logger;
+    //}
 
     public void Dispose()
     {
@@ -39,7 +43,7 @@ public sealed class StreamManager(
                     }
                     catch (Exception ex)
                     {
-                        logger.LogError(ex, "Error disposing stream handler {VideoStreamId}", streamHandler.VideoStreamId);
+                        logger.LogError(ex, "Error disposing stream handler {VideoStreamId}", streamHandler.SMStream.Id);
                     }
                 }
 
@@ -58,49 +62,55 @@ public sealed class StreamManager(
         }
     }
 
-    private async Task<IStreamHandler?> CreateStreamHandler(VideoStreamDto videoStreamDto, string ChannelId, string ChannelName, int rank, CancellationToken cancellation)
+    public IStreamHandler? GetStreamHandler(string? smStreamId)
     {
-
-        IStreamHandler? streamHandler = await streamHandlerFactory.CreateStreamHandlerAsync(videoStreamDto, ChannelId, ChannelName, rank, cancellation);
-
-        return streamHandler;
+        return string.IsNullOrEmpty(smStreamId)
+            ? null
+            : !_streamHandlers.TryGetValue(smStreamId, out IStreamHandler? streamHandler) ? null : streamHandler;
     }
 
-    public IStreamHandler? GetStreamHandler(string videoStreamId)
+    public async Task<IStreamHandler?> GetOrCreateStreamHandler(IChannelStatus channelStatus, CancellationToken cancellation = default)
     {
-        return !_streamHandlers.TryGetValue(videoStreamId, out IStreamHandler? streamHandler) ? null : streamHandler;
-    }
+        SMStream smStream = channelStatus.SMStream;
+        SMChannel smChannel = channelStatus.SMChannel;
 
-    public async Task<IStreamHandler?> GetOrCreateStreamHandler(VideoStreamDto videoStreamDto, string ChannelId, string ChannelName, int rank, CancellationToken cancellation = default)
-    {
-        _ = _streamHandlers.TryGetValue(videoStreamDto.User_Url, out IStreamHandler? streamHandler);
+
+        _ = _streamHandlers.TryGetValue(smStream.Url, out IStreamHandler? streamHandler);
 
         if (streamHandler is not null && streamHandler.IsFailed == true)
         {
-            await StopAndUnRegisterHandler(videoStreamDto.User_Url);
-            _ = _streamHandlers.TryGetValue(videoStreamDto.User_Url, out streamHandler);
+            await StopAndUnRegisterHandler(smStream.Url);
+            _ = _streamHandlers.TryGetValue(smStream.Url, out streamHandler);
         }
 
         if (streamHandler is null)
         {
-            logger.LogInformation("Creating new handler for stream: {Id} {name}", videoStreamDto.Id, videoStreamDto.User_Tvg_name);
-            streamHandler = await CreateStreamHandler(videoStreamDto, ChannelId, ChannelName, rank, cancellation);
+            logger.LogInformation("Creating new handler for stream: {Id} {name}", smStream.Id, smStream.Name);
+            streamHandler = await streamHandlerFactory.CreateStreamHandlerAsync(channelStatus, cancellation);
+
             if (streamHandler == null)
             {
                 return null;
             }
 
             streamHandler.OnStreamingStoppedEvent += StreamHandler_OnStreamingStoppedEvent;
-            bool test = _streamHandlers.TryAdd(videoStreamDto.User_Url, streamHandler);
+            bool test = _streamHandlers.TryAdd(smStream.Url, streamHandler);
 
             return streamHandler;
         }
 
-        logger.LogInformation("Reusing handler for stream: {Id} {name}", videoStreamDto.Id, videoStreamDto.User_Tvg_name);
+        logger.LogInformation("Reusing handler for stream: {Id} {name}", smStream.Id, smStream.Name);
         return streamHandler;
     }
+    //private async Task<IStreamHandler?> CreateStreamHandler(IChannelStatus channelStatus, CancellationToken cancellation)
+    //{
 
-    private async void StreamHandler_OnStreamingStoppedEvent(object? sender, StreamHandlerStopped StoppedEvent)
+    //    IStreamHandler? streamHandler = await streamHandlerFactory.CreateStreamHandlerAsync(channelStatus, cancellation);
+
+    //    return streamHandler;
+    //}
+
+    private void StreamHandler_OnStreamingStoppedEvent(object? sender, StreamHandlerStopped StoppedEvent)
     {
         if (sender is IStreamHandler streamHandler)
         {
@@ -118,7 +128,7 @@ public sealed class StreamManager(
         }
     }
 
-    public async Task<VideoInfo> GetVideoInfo(string streamUrl)
+    public VideoInfo GetVideoInfo(string streamUrl)
     {
         IStreamHandler? handler = GetStreamHandlerFromStreamUrl(streamUrl);
         return handler is null ? new() : handler.GetVideoInfo();
@@ -126,11 +136,11 @@ public sealed class StreamManager(
 
     public IStreamHandler? GetStreamHandlerFromStreamUrl(string streamUrl)
     {
-        return _streamHandlers.Values.FirstOrDefault(x => x.StreamUrl == streamUrl);
+        return _streamHandlers.Values.FirstOrDefault(x => x.SMStream.Url == streamUrl);
     }
     public int GetStreamsCountForM3UFile(int m3uFileId)
     {
-        return _streamHandlers.Count(x => x.Value.M3UFileId == m3uFileId);
+        return _streamHandlers.Count(x => x.Value.SMStream.M3UFileId == m3uFileId);
     }
 
     public List<IStreamHandler> GetStreamHandlers()
@@ -140,28 +150,28 @@ public sealed class StreamManager(
 
     public async Task MoveClientStreamers(IStreamHandler oldStreamHandler, IStreamHandler newStreamHandler, CancellationToken cancellationToken = default)
     {
-        IEnumerable<Guid> ClientIds = oldStreamHandler.GetClientStreamerClientIds();
+        var configs = oldStreamHandler.GetClientStreamerClientIdConfigs.ToList();
 
-        if (!ClientIds.Any())
+        if (!configs.Any())
         {
             return;
         }
 
-        logger.LogInformation("Moving clients {count} from {OldStreamUrl} to {NewStreamUrl}", ClientIds.Count(), oldStreamHandler.VideoStreamName, newStreamHandler.VideoStreamName);
+        logger.LogInformation("Moving clients {count} from {OldStreamUrl} to {NewStreamUrl}", configs.Count(), oldStreamHandler.SMStream.Name, newStreamHandler.SMStream.Name);
 
+        await AddClientsToHandler(configs, newStreamHandler);
 
-        foreach (Guid clientId in ClientIds)
+        foreach (var streamerConfiguration in configs)
         {
-            IClientStreamerConfiguration? streamerConfiguration = await clientStreamerManager.GetClientStreamerConfiguration(clientId, cancellationToken);
 
             if (streamerConfiguration == null)
             {
-                logger.LogError("Error registering stream configuration for client {ClientId}, streamerConfiguration null.", clientId);
+                logger.LogError("Error registering stream configuration for client {ClientId}, streamerConfiguration null.", streamerConfiguration.ClientId);
                 return;
             }
 
-            await clientStreamerManager.AddClientToHandler(streamerConfiguration.ClientId, newStreamHandler);
-            _ = oldStreamHandler.UnRegisterClientStreamer(clientId);
+
+            _ = oldStreamHandler.UnRegisterClientStreamer(streamerConfiguration.ClientId);
 
         }
 
@@ -169,8 +179,33 @@ public sealed class StreamManager(
         if (oldStreamHandler.ClientCount == 0)
         {
             //await Task.Delay(100);
-            await StopAndUnRegisterHandler(oldStreamHandler.StreamUrl);
+            await StopAndUnRegisterHandler(oldStreamHandler.SMStream.Url);
 
+        }
+    }
+
+    public async Task AddClientsToHandler(List<ClientStreamerConfiguration> clientIds, IStreamHandler streamHandler)
+    {
+        foreach (ClientStreamerConfiguration clientId in clientIds)
+        {
+            await AddClientToHandler(clientIds[0].SMChannel, clientId, streamHandler).ConfigureAwait(false);
+        }
+    }
+
+    public async Task AddClientToHandler(SMChannel smChannel, ClientStreamerConfiguration streamerConfiguration, IStreamHandler streamHandler)
+    {
+        if (streamerConfiguration != null)
+        {
+            //streamerConfiguration.StreamName = streamHandler.StreamName;
+            streamerConfiguration.ClientStream ??= new ClientReadStream(statisticsManager, loggerFactory, streamerConfiguration);
+
+            logger.LogDebug("Adding client {ClientId} {ReaderID} ", streamerConfiguration.ClientId, streamerConfiguration.ClientStream?.Id ?? Guid.NewGuid());
+            streamHandler.RegisterClientStreamer(streamerConfiguration);
+
+        }
+        else
+        {
+            logger.LogDebug("Error Add client, null");
         }
     }
 

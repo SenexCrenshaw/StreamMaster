@@ -5,12 +5,15 @@
 /// </summary>
 public interface IChannelStatus
 {
+    int ClientCount { get; set; }
+    VideoOutputProfileDto VideoProfile { get; set; }
     string OverrideVideoStreamId { get; set; }
-    //List<Guid> GetChannelClientIds { get; }
+
     /// <summary>
     /// Sets the channel to a global state.
     /// </summary>
     void SetIsGlobal();
+    void SetCurrentSMStream(SMStreamDto? smStream);
 
     /// <summary>
     /// Indicates whether a failover operation is currently in progress.
@@ -25,23 +28,23 @@ public interface IChannelStatus
     /// <summary>
     /// Gets or sets the rank of the channel.
     /// </summary>
-    int Rank { get; set; }
+    int CurrentRank { get; set; }
 
     /// <summary>
-    /// Gets or sets the ID of the parent video stream, if applicable.
+    /// Gets or sets the ID of the SM Channel
     /// </summary>
-    string ChannelVideoStreamId { get; set; }
+    //int Id { get; set; }
 
     ///// <summary>
     ///// Gets or sets the name of the video stream associated with this channel.
     ///// </summary>
     //string CurrentVideoStreamName { get; set; }
-    string ChannelName { get; set; }
+    //string ChannelName { get; set; }
 
     /// <summary>
     /// Gets or sets the name of the video stream associated with this channel.
     /// </summary>
-    VideoStreamDto? CurrentVideoStream { get; }
+    SMStreamDto SMStream { get; }
+    SMChannelDto SMChannel { get; }
 
-    void SetCurrentVideoStream(VideoStreamDto? CurrentVideoStream);
 }

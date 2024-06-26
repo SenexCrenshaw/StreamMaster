@@ -1,9 +1,10 @@
 ﻿namespace StreamMaster.Domain.Enums;
 
-public enum StreamingProxyTypes
-{
-    SystemDefault = 0,
-    None = 1,
-    StreamMaster = 2,
-    FFMpeg = 3
-}
+//[TsEnum]
+//public enum StreamingProxyTypes
+//{
+//    SystemDefault = 0,
+//    None = 1,
+//    StreamMaster = 2,
+//    FFMpeg = 3
+//}

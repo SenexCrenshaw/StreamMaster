@@ -1,7 +1,6 @@
-﻿using StreamMaster.SchedulesDirect.Domain.Models;
+﻿namespace StreamMaster.Domain.Configuration;
 
-namespace StreamMaster.Domain.Configuration;
-
+[TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public class SDSettingsRequest
 {
     public string? PreferredLogoStyle { get; set; }
@@ -21,12 +20,13 @@ public class SDSettingsRequest
     public string? SDCountry { get; set; }
     public string? SDPassword { get; set; }
     public string? SDPostalCode { get; set; }
-
+    public List<HeadendToView>? HeadendsToView { get; set; } = [];
     public List<StationIdLineup>? SDStationIds { get; set; }
     public bool? SeasonEventImages { get; set; }
     public bool? XmltvAddFillerData { get; set; }
     //public string? XmltvFillerProgramDescription { get; set; }
     public int? XmltvFillerProgramLength { get; set; }
+    public int? MaxSubscribedLineups { get; set; }
     public bool? XmltvIncludeChannelNumbers { get; set; }
     public bool? XmltvExtendedInfoInTitleDescriptions { get; set; }
     public bool? XmltvSingleImage { get; set; }

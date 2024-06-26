@@ -1,33 +1,40 @@
-import { GetMessage } from '@lib/common/common';
-import React from 'react';
-// Import the getLine function
-import { StreamingProxyTypes } from '@lib/common/streammaster_enums';
+import { GetMessage } from '@lib/common/intl';
 import { Fieldset } from 'primereact/fieldset';
 import { SelectItem } from 'primereact/selectitem';
-import { getCheckBoxLine } from './getCheckBoxLine';
-import { getDropDownLine } from './getDropDownLine';
-import { getInputNumberLine } from './getInputNumberLine';
-import { getInputTextLine } from './getInputTextLine';
-import { useSettingChangeHandler } from './useSettingChangeHandler';
+import React, { useMemo } from 'react';
+import { GetDropDownLine } from './components/GetDropDownLine';
+import { getCheckBoxLine } from './components/getCheckBoxLine';
+import { getInputNumberLine } from './components/getInputNumberLine';
+import { getInputTextLine } from './components/getInputTextLine';
+import { useSettingChangeHandler } from './hooks/useSettingChangeHandler';
+
+import { SMCard } from '@components/sm/SMCard';
+import useGetVideoProfiles from '@lib/smAPI/Profiles/useGetVideoProfiles';
 
 export function StreamingSettings(): React.ReactElement {
-  const { onChange, selectedCurrentSettingDto } = useSettingChangeHandler();
+  const { onChange, currentSettingRequest } = useSettingChangeHandler();
+  const { data: videoProfiles } = useGetVideoProfiles();
 
-  const getHandlersOptions = (): SelectItem[] => {
-    const test = Object.entries(StreamingProxyTypes)
-      .splice(0, Object.keys(StreamingProxyTypes).length / 2)
-      .map(
-        ([number, word]) =>
-          ({
-            label: word,
-            value: number
-          } as SelectItem)
-      );
+  const getHandlersOptions = useMemo((): SelectItem[] => {
+    const DefaultStreamingProxyTypes = ['SystemDefault', 'None', 'StreamMaster'];
 
-    return test;
-  };
+    const options = DefaultStreamingProxyTypes.map((type) => ({
+      label: type,
+      value: type
+    }));
 
-  if (selectedCurrentSettingDto === null || selectedCurrentSettingDto === undefined) {
+    if (videoProfiles) {
+      videoProfiles.forEach((profile) => {
+        options.push({
+          label: profile.ProfileName,
+          value: profile.ProfileName
+        });
+      });
+    }
+    return options;
+  }, [videoProfiles]);
+
+  if (!currentSettingRequest) {
     return (
       <Fieldset className="mt-4 pt-10" legend={GetMessage('SD')}>
         <div className="text-center">{GetMessage('loading')}</div>
@@ -36,13 +43,27 @@ export function StreamingSettings(): React.ReactElement {
   }
 
   return (
-    <Fieldset className="mt-4 pt-10" legend={GetMessage('streaming')} toggleable>
-      {getDropDownLine({ field: 'streamingProxyType', options: getHandlersOptions(), selectedCurrentSettingDto, onChange })}
-      {getInputNumberLine({ field: 'globalStreamLimit', selectedCurrentSettingDto, onChange })}
-      {getInputTextLine({ field: 'clientUserAgent', selectedCurrentSettingDto, onChange })}
-      {getInputTextLine({ field: 'streamingClientUserAgent', selectedCurrentSettingDto, onChange })}
-      {getInputTextLine({ field: 'ffMpegOptions', selectedCurrentSettingDto, onChange })}
-      {getCheckBoxLine({ field: 'showClientHostNames', selectedCurrentSettingDto, onChange })}
-    </Fieldset>
+    <SMCard
+      info=""
+      hasCloseButton
+      darkBackGround={false}
+      title="STREAMING"
+      header={<div className="justify-content-end align-items-center flex-row flex gap-1"></div>}
+    >
+      <div className="sm-card-children">
+        <div className="sm-card-children-content">
+          <div className="layout-padding-bottom" />
+          <div className="settings-lines">
+            {GetDropDownLine({ currentSettingRequest, field: 'StreamingProxyType', onChange, options: getHandlersOptions })}
+            {getInputNumberLine({ currentSettingRequest, field: 'GlobalStreamLimit', onChange })}
+            {getInputTextLine({ currentSettingRequest, field: 'ClientUserAgent', onChange })}
+            {getInputTextLine({ currentSettingRequest, field: 'StreamingClientUserAgent', onChange })}
+            {/* {getInputTextLine({ currentSettingRequest, field: 'FFMpegOptions', onChange })} */}
+            {getCheckBoxLine({ currentSettingRequest, field: 'ShowClientHostNames', onChange })}
+          </div>
+        </div>
+        <div className="layout-padding-bottom" />
+      </div>
+    </SMCard>
   );
 }

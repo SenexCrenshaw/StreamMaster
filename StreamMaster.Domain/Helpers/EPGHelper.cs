@@ -1,5 +1,4 @@
 ﻿using StreamMaster.Domain.Services;
-using StreamMaster.SchedulesDirect.Domain.Helpers;
 
 using System.Text.RegularExpressions;
 
@@ -57,7 +56,7 @@ public class EPGHelper() : IEPGHelper
 
     public static bool IsValidEPGId(string epgId)
     {
-        return EPGChecks.IsValidEPGId(epgId);
+        MatchCollection matches = Regex.Matches(epgId, EPGMatch);
+        return matches.Count > 0;
     }
-
 }

@@ -1,22 +1,23 @@
-﻿using Microsoft.AspNetCore.Http;
-
-using System.Web;
+﻿using System.Web;
 
 namespace StreamMaster.Application.M3UFiles.Commands;
 
-public record CreateM3UFileRequest(string? Description, int MaxStreamCount, bool? OverWriteChannels, int? StartingChannelNumber, IFormFile? FormFile, string Name, string? UrlSource, List<string>? VODTags) : IRequest<bool> { }
+[SMAPI]
+[TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
+public record CreateM3UFileRequest(string Name, int MaxStreamCount, string? UrlSource, int? HoursToUpdate, bool? OverWriteChannels, int? StartingChannelNumber, List<string>? VODTags) : IRequest<APIResponse> { }
 
 [LogExecutionTimeAspect]
-public class CreateM3UFileRequestHandler(ILogger<CreateM3UFileRequest> Logger, IRepositoryWrapper Repository, IMapper Mapper, IPublisher Publisher) : IRequestHandler<CreateM3UFileRequest, bool>
+public class CreateM3UFileRequestHandler(ILogger<CreateM3UFileRequest> Logger, IMessageService messageService, IDataRefreshService dataRefreshService, IRepositoryWrapper Repository, IPublisher Publisher)
+    : IRequestHandler<CreateM3UFileRequest, APIResponse>
 {
-    public async Task<bool> Handle(CreateM3UFileRequest command, CancellationToken cancellationToken)
+    public async Task<APIResponse> Handle(CreateM3UFileRequest command, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrEmpty(command.UrlSource) && command.FormFile != null && command.FormFile.Length <= 0)
+        if (string.IsNullOrEmpty(command.UrlSource))
         {
-            return false;
+
+            return APIResponse.NotFound;
         }
 
-        //Setting setting = await _settingsService.GetSettingsAsync();
         try
         {
             FileDefinition fd = FileDefinitions.M3U;
@@ -24,56 +25,43 @@ public class CreateM3UFileRequestHandler(ILogger<CreateM3UFileRequest> Logger, I
 
             M3UFile m3UFile = new()
             {
-                Description = command.Description ?? "",
                 Name = command.Name,
+                Url = command.UrlSource,
+                MaxStreamCount = command.MaxStreamCount,
                 Source = command.Name + fd.FileExtension,
-                StartingChannelNumber = command.StartingChannelNumber == null ? 1 : (int)command.StartingChannelNumber,
+                StartingChannelNumber = command.StartingChannelNumber ?? 1,
                 OverwriteChannelNumbers = command.OverWriteChannels != null && (bool)command.OverWriteChannels,
                 VODTags = command.VODTags ?? [],
-                //StreamURLPrefix = command.StreamURLPrefixInt == null ? M3UFileStreamURLPrefix.SystemDefault : (M3UFileStreamURLPrefix)command.StreamURLPrefixInt
+                HoursToUpdate = command.HoursToUpdate ?? 72,
             };
 
-            if (command.FormFile != null)
-            {
-                Logger.LogInformation("Adding M3U From Form: {fullName}", fullName);
-                (bool success, Exception? ex) = await FormHelper.SaveFormFileAsync(command.FormFile!, fullName).ConfigureAwait(false);
-                if (success)
-                {
-                    m3UFile.LastDownloaded = File.GetLastWriteTime(fullName);
-                    m3UFile.FileExists = true;
-                }
-                else
-                {
-                    Logger.LogCritical("Exception M3U From Form {ex}", ex);
-                    return false;
-                }
-            }
-            else if (!string.IsNullOrEmpty(command.UrlSource))
-            {
-                string source = HttpUtility.UrlDecode(command.UrlSource);
-                m3UFile.Url = source;
-                m3UFile.LastDownloadAttempt = SMDT.UtcNow;
+            string source = HttpUtility.UrlDecode(command.UrlSource);
+            m3UFile.Url = source;
+            m3UFile.LastDownloadAttempt = SMDT.UtcNow;
 
-                Logger.LogInformation("Add M3U From URL {command.UrlSource}", command.UrlSource);
-                (bool success, Exception? ex) = await FileUtil.DownloadUrlAsync(source, fullName, cancellationToken).ConfigureAwait(false);
-                if (success)
-                {
-                    m3UFile.LastDownloaded = File.GetLastWriteTime(fullName);
-                    m3UFile.FileExists = true;
-                }
-                else
-                {
-                    ++m3UFile.DownloadErrors;
-                    Logger.LogCritical("Exception M3U From URL {ex}", ex);
-                }
+            Logger.LogInformation("Add M3U From URL '{command.UrlSource}'", command.UrlSource);
+            (bool success, Exception? ex) = await FileUtil.DownloadUrlAsync(source, fullName, cancellationToken).ConfigureAwait(false);
+            if (success)
+            {
+                m3UFile.LastDownloaded = File.GetLastWriteTime(fullName);
+                m3UFile.FileExists = true;
+            }
+            else
+            {
+                ++m3UFile.DownloadErrors;
+
+                Logger.LogCritical("Exception M3U From URL '{ex}'", ex);
+                await messageService.SendError($"Exception M3U", ex?.Message);
+
             }
 
             m3UFile.MaxStreamCount = Math.Max(0, command.MaxStreamCount);
 
-            List<VideoStream>? streams = await m3UFile.GetM3U(Logger, cancellationToken).ConfigureAwait(false);
+            List<SMStream>? streams = await m3UFile.GetSMStreamsFromM3U(Logger).ConfigureAwait(false);
             if (streams == null || streams.Count == 0)
             {
-                Logger.LogCritical("Exception M3U {fullName} format is not supported", fullName);
+                Logger.LogCritical("Exception M3U '{name}' format is not supported", command.Name);
+                await messageService.SendError($"Exception M3U '{command.Name}' format is not supported");
                 //Bad M3U
                 if (File.Exists(fullName))
                 {
@@ -84,26 +72,26 @@ public class CreateM3UFileRequestHandler(ILogger<CreateM3UFileRequest> Logger, I
                 {
                     File.Delete(urlPath);
                 }
-                return false;
+                return APIResponse.NotFound;
             }
-
-
-            //m3UFile.StationCount = streams.Count;
 
             Repository.M3UFile.CreateM3UFile(m3UFile);
             _ = await Repository.SaveAsync().ConfigureAwait(false);
+            m3UFile.WriteJSON();
 
-            m3UFile.WriteJSON(Logger);
+            await dataRefreshService.RefreshAllM3U();
 
-            M3UFileDto ret = Mapper.Map<M3UFileDto>(m3UFile);
-            await Publisher.Publish(new M3UFileAddedEvent(ret.Id, false), cancellationToken).ConfigureAwait(false);
+            await Publisher.Publish(new M3UFileProcessEvent(m3UFile.Id, false), cancellationToken).ConfigureAwait(false);
 
-            return true;
+            await messageService.SendSuccess("M3U '" + m3UFile.Name + "' added successfully");
+
+            return APIResponse.Success;
         }
         catch (Exception exception)
         {
-            Logger.LogCritical("Exception M3U From Form {exception}", exception);
+            await messageService.SendError("Exception adding M3U", exception.Message);
+            Logger.LogCritical("Exception M3U From Form '{exception}'", exception);
         }
-        return false;
+        return APIResponse.NotFound;
     }
 }

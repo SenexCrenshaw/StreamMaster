@@ -1,9 +1,6 @@
-﻿using StreamMaster.Domain.Configuration;
-using StreamMaster.Domain.Enums;
+﻿using StreamMaster.Domain.API;
 using StreamMaster.Domain.Helpers;
 using StreamMaster.Domain.Models;
-using StreamMaster.SchedulesDirect.Domain.Enums;
-using StreamMaster.SchedulesDirect.Helpers;
 
 using System.Text.Json;
 
@@ -31,37 +28,40 @@ public partial class SchedulesDirect(
     private readonly TimeSpan CacheDuration = TimeSpan.FromHours(23);
     private readonly SemaphoreSlim _cacheSemaphore = new(1, 1);
     private readonly SemaphoreSlim _syncSemaphore = new(1, 1);
-    private readonly SDSettings sdsettings = intsettings.CurrentValue;
-
 
     public static readonly int MaxQueries = 1250;
     public static readonly int MaxDescriptionQueries = 500;
     public static readonly int MaxImgQueries = 125;
     public static readonly int MaxParallelDownloads = 8;
 
-    public async Task<bool> SDSync(CancellationToken cancellationToken)
+    public async Task<APIResponse> SDSync(CancellationToken cancellationToken)
     {
-        JobStatusManager jobManager = jobStatusService.GetJobManager(JobType.SDSync, EPGHelper.SchedulesDirectId);
+        SDSettings sdSettings = intsettings.CurrentValue;
+
+
+        JobStatusManager jobManager = jobStatusService.GetJobManageSDSync(EPGHelper.SchedulesDirectId);
+
+
         try
         {
             await _syncSemaphore.WaitAsync(cancellationToken);
             if (cancellationToken.IsCancellationRequested)
             {
                 jobManager.SetSuccessful();
-                return false;
+                return APIResponse.Ok;
             }
 
 
-            if (!sdsettings.SDEnabled)
+            if (!sdSettings.SDEnabled)
             {
                 jobManager.SetSuccessful();
-                return true;
+                return APIResponse.Ok;
             }
 
             if (jobManager.IsRunning)
             {
                 jobManager.SetForceNextRun();
-                return false;
+                return APIResponse.Ok;
             }
 
             jobManager.Start();
@@ -76,11 +76,11 @@ public partial class SchedulesDirect(
             if (!CheckToken())
             {
                 jobManager.SetError();
-                return false;
+                return APIResponse.ErrorWithMessage("SD Check token errored");
             }
 
 
-            logger.LogInformation($"DaysToDownload: {sdsettings.SDEPGDays}");
+            logger.LogInformation($"DaysToDownload: {sdSettings.SDEPGDays}");
 
             // load cache file
             ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
@@ -117,7 +117,7 @@ public partial class SchedulesDirect(
 
                 logger.LogInformation("Completed Schedules Direct update execution. SUCCESS.");
                 jobManager.SetSuccessful();
-                return true;
+                return APIResponse.Ok;
             }
             //StationLogosToDownload = [];
 
@@ -132,7 +132,7 @@ public partial class SchedulesDirect(
         }
 
         jobManager.SetError();
-        return false;
+        return APIResponse.Error;
     }
 
     private void WriteXmltv(XMLTV xmltv)
@@ -262,6 +262,7 @@ public partial class SchedulesDirect(
         lineups.ResetCache();
         schedules.ResetCache();
         programs.ResetCache();
+
 
         movieImages.ResetCache();
         seriesImages.ResetCache();

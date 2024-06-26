@@ -1,12 +1,10 @@
-﻿using StreamMaster.Streams.Buffers;
-
-using System.Collections.Concurrent;
-
+﻿using System.Collections.Concurrent;
 namespace StreamMaster.Streams.Clients;
 
-public sealed class ClientStreamerManager(ILogger<ClientStreamerManager> logger, IStatisticsManager statisticsManager, ILoggerFactory loggerFactory) : IClientStreamerManager
+public sealed class ClientStreamerManager(ILogger<ClientStreamerManager> logger, IClientStatisticsManager clientStatisticsManager)
+    : IClientStreamerManager
 {
-    private readonly ConcurrentDictionary<Guid, IClientStreamerConfiguration> clientStreamerConfigurations = new();
+    private readonly ConcurrentDictionary<Guid, ClientStreamerConfiguration> clientStreamerConfigurations = new();
     private readonly object _disposeLock = new();
     private bool _disposed = false;
 
@@ -39,47 +37,23 @@ public sealed class ClientStreamerManager(ILogger<ClientStreamerManager> logger,
         }
     }
 
-    public async Task AddClientsToHandler(string ChannelVideoStreamId, IStreamHandler streamHandler)
+
+    public int ClientCount(int smChannelId)
     {
-        List<Guid> clientIds = GetClientStreamerConfigurationsByChannelVideoStreamId(ChannelVideoStreamId).ConvertAll(a => a.ClientId);
-        foreach (Guid clientId in clientIds)
-        {
-            await AddClientToHandler(clientId, streamHandler).ConfigureAwait(false);
-        }
+        ConcurrentDictionary<Guid, ClientStreamerConfiguration> a = clientStreamerConfigurations;
+        return clientStreamerConfigurations.Count(a => a.Value.SMChannel.Id == smChannelId);
     }
 
-    public async Task AddClientToHandler(Guid clientId, IStreamHandler streamHandler)
+    public bool RegisterClient(ClientStreamerConfiguration config)
     {
-        IClientStreamerConfiguration? streamerConfiguration = await GetClientStreamerConfiguration(clientId);
-        if (streamerConfiguration != null)
+        if (!clientStreamerConfigurations.TryAdd(config.ClientId, config))
         {
-            streamerConfiguration.VideoStreamName = streamHandler.VideoStreamName;
-            streamerConfiguration.Stream ??= new ClientReadStream(statisticsManager, loggerFactory, streamerConfiguration);
-
-            logger.LogDebug("Adding client {ClientId} {ReaderID} ", clientId, streamerConfiguration.Stream?.Id ?? Guid.NewGuid());
-            streamHandler.RegisterClientStreamer(streamerConfiguration);
-
+            logger.LogWarning("Failed to register client: {ClientId}", config.ClientId);
+            return false;
         }
-        else
-        {
-            logger.LogDebug("Error adding client {ClientId}, client status is null", clientId);
-        }
-    }
 
-    public int ClientCount(string ChannelVideoStreamId)
-    {
-        ConcurrentDictionary<Guid, IClientStreamerConfiguration> a = clientStreamerConfigurations;
-        return clientStreamerConfigurations.Count(a => a.Value.ChannelVideoStreamId == ChannelVideoStreamId);
-    }
-
-    public void RegisterClient(IClientStreamerConfiguration clientStreamerConfiguration)
-    {
-        bool added = clientStreamerConfigurations.TryAdd(clientStreamerConfiguration.ClientId, clientStreamerConfiguration);
-        if (!added)
-        {
-            logger.LogWarning("Failed to register client: {ClientId}", clientStreamerConfiguration.ClientId);
-            throw new InvalidOperationException($"Failed to register client: {clientStreamerConfiguration.ClientId}");
-        }
+        clientStatisticsManager.RegisterClient(config);
+        return true;
     }
 
     public async Task UnRegisterClient(Guid clientId)
@@ -87,20 +61,63 @@ public sealed class ClientStreamerManager(ILogger<ClientStreamerManager> logger,
         await CancelClient(clientId, false).ConfigureAwait(false);
 
         bool removed = clientStreamerConfigurations.TryRemove(clientId, out _);
+
+        clientStatisticsManager.UnRegisterClient(clientId);
         if (!removed)
         {
             logger.LogWarning("Failed to unregister client: {ClientId}", clientId);
         }
     }
 
-    public List<IClientStreamerConfiguration> GetClientStreamerConfigurationFromIds(List<Guid> clientIds)
+
+    public async Task CancelClient(Guid clientId, bool includeAbort = true)
     {
-        return GetAllClientStreamerConfigurations.Where(a => clientIds.Contains(a.ClientId)).ToList();
+        IClientStreamerConfiguration? streamerConfiguration = await GetClientStreamerConfiguration(clientId);
+        if (streamerConfiguration == null)
+        {
+            return;
+        }
+
+        if (streamerConfiguration.ClientStream != null)
+        {
+            streamerConfiguration.ClientStream.Channel?.Writer.Complete();
+            streamerConfiguration.ClientStream.Cancel();
+            streamerConfiguration.ClientStream.Dispose();
+            streamerConfiguration.ClientStream = null;
+        }
+
+        try
+        {
+            if (includeAbort)
+            {
+                //if (!streamerConfiguration.Response.HasStarted)
+                //{
+                //    response.Body.Flush();
+
+                //}
+                //await response.CompleteAsync();
+                //if (!response.HttpContext.Response.HasStarted)
+                //{
+                //    response.HttpContext.Abort();
+                //}
+            }
+        }
+        catch (ObjectDisposedException ex)
+        {
+            // Log the exception or handle it as necessary
+        }
+        catch (Exception ex)
+        {
+
+        }
+        //ClientCancellationTokenSource.Cancel();
+
     }
-    public async Task<IClientStreamerConfiguration?> GetClientStreamerConfiguration(Guid clientId, CancellationToken cancellationToken = default)
+
+    public async Task<ClientStreamerConfiguration?> GetClientStreamerConfiguration(Guid clientId, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        if (clientStreamerConfigurations.TryGetValue(clientId, out IClientStreamerConfiguration? clientConfig))
+        if (clientStreamerConfigurations.TryGetValue(clientId, out ClientStreamerConfiguration? clientConfig))
         {
             return await Task.FromResult(clientConfig).ConfigureAwait(false);
         }
@@ -108,37 +125,32 @@ public sealed class ClientStreamerManager(ILogger<ClientStreamerManager> logger,
         return null;
     }
 
-    public List<IClientStreamerConfiguration> GetClientStreamerConfigurationsByChannelVideoStreamId(string ChannelVideoStreamId)
+    //public List<IClientStreamerConfiguration> GetClientStreamerConfigurationFromIds(List<Guid> clientIds)
+    //{
+    //    return GetAllClientStreamerConfigurations.Where(a => clientIds.Contains(a.ClientId)).ToList();
+    //}
+
+
+    public List<ClientStreamerConfiguration> GetClientStreamerConfigurationsBySMChannelId(int smChannelId)
     {
-        ConcurrentDictionary<Guid, IClientStreamerConfiguration> a = clientStreamerConfigurations;
-        List<IClientStreamerConfiguration> client = GetAllClientStreamerConfigurations.Where(a => a.ChannelVideoStreamId.Equals(ChannelVideoStreamId)).ToList();
+        ConcurrentDictionary<Guid, ClientStreamerConfiguration> a = clientStreamerConfigurations;
+        List<ClientStreamerConfiguration> client = GetAllClientStreamerConfigurations.Where(a => a.SMChannel.Id.Equals(smChannelId)).ToList();
 
         return client;
     }
 
-    public IClientStreamerConfiguration? GetClientStreamerConfiguration(string ChannelVideoStreamId, Guid ClientId)
-    {
-        IClientStreamerConfiguration? test = GetAllClientStreamerConfigurations.FirstOrDefault(a => a.ChannelVideoStreamId.Equals(ChannelVideoStreamId) && a.ClientId == ClientId);
-        return test;
-    }
+    //public IClientStreamerConfiguration? GetClientStreamerConfiguration(string ChannelVideoStreamId, Guid ClientId)
+    //{
+    //    IClientStreamerConfiguration? test = GetAllClientStreamerConfigurations.FirstOrDefault(a => a.SMChannel.Id.Equals(ChannelVideoStreamId) && a.ClientId == ClientId);
+    //    return test;
+    //}
 
 
-    public async Task<bool> CancelClient(Guid clientId, bool includeAbort)
-    {
-        IClientStreamerConfiguration? config = await GetClientStreamerConfiguration(clientId).ConfigureAwait(false);
-        if (config == null) { return false; }
 
-        logger.LogDebug("Cancelling client {ClientId}", clientId);
+    public ICollection<ClientStreamerConfiguration> GetAllClientStreamerConfigurations => clientStreamerConfigurations.Values;
 
-        await config.CancelClient(includeAbort).ConfigureAwait(false);
-
-        return true;
-    }
-
-    public ICollection<IClientStreamerConfiguration> GetAllClientStreamerConfigurations => clientStreamerConfigurations.Values;
-
-    public bool HasClient(string ChannelVideoStreamId, Guid ClientId)
-    {
-        return GetClientStreamerConfiguration(ChannelVideoStreamId, ClientId) != null;
-    }
+    //public bool HasClient(string ChannelVideoStreamId, Guid ClientId)
+    //{
+    //    return GetClientStreamerConfiguration(ChannelVideoStreamId, ClientId) != null;
+    //}
 }

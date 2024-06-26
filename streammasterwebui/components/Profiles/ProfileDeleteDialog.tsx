@@ -1,5 +1,5 @@
-import DeleteButton from '@components/buttons/DeleteButton';
-import { FfmpegProfileDto, ProfilesRemoveFfmpegProfileApiArg, useProfilesRemoveFfmpegProfileMutation } from '@lib/iptvApi';
+import MinusButton from '@components/buttons/MinusButton';
+
 import { memo, useState } from 'react';
 import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
 import OKButton from '../buttons/OKButton';
@@ -58,13 +58,13 @@ const ProfileDeleteDialog = ({ iconFilled, onClose, skipOverLayer, data }: Profi
         show={showOverlay}
       >
         <div className="m-0 p-0 w-full">
-          <div className="card flex mt-3 flex-wrap gap-2 justify-content-center ">
+          <div className="card flex mt-3 flex-wrap gap-1 justify-content-center ">
             <OKButton onClick={async () => await deleteProfile()} />
           </div>
         </div>
       </InfoMessageOverLayDialog>
 
-      <DeleteButton disabled={false} iconFilled={iconFilled} onClick={() => setShowOverlay(true)} tooltip="Delete Profile" />
+      <MinusButton disabled={false} iconFilled={iconFilled} onClick={() => setShowOverlay(true)} tooltip="Delete Profile" />
     </>
   );
 };

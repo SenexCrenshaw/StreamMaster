@@ -1,10 +1,8 @@
-﻿using StreamMaster.Domain.Dto;
-
-namespace StreamMaster.Domain.Services
+﻿namespace StreamMaster.Domain.Services
 {
     public interface IVideoStreamService
     {
-        void RemoveVideoStreamDto(string videoStreamId);
-        Task<VideoStreamDto?> GetVideoStreamDtoAsync(string videoStreamId, CancellationToken cancellationToken);
+        void RemoveVideoStreamDto(string smStreamId);
+        Task<SMStreamDto?> GetSMStreamDtoAsync(string smStreamId, CancellationToken cancellationToken);
     }
 }

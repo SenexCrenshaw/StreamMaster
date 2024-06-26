@@ -1,15 +1,16 @@
-import BaseButton from './BaseButton';
+import SMButton from '@components/sm/SMButton';
 import { ChildButtonProperties } from './ChildButtonProperties';
 
-const OKButton: React.FC<ChildButtonProperties> = ({ iconFilled = true, label, style, onClick, tooltip = '' }) => (
-  <BaseButton
+const OKButton: React.FC<ChildButtonProperties> = ({ buttonDisabled, iconFilled = true, label, onClick, tooltip = '' }) => (
+  <SMButton
+    buttonClassName="icon-green"
+    buttonDisabled={buttonDisabled}
     icon="pi-check"
     iconFilled={iconFilled}
-    label={iconFilled === true ? (label === null ? undefined : 'Ok') : undefined}
+    label={label ?? undefined}
     onClick={onClick}
-    rounded={iconFilled}
-    severity="success"
-    style={style}
+    // rounded={iconFilled}
+    // style={style}
     tooltip={tooltip}
   />
 );

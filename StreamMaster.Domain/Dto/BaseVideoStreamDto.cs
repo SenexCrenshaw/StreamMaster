@@ -21,7 +21,7 @@ public class BaseVideoStreamDto /*: IMapFrom<VideoStream>*/
     [Required]
     public string Id { get; set; }
 
-    public string ShortId { get; set; }
+    public string SMChannelId { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether the video stream is currently active.
@@ -68,7 +68,7 @@ public class BaseVideoStreamDto /*: IMapFrom<VideoStream>*/
     /// Gets or sets the type of streaming proxy to use.
     /// </summary>
     /// <value>The type of streaming proxy to use.</value>
-    public StreamingProxyTypes StreamingProxyType { get; set; } = StreamingProxyTypes.SystemDefault;
+    public string StreamingProxyType { get; set; } = "SystemDefault";
     public string GroupTitle { get; set; } = string.Empty;
     /// <summary>
     /// Gets or sets the channel number for the video stream.

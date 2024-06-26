@@ -1,33 +1,44 @@
-﻿using StreamMaster.Domain.Enums;
+﻿using MessagePack;
+
+using Reinforced.Typings.Attributes;
+
+using StreamMaster.Domain.Extensions;
+using StreamMaster.Streams.Domain.Statistics;
 
 namespace StreamMaster.Streams.Domain.Models;
-
+[TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public class StreamInfo
 {
-    public string? Logo { get; set; }
 
-    ///// <summary>
-    ///// Gets or sets the identifier for the M3U stream.
-    ///// </summary>
-    //public string M3UStreamId { get; set; }
+    [IgnoreMember]
+    public int CurrentRank { get; set; }
 
-    ///// <summary>
-    ///// Gets or sets the name of the M3U stream.
-    ///// </summary>
-    //public string M3UStreamName { get; set; } = string.Empty;
+    [IgnoreMember]
+    public SMStreamDto SMStream { get; set; }
 
-    public int Rank { get; set; }
+    [IgnoreMember]
+    public SMChannelDto SMChannel { get; set; }
+    public List<StreamStreamingStatistic> StreamStatistics
+    {
+        get
+        {
+            var ret = new List<StreamStreamingStatistic>();
+            if (SMChannel != null && SMChannel.SMStreams != null)
+            {
+                foreach (var smStream in SMChannel.SMStreams.OrderBy(a => a.Rank))
+                {
+                    ret.Add(new StreamStreamingStatistic
+                    {
+                        StreamName = smStream.Name,
+                        StreamLogo = smStream.Logo,
+                        StartTime = SMDT.UtcNow,
+                        StreamUrl = smStream.Url,
+                        Id = smStream.Id
+                    });
+                }
+            }
 
-    /// <summary>
-    /// Gets or sets the type of the streaming proxy.
-    /// </summary>
-    public StreamingProxyTypes StreamingProxyType { get; set; }
-
-    public string? StreamUrl { get; set; }
-
-    public string VideoStreamId { get; set; }
-    public string VideoStreamName { get; set; }
-
-    public string ChannelId { get; set; }
-    public string ChannelName { get; set; }
+            return ret;
+        }
+    }
 }

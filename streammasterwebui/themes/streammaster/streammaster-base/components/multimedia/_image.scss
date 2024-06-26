@@ -1,0 +1,117 @@
+.default-icon {
+  max-width: $gridItem-width;
+  max-height: 1.3rem;
+  object-fit: contain;
+}
+
+.icon-template {
+  height: $input-height-with-no-borders;
+  max-height: $input-height-with-no-borders;
+  justify-content: center;
+  align-items: center;
+
+  .no-border {
+    border: none !important;
+  }
+
+  img {
+    @extend .sm-input-border;
+    padding: 0.2rem;
+    height: $input-height-with-no-borders;
+    width: $gridItem-width;
+    object-fit: contain;
+  }
+}
+
+.icon-label {
+  width: 5.6rem !important;
+  max-width: 5.6rem !important;
+}
+
+.icon-button-template {
+  height: $input-height-with-no-borders;
+  max-height: $input-height-with-no-borders;
+  justify-content: center;
+  align-items: center;
+
+  img {
+    // @extend .sm-input-border;
+    padding: 0.2rem;
+    height: $input-height-with-no-borders;
+    width: $gridItem-width;
+    object-fit: contain;
+
+    // :hover {
+    //   border-style: none !important;
+    //   box-shadow: none !important;
+    //   transform: none !important;
+    //   opacity: 1 !important;
+    // }
+  }
+}
+
+.icon-template-lg {
+  // padding: 0rem !important;
+  // padding: 0.25rem !important;
+  // max-width: 6rem;
+  max-height: 4.6rem;
+  height: 5rem;
+  object-fit: contain;
+  justify-content: center;
+  align-items: center;
+  // border-left: 1px solid $inputBorderColor;
+  // border-right: 1px solid $inputBorderColor;
+  border: unset !important;
+
+  img {
+    border: unset;
+    max-width: 6rem;
+    max-height: 4.6rem;
+    object-fit: contain;
+  }
+}
+
+.icon-option-template {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  text-align: start;
+}
+
+.icon-option-template img {
+  max-width: 3rem;
+  max-height: 3.4rem;
+  object-fit: contain;
+}
+
+.icon-option-name {
+  padding: 0 0 0 1rem;
+  white-space: normal;
+  width: 100%;
+}
+
+.max-w-25rem {
+  max-width: 2.5rem !important;
+  width: 2.5rem !important;
+  min-width: 2.5rem !important;
+}
+
+.w-26 {
+  width: 26px;
+}
+
+.w-32 {
+  width: 32px;
+}
+
+.w-42 {
+  width: 42px;
+}
+
+.h-32 {
+  height: 32px;
+}
+
+.h-42 {
+  height: 42px;
+}

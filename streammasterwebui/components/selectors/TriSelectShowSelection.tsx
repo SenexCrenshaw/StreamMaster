@@ -1,5 +1,5 @@
 import { getTopToolOptions } from '@lib/common/common';
-import { useShowSelections } from '@lib/redux/slices/useShowSelections';
+import { useShowSelections } from '@lib/redux/hooks/showSelections';
 import { TriStateCheckbox, type TriStateCheckboxChangeEvent } from 'primereact/tristatecheckbox';
 
 interface TriSelectShowProperties {

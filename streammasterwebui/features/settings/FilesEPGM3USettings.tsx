@@ -1,17 +1,19 @@
 import SettingsNameRegexDataSelector from '@components/settings/SettingsNameRegexDataSelector';
-import { GetMessage } from '@lib/common/common';
-import { useSettingsGetSettingQuery } from '@lib/iptvApi';
+import { GetMessage } from '@lib/common/intl';
+
+import { SMCard } from '@components/sm/SMCard';
+import useGetSettings from '@lib/smAPI/Settings/useGetSettings';
 import { Fieldset } from 'primereact/fieldset';
 import React from 'react';
-import { getCheckBoxLine } from './getCheckBoxLine';
-import { getInputTextLine } from './getInputTextLine';
-import { useSettingChangeHandler } from './useSettingChangeHandler';
+import { getCheckBoxLine } from './components/getCheckBoxLine';
+import { getInputTextLine } from './components/getInputTextLine';
+import { useSettingChangeHandler } from './hooks/useSettingChangeHandler';
 
 export function FilesEPGM3USettings(): React.ReactElement {
-  const settingsQuery = useSettingsGetSettingQuery();
-  const { onChange, selectedCurrentSettingDto } = useSettingChangeHandler();
+  const settingsQuery = useGetSettings();
+  const { onChange, currentSettingRequest } = useSettingChangeHandler();
 
-  if (selectedCurrentSettingDto === null || selectedCurrentSettingDto === undefined) {
+  if (currentSettingRequest === null || currentSettingRequest === undefined) {
     return (
       <Fieldset className="mt-4 pt-10" legend={GetMessage('SD')}>
         <div className="text-center">{GetMessage('loading')}</div>
@@ -20,19 +22,33 @@ export function FilesEPGM3USettings(): React.ReactElement {
   }
 
   return (
-    <Fieldset className="mt-4 pt-10" legend={GetMessage('filesEPGM3U')} toggleable>
-      {getCheckBoxLine({ field: 'prettyEPG', selectedCurrentSettingDto, onChange })}
-      {getCheckBoxLine({ field: 'cacheIcons', selectedCurrentSettingDto, onChange })}
-      {getCheckBoxLine({ field: 'videoStreamAlwaysUseEPGLogo', selectedCurrentSettingDto, onChange })}
-      {getInputTextLine({ field: 'dummyRegex', selectedCurrentSettingDto, onChange })}
-      {getCheckBoxLine({ field: 'm3UIgnoreEmptyEPGID', selectedCurrentSettingDto, onChange })}
-      {getCheckBoxLine({ field: 'm3UFieldGroupTitle', selectedCurrentSettingDto, onChange })}
-      {getCheckBoxLine({ field: 'm3UUseChnoForId', selectedCurrentSettingDto, onChange })}
-      {getCheckBoxLine({ field: 'm3UStationId', selectedCurrentSettingDto, onChange })}
-      {getCheckBoxLine({ field: 'm3UUseCUIDForChannelID', selectedCurrentSettingDto, onChange })}
-      <Fieldset className="mt-4 pt-10" collapsed legend={GetMessage('nameregexSettings')} toggleable>
-        <SettingsNameRegexDataSelector data={settingsQuery.data?.nameRegex} />
-      </Fieldset>
-    </Fieldset>
+    <SMCard
+      info=""
+      hasCloseButton
+      darkBackGround={false}
+      title="MISC"
+      header={<div className="justify-content-end align-items-center flex-row flex gap-1">{/* {header}                */}</div>}
+    >
+      <div className="sm-card-children">
+        <div className="sm-card-children-content">
+          <div className="layout-padding-bottom" />
+          <div className="settings-lines ">
+            {getCheckBoxLine({ currentSettingRequest, field: 'prettyEPG', onChange })}
+            {getCheckBoxLine({ currentSettingRequest, field: 'cacheIcons', onChange })}
+            {getCheckBoxLine({ currentSettingRequest, field: 'videoStreamAlwaysUseEPGLogo', onChange })}
+            {getInputTextLine({ currentSettingRequest, field: 'dummyRegex', onChange })}
+            {getCheckBoxLine({ currentSettingRequest, field: 'm3UIgnoreEmptyEPGID', onChange })}
+            {/* {getCheckBoxLine({ currentSettingRequest, field: 'm3UFieldGroupTitle', onChange })} */}
+            {/* {getCheckBoxLine({ currentSettingRequest, field: 'm3UUseChnoForId', onChange })} */}
+            {/* {getCheckBoxLine({ currentSettingRequest, field: 'm3UStationId', onChange })} */}
+            {/* {getCheckBoxLine({ currentSettingRequest, field: 'm3UUseCUIDForChannelID', onChange })} */}
+            <Fieldset className="mt-4 pt-10" collapsed legend={GetMessage('nameregexSettings')} toggleable>
+              <SettingsNameRegexDataSelector data={settingsQuery.data?.NameRegex} />
+            </Fieldset>
+          </div>
+        </div>
+        <div className="layout-padding-bottom" />
+      </div>
+    </SMCard>
   );
 }

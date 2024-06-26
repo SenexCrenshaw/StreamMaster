@@ -1,13 +1,15 @@
-﻿namespace StreamMaster.Streams.Domain.Interfaces
+﻿using StreamMaster.Streams.Domain.Statistics;
+
+namespace StreamMaster.Streams.Domain.Interfaces
 {
-    public interface IStatisticsManager
+    public interface IClientStatisticsManager
     {
+        bool UnRegisterClient(Guid clientId);
         List<Guid> GetAllClientIds();
         //List<ClientStreamingStatistics> GetAllClientStatisticsByClientIds(ICollection<Guid> ClientIds);
-        void AddBytesRead(Guid clientId, int count);
+        void AddBytesRead(Guid clientId, int bytesRead);
         List<ClientStreamingStatistics> GetAllClientStatistics();
         void IncrementBytesRead(Guid clientId);
-        void RegisterClient(IClientStreamerConfiguration streamerConfiguration);
-        void UnRegisterClient(Guid clientId);
+        void RegisterClient(ClientStreamerConfiguration streamerConfiguration);
     }
 }

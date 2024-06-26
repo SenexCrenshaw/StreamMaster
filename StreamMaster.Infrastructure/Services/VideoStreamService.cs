@@ -1,48 +1,50 @@
-﻿using MediatR;
+﻿using AutoMapper;
+
+using MediatR;
 
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 
-using StreamMaster.Application.VideoStreams.Queries;
 using StreamMaster.Domain.Dto;
-using StreamMaster.Domain.Services;
+using StreamMaster.Domain.Repository;
 
 namespace StreamMaster.Infrastructure.Services;
 
-public class VideoStreamService(IServiceProvider serviceProvider, IMemoryCache cache) : IVideoStreamService
+public class VideoStreamService(IServiceProvider serviceProvider, IMapper mapper, IMemoryCache cache) : IVideoStreamService
 {
-    public void RemoveVideoStreamDto(string videoStreamId)
+    public void RemoveVideoStreamDto(string smStreamId)
     {
-        string cacheKey = $"VideoStreamDto-{videoStreamId}";
+        string cacheKey = $"SMStreamDto-{smStreamId}";
         cache.Remove(cacheKey);
     }
 
-    public async Task<VideoStreamDto?> GetVideoStreamDtoAsync(string videoStreamId, CancellationToken cancellationToken)
+    public async Task<SMStreamDto?> GetSMStreamDtoAsync(string smStreamId, CancellationToken cancellationToken)
     {
         // Cache key to uniquely identify the VideoStreamDto
-        string cacheKey = $"VideoStreamDto-{videoStreamId}";
+        string cacheKey = $"SMStreamDto-{smStreamId}";
 
         // Try to get the VideoStreamDto from the cache
-        if (!cache.TryGetValue(cacheKey, out VideoStreamDto? videoStreamDto))
+        if (!cache.TryGetValue(cacheKey, out SMStreamDto? smStreamDto))
         {
             using IServiceScope scope = serviceProvider.CreateScope();
             IMediator mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-            // If not in cache, fetch from the database
-            videoStreamDto = await mediator.Send(new GetVideoStream(videoStreamId), cancellationToken);
+            IRepositoryWrapper repositoryWrapper = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
+            SMStream? smStream = await repositoryWrapper.SMStream.FirstOrDefaultAsync(a => a.Id == smStreamId);
 
-            if (videoStreamDto != null)
+            if (smStream != null)
             {
+                smStreamDto = mapper.Map<SMStreamDto>(smStream);
+
                 // Define cache options
                 MemoryCacheEntryOptions cacheEntryOptions = new MemoryCacheEntryOptions()
                     .SetSlidingExpiration(TimeSpan.FromMinutes(5))
                     .SetAbsoluteExpiration(TimeSpan.FromHours(1));
 
                 // Cache the VideoStreamDto
-                cache.Set(cacheKey, videoStreamDto, cacheEntryOptions);
+                cache.Set(cacheKey, smStreamDto, cacheEntryOptions);
             }
         }
 
-        return videoStreamDto;
+        return smStreamDto;
     }
 }
-

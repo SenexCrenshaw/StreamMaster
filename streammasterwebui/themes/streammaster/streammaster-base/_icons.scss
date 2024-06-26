@@ -1,0 +1,117 @@
+.channel-row-selected {
+    background-color: $channelRowSelected;
+}
+
+.channel-row-selected-hidden {
+    background-color: $channelRowSelectedHidden;
+}
+
+.red-bg {
+    background-color: $iconRed;
+}
+
+.orange-bg {
+    background-color: $iconOrange;
+}
+
+.yellow-bg {
+    background-color: $iconYellow;
+}
+
+.green-bg {
+    background-color: $iconGreen;
+}
+
+.blue-bg {
+    background-color: $iconBlue;
+}
+
+.sg-bg {
+    background-color: $iconSG;
+}
+
+.primary-bg {
+    background-color: $primaryColor;
+}
+
+.icon-primary {
+    color: $primaryColor;
+}
+
+.icon-primary-filled {
+    @extend .primary-bg;
+    color: $inputBg;
+    border: 2px solid $primaryColor;
+}
+
+.icon-sg {
+    color: $iconSG;
+}
+
+.icon-sg-filled {
+    @extend .sg-bg;
+    color: $inputBg;
+    border: 2px solid $iconSG;
+}
+
+.icon-green {
+    color: $iconGreen;
+}
+
+.icon-green-filled {
+    @extend .green-bg;
+    color: $inputBg;
+    border: 2px solid $iconGreen;
+}
+
+.icon-red {
+    color: $iconRed;
+}
+
+.icon-red-filled {
+    @extend .red-bg;
+    color: $inputBg;
+    border: 2px solid $iconRed;
+}
+
+.icon-orange {
+    color: $iconOrange;
+}
+
+.icon-orange-filled {
+    @extend .orange-bg;
+    color: $inputBg;
+    border: 2px solid $iconOrange;
+}
+
+.icon-yellow {
+    color: $iconYellow;
+}
+
+.icon-yellow-filled {
+    @extend .yellow-bg;
+    color: $inputBg;
+    border: 2px solid $iconYellow;
+}
+
+.icon-blue {
+    color: $iconBlue;
+}
+
+.icon-blue-filled {
+    @extend .blue-bg;
+    color: $inputBg;
+    border: 2px solid $iconBlue;
+}
+
+.icon-blue-primary-filled {
+    @extend .blue-bg;
+    color: white;
+    border: 2px solid $iconBlue;
+}
+
+.icon-red-primary-filled {
+    @extend .red-bg;
+    color: white;
+    border: 2px solid $iconRed;
+}

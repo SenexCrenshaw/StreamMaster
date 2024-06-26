@@ -2,6 +2,7 @@
 
 namespace StreamMaster.SchedulesDirect.Domain.JsonClasses
 {
+    [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
     public class LineupPreviewChannel
     {
         public int Id { get; set; }

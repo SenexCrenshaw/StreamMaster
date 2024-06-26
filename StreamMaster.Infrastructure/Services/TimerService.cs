@@ -11,16 +11,14 @@ using StreamMaster.Application.EPGFiles.Queries;
 using StreamMaster.Application.Hubs;
 using StreamMaster.Application.M3UFiles.Commands;
 using StreamMaster.Application.M3UFiles.Queries;
-using StreamMaster.Application.SchedulesDirect.Commands;
 using StreamMaster.Application.Services;
-using StreamMaster.Application.Settings.Queries;
+using StreamMaster.Domain.API;
 using StreamMaster.Domain.Common;
 using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Dto;
 using StreamMaster.Domain.Enums;
 using StreamMaster.Domain.Helpers;
 using StreamMaster.Domain.Repository;
-using StreamMaster.Domain.Services;
 using StreamMaster.SchedulesDirect.Domain.Interfaces;
 
 namespace StreamMaster.Infrastructure.Services;
@@ -69,14 +67,7 @@ public class TimerService(IServiceProvider serviceProvider, IOptionsMonitor<Sett
             isActive = true;
         }
 
-        using IServiceScope scope = serviceProvider.CreateScope();
-        IMediator mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-        IHubContext<StreamMasterHub, IStreamMasterHub> hubContext = scope.ServiceProvider.GetRequiredService<IHubContext<StreamMasterHub, IStreamMasterHub>>();
-        IBackgroundTaskQueue backgroundTask = scope.ServiceProvider.GetRequiredService<IBackgroundTaskQueue>();
-
-        await hubContext.Clients.All.TaskQueueStatusUpdate(await backgroundTask.GetQueueStatus()).ConfigureAwait(false);
-
-        SDSystemStatus status = new() { IsSystemReady = BuildInfo.SetIsSystemReady };
+        SDSystemStatus status = new() { IsSystemReady = BuildInfo.IsSystemReady };
 
         lock (Lock)
         {
@@ -88,9 +79,14 @@ public class TimerService(IServiceProvider serviceProvider, IOptionsMonitor<Sett
             isActive = true;
         }
 
+        using IServiceScope scope = serviceProvider.CreateScope();
+        IMediator mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+        IHubContext<StreamMasterHub, IStreamMasterHub> hubContext = scope.ServiceProvider.GetRequiredService<IHubContext<StreamMasterHub, IStreamMasterHub>>();
+        IBackgroundTaskQueue backgroundTask = scope.ServiceProvider.GetRequiredService<IBackgroundTaskQueue>();
+
+
         IRepositoryWrapper repository = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
         ISchedulesDirect schedulesDirect = scope.ServiceProvider.GetRequiredService<ISchedulesDirect>();
-
 
 
         DateTime now = DateTime.Now;
@@ -113,8 +109,9 @@ public class TimerService(IServiceProvider serviceProvider, IOptionsMonitor<Sett
                     {
                         logger.LogInformation("SDSync started. {status}", jobManager.Status);
 
-                        _ = await mediator.Send(new EPGSync(), cancellationToken).ConfigureAwait(false);
-                        await hubContext.Clients.All.EPGFilesRefresh().ConfigureAwait(false);
+                        //_ = await mediator.Send(new EPGSync(), cancellationToken).ConfigureAwait(false);
+                        await backgroundTask.EPGSync(cancellationToken).ConfigureAwait(false);
+                        //await hubContext.Clients.All.EPGFilesRefresh().ConfigureAwait(false);
 
                         logger.LogInformation("SDSync completed. {status}", jobManager.Status);
                     }
@@ -133,12 +130,12 @@ public class TimerService(IServiceProvider serviceProvider, IOptionsMonitor<Sett
             try
             {
                 jobManager.Start();
-                IEnumerable<EPGFileDto> epgFilesToUpdated = await mediator.Send(new GetEPGFilesNeedUpdating(), cancellationToken).ConfigureAwait(false);
-                if (epgFilesToUpdated.Any())
+                DataResponse<List<EPGFileDto>> epgFilesToUpdated = await mediator.Send(new GetEPGFilesNeedUpdatingRequest(), cancellationToken).ConfigureAwait(false);
+                if (epgFilesToUpdated.Data.Any())
                 {
-                    logger.LogInformation("EPG Files to update count: {epgFiles.Count()}", epgFilesToUpdated.Count());
+                    logger.LogInformation("EPG Files to update count: {epgFiles.Count()}", epgFilesToUpdated.Count);
 
-                    foreach (EPGFileDto epg in epgFilesToUpdated)
+                    foreach (EPGFileDto epg in epgFilesToUpdated.Data)
                     {
                         _ = await mediator.Send(new RefreshEPGFileRequest(epg.Id), cancellationToken).ConfigureAwait(false);
                     }
@@ -157,12 +154,12 @@ public class TimerService(IServiceProvider serviceProvider, IOptionsMonitor<Sett
             try
             {
                 jobManager.Start();
-                IEnumerable<M3UFileDto> m3uFilesToUpdated = await mediator.Send(new GetM3UFilesNeedUpdating(), cancellationToken).ConfigureAwait(false);
-                if (m3uFilesToUpdated.Any())
+                DataResponse<List<M3UFileDto>> m3uFilesToUpdated = await mediator.Send(new GetM3UFilesNeedUpdating(), cancellationToken).ConfigureAwait(false);
+                if (m3uFilesToUpdated.Data.Any())
                 {
-                    logger.LogInformation("M3U Files to update count: {m3uFiles.Count()}", m3uFilesToUpdated.Count());
+                    logger.LogInformation("M3U Files to update count: {m3uFiles.Count()}", m3uFilesToUpdated.Count);
 
-                    foreach (M3UFileDto? m3uFile in m3uFilesToUpdated)
+                    foreach (M3UFileDto? m3uFile in m3uFilesToUpdated.Data)
                     {
                         await mediator.Send(new RefreshM3UFileRequest(m3uFile.Id), cancellationToken).ConfigureAwait(false);
                     }

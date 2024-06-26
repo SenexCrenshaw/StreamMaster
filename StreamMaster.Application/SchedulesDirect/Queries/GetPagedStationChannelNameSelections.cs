@@ -1,23 +1,22 @@
 ﻿using StreamMaster.Domain.Filtering;
-using StreamMaster.Domain.Pagination;
 
 using System.Text.Json;
 
 namespace StreamMaster.Application.SchedulesDirect.Queries;
 
-public record GetPagedStationChannelNameSelections(StationChannelNameParameters Parameters) : IRequest<PagedResponse<StationChannelName>>;
+public record GetPagedStationChannelNameSelections(QueryStringParameters Parameters) : IRequest<PagedResponse<StationChannelName>>;
 
-internal class GetPagedStationChannelNamesHandler(ILogger<GetPagedStationChannelNameSelections> logger, ISchedulesDirectDataService schedulesDirectDataService)
+internal class GetPagedStationChannelNamesHandler(ISchedulesDirectDataService schedulesDirectDataService)
     : IRequestHandler<GetPagedStationChannelNameSelections, PagedResponse<StationChannelName>>
 {
     public async Task<PagedResponse<StationChannelName>> Handle(GetPagedStationChannelNameSelections request, CancellationToken cancellationToken)
     {
-        List<StationChannelName> stationChannelNames = schedulesDirectDataService.GetStationChannelNames();
+        List<StationChannelName> stationChannelNames = await schedulesDirectDataService.GetStationChannelNames();
         if (request.Parameters.PageSize == 0)
         {
             PagedResponse<StationChannelName> emptyResponse = new()
             {
-                TotalItemCount = stationChannelNames.Count()
+                TotalItemCount = stationChannelNames.Count
             };
             return emptyResponse;
         }

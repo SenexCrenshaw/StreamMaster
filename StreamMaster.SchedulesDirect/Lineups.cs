@@ -1,19 +1,15 @@
 ﻿using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 
-using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Helpers;
-using StreamMaster.SchedulesDirect.Domain.Enums;
-using StreamMaster.SchedulesDirect.Helpers;
 
 using System.Text.RegularExpressions;
 
 
 namespace StreamMaster.SchedulesDirect;
-public class Lineups(ILogger<Lineups> logger, IOptionsMonitor<SDSettings> intsettings, IIconService iconService, ISchedulesDirectAPIService schedulesDirectAPI, IEPGCache<Lineups> epgCache, ISchedulesDirectDataService schedulesDirectDataService) : ILineups
+public class Lineups(ILogger<Lineups> logger, IOptionsMonitor<SDSettings> intSDSettings, IIconService iconService, ISchedulesDirectAPIService schedulesDirectAPI, IEPGCache<Lineups> epgCache, ISchedulesDirectDataService schedulesDirectDataService) : ILineups
 {
     private List<KeyValuePair<MxfService, string[]>> StationLogosToDownload = [];
-    private readonly SDSettings sdsettings = intsettings.CurrentValue;
 
     public void ResetCache()
     {
@@ -22,21 +18,23 @@ public class Lineups(ILogger<Lineups> logger, IOptionsMonitor<SDSettings> intset
 
     public async Task<bool> BuildLineupServices(CancellationToken cancellationToken = default)
     {
+        SDSettings sdSettings = intSDSettings.CurrentValue;
+
         LineupResponse? clientLineups = await GetSubscribedLineups(cancellationToken).ConfigureAwait(false);
 
-        if (clientLineups == null || !clientLineups.Lineups.Any())
+        if (clientLineups == null || clientLineups.Lineups.Count < 1)
         {
             return false;
         }
 
-        string preferredLogoStyle = string.IsNullOrEmpty(sdsettings.PreferredLogoStyle) ? "DARK" : sdsettings.PreferredLogoStyle;
-        string alternateLogoStyle = string.IsNullOrEmpty(sdsettings.AlternateLogoStyle) ? "WHITE" : sdsettings.AlternateLogoStyle;
+        string preferredLogoStyle = string.IsNullOrEmpty(sdSettings.PreferredLogoStyle) ? "DARK" : sdSettings.PreferredLogoStyle;
+        string alternateLogoStyle = string.IsNullOrEmpty(sdSettings.AlternateLogoStyle) ? "WHITE" : sdSettings.AlternateLogoStyle;
         ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
 
         foreach (SubscribedLineup clientLineup in clientLineups.Lineups)
         {
             // don't download station map if lineup not included
-            if (sdsettings.SDStationIds.FirstOrDefault(a => a.Lineup == clientLineup.Lineup) == null)
+            if (sdSettings.SDStationIds.FirstOrDefault(a => a.Lineup == clientLineup.Lineup) == null)
             {
                 //logger.LogWarning($"Subscribed lineup {clientLineup.Lineup} has been EXCLUDED by user from download and processing.");
                 continue;
@@ -57,7 +55,8 @@ public class Lineups(ILogger<Lineups> logger, IOptionsMonitor<SDSettings> intset
             if (lineupMap == null || ((lineupMap?.Stations?.Count ?? 0) == 0))
             {
                 logger.LogError($"Subscribed lineup {clientLineup.Lineup} does not contain any stations.");
-                return false;
+                //return false;
+                continue;
             }
 
             // use hashset to make sure we don't duplicate channel entries for this station
@@ -67,7 +66,7 @@ public class Lineups(ILogger<Lineups> logger, IOptionsMonitor<SDSettings> intset
             foreach (LineupStation station in lineupMap.Stations)
             {
                 // check if station should be downloaded and processed
-                if (station == null || sdsettings.SDStationIds.FirstOrDefault(a => a.StationId == station.StationId) == null)
+                if (station == null || sdSettings.SDStationIds.FirstOrDefault(a => a.StationId == station.StationId) == null)
                 {
                     continue;
                 }
@@ -169,58 +168,58 @@ public class Lineups(ILogger<Lineups> logger, IOptionsMonitor<SDSettings> intset
                 }
 
                 // match station with mapping for lineup number and subnumbers
-                foreach (LineupChannel map in lineupMap.Map)
+                foreach (LineupChannelStation map in lineupMap.Map.Where(a => a.StationId == station.StationId))
                 {
-                    if (!map.StationId.Equals(station.StationId))
-                    {
-                        continue;
-                    }
+                    //if (!map.StationId.Equals(station.StationId))
+                    //{
+                    //    continue;
+                    //}
 
-                    int number = map.myChannelNumber;
-                    int subnumber = map.myChannelSubnumber;
+                    //int number = map.myChannelNumber;
+                    //int subnumber = map.myChannelSubnumber;
 
-                    string matchName = map.ProviderCallsign;
-                    switch (clientLineup.Transport)
-                    {
-                        case "Satellite":
-                        case "DVB-S":
-                            Match m = Regex.Match(lineupMap.Metadata.Lineup, @"\d+\.\d+");
-                            if (m.Success && map.FrequencyHz > 0 && map.NetworkId > 0 && map.TransportId > 0 && map.ServiceId > 0)
-                            {
-                                while (map.FrequencyHz > 13000)
-                                {
-                                    map.FrequencyHz /= 1000;
-                                }
-                                matchName = $"DVBS:{m.Value.Replace(".", "")}:{map.FrequencyHz}:{map.NetworkId}:{map.TransportId}:{map.ServiceId}";
-                                number = -1;
-                                subnumber = 0;
-                            }
-                            break;
-                        case "Antenna":
-                        case "DVB-T":
-                            if (map.NetworkId > 0 && map.TransportId > 0 && map.ServiceId > 0)
-                            {
-                                matchName = $"DVBT:{map.NetworkId}:{map.TransportId}:{map.ServiceId}";
-                                break;
-                            }
-                            if (map.AtscMajor > 0 && map.AtscMinor > 0)
-                            {
-                                matchName = $"OC:{map.AtscMajor}:{map.AtscMinor}";
-                            }
-                            break;
-                    }
+                    //string matchName = map.ProviderCallsign;
+                    //switch (clientLineup.Transport)
+                    //{
+                    //    case "Satellite":
+                    //    case "DVB-S":
+                    //        Match m = Regex.Match(lineupMap.Metadata.Lineup, @"\d+\.\d+");
+                    //        if (m.Success && map.FrequencyHz > 0 && map.NetworkId > 0 && map.TransportId > 0 && map.ServiceId > 0)
+                    //        {
+                    //            while (map.FrequencyHz > 13000)
+                    //            {
+                    //                map.FrequencyHz /= 1000;
+                    //            }
+                    //            matchName = $"DVBS:{m.Value.Replace(".", "")}:{map.FrequencyHz}:{map.NetworkId}:{map.TransportId}:{map.ServiceId}";
+                    //            number = -1;
+                    //            subnumber = 0;
+                    //        }
+                    //        break;
+                    //    case "Antenna":
+                    //    case "DVB-T":
+                    //        if (map.NetworkId > 0 && map.TransportId > 0 && map.ServiceId > 0)
+                    //        {
+                    //            matchName = $"DVBT:{map.NetworkId}:{map.TransportId}:{map.ServiceId}";
+                    //            break;
+                    //        }
+                    //        if (map.AtscMajor > 0 && map.AtscMinor > 0)
+                    //        {
+                    //            matchName = $"OC:{map.AtscMajor}:{map.AtscMinor}";
+                    //        }
+                    //        break;
+                    //}
 
                     //if (config.DiscardChanNumbers.Contains(clientLineup.Lineup))
                     //{
                     //    number = -1; subnumber = 0;
                     //}
 
-                    string channelNumber = $"{number}{(subnumber > 0 ? $".{subnumber}" : "")}";
+                    string channelNumber = "1";// $"{number}{(subnumber > 0 ? $".{subnumber}" : "")}";
                     if (channelNumbers.Add($"{channelNumber}:{station.StationId}"))
                     {
-                        mxfLineup.channels.Add(new MxfChannel(mxfLineup, mxfService, number, subnumber)
+                        mxfLineup.channels.Add(new MxfChannel(mxfLineup, mxfService)
                         {
-                            MatchName = matchName
+                            MatchName = ""
                         });
                     }
                 }
@@ -296,7 +295,6 @@ public class Lineups(ILogger<Lineups> logger, IOptionsMonitor<SDSettings> intset
             StationImage artwork = service.extras["logo"];
             iconService.AddIcon(artwork.Url, service.CallSign);
         }
-        //iconService.SetIndexes();
 
     }
 
@@ -392,16 +390,27 @@ public class Lineups(ILogger<Lineups> logger, IOptionsMonitor<SDSettings> intset
                 continue;
             }
 
-            foreach (Station station in res.Stations)
-            {
-                station.Lineup = lineup.Lineup;
-            }
+            //foreach (Station station in res.Stations)
+            //{
+            //    station.Lineup = lineup.Lineup;
+            //}
 
             ConcurrentHashSet<string> existingIds = new(ret.Select(station => station.StationId));
 
             foreach (Station station in res.Stations)
             {
+                //var s = sdsettings.SDStationIds.FirstOrDefault(a => a.StationId == station.StationId && a.Lineup == lineup.Lineup);
                 station.Lineup = lineup.Lineup;
+                //if (s != null)
+                //{
+                //    station.Country = s.Country;
+                //    station.PostalCode = s.PostalCode;
+                //}
+                //else
+                //{
+
+                //}
+
                 if (!existingIds.Contains(station.StationId))
                 {
                     ret.Add(station);
@@ -435,8 +444,9 @@ public class Lineups(ILogger<Lineups> logger, IOptionsMonitor<SDSettings> intset
 
     private async Task<bool> DownloadStationLogos(CancellationToken cancellationToken)
     {
+        var sdSettings = intSDSettings.CurrentValue;
 
-        if (!sdsettings.SDEnabled)
+        if (!sdSettings.SDEnabled)
         {
             return false;
         }

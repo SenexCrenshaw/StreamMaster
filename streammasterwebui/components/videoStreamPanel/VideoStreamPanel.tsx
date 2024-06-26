@@ -1,9 +1,9 @@
 import SaveButton from '@components/buttons/SaveButton';
 import ChannelGroupSelector from '@components/channelGroups/ChannelGroupSelector';
 import EPGSelector from '@components/epg/EPGSelector';
-import IconSelector from '@components/selectors/IconSelector';
+import IconSelector from '@components/icons/IconSelector2';
 import { getIconUrl } from '@lib/common/common';
-import { CreateVideoStreamRequest, UpdateVideoStreamRequest, VideoStreamDto, useChannelGroupsGetChannelGroupNamesQuery } from '@lib/iptvApi';
+
 import useSettings from '@lib/useSettings';
 import { Accordion, AccordionTab } from 'primereact/accordion';
 import { InputNumber } from 'primereact/inputnumber';
@@ -116,7 +116,7 @@ const VideoStreamPanel = ({ group, onEdit, onSave, videoStream }: VideoStreamPan
       return name !== '';
     }
 
-    if (videoStream.user_Tvg_name !== name) {
+    if (smChannelDto.Name !== name) {
       return true;
     }
 
@@ -124,7 +124,7 @@ const VideoStreamPanel = ({ group, onEdit, onSave, videoStream }: VideoStreamPan
       return true;
     }
 
-    if (videoStream.user_Tvg_logo !== iconSource) {
+    if (smChannelDto.Logo !== iconSource) {
       return true;
     }
 
@@ -132,11 +132,11 @@ const VideoStreamPanel = ({ group, onEdit, onSave, videoStream }: VideoStreamPan
       return true;
     }
 
-    if (videoStream.user_Tvg_chno !== channelNumber) {
+    if (smChannelDto.ChannelNumber !== channelNumber) {
       return true;
     }
 
-    if (videoStream.user_Tvg_ID !== epgId) {
+    if (smChannelDto.EPGId !== epgId) {
       return true;
     }
 
@@ -196,11 +196,7 @@ const VideoStreamPanel = ({ group, onEdit, onSave, videoStream }: VideoStreamPan
                   )}
                 />
 
-                <InputWrapper
-                  columnSize={4}
-                  label="Logo"
-                  renderInput={() => <IconSelector className="w-full bordered-text mr-2" onChange={setIconSource} value={iconSource} />}
-                />
+                <InputWrapper columnSize={4} label="Logo" renderInput={() => <IconSelector onChange={setIconSource} value={iconSource} />} />
 
                 <InputWrapper
                   columnSize={2}

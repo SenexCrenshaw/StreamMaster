@@ -1,6 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
 
-using StreamMaster.Domain.Services;
 using StreamMaster.SchedulesDirect.Converters;
 using StreamMaster.SchedulesDirect.Data;
 using StreamMaster.SchedulesDirect.Images;

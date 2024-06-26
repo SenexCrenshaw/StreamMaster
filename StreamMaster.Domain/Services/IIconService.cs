@@ -1,6 +1,5 @@
 ﻿using StreamMaster.Domain.Dto;
 using StreamMaster.Domain.Models;
-using StreamMaster.SchedulesDirect.Domain.Enums;
 
 namespace StreamMaster.Domain.Services
 {

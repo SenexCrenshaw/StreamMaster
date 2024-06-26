@@ -1,4 +1,6 @@
-﻿using System.Diagnostics;
+﻿using StreamMaster.Domain.Extensions;
+
+using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
@@ -14,7 +16,7 @@ namespace StreamMaster.Domain.Configuration
             Assembly? assembly = Assembly.GetEntryAssembly() ?? throw new InvalidOperationException("Failed to get entry assembly.");
             Version = assembly.GetName().Version ?? new Version(0, 0, 0, 0);
             object[] attributes = assembly.GetCustomAttributes(true);
-
+            StartTime = SMDT.UtcNow;
             Branch = "unknown";
             Release = Version.ToString();
 
@@ -34,20 +36,8 @@ namespace StreamMaster.Domain.Configuration
         public static bool IsFreeBSD => RuntimeInformation.IsOSPlatform(OSPlatform.FreeBSD);
         public static string StartUpPath = new FileInfo(Assembly.GetExecutingAssembly().Location).Directory.FullName;
 
-        private static DateTime _startTime;
 
-        public static DateTime StartTime
-        {
-            get
-            {
-                if (_startTime == DateTime.MinValue)
-                {
-                    _startTime = DateTime.Now;
-                }
-
-                return _startTime;
-            }
-        }
+        public static DateTime StartTime { get; set; }
 
         #region Database Configuration Properties
 
@@ -74,7 +64,8 @@ namespace StreamMaster.Domain.Configuration
         #region Application Information Properties
 
         public static string AppName { get; } = "StreamMaster";
-        public static bool SetIsSystemReady { get; set; } = false;
+        public static bool IsSystemReady { get; set; } = false;
+        public static bool IsTaskRunning { get; set; } = false;
         public static Version Version { get; }
         public static string Branch { get; }
         public static string Release { get; }
@@ -156,8 +147,11 @@ namespace StreamMaster.Domain.Configuration
         public static readonly string HLSSettingFileName = "hlssettings.json";
         public static readonly string HLSSettingsFile = GetSettingFilePath(HLSSettingFileName);
 
-        public static readonly string ProfileFileName = "profiles.json";
-        public static readonly string ProfileSettingsFile = GetSettingFilePath(ProfileFileName);
+        public static readonly string VideoProfileFileName = "videoprofiles.json";
+        public static readonly string VideoProfileSettingsFile = GetSettingFilePath(VideoProfileFileName);
+
+        public static readonly string OutputProfileFileName = "outputprofiles.json";
+        public static readonly string OutputProfileSettingsFile = GetSettingFilePath(OutputProfileFileName);
 
         #endregion
 

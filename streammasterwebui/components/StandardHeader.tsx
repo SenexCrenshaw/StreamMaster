@@ -1,3 +1,5 @@
+import About from '@features/settings/About';
+
 interface StandardHeaderProperties {
   readonly className?: string;
   readonly displayName: string | JSX.Element;
@@ -5,16 +7,18 @@ interface StandardHeaderProperties {
   readonly children: React.ReactNode;
 }
 const StandardHeader = ({ children, className, displayName, icon }: StandardHeaderProperties) => (
-  <div className={`${className} h-full`}>
-    <div className="grid grid-nogutter flex justify-content-between align-items-center">
-      <div className="flex w-full text-left font-bold text-white-500 surface-overlay justify-content-start align-items-center">
-        <span className="ml-1">{icon}</span>
-        <span className="ml-2">{typeof displayName === 'string' ? displayName.toUpperCase() : displayName}</span>
+  <div className={`${className}`}>
+    <div className="sm-standard-header flex flex-row justify-content-between align-items-center">
+      <div className="flex flex-row font-bold justify-content-start align-items-center">
+        <span className="flex ml-1">{icon}</span>
+        <span className="flex ml-2">{typeof displayName === 'string' ? displayName.toUpperCase() : displayName}</span>
       </div>
-      <div className="flex col-12 mt-1 m-0 p-0">
-        <div className={`${className} flex w-full min-w-full col-12`}>{children}</div>
+      <div className="pr-1">
+        <About />
       </div>
     </div>
+    <div className="flex layout-padding-bottom"></div>
+    <div className="flex flex-row w-12">{children}</div>
   </div>
 );
 

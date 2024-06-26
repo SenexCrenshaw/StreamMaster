@@ -2,24 +2,21 @@
 
 namespace StreamMaster.Application.EPGFiles.Commands;
 
-public record ScanDirectoryForEPGFilesRequest : IRequest<bool> { }
+public record ScanDirectoryForEPGFilesRequest : IRequest<APIResponse> { }
 
-public class ScanDirectoryForEPGFilesRequestHandler(ILogger<ScanDirectoryForEPGFilesRequest> Logger, IRepositoryWrapper Repository, IMapper Mapper, IPublisher Publisher) : IRequestHandler<ScanDirectoryForEPGFilesRequest, bool>
+public class ScanDirectoryForEPGFilesRequestHandler(ILogger<ScanDirectoryForEPGFilesRequest> Logger, IRepositoryWrapper Repository, IMapper Mapper, IPublisher Publisher)
+    : IRequestHandler<ScanDirectoryForEPGFilesRequest, APIResponse>
 {
-    public async Task<bool> Handle(ScanDirectoryForEPGFilesRequest command, CancellationToken cancellationToken)
+    public async Task<APIResponse> Handle(ScanDirectoryForEPGFilesRequest command, CancellationToken cancellationToken)
     {
         IEnumerable<FileInfo> epgFiles = GetEPGFilesFromDirectory();
         foreach (FileInfo epgFileInfo in epgFiles)
         {
-            if (cancellationToken.IsCancellationRequested)
-            {
-                return false;
-            }
 
             await ProcessEPGFile(epgFileInfo, cancellationToken);
         }
 
-        return true;
+        return APIResponse.Success;
     }
 
     private IEnumerable<FileInfo> GetEPGFilesFromDirectory()
@@ -57,7 +54,6 @@ public class ScanDirectoryForEPGFilesRequestHandler(ILogger<ScanDirectoryForEPGF
         {
             Name = Path.GetFileNameWithoutExtension(epgFileInfo.Name),
             Source = epgFileInfo.Name,
-            Description = $"Imported from {epgFileInfo.Name}",
             FileExists = true,
             LastDownloaded = epgFileInfo.LastWriteTime,
             LastDownloadAttempt = epgFileInfo.LastWriteTime,

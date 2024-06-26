@@ -1,36 +1,38 @@
+using MediatR;
+
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Data.Sqlite;
 
 using Prometheus;
 
+using Reinforced.Typings.Attributes;
+
 using StreamMaster.API;
 using StreamMaster.Application;
+using StreamMaster.Application.General.Commands;
 using StreamMaster.Application.Hubs;
 
-using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Helpers;
 
 using StreamMaster.Infrastructure;
 using StreamMaster.Infrastructure.EF;
 using StreamMaster.Infrastructure.EF.PGSQL;
 
-using StreamMaster.Infrastructure.EF.SQLite;
 using StreamMaster.Infrastructure.Middleware;
-
 using StreamMaster.SchedulesDirect.Services;
 using StreamMaster.Streams;
 
 using System.Diagnostics;
-using System.Reflection;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text.Json.Serialization;
 
+[assembly: TsGlobal(CamelCaseForProperties = false, CamelCaseForMethods = false, UseModules = true, DiscardNamespacesWhenUsingModules = true, AutoOptionalProperties = true, WriteWarningComment = false, ReorderMembers = true)]
 //ProcessHelper.KillProcessByName("ffmpeg");
 
-DirectoryHelper.RenameDirectory(Path.Combine(BuildInfo.AppDataFolder, "hls"), BuildInfo.HLSOutputFolder);
-DirectoryHelper.RenameDirectory(Path.Combine(BuildInfo.AppDataFolder, "settings"), BuildInfo.SettingsFolder);
-DirectoryHelper.RenameDirectory(Path.Combine(BuildInfo.AppDataFolder, "backups"), BuildInfo.BackupFolder);
+//DirectoryHelper.RenameDirectory(Path.Combine(BuildInfo.AppDataFolder, "hls"), BuildInfo.HLSOutputFolder);
+//DirectoryHelper.RenameDirectory(Path.Combine(BuildInfo.AppDataFolder, "settings"), BuildInfo.SettingsFolder);
+//DirectoryHelper.RenameDirectory(Path.Combine(BuildInfo.AppDataFolder, "backups"), BuildInfo.BackupFolder);
 
 DirectoryHelper.CreateApplicationDirectories();
 
@@ -55,7 +57,7 @@ static void Log(string format, params object[] args)
 builder.WebHost.ConfigureKestrel((context, serverOptions) =>
 {
     serverOptions.AllowSynchronousIO = true;
-    serverOptions.Limits.MaxRequestBodySize = null;    
+    serverOptions.Limits.MaxRequestBodySize = null;
 });
 
 
@@ -64,16 +66,24 @@ var settingsFiles = BuildInfo.GetSettingFiles();
 builder.Configuration.SetBasePath(BuildInfo.StartUpPath).AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
 
 
-if ( Directory.Exists(BuildInfo.SettingsFolder))
+if (Directory.Exists(BuildInfo.SettingsFolder))
 {
     builder.Configuration.SetBasePath(BuildInfo.AppDataFolder);
 }
 
-var profileSetting = SettingsHelper.GetSetting<FFMPEGProfiles>(BuildInfo.ProfileSettingsFile);
-if (profileSetting == default(FFMPEGProfiles))
-{    
-    SettingsHelper.UpdateSetting(SettingFiles.DefaultProfileSetting);
+
+var videoProfileSetting = SettingsHelper.GetSetting<VideoOutputProfiles>(BuildInfo.VideoProfileSettingsFile);
+if (videoProfileSetting == default(VideoOutputProfiles))
+{
+    SettingsHelper.UpdateSetting(SettingFiles.DefaultVideoProfileSetting);
 }
+
+var fileProfileSetting = SettingsHelper.GetSetting<OutputProfiles>(BuildInfo.OutputProfileSettingsFile);
+if (fileProfileSetting == default(OutputProfiles))
+{
+    SettingsHelper.UpdateSetting(SettingFiles.DefaultOutputProfileSetting);
+}
+
 
 var hlsSetting = SettingsHelper.GetSetting<HLSSettings>(BuildInfo.HLSSettingsFile);
 if (hlsSetting == default(HLSSettings))
@@ -81,15 +91,22 @@ if (hlsSetting == default(HLSSettings))
     SettingsHelper.UpdateSetting(new HLSSettings());
 }
 
-var mainSetting = SettingsHelper.GetSetting<OldSetting>(BuildInfo.SettingsFile);
-if (mainSetting != default(OldSetting))
+//var mainSetting = SettingsHelper.GetSetting<OldSetting>(BuildInfo.SettingsFile);
+//if (mainSetting != default(OldSetting))
+//{
+//    if (mainSetting.SDSettings != default(SDSettings))
+//    {
+//        SettingsHelper.UpdateSetting(mainSetting.SDSettings);
+//        var toWrite = mainSetting.ConvertToSetting();
+//        SettingsHelper.UpdateSetting(toWrite);
+//    }
+//}
+
+
+var mainSetting = SettingsHelper.GetSetting<Setting>(BuildInfo.SettingsFile);
+if (mainSetting == default(Setting))
 {
-    if (mainSetting.SDSettings != default(SDSettings) )
-    {
-        SettingsHelper.UpdateSetting(mainSetting.SDSettings);
-        var toWrite = mainSetting.ConvertToSetting();
-        SettingsHelper.UpdateSetting(toWrite);
-    }
+    SettingsHelper.UpdateSetting(new Setting());
 }
 
 var sdSettings = SettingsHelper.GetSetting<SDSettings>(BuildInfo.SDSettingsFile);
@@ -111,7 +128,9 @@ foreach (var file in settingsFiles)
 builder.Services.Configure<Setting>(builder.Configuration);
 builder.Services.Configure<SDSettings>(builder.Configuration);
 builder.Services.Configure<HLSSettings>(builder.Configuration);
-builder.Services.Configure<FFMPEGProfiles>(builder.Configuration);
+builder.Services.Configure<VideoOutputProfiles>(builder.Configuration);
+builder.Services.Configure<OutputProfiles>(builder.Configuration);
+
 
 
 bool enableSsl = false;
@@ -149,7 +168,6 @@ if (!string.IsNullOrEmpty(sslCertPath))
 builder.Services.AddSchedulesDirectAPIServices();
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureEFPGSQLServices();
-builder.Services.AddInfrastructureEFSQLiteServices();
 builder.Services.AddInfrastructureEFServices();
 builder.Services.AddInfrastructureServices();
 builder.Services.AddInfrastructureServicesEx();
@@ -169,26 +187,27 @@ builder.Services.AddControllers(options =>
 .AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+    options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
 });
 ;
 
 WebApplication app = builder.Build();
- app.UseForwardedHeaders();
+app.UseForwardedHeaders();
 
 var lifetime = app.Services.GetService<IHostApplicationLifetime>();
 if (lifetime != null)
-{    
-   lifetime.ApplicationStopping.Register(OnShutdown);
+{
+    lifetime.ApplicationStopping.Register(OnShutdown);
 }
 
 void OnShutdown()
 {
+    var sender = app.Services.GetRequiredService<ISender>();
+    sender.Send(new SetIsSystemReadyRequest(false)).Wait();
     ProcessHelper.KillProcessByName("ffmpeg");
     SqliteConnection.ClearAllPools();
     PGSQLRepositoryContext repositoryContext = app.Services.GetRequiredService<PGSQLRepositoryContext>();
     repositoryContext.Dispose();
-    SQLiteRepositoryContext sQLiteRepositoryContext = app.Services.GetRequiredService<SQLiteRepositoryContext>();
-    sQLiteRepositoryContext.Dispose();
     IImageDownloadService imageDownloadService = app.Services.GetRequiredService<IImageDownloadService>();
     imageDownloadService.StopAsync(CancellationToken.None).Wait();
 
@@ -236,20 +255,6 @@ using (IServiceScope scope = app.Services.CreateScope())
         initialiser.TrySeed();
     }
 
-    string sqliteDB = Path.Join(BuildInfo.AppDataFolder, "StreamMaster.db");
-    if (File.Exists(sqliteDB))
-    {
-        PGSQLRepositoryContext repositoryContext = scope.ServiceProvider.GetRequiredService<PGSQLRepositoryContext>();
-        SQLiteRepositoryContext sQLiteRepositoryContext = scope.ServiceProvider.GetRequiredService<SQLiteRepositoryContext>();
-        if ( MigrateFromSQLite.MigrateFromSQLiteDatabaseToPostgres(repositoryContext, sQLiteRepositoryContext))
-        {
-            sQLiteRepositoryContext.Dispose();
-            SqliteConnection.ClearAllPools();
-            File.Move(sqliteDB, sqliteDB+".old",true);
-        }
-    }
-
-   
     initialiser.MigrateData();
 
     IImageDownloadService imageDownloadService = scope.ServiceProvider.GetRequiredService<IImageDownloadService>();

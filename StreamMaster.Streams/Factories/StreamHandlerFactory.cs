@@ -2,44 +2,50 @@
 using StreamMaster.Streams.Streams;
 namespace StreamMaster.Streams.Factories;
 
-public sealed class StreamHandlerFactory(IInputStatisticsManager inputStatisticsManager, IOptionsMonitor<Setting> intsettings, ILoggerFactory loggerFactory, IProxyFactory proxyFactory) : IStreamHandlerFactory
+public sealed class StreamHandlerFactory(IStreamStreamingStatisticsManager streamStreamingStatisticsManager, IOptionsMonitor<Setting> intsettings, ILoggerFactory loggerFactory, IProxyFactory proxyFactory)
+    : IStreamHandlerFactory
 {
-    private readonly Setting settings = intsettings.CurrentValue;
+    private readonly Setting Settings = intsettings.CurrentValue;
 
-    public async Task<IStreamHandler?> CreateStreamHandlerAsync(VideoStreamDto videoStreamDto, string ChannelId, string ChannelName, int rank, CancellationToken cancellationToken)
+    public async Task<IStreamHandler?> CreateStreamHandlerAsync(IChannelStatus channelStatus, CancellationToken cancellationToken)
     {
-        (Stream? stream, int processId, ProxyStreamError? error) = await proxyFactory.GetProxy(videoStreamDto.User_Url, videoStreamDto.User_Tvg_name, videoStreamDto.StreamingProxyType, cancellationToken).ConfigureAwait(false);
+        SMStream smStream = channelStatus.SMStream;
+        SMChannel smChannel = channelStatus.SMChannel;
+        VideoOutputProfileDto videoProfile = channelStatus.VideoProfile;
+        //int rank = channelStatus.CurrentRank;
+
+        (Stream? stream, int processId, ProxyStreamError? error) = await proxyFactory.GetProxy(smStream.Url, smStream.Name, videoProfile, cancellationToken).ConfigureAwait(false);
         if (stream == null || error != null || processId == 0)
         {
             return null;
         }
 
-        StreamHandler streamHandler = new(videoStreamDto, processId, ChannelId, ChannelName, rank, intsettings, loggerFactory, inputStatisticsManager);
+        StreamHandler streamHandler = new(channelStatus, processId, intsettings, loggerFactory, streamStreamingStatisticsManager);
 
         _ = Task.Run(() => streamHandler.StartVideoStreamingAsync(stream), cancellationToken);
 
         return streamHandler;
     }
 
-    public async Task<IStreamHandler?> RestartStreamHandlerAsync(IStreamHandler StreamHandler)
-    {
+    //public async Task<IStreamHandler?> RestartStreamHandlerAsync(IStreamHandler StreamHandler)
+    //{
 
 
-        if (StreamHandler.RestartCount > settings.MaxStreamReStart)
-        {
-            return null;
-        }
+    //    if (StreamHandler.RestartCount > settings.MaxStreamReStart)
+    //    {
+    //        return null;
+    //    }
 
-        StreamHandler.RestartCount++;
+    //    StreamHandler.RestartCount++;
 
-        (Stream? stream, int processId, ProxyStreamError? error) = await proxyFactory.GetProxy(StreamHandler.VideoStreamDto.User_Url, StreamHandler.VideoStreamDto.User_Tvg_name, StreamHandler.VideoStreamDto.StreamingProxyType, CancellationToken.None).ConfigureAwait(false);
-        if (stream == null || error != null || processId == 0)
-        {
-            return null;
-        }
+    //    (ClientStream? stream, int processId, ProxyStreamError? error) = await proxyFactory.GetProxy(StreamHandler.SMStream.Url, StreamHandler.SMStream.Name, StreamHandler.SMStream.StreamingProxyType, CancellationToken.None).ConfigureAwait(false);
+    //    if (stream == null || error != null || processId == 0)
+    //    {
+    //        return null;
+    //    }
 
-        _ = Task.Run(() => StreamHandler.StartVideoStreamingAsync(stream));
+    //    _ = Task.Run(() => StreamHandler.StartVideoStreamingAsync(stream));
 
-        return StreamHandler;
-    }
+    //    return StreamHandler;
+    //}
 }

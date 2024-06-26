@@ -7,6 +7,8 @@ public enum JobType
     TimerM3U,
     ProcessEPG,
     RefreshEPG,
+    UpdateEPG,
+    UpdateM3U,
     TimerEPG,
     SDSync,
     Backup,

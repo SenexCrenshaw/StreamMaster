@@ -1,6 +1,5 @@
 import { getTopToolOptions } from '@lib/common/common';
-import { type UpdateSettingRequest } from '@lib/iptvApi';
-import { UpdateSetting } from '@lib/smAPI/Settings/SettingsMutateAPI';
+
 import { Button } from 'primereact/button';
 import React from 'react';
 import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
@@ -53,7 +52,7 @@ const SettingsNameRegexDeleteDialog = (props: SettingsNameRegexDeleteDialogPrope
       >
         <div className="m-0 p-0 border-1 border-round surface-border">
           <div className="m-3">
-            <div className="card flex mt-3 flex-wrap gap-2 justify-content-center">
+            <div className="card flex mt-3 flex-wrap gap-1 justify-content-center">
               <Button icon="pi pi-times" label="Cancel" onClick={() => ReturnToParent()} rounded severity="warning" />
               <Button icon="pi pi-check" label="Ok" onClick={onSave} rounded severity="success" />
             </div>

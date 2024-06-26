@@ -3,7 +3,7 @@ import DataSelector from '@components/dataSelector/DataSelector';
 import { ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
 import { formatJSONDateString } from '@lib/common/common';
 import { QueueStatisIcon } from '@lib/common/icons';
-import { TaskQueueStatus, useMiscGetDownloadServiceStatusQuery, useQueueGetQueueStatusQuery } from '@lib/iptvApi';
+
 import React, { useMemo } from 'react';
 
 const QueueStatus = () => {

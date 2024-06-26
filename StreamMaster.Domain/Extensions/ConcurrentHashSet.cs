@@ -7,19 +7,14 @@ namespace StreamMaster.Domain.Extensions;
 /// Represents a thread-safe set of values.
 /// </summary>
 /// <typeparam name="T">The type of elements in the hash set.</typeparam>
-public class ConcurrentHashSet<T> : IEnumerable<T>
+/// <remarks>
+/// Initializes a new instance of the ConcurrentHashSet class that is empty or contains elements copied from the specified collection.
+/// </remarks>
+/// <param name="collection">The collection whose elements are copied to the new set.</param>
+public class ConcurrentHashSet<T>(IEnumerable<T>? collection = null) : IEnumerable<T>
 {
-    private readonly HashSet<T> _hashSet = [];
+    private readonly HashSet<T> _hashSet = collection is null ? ([]) : new HashSet<T>(collection);
     private readonly object _lock = new();
-
-    /// <summary>
-    /// Initializes a new instance of the ConcurrentHashSet class that is empty or contains elements copied from the specified collection.
-    /// </summary>
-    /// <param name="collection">The collection whose elements are copied to the new set.</param>
-    public ConcurrentHashSet(IEnumerable<T>? collection = null)
-    {
-        _hashSet = collection is null ? ([]) : new HashSet<T>(collection);
-    }
 
     /// <summary>
     /// Adds all elements in the specified collection to the current set.

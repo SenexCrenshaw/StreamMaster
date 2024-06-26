@@ -1,6 +1,4 @@
-import StringEditorBodyTemplate from '@components/inputs/StringEditorBodyTemplate';
-import { FfmpegProfileDto, UpdateFfmpegProfileRequest } from '@lib/iptvApi';
-import { UpdateFFMPEGProfile } from '@lib/smAPI/Profiles/ProfilesMutateAPI';
+import StringEditor from '@components/inputs/StringEditor';
 
 import React from 'react';
 
@@ -34,8 +32,8 @@ const ProfileParameterEditor = (props: ProfileParameterEditorProperties) => {
   }
 
   return (
-    <StringEditorBodyTemplate
-      onChange={async (e) => {
+    <StringEditor
+      onSave={async (e) => {
         await onUpdateFfmpegProfileDto(e);
       }}
       value={props.data.parameters}

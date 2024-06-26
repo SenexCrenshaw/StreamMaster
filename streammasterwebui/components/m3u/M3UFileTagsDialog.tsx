@@ -1,4 +1,5 @@
-import { M3UFileDto, useM3UFilesUpdateM3UFileMutation, type UpdateM3UFileRequest } from '@lib/iptvApi';
+import { UpdateM3UFile } from '@lib/smAPI/M3UFiles/M3UFilesCommands';
+import { M3UFileDto, UpdateM3UFileRequest } from '@lib/smAPI/smapiTypes';
 import React from 'react';
 import M3UFileTags from './M3UFileTags';
 
@@ -7,15 +8,13 @@ export interface M3UFileTagsDialogProperties {
 }
 
 const M3UFileTagsDialog = ({ m3uFileDto }: M3UFileTagsDialogProperties) => {
-  const [M3UFilesUpdateM3UFileMutation] = useM3UFilesUpdateM3UFileMutation();
-
   const updateM3U = async (vodTags: string[]) => {
     const updateM3UFileRequest = {} as UpdateM3UFileRequest;
 
-    updateM3UFileRequest.id = m3uFileDto.id;
-    updateM3UFileRequest.vodTags = vodTags;
+    updateM3UFileRequest.Id = m3uFileDto.Id;
+    updateM3UFileRequest.VODTags = vodTags;
 
-    await M3UFilesUpdateM3UFileMutation(updateM3UFileRequest)
+    await UpdateM3UFile(updateM3UFileRequest)
       .then(() => {})
       .catch(() => {
         console.log(`Error Updating M3U`);

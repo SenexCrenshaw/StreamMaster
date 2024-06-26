@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-
 using StreamMaster.Application.EPGFiles.Commands;
-using StreamMaster.Domain.Pagination;
 
 namespace StreamMaster.Application.EPGFiles;
 
@@ -18,8 +16,6 @@ public interface IEPGFileController
     Task<ActionResult> DeleteEPGFile(DeleteEPGFileRequest request);
 
     Task<ActionResult<EPGFileDto>> GetEPGFile(int id);
-
-    Task<ActionResult<PagedResponse<EPGFileDto>>> GetPagedEPGFiles(EPGFileParameters parameters);
 
     Task<ActionResult> ProcessEPGFile(ProcessEPGFileRequest request);
 
@@ -40,8 +36,6 @@ public interface IEPGFileHub
     Task DeleteEPGFile(DeleteEPGFileRequest request);
 
     Task<EPGFileDto?> GetEPGFile(int id);
-
-    Task<PagedResponse<EPGFileDto>> GetPagedEPGFiles(EPGFileParameters parameters);
 
     Task ProcessEPGFile(ProcessEPGFileRequest request);
 

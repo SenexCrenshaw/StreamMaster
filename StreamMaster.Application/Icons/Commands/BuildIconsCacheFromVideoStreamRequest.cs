@@ -4,21 +4,21 @@ using System.Web;
 
 namespace StreamMaster.Application.Icons.Commands;
 
-public class BuildIconsCacheFromVideoStreamRequest : IRequest<bool> { }
+public class BuildIconsCacheFromVideoStreamRequest : IRequest<DataResponse<bool>> { }
 
 [LogExecutionTimeAspect]
-public class BuildIconsCacheFromVideoStreamRequestHandler(ILogger<BuildIconsCacheFromVideoStreamRequest> logger, IIconService iconService, IRepositoryWrapper Repository)
-    : IRequestHandler<BuildIconsCacheFromVideoStreamRequest, bool>
+public class BuildIconsCacheFromVideoStreamRequestHandler(IIconService iconService, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IRepositoryWrapper Repository)
+    : IRequestHandler<BuildIconsCacheFromVideoStreamRequest, DataResponse<bool>>
 {
-    public Task<bool> Handle(BuildIconsCacheFromVideoStreamRequest command, CancellationToken cancellationToken)
+    public async Task<DataResponse<bool>> Handle(BuildIconsCacheFromVideoStreamRequest command, CancellationToken cancellationToken)
     {
 
-        IQueryable<VideoStream> streams = Repository.VideoStream.GetVideoStreamQuery()
+        IQueryable<SMStreamDto> streams = Repository.SMStream.GetSMStreams()
          //        .Where(a => a.User_Tvg_logo != null && EF.Functions.ILike(a.User_Tvg_logo, "://"))
-         .Where(a => a.User_Tvg_logo != null && a.User_Tvg_logo.Contains("://"))
+         .Where(a => a.Logo != null && a.Logo.Contains("://"))
          .AsQueryable();
 
-        if (!streams.Any()) { return Task.FromResult(false); }
+        if (!streams.Any()) { return DataResponse.False; }
 
         int totalCount = streams.Count();
 
@@ -32,13 +32,12 @@ public class BuildIconsCacheFromVideoStreamRequestHandler(ILogger<BuildIconsCach
         {
             if (cancellationToken.IsCancellationRequested) { return; }
 
-            string source = HttpUtility.UrlDecode(stream.Tvg_logo);
+            string source = HttpUtility.UrlDecode(stream.Logo);
 
-            IconFileDto icon = IconHelper.GetIcon(source, stream.User_Tvg_name, stream.M3UFileId, FileDefinitions.Icon);
+            IconFileDto icon = IconHelper.GetIcon(source, stream.Name, stream.M3UFileId, FileDefinitions.Icon);
             iconService.AddIcon(icon);
         });
-        //iconService.SetIndexes();
-
-        return Task.FromResult(true);
+        await hubContext.Clients.All.DataRefresh("GetIcons").ConfigureAwait(false);
+        return DataResponse.True;
     }
 }

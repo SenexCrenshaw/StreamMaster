@@ -1,8 +1,8 @@
-import BaseButton from './BaseButton';
+import SMButton from '@components/sm/SMButton';
 import { ChildButtonProperties } from './ChildButtonProperties';
 
-const ClearButton: React.FC<ChildButtonProperties> = ({ disabled = true, onClick, tooltip = '' }) => (
-  <BaseButton disabled={disabled} icon="pi-book" onClick={onClick} tooltip={tooltip} />
+const ClearButton: React.FC<ChildButtonProperties> = ({ buttonDisabled = true, onClick, tooltip = '' }) => (
+  <SMButton buttonDisabled={buttonDisabled} icon="pi-book" onClick={onClick} tooltip={tooltip} />
 );
 
 export default ClearButton;

@@ -1,0 +1,8 @@
+.p-column-filter-row {
+    height: $input-height-with-no-borders;
+
+    .p-inputtext {
+        border-width: 0.1rem;
+        border-color: $inputHoverBorderColor;
+    }
+}

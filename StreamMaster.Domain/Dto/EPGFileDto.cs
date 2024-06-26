@@ -1,8 +1,11 @@
-﻿using StreamMaster.Domain.Attributes;
+﻿using Reinforced.Typings.Attributes;
+
+using StreamMaster.Domain.Attributes;
 
 namespace StreamMaster.Domain.Dto;
 
 [RequireAll]
+[TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public class EPGFileDto : BaseFileDto, IMapFrom<EPGFile>
 {
     public int TimeShift { get; set; }

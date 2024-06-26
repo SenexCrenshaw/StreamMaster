@@ -1,6 +1,6 @@
-import StreamGroupSelectedVideoStreamDataSelector from '@features/streamGroupEditor/StreamGroupSelectedVideoStreamDataSelector';
+import SMLoader from '@components/loader/SMLoader';
 
 export default function StreamGroupSelectedVideoStreamDataSelectorLayout() {
   const id = 'streamgroupeditor';
-  return <StreamGroupSelectedVideoStreamDataSelector id={id} />;
+  return <SMLoader />;
 }

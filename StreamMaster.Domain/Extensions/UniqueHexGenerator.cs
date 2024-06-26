@@ -4,8 +4,8 @@ using System.Security.Cryptography;
 namespace StreamMaster.Domain.Extensions;
 public class UniqueHexGenerator
 {
-    public const string ShortIdEmpty = "000000";
-    private static string GetShortId()
+    public const string SMChannelIdEmpty = "000000";
+    private static string GetSMChannelId()
     {
         using RandomNumberGenerator rng = RandomNumberGenerator.Create();
         byte[] buffer = new byte[3];
@@ -18,8 +18,8 @@ public class UniqueHexGenerator
     {
         while (true)
         {
-            string hex = GetShortId();
-            if (hex != ShortIdEmpty && existingIds.Add(hex))
+            string hex = GetSMChannelId();
+            if (hex != SMChannelIdEmpty && existingIds.Add(hex))
             {
                 return hex;
             }
@@ -31,8 +31,8 @@ public class UniqueHexGenerator
         using RandomNumberGenerator rng = RandomNumberGenerator.Create();
         while (true)
         {
-            string hex = GetShortId();
-            if (hex != ShortIdEmpty && existingIds.TryAdd(hex, 0))
+            string hex = GetSMChannelId();
+            if (hex != SMChannelIdEmpty && existingIds.TryAdd(hex, 0))
             {
                 return hex;
             }

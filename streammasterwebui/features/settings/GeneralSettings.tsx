@@ -1,39 +1,48 @@
-import { GetMessage } from '@lib/common/common';
+import { SMCard } from '@components/sm/SMCard';
+import { GetMessage } from '@lib/common/intl';
 import React from 'react';
-// Import the getLine function
-import { Fieldset } from 'primereact/fieldset';
-import { getCheckBoxLine } from './getCheckBoxLine';
-import { getInputNumberLine } from './getInputNumberLine';
-import { getInputTextLine } from './getInputTextLine';
-import { getPasswordLine } from './getPasswordLine';
-import { useSettingChangeHandler } from './useSettingChangeHandler';
+import { getCheckBoxLine } from './components/getCheckBoxLine';
+import { getInputNumberLine } from './components/getInputNumberLine';
+import { getInputTextLine } from './components/getInputTextLine';
+import { getPasswordLine } from './components/getPasswordLine';
+import { useSettingChangeHandler } from './hooks/useSettingChangeHandler';
 
 export function GeneralSettings(): React.ReactElement {
-  const { onChange, selectedCurrentSettingDto } = useSettingChangeHandler();
-
-  if (selectedCurrentSettingDto === null || selectedCurrentSettingDto === undefined) {
-    return (
-      <Fieldset className="mt-4 pt-10" legend={GetMessage('SD')}>
-        <div className="text-center">{GetMessage('loading')}</div>
-      </Fieldset>
-    );
-  }
-
+  const { onChange, currentSettingRequest } = useSettingChangeHandler();
   return (
-    <Fieldset className="mt-4 pt-10" legend={GetMessage('general')} toggleable>
-      {getInputTextLine({ field: 'deviceID', selectedCurrentSettingDto, onChange })}
-      {getCheckBoxLine({ field: 'cleanURLs', selectedCurrentSettingDto, onChange })}
-      {getInputTextLine({ field: 'ffmPegExecutable', selectedCurrentSettingDto, onChange })}
-      {getCheckBoxLine({ field: 'enableSSL', selectedCurrentSettingDto, onChange })}
-      {selectedCurrentSettingDto?.enableSSL === true && (
-        <>
-          {getInputTextLine({ field: 'sslCertPath', warning: GetMessage('changesServiceRestart'), selectedCurrentSettingDto, onChange })}
-          {getPasswordLine({ field: 'sslCertPassword', warning: GetMessage('changesServiceRestart'), selectedCurrentSettingDto, onChange })}
-        </>
-      )}
-      {getCheckBoxLine({ field: 'enablePrometheus', selectedCurrentSettingDto, onChange })}
-      {getInputNumberLine({ field: 'maxLogFiles', selectedCurrentSettingDto, onChange })}
-      {getInputNumberLine({ field: 'maxLogFileSizeMB', selectedCurrentSettingDto, onChange })}
-    </Fieldset>
+    <SMCard
+      info=""
+      hasCloseButton
+      darkBackGround={false}
+      title="GENERAL"
+      header={<div className="justify-content-end align-items-center flex-row flex gap-1">{/* {header}                */}</div>}
+    >
+      <div className="sm-card-children">
+        <div className="sm-card-children-content">
+          <div className="layout-padding-bottom" />
+          <div className="settings-lines ">
+            {getInputTextLine({ currentSettingRequest, field: 'DeviceID', onChange })}
+            {getCheckBoxLine({ currentSettingRequest, field: 'CleanURLs', onChange })}
+            {getInputTextLine({ currentSettingRequest, field: 'FFMPegExecutable', onChange })}
+            {getCheckBoxLine({ currentSettingRequest, field: 'EnableSSL', onChange })}
+            {currentSettingRequest?.EnableSSL === true && (
+              <>
+                {getInputTextLine({ currentSettingRequest, field: 'SSLCertPath', onChange, warning: GetMessage('changesServiceRestart') })}
+                {getPasswordLine({
+                  currentSettingRequest,
+                  field: 'SSLCertPassword',
+                  onChange,
+                  warning: GetMessage('changesServiceRestart')
+                })}
+              </>
+            )}
+            {getCheckBoxLine({ currentSettingRequest, field: 'EnablePrometheus', onChange })}
+            {getInputNumberLine({ currentSettingRequest, field: 'MaxLogFiles', onChange })}
+            {getInputNumberLine({ currentSettingRequest, field: 'MaxLogFileSizeMB', onChange })}
+          </div>
+          <div className="layout-padding-bottom" />
+        </div>
+      </div>
+    </SMCard>
   );
 }

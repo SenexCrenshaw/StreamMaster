@@ -16,6 +16,6 @@ public class StreamGroupUpdateEventHandler : INotificationHandler<StreamGroupUpd
     public async Task Handle(StreamGroupUpdateEvent notification, CancellationToken cancellationToken)
     {
         //await _hubContext.Clients.All.StreamGroupsRefresh([notification.StreamGroup]).ConfigureAwait(false);
-        await _hubContext.Clients.All.StreamGroupsRefresh().ConfigureAwait(false);
+        //await _hubContext.Clients.All.StreamGroupsRefresh().ConfigureAwait(false);
     }
 }

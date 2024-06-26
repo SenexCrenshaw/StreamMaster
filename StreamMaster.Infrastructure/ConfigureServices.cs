@@ -1,7 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 
 using StreamMaster.Domain.Helpers;
-using StreamMaster.Domain.Services;
 using StreamMaster.Infrastructure.Logger;
 using StreamMaster.Infrastructure.Middleware;
 using StreamMaster.Infrastructure.Services;
@@ -19,8 +18,8 @@ public static class ConfigureServices
     public static IServiceCollection AddInfrastructureServices(this IServiceCollection services)
     {
         _ = services.AddMemoryCache();
-        services.AddSingleton<IVideoStreamService, VideoStreamService>();
         _ = services.AddSingleton<IIconService, IconService>();
+        services.AddSingleton<IVideoStreamService, VideoStreamService>();
         _ = services.AddSingleton<IImageDownloadQueue, ImageDownloadQueue>();
         _ = services.AddSingleton<ICacheableSpecification, CacheableSpecification>();
         _ = services.AddSingleton<IJobStatusService, JobStatusService>();
@@ -28,6 +27,9 @@ public static class ConfigureServices
         _ = services.AddSingleton<IIconHelper, IconHelper>();
         _ = services.AddSingleton<IFileLoggingServiceFactory, FileLoggingServiceFactory>();
         _ = services.AddSingleton<IStreamTracker, StreamTracker>();
+        _ = services.AddSingleton<IMessageService, MessageService>();
+        _ = services.AddSingleton<IDataRefreshService, DataRefreshService>();
+
 
         // If needed, you can also pre-register specific instances
         _ = services.AddSingleton(provider =>
@@ -85,7 +87,7 @@ public static class ConfigureServices
             _ = services.AddSingleton(typeof(IMapHttpRequestsToDisk), implementation);
         }
 
-        _ = services.AddSingleton<IBroadcastService, BroadcastService>();
+        //_ = services.AddSingleton<IBroadcastService, BroadcastService>();
 
         _ = services.AddHostedService<TimerService>();
 

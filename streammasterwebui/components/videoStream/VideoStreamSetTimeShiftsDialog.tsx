@@ -1,12 +1,11 @@
-import { VideoStreamDto, VideoStreamsSetVideoStreamTimeShiftFromParametersApiArg, VideoStreamsSetVideoStreamTimeShiftsApiArg } from '@lib/iptvApi';
-import { useQueryFilter } from '@lib/redux/slices/useQueryFilter';
-import { useSelectAll } from '@lib/redux/slices/useSelectAll';
+import { useQueryFilter } from '@lib/redux/hooks/queryFilter';
+import { useSelectAll } from '@lib/redux/hooks/selectAll';
 import { useSelectedVideoStreams } from '@lib/redux/slices/useSelectedVideoStreams';
-import { SetVideoStreamTimeShiftFromParameters, SetVideoStreamTimeShifts } from '@lib/smAPI/VideoStreams/VideoStreamsMutateAPI';
+
+import NumberEditor from '@components/inputs/NumberEditor';
 import { memo, useState } from 'react';
 import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
 import ClockButton from '../buttons/ClockButton';
-import NumberInput from '../inputs/NumberInput';
 
 interface VideoStreamSetTimeShiftsDialogProperties {
   readonly id: string;
@@ -44,13 +43,13 @@ const VideoStreamSetTimeShiftsDialog = ({ id }: VideoStreamSetTimeShiftsDialogPr
       toSendAll.parameters = queryFilter;
       toSendAll.timeShift = timshift;
 
-      SetVideoStreamTimeShiftFromParameters(toSendAll)
-        .then(() => {
-          setInfoMessage('Set Streams Successfully');
-        })
-        .catch((error) => {
-          setInfoMessage(`Set Streams Error: ${error.message}`);
-        });
+      // SetVideoStreamTimeShiftFromParameters(toSendAll)
+      //   .then(() => {
+      //     setInfoMessage('Set Streams Successfully');
+      //   })
+      //   .catch((error) => {
+      //     setInfoMessage(`Set Streams Error: ${error.message}`);
+      //   });
 
       return;
     }
@@ -71,11 +70,11 @@ const VideoStreamSetTimeShiftsDialog = ({ id }: VideoStreamSetTimeShiftsDialogPr
       toSend.ids = count + max < ids.length ? ids.slice(count, count + max) : ids.slice(count, ids.length);
 
       count += max;
-      promises.push(
-        SetVideoStreamTimeShifts(toSend)
-          .then(() => {})
-          .catch(() => {})
-      );
+      // promises.push(
+      //   SetVideoStreamTimeShifts(toSend)
+      //     .then(() => {})
+      //     .catch(() => {})
+      // );
     }
 
     const p = Promise.all(promises);
@@ -104,12 +103,11 @@ const VideoStreamSetTimeShiftsDialog = ({ id }: VideoStreamSetTimeShiftsDialogPr
         show={showOverlay}
       >
         <div className="flex justify-content-center w-full align-items-center h-full">
-          <NumberInput
+          <NumberEditor
             label="Time Shift"
             onChange={(e) => {
               setTimshift(e);
             }}
-            showClear
             value={timshift}
           />
           <ClockButton label="Set Time Shift" onClick={async () => await onSetTS()} />

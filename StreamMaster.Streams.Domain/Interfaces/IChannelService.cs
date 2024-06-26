@@ -1,51 +1,17 @@
-﻿
-namespace StreamMaster.Streams.Domain.Interfaces;
-
-/// <summary>
-/// Provides methods for managing and querying channels.
-/// </summary>
-public interface IChannelService : IDisposable
+﻿namespace StreamMaster.Streams.Domain.Interfaces;
+public interface IChannelService
 {
-    //Task<VideoStreamDto?> FetchNextChildVideoStream(string channelVideoStreamId);
-    List<IChannelStatus> GetChannelStatusesFromVideoStreamId(string VideoStreamId);
-
-    //void UpdateChannelStatusVideoStreamId(string videoStreamId);
-    /// <summary>
-    /// Retrieves the statuses for all channels.
-    /// </summary>
-    /// <returns>A list of IChannelStatus objects representing the status of each channel.</returns>
+    Task<bool> SwitchChannelToNextStream(IChannelStatus channelStatus, string? overrideNextVideoStreamId = null);
+    void Dispose();
+    IChannelStatus? GetChannelStatus(int smChannelId);
     List<IChannelStatus> GetChannelStatuses();
-
-    /// <summary>
-    /// Retrieves the status of a specific channel by its video stream ID.
-    /// </summary>
-    /// <param name="channelVideoStreamId">The ID of the video stream associated with the channel.</param>
-    /// <returns>An IChannelStatus object if the channel exists; otherwise, returns null.</returns>
-    IChannelStatus? GetChannelStatus(string channelVideoStreamId);
-
-    /// <summary>
-    /// Gets the count of global streams.
-    /// </summary>
-    /// <returns>An integer representing the number of global streams.</returns>
+    List<IChannelStatus> GetChannelStatusesFromSMChannelId(int smChannelId);
+    List<IChannelStatus> GetChannelStatusesFromSMStreamId(string smStreamId);
     int GetGlobalStreamsCount();
+    bool HasChannel(int SMChannelId);
+    Task<IChannelStatus?> RegisterChannel(ClientStreamerConfiguration config);
 
-    /// <summary>
-    /// Checks if a channel with the specified video stream ID exists.
-    /// </summary>
-    /// <param name="channelVideoStreamId">The ID of the video stream to check.</param>
-    /// <returns>True if the channel exists; otherwise, false.</returns>
-    bool HasChannel(string channelVideoStreamId);
-
-    /// <summary>
-    /// Registers a new channel with the given video stream ID and name.
-    /// </summary>    
-    /// <param name="ChannelVideoStream">The video stream to associate with the channel.</param>
-    /// <returns>An IChannelStatus object representing the newly registered channel.</returns>
-    Task<IChannelStatus?> RegisterChannel(VideoStreamDto ChannelVideoStream, bool fetch = false);
-
-    /// <summary>
-    /// Unregisters a channel by its video stream ID.
-    /// </summary>
-    /// <param name="channelVideoStreamId">The ID of the video stream associated with the channel to unregister.</param>
-    void UnRegisterChannel(string channelVideoStreamId);
+    Task<IChannelStatus?> SetupChannel(SMChannelDto smChannel);
+    Task SetNextChildVideoStream(IChannelStatus channelStatus, string? overrideNextVideoStreamId = null);
+    void UnRegisterChannel(int smChannelId);
 }
