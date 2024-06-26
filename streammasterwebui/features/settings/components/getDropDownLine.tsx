@@ -6,7 +6,7 @@ import { SettingDto } from '@lib/smAPI/smapiTypes';
 import { SelectItem } from 'primereact/selectitem';
 import React, { ReactNode } from 'react';
 import { UpdateChanges, getRecordString } from '../SettingsUtils';
-import { getLine } from './getLine'; // Import the getLine function
+import { GetLine } from './GetLine'; // Import the GetLine function
 
 type DropDownLineProps = {
   field: string;
@@ -30,24 +30,28 @@ export function GetDropDownLine({ field, options, currentSettingRequest, onChang
     return <div className="text-container pl-1">{value}</div>;
   };
 
-  return getLine({
+  return GetLine({
     defaultSetting,
     help,
     value: (
-      <div className="sm-w-8">
+      <div className="sm-w-12">
         <SMDropDown
-          contentWidthSize="2"
           buttonDarkBackground
-          label={label}
-          labelInline
           buttonTemplate={buttonTemplate()}
-          onChange={(e) => {
-            const value = isFinite(+e.target.value) ? +e.target.value : e.target.value;
-            UpdateChanges({ currentSettingRequest, field, onChange, value });
-          }}
+          contentWidthSize="2"
           data={options}
           dataKey="label"
           itemTemplate={valueTemplate}
+          info=""
+          label={label}
+          labelInline
+          onChange={(e) => {
+            const value = isFinite(+e.value) ? +e.value : e.value;
+            UpdateChanges({ currentSettingRequest, field, onChange, value });
+          }}
+          hasCloseButton
+          showClose={false}
+          title="Proxy"
         />
       </div>
     )

@@ -1,5 +1,6 @@
-import { SMTextColor } from '@components/sm/SMTextColor';
+import { SMTextDefaults } from '@components/sm/SMTextDefaults';
 import { Logger } from '@lib/common/logger';
+import { useMemo } from 'react';
 
 type GetLineProps = {
   value: React.ReactElement;
@@ -7,49 +8,35 @@ type GetLineProps = {
   defaultSetting?: string | null;
 };
 
-export function getLine({ value, help, defaultSetting }: GetLineProps): React.ReactElement {
-  Logger.debug('getLine', { defaultSetting, help, value });
+export function GetLine({ value, help, defaultSetting }: GetLineProps): React.ReactElement {
+  Logger.debug('GetLine', { defaultSetting, help, value });
 
-  if (help !== null && help !== undefined) {
-    return (
-      <div className="flex w-full justify-items-center align-items-center align-content-center settings-line">
-        <div className="w-6">{value}</div>
+  const getWidths = useMemo(() => {
+    const baseWidth = 12; // Total width for the component
+    const valueWidth = 5; // Assuming value always takes a part of the width
 
-        {help !== null && help !== undefined && help !== '' && (
-          <>
-            <div className="flex pl-2 w-full text-sm align-content-center">
-              {!defaultSetting && <>{help} </>}
+    const helpWidth = help !== null && help !== undefined && help !== '' ? 5 : 0;
+    const defaultSettingWidth = defaultSetting !== null && defaultSetting !== undefined && defaultSetting !== '' ? 2 : 0;
 
-              {defaultSetting && (
-                <>
-                  <div className="w-6">{help}</div>
-                  <div className="w-6">
-                    <span>: </span>
-                    <SMTextColor italicized text={defaultSetting} />
-                  </div>
-                </>
-              )}
-            </div>
-          </>
-        )}
-      </div>
-    );
-  }
-  if (defaultSetting !== null && defaultSetting !== undefined && defaultSetting !== '') {
-    return (
-      <div className="flex w-full justify-items-center align-items-center align-content-center settings-line">
-        <div className="w-8">{value}</div>
-        <div className="w-4 pl-2">
-          {defaultSetting && (
-            <div>
-              <span>: </span>
-              <SMTextColor italicized text={defaultSetting} />
-            </div>
-          )}
+    // Adjusting widths based on the presence of help and defaultSetting
+    const remainingWidth = baseWidth - valueWidth - helpWidth - defaultSettingWidth;
+
+    return {
+      defaultSetting: `w-${defaultSettingWidth}`,
+      help: `w-${helpWidth}`,
+      value: `w-${valueWidth + remainingWidth}`
+    };
+  }, [help, defaultSetting]);
+
+  return (
+    <div className="sm-w-12 flex align-items-center justify-content-start settings-line ">
+      <div className={getWidths.value + ' pr-2'}>{value}</div>
+      {help !== null && help !== undefined && help !== '' && <div className={getWidths.help}>{help}</div>}
+      {defaultSetting !== null && defaultSetting !== undefined && defaultSetting !== '' && (
+        <div className={getWidths.defaultSetting + ' flex justify-content-end pr-2 '}>
+          {defaultSetting && <SMTextDefaults italicized text={defaultSetting} />}
         </div>
-      </div>
-    );
-  }
-
-  return <div className="settings-line">{value}</div>;
+      )}
+    </div>
+  );
 }

@@ -5,7 +5,7 @@ import { getHelp } from '@lib/locales/help_en';
 import { SettingDto } from '@lib/smAPI/smapiTypes';
 import React from 'react';
 import { UpdateChanges, getRecord } from '../SettingsUtils';
-import { getLine } from './getLine'; // Import the getLine function
+import { GetLine } from './GetLine'; // Import the GetLine function
 
 type InputNumberLineProps = {
   field: string;
@@ -23,11 +23,11 @@ export function getInputNumberLine({ field, min, max, currentSettingRequest, onC
   const validatedMax = max === null ? 999 : Math.min(max ?? 999, 999);
   const validatedMin = min === null ? 0 : Math.max(Math.min(min ?? 0, validatedMax - 1), 0);
 
-  return getLine({
+  return GetLine({
     defaultSetting,
     help,
     value: (
-      <div className="sm-w-8">
+      <div className="sm-w-12">
         <NumberEditor
           darkBackGround
           label={label}

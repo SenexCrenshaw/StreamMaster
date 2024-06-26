@@ -15,10 +15,13 @@ const SMDropDown = forwardRef<SMDropDownRef, ExtendedSMDropDownProperties>(
     {
       closeOnSelection = true,
       autoPlacement = false,
+      hasCloseButton = true,
+      showClose = false,
       buttonIsLoading: isLoading = false,
       itemSize = 26,
       labelInline = false,
       scrollHeight = '40vh',
+      info = '',
       zIndex = 10,
       ...props
     },
@@ -45,7 +48,17 @@ const SMDropDown = forwardRef<SMDropDownRef, ExtendedSMDropDownProperties>(
 
     const getSMOverlay = useCallback(() => {
       return (
-        <SMOverlay autoPlacement={autoPlacement} icon="pi-chevron-down" buttonIsLoading={isLoading} ref={smOverlayRef} zIndex={zIndex} {...props}>
+        <SMOverlay
+          hasCloseButton={hasCloseButton}
+          showClose={showClose}
+          info={info}
+          autoPlacement={autoPlacement}
+          icon="pi-chevron-down"
+          buttonIsLoading={isLoading}
+          ref={smOverlayRef}
+          zIndex={zIndex}
+          {...props}
+        >
           <div className="sm-card border-radius-left border-radius-right">
             {props.children ? (
               props.children

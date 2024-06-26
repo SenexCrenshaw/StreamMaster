@@ -19,6 +19,7 @@ export function BackupSettings(): React.ReactElement {
 
   return (
     <SMCard
+      info=""
       hasCloseButton
       darkBackGround={false}
       title="BACKUPS"

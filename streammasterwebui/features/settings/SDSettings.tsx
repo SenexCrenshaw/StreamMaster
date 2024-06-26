@@ -64,7 +64,7 @@ export function SDSettings(): React.ReactElement {
   }
 
   return (
-    <SMCard hasCloseButton title="SCHEDULES DIRECT">
+    <SMCard info="" hasCloseButton title="SCHEDULES DIRECT">
       <div className="sm-card-children">
         <div className="sm-card-children-content">
           <div className="settings-lines">

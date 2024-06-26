@@ -6,6 +6,7 @@ interface DefaultSettingType {
 }
 
 const defaultSetting: DefaultSettingType = {
+  StreamingProxyType: 'System Default',
   ApiKey: 'System Generated',
   AuthenticationMethod: 'None',
   BackupEnabled: 'true',

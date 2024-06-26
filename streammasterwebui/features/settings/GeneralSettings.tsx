@@ -11,6 +11,7 @@ export function GeneralSettings(): React.ReactElement {
   const { onChange, currentSettingRequest } = useSettingChangeHandler();
   return (
     <SMCard
+      info=""
       hasCloseButton
       darkBackGround={false}
       title="GENERAL"

@@ -7,6 +7,7 @@ import { useMountEffect } from 'primereact/hooks';
 import { ObjectUtils } from 'primereact/utils';
 import { VirtualScroller } from 'primereact/virtualscroller';
 import React, { useCallback, useEffect, useMemo } from 'react';
+import { SMCard } from './SMCard';
 import { SMScrollerProperties } from './interfaces/SMScrollerProperties';
 
 const SMScroller: React.FC<SMScrollerProperties> = ({ filter = false, itemSize = 26, scrollHeight = '40vh', ...props }) => {
@@ -221,62 +222,62 @@ const SMScroller: React.FC<SMScrollerProperties> = ({ filter = false, itemSize =
   }, [props.className, props.simple]);
 
   return (
-    <div className={getDiv}>
-      <div className="sm-scroller-header">
-        <div className="layout-padding-bottom" />
-        {filter && (
-          <div className="flex align-items-center justify-content-between gap-1 pr-2 sm-w-12">
-            <div className="">
-              <BanButton
-                buttonDisabled={selectedItems.length === 0}
-                onClick={() => {
-                  setSelectedItems([]);
-                  props.onChange && props.onChange([]);
-                }}
-                tooltip="Clear Selections"
-              />
-            </div>
-
-            <div className="flex align-items-center justify-content-between sm-w-11">
-              <div className="sm-w-11">
-                <StringEditor
-                  autoFocus
-                  disableDebounce
-                  darkBackGround
-                  placeholder="Name"
-                  value={filterString}
-                  showClear
-                  onChange={(value) => {
-                    if (value !== undefined) {
-                      setFilterString(value);
-                      scrollTo(1);
-                    }
-                  }}
-                  onSave={(value) => {}}
-                  ref={stringEditorRef}
-                />
-              </div>
-              <div>
-                <SMButton
-                  iconFilled={false}
-                  icon="pi-filter-slash"
+    <SMCard info="">
+      <div className={getDiv}>
+        <div className="sm-scroller-header">
+          {/* <div className="layout-padding-bottom" /> */}
+          {filter && (
+            <div className="flex align-items-center justify-content-between gap-1 pr-2 sm-w-12">
+              <div className="">
+                <BanButton
+                  buttonDisabled={selectedItems.length === 0}
                   onClick={() => {
-                    setFilterString('');
-                    stringEditorRef.current?.clear();
-                    scrollTo(1);
+                    setSelectedItems([]);
+                    props.onChange && props.onChange([]);
                   }}
+                  tooltip="Clear Selections"
                 />
               </div>
-            </div>
-          </div>
-        )}
 
-        <div className="layout-padding-bottom" />
+              <div className="flex align-items-center justify-content-between sm-w-11">
+                <div className="sm-w-11">
+                  <StringEditor
+                    autoFocus
+                    disableDebounce
+                    darkBackGround
+                    placeholder="Name"
+                    value={filterString}
+                    showClear
+                    onChange={(value) => {
+                      if (value !== undefined) {
+                        setFilterString(value);
+                        scrollTo(1);
+                      }
+                    }}
+                    onSave={(value) => {}}
+                    ref={stringEditorRef}
+                  />
+                </div>
+                <div>
+                  <SMButton
+                    iconFilled={false}
+                    icon="pi-filter-slash"
+                    onClick={() => {
+                      setFilterString('');
+                      stringEditorRef.current?.clear();
+                      scrollTo(1);
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+        <div className="sm-scroller-items">
+          <VirtualScroller ref={virtualScrollerRef} items={filteredValues} itemSize={itemSize} itemTemplate={getItemTemplate} scrollHeight={scrollHeight} />
+        </div>
       </div>
-      <div className="sm-scroller-items">
-        <VirtualScroller ref={virtualScrollerRef} items={filteredValues} itemSize={itemSize} itemTemplate={getItemTemplate} scrollHeight={scrollHeight} />
-      </div>
-    </div>
+    </SMCard>
   );
 };
 

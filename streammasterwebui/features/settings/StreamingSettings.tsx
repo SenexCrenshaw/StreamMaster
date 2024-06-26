@@ -43,7 +43,13 @@ export function StreamingSettings(): React.ReactElement {
   }
 
   return (
-    <SMCard hasCloseButton darkBackGround={false} title="STREAMING" header={<div className="justify-content-end align-items-center flex-row flex gap-1"></div>}>
+    <SMCard
+      info=""
+      hasCloseButton
+      darkBackGround={false}
+      title="STREAMING"
+      header={<div className="justify-content-end align-items-center flex-row flex gap-1"></div>}
+    >
       <div className="sm-card-children">
         <div className="sm-card-children-content">
           <div className="layout-padding-bottom" />

@@ -5,7 +5,7 @@ import { SettingDto } from '@lib/smAPI/smapiTypes';
 import { Password } from 'primereact/password';
 import React from 'react';
 import { UpdateChanges, getRecordString } from '../SettingsUtils';
-import { getLine } from './getLine';
+import { GetLine } from './GetLine';
 
 type PasswordLineProps = {
   onChange: (existing: SettingDto, updatedValues: SettingDto) => void | undefined;
@@ -29,11 +29,11 @@ export function getPasswordLine({
   const help = getHelp(field);
   const defaultSetting = getDefaultSetting(field);
 
-  return getLine({
+  return GetLine({
     defaultSetting,
     help,
     value: (
-      <div className="sm-w-8">
+      <div className="sm-w-12">
         {label && !labelInline && (
           <>
             <label className="pl-15">{label.toUpperCase()}</label>

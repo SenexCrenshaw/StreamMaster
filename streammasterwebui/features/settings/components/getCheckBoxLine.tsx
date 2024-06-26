@@ -6,7 +6,7 @@ import { getHelp } from '@lib/locales/help_en';
 import { SettingDto } from '@lib/smAPI/smapiTypes';
 import React from 'react';
 import { UpdateChanges, getRecord } from '../SettingsUtils';
-import { getLine } from './getLine'; // Import the getLine function
+import { GetLine } from './GetLine'; // Import the GetLine function
 
 type CheckBoxLineProps = {
   field: string;
@@ -19,11 +19,11 @@ export function getCheckBoxLine({ field, currentSettingRequest, onChange }: Chec
   const defaultSetting = getDefaultSetting(field);
   Logger.debug('getCheckBoxLine', { field });
 
-  return getLine({
+  return GetLine({
     defaultSetting,
     help,
     value: (
-      <div className="sm-w-8">
+      <div className="sm-w-12">
         <BooleanEditor
           label={GetMessage(field)}
           labelInline

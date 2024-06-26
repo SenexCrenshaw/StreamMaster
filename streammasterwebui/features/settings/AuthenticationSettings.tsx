@@ -50,6 +50,7 @@ export function AuthenticationSettings(): React.ReactElement {
 
   return (
     <SMCard
+      info=""
       hasCloseButton
       darkBackGround={false}
       title="AUTHENTICATION"

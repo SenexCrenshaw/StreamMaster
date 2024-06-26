@@ -94,13 +94,12 @@ export const SettingsEditor = () => {
         <ScrollPanel className="w-full" style={{ height: 'calc(100vh - 80px)' }}>
           <div className="flex flex-row justify-content-start align-items-start">
             <div className="w-6 pr-1 flex flex-column gap-3">
+              <AuthenticationSettings />
               <GeneralSettings />
-              <StreamingSettings />
               <FilesEPGM3USettings />
               <BackupSettings />
             </div>
             <div className="w-6 pl-1 flex flex-column gap-3">
-              <AuthenticationSettings />
               <StreamingSettings />
               <SDSettings />
             </div>

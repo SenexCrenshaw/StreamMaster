@@ -23,6 +23,7 @@ export function FilesEPGM3USettings(): React.ReactElement {
 
   return (
     <SMCard
+      info=""
       hasCloseButton
       darkBackGround={false}
       title="MISC"

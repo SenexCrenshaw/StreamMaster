@@ -6,7 +6,7 @@ import { getHelp } from '@lib/locales/help_en';
 import { SettingDto } from '@lib/smAPI/smapiTypes';
 import React from 'react';
 import { UpdateChanges, getRecordString } from '../SettingsUtils';
-import { getLine } from './getLine';
+import { GetLine } from './GetLine';
 
 type InputTextLineProps = {
   field: string;
@@ -23,11 +23,11 @@ export function getInputTextLine({ field, warning, currentSettingRequest, onChan
   const value = getRecordString<SettingDto>(field, currentSettingRequest);
   Logger.debug('getInputTextLine', { defaultSetting, field, value });
 
-  return getLine({
+  return GetLine({
     defaultSetting,
     help,
     value: (
-      <div className="sm-w-8">
+      <div className="sm-w-12">
         <StringEditor
           darkBackGround
           disableDebounce
