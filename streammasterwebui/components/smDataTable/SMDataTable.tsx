@@ -382,8 +382,8 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
   );
 
   const showSelection = useMemo(() => {
-    return props.showSelections || props.selectionMode === 'multiple' || props.selectionMode === 'checkbox' || props.selectionMode === 'multipleNoRowCheckBox';
-  }, [props.selectionMode, props.showSelections]);
+    return props.showSelectAll || props.selectionMode === 'multiple' || props.selectionMode === 'checkbox' || props.selectionMode === 'multipleNoRowCheckBox';
+  }, [props.selectionMode, props.showSelectAll]);
 
   const exportCSV = () => {
     tableReference.current?.exportCSV({ selectionOnly: false });
@@ -573,7 +573,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
     return (
       <div className="flex justify-content-center align-items-center">
         {props.showHiddenInSelection && <SMTriSelectShowHidden dataKey={props.id} />}
-        {props.showSelections === true && (
+        {props.showSelectAll === true && (
           <SMTriSelectShowSelect selectedItemsKey={props.selectedItemsKey} id={props.id} onToggle={() => toggleAllSelection()} />
         )}
         {props.showSelected === true && <SMTriSelectShowSelected dataKey={props.id} />}

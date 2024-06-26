@@ -152,7 +152,7 @@ const SchedulesDirectStationDataSelector = () => {
         selectedItemsKey={dataKey}
         selectionMode="multiple"
         showSelected
-        showSelections={false}
+        showSelectAll={false}
         style={{ height: 'calc(100vh - 100px)' }}
       />
     </div>

@@ -242,6 +242,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
       queryFilter={useGetPagedSMStreams}
       selectedItemsKey="selectSelectedSMStreamDtoItems"
       selectionMode="multiple"
+      showSelectAll
       style={{ height: height ?? 'calc(100vh - 100px)' }}
     />
   );
