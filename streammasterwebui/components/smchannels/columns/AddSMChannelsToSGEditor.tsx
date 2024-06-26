@@ -1,5 +1,6 @@
 import SMPopUp from '@components/sm/SMPopUp';
 import { Logger } from '@lib/common/logger';
+import { useIsTrue } from '@lib/redux/hooks/isTrue';
 import { useQueryFilter } from '@lib/redux/hooks/queryFilter';
 import { useSelectAll } from '@lib/redux/hooks/selectAll';
 import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
@@ -15,15 +16,13 @@ const AddSMChannelsToSGEditor = () => {
   const { queryFilter } = useQueryFilter('streameditor-SMChannelDataSelector');
   const { selectedItems } = useSelectedItems<SMChannelDto>(selectedItemsKey);
   const { selectAll } = useSelectAll('streameditor-SMChannelDataSelector');
+  const { isTrue: smTableIsSimple } = useIsTrue('isSimple');
 
   const { selectedStreamGroup } = useSelectedStreamGroup('StreamGroup');
 
   const getTotalCount = useMemo(() => selectedItems?.length ?? 0, [selectedItems]);
 
-  Logger.debug('AddSMChannelsToSGEditor', selectedStreamGroup, getTotalCount);
   const addSMChannelsToStreamGroup = useCallback(async () => {
-    Logger.debug('Attempting to add SMChannel to StreamGroup', { getTotalCount, selectAll, selectedStreamGroup });
-
     if (!selectedStreamGroup || (selectAll !== true && getTotalCount === 0)) {
       return;
     }
@@ -60,25 +59,8 @@ const AddSMChannelsToSGEditor = () => {
     }
   }, [queryFilter, selectAll, selectedItems, selectedStreamGroup, getTotalCount]);
 
-  // const isSMChannelInStreamGroup = useCallback(() => {
-  //   if (!smChannel || !selectedStreamGroup || !smChannel.StreamGroupIds) {
-  //     return false;
-  //   }
-
-  //   return smChannel.StreamGroupIds.includes(selectedStreamGroup.Id);
-  // }, [selectedStreamGroup, smChannel]);
-
-  // const name = useMemo(() => selectedStreamGroup?.Name ?? '', [selectedStreamGroup?.Name]);
-
   const tooltipClassName = useMemo(() => `basebutton-${uuidv4()}`, []);
 
-  // if (isSMChannelInStreamGroup()) {
-  //   return (
-  //     <div className="flex justify-content-center align-items-center">
-  //       <SGRemoveButton onClick={removeSMChannelFromStreamGroup} tooltip={`Remove From ${name}`} />
-  //     </div>
-  //   );
-  // }
   if (!selectedStreamGroup) {
     return (
       <>
@@ -100,35 +82,23 @@ const AddSMChannelsToSGEditor = () => {
   }
   return (
     <SMPopUp
-      icon="pi-book"
-      label="Add to SG"
-      menu
-      iconFilled
-      title="Add to SG"
       buttonClassName="icon-green"
       buttonDisabled={selectAll ? false : getTotalCount === 0}
+      icon="pi-book"
+      iconFilled
+      info=""
+      label="Add to SG"
+      menu
       onOkClick={async () => addSMChannelsToStreamGroup()}
+      placement={smTableIsSimple ? 'bottom-end' : 'bottom'}
+      title="Add to SG"
       tooltip="Auto Set EPG"
     >
-      <div className="text-container px-1">
+      <div className="text-container sm-center-stuff">
         Add ({selectAll ? 'All' : getTotalCount}) channels to {selectedStreamGroup.Name}?
       </div>
     </SMPopUp>
   );
-
-  // if (selectedStreamGroup.Name === 'ALL') {
-  //   return (
-  //     <div className="flex justify-content-center align-items-center">
-  //       <SGRemoveButton buttonDisabled tooltip="ALL SG" />
-  //     </div>
-  //   );
-  // }
-
-  // return (
-  //   <div className="flex justify-content-center align-items-center">
-  //     <SGAddButton onClick={addSMChannelToStreamGroup} tooltip={`Add to ${name}`} />
-  //   </div>
-  // );
 };
 
 export default memo(AddSMChannelsToSGEditor);

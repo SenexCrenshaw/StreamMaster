@@ -1,5 +1,6 @@
 import SMButton from '@components/sm/SMButton';
 import SMPopUp from '@components/sm/SMPopUp';
+import { useIsTrue } from '@lib/redux/hooks/isTrue';
 import { useQueryFilter } from '@lib/redux/hooks/queryFilter';
 import { useSelectAll } from '@lib/redux/hooks/selectAll';
 import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
@@ -17,6 +18,7 @@ const AutoSetEPGSMChannelDialog = ({ menu, smChannel }: AutoSetEPGSMChannelDialo
   const { queryFilter } = useQueryFilter('streameditor-SMChannelDataSelector');
   const { selectedItems } = useSelectedItems<SMChannelDto>(selectedItemsKey);
   const { selectAll } = useSelectAll('streameditor-SMChannelDataSelector');
+  const { isTrue: smTableIsSimple } = useIsTrue('isSimple');
 
   const ReturnToParent = React.useCallback(() => {}, []);
   const getTotalCount = useMemo(() => selectedItems?.length ?? 0, [selectedItems]);
@@ -68,16 +70,18 @@ const AutoSetEPGSMChannelDialog = ({ menu, smChannel }: AutoSetEPGSMChannelDialo
   if (menu === true) {
     return (
       <SMPopUp
+        buttonClassName="icon-blue"
         icon="pi-book"
+        iconFilled
+        info=""
         label="Auto Set EPG"
         menu
-        iconFilled
-        title="Auto Set EPG"
-        buttonClassName="icon-blue"
         onOkClick={async () => save()}
+        placement={smTableIsSimple ? 'bottom-end' : 'bottom'}
+        title="Auto Set EPG"
         tooltip="Auto Set EPG"
       >
-        <div className="text-base">Auto Set ({selectAll ? 'All' : getTotalCount}) channels?</div>
+        <div className="text-container sm-center-stuff">Auto Set ({selectAll ? 'All' : getTotalCount}) channels?</div>
       </SMPopUp>
     );
   }

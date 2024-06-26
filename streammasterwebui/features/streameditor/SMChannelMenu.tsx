@@ -1,21 +1,17 @@
 import SMOverlay from '@components/sm/SMOverlay';
 import AutoSetEPGSMChannelDialog from '@components/smchannels/AutoSetEPGSMChannelDialog';
 import AddSMChannelsToSGEditor from '@components/smchannels/columns/AddSMChannelsToSGEditor';
+import { useIsTrue } from '@lib/redux/hooks/isTrue';
 import { memo } from 'react';
 
 export interface SChannelMenuProperties {}
 
 const SMChannelMenu = () => {
-  // const { selectedStreamGroup } = useSelectedStreamGroup('StreamGroup');
-
-  // const isStreamGroupSelected = useMemo(() => {
-  //   return selectedStreamGroup !== undefined && selectedStreamGroup.Name !== 'ALL';
-  // }, [selectedStreamGroup]);
+  const { isTrue: smTableIsSimple } = useIsTrue('isSimple');
 
   return (
-    <SMOverlay placement="bottom" icon="pi-bars" iconFilled buttonClassName="icon-orange" contentWidthSize="11rem">
+    <SMOverlay placement={smTableIsSimple ? 'bottom-end' : 'bottom'} icon="pi-bars" iconFilled buttonClassName="icon-orange" contentWidthSize="11rem">
       <div className="sm-channel-menu gap-2">
-        {/* <AutoSetSMChannelNumbersDialog disabled={!isStreamGroupSelected} /> */}
         <AutoSetEPGSMChannelDialog menu />
         <AddSMChannelsToSGEditor />
       </div>
