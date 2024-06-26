@@ -224,6 +224,7 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id }: SMChannelDat
       rowExpansionTemplate={rowExpansionTemplate}
       selectionMode="multiple"
       selectedItemsKey="selectSelectedSMChannelDtoItems"
+      showSelections
       style={{ height: 'calc(100vh - 100px)' }}
     />
   );

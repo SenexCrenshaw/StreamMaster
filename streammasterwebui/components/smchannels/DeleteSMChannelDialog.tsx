@@ -1,5 +1,6 @@
 import SMPopUp from '@components/sm/SMPopUp';
 import useSelectedSMItems from '@features/streameditor/useSelectedSMItems';
+import { useIsTrue } from '@lib/redux/hooks/isTrue';
 import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
 import { DeleteSMChannel } from '@lib/smAPI/SMChannels/SMChannelsCommands';
 import { DeleteSMChannelRequest, SMChannelDto, SMStreamDto } from '@lib/smAPI/smapiTypes';
@@ -11,6 +12,7 @@ interface DeleteSMChannelProperties {
 
 const DeleteSMChannelDialog = ({ smChannel }: DeleteSMChannelProperties) => {
   const dataKey = 'SMChannelSMStreamDialog-SMStreamDataForSMChannelSelector';
+  const { isTrue: smTableIsSimple } = useIsTrue('isSimple');
   const { setSelectedItems } = useSelectedItems<SMStreamDto>(dataKey);
   const [isCalled, setIsCalled] = useState(false);
   const { selectedSMChannel, setSelectedSMChannel } = useSelectedSMItems();
@@ -40,7 +42,21 @@ const DeleteSMChannelDialog = ({ smChannel }: DeleteSMChannelProperties) => {
       });
   }, [ReturnToParent, isCalled, smChannel.Id]);
 
-  return <SMPopUp rememberKey={'DeleteSMChannelDialog'} title="Delete" onOkClick={() => accept()} buttonClassName="icon-red" icon="pi-times" />;
+  return (
+    <SMPopUp
+      placement={smTableIsSimple ? 'bottom-end' : 'bottom'}
+      rememberKey={'DeleteSMChannelDialog'}
+      title="Delete?"
+      info=""
+      onOkClick={() => accept()}
+      buttonClassName="icon-red"
+      icon="pi-times"
+    >
+      <div className="sm-center-stuff">
+        <div className="text-container">{smChannel.Name}</div>
+      </div>
+    </SMPopUp>
+  );
 };
 
 DeleteSMChannelDialog.displayName = 'DeleteSMChannelDialog';

@@ -41,6 +41,7 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
 
         await hub.Clients.All.DataRefresh("GetChannelGroups");
         await hub.Clients.All.DataRefresh("GetChannelGroupsFromSMChannels");
+        await hub.Clients.All.DataRefresh("GetPagedChannelGroups");
     }
 
     public async Task RefreshEPG(bool alwaysRun = false)
@@ -64,6 +65,7 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
 
         await hub.Clients.All.DataRefresh("GetEPGFiles");
         await hub.Clients.All.DataRefresh("GetEPGNextEPGNumber");
+        await hub.Clients.All.DataRefresh("GetPagedEPGFiles");
     }
 
     public async Task RefreshGeneral(bool alwaysRun = false)
@@ -101,6 +103,7 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
 
         await hub.Clients.All.DataRefresh("GetM3UFileNames");
         await hub.Clients.All.DataRefresh("GetM3UFiles");
+        await hub.Clients.All.DataRefresh("GetPagedM3UFiles");
     }
 
     public async Task RefreshProfiles(bool alwaysRun = false)
@@ -151,6 +154,7 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
             return;
         }
 
+        await hub.Clients.All.DataRefresh("GetPagedSMChannels");
         await hub.Clients.All.DataRefresh("GetSMChannelNames");
     }
 
@@ -172,6 +176,7 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
             return;
         }
 
+        await hub.Clients.All.DataRefresh("GetPagedSMStreams");
     }
 
     public async Task RefreshSMTasks(bool alwaysRun = false)
@@ -206,6 +211,7 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
             return;
         }
 
+        await hub.Clients.All.DataRefresh("GetPagedStreamGroups");
         await hub.Clients.All.DataRefresh("GetStreamGroupProfiles");
         await hub.Clients.All.DataRefresh("GetStreamGroups");
     }

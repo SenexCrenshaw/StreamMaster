@@ -404,33 +404,35 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
   };
 
   useEffect(() => {
-    if (data) {
-      if (Array.isArray(data)) {
-        setters.setPagedInformation(undefined);
-        if (state.selectAll) {
-          setters.setSelectedItems(data);
-        }
-        setDataSource(data);
-        return;
-      }
-
-      if (isPagedResponse<T>(data)) {
-        if (state.selectAll) {
-          setters.setSelectedItems((data as PagedResponse<T>).Data as T[]);
+    if (props.queryFilter) {
+      if (data) {
+        if (Array.isArray(data)) {
+          setters.setPagedInformation(undefined);
+          if (state.selectAll) {
+            setters.setSelectedItems(data);
+          }
+          setDataSource(data);
+          return;
         }
 
-        if (data.PageNumber > 1 && data.TotalPageCount === 0) {
-          const newData = { ...data };
-          newData.PageNumber -= 1;
-          newData.First = (newData.PageNumber - 1) * newData.PageSize;
-          setters.setPage(newData.PageNumber);
-          setters.setFirst(newData.First);
-          setters.setPagedInformation(newData);
-        } else {
-          setters.setPagedInformation(data);
-        }
+        if (isPagedResponse<T>(data)) {
+          if (state.selectAll) {
+            setters.setSelectedItems((data as PagedResponse<T>).Data as T[]);
+          }
 
-        setDataSource((data as PagedResponse<T>).Data);
+          if (data.PageNumber > 1 && data.TotalPageCount === 0) {
+            const newData = { ...data };
+            newData.PageNumber -= 1;
+            newData.First = (newData.PageNumber - 1) * newData.PageSize;
+            setters.setPage(newData.PageNumber);
+            setters.setFirst(newData.First);
+            setters.setPagedInformation(newData);
+          } else {
+            setters.setPagedInformation(data);
+          }
+
+          setDataSource((data as PagedResponse<T>).Data);
+        }
       }
       return;
     }
@@ -483,7 +485,20 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
 
     const pagedData = filteredData.slice(state.first, state.first + state.rows);
     setDataSource(pagedData);
-  }, [data, props.dataSource, state.filters, state.page, state.rows, state.selectAll, state.showSelected, state.sortField, state.sortOrder]);
+  }, [
+    data,
+    props.dataSource,
+    props.queryFilter,
+    state.filters,
+    state.first,
+    state.page,
+    state.rows,
+    state.selectAll,
+    state.selectedItems,
+    state.showSelected,
+    state.sortField,
+    state.sortOrder
+  ]);
 
   const sourceRenderHeader = useMemo(() => {
     if (props.noSourceHeader === true) {

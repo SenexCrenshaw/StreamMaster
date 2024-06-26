@@ -1,4 +1,5 @@
 import CloseButton from '@components/buttons/CloseButton';
+import { Logger } from '@lib/common/logger';
 import { useMemo } from 'react';
 import { SMCardProperties } from './interfaces/SMCardProperties';
 
@@ -58,6 +59,7 @@ export const SMCard = ({
     );
   }
 
+  Logger.debug('SMCard', 'children', children);
   return (
     <div className={getDiv}>
       <div className="sm-card-header flex flex-row justify-content-between align-items-center w-full">
@@ -70,7 +72,7 @@ export const SMCard = ({
       <div className="layout-padding-bottom" />
       <div className={noBorderChildren ? 'sm-card-children-noborder' : 'sm-card-children'}>
         {info && info !== '' && <div className={`${borderClass} sm-card-children-info`}>{info}</div>}
-        <div className="sm-card-children-content">{children}</div>
+        {children && children !== '' && <div className="sm-card-children-content">{children}</div>}
       </div>
     </div>
   );

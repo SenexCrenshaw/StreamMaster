@@ -1,5 +1,6 @@
 import StringEditor from '@components/inputs/StringEditor';
 import SMPopUp from '@components/sm/SMPopUp';
+import { useIsTrue } from '@lib/redux/hooks/isTrue';
 
 import { CopySMChannel } from '@lib/smAPI/SMChannels/SMChannelsCommands';
 import useGetSMChannelNames from '@lib/smAPI/SMChannels/useGetSMChannelNames';
@@ -14,7 +15,7 @@ interface CloneSMChannelDialogProperties {
 
 const CloneSMChannelDialog = ({ label, onHide, smChannel }: CloneSMChannelDialogProperties) => {
   const smQuery = useGetSMChannelNames();
-
+  const { isTrue: smTableIsSimple } = useIsTrue('isSimple');
   const [newName, setNewName] = React.useState<string>('');
 
   const getUniqueName = useCallback(
@@ -70,15 +71,26 @@ const CloneSMChannelDialog = ({ label, onHide, smChannel }: CloneSMChannelDialog
 
   return (
     <SMPopUp
+      contentWidthSize="3"
+      placement={smTableIsSimple ? 'bottom-end' : 'bottom'}
       buttonClassName="icon-orange"
       disabled={newName === undefined || newName === ''}
+      icon="pi-clone"
+      info=""
+      onOkClick={async () => await onSave()}
       rememberKey={'CloneSMChannelDialog'}
       title="Clone"
-      onOkClick={async () => await onSave()}
-      icon="pi-clone"
     >
-      <div className="flex col-12 justify-content-start align-items-center p-0 m-0 w-full">
-        <StringEditor label="New Name" darkBackGround disableDebounce onChange={(e) => e !== undefined && setNewName(e)} onSave={(e) => {}} value={newName} />
+      <div className="w-full">
+        <StringEditor
+          labelInline
+          label="New Name"
+          darkBackGround
+          disableDebounce
+          onChange={(e) => e !== undefined && setNewName(e)}
+          onSave={(e) => {}}
+          value={newName}
+        />
       </div>
     </SMPopUp>
   );

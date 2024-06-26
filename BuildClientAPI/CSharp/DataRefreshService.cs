@@ -86,7 +86,9 @@ public static class DataRefreshService
             content.AppendLine("            return;");
             content.AppendLine("        }");
             content.AppendLine();
-            foreach (MethodDetails? get in gets.Where(a => a.ParameterNames == ""))
+            var gs = gets.Where(a => a.ParameterNames != "").ToList();
+
+            foreach (MethodDetails? get in gets.Where(a => a.ParameterNames == "" || a.IsGetPaged))
             {
                 content.AppendLine($"        await hub.Clients.All.DataRefresh(\"{get.Name}\");");
             }
