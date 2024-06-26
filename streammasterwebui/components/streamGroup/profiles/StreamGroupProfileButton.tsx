@@ -9,6 +9,8 @@ export const StreamGroupProfileButton = () => {
       buttonClassName="sm-w-5rem icon-sg"
       buttonLabel="Profiles"
       contentWidthSize="6"
+      modal
+      modalClosable
       showClose={false}
       icon="pi-file-edit"
       iconFilled

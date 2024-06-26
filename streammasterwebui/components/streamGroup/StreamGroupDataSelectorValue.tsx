@@ -76,23 +76,6 @@ const StreamGroupDataSelectorValue = ({ id, streamGroupDto }: StreamGroupDataSel
     [update]
   );
 
-  // const videoProfileTemplate = useCallback(
-  //   (rowData: StreamGroupProfile) => {
-  //     return (
-  //       <VideoProfileDropDown
-  //         value={rowData.VideoProfileName}
-  //         onChange={(e) => {
-  //           if (e !== undefined) {
-  //             const ret = { Name: rowData.Name, VideoProfileName: e.Name } as UpdateStreamGroupProfileRequest;
-  //             update(ret);
-  //           }
-  //         }}
-  //       />
-  //     );
-  //   },
-  //   [update]
-  // );
-
   const columns = useMemo(
     (): ColumnMeta[] => [
       { bodyTemplate: nameTemplate, field: 'Name', sortable: false, width: 54 },
