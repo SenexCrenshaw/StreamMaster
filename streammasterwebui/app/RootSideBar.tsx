@@ -121,14 +121,14 @@ export const RootSideBar = () => {
           /> */}
         </Menu>
       </Sidebar>
-      <div className="flex flex-column m-0 p-0 pb-1 sidebar-sm-icon">
-        <div className="col-6 p-0 m-0 justify-content-center align-content-center">
-          <img className="p-0 m-0" alt="Stream Master Logo" src="/images/SMNewX32.png" />
+      <div className="flex flex-column pb-1 sidebar-sm-icon " style={{ width: '40px' }}>
+        <div className="flex justify-content-center align-content-center">
+          <img alt="Stream Master Logo" src="/images/sm_logo.png" style={{ width: '40px' }} />
         </div>
 
         <Tooltip target=".custom-target-icon" />
         <div
-          className="custom-target-icon col-6 m-0 p-0 justify-content-center align-content-start text-xs text-center"
+          className="custom-target-icon flex justify-content-center align-content-start text-xs text-center"
           data-pr-position="right"
           data-pr-tooltip={settings.Release ?? ''}
         >

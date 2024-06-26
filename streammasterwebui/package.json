@@ -8,6 +8,7 @@
     "@uiw/react-color-sketch": "^2.3.0",
     "@vidstack/react": "^1.11.24",
     "axios": "^1.7.2",
+    "framer-motion": "^11.2.12",
     "hls.js": "^1.5.11",
     "loglevel": "^1.9.1",
     "primeicons": "^7.0.0",

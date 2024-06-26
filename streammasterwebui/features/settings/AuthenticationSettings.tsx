@@ -6,10 +6,11 @@ import { AuthenticationType } from '@lib/smAPI/smapiTypes';
 import { Fieldset } from 'primereact/fieldset';
 import { SelectItem } from 'primereact/selectitem';
 import React, { useMemo } from 'react';
-import { GetDropDownLine } from './components/GetDropDownLine';
+
 import { getInputTextLine } from './components/getInputTextLine';
 import { getPasswordLine } from './components/getPasswordLine';
 import { useSettingChangeHandler } from './hooks/useSettingChangeHandler';
+import { GetDropDownLine } from './components/GetDropDownLine';
 
 export function AuthenticationSettings(): React.ReactElement {
   const { settings } = useSMContext();

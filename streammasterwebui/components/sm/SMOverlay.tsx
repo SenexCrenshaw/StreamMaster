@@ -22,8 +22,8 @@ import { BlockUI } from 'primereact/blockui';
 import { CSSProperties, ReactNode, forwardRef, useCallback, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import SMButton from './SMButton';
 import { SMCard } from './SMCard';
-import { CombinedProvider } from './context/CombinedContext';
-import { SMOverlayProperties } from './interfaces/SMOverlayProperties';
+import { CombinedProvider } from './Context/CombinedContext';
+import { SMOverlayProperties } from './Interfaces/SMOverlayProperties';
 
 export interface SMOverlayRef {
   getOpen: () => boolean;
