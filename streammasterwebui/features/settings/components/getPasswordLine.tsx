@@ -1,11 +1,11 @@
 import { GetMessage } from '@lib/common/intl';
+import { getDefaultSetting } from '@lib/locales/default_setting';
 import { getHelp } from '@lib/locales/help_en';
+import { SettingDto } from '@lib/smAPI/smapiTypes';
 import { Password } from 'primereact/password';
 import React from 'react';
 import { UpdateChanges, getRecordString } from '../SettingsUtils';
 import { getLine } from './getLine';
-import { SettingDto } from '@lib/smAPI/smapiTypes';
-import { getDefaultSetting } from '@lib/locales/default_setting';
 
 type PasswordLineProps = {
   onChange: (existing: SettingDto, updatedValues: SettingDto) => void | undefined;
@@ -18,7 +18,6 @@ type PasswordLineProps = {
 };
 
 export function getPasswordLine({
-  autoFocus,
   currentSettingRequest,
   field,
   labelInline = true,
@@ -34,7 +33,7 @@ export function getPasswordLine({
     defaultSetting,
     help,
     value: (
-      <div className="w-full">
+      <div className="sm-w-8">
         {label && !labelInline && (
           <>
             <label className="pl-15">{label.toUpperCase()}</label>

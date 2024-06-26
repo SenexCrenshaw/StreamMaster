@@ -32,32 +32,44 @@ const SMDropDown = forwardRef<SMDropDownRef, ExtendedSMDropDownProperties>(
     const smOverlayRef = useRef<SMOverlayRef | null>(null);
 
     const getDiv = useMemo(() => {
-      let ret = 'flex-column ';
+      let ret = 'sm-w-12 flex';
+
+      if (labelInline) {
+        ret += ' justify-content-between align-items-center flex-row';
+      } else {
+        ret += ' flex-column ';
+      }
 
       return ret;
-    }, []);
+    }, [labelInline]);
 
-    const getSMOverlay = useCallback(
-      (children: ReactNode) => {
-        return (
-          <div className={getDiv}>
-            <SMOverlay autoPlacement={autoPlacement} icon="pi-chevron-down" buttonIsLoading={isLoading} ref={smOverlayRef} zIndex={zIndex} {...props}>
-              <div className="sm-card border-radius-left border-radius-right">
-                {children}
-                {props.footerTemplate && (
-                  <div className="w-12">
-                    <div className="layout-padding-bottom" />
-                    {props.footerTemplate}
-                    <div className="layout-padding-bottom" />
-                  </div>
-                )}
+    const getSMOverlay = useCallback(() => {
+      return (
+        <SMOverlay autoPlacement={autoPlacement} icon="pi-chevron-down" buttonIsLoading={isLoading} ref={smOverlayRef} zIndex={zIndex} {...props}>
+          <div className="sm-card border-radius-left border-radius-right">
+            {props.children ? (
+              props.children
+            ) : (
+              <SMScroller
+                {...spreadProps}
+                scrollHeight={scrollHeight}
+                onChange={(e) => {
+                  props.onChange?.(e);
+                  if (closeOnSelection) smOverlayRef.current?.hide();
+                }}
+              />
+            )}
+            {props.footerTemplate && (
+              <div className="w-12">
+                <div className="layout-padding-bottom" />
+                {props.footerTemplate}
+                <div className="layout-padding-bottom" />
               </div>
-            </SMOverlay>
+            )}
           </div>
-        );
-      },
-      [autoPlacement, getDiv, isLoading, props, zIndex]
-    );
+        </SMOverlay>
+      );
+    }, [autoPlacement, closeOnSelection, isLoading, props, scrollHeight, zIndex]);
 
     // Logger.debug('SMDropDown', { value: props.value, label: props.label });
     const spreadProps = props as Required<SMDropDownProperties>;
@@ -69,19 +81,8 @@ const SMDropDown = forwardRef<SMDropDownRef, ExtendedSMDropDownProperties>(
           </>
         )}
         <div className={getDiv}>
-          {props.label && labelInline && <div className={labelInline ? 'w-4' : 'w-6'}>{props.label.toUpperCase()}</div>}
-          {props.children
-            ? getSMOverlay(props.children)
-            : getSMOverlay(
-                <SMScroller
-                  {...spreadProps}
-                  scrollHeight={scrollHeight}
-                  onChange={(e) => {
-                    props.onChange?.(e);
-                    if (closeOnSelection) smOverlayRef.current?.hide();
-                  }}
-                />
-              )}
+          {props.label && labelInline && <div className={labelInline ? 'w-5' : 'w-12'}>{props.label.toUpperCase()}</div>}
+          <div className={labelInline ? 'w-7' : 'w-12'}>{getSMOverlay()}</div>
         </div>
       </>
     );

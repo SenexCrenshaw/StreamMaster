@@ -27,7 +27,7 @@ export function getInputTextLine({ field, warning, currentSettingRequest, onChan
     defaultSetting,
     help,
     value: (
-      <>
+      <div className="sm-w-8">
         <StringEditor
           darkBackGround
           disableDebounce
@@ -43,7 +43,7 @@ export function getInputTextLine({ field, warning, currentSettingRequest, onChan
         />
 
         {warning !== null && warning !== undefined && <span className="text-xs text-orange-500">{warning}</span>}
-      </>
+      </div>
     )
   });
 }

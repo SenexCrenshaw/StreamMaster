@@ -1,12 +1,12 @@
-import React from 'react';
-import { getLine } from './getLine'; // Import the getLine function
-import { UpdateChanges, getRecord } from '../SettingsUtils';
-import { GetMessage } from '@lib/common/intl';
-import { getHelp } from '@lib/locales/help_en';
-import { SettingDto } from '@lib/smAPI/smapiTypes';
 import BooleanEditor from '@components/inputs/BooleanEditor';
+import { GetMessage } from '@lib/common/intl';
 import { Logger } from '@lib/common/logger';
 import { getDefaultSetting } from '@lib/locales/default_setting';
+import { getHelp } from '@lib/locales/help_en';
+import { SettingDto } from '@lib/smAPI/smapiTypes';
+import React from 'react';
+import { UpdateChanges, getRecord } from '../SettingsUtils';
+import { getLine } from './getLine'; // Import the getLine function
 
 type CheckBoxLineProps = {
   field: string;
@@ -23,19 +23,21 @@ export function getCheckBoxLine({ field, currentSettingRequest, onChange }: Chec
     defaultSetting,
     help,
     value: (
-      <BooleanEditor
-        label={GetMessage(field)}
-        labelInline
-        onChange={(e) =>
-          UpdateChanges({
-            currentSettingRequest,
-            field,
-            onChange,
-            value: e
-          })
-        }
-        checked={currentSettingRequest ? getRecord<SettingDto, boolean>(field, currentSettingRequest as SettingDto)! : false}
-      />
+      <div className="sm-w-8">
+        <BooleanEditor
+          label={GetMessage(field)}
+          labelInline
+          onChange={(e) =>
+            UpdateChanges({
+              currentSettingRequest,
+              field,
+              onChange,
+              value: e
+            })
+          }
+          checked={currentSettingRequest ? getRecord<SettingDto, boolean>(field, currentSettingRequest as SettingDto)! : false}
+        />
+      </div>
     )
   });
 }

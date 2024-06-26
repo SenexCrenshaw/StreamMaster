@@ -11,9 +11,9 @@ export const StreamingStatus = (): JSX.Element => {
       <div className="flex flex-column justify-content-between min-h-full max-h-full w-full">
         <SMStreamingStatus />
         <div className="layout-padding-bottom-lg" />
-        <DownloadStatusDataSelector />
-        <div className="layout-padding-bottom-lg" />
         <div className="absolute" style={{ bottom: '0%', width: '97%' }}>
+          <DownloadStatusDataSelector />
+          <div className="layout-padding-bottom-lg" />
           <SMTasksDataSelector width="100%" />
           <div className="layout-padding-bottom-lg" />
           <div className="layout-padding-bottom-lg" />

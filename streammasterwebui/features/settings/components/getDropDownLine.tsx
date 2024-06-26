@@ -27,27 +27,29 @@ export function GetDropDownLine({ field, options, currentSettingRequest, onChang
   const value = currentSettingRequest ? getRecordString<SettingDto>(field, currentSettingRequest) : undefined;
 
   const buttonTemplate = (): ReactNode => {
-    return <div className="text-container pl-1 sm-w-12">{value}</div>;
+    return <div className="text-container pl-1">{value}</div>;
   };
 
   return getLine({
     defaultSetting,
     help,
     value: (
-      <SMDropDown
-        contentWidthSize="2"
-        buttonDarkBackground
-        label={label}
-        labelInline
-        buttonTemplate={buttonTemplate()}
-        onChange={(e) => {
-          const value = isFinite(+e.target.value) ? +e.target.value : e.target.value;
-          UpdateChanges({ currentSettingRequest, field, onChange, value });
-        }}
-        data={options}
-        dataKey="label"
-        itemTemplate={valueTemplate}
-      />
+      <div className="sm-w-8">
+        <SMDropDown
+          contentWidthSize="2"
+          buttonDarkBackground
+          label={label}
+          labelInline
+          buttonTemplate={buttonTemplate()}
+          onChange={(e) => {
+            const value = isFinite(+e.target.value) ? +e.target.value : e.target.value;
+            UpdateChanges({ currentSettingRequest, field, onChange, value });
+          }}
+          data={options}
+          dataKey="label"
+          itemTemplate={valueTemplate}
+        />
+      </div>
     )
   });
 }

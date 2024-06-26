@@ -1,11 +1,11 @@
+import NumberEditor from '@components/inputs/NumberEditor';
 import { GetMessage } from '@lib/common/intl';
+import { getDefaultSetting } from '@lib/locales/default_setting';
 import { getHelp } from '@lib/locales/help_en';
+import { SettingDto } from '@lib/smAPI/smapiTypes';
 import React from 'react';
 import { UpdateChanges, getRecord } from '../SettingsUtils';
 import { getLine } from './getLine'; // Import the getLine function
-import { SettingDto } from '@lib/smAPI/smapiTypes';
-import NumberEditor from '@components/inputs/NumberEditor';
-import { getDefaultSetting } from '@lib/locales/default_setting';
 
 type InputNumberLineProps = {
   field: string;
@@ -27,7 +27,7 @@ export function getInputNumberLine({ field, min, max, currentSettingRequest, onC
     defaultSetting,
     help,
     value: (
-      <div className="w-full">
+      <div className="sm-w-8">
         <NumberEditor
           darkBackGround
           label={label}

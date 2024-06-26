@@ -91,7 +91,7 @@ export const SettingsEditor = () => {
   return (
     <StandardHeader displayName={GetMessage('settings')} icon={<SettingsEditorIcon />}>
       <div className="flex flex-column w-full">
-        <ScrollPanel className="w-full" style={{ height: 'calc(100vh - 100px)' }}>
+        <ScrollPanel className="w-full" style={{ height: 'calc(100vh - 80px)' }}>
           <div className="flex flex-row justify-content-start align-items-start">
             <div className="w-6 pr-1 flex flex-column gap-3">
               <GeneralSettings />
@@ -110,8 +110,10 @@ export const SettingsEditor = () => {
           </div>
         </ScrollPanel>
         <div className="flex mt-2 justify-content-center align-items-end">
-          <div className="flex justify-content-center align-items-center gap-1">
+          <div className="sm-w-5rem">
             <SaveButton buttonDisabled={!isSaveEnabled} onClick={onSave} iconFilled label="Save" />
+          </div>
+          <div className="sm-w-5rem">
             <ResetButton buttonDisabled={!isSaveEnabled} onClick={resetData} iconFilled label="Reset" />
           </div>
         </div>

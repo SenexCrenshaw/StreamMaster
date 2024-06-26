@@ -5,11 +5,11 @@ import React from 'react';
 
 export function DevelopmentSettings(): React.ReactElement {
   return (
-    <SMCard hasCloseButton darkBackGround={false} title={'DEVELOPER TOOLS'}>
+    <SMCard info="" hasCloseButton darkBackGround={false} title={'DEVELOPER TOOLS'}>
       <div className="sm-card-children w-full">
         <div className="layout-padding-bottom" />
-        <div className="sm-card-children-content flex justify-content-center align-items-center ">
-          <div className="settings-lines ">
+        <div className="sm-card-children-content flex justify-content-center align-items-center">
+          <div className="sm-w-7rem">
             <SMButton
               icon="pi-bookmark-fill"
               iconFilled

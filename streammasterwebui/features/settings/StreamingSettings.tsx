@@ -52,7 +52,7 @@ export function StreamingSettings(): React.ReactElement {
             {getInputNumberLine({ currentSettingRequest, field: 'GlobalStreamLimit', onChange })}
             {getInputTextLine({ currentSettingRequest, field: 'ClientUserAgent', onChange })}
             {getInputTextLine({ currentSettingRequest, field: 'StreamingClientUserAgent', onChange })}
-            {getInputTextLine({ currentSettingRequest, field: 'FFMpegOptions', onChange })}
+            {/* {getInputTextLine({ currentSettingRequest, field: 'FFMpegOptions', onChange })} */}
             {getCheckBoxLine({ currentSettingRequest, field: 'ShowClientHostNames', onChange })}
           </div>
         </div>
