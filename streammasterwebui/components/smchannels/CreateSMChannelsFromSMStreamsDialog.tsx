@@ -80,15 +80,19 @@ const CreateSMChannelsFromSMStreamsDialog = ({ id, label, onClose, selectedItems
     <SMPopUp
       buttonClassName="icon-yellow"
       buttonDisabled={getTotalCount < 1}
-      menu
+      buttonLabel="Add Selected"
       icon="pi-plus-circle"
       iconFilled
-      buttonLabel="Add Selected"
+      info=""
+      menu
       onOkClick={() => onOkClick()}
+      placement="bottom-end"
       showRemember={false}
       title="Create"
     >
-      <div className="text-base">Create ({selectAll ? 'All' : getTotalCount}) channels?</div>
+      <div className="sm-center-stuff">
+        <div className="text-container">Create ({selectAll ? 'All' : getTotalCount}) channels?</div>
+      </div>
     </SMPopUp>
   );
 };

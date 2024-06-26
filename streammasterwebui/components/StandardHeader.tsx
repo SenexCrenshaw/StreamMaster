@@ -1,4 +1,5 @@
-import SMTasksButton from '@components/smtasks/SMTasksButton';
+import About from '@features/settings/About';
+
 interface StandardHeaderProperties {
   readonly className?: string;
   readonly displayName: string | JSX.Element;
@@ -13,7 +14,7 @@ const StandardHeader = ({ children, className, displayName, icon }: StandardHead
         <span className="flex ml-2">{typeof displayName === 'string' ? displayName.toUpperCase() : displayName}</span>
       </div>
       <div className="pr-1">
-        <SMTasksButton />
+        <About />
       </div>
     </div>
     <div className="flex layout-padding-bottom"></div>

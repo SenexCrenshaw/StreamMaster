@@ -18,25 +18,13 @@ export const LinkButton = ({
   const icon = bolt ? 'pi pi-bolt icon-yellow' : filled === true ? 'pi pi-bookmark-fill icon-orange' : 'pi pi-bookmark icon-orange';
 
   return (
-    // <SMButton
-    //   icon={copied ? 'pi-copy' : icon}
-    //   buttonClassName={bolt ? 'icon-yellow' : 'icon-orange'}
-    //   iconFilled={false}
-    //   onClick={() => {
-    //     Logger.debug('LinkButton', 'onClick', link.replace(/"/g, ''));
-    //     copyToClipboard(link.replace(/"/g, '')).then((ifCopied) => {
-    //       setCopied(ifCopied);
-    //       setTimeout(() => setCopied(false), 750);
-    //     });
-    //   }}
-    // />
     <div className="p-button-icon-only flex align-items-center justify-content-center">
       <a
         href={link}
         onClick={(e) => {
           e.preventDefault();
 
-          void copyToClipboard(link).then((ifCopied) => {
+          void copyToClipboard(link.replace(/"/g, '')).then((ifCopied) => {
             setCopied(ifCopied);
             setTimeout(() => setCopied(false), 750);
           });

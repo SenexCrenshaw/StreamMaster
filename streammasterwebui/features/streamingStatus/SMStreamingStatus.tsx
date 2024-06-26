@@ -24,9 +24,9 @@ export const StreamingStatus = (): JSX.Element => {
   }, [setChannelStreamingStatistics, setClientStreamingStatistics]);
 
   useEffect(() => {
-    // getStats();
-    // const intervalId = setInterval(getStats, 1000);
-    // return () => clearInterval(intervalId);
+    getStats();
+    const intervalId = setInterval(getStats, 1000);
+    return () => clearInterval(intervalId);
   }, [getStats]);
 
   return (
