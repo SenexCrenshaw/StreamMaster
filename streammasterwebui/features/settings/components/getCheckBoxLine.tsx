@@ -5,7 +5,7 @@ import { getHelp } from '@lib/locales/help_en';
 import { SettingDto } from '@lib/smAPI/smapiTypes';
 import React from 'react';
 import { UpdateChanges, getRecord } from '../SettingsUtils';
-import { GetLine } from './getLine';
+import { GetLine } from './GetLine';
 
 type CheckBoxLineProps = {
   field: string;

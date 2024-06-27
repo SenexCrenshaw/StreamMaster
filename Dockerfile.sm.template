@@ -12,8 +12,8 @@ RUN dotnet build "StreamMaster.API.csproj" -c Debug -o /app/build -a $TARGETARCH
 
 WORKDIR /src/streammasterwebui
 COPY ["streammasterwebui/", "."]
-RUN npm install \
-    && npm run build \
+RUN npm install 
+RUN npm run build \
     && cp -r dist/* /src/StreamMaster.API/wwwroot/
 
 WORKDIR "/src/StreamMaster.API"
