@@ -353,6 +353,7 @@ export interface SMStreamDto
 }
 export interface StreamGroupDto
 {
+	AutoSetChannelNumbers: boolean;
 	ChannelCount: number;
 	HDHRLink: string;
 	Id: number;

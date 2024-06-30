@@ -10,6 +10,8 @@ public class StreamGroupDto : IMapFrom<StreamGroup>
     public int Id { get; set; }
     public string Name { get; set; } = string.Empty;
 
+
+    public bool AutoSetChannelNumbers { get; set; } = true;
     public bool IgnoreExistingChannelNumbers { get; set; } = true;
     public int StartingChannelNumber { get; set; } = 1;
 

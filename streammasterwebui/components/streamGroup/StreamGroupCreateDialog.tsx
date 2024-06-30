@@ -2,59 +2,80 @@ import BooleanEditor from '@components/inputs/BooleanEditor';
 import NumberEditor from '@components/inputs/NumberEditor';
 import StringEditor from '@components/inputs/StringEditor';
 import { SMDialogRef } from '@components/sm/SMDialog';
-import SMPopUp from '@components/sm/SMPopUp';
+import SMPopUp, { SMPopUpRef } from '@components/sm/SMPopUp';
+import { Logger } from '@lib/common/logger';
 import { CreateStreamGroup } from '@lib/smAPI/StreamGroups/StreamGroupsCommands';
 import { CreateStreamGroupRequest } from '@lib/smAPI/smapiTypes';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
-// import useScrollAndKeyEvents from '@lib/hooks/useScrollAndKeyEvents';
 
 export interface StreamGroupCreateDialogProperties {
-  readonly onHide?: (didUpload: boolean) => void;
   readonly showButton?: boolean | null;
 }
 
-export const StreamGroupCreateDialog = ({ onHide, showButton }: StreamGroupCreateDialogProperties) => {
-  const [name, setName] = useState<string>('');
+export const StreamGroupCreateDialog = ({ showButton }: StreamGroupCreateDialogProperties) => {
   const [saving, setSaving] = useState<boolean>(false);
+  const smPopUpRef = useRef<SMPopUpRef>(null);
+  const defaultValues = useMemo(
+    () =>
+      ({
+        AutoSetChannelNumbers: true,
+        IgnoreExistingChannelNumbers: true,
+        Name: '',
+        StartChannelNumber: 1
+      } as CreateStreamGroupRequest),
+    []
+  );
+  const [createStreamGroupRequest, setCreateStreamGroupRequest] = useState<CreateStreamGroupRequest>(defaultValues);
   const smDialogRef = useRef<SMDialogRef>(null);
 
-  const ReturnToParent = useCallback(
-    (didUpload?: boolean) => {
-      smDialogRef.current?.hide();
-      setName('');
-      setSaving(false);
-      onHide?.(didUpload ?? false);
-    },
-    [onHide]
-  );
+  const ReturnToParent = useCallback(() => {
+    smDialogRef.current?.hide();
+    setCreateStreamGroupRequest({} as CreateStreamGroupRequest);
+    setSaving(false);
+  }, []);
 
   const create = useCallback(() => {
-    if (saving) {
+    if (saving || createStreamGroupRequest === undefined || createStreamGroupRequest.Name === undefined || createStreamGroupRequest.Name === '') {
       return;
     }
 
     setSaving(true);
 
-    const request = {} as CreateStreamGroupRequest;
-    request.Name = name;
-
-    CreateStreamGroup(request)
+    CreateStreamGroup(createStreamGroupRequest)
       .then(() => {})
       .catch((error) => {
         console.error('Error Adding SG', error);
       })
       .finally(() => {
         smDialogRef.current?.hide();
-        // ReturnToParent(true);
+        smPopUpRef.current?.hide();
+        ReturnToParent();
       });
-  }, [name, saving]);
+  }, [ReturnToParent, createStreamGroupRequest, saving]);
+
+  const updateStateAndRequest = useCallback(
+    (updatedFields: Partial<CreateStreamGroupRequest>) => {
+      const updatedRequest = { ...createStreamGroupRequest, ...updatedFields };
+      setCreateStreamGroupRequest(updatedRequest);
+    },
+    [createStreamGroupRequest]
+  );
 
   const isSaveEnabled = useMemo(() => {
-    return name !== undefined && name !== '';
-  }, [name]);
+    if (createStreamGroupRequest === undefined) {
+      return false;
+    }
+    if (createStreamGroupRequest.Name === '') {
+      return false;
+    }
+    return true;
+  }, [createStreamGroupRequest]);
+
+  Logger.debug('StreamGroupCreateDialog', 'render', { createStreamGroupRequest });
 
   return (
     <SMPopUp
+      ref={smPopUpRef}
       icon="pi-plus"
       iconFilled
       contentWidthSize="2"
@@ -72,19 +93,19 @@ export const StreamGroupCreateDialog = ({ onHide, showButton }: StreamGroupCreat
           disableDebounce
           darkBackGround
           autoFocus
-          value={name}
+          value={createStreamGroupRequest.Name}
           label="Stream Group Name"
           onSave={() => create()}
-          onChange={(e) => e !== undefined && setName(e)}
+          onChange={(e) => e !== undefined && updateStateAndRequest({ Name: e })}
         />
         <div className="layout-padding-bottom-lg" />
         <div className="flex w-12 justify-content-end align-content-center">
           <div className="sm-w-6  sm-center-stuff">
-            <NumberEditor darkBackGround disableDebounce label="START CH #" onChange={(e) => {}} value={1} />
+            <NumberEditor darkBackGround disableDebounce showButtons label="START CH #" onChange={(e) => {}} value={1} />
           </div>
           <div className="sm-w-6 flex flex-column">
-            <BooleanEditor checked={true} label="Fill Channel #s" onChange={(e) => {}} />
-            <BooleanEditor checked={true} label="Skip Existing #s" onChange={(e) => {}} />
+            <BooleanEditor checked={true} label="Fill Channel #" onChange={(e) => {}} />
+            <BooleanEditor checked={true} label="Skip Existing #" onChange={(e) => {}} />
           </div>
         </div>
         <div className="layout-padding-bottom-lg" />

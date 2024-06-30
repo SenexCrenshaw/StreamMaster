@@ -10,6 +10,9 @@ import { StreamGroupDto, UpdateStreamGroupRequest } from '@lib/smAPI/smapiTypes'
 import { DataTableRowClickEvent, DataTableRowData, DataTableRowExpansionTemplate } from 'primereact/datatable';
 import { memo, useCallback, useMemo } from 'react';
 import StreamGroupDataSelectorValue from './StreamGroupDataSelectorValue';
+import { useStreamGroupAutoSetChannelNumbersColumnConfig } from './columns/useStreamGroupAutoSetChannelNumbersColumnConfig';
+import { useStreamGroupIgnoreExistingChannelNumbersColumnConfig } from './columns/useStreamGroupIgnoreExistingChannelNumbersColumnConfig';
+import { useStreamGroupStartChnColumnConfig } from './columns/useStreamGroupStartChnColumnConfig';
 
 export interface StreamGroupDataSelectorProperties {
   readonly id: string;
@@ -19,10 +22,11 @@ const StreamGroupDataSelector = ({ id }: StreamGroupDataSelectorProperties) => {
   const { selectedStreamGroup, setSelectedStreamGroup } = useSelectedStreamGroup('StreamGroup');
   const { isLoading } = useGetPagedStreamGroups();
   const { setSelectedItems } = useSelectedItems('selectedStreamGroup');
-
+  const streamGroupStartChnColumnConfig = useStreamGroupStartChnColumnConfig({ width: 60 });
+  const streamGroupAutoSetChannelNumbersColumnConfig = useStreamGroupAutoSetChannelNumbersColumnConfig({ width: 60 });
+  const streamGroupIgnoreExistingChannelNumbersColumnConfig = useStreamGroupIgnoreExistingChannelNumbersColumnConfig({ width: 60 });
   const rowExpansionTemplate = useCallback((rowData: DataTableRowData<any>, options: DataTableRowExpansionTemplate) => {
     const streamGroupDto = rowData as unknown as StreamGroupDto;
-    // setSelectedStreamGroup(channel);
 
     return (
       <div className="ml-3 m-1">
@@ -83,40 +87,48 @@ const StreamGroupDataSelector = ({ id }: StreamGroupDataSelectorProperties) => {
         field: 'Name',
         filter: true,
         sortable: true,
-        width: 141
+        width: 100
       },
       {
         align: 'right',
         field: 'ChannelCount',
-        // filter: true,
-        // sortable: true,
+        header: 'Chs',
         width: 20
       },
       {
         field: 'HDHRLink',
         fieldType: 'url',
-        width: 20
+        width: 24
       },
       {
         align: 'center',
         field: 'XMLLink',
         fieldType: 'epglink',
-        width: 30
+        width: 26
       },
       {
         field: 'M3ULink',
         fieldType: 'm3ulink',
-        width: 30
+        width: 26
       },
+      streamGroupStartChnColumnConfig,
+      streamGroupAutoSetChannelNumbersColumnConfig,
+      streamGroupIgnoreExistingChannelNumbersColumnConfig,
       {
         align: 'center',
         bodyTemplate: actionTemplate,
         field: 'autoUpdate',
-        header: 'Actions',
-        width: 39
+        header: '',
+        width: 14
       }
     ],
-    [actionTemplate, nameTemplate]
+    [
+      actionTemplate,
+      nameTemplate,
+      streamGroupIgnoreExistingChannelNumbersColumnConfig,
+      streamGroupAutoSetChannelNumbersColumnConfig,
+      streamGroupStartChnColumnConfig
+    ]
   );
 
   return (
@@ -137,21 +149,7 @@ const StreamGroupDataSelector = ({ id }: StreamGroupDataSelectorProperties) => {
           setSelectedStreamGroup(e.data as StreamGroupDto);
           setSelectedItems([e.data as StreamGroupDto]);
         }
-        // else {
-        //   setSelectedStreamGroup(undefined);
-        //   setSelectedItems([]);
-        // }
       }}
-      // onRowExpand={(e: DataTableRowEvent) => {
-      //   if (e.data.Id !== selectedStreamGroup?.Id) {
-      //     setSelectedStreamGroup(e.data as StreamGroupDto);
-      //   }
-      // }}
-      // onRowCollapse={(e: DataTableRowEvent) => {
-      //   if (e.data.Id === selectedStreamGroup?.Id) {
-      //     setSelectedStreamGroup(undefined);
-      //   }
-      // }}
       rowExpansionTemplate={rowExpansionTemplate}
       queryFilter={useGetPagedStreamGroups}
       selectedItemsKey="selectedStreamGroup"

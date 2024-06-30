@@ -1,4 +1,5 @@
 import { Checkbox } from 'primereact/checkbox';
+import { TooltipOptions } from 'primereact/tooltip/tooltipoptions';
 import { memo } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -9,9 +10,20 @@ interface BooleanEditorProperties {
   readonly labelSmall?: boolean;
   readonly labelInline?: boolean;
   readonly onChange: (value: boolean) => void;
+  readonly tooltip?: string | undefined;
+  readonly tooltipOptions?: TooltipOptions | undefined;
 }
 
-const BooleanEditor = ({ isValid = true, checked, label, labelSmall = false, labelInline = false, onChange }: BooleanEditorProperties) => {
+const BooleanEditor = ({
+  isValid = true,
+  checked,
+  label,
+  labelSmall = false,
+  labelInline = false,
+  onChange,
+  tooltip,
+  tooltipOptions
+}: BooleanEditorProperties) => {
   const uuid = uuidv4();
 
   return (
@@ -32,6 +44,8 @@ const BooleanEditor = ({ isValid = true, checked, label, labelSmall = false, lab
               onChange(event.checked);
             }
           }}
+          tooltip={tooltip}
+          tooltipOptions={tooltipOptions}
           checked={checked}
         />
       </div>

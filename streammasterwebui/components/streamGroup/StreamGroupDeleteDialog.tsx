@@ -36,7 +36,7 @@ const StreamGroupDeleteDialog = ({ streamGroup, onHide }: StreamGroupDeleteDialo
 
   return (
     <div className="flex justify-content-center w-full">
-      <SMPopUp title="Delete Stream Group" onOkClick={() => deleteStreamGroup()} icon="pi-times">
+      <SMPopUp buttonClassName="icon-red" info="" title="Delete Stream Group" onOkClick={() => deleteStreamGroup()} icon="pi-times">
         <div className="sm-center-stuff">
           <div className="text-container">{streamGroup.Name}</div>
         </div>

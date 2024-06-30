@@ -15,7 +15,7 @@ public class UpdateStreamGroupRequestHandler(IDataRefreshService dataRefreshServ
 {
     public async Task<APIResponse> Handle(UpdateStreamGroupRequest request, CancellationToken cancellationToken)
     {
-        if (request.StreamGroupId < 1 || (string.IsNullOrEmpty(request.NewName) && string.IsNullOrEmpty(request.NewName)))
+        if (request.StreamGroupId < 1)
         {
             return APIResponse.NotFound;
         }
