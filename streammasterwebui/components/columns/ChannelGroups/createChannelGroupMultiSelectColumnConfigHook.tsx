@@ -69,7 +69,7 @@ const createChannelGroupMultiSelectColumnConfigHook =
 
     const filterTemplate = (options: ColumnFilterElementTemplateOptions) => (
       <MultiSelect
-        className="p-column-filter text-xs border-1"
+        className="p-column-filter text-xs"
         filter
         itemTemplate={itemTemplate}
         maxSelectedLabels={1}

@@ -343,7 +343,7 @@ const EPGSelector = ({ buttonDarkBackground = false, enableEditMode = true, labe
   const footerTemplate = useMemo(() => {
     return (
       <>
-        <div className="flex grid sm-w-12 m-0 p-0 justify-content-between align-items-center border-1">
+        <div className="flex grid sm-w-12 m-0 p-0 justify-content-between align-items-center">
           <div className="sm-w-6">{headerTemplate}</div>
           <div className="pl-2 flex flex-row sm-w-6 gap-1">
             <StringEditor

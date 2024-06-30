@@ -1,47 +1,47 @@
 @mixin sm-border() {
-    border-radius: $borderRadius !important;
-    border-color: $inputBorderColor !important;
-    border-width: $inputBorder-size !important;
-    border-style: solid !important;
+    border-radius: $borderRadius;
+    border-color: $inputBorderColor;
+    border-width: $inputBorder-size ;
+    border-style: solid;
 }
 
 @mixin sm-border-noradius() {
-    border-radius: 0 !important;
-    border-color: $inputBorderColor !important;
-    border-width: 1px !important;
-    border-style: solid !important;
+    border-radius: 0;
+    border-color: $inputBorderColor;
+    border-width: 1px;
+    border-style: solid;
 }
 
 @mixin sm-border-y() {
-    border-color: $inputBorderColor !important;
-    border-top-style: solid !important;
-    border-bottom-style: solid !important;
-    border-left-style: none !important;
-    border-radius: 0 !important;
-    border-right-style: none !important;
-    border-width: 1px !important;
+    border-color: $inputBorderColor;
+    border-top-style: solid;
+    border-bottom-style: solid;
+    border-left-style: none;
+    border-radius: 0;
+    border-right-style: none;
+    border-width: 1px;
 }
 
 @mixin sm-border-x() {
-    border-color: $inputBorderColor !important;
-    border-top-style: none !important;
-    border-bottom-style: none !important;
-    border-left-style: solid !important;
-    border-radius: 0 !important;
-    border-right-style: solid !important;
-    border-width: 1px !important;
+    border-color: $inputBorderColor;
+    border-top-style: none;
+    border-bottom-style: none;
+    border-left-style: solid;
+    border-radius: 0;
+    border-right-style: solid;
+    border-width: 1px;
 }
 
 @mixin sm-border-right() {
 
-    border-top-style: none !important;
-    border-bottom-style: none !important;
-    border-left-style: none !important;
-    border-right-style: solid !important;
+    border-top-style: none;
+    border-bottom-style: none;
+    border-left-style: none;
+    border-right-style: solid;
 
-    border-color: $inputBorderColor !important;
-    border-radius: 0 !important;
-    border-width: 1px !important;
+    border-color: $inputBorderColor;
+    border-radius: 0;
+    border-width: 1px;
 }
 
 .sm-border-right {
@@ -50,30 +50,37 @@
 
 @mixin sm-border-top() {
 
-    border-top-style: solid !important;
-    border-bottom-style: none !important;
-    border-left-style: none !important;
-    border-right-style: none !important;
+    border-top-style: solid;
+    border-bottom-style: none;
+    border-left-style: none;
+    border-right-style: none;
 
-    border-color: $inputBorderColor !important;
-    border-radius: 0 !important;
-    border-width: 1px !important;
+    border-color: $inputBorderColor;
+    border-radius: 0;
+    border-width: 1px;
 }
 
 .sm-border-top {
     @include sm-border-top();
 }
 
+.sm-border-square-top {
+    @extend .sm-border;
+    border-top-color: transparent !important;
+    border-top-left-radius: 0 !important;
+    border-top-right-radius: 0 !important;
+}
+
 @mixin sm-border-bottom() {
 
-    border-top-style: none !important;
-    border-bottom-style: solid !important;
-    border-left-style: none !important;
-    border-right-style: none !important;
+    border-top-style: none;
+    border-bottom-style: solid;
+    border-left-style: none;
+    border-right-style: none;
 
-    border-color: $inputBorderColor !important;
-    border-radius: 0 !important;
-    border-width: 1px !important;
+    border-color: $inputBorderColor;
+    border-radius: 0;
+    border-width: 1px;
 }
 
 .sm-border-bottom {
@@ -82,14 +89,14 @@
 
 @mixin sm-border-left() {
 
-    border-top-style: none !important;
-    border-bottom-style: none !important;
-    border-left-style: solid !important;
-    border-right-style: none !important;
+    border-top-style: none;
+    border-bottom-style: none;
+    border-left-style: solid;
+    border-right-style: none;
 
-    border-color: $inputBorderColor !important;
-    border-radius: 0 !important;
-    border-width: 1px !important;
+    border-color: $inputBorderColor;
+    border-radius: 0;
+    border-width: 1px;
 }
 
 .sm-border-left {
@@ -97,16 +104,16 @@
 }
 
 @mixin sm-border-roundtop() {
-    border-top-style: solid !important;
-    border-bottom-style: none !important;
-    border-left-style: none !important;
-    border-right-style: none !important;
+    border-top-style: solid;
+    border-bottom-style: none;
+    border-left-style: none;
+    border-right-style: none;
 
-    border-top-left-radius: $borderRadius !important;
-    border-top-right-radius: $borderRadius !important;
+    border-top-left-radius: $borderRadius;
+    border-top-right-radius: $borderRadius;
 
-    border-color: $inputBorderColor !important;
-    border-width: 1px !important;
+    border-color: $inputBorderColor;
+    border-width: 1px;
 }
 
 .sm-border-roundtop {
@@ -114,10 +121,10 @@
 }
 
 @mixin sm-border-transparent() {
-    border-radius: $borderRadius !important;
+    border-radius: $borderRadius;
     border-color: transparent;
-    border-width: $inputBorder-size !important;
-    border-style: solid !important;
+    border-width: $inputBorder-size;
+    border-style: solid;
 }
 
 .sm-border-transparent {
@@ -224,21 +231,21 @@ $shadow-color-sg: rgba($iconSG, $shadow-opacity); // Define the shadow color wit
 }
 
 .sm-border-divider {
-    border-top-color: $inputBorderColor !important;
-    border-top-width: 1px !important;
-    border-top-style: solid !important;
+    border-top-color: $inputBorderColor;
+    border-top-width: 1px;
+    border-top-style: solid;
 }
 
 @mixin input-hover() {
     transition: border-color 0.15s;
 
     &:not(.p-disabled):hover:not(:focus) {
-        border-color: $inputHoverBorderColor !important;
-        border-radius: $borderRadius !important;
-        border-style: solid !important;
-        border-width: $inputBorder-size !important;
-        color: $highlightTextColor !important;
-        // background-color: $inputBg !important;
+        border-color: $inputHoverBorderColor;
+        border-radius: $borderRadius;
+        border-style: solid;
+        border-width: $inputBorder-size;
+        color: $highlightTextColor;
+        // background-color: $inputBg;
     }
 }
 
@@ -246,12 +253,12 @@ $shadow-color-sg: rgba($iconSG, $shadow-opacity); // Define the shadow color wit
     transition: border-color 0.15s;
 
     &:not(.p-disabled):hover:not(:focus) {
-        border-color: $inputHoverBorderColor !important;
-        border-radius: $borderRadius !important;
-        border-style: solid !important;
-        border-width: $inputBorder-size !important;
-        color: $highlightTextColor !important;
-        // background-color: $inputBg !important;
+        border-color: $inputHoverBorderColor;
+        border-radius: $borderRadius;
+        border-style: solid;
+        border-width: $inputBorder-size;
+        color: $highlightTextColor;
+        // background-color: $inputBg;
     }
 }
 
@@ -259,14 +266,14 @@ $shadow-color-sg: rgba($iconSG, $shadow-opacity); // Define the shadow color wit
     transition: border-color 0.15s;
 
     &:not(.p-disabled):hover {
-        border-bottom-style: solid !important;
-        border-color: $inputHoverBorderColor !important;
-        border-left-color: transparent !important;
-        border-radius: 0 !important;
-        border-right-color: transparent !important;
-        border-top-style: solid !important;
-        border-width: $inputBorder-size !important;
-        color: $highlightTextColor !important;
+        border-bottom-style: solid;
+        border-color: $inputHoverBorderColor;
+        border-left-color: transparent;
+        border-radius: 0;
+        border-right-color: transparent;
+        border-top-style: solid;
+        border-width: $inputBorder-size;
+        color: $highlightTextColor;
     }
 }
 
@@ -334,7 +341,7 @@ $shadow-color-sg: rgba($iconSG, $shadow-opacity); // Define the shadow color wit
 }
 
 .border-radius-bottom {
-    border-top-style: none !important;
+    border-top-style: none;
     border-color: $inputBorderColor;
     border-width: 1px;
     border-bottom-left-radius: $borderRadius;
@@ -364,13 +371,13 @@ $shadow-color-sg: rgba($iconSG, $shadow-opacity); // Define the shadow color wit
     border-right-width: 0;
 
     .p-datatable-wrapper {
-        border-top-right-radius: $borderRadius !important;
+        border-top-right-radius: $borderRadius;
     }
 }
 
 .no-top-border {
     .p-datatable-wrapper {
-        border-top-width: 0 !important;
+        border-top-width: 0;
     }
 }
 
@@ -381,7 +388,7 @@ $shadow-color-sg: rgba($iconSG, $shadow-opacity); // Define the shadow color wit
 
     .sm-card-children-info {
         @extend .sm-border;
-        border-bottom-left-radius: 0 !important;
-        border-bottom-right-radius: 0 !important;
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
     }
 }

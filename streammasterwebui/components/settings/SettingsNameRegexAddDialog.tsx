@@ -3,9 +3,9 @@ import { getTopToolOptions } from '@lib/common/common';
 import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
 import React from 'react';
-import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
-import { UpdateSettingRequest } from '@lib/smAPI/smapiTypes';
+
 import { UpdateSetting } from '@lib/smAPI/Settings/SettingsCommands';
+import { UpdateSettingRequest } from '@lib/smAPI/smapiTypes';
 
 const SettingsNameRegexAddDialog = (props: SettingsNameRegexAddDialogProperties) => {
   const [showOverlay, setShowOverlay] = React.useState<boolean>(false);

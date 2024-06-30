@@ -41,10 +41,12 @@ const CreateSMChannelDialog = () => {
       buttonClassName="icon-green"
       onCloseClick={ReturnToParent}
       contentWidthSize="5"
-      darkBackGround
       hasCloseButton={false}
       icon="pi-plus"
       iconFilled
+      modal
+      modalCentered
+      noBorderChildren
       title="CREATE CHANNEL"
       tooltip="Create Channel"
       header={
