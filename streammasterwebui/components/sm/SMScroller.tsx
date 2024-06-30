@@ -1,4 +1,3 @@
-import BanButton from '@components/buttons/BanButton';
 import StringEditor, { StringEditorRef } from '@components/inputs/StringEditor';
 import SMButton from '@components/sm/SMButton';
 import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
@@ -228,7 +227,7 @@ const SMScroller: React.FC<SMScrollerProperties> = ({ filter = false, itemSize =
           {/* <div className="layout-padding-bottom" /> */}
           {filter && (
             <div className="flex align-items-center justify-content-between gap-1 pr-2 sm-w-12">
-              <div className="">
+              {/* <div className="">
                 <BanButton
                   buttonDisabled={selectedItems.length === 0}
                   onClick={() => {
@@ -237,9 +236,9 @@ const SMScroller: React.FC<SMScrollerProperties> = ({ filter = false, itemSize =
                   }}
                   tooltip="Clear Selections"
                 />
-              </div>
+              </div> */}
 
-              <div className="flex align-items-center justify-content-between sm-w-11">
+              <div className="flex align-items-center justify-content-between sm-w-12 p-1">
                 <div className="sm-w-11">
                   <StringEditor
                     autoFocus

@@ -160,6 +160,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
     if (smTableIsSimple) {
       return (
         <div className="flex justify-content-end align-items-center w-full gap-1 pr-1">
+          <M3UFilesButton />
           {!smTableIsSimple && <M3UFilesButton />}
           <SimpleButton dataKey="isSimple" />
           <SMStreamMenu />

@@ -70,7 +70,7 @@ const MessagesEn: messages_enType = {
   m3UIgnoreEmptyEPGID: 'Ignore Empty EPG ID',
   m3uSettings: 'M3U Settings',
   m3UStationId: 'Enable tvc-guide-stationid',
-  m3ustreams: 'M3U Streams',
+  m3ustreams: 'Streams',
   m3UUseChnoForId: 'Use Channel Number for channel id',
   m3UUseCUIDForChannelID: 'Use CUID for channel id',
   matches: 'Matches',

@@ -313,56 +313,13 @@ const EPGSelector = ({ buttonDarkBackground = false, enableEditMode = true, labe
     return checkValue === newInput;
   }, [checkValue, newInput]);
 
-  const footerTemplate = useMemo(() => {
-    return (
-      <>
-        <div className="flex grid col-12 m-0 p-0 justify-content-between align-items-center">
-          <div className="col-10 m-0 p-0 pl-2">
-            <StringEditor
-              darkBackGround
-              disableDebounce
-              placeholder="Custom Id"
-              value={input}
-              onChange={(value) => {
-                if (value) {
-                  setNewInput(value);
-                }
-              }}
-              onSave={(value) => {
-                if (value) {
-                  handleOnChange(value);
-                }
-              }}
-            />
-          </div>
-          <div className="col-1 m-0 p-0">
-            <AddButton
-              buttonDisabled={addDisabled}
-              tooltip="Add Custom Id"
-              iconFilled
-              onClick={(e) => {
-                if (input) {
-                  handleOnChange(input);
-                }
-              }}
-              style={{
-                height: 'var(--input-height)',
-                width: 'var(--input-height)'
-              }}
-            />
-          </div>
-        </div>
-      </>
-    );
-  }, [addDisabled, handleOnChange, input]);
-
   const headerValueTemplate = useMemo((): ReactNode => {
     if (selectedItems && selectedItems.length > 0) {
       const epgNames = selectedItems.slice(0, 2).map((x) => x.Name);
       const suffix = selectedItems.length > 2 ? ',...' : '';
       return <div className="px-4 w-10rem flex align-content-center justify-content-center min-w-10rem dark-background">{epgNames.join(', ') + suffix}</div>;
     }
-    return <div className="px-4 w-10rem dark-background" style={{ minWidth: '10rem' }} />;
+    return <div className="pl-1 dark-background">All EPGs</div>;
   }, [selectedItems]);
 
   const headerTemplate = useMemo(() => {
@@ -383,6 +340,49 @@ const EPGSelector = ({ buttonDarkBackground = false, enableEditMode = true, labe
       />
     );
   }, [epgFiles, headerValueTemplate, scrollerItemTemplate]);
+  const footerTemplate = useMemo(() => {
+    return (
+      <>
+        <div className="flex grid sm-w-12 m-0 p-0 justify-content-between align-items-center border-1">
+          <div className="sm-w-6">{headerTemplate}</div>
+          <div className="pl-2 flex flex-row sm-w-6 gap-1">
+            <StringEditor
+              darkBackGround
+              disableDebounce
+              placeholder="Custom Id"
+              value={input}
+              onChange={(value) => {
+                if (value) {
+                  setNewInput(value);
+                }
+              }}
+              onSave={(value) => {
+                if (value) {
+                  handleOnChange(value);
+                }
+              }}
+            />
+            <div className="">
+              <AddButton
+                buttonDisabled={addDisabled}
+                tooltip="Add Custom Id"
+                iconFilled
+                onClick={(e) => {
+                  if (input) {
+                    handleOnChange(input);
+                  }
+                }}
+                style={{
+                  height: 'var(--input-height)',
+                  width: 'var(--input-height)'
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      </>
+    );
+  }, [addDisabled, handleOnChange, headerTemplate, input]);
 
   if (!enableEditMode) {
     return <div className="flex w-full h-full justify-content-center align-items-center p-0 m-0">{input ?? 'Dummy'}</div>;
@@ -404,12 +404,12 @@ const EPGSelector = ({ buttonDarkBackground = false, enableEditMode = true, labe
       buttonIsLoading={loading || isLoading}
       buttonLabel="EPG"
       buttonTemplate={buttonTemplate(stationChannelName)}
-      center={headerTemplate}
+      // center={headerTemplate}
       data={options}
       dataKey="Channel"
       filter
       filterBy="DisplayName"
-      footerTemplate={footerTemplate}
+      header={footerTemplate}
       info=""
       itemTemplate={itemTemplate}
       onChange={(e) => {

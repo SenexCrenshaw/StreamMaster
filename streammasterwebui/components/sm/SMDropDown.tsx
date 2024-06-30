@@ -47,6 +47,7 @@ const SMDropDown = forwardRef<SMDropDownRef, ExtendedSMDropDownProperties>(
     }, [labelInline]);
 
     const getSMOverlay = useCallback(() => {
+      const spreadProps = props as Required<SMDropDownProperties>;
       return (
         <SMOverlay
           hasCloseButton={hasCloseButton}
@@ -82,10 +83,8 @@ const SMDropDown = forwardRef<SMDropDownRef, ExtendedSMDropDownProperties>(
           </div>
         </SMOverlay>
       );
-    }, [autoPlacement, closeOnSelection, isLoading, props, scrollHeight, zIndex]);
+    }, [autoPlacement, closeOnSelection, hasCloseButton, info, isLoading, props, scrollHeight, showClose, zIndex]);
 
-    // Logger.debug('SMDropDown', { value: props.value, label: props.label });
-    const spreadProps = props as Required<SMDropDownProperties>;
     return (
       <>
         {props.label && !labelInline && (

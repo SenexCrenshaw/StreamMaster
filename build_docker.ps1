@@ -183,7 +183,7 @@ function Set-EnvironmentVariables {
     $env:COMPOSE_DOCKER_CLI_BUILD = 1
 
     # Read GitHub token and set it as an environment variable
-    $ghtoken = Get-Content ghtoken -Raw
+    $ghtoken = Get-Content ../secrets/ghtoken -Raw
     Write-Output "GitHub Token: $ghtoken"
     $env:GH_TOKEN = $ghtoken
 }

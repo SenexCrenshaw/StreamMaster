@@ -173,7 +173,6 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id }: SMChannelDat
     () => (
       <div className="flex flex-row justify-content-end align-items-center gap-1">
         <EPGFilesButton />
-        {/* <SMChannelMultiVisibleDialog iconFilled selectedItemsKey="selectSelectedSMChannelDtoItems" id={dataKey} skipOverLayer /> */}
         <DeleteSMChannelsDialog selectedItemsKey="selectSelectedSMChannelDtoItems" id={dataKey} />
         <CreateSMChannelDialog />
         <SMChannelMenu />
