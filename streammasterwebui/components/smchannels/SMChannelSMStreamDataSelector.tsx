@@ -2,6 +2,7 @@ import SMButton from '@components/sm/SMButton';
 import { SMTriSelectShowHidden } from '@components/sm/SMTriSelectShowHidden';
 import SMDataTable from '@components/smDataTable/SMDataTable';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
+import { Logger } from '@lib/common/logger';
 
 import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
 import { useShowHidden } from '@lib/redux/hooks/showHidden';
@@ -21,14 +22,13 @@ import { ReactNode, memo, useCallback, useMemo } from 'react';
 interface SMChannelSMStreamDataSelectorProperties {
   readonly enableEdit?: boolean;
   readonly height?: string;
-  readonly id?: string;
+  readonly dataKey: string;
   readonly name: string | undefined;
   readonly smChannel?: SMChannelDto;
 }
 
-const SMChannelSMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, name, smChannel }: SMChannelSMStreamDataSelectorProperties) => {
-  const dataKey = `${id}-SMChannelSMStreamDataSelector`;
-  const { selectedItems, setSelectedItems } = useSelectedItems<SMStreamDto>(`${id}-SMChannelSMStreamDataSelector`);
+const SMChannelSMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, dataKey, name, smChannel }: SMChannelSMStreamDataSelectorProperties) => {
+  const { selectedItems, setSelectedItems } = useSelectedItems<SMStreamDto>(dataKey);
   const { showHidden } = useShowHidden(dataKey);
   // const [enableEdit, setEnableEdit] = useState<boolean>(true);
   const { data: smChannelData, isLoading: smChannelIsLoading } = useGetSMChannelStreams({ SMChannelId: smChannel?.Id } as GetSMChannelStreamsRequest);
@@ -38,6 +38,8 @@ const SMChannelSMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id
   //     setEnableEdit(propsEnableEdit ?? true);
   //   }
   // }, [enableEdit, propsEnableEdit]);
+
+  Logger.debug('SMChannelSMStreamDataSelector', 'selectedItems', selectedItems);
 
   const actionTemplate = useCallback(
     (smStream: SMStreamDto) => (
@@ -141,7 +143,7 @@ const SMChannelSMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id
       />
     );
   }
-
+  Logger.debug('SMChannelSMStreamDataSelector', 'selectedItems', selectedItems);
   return (
     <SMDataTable
       columns={columns}

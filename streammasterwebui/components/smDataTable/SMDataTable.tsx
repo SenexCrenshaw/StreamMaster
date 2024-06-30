@@ -470,7 +470,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
       });
     }
 
-    if (state.showSelected !== null) {
+    if (state.showSelected !== undefined && state.showSelected !== null) {
       filteredData = filteredData.filter((item: any) => {
         return state.showSelected
           ? state.selectedItems.some((selected) => selected.Id === item.Id)

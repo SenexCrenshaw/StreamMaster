@@ -9,7 +9,7 @@ interface DeleteSMStreamProperties {
 }
 
 const DeleteSMStreamDialog = ({ smStream }: DeleteSMStreamProperties) => {
-  const dataKey = 'SMChannelSMStreamDialog-SMStreamDataForSMChannelSelector';
+  const dataKey = 'SMStreamDataForSMChannelSelector';
   const { setSelectedItems } = useSelectedItems<SMStreamDto>(dataKey);
   const [isCalled, setIsCalled] = useState(false);
 

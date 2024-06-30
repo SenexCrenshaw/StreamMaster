@@ -22,7 +22,7 @@ export interface SMChannelDialogRef {
 }
 
 const SMChannelDialog = forwardRef<SMChannelDialogRef, SMChannelDialogProperties>(({ smChannel, onSaveEnabled, onSave }, ref) => {
-  const dataKey = 'SMChannelSMStreamDialog-SMStreamDataForSMChannelSelector';
+  const dataKey = 'SMChannelSMStreamDialog';
   const { selectedItems } = useSelectedItems<SMStreamDto>(dataKey);
   const [tempSMChannel, setTempSMChannel] = useState<SMChannelDto | undefined>(undefined);
 
@@ -117,10 +117,13 @@ const SMChannelDialog = forwardRef<SMChannelDialogRef, SMChannelDialogProperties
   const setProxy = useCallback(
     (value: string) => {
       if (request.StreamingProxyType !== value) {
+        const newTempSMChannel = tempSMChannel ? { ...tempSMChannel, StreamingProxyType: value } : ({ StreamingProxyType: value } as SMChannelDto);
+        setTempSMChannel(newTempSMChannel);
+
         setRequest((prevRequest) => ({ ...prevRequest, StreamingProxyType: value }));
       }
     },
-    [request.StreamingProxyType]
+    [request.StreamingProxyType, tempSMChannel]
   );
 
   useEffect(() => {
@@ -145,13 +148,13 @@ const SMChannelDialog = forwardRef<SMChannelDialogRef, SMChannelDialogProperties
 
   return (
     <>
-      hellow
       <div className="sm-border sm-headerBg pt-2">
         <div className="flex w-12 gap-1 pl-2 ">
           <div className="flex flex-column w-9 gap-1 pr-3 ">
             <div className="flex w-12 gap-1">
               <div className="w-6 justify-content-start align-items-center">
                 <StringEditor
+                  autoFocus
                   label="Name"
                   placeholder="Name"
                   darkBackGround
@@ -172,7 +175,7 @@ const SMChannelDialog = forwardRef<SMChannelDialogRef, SMChannelDialogProperties
                 <SMChannelGroupDropDown label="GROUP" darkBackGround value={request.Group} onChange={(e) => e !== undefined && setGroup(e)} />
               </div>
               <div className="w-6 gap-1 w-full h-full">
-                <StreamingProxyTypeSelector darkBackGround label="Proxy" data={smChannel} onChange={(e) => setProxy(e)} />
+                <StreamingProxyTypeSelector darkBackGround label="Proxy" data={tempSMChannel} onChange={(e) => setProxy(e)} />
               </div>
             </div>
           </div>
@@ -197,7 +200,7 @@ const SMChannelDialog = forwardRef<SMChannelDialogRef, SMChannelDialogProperties
         <div className="layout-padding-bottom-lg sm-headerBg border-radius-bottom" />
       </div>
       <div className="layout-padding-bottom-lg dark-background" />
-      <SMChannelSMStreamDialog name={request.Name} smChannel={smChannel} />
+      <SMChannelSMStreamDialog dataKey={dataKey} name={request.Name} smChannel={smChannel} />
     </>
   );
 });

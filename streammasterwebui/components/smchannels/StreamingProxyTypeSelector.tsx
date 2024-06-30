@@ -18,7 +18,7 @@ const StreamingProxyTypeSelector: React.FC<StreamingProxyTypeSelectorProperties>
   const [isCellLoading, setIsCellLoading] = useIsCellLoading({
     Entity: 'SMChannel',
     Field: 'StreamingProxyType',
-    Id: data?.Id.toString() ?? ''
+    Id: data?.Id?.toString() ?? ''
   });
 
   const { data: videoProfiles } = useGetVideoProfiles();
@@ -42,16 +42,6 @@ const StreamingProxyTypeSelector: React.FC<StreamingProxyTypeSelectorProperties>
     return options;
   }, [videoProfiles]);
 
-  // const getEnumKeyByValue = useCallback(<T,>(enumObj: T, value: number): string | null => {
-  //   const entries = Object.entries(enumObj as unknown as Record<string, number>);
-  //   for (const [key, val] of entries) {
-  //     if (val === value) {
-  //       return key;
-  //     }
-  //   }
-  //   return null;
-  // }, []);
-
   const onChange = async (option: string) => {
     if (option === null || option === undefined) return;
     // setSelectedStreamProxyType(option);
@@ -63,7 +53,7 @@ const StreamingProxyTypeSelector: React.FC<StreamingProxyTypeSelectorProperties>
 
   const onSave = useCallback(
     async (option: string) => {
-      if (!data) {
+      if (!data?.Id) {
         Logger.warn('No data available for saving', { option });
         return;
       }
@@ -84,18 +74,9 @@ const StreamingProxyTypeSelector: React.FC<StreamingProxyTypeSelectorProperties>
   );
 
   const buttonTemplate = useMemo((): ReactNode => {
-    if (!data) {
-      return <div className="text-xs text-container text-white-alpha-40 pl-1">None</div>;
+    if (!data?.StreamingProxyType) {
+      return <div className="text-xs text-container  pl-1">SystemDefault</div>;
     }
-
-    // if (isNumber(data.StreamingProxyType)) {
-    //   const enumKey = getEnumKeyByValue(StreamingProxyTypes, data.StreamingProxyType);
-    //   return (
-    //     <div className="sm-epg-selector">
-    //       <div className="text-container pl-1">{enumKey}</div>
-    //     </div>
-    //   );
-    // }
 
     return (
       <div className="sm-epg-selector">
@@ -108,10 +89,10 @@ const StreamingProxyTypeSelector: React.FC<StreamingProxyTypeSelectorProperties>
     return <div className="text-xs text-container">{option?.label ?? ''}</div>;
   }, []);
 
-  if (data?.StreamingProxyType === undefined && data === undefined) {
-    return null;
-  }
-
+  // if (data?.StreamingProxyType === undefined) {
+  //   return null;
+  // }
+  Logger.debug('StreamingProxyTypeSelector', 'StreamingProxyType', data?.StreamingProxyType, data?.StreamingProxyType ?? 'SystemDefault');
   return (
     <SMDropDown
       buttonLabel="PROXY"
@@ -129,7 +110,7 @@ const StreamingProxyTypeSelector: React.FC<StreamingProxyTypeSelectorProperties>
       }}
       title="PROXY"
       optionValue="label"
-      value={data?.StreamingProxyType}
+      value={data?.StreamingProxyType ?? 'SystemDefault'}
       contentWidthSize="2"
     />
   );

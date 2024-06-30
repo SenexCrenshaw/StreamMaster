@@ -1,4 +1,6 @@
-﻿namespace StreamMaster.Application.SMChannels.Commands;
+﻿using StreamMaster.Application.SMChannelStreamLinks.Commands;
+
+namespace StreamMaster.Application.SMChannels.Commands;
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
@@ -17,7 +19,7 @@ public record CreateSMChannelRequest(
 { }
 
 [LogExecutionTimeAspect]
-public class CreateSMChannelRequestHandler(ILogger<CreateSMChannelRequest> Logger, IMessageService messageService, IDataRefreshService dataRefreshService, IRepositoryWrapper Repository)
+public class CreateSMChannelRequestHandler(ILogger<CreateSMChannelRequest> Logger, ISender Sender, IMessageService messageService, IDataRefreshService dataRefreshService, IRepositoryWrapper Repository)
     : IRequestHandler<CreateSMChannelRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(CreateSMChannelRequest request, CancellationToken cancellationToken)
@@ -43,6 +45,31 @@ public class CreateSMChannelRequestHandler(ILogger<CreateSMChannelRequest> Logge
 
             Repository.SMChannel.Create(smChannel);
             await Repository.SaveAsync();
+
+            if (request.SMStreamsIds != null)
+            {
+                foreach (var streamId in request.SMStreamsIds)
+                {
+                    APIResponse res = await Repository.SMChannel.AddSMStreamToSMChannel(smChannel.Id, streamId).ConfigureAwait(false);
+                }
+                await Repository.SaveAsync();
+
+                DataResponse<List<SMStreamDto>> streams = await Sender.Send(new UpdateStreamRanksRequest(smChannel.Id, request.SMStreamsIds), cancellationToken);
+
+            }
+
+
+            //GetSMChannelStreamsRequest re = new(smChannel.Id);
+
+            //List<FieldData> ret = new()
+            //{
+            //    new("GetSMChannelStreams", re, streams.Data),
+            //    new(SMChannel.APIName, smChannel.Id, "SMStreams", streams.Data)
+            //};
+            ////await dataRefreshService.RefreshSMChannelStreamLinks();
+            //await dataRefreshService.SetField(ret).ConfigureAwait(false);
+
+
 
             await dataRefreshService.RefreshAllSMChannels();
             await messageService.SendSuccess("Channel Added", $"Channel '{request.Name}' added successfully");

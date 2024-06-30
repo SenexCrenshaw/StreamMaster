@@ -19,19 +19,18 @@ import { ReactNode, memo, useCallback, useMemo, useState } from 'react';
 
 interface SMStreamDataForSMChannelSelectorProperties {
   readonly enableEdit?: boolean;
-  readonly id: string;
+  readonly dataKey: string;
   readonly height?: string;
 
   readonly name: string | undefined;
   readonly smChannel?: SMChannelDto;
 }
 
-const SMStreamDataForSMChannelSelector = ({ enableEdit: propsEnableEdit, height, id, name, smChannel }: SMStreamDataForSMChannelSelectorProperties) => {
-  const dataKey = `${id}-SMStreamDataForSMChannelSelector`;
+const SMStreamDataForSMChannelSelector = ({ enableEdit: propsEnableEdit, height, dataKey, name, smChannel }: SMStreamDataForSMChannelSelectorProperties) => {
   const { setQueryAdditionalFilters } = useQueryAdditionalFilters(dataKey);
   const [selectedM3UFiles, setSelectedM3UFiles] = useState<M3UFileDto[]>([]);
   const { data: m3uFiles } = useGetM3UFiles();
-  const { selectedItems, setSelectedItems } = useSelectedItems<SMStreamDto>(`${id}-SMStreamDataForSMChannelSelector`);
+  const { selectedItems, setSelectedItems } = useSelectedItems<SMStreamDto>(dataKey);
   const { data: smChannelData, isLoading: smChannelIsLoading } = useGetSMChannelStreams({ SMChannelId: smChannel?.Id } as GetSMChannelStreamsRequest);
   const { queryFilter } = useQueryFilter(dataKey);
   const { isLoading } = useGetPagedSMStreams(queryFilter);

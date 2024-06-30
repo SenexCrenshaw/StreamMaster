@@ -1,10 +1,8 @@
 import { SMDialogRef } from '@components/sm/SMDialog';
 import SMPopUp from '@components/sm/SMPopUp';
 import { SMChannelDialogRef } from '@components/smchannels/SMChannelDialog';
-import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
 
 import { CreateSMStream } from '@lib/smAPI/SMStreams/SMStreamsCommands';
-import { SMStreamDto } from '@lib/smAPI/smapiTypes';
 import React, { useRef, useState } from 'react';
 import SMStreamDialog from './SMStreamDialog';
 
@@ -13,15 +11,15 @@ interface CreateSMStreamDialogProperties {
 }
 
 const CreateSMStreamDialog = ({ label }: CreateSMStreamDialogProperties) => {
-  const dataKey = 'SMChannelSMStreamDialog-SMStreamDataForSMChannelSelector';
-  const { setSelectedItems } = useSelectedItems<SMStreamDto>(dataKey);
+  // const dataKey = 'SMChannelSMStreamDialog-SMStreamDataForSMChannelSelector';
+  // const { setSelectedItems } = useSelectedItems<SMStreamDto>(dataKey);
   const [saveEnabled, setSaveEnabled] = useState<boolean>(false);
   const smChannelDialogRef = useRef<SMChannelDialogRef>(null);
   const smDialogRef = useRef<SMDialogRef>(null);
 
-  const ReturnToParent = React.useCallback(() => {
-    setSelectedItems([]);
-  }, [setSelectedItems]);
+  // const ReturnToParent = React.useCallback(() => {
+  //   setSelectedItems([]);
+  // }, [setSelectedItems]);
 
   const onSave = React.useCallback((request: any) => {
     CreateSMStream(request)
