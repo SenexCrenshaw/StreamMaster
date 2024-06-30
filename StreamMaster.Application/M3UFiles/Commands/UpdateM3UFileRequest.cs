@@ -49,12 +49,7 @@ public class UpdateM3UFileRequestHandler(IRepositoryWrapper Repository, IReposit
                 ret.Add(new FieldData(() => m3uFile.Url));
             }
 
-            if (request.OverWriteChannels.HasValue)
-            {
-                needsUpdate = true;
-                m3uFile.OverwriteChannelNumbers = request.OverWriteChannels.Value;
-                ret.Add(new FieldData(() => m3uFile.OverwriteChannelNumbers));
-            }
+
 
             if (!string.IsNullOrEmpty(request.Name) && request.Name != m3uFile.Name)
             {
@@ -75,14 +70,6 @@ public class UpdateM3UFileRequestHandler(IRepositoryWrapper Repository, IReposit
                 ret.Add(new FieldData(() => m3uFile.AutoUpdate));
             }
 
-            if (request.StartingChannelNumber.HasValue)
-            {
-                needsUpdate = true;
-                m3uFile.StartingChannelNumber = request.StartingChannelNumber.Value;
-
-                ret.Add(new FieldData(() => m3uFile.StartingChannelNumber));
-
-            }
 
 
             if (request.HoursToUpdate.HasValue)

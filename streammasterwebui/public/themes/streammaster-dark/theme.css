@@ -7795,7 +7795,17 @@
   border-width: 1px !important;
 }
 
-.sm-border, .p-datatable-wrapper, .sm-datatable-header, .videoinfo-selector > tr:nth-child(odd), .sm-card .sm-card-children, .sm-card-dark .sm-card-children, .sm-card-simple .sm-card-children, .sm-card .sm-card-info, .sm-card-dark .sm-card-info, .sm-card-simple .sm-card-info, .sm-card .sm-card-header, .sm-card-dark .sm-card-header, .sm-card-simple .sm-card-header, .sm-standard-header, .sm-iconselector-lg, .sm-card-children-noborder .p-datatable {
+.sm-border-x {
+  border-color: #263238 !important;
+  border-top-style: none !important;
+  border-bottom-style: none !important;
+  border-left-style: solid !important;
+  border-radius: 0 !important;
+  border-right-style: solid !important;
+  border-width: 1px !important;
+}
+
+.sm-border, .p-datatable-wrapper, .sm-datatable-header, .videoinfo-selector > tr:nth-child(odd), .sm-card .sm-card-children, .sm-card-dark .sm-card-children, .sm-card-simple .sm-card-children, .sm-card .sm-card-info, .sm-card-dark .sm-card-info, .sm-card-simple .sm-card-info, .sm-card .sm-card-header, .sm-card-dark .sm-card-header, .sm-card-simple .sm-card-header, .sm-standard-header, .sm-iconselector-lg, .sm-card-children-noborder .sm-border2, .sm-card-children-noborder .p-datatable {
   border-radius: 6px !important;
   border-color: #263238 !important;
   border-width: 0.1rem !important;
@@ -8739,6 +8749,19 @@ div[aria-haspopup=dialog] {
   padding-left: 0.8rem !important;
   height: 1.4rem !important;
 }
+.sm-card-simple .sm-card-children-info-noborder {
+  background-color: #21282c !important;
+  display: flex;
+  align-items: center;
+  padding-bottom: 0.75rem;
+  padding-top: 0.75rem;
+  padding-left: 0.8rem !important;
+  height: 1.4rem !important;
+  border-top-left-radius: 6px;
+  border-top-right-radius: 6px;
+  border-top-style: solid;
+  border-top-width: 1px;
+}
 .sm-card-simple .sm-card-children-content {
   padding: 0;
 }
@@ -8871,7 +8894,7 @@ div[aria-haspopup=dialog] {
 
 .p-button-icon-only {
   padding: 0;
-  /* max-width: 1.4rem; */
+  max-width: 1.4rem;
   min-width: 1.4rem;
 }
 

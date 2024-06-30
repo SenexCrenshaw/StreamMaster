@@ -65,7 +65,6 @@ public class ScanDirectoryForM3UFilesRequestHandler(IPublisher Publisher, IRepos
             LastDownloadAttempt = SMDT.UtcNow,
             FileExists = true,
             MaxStreamCount = 1,
-            StartingChannelNumber = 1,
             Url = ""
         };
 

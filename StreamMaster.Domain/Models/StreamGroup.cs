@@ -11,7 +11,7 @@ public class StreamGroup : BaseEntity
 {
     public static string APIName => "StreamGroups";
 
-    public ICollection<StreamGroupChannelGroup> ChannelGroups { get; set; } = [];
+    public List<StreamGroupChannelGroup> ChannelGroups { get; set; } = [];
     public List<StreamGroupProfile> StreamGroupProfiles { get; set; } = [];
 
 
@@ -21,7 +21,9 @@ public class StreamGroup : BaseEntity
     public ICollection<StreamGroupSMChannelLink> SMChannels { get; set; } = [];
 
     public bool IsReadOnly { get; set; } = false;
-    public bool AutoSetChannelNumbers { get; set; } = false;
+    public bool IgnoreExistingChannelNumbers { get; set; } = true;
+    public int StartingChannelNumber { get; set; } = 1;
+
     [Column(TypeName = "citext")]
     public string Name { get; set; } = string.Empty;
 

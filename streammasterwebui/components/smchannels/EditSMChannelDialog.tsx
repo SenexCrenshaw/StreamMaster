@@ -52,10 +52,18 @@ const EditSMChannelDialog = ({ smChannelDto }: CopySMChannelProperties) => {
 
   return (
     <SMPopUp
-      isPopupLoading={isRowLoading}
       buttonClassName="icon-yellow"
-      hasCloseButton={false}
+      buttonIsLoading={isRowLoading}
       contentWidthSize="5"
+      hasCloseButton={false}
+      icon="pi-pencil"
+      isPopupLoading={isRowLoading}
+      modal
+      modalCentered
+      noBorderChildren
+      simpleChildren
+      showRemember={false}
+      title={`EDIT CHANNEL : ${smChannelDto.Name}`}
       header={
         <div className="flex w-12 gap-1 justify-content-end align-content-center">
           <ResetButton
@@ -72,13 +80,6 @@ const EditSMChannelDialog = ({ smChannelDto }: CopySMChannelProperties) => {
           />
         </div>
       }
-      buttonIsLoading={isRowLoading}
-      icon="pi-pencil"
-      modal
-      modalCentered
-      placement="bottom-end"
-      rememberKey={'DeleteChannelGroupDialog'}
-      title={`EDIT CHANNEL : ${smChannelDto.Name}`}
     >
       <SMChannelDialog ref={dialogRef} smChannel={smChannelDto} onSave={onSave} onSaveEnabled={setSaveEnabled} />
     </SMPopUp>

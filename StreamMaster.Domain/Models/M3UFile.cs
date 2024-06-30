@@ -30,11 +30,7 @@ public class M3UFile : AutoUpdateEntity
     }
 
     public List<string> VODTags { get; set; } = [];
-
-    //  public string OverwriteChannelNumbers { get; set; }
-    public bool OverwriteChannelNumbers { get; set; } = true;
     public int MaxStreamCount { get; set; }
-    public int StartingChannelNumber { get; set; }
     public int StationCount { get; set; }
     //public M3UFileStreamURLPrefix StreamURLPrefix { get; set; }
     public DateTime LastWrite()

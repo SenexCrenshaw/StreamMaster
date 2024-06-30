@@ -22,6 +22,15 @@
     border-width: 1px !important;
 }
 
+@mixin sm-border-x() {
+    border-color: $inputBorderColor !important;
+    border-top-style: none !important;
+    border-bottom-style: none !important;
+    border-left-style: solid !important;
+    border-radius: 0 !important;
+    border-right-style: solid !important;
+    border-width: 1px !important;
+}
 
 @mixin sm-border-right() {
 
@@ -207,6 +216,10 @@ $shadow-color-sg: rgba($iconSG, $shadow-opacity); // Define the shadow color wit
     @include sm-border-y();
 }
 
+.sm-border-x {
+    @include sm-border-x();
+}
+
 .sm-border {
     @include sm-border();
 }
@@ -364,6 +377,10 @@ $shadow-color-sg: rgba($iconSG, $shadow-opacity); // Define the shadow color wit
 
 .sm-card-children-noborder {
     .p-datatable {
+        @extend .sm-border;
+    }
+
+    .sm-border2 {
         @extend .sm-border;
     }
 }

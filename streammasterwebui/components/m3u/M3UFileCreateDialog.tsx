@@ -28,9 +28,7 @@ export const M3UFileCreateDialog = ({ onHide, onUploadComplete, showButton }: M3
   const defaultValues = {
     HoursToUpdate: 72,
     MaxStreamCount: 1,
-    Name: '',
-    OverwriteChannelNumbers: true,
-    StartingChannelNumber: 1
+    Name: ''
   } as M3UFileDto;
 
   const [m3uFileDto, setM3UFileDto] = React.useState<M3UFileDto>(defaultValues);
@@ -55,8 +53,6 @@ export const M3UFileCreateDialog = ({ onHide, onUploadComplete, showButton }: M3
       createM3UFileRequest.Name = m3uFileDto.Name;
       createM3UFileRequest.UrlSource = source;
       createM3UFileRequest.MaxStreamCount = m3uFileDto.MaxStreamCount;
-      createM3UFileRequest.StartingChannelNumber = m3uFileDto.StartingChannelNumber;
-      createM3UFileRequest.OverWriteChannels = m3uFileDto.OverwriteChannelNumbers;
       createM3UFileRequest.VODTags = m3uFileDto.VODTags;
       createM3UFileRequest.HoursToUpdate = m3uFileDto.HoursToUpdate;
 
@@ -72,16 +68,7 @@ export const M3UFileCreateDialog = ({ onHide, onUploadComplete, showButton }: M3
           ReturnToParent();
         });
     },
-    [
-      ReturnToParent,
-      m3uFileDto.HoursToUpdate,
-      m3uFileDto.MaxStreamCount,
-      m3uFileDto.Name,
-      m3uFileDto.OverwriteChannelNumbers,
-      m3uFileDto.StartingChannelNumber,
-      m3uFileDto.VODTags,
-      setStringValue
-    ]
+    [ReturnToParent, m3uFileDto.HoursToUpdate, m3uFileDto.MaxStreamCount, m3uFileDto.Name, m3uFileDto.VODTags, setStringValue]
   );
 
   useEffect(() => {

@@ -4,7 +4,7 @@ namespace StreamMaster.Application.M3UFiles.Commands;
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record CreateM3UFileRequest(string Name, int MaxStreamCount, string? UrlSource, int? HoursToUpdate, bool? OverWriteChannels, int? StartingChannelNumber, List<string>? VODTags) : IRequest<APIResponse> { }
+public record CreateM3UFileRequest(string Name, int MaxStreamCount, string? UrlSource, int? HoursToUpdate, List<string>? VODTags) : IRequest<APIResponse> { }
 
 [LogExecutionTimeAspect]
 public class CreateM3UFileRequestHandler(ILogger<CreateM3UFileRequest> Logger, IMessageService messageService, IDataRefreshService dataRefreshService, IRepositoryWrapper Repository, IPublisher Publisher)
@@ -29,8 +29,6 @@ public class CreateM3UFileRequestHandler(ILogger<CreateM3UFileRequest> Logger, I
                 Url = command.UrlSource,
                 MaxStreamCount = command.MaxStreamCount,
                 Source = command.Name + fd.FileExtension,
-                StartingChannelNumber = command.StartingChannelNumber ?? 1,
-                OverwriteChannelNumbers = command.OverWriteChannels != null && (bool)command.OverWriteChannels,
                 VODTags = command.VODTags ?? [],
                 HoursToUpdate = command.HoursToUpdate ?? 72,
             };

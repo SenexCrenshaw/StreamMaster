@@ -475,16 +475,22 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
       });
     }
 
-    const pagedInformation: PagedResponse<T> = {
-      First: state.first,
-      PageNumber: state.page,
-      PageSize: state.rows,
-      TotalItemCount: filteredData.length
-    };
-    setters.setPagedInformation(pagedInformation);
-
-    const pagedData = filteredData.slice(state.first, state.first + state.rows);
-    setDataSource(pagedData);
+    if (
+      !state.pagedInformation ||
+      state.pagedInformation.First !== state.first ||
+      state.pagedInformation.PageNumber !== state.page ||
+      state.pagedInformation.PageSize !== state.rows
+    ) {
+      const pagedInformation: PagedResponse<T> = {
+        First: state.first,
+        PageNumber: state.page,
+        PageSize: state.rows,
+        TotalItemCount: filteredData.length
+      };
+      setters.setPagedInformation(pagedInformation);
+      const pagedData = filteredData.slice(state.first, state.first + state.rows);
+      setDataSource(pagedData);
+    }
   }, [
     data,
     props.dataSource,
@@ -497,7 +503,8 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
     state.selectedItems,
     state.showSelected,
     state.sortField,
-    state.sortOrder
+    state.sortOrder,
+    state.pagedInformation
   ]);
 
   const sourceRenderHeader = useMemo(() => {
@@ -838,6 +845,6 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
   );
 };
 
-SMDataTable.displayName = 'dataselectorvalues';
+SMDataTable.displayName = 'SMDataTable';
 
 export default memo(SMDataTable);

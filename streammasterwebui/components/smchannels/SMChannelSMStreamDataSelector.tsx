@@ -16,7 +16,7 @@ import {
   SetSMStreamRanksRequest
 } from '@lib/smAPI/smapiTypes';
 import { DataTableValue } from 'primereact/datatable';
-import { ReactNode, memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { ReactNode, memo, useCallback, useMemo } from 'react';
 
 interface SMChannelSMStreamDataSelectorProperties {
   readonly enableEdit?: boolean;
@@ -30,14 +30,14 @@ const SMChannelSMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id
   const dataKey = `${id}-SMChannelSMStreamDataSelector`;
   const { selectedItems, setSelectedItems } = useSelectedItems<SMStreamDto>(`${id}-SMChannelSMStreamDataSelector`);
   const { showHidden } = useShowHidden(dataKey);
-  const [enableEdit, setEnableEdit] = useState<boolean>(true);
+  // const [enableEdit, setEnableEdit] = useState<boolean>(true);
   const { data: smChannelData, isLoading: smChannelIsLoading } = useGetSMChannelStreams({ SMChannelId: smChannel?.Id } as GetSMChannelStreamsRequest);
 
-  useEffect(() => {
-    if (propsEnableEdit !== enableEdit) {
-      setEnableEdit(propsEnableEdit ?? true);
-    }
-  }, [enableEdit, propsEnableEdit]);
+  // useEffect(() => {
+  //   if (propsEnableEdit !== enableEdit) {
+  //     setEnableEdit(propsEnableEdit ?? true);
+  //   }
+  // }, [enableEdit, propsEnableEdit]);
 
   const actionTemplate = useCallback(
     (smStream: SMStreamDto) => (
@@ -74,10 +74,11 @@ const SMChannelSMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id
     );
   }, [dataKey]);
 
-  const w = '12rem';
-  const z = '4rem';
-  const columns = useMemo(
-    (): ColumnMeta[] => [
+  const columns = useMemo((): ColumnMeta[] => {
+    const w = '12rem';
+    const z = '4rem';
+
+    return [
       { field: 'Name', maxWidth: w, minWidth: w, width: w },
       { field: 'M3UFileName', header: 'M3U', maxWidth: z, minWidth: z, width: z },
       {
@@ -89,9 +90,8 @@ const SMChannelSMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id
         minWidth: '2rem',
         width: '2rem'
       }
-    ],
-    [actionTemplate, addOrRemoveHeaderTemplate]
-  );
+    ];
+  }, [actionTemplate, addOrRemoveHeaderTemplate]);
 
   const getSMChannelData = useMemo(() => {
     if (!smChannelData) {

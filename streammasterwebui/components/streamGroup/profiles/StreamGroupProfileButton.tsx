@@ -21,7 +21,6 @@ export const StreamGroupProfileButton = () => {
       title="PROFILES"
     >
       <StreamGroupOutputProfileDataSelector />
-
       <div className="layout-padding-bottom-lg" />
       <StreamGroupVideoProfileDataSelector />
     </SMPopUp>

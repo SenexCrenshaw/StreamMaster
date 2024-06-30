@@ -256,9 +256,7 @@ export interface M3UFileDto
 	MaxStreamCount: number;
 	Name: string;
 	NeedsUpdate: boolean;
-	OverwriteChannelNumbers: boolean;
 	Source: string;
-	StartingChannelNumber: number;
 	StationCount: number;
 	Url: string;
 	VODTags: string[];
@@ -355,16 +353,17 @@ export interface SMStreamDto
 }
 export interface StreamGroupDto
 {
-	AutoSetChannelNumbers: boolean;
 	ChannelCount: number;
 	HDHRLink: string;
 	Id: number;
+	IgnoreExistingChannelNumbers: boolean;
 	IsLoading: boolean;
 	IsReadOnly: boolean;
 	M3ULink: string;
 	Name: string;
 	ShortEPGLink: string;
 	ShortM3ULink: string;
+	StartingChannelNumber: number;
 	StreamGroupProfiles: StreamGroupProfileDto[];
 	XMLLink: string;
 }
@@ -668,7 +667,9 @@ export interface AddProfileToStreamGroupRequest
 }
 export interface CreateStreamGroupRequest
 {
+	IgnoreExistingChannelNumbers?: boolean;
 	Name: string;
+	StartingChannelNumber?: number;
 }
 export interface DeleteStreamGroupRequest
 {
@@ -689,8 +690,9 @@ export interface UpdateStreamGroupProfileRequest
 }
 export interface UpdateStreamGroupRequest
 {
-	AutoSetChannelNumbers?: boolean;
+	IgnoreExistingChannelNumbers?: boolean;
 	NewName?: string;
+	StartingChannelNumber?: number;
 	StreamGroupId: number;
 	StreamGroupProfiles?: string[];
 }
@@ -1131,8 +1133,6 @@ export interface CreateM3UFileFromFormRequest
 	HoursToUpdate?: number;
 	MaxStreamCount: number;
 	Name: string;
-	OverWriteChannels?: boolean;
-	StartingChannelNumber?: number;
 	VODTags?: string[];
 }
 export interface CreateM3UFileRequest
@@ -1140,8 +1140,6 @@ export interface CreateM3UFileRequest
 	HoursToUpdate?: number;
 	MaxStreamCount: number;
 	Name: string;
-	OverWriteChannels?: boolean;
-	StartingChannelNumber?: number;
 	UrlSource?: string;
 	VODTags?: string[];
 }

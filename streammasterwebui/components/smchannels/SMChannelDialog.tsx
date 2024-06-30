@@ -3,6 +3,7 @@ import IconSelector from '@components/icons/IconSelector';
 import NumberEditor from '@components/inputs/NumberEditor';
 import SMChannelGroupDropDown from '@components/inputs/SMChannelGroupDropDown';
 import StringEditor from '@components/inputs/StringEditor';
+import { SMCard } from '@components/sm/SMCard';
 import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
 import useGetStationChannelNames from '@lib/smAPI/SchedulesDirect/useGetStationChannelNames';
 import { SMChannelDto, SMStreamDto, StationChannelName, UpdateSMChannelRequest } from '@lib/smAPI/smapiTypes';
@@ -148,9 +149,9 @@ const SMChannelDialog = forwardRef<SMChannelDialogRef, SMChannelDialogProperties
   }
 
   return (
-    <>
-      <div className="sm-headerBg dialog-padding border-sides">
-        <div className="flex w-12 gap-1 pl-2">
+    <SMCard>
+      <div className="sm-border2">
+        <div className="flex w-12 gap-1 pl-2 ">
           <div className="flex flex-column w-9 gap-1 pr-3 ">
             <div className="flex w-12 gap-1">
               <div className="w-6 justify-content-start align-items-center">
@@ -185,6 +186,9 @@ const SMChannelDialog = forwardRef<SMChannelDialogRef, SMChannelDialogProperties
                 />
               </div>
             </div>
+            <div className="w-6 gap-1 w-full h-full">
+              <StreamingProxyTypeSelector darkBackGround label="Proxy" data={smChannel} onChange={(e) => setProxy(e)} />
+            </div>
           </div>
 
           <div className="w-3 flex flex-column justify-content-start align-items-center ">
@@ -192,18 +196,13 @@ const SMChannelDialog = forwardRef<SMChannelDialogRef, SMChannelDialogProperties
           </div>
         </div>
 
-        <div className="flex w-10 gap-1 pl-2">
-          <div className="w-6 gap-1 w-full h-full">
-            <StreamingProxyTypeSelector darkBackGround label="Proxy" data={smChannel} onChange={(e) => setProxy(e)} />
-          </div>
-        </div>
+        <div className="flex w-10 gap-1 pl-2"></div>
+
+        <div className="layout-padding-bottom-lg sm-headerBg border-radius-bottom" />
       </div>
-      <div className="layout-padding-bottom-lg sm-headerBg border-radius-bottom" />
-      <div className="layout-padding-bottom-lg" />
-      <div className="w-12">
-        <SMChannelSMStreamDialog name={request.Name} smChannel={smChannel} />
-      </div>
-    </>
+      <div className="layout-padding-bottom-lg dark-background" />
+      <SMChannelSMStreamDialog name={request.Name} smChannel={smChannel} />
+    </SMCard>
   );
 });
 

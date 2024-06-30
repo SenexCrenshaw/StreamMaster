@@ -358,7 +358,7 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, RepositoryW
     private void ProcessStreamsConcurrently(List<SMStream> streams, List<SMStream> existing, List<ChannelGroup> groups, M3UFile m3uFile)
     {
         int totalCount = streams.Count;
-        Dictionary<string, SMStream> existingLookup = existing.ToDictionary(a => a.Id, a => a);
+        Dictionary<string, SMStream> existingLookup = existing.ToDictionary(a => a.Url, a => a);
         Dictionary<string, ChannelGroup> groupLookup = groups.ToDictionary(g => g.Name, g => g);
         ConcurrentDictionary<string, bool> processed = new();
 
@@ -383,7 +383,8 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, RepositoryW
             {
                 _ = groupLookup.TryGetValue(stream.Group, out ChannelGroup? group);
 
-                if (!existingLookup.TryGetValue(stream.Id, out SMStream? existingStream))
+
+                if (!existingLookup.TryGetValue(stream.Url, out SMStream? existingStream))
                 {
                     ProcessNewStream(stream, group?.IsHidden ?? false, m3uFile.Name, index);
                     stream.SMStreamId = UniqueHexGenerator.GenerateUniqueHex(generatedIdsDict);
@@ -454,6 +455,13 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, RepositoryW
             existingStream.Logo = stream.Logo;
         }
 
+        if (existingStream.Url != stream.Url)
+        {
+            changed = true;
+
+            existingStream.Url = stream.Url;
+        }
+
         if (existingStream.Name != stream.Name)
         {
             changed = true;
@@ -463,10 +471,11 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, RepositoryW
 
         if (existingStream.SMStreamId != stream.SMStreamId)
         {
-            changed = true;
+            //changed = true;
 
-            existingStream.SMStreamId = stream.SMStreamId;
+            //existingStream.SMStreamId = stream.SMStreamId;
         }
+
 
         if (existingStream.FilePosition != index)
         {

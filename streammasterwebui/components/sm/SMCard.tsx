@@ -1,6 +1,6 @@
 import CloseButton from '@components/buttons/CloseButton';
 import { useMemo } from 'react';
-import { SMCardProperties } from './interfaces/SMCardProperties';
+import { SMCardProperties } from './Interfaces/SMCardProperties';
 
 interface InternalSMCardProperties extends SMCardProperties {
   readonly children: React.ReactNode;
@@ -69,7 +69,9 @@ export const SMCard = ({
       </div>
       <div className="layout-padding-bottom" />
       <div className={noBorderChildren ? 'sm-card-children-noborder' : 'sm-card-children'}>
-        {info && info !== '' && <div className={`${borderClass} sm-card-children-info`}>{info}</div>}
+        {info && info !== '' && (
+          <div className={noBorderChildren ? `${borderClass} sm-card-children-info-noborder` : `${borderClass} sm-card-children-info`}>{info}</div>
+        )}
         {children && children !== '' && <div className="sm-card-children-content">{children}</div>}
       </div>
     </div>

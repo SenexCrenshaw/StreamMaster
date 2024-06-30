@@ -15,8 +15,7 @@ interface M3UUpdateProperties {
   id: number;
   maxStreams?: number | null;
   name?: string | null;
-  overwriteChannelNumbers?: boolean | null;
-  startingChannelNumber?: number | null;
+
   url?: string | null;
 }
 
@@ -31,7 +30,7 @@ const M3UFilesDataSelector = () => {
       return;
     }
 
-    const { auto, hours, maxStreams, name, url, startingChannelNumber, overwriteChannelNumbers } = restProperties;
+    const { auto, hours, maxStreams, name, url } = restProperties;
 
     const request = {} as UpdateM3UFileRequest;
     request.Id = id;
@@ -52,20 +51,12 @@ const M3UFilesDataSelector = () => {
       request.Name = name;
     }
 
-    if (overwriteChannelNumbers !== undefined) {
-      request.OverWriteChannels = overwriteChannelNumbers === true;
-    }
-
     if (maxStreams) {
       request.MaxStreamCount = maxStreams;
     }
 
     if (url) {
       request.Url = url;
-    }
-
-    if (startingChannelNumber) {
-      request.StartingChannelNumber = startingChannelNumber;
     }
 
     await UpdateM3UFile(request)

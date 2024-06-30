@@ -1,7 +1,6 @@
 import AddButton from '@components/buttons/AddButton';
 import StringEditor from '@components/inputs/StringEditor';
 import SMDropDown from '@components/sm/SMDropDown';
-import { Logger } from '@lib/common/logger';
 import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
 import { useSMContext } from '@lib/signalr/SMProvider';
 import useGetEPGColors from '@lib/smAPI/EPG/useGetEPGColors';
@@ -88,11 +87,11 @@ const EPGSelector = ({ buttonDarkBackground = false, enableEditMode = true, labe
       return undefined;
     }
 
-    const test = query.data.filter((x) => {
-      return x.Channel.startsWith('-1');
-    });
+    // const test = query.data.filter((x) => {
+    //   return x.Channel.startsWith('-1');
+    // });
 
-    Logger.debug('EPGSelector', { test });
+    // Logger.debug('EPGSelector', { test });
 
     if (selectedItems && selectedItems.length > 0) {
       const epgNumbers = selectedItems.map((x) => x.EPGNumber);
@@ -246,7 +245,7 @@ const EPGSelector = ({ buttonDarkBackground = false, enableEditMode = true, labe
               data-pr-tooltip={'No EPG'}
               className={`${tooltipClassName} text-xs text-container`}
             >
-              {input}
+              <div className="text-xs text-container text-white-alpha-40 pl-1">{input}</div>
             </span>
           </div>
         );

@@ -86,6 +86,19 @@
         height: $input-height-with-no-borders !important;
     }
 
+    .sm-card-children-info-noborder {
+        background-color: $headerBg !important;
+        display: flex;
+        align-items: center;
+        padding-bottom: 0.75rem;
+        padding-top: 0.75rem;
+        padding-left: $headerTextLeft !important;
+        height: $input-height-with-no-borders !important;
+        border-top-left-radius: $borderRadius;
+        border-top-right-radius: $borderRadius;
+        border-top-style: solid;
+        border-top-width: 1px;
+    }
 
     .sm-card-children-content {
         // @extend .sm-padding-xlg;

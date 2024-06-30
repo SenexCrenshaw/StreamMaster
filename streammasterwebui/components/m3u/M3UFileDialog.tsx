@@ -3,7 +3,6 @@ import StringEditor from '@components/inputs/StringEditor';
 import useScrollAndKeyEvents from '@lib/hooks/useScrollAndKeyEvents';
 import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useState } from 'react';
 
-import BooleanEditor from '@components/inputs/BooleanEditor';
 import { arraysEqual } from '@lib/common/common';
 import { Logger } from '@lib/common/logger';
 import { useStringValue } from '@lib/redux/hooks/stringValue';
@@ -32,8 +31,6 @@ const M3UFileDialog = forwardRef<M3UFileDialogRef, M3UFileDialogProperties>(({ o
         HoursToUpdate: 72,
         MaxStreamCount: 1,
         Name: '',
-        OverwriteChannelNumbers: true,
-        StartingChannelNumber: 1,
         Url: ''
       } as M3UFileDto),
     []
@@ -172,9 +169,11 @@ const M3UFileDialog = forwardRef<M3UFileDialogRef, M3UFileDialogProperties>(({ o
               <NumberEditor
                 darkBackGround
                 disableDebounce
-                label="START CH #"
-                onChange={(e) => updateStateAndRequest({ StartingChannelNumber: e })}
-                value={m3uFileDto?.StartingChannelNumber}
+                label="AUTO UPDATE"
+                onChange={(e) => updateStateAndRequest({ HoursToUpdate: e })}
+                showButtons
+                suffix=" Hours"
+                value={m3uFileDto?.HoursToUpdate}
               />
             </div>
           </div>
@@ -192,28 +191,6 @@ const M3UFileDialog = forwardRef<M3UFileDialogRef, M3UFileDialogProperties>(({ o
       )}
       <div className="w-12">
         <div className="flex gap-1">
-          <div className="flex w-6 gap-1">
-            <div className="w-6">
-              <NumberEditor
-                darkBackGround
-                disableDebounce
-                label="AUTO UPDATE"
-                onChange={(e) => updateStateAndRequest({ HoursToUpdate: e })}
-                showButtons
-                suffix=" Hours"
-                value={m3uFileDto?.HoursToUpdate}
-              />
-            </div>
-            <div className="w-6">
-              <div className="sm-sourceorfiledialog-toggle">
-                <BooleanEditor
-                  label="AUTO CH.#"
-                  checked={m3uFileDto?.OverwriteChannelNumbers}
-                  onChange={(e) => updateStateAndRequest({ OverwriteChannelNumbers: e })}
-                />
-              </div>
-            </div>
-          </div>
           <div className="w-6">
             <M3UFileTags vodTags={m3uFileDto?.VODTags} onChange={(e) => updateStateAndRequest({ VODTags: e })} />
           </div>
