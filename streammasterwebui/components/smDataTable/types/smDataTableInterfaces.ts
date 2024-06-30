@@ -14,6 +14,7 @@ export interface DataTableHeaderProperties {
 
 interface BaseDataSelectorProperties<T> extends DataTableHeaderProperties {
   actionHeaderTemplate?: ReactNode;
+  arrayKey?: string;
   className?: string;
   columns: ColumnMeta[];
   defaultSortField?: string;
@@ -40,6 +41,7 @@ interface BaseDataSelectorProperties<T> extends DataTableHeaderProperties {
   showHiddenInSelection?: boolean;
   showSelectAll?: boolean;
   showSelected?: boolean;
+  showSortSelected?: boolean;
   style?: CSSProperties;
   useSelectedItemsFilter?: boolean;
   onRowReorder?: (value: T[]) => void;

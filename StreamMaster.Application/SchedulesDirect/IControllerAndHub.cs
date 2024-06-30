@@ -21,6 +21,7 @@ namespace StreamMaster.Application.SchedulesDirect
         Task<ActionResult<APIResponse>> RemoveHeadendToView(RemoveHeadendToViewRequest request);
         Task<ActionResult<APIResponse>> RemoveLineup(RemoveLineupRequest request);
         Task<ActionResult<APIResponse>> RemoveStation(RemoveStationRequest request);
+        Task<ActionResult<APIResponse>> SetStations(SetStationsRequest request);
     }
 }
 
@@ -43,5 +44,6 @@ namespace StreamMaster.Application.Hubs
         Task<APIResponse> RemoveHeadendToView(RemoveHeadendToViewRequest request);
         Task<APIResponse> RemoveLineup(RemoveLineupRequest request);
         Task<APIResponse> RemoveStation(RemoveStationRequest request);
+        Task<APIResponse> SetStations(SetStationsRequest request);
     }
 }

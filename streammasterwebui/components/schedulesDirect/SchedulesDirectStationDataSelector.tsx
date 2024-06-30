@@ -1,23 +1,25 @@
+import ResetButton from '@components/buttons/ResetButton';
 import { useLineUpColumnConfig } from '@components/columns/useLineUpColumnConfig';
+import SMButton from '@components/sm/SMButton';
 import SMDataTable from '@components/smDataTable/SMDataTable';
+import { arraysEqualByKey } from '@components/smDataTable/helpers/arraysEqual';
+
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
-import { compareStationPreviews, findDifferenceStationIdLineUps } from '@lib/common/common';
 import { Logger } from '@lib/common/logger';
 import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
-import { AddStation, RemoveStation } from '@lib/smAPI/SchedulesDirect/SchedulesDirectCommands';
+import { SetStations } from '@lib/smAPI/SchedulesDirect/SchedulesDirectCommands';
 import useGetSelectedStationIds from '@lib/smAPI/SchedulesDirect/useGetSelectedStationIds';
 import useGetStationPreviews from '@lib/smAPI/SchedulesDirect/useGetStationPreviews';
-import { AddStationRequest, RemoveStationRequest, StationPreview, StationRequest } from '@lib/smAPI/smapiTypes';
-import { memo, useCallback, useEffect, useMemo } from 'react';
+import { SetStationsRequest, StationPreview, StationRequest } from '@lib/smAPI/smapiTypes';
+import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 
 const SchedulesDirectStationDataSelector = () => {
   const dataKey = 'SchedulesDirectSchedulesDataSelector';
-  const { selectedItems, setSelectedItems } = useSelectedItems<StationPreview>(dataKey);
   const schedulesDirectGetSelectedStationIdsQuery = useGetSelectedStationIds();
   const stationPreviews = useGetStationPreviews();
   const { columnConfig: lineUpColumnConfig } = useLineUpColumnConfig();
-
-  // Logger.debug('SchedulesDirectStationDataSelector', { stationPreviews: stationPreviews.data?.length });
+  const { selectedItems, setSelectedItems } = useSelectedItems<StationPreview>(dataKey);
+  const [originalSelectedItems, setOriginalSelectedItems] = useState<StationPreview[] | undefined>(undefined);
 
   useEffect(() => {
     if (
@@ -28,9 +30,6 @@ const SchedulesDirectStationDataSelector = () => {
       return;
     }
 
-    const station19614 = stationPreviews.data.find((station) => station.StationId === '19614');
-    const station19614Selected = schedulesDirectGetSelectedStationIdsQuery.data.some((station) => station.StationId === '19614');
-
     const sp = schedulesDirectGetSelectedStationIdsQuery.data
       .map((stationIdLineUp) =>
         stationPreviews.data?.find(
@@ -39,72 +38,59 @@ const SchedulesDirectStationDataSelector = () => {
       )
       .filter((station) => station !== undefined) as StationPreview[];
 
-    //   setSelectedItems(sp as StationPreview[]);
-    if (findDifferenceStationIdLineUps(sp, selectedItems).length > 0) {
-      setSelectedItems(sp as StationPreview[]);
+    if (originalSelectedItems === undefined || originalSelectedItems.length === 0) {
+      setOriginalSelectedItems(sp);
+      setSelectedItems(sp);
     }
 
-    Logger.debug('SchedulesDirectStationDataSelector', { sp, station19614, station19614Selected });
-  }, [
-    schedulesDirectGetSelectedStationIdsQuery.data,
-    schedulesDirectGetSelectedStationIdsQuery.isLoading,
-    selectedItems,
-    setSelectedItems,
-    stationPreviews.data
-  ]);
+    // if (findDifferenceStationIdLineUps(sp, selectedItems).length > 0) {
+    //   setSelectedItems(sp as StationPreview[]);
+    // }
+  }, [originalSelectedItems, schedulesDirectGetSelectedStationIdsQuery.data, schedulesDirectGetSelectedStationIdsQuery.isLoading, stationPreviews.data]);
+
+  const isSaveEnabled = useMemo(() => {
+    if (originalSelectedItems) {
+      const test = arraysEqualByKey(originalSelectedItems, selectedItems, 'StationId');
+      return !test;
+    }
+
+    return false;
+  }, [originalSelectedItems, selectedItems]);
+
+  const dataSource = useMemo(() => {
+    if (stationPreviews.data === undefined) {
+      return [];
+    }
+    return stationPreviews.data;
+  }, [stationPreviews.data]);
 
   const onSave = useCallback(
     (stationIdLineUps: StationPreview[]) => {
-      if (stationIdLineUps === undefined || schedulesDirectGetSelectedStationIdsQuery.data === undefined) {
+      if (stationIdLineUps === undefined || schedulesDirectGetSelectedStationIdsQuery.data === undefined || originalSelectedItems === undefined) {
         return;
       }
 
-      const { added, removed } = compareStationPreviews(selectedItems, stationIdLineUps);
-
-      if (added.length === 0 && removed.length === 0) {
+      if (arraysEqualByKey(originalSelectedItems, selectedItems, 'StationId')) {
         return;
       }
-      // setIsLoading(true);
 
-      if (added !== undefined && added.length > 0) {
-        const toSend = {} as AddStationRequest;
+      const request = {} as SetStationsRequest;
 
-        toSend.Requests = added.map((station) => {
-          const request: StationRequest = { Lineup: station.Lineup, StationId: station.StationId };
-          return request;
+      request.Requests = selectedItems.map((station) => {
+        const request: StationRequest = { Lineup: station.Lineup, StationId: station.StationId };
+        return request;
+      });
+
+      SetStations(request)
+        .then(() => {})
+        .catch(() => {
+          Logger.error('error');
+        })
+        .finally(() => {
+          setOriginalSelectedItems(selectedItems);
         });
-
-        AddStation(toSend)
-          .then(() => {})
-          .catch(() => {
-            Logger.error('error');
-          })
-          .finally(() => {
-            setSelectedItems([] as StationPreview[]);
-            // setIsLoading(false);
-          });
-      }
-
-      if (removed !== undefined && removed.length > 0) {
-        const toSend = {} as RemoveStationRequest;
-
-        toSend.Requests = removed.map((station) => {
-          const request: StationRequest = { Lineup: station.Lineup, StationId: station.StationId };
-          return request;
-        });
-
-        RemoveStation(toSend)
-          .then(() => {})
-          .catch(() => {
-            Logger.error('error');
-          })
-          .finally(() => {
-            setSelectedItems([] as StationPreview[]);
-            // setIsLoading(false);
-          });
-      }
     },
-    [schedulesDirectGetSelectedStationIdsQuery.data, selectedItems, setSelectedItems]
+    [originalSelectedItems, schedulesDirectGetSelectedStationIdsQuery.data, selectedItems]
   );
 
   function imageBodyTemplate(data: StationPreview) {
@@ -133,25 +119,44 @@ const SchedulesDirectStationDataSelector = () => {
     return columnConfigs;
   }, [lineUpColumnConfig]);
 
-  Logger.debug('SchedulesDirectStationDataSelector', { stationPreviews: stationPreviews.data?.length });
+  const headerRight = useMemo((): React.ReactNode => {
+    return (
+      <div className="flex w-12 gap-1 justify-content-end align-content-center">
+        <ResetButton
+          buttonDisabled={!isSaveEnabled}
+          onClick={() => {
+            setSelectedItems(originalSelectedItems);
+          }}
+        />
+        <SMButton
+          buttonDisabled={!isSaveEnabled}
+          icon="pi-save"
+          buttonClassName="pr-3 icon-green"
+          iconFilled
+          label="Save"
+          onClick={() => onSave(selectedItems)}
+        />
+      </div>
+    );
+  }, [isSaveEnabled, onSave, originalSelectedItems, selectedItems, setSelectedItems]);
+
   return (
     <div className="w-full">
       <SMDataTable
+        arrayKey="StationId"
         columns={columns}
-        dataSource={stationPreviews.data}
+        dataSource={dataSource}
         defaultSortField="name"
         emptyMessage="No Line Ups"
         enablePaginator
         headerName="SD Channels"
+        headerRightTemplate={headerRight}
         id="SchedulesDirectStationDataSelector"
         lazy
         noIsLoading={true}
-        onSelectionChange={(e) => {
-          onSave(e);
-        }}
         selectedItemsKey={dataKey}
         selectionMode="multiple"
-        showSelected
+        showSortSelected
         showSelectAll={false}
         style={{ height: 'calc(100vh - 100px)' }}
       />

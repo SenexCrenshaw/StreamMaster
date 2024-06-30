@@ -1,5 +1,5 @@
 import SignalRService from '@lib/signalr/SignalRService';
-import { APIResponse,AddHeadendToViewRequest,AddLineupRequest,AddStationRequest,RemoveHeadendToViewRequest,RemoveLineupRequest,RemoveStationRequest,CountryData,HeadendDto,HeadendToView,LineupPreviewChannel,StationIdLineup,StationChannelName,StationPreview,SubscribedLineup,GetHeadendsByCountryPostalRequest,GetLineupPreviewChannelRequest } from '@lib/smAPI/smapiTypes';
+import { APIResponse,AddHeadendToViewRequest,AddLineupRequest,AddStationRequest,RemoveHeadendToViewRequest,RemoveLineupRequest,RemoveStationRequest,SetStationsRequest,CountryData,HeadendDto,HeadendToView,LineupPreviewChannel,StationIdLineup,StationChannelName,StationPreview,SubscribedLineup,GetHeadendsByCountryPostalRequest,GetLineupPreviewChannelRequest } from '@lib/smAPI/smapiTypes';
 
 export const GetAvailableCountries = async (): Promise<CountryData[] | undefined> => {
   const signalRService = SignalRService.getInstance();
@@ -74,5 +74,10 @@ export const RemoveLineup = async (request: RemoveLineupRequest): Promise<APIRes
 export const RemoveStation = async (request: RemoveStationRequest): Promise<APIResponse | undefined> => {
   const signalRService = SignalRService.getInstance();
   return await signalRService.invokeHubCommand<APIResponse>('RemoveStation', request);
+};
+
+export const SetStations = async (request: SetStationsRequest): Promise<APIResponse | undefined> => {
+  const signalRService = SignalRService.getInstance();
+  return await signalRService.invokeHubCommand<APIResponse>('SetStations', request);
 };
 

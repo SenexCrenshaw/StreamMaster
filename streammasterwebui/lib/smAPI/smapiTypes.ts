@@ -667,6 +667,7 @@ export interface AddProfileToStreamGroupRequest
 }
 export interface CreateStreamGroupRequest
 {
+	AutoSetChannelNumbers?: boolean;
 	IgnoreExistingChannelNumbers?: boolean;
 	Name: string;
 	StartingChannelNumber?: number;
@@ -690,6 +691,7 @@ export interface UpdateStreamGroupProfileRequest
 }
 export interface UpdateStreamGroupRequest
 {
+	AutoSetChannelNumbers?: boolean;
 	IgnoreExistingChannelNumbers?: boolean;
 	NewName?: string;
 	StartingChannelNumber?: number;
@@ -1063,6 +1065,10 @@ export interface RemoveLineupRequest
 	Lineup: string;
 }
 export interface RemoveStationRequest
+{
+	Requests: StationRequest[];
+}
+export interface SetStationsRequest
 {
 	Requests: StationRequest[];
 }

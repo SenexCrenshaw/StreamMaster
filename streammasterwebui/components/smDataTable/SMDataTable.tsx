@@ -23,6 +23,7 @@ import {
 import { MultiSelect, MultiSelectChangeEvent } from 'primereact/multiselect';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import TableHeader from './helpers/TableHeader';
+import { arraysEqualByKey } from './helpers/arraysEqual';
 import bodyTemplate from './helpers/bodyTemplate';
 import { getAlign, getHeaderFromField, setColumnToggle } from './helpers/dataSelectorFunctions';
 import { getColumnStyles } from './helpers/getColumnStyles';
@@ -250,7 +251,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
   );
 
   const sortButton = useCallback(
-    (options: ColumnFilterElementTemplateOptions) => {
+    (options: { field: string }) => {
       return (
         <SMButton
           icon={getSortIcon(options.field)}
@@ -403,17 +404,18 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
     setters.setFilters(newFilters as any);
   };
 
-  const arraysMatch = (arr1: T[], arr2: T[]): boolean => {
-    if (arr1.length !== arr2.length) {
-      return false;
-    }
-    for (let i = 0; i < arr1.length; i++) {
-      if (arr1[props.id] !== arr2[props.id]) {
-        return false;
-      }
-    }
-    return true;
-  };
+  // const arraysMatch = (arr1: T[], arr2: T[]): boolean => {
+  //   if (arr1.length !== arr2.length) {
+  //     return false;
+  //   }
+  //   var key = props.arrayKey ?? ('Id' as keyof T);
+  //   for (let i = 0; i < arr1.length; i++) {
+  //     if (arr1[i][key] !== arr2[i][key]) {
+  //       return false;
+  //     }
+  //   }
+  //   return true;
+  // };
 
   useEffect(() => {
     if (props.queryFilter) {
@@ -479,19 +481,32 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
     }
 
     if (state.sortOrder && state.sortField) {
-      filteredData = filteredData.sort((a: any, b: any) => {
-        const sortField = state.sortField as keyof typeof a;
-        if (a[sortField] < b[sortField]) return -1 * state.sortOrder;
-        if (a[sortField] > b[sortField]) return 1 * state.sortOrder;
-        return 0;
-      });
+      if (state.sortField === 'isSelected') {
+        const selectedItems = state.selectedItems.map((item) => item.Id);
+        filteredData = filteredData.sort((a: any, b: any) => {
+          const aSelected = selectedItems.includes(a.Id);
+          const bSelected = selectedItems.includes(b.Id);
+          // Logger.debug('DataTable', { aSelected, bSelected });
+          if (aSelected && !bSelected) return -1 * state.sortOrder;
+          if (!aSelected && bSelected) return 1 * state.sortOrder;
+          return 0;
+        });
+      } else {
+        filteredData = filteredData.sort((a: any, b: any) => {
+          const sortField = state.sortField as keyof typeof a;
+          if (a[sortField] < b[sortField]) return -1 * state.sortOrder;
+          if (a[sortField] > b[sortField]) return 1 * state.sortOrder;
+          return 0;
+        });
+      }
     }
 
     if (
       !state.pagedInformation ||
       state.pagedInformation.First !== state.first ||
       state.pagedInformation.PageNumber !== state.page ||
-      state.pagedInformation.PageSize !== state.rows
+      state.pagedInformation.PageSize !== state.rows ||
+      state.pagedInformation.TotalItemCount !== filteredData.length
     ) {
       const pagedInformation: PagedResponse<T> = {
         First: state.first,
@@ -502,7 +517,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
       setters.setPagedInformation(pagedInformation);
     }
     const pagedData = filteredData.slice(state.first, state.first + state.rows);
-    if (!arraysMatch(pagedData, dataSource)) {
+    if (!arraysEqualByKey(pagedData, dataSource, 'StationId')) {
       setDataSource(pagedData);
     }
 
@@ -601,6 +616,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
           <SMTriSelectShowSelect selectedItemsKey={props.selectedItemsKey} id={props.id} onToggle={() => toggleAllSelection()} />
         )}
         {props.showSelected === true && <SMTriSelectShowSelected dataKey={props.id} />}
+        {props.showSortSelected === true && sortButton({ field: 'isSelected' })}
       </div>
     );
   }
@@ -801,6 +817,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
             showFilterMatchModes={false}
             showFilterMenu={false}
             showFilterOperator={false}
+            sortable
             hidden={!showSelection}
             style={getColumnStyles({
               maxWidth: props.showHiddenInSelection ? 42 : 20,

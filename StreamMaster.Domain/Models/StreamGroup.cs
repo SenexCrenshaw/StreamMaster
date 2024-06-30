@@ -22,6 +22,7 @@ public class StreamGroup : BaseEntity
 
     public bool IsReadOnly { get; set; } = false;
     public bool IgnoreExistingChannelNumbers { get; set; } = true;
+    public bool AutoSetChannelNumbers { get; set; } = true;
     public int StartingChannelNumber { get; set; } = 1;
 
     [Column(TypeName = "citext")]

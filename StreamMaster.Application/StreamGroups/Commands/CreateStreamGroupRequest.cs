@@ -2,7 +2,7 @@
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record CreateStreamGroupRequest(string Name, bool? IgnoreExistingChannelNumbers, int? StartingChannelNumber) : IRequest<APIResponse> { }
+public record CreateStreamGroupRequest(string Name, bool? AutoSetChannelNumbers, bool? IgnoreExistingChannelNumbers, int? StartingChannelNumber) : IRequest<APIResponse> { }
 
 [LogExecutionTimeAspect]
 public class CreateStreamGroupRequestHandler(IRepositoryWrapper Repository, IMessageService messageService, IDataRefreshService dataRefreshService)
@@ -25,7 +25,8 @@ public class CreateStreamGroupRequestHandler(IRepositoryWrapper Repository, IMes
         {
             Name = request.Name,
             IgnoreExistingChannelNumbers = request.IgnoreExistingChannelNumbers ?? true,
-            StartingChannelNumber = request.StartingChannelNumber ?? 1
+            StartingChannelNumber = request.StartingChannelNumber ?? 1,
+            AutoSetChannelNumbers = request.AutoSetChannelNumbers ?? true
         };
 
         streamGroup.StreamGroupProfiles.Add(new StreamGroupProfile

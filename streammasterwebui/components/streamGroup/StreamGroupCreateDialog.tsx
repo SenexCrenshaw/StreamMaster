@@ -1,3 +1,4 @@
+import BooleanEditor from '@components/inputs/BooleanEditor';
 import StringEditor from '@components/inputs/StringEditor';
 import { SMDialogRef } from '@components/sm/SMDialog';
 import SMPopUp from '@components/sm/SMPopUp';
@@ -75,16 +76,10 @@ export const StreamGroupCreateDialog = ({ onHide, showButton }: StreamGroupCreat
           onSave={() => create()}
           onChange={(e) => e !== undefined && setName(e)}
         />
-        {/* <div className="layout-padding-bottom-lg" />
+        <div className="layout-padding-bottom-lg" />
         <div className="flex w-12 justify-content-end align-content-center">
-          <SaveButton
-            buttonDisabled={!isSaveEnabled}
-            label="Add Stream Group"
-            onClick={() => {
-              create();
-            }}
-          />
-        </div> */}
+          <BooleanEditor checked={found} onChange={(e) => {}} />
+        </div>
         <div className="layout-padding-bottom-lg" />
       </div>
     </SMPopUp>

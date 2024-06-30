@@ -74,7 +74,7 @@ const SchedulesDirectHeadendDataSelector = () => {
         />
       );
     },
-    [headendsToView]
+    [checkBoxChanged, headendsToView]
   );
 
   const columns = useMemo(

@@ -89,17 +89,6 @@ export function getChannelGroupMenuItem(colorIndex: string | undefined, toDispla
   );
 }
 
-export function arraysEqual<T>(arr1: T[] | undefined, arr2: T[] | undefined): boolean {
-  if (arr1 === arr2) return true;
-  if (arr1 == null || arr2 == null) return false;
-  if (arr1.length !== arr2.length) return false;
-
-  for (let i = 0; i < arr1.length; i++) {
-    if (arr1[i] !== arr2[i]) return false;
-  }
-  return true;
-}
-
 export type MatchMode =
   | 'between'
   | 'contains'
@@ -408,24 +397,24 @@ export function findDifferenceStationIdLineUps(firstArray: StationIdLineup[], se
 
   return [...missingFromFirst, ...missingFromSecond];
 }
-export const arraysMatch = (array1: string[], array2: string[]): boolean => {
-  if (array1.length !== array2.length) {
-    return false;
-  }
+// export const arraysMatch = (array1: string[], array2: string[]): boolean => {
+//   if (array1.length !== array2.length) {
+//     return false;
+//   }
 
-  // Sort both arrays using localeCompare for proper string comparison
-  const sortedArray1 = [...array1].sort((a, b) => a.localeCompare(b));
-  const sortedArray2 = [...array2].sort((a, b) => a.localeCompare(b));
+//   // Sort both arrays using localeCompare for proper string comparison
+//   const sortedArray1 = [...array1].sort((a, b) => a.localeCompare(b));
+//   const sortedArray2 = [...array2].sort((a, b) => a.localeCompare(b));
 
-  // Compare the sorted arrays element by element
-  for (const [index, element] of sortedArray1.entries()) {
-    if (element !== sortedArray2[index]) {
-      return false;
-    }
-  }
+//   // Compare the sorted arrays element by element
+//   for (const [index, element] of sortedArray1.entries()) {
+//     if (element !== sortedArray2[index]) {
+//       return false;
+//     }
+//   }
 
-  return true;
-};
+//   return true;
+// };
 
 export function getIconUrl(iconOriginalSource: string | null | undefined, defaultIcon: string, cacheIcon: boolean): string {
   if (!iconOriginalSource || iconOriginalSource === '') {

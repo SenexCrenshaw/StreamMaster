@@ -169,7 +169,7 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
         return streamGroup.Id;
     }
 
-    public async Task<StreamGroupDto?> UpdateStreamGroup(int StreamGroupId, string? NewName, bool? IgnoreExistingChannelNumbers, int? StartingChannelNumber)
+    public async Task<StreamGroupDto?> UpdateStreamGroup(int StreamGroupId, string? NewName, bool? AutoSetChannelNumbers, bool? IgnoreExistingChannelNumbers, int? StartingChannelNumber)
     {
         StreamGroup? streamGroup = await FirstOrDefaultAsync(c => c.Id == StreamGroupId);
         if (streamGroup == null)
@@ -191,6 +191,12 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
         {
             streamGroup.IgnoreExistingChannelNumbers = IgnoreExistingChannelNumbers.Value;
         }
+
+        if (AutoSetChannelNumbers.HasValue)
+        {
+            streamGroup.AutoSetChannelNumbers = AutoSetChannelNumbers.Value;
+        }
+
 
         Update(streamGroup);
         await RepositoryContext.SaveChangesAsync();
