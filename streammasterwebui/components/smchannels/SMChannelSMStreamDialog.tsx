@@ -1,5 +1,5 @@
 import { SMChannelDto } from '@lib/smAPI/smapiTypes';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import SMChannelSMStreamNewDataSelector from './SMChannelSMStreamDataSelector';
 import SMStreamDataForSMChannelSelector from './SMStreamDataForSMChannelSelector';
 
@@ -10,6 +10,13 @@ interface SMChannelSMStreamDialogProperties {
 
 const SMChannelSMStreamDialog = ({ name, smChannel }: SMChannelSMStreamDialogProperties) => {
   const id = 'SMChannelSMStreamDialog';
+  const [internalSMChannel, setInternalSMChannel] = useState<SMChannelDto>({} as SMChannelDto);
+
+  useEffect(() => {
+    if (smChannel && smChannel.Id !== internalSMChannel?.Id) {
+      setInternalSMChannel(smChannel);
+    }
+  }, [internalSMChannel?.Id, smChannel]);
 
   return (
     <div className="flex w-12 gap-1">

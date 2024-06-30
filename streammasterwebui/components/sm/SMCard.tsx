@@ -25,7 +25,7 @@ export const SMCard = ({
     return ret;
   }, [darkBackGround, simpleChildren]);
 
-  const borderClass = info !== '' ? 'sm-border-bottom sm-border-roundtop' : 'info-header-text';
+  const borderClass = info !== '' ? 'sm-border-roundtop' : 'info-header-text';
 
   if (simple === true || title === undefined || title === '') {
     return <div>{children}</div>;
@@ -70,7 +70,7 @@ export const SMCard = ({
       <div className="layout-padding-bottom" />
       <div className={noBorderChildren ? 'sm-card-children-noborder' : 'sm-card-children'}>
         {info && info !== '' && (
-          <div className={noBorderChildren ? `${borderClass} sm-card-children-info-noborder` : `${borderClass} sm-card-children-info`}>{info}</div>
+          <div className={noBorderChildren ? `${borderClass} sm-card-children-info` : `${borderClass} sm-card-children-info`}>{info}</div>
         )}
         {children && children !== '' && <div className="sm-card-children-content">{children}</div>}
       </div>

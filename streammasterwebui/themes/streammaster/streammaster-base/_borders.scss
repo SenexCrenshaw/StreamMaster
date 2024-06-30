@@ -97,8 +97,8 @@
 }
 
 @mixin sm-border-roundtop() {
-    border-top-style: none !important;
-    border-bottom-style: solid !important;
+    border-top-style: solid !important;
+    border-bottom-style: none !important;
     border-left-style: none !important;
     border-right-style: none !important;
 
@@ -106,7 +106,6 @@
     border-top-right-radius: $borderRadius !important;
 
     border-color: $inputBorderColor !important;
-    // border-radius: 0 !important;
     border-width: 1px !important;
 }
 
@@ -380,7 +379,9 @@ $shadow-color-sg: rgba($iconSG, $shadow-opacity); // Define the shadow color wit
         @extend .sm-border;
     }
 
-    .sm-border2 {
+    .sm-card-children-info {
         @extend .sm-border;
+        border-bottom-left-radius: 0 !important;
+        border-bottom-right-radius: 0 !important;
     }
 }

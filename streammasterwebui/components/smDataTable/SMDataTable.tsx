@@ -403,6 +403,18 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
     setters.setFilters(newFilters as any);
   };
 
+  const arraysMatch = (arr1: T[], arr2: T[]): boolean => {
+    if (arr1.length !== arr2.length) {
+      return false;
+    }
+    for (let i = 0; i < arr1.length; i++) {
+      if (arr1[props.id] !== arr2[props.id]) {
+        return false;
+      }
+    }
+    return true;
+  };
+
   useEffect(() => {
     if (props.queryFilter) {
       if (data) {
@@ -488,11 +500,16 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
         TotalItemCount: filteredData.length
       };
       setters.setPagedInformation(pagedInformation);
-      const pagedData = filteredData.slice(state.first, state.first + state.rows);
+    }
+    const pagedData = filteredData.slice(state.first, state.first + state.rows);
+    if (!arraysMatch(pagedData, dataSource)) {
       setDataSource(pagedData);
     }
+
+    // setDataSource(pagedData);
   }, [
     data,
+    dataSource,
     props.dataSource,
     props.queryFilter,
     state.filters,

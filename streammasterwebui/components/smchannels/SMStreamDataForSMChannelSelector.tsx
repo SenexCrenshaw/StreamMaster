@@ -7,7 +7,6 @@ import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
 
 import SMButton from '@components/sm/SMButton';
 import SMDataTable from '@components/smDataTable/SMDataTable';
-import { GetMessage } from '@lib/common/intl';
 import { useQueryAdditionalFilters } from '@lib/redux/hooks/queryAdditionalFilters';
 import useGetM3UFiles from '@lib/smAPI/M3UFiles/useGetM3UFiles';
 import { AddSMStreamToSMChannel, RemoveSMStreamFromSMChannel } from '@lib/smAPI/SMChannelStreamLinks/SMChannelStreamLinksCommands';
@@ -16,7 +15,7 @@ import useGetPagedSMStreams from '@lib/smAPI/SMStreams/useGetPagedSMStreams';
 import { GetSMChannelStreamsRequest, M3UFileDto, RemoveSMStreamFromSMChannelRequest, SMChannelDto, SMStreamDto } from '@lib/smAPI/smapiTypes';
 import { ColumnFilterElementTemplateOptions } from 'primereact/column';
 import { MultiSelect, MultiSelectChangeEvent } from 'primereact/multiselect';
-import { ReactNode, memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { ReactNode, memo, useCallback, useMemo, useState } from 'react';
 
 interface SMStreamDataForSMChannelSelectorProperties {
   readonly enableEdit?: boolean;
@@ -30,23 +29,12 @@ interface SMStreamDataForSMChannelSelectorProperties {
 const SMStreamDataForSMChannelSelector = ({ enableEdit: propsEnableEdit, height, id, name, smChannel }: SMStreamDataForSMChannelSelectorProperties) => {
   const dataKey = `${id}-SMStreamDataForSMChannelSelector`;
   const { setQueryAdditionalFilters } = useQueryAdditionalFilters(dataKey);
-
   const [selectedM3UFiles, setSelectedM3UFiles] = useState<M3UFileDto[]>([]);
-
   const { data: m3uFiles } = useGetM3UFiles();
   const { selectedItems, setSelectedItems } = useSelectedItems<SMStreamDto>(`${id}-SMStreamDataForSMChannelSelector`);
   const { data: smChannelData, isLoading: smChannelIsLoading } = useGetSMChannelStreams({ SMChannelId: smChannel?.Id } as GetSMChannelStreamsRequest);
-
-  const [enableEdit, setEnableEdit] = useState<boolean>(true);
   const { queryFilter } = useQueryFilter(dataKey);
-
   const { isLoading } = useGetPagedSMStreams(queryFilter);
-
-  useEffect(() => {
-    if (propsEnableEdit !== enableEdit) {
-      setEnableEdit(propsEnableEdit ?? true);
-    }
-  }, [enableEdit, propsEnableEdit]);
 
   const itemTemplate = useCallback(
     (option: M3UFileDto) => {
@@ -65,14 +53,7 @@ const SMStreamDataForSMChannelSelector = ({ enableEdit: propsEnableEdit, height,
       if (selectedM3UFiles !== undefined && selectedM3UFiles.length > 0) {
         return <div className="flex align-content-center justify-content-start w-2rem max-w-2rem pi pi-file icon-yellow"></div>;
       }
-
       return <></>;
-      // if (!m3uFiles || !option) return null;
-      // return (
-      //   <div className="flex align-items-center gap-1">
-      //     <span>{option.Name}</span>
-      //   </div>
-      // );
     },
     [selectedM3UFiles]
   );
@@ -236,19 +217,19 @@ const SMStreamDataForSMChannelSelector = ({ enableEdit: propsEnableEdit, height,
 
   return (
     <SMDataTable
-      addOrRemoveTemplate={addOrRemoveTemplate}
       addOrRemoveHeaderTemplate={addOrRemoveHeaderTemplate}
+      addOrRemoveTemplate={addOrRemoveTemplate}
       columns={columns}
       defaultSortField="Name"
       defaultSortOrder={1}
-      enablePaginator
       emptyMessage="No Streams"
-      headerName={GetMessage('m3ustreams').toUpperCase()}
+      enablePaginator
       headerClassName="header-text-channels"
-      isLoading={isLoading || smChannelIsLoading}
+      headerName="STREAMS"
       id={dataKey}
-      rowClass={rowClass}
+      isLoading={isLoading || smChannelIsLoading}
       queryFilter={useGetPagedSMStreams}
+      rowClass={rowClass}
       style={{ height: height ?? 'calc(100vh - 100px)' }}
     />
   );

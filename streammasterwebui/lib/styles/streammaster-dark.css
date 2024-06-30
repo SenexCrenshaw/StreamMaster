@@ -7741,8 +7741,8 @@
 }
 
 .sm-border-roundtop {
-  border-top-style: none !important;
-  border-bottom-style: solid !important;
+  border-top-style: solid !important;
+  border-bottom-style: none !important;
   border-left-style: none !important;
   border-right-style: none !important;
   border-top-left-radius: 6px !important;
@@ -7805,7 +7805,7 @@
   border-width: 1px !important;
 }
 
-.sm-border, .p-datatable-wrapper, .sm-datatable-header, .videoinfo-selector > tr:nth-child(odd), .sm-card .sm-card-children, .sm-card-dark .sm-card-children, .sm-card-simple .sm-card-children, .sm-card .sm-card-info, .sm-card-dark .sm-card-info, .sm-card-simple .sm-card-info, .sm-card .sm-card-header, .sm-card-dark .sm-card-header, .sm-card-simple .sm-card-header, .sm-standard-header, .sm-iconselector-lg, .sm-card-children-noborder .sm-border2, .sm-card-children-noborder .p-datatable {
+.sm-border, .p-datatable-wrapper, .sm-datatable-header, .videoinfo-selector > tr:nth-child(odd), .sm-card .sm-card-children, .sm-card-dark .sm-card-children, .sm-card-simple .sm-card-children, .sm-card .sm-card-info, .sm-card-dark .sm-card-info, .sm-card-simple .sm-card-info, .sm-card .sm-card-header, .sm-card-dark .sm-card-header, .sm-card-simple .sm-card-header, .sm-standard-header, .sm-iconselector-lg, .sm-card-children-noborder .sm-card-children-info, .sm-card-children-noborder .p-datatable {
   border-radius: 6px !important;
   border-color: #263238 !important;
   border-width: 0.1rem !important;
@@ -7952,6 +7952,11 @@
 
 .no-top-border .p-datatable-wrapper {
   border-top-width: 0 !important;
+}
+
+.sm-card-children-noborder .sm-card-children-info {
+  border-bottom-left-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
 }
 
 .channel-row-selected {

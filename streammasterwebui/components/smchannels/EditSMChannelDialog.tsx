@@ -57,11 +57,11 @@ const EditSMChannelDialog = ({ smChannelDto }: CopySMChannelProperties) => {
       contentWidthSize="5"
       hasCloseButton={false}
       icon="pi-pencil"
+      info=""
       isPopupLoading={isRowLoading}
       modal
       modalCentered
       noBorderChildren
-      simpleChildren
       showRemember={false}
       title={`EDIT CHANNEL : ${smChannelDto.Name}`}
       header={

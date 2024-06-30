@@ -45,7 +45,7 @@ export const SMProvider: React.FC<SMProviderProps> = ({ children }) => {
       const systemReady = await GetIsSystemReady();
       if (systemReady !== isSystemReady) {
         setSystemReady(systemReady ?? false);
-        if (systemReady === true && settingsQuery.data) {
+        if (systemReady === true && settings.EnableSSL !== undefined) {
           // await DataRefreshAll();
         }
       }
@@ -63,7 +63,7 @@ export const SMProvider: React.FC<SMProviderProps> = ({ children }) => {
       Logger.error('Error checking system readiness', { error });
       setSystemReady(false);
     }
-  }, [isSystemReady, settingsQuery.data]);
+  }, [isSystemReady, settings.EnableSSL]);
 
   useEffect(() => {
     // Initial check
@@ -79,7 +79,7 @@ export const SMProvider: React.FC<SMProviderProps> = ({ children }) => {
   const contextValue = {
     // channelStreamingStatistics,
     // clientStreamingStatistics,
-    isSystemReady: isSystemReadyQ === true && settingsQuery.data !== undefined,
+    isSystemReady: isSystemReady === true && settings.EnableSSL !== undefined,
     isTaskRunning: isTaskRunning ?? false,
     settings
     // streamStreamingStatistics

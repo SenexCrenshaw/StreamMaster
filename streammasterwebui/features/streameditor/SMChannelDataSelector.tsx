@@ -5,7 +5,7 @@ import getRecord from '@components/smDataTable/helpers/getRecord';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 import AutoSetEPGSMChannelDialog from '@components/smchannels/AutoSetEPGSMChannelDialog';
 import CloneSMChannelDialog from '@components/smchannels/CloneSMChannelDialog';
-import CreateSMChannelFromSMStreamDialog from '@components/smchannels/CreateSMChannelDialog';
+import CreateSMChannelDialog from '@components/smchannels/CreateSMChannelDialog';
 import DeleteSMChannelDialog from '@components/smchannels/DeleteSMChannelDialog';
 import DeleteSMChannelsDialog from '@components/smchannels/DeleteSMChannelsDialog';
 import EditSMChannelDialog from '@components/smchannels/EditSMChannelDialog';
@@ -176,7 +176,7 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id }: SMChannelDat
         <EPGFilesButton />
         <SMChannelMultiVisibleDialog iconFilled selectedItemsKey="selectSelectedSMChannelDtoItems" id={dataKey} skipOverLayer />
         <DeleteSMChannelsDialog selectedItemsKey="selectSelectedSMChannelDtoItems" id={dataKey} />
-        <CreateSMChannelFromSMStreamDialog />
+        <CreateSMChannelDialog />
         <SMChannelMenu />
       </div>
     ),

@@ -29,6 +29,7 @@ internal class RemoveSMStreamFromSMChannelRequestHandler(IRepositoryWrapper Repo
                 new(SMChannel.APIName, smChannel.Id, "SMStreams", streams.Data)
             };
 
+            //await dataRefreshService.RefreshSMChannelStreamLinks();
             await dataRefreshService.SetField(ret).ConfigureAwait(false);
         }
 
