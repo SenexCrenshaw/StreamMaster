@@ -9,7 +9,6 @@ import CreateSMChannelDialog from '@components/smchannels/CreateSMChannelDialog'
 import DeleteSMChannelDialog from '@components/smchannels/DeleteSMChannelDialog';
 import DeleteSMChannelsDialog from '@components/smchannels/DeleteSMChannelsDialog';
 import EditSMChannelDialog from '@components/smchannels/EditSMChannelDialog';
-import SMChannelMultiVisibleDialog from '@components/smchannels/SMChannelMultiVisibleDialog';
 import SetSMChannelsLogoFromEPGDialog from '@components/smchannels/SetSMChannelsLogoFromEPGDialog';
 import { useSMChannelEPGColumnConfig } from '@components/smchannels/columns/useSMChannelEPGColumnConfig';
 import { useSMChannelGroupColumnConfig } from '@components/smchannels/columns/useSMChannelGroupColumnConfig';
@@ -174,7 +173,7 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id }: SMChannelDat
     () => (
       <div className="flex flex-row justify-content-end align-items-center gap-1">
         <EPGFilesButton />
-        <SMChannelMultiVisibleDialog iconFilled selectedItemsKey="selectSelectedSMChannelDtoItems" id={dataKey} skipOverLayer />
+        {/* <SMChannelMultiVisibleDialog iconFilled selectedItemsKey="selectSelectedSMChannelDtoItems" id={dataKey} skipOverLayer /> */}
         <DeleteSMChannelsDialog selectedItemsKey="selectSelectedSMChannelDtoItems" id={dataKey} />
         <CreateSMChannelDialog />
         <SMChannelMenu />

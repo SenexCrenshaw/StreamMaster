@@ -44,16 +44,16 @@ const SMStreamDataSelectorValue = ({ id, smChannel }: SMStreamDataSelectorValueP
 
   const columns = useMemo(
     (): ColumnMeta[] => [
-      { field: 'Name', sortable: false },
-      { field: 'Group', sortable: false, width: '5rem' },
-      { field: 'M3UFileName', header: 'M3U', sortable: false, width: '5rem' },
+      { field: 'Name', sortable: false, width: 300 },
+      { field: 'Group', sortable: false, width: 200 },
+      { field: 'M3UFileName', header: 'M3U', sortable: false, width: 125 },
       {
-        align: 'right',
+        align: 'center',
         bodyTemplate: actionTemplate,
         field: '',
         fieldType: 'actions',
-        header: 'Actions',
-        width: '5rem'
+
+        width: 22
       }
     ],
     [actionTemplate]

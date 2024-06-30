@@ -2,8 +2,8 @@ import { UploadParamsSettings, useFileUpload } from '@components/file/useFileUpl
 import { useStringValue } from '@lib/redux/hooks/stringValue';
 import { FileUpload } from 'primereact/fileupload';
 import { forwardRef, memo, useImperativeHandle, useRef, useState } from 'react';
+import { SourceOrFileDialogProperties } from './Interfaces/SourceOrFileDialogProperties';
 import SourceOrFileDialog from './SourceOrFileDialog';
-import { SourceOrFileDialogProperties } from './interfaces/SourceOrFileDialogProperties';
 
 type SMFileUploadProperties = UploadParamsSettings &
   SourceOrFileDialogProperties & {

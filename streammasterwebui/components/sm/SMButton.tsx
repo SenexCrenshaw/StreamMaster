@@ -3,7 +3,7 @@ import { Button } from 'primereact/button';
 import { Tooltip } from 'primereact/tooltip';
 import { CSSProperties, default as React, forwardRef, default as react, useMemo } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { SMButtonProperties } from './interfaces/SMButtonProperties';
+import { SMButtonProperties } from './Interfaces/SMButtonProperties';
 
 export type SeverityType = 'danger' | 'help' | 'info' | 'secondary' | 'success' | 'warning';
 
@@ -15,7 +15,7 @@ const SMButton = forwardRef<Button, InternalSMButtonProperties>(
   (
     {
       buttonLargeImage = false,
-      buttonClassName = 'icon-blue',
+      buttonClassName = 'icon-white',
       buttonDarkBackground = false,
       buttonDisabled = false,
       menu = false,

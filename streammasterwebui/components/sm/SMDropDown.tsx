@@ -1,7 +1,7 @@
 import { ReactNode, forwardRef, useCallback, useImperativeHandle, useMemo, useRef } from 'react';
+import { SMDropDownProperties } from './Interfaces/SMDropDownProperties';
 import SMOverlay, { SMOverlayRef } from './SMOverlay';
 import SMScroller from './SMScroller';
-import { SMDropDownProperties } from './interfaces/SMDropDownProperties';
 
 interface ExtendedSMDropDownProperties extends SMDropDownProperties {
   readonly children?: ReactNode;

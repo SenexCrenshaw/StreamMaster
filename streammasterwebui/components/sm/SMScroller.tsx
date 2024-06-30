@@ -7,8 +7,8 @@ import { useMountEffect } from 'primereact/hooks';
 import { ObjectUtils } from 'primereact/utils';
 import { VirtualScroller } from 'primereact/virtualscroller';
 import React, { useCallback, useEffect, useMemo } from 'react';
+import { SMScrollerProperties } from './Interfaces/SMScrollerProperties';
 import { SMCard } from './SMCard';
-import { SMScrollerProperties } from './interfaces/SMScrollerProperties';
 
 const SMScroller: React.FC<SMScrollerProperties> = ({ filter = false, itemSize = 26, scrollHeight = '40vh', ...props }) => {
   const { selectedItems, setSelectedItems } = useSelectedItems(props.selectedItemsKey ?? 'NONE');

@@ -3,9 +3,9 @@ import { isValidUrl } from '@lib/common/common';
 import { useStringValue } from '@lib/redux/hooks/stringValue';
 import { ProgressBar } from 'primereact/progressbar';
 import { ChangeEvent, forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
+import { SourceOrFileDialogProperties } from './Interfaces/SourceOrFileDialogProperties';
 import SMButton from './SMButton';
 import { SMFileUploadRef } from './SMFileUpload';
-import { SourceOrFileDialogProperties } from './interfaces/SourceOrFileDialogProperties';
 
 interface ExtSourceOrFileDialogProperties extends SourceOrFileDialogProperties {
   onAdd: (source: string | null, file: File | null) => void;

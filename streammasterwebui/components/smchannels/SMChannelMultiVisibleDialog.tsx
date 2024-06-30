@@ -8,18 +8,15 @@ import { SMChannelDto, ToggleSMChannelVisibleByParametersRequest, ToggleSMChanne
 import { memo, useCallback, useMemo } from 'react';
 
 interface SMChannelMultiVisibleDialogProperties {
-  readonly iconFilled?: boolean;
-  readonly id: string;
   readonly onClose?: () => void;
-  readonly skipOverLayer?: boolean;
   readonly selectedItemsKey: string;
+  readonly menu?: boolean;
 }
 
-const SMChannelMultiVisibleDialog = ({ id, iconFilled, onClose, skipOverLayer, selectedItemsKey }: SMChannelMultiVisibleDialogProperties) => {
+const SMChannelMultiVisibleDialog = ({ menu, onClose, selectedItemsKey }: SMChannelMultiVisibleDialogProperties) => {
   const { selectedItems } = useSelectedItems<SMChannelDto>(selectedItemsKey);
-
-  const { selectAll } = useSelectAll(id);
-  const { queryFilter } = useQueryFilter(id);
+  const { selectAll } = useSelectAll('streameditor-SMChannelDataSelector');
+  const { queryFilter } = useQueryFilter('streameditor-SMChannelDataSelector');
 
   const ReturnToParent = useCallback(() => {
     onClose?.();
@@ -28,11 +25,6 @@ const SMChannelMultiVisibleDialog = ({ id, iconFilled, onClose, skipOverLayer, s
   const getTotalCount = useMemo(() => selectedItems?.length ?? 0, [selectedItems]);
 
   const onVisiblesClick = useCallback(async () => {
-    if (selectedItems === undefined) {
-      ReturnToParent();
-      return;
-    }
-
     if (selectAll === true) {
       if (!queryFilter) {
         ReturnToParent();
@@ -52,7 +44,7 @@ const SMChannelMultiVisibleDialog = ({ id, iconFilled, onClose, skipOverLayer, s
       return;
     }
 
-    if (selectedItems.length === 0) {
+    if ((selectedItems === undefined || selectedItems.length) === 0) {
       ReturnToParent();
 
       return;
@@ -71,10 +63,29 @@ const SMChannelMultiVisibleDialog = ({ id, iconFilled, onClose, skipOverLayer, s
       });
   }, [selectedItems, selectAll, ReturnToParent, queryFilter]);
 
+  // if (menu === true) {
+  //   return (
+  //     <SMPopUp
+  //       buttonClassName="icon-blue"
+  //       icon="pi-eye-slash"
+  //       iconFilled
+  //       info=""
+  //       label="Toggle Visibility"
+  //       menu
+  //       onOkClick={async () => await onVisiblesClick()}
+  //       placement={smTableIsSimple ? 'bottom-end' : 'bottom'}
+  //       title="Auto Set EPG"
+  //       tooltip="Auto Set EPG"
+  //     ></SMPopUp>
+  //   );
+  // }
+
   return (
     <VisibleButton
       buttonDisabled={getTotalCount === 0}
       iconFilled
+      menu={menu}
+      label={menu ? 'Toggle Visibility' : undefined}
       onClick={async (event) => {
         await onVisiblesClick();
       }}
