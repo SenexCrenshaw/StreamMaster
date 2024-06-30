@@ -7,7 +7,6 @@ import { ObjectUtils } from 'primereact/utils';
 import { VirtualScroller } from 'primereact/virtualscroller';
 import React, { useCallback, useEffect, useMemo } from 'react';
 import { SMScrollerProperties } from './Interfaces/SMScrollerProperties';
-import { SMCard } from './SMCard';
 
 const SMScroller: React.FC<SMScrollerProperties> = ({ filter = false, itemSize = 26, scrollHeight = '40vh', ...props }) => {
   const { selectedItems, setSelectedItems } = useSelectedItems(props.selectedItemsKey ?? 'NONE');
@@ -215,13 +214,13 @@ const SMScroller: React.FC<SMScrollerProperties> = ({ filter = false, itemSize =
     if (props.simple === true) {
       ret += '  w-full';
     } else {
-      ret += ' sm-scroller sm-sm-input-border w-full ';
+      ret += ' sm-scroller w-full ';
     }
     return ret;
   }, [props.className, props.simple]);
 
   return (
-    <SMCard info="">
+    <>
       <div className={getDiv}>
         <div className="sm-scroller-header">
           {/* <div className="layout-padding-bottom" /> */}
@@ -238,7 +237,7 @@ const SMScroller: React.FC<SMScrollerProperties> = ({ filter = false, itemSize =
                 />
               </div> */}
 
-              <div className="flex align-items-center justify-content-between sm-w-12 p-1">
+              <div className="flex align-items-center justify-content-between sm-w-12 p-2">
                 <div className="sm-w-11">
                   <StringEditor
                     autoFocus
@@ -276,7 +275,7 @@ const SMScroller: React.FC<SMScrollerProperties> = ({ filter = false, itemSize =
           <VirtualScroller ref={virtualScrollerRef} items={filteredValues} itemSize={itemSize} itemTemplate={getItemTemplate} scrollHeight={scrollHeight} />
         </div>
       </div>
-    </SMCard>
+    </>
   );
 };
 

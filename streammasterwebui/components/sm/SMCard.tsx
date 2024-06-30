@@ -15,7 +15,7 @@ export const SMCard = ({
   openPanel,
   simple = false,
   simpleChildren = true,
-  noBorderChildren = true,
+  noBorderChildren = false,
   title,
   ...props
 }: InternalSMCardProperties) => {
@@ -25,7 +25,7 @@ export const SMCard = ({
     return ret;
   }, [darkBackGround, simpleChildren]);
 
-  const borderClass = info !== '' ? 'sm-border-roundtop' : 'info-header-text';
+  const borderClass = info !== '' ? 'sm-border-bottom' : 'info-header-text';
 
   if (simple === true || title === undefined || title === '') {
     return <div>{children}</div>;
@@ -51,8 +51,10 @@ export const SMCard = ({
         </div>
         <div className="layout-padding-bottom" />
         <div className={noBorderChildren ? 'sm-card-children-noborder' : 'sm-card-children'}>
-          {info && info !== '' && <div className={`${borderClass} sm-card-children-info`}>{info}</div>}
-          <div className="sm-card-children-content">{children}</div>
+          <div className="sm-card-children-content">
+            {info && info !== '' && <div className={`${borderClass} sm-card-children-info`}>{info}</div>}
+            {children}
+          </div>
         </div>
       </div>
     );

@@ -35,7 +35,7 @@ export const LinkButton = ({
         target="_blank"
         title={title}
       >
-        {justText === true ? <div className="p-float">{title}</div> : <i className={copied ? 'pi pi-copy' : icon} />}
+        {justText === true ? <div className="sm-w-12rem">{title}</div> : <i className={copied ? 'pi pi-copy' : icon} />}
       </a>
     </div>
   );

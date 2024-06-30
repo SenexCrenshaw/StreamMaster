@@ -1,6 +1,7 @@
 import SMDropDown from '@components/sm/SMDropDown';
+import { arraysEqual } from '@components/smDataTable/helpers/arraysEqual';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
-import { arraysEqual } from '@lib/common/common';
+
 import useSelectedAndQ from '@lib/hooks/useSelectedAndQ';
 import { useFilters } from '@lib/redux/hooks/filters';
 

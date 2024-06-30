@@ -1,4 +1,5 @@
 import BooleanEditor from '@components/inputs/BooleanEditor';
+import NumberEditor from '@components/inputs/NumberEditor';
 import StringEditor from '@components/inputs/StringEditor';
 import { SMDialogRef } from '@components/sm/SMDialog';
 import SMPopUp from '@components/sm/SMPopUp';
@@ -66,7 +67,7 @@ export const StreamGroupCreateDialog = ({ onHide, showButton }: StreamGroupCreat
       buttonClassName="icon-green"
       tooltip="Add SG"
     >
-      <div className="sm-w-10rem">
+      <div className="w-full">
         <StringEditor
           disableDebounce
           darkBackGround
@@ -78,7 +79,13 @@ export const StreamGroupCreateDialog = ({ onHide, showButton }: StreamGroupCreat
         />
         <div className="layout-padding-bottom-lg" />
         <div className="flex w-12 justify-content-end align-content-center">
-          <BooleanEditor checked={found} onChange={(e) => {}} />
+          <div className="sm-w-6  sm-center-stuff">
+            <NumberEditor darkBackGround disableDebounce label="START CH #" onChange={(e) => {}} value={1} />
+          </div>
+          <div className="sm-w-6 flex flex-column">
+            <BooleanEditor checked={true} label="Fill Channel #s" onChange={(e) => {}} />
+            <BooleanEditor checked={true} label="Skip Existing #s" onChange={(e) => {}} />
+          </div>
         </div>
         <div className="layout-padding-bottom-lg" />
       </div>

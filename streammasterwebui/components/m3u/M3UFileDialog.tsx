@@ -1,13 +1,12 @@
 import NumberEditor from '@components/inputs/NumberEditor';
 import StringEditor from '@components/inputs/StringEditor';
-import useScrollAndKeyEvents from '@lib/hooks/useScrollAndKeyEvents';
-import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useState } from 'react';
-
-import { arraysEqual } from '@lib/common/common';
+import { arraysEqual } from '@components/smDataTable/helpers/arraysEqual';
 import { Logger } from '@lib/common/logger';
+import useScrollAndKeyEvents from '@lib/hooks/useScrollAndKeyEvents';
 import { useStringValue } from '@lib/redux/hooks/stringValue';
 import { UpdateM3UFile } from '@lib/smAPI/M3UFiles/M3UFilesCommands';
 import { M3UFileDto, UpdateM3UFileRequest } from '@lib/smAPI/smapiTypes';
+import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useState } from 'react';
 import M3UFileTags from './M3UFileTags';
 
 export interface M3UFileDialogProperties {

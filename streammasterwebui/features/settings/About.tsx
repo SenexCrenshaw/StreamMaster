@@ -28,24 +28,24 @@ const About = () => {
           className="sm-w-4"
           alt="Stream Master Logo"
           src="/images/sm_logo.png"
-          initial={{ scale: 1, rotate: 0, borderRadius: '0%' }}
-          animate={{ scale: 1, rotate: 0, borderRadius: '0%' }}
+          initial={{ borderRadius: '0%', rotate: 0, scale: 1 }}
+          animate={{ borderRadius: '0%', rotate: 0, scale: 1 }}
           whileHover={{
-            scale: [1, 2, 2, 1, 1],
-            rotate: [0, 0, 180, 180, 0],
             borderRadius: ['0%', '0%', '50%', '50%', '0%'],
+            rotate: [0, 0, 180, 180, 0],
+            scale: [1, 2, 2, 1, 1],
             transition: {
               duration: 2,
               ease: 'easeInOut',
-              times: [0, 0.2, 0.5, 0.8, 1],
               repeat: Infinity,
-              repeatDSelay: 1
+              repeatDSelay: 1,
+              times: [0, 0.2, 0.5, 0.8, 1]
             }
           }}
         />
         Stream Master
         <div className="col-6 m-0 p-0 justify-content-center align-content-start text-xs text-center">
-          <div className="sm-text-xs">
+          <div className="sm-text-xs sm-center-stuff w-full">
             <LinkButton justText title={settings.Release ?? ''} link={settings.Release ?? ''} />
           </div>
         </div>
@@ -57,18 +57,18 @@ const About = () => {
                 className="sm-w-3rem"
                 alt="Senex Crenshaw"
                 src="/images/mrmonday_logo_sm.png"
-                initial={{ scale: 1, rotate: 0, borderRadius: '0%' }}
-                animate={{ scale: 1, rotate: 0, borderRadius: '0%' }}
+                initial={{ borderRadius: '0%', rotate: 0, scale: 1 }}
+                animate={{ borderRadius: '0%', rotate: 0, scale: 1 }}
                 whileHover={{
-                  scale: [1, 2, 2, 1, 1],
-                  rotate: [0, 0, 180, 180, 0],
                   borderRadius: ['0%', '0%', '50%', '50%', '0%'],
+                  rotate: [0, 0, 180, 180, 0],
+                  scale: [1, 2, 2, 1, 1],
                   transition: {
                     duration: 2,
                     ease: 'easeInOut',
-                    times: [0, 0.2, 0.5, 0.8, 1],
                     repeat: Infinity,
-                    repeatDSelay: 1
+                    repeatDSelay: 1,
+                    times: [0, 0.2, 0.5, 0.8, 1]
                   }
                 }}
               />
@@ -83,18 +83,18 @@ const About = () => {
                 className="sm-w-3rem"
                 alt="Senex Crenshaw"
                 src="/images/senex_logo_sm.png"
-                initial={{ scale: 1, rotate: 0, borderRadius: '0%' }}
-                animate={{ scale: 1, rotate: 0, borderRadius: '0%' }}
+                initial={{ borderRadius: '0%', rotate: 0, scale: 1 }}
+                animate={{ borderRadius: '0%', rotate: 0, scale: 1 }}
                 whileHover={{
-                  scale: [1, 2, 2, 1, 1],
-                  rotate: [0, 0, 180, 180, 0],
                   borderRadius: ['0%', '0%', '50%', '50%', '0%'],
+                  rotate: [0, 0, 180, 180, 0],
+                  scale: [1, 2, 2, 1, 1],
                   transition: {
                     duration: 2,
                     ease: 'easeInOut',
-                    times: [0, 0.2, 0.5, 0.8, 1],
                     repeat: Infinity,
-                    repeatDSelay: 1
+                    repeatDSelay: 1,
+                    times: [0, 0.2, 0.5, 0.8, 1]
                   }
                 }}
               />

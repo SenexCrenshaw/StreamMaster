@@ -60,7 +60,7 @@ const SMDropDown = forwardRef<SMDropDownRef, ExtendedSMDropDownProperties>(
           zIndex={zIndex}
           {...props}
         >
-          <div className="sm-card sm-border">
+          <div className="sm-card">
             {props.children ? (
               props.children
             ) : (

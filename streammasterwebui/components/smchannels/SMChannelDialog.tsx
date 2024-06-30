@@ -197,7 +197,7 @@ const SMChannelDialog = forwardRef<SMChannelDialogRef, SMChannelDialogProperties
 
         <div className="flex w-10 gap-1 pl-2"></div>
 
-        <div className="layout-padding-bottom-lg sm-bgColor " />
+        <div className="layout-padding-bottom-lg sm-headerBg" />
       </div>
       <div className="layout-padding-bottom-lg sm-bgColor" />
       <SMChannelSMStreamDialog dataKey={dataKey} name={request.Name} smChannel={smChannel} />

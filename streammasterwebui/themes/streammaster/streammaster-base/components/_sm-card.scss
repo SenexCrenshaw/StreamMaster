@@ -43,6 +43,10 @@
         padding-top: 0.75rem;
         padding-left: $headerTextLeft !important;
         height: $input-height-with-no-borders !important;
+        border-top-left-radius: $borderRadius;
+        border-top-right-radius: $borderRadius;
+        border-top-style: solid;
+        border-top-width: 1px;
     }
 
     .sm-card-children-content {
@@ -77,13 +81,16 @@
     // }
 
     .sm-card-children-info {
-        background-color: $headerBg !important;
-        display: flex;
-        align-items: center;
-        padding-bottom: 0.75rem;
-        padding-top: 0.75rem;
-        padding-left: $headerTextLeft !important;
-        height: $input-height-with-no-borders !important;
+        // background-color: $headerBg !important;
+        // display: flex;
+        // align-items: center;
+        // padding-bottom: 0.75rem;
+        // padding-top: 0.75rem;
+        // padding-left: $headerTextLeft !important;
+        // height: $input-height-with-no-borders !important;
+        @extend .sm-border;
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
     }
 
     .sm-card-children-info-noborder {
@@ -157,5 +164,17 @@
 
         background-color: unset !important;
         padding: 0;
+    }
+}
+
+.sm-card-children-noborder {
+    .p-datatable {
+        @extend .sm-border;
+    }
+
+    .sm-card-children-info {
+        @extend .sm-border;
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
     }
 }

@@ -73,14 +73,16 @@
 
 @mixin sm-border-bottom() {
 
-    border-top-style: none;
-    border-bottom-style: solid;
-    border-left-style: none;
-    border-right-style: none;
+    border-top-style: none !important;
+    border-bottom-style: solid !important;
+    border-left-style: none !important;
+    border-right-style: none !important;
 
-    border-color: $inputBorderColor;
-    border-radius: 0;
-    border-width: 1px;
+    border-color: $inputBorderColor !important;
+    border-radius: 0 !important;
+    border-top-left-radius: $borderRadius !important;
+    border-top-right-radius: $borderRadius !important;
+    border-width: 1px !important;
 }
 
 .sm-border-bottom {
@@ -105,7 +107,7 @@
 
 @mixin sm-border-roundtop() {
     border-top-style: solid;
-    border-bottom-style: none;
+    border-bottom-style: solid;
     border-left-style: none;
     border-right-style: none;
 
@@ -378,17 +380,5 @@ $shadow-color-sg: rgba($iconSG, $shadow-opacity); // Define the shadow color wit
 .no-top-border {
     .p-datatable-wrapper {
         border-top-width: 0;
-    }
-}
-
-.sm-card-children-noborder {
-    .p-datatable {
-        @extend .sm-border;
-    }
-
-    .sm-card-children-info {
-        @extend .sm-border;
-        border-bottom-left-radius: 0;
-        border-bottom-right-radius: 0;
     }
 }
