@@ -47,15 +47,15 @@ public partial class SchedulesDirectData
         });
         if (created)
         {
-            service.Name = videoStreamConfig.User_Tvg_name;
-            service.CallSign = videoStreamConfig.User_Tvg_name;
-            service.ChNo = videoStreamConfig.User_Tvg_chno;
-            if (!string.IsNullOrEmpty(videoStreamConfig.User_Tvg_Logo) && videoStreamConfig.User_Tvg_Logo.StartsWith("http"))
+            service.Name = videoStreamConfig.Name;
+            service.CallSign = videoStreamConfig.Name;
+            service.ChNo = videoStreamConfig.ChannelNumber;
+            if (!string.IsNullOrEmpty(videoStreamConfig.Logo) && videoStreamConfig.Logo.StartsWith("http"))
             {
-                service.LogoImage = videoStreamConfig.User_Tvg_Logo;
+                service.LogoImage = videoStreamConfig.Logo;
                 service.extras.AddOrUpdate("logo", new StationImage
                 {
-                    Url = videoStreamConfig.User_Tvg_Logo
+                    Url = videoStreamConfig.Logo
 
                 });
 

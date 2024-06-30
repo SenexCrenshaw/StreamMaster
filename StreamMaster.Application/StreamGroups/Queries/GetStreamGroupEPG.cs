@@ -35,10 +35,6 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
             return "";
         }
 
-        //List<SMChannel> smChannels = request.StreamGroupId == 0
-        //    ? await Repository.SMChannel.GetQuery().ToListAsync(cancellationToken: cancellationToken)
-        //        : await Repository.SMChannel.GetSMChannelsFromStreamGroup(request.StreamGroupId);
-
         List<VideoStreamConfig> videoStreamConfigs = [];
 
         logger.LogInformation("GetStreamGroupEPGHandler: Handling {Count} smStreams", smChannels.Count);
@@ -47,13 +43,11 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
         {
             videoStreamConfigs.Add(new VideoStreamConfig
             {
-                Id = smChannel.Id.ToString(),
-                M3UFileId = 0,//smChannel.M3UFileId,
-                User_Tvg_name = smChannel.Name,
-                Tvg_ID = smChannel.EPGId,
-                User_Tvg_ID = smChannel.EPGId,
-                User_Tvg_Logo = smChannel.Logo,
-                User_Tvg_chno = smChannel.ChannelNumber,
+                Id = smChannel.Id,
+                Name = smChannel.Name,
+                EPGId = smChannel.EPGId,
+                Logo = smChannel.Logo,
+                ChannelNumber = smChannel.ChannelNumber,
                 TimeShift = smChannel.TimeShift,
                 IsDuplicate = false,
                 IsDummy = false
@@ -70,22 +64,22 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
         foreach (VideoStreamConfig videoStreamConfig in videoStreamConfigs)
         {
 
-            videoStreamConfig.IsDummy = epgHelper.IsDummy(videoStreamConfig.User_Tvg_ID);
+            videoStreamConfig.IsDummy = epgHelper.IsDummy(videoStreamConfig.EPGId);
 
             if (videoStreamConfig.IsDummy)
             {
-                videoStreamConfig.User_Tvg_ID = $"{EPGHelper.DummyId}-{videoStreamConfig.Id}";
+                videoStreamConfig.EPGId = $"{EPGHelper.DummyId}-{videoStreamConfig.Id}";
 
-                dummyData.FindOrCreateDummyService(videoStreamConfig.User_Tvg_ID, videoStreamConfig);
+                dummyData.FindOrCreateDummyService(videoStreamConfig.EPGId, videoStreamConfig);
             }
 
-            if (epgids.Contains(videoStreamConfig.User_Tvg_ID))
+            if (epgids.Contains(videoStreamConfig.EPGId))
             {
                 videoStreamConfig.IsDuplicate = true;
             }
             else
             {
-                epgids.Add(videoStreamConfig.User_Tvg_ID);
+                epgids.Add(videoStreamConfig.EPGId);
             }
         }
 

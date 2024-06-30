@@ -1,17 +1,11 @@
-﻿namespace StreamMaster.SchedulesDirect.Domain.Models;
+﻿using StreamMaster.Domain.Models;
 
-public class VideoStreamConfig
+namespace StreamMaster.SchedulesDirect.Domain.Models;
+
+public class VideoStreamConfig : SMChannel
 {
-    public int M3UFileId { get; set; }
-    public string Id { get; set; } = string.Empty;
-    public string User_Tvg_name { get; set; } = string.Empty;
-    public string User_Tvg_ID { get; set; } = string.Empty;
-    public string User_Tvg_Logo { get; set; } = string.Empty;
-    public int User_Tvg_chno { get; set; }
     public bool IsDuplicate { get; set; }
     public bool IsDummy { get; set; }
-    public string Tvg_ID { get; set; }
-    public int TimeShift { get; set; }
 }
 
 

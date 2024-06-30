@@ -75,18 +75,18 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IServicePro
             List<MxfService> services = [.. schedulesDirectDataService.AllServices.OrderBy(a => a.EPGNumber)];
 
             List<int> chNos = [];
-            List<int> existingChNos = new(videoStreamConfigs.Select(a => a.User_Tvg_chno).Distinct());
+            List<int> existingChNos = new(videoStreamConfigs.Select(a => a.ChannelNumber).Distinct());
 
-            foreach (VideoStreamConfig videoStreamConfig in videoStreamConfigs.OrderBy(a => a.User_Tvg_chno))
+            foreach (VideoStreamConfig videoStreamConfig in videoStreamConfigs.OrderBy(a => a.ChannelNumber))
             {
-                MxfService? origService = services.GetMxfService(videoStreamConfig.User_Tvg_ID);
+                MxfService? origService = services.GetMxfService(videoStreamConfig.EPGId);
                 if (origService == null)
                 {
-                    if (!videoStreamConfig.User_Tvg_ID.StartsWith(EPGHelper.DummyId.ToString()) && !videoStreamConfig.User_Tvg_ID.StartsWith(EPGHelper.SchedulesDirectId.ToString()))
+                    if (!videoStreamConfig.EPGId.StartsWith(EPGHelper.DummyId.ToString()) && !videoStreamConfig.EPGId.StartsWith(EPGHelper.SchedulesDirectId.ToString()))
                     {
-                        origService = schedulesDirectDataService.SchedulesDirectData().FindOrCreateService(videoStreamConfig.User_Tvg_ID);
+                        origService = schedulesDirectDataService.SchedulesDirectData().FindOrCreateService(videoStreamConfig.EPGId);
                         origService.EPGNumber = EPGHelper.DummyId;
-                        origService.CallSign = videoStreamConfig.User_Tvg_ID;
+                        origService.CallSign = videoStreamConfig.EPGId;
                     }
                     else
                     {
@@ -95,11 +95,11 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IServicePro
 
                 }
 
-                string stationId = videoStreamConfig.User_Tvg_ID;
+                string stationId = videoStreamConfig.EPGId;
                 int epgNumber = origService.EPGNumber;
-                logger.LogDebug($"Processing {videoStreamConfig.User_Tvg_name} - {videoStreamConfig.User_Tvg_ID}");
+                logger.LogDebug($"Processing {videoStreamConfig.Name} - {videoStreamConfig.EPGId}");
 
-                MxfService newService = new(newServiceCount++, videoStreamConfig.User_Tvg_ID);
+                MxfService newService = new(newServiceCount++, videoStreamConfig.EPGId);
 
                 if (origService.MxfScheduleEntries is not null)
                 {
@@ -108,14 +108,14 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IServicePro
 
                 string callSign = origService.CallSign;
 
-                if (origService.EPGNumber == EPGHelper.DummyId && !string.IsNullOrEmpty(videoStreamConfig.Tvg_ID))
+                if (origService.EPGNumber == EPGHelper.DummyId && !string.IsNullOrEmpty(videoStreamConfig.EPGId))
                 {
                     //(epgNumber, stationId) = ePGHelper.ExtractEPGNumberAndStationId(videoStreamConfig.EPGId);
                     epgNumber = EPGHelper.DummyId;
-                    callSign = videoStreamConfig.Tvg_ID;
+                    callSign = videoStreamConfig.EPGId;
                 }
 
-                int chNo = videoStreamConfig.User_Tvg_chno;
+                int chNo = videoStreamConfig.ChannelNumber;
                 if (chNos.Contains(chNo))
                 {
                     foreach (int num in existingChNos.Concat(chNos))
@@ -131,19 +131,19 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IServicePro
 
                 newService.EPGNumber = epgNumber;
                 newService.ChNo = chNo;
-                newService.Name = videoStreamConfig.User_Tvg_name;
+                newService.Name = videoStreamConfig.Name;
                 newService.Affiliate = origService.Affiliate;
                 newService.CallSign = callSign;
-                newService.LogoImage = videoStreamConfig.User_Tvg_Logo;
+                newService.LogoImage = videoStreamConfig.Logo;
 
                 newService.extras = origService.extras;
                 newService.extras.AddOrUpdate("videoStreamConfig", videoStreamConfig);
 
-                if (!string.IsNullOrEmpty(videoStreamConfig.User_Tvg_Logo))
+                if (!string.IsNullOrEmpty(videoStreamConfig.Logo))
                 {
                     newService.extras.AddOrUpdate("logo", new StationImage
                     {
-                        Url = videoStreamConfig.User_Tvg_Logo
+                        Url = videoStreamConfig.Logo
 
                     });
                 }
@@ -299,7 +299,7 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IServicePro
                 int timeShift = 0;
                 if (videoStreamConfigs is not null)
                 {
-                    VideoStreamConfig? videoStreamConfig = videoStreamConfigs.FirstOrDefault(a => service.StationId == a.User_Tvg_ID);
+                    VideoStreamConfig? videoStreamConfig = videoStreamConfigs.FirstOrDefault(a => service.StationId == a.EPGId);
                     if (videoStreamConfig is not null)
                     {
                         if (videoStreamConfig?.TimeShift > 0)
@@ -308,9 +308,9 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IServicePro
                         }
                         else
                         {
-                            if (EPGHelper.IsValidEPGId(videoStreamConfig.User_Tvg_ID))
+                            if (EPGHelper.IsValidEPGId(videoStreamConfig.EPGId))
                             {
-                                (int epgNumber, string stationId) = videoStreamConfig.User_Tvg_ID.ExtractEPGNumberAndStationId();
+                                (int epgNumber, string stationId) = videoStreamConfig.EPGId.ExtractEPGNumberAndStationId();
                                 if (epgNumber > 0)
                                 {
                                     EPGFile? epg = epgs.FirstOrDefault(a => a.EPGNumber == epgNumber);

@@ -53,15 +53,14 @@ public class GetStreamGroupLineupHandler(IHttpContextAccessor httpContextAccesso
             if (isDummy)
             {
                 smChannel.EPGId = $"{EPGHelper.DummyId}-{smChannel.Id}";
+
                 VideoStreamConfig videoStreamConfig = new()
                 {
-                    Id = smChannel.Id.ToString(),
-                    M3UFileId = 1,// smChannel.M3UFileId,
-                    User_Tvg_name = smChannel.Name,
-                    Tvg_ID = smChannel.EPGId,
-                    User_Tvg_ID = smChannel.EPGId,
-                    User_Tvg_Logo = smChannel.Logo,
-                    User_Tvg_chno = smChannel.ChannelNumber,
+                    Id = smChannel.Id,
+                    Name = smChannel.Name,
+                    EPGId = smChannel.EPGId,
+                    Logo = smChannel.Logo,
+                    ChannelNumber = smChannel.ChannelNumber,
                     IsDuplicate = false,
                     IsDummy = false
                 };
