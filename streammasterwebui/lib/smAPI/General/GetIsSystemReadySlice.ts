@@ -1,9 +1,7 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import { Logger } from '@lib/common/logger';
-import {FieldData,  } from '@lib/smAPI/smapiTypes';
+import { FieldData } from '@lib/smAPI/smapiTypes';
 import { fetchGetIsSystemReady } from '@lib/smAPI/General/GetIsSystemReadyFetch';
-import { updateFieldInData } from '@lib/redux/updateFieldInData';
-
 
 interface QueryState {
   data: boolean | undefined;
@@ -37,7 +35,7 @@ const getIsSystemReadySlice = createSlice({
 
     setField: (state, action: PayloadAction<{ fieldData: FieldData }>) => {
       const { fieldData } = action.payload;
-      state.data = updateFieldInData(state.data, fieldData);
+      state.data = fieldData.Value;
       Logger.debug('GetIsSystemReady setField');
     },
     setIsForced: (state, action: PayloadAction<{ force: boolean }>) => {
@@ -46,11 +44,11 @@ const getIsSystemReadySlice = createSlice({
       state.data = undefined;
       Logger.debug('GetIsSystemReady  setIsForced ', force);
     },
-    setIsLoading: (state, action: PayloadAction<{isLoading: boolean }>) => {
+    setIsLoading: (state, action: PayloadAction<{ isLoading: boolean }>) => {
       state.isLoading = action.payload.isLoading;
       Logger.debug('GetIsSystemReady setIsLoading ', action.payload.isLoading);
     }
-},
+  },
 
   extraReducers: (builder) => {
     builder
@@ -78,7 +76,6 @@ const getIsSystemReadySlice = createSlice({
         state.isLoading = false;
         state.isForced = false;
       });
-
   }
 });
 

@@ -9247,6 +9247,42 @@ div[aria-haspopup=dialog] {
   -webkit-backdrop-filter: blur(1px) brightness(0.8) contrast(1);
 }
 
+.smspeed-menu-container {
+  position: relative;
+  display: inline-block;
+}
+
+.smspeed-menu-background {
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 5;
+  /* Higher than the items */
+}
+
+.smspeed-main-item {
+  position: relative;
+  z-index: 6;
+  /* Lower than the background */
+}
+
+.smspeed-menu-item-wrapper {
+  position: absolute;
+  z-index: 1;
+  /* Lower than the background */
+}
+
+.smspeed-menu-item {
+  margin: 10px;
+  cursor: pointer;
+}
+
+.smspeed-menu-icon {
+  font-size: 50px;
+  width: 50px;
+  height: 50px;
+  display: block;
+  margin: auto;
+}
+
 .p-datatable {
   font-size: 0.75rem;
 }

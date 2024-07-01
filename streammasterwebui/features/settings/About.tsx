@@ -1,6 +1,8 @@
-import AnimatedText from '@components/AnimatedText';
 import { LinkButton } from '@components/buttons/LinkButton';
+import { Direction, Shape } from '@components/sm/Interfaces/SMSpeedDialTypes';
 import SMPopUp from '@components/sm/SMPopUp';
+import SMSpeedMenu from '@components/sm/SMSpeedMenu';
+import { Logger } from '@lib/common/logger';
 import { useSMContext } from '@lib/signalr/SMProvider';
 import { motion } from 'framer-motion';
 import { memo } from 'react';
@@ -9,6 +11,76 @@ export interface SChannelMenuProperties {}
 
 const About = () => {
   const { settings } = useSMContext();
+
+  const mainMrM0nday = {
+    animateOn: 'hover' as 'hover',
+    direction: 'left' as Direction,
+    icon: '/images/mrmonday_logo_sm.png',
+    modal: true,
+    shape: 'semicircle' as Shape
+  };
+
+  const mainSenex = {
+    animateOn: 'hover' as 'hover',
+    direction: 'right' as Direction,
+    icon: '/images/senex_logo_sm.png',
+    modal: true,
+    shape: 'line' as Shape
+  };
+
+  const mainSM = {
+    animateOn: 'hover' as 'hover',
+    direction: 'top' as Direction,
+    icon: '/images/sm_logo.png',
+    modal: true,
+    shape: 'circle' as Shape
+  };
+
+  const smItems = [
+    {
+      animateOn: 'hover' as 'hover',
+      icon: 'smspeed-menu-icon pi pi-github',
+      url: 'https://github.com/SenexCrenshaw/StreamMaster'
+    },
+    {
+      animateOn: 'hover' as 'hover',
+      icon: 'smspeed-menu-icon icon-red pi pi-heart-fill',
+      url: 'https://github.com/sponsors/SenexCrenshaw'
+    }
+  ];
+
+  const senexItems = [
+    {
+      animateOn: 'hover' as 'hover',
+      icon: 'smspeed-menu-icon pi pi-github',
+      url: 'https://github.com/SenexCrenshaw/StreamMaster'
+    },
+    {
+      animateOn: 'hover' as 'hover',
+      icon: 'smspeed-menu-icon icon-red pi pi-heart-fill',
+      url: 'https://github.com/sponsors/SenexCrenshaw'
+    }
+  ];
+
+  const mrm0pndayItems = [
+    {
+      animateOn: 'hover' as 'hover',
+      command: () => alert('Icon 1 clicked'),
+      icon: '/images/sm_logo.png'
+    },
+    {
+      animateOn: 'hover' as 'hover',
+      command: () => alert('Icon 2 clicked'),
+      icon: '/images/mrmonday_logo_sm.png'
+    },
+    { animateOn: 'hover' as 'hover', command: () => alert('Icon 2 clicked'), icon: '/images/senex_logo_sm.png' },
+    {
+      animateOn: 'hover' as 'hover',
+      command: () => alert('Icon 2 clicked'),
+      icon: '/images/mrmonday_logo_sm.png'
+    }
+    // Add more items as needed
+  ];
 
   return (
     <SMPopUp
@@ -24,25 +96,7 @@ const About = () => {
     >
       <div className="flex flex-column sm-center-stuff">
         <div className="layout-padding-bottom" />
-        <motion.img
-          className="sm-w-4"
-          alt="Stream Master Logo"
-          src="/images/sm_logo.png"
-          initial={{ borderRadius: '0%', rotate: 0, scale: 1 }}
-          animate={{ borderRadius: '0%', rotate: 0, scale: 1 }}
-          whileHover={{
-            borderRadius: ['0%', '0%', '50%', '50%', '0%'],
-            rotate: [0, 0, 180, 180, 0],
-            scale: [1, 2, 2, 1, 1],
-            transition: {
-              duration: 2,
-              ease: 'easeInOut',
-              repeat: Infinity,
-              repeatDSelay: 1,
-              times: [0, 0.2, 0.5, 0.8, 1]
-            }
-          }}
-        />
+        <SMSpeedMenu items={smItems} mainItem={mainSM} />
         Stream Master
         <div className="col-6 m-0 p-0 justify-content-center align-content-start text-xs text-center">
           <div className="sm-text-xs sm-center-stuff w-full">
@@ -52,55 +106,19 @@ const About = () => {
         <div className="flex sm-center-stuff">
           <div className="flex flex-column w-full sm-center-stuff">
             <div className="layout-padding-bottom" />
+
             <div className="flex justify-content-center align-items-center">
-              <motion.img
-                className="sm-w-3rem"
-                alt="Senex Crenshaw"
-                src="/images/mrmonday_logo_sm.png"
-                initial={{ borderRadius: '0%', rotate: 0, scale: 1 }}
-                animate={{ borderRadius: '0%', rotate: 0, scale: 1 }}
-                whileHover={{
-                  borderRadius: ['0%', '0%', '50%', '50%', '0%'],
-                  rotate: [0, 0, 180, 180, 0],
-                  scale: [1, 2, 2, 1, 1],
-                  transition: {
-                    duration: 2,
-                    ease: 'easeInOut',
-                    repeat: Infinity,
-                    repeatDSelay: 1,
-                    times: [0, 0.2, 0.5, 0.8, 1]
-                  }
-                }}
-              />
               <div className="pl-1 text-lg flex flex-column sm-center-stuff">
-                <AnimatedText text="- MrM0nday -" fontSize={18} color="var(--text-color)" />
-                <AnimatedText text="UI" fontSize={18} color="var(--text-color)" />
+                <SMSpeedMenu items={mrm0pndayItems} mainItem={mainMrM0nday} />
+                <div className="font-italic text-xs" color="var(--text-color)">
+                  UI
+                </div>
               </div>
-            </div>
-            <div className="layout-padding-bottom" />
-            <div className="flex justify-content-center align-items-center">
-              <motion.img
-                className="sm-w-3rem"
-                alt="Senex Crenshaw"
-                src="/images/senex_logo_sm.png"
-                initial={{ borderRadius: '0%', rotate: 0, scale: 1 }}
-                animate={{ borderRadius: '0%', rotate: 0, scale: 1 }}
-                whileHover={{
-                  borderRadius: ['0%', '0%', '50%', '50%', '0%'],
-                  rotate: [0, 0, 180, 180, 0],
-                  scale: [1, 2, 2, 1, 1],
-                  transition: {
-                    duration: 2,
-                    ease: 'easeInOut',
-                    repeat: Infinity,
-                    repeatDSelay: 1,
-                    times: [0, 0.2, 0.5, 0.8, 1]
-                  }
-                }}
-              />
               <div className="pl-1 text-lg flex flex-column sm-center-stuff">
-                <AnimatedText text="- Senex Crenshaw -" fontSize={18} color="var(--text-color)" />
-                <AnimatedText text="Dev" fontSize={18} color="var(--text-color)" />
+                <SMSpeedMenu items={senexItems} mainItem={mainSenex} />
+                <div className="font-italic text-xs" color="var(--text-color)">
+                  Dev
+                </div>
               </div>
             </div>
 
