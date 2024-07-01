@@ -76,6 +76,7 @@ const AutoSetEPGSMChannelDialog = ({ menu, smChannel }: AutoSetEPGSMChannelDialo
         info=""
         label="Auto Set EPG"
         menu
+        modal
         onOkClick={async () => save()}
         placement={smTableIsSimple ? 'bottom-end' : 'bottom'}
         title="Auto Set EPG"

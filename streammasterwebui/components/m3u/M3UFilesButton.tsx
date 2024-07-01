@@ -16,6 +16,7 @@ const M3UFilesButton = () => {
       header={<M3UFileCreateDialog onUploadComplete={closeOverlay} />}
       icon="pi-upload"
       iconFilled
+      modal
       info=""
       placement="bottom-end"
       title="M3U FILES"

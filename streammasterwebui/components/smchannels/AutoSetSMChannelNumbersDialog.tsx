@@ -50,6 +50,7 @@ const AutoSetSMChannelNumbersDialog = ({ disabled }: AutoSetSMChannelNumbersDial
       title="Set Channel #s"
       info=""
       menu
+      modal
       hasCloseButton={false}
       onCloseClick={() => ReturnToParent()}
       buttonClassName="icon-yellow"

@@ -85,6 +85,7 @@ const DeleteSMChannelsDialog = ({ id, onClose, selectedItemsKey }: DeleteSMChann
       buttonDisabled={getTotalCount === 0}
       contentWidthSize="2"
       iconFilled
+      modal
       info=""
       title="DELETE CHANNELS"
       icon="pi-times"

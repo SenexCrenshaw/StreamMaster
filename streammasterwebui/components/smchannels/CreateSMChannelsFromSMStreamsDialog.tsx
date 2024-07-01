@@ -92,6 +92,7 @@ const CreateSMChannelsFromSMStreamsDialog = ({ id, label, onClose, selectedItems
       iconFilled
       info=""
       menu
+      modal
       onOkClick={() => onOkClick()}
       placement="bottom-end"
       showRemember={false}

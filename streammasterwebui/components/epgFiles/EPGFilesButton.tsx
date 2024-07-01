@@ -14,6 +14,7 @@ const EPGFilesButton = () => {
       buttonClassName="sm-w-4rem icon-green"
       buttonLabel="EPG"
       contentWidthSize="5"
+      modal
       header={<EPGFileCreateDialog onUploadComplete={closeOverlay} />}
       icon="pi-upload"
       iconFilled

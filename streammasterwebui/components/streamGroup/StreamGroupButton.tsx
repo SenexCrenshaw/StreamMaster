@@ -45,6 +45,7 @@ const StreamGroupButton = ({ className = 'sm-w-10rem sm-input-dark' }: StreamGro
           hasCloseButton={false}
           header={headerTemplate}
           icon="pi-list-check"
+          modal
           iconFilled
           showRemember={false}
           title="Stream Groups"

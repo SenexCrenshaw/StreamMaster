@@ -89,6 +89,7 @@ const AddSMChannelsToSGEditor = () => {
       info=""
       label="Add to SG"
       menu
+      modal
       onOkClick={async () => addSMChannelsToStreamGroup()}
       placement={smTableIsSimple ? 'bottom-end' : 'bottom'}
       title="Add to SG"
