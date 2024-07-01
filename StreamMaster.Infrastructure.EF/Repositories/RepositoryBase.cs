@@ -20,7 +20,7 @@ public abstract class RepositoryBase<T>(IRepositoryContext RepositoryContext, IL
     internal readonly ILogger logger = intLogger;
     internal readonly IOptionsMonitor<Setting> intSettings = intsettings;
 
-    public Setting Settings => intSettings.CurrentValue;
+
 
     #region Get 
     public virtual IQueryable<T> GetQuery(bool tracking = false)

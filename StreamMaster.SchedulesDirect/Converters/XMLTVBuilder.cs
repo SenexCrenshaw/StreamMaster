@@ -15,8 +15,7 @@ namespace StreamMaster.SchedulesDirect.Converters;
 public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IServiceProvider serviceProvider, IOptionsMonitor<Setting> intsettings, IIconHelper iconHelper, IEPGHelper ePGHelper, ISchedulesDirectDataService schedulesDirectDataService, ILogger<XMLTVBuilder> logger)
     : IXMLTVBuilder
 {
-    private readonly SDSettings sdsettings = intsdsettings.CurrentValue;
-    private readonly Setting settings = intsettings.CurrentValue;
+
 
     private string _baseUrl = "";
     //private ISchedulesDirectDataService schedulesDirectDataService;
@@ -31,23 +30,13 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IServicePro
 
     private static readonly string[] mpaaRatings = ["", "G", "PG", "PG-13", "R", "NC-17", "X", "NR", "AO"];
 
-    public XMLTV? CreateXmlTv(string baseUrl, List<VideoStreamConfig> videoStreamConfigs)
+    public XMLTV? CreateXmlTv(string baseUrl, List<VideoStreamConfig> videoStreamConfigs, OutputProfile outputProfile)
     {
         seriesDict = [];
         keywordDict = [];
         _baseUrl = baseUrl;
         try
         {
-            XMLTV xmlTv = new()
-            {
-                Date = SMDT.UtcNow.ToString(CultureInfo.InvariantCulture),
-                SourceInfoUrl = "https://github.com/SenexCrenshaw/StreamMaster",
-                SourceInfoName = "Stream Master",
-                GeneratorInfoName = "Stream Master",
-                GeneratorInfoUrl = "https://github.com/SenexCrenshaw/StreamMaster",
-                Channels = [],
-                Programs = []
-            };
 
 
             List<MxfService> toProcess = [];
@@ -74,8 +63,8 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IServicePro
 
             List<MxfService> services = [.. schedulesDirectDataService.AllServices.OrderBy(a => a.EPGNumber)];
 
-            List<int> chNos = [];
-            List<int> existingChNos = new(videoStreamConfigs.Select(a => a.ChannelNumber).Distinct());
+            //List<int> chNos = [];
+            //List<int> existingChNos = new(videoStreamConfigs.Select(a => a.ChannelNumber).Distinct());
 
             foreach (VideoStreamConfig videoStreamConfig in videoStreamConfigs.OrderBy(a => a.ChannelNumber))
             {
@@ -116,18 +105,18 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IServicePro
                 }
 
                 int chNo = videoStreamConfig.ChannelNumber;
-                if (chNos.Contains(chNo))
-                {
-                    foreach (int num in existingChNos.Concat(chNos))
-                    {
-                        if (num != chNo)
-                        {
-                            break;
-                        }
-                        chNo++;
-                    }
-                }
-                chNos.Add(chNo);
+                //if (chNos.Contains(chNo))
+                //{
+                //    foreach (int num in existingChNos.Concat(chNos))
+                //    {
+                //        if (num != chNo)
+                //        {
+                //            break;
+                //        }
+                //        chNo++;
+                //    }
+                //}
+                //chNos.Add(chNo);
 
                 newService.EPGNumber = epgNumber;
                 newService.ChNo = chNo;
@@ -152,11 +141,23 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IServicePro
 
             }
 
+            XMLTV xmlTv = new()
+            {
+                Date = SMDT.UtcNow.ToString(CultureInfo.InvariantCulture),
+                SourceInfoUrl = "https://github.com/SenexCrenshaw/StreamMaster",
+                SourceInfoName = "Stream Master",
+                GeneratorInfoName = "Stream Master",
+                GeneratorInfoUrl = "https://github.com/SenexCrenshaw/StreamMaster",
+                Channels = [],
+                Programs = []
+            };
+
+
             List<MxfProgram> programs = schedulesDirectDataService.AllPrograms;
 
             try
             {
-                DoPrograms(toProcess, programs.Count, xmlTv, videoStreamConfigs);
+                DoPrograms(toProcess, programs.Count, xmlTv, outputProfile, videoStreamConfigs);
 
                 xmlTv.Channels = [.. xmlTv.Channels.OrderBy(a => a.Id, new NumericStringComparer())];
                 xmlTv.Programs = [.. xmlTv.Programs.OrderBy(a => a.Channel).ThenBy(a => a.StartDateTime)];
@@ -225,7 +226,10 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IServicePro
 
             List<MxfProgram> programs = schedulesDirectDataService.GetAllSDPrograms;
 
-            DoPrograms(services, programs.Count, xmlTv);
+
+            var profile = SettingFiles.DefaultOutputProfileSetting.OutProfiles["Default"];
+
+            DoPrograms(services, programs.Count, xmlTv, profile);
 
             xmlTv.Channels = [.. xmlTv.Channels.OrderBy(a => a.Id, new NumericStringComparer())];
             xmlTv.Programs = [.. xmlTv.Programs.Where(a => a is not null).OrderBy(a => a.Channel).ThenBy(a => a.StartDateTime)];
@@ -240,7 +244,7 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IServicePro
         return null;
     }
 
-    private void DoPrograms(List<MxfService> services, int progCount, XMLTV xmlTv, List<VideoStreamConfig>? videoStreamConfigs = null)
+    private void DoPrograms(List<MxfService> services, int progCount, XMLTV xmlTv, OutputProfile outputProfile, List<VideoStreamConfig>? videoStreamConfigs = null)
     {
 
         videoStreamConfigs ??= [];
@@ -258,12 +262,13 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IServicePro
 
         try
         {
+            SDSettings sdsettings = intsdsettings.CurrentValue;
             int count = 0;
             //Parallel.ForEach(services, service =>
             Stopwatch sw = Stopwatch.StartNew();
             foreach (MxfService service in services)
             {
-                XmltvChannel channel = BuildXmltvChannel(service);
+                XmltvChannel channel = BuildXmltvChannel(service, outputProfile);
                 xmlTv.Channels.Add(channel);
 
                 if (service.MxfScheduleEntries.ScheduleEntry.Count == 0 && sdsettings.XmltvAddFillerData)
@@ -351,10 +356,14 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IServicePro
 
 
     #region ========== XMLTV Channels and Functions ==========
-    private XmltvChannel BuildXmltvChannel(MxfService mxfService)
+    private XmltvChannel BuildXmltvChannel(MxfService mxfService, OutputProfile outputProfile)
     {
 
         string id = mxfService.CallSign;
+        if (outputProfile.EnableChannelNumber)
+        {
+            id = mxfService.ChNo.ToString();
+        }
         //if (settings.M3UUseChnoForId)
         //{
         //    id = mxfService.ChNo.ToString();
@@ -379,7 +388,7 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IServicePro
         {
             ret.DisplayNames.Add(new XmltvText { Text = mxfService.Name });
         }
-
+        SDSettings sdsettings = intsdsettings.CurrentValue;
         // add channel number if requested
         if (sdsettings.XmltvIncludeChannelNumbers)
         {
@@ -438,7 +447,7 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IServicePro
     {
 
         MxfProgram mxfProgram = scheduleEntry.mxfProgram;
-
+        SDSettings sdsettings = intsdsettings.CurrentValue;
         string descriptionExtended = sdsettings.XmltvExtendedInfoInTitleDescriptions
                                                   ? GetDescriptionExtended(mxfProgram, scheduleEntry, sdsettings)
                                                   : string.Empty;
@@ -742,6 +751,7 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IServicePro
     // Icons    
     private List<XmltvIcon>? BuildProgramIcons(MxfProgram mxfProgram)
     {
+        SDSettings sdsettings = intsdsettings.CurrentValue;
 
         if (sdsettings.XmltvSingleImage || !mxfProgram.extras.ContainsKey("artwork"))
         {

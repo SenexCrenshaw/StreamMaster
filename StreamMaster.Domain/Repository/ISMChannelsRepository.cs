@@ -19,11 +19,11 @@ public interface ISMChannelsRepository : IRepositoryBase<SMChannel>
 
     Task CreateSMChannel(SMChannel sMChannel);
 
-    Task<APIResponse> CreateSMChannelFromStream(string streamId);
+    Task<APIResponse> CreateSMChannelFromStream(string streamId, int? StreamGroupId);
 
-    Task<APIResponse> CreateSMChannelFromStreamParameters(QueryStringParameters parameters);
+    Task<APIResponse> CreateSMChannelFromStreamParameters(QueryStringParameters parameters, int? StreamGroupId);
 
-    Task<APIResponse> CreateSMChannelFromStreams(List<string> streamIds);
+    Task<APIResponse> CreateSMChannelFromStreams(List<string> streamIds, int? StreamGroupId);
 
     Task<APIResponse> DeleteSMChannel(int smchannelId);
 

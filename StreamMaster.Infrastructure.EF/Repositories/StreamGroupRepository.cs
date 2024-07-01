@@ -56,7 +56,7 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
 
     private void SetStreamGroupLinks(StreamGroupDto streamGroupDto, string Url)
     {
-
+        Setting Settings = intSettings.CurrentValue;
         //int count = streamGroupDto.IsReadOnly
         //    ? RepositoryContext.SMStreams.Count()
         //    : RepositoryContext.StreamGroupSMChannelLinks.Where(a => a.StreamGroupId == streamGroupDto.Id).Count();
@@ -169,7 +169,7 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
         return streamGroup.Id;
     }
 
-    public async Task<StreamGroupDto?> UpdateStreamGroup(int StreamGroupId, string? NewName, bool? AutoSetChannelNumbers, bool? IgnoreExistingChannelNumbers, int? StartingChannelNumber)
+    public async Task<StreamGroupDto?> UpdateStreamGroup(int StreamGroupId, string? NewName, string? DeviceID, bool? AutoSetChannelNumbers, bool? IgnoreExistingChannelNumbers, int? StartingChannelNumber)
     {
         StreamGroup? streamGroup = await FirstOrDefaultAsync(c => c.Id == StreamGroupId);
         if (streamGroup == null)
@@ -180,6 +180,11 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
         if (!string.IsNullOrEmpty(NewName))
         {
             streamGroup.Name = NewName;
+        }
+
+        if (!string.IsNullOrEmpty(DeviceID))
+        {
+            streamGroup.DeviceID = DeviceID;
         }
 
         if (StartingChannelNumber.HasValue)

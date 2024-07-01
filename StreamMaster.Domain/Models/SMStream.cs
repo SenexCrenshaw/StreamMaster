@@ -20,7 +20,7 @@ public class SMStream
     [Column(TypeName = "citext")]
     public string M3UFileName { get; set; } = string.Empty;
     [Column(TypeName = "citext")]
-    public string SMStreamId { get; set; } = UniqueHexGenerator.SMChannelIdEmpty;
+    public string ShortSMStreamId { get; set; } = UniqueHexGenerator.SMChannelIdEmpty;
     [Column(TypeName = "citext")]
     public string Group { get; set; } = "All";
     [Column(TypeName = "citext")]

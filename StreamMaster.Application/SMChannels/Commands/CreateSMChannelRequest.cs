@@ -1,5 +1,7 @@
 ﻿using StreamMaster.Application.SMChannelStreamLinks.Commands;
 
+using System.Collections.Concurrent;
+
 namespace StreamMaster.Application.SMChannels.Commands;
 
 [SMAPI]
@@ -29,6 +31,12 @@ public class CreateSMChannelRequestHandler(ILogger<CreateSMChannelRequest> Logge
             return APIResponse.NotFound;
         }
 
+        ConcurrentDictionary<string, byte> generatedIdsDict = new();
+        foreach (SMChannel channel in Repository.SMChannel.GetQuery())
+        {
+            generatedIdsDict.TryAdd(channel.ShortSMChannelId, 0);
+        }
+
         try
         {
             var smChannel = new SMChannel
@@ -40,7 +48,8 @@ public class CreateSMChannelRequestHandler(ILogger<CreateSMChannelRequest> Logge
                 EPGId = request.EPGId ?? string.Empty,
                 Logo = request.Logo ?? string.Empty,
                 VideoStreamHandler = request.VideoStreamHandler ?? VideoStreamHandlers.SystemDefault,
-                StreamingProxyType = request.StreamingProxyType ?? "SystemDefault"
+                StreamingProxyType = request.StreamingProxyType ?? "SystemDefault",
+                ShortSMChannelId = UniqueHexGenerator.GenerateUniqueHex(generatedIdsDict)
             };
 
             Repository.SMChannel.Create(smChannel);

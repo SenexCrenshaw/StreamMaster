@@ -61,7 +61,7 @@ public class SMChannelStreamLinksRepository(ILogger<SMChannelStreamLinksReposito
         }
         //Delete(sMChannelStreamLink);
         // await SaveChangesAsync();
-        //List<int> smchannelIds = linksToDelete.Select(a => a.SMChannelId).ToList();
+        //List<int> smchannelIds = linksToDelete.Select(a => a.ShortSMChannelId).ToList();
         //await UpdateRanks([smchannelId]);
     }
 

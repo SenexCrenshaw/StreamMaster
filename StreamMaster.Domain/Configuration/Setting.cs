@@ -4,7 +4,7 @@ namespace StreamMaster.Domain.Configuration;
 
 public class BaseSettings
 {
-
+    public bool AutoSetEPG { get; set; } = true;
     public bool BackupEnabled { get; set; } = true;
     public int BackupVersionsToKeep { get; set; } = 18;
     public int BackupInterval { get; set; } = 4;

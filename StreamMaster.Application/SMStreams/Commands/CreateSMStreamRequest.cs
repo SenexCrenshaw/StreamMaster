@@ -1,4 +1,6 @@
-﻿namespace StreamMaster.Application.SMStreams.Commands;
+﻿using System.Collections.Concurrent;
+
+namespace StreamMaster.Application.SMStreams.Commands;
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
@@ -36,6 +38,14 @@ public class CreateSMStreamRequestHandler(ILogger<CreateSMStreamRequest> Logger,
                 M3UFileId = -1,
                 M3UFileName = "CUSTOM"
             };
+
+
+            ConcurrentDictionary<string, byte> generatedIdsDict = new();
+            foreach (var stream in Repository.SMStream.GetQuery())
+            {
+                generatedIdsDict.TryAdd(stream.ShortSMStreamId, 0);
+            }
+            smStream.ShortSMStreamId = UniqueHexGenerator.GenerateUniqueHex(generatedIdsDict);
 
             Repository.SMStream.Create(smStream);
             await Repository.SaveAsync();

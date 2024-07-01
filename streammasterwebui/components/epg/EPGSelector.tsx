@@ -62,19 +62,19 @@ const EPGSelector = ({ buttonDarkBackground = false, enableEditMode = true, labe
 
   const extractEPGNumberAndStationId = useCallback((userTvgId: string): EPGResult => {
     if (!userTvgId.trim()) {
-      throw new Error('Input string cannot be null or whitespace.');
+      return { epgNumber: -1, stationId: '-1' };
     }
 
     const regex = /^(-?\d+)-(.*)/;
     const matches = userTvgId.match(regex);
 
     if (!matches || matches.length !== 3) {
-      throw new Error('Input string is not in the expected format.');
+      return { epgNumber: -1, stationId: '-1' };
     }
 
     const epgNumber = parseInt(matches[1], 10);
     if (isNaN(epgNumber)) {
-      throw new Error('EPG number is not a valid number.');
+      return { epgNumber: -1, stationId: '-1' };
     }
 
     const stationId = matches[2];

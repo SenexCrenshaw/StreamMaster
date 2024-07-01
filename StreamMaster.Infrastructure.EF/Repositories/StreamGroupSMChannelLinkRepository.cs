@@ -66,7 +66,7 @@ public class StreamGroupSMChannelLinkRepository(ILogger<StreamGroupSMChannelLink
         }
 
         await BulkDeleteAsync(toDelete);
-        //List<int> smchannelIds = toDelete.Select(a => a.SMChannelId).ToList();
+        //List<int> smchannelIds = toDelete.Select(a => a.ShortSMChannelId).ToList();
         //foreach (StreamGroupSMChannelLink link in toDelete)
         //{
         //    Delete(link);

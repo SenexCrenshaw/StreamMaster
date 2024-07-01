@@ -8,10 +8,10 @@ public class UniqueHexGenerator
     private static string GetSMChannelId()
     {
         using RandomNumberGenerator rng = RandomNumberGenerator.Create();
-        byte[] buffer = new byte[3];
+        byte[] buffer = new byte[4];
         rng.GetBytes(buffer);
-        int randomValue = BitConverter.ToInt32([buffer[0], buffer[1], buffer[2], 0], 0);
-        string hex = randomValue.ToString("X6");
+        int randomValue = BitConverter.ToInt32([buffer[0], buffer[1], buffer[2], buffer[3]], 0);
+        string hex = randomValue.ToString("X8");
         return hex;
     }
     public static string GenerateUniqueHex(HashSet<string> existingIds)

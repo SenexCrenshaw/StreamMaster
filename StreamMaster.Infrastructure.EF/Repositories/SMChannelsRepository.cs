@@ -1,8 +1,11 @@
 ﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
 
+using MediatR;
+
 using Microsoft.EntityFrameworkCore;
 
+using StreamMaster.Application.StreamGroupSMChannelLinks.Commands;
 using StreamMaster.Domain.API;
 using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Exceptions;
@@ -12,12 +15,13 @@ using StreamMaster.SchedulesDirect.Domain.Interfaces;
 using StreamMaster.SchedulesDirect.Domain.JsonClasses;
 using StreamMaster.SchedulesDirect.Domain.Models;
 
+using System.Collections.Concurrent;
 using System.Linq.Expressions;
 using System.Text.Json;
 
 namespace StreamMaster.Infrastructure.EF.Repositories;
 
-public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepositoryWrapper repository, IRepositoryContext repositoryContext, IMapper mapper, IOptionsMonitor<Setting> intSettings, IIconService iconService, ISchedulesDirectDataService schedulesDirectDataService)
+public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, ISender sender, IRepositoryWrapper repository, IRepositoryContext repositoryContext, IMapper mapper, IOptionsMonitor<Setting> intSettings, IIconService iconService, ISchedulesDirectDataService schedulesDirectDataService)
     : RepositoryBase<SMChannel>(repositoryContext, intLogger, intSettings), ISMChannelsRepository
 {
 
@@ -38,7 +42,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
     }
     public async Task<IQueryable<SMChannel>> GetPagedSMChannelsQueryable(QueryStringParameters parameters)
     {
-        IQueryable<SMChannel> query = GetQuery(parameters).Include(a => a.SMStreams).ThenInclude(a => a.SMStream);
+        IQueryable<SMChannel> query = GetQuery(parameters).Include(a => a.SMStreams).ThenInclude(a => a.SMStream).Include(a => a.StreamGroups);
 
         if (!string.IsNullOrEmpty(parameters.JSONFiltersString))
         {
@@ -139,12 +143,20 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
         return FirstOrDefault(a => a.Id == smchannelId, tracking: false);
     }
 
-    public async Task<APIResponse> CreateSMChannelFromStream(string streamId)
+    public async Task<APIResponse> CreateSMChannelFromStream(string streamId, int? StreamGroupId)
     {
+        Setting Settings = intSettings.CurrentValue;
+
         SMStreamDto? smStream = repository.SMStream.GetSMStream(streamId);
         if (smStream == null)
         {
             throw new APIException($"Stream with Id {streamId} is not found");
+        }
+
+        ConcurrentDictionary<string, byte> generatedIdsDict = new();
+        foreach (var channel in GetQuery())
+        {
+            generatedIdsDict.TryAdd(channel.ShortSMChannelId, 0);
         }
 
         SMChannel smChannel = new()
@@ -154,12 +166,34 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
             Name = smStream.Name,
             Logo = smStream.Logo,
             EPGId = smStream.EPGID,
-            StationId = smStream.StationId
+            StationId = smStream.StationId,
+            ShortSMChannelId = UniqueHexGenerator.GenerateUniqueHex(generatedIdsDict)
         };
 
         await CreateSMChannel(smChannel);
 
         await repository.SMChannelStreamLink.CreateSMChannelStreamLink(smChannel.Id, smStream.Id);
+        if (StreamGroupId.HasValue)
+        {
+            await sender.Send(new AddSMChannelToStreamGroupRequest(StreamGroupId.Value, smChannel.Id));
+        }
+        if (Settings.AutoSetEPG)
+        {
+
+            var fds = await AutoSetEPGs(GetQuery(a => a.Id == smChannel.Id), CancellationToken.None);
+            if (fds.Count != 0)
+            {
+                var test = fds.First(a => a.Id == smChannel.Id.ToString() && a.Field == "EPGId");
+                if (test != null)
+                {
+                    smChannel.EPGId = test.Value.ToString();
+                    Update(smChannel);
+                    await SaveChangesAsync();
+                }
+
+            }
+            RepositoryContext.SaveChanges();
+        }
         return APIResponse.Success;
     }
 
@@ -354,13 +388,13 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
 
     }
 
-    public async Task<APIResponse> CreateSMChannelFromStreams(List<string> streamIds)
+    public async Task<APIResponse> CreateSMChannelFromStreams(List<string> streamIds, int? StreamGroupId)
     {
         try
         {
             foreach (string streamId in streamIds)
             {
-                APIResponse resp = await CreateSMChannelFromStream(streamId);
+                APIResponse resp = await CreateSMChannelFromStream(streamId, StreamGroupId);
                 if (resp.IsError)
                 {
                     return resp;
@@ -376,10 +410,10 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
         return APIResponse.Success;
     }
 
-    public Task<APIResponse> CreateSMChannelFromStreamParameters(QueryStringParameters parameters)
+    public Task<APIResponse> CreateSMChannelFromStreamParameters(QueryStringParameters parameters, int? StreamGroupId)
     {
         IQueryable<SMStream> toCreate = repository.SMStream.GetQuery(parameters);
-        return CreateSMChannelFromStreams(toCreate.Select(a => a.Id).ToList());
+        return CreateSMChannelFromStreams(toCreate.Select(a => a.Id).ToList(), StreamGroupId);
     }
 
     public async Task<List<FieldData>> ToggleSMChannelsVisibleById(List<int> ids, CancellationToken cancellationToken)
@@ -444,7 +478,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
 
         List<SMChannel> smChannelList = smChannels.ToList();
 
-
+        Setting Settings = intSettings.CurrentValue;
         foreach (SMChannel smChannel in smChannelList)
         {
             if (cancellationToken.IsCancellationRequested)
@@ -494,7 +528,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
                         }
                     }
 
-                    Update(smChannel);
+                    //Update(smChannel);
                     //RepositoryContext.SaveChanges();
                 }
             }

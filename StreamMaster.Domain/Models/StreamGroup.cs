@@ -10,7 +10,7 @@ namespace StreamMaster.Domain.Models;
 public class StreamGroup : BaseEntity
 {
     public static string APIName => "StreamGroups";
-
+    public string DeviceID { get; set; } = string.Empty;
     public List<StreamGroupChannelGroup> ChannelGroups { get; set; } = [];
     public List<StreamGroupProfile> StreamGroupProfiles { get; set; } = [];
 

@@ -55,7 +55,7 @@
     "eslint-plugin-unused-imports": "^3.2.0",
     "primeflex": "^3.3.1",
     "typescript": "^5.5.2",
-    "vite": "^5.3.1"
+    "vite": "^5.3.2"
   },
   "eslintConfig": {
     "extends": [

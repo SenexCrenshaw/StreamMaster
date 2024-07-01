@@ -27,20 +27,21 @@ public class GetStreamGroupDiscoverHandler(ILogger<GetStreamGroupDiscover> logge
 
     public async Task<string> Handle(GetStreamGroupDiscover request, CancellationToken cancellationToken)
     {
-        if (request.StreamGroupId > 1)
-        {
-            bool streamGroup = await Repository.StreamGroup.GetStreamGroupById(request.StreamGroupId).ConfigureAwait(false) != null;
-            if (!streamGroup)
-            {
-                return "";
-            }
-        }
+
 
         string url = httpContextAccessor.GetUrlWithPath();
 
         int maxTuners = await Repository.M3UFile.GetM3UMaxStreamCount();
         Discover discover = new(url, request.StreamGroupId, maxTuners);
-
+        if (request.StreamGroupId > 1)
+        {
+            var streamGroup = await Repository.StreamGroup.GetStreamGroupById(request.StreamGroupId).ConfigureAwait(false);
+            if (streamGroup == null)
+            {
+                return "";
+            }
+            discover.DeviceID = streamGroup.DeviceID;
+        }
         string jsonString = JsonSerializer.Serialize(discover, new JsonSerializerOptions { WriteIndented = true });
         return jsonString;
     }

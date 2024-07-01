@@ -34,7 +34,7 @@ internal class AddSMChannelsToStreamGroupRequestHandler(IRepositoryWrapper Repos
         //    return APIResponse.ErrorWithMessage(res.ErrorMessage);
         //}
 
-        //SMChannel? smChannel = Repository.SMChannel.GetSMChannel(request.SMChannelId);
+        //SMChannel? smChannel = Repository.SMChannel.GetSMChannel(request.ShortSMChannelId);
         //if (smChannel is null)
         //{
         //    return APIResponse.ErrorWithMessage("Channel not found");

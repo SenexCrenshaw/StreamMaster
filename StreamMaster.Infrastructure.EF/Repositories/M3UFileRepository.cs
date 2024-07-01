@@ -196,6 +196,7 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, RepositoryW
     }
     private List<SMStream> RemoveIgnoredStreams(List<SMStream> streams)
     {
+        Setting Settings = intSettings.CurrentValue;
         if (Settings.NameRegex.Count == 0)
         {
             return streams;
@@ -371,7 +372,7 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, RepositoryW
 
         foreach (SMStream stream in streams)
         {
-            generatedIdsDict.TryAdd(stream.SMStreamId, 0);
+            generatedIdsDict.TryAdd(stream.ShortSMStreamId, 0);
         }
 
         _ = Parallel.ForEach(streams.Select((stream, index) => (stream, index)), tuple =>
@@ -387,16 +388,16 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, RepositoryW
                 if (!existingLookup.TryGetValue(stream.Url, out SMStream? existingStream))
                 {
                     ProcessNewStream(stream, group?.IsHidden ?? false, m3uFile.Name, index);
-                    stream.SMStreamId = UniqueHexGenerator.GenerateUniqueHex(generatedIdsDict);
+                    stream.ShortSMStreamId = UniqueHexGenerator.GenerateUniqueHex(generatedIdsDict);
                     toWrite.Add(stream);
                 }
                 else
                 {
                     if (ProcessExistingStream(stream, existingStream, m3uFile, index))
                     {
-                        if (string.IsNullOrEmpty(existingStream.SMStreamId) || existingStream.SMStreamId == UniqueHexGenerator.SMChannelIdEmpty)
+                        if (string.IsNullOrEmpty(existingStream.ShortSMStreamId) || existingStream.ShortSMStreamId == UniqueHexGenerator.SMChannelIdEmpty)
                         {
-                            existingStream.SMStreamId = UniqueHexGenerator.GenerateUniqueHex(generatedIdsDict);
+                            existingStream.ShortSMStreamId = UniqueHexGenerator.GenerateUniqueHex(generatedIdsDict);
                         }
                         toUpdate.Add(existingStream);
                     }
@@ -469,7 +470,7 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, RepositoryW
             existingStream.Name = stream.Name;
         }
 
-        if (existingStream.SMStreamId != stream.SMStreamId)
+        if (existingStream.ShortSMStreamId != stream.ShortSMStreamId)
         {
             //changed = true;
 

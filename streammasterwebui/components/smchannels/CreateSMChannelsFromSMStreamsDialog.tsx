@@ -3,6 +3,7 @@ import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
 import SMPopUp from '@components/sm/SMPopUp';
 import { useQueryFilter } from '@lib/redux/hooks/queryFilter';
 import { useSelectAll } from '@lib/redux/hooks/selectAll';
+import { useSelectedStreamGroup } from '@lib/redux/hooks/selectedStreamGroup';
 import { CreateSMChannelFromStreamParameters, CreateSMChannelFromStreams } from '@lib/smAPI/SMChannels/SMChannelsCommands';
 import { CreateSMChannelFromStreamParametersRequest, CreateSMChannelFromStreamsRequest, SMStreamDto } from '@lib/smAPI/smapiTypes';
 import React, { useCallback, useMemo } from 'react';
@@ -16,7 +17,7 @@ interface CreateSMChannelsDialogProperties {
 
 const CreateSMChannelsFromSMStreamsDialog = ({ id, label, onClose, selectedItemsKey }: CreateSMChannelsDialogProperties) => {
   const { selectedItems, setSelectedItems } = useSelectedItems<SMStreamDto>(selectedItemsKey);
-
+  const { selectedStreamGroup } = useSelectedStreamGroup('StreamGroup');
   const { selectAll, setSelectAll } = useSelectAll(id);
   const { queryFilter } = useQueryFilter(id);
 
@@ -39,6 +40,9 @@ const CreateSMChannelsFromSMStreamsDialog = ({ id, label, onClose, selectedItems
 
       const request = {} as CreateSMChannelFromStreamParametersRequest;
       request.Parameters = queryFilter;
+      if (selectedStreamGroup?.Id) {
+        request.StreamGroupId = selectedStreamGroup.Id;
+      }
 
       await CreateSMChannelFromStreamParameters(request)
         .then(() => {
@@ -64,6 +68,9 @@ const CreateSMChannelsFromSMStreamsDialog = ({ id, label, onClose, selectedItems
 
     const ids = selectedItems.map((item) => item.Id);
     request.StreamIds = ids;
+    if (selectedStreamGroup?.Id) {
+      request.StreamGroupId = selectedStreamGroup.Id;
+    }
 
     await CreateSMChannelFromStreams(request)
       .then(() => {
@@ -74,7 +81,7 @@ const CreateSMChannelsFromSMStreamsDialog = ({ id, label, onClose, selectedItems
         throw error;
       })
       .finally(() => {});
-  }, [selectedItems, selectAll, ReturnToParent, queryFilter, setSelectedItems, setSelectAll]);
+  }, [selectedItems, selectAll, selectedStreamGroup, ReturnToParent, queryFilter, setSelectedItems, setSelectAll]);
 
   return (
     <SMPopUp

@@ -1,4 +1,6 @@
-﻿namespace StreamMaster.Application.StreamGroups.Commands;
+﻿using System.Collections.Concurrent;
+
+namespace StreamMaster.Application.StreamGroups.Commands;
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
@@ -21,12 +23,19 @@ public class CreateStreamGroupRequestHandler(IRepositoryWrapper Repository, IMes
             return APIResponse.ErrorWithMessage($"The name '{request.Name}' is reserved");
         }
 
+        ConcurrentDictionary<string, byte> generatedIdsDict = new();
+        foreach (StreamGroup channel in Repository.StreamGroup.GetQuery())
+        {
+            generatedIdsDict.TryAdd(channel.DeviceID, 0);
+        }
+
         StreamGroup streamGroup = new()
         {
             Name = request.Name,
             IgnoreExistingChannelNumbers = request.IgnoreExistingChannelNumbers ?? true,
             StartingChannelNumber = request.StartingChannelNumber ?? 1,
-            AutoSetChannelNumbers = request.AutoSetChannelNumbers ?? true
+            AutoSetChannelNumbers = request.AutoSetChannelNumbers ?? true,
+            DeviceID = UniqueHexGenerator.GenerateUniqueHex(generatedIdsDict)
         };
 
         streamGroup.StreamGroupProfiles.Add(new StreamGroupProfile

@@ -1,4 +1,5 @@
 import SMPopUp from '@components/sm/SMPopUp';
+import { useSelectedStreamGroup } from '@lib/redux/hooks/selectedStreamGroup';
 import { DeleteStreamGroup } from '@lib/smAPI/StreamGroups/StreamGroupsCommands';
 import { DeleteStreamGroupRequest, StreamGroupDto } from '@lib/smAPI/smapiTypes';
 import { memo, useCallback } from 'react';
@@ -9,6 +10,7 @@ interface StreamGroupDeleteDialogProperties {
 }
 
 const StreamGroupDeleteDialog = ({ streamGroup, onHide }: StreamGroupDeleteDialogProperties) => {
+  const { selectedStreamGroup, setSelectedStreamGroup } = useSelectedStreamGroup('StreamGroup');
   const ReturnToParent = useCallback(() => {
     onHide?.();
   }, [onHide]);
@@ -30,9 +32,13 @@ const StreamGroupDeleteDialog = ({ streamGroup, onHide }: StreamGroupDeleteDialo
         console.error('Error Deleting SG', error);
       })
       .finally(() => {
+        request.Id = streamGroup.Id;
+        if (selectedStreamGroup?.Id === streamGroup.Id) {
+          setSelectedStreamGroup(undefined);
+        }
         ReturnToParent();
       });
-  }, [ReturnToParent, streamGroup]);
+  }, [ReturnToParent, selectedStreamGroup, setSelectedStreamGroup, streamGroup]);
 
   return (
     <div className="flex justify-content-center w-full">

@@ -1,7 +1,6 @@
-﻿using FluentValidation;
+﻿using Microsoft.AspNetCore.Http;
 
-using Microsoft.AspNetCore.Http;
-
+using System.Collections.Concurrent;
 using System.Net;
 using System.Xml;
 using System.Xml.Serialization;
@@ -10,56 +9,76 @@ using static StreamMaster.Domain.Common.GetStreamGroupEPGHandler;
 
 namespace StreamMaster.Application.StreamGroups.Queries;
 
+public class ChannelNumberConfig
+{
+    public int SMChannelId { get; set; }
+    public int ChannelNumber
+    {
+        get; set;
+    }
+    public int M3UFileId { get; set; }
+    public int FilePosition { get; set; }
+}
+
 [RequireAll]
 public record GetStreamGroupEPG(int StreamGroupId, int StreamGroupProfileId) : IRequest<string>;
-public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, IEPGHelper epgHelper, IXMLTVBuilder xMLTVBuilder, ILogger<GetStreamGroupEPG> logger, ISchedulesDirectDataService schedulesDirectDataService, IRepositoryWrapper Repository, IOptionsMonitor<Setting> intsettings)
+public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, ISender sender, IRepositoryWrapper repositoryWrapper, IEPGHelper epgHelper, IXMLTVBuilder xMLTVBuilder, ILogger<GetStreamGroupEPG> logger, ISchedulesDirectDataService schedulesDirectDataService, IRepositoryWrapper Repository, IOptionsMonitor<Setting> intsettings)
     : IRequestHandler<GetStreamGroupEPG, string>
 {
     private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
-    private readonly Setting settings = intsettings.CurrentValue;
-
 
     //private readonly ParallelOptions parallelOptions = new()
     //{
     //    MaxDegreeOfParallelism = Environment.ProcessorCount
     //};
+    private ConcurrentDictionary<int, VideoStreamConfig> existingNumbers = new();
+    private ConcurrentHashSet<int> usedNumbers = new();
+    private int currentChannelNumber;
+
+    private int GetNextChannelNumber(int channelNumber, bool ignoreExisting)
+    {
+        if (ignoreExisting)
+        {
+            return getNext();
+        }
+
+        if (existingNumbers.ContainsKey(channelNumber))
+        {
+            if (usedNumbers.Add(channelNumber))
+            {
+                return channelNumber;
+            }
+        }
+
+        return getNext();
+    }
+
+    private int getNext()
+    {
+        ++currentChannelNumber;
+        while (!usedNumbers.Add(currentChannelNumber))
+        {
+            ++currentChannelNumber;
+        }
+        return currentChannelNumber;
+    }
 
     [LogExecutionTimeAspect]
     public async Task<string> Handle(GetStreamGroupEPG request, CancellationToken cancellationToken)
     {
 
-        List<SMChannel> smChannels = await Repository.SMChannel.GetSMChannelsFromStreamGroup(request.StreamGroupId);
+        (List<VideoStreamConfig>? videoStreamConfigs, OutputProfile? profile) = await sender.Send(new GetStreamGroupVideoConfigs(request.StreamGroupId, request.StreamGroupProfileId));
 
-        if (!smChannels.Any())
+        if (videoStreamConfigs is null || profile is null)
         {
-            return "";
+            return string.Empty;
         }
-
-        List<VideoStreamConfig> videoStreamConfigs = [];
-
-        logger.LogInformation("GetStreamGroupEPGHandler: Handling {Count} smStreams", smChannels.Count);
-
-        foreach (SMChannel? smChannel in smChannels.Where(a => !a.IsHidden))
-        {
-            videoStreamConfigs.Add(new VideoStreamConfig
-            {
-                Id = smChannel.Id,
-                Name = smChannel.Name,
-                EPGId = smChannel.EPGId,
-                Logo = smChannel.Logo,
-                ChannelNumber = smChannel.ChannelNumber,
-                TimeShift = smChannel.TimeShift,
-                IsDuplicate = false,
-                IsDummy = false
-            });
-        }
+        logger.LogInformation("GetStreamGroupEPGHandler: Handling {Count} channels", videoStreamConfigs.Count);
 
 
         ConcurrentHashSet<string> epgids = [];
 
         ISchedulesDirectData dummyData = schedulesDirectDataService.DummyData();
-
-        List<MxfService> allservices = schedulesDirectDataService.AllServices;
 
         foreach (VideoStreamConfig videoStreamConfig in videoStreamConfigs)
         {
@@ -73,23 +92,22 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
                 dummyData.FindOrCreateDummyService(videoStreamConfig.EPGId, videoStreamConfig);
             }
 
-            if (epgids.Contains(videoStreamConfig.EPGId))
+            if (!epgids.Add(videoStreamConfig.EPGId))
             {
                 videoStreamConfig.IsDuplicate = true;
             }
-            else
-            {
-                epgids.Add(videoStreamConfig.EPGId);
-            }
+
         }
 
-        XMLTV epgData = xMLTVBuilder.CreateXmlTv(_httpContextAccessor.GetUrl(), videoStreamConfigs) ?? new XMLTV();
+        XMLTV epgData = xMLTVBuilder.CreateXmlTv(_httpContextAccessor.GetUrl(), videoStreamConfigs, profile) ?? new XMLTV();
 
         return SerializeXMLTVData(epgData);
     }
 
     private string SerializeXMLTVData(XMLTV xmltv)
     {
+        Setting settings = intsettings.CurrentValue;
+
 
         XmlSerializerNamespaces ns = new();
         ns.Add("", "");
@@ -100,7 +118,7 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
         XmlWriterSettings xmlSettings = new()
         {
             Indent = settings.PrettyEPG,
-            OmitXmlDeclaration = true,
+            //OmitXmlDeclaration = true,
             NewLineHandling = NewLineHandling.None,
             //NewLineChars = "\n"
         };

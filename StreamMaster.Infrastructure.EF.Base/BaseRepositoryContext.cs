@@ -126,7 +126,7 @@ public class BaseRepositoryContext(DbContextOptions options) : DbContext(options
 
 
         //modelBuilder.Entity<VideoStream>()
-        //    .HasIndex(p => p.SMChannelId)
+        //    .HasIndex(p => p.ShortSMChannelId)
         //    .HasDatabaseName("IX_VideoStream_SMChannelId");
 
         //modelBuilder.OnHangfireModelCreating();

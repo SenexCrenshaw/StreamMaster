@@ -57,5 +57,5 @@ public class SMChannel
     public VideoStreamHandlers VideoStreamHandler { get; set; } = VideoStreamHandlers.SystemDefault;
 
     [Column(TypeName = "citext")]
-    public string SMChannelId { get; set; } = UniqueHexGenerator.SMChannelIdEmpty;
+    public string ShortSMChannelId { get; set; } = UniqueHexGenerator.SMChannelIdEmpty;
 }

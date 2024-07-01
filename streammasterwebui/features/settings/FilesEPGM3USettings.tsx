@@ -33,11 +33,12 @@ export function FilesEPGM3USettings(): React.ReactElement {
         <div className="sm-card-children-content">
           <div className="layout-padding-bottom" />
           <div className="settings-lines ">
-            {getCheckBoxLine({ currentSettingRequest, field: 'prettyEPG', onChange })}
-            {getCheckBoxLine({ currentSettingRequest, field: 'cacheIcons', onChange })}
-            {getCheckBoxLine({ currentSettingRequest, field: 'videoStreamAlwaysUseEPGLogo', onChange })}
-            {getInputTextLine({ currentSettingRequest, field: 'dummyRegex', onChange })}
-            {getCheckBoxLine({ currentSettingRequest, field: 'm3UIgnoreEmptyEPGID', onChange })}
+            {getCheckBoxLine({ currentSettingRequest, field: 'PrettyEPG', onChange })}
+            {getCheckBoxLine({ currentSettingRequest, field: 'AutoSetEPG', onChange })}
+            {getCheckBoxLine({ currentSettingRequest, field: 'CacheIcons', onChange })}
+            {getCheckBoxLine({ currentSettingRequest, field: 'VideoStreamAlwaysUseEPGLogo', onChange })}
+            {getInputTextLine({ currentSettingRequest, field: 'DummyRegex', onChange })}
+            {getCheckBoxLine({ currentSettingRequest, field: 'M3UIgnoreEmptyEPGID', onChange })}
             {/* {getCheckBoxLine({ currentSettingRequest, field: 'm3UFieldGroupTitle', onChange })} */}
             {/* {getCheckBoxLine({ currentSettingRequest, field: 'm3UUseChnoForId', onChange })} */}
             {/* {getCheckBoxLine({ currentSettingRequest, field: 'm3UStationId', onChange })} */}

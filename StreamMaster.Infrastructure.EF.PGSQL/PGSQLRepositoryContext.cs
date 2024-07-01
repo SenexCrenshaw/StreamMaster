@@ -76,7 +76,7 @@ namespace StreamMaster.Infrastructure.EF.PGSQL
             //        M3UFileId = videoStream.M3UFileId,
             //        M3UFileName = videoStream.M3UFileName,
             //        ChannelNumber = videoStream.Tvg_chno,
-            //        SMChannelId = videoStream.SMChannelId,
+            //        ShortSMChannelId = videoStream.ShortSMChannelId,
             //        StationId = videoStream.StationId,
             //        Group = videoStream.Tvg_group,
             //        EPGId = videoStream.Tvg_ID,
@@ -106,7 +106,7 @@ namespace StreamMaster.Infrastructure.EF.PGSQL
             //    int channelId = SMChannels.First(a => a.VideoStreamId == streamGroupVideoStream.ChildVideoStreamId).Id;
             //    StreamGroupSMChannelLink streamGroupSMChannel = new()
             //    {
-            //        SMChannelId = channelId,
+            //        ShortSMChannelId = channelId,
             //        StreamGroupId = streamGroupVideoStream.StreamGroupId,
             //        Rank = streamGroupVideoStream.Rank,
             //        IsReadOnly = streamGroupVideoStream.IsReadOnly
@@ -121,7 +121,7 @@ namespace StreamMaster.Infrastructure.EF.PGSQL
             //    int channelId = SMChannels.First(a => a.VideoStreamId == videoStreamLink.ParentVideoStreamId).Id;
             //    SMChannelStreamLink smChannelStreamLink = new()
             //    {
-            //        SMChannelId = channelId,
+            //        ShortSMChannelId = channelId,
             //        SMStreamId = videoStreamLink.ChildVideoStreamId,
             //        Rank = videoStreamLink.Rank
             //    };

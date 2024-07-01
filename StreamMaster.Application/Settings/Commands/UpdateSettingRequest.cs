@@ -6,6 +6,7 @@ namespace StreamMaster.Application.Settings.Commands;
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public class UpdateSettingParameters
 {
+    public bool? AutoSetEPG { get; set; }
     public bool? BackupEnabled { get; set; }
     public int? BackupVersionsToKeep { get; set; }
     public int? BackupInterval { get; set; }
@@ -290,6 +291,12 @@ public partial class UpdateSettingRequestHandler(
         {
             currentSetting.BackupEnabled = request.parameters.BackupEnabled.Value;
         }
+
+        if (request.parameters.AutoSetEPG.HasValue)
+        {
+            currentSetting.AutoSetEPG = request.parameters.AutoSetEPG.Value;
+        }
+
 
         if (request.parameters.BackupVersionsToKeep.HasValue)
         {

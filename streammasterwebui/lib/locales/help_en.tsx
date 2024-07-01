@@ -13,12 +13,12 @@ const help_en: help_enType = {
   BackupEnabled: 'Enable Backups',
   BackupVersionsToKeep: 'Number of Backup Versions to keep',
   BackupInterval: 'Backup Interval (hours)',
-  cacheIcons: 'Cache Icons to the local disk to speed things up',
+  CacheIcons: 'Cache Icons to the local disk to speed things up',
   CleanURLs: 'Remove URLs from being logged',
   // ClientUserAgent: 'Client User Agent used for downloads, epg/m3u/icons/schedules direct',
   development: 'Development',
   DeviceID: 'HDHR Device ID and capability ID',
-  dummyRegex: 'EPG will be set to dummy if this matches the channel EPG',
+  DummyRegex: 'EPG will be set to dummy if this matches the channel EPG',
   EnableSSL: 'Enable SSL',
   EnablePrometheus: 'Enable Prometheus Metrics',
   FFMPegExecutable: 'FFMPeg Executable. The name "ffmpeg(.exe)" will be searched in the OS path as well',
@@ -27,7 +27,7 @@ const help_en: help_enType = {
   general: 'General',
   GlobalStreamLimit: 'Limit for Custom Streams that do not belong to a M3U playlist',
   keywordSearch: 'Keyword Search',
-  m3UIgnoreEmptyEPGID: 'Ignore Streams with an empty EPG ID or EPG ID of "Dummy"',
+  M3UIgnoreEmptyEPGID: 'Ignore Streams with an empty EPG ID or EPG ID of "Dummy"',
   maxConnectRetry: 'How many times to retry receiving data from the source stream',
   maxConnectRetryTimeMS: 'Receiving Data Retry Timeout in MS',
   MaxLogFiles: 'Max Log Files to keep',
@@ -51,7 +51,7 @@ const help_en: help_enType = {
     'Stream Buffer Type to use. None will just use the original M3U URLs, FFMPEG - run the stream through FFMPEG, Stream Master - run the stream through SM own proxy',
   useDummyEPGForBlanks: 'Use Dummy EPG for streams with missing EPG',
   user: 'User',
-  videoStreamAlwaysUseEPGLogo:
+  VideoStreamAlwaysUseEPGLogo:
     'Always use EPG Logo for Video Stream. If the EPG is changed to one containing a logo then the video stream logo will be set to that'
 };
 

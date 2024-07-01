@@ -19,9 +19,12 @@ internal class AddSMChannelsToStreamGroupByParametersRequestHandler(IRepositoryW
                 return APIResponse.ErrorWithMessage(res.ErrorMessage);
             }
 
+
+            SMChannel? smChannel2 = Repository.SMChannel.GetSMChannel(smChannel.Id);
             List<int> streamGroupIds = smChannel.StreamGroups.Select(a => a.StreamGroupId).ToList();
 
             fieldDatas.Add(new(SMChannel.APIName, smChannel.Id, "StreamGroupIds", streamGroupIds));
+
         }
 
         if (fieldDatas.Count > 0)

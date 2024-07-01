@@ -25,6 +25,7 @@ export const useOutputProfileChannelNumberColumnConfig = (props?: OutputProfileC
               const outputProfile = { EnableChannelNumber: e.checked, ProfileName: outputProfileDto.ProfileName } as UpdateOutputProfileRequest;
               update(outputProfile);
             }}
+            tooltip="Channel Number for ID"
           />
         </div>
       );

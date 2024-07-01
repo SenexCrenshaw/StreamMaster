@@ -271,6 +271,7 @@ export interface SettingDto
 	AdminUserName: string;
 	ApiKey: string;
 	AuthenticationMethod: AuthenticationType;
+	AutoSetEPG: boolean;
 	BackupEnabled: boolean;
 	BackupInterval: number;
 	BackupVersionsToKeep: number;
@@ -322,7 +323,7 @@ export interface SMChannelDto
 	Name: string;
 	Rank: number;
 	RealUrl: string;
-	SMChannelId: string;
+	ShortSMChannelId: string;
 	SMStreams: SMStreamDto[];
 	StationId: string;
 	StreamGroupIds: number[];
@@ -347,7 +348,7 @@ export interface SMStreamDto
 	Name: string;
 	Rank: number;
 	RealUrl: string;
-	SMStreamId: string;
+	ShortSMStreamId: string;
 	StationId: string;
 	Url: string;
 }
@@ -355,6 +356,7 @@ export interface StreamGroupDto
 {
 	AutoSetChannelNumbers: boolean;
 	ChannelCount: number;
+	DeviceID: string;
 	HDHRLink: string;
 	Id: number;
 	IgnoreExistingChannelNumbers: boolean;
@@ -693,6 +695,7 @@ export interface UpdateStreamGroupProfileRequest
 export interface UpdateStreamGroupRequest
 {
 	AutoSetChannelNumbers?: boolean;
+	DeviceID?: string;
 	IgnoreExistingChannelNumbers?: boolean;
 	NewName?: string;
 	StartingChannelNumber?: number;
@@ -852,13 +855,16 @@ export interface CopySMChannelRequest
 export interface CreateSMChannelFromStreamParametersRequest
 {
 	Parameters: QueryStringParameters;
+	StreamGroupId?: number;
 }
 export interface CreateSMChannelFromStreamRequest
 {
+	StreamGroupId?: number;
 	StreamId: string;
 }
 export interface CreateSMChannelFromStreamsRequest
 {
+	StreamGroupId?: number;
 	StreamIds: string[];
 }
 export interface CreateSMChannelRequest
@@ -975,6 +981,7 @@ export interface UpdateSettingParameters
 	AdminUserName?: string;
 	ApiKey?: string;
 	AuthenticationMethod?: AuthenticationType;
+	AutoSetEPG?: boolean;
 	BackupEnabled?: boolean;
 	BackupInterval?: number;
 	BackupVersionsToKeep?: number;

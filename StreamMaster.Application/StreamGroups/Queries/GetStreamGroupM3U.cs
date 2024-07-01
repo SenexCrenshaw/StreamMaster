@@ -107,27 +107,16 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
             return DefaultReturn;
         }
 
-        // Initialize the ConcurrentBag with distinct channel numbers
-        //existingChNos = new ConcurrentBag<int>(smChannels.Select(a => a.ChannelNumber).Distinct());
+        (List<VideoStreamConfig> videoStreamConfigs, OutputProfile profile) = await sender.Send(new GetStreamGroupVideoConfigs(request.StreamGroupId, request.StreamGroupProfileId));
 
-        var sgProfile = Repository.StreamGroupProfile.GetStreamGroupProfile(request.StreamGroupId, request.StreamGroupProfileId) ?? new StreamGroupProfile();
-        var profileRequest = await sender.Send(new GetOutputProfileRequest(sgProfile.OutputProfileName));
-        OutputProfile profile;
-        if (profileRequest == null)
-        {
-            profile = SettingFiles.DefaultOutputProfileSetting.OutProfiles["Default"];
-        }
-        else
-        {
-            profile = profileRequest.Data;
-        }
+
         // Retrieve necessary data in parallel
         var videoStreamData = smChannels
      .AsParallel()
      .WithDegreeOfParallelism(Environment.ProcessorCount)
      .Select((smChannel, index) =>
      {
-         (int ChNo, string m3uLine) = BuildM3ULineForVideoStream(smChannel, url, request, profile, index, settings);
+         (int ChNo, string m3uLine) = BuildM3ULineForVideoStream(smChannel, url, request, profile, index, settings, videoStreamConfigs);
          return new
          {
              ChNo,
@@ -252,7 +241,7 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
         }
     }
 
-    private (int ChNo, string m3uLine) BuildM3ULineForVideoStream(SMChannel smChannel, string url, GetStreamGroupM3U request, OutputProfile profile, int cid, Setting setting)
+    private (int ChNo, string m3uLine) BuildM3ULineForVideoStream(SMChannel smChannel, string url, GetStreamGroupM3U request, OutputProfile profile, int cid, Setting setting, List<VideoStreamConfig> videoStreamConfigs)
     {
         UpdateProfile(profile, smChannel);
         //if (request.StreamGroupId == 1 && profile.ChannelNumber == "0")//ALL
@@ -292,6 +281,11 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
                 epgChannelId = tvgID = channelId = smChannel.EPGId;
             }
         }
+        VideoStreamConfig videoStreamConfig = videoStreamConfigs.First(a => a.Id == smChannel.Id);
+        if (profile.EnableChannelNumber)
+        {
+            channelId = videoStreamConfig.ChannelNumber.ToString();
+        }
 
         string name = smChannel.Name;
 
@@ -306,10 +300,10 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
         string logo = GetIconUrl(smChannel.Logo, setting);
         smChannel.Logo = logo;
 
-        string videoUrl = $"{url}/v/v/{smChannel.SMChannelId}";
+        string videoUrl = $"{url}/v/v/{smChannel.ShortSMChannelId}";
         //if (request.UseSMChannelId)
         //{
-        //    videoUrl = $"{url}/v/v/{smChannel.SMChannelId}";
+        //    videoUrl = $"{url}/v/v/{smChannel.ShortSMChannelId}";
         //}
         //else
         //{
@@ -363,8 +357,8 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
 
         if (profile.EnableChannelNumber)
         {
-            fieldList.Add($"tvg-chno=\"{smChannel.ChannelNumber}\"");
-            fieldList.Add($"channel-number=\"{smChannel.ChannelNumber}\"");
+            fieldList.Add($"tvg-chno=\"{videoStreamConfig.ChannelNumber}\"");
+            fieldList.Add($"channel-number=\"{videoStreamConfig.ChannelNumber}\"");
         }
 
         //if (setting.M3UStationId)

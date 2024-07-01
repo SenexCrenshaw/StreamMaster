@@ -20,7 +20,5 @@ public class StreamGroupDto : IMapFrom<StreamGroup>
     public string M3ULink { get; set; } = string.Empty;
     public string XMLLink { get; set; } = string.Empty;
     public string HDHRLink { get; set; } = string.Empty;
-
-
-
+    public string DeviceID { get; set; } = string.Empty;
 }

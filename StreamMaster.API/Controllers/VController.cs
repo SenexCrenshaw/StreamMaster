@@ -22,7 +22,7 @@ public class VController(IRepositoryWrapper Repository, IOptionsMonitor<HLSSetti
     [Route("v/v/{SMChannelId}.ts")]
     public IActionResult GetVideoStreamStream(string SMChannelId)
     {
-        SMChannel? smChannel = Repository.SMChannel.FirstOrDefault(a => a.SMChannelId == SMChannelId);
+        SMChannel? smChannel = Repository.SMChannel.FirstOrDefault(a => a.ShortSMChannelId == SMChannelId);
 
         if (smChannel == null)
         {

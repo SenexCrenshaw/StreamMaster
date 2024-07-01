@@ -15,10 +15,17 @@ import SMDataTable from '@components/smDataTable/SMDataTable';
 import DeleteSMStreamDialog from '@components/smstreams/DeleteSMStreamDialog';
 import EditSMStreamDialog from '@components/smstreams/EditSMStreamDialog';
 import { useSMStreamChannelGroupColumnConfig } from '@components/smstreams/columns/useSMStreamChannelGroupColumnConfig';
+import { useSelectedStreamGroup } from '@lib/redux/hooks/selectedStreamGroup';
 import { AddSMStreamToSMChannel, RemoveSMStreamFromSMChannel } from '@lib/smAPI/SMChannelStreamLinks/SMChannelStreamLinksCommands';
 import { CreateSMChannelFromStream } from '@lib/smAPI/SMChannels/SMChannelsCommands';
 import useGetPagedSMStreams from '@lib/smAPI/SMStreams/useGetPagedSMStreams';
-import { CreateSMChannelFromStreamRequest, RemoveSMStreamFromSMChannelRequest, SMChannelDto, SMStreamDto } from '@lib/smAPI/smapiTypes';
+import {
+  AddSMStreamToSMChannelRequest,
+  CreateSMChannelFromStreamRequest,
+  RemoveSMStreamFromSMChannelRequest,
+  SMChannelDto,
+  SMStreamDto
+} from '@lib/smAPI/smapiTypes';
 import { DataTableRowClickEvent, DataTableRowEvent, DataTableValue } from 'primereact/datatable';
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import SimpleButton from '../../components/buttons/SimpleButton';
@@ -36,7 +43,7 @@ interface SMStreamDataSelectorProperties {
 const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple = false, showSelections }: SMStreamDataSelectorProperties) => {
   const dataKey = `${id}-SMStreamDataSelector`;
   const { isTrue: smTableIsSimple } = useIsTrue('isSimple');
-
+  const { selectedStreamGroup } = useSelectedStreamGroup('StreamGroup');
   const { selectedSMChannel, setSelectedSMChannel } = useSelectedSMItems();
 
   const [enableEdit, setEnableEdit] = useState<boolean>(true);
@@ -116,7 +123,9 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
               buttonClassName="border-noround borderread icon-green"
               iconFilled={false}
               onClick={() => {
-                AddSMStreamToSMChannel({ SMChannelId: selectedSMChannel?.Id ?? 0, SMStreamId: data.Id })
+                const request = { SMChannelId: selectedSMChannel?.Id ?? 0, SMStreamId: data.Id } as AddSMStreamToSMChannelRequest;
+
+                AddSMStreamToSMChannel(request)
                   .then((response) => {})
                   .catch((error) => {
                     console.error(error.message);
@@ -136,7 +145,11 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
             iconFilled={false}
             buttonClassName="border-noround borderread icon-green"
             onClick={() => {
-              CreateSMChannelFromStream({ StreamId: data.Id } as CreateSMChannelFromStreamRequest)
+              const request = { StreamId: data.Id } as CreateSMChannelFromStreamRequest;
+              if (selectedStreamGroup?.Id && selectedStreamGroup.Id !== 1) {
+                request.StreamGroupId = selectedStreamGroup.Id;
+              }
+              CreateSMChannelFromStream(request)
                 .then((response) => {})
                 .catch((error) => {});
             }}
@@ -145,7 +158,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
         </div>
       );
     },
-    [selectedSMChannel]
+    [selectedSMChannel, selectedStreamGroup]
   );
 
   function addOrRemoveHeaderTemplate() {

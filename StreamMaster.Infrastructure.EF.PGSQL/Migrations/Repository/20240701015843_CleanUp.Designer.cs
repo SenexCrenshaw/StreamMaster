@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using StreamMaster.Infrastructure.EF.PGSQL;
@@ -12,9 +13,11 @@ using StreamMaster.Infrastructure.EF.PGSQL;
 namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
 {
     [DbContext(typeof(PGSQLRepositoryContext))]
-    partial class PGSQLRepositoryContextModelSnapshot : ModelSnapshot
+    [Migration("20240701015843_CleanUp")]
+    partial class CleanUp
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -263,7 +266,7 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
                         .IsRequired()
                         .HasColumnType("citext");
 
-                    b.Property<string>("ShortSMChannelId")
+                    b.Property<string>("SMChannelId")
                         .IsRequired()
                         .HasColumnType("citext");
 
