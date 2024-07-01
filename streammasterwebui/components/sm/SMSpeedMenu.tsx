@@ -9,9 +9,10 @@ import { Shape, Direction } from '@components/sm/Interfaces/SMSpeedDialTypes'; /
 interface SMSpeedMenuProps {
   mainItem: { icon: string; command: () => void; direction?: Direction; shape: Shape; animateOn?: 'hover' | 'click'; modal?: boolean };
   items: { icon?: string; command?: () => void; animateOn?: 'hover' | 'click'; url?: string; template?: React.ReactNode }[];
+  backgroundWidth?: string; // New optional prop for manually setting background width
 }
 
-const SMSpeedMenu: React.FC<SMSpeedMenuProps> = ({ mainItem, items }) => {
+const SMSpeedMenu: React.FC<SMSpeedMenuProps> = ({ mainItem, items, backgroundWidth }) => {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -44,8 +45,10 @@ const SMSpeedMenu: React.FC<SMSpeedMenuProps> = ({ mainItem, items }) => {
       onMouseLeave={animateOn === 'hover' ? handleMouseLeave : undefined}
       style={{ display: 'inline-block', position: 'relative' }}
     >
-      {isOpen && <div className="smspeed-menu-background" style={calculateBackgroundStyle(isOpen, shape, direction as Direction, items.length)}></div>}
-      <motion.div className="smspeed-main-item" style={{ position: 'relative' }}>
+      {isOpen && (
+        <div className="smspeed-menu-background" style={calculateBackgroundStyle(isOpen, shape, direction as Direction, items.length, backgroundWidth)}></div>
+      )}
+      <motion.div className="smspeed-main-item" style={{ position: 'relative', zIndex: 1 }}>
         <SMSpeedMenuItem icon={mainItem.icon} command={mainItem.command} animateOn={animateOn} />
         {isOpen &&
           items.map((item, index) => {

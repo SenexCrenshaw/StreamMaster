@@ -9254,20 +9254,22 @@ div[aria-haspopup=dialog] {
 
 .smspeed-menu-background {
   background: rgba(0, 0, 0, 0.5);
-  z-index: 5;
-  /* Higher than the items */
+  transition: width 0.3s ease-in-out, height 0.3s ease-in-out;
+  /* Add transition for smooth effect */
+  z-index: 0;
+  /* Lower than the items */
 }
 
 .smspeed-main-item {
   position: relative;
-  z-index: 6;
-  /* Lower than the background */
+  z-index: 2;
+  /* Higher than the background */
 }
 
 .smspeed-menu-item-wrapper {
   position: absolute;
-  z-index: 1;
-  /* Lower than the background */
+  z-index: 2;
+  /* Higher than the background */
 }
 
 .smspeed-menu-item {

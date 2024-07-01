@@ -3,7 +3,13 @@
 import { Direction, Shape } from '@components/sm/Interfaces/SMSpeedDialTypes';
 import { Logger } from '@lib/common/logger';
 
-export const calculateBackgroundStyle = (isOpen: boolean, shape: Shape, direction: Direction, itemsLength: number) => {
+export const calculateBackgroundStyle = (
+  isOpen: boolean,
+  shape: Shape,
+  direction: Direction,
+  itemsLength: number,
+  backgroundWidth?: string // New optional parameter for manually setting background width
+) => {
   if (!isOpen) return {};
 
   let height = '0%';
@@ -13,25 +19,26 @@ export const calculateBackgroundStyle = (isOpen: boolean, shape: Shape, directio
   let borderRadius = '10px';
   const padding = 10;
   const distance = 70;
+  const mainItemWidth = distance + padding; // Width for the main item
 
   Logger.debug('calculateBackgroundStyle', { direction, isOpen, itemsLength, padding, shape });
   switch (shape) {
     case 'line':
       if (direction === 'bottom') {
         height = `${(itemsLength + 1) * distance + padding}px`;
-        width = `${distance}px`;
+        width = backgroundWidth || `${mainItemWidth}px`; // Use provided width for children or default for main item
         top = `0px`;
       } else if (direction === 'top') {
         height = `${(itemsLength + 1) * distance + padding}px`;
-        width = `${distance}px`;
+        width = backgroundWidth || `${mainItemWidth}px`; // Use provided width for children or default for main item
         top = `calc(100% - ${(itemsLength + 1) * distance + padding}px)`;
       } else if (direction === 'left') {
-        height = `${distance}px`;
-        width = `${(itemsLength + 1) * distance + padding}px`;
+        height = `${mainItemWidth}px`; // Initial height to cover the main item
+        width = backgroundWidth || `${(itemsLength + 1) * distance + padding}px`; // Use provided width for children or default for main item
         left = `calc(100% - ${(itemsLength + 1) * distance + padding}px)`;
       } else if (direction === 'right') {
-        height = `${distance}px`;
-        width = `${(itemsLength + 1) * distance + padding}px`;
+        height = `${mainItemWidth}px`; // Initial height to cover the main item
+        width = backgroundWidth || `${(itemsLength + 1) * distance + padding}px`; // Use provided width for children or default for main item
         left = `0px`;
       }
       break;
@@ -81,7 +88,11 @@ export const calculateBackgroundStyle = (isOpen: boolean, shape: Shape, directio
           top = `calc(100% - ${quarterRadius + padding}px)`;
           left = `calc(100% - ${quarterRadius + padding}px)`;
           borderRadius = '100% 0 0 0';
-
+          break;
+        case 'top':
+          top = `calc(100% - ${quarterRadius + padding}px)`;
+          left = `0px`;
+          borderRadius = '0 100% 0 0';
           break;
         case 'top-right':
           top = `calc(100% - ${quarterRadius + padding}px)`;
@@ -109,6 +120,7 @@ export const calculateBackgroundStyle = (isOpen: boolean, shape: Shape, directio
     left: left,
     position: 'absolute',
     top: top,
-    width: width
+    width: isOpen ? backgroundWidth || width : `${mainItemWidth}px`, // Use provided width for children or default for main item
+    zIndex: 2 // Ensure the background is higher than the items
   };
 };

@@ -46,7 +46,7 @@ const SMChannelMenu = () => {
     //     <SMChannelMultiVisibleDialog selectedItemsKey={selectedItemsKey} menu />
     //   </div>
     // </SMOverlay>
-    <SMSpeedMenu items={smItems} mainItem={mainSM} />
+    <SMSpeedMenu items={smItems} mainItem={mainSM} backgroundWidth="300px" />
   );
 };
 
