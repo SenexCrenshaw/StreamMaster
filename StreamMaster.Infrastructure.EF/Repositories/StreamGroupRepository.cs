@@ -1,20 +1,24 @@
 ﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
 
+using MediatR;
+
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
+using StreamMaster.Application.StreamGroups.Queries;
 using StreamMaster.Domain.API;
 using StreamMaster.Domain.Authentication;
 using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Filtering;
+using StreamMaster.SchedulesDirect.Domain.Models;
 
 using System.Text.Json;
 using System.Web;
 
 namespace StreamMaster.Infrastructure.EF.Repositories;
 
-public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepositoryContext repositoryContext, IMapper mapper, IOptionsMonitor<Setting> intSettings, IHttpContextAccessor httpContextAccessor)
+public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, ISender sender, IRepositoryContext repositoryContext, IMapper mapper, IOptionsMonitor<Setting> intSettings, IHttpContextAccessor httpContextAccessor)
     : RepositoryBase<StreamGroup>(repositoryContext, logger, intSettings), IStreamGroupRepository
 {
 
@@ -229,49 +233,39 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
         return FirstOrDefault(a => a.Id == streamGrouId, tracking: false);
     }
 
-    public async Task<IdIntResultWithResponse> AutoSetSMChannelNumbers(int streamGroupId, int startingNumber, bool overWriteExisting, QueryStringParameters Parameters)
+    public async Task<IdIntResultWithResponse> AutoSetSMChannelNumbers(int streamGroupId, QueryStringParameters Parameters)
     {
         IdIntResultWithResponse ret = new();
 
-        if (string.IsNullOrEmpty(Parameters.JSONFiltersString))
-        {
-            ret.APIResponse = APIResponse.ErrorWithMessage("JSONFiltersString null");
-            return ret;
-        }
         StreamGroup? streamGroup = await GetQuery(true).FirstOrDefaultAsync(a => a.Id == streamGroupId);
+
         if (streamGroup == null)
         {
             ret.APIResponse = APIResponse.ErrorWithMessage("Stream Group not found");
             return ret;
         }
 
+        var sgProfile = RepositoryContext.StreamGroupProfiles.FirstOrDefault(a => a.StreamGroupId == streamGroupId && a.OutputProfileName == "Default") ?? new StreamGroupProfile();
+
+
+        (List<VideoStreamConfig> videoStreamConfigs, OutputProfile outputProfile) = await sender.Send(new GetStreamGroupVideoConfigs(streamGroupId, sgProfile.Id));
+
+        if (string.IsNullOrEmpty(Parameters.JSONFiltersString))
+        {
+            ret.APIResponse = APIResponse.ErrorWithMessage("JSONFiltersString null");
+            return ret;
+        }
 
         List<DataTableFilterMetaData>? filters = JsonSerializer.Deserialize<List<DataTableFilterMetaData>>(Parameters.JSONFiltersString);
         IQueryable<SMChannel> channels = FilterHelper<SMChannel>.ApplyFiltersAndSort(streamGroup.SMChannels.Select(a => a.SMChannel).AsQueryable(), filters, Parameters.OrderBy, true);
 
-        ConcurrentHashSet<int> existingNumbers = [];
-        if (!overWriteExisting)
-        {
-            existingNumbers.UnionWith(streamGroup.SMChannels.Select(a => a.SMChannel.ChannelNumber).Distinct());
-        }
-        int number = startingNumber;
 
         foreach (SMChannel channel in channels)
         {
-            if (!overWriteExisting && channel.ChannelNumber != 0)
-            {
-                continue;
-            }
-            if (overWriteExisting)
-            {
-                channel.ChannelNumber = number++;
-            }
-            else
-            {
-                number = GetNextNumber(number, existingNumbers);
-                channel.ChannelNumber = number;
-                _ = existingNumbers.Add(number);
-            }
+            var validconfig = videoStreamConfigs.FirstOrDefault(a => a.Id == channel.Id);
+
+            channel.ChannelNumber = validconfig.ChannelNumber;
+
             RepositoryContext.SMChannels.Update(channel);
             ret.Add(new IdIntResult { Id = channel.Id, Result = channel });
         }

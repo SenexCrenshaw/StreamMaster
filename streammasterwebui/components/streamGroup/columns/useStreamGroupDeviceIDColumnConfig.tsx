@@ -1,4 +1,4 @@
-import BooleanEditor from '@components/inputs/BooleanEditor';
+import StringEditor from '@components/inputs/StringEditor';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 import { UpdateStreamGroup } from '@lib/smAPI/StreamGroups/StreamGroupsCommands';
 
@@ -11,7 +11,7 @@ export interface StreamGroupColumnConfigProps {
   readonly width?: number;
 }
 
-export const useStreamGroupIgnoreExistingChannelNumbersColumnConfig = (props?: StreamGroupColumnConfigProps) => {
+export const useStreamGroupDeviceIDColumnConfig = (props?: StreamGroupColumnConfigProps) => {
   const update = useCallback((request: UpdateStreamGroupRequest) => {
     UpdateStreamGroup(request)
       .then((res) => {})
@@ -24,14 +24,14 @@ export const useStreamGroupIgnoreExistingChannelNumbersColumnConfig = (props?: S
   const bodyTemplate = useCallback(
     (StreamGroupDto: StreamGroupDto) => {
       return (
-        <div className="flex w-full justify-content-center align-content-center">
-          <BooleanEditor
-            checked={StreamGroupDto?.IgnoreExistingChannelNumbers}
-            onChange={(e) => {
-              const StreamGroup = { IgnoreExistingChannelNumbers: e, StreamGroupId: StreamGroupDto.Id } as UpdateStreamGroupRequest;
+        <div className="flex w-full justify-content-right align-content-center">
+          <StringEditor
+            value={StreamGroupDto.DeviceID}
+            onSave={(e) => {
+              const StreamGroup = { DeviceID: e, StreamGroupId: StreamGroupDto.Id } as UpdateStreamGroupRequest;
               update(StreamGroup);
             }}
-            tooltip="Overwrite existing channel numbers when assigning channel numbers to streams."
+            tooltip="HDHR Device ID."
           />
         </div>
       );
@@ -42,9 +42,9 @@ export const useStreamGroupIgnoreExistingChannelNumbersColumnConfig = (props?: S
   const columnConfig: ColumnMeta = {
     align: 'right',
     bodyTemplate: bodyTemplate,
-    field: 'IgnoreExistingChannelNumbers',
-    header: 'Overwrite #s',
-    width: 44
+    field: 'StartingChannelNumber',
+    header: 'Device ID',
+    width: 46
   };
 
   return columnConfig;

@@ -2,13 +2,14 @@
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record AutoSetSMChannelNumbersRequest(int streamGroupId, int startingNumber, bool overWriteExisting, QueryStringParameters Parameters) : IRequest<APIResponse>;
+public record AutoSetSMChannelNumbersRequest(int streamGroupId, QueryStringParameters Parameters) : IRequest<APIResponse>;
 
 internal class AutoSetSMChannelNumbersRequestHandler(IRepositoryWrapper Repository, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext) : IRequestHandler<AutoSetSMChannelNumbersRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(AutoSetSMChannelNumbersRequest request, CancellationToken cancellationToken)
     {
-        IdIntResultWithResponse res = await Repository.StreamGroup.AutoSetSMChannelNumbers(request.streamGroupId, request.startingNumber, request.overWriteExisting, request.Parameters);
+
+        IdIntResultWithResponse res = await Repository.StreamGroup.AutoSetSMChannelNumbers(request.streamGroupId, request.Parameters);
         if (res.APIResponse.IsError)
         {
             return APIResponse.ErrorWithMessage(res.APIResponse.ErrorMessage);

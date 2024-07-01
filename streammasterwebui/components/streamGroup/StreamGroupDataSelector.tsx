@@ -11,6 +11,7 @@ import { DataTableRowClickEvent, DataTableRowData, DataTableRowExpansionTemplate
 import { memo, useCallback, useMemo } from 'react';
 import StreamGroupDataSelectorValue from './StreamGroupDataSelectorValue';
 import { useStreamGroupAutoSetChannelNumbersColumnConfig } from './columns/useStreamGroupAutoSetChannelNumbersColumnConfig';
+import { useStreamGroupDeviceIDColumnConfig } from './columns/useStreamGroupDeviceIDColumnConfig';
 import { useStreamGroupIgnoreExistingChannelNumbersColumnConfig } from './columns/useStreamGroupIgnoreExistingChannelNumbersColumnConfig';
 import { useStreamGroupStartChnColumnConfig } from './columns/useStreamGroupStartChnColumnConfig';
 
@@ -25,6 +26,7 @@ const StreamGroupDataSelector = ({ id }: StreamGroupDataSelectorProperties) => {
   const streamGroupStartChnColumnConfig = useStreamGroupStartChnColumnConfig({ width: 60 });
   const streamGroupAutoSetChannelNumbersColumnConfig = useStreamGroupAutoSetChannelNumbersColumnConfig({ width: 60 });
   const streamGroupIgnoreExistingChannelNumbersColumnConfig = useStreamGroupIgnoreExistingChannelNumbersColumnConfig({ width: 60 });
+  const streamGroupDeviceIDColumnConfig = useStreamGroupDeviceIDColumnConfig({ width: 60 });
   const rowExpansionTemplate = useCallback((rowData: DataTableRowData<any>, options: DataTableRowExpansionTemplate) => {
     const streamGroupDto = rowData as unknown as StreamGroupDto;
 
@@ -111,6 +113,7 @@ const StreamGroupDataSelector = ({ id }: StreamGroupDataSelectorProperties) => {
         fieldType: 'm3ulink',
         width: 26
       },
+      streamGroupDeviceIDColumnConfig,
       streamGroupStartChnColumnConfig,
       streamGroupAutoSetChannelNumbersColumnConfig,
       streamGroupIgnoreExistingChannelNumbersColumnConfig,
@@ -123,11 +126,12 @@ const StreamGroupDataSelector = ({ id }: StreamGroupDataSelectorProperties) => {
       }
     ],
     [
-      actionTemplate,
       nameTemplate,
-      streamGroupIgnoreExistingChannelNumbersColumnConfig,
+      streamGroupDeviceIDColumnConfig,
+      streamGroupStartChnColumnConfig,
       streamGroupAutoSetChannelNumbersColumnConfig,
-      streamGroupStartChnColumnConfig
+      streamGroupIgnoreExistingChannelNumbersColumnConfig,
+      actionTemplate
     ]
   );
 

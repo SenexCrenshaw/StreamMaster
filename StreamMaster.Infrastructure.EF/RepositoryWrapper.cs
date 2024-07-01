@@ -94,7 +94,7 @@ namespace StreamMaster.Infrastructure.EF
         {
             get
             {
-                _streamGroup ??= new StreamGroupRepository(StreamGroupRepositoryLogger, repositoryContext, mapper, intSettings, httpContextAccessor);
+                _streamGroup ??= new StreamGroupRepository(StreamGroupRepositoryLogger, sender, repositoryContext, mapper, intSettings, httpContextAccessor);
                 return _streamGroup;
             }
         }

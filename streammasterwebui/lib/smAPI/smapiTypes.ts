@@ -842,9 +842,7 @@ export interface AutoSetEPGRequest
 }
 export interface AutoSetSMChannelNumbersRequest
 {
-	overWriteExisting: boolean;
 	Parameters: QueryStringParameters;
-	startingNumber: number;
 	streamGroupId: number;
 }
 export interface CopySMChannelRequest

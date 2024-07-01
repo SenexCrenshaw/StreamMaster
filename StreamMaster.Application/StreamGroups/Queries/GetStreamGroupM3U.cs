@@ -45,8 +45,6 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
     )
     : IRequestHandler<GetStreamGroupM3U, string>
 {
-    private readonly Setting settings = intsettings.CurrentValue;
-    private readonly HLSSettings hlssettings = inthlssettings.CurrentValue;
 
     public string GetIconUrl(string iconOriginalSource, Setting setting)
     {
@@ -91,6 +89,7 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
     [LogExecutionTimeAspect]
     public async Task<string> Handle(GetStreamGroupM3U request, CancellationToken cancellationToken)
     {
+        Setting settings = intsettings.CurrentValue;
         string url = httpContextAccessor.GetUrl();
         string requestPath = httpContextAccessor.HttpContext.Request.Path.Value.ToString();
         byte[]? iv = requestPath.GetIVFromPath(settings.ServerKey, 128);
@@ -299,7 +298,7 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
 
         string logo = GetIconUrl(smChannel.Logo, setting);
         smChannel.Logo = logo;
-
+        HLSSettings hlssettings = inthlssettings.CurrentValue;
         string videoUrl = $"{url}/v/v/{smChannel.ShortSMChannelId}";
         //if (request.UseSMChannelId)
         //{

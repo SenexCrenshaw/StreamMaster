@@ -8,13 +8,11 @@ namespace StreamMaster.Application.StreamGroups.Queries;
 
 
 [RequireAll]
-public record GetStreamGroupVideoConfigs(int StreamGroupId, int StreamGroupProfileId) : IRequest<(List<VideoStreamConfig>, OutputProfile)>;
+public record GetStreamGroupVideoConfigs(int StreamGroupId, int StreamGroupProfileId) : IRequest<(List<VideoStreamConfig> videoStreamConfigs, OutputProfile outputProfile)>;
 public class GetStreamGroupVideoConfigsHandler(IHttpContextAccessor httpContextAccessor, ISender sender, IRepositoryWrapper repositoryWrapper, IEPGHelper epgHelper, IXMLTVBuilder xMLTVBuilder, ILogger<GetStreamGroupVideoConfigs> logger, ISchedulesDirectDataService schedulesDirectDataService, IRepositoryWrapper Repository, IOptionsMonitor<Setting> intsettings)
-    : IRequestHandler<GetStreamGroupVideoConfigs, (List<VideoStreamConfig>, OutputProfile)>
+    : IRequestHandler<GetStreamGroupVideoConfigs, (List<VideoStreamConfig> videoStreamConfigs, OutputProfile outputProfile)>
 {
     private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
-    private readonly Setting settings = intsettings.CurrentValue;
-
 
     //private readonly ParallelOptions parallelOptions = new()
     //{
@@ -53,7 +51,7 @@ public class GetStreamGroupVideoConfigsHandler(IHttpContextAccessor httpContextA
     }
 
     [LogExecutionTimeAspect]
-    public async Task<(List<VideoStreamConfig>, OutputProfile)> Handle(GetStreamGroupVideoConfigs request, CancellationToken cancellationToken)
+    public async Task<(List<VideoStreamConfig> videoStreamConfigs, OutputProfile outputProfile)> Handle(GetStreamGroupVideoConfigs request, CancellationToken cancellationToken)
     {
 
         var streamGroup = Repository.StreamGroup.GetStreamGroup(request.StreamGroupId);
@@ -109,7 +107,7 @@ public class GetStreamGroupVideoConfigsHandler(IHttpContextAccessor httpContextA
         if (streamGroup.AutoSetChannelNumbers)
         {
             currentChannelNumber = streamGroup.StartingChannelNumber - 1;
-            if (streamGroup.IgnoreExistingChannelNumbers)
+            if (!streamGroup.IgnoreExistingChannelNumbers)
             {
                 foreach (var channelNumber in videoStreamConfigs.Where(a => a.ChannelNumber != 0).Select(a => a.ChannelNumber).Distinct())
                 {

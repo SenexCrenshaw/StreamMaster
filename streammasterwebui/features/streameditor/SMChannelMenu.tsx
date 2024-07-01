@@ -1,5 +1,6 @@
 import SMOverlay from '@components/sm/SMOverlay';
 import AutoSetEPGSMChannelDialog from '@components/smchannels/AutoSetEPGSMChannelDialog';
+import AutoSetSMChannelNumbersDialog from '@components/smchannels/AutoSetSMChannelNumbersDialog';
 import SMChannelMultiVisibleDialog from '@components/smchannels/SMChannelMultiVisibleDialog';
 import AddSMChannelsToSGEditor from '@components/smchannels/columns/AddSMChannelsToSGEditor';
 import { useIsTrue } from '@lib/redux/hooks/isTrue';
@@ -15,6 +16,7 @@ const SMChannelMenu = () => {
     <SMOverlay placement={smTableIsSimple ? 'bottom-end' : 'bottom'} icon="pi-bars" iconFilled buttonClassName="icon-orange" contentWidthSize="11rem">
       <div className="sm-channel-menu gap-2">
         <AutoSetEPGSMChannelDialog menu />
+        <AutoSetSMChannelNumbersDialog />
         <AddSMChannelsToSGEditor />
         <SMChannelMultiVisibleDialog selectedItemsKey={selectedItemsKey} menu />
       </div>
