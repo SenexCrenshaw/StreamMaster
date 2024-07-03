@@ -150,7 +150,7 @@ public class StreamManager(IStreamHandlerFactory streamHandlerFactory, IClientSt
 
     public async Task MoveClientStreamers(IStreamHandler oldStreamHandler, IStreamHandler newStreamHandler, CancellationToken cancellationToken = default)
     {
-        var configs = oldStreamHandler.GetClientStreamerClientIdConfigs.ToList();
+        List<ClientStreamerConfiguration> configs = oldStreamHandler.GetClientStreamerClientIdConfigs.ToList();
 
         if (!configs.Any())
         {
@@ -161,7 +161,7 @@ public class StreamManager(IStreamHandlerFactory streamHandlerFactory, IClientSt
 
         await AddClientsToHandler(configs, newStreamHandler);
 
-        foreach (var streamerConfiguration in configs)
+        foreach (ClientStreamerConfiguration? streamerConfiguration in configs)
         {
 
             if (streamerConfiguration == null)
@@ -196,7 +196,6 @@ public class StreamManager(IStreamHandlerFactory streamHandlerFactory, IClientSt
     {
         if (streamerConfiguration != null)
         {
-            //streamerConfiguration.StreamName = streamHandler.StreamName;
             streamerConfiguration.ClientStream ??= new ClientReadStream(statisticsManager, loggerFactory, streamerConfiguration);
 
             logger.LogDebug("Adding client {ClientId} {ReaderID} ", streamerConfiguration.ClientId, streamerConfiguration.ClientStream?.Id ?? Guid.NewGuid());

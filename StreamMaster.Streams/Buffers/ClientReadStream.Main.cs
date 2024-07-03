@@ -12,6 +12,14 @@ public sealed partial class ClientReadStream : Stream, IClientReadStream
 
     public ClientReadStream(IClientStatisticsManager clientStatisticsManager, ILoggerFactory loggerFactory, ClientStreamerConfiguration config)
     {
+        //Setting settings = intsettings.CurrentValue;
+
+        //var streamer = new FfmpegOverlayStreamer(ffmpegPath, inputUrl, outputUrl);
+        //CancellationTokenSource cts = new();
+
+        //string overlayOutputPath = "overlay.flv";
+        //overlayStreamGenerator.StartOverlayStreamAsync("Hello, world!", "image.png", CancellationToken.None);
+
 
         this.config = config ?? throw new ArgumentNullException(nameof(config));
 

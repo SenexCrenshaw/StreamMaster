@@ -150,7 +150,7 @@ const SMOverlayInner = forwardRef<SMOverlayRef, ExtendedSMOverlayProperties>(
       }
 
       if (z > 10) z = 11;
-
+      if (z < 1) z = 1;
       return z;
     }, [props.modal, props.zIndex]);
 

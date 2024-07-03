@@ -82,4 +82,9 @@
 		<RtAdditionalAssembly Include="StreamMaster.Application" />
 		<RtAdditionalAssembly Include="StreamMaster.Streams.Domain" />
 	</ItemGroup>
+	<ItemGroup>
+	  <None Update="Fonts\Roboto-Regular.ttf">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	</ItemGroup>
 </Project>

@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 namespace StreamMaster.Streams.Streams;
-public class FFMPEGRunner(ILogger<FFMPEGRunner> logger, IOptionsMonitor<Setting> intsettings, IOptionsMonitor<HLSSettings> inthlssettings)
+public class FFMPEGRunner(ILogger<FFMPEGRunner> logger, IOptionsMonitor<Setting> intsettings, IOptionsMonitor<HLSSettings> inthlssettings) : IFFMPEGRunner
 {
     private readonly HLSSettings hlssettings = inthlssettings.CurrentValue;
     private readonly Setting settings = intsettings.CurrentValue;
@@ -30,7 +30,6 @@ public class FFMPEGRunner(ILogger<FFMPEGRunner> logger, IOptionsMonitor<Setting>
             }
             ffmpegExec = "ffmpeg";
         }
-
 
         return ffmpegExec;
     }
@@ -290,6 +289,66 @@ public class FFMPEGRunner(ILogger<FFMPEGRunner> logger, IOptionsMonitor<Setting>
             // Log and return any exceptions that occur
             ProxyStreamError error = new() { ErrorCode = ProxyStreamErrorCode.UnknownError, Message = ex.Message };
             logger.LogError(ex, "CreateFFMpegStream Error: {ErrorMessage}", error.Message);
+            return (null, -1, error);
+        }
+    }
+
+    public async Task<(Stream? stream, int processId, ProxyStreamError? error)> CreateFFMpegStreamByArgs(string args, string streamName)
+    {
+        try
+        {
+            string? ffmpegExec = GetFFPMpegExec();
+            if (ffmpegExec == null)
+            {
+                ProxyStreamError error = new() { ErrorCode = ProxyStreamErrorCode.ProcessStartFailed, Message = "Failed to start FFmpeg process" };
+                logger.LogError("CreateFFMpegHLS Error: {ErrorMessage}", error.Message);
+
+                return (null, -1, error);
+            }
+
+            Stopwatch stopwatch = Stopwatch.StartNew();
+
+            //string options = string.IsNullOrEmpty(FFMpegOptions) ? BuildInfo.FFMPEGDefaultOptions : FFMpegOptions;
+
+            //string formattedArgs = options.Replace("{streamUrl}", $"\"{streamUrl}\"");
+            //formattedArgs += $" -user_agent \"{settings.StreamingClientUserAgent}\"";
+
+            process = new();
+            process.StartInfo.FileName = ffmpegExec;
+            process.StartInfo.Arguments = args;
+            process.StartInfo.CreateNoWindow = true;
+            process.StartInfo.UseShellExecute = false;
+            process.StartInfo.RedirectStandardOutput = true;
+            process.StartInfo.RedirectStandardError = true;
+            process.EnableRaisingEvents = true;
+            process.Exited += (sender, args) =>
+            {
+                ProcessExited?.Invoke(this, new ProcessExitEventArgs { ExitCode = process.ExitCode });
+            };
+            process.ErrorDataReceived += (sender, args) => logger.LogDebug(args.Data);
+            bool processStarted = process.Start();
+            process.BeginErrorReadLine();
+
+            if (!processStarted)
+            {
+                // Log and return an error if the process couldn't be started
+                ProxyStreamError error = new() { ErrorCode = ProxyStreamErrorCode.ProcessStartFailed, Message = "Failed to start FFmpeg process" };
+                logger.LogError("CreateFFMpegStream Error: {ErrorMessage}", error.Message);
+
+                return (null, -1, error);
+            }
+
+            // Return the standard output stream of the process
+
+            logger.LogInformation("Opened ffmpeg stream for {streamName} with args \"{args}\" in {ElapsedMilliseconds} ms", streamName, args, stopwatch.ElapsedMilliseconds);
+
+            return (await Task.FromResult(process.StandardOutput.BaseStream).ConfigureAwait(false), process.Id, null);
+        }
+        catch (Exception ex)
+        {
+            // Log and return any exceptions that occur
+            ProxyStreamError error = new() { ErrorCode = ProxyStreamErrorCode.UnknownError, Message = ex.Message };
+            logger.LogError(ex, "CreateFFMpegStream by args {args} Error: {ErrorMessage}", args, error.Message);
             return (null, -1, error);
         }
     }
