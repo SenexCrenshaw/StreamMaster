@@ -21,7 +21,15 @@ const M3UFileRefreshDialog = ({ selectedFile }: M3UFileRefreshDialogProperties) 
   };
 
   return (
-    <SMPopUp placement="bottom-end" title="Refresh M3U" onOkClick={() => accept()} icon="pi-sync" buttonClassName="icon-orange" tooltip="Refresh M3U">
+    <SMPopUp
+      placement="bottom-end"
+      title="Refresh M3U"
+      onOkClick={() => accept()}
+      icon="pi-sync"
+      buttonClassName="icon-orange"
+      tooltip="Refresh M3U"
+      zIndex={10}
+    >
       <div className="sm-center-stuff">
         <div className="text-container">{selectedFile.Name}</div>
       </div>

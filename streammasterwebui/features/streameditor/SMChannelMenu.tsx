@@ -38,15 +38,17 @@ const SMChannelMenu = () => {
   ];
 
   return (
-    // <SMOverlay placement={smTableIsSimple ? 'bottom-end' : 'bottom'} icon="pi-bars" iconFilled buttonClassName="icon-orange" contentWidthSize="11rem">
-    //   <div className="sm-channel-menu gap-2">
-    //     <AutoSetEPGSMChannelDialog menu />
-    //     <AutoSetSMChannelNumbersDialog />
-    //     <AddSMChannelsToSGEditor />
-    //     <SMChannelMultiVisibleDialog selectedItemsKey={selectedItemsKey} menu />
-    //   </div>
-    // </SMOverlay>
-    <SMSpeedMenu items={smItems} mainItem={mainSM} backgroundWidth="300px" />
+    <>
+      <SMOverlay placement={smTableIsSimple ? 'bottom-end' : 'bottom'} icon="pi-bars" iconFilled buttonClassName="icon-orange" contentWidthSize="11rem">
+        <div className="sm-channel-menu gap-2">
+          <AutoSetEPGSMChannelDialog menu />
+          <AutoSetSMChannelNumbersDialog />
+          <AddSMChannelsToSGEditor />
+          <SMChannelMultiVisibleDialog selectedItemsKey={selectedItemsKey} menu />
+        </div>
+      </SMOverlay>
+      {/* <SMSpeedMenu items={smItems} mainItem={mainSM} backgroundWidth="300px" /> */}
+    </>
   );
 };
 

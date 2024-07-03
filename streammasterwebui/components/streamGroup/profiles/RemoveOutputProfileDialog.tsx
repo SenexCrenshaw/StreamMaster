@@ -35,17 +35,17 @@ const RemoveOutputProfileDialog = ({ ...props }: RemoveOutputProfileDialogProps)
       info=""
       title="Remove Profile?"
       modal
-      modalCentered
+      placement="bottom-end"
       onOkClick={() => {
         remove();
       }}
       ref={smPopUpRef}
-      okButtonDisabled={!props.outputProfileDto.Name}
+      okButtonDisabled={!props.outputProfileDto.ProfileName}
       tooltip="Remove Profile"
       zIndex={10}
     >
       <div className="sm-center-stuff">
-        <div className="text-container"> {props.outputProfileDto.Name}</div>
+        <div className="text-container"> {props.outputProfileDto.ProfileName}</div>
       </div>
     </SMPopUp>
   );

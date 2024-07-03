@@ -2,10 +2,8 @@ import SMDropDown from '@components/sm/SMDropDown';
 import { getEnumValueByKey } from '@lib/common/enumTools';
 import { Logger } from '@lib/common/logger';
 import { UpdateOutputProfile } from '@lib/smAPI/Profiles/ProfilesCommands';
-
 import { UpdateOutputProfileRequest, ValidM3USetting } from '@lib/smAPI/smapiTypes';
 import { SelectItem } from 'primereact/selectitem';
-
 import { ReactNode, useCallback, useMemo } from 'react';
 
 interface OutputProfileValueDropDownProps {
@@ -41,7 +39,8 @@ const OutputProfileValueDropDown = ({ ...props }: OutputProfileValueDropDownProp
   const onChange = (value: SelectItem) => {
     if (props.name && props.field) {
       const outputProfile = {} as UpdateOutputProfileRequest;
-      outputProfile[props.field as keyof UpdateOutputProfileRequest] = value.label ?? ('' as UpdateOutputProfileRequest[T]);
+      const key = props.field as keyof UpdateOutputProfileRequest;
+      (outputProfile as any)[key] = value.label ?? '';
       const ret = outputProfile;
 
       update(ret);

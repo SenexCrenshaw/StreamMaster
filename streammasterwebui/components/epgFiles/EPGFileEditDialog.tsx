@@ -45,7 +45,7 @@ const EPGFileEditDialog = ({ selectedFile }: EPGFileEditDialogProperties) => {
       }
     >
       <div className="layout-padding-bottom-lg" />
-      <EPGFileDialog ref={epgDialogRef} onSaveEnabled={setSaveEnabled} selectedFile={selectedFile} />
+      <EPGFileDialog ref={epgDialogRef} onSaveEnabled={setSaveEnabled} selectedFile={selectedFile} showUrlEditor />
     </SMPopUp>
   );
 };

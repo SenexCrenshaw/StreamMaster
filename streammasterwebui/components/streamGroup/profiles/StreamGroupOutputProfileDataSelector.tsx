@@ -23,7 +23,6 @@ const StreamGroupOutputProfileDataSelector = () => {
   const { data } = useGetOutputProfiles();
 
   const nameColumnConfig = useOutputProfileNameColumnConfig({ width: 40 });
-
   const groupColumnConfig = useOutputProfileGroupColumnConfig({ width: 40 });
   const iDColumnConfig = useOutputProfileIdColumnConfig({ width: 40 });
   const groupTitleColumnConfig = useOutputProfileGroupTitleColumnConfig({ width: 40 });

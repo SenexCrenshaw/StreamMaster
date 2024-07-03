@@ -10,8 +10,13 @@ const CreateVideoProfileDialog = () => {
   const smPopUpRef = useRef<SMPopUpRef>(null);
   const [addVideoProfileRequest, setAddVideoProfileRequest] = useState<AddVideoProfileRequest>({ Timeout: 100 } as AddVideoProfileRequest);
 
+  const ReturnToParent = useCallback(() => {
+    smPopUpRef.current?.hide();
+    setAddVideoProfileRequest({ Timeout: 100 } as AddVideoProfileRequest);
+  }, []);
+
   const save = useCallback(() => {
-    Logger.debug('CreateVideoProfileDialog', addVideoProfileRequest);
+    // Logger.debug('CreateVideoProfileDialog', addVideoProfileRequest);
 
     AddVideoProfile(addVideoProfileRequest)
       .then((response) => {})
@@ -19,9 +24,9 @@ const CreateVideoProfileDialog = () => {
         Logger.error('CreateFileProfileDialog', { error });
       })
       .finally(() => {
-        smPopUpRef.current?.hide();
+        ReturnToParent();
       });
-  }, [addVideoProfileRequest]);
+  }, [ReturnToParent, addVideoProfileRequest]);
 
   return (
     <SMPopUp
@@ -31,9 +36,12 @@ const CreateVideoProfileDialog = () => {
       title="Create Profile"
       ref={smPopUpRef}
       modal
-      modalCentered
+      placement="top-end"
       onOkClick={() => {
         save();
+      }}
+      onCloseClick={() => {
+        ReturnToParent();
       }}
       okButtonDisabled={!addVideoProfileRequest.Name || !addVideoProfileRequest.Command || !addVideoProfileRequest.Parameters}
       tooltip="Create Profile"

@@ -87,6 +87,7 @@ export const StreamGroupCreateDialog = ({ showButton }: StreamGroupCreateDialogP
       okButtonDisabled={!isSaveEnabled}
       buttonClassName="icon-green"
       tooltip="Add SG"
+      zIndex={10}
     >
       <div className="w-full">
         <StringEditor

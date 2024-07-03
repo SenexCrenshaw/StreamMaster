@@ -9262,7 +9262,7 @@ div[aria-haspopup=dialog] {
 
 .smspeed-main-item {
   position: relative;
-  z-index: 2;
+  z-index: 10;
   /* Higher than the background */
 }
 

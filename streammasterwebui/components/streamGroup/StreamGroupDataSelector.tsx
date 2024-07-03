@@ -29,6 +29,9 @@ const StreamGroupDataSelector = ({ id }: StreamGroupDataSelectorProperties) => {
   const streamGroupDeviceIDColumnConfig = useStreamGroupDeviceIDColumnConfig({ width: 60 });
   const rowExpansionTemplate = useCallback((rowData: DataTableRowData<any>, options: DataTableRowExpansionTemplate) => {
     const streamGroupDto = rowData as unknown as StreamGroupDto;
+    if (streamGroupDto.Name === 'ALL') {
+      return <div />;
+    }
 
     return (
       <div className="ml-3 m-1">

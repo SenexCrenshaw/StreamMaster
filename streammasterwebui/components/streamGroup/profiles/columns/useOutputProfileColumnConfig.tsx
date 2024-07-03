@@ -22,15 +22,6 @@ export const useOutputProfileColumnConfig = ({ field, header, width = 80 }: IntO
       var key = field as keyof OutputProfileDto;
       let value = fileOutputProfile[key] as string;
 
-      // if (fileOutputProfile.IsReadOnly === true) {
-      //   return (
-      //     <div className="sm-epg-selector">
-      //       <div className="text-container pl-1">{value}</div>
-      //     </div>
-      //   );
-      // }
-
-      Logger.debug('value', key, value, field);
       return <OutputProfileValueDropDown header={header} value={value} field={field} name={fileOutputProfile.ProfileName} />;
     },
     [field, header]

@@ -6,7 +6,8 @@ import { Logger } from '@lib/common/logger';
 import { AddOutputProfile } from '@lib/smAPI/Profiles/ProfilesCommands';
 import { AddOutputProfileRequest, OutputProfileDto, ValidM3USetting } from '@lib/smAPI/smapiTypes';
 import { useCallback, useRef, useState } from 'react';
-import FileProfileValueDropDown from './columns/OutputProfileValueDropDown';
+import OutputProfileValueDropDown from './columns/OutputProfileValueDropDown';
+import BooleanEditor from '@components/inputs/BooleanEditor';
 
 const CreateFileProfileDialog = () => {
   const defaultValues = {
@@ -24,7 +25,7 @@ const CreateFileProfileDialog = () => {
   const smPopUpRef = useRef<SMPopUpRef>(null);
   const [name, setName] = useState<string>();
 
-  const updateM3UOutputProfileStateAndRequest = useCallback(
+  const updateOutputProfileStateAndRequest = useCallback(
     (updatedFields: Partial<OutputProfileDto>) => {
       const updatedProfile = { ...fileProfile, ...updatedFields };
       setFileProfile(updatedProfile);
@@ -32,7 +33,8 @@ const CreateFileProfileDialog = () => {
     [fileProfile]
   );
 
-  const dropdownClass = 'sm-w-9rem';
+  const dropdownClass = 'sm-w-6rem';
+  const boolClass = 'sm-w-5rem';
 
   const save = useCallback(() => {
     const outputProfileDto = {
@@ -63,7 +65,7 @@ const CreateFileProfileDialog = () => {
       title="Create Profile"
       ref={smPopUpRef}
       modal
-      modalCentered
+      placement="bottom-end"
       onOkClick={() => {
         save();
       }}
@@ -78,7 +80,7 @@ const CreateFileProfileDialog = () => {
               <div className="sm-w-3">
                 <StringEditor
                   autoFocus
-                  label="Name"
+                  label="Profile Name"
                   placeholder="Name"
                   darkBackGround
                   disableDebounce
@@ -92,53 +94,77 @@ const CreateFileProfileDialog = () => {
                 />
               </div>
               <div className={dropdownClass}>
-                <FileProfileValueDropDown
+                <OutputProfileValueDropDown
                   darkBackGround
-                  header="Name"
-                  label="Name"
+                  header="Name Map"
+                  label="Name Map"
                   name={name}
                   value={fileProfile.Name}
                   onChange={(e) => {
-                    updateM3UOutputProfileStateAndRequest({ Name: e.label });
-                  }}
-                />
-              </div>
-              {/* <div className={dropdownClass}>
-                <FileProfileValueDropDown
-                  darkBackGround
-                  header="Channel Id"
-                  label="Channel Id"
-                  name={name}
-                  value={fileProfile.ChannelId}
-                  onChange={(e) => {
-                    updateM3UOutputProfileStateAndRequest({ ChannelId: e.label });
+                    updateOutputProfileStateAndRequest({ Name: e.label });
                   }}
                 />
               </div>
               <div className={dropdownClass}>
-                <FileProfileValueDropDown
+                <OutputProfileValueDropDown
                   darkBackGround
-                  header="Channel #"
+                  header="EPGId"
+                  label="EPGId"
+                  name={name}
+                  value={fileProfile.EPGId}
+                  onChange={(e) => {
+                    updateOutputProfileStateAndRequest({ EPGId: e.label });
+                  }}
+                />
+              </div>
+              <div className={dropdownClass}>
+                <OutputProfileValueDropDown
+                  darkBackGround
+                  header="Group"
+                  label="Group"
+                  name={name}
+                  value={fileProfile.Group}
+                  onChange={(e) => {
+                    updateOutputProfileStateAndRequest({ Group: e.label });
+                  }}
+                />
+              </div>
+              <div className={boolClass}>
+                <BooleanEditor
+                  label="Id"
+                  checked={fileProfile.EnableId}
+                  onChange={(e) => {
+                    updateOutputProfileStateAndRequest({ EnableId: e });
+                  }}
+                />
+              </div>
+              <div className={boolClass}>
+                <BooleanEditor
                   label="Channel #"
-                  name={name}
-                  value={fileProfile.ChannelNumber}
+                  checked={fileProfile.EnableChannelNumber}
                   onChange={(e) => {
-                    updateM3UOutputProfileStateAndRequest({ ChannelNumber: e.label });
+                    updateOutputProfileStateAndRequest({ EnableChannelNumber: e });
                   }}
                 />
               </div>
-              <div className={dropdownClass}>
-                <FileProfileValueDropDown
-                  darkBackGround
-                  header="TVG Id"
-                  label="TVG Id"
-                  name={name}
-                  value={fileProfile.TVGId}
+              <div className={boolClass}>
+                <BooleanEditor
+                  label="Group Title"
+                  checked={fileProfile.EnableGroupTitle}
                   onChange={(e) => {
-                    updateM3UOutputProfileStateAndRequest({ TVGId: e.label });
+                    updateOutputProfileStateAndRequest({ EnableGroupTitle: e });
                   }}
                 />
-              </div> */}
+              </div>
+              <div className={boolClass}>
+                <BooleanEditor
+                  label="Icon"
+                  checked={fileProfile.EnableIcon}
+                  onChange={(e) => {
+                    updateOutputProfileStateAndRequest({ EnableIcon: e });
+                  }}
+                />
+              </div>
             </div>
           </div>
         </div>

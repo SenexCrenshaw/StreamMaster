@@ -121,6 +121,6 @@ export const calculateBackgroundStyle = (
     position: 'absolute',
     top: top,
     width: isOpen ? backgroundWidth || width : `${mainItemWidth}px`, // Use provided width for children or default for main item
-    zIndex: 2 // Ensure the background is higher than the items
+    zIndex: 2
   };
 };

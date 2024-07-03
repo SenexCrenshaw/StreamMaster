@@ -48,7 +48,7 @@ const SMSpeedMenu: React.FC<SMSpeedMenuProps> = ({ mainItem, items, backgroundWi
       {isOpen && (
         <div className="smspeed-menu-background" style={calculateBackgroundStyle(isOpen, shape, direction as Direction, items.length, backgroundWidth)}></div>
       )}
-      <motion.div className="smspeed-main-item" style={{ position: 'relative', zIndex: 1 }}>
+      <motion.div className="smspeed-main-item" style={{ position: 'relative', zIndex: isOpen ? '5' : '1' }}>
         <SMSpeedMenuItem icon={mainItem.icon} command={mainItem.command} animateOn={animateOn} />
         {isOpen &&
           items.map((item, index) => {

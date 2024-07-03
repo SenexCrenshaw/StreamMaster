@@ -12,7 +12,7 @@ const RemoveVideoProfileDialog = ({ ...props }: RemoveVideoProfileDialogProps) =
   const smPopUpRef = useRef<SMPopUpRef>(null);
   const remove = useCallback(() => {
     const request = {
-      Name: props.videoOutputProfileDto.Name
+      Name: props.videoOutputProfileDto.ProfileName
     } as RemoveVideoProfileRequest;
 
     RemoveVideoProfile(request)
@@ -39,12 +39,12 @@ const RemoveVideoProfileDialog = ({ ...props }: RemoveVideoProfileDialogProps) =
         remove();
       }}
       ref={smPopUpRef}
-      okButtonDisabled={!props.videoOutputProfileDto.Name}
+      okButtonDisabled={!props.videoOutputProfileDto.ProfileName}
       tooltip="Remove Profile"
       zIndex={10}
     >
       <div className="sm-center-stuff">
-        <div className="text-container"> {props.videoOutputProfileDto.Name}</div>
+        <div className="text-container"> {props.videoOutputProfileDto.ProfileName}</div>
       </div>
     </SMPopUp>
   );
