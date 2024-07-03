@@ -19,6 +19,7 @@ const M3UFileEditDialog = ({ selectedFile }: M3UFileEditDialogProperties) => {
 
   return (
     <SMPopUp
+      zIndex={11}
       buttonClassName="icon-yellow"
       contentWidthSize="3"
       hasCloseButton={false}
@@ -43,10 +44,9 @@ const M3UFileEditDialog = ({ selectedFile }: M3UFileEditDialogProperties) => {
       placement="bottom-end"
       showRemember={false}
       title="EDIT M3U"
-      zIndex={10}
     >
       <div className="layout-padding-bottom-lg" />
-      <M3UFileDialog ref={m3uDialogRef} showUrlEditor selectedFile={selectedFile} onSaveEnabled={setSaveEnabled} />
+      <M3UFileDialog ref={m3uDialogRef} showUrlEditor m3uFileDto={selectedFile} onSaveEnabled={setSaveEnabled} />
     </SMPopUp>
   );
 };

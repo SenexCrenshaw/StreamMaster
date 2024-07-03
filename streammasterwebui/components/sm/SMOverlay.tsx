@@ -56,6 +56,7 @@ const SMOverlayInner = forwardRef<SMOverlayRef, ExtendedSMOverlayProperties>(
   ) => {
     const [isOpen, setIsOpen] = useState(false);
     const arrowRef = useRef(null);
+    const elementRef = useRef<HTMLDivElement>(null);
     const headingId = useId();
 
     const middleware = useMemo(() => {
@@ -139,14 +140,42 @@ const SMOverlayInner = forwardRef<SMOverlayRef, ExtendedSMOverlayProperties>(
       return floatingStyles;
     }, [props.modalCentered, floatingStyles]);
 
-    const z = useMemo(() => {
-      if (props.modal) {
-        return 10;
+    const zIndex = useMemo(() => {
+      let z = props.zIndex ?? 0;
+
+      if (z === undefined || z === 0) {
+        if (props.modal) {
+          z = 10;
+        }
       }
-      return props.zIndex;
+
+      if (z > 10) z = 11;
+
+      return z;
     }, [props.modal, props.zIndex]);
+
+    const getOverLayClass = useMemo(() => {
+      if (props.modal) {
+        if (zIndex > 10) {
+          return 'sm-dialog-overlay-11';
+        }
+        return 'sm-dialog-overlay';
+      }
+      return '';
+    }, [props.modal, zIndex]);
+
+    const getModelClass = useMemo(() => {
+      if (props.modal) {
+        if (zIndex > 10) {
+          return 'sm-modal-11';
+        }
+        return 'sm-modal';
+      }
+      return '';
+    }, [props.modal, zIndex]);
+
     return (
-      <>
+      <div ref={elementRef}>
         <SMButton
           buttonClassName={props.buttonClassName}
           buttonDarkBackground={props.buttonDarkBackground}
@@ -167,10 +196,10 @@ const SMOverlayInner = forwardRef<SMOverlayRef, ExtendedSMOverlayProperties>(
           <FloatingPortal>
             {isOpen && (
               <>
-                <FloatingOverlay className={props.modal ? 'sm-dialog-overlay' : ''} lockScroll />
+                <FloatingOverlay className={getOverLayClass} lockScroll />
                 <FloatingFocusManager context={context} modal={props.modal}>
                   <div
-                    className={`sm-overlay sm-popover sm-w-${contentWidthSize} pt-2 ${z !== undefined ? 'z-' + z : ''} ${props.modal ? 'sm-modal' : ''}`}
+                    className={`sm-overlay sm-popover sm-w-${contentWidthSize} pt-2 ${zIndex !== undefined ? 'z-' + zIndex : ''} ${getModelClass}`}
                     ref={refs.setFloating}
                     style={getStyle}
                     aria-labelledby={headingId}
@@ -188,7 +217,7 @@ const SMOverlayInner = forwardRef<SMOverlayRef, ExtendedSMOverlayProperties>(
             )}
           </FloatingPortal>
         )}
-      </>
+      </div>
     );
   }
 );

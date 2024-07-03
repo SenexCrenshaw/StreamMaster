@@ -319,5 +319,15 @@ public abstract class RepositoryBase<T>(IRepositoryContext RepositoryContext, IL
         RepositoryContext.Set<T>().AddRange(entities);
     }
 
+    public async Task BulkInsertEntitiesAsync<TEntity>(IEnumerable<TEntity> entities) where TEntity : class
+    {
+        await RepositoryContext.BulkInsertEntitiesAsync(entities);
+    }
+
+    public async Task BulkUpdateAsync<TEntity>(IEnumerable<TEntity> entities) where TEntity : class
+    {
+        await RepositoryContext.BulkUpdateAsync(entities);
+    }
+
     #endregion
 }

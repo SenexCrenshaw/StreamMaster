@@ -31,8 +31,8 @@ public class M3UFile : AutoUpdateEntity
 
     public List<string> VODTags { get; set; } = [];
     public int MaxStreamCount { get; set; }
-    public int StationCount { get; set; }
-    //public M3UFileStreamURLPrefix StreamURLPrefix { get; set; }
+    public int StreamCount { get; set; }
+
     public DateTime LastWrite()
     {
         string fileName = Path.Combine(FileDefinitions.M3U.DirectoryLocation, Source);

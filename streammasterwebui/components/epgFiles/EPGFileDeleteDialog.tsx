@@ -27,7 +27,7 @@ const EPGFileDeleteDialog = ({ selectedFile }: EPGFileDeleteDialogProperties) =>
   };
 
   return (
-    <SMPopUp info="" title="Delete EPG" onOkClick={() => deleteFile()} icon="pi-times" zIndex={10}>
+    <SMPopUp buttonClassName="icon-red" modal zIndex={11} info="" title="Delete EPG" onOkClick={() => deleteFile()} icon="pi-times">
       <div className="sm-center-stuff">
         <div className="text-container">{selectedFile.Name}</div>
       </div>

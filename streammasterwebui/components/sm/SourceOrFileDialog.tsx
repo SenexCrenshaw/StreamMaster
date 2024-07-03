@@ -1,32 +1,33 @@
 import StringEditor from '@components/inputs/StringEditor';
 import { isValidUrl } from '@lib/common/common';
-import { useStringValue } from '@lib/redux/hooks/stringValue';
 import { ProgressBar } from 'primereact/progressbar';
 import { ChangeEvent, forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import { SourceOrFileDialogProperties } from './Interfaces/SourceOrFileDialogProperties';
 import SMButton from './SMButton';
 import { SMFileUploadRef } from './SMFileUpload';
+import { removeExtension } from '@lib/common/stringUtils';
 
 interface ExtSourceOrFileDialogProperties extends SourceOrFileDialogProperties {
   onAdd: (source: string | null, file: File | null) => void;
+  onFileNameChange: (fileName: string) => void;
 }
 
 const SourceOrFileDialog = forwardRef<SMFileUploadRef, ExtSourceOrFileDialogProperties>(
-  ({ isM3U, onAdd, onSaveEnabled, progress }: ExtSourceOrFileDialogProperties, ref) => {
-    const [source, setSource] = useState<string | null>('');
+  ({ onAdd, onFileNameChange, onSaveEnabled, progress }: ExtSourceOrFileDialogProperties, ref) => {
+    const [source, setSource] = useState<string | null>(null);
     const [file, setFile] = useState<File | null>(null);
     const inputFile = useRef<HTMLInputElement>(null);
-    const { setStringValue, stringValue } = useStringValue(isM3U ? 'm3uName' : 'epgName');
+    // const { setStringValue, stringValue } = useStringValue(isM3U ? 'm3uName' : 'epgName');
 
     const clearInputFile = useCallback(() => {
       setFile(null);
       if (inputFile.current !== null) {
         inputFile.current.value = '';
         inputFile.current.files = null;
-        setStringValue('');
-        setSource(null);
       }
-    }, [setStringValue]);
+      // setStringValue(undefined);
+      setSource(null);
+    }, []);
 
     useImperativeHandle(
       ref,
@@ -34,7 +35,7 @@ const SourceOrFileDialog = forwardRef<SMFileUploadRef, ExtSourceOrFileDialogProp
         reset: () => {
           clearInputFile();
           setSource(null);
-          setStringValue(undefined);
+          // setStringValue(undefined);
         },
         save: () => {
           onAdd(source, file);
@@ -43,7 +44,7 @@ const SourceOrFileDialog = forwardRef<SMFileUploadRef, ExtSourceOrFileDialogProp
           // }
         }
       }),
-      [clearInputFile, file, onAdd, setStringValue, source]
+      [clearInputFile, file, onAdd, source]
     );
 
     const sourceValue = useMemo(() => {
@@ -57,8 +58,8 @@ const SourceOrFileDialog = forwardRef<SMFileUploadRef, ExtSourceOrFileDialogProp
       }
       if (source == null) return false;
 
-      return isValidUrl(source) && stringValue !== undefined && stringValue !== '';
-    }, [file, source, stringValue]);
+      return isValidUrl(source);
+    }, [file, source]);
 
     useEffect(() => {
       onSaveEnabled(isSaveEnabled);
@@ -75,23 +76,23 @@ const SourceOrFileDialog = forwardRef<SMFileUploadRef, ExtSourceOrFileDialogProp
       return (
         <div className="w-full pl-1">
           <StringEditor
-            disableDebounce
             darkBackGround
             disabled={file !== null}
-            showClear={false}
+            disableDebounce
             placeholder="Source URL or File"
+            showClear={false}
             value={sourceValue}
             onChange={(e) => {
               clearInputFile();
               if (e !== undefined) {
                 setSource(e);
-                setStringValue(e);
+                // onFileNameChange?.(e);
               }
             }}
           />
         </div>
       );
-    }, [progress, file, sourceValue, clearInputFile, setStringValue]);
+    }, [progress, file, sourceValue, clearInputFile, onFileNameChange]);
 
     const handleChange = useCallback(
       (event: ChangeEvent<HTMLInputElement>): void => {
@@ -99,44 +100,17 @@ const SourceOrFileDialog = forwardRef<SMFileUploadRef, ExtSourceOrFileDialogProp
         if (selectedFile) {
           setSource(null);
           setFile(selectedFile);
-          setStringValue(selectedFile.name);
+          onFileNameChange?.(removeExtension(selectedFile.name));
         }
       },
-      [setStringValue]
+      [onFileNameChange]
     );
-
-    // const addIcon = useMemo((): string => {
-    //   return file ? 'pi pi-upload' : 'pi pi-plus';
-    // }, [file]);
 
     return (
       <div className="sm-sourceorfiledialog flex flex-row grid-nogutter justify-content-between align-items-center">
         <div className="p-inputgroup">
           <SMButton buttonClassName="icon-orange" iconFilled icon="pi-upload" onClick={() => inputFile?.current?.click()} tooltip="Local File" />
           {getProgressOrInput}
-          {/* <SMButton
-          buttonClassName="icon-red"
-          buttonDisabled={file === null}
-          icon="pi-times"
-          iconFilled
-          rounded={false}
-          onClick={() => {
-            clearInputFile();
-            setSource(null);
-          }}
-          tooltip="Clear Selection"
-        /> */}
-          {/* <SMButton
-          rounded={false}
-          buttonClassName="icon-green"
-          buttonDisabled={!isSaveEnabled}
-          icon={addIcon}
-          iconFilled
-          onClick={() => {
-            onAdd(source, file);
-          }}
-          tooltip="Add M3U"
-        /> */}
         </div>
 
         <input title="upload" ref={inputFile} type="file" onChange={handleChange} hidden />

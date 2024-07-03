@@ -1,13 +1,13 @@
 import ColorEditor from '@components/inputs/ColorEditor';
 import NumberEditor from '@components/inputs/NumberEditor';
 import StringEditor from '@components/inputs/StringEditor';
+import SMFileUpload, { SMFileUploadRef } from '@components/sm/SMFileUpload';
 import { Logger } from '@lib/common/logger';
 import useScrollAndKeyEvents from '@lib/hooks/useScrollAndKeyEvents';
-import { useStringValue } from '@lib/redux/hooks/stringValue';
-import { UpdateEPGFile } from '@lib/smAPI/EPGFiles/EPGFilesCommands';
+import { CreateEPGFile, UpdateEPGFile } from '@lib/smAPI/EPGFiles/EPGFilesCommands';
 
-import { EPGFileDto, UpdateEPGFileRequest } from '@lib/smAPI/smapiTypes';
-import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo } from 'react';
+import { CreateEPGFileRequest, EPGFileDto, UpdateEPGFileRequest } from '@lib/smAPI/smapiTypes';
+import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef } from 'react';
 
 export interface EPGFileDialogProperties {
   readonly onEPGChanged?: (epgFileDto: EPGFileDto) => void;
@@ -23,6 +23,7 @@ export interface EPGFileDialogRef {
 }
 
 const EPGFileDialog = forwardRef<EPGFileDialogRef, EPGFileDialogProperties>(({ onEPGChanged, onSaveEnabled, selectedFile, showUrlEditor = false }, ref) => {
+  const smFileUploadRef = useRef<SMFileUploadRef>(null);
   const defaultValues = useMemo(
     () =>
       ({
@@ -39,7 +40,6 @@ const EPGFileDialog = forwardRef<EPGFileDialogRef, EPGFileDialogProperties>(({ o
   const [epgFileDto, setEPGFileDto] = React.useState<EPGFileDto>(defaultValues);
   const [originalEPGFileDto, setOriginalEPGFileDto] = React.useState<EPGFileDto | undefined>(undefined);
   const [request, setRequest] = React.useState<UpdateEPGFileRequest>({} as UpdateEPGFileRequest);
-  const { setStringValue } = useStringValue('epgName');
 
   const onUpdated = useCallback(async () => {
     if (request.Id === undefined) {
@@ -62,12 +62,17 @@ const EPGFileDialog = forwardRef<EPGFileDialogRef, EPGFileDialogProperties>(({ o
         } else {
           setEPGFileDto(defaultValues);
         }
+        smFileUploadRef.current?.reset();
       },
       save: () => {
-        onUpdated();
+        if (showUrlEditor) {
+          onUpdated();
+        } else {
+          smFileUploadRef.current?.save();
+        }
       }
     }),
-    [defaultValues, onUpdated, originalEPGFileDto]
+    [defaultValues, onUpdated, originalEPGFileDto, showUrlEditor]
   );
 
   const isSaveEnabled = useMemo(() => {
@@ -111,6 +116,29 @@ const EPGFileDialog = forwardRef<EPGFileDialogRef, EPGFileDialogProperties>(({ o
       }
     }
   }, [code, isSaveEnabled, onUpdated]);
+  const ReturnToParent = useCallback((didUpload?: boolean) => {}, []);
+  const onCreateFromSource = useCallback(
+    async (source: string) => {
+      const request = {} as CreateEPGFileRequest;
+
+      request.Name = epgFileDto.Name;
+      request.UrlSource = source;
+      request.Color = epgFileDto.Color;
+      request.EPGNumber = epgFileDto.EPGNumber;
+      request.HoursToUpdate = epgFileDto.HoursToUpdate;
+      request.TimeShift = epgFileDto.TimeShift;
+
+      await CreateEPGFile(request)
+        .then(() => {})
+        .catch((error) => {
+          console.error('Error uploading EPG', error);
+        })
+        .finally(() => {
+          ReturnToParent();
+        });
+    },
+    [ReturnToParent, epgFileDto.Color, epgFileDto.EPGNumber, epgFileDto.HoursToUpdate, epgFileDto.Name, epgFileDto.TimeShift]
+  );
 
   if (epgFileDto !== undefined) {
     Logger.debug('EPGFileDialog', { isSaveEnabled, epgFileDto: epgFileDto.Url, originalEPGFileDto: originalEPGFileDto?.Url });
@@ -120,8 +148,25 @@ const EPGFileDialog = forwardRef<EPGFileDialogRef, EPGFileDialogProperties>(({ o
     return null;
   }
   return (
-    <div className="w-12 px-2">
-      <div className="flex gap-1">
+    <div className="px-2">
+      <div className="flex flex-wrap flex-row w-12">
+        <div className="w-12">
+          <SMFileUpload
+            isM3U={false}
+            onSaveEnabled={(enabled) => {
+              onSaveEnabled?.(enabled);
+            }}
+            ref={smFileUploadRef}
+            epgFileDto={epgFileDto}
+            onCreateFromSource={onCreateFromSource}
+            onUploadComplete={() => {
+              ReturnToParent(true);
+            }}
+            onFileNameChanged={(e) => {
+              if (!epgFileDto || epgFileDto.Name === '') updateStateAndRequest({ Name: e });
+            }}
+          />
+        </div>
         <div className="w-6">
           <StringEditor
             disableDebounce
@@ -131,8 +176,6 @@ const EPGFileDialog = forwardRef<EPGFileDialogRef, EPGFileDialogProperties>(({ o
             value={epgFileDto?.Name}
             onChange={(e) => {
               updateStateAndRequest({ Name: e });
-              setStringValue(e);
-              // e !== undefined && setName(e);
             }}
             onSave={(e) => {}}
           />
@@ -149,9 +192,6 @@ const EPGFileDialog = forwardRef<EPGFileDialogRef, EPGFileDialogProperties>(({ o
             disableDebounce
             darkBackGround
             label="AUTO UPDATE"
-            // onSave={(e) => {
-            //   e !== undefined && setHoursToUpdate(e);
-            // }}
             onChange={(e) => updateStateAndRequest({ HoursToUpdate: e })}
             suffix=" Hours"
             value={epgFileDto.HoursToUpdate}
@@ -163,11 +203,17 @@ const EPGFileDialog = forwardRef<EPGFileDialogRef, EPGFileDialogProperties>(({ o
             darkBackGround
             showButtons
             label="EPG #"
-            // onSave={(e) => {
-            //   e !== undefined && setEPGNumber(e);
-            // }}
             onChange={(e) => updateStateAndRequest({ EPGNumber: e })}
             value={epgFileDto.EPGNumber}
+          />
+        </div>
+        <div className="w-4">
+          <NumberEditor
+            disableDebounce
+            darkBackGround
+            label="TIME SHIFT"
+            onChange={(e) => updateStateAndRequest({ TimeShift: e })}
+            value={epgFileDto.TimeShift}
           />
         </div>
       </div>
@@ -182,22 +228,6 @@ const EPGFileDialog = forwardRef<EPGFileDialogRef, EPGFileDialogProperties>(({ o
         </>
       )}
 
-      <div className="w-12">
-        <div className="flex gap-1">
-          <div className="w-4">
-            <NumberEditor
-              disableDebounce
-              darkBackGround
-              label="TIME SHIFT"
-              // onSave={(e) => {
-              //   e !== undefined && setTimeShift(e);
-              // }}
-              onChange={(e) => updateStateAndRequest({ TimeShift: e })}
-              value={epgFileDto.TimeShift}
-            />
-          </div>
-        </div>
-      </div>
       <div className="layout-padding-bottom-lg" />
     </div>
   );

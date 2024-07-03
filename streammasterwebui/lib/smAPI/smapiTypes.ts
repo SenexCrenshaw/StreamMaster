@@ -257,7 +257,7 @@ export interface M3UFileDto
 	Name: string;
 	NeedsUpdate: boolean;
 	Source: string;
-	StationCount: number;
+	StreamCount: number;
 	Url: string;
 	VODTags: string[];
 }

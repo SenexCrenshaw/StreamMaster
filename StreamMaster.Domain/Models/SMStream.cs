@@ -9,7 +9,6 @@ public class SMStream
 {
     public static string APIName => "SMStreams";
     [Key]
-    [Column(TypeName = "citext")]
     public string Id { get; set; } = string.Empty;
     public int FilePosition { get; set; }
     public bool IsHidden { get; set; } = false;

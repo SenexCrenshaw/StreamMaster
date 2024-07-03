@@ -26,6 +26,7 @@ public class JobStatusManager(IJobStatusService jobStatusService, JobType jobTyp
     }
 
     public bool IsRunning => jobStatusService.IsRunning(GenerateKey());
+    public bool IsErrored => jobStatusService.IsErrored(GenerateKey());
     public bool ForceNextRun => jobStatusService.ForceNextRun(GenerateKey());
     public DateTime LastRun => jobStatusService.LastRun(GenerateKey());
     public DateTime LastSuccessful => jobStatusService.LastSuccessful(GenerateKey());

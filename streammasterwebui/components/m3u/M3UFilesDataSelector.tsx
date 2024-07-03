@@ -96,12 +96,12 @@ const M3UFilesDataSelector = () => {
     [onM3UUpdateClick]
   );
 
-  const stationCountTemplate = useCallback((rowData: M3UFileDto) => {
+  const streamCountTemplate = useCallback((rowData: M3UFileDto) => {
     if (rowData.Id === 0) {
       return <div />;
     }
 
-    return <div className="flex p-0 m-0 justify-content-center align-items-center">{rowData.StationCount}</div>;
+    return <div className="flex p-0 m-0 justify-content-center align-items-center">{rowData.StreamCount}</div>;
   }, []);
 
   const actionTemplate = useCallback((rowData: M3UFileDto) => {
@@ -130,24 +130,24 @@ const M3UFilesDataSelector = () => {
         align: 'left',
         alignHeader: 'center',
         bodyTemplate: lastDownloadedTemplate,
-        field: 'lastDownloaded',
+        field: 'LastDownloaded',
         header: 'Downloaded',
         width: 110
       },
       {
-        bodyTemplate: stationCountTemplate,
-        field: 'stationCount',
+        bodyTemplate: streamCountTemplate,
+        field: 'StreamCount',
         header: 'Streams',
         width: 64
       },
       {
         bodyTemplate: actionTemplate,
         field: 'editBodyTemplate',
-        header: 'Actions',
+        header: '',
         width: 48
       }
     ],
-    [nameEditorTemplate, lastDownloadedTemplate, stationCountTemplate, actionTemplate]
+    [nameEditorTemplate, lastDownloadedTemplate, streamCountTemplate, actionTemplate]
   );
 
   return (

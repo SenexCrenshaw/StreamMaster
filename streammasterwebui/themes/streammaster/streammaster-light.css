@@ -7781,7 +7781,7 @@
   box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.3), 0px -6px 12px rgba(0, 0, 0, 0.3), 6px 0px 12px rgba(0, 0, 0, 0.3), -6px 0px 12px rgba(0, 0, 0, 0.3);
 }
 
-.sm-box-shadow-modal, .sm-box-modal, .sm-modal {
+.sm-box-shadow-modal, .sm-box-modal, .sm-modal-11, .sm-modal {
   box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.3), 0px -6px 12px rgba(0, 0, 0, 0.3), 6px 0px 12px rgba(0, 0, 0, 0.3), -6px 0px 12px rgba(0, 0, 0, 0.3);
 }
 
@@ -9234,11 +9234,25 @@ div[aria-haspopup=dialog] {
 }
 
 .sm-modal {
-  z-index: 10;
+  z-index: 10 !important;
+}
+
+.sm-modal-11 {
+  z-index: 11 !important;
 }
 
 .sm-dialog-overlay, .sm-loader {
   z-index: 9;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.01);
+  transition: all 0.3s ease-in-out;
+  backdrop-filter: blur(2px) brightness(0.8) contrast(1);
+  -webkit-backdrop-filter: blur(1px) brightness(0.8) contrast(1);
+}
+
+.sm-dialog-overlay-11 {
+  z-index: 11 !important;
   display: grid;
   place-items: center;
   background: rgba(0, 0, 0, 0.01);

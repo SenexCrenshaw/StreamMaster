@@ -13,6 +13,8 @@
         DateTime LastSuccessful(string key);
         JobStatusManager GetJobManager(JobType jobType, int id);
         bool IsRunning(string key);
+
+        bool IsErrored(string key);
         bool ForceNextRun(string key);
         void SetIsRunning(string key, bool isRunning);
         void SetSuccessful(string key);

@@ -6,10 +6,11 @@ namespace StreamMaster.Domain.Repository;
 
 public interface IRepositoryContext
 {
+    Task BulkUpdateAsync<TEntity>(IEnumerable<TEntity> entities) where TEntity : class;
     DbSet<TEntity> Set<TEntity>() where TEntity : class;
     int SaveChanges();
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
-
+    Task BulkInsertEntitiesAsync<TEntity>(IEnumerable<TEntity> entities) where TEntity : class;
     int ExecuteSqlRaw(string sql, params object[] parameters);
     Task<int> ExecuteSqlRawAsyncEntities(string sql, CancellationToken cancellationToken = default);
     void BulkUpdateEntities<TEntity>(IEnumerable<TEntity> entities) where TEntity : class;

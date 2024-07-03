@@ -14,7 +14,7 @@ namespace StreamMaster.Infrastructure.EF.Repositories;
 /// <summary>
 /// Provides methods for performing CRUD operations on M3UFile entities.
 /// </summary>
-public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, RepositoryWrapper repositoryWrapper, IJobStatusService jobStatusService, IRepositoryContext repositoryContext, IOptionsMonitor<Setting> intSettings, IMapper mapper)
+public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, IMessageService messageService, RepositoryWrapper repositoryWrapper, IJobStatusService jobStatusService, IRepositoryContext repositoryContext, IOptionsMonitor<Setting> intSettings, IMapper mapper)
     : RepositoryBase<M3UFile>(repositoryContext, intLogger, intSettings), IM3UFileRepository
 {
 
@@ -27,7 +27,7 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, RepositoryW
     public async Task<M3UFile?> ProcessM3UFile(int M3UFileId, bool ForceRun = false)
     {
         JobStatusManager jobManager = jobStatusService.GetJobManagerProcessM3U(M3UFileId);
-        if (jobManager.IsRunning)
+        if (jobManager.IsRunning)//|| jobManager.IsErrored)
         {
             return null;
         }
@@ -39,7 +39,7 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, RepositoryW
             m3uFile = await GetM3UFile(M3UFileId);
             if (m3uFile == null)
             {
-                logger.LogCritical("Could not find M3U file");
+                logger.LogCritical($"Could parse M3U file M3UFileId: {M3UFileId}");
                 jobManager.SetError();
                 return null;
             }
@@ -47,7 +47,7 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, RepositoryW
             (List<SMStream>? streams, int streamCount) = await ProcessStreams(m3uFile).ConfigureAwait(false);
             if (streams == null)
             {
-                logger.LogCritical("Error while processing M3U file, bad format");
+                logger.LogCritical($"Error while processing M3U file {m3uFile.Name}, bad format");
                 jobManager.SetError();
                 return null;
             }
@@ -58,7 +58,7 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, RepositoryW
                 return m3uFile;
             }
 
-            await ProcessAndUpdateStreams(m3uFile, streams, streamCount);
+            await ProcessAndUpdateStreams(m3uFile, streams);
             await UpdateChannelGroups(streams);
 
             m3uFile.LastUpdated = SMDT.UtcNow;
@@ -105,21 +105,18 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, RepositoryW
     }
 
     [LogExecutionTimeAspect]
-    private async Task ProcessAndUpdateStreams(M3UFile m3uFile, List<SMStream> streams, int streamCount)
+    private async Task ProcessAndUpdateStreams(M3UFile m3uFile, List<SMStream> streams)
     {
         await RemoveMissingStreams(streams, m3uFile.Id);
 
-        List<SMStream> existing = await repositoryWrapper.SMStream.GetQuery().Where(a => a.M3UFileId == m3uFile.Id).ToListAsync().ConfigureAwait(false);
-
-        List<ChannelGroup> groups = await repositoryWrapper.ChannelGroup.GetQuery().ToListAsync();
-
-        ProcessStreamsConcurrently(streams, existing, groups, m3uFile);
+        (int newStreamCount, int dupStreamCount) = await ProcessStreamsConcurrently(streams, m3uFile);
 
         m3uFile.LastUpdated = SMDT.UtcNow;
-        if (m3uFile.StationCount != streamCount)
-        {
-            m3uFile.StationCount = streamCount;
-        }
+        m3uFile.StreamCount = streams.Count;
+
+        string message = $"Processed {m3uFile.Name} : {streams.Count} streams, found {newStreamCount} new streams and {dupStreamCount} duplicate streams";
+        logger.LogInformation(message);
+        await messageService.SendSuccess(message, "Details");
 
         UpdateM3UFile(m3uFile);
         await SaveChangesAsync();
@@ -356,18 +353,23 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, RepositoryW
         return GetQuery();
     }
 
-    private void ProcessStreamsConcurrently(List<SMStream> streams, List<SMStream> existing, List<ChannelGroup> groups, M3UFile m3uFile)
+    private async Task<(int newStreamCount, int dupStreamCount)> ProcessStreamsConcurrently(List<SMStream> streams, M3UFile m3uFile)
     {
-        int totalCount = streams.Count;
-        Dictionary<string, SMStream> existingLookup = existing.ToDictionary(a => a.Url, a => a);
-        Dictionary<string, ChannelGroup> groupLookup = groups.ToDictionary(g => g.Name, g => g);
+        //List<SMStream> allStreamUrls = await repositoryWrapper.SMStream.GetQuery().Where(a => a.M3UFileId == m3uFile.Id).ToListAsync().ConfigureAwait(false);
+        //List<SMStream> existing = await repositoryWrapper.SMStream.GetQuery().Where(a => a.M3UFileId == m3uFile.Id).ToListAsync().ConfigureAwait(false);
+        //List<ChannelGroup> groups = await repositoryWrapper.ChannelGroup.GetQuery().ToListAsync();
+
+        //int newCount = 0;
+        int dupTotalCount = 0;
+        int processedCount = 0;
+
+        HashSet<string> allLookup = [.. repositoryWrapper.SMStream.GetQuery().Select(a => a.Id)];
+        Dictionary<string, SMStream> existingLookup = await repositoryWrapper.SMStream.GetQuery().Where(a => a.M3UFileId == m3uFile.Id).ToDictionaryAsync(a => a.Id, a => a);
+        Dictionary<string, ChannelGroup> groupLookup = await repositoryWrapper.ChannelGroup.GetQuery().ToDictionaryAsync(g => g.Name, g => g);
         ConcurrentDictionary<string, bool> processed = new();
 
         ConcurrentBag<SMStream> toWrite = [];
         ConcurrentBag<SMStream> toUpdate = [];
-
-        int processedCount = 0;
-
         ConcurrentDictionary<string, byte> generatedIdsDict = new();
 
         foreach (SMStream stream in streams)
@@ -380,34 +382,49 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, RepositoryW
             SMStream stream = tuple.stream;
             int index = tuple.index;
 
-            if (processed.TryAdd(stream.Id, true))
+
+            if (allLookup.TryGetValue("aHR0cDovL3NoaW5lLmpzZXJ2Lm1lL2xpdmUvU2VuZXgvQ05HNHM1WEdaWi9mNWI1YTljNy1iODI2LTQ5ZjQtOTUxNS02NWE3ODMyN2I5ODMudHM=", out string? s))
             {
-                _ = groupLookup.TryGetValue(stream.Group, out ChannelGroup? group);
+                string a = s;
+            }
 
 
-                if (!existingLookup.TryGetValue(stream.Url, out SMStream? existingStream))
+            if (allLookup.Contains(stream.Id))
+            {
+
+                Interlocked.Increment(ref dupTotalCount);
+            }
+            else
+            {
+
+                if (processed.TryAdd(stream.Id, true))
                 {
-                    ProcessNewStream(stream, group?.IsHidden ?? false, m3uFile.Name, index);
-                    stream.ShortSMStreamId = UniqueHexGenerator.GenerateUniqueHex(generatedIdsDict);
-                    toWrite.Add(stream);
-                }
-                else
-                {
-                    if (ProcessExistingStream(stream, existingStream, m3uFile, index))
+                    _ = groupLookup.TryGetValue(stream.Group, out ChannelGroup? group);
+
+                    if (!existingLookup.TryGetValue(stream.Id, out SMStream? existingStream))
                     {
-                        if (string.IsNullOrEmpty(existingStream.ShortSMStreamId) || existingStream.ShortSMStreamId == UniqueHexGenerator.SMChannelIdEmpty)
+                        ProcessNewStream(stream, group?.IsHidden ?? false, m3uFile.Name, index);
+                        stream.ShortSMStreamId = UniqueHexGenerator.GenerateUniqueHex(generatedIdsDict);
+                        toWrite.Add(stream);
+                    }
+                    else
+                    {
+                        if (ProcessExistingStream(stream, existingStream, m3uFile, index))
                         {
-                            existingStream.ShortSMStreamId = UniqueHexGenerator.GenerateUniqueHex(generatedIdsDict);
+                            if (string.IsNullOrEmpty(existingStream.ShortSMStreamId) || existingStream.ShortSMStreamId == UniqueHexGenerator.SMChannelIdEmpty)
+                            {
+                                existingStream.ShortSMStreamId = UniqueHexGenerator.GenerateUniqueHex(generatedIdsDict);
+                            }
+                            toUpdate.Add(existingStream);
                         }
-                        toUpdate.Add(existingStream);
                     }
                 }
+            }
 
-                _ = Interlocked.Increment(ref processedCount);
-                if (processedCount % 20000 == 0)
-                {
-                    logger.LogInformation($"Processed {processedCount}/{totalCount} streams, adding {toWrite.Count}, updating: {toUpdate.Count}");
-                }
+            _ = Interlocked.Increment(ref processedCount);
+            if (processedCount % 20000 == 0)
+            {
+                logger.LogInformation($"Processed {processedCount}/{streams.Count} streams, adding {toWrite.Count}, updating: {toUpdate.Count}");
             }
         });
 
@@ -415,8 +432,9 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, RepositoryW
         // Final batch processing
         ProcessBatches(toWrite, toUpdate);
         logger.LogInformation($"Finished Found {processedCount} streams, inserted: {toWrite.Count}, updated: {toUpdate.Count}");
+        return (toWrite.Count, dupTotalCount);
     }
-    private bool ProcessExistingStream(SMStream stream, SMStream existingStream, M3UFile m3uFile, int index)
+    private static bool ProcessExistingStream(SMStream stream, SMStream existingStream, M3UFile m3uFile, int index)
     {
         bool changed = false;
 
@@ -487,7 +505,7 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, RepositoryW
 
         return changed;
     }
-    private void ProcessNewStream(SMStream stream, bool? groupIsHidden, string mu3FileName, int index)
+    private static void ProcessNewStream(SMStream stream, bool? groupIsHidden, string mu3FileName, int index)
     {
         if (groupIsHidden is not null)
         {
@@ -496,37 +514,12 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, RepositoryW
         stream.FilePosition = index;
         stream.M3UFileName = mu3FileName;
     }
-
-    /// <summary>
-    /// Processes batches of streams for insertion and update in the database. Streams are handled
-    /// in chunks to optimize database interactions. The method logs progress at intervals
-    /// for both insertions and updates, providing visibility into the operation's progress.
-    /// </summary>
-    /// <param name="toWrite">A ConcurrentBag of <see cref="SMStream"/> instances to be inserted into the database.</param>
-    /// <param name="toUpdate">A ConcurrentBag of <see cref="SMStream"/> instances to be updated in the database.</param>
-    /// <remarks>
-    /// The method divides streams into batches to manage memory usage and improve database
-    /// transaction efficiency. It performs bulk insertions and updates by utilizing the
-    /// repository wrapper's bulk operation methods. Logging is performed throughout the process
-    /// to monitor progress. It is assumed that the repository wrapper is thread-safe or that
-    /// the method is called in a thread-safe context.
-    /// </remarks>
-    /// <summary>
-    /// Processes batches of streams for insertion and update in the database. Streams are handled
-    /// in chunks to optimize database interactions. The method logs progress at intervals
-    /// for both insertions and updates, providing visibility into the operation's progress.
-    /// </summary>
-    /// <param name="toWrite">A ConcurrentBag of <see cref="SMStream"/> instances to be inserted into the database.</param>
-    /// <param name="toUpdate">A ConcurrentBag of <see cref="SMStream"/> instances to be updated in the database.</param>
-    /// <remarks>
-    /// The method divides streams into batches to manage memory usage and improve database
-    /// transaction efficiency. It performs bulk insertions and updates by utilizing the
-    /// repository wrapper's bulk operation methods. Logging is performed throughout the process
-    /// to monitor progress. It is assumed that the repository wrapper is thread-safe or that
-    /// the method is called in a thread-safe context.
-    /// </remarks>
     private void ProcessBatches(ConcurrentBag<SMStream> toWrite, ConcurrentBag<SMStream> toUpdate)
     {
+        if (toWrite.Count == 0 && toUpdate.Count == 0)
+        {
+            return;
+        }
         int totalToWrite = toWrite.Count;
         int totalToUpdate = toUpdate.Count;
         int batchWriteCount = 0;
@@ -538,7 +531,7 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, RepositoryW
 
         int batchSize = 500;
 
-        if (writeList.Count != 0)
+        if (writeList.Count > 0)
         {
             logger.LogInformation($"Inserting {writeList.Count} new streams in the DB");
 
@@ -547,6 +540,7 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, RepositoryW
 
                 List<SMStream> batch = writeList.Skip(i).Take(batchSize).ToList();
                 repositoryWrapper.SMStream.BulkInsert(batch);
+                //await repositoryWrapper.SMStream.BulkInsertEntitiesAsync(batch);
                 batchWriteCount += batch.Count;
 
                 if (batchWriteCount % 5000 == 0)
@@ -556,12 +550,13 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, RepositoryW
             }
         }
 
-        if (updateList.Any())
+        if (updateList.Count > 0)
         {
             logger.LogInformation($"Updating {updateList.Count} streams in DB");
             for (int i = 0; i < updateList.Count; i += batchSize)
             {
                 List<SMStream> batch = updateList.Skip(i).Take(batchSize).ToList();
+                //await repositoryWrapper.SMStream.BulkUpdateAsync(batch);
                 repositoryWrapper.SMStream.BulkUpdate(batch);
                 batchUpdateCount += batch.Count;
 

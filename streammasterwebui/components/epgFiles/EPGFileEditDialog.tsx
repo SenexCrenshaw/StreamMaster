@@ -25,7 +25,8 @@ const EPGFileEditDialog = ({ selectedFile }: EPGFileEditDialogProperties) => {
       placement="bottom-end"
       iconFilled={false}
       buttonClassName="icon-yellow"
-      tooltip="Add EPG"
+      tooltip="Edit EPG"
+      zIndex={11}
       // onCloseClick={() => {set}
       header={
         <div className="flex w-12 gap-1 justify-content-end align-content-center">

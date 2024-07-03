@@ -13,8 +13,8 @@ using StreamMaster.Infrastructure.EF.PGSQL;
 namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
 {
     [DbContext(typeof(PGSQLRepositoryContext))]
-    [Migration("20240630165613_AddAutoSetChannelNumbers")]
-    partial class AddAutoSetChannelNumbers
+    [Migration("20240703163939_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -217,7 +217,7 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
                         .IsRequired()
                         .HasColumnType("citext");
 
-                    b.Property<int>("StationCount")
+                    b.Property<int>("StreamCount")
                         .HasColumnType("integer");
 
                     b.Property<string>("Url")
@@ -266,7 +266,7 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
                         .IsRequired()
                         .HasColumnType("citext");
 
-                    b.Property<string>("SMChannelId")
+                    b.Property<string>("ShortSMChannelId")
                         .IsRequired()
                         .HasColumnType("citext");
 
@@ -313,7 +313,7 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
             modelBuilder.Entity("StreamMaster.Domain.Models.SMStream", b =>
                 {
                     b.Property<string>("Id")
-                        .HasColumnType("citext");
+                        .HasColumnType("text");
 
                     b.Property<int>("ChannelNumber")
                         .HasColumnType("integer");
@@ -350,7 +350,7 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
                         .IsRequired()
                         .HasColumnType("citext");
 
-                    b.Property<string>("SMStreamId")
+                    b.Property<string>("ShortSMStreamId")
                         .IsRequired()
                         .HasColumnType("citext");
 
@@ -380,6 +380,10 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
 
                     b.Property<bool>("AutoSetChannelNumbers")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("DeviceID")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<bool>("IgnoreExistingChannelNumbers")
                         .HasColumnType("boolean");

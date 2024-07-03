@@ -23,7 +23,7 @@ public class RemoveLineupRequestHandler(ISchedulesDirect schedulesDirect, IDataR
         if (changesRemaining > -1)
         {
             //APIResponse response = await schedulesDirect.SDSync(cancellationToken);
-            //if (!response.IsError)
+            //if (!response.IsErrored)
             //{
             //    await HubContext.Clients.All.SchedulesDirectsRefresh();
 

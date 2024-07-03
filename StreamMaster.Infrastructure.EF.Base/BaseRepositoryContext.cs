@@ -43,6 +43,17 @@ public class BaseRepositoryContext(DbContextOptions options) : DbContext(options
         this.BulkInsert(entities);
     }
 
+    public async Task BulkInsertEntitiesAsync<TEntity>(IEnumerable<TEntity> entities) where TEntity : class
+    {
+        await this.BulkInsertAsync(entities);
+    }
+
+    public async Task BulkUpdateAsync<TEntity>(IEnumerable<TEntity> entities) where TEntity : class
+    {
+        await BulkUpdateAsync(entities);
+    }
+
+
     public Task BulkDeleteAsyncEntities<TEntity>(IQueryable<TEntity> entities, CancellationToken cancellationToken = default) where TEntity : class
     {
         return entities.ExecuteDeleteAsync(cancellationToken);

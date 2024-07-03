@@ -26,6 +26,7 @@ namespace StreamMaster.Infrastructure.EF
         IMapper mapper,
         IXmltv2Mxf xmltv2Mxf,
         IIconService iconService,
+        IMessageService messageService,
         IOptionsMonitor<Setting> intSettings,
         IJobStatusService jobStatusService,
         ISender sender,
@@ -116,7 +117,7 @@ namespace StreamMaster.Infrastructure.EF
         {
             get
             {
-                _m3uFile ??= new M3UFileRepository(M3UFileRepositoryLogger, this, jobStatusService, repositoryContext, intSettings, mapper);
+                _m3uFile ??= new M3UFileRepository(M3UFileRepositoryLogger, messageService, this, jobStatusService, repositoryContext, intSettings, mapper);
                 return _m3uFile;
             }
         }

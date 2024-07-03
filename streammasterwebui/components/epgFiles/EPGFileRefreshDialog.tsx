@@ -21,7 +21,7 @@ const EPGFileRefreshDialog = ({ selectedFile }: EPGFileRefreshDialogProperties) 
   };
 
   return (
-    <SMPopUp info="" title="Refresh EPG" onOkClick={() => accept()} icon="pi-sync" buttonClassName="icon-yellow" zIndex={10}>
+    <SMPopUp info="" title="Refresh EPG" onOkClick={() => accept()} icon="pi-sync" buttonClassName="icon-yellow" modal zIndex={11}>
       <div className="sm-center-stuff">
         <div className="text-container">{selectedFile.Name}</div>
       </div>

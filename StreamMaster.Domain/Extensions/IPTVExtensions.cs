@@ -152,6 +152,16 @@ public static partial class IPTVExtensions
         return dir.GetRandomFileName(fd.FileExtension);
     }
 
+    public static string EncodeUrlToBase64(string url)
+    {
+        if (string.IsNullOrEmpty(url))
+        {
+            throw new ArgumentNullException(nameof(url), "URL cannot be null or empty.");
+        }
+
+        byte[] plainTextBytes = Encoding.UTF8.GetBytes(url);
+        return Convert.ToBase64String(plainTextBytes);
+    }
     public static SMStream? StringToSMStream(this string bodyline)
     {
         SMStream SMStream = new();
@@ -287,7 +297,7 @@ public static partial class IPTVExtensions
 
         if (string.IsNullOrEmpty(SMStream.Id))
         {
-            SMStream.Id = SMStream.Url.ConvertStringToId();
+            SMStream.Id = EncodeUrlToBase64(SMStream.Url);//.ConvertStringToId();
         }
 
         return SMStream;

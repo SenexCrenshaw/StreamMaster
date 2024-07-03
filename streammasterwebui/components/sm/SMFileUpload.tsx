@@ -1,5 +1,4 @@
 import { UploadParamsSettings, useFileUpload } from '@components/file/useFileUpload';
-import { useStringValue } from '@lib/redux/hooks/stringValue';
 import { FileUpload } from 'primereact/fileupload';
 import { forwardRef, memo, useImperativeHandle, useRef, useState } from 'react';
 import { SourceOrFileDialogProperties } from './Interfaces/SourceOrFileDialogProperties';
@@ -9,6 +8,7 @@ type SMFileUploadProperties = UploadParamsSettings &
   SourceOrFileDialogProperties & {
     readonly onCreateFromSource: (source: string) => void;
     readonly onUploadComplete: () => void;
+    readonly onFileNameChanged: (fileName: string) => void;
   };
 
 export interface SMFileUploadRef {
@@ -18,7 +18,7 @@ export interface SMFileUploadRef {
 
 const SMFileUpload = forwardRef<SMFileUploadRef, SMFileUploadProperties>((props: SMFileUploadProperties, ref) => {
   const fileUploadReference = useRef<FileUpload>(null);
-  const { stringValue } = useStringValue(props.m3uFileDto ? 'm3uName' : 'epgName');
+  // const { stringValue } = useStringValue(props.m3uFileDto ? 'm3uName' : 'epgName');
   const { doUpload, progress, resetUploadState } = useFileUpload();
   const [block, setBlock] = useState<boolean>(false);
   const sourceOrFileDialogRef = useRef<SMFileUploadRef>(null);
@@ -30,6 +30,9 @@ const SMFileUpload = forwardRef<SMFileUploadRef, SMFileUploadProperties>((props:
         if (sourceOrFileDialogRef.current) {
           sourceOrFileDialogRef.current.reset();
         }
+        resetUploadState();
+
+        sourceOrFileDialogRef.current?.reset();
       },
       save: () => {
         if (sourceOrFileDialogRef.current) {
@@ -37,7 +40,7 @@ const SMFileUpload = forwardRef<SMFileUploadRef, SMFileUploadProperties>((props:
         }
       }
     }),
-    []
+    [resetUploadState]
   );
 
   const ReturnToParent = (didUpload?: boolean) => {
@@ -47,6 +50,7 @@ const SMFileUpload = forwardRef<SMFileUploadRef, SMFileUploadProperties>((props:
     resetUploadState();
 
     setBlock(false);
+    sourceOrFileDialogRef.current?.reset();
     props.onUploadComplete();
   };
 
@@ -75,14 +79,18 @@ const SMFileUpload = forwardRef<SMFileUploadRef, SMFileUploadProperties>((props:
     <SourceOrFileDialog
       ref={sourceOrFileDialogRef}
       progress={progress}
+      onFileNameChange={props.onFileNameChanged}
       onAdd={(source, file) => {
         if (source) {
           console.log('Add from source', source);
           props.onCreateFromSource(source);
           ReturnToParent();
-        } else if (file && stringValue) {
-          console.log('Add from file', file.name);
-          startUpload(stringValue, source, file);
+        } else if (file && props.m3uFileDto?.Name) {
+          console.log('Add M3U from file', file.name);
+          startUpload(props.m3uFileDto?.Name, source, file);
+        } else if (file && props.epgFileDto?.Name) {
+          console.log('Add EPG from file', file.name);
+          startUpload(props.epgFileDto?.Name, source, file);
         }
       }}
       {...props}

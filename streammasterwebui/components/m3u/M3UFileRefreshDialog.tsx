@@ -28,7 +28,8 @@ const M3UFileRefreshDialog = ({ selectedFile }: M3UFileRefreshDialogProperties) 
       icon="pi-sync"
       buttonClassName="icon-orange"
       tooltip="Refresh M3U"
-      zIndex={10}
+      modal
+      zIndex={11}
     >
       <div className="sm-center-stuff">
         <div className="text-container">{selectedFile.Name}</div>

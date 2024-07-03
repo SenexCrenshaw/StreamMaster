@@ -214,7 +214,7 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
                         .IsRequired()
                         .HasColumnType("citext");
 
-                    b.Property<int>("StationCount")
+                    b.Property<int>("StreamCount")
                         .HasColumnType("integer");
 
                     b.Property<string>("Url")
@@ -310,7 +310,7 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
             modelBuilder.Entity("StreamMaster.Domain.Models.SMStream", b =>
                 {
                     b.Property<string>("Id")
-                        .HasColumnType("citext");
+                        .HasColumnType("text");
 
                     b.Property<int>("ChannelNumber")
                         .HasColumnType("integer");

@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 
 using StreamMaster.Domain.Enums;
-using StreamMaster.Domain.Services;
 
 using System.Collections.Concurrent;
 
@@ -106,6 +105,11 @@ public partial class JobStatusService(ILogger<JobStatusService> logger) : IJobSt
     public bool IsRunning(string key)
     {
         return GetStatus(key).IsRunning;
+    }
+
+    public bool IsErrored(string key)
+    {
+        return GetStatus(key).IsErrored;
     }
 
     public bool ForceNextRun(string key)
