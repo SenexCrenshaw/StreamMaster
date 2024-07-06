@@ -1,6 +1,6 @@
 import { GetSettings } from '@lib/smAPI/Settings/SettingsCommands';
-import { createAsyncThunk } from '@reduxjs/toolkit';
 import { Logger } from '@lib/common/logger';
+import { createAsyncThunk } from '@reduxjs/toolkit';
 
 
 export const fetchGetSettings = createAsyncThunk('cache/getGetSettings', async (_: void, thunkAPI) => {

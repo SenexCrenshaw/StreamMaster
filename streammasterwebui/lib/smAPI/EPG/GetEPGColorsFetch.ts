@@ -1,6 +1,6 @@
 import { GetEPGColors } from '@lib/smAPI/EPG/EPGCommands';
-import { createAsyncThunk } from '@reduxjs/toolkit';
 import { Logger } from '@lib/common/logger';
+import { createAsyncThunk } from '@reduxjs/toolkit';
 
 
 export const fetchGetEPGColors = createAsyncThunk('cache/getGetEPGColors', async (_: void, thunkAPI) => {

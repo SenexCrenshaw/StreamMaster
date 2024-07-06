@@ -1,7 +1,11 @@
+import { isSkipToken } from '@lib/common/isSkipToken';
 import SignalRService from '@lib/signalr/SignalRService';
 import { APIResponse,CreateSMStreamRequest,DeleteSMStreamRequest,SetSMStreamsVisibleByIdRequest,ToggleSMStreamsVisibleByIdRequest,ToggleSMStreamVisibleByIdRequest,ToggleSMStreamVisibleByParametersRequest,UpdateSMStreamRequest,SMStreamDto,PagedResponse,QueryStringParameters } from '@lib/smAPI/smapiTypes';
 
 export const GetPagedSMStreams = async (parameters: QueryStringParameters): Promise<PagedResponse<SMStreamDto> | undefined> => {
+  if (isSkipToken(parameters) || parameters === undefined) {
+    return undefined;
+  }
   const signalRService = SignalRService.getInstance();
   return await signalRService.invokeHubCommand<PagedResponse<SMStreamDto>>('GetPagedSMStreams', parameters);
 };

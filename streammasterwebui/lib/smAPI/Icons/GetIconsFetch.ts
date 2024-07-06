@@ -1,6 +1,6 @@
 import { GetIcons } from '@lib/smAPI/Icons/IconsCommands';
-import { createAsyncThunk } from '@reduxjs/toolkit';
 import { Logger } from '@lib/common/logger';
+import { createAsyncThunk } from '@reduxjs/toolkit';
 
 
 export const fetchGetIcons = createAsyncThunk('cache/getGetIcons', async (_: void, thunkAPI) => {

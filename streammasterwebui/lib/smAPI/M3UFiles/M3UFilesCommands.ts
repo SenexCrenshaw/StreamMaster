@@ -1,3 +1,4 @@
+import { isSkipToken } from '@lib/common/isSkipToken';
 import SignalRService from '@lib/signalr/SignalRService';
 import { APIResponse,CreateM3UFileFromFormRequest,CreateM3UFileRequest,DeleteM3UFileRequest,ProcessM3UFileRequest,RefreshM3UFileRequest,UpdateM3UFileRequest,M3UFileDto,PagedResponse,QueryStringParameters } from '@lib/smAPI/smapiTypes';
 
@@ -12,6 +13,9 @@ export const GetM3UFiles = async (): Promise<M3UFileDto[] | undefined> => {
 };
 
 export const GetPagedM3UFiles = async (parameters: QueryStringParameters): Promise<PagedResponse<M3UFileDto> | undefined> => {
+  if (isSkipToken(parameters) || parameters === undefined) {
+    return undefined;
+  }
   const signalRService = SignalRService.getInstance();
   return await signalRService.invokeHubCommand<PagedResponse<M3UFileDto>>('GetPagedM3UFiles', parameters);
 };

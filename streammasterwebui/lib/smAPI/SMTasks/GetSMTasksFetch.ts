@@ -1,6 +1,6 @@
 import { GetSMTasks } from '@lib/smAPI/SMTasks/SMTasksCommands';
-import { createAsyncThunk } from '@reduxjs/toolkit';
 import { Logger } from '@lib/common/logger';
+import { createAsyncThunk } from '@reduxjs/toolkit';
 
 
 export const fetchGetSMTasks = createAsyncThunk('cache/getGetSMTasks', async (_: void, thunkAPI) => {

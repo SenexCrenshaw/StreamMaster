@@ -1,6 +1,6 @@
 import { GetSMChannelNames } from '@lib/smAPI/SMChannels/SMChannelsCommands';
-import { createAsyncThunk } from '@reduxjs/toolkit';
 import { Logger } from '@lib/common/logger';
+import { createAsyncThunk } from '@reduxjs/toolkit';
 
 
 export const fetchGetSMChannelNames = createAsyncThunk('cache/getGetSMChannelNames', async (_: void, thunkAPI) => {

@@ -1,7 +1,11 @@
+import { isSkipToken } from '@lib/common/isSkipToken';
 import SignalRService from '@lib/signalr/SignalRService';
 import { APIResponse,AutoSetEPGFromParametersRequest,AutoSetEPGRequest,AutoSetSMChannelNumbersFromParametersRequest,AutoSetSMChannelNumbersRequest,CopySMChannelRequest,CreateSMChannelFromStreamParametersRequest,CreateSMChannelFromStreamRequest,CreateSMChannelFromStreamsRequest,CreateSMChannelRequest,DeleteSMChannelRequest,DeleteSMChannelsFromParametersRequest,DeleteSMChannelsRequest,SetSMChannelEPGIdRequest,SetSMChannelGroupRequest,SetSMChannelLogoRequest,SetSMChannelNameRequest,SetSMChannelNumberRequest,SetSMChannelProxyRequest,SetSMChannelsLogoFromEPGFromParametersRequest,SetSMChannelsLogoFromEPGRequest,ToggleSMChannelsVisibleByIdRequest,ToggleSMChannelVisibleByIdRequest,ToggleSMChannelVisibleByParametersRequest,UpdateSMChannelRequest,SMChannelDto,VideoInfo,GetSMChannelRequest,GetVideoInfoFromIdRequest,PagedResponse,QueryStringParameters } from '@lib/smAPI/smapiTypes';
 
 export const GetPagedSMChannels = async (parameters: QueryStringParameters): Promise<PagedResponse<SMChannelDto> | undefined> => {
+  if (isSkipToken(parameters) || parameters === undefined) {
+    return undefined;
+  }
   const signalRService = SignalRService.getInstance();
   return await signalRService.invokeHubCommand<PagedResponse<SMChannelDto>>('GetPagedSMChannels', parameters);
 };
@@ -12,11 +16,17 @@ export const GetSMChannelNames = async (): Promise<string[] | undefined> => {
 };
 
 export const GetSMChannel = async (request: GetSMChannelRequest): Promise<SMChannelDto | undefined> => {
+  if ( request === undefined ) {
+    return undefined;
+  }
   const signalRService = SignalRService.getInstance();
   return await signalRService.invokeHubCommand<SMChannelDto>('GetSMChannel', request);
 };
 
 export const GetVideoInfoFromId = async (request: GetVideoInfoFromIdRequest): Promise<VideoInfo | undefined> => {
+  if ( request === undefined ) {
+    return undefined;
+  }
   const signalRService = SignalRService.getInstance();
   return await signalRService.invokeHubCommand<VideoInfo>('GetVideoInfoFromId', request);
 };

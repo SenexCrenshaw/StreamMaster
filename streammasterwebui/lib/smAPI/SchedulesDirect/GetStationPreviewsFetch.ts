@@ -1,6 +1,6 @@
 import { GetStationPreviews } from '@lib/smAPI/SchedulesDirect/SchedulesDirectCommands';
-import { createAsyncThunk } from '@reduxjs/toolkit';
 import { Logger } from '@lib/common/logger';
+import { createAsyncThunk } from '@reduxjs/toolkit';
 
 
 export const fetchGetStationPreviews = createAsyncThunk('cache/getGetStationPreviews', async (_: void, thunkAPI) => {

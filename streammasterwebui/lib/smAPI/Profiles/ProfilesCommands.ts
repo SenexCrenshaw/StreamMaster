@@ -1,7 +1,11 @@
+import { isSkipToken } from '@lib/common/isSkipToken';
 import SignalRService from '@lib/signalr/SignalRService';
 import { APIResponse,AddOutputProfileRequest,AddVideoProfileRequest,RemoveOutputProfileRequest,RemoveVideoProfileRequest,UpdateOutputProfileRequest,UpdateVideoProfileRequest,OutputProfileDto,VideoOutputProfileDto,GetOutputProfileRequest } from '@lib/smAPI/smapiTypes';
 
 export const GetOutputProfile = async (request: GetOutputProfileRequest): Promise<OutputProfileDto | undefined> => {
+  if ( request === undefined ) {
+    return undefined;
+  }
   const signalRService = SignalRService.getInstance();
   return await signalRService.invokeHubCommand<OutputProfileDto>('GetOutputProfile', request);
 };

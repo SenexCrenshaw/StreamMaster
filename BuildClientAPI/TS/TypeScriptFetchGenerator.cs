@@ -5,13 +5,6 @@ public static class TypeScriptFetchGenerator
     public static void GenerateFile(string namespaceName, List<MethodDetails> methods, string path)
     {
 
-        if (namespaceName == "ChannelGroups")
-
-        {
-            int aaa = 1;
-        }
-
-
         // Loop through each method to generate fetch functions
         foreach (MethodDetails method in methods.Where(a => a.IsGet))
         {
@@ -42,8 +35,13 @@ public static class TypeScriptFetchGenerator
             content.AppendLine($"import {{ {method.Name}Request }} from '../smapiTypes';");
         }
 
-        content.AppendLine("import { createAsyncThunk } from '@reduxjs/toolkit';");
+        if (method.IsGet && (method.IsGetPaged || method.ParameterNames.Length != 0))
+        {
+            content.AppendLine("import { isSkipToken } from '@lib/common/isSkipToken';");
+        }
+
         content.AppendLine("import { Logger } from '@lib/common/logger';");
+        content.AppendLine("import { createAsyncThunk } from '@reduxjs/toolkit';");
         content.AppendLine();
 
         return content.ToString();
@@ -64,11 +62,6 @@ public static class TypeScriptFetchGenerator
     private static string CreateGet(MethodDetails method)
     {
         StringBuilder content = new();
-        if (method.Name.Contains("GetEPGColors"))
-        {
-            int aa = 1;
-
-        }
 
         string param = string.IsNullOrEmpty(method.TsParameter) ? "void" : method.TsParameter;
         string paramName = string.IsNullOrEmpty(method.TsParameter) ? "_" : "param";
@@ -76,6 +69,14 @@ public static class TypeScriptFetchGenerator
 
         content.AppendLine($"export const fetch{method.Name} = createAsyncThunk('cache/get{method.Name}', async ({paramName}: {param}, thunkAPI) => {{");
         content.AppendLine("  try {");
+        if (paramName != "_")
+        {
+            content.AppendLine($"    if (isSkipToken({paramName}))");
+            content.AppendLine("    {");
+            content.AppendLine("        Logger.error('Skipping GetEPGFilePreviewById');");
+            content.AppendLine("        return undefined;");
+            content.AppendLine("    }");
+        }
         content.AppendLine($"    Logger.debug('Fetching {method.Name}');");
         content.AppendLine($"    const response = await {method.Name}({paramName2});");
         //if (method.IsList)
@@ -103,6 +104,11 @@ public static class TypeScriptFetchGenerator
 
         content.AppendLine($"export const fetch{method.Name} = createAsyncThunk('cache/get{method.Name}', async (query: string, thunkAPI) => {{");
         content.AppendLine("  try {");
+        content.AppendLine("    if (isSkipToken(query))");
+        content.AppendLine("    {");
+        content.AppendLine("        Logger.error('Skipping GetEPGFilePreviewById');");
+        content.AppendLine("        return undefined;");
+        content.AppendLine("    }");
         content.AppendLine("    if (query === undefined) return;");
         //content.AppendLine($"    Logger.debug('Fetching {method.Name}');");
         content.AppendLine("    const params = JSON.parse(query);");

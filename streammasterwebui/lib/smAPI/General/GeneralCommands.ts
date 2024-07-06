@@ -1,3 +1,4 @@
+import { isSkipToken } from '@lib/common/isSkipToken';
 import SignalRService from '@lib/signalr/SignalRService';
 import { APIResponse,SetTestTaskRequest,ImageDownloadServiceStatus,SDSystemStatus } from '@lib/smAPI/smapiTypes';
 

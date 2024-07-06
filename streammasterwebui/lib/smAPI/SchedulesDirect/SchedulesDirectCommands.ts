@@ -1,3 +1,4 @@
+import { isSkipToken } from '@lib/common/isSkipToken';
 import SignalRService from '@lib/signalr/SignalRService';
 import { APIResponse,AddHeadendToViewRequest,AddLineupRequest,AddStationRequest,RemoveHeadendToViewRequest,RemoveLineupRequest,RemoveStationRequest,SetStationsRequest,CountryData,HeadendDto,HeadendToView,LineupPreviewChannel,StationIdLineup,StationChannelName,StationPreview,SubscribedLineup,GetHeadendsByCountryPostalRequest,GetLineupPreviewChannelRequest } from '@lib/smAPI/smapiTypes';
 
@@ -7,6 +8,9 @@ export const GetAvailableCountries = async (): Promise<CountryData[] | undefined
 };
 
 export const GetHeadendsByCountryPostal = async (request: GetHeadendsByCountryPostalRequest): Promise<HeadendDto[] | undefined> => {
+  if ( request === undefined ) {
+    return undefined;
+  }
   const signalRService = SignalRService.getInstance();
   return await signalRService.invokeHubCommand<HeadendDto[]>('GetHeadendsByCountryPostal', request);
 };
@@ -17,6 +21,9 @@ export const GetHeadendsToView = async (): Promise<HeadendToView[] | undefined> 
 };
 
 export const GetLineupPreviewChannel = async (request: GetLineupPreviewChannelRequest): Promise<LineupPreviewChannel[] | undefined> => {
+  if ( request === undefined ) {
+    return undefined;
+  }
   const signalRService = SignalRService.getInstance();
   return await signalRService.invokeHubCommand<LineupPreviewChannel[]>('GetLineupPreviewChannel', request);
 };

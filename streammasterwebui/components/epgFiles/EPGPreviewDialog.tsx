@@ -3,6 +3,7 @@ import SMDataTable from '@components/smDataTable/SMDataTable';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 import useGetEPGFilePreviewById from '@lib/smAPI/EPGFiles/useGetEPGFilePreviewById';
 import { EPGFileDto, EPGFilePreviewDto } from '@lib/smAPI/smapiTypes';
+import { skipToken } from '@reduxjs/toolkit/query';
 import { memo, useMemo } from 'react';
 
 interface EPGPreviewDialogProperties {
@@ -10,7 +11,7 @@ interface EPGPreviewDialogProperties {
 }
 
 const EPGPreviewDialog = ({ selectedFile }: EPGPreviewDialogProperties) => {
-  const epgFilesGetEpgFilePreviewByIdQuery = useGetEPGFilePreviewById({ Id: selectedFile ? selectedFile.Id : 0 });
+  const epgFilesGetEpgFilePreviewByIdQuery = useGetEPGFilePreviewById(selectedFile ? { Id: selectedFile.Id } : skipToken);
 
   function imageBodyTemplate(data: EPGFilePreviewDto) {
     if (!data?.ChannelLogo || data.ChannelLogo === '') {

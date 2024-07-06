@@ -38,6 +38,9 @@ public static class TypeScriptCommandGenerator
                 method.ReturnType = $"PagedResponse<{method.ReturnType}>";
             }
             content.AppendLine($"export const {method.Name} = async (parameters: QueryStringParameters): Promise<PagedResponse<{method.ReturnEntityType}> | undefined> => {{");
+            content.AppendLine("  if (isSkipToken(parameters) || parameters === undefined) {");
+            content.AppendLine("    return undefined;");
+            content.AppendLine("  }");
             content.AppendLine("  const signalRService = SignalRService.getInstance();");
             content.AppendLine($"  return await signalRService.invokeHubCommand<PagedResponse<{method.ReturnEntityType}>>('{method.Name}', parameters);");
         }
@@ -57,6 +60,12 @@ public static class TypeScriptCommandGenerator
             else
             {
                 content.AppendLine($"export const {method.Name} = async (request: {method.TsParameter}): Promise<{method.TsReturnType} | undefined> => {{");
+                if (method.Name.StartsWith("Get"))
+                {
+                    content.AppendLine("  if ( request === undefined ) {");
+                    content.AppendLine("    return undefined;");
+                    content.AppendLine("  }");
+                }
                 content.AppendLine("  const signalRService = SignalRService.getInstance();");
                 content.AppendLine($"  return await signalRService.invokeHubCommand<{method.TsReturnType}>('{method.Name}', request);");
             }
@@ -93,6 +102,7 @@ public static class TypeScriptCommandGenerator
             imports.Add("QueryStringParameters");
         }
 
+        content.AppendLine("import { isSkipToken } from '@lib/common/isSkipToken';");
         content.AppendLine("import SignalRService from '@lib/signalr/SignalRService';");
         content.AppendLine($"import {{ {string.Join(",", imports)} }} from '@lib/smAPI/smapiTypes';");
         content.AppendLine();

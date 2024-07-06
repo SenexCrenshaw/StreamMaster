@@ -3,6 +3,8 @@ import store, { RootState } from '@lib/redux/store';
 import { useAppDispatch, useAppSelector } from '@lib/redux/hooks';
 import { clear, clearByTag, setField, setIsForced, setIsLoading } from './GetPagedM3UFilesSlice';
 import { useCallback,useEffect } from 'react';
+import { SkipToken } from '@reduxjs/toolkit/query';
+import { getParameters } from '@lib/common/getParameters';
 import { fetchGetPagedM3UFiles } from './GetPagedM3UFilesFetch';
 import {FieldData, M3UFileDto,PagedResponse,QueryStringParameters } from '@lib/smAPI/smapiTypes';
 
@@ -14,22 +16,23 @@ interface Result extends ExtendedQueryHookResult {
   SetIsForced: (force: boolean) => void;
   SetIsLoading: (isLoading: boolean, query: string) => void;
 }
-const useGetPagedM3UFiles = (params?: QueryStringParameters | undefined): Result => {
+const useGetPagedM3UFiles = (params?: QueryStringParameters | undefined | SkipToken): Result => {
   const dispatch = useAppDispatch();
-  const query = JSON.stringify(params);
+  const query = getParameters(params);
   const isForced = useAppSelector((state) => state.GetPagedM3UFiles.isForced ?? false);
 
   const SetIsForced = useCallback(
     (forceRefresh: boolean): void => {
+    if (query === undefined) return;
       dispatch(setIsForced({ force: forceRefresh }));
     },
-    [dispatch]
+    [dispatch, query]
   );
   const ClearByTag = useCallback(
     (tag: string): void => {
       dispatch(clearByTag({tag: tag }));
     },
-    [dispatch]
+    [dispatch, query]
   );
 
 
@@ -76,9 +79,9 @@ useEffect(() => {
 }, [data, query, SetIsForced]);
 
 useEffect(() => {
+  if (query === undefined) return;
   const state = store.getState().GetPagedM3UFiles;
   if (state.isLoading[query]) return;
-  if (query === undefined) return;
   if (data !== undefined && !isForced) return;
 
   SetIsLoading(true, query);

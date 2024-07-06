@@ -1,6 +1,6 @@
 import { GetAvailableCountries } from '@lib/smAPI/SchedulesDirect/SchedulesDirectCommands';
-import { createAsyncThunk } from '@reduxjs/toolkit';
 import { Logger } from '@lib/common/logger';
+import { createAsyncThunk } from '@reduxjs/toolkit';
 
 
 export const fetchGetAvailableCountries = createAsyncThunk('cache/getGetAvailableCountries', async (_: void, thunkAPI) => {

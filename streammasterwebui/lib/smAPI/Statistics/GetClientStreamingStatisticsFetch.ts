@@ -1,6 +1,6 @@
 import { GetClientStreamingStatistics } from '@lib/smAPI/Statistics/StatisticsCommands';
-import { createAsyncThunk } from '@reduxjs/toolkit';
 import { Logger } from '@lib/common/logger';
+import { createAsyncThunk } from '@reduxjs/toolkit';
 
 
 export const fetchGetClientStreamingStatistics = createAsyncThunk('cache/getGetClientStreamingStatistics', async (_: void, thunkAPI) => {

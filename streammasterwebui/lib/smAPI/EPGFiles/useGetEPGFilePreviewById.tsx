@@ -3,6 +3,8 @@ import store, { RootState } from '@lib/redux/store';
 import { useAppDispatch, useAppSelector } from '@lib/redux/hooks';
 import { clear, clearByTag, setField, setIsForced, setIsLoading } from './GetEPGFilePreviewByIdSlice';
 import { useCallback,useEffect } from 'react';
+import { SkipToken } from '@reduxjs/toolkit/query';
+import { getParameters } from '@lib/common/getParameters';
 import { fetchGetEPGFilePreviewById } from './GetEPGFilePreviewByIdFetch';
 import {FieldData, EPGFilePreviewDto,GetEPGFilePreviewByIdRequest } from '@lib/smAPI/smapiTypes';
 
@@ -14,28 +16,30 @@ interface Result extends ExtendedQueryHookResult {
   SetIsForced: (force: boolean) => void;
   SetIsLoading: (isLoading: boolean, query: string) => void;
 }
-const useGetEPGFilePreviewById = (params?: GetEPGFilePreviewByIdRequest): Result => {
+const useGetEPGFilePreviewById = (params?: GetEPGFilePreviewByIdRequest | undefined | SkipToken): Result => {
   const dispatch = useAppDispatch();
-  const param = params ? JSON.stringify(params) : undefined;
+  const param = getParameters(params);
   const isForced = useAppSelector((state) => state.GetEPGFilePreviewById.isForced ?? false);
 
   const SetIsForced = useCallback(
     (forceRefresh: boolean): void => {
+    if (param === undefined) return;
       dispatch(setIsForced({ force: forceRefresh }));
     },
-    [dispatch]
+    [dispatch, param]
   );
   const ClearByTag = useCallback(
     (tag: string): void => {
       dispatch(clearByTag({tag: tag }));
     },
-    [dispatch]
+    [dispatch, param]
   );
 
 
 
   const SetIsLoading = useCallback(
     (isLoading: boolean, param: string): void => {
+      if (param === undefined) return;
       dispatch(setIsLoading({ isLoading: isLoading, param: param }));
     },
     [dispatch]
@@ -75,13 +79,14 @@ useEffect(() => {
 }, [data, param, SetIsForced]);
 
 useEffect(() => {
+  if (param === undefined) return;
   const state = store.getState().GetEPGFilePreviewById;
   if (params === undefined || param === undefined || param === '{}' ) return;
   if (state.isLoading[param]) return;
   if (data !== undefined && !isForced) return;
 
   SetIsLoading(true, param);
-  dispatch(fetchGetEPGFilePreviewById(params));
+  dispatch(fetchGetEPGFilePreviewById(params as GetEPGFilePreviewByIdRequest));
 }, [SetIsLoading, data, dispatch, isForced, param, params]);
 
 const SetField = (fieldData: FieldData): void => {

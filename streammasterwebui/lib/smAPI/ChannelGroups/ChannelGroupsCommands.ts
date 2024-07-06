@@ -1,3 +1,4 @@
+import { isSkipToken } from '@lib/common/isSkipToken';
 import SignalRService from '@lib/signalr/SignalRService';
 import { APIResponse,CreateChannelGroupRequest,DeleteAllChannelGroupsFromParametersRequest,DeleteChannelGroupRequest,DeleteChannelGroupsRequest,UpdateChannelGroupRequest,UpdateChannelGroupsRequest,ChannelGroupDto,PagedResponse,QueryStringParameters } from '@lib/smAPI/smapiTypes';
 
@@ -12,6 +13,9 @@ export const GetChannelGroups = async (): Promise<ChannelGroupDto[] | undefined>
 };
 
 export const GetPagedChannelGroups = async (parameters: QueryStringParameters): Promise<PagedResponse<ChannelGroupDto> | undefined> => {
+  if (isSkipToken(parameters) || parameters === undefined) {
+    return undefined;
+  }
   const signalRService = SignalRService.getInstance();
   return await signalRService.invokeHubCommand<PagedResponse<ChannelGroupDto>>('GetPagedChannelGroups', parameters);
 };

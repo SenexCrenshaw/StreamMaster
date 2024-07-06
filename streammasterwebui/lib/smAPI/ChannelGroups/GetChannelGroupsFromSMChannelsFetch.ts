@@ -1,6 +1,6 @@
 import { GetChannelGroupsFromSMChannels } from '@lib/smAPI/ChannelGroups/ChannelGroupsCommands';
-import { createAsyncThunk } from '@reduxjs/toolkit';
 import { Logger } from '@lib/common/logger';
+import { createAsyncThunk } from '@reduxjs/toolkit';
 
 
 export const fetchGetChannelGroupsFromSMChannels = createAsyncThunk('cache/getGetChannelGroupsFromSMChannels', async (_: void, thunkAPI) => {

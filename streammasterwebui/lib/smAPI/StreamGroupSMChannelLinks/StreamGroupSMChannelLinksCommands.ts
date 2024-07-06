@@ -1,7 +1,11 @@
+import { isSkipToken } from '@lib/common/isSkipToken';
 import SignalRService from '@lib/signalr/SignalRService';
 import { APIResponse,AddSMChannelsToStreamGroupByParametersRequest,AddSMChannelsToStreamGroupRequest,AddSMChannelToStreamGroupRequest,RemoveSMChannelFromStreamGroupRequest,SMChannelDto,GetStreamGroupSMChannelsRequest } from '@lib/smAPI/smapiTypes';
 
 export const GetStreamGroupSMChannels = async (request: GetStreamGroupSMChannelsRequest): Promise<SMChannelDto[] | undefined> => {
+  if ( request === undefined ) {
+    return undefined;
+  }
   const signalRService = SignalRService.getInstance();
   return await signalRService.invokeHubCommand<SMChannelDto[]>('GetStreamGroupSMChannels', request);
 };

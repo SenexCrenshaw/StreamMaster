@@ -1,6 +1,6 @@
 import { GetDownloadServiceStatus } from '@lib/smAPI/General/GeneralCommands';
-import { createAsyncThunk } from '@reduxjs/toolkit';
 import { Logger } from '@lib/common/logger';
+import { createAsyncThunk } from '@reduxjs/toolkit';
 
 
 export const fetchGetDownloadServiceStatus = createAsyncThunk('cache/getGetDownloadServiceStatus', async (_: void, thunkAPI) => {
