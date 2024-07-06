@@ -23,6 +23,7 @@ internal class AddSMChannelsToStreamGroupRequestHandler(IRepositoryWrapper Repos
             {
                 return APIResponse.ErrorWithMessage("Channel not found");
             }
+
             List<int> streamGroupIds = smChannel.StreamGroups.Select(a => a.StreamGroupId).ToList();
 
             fieldDatas.Add(new(SMChannel.APIName, smChannel.Id, "StreamGroupIds", streamGroupIds));

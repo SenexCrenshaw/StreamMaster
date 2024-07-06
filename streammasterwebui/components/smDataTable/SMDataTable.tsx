@@ -35,6 +35,7 @@ import useSMDataSelectorValuesState from './hooks/useSMDataTableState';
 import { useSetQueryFilter } from './hooks/useSetQueryFilter';
 import { ColumnMeta } from './types/ColumnMeta';
 import { SMDataTableProps } from './types/smDataTableInterfaces';
+import { Logger } from '@lib/common/logger';
 
 const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
   const { state, setters } = useSMDataSelectorValuesState<T>(props.id, props.selectedItemsKey);
@@ -702,6 +703,26 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
     return col.className;
   }, []);
 
+  function findMissingKeys<T>(obj1: Record<string, T> | undefined, obj2: Record<string, T> | undefined): Record<string, T> {
+    // if (!obj2 || obj2 === undefined) {
+    //   return obj1 ?? {};
+    // }
+
+    if (obj1 === undefined || obj1 === null) {
+      return obj2 ?? {};
+    }
+
+    const result: Record<string, T> = {};
+
+    for (const key in obj2) {
+      if (!(key in obj1)) {
+        result[key] = obj2[key];
+      }
+    }
+
+    return result;
+  }
+
   // Logger.debug('DataTable', { id: props.id, dataSource: props.dataSource });
   return (
     <div
@@ -743,8 +764,15 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
             onRowReorder(e.value);
           }}
           lazy={isLazy}
-          onRowToggle={(e: DataTableRowToggleEvent) => {
-            setters.setExpandedRows(e.data as DataTableExpandedRows);
+          onRowToggle={(e: any) => {
+            if (props.singleExpand === true) {
+              Logger.debug('DataTable', { isArray: Array.isArray(e.data), data: e.data, state: state.expandedRows });
+              const expandedRows = findMissingKeys(state.expandedRows, e.data);
+
+              setters.setExpandedRows(expandedRows);
+            } else {
+              setters.setExpandedRows(e.data as DataTableExpandedRows);
+            }
           }}
           onSelectionChange={(e: DataTableSelectionMultipleChangeEvent<T[]> | DataTableSelectionSingleChangeEvent<T[]>) => {
             onSelectionChange(e);

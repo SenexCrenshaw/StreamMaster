@@ -45,7 +45,7 @@ const StreamingProxyTypeSelector: React.FC<StreamingProxyTypeSelectorProperties>
   const onChange = async (option: string) => {
     if (option === null || option === undefined) return;
     // setSelectedStreamProxyType(option);
-    await onSave(option);
+    if (!data) await onSave(option);
     if (clientOnChange) {
       clientOnChange(option);
     }

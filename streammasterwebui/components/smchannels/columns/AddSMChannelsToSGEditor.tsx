@@ -93,7 +93,7 @@ const AddSMChannelsToSGEditor = () => {
       onOkClick={async () => addSMChannelsToStreamGroup()}
       placement={smTableIsSimple ? 'bottom-end' : 'bottom'}
       title="Add to SG"
-      tooltip="Auto Set EPG"
+      tooltip={'Add to SG : ' + selectedStreamGroup.Name}
     >
       <div className="text-container sm-center-stuff">
         Add ({selectAll ? 'All' : getTotalCount}) channels to {selectedStreamGroup.Name}?

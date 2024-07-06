@@ -10,10 +10,9 @@ import { v4 as uuidv4 } from 'uuid';
 
 interface SMChannelSGEditorProperties {
   readonly smChannel: SMChannelDto;
-  readonly enableEditMode?: boolean;
 }
 
-const SMChannelSGEditor = ({ smChannel, enableEditMode }: SMChannelSGEditorProperties) => {
+const SMChannelSGEditor = ({ smChannel }: SMChannelSGEditorProperties) => {
   const { selectedStreamGroup } = useSelectedStreamGroup('StreamGroup');
 
   const addSMChannelToStreamGroup = useCallback(async () => {
@@ -68,22 +67,14 @@ const SMChannelSGEditor = ({ smChannel, enableEditMode }: SMChannelSGEditorPrope
 
   const tooltipClassName = useMemo(() => `basebutton-${uuidv4()}`, []);
 
-  if (isSMChannelInStreamGroup()) {
-    return (
-      <div className="flex justify-content-center align-items-center">
-        <SGRemoveButton onClick={removeSMChannelFromStreamGroup} tooltip={`Remove From ${name}`} />
-      </div>
-    );
-  }
-
-  if (!selectedStreamGroup) {
+  if (!selectedStreamGroup || selectedStreamGroup.Name === 'ALL') {
     return (
       <>
         <Tooltip target={`.${tooltipClassName}`} />
         <div className="flex justify-content-center align-items-center">
           <span
             className={tooltipClassName}
-            data-pr-tooltip="Please Select a SsG"
+            data-pr-tooltip="Please Select a SG"
             data-pr-position="left"
             data-pr-showdelay={400}
             data-pr-hidedelay={100}
@@ -93,6 +84,14 @@ const SMChannelSGEditor = ({ smChannel, enableEditMode }: SMChannelSGEditorPrope
           </span>
         </div>
       </>
+    );
+  }
+
+  if (isSMChannelInStreamGroup()) {
+    return (
+      <div className="flex justify-content-center align-items-center">
+        <SGRemoveButton onClick={removeSMChannelFromStreamGroup} tooltip={`Remove From ${name}`} />
+      </div>
     );
   }
 

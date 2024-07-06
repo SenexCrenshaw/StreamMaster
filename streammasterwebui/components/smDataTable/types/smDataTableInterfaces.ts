@@ -32,6 +32,7 @@ interface BaseDataSelectorProperties<T> extends DataTableHeaderProperties {
   isLoading?: boolean;
   lazy?: boolean;
   noIsLoading?: boolean;
+  singleExpand?: boolean;
   noSourceHeader?: boolean;
   reorderable?: boolean;
   rows?: number;

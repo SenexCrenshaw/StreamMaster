@@ -1,6 +1,6 @@
 import OKButton from '@components/buttons/OKButton';
 import ResetButton from '@components/buttons/ResetButton';
-import SMPopUp from '@components/sm/SMPopUp';
+import SMPopUp, { SMPopUpRef } from '@components/sm/SMPopUp';
 import useIsRowLoading from '@lib/redux/hooks/useIsRowLoading';
 import { UpdateSMChannel } from '@lib/smAPI/SMChannels/SMChannelsCommands';
 import { SMChannelDto, UpdateSMChannelRequest } from '@lib/smAPI/smapiTypes';
@@ -15,7 +15,7 @@ const EditSMChannelDialog = ({ smChannelDto }: CopySMChannelProperties) => {
   const dialogRef = useRef<SMChannelDialogRef>(null);
   const [saveEnabled, setSaveEnabled] = useState<boolean>(false);
   const [originalDto, setOriginalDto] = useState<SMChannelDto | undefined>(undefined);
-
+  const propUpRef = useRef<SMPopUpRef>(null);
   const [isRowLoading, setIsRowLoading] = useIsRowLoading({ Entity: 'SMChannel', Id: smChannelDto.Id.toString() });
 
   useEffect(() => {
@@ -39,6 +39,7 @@ const EditSMChannelDialog = ({ smChannelDto }: CopySMChannelProperties) => {
         })
         .finally(() => {
           setIsRowLoading(false);
+          propUpRef.current?.hide();
         });
     },
     [smChannelDto, setIsRowLoading]
@@ -62,6 +63,7 @@ const EditSMChannelDialog = ({ smChannelDto }: CopySMChannelProperties) => {
       modal
       modalCentered
       noBorderChildren
+      ref={propUpRef}
       showRemember={false}
       title={`EDIT CHANNEL : ${smChannelDto.Name}`}
       header={

@@ -45,10 +45,11 @@ const SMChannelDialog = forwardRef<SMChannelDialogRef, SMChannelDialogProperties
       request.Name !== smChannel.Name ||
       request.Logo !== smChannel.Logo ||
       request.Group !== smChannel.Group ||
+      request.StreamingProxyType !== smChannel.StreamingProxyType ||
       request.ChannelNumber !== smChannel.ChannelNumber ||
       request.EPGId !== smChannel.EPGId
     );
-  }, [request.ChannelNumber, request.EPGId, request.Group, request.Logo, request.Name, smChannel]);
+  }, [request.ChannelNumber, request.EPGId, request.Group, request.Logo, request.Name, request.StreamingProxyType, smChannel]);
 
   const doSave = useCallback(() => {
     if (!isSaveEnabled) {

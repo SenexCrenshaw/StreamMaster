@@ -17,11 +17,8 @@ interface SMChannelSGColumnConfigProperties {
 export const useSMChannelSGColumnConfig = ({ dataKey, id }: SMChannelSGColumnConfigProperties) => {
   const [previousSGID, setPreviousSGID] = useState<number>(0);
   const { queryAdditionalFilters, setQueryAdditionalFilters } = useQueryAdditionalFilters(id);
-
   const { selectedStreamGroup } = useSelectedStreamGroup('StreamGroup');
-
   const { showHidden, setShowHidden } = useShowHidden(dataKey); //+ selectedStreamGroup?.Id ?? '0');
-
   const bodyTemplate = useCallback((bodyData: SMChannelDto) => {
     return <SMChannelSGEditor smChannel={bodyData} />;
   }, []);
