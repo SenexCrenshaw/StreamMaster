@@ -123,11 +123,14 @@
 }
 
 @mixin sm-border-transparent() {
+    transition: border-color 0.15s;
     border-radius: $borderRadius;
     border-color: transparent;
     border-width: $inputBorder-size;
     border-style: solid;
+
 }
+
 
 .sm-border-transparent {
     @include sm-border-transparent();
@@ -251,6 +254,17 @@ $shadow-color-sg: rgba($iconSG, $shadow-opacity); // Define the shadow color wit
     }
 }
 
+@mixin input-hover-transparent() {
+    transition: border-color 0.15s;
+
+    &:not(.p-disabled):hover:not(:focus) {
+        border-color: transparent;
+        border-radius: $borderRadius;
+        border-style: solid;
+        border-width: $inputBorder-size;
+    }
+}
+
 @mixin input-hover-dark() {
     transition: border-color 0.15s;
 
@@ -281,6 +295,10 @@ $shadow-color-sg: rgba($iconSG, $shadow-opacity); // Define the shadow color wit
 
 .sm-hover {
     @include input-hover();
+}
+
+.sm-hover-transparent {
+    @include input-hover-transparent();
 }
 
 .sm-menuitem {
@@ -380,5 +398,13 @@ $shadow-color-sg: rgba($iconSG, $shadow-opacity); // Define the shadow color wit
 .no-top-border {
     .p-datatable-wrapper {
         border-top-width: 0;
+    }
+}
+
+.border-highlight {
+    border-color: $iconOrange !important;
+
+    &:not(.p-disabled):hover:not(:focus) {
+        border-color: $iconOrange !important;
     }
 }

@@ -35,7 +35,7 @@ const SettingsNameRegexAddDialog = (props: SettingsNameRegexAddDialogProperties)
 
   return (
     <SMPopUp header="Add Regex" icon="pi pi-plus" tooltip="Edit Group">
-      <div className="m-0 p-0 border-1 border-round surface-border">
+      <div className="m-0 p-0 border-round surface-border">
         <div className="m-3">
           <InputText autoFocus className="withpadding p-inputtext-sm w-full" onChange={(e) => setRegex(e.target.value)} placeholder="Regex" value={regex} />
 

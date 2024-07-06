@@ -15,7 +15,7 @@ import { memo, useCallback, useEffect, useMemo } from 'react';
 import { AuthenticationSettings } from './AuthenticationSettings';
 import { BackupSettings } from './BackupSettings';
 import { DevelopmentSettings } from './DevelopmentSettings';
-import { FilesEPGM3USettings } from './FilesEPGM3USettings';
+import { MiscSettings } from './MiscSettings';
 import { GeneralSettings } from './GeneralSettings';
 import { SDSettings } from './SDSettings';
 import { StreamingSettings } from './StreamingSettings';
@@ -93,19 +93,19 @@ export const SettingsEditor = () => {
       <div className="flex flex-column w-full">
         <ScrollPanel className="w-full" style={{ height: 'calc(100vh - 80px)' }}>
           <div className="flex flex-row justify-content-start align-items-start">
-            <div className="w-6 pr-1 flex flex-column gap-3">
-              <AuthenticationSettings />
+            <div className="w-4 pr-1 flex flex-column gap-3">
               <GeneralSettings />
-              <FilesEPGM3USettings />
-              <BackupSettings />
+              <AuthenticationSettings />
+              <DevelopmentSettings />
             </div>
-            <div className="w-6 pl-1 flex flex-column gap-3">
-              <StreamingSettings />
+            <div className="w-4 pl-1 flex flex-column gap-3">
               <SDSettings />
             </div>
-          </div>
-          <div className="w-12 pl-1 pt-3">
-            <DevelopmentSettings />
+            <div className="w-4 pl-1 flex flex-column gap-3">
+              <StreamingSettings />
+              <BackupSettings />
+              <MiscSettings />
+            </div>
           </div>
         </ScrollPanel>
         <div className="flex mt-2 justify-content-center align-items-end">

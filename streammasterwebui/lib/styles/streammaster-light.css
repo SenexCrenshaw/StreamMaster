@@ -7764,6 +7764,7 @@
 }
 
 .sm-border-transparent {
+  transition: border-color 0.15s;
   border-radius: 6px;
   border-color: transparent;
   border-width: 0.1rem;
@@ -7839,6 +7840,16 @@
   border-style: solid;
   border-width: 0.1rem;
   color: #bcbfbf;
+}
+
+.sm-hover-transparent {
+  transition: border-color 0.15s;
+}
+.sm-hover-transparent:not(.p-disabled):hover:not(:focus) {
+  border-color: transparent;
+  border-radius: 6px;
+  border-style: solid;
+  border-width: 0.1rem;
 }
 
 .sm-menuitem {
@@ -7964,6 +7975,13 @@
 
 .no-top-border .p-datatable-wrapper {
   border-top-width: 0;
+}
+
+.border-highlight {
+  border-color: #ff935a !important;
+}
+.border-highlight:not(.p-disabled):hover:not(:focus) {
+  border-color: #ff935a !important;
 }
 
 .channel-row-selected {

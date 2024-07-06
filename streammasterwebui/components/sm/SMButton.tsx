@@ -23,6 +23,7 @@ const SMButton = forwardRef<Button, InternalSMButtonProperties>(
       isLeft = false,
       buttonIsLoading: isLoading = false,
       buttonLarge = false,
+      noHover = false,
       outlined = false,
       rounded = true,
       tooltip = '',
@@ -103,6 +104,19 @@ const SMButton = forwardRef<Button, InternalSMButtonProperties>(
       return divClass;
     }, [buttonLarge, buttonLargeImage]);
 
+    const getHoverDiv = useMemo(() => {
+      if (buttonLarge) {
+        return 'sm-input-large';
+      }
+      let divClass = 'sm-border-transparent ';
+      if (noHover === true) {
+        divClass += ' sm-hover-transparent';
+      } else {
+        divClass += ' sm-hover';
+      }
+      return divClass;
+    }, [buttonLarge, noHover]);
+
     if (props.children) {
       if (buttonDarkBackground) {
         return (
@@ -134,8 +148,9 @@ const SMButton = forwardRef<Button, InternalSMButtonProperties>(
           </div>
         );
       }
+
       return (
-        <div className={buttonLarge ? 'sm-input-large' : 'sm-border-transparent sm-hover'}>
+        <div className={getHoverDiv}>
           <>
             <Tooltip target={`.${tooltipClassName}`} />
             <div

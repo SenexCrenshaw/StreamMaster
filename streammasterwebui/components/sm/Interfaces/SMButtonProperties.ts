@@ -16,7 +16,7 @@ export interface SMButtonProperties extends SMModalProperties {
   readonly iconFilled?: boolean;
   readonly isLeft?: boolean;
   readonly label?: string;
-
+  readonly noHover?: boolean;
   readonly outlined?: boolean | undefined;
   readonly rounded?: boolean;
   readonly tooltip?: string;

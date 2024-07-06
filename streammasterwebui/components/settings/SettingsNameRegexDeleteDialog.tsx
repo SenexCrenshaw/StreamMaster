@@ -31,7 +31,7 @@ const SettingsNameRegexDeleteDialog = (props: SettingsNameRegexDeleteDialogPrope
   return (
     <>
       <SMPopUp icon="pi-minus" header={`Delete Regex: ${props.value}`} tooltip="Delete">
-        <div className="m-0 p-0 border-1 border-round surface-border">
+        <div className="m-0 p-0 border-round surface-border">
           <div className="m-3">
             <div className="card flex mt-3 flex-wrap gap-1 justify-content-center">
               <Button icon="pi pi-times" label="Cancel" onClick={() => ReturnToParent()} rounded severity="warning" />
