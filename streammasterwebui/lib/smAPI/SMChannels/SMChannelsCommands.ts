@@ -1,5 +1,5 @@
 import SignalRService from '@lib/signalr/SignalRService';
-import { APIResponse,AutoSetEPGFromParametersRequest,AutoSetEPGRequest,AutoSetSMChannelNumbersRequest,CopySMChannelRequest,CreateSMChannelFromStreamParametersRequest,CreateSMChannelFromStreamRequest,CreateSMChannelFromStreamsRequest,CreateSMChannelRequest,DeleteSMChannelRequest,DeleteSMChannelsFromParametersRequest,DeleteSMChannelsRequest,SetSMChannelEPGIdRequest,SetSMChannelGroupRequest,SetSMChannelLogoRequest,SetSMChannelNameRequest,SetSMChannelNumberRequest,SetSMChannelProxyRequest,SetSMChannelsLogoFromEPGFromParametersRequest,SetSMChannelsLogoFromEPGRequest,ToggleSMChannelsVisibleByIdRequest,ToggleSMChannelVisibleByIdRequest,ToggleSMChannelVisibleByParametersRequest,UpdateSMChannelRequest,SMChannelDto,VideoInfo,GetSMChannelRequest,GetVideoInfoFromIdRequest,PagedResponse,QueryStringParameters } from '@lib/smAPI/smapiTypes';
+import { APIResponse,AutoSetEPGFromParametersRequest,AutoSetEPGRequest,AutoSetSMChannelNumbersFromParametersRequest,AutoSetSMChannelNumbersRequest,CopySMChannelRequest,CreateSMChannelFromStreamParametersRequest,CreateSMChannelFromStreamRequest,CreateSMChannelFromStreamsRequest,CreateSMChannelRequest,DeleteSMChannelRequest,DeleteSMChannelsFromParametersRequest,DeleteSMChannelsRequest,SetSMChannelEPGIdRequest,SetSMChannelGroupRequest,SetSMChannelLogoRequest,SetSMChannelNameRequest,SetSMChannelNumberRequest,SetSMChannelProxyRequest,SetSMChannelsLogoFromEPGFromParametersRequest,SetSMChannelsLogoFromEPGRequest,ToggleSMChannelsVisibleByIdRequest,ToggleSMChannelVisibleByIdRequest,ToggleSMChannelVisibleByParametersRequest,UpdateSMChannelRequest,SMChannelDto,VideoInfo,GetSMChannelRequest,GetVideoInfoFromIdRequest,PagedResponse,QueryStringParameters } from '@lib/smAPI/smapiTypes';
 
 export const GetPagedSMChannels = async (parameters: QueryStringParameters): Promise<PagedResponse<SMChannelDto> | undefined> => {
   const signalRService = SignalRService.getInstance();
@@ -29,6 +29,11 @@ export const AutoSetEPGFromParameters = async (request: AutoSetEPGFromParameters
 export const AutoSetEPG = async (request: AutoSetEPGRequest): Promise<APIResponse | undefined> => {
   const signalRService = SignalRService.getInstance();
   return await signalRService.invokeHubCommand<APIResponse>('AutoSetEPG', request);
+};
+
+export const AutoSetSMChannelNumbersFromParameters = async (request: AutoSetSMChannelNumbersFromParametersRequest): Promise<APIResponse | undefined> => {
+  const signalRService = SignalRService.getInstance();
+  return await signalRService.invokeHubCommand<APIResponse>('AutoSetSMChannelNumbersFromParameters', request);
 };
 
 export const AutoSetSMChannelNumbers = async (request: AutoSetSMChannelNumbersRequest): Promise<APIResponse | undefined> => {

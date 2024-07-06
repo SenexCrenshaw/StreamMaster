@@ -301,9 +301,7 @@ export const SignalRProvider: React.FC<SignalRProviderProps> = ({ children }) =>
       }
       if (entity === 'SchedulesDirect') {
         getAvailableCountries.SetIsForced(true);
-        getHeadendsByCountryPostal.SetIsForced(true);
         getHeadendsToView.SetIsForced(true);
-        getLineupPreviewChannel.SetIsForced(true);
         getSelectedStationIds.SetIsForced(true);
         getStationChannelNames.SetIsForced(true);
         getStationPreviews.SetIsForced(true);
@@ -320,7 +318,6 @@ export const SignalRProvider: React.FC<SignalRProviderProps> = ({ children }) =>
       if (entity === 'Statistics') {
         getChannelStreamingStatistics.SetIsForced(true);
         getClientStreamingStatistics.SetIsForced(true);
-        getStreamingStatisticsForChannel.SetIsForced(true);
         getStreamStreamingStatistics.SetIsForced(true);
         return;
       }
@@ -336,7 +333,6 @@ export const SignalRProvider: React.FC<SignalRProviderProps> = ({ children }) =>
         return;
       }
       if (entity === 'EPGFiles') {
-        getEPGFilePreviewById.SetIsForced(true);
         getEPGFiles.SetIsForced(true);
         getEPGNextEPGNumber.SetIsForced(true);
         getPagedEPGFiles.SetIsForced(true);
@@ -353,16 +349,13 @@ export const SignalRProvider: React.FC<SignalRProviderProps> = ({ children }) =>
         return;
       }
       if (entity === 'Profiles') {
-        getOutputProfile.SetIsForced(true);
         getOutputProfiles.SetIsForced(true);
         getVideoProfiles.SetIsForced(true);
         return;
       }
       if (entity === 'SMChannels') {
         getPagedSMChannels.SetIsForced(true);
-        getSMChannel.SetIsForced(true);
         getSMChannelNames.SetIsForced(true);
-        getVideoInfoFromId.SetIsForced(true);
         return;
       }
       if (entity === 'SMStreams') {
@@ -371,7 +364,6 @@ export const SignalRProvider: React.FC<SignalRProviderProps> = ({ children }) =>
       }
       if (entity === 'StreamGroups') {
         getPagedStreamGroups.SetIsForced(true);
-        getStreamGroup.SetIsForced(true);
         getStreamGroupProfiles.SetIsForced(true);
         getStreamGroups.SetIsForced(true);
         return;
@@ -380,16 +372,8 @@ export const SignalRProvider: React.FC<SignalRProviderProps> = ({ children }) =>
         getSettings.SetIsForced(true);
         return;
       }
-      if (entity === 'SMChannelStreamLinks') {
-        getSMChannelStreams.SetIsForced(true);
-        return;
-      }
       if (entity === 'SMTasks') {
         getSMTasks.SetIsForced(true);
-        return;
-      }
-      if (entity === 'StreamGroupSMChannelLinks') {
-        getStreamGroupSMChannels.SetIsForced(true);
         return;
       }
     },

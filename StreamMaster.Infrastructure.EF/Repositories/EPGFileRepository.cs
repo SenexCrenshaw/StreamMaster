@@ -72,6 +72,7 @@ public class EPGFileRepository(ILogger<EPGFileRepository> intLogger, IXmltv2Mxf 
 
             ret.Add(new EPGFilePreviewDto
             {
+                Id = service.Id,
                 ChannelName = service.Name,
                 ChannelNumber = stationId,
                 ChannelLogo = service?.mxfGuideImage?.ImageUrl ?? "",

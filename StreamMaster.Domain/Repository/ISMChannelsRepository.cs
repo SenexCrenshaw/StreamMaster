@@ -7,6 +7,8 @@ namespace StreamMaster.Domain.Repository;
 
 public interface ISMChannelsRepository : IRepositoryBase<SMChannel>
 {
+    Task<IdIntResultWithResponse> AutoSetSMChannelNumbersFromParameters(int StreamGroupId, QueryStringParameters Parameters, int? StartingNumber, bool? OverwriteExisting);
+    Task<IdIntResultWithResponse> AutoSetSMChannelNumbers(int StreamGroupId, List<int> SMChannelIds, int? StartingNumber, bool? OverwriteExisting);
     Task<IQueryable<SMChannel>> GetPagedSMChannelsQueryable(QueryStringParameters parameters);
     Task<APIResponse> AddSMStreamToSMChannel(int SMChannelId, string SMStreamId);
     Task<List<FieldData>> AutoSetEPGFromIds(List<int> ids, CancellationToken cancellationToken);

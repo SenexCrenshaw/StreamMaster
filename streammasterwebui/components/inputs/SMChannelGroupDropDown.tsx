@@ -4,6 +4,7 @@ import { ReactNode, forwardRef, memo, useEffect, useMemo, useRef, useState } fro
 
 import SMDropDown, { SMDropDownRef } from '@components/sm/SMDropDown';
 import useIsRowLoading from '@lib/redux/hooks/useIsRowLoading';
+import ChannelGroupAddDialog from '@components/channelGroups/ChannelGroupAddDialog';
 
 interface SMChannelGroupDropDownProperties {
   readonly autoPlacement?: boolean;
@@ -64,6 +65,15 @@ const SMChannelGroupDropDown = forwardRef<SMDropDownRef, SMChannelGroupDropDownP
     );
   }, [channelGroup]);
 
+  const headerRightTemplate = useMemo(
+    () => (
+      <>
+        <ChannelGroupAddDialog />
+      </>
+    ),
+    []
+  );
+
   const getDiv = useMemo(() => {
     let ret = 'stringedito';
 
@@ -100,6 +110,7 @@ const SMChannelGroupDropDown = forwardRef<SMDropDownRef, SMChannelGroupDropDownP
           filter
           filterBy="Name"
           info=""
+          header={headerRightTemplate}
           buttonIsLoading={isLoading || props.isLoading || isRowLoading}
           itemTemplate={itemTemplate}
           onChange={(e) => {

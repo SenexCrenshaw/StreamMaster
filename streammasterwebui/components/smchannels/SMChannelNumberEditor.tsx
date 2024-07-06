@@ -28,7 +28,7 @@ const SMChannelNumberEditor = ({ data, style }: SMChannelNumberEditorProperties)
       const toSend = {} as SetSMChannelNumberRequest;
 
       toSend.SMChannelId = data.Id;
-      toSend.ChannelNumber = channelNumber;
+      toSend.ChannelNumber = channelNumber ?? 0;
 
       await SetSMChannelNumber(toSend)
         .then(() => {})

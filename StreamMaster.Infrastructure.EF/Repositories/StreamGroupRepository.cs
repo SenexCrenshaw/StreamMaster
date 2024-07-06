@@ -6,16 +6,12 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
-using StreamMaster.Application.StreamGroups.Queries;
 using StreamMaster.Domain.API;
 using StreamMaster.Domain.Authentication;
 using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Filtering;
-using StreamMaster.SchedulesDirect.Domain.Models;
 
-using System.Text.Json;
 using System.Web;
-
 namespace StreamMaster.Infrastructure.EF.Repositories;
 
 public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, ISender sender, IRepositoryContext repositoryContext, IMapper mapper, IOptionsMonitor<Setting> intSettings, IHttpContextAccessor httpContextAccessor)
@@ -66,7 +62,7 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, ISende
         //    : RepositoryContext.StreamGroupSMChannelLinks.Where(a => a.StreamGroupId == streamGroupDto.Id).Count();
         if (streamGroupDto.StreamGroupProfiles.Count > 0)
         {
-            foreach (var sgprofile in streamGroupDto.StreamGroupProfiles)
+            foreach (StreamGroupProfileDto sgprofile in streamGroupDto.StreamGroupProfiles)
             {
                 //string encodedStreamGroupNumber = streamGroupDto.Id.EncodeValue128(Settings.ServerKey);
                 string encodedStreamGroupNumber = streamGroupDto.Id.EncodeValues128(sgprofile.Id, Settings.ServerKey);
@@ -82,7 +78,7 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, ISende
                 sgprofile.HDHRLink = $"{Url}/api/streamgroups/{encodedStreamGroupNumber}";
             }
 
-            var defaultProfile = streamGroupDto.StreamGroupProfiles.FirstOrDefault(a => a.Name == "Default");
+            StreamGroupProfileDto? defaultProfile = streamGroupDto.StreamGroupProfiles.FirstOrDefault(a => a.Name == "Default");
             if (defaultProfile != null)
             {
                 streamGroupDto.ShortM3ULink = defaultProfile.ShortM3ULink;
@@ -156,7 +152,7 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, ISende
 
         IQueryable<StreamGroupSMChannelLink> smChannels = RepositoryContext.StreamGroupSMChannelLinks.Where(a => a.StreamGroupId == StreamGroupId);
 
-        var profiles = RepositoryContext.StreamGroupProfiles.Where(a => a.StreamGroupId == StreamGroupId);
+        IQueryable<StreamGroupProfile> profiles = RepositoryContext.StreamGroupProfiles.Where(a => a.StreamGroupId == StreamGroupId);
 
         RepositoryContext.StreamGroupChannelGroups.RemoveRange(channelGroups);
         RepositoryContext.StreamGroupSMChannelLinks.RemoveRange(smChannels);
@@ -233,56 +229,6 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, ISende
         return FirstOrDefault(a => a.Id == streamGrouId, tracking: false);
     }
 
-    public async Task<IdIntResultWithResponse> AutoSetSMChannelNumbers(int streamGroupId, QueryStringParameters Parameters)
-    {
-        IdIntResultWithResponse ret = new();
-
-        StreamGroup? streamGroup = await GetQuery(true).FirstOrDefaultAsync(a => a.Id == streamGroupId);
-
-        if (streamGroup == null)
-        {
-            ret.APIResponse = APIResponse.ErrorWithMessage("Stream Group not found");
-            return ret;
-        }
-
-        var sgProfile = RepositoryContext.StreamGroupProfiles.FirstOrDefault(a => a.StreamGroupId == streamGroupId && a.OutputProfileName == "Default") ?? new StreamGroupProfile();
-
-
-        (List<VideoStreamConfig> videoStreamConfigs, OutputProfile outputProfile) = await sender.Send(new GetStreamGroupVideoConfigs(streamGroupId, sgProfile.Id));
-
-        if (string.IsNullOrEmpty(Parameters.JSONFiltersString))
-        {
-            ret.APIResponse = APIResponse.ErrorWithMessage("JSONFiltersString null");
-            return ret;
-        }
-
-        List<DataTableFilterMetaData>? filters = JsonSerializer.Deserialize<List<DataTableFilterMetaData>>(Parameters.JSONFiltersString);
-        IQueryable<SMChannel> channels = FilterHelper<SMChannel>.ApplyFiltersAndSort(streamGroup.SMChannels.Select(a => a.SMChannel).AsQueryable(), filters, Parameters.OrderBy, true);
-
-
-        foreach (SMChannel channel in channels)
-        {
-            var validconfig = videoStreamConfigs.FirstOrDefault(a => a.Id == channel.Id);
-
-            channel.ChannelNumber = validconfig.ChannelNumber;
-
-            RepositoryContext.SMChannels.Update(channel);
-            ret.Add(new IdIntResult { Id = channel.Id, Result = channel });
-        }
-
-        await RepositoryContext.SaveChangesAsync();
-
-        return ret;
-    }
-
-    private int GetNextNumber(int startNumber, ConcurrentHashSet<int> existingNumbers)
-    {
-        while (existingNumbers.Contains(startNumber))
-        {
-            startNumber++;
-        }
-        return startNumber;
-    }
     public override IQueryable<StreamGroup> GetQuery(bool tracking = false)
     {
         return tracking
@@ -292,7 +238,6 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, ISende
 
     public override IQueryable<StreamGroup> GetQuery(QueryStringParameters parameters, bool tracking = false)
     {
-        // If there are no filters or order specified, just return all entities.
         if (string.IsNullOrEmpty(parameters.JSONFiltersString) && string.IsNullOrEmpty(parameters.OrderBy))
         {
             return GetQuery(tracking);
@@ -301,4 +246,5 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, ISende
         List<DataTableFilterMetaData> filters = Utils.GetFiltersFromJSON(parameters.JSONFiltersString);
         return GetQuery(filters, parameters.OrderBy, tracking: tracking);
     }
+
 }

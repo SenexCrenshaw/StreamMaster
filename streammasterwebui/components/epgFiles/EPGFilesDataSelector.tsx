@@ -12,6 +12,7 @@ import StringEditor from '../inputs/StringEditor';
 import EPGFileDeleteDialog from './EPGFileDeleteDialog';
 import EPGFileEditDialog from './EPGFileEditDialog';
 import EPGFileRefreshDialog from './EPGFileRefreshDialog';
+import EPGPreviewDialog from './EPGPreviewDialog';
 
 const EPGFilesDataSelector = () => {
   interface EPGUpdateProperties {
@@ -137,6 +138,7 @@ const EPGFilesDataSelector = () => {
     }
     return (
       <div className="flex justify-content-center align-items-center">
+        <EPGPreviewDialog selectedFile={rowData} />
         <EPGFileRefreshDialog selectedFile={rowData} />
         <EPGFileDeleteDialog selectedFile={rowData} />
         <EPGFileEditDialog selectedFile={rowData} />
@@ -184,7 +186,7 @@ const EPGFilesDataSelector = () => {
         bodyTemplate: actionTemplate,
         field: 'autoUpdate',
         header: 'Actions',
-        width: 40
+        width: 46
       }
     ],
     [colorTemplate, nameEditorTemplate, lastDownloadedTemplate, channelCountTemplate, programmeCountTemplate, actionTemplate]

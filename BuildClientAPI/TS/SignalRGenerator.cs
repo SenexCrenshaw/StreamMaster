@@ -181,7 +181,7 @@ public static class SignalRGenerator
             deps.Add(method.Name.ToCamelCase());
         }
 
-        Dictionary<string, List<MethodDetails>> keyValuePairs = methods.Where(a => a.IsGet).GroupBy(a => a.NamespaceName).ToDictionary(a => a.Key, a => a.ToList());
+        Dictionary<string, List<MethodDetails>> keyValuePairs = methods.Where(a => a.IsGet && (a.IsGetPaged || a.ParameterNames?.Length == 0)).GroupBy(a => a.NamespaceName).ToDictionary(a => a.Key, a => a.ToList());
 
 
         foreach (KeyValuePair<string, List<MethodDetails>> namespaceName in keyValuePairs)
@@ -189,10 +189,7 @@ public static class SignalRGenerator
             content.AppendLine($"      if (entity === '{namespaceName.Key}') {{");
             foreach (MethodDetails method in namespaceName.Value)
             {
-
                 content.AppendLine($"        {method.Name.ToCamelCase()}.SetIsForced(true);");
-
-
             }
             content.AppendLine("        return;");
             content.AppendLine("      }");

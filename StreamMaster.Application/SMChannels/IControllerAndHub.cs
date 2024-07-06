@@ -12,6 +12,7 @@ namespace StreamMaster.Application.SMChannels
         Task<ActionResult<VideoInfo>> GetVideoInfoFromId(GetVideoInfoFromIdRequest request);
         Task<ActionResult<APIResponse>> AutoSetEPGFromParameters(AutoSetEPGFromParametersRequest request);
         Task<ActionResult<APIResponse>> AutoSetEPG(AutoSetEPGRequest request);
+        Task<ActionResult<APIResponse>> AutoSetSMChannelNumbersFromParameters(AutoSetSMChannelNumbersFromParametersRequest request);
         Task<ActionResult<APIResponse>> AutoSetSMChannelNumbers(AutoSetSMChannelNumbersRequest request);
         Task<ActionResult<APIResponse>> CopySMChannel(CopySMChannelRequest request);
         Task<ActionResult<APIResponse>> CreateSMChannelFromStreamParameters(CreateSMChannelFromStreamParametersRequest request);
@@ -46,6 +47,7 @@ namespace StreamMaster.Application.Hubs
         Task<VideoInfo> GetVideoInfoFromId(GetVideoInfoFromIdRequest request);
         Task<APIResponse> AutoSetEPGFromParameters(AutoSetEPGFromParametersRequest request);
         Task<APIResponse> AutoSetEPG(AutoSetEPGRequest request);
+        Task<APIResponse> AutoSetSMChannelNumbersFromParameters(AutoSetSMChannelNumbersFromParametersRequest request);
         Task<APIResponse> AutoSetSMChannelNumbers(AutoSetSMChannelNumbersRequest request);
         Task<APIResponse> CopySMChannel(CopySMChannelRequest request);
         Task<APIResponse> CreateSMChannelFromStreamParameters(CreateSMChannelFromStreamParametersRequest request);

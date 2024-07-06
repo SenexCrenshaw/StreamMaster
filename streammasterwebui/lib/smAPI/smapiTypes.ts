@@ -233,7 +233,7 @@ export interface EPGFilePreviewDto
 	ChannelLogo: string;
 	ChannelName: string;
 	ChannelNumber: string;
-	Id: number;
+	Id: string;
 }
 export interface IconFileDto
 {
@@ -840,10 +840,19 @@ export interface AutoSetEPGRequest
 {
 	Ids: number[];
 }
+export interface AutoSetSMChannelNumbersFromParametersRequest
+{
+	OverwriteExisting?: boolean;
+	Parameters: QueryStringParameters;
+	StartingNumber?: number;
+	StreamGroupId: number;
+}
 export interface AutoSetSMChannelNumbersRequest
 {
-	Parameters: QueryStringParameters;
-	streamGroupId: number;
+	OverwriteExisting?: boolean;
+	SMChannelIds: number[];
+	StartingNumber?: number;
+	StreamGroupId: number;
 }
 export interface CopySMChannelRequest
 {

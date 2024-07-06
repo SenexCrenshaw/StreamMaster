@@ -1,6 +1,4 @@
-import { Direction, Shape } from '@components/sm/Interfaces/SMSpeedDialTypes';
 import SMOverlay from '@components/sm/SMOverlay';
-import SMSpeedMenu from '@components/sm/SMSpeedMenu';
 import AutoSetEPGSMChannelDialog from '@components/smchannels/AutoSetEPGSMChannelDialog';
 import AutoSetSMChannelNumbersDialog from '@components/smchannels/AutoSetSMChannelNumbersDialog';
 import SMChannelMultiVisibleDialog from '@components/smchannels/SMChannelMultiVisibleDialog';
@@ -14,35 +12,35 @@ const SMChannelMenu = () => {
   const { isTrue: smTableIsSimple } = useIsTrue('isSimple');
   const selectedItemsKey = 'selectSelectedSMChannelDtoItems';
 
-  const mainSM = {
-    animateOn: 'hover' as 'hover',
-    direction: 'bottom' as Direction,
-    icon: '/images/sm_logo.png',
-    modal: true,
-    shape: 'line' as Shape
-  };
+  // const mainSM = {
+  //   animateOn: 'hover' as 'hover',
+  //   direction: 'bottom' as Direction,
+  //   icon: '/images/sm_logo.png',
+  //   modal: true,
+  //   shape: 'line' as Shape
+  // };
 
-  const smItems = [
-    {
-      template: <AutoSetEPGSMChannelDialog menu />
-    },
-    {
-      template: <AutoSetSMChannelNumbersDialog />
-    },
-    {
-      template: <AddSMChannelsToSGEditor />
-    },
-    {
-      template: <SMChannelMultiVisibleDialog selectedItemsKey={selectedItemsKey} menu />
-    }
-  ];
+  // const smItems = [
+  //   {
+  //     template: <AutoSetEPGSMChannelDialog menu />
+  //   },
+  //   {
+  //     template: <AutoSetSMChannelNumbersDialog />
+  //   },
+  //   {
+  //     template: <AddSMChannelsToSGEditor />
+  //   },
+  //   {
+  //     template: <SMChannelMultiVisibleDialog selectedItemsKey={selectedItemsKey} menu />
+  //   }
+  // ];
 
   return (
     <>
       <SMOverlay placement={smTableIsSimple ? 'bottom-end' : 'bottom'} icon="pi-bars" iconFilled buttonClassName="icon-orange" contentWidthSize="11rem">
         <div className="sm-channel-menu gap-2">
           <AutoSetEPGSMChannelDialog menu />
-          <AutoSetSMChannelNumbersDialog />
+          <AutoSetSMChannelNumbersDialog selectedItemsKey={selectedItemsKey} />
           <AddSMChannelsToSGEditor />
           <SMChannelMultiVisibleDialog selectedItemsKey={selectedItemsKey} menu />
         </div>

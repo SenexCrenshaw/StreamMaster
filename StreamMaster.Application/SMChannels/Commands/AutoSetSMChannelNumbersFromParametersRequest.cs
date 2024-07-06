@@ -2,15 +2,14 @@
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record AutoSetSMChannelNumbersRequest(int StreamGroupId, List<int> SMChannelIds, int? StartingNumber, bool? OverwriteExisting
-    ) : IRequest<APIResponse>;
+public record AutoSetSMChannelNumbersFromParametersRequest(int StreamGroupId, QueryStringParameters Parameters, int? StartingNumber, bool? OverwriteExisting) : IRequest<APIResponse>;
 
-internal class AutoSetSMChannelNumbersRequestHandler(IRepositoryWrapper Repository, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext) : IRequestHandler<AutoSetSMChannelNumbersRequest, APIResponse>
+internal class AutoSetSMChannelNumbersFromParametersRequestHandler(IRepositoryWrapper Repository, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext) : IRequestHandler<AutoSetSMChannelNumbersFromParametersRequest, APIResponse>
 {
-    public async Task<APIResponse> Handle(AutoSetSMChannelNumbersRequest request, CancellationToken cancellationToken)
+    public async Task<APIResponse> Handle(AutoSetSMChannelNumbersFromParametersRequest request, CancellationToken cancellationToken)
     {
 
-        IdIntResultWithResponse res = await Repository.SMChannel.AutoSetSMChannelNumbers(request.StreamGroupId, request.SMChannelIds, request.StartingNumber, request.OverwriteExisting);
+        IdIntResultWithResponse res = await Repository.SMChannel.AutoSetSMChannelNumbersFromParameters(request.StreamGroupId, request.Parameters, request.StartingNumber, request.OverwriteExisting);
         if (res.APIResponse.IsError)
         {
             return APIResponse.ErrorWithMessage(res.APIResponse.ErrorMessage);

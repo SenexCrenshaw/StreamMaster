@@ -40,23 +40,19 @@ const SchedulesDirectLineUpsDataSelector = ({ id }: SchedulesDirectLineUpsDataSe
     [actionBodyTemplate]
   );
 
-  // const rightHeaderTemplate = useMemo(() => {
-  //   return <HeadEndDropDown />;
-  // }, []);
-
   return (
     <SMDataTable
+      arrayKey="Lineup"
       columns={columns}
-      defaultSortField="name"
+      defaultSortField="Lineup"
+      defaultSortOrder={-1}
       dataSource={data}
       emptyMessage="No Streams"
       enablePaginator
       headerName="Subscribed Line Ups"
-      // headerRightTemplate={rightHeaderTemplate}
       id={id}
       isLoading={isLoading}
-      selectionMode="single"
-      selectedItemsKey="sdEditorselectedItems"
+      lazy
       style={{ height: 'calc(25vh)' }}
     />
   );

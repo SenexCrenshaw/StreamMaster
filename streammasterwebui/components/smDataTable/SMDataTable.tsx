@@ -517,7 +517,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
       setters.setPagedInformation(pagedInformation);
     }
     const pagedData = filteredData.slice(state.first, state.first + state.rows);
-    if (!arraysEqualByKey(pagedData, dataSource, 'StationId')) {
+    if (!arraysEqualByKey(pagedData, dataSource, props.arrayKey ?? 'Id')) {
       setDataSource(pagedData);
     }
 
