@@ -7,12 +7,13 @@ import { formatJSONDateString } from '@lib/common/dateTime';
 import { UpdateEPGFile } from '@lib/smAPI/EPGFiles/EPGFilesCommands';
 import useGetPagedEPGFiles from '@lib/smAPI/EPGFiles/useGetPagedEPGFiles';
 import { EPGFileDto, UpdateEPGFileRequest } from '@lib/smAPI/smapiTypes';
-import { memo, useCallback, useMemo } from 'react';
+import { lazy, memo, Suspense, useCallback, useMemo } from 'react';
 import StringEditor from '../inputs/StringEditor';
 import EPGFileDeleteDialog from './EPGFileDeleteDialog';
 import EPGFileEditDialog from './EPGFileEditDialog';
 import EPGFileRefreshDialog from './EPGFileRefreshDialog';
-import EPGPreviewDialog from './EPGPreviewDialog';
+
+const EPGPreviewDialog = lazy(() => import('./EPGPreviewDialog'));
 
 const EPGFilesDataSelector = () => {
   interface EPGUpdateProperties {
@@ -137,12 +138,14 @@ const EPGFilesDataSelector = () => {
       return <div />;
     }
     return (
-      <div className="flex justify-content-center align-items-center">
-        <EPGPreviewDialog selectedFile={rowData} />
-        <EPGFileRefreshDialog selectedFile={rowData} />
-        <EPGFileDeleteDialog selectedFile={rowData} />
-        <EPGFileEditDialog selectedFile={rowData} />
-      </div>
+      <Suspense fallback={<div>Loading...</div>}>
+        <div className="flex justify-content-center align-items-center">
+          <EPGPreviewDialog selectedFile={rowData} />
+          <EPGFileRefreshDialog selectedFile={rowData} />
+          <EPGFileDeleteDialog selectedFile={rowData} />
+          <EPGFileEditDialog selectedFile={rowData} />
+        </div>
+      </Suspense>
     );
   }, []);
 

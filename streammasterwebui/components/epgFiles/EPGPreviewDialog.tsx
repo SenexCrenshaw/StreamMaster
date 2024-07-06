@@ -26,7 +26,7 @@ const EPGPreviewDialog = ({ selectedFile }: EPGPreviewDialogProperties) => {
 
   const columns = useMemo(
     (): ColumnMeta[] => [
-      { bodyTemplate: imageBodyTemplate, field: 'ChannelLogo', fieldType: 'image' },
+      { bodyTemplate: imageBodyTemplate, field: 'ChannelLogo', fieldType: 'image', width: 8 },
       { field: 'ChannelNumber', filter: true, header: 'Station Id', sortable: true },
       { field: 'ChannelName', filter: true, sortable: true }
     ],
@@ -35,12 +35,13 @@ const EPGPreviewDialog = ({ selectedFile }: EPGPreviewDialogProperties) => {
 
   return (
     <SMPopUp
+      buttonClassName="icon-orange"
       contentWidthSize="5"
-      title={selectedFile ? 'EPG Preview ' + selectedFile.Name : 'EPG Preview'}
+      icon="pi-book"
+      info=""
       modal
       modalCentered
-      icon="pi-book"
-      buttonClassName="icon-orange"
+      title={selectedFile ? 'EPG Preview : ' + selectedFile.Name : 'EPG Preview'}
     >
       <SMDataTable
         columns={columns}
