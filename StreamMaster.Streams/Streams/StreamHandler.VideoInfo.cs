@@ -44,6 +44,8 @@ public sealed partial class StreamHandler
                 return;
             }
 
+            Setting settings = intSettings.CurrentValue;
+
             string ffprobeExec = GetFFProbeExecutablePath(settings);
 
             if (string.IsNullOrEmpty(ffprobeExec))
@@ -136,7 +138,7 @@ public sealed partial class StreamHandler
 
             if (videoInfo == null)
             {
-                var jsonString = JsonSerializer.Serialize(videoInfo);
+                string jsonString = JsonSerializer.Serialize(videoInfo);
                 logger.LogError("CreateFFProbeStream Error: Failed to deserialize FFProbe output");
                 logger.LogDebug(jsonString);
                 return null;

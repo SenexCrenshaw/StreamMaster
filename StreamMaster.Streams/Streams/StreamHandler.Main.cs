@@ -16,8 +16,8 @@ public sealed partial class StreamHandler : IStreamHandler
 
     private IStreamStreamingStatisticsManager streamStreamingStatisticsManager;
     private readonly StreamStreamingStatistic streamStatistics;
-    private readonly Setting settings;
 
+    private readonly IOptionsMonitor<Setting> intSettings;
     public SMChannelDto SMChannel { get; }
     public SMStreamDto SMStream { get; }
     public int ProcessId { get; set; }
@@ -62,7 +62,7 @@ public sealed partial class StreamHandler : IStreamHandler
         SMStream = channelStatus.SMStream;
 
 
-        settings = intSettings.CurrentValue;
+        this.intSettings = intSettings;
 
         ProcessId = processId;
 

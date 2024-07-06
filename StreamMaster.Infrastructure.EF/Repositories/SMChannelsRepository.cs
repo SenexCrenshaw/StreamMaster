@@ -10,6 +10,7 @@ using StreamMaster.Domain.API;
 using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Exceptions;
 using StreamMaster.Domain.Filtering;
+using StreamMaster.Domain.Helpers;
 using StreamMaster.Infrastructure.EF.Helpers;
 using StreamMaster.SchedulesDirect.Domain.Interfaces;
 using StreamMaster.SchedulesDirect.Domain.JsonClasses;
@@ -632,9 +633,12 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, ISend
                         .ToList();
                 }
 
-                if (scoredMatches.Count != 0)
+                if (scoredMatches.Count > 0)
                 {
-                    smChannel.EPGId = scoredMatches[0].Channel.Channel;
+                    smChannel.EPGId = !scoredMatches[0].Channel.Channel.StartsWith(EPGHelper.SchedulesDirectId.ToString()) && scoredMatches.Count > 1 && scoredMatches[1].Channel.Channel.StartsWith(EPGHelper.SchedulesDirectId.ToString())
+                        ? scoredMatches[1].Channel.Channel
+                        : scoredMatches[0].Channel.Channel;
+
 
                     fds.Add(new FieldData(SMChannel.APIName, smChannel.Id, "EPGId", smChannel.EPGId));
 

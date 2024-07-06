@@ -99,24 +99,11 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IServicePro
 
                 if (origService.EPGNumber == EPGHelper.DummyId && !string.IsNullOrEmpty(videoStreamConfig.EPGId))
                 {
-                    //(epgNumber, stationId) = ePGHelper.ExtractEPGNumberAndStationId(videoStreamConfig.EPGId);
                     epgNumber = EPGHelper.DummyId;
                     callSign = videoStreamConfig.EPGId;
                 }
 
                 int chNo = videoStreamConfig.ChannelNumber;
-                //if (chNos.Contains(chNo))
-                //{
-                //    foreach (int num in existingChNos.Concat(chNos))
-                //    {
-                //        if (num != chNo)
-                //        {
-                //            break;
-                //        }
-                //        chNo++;
-                //    }
-                //}
-                //chNos.Add(chNo);
 
                 newService.EPGNumber = epgNumber;
                 newService.ChNo = chNo;
@@ -227,7 +214,7 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IServicePro
             List<MxfProgram> programs = schedulesDirectDataService.GetAllSDPrograms;
 
 
-            var profile = SettingFiles.DefaultOutputProfileSetting.OutProfiles["Default"];
+            OutputProfile profile = SettingFiles.DefaultOutputProfileSetting.OutProfiles["Default"];
 
             DoPrograms(services, programs.Count, xmlTv, profile);
 
