@@ -23,16 +23,15 @@ const useGetEPGFilePreviewById = (params?: GetEPGFilePreviewByIdRequest | undefi
 
   const SetIsForced = useCallback(
     (forceRefresh: boolean): void => {
-    if (param === undefined) return;
       dispatch(setIsForced({ force: forceRefresh }));
     },
-    [dispatch, param]
+    [dispatch]
   );
   const ClearByTag = useCallback(
     (tag: string): void => {
       dispatch(clearByTag({tag: tag }));
     },
-    [dispatch, param]
+    [dispatch]
   );
 
 

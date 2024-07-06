@@ -15,8 +15,9 @@ internal class SetSMChannelGroupRequestHandler(IRepositoryWrapper Repository, IM
             return ret;
         }
 
-        FieldData fd = new(SMChannel.APIName, request.SMChannelId, "Group", request.Group);
-        await dataRefreshService.SetField([fd]).ConfigureAwait(false);
+        //FieldData fd = new(SMChannel.APIName, request.SMChannelId, "Group", request.Group);
+        //await dataRefreshService.SetField([fd]).ConfigureAwait(false);
+        await dataRefreshService.RefreshSMChannels().ConfigureAwait(false);
 
         return ret;
     }

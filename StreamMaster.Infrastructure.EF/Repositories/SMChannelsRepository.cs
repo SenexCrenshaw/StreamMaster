@@ -646,7 +646,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, ISend
                         }
                     }
 
-                    //Update(smChannel);
+                    Update(smChannel);
                     //RepositoryContext.SaveChanges();
                 }
             }

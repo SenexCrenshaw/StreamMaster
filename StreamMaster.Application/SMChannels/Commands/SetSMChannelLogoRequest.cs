@@ -4,7 +4,7 @@
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record SetSMChannelLogoRequest(int SMChannelId, string Logo) : IRequest<APIResponse>;
 
-internal class SetSMChannelLogoRequestHandler(IRepositoryWrapper Repository, IMessageService messageService, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext) : IRequestHandler<SetSMChannelLogoRequest, APIResponse>
+internal class SetSMChannelLogoRequestHandler(IRepositoryWrapper Repository, IMessageService messageService, IDataRefreshService dataRefreshService) : IRequestHandler<SetSMChannelLogoRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(SetSMChannelLogoRequest request, CancellationToken cancellationToken)
     {
@@ -15,9 +15,10 @@ internal class SetSMChannelLogoRequestHandler(IRepositoryWrapper Repository, IMe
             return ret;
         }
 
-        FieldData fd = new(SMChannel.APIName, request.SMChannelId, "Logo", request.Logo);
-        await hubContext.Clients.All.SetField([fd]).ConfigureAwait(false);
-        await hubContext.Clients.All.DataRefresh("GetSMChannel");
+        //FieldData fd = new(SMChannel.APIName, request.SMChannelId, "Logo", request.Logo);
+        //await hubContext.Clients.All.SetField([fd]).ConfigureAwait(false);
+        //await hubContext.Clients.All.DataRefresh("GetSMChannel");
+        await dataRefreshService.RefreshSMChannels().ConfigureAwait(false);
         return ret;
     }
 }

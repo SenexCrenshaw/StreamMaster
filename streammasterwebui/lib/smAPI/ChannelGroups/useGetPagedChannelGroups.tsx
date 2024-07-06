@@ -23,16 +23,15 @@ const useGetPagedChannelGroups = (params?: QueryStringParameters | undefined | S
 
   const SetIsForced = useCallback(
     (forceRefresh: boolean): void => {
-    if (query === undefined) return;
       dispatch(setIsForced({ force: forceRefresh }));
     },
-    [dispatch, query]
+    [dispatch]
   );
   const ClearByTag = useCallback(
     (tag: string): void => {
       dispatch(clearByTag({tag: tag }));
     },
-    [dispatch, query]
+    [dispatch]
   );
 
 

@@ -9,9 +9,10 @@ public class AutoSetEPGRequestHandler(IRepositoryWrapper Repository, IMessageSer
 {
     public async Task<APIResponse> Handle(AutoSetEPGRequest request, CancellationToken cancellationToken)
     {
-        var results = await Repository.SMChannel.AutoSetEPGFromIds(request.Ids, cancellationToken).ConfigureAwait(false);
-        if (results.Count != 0)
+        List<FieldData> results = await Repository.SMChannel.AutoSetEPGFromIds(request.Ids, cancellationToken).ConfigureAwait(false);
+        if (results.Count > 0)
         {
+            //await dataRefreshService.RefreshSMChannels().ConfigureAwait(false);
             await dataRefreshService.SetField(results);
             await messageService.SendSuccess($"Auto Set EPG For Channels");
         }

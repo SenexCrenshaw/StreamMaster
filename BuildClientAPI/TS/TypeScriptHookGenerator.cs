@@ -213,22 +213,21 @@ public static class TypeScriptHookGenerator
     private static string GeneratePagedForced(MethodDetails method)
     {
         StringBuilder content = new();
-        string pName = method.IsGetPaged ? "query" : "param";
+        //string pName = method.IsGetPaged ? "query" : "param";
 
         content.AppendLine($"  const isForced = useAppSelector((state) => state.{method.Name}.isForced ?? false);");
         content.AppendLine();
         content.AppendLine("  const SetIsForced = useCallback(");
         content.AppendLine("    (forceRefresh: boolean): void => {");
-        content.AppendLine($"    if ({pName} === undefined) return;");
         content.AppendLine("      dispatch(setIsForced({ force: forceRefresh }));");
         content.AppendLine("    },");
-        content.AppendLine($"    [dispatch, {pName}]");
+        content.AppendLine($"    [dispatch]");
         content.AppendLine("  );");
         content.AppendLine($"  const ClearByTag = useCallback(");
         content.AppendLine($"    (tag: string): void => {{");
         content.AppendLine($"      dispatch(clearByTag({{tag: tag }}));");
         content.AppendLine($"    }},");
-        content.AppendLine($"    [dispatch, {pName}]");
+        content.AppendLine($"    [dispatch]");
         content.AppendLine("  );");
         content.AppendLine($"");
 

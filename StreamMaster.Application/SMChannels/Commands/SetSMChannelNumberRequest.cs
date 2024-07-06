@@ -4,7 +4,7 @@
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record SetSMChannelNumberRequest(int SMChannelId, int ChannelNumber) : IRequest<APIResponse>;
 
-internal class SetSMChannelChannelNumberRequestHandler(IRepositoryWrapper Repository, IMessageService messageService, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext)
+internal class SetSMChannelChannelNumberRequestHandler(IRepositoryWrapper Repository, IMessageService messageService, IDataRefreshService dataRefreshService)
     : IRequestHandler<SetSMChannelNumberRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(SetSMChannelNumberRequest request, CancellationToken cancellationToken)
@@ -16,10 +16,10 @@ internal class SetSMChannelChannelNumberRequestHandler(IRepositoryWrapper Reposi
             return ret;
         }
 
-        FieldData fd = new(SMChannel.APIName, request.SMChannelId, "ChannelNumber", request.ChannelNumber);
+        //FieldData fd = new(SMChannel.APIName, request.SMChannelId, "ChannelNumber", request.ChannelNumber);
 
-        await hubContext.Clients.All.SetField([fd]).ConfigureAwait(false);
-        //await messageService.SendSuccess($"Set number to '{request.ChannelNumber}'");
+        //await hubContext.Clients.All.SetField([fd]).ConfigureAwait(false);
+        await dataRefreshService.RefreshSMChannels().ConfigureAwait(false);
         return ret;
     }
 }

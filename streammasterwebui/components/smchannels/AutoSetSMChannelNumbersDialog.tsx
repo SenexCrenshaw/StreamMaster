@@ -100,7 +100,7 @@ const AutoSetSMChannelNumbersDialog = ({ disabled, selectedItemsKey }: AutoSetSM
             <BooleanEditor labelInline label="Overwrite" checked={overwriteExisting} onChange={setOverwriteExisting} />
           </div>
           <div className="w-6 sm-center-stuff">
-            <NumberEditor darkBackGround disableDebounce labelInline label="Starting #" value={startingNumber} onChange={setStartingNumber} />
+            <NumberEditor autoFocus darkBackGround disableDebounce labelInline label="Starting #" value={startingNumber} onChange={setStartingNumber} />
           </div>
         </div>
       </div>

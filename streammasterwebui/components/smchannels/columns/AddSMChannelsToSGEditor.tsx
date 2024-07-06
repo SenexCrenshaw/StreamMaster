@@ -83,7 +83,7 @@ const AddSMChannelsToSGEditor = () => {
   return (
     <SMPopUp
       buttonClassName="icon-green"
-      buttonDisabled={selectAll ? false : getTotalCount === 0}
+      buttonDisabled={selectedStreamGroup.Name === 'ALL' ? true : selectAll ? false : getTotalCount === 0}
       icon="pi-book"
       iconFilled
       info=""

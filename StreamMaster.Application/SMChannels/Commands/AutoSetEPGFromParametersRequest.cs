@@ -10,9 +10,13 @@ public class AutoSetEPGFromParametersRequestHandler(IRepositoryWrapper Repositor
 {
     public async Task<APIResponse> Handle(AutoSetEPGFromParametersRequest request, CancellationToken cancellationToken)
     {
-        var results = await Repository.SMChannel.AutoSetEPGFromParameters(request.Parameters, cancellationToken).ConfigureAwait(false);
-        if (results.Count != 0)
+        List<FieldData> results = await Repository.SMChannel.AutoSetEPGFromParameters(request.Parameters, cancellationToken).ConfigureAwait(false);
+        if (results.Count > 0)
         {
+
+            //await dataRefreshService.RefreshSMChannels().ConfigureAwait(false);
+            //await hubContext.Clients.All.SetField(ret).ConfigureAwait(false);
+            //}
             await dataRefreshService.SetField(results);
             await messageService.SendSuccess($"Auto Set EPG For Channels");
         }

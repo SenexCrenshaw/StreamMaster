@@ -22,8 +22,10 @@ internal class SetSMChannelProxyRequestHandler(IRepositoryWrapper Repository, IM
         //}
 
 
-        FieldData fd = new(SMChannel.APIName, request.SMChannelId, "StreamingProxyType", request.StreamingProxy);
-        await dataRefreshService.SetField([fd]).ConfigureAwait(false);
+        //FieldData fd = new(SMChannel.APIName, request.SMChannelId, "StreamingProxyType", request.StreamingProxy);
+        //await dataRefreshService.SetField([fd]).ConfigureAwait(false);
+
+        await dataRefreshService.RefreshSMChannels().ConfigureAwait(false);
 
         return ret;
     }

@@ -4,7 +4,7 @@
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record AutoSetSMChannelNumbersFromParametersRequest(int StreamGroupId, QueryStringParameters Parameters, int? StartingNumber, bool? OverwriteExisting) : IRequest<APIResponse>;
 
-internal class AutoSetSMChannelNumbersFromParametersRequestHandler(IRepositoryWrapper Repository, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext) : IRequestHandler<AutoSetSMChannelNumbersFromParametersRequest, APIResponse>
+internal class AutoSetSMChannelNumbersFromParametersRequestHandler(IRepositoryWrapper Repository, IMessageService messageService, IDataRefreshService dataRefreshService) : IRequestHandler<AutoSetSMChannelNumbersFromParametersRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(AutoSetSMChannelNumbersFromParametersRequest request, CancellationToken cancellationToken)
     {
@@ -23,9 +23,11 @@ internal class AutoSetSMChannelNumbersFromParametersRequestHandler(IRepositoryWr
             }
         }
 
-        if (ret.Count > 0)
+        if (res.Count > 0)
         {
-            await hubContext.Clients.All.SetField(ret).ConfigureAwait(false);
+            //await dataRefreshService.RefreshSMChannels().ConfigureAwait(false);
+            await dataRefreshService.SetField(ret).ConfigureAwait(false);
+            await messageService.SendSuccess($"Auto Set #s For Channels");
         }
 
         //await hubContext.Clients.All.DataRefresh("StreamGroups").ConfigureAwait(false);

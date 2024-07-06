@@ -71,10 +71,10 @@ public class UpdateSMChannelRequestHandler(IRepositoryWrapper Repository, IDataR
             {
                 Repository.SMChannel.Update(smChannel);
                 await Repository.SaveAsync().ConfigureAwait(false);
+                await dataRefreshService.RefreshSMChannels().ConfigureAwait(false);
+                //await dataRefreshService.ClearByTag(SMChannel.APIName, "IsHidden").ConfigureAwait(false);
 
-                await dataRefreshService.ClearByTag(SMChannel.APIName, "IsHidden").ConfigureAwait(false);
-
-                await dataRefreshService.SetField(ret).ConfigureAwait(false);
+                //await dataRefreshService.SetField(ret).ConfigureAwait(false);
                 //await dataRefreshService.RefreshSMChannels();
 
             }

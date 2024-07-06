@@ -15,8 +15,9 @@ internal class SetSMChannelEPGIdRequestHandler(IRepositoryWrapper Repository, IM
             return ret;
         }
 
-        FieldData fd = new(SMChannel.APIName, request.SMChannelId, "EPGId", request.EPGId);
-        await dataRefreshService.SetField([fd]).ConfigureAwait(false);
+        //FieldData fd = new(SMChannel.APIName, request.SMChannelId, "EPGId", request.EPGId);
+        //await dataRefreshService.SetField([fd]).ConfigureAwait(false);
+        await dataRefreshService.RefreshSMChannels().ConfigureAwait(false);
 
         return ret;
     }
