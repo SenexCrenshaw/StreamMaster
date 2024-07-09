@@ -17,7 +17,7 @@ namespace StreamMaster.API.Controllers
         [Authorize(Policy = "SGLinks")]
         [HttpGet]
         [HttpHead]
-        [Route("{videoStreamId}.m3u8")]
+        [Route("{SMChannelId}.m3u8")]
         public async Task<ActionResult> GetM3U8(int SMChannelId, CancellationToken cancellationToken)
         {
             SMChannel? smChannel = await repositoryWrapper.SMChannel.FirstOrDefaultAsync(a => a.Id == SMChannelId);
