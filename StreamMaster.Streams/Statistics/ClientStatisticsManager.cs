@@ -1,4 +1,5 @@
-﻿using StreamMaster.Streams.Domain.Statistics;
+﻿using StreamMaster.Domain.Extensions;
+using StreamMaster.Streams.Domain.Statistics;
 
 using System.Collections.Concurrent;
 
@@ -13,8 +14,9 @@ public sealed class ClientStatisticsManager(ILogger<ClientStatisticsManager> log
     {
         if (!_clientStatistics.ContainsKey(streamerConfiguration.ClientId))
         {
-            var c = new ClientStreamingStatistics();
+            ClientStreamingStatistics c = new();
             c.SetStreamerConfiguration(streamerConfiguration);
+            c.StartTime = SMDT.UtcNow;
             _clientStatistics.TryAdd(streamerConfiguration.ClientId, c);
 
         }

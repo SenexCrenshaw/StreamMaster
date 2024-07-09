@@ -371,9 +371,17 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IServicePro
         };
 
         ret.DisplayNames.Add(new XmltvText { Text = mxfService.CallSign });
-        if (!mxfService.Name.Equals(mxfService.CallSign))
+        if (mxfService.Name == null)
         {
+            mxfService.Name = mxfService.CallSign;
             ret.DisplayNames.Add(new XmltvText { Text = mxfService.Name });
+        }
+        else
+        {
+            if (!mxfService.Name.Equals(mxfService.CallSign))
+            {
+                ret.DisplayNames.Add(new XmltvText { Text = mxfService.Name });
+            }
         }
         SDSettings sdsettings = intsdsettings.CurrentValue;
         // add channel number if requested

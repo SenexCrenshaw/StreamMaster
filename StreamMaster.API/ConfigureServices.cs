@@ -23,6 +23,7 @@ using StreamMaster.Infrastructure.EF.PGSQL;
 using StreamMaster.Infrastructure.Logger;
 using StreamMaster.Infrastructure.Services.Frontend;
 using StreamMaster.Infrastructure.Services.QueueService;
+using StreamMaster.Streams.Handler;
 
 using StreamMasterAPI.SchemaHelpers;
 
@@ -67,7 +68,7 @@ public static class ConfigureServices
 
         services.AddSingleton<IContentTypeProvider, FileExtensionContentTypeProvider>();
         services.AddRouting(options => options.LowercaseUrls = true);
-
+        services.AddHealthChecks().AddCheck<StreamHandlerHealthCheck>("stream_handler_health_check");
         services.AddResponseCompression(options => options.EnableForHttps = true);
 
         services.AddCors(options =>
@@ -101,7 +102,7 @@ public static class ConfigureServices
 
         services.AddDatabaseDeveloperPageExceptionFilter();
 
-        var assembly = Assembly.Load("StreamMaster.Application");
+        Assembly assembly = Assembly.Load("StreamMaster.Application");
 
         services.AddControllers(options =>
             {
@@ -133,9 +134,9 @@ public static class ConfigureServices
         services.AddSingleton<IBackgroundTaskQueue>(x =>
        {
            int queueCapacity = 100;
-           var logger = x.GetRequiredService<ILogger<BackgroundTaskQueue>>();
-           var sender = x.GetRequiredService<ISender>();
-           var dataRefreshService = x.GetRequiredService<IDataRefreshService>();
+           ILogger<BackgroundTaskQueue> logger = x.GetRequiredService<ILogger<BackgroundTaskQueue>>();
+           ISender sender = x.GetRequiredService<ISender>();
+           IDataRefreshService dataRefreshService = x.GetRequiredService<IDataRefreshService>();
            return new BackgroundTaskQueue(queueCapacity, logger, sender, dataRefreshService);
        });
 

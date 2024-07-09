@@ -5,6 +5,7 @@
 /// </summary>
 public interface IChannelStatus
 {
+    bool Shutdown { get; set; }
     int ClientCount { get; set; }
     VideoOutputProfileDto VideoProfile { get; set; }
     string OverrideVideoStreamId { get; set; }

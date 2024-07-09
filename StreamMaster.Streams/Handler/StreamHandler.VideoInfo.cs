@@ -25,8 +25,8 @@ public sealed partial class StreamHandler
 
     public async Task BuildVideoInfoAsync(byte[] videoMemory)
     {
-        // string testDir = Path.Combine(BuildInfo.AppDataFolder, "test.mp4");
-        //await fileSaver.SaveVideoWithRevisionsAsync(videoMemory, testDir);
+        string testDir = Path.Combine(BuildInfo.AppDataFolder, "test.mp4");
+        await fileSaver.SaveVideoWithRevisionsAsync(videoMemory, testDir);
         bool isLocked = false;
         try
         {
@@ -61,7 +61,7 @@ public sealed partial class StreamHandler
             if (videoInfo == null || !videoInfo.IsValid())
             {
                 GetVideoInfoErrors++;
-                logger.LogError("Failed to deserialize FFProbe output.");
+                //logger.LogError("Failed to deserialize FFProbe output.");
                 return;
             }
 
@@ -139,8 +139,8 @@ public sealed partial class StreamHandler
             if (videoInfo == null)
             {
                 string jsonString = JsonSerializer.Serialize(videoInfo);
-                logger.LogError("CreateFFProbeStream Error: Failed to deserialize FFProbe output");
-                logger.LogDebug(jsonString);
+                //logger.LogError("CreateFFProbeStream Error: Failed to deserialize FFProbe output");
+                //logger.LogDebug(jsonString);
                 return null;
             }
             _videoInfo = videoInfo;
@@ -148,7 +148,7 @@ public sealed partial class StreamHandler
         }
         catch (Exception ex) when (ex is IOException or JsonException)
         {
-            logger.LogError(ex, "CreateFFProbeStream Error: {ErrorMessage}");
+            //logger.LogError(ex, $"CreateFFProbeStream Error: {ex}");
             process.Kill();
             return null;
         }

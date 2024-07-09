@@ -1,5 +1,4 @@
 ﻿using StreamMaster.Domain.Configuration;
-using StreamMaster.Streams.Domain.Statistics;
 
 using System.Collections.Concurrent;
 
@@ -14,8 +13,8 @@ public sealed partial class StreamHandler : IStreamHandler
     private readonly ConcurrentDictionary<Guid, ClientStreamerConfiguration> clientStreamerConfigs = new();
     private readonly ILogger<IStreamHandler> logger;
 
-    private IStreamStreamingStatisticsManager streamStreamingStatisticsManager;
-    private readonly StreamStreamingStatistic streamStatistics;
+    //private IStreamStreamingStatisticsManager streamStreamingStatisticsManager;
+    //private readonly StreamStreamingStatistic streamStatistics;
 
     private readonly IOptionsMonitor<Setting> intSettings;
     public SMChannelDto SMChannel { get; }
@@ -66,27 +65,30 @@ public sealed partial class StreamHandler : IStreamHandler
 
         ProcessId = processId;
 
-        this.streamStreamingStatisticsManager = streamStreamingStatisticsManager;
+        //this.streamStreamingStatisticsManager = streamStreamingStatisticsManager;
 
         _writeLogger = loggerFactory.CreateLogger<WriteLogger>();
 
 
 
-        streamStatistics = streamStreamingStatisticsManager.RegisterStream(channelStatus.SMStream);
+        //streamStatistics = streamStreamingStatisticsManager.RegisterStream(channelStatus.SMStream);
 
     }
 
     private void OnStreamingStopped(bool InputStreamError)
     {
-        streamStreamingStatisticsManager.UnRegisterStream(SMStream.Id);
+        //streamStreamingStatisticsManager.UnRegisterStream(SMStream.Id);
         OnStreamingStoppedEvent?.Invoke(this, new StreamHandlerStopped { StreamUrl = SMStream.Url, InputStreamError = InputStreamError });
     }
 
-
+    public void CancelStreamThread()
+    {
+        VideoStreamingCancellationToken?.Cancel();
+    }
 
     public void Dispose()
     {
-        streamStreamingStatisticsManager.UnRegisterStream(SMStream.Id);
+        //streamStreamingStatisticsManager.UnRegisterStream(SMStream.Id);
         clientStreamerConfigs.Clear();
         Stop();
         GC.SuppressFinalize(this);
@@ -95,9 +97,15 @@ public sealed partial class StreamHandler : IStreamHandler
         GC.WaitForPendingFinalizers();
     }
 
-    public void Stop()
+    public void Stop(bool inputStreamError = false)
     {
         SetFailed();
+        //streamStreamingStatisticsManager.UnRegisterStream(SMStream.Id);
+        //foreach (Guid clientUrl in clientStreamerConfigs.Keys)
+        //{
+        //    UnRegisterClientStreamer(clientUrl);
+        //}
+        //clientStreamerConfigs = new();
         if (VideoStreamingCancellationToken?.IsCancellationRequested == false)
         {
             VideoStreamingCancellationToken.Cancel();
@@ -127,7 +135,7 @@ public sealed partial class StreamHandler : IStreamHandler
 
             if (clientStreamerConfigs.TryAdd(streamerConfiguration.ClientId, streamerConfiguration))
             {
-                streamStatistics.IncrementClient();
+                //streamStatistics.IncrementClient();
                 ++ClientCount;
 
                 logger.LogInformation("RegisterClientStreamer for Client ID {ClientId} to Video Stream Id {videoStreamId} {name}", streamerConfiguration.ClientId, SMStream.Id, SMStream.Name);
@@ -140,6 +148,13 @@ public sealed partial class StreamHandler : IStreamHandler
         }
     }
 
+    public void UnRegisterAllClientStreamers()
+    {
+        foreach (Guid key in clientStreamerConfigs.Keys)
+        {
+            UnRegisterClientStreamer(key);
+        }
+    }
 
     public bool UnRegisterClientStreamer(Guid ClientId)
     {
@@ -147,7 +162,7 @@ public sealed partial class StreamHandler : IStreamHandler
         {
             logger.LogInformation("UnRegisterClientStreamer ClientId: {ClientId} {name}", ClientId, SMStream.Name);
             bool result = clientStreamerConfigs.TryRemove(ClientId, out _);
-            streamStatistics.DecrementClient();
+            //streamStatistics.DecrementClient();
             --ClientCount;
 
             return result;

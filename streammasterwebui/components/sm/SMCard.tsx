@@ -69,15 +69,18 @@ export const SMCard = ({
           {!hasCloseButton && <CloseButton onClick={(e) => openPanel && openPanel(false)} tooltip="Close" />}
         </div>
       </div>
-      <div className="layout-padding-bottom" />
-      <div className={noBorderChildren ? 'sm-card-children-noborder' : 'sm-card-children'}>
-        {children && children !== '' && (
-          <div className="sm-card-children-content">
-            {info && info !== '' && <div className={`${borderClass} sm-card-children-info`}>{info}</div>}
-            {children}
+
+      {children && children !== '' && (
+        <>
+          <div className="layout-padding-bottom" />
+          <div className={noBorderChildren ? 'sm-card-children-noborder' : 'sm-card-children'}>
+            <div className="sm-card-children-content">
+              {info && info !== '' && <div className={`${borderClass} sm-card-children-info`}>{info}</div>}
+              {children}
+            </div>
           </div>
-        )}
-      </div>
+        </>
+      )}
     </div>
   );
 };

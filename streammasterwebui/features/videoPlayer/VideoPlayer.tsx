@@ -1,10 +1,13 @@
 import StandardHeader from '@components/StandardHeader';
 import { VideoPlayerIcon } from '@lib/common/icons';
+import { IdNameUrl } from '@lib/smAPI/smapiTypes';
+import useGetVideoStreamNamesAndUrls from '@lib/smAPI/Streaming/useGetVideoStreamNamesAndUrls';
 
 import { MediaPlayer, MediaProvider } from '@vidstack/react';
 
 import '@vidstack/react/player/styles/default/layouts/video.css';
 import '@vidstack/react/player/styles/default/theme.css';
+import { defaultLayoutIcons, DefaultVideoLayout } from '@vidstack/react/types/vidstack-react';
 import { Dropdown, DropdownChangeEvent } from 'primereact/dropdown';
 import React, { useMemo } from 'react';
 
@@ -16,10 +19,10 @@ const VideoPlayer = () => {
   const [showDropdown, setShowDropdown] = React.useState<boolean>(true);
   const hideDropdownTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
 
-  const namesAndUrlsQuery = useVideoStreamsGetVideoStreamNamesAndUrlsQuery();
+  const namesAndUrlsQuery = useGetVideoStreamNamesAndUrls();
 
   const namesAndUrls = useMemo(() => {
-    return namesAndUrlsQuery.data?.map((item) => ({ name: item.name, value: item })) || [];
+    return namesAndUrlsQuery.data?.map((item) => ({ name: item.Name, value: item })) || [];
   }, [namesAndUrlsQuery.data]);
 
   const handleMouseMove = (show: boolean) => {

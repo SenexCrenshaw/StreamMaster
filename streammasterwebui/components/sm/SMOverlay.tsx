@@ -95,12 +95,27 @@ const SMOverlayInner = forwardRef<SMOverlayRef, ExtendedSMOverlayProperties>(
     const { styles: transitionStyles } = useTransitionStyles(context);
     const { getReferenceProps, getFloatingProps } = useInteractions([useClick(context), useDismiss(context), useRole(context)]);
 
+    const openPanel = useCallback(
+      (isOpen: boolean) => {
+        if (props.answer !== undefined && isOpen) {
+          props.onAnswered?.();
+          return;
+        }
+        // changeOpen(isOpen);
+        if (isOpen === false) {
+          props.onCloseClick?.();
+        }
+      },
+      [props]
+    );
+
     const changeOpen = useCallback(
       (open: boolean) => {
         setIsOpen(open);
+        openPanel?.(open);
         props.onOpen?.(open);
       },
-      [props]
+      [openPanel, props]
     );
 
     useImperativeHandle(ref, () => ({
@@ -111,27 +126,9 @@ const SMOverlayInner = forwardRef<SMOverlayRef, ExtendedSMOverlayProperties>(
       show: () => changeOpen(true)
     }));
 
-    const openPanel = useCallback(
-      (isOpen: boolean) => {
-        if (props.answer !== undefined) {
-          props.onAnswered?.();
-          return;
-        }
-        changeOpen(isOpen);
-        if (isOpen === false) {
-          props.onCloseClick?.();
-        }
-      },
-      [changeOpen, props]
-    );
-
     const content = useMemo(() => {
-      return (
-        <SMCard {...props} openPanel={openPanel}>
-          {props.children}
-        </SMCard>
-      );
-    }, [openPanel, props]);
+      return <SMCard {...props}>{props.children}</SMCard>;
+    }, [props]);
 
     const getStyle = useMemo((): CSSProperties => {
       if (props.modalCentered) {

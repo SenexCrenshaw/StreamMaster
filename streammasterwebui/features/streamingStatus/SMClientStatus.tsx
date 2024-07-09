@@ -2,14 +2,29 @@ import SMDataTable from '@components/smDataTable/SMDataTable';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 import { formatJSONDateString, getElapsedTimeString } from '@lib/common/dateTime';
 import { ClientStreamingStatistics } from '@lib/smAPI/smapiTypes';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { VideoInfoDisplay } from './VideoInfoDisplay';
+import { GetClientStreamingStatistics } from '@lib/smAPI/Statistics/StatisticsCommands';
+import CancelClientDialog from '@components/streaming/CancelClientDialog';
 
-interface SMClientStatusProps {
-  readonly clientStreamingStatistics: ClientStreamingStatistics[];
-}
+const SMClientStatus = () => {
+  const [clientStreamingStatistics, setClientStreamingStatistics] = useState<ClientStreamingStatistics[]>([]);
 
-const SMClientStatus = ({ clientStreamingStatistics }: SMClientStatusProps) => {
+  const getStats = useCallback(async () => {
+    try {
+      const [clientStats] = await Promise.all([GetClientStreamingStatistics()]);
+
+      setClientStreamingStatistics(clientStats ?? []);
+      // setStreamStreamingStatistics(streamStats ?? []);
+    } catch (error) {}
+  }, [setClientStreamingStatistics]);
+
+  useEffect(() => {
+    getStats();
+    const intervalId = setInterval(getStats, 1000);
+    return () => clearInterval(intervalId);
+  }, [getStats]);
+
   const clientBitsPerSecondTemplate = (rowData: ClientStreamingStatistics) => {
     if (rowData.BitsPerSecond === undefined) return <div />;
 
@@ -26,7 +41,12 @@ const SMClientStatus = ({ clientStreamingStatistics }: SMClientStatusProps) => {
   const clientStartTimeTemplate = (rowData: ClientStreamingStatistics) => <div>{formatJSONDateString(rowData.StartTime ?? '')}</div>;
 
   const actionTemplate = useCallback((data: ClientStreamingStatistics) => {
-    return <VideoInfoDisplay channelId={data.ChannelId} />;
+    return (
+      <div className="sm-center-stuff">
+        <VideoInfoDisplay channelId={data.ChannelId} />
+        <CancelClientDialog clientId={data.ClientId} />
+      </div>
+    );
   }, []);
 
   const columns = useMemo(
@@ -37,7 +57,7 @@ const SMClientStatus = ({ clientStreamingStatistics }: SMClientStatusProps) => {
       { align: 'right', bodyTemplate: clientBitsPerSecondTemplate, field: 'BitsPerSecond', header: 'Kbps', width: 50 },
       { align: 'center', bodyTemplate: clientStartTimeTemplate, field: 'StartTime', header: 'StartTime', width: 150 },
       { align: 'right', bodyTemplate: elapsedTSTemplate, field: 'ElapsedTime', header: '(d hh:mm:ss)', width: 85 },
-      { align: 'center', bodyTemplate: actionTemplate, field: 'IsHidden', fieldType: 'actions', header: '', width: 24 }
+      { align: 'center', bodyTemplate: actionTemplate, field: 'actions', fieldType: 'actions', header: '', width: 44 }
     ],
     [actionTemplate, elapsedTSTemplate]
   );

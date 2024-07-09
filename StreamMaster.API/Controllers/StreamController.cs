@@ -141,6 +141,7 @@ namespace StreamMaster.API.Controllers
                 return StatusCode(500, "Error streaming video");
             }
         }
+
         private class UnregisterClientOnDispose(IChannelService _channelService, IChannelStatus channelStatus, int smChannelId) : IDisposable
         {
             private readonly IChannelService _channelService = _channelService;
@@ -149,9 +150,10 @@ namespace StreamMaster.API.Controllers
 
             public void Dispose()
             {
+                IChannelStatus? status = _channelService.GetChannelStatusFromSMChannelId(smChannelId);
 
-                int count = _channelService.GetChannelStatusesFromSMChannelId(smChannelId).Count;
-                if (count == 0)
+                //int count = _channelService.GetChannelStatusesFromSMChannelId(smChannelId);
+                if (status == null || status.ClientCount == 0)
                 {
                     _channelService.UnRegisterChannel(smChannelId);
                 }

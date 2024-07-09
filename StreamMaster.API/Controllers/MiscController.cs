@@ -1,27 +1,35 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-using StreamMaster.Domain.Common;
-using StreamMaster.Domain.Services;
+using StreamMaster.Streams.Domain.Interfaces;
+using StreamMaster.Streams.Domain.Statistics;
 
 using System.Text;
 
 namespace StreamMaster.API.Controllers;
 
-public class MiscController : ApiControllerBase
+public class MiscController(IImageDownloadService imageDownloadService, IStreamManager streamManager) : ApiControllerBase
 {
-    private readonly IImageDownloadService imageDownloadService;
-
-    public MiscController(IImageDownloadService imageDownloadService)
-    {
-        this.imageDownloadService = imageDownloadService;
-    }
-
     [HttpGet]
     [Route("[action]")]
     public ActionResult<ImageDownloadServiceStatus> GetDownloadServiceStatus()
     {
         ImageDownloadServiceStatus status = imageDownloadService.GetStatus();
         return Ok(status);
+    }
+
+    [HttpGet]
+    [Route("[action]")]
+    public ActionResult<IDictionary<string, StreamHandlerMetrics>> GetStreamManagerStats()
+    {
+        IDictionary<string, StreamHandlerMetrics> metrics = streamManager.GetAggregatedMetrics();
+        return Ok(metrics);
+    }
+
+    [HttpGet("health")]
+    public IActionResult GetStreamManagerHealth()
+    {
+        bool isHealthy = streamManager.IsHealthy();
+        return isHealthy ? Ok("Healthy") : StatusCode(500, "Unhealthy");
     }
 
     [HttpGet]

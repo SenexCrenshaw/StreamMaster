@@ -45,14 +45,12 @@ const SMPopUp = forwardRef<SMPopUpRef, SMPopUpProperties>(
 
     const closed = useCallback(() => {
       onCloseClick?.(); // Call the custom onClick handler if provided
-      if (rememberKey && rememberKey !== '' && remember?.checked === true) {
-        setRemeber({ checked: true, value: false } as RememberProps);
-        Logger.debug('Remember', { remember });
-      }
-      overlayRef.current?.hide();
-    }, [onCloseClick, remember, rememberKey, setRemeber]);
-
-    // Logger.debug('Popup', props.title, isPopupLoading);
+      // if (rememberKey && rememberKey !== '' && remember?.checked === true) {
+      //   setRemeber({ checked: true, value: false } as RememberProps);
+      //   Logger.debug('Remember', { remember });
+      // }
+      //overlayRef.current?.hide();
+    }, [onCloseClick]);
 
     useImperativeHandle(ref, () => ({
       getOpen: () => {
@@ -61,6 +59,8 @@ const SMPopUp = forwardRef<SMPopUpRef, SMPopUpProperties>(
       hide: () => overlayRef.current?.hide(),
       show: (event: any) => overlayRef.current?.show(event)
     }));
+
+    Logger.debug('Remember', { remember });
 
     return (
       <SMOverlay
@@ -71,10 +71,10 @@ const SMPopUp = forwardRef<SMPopUpRef, SMPopUpProperties>(
         onCloseClick={closed}
         onAnswered={() => {
           if (rememberKey && rememberKey !== '' && remember !== null) {
-            if (remember.checked === true && remember.value !== undefined) {
-              if (remember.value === true) {
-                onOkClick && onOkClick();
-              }
+            if (remember.checked === true) {
+              // if (remember.value === true) {
+              onOkClick && onOkClick();
+              // }
               overlayRef.current?.hide();
             }
           }
@@ -109,24 +109,27 @@ const SMPopUp = forwardRef<SMPopUpRef, SMPopUpProperties>(
         answer={remember?.checked ? remember?.value : undefined ?? undefined}
         {...props}
       >
-        <SMCard>
-          <>
-            {children}
-            {showRemember && !props.modal && (
-              <div className="flex w-full align-items-center justify-content-end pt-1">
-                <div className="sm-border-divider pt-1">
-                  <BooleanEditor
-                    label="Don't Ask Again?"
-                    labelInline
-                    labelSmall
-                    checked={checked}
-                    onChange={(e) => setRemeber({ checked: e, value: remember?.value } as RememberProps)}
-                  />
-                </div>
-              </div>
-            )}
-          </>
-        </SMCard>
+        {children ||
+          (showRemember && rememberKey && (
+            <SMCard>
+              <>
+                {children}
+                {showRemember && !props.modal && (
+                  <div className="flex w-full align-items-center justify-content-end pt-1">
+                    <div className="sm-border-divider pt-1">
+                      <BooleanEditor
+                        label="Don't Ask Again?"
+                        labelInline
+                        labelSmall
+                        checked={checked}
+                        onChange={(e) => setRemeber({ checked: e, value: e } as RememberProps)}
+                      />
+                    </div>
+                  </div>
+                )}
+              </>
+            </SMCard>
+          ))}
       </SMOverlay>
     );
   }

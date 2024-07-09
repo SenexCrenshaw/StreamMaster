@@ -1,26 +1,45 @@
 ﻿using StreamMaster.Streams.Buffers;
+using StreamMaster.Streams.Domain.Statistics;
 
 using System.Collections.Concurrent;
 
 namespace StreamMaster.Streams.Streams;
 
-public class StreamManager(IStreamHandlerFactory streamHandlerFactory, IClientStatisticsManager statisticsManager, ILoggerFactory loggerFactory) : IStreamManager
+public class StreamManager(IStreamHandlerFactory streamHandlerFactory, IClientStatisticsManager statisticsManager, ILoggerFactory loggerFactory)
+    : IStreamManager
 {
-
-    public event EventHandler<IStreamHandler> OnStreamingStoppedEvent;
+    public event EventHandler<StreamHandlerStopped> OnStreamingStoppedEvent;
     private readonly ConcurrentDictionary<string, IStreamHandler> _streamHandlers = new();
     private readonly object _disposeLock = new();
     private readonly ILogger<StreamManager> logger = loggerFactory.CreateLogger<StreamManager>();
     private bool _disposed = false;
 
-    //public StreamManager(
-    //    IStreamHandlerFactory streamHandlerFactory,
-    //    ILogger<StreamManager> logger
-    //)
-    //{
-    //    this.streamHandlerFactory = streamHandlerFactory;
-    //    this.logger = logger;
-    //}
+    public bool IsHealthy()
+    {
+        return _streamHandlers.Values.All(handler => handler.IsHealthy());
+    }
+
+    public IDictionary<string, StreamHandlerMetrics> GetAggregatedMetrics()
+    {
+        Dictionary<string, StreamHandlerMetrics> metrics = [];
+
+        foreach (KeyValuePair<string, IStreamHandler> kvp in _streamHandlers)
+        {
+            IStreamHandler handler = kvp.Value;
+            metrics[kvp.Key] = new StreamHandlerMetrics
+            {
+                BytesRead = handler.GetBytesRead(),
+                BytesWritten = handler.GetBytesWritten(),
+                ClientCount = handler.GetClientCount(),
+                Kbps = handler.GetKbps(),
+                StartTime = handler.GetStartTime(),
+                AverageLatency = handler.GetAverageLatency(),
+                ErrorCount = handler.GetErrorCount()
+            };
+        }
+
+        return metrics;
+    }
 
     public void Dispose()
     {
@@ -74,12 +93,11 @@ public class StreamManager(IStreamHandlerFactory streamHandlerFactory, IClientSt
         SMStream smStream = channelStatus.SMStream;
         SMChannel smChannel = channelStatus.SMChannel;
 
-
         _ = _streamHandlers.TryGetValue(smStream.Url, out IStreamHandler? streamHandler);
 
         if (streamHandler is not null && streamHandler.IsFailed == true)
         {
-            await StopAndUnRegisterHandler(smStream.Url);
+            StopAndUnRegisterHandler(smStream.Url);
             _ = _streamHandlers.TryGetValue(smStream.Url, out streamHandler);
         }
 
@@ -112,20 +130,22 @@ public class StreamManager(IStreamHandlerFactory streamHandlerFactory, IClientSt
 
     private void StreamHandler_OnStreamingStoppedEvent(object? sender, StreamHandlerStopped StoppedEvent)
     {
-        if (sender is IStreamHandler streamHandler)
-        {
-            if (streamHandler is not null)
-            {
-                if (StoppedEvent.InputStreamError && streamHandler.ClientCount > 0)
-                {
-                    OnStreamingStoppedEvent?.Invoke(sender, streamHandler);
-                }
-                else
-                {
-                    OnStreamingStoppedEvent?.Invoke(sender, streamHandler);
-                }
-            }
-        }
+        //if (sender is not null and IStreamHandler streamHandler)
+        //{
+        //    //if (StoppedEvent.InputStreamError )
+        //    //{
+        //    //    OnStreamingStoppedEvent?.Invoke(sender, streamHandler);
+        //    //}
+        //    //else
+        //    //{
+        //    //    OnStreamingStoppedEvent?.Invoke(sender, streamHandler);
+        //    //}
+        //    //streamHandler.UnRegisterAllClientStreamers();
+        //    //streamHandler.Stop();
+        //    //StopAndUnRegisterHandler(streamHandler.SMStream.Url);
+        //    OnStreamingStoppedEvent?.Invoke(sender, StoppedEvent);
+        //}
+        OnStreamingStoppedEvent?.Invoke(sender, StoppedEvent);
     }
 
     public VideoInfo GetVideoInfo(string streamUrl)
@@ -138,6 +158,8 @@ public class StreamManager(IStreamHandlerFactory streamHandlerFactory, IClientSt
     {
         return _streamHandlers.Values.FirstOrDefault(x => x.SMStream.Url == streamUrl);
     }
+
+
     public int GetStreamsCountForM3UFile(int m3uFileId)
     {
         return _streamHandlers.Count(x => x.Value.SMStream.M3UFileId == m3uFileId);
@@ -148,51 +170,51 @@ public class StreamManager(IStreamHandlerFactory streamHandlerFactory, IClientSt
         return _streamHandlers.Values == null ? ([]) : ([.. _streamHandlers.Values]);
     }
 
-    public async Task MoveClientStreamers(IStreamHandler oldStreamHandler, IStreamHandler newStreamHandler, CancellationToken cancellationToken = default)
-    {
-        List<ClientStreamerConfiguration> configs = oldStreamHandler.GetClientStreamerClientIdConfigs.ToList();
+    //public async Task MoveClientStreamers(IStreamHandler oldStreamHandler, IStreamHandler newStreamHandler, CancellationToken cancellationToken = default)
+    //{
+    //    List<ClientStreamerConfiguration> configs = oldStreamHandler.GetClientStreamerClientIdConfigs.ToList();
 
-        if (!configs.Any())
-        {
-            return;
-        }
+    //    if (!configs.Any())
+    //    {
+    //        return;
+    //    }
 
-        logger.LogInformation("Moving clients {count} from {OldStreamUrl} to {NewStreamUrl}", configs.Count(), oldStreamHandler.SMStream.Name, newStreamHandler.SMStream.Name);
+    //    logger.LogInformation("Moving clients {count} from {OldStreamUrl} to {NewStreamUrl}", configs.Count(), oldStreamHandler.SMStream.Name, newStreamHandler.SMStream.Name);
 
-        await AddClientsToHandler(configs, newStreamHandler);
+    //    AddClientsToHandler(configs, newStreamHandler);
 
-        foreach (ClientStreamerConfiguration? streamerConfiguration in configs)
-        {
+    //    foreach (ClientStreamerConfiguration? streamerConfiguration in configs)
+    //    {
 
-            if (streamerConfiguration == null)
-            {
-                logger.LogError("Error registering stream configuration for client {ClientId}, streamerConfiguration null.", streamerConfiguration.ClientId);
-                return;
-            }
-
-
-            _ = oldStreamHandler.UnRegisterClientStreamer(streamerConfiguration.ClientId);
-
-        }
+    //        if (streamerConfiguration == null)
+    //        {
+    //            logger.LogError("Error registering stream configuration for client {ClientId}, streamerConfiguration null.", streamerConfiguration.ClientId);
+    //            return;
+    //        }
 
 
-        if (oldStreamHandler.ClientCount == 0)
-        {
-            //await Task.Delay(100);
-            await StopAndUnRegisterHandler(oldStreamHandler.SMStream.Url);
+    //        _ = oldStreamHandler.UnRegisterClientStreamer(streamerConfiguration.ClientId);
 
-        }
-    }
+    //    }
 
-    public async Task AddClientsToHandler(List<ClientStreamerConfiguration> clientIds, IStreamHandler streamHandler)
+
+    //    if (oldStreamHandler.ClientCount == 0)
+    //    {
+    //        //await Task.Delay(100);
+    //        StopAndUnRegisterHandler(oldStreamHandler.SMStream.Url);
+
+    //    }
+    //}
+
+    public void AddClientsToHandler(List<ClientStreamerConfiguration> clientIds, IStreamHandler streamHandler)
     {
         foreach (ClientStreamerConfiguration clientId in clientIds)
         {
-            await AddClientToHandler(clientIds[0].SMChannel, clientId, streamHandler).ConfigureAwait(false);
+            AddClientToHandler(clientId, streamHandler);
         }
     }
 
-    public async Task AddClientToHandler(SMChannel smChannel, ClientStreamerConfiguration streamerConfiguration, IStreamHandler streamHandler)
+    public void AddClientToHandler(ClientStreamerConfiguration streamerConfiguration, IStreamHandler streamHandler)
     {
         if (streamerConfiguration != null)
         {
@@ -213,7 +235,7 @@ public class StreamManager(IStreamHandlerFactory streamHandlerFactory, IClientSt
         return _streamHandlers.Values.FirstOrDefault(x => x.HasClient(ClientId));
     }
 
-    public async Task<bool> StopAndUnRegisterHandler(string VideoStreamUrl)
+    public bool StopAndUnRegisterHandler(string VideoStreamUrl)
     {
         if (_streamHandlers.TryRemove(VideoStreamUrl, out IStreamHandler? streamHandler))
         {
@@ -226,4 +248,21 @@ public class StreamManager(IStreamHandlerFactory streamHandlerFactory, IClientSt
 
     }
 
+    public int UnRegisterClientStreamer(string url, Guid clientId, string SMChannelName)
+    {
+        IStreamHandler? streamHandler = GetStreamHandlerFromStreamUrl(url);
+        if (streamHandler == null)
+        {
+            return 0;
+        }
+
+        streamHandler.UnRegisterClientStreamer(clientId);
+
+        if (streamHandler.ClientCount == 0)
+        {
+            logger.LogInformation("No more clients, stopping streaming for {clientId} {name}", clientId, SMChannelName);
+            StopAndUnRegisterHandler(url);
+        }
+        return streamHandler.ClientCount;
+    }
 }

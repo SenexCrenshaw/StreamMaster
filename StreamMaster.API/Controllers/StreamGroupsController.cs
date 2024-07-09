@@ -165,7 +165,7 @@ public class StreamGroupsController()
             return new NotFoundResult();
         }
 
-        var profile = Repository.StreamGroupProfile.GetStreamGroupProfile(streamGroupId.Value, streamGroupProfileId.Value);
+        StreamGroupProfile? profile = Repository.StreamGroupProfile.GetStreamGroupProfile(streamGroupId.Value, streamGroupProfileId.Value);
 
         string xml = await Mediator.Send(new GetStreamGroupEPG(streamGroupId.Value, streamGroupProfileId.Value)).ConfigureAwait(false);
         return new FileContentResult(Encoding.UTF8.GetBytes(xml), "application/xml")
@@ -236,13 +236,4 @@ public class StreamGroupsController()
         };
     }
 
-
-    [HttpGet]
-    [Route("[action]")]
-    public ActionResult<string?> GetStreamGroupVideoStreamUrl(string VideoStreamId)
-    {
-        //string? res = await Mediator.Send(new GetStreamGroupVideoStreamUrl(StreamId)).ConfigureAwait(false);
-        //return Ok(res);
-        return Ok("hello");
-    }
 }

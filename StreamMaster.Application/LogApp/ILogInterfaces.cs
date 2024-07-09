@@ -1,8 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-
-using StreamMaster.Domain.Dto;
-using StreamMaster.Domain.Models;
 
 using StreamMaster.Application.LogApp.Queries;
 
@@ -22,10 +18,3 @@ public interface ILogHub
 {
     Task<IEnumerable<LogEntryDto>> GetLog(GetLogRequest request);
 }
-
-public interface ILogTasks
-{
-}
-
-public interface ILogScoped
-{ }

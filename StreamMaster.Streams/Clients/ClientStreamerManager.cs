@@ -22,7 +22,7 @@ public sealed class ClientStreamerManager(ILogger<ClientStreamerManager> logger,
 
                 foreach (IClientStreamerConfiguration clientStreamerConfiguration in clientStreamerConfigurations.Values)
                 {
-                    CancelClient(clientStreamerConfiguration.ClientId, false).Wait();
+                    CancelClient(clientStreamerConfiguration.ClientId, true).Wait();
                 }
                 clientStreamerConfigurations.Clear();
             }
@@ -58,7 +58,7 @@ public sealed class ClientStreamerManager(ILogger<ClientStreamerManager> logger,
 
     public async Task UnRegisterClient(Guid clientId)
     {
-        await CancelClient(clientId, false).ConfigureAwait(false);
+        await CancelClient(clientId, true).ConfigureAwait(false);
 
         bool removed = clientStreamerConfigurations.TryRemove(clientId, out _);
 
@@ -90,16 +90,17 @@ public sealed class ClientStreamerManager(ILogger<ClientStreamerManager> logger,
         {
             if (includeAbort)
             {
-                //if (!streamerConfiguration.Response.HasStarted)
-                //{
-                //    response.Body.Flush();
+                if (!streamerConfiguration.Response.HasStarted)
+                {
+                    streamerConfiguration.Response.Body.Flush();
 
-                //}
-                //await response.CompleteAsync();
-                //if (!response.HttpContext.Response.HasStarted)
-                //{
-                //    response.HttpContext.Abort();
-                //}
+                }
+                streamerConfiguration.Response.Body.Flush();
+                await streamerConfiguration.Response.CompleteAsync();
+                if (!streamerConfiguration.Response.HttpContext.Response.HasStarted)
+                {
+                    streamerConfiguration.Response.HttpContext.Abort();
+                }
             }
         }
         catch (ObjectDisposedException ex)
@@ -110,7 +111,6 @@ public sealed class ClientStreamerManager(ILogger<ClientStreamerManager> logger,
         {
 
         }
-        //ClientCancellationTokenSource.Cancel();
 
     }
 
@@ -125,12 +125,6 @@ public sealed class ClientStreamerManager(ILogger<ClientStreamerManager> logger,
         return null;
     }
 
-    //public List<IClientStreamerConfiguration> GetClientStreamerConfigurationFromIds(List<Guid> clientIds)
-    //{
-    //    return GetAllClientStreamerConfigurations.Where(a => clientIds.Contains(a.ClientId)).ToList();
-    //}
-
-
     public List<ClientStreamerConfiguration> GetClientStreamerConfigurationsBySMChannelId(int smChannelId)
     {
         ConcurrentDictionary<Guid, ClientStreamerConfiguration> a = clientStreamerConfigurations;
@@ -139,18 +133,11 @@ public sealed class ClientStreamerManager(ILogger<ClientStreamerManager> logger,
         return client;
     }
 
-    //public IClientStreamerConfiguration? GetClientStreamerConfiguration(string ChannelVideoStreamId, Guid ClientId)
-    //{
-    //    IClientStreamerConfiguration? test = GetAllClientStreamerConfigurations.FirstOrDefault(a => a.SMChannel.Id.Equals(ChannelVideoStreamId) && a.ClientId == ClientId);
-    //    return test;
-    //}
-
-
+    public bool HasClient(Guid clientId)
+    {
+        return clientStreamerConfigurations.ContainsKey(clientId);
+    }
 
     public ICollection<ClientStreamerConfiguration> GetAllClientStreamerConfigurations => clientStreamerConfigurations.Values;
 
-    //public bool HasClient(string ChannelVideoStreamId, Guid ClientId)
-    //{
-    //    return GetClientStreamerConfiguration(ChannelVideoStreamId, ClientId) != null;
-    //}
 }

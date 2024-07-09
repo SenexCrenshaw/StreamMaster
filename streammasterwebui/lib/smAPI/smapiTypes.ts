@@ -244,6 +244,12 @@ export interface IconFileDto
 	SMFileType: SMFileTypes;
 	Source: string;
 }
+export interface IdNameUrl
+{
+	Id: number;
+	Name: string;
+	Url: string;
+}
 export interface M3UFileDto
 {
 	AutoUpdate: boolean;
@@ -322,13 +328,13 @@ export interface SMChannelDto
 	Logo: string;
 	Name: string;
 	Rank: number;
-	RealUrl: string;
 	ShortSMChannelId: string;
 	SMStreams: SMStreamDto[];
 	StationId: string;
 	StreamGroupIds: number[];
 	StreamGroups: StreamGroupSMChannelLink[];
 	StreamingProxyType: string;
+	StreamUrl: string;
 	TimeShift: number;
 	VideoStreamHandler: VideoStreamHandlers;
 }
@@ -646,6 +652,24 @@ export interface HeadendDto
 	Name: string;
 	PostCode: string;
 	Transport: string;
+}
+export interface GetVideoStreamNamesAndUrlsRequest
+{
+}
+export interface CancelAllChannelsRequest
+{
+}
+export interface CancelChannelRequest
+{
+	SMChannelId: number;
+}
+export interface CancelClientRequest
+{
+	ClientId: any;
+}
+export interface MoveToNextStreamRequest
+{
+	SMChannelId: number;
 }
 export interface GetPagedStreamGroupsRequest
 {
@@ -1322,7 +1346,6 @@ export interface BPSStatistics
 	ElapsedTime: string;
 	IsSet: boolean;
 	StartTime: any;
-	StreamUrl?: string;
 }
 export interface ChannelStreamingStatistics
 {
@@ -1340,7 +1363,6 @@ export interface ChannelStreamingStatistics
 	IsSet: boolean;
 	StartTime: any;
 	StreamStreamingStatistics: StreamStreamingStatistic[];
-	StreamUrl?: string;
 }
 export interface ClientStatistics
 {
@@ -1362,7 +1384,6 @@ export interface ClientStreamingStatistics
 	ElapsedTime: string;
 	IsSet: boolean;
 	StartTime: any;
-	StreamUrl?: string;
 }
 export interface StreamStreamingStatistic
 {

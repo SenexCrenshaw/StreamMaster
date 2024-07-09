@@ -2,6 +2,7 @@
 
 public sealed class ChannelStatus(SMChannelDto smChannel) : IChannelStatus
 {
+    public bool Shutdown { get; set; } = false;
     public bool IsStarted { get; set; }
     public bool IsGlobal { get; set; }
     public bool FailoverInProgress { get; set; }

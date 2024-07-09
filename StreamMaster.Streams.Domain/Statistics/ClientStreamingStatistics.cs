@@ -12,6 +12,7 @@ public class ClientStreamingStatistics : BPSStatistics
         ChannelId = StreamerConfiguration.SMChannel.Id;
         ClientAgent = StreamerConfiguration.ClientUserAgent;
         ClientId = StreamerConfiguration.ClientId;
+
     }
 
 

@@ -5,13 +5,13 @@ public interface IChannelService
     void Dispose();
     IChannelStatus? GetChannelStatus(int smChannelId);
     List<IChannelStatus> GetChannelStatuses();
-    List<IChannelStatus> GetChannelStatusesFromSMChannelId(int smChannelId);
+    IChannelStatus? GetChannelStatusFromSMChannelId(int smChannelId);
     List<IChannelStatus> GetChannelStatusesFromSMStreamId(string smStreamId);
     int GetGlobalStreamsCount();
     bool HasChannel(int SMChannelId);
     Task<IChannelStatus?> RegisterChannel(ClientStreamerConfiguration config);
 
     Task<IChannelStatus?> SetupChannel(SMChannelDto smChannel);
-    Task SetNextChildVideoStream(IChannelStatus channelStatus, string? overrideNextVideoStreamId = null);
+    Task<bool> SetNextChildVideoStream(IChannelStatus channelStatus, string? overrideNextVideoStreamId = null);
     void UnRegisterChannel(int smChannelId);
 }

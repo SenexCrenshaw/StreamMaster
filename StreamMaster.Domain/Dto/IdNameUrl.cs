@@ -3,17 +3,18 @@
 namespace StreamMaster.Domain.Dto;
 
 [RequireAll]
+[TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public class IdNameUrl
 {
     public IdNameUrl() { }
 
-    public IdNameUrl(string Id, string Name, string Url)
+    public IdNameUrl(int Id, string Name, string Url)
     {
         this.Id = Id;
         this.Name = Name;
         this.Url = Url;
     }
-    public string Id { get; set; } = string.Empty;
+    public int Id { get; set; }
     public string Name { get; set; } = string.Empty;
     public string Url { get; set; } = string.Empty;
 }

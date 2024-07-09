@@ -2,7 +2,7 @@
 
 namespace StreamMaster.Application.Common.Interfaces;
 
-public interface IStreamMasterHub //: ISharedHub
+public interface IStreamMasterHub
 {
     Task IsSystemReady(bool isSystemReady);
     Task TaskIsRunning(bool isSystemReady);

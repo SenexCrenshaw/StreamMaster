@@ -2,25 +2,25 @@
 using StreamMaster.Streams.Streams;
 namespace StreamMaster.Streams.Factories;
 
-public sealed class StreamHandlerFactory(IStreamStreamingStatisticsManager streamStreamingStatisticsManager, IOptionsMonitor<Setting> intsettings, ILoggerFactory loggerFactory, IProxyFactory proxyFactory)
+public sealed class StreamHandlerFactory(IStreamStreamingStatisticsManager streamStreamingStatisticsManager, IOptionsMonitor<Setting> intSettings, ILoggerFactory loggerFactory, IProxyFactory proxyFactory)
     : IStreamHandlerFactory
 {
-    private readonly Setting Settings = intsettings.CurrentValue;
 
     public async Task<IStreamHandler?> CreateStreamHandlerAsync(IChannelStatus channelStatus, CancellationToken cancellationToken)
     {
-        SMStream smStream = channelStatus.SMStream;
-        SMChannel smChannel = channelStatus.SMChannel;
+        SMStreamDto smStream = channelStatus.SMStream;
+        SMChannelDto smChannel = channelStatus.SMChannel;
         VideoOutputProfileDto videoProfile = channelStatus.VideoProfile;
+        Setting settings = intSettings.CurrentValue;
         //int rank = channelStatus.CurrentRank;
 
-        (Stream? stream, int processId, ProxyStreamError? error) = await proxyFactory.GetProxy(smStream.Url, smStream.Name, videoProfile, cancellationToken).ConfigureAwait(false);
+        (Stream? stream, int processId, ProxyStreamError? error) = await proxyFactory.GetProxy(smStream, settings.StreamingClientUserAgent, cancellationToken).ConfigureAwait(false);
         if (stream == null || error != null || processId == 0)
         {
             return null;
         }
 
-        StreamHandler streamHandler = new(channelStatus, processId, intsettings, loggerFactory, streamStreamingStatisticsManager);
+        StreamHandler streamHandler = new(channelStatus, processId, intSettings, loggerFactory, streamStreamingStatisticsManager);
 
         _ = Task.Run(() => streamHandler.StartVideoStreamingAsync(stream), cancellationToken);
 

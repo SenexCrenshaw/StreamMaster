@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-
-namespace StreamMaster.Streams.Channels;
+﻿namespace StreamMaster.Streams.Channels;
 
 public sealed class ChannelManager : IChannelManager
 {
@@ -12,6 +10,7 @@ public sealed class ChannelManager : IChannelManager
     private readonly IClientStreamerManager clientStreamerManager;
     private readonly IBroadcastService broadcastService;
     private readonly IServiceProvider serviceProvider;
+    private readonly IMessageService messageService;
     private bool _disposed = false;
     public ChannelManager(
     ILogger<ChannelManager> logger,
@@ -19,10 +18,12 @@ public sealed class ChannelManager : IChannelManager
     IStreamManager streamManager,
     IClientStreamerManager clientStreamerManager,
     IBroadcastService broadcastService,
-    IServiceProvider serviceProvider
+    IServiceProvider serviceProvider,
+    IMessageService messageService
     )
     {
         this.logger = logger;
+        this.messageService = messageService;
         this.serviceProvider = serviceProvider;
         this.channelService = channelService;
         this.broadcastService = broadcastService;
@@ -31,7 +32,55 @@ public sealed class ChannelManager : IChannelManager
         this.streamManager.OnStreamingStoppedEvent += StreamManager_OnStreamingStoppedEvent;
         //broadcastService.StartBroadcasting();
     }
+    private async void StreamManager_OnStreamingStoppedEvent(object? sender, StreamHandlerStopped StoppedEvent)
+    {
+        if (sender is not null and IStreamHandler streamHandler)
+        {
+            streamHandler.Stop();
 
+            logger.LogInformation("Streaming Stopped Event for StreamId: {StreamId} {ChannelName} {StreamName}", streamHandler.SMStream.Id, streamHandler.SMChannel.Name, streamHandler.SMChannel.Name);
+
+            List<IChannelStatus> affectedChannelStatuses = channelService.GetChannelStatusesFromSMStreamId(streamHandler.SMStream.Id);
+            //List<IChannelStatus> affectedChannelStatuses = channelService.GetChannelStatusesFromSMStreamId(streamHandler.SMStream.Id);
+            foreach (IChannelStatus channelStatus in affectedChannelStatuses)
+            {
+                if (channelStatus != null && channelStatus.Shutdown != true)
+                {
+                    if (channelStatus.FailoverInProgress)
+                    {
+                        continue;
+                    }
+
+                    if (!string.IsNullOrEmpty(channelStatus.OverrideVideoStreamId))
+                    {
+                        channelStatus.OverrideVideoStreamId = "";
+                        continue;
+                    }
+
+                    bool didSwitch = await channelService.SwitchChannelToNextStream(channelStatus);
+
+                    if (!didSwitch)
+                    {
+                        clientStreamerManager.GetClientStreamerConfigurationsBySMChannelId(channelStatus.SMChannel.Id)
+                            .ForEach(async x =>
+                            {
+                                await CancelClient(x.ClientId);
+                            }
+                            );
+
+                        continue;
+                    }
+                }
+            }
+
+            if (streamHandler.ClientCount == 0)
+            {
+                streamManager.StopAndUnRegisterHandler(streamHandler.SMStream.Url);
+
+            }
+
+        }
+    }
 
     public async Task<Stream?> GetChannelAsync(ClientStreamerConfiguration config, CancellationToken cancellationToken = default)
     {
@@ -45,10 +94,8 @@ public sealed class ChannelManager : IChannelManager
                 return null;
             }
 
-            using var scope = serviceProvider.CreateScope();
-            var repository = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
 
-            var channelStatus = await channelService.RegisterChannel(config);
+            IChannelStatus? channelStatus = await channelService.RegisterChannel(config);
 
             if (channelStatus == null)
             {
@@ -58,7 +105,7 @@ public sealed class ChannelManager : IChannelManager
 
             }
 
-
+            await messageService.SendInfo($"Client started streaming {config.SMChannel.Name}", "Client Start");
             return config.ClientStream as Stream;
         }
         finally
@@ -67,52 +114,8 @@ public sealed class ChannelManager : IChannelManager
         }
     }
 
-    private async void StreamManager_OnStreamingStoppedEvent(object? sender, IStreamHandler streamHandler)
-    {
-        //if (streamHandler is not null)
-        //{
-        //    logger.LogInformation("Streaming Stopped Event for StreamId: {StreamId} {StreamName}", streamHandler.SMStream.Id, streamHandler.StreamName);
 
 
-        //    List<IChannelStatus> affectedChannelStatuses = channelService.GetChannelStatusesFromSMStreamId(streamHandler.SMStream.Id);
-        //    foreach (IChannelStatus channelStatus in affectedChannelStatuses)
-        //    {
-        //        if (channelStatus != null)
-        //        {
-        //            if (channelStatus.FailoverInProgress)
-        //            {
-        //                continue;
-        //            }
-
-        //            if (!string.IsNullOrEmpty(channelStatus.OverrideVideoStreamId))
-        //            {
-        //                channelStatus.OverrideVideoStreamId = "";
-        //                continue;
-        //            }
-
-        //            bool didSwitch = await streamSwitcher.SwitchChannelToNextStream(channelStatus);
-
-        //            if (streamHandler.ClientCount == 0 && !didSwitch)
-        //            {
-        //                clientStreamerManager.GetClientStreamerConfigurationsBySMChannelId(channelStatus.Id)
-        //                    .ForEach(async x =>
-        //                    {
-        //                        await x.CancelClient();
-        //                        await UnRegisterWithChannelManager(x).ConfigureAwait(false);
-        //                    }
-        //                    );
-
-        //                continue;
-        //            }
-        //        }
-        //    }
-        //    if (streamHandler.ClientCount == 0)
-        //    {
-        //        streamHandler.Stop();
-        //    }
-
-        //}
-    }
 
     public VideoInfo GetVideoInfo(int SMChannelId)
     {
@@ -122,9 +125,7 @@ public sealed class ChannelManager : IChannelManager
             return new();
         }
 
-        IStreamHandler? streamHandler = streamManager.GetStreamHandler(channelStatus.SMStream.Url);
-
-        return streamHandler is null ? new() : streamHandler.GetVideoInfo();
+        return streamManager.GetVideoInfo(channelStatus.SMStream.Url);// streamHandler.GetVideoInfo();
     }
 
     public async Task ChangeVideoStreamChannelAsync(string playingSMStreamId, string newSMStreamId, CancellationToken cancellationToken = default)
@@ -168,6 +169,7 @@ public sealed class ChannelManager : IChannelManager
             {
                 streamManager.Dispose();
                 channelService.Dispose();
+                clientStreamerManager.Dispose();
 
                 _registerSemaphore.Dispose();
             }
@@ -182,9 +184,17 @@ public sealed class ChannelManager : IChannelManager
         }
 
     }
-    public void FailClient(Guid clientId)
+    public async Task CancelClient(Guid clientId)
     {
         _ = clientStreamerManager.CancelClient(clientId, true);
+
+        ClientStreamerConfiguration? config = await clientStreamerManager.GetClientStreamerConfiguration(clientId);
+        if (config == null)
+        {
+            return;
+        }
+
+        await UnRegisterWithChannelManager(config).ConfigureAwait(false);
     }
 
 
@@ -200,14 +210,19 @@ public sealed class ChannelManager : IChannelManager
         {
             await _registerSemaphore.WaitAsync();
 
+            if (clientStreamerManager.HasClient(config.ClientId))
+            {
+                await messageService.SendInfo($"Client Exited from {config.SMChannel.Name}", "Client Exited");
+                await clientStreamerManager.UnRegisterClient(config.ClientId);
+            }
+
             logger.LogInformation("UnRegisterWithChannelManager client: {clientId}  {name}", config.ClientId, config.SMChannel.Name);
 
-            await clientStreamerManager.UnRegisterClient(config.ClientId);
 
             if (!channelService.HasChannel(config.SMChannel.Id))
             {
-                logger.LogDebug("UnRegisterWithChannelManager finished early, VideoStreamId not found in channelService, {clientId}  {name}", config.ClientId, config.SMChannel.Name);
-                //    return;
+                logger.LogError("UnRegisterWithChannelManager cannot find channel for {SMChannelId} {name}", config.SMChannel.Id, config.SMChannel.Name);
+                return;
             }
 
             IChannelStatus? channelStatus = channelService.GetChannelStatus(config.SMChannel.Id);
@@ -218,60 +233,89 @@ public sealed class ChannelManager : IChannelManager
                 if (StreamHandler == null)
                 {
                     logger.LogError("UnRegisterWithChannelManager cannot find handler for {clientId}  {name}", config.ClientId, config.SMChannel.Name);
-
+                    return;
                 }
-                else
+
+                if (streamManager.UnRegisterClientStreamer(channelStatus.SMStream.Url, config.ClientId, config.SMChannel.Name) == 0)
                 {
-                    _ = StreamHandler.UnRegisterClientStreamer(config.ClientId);
+                    logger.LogInformation("UnRegisterWithChannelManager No more clients, unregister channel {name}", config.SMChannel.Name);
 
-                    if (StreamHandler.ClientCount == 0)
-                    {
-
-                        logger.LogInformation("ChannelManager No more clients, stopping streaming for {clientId}  {name}", config.ClientId, config.SMChannel.Name);
-                        await streamManager.StopAndUnRegisterHandler(channelStatus.SMStream.Url);
-
-                        channelService.UnRegisterChannel(config.SMChannel.Id);
-                    }
+                    channelService.UnRegisterChannel(config.SMChannel.Id);
                 }
 
-                if (channelStatus.ClientCount == 0)
-                {
-                    channelService.UnRegisterChannel(channelStatus.SMChannel.Id);
-
-                }
             }
-            logger.LogInformation("Finished UnRegisterWithChannelManager with client: {clientId}  {name}", config.ClientId, config.SMChannel.Name);
+
+            logger.LogInformation("UnRegisterWithChannelManager Finished with client: {clientId}  {name}", config.ClientId, config.SMChannel.Name);
         }
         finally
         {
             _ = _registerSemaphore.Release();
         }
     }
-    public void SimulateStreamFailure(string streamUrl)
+    public async Task CancelChannel(int SMChannelId)
     {
-        IStreamHandler? handler = streamManager.GetStreamHandlerFromStreamUrl(streamUrl);
+
+        IChannelStatus? stat = channelService.GetChannelStatus(SMChannelId);
+        if (stat is null)
+        {
+            logger.LogWarning("Channel not found: {SMChannelId}", SMChannelId);
+            return;
+        }
+
+        stat.Shutdown = true;
+
+        IStreamHandler? handler = streamManager.GetStreamHandlerFromStreamUrl(stat.SMStream.Url);
 
         if (handler is not null)
         {
+
             handler.Stop();
+
+            foreach (ClientStreamerConfiguration config in handler.GetClientStreamerClientIdConfigs)
+            {
+                await CancelClient(config.ClientId);
+            }
+            channelService.UnRegisterChannel(SMChannelId);
 
             logger.LogInformation("Simulating stream failure for: {VideoStreamName}", handler.SMStream.Name);
         }
         else
         {
-            logger.LogWarning("Stream not found, cannot simulate stream failure: {StreamUrl}", streamUrl);
+            logger.LogWarning("Stream not found, cannot simulate stream failure: {StreamUrl}", SMChannelId);
         }
     }
 
-    public void SimulateStreamFailureForAll()
+    public void MoveToNextStream(int SMChannelId)
+    {
+
+        IChannelStatus? stat = channelService.GetChannelStatus(SMChannelId);
+        if (stat is null)
+        {
+            logger.LogWarning("Channel not found: {SMChannelId}", SMChannelId);
+            return;
+        }
+
+
+        IStreamHandler? handler = streamManager.GetStreamHandlerFromStreamUrl(stat.SMStream.Url);
+
+        if (handler is not null)
+        {
+            handler.CancelStreamThread();
+
+            logger.LogInformation("Simulating stream failure for: {VideoStreamName}", handler.SMStream.Name);
+        }
+        else
+        {
+            logger.LogWarning("Stream not found, cannot simulate stream failure: {StreamUrl}", SMChannelId);
+        }
+    }
+
+    public void CancelAllChannels()
     {
         foreach (IStreamHandler s in streamManager.GetStreamHandlers())
         {
             s.Stop();
         }
     }
-
-
-
 
 }

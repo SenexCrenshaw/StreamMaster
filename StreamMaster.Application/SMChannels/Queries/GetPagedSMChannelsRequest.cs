@@ -62,7 +62,7 @@ internal class GetPagedSMChannelsRequestHandler(IRepositoryWrapper Repository, I
             }
 
             string jsonString = JsonSerializer.Serialize(videoUrl);
-            channel.RealUrl = jsonString;
+            channel.StreamUrl = jsonString;
         }
 
         Debug.WriteLine($"GetPagedSMChannelsRequestHandler returning {res.Data.Count} items");

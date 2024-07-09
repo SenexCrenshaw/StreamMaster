@@ -25,7 +25,7 @@ public class ChannelStreamingStatistics : BPSStatistics
         StartTime = SMDT.UtcNow;
 
         CurrentRank = currentRank;
-        ChannelUrl = smChannelDto.RealUrl;
+        ChannelUrl = smChannelDto.StreamUrl;
         ChannelName = smChannelDto.Name;
         Id = smChannelDto.Id;
         ChannelLogo = smChannelDto.Logo;

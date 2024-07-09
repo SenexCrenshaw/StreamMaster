@@ -3,14 +3,29 @@ import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 import { formatJSONDateString, getElapsedTimeString } from '@lib/common/dateTime';
 import { ChannelStreamingStatistics } from '@lib/smAPI/smapiTypes';
 import { DataTableRowData, DataTableRowExpansionTemplate } from 'primereact/datatable';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import SMChannelStatusValue from './SMChannelStatusValue';
+import { GetChannelStreamingStatistics } from '@lib/smAPI/Statistics/StatisticsCommands';
+import CancelChannelDialog from '@components/streaming/CancelChannelDialog';
+import MoveToNextStreamDialog from '@components/streaming/MoveToNextStreamDialog';
 
-interface SMChannelStatusProps {
-  readonly channelStreamingStatistics: ChannelStreamingStatistics[];
-}
+const SMChannelStatus = () => {
+  const [channelStreamingStatistics, setChannelStreamingStatistics] = useState<ChannelStreamingStatistics[]>([]);
 
-const SMChannelStatus = ({ channelStreamingStatistics }: SMChannelStatusProps) => {
+  const getStats = useCallback(async () => {
+    try {
+      const [channelStats] = await Promise.all([GetChannelStreamingStatistics()]);
+
+      setChannelStreamingStatistics(channelStats ?? []);
+    } catch (error) {}
+  }, [setChannelStreamingStatistics]);
+
+  useEffect(() => {
+    getStats();
+    const intervalId = setInterval(getStats, 1000);
+    return () => clearInterval(intervalId);
+  }, [getStats]);
+
   const clientBitsPerSecondTemplate = (rowData: ChannelStreamingStatistics) => {
     if (rowData.BitsPerSecond === undefined) return <div />;
 
@@ -22,6 +37,15 @@ const SMChannelStatus = ({ channelStreamingStatistics }: SMChannelStatusProps) =
 
   const elapsedTSTemplate = useCallback((rowData: ChannelStreamingStatistics) => {
     return <div className="numeric-field">{getElapsedTimeString(rowData.StartTime, new Date().toString(), true)}</div>;
+  }, []);
+
+  const actionTemplate = useCallback((rowData: ChannelStreamingStatistics) => {
+    return (
+      <div className="sm-center-stuff">
+        <CancelChannelDialog channelId={rowData.Id} />
+        <MoveToNextStreamDialog channelId={rowData.Id} />
+      </div>
+    );
   }, []);
 
   const clientStartTimeTemplate = (rowData: ChannelStreamingStatistics) => <div>{formatJSONDateString(rowData.StartTime ?? '')}</div>;
@@ -40,9 +64,10 @@ const SMChannelStatus = ({ channelStreamingStatistics }: SMChannelStatusProps) =
       { field: 'ChannelName', filter: true, sortable: true, width: 200 },
       { align: 'right', bodyTemplate: clientBitsPerSecondTemplate, field: 'BitsPerSecond', header: 'Input Kbps', width: 80 },
       { align: 'center', bodyTemplate: clientStartTimeTemplate, field: 'StartTime', header: 'Start', width: 180 },
-      { align: 'right', bodyTemplate: elapsedTSTemplate, field: 'ElapsedTime', header: '(d hh:mm:ss)', width: 85 }
+      { align: 'right', bodyTemplate: elapsedTSTemplate, field: 'ElapsedTime', header: '(d hh:mm:ss)', width: 85 },
+      { align: 'center', bodyTemplate: actionTemplate, field: 'actions', fieldType: 'actions', header: '', width: 42 }
     ],
-    [elapsedTSTemplate, logoTemplate]
+    [actionTemplate, elapsedTSTemplate, logoTemplate]
   );
 
   const rowExpansionTemplate = useCallback((data: DataTableRowData<any>, options: DataTableRowExpansionTemplate) => {

@@ -20,6 +20,5 @@ public interface IClientStreamerManager
     bool RegisterClient(ClientStreamerConfiguration config);
 
     Task UnRegisterClient(Guid clientId);
-
-
+    bool HasClient(Guid clientId);
 }

@@ -3,14 +3,14 @@
 namespace StreamMaster.Streams.Streams;
 
 public class MP4HandlerBase(ILogger logger,
-                            ILogger<FFMPEGRunner> FFMPEGRunnerlogger,
+                            ILogger<FFMPEGRunner> FFMPEGRunnerLogger,
                             SMStream smStream,
-                            IOptionsMonitor<Setting> intsettings,
-                            IOptionsMonitor<HLSSettings> inthlssettings)
+                            IOptionsMonitor<Setting> intSettings,
+                            IOptionsMonitor<HLSSettings> intHLSSettings)
 {
 
     internal readonly CancellationTokenSource HLSCancellationTokenSource = new();
-    internal readonly FFMPEGRunner ffmpegRunner = new(FFMPEGRunnerlogger, intsettings, inthlssettings);
+    internal readonly FFMPEGRunner ffmpegRunner = new(FFMPEGRunnerLogger, intSettings, intHLSSettings);
     internal bool Started;
 
     public string Id => smStream.Id;

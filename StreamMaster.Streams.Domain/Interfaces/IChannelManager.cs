@@ -8,6 +8,7 @@ namespace StreamMaster.Streams.Domain.Interfaces;
 /// </summary>
 public interface IChannelManager : IDisposable
 {
+    void MoveToNextStream(int SMChannelId);
     /// <summary>
     /// Gets the video information for a specific channel.
     /// </summary>
@@ -28,7 +29,7 @@ public interface IChannelManager : IDisposable
     /// Fails a client by its unique identifier.
     /// </summary>
     /// <param name="clientId">The unique identifier of the client to fail.</param>
-    void FailClient(Guid clientId);
+    Task CancelClient(Guid clientId);
 
     /// <summary>
     /// Asynchronously gets a stream based on the given client streamer configuration.
@@ -45,14 +46,9 @@ public interface IChannelManager : IDisposable
     /// <returns>A Task representing the asynchronous operation.</returns>
     Task RemoveClientAsync(ClientStreamerConfiguration config);
 
-    /// <summary>
-    /// Simulates a stream failure for testing purposes.
-    /// </summary>
-    /// <param name="streamUrl">The URL of the stream to fail.</param>    
-    void SimulateStreamFailure(string streamUrl);
 
-    /// <summary>
-    /// Simulates a stream failure for all streams for testing purposes.
-    /// </summary>    
-    void SimulateStreamFailureForAll();
+    Task CancelChannel(int SMChannelId);
+
+
+    void CancelAllChannels();
 }

@@ -1,5 +1,6 @@
 ﻿
 using StreamMaster.Domain.Models;
+using StreamMaster.Streams.Domain.Statistics;
 
 namespace StreamMaster.Streams.Domain.Interfaces;
 
@@ -8,11 +9,14 @@ namespace StreamMaster.Streams.Domain.Interfaces;
 /// </summary>
 public interface IStreamManager
 {
-    Task AddClientsToHandler(List<ClientStreamerConfiguration> clientIds, IStreamHandler streamHandler);
-    Task AddClientToHandler(SMChannel smChannel, ClientStreamerConfiguration streamerConfiguration, IStreamHandler streamHandler);
+
+    bool IsHealthy();
+    IDictionary<string, StreamHandlerMetrics> GetAggregatedMetrics();
+    void AddClientsToHandler(List<ClientStreamerConfiguration> clientIds, IStreamHandler streamHandler);
+    void AddClientToHandler(ClientStreamerConfiguration streamerConfiguration, IStreamHandler streamHandler);
     VideoInfo GetVideoInfo(string streamUrl);
 
-    event EventHandler<IStreamHandler> OnStreamingStoppedEvent;
+    event EventHandler<StreamHandlerStopped> OnStreamingStoppedEvent;
     /// <summary>
     /// Disposes of the resources used by the StreamManager.
     /// </summary>
@@ -48,7 +52,7 @@ public interface IStreamManager
     ///// </summary>
     ///// <returns>A collection of IStreamHandler objects.</returns>
     //ICollection<IStreamHandler> GetStreamHandlers();
-    Task MoveClientStreamers(IStreamHandler oldStreamHandler, IStreamHandler newStreamHandler, CancellationToken cancellationToken = default);
+    //Task MoveClientStreamers(IStreamHandler oldStreamHandler, IStreamHandler newStreamHandler, CancellationToken cancellationToken = default);
     /// <summary>
     /// Retrieves all stream handlers.
     /// </summary>
@@ -67,5 +71,6 @@ public interface IStreamManager
     /// </summary>
     /// <param name="VideoStreamUrl">The URL of the video stream to stop.</param>
     /// <returns>Returns true if the stopped stream, false if CurrentVideoStreamId not found.</returns>
-    Task<bool> StopAndUnRegisterHandler(string VideoStreamUrl);
+    bool StopAndUnRegisterHandler(string VideoStreamUrl);
+    int UnRegisterClientStreamer(string url, Guid clientId, string SMChannelName);
 }

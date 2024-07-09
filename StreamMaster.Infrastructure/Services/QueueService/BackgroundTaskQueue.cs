@@ -9,7 +9,6 @@ using StreamMaster.Domain.Enums;
 using StreamMaster.Domain.Extensions;
 
 using System.Collections.Concurrent;
-using System.Diagnostics;
 using System.Threading.Channels;
 
 namespace StreamMaster.Infrastructure.Services.QueueService;
@@ -69,11 +68,11 @@ public partial class BackgroundTaskQueue : IBackgroundTaskQueue
 
     private async ValueTask SendSMTasks()
     {
-        var toSend = GetSMTasks();
+        List<SMTask> toSend = GetSMTasks();
         await dataRefreshService.RefreshSMTasks(true);
 
         BuildInfo.IsTaskRunning = IsRunning;
-        Debug.WriteLine($"IsTaskRunning: {IsRunning}");
+        //Debug.WriteLine($"IsTaskRunning: {IsRunning}");
         await dataRefreshService.TaskIsRunning();
     }
 
@@ -94,14 +93,7 @@ public partial class BackgroundTaskQueue : IBackgroundTaskQueue
     {
         if (taskQueueStatuses.TryGetValue(Id, out SMTask? status))
         {
-            if (status.Command == "SetIsSystemReady")
-            {
-                status.StartTS = BuildInfo.StartTime;
-            }
-            else
-            {
-                status.StartTS = SMDT.UtcNow;
-            }
+            status.StartTS = status.Command == "SetIsSystemReady" ? BuildInfo.StartTime : SMDT.UtcNow;
 
             status.IsRunning = true;
             //await _hubContext.Clients.All.TaskQueueStatusUpdate(await GetQueueStatus()).ConfigureAwait(false);

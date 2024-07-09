@@ -4,7 +4,16 @@ namespace StreamMaster.Streams.Domain.Interfaces;
 
 public interface IStreamHandler : IDisposable
 {
-
+    void CancelStreamThread();
+    bool IsHealthy();
+    long GetBytesRead();
+    long GetBytesWritten();
+    double GetKbps();
+    double GetAverageLatency();
+    int GetErrorCount();
+    DateTime GetStartTime();
+    int GetClientCount();
+    void UnRegisterAllClientStreamers();
     IEnumerable<ClientStreamerConfiguration> GetClientStreamerClientIdConfigs { get; }
     Task StartVideoStreamingAsync(Stream stream);
     int ProcessId { get; set; }
@@ -51,7 +60,7 @@ public interface IStreamHandler : IDisposable
     /// <summary>
     /// Stops all video streaming activities.
     /// </summary>
-    void Stop();
+    void Stop(bool inputStreamError = false);
 
     /// <summary>
     /// Unregisters a client streamer with the given configuration.

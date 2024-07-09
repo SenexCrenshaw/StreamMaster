@@ -3,7 +3,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-using StreamMaster.Application.StreamGroups.CommandsOld;
 using StreamMaster.Domain.Authentication;
 using StreamMaster.Domain.Repository;
 using StreamMaster.Streams.Domain.Interfaces;
@@ -11,15 +10,9 @@ using StreamMaster.Streams.Domain.Models;
 
 namespace StreamMaster.API.Controllers;
 
-public class VideoStreamsController(IChannelManager channelManager, IMapper mapper, IRepositoryWrapper repositoryWrapper, ILogger<VideoStreamsController> logger) : ApiControllerBase
+public class VideoStreamsController(IChannelManager channelManager, IMapper mapper, IRepositoryWrapper repositoryWrapper, ILogger<VideoStreamsController> logger)
+    : ApiControllerBase
 {
-    [HttpPost]
-    [Route("[action]")]
-    public IActionResult FailClient(FailClientRequest request)
-    {
-        channelManager.FailClient(request.clientId);
-        return Ok();
-    }
 
     [Authorize(Policy = "SGLinks")]
     [HttpGet]
@@ -62,7 +55,8 @@ public class VideoStreamsController(IChannelManager channelManager, IMapper mapp
 
         HttpContext.Session.Remove("ClientId");
 
-        var proxyType = GetStreamingProxyType(smChannel);
+
+        string proxyType = GetStreamingProxyType(smChannel);
         bool redirect = proxyType == "None";
 
         if (redirect)
@@ -74,7 +68,12 @@ public class VideoStreamsController(IChannelManager channelManager, IMapper mapp
 
         string? ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
 
-        var smChannelDto = mapper.Map<SMChannelDto>(smChannel);
+        SMChannelDto smChannelDto = mapper.Map<SMChannelDto>(smChannel);
+
+        HttpRequest request = HttpContext.Request;
+        string originalUrl = $"{request.Scheme}://{request.Host}{request.PathBase}{request.Path}{request.QueryString}";
+        smChannelDto.StreamUrl = originalUrl;
+
         ClientStreamerConfiguration config = new(smChannelDto, streamGroupId, Request.Headers.UserAgent.ToString(), ipAddress ?? "unknown", HttpContext.Response, cancellationToken);
         Stream? stream = await channelManager.GetChannelAsync(config);
 
@@ -124,22 +123,6 @@ public class VideoStreamsController(IChannelManager channelManager, IMapper mapp
             logger.LogError(ex, "Error writing stream to file");
             throw;
         }
-    }
-
-    [HttpPost]
-    [Route("[action]")]
-    public ActionResult SimulateStreamFailureForAll()
-    {
-        channelManager.SimulateStreamFailureForAll();
-        return Ok();
-    }
-
-    [HttpPost]
-    [Route("[action]")]
-    public async Task<IActionResult> SimulateStreamFailure(SimulateStreamFailureRequest request)
-    {
-        await Mediator.Send(request).ConfigureAwait(false);
-        return Ok();
     }
 
     private class UnregisterClientOnDispose(IChannelManager channelManager, ClientStreamerConfiguration config) : IDisposable

@@ -7,11 +7,12 @@ import useGetSMTasks from '@lib/smAPI/SMTasks/useGetSMTasks';
 import SMDataTable from '../smDataTable/SMDataTable';
 
 interface SMTasksDataSelectorProps {
+  readonly height?: string;
   readonly needsTimer?: boolean;
   readonly width?: string;
 }
 
-const SMTasksDataSelector = ({ needsTimer = true, width = '40vw' }: SMTasksDataSelectorProps) => {
+const SMTasksDataSelector = ({ needsTimer = true, width = '40vw', height = '40vh' }: SMTasksDataSelectorProps) => {
   const [timer, setTimer] = useState<number>(0);
 
   useEffect(() => {
@@ -129,7 +130,7 @@ const SMTasksDataSelector = ({ needsTimer = true, width = '40vw' }: SMTasksDataS
       noSourceHeader
       queryFilter={useGetSMTasks}
       rowClass={rowClass}
-      style={{ height: '40vh', width: width }}
+      style={{ height: height, width: width }}
     />
   );
 };

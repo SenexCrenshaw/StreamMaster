@@ -6,6 +6,7 @@ namespace StreamMaster.Domain.Services
         Task ClearByTag(string Entity, string Tag);
         Task RefreshAll();
         Task Refresh(string command);
+        Task RefreshStreaming(bool alwaysRun = false);
         Task RefreshStreamGroups(bool alwaysRun = false);
         Task RefreshStreamGroupSMChannelLinks(bool alwaysRun = false);
         Task RefreshStatistics(bool alwaysRun = false);

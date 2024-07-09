@@ -27,6 +27,7 @@
     <Compile Remove="ChannelGroups\Hub\**" />
     <Compile Remove="Common\Aspects\**" />
     <Compile Remove="Common\Attributes\**" />
+    <Compile Remove="Common\Logging\**" />
     <Compile Remove="Common\Repository\**" />
     <Compile Remove="Programmes\Commands\**" />
     <Compile Remove="SchedulesDirect\NewFolder\**" />
@@ -35,6 +36,7 @@
     <EmbeddedResource Remove="ChannelGroups\Hub\**" />
     <EmbeddedResource Remove="Common\Aspects\**" />
     <EmbeddedResource Remove="Common\Attributes\**" />
+    <EmbeddedResource Remove="Common\Logging\**" />
     <EmbeddedResource Remove="Common\Repository\**" />
     <EmbeddedResource Remove="Programmes\Commands\**" />
     <EmbeddedResource Remove="SchedulesDirect\NewFolder\**" />
@@ -43,6 +45,7 @@
     <None Remove="ChannelGroups\Hub\**" />
     <None Remove="Common\Aspects\**" />
     <None Remove="Common\Attributes\**" />
+    <None Remove="Common\Logging\**" />
     <None Remove="Common\Repository\**" />
     <None Remove="Programmes\Commands\**" />
     <None Remove="SchedulesDirect\NewFolder\**" />
@@ -71,8 +74,5 @@
     <ProjectReference Include="..\StreamMaster.Domain\StreamMaster.Domain.csproj" />
     <ProjectReference Include="..\StreamMaster.SchedulesDirect\StreamMaster.SchedulesDirect.csproj" />
     <ProjectReference Include="..\StreamMaster.Streams.Domain\StreamMaster.Streams.Domain.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Common\Logging\" />
   </ItemGroup>
 </Project>

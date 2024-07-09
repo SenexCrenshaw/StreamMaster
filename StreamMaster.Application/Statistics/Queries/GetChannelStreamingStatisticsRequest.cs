@@ -20,6 +20,7 @@ internal class GetChannelStreamingStatisticHandler(IStreamStatisticService strea
             var streamStat = streamingStatistics.FirstOrDefault(x => x.Rank == channelStreamingStatistic.CurrentRank && x.Id == channelStreamingStatistic.CurrentStreamId);
             if (streamStat is not null)
             {
+                //streamStat.StartTime = channelStreamingStatistic.StartTime;
                 channelStreamingStatistic.UpdateStatistic(streamStat);
             }
             else

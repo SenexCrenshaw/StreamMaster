@@ -10,7 +10,7 @@ public class StreamStreamingStatistic : BPSStatistics
     public int Rank { get; set; }
     public string StreamName { get; set; } = string.Empty;
     public string? StreamLogo { get; set; }
-
+    public string? StreamUrl { get; set; }
     public string Id { get; set; } = string.Empty;
 
     public void SetStream(SMStreamDto smStream)
@@ -27,16 +27,16 @@ public class StreamStreamingStatistic : BPSStatistics
     {
         return new StreamStreamingStatistic
         {
-            Rank = this.Rank,
-            StreamName = this.StreamName,
-            StreamLogo = this.StreamLogo,
-            Id = this.Id,
+            Rank = Rank,
+            StreamName = StreamName,
+            StreamLogo = StreamLogo,
+            Id = Id,
 
-            BytesRead = this.BytesRead,
-            BytesWritten = this.BytesWritten,
-            BitsPerSecond = this.BitsPerSecond,
-            StreamUrl = this.StreamUrl,
-            StartTime = this.StartTime
+            BytesRead = BytesRead,
+            BytesWritten = BytesWritten,
+            BitsPerSecond = BitsPerSecond,
+            StreamUrl = StreamUrl,
+            StartTime = StartTime
 
         };
     }
