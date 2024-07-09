@@ -4,7 +4,8 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 namespace StreamMaster.Streams.Streams;
-public class FFMPEGRunner(ILogger<FFMPEGRunner> logger, IOptionsMonitor<Setting> intSettings, IOptionsMonitor<HLSSettings> intHLSSettings) : IFFMPEGRunner
+public class FFMPEGRunner(ILogger<FFMPEGRunner> logger, IChannelService channelService, IOptionsMonitor<Setting> intSettings, IOptionsMonitor<HLSSettings> intHLSSettings)
+    : IFFMPEGRunner
 {
 
     public event EventHandler<ProcessExitEventArgs> ProcessExited;
@@ -29,10 +30,12 @@ public class FFMPEGRunner(ILogger<FFMPEGRunner> logger, IOptionsMonitor<Setting>
     public int ProcessId => process.Id;
 
     // Start the streaming process in the background
-    public Task HLSStartStreamingInBackgroundAsync(SMStream smStream, CancellationToken cancellationToken)
+    public Task HLSStartStreamingInBackgroundAsync(SMChannel smChannel, string url, CancellationToken cancellationToken)
     {
+        IChannelStatus? status = channelService.GetChannelStatus(smChannel.Id);
+
         // Start the streaming task without awaiting it here, letting it run in the background
-        Task<(int processId, ProxyStreamError? error)> streamingTask = Task.Run(() => CreateFFMpegHLS(smStream, cancellationToken), cancellationToken);
+        Task<(int processId, ProxyStreamError? error)> streamingTask = Task.Run(() => CreateFFMpegHLS(smChannel, url), cancellationToken);
 
         // Optionally handle completion, including logging or re-throwing errors
         streamingTask.ContinueWith(task =>
@@ -53,7 +56,7 @@ public class FFMPEGRunner(ILogger<FFMPEGRunner> logger, IOptionsMonitor<Setting>
     }
 
     private Process process;
-    private async Task<(int processId, ProxyStreamError? error)> CreateFFMpegHLS(SMStream smStream, CancellationToken cancellationToken)
+    private async Task<(int processId, ProxyStreamError? error)> CreateFFMpegHLS(SMChannel smChannel, string url)
     {
         Setting settings = intSettings.CurrentValue;
         HLSSettings hlssettings = intHLSSettings.CurrentValue;
@@ -68,7 +71,7 @@ public class FFMPEGRunner(ILogger<FFMPEGRunner> logger, IOptionsMonitor<Setting>
                 return (-1, error);
             }
 
-            string outputdir = Path.Combine(BuildInfo.HLSOutputFolder, smStream.Id);
+            string outputdir = Path.Combine(BuildInfo.HLSOutputFolder, smChannel.Id.ToString());
 
             if (!outputdir.EndsWith(Path.DirectorySeparatorChar.ToString()))
             {
@@ -80,7 +83,7 @@ public class FFMPEGRunner(ILogger<FFMPEGRunner> logger, IOptionsMonitor<Setting>
                 Directory.CreateDirectory(outputdir);
             }
 
-            string formattedArgs = hlssettings.HLSFFMPEGOptions.Replace("{streamUrl}", $"\"{smStream.Url}\"").Trim();
+            string formattedArgs = hlssettings.HLSFFMPEGOptions.Replace("{streamUrl}", $"\"{url}\"").Trim();
             formattedArgs = formattedArgs += " ";
 
             formattedArgs +=
@@ -92,7 +95,7 @@ public class FFMPEGRunner(ILogger<FFMPEGRunner> logger, IOptionsMonitor<Setting>
                               $"-hls_list_size {hlssettings.HLSSegmentCount} " +
                               $"-hls_delete_threshold {hlssettings.HLSSegmentCount} ";
 
-            formattedArgs += $"-hls_base_url \"{smStream.Id}/\" " +
+            formattedArgs += $"-hls_base_url \"{smChannel.Id}/\" " +
                              $"-hls_segment_filename \"{outputdir}%d.ts\" " +
                              $"\"{outputdir}index.m3u8\"";
 
@@ -121,7 +124,7 @@ public class FFMPEGRunner(ILogger<FFMPEGRunner> logger, IOptionsMonitor<Setting>
                 return (-1, error);
             }
 
-            logger.LogInformation("Opened ffmpeg stream for {streamName} with args \"{formattedArgs}\"", smStream.Name, formattedArgs);
+            logger.LogInformation("Opened ffmpeg stream for {streamName} with args \"{formattedArgs}\"", smChannel.Name, formattedArgs);
             await process.WaitForExitAsync().ConfigureAwait(false);
             return (process.Id, null);
         }
@@ -148,7 +151,7 @@ public class FFMPEGRunner(ILogger<FFMPEGRunner> logger, IOptionsMonitor<Setting>
         }
         logger.LogDebug(msg);
     }
-    public string FFMpegOptions { get; set; } = "-hide_banner -loglevel error -i {streamUrl} -c copy -f mpegts pipe:1";
+    public string FFMpegOptions { get; set; } = "-hide_banner -loglevel error -i {streamUrl} -c copy -bsf:v h264_mp4toannexb -f mpegts pipe:1";
 
     public async Task<(Stream? stream, int processId, ProxyStreamError? error)> CreateFFMpegStream(string streamUrl, string streamName)
     {

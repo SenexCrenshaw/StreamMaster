@@ -159,6 +159,11 @@ namespace StreamMaster.Streams.Streams
                         }
                     }
                 }
+                catch (TaskCanceledException ex)
+                {
+                    ErrorCounter.Add(1);
+                    Interlocked.Increment(ref errorCount);
+                }
                 catch (Exception ex)
                 {
                     logger.LogError(ex, "Processing error for: {StreamUrl} {name}", SMStream.Url, SMStream.Name);

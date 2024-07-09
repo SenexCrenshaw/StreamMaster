@@ -3,10 +3,7 @@
     public interface IHLSHandler
     {
         event EventHandler<ProcessExitEventArgs> ProcessExited;
-        string Name { get; }
-        string Url { get; }
-        string Id { get; }
-        Stream? Stream { get; }
+        SMChannel SMChannel { get; }
         void Stop();
     }
 }

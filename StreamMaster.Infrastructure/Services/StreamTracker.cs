@@ -1,25 +1,23 @@
-﻿using StreamMaster.Domain.Services;
-
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 
 namespace StreamMaster.Infrastructure.Services;
 
 public class StreamTracker : IStreamTracker
 {
-    private static readonly ConcurrentDictionary<string, bool> streamTracker = new();
-    public bool AddStream(string streamId)
+    private static readonly ConcurrentDictionary<int, bool> streamTracker = new();
+    public bool AddStream(int smChannelId)
     {
-        return streamTracker.TryAdd(streamId, true);
+        return streamTracker.TryAdd(smChannelId, true);
     }
 
-    public bool RemoveStream(string streamId)
+    public bool RemoveStream(int smChannelId)
     {
-        return streamTracker.TryRemove(streamId, out _);
+        return streamTracker.TryRemove(smChannelId, out _);
     }
 
-    public bool HasStream(string streamId)
+    public bool HasStream(int smChannelId)
     {
-        return streamTracker.ContainsKey(streamId);
+        return streamTracker.ContainsKey(smChannelId);
     }
 
 }

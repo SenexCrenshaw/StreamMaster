@@ -1,13 +1,14 @@
-﻿using StreamMaster.Domain.Services;
+﻿using StreamMaster.Domain.Models;
+using StreamMaster.Domain.Services;
 
 using System.Collections.Concurrent;
 
 public class AccessTracker : IAccessTracker
 {
-    private readonly ConcurrentDictionary<string, StreamAccessInfo> _accessTimes = new();
+    private readonly ConcurrentDictionary<int, StreamAccessInfo> _accessTimes = new();
     public TimeSpan CheckInterval { get; set; } = TimeSpan.FromMilliseconds(100); // Default, global check interval
 
-    public void UpdateAccessTime(string videoStreamId, TimeSpan? inactiveThreshold = null)
+    public void UpdateAccessTime(int smChannelId, TimeSpan? inactiveThreshold = null)
     {
         StreamAccessInfo accessInfo = new()
         {
@@ -15,7 +16,7 @@ public class AccessTracker : IAccessTracker
             InactiveThreshold = inactiveThreshold ?? TimeSpan.FromSeconds(30) // Default threshold if not specified
         };
 
-        _accessTimes.AddOrUpdate(videoStreamId, accessInfo, (key, existingVal) =>
+        _accessTimes.AddOrUpdate(smChannelId, accessInfo, (key, existingVal) =>
         {
             existingVal.LastAccessTime = DateTime.UtcNow; // Update time
             if (inactiveThreshold.HasValue)
@@ -27,10 +28,10 @@ public class AccessTracker : IAccessTracker
         });
     }
 
-    public IEnumerable<string> GetInactiveStreams()
+    public IEnumerable<int> GetInactiveStreams()
     {
         DateTime now = DateTime.UtcNow;
-        foreach (KeyValuePair<string, StreamAccessInfo> kvp in _accessTimes)
+        foreach (KeyValuePair<int, StreamAccessInfo> kvp in _accessTimes)
         {
             if (now - kvp.Value.LastAccessTime > kvp.Value.InactiveThreshold)
             {
@@ -39,8 +40,8 @@ public class AccessTracker : IAccessTracker
         }
     }
 
-    public void Remove(string videoStreamId)
+    public void Remove(int SMChannelId)
     {
-        _accessTimes.TryRemove(videoStreamId, out _);
+        _accessTimes.TryRemove(SMChannelId, out _);
     }
 }

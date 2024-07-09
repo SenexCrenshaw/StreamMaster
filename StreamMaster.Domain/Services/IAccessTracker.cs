@@ -7,19 +7,19 @@ public interface IAccessTracker
     /// </summary>
     /// <param name="videoStreamId">The ID of the video stream.</param>
     /// <param name="inactiveThreshold">Optional. The inactivity threshold after which the stream should be considered inactive.</param>
-    void UpdateAccessTime(string videoStreamId, TimeSpan? inactiveThreshold = null);
+    void UpdateAccessTime(int smChannelId, TimeSpan? inactiveThreshold = null);
 
     /// <summary>
     /// Retrieves the IDs of video streams that have been inactive longer than their specified inactivity threshold.
     /// </summary>
     /// <returns>A collection of video stream IDs that are considered inactive.</returns>
-    IEnumerable<string> GetInactiveStreams();
+    IEnumerable<int> GetInactiveStreams();
 
     /// <summary>
     /// Removes a video stream from tracking.
     /// </summary>
     /// <param name="videoStreamId">The ID of the video stream to remove.</param>
-    void Remove(string videoStreamId);
+    void Remove(int smChannelId);
 
     /// <summary>
     /// Gets or sets the global check interval for monitoring streams. This determines how frequently the system checks for inactive streams.

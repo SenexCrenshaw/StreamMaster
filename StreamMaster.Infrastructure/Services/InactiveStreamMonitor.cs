@@ -1,7 +1,5 @@
 ﻿using Microsoft.Extensions.Hosting;
 
-using StreamMaster.Domain.Services;
-
 namespace StreamMaster.Infrastructure.Services;
 
 public class InactiveStreamMonitor(IVideoStreamService videoStreamService, IHLSManager hLsManager, IAccessTracker accessTracker) : BackgroundService
@@ -10,14 +8,14 @@ public class InactiveStreamMonitor(IVideoStreamService videoStreamService, IHLSM
     {
         while (!stoppingToken.IsCancellationRequested)
         {
-            List<string> inactiveStreams = accessTracker.GetInactiveStreams().ToList();
-            foreach (string? videoStreamId in inactiveStreams)
+            List<int> inactiveStreams = accessTracker.GetInactiveStreams().ToList();
+            foreach (int smChannelId in inactiveStreams)
             {
-                accessTracker.Remove(videoStreamId);
+                accessTracker.Remove(smChannelId);
 
-                hLsManager.Stop(videoStreamId);
+                hLsManager.Stop(smChannelId);
 
-                videoStreamService.RemoveVideoStreamDto(videoStreamId);
+                videoStreamService.RemoveVideoStreamDto(smChannelId);
                 //IHLSHandler? hls = _hLsManager.Get(videoStreamId);
                 //if (hls is null)
                 //{

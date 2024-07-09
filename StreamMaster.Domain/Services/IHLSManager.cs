@@ -2,8 +2,8 @@
 {
     public interface IHLSManager : IDisposable
     {
-        IHLSHandler? Get(string VideoStreamId);
-        Task<IHLSHandler> GetOrAdd(SMStream smStream);
-        void Stop(string VideoStreamId);
+        IHLSHandler? Get(int smChannelId);
+        Task<IHLSHandler> GetOrAdd(SMChannelDto smChannel, string url);
+        void Stop(int smChannelId);
     }
 }

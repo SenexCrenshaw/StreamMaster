@@ -2,21 +2,18 @@
 
 namespace StreamMaster.Streams.Streams;
 
-public class MP4HandlerBase(ILogger logger,
-                            ILogger<FFMPEGRunner> FFMPEGRunnerLogger,
-                            SMStream smStream,
+public class MP4HandlerBase(ILogger<FFMPEGRunner> FFMPEGRunnerLogger,
+     IChannelService channelService,
+                            SMChannel smChannel,
                             IOptionsMonitor<Setting> intSettings,
                             IOptionsMonitor<HLSSettings> intHLSSettings)
 {
 
     internal readonly CancellationTokenSource HLSCancellationTokenSource = new();
-    internal readonly FFMPEGRunner ffmpegRunner = new(FFMPEGRunnerLogger, intSettings, intHLSSettings);
+    internal readonly FFMPEGRunner ffmpegRunner = new(FFMPEGRunnerLogger, channelService, intSettings, intHLSSettings);
     internal bool Started;
 
-    public string Id => smStream.Id;
-    public string Name => smStream.Name;
-    public string Url => smStream.Url;
-
+    public SMChannel SMChannel => smChannel;
     public void Dispose()
     {
         ProcessHelper.KillProcessById(ffmpegRunner.ProcessId);

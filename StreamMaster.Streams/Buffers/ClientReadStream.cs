@@ -26,6 +26,10 @@ public sealed partial class ClientReadStream
             CancellationTokenSource timedToken = new(TimeSpan.FromSeconds(30));
             using CancellationTokenSource linkedCts = CancellationTokenSource.CreateLinkedTokenSource(_readCancel.Token, timedToken.Token, cancellationToken);
 
+            while (!Channel.Reader.CanPeek)
+            {
+                await Task.Delay(10, cancellationToken);
+            }
             byte[] read = await Channel.Reader.ReadAsync(linkedCts.Token);
             bytesRead = read.Length;
             _readLogger.LogDebug("End bytesRead: {bytesRead}", bytesRead);

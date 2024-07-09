@@ -2,26 +2,26 @@
 
 namespace StreamMaster.Streams.Streams;
 
-public class HLSHandler(ILogger<HLSHandler> logger, ILogger<FFMPEGRunner> FFMPEGRunnerlogger, SMStream parentvideoStream, IOptionsMonitor<Setting> intsettings, IOptionsMonitor<HLSSettings> inthlssettings)
-     : MP4HandlerBase(logger, FFMPEGRunnerlogger, parentvideoStream, intsettings, inthlssettings), IHLSHandler, IDisposable
+public class HLSHandler(ILogger<HLSHandler> logger, ILogger<FFMPEGRunner> FFMPEGRunnerlogger, IChannelService channelService, SMChannel smChannel, IOptionsMonitor<Setting> intSettings, IOptionsMonitor<HLSSettings> intHLSSettings)
+     : MP4HandlerBase(FFMPEGRunnerlogger, channelService, smChannel, intSettings, intHLSSettings), IHLSHandler, IDisposable
 {
     public event EventHandler<ProcessExitEventArgs> ProcessExited;
     public Stream? Stream { get; private set; }
-    public void Start()
+    public void Start(string url)
     {
         if (Started)
         {
             return;
         }
 
-        logger.LogInformation("Starting MP4Handler for {Name}", Name);
+        logger.LogInformation("Starting MP4Handler for {Name}", SMChannel.Name);
 
-        Task backgroundTask = ffmpegRunner.HLSStartStreamingInBackgroundAsync(parentvideoStream, HLSCancellationTokenSource.Token);
+        Task backgroundTask = ffmpegRunner.HLSStartStreamingInBackgroundAsync(SMChannel, url, HLSCancellationTokenSource.Token);
 
         ffmpegRunner.ProcessExited += (sender, args) =>
         {
-            logger.LogInformation("FFMPEG Process Exited for {Name} with exit code {ExitCode}", Name, args.ExitCode);
-            Stop();
+            logger.LogInformation("FFMPEG Process Exited for {Name} with exit code {ExitCode}", SMChannel.Name, args.ExitCode);
+            //Stop();
             ProcessExited?.Invoke(this, args);
         };
         Started = true;
@@ -29,11 +29,11 @@ public class HLSHandler(ILogger<HLSHandler> logger, ILogger<FFMPEGRunner> FFMPEG
     public void Stop()
     {
         Started = false;
-        logger.LogInformation("Stopping MP4Handler for {Name}", Name);
+        logger.LogInformation("Stopping MP4Handler for {Name}", SMChannel.Name);
         HLSCancellationTokenSource.Cancel();
         ProcessHelper.KillProcessById(ffmpegRunner.ProcessId);
 
-        string directory = Path.Combine(BuildInfo.HLSOutputFolder, Id);
+        string directory = Path.Combine(BuildInfo.HLSOutputFolder, SMChannel.Id.ToString());
         DirectoryHelper.DeleteDirectory(directory);
     }
     public void Dispose()

@@ -9,7 +9,7 @@ public sealed class ProxyFactory(ILogger<ProxyFactory> logger, IHttpClientFactor
     : IProxyFactory
 {
 
-    public string FFMpegOptions { get; set; } = "-hide_banner -loglevel error -i {streamUrl} -map 0:v -map 0:a? -map 0:s? -c copy -bsf:v h264_mp4toannexb -f mpegts pipe:1";
+    public string FFMpegOptions { get; set; } = "-hide_banner -loglevel error -i {streamUrl} -reconnect 1 -map 0:v -map 0:a? -map 0:s? -c copy -bsf:v h264_mp4toannexb -f mpegts pipe:1";
 
     private string GetStreamingProxyType(string videoStreamStreamingProxyType)
     {

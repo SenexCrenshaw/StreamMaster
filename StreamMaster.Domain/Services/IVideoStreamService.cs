@@ -2,7 +2,7 @@
 {
     public interface IVideoStreamService
     {
-        void RemoveVideoStreamDto(string smStreamId);
+        void RemoveVideoStreamDto(int smChannelId);
         Task<SMStreamDto?> GetSMStreamDtoAsync(string smStreamId, CancellationToken cancellationToken);
     }
 }

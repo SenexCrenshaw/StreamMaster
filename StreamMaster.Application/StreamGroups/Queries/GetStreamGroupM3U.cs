@@ -106,7 +106,7 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
             return DefaultReturn;
         }
 
-        (List<VideoStreamConfig> videoStreamConfigs, OutputProfile profile) = await sender.Send(new GetStreamGroupVideoConfigs(request.StreamGroupId, request.StreamGroupProfileId));
+        (List<VideoStreamConfig> videoStreamConfigs, OutputProfile profile) = await sender.Send(new GetStreamGroupVideoConfigs(request.StreamGroupId, request.StreamGroupProfileId), cancellationToken);
 
 
         // Retrieve necessary data in parallel

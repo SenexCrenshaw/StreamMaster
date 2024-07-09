@@ -12,9 +12,9 @@ namespace StreamMaster.Infrastructure.Services;
 
 public class VideoStreamService(IServiceProvider serviceProvider, IMapper mapper, IMemoryCache cache) : IVideoStreamService
 {
-    public void RemoveVideoStreamDto(string smStreamId)
+    public void RemoveVideoStreamDto(int smChannelId)
     {
-        string cacheKey = $"SMStreamDto-{smStreamId}";
+        string cacheKey = $"SMChannel-{smChannelId}";
         cache.Remove(cacheKey);
     }
 

@@ -3,15 +3,20 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
+using StreamMaster.Application.Common.Extensions;
+using StreamMaster.Domain.Authentication;
 using StreamMaster.Domain.Repository;
 using StreamMaster.Streams.Domain.Interfaces;
 using StreamMaster.Streams.Domain.Models;
 using StreamMaster.Streams.Streams;
 
+using System.Web;
+
 
 namespace StreamMaster.API.Controllers
 {
-    public class StreamController(ILogger<StreamController> logger, IMapper mapper, IStreamTracker streamTracker, ILogger<FFMPEGRunner> FFMPEGRunnerlogger, IChannelService channelService, IAccessTracker accessTracker, IHLSManager hLsManager, IRepositoryWrapper repositoryWrapper) : ApiControllerBase
+    public class StreamController(ILogger<StreamController> logger, IMapper Mapper, IChannelService channelService, IHttpContextAccessor httpContextAccessor, IOptionsMonitor<Setting> intSettings, IStreamTracker streamTracker, ILogger<FFMPEGRunner> FFMPEGRunnerlogger, IAccessTracker accessTracker, IHLSManager hLsManager, IRepositoryWrapper repositoryWrapper)
+        : ApiControllerBase
     {
 
         [Authorize(Policy = "SGLinks")]
@@ -26,43 +31,53 @@ namespace StreamMaster.API.Controllers
                 return NotFound();
             }
 
-            IChannelStatus? channelStatus = await channelService.SetupChannel(smChannel: mapper.Map<SMChannelDto>(smChannel));
+            //IChannelStatus? channelStatus = await channelService.SetupChannel(smChannel: mapper.Map<SMChannelDto>(smChannel));
 
-            if (channelStatus == null || channelStatus.SMStream == null)
-            {
-                return NotFound();
-            }
+            //if (channelStatus == null || channelStatus.SMStream == null)
+            //{
+            //    return NotFound();
+            //}
 
-            await hLsManager.GetOrAdd(channelStatus.SMStream);
+            SMChannelDto smChannelDto = Mapper.Map<SMChannelDto>(smChannel);
+            Setting settings = intSettings.CurrentValue;
+
+            string encodedName = HttpUtility.HtmlEncode(smChannelDto.Name).Trim()
+                     .Replace("/", "")
+                     .Replace(" ", "_");
+            string encodedNumbers = 0.EncodeValues128(smChannelDto.Id, settings.ServerKey);
+            string baseUrl = httpContextAccessor.GetUrl();
+            string url = $"{baseUrl}/api/videostreams/stream/";
+
+            await hLsManager.GetOrAdd(smChannelDto, url);
 
             int timeOut = HLSSettings.HLSM3U8CreationTimeOutInSeconds;
-            string m3u8File = Path.Combine(BuildInfo.HLSOutputFolder, channelStatus.SMStream.Id, $"index.m3u8");
+            string m3u8File = Path.Combine(BuildInfo.HLSOutputFolder, smChannelDto.Id.ToString(), $"index.m3u8");
 
-            if (!streamTracker.HasStream(channelStatus.SMStream.Id))
+            if (!streamTracker.HasStream(smChannelDto.Id))
             {
                 if (!await FileUtil.WaitForFileAsync(m3u8File, timeOut, 100, cancellationToken))
                 {
                     logger.LogWarning("HLS segment timeout {FileName}, exiting", m3u8File);
-                    hLsManager.Stop(channelStatus.SMStream.Id);
+                    hLsManager.Stop(smChannelDto.Id);
                     return NotFound();
                 }
 
-                string tsFile = Path.Combine(BuildInfo.HLSOutputFolder, channelStatus.SMStream.Id, $"2.ts");
+                string tsFile = Path.Combine(BuildInfo.HLSOutputFolder, smChannelDto.Id.ToString(), $"2.ts");
 
                 if (!await FileUtil.WaitForFileAsync(tsFile, timeOut, 100, cancellationToken))
                 {
                     logger.LogWarning("TS segment timeout {FileName}, exiting", tsFile);
-                    hLsManager.Stop(channelStatus.SMStream.Id);
+                    hLsManager.Stop(smChannelDto.Id);
                     return NotFound();
                 }
 
-                if (streamTracker.AddStream(channelStatus.SMStream.Id))
+                if (streamTracker.AddStream(smChannelDto.Id))
                 {
                     //timeOut = HLSSettings.HLSM3U8CreationTimeOutInSeconds;
                 }
             }
 
-            accessTracker.UpdateAccessTime(channelStatus.SMStream.Id, TimeSpan.FromSeconds(HLSSettings.HLSM3U8ReadTimeOutInSeconds));
+            accessTracker.UpdateAccessTime(smChannelDto.Id, TimeSpan.FromSeconds(HLSSettings.HLSM3U8ReadTimeOutInSeconds));
 
             HttpContext.Response.Headers.Connection = "close";
             HttpContext.Response.Headers.AccessControlAllowOrigin = "*";
@@ -78,10 +93,10 @@ namespace StreamMaster.API.Controllers
         [Authorize(Policy = "SGLinks")]
         [HttpGet]
         [HttpHead]
-        [Route("{videoStreamId}/{num}.ts")]
-        public IActionResult GetVideoStream(string videoStreamId, int num, CancellationToken cancellationToken)
+        [Route("{smChannelId}/{num}.ts")]
+        public IActionResult GetVideoStream(int smChannelId, int num, CancellationToken cancellationToken)
         {
-            string tsFile = Path.Combine(BuildInfo.HLSOutputFolder, videoStreamId, $"{num}.ts");
+            string tsFile = Path.Combine(BuildInfo.HLSOutputFolder, smChannelId.ToString(), $"{num}.ts");
             if (!System.IO.File.Exists(tsFile))
             {
                 return NotFound();
@@ -89,7 +104,7 @@ namespace StreamMaster.API.Controllers
             try
             {
 
-                accessTracker.UpdateAccessTime(videoStreamId, TimeSpan.FromSeconds(HLSSettings.HLSTSReadTimeOutInSeconds));
+                accessTracker.UpdateAccessTime(smChannelId, TimeSpan.FromSeconds(HLSSettings.HLSTSReadTimeOutInSeconds));
 
                 HttpContext.Response.Headers.Connection = "close";
                 HttpContext.Response.Headers.AccessControlAllowOrigin = "*";
@@ -126,7 +141,7 @@ namespace StreamMaster.API.Controllers
                 string url = "http://127.0.0.1:7095/api/stream/" + videoStreamId + ".m3u8";
 
                 logger.LogInformation("Adding MP4Handler for {name}", smStream.Name);
-                FFMPEGRunner ffmpegRunner = new(FFMPEGRunnerlogger, intsettings, inthlssettings);
+                FFMPEGRunner ffmpegRunner = new(FFMPEGRunnerlogger, channelService, intsettings, inthlssettings);
                 ffmpegRunner.ProcessExited += (sender, args) =>
                 {
                     logger.LogInformation("MP4Handler Process Exited for {Name} with exit code {ExitCode}", smStream.Name, args.ExitCode);

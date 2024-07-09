@@ -11,6 +11,6 @@ namespace StreamMaster.Streams.Domain.Interfaces
 
         Task<(Stream? stream, int processId, ProxyStreamError? error)> CreateFFMpegStream(string streamUrl, string streamName);
         Task<(Stream? stream, int processId, ProxyStreamError? error)> CreateFFMpegStreamByArgs(string args, string streamName);
-        Task HLSStartStreamingInBackgroundAsync(SMStream smStream, CancellationToken cancellationToken);
+        Task HLSStartStreamingInBackgroundAsync(SMChannel smChannel, string url, CancellationToken cancellationToken);
     }
 }

@@ -2,8 +2,8 @@
 {
     public interface IStreamTracker
     {
-        bool HasStream(string streamId);
-        bool AddStream(string streamId);
-        bool RemoveStream(string streamId);
+        bool HasStream(int smChannelId);
+        bool AddStream(int smChannelId);
+        bool RemoveStream(int smChannelId);
     }
 }
