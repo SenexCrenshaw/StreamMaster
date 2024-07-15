@@ -74,7 +74,7 @@ const AutoSetEPGSMChannelDialog = ({ menu, smChannel }: AutoSetEPGSMChannelDialo
         icon="pi-book"
         iconFilled
         info=""
-        label="Auto Set EPG"
+        label={`Auto Set (${selectAll ? 'All' : getTotalCount}) EPG`}
         menu
         modal
         onOkClick={async () => save()}

@@ -87,7 +87,7 @@ const AddSMChannelsToSGEditor = () => {
       icon="pi-book"
       iconFilled
       info=""
-      label="Add to SG"
+      label={`Add (${selectAll ? 'All' : getTotalCount}) To SG`}
       menu
       modal
       onOkClick={async () => addSMChannelsToStreamGroup()}

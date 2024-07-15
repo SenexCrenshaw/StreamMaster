@@ -5,14 +5,7 @@ import { useQueryFilter } from '@lib/redux/hooks/queryFilter';
 import { useSelectAll } from '@lib/redux/hooks/selectAll';
 import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
 import { useSelectedStreamGroup } from '@lib/redux/hooks/selectedStreamGroup';
-import { AddSMChannelsToStreamGroup, AddSMChannelsToStreamGroupByParameters } from '@lib/smAPI/StreamGroupSMChannelLinks/StreamGroupSMChannelLinksCommands';
-import {
-  AddSMChannelsToStreamGroupByParametersRequest,
-  AddSMChannelsToStreamGroupRequest,
-  SetSMChannelsGroupFromParametersRequest,
-  SetSMChannelsGroupRequest,
-  SMChannelDto
-} from '@lib/smAPI/smapiTypes';
+import { SetSMChannelsGroupFromParametersRequest, SetSMChannelsGroupRequest, SMChannelDto } from '@lib/smAPI/smapiTypes';
 import { Tooltip } from 'primereact/tooltip';
 import { memo, useCallback, useMemo, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
@@ -95,13 +88,13 @@ const AddSMChannelsToGroupEditor = () => {
       icon="pi-book"
       iconFilled
       info=""
-      label="Add to Group"
+      label={`Set (${selectAll ? 'All' : getTotalCount}) Group`}
       menu
       modal
       onOkClick={async () => addSMChannelsToStreamGroup()}
       placement={smTableIsSimple ? 'bottom-end' : 'bottom'}
-      title="Add to Group"
-      tooltip={'Add to Group'}
+      title={`Set (${selectAll ? 'All' : getTotalCount}) Channels Group`}
+      tooltip={'Set Group'}
     >
       <div className="px-2">
         <SMChannelGroupEditor

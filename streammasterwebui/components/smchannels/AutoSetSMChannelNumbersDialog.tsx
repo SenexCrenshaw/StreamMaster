@@ -84,7 +84,7 @@ const AutoSetSMChannelNumbersDialog = ({ disabled, selectedItemsKey }: AutoSetSM
       icon="pi-sort-numeric-up-alt"
       iconFilled
       info=""
-      label="Set #s"
+      label={`Set (${selectAll ? 'All' : getTotalCount}) #s`}
       menu
       modal
       onOkClick={async () => {

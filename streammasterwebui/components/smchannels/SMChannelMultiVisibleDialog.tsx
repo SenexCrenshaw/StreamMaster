@@ -85,7 +85,7 @@ const SMChannelMultiVisibleDialog = ({ menu, onClose, selectedItemsKey }: SMChan
       buttonDisabled={getTotalCount === 0}
       iconFilled
       menu={menu}
-      label={menu ? 'Toggle Visibility' : undefined}
+      label={menu ? `Toggle (${selectAll ? 'All' : getTotalCount}) Visibility` : undefined}
       onClick={async (event) => {
         await onVisiblesClick();
       }}

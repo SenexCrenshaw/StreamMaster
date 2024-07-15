@@ -107,11 +107,11 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, ISend
 
     public async Task CreateSMChannel(SMChannel smChannel)
     {
-        EntityState state = RepositoryContext.SMChannels.Entry(smChannel).State;
+        //EntityState state = RepositoryContext.SMChannels.Entry(smChannel).State;
         Create(smChannel);
-        EntityState state2 = RepositoryContext.SMChannels.Entry(smChannel).State;
+        //EntityState state2 = RepositoryContext.SMChannels.Entry(smChannel).State;
         await SaveChangesAsync();
-        EntityState state3 = RepositoryContext.SMChannels.Entry(smChannel).State;
+        //EntityState state3 = RepositoryContext.SMChannels.Entry(smChannel).State;
     }
 
     public async Task<APIResponse> DeleteSMChannel(int smchannelId)
@@ -767,5 +767,4 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, ISend
         RepositoryContext.SaveChanges();
         return APIResponse.Success;
     }
-
 }
