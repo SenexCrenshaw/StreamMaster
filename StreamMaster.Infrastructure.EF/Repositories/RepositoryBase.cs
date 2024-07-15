@@ -2,7 +2,6 @@
 
 using Microsoft.EntityFrameworkCore;
 
-using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Filtering;
 
 using System.Linq.Dynamic.Core;
@@ -14,13 +13,10 @@ namespace StreamMaster.Infrastructure.EF.Repositories;
 /// Provides base functionalities for repositories.
 /// </summary>
 /// <typeparam name="T">Type of the entity managed by this repository.</typeparam>
-public abstract class RepositoryBase<T>(IRepositoryContext RepositoryContext, ILogger intLogger, IOptionsMonitor<Setting> intsettings) : IRepositoryBase<T> where T : class
+public abstract class RepositoryBase<T>(IRepositoryContext RepositoryContext, ILogger intLogger) : IRepositoryBase<T> where T : class
 {
     internal readonly IRepositoryContext RepositoryContext = RepositoryContext;
     internal readonly ILogger logger = intLogger;
-    internal readonly IOptionsMonitor<Setting> intSettings = intsettings;
-
-
 
     #region Get 
     public virtual IQueryable<T> GetQuery(bool tracking = false)
@@ -45,7 +41,6 @@ public abstract class RepositoryBase<T>(IRepositoryContext RepositoryContext, IL
         entities ??= GetQuery(tracking);
         return FilterHelper<T>.ApplyFiltersAndSort(entities, filters, orderBy);
     }
-
 
     public virtual IQueryable<T> GetQuery(Expression<Func<T, bool>> expression, bool tracking = false)
     {
@@ -83,7 +78,7 @@ public abstract class RepositoryBase<T>(IRepositoryContext RepositoryContext, IL
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, $"Error occurred while trying to fetch and order entities based on condition and order '{orderBy}'.");
+            logger.LogError(ex, "Error occurred while trying to fetch and order entities based on condition and order '{orderBy}'.", orderBy);
             throw;
         }
     }
@@ -108,18 +103,14 @@ public abstract class RepositoryBase<T>(IRepositoryContext RepositoryContext, IL
     #region Util
     public async Task<int> SaveChangesAsync()
     {
-
         try
         {
             return await RepositoryContext.SaveChangesAsync().ConfigureAwait(false);
         }
         catch (Exception)
         {
-            // You can decide how to handle exceptions here, for example by
-            // logging them. In this case, we're simply swallowing the exception.
+            return 0;
         }
-        return 0;
-
     }
 
     /// <summary>
@@ -180,7 +171,7 @@ public abstract class RepositoryBase<T>(IRepositoryContext RepositoryContext, IL
     /// <param name="entities">Entities to be updated.</param>
     public void UpdateRange(T[] entities)
     {
-        if (entities == null || !entities.Any())
+        if (entities == null || entities.Length == 0)
         {
             logger.LogWarning("Attempted to update a null or empty array of entities.");
             throw new ArgumentNullException(nameof(entities));
@@ -225,7 +216,7 @@ public abstract class RepositoryBase<T>(IRepositoryContext RepositoryContext, IL
     /// <param name="entities">Entities to be inserted.</param>
     public void BulkInsert(T[] entities)
     {
-        if (entities == null || !entities.Any())
+        if (entities == null || entities.Length == 0)
         {
             logger.LogWarning("Attempted to perform a bulk insert with null or empty entities.");
             throw new ArgumentNullException(nameof(entities));
@@ -240,26 +231,26 @@ public abstract class RepositoryBase<T>(IRepositoryContext RepositoryContext, IL
     /// <param name="query">The IQueryable to select entities to be deleted.</param>
     public void BulkDelete(IQueryable<T> query)
     {
-        if (query == null || !query.Any())
+        if (query?.Any() != true)
         {
             logger.LogWarning("Attempted to perform a bulk delete with a null or empty query.");
             throw new ArgumentNullException(nameof(query));
         }
-        DbContext context = RepositoryContext as DbContext;
+        DbContext? context = RepositoryContext as DbContext;
 
-        context.BulkDelete(query);
+        context!.BulkDelete(query);
     }
 
     public void BulkDelete(List<T> items)
     {
-        if (items == null || !items.Any())
+        if (items == null || items.Count == 0)
         {
             logger.LogWarning("Attempted to perform a bulk delete with a null or empty query.");
             throw new ArgumentNullException(nameof(items));
         }
-        DbContext context = RepositoryContext as DbContext;
+        DbContext? context = RepositoryContext as DbContext;
 
-        context.BulkDelete(items);
+        context!.BulkDelete(items);
     }
 
     /// <summary>
@@ -268,7 +259,7 @@ public abstract class RepositoryBase<T>(IRepositoryContext RepositoryContext, IL
     /// <param name="query">The IQueryable to select entities to be deleted.</param>
     public async Task BulkDeleteAsync(IQueryable<T> query)
     {
-        if (query == null || !query.Any())
+        if (query?.Any() != true)
         {
             logger.LogWarning("Attempted to perform a bulk delete with a null or empty query.");
             throw new ArgumentNullException(nameof(query));
@@ -277,14 +268,13 @@ public abstract class RepositoryBase<T>(IRepositoryContext RepositoryContext, IL
         await RepositoryContext.BulkDeleteAsyncEntities(query);
     }
 
-
     /// <summary>
     /// Performs a bulk update on a set of entities.
     /// </summary>
     /// <param name="entities">Entities to be updated.</param>
     public void BulkUpdate(T[] entities)
     {
-        if (entities == null || !entities.Any())
+        if (entities == null || entities.Length == 0)
         {
             logger.LogWarning("Attempted to perform a bulk update with null or empty entities.");
             throw new ArgumentNullException(nameof(entities));
@@ -295,7 +285,7 @@ public abstract class RepositoryBase<T>(IRepositoryContext RepositoryContext, IL
 
     public void BulkUpdate(List<T> entities)
     {
-        if (entities == null || !entities.Any())
+        if (entities == null || entities.Count == 0)
         {
             logger.LogWarning("Attempted to perform a bulk update with null or empty entities.");
             throw new ArgumentNullException(nameof(entities));
@@ -310,7 +300,7 @@ public abstract class RepositoryBase<T>(IRepositoryContext RepositoryContext, IL
     /// <param name="entities">Entities to be inserted.</param>
     public void CreateRange(T[] entities)
     {
-        if (entities == null || !entities.Any())
+        if (entities == null || entities.Length == 0)
         {
             logger.LogWarning("Attempted to insert a null or empty array of entities.");
             throw new ArgumentNullException(nameof(entities));

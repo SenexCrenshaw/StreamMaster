@@ -25,10 +25,11 @@ import { useQueryFilter } from '@lib/redux/hooks/queryFilter';
 import useGetPagedSMChannels from '@lib/smAPI/SMChannels/useGetPagedSMChannels';
 import { SMChannelDto } from '@lib/smAPI/smapiTypes';
 import { DataTableRowData, DataTableRowEvent, DataTableRowExpansionTemplate } from 'primereact/datatable';
-import { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import SMChannelMenu from './SMChannelMenu';
 import SMStreamDataSelectorValue from './SMStreamDataSelectorValue';
 import useSelectedSMItems from './useSelectedSMItems';
+import { SMDataTableRef } from '@components/smDataTable/types/smDataTableInterfaces';
 
 interface SMChannelDataSelectorProperties {
   readonly enableEdit?: boolean;
@@ -50,6 +51,7 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id }: SMChannelDat
   const { columnConfig: proxyColumnConfig } = useSMChannelProxyColumnConfig({ enableEdit, useFilter: false });
   const { queryFilter } = useQueryFilter(dataKey);
   const { isLoading } = useGetPagedSMChannels(queryFilter);
+  const smDataTableRef = useRef<SMDataTableRef>(null);
 
   useEffect(() => {
     if (propsEnableEdit !== enableEdit) {
@@ -57,39 +59,57 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id }: SMChannelDat
     }
   }, [enableEdit, propsEnableEdit]);
 
-  const rowExpansionTemplate = useCallback(
-    (data: DataTableRowData<any>, options: DataTableRowExpansionTemplate) => {
-      const channel = data as unknown as SMChannelDto;
-      setSelectedSMChannel(channel);
+  const rowExpansionTemplate = useCallback((data: DataTableRowData<any>, options: DataTableRowExpansionTemplate) => {
+    const channel = data as unknown as SMChannelDto;
 
-      return (
-        <div className="ml-3 m-1">
-          <SMStreamDataSelectorValue smChannel={channel} id={channel.Id + '-streams'} />
-        </div>
-      );
-    },
-    [setSelectedSMChannel]
-  );
-
-  const actionTemplate = useCallback((data: SMChannelDto) => {
     return (
-      <div className="flex justify-content-end align-items-center" style={{ paddingRight: '0.1rem' }}>
-        <StreamCopyLinkDialog realUrl={data?.RealUrl} />
-        <DeleteSMChannelDialog smChannel={data} />
-        <EditSMChannelDialog smChannelDto={data} />
+      <div className="ml-3 m-1">
+        <SMStreamDataSelectorValue smChannel={channel} id={channel.Id + '-streams'} />
       </div>
     );
   }, []);
 
-  const simpleActionTemplate = useCallback((data: SMChannelDto) => {
+  const channelDelete = useCallback(
+    (smChannel: SMChannelDto) => {
+      if (smDataTableRef.current) {
+        if (selectedSMChannel === undefined || selectedSMChannel?.Id === smChannel.Id) {
+          selectedSMChannel && setSelectedSMChannel(undefined);
+          smDataTableRef.current?.clearExpanded();
+        }
+      }
+    },
+    [selectedSMChannel, setSelectedSMChannel]
+  );
+
+  const actionTemplate = useCallback((smChannel: SMChannelDto) => {
     return (
       <div className="flex justify-content-end align-items-center" style={{ paddingRight: '0.1rem' }}>
-        <StreamCopyLinkDialog realUrl={data?.RealUrl} />
-        <SetSMChannelsLogoFromEPGDialog smChannel={data} />
-        <AutoSetEPGSMChannelDialog smChannel={data} />
-        <CloneSMChannelDialog label="Copy Channel" smChannel={data} />
-        <DeleteSMChannelDialog smChannel={data} />
-        <EditSMChannelDialog smChannelDto={data} />
+        <StreamCopyLinkDialog realUrl={smChannel?.StreamUrl} />
+        <DeleteSMChannelDialog
+          smChannel={smChannel}
+          onDelete={() => {
+            channelDelete(smChannel);
+          }}
+        />
+        <EditSMChannelDialog smChannelDto={smChannel} />
+      </div>
+    );
+  }, []);
+
+  const simpleActionTemplate = useCallback((smChannel: SMChannelDto) => {
+    return (
+      <div className="flex justify-content-end align-items-center" style={{ paddingRight: '0.1rem' }}>
+        <StreamCopyLinkDialog realUrl={smChannel?.StreamUrl} />
+        <SetSMChannelsLogoFromEPGDialog smChannel={smChannel} />
+        <AutoSetEPGSMChannelDialog smChannel={smChannel} />
+        <CloneSMChannelDialog label="Copy Channel" smChannel={smChannel} />
+        <DeleteSMChannelDialog
+          smChannel={smChannel}
+          onDelete={() => {
+            channelDelete(smChannel);
+          }}
+        />
+        <EditSMChannelDialog smChannelDto={smChannel} />
       </div>
     );
   }, []);
@@ -190,13 +210,13 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id }: SMChannelDat
   return (
     <SMDataTable
       columns={smTableIsSimple ? simpleColumns : columns}
-      enableClick
-      selectRow
-      showExpand
       defaultSortField="Name"
       defaultSortOrder={1}
       emptyMessage="No Channels"
+      enableClick
       enablePaginator
+      selectRow
+      showExpand
       expanderHeader={() => (
         <div className="flex align-content-center justify-content-center">
           <SMTriSelectShowHidden dataKey={dataKey} />
@@ -208,16 +228,18 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id }: SMChannelDat
       id={dataKey}
       isLoading={isLoading}
       onRowExpand={(e: DataTableRowEvent) => {
-        if (e.data.Id !== selectedSMChannel?.Id) {
-          setSelectedSMChannel(e.data as SMChannelDto);
-        }
+        // if (e.data.Id !== selectedSMChannel?.Id) {
+        //   setSelectedSMChannel(e.data as SMChannelDto);
+        // }
       }}
       onRowCollapse={(e: DataTableRowEvent) => {
-        if (e.data.Id === selectedSMChannel?.Id) {
-          setSelectedSMChannel(undefined);
-        }
+        // if (e.data.Id === selectedSMChannel?.Id) {
+        //   setSelectedSMChannel(undefined);
+        // }
       }}
+      ref={smDataTableRef}
       rowClass={rowClass}
+      setSelectedSMChannel
       queryFilter={useGetPagedSMChannels}
       rowExpansionTemplate={rowExpansionTemplate}
       selectionMode="multiple"

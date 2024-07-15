@@ -13,7 +13,7 @@ public static class ListHelper
         PropertyInfo? property = typeof(T).GetProperty(propertyName);
         if (property == null)
         {
-            throw new ArgumentException("No such property found", "propertyName");
+            throw new ArgumentException("No such property found", nameof(propertyName));
         }
 
         foreach (T? obj in list)
@@ -21,8 +21,8 @@ public static class ListHelper
             object? value = property.GetValue(obj, null);
             if (value != null)
             {
-                string stringValue = value.ToString();
-                if (rgx.IsMatch(stringValue))
+                string? stringValue = value.ToString();
+                if (rgx.IsMatch(stringValue!))
                 {
                     matchedObjects.Add(obj);
                 }

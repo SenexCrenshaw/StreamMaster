@@ -17,7 +17,6 @@ const EPGFileEditDialog = ({ selectedFile }: EPGFileEditDialogProperties) => {
 
   return (
     <SMPopUp
-      hasCloseButton={false}
       contentWidthSize="3"
       title="EDIT EPG"
       icon="pi-pencil"

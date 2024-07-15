@@ -1,16 +1,11 @@
-﻿using AutoMapper;
-
-using MediatR;
-
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 
 using StreamMaster.Domain.API;
-using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Exceptions;
 namespace StreamMaster.Infrastructure.EF.Repositories;
 
-public class StreamGroupSMChannelLinkRepository(ILogger<StreamGroupSMChannelLinkRepository> logger, IRepositoryContext repositoryContext, IRepositoryWrapper repository, IMapper mapper, IOptionsMonitor<Setting> intSettings, ISender sender)
-    : RepositoryBase<StreamGroupSMChannelLink>(repositoryContext, logger, intSettings), IStreamGroupSMChannelLinkRepository
+public class StreamGroupSMChannelLinkRepository(ILogger<StreamGroupSMChannelLinkRepository> logger, IRepositoryContext repositoryContext, IRepositoryWrapper repository)
+    : RepositoryBase<StreamGroupSMChannelLink>(repositoryContext, logger), IStreamGroupSMChannelLinkRepository
 {
     public async Task<APIResponse> AddSMChannelToStreamGroup(int StreamGroupId, int SMChannelId)
     {
@@ -43,7 +38,6 @@ public class StreamGroupSMChannelLinkRepository(ILogger<StreamGroupSMChannelLink
             return;
         }
 
-
         StreamGroupSMChannelLink link = new()
         {
             SMChannelId = SMChannelId,
@@ -54,7 +48,6 @@ public class StreamGroupSMChannelLinkRepository(ILogger<StreamGroupSMChannelLink
 
         Create(link);
         await SaveChangesAsync();
-
     }
 
     public async Task<APIResponse> RemoveSMChannelFromStreamGroup(int StreamGroupId, int SMChannelId)
@@ -75,7 +68,6 @@ public class StreamGroupSMChannelLinkRepository(ILogger<StreamGroupSMChannelLink
 
         return APIResponse.Success;
     }
-
 
     public override IQueryable<StreamGroupSMChannelLink> GetQuery(bool tracking = false)
     {

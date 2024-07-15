@@ -26,10 +26,7 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Logging
                     Name = table.Column<string>(type: "citext", nullable: false),
                     RegexMatch = table.Column<string>(type: "citext", nullable: false)
                 },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ChannelGroup", x => x.Id);
-                });
+                constraints: table => table.PrimaryKey("PK_ChannelGroup", x => x.Id));
 
             migrationBuilder.CreateTable(
                 name: "LogEntries",
@@ -56,10 +53,7 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Logging
                     AutoSetChannelNumbers = table.Column<bool>(type: "boolean", nullable: false),
                     Name = table.Column<string>(type: "citext", nullable: false)
                 },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_StreamGroup", x => x.Id);
-                });
+                constraints: table => table.PrimaryKey("PK_StreamGroup", x => x.Id));
 
             migrationBuilder.CreateTable(
                 name: "VideoStream",

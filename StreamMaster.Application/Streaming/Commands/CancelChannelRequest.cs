@@ -2,7 +2,7 @@
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record CancelChannelRequest(int SMChannelId) : IRequest<APIResponse> { }
+public record CancelChannelRequest(int SMChannelId) : IRequest<APIResponse>;
 
 [LogExecutionTimeAspect]
 public class CancelChannelRequestHandler(IChannelManager ChannelManager, IMessageService messageService)

@@ -249,7 +249,8 @@ using (IServiceScope scope = app.Services.CreateScope())
     }
 
     RepositoryContextInitializer initialiser = scope.ServiceProvider.GetRequiredService<RepositoryContextInitializer>();
-    await initialiser.InitialiseAsync().ConfigureAwait(false);
+    
+    await initialiser.InitializeAsync(mainSetting!).ConfigureAwait(false);
     if (app.Environment.IsDevelopment())
     {
         initialiser.TrySeed();

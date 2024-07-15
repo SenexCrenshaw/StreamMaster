@@ -39,7 +39,7 @@ public class CreateSMChannelRequestHandler(ILogger<CreateSMChannelRequest> Logge
 
         try
         {
-            var smChannel = new SMChannel
+            SMChannel smChannel = new()
             {
                 Name = request.Name,
                 ChannelNumber = request.ChannelNumber ?? 0,
@@ -57,9 +57,10 @@ public class CreateSMChannelRequestHandler(ILogger<CreateSMChannelRequest> Logge
 
             if (request.SMStreamsIds != null)
             {
-                foreach (var streamId in request.SMStreamsIds)
+                int count = 0;
+                foreach (string streamId in request.SMStreamsIds)
                 {
-                    APIResponse res = await Repository.SMChannel.AddSMStreamToSMChannel(smChannel.Id, streamId).ConfigureAwait(false);
+                    APIResponse res = await Repository.SMChannel.AddSMStreamToSMChannel(smChannel.Id, streamId, count++).ConfigureAwait(false);
                 }
                 await Repository.SaveAsync();
 

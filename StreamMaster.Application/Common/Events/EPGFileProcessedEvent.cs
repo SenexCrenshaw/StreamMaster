@@ -1,14 +1,6 @@
-﻿using StreamMaster.Domain.Common;
-using StreamMaster.Domain.Dto;
+﻿namespace StreamMaster.Application.Common.Events;
 
-namespace StreamMaster.Application.Common.Events;
-
-public class EPGFileProcessedEvent : BaseEvent
+public class EPGFileProcessedEvent(EPGFileDto ePGFile) : BaseEvent
 {
-    public EPGFileProcessedEvent(EPGFileDto ePGFile)
-    {
-        EPGFile = ePGFile;
-    }
-
-    public EPGFileDto EPGFile { get; }
+    public EPGFileDto EPGFile { get; } = ePGFile;
 }

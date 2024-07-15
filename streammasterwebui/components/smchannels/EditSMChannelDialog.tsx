@@ -56,12 +56,12 @@ const EditSMChannelDialog = ({ smChannelDto }: CopySMChannelProperties) => {
       buttonClassName="icon-yellow"
       buttonIsLoading={isRowLoading}
       contentWidthSize="5"
-      hasCloseButton={false}
       icon="pi-pencil"
       info=""
       isPopupLoading={isRowLoading}
       modal
       modalCentered
+      noCloseButton={false}
       noBorderChildren
       ref={propUpRef}
       showRemember={false}

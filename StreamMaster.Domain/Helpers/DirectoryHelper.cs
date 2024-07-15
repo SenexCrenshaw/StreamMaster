@@ -46,12 +46,12 @@ public static class DirectoryHelper
         // Get fields marked with [CreateDir] or named "*Folder"
         IEnumerable<string?> fieldPaths = targetType.GetFields(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
                         .Where(f => (f.IsDefined(typeof(CreateDirAttribute), false) || f.Name.EndsWith("Folder")) && f.FieldType == typeof(string))
-                        .Select(f => (string)f.GetValue(null));
+                        .Select(f => (string    ?)f.GetValue(null));
 
         // Get properties marked with [CreateDir] or named "*Folder"
         IEnumerable<string?> propertyPaths = targetType.GetProperties(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
                             .Where(p => (p.IsDefined(typeof(CreateDirAttribute), false) || p.Name.EndsWith("Folder")) && p.PropertyType == typeof(string))
-                            .Select(p => (string)p.GetValue(null));
+                            .Select(p => (string    ?)p.GetValue(null));
 
         // Combine paths from fields and properties
         IEnumerable<string?> paths = fieldPaths.Concat(propertyPaths);
@@ -161,7 +161,7 @@ public static class DirectoryHelper
                 }
                 catch (Exception ex)
                 {
-                    Log("Failed to delete directory: {DirectoryPath} {ex}", dir.FullName, ex.InnerException);
+                    Log("Failed to delete directory: {DirectoryPath} {ex}", dir.FullName, ex?.InnerException);
                 }
             }
         }

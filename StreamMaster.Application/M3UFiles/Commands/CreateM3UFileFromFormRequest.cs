@@ -4,7 +4,7 @@ namespace StreamMaster.Application.M3UFiles.Commands;
 
 [SMAPI(JustController = true, JustHub = true)]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record CreateM3UFileFromFormRequest(string Name, int MaxStreamCount, int? HoursToUpdate, IFormFile? FormFile, List<string>? VODTags) : IRequest<APIResponse> { }
+public record CreateM3UFileFromFormRequest(string Name, int MaxStreamCount, int? HoursToUpdate, bool? SyncChannels, IFormFile? FormFile, List<string>? VODTags) : IRequest<APIResponse>;
 
 [LogExecutionTimeAspect]
 public class CreateM3UFileFromFormRequestHandler(ILogger<CreateM3UFileFromFormRequest> Logger, IMessageService messageService, IDataRefreshService dataRefreshService, IRepositoryWrapper Repository, IPublisher Publisher)
@@ -30,6 +30,7 @@ public class CreateM3UFileFromFormRequestHandler(ILogger<CreateM3UFileFromFormRe
                 MaxStreamCount = command.MaxStreamCount,
                 VODTags = command.VODTags ?? [],
                 HoursToUpdate = command.HoursToUpdate ?? 72,
+                SyncChannels = command.SyncChannels ?? false,
             };
 
 

@@ -6,14 +6,13 @@ import { SMTriSelectShowSelected } from '@components/sm/SMTriSelectShowSelected'
 import generateFilterData from '@components/smDataTable/helpers/generateFilterData';
 import { camel2title, isEmptyObject } from '@lib/common/common';
 import { useSMContext } from '@lib/signalr/SMProvider';
-import { PagedResponse } from '@lib/smAPI/smapiTypes';
+import { PagedResponse, SMChannelDto } from '@lib/smAPI/smapiTypes';
 import { Checkbox } from 'primereact/checkbox';
 import { Column, ColumnFilterElementTemplateOptions } from 'primereact/column';
 import {
   DataTable,
   DataTableExpandedRows,
   DataTablePageEvent,
-  DataTableRowToggleEvent,
   DataTableSelectionMultipleChangeEvent,
   DataTableSelectionSingleChangeEvent,
   DataTableStateEvent,
@@ -21,7 +20,7 @@ import {
   type DataTableValue
 } from 'primereact/datatable';
 import { MultiSelect, MultiSelectChangeEvent } from 'primereact/multiselect';
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { forwardRef, memo, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import TableHeader from './helpers/TableHeader';
 import { arraysEqualByKey } from './helpers/arraysEqual';
 import bodyTemplate from './helpers/bodyTemplate';
@@ -34,10 +33,11 @@ import isPagedResponse from './helpers/isPagedResponse';
 import useSMDataSelectorValuesState from './hooks/useSMDataTableState';
 import { useSetQueryFilter } from './hooks/useSetQueryFilter';
 import { ColumnMeta } from './types/ColumnMeta';
-import { SMDataTableProps } from './types/smDataTableInterfaces';
+import { SMDataTableProps, SMDataTableRef } from './types/smDataTableInterfaces';
 import { Logger } from '@lib/common/logger';
+import useSelectedSMItems from '@features/streameditor/useSelectedSMItems';
 
-const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
+const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>, ref: React.Ref<SMDataTableRef>) => {
   const { state, setters } = useSMDataSelectorValuesState<T>(props.id, props.selectedItemsKey);
   const { settings } = useSMContext();
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -47,6 +47,34 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
   const { queryFilter } = useSetQueryFilter(props.id, props.columns, state.first, state.filters, state.page, state.rows);
   const { data, isLoading } = props.queryFilter ? props.queryFilter(queryFilter) : { data: undefined, isLoading: false };
   const [dataSource, setDataSource] = useState<T[]>([]);
+  const { setSelectedSMChannel } = useSelectedSMItems();
+
+  useImperativeHandle(ref, () => ({
+    clearExpanded() {
+      setters.setExpandedRows(undefined);
+    }
+  }));
+
+  useEffect(() => {
+    if (props.setSelectedSMChannel === undefined) {
+      return;
+    }
+    if (state.expandedRows === undefined || state.expandedRows === null) {
+      setSelectedSMChannel(undefined);
+      return;
+    }
+    if (Object.keys(state.expandedRows).length === 0) {
+      setSelectedSMChannel(undefined);
+    } else {
+      const keys = Object.keys(state.expandedRows);
+      const firstKey = keys[0];
+      const id = parseInt(firstKey, 10);
+      const found = dataSource.find((item) => item.Id === id);
+      if (found) {
+        setSelectedSMChannel(found as unknown as SMChannelDto);
+      }
+    }
+  }, [dataSource, props.setSelectedSMChannel, setSelectedSMChannel, state.expandedRows]);
 
   useEffect(() => {
     const observer = new MutationObserver((mutations) => {
@@ -537,7 +565,9 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
     state.showSelected,
     state.sortField,
     state.sortOrder,
-    state.pagedInformation
+    state.pagedInformation,
+    props.arrayKey,
+    setters
   ]);
 
   const sourceRenderHeader = useMemo(() => {
@@ -766,7 +796,6 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
           lazy={isLazy}
           onRowToggle={(e: any) => {
             if (props.singleExpand === true) {
-              Logger.debug('DataTable', { isArray: Array.isArray(e.data), data: e.data, state: state.expandedRows });
               const expandedRows = findMissingKeys(state.expandedRows, e.data);
 
               setters.setExpandedRows(expandedRows);
@@ -814,7 +843,6 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
         >
           <Column
             body={props.addOrRemoveTemplate}
-            // className="sm-w-2rem"
             field="addOrRemove"
             filter
             filterElement={props.addOrRemoveHeaderTemplate}
@@ -909,4 +937,4 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>) => {
 
 SMDataTable.displayName = 'SMDataTable';
 
-export default memo(SMDataTable);
+export default memo(forwardRef(SMDataTable));

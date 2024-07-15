@@ -1,8 +1,7 @@
-﻿using StreamMaster.Domain.Configuration;
-namespace StreamMaster.Infrastructure.EF.Repositories;
+﻿namespace StreamMaster.Infrastructure.EF.Repositories;
 
-public class StreamGroupProfileRepository(ILogger<StreamGroupProfileRepository> intLogger, IRepositoryContext repositoryContext, IOptionsMonitor<Setting> intSettings)
-    : RepositoryBase<StreamGroupProfile>(repositoryContext, intLogger, intSettings), IStreamGroupProfileRepository
+public class StreamGroupProfileRepository(ILogger<StreamGroupProfileRepository> intLogger, IRepositoryContext repositoryContext)
+    : RepositoryBase<StreamGroupProfile>(repositoryContext, intLogger), IStreamGroupProfileRepository
 {
     public void DeleteStreamGroupProfile(StreamGroupProfile StreamGroupProfile)
     {
@@ -16,14 +15,8 @@ public class StreamGroupProfileRepository(ILogger<StreamGroupProfileRepository> 
 
     public StreamGroupProfile? GetStreamGroupProfile(int StreamGroupId, int StreamGroupProfileId)
     {
-        var profile = GetQuery().FirstOrDefault(a => a.StreamGroupId == StreamGroupId && a.Id == StreamGroupProfileId);
+        StreamGroupProfile? profile = GetQuery().FirstOrDefault(a => a.StreamGroupId == StreamGroupId && a.Id == StreamGroupProfileId);
 
-        if (profile == null)
-        {
-            return GetQuery().FirstOrDefault(a => a.StreamGroupId == StreamGroupId && a.OutputProfileName == "Default");
-        }
-
-        return profile;
+        return profile ?? GetQuery().FirstOrDefault(a => a.StreamGroupId == StreamGroupId && a.OutputProfileName == "Default");
     }
-
 }

@@ -22,10 +22,9 @@ using System.Text.Json;
 
 namespace StreamMaster.Infrastructure.EF.Repositories;
 
-public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, ISender sender, IRepositoryWrapper repository, IRepositoryContext repositoryContext, IMapper mapper, IOptionsMonitor<Setting> intSettings, IIconService iconService, ISchedulesDirectDataService schedulesDirectDataService)
-    : RepositoryBase<SMChannel>(repositoryContext, intLogger, intSettings), ISMChannelsRepository
+public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, ISender sender, IRepositoryWrapper repository, IRepositoryContext repositoryContext, IMapper mapper, IOptionsMonitor<Setting> intSettings, ISchedulesDirectDataService schedulesDirectDataService)
+    : RepositoryBase<SMChannel>(repositoryContext, intLogger), ISMChannelsRepository
 {
-
     private ConcurrentHashSet<int> existingNumbers = [];
     private ConcurrentHashSet<int> usedNumbers = [];
     private int currentChannelNumber;
@@ -45,17 +44,17 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, ISend
         string sql = $"UPDATE public.\"SMChannels\" SET \"Group\"='{newGroupName}' WHERE \"Group\"={oldGroupName};";
         await RepositoryContext.ExecuteSqlRawAsyncEntities(sql);
     }
-    public async Task<IQueryable<SMChannel>> GetPagedSMChannelsQueryable(QueryStringParameters parameters)
+    public IQueryable<SMChannel> GetPagedSMChannelsQueryable(QueryStringParameters parameters)
     {
         IQueryable<SMChannel> query = GetQuery(parameters).Include(a => a.SMStreams).ThenInclude(a => a.SMStream).Include(a => a.StreamGroups);
 
         if (!string.IsNullOrEmpty(parameters.JSONFiltersString))
         {
             List<DataTableFilterMetaData>? filters = JsonSerializer.Deserialize<List<DataTableFilterMetaData>>(parameters.JSONFiltersString);
-            if (filters != null && filters.Any(a => a.MatchMode == "inSG"))
+            if (filters?.Any(a => a.MatchMode == "inSG") == true)
             {
-                DataTableFilterMetaData? inSGFilter = filters.FirstOrDefault(a => a.MatchMode == "inSG");
-                if (inSGFilter != null && inSGFilter.Value != null)
+                DataTableFilterMetaData? inSGFilter = filters.Find(a => a.MatchMode == "inSG");
+                if (inSGFilter?.Value != null)
                 {
                     try
                     {
@@ -63,7 +62,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, ISend
                         if (!string.IsNullOrWhiteSpace(streamGroupIdString))
                         {
                             int streamGroupId = Convert.ToInt32(streamGroupIdString);
-                            List<int> linkIds = repository.StreamGroupSMChannelLink.GetQuery().Where(a => a.StreamGroupId == streamGroupId).Select(a => a.SMChannelId).ToList();
+                            List<int> linkIds = [.. repository.StreamGroupSMChannelLink.GetQuery().Where(a => a.StreamGroupId == streamGroupId).Select(a => a.SMChannelId)];
                             query = query.Where(a => linkIds.Contains(a.Id));
                         }
                     }
@@ -71,14 +70,13 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, ISend
                     {
                         logger.LogError(ex, "Object value is outside the range of an Int32. Object: {Object}", inSGFilter.Value);
                     }
-
                 }
             }
 
-            if (filters != null && filters.Any(a => a.MatchMode == "notInSG"))
+            if (filters?.Any(a => a.MatchMode == "notInSG") == true)
             {
-                DataTableFilterMetaData? notInSGFilter = filters.FirstOrDefault(a => a.MatchMode == "notInSG");
-                if (notInSGFilter != null && notInSGFilter.Value != null)
+                DataTableFilterMetaData? notInSGFilter = filters.Find(a => a.MatchMode == "notInSG");
+                if (notInSGFilter?.Value != null)
                 {
                     try
                     {
@@ -86,7 +84,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, ISend
                         if (!string.IsNullOrWhiteSpace(streamGroupIdString))
                         {
                             int streamGroupId = Convert.ToInt32(streamGroupIdString);
-                            List<int> linkIds = repository.StreamGroupSMChannelLink.GetQuery().Where(a => a.StreamGroupId == streamGroupId).Select(a => a.SMChannelId).ToList();
+                            List<int> linkIds = [.. repository.StreamGroupSMChannelLink.GetQuery().Where(a => a.StreamGroupId == streamGroupId).Select(a => a.SMChannelId)];
                             query = query.Where(a => !linkIds.Contains(a.Id));
                         }
                     }
@@ -94,16 +92,14 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, ISend
                     {
                         logger.LogError(ex, "Object value is outside the range of an Int32. Object: {Object}", notInSGFilter.Value);
                     }
-
                 }
-
             }
         }
         return query;
     }
     public async Task<PagedResponse<SMChannelDto>> GetPagedSMChannels(QueryStringParameters parameters)
     {
-        IQueryable<SMChannel> query = await GetPagedSMChannelsQueryable(parameters);
+        IQueryable<SMChannel> query = GetPagedSMChannelsQueryable(parameters);
 
         return await query.GetPagedResponseAsync<SMChannel, SMChannelDto>(parameters.PageNumber, parameters.PageSize, mapper)
                               .ConfigureAwait(false);
@@ -134,7 +130,6 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, ISend
             logger.LogError(ex, "Error deleting SMChannel with id {smchannelId}", smchannelId);
             return APIResponse.ErrorWithMessage(ex, $"Error deleting SMChannel with id {smchannelId}");
         }
-
     }
 
     public async Task<List<int>> DeleteSMChannelsFromParameters(QueryStringParameters parameters)
@@ -148,16 +143,11 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, ISend
         return FirstOrDefault(a => a.Id == smchannelId, tracking: false);
     }
 
-    public async Task<APIResponse> CreateSMChannelFromStream(string streamId, int? StreamGroupId)
+    public async Task<APIResponse> CreateSMChannelFromStream(string streamId, int? StreamGroupId, int? M3UFileId)
     {
         Setting Settings = intSettings.CurrentValue;
 
-        SMStreamDto? smStream = repository.SMStream.GetSMStream(streamId);
-        if (smStream == null)
-        {
-            throw new APIException($"Stream with Id {streamId} is not found");
-        }
-
+        SMStream? smStream = repository.SMStream.GetSMStream(streamId) ?? throw new APIException($"Stream with Id {streamId} is not found");
         ConcurrentDictionary<string, byte> generatedIdsDict = new();
         foreach (SMChannel channel in GetQuery())
         {
@@ -172,30 +162,30 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, ISend
             Logo = smStream.Logo,
             EPGId = smStream.EPGID,
             StationId = smStream.StationId,
+            M3UFileId = M3UFileId,
+            StreamID = smStream.Id,
             ShortSMChannelId = UniqueHexGenerator.GenerateUniqueHex(generatedIdsDict)
         };
 
         await CreateSMChannel(smChannel);
 
-        await repository.SMChannelStreamLink.CreateSMChannelStreamLink(smChannel.Id, smStream.Id);
+        await repository.SMChannelStreamLink.CreateSMChannelStreamLink(smChannel.Id, smStream.Id, null);
         if (StreamGroupId.HasValue)
         {
             await sender.Send(new AddSMChannelToStreamGroupRequest(StreamGroupId.Value, smChannel.Id));
         }
         if (Settings.AutoSetEPG)
         {
-
             List<FieldData> fds = await AutoSetEPGs(GetQuery(a => a.Id == smChannel.Id), CancellationToken.None);
             if (fds.Count != 0)
             {
                 FieldData test = fds.First(a => a.Id == smChannel.Id.ToString() && a.Field == "EPGId");
-                if (test != null)
+                if (test.Value is string value && !string.IsNullOrEmpty(value))
                 {
-                    smChannel.EPGId = test.Value.ToString();
+                    smChannel.EPGId = value;
                     Update(smChannel);
                     await SaveChangesAsync();
                 }
-
             }
             RepositoryContext.SaveChanges();
         }
@@ -215,7 +205,6 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, ISend
         return APIResponse.Success;
     }
 
-
     [LogExecutionTimeAspect]
     private async Task<List<int>> DeleteSMChannelsAsync(IQueryable<SMChannel> channels)
     {
@@ -225,7 +214,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, ISend
         }
         try
         {
-            List<SMChannel> a = channels.ToList();
+            List<SMChannel> a = [.. channels];
             List<int> ret = [.. a.Select(a => a.Id)];
             IQueryable<SMChannelStreamLink> linksToDelete = repository.SMChannelStreamLink.GetQuery(true).Where(a => ret.Contains(a.SMChannelId));
             await repository.SMChannelStreamLink.DeleteSMChannelStreamLinks(linksToDelete);
@@ -241,24 +230,19 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, ISend
         return [];
     }
 
-    public async Task<IdIntResultWithResponse> AutoSetSMChannelNumbers(int StreamGroupId, List<int> SMChannelIds, int? StartingNumber, bool? OverwriteExisting)
+    public async Task<IdIntResultWithResponse> AutoSetSMChannelNumbersRequest(int StreamGroupId, List<int> SMChannelIds, int? StartingNumber, bool? OverwriteExisting)
     {
-
         IQueryable<SMChannel> query = GetQuery(true).Where(a => SMChannelIds.Contains(a.Id));
-        return await IntAutoSetSMChannelNumbers(query, StartingNumber ?? 1, OverwriteExisting ?? true);
-
+        return await AutoSetSMChannelNumbers(query, StartingNumber ?? 1, OverwriteExisting ?? true);
     }
 
-    public async Task<IdIntResultWithResponse> AutoSetSMChannelNumbersFromParameters(int streamGroupId, QueryStringParameters Parameters, int? OverwriteExisting, bool? SkipExisting)
+    public async Task<IdIntResultWithResponse> AutoSetSMChannelNumbersFromParameters(int streamGroupId, QueryStringParameters Parameters, int? StartingNumber, bool? OverwriteExisting)
     {
-
         IQueryable<SMChannel> query = GetQuery(Parameters);
-        return await IntAutoSetSMChannelNumbers(query, OverwriteExisting ?? 1, SkipExisting ?? true);
-
+        return await AutoSetSMChannelNumbers(query, StartingNumber ?? 1, OverwriteExisting ?? true);
     }
 
-
-    private async Task<IdIntResultWithResponse> IntAutoSetSMChannelNumbers(IQueryable<SMChannel> smChannels, int StartingNumber, bool OverwriteExisting)
+    private async Task<IdIntResultWithResponse> AutoSetSMChannelNumbers(IQueryable<SMChannel> smChannels, int StartingNumber, bool OverwriteExisting)
     {
         if (!smChannels.Any())
         {
@@ -269,10 +253,9 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, ISend
         usedNumbers = [];
         currentChannelNumber = StartingNumber - 1;
 
-
         IdIntResultWithResponse ret = [];
 
-        if (OverwriteExisting)
+        if (!OverwriteExisting)
         {
             foreach (int channelNumber in smChannels.Select(a => a.ChannelNumber).Distinct())
             {
@@ -290,7 +273,6 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, ISend
 
         await RepositoryContext.SaveChangesAsync();
 
-
         //StreamGroup? streamGroup = await GetQuery(true).FirstOrDefaultAsync(a => a.Id == streamGroupId);
 
         //if (streamGroup == null)
@@ -300,7 +282,6 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, ISend
         //}
 
         //StreamGroupProfile sgProfile = RepositoryContext.StreamGroupProfiles.FirstOrDefault(a => a.StreamGroupId == streamGroupId && a.OutputProfileName == "Default") ?? new StreamGroupProfile();
-
 
         //(List<VideoStreamConfig> videoStreamConfigs, OutputProfile outputProfile) = await sender.Send(new GetStreamGroupVideoConfigs(streamGroupId, sgProfile.Id));
 
@@ -312,7 +293,6 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, ISend
 
         //List<DataTableFilterMetaData>? filters = JsonSerializer.Deserialize<List<DataTableFilterMetaData>>(Parameters.JSONFiltersString);
         //IQueryable<SMChannel> channels = FilterHelper<SMChannel>.ApplyFiltersAndSort(streamGroup.SMChannels.Select(a => a.SMChannel).AsQueryable(), filters, Parameters.OrderBy, true);
-
 
         //foreach (SMChannel channel in smChannels)
         //{
@@ -355,14 +335,15 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, ISend
         return currentChannelNumber;
     }
 
-    public async Task<APIResponse> AddSMStreamToSMChannel(int SMChannelId, string SMStreamId)
+    public async Task<APIResponse> AddSMStreamToSMChannel(int SMChannelId, string SMStreamId, int? Rank)
     {
-        if (GetSMChannel(SMChannelId) == null || repository.SMStream.GetSMStream(SMStreamId) == null)
+        SMChannel? smChannel = GetSMChannel(SMChannelId);
+        if (smChannel == null || repository.SMStream.GetSMStream(SMStreamId) == null)
         {
             throw new APIException($"Channel with Id {SMChannelId} or stream with Id {SMStreamId} not found");
         }
 
-        await repository.SMChannelStreamLink.CreateSMChannelStreamLink(SMChannelId, SMStreamId);
+        await repository.SMChannelStreamLink.CreateSMChannelStreamLink(smChannel.Id, SMStreamId, Rank);
         await SaveChangesAsync();
 
         return APIResponse.Success;
@@ -383,7 +364,6 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, ISend
     public async Task<APIResponse> SetSMStreamRanks(List<SMChannelRankRequest> request)
     {
         return await repository.SMChannelStreamLink.SetSMStreamRank(request);
-
     }
 
     public async Task<APIResponse> SetSMChannelLogo(int SMChannelId, string logo)
@@ -391,7 +371,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, ISend
         SMChannel? channel = GetSMChannel(SMChannelId);
         if (channel == null)
         {
-            return APIResponse.ErrorWithMessage($"Channel {SMChannelId} doesnt exist");
+            return APIResponse.ErrorWithMessage($"Channel {SMChannelId} doesn't exist");
         }
 
         channel.Logo = logo;
@@ -427,7 +407,6 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, ISend
 
         return APIResponse.Success;
     }
-
 
     public async Task<APIResponse> SetSMChannelName(int sMChannelId, string name)
     {
@@ -488,13 +467,15 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, ISend
         newChannel.Name = newName;
         await CreateSMChannel(newChannel);
         await SaveChangesAsync();
-        List<SMChannelStreamLink> links = repository.SMChannelStreamLink.GetQuery().Where(a => a.SMChannelId == sMChannelId).ToList();
+        List<SMChannelStreamLink> links = [.. repository.SMChannelStreamLink.GetQuery().Where(a => a.SMChannelId == sMChannelId)];
 
         foreach (SMChannelStreamLink? link in links)
         {
             SMChannelStreamLink newLink = new()
             {
+                SMChannel = newChannel,
                 SMChannelId = newChannel.Id,
+                SMStream = link.SMStream,
                 SMStreamId = link.SMStreamId,
                 Rank = link.Rank,
             };
@@ -504,16 +485,15 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, ISend
         await SaveChangesAsync();
 
         return APIResponse.Success;
-
     }
 
-    public async Task<APIResponse> CreateSMChannelFromStreams(List<string> streamIds, int? StreamGroupId)
+    public async Task<APIResponse> CreateSMChannelFromStreams(List<string> streamIds, int? StreamGroupId, int? M3UFileId)
     {
         try
         {
             foreach (string streamId in streamIds)
             {
-                APIResponse resp = await CreateSMChannelFromStream(streamId, StreamGroupId);
+                APIResponse resp = await CreateSMChannelFromStream(streamId, StreamGroupId, M3UFileId);
                 if (resp.IsError)
                 {
                     return resp;
@@ -529,16 +509,16 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, ISend
         return APIResponse.Success;
     }
 
-    public Task<APIResponse> CreateSMChannelFromStreamParameters(QueryStringParameters parameters, int? StreamGroupId)
+    public Task<APIResponse> CreateSMChannelFromStreamParameters(QueryStringParameters parameters, int? StreamGroupId, int? M3UFileId)
     {
         IQueryable<SMStream> toCreate = repository.SMStream.GetQuery(parameters);
-        return CreateSMChannelFromStreams(toCreate.Select(a => a.Id).ToList(), StreamGroupId);
+        return CreateSMChannelFromStreams([.. toCreate.Select(a => a.Id)], StreamGroupId, M3UFileId);
     }
 
     public async Task<List<FieldData>> ToggleSMChannelsVisibleById(List<int> ids, CancellationToken cancellationToken)
     {
         List<FieldData> ret = [];
-        List<SMChannel> channels = GetQuery(true).Where(a => ids.Contains(a.Id)).ToList();
+        List<SMChannel> channels = [.. GetQuery(true).Where(a => ids.Contains(a.Id))];
 
         foreach (SMChannel? channel in channels)
         {
@@ -587,15 +567,15 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, ISend
 
     private async Task<List<FieldData>> AutoSetEPGs(IQueryable<SMChannel> smChannels, CancellationToken cancellationToken)
     {
-        List<StationChannelName> stationChannelNames = await schedulesDirectDataService.GetStationChannelNames();
-        stationChannelNames = stationChannelNames.OrderBy(a => a.Channel).ToList();
+        List<StationChannelName> stationChannelNames = schedulesDirectDataService.GetStationChannelNames().ToList();
+        stationChannelNames = [.. stationChannelNames.OrderBy(a => a.Channel)];
 
-        List<string> tomatch = stationChannelNames.Select(a => a.DisplayName).Distinct().ToList();
-        string tomatchString = string.Join(',', tomatch);
+        List<string> toMatch = stationChannelNames.Select(a => a.DisplayName).Distinct().ToList();
+        string toMatchString = string.Join(',', toMatch);
 
         List<FieldData> fds = [];
 
-        List<SMChannel> smChannelList = smChannels.ToList();
+        List<SMChannel> smChannelList = [.. smChannels];
 
         Setting Settings = intSettings.CurrentValue;
         foreach (SMChannel smChannel in smChannelList)
@@ -622,15 +602,14 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, ISend
 
                 if (scoredMatches.Count == 0)
                 {
-                    scoredMatches = stationChannelNames
+                    scoredMatches = [.. stationChannelNames
                         .Select(p => new
                         {
                             Channel = p,
                             Score = AutoEPGMatch.GetMatchingScore(smChannel.Name, p.DisplayName)
                         })
                         .Where(x => x.Score > 0)
-                        .OrderByDescending(x => x.Score)
-                        .ToList();
+                        .OrderByDescending(x => x.Score)];
                 }
 
                 if (scoredMatches.Count > 0)
@@ -638,7 +617,6 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, ISend
                     smChannel.EPGId = !scoredMatches[0].Channel.Channel.StartsWith(EPGHelper.SchedulesDirectId.ToString()) && scoredMatches.Count > 1 && scoredMatches[1].Channel.Channel.StartsWith(EPGHelper.SchedulesDirectId.ToString())
                         ? scoredMatches[1].Channel.Channel
                         : scoredMatches[0].Channel.Channel;
-
 
                     fds.Add(new FieldData(SMChannel.APIName, smChannel.Id, "EPGId", smChannel.EPGId));
 
@@ -659,7 +637,6 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, ISend
                 logger.LogWarning("An error occurred while processing channel {ChannelName}: {ErrorMessage}", smChannel.Name, ex.Message);
             }
         }
-
 
         if (fds.Count != 0)
         {
@@ -735,7 +712,6 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, ISend
         IQueryable<SMChannel> channels = RepositoryContext.StreamGroupSMChannelLinks.Where(a => a.StreamGroupId == streamGroupId).Include(a => a.SMChannel).Select(a => a.SMChannel);
 
         return await channels.ToListAsync();
-
     }
 
     public SMChannel? GetSMChannelFromStreamGroup(int smChannelId, int streamGroupId)

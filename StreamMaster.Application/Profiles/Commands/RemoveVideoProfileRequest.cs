@@ -2,7 +2,7 @@
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record RemoveVideoProfileRequest(string Name) : IRequest<APIResponse> { }
+public record RemoveVideoProfileRequest(string Name) : IRequest<APIResponse>;
 
 public class RemoveVideoProfileRequestHandler(IOptionsMonitor<VideoOutputProfiles> intprofilesettings, IDataRefreshService dataRefreshService, ILogger<RemoveVideoProfileRequest> Logger, IMapper Mapper)
 : IRequestHandler<RemoveVideoProfileRequest, APIResponse>

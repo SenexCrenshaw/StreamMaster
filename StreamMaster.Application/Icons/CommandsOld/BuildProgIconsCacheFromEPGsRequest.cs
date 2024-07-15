@@ -1,6 +1,6 @@
 ﻿namespace StreamMaster.Application.Icons.CommandsOld;
 
-public class BuildProgIconsCacheFromEPGsRequest : IRequest<bool> { }
+public class BuildProgIconsCacheFromEPGsRequest : IRequest<bool>;
 
 [LogExecutionTimeAspect]
 public class BuildProgIconsCacheFromEPGsRequestHandler(ILogger<BuildProgIconsCacheFromEPGsRequest> logger)

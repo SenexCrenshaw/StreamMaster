@@ -7,11 +7,19 @@ public record GetStationChannelNamesRequest : IRequest<DataResponse<List<Station
 internal class GetStationChannelNamesHandler(ISchedulesDirectDataService schedulesDirectDataService)
     : IRequestHandler<GetStationChannelNamesRequest, DataResponse<List<StationChannelName>>>
 {
-
-    public async Task<DataResponse<List<StationChannelName>>> Handle(GetStationChannelNamesRequest request, CancellationToken cancellationToken)
+    public Task<DataResponse<List<StationChannelName>>> Handle(GetStationChannelNamesRequest request, CancellationToken cancellationToken)
     {
-        List<StationChannelName> channelNames = await schedulesDirectDataService.GetStationChannelNames();
-        return DataResponse<List<StationChannelName>>.Success(channelNames);
+        List<StationChannelName> channelNames = schedulesDirectDataService.GetStationChannelNames().ToList();
 
+        //StationChannelName? dummy = channelNames.FirstOrDefault(a => a.ChannelName == "Dummy");
+        //if (dummy != null)
+        //{
+        //    List<StationChannelName> list = channelNames.ToList();
+        //    list.Remove(dummy);
+        //    list.Insert(0, dummy);
+        //    channelNames = list;
+        //}
+
+        return Task.FromResult<DataResponse<List<StationChannelName>>>(DataResponse<List<StationChannelName>>.Success(channelNames));
     }
 }

@@ -21,9 +21,8 @@ public class StreamGroup : BaseEntity
     public ICollection<StreamGroupSMChannelLink> SMChannels { get; set; } = [];
 
     public bool IsReadOnly { get; set; } = false;
-    public bool IgnoreExistingChannelNumbers { get; set; } = true;
-    public bool AutoSetChannelNumbers { get; set; } = true;
-    public int StartingChannelNumber { get; set; } = 1;
+
+    public bool IsSystem { get; set; } = false;
 
     [Column(TypeName = "citext")]
     public string Name { get; set; } = string.Empty;

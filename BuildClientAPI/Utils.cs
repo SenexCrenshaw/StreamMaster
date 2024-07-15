@@ -172,9 +172,9 @@ public static class Utils
 
     public static bool IsParameterNullable(ParameterInfo parameter)
     {
-        if (parameter.Name.Contains("ProcessEPGFile"))
+        if (parameter.Name is null)
         {
-            int aa = 1;
+            return true;
         }
 
         // Check for a value type that is nullable
@@ -320,21 +320,22 @@ public static class Utils
     {
         if (type.IsGenericType)
         {
-            string typeName = type.GetGenericTypeDefinition().FullName;
-            typeName = typeName[..typeName.IndexOf('`')]; // Remove the backtick and generic parameter count
-            string genericArguments = string.Join(", ", type.GetGenericArguments().Select(GetTypeFullNameForParameter)); // Recursive call for generic arguments
-            return $"{typeName}<{genericArguments}>";
-        }
-        else
-        {
-            string ret = type.FullName ?? type.Name;
-            if (ret.Contains("+"))
+            string? typeName = type.GetGenericTypeDefinition().FullName;
+            if (!string.IsNullOrEmpty(typeName))
             {
-                ret = type.Name;
+                typeName = typeName[..typeName.IndexOf('`')]; // Remove the backtick and generic parameter count
+                string genericArguments = string.Join(", ", type.GetGenericArguments().Select(GetTypeFullNameForParameter)); // Recursive call for generic arguments
+                return $"{typeName}<{genericArguments}>";
             }
-
-            return ret;
         }
+        string ret = type.FullName ?? type.Name;
+        if (ret.Contains("+"))
+        {
+            ret = type.Name;
+        }
+
+        return ret;
+
     }
 
     /// <summary>

@@ -2,7 +2,7 @@
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record RefreshEPGFileRequest(int Id) : IRequest<APIResponse> { }
+public record RefreshEPGFileRequest(int Id) : IRequest<APIResponse>;
 
 public class RefreshEPGFileRequestHandler(ILogger<RefreshEPGFileRequest> Logger, IMessageService messageService, IMapper Mapper, IJobStatusService jobStatusService, IRepositoryWrapper Repository, IPublisher Publisher)
     : IRequestHandler<RefreshEPGFileRequest, APIResponse>

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace StreamMaster.Ring.API.Exceptions
+﻿namespace StreamMaster.Ring.API.Exceptions
 {
     /// <summary>
     /// Exception thrown when an attempt to authenticate failed
@@ -12,6 +10,14 @@ namespace StreamMaster.Ring.API.Exceptions
         }
 
         public AuthenticationFailedException(Exception innerException) : base("Authentication of the session failed", innerException)
+        {
+        }
+
+        public AuthenticationFailedException(string? message) : base(message)
+        {
+        }
+
+        public AuthenticationFailedException(string? message, Exception? innerException) : base(message, innerException)
         {
         }
     }

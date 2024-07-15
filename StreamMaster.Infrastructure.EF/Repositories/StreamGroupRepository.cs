@@ -1,8 +1,6 @@
 ﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
 
-using MediatR;
-
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,10 +12,9 @@ using StreamMaster.Domain.Filtering;
 using System.Web;
 namespace StreamMaster.Infrastructure.EF.Repositories;
 
-public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, ISender sender, IRepositoryContext repositoryContext, IMapper mapper, IOptionsMonitor<Setting> intSettings, IHttpContextAccessor httpContextAccessor)
-    : RepositoryBase<StreamGroup>(repositoryContext, logger, intSettings), IStreamGroupRepository
+public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepositoryContext repositoryContext, IMapper mapper, IOptionsMonitor<Setting> intSettings, IHttpContextAccessor httpContextAccessor)
+    : RepositoryBase<StreamGroup>(repositoryContext, logger), IStreamGroupRepository
 {
-
     public PagedResponse<StreamGroupDto> CreateEmptyPagedResponse()
     {
         return PagedExtensions.CreateEmptyPagedResponse<StreamGroupDto>(Count());
@@ -34,23 +31,19 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, ISende
         return ret;
     }
 
-
-    public void SetStreamGroupsLinks(List<StreamGroupDto> streamGroupDtos)
+    public void SetStreamGroupsLinks(List<StreamGroupDto> streamGroupDTOs)
     {
         string Url = httpContextAccessor.GetUrl();
 
-
-        foreach (StreamGroupDto sg in streamGroupDtos)
+        foreach (StreamGroupDto sg in streamGroupDTOs)
         {
             SetStreamGroupLinks(sg, Url);
         }
     }
 
-    private async Task SetStreamGroupsLink(StreamGroupDto streamGroupDto)
+    private void SetStreamGroupsLink(StreamGroupDto streamGroupDto)
     {
         string Url = httpContextAccessor.GetUrl();
-
-
         SetStreamGroupLinks(streamGroupDto, Url);
     }
 
@@ -62,23 +55,23 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, ISende
         //    : RepositoryContext.StreamGroupSMChannelLinks.Where(a => a.StreamGroupId == streamGroupDto.Id).Count();
         if (streamGroupDto.StreamGroupProfiles.Count > 0)
         {
-            foreach (StreamGroupProfileDto sgprofile in streamGroupDto.StreamGroupProfiles)
+            foreach (StreamGroupProfileDto sgProfile in streamGroupDto.StreamGroupProfiles)
             {
                 //string encodedStreamGroupNumber = streamGroupDto.Id.EncodeValue128(Settings.ServerKey);
-                string encodedStreamGroupNumber = streamGroupDto.Id.EncodeValues128(sgprofile.Id, Settings.ServerKey);
+                string encodedStreamGroupNumber = streamGroupDto.Id.EncodeValues128(sgProfile.Id, Settings.ServerKey);
 
                 string encodedName = HttpUtility.HtmlEncode(streamGroupDto.Name).Trim()
                             .Replace("/", "")
                             .Replace(" ", "_");
 
-                sgprofile.M3ULink = $"{Url}/api/streamgroups/{encodedStreamGroupNumber}/m3u.m3u";
-                sgprofile.ShortM3ULink = $"{Url}/v/s/{encodedName}.m3u";
-                sgprofile.ShortEPGLink = $"{Url}/v/s/{encodedName}.xml";
-                sgprofile.XMLLink = $"{Url}/api/streamgroups/{encodedStreamGroupNumber}/epg.xml";
-                sgprofile.HDHRLink = $"{Url}/api/streamgroups/{encodedStreamGroupNumber}";
+                sgProfile.M3ULink = $"{Url}/api/streamgroups/{encodedStreamGroupNumber}/m3u.m3u";
+                sgProfile.ShortM3ULink = $"{Url}/v/s/{encodedName}.m3u";
+                sgProfile.ShortEPGLink = $"{Url}/v/s/{encodedName}.xml";
+                sgProfile.XMLLink = $"{Url}/api/streamgroups/{encodedStreamGroupNumber}/epg.xml";
+                sgProfile.HDHRLink = $"{Url}/api/streamgroups/{encodedStreamGroupNumber}";
             }
 
-            StreamGroupProfileDto? defaultProfile = streamGroupDto.StreamGroupProfiles.FirstOrDefault(a => a.Name == "Default");
+            StreamGroupProfileDto? defaultProfile = streamGroupDto.StreamGroupProfiles.Find(a => a.Name == "Default");
             if (defaultProfile != null)
             {
                 streamGroupDto.ShortM3ULink = defaultProfile.ShortM3ULink;
@@ -89,7 +82,6 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, ISende
             }
         }
 
-
         //streamGroupDto.StreamCount = count;
     }
 
@@ -98,7 +90,7 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, ISende
         if (streamGroupId == 0)
         {
             StreamGroupDto dto = new() { Id = 0, Name = "All", IsReadOnly = true };
-            await SetStreamGroupsLink(dto);
+            SetStreamGroupsLink(dto);
             return dto;
         }
 
@@ -113,7 +105,7 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, ISende
         }
 
         StreamGroupDto ret = mapper.Map<StreamGroupDto>(streamGroup);
-        await SetStreamGroupsLink(ret);
+        SetStreamGroupsLink(ret);
         return ret;
     }
 
@@ -125,7 +117,7 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, ISende
     public IQueryable<StreamGroup> GetAllStreamGroupsWithChannelGroups()
     {
         return GetQuery().Include(sg => sg.ChannelGroups)
-            .ThenInclude(sgcg => sgcg.ChannelGroup).OrderBy(p => p.Name);
+            .ThenInclude(a => a.ChannelGroup).OrderBy(p => p.Name);
     }
 
     public async Task<List<StreamGroupDto>> GetStreamGroups(CancellationToken cancellationToken)
@@ -147,7 +139,6 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, ISende
 
     public async Task<int?> DeleteStreamGroup(int StreamGroupId)
     {
-
         IQueryable<StreamGroupChannelGroup> channelGroups = RepositoryContext.StreamGroupChannelGroups.Where(a => a.StreamGroupId == StreamGroupId);
 
         IQueryable<StreamGroupSMChannelLink> smChannels = RepositoryContext.StreamGroupSMChannelLinks.Where(a => a.StreamGroupId == StreamGroupId);
@@ -169,7 +160,7 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, ISende
         return streamGroup.Id;
     }
 
-    public async Task<StreamGroupDto?> UpdateStreamGroup(int StreamGroupId, string? NewName, string? DeviceID, bool? AutoSetChannelNumbers, bool? IgnoreExistingChannelNumbers, int? StartingChannelNumber)
+    public async Task<StreamGroupDto?> UpdateStreamGroup(int StreamGroupId, string? NewName, string? DeviceID)//, bool? AutoSetChannelNumbers, bool? IgnoreExistingChannelNumbers, int? StartingChannelNumber)
     {
         StreamGroup? streamGroup = await FirstOrDefaultAsync(c => c.Id == StreamGroupId);
         if (streamGroup == null)
@@ -187,32 +178,29 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, ISende
             streamGroup.DeviceID = DeviceID;
         }
 
-        if (StartingChannelNumber.HasValue)
-        {
-            streamGroup.StartingChannelNumber = StartingChannelNumber.Value;
-        }
+        //if (StartingChannelNumber.HasValue)
+        //{
+        //    streamGroup.StartingChannelNumber = StartingChannelNumber.Value;
+        //}
 
-        if (IgnoreExistingChannelNumbers.HasValue)
-        {
-            streamGroup.IgnoreExistingChannelNumbers = IgnoreExistingChannelNumbers.Value;
-        }
+        //if (IgnoreExistingChannelNumbers.HasValue)
+        //{
+        //    streamGroup.IgnoreExistingChannelNumbers = IgnoreExistingChannelNumbers.Value;
+        //}
 
-        if (AutoSetChannelNumbers.HasValue)
-        {
-            streamGroup.AutoSetChannelNumbers = AutoSetChannelNumbers.Value;
-        }
-
+        //if (AutoSetChannelNumbers.HasValue)
+        //{
+        //    streamGroup.AutoSetChannelNumbers = AutoSetChannelNumbers.Value;
+        //}
 
         Update(streamGroup);
         await RepositoryContext.SaveChangesAsync();
         StreamGroupDto ret = mapper.Map<StreamGroupDto>(streamGroup);
 
-        await SetStreamGroupsLink(ret);
+        SetStreamGroupsLink(ret);
 
         return ret;
     }
-
-
 
     public void UpdateStreamGroup(StreamGroup StreamGroup)
     {
@@ -224,9 +212,9 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, ISende
         return GetQuery();
     }
 
-    public StreamGroup? GetStreamGroup(int streamGrouId)
+    public StreamGroup? GetStreamGroup(int streamGroupId)
     {
-        return FirstOrDefault(a => a.Id == streamGrouId, tracking: false);
+        return FirstOrDefault(a => a.Id == streamGroupId, tracking: false);
     }
 
     public override IQueryable<StreamGroup> GetQuery(bool tracking = false)
@@ -246,5 +234,4 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, ISende
         List<DataTableFilterMetaData> filters = Utils.GetFiltersFromJSON(parameters.JSONFiltersString);
         return GetQuery(filters, parameters.OrderBy, tracking: tracking);
     }
-
 }

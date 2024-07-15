@@ -11,7 +11,6 @@ public class LogDbContextInitialiser(ILogger<LogDbContextInitialiser> logger, Lo
     {
         try
         {
-
             await context.Database.MigrateAsync().ConfigureAwait(false);
             context.RemoveRange(context.LogEntries);
             await context.SaveChangesAsync().ConfigureAwait(false);

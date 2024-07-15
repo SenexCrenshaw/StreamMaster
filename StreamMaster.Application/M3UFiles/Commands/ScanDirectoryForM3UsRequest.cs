@@ -1,7 +1,7 @@
 ﻿namespace StreamMaster.Application.M3UFiles.Commands;
 
 
-public record ScanDirectoryForM3UFilesRequest : IRequest<DataResponse<bool>> { }
+public record ScanDirectoryForM3UFilesRequest : IRequest<DataResponse<bool>>;
 
 
 [LogExecutionTimeAspect]

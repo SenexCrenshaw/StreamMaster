@@ -1,6 +1,5 @@
 ﻿using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Extensions;
-using StreamMaster.Domain.Services;
 
 using System.Collections.Concurrent;
 using System.Text;
@@ -75,7 +74,7 @@ public class FileLoggingService : IFileLoggingService, IDisposable
             using StreamWriter writer = new(stream);
             await writer.WriteLineAsync(logEntry);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             //Exception a = ex;
         }
@@ -88,7 +87,7 @@ public class FileLoggingService : IFileLoggingService, IDisposable
         FileInfo logFileInfo = new(_logFilePath);
         long maxFileSizeInBytes = Math.Max(1 * 1024 * 1024, Math.Min(intsettings.CurrentValue.MaxLogFileSizeMB * 1024 * 1024, 100 * 1024 * 1024)); // Convert MB to Bytes
 
-        if (logFileInfo.Exists && logFileInfo.Length > maxFileSizeInBytes)
+        if (logFileInfo.Exists && logFileInfo.Length > maxFileSizeInBytes && !string.IsNullOrEmpty(logFileInfo.DirectoryName))
         {
             string directory = logFileInfo.DirectoryName;
             string baseFileName = Path.GetFileNameWithoutExtension(logFileInfo.FullName);

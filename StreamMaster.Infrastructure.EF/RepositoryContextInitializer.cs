@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
+using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Helpers;
 using StreamMaster.Infrastructure.EF.PGSQL;
 
@@ -7,7 +8,7 @@ namespace StreamMaster.Infrastructure.EF;
 
 public class RepositoryContextInitializer(ILogger<RepositoryContextInitializer> logger, PGSQLRepositoryContext context)
 {
-    public async Task InitialiseAsync()
+    public async Task InitializeAsync(Setting settings)
     {
         try
         {
@@ -15,16 +16,15 @@ public class RepositoryContextInitializer(ILogger<RepositoryContextInitializer> 
 
             if (!context.StreamGroups.Any(a => a.Name == "ALL"))
             {
-                context.Add(new StreamGroup { Id = 0, Name = "ALL", IsReadOnly = true, AutoSetChannelNumbers = true, IgnoreExistingChannelNumbers = true, StartingChannelNumber = 1 });
+                context.Add(new StreamGroup { Id = 0, Name = "ALL", IsReadOnly = true, IsSystem = true, DeviceID = settings.DeviceID });
                 await context.SaveChangesAsync().ConfigureAwait(false);
             }
 
-            if (!context.ChannelGroups.Any(a => a.Name == "(None)"))
+            if (!context.ChannelGroups.Any(a => a.Name == "Dummy"))
             {
-                context.Add(new ChannelGroup { Name = "(None)", IsReadOnly = true });
+                context.Add(new ChannelGroup { Name = "Dummy", IsReadOnly = true, IsSystem = true });
                 await context.SaveChangesAsync().ConfigureAwait(false);
             }
-
         }
         catch (Exception ex)
         {
@@ -41,6 +41,4 @@ public class RepositoryContextInitializer(ILogger<RepositoryContextInitializer> 
     public void MigrateData()
     {
     }
-
 }
-

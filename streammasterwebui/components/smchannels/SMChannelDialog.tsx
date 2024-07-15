@@ -28,7 +28,7 @@ const SMChannelDialog = forwardRef<SMChannelDialogRef, SMChannelDialogProperties
 
   const query = useGetStationChannelNames();
   const [request, setRequest] = useState<UpdateSMChannelRequest>({} as UpdateSMChannelRequest);
-  const [, setStationChannelName] = useState<StationChannelName | undefined>(undefined);
+  const [stationChannelName, setStationChannelName] = useState<StationChannelName | undefined>(undefined);
 
   useEffect(() => {
     if (smChannel && smChannel.Id !== request.Id) {
@@ -167,22 +167,28 @@ const SMChannelDialog = forwardRef<SMChannelDialogRef, SMChannelDialogProperties
                   value={request.Name}
                 />
               </div>
-              <div className="w-6 justify-content-start align-items-center">
-                <EPGSelector buttonDarkBackground label="EPG" smChannel={tempSMChannel} onChange={(e) => e !== undefined && setEPGId(e)} />
+              <div className="w-6">
+                <EPGSelector
+                  value={stationChannelName?.Channel}
+                  buttonDarkBackground
+                  label="EPG"
+                  smChannel={tempSMChannel}
+                  onChange={(e) => e !== undefined && setEPGId(e)}
+                />
               </div>
             </div>
             <div className="flex w-12 gap-1">
-              <div className="w-6 justify-content-start align-items-center">
+              <div className="w-6">
                 <SMChannelGroupDropDown label="GROUP" darkBackGround value={request.Group} onChange={(e) => e !== undefined && setGroup(e)} />
               </div>
-              <div className="w-6 gap-1 w-full h-full">
+              <div className="w-6">
                 <StreamingProxyTypeSelector darkBackGround label="Proxy" data={tempSMChannel} onChange={(e) => setProxy(e)} />
               </div>
             </div>
           </div>
 
           <div className="w-3 flex flex-column justify-content-start align-items-center ">
-            <div className="w-9 justify-content-start align-items-center">
+            <div className="w-9">
               <NumberEditor
                 label="Channel #"
                 showButtons
@@ -195,8 +201,6 @@ const SMChannelDialog = forwardRef<SMChannelDialogRef, SMChannelDialogProperties
             <IconSelector darkBackGround label="Logo" large enableEditMode onChange={(e) => setLogo(e)} value={request.Logo} />
           </div>
         </div>
-
-        <div className="flex w-10 gap-1 pl-2"></div>
 
         <div className="layout-padding-bottom-lg sm-headerBg" />
       </div>

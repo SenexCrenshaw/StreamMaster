@@ -2,7 +2,7 @@
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record DeleteEPGFileRequest(bool DeleteFile, int Id) : IRequest<APIResponse> { }
+public record DeleteEPGFileRequest(bool DeleteFile, int Id) : IRequest<APIResponse>;
 
 public class DeleteEPGFileRequestHandler(ILogger<DeleteEPGFileRequest> logger, IDataRefreshService dataRefreshService, ISchedulesDirectDataService schedulesDirectDataService, IMessageService messageService, IRepositoryWrapper Repository, IPublisher Publisher)
     : IRequestHandler<DeleteEPGFileRequest, APIResponse>

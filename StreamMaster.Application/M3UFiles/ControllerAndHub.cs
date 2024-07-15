@@ -73,6 +73,14 @@ namespace StreamMaster.Application.M3UFiles.Controllers
 
         [HttpPatch]
         [Route("[action]")]
+        public async Task<ActionResult<APIResponse>> SyncChannels(SyncChannelsRequest request)
+        {
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            return ret == null ? NotFound(ret) : Ok(ret);
+        }
+
+        [HttpPatch]
+        [Route("[action]")]
         public async Task<ActionResult<APIResponse>> UpdateM3UFile(UpdateM3UFileRequest request)
         {
             APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
@@ -123,6 +131,12 @@ namespace StreamMaster.Application.Hubs
         }
 
         public async Task<APIResponse> RefreshM3UFile(RefreshM3UFileRequest request)
+        {
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            return ret;
+        }
+
+        public async Task<APIResponse> SyncChannels(SyncChannelsRequest request)
         {
             APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;

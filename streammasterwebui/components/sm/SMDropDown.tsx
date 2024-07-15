@@ -15,7 +15,7 @@ const SMDropDown = forwardRef<SMDropDownRef, ExtendedSMDropDownProperties>(
     {
       closeOnSelection = true,
       autoPlacement = false,
-      hasCloseButton = true,
+      noCloseButton = true,
       showClose = false,
       buttonIsLoading: isLoading = false,
       itemSize = 26,
@@ -50,7 +50,7 @@ const SMDropDown = forwardRef<SMDropDownRef, ExtendedSMDropDownProperties>(
       const spreadProps = props as Required<SMDropDownProperties>;
       return (
         <SMOverlay
-          hasCloseButton={hasCloseButton}
+          noCloseButton={noCloseButton}
           showClose={showClose}
           info={info}
           autoPlacement={autoPlacement}
@@ -83,7 +83,7 @@ const SMDropDown = forwardRef<SMDropDownRef, ExtendedSMDropDownProperties>(
           </div>
         </SMOverlay>
       );
-    }, [autoPlacement, closeOnSelection, hasCloseButton, info, isLoading, props, scrollHeight, showClose, zIndex]);
+    }, [autoPlacement, closeOnSelection, noCloseButton, info, isLoading, props, scrollHeight, showClose, zIndex]);
 
     return (
       <>

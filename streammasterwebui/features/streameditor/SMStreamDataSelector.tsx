@@ -31,6 +31,7 @@ import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import SimpleButton from '../../components/buttons/SimpleButton';
 import SMStreamMenu from './SMStreamMenu';
 import useSelectedSMItems from './useSelectedSMItems';
+import { Logger } from '@lib/common/logger';
 
 interface SMStreamDataSelectorProperties {
   readonly enableEdit?: boolean;
@@ -205,6 +206,10 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
 
   const rowClass = useCallback(
     (data: unknown): string => {
+      if (data === null || data === undefined) {
+        Logger.debug('SMStreamDataSelector', 'rowClass', 'data is null or undefined');
+        return '';
+      }
       const isHidden = getRecord(data, 'IsHidden');
 
       if (isHidden === true) {
@@ -213,6 +218,18 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
 
       if (data && selectedSMChannel?.SMStreams !== undefined && selectedSMChannel.SMStreams.length > 0) {
         const id = getRecord(data, 'Id');
+        if (id === undefined) {
+          Logger.debug('SMStreamDataSelector', 'rowClass', 'Id is undefined');
+          return '';
+        }
+
+        selectedSMChannel.SMStreams.forEach((element) => {
+          if (element?.Id === undefined) {
+            Logger.debug('SMStreamDataSelector', 'element', element);
+            return true;
+          }
+        });
+
         if (selectedSMChannel.SMStreams.some((stream) => stream.Id === id)) {
           return 'channel-row-selected';
         }
@@ -252,8 +269,8 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
       onRowClick={(e: DataTableRowClickEvent) => {
         setSelectedSMEntity(e.data, true);
       }}
-      rowClass={rowClass}
       queryFilter={useGetPagedSMStreams}
+      rowClass={rowClass}
       selectedItemsKey="selectSelectedSMStreamDtoItems"
       selectionMode="multiple"
       showSelectAll

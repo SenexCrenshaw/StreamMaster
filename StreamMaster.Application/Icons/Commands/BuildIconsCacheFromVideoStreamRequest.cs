@@ -4,7 +4,7 @@ using System.Web;
 
 namespace StreamMaster.Application.Icons.Commands;
 
-public class BuildIconsCacheFromVideoStreamRequest : IRequest<DataResponse<bool>> { }
+public class BuildIconsCacheFromVideoStreamRequest : IRequest<DataResponse<bool>>;
 
 [LogExecutionTimeAspect]
 public class BuildIconsCacheFromVideoStreamRequestHandler(IIconService iconService, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IRepositoryWrapper Repository)

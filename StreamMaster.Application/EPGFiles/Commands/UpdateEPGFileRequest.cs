@@ -30,15 +30,12 @@ public class UpdateEPGFileRequestHandler(ILogger<UpdateEPGFileRequest> logger, I
                 return APIResponse.NotFound;
             }
             jobManager.Start();
-
-            bool isChanged = false;
             bool isColorChanged = false;
             bool isNameChanged = false;
             int? oldEPGNumber = null;
 
             if (request.EPGNumber.HasValue)
             {
-                isChanged = true;
                 if (!Repository.EPGFile.GetQuery(x => x.EPGNumber == request.EPGNumber.Value).Any())
                 {
                     oldEPGNumber = epgFile.EPGNumber;
@@ -49,7 +46,6 @@ public class UpdateEPGFileRequestHandler(ILogger<UpdateEPGFileRequest> logger, I
 
             if (request.Url != null && epgFile.Url != request.Url)
             {
-                isChanged = true;
                 epgFile.Url = request.Url == "" ? null : request.Url;
                 ret.Add(new FieldData(() => epgFile.Url));
             }
@@ -63,14 +59,12 @@ public class UpdateEPGFileRequestHandler(ILogger<UpdateEPGFileRequest> logger, I
 
             if (request.TimeShift.HasValue)
             {
-                isChanged = true;
                 epgFile.TimeShift = request.TimeShift.Value;
                 ret.Add(new FieldData(() => epgFile.TimeShift));
             }
 
             if (!string.IsNullOrEmpty(request.Name) && epgFile.Name != request.Name)
             {
-                isChanged = true;
                 isNameChanged = true;
                 epgFile.Name = request.Name;
                 ret.Add(new FieldData(() => epgFile.Name));
@@ -78,14 +72,12 @@ public class UpdateEPGFileRequestHandler(ILogger<UpdateEPGFileRequest> logger, I
 
             if (request.AutoUpdate != null && epgFile.AutoUpdate != request.AutoUpdate)
             {
-                isChanged = true;
                 epgFile.AutoUpdate = (bool)request.AutoUpdate;
                 ret.Add(new FieldData(() => epgFile.AutoUpdate));
             }
 
             if (request.HoursToUpdate != null && epgFile.HoursToUpdate != request.HoursToUpdate)
             {
-                isChanged = true;
                 epgFile.HoursToUpdate = (int)request.HoursToUpdate;
                 ret.Add(new FieldData(() => epgFile.HoursToUpdate));
             }

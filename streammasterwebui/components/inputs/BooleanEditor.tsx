@@ -27,10 +27,10 @@ const BooleanEditor = ({
   const uuid = uuidv4();
 
   return (
-    <>
+    <div className="flex flex-column flex-wrap justify-content-start align-content-start">
       {label && !labelInline && (
         <>
-          <label className={`pl-15 text-container ${labelSmall ? ' sm-text-xs font-italic' : ''}`}>{label.toUpperCase()}</label>
+          <label className={`pl-15 sm-center-stuff text-container ${labelSmall ? ' sm-text-xs font-italic' : ''}`}>{label.toUpperCase()}</label>
           <div className="pt-small" />
         </>
       )}
@@ -49,7 +49,7 @@ const BooleanEditor = ({
           checked={checked}
         />
       </div>
-    </>
+    </div>
   );
 };
 

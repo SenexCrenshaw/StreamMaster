@@ -15,7 +15,7 @@ internal class UpdateStreamRanksRequestHandler(IRepositoryWrapper Repository, IM
 
         foreach (string streamId in request.Streams)
         {
-            SMChannelStreamLink? link = links.FirstOrDefault(a => a.SMStreamId == streamId);
+            SMChannelStreamLink? link = links.Find(a => a.SMStreamId == streamId);
 
             if (link != null)
             {
@@ -24,6 +24,7 @@ internal class UpdateStreamRanksRequestHandler(IRepositoryWrapper Repository, IM
                 ret.Add(sm);
             }
         }
-        return DataResponse<List<SMStreamDto>>.Success(ret.OrderBy(a => a.Rank).ToList());
+        List<SMStreamDto> test = ret.OrderBy(a => a.Rank).ToList();
+        return DataResponse<List<SMStreamDto>>.Success(test);
     }
 }

@@ -1,7 +1,7 @@
 ﻿namespace StreamMaster.Application.SMChannels.Commands;
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record AutoSetEPGRequest(List<int> Ids) : IRequest<APIResponse> { }
+public record AutoSetEPGRequest(List<int> Ids) : IRequest<APIResponse>;
 
 
 public class AutoSetEPGRequestHandler(IRepositoryWrapper Repository, IMessageService messageService, IDataRefreshService dataRefreshService)

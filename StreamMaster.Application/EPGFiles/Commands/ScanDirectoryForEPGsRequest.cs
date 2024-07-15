@@ -2,7 +2,7 @@
 
 namespace StreamMaster.Application.EPGFiles.Commands;
 
-public record ScanDirectoryForEPGFilesRequest : IRequest<APIResponse> { }
+public record ScanDirectoryForEPGFilesRequest : IRequest<APIResponse>;
 
 public class ScanDirectoryForEPGFilesRequestHandler(ILogger<ScanDirectoryForEPGFilesRequest> Logger, IRepositoryWrapper Repository, IMapper Mapper, IPublisher Publisher)
     : IRequestHandler<ScanDirectoryForEPGFilesRequest, APIResponse>

@@ -126,7 +126,7 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
 
             for (int retryCount = 0; retryCount <= maxRetryCount; retryCount++)
             {
-                HttpResponseMessage response = await GetSdImage(uri).ConfigureAwait(false);
+                HttpResponseMessage? response = await GetSdImage(uri).ConfigureAwait(false);
 
                 if (response == null)
                 {
@@ -272,10 +272,10 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
                         }
 
                     }
-                    catch (Exception ex)
-                    {
+                    //catch (Exception ex)
+                    //{
 
-                    }
+                    //}
                     finally
                     {
                         _ = downloadSemaphore.Release();

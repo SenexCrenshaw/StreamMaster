@@ -2,7 +2,7 @@
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record AddProfileToStreamGroupRequest(int StreamGroupId, string Name, string OutputProfileName, string VideoProfileName) : IRequest<APIResponse> { }
+public record AddProfileToStreamGroupRequest(int StreamGroupId, string Name, string OutputProfileName, string VideoProfileName) : IRequest<APIResponse>;
 
 [LogExecutionTimeAspect]
 public class AddProfileToStreamGroupRequestHandler(IRepositoryWrapper Repository, IMessageService messageService, IDataRefreshService dataRefreshService)

@@ -19,9 +19,9 @@ public interface ISMStreamRepository : IRepositoryBase<SMStream>
 
     Task<PagedResponse<SMStreamDto>> GetPagedSMStreams(QueryStringParameters parameters, CancellationToken cancellationToken);
 
-    IQueryable<SMStream> GetQuery(Expression<Func<SMStream, bool>> expression, bool tracking = false);
+    new IQueryable<SMStream> GetQuery(Expression<Func<SMStream, bool>> expression, bool tracking = false);
 
-    IQueryable<SMStream> GetQuery(bool tracking = false);
+    new IQueryable<SMStream> GetQuery(bool tracking = false);
 
     SMStreamDto? GetSMStream(string streamId);
 

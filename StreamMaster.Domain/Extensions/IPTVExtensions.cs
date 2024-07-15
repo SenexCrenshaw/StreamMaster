@@ -11,7 +11,6 @@ public static partial class IPTVExtensions
     [LogExecutionTimeAspect]
     public static async Task<List<SMStream>?> ConvertToSMStreamAsync(Stream dataStream, int Id, string Name, List<string> vodExclusion, ILogger logger)
     {
-
         BlockingCollection<KeyValuePair<int, SMStream>> blockingCollection = new(new ConcurrentQueue<KeyValuePair<int, SMStream>>());
         int segmentNumber = 0;
         int processedCount = 0;
@@ -64,7 +63,7 @@ public static partial class IPTVExtensions
         });
 
         List<SMStream> results = blockingCollection.OrderBy(kvp => kvp.Key).Select(kvp => kvp.Value).ToList();
-        logger.LogInformation($"Imported {processedCount} streams.");
+        logger.LogInformation("Imported {processedCount} streams.", processedCount);
         return results;
 
         void ProcessSegment(int segmentNum, string segment)
@@ -90,7 +89,7 @@ public static partial class IPTVExtensions
                     processedCount++;
                     if (processedCount % 5000 == 0)
                     {
-                        logger.LogInformation($"Importing {processedCount} streams.");
+                        logger.LogInformation("Importing {processedCount} streams.", processedCount);
                     }
                 }
             }
@@ -123,9 +122,7 @@ public static partial class IPTVExtensions
             }
             return false;
         }
-
     }
-
 
     private static void UpdateSMStreamProperties(SMStream smStream, int m3uFileId, string m3uFileName)
     {
@@ -135,11 +132,10 @@ public static partial class IPTVExtensions
         smStream.IsHidden = false;
     }
 
-
-    private static bool IsValidM3UFile(string body)
-    {
-        return !(body.Contains("#EXT-X-TARGETDURATION") || body.Contains("#EXT-X-MEDIA-SEQUENCE")) && body.Contains("EXTM3U");
-    }
+    //private static bool IsValidM3UFile(string body)
+    //{
+    //    return !(body.Contains("#EXT-X-TARGETDURATION") || body.Contains("#EXT-X-MEDIA-SEQUENCE")) && body.Contains("EXTM3U");
+    //}
 
     public static (string fullName, string name) GetRandomFileName(this FileDefinition fd)
     {
@@ -168,7 +164,7 @@ public static partial class IPTVExtensions
 
         string[] lines = bodyline.Replace("\r\n", "\n").Split("\n");
 
-        if (lines.Length < 2 || !lines[0].StartsWith("#"))
+        if (lines.Length < 2 || !lines[0].StartsWith('#'))
         {
             return null;
         }
@@ -212,25 +208,40 @@ public static partial class IPTVExtensions
                     switch (parameter[0].ToLower())
                     {
                         case "tvg-name":
-                            SMStream.Name = parameter[1].Trim();
+                            if (!string.IsNullOrEmpty(parameter[1].Trim()))
+                            {
+                                SMStream.Name = parameter[1].Trim();
+                            }
                             break;
 
                         case "cuid":
-                            SMStream.Id = parameter[1].Trim();
+                            if (!string.IsNullOrEmpty(parameter[1].Trim()))
+                            {
+                                SMStream.Id = parameter[1].Trim();
+                            }
                             break;
 
                         case "tvg-chno":
-                            string num = parameter[1].Trim();
-                            SMStream.ChannelNumber = int.TryParse(num, out int chno) ? chno : 0;
+                            if (!string.IsNullOrEmpty(parameter[1].Trim()))
+                            {
+                                string num = parameter[1].Trim();
+                                SMStream.ChannelNumber = int.TryParse(num, out int chno) ? chno : 0;
+                            }
                             break;
 
                         case "channel-id":
-                            SMStream.Id = parameter[1].Trim();
+                            if (!string.IsNullOrEmpty(parameter[1].Trim()))
+                            {
+                                SMStream.Id = parameter[1].Trim();
+                            }
                             break;
 
                         case "channel-number":
-                            string channum = parameter[1].Trim();
-                            SMStream.ChannelNumber = int.TryParse(channum, out int chanchno) ? chanchno : 0;
+                            if (!string.IsNullOrEmpty(parameter[1].Trim()))
+                            {
+                                string channum = parameter[1].Trim();
+                                SMStream.ChannelNumber = int.TryParse(channum, out int chanchno) ? chanchno : 0;
+                            }
                             break;
 
                         //case "tvg-shift":
@@ -238,24 +249,39 @@ public static partial class IPTVExtensions
                         //    break;
 
                         case "tvg-id":
-                            SMStream.EPGID = parameter[1].Trim();
+                            if (!string.IsNullOrEmpty(parameter[1].Trim()))
+                            {
+                                SMStream.EPGID = parameter[1].Trim();
+                            }
                             break;
 
                         case "tvg-group":
-                            SMStream.Group = parameter[1].Trim();
+                            if (!string.IsNullOrEmpty(parameter[1].Trim()))
+                            {
+                                SMStream.Group = parameter[1].Trim();
+                            }
+
                             break;
 
                         case "tvg-logo":
+
                             SMStream.Logo = parameter.Skip(1).Aggregate((current, next) => current + next).Trim();
+
                             break;
 
                         case "tvc-guide-stationid":
-                            string StationIdnum = parameter[1].Trim();
-                            SMStream.StationId = StationIdnum;// int.TryParse(StationIdnum, out int stationId) ? chanchno : 0;
+                            if (!string.IsNullOrEmpty(parameter[1].Trim()))
+                            {
+                                string StationIdnum = parameter[1].Trim();
+                                SMStream.StationId = StationIdnum;
+                            }
                             break;
 
                         case "group-title":
-                            SMStream.Group = parameter[1].Trim();
+                            if (!string.IsNullOrEmpty(parameter[1].Trim()))
+                            {
+                                SMStream.Group = parameter[1].Trim();
+                            }
                             break;
 
                         default:
@@ -303,8 +329,8 @@ public static partial class IPTVExtensions
         return SMStream;
     }
 
-    [GeneratedRegex("#EXTGRP: *(.*)", RegexOptions.IgnoreCase | RegexOptions.Compiled, "en-US")]
-    private static partial Regex grpRegex();
+    //[GeneratedRegex("#EXTGRP: *(.*)", RegexOptions.IgnoreCase | RegexOptions.Compiled, "en-US")]
+    //private static partial Regex grpRegex();
 
     [GeneratedRegex(",([^\\n]*|,[^\\r]*)", RegexOptions.IgnoreCase | RegexOptions.Compiled, "en-US")]
     private static partial Regex nameRegex();

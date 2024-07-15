@@ -1,6 +1,7 @@
 import AddButton from '@components/buttons/AddButton';
 import StringEditor from '@components/inputs/StringEditor';
-import SMDropDown from '@components/sm/SMDropDown';
+import SMButton from '@components/sm/SMButton';
+import SMDropDown, { SMDropDownRef } from '@components/sm/SMDropDown';
 import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
 import { useSMContext } from '@lib/signalr/SMProvider';
 import useGetEPGColors from '@lib/smAPI/EPG/useGetEPGColors';
@@ -9,7 +10,7 @@ import useGetStationChannelNames from '@lib/smAPI/SchedulesDirect/useGetStationC
 import { EPGFileDto, SMChannelDto, StationChannelName } from '@lib/smAPI/smapiTypes';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { Tooltip } from 'primereact/tooltip';
-import React, { ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
 type EPGResult = { epgNumber: number; stationId: string };
@@ -21,15 +22,17 @@ type EPGSelectorProperties = {
   readonly smChannel?: SMChannelDto;
   readonly onChange?: (value: string) => void;
   readonly buttonDarkBackground?: boolean;
+  readonly value: string | undefined;
 };
 
-const EPGSelector = ({ buttonDarkBackground = false, enableEditMode = true, label, smChannel, isLoading, onChange }: EPGSelectorProperties) => {
+const EPGSelector = ({ buttonDarkBackground = false, value, enableEditMode = true, label, smChannel, isLoading, onChange }: EPGSelectorProperties) => {
   const { selectedItems } = useSelectedItems<EPGFileDto>('EPGSelector-EPGFiles');
   const [checkValue, setCheckValue] = useState<string | undefined>(undefined);
   const [stationChannelName, setStationChannelName] = useState<StationChannelName | undefined>(undefined);
   const [input, setInput] = useState<string | undefined>(undefined);
   const [newInput, setNewInput] = useState<string | undefined>(undefined);
-
+  const dropDownRef = useRef<SMDropDownRef>(null);
+  const [originalValue, setOriginalValue] = useState<string | undefined | null>(undefined);
   const { isSystemReady } = useSMContext();
   const query = useGetStationChannelNames();
   const epgQuery = useGetEPGFiles();
@@ -59,6 +62,18 @@ const EPGSelector = ({ buttonDarkBackground = false, enableEditMode = true, labe
       setInput(smChannel.EPGId);
     }
   }, [smChannel, input]);
+
+  useEffect(() => {
+    if (originalValue === undefined) {
+      if (value !== undefined) {
+        setOriginalValue(value);
+        setInput(value);
+      }
+    } else if (value !== originalValue) {
+      setOriginalValue(value);
+      setInput(value);
+    }
+  }, [originalValue, value]);
 
   const extractEPGNumberAndStationId = useCallback((userTvgId: string): EPGResult => {
     if (!userTvgId.trim()) {
@@ -304,6 +319,7 @@ const EPGSelector = ({ buttonDarkBackground = false, enableEditMode = true, labe
       } else {
         setStationChannelName(undefined);
       }
+
       onChange && onChange(channel);
     },
     [onChange, query.data, stationChannelName?.Channel]
@@ -362,7 +378,17 @@ const EPGSelector = ({ buttonDarkBackground = false, enableEditMode = true, labe
                 }
               }}
             />
-            <div className="">
+            <div className="flex flex-row gap-1">
+              <SMButton
+                icon="pi-cog"
+                buttonClassName="icon-orange"
+                tooltip="Set Dummy"
+                iconFilled
+                onClick={(e) => {
+                  handleOnChange('-2-DUMMY');
+                  dropDownRef.current?.hide();
+                }}
+              />
               <AddButton
                 buttonDisabled={addDisabled}
                 tooltip="Add Custom Id"
@@ -371,10 +397,6 @@ const EPGSelector = ({ buttonDarkBackground = false, enableEditMode = true, labe
                   if (input) {
                     handleOnChange(input);
                   }
-                }}
-                style={{
-                  height: 'var(--input-height)',
-                  width: 'var(--input-height)'
                 }}
               />
             </div>
@@ -404,7 +426,7 @@ const EPGSelector = ({ buttonDarkBackground = false, enableEditMode = true, labe
       buttonIsLoading={loading || isLoading}
       buttonLabel="EPG"
       buttonTemplate={buttonTemplate(stationChannelName)}
-      // center={headerTemplate}
+      contentWidthSize="3"
       data={options}
       dataKey="Channel"
       filter
@@ -412,13 +434,13 @@ const EPGSelector = ({ buttonDarkBackground = false, enableEditMode = true, labe
       header={footerTemplate}
       info=""
       itemTemplate={itemTemplate}
+      label={label}
       onChange={(e) => {
         handleOnChange(e.Channel);
       }}
-      label={label}
+      ref={dropDownRef}
       title="EPG"
       value={stationChannelName}
-      contentWidthSize="3"
     />
   );
 };

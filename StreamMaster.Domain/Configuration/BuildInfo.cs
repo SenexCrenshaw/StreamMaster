@@ -83,7 +83,7 @@ namespace StreamMaster.Domain.Configuration
                         ? throw new FileNotFoundException("Failed to locate the executing assembly.")
                         : new FileInfo(assemblyLocation).LastWriteTimeUtc;
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     // Log the exception or handle it as deemed appropriate for your use case.
                     // Log.Warning(ex, "Unable to determine BuildDateTime.");
@@ -163,15 +163,15 @@ namespace StreamMaster.Domain.Configuration
             // Get fields marked with [CreateDir] or named "*Folder"
             IEnumerable<string?> fieldPaths = targetType.GetFields(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
                             .Where(f => f.Name.EndsWith("SettingsFile") && f.FieldType == typeof(string))
-                            .Select(f => (string)f.GetValue(null));
+                            .Select(f => (string?)f.GetValue(null));
 
             // Get properties marked with [CreateDir] or named "*Folder"
             IEnumerable<string?> propertyPaths = targetType.GetProperties(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
                                 .Where(p => p.Name.EndsWith("SettingsFile") && p.PropertyType == typeof(string))
-                                .Select(p => (string)p.GetValue(null));
+                                .Select(p => (string?)p.GetValue(null));
 
             // Combine paths from fields and properties
-            List<string> paths = fieldPaths.Concat(propertyPaths).Where(a => !string.IsNullOrEmpty(a)).Order().ToList();
+            List<string> paths = [.. fieldPaths.Concat(propertyPaths).Where(a => !string.IsNullOrEmpty(a)).Order()];
 
             return paths;
         }

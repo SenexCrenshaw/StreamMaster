@@ -23,9 +23,9 @@ public static class SettingFiles
                         EnableGroupTitle=true,
                         EnableChannelNumber =true,
 
-                        Name=ValidM3USetting.Name.ToString(),
-                        Group=ValidM3USetting.Group.ToString(),
-                        EPGId=ValidM3USetting.EPGId.ToString(),
+                        Name=nameof(ValidM3USetting.Name),
+                        Group=nameof(ValidM3USetting.Group),
+                        EPGId=nameof(ValidM3USetting.EPGId),
                  }
             },
 

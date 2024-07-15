@@ -23,7 +23,7 @@ public class StreamStreamingStatistic : BPSStatistics
         Id = smStream.Id;
     }
 
-    public StreamStreamingStatistic Copy()
+    public new StreamStreamingStatistic Copy()
     {
         return new StreamStreamingStatistic
         {

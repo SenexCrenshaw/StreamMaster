@@ -62,8 +62,10 @@ const SourceOrFileDialog = forwardRef<SMFileUploadRef, ExtSourceOrFileDialogProp
     }, [file, source]);
 
     useEffect(() => {
-      onSaveEnabled(isSaveEnabled);
-    }, [isSaveEnabled, onSaveEnabled]);
+      if (source !== null && source !== '') {
+        onSaveEnabled(isSaveEnabled);
+      }
+    }, [isSaveEnabled, onSaveEnabled, source]);
 
     const getProgressOrInput = useMemo(() => {
       if (progress !== undefined && progress > 0) {
@@ -92,7 +94,7 @@ const SourceOrFileDialog = forwardRef<SMFileUploadRef, ExtSourceOrFileDialogProp
           />
         </div>
       );
-    }, [progress, file, sourceValue, clearInputFile, onFileNameChange]);
+    }, [progress, file, sourceValue, clearInputFile]);
 
     const handleChange = useCallback(
       (event: ChangeEvent<HTMLInputElement>): void => {

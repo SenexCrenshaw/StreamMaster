@@ -103,14 +103,14 @@ public sealed class ClientStreamerManager(ILogger<ClientStreamerManager> logger,
                 }
             }
         }
-        catch (ObjectDisposedException ex)
+        catch (ObjectDisposedException)
         {
             // Log the exception or handle it as necessary
         }
-        catch (Exception ex)
-        {
+        //catch (Exception ex)
+        //{
 
-        }
+        //}
 
     }
 

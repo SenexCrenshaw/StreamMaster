@@ -7,7 +7,7 @@ public interface IChannelGroupRepository : IRepositoryBase<ChannelGroup>
 {
     bool DoesChannelGroupExist(string name);
     Task<APIResponse> CreateChannelGroup(string GroupName, bool IsReadOnly = false);
-    Task<APIResponse> CreateChannelGroups(List<string> GroupNames, bool IsReadOnly = false);
+    APIResponse CreateChannelGroups(List<string> GroupNames, bool IsReadOnly = false);
     PagedResponse<ChannelGroupDto> CreateEmptyPagedResponse();
     Task<APIResponse> DeleteAllChannelGroupsFromParameters(QueryStringParameters Parameters, CancellationToken cancellationToken);
     Task<APIResponse> DeleteChannelGroupsByNameRequest(List<string> channelGroupNames);

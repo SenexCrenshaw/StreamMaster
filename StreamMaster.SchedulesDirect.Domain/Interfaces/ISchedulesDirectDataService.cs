@@ -10,14 +10,13 @@ namespace StreamMaster.SchedulesDirect.Domain.Interfaces;
 /// </summary>
 public interface ISchedulesDirectDataService
 {
-
     void Set(int EPGNumber, ISchedulesDirectData schedulesDirectData);
 
     /// <summary>
     /// Gets a list of station channel names.
     /// </summary>
     /// <returns>List of <see cref="StationChannelName"/>.</returns>
-    Task<List<StationChannelName>> GetStationChannelNames();
+    IEnumerable<StationChannelName> GetStationChannelNames();
 
     /// <summary>
     /// Gets a concurrent dictionary containing SchedulesDirect data, keyed by EPG ID.

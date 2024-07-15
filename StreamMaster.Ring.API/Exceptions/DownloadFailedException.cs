@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace StreamMaster.Ring.API.Exceptions
+﻿namespace StreamMaster.Ring.API.Exceptions
 {
     /// <summary>
     /// Exception thrown when a download from the Ring API failed
@@ -17,6 +15,14 @@ namespace StreamMaster.Ring.API.Exceptions
         }
 
         public DownloadFailedException(string url, System.Net.WebException innerException) : base(string.Format(errorMessage, url), innerException)
+        {
+        }
+
+        public DownloadFailedException() : base()
+        {
+        }
+
+        public DownloadFailedException(string? message, Exception? innerException) : base(message, innerException)
         {
         }
     }

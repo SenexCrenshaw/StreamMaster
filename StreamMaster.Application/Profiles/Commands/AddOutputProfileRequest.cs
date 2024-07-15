@@ -3,7 +3,7 @@ namespace StreamMaster.Application.Profiles.Commands;
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record AddOutputProfileRequest(OutputProfileDto OutputProfileDto) : IRequest<APIResponse> { }
+public record AddOutputProfileRequest(OutputProfileDto OutputProfileDto) : IRequest<APIResponse>;
 
 public class AddOutputProfileRequestHandler(ILogger<AddOutputProfileRequest> Logger,
     IMessageService messageService,

@@ -15,9 +15,8 @@ namespace StreamMaster.Infrastructure.EF.Repositories;
 /// Provides methods for performing CRUD operations on M3UFile entities.
 /// </summary>
 public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, IMessageService messageService, RepositoryWrapper repositoryWrapper, IJobStatusService jobStatusService, IRepositoryContext repositoryContext, IOptionsMonitor<Setting> intSettings, IMapper mapper)
-    : RepositoryBase<M3UFile>(repositoryContext, intLogger, intSettings), IM3UFileRepository
+    : RepositoryBase<M3UFile>(repositoryContext, intLogger), IM3UFileRepository
 {
-
     public PagedResponse<M3UFileDto> CreateEmptyPagedResponse()
     {
         return PagedExtensions.CreateEmptyPagedResponse<M3UFileDto>(Count());
@@ -33,13 +32,13 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, IMessageSer
         }
 
         jobManager.Start();
-        M3UFile? m3uFile = null;
+        M3UFile? m3uFile;
         try
         {
             m3uFile = await GetM3UFile(M3UFileId);
             if (m3uFile == null)
             {
-                logger.LogCritical($"Could parse M3U file M3UFileId: {M3UFileId}");
+                logger.LogCritical("Could parse M3U file M3UFileId: {M3UFileId}", M3UFileId);
                 jobManager.SetError();
                 return null;
             }
@@ -47,7 +46,7 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, IMessageSer
             (List<SMStream>? streams, int streamCount) = await ProcessStreams(m3uFile).ConfigureAwait(false);
             if (streams == null)
             {
-                logger.LogCritical($"Error while processing M3U file {m3uFile.Name}, bad format");
+                logger.LogCritical("Error while processing M3U file {m3uFile.Name}, bad format", m3uFile.Name);
                 jobManager.SetError();
                 return null;
             }
@@ -91,32 +90,32 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, IMessageSer
         List<string> newGroups = streams.Where(a => a.Group is not null and not "").Select(a => a.Group).Distinct().ToList();
         List<ChannelGroup> channelGroups = await repositoryWrapper.ChannelGroup.GetQuery().ToListAsync();
 
-        await CreateNewChannelGroups(newGroups, channelGroups);
+        CreateNewChannelGroups(newGroups, channelGroups);
 
-        logger.LogInformation($"Updating channel groups took {sw.Elapsed.TotalSeconds} seconds");
+        logger.LogInformation("Updating channel groups took {sw.Elapsed.TotalSeconds} seconds", sw.Elapsed.TotalSeconds);
     }
 
-    private async Task<APIResponse> CreateNewChannelGroups(List<string> newGroups, List<ChannelGroup> existingGroups)
+    private APIResponse CreateNewChannelGroups(List<string> newGroups, List<ChannelGroup> existingGroups)
     {
         IEnumerable<string> existingNames = existingGroups.Select(a => a.Name);
         List<string> toCreate = newGroups.Where(a => !existingNames.Contains(a)).ToList();
 
-        return await repositoryWrapper.ChannelGroup.CreateChannelGroups(toCreate, true);
+        return repositoryWrapper.ChannelGroup.CreateChannelGroups(toCreate, true);
     }
 
     [LogExecutionTimeAspect]
     private async Task ProcessAndUpdateStreams(M3UFile m3uFile, List<SMStream> streams)
     {
-        await RemoveMissingStreams(streams, m3uFile.Id);
+        List<string> streamIds = streams.ConvertAll(a => a.Id);
+        int removedCount = await RemoveMissingStreams(streamIds, m3uFile.Id);
 
         (int newStreamCount, int dupStreamCount) = await ProcessStreamsConcurrently(streams, m3uFile);
 
         m3uFile.LastUpdated = SMDT.UtcNow;
         m3uFile.StreamCount = streams.Count;
 
-        string message = $"Processed {m3uFile.Name} : {streams.Count} streams, found {newStreamCount} new streams and {dupStreamCount} duplicate streams";
-        logger.LogInformation(message);
-        await messageService.SendSuccess(message, "Details");
+        logger.LogInformation("Processed {m3uFile.Name} : {streams.Count} total streams in file, Added {newStreamCount} new streams, removed {streamIds.Count} missing steams and ignored {dupStreamCount} duplicate streams", m3uFile.Name, streams.Count, newStreamCount, removedCount, dupStreamCount);
+        await messageService.SendSuccess($"{streams.Count} total streams in file, Added {newStreamCount} \r\nnew streams, removed {removedCount} missing steams and ignored {dupStreamCount} duplicate streams", $"Processed M3U {m3uFile.Name}");
 
         UpdateM3UFile(m3uFile);
         await SaveChangesAsync();
@@ -125,16 +124,13 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, IMessageSer
     /// <summary>
     /// Removes streams that are not present in the provided list from the database, along with their related entities.
     /// </summary>
-    /// <param name="streams">The list of streams to retain.</param>
     /// <param name="m3uFileId">The identifier for the M3U file associated with these streams.</param>
-    /// <param name="cancellationToken">A token to cancel the current operation.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
     /// <exception cref="Exception">Throws an exception if the operation fails.</exception>
-    private async Task RemoveMissingStreams(List<SMStream> streams, int m3uFileId)
+    private async Task<int> RemoveMissingStreams(List<string> streamIds, int m3uFileId)
     {
         try
         {
-            List<string> streamIds = streams.Select(a => a.Id).ToList();
             List<string> toDeleteStreamIds = await repositoryWrapper.SMStream
                 .GetQuery(a => a.M3UFileId == m3uFileId && !streamIds.Contains(a.Id))
                 .Select(a => a.Id)
@@ -143,10 +139,11 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, IMessageSer
 
             if (toDeleteStreamIds.Count != 0)
             {
-                logger.LogInformation("Preparing to delete VideoStreamLink and StreamGroupVideoStream for {StreamIds}", toDeleteStreamIds);
                 await DeleteRelatedVideoStreamLinks(toDeleteStreamIds);
                 await DeleteSMStreams(toDeleteStreamIds);
+                return toDeleteStreamIds.Count;
             }
+            return 0;
         }
         catch (Exception ex)
         {
@@ -158,12 +155,25 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, IMessageSer
     private async Task DeleteRelatedVideoStreamLinks(List<string> streamIds)
     {
         IQueryable<SMChannelStreamLink> toDelete = repositoryWrapper.SMChannelStreamLink.GetQuery(a => streamIds.Contains(a.SMStreamId));
+        if (!await toDelete.AnyAsync())
+        {
+            return;
+        }
         await repositoryWrapper.SMChannelStreamLink.BulkDeleteAsync(toDelete).ConfigureAwait(false);
     }
 
     private async Task DeleteSMStreams(List<string> streamIds)
     {
+        if (streamIds.Count == 0)
+        {
+            return;
+        }
         IQueryable<SMStream> toDelete = repositoryWrapper.SMStream.GetQuery(a => streamIds.Contains(a.Id));
+
+        if (!await toDelete.AnyAsync().ConfigureAwait(false))
+        {
+            return;
+        }
         await repositoryWrapper.SMStream.BulkDeleteAsync(toDelete).ConfigureAwait(false);
     }
 
@@ -182,7 +192,7 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, IMessageSer
             streams = RemoveDuplicates(streams);
         }
         sw.Stop();
-        logger.LogInformation($"Processing M3U {streamsCount}, streams took {sw.Elapsed.TotalSeconds} seconds");
+        logger.LogInformation("Processing M3U {streamsCount}, streams took {sw.Elapsed.TotalSeconds} seconds", streamsCount, sw.Elapsed.TotalSeconds);
         return (streams, streamsCount);
     }
 
@@ -202,7 +212,7 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, IMessageSer
         foreach (string regex in Settings.NameRegex)
         {
             List<SMStream> toIgnore = ListHelper.GetMatchingProperty(streams, "name", regex);
-            logger.LogInformation($"Ignoring {toIgnore.Count} streams with regex {regex}");
+            logger.LogInformation("Ignoring {toIgnore.Count} streams with regex {regex}", toIgnore.Count, regex);
             _ = streams.RemoveAll(toIgnore.Contains);
         }
 
@@ -215,7 +225,7 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, IMessageSer
                   .Select(g => g.First())
                   .ToList();
 
-        logger.LogInformation($"Removed {streams.Count - cleanStreams.Count} duplicate streams");
+        logger.LogInformation("Removed {streams.Count - cleanStreams.Count} duplicate streams", streams.Count - cleanStreams.Count);
 
         return cleanStreams;
     }
@@ -239,9 +249,8 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, IMessageSer
             throw new ArgumentNullException(nameof(m3uFile));
         }
         Create(m3uFile);
-        logger.LogInformation($"Created M3UFile with ID: {m3uFile.Id}.");
+        logger.LogInformation("Created M3UFile with ID: {m3uFile.Id}.", m3uFile.Id);
     }
-
 
     /// <inheritdoc/>
     public async Task<M3UFileDto?> DeleteM3UFile(int M3UFileId)
@@ -258,7 +267,7 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, IMessageSer
         }
 
         Delete(m3uFile);
-        logger.LogInformation($"M3UFile with Name {m3uFile.Name} was deleted.");
+        logger.LogInformation("M3UFile with Name {m3uFile.Name} was deleted.", m3uFile.Name);
         return mapper.Map<M3UFileDto>(m3uFile);
     }
 
@@ -306,7 +315,7 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, IMessageSer
         Update(m3uFile);
         m3uFile.WriteJSON();
 
-        logger.LogInformation($"Updated M3UFile with ID: {m3uFile.Id}.");
+        logger.LogInformation("Updated M3UFile with ID: {m3uFile.Id}.", m3uFile.Id);
     }
 
     /// <inheritdoc/>
@@ -334,20 +343,6 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, IMessageSer
         return ret;
     }
 
-
-    public async Task<M3UFileDto?> ChangeM3UFileName(int M3UFileId, string newName)
-    {
-        M3UFile? m3UFile = await FirstOrDefaultAsync(a => a.Id == M3UFileId).ConfigureAwait(false);
-        if (m3UFile == null)
-        {
-            return null;
-        }
-        m3UFile.Name = newName;
-        Update(m3UFile);
-        await RepositoryContext.SaveChangesAsync().ConfigureAwait(false);
-        return mapper.Map<M3UFileDto>(m3UFile);
-    }
-
     public IQueryable<M3UFile> GetM3UFileQuery()
     {
         return GetQuery();
@@ -355,7 +350,7 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, IMessageSer
 
     private async Task<(int newStreamCount, int dupStreamCount)> ProcessStreamsConcurrently(List<SMStream> streams, M3UFile m3uFile)
     {
-        //List<SMStream> allStreamUrls = await repositoryWrapper.SMStream.GetQuery().Where(a => a.M3UFileId == m3uFile.Id).ToListAsync().ConfigureAwait(false);
+        //List<SMStream> allStreamURLs = await repositoryWrapper.SMStream.GetQuery().Where(a => a.M3UFileId == m3uFile.Id).ToListAsync().ConfigureAwait(false);
         //List<SMStream> existing = await repositoryWrapper.SMStream.GetQuery().Where(a => a.M3UFileId == m3uFile.Id).ToListAsync().ConfigureAwait(false);
         //List<ChannelGroup> groups = await repositoryWrapper.ChannelGroup.GetQuery().ToListAsync();
 
@@ -382,21 +377,12 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, IMessageSer
             SMStream stream = tuple.stream;
             int index = tuple.index;
 
-
-            if (allLookup.TryGetValue("aHR0cDovL3NoaW5lLmpzZXJ2Lm1lL2xpdmUvU2VuZXgvQ05HNHM1WEdaWi9mNWI1YTljNy1iODI2LTQ5ZjQtOTUxNS02NWE3ODMyN2I5ODMudHM=", out string? s))
-            {
-                string a = s;
-            }
-
-
             if (allLookup.Contains(stream.Id))
             {
-
                 Interlocked.Increment(ref dupTotalCount);
             }
             else
             {
-
                 if (processed.TryAdd(stream.Id, true))
                 {
                     _ = groupLookup.TryGetValue(stream.Group, out ChannelGroup? group);
@@ -424,14 +410,13 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, IMessageSer
             _ = Interlocked.Increment(ref processedCount);
             if (processedCount % 20000 == 0)
             {
-                logger.LogInformation($"Processed {processedCount}/{streams.Count} streams, adding {toWrite.Count}, updating: {toUpdate.Count}");
+                logger.LogInformation("Processing {processedCount}/{streams.Count} streams, adding {toWrite.Count}, updating: {toUpdate.Count}", processedCount, streams.Count, toWrite.Count, toUpdate.Count);
             }
         });
 
-
         // Final batch processing
         ProcessBatches(toWrite, toUpdate);
-        logger.LogInformation($"Finished Found {processedCount} streams, inserted: {toWrite.Count}, updated: {toUpdate.Count}");
+        logger.LogInformation("Processed {processedCount} streams, inserted: {toWrite.Count}, updated: {toUpdate.Count}", processedCount, toWrite.Count, toUpdate.Count);
         return (toWrite.Count, dupTotalCount);
     }
     private static bool ProcessExistingStream(SMStream stream, SMStream existingStream, M3UFile m3uFile, int index)
@@ -495,7 +480,6 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, IMessageSer
             //existingStream.SMStreamId = stream.SMStreamId;
         }
 
-
         if (existingStream.FilePosition != index)
         {
             changed = true;
@@ -516,7 +500,7 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, IMessageSer
     }
     private void ProcessBatches(ConcurrentBag<SMStream> toWrite, ConcurrentBag<SMStream> toUpdate)
     {
-        if (toWrite.Count == 0 && toUpdate.Count == 0)
+        if (toWrite.IsEmpty && toUpdate.IsEmpty)
         {
             return;
         }
@@ -529,15 +513,14 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, IMessageSer
         List<SMStream> writeList = [.. toWrite];
         List<SMStream> updateList = [.. toUpdate];
 
-        int batchSize = 500;
+        const int batchSize = 500;
 
         if (writeList.Count > 0)
         {
-            logger.LogInformation($"Inserting {writeList.Count} new streams in the DB");
+            logger.LogInformation("Inserting {writeList.Count} new streams in the DB", writeList.Count);
 
             for (int i = 0; i < writeList.Count; i += batchSize)
             {
-
                 List<SMStream> batch = writeList.Skip(i).Take(batchSize).ToList();
                 repositoryWrapper.SMStream.BulkInsert(batch);
                 //await repositoryWrapper.SMStream.BulkInsertEntitiesAsync(batch);
@@ -545,14 +528,14 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, IMessageSer
 
                 if (batchWriteCount % 5000 == 0)
                 {
-                    logger.LogInformation($"Inserted {batchWriteCount}/{totalToWrite} new streams into DB");
+                    logger.LogInformation("Inserted {batchWriteCount}/{totalToWrite} new streams into DB", batchWriteCount, totalToWrite);
                 }
             }
         }
 
         if (updateList.Count > 0)
         {
-            logger.LogInformation($"Updating {updateList.Count} streams in DB");
+            logger.LogInformation("Updating {updateList.Count} streams in DB", updateList.Count);
             for (int i = 0; i < updateList.Count; i += batchSize)
             {
                 List<SMStream> batch = updateList.Skip(i).Take(batchSize).ToList();
@@ -562,10 +545,9 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, IMessageSer
 
                 if (batchUpdateCount % 5000 == 0)
                 {
-                    logger.LogInformation($"Updated {batchUpdateCount}/{totalToUpdate} streams in DB");
+                    logger.LogInformation("Updated {batchUpdateCount}/{totalToUpdate} streams in DB", batchUpdateCount, totalToUpdate);
                 }
             }
         }
     }
-
 }

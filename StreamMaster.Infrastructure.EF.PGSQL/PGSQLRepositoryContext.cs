@@ -12,7 +12,7 @@ namespace StreamMaster.Infrastructure.EF.PGSQL
 
         public static string DbConnectionString => $"Host={BuildInfo.DBHost};Database={BuildInfo.DBName};Username={BuildInfo.DBUser};Password={BuildInfo.DBPassword}";
 
-        public bool IsEntityTracked<TEntity>(TEntity entity) where TEntity : class
+        new public bool IsEntityTracked<TEntity>(TEntity entity) where TEntity : class
         {
             return ChangeTracker.Entries<TEntity>().Any(e => e.Entity == entity);
         }

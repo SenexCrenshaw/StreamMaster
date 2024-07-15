@@ -2,7 +2,7 @@
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record DeleteSMStreamRequest(string SMStreamId) : IRequest<APIResponse> { }
+public record DeleteSMStreamRequest(string SMStreamId) : IRequest<APIResponse>;
 
 [LogExecutionTimeAspect]
 public class DeleteSMStreamRequestHandler(ILogger<DeleteSMStreamRequest> Logger, IMessageService messageService, IDataRefreshService dataRefreshService, IRepositoryWrapper Repository)

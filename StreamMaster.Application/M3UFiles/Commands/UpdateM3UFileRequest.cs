@@ -4,7 +4,7 @@ namespace StreamMaster.Application.M3UFiles.Commands;
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record UpdateM3UFileRequest(int? MaxStreamCount, int? StartingChannelNumber, bool? OverWriteChannels, List<string>? VODTags, bool? AutoUpdate, int? HoursToUpdate, int Id, string? Name, string? Url)
+public record UpdateM3UFileRequest(int? MaxStreamCount, int? StartingChannelNumber, bool? SyncChannels, List<string>? VODTags, bool? AutoUpdate, int? HoursToUpdate, int Id, string? Name, string? Url)
     : IRequest<APIResponse>;
 
 [LogExecutionTimeAspect]
@@ -41,15 +41,12 @@ public class UpdateM3UFileRequestHandler(IRepositoryWrapper Repository, IReposit
                 ret.Add(new FieldData(() => m3uFile.VODTags));
             }
 
-
             if (!string.IsNullOrEmpty(request.Url) && m3uFile.Url != request.Url)
             {
                 needsRefresh = true;
                 m3uFile.Url = request.Url;
                 ret.Add(new FieldData(() => m3uFile.Url));
             }
-
-
 
             if (!string.IsNullOrEmpty(request.Name) && request.Name != m3uFile.Name)
             {
@@ -64,13 +61,17 @@ public class UpdateM3UFileRequestHandler(IRepositoryWrapper Repository, IReposit
                 ret.Add(new FieldData(() => m3uFile.MaxStreamCount));
             }
 
+            if (request.SyncChannels.HasValue)
+            {
+                m3uFile.SyncChannels = request.SyncChannels.Value;
+                ret.Add(new FieldData(() => m3uFile.SyncChannels));
+            }
+
             if (request.AutoUpdate.HasValue)
             {
                 m3uFile.AutoUpdate = request.AutoUpdate.Value;
                 ret.Add(new FieldData(() => m3uFile.AutoUpdate));
             }
-
-
 
             if (request.HoursToUpdate.HasValue)
             {
@@ -102,6 +103,10 @@ public class UpdateM3UFileRequestHandler(IRepositoryWrapper Repository, IReposit
 
             if (ret.Count > 0)
             {
+                if (request.SyncChannels == true)
+                {
+                    await Sender.Send(new SyncChannelsRequest(m3uFile.Id), cancellationToken);
+                }
                 await dataRefreshService.SetField(ret).ConfigureAwait(false);
                 await dataRefreshService.Refresh("GetM3UFileNames").ConfigureAwait(false);
             }

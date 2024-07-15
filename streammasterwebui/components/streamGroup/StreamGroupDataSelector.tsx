@@ -10,10 +10,7 @@ import { StreamGroupDto, UpdateStreamGroupRequest } from '@lib/smAPI/smapiTypes'
 import { DataTableRowClickEvent, DataTableRowData, DataTableRowExpansionTemplate } from 'primereact/datatable';
 import { memo, useCallback, useMemo } from 'react';
 import StreamGroupDataSelectorValue from './StreamGroupDataSelectorValue';
-import { useStreamGroupAutoSetChannelNumbersColumnConfig } from './columns/useStreamGroupAutoSetChannelNumbersColumnConfig';
 import { useStreamGroupDeviceIDColumnConfig } from './columns/useStreamGroupDeviceIDColumnConfig';
-import { useStreamGroupIgnoreExistingChannelNumbersColumnConfig } from './columns/useStreamGroupIgnoreExistingChannelNumbersColumnConfig';
-import { useStreamGroupStartChnColumnConfig } from './columns/useStreamGroupStartChnColumnConfig';
 
 export interface StreamGroupDataSelectorProperties {
   readonly id: string;
@@ -23,9 +20,9 @@ const StreamGroupDataSelector = ({ id }: StreamGroupDataSelectorProperties) => {
   const { selectedStreamGroup, setSelectedStreamGroup } = useSelectedStreamGroup('StreamGroup');
   const { isLoading } = useGetPagedStreamGroups();
   const { setSelectedItems } = useSelectedItems('selectedStreamGroup');
-  const streamGroupStartChnColumnConfig = useStreamGroupStartChnColumnConfig({ width: 60 });
-  const streamGroupAutoSetChannelNumbersColumnConfig = useStreamGroupAutoSetChannelNumbersColumnConfig({ width: 60 });
-  const streamGroupIgnoreExistingChannelNumbersColumnConfig = useStreamGroupIgnoreExistingChannelNumbersColumnConfig({ width: 60 });
+  // const streamGroupStartChnColumnConfig = useStreamGroupStartChnColumnConfig({ width: 60 });
+  // const streamGroupAutoSetChannelNumbersColumnConfig = useStreamGroupAutoSetChannelNumbersColumnConfig({ width: 60 });
+  // const streamGroupIgnoreExistingChannelNumbersColumnConfig = useStreamGroupIgnoreExistingChannelNumbersColumnConfig({ width: 60 });
   const streamGroupDeviceIDColumnConfig = useStreamGroupDeviceIDColumnConfig({ width: 60 });
   const rowExpansionTemplate = useCallback((rowData: DataTableRowData<any>, options: DataTableRowExpansionTemplate) => {
     const streamGroupDto = rowData as unknown as StreamGroupDto;
@@ -117,9 +114,9 @@ const StreamGroupDataSelector = ({ id }: StreamGroupDataSelectorProperties) => {
         width: 26
       },
       streamGroupDeviceIDColumnConfig,
-      streamGroupStartChnColumnConfig,
-      streamGroupAutoSetChannelNumbersColumnConfig,
-      streamGroupIgnoreExistingChannelNumbersColumnConfig,
+      // streamGroupStartChnColumnConfig,
+      // streamGroupAutoSetChannelNumbersColumnConfig,
+      // streamGroupIgnoreExistingChannelNumbersColumnConfig,
       {
         align: 'center',
         bodyTemplate: actionTemplate,
@@ -128,14 +125,7 @@ const StreamGroupDataSelector = ({ id }: StreamGroupDataSelectorProperties) => {
         width: 14
       }
     ],
-    [
-      nameTemplate,
-      streamGroupDeviceIDColumnConfig,
-      streamGroupStartChnColumnConfig,
-      streamGroupAutoSetChannelNumbersColumnConfig,
-      streamGroupIgnoreExistingChannelNumbersColumnConfig,
-      actionTemplate
-    ]
+    [nameTemplate, streamGroupDeviceIDColumnConfig, actionTemplate]
   );
 
   return (

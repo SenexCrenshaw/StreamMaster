@@ -150,7 +150,7 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IServicePro
                 xmlTv.Programs = [.. xmlTv.Programs.OrderBy(a => a.Channel).ThenBy(a => a.StartDateTime)];
 
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return xmlTv;
             }
@@ -319,7 +319,6 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IServicePro
 
                 if (timeShift > 0)
                 {
-                    int a = 1;
                 }
 
                 Parallel.ForEach(service.MxfScheduleEntries.ScheduleEntry, options, scheduleEntry =>
@@ -335,7 +334,7 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IServicePro
             sw.Stop();
             logger.LogInformation($"Finsihed processing {count} programs in {sw.ElapsedMilliseconds} ms");
         }
-        catch (Exception ex)
+        catch (Exception)
         {
 
         }
@@ -778,7 +777,7 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IServicePro
     {
         return !program.IsSports || !program.extras.TryGetValue("genres", out dynamic? value)
             ? null
-            : (from category in (string[])value where !category.ToLower().StartsWith("sport") select new XmltvText { Text = category }).FirstOrDefault();
+            : (from category in (string[])value where !category.StartsWith("sport", StringComparison.OrdinalIgnoreCase) select new XmltvText { Text = category }).FirstOrDefault();
     }
 
 
@@ -848,7 +847,7 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IServicePro
         if (mxfProgram.Series != null)
         {
             if (seriesDict.TryGetValue(int.Parse(mxfProgram.Series[2..]) - 1, out MxfSeriesInfo? mxfSeriesInfo) &&
-                mxfSeriesInfo.extras.TryGetValue("tvdb", out dynamic value))
+                mxfSeriesInfo.extras.TryGetValue("tvdb", out dynamic? value))
             {
                 list.Add(new XmltvEpisodeNum { System = "thetvdb.com", Text = $"series/{value}" });
             }

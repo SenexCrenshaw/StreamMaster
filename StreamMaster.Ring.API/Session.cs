@@ -11,22 +11,22 @@ namespace StreamMaster.Ring.API
         /// <summary>
         /// Username to use to connect to the Ring API. Set by providing it in the constructor.
         /// </summary>
-        public string Username { get; private set; }
+        public string Username { get; }
 
         /// <summary>
         /// Password to use to connect to the Ring API. Set by providing it in the constructor.
         /// </summary>
-        public string Password { get; private set; }
+        public string Password { get; }
 
         /// <summary>
         /// Uri on which OAuth tokens can be requested from Ring
         /// </summary>
-        public Uri RingApiOAuthUrl => new Uri("https://oauth.ring.com/oauth/token");
+        public Uri RingApiOAuthUrl => new("https://oauth.ring.com/oauth/token");
 
         /// <summary>
         /// Base Uri with which all Ring API requests start
         /// </summary>
-        public Uri RingApiBaseUrl => new Uri("https://api.ring.com/clients_api/");
+        public Uri RingApiBaseUrl => new("https://api.ring.com/clients_api/");
 
         /// <summary>
         /// Boolean indicating if the current session is authenticated
@@ -36,7 +36,7 @@ namespace StreamMaster.Ring.API
         /// <summary>
         /// Authentication Token that will be used to communicate with the Ring API
         /// </summary>
-        public string AuthenticationToken
+        public string? AuthenticationToken
         {
             get { return OAuthToken?.AccessToken; }
         }

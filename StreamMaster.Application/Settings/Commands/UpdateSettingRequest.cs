@@ -42,7 +42,7 @@ public class UpdateSettingParameters
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record UpdateSettingRequest(UpdateSettingParameters parameters) : IRequest<UpdateSettingResponse> { }
+public record UpdateSettingRequest(UpdateSettingParameters parameters) : IRequest<UpdateSettingResponse>;
 
 
 public partial class UpdateSettingRequestHandler(

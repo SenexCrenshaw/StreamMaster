@@ -1,8 +1,9 @@
 import SMOverlay from '@components/sm/SMOverlay';
+import AddSMChannelsToSGEditor from '@components/smchannels/AddSMChannelsToSGEditor';
 import AutoSetEPGSMChannelDialog from '@components/smchannels/AutoSetEPGSMChannelDialog';
 import AutoSetSMChannelNumbersDialog from '@components/smchannels/AutoSetSMChannelNumbersDialog';
 import SMChannelMultiVisibleDialog from '@components/smchannels/SMChannelMultiVisibleDialog';
-import AddSMChannelsToSGEditor from '@components/smchannels/columns/AddSMChannelsToSGEditor';
+
 import { useIsTrue } from '@lib/redux/hooks/isTrue';
 import { memo } from 'react';
 

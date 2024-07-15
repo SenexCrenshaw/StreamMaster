@@ -61,7 +61,6 @@ export const M3UFileCreateDialog = ({ onHide, onUploadComplete, showButton }: M3
     <SMPopUp
       buttonClassName="icon-green"
       contentWidthSize="3"
-      hasCloseButton={false}
       icon="pi-plus"
       zIndex={11}
       onCloseClick={() => {

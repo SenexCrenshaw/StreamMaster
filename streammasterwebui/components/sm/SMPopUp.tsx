@@ -1,10 +1,8 @@
-import OKButton from '@components/buttons/OKButton';
 import BooleanEditor from '@components/inputs/BooleanEditor';
 import { Logger } from '@lib/common/logger';
 import { useLocalStorage } from 'primereact/hooks';
 import { forwardRef, useCallback, useImperativeHandle, useRef } from 'react';
 import { SMPopUpProperties } from './Interfaces/SMPopUpProperties';
-import SMButton from './SMButton';
 import { SMCard } from './SMCard';
 import SMOverlay, { SMOverlayRef } from './SMOverlay';
 
@@ -23,16 +21,13 @@ const SMPopUp = forwardRef<SMPopUpRef, SMPopUpProperties>(
   (
     {
       children,
-      closeButtonDisabled = false,
       contentWidthSize = '2',
       disabled = false,
-      hasCloseButton = true,
-      okButtonDisabled = false,
+      noCloseButton = true,
       isPopupLoading = false,
       onCloseClick,
       onOkClick,
       rememberKey,
-
       showRemember = false,
       ...props
     },
@@ -40,8 +35,16 @@ const SMPopUp = forwardRef<SMPopUpRef, SMPopUpProperties>(
   ) => {
     const overlayRef = useRef<SMOverlayRef>(null);
     const [remember, setRemeber] = useLocalStorage<RememberProps | null>(null, 'remember-' + rememberKey);
-
     const checked = remember?.checked ? remember.checked : false ?? false;
+
+    const ok = useCallback((): void | undefined => {
+      onOkClick?.(); // Call the custom onClick handler if provided
+      // if (rememberKey && rememberKey !== '' && remember?.checked === true) {
+      //   setRemeber({ checked: true, value: false } as RememberProps);
+      //   Logger.debug('Remember', { remember });
+      // }
+      overlayRef.current?.hide();
+    }, [onOkClick]);
 
     const closed = useCallback(() => {
       onCloseClick?.(); // Call the custom onClick handler if provided
@@ -49,7 +52,7 @@ const SMPopUp = forwardRef<SMPopUpRef, SMPopUpProperties>(
       //   setRemeber({ checked: true, value: false } as RememberProps);
       //   Logger.debug('Remember', { remember });
       // }
-      //overlayRef.current?.hide();
+      overlayRef.current?.hide();
     }, [onCloseClick]);
 
     useImperativeHandle(ref, () => ({
@@ -65,47 +68,19 @@ const SMPopUp = forwardRef<SMPopUpRef, SMPopUpProperties>(
     return (
       <SMOverlay
         ref={overlayRef}
-        hasCloseButton={hasCloseButton}
+        noCloseButton={noCloseButton}
         isOverLayLoading={isPopupLoading}
         contentWidthSize={contentWidthSize}
+        onOkClick={onOkClick ? ok : undefined}
         onCloseClick={closed}
         onAnswered={() => {
           if (rememberKey && rememberKey !== '' && remember !== null) {
             if (remember.checked === true) {
-              // if (remember.value === true) {
               onOkClick && onOkClick();
-              // }
               overlayRef.current?.hide();
             }
           }
         }}
-        header={
-          <div className="flex align-items-center gap-1">
-            {onOkClick && (
-              <OKButton
-                buttonDisabled={disabled || okButtonDisabled} // Combine the disabled states
-                onClick={(e) => {
-                  if (rememberKey && rememberKey !== '' && remember?.checked === true) {
-                    setRemeber({ checked: true, value: true } as RememberProps);
-                  }
-                  overlayRef.current?.hide();
-                  onOkClick && onOkClick();
-                }}
-                tooltip="Ok"
-              />
-            )}
-            {props.showClose !== false && (
-              <SMButton
-                icon="pi-times"
-                iconFilled
-                buttonClassName="icon-red"
-                buttonDisabled={disabled || closeButtonDisabled}
-                onClick={() => closed()}
-                tooltip="Close"
-              />
-            )}
-          </div>
-        }
         answer={remember?.checked ? remember?.value : undefined ?? undefined}
         {...props}
       >

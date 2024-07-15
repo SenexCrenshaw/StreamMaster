@@ -15,19 +15,19 @@ public class ApiKeyAuthenticationOptions : AuthenticationSchemeOptions
 {
     public const string DefaultScheme = "API Key";
     public string AuthenticationType = DefaultScheme;
-    public string HeaderName { get; set; }
-    public string QueryName { get; set; }
+    public string? HeaderName { get; set; }
+    public string? QueryName { get; set; }
     public string Scheme => DefaultScheme;
 }
 
-public class ApiKeyAuthenticationHandler(IOptionsMonitor<ApiKeyAuthenticationOptions> options, IOptionsMonitor<Setting> intsettings, ILoggerFactory logger, UrlEncoder encoder) : AuthenticationHandler<ApiKeyAuthenticationOptions>(options, logger, encoder)
+public class ApiKeyAuthenticationHandler(IOptionsMonitor<ApiKeyAuthenticationOptions> options, IOptionsMonitor<Setting> intSettings, ILoggerFactory logger, UrlEncoder encoder)
+    : AuthenticationHandler<ApiKeyAuthenticationOptions>(options, logger, encoder)
 {
     private readonly ILogger<ApiKeyAuthenticationHandler> _logger = logger.CreateLogger<ApiKeyAuthenticationHandler>();
-    private readonly Setting settings = intsettings.CurrentValue;
 
     protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
     {
-
+        Setting settings = intSettings.CurrentValue;
         bool needsAuth = settings.AuthenticationMethod != AuthenticationType.None;
 
         if (!needsAuth)
@@ -111,7 +111,7 @@ public class ApiKeyAuthenticationHandler(IOptionsMonitor<ApiKeyAuthenticationOpt
             }
 
 
-            string crypt = requestPath.GetAPIKeyFromPath(serverKey);
+            string? crypt = requestPath.GetAPIKeyFromPath(serverKey);
             if (string.IsNullOrEmpty(crypt))
             {
                 _logger.LogDebug("SGLinks: crypt is blank for {requestPath}", requestPath);
@@ -119,22 +119,34 @@ public class ApiKeyAuthenticationHandler(IOptionsMonitor<ApiKeyAuthenticationOpt
 
             return crypt;
         }
-        _logger.LogDebug("Authentication start for {requestPath}", requestPath);
-        // Try query parameter
-        if (Request.Query.TryGetValue(Options.QueryName, out Microsoft.Extensions.Primitives.StringValues value))
+
+        if (Options is not null)
         {
-            _logger.LogDebug("Authentication used query parameter {value}", value.FirstOrDefault());
-            return value.FirstOrDefault();
+            _logger.LogDebug("Authentication start for {requestPath}", requestPath);
+            // Try query parameter
+            if (Options.QueryName is not null)
+            {
+                if (Request.Query.TryGetValue(Options.QueryName, out Microsoft.Extensions.Primitives.StringValues value))
+                {
+                    _logger.LogDebug("Authentication used query parameter {value}", value.FirstOrDefault());
+                    return value.FirstOrDefault();
+                }
+            }
+
+            if (Options.HeaderName is not null)
+            {
+                // No ApiKey query parameter found try headers
+                if (Request.Headers.TryGetValue(Options.HeaderName, out Microsoft.Extensions.Primitives.StringValues headerValue))
+                {
+                    _logger.LogDebug("Authentication used headers {headerName} : {value}", Options.HeaderName, headerValue.FirstOrDefault());
+                    return headerValue.FirstOrDefault();
+                }
+            }
+
+            _logger.LogDebug("Authentication used bearer : {value}", Request.Headers.Authorization.FirstOrDefault()?.Replace("Bearer ", ""));
+            return Request.Headers["Authorization"].FirstOrDefault()?.Replace("Bearer ", "");
         }
 
-        // No ApiKey query parameter found try headers
-        if (Request.Headers.TryGetValue(Options.HeaderName, out Microsoft.Extensions.Primitives.StringValues headerValue))
-        {
-            _logger.LogDebug("Authentication used headers {headerName} : {value}", Options.HeaderName, headerValue.FirstOrDefault());
-            return headerValue.FirstOrDefault();
-        }
-
-        _logger.LogDebug("Authentication used bearer : {value}", Request.Headers["Authorization"].FirstOrDefault()?.Replace("Bearer ", ""));
-        return Request.Headers["Authorization"].FirstOrDefault()?.Replace("Bearer ", "");
+        return null;
     }
 }

@@ -1,26 +1,28 @@
 ﻿using StreamMaster.Application.ChannelGroups.Events;
 using StreamMaster.Application.SMStreams.Commands;
 
-
 namespace StreamMaster.Application.ChannelGroups.Commands;
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record UpdateChannelGroupRequest(int ChannelGroupId, string? NewGroupName, bool? IsHidden, bool? ToggleVisibility)
-    : IRequest<APIResponse>
-{ }
+    : IRequest<APIResponse>;
 
 public class UpdateChannelGroupRequestHandler(IRepositoryWrapper Repository, IMapper Mapper, IPublisher Publisher, ISender Sender)
     : IRequestHandler<UpdateChannelGroupRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(UpdateChannelGroupRequest request, CancellationToken cancellationToken)
     {
-
         ChannelGroup? channelGroup = await Repository.ChannelGroup.GetChannelGroupById(request.ChannelGroupId).ConfigureAwait(false);
 
         if (channelGroup == null)
         {
             return APIResponse.NotFound;
+        }
+
+        if (channelGroup.Name.Equals("Dummy"))
+        {
+            return APIResponse.ErrorWithMessage("Cannot update Dummy Channel Group");
         }
 
         bool checkCounts = false;
@@ -33,7 +35,6 @@ public class UpdateChannelGroupRequestHandler(IRepositoryWrapper Repository, IMa
 
             await Sender.Send(new SetSMStreamsVisibleByIdRequest(streamIds, channelGroup.IsHidden), cancellationToken);
             checkCounts = true;
-
         }
 
         if (!string.IsNullOrEmpty(request.NewGroupName) && request.NewGroupName != channelGroup.Name && !Repository.ChannelGroup.Any(a => a.Name == request.NewGroupName))
@@ -56,7 +57,6 @@ public class UpdateChannelGroupRequestHandler(IRepositoryWrapper Repository, IMa
 
         if (checkCounts || nameChanged != null)
         {
-
             ChannelGroupDto dto = Mapper.Map<ChannelGroupDto>(channelGroup);
             if (checkCounts)
             {

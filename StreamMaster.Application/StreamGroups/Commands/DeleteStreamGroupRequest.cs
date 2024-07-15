@@ -4,7 +4,7 @@ namespace StreamMaster.Application.StreamGroups.Commands;
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record DeleteStreamGroupRequest(int Id) : IRequest<APIResponse> { }
+public record DeleteStreamGroupRequest(int Id) : IRequest<APIResponse>;
 
 public class DeleteStreamGroupRequestHandler(IRepositoryWrapper Repository, IDataRefreshService dataRefreshService, IMessageService messageService, IPublisher Publisher)
     : IRequestHandler<DeleteStreamGroupRequest, APIResponse>

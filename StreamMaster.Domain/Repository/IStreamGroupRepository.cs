@@ -16,7 +16,7 @@ namespace StreamMaster.Domain.Repository
 
         void CreateStreamGroup(StreamGroup StreamGroup);
 
-        Task<StreamGroupDto?> UpdateStreamGroup(int StreamGroupId, string? NewName, string? DeviceID, bool? AutoSetChannelNumbers, bool? IgnoreExistingChannelNumbers, int? StartingChannelNumbers);
+        Task<StreamGroupDto?> UpdateStreamGroup(int StreamGroupId, string? NewName, string? DeviceID);//, bool? AutoSetChannelNumbers, bool? IgnoreExistingChannelNumbers, int? StartingChannelNumbers);
         Task<int?> DeleteStreamGroup(int streamGroupId);
 
         //IQueryable<StreamGroup> GetStreamGroupQuery();

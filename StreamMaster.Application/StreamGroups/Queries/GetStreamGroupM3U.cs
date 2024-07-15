@@ -10,17 +10,22 @@ using System.Text;
 using System.Web;
 
 namespace StreamMaster.Application.StreamGroups.Queries;
-public static class PropertySetterExtensions
-{
-    public static void SetProperty<T>(this T property, OutputProfile profile, object value)
-    {
-        var propertyInfo = typeof(OutputProfile).GetProperty(property.ToString());
-        if (propertyInfo != null && propertyInfo.CanWrite)
-        {
-            propertyInfo.SetValue(profile, value);
-        }
-    }
-}
+//public static class PropertySetterExtensions
+//{
+//    public static void SetProperty<T>(this T property, OutputProfile profile, object value)
+//    {
+//        if (property == null)
+//        {
+//            return;
+//        }
+
+//        PropertyInfo? propertyInfo = typeof(OutputProfile).GetProperty(property!!.ToString());
+//        if (propertyInfo?.CanWrite == true)
+//        {
+//            propertyInfo.SetValue(profile, value);
+//        }
+//    }
+//}
 
 [RequireAll]
 public record GetStreamGroupM3U(int StreamGroupId, int StreamGroupProfileId) : IRequest<string>;
@@ -81,8 +86,8 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
     private byte[] iv = [];
 
     private const string DefaultReturn = "#EXTM3U\r\n";
-    private ConcurrentDictionary<int, bool> chNos = new();
-    private SemaphoreSlim semaphore = new SemaphoreSlim(1, 1); // Allow only one thread at a time
+    private readonly ConcurrentDictionary<int, bool> chNos = new();
+    private readonly SemaphoreSlim semaphore = new(1, 1); // Allow only one thread at a time
 
     //private ConcurrentBag<int> existingChNos = [];
 
@@ -153,8 +158,6 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
 
         return ret.ToString();
     }
-
-    private int currentMaxChNo = 0;
     private int GetNextChNo(int baseChNo)
     {
         int newChNo = baseChNo;
@@ -213,7 +216,7 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
         if (propertySelector.Body is MemberExpression memberExpression)
         {
             // Retrieve the property value from the OutputProfile
-            var profileValue = propertySelector.Compile()(profile);
+            T? profileValue = propertySelector.Compile()(profile);
 
             // Check if the property value is a valid M3U setting
             if (Enum.TryParse<ValidM3USetting>(profileValue?.ToString(), out ValidM3USetting setting))
@@ -222,18 +225,15 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
                 if (setting != ValidM3USetting.NotMapped)
                 {
                     // Use reflection to get the corresponding property from SMChannel
-                    PropertyInfo smChannelProperty = typeof(SMChannel).GetProperty(memberExpression.Member.Name);
+                    PropertyInfo? smChannelProperty = typeof(SMChannel).GetProperty(memberExpression.Member.Name);
                     if (smChannelProperty != null)
                     {
                         // Get the value from SMChannel
-                        var newValue = smChannelProperty.GetValue(smChannel);
+                        object? newValue = smChannelProperty.GetValue(smChannel);
 
                         // Update the OutputProfile property with the new value
-                        PropertyInfo profileProperty = typeof(OutputProfile).GetProperty(memberExpression.Member.Name);
-                        if (profileProperty != null)
-                        {
-                            profileProperty.SetValue(profile, newValue);
-                        }
+                        PropertyInfo? profileProperty = typeof(OutputProfile).GetProperty(memberExpression.Member.Name);
+                        profileProperty?.SetValue(profile, newValue);
                     }
                 }
             }
@@ -339,17 +339,17 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
             fieldList.Add($"channel-id=\"{channelId}\"");
         }
 
-        if (profile.Name != ValidM3USetting.NotMapped.ToString())
+        if (profile.Name != nameof(ValidM3USetting.NotMapped))
         {
             fieldList.Add($"tvg-name=\"{name}\"");
         }
 
-        if (profile.EPGId != ValidM3USetting.NotMapped.ToString())
+        if (profile.EPGId != nameof(ValidM3USetting.NotMapped))
         {
             fieldList.Add($"tvg-id=\"{tvgID}\"");
         }
 
-        if (profile.Group != ValidM3USetting.NotMapped.ToString())
+        if (profile.Group != nameof(ValidM3USetting.NotMapped))
         {
             fieldList.Add($"tvg-group=\"{profile.Group}\"");
         }

@@ -18,11 +18,10 @@ internal static class CSharpUtils
                 typeToCheck.GetGenericTypeDefinition().FullName == "StreamMaster.Domain.API.DataResponse`1")
             {
                 // Extract the generic arguments of the DataResponse type
-                Type genericArgument = typeToCheck.GetGenericArguments().FirstOrDefault();
+                Type? genericArgument = typeToCheck.GetGenericArguments().FirstOrDefault();
 
                 // Now we check if the generic argument is the expected type, in this case, List<IconFileDto>
-                if (genericArgument != null &&
-                    genericArgument.IsGenericType &&
+                if (genericArgument?.IsGenericType == true &&
                     genericArgument.GetGenericTypeDefinition() == typeof(List<>) &&
                     genericArgument.GetGenericArguments().FirstOrDefault()?.FullName == "StreamMaster.Domain.Dto.IconFileDto")
                 {
@@ -41,10 +40,6 @@ internal static class CSharpUtils
     }
     public static string ParamsToCSharp(Type recordType)
     {
-        if (recordType.Name == "ProcessM3UFileRequest")
-        {
-            int aa = 1;
-        }
 
         List<string> stringBuilder = [];
         ConstructorInfo[] constructors = recordType.GetConstructors();
@@ -60,7 +55,6 @@ internal static class CSharpUtils
             string csSharptsType = Utils.CleanupTypeName(csSharptsTypeFullName);
             if (Utils.IsParameterNullable(p))
             {
-                int aa = 1;
             }
             stringBuilder.Add($"{csSharptsType} {name}");
         }

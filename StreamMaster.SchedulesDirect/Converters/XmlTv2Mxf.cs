@@ -171,10 +171,10 @@ public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, IOptionsMonitor<Setting> intse
                 mxfProgram.EPGNumber = mxfService.EPGNumber;
                 if (program.Categories != null)
                 {
-                    mxfProgram.IsAction = program.Categories.Any(arg => arg?.Text != null && arg.Text.ToLower().Contains("action")) ||
-                                          program.Categories.Any(arg => arg?.Text != null && arg.Text.ToLower().Contains("adventure"));
-                    mxfProgram.IsAdultOnly = program.Categories.Any(arg => arg?.Text != null && arg.Text.ToLower().Contains("adults only"));
-                    mxfProgram.IsComedy = program.Categories.Any(arg => arg?.Text != null && arg.Text.ToLower().Contains("comedy"));
+                    mxfProgram.IsAction = program.Categories.Any(arg => arg?.Text != null && arg.Text.Contains("action", StringComparison.OrdinalIgnoreCase)) ||
+                                          program.Categories.Any(arg => arg?.Text != null && arg.Text.Contains("adventure", StringComparison.OrdinalIgnoreCase));
+                    mxfProgram.IsAdultOnly = program.Categories.Any(arg => arg?.Text != null && arg.Text.Contains("adults only", StringComparison.OrdinalIgnoreCase));
+                    mxfProgram.IsComedy = program.Categories.Any(arg => arg?.Text != null && arg.Text.Contains("comedy", StringComparison.OrdinalIgnoreCase));
                     mxfProgram.IsDocumentary = program.Categories.Any(arg => arg?.Text != null && arg.Text.ToLower().Contains("documentary"));
                     mxfProgram.IsDrama = program.Categories.Any(arg => arg?.Text != null && arg.Text.ToLower().Contains("drama"));
                     mxfProgram.IsEducational = program.Categories.Any(arg => arg?.Text != null && arg.Text.ToLower().Contains("educational"));

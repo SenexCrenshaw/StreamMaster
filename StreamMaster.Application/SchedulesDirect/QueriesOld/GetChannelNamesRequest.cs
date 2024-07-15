@@ -1,15 +1,15 @@
 ﻿namespace StreamMaster.Application.SchedulesDirect.QueriesOld;
 
 
-public record GetChannelNamesRequest : IRequest<DataResponse<List<string>>>;
+public record GetChannelNamesRequest : IRequest<DataResponse<IEnumerable<string>>>;
 
 internal class GetChannelNamesRequestHandler(ISchedulesDirectDataService schedulesDirectDataService)
-    : IRequestHandler<GetChannelNamesRequest, DataResponse<List<string>>>
+    : IRequestHandler<GetChannelNamesRequest, DataResponse<IEnumerable<string>>>
 {
-    public async Task<DataResponse<List<string>>> Handle(GetChannelNamesRequest request, CancellationToken cancellationToken)
+    public Task<DataResponse<IEnumerable<string>>> Handle(GetChannelNamesRequest request, CancellationToken cancellationToken)
     {
-        List<StationChannelName> channelNames = await schedulesDirectDataService.GetStationChannelNames();
+        IEnumerable<StationChannelName> channelNames = schedulesDirectDataService.GetStationChannelNames();
 
-        return DataResponse<List<string>>.Success(channelNames.OrderBy(a => a.DisplayName, StringComparer.OrdinalIgnoreCase).Select(a => a.ChannelName).ToList());
+        return Task.FromResult(DataResponse<IEnumerable<string>>.Success(channelNames.OrderBy(a => a.DisplayName, StringComparer.OrdinalIgnoreCase).Select(a => a.ChannelName)));
     }
 }

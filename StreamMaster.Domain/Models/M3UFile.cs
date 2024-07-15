@@ -11,16 +11,9 @@ public class M3UFile : AutoUpdateEntity
     private readonly JsonSerializerOptions jsonSerializerOptions = new() { WriteIndented = true };
     public void WriteJSON()
     {
-        try
-        {
-            string jsonPath = Path.Combine(FileDefinitions.M3U.DirectoryLocation, Path.GetFileNameWithoutExtension(Source) + ".json");
-            string jsonString = JsonSerializer.Serialize(this, jsonSerializerOptions);
-            File.WriteAllText(jsonPath, jsonString);
-        }
-        catch
-        {
-            throw;
-        }
+        string jsonPath = Path.Combine(FileDefinitions.M3U.DirectoryLocation, Path.GetFileNameWithoutExtension(Source) + ".json");
+        string jsonString = JsonSerializer.Serialize(this, jsonSerializerOptions);
+        File.WriteAllText(jsonPath, jsonString);
     }
 
     public M3UFile()
@@ -32,7 +25,7 @@ public class M3UFile : AutoUpdateEntity
     public List<string> VODTags { get; set; } = [];
     public int MaxStreamCount { get; set; }
     public int StreamCount { get; set; }
-
+    public bool SyncChannels { get; set; }
     public DateTime LastWrite()
     {
         string fileName = Path.Combine(FileDefinitions.M3U.DirectoryLocation, Source);
@@ -41,12 +34,11 @@ public class M3UFile : AutoUpdateEntity
         return lastWrite;
     }
 
-
     [LogExecutionTimeAspect]
     public async Task<List<SMStream>?> GetSMStreamsFromM3U(ILogger logger)
     {
-        using Stream dataStream = FileUtil.GetFileDataStream(Path.Combine(FileDefinitions.M3U.DirectoryLocation, Source));
-        logger.LogInformation("Reading m3ufile {Name} and ignoring urls with {vods}", Name, string.Join(',', VODTags));
+        await using Stream dataStream = FileUtil.GetFileDataStream(Path.Combine(FileDefinitions.M3U.DirectoryLocation, Source));
+        logger.LogInformation("Reading m3uFile {Name} and ignoring URLs with {VODS}", Name, string.Join(',', VODTags));
         List<SMStream>? ret = await IPTVExtensions.ConvertToSMStreamAsync(dataStream, Id, Name, VODTags, logger);
         return ret;
     }
@@ -61,10 +53,13 @@ public class M3UFile : AutoUpdateEntity
         }
         string jsonString = File.ReadAllText(jsonPath);
         return JsonSerializer.Deserialize<M3UFile>(jsonString);
-
     }
     public static M3UFile? ReadJSON(FileInfo fileInfo)
     {
+        if (fileInfo.DirectoryName == null)
+        {
+            return null;
+        }
         string filePath = Path.Combine(fileInfo.DirectoryName, Path.GetFileNameWithoutExtension(fileInfo.FullName) + ".json");
 
         if (!File.Exists(filePath))

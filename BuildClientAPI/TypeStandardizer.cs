@@ -1,6 +1,6 @@
 ﻿namespace BuildClientAPI
 {
-    public class TypeStandardizer
+    public static class TypeStandardizer
     {
         private static readonly Dictionary<string, string> typeMappings = new()
         {

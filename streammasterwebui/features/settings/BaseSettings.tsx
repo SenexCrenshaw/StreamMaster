@@ -10,7 +10,7 @@ export function BaseSettings({ children, title }: BaseSettingsProps): React.Reac
   return (
     <SMCard
       info=""
-      hasCloseButton
+      noCloseButton
       darkBackGround={false}
       noBorderChildren
       title={title}

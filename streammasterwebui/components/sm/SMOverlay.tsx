@@ -95,27 +95,13 @@ const SMOverlayInner = forwardRef<SMOverlayRef, ExtendedSMOverlayProperties>(
     const { styles: transitionStyles } = useTransitionStyles(context);
     const { getReferenceProps, getFloatingProps } = useInteractions([useClick(context), useDismiss(context), useRole(context)]);
 
-    const openPanel = useCallback(
-      (isOpen: boolean) => {
-        if (props.answer !== undefined && isOpen) {
-          props.onAnswered?.();
-          return;
-        }
-        // changeOpen(isOpen);
-        if (isOpen === false) {
-          props.onCloseClick?.();
-        }
-      },
-      [props]
-    );
-
     const changeOpen = useCallback(
       (open: boolean) => {
         setIsOpen(open);
-        openPanel?.(open);
+        // openPanel?.(open);
         props.onOpen?.(open);
       },
-      [openPanel, props]
+      [props]
     );
 
     useImperativeHandle(ref, () => ({

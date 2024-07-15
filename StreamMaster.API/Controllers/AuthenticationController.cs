@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using StreamMaster.Domain.Configuration;
+
 using StreamMaster.Domain.Enums;
 using StreamMaster.Infrastructure.Authentication;
 
@@ -33,7 +33,7 @@ namespace StreamMaster.API.Controllers
             [
                 new Claim("user", user.Username),
                 new Claim("identifier", user.Identifier.ToString()),
-                new Claim("AuthType", AuthenticationType.Forms.ToString())
+                new Claim("AuthType", nameof(AuthenticationType.Forms))
             ];
 
             AuthenticationProperties authProperties = new()
@@ -41,7 +41,7 @@ namespace StreamMaster.API.Controllers
                 IsPersistent = resource.RememberMe == "on"
             };
 
-            await HttpContext.SignInAsync(AuthenticationType.Forms.ToString(), new ClaimsPrincipal(new ClaimsIdentity(claims, "Cookies", "user", "identifier")), authProperties);
+            await HttpContext.SignInAsync(nameof(AuthenticationType.Forms), new ClaimsPrincipal(new ClaimsIdentity(claims, "Cookies", "user", "identifier")), authProperties);
 
             return Redirect(settings.UrlBase + "/");
         }
@@ -50,7 +50,7 @@ namespace StreamMaster.API.Controllers
         public async Task<IActionResult> Logout()
         {
             await authService.Logout(HttpContext);
-            await HttpContext.SignOutAsync(AuthenticationType.Forms.ToString());
+            await HttpContext.SignOutAsync(nameof(AuthenticationType.Forms));
             return Redirect(settings.UrlBase + "/");
         }
     }

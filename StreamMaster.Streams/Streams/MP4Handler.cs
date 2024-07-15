@@ -37,8 +37,9 @@ public class MP4Handler(ILogger<MP4Handler> logger, ILogger<FFMPEGRunner> FFMPEG
         DirectoryHelper.DeleteDirectory(directory);
     }
 
-    public void Dispose()
+    public new void Dispose()
     {
         HLSCancellationTokenSource.Cancel();
+        base.Dispose();
     }
 }

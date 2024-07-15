@@ -2,7 +2,7 @@
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record RemoveStreamGroupProfileRequest(int StreamGroupId, string Name) : IRequest<APIResponse> { }
+public record RemoveStreamGroupProfileRequest(int StreamGroupId, string Name) : IRequest<APIResponse>;
 
 [LogExecutionTimeAspect]
 public class RemoveStreamGroupProfileRequestHandler(IRepositoryWrapper Repository, IMessageService messageService, IDataRefreshService dataRefreshService)

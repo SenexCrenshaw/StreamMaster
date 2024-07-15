@@ -242,10 +242,7 @@ public class FFMPEGRunner(ILogger<FFMPEGRunner> logger, IChannelService channelS
             process.StartInfo.RedirectStandardOutput = true;
             process.StartInfo.RedirectStandardError = true;
             process.EnableRaisingEvents = true;
-            process.Exited += (sender, args) =>
-            {
-                ProcessExited?.Invoke(this, new ProcessExitEventArgs { ExitCode = process.ExitCode });
-            };
+            process.Exited += (sender, args) => ProcessExited?.Invoke(this, new ProcessExitEventArgs { ExitCode = process.ExitCode });
             process.ErrorDataReceived += (sender, args) => logger.LogDebug(args.Data);
             bool processStarted = process.Start();
             process.BeginErrorReadLine();

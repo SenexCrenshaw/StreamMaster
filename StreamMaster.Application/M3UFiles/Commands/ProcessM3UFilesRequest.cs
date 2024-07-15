@@ -1,6 +1,6 @@
 ﻿namespace StreamMaster.Application.M3UFiles.Commands;
 
-public record ProcessM3UFilesRequest : IRequest<APIResponse> { }
+public record ProcessM3UFilesRequest : IRequest<APIResponse>;
 
 public class ProcessM3UFilesRequestHandler(ILogger<ProcessM3UFilesRequest> Logger, IRepositoryWrapper Repository, ISender Sender)
     : IRequestHandler<ProcessM3UFilesRequest, APIResponse>

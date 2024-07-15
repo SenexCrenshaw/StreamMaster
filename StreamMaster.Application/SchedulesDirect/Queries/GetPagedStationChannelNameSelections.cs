@@ -11,12 +11,12 @@ internal class GetPagedStationChannelNamesHandler(ISchedulesDirectDataService sc
 {
     public async Task<PagedResponse<StationChannelName>> Handle(GetPagedStationChannelNameSelections request, CancellationToken cancellationToken)
     {
-        List<StationChannelName> stationChannelNames = await schedulesDirectDataService.GetStationChannelNames();
+        IEnumerable<StationChannelName> stationChannelNames = schedulesDirectDataService.GetStationChannelNames();
         if (request.Parameters.PageSize == 0)
         {
             PagedResponse<StationChannelName> emptyResponse = new()
             {
-                TotalItemCount = stationChannelNames.Count
+                TotalItemCount = stationChannelNames.Count()
             };
             return emptyResponse;
         }

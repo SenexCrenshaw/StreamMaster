@@ -5,11 +5,11 @@ public record GetStationChannelNameFromDisplayName(string value) : IRequest<Stat
 internal class GetStationChannelNameFromDisplayNameHandler(ILogger<GetStationChannelNameFromDisplayName> logger, ISchedulesDirectDataService schedulesDirectDataService)
     : IRequestHandler<GetStationChannelNameFromDisplayName, StationChannelName?>
 {
-    public async Task<StationChannelName?> Handle(GetStationChannelNameFromDisplayName request, CancellationToken cancellationToken)
+    public Task<StationChannelName?> Handle(GetStationChannelNameFromDisplayName request, CancellationToken cancellationToken)
     {
-        List<StationChannelName> stationChannelNames = await schedulesDirectDataService.GetStationChannelNames();
+        IEnumerable<StationChannelName> stationChannelNames = schedulesDirectDataService.GetStationChannelNames();
 
         StationChannelName? check = stationChannelNames.FirstOrDefault(a => a.Channel == request.value);
-        return check;
+        return Task.FromResult(check);
     }
 }

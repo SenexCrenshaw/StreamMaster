@@ -53,7 +53,7 @@ export const VideoInfoDisplay: React.FC<VideoInfoProps> = ({ channelId }) => {
     return (
       <div>
         {videoInfo.Format && (
-          <SMCard title="Format" info="" hasCloseButton>
+          <SMCard title="Format" info="" noCloseButton>
             <DisplayTable data={videoInfo.Format} />
           </SMCard>
         )}
@@ -61,11 +61,11 @@ export const VideoInfoDisplay: React.FC<VideoInfoProps> = ({ channelId }) => {
         {videoInfo.Streams && videoInfo.Streams.length > 0 && (
           <>
             <div className="layout-padding-bottom-lg" />
-            <SMCard title="Video Streams" info="" noBorderChildren hasCloseButton>
+            <SMCard title="Video Streams" info="" noBorderChildren noCloseButton>
               {videoInfo.Streams.map((stream, index) => (
                 <div key={index}>
                   <div className="layout-padding-bottom" />
-                  <SMCard title={'Stream ' + (index + 1)} info="" hasCloseButton>
+                  <SMCard title={'Stream ' + (index + 1)} info="" noCloseButton>
                     <DisplayTable data={stream} />
                   </SMCard>
                 </div>

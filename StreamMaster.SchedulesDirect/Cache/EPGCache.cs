@@ -233,7 +233,7 @@ public class EPGCache<T> : IEPGCache<T>
         isDirty = false;
     }
 
-    public async Task<T?> GetValidCachedDataAsync<T>(string name, CancellationToken cancellationToken = default)
+    public async Task<T?> GetValidCachedDataAsync(string name, CancellationToken cancellationToken = default)
     {
         //return default;
         await _cacheSemaphore.WaitAsync(cancellationToken);
@@ -251,7 +251,7 @@ public class EPGCache<T> : IEPGCache<T>
 
             return cacheEntry != null && (DateTime.Now - cacheEntry.Timestamp) <= CacheDuration ? cacheEntry.Data : default;
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             return default;
         }
@@ -261,7 +261,7 @@ public class EPGCache<T> : IEPGCache<T>
         }
     }
 
-    public async Task WriteToCacheAsync<T>(string name, T data, CancellationToken cancellationToken = default)
+    public async Task WriteToCacheAsync(string name, T data, CancellationToken cancellationToken = default)
     {
         await _cacheSemaphore.WaitAsync(cancellationToken);
         try
@@ -316,10 +316,11 @@ public class EPGCache<T> : IEPGCache<T>
 
         if (image == null && type == ImageType.Series)
         {
-            image = artwork.FirstOrDefault(arg => arg.Aspect.ToLower().Equals("4x3"));
+            image = artwork.FirstOrDefault(arg => arg.Aspect.Equals("4x3", StringComparison.OrdinalIgnoreCase));
         }
         ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
         return image != null ? schedulesDirectData.FindOrCreateGuideImage(image.Uri) : null;
     }
+
 }
 

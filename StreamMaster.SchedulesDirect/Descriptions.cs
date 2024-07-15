@@ -205,10 +205,7 @@ public class Descriptions(ILogger<Descriptions> logger, ISchedulesDirectAPIServi
         Dictionary<string, GenericDescription>? responses = schedulesDirectAPI.GetApiResponse<Dictionary<string, GenericDescription>?>(APIMethod.POST, "metadata/description/", series).Result;
         if (responses != null)
         {
-            Parallel.ForEach(responses, (response) =>
-            {
-                seriesDescriptionResponses.TryAdd(response.Key, response.Value);
-            });
+            Parallel.ForEach(responses, (response) => seriesDescriptionResponses.TryAdd(response.Key, response.Value));
         }
     }
 

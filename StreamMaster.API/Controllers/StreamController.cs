@@ -142,10 +142,7 @@ namespace StreamMaster.API.Controllers
 
                 logger.LogInformation("Adding MP4Handler for {name}", smStream.Name);
                 FFMPEGRunner ffmpegRunner = new(FFMPEGRunnerlogger, channelService, intsettings, inthlssettings);
-                ffmpegRunner.ProcessExited += (sender, args) =>
-                {
-                    logger.LogInformation("MP4Handler Process Exited for {Name} with exit code {ExitCode}", smStream.Name, args.ExitCode);
-                };
+                ffmpegRunner.ProcessExited += (sender, args) => logger.LogInformation("MP4Handler Process Exited for {Name} with exit code {ExitCode}", smStream.Name, args.ExitCode);
                 (Stream? stream, int processId, ProxyStreamError? error) = await ffmpegRunner.CreateFFMpegStream(url, smStream.Name);
 
                 return stream != null ? new FileStreamResult(stream, "video/mp4") : StatusCode(StatusCodes.Status404NotFound);

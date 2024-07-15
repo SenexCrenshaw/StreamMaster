@@ -19,7 +19,7 @@ namespace StreamMaster.Infrastructure.Services.QueueService;
 public sealed class QueuedHostedService(
     IBackgroundTaskQueue taskQueue,
     IServiceProvider serviceProvider,
-    IMessageService messageSevice,
+    IMessageService messageService,
     ILogger<QueuedHostedService> logger
 ) : BackgroundService
 {
@@ -45,7 +45,7 @@ public sealed class QueuedHostedService(
             try
             {
                 logger.LogInformation("Starting {command}", command.Command);
-                await messageSevice.SendInfo($"Starting task: {command.Command}");
+                await messageService.SendInfo($"Starting task: {command.Command}");
 
                 using IServiceScope scope = serviceProvider.CreateScope();
 
@@ -127,7 +127,7 @@ public sealed class QueuedHostedService(
                         break;
                 }
                 await taskQueue.SetStop(command.Id).ConfigureAwait(false);
-                await messageSevice.SendInfo($"Finished task: {command.Command}");
+                await messageService.SendInfo($"Finished task: {command.Command}");
                 logger.LogInformation("Finished {command}", command.Command);
             }
             catch (OperationCanceledException)
@@ -137,7 +137,7 @@ public sealed class QueuedHostedService(
             catch (Exception ex)
             {
                 logger.LogError(ex, "Error occurred executing task work item. {command}", command.Command);
-                await messageSevice.SendError($"Error executing task: {command.Command}, {ex.Message}");
+                await messageService.SendError($"Error executing task: {command.Command}, {ex.Message}");
 
                 await taskQueue.SetStop(command.Id).ConfigureAwait(false);
 

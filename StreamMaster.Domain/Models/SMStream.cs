@@ -21,9 +21,9 @@ public class SMStream
     [Column(TypeName = "citext")]
     public string ShortSMStreamId { get; set; } = UniqueHexGenerator.SMChannelIdEmpty;
     [Column(TypeName = "citext")]
-    public string Group { get; set; } = "All";
+    public string Group { get; set; } = "Dummy";
     [Column(TypeName = "citext")]
-    public string EPGID { get; set; } = string.Empty;
+    public string EPGID { get; set; } = "Dummy";
     [Column(TypeName = "citext")]
     public string Logo { get; set; } = string.Empty;
     [Column(TypeName = "citext")]

@@ -2,7 +2,7 @@
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record SetSMChannelsLogoFromEPGRequest(List<int> Ids) : IRequest<APIResponse> { }
+public record SetSMChannelsLogoFromEPGRequest(List<int> Ids) : IRequest<APIResponse>;
 
 [LogExecutionTimeAspect]
 public class SetSMChannelsLogoFromEPGRequestHandler(IRepositoryWrapper Repository, IMessageService messageService, IDataRefreshService dataRefreshService)

@@ -1,3 +1,4 @@
+import EPGSelector from '@components/epg/EPGSelector';
 import IconSelector from '@components/icons/IconSelector';
 import NumberEditor from '@components/inputs/NumberEditor';
 import SMChannelGroupDropDown from '@components/inputs/SMChannelGroupDropDown';
@@ -29,6 +30,7 @@ const SMStreamDialog = forwardRef<SMStreamDialogRef, SMStreamDialogProperties>((
       }
       setRequest({
         ChannelNumber: smStreamDto.ChannelNumber,
+        EPGID: 'Dummy',
         Group: smStreamDto.Group,
         Logo: smStreamDto.Logo,
         Name: smStreamDto.Name,
@@ -37,49 +39,17 @@ const SMStreamDialog = forwardRef<SMStreamDialogRef, SMStreamDialogProperties>((
     }
   }, [orig, smStreamDto]);
 
-  const setName = useCallback(
-    (value: string) => {
-      if (request.Name !== value) {
-        setRequest((prevRequest) => ({ ...prevRequest, Name: value }));
+  const updateStateAndRequest = useCallback(
+    (updatedFields: Partial<SMStreamDto>) => {
+      if (smStreamDto === undefined) {
+        return;
       }
-    },
-    [request.Name]
-  );
+      const updatedDto = { ...smStreamDto, ...updatedFields };
+      const updatedRequest = { ...request, Id: updatedDto.Id, ...updatedFields };
 
-  const setUrl = useCallback(
-    (value: string) => {
-      if (request.Url !== value) {
-        setRequest((prevRequest) => ({ ...prevRequest, Url: value }));
-      }
+      setRequest(updatedRequest);
     },
-    [request.Url]
-  );
-
-  const setLogo = useCallback(
-    (value: string) => {
-      if (request.Logo !== value) {
-        setRequest((prevRequest) => ({ ...prevRequest, Logo: value }));
-      }
-    },
-    [request.Logo]
-  );
-
-  const setGroup = useCallback(
-    (value: string) => {
-      if (request.Group !== value) {
-        setRequest((prevRequest) => ({ ...prevRequest, Group: value }));
-      }
-    },
-    [request.Group]
-  );
-
-  const setChannelNumber = useCallback(
-    (value: number) => {
-      if (request.ChannelNumber !== value) {
-        setRequest((prevRequest) => ({ ...prevRequest, ChannelNumber: value }));
-      }
-    },
-    [request.ChannelNumber]
+    [request, smStreamDto]
   );
 
   const isSaveEnabled = useMemo(() => {
@@ -102,6 +72,10 @@ const SMStreamDialog = forwardRef<SMStreamDialogRef, SMStreamDialogProperties>((
     }
 
     if (request.Name !== orig.Name) {
+      return true;
+    }
+
+    if (request.EPGID !== orig.EPGID) {
       return true;
     }
 
@@ -136,11 +110,11 @@ const SMStreamDialog = forwardRef<SMStreamDialogRef, SMStreamDialogProperties>((
 
   return (
     <>
-      <div className="sm-headerBg dialog-padding border-sides">
-        <div className="flex w-12 gap-1 pl-2">
-          <div className="flex flex-column sm-w-9 gap-1 justify-content-between">
+      <div className="sm-border-square-top sm-headerBg pt-2">
+        <div className="flex w-12 gap-1 pl-2 ">
+          <div className="flex flex-column w-9 gap-1 pr-3 ">
             <div className="flex w-12 gap-1">
-              <div className="sm-w-6">
+              <div className="w-6">
                 <StringEditor
                   autoFocus
                   label="Name"
@@ -148,52 +122,67 @@ const SMStreamDialog = forwardRef<SMStreamDialogRef, SMStreamDialogProperties>((
                   darkBackGround
                   disableDebounce
                   onChange={(e) => {
-                    e !== undefined && setName(e);
+                    e !== undefined && updateStateAndRequest({ Name: e });
                   }}
-                  onSave={(e) => {
-                    e !== undefined && setName(e);
-                    if (isSaveEnabled) {
-                      doSave();
-                    }
-                  }}
+                  // onSave={(e) => {
+                  //   e !== undefined && updateStateAndRequest({ Name: e });
+                  // }}
                   value={request.Name}
                 />
               </div>
-              <div className="sm-w-6">
+              <div className="w-6">
+                <EPGSelector value={request.EPGID} buttonDarkBackground label="EPG" onChange={(e) => e !== undefined && updateStateAndRequest({ EPGID: e })} />
+              </div>
+            </div>
+            <div className="flex w-12 gap-1">
+              <div className="sm-w-3">
                 <SMChannelGroupDropDown
                   darkBackGround
                   label="Group"
                   onChange={(e) => {
-                    e !== undefined && setGroup(e);
+                    e !== undefined && updateStateAndRequest({ Group: e });
                   }}
                   value={request.Group}
                 />
               </div>
-            </div>
-            <div className="flex w-12 gap-1">
-              <div className="w-9 justify-content-start align-items-center">
-                <StringEditor disableDebounce label="URL" darkBackGround onChange={(e) => e !== undefined && setUrl(e)} value={request.Url} />
-              </div>
-              <div className="w-3 justify-content-start align-items-center">
-                <NumberEditor
+
+              <div className="w-9">
+                <StringEditor
                   disableDebounce
-                  label="Channel #"
-                  showButtons
+                  label="URL"
                   darkBackGround
-                  onChange={(e) => setChannelNumber(e)}
-                  onSave={(e) => setChannelNumber(e)}
-                  value={request.ChannelNumber}
+                  onChange={(e) => e !== undefined && updateStateAndRequest({ Url: e })}
+                  value={request.Url}
                 />
               </div>
             </div>
           </div>
+          <div className="w-3 flex flex-column justify-content-start align-items-center ">
+            <div className="w-9">
+              <NumberEditor
+                disableDebounce
+                label="Channel #"
+                showButtons
+                darkBackGround
+                onChange={(e) => e !== undefined && updateStateAndRequest({ ChannelNumber: e })}
+                onSave={(e) => e !== undefined && updateStateAndRequest({ ChannelNumber: e })}
+                value={request.ChannelNumber}
+              />
+            </div>
 
-          <div className="sm-w-8rem">
-            <IconSelector darkBackGround label="Logo" large enableEditMode onChange={(e) => setLogo(e)} value={request.Logo} />
+            <IconSelector
+              darkBackGround
+              label="Logo"
+              large
+              enableEditMode
+              onChange={(e) => e !== undefined && updateStateAndRequest({ Logo: e })}
+              value={request.Logo}
+            />
           </div>
         </div>
+        <div className="layout-padding-bottom-lg sm-headerBg" />
       </div>
-      <div className="layout-padding-bottom-lg sm-headerBg border-radius-bottom" />
+      <div className="layout-padding-bottom-lg sm-bgColor" />
     </>
   );
 });

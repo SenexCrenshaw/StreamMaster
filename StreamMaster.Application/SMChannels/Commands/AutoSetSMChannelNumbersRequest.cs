@@ -10,7 +10,7 @@ internal class AutoSetSMChannelNumbersRequestHandler(IRepositoryWrapper Reposito
     public async Task<APIResponse> Handle(AutoSetSMChannelNumbersRequest request, CancellationToken cancellationToken)
     {
 
-        IdIntResultWithResponse res = await Repository.SMChannel.AutoSetSMChannelNumbers(request.StreamGroupId, request.SMChannelIds, request.StartingNumber, request.OverwriteExisting);
+        IdIntResultWithResponse res = await Repository.SMChannel.AutoSetSMChannelNumbersRequest(request.StreamGroupId, request.SMChannelIds, request.StartingNumber, request.OverwriteExisting);
         if (res.APIResponse.IsError)
         {
             return APIResponse.ErrorWithMessage(res.APIResponse.ErrorMessage);

@@ -3,9 +3,9 @@ namespace StreamMaster.Application.M3UFiles.Commands;
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record DeleteM3UFileRequest(bool DeleteFile, int Id) : IRequest<APIResponse> { }
+public record DeleteM3UFileRequest(bool DeleteFile, int Id) : IRequest<APIResponse>;
 
-public class DeleteM3UFileRequestHandler(ILogger<DeleteM3UFileRequest> logger, IMessageService messageService, IDataRefreshService dataRefreshService, IIconService iconService, IRepositoryWrapper Repository, IPublisher Publisher)
+public class DeleteM3UFileRequestHandler(ILogger<DeleteM3UFileRequest> logger, IMessageService messageService, IDataRefreshService dataRefreshService, IIconService iconService, IRepositoryWrapper Repository)
     : IRequestHandler<DeleteM3UFileRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(DeleteM3UFileRequest request, CancellationToken cancellationToken = default)
@@ -19,10 +19,7 @@ public class DeleteM3UFileRequestHandler(ILogger<DeleteM3UFileRequest> logger, I
 
         try
         {
-            bool refreshCGs = false;
-
             await Repository.M3UFile.DeleteM3UFile(m3UFile.Id);
-
 
             if (request.DeleteFile)
             {
@@ -31,10 +28,7 @@ public class DeleteM3UFileRequestHandler(ILogger<DeleteM3UFileRequest> logger, I
                 {
                     FileAttributes attributes = File.GetAttributes(fullName);
 
-                    if ((attributes & (FileAttributes.ReadOnly | FileAttributes.System)) != 0)
-                    {
-                    }
-                    else
+                    if ((attributes & (FileAttributes.ReadOnly | FileAttributes.System)) == 0)
                     {
                         File.Delete(fullName);
                     }
@@ -43,10 +37,7 @@ public class DeleteM3UFileRequestHandler(ILogger<DeleteM3UFileRequest> logger, I
                     if (File.Exists(txtName))
                     {
                         attributes = File.GetAttributes(txtName);
-                        if ((attributes & (FileAttributes.ReadOnly | FileAttributes.System)) != 0)
-                        {
-                        }
-                        else
+                        if ((attributes & (FileAttributes.ReadOnly | FileAttributes.System)) == 0)
                         {
                             File.Delete(txtName);
                         }
@@ -55,18 +46,11 @@ public class DeleteM3UFileRequestHandler(ILogger<DeleteM3UFileRequest> logger, I
                     if (File.Exists(txtName))
                     {
                         attributes = File.GetAttributes(txtName);
-                        if ((attributes & (FileAttributes.ReadOnly | FileAttributes.System)) != 0)
-                        {
-                        }
-                        else
+                        if ((attributes & (FileAttributes.ReadOnly | FileAttributes.System)) == 0)
                         {
                             File.Delete(txtName);
                         }
                     }
-                }
-                else
-                {
-                    //_logger.LogError("DeleteEPGFile File {fulleName} does not exist", fulleName);
                 }
             }
 
@@ -80,9 +64,11 @@ public class DeleteM3UFileRequestHandler(ILogger<DeleteM3UFileRequest> logger, I
                 .Where(vs => vs.M3UFileId != m3UFile.Id)
                 .Select(vs => vs.Group);
 
-            List<string> groupsToDelete = targetM3UFileIdGroups.Except(otherM3UFileIdGroups).ToList();
-
-            await Repository.ChannelGroup.DeleteChannelGroupsByNameRequest(groupsToDelete);
+            List<string> groupsToDelete = [.. targetM3UFileIdGroups.Except(otherM3UFileIdGroups)];
+            if (groupsToDelete.Count > 0)
+            {
+                await Repository.ChannelGroup.DeleteChannelGroupsByNameRequest(groupsToDelete);
+            }
 
             await Repository.SMStream.DeleteSMStreamsByM3UFiledId(m3UFile.Id, cancellationToken);
 
@@ -91,8 +77,11 @@ public class DeleteM3UFileRequestHandler(ILogger<DeleteM3UFileRequest> logger, I
             iconService.RemoveIconsByM3UFileId(m3UFile.Id);
 
             await dataRefreshService.RefreshAllM3U();
-
-            await messageService.SendSuccess("Deleted M3U '" + m3UFile.Name + "'");
+            if (groupsToDelete.Count > 0)
+            {
+                await dataRefreshService.RefreshChannelGroups();
+            }
+            await messageService.SendSuccess("Deleted '" + m3UFile.Name + "'", "Delete M3U");
 
             return APIResponse.Success;
         }

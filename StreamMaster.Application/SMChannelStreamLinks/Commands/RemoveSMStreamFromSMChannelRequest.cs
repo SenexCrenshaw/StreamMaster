@@ -1,6 +1,4 @@
-﻿using StreamMaster.Application.SMChannelStreamLinks.Queries;
-
-namespace StreamMaster.Application.SMChannelStreamLinks.Commands;
+﻿namespace StreamMaster.Application.SMChannelStreamLinks.Commands;
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
@@ -20,17 +18,21 @@ internal class RemoveSMStreamFromSMChannelRequestHandler(IRepositoryWrapper Repo
         SMChannel? smChannel = Repository.SMChannel.GetSMChannel(request.SMChannelId);
         if (smChannel != null)
         {
-            DataResponse<List<SMStreamDto>> streams = await Sender.Send(new UpdateStreamRanksRequest(smChannel.Id, smChannel.SMStreams.Select(a => a.SMStream.Id).ToList()), cancellationToken);
+            //DataResponse<List<SMStreamDto>> streams = await Sender.Send(new UpdateStreamRanksRequest(smChannel.Id, smChannel.SMStreams.Select(a => a.SMStream.Id).ToList()), cancellationToken);
 
-            GetSMChannelStreamsRequest re = new(request.SMChannelId);
-            List<FieldData> ret = new()
-            {
-                new("GetSMChannelStreams", re, streams.Data),
-                new(SMChannel.APIName, smChannel.Id, "SMStreams", streams.Data)
-            };
+            //GetSMChannelStreamsRequest re = new(request.SMChannelId);
+            //List<FieldData> ret = new()
+            //{
+            //    new("GetSMChannelStreams", re, streams.Data),
+            //    new(SMChannel.APIName, smChannel.Id, "SMStreams", streams.Data)
+            //};
 
+            ////await dataRefreshService.RefreshSMChannelStreamLinks();
+            //await dataRefreshService.SetField(ret).ConfigureAwait(false);
             //await dataRefreshService.RefreshSMChannelStreamLinks();
-            await dataRefreshService.SetField(ret).ConfigureAwait(false);
+
+            await dataRefreshService.RefreshSMChannelStreamLinks();
+            await dataRefreshService.RefreshSMChannels();
         }
 
         return res;

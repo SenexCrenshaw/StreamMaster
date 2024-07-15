@@ -41,7 +41,6 @@ const CreateSMChannelDialog = () => {
       buttonClassName="icon-green"
       onCloseClick={ReturnToParent}
       contentWidthSize="5"
-      hasCloseButton={false}
       icon="pi-plus"
       iconFilled
       modal

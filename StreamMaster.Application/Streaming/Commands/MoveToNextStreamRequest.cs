@@ -2,7 +2,7 @@
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record MoveToNextStreamRequest(int SMChannelId) : IRequest<APIResponse> { }
+public record MoveToNextStreamRequest(int SMChannelId) : IRequest<APIResponse>;
 
 [LogExecutionTimeAspect]
 public class MoveToNextStreamRequestHandler(IChannelManager ChannelManager, IMessageService messageService)

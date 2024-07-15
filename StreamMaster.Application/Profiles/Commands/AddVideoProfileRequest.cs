@@ -2,7 +2,7 @@
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record AddVideoProfileRequest(string Name, string Command, string Parameters, int Timeout, bool IsM3U8) : IRequest<APIResponse> { }
+public record AddVideoProfileRequest(string Name, string Command, string Parameters, int Timeout, bool IsM3U8) : IRequest<APIResponse>;
 
 public class AddVideoVideoProfileRequestHandler(ILogger<AddVideoProfileRequest> Logger, IDataRefreshService dataRefreshService, IOptionsMonitor<VideoOutputProfiles> intprofilesettings, IMapper Mapper)
 : IRequestHandler<AddVideoProfileRequest, APIResponse>

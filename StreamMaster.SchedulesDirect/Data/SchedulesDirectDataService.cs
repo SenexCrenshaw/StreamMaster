@@ -113,8 +113,8 @@ public class SchedulesDirectDataService : ISchedulesDirectDataService
             };
 
             MxfService mxfService = data.FindOrCreateService($"{EPGHelper.DummyId}-DUMMY");
-            mxfService.CallSign = "DUMMY";
-            mxfService.Name = "DUMMY EPG";
+            mxfService.CallSign = "Dummy";
+            mxfService.Name = "Dummy EPG";
 
             return data;
         });
@@ -126,7 +126,7 @@ public class SchedulesDirectDataService : ISchedulesDirectDataService
         return ret;
     }
 
-    public async Task<List<StationChannelName>> GetStationChannelNames()
+    public IEnumerable<StationChannelName> GetStationChannelNames()
     {
 
         List<StationChannelName> ret = [];
@@ -144,9 +144,7 @@ public class SchedulesDirectDataService : ISchedulesDirectDataService
             ret.Add(stationChannelName);
         }
 
-        var test = AllServices.Where(a => a.StationId.StartsWith("-1")).ToList();
-
-        return ret.OrderBy(a => a.DisplayName, StringComparer.OrdinalIgnoreCase).ToList();
+        return ret.OrderBy(a => a.DisplayName, StringComparer.OrdinalIgnoreCase);
     }
 
     public void ChangeServiceEPGNumber(int oldEPGNumber, int newEPGNumber)
@@ -156,6 +154,7 @@ public class SchedulesDirectDataService : ISchedulesDirectDataService
             service.EPGNumber = newEPGNumber;
         }
     }
+
 
     public List<MxfProgram> GetAllSDPrograms
     {

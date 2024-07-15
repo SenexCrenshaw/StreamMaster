@@ -1,6 +1,8 @@
-import CloseButton from '@components/buttons/CloseButton';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { SMCardProperties } from './Interfaces/SMCardProperties';
+import CloseButton from '@components/buttons/CloseButton';
+import OKButton from '@components/buttons/OKButton';
+import { Logger } from '@lib/common/logger';
 
 interface InternalSMCardProperties extends SMCardProperties {
   readonly children: React.ReactNode;
@@ -8,14 +10,19 @@ interface InternalSMCardProperties extends SMCardProperties {
 
 export const SMCard = ({
   children,
+  closeButtonDisabled = false,
   darkBackGround = false,
-  hasCloseButton = false,
   header,
   info = 'General',
-  openPanel,
+  noBorderChildren = false,
+  noCloseButton = false,
+  okButtonDisabled = false,
+  onCloseClick,
+  closeToolTip = 'Close',
+  okToolTip = 'Ok',
+  onOkClick,
   simple = false,
   simpleChildren = true,
-  noBorderChildren = false,
   title,
   ...props
 }: InternalSMCardProperties) => {
@@ -26,6 +33,13 @@ export const SMCard = ({
   }, [darkBackGround, simpleChildren]);
 
   const borderClass = info !== '' ? 'sm-border-bottom' : 'info-header-text';
+
+  useEffect(() => {
+    if (props.answer !== undefined) {
+      props.onAnswered?.();
+      return;
+    }
+  }, [props, props.answer]);
 
   if (simple === true || title === undefined || title === '') {
     return <div>{children}</div>;
@@ -39,12 +53,21 @@ export const SMCard = ({
           <div className="w-4 flex justify-content-center">{props.center}</div>
           <div className="flex justify-content-end w-4 gap-1 pr-1">
             {header}
-            {!hasCloseButton && (
+            {!noCloseButton && (
               <CloseButton
                 onClick={(e) => {
-                  openPanel && openPanel(false);
+                  onCloseClick?.();
                 }}
-                tooltip="Close"
+                tooltip={closeToolTip}
+              />
+            )}
+            {onOkClick && (
+              <OKButton
+                buttonDisabled={okButtonDisabled}
+                onClick={(e) => {
+                  onOkClick?.();
+                }}
+                tooltip={okToolTip}
               />
             )}
           </div>
@@ -66,7 +89,16 @@ export const SMCard = ({
         <div className="header-text-sub flex justify-content-start">{title}</div>
         <div className="flex justify-content-end gap-1 pr-1">
           {header}
-          {!hasCloseButton && <CloseButton onClick={(e) => openPanel && openPanel(false)} tooltip="Close" />}
+          {onOkClick && (
+            <OKButton
+              buttonDisabled={okButtonDisabled}
+              onClick={(e) => {
+                onOkClick?.();
+              }}
+              tooltip={okToolTip}
+            />
+          )}
+          {(!noCloseButton || onCloseClick) && <CloseButton buttonDisabled={closeButtonDisabled} onClick={(e) => onCloseClick?.()} tooltip={closeToolTip} />}
         </div>
       </div>
 

@@ -2,7 +2,7 @@
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record RemoveOutputProfileRequest(string Name) : IRequest<APIResponse> { }
+public record RemoveOutputProfileRequest(string Name) : IRequest<APIResponse>;
 
 public class RemoveOutputProfileRequestHandler(IOptionsMonitor<OutputProfiles> intprofilesettings, IDataRefreshService dataRefreshService, ILogger<RemoveOutputProfileRequest> Logger, IMapper Mapper)
 : IRequestHandler<RemoveOutputProfileRequest, APIResponse>

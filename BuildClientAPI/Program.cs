@@ -10,7 +10,7 @@ using System.Reflection;
 
 namespace BuildClientAPI
 {
-    internal class Program
+    internal static class Program
     {
         private const string AssemblyName = "StreamMaster.Application";
         private const string CSharpFileNamePrefix = @"..\..\..\..\StreamMaster.Application\";
@@ -75,8 +75,8 @@ namespace BuildClientAPI
                     if (recordType.Name.StartsWith(toCheck))
                     {
                         bool IsList = returnType.IsArray || returnType.IsListType() || returnType.IsDataResponse();
-                        string returntype = GetCleanReturnType(returnType);
-                        string returntypeTS = GetCleanTSReturnType(returnType);
+                        string cleanReturnType = GetCleanReturnType(returnType);
+                        string returnTypeTS = GetCleanTSReturnType(returnType);
                         string Parameters = CSharpUtils.ParamsToCSharp(recordType);
                         string TsParameters = Utils.CSharpParamToTS(recordType);
                         string TsReturnType = GetCleanTSReturnType(returnType);
@@ -115,15 +115,11 @@ namespace BuildClientAPI
                         IsTask = smapiAttribute.IsTask,
                         JustHub = smapiAttribute.JustHub,
                         JustController = smapiAttribute.JustController,
-
                         Pertsist = smapiAttribute.Persist,
-
                         SingalRFunction = parameter,
-
                         TSName = name,
                         TsParameter = ps == "" ? "" : parameter,
                         TsReturnType = GetCleanTSReturnType(returnType),
-
                         ReturnEntityType = GetTSTypeReturnName(returnType),
                     };
 
@@ -137,8 +133,6 @@ namespace BuildClientAPI
 
                     if (recordType.Name.StartsWith(toCheck))
                     {
-
-                        int aaa = 1;
                     }
                     methodDetailsList.Add(methodDetails);
 
@@ -216,7 +210,6 @@ namespace BuildClientAPI
 
             if (returnType.Name.Contains("Nullable"))
             {
-                int aa = 1;
             }
 
             if (typeof(Task).IsAssignableFrom(returnType))
@@ -245,7 +238,6 @@ namespace BuildClientAPI
         {
             if (returnType.Name.StartsWith("EPGFilePreviewDto"))
             {
-                int aa = 1;
             }
 
             if (typeof(Task).IsAssignableFrom(returnType))
@@ -255,7 +247,6 @@ namespace BuildClientAPI
                     Type resultType = returnType.GetGenericArguments()[0];
                     if (returnType.Name.StartsWith("EPGFilePreviewDto"))
                     {
-                        int aa = 1;
                     }
                     return FormatTSTypeName(resultType);
                 }
@@ -295,7 +286,6 @@ namespace BuildClientAPI
 
                 if (genericArgs.StartsWith("EPGFilePreviewDto"))
                 {
-                    int aa = 1;
                 }
                 return type.IsListType() || type.IsArray
                     ? genericArgs.EndsWith("[]") ? genericArgs :

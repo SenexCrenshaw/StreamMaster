@@ -457,7 +457,7 @@ public class Schedules(ILogger<Schedules> logger, IOptionsMonitor<SDSettings> in
                 //TvRating is determined in the class itself to combine with the program content ratings
                 IsSigned = scheduleProgram.Signed
             });
-            mxfService.MxfScheduleEntries.ScheduleEntry.Last().extras.Add("ratings", scheduleTvRatings);
+            mxfService.MxfScheduleEntries.ScheduleEntry[^1].extras.Add("ratings", scheduleTvRatings);
         }
     }
 

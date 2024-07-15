@@ -8,6 +8,7 @@ import { CreateM3UFileRequest, M3UFileDto, UpdateM3UFileRequest } from '@lib/smA
 import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import M3UFileTags from './M3UFileTags';
 import SMFileUpload, { SMFileUploadRef } from '@components/sm/SMFileUpload';
+import BooleanEditor from '@components/inputs/BooleanEditor';
 
 export interface M3UFileDialogProperties {
   readonly onHide?: (didUpload: boolean) => void;
@@ -63,6 +64,9 @@ const M3UFileDialog = forwardRef<M3UFileDialogRef, M3UFileDialogProperties>(
           // if (originalM3UFileDto) {
           //   setM3UFileDto({ ...originalM3UFileDto });
           // } else {
+          if (originalM3UFileDto) {
+            setM3UFileDto({ ...originalM3UFileDto });
+          }
           smFileUploadRef.current?.reset();
           // }
         },
@@ -83,6 +87,7 @@ const M3UFileDialog = forwardRef<M3UFileDialogRef, M3UFileDialogProperties>(
           HoursToUpdate: 72,
           MaxStreamCount: 1,
           Name: '',
+          SyncChannels: false,
           Url: ''
         } as M3UFileDto),
       []
@@ -243,7 +248,10 @@ const M3UFileDialog = forwardRef<M3UFileDialogRef, M3UFileDialogProperties>(
         )}
         <div className="w-12">
           <div className="flex gap-1">
-            <div className="w-6">
+            <div className="w-5">
+              <BooleanEditor label="Sync Channels" onChange={(e) => updateStateAndRequest({ SyncChannels: e })} checked={m3uFileDto?.SyncChannels} />
+            </div>
+            <div className="w-7">
               <M3UFileTags vodTags={m3uFileDto?.VODTags} onChange={(e) => updateStateAndRequest({ VODTags: e })} />
             </div>
           </div>

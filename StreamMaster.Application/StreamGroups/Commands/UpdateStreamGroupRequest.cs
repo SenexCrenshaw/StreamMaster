@@ -4,7 +4,7 @@ namespace StreamMaster.Application.StreamGroups.Commands;
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record UpdateStreamGroupRequest(int StreamGroupId, bool? AutoSetChannelNumbers, string? NewName, string? DeviceID, List<string>? StreamGroupProfiles, bool? IgnoreExistingChannelNumbers, int? StartingChannelNumber)
+public record UpdateStreamGroupRequest(int StreamGroupId, string? NewName, string? DeviceID, List<string>? StreamGroupProfiles)
  : IRequest<APIResponse>
 { }
 
@@ -20,7 +20,7 @@ public class UpdateStreamGroupRequestHandler(IDataRefreshService dataRefreshServ
             return APIResponse.NotFound;
         }
 
-        StreamGroupDto? streamGroup = await Repository.StreamGroup.UpdateStreamGroup(request.StreamGroupId, request.NewName, request.DeviceID, request.AutoSetChannelNumbers, request.IgnoreExistingChannelNumbers, request.StartingChannelNumber);
+        StreamGroupDto? streamGroup = await Repository.StreamGroup.UpdateStreamGroup(request.StreamGroupId, request.NewName, request.DeviceID);//, request.AutoSetChannelNumbers, request.IgnoreExistingChannelNumbers, request.StartingChannelNumber);
         if (streamGroup is not null)
         {
             //await hubContext.Clients.All.DataRefresh("StreamGroups").ConfigureAwait(false);

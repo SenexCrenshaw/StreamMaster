@@ -18,8 +18,8 @@ public class GetStreamGroupVideoConfigsHandler(IHttpContextAccessor httpContextA
     //{
     //    MaxDegreeOfParallelism = Environment.ProcessorCount
     //};
-    private ConcurrentDictionary<int, VideoStreamConfig> existingNumbers = new();
-    private ConcurrentHashSet<int> usedNumbers = new();
+    private readonly ConcurrentDictionary<int, VideoStreamConfig> existingNumbers = new();
+    private readonly ConcurrentHashSet<int> usedNumbers = [];
     private int currentChannelNumber;
 
     private int GetNextChannelNumber(int channelNumber, bool ignoreExisting)
@@ -54,7 +54,7 @@ public class GetStreamGroupVideoConfigsHandler(IHttpContextAccessor httpContextA
     public async Task<(List<VideoStreamConfig> videoStreamConfigs, OutputProfile outputProfile)> Handle(GetStreamGroupVideoConfigs request, CancellationToken cancellationToken)
     {
 
-        var streamGroup = Repository.StreamGroup.GetStreamGroup(request.StreamGroupId);
+        StreamGroup? streamGroup = Repository.StreamGroup.GetStreamGroup(request.StreamGroupId);
 
         if (streamGroup == null)
         {
@@ -68,18 +68,9 @@ public class GetStreamGroupVideoConfigsHandler(IHttpContextAccessor httpContextA
             return new();
         }
 
-        var sgProfile = Repository.StreamGroupProfile.GetStreamGroupProfile(request.StreamGroupId, request.StreamGroupProfileId) ?? new StreamGroupProfile();
-        var profileRequest = await sender.Send(new GetOutputProfileRequest(sgProfile.OutputProfileName));
-        OutputProfile profile;
-        if (profileRequest == null)
-        {
-            profile = SettingFiles.DefaultOutputProfileSetting.OutProfiles["Default"];
-        }
-        else
-        {
-            profile = profileRequest.Data;
-        }
-
+        StreamGroupProfile sgProfile = Repository.StreamGroupProfile.GetStreamGroupProfile(request.StreamGroupId, request.StreamGroupProfileId) ?? new StreamGroupProfile();
+        DataResponse<OutputProfileDto> profileRequest = await sender.Send(new GetOutputProfileRequest(sgProfile.OutputProfileName));
+        OutputProfile profile = profileRequest == null ? SettingFiles.DefaultOutputProfileSetting.OutProfiles["Default"] : profileRequest.Data;
         List<VideoStreamConfig> videoStreamConfigs = [];
 
         logger.LogInformation("GetStreamGroupVideoConfigsHandler: Handling {Count} channels", smChannels.Count);
@@ -87,7 +78,7 @@ public class GetStreamGroupVideoConfigsHandler(IHttpContextAccessor httpContextA
 
         foreach (SMChannel? smChannel in smChannels.Where(a => !a.IsHidden))
         {
-            var stream = smChannel.SMStreams.FirstOrDefault(a => a.Rank == 0)?.SMStream;
+            SMStream? stream = smChannel.SMStreams.FirstOrDefault(a => a.Rank == 0)?.SMStream;
 
             videoStreamConfigs.Add(new VideoStreamConfig
             {
@@ -104,24 +95,24 @@ public class GetStreamGroupVideoConfigsHandler(IHttpContextAccessor httpContextA
             });
         }
 
-        if (streamGroup.AutoSetChannelNumbers)
-        {
-            currentChannelNumber = streamGroup.StartingChannelNumber - 1;
-            if (!streamGroup.IgnoreExistingChannelNumbers)
-            {
-                foreach (var channelNumber in videoStreamConfigs.Where(a => a.ChannelNumber != 0).Select(a => a.ChannelNumber).Distinct())
-                {
-                    var videoStreamConfig = videoStreamConfigs.First(a => a.ChannelNumber == channelNumber);
-                    existingNumbers.TryAdd(channelNumber, videoStreamConfig);
-                }
-            }
+        //if (streamGroup.AutoSetChannelNumbers)
+        //{
+        //    currentChannelNumber = streamGroup.StartingChannelNumber - 1;
+        //    if (!streamGroup.IgnoreExistingChannelNumbers)
+        //    {
+        //        foreach (var channelNumber in videoStreamConfigs.Where(a => a.ChannelNumber != 0).Select(a => a.ChannelNumber).Distinct())
+        //        {
+        //            var videoStreamConfig = videoStreamConfigs.First(a => a.ChannelNumber == channelNumber);
+        //            existingNumbers.TryAdd(channelNumber, videoStreamConfig);
+        //        }
+        //    }
 
-            foreach (var videoStreamConfig in videoStreamConfigs.OrderBy(a => a.M3UFileId).ThenBy(a => a.FilePosition))
-            {
-                var channelNumber = GetNextChannelNumber(videoStreamConfig.ChannelNumber, streamGroup.IgnoreExistingChannelNumbers);
-                videoStreamConfig.ChannelNumber = channelNumber;
-            }
-        }
+        //    foreach (var videoStreamConfig in videoStreamConfigs.OrderBy(a => a.M3UFileId).ThenBy(a => a.FilePosition))
+        //    {
+        //        var channelNumber = GetNextChannelNumber(videoStreamConfig.ChannelNumber, streamGroup.IgnoreExistingChannelNumbers);
+        //        videoStreamConfig.ChannelNumber = channelNumber;
+        //    }
+        //}
         return (videoStreamConfigs, profile);
 
     }

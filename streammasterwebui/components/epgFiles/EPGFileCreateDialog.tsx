@@ -55,7 +55,6 @@ export const EPGFileCreateDialog = ({ onHide, onUploadComplete, showButton }: EP
     <SMPopUp
       buttonClassName="icon-green"
       contentWidthSize="3"
-      hasCloseButton={false}
       icon="pi-plus"
       onCloseClick={() => {
         ReturnToParent();

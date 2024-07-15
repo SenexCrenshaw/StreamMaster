@@ -9,9 +9,9 @@ public record CreateSMStreamRequest(
     int? ChannelNumber,
     string? Group,
     string? Logo,
+      string? EPGID,
     string Url
-    ) : IRequest<APIResponse>
-{ }
+    ) : IRequest<APIResponse>;
 
 [LogExecutionTimeAspect]
 public class CreateSMStreamRequestHandler(ILogger<CreateSMStreamRequest> Logger, IMessageService messageService, IDataRefreshService dataRefreshService, IRepositoryWrapper Repository)
@@ -26,22 +26,22 @@ public class CreateSMStreamRequestHandler(ILogger<CreateSMStreamRequest> Logger,
 
         try
         {
-            var smStream = new SMStream
+            SMStream smStream = new()
             {
                 Id = request.Url.ConvertStringToId(),
+                EPGID = request.EPGID ?? "Dummy",
                 IsUserCreated = true,
                 Name = request.Name,
                 ChannelNumber = request.ChannelNumber ?? 0,
-                Group = request.Group ?? "All",
+                Group = request.Group ?? "Dummy",
                 Logo = request.Logo ?? string.Empty,
                 Url = request.Url,
                 M3UFileId = -1,
                 M3UFileName = "CUSTOM"
             };
 
-
             ConcurrentDictionary<string, byte> generatedIdsDict = new();
-            foreach (var stream in Repository.SMStream.GetQuery())
+            foreach (SMStream stream in Repository.SMStream.GetQuery())
             {
                 generatedIdsDict.TryAdd(stream.ShortSMStreamId, 0);
             }

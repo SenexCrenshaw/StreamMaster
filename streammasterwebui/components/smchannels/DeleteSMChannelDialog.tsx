@@ -1,5 +1,4 @@
 import SMPopUp from '@components/sm/SMPopUp';
-import useSelectedSMItems from '@features/streameditor/useSelectedSMItems';
 import { useIsTrue } from '@lib/redux/hooks/isTrue';
 import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
 import { DeleteSMChannel } from '@lib/smAPI/SMChannels/SMChannelsCommands';
@@ -8,21 +7,19 @@ import React, { useState } from 'react';
 
 interface DeleteSMChannelProperties {
   readonly smChannel: SMChannelDto;
+  readonly onDelete: () => void;
 }
 
-const DeleteSMChannelDialog = ({ smChannel }: DeleteSMChannelProperties) => {
+const DeleteSMChannelDialog = ({ onDelete, smChannel }: DeleteSMChannelProperties) => {
   const dataKey = 'SMChannelSMStreamDialog-SMStreamDataForSMChannelSelector';
   const { isTrue: smTableIsSimple } = useIsTrue('isSimple');
   const { setSelectedItems } = useSelectedItems<SMStreamDto>(dataKey);
   const [isCalled, setIsCalled] = useState(false);
-  const { selectedSMChannel, setSelectedSMChannel } = useSelectedSMItems();
   const ReturnToParent = React.useCallback(() => {
     setSelectedItems([]);
     setIsCalled(false);
-    if (selectedSMChannel?.Id === smChannel.Id) {
-      setSelectedSMChannel(undefined);
-    }
-  }, [selectedSMChannel?.Id, setSelectedItems, setSelectedSMChannel, smChannel.Id]);
+    onDelete();
+  }, [onDelete, setSelectedItems]);
 
   const accept = React.useCallback(() => {
     if (isCalled) return;

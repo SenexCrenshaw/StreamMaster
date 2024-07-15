@@ -75,8 +75,8 @@ public class CreateEPGFileFromFormRequestHandler(ILogger<CreateEPGFileFromFormRe
                 return APIResponse.ErrorWithMessage($"Exception EPG {fullName} format is not supported");
             }
 
-            epgFile.ChannelCount = tv.Channels != null ? tv.Channels.Count : 0;
-            epgFile.ProgrammeCount = tv.Programs != null ? tv.Programs.Count : 0;
+            epgFile.ChannelCount = (tv.Channels?.Count) ?? 0;
+            epgFile.ProgrammeCount = (tv.Programs?.Count) ?? 0;
 
             Repository.EPGFile.CreateEPGFile(epgFile);
             _ = await Repository.SaveAsync().ConfigureAwait(false);

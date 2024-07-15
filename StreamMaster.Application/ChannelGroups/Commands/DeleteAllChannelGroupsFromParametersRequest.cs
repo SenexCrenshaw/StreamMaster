@@ -2,7 +2,7 @@
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record DeleteAllChannelGroupsFromParametersRequest(QueryStringParameters Parameters) : IRequest<APIResponse> { }
+public record DeleteAllChannelGroupsFromParametersRequest(QueryStringParameters Parameters) : IRequest<APIResponse>;
 
 public class DeleteAllChannelGroupsFromParametersRequestHandler(IRepositoryWrapper Repository, IDataRefreshService dataRefreshService)
     : IRequestHandler<DeleteAllChannelGroupsFromParametersRequest, APIResponse>

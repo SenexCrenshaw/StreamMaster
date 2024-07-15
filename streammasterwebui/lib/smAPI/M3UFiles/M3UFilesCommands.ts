@@ -1,6 +1,6 @@
 import { isSkipToken } from '@lib/common/isSkipToken';
 import SignalRService from '@lib/signalr/SignalRService';
-import { APIResponse,CreateM3UFileFromFormRequest,CreateM3UFileRequest,DeleteM3UFileRequest,ProcessM3UFileRequest,RefreshM3UFileRequest,UpdateM3UFileRequest,M3UFileDto,PagedResponse,QueryStringParameters } from '@lib/smAPI/smapiTypes';
+import { APIResponse,CreateM3UFileFromFormRequest,CreateM3UFileRequest,DeleteM3UFileRequest,ProcessM3UFileRequest,RefreshM3UFileRequest,SyncChannelsRequest,UpdateM3UFileRequest,M3UFileDto,PagedResponse,QueryStringParameters } from '@lib/smAPI/smapiTypes';
 
 export const GetM3UFileNames = async (): Promise<string[] | undefined> => {
   const signalRService = SignalRService.getInstance();
@@ -43,6 +43,11 @@ export const ProcessM3UFile = async (request: ProcessM3UFileRequest): Promise<AP
 export const RefreshM3UFile = async (request: RefreshM3UFileRequest): Promise<APIResponse | undefined> => {
   const signalRService = SignalRService.getInstance();
   return await signalRService.invokeHubCommand<APIResponse>('RefreshM3UFile', request);
+};
+
+export const SyncChannels = async (request: SyncChannelsRequest): Promise<APIResponse | undefined> => {
+  const signalRService = SignalRService.getInstance();
+  return await signalRService.invokeHubCommand<APIResponse>('SyncChannels', request);
 };
 
 export const UpdateM3UFile = async (request: UpdateM3UFileRequest): Promise<APIResponse | undefined> => {

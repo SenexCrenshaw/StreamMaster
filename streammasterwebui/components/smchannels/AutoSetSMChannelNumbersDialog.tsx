@@ -1,4 +1,3 @@
-import OKButton from '@components/buttons/OKButton';
 import BooleanEditor from '@components/inputs/BooleanEditor';
 import NumberEditor from '@components/inputs/NumberEditor';
 import SMPopUp, { SMPopUpRef } from '@components/sm/SMPopUp';
@@ -8,6 +7,7 @@ import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
 import { useSelectedStreamGroup } from '@lib/redux/hooks/selectedStreamGroup';
 import { AutoSetSMChannelNumbers, AutoSetSMChannelNumbersFromParameters } from '@lib/smAPI/SMChannels/SMChannelsCommands';
 import { AutoSetSMChannelNumbersFromParametersRequest, AutoSetSMChannelNumbersRequest, SMChannelDto } from '@lib/smAPI/smapiTypes';
+import { useLocalStorage } from 'primereact/hooks';
 import React, { useMemo, useRef } from 'react';
 
 interface AutoSetSMChannelNumbersDialogProperties {
@@ -21,15 +21,17 @@ const AutoSetSMChannelNumbersDialog = ({ disabled, selectedItemsKey }: AutoSetSM
   const { selectedItems } = useSelectedItems<SMChannelDto>(selectedItemsKey);
   const { selectAll } = useSelectAll('streameditor-SMChannelDataSelector');
   const { queryFilter } = useQueryFilter('streameditor-SMChannelDataSelector');
-  const [overwriteExisting, setOverwriteExisting] = React.useState(false);
+
   const [startingNumber, setStartingNumber] = React.useState(1);
 
+  const [overwriteExisting, setOverwriteExisting] = useLocalStorage(true, 'overwriteExistingChannelNumber');
+
   const ReturnToParent = React.useCallback(() => {
-    popUpRef.current?.hide();
+    // popUpRef.current?.hide();
   }, []);
 
   const onAutoChannelsSave = React.useCallback(async () => {
-    if (!selectedStreamGroup || !queryFilter) {
+    if (!queryFilter) {
       return;
     }
 
@@ -63,7 +65,7 @@ const AutoSetSMChannelNumbersDialog = ({ disabled, selectedItemsKey }: AutoSetSM
       .finally(() => {
         ReturnToParent();
       });
-  }, [selectedStreamGroup, queryFilter, selectAll, selectedItems, startingNumber, overwriteExisting, ReturnToParent]);
+  }, [queryFilter, selectAll, selectedItems, startingNumber, overwriteExisting, ReturnToParent]);
 
   const tooltipText = useMemo(() => {
     if (selectedStreamGroup === undefined || selectedStreamGroup.Name === 'ALL') {
@@ -77,16 +79,17 @@ const AutoSetSMChannelNumbersDialog = ({ disabled, selectedItemsKey }: AutoSetSM
   return (
     <SMPopUp
       buttonClassName="icon-yellow"
-      buttonDisabled={getTotalCount === 0}
+      buttonDisabled={getTotalCount === 0 && !selectAll}
       contentWidthSize="3"
-      hasCloseButton={false}
-      header={<OKButton onClick={async () => await onAutoChannelsSave()} />}
       icon="pi-sort-numeric-up-alt"
       iconFilled
       info=""
       label="Set #s"
       menu
       modal
+      onOkClick={async () => {
+        await onAutoChannelsSave();
+      }}
       onCloseClick={() => ReturnToParent()}
       placement="bottom-end"
       ref={popUpRef}

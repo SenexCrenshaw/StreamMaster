@@ -2,7 +2,7 @@
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record CancelClientRequest(Guid ClientId) : IRequest<APIResponse> { }
+public record CancelClientRequest(Guid ClientId) : IRequest<APIResponse>;
 
 [LogExecutionTimeAspect]
 public class CancelClientStreamerRequestHandler(IChannelManager ChannelManager, IMessageService messageService)

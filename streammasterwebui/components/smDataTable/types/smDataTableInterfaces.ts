@@ -38,6 +38,7 @@ interface BaseDataSelectorProperties<T> extends DataTableHeaderProperties {
   rows?: number;
   selectedItemsKey?: string;
   selectRow?: boolean;
+  setSelectedSMChannel?: boolean;
   showExpand?: boolean;
   showHiddenInSelection?: boolean;
   showSelectAll?: boolean;
@@ -68,5 +69,9 @@ type DataSourceProperties<T> = BaseDataSelectorProperties<T> & {
   dataSource: T[] | undefined;
   queryFilter?: (filters: QueryStringParameters) => ReturnType<QueryHook<PagedResponse<T> | T[]>>;
 };
+
+export interface SMDataTableRef {
+  clearExpanded: () => void;
+}
 
 export type SMDataTableProps<T> = DataSourceProperties<T> | QueryFilterProperties<T>;

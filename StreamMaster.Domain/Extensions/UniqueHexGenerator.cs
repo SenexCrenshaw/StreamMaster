@@ -2,7 +2,7 @@
 using System.Security.Cryptography;
 
 namespace StreamMaster.Domain.Extensions;
-public class UniqueHexGenerator
+public static class UniqueHexGenerator
 {
     public const string SMChannelIdEmpty = "000000";
     private static string GetSMChannelId()

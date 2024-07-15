@@ -111,7 +111,7 @@ public partial class SchedulesDirectAPIService : ISchedulesDirectAPIService
                 SDHttpResponseCode sdCode = (SDHttpResponseCode)err.Code;
                 if (sdCode == SDHttpResponseCode.TOKEN_INVALID)
                 {
-                    logger.LogError("SDToken is invalid {token} {length}", tokenUsed, tokenUsed != null ? tokenUsed.Length : 0);
+                    logger.LogError("SDToken is invalid {token} {length}", tokenUsed, (tokenUsed?.Length) ?? 0);
                 }
                 switch (sdCode)
                 {
@@ -126,7 +126,7 @@ public partial class SchedulesDirectAPIService : ISchedulesDirectAPIService
                         response.ReasonPhrase = "Forbidden";
                         break;
                     case SDHttpResponseCode.ACCOUNT_LOCKOUT: // ACCOUNT_LOCKOUT
-                        response.StatusCode = (HttpStatusCode)423; // 423
+                        response.StatusCode = HttpStatusCode.Locked; // 423
                         response.ReasonPhrase = "Locked";
                         break;
                     case SDHttpResponseCode.IMAGE_NOT_FOUND: // IMAGE_NOT_FOUND
@@ -136,7 +136,7 @@ public partial class SchedulesDirectAPIService : ISchedulesDirectAPIService
                         break;
                     case SDHttpResponseCode.MAX_IMAGE_DOWNLOADS: // MAX_IMAGE_DOWNLOADS
                     case SDHttpResponseCode.MAX_IMAGE_DOWNLOADS_TRIAL: // MAX_IMAGE_DOWNLOADS_TRIAL
-                        response.StatusCode = (HttpStatusCode)429; // 429
+                        response.StatusCode = HttpStatusCode.TooManyRequests; // 429
                         response.ReasonPhrase = "Too Many Requests";
                         break;
                     case SDHttpResponseCode.TOKEN_MISSING: // TOKEN_MISSING - special case when token is getting refreshed due to below responses from a separate request

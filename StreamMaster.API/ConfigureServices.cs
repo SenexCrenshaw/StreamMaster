@@ -172,7 +172,7 @@ public static class ConfigureServices
                 .RequireAuthenticatedUser()
                 .Build();
 
-            AuthorizationPolicy fallbackPolicy = new AuthorizationPolicyBuilder(AuthenticationType.Forms.ToString(), "API")
+            AuthorizationPolicy fallbackPolicy = new AuthorizationPolicyBuilder(nameof(AuthenticationType.Forms), "API")
                 .RequireAuthenticatedUser()
                 .Build();
 

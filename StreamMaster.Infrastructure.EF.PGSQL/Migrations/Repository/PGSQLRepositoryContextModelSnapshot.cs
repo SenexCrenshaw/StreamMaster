@@ -18,7 +18,7 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.6")
+                .HasAnnotation("ProductVersion", "8.0.7")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.HasPostgresExtension(modelBuilder, "citext");
@@ -61,6 +61,9 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
                         .HasColumnType("boolean");
 
                     b.Property<bool>("IsReadOnly")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsSystem")
                         .HasColumnType("boolean");
 
                     b.Property<string>("Name")
@@ -217,6 +220,9 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
                     b.Property<int>("StreamCount")
                         .HasColumnType("integer");
 
+                    b.Property<bool>("SyncChannels")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("Url")
                         .HasColumnType("citext");
 
@@ -259,6 +265,9 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
                         .IsRequired()
                         .HasColumnType("citext");
 
+                    b.Property<int?>("M3UFileId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("citext");
@@ -270,6 +279,9 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
                     b.Property<string>("StationId")
                         .IsRequired()
                         .HasColumnType("citext");
+
+                    b.Property<string>("StreamID")
+                        .HasColumnType("text");
 
                     b.Property<string>("StreamingProxyType")
                         .IsRequired()
@@ -375,25 +387,19 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityAlwaysColumn(b.Property<int>("Id"));
 
-                    b.Property<bool>("AutoSetChannelNumbers")
-                        .HasColumnType("boolean");
-
                     b.Property<string>("DeviceID")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<bool>("IgnoreExistingChannelNumbers")
+                    b.Property<bool>("IsReadOnly")
                         .HasColumnType("boolean");
 
-                    b.Property<bool>("IsReadOnly")
+                    b.Property<bool>("IsSystem")
                         .HasColumnType("boolean");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("citext");
-
-                    b.Property<int>("StartingChannelNumber")
-                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 

@@ -6,7 +6,7 @@ public class HLSHandler(ILogger<HLSHandler> logger, ILogger<FFMPEGRunner> FFMPEG
      : MP4HandlerBase(FFMPEGRunnerlogger, channelService, smChannel, intSettings, intHLSSettings), IHLSHandler, IDisposable
 {
     public event EventHandler<ProcessExitEventArgs> ProcessExited;
-    public Stream? Stream { get; private set; }
+    public Stream? Stream { get; }
     public void Start(string url)
     {
         if (Started)
@@ -36,7 +36,7 @@ public class HLSHandler(ILogger<HLSHandler> logger, ILogger<FFMPEGRunner> FFMPEG
         string directory = Path.Combine(BuildInfo.HLSOutputFolder, SMChannel.Id.ToString());
         DirectoryHelper.DeleteDirectory(directory);
     }
-    public void Dispose()
+    public new void Dispose()
     {
         HLSCancellationTokenSource.Cancel();
 

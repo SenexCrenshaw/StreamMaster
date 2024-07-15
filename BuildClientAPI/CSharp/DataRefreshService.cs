@@ -1,5 +1,5 @@
 ﻿using System.Text;
-
+namespace BuildClientAPI.CSharp;
 public static class DataRefreshService
 {
     public static void GenerateFile(Dictionary<string, List<MethodDetails>> methodsByNamespace, string filePath, string IfilePath)
@@ -39,27 +39,25 @@ public static class DataRefreshService
             }
 
             content.AppendLine($"        Task Refresh{namespaceName}(bool alwaysRun = false);");
-
         }
 
         content.AppendLine("    }");
         content.AppendLine("}");
 
         return content.ToString();
-
     }
 
     private static string GenerateMethods(Dictionary<string, List<MethodDetails>> methodsByNamespace)
     {
         StringBuilder content = new();
         content.AppendLine();
-        content.AppendLine($"    public async Task RefreshAll()");
+        content.AppendLine("    public async Task RefreshAll()");
         content.AppendLine("    {");
         content.AppendLine();
 
         foreach (string? namespaceName in methodsByNamespace.Keys.Order())
         {
-            List<MethodDetails> gets = methodsByNamespace[namespaceName].Where(a => a.IsGet).OrderBy(a => a.Name).ToList();
+            List<MethodDetails> gets = [.. methodsByNamespace[namespaceName].Where(a => a.IsGet).OrderBy(a => a.Name)];
             if (gets.Count == 0)
             {
                 continue;
@@ -71,7 +69,7 @@ public static class DataRefreshService
 
         foreach (string? namespaceName in methodsByNamespace.Keys.Order())
         {
-            List<MethodDetails> gets = methodsByNamespace[namespaceName].Where(a => a.IsGet).OrderBy(a => a.Name).ToList();
+            List<MethodDetails> gets = [.. methodsByNamespace[namespaceName].Where(a => a.IsGet).OrderBy(a => a.Name)];
             if (gets.Count == 0)
             {
                 continue;
@@ -103,7 +101,6 @@ public static class DataRefreshService
     {
         StringBuilder content = new();
 
-
         content.AppendLine("using Microsoft.AspNetCore.SignalR;");
         content.AppendLine("");
         content.AppendLine("using StreamMaster.Application.Common.Interfaces;");
@@ -120,5 +117,4 @@ public static class DataRefreshService
 
         return content.ToString();
     }
-
 }

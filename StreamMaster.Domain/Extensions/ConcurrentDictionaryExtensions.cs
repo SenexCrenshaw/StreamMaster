@@ -8,6 +8,7 @@ public static class ConcurrentDictionaryExtensions
         this ConcurrentDictionary<TKey, TValue> dictionary,
         TKey key,
         Func<TKey, TValue> createValue)
+        where TKey : notnull
         where TValue : class
     {
         // Try to get the value from the dictionary
@@ -29,6 +30,7 @@ public static class ConcurrentDictionaryExtensions
         this ConcurrentDictionary<TKey, TValue> dictionary,
         TKey key,
         Func<TKey, TValue> createValue)
+        where TKey : notnull
         where TValue : class
     {
         // Try to get the value from the dictionary

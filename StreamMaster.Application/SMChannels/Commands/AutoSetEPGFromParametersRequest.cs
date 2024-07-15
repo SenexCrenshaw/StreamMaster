@@ -2,7 +2,7 @@
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record AutoSetEPGFromParametersRequest(QueryStringParameters Parameters) : IRequest<APIResponse> { }
+public record AutoSetEPGFromParametersRequest(QueryStringParameters Parameters) : IRequest<APIResponse>;
 
 [LogExecutionTimeAspect]
 public class AutoSetEPGFromParametersRequestHandler(IRepositoryWrapper Repository, IMessageService messageService, IDataRefreshService dataRefreshService)

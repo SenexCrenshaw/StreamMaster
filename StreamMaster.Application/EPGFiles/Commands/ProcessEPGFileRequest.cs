@@ -2,9 +2,9 @@
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record ProcessEPGFileRequest(int Id) : IRequest<APIResponse> { }
+public record ProcessEPGFileRequest(int Id) : IRequest<APIResponse>;
 
-public class ProcessEPGFileRequestHandler(ILogger<ProcessEPGFileRequest> logger, IMessageService messageSevice, IDataRefreshService dataRefreshService, IRepositoryWrapper Repository)
+public class ProcessEPGFileRequestHandler(ILogger<ProcessEPGFileRequest> logger, IMessageService messageService, IDataRefreshService dataRefreshService, IRepositoryWrapper Repository)
     : IRequestHandler<ProcessEPGFileRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(ProcessEPGFileRequest request, CancellationToken cancellationToken)
@@ -14,19 +14,19 @@ public class ProcessEPGFileRequestHandler(ILogger<ProcessEPGFileRequest> logger,
             EPGFile? epgFile = await Repository.EPGFile.ProcessEPGFile(request.Id).ConfigureAwait(false);
             if (epgFile == null)
             {
-                await messageSevice.SendError("Process EPG Not Found");
+                await messageService.SendError("Process EPG Not Found");
                 return APIResponse.NotFound;
             }
 
             await dataRefreshService.RefreshAllEPG();
 
-            await messageSevice.SendSuccess("Processed EPG '" + epgFile.Name + "' successfully");
+            await messageService.SendSuccess("Processed EPG '" + epgFile.Name + "' successfully");
             return APIResponse.Success;
         }
         catch (Exception ex)
         {
             logger.LogCritical(ex, "Process EPG Error");
-            await messageSevice.SendError("Error Processing EPG", ex.Message);
+            await messageService.SendError("Error Processing EPG", ex.Message);
             return APIResponse.NotFound; ;
         }
 

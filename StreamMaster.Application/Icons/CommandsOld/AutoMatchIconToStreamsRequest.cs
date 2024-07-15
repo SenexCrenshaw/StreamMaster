@@ -2,7 +2,7 @@
 
 namespace StreamMaster.Application.Icons.CommandsOld;
 
-public record AutoMatchIconToStreamsRequest(List<string> Ids) : IRequest<IconFileDto?> { }
+public record AutoMatchIconToStreamsRequest(List<string> Ids) : IRequest<IconFileDto?>;
 
 public class AutoMatchIconToStreamsRequestValidator : AbstractValidator<AutoMatchIconToStreamsRequest>
 {

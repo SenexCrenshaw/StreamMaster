@@ -41,7 +41,6 @@ public static class CSharpGenerator
 
             if (method.Name == "SendSMTaskRequest")
             {
-                int a = 1;
             }
 
             if (!method.JustHub)
@@ -51,7 +50,6 @@ public static class CSharpGenerator
 
                 if (method.Name == "GetIcons")
                 {
-                    int aa = 1;
                 }
 
                 if (method.ReturnType.Equals("APIResponse?") || (method.IsGet && method.ReturnType.EndsWith("?")))
@@ -100,7 +98,6 @@ public static class CSharpGenerator
                 {
                     if (method.Name == "GetIcons")
                     {
-                        int aa = 1;
                     }
 
                     controllerContent.AppendLine($"        public async Task<ActionResult<{method.ReturnType}>> {method.Name}({method.Parameter})");
@@ -235,10 +232,10 @@ namespace StreamMaster.Application.Hubs
 {IHubContent}    }}
 }}
 ";
-        string directory = Directory.GetParent(IFilePath).ToString();
-        if (!Directory.Exists(directory))
+        DirectoryInfo? parentDirectory = Directory.GetParent(IFilePath);
+        if (parentDirectory is not null && !Directory.Exists(parentDirectory.FullName))
         {
-            Directory.CreateDirectory(directory);
+            Directory.CreateDirectory(parentDirectory.FullName);
         }
         File.WriteAllText(IFilePath, fileContent);
     }
@@ -274,11 +271,15 @@ namespace StreamMaster.Application.Hubs
 {hubContent}    }}
 }}
 ";
-        string directory = Directory.GetParent(filePath).ToString();
-        if (!Directory.Exists(directory))
+        DirectoryInfo? parentDirectory = Directory.GetParent(filePath);
+        if (parentDirectory is not null && !Directory.Exists(parentDirectory.Name))
         {
-            Directory.CreateDirectory(directory);
+            if (!Directory.Exists(parentDirectory.FullName))
+            {
+                Directory.CreateDirectory(parentDirectory.FullName);
+            }
         }
+
         File.WriteAllText(filePath, fileContent);
     }
 }

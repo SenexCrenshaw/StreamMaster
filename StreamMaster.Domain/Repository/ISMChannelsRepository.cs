@@ -8,24 +8,22 @@ namespace StreamMaster.Domain.Repository;
 public interface ISMChannelsRepository : IRepositoryBase<SMChannel>
 {
     Task<IdIntResultWithResponse> AutoSetSMChannelNumbersFromParameters(int StreamGroupId, QueryStringParameters Parameters, int? StartingNumber, bool? OverwriteExisting);
-    Task<IdIntResultWithResponse> AutoSetSMChannelNumbers(int StreamGroupId, List<int> SMChannelIds, int? StartingNumber, bool? OverwriteExisting);
-    Task<IQueryable<SMChannel>> GetPagedSMChannelsQueryable(QueryStringParameters parameters);
-    Task<APIResponse> AddSMStreamToSMChannel(int SMChannelId, string SMStreamId);
+    Task<IdIntResultWithResponse> AutoSetSMChannelNumbersRequest(int StreamGroupId, List<int> SMChannelIds, int? StartingNumber, bool? OverwriteExisting);
+    IQueryable<SMChannel> GetPagedSMChannelsQueryable(QueryStringParameters parameters);
+    Task<APIResponse> AddSMStreamToSMChannel(int SMChannelId, string SMStreamId, int? Rank);
     Task<List<FieldData>> AutoSetEPGFromIds(List<int> ids, CancellationToken cancellationToken);
     Task<List<FieldData>> AutoSetEPGFromParameters(QueryStringParameters parameters, CancellationToken cancellationToken);
     Task ChangeGroupName(string oldGroupName, string newGroupName);
-
     Task<APIResponse> CopySMChannel(int sMChannelId, string newName);
-
     PagedResponse<SMChannelDto> CreateEmptyPagedResponse();
 
     Task CreateSMChannel(SMChannel sMChannel);
 
-    Task<APIResponse> CreateSMChannelFromStream(string streamId, int? StreamGroupId);
+    Task<APIResponse> CreateSMChannelFromStream(string streamId, int? StreamGroupId, int? M3UFileId);
 
-    Task<APIResponse> CreateSMChannelFromStreamParameters(QueryStringParameters parameters, int? StreamGroupId);
+    Task<APIResponse> CreateSMChannelFromStreamParameters(QueryStringParameters parameters, int? StreamGroupId, int? M3UFileId);
 
-    Task<APIResponse> CreateSMChannelFromStreams(List<string> streamIds, int? StreamGroupId);
+    Task<APIResponse> CreateSMChannelFromStreams(List<string> streamIds, int? StreamGroupId, int? M3UFileId);
 
     Task<APIResponse> DeleteSMChannel(int smchannelId);
 

@@ -3,16 +3,18 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace StreamMaster.Infrastructure.EF.Base.Configurations;
 
-public class SMStreamLinkConfiguration : IEntityTypeConfiguration<SMChannelStreamLink>
+public class SMChannelStreamLinkConfiguration : IEntityTypeConfiguration<SMChannelStreamLink>
 {
-    public void Configure(EntityTypeBuilder<SMChannelStreamLink> modelBuilder)
+    public void Configure(EntityTypeBuilder<SMChannelStreamLink> entity)
     {
-        modelBuilder.HasKey(vsl => new { vsl.SMChannelId, vsl.SMStreamId });
+        entity.HasKey(vsl => new { vsl.SMChannelId, vsl.SMStreamId });
 
-        modelBuilder.HasOne(vsl => vsl.SMChannel)
-            .WithMany(vs => vs.SMStreams)
-            .HasForeignKey(vsl => vsl.SMChannelId)
-            .OnDelete(DeleteBehavior.Cascade);
+        entity.HasOne(vsl => vsl.SMChannel)
+           .WithMany(vs => vs.SMStreams)
+           .HasForeignKey(vsl => vsl.SMChannelId)
+           .OnDelete(DeleteBehavior.Cascade);
+
     }
 }
+
 

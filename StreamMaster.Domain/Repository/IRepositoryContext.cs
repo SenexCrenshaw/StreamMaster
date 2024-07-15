@@ -24,6 +24,7 @@ public interface IRepositoryContext
     DbSet<StreamGroupChannelGroup> StreamGroupChannelGroups { get; set; }
     DbSet<StreamGroupSMChannelLink> StreamGroupSMChannelLinks { get; set; }
 
+    DbSet<SMChannelStreamLink> SMChannelStreamLinks { get; set; }
     DbSet<StreamGroupProfile> StreamGroupProfiles { get; set; }
 
     DbSet<StreamGroup> StreamGroups { get; set; }

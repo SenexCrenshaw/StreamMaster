@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace StreamMaster.Ring.API.Exceptions
+﻿namespace StreamMaster.Ring.API.Exceptions
 {
     /// <summary>
     /// Exception thrown when the Ring API required two factor authentication for returning an access token
@@ -17,6 +15,18 @@ namespace StreamMaster.Ring.API.Exceptions
         }
 
         public TwoFactorAuthenticationRequiredException(Exception innerException) : base(errorMessage, innerException)
+        {
+        }
+
+        protected TwoFactorAuthenticationRequiredException(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) : base(info, context)
+        {
+        }
+
+        public TwoFactorAuthenticationRequiredException(string? message) : base(message)
+        {
+        }
+
+        public TwoFactorAuthenticationRequiredException(string? message, Exception? innerException) : base(message, innerException)
         {
         }
     }

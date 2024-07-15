@@ -2,7 +2,7 @@
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record RefreshM3UFileRequest(int Id, bool ForceRun = false) : IRequest<APIResponse> { }
+public record RefreshM3UFileRequest(int Id, bool ForceRun = false) : IRequest<APIResponse>;
 
 [LogExecutionTimeAspect]
 public class RefreshM3UFileRequestHandler(ILogger<RefreshM3UFileRequest> Logger, IMessageService messageService, IJobStatusService jobStatusService, IRepositoryWrapper Repository, IMapper Mapper, IPublisher Publisher)

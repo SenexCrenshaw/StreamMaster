@@ -1,6 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
+
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
@@ -30,10 +29,7 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
                     TotalCount = table.Column<int>(type: "integer", nullable: false),
                     HiddenCount = table.Column<int>(type: "integer", nullable: false)
                 },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ChannelGroups", x => x.Id);
-                });
+                constraints: table => table.PrimaryKey("PK_ChannelGroups", x => x.Id));
 
             migrationBuilder.CreateTable(
                 name: "DataProtectionKeys",

@@ -7,7 +7,8 @@ using System.Text.RegularExpressions;
 
 
 namespace StreamMaster.SchedulesDirect;
-public class Lineups(ILogger<Lineups> logger, IOptionsMonitor<SDSettings> intSDSettings, IIconService iconService, ISchedulesDirectAPIService schedulesDirectAPI, IEPGCache<Lineups> epgCache, ISchedulesDirectDataService schedulesDirectDataService) : ILineups
+public class Lineups(ILogger<Lineups> logger, IOptionsMonitor<SDSettings> intSDSettings, IIconService iconService, ISchedulesDirectAPIService schedulesDirectAPI, IEPGCache<LineupResult> epgCache, ISchedulesDirectDataService schedulesDirectDataService)
+    : ILineups
 {
     private List<KeyValuePair<MxfService, string[]>> StationLogosToDownload = [];
 
@@ -423,7 +424,7 @@ public class Lineups(ILogger<Lineups> logger, IOptionsMonitor<SDSettings> intSDS
     }
     private async Task<LineupResult?> GetLineup(string lineup, CancellationToken cancellationToken)
     {
-        LineupResult? cache = await epgCache.GetValidCachedDataAsync<LineupResult>("Lineup-" + lineup, cancellationToken).ConfigureAwait(false);
+        LineupResult? cache = await epgCache.GetValidCachedDataAsync("Lineup-" + lineup, cancellationToken).ConfigureAwait(false);
         if (cache != null)
         {
             return cache;
@@ -444,7 +445,7 @@ public class Lineups(ILogger<Lineups> logger, IOptionsMonitor<SDSettings> intSDS
 
     private async Task<bool> DownloadStationLogos(CancellationToken cancellationToken)
     {
-        var sdSettings = intSDSettings.CurrentValue;
+        SDSettings sdSettings = intSDSettings.CurrentValue;
 
         if (!sdSettings.SDEnabled)
         {
@@ -505,12 +506,20 @@ public class Lineups(ILogger<Lineups> logger, IOptionsMonitor<SDSettings> intSDS
                 using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken);
 
                 using Image<Rgba32> image = await Image.LoadAsync<Rgba32>(stream, cancellationToken).ConfigureAwait(false);
+                if (image == null)
+                {
+                    return (0, 0);
+                }
                 using Image? cropImg = SDHelpers.CropAndResizeImage(image);
                 if (cropImg == null)
                 {
                     return (0, 0);
                 }
-                using FileStream outputFileStream = File.Create(filePath);
+                if (image!.Metadata.DecodedImageFormat == null)
+                {
+                    return (0, 0);
+                }
+                await using FileStream outputFileStream = File.Create(filePath);
                 SixLabors.ImageSharp.Formats.IImageFormat? a = image.Metadata.DecodedImageFormat;
                 cropImg.Save(outputFileStream, image.Metadata.DecodedImageFormat);
                 return (cropImg.Width, cropImg.Height);

@@ -27,7 +27,7 @@ namespace StreamMaster.Infrastructure.Services.Frontend.Mappers
 
             if (File.Exists(filePath))
             {
-                if (!_mimeTypeProvider.TryGetContentType(filePath, out string contentType))
+                if (!_mimeTypeProvider.TryGetContentType(filePath, out string? contentType))
                 {
                     contentType = "application/octet-stream";
                 }

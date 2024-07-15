@@ -3,7 +3,7 @@
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record UpdateOutputProfileRequest(string ProfileName, string? NewName) : OutputProfileRequest, IRequest<APIResponse> { }
+public record UpdateOutputProfileRequest(string ProfileName, string? NewName) : OutputProfileRequest, IRequest<APIResponse>;
 
 public class UpdateFileProfileRequestHandler(
     ILogger<UpdateOutputProfileRequest> Logger,

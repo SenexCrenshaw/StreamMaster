@@ -32,7 +32,8 @@ public class SMChannel
     public static string APIName => "SMChannels";
     public string StreamingProxyType { get; set; } = "SystemDefault";
     public bool IsHidden { get; set; } = false;
-
+    public string? StreamID { get; set; }
+    public int? M3UFileId { get; set; }
     public int ChannelNumber { get; set; } = 0;
     public int TimeShift { get; set; } = 0;
 

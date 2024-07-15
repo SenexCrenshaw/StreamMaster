@@ -19,9 +19,9 @@ public static class AuthenticationBuilderExtensions
             options.DefaultAuthenticateScheme = "API";
             options.DefaultChallengeScheme = "API";
         })
-            .AddNone(AuthenticationType.None.ToString())
+            .AddNone(nameof(AuthenticationType.None))
             //.AddBasic(AuthenticationType.Basic.ToString())            
-            .AddCookie(AuthenticationType.Forms.ToString(), options =>
+            .AddCookie(nameof(AuthenticationType.Forms), options =>
             {
                 options.Cookie.Name = "StreamMasterAuth";
                 options.AccessDeniedPath = "/login?loginFailed=true";

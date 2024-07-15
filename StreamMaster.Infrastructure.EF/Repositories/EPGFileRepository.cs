@@ -16,8 +16,10 @@ namespace StreamMaster.Infrastructure.EF.Repositories;
 /// Repository to manage EPGFile entities in the database.
 /// </summary>
 public class EPGFileRepository(ILogger<EPGFileRepository> intLogger, IXmltv2Mxf xmltv2Mxf, IJobStatusService jobStatusService, IRepositoryContext repositoryContext, ISchedulesDirectDataService schedulesDirectDataService, IOptionsMonitor<Setting> intSettings, IMapper mapper)
-    : RepositoryBase<EPGFile>(repositoryContext, intLogger, intSettings), IEPGFileRepository
+    : RepositoryBase<EPGFile>(repositoryContext, intLogger), IEPGFileRepository
 {
+    public IXmltv2Mxf Xmltv2Mxf { get; } = xmltv2Mxf;
+
     public async Task<int> GetNextAvailableEPGNumberAsync(CancellationToken cancellationToken)
     {
         List<int> epgNumbers = await GetQuery()
@@ -77,7 +79,6 @@ public class EPGFileRepository(ILogger<EPGFileRepository> intLogger, IXmltv2Mxf 
                 ChannelNumber = stationId,
                 ChannelLogo = service?.mxfGuideImage?.ImageUrl ?? "",
             });
-
         }
         return ret;
     }
@@ -87,13 +88,10 @@ public class EPGFileRepository(ILogger<EPGFileRepository> intLogger, IXmltv2Mxf 
     /// </summary>
     public void CreateEPGFile(EPGFile EPGFile)
     {
-        if (EPGFile == null)
-        {
-            throw new ArgumentNullException(nameof(EPGFile));
-        }
+        ArgumentNullException.ThrowIfNull(EPGFile);
 
         Create(EPGFile);
-        logger.LogInformation($"EPGFile with number {EPGFile.EPGNumber} was created.");
+        logger.LogInformation("EPGFile with number {EPGFile.EPGNumber} was created.", EPGFile.EPGNumber);
     }
 
     /// <summary>
@@ -113,7 +111,7 @@ public class EPGFileRepository(ILogger<EPGFileRepository> intLogger, IXmltv2Mxf 
         }
 
         Delete(epgFile);
-        logger.LogInformation($"EPGFile with Name {epgFile.Name} was deleted.");
+        logger.LogInformation("EPGFile with Name {epgFile.Name} was deleted.", epgFile.Name);
         return mapper.Map<EPGFileDto>(epgFile);
     }
 
@@ -167,10 +165,7 @@ public class EPGFileRepository(ILogger<EPGFileRepository> intLogger, IXmltv2Mxf 
     /// </summary>
     public async Task<PagedResponse<EPGFileDto>> GetPagedEPGFiles(QueryStringParameters Parameters)
     {
-        if (Parameters == null)
-        {
-            throw new ArgumentNullException(nameof(Parameters));
-        }
+        ArgumentNullException.ThrowIfNull(Parameters);
 
         try
         {
@@ -190,19 +185,15 @@ public class EPGFileRepository(ILogger<EPGFileRepository> intLogger, IXmltv2Mxf 
     /// </summary>
     public void UpdateEPGFile(EPGFile EPGFile)
     {
-        if (EPGFile == null)
-        {
-            throw new ArgumentNullException(nameof(EPGFile));
-        }
+        ArgumentNullException.ThrowIfNull(EPGFile);
 
         Update(EPGFile);
-        logger.LogInformation($"EPGFile with number {EPGFile.EPGNumber} was updated.");
+        logger.LogInformation("EPGFile with number {EPGFile.EPGNumber} was updated.", EPGFile.EPGNumber);
     }
 
     public List<EPGColorDto> GetEPGColors()
     {
         return [.. GetQuery().ProjectTo<EPGColorDto>(mapper.ConfigurationProvider)];
-
     }
 
     public async Task<EPGFile?> GetEPGFileByNumber(int EPGNumber)
@@ -230,15 +221,12 @@ public class EPGFileRepository(ILogger<EPGFileRepository> intLogger, IXmltv2Mxf 
                 return null;
             }
 
-            XMLTV? tv = xmltv2Mxf.ConvertToMxf(Path.Combine(FileDefinitions.EPG.DirectoryLocation, epgFile.Source), epgFile.EPGNumber);
+            XMLTV? tv = Xmltv2Mxf.ConvertToMxf(Path.Combine(FileDefinitions.EPG.DirectoryLocation, epgFile.Source), epgFile.EPGNumber);
 
             if (tv != null)
             {
-                epgFile.ChannelCount = tv.Channels != null ? tv.Channels.Count : 0;
-                epgFile.ProgrammeCount = tv.Programs != null ? tv.Programs.Count : 0;
-            }
-            else
-            {
+                epgFile.ChannelCount = (tv.Channels?.Count) ?? 0;
+                epgFile.ProgrammeCount = (tv.Programs?.Count) ?? 0;
             }
 
             epgFile.LastUpdated = SMDT.UtcNow;

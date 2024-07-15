@@ -1,11 +1,11 @@
 import SMPopUp from '@components/sm/SMPopUp';
 import { SMChannelDialogRef } from '@components/smchannels/SMChannelDialog';
 import useIsRowLoading from '@lib/redux/hooks/useIsRowLoading';
-
 import { UpdateSMStream } from '@lib/smAPI/SMStreams/SMStreamsCommands';
 import { SMStreamDto, UpdateSMStreamRequest } from '@lib/smAPI/smapiTypes';
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import SMStreamDialog from './SMStreamDialog';
+import ResetButton from '@components/buttons/ResetButton';
 
 interface EditSMStreamDialogProperties {
   smStreamDto: SMStreamDto;
@@ -13,9 +13,18 @@ interface EditSMStreamDialogProperties {
 
 const EditSMStreamDialog = ({ smStreamDto }: EditSMStreamDialogProperties) => {
   const [saveEnabled, setSaveEnabled] = useState<boolean>(false);
-  const smChannelDialogRef = useRef<SMChannelDialogRef>(null);
-
+  const dialogRef = useRef<SMChannelDialogRef>(null);
+  const [originalDto, setOriginalDto] = useState<SMStreamDto | undefined>(undefined);
   const [isRowLoading, setIsRowLoading] = useIsRowLoading({ Entity: 'SMStream', Id: smStreamDto.Id.toString() });
+
+  useEffect(() => {
+    if (smStreamDto === undefined) {
+      return;
+    }
+    setOriginalDto(smStreamDto);
+
+    return;
+  }, [smStreamDto]);
 
   const onSave = React.useCallback(
     (request: any) => {
@@ -37,22 +46,33 @@ const EditSMStreamDialog = ({ smStreamDto }: EditSMStreamDialogProperties) => {
 
   return (
     <SMPopUp
-      isPopupLoading={isRowLoading}
       buttonClassName="icon-yellow"
       buttonDisabled={smStreamDto === undefined || smStreamDto.IsUserCreated === false}
       contentWidthSize="5"
-      hasCloseButton
+      header={
+        <div className="flex w-12 gap-1 justify-content-end align-content-center">
+          <ResetButton
+            buttonDisabled={!saveEnabled && originalDto !== undefined}
+            onClick={() => {
+              dialogRef.current?.reset();
+            }}
+          />
+        </div>
+      }
       icon="pi-pencil"
+      isPopupLoading={isRowLoading}
       modal
+      noBorderChildren
       okButtonDisabled={!saveEnabled}
-      onOkClick={() => smChannelDialogRef.current?.save()}
+      okToolTip="Save"
+      onOkClick={() => dialogRef.current?.save()}
       placement="bottom-end"
       showRemember={false}
       title="Edit Stream"
       zIndex={10}
     >
       <SMStreamDialog
-        ref={smChannelDialogRef}
+        ref={dialogRef}
         onSave={onSave}
         onSaveEnabled={(e) => {
           setSaveEnabled(e);

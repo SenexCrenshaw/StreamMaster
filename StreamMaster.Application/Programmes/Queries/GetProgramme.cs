@@ -9,7 +9,7 @@ internal class GetProgrammeHandler(ISender sender) : IRequestHandler<GetProgramm
     {
         IEnumerable<XmltvProgramme> cprogrammes = await sender.Send(new GetProgrammesRequest(), cancellationToken).ConfigureAwait(false);
 
-        IEnumerable<XmltvProgramme> programmes = cprogrammes.Where(a => a.Channel.ToLower() == request.Channel.ToLower());
+        IEnumerable<XmltvProgramme> programmes = cprogrammes.Where(a => string.Equals(a.Channel, request.Channel, StringComparison.OrdinalIgnoreCase));
         if (programmes == null)
         {
             return null;

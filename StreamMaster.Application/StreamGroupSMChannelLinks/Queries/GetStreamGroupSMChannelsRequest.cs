@@ -9,17 +9,17 @@ internal class GetStreamGroupSMChannelsRequestHandler(IRepositoryWrapper Reposit
     : IRequestHandler<GetStreamGroupSMChannelsRequest, DataResponse<List<SMChannelDto>>>
 {
 
-    public async Task<DataResponse<List<SMChannelDto>>> Handle(GetStreamGroupSMChannelsRequest request, CancellationToken cancellationToken)
+    public Task<DataResponse<List<SMChannelDto>>> Handle(GetStreamGroupSMChannelsRequest request, CancellationToken cancellationToken)
     {
-        if (request.StreamGroupId == null || request.StreamGroupId == 0)
+        if (request.StreamGroupId == 0)
         {
-            return DataResponse<List<SMChannelDto>>.ErrorWithMessage($"Streamgroup with Id {request.StreamGroupId} not found");
+            return Task.FromResult(DataResponse<List<SMChannelDto>>.ErrorWithMessage($"Streamgroup with Id {request.StreamGroupId} not found"));
         }
 
         StreamGroup? streamGroup = Repository.StreamGroup.GetStreamGroup(request.StreamGroupId);
         if (streamGroup == null)
         {
-            return DataResponse<List<SMChannelDto>>.ErrorWithMessage($"Streamgroup with Id {request.StreamGroupId} not found");
+            return Task.FromResult(DataResponse<List<SMChannelDto>>.ErrorWithMessage($"Streamgroup with Id {request.StreamGroupId} not found"));
         }
 
         List<StreamGroupSMChannelLink> links = Repository.StreamGroupSMChannelLink.GetQuery(true).Where(a => a.StreamGroupId == request.StreamGroupId).ToList();
@@ -27,7 +27,7 @@ internal class GetStreamGroupSMChannelsRequestHandler(IRepositoryWrapper Reposit
 
         foreach (StreamGroupSMChannelLink link in links)
         {
-            var channel = link.SMChannel;
+            SMChannel channel = link.SMChannel;
             if (link != null)
             {
                 SMChannelDto dto = mapper.Map<SMChannelDto>(channel);
@@ -36,7 +36,7 @@ internal class GetStreamGroupSMChannelsRequestHandler(IRepositoryWrapper Reposit
             }
         }
 
-        return DataResponse<List<SMChannelDto>>.Success(ret.OrderBy(a => a.Rank).ToList());
+        return Task.FromResult(DataResponse<List<SMChannelDto>>.Success(ret.OrderBy(a => a.Rank).ToList()));
     }
 
 

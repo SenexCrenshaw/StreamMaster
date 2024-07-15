@@ -4,14 +4,12 @@ using AutoMapper.QueryableExtensions;
 using Microsoft.EntityFrameworkCore;
 
 using StreamMaster.Domain.API;
-using StreamMaster.Domain.Configuration;
 namespace StreamMaster.Infrastructure.EF.Repositories;
 
-public class SMStreamRepository(ILogger<SMStreamRepository> intLogger, IRepositoryWrapper repository, IRepositoryContext repositoryContext, IOptionsMonitor<Setting> intSettings, IMapper mapper)
-    : RepositoryBase<SMStream>(repositoryContext, intLogger, intSettings),
+public class SMStreamRepository(ILogger<SMStreamRepository> intLogger, IRepositoryWrapper repository, IRepositoryContext repositoryContext, IMapper mapper)
+    : RepositoryBase<SMStream>(repositoryContext, intLogger),
     ISMStreamRepository
 {
-
     public List<SMStreamDto> GetSMStreams()
     {
         return [.. GetQuery().ProjectTo<SMStreamDto>(mapper.ConfigurationProvider)];
@@ -26,7 +24,6 @@ public class SMStreamRepository(ILogger<SMStreamRepository> intLogger, IReposito
     {
         IQueryable<SMStream> query = GetQuery(parameters);
 
-
         return await query.GetPagedResponseAsync<SMStream, SMStreamDto>(parameters.PageNumber, parameters.PageSize, mapper)
                           .ConfigureAwait(false);
     }
@@ -34,7 +31,7 @@ public class SMStreamRepository(ILogger<SMStreamRepository> intLogger, IReposito
     public async Task ChangeGroupName(string oldGroupName, string newGroupName)
     {
         string sql = $"UPDATE public.\"SMStreams\" SET \"Group\"='{newGroupName}' WHERE \"Group\"={oldGroupName};";
-        await repositoryContext.ExecuteSqlRawAsyncEntities(sql);
+        await RepositoryContext.ExecuteSqlRawAsyncEntities(sql);
     }
 
     public async Task<IEnumerable<string>> DeleteAllSMStreamsFromParameters(QueryStringParameters parameters, CancellationToken cancellationToken)
@@ -46,7 +43,6 @@ public class SMStreamRepository(ILogger<SMStreamRepository> intLogger, IReposito
     [LogExecutionTimeAspect]
     public async Task<List<string>> DeleteStreamsAsync(IQueryable<SMStream> videoStreams, CancellationToken cancellationToken)
     {
-
         if (!videoStreams.Any())
         {
             return [];
@@ -60,9 +56,9 @@ public class SMStreamRepository(ILogger<SMStreamRepository> intLogger, IReposito
 
         // Remove the VideoStreams
         int count = 0;
-        int chunkSize = 500;
+        const int chunkSize = 500;
         int totalCount = videoStreams.Count();
-        logger.LogInformation($"Deleting {totalCount} video streams");
+        logger.LogInformation("Deleting {totalCount} video streams", totalCount);
         while (count < totalCount)
         {
             // Calculate the size of the next chunk
@@ -71,7 +67,7 @@ public class SMStreamRepository(ILogger<SMStreamRepository> intLogger, IReposito
             int deletedRecords = videoStreams.Take(nextChunkSize).ExecuteDelete();
 
             count += nextChunkSize;
-            logger.LogInformation($"Deleted {count} of {totalCount} video streams");
+            logger.LogInformation("Deleted {count} of {totalCount} video streams", count, totalCount);
         }
 
         deletedCount += videoStreams.Count();
@@ -80,13 +76,12 @@ public class SMStreamRepository(ILogger<SMStreamRepository> intLogger, IReposito
         try
         {
             _ = await RepositoryContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+            return videoStreamIds;
         }
         catch (Exception)
         {
-
+            return videoStreamIds;
         }
-
-        return videoStreamIds;
     }
 
     public async Task<SMStreamDto?> DeleteSMStreamById(string id, CancellationToken cancellationToken)
@@ -103,7 +98,7 @@ public class SMStreamRepository(ILogger<SMStreamRepository> intLogger, IReposito
         }
 
         Delete(stream);
-        logger.LogInformation($"Stream with Name {stream.Name} was deleted.");
+        logger.LogInformation("Stream with Name {stream.Name} was deleted.", stream.Name);
         return mapper.Map<SMStreamDto>(stream);
     }
 

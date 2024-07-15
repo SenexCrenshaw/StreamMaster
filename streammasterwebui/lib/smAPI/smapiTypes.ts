@@ -196,6 +196,7 @@ export interface ChannelGroupDto
 	Id: number;
 	IsHidden: boolean;
 	IsReadOnly: boolean;
+	IsSystem: boolean;
 	Name: string;
 	RegexMatch: string;
 	TotalCount: number;
@@ -264,6 +265,7 @@ export interface M3UFileDto
 	NeedsUpdate: boolean;
 	Source: string;
 	StreamCount: number;
+	SyncChannels: boolean;
 	Url: string;
 	VODTags: string[];
 }
@@ -326,6 +328,7 @@ export interface SMChannelDto
 	Id: number;
 	IsHidden: boolean;
 	Logo: string;
+	M3UFileId?: number;
 	Name: string;
 	Rank: number;
 	ShortSMChannelId: string;
@@ -333,6 +336,7 @@ export interface SMChannelDto
 	StationId: string;
 	StreamGroupIds: number[];
 	StreamGroups: StreamGroupSMChannelLink[];
+	StreamID?: string;
 	StreamingProxyType: string;
 	StreamUrl: string;
 	TimeShift: number;
@@ -718,11 +722,8 @@ export interface UpdateStreamGroupProfileRequest
 }
 export interface UpdateStreamGroupRequest
 {
-	AutoSetChannelNumbers?: boolean;
 	DeviceID?: string;
-	IgnoreExistingChannelNumbers?: boolean;
 	NewName?: string;
-	StartingChannelNumber?: number;
 	StreamGroupId: number;
 	StreamGroupProfiles?: string[];
 }
@@ -777,6 +778,7 @@ export interface GetPagedSMStreamsRequest
 export interface CreateSMStreamRequest
 {
 	ChannelNumber?: number;
+	EPGID?: string;
 	Group?: string;
 	Logo?: string;
 	Name: string;
@@ -811,6 +813,7 @@ export interface ToggleSMStreamVisibleByParametersRequest
 export interface UpdateSMStreamRequest
 {
 	ChannelNumber?: number;
+	EPGID?: string;
 	Group?: string;
 	Logo?: string;
 	Name?: string;
@@ -885,16 +888,19 @@ export interface CopySMChannelRequest
 }
 export interface CreateSMChannelFromStreamParametersRequest
 {
+	M3UFileId?: number;
 	Parameters: QueryStringParameters;
 	StreamGroupId?: number;
 }
 export interface CreateSMChannelFromStreamRequest
 {
+	M3UFileId?: number;
 	StreamGroupId?: number;
 	StreamId: string;
 }
 export interface CreateSMChannelFromStreamsRequest
 {
+	M3UFileId?: number;
 	StreamGroupId?: number;
 	StreamIds: string[];
 }
@@ -991,6 +997,7 @@ export interface GetSMChannelStreamsRequest
 }
 export interface AddSMStreamToSMChannelRequest
 {
+	Rank?: number;
 	SMChannelId: number;
 	SMStreamId: string;
 }
@@ -1178,6 +1185,7 @@ export interface CreateM3UFileFromFormRequest
 	HoursToUpdate?: number;
 	MaxStreamCount: number;
 	Name: string;
+	SyncChannels?: boolean;
 	VODTags?: string[];
 }
 export interface CreateM3UFileRequest
@@ -1185,6 +1193,7 @@ export interface CreateM3UFileRequest
 	HoursToUpdate?: number;
 	MaxStreamCount: number;
 	Name: string;
+	SyncChannels?: boolean;
 	UrlSource?: string;
 	VODTags?: string[];
 }
@@ -1203,6 +1212,10 @@ export interface RefreshM3UFileRequest
 	ForceRun: boolean;
 	Id: number;
 }
+export interface SyncChannelsRequest
+{
+	M3UFileId: number;
+}
 export interface UpdateM3UFileRequest
 {
 	AutoUpdate?: boolean;
@@ -1210,8 +1223,8 @@ export interface UpdateM3UFileRequest
 	Id: number;
 	MaxStreamCount?: number;
 	Name?: string;
-	OverWriteChannels?: boolean;
 	StartingChannelNumber?: number;
+	SyncChannels?: boolean;
 	Url?: string;
 	VODTags?: string[];
 }
@@ -1330,7 +1343,7 @@ export interface UpdateChannelGroupRequest
 }
 export interface UpdateChannelGroupsRequest
 {
-	requests: UpdateChannelGroupRequest[];
+	UpdateChannelGroupRequests: UpdateChannelGroupRequest[];
 }
 export interface BaseStatistics
 {

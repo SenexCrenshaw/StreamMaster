@@ -8,9 +8,9 @@ public record UpdateSMStreamRequest(
     int? ChannelNumber,
     string? Group,
     string? Logo,
+       string? EPGID,
     string Url
-    ) : IRequest<APIResponse>
-{ }
+    ) : IRequest<APIResponse>;
 
 [LogExecutionTimeAspect]
 public class UpdateSMStreamHandler(ILogger<UpdateSMStreamRequest> Logger, IMessageService messageService, IDataRefreshService dataRefreshService, IRepositoryWrapper Repository)
@@ -23,7 +23,7 @@ public class UpdateSMStreamHandler(ILogger<UpdateSMStreamRequest> Logger, IMessa
             return APIResponse.NotFound;
         }
 
-        var smStream = await Repository.SMStream.FirstOrDefaultAsync(a => a.Id == request.SMStreamId).ConfigureAwait(false);
+        SMStream? smStream = await Repository.SMStream.FirstOrDefaultAsync(a => a.Id == request.SMStreamId, cancellationToken: cancellationToken).ConfigureAwait(false);
         if (smStream == null)
         {
             return APIResponse.NotFound;
@@ -49,6 +49,12 @@ public class UpdateSMStreamHandler(ILogger<UpdateSMStreamRequest> Logger, IMessa
                 ret.Add(new FieldData(() => smStream.Group));
             }
 
+            if (!string.IsNullOrEmpty(request.EPGID) && smStream.EPGID != request.EPGID)
+            {
+                smStream.EPGID = request.EPGID;
+                ret.Add(new FieldData(() => smStream.EPGID));
+            }
+
             if (!string.IsNullOrEmpty(request.Logo) && smStream.Logo != request.Logo)
             {
                 smStream.Logo = request.Logo;
@@ -67,7 +73,6 @@ public class UpdateSMStreamHandler(ILogger<UpdateSMStreamRequest> Logger, IMessa
                 await Repository.SaveAsync().ConfigureAwait(false);
                 await dataRefreshService.ClearByTag(SMStream.APIName, "IsHidden").ConfigureAwait(false);
                 await dataRefreshService.SetField(ret).ConfigureAwait(false);
-
             }
             //await dataRefreshService.RefreshSMStreams();
             await messageService.SendSuccess("Stream Updated", $"Stream '{smStream.Name}' successfully");
