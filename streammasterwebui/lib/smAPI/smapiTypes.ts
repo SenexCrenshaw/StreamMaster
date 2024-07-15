@@ -351,6 +351,7 @@ export interface SMStreamDto
 	FilePosition: number;
 	Group: string;
 	Id: string;
+	IsCustomStream: boolean;
 	IsHidden: boolean;
 	IsUserCreated: boolean;
 	Logo: string;

@@ -22,7 +22,7 @@ public static partial class IPTVExtensions
         {
             try
             {
-                string? clientUserAgent;
+                string? clientUserAgent = null;
                 while (!reader.EndOfStream)
                 {
                     string? line = reader.ReadLine();
@@ -36,7 +36,7 @@ public static partial class IPTVExtensions
                     {
                         if (segmentBuilder.Length > 0)
                         {
-                            ProcessSegment(segmentNumber++, segmentBuilder.ToString());
+                            ProcessSegment(segmentNumber++, segmentBuilder.ToString(), clientUserAgent);
                             segmentBuilder.Clear();
                         }
                     }
@@ -61,7 +61,7 @@ public static partial class IPTVExtensions
                 // Process the last segment
                 if (segmentBuilder.Length > 0)
                 {
-                    ProcessSegment(segmentNumber, segmentBuilder.ToString());
+                    ProcessSegment(segmentNumber, segmentBuilder.ToString(), clientUserAgent);
                 }
             }
             finally
@@ -74,9 +74,9 @@ public static partial class IPTVExtensions
         logger.LogInformation("Imported {processedCount} streams.", processedCount);
         return results;
 
-        void ProcessSegment(int segmentNum, string segment)
+        void ProcessSegment(int segmentNum, string segment, string? clientUserAgent)
         {
-            SMStream? smStream = segment.StringToSMStream();
+            SMStream? smStream = segment.StringToSMStream(clientUserAgent);
 
             if (smStream != null)
             {
@@ -156,17 +156,8 @@ public static partial class IPTVExtensions
         return dir.GetRandomFileName(fd.FileExtension);
     }
 
-    public static string EncodeUrlToBase64(string url)
-    {
-        if (string.IsNullOrEmpty(url))
-        {
-            throw new ArgumentNullException(nameof(url), "URL cannot be null or empty.");
-        }
 
-        byte[] plainTextBytes = Encoding.UTF8.GetBytes(url);
-        return Convert.ToBase64String(plainTextBytes);
-    }
-    public static SMStream? StringToSMStream(this string bodyline)
+    public static SMStream? StringToSMStream(this string bodyline, string? clientUserAgent)
     {
         SMStream SMStream = new();
 
@@ -191,6 +182,7 @@ public static partial class IPTVExtensions
             if (Uri.IsWellFormedUriString(line, UriKind.Absolute))
             {
                 SMStream.Url = line;
+                SMStream.ClientUserAgent = clientUserAgent;
                 continue;
             }
 
@@ -331,7 +323,7 @@ public static partial class IPTVExtensions
 
         if (string.IsNullOrEmpty(SMStream.Id))
         {
-            SMStream.Id = EncodeUrlToBase64(SMStream.Url);//.ConvertStringToId();
+            SMStream.Id = FileUtil.EncodeUrlToBase64(SMStream.Url);//.ConvertStringToId();
         }
 
         return SMStream;

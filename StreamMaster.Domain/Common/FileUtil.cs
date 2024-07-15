@@ -12,6 +12,17 @@ namespace StreamMaster.Domain.Common;
 
 public sealed class FileUtil
 {
+
+    public static string EncodeUrlToBase64(string url)
+    {
+        if (string.IsNullOrEmpty(url))
+        {
+            throw new ArgumentNullException(nameof(url), "URL cannot be null or empty.");
+        }
+
+        byte[] plainTextBytes = Encoding.UTF8.GetBytes(url);
+        return Convert.ToBase64String(plainTextBytes);
+    }
     public static async Task<bool> WaitForFileAsync(string filePath, int timeoutSeconds, int checkIntervalMilliseconds, CancellationToken cancellationToken)
     {
         CancellationTokenSource timeoutTokenSource = new(TimeSpan.FromSeconds(timeoutSeconds));

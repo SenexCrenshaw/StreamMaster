@@ -14,6 +14,22 @@ public class ScanForCustomPlayListsRequestHandler(ILogger<ScanForCustomPlayLists
         List<CustomPlayList> test = CustomPlayListBuilder.GetNFOs();
         foreach (CustomPlayList customPlayList in test)
         {
+            string id = FileUtil.EncodeUrlToBase64(customPlayList.Name);
+            if (Repository.SMStream.Any(s => s.Id == id))
+            {
+                continue;
+            }
+            var smStrem = new SMStream
+            {
+                Id = id,
+                Name = customPlayList.Name,
+                M3UFileName = "",
+                M3UFileId = EPGHelper.CustomPlayListId,
+                Group = "Dummy",
+                IsCustomStream = true,
+                Logo = customPlayList.Logo
+            };
+            Repository.SMStream.Create(smStrem);
 
         }
 

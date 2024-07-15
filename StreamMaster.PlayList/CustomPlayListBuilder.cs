@@ -11,6 +11,7 @@ public record CustomStreamNfo(string VideoFileName, MovieNfo MovieNfo);
 public class CustomPlayList
 {
     public string Name { get; set; } = string.Empty;
+    public string Logo { get; set; } = string.Empty;
     public MovieNfo? FolderNfo { get; set; }
     public List<CustomStreamNfo> CustomStreamNfos { get; set; } = [];
 }
@@ -52,6 +53,7 @@ public class CustomPlayListBuilder(INfoFileReader nfoFileReader) : ICustomPlayLi
 
             foreach (string? file in allFiles)
             {
+                string fileName = Path.GetFileNameWithoutExtension(file);
                 string nfoFile = Path.ChangeExtension(file, ".nfo");
                 if (File.Exists(nfoFile))
                 {
@@ -61,6 +63,27 @@ public class CustomPlayListBuilder(INfoFileReader nfoFileReader) : ICustomPlayLi
                         CustomStreamNfo customStreamNfo = new(file, nfo);
                         customPlayList.CustomStreamNfos.Add(customStreamNfo);
                     }
+                }
+                else
+                {
+                    MovieNfo? nfo = new()
+                    {
+                        Title = fileName,
+                        Runtime = 30,
+                        Plot = "lIL jOhhny"
+                        ,
+                        Actors =
+                        [
+                            new ActorNfo {
+                                Name="Lil Johnny",
+                                Role="Actor"
+                            }
+                        ]
+                    };
+                    CustomStreamNfo customStreamNfo = new(file, nfo);
+                    customPlayList.CustomStreamNfos.Add(customStreamNfo);
+                    WriteNfoFile(nfoFile, nfo);
+
                 }
             }
             ret.Add(customPlayList);
