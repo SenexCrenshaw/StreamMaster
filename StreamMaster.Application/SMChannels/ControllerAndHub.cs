@@ -209,6 +209,22 @@ namespace StreamMaster.Application.SMChannels.Controllers
 
         [HttpPatch]
         [Route("[action]")]
+        public async Task<ActionResult<APIResponse>> SetSMChannelsGroupFromParameters(SetSMChannelsGroupFromParametersRequest request)
+        {
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            return ret == null ? NotFound(ret) : Ok(ret);
+        }
+
+        [HttpPatch]
+        [Route("[action]")]
+        public async Task<ActionResult<APIResponse>> SetSMChannelsGroup(SetSMChannelsGroupRequest request)
+        {
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            return ret == null ? NotFound(ret) : Ok(ret);
+        }
+
+        [HttpPatch]
+        [Route("[action]")]
         public async Task<ActionResult<APIResponse>> SetSMChannelsLogoFromEPGFromParameters(SetSMChannelsLogoFromEPGFromParametersRequest request)
         {
             APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
@@ -389,6 +405,18 @@ namespace StreamMaster.Application.Hubs
         }
 
         public async Task<APIResponse> SetSMChannelProxy(SetSMChannelProxyRequest request)
+        {
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            return ret;
+        }
+
+        public async Task<APIResponse> SetSMChannelsGroupFromParameters(SetSMChannelsGroupFromParametersRequest request)
+        {
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            return ret;
+        }
+
+        public async Task<APIResponse> SetSMChannelsGroup(SetSMChannelsGroupRequest request)
         {
             APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;

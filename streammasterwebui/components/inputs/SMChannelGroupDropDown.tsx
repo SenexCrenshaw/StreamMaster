@@ -55,7 +55,7 @@ const SMChannelGroupDropDown = forwardRef<SMDropDownRef, SMChannelGroupDropDownP
 
   const buttonTemplate = useMemo((): ReactNode => {
     if (!channelGroup) {
-      return <div className="text-xs text-container text-white-alpha-40 pl-1">None</div>;
+      return <div className="text-xs text-container text-white-alpha-40 pl-1">Dummy</div>;
     }
 
     return (
@@ -65,14 +65,7 @@ const SMChannelGroupDropDown = forwardRef<SMDropDownRef, SMChannelGroupDropDownP
     );
   }, [channelGroup]);
 
-  const headerRightTemplate = useMemo(
-    () => (
-      <>
-        <ChannelGroupAddDialog />
-      </>
-    ),
-    []
-  );
+  const headerRightTemplate = useMemo(() => <ChannelGroupAddDialog />, []);
 
   const getDiv = useMemo(() => {
     let ret = 'stringedito';

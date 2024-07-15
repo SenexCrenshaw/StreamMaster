@@ -38,7 +38,7 @@ public class SMChannel
     public int TimeShift { get; set; } = 0;
 
     [Column(TypeName = "citext")]
-    public string Group { get; set; } = "All";
+    public string Group { get; set; } = "Dummy";
 
     [Column(TypeName = "citext")]
     public string EPGId { get; set; } = string.Empty;

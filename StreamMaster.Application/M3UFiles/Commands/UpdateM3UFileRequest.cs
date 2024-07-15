@@ -123,9 +123,5 @@ public class UpdateM3UFileRequestHandler(IRepositoryWrapper Repository, IReposit
             jobManager.SetError();
             return APIResponse.ErrorWithMessage(ex, $"Failed M3U update");
         }
-
     }
-
-
-
 }

@@ -243,7 +243,7 @@ const EPGSelector = ({ buttonDarkBackground = false, value, enableEditMode = tru
               data-pr-showdelay={500}
               data-pr-tooltip="No EPG"
             />
-            <div className="text-xs text-container text-white-alpha-40 pl-1">None</div>
+            <div className="text-xs text-container text-white-alpha-40 pl-1">Dummy</div>
           </div>
         );
       }

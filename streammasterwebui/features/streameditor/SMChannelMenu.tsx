@@ -1,4 +1,5 @@
 import SMOverlay from '@components/sm/SMOverlay';
+import AddSMChannelsToGroupEditor from '@components/smchannels/AddSMChannelsToGroupEditor';
 import AddSMChannelsToSGEditor from '@components/smchannels/AddSMChannelsToSGEditor';
 import AutoSetEPGSMChannelDialog from '@components/smchannels/AutoSetEPGSMChannelDialog';
 import AutoSetSMChannelNumbersDialog from '@components/smchannels/AutoSetSMChannelNumbersDialog';
@@ -43,6 +44,7 @@ const SMChannelMenu = () => {
           <AutoSetEPGSMChannelDialog menu />
           <AutoSetSMChannelNumbersDialog selectedItemsKey={selectedItemsKey} />
           <AddSMChannelsToSGEditor />
+          <AddSMChannelsToGroupEditor />
           <SMChannelMultiVisibleDialog selectedItemsKey={selectedItemsKey} menu />
         </div>
       </SMOverlay>

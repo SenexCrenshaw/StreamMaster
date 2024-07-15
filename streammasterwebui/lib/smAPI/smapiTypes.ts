@@ -958,9 +958,19 @@ export interface SetSMChannelProxyRequest
 	SMChannelId: number;
 	StreamingProxy: string;
 }
+export interface SetSMChannelsGroupFromParametersRequest
+{
+	Group: string;
+	Parameters: QueryStringParameters;
+}
+export interface SetSMChannelsGroupRequest
+{
+	Group: string;
+	SMChannelIds: number[];
+}
 export interface SetSMChannelsLogoFromEPGFromParametersRequest
 {
-	Parameters: any;
+	Parameters: QueryStringParameters;
 }
 export interface SetSMChannelsLogoFromEPGRequest
 {

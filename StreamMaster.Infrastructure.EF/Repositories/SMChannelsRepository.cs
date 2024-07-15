@@ -737,4 +737,35 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, ISend
         SMChannel? ret = channels.FirstOrDefault();
         return channels.FirstOrDefault();
     }
+
+    public async Task<APIResponse> SetSMChannelsGroup(List<int> sMChannelIds, string GroupName)
+    {
+        IQueryable<SMChannel> toUpdate = GetQuery(tracking: true).Where(a => sMChannelIds.Contains(a.Id));
+        return await SetSMChannelsGroup(toUpdate, GroupName);
+    }
+
+    public async Task<APIResponse> SetSMChannelsGroupFromParameters(QueryStringParameters parameters, string GroupName)
+    {
+        IQueryable<SMChannel> toUpdate = GetQuery(parameters, tracking: true);
+        return await SetSMChannelsGroup(toUpdate, GroupName);
+    }
+    private async Task<APIResponse> SetSMChannelsGroup(IQueryable<SMChannel> query, string GroupName)
+    {
+        ChannelGroup? group = await RepositoryContext.ChannelGroups.FirstOrDefaultAsync(a => a.Name == GroupName);
+        if (group == null)
+        {
+            return APIResponse.ErrorWithMessage($"Group '{GroupName}' not found");
+        }
+        List<SMChannel> toUpdate = await query.ToListAsync();
+
+        foreach (SMChannel smChannl in toUpdate)
+        {
+            smChannl.Group = group.Name;
+        }
+
+        BulkUpdate(toUpdate);
+        RepositoryContext.SaveChanges();
+        return APIResponse.Success;
+    }
+
 }

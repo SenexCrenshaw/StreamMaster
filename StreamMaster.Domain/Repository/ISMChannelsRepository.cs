@@ -68,4 +68,6 @@ public interface ISMChannelsRepository : IRepositoryBase<SMChannel>
     Task<SMChannelDto?> ToggleSMChannelVisibleById(int id, CancellationToken cancellationToken);
 
     Task<List<FieldData>> ToggleSMChannelVisibleByParameters(QueryStringParameters parameters, CancellationToken cancellationToken);
+    Task<APIResponse> SetSMChannelsGroup(List<int> sMChannelIds, string GroupName);
+    Task<APIResponse> SetSMChannelsGroupFromParameters(QueryStringParameters parameters, string GroupName);
 }

@@ -1,28 +1,30 @@
+import { SetSMChannelGroupRequest, SMChannelDto } from '@lib/smAPI/smapiTypes';
+import { memo, useCallback, useState } from 'react';
+
+import SMChannelGroupDropDown from '../../inputs/SMChannelGroupDropDown';
+import useIsCellLoading from '@lib/redux/hooks/useIsCellLoading';
 import { isEmptyObject } from '@lib/common/common';
 import { SetSMChannelGroup } from '@lib/smAPI/SMChannels/SMChannelsCommands';
-import { ChannelGroupDto, SMChannelDto, SetSMChannelGroupRequest } from '@lib/smAPI/smapiTypes';
-import { memo, useCallback } from 'react';
-
-import useIsCellLoading from '@lib/redux/hooks/useIsCellLoading';
-import SMChannelGroupDropDown from '../../inputs/SMChannelGroupDropDown';
 
 interface SMChannelGroupEditorProperties {
-  readonly smChannelDto: SMChannelDto;
+  readonly smChannelDto?: SMChannelDto;
   readonly darkBackGround?: boolean;
   readonly autoPlacement?: boolean;
-  readonly onChange?: (value: ChannelGroupDto[]) => void;
+  readonly onChange?: (value: string) => void;
 }
 
 const SMChannelGroupEditor = ({ darkBackGround, autoPlacement = false, smChannelDto, onChange }: SMChannelGroupEditorProperties) => {
+  const [group, setGroup] = useState<string>('Dummy');
   const [isCellLoading, setIsCellLoading] = useIsCellLoading({
     Entity: 'SMChannel',
     Field: 'Group',
-    Id: smChannelDto.Id.toString()
+    Id: smChannelDto?.Id.toString() ?? 'Dummy'
   });
 
   const handleOnChange = useCallback(
     async (newGroup: string) => {
-      if (isEmptyObject(smChannelDto)) {
+      setGroup(newGroup);
+      if (smChannelDto === undefined || smChannelDto.Id === undefined || isEmptyObject(smChannelDto)) {
         return;
       }
       setIsCellLoading(true);
@@ -42,9 +44,13 @@ const SMChannelGroupEditor = ({ darkBackGround, autoPlacement = false, smChannel
     <SMChannelGroupDropDown
       autoPlacement={autoPlacement}
       darkBackGround={darkBackGround}
-      isLoading={isCellLoading}
       smChannelDto={smChannelDto}
-      onChange={async (e) => handleOnChange(e)}
+      isLoading={isCellLoading}
+      onChange={(e) => {
+        handleOnChange(e);
+        onChange?.(e);
+      }}
+      value={smChannelDto?.Group || group}
     />
   );
 };

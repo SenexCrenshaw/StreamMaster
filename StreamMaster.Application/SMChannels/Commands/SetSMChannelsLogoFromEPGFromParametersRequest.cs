@@ -2,7 +2,7 @@
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record SetSMChannelsLogoFromEPGFromParametersRequest(VideoStreamParameters Parameters) : IRequest<APIResponse>;
+public record SetSMChannelsLogoFromEPGFromParametersRequest(QueryStringParameters Parameters) : IRequest<APIResponse>;
 
 [LogExecutionTimeAspect]
 public class SetSMChannelsLogoFromEPGFromParametersRequestHandler(IRepositoryWrapper Repository, IMessageService messageService, IDataRefreshService dataRefreshService)
