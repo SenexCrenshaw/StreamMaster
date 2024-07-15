@@ -6,7 +6,7 @@ namespace StreamMaster.Application.M3UFiles.Commands;
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record SyncChannelsRequest(int M3UFileId) : IRequest<APIResponse>;
 
-internal class SyncChannelsRequestHandler(ILogger<SyncChannelsRequest> logger, IRepositoryContext RepositoryContext, ISender sender, IMessageService messageService, IRepositoryWrapper Repository, IDataRefreshService dataRefreshService)
+internal class SyncChannelsRequestHandler(ILogger<SyncChannelsRequest> logger, ISender sender, IMessageService messageService, IRepositoryWrapper Repository, IDataRefreshService dataRefreshService)
     : IRequestHandler<SyncChannelsRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(SyncChannelsRequest request, CancellationToken cancellationToken)
@@ -38,14 +38,13 @@ internal class SyncChannelsRequestHandler(ILogger<SyncChannelsRequest> logger, I
 
             // Identify streams that exist both in streams and in existingSMChannels (intersection)
             List<string> existingStreamsIDsInDb = streamIds.Intersect(existingChannelStreamIdsNonNull).ToList();
-            List<SMStream> existingStreamsInDb = streams.Where(a => existingStreamsIDsInDb.Contains(a.Id)).ToList();
+            List<SMStream> existingStreamsInDb = [.. streams.Where(a => existingStreamsIDsInDb.Contains(a.Id))];
 
             // Identify streams to be created (in streams but not in existingSMChannels)
             List<string> streamsToBeCreated = streamIds.Except(existingChannelStreamIdsNonNull).ToList();
 
             // Identify streams to be deleted (in existingSMChannels but not in streams)
             List<string> streamsToBeDeleted = existingChannelStreamIdsNonNull.Except(streamIds).ToList();
-
 
             if (streamsToBeCreated.Count != 0)
             {
@@ -61,17 +60,15 @@ internal class SyncChannelsRequestHandler(ILogger<SyncChannelsRequest> logger, I
             bool changed = false;
             if (existingStreamsInDb.Count != 0)
             {
-
                 List<SMChannel> smChannels = await Repository.SMChannel.GetQuery(true).Where(a => a.M3UFileId == request.M3UFileId && a.StreamID != null && existingStreamsIDsInDb.Contains(a.StreamID)).ToListAsync(cancellationToken: cancellationToken);
 
                 foreach (SMChannel smChannel in smChannels)
                 {
-                    SMStream? stream = existingStreamsInDb.FirstOrDefault(a => a.Id == smChannel.StreamID);
+                    SMStream? stream = existingStreamsInDb.Find(a => a.Id == smChannel.StreamID);
                     if (stream == null)
                     {
                         continue;
                     }
-
 
                     if (smChannel.Name != stream.Name)
                     {
@@ -96,21 +93,15 @@ internal class SyncChannelsRequestHandler(ILogger<SyncChannelsRequest> logger, I
                         changed = true;
                         smChannel.StationId = stream.StationId;
                     }
-                    if (changed)
-                    {
-                        //SMChannel? existingEntity = RepositoryContext.SMChannels.Local.FirstOrDefault(e => e.Id == smChannel.Id);
 
-                        //EntityState state = RepositoryContext.SMChannels.Entry(smChannel).State;
-                        //RepositoryContext.SMChannels.Update(smChannel);
-                        //EntityState state1 = RepositoryContext.SMChannels.Entry(smChannel).State;
-                        await Repository.SaveAsync();
-                        //EntityState state2 = RepositoryContext.SMChannels.Entry(smChannel).State;
-                    }
                 }
-
+                if (changed)
+                {
+                    await Repository.SaveAsync();
+                }
             }
 
-            if (streamsToBeCreated.Count != 0 || streamsToBeDeleted.Any() || changed)
+            if (streamsToBeCreated.Count != 0 || streamsToBeDeleted.Count != 0 || changed)
             {
                 await dataRefreshService.RefreshSMChannels();
             }
