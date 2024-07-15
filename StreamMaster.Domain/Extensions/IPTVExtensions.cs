@@ -22,6 +22,7 @@ public static partial class IPTVExtensions
         {
             try
             {
+                string? clientUserAgent;
                 while (!reader.EndOfStream)
                 {
                     string? line = reader.ReadLine();
@@ -37,6 +38,13 @@ public static partial class IPTVExtensions
                         {
                             ProcessSegment(segmentNumber++, segmentBuilder.ToString());
                             segmentBuilder.Clear();
+                        }
+                    }
+                    else if (line.StartsWith("#EXTVLCOPT"))
+                    {
+                        if (line.StartsWith("#EXTVLCOPT:http-user-agent"))
+                        {
+                            clientUserAgent = line.Replace("#EXTVLCOPT:http-user-agent=", "");
                         }
                     }
                     else

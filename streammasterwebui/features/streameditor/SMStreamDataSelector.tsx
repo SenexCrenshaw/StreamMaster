@@ -207,7 +207,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
   const rowClass = useCallback(
     (data: unknown): string => {
       if (data === null || data === undefined) {
-        Logger.debug('SMStreamDataSelector', 'rowClass', 'data is null or undefined');
+        // Logger.debug('SMStreamDataSelector', 'rowClass', 'data is null or undefined');
         return '';
       }
       const isHidden = getRecord(data, 'IsHidden');
@@ -219,13 +219,13 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
       if (data && selectedSMChannel?.SMStreams !== undefined && selectedSMChannel.SMStreams.length > 0) {
         const id = getRecord(data, 'Id');
         if (id === undefined) {
-          Logger.debug('SMStreamDataSelector', 'rowClass', 'Id is undefined');
+          // Logger.debug('SMStreamDataSelector', 'rowClass', 'Id is undefined');
           return '';
         }
 
         selectedSMChannel.SMStreams.forEach((element) => {
           if (element?.Id === undefined) {
-            Logger.debug('SMStreamDataSelector', 'element', element);
+            // Logger.debug('SMStreamDataSelector', 'element', element);
             return true;
           }
         });

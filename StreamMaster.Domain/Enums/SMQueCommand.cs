@@ -14,6 +14,7 @@ public enum SMQueCommand
     ScanDirectoryForEPGFiles,
     ScanDirectoryForIconFiles,
     ScanDirectoryForM3UFiles,
+    ScanForCustomPlayLists,
 
     EPGSync,
     SetIsSystemReady,

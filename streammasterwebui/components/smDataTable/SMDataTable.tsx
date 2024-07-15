@@ -451,7 +451,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>, ref: 
 
   useEffect(() => {
     if (props.queryFilter) {
-      Logger.debug('DataTable queryFilter', { queryFilter });
+      // Logger.debug('DataTable queryFilter', { queryFilter });
       if (data) {
         if (Array.isArray(data)) {
           setters.setPagedInformation(undefined);

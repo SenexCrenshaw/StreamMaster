@@ -5,6 +5,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 using StreamMaster.Application.Common.Models;
+using StreamMaster.Application.CustomPlayLists.Commands;
 using StreamMaster.Application.EPGFiles.Commands;
 using StreamMaster.Application.General.Commands;
 using StreamMaster.Application.Icons.Commands;
@@ -90,6 +91,10 @@ public sealed class QueuedHostedService(
                             ProcessM3UFileRequest? p = command.Entity as ProcessM3UFileRequest;
                             _ = await _sender.Send(p, cancellationToken).ConfigureAwait(false);
                         }
+                        break;
+
+                    case SMQueCommand.ScanForCustomPlayLists:
+                        await _sender.Send(new ScanForCustomPlayListsRequest(), cancellationToken).ConfigureAwait(false);
                         break;
 
                     case SMQueCommand.ProcessM3UFiles:

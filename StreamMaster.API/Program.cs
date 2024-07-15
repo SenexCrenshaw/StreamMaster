@@ -21,7 +21,7 @@ using StreamMaster.Infrastructure.EF.PGSQL;
 using StreamMaster.Infrastructure.Middleware;
 using StreamMaster.SchedulesDirect.Services;
 using StreamMaster.Streams;
-
+using StreamMaster.PlayList;
 using System.Diagnostics;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
@@ -38,14 +38,12 @@ DirectoryHelper.CreateApplicationDirectories();
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
-
 builder.Services.Configure<ForwardedHeadersOptions>(options =>
 {
     options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedHost;
     options.KnownNetworks.Clear();
     options.KnownProxies.Clear();
 });
-
 
 static void Log(string format, params object[] args)
 {
@@ -60,17 +58,14 @@ builder.WebHost.ConfigureKestrel((context, serverOptions) =>
     serverOptions.Limits.MaxRequestBodySize = null;
 });
 
-
 var settingsFiles = BuildInfo.GetSettingFiles();
 
 builder.Configuration.SetBasePath(BuildInfo.StartUpPath).AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
-
 
 if (Directory.Exists(BuildInfo.SettingsFolder))
 {
     builder.Configuration.SetBasePath(BuildInfo.AppDataFolder);
 }
-
 
 var videoProfileSetting = SettingsHelper.GetSetting<VideoOutputProfiles>(BuildInfo.VideoProfileSettingsFile);
 if (videoProfileSetting == default(VideoOutputProfiles))
@@ -83,7 +78,6 @@ if (fileProfileSetting == default(OutputProfiles))
 {
     SettingsHelper.UpdateSetting(SettingFiles.DefaultOutputProfileSetting);
 }
-
 
 var hlsSetting = SettingsHelper.GetSetting<HLSSettings>(BuildInfo.HLSSettingsFile);
 if (hlsSetting == default(HLSSettings))
@@ -102,7 +96,6 @@ if (hlsSetting == default(HLSSettings))
 //    }
 //}
 
-
 var mainSetting = SettingsHelper.GetSetting<Setting>(BuildInfo.SettingsFile);
 if (mainSetting == default(Setting))
 {
@@ -114,7 +107,6 @@ if (sdSettings == default(SDSettings))
 {
     SettingsHelper.UpdateSetting(new SDSettings());
 }
-
 
 foreach (var file in settingsFiles)
 {
@@ -130,8 +122,6 @@ builder.Services.Configure<SDSettings>(builder.Configuration);
 builder.Services.Configure<HLSSettings>(builder.Configuration);
 builder.Services.Configure<VideoOutputProfiles>(builder.Configuration);
 builder.Services.Configure<OutputProfiles>(builder.Configuration);
-
-
 
 bool enableSsl = false;
 
@@ -149,7 +139,7 @@ if (enableSsl && !string.IsNullOrEmpty(sslCertPath))
     urls.Add("https://0.0.0.0:7096");
 }
 
-builder.WebHost.UseUrls(urls.ToArray());
+builder.WebHost.UseUrls([.. urls]);
 
 if (!string.IsNullOrEmpty(sslCertPath))
 {
@@ -172,12 +162,10 @@ builder.Services.AddInfrastructureEFServices();
 builder.Services.AddInfrastructureServices();
 builder.Services.AddInfrastructureServicesEx();
 builder.Services.AddStreamsServices();
+builder.Services.AddCustomPlayListServices();
 builder.Services.AddWebUIServices(builder);
 
-builder.Services.Configure<RouteOptions>(options =>
-{
-    options.LowercaseUrls = true;
-});
+builder.Services.Configure<RouteOptions>(options => options.LowercaseUrls = true);
 
 builder.Services.AddControllers(options =>
 {
@@ -189,16 +177,12 @@ builder.Services.AddControllers(options =>
     options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
     options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
 });
-;
 
 WebApplication app = builder.Build();
 app.UseForwardedHeaders();
 
 var lifetime = app.Services.GetService<IHostApplicationLifetime>();
-if (lifetime != null)
-{
-    lifetime.ApplicationStopping.Register(OnShutdown);
-}
+lifetime?.ApplicationStopping.Register(OnShutdown);
 
 void OnShutdown()
 {
@@ -224,7 +208,6 @@ if (app.Environment.IsDevelopment())
 {
     _ = app.UseDeveloperExceptionPage();
     _ = app.UseMigrationsEndPoint();
-
 }
 else
 {
@@ -245,11 +228,9 @@ using (IServiceScope scope = app.Services.CreateScope())
     if (app.Environment.IsDevelopment())
     {
         logInitialiser.TrySeed();
-
     }
 
     RepositoryContextInitializer initialiser = scope.ServiceProvider.GetRequiredService<RepositoryContextInitializer>();
-    
     await initialiser.InitializeAsync(mainSetting!).ConfigureAwait(false);
     if (app.Environment.IsDevelopment())
     {
@@ -317,16 +298,14 @@ app.MapMetrics();
 
 app.Run();
 
-
 static string GetRoutePattern(Endpoint endpoint)
 {
     RouteEndpoint? routeEndpoint = endpoint as RouteEndpoint;
 
-    return routeEndpoint is not null && routeEndpoint.RoutePattern is not null && routeEndpoint.RoutePattern.RawText is not null
+    return routeEndpoint?.RoutePattern?.RawText is not null
         ? routeEndpoint.RoutePattern.RawText
         : "<unknown>";
 }
-
 
 static X509Certificate2 ValidateSslCertificate(string cert, string password)
 {

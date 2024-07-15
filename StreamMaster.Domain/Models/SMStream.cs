@@ -10,8 +10,10 @@ public class SMStream
     public static string APIName => "SMStreams";
     [Key]
     public string Id { get; set; } = string.Empty;
+    public string? ClientUserAgent { get; set; }
     public int FilePosition { get; set; }
     public bool IsHidden { get; set; } = false;
+    public bool IsCustomStream { get; set; } = false;
     public bool IsUserCreated { get; set; } = false;
     public int M3UFileId { get; set; } = 0;
     public int ChannelNumber { get; set; } = 0;

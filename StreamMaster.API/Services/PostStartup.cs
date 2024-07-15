@@ -31,6 +31,8 @@ public class PostStartup(ILogger<PostStartup> logger, IServiceProvider servicePr
 
         await taskQueue.ScanDirectoryForEPGFiles(cancellationToken).ConfigureAwait(false);
 
+        await taskQueue.ScanForCustomPlayLists(cancellationToken).ConfigureAwait(false);
+
         await taskQueue.ScanDirectoryForM3UFiles(cancellationToken).ConfigureAwait(false);
 
         //await taskQueue.UpdateChannelGroupCounts(cancellationToken).ConfigureAwait(false);

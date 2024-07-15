@@ -346,6 +346,7 @@ export interface SMStreamDto
 {
 	APIName: string;
 	ChannelNumber: number;
+	ClientUserAgent?: string;
 	EPGID: string;
 	FilePosition: number;
 	Group: string;
@@ -1316,6 +1317,9 @@ export interface UpdateEPGFileRequest
 	Name?: string;
 	TimeShift?: number;
 	Url?: string;
+}
+export interface ScanForCustomPlayListsRequest
+{
 }
 export interface GetChannelGroupsFromSMChannelsRequest
 {

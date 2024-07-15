@@ -4,9 +4,9 @@ using System.Xml.Serialization;
 
 namespace StreamMaster.PlayList;
 
-public class NfoFileReader
+public class NfoFileReader : INfoFileReader
 {
-    public async Task<MovieNfo?> ReadNfoFileAsync(string filePath, CancellationToken cancellationToken = default)
+    public MovieNfo? ReadNfoFile(string filePath)
     {
         if (string.IsNullOrWhiteSpace(filePath))
         {
@@ -20,14 +20,16 @@ public class NfoFileReader
 
         try
         {
-            using FileStream stream = new(filePath, FileMode.Open, FileAccess.Read);
+            using StreamReader stream = new(filePath, System.Text.Encoding.UTF8);
             XmlSerializer serializer = new(typeof(MovieNfo));
-            MovieNfo? kodiMovie = (MovieNfo?)serializer.Deserialize(stream);
-            return kodiMovie;
+            MovieNfo? nfo = (MovieNfo?)serializer.Deserialize(stream);
+
+            return nfo;
         }
         catch (Exception ex)
         {
             throw new IOException("An error occurred while reading the NFO file.", ex);
         }
     }
+
 }

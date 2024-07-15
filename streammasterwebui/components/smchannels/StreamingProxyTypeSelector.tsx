@@ -65,7 +65,7 @@ const StreamingProxyTypeSelector: React.FC<StreamingProxyTypeSelectorProperties>
 
       try {
         await SetSMChannelProxy(request).finally(() => setIsCellLoading(false));
-        Logger.info('Streaming proxy type saved successfully', { request });
+        // Logger.info('Streaming proxy type saved successfully', { request });
       } catch (error) {
         Logger.error('Error saving streaming proxy type', { error, request });
       }
@@ -92,7 +92,7 @@ const StreamingProxyTypeSelector: React.FC<StreamingProxyTypeSelectorProperties>
   // if (data?.StreamingProxyType === undefined) {
   //   return null;
   // }
-  Logger.debug('StreamingProxyTypeSelector', 'StreamingProxyType', data?.StreamingProxyType, data?.StreamingProxyType ?? 'SystemDefault');
+  // Logger.debug('StreamingProxyTypeSelector', 'StreamingProxyType', data?.StreamingProxyType, data?.StreamingProxyType ?? 'SystemDefault');
   return (
     <SMDropDown
       buttonLabel="PROXY"
