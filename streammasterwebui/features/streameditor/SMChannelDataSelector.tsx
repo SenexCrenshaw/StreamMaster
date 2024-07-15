@@ -81,38 +81,44 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id }: SMChannelDat
     [selectedSMChannel, setSelectedSMChannel]
   );
 
-  const actionTemplate = useCallback((smChannel: SMChannelDto) => {
-    return (
-      <div className="flex justify-content-end align-items-center" style={{ paddingRight: '0.1rem' }}>
-        <StreamCopyLinkDialog realUrl={smChannel?.StreamUrl} />
-        <DeleteSMChannelDialog
-          smChannel={smChannel}
-          onDelete={() => {
-            channelDelete(smChannel);
-          }}
-        />
-        <EditSMChannelDialog smChannelDto={smChannel} />
-      </div>
-    );
-  }, []);
+  const actionTemplate = useCallback(
+    (smChannel: SMChannelDto) => {
+      return (
+        <div className="flex justify-content-end align-items-center" style={{ paddingRight: '0.1rem' }}>
+          <StreamCopyLinkDialog realUrl={smChannel?.StreamUrl} />
+          <DeleteSMChannelDialog
+            smChannel={smChannel}
+            onDelete={() => {
+              channelDelete(smChannel);
+            }}
+          />
+          <EditSMChannelDialog smChannelDto={smChannel} />
+        </div>
+      );
+    },
+    [channelDelete]
+  );
 
-  const simpleActionTemplate = useCallback((smChannel: SMChannelDto) => {
-    return (
-      <div className="flex justify-content-end align-items-center" style={{ paddingRight: '0.1rem' }}>
-        <StreamCopyLinkDialog realUrl={smChannel?.StreamUrl} />
-        <SetSMChannelsLogoFromEPGDialog smChannel={smChannel} />
-        <AutoSetEPGSMChannelDialog smChannel={smChannel} />
-        <CloneSMChannelDialog label="Copy Channel" smChannel={smChannel} />
-        <DeleteSMChannelDialog
-          smChannel={smChannel}
-          onDelete={() => {
-            channelDelete(smChannel);
-          }}
-        />
-        <EditSMChannelDialog smChannelDto={smChannel} />
-      </div>
-    );
-  }, []);
+  const simpleActionTemplate = useCallback(
+    (smChannel: SMChannelDto) => {
+      return (
+        <div className="flex justify-content-end align-items-center" style={{ paddingRight: '0.1rem' }}>
+          <StreamCopyLinkDialog realUrl={smChannel?.StreamUrl} />
+          <SetSMChannelsLogoFromEPGDialog smChannel={smChannel} />
+          <AutoSetEPGSMChannelDialog smChannel={smChannel} />
+          <CloneSMChannelDialog label="Copy Channel" smChannel={smChannel} />
+          <DeleteSMChannelDialog
+            smChannel={smChannel}
+            onDelete={() => {
+              channelDelete(smChannel);
+            }}
+          />
+          <EditSMChannelDialog smChannelDto={smChannel} />
+        </div>
+      );
+    },
+    [channelDelete]
+  );
 
   const simpleColumns = useMemo(
     (): ColumnMeta[] => [

@@ -34,7 +34,6 @@ import useSMDataSelectorValuesState from './hooks/useSMDataTableState';
 import { useSetQueryFilter } from './hooks/useSetQueryFilter';
 import { ColumnMeta } from './types/ColumnMeta';
 import { SMDataTableProps, SMDataTableRef } from './types/smDataTableInterfaces';
-import { Logger } from '@lib/common/logger';
 import useSelectedSMItems from '@features/streameditor/useSelectedSMItems';
 
 const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>, ref: React.Ref<SMDataTableRef>) => {
