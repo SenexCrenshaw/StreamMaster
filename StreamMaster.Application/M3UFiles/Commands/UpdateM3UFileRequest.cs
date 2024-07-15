@@ -83,6 +83,11 @@ public class UpdateM3UFileRequestHandler(IRepositoryWrapper Repository, IReposit
             Repository.M3UFile.UpdateM3UFile(m3uFile);
             _ = await Repository.SaveAsync().ConfigureAwait(false);
 
+            if (request.SyncChannels == true)
+            {
+                await Sender.Send(new SyncChannelsRequest(m3uFile.Id), cancellationToken);
+            }
+
             if (nameChange)
             {
                 string sql = $"UPDATE public.\"SMStreams\" SET \"M3UFileName\"='{m3uFile.Name}' WHERE \"M3UFileId\"={m3uFile.Id};";

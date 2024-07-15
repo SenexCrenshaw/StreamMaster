@@ -1,4 +1,3 @@
-import OKButton from '@components/buttons/OKButton';
 import ResetButton from '@components/buttons/ResetButton';
 import SMPopUp, { SMPopUpRef } from '@components/sm/SMPopUp';
 import useIsRowLoading from '@lib/redux/hooks/useIsRowLoading';
@@ -66,21 +65,17 @@ const EditSMChannelDialog = ({ smChannelDto }: CopySMChannelProperties) => {
       ref={propUpRef}
       showRemember={false}
       title={`EDIT CHANNEL : ${smChannelDto.Name}`}
+      okButtonDisabled={!saveEnabled}
+      onOkClick={() => {
+        dialogRef.current?.save();
+      }}
       header={
-        <div className="flex w-12 gap-1 justify-content-end align-content-center">
-          <ResetButton
-            buttonDisabled={!saveEnabled && originalDto !== undefined}
-            onClick={() => {
-              dialogRef.current?.reset();
-            }}
-          />
-          <OKButton
-            buttonDisabled={!saveEnabled}
-            onClick={(request) => {
-              dialogRef.current?.save();
-            }}
-          />
-        </div>
+        <ResetButton
+          buttonDisabled={!saveEnabled && originalDto !== undefined}
+          onClick={() => {
+            dialogRef.current?.reset();
+          }}
+        />
       }
     >
       <SMChannelDialog ref={dialogRef} smChannel={smChannelDto} onSave={onSave} onSaveEnabled={setSaveEnabled} />

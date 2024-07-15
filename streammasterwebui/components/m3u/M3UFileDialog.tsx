@@ -2,8 +2,7 @@ import NumberEditor from '@components/inputs/NumberEditor';
 import StringEditor from '@components/inputs/StringEditor';
 import { arraysEqual } from '@components/smDataTable/helpers/arraysEqual';
 import { Logger } from '@lib/common/logger';
-import useScrollAndKeyEvents from '@lib/hooks/useScrollAndKeyEvents';
-import { CreateM3UFile, UpdateM3UFile } from '@lib/smAPI/M3UFiles/M3UFilesCommands';
+import { CreateM3UFile } from '@lib/smAPI/M3UFiles/M3UFilesCommands';
 import { CreateM3UFileRequest, M3UFileDto, UpdateM3UFileRequest } from '@lib/smAPI/smapiTypes';
 import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import M3UFileTags from './M3UFileTags';
@@ -16,6 +15,7 @@ export interface M3UFileDialogProperties {
   readonly showUrlEditor?: boolean;
   readonly onM3UChanged?: (m3uFileDto: M3UFileDto) => void;
   readonly onSaveEnabled?: (saveEnabled: boolean) => void;
+  readonly onRequestChanged?: (request: UpdateM3UFileRequest) => void;
 }
 
 export interface M3UFileDialogRef {
@@ -25,33 +25,14 @@ export interface M3UFileDialogRef {
 }
 
 const M3UFileDialog = forwardRef<M3UFileDialogRef, M3UFileDialogProperties>(
-  ({ onM3UChanged, onSaveEnabled, m3uFileDto: selectedFile, showUrlEditor = false }, ref) => {
+  ({ onM3UChanged, onRequestChanged, onSaveEnabled, m3uFileDto: selectedFile, showUrlEditor = false }, ref) => {
     const smFileUploadRef = useRef<SMFileUploadRef>(null);
-    const { code } = useScrollAndKeyEvents();
+    // const { code } = useScrollAndKeyEvents();
     const [m3uFileDto, setM3UFileDto] = useState<M3UFileDto | undefined>(undefined);
     const [originalM3UFileDto, setOriginalM3UFileDto] = useState<M3UFileDto | undefined>(undefined);
     const [request, setRequest] = useState<UpdateM3UFileRequest>({} as UpdateM3UFileRequest);
-    // const { setStringValue } = useStringValue('m3uName');
 
-    // const ReturnToParent = useCallback(
-    //   (didUpload?: boolean) => {
-    //     setStringValue('');
-    //   },
-    //   [setStringValue]
-    // );
     const ReturnToParent = useCallback((didUpload?: boolean) => {}, []);
-
-    const onUpdated = useCallback(async () => {
-      if (request.Id === undefined) {
-        return;
-      }
-
-      try {
-        await UpdateM3UFile(request);
-      } catch (error) {
-        console.error(error);
-      }
-    }, [request]);
 
     useImperativeHandle(
       ref,
@@ -71,14 +52,12 @@ const M3UFileDialog = forwardRef<M3UFileDialogRef, M3UFileDialogProperties>(
           // }
         },
         save: () => {
-          if (showUrlEditor) {
-            onUpdated();
-          } else {
+          if (!showUrlEditor) {
             smFileUploadRef.current?.save();
           }
         }
       }),
-      []
+      [originalM3UFileDto, showUrlEditor]
     );
 
     const defaultValues = useMemo(
@@ -119,6 +98,7 @@ const M3UFileDialog = forwardRef<M3UFileDialogRef, M3UFileDialogProperties>(
         createM3UFileRequest.MaxStreamCount = m3uFileDto.MaxStreamCount;
         createM3UFileRequest.VODTags = m3uFileDto.VODTags;
         createM3UFileRequest.HoursToUpdate = m3uFileDto.HoursToUpdate;
+        createM3UFileRequest.SyncChannels = m3uFileDto.SyncChannels;
 
         await CreateM3UFile(createM3UFileRequest)
           .then(() => {})
@@ -137,15 +117,18 @@ const M3UFileDialog = forwardRef<M3UFileDialogRef, M3UFileDialogProperties>(
         if (m3uFileDto === undefined) {
           return;
         }
+        Logger.debug('M3UFileDialog Id', m3uFileDto.Id);
         const updatedM3UFileDto = { ...m3uFileDto, ...updatedFields };
         const updatedRequest = { ...request, Id: updatedM3UFileDto.Id, ...updatedFields };
 
+        Logger.debug('updateStateAndRequest', { updatedRequest });
         setM3UFileDto(updatedM3UFileDto);
         setRequest(updatedRequest);
+        onRequestChanged?.(updatedRequest);
 
         if (onM3UChanged) onM3UChanged(updatedM3UFileDto);
       },
-      [m3uFileDto, request, onM3UChanged]
+      [m3uFileDto, request, onRequestChanged, onM3UChanged]
     );
 
     useEffect(() => {
@@ -154,14 +137,6 @@ const M3UFileDialog = forwardRef<M3UFileDialogRef, M3UFileDialogProperties>(
         setOriginalM3UFileDto(selectedFile);
       }
     }, [selectedFile, originalM3UFileDto]);
-
-    useEffect(() => {
-      if (code === 'Enter' || code === 'NumpadEnter') {
-        if (isSaveEnabled) {
-          onUpdated();
-        }
-      }
-    }, [code, isSaveEnabled, onUpdated]);
 
     if (m3uFileDto !== undefined) {
       Logger.debug('M3UFileDialog', { isSaveEnabled, m3uFileDto: m3uFileDto.Url, originalM3UFileDto: originalM3UFileDto?.Url });

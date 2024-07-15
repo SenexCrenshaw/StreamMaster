@@ -70,8 +70,9 @@ type DataSourceProperties<T> = BaseDataSelectorProperties<T> & {
   queryFilter?: (filters: QueryStringParameters) => ReturnType<QueryHook<PagedResponse<T> | T[]>>;
 };
 
-export interface SMDataTableRef {
+export interface SMDataTableRef<T> {
   clearExpanded: () => void;
+  setPagedInformation: (pagedInformation: PagedResponse<T>) => void;
 }
 
 export type SMDataTableProps<T> = DataSourceProperties<T> | QueryFilterProperties<T>;

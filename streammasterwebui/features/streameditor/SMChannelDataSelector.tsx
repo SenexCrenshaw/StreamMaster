@@ -24,7 +24,7 @@ import { useIsTrue } from '@lib/redux/hooks/isTrue';
 import { useQueryFilter } from '@lib/redux/hooks/queryFilter';
 import useGetPagedSMChannels from '@lib/smAPI/SMChannels/useGetPagedSMChannels';
 import { SMChannelDto } from '@lib/smAPI/smapiTypes';
-import { DataTableRowData, DataTableRowEvent, DataTableRowExpansionTemplate } from 'primereact/datatable';
+import { DataTableRowData, DataTableRowEvent, DataTableRowExpansionTemplate, DataTableValue } from 'primereact/datatable';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import SMChannelMenu from './SMChannelMenu';
 import SMStreamDataSelectorValue from './SMStreamDataSelectorValue';
@@ -51,7 +51,7 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id }: SMChannelDat
   const { columnConfig: proxyColumnConfig } = useSMChannelProxyColumnConfig({ enableEdit, useFilter: false });
   const { queryFilter } = useQueryFilter(dataKey);
   const { isLoading } = useGetPagedSMChannels(queryFilter);
-  const smDataTableRef = useRef<SMDataTableRef>(null);
+  const smDataTableRef = useRef<SMDataTableRef<DataTableValue>>(null);
 
   useEffect(() => {
     if (propsEnableEdit !== enableEdit) {

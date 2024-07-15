@@ -35,8 +35,9 @@ import { useSetQueryFilter } from './hooks/useSetQueryFilter';
 import { ColumnMeta } from './types/ColumnMeta';
 import { SMDataTableProps, SMDataTableRef } from './types/smDataTableInterfaces';
 import useSelectedSMItems from '@features/streameditor/useSelectedSMItems';
+import { Logger } from '@lib/common/logger';
 
-const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>, ref: React.Ref<SMDataTableRef>) => {
+const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>, ref: React.Ref<SMDataTableRef<T>>) => {
   const { state, setters } = useSMDataSelectorValuesState<T>(props.id, props.selectedItemsKey);
   const { settings } = useSMContext();
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -51,6 +52,9 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>, ref: 
   useImperativeHandle(ref, () => ({
     clearExpanded() {
       setters.setExpandedRows(undefined);
+    },
+    setPagedInformation(pagedInformation: PagedResponse<T>) {
+      setters.setPagedInformation(pagedInformation);
     }
   }));
 
@@ -447,6 +451,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>, ref: 
 
   useEffect(() => {
     if (props.queryFilter) {
+      Logger.debug('DataTable queryFilter', { queryFilter });
       if (data) {
         if (Array.isArray(data)) {
           setters.setPagedInformation(undefined);
@@ -566,7 +571,8 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>, ref: 
     state.sortOrder,
     state.pagedInformation,
     props.arrayKey,
-    setters
+    setters,
+    queryFilter
   ]);
 
   const sourceRenderHeader = useMemo(() => {
@@ -682,7 +688,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>, ref: 
     // const la = props.queryFilter === undefined ? undefined : true;
     const la = props.lazy === true || (props.queryFilter === undefined ? undefined : true);
 
-    // Logger.debug('DataTable', { datasource: state.dataSource, isLazy: la });
+    // Logger.debug('DataTable', { Id: props.id, isLazy: la, ProspisLazy: props.lazy, queryFilter: props.queryFilter });
 
     return la;
   }, [props.lazy, props.queryFilter]);

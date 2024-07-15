@@ -1,8 +1,11 @@
 import ResetButton from '@components/buttons/ResetButton';
-import SMPopUp from '@components/sm/SMPopUp';
-import { M3UFileDto } from '@lib/smAPI/smapiTypes';
+import SMPopUp, { SMPopUpRef } from '@components/sm/SMPopUp';
+import { M3UFileDto, UpdateM3UFileRequest } from '@lib/smAPI/smapiTypes';
 import { memo, useCallback, useRef, useState } from 'react';
 import M3UFileDialog, { M3UFileDialogRef } from './M3UFileDialog';
+import OKButton from '@components/buttons/OKButton';
+import { Logger } from '@lib/common/logger';
+import { UpdateM3UFile } from '@lib/smAPI/M3UFiles/M3UFilesCommands';
 
 interface M3UFileEditDialogProperties {
   readonly selectedFile: M3UFileDto;
@@ -11,12 +14,31 @@ interface M3UFileEditDialogProperties {
 const M3UFileEditDialog = ({ selectedFile }: M3UFileEditDialogProperties) => {
   const m3uDialogRef = useRef<M3UFileDialogRef>(null);
   const [saveEnabled, setSaveEnabled] = useState<boolean>(false);
+  const [request, setRequest] = useState<UpdateM3UFileRequest>({} as UpdateM3UFileRequest);
+  const smPopupRef = useRef<SMPopUpRef>(null);
 
-  const onSave = useCallback(() => {
-    if (m3uDialogRef.current) {
-      m3uDialogRef.current.save();
+  const onSave = useCallback(async () => {
+    if (Object.keys(request).length === 0) {
+      return;
     }
-  }, []);
+
+    if (selectedFile?.Id === undefined) {
+      return;
+    }
+
+    Logger.debug('M3UFileDialog Id', selectedFile.Id);
+    request.Id = selectedFile.Id;
+    if (request.Id === undefined) {
+      return;
+    }
+    try {
+      await UpdateM3UFile(request);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      smPopupRef.current?.hide();
+    }
+  }, [request, selectedFile.Id]);
 
   if (selectedFile === undefined) {
     return null;
@@ -34,20 +56,25 @@ const M3UFileEditDialog = ({ selectedFile }: M3UFileEditDialogProperties) => {
               m3uDialogRef.current?.reset();
             }}
           />
+          <OKButton
+            buttonDisabled={!saveEnabled}
+            onClick={() => {
+              onSave();
+            }}
+          />
         </div>
       }
       icon="pi-pencil"
       modal
-      okButtonDisabled={!saveEnabled}
-      onOkClick={onSave}
       noCloseButton={false}
       placement="bottom-end"
+      ref={smPopupRef}
       showRemember={false}
       title="EDIT M3U"
       zIndex={11}
     >
       <div className="layout-padding-bottom-lg" />
-      <M3UFileDialog ref={m3uDialogRef} showUrlEditor m3uFileDto={selectedFile} onSaveEnabled={setSaveEnabled} />
+      <M3UFileDialog onRequestChanged={setRequest} ref={m3uDialogRef} showUrlEditor m3uFileDto={selectedFile} onSaveEnabled={setSaveEnabled} />
     </SMPopUp>
   );
 };
