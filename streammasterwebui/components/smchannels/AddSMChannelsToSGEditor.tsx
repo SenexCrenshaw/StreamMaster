@@ -80,6 +80,7 @@ const AddSMChannelsToSGEditor = () => {
       </>
     );
   }
+
   return (
     <SMPopUp
       buttonClassName="icon-green"
