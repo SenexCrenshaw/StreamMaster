@@ -143,7 +143,7 @@ namespace StreamMaster.Infrastructure.EF.PGSQL
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
             DirectoryHelper.CreateApplicationDirectories();
-            options.EnableSensitiveDataLogging().UseLoggerFactory(MyLoggerFactory);
+            //options.EnableSensitiveDataLogging().UseLoggerFactory(MyLoggerFactory);
             options.UseNpgsql(DbConnectionString,
                 o =>
                 {

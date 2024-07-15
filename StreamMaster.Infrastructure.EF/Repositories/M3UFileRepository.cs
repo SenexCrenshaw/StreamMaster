@@ -377,34 +377,38 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, IMessageSer
             SMStream stream = tuple.stream;
             int index = tuple.index;
 
-            if (allLookup.Contains(stream.Id))
+            //if (allLookup.Contains(stream.Id))
+            //{
+            //    Interlocked.Increment(ref dupTotalCount);
+            //}
+            //else
+            //{
+            if (processed.TryAdd(stream.Id, true))
             {
-                Interlocked.Increment(ref dupTotalCount);
+                _ = groupLookup.TryGetValue(stream.Group, out ChannelGroup? group);
+
+                if (!existingLookup.TryGetValue(stream.Id, out SMStream? existingStream))
+                {
+                    ProcessNewStream(stream, group?.IsHidden ?? false, m3uFile.Name, index);
+                    stream.ShortSMStreamId = UniqueHexGenerator.GenerateUniqueHex(generatedIdsDict);
+                    toWrite.Add(stream);
+                }
+                else
+                {
+                    if (ProcessExistingStream(stream, existingStream, m3uFile, index))
+                    {
+                        if (string.IsNullOrEmpty(existingStream.ShortSMStreamId) || existingStream.ShortSMStreamId == UniqueHexGenerator.SMChannelIdEmpty)
+                        {
+                            existingStream.ShortSMStreamId = UniqueHexGenerator.GenerateUniqueHex(generatedIdsDict);
+                        }
+                        toUpdate.Add(existingStream);
+                    }
+                }
+                //}
             }
             else
             {
-                if (processed.TryAdd(stream.Id, true))
-                {
-                    _ = groupLookup.TryGetValue(stream.Group, out ChannelGroup? group);
-
-                    if (!existingLookup.TryGetValue(stream.Id, out SMStream? existingStream))
-                    {
-                        ProcessNewStream(stream, group?.IsHidden ?? false, m3uFile.Name, index);
-                        stream.ShortSMStreamId = UniqueHexGenerator.GenerateUniqueHex(generatedIdsDict);
-                        toWrite.Add(stream);
-                    }
-                    else
-                    {
-                        if (ProcessExistingStream(stream, existingStream, m3uFile, index))
-                        {
-                            if (string.IsNullOrEmpty(existingStream.ShortSMStreamId) || existingStream.ShortSMStreamId == UniqueHexGenerator.SMChannelIdEmpty)
-                            {
-                                existingStream.ShortSMStreamId = UniqueHexGenerator.GenerateUniqueHex(generatedIdsDict);
-                            }
-                            toUpdate.Add(existingStream);
-                        }
-                    }
-                }
+                Interlocked.Increment(ref dupTotalCount);
             }
 
             _ = Interlocked.Increment(ref processedCount);

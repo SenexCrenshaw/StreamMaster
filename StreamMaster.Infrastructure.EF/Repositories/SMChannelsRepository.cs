@@ -175,12 +175,6 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, ISend
             ShortSMChannelId = UniqueHexGenerator.GenerateUniqueHex(generatedIdsDict)
         };
 
-        //SMChannel? existingEntity = RepositoryContext.SMChannels.Local.FirstOrDefault(e => e.Id == smChannel.Id);
-        //if (existingEntity != null)
-        //{
-        //    RepositoryContext.SMChannels.Entry(existingEntity).State = EntityState.Detached;
-        //}
-
         await CreateSMChannel(smChannel);
         await SaveChangesAsync();
         await repository.SMChannelStreamLink.CreateSMChannelStreamLink(smChannel.Id, smStream.Id, null);

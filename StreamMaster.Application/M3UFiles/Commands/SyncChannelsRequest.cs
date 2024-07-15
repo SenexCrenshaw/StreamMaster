@@ -6,7 +6,7 @@ namespace StreamMaster.Application.M3UFiles.Commands;
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record SyncChannelsRequest(int M3UFileId) : IRequest<APIResponse>;
 
-internal class SyncChannelsRequestHandler(ILogger<SyncChannelsRequest> logger, ISender sender, IMessageService messageService, IRepositoryWrapper Repository, IDataRefreshService dataRefreshService)
+internal class SyncChannelsRequestHandler(ILogger<SyncChannelsRequest> logger, IRepositoryContext RepositoryContext, ISender sender, IMessageService messageService, IRepositoryWrapper Repository, IDataRefreshService dataRefreshService)
     : IRequestHandler<SyncChannelsRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(SyncChannelsRequest request, CancellationToken cancellationToken)
@@ -26,39 +26,91 @@ internal class SyncChannelsRequestHandler(ILogger<SyncChannelsRequest> logger, I
                 return APIResponse.ErrorWithMessage("Sync Channels not set");
             }
 
-            IQueryable<SMStream> streams = Repository.SMStream.GetQuery(tracking: false).Where(a => a.M3UFileId == request.M3UFileId);
-            IQueryable<SMChannel> existingSMChannels = Repository.SMChannel.GetQuery(tracking: false).Where(a => a.M3UFileId == request.M3UFileId);
+            IQueryable<SMStream> streams = Repository.SMStream.GetQuery().Where(a => a.M3UFileId == request.M3UFileId);
+            IQueryable<SMChannel> existingSMChannels = Repository.SMChannel.GetQuery().Where(a => a.M3UFileId == request.M3UFileId);
 
-            // Get the stream IDs
+            // Get the stream IDs as strings
             List<string> streamIds = await streams.Select(s => s.Id).ToListAsync(cancellationToken).ConfigureAwait(false);
             List<string?> existingChannelStreamIds = await existingSMChannels.Select(c => c.StreamID).ToListAsync(cancellationToken).ConfigureAwait(false);
 
-            List<string> exist = existingChannelStreamIds.OfType<string>().ToList();
+            // Filter out null values and convert to List<string>
+            List<string> existingChannelStreamIdsNonNull = existingChannelStreamIds.OfType<string>().ToList();
+
+            // Identify streams that exist both in streams and in existingSMChannels (intersection)
+            List<string> existingStreamsIDsInDb = streamIds.Intersect(existingChannelStreamIdsNonNull).ToList();
+            List<SMStream> existingStreamsInDb = streams.Where(a => existingStreamsIDsInDb.Contains(a.Id)).ToList();
 
             // Identify streams to be created (in streams but not in existingSMChannels)
-            List<string> streamsToBeCreated = streamIds.Except(exist).ToList();
+            List<string> streamsToBeCreated = streamIds.Except(existingChannelStreamIdsNonNull).ToList();
 
             // Identify streams to be deleted (in existingSMChannels but not in streams)
-            IEnumerable<string?> streamsToBeDeleted = existingChannelStreamIds.Except(streamIds);
+            List<string> streamsToBeDeleted = existingChannelStreamIdsNonNull.Except(streamIds).ToList();
 
-            //foreach (string? stream in streamsToBeCreated)
-            //{
-            //    await sender.Send(new CreateSMChannelFromStreamsRequest())
-            //}
 
             if (streamsToBeCreated.Count != 0)
             {
                 await sender.Send(new CreateSMChannelFromStreamsRequest(streamsToBeCreated, null, request.M3UFileId), cancellationToken).ConfigureAwait(false);
             }
 
-            if (streamsToBeDeleted.Any())
+            if (streamsToBeDeleted.Count != 0)
             {
                 List<int> smChannelIds = await Repository.SMChannel.GetQuery().Where(a => a.M3UFileId == request.M3UFileId && a.StreamID != null && streamsToBeDeleted.Contains(a.StreamID)).Select(a => a.Id).ToListAsync(cancellationToken: cancellationToken);
 
                 await sender.Send(new DeleteSMChannelsRequest(smChannelIds), cancellationToken).ConfigureAwait(false);
             }
+            bool changed = false;
+            if (existingStreamsInDb.Count != 0)
+            {
 
-            if (streamsToBeCreated.Count != 0 || streamsToBeDeleted.Any())
+                List<SMChannel> smChannels = await Repository.SMChannel.GetQuery(true).Where(a => a.M3UFileId == request.M3UFileId && a.StreamID != null && existingStreamsIDsInDb.Contains(a.StreamID)).ToListAsync(cancellationToken: cancellationToken);
+
+                foreach (SMChannel smChannel in smChannels)
+                {
+                    SMStream? stream = existingStreamsInDb.FirstOrDefault(a => a.Id == smChannel.StreamID);
+                    if (stream == null)
+                    {
+                        continue;
+                    }
+
+
+                    if (smChannel.Name != stream.Name)
+                    {
+                        changed = true;
+                        smChannel.Name = stream.Name;
+                    }
+
+                    //if (smChannel.Logo != stream.Logo)
+                    //{
+                    //    changed = true;
+                    //    smChannel.Logo = stream.Logo;
+                    //}
+
+                    //if (smChannel.Group != stream.Group)
+                    //{
+                    //    changed = true;
+                    //    smChannel.Group = stream.Group;
+                    //}
+
+                    if (smChannel.StationId != stream.StationId)
+                    {
+                        changed = true;
+                        smChannel.StationId = stream.StationId;
+                    }
+                    if (changed)
+                    {
+                        //SMChannel? existingEntity = RepositoryContext.SMChannels.Local.FirstOrDefault(e => e.Id == smChannel.Id);
+
+                        //EntityState state = RepositoryContext.SMChannels.Entry(smChannel).State;
+                        //RepositoryContext.SMChannels.Update(smChannel);
+                        //EntityState state1 = RepositoryContext.SMChannels.Entry(smChannel).State;
+                        await Repository.SaveAsync();
+                        //EntityState state2 = RepositoryContext.SMChannels.Entry(smChannel).State;
+                    }
+                }
+
+            }
+
+            if (streamsToBeCreated.Count != 0 || streamsToBeDeleted.Any() || changed)
             {
                 await dataRefreshService.RefreshSMChannels();
             }
