@@ -18,6 +18,7 @@ internal class DeleteSMChannelRequestHandler(IRepositoryWrapper Repository, IMes
         {
             await Repository.SMChannelStreamLink.DeleteSMChannelStreamLinksFromParentId(request.SMChannelId);
             await dataRefreshService.RefreshAllSMChannels();
+
             await messageService.SendInfo($"Deleted channel {ret.Message}");
         }
         return ret;

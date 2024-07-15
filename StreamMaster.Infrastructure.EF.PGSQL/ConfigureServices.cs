@@ -19,12 +19,15 @@ public static class ConfigureServices
         NpgsqlDataSource dataSource = dataSourceBuilder.Build();
 
         _ = services.AddDbContextFactory<PGSQLRepositoryContext>(options =>
-            options.UseNpgsql(dataSource, pgsqlOptions =>
             {
-                _ = pgsqlOptions.MigrationsAssembly(typeof(PGSQLRepositoryContext).Assembly.FullName);
-                pgsqlOptions.UseNodaTime();
+                //options.EnableSensitiveDataLogging();
+                options.UseNpgsql(dataSource, pgsqlOptions =>
+                {
+                    _ = pgsqlOptions.MigrationsAssembly(typeof(PGSQLRepositoryContext).Assembly.FullName);
+                    pgsqlOptions.UseNodaTime();
+
+                });
             }
-            )
         );
 
         _ = services.AddDbContextFactory<LogDbContext>(options =>

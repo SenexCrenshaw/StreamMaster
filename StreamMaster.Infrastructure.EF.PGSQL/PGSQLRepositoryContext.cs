@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Helpers;
@@ -12,7 +13,7 @@ namespace StreamMaster.Infrastructure.EF.PGSQL
 
         public static string DbConnectionString => $"Host={BuildInfo.DBHost};Database={BuildInfo.DBName};Username={BuildInfo.DBUser};Password={BuildInfo.DBPassword}";
 
-        new public bool IsEntityTracked<TEntity>(TEntity entity) where TEntity : class
+        public new bool IsEntityTracked<TEntity>(TEntity entity) where TEntity : class
         {
             return ChangeTracker.Entries<TEntity>().Any(e => e.Entity == entity);
         }
@@ -130,10 +131,19 @@ namespace StreamMaster.Infrastructure.EF.PGSQL
             SaveChanges();
         }
 
+        public static readonly ILoggerFactory MyLoggerFactory = LoggerFactory.Create(builder =>
+        {
+            builder
+                .AddConsole()
+                .AddFilter((category, level) =>
+                    category == DbLoggerCategory.Database.Command.Name
+                    && level == LogLevel.Information);
+        });
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
             DirectoryHelper.CreateApplicationDirectories();
+            options.EnableSensitiveDataLogging().UseLoggerFactory(MyLoggerFactory);
             options.UseNpgsql(DbConnectionString,
                 o =>
                 {

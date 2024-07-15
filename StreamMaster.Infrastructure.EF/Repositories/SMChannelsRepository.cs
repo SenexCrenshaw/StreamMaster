@@ -105,10 +105,13 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, ISend
                               .ConfigureAwait(false);
     }
 
-    public async Task CreateSMChannel(SMChannel sMChannel)
+    public async Task CreateSMChannel(SMChannel smChannel)
     {
-        Create(sMChannel);
+        EntityState state = RepositoryContext.SMChannels.Entry(smChannel).State;
+        Create(smChannel);
+        EntityState state2 = RepositoryContext.SMChannels.Entry(smChannel).State;
         await SaveChangesAsync();
+        EntityState state3 = RepositoryContext.SMChannels.Entry(smChannel).State;
     }
 
     public async Task<APIResponse> DeleteSMChannel(int smchannelId)
@@ -145,9 +148,14 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, ISend
 
     public async Task<APIResponse> CreateSMChannelFromStream(string streamId, int? StreamGroupId, int? M3UFileId)
     {
+        SMStream? smStream = repository.SMStream.GetSMStream(streamId) ?? throw new APIException($"Stream with Id {streamId} is not found");
+        if (smStream == null)
+        {
+            return APIResponse.NotFound;
+        }
+
         Setting Settings = intSettings.CurrentValue;
 
-        SMStream? smStream = repository.SMStream.GetSMStream(streamId) ?? throw new APIException($"Stream with Id {streamId} is not found");
         ConcurrentDictionary<string, byte> generatedIdsDict = new();
         foreach (SMChannel channel in GetQuery())
         {
@@ -167,8 +175,14 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, ISend
             ShortSMChannelId = UniqueHexGenerator.GenerateUniqueHex(generatedIdsDict)
         };
 
-        await CreateSMChannel(smChannel);
+        //SMChannel? existingEntity = RepositoryContext.SMChannels.Local.FirstOrDefault(e => e.Id == smChannel.Id);
+        //if (existingEntity != null)
+        //{
+        //    RepositoryContext.SMChannels.Entry(existingEntity).State = EntityState.Detached;
+        //}
 
+        await CreateSMChannel(smChannel);
+        await SaveChangesAsync();
         await repository.SMChannelStreamLink.CreateSMChannelStreamLink(smChannel.Id, smStream.Id, null);
         if (StreamGroupId.HasValue)
         {
@@ -183,7 +197,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, ISend
                 if (test.Value is string value && !string.IsNullOrEmpty(value))
                 {
                     smChannel.EPGId = value;
-                    Update(smChannel);
+                    //Update(smChannel);
                     await SaveChangesAsync();
                 }
             }
@@ -628,7 +642,11 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, ISend
                         }
                     }
 
-                    Update(smChannel);
+                    EntityState state = RepositoryContext.SMChannels.Entry(smChannel).State;
+                    if (state is EntityState.Unchanged)
+                    {
+                        Update(smChannel);
+                    }
                     //RepositoryContext.SaveChanges();
                 }
             }

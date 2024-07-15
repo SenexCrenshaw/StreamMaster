@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.StaticFiles;
+using Microsoft.EntityFrameworkCore;
 
 using NSwag;
 using NSwag.Generation.Processors.Security;
@@ -41,11 +42,14 @@ public static class ConfigureServices
 
         services.AddLogging(loggingBuilder =>
         {
+            string test = DbLoggerCategory.Database.Command.Name;
+
             loggingBuilder.AddFilter("StreamMaster.Domain.Logging.CustomLogger", LogLevel.Information);
             loggingBuilder.AddConsole();
             loggingBuilder.AddDebug();
             loggingBuilder.AddConfiguration(builder.Configuration.GetSection("Logging"));
             loggingBuilder.AddProvider(new StatsLoggerProvider());
+
 
             // GetOrAdd specific filters for StatsLoggerProvider
             loggingBuilder.AddFilter<StatsLoggerProvider>((category, logLevel) =>

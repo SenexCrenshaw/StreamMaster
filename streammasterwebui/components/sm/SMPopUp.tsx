@@ -63,7 +63,7 @@ const SMPopUp = forwardRef<SMPopUpRef, SMPopUpProperties>(
       show: (event: any) => overlayRef.current?.show(event)
     }));
 
-    Logger.debug('Remember', { remember });
+    // Logger.debug('Remember', { remember });
 
     return (
       <SMOverlay
