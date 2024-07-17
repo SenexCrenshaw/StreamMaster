@@ -11,7 +11,7 @@ interface SMScrollerConditionalProperties {
   readonly itemSize?: number;
   readonly itemTemplate?: (item: any) => React.ReactNode;
   readonly onChange?: (value: any) => void;
-  readonly optionValue?: string;
+  readonly propertyToMatch?: string;
   readonly scrollHeight?: string;
   readonly select?: boolean;
   readonly selectedItemsKey?: string;

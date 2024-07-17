@@ -5,15 +5,13 @@ import { AddProfileToStreamGroup } from '@lib/smAPI/StreamGroups/StreamGroupsCom
 import { AddProfileToStreamGroupRequest, StreamGroupDto } from '@lib/smAPI/smapiTypes';
 import { useCallback, useRef, useState } from 'react';
 import OutputProfileDropDown from './OutputProfileDropDown';
-import VideoProfileDropDown from './VideoProfileDropDown';
 
-interface CreateStreamGroupProfileDialogProps {
+interface AttachStreamGroupProfileDialogProps {
   readonly streamGroupDto: StreamGroupDto;
 }
 
-const CreateStreamGroupProfileDialog = ({ streamGroupDto }: CreateStreamGroupProfileDialogProps) => {
+const AttachStreamGroupProfileDialog = ({ streamGroupDto }: AttachStreamGroupProfileDialogProps) => {
   const defaultValues = { OutputProfileName: 'Default', VideoProfileName: 'Default' } as AddProfileToStreamGroupRequest;
-
   const [fileRequest, setFileRequest] = useState<AddProfileToStreamGroupRequest>(defaultValues);
   const smPopUpRef = useRef<SMPopUpRef>(null);
   const [name, setName] = useState<string>();
@@ -35,7 +33,7 @@ const CreateStreamGroupProfileDialog = ({ streamGroupDto }: CreateStreamGroupPro
     AddProfileToStreamGroup(fileRequest)
       .then((response) => {})
       .catch((error) => {
-        Logger.error('CreateStreamGroupProfileDialog', { error });
+        Logger.error('AttachStreamGroupProfileDialog', { error });
       })
       .finally(() => {
         setName('');
@@ -48,7 +46,7 @@ const CreateStreamGroupProfileDialog = ({ streamGroupDto }: CreateStreamGroupPro
       contentWidthSize="3"
       buttonClassName="icon-green"
       icon="pi-plus-circle"
-      title="Create Profile"
+      title="Attach Profile"
       ref={smPopUpRef}
       modal
       modalCentered
@@ -56,17 +54,17 @@ const CreateStreamGroupProfileDialog = ({ streamGroupDto }: CreateStreamGroupPro
         save();
       }}
       okButtonDisabled={!name}
-      tooltip="Create Profile"
-      zIndex={10}
+      tooltip="Attach Profile"
+      zIndex={12}
     >
       <>
         <div className="sm-headerBg dialog-padding border-sides">
-          <div className="w-12 ">
+          <div className="w-12">
             <div className="flex gap-1">
-              <div className="sm-w-3">
+              <div className="sm-w-6">
                 <StringEditor
                   autoFocus
-                  label="Name"
+                  label="ProfileNMam,e"
                   placeholder="Name"
                   darkBackGround
                   disableDebounce
@@ -84,19 +82,19 @@ const CreateStreamGroupProfileDialog = ({ streamGroupDto }: CreateStreamGroupPro
                   buttonDarkBackground
                   value={fileRequest.OutputProfileName}
                   onChange={(e) => {
-                    updateM3UOutputProfileStateAndRequest({ OutputProfileName: e.Name });
+                    updateM3UOutputProfileStateAndRequest({ OutputProfileName: e.ProfileName });
                   }}
                 />
               </div>
-              <div className={dropdownClass}>
+              {/* <div className={dropdownClass}>
                 <VideoProfileDropDown
                   buttonDarkBackground
                   value={fileRequest.OutputProfileName}
                   onChange={(e) => {
-                    updateM3UOutputProfileStateAndRequest({ OutputProfileName: e.Name });
+                    updateM3UOutputProfileStateAndRequest({ VideoProfileName: e.ProfileName });
                   }}
                 />
-              </div>
+              </div> */}
             </div>
           </div>
         </div>
@@ -106,4 +104,4 @@ const CreateStreamGroupProfileDialog = ({ streamGroupDto }: CreateStreamGroupPro
   );
 };
 
-export default CreateStreamGroupProfileDialog;
+export default AttachStreamGroupProfileDialog;

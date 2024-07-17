@@ -98,8 +98,6 @@ export interface StreamGroupProfileDto
 	M3ULink: string;
 	Name: string;
 	OutputProfileName: string;
-	ShortEPGLink: string;
-	ShortM3ULink: string;
 	StreamGroupId: number;
 	VideoProfileName: string;
 	XMLLink: string;
@@ -254,6 +252,7 @@ export interface IdNameUrl
 export interface M3UFileDto
 {
 	AutoUpdate: boolean;
+	DefaultStreamGroupName?: string;
 	Description: string;
 	DownloadErrors: number;
 	HoursToUpdate: number;
@@ -888,24 +887,6 @@ export interface CopySMChannelRequest
 	NewName: string;
 	SMChannelId: number;
 }
-export interface CreateSMChannelFromStreamParametersRequest
-{
-	M3UFileId?: number;
-	Parameters: QueryStringParameters;
-	StreamGroupId?: number;
-}
-export interface CreateSMChannelFromStreamRequest
-{
-	M3UFileId?: number;
-	StreamGroupId?: number;
-	StreamId: string;
-}
-export interface CreateSMChannelFromStreamsRequest
-{
-	M3UFileId?: number;
-	StreamGroupId?: number;
-	StreamIds: string[];
-}
 export interface CreateSMChannelRequest
 {
 	ChannelNumber?: number;
@@ -917,6 +898,19 @@ export interface CreateSMChannelRequest
 	StreamingProxyType?: string;
 	TimeShift?: number;
 	VideoStreamHandler?: VideoStreamHandlers;
+}
+export interface CreateSMChannelsFromStreamParametersRequest
+{
+	DefaultStreamGroupName?: string;
+	M3UFileId?: number;
+	Parameters: QueryStringParameters;
+	StreamGroupId?: number;
+}
+export interface CreateSMChannelsFromStreamsRequest
+{
+	M3UFileId?: number;
+	StreamGroup?: string;
+	StreamIds: string[];
 }
 export interface DeleteSMChannelRequest
 {
@@ -1193,15 +1187,17 @@ export interface GetPagedM3UFilesRequest
 }
 export interface CreateM3UFileFromFormRequest
 {
+	DefaultStreamGroupName?: string;
 	FormFile?: any;
 	HoursToUpdate?: number;
-	MaxStreamCount: number;
+	MaxStreamCount?: number;
 	Name: string;
 	SyncChannels?: boolean;
 	VODTags?: string[];
 }
 export interface CreateM3UFileRequest
 {
+	DefaultStreamGroupName?: string;
 	HoursToUpdate?: number;
 	MaxStreamCount: number;
 	Name: string;
@@ -1226,11 +1222,13 @@ export interface RefreshM3UFileRequest
 }
 export interface SyncChannelsRequest
 {
+	Group?: string;
 	M3UFileId: number;
 }
 export interface UpdateM3UFileRequest
 {
 	AutoUpdate?: boolean;
+	DefaultStreamGroupName?: string;
 	HoursToUpdate?: number;
 	Id: number;
 	MaxStreamCount?: number;

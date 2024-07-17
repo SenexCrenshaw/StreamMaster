@@ -1,4 +1,4 @@
-import { upload as uploadService } from '@lib/FileUploadService';
+import { uploadToAPI as uploadService } from '@lib/FileUploadService';
 import { EPGFileDto, M3UFileDto } from '@lib/smAPI/smapiTypes';
 import * as axios from 'axios';
 import { useCallback, useState } from 'react';
@@ -46,8 +46,8 @@ export function useFileUpload() {
           epgNumber: params.epgFileDto?.EPGNumber,
           timeShift: params.epgFileDto?.TimeShift,
           color: params.epgFileDto?.Color,
-          startingChannelNumber: params.m3uFileDto?.StartingChannelNumber,
-          overWriteChannels: params.m3uFileDto?.OverwriteChannelNumbers,
+          defaultStreamGroupName: params.m3uFileDto?.DefaultStreamGroupName,
+          syncChannels: params.m3uFileDto?.SyncChannels,
           vodTags: params.m3uFileDto?.VODTags,
           file: params.file,
           fileType: params.m3uFileDto === undefined ? 'epg' : 'm3u',

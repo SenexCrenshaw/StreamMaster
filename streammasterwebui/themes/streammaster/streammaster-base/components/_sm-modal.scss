@@ -1,34 +1,40 @@
-.z-10 {
+.sm-modal {
+    @extend .sm-box-modal;
     z-index: 10;
 }
 
-.sm-modal {
-    @extend .sm-box-modal;
-    z-index: 10 !important;
-
-}
-
-.sm-modal-11 {
-    @extend .sm-box-modal;
-    z-index: 11 !important;
-}
-
 .sm-dialog-overlay {
-    z-index: 9;
+    -webkit-backdrop-filter: blur(1px) brightness(0.8) contrast(1);
+    backdrop-filter: blur(2px) brightness(0.8) contrast(1);
+    background: rgba(0, 0, 0, 0.01);
     display: grid;
     place-items: center;
-    background: rgba(0, 0, 0, 0.01); // Semi-transparent dark overlay    
     transition: all 0.3s ease-in-out;
-    backdrop-filter: blur(2px) brightness(0.8) contrast(1); // Enhanced blur with brightness and contrast adjustments
-    -webkit-backdrop-filter: blur(1px) brightness(0.8) contrast(1); // Safari support effect
+    z-index: 9;
 }
 
-.sm-dialog-overlay-11 {
-    z-index: 11 !important;
-    display: grid;
-    place-items: center;
-    background: rgba(0, 0, 0, 0.01); // Semi-transparent dark overlay    
-    transition: all 0.3s ease-in-out;
-    backdrop-filter: blur(2px) brightness(0.8) contrast(1); // Enhanced blur with brightness and contrast adjustments
-    -webkit-backdrop-filter: blur(1px) brightness(0.8) contrast(1); // Safari support effect
+@for $i from 1 through 20 {
+    .z-#{$i} {
+        z-index: $i !important;
+    }
+}
+
+@for $i from 1 through 20 {
+    .sm-modal-#{$i} {
+        @extend .sm-box-modal;
+        z-index: $i !important;
+    }
+}
+
+@for $i from 1 through 20 {
+    .sm-dialog-overlay-#{$i} {
+        @extend .sm-dialog-overlay-#{$i};
+        z-index: $i !important;
+        display: grid;
+        place-items: center;
+        background: rgba(0, 0, 0, 0.01); // Semi-transparent dark overlay    
+        transition: all 0.3s ease-in-out;
+        backdrop-filter: blur(2px) brightness(0.8) contrast(1); // Enhanced blur with brightness and contrast adjustments
+        -webkit-backdrop-filter: blur(1px) brightness(0.8) contrast(1); // Safari support effect
+    }
 }

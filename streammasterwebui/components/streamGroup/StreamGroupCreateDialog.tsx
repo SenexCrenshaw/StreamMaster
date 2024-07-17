@@ -1,5 +1,3 @@
-import BooleanEditor from '@components/inputs/BooleanEditor';
-import NumberEditor from '@components/inputs/NumberEditor';
 import StringEditor from '@components/inputs/StringEditor';
 import { SMDialogRef } from '@components/sm/SMDialog';
 import SMPopUp, { SMPopUpRef } from '@components/sm/SMPopUp';
@@ -10,9 +8,11 @@ import React, { useCallback, useMemo, useRef, useState } from 'react';
 
 export interface StreamGroupCreateDialogProperties {
   readonly showButton?: boolean | null;
+  readonly zIndex?: number | undefined;
+  readonly modal?: boolean | null;
 }
 
-export const StreamGroupCreateDialog = ({ showButton }: StreamGroupCreateDialogProperties) => {
+export const StreamGroupCreateDialog = ({ modal, zIndex }: StreamGroupCreateDialogProperties) => {
   const [saving, setSaving] = useState<boolean>(false);
   const smPopUpRef = useRef<SMPopUpRef>(null);
   const defaultValues = useMemo(
@@ -78,7 +78,8 @@ export const StreamGroupCreateDialog = ({ showButton }: StreamGroupCreateDialogP
       ref={smPopUpRef}
       icon="pi-plus"
       iconFilled
-      contentWidthSize="2"
+      modal={modal ?? false}
+      contentWidthSize="3"
       title="ADD SG"
       onOkClick={() => {
         create();
@@ -87,9 +88,9 @@ export const StreamGroupCreateDialog = ({ showButton }: StreamGroupCreateDialogP
       okButtonDisabled={!isSaveEnabled}
       buttonClassName="icon-green"
       tooltip="Add SG"
-      zIndex={10}
+      zIndex={zIndex ?? 10}
     >
-      <div className="w-full">
+      <div className="w-full p-2">
         <StringEditor
           disableDebounce
           darkBackGround
@@ -101,13 +102,13 @@ export const StreamGroupCreateDialog = ({ showButton }: StreamGroupCreateDialogP
         />
         <div className="layout-padding-bottom-lg" />
         <div className="flex w-12 justify-content-end align-content-center">
-          <div className="sm-w-6  sm-center-stuff">
+          {/* <div className="sm-w-6  sm-center-stuff">
             <NumberEditor darkBackGround disableDebounce showButtons label="START CH #" onChange={(e) => {}} value={1} />
-          </div>
-          <div className="sm-w-6 flex flex-column">
+          </div> */}
+          {/* <div className="sm-w-6 flex flex-column align-items-center">
             <BooleanEditor checked={true} label="Fill Channel #" onChange={(e) => {}} />
             <BooleanEditor checked={true} label="Skip Existing #" onChange={(e) => {}} />
-          </div>
+          </div> */}
         </div>
         <div className="layout-padding-bottom-lg" />
       </div>

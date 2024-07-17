@@ -2,7 +2,6 @@ import SMDropDown from '@components/sm/SMDropDown';
 import { Logger } from '@lib/common/logger';
 import useGetVideoProfiles from '@lib/smAPI/Profiles/useGetVideoProfiles';
 import { VideoOutputProfileDto } from '@lib/smAPI/smapiTypes';
-
 import { ReactNode, useCallback, useMemo } from 'react';
 
 interface VideoProfileDropDownProps {
@@ -19,11 +18,10 @@ const VideoProfileDropDown = ({ buttonDarkBackground = false, onChange, value }:
       return undefined;
     }
 
-    const ret = data.find((x) => x.ProfileName === value);
-    Logger.debug('VideoProfileDropDown', data, value, ret);
-
     return data.find((x) => x.ProfileName === value);
   }, [data, value]);
+
+  Logger.debug('VideoProfileDropDown', { data: data, selectedVideoProfile, value });
 
   const itemTemplate = useCallback((option: VideoOutputProfileDto): JSX.Element => {
     return <div className="text-xs text-container">{option?.ProfileName ?? ''}</div>;
@@ -32,7 +30,7 @@ const VideoProfileDropDown = ({ buttonDarkBackground = false, onChange, value }:
   const buttonTemplate = useMemo((): ReactNode => {
     return (
       <div className="sm-epg-selector">
-        <div className="text-container" style={{ paddingLeft: '0.12rem' }}>
+        <div className="text-container" style={{ paddingLeft: '0.24rem' }}>
           {selectedVideoProfile?.ProfileName ?? ''}
         </div>
       </div>
@@ -46,15 +44,16 @@ const VideoProfileDropDown = ({ buttonDarkBackground = false, onChange, value }:
       buttonTemplate={buttonTemplate}
       contentWidthSize="2"
       data={data}
-      dataKey="label"
+      dataKey="ProfileName"
       info=""
       itemTemplate={itemTemplate}
       label={buttonDarkBackground ? 'Video Profile' : undefined}
       onChange={onChange}
-      optionValue="label"
+      propertyToMatch="ProfileName"
       scrollHeight="20vh"
       title="Profiles"
       value={selectedVideoProfile}
+      zIndex={12}
     />
   );
 };

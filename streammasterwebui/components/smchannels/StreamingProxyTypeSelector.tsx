@@ -109,7 +109,7 @@ const StreamingProxyTypeSelector: React.FC<StreamingProxyTypeSelectorProperties>
         await onChange(e.value);
       }}
       title="PROXY"
-      optionValue="label"
+      propertyToMatch="label"
       value={data?.StreamingProxyType ?? 'SystemDefault'}
       contentWidthSize="2"
     />

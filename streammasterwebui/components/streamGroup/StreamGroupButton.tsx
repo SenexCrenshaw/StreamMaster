@@ -34,6 +34,7 @@ const StreamGroupButton = ({ className = 'sm-w-10rem sm-input-dark' }: StreamGro
             setSelectedItems([sg]);
           }}
           selectedStreamGroup={selectedStreamGroup}
+          zIndex={11}
         />
       </div>
       <div className="pr-1" />

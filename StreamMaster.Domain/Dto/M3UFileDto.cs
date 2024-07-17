@@ -9,7 +9,7 @@ public class M3UFileDto : BaseFileDto, IMapFrom<M3UFile>
 {
     public bool SyncChannels { get; set; }
     public List<string> VODTags { get; set; } = [];
-
+    public string? DefaultStreamGroupName { get; set; }
     public int MaxStreamCount { get; set; }
     //public M3UFileStreamURLPrefix StreamURLPrefix { get; set; }
     public int StreamCount { get; set; }

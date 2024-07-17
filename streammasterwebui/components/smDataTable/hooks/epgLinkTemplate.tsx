@@ -8,7 +8,7 @@ export function epgLinkTemplate(data: object) {
   return (
     <div className="flex justify-content-center align-items-center gap-1">
       <LinkButton filled link={getRecordString(data, 'XMLLink')} title="EPG Link" />
-      <LinkButton bolt link={getRecordString(data, 'ShortEPGLink')} title="Not encrypted EPG Link" />
+      {/* <LinkButton bolt link={getRecordString(data, 'ShortEPGLink')} title="Short EPG Link" /> */}
     </div>
   );
 }

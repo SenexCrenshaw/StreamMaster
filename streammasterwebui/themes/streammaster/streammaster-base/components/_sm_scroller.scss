@@ -69,6 +69,10 @@
             &:nth-child(odd) {
                 background: $tableBodyRowEvenBg;
             }
+
+            &:last-child {
+                @extend .sm-border-bottom;
+            }
         }
     }
 }

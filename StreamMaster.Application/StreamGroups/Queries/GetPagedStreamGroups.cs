@@ -26,6 +26,12 @@ internal class GetPagedStreamGroupsRequestHandler(IRepositoryWrapper Repository)
         //}
         foreach (var streamGroupDto in ret.Data)
         {
+            if (streamGroupDto.Id == 1)
+            {
+                streamGroupDto.ChannelCount = Repository.SMChannel.Count();
+                continue;
+            }
+
             streamGroupDto.ChannelCount = Repository.StreamGroupSMChannelLink.GetQuery().Count(a => a.StreamGroupId == streamGroupDto.Id);
         }
 

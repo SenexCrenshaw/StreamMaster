@@ -9,7 +9,7 @@ internal class CopySMChannelRequestHandler(IRepositoryWrapper Repository, IMessa
 {
     public async Task<APIResponse> Handle(CopySMChannelRequest request, CancellationToken cancellationToken)
     {
-        APIResponse ret = await Repository.SMChannel.CopySMChannel(request.SMChannelId, request.NewName);
+        APIResponse ret = await Repository.SMChannel.CloneSMChannel(request.SMChannelId, request.NewName);
         if (ret.IsError)
         {
             await messageService.SendError($"Could not copy channel", ret.ErrorMessage);

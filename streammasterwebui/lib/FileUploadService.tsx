@@ -2,36 +2,43 @@ import { type AxiosProgressEvent } from 'axios';
 import http from './axios';
 
 export interface UploadProperties {
-  fileType: 'epg' | 'm3u';
-  file: File;
-  name: string;
-  maxStreamCount?: number;
-  epgNumber?: number;
-  timeShift?: number;
   color?: string;
-  startingChannelNumber?: number;
+  defaultStreamGroupName?: string;
+  epgNumber?: number;
+  file: File;
+  fileType: 'epg' | 'm3u';
+  maxStreamCount?: number;
+  name: string;
   overWriteChannels?: boolean;
+  startingChannelNumber?: number;
+  syncChannels?: boolean;
+  timeShift?: number;
   vodTags?: string[];
   onUploadProgress: (progressEvent: AxiosProgressEvent) => void;
 }
 
-export const upload = async ({
-  name,
-  maxStreamCount,
-  epgNumber,
-  timeShift,
+export const uploadToAPI = async ({
   color,
-  startingChannelNumber,
-  overWriteChannels,
-  vodTags,
+  defaultStreamGroupName,
+  epgNumber,
   file,
   fileType,
-  onUploadProgress
+  maxStreamCount,
+  name,
+  overWriteChannels,
+  onUploadProgress,
+  startingChannelNumber,
+  syncChannels,
+  timeShift,
+  vodTags
 }: UploadProperties) => {
   const formData = new FormData();
 
   formData.append('FormFile', file);
   formData.append('name', name);
+
+  if (defaultStreamGroupName) formData.append('defaultStreamGroupName', defaultStreamGroupName.toString());
+  if (syncChannels) formData.append('syncChannels', syncChannels?.toString() ?? 'false');
 
   if (color) formData.append('color', color);
   if (overWriteChannels) formData.append('overWriteChannels', overWriteChannels?.toString() ?? 'true');

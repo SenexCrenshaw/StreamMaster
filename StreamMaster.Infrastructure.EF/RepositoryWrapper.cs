@@ -38,7 +38,7 @@ public class RepositoryWrapper(
     {
         get
         {
-            _streamGroupProfileRepository ??= new StreamGroupProfileRepository(StreamGroupProfileRepositoryLogger, repositoryContext);
+            _streamGroupProfileRepository ??= new StreamGroupProfileRepository(StreamGroupProfileRepositoryLogger, mapper, repositoryContext);
             return _streamGroupProfileRepository;
         }
     }
@@ -70,7 +70,7 @@ public class RepositoryWrapper(
     {
         get
         {
-            _smChannel ??= new SMChannelsRepository(SMChannelLogger, sender, this, repositoryContext, mapper, intSettings, schedulesDirectDataService);
+            _smChannel ??= new SMChannelsRepository(SMChannelLogger, this, repositoryContext, mapper, intSettings, schedulesDirectDataService);
             return _smChannel;
         }
     }
@@ -92,7 +92,7 @@ public class RepositoryWrapper(
     {
         get
         {
-            _streamGroup ??= new StreamGroupRepository(StreamGroupRepositoryLogger, repositoryContext, mapper, intSettings, httpContextAccessor);
+            _streamGroup ??= new StreamGroupRepository(StreamGroupRepositoryLogger, this, repositoryContext, mapper, intSettings, httpContextAccessor);
             return _streamGroup;
         }
     }

@@ -56,7 +56,7 @@ const ColorEditor = ({ color: clientColor, editable = true, label, onChange }: C
         </>
       )}
 
-      <SMPopUp buttonTemplate={buttonTemplate} zIndex={10} showRemember={false}>
+      <SMPopUp buttonTemplate={buttonTemplate} showRemember={false} zIndex={12}>
         <div className="w-full flex justify-content-center flex-column align-content-center justify-items-center align-items-center gap-2">
           <Sketch
             style={{ width: '100%' }}

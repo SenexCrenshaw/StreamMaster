@@ -11,6 +11,7 @@ import { DataTableRowClickEvent, DataTableRowData, DataTableRowExpansionTemplate
 import { memo, useCallback, useMemo } from 'react';
 import StreamGroupDataSelectorValue from './StreamGroupDataSelectorValue';
 import { useStreamGroupDeviceIDColumnConfig } from './columns/useStreamGroupDeviceIDColumnConfig';
+import AttachStreamGroupProfileDialog from './profiles/AttachStreamGroupProfileDialog';
 
 export interface StreamGroupDataSelectorProperties {
   readonly id: string;
@@ -20,15 +21,10 @@ const StreamGroupDataSelector = ({ id }: StreamGroupDataSelectorProperties) => {
   const { selectedStreamGroup, setSelectedStreamGroup } = useSelectedStreamGroup('StreamGroup');
   const { isLoading } = useGetPagedStreamGroups();
   const { setSelectedItems } = useSelectedItems('selectedStreamGroup');
-  // const streamGroupStartChnColumnConfig = useStreamGroupStartChnColumnConfig({ width: 60 });
-  // const streamGroupAutoSetChannelNumbersColumnConfig = useStreamGroupAutoSetChannelNumbersColumnConfig({ width: 60 });
-  // const streamGroupIgnoreExistingChannelNumbersColumnConfig = useStreamGroupIgnoreExistingChannelNumbersColumnConfig({ width: 60 });
+
   const streamGroupDeviceIDColumnConfig = useStreamGroupDeviceIDColumnConfig({ width: 60 });
   const rowExpansionTemplate = useCallback((rowData: DataTableRowData<any>, options: DataTableRowExpansionTemplate) => {
     const streamGroupDto = rowData as unknown as StreamGroupDto;
-    if (streamGroupDto.Name === 'ALL') {
-      return <div />;
-    }
 
     return (
       <div className="ml-3 m-1">
@@ -37,13 +33,13 @@ const StreamGroupDataSelector = ({ id }: StreamGroupDataSelectorProperties) => {
     );
   }, []);
 
-  const actionTemplate = useCallback((rowData: StreamGroupDto) => {
-    if (rowData.IsReadOnly === true) {
-      return <div />;
+  const actionTemplate = useCallback((streamGroupDto: StreamGroupDto) => {
+    if (streamGroupDto.IsReadOnly === true) {
+      return <AttachStreamGroupProfileDialog streamGroupDto={streamGroupDto} />;
     }
     return (
       <div className="flex justify-content-center align-items-center">
-        <StreamGroupDeleteDialog streamGroup={rowData} />
+        <StreamGroupDeleteDialog streamGroup={streamGroupDto} />
         {/* <M3UFileRefreshDialog selectedFile={rowData} />
          <M3UFileRemoveDialog selectedFile={rowData} /> */}
         {/* <EPGFileEditDialog selectedFile={rowData} /> */}
@@ -100,18 +96,18 @@ const StreamGroupDataSelector = ({ id }: StreamGroupDataSelectorProperties) => {
       {
         field: 'HDHRLink',
         fieldType: 'url',
-        width: 24
+        width: 16
       },
       {
         align: 'center',
         field: 'XMLLink',
         fieldType: 'epglink',
-        width: 26
+        width: 16
       },
       {
         field: 'M3ULink',
         fieldType: 'm3ulink',
-        width: 26
+        width: 16
       },
       streamGroupDeviceIDColumnConfig,
       // streamGroupStartChnColumnConfig,

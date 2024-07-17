@@ -1,5 +1,4 @@
 import BooleanEditor from '@components/inputs/BooleanEditor';
-import { Logger } from '@lib/common/logger';
 import { useLocalStorage } from 'primereact/hooks';
 import { forwardRef, useCallback, useImperativeHandle, useRef } from 'react';
 import { SMPopUpProperties } from './Interfaces/SMPopUpProperties';

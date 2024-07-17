@@ -15,10 +15,9 @@ namespace StreamMaster.Application.SMChannels
         Task<ActionResult<APIResponse>> AutoSetSMChannelNumbersFromParameters(AutoSetSMChannelNumbersFromParametersRequest request);
         Task<ActionResult<APIResponse>> AutoSetSMChannelNumbers(AutoSetSMChannelNumbersRequest request);
         Task<ActionResult<APIResponse>> CopySMChannel(CopySMChannelRequest request);
-        Task<ActionResult<APIResponse>> CreateSMChannelFromStreamParameters(CreateSMChannelFromStreamParametersRequest request);
-        Task<ActionResult<APIResponse>> CreateSMChannelFromStream(CreateSMChannelFromStreamRequest request);
-        Task<ActionResult<APIResponse>> CreateSMChannelFromStreams(CreateSMChannelFromStreamsRequest request);
         Task<ActionResult<APIResponse>> CreateSMChannel(CreateSMChannelRequest request);
+        Task<ActionResult<APIResponse>> CreateSMChannelsFromStreamParameters(CreateSMChannelsFromStreamParametersRequest request);
+        Task<ActionResult<APIResponse>> CreateSMChannelsFromStreams(CreateSMChannelsFromStreamsRequest request);
         Task<ActionResult<APIResponse>> DeleteSMChannel(DeleteSMChannelRequest request);
         Task<ActionResult<APIResponse>> DeleteSMChannelsFromParameters(DeleteSMChannelsFromParametersRequest request);
         Task<ActionResult<APIResponse>> DeleteSMChannels(DeleteSMChannelsRequest request);
@@ -52,10 +51,9 @@ namespace StreamMaster.Application.Hubs
         Task<APIResponse> AutoSetSMChannelNumbersFromParameters(AutoSetSMChannelNumbersFromParametersRequest request);
         Task<APIResponse> AutoSetSMChannelNumbers(AutoSetSMChannelNumbersRequest request);
         Task<APIResponse> CopySMChannel(CopySMChannelRequest request);
-        Task<APIResponse> CreateSMChannelFromStreamParameters(CreateSMChannelFromStreamParametersRequest request);
-        Task<APIResponse> CreateSMChannelFromStream(CreateSMChannelFromStreamRequest request);
-        Task<APIResponse> CreateSMChannelFromStreams(CreateSMChannelFromStreamsRequest request);
         Task<APIResponse> CreateSMChannel(CreateSMChannelRequest request);
+        Task<APIResponse> CreateSMChannelsFromStreamParameters(CreateSMChannelsFromStreamParametersRequest request);
+        Task<APIResponse> CreateSMChannelsFromStreams(CreateSMChannelsFromStreamsRequest request);
         Task<APIResponse> DeleteSMChannel(DeleteSMChannelRequest request);
         Task<APIResponse> DeleteSMChannelsFromParameters(DeleteSMChannelsFromParametersRequest request);
         Task<APIResponse> DeleteSMChannels(DeleteSMChannelsRequest request);

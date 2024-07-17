@@ -1,10 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
+
 using StreamMaster.Application.CustomPlayLists.Commands;
 
-namespace StreamMaster.Application.CustomPlayLists.Controllers
+namespace StreamMaster.Application.CustomPlayLists
 {
     public partial class CustomPlayListsController(ILogger<CustomPlayListsController> _logger) : ApiControllerBase, ICustomPlayListsController
-    {        
+    {
 
         [HttpPatch]
         [Route("[action]")]

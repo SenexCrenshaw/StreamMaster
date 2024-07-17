@@ -48,6 +48,7 @@ const SMDropDown = forwardRef<SMDropDownRef, ExtendedSMDropDownProperties>(
 
     const getSMOverlay = useCallback(() => {
       const spreadProps = props as Required<SMDropDownProperties>;
+
       return (
         <SMOverlay
           noCloseButton={noCloseButton}

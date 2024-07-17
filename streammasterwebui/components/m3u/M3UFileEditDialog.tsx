@@ -1,11 +1,10 @@
 import ResetButton from '@components/buttons/ResetButton';
 import SMPopUp, { SMPopUpRef } from '@components/sm/SMPopUp';
+import { Logger } from '@lib/common/logger';
+import { UpdateM3UFile } from '@lib/smAPI/M3UFiles/M3UFilesCommands';
 import { M3UFileDto, UpdateM3UFileRequest } from '@lib/smAPI/smapiTypes';
 import { memo, useCallback, useRef, useState } from 'react';
 import M3UFileDialog, { M3UFileDialogRef } from './M3UFileDialog';
-import OKButton from '@components/buttons/OKButton';
-import { Logger } from '@lib/common/logger';
-import { UpdateM3UFile } from '@lib/smAPI/M3UFiles/M3UFilesCommands';
 
 interface M3UFileEditDialogProperties {
   readonly selectedFile: M3UFileDto;
@@ -47,19 +46,14 @@ const M3UFileEditDialog = ({ selectedFile }: M3UFileEditDialogProperties) => {
   return (
     <SMPopUp
       buttonClassName="icon-yellow"
-      contentWidthSize="3"
+      contentWidthSize="4"
+      onOkClick={onSave}
       header={
         <div className="flex w-12 gap-1 justify-content-end align-content-center">
           <ResetButton
             buttonDisabled={!saveEnabled}
             onClick={() => {
               m3uDialogRef.current?.reset();
-            }}
-          />
-          <OKButton
-            buttonDisabled={!saveEnabled}
-            onClick={() => {
-              onSave();
             }}
           />
         </div>

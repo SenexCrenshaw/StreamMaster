@@ -10,6 +10,7 @@ namespace StreamMaster.Domain.Repository
         Task<List<StreamGroupDto>> GetStreamGroups(CancellationToken cancellationToken);
 
         StreamGroup? GetStreamGroup(int id);
+        Task<StreamGroupDto?> GetStreamGroupByName(string Name);
         Task<StreamGroupDto?> GetStreamGroupById(int id);
 
         Task<PagedResponse<StreamGroupDto>> GetPagedStreamGroups(QueryStringParameters Parameters);

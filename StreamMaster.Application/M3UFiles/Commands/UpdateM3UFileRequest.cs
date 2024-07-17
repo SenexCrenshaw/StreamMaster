@@ -1,10 +1,11 @@
 ﻿using StreamMaster.Application.Services;
+using StreamMaster.Application.StreamGroupSMChannelLinks.Commands;
 
 namespace StreamMaster.Application.M3UFiles.Commands;
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record UpdateM3UFileRequest(int? MaxStreamCount, int? StartingChannelNumber, bool? SyncChannels, List<string>? VODTags, bool? AutoUpdate, int? HoursToUpdate, int Id, string? Name, string? Url)
+public record UpdateM3UFileRequest(int? MaxStreamCount, int? StartingChannelNumber, string? DefaultStreamGroupName, bool? SyncChannels, List<string>? VODTags, bool? AutoUpdate, int? HoursToUpdate, int Id, string? Name, string? Url)
     : IRequest<APIResponse>;
 
 [LogExecutionTimeAspect]
@@ -33,6 +34,8 @@ public class UpdateM3UFileRequestHandler(IRepositoryWrapper Repository, IReposit
             bool needsUpdate = false;
             bool needsRefresh = false;
             bool nameChange = false;
+            bool defaultNameChange = false;
+            int oldSGId = 0;
 
             if (request.VODTags != null)
             {
@@ -53,6 +56,21 @@ public class UpdateM3UFileRequestHandler(IRepositoryWrapper Repository, IReposit
                 nameChange = true;
                 m3uFile.Name = request.Name;
                 ret.Add(new FieldData(() => m3uFile.Name));
+            }
+
+            if (!string.IsNullOrEmpty(request.DefaultStreamGroupName) && request.DefaultStreamGroupName != m3uFile.DefaultStreamGroupName)
+            {
+                if (m3uFile.DefaultStreamGroupName != null)
+                {
+                    var sg = await Repository.StreamGroup.GetStreamGroupByName(m3uFile.DefaultStreamGroupName);
+                    if (sg != null)
+                    {
+                        oldSGId = sg.Id;
+                    }
+                }
+                defaultNameChange = true;
+                m3uFile.DefaultStreamGroupName = request.DefaultStreamGroupName;
+                ret.Add(new FieldData(() => m3uFile.DefaultStreamGroupName));
             }
 
             if (request.MaxStreamCount.HasValue)
@@ -85,13 +103,20 @@ public class UpdateM3UFileRequestHandler(IRepositoryWrapper Repository, IReposit
 
             if (request.SyncChannels == true)
             {
-                await Sender.Send(new SyncChannelsRequest(m3uFile.Id), cancellationToken);
+                await Sender.Send(new SyncChannelsRequest(m3uFile.Id, m3uFile.DefaultStreamGroupName), cancellationToken);
+            }
+
+            if (defaultNameChange && oldSGId != 0)
+            {
+                await Sender.Send(new MoveSMChannelsToStreamGroupByM3UFileIdRequest(m3uFile, oldSGId), cancellationToken).ConfigureAwait(false);
+                await Repository.SaveAsync().ConfigureAwait(false);
+                await dataRefreshService.RefreshAllSMChannels().ConfigureAwait(false);
             }
 
             if (nameChange)
             {
                 string sql = $"UPDATE public.\"SMStreams\" SET \"M3UFileName\"='{m3uFile.Name}' WHERE \"M3UFileId\"={m3uFile.Id};";
-                await repositoryContext.ExecuteSqlRawAsyncEntities(sql);
+                await repositoryContext.ExecuteSqlRawAsyncEntities(sql, cancellationToken);
                 await dataRefreshService.RefreshSMStreams().ConfigureAwait(false);
             }
 
@@ -110,11 +135,12 @@ public class UpdateM3UFileRequestHandler(IRepositoryWrapper Repository, IReposit
             {
                 if (request.SyncChannels == true)
                 {
-                    await Sender.Send(new SyncChannelsRequest(m3uFile.Id), cancellationToken);
+                    await Sender.Send(new SyncChannelsRequest(m3uFile.Id, m3uFile.DefaultStreamGroupName), cancellationToken);
                 }
                 await dataRefreshService.SetField(ret).ConfigureAwait(false);
                 await dataRefreshService.Refresh("GetM3UFileNames").ConfigureAwait(false);
             }
+            _ = await Repository.SaveAsync().ConfigureAwait(false);
             jobManager.SetSuccessful();
             return APIResponse.Success;
         }

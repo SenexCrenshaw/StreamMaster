@@ -12,7 +12,7 @@ using StreamMaster.Domain.Filtering;
 using System.Web;
 namespace StreamMaster.Infrastructure.EF.Repositories;
 
-public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepositoryContext repositoryContext, IMapper mapper, IOptionsMonitor<Setting> intSettings, IHttpContextAccessor httpContextAccessor)
+public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepositoryWrapper Repository, IRepositoryContext repositoryContext, IMapper mapper, IOptionsMonitor<Setting> intSettings, IHttpContextAccessor httpContextAccessor)
     : RepositoryBase<StreamGroup>(repositoryContext, logger), IStreamGroupRepository
 {
     public PagedResponse<StreamGroupDto> CreateEmptyPagedResponse()
@@ -47,12 +47,10 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
         SetStreamGroupLinks(streamGroupDto, Url);
     }
 
-    private void SetStreamGroupLinks(StreamGroupDto streamGroupDto, string Url)
+    private async void SetStreamGroupLinks(StreamGroupDto streamGroupDto, string Url)
     {
         Setting Settings = intSettings.CurrentValue;
-        //int count = streamGroupDto.IsReadOnly
-        //    ? RepositoryContext.SMStreams.Count()
-        //    : RepositoryContext.StreamGroupSMChannelLinks.Where(a => a.StreamGroupId == streamGroupDto.Id).Count();
+
         if (streamGroupDto.StreamGroupProfiles.Count > 0)
         {
             foreach (StreamGroupProfileDto sgProfile in streamGroupDto.StreamGroupProfiles)
@@ -65,17 +63,23 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
                             .Replace(" ", "_");
 
                 sgProfile.M3ULink = $"{Url}/api/streamgroups/{encodedStreamGroupNumber}/m3u.m3u";
-                sgProfile.ShortM3ULink = $"{Url}/v/s/{encodedName}.m3u";
-                sgProfile.ShortEPGLink = $"{Url}/v/s/{encodedName}.xml";
+                //sgProfile.ShortM3ULink = $"{Url}/v/s/{encodedName}.m3u";
+                //sgProfile.ShortEPGLink = $"{Url}/v/s/{encodedName}.xml";
                 sgProfile.XMLLink = $"{Url}/api/streamgroups/{encodedStreamGroupNumber}/epg.xml";
                 sgProfile.HDHRLink = $"{Url}/api/streamgroups/{encodedStreamGroupNumber}";
             }
 
-            StreamGroupProfileDto? defaultProfile = streamGroupDto.StreamGroupProfiles.Find(a => a.Name == "Default");
+            StreamGroupProfileDto? defaultProfile = streamGroupDto.StreamGroupProfiles.FirstOrDefault(a => a.Name == "Default");
+
+            defaultProfile ??= streamGroupDto.StreamGroupProfiles.OrderBy(a => a.Id).FirstOrDefault();
+
+            //var defaultProfile = await Repository.StreamGroupProfile.GetDefaultStreamGroupProfile(streamGroupDto.Id);
+
+            //StreamGroupProfileDto? defaultProfile = await sender.Send(new getstrea)
             if (defaultProfile != null)
             {
-                streamGroupDto.ShortM3ULink = defaultProfile.ShortM3ULink;
-                streamGroupDto.ShortEPGLink = defaultProfile.ShortEPGLink;
+                //streamGroupDto.ShortM3ULink = defaultProfile.ShortM3ULink;
+                //streamGroupDto.ShortEPGLink = defaultProfile.ShortEPGLink;
                 streamGroupDto.M3ULink = defaultProfile.M3ULink;
                 streamGroupDto.XMLLink = defaultProfile.XMLLink;
                 streamGroupDto.HDHRLink = defaultProfile.HDHRLink;
@@ -85,13 +89,32 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
         //streamGroupDto.StreamCount = count;
     }
 
+    public async Task<StreamGroupDto?> GetStreamGroupByName(string Name)
+    {
+        if (string.IsNullOrEmpty(Name))
+        {
+            return null;
+        }
+
+        StreamGroup? streamGroup = await GetQuery(c => c.Name == Name)
+                            .AsNoTracking()
+                            .FirstOrDefaultAsync()
+                            .ConfigureAwait(false);
+
+        if (streamGroup == null)
+        {
+            return null;
+        }
+
+        StreamGroupDto ret = mapper.Map<StreamGroupDto>(streamGroup);
+        SetStreamGroupsLink(ret);
+        return ret;
+    }
     public async Task<StreamGroupDto?> GetStreamGroupById(int streamGroupId)
     {
         if (streamGroupId == 0)
         {
-            StreamGroupDto dto = new() { Id = 0, Name = "All", IsReadOnly = true };
-            SetStreamGroupsLink(dto);
-            return dto;
+            return null;
         }
 
         StreamGroup? streamGroup = await GetQuery(c => c.Id == streamGroupId)

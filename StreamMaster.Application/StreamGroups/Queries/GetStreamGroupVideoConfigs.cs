@@ -20,7 +20,7 @@ public class GetStreamGroupVideoConfigsHandler(IHttpContextAccessor httpContextA
     //};
     private readonly ConcurrentDictionary<int, VideoStreamConfig> existingNumbers = new();
     private readonly ConcurrentHashSet<int> usedNumbers = [];
-    private int currentChannelNumber;
+    private int currentChannelNumber = 0;
 
     private int GetNextChannelNumber(int channelNumber, bool ignoreExisting)
     {
@@ -61,20 +61,24 @@ public class GetStreamGroupVideoConfigsHandler(IHttpContextAccessor httpContextA
             return new();
         }
 
-        List<SMChannel> smChannels = await Repository.SMChannel.GetSMChannelsFromStreamGroup(request.StreamGroupId);
+        List<SMChannel> smChannels = (request.StreamGroupId < 2 ?
+             await Repository.SMChannel.GetQuery().ToListAsync(cancellationToken: cancellationToken) :
+             await Repository.SMChannel.GetSMChannelsFromStreamGroup(request.StreamGroupId)).Where(a => !a.IsHidden).ToList();
 
-        if (!smChannels.Any())
+        if (smChannels.Count == 0)
         {
             return new();
         }
 
+        currentChannelNumber = 0;
+
         StreamGroupProfile sgProfile = Repository.StreamGroupProfile.GetStreamGroupProfile(request.StreamGroupId, request.StreamGroupProfileId) ?? new StreamGroupProfile();
-        DataResponse<OutputProfileDto> profileRequest = await sender.Send(new GetOutputProfileRequest(sgProfile.OutputProfileName));
+        DataResponse<OutputProfileDto> profileRequest = await sender.Send(new GetOutputProfileRequest(sgProfile.OutputProfileName), cancellationToken);
         OutputProfile profile = profileRequest == null ? SettingFiles.DefaultOutputProfileSetting.OutProfiles["Default"] : profileRequest.Data;
         List<VideoStreamConfig> videoStreamConfigs = [];
 
         logger.LogInformation("GetStreamGroupVideoConfigsHandler: Handling {Count} channels", smChannels.Count);
-        var test = smChannels.SelectMany(a => a.SMStreams.Where(a => a.Rank == 0)).Select(a => new { a.SMChannel, a.SMStream }).ToList();
+        //var test = smChannels.SelectMany(a => a.SMStreams.Where(a => a.Rank == 0)).Select(a => new { a.SMChannel, a.SMStream }).ToList();
 
         foreach (SMChannel? smChannel in smChannels.Where(a => !a.IsHidden))
         {

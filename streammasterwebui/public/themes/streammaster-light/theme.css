@@ -7730,7 +7730,7 @@
   border-top-right-radius: 0 !important;
 }
 
-.sm-border-bottom {
+.sm-border-bottom, .sm-scroller-items .p-virtualscroller-content .sm-scroller-item:last-child {
   border-top-style: none !important;
   border-bottom-style: solid !important;
   border-left-style: none !important;
@@ -7782,7 +7782,7 @@
   box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.3), 0px -6px 12px rgba(0, 0, 0, 0.3), 6px 0px 12px rgba(0, 0, 0, 0.3), -6px 0px 12px rgba(0, 0, 0, 0.3);
 }
 
-.sm-box-shadow-modal, .sm-box-modal, .sm-modal-11, .sm-modal {
+.sm-box-shadow-modal, .sm-box-modal, .sm-modal-20, .sm-modal-19, .sm-modal-18, .sm-modal-17, .sm-modal-16, .sm-modal-15, .sm-modal-14, .sm-modal-13, .sm-modal-12, .sm-modal-11, .sm-modal-10, .sm-modal-9, .sm-modal-8, .sm-modal-7, .sm-modal-6, .sm-modal-5, .sm-modal-4, .sm-modal-3, .sm-modal-2, .sm-modal-1, .sm-modal {
   box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.3), 0px -6px 12px rgba(0, 0, 0, 0.3), 6px 0px 12px rgba(0, 0, 0, 0.3), -6px 0px 12px rgba(0, 0, 0, 0.3);
 }
 
@@ -9002,7 +9002,6 @@ div[aria-haspopup=dialog] {
 .sm-scroller-items .p-virtualscroller-content .sm-scroller-item:nth-child(odd) {
   background: #1b2327;
 }
-
 .sm-list-container {
   height: 6rem;
   width: 2rem;
@@ -9247,11 +9246,137 @@ div[aria-haspopup=dialog] {
   padding: 0.5rem;
 }
 
-.z-10 {
+.sm-modal {
   z-index: 10;
 }
 
-.sm-modal {
+.sm-dialog-overlay, .sm-loader {
+  -webkit-backdrop-filter: blur(1px) brightness(0.8) contrast(1);
+  backdrop-filter: blur(2px) brightness(0.8) contrast(1);
+  background: rgba(0, 0, 0, 0.01);
+  display: grid;
+  place-items: center;
+  transition: all 0.3s ease-in-out;
+  z-index: 9;
+}
+
+.z-1 {
+  z-index: 1 !important;
+}
+
+.z-2 {
+  z-index: 2 !important;
+}
+
+.z-3 {
+  z-index: 3 !important;
+}
+
+.z-4 {
+  z-index: 4 !important;
+}
+
+.z-5 {
+  z-index: 5 !important;
+}
+
+.z-6 {
+  z-index: 6 !important;
+}
+
+.z-7 {
+  z-index: 7 !important;
+}
+
+.z-8 {
+  z-index: 8 !important;
+}
+
+.z-9 {
+  z-index: 9 !important;
+}
+
+.z-10 {
+  z-index: 10 !important;
+}
+
+.z-11 {
+  z-index: 11 !important;
+}
+
+.z-12 {
+  z-index: 12 !important;
+}
+
+.z-13 {
+  z-index: 13 !important;
+}
+
+.z-14 {
+  z-index: 14 !important;
+}
+
+.z-15 {
+  z-index: 15 !important;
+}
+
+.z-16 {
+  z-index: 16 !important;
+}
+
+.z-17 {
+  z-index: 17 !important;
+}
+
+.z-18 {
+  z-index: 18 !important;
+}
+
+.z-19 {
+  z-index: 19 !important;
+}
+
+.z-20 {
+  z-index: 20 !important;
+}
+
+.sm-modal-1 {
+  z-index: 1 !important;
+}
+
+.sm-modal-2 {
+  z-index: 2 !important;
+}
+
+.sm-modal-3 {
+  z-index: 3 !important;
+}
+
+.sm-modal-4 {
+  z-index: 4 !important;
+}
+
+.sm-modal-5 {
+  z-index: 5 !important;
+}
+
+.sm-modal-6 {
+  z-index: 6 !important;
+}
+
+.sm-modal-7 {
+  z-index: 7 !important;
+}
+
+.sm-modal-8 {
+  z-index: 8 !important;
+}
+
+.sm-modal-9 {
+  z-index: 9 !important;
+}
+
+.sm-modal-10 {
   z-index: 10 !important;
 }
 
@@ -9259,8 +9384,134 @@ div[aria-haspopup=dialog] {
   z-index: 11 !important;
 }
 
-.sm-dialog-overlay, .sm-loader {
-  z-index: 9;
+.sm-modal-12 {
+  z-index: 12 !important;
+}
+
+.sm-modal-13 {
+  z-index: 13 !important;
+}
+
+.sm-modal-14 {
+  z-index: 14 !important;
+}
+
+.sm-modal-15 {
+  z-index: 15 !important;
+}
+
+.sm-modal-16 {
+  z-index: 16 !important;
+}
+
+.sm-modal-17 {
+  z-index: 17 !important;
+}
+
+.sm-modal-18 {
+  z-index: 18 !important;
+}
+
+.sm-modal-19 {
+  z-index: 19 !important;
+}
+
+.sm-modal-20 {
+  z-index: 20 !important;
+}
+
+.sm-dialog-overlay-1 {
+  z-index: 1 !important;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.01);
+  transition: all 0.3s ease-in-out;
+  backdrop-filter: blur(2px) brightness(0.8) contrast(1);
+  -webkit-backdrop-filter: blur(1px) brightness(0.8) contrast(1);
+}
+
+.sm-dialog-overlay-2 {
+  z-index: 2 !important;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.01);
+  transition: all 0.3s ease-in-out;
+  backdrop-filter: blur(2px) brightness(0.8) contrast(1);
+  -webkit-backdrop-filter: blur(1px) brightness(0.8) contrast(1);
+}
+
+.sm-dialog-overlay-3 {
+  z-index: 3 !important;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.01);
+  transition: all 0.3s ease-in-out;
+  backdrop-filter: blur(2px) brightness(0.8) contrast(1);
+  -webkit-backdrop-filter: blur(1px) brightness(0.8) contrast(1);
+}
+
+.sm-dialog-overlay-4 {
+  z-index: 4 !important;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.01);
+  transition: all 0.3s ease-in-out;
+  backdrop-filter: blur(2px) brightness(0.8) contrast(1);
+  -webkit-backdrop-filter: blur(1px) brightness(0.8) contrast(1);
+}
+
+.sm-dialog-overlay-5 {
+  z-index: 5 !important;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.01);
+  transition: all 0.3s ease-in-out;
+  backdrop-filter: blur(2px) brightness(0.8) contrast(1);
+  -webkit-backdrop-filter: blur(1px) brightness(0.8) contrast(1);
+}
+
+.sm-dialog-overlay-6 {
+  z-index: 6 !important;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.01);
+  transition: all 0.3s ease-in-out;
+  backdrop-filter: blur(2px) brightness(0.8) contrast(1);
+  -webkit-backdrop-filter: blur(1px) brightness(0.8) contrast(1);
+}
+
+.sm-dialog-overlay-7 {
+  z-index: 7 !important;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.01);
+  transition: all 0.3s ease-in-out;
+  backdrop-filter: blur(2px) brightness(0.8) contrast(1);
+  -webkit-backdrop-filter: blur(1px) brightness(0.8) contrast(1);
+}
+
+.sm-dialog-overlay-8 {
+  z-index: 8 !important;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.01);
+  transition: all 0.3s ease-in-out;
+  backdrop-filter: blur(2px) brightness(0.8) contrast(1);
+  -webkit-backdrop-filter: blur(1px) brightness(0.8) contrast(1);
+}
+
+.sm-dialog-overlay-9 {
+  z-index: 9 !important;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.01);
+  transition: all 0.3s ease-in-out;
+  backdrop-filter: blur(2px) brightness(0.8) contrast(1);
+  -webkit-backdrop-filter: blur(1px) brightness(0.8) contrast(1);
+}
+
+.sm-dialog-overlay-10 {
+  z-index: 10 !important;
   display: grid;
   place-items: center;
   background: rgba(0, 0, 0, 0.01);
@@ -9271,6 +9522,96 @@ div[aria-haspopup=dialog] {
 
 .sm-dialog-overlay-11 {
   z-index: 11 !important;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.01);
+  transition: all 0.3s ease-in-out;
+  backdrop-filter: blur(2px) brightness(0.8) contrast(1);
+  -webkit-backdrop-filter: blur(1px) brightness(0.8) contrast(1);
+}
+
+.sm-dialog-overlay-12 {
+  z-index: 12 !important;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.01);
+  transition: all 0.3s ease-in-out;
+  backdrop-filter: blur(2px) brightness(0.8) contrast(1);
+  -webkit-backdrop-filter: blur(1px) brightness(0.8) contrast(1);
+}
+
+.sm-dialog-overlay-13 {
+  z-index: 13 !important;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.01);
+  transition: all 0.3s ease-in-out;
+  backdrop-filter: blur(2px) brightness(0.8) contrast(1);
+  -webkit-backdrop-filter: blur(1px) brightness(0.8) contrast(1);
+}
+
+.sm-dialog-overlay-14 {
+  z-index: 14 !important;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.01);
+  transition: all 0.3s ease-in-out;
+  backdrop-filter: blur(2px) brightness(0.8) contrast(1);
+  -webkit-backdrop-filter: blur(1px) brightness(0.8) contrast(1);
+}
+
+.sm-dialog-overlay-15 {
+  z-index: 15 !important;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.01);
+  transition: all 0.3s ease-in-out;
+  backdrop-filter: blur(2px) brightness(0.8) contrast(1);
+  -webkit-backdrop-filter: blur(1px) brightness(0.8) contrast(1);
+}
+
+.sm-dialog-overlay-16 {
+  z-index: 16 !important;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.01);
+  transition: all 0.3s ease-in-out;
+  backdrop-filter: blur(2px) brightness(0.8) contrast(1);
+  -webkit-backdrop-filter: blur(1px) brightness(0.8) contrast(1);
+}
+
+.sm-dialog-overlay-17 {
+  z-index: 17 !important;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.01);
+  transition: all 0.3s ease-in-out;
+  backdrop-filter: blur(2px) brightness(0.8) contrast(1);
+  -webkit-backdrop-filter: blur(1px) brightness(0.8) contrast(1);
+}
+
+.sm-dialog-overlay-18 {
+  z-index: 18 !important;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.01);
+  transition: all 0.3s ease-in-out;
+  backdrop-filter: blur(2px) brightness(0.8) contrast(1);
+  -webkit-backdrop-filter: blur(1px) brightness(0.8) contrast(1);
+}
+
+.sm-dialog-overlay-19 {
+  z-index: 19 !important;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.01);
+  transition: all 0.3s ease-in-out;
+  backdrop-filter: blur(2px) brightness(0.8) contrast(1);
+  -webkit-backdrop-filter: blur(1px) brightness(0.8) contrast(1);
+}
+
+.sm-dialog-overlay-20 {
+  z-index: 20 !important;
   display: grid;
   place-items: center;
   background: rgba(0, 0, 0, 0.01);

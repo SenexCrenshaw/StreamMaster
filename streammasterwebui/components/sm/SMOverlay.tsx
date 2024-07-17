@@ -20,10 +20,10 @@ import {
 import { Logger } from '@lib/common/logger';
 import { BlockUI } from 'primereact/blockui';
 import { CSSProperties, ReactNode, forwardRef, useCallback, useImperativeHandle, useMemo, useRef, useState } from 'react';
-import SMButton from './SMButton';
-import { SMCard } from './SMCard';
 import { CombinedProvider } from './Context/CombinedContext';
 import { SMOverlayProperties } from './Interfaces/SMOverlayProperties';
+import SMButton from './SMButton';
+import { SMCard } from './SMCard';
 
 export interface SMOverlayRef {
   getOpen: () => boolean;
@@ -132,7 +132,10 @@ const SMOverlayInner = forwardRef<SMOverlayRef, ExtendedSMOverlayProperties>(
         }
       }
 
-      if (z > 10) z = 11;
+      if (z > 10) {
+        return z;
+      }
+
       if (z < 1) z = 1;
       return z;
     }, [props.modal, props.zIndex]);
@@ -140,7 +143,7 @@ const SMOverlayInner = forwardRef<SMOverlayRef, ExtendedSMOverlayProperties>(
     const getOverLayClass = useMemo(() => {
       if (props.modal) {
         if (zIndex > 10) {
-          return 'sm-dialog-overlay-11';
+          return 'sm-dialog-overlay-' + zIndex;
         }
         return 'sm-dialog-overlay';
       }
@@ -150,7 +153,7 @@ const SMOverlayInner = forwardRef<SMOverlayRef, ExtendedSMOverlayProperties>(
     const getModelClass = useMemo(() => {
       if (props.modal) {
         if (zIndex > 10) {
-          return 'sm-modal-11';
+          return 'sm-modal-' + zIndex;
         }
         return 'sm-modal';
       }

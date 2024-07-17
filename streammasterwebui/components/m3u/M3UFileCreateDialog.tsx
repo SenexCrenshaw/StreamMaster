@@ -1,11 +1,10 @@
-import OKButton from '@components/buttons/OKButton';
 import ResetButton from '@components/buttons/ResetButton';
 import SMPopUp, { SMPopUpRef } from '@components/sm/SMPopUp';
 import { useStringValue } from '@lib/redux/hooks/stringValue';
+import { M3UFileDto } from '@lib/smAPI/smapiTypes';
 import { FileUpload } from 'primereact/fileupload';
 import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import M3UFileDialog, { M3UFileDialogRef } from './M3UFileDialog';
-import { M3UFileDto } from '@lib/smAPI/smapiTypes';
 
 export interface M3UFileDialogProperties {
   readonly infoMessage?: string;
@@ -60,12 +59,17 @@ export const M3UFileCreateDialog = ({ onHide, onUploadComplete, showButton }: M3
   return (
     <SMPopUp
       buttonClassName="icon-green"
-      contentWidthSize="3"
+      contentWidthSize="4"
       icon="pi-plus"
       zIndex={11}
       onCloseClick={() => {
         ReturnToParent();
       }}
+      onOkClick={() => {
+        fileDialogRef.current?.save();
+        ReturnToParent();
+      }}
+      okButtonDisabled={!isSaveEnabled}
       header={
         <div className="flex w-12 gap-1 justify-content-end align-content-center">
           <ResetButton
@@ -77,13 +81,6 @@ export const M3UFileCreateDialog = ({ onHide, onUploadComplete, showButton }: M3
                 fileDialogRef.current.reset();
               }
               setM3UFileDto(defaultValues);
-            }}
-          />
-          <OKButton
-            buttonDisabled={!isSaveEnabled}
-            onClick={(request) => {
-              fileDialogRef.current?.save();
-              ReturnToParent();
             }}
           />
         </div>

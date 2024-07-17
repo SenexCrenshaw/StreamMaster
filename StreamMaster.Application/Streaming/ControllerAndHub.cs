@@ -1,11 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
+
 using StreamMaster.Application.Streaming.Commands;
 using StreamMaster.Application.Streaming.Queries;
 
-namespace StreamMaster.Application.Streaming.Controllers
+namespace StreamMaster.Application.Streaming
 {
     public partial class StreamingController(ILogger<StreamingController> _logger) : ApiControllerBase, IStreamingController
-    {        
+    {
 
         [HttpGet]
         [Route("[action]")]
@@ -13,8 +14,8 @@ namespace StreamMaster.Application.Streaming.Controllers
         {
             try
             {
-            DataResponse<List<IdNameUrl>> ret = await Sender.Send(new GetVideoStreamNamesAndUrlsRequest()).ConfigureAwait(false);
-             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetVideoStreamNamesAndUrls.", statusCode: 500) : Ok(ret.Data);
+                DataResponse<List<IdNameUrl>> ret = await Sender.Send(new GetVideoStreamNamesAndUrlsRequest()).ConfigureAwait(false);
+                return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetVideoStreamNamesAndUrls.", statusCode: 500) : Ok(ret.Data);
             }
             catch (Exception ex)
             {
@@ -64,7 +65,7 @@ namespace StreamMaster.Application.Hubs
     {
         public async Task<List<IdNameUrl>> GetVideoStreamNamesAndUrls()
         {
-             DataResponse<List<IdNameUrl>> ret = await Sender.Send(new GetVideoStreamNamesAndUrlsRequest()).ConfigureAwait(false);
+            DataResponse<List<IdNameUrl>> ret = await Sender.Send(new GetVideoStreamNamesAndUrlsRequest()).ConfigureAwait(false);
             return ret.Data;
         }
 

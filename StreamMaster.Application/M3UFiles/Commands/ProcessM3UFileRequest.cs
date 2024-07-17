@@ -24,14 +24,10 @@ internal class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logge
 
             if (m3uFile.SyncChannels)
             {
-                await sender.Send(new SyncChannelsRequest(m3uFile.Id), cancellationToken);
+                await sender.Send(new SyncChannelsRequest(m3uFile.Id, m3uFile.DefaultStreamGroupName), cancellationToken);
             }
 
             await dataRefreshService.RefreshAllM3U();
-            //await hubContext.Clients.All.DataRefresh("GetPagedM3UFiles").ConfigureAwait(false);
-            //await hubContext.Clients.All.DataRefresh("GetPagedSMStreams").ConfigureAwait(false);
-            //await hubContext.Clients.All.DataRefresh("GetSMChannelStreams").ConfigureAwait(false);
-            //await hubContext.Clients.All.DataRefresh("ChannelGroups").ConfigureAwait(false);
 
             await messageService.SendSuccess("Processed M3U '" + m3uFile.Name + "' successfully");
             return APIResponse.Success;

@@ -28,7 +28,7 @@ namespace StreamMaster.Application.StreamGroups.Queries;
 //}
 
 [RequireAll]
-public record GetStreamGroupM3U(int StreamGroupId, int StreamGroupProfileId) : IRequest<string>;
+public record GetStreamGroupM3U(int StreamGroupId, int? StreamGroupProfileId) : IRequest<string>;
 
 public class GetStreamGroupM3UValidator : AbstractValidator<GetStreamGroupM3U>
 {
@@ -41,8 +41,8 @@ public class GetStreamGroupM3UValidator : AbstractValidator<GetStreamGroupM3U>
 
 public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
     ISchedulesDirectDataService schedulesDirectDataService,
-    IEPGHelper epgHelper,
-    ILogger<GetStreamGroupM3U> logger,
+    //IEPGHelper epgHelper,
+    //ILogger<GetStreamGroupM3U> logger,
     ISender sender,
     IRepositoryWrapper Repository,
     IOptionsMonitor<Setting> intsettings,
@@ -94,24 +94,37 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
     [LogExecutionTimeAspect]
     public async Task<string> Handle(GetStreamGroupM3U request, CancellationToken cancellationToken)
     {
-        Setting settings = intsettings.CurrentValue;
-        string url = httpContextAccessor.GetUrl();
-        string requestPath = httpContextAccessor.HttpContext.Request.Path.Value.ToString();
-        byte[]? iv = requestPath.GetIVFromPath(settings.ServerKey, 128);
-        //if (iv == null && !request.UseSMChannelId)
-        //{
-        //    return DefaultReturn;
-        //}
-        this.iv = iv;
-
-        List<SMChannel> smChannels = await Repository.SMChannel.GetSMChannelsFromStreamGroup(request.StreamGroupId);
-
-        if (!smChannels.Any())
+        if (httpContextAccessor.HttpContext?.Request?.Path.Value == null)
         {
             return DefaultReturn;
         }
 
-        (List<VideoStreamConfig> videoStreamConfigs, OutputProfile profile) = await sender.Send(new GetStreamGroupVideoConfigs(request.StreamGroupId, request.StreamGroupProfileId), cancellationToken);
+        Setting settings = intsettings.CurrentValue;
+        string url = httpContextAccessor.GetUrl();
+        string requestPath = httpContextAccessor.HttpContext.Request.Path.Value!.ToString();
+        byte[]? iv = requestPath.GetIVFromPath(settings.ServerKey, 128);
+        if (iv == null) // && !request.UseSMChannelId)
+        {
+            return DefaultReturn;
+        }
+        this.iv = iv;
+
+        List<SMChannel> smChannels = (await Repository.SMChannel.GetSMChannelsFromStreamGroup(request.StreamGroupId)).Where(a => !a.IsHidden).ToList();
+
+        if (smChannels.Count == 0)
+        {
+            return DefaultReturn;
+        }
+
+        var sgProfileId = request.StreamGroupProfileId;
+        if (sgProfileId == null)
+        {
+            var sgProfile = await Repository.StreamGroupProfile.GetDefaultStreamGroupProfile(request.StreamGroupId);
+            sgProfileId = sgProfile.Id;
+        }
+
+
+        (List<VideoStreamConfig> videoStreamConfigs, OutputProfile profile) = await sender.Send(new GetStreamGroupVideoConfigs(request.StreamGroupId, sgProfileId.Value), cancellationToken);
 
 
         // Retrieve necessary data in parallel
@@ -210,7 +223,7 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
 
     }
 
-    private void UpdateProperty<T>(OutputProfile profile, SMChannel smChannel, Expression<Func<OutputProfile, T>> propertySelector)
+    private static void UpdateProperty<T>(OutputProfile profile, SMChannel smChannel, Expression<Func<OutputProfile, T>> propertySelector)
     {
         // Extract the property name from the expression
         if (propertySelector.Body is MemberExpression memberExpression)
@@ -240,7 +253,7 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
         }
     }
 
-    private (int ChNo, string m3uLine) BuildM3ULineForVideoStream(SMChannel smChannel, string url, GetStreamGroupM3U request, OutputProfile profile, int cid, Setting setting, List<VideoStreamConfig> videoStreamConfigs)
+    private (int ChNo, string m3uLine) BuildM3ULineForVideoStream(SMChannel smChannel, string url, GetStreamGroupM3U request, OutputProfile profile, int index, Setting setting, List<VideoStreamConfig> videoStreamConfigs)
     {
         UpdateProfile(profile, smChannel);
         //if (request.StreamGroupId == 1 && profile.ChannelNumber == "0")//ALL

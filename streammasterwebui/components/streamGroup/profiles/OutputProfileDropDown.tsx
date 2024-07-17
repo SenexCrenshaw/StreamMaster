@@ -1,7 +1,7 @@
 import SMDropDown from '@components/sm/SMDropDown';
+import { Logger } from '@lib/common/logger';
 import useGetOutputProfiles from '@lib/smAPI/Profiles/useGetOutputProfiles';
 import { OutputProfileDto } from '@lib/smAPI/smapiTypes';
-
 import { ReactNode, useCallback, useMemo } from 'react';
 
 interface OutputProfileDropDownProps {
@@ -21,36 +21,37 @@ const OutputProfileDropDown = ({ buttonDarkBackground = false, onChange, value }
     return data.find((x) => x.ProfileName === value);
   }, [data, value]);
 
+  Logger.debug('OutputProfileDropDown', { data: data, selectedFileProfile, value });
+
   const itemTemplate = useCallback((option: OutputProfileDto): JSX.Element => {
     return <div className="text-xs text-container">{option?.ProfileName ?? ''}</div>;
   }, []);
 
   const buttonTemplate = useMemo((): ReactNode => {
     return (
-      <div className="sm-epg-selector">
-        <div className="text-container" style={{ paddingLeft: '0.12rem' }}>
-          {selectedFileProfile?.ProfileName ?? ''}
-        </div>
+      <div className="text-container" style={{ paddingLeft: '0.24rem' }}>
+        {selectedFileProfile?.ProfileName ?? ''}
       </div>
     );
   }, [selectedFileProfile]);
 
   return (
     <SMDropDown
-      isOverLayLoading={isLoading}
-      buttonTemplate={buttonTemplate}
       buttonDarkBackground={buttonDarkBackground}
+      buttonTemplate={buttonTemplate}
       contentWidthSize="2"
       data={data}
-      dataKey="label"
+      dataKey="ProfileName"
       info=""
+      isOverLayLoading={isLoading}
       itemTemplate={itemTemplate}
       label={buttonDarkBackground ? 'File Profile' : undefined}
       onChange={onChange}
-      optionValue="label"
+      propertyToMatch="ProfileName"
       scrollHeight="20vh"
       title="Profiles"
-      value={selectedFileProfile}
+      value={value}
+      zIndex={12}
     />
   );
 };

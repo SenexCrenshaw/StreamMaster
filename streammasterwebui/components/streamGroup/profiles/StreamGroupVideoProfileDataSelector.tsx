@@ -53,7 +53,7 @@ const StreamGroupVideoProfileDataSelector = () => {
           value={rowData.ProfileName}
           onSave={(e) => {
             if (e !== undefined) {
-              const ret = { ProfileName: rowData.ProfileName, NewName: e } as UpdateVideoProfileRequest;
+              const ret = { NewName: e, ProfileName: rowData.ProfileName } as UpdateVideoProfileRequest;
               update(ret);
             }
           }}

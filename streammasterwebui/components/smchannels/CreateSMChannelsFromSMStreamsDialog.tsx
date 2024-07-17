@@ -4,8 +4,9 @@ import SMPopUp from '@components/sm/SMPopUp';
 import { useQueryFilter } from '@lib/redux/hooks/queryFilter';
 import { useSelectAll } from '@lib/redux/hooks/selectAll';
 import { useSelectedStreamGroup } from '@lib/redux/hooks/selectedStreamGroup';
-import { CreateSMChannelFromStreamParameters, CreateSMChannelFromStreams } from '@lib/smAPI/SMChannels/SMChannelsCommands';
-import { CreateSMChannelFromStreamParametersRequest, CreateSMChannelFromStreamsRequest, SMStreamDto } from '@lib/smAPI/smapiTypes';
+
+import { CreateSMChannelsFromStreamParametersRequest, CreateSMChannelsFromStreamsRequest, SMStreamDto } from '@lib/smAPI/smapiTypes';
+import { CreateSMChannelsFromStreamParameters, CreateSMChannelsFromStreams } from '@lib/smAPI/SMChannels/SMChannelsCommands';
 import React, { useCallback, useMemo } from 'react';
 
 interface CreateSMChannelsDialogProperties {
@@ -38,13 +39,13 @@ const CreateSMChannelsFromSMStreamsDialog = ({ id, label, onClose, selectedItems
         return;
       }
 
-      const request = {} as CreateSMChannelFromStreamParametersRequest;
+      const request = {} as CreateSMChannelsFromStreamParametersRequest;
       request.Parameters = queryFilter;
       if (selectedStreamGroup?.Id) {
         request.StreamGroupId = selectedStreamGroup.Id;
       }
 
-      await CreateSMChannelFromStreamParameters(request)
+      await CreateSMChannelsFromStreamParameters(request)
         .then(() => {
           setSelectedItems([]);
           setSelectAll(false);
@@ -64,15 +65,15 @@ const CreateSMChannelsFromSMStreamsDialog = ({ id, label, onClose, selectedItems
       return;
     }
 
-    const request = {} as CreateSMChannelFromStreamsRequest;
+    const request = {} as CreateSMChannelsFromStreamsRequest;
 
     const ids = selectedItems.map((item) => item.Id);
     request.StreamIds = ids;
     if (selectedStreamGroup?.Id) {
-      request.StreamGroupId = selectedStreamGroup.Id;
+      request.StreamGroup = selectedStreamGroup.Name;
     }
 
-    await CreateSMChannelFromStreams(request)
+    await CreateSMChannelsFromStreams(request)
       .then(() => {
         setSelectedItems([]);
       })

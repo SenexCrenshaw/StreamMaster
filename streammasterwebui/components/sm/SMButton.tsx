@@ -131,7 +131,7 @@ const SMButton = forwardRef<Button, InternalSMButtonProperties>(
                   }
                   props.onClick && props.onClick(e);
                 }}
-                className={`${tooltipClassName} input-wrapper`}
+                className={`${tooltipClassName} input-wrapper w-full`}
                 data-pr-tooltip={tooltip}
                 data-pr-position={isLeft ? 'left' : 'right'}
                 data-pr-showdelay={400}

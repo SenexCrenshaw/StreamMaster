@@ -1,6 +1,6 @@
 import { isSkipToken } from '@lib/common/isSkipToken';
 import SignalRService from '@lib/signalr/SignalRService';
-import { APIResponse,AutoSetEPGFromParametersRequest,AutoSetEPGRequest,AutoSetSMChannelNumbersFromParametersRequest,AutoSetSMChannelNumbersRequest,CopySMChannelRequest,CreateSMChannelFromStreamParametersRequest,CreateSMChannelFromStreamRequest,CreateSMChannelFromStreamsRequest,CreateSMChannelRequest,DeleteSMChannelRequest,DeleteSMChannelsFromParametersRequest,DeleteSMChannelsRequest,SetSMChannelEPGIdRequest,SetSMChannelGroupRequest,SetSMChannelLogoRequest,SetSMChannelNameRequest,SetSMChannelNumberRequest,SetSMChannelProxyRequest,SetSMChannelsGroupFromParametersRequest,SetSMChannelsGroupRequest,SetSMChannelsLogoFromEPGFromParametersRequest,SetSMChannelsLogoFromEPGRequest,ToggleSMChannelsVisibleByIdRequest,ToggleSMChannelVisibleByIdRequest,ToggleSMChannelVisibleByParametersRequest,UpdateSMChannelRequest,SMChannelDto,VideoInfo,GetSMChannelRequest,GetVideoInfoFromIdRequest,PagedResponse,QueryStringParameters } from '@lib/smAPI/smapiTypes';
+import { APIResponse,AutoSetEPGFromParametersRequest,AutoSetEPGRequest,AutoSetSMChannelNumbersFromParametersRequest,AutoSetSMChannelNumbersRequest,CopySMChannelRequest,CreateSMChannelRequest,CreateSMChannelsFromStreamParametersRequest,CreateSMChannelsFromStreamsRequest,DeleteSMChannelRequest,DeleteSMChannelsFromParametersRequest,DeleteSMChannelsRequest,SetSMChannelEPGIdRequest,SetSMChannelGroupRequest,SetSMChannelLogoRequest,SetSMChannelNameRequest,SetSMChannelNumberRequest,SetSMChannelProxyRequest,SetSMChannelsGroupFromParametersRequest,SetSMChannelsGroupRequest,SetSMChannelsLogoFromEPGFromParametersRequest,SetSMChannelsLogoFromEPGRequest,ToggleSMChannelsVisibleByIdRequest,ToggleSMChannelVisibleByIdRequest,ToggleSMChannelVisibleByParametersRequest,UpdateSMChannelRequest,SMChannelDto,VideoInfo,GetSMChannelRequest,GetVideoInfoFromIdRequest,PagedResponse,QueryStringParameters } from '@lib/smAPI/smapiTypes';
 
 export const GetPagedSMChannels = async (parameters: QueryStringParameters): Promise<PagedResponse<SMChannelDto> | undefined> => {
   if (isSkipToken(parameters) || parameters === undefined) {
@@ -56,24 +56,19 @@ export const CopySMChannel = async (request: CopySMChannelRequest): Promise<APIR
   return await signalRService.invokeHubCommand<APIResponse>('CopySMChannel', request);
 };
 
-export const CreateSMChannelFromStreamParameters = async (request: CreateSMChannelFromStreamParametersRequest): Promise<APIResponse | undefined> => {
-  const signalRService = SignalRService.getInstance();
-  return await signalRService.invokeHubCommand<APIResponse>('CreateSMChannelFromStreamParameters', request);
-};
-
-export const CreateSMChannelFromStream = async (request: CreateSMChannelFromStreamRequest): Promise<APIResponse | undefined> => {
-  const signalRService = SignalRService.getInstance();
-  return await signalRService.invokeHubCommand<APIResponse>('CreateSMChannelFromStream', request);
-};
-
-export const CreateSMChannelFromStreams = async (request: CreateSMChannelFromStreamsRequest): Promise<APIResponse | undefined> => {
-  const signalRService = SignalRService.getInstance();
-  return await signalRService.invokeHubCommand<APIResponse>('CreateSMChannelFromStreams', request);
-};
-
 export const CreateSMChannel = async (request: CreateSMChannelRequest): Promise<APIResponse | undefined> => {
   const signalRService = SignalRService.getInstance();
   return await signalRService.invokeHubCommand<APIResponse>('CreateSMChannel', request);
+};
+
+export const CreateSMChannelsFromStreamParameters = async (request: CreateSMChannelsFromStreamParametersRequest): Promise<APIResponse | undefined> => {
+  const signalRService = SignalRService.getInstance();
+  return await signalRService.invokeHubCommand<APIResponse>('CreateSMChannelsFromStreamParameters', request);
+};
+
+export const CreateSMChannelsFromStreams = async (request: CreateSMChannelsFromStreamsRequest): Promise<APIResponse | undefined> => {
+  const signalRService = SignalRService.getInstance();
+  return await signalRService.invokeHubCommand<APIResponse>('CreateSMChannelsFromStreams', request);
 };
 
 export const DeleteSMChannel = async (request: DeleteSMChannelRequest): Promise<APIResponse | undefined> => {

@@ -17,11 +17,12 @@ import EditSMStreamDialog from '@components/smstreams/EditSMStreamDialog';
 import { useSMStreamChannelGroupColumnConfig } from '@components/smstreams/columns/useSMStreamChannelGroupColumnConfig';
 import { useSelectedStreamGroup } from '@lib/redux/hooks/selectedStreamGroup';
 import { AddSMStreamToSMChannel, RemoveSMStreamFromSMChannel } from '@lib/smAPI/SMChannelStreamLinks/SMChannelStreamLinksCommands';
-import { CreateSMChannelFromStream } from '@lib/smAPI/SMChannels/SMChannelsCommands';
+
+import { CreateSMChannelsFromStreams } from '@lib/smAPI/SMChannels/SMChannelsCommands';
 import useGetPagedSMStreams from '@lib/smAPI/SMStreams/useGetPagedSMStreams';
 import {
   AddSMStreamToSMChannelRequest,
-  CreateSMChannelFromStreamRequest,
+  CreateSMChannelsFromStreamsRequest,
   RemoveSMStreamFromSMChannelRequest,
   SMChannelDto,
   SMStreamDto
@@ -31,7 +32,6 @@ import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import SimpleButton from '../../components/buttons/SimpleButton';
 import SMStreamMenu from './SMStreamMenu';
 import useSelectedSMItems from './useSelectedSMItems';
-import { Logger } from '@lib/common/logger';
 
 interface SMStreamDataSelectorProperties {
   readonly enableEdit?: boolean;
@@ -146,11 +146,11 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
             iconFilled={false}
             buttonClassName="border-noround borderread icon-green"
             onClick={() => {
-              const request = { StreamId: data.Id } as CreateSMChannelFromStreamRequest;
-              if (selectedStreamGroup?.Id && selectedStreamGroup.Id !== 1) {
-                request.StreamGroupId = selectedStreamGroup.Id;
+              const request = { StreamIds: [data.Id] } as CreateSMChannelsFromStreamsRequest;
+              if (selectedStreamGroup?.Name && selectedStreamGroup.Name !== '') {
+                request.StreamGroup = selectedStreamGroup.Name;
               }
-              CreateSMChannelFromStream(request)
+              CreateSMChannelsFromStreams(request)
                 .then((response) => {})
                 .catch((error) => {});
             }}

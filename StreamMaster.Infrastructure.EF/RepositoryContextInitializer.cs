@@ -16,15 +16,26 @@ public class RepositoryContextInitializer(ILogger<RepositoryContextInitializer> 
 
             if (!context.StreamGroups.Any(a => a.Name == "ALL"))
             {
-                context.Add(new StreamGroup { Id = 0, Name = "ALL", IsReadOnly = true, IsSystem = true, DeviceID = settings.DeviceID });
+                var sg = new StreamGroup { Id = 0, Name = "ALL", IsReadOnly = true, IsSystem = true, DeviceID = settings.DeviceID };
+                context.Add(sg);
+                var profile = new StreamGroupProfile
+                {
+                    Name = "Default",
+                    OutputProfileName = "Default",
+                    VideoProfileName = "Default"
+                };
+
+                context.StreamGroupProfiles.Add(profile);
+                sg.StreamGroupProfiles.Add(profile);
+
                 await context.SaveChangesAsync().ConfigureAwait(false);
             }
 
-            if (!context.ChannelGroups.Any(a => a.Name == "Dummy"))
-            {
-                context.Add(new ChannelGroup { Name = "Dummy", IsReadOnly = true, IsSystem = true });
-                await context.SaveChangesAsync().ConfigureAwait(false);
-            }
+            //if (!context.ChannelGroups.Any(a => a.Name == "Dummy"))
+            //{
+            //    context.Add(new ChannelGroup { Name = "Dummy", IsReadOnly = true, IsSystem = true });
+            //    await context.SaveChangesAsync().ConfigureAwait(false);
+            //}
         }
         catch (Exception ex)
         {

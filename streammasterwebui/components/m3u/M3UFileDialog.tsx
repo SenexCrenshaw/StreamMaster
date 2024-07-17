@@ -1,13 +1,14 @@
+import BooleanEditor from '@components/inputs/BooleanEditor';
 import NumberEditor from '@components/inputs/NumberEditor';
 import StringEditor from '@components/inputs/StringEditor';
+import SMFileUpload, { SMFileUploadRef } from '@components/sm/SMFileUpload';
 import { arraysEqual } from '@components/smDataTable/helpers/arraysEqual';
+import { StreamGroupSelector } from '@components/streamGroup/StreamGroupSelector';
 import { Logger } from '@lib/common/logger';
 import { CreateM3UFile } from '@lib/smAPI/M3UFiles/M3UFilesCommands';
-import { CreateM3UFileRequest, M3UFileDto, UpdateM3UFileRequest } from '@lib/smAPI/smapiTypes';
+import { CreateM3UFileRequest, M3UFileDto, StreamGroupDto, UpdateM3UFileRequest } from '@lib/smAPI/smapiTypes';
 import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import M3UFileTags from './M3UFileTags';
-import SMFileUpload, { SMFileUploadRef } from '@components/sm/SMFileUpload';
-import BooleanEditor from '@components/inputs/BooleanEditor';
 
 export interface M3UFileDialogProperties {
   readonly onHide?: (didUpload: boolean) => void;
@@ -31,7 +32,7 @@ const M3UFileDialog = forwardRef<M3UFileDialogRef, M3UFileDialogProperties>(
     const [m3uFileDto, setM3UFileDto] = useState<M3UFileDto | undefined>(undefined);
     const [originalM3UFileDto, setOriginalM3UFileDto] = useState<M3UFileDto | undefined>(undefined);
     const [request, setRequest] = useState<UpdateM3UFileRequest>({} as UpdateM3UFileRequest);
-
+    const [selectedStreamGroup, setSelectedStreamGroup] = useState<StreamGroupDto>();
     const ReturnToParent = useCallback((didUpload?: boolean) => {}, []);
 
     useImperativeHandle(
@@ -63,6 +64,8 @@ const M3UFileDialog = forwardRef<M3UFileDialogRef, M3UFileDialogProperties>(
     const defaultValues = useMemo(
       () =>
         ({
+          AutoUpdate: true,
+          DefaultStreamGroupName: null,
           HoursToUpdate: 72,
           MaxStreamCount: 1,
           Name: '',
@@ -72,9 +75,14 @@ const M3UFileDialog = forwardRef<M3UFileDialogRef, M3UFileDialogProperties>(
       []
     );
 
-    const isSaveEnabled = useMemo(() => {
+    useEffect(() => {
       if (m3uFileDto === undefined) {
-        return false;
+        onSaveEnabled?.(false);
+        return;
+      }
+      if (m3uFileDto === undefined || m3uFileDto?.Name === '') {
+        onSaveEnabled?.(false);
+        return;
       }
 
       let isChanged = Object.keys(defaultValues).some((key) => m3uFileDto[key as keyof M3UFileDto] !== originalM3UFileDto?.[key as keyof M3UFileDto]);
@@ -84,7 +92,7 @@ const M3UFileDialog = forwardRef<M3UFileDialogRef, M3UFileDialogProperties>(
       }
 
       onSaveEnabled?.(isChanged);
-      return isChanged;
+      // return isChanged;
     }, [defaultValues, onSaveEnabled, m3uFileDto, originalM3UFileDto]);
 
     const onCreateFromSource = useCallback(
@@ -99,6 +107,7 @@ const M3UFileDialog = forwardRef<M3UFileDialogRef, M3UFileDialogProperties>(
         createM3UFileRequest.VODTags = m3uFileDto.VODTags;
         createM3UFileRequest.HoursToUpdate = m3uFileDto.HoursToUpdate;
         createM3UFileRequest.SyncChannels = m3uFileDto.SyncChannels;
+        createM3UFileRequest.DefaultStreamGroupName = selectedStreamGroup?.Name;
 
         await CreateM3UFile(createM3UFileRequest)
           .then(() => {})
@@ -109,7 +118,7 @@ const M3UFileDialog = forwardRef<M3UFileDialogRef, M3UFileDialogProperties>(
             ReturnToParent();
           });
       },
-      [ReturnToParent, m3uFileDto]
+      [ReturnToParent, m3uFileDto, selectedStreamGroup]
     );
 
     const updateStateAndRequest = useCallback(
@@ -137,16 +146,6 @@ const M3UFileDialog = forwardRef<M3UFileDialogRef, M3UFileDialogProperties>(
         setOriginalM3UFileDto(selectedFile);
       }
     }, [selectedFile, originalM3UFileDto]);
-
-    if (m3uFileDto !== undefined) {
-      Logger.debug('M3UFileDialog', { isSaveEnabled, m3uFileDto: m3uFileDto.Url, originalM3UFileDto: originalM3UFileDto?.Url });
-    }
-
-    if (selectedFile === undefined) {
-      return null;
-    }
-
-    Logger.debug('M3UFileDialog', 'm3uFileDto', m3uFileDto);
 
     if (m3uFileDto === undefined) {
       return null;
@@ -180,7 +179,6 @@ const M3UFileDialog = forwardRef<M3UFileDialogRef, M3UFileDialogProperties>(
               label="NAME"
               onChange={(e) => {
                 updateStateAndRequest({ Name: e });
-                // setStringValue(e);
               }}
               value={m3uFileDto.Name}
             />
@@ -223,10 +221,24 @@ const M3UFileDialog = forwardRef<M3UFileDialogRef, M3UFileDialogProperties>(
         )}
         <div className="w-12">
           <div className="flex gap-1">
-            <div className="w-5">
-              <BooleanEditor label="Sync Channels" onChange={(e) => updateStateAndRequest({ SyncChannels: e })} checked={m3uFileDto?.SyncChannels} />
+            <div className="sm-border-right pr-1 w-7 flex flex-row gap-1">
+              <div className="w-5">
+                <BooleanEditor label="Sync Channels" onChange={(e) => updateStateAndRequest({ SyncChannels: e })} checked={m3uFileDto?.SyncChannels} />
+              </div>
+              <div className="w-7">
+                <StreamGroupSelector
+                  buttonDisabled={m3uFileDto?.SyncChannels === undefined || m3uFileDto.SyncChannels === false}
+                  label="Default Stream Group"
+                  onChange={(sg) => {
+                    setSelectedStreamGroup(sg);
+                    updateStateAndRequest({ DefaultStreamGroupName: sg.Name });
+                  }}
+                  value={m3uFileDto?.DefaultStreamGroupName}
+                  zIndex={12}
+                />
+              </div>
             </div>
-            <div className="w-7">
+            <div className="w-5">
               <M3UFileTags vodTags={m3uFileDto?.VODTags} onChange={(e) => updateStateAndRequest({ VODTags: e })} />
             </div>
           </div>

@@ -3,112 +3,14 @@ using Microsoft.AspNetCore.Mvc;
 
 using StreamMaster.Application.StreamGroups.Queries;
 using StreamMaster.Application.StreamGroups.QueriesOld;
-using StreamMaster.Domain.Authentication;
 
 using System.Text;
 
-namespace StreamMaster.API.Controllers;
+namespace StreamMaster.Application.StreamGroups.Controllers;
 
-public class StreamGroupsController()
-    : ApiControllerBase
+public partial class StreamGroupsController : ApiControllerBase
 {
 
-    //private static int GenerateMediaSequence()
-    //{
-    //    DateTime epochStart = new(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-    //    TimeSpan elapsedTime = SMDT.UtcNow - epochStart;
-    //    int mediaSequence = (int)(elapsedTime.TotalSeconds / 10);
-
-    //    return mediaSequence;
-    //}
-
-    //[HttpPost]
-    //[Route("[action]")]
-    //public async Task<ActionResult> CreateStreamGroup(CreateStreamGroupRequest request)
-    //{
-
-    //    await Mediator.Send(request).ConfigureAwait(false);
-    //    return Ok();
-    //}
-
-
-    [Authorize(Policy = "SGLinks")]
-    [HttpGet]
-    [HttpHead]
-    [Route("{encodedId}/auto/v{channelId}")]
-    public ActionResult GetVideoStreamStreamFromAuto(string encodedId, string channelId, CancellationToken cancellationToken)
-    {
-        int? streamGroupId = encodedId.DecodeValue128(Settings.ServerKey);
-        if (streamGroupId == null)
-        {
-            return new NotFoundResult();
-        }
-
-        //List<VideoStreamDto> videoStreams = await Repository.StreamGroupVideoStream.GetStreamGroupVideoStreams((int)streamGroupId);
-
-        //if (videoStreams.Count == 0)
-        //{
-        //    return NotFound();
-        //}
-
-
-        //int epgNumber = EPGHelper.DummyId;
-
-        //foreach (VideoStreamDto videoStream in videoStreams)
-        //{
-        //    string stationId;
-
-        //    MxfService? service = null;
-
-        //    if (string.IsNullOrEmpty(smChannelDto.EPGId))
-        //    {
-        //        stationId = videoStream.User_Tvg_group;
-        //    }
-        //    else
-        //    {
-        //        if (EPGHelper.IsValidEPGId(smChannelDto.EPGId))
-        //        {
-        //            (epgNumber, stationId) = smChannelDto.EPGId.ExtractEPGNumberAndStationId();
-        //            service = schedulesDirectDataService.GetService(stationId);
-        //        }
-        //        else
-        //        {
-        //            stationId = smChannelDto.EPGId;
-        //            string toTest = $"{stationId}-";
-        //            service = schedulesDirectDataService.AllServices.FirstOrDefault(a => a.StationId.StartsWith(toTest));
-        //        }
-        //    }
-
-        //    string graceNote = service?.CallSign ?? stationId;
-
-        //    string id = graceNote;
-        //    if (Settings.M3UUseChnoForId)
-        //    {
-        //        id = smChannelDto.ChannelNumber.ToString();
-        //    }
-        //    if (id.Equals(channelId))
-        //    {
-        //        string url = httpContextAccessor.GetUrl();
-        //        string videoUrl;
-        //        if (HLSSettings.HLSM3U8Enable)
-        //        {
-        //            videoUrl = $"{url}/api/stream/{videoStream.Id}.m3u8";
-        //            return Redirect(videoUrl);
-        //        }
-
-        //        string encodedName = HttpUtility.HtmlEncode(smChannelDto.Name).Trim()
-        //            .Replace("/", "")
-        //            .Replace(" ", "_");
-
-        //        string encodedNumbers = ((int)streamGroupId).EncodeValues128(videoStream.Id, Settings.ServerKey);
-        //        videoUrl = $"{url}/api/videostreams/stream/{encodedNumbers}/{encodedName}";
-
-        //        return Redirect(videoUrl);
-        //    }
-        //}
-
-        return NotFound();
-    }
 
     [HttpGet]
     [AllowAnonymous]

@@ -36,9 +36,13 @@ const SMScroller: React.FC<SMScrollerProperties> = ({ filter = false, itemSize =
 
   const getOptionValue = useCallback(
     (option: any) => {
-      return props.optionValue ? ObjectUtils.resolveFieldData(option, props.optionValue) : option && option['value'] !== undefined ? option['value'] : option;
+      return props.propertyToMatch
+        ? ObjectUtils.resolveFieldData(option, props.propertyToMatch)
+        : option && option['value'] !== undefined
+        ? option['value']
+        : option;
     },
-    [props.optionValue]
+    [props.propertyToMatch]
   );
 
   const removeSelectedItem = useCallback(
@@ -83,13 +87,13 @@ const SMScroller: React.FC<SMScrollerProperties> = ({ filter = false, itemSize =
 
       if (key) {
         // Check if props.optionValue is defined and is a string
-        if (props.optionValue && typeof props.optionValue === 'string') {
+        if (props.propertyToMatch && typeof props.propertyToMatch === 'string') {
           // Check if the value has the key defined by equalityKey
           if (value[key] !== undefined) {
             // Find the index in the list where the optionValue matches
             const index = list.findIndex((item: Record<string, any>) => {
               // Ensure the item has the property defined by props.optionValue
-              const itemValue = item[props.optionValue as keyof typeof item];
+              const itemValue = item[props.propertyToMatch as keyof typeof item];
               return itemValue === value[key];
             });
             return index;
@@ -102,7 +106,7 @@ const SMScroller: React.FC<SMScrollerProperties> = ({ filter = false, itemSize =
 
       return -1; // Return -1 if no match is found or if key is undefined
     },
-    [equalityKey, getOptionValue, props.optionValue]
+    [equalityKey, getOptionValue, props.propertyToMatch]
   );
 
   const getSelectedOptionIndex = useCallback(() => {
@@ -135,7 +139,7 @@ const SMScroller: React.FC<SMScrollerProperties> = ({ filter = false, itemSize =
     (item: any) => {
       const key = equalityKey();
       if (key) {
-        if (props.optionValue) {
+        if (props.propertyToMatch) {
           const toMatch = getOptionValue(item);
           if (props.value?.[key] !== undefined) {
             return toMatch === props.value[key];
@@ -146,7 +150,7 @@ const SMScroller: React.FC<SMScrollerProperties> = ({ filter = false, itemSize =
       }
       return false;
     },
-    [equalityKey, getOptionValue, props.optionValue, props.value]
+    [equalityKey, getOptionValue, props.propertyToMatch, props.value]
   );
 
   useMountEffect(() => {

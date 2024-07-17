@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
 
-using System.Collections.Concurrent;
-using System.Net;
 using System.Xml;
 using System.Xml.Serialization;
 
@@ -22,7 +20,7 @@ public class ChannelNumberConfig
 
 [RequireAll]
 public record GetStreamGroupEPG(int StreamGroupId, int StreamGroupProfileId) : IRequest<string>;
-public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, ISender sender, IRepositoryWrapper repositoryWrapper, IEPGHelper epgHelper, IXMLTVBuilder xMLTVBuilder, ILogger<GetStreamGroupEPG> logger, ISchedulesDirectDataService schedulesDirectDataService, IRepositoryWrapper Repository, IOptionsMonitor<Setting> intsettings)
+public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, ISender sender, IEPGHelper epgHelper, IXMLTVBuilder xMLTVBuilder, ILogger<GetStreamGroupEPG> logger, ISchedulesDirectDataService schedulesDirectDataService, IOptionsMonitor<Setting> intsettings)
     : IRequestHandler<GetStreamGroupEPG, string>
 {
     private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
@@ -31,43 +29,43 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
     //{
     //    MaxDegreeOfParallelism = Environment.ProcessorCount
     //};
-    private ConcurrentDictionary<int, VideoStreamConfig> existingNumbers = new();
-    private ConcurrentHashSet<int> usedNumbers = new();
-    private int currentChannelNumber;
+    //private readonly ConcurrentDictionary<int, VideoStreamConfig> existingNumbers = new();
+    //private readonly ConcurrentHashSet<int> usedNumbers = [];
+    //private readonly int currentChannelNumber;
 
-    private int GetNextChannelNumber(int channelNumber, bool ignoreExisting)
-    {
-        if (ignoreExisting)
-        {
-            return getNext();
-        }
+    //private int GetNextChannelNumber(int channelNumber, bool ignoreExisting)
+    //{
+    //    if (ignoreExisting)
+    //    {
+    //        return getNext();
+    //    }
 
-        if (existingNumbers.ContainsKey(channelNumber))
-        {
-            if (usedNumbers.Add(channelNumber))
-            {
-                return channelNumber;
-            }
-        }
+    //    if (existingNumbers.ContainsKey(channelNumber))
+    //    {
+    //        if (usedNumbers.Add(channelNumber))
+    //        {
+    //            return channelNumber;
+    //        }
+    //    }
 
-        return getNext();
-    }
+    //    return getNext();
+    //}
 
-    private int getNext()
-    {
-        ++currentChannelNumber;
-        while (!usedNumbers.Add(currentChannelNumber))
-        {
-            ++currentChannelNumber;
-        }
-        return currentChannelNumber;
-    }
+    //private int getNext()
+    //{
+    //    ++currentChannelNumber;
+    //    while (!usedNumbers.Add(currentChannelNumber))
+    //    {
+    //        ++currentChannelNumber;
+    //    }
+    //    return currentChannelNumber;
+    //}
 
     [LogExecutionTimeAspect]
     public async Task<string> Handle(GetStreamGroupEPG request, CancellationToken cancellationToken)
     {
 
-        (List<VideoStreamConfig>? videoStreamConfigs, OutputProfile? profile) = await sender.Send(new GetStreamGroupVideoConfigs(request.StreamGroupId, request.StreamGroupProfileId));
+        (List<VideoStreamConfig>? videoStreamConfigs, OutputProfile? profile) = await sender.Send(new GetStreamGroupVideoConfigs(request.StreamGroupId, request.StreamGroupProfileId), cancellationToken);
 
         if (videoStreamConfigs is null || profile is null)
         {
@@ -136,9 +134,9 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
 
         return xmlText;
     }
-    private string GetApiUrl(SMFileTypes path, string source)
-    {
-        string url = _httpContextAccessor.GetUrl();
-        return $"{url}/api/files/{(int)path}/{WebUtility.UrlEncode(source)}";
-    }
+    //private string GetApiUrl(SMFileTypes path, string source)
+    //{
+    //    string url = _httpContextAccessor.GetUrl();
+    //    return $"{url}/api/files/{(int)path}/{WebUtility.UrlEncode(source)}";
+    //}
 }

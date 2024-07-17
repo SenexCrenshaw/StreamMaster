@@ -1,21 +1,17 @@
 import StringEditor from '@components/inputs/StringEditor';
-
 import SMDataTable from '@components/smDataTable/SMDataTable';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 import { Logger } from '@lib/common/logger';
 import { UpdateStreamGroupProfile } from '@lib/smAPI/StreamGroups/StreamGroupsCommands';
-
 import { StreamGroupDto, StreamGroupProfile, UpdateStreamGroupProfileRequest } from '@lib/smAPI/smapiTypes';
 import { memo, useCallback, useMemo } from 'react';
-import CreateStreamGroupProfileDialog from './profiles/CreateStreamGroupProfileDialog';
+import AttachStreamGroupProfileDialog from './profiles/AttachStreamGroupProfileDialog';
 import OutputProfileDropDown from './profiles/OutputProfileDropDown';
 import RemoveStreamGroupProfileDialog from './profiles/RemoveStreamGroupProfileDialog';
-
 interface StreamGroupDataSelectorValueProperties {
   readonly id: string;
   readonly streamGroupDto: StreamGroupDto;
 }
-
 const StreamGroupDataSelectorValue = ({ id, streamGroupDto }: StreamGroupDataSelectorValueProperties) => {
   const dataKey = `${id}-StreamGroupDataSelectorValue`;
 
@@ -78,24 +74,24 @@ const StreamGroupDataSelectorValue = ({ id, streamGroupDto }: StreamGroupDataSel
 
   const columns = useMemo(
     (): ColumnMeta[] => [
-      { bodyTemplate: nameTemplate, field: 'Name', sortable: false, width: 54 },
+      { bodyTemplate: nameTemplate, field: 'Name', sortable: false, width: 120 },
       { bodyTemplate: fileProfileTemplate, field: 'OutputProfileName', header: 'Output', sortable: false, width: 50 },
       // { bodyTemplate: videoProfileTemplate, field: 'VideoProfileName', header: 'Video', sortable: false, width: 50 },
       {
         align: 'center',
         field: 'HDHRLink',
         fieldType: 'url',
-        width: 20
+        width: 16
       },
       {
         field: 'epglink',
         fieldType: 'epglink',
-        width: 30
+        width: 16
       },
       {
         field: 'm3ulink',
         fieldType: 'm3ulink',
-        width: 30
+        width: 16
       },
       {
         align: 'center',
@@ -116,7 +112,7 @@ const StreamGroupDataSelectorValue = ({ id, streamGroupDto }: StreamGroupDataSel
   return (
     <div onClick={() => {}}>
       <SMDataTable
-        actionHeaderTemplate={<CreateStreamGroupProfileDialog streamGroupDto={streamGroupDto} />}
+        actionHeaderTemplate={<AttachStreamGroupProfileDialog streamGroupDto={streamGroupDto} />}
         columns={columns}
         dataSource={streamGroupDto.StreamGroupProfiles}
         defaultSortField="Name"

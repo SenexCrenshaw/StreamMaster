@@ -30,13 +30,10 @@ const CreateVideoProfileDialog = () => {
 
   return (
     <SMPopUp
-      contentWidthSize="6"
       buttonClassName="icon-green"
+      contentWidthSize="6"
       icon="pi-plus-circle"
-      title="Create Profile"
-      ref={smPopUpRef}
       modal
-      placement="top-end"
       onOkClick={() => {
         save();
       }}
@@ -44,8 +41,11 @@ const CreateVideoProfileDialog = () => {
         ReturnToParent();
       }}
       okButtonDisabled={!addVideoProfileRequest.Name || !addVideoProfileRequest.Command || !addVideoProfileRequest.Parameters}
+      placement="top-end"
+      ref={smPopUpRef}
+      title="Create Profile"
       tooltip="Create Profile"
-      zIndex={10}
+      zIndex={12}
     >
       <>
         <div className="sm-headerBg dialog-padding border-sides">

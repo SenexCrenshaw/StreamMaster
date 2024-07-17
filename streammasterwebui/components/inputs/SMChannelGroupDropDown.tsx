@@ -2,9 +2,9 @@ import useGetChannelGroups from '@lib/smAPI/ChannelGroups/useGetChannelGroups';
 import { ChannelGroupDto, SMChannelDto } from '@lib/smAPI/smapiTypes';
 import { ReactNode, forwardRef, memo, useEffect, useMemo, useRef, useState } from 'react';
 
+import ChannelGroupAddDialog from '@components/channelGroups/ChannelGroupAddDialog';
 import SMDropDown, { SMDropDownRef } from '@components/sm/SMDropDown';
 import useIsRowLoading from '@lib/redux/hooks/useIsRowLoading';
-import ChannelGroupAddDialog from '@components/channelGroups/ChannelGroupAddDialog';
 
 interface SMChannelGroupDropDownProperties {
   readonly autoPlacement?: boolean;
@@ -95,6 +95,7 @@ const SMChannelGroupDropDown = forwardRef<SMDropDownRef, SMChannelGroupDropDownP
         <SMDropDown
           autoPlacement={autoPlacement}
           buttonDarkBackground={darkBackGround}
+          buttonIsLoading={isLoading || props.isLoading || isRowLoading}
           buttonLabel="GROUP"
           buttonTemplate={buttonTemplate}
           closeOnSelection
@@ -102,9 +103,8 @@ const SMChannelGroupDropDown = forwardRef<SMDropDownRef, SMChannelGroupDropDownP
           dataKey="Name"
           filter
           filterBy="Name"
-          info=""
           header={headerRightTemplate}
-          buttonIsLoading={isLoading || props.isLoading || isRowLoading}
+          info=""
           itemTemplate={itemTemplate}
           onChange={(e) => {
             onChange(e.Name);
