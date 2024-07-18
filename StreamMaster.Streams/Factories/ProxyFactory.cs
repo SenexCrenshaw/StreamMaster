@@ -1,23 +1,18 @@
 ﻿using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Extensions;
+using StreamMaster.PlayList;
 
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 namespace StreamMaster.Streams.Factories;
 
-public sealed class ProxyFactory(ILogger<ProxyFactory> logger, IHttpClientFactory httpClientFactory, IOptionsMonitor<Setting> intSettings)
+public sealed class ProxyFactory(ILogger<ProxyFactory> logger, ICustomPlayListBuilder customPlayListBuilder, IHttpClientFactory httpClientFactory, IOptionsMonitor<Setting> intSettings)
     : IProxyFactory
 {
-
     public string FFMpegOptions { get; set; } = "-hide_banner -loglevel error -i {streamUrl} -reconnect 1 -map 0:v -map 0:a? -map 0:s? -c copy -bsf:v h264_mp4toannexb -f mpegts pipe:1";
+    public string CustomPlayListFFMpegOptions { get; set; } = "-hide_banner -loglevel error -i {streamUrl} -reconnect 1 -map 0:v -map 0:a? -map 0:s? -c copy -f mpegts pipe:1";
 
-    private string GetStreamingProxyType(string videoStreamStreamingProxyType)
-    {
-        Setting settings = intSettings.CurrentValue;
-        return videoStreamStreamingProxyType == "SystemDefault"
-            ? settings.StreamingProxyType
-            : videoStreamStreamingProxyType;
-    }
+
 
     public async Task<(Stream? stream, int processId, ProxyStreamError? error)> GetProxy(SMStreamDto smStream, string clientUserAgent, CancellationToken cancellationToken)
     {
@@ -25,26 +20,18 @@ public sealed class ProxyFactory(ILogger<ProxyFactory> logger, IHttpClientFactor
         ProxyStreamError? error;
         int processId;
 
-        //string proxyType = GetStreamingProxyType(smStream);
 
-        //if (proxyType == "None")
-        //{
-        //    logger.LogInformation("No proxy stream needed for {StreamUrl} {streamName}", smStream.Url, smStream.Name);
-        //    return (null, -1, null);
-        //}
-        //if (proxyType == "StreamMaster")
-        //{
-        //    (stream, processId, error) = await GetProxyStream(streamUrl, streamName);
-        //    LogErrorIfAny(stream, error, streamUrl, streamName);
-        //}
-        //else
-        //{
-        //    (stream, processId, error) = GetCommandStream(streamUrl);
-        //    LogErrorIfAny(stream, error, streamUrl, streamName);
-        //}
         (stream, processId, error) = await GetProxyStream(smStream, clientUserAgent, cancellationToken);
         LogErrorIfAny(stream, error, smStream.Url, smStream.Name);
         return (stream, processId, error);
+    }
+
+    private string GetStreamingProxyType(string videoStreamStreamingProxyType)
+    {
+        Setting settings = intSettings.CurrentValue;
+        return videoStreamStreamingProxyType == "SystemDefault"
+            ? settings.StreamingProxyType
+            : videoStreamStreamingProxyType;
     }
 
     private void LogErrorIfAny(Stream? stream, ProxyStreamError? error, string streamUrl, string streamName)
@@ -115,17 +102,6 @@ public sealed class ProxyFactory(ILogger<ProxyFactory> logger, IHttpClientFactor
 
             logger.LogInformation("Opened stream with args \"{formattedArgs}\" in {ElapsedMilliseconds} ms", options, stopwatch.ElapsedMilliseconds);
 
-
-            //Task.Run(() =>
-            //{
-            //    //// Read standard error to avoid process blocking due to full buffer
-            //    //string? errorOutput = process?.StandardError?.ReadToEnd() ?? null;
-            //    //if (!string.IsNullOrEmpty(errorOutput))
-            //    //{
-            //    //    logger.LogError("Process StandardError: {ErrorOutput}", errorOutput);
-            //    //}
-            //}, cancellationToken);
-
             return (process.StandardOutput.BaseStream, process.Id, null);
         }
         catch (OperationCanceledException ex)
@@ -187,52 +163,6 @@ public sealed class ProxyFactory(ILogger<ProxyFactory> logger, IHttpClientFactor
         return process.ExitCode == 0;
     }
 
-    ////public string FFMpegOptions { get; set; } = "-hide_banner -loglevel error -i {streamUrl} -c copy -f mpegts pipe:1";
-    //private async Task<(Stream? stream, int processId, ProxyStreamError? error)> CreateFFMpegStream(string ffmpegExec, string streamUrl, string streamName)
-    //{
-    //    Setting settings = intSettings.CurrentValue;
-
-    //    try
-    //    {
-    //        Stopwatch stopwatch = Stopwatch.StartNew();
-
-    //        string options = string.IsNullOrEmpty(FFMpegOptions) ? BuildInfo.FFMPEGDefaultOptions : FFMpegOptions;
-
-    //        string formattedArgs = options.Replace("{streamUrl}", $"\"{streamUrl}\"");
-    //        formattedArgs += $" -user_agent \"{settings.StreamingClientUserAgent}\"";
-
-    //        using Process process = new();
-    //        process.StartInfo.FileName = ffmpegExec;
-    //        process.StartInfo.Arguments = formattedArgs;
-    //        process.StartInfo.CreateNoWindow = true;
-    //        process.StartInfo.UseShellExecute = false;
-    //        process.StartInfo.RedirectStandardOutput = true;
-    //        process.StartInfo.RedirectStandardError = true;
-
-    //        bool processStarted = process.Start();
-    //        stopwatch.Stop();
-    //        if (!processStarted)
-    //        {
-    //            // Log and return an error if the process couldn't be started
-    //            ProxyStreamError error = new() { ErrorCode = ProxyStreamErrorCode.ProcessStartFailed, Message = "Failed to start FFmpeg process" };
-    //            logger.LogError("CreateFFMpegStream Error: {ErrorMessage}", error.Message);
-
-    //            return (null, -1, error);
-    //        }
-
-    //        // Return the standard output stream of the process
-
-    //        logger.LogInformation("Opened ffmpeg stream for {streamName} with args \"{formattedArgs}\" in {ElapsedMilliseconds} ms", streamName, formattedArgs, stopwatch.ElapsedMilliseconds);
-    //        return (await Task.FromResult(process.StandardOutput.BaseStream).ConfigureAwait(false), process.Id, null);
-    //    }
-    //    catch (Exception ex)
-    //    {
-    //        // Log and return any exceptions that occur
-    //        ProxyStreamError error = new() { ErrorCode = ProxyStreamErrorCode.UnknownError, Message = ex.Message };
-    //        logger.LogError(ex, "CreateFFMpegStream Error: {ErrorMessage}", error.Message);
-    //        return (null, -1, error);
-    //    }
-    //}
 
     private (Stream? stream, int processId, ProxyStreamError? error) HandleFFMpegStreamException<T>(ProxyStreamErrorCode errorCode, T exception) where T : Exception
     {
@@ -243,12 +173,29 @@ public sealed class ProxyFactory(ILogger<ProxyFactory> logger, IHttpClientFactor
 
     private async Task<(Stream? stream, int processId, ProxyStreamError? error)> GetProxyStream(SMStreamDto smStream, string clientUserAgent, CancellationToken cancellationToken)
     {
-        Setting settings = intSettings.CurrentValue;
 
         Stopwatch stopwatch = Stopwatch.StartNew();
 
         try
         {
+            if (smStream.IsCustomStream)
+            {
+                var customPlayList = customPlayListBuilder.GetCustomPlayList(smStream.Name);
+                if (customPlayList == null)
+                {
+                    ProxyStreamError error = new() { ErrorCode = ProxyStreamErrorCode.FileNotFound, Message = $"Custom playlist not found: {smStream.Name}" };
+                    logger.LogError("GetProxyStream Error: {message}", error.Message);
+                    return (null, -1, error);
+                }
+                string? ffmpeg = GetFFPMpegExec();
+                if (ffmpeg == null)
+                {
+                    logger.LogCritical("FFMPEG not found");
+                    return (null, -1, new ProxyStreamError() { ErrorCode = ProxyStreamErrorCode.FileNotFound, Message = "FFMPEG not found" });
+                }
+                return GetCommandStream(customPlayList.CustomStreamNfos.First().VideoFileName, ffmpeg, CustomPlayListFFMpegOptions, clientUserAgent);
+            }
+
             if (smStream.Url.EndsWith(".m3u8"))
             {
                 string? ffmpeg = GetFFPMpegExec();
@@ -261,7 +208,7 @@ public sealed class ProxyFactory(ILogger<ProxyFactory> logger, IHttpClientFactor
                 return GetCommandStream(smStream.Url, ffmpeg, FFMpegOptions, clientUserAgent);
             }
 
-            HttpClient client = CreateHttpClient(settings.StreamingClientUserAgent);
+            HttpClient client = CreateHttpClient(clientUserAgent);
             HttpResponseMessage? response = await client.GetWithRedirectAsync(smStream.Url, cancellationToken: cancellationToken).ConfigureAwait(false);
 
             if (response?.IsSuccessStatusCode != true)
@@ -332,20 +279,4 @@ public sealed class ProxyFactory(ILogger<ProxyFactory> logger, IHttpClientFactor
         return process.ExitCode == 0;
     }
 
-    //private static bool IsFFmpegAvailable()
-    //{
-    //    string command = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "where" : "which";
-    //    ProcessStartInfo startInfo = new(command, "ffmpeg")
-    //    {
-    //        RedirectStandardOutput = true,
-    //        UseShellExecute = false
-    //    };
-    //    Process process = new()
-    //    {
-    //        StartInfo = startInfo
-    //    };
-    //    _ = process.Start();
-    //    process.WaitForExit();
-    //    return process.ExitCode == 0;
-    //}
 }

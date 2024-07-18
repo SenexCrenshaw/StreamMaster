@@ -34,10 +34,19 @@ public static partial class IPTVExtensions
 
                     if (line.StartsWith("#EXTINF"))
                     {
+
                         if (segmentBuilder.Length > 0)
                         {
-                            ProcessSegment(segmentNumber++, segmentBuilder.ToString(), clientUserAgent);
+                            if (clientUserAgent != null)
+                            {
+
+                                var commadIndex = segmentBuilder.ToString().LastIndexOf(',');
+
+                                segmentBuilder.Insert(commadIndex, $" clientUserAgent=\"{clientUserAgent}\" ");
+                            }
+                            ProcessSegment(segmentNumber++, segmentBuilder.ToString());
                             segmentBuilder.Clear();
+                            clientUserAgent = null;
                         }
                     }
                     else if (line.StartsWith("#EXTVLCOPT"))
@@ -45,6 +54,8 @@ public static partial class IPTVExtensions
                         if (line.StartsWith("#EXTVLCOPT:http-user-agent"))
                         {
                             clientUserAgent = line.Replace("#EXTVLCOPT:http-user-agent=", "");
+                            //segmentBuilder.Insert(1, $" clientUserAgent=\"{clientUserAgent}\" ");
+                            continue;
                         }
                     }
                     else
@@ -61,7 +72,7 @@ public static partial class IPTVExtensions
                 // Process the last segment
                 if (segmentBuilder.Length > 0)
                 {
-                    ProcessSegment(segmentNumber, segmentBuilder.ToString(), clientUserAgent);
+                    ProcessSegment(segmentNumber, segmentBuilder.ToString());
                 }
             }
             finally
@@ -74,9 +85,9 @@ public static partial class IPTVExtensions
         logger.LogInformation("Imported {processedCount} streams.", processedCount);
         return results;
 
-        void ProcessSegment(int segmentNum, string segment, string? clientUserAgent)
+        void ProcessSegment(int segmentNum, string segment)
         {
-            SMStream? smStream = segment.StringToSMStream(clientUserAgent);
+            SMStream? smStream = segment.StringToSMStream();
 
             if (smStream != null)
             {
@@ -157,7 +168,7 @@ public static partial class IPTVExtensions
     }
 
 
-    public static SMStream? StringToSMStream(this string bodyline, string? clientUserAgent)
+    public static SMStream? StringToSMStream(this string bodyline)
     {
         SMStream SMStream = new();
 
@@ -182,7 +193,7 @@ public static partial class IPTVExtensions
             if (Uri.IsWellFormedUriString(line, UriKind.Absolute))
             {
                 SMStream.Url = line;
-                SMStream.ClientUserAgent = clientUserAgent;
+
                 continue;
             }
 
@@ -226,6 +237,13 @@ public static partial class IPTVExtensions
                             {
                                 string num = parameter[1].Trim();
                                 SMStream.ChannelNumber = int.TryParse(num, out int chno) ? chno : 0;
+                            }
+                            break;
+
+                        case "clientuseragent":
+                            if (!string.IsNullOrEmpty(parameter[1].Trim()))
+                            {
+                                SMStream.ClientUserAgent = parameter[1].Trim();
                             }
                             break;
 

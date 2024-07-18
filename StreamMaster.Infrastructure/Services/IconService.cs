@@ -7,14 +7,15 @@ using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Dto;
 using StreamMaster.Domain.Enums;
 using StreamMaster.Domain.Extensions;
-using StreamMaster.Domain.Services;
+using StreamMaster.PlayList;
 
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Web;
 
 namespace StreamMaster.Infrastructure.Services;
-public class IconService(IMapper mapper, IOptionsMonitor<Setting> intsettings, ILogger<IconService> logger) : IIconService
+public class IconService(IMapper mapper, IOptionsMonitor<Setting> intSettings, ICustomPlayListBuilder customPlayListBuilder, ILogger<IconService> logger)
+    : IIconService
 {
     private ConcurrentDictionary<string, IconFileDto> Icons { get; set; } = [];
     private ConcurrentDictionary<string, TvLogoFile> TvLogos { get; set; } = [];
@@ -83,11 +84,27 @@ public class IconService(IMapper mapper, IOptionsMonitor<Setting> intsettings, I
         return Icons.TryGetValue(source, out IconFileDto? icon) ? icon : null;
     }
 
-    public ImagePath? GetValidImagePath(string URL)
+    public ImagePath? GetValidImagePath(string URL, SMFileTypes? fileType = null)
     {
         string source = HttpUtility.UrlDecode(URL);
         string fileName = "";
         string returnName = "";
+
+        if (fileType == SMFileTypes.CustomPlayList)
+        {
+            fileName = Path.GetFileNameWithoutExtension(URL);
+            customPlayListBuilder.GetCustomPlayList(fileName);
+            var fullPath = Path.Combine(BuildInfo.CustomPlayListFolder, fileName, URL);
+            if (File.Exists(fullPath))
+            {
+                return new ImagePath
+                {
+                    ReturnName = Path.GetFileName(fullPath),
+                    FullPath = fullPath,
+                    SMFileType = SMFileTypes.CustomPlayList
+                };
+            }
+        }
 
         if (!source.StartsWith("http"))
         {
@@ -158,6 +175,11 @@ public class IconService(IMapper mapper, IOptionsMonitor<Setting> intsettings, I
             icons.AddRange(Icons.Values);
         }
 
+        var test = icons.Where(a => a.Name.Contains("Wick") || a.SMFileType == SMFileTypes.CustomPlayList).ToList();
+        if (test.Count > 0)
+        {
+            var aaa = 1;
+        }
         IOrderedEnumerable<IconFileDto> ret = icons.OrderBy(a => a.Name);
 
         return [.. ret];

@@ -429,7 +429,14 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, IMessageSer
 
         if (existingStream.M3UFileId != m3uFile.Id)
         {
+            changed = true;
             existingStream.M3UFileId = m3uFile.Id;
+        }
+
+        if (existingStream.ClientUserAgent != stream.ClientUserAgent)
+        {
+            changed = true;
+            existingStream.ClientUserAgent = stream.ClientUserAgent;
         }
 
         if (string.IsNullOrEmpty(existingStream.M3UFileName) || existingStream.M3UFileName != m3uFile.Name)

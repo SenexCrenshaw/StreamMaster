@@ -1,4 +1,5 @@
 ﻿using StreamMaster.Domain.Extensions;
+using StreamMaster.PlayList;
 using StreamMaster.Streams.Buffers;
 
 using System.Diagnostics;
@@ -9,7 +10,7 @@ namespace StreamMaster.Streams.Streams
     /// <summary>
     /// Manages the streaming of a single video stream, including client registrations and handling.
     /// </summary>
-    public sealed partial class StreamHandler
+    public sealed partial class CustomPlayListHandler
     {
         private const int videoBufferSize = 1 * 1024 * 1000;
         public const int ChunkSize = 64 * 1024;
@@ -52,6 +53,11 @@ namespace StreamMaster.Streams.Streams
 
         public async Task StartVideoStreamingAsync(Stream stream)
         {
+            return;
+        }
+
+        public async Task StartVideoStreamingAsync(CustomPlayList customPlayList)
+        {
             VideoStreamingCancellationToken = new CancellationTokenSource();
             logger.LogInformation("Starting video read streaming, chunk size is {ChunkSize}, for stream: {StreamUrl} name: {name}", ChunkSize, SMStream.Url, SMStream.Name);
 
@@ -70,44 +76,42 @@ namespace StreamMaster.Streams.Streams
             {
                 try
                 {
-                    using (stream)
+                    while (!token.IsCancellationRequested)
                     {
-                        while (!token.IsCancellationRequested)
+                        if (ClientCount == 0)
                         {
-                            if (ClientCount == 0)
+                            if (ran)
                             {
-                                if (ran)
-                                {
-                                    logger.LogWarning("No more clients, breaking");
-                                    break;
-                                }
-                                await Task.Delay(10, token).ConfigureAwait(false);
-                                continue;
+                                logger.LogWarning("No more clients, breaking");
+                                break;
                             }
-
-                            Stopwatch readStart = Stopwatch.StartNew();
-                            int readBytes = await stream.ReadAsync(bufferMemory, token).ConfigureAwait(false);
-                            readStart.Stop();
-                            double latency = readStart.Elapsed.TotalMilliseconds;
-
-                            if (readBytes == 0)
-                            {
-                                throw new EndOfStreamException();
-                            }
-
-                            if (!ran)
-                            {
-                                ran = true;
-                                testSw.Stop();
-                                logger.LogInformation("Input stream took {ElapsedMilliseconds}ms before reading first bytes {readBytes}", testSw.ElapsedMilliseconds, readBytes);
-                            }
-
-                            byte[] data = bufferMemory[..readBytes].ToArray();
-                            await writer.WriteAsync(data, token).ConfigureAwait(false);
-
-                            SetMetrics(readBytes, 0, latency);
+                            await Task.Delay(10, token).ConfigureAwait(false);
+                            continue;
                         }
+
+                        Stopwatch readStart = Stopwatch.StartNew();
+                        //int readBytes = await stream.ReadAsync(bufferMemory, token).ConfigureAwait(false);
+                        //readStart.Stop();
+                        //double latency = readStart.Elapsed.TotalMilliseconds;
+
+                        //if (readBytes == 0)
+                        //{
+                        //    throw new EndOfStreamException();
+                        //}
+
+                        //if (!ran)
+                        //{
+                        //    ran = true;
+                        //    testSw.Stop();
+                        //    logger.LogInformation("Input stream took {ElapsedMilliseconds}ms before reading first bytes {readBytes}", testSw.ElapsedMilliseconds, readBytes);
+                        //}
+
+                        //byte[] data = bufferMemory[..readBytes].ToArray();
+                        //await writer.WriteAsync(data, token).ConfigureAwait(false);
+
+                        //SetMetrics(readBytes, 0, latency);
                     }
+
                 }
                 catch (Exception ex) when (ex is TaskCanceledException or OperationCanceledException or EndOfStreamException or HttpIOException)
                 {
@@ -181,14 +185,14 @@ namespace StreamMaster.Streams.Streams
             finally
             {
                 IsFailed = true;
-                if (stream is IAsyncDisposable asyncDisposableStream)
-                {
-                    await asyncDisposableStream.DisposeAsync().ConfigureAwait(false);
-                }
-                else
-                {
-                    stream.Dispose();
-                }
+                //if (stream is IAsyncDisposable asyncDisposableStream)
+                //{
+                //    await asyncDisposableStream.DisposeAsync().ConfigureAwait(false);
+                //}
+                //else
+                //{
+                //    stream.Dispose();
+                //}
                 //Stop(inputStreamError);
                 OnStreamingStopped(inputStreamError);
             }

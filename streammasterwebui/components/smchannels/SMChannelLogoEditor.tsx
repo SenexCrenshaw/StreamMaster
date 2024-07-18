@@ -6,10 +6,9 @@ import { memo } from 'react';
 
 export interface StreamDataSelectorProperties {
   readonly data: SMChannelDto;
-  readonly enableEditMode?: boolean;
 }
 
-const SMChannelLogoEditor = ({ data, enableEditMode }: StreamDataSelectorProperties) => {
+const SMChannelLogoEditor = ({ data }: StreamDataSelectorProperties) => {
   const [isCellLoading, setIsCellLoading] = useIsCellLoading({
     Entity: 'SMChannel',
     Field: 'Logo',
@@ -36,11 +35,12 @@ const SMChannelLogoEditor = ({ data, enableEditMode }: StreamDataSelectorPropert
 
   return (
     <IconSelector
-      enableEditMode={enableEditMode || enableEditMode === undefined}
+      enableEditMode={data.IsCustomStream !== true}
       isLoading={isCellLoading}
       onChange={async (e: string) => {
         onSetLogo(e);
       }}
+      isCustomPlayList={data.IsCustomStream}
       value={data.Logo}
     />
   );

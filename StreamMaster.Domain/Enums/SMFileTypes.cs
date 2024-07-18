@@ -1,6 +1,4 @@
-﻿using Reinforced.Typings.Attributes;
-
-namespace StreamMaster.Domain.Enums;
+﻿namespace StreamMaster.Domain.Enums;
 
 [TsEnum]
 public enum SMFileTypes
@@ -17,4 +15,5 @@ public enum SMFileTypes
     ChannelIcon = 9,
     SDImage = 10,
     SDStationLogo = 11,
+    CustomPlayList = 12,
 }

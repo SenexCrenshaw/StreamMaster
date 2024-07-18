@@ -1,8 +1,9 @@
 ﻿using StreamMaster.Domain.Configuration;
+using StreamMaster.PlayList;
 using StreamMaster.Streams.Streams;
 namespace StreamMaster.Streams.Factories;
 
-public sealed class StreamHandlerFactory(IStreamStreamingStatisticsManager streamStreamingStatisticsManager, IOptionsMonitor<Setting> intSettings, ILoggerFactory loggerFactory, IProxyFactory proxyFactory)
+public sealed class StreamHandlerFactory(IStreamStreamingStatisticsManager streamStreamingStatisticsManager, ICustomPlayListBuilder customPlayListBuilder, IOptionsMonitor<Setting> intSettings, ILoggerFactory loggerFactory, IProxyFactory proxyFactory)
     : IStreamHandlerFactory
 {
 
@@ -12,13 +13,29 @@ public sealed class StreamHandlerFactory(IStreamStreamingStatisticsManager strea
         SMChannelDto smChannel = channelStatus.SMChannel;
         VideoOutputProfileDto videoProfile = channelStatus.VideoProfile;
         Setting settings = intSettings.CurrentValue;
-        //int rank = channelStatus.CurrentRank;
 
-        (Stream? stream, int processId, ProxyStreamError? error) = await proxyFactory.GetProxy(smStream, settings.StreamingClientUserAgent, cancellationToken).ConfigureAwait(false);
+        var clientUserAgent = settings.StreamingClientUserAgent;
+        if (!string.IsNullOrEmpty(channelStatus.SMStream.ClientUserAgent))
+        {
+            clientUserAgent = channelStatus.SMStream.ClientUserAgent;
+        }
+
+        (Stream? stream, int processId, ProxyStreamError? error) = await proxyFactory.GetProxy(smStream, clientUserAgent, cancellationToken).ConfigureAwait(false);
         if (stream == null || error != null || processId == 0)
         {
             return null;
         }
+
+        //if (channelStatus.SMChannel.IsCustomStream)
+        //{
+
+        //    IStreamHandler customPlayListHandler = new CustomPlayListHandler(channelStatus, intSettings, loggerFactory, streamStreamingStatisticsManager);
+
+        //    _ = Task.Run(() => customPlayListHandler.StartVideoStreamingAsync(stream), cancellationToken);
+
+        //    return customPlayListHandler;
+        //}
+
 
         StreamHandler streamHandler = new(channelStatus, processId, intSettings, loggerFactory, streamStreamingStatisticsManager);
 

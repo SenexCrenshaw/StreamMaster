@@ -24,7 +24,7 @@ public interface ISMChannelsRepository : IRepositoryBase<SMChannel>
 
     Task<APIResponse> CreateSMChannelsFromStreamParameters(QueryStringParameters Parameters, int? AddToStreamGroupId, int? M3UFileId);
 
-    Task<APIResponse> CreateSMChannelsFromStreams(List<string> streamIds, int? AddToStreamGroupId, int? M3UFileId = EPGHelper.DummyId);
+    Task<APIResponse> CreateSMChannelsFromStreams(List<string> streamIds, int? AddToStreamGroupId, int? M3UFileId = EPGHelper.DummyId, bool? IsCustomPlayList = false);
 
     Task<APIResponse> DeleteSMChannel(int smchannelId);
 

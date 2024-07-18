@@ -25,8 +25,8 @@ public sealed partial class StreamHandler
 
     public async Task BuildVideoInfoAsync(byte[] videoMemory)
     {
-        string testDir = Path.Combine(BuildInfo.AppDataFolder, "test.mp4");
-        await fileSaver.SaveVideoWithRevisionsAsync(videoMemory, testDir);
+        //string testDir = Path.Combine(BuildInfo.AppDataFolder, "test.mp4");
+        //await fileSaver.SaveVideoWithRevisionsAsync(videoMemory, testDir);
         bool isLocked = false;
         try
         {

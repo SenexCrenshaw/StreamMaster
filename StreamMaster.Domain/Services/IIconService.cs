@@ -1,12 +1,9 @@
-﻿using StreamMaster.Domain.Dto;
-using StreamMaster.Domain.Models;
-
-namespace StreamMaster.Domain.Services
+﻿namespace StreamMaster.Domain.Services
 {
     public interface IIconService
     {
         void AddIcon(string artworkUri, string title);
-        ImagePath? GetValidImagePath(string URL);
+        ImagePath? GetValidImagePath(string URL, SMFileTypes? fileType = null);
         List<TvLogoFile> GetTvLogos();
         void AddIcon(IconFileDto iconFile);
         void AddIcons(List<IconFileDto> newIconFiles);

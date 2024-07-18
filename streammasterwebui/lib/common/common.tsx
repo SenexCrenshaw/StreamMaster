@@ -416,7 +416,7 @@ export function findDifferenceStationIdLineUps(firstArray: StationIdLineup[], se
 //   return true;
 // };
 
-export function getIconUrl(iconOriginalSource: string | null | undefined, defaultIcon: string, cacheIcon: boolean): string {
+export function getIconUrl(iconOriginalSource: string | null | undefined, defaultIcon: string, cacheIcon: boolean, fileType: SMFileTypes | null): string {
   if (!iconOriginalSource || iconOriginalSource === '') {
     iconOriginalSource = `${isDevelopment ? `${baseHostURL}/` : '/'}${defaultIcon}`;
   }
@@ -425,6 +425,12 @@ export function getIconUrl(iconOriginalSource: string | null | undefined, defaul
 
   if (iconOriginalSource.startsWith('/')) {
     iconOriginalSource = iconOriginalSource.slice(1);
+  }
+
+  const customPlayListString = SMFileTypes[SMFileTypes.CustomPlayList];
+  if (fileType !== null && (fileType === SMFileTypes.CustomPlayList || fileType.toString() === customPlayListString)) {
+    iconOriginalSource = getApiUrl(SMFileTypes.CustomPlayList, originalUrl);
+    return iconOriginalSource;
   }
 
   if (iconOriginalSource.startsWith('images/')) {

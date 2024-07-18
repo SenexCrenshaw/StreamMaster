@@ -325,6 +325,7 @@ export interface SMChannelDto
 	Group: string;
 	GroupTitle: string;
 	Id: number;
+	IsCustomStream: boolean;
 	IsHidden: boolean;
 	Logo: string;
 	M3UFileId?: number;
@@ -908,8 +909,9 @@ export interface CreateSMChannelsFromStreamParametersRequest
 }
 export interface CreateSMChannelsFromStreamsRequest
 {
+	IsCustomPlayList?: boolean;
 	M3UFileId?: number;
-	StreamGroup?: string;
+	StreamGroupId?: number;
 	StreamIds: string[];
 }
 export interface DeleteSMChannelRequest
@@ -1461,7 +1463,8 @@ export enum SMFileTypes {
 	ProgrammeIcon = 8,
 	ChannelIcon = 9,
 	SDImage = 10,
-	SDStationLogo = 11
+	SDStationLogo = 11,
+	CustomPlayList = 12
 }
 export enum ValidM3USetting {
 	NotMapped = 0,

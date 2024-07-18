@@ -84,6 +84,8 @@ public sealed class ChannelService(
             if (handler is null)
             {
                 logger.LogError("Could not find handler for {ClientId} {ChannelVideoStreamId} {name}", config.ClientId, config.SMChannel.Id, config.SMChannel.Name);
+                await clientStreamerManager.UnRegisterClient(config.ClientId);
+                UnRegisterChannel(config.SMChannel.Id);
                 return null;
             }
             channelStatus.VideoProfile = VideoOutputProfileDto(config.SMChannel.StreamingProxyType);
@@ -172,8 +174,6 @@ public sealed class ChannelService(
     public IChannelStatus? GetChannelStatus(int smChannelId)
     {
         _channelStatuses.TryGetValue(smChannelId, out IChannelStatus? channelStatus);
-
-
         return channelStatus;
     }
 
@@ -246,6 +246,7 @@ public sealed class ChannelService(
         {
             logger.LogDebug("Exiting SwitchToNextVideoStream with false due to channelStatus. newStreamHandler is null");
             channelStatus.FailoverInProgress = false;
+
             return false;
         }
 

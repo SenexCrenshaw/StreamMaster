@@ -9,6 +9,10 @@ interface SMChannelNameColumnConfigProperties {
 
 export const useSMChannelNameColumnConfig = ({ width }: SMChannelNameColumnConfigProperties) => {
   const bodyTemplate = useCallback((smChannelDto: SMChannelDto) => {
+    if (smChannelDto.IsCustomStream === true) {
+      return <div className="text-container pl-1">{smChannelDto.Name}</div>;
+    }
+
     return <SMChannelNameEditor smChannelDto={smChannelDto} />;
   }, []);
 

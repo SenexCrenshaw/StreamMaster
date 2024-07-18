@@ -90,8 +90,8 @@ public class StreamManager(IStreamHandlerFactory streamHandlerFactory, IClientSt
 
     public async Task<IStreamHandler?> GetOrCreateStreamHandler(IChannelStatus channelStatus, CancellationToken cancellation = default)
     {
-        SMStream smStream = channelStatus.SMStream;
-        SMChannel smChannel = channelStatus.SMChannel;
+        SMStreamDto smStream = channelStatus.SMStream;
+        SMChannelDto smChannel = channelStatus.SMChannel;
 
         _ = _streamHandlers.TryGetValue(smStream.Url, out IStreamHandler? streamHandler);
 

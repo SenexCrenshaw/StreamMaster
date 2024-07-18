@@ -31,11 +31,17 @@ public class RepositoryContextInitializer(ILogger<RepositoryContextInitializer> 
                 await context.SaveChangesAsync().ConfigureAwait(false);
             }
 
-            //if (!context.ChannelGroups.Any(a => a.Name == "Dummy"))
-            //{
-            //    context.Add(new ChannelGroup { Name = "Dummy", IsReadOnly = true, IsSystem = true });
-            //    await context.SaveChangesAsync().ConfigureAwait(false);
-            //}
+            if (!context.ChannelGroups.Any(a => a.Name == "Dummy"))
+            {
+                context.Add(new ChannelGroup { Name = "Dummy", IsReadOnly = true, IsSystem = true });
+                await context.SaveChangesAsync().ConfigureAwait(false);
+            }
+
+            if (!context.ChannelGroups.Any(a => a.Name == "CustomPlayList"))
+            {
+                context.Add(new ChannelGroup { Name = "CustomPlayList", IsReadOnly = true, IsSystem = true });
+                await context.SaveChangesAsync().ConfigureAwait(false);
+            }
         }
         catch (Exception ex)
         {

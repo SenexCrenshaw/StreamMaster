@@ -1,8 +1,7 @@
 ﻿using Microsoft.Extensions.Diagnostics.HealthChecks;
-
 using StreamMaster.Streams.Streams;
 
-namespace StreamMaster.Streams.Handler;
+namespace StreamMaster.Streams.Handlers.Stream;
 
 public class StreamHandlerHealthCheck : IHealthCheck
 {

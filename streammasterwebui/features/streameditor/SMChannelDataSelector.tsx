@@ -3,6 +3,7 @@ import { SMTriSelectShowHidden } from '@components/sm/SMTriSelectShowHidden';
 import SMDataTable from '@components/smDataTable/SMDataTable';
 import getRecord from '@components/smDataTable/helpers/getRecord';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
+import { SMDataTableRef } from '@components/smDataTable/types/smDataTableInterfaces';
 import AutoSetEPGSMChannelDialog from '@components/smchannels/AutoSetEPGSMChannelDialog';
 import CloneSMChannelDialog from '@components/smchannels/CloneSMChannelDialog';
 import CreateSMChannelDialog from '@components/smchannels/CreateSMChannelDialog';
@@ -29,7 +30,6 @@ import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import SMChannelMenu from './SMChannelMenu';
 import SMStreamDataSelectorValue from './SMStreamDataSelectorValue';
 import useSelectedSMItems from './useSelectedSMItems';
-import { SMDataTableRef } from '@components/smDataTable/types/smDataTableInterfaces';
 
 interface SMChannelDataSelectorProperties {
   readonly enableEdit?: boolean;
@@ -62,6 +62,10 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id }: SMChannelDat
   const rowExpansionTemplate = useCallback((data: DataTableRowData<any>, options: DataTableRowExpansionTemplate) => {
     const channel = data as unknown as SMChannelDto;
 
+    if (channel.IsCustomStream === true) {
+      return <div className="ml-3 m-1">Custom Stream</div>;
+    }
+
     return (
       <div className="ml-3 m-1">
         <SMStreamDataSelectorValue smChannel={channel} id={channel.Id + '-streams'} />
@@ -83,6 +87,13 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id }: SMChannelDat
 
   const actionTemplate = useCallback(
     (smChannel: SMChannelDto) => {
+      if (smChannel.IsCustomStream === true) {
+        return (
+          <div className="flex justify-content-end align-items-center" style={{ paddingRight: '0.1rem' }}>
+            <StreamCopyLinkDialog realUrl={smChannel?.StreamUrl} />
+          </div>
+        );
+      }
       return (
         <div className="flex justify-content-end align-items-center" style={{ paddingRight: '0.1rem' }}>
           <StreamCopyLinkDialog realUrl={smChannel?.StreamUrl} />

@@ -208,7 +208,7 @@ public sealed class ChannelManager : IChannelManager
     {
         try
         {
-            await _registerSemaphore.WaitAsync();
+            //await _registerSemaphore.WaitAsync();
 
             if (clientStreamerManager.HasClient(config.ClientId))
             {
@@ -249,7 +249,7 @@ public sealed class ChannelManager : IChannelManager
         }
         finally
         {
-            _ = _registerSemaphore.Release();
+            //_ = _registerSemaphore.Release();
         }
     }
     public async Task CancelChannel(int SMChannelId)

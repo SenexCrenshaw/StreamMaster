@@ -140,7 +140,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
         return FirstOrDefault(a => a.Id == smchannelId, tracking: false);
     }
 
-    private async Task<SMChannel?> CreateSMChannelFromStream(string streamId, ConcurrentDictionary<string, byte> generatedIdsDict, int? AddToStreamGroupId, int? M3UFileId = EPGHelper.DummyId)
+    private async Task<SMChannel?> CreateSMChannelFromStream(string streamId, ConcurrentDictionary<string, byte> generatedIdsDict, int? AddToStreamGroupId, int? M3UFileId = EPGHelper.DummyId, bool? IsCustomPlayList = false)
     {
         SMStream? smStream = repository.SMStream.GetSMStream(streamId) ?? throw new APIException($"Stream with Id {streamId} is not found");
         if (smStream == null)
@@ -158,7 +158,8 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
             StationId = smStream.StationId,
             M3UFileId = M3UFileId,
             StreamID = smStream.Id,
-            ShortSMChannelId = UniqueHexGenerator.GenerateUniqueHex(generatedIdsDict)
+            ShortSMChannelId = UniqueHexGenerator.GenerateUniqueHex(generatedIdsDict),
+            IsCustomStream = IsCustomPlayList ?? false,
         };
 
         await CreateSMChannel(smChannel);
@@ -483,7 +484,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
     }
 
     [LogExecutionTimeAspect]
-    public async Task<APIResponse> CreateSMChannelsFromStreams(List<string> streamIds, int? AddToStreamGroupId, int? M3UFileId = EPGHelper.DummyId)
+    public async Task<APIResponse> CreateSMChannelsFromStreams(List<string> streamIds, int? AddToStreamGroupId, int? M3UFileId = EPGHelper.DummyId, bool? IsCustomPlayList = false)
     {
         try
         {
@@ -513,7 +514,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
             int count = 0;
             foreach (string streamId in streamIds)
             {
-                SMChannel? smChannel = await CreateSMChannelFromStream(streamId, generatedIdsDict, AddToStreamGroupId, M3UFileId);
+                SMChannel? smChannel = await CreateSMChannelFromStream(streamId, generatedIdsDict, AddToStreamGroupId, M3UFileId, IsCustomPlayList);
 
                 if (smChannel is null)
                 {

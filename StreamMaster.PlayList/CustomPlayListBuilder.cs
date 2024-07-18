@@ -19,8 +19,11 @@ public class CustomPlayListBuilder(INfoFileReader nfoFileReader) : ICustomPlayLi
 {
     public CustomPlayList? GetCustomPlayList(string Name)
     {
-
-        CustomPlayList? ret = GetCustomPlayLists().FirstOrDefault(x => FileUtil.EncodeToBase64(x.Name) == Name);
+        CustomPlayList? ret = GetCustomPlayLists().FirstOrDefault(x => x.Name == Name);
+        if (ret == null)
+        {
+            ret = GetCustomPlayLists().FirstOrDefault(x => FileUtil.EncodeToBase64(x.Name) == Name);
+        }
         return ret;
     }
 
@@ -53,6 +56,10 @@ public class CustomPlayListBuilder(INfoFileReader nfoFileReader) : ICustomPlayLi
 
             customPlayList.FolderNfo = nfoFileReader.ReadNfoFile(folderNFOFile);
             customPlayList.Name = folderName;
+
+            string folderLogoFile = GetFolderLogoInDirectory(folder);
+            customPlayList.Logo = folderLogoFile;
+
             if (customPlayList.FolderNfo == null)
             {
                 continue;
@@ -101,6 +108,22 @@ public class CustomPlayListBuilder(INfoFileReader nfoFileReader) : ICustomPlayLi
 
     }
 
+    public static string GetFolderLogoInDirectory(string dir)
+    {
+        string logoName = Path.GetFileNameWithoutExtension(dir);
+        string[] files = Directory.GetFiles(dir);
+        foreach (string fullFileName in files)
+        {
+            var file = Path.GetFileName(fullFileName);
+
+            if (file.Equals(logoName + ".png") || file.Equals(logoName + ".jpg"))
+            {
+                return file;
+            }
+        }
+        return string.Empty;
+
+    }
     public static void WriteNfoFile(string filePath, Movie movieNfo)
     {
         try

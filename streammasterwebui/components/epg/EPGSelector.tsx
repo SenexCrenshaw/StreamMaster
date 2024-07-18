@@ -22,7 +22,7 @@ type EPGSelectorProperties = {
   readonly smChannel?: SMChannelDto;
   readonly onChange?: (value: string) => void;
   readonly buttonDarkBackground?: boolean;
-  readonly value: string | undefined;
+  readonly value?: string | undefined;
 };
 
 const EPGSelector = ({ buttonDarkBackground = false, value, enableEditMode = true, label, smChannel, isLoading, onChange }: EPGSelectorProperties) => {
@@ -248,6 +248,26 @@ const EPGSelector = ({ buttonDarkBackground = false, value, enableEditMode = tru
         );
       }
 
+      if (input.startsWith('-3-')) {
+        const epgName = input.substring(3);
+        let color = '#124482';
+
+        return (
+          <div className="sm-epg-selector">
+            <Tooltip target={`.${tooltipClassName}`} />
+            <i
+              className={`${tooltipClassName} pl-1 pi pi-circle-fill`}
+              style={{ color: color }}
+              data-pr-hidedelay={100}
+              data-pr-position="left"
+              data-pr-showdelay={500}
+              data-pr-tooltip={epgName}
+            />
+            <div className="text-xs text-container text-white-alpha-40 pl-1">{epgName}</div>
+          </div>
+        );
+      }
+
       const stationChannelName = query.data?.find((x) => x.Channel === input);
       if (!stationChannelName) {
         return (
@@ -420,8 +440,31 @@ const EPGSelector = ({ buttonDarkBackground = false, value, enableEditMode = tru
     );
   }
 
+  if (smChannel?.IsCustomStream === true) {
+    const epgName = smChannel.Name;
+    let color = '#124482';
+
+    let tooltipClassName = `epgitem-${uuidv4()}  flex align-items-center`;
+
+    return (
+      <div className="sm-epg-selector">
+        <Tooltip target={`.${tooltipClassName}`} />
+        <i
+          className={`${tooltipClassName} pl-1 pi pi-circle-fill`}
+          style={{ color: color }}
+          data-pr-hidedelay={100}
+          data-pr-position="left"
+          data-pr-showdelay={500}
+          data-pr-tooltip={epgName}
+        />
+        <div className="text-xs text-container pl-1">{epgName}</div>
+      </div>
+    );
+  }
+
   return (
     <SMDropDown
+      buttonDisabled={smChannel === undefined || smChannel.IsCustomStream}
       buttonDarkBackground={buttonDarkBackground}
       buttonIsLoading={loading || isLoading}
       buttonLabel="EPG"

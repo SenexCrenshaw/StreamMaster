@@ -24,8 +24,7 @@ using StreamMaster.Infrastructure.EF.PGSQL;
 using StreamMaster.Infrastructure.Logger;
 using StreamMaster.Infrastructure.Services.Frontend;
 using StreamMaster.Infrastructure.Services.QueueService;
-using StreamMaster.Streams.Handler;
-
+using StreamMaster.Streams.Handlers.Stream;
 using StreamMasterAPI.SchemaHelpers;
 
 using System.Reflection;

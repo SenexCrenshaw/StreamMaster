@@ -1,7 +1,7 @@
 import SMDropDown from '@components/sm/SMDropDown';
 import { getIconUrl } from '@lib/common/common';
 import useGetIcons from '@lib/smAPI/Icons/useGetIcons';
-import { IconFileDto } from '@lib/smAPI/smapiTypes';
+import { IconFileDto, SMFileTypes } from '@lib/smAPI/smapiTypes';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import React, { useEffect, useMemo, useState } from 'react';
 
@@ -13,6 +13,7 @@ type IconSelectorProperties = {
   readonly isLoading?: boolean;
   readonly label?: string;
   readonly large?: boolean;
+  readonly isCustomPlayList?: boolean;
   readonly value?: string;
   readonly onChange?: (value: string) => void;
 };
@@ -23,6 +24,7 @@ const IconSelector = ({
   enableEditMode = true,
   autoPlacement = false,
   isLoading = false,
+  isCustomPlayList = false,
   label,
   large = false,
   value,
@@ -67,8 +69,23 @@ const IconSelector = ({
     }
   }, [iconSource, origValue, query.data, value]);
 
+  // const getDistinctSMFileTypes = (): SMFileTypes[] => {
+  //   if (query.data === undefined) {
+  //     return [];
+  //   }
+
+  //   const fileTypes = query.data.map((item) => item.SMFileType);
+  //   return Array.from(new Set(fileTypes));
+  // };
+
+  // const customPlayListString = SMFileTypes[SMFileTypes.CustomPlayList];
+  // const found = query.data?.find((i) => i.SMFileType === customPlayListString);
+  // Logger.debug('Custom Playlist', { found: found, DistinctSMFileTypes: getDistinctSMFileTypes() });
+
   const buttonTemplate = useMemo(() => {
-    const iconUrl = iconSource ? getIconUrl(iconSource, '/images/default.png', false) : '/images/default.png';
+    const iconUrl = iconSource
+      ? getIconUrl(iconSource, '/images/default.png', false, isCustomPlayList === true ? SMFileTypes.CustomPlayList : null)
+      : '/images/default.png';
 
     if (large) {
       return (
@@ -88,7 +105,7 @@ const IconSelector = ({
   const itemTemplate = (icon: IconFileDto) => {
     if (icon === null) return <div />;
 
-    const iconUrl = icon ? getIconUrl(icon.Source, '/images/default.png', false) : '';
+    const iconUrl = icon ? getIconUrl(icon.Source, '/images/default.png', false, icon.SMFileType) : '';
 
     if (!iconUrl) {
       return <div className="no-text"></div>;
@@ -128,9 +145,20 @@ const IconSelector = ({
   }, [label, large]);
 
   if (!enableEditMode) {
-    const iconUrl = getIconUrl(iconSource ?? '', '/images/default.png', false);
-
-    return <img alt="logo" className="iconselector" src={iconUrl} loading="lazy" />;
+    const iconUrl = getIconUrl(iconSource ?? '', '/images/default.png', false, isCustomPlayList === true ? SMFileTypes.CustomPlayList : null);
+    return (
+      <div className="w-full flex flex-row align-items-center justify-content-center p-row-odd">
+        <img
+          alt="Logo Icon"
+          className="icon-template"
+          src={iconUrl}
+          onError={(e) => {
+            (e.currentTarget as HTMLImageElement).src = '/images/default.png';
+          }}
+          loading="lazy"
+        />
+      </div>
+    );
   }
 
   const loading = query.isError || query.isLoading || !query.data;

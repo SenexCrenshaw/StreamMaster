@@ -34,7 +34,7 @@ public class FilesController(IMemoryCache memoryCache, IIconService iconService,
         return File(image, contentType, fileName);
     }
 
-    private async Task<(byte[]? image, string? fileName)> GetCacheEntryAsync(string URL, SMFileTypes IPTVFileType, CancellationToken cancellationToken)
+    private async Task<(byte[]? image, string? fileName)> GetCacheEntryAsync(string URL, SMFileTypes fileType, CancellationToken cancellationToken)
     {
         if (string.IsNullOrEmpty(URL))
         {
@@ -45,7 +45,8 @@ public class FilesController(IMemoryCache memoryCache, IIconService iconService,
         //string fileName = "";
         //string returnName = "";
 
-        ImagePath? imagePath = iconService.GetValidImagePath(URL);
+
+        ImagePath? imagePath = iconService.GetValidImagePath(URL, fileType);
         if (imagePath == null)
         {
             return (null, null);
