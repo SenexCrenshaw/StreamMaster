@@ -9,18 +9,11 @@ public sealed class StreamHandlerFactory(IStreamStreamingStatisticsManager strea
 
     public async Task<IStreamHandler?> CreateStreamHandlerAsync(IChannelStatus channelStatus, CancellationToken cancellationToken)
     {
-        SMStreamDto smStream = channelStatus.SMStream;
-        SMChannelDto smChannel = channelStatus.SMChannel;
-        VideoOutputProfileDto videoProfile = channelStatus.VideoProfile;
-        Setting settings = intSettings.CurrentValue;
+        //SMStreamDto smStream = channelStatus.SMStream;
+        //SMChannelDto smChannel = channelStatus.SMChannel;
+        //VideoOutputProfileDto videoProfile = channelStatus.VideoProfile;
 
-        var clientUserAgent = settings.StreamingClientUserAgent;
-        if (!string.IsNullOrEmpty(channelStatus.SMStream.ClientUserAgent))
-        {
-            clientUserAgent = channelStatus.SMStream.ClientUserAgent;
-        }
-
-        (Stream? stream, int processId, ProxyStreamError? error) = await proxyFactory.GetProxy(smStream, clientUserAgent, cancellationToken).ConfigureAwait(false);
+        (Stream? stream, int processId, ProxyStreamError? error) = await proxyFactory.GetProxy(channelStatus, cancellationToken).ConfigureAwait(false);
         if (stream == null || error != null || processId == 0)
         {
             return null;

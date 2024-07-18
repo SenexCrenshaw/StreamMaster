@@ -23,6 +23,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\StreamMaster.Domain\StreamMaster.Domain.csproj" />
+    <ProjectReference Include="..\StreamMaster.PlayList\StreamMaster.PlayList.csproj" />
   </ItemGroup>
 
 </Project>

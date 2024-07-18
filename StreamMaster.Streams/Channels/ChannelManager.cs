@@ -115,8 +115,6 @@ public sealed class ChannelManager : IChannelManager
     }
 
 
-
-
     public VideoInfo GetVideoInfo(int SMChannelId)
     {
         IChannelStatus? channelStatus = channelService.GetChannelStatus(SMChannelId);

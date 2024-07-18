@@ -83,19 +83,31 @@ public sealed partial class StreamHandler
         {
             if (isLocked)
             {
-                buildVideoInfoSemaphore.Release();
+                _ = buildVideoInfoSemaphore.Release();
             }
         }
     }
 
 
-
-    private string GetFFProbeExecutablePath(Setting settings)
+    private static string GetFFProbeExecutablePath(Setting settings)
     {
+        if (File.Exists(settings.FFProbeExecutable))
+        {
+            return settings.FFProbeExecutable;
+        }
+
         string ffprobeExec = Path.Combine(BuildInfo.AppDataFolder, settings.FFProbeExecutable);
-        return File.Exists(ffprobeExec) || File.Exists(ffprobeExec + ".exe") || IsFFProbeAvailable()
-            ? ffprobeExec
-            : string.Empty;
+        if (File.Exists(ffprobeExec))
+        {
+            return ffprobeExec;
+        }
+
+        if (File.Exists(ffprobeExec + ".exe"))
+        {
+            return ffprobeExec + ".exe";
+        }
+
+        return File.Exists(ffprobeExec) ? ffprobeExec : File.Exists(ffprobeExec + ".exe") ? ffprobeExec + ".exe" : string.Empty;
     }
 
     private readonly int GetVideoInfoCount = 0;
@@ -166,7 +178,7 @@ public sealed partial class StreamHandler
         {
             StartInfo = startInfo
         };
-        process.Start();
+        _ = process.Start();
         process.WaitForExit();
         return process.ExitCode == 0;
     }

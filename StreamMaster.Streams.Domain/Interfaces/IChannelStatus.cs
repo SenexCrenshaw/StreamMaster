@@ -1,10 +1,13 @@
-﻿namespace StreamMaster.Streams.Domain.Interfaces;
+﻿using StreamMaster.PlayList;
+
+namespace StreamMaster.Streams.Domain.Interfaces;
 
 /// <summary>
 /// Provides methods and properties to manage the status and configuration of a channel.
 /// </summary>
 public interface IChannelStatus
 {
+    CustomPlayList? CustomPlayList { get; set; }
     bool Shutdown { get; set; }
     int ClientCount { get; set; }
     VideoOutputProfileDto VideoProfile { get; set; }

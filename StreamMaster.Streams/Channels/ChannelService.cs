@@ -3,6 +3,7 @@
 using Microsoft.Extensions.DependencyInjection;
 
 using StreamMaster.Domain.Configuration;
+using StreamMaster.PlayList;
 
 using System.Collections.Concurrent;
 namespace StreamMaster.Streams.Channels;
@@ -14,6 +15,7 @@ public sealed class ChannelService(
     IOptionsMonitor<VideoOutputProfiles> intProfileSettings,
     IServiceProvider serviceProvider,
     IMapper mapper,
+    ICustomPlayListBuilder customPlayListBuilder,
     IOptionsMonitor<Setting> settingsMonitor,
     IChannelStreamingStatisticsManager channelStreamingStatisticsManager
     ) : IChannelService, IDisposable
@@ -105,9 +107,16 @@ public sealed class ChannelService(
 
         logger.LogInformation("No existing channel for {ClientId} {ChannelVideoStreamId} {name}", config.ClientId, config.SMChannel.Id, config.SMChannel.Name);
 
+        CustomPlayList? customPlayList = null;
+        if (config.SMChannel.IsCustomStream)
+        {
+            customPlayList = customPlayListBuilder.GetCustomPlayList(config.SMChannel.Name);
+        }
+
         channelStatus = new ChannelStatus(config.SMChannel)
         {
-            VideoProfile = VideoOutputProfileDto(config.SMChannel.StreamingProxyType)
+            VideoProfile = VideoOutputProfileDto(config.SMChannel.StreamingProxyType),
+            CustomPlayList = customPlayList
         };
 
         _channelStatuses.TryAdd(config.SMChannel.Id, channelStatus);
@@ -264,6 +273,20 @@ public sealed class ChannelService(
 
     public async Task<bool> SetNextChildVideoStream(IChannelStatus channelStatus, string? overrideNextVideoStreamId = null)
     {
+        if (channelStatus.SMChannel.IsCustomStream)
+        {
+            if (channelStatus.CurrentRank > -1)
+            {
+                channelStatus.CurrentRank++;
+
+                if (channelStatus.CurrentRank >= channelStatus.CustomPlayList.CustomStreamNfos.Count)
+                {
+                    channelStatus.CurrentRank = 0;
+                }
+                return true;
+            }
+        }
+
         Setting _settings = settingsMonitor.CurrentValue ?? throw new ArgumentNullException(nameof(settingsMonitor));
         using IServiceScope scope = _serviceProvider.CreateScope();
         IRepositoryWrapper repository = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();

@@ -1,4 +1,6 @@
-﻿namespace StreamMaster.Streams.Domain.Models;
+﻿using StreamMaster.PlayList;
+
+namespace StreamMaster.Streams.Domain.Models;
 
 public sealed class ChannelStatus(SMChannelDto smChannel) : IChannelStatus
 {
@@ -12,6 +14,7 @@ public sealed class ChannelStatus(SMChannelDto smChannel) : IChannelStatus
     public SMStreamDto SMStream { get; private set; }
     public SMChannelDto SMChannel => smChannel;
     public VideoOutputProfileDto VideoProfile { get; set; }
+    public CustomPlayList? CustomPlayList { get; set; }
 
     public void SetCurrentSMStream(SMStreamDto smStream)
     {
