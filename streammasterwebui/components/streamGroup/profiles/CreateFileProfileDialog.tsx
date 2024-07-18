@@ -3,11 +3,11 @@ import SMPopUp, { SMPopUpRef } from '@components/sm/SMPopUp';
 import { getEnumKeyByValue } from '@lib/common/enumTools';
 import { Logger } from '@lib/common/logger';
 
+import BooleanEditor from '@components/inputs/BooleanEditor';
 import { AddOutputProfile } from '@lib/smAPI/Profiles/ProfilesCommands';
 import { AddOutputProfileRequest, OutputProfileDto, ValidM3USetting } from '@lib/smAPI/smapiTypes';
 import { useCallback, useRef, useState } from 'react';
 import OutputProfileValueDropDown from './columns/OutputProfileValueDropDown';
-import BooleanEditor from '@components/inputs/BooleanEditor';
 
 const CreateFileProfileDialog = () => {
   const defaultValues = {
@@ -34,7 +34,7 @@ const CreateFileProfileDialog = () => {
   );
 
   const dropdownClass = 'sm-w-6rem';
-  const boolClass = 'sm-w-5rem';
+  const boolClass = ''; //sm-w-5rem';
 
   const save = useCallback(() => {
     const outputProfileDto = {
@@ -71,103 +71,101 @@ const CreateFileProfileDialog = () => {
       }}
       okButtonDisabled={!name}
       tooltip="Create Profile"
-      zIndex={10}
+      zIndex={11}
     >
       <>
-        <div className="sm-headerBg dialog-padding border-sides">
-          <div className="w-12 ">
-            <div className="flex gap-1">
-              <div className="sm-w-3">
-                <StringEditor
-                  autoFocus
-                  label="Profile Name"
-                  placeholder="Name"
-                  darkBackGround
-                  disableDebounce
-                  onChange={(e) => {
-                    setName(e);
-                  }}
-                  onSave={(e) => {
-                    save();
-                  }}
-                  value={name}
-                />
-              </div>
-              <div className={dropdownClass}>
-                <OutputProfileValueDropDown
-                  darkBackGround
-                  header="Name Map"
-                  label="Name Map"
-                  name={name}
-                  value={fileProfile.Name}
-                  onChange={(e) => {
-                    updateOutputProfileStateAndRequest({ Name: e.label });
-                  }}
-                />
-              </div>
-              <div className={dropdownClass}>
-                <OutputProfileValueDropDown
-                  darkBackGround
-                  header="EPGId"
-                  label="EPGId"
-                  name={name}
-                  value={fileProfile.EPGId}
-                  onChange={(e) => {
-                    updateOutputProfileStateAndRequest({ EPGId: e.label });
-                  }}
-                />
-              </div>
-              <div className={dropdownClass}>
-                <OutputProfileValueDropDown
-                  darkBackGround
-                  header="Group"
-                  label="Group"
-                  name={name}
-                  value={fileProfile.Group}
-                  onChange={(e) => {
-                    updateOutputProfileStateAndRequest({ Group: e.label });
-                  }}
-                />
-              </div>
-              <div className={boolClass}>
-                <BooleanEditor
-                  label="Id"
-                  checked={fileProfile.EnableId}
-                  onChange={(e) => {
-                    updateOutputProfileStateAndRequest({ EnableId: e });
-                  }}
-                />
-              </div>
-              <div className={boolClass}>
-                <BooleanEditor
-                  label="Channel #"
-                  checked={fileProfile.EnableChannelNumber}
-                  onChange={(e) => {
-                    updateOutputProfileStateAndRequest({ EnableChannelNumber: e });
-                  }}
-                />
-              </div>
-              <div className={boolClass}>
-                <BooleanEditor
-                  label="Group Title"
-                  checked={fileProfile.EnableGroupTitle}
-                  onChange={(e) => {
-                    updateOutputProfileStateAndRequest({ EnableGroupTitle: e });
-                  }}
-                />
-              </div>
-              <div className={boolClass}>
-                <BooleanEditor
-                  label="Icon"
-                  checked={fileProfile.EnableIcon}
-                  onChange={(e) => {
-                    updateOutputProfileStateAndRequest({ EnableIcon: e });
-                  }}
-                />
-              </div>
-            </div>
+        <div className="sm-center-stuff gap-1">
+          <div className="layout-padding-bottom-lg" />
+          <div className="sm-w-3">
+            <StringEditor
+              autoFocus
+              label="Profile Name"
+              placeholder="Name"
+              darkBackGround
+              disableDebounce
+              onChange={(e) => {
+                setName(e);
+              }}
+              onSave={(e) => {
+                save();
+              }}
+              value={name}
+            />
+          </div>
+          <div className={dropdownClass}>
+            <OutputProfileValueDropDown
+              darkBackGround
+              header="Name Map"
+              label="Name Map"
+              name={name}
+              value={fileProfile.Name}
+              onChange={(e) => {
+                updateOutputProfileStateAndRequest({ Name: e.label });
+              }}
+            />
+          </div>
+          <div className={dropdownClass}>
+            <OutputProfileValueDropDown
+              darkBackGround
+              header="EPG Id"
+              label="EPG Id"
+              name={name}
+              value={fileProfile.EPGId}
+              onChange={(e) => {
+                updateOutputProfileStateAndRequest({ EPGId: e.label });
+              }}
+            />
+          </div>
+          <div className={dropdownClass}>
+            <OutputProfileValueDropDown
+              darkBackGround
+              header="Group"
+              label="Group"
+              name={name}
+              value={fileProfile.Group}
+              onChange={(e) => {
+                updateOutputProfileStateAndRequest({ Group: e.label });
+              }}
+            />
+          </div>
+          <div className="sm-w-2rem pl-2">
+            <BooleanEditor
+              label="Id"
+              checked={fileProfile.EnableId}
+              onChange={(e) => {
+                updateOutputProfileStateAndRequest({ EnableId: e });
+              }}
+            />
+          </div>
+          <div className={boolClass}>
+            <BooleanEditor
+              label="Channel #"
+              checked={fileProfile.EnableChannelNumber}
+              onChange={(e) => {
+                updateOutputProfileStateAndRequest({ EnableChannelNumber: e });
+              }}
+            />
+          </div>
+          <div className={boolClass}>
+            <BooleanEditor
+              label="Group Title"
+              checked={fileProfile.EnableGroupTitle}
+              onChange={(e) => {
+                updateOutputProfileStateAndRequest({ EnableGroupTitle: e });
+              }}
+            />
+          </div>
+          <div className={boolClass}>
+            <BooleanEditor
+              label="Icon"
+              checked={fileProfile.EnableIcon}
+              onChange={(e) => {
+                updateOutputProfileStateAndRequest({ EnableIcon: e });
+              }}
+            />
           </div>
         </div>
+        <div className="layout-padding-bottom-lg" />
         <div className="layout-padding-bottom-lg sm-headerBg border-radius-bottom" />
       </>
     </SMPopUp>

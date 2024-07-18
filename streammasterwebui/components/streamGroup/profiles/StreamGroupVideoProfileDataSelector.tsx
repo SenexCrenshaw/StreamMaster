@@ -8,28 +8,19 @@ import { DataTableRowClickEvent } from 'primereact/datatable';
 import { memo, useCallback, useMemo } from 'react';
 import CreateVideoProfileDialog from './CreateVideoProfileDialog';
 import RemoveVideoProfileDialog from './RemoveVideoProfileDialog';
-
-import { useVideoIsM3U8ColumnConfig } from './columns/useVideoIsM3U8ColumnConfig';
 import { useVideoProfileCommandColumnConfig } from './columns/useVideoProfileCommandColumnConfig';
 import { useVideoProfileParametersColumnConfig } from './columns/useVideoProfileParametersColumnConfig';
-import { useVideoProfileTimeoutColumnConfig } from './columns/useVideoProfileTimeoutColumnConfig';
 
 const StreamGroupVideoProfileDataSelector = () => {
   const id = 'StreamGroupVideoProfileDataSelector';
   const { data } = useGetVideoProfiles();
   const videoProfileCommandColumnConfig = useVideoProfileCommandColumnConfig({ width: 40 });
   const videoProfileParametersColumnConfig = useVideoProfileParametersColumnConfig({ width: 200 });
-  const videoProfileTimeoutColumnConfig = useVideoProfileTimeoutColumnConfig({ width: 20 });
-  const videoProfilIsM3U8ColumnConfig = useVideoIsM3U8ColumnConfig({ width: 20 });
 
   const actionTemplate = useCallback((rowData: VideoOutputProfileDto) => {
     return (
-      <div className="flex justify-content-center align-items-center">
+      <div className="sm-center-stuff">
         <RemoveVideoProfileDialog videoOutputProfileDto={rowData} />
-        {/* <StreamGroupDeleteDialog streamGroup={rowData} /> */}
-        {/* <M3UFileRefreshDialog selectedFile={rowData} />
-         <M3UFileRemoveDialog selectedFile={rowData} /> */}
-        {/* <EPGFileEditDialog selectedFile={rowData} /> */}
       </div>
     );
   }, []);
@@ -45,7 +36,7 @@ const StreamGroupVideoProfileDataSelector = () => {
 
   const nameTemplate = useCallback(
     (rowData: VideoOutputProfileDto) => {
-      if (rowData.ProfileName.toLowerCase() === 'default') {
+      if (rowData.ProfileName.toLowerCase() === 'default' || rowData.ProfileName.toLowerCase() === 'defaultffmpeg') {
         return <div className="text-container pl-1">{rowData.ProfileName}</div>;
       }
       return (
@@ -70,29 +61,34 @@ const StreamGroupVideoProfileDataSelector = () => {
         field: 'ProfileName',
         filter: true,
         sortable: true,
-        width: 40
+        width: 60
       },
       videoProfileCommandColumnConfig,
       videoProfileParametersColumnConfig,
-      videoProfileTimeoutColumnConfig,
-      videoProfilIsM3U8ColumnConfig,
+      // videoProfileTimeoutColumnConfig,
       {
         align: 'center',
         bodyTemplate: actionTemplate,
         field: 'autoUpdate',
         fieldType: 'actions',
-        width: 40
+        width: 20
       }
     ],
-    [
-      actionTemplate,
-      nameTemplate,
-      videoProfilIsM3U8ColumnConfig,
-      videoProfileCommandColumnConfig,
-      videoProfileParametersColumnConfig,
-      videoProfileTimeoutColumnConfig
-    ]
+    [actionTemplate, nameTemplate, videoProfileCommandColumnConfig, videoProfileParametersColumnConfig]
   );
+
+  // const rowClass = useCallback((data: DataTableRowData<any>) => {
+  //   if (data === undefined) {
+  //     return '';
+  //   }
+
+  //   const videoOutputProfileDto = data as unknown as VideoOutputProfileDto;
+
+  //   if (videoOutputProfileDto.IsReadOnly === true || videoOutputProfileDto.ProfileName.toLowerCase() === 'defaultffmpeg') {
+  //     return 'p-disabled';
+  //   }
+  //   return '';
+  // }, []);
 
   return (
     <SMDataTable
@@ -105,6 +101,7 @@ const StreamGroupVideoProfileDataSelector = () => {
       enableClick
       enableExport={false}
       headerName="Video Profiles"
+      // rowClass={rowClass}
       id={id}
       lazy
       onRowClick={(e: DataTableRowClickEvent) => {}}

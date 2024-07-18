@@ -28,7 +28,11 @@ const RemoveVideoProfileDialog = ({ ...props }: RemoveVideoProfileDialogProps) =
   return (
     <SMPopUp
       contentWidthSize="2"
-      buttonDisabled={props.videoOutputProfileDto.IsReadOnly}
+      buttonDisabled={
+        props.videoOutputProfileDto.IsReadOnly ||
+        props.videoOutputProfileDto.ProfileName.toLowerCase() === 'default' ||
+        props.videoOutputProfileDto.ProfileName.toLowerCase() === 'defaultffmpeg'
+      }
       buttonClassName="icon-red"
       icon="pi-times"
       info=""

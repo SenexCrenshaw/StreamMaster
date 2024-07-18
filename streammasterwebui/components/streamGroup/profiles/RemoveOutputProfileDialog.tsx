@@ -13,7 +13,7 @@ const RemoveOutputProfileDialog = ({ ...props }: RemoveOutputProfileDialogProps)
   const smPopUpRef = useRef<SMPopUpRef>(null);
   const remove = useCallback(() => {
     const request = {
-      Name: props.outputProfileDto.Name
+      Name: props.outputProfileDto.ProfileName
     } as RemoveOutputProfileRequest;
 
     RemoveOutputProfile(request)
@@ -42,7 +42,7 @@ const RemoveOutputProfileDialog = ({ ...props }: RemoveOutputProfileDialogProps)
       ref={smPopUpRef}
       okButtonDisabled={!props.outputProfileDto.ProfileName}
       tooltip="Remove Profile"
-      zIndex={10}
+      zIndex={11}
     >
       <div className="sm-center-stuff">
         <div className="text-container"> {props.outputProfileDto.ProfileName}</div>

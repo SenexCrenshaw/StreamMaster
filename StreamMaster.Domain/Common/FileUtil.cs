@@ -13,6 +13,42 @@ namespace StreamMaster.Domain.Common;
 public sealed class FileUtil
 {
 
+    public static string? GetExec(string executableName)
+    {
+
+        if (File.Exists(executableName))
+        {
+            return executableName;
+        }
+
+        string exec = Path.Combine(BuildInfo.AppDataFolder, executableName);
+        if (File.Exists(exec))
+        {
+            return exec;
+        }
+
+        if (File.Exists(exec + ".exe"))
+        {
+            return exec + ".exe";
+        }
+
+        exec = Path.Combine("/bin", executableName);
+
+        if (File.Exists(exec))
+        {
+            return exec;
+        }
+
+        if (File.Exists(exec + ".exe"))
+        {
+            return exec + ".exe";
+        }
+
+        exec = Path.Combine("/usr/local/bin", executableName);
+
+        return File.Exists(exec) ? exec : File.Exists(exec + ".exe") ? exec + ".exe" : null;
+    }
+
     public static string EncodeToBase64(string url)
     {
         if (string.IsNullOrEmpty(url))
@@ -95,7 +131,7 @@ public sealed class FileUtil
     {
         try
         {
-            Directory.CreateDirectory(Path.GetDirectoryName(filepath));
+            _ = Directory.CreateDirectory(Path.GetDirectoryName(filepath));
             XmlSerializer serializer = new(obj.GetType());
             XmlSerializerNamespaces ns = new();
             ns.Add("", "");
@@ -240,7 +276,7 @@ public sealed class FileUtil
             process.StartInfo.UseShellExecute = false;
             process.StartInfo.CreateNoWindow = true;
 
-            process.Start();
+            _ = process.Start();
 
             string output = await process.StandardOutput.ReadToEndAsync();
             string error = await process.StandardError.ReadToEndAsync();

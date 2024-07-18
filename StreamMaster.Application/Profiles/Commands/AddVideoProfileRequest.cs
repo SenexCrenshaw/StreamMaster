@@ -12,9 +12,9 @@ public class AddVideoVideoProfileRequestHandler(ILogger<AddVideoProfileRequest> 
 
     public async Task<APIResponse> Handle(AddVideoProfileRequest request, CancellationToken cancellationToken)
     {
-        if (request.Name.Equals("default", StringComparison.OrdinalIgnoreCase))
+        if (request.Name.Equals("DefaultFFmpeg", StringComparison.OrdinalIgnoreCase))
         {
-            return APIResponse.ErrorWithMessage("Cannot use name default");
+            return APIResponse.ErrorWithMessage("Cannot use name DefaultFFmpeg");
         }
 
         VideoOutputProfile profile = new()
@@ -24,8 +24,7 @@ public class AddVideoVideoProfileRequestHandler(ILogger<AddVideoProfileRequest> 
             Timeout = request.Timeout,
             IsM3U8 = request.IsM3U8
         };
-
-        if (profileSettings.VideoProfiles.TryGetValue(request.Name, out VideoOutputProfile? existingProfile))
+        if (profileSettings.VideoProfiles.TryGetValue(request.Name, out _))
         {
             return APIResponse.ErrorWithMessage("Profile already exists");
         }

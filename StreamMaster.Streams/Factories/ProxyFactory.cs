@@ -113,41 +113,6 @@ public sealed class ProxyFactory(ILogger<ProxyFactory> logger, IHttpClientFactor
         process.StartInfo.RedirectStandardError = true;
     }
 
-    private string? GetFFPMpegExec()
-    {
-        Setting settings = intSettings.CurrentValue;
-        string ffmpegExec = Path.Combine(BuildInfo.AppDataFolder, settings.FFMPegExecutable);
-
-        if (!File.Exists(ffmpegExec) && !File.Exists(ffmpegExec + ".exe"))
-        {
-            if (!IsFFmpegAvailable())
-            {
-                logger.LogError("GetFFPMpegExec FFmpeg executable file not found: {FFMPegExecutable}", settings.FFMPegExecutable);
-                return null;
-            }
-            ffmpegExec = "ffmpeg";
-        }
-
-        return ffmpegExec;
-    }
-
-    private static bool IsFFmpegAvailable()
-    {
-        string command = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "where" : "which";
-        ProcessStartInfo startInfo = new(command, "ffmpeg")
-        {
-            RedirectStandardOutput = true,
-            UseShellExecute = false
-        };
-        Process process = new()
-        {
-            StartInfo = startInfo
-        };
-        _ = process.Start();
-        process.WaitForExit();
-        return process.ExitCode == 0;
-    }
-
     private (Stream? stream, int processId, ProxyStreamError? error) HandleFFMpegStreamException<T>(ProxyStreamErrorCode errorCode, T exception) where T : Exception
     {
         ProxyStreamError error = new() { ErrorCode = errorCode, Message = exception.Message };
@@ -162,7 +127,10 @@ public sealed class ProxyFactory(ILogger<ProxyFactory> logger, IHttpClientFactor
         try
         {
             Setting settings = intSettings.CurrentValue;
-            var clientUserAgent = settings.StreamingClientUserAgent;
+
+            string? ffmpeg = FileUtil.GetExec(settings.FFMPegExecutable);
+
+            string clientUserAgent = settings.StreamingClientUserAgent;
             if (!string.IsNullOrEmpty(channelStatus.SMStream.ClientUserAgent))
             {
                 clientUserAgent = channelStatus.SMStream.ClientUserAgent;
@@ -177,7 +145,7 @@ public sealed class ProxyFactory(ILogger<ProxyFactory> logger, IHttpClientFactor
                     logger.LogError("GetProxyStream Error: {message}", error.Message);
                     return (null, -1, error);
                 }
-                string? ffmpeg = GetFFPMpegExec();
+
                 if (ffmpeg == null)
                 {
                     logger.LogCritical("FFMPEG not found");
@@ -185,11 +153,11 @@ public sealed class ProxyFactory(ILogger<ProxyFactory> logger, IHttpClientFactor
                 }
                 return GetCommandStream(channelStatus.CustomPlayList.CustomStreamNfos[channelStatus.CurrentRank].VideoFileName, ffmpeg, CustomPlayListFFMpegOptions, clientUserAgent);
             }
-            var smStream = channelStatus.SMStream;
+            SMStreamDto smStream = channelStatus.SMStream;
 
             if (smStream.Url.EndsWith(".m3u8"))
             {
-                string? ffmpeg = GetFFPMpegExec();
+
                 if (ffmpeg == null)
                 {
                     logger.LogCritical("FFMPEG not found");
@@ -217,7 +185,7 @@ public sealed class ProxyFactory(ILogger<ProxyFactory> logger, IHttpClientFactor
                     contentType.Equals("application/x-mpegURL", StringComparison.OrdinalIgnoreCase)
                 )
             {
-                string? ffmpeg = GetFFPMpegExec();
+
                 if (ffmpeg == null)
                 {
                     logger.LogCritical("FFMPEG not found");

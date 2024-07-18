@@ -33,6 +33,7 @@ public static class SettingFiles
                 "PLEX",
                  new OutputProfile
                  {
+
                       EnableIcon=true,
                         EnableId=true,
                         EnableGroupTitle=true,
@@ -54,30 +55,22 @@ public static class SettingFiles
         VideoProfiles = new Dictionary<string, VideoOutputProfile>
         {
             {
-                "HLS",
-                 new VideoOutputProfile
-                 { IsReadOnly=true,
-                     Command="ffmpeg",
-                     Parameters = "-i {streamUrl} -start_at_zero -copyts -flags +global_header -reconnect 1 -reconnect_at_eof 1 -reconnect_streamed 1 -reconnect_on_network_error 1 -reconnect_on_http_error 1 -reconnect_delay_max 4096 -c:a copy -c:v copy -fps_mode passthrough -y -nostats -hide_banner -f hls -hls_segment_type mpegts -hls_init_time 1 -hls_allow_cache 0 -hls_flags temp_file -hls_flags +omit_endlist -hls_flags +discont_start -hls_flags +delete_segments -hls_flags +split_by_time",
-                     IsM3U8 = true,
-                 }
+                "Default",
+                new VideoOutputProfile
+                {
+                    Command="ffmpeg",
+                    Parameters = "-hide_banner -loglevel error -user_agent {clientUserAgent} -i {streamUrl} -reconnect 1 -map 0:v -map 0:a? -map 0:s? -c copy -bsf:v h264_mp4toannexb -f mpegts pipe:1"
+                }
              },
             {
-                 "Default",
-                 new VideoOutputProfile
-                 { IsReadOnly=true,
-                     Command="ffmpeg",
-                     Parameters = "-hide_banner -loglevel error -i {streamUrl} -c copy -f mpegts pipe:1"
-                 }
-             },
-            {
-                 "MP4",
-                 new VideoOutputProfile
-                 { IsReadOnly=true,
-                     Command="ffmpeg",
-                     Parameters = "-hide_banner -loglevel error -i {streamUrl} -c copy -f mpegts pipe:1"
-                 }
-             }
+                "DefaultFFmpeg",
+                new VideoOutputProfile
+                {
+                    IsReadOnly=true,
+                    Command="ffmpeg",
+                    Parameters = "-hide_banner -loglevel error -user_agent {clientUserAgent} -i {streamUrl} -reconnect 1 -map 0:v -map 0:a? -map 0:s? -c copy -bsf:v h264_mp4toannexb -f mpegts pipe:1"
+                }
+            }
         }
     };
 }

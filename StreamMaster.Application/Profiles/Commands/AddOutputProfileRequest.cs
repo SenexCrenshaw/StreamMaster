@@ -21,7 +21,7 @@ public class AddOutputProfileRequestHandler(ILogger<AddOutputProfileRequest> Log
             return APIResponse.ErrorWithMessage("Cannot use name default");
         }
 
-        if (profileSettings.OutProfiles.TryGetValue(request.OutputProfileDto.Name, out OutputProfile? existingProfile))
+        if (profileSettings.OutProfiles.TryGetValue(request.OutputProfileDto.Name, out _))
         {
             //profileSettings.FileProfiles[request.OutputProfileDto.Name] = request.OutputProfileDto;
             await messageService.SendError("Profile already exists");

@@ -1,5 +1,4 @@
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
-import { Logger } from '@lib/common/logger';
 import { OutputProfileDto } from '@lib/smAPI/smapiTypes';
 import { useCallback } from 'react';
 import OutputProfileValueDropDown from './OutputProfileValueDropDown';

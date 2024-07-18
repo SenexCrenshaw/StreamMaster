@@ -8,13 +8,14 @@ import { memo, useCallback, useMemo } from 'react';
 import AttachStreamGroupProfileDialog from './profiles/AttachStreamGroupProfileDialog';
 import OutputProfileDropDown from './profiles/OutputProfileDropDown';
 import RemoveStreamGroupProfileDialog from './profiles/RemoveStreamGroupProfileDialog';
+import VideoProfileDropDown from './profiles/VideoProfileDropDown';
 interface StreamGroupDataSelectorValueProperties {
   readonly id: string;
   readonly streamGroupDto: StreamGroupDto;
 }
 const StreamGroupDataSelectorValue = ({ id, streamGroupDto }: StreamGroupDataSelectorValueProperties) => {
   const dataKey = `${id}-StreamGroupDataSelectorValue`;
-
+  Logger.debug('StreamGroupDataSelectorValue ', streamGroupDto.StreamGroupProfiles);
   const update = useCallback(
     (request: UpdateStreamGroupProfileRequest) => {
       Logger.debug('UpdateStreamGroupProfileRequest', request);
@@ -56,27 +57,52 @@ const StreamGroupDataSelectorValue = ({ id, streamGroupDto }: StreamGroupDataSel
 
   const fileProfileTemplate = useCallback(
     (rowData: StreamGroupProfile) => {
+      var found = streamGroupDto.StreamGroupProfiles.find((x) => x.Id === rowData.Id);
+      if (found === undefined) {
+        return <div />;
+      }
       return (
         <OutputProfileDropDown
-          value={rowData.OutputProfileName}
+          value={found.OutputProfileName}
           onChange={(e) => {
             if (e !== undefined) {
-              const profileName = e.ProfileName;
-              const ret = { Name: rowData.Name, OutputProfileName: profileName } as UpdateStreamGroupProfileRequest;
+              const ret = { Name: rowData.Name, OutputProfileName: e.ProfileName } as UpdateStreamGroupProfileRequest;
               update(ret);
             }
           }}
         />
       );
     },
-    [update]
+    [streamGroupDto.StreamGroupProfiles, update]
+  );
+
+  const videoProfileTemplate = useCallback(
+    (rowData: StreamGroupProfile) => {
+      var found = streamGroupDto.StreamGroupProfiles.find((x) => x.Id === rowData.Id);
+      if (found === undefined) {
+        return <div />;
+      }
+
+      return (
+        <VideoProfileDropDown
+          value={found.VideoProfileName}
+          onChange={(e) => {
+            if (e !== undefined) {
+              const ret = { Name: rowData.Name, VideoProfileName: e.ProfileName } as UpdateStreamGroupProfileRequest;
+              update(ret);
+            }
+          }}
+        />
+      );
+    },
+    [streamGroupDto.StreamGroupProfiles, update]
   );
 
   const columns = useMemo(
     (): ColumnMeta[] => [
-      { bodyTemplate: nameTemplate, field: 'Name', sortable: false, width: 120 },
+      { bodyTemplate: nameTemplate, field: 'Name', sortable: false, width: 80 },
       { bodyTemplate: fileProfileTemplate, field: 'OutputProfileName', header: 'Output', sortable: false, width: 50 },
-      // { bodyTemplate: videoProfileTemplate, field: 'VideoProfileName', header: 'Video', sortable: false, width: 50 },
+      { bodyTemplate: videoProfileTemplate, field: 'VideoProfileName', header: 'Video', sortable: false, width: 50 },
       {
         align: 'center',
         field: 'HDHRLink',
@@ -102,7 +128,7 @@ const StreamGroupDataSelectorValue = ({ id, streamGroupDto }: StreamGroupDataSel
         width: 12
       }
     ],
-    [actionTemplate, fileProfileTemplate, nameTemplate]
+    [actionTemplate, fileProfileTemplate, nameTemplate, videoProfileTemplate]
   );
 
   if (!streamGroupDto?.StreamGroupProfiles) {

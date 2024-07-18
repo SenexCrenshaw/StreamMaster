@@ -2,6 +2,7 @@ import StringEditor from '@components/inputs/StringEditor';
 import SMDataTable from '@components/smDataTable/SMDataTable';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 import StreamGroupDeleteDialog from '@components/streamGroup/StreamGroupDeleteDialog';
+import { Logger } from '@lib/common/logger';
 import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
 import { useSelectedStreamGroup } from '@lib/redux/hooks/selectedStreamGroup';
 import { UpdateStreamGroup } from '@lib/smAPI/StreamGroups/StreamGroupsCommands';
@@ -23,15 +24,15 @@ const StreamGroupDataSelector = ({ id }: StreamGroupDataSelectorProperties) => {
   const { setSelectedItems } = useSelectedItems('selectedStreamGroup');
 
   const streamGroupDeviceIDColumnConfig = useStreamGroupDeviceIDColumnConfig({ width: 60 });
-  const rowExpansionTemplate = useCallback((rowData: DataTableRowData<any>, options: DataTableRowExpansionTemplate) => {
+  const rowExpansionTemplate = (rowData: DataTableRowData<any>, options: DataTableRowExpansionTemplate) => {
     const streamGroupDto = rowData as unknown as StreamGroupDto;
-
+    Logger.debug('StreamGroupDataSelector rowExpansionTemplate', streamGroupDto);
     return (
       <div className="ml-3 m-1">
         <StreamGroupDataSelectorValue streamGroupDto={streamGroupDto} id={streamGroupDto.Id + '-streams'} />
       </div>
     );
-  }, []);
+  };
 
   const actionTemplate = useCallback((streamGroupDto: StreamGroupDto) => {
     if (streamGroupDto.IsReadOnly === true) {

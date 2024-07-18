@@ -35,10 +35,9 @@ public class UpdateFileProfileRequestHandler(
 
         }
 
-        List<FieldData> fields = new();
-        OutputProfile? existingProfile = null;
+        List<FieldData> fields = [];
 
-        if (!profilesettings.OutProfiles.TryGetValue(request.ProfileName, out existingProfile))
+        if (!profilesettings.OutProfiles.TryGetValue(request.ProfileName, out OutputProfile? existingProfile))
         {
             existingProfile = new OutputProfile();
         }
@@ -90,22 +89,22 @@ public class UpdateFileProfileRequestHandler(
         if (!string.IsNullOrEmpty(request.NewName) && request.ProfileName != request.NewName)
         {
             nameChanged = true;
-            profilesettings.OutProfiles.Remove(request.ProfileName);
+            _ = profilesettings.OutProfiles.Remove(request.ProfileName);
             profilesettings.OutProfiles.Add(request.NewName, existingProfile);
         }
 
         SettingsHelper.UpdateSetting(profilesettings);
-        if (nameChanged)
+        if (nameChanged || fields.Count > 0)
         {
             await dataRefreshService.RefreshOutputProfiles();
         }
-        else
-        {
-            if (fields.Count > 0)
-            {
-                await dataRefreshService.SetField(fields);
-            }
-        }
+        //else
+        //{
+        //    if (fields.Count > 0)
+        //    {
+        //        await dataRefreshService.SetField(fields);
+        //    }
+        //}
         Logger.LogInformation("UpdateFileProfileRequest");
 
         //await dataRefreshService.RefreshOutProfiles();

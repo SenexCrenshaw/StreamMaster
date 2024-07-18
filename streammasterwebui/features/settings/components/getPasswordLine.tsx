@@ -13,7 +13,7 @@ type PasswordLineProps = {
   readonly currentSettingRequest: SettingDto;
   readonly field: string;
   readonly labelInline?: boolean;
-  readonly labelInlineSmall?: boolean;
+  // readonly labelInlineSmall?: boolean;
   readonly warning?: string | null;
 };
 
@@ -21,7 +21,7 @@ export function getPasswordLine({
   currentSettingRequest,
   field,
   labelInline = true,
-  labelInlineSmall = true,
+  // labelInlineSmall = true,
   onChange,
   warning
 }: PasswordLineProps): React.ReactElement {
@@ -43,7 +43,7 @@ export function getPasswordLine({
         <div className={`flex ${labelInline ? 'align-items-center' : 'flex-column align-items-start'}`}>
           {label && labelInline && <div className={labelInline ? 'w-4' : 'w-6'}>{label.toUpperCase()}</div>}
           <Password
-            className={labelInlineSmall ? 'w-12' : 'w-6'}
+            className={'w-6'}
             feedback
             onChange={(e) => {
               UpdateChanges({ currentSettingRequest, field, onChange, value: e.target.value });

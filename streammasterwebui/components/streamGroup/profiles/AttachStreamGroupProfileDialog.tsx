@@ -5,6 +5,7 @@ import { AddProfileToStreamGroup } from '@lib/smAPI/StreamGroups/StreamGroupsCom
 import { AddProfileToStreamGroupRequest, StreamGroupDto } from '@lib/smAPI/smapiTypes';
 import { useCallback, useRef, useState } from 'react';
 import OutputProfileDropDown from './OutputProfileDropDown';
+import VideoProfileDropDown from './VideoProfileDropDown';
 
 interface AttachStreamGroupProfileDialogProps {
   readonly streamGroupDto: StreamGroupDto;
@@ -43,13 +44,12 @@ const AttachStreamGroupProfileDialog = ({ streamGroupDto }: AttachStreamGroupPro
 
   return (
     <SMPopUp
-      contentWidthSize="3"
       buttonClassName="icon-green"
+      contentWidthSize="5"
       icon="pi-plus-circle"
-      title="Attach Profile"
-      ref={smPopUpRef}
       modal
-      modalCentered
+      ref={smPopUpRef}
+      title="Attach Profile"
       onOkClick={() => {
         save();
       }}
@@ -59,44 +59,45 @@ const AttachStreamGroupProfileDialog = ({ streamGroupDto }: AttachStreamGroupPro
     >
       <>
         <div className="sm-headerBg dialog-padding border-sides">
-          <div className="w-12">
-            <div className="flex gap-1">
-              <div className="sm-w-6">
-                <StringEditor
-                  autoFocus
-                  label="ProfileNMam,e"
-                  placeholder="Name"
-                  darkBackGround
-                  disableDebounce
-                  onChange={(e) => {
-                    setName(e);
-                  }}
-                  onSave={(e) => {
-                    save();
-                  }}
-                  value={name}
-                />
-              </div>
-              <div className={dropdownClass}>
-                <OutputProfileDropDown
-                  buttonDarkBackground
-                  value={fileRequest.OutputProfileName}
-                  onChange={(e) => {
-                    updateM3UOutputProfileStateAndRequest({ OutputProfileName: e.ProfileName });
-                  }}
-                />
-              </div>
-              {/* <div className={dropdownClass}>
-                <VideoProfileDropDown
-                  buttonDarkBackground
-                  value={fileRequest.OutputProfileName}
-                  onChange={(e) => {
-                    updateM3UOutputProfileStateAndRequest({ VideoProfileName: e.ProfileName });
-                  }}
-                />
-              </div> */}
+          <div className="layout-padding-bottom-lg" />
+          <div className="sm-center-stuff gap-1">
+            <div className="sm-w-6">
+              <StringEditor
+                autoFocus
+                label="Profile Name"
+                placeholder="Profile Name"
+                darkBackGround
+                disableDebounce
+                onChange={(e) => {
+                  setName(e);
+                }}
+                onSave={(e) => {
+                  save();
+                }}
+                value={name}
+              />
+            </div>
+            <div className={dropdownClass}>
+              <OutputProfileDropDown
+                buttonDarkBackground
+                value={fileRequest.OutputProfileName}
+                onChange={(e) => {
+                  updateM3UOutputProfileStateAndRequest({ OutputProfileName: e.ProfileName });
+                }}
+              />
+            </div>
+            <div className={dropdownClass}>
+              <VideoProfileDropDown
+                buttonDarkBackground
+                value={fileRequest.OutputProfileName}
+                onChange={(e) => {
+                  updateM3UOutputProfileStateAndRequest({ VideoProfileName: e.ProfileName });
+                }}
+              />
             </div>
           </div>
+
+          <div className="layout-padding-bottom-lg" />
         </div>
         <div className="layout-padding-bottom-lg sm-headerBg border-radius-bottom" />
       </>

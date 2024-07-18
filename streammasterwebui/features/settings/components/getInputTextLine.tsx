@@ -33,9 +33,9 @@ export function getInputTextLine({ field, warning, currentSettingRequest, onChan
           disableDebounce
           label={label}
           labelInline
-          labelInlineSmall={
-            defaultSetting === null || defaultSetting === undefined || defaultSetting === '' || help === null || help === undefined || help !== ''
-          }
+          // labelInlineSmall={
+          //   defaultSetting === null || defaultSetting === undefined || defaultSetting === '' || help === null || help === undefined || help !== ''
+          // }
           onChange={(e) => {
             e !== undefined && UpdateChanges({ currentSettingRequest, field, onChange, value: e });
           }}

@@ -1,5 +1,4 @@
 import SMDropDown from '@components/sm/SMDropDown';
-import { Logger } from '@lib/common/logger';
 import useGetOutputProfiles from '@lib/smAPI/Profiles/useGetOutputProfiles';
 import { OutputProfileDto } from '@lib/smAPI/smapiTypes';
 import { ReactNode, useCallback, useMemo } from 'react';
@@ -20,8 +19,6 @@ const OutputProfileDropDown = ({ buttonDarkBackground = false, onChange, value }
 
     return data.find((x) => x.ProfileName === value);
   }, [data, value]);
-
-  Logger.debug('OutputProfileDropDown', { data: data, selectedFileProfile, value });
 
   const itemTemplate = useCallback((option: OutputProfileDto): JSX.Element => {
     return <div className="text-xs text-container">{option?.ProfileName ?? ''}</div>;

@@ -29,7 +29,7 @@ public class UpdateStreamGroupProfileRequestHandler(IRepositoryWrapper Repositor
         }
         //List<FieldData> fields = new List<FieldData>();
 
-        var streamGroupProfile = streamGroup.StreamGroupProfiles.FirstOrDefault(x => x.Name == request.Name);
+        StreamGroupProfile? streamGroupProfile = streamGroup.StreamGroupProfiles.FirstOrDefault(x => x.Name == request.Name);
         if (streamGroupProfile is null)
         {
             return APIResponse.ErrorWithMessage("Stream Group Profile not found");
@@ -59,7 +59,7 @@ public class UpdateStreamGroupProfileRequestHandler(IRepositoryWrapper Repositor
 
         Repository.StreamGroup.Update(streamGroup);
 
-        await Repository.SaveAsync();
+        _ = await Repository.SaveAsync();
         //  fields.Add(new FieldData("GetStreamGroups", request.StreamGroupId, "StreamGroupProfiles", streamGroup.StreamGroupProfiles));
         await dataRefreshService.RefreshStreamGroups();
         // await dataRefreshService.SetField(fields);

@@ -22,6 +22,13 @@ const StreamGroupOutputProfileDataSelector = () => {
 
   const { data } = useGetOutputProfiles();
 
+  const dataSource = useMemo(() => {
+    if (data === undefined) {
+      return [];
+    }
+    return data;
+  }, [data]);
+
   const nameColumnConfig = useOutputProfileNameColumnConfig({ width: 40 });
   const groupColumnConfig = useOutputProfileGroupColumnConfig({ width: 40 });
   const iDColumnConfig = useOutputProfileIdColumnConfig({ width: 40 });
@@ -116,7 +123,7 @@ const StreamGroupOutputProfileDataSelector = () => {
     <SMDataTable
       actionHeaderTemplate={<CreateFileProfileDialog />}
       columns={columns}
-      dataSource={data}
+      dataSource={dataSource}
       defaultSortField="Name"
       defaultSortOrder={1}
       emptyMessage="No Profiles"
@@ -124,7 +131,6 @@ const StreamGroupOutputProfileDataSelector = () => {
       enableExport={false}
       headerName="M3U/EPG Profiles"
       id={id}
-      lazy
       onRowClick={(e: DataTableRowClickEvent) => {}}
       style={{ height: '30vh' }}
     />

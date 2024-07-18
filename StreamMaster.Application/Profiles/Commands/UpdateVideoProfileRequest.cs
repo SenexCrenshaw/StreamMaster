@@ -26,13 +26,13 @@ public class UpdateVideoProfileRequestHandler(
             return APIResponse.ErrorWithMessage($"VideoProfile '" + request.ProfileName + "' doesnt exist"); ;
         }
 
-        if (request.NewName != null && request.NewName.Equals("default", StringComparison.OrdinalIgnoreCase))
+        if (request.NewName != null && request.NewName.Equals("DefaultFFmpeg", StringComparison.OrdinalIgnoreCase))
         {
-            return APIResponse.ErrorWithMessage("Cannot use name default");
+            return APIResponse.ErrorWithMessage("Cannot use name DefaultFFmpeg");
         }
 
 
-        List<FieldData> fields = new();
+        List<FieldData> fields = [];
 
         if (profilesettings.VideoProfiles.TryGetValue(request.ProfileName, out VideoOutputProfile? existingProfile))
         {
@@ -62,7 +62,7 @@ public class UpdateVideoProfileRequestHandler(
             if (request.NewName != null)
             {
                 nameChanged = true;
-                profilesettings.VideoProfiles.Remove(request.ProfileName);
+                _ = profilesettings.VideoProfiles.Remove(request.ProfileName);
                 profilesettings.VideoProfiles.Add(request.NewName, existingProfile);
 
             }

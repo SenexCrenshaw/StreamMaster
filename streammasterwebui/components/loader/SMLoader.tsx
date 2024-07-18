@@ -9,9 +9,9 @@ const SMLoader = () => {
 
   return (
     <div className="sm-loader">
-      <div className="sm-modal flex flex-column justify-content-center align-items-center align-content-center">
+      <div className="sm-modal-20 flex flex-column justify-content-center align-items-center align-content-center">
         <SMTasksDataSelector />
-        <div className="la-ball-beat la-2x w-full flex justify-content-center align-items-center z-10 surface-ground">
+        <div className="la-ball-beat la-2x w-full flex justify-content-center align-items-center z-20 surface-ground">
           <div></div>
           <div></div>
           <div></div>

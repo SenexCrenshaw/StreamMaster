@@ -19,6 +19,7 @@ export const StreamGroupProfileButton = () => {
       noBorderChildren
       showRemember={false}
       title="PROFILES"
+      zIndex={11}
     >
       <StreamGroupOutputProfileDataSelector />
       <div className="layout-padding-bottom-lg" />

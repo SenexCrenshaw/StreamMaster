@@ -16,7 +16,7 @@ export interface StringEditorBodyTemplateProperties {
   readonly isLoading?: boolean;
   readonly label?: string;
   readonly labelInline?: boolean;
-  readonly labelInlineSmall?: boolean;
+
   readonly onChange?: (value: string | undefined) => void;
   readonly onClick?: () => void;
   readonly onSave?: (value: string | undefined) => void;
@@ -45,7 +45,6 @@ const StringEditor = forwardRef<StringEditorRef, StringEditorBodyTemplatePropert
       isLarge = false,
       label,
       labelInline = false,
-      labelInlineSmall = false,
       onChange,
       onClick,
       onSave,
@@ -198,11 +197,12 @@ const StringEditor = forwardRef<StringEditorRef, StringEditorBodyTemplatePropert
       if (isLarge) {
         return (
           <InputTextarea
-            ref={inputLargeRef}
+            autoResize
             className={inputGetDiv}
             disabled={disabled || isLoading}
             id={uuid}
             keyfilter={/[^\r\n]+/}
+            ref={inputLargeRef}
             onChange={(e) => {
               const newValue = e.target.value as string;
               setInputValue(newValue);

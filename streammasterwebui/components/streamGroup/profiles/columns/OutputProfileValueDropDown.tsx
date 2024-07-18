@@ -1,6 +1,5 @@
 import SMDropDown from '@components/sm/SMDropDown';
 import { getEnumValueByKey } from '@lib/common/enumTools';
-import { Logger } from '@lib/common/logger';
 import { UpdateOutputProfile } from '@lib/smAPI/Profiles/ProfilesCommands';
 import { UpdateOutputProfileRequest, ValidM3USetting } from '@lib/smAPI/smapiTypes';
 import { SelectItem } from 'primereact/selectitem';
@@ -23,7 +22,7 @@ const OutputProfileValueDropDown = ({ ...props }: OutputProfileValueDropDownProp
       if (props.name === undefined) {
         return;
       }
-      Logger.debug('OutputProfileValueDropDown', request);
+      // Logger.debug('OutputProfileValueDropDown', request);
       request.ProfileName = props.name;
 
       UpdateOutputProfile(request)

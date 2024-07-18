@@ -45,8 +45,7 @@ public sealed partial class StreamHandler
             }
 
             Setting settings = intSettings.CurrentValue;
-
-            string ffprobeExec = GetFFProbeExecutablePath(settings);
+            string? ffprobeExec = FileUtil.GetExec(settings.FFProbeExecutable);
 
             if (string.IsNullOrEmpty(ffprobeExec))
             {
@@ -86,28 +85,6 @@ public sealed partial class StreamHandler
                 _ = buildVideoInfoSemaphore.Release();
             }
         }
-    }
-
-
-    private static string GetFFProbeExecutablePath(Setting settings)
-    {
-        if (File.Exists(settings.FFProbeExecutable))
-        {
-            return settings.FFProbeExecutable;
-        }
-
-        string ffprobeExec = Path.Combine(BuildInfo.AppDataFolder, settings.FFProbeExecutable);
-        if (File.Exists(ffprobeExec))
-        {
-            return ffprobeExec;
-        }
-
-        if (File.Exists(ffprobeExec + ".exe"))
-        {
-            return ffprobeExec + ".exe";
-        }
-
-        return File.Exists(ffprobeExec) ? ffprobeExec : File.Exists(ffprobeExec + ".exe") ? ffprobeExec + ".exe" : string.Empty;
     }
 
     private readonly int GetVideoInfoCount = 0;
