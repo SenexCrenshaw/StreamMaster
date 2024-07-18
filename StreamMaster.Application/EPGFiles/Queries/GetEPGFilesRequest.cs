@@ -1,8 +1,4 @@
-﻿using AutoMapper.QueryableExtensions;
-
-using Microsoft.EntityFrameworkCore;
-
-namespace StreamMaster.Application.EPGFiles.Queries;
+﻿namespace StreamMaster.Application.EPGFiles.Queries;
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]

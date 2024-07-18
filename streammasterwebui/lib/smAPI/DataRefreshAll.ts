@@ -4,6 +4,7 @@ import { setIsForced as GetChannelGroupsSetIsForced } from '@lib/smAPI/ChannelGr
 import { setIsForced as GetChannelGroupsFromSMChannelsSetIsForced } from '@lib/smAPI/ChannelGroups/GetChannelGroupsFromSMChannelsSlice';
 import { setIsForced as GetChannelStreamingStatisticsSetIsForced } from '@lib/smAPI/Statistics/GetChannelStreamingStatisticsSlice';
 import { setIsForced as GetClientStreamingStatisticsSetIsForced } from '@lib/smAPI/Statistics/GetClientStreamingStatisticsSlice';
+import { setIsForced as GetCustomPlayListsSetIsForced } from '@lib/smAPI/CustomPlayLists/GetCustomPlayListsSlice';
 import { setIsForced as GetDownloadServiceStatusSetIsForced } from '@lib/smAPI/General/GetDownloadServiceStatusSlice';
 import { setIsForced as GetEPGColorsSetIsForced } from '@lib/smAPI/EPG/GetEPGColorsSlice';
 import { setIsForced as GetEPGFilesSetIsForced } from '@lib/smAPI/EPGFiles/GetEPGFilesSlice';
@@ -36,6 +37,7 @@ export const DataRefreshAll = () => {
   store.dispatch(GetChannelGroupsFromSMChannelsSetIsForced({ force: true }));
   store.dispatch(GetChannelStreamingStatisticsSetIsForced({ force: true }));
   store.dispatch(GetClientStreamingStatisticsSetIsForced({ force: true }));
+  store.dispatch(GetCustomPlayListsSetIsForced({ force: true }));
   store.dispatch(GetDownloadServiceStatusSetIsForced({ force: true }));
   store.dispatch(GetEPGColorsSetIsForced({ force: true }));
   store.dispatch(GetEPGFilesSetIsForced({ force: true }));

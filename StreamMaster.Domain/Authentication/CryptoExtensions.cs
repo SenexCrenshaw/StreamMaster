@@ -84,11 +84,11 @@ public static class CryptoExtension
         return valueKey.DecodeTwoValues(serverKey, 256);
     }
 
-    public static string EncodeValue(this string value1, string serverKey, int keySize = 128)
+    public static string EncodeValue(this string value1, string serverKey, int keySize = 128, byte[]? iv = null)
     {
         byte[] serverKeyBytes = GenerateKey(serverKey, keySize);
         byte[] valueBytes = Encoding.UTF8.GetBytes(value1);
-        byte[] encryptedBytes = EncryptValue(valueBytes, serverKeyBytes);
+        byte[] encryptedBytes = EncryptValue(valueBytes, serverKeyBytes, iv);
         byte[] hmacBytes = CalculateHMAC(encryptedBytes, serverKeyBytes);
         byte[] encodedBytes = new byte[encryptedBytes.Length + HMACSize];
         Buffer.BlockCopy(hmacBytes, 0, encodedBytes, 0, HMACSize);
@@ -101,12 +101,12 @@ public static class CryptoExtension
         return encodedUrlSafeString;
     }
 
-    public static string EncodeValue(this int value1, string serverKey, int keySize = 128)
+    public static string EncodeValue(this int value1, string serverKey, int keySize = 128, byte[]? iv = null)
     {
         byte[] serverKeyBytes = GenerateKey(serverKey, keySize);
         string valueString = value1.ToString();
         byte[] valueBytes = Encoding.UTF8.GetBytes(valueString);
-        byte[] encryptedBytes = EncryptValue(valueBytes, serverKeyBytes);
+        byte[] encryptedBytes = EncryptValue(valueBytes, serverKeyBytes, iv);
         byte[] hmacBytes = CalculateHMAC(encryptedBytes, serverKeyBytes);
         byte[] encodedBytes = new byte[encryptedBytes.Length + HMACSize];
         Buffer.BlockCopy(hmacBytes, 0, encodedBytes, 0, HMACSize);
@@ -124,14 +124,19 @@ public static class CryptoExtension
         return value1.EncodeValue(serverKey, 128);
     }
 
+    public static string EncodeValue128(this string value1, string serverKey, byte[]? iv)
+    {
+        return value1.EncodeValue(serverKey, 128, iv);
+    }
+
     public static string EncodeValue128(this int value1, string serverKey)
     {
         return value1.EncodeValue(serverKey, 128);
     }
 
-    public static string EncodeValue128(this int value1, string serverKey, string iv)
+    public static string EncodeValue128(this int value1, string serverKey, byte[]? iv)
     {
-        return value1.EncodeValue(serverKey, 128);
+        return value1.EncodeValue(serverKey, 128, iv);
 
     }
     public static string EncodeValue192(this string value1, string serverKey)

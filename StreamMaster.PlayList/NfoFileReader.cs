@@ -6,7 +6,7 @@ namespace StreamMaster.PlayList;
 
 public class NfoFileReader : INfoFileReader
 {
-    public MovieNfo? ReadNfoFile(string filePath)
+    public Movie? ReadNfoFile(string filePath)
     {
         if (string.IsNullOrWhiteSpace(filePath))
         {
@@ -21,8 +21,8 @@ public class NfoFileReader : INfoFileReader
         try
         {
             using StreamReader stream = new(filePath, System.Text.Encoding.UTF8);
-            XmlSerializer serializer = new(typeof(MovieNfo));
-            MovieNfo? nfo = (MovieNfo?)serializer.Deserialize(stream);
+            XmlSerializer serializer = new(typeof(Movie));
+            Movie? nfo = (Movie?)serializer.Deserialize(stream);
 
             return nfo;
         }

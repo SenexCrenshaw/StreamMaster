@@ -13,7 +13,7 @@ namespace StreamMaster.Domain.Common;
 public sealed class FileUtil
 {
 
-    public static string EncodeUrlToBase64(string url)
+    public static string EncodeToBase64(string url)
     {
         if (string.IsNullOrEmpty(url))
         {

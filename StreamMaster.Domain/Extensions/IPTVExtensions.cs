@@ -323,7 +323,7 @@ public static partial class IPTVExtensions
 
         if (string.IsNullOrEmpty(SMStream.Id))
         {
-            SMStream.Id = FileUtil.EncodeUrlToBase64(SMStream.Url);//.ConvertStringToId();
+            SMStream.Id = FileUtil.EncodeToBase64(SMStream.Url);//.ConvertStringToId();
         }
 
         return SMStream;

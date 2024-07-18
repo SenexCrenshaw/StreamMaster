@@ -3,6 +3,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
+using StreamMaster.Application.CustomPlayLists.Queries;
 using StreamMaster.Domain.Authentication;
 using StreamMaster.Domain.Repository;
 using StreamMaster.Streams.Domain.Interfaces;
@@ -23,6 +24,7 @@ public class VideoStreamsController(IChannelManager channelManager, IMapper mapp
     [Route("stream/{encodedIds}/{name}")]
     public async Task<ActionResult> GetVideoStreamStream(string encodedIds, string name, CancellationToken cancellationToken)
     {
+
         (int? StreamGroupNumberNull, string? SMChannelId) = encodedIds.DecodeTwoValuesAsString128(Settings.ServerKey);
         if (StreamGroupNumberNull == null || string.IsNullOrEmpty(SMChannelId))
         {
@@ -79,6 +81,67 @@ public class VideoStreamsController(IChannelManager channelManager, IMapper mapp
 
         HttpContext.Response.RegisterForDispose(new UnregisterClientOnDispose(channelManager, config));
         return stream != null ? new FileStreamResult(stream, "video/mp4") : StatusCode(StatusCodes.Status404NotFound);
+    }
+
+    [Authorize(Policy = "SGLinks")]
+    [HttpGet]
+    [HttpHead]
+    [Route("customstream/{encodedId}")]
+    [Route("customstream/{encodedId}/{name}")]
+    public async Task<ActionResult> GetCustomVideoStreamStream(string encodedId, string name, CancellationToken cancellationToken)
+    {
+        string? SMStreamId = encodedId.DecodeValueAsString128(Settings.ServerKey);
+        if (SMStreamId == null || string.IsNullOrEmpty(SMStreamId))
+        {
+            return new NotFoundResult();
+        }
+
+        var test = await Sender.Send(new GetCustomPlayListRequest(SMStreamId), cancellationToken);
+
+        return Ok();
+        //SMChannel? smChannel = streamGroupId == 0
+        //    ? repositoryWrapper.SMChannel.GetSMChannel(smChannelId)
+        //    : repositoryWrapper.SMChannel.GetSMChannelFromStreamGroup(smChannelId, streamGroupId);
+
+        //if (smChannel == null)
+        //{
+        //    logger.LogInformation("GetStreamGroupVideoStream request. SG Number {id} ChannelId {channelId} not found exiting", streamGroupId, smChannelId);
+        //    return NotFound();
+        //}
+        //logger.LogInformation("GetStreamGroupVideoStream request. SG Number {id} ChannelId {channelId}", streamGroupId, smChannelId);
+
+        //if (smChannel.SMStreams.Count == 0 || string.IsNullOrEmpty(smChannel.SMStreams.First().SMStream.Url))
+        //{
+        //    logger.LogInformation("GetStreamGroupVideoStream request. SG Number {id} ChannelId {channelId} missing url or additional streams", streamGroupId, smChannelId);
+        //    return new NotFoundResult();
+        //}
+
+        //HttpContext.Session.Remove("ClientId");
+
+
+        //string proxyType = GetStreamingProxyType(smChannel);
+        //bool redirect = proxyType == "None";
+
+        //if (redirect)
+        //{
+        //    logger.LogInformation("GetStreamGroupVideoStream request SG Number {id} ChannelId {channelId} proxy is none, sending redirect", streamGroupId, smChannelId);
+
+        //    return Redirect(smChannel.SMStreams.First().SMStream.Url);
+        //}
+
+        //string? ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
+
+        //SMChannelDto smChannelDto = mapper.Map<SMChannelDto>(smChannel);
+
+        //HttpRequest request = HttpContext.Request;
+        //string originalUrl = $"{request.Scheme}://{request.Host}{request.PathBase}{request.Path}{request.QueryString}";
+        //smChannelDto.StreamUrl = originalUrl;
+
+        //ClientStreamerConfiguration config = new(smChannelDto, streamGroupId, Request.Headers.UserAgent.ToString(), ipAddress ?? "unknown", HttpContext.Response, cancellationToken);
+        //Stream? stream = await channelManager.GetChannelAsync(config);
+
+        //HttpContext.Response.RegisterForDispose(new UnregisterClientOnDispose(channelManager, config));
+        //return stream != null ? new FileStreamResult(stream, "video/mp4") : StatusCode(StatusCodes.Status404NotFound);
     }
 
     private string GetStreamingProxyType(SMChannel smChannel)

@@ -22,6 +22,7 @@ namespace StreamMaster.Domain.Services
         Task RefreshGeneral(bool alwaysRun = false);
         Task RefreshEPG(bool alwaysRun = false);
         Task RefreshEPGFiles(bool alwaysRun = false);
+        Task RefreshCustomPlayLists(bool alwaysRun = false);
         Task RefreshChannelGroups(bool alwaysRun = false);
     }
 }

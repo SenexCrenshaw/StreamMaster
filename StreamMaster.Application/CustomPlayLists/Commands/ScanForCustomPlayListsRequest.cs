@@ -1,4 +1,4 @@
-﻿using StreamMaster.PlayList;
+﻿using System.Web;
 
 namespace StreamMaster.Application.CustomPlayLists.Commands;
 
@@ -6,20 +6,26 @@ namespace StreamMaster.Application.CustomPlayLists.Commands;
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record ScanForCustomPlayListsRequest : IRequest<APIResponse>;
 
-public class ScanForCustomPlayListsRequestHandler(ILogger<ScanForCustomPlayListsRequest> Logger, ICustomPlayListBuilder CustomPlayListBuilder, IRepositoryWrapper Repository, IMapper Mapper, IPublisher Publisher)
+public class ScanForCustomPlayListsRequestHandler(ILogger<ScanForCustomPlayListsRequest> Logger, IOptionsMonitor<Setting> intSettings, ICustomPlayListBuilder CustomPlayListBuilder, IRepositoryWrapper Repository, IMapper Mapper, IPublisher Publisher)
     : IRequestHandler<ScanForCustomPlayListsRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(ScanForCustomPlayListsRequest command, CancellationToken cancellationToken)
     {
-        List<CustomPlayList> test = CustomPlayListBuilder.GetNFOs();
+
+        List<CustomPlayList> test = CustomPlayListBuilder.GetCustomPlayLists();
         foreach (CustomPlayList customPlayList in test)
         {
-            string id = FileUtil.EncodeUrlToBase64(customPlayList.Name);
+            string id = FileUtil.EncodeToBase64(customPlayList.Name);
             if (Repository.SMStream.Any(s => s.Id == id))
             {
                 continue;
             }
-            var smStrem = new SMStream
+            var settings = intSettings.CurrentValue;
+
+            string encodedName = HttpUtility.HtmlEncode(customPlayList.Name).Trim().Replace("/", "").Replace(" ", "_");
+            string encodedId = id.EncodeValue128(settings.ServerKey);
+
+            var smStream = new SMStream
             {
                 Id = id,
                 Name = customPlayList.Name,
@@ -27,11 +33,14 @@ public class ScanForCustomPlayListsRequestHandler(ILogger<ScanForCustomPlayLists
                 M3UFileId = EPGHelper.CustomPlayListId,
                 Group = "Dummy",
                 IsCustomStream = true,
-                Logo = customPlayList.Logo
+                Logo = customPlayList.Logo,
+                Url = $"/api/videostreams/customstream/{encodedId}/{encodedName}"
             };
-            Repository.SMStream.Create(smStrem);
+            Repository.SMStream.Create(smStream);
 
         }
+
+        await Repository.SaveAsync();
 
         return APIResponse.Success;
     }

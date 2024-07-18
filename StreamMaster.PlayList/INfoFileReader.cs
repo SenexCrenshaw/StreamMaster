@@ -4,6 +4,6 @@ namespace StreamMaster.PlayList
 {
     public interface INfoFileReader
     {
-        MovieNfo? ReadNfoFile(string filePath);
+        Movie? ReadNfoFile(string filePath);
     }
 }

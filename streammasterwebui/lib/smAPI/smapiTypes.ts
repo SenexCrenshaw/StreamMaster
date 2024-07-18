@@ -1317,6 +1317,13 @@ export interface UpdateEPGFileRequest
 	TimeShift?: number;
 	Url?: string;
 }
+export interface GetCustomPlayListRequest
+{
+	SMStreamId?: string;
+}
+export interface GetCustomPlayListsRequest
+{
+}
 export interface ScanForCustomPlayListsRequest
 {
 }

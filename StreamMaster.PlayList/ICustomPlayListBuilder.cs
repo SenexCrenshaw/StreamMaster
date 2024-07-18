@@ -2,6 +2,7 @@
 {
     public interface ICustomPlayListBuilder
     {
-        List<CustomPlayList> GetNFOs();
+        List<CustomPlayList> GetCustomPlayLists();
+        CustomPlayList? GetCustomPlayList(string Name);
     }
 }

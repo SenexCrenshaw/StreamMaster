@@ -1,23 +1,30 @@
-﻿using StreamMaster.Domain.Configuration;
+﻿using StreamMaster.Domain.Common;
+using StreamMaster.Domain.Configuration;
 using StreamMaster.PlayList.Models;
 
 using System.Xml.Serialization;
 
 namespace StreamMaster.PlayList;
-
-public record CustomStreamNfo(string VideoFileName, MovieNfo MovieNfo);
-
+public record CustomStreamNfo(string VideoFileName, Movie Movie);
 
 public class CustomPlayList
 {
     public string Name { get; set; } = string.Empty;
     public string Logo { get; set; } = string.Empty;
-    public MovieNfo? FolderNfo { get; set; }
+    public Movie? FolderNfo { get; set; }
     public List<CustomStreamNfo> CustomStreamNfos { get; set; } = [];
 }
+
 public class CustomPlayListBuilder(INfoFileReader nfoFileReader) : ICustomPlayListBuilder
 {
-    public List<CustomPlayList> GetNFOs()
+    public CustomPlayList? GetCustomPlayList(string Name)
+    {
+
+        CustomPlayList? ret = GetCustomPlayLists().FirstOrDefault(x => FileUtil.EncodeToBase64(x.Name) == Name);
+        return ret;
+    }
+
+    public List<CustomPlayList> GetCustomPlayLists()
     {
         List<CustomPlayList> ret = [];
 
@@ -31,72 +38,75 @@ public class CustomPlayListBuilder(INfoFileReader nfoFileReader) : ICustomPlayLi
             return ret;
         }
 
-        string[] subDirs = Directory.GetDirectories(BuildInfo.CustomPlayListFolder);
+        string[] folders = Directory.GetDirectories(BuildInfo.CustomPlayListFolder);
 
-        foreach (string subDir in subDirs)
+        foreach (string folder in folders)
         {
             CustomPlayList customPlayList = new();
-            string[] mp4Files = Directory.GetFiles(subDir, "*.mp4");
-            string[] tsFiles = Directory.GetFiles(subDir, "*.ts");
-            string? dirName = Path.GetFileName(subDir);
-            customPlayList.Name = dirName ?? "Unknown";
-
-            List<string> allFiles = [.. mp4Files.Concat(tsFiles).OrderBy(file => file)];
-
-            string folderNfoFile = Path.Combine(subDir, "folder.nfo");
-
-            if (File.Exists(folderNfoFile))
+            string folderName = Path.GetFileNameWithoutExtension(folder);
+            string folderNFOFileName = Path.ChangeExtension(folderName, ".nfo");
+            string folderNFOFile = Path.Combine(folder, folderNFOFileName);
+            if (!File.Exists(folderNFOFile))
             {
-                MovieNfo? nfo = nfoFileReader.ReadNfoFile(folderNfoFile);
-                customPlayList.FolderNfo = nfo;
+                continue;
             }
 
-            foreach (string? file in allFiles)
+            customPlayList.FolderNfo = nfoFileReader.ReadNfoFile(folderNFOFile);
+            customPlayList.Name = folderName;
+            if (customPlayList.FolderNfo == null)
             {
-                string fileName = Path.GetFileNameWithoutExtension(file);
-                string nfoFile = Path.ChangeExtension(file, ".nfo");
-                if (File.Exists(nfoFile))
-                {
-                    MovieNfo? nfo = nfoFileReader.ReadNfoFile(nfoFile);
-                    if (!string.IsNullOrEmpty(dirName) && nfo != null)
-                    {
-                        CustomStreamNfo customStreamNfo = new(file, nfo);
-                        customPlayList.CustomStreamNfos.Add(customStreamNfo);
-                    }
-                }
-                else
-                {
-                    MovieNfo? nfo = new()
-                    {
-                        Title = fileName,
-                        Runtime = 30,
-                        Plot = "lIL jOhhny"
-                        ,
-                        Actors =
-                        [
-                            new ActorNfo {
-                                Name="Lil Johnny",
-                                Role="Actor"
-                            }
-                        ]
-                    };
-                    CustomStreamNfo customStreamNfo = new(file, nfo);
-                    customPlayList.CustomStreamNfos.Add(customStreamNfo);
-                    WriteNfoFile(nfoFile, nfo);
+                continue;
+            }
 
+            string[] videoFolders = Directory.GetDirectories(folder);
+
+            foreach (string videoFolder in videoFolders)
+            {
+                var file = GetFirstVideoFileInDirectory(videoFolder);
+
+                string fileName = Path.GetFileNameWithoutExtension(file);
+                string fileNFOFileName = Path.ChangeExtension(fileName, ".nfo");
+                string fileNFOFile = Path.Combine(videoFolder, fileNFOFileName);
+
+                if (!File.Exists(fileNFOFile))
+                {
+                    continue;
                 }
+
+                var fileNfo = nfoFileReader.ReadNfoFile(fileNFOFile);
+                if (fileNfo == null)
+                {
+                    continue;
+                }
+
+                CustomStreamNfo customStreamNfo = new(file, fileNfo);
+                customPlayList.CustomStreamNfos.Add(customStreamNfo);
             }
             ret.Add(customPlayList);
         }
         return ret;
     }
 
-    public static void WriteNfoFile(string filePath, MovieNfo movieNfo)
+    public static string GetFirstVideoFileInDirectory(string dir)
+    {
+        string[] files = Directory.GetFiles(dir);
+        foreach (string file in files)
+        {
+            if (file.EndsWith(".mp4") || file.EndsWith(".mkv") || file.EndsWith(".avi"))
+            {
+                return file;
+            }
+        }
+        return string.Empty;
+
+    }
+
+    public static void WriteNfoFile(string filePath, Movie movieNfo)
     {
         try
         {
             using StreamWriter stream = new(filePath, false, System.Text.Encoding.UTF8);
-            XmlSerializer serializer = new(typeof(MovieNfo));
+            XmlSerializer serializer = new(typeof(Movie));
             serializer.Serialize(stream, movieNfo);
         }
         catch (Exception ex)

@@ -14,6 +14,7 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
     {
 
         await RefreshChannelGroups(true);
+        await RefreshCustomPlayLists(true);
         await RefreshEPG(true);
         await RefreshEPGFiles(true);
         await RefreshGeneral(true);
@@ -43,6 +44,17 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
         await hub.Clients.All.DataRefresh("GetChannelGroups");
         await hub.Clients.All.DataRefresh("GetChannelGroupsFromSMChannels");
         await hub.Clients.All.DataRefresh("GetPagedChannelGroups");
+    }
+
+    public async Task RefreshCustomPlayLists(bool alwaysRun = false)
+    {
+
+        if (!alwaysRun && !BuildInfo.IsSystemReady)
+        {
+            return;
+        }
+
+        await hub.Clients.All.DataRefresh("GetCustomPlayLists");
     }
 
     public async Task RefreshEPG(bool alwaysRun = false)
