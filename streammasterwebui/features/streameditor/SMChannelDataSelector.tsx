@@ -21,6 +21,7 @@ import { useSMChannelSGColumnConfig } from '@components/smchannels/columns/useSM
 import { useSMVideoOutputProfileNameColumnConfig } from '@components/smchannels/columns/useSMVideoOutputProfileNameColumnConfig';
 import StreamCopyLinkDialog from '@components/smstreams/StreamCopyLinkDialog';
 import StreamGroupButton from '@components/streamGroup/StreamGroupButton';
+import StreamGroupProfileButton from '@components/streamGroup/profiles/StreamGroupProfileButton';
 import { GetMessage } from '@lib/common/intl';
 import { useIsTrue } from '@lib/redux/hooks/isTrue';
 import { useQueryFilter } from '@lib/redux/hooks/queryFilter';
@@ -207,9 +208,21 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id }: SMChannelDat
 
   const headerCenterTemplate = useMemo(() => {
     if (smTableIsSimple) {
-      return <StreamGroupButton className="sm-w-20rem" />;
+      return (
+        <div className="sm-center-stuff">
+          <StreamGroupButton className="sm-w-20rem" />
+          <div className="pl-1"></div>
+          <StreamGroupProfileButton />
+        </div>
+      );
     }
-    return <StreamGroupButton />;
+    return (
+      <div className="sm-center-stuff">
+        <StreamGroupButton />
+        <div className="pl-1"></div>
+        <StreamGroupProfileButton />
+      </div>
+    );
 
     // return <StreamGroupButton />;
   }, [smTableIsSimple]);

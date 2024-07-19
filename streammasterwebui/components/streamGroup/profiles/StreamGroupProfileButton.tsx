@@ -6,13 +6,13 @@ import React from 'react';
 export const StreamGroupProfileButton = () => {
   return (
     <SMPopUp
-      buttonClassName="sm-w-5rem icon-sg"
+      buttonClassName="sm-w-5rem icon-orange"
       buttonLabel="Profiles"
       contentWidthSize="6"
       modal
       modalClosable
       showClose={false}
-      icon="pi-file-edit"
+      icon="pi-briefcase"
       iconFilled
       info=""
       modalCentered
