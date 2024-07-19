@@ -30,7 +30,7 @@ public class SMChannel
     [XmlIgnore]
     public ICollection<StreamGroupSMChannelLink> StreamGroups { get; set; } = [];
     public static string APIName => "SMChannels";
-    public string? VideoOutputProfileName { get; set; }
+    public string VideoOutputProfileName { get; set; } = "StreamMaster";
     public bool IsHidden { get; set; } = false;
     public bool IsCustomStream { get; set; } = false;
     public string? StreamID { get; set; }

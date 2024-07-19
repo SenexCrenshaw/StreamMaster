@@ -23,7 +23,28 @@ namespace BuildClientAPI
 
         private static void Main(string[] args)
         {
+            CleanSubDirectories(SMAPIFileNamePrefix);
+            if (File.Exists(DataRefreshAllFilePath))
+            {
+                File.Delete(DataRefreshAllFilePath);
+            }
             ScanForSMAPI();
+        }
+
+        private static void CleanSubDirectories(string path)
+        {
+            if (Directory.Exists(path))
+            {
+                string[] dirs = Directory.GetDirectories(path);
+                foreach (string dir in dirs)
+                {
+                    Directory.Delete(dir, true);
+                }
+            }
+            else
+            {
+                _ = Directory.CreateDirectory(path);
+            }
         }
 
         private static void ScanForSMAPI()

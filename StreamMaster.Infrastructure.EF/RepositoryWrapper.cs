@@ -28,6 +28,7 @@ public class RepositoryWrapper(
     IIconService iconService,
     IMessageService messageService,
     IOptionsMonitor<Setting> intSettings,
+    IOptionsMonitor<VideoOutputProfiles> intProfileSettings,
     IJobStatusService jobStatusService,
     ISender sender,
     IDataRefreshService dataRefreshService,
@@ -70,7 +71,7 @@ public class RepositoryWrapper(
     {
         get
         {
-            _smChannel ??= new SMChannelsRepository(SMChannelLogger, this, repositoryContext, mapper, intSettings, schedulesDirectDataService);
+            _smChannel ??= new SMChannelsRepository(SMChannelLogger, this, repositoryContext, mapper, intSettings, intProfileSettings, schedulesDirectDataService);
             return _smChannel;
         }
     }

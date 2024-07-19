@@ -1,6 +1,6 @@
 import { isSkipToken } from '@lib/common/isSkipToken';
 import SignalRService from '@lib/signalr/SignalRService';
-import { APIResponse,AutoSetEPGFromParametersRequest,AutoSetEPGRequest,AutoSetSMChannelNumbersFromParametersRequest,AutoSetSMChannelNumbersRequest,CopySMChannelRequest,CreateSMChannelRequest,CreateSMChannelsFromStreamParametersRequest,CreateSMChannelsFromStreamsRequest,DeleteSMChannelRequest,DeleteSMChannelsFromParametersRequest,DeleteSMChannelsRequest,SetSMChannelEPGIdRequest,SetSMChannelGroupRequest,SetSMChannelLogoRequest,SetSMChannelNameRequest,SetSMChannelNumberRequest,SetSMChannelProxyRequest,SetSMChannelsGroupFromParametersRequest,SetSMChannelsGroupRequest,SetSMChannelsLogoFromEPGFromParametersRequest,SetSMChannelsLogoFromEPGRequest,ToggleSMChannelsVisibleByIdRequest,ToggleSMChannelVisibleByIdRequest,ToggleSMChannelVisibleByParametersRequest,UpdateSMChannelRequest,SMChannelDto,VideoInfo,GetSMChannelRequest,GetVideoInfoFromIdRequest,PagedResponse,QueryStringParameters } from '@lib/smAPI/smapiTypes';
+import { APIResponse,AutoSetEPGFromParametersRequest,AutoSetEPGRequest,AutoSetSMChannelNumbersFromParametersRequest,AutoSetSMChannelNumbersRequest,CopySMChannelRequest,CreateSMChannelRequest,CreateSMChannelsFromStreamParametersRequest,CreateSMChannelsFromStreamsRequest,DeleteSMChannelRequest,DeleteSMChannelsFromParametersRequest,DeleteSMChannelsRequest,SetSMChannelEPGIdRequest,SetSMChannelGroupRequest,SetSMChannelLogoRequest,SetSMChannelNameRequest,SetSMChannelNumberRequest,SetSMChannelsGroupFromParametersRequest,SetSMChannelsGroupRequest,SetSMChannelsLogoFromEPGFromParametersRequest,SetSMChannelsLogoFromEPGRequest,SetSMChannelsVideoOutputProfileNameFromParametersRequest,SetSMChannelsVideoOutputProfileNameRequest,SetSMChannelVideoOutputProfileNameRequest,ToggleSMChannelsVisibleByIdRequest,ToggleSMChannelVisibleByIdRequest,ToggleSMChannelVisibleByParametersRequest,UpdateSMChannelRequest,SMChannelDto,VideoInfo,GetSMChannelRequest,GetVideoInfoFromIdRequest,PagedResponse,QueryStringParameters } from '@lib/smAPI/smapiTypes';
 
 export const GetPagedSMChannels = async (parameters: QueryStringParameters): Promise<PagedResponse<SMChannelDto> | undefined> => {
   if (isSkipToken(parameters) || parameters === undefined) {
@@ -111,11 +111,6 @@ export const SetSMChannelNumber = async (request: SetSMChannelNumberRequest): Pr
   return await signalRService.invokeHubCommand<APIResponse>('SetSMChannelNumber', request);
 };
 
-export const SetSMChannelProxy = async (request: SetSMChannelProxyRequest): Promise<APIResponse | undefined> => {
-  const signalRService = SignalRService.getInstance();
-  return await signalRService.invokeHubCommand<APIResponse>('SetSMChannelProxy', request);
-};
-
 export const SetSMChannelsGroupFromParameters = async (request: SetSMChannelsGroupFromParametersRequest): Promise<APIResponse | undefined> => {
   const signalRService = SignalRService.getInstance();
   return await signalRService.invokeHubCommand<APIResponse>('SetSMChannelsGroupFromParameters', request);
@@ -134,6 +129,21 @@ export const SetSMChannelsLogoFromEPGFromParameters = async (request: SetSMChann
 export const SetSMChannelsLogoFromEPG = async (request: SetSMChannelsLogoFromEPGRequest): Promise<APIResponse | undefined> => {
   const signalRService = SignalRService.getInstance();
   return await signalRService.invokeHubCommand<APIResponse>('SetSMChannelsLogoFromEPG', request);
+};
+
+export const SetSMChannelsVideoOutputProfileNameFromParameters = async (request: SetSMChannelsVideoOutputProfileNameFromParametersRequest): Promise<APIResponse | undefined> => {
+  const signalRService = SignalRService.getInstance();
+  return await signalRService.invokeHubCommand<APIResponse>('SetSMChannelsVideoOutputProfileNameFromParameters', request);
+};
+
+export const SetSMChannelsVideoOutputProfileName = async (request: SetSMChannelsVideoOutputProfileNameRequest): Promise<APIResponse | undefined> => {
+  const signalRService = SignalRService.getInstance();
+  return await signalRService.invokeHubCommand<APIResponse>('SetSMChannelsVideoOutputProfileName', request);
+};
+
+export const SetSMChannelVideoOutputProfileName = async (request: SetSMChannelVideoOutputProfileNameRequest): Promise<APIResponse | undefined> => {
+  const signalRService = SignalRService.getInstance();
+  return await signalRService.invokeHubCommand<APIResponse>('SetSMChannelVideoOutputProfileName', request);
 };
 
 export const ToggleSMChannelsVisibleById = async (request: ToggleSMChannelsVisibleByIdRequest): Promise<APIResponse | undefined> => {

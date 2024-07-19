@@ -26,7 +26,7 @@ public class CreateStreamGroupRequestHandler(IRepositoryWrapper Repository, IMes
         ConcurrentDictionary<string, byte> generatedIdsDict = new();
         foreach (StreamGroup channel in Repository.StreamGroup.GetQuery())
         {
-            generatedIdsDict.TryAdd(channel.DeviceID, 0);
+            _ = generatedIdsDict.TryAdd(channel.DeviceID, 0);
         }
 
         StreamGroup streamGroup = new()
@@ -42,11 +42,11 @@ public class CreateStreamGroupRequestHandler(IRepositoryWrapper Repository, IMes
         {
             Name = "Default",
             OutputProfileName = "Default",
-            VideoProfileName = "Default"
+            VideoProfileName = "StreamMaster"
         });
 
         Repository.StreamGroup.CreateStreamGroup(streamGroup);
-        await Repository.SaveAsync();
+        _ = await Repository.SaveAsync();
 
         await dataRefreshService.RefreshStreamGroups();
 

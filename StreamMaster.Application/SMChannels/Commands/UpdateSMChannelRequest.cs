@@ -50,10 +50,9 @@ public class UpdateSMChannelRequestHandler(IRepositoryWrapper Repository, IDataR
 
             if (!string.IsNullOrEmpty(request.VideoOutputProfileName) && request.VideoOutputProfileName != smChannel.VideoOutputProfileName)
             {
-                smChannel.Logo = request.VideoOutputProfileName;
+                smChannel.VideoOutputProfileName = request.VideoOutputProfileName;
                 ret.Add(new FieldData(() => smChannel.VideoOutputProfileName));
             }
-
 
             if (request.ChannelNumber.HasValue && request.ChannelNumber.Value != smChannel.ChannelNumber)
             {

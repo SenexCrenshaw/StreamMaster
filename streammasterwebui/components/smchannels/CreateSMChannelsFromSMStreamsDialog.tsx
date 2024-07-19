@@ -70,7 +70,7 @@ const CreateSMChannelsFromSMStreamsDialog = ({ id, label, onClose, selectedItems
     const ids = selectedItems.map((item) => item.Id);
     request.StreamIds = ids;
     if (selectedStreamGroup?.Id) {
-      request.StreamGroup = selectedStreamGroup.Name;
+      request.StreamGroupId = selectedStreamGroup.Id;
     }
 
     await CreateSMChannelsFromStreams(request)

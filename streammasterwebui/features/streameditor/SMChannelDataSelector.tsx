@@ -16,8 +16,9 @@ import { useSMChannelGroupColumnConfig } from '@components/smchannels/columns/us
 import { useSMChannelLogoColumnConfig } from '@components/smchannels/columns/useSMChannelLogoColumnConfig';
 import { useSMChannelNameColumnConfig } from '@components/smchannels/columns/useSMChannelNameColumnConfig';
 import { useSMChannelNumberColumnConfig } from '@components/smchannels/columns/useSMChannelNumberColumnConfig';
-import { useSMChannelProxyColumnConfig } from '@components/smchannels/columns/useSMChannelProxyColumnConfig';
+
 import { useSMChannelSGColumnConfig } from '@components/smchannels/columns/useSMChannelSGColumnConfig';
+import { useSMVideoOutputProfileNameColumnConfig } from '@components/smchannels/columns/useSMVideoOutputProfileNameColumnConfig';
 import StreamCopyLinkDialog from '@components/smstreams/StreamCopyLinkDialog';
 import StreamGroupButton from '@components/streamGroup/StreamGroupButton';
 import { GetMessage } from '@lib/common/intl';
@@ -48,7 +49,7 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id }: SMChannelDat
   const epgColumnConfig = useSMChannelEPGColumnConfig({ width: smTableIsSimple ? 150 : 125 });
   const groupColumnConfig = useSMChannelGroupColumnConfig({ dataKey, width: smTableIsSimple ? 200 : 125 });
   const sgColumnConfig = useSMChannelSGColumnConfig({ dataKey: dataKey + '-sg', id: dataKey });
-  const { columnConfig: proxyColumnConfig } = useSMChannelProxyColumnConfig({ enableEdit, useFilter: false });
+  const { columnConfig: proxyColumnConfig } = useSMVideoOutputProfileNameColumnConfig({ enableEdit, useFilter: false });
   const { queryFilter } = useQueryFilter(dataKey);
   const { isLoading } = useGetPagedSMChannels(queryFilter);
   const smDataTableRef = useRef<SMDataTableRef<DataTableValue>>(null);
@@ -112,6 +113,13 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id }: SMChannelDat
 
   const simpleActionTemplate = useCallback(
     (smChannel: SMChannelDto) => {
+      if (smChannel.IsCustomStream === true) {
+        return (
+          <div className="flex justify-content-end align-items-center" style={{ paddingRight: '0.1rem' }}>
+            <StreamCopyLinkDialog realUrl={smChannel?.StreamUrl} />
+          </div>
+        );
+      }
       return (
         <div className="flex justify-content-end align-items-center" style={{ paddingRight: '0.1rem' }}>
           <StreamCopyLinkDialog realUrl={smChannel?.StreamUrl} />

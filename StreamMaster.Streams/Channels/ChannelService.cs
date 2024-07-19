@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 using StreamMaster.Domain.Configuration;
 using StreamMaster.PlayList;
+using StreamMaster.Streams.Domain.Extensions;
 
 using System.Collections.Concurrent;
 namespace StreamMaster.Streams.Channels;
@@ -51,44 +52,44 @@ public sealed class ChannelService(
         }
     }
 
-    private VideoOutputProfileDto VideoOutputProfileDto(int StreamGroupId, int StreamGroupProfileId)
-    {
-        _ = settingsMonitor.CurrentValue ?? throw new ArgumentNullException(nameof(settingsMonitor));
-        using IServiceScope scope = _serviceProvider.CreateScope();
-        IRepositoryWrapper repository = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
+    //private VideoOutputProfileDto VideoOutputProfileDto(int StreamGroupId, int StreamGroupProfileId)
+    //{
+    //    _ = settingsMonitor.CurrentValue ?? throw new ArgumentNullException(nameof(settingsMonitor));
+    //    using IServiceScope scope = _serviceProvider.CreateScope();
+    //    IRepositoryWrapper repository = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
 
-        StreamGroupProfile? sgpr = repository.StreamGroupProfile.GetStreamGroupProfile(StreamGroupId, StreamGroupProfileId);
+    //    StreamGroupProfile? sgpr = repository.StreamGroupProfile.GetStreamGroupProfile(StreamGroupId, StreamGroupProfileId);
 
-        return sgpr == null
-            ? new VideoOutputProfileDto
-            {
-                ProfileName = "Default",
-            }
-            : intProfileSettings.CurrentValue.VideoProfiles.TryGetValue(sgpr.VideoProfileName, out VideoOutputProfile? videoOutputProfile)
-            ? new VideoOutputProfileDto
-            {
-                Command = videoOutputProfile.Command,
-                ProfileName = sgpr.VideoProfileName,
-                IsReadOnly = videoOutputProfile.IsReadOnly,
-                Parameters = videoOutputProfile.Parameters,
-                Timeout = videoOutputProfile.Timeout,
-                IsM3U8 = videoOutputProfile.IsM3U8
-            }
-            : intProfileSettings.CurrentValue.VideoProfiles.TryGetValue("StreamMaster", out VideoOutputProfile? videoOutputProfile2)
-            ? new VideoOutputProfileDto
-            {
-                Command = videoOutputProfile2.Command,
-                ProfileName = sgpr.VideoProfileName,
-                IsReadOnly = videoOutputProfile2.IsReadOnly,
-                Parameters = videoOutputProfile2.Parameters,
-                Timeout = videoOutputProfile2.Timeout,
-                IsM3U8 = videoOutputProfile2.IsM3U8
-            }
-            : new VideoOutputProfileDto
-            {
-                ProfileName = "Default",
-            };
-    }
+    //    return sgpr == null
+    //        ? new VideoOutputProfileDto
+    //        {
+    //            ProfileName = "Default",
+    //        }
+    //        : intProfileSettings.CurrentValue.VideoProfiles.TryGetValue(sgpr.VideoProfileName, out VideoOutputProfile? videoOutputProfile)
+    //        ? new VideoOutputProfileDto
+    //        {
+    //            Command = videoOutputProfile.Command,
+    //            ProfileName = sgpr.VideoProfileName,
+    //            IsReadOnly = videoOutputProfile.IsReadOnly,
+    //            Parameters = videoOutputProfile.Parameters,
+    //            Timeout = videoOutputProfile.Timeout,
+    //            IsM3U8 = videoOutputProfile.IsM3U8
+    //        }
+    //        : intProfileSettings.CurrentValue.VideoProfiles.TryGetValue("StreamMaster", out VideoOutputProfile? videoOutputProfile2)
+    //        ? new VideoOutputProfileDto
+    //        {
+    //            Command = videoOutputProfile2.Command,
+    //            ProfileName = sgpr.VideoProfileName,
+    //            IsReadOnly = videoOutputProfile2.IsReadOnly,
+    //            Parameters = videoOutputProfile2.Parameters,
+    //            Timeout = videoOutputProfile2.Timeout,
+    //            IsM3U8 = videoOutputProfile2.IsM3U8
+    //        }
+    //        : new VideoOutputProfileDto
+    //        {
+    //            ProfileName = "Default",
+    //        };
+    //}
     public async Task<IChannelStatus?> RegisterChannel(ClientStreamerConfiguration config)
     {
 
@@ -101,6 +102,8 @@ public sealed class ChannelService(
 
         _ = clientStreamerManager.RegisterClient(config);
 
+        VideoOutputProfiles profileSettings = intProfileSettings.CurrentValue;
+
         if (channelStatus != null)
         {
             IStreamHandler? handler = streamManager.GetStreamHandler(channelStatus.SMStream.Url);
@@ -111,7 +114,9 @@ public sealed class ChannelService(
                 UnRegisterChannel(config.SMChannel.Id);
                 return null;
             }
-            channelStatus.VideoProfile = VideoOutputProfileDto(config.StreamGroupId, config.StreamGroupProfileId);
+
+
+            channelStatus.VideoProfile = profileSettings.VideoProfiles.FirstOrDefault(a => a.Key == channelStatus.SMChannel.VideoOutputProfileName).Value.ToVideoOutputProfileDto(channelStatus.SMChannel.VideoOutputProfileName);
 
             if (handler.IsFailed)
             {
@@ -133,11 +138,10 @@ public sealed class ChannelService(
         {
             customPlayList = customPlayListBuilder.GetCustomPlayList(config.SMChannel.Name);
         }
-
         channelStatus = new ChannelStatus(config.SMChannel)
         {
             StreamGroupProfileId = config.StreamGroupProfileId,
-            VideoProfile = VideoOutputProfileDto(config.StreamGroupId, config.StreamGroupProfileId),
+            VideoProfile = profileSettings.VideoProfiles.FirstOrDefault(a => a.Key == config.SMChannel.VideoOutputProfileName).Value.ToVideoOutputProfileDto(config.SMChannel.VideoOutputProfileName),
             CustomPlayList = customPlayList
         };
 
@@ -164,7 +168,7 @@ public sealed class ChannelService(
         {
             channelStatus = new ChannelStatus(smChannel)
             {
-                VideoProfile = VideoOutputProfileDto(0, 0)
+                VideoProfile = new VideoOutputProfileDto()
             };
             _ = _channelStatuses.TryAdd(smChannel.Id, channelStatus);
 

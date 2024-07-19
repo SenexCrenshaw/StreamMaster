@@ -311,10 +311,10 @@ export interface SettingDto
 	SSLCertPassword: string;
 	SSLCertPath: string;
 	StreamingClientUserAgent: string;
-	StreamingProxyType: string;
 	UiFolder: string;
 	UrlBase: string;
 	Version: string;
+	VideoOutputProfileName: string;
 	VideoStreamAlwaysUseEPGLogo: boolean;
 }
 export interface SMChannelDto
@@ -339,7 +339,7 @@ export interface SMChannelDto
 	StreamID?: string;
 	StreamUrl: string;
 	TimeShift: number;
-	VideoOutputProfileName?: string;
+	VideoOutputProfileName: string;
 	VideoStreamHandler: VideoStreamHandlers;
 }
 export interface SMStreamDto
@@ -951,11 +951,6 @@ export interface SetSMChannelNumberRequest
 	ChannelNumber: number;
 	SMChannelId: number;
 }
-export interface SetSMChannelProxyRequest
-{
-	SMChannelId: number;
-	VideoOutputProfileName: string;
-}
 export interface SetSMChannelsGroupFromParametersRequest
 {
 	Group: string;
@@ -973,6 +968,21 @@ export interface SetSMChannelsLogoFromEPGFromParametersRequest
 export interface SetSMChannelsLogoFromEPGRequest
 {
 	Ids: number[];
+}
+export interface SetSMChannelsVideoOutputProfileNameFromParametersRequest
+{
+	Parameters: QueryStringParameters;
+	VideoOutputProfileName: string;
+}
+export interface SetSMChannelsVideoOutputProfileNameRequest
+{
+	SMChannelIds: number[];
+	VideoOutputProfileName: string;
+}
+export interface SetSMChannelVideoOutputProfileNameRequest
+{
+	SMChannelId: number;
+	VideoOutputProfileName: string;
 }
 export interface ToggleSMChannelsVisibleByIdRequest
 {
@@ -1052,7 +1062,7 @@ export interface UpdateSettingParameters
 	SSLCertPassword?: string;
 	SSLCertPath?: string;
 	StreamingClientUserAgent?: string;
-	StreamingProxyType?: string;
+	VideoOutputProfileName?: string;
 	VideoStreamAlwaysUseEPGLogo?: boolean;
 }
 export interface UpdateSettingRequest

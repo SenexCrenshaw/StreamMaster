@@ -19,7 +19,7 @@ using System.Text.Json;
 
 namespace StreamMaster.Infrastructure.EF.Repositories;
 
-public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepositoryWrapper repository, IRepositoryContext repositoryContext, IMapper mapper, IOptionsMonitor<Setting> intSettings, ISchedulesDirectDataService schedulesDirectDataService)
+public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepositoryWrapper repository, IRepositoryContext repositoryContext, IMapper mapper, IOptionsMonitor<Setting> intSettings, IOptionsMonitor<VideoOutputProfiles> intProfileSettings, ISchedulesDirectDataService schedulesDirectDataService)
     : RepositoryBase<SMChannel>(repositoryContext, intLogger), ISMChannelsRepository
 {
     private ConcurrentHashSet<int> existingNumbers = [];
@@ -148,6 +148,8 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
             return null;
         }
 
+        string videoOutputProfileName = intSettings.CurrentValue.VideoOutputProfileName ?? "StreamMaster";
+
         SMChannel smChannel = new()
         {
             ChannelNumber = smStream.ChannelNumber,
@@ -160,6 +162,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
             StreamID = smStream.Id,
             ShortSMChannelId = UniqueHexGenerator.GenerateUniqueHex(generatedIdsDict),
             IsCustomStream = IsCustomPlayList ?? false,
+            VideoOutputProfileName = videoOutputProfileName,
         };
 
         await CreateSMChannel(smChannel);
@@ -273,7 +276,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
 
         //if (streamGroup == null)
         //{
-        //    ret.APIResponse = APIResponse.ErrorWithMessage("Stream Group not found");
+        //    ret.APIResponse = APIResponse.ErrorWithMessage("Stream VideoOutputProfileName not found");
         //    return ret;
         //}
 
@@ -818,6 +821,36 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
         foreach (SMChannel smChannl in toUpdate)
         {
             smChannl.Group = group.Name;
+        }
+
+        BulkUpdate(toUpdate);
+        _ = RepositoryContext.SaveChanges();
+        return APIResponse.Success;
+    }
+
+    public async Task<APIResponse> SetSMChannelsVideoOutputProfileName(List<int> sMChannelIds, string videoOutputProfileName)
+    {
+        IQueryable<SMChannel> toUpdate = GetQuery(tracking: true).Where(a => sMChannelIds.Contains(a.Id));
+        return await SetSMChannelsVideoOutputProfileName(toUpdate, videoOutputProfileName);
+    }
+
+    public async Task<APIResponse> SetSMChannelsVideoOutputProfileNameFromParameters(QueryStringParameters parameters, string videoOutputProfileName)
+    {
+        IQueryable<SMChannel> toUpdate = GetQuery(parameters, tracking: true);
+        return await SetSMChannelsVideoOutputProfileName(toUpdate, videoOutputProfileName);
+    }
+
+    private async Task<APIResponse> SetSMChannelsVideoOutputProfileName(IQueryable<SMChannel> query, string videoOutputProfileName)
+    {
+        if (!intProfileSettings.CurrentValue.VideoProfiles.ContainsKey(videoOutputProfileName))
+        {
+            return APIResponse.ErrorWithMessage($"VideoOutputProfileName '{videoOutputProfileName}' not found");
+        }
+        List<SMChannel> toUpdate = await query.ToListAsync();
+
+        foreach (SMChannel smChannl in toUpdate)
+        {
+            smChannl.VideoOutputProfileName = videoOutputProfileName;
         }
 
         BulkUpdate(toUpdate);

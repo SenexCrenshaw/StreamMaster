@@ -71,4 +71,6 @@ public interface ISMChannelsRepository : IRepositoryBase<SMChannel>
     Task<List<FieldData>> ToggleSMChannelVisibleByParameters(QueryStringParameters Parameters, CancellationToken cancellationToken);
     Task<APIResponse> SetSMChannelsGroup(List<int> sMChannelIds, string GroupName);
     Task<APIResponse> SetSMChannelsGroupFromParameters(QueryStringParameters Parameters, string GroupName);
+    Task<APIResponse> SetSMChannelsVideoOutputProfileName(List<int> sMChannelIds, string videoOutputProfileName);
+    Task<APIResponse> SetSMChannelsVideoOutputProfileNameFromParameters(QueryStringParameters parameters, string videoOutputProfileName);
 }

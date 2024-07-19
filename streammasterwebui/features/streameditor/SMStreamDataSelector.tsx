@@ -147,8 +147,8 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
             buttonClassName="border-noround borderread icon-green"
             onClick={() => {
               const request = { StreamIds: [data.Id] } as CreateSMChannelsFromStreamsRequest;
-              if (selectedStreamGroup?.Name && selectedStreamGroup.Name !== '') {
-                request.StreamGroup = selectedStreamGroup.Name;
+              if (selectedStreamGroup?.Id) {
+                request.StreamGroupId = selectedStreamGroup.Id;
               }
               CreateSMChannelsFromStreams(request)
                 .then((response) => {})

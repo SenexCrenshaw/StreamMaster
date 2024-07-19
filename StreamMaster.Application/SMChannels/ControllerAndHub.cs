@@ -193,14 +193,6 @@ namespace StreamMaster.Application.SMChannels.Controllers
 
         [HttpPatch]
         [Route("[action]")]
-        public async Task<ActionResult<APIResponse>> SetSMChannelProxy(SetSMChannelProxyRequest request)
-        {
-            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
-            return ret == null ? NotFound(ret) : Ok(ret);
-        }
-
-        [HttpPatch]
-        [Route("[action]")]
         public async Task<ActionResult<APIResponse>> SetSMChannelsGroupFromParameters(SetSMChannelsGroupFromParametersRequest request)
         {
             APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
@@ -226,6 +218,30 @@ namespace StreamMaster.Application.SMChannels.Controllers
         [HttpPatch]
         [Route("[action]")]
         public async Task<ActionResult<APIResponse>> SetSMChannelsLogoFromEPG(SetSMChannelsLogoFromEPGRequest request)
+        {
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            return ret == null ? NotFound(ret) : Ok(ret);
+        }
+
+        [HttpPatch]
+        [Route("[action]")]
+        public async Task<ActionResult<APIResponse>> SetSMChannelsVideoOutputProfileNameFromParameters(SetSMChannelsVideoOutputProfileNameFromParametersRequest request)
+        {
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            return ret == null ? NotFound(ret) : Ok(ret);
+        }
+
+        [HttpPatch]
+        [Route("[action]")]
+        public async Task<ActionResult<APIResponse>> SetSMChannelsVideoOutputProfileName(SetSMChannelsVideoOutputProfileNameRequest request)
+        {
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            return ret == null ? NotFound(ret) : Ok(ret);
+        }
+
+        [HttpPatch]
+        [Route("[action]")]
+        public async Task<ActionResult<APIResponse>> SetSMChannelVideoOutputProfileName(SetSMChannelVideoOutputProfileNameRequest request)
         {
             APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
@@ -390,12 +406,6 @@ namespace StreamMaster.Application.Hubs
             return ret;
         }
 
-        public async Task<APIResponse> SetSMChannelProxy(SetSMChannelProxyRequest request)
-        {
-            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
-            return ret;
-        }
-
         public async Task<APIResponse> SetSMChannelsGroupFromParameters(SetSMChannelsGroupFromParametersRequest request)
         {
             APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
@@ -415,6 +425,24 @@ namespace StreamMaster.Application.Hubs
         }
 
         public async Task<APIResponse> SetSMChannelsLogoFromEPG(SetSMChannelsLogoFromEPGRequest request)
+        {
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            return ret;
+        }
+
+        public async Task<APIResponse> SetSMChannelsVideoOutputProfileNameFromParameters(SetSMChannelsVideoOutputProfileNameFromParametersRequest request)
+        {
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            return ret;
+        }
+
+        public async Task<APIResponse> SetSMChannelsVideoOutputProfileName(SetSMChannelsVideoOutputProfileNameRequest request)
+        {
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            return ret;
+        }
+
+        public async Task<APIResponse> SetSMChannelVideoOutputProfileName(SetSMChannelVideoOutputProfileNameRequest request)
         {
             APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;

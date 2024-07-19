@@ -83,10 +83,10 @@ internal class SyncChannelsRequestHandler(ILogger<SyncChannelsRequest> logger, I
             //        //    smChannel.Logo = stream.Logo;
             //        //}
 
-            //        //if (smChannel.Group != stream.Group)
+            //        //if (smChannel.VideoOutputProfileName != stream.VideoOutputProfileName)
             //        //{
             //        //    changed = true;
-            //        //    smChannel.Group = stream.Group;
+            //        //    smChannel.VideoOutputProfileName = stream.VideoOutputProfileName;
             //        //}
 
             //        if (smChannel.StationId != stream.StationId)

@@ -32,7 +32,7 @@ public class UpdateSettingParameters
     public string? SSLCertPassword { get; set; }
     public string? SSLCertPath { get; set; }
     public string? StreamingClientUserAgent { get; set; }
-    public string? StreamingProxyType { get; set; }
+    public string? VideoOutputProfileName { get; set; }
     public bool? VideoStreamAlwaysUseEPGLogo { get; set; }
     public bool? EnablePrometheus { get; set; }
     public int? MaxLogFiles { get; set; }
@@ -401,9 +401,9 @@ public partial class UpdateSettingRequestHandler(
             currentSetting.NameRegex = request.parameters.NameRegex;
         }
 
-        if (request.parameters.StreamingProxyType != null && request.parameters.StreamingProxyType != currentSetting.StreamingProxyType)
+        if (request.parameters.VideoOutputProfileName != null && request.parameters.VideoOutputProfileName != currentSetting.VideoOutputProfileName)
         {
-            currentSetting.StreamingProxyType = request.parameters.StreamingProxyType;
+            currentSetting.VideoOutputProfileName = request.parameters.VideoOutputProfileName;
         }
 
         if (request.parameters.AuthenticationMethod != null && request.parameters.AuthenticationMethod != currentSetting.AuthenticationMethod)
