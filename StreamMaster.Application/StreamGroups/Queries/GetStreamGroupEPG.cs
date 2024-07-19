@@ -23,43 +23,6 @@ public record GetStreamGroupEPG(int StreamGroupId, int StreamGroupProfileId) : I
 public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, ISender sender, IEPGHelper epgHelper, IXMLTVBuilder xMLTVBuilder, ILogger<GetStreamGroupEPG> logger, ISchedulesDirectDataService schedulesDirectDataService, IOptionsMonitor<Setting> intSettings)
     : IRequestHandler<GetStreamGroupEPG, string>
 {
-    private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
-
-    //private readonly ParallelOptions parallelOptions = new()
-    //{
-    //    MaxDegreeOfParallelism = Environment.ProcessorCount
-    //};
-    //private readonly ConcurrentDictionary<int, VideoStreamConfig> existingNumbers = new();
-    //private readonly ConcurrentHashSet<int> usedNumbers = [];
-    //private readonly int currentChannelNumber;
-
-    //private int GetNextChannelNumber(int channelNumber, bool ignoreExisting)
-    //{
-    //    if (ignoreExisting)
-    //    {
-    //        return getNext();
-    //    }
-
-    //    if (existingNumbers.ContainsKey(channelNumber))
-    //    {
-    //        if (usedNumbers.Add(channelNumber))
-    //        {
-    //            return channelNumber;
-    //        }
-    //    }
-
-    //    return getNext();
-    //}
-
-    //private int getNext()
-    //{
-    //    ++currentChannelNumber;
-    //    while (!usedNumbers.Add(currentChannelNumber))
-    //    {
-    //        ++currentChannelNumber;
-    //    }
-    //    return currentChannelNumber;
-    //}
 
     [LogExecutionTimeAspect]
     public async Task<string> Handle(GetStreamGroupEPG request, CancellationToken cancellationToken)
@@ -71,8 +34,6 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
         {
             return string.Empty;
         }
-        logger.LogInformation("GetStreamGroupEPGHandler: Handling {Count} channels", videoStreamConfigs.Count);
-
 
         ConcurrentHashSet<string> epgids = [];
 
@@ -87,7 +48,7 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
             {
                 videoStreamConfig.EPGId = $"{EPGHelper.DummyId}-{videoStreamConfig.Id}";
 
-                dummyData.FindOrCreateDummyService(videoStreamConfig.EPGId, videoStreamConfig);
+                _ = dummyData.FindOrCreateDummyService(videoStreamConfig.EPGId, videoStreamConfig);
             }
 
             if (!epgids.Add(videoStreamConfig.EPGId))
@@ -97,7 +58,7 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
 
         }
 
-        XMLTV epgData = xMLTVBuilder.CreateXmlTv(_httpContextAccessor.GetUrl(), videoStreamConfigs, profile) ?? new XMLTV();
+        XMLTV epgData = xMLTVBuilder.CreateXmlTv(httpContextAccessor.GetUrl(), videoStreamConfigs, profile) ?? new XMLTV();
 
         return SerializeXMLTVData(epgData);
     }

@@ -1,5 +1,4 @@
-﻿using StreamMaster.Domain.Configuration;
-using StreamMaster.Domain.Dto;
+﻿using StreamMaster.Domain.Dto;
 using StreamMaster.Domain.Enums;
 using StreamMaster.Domain.Models;
 
@@ -14,6 +13,11 @@ public class IconHelper(IEPGHelper ePGHelper, IIconService iconService, IOptions
 
     public string GetIconUrl(int EPGNumber, string iconOriginalSource, string _baseUrl, SMFileTypes? sMFileTypes = null)
     {
+
+        if (ePGHelper.IsCustom(EPGNumber))
+        {
+            return GetApiUrl(SMFileTypes.CustomPlayList, iconOriginalSource, _baseUrl);
+        }
 
         if (ePGHelper.IsDummy(EPGNumber))
         {

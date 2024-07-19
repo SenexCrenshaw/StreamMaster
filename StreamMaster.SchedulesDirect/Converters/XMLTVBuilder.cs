@@ -4,7 +4,8 @@ using StreamMaster.Domain.Comparer;
 using StreamMaster.Domain.Helpers;
 using StreamMaster.Domain.Models;
 using StreamMaster.Domain.Repository;
-
+using StreamMaster.PlayList;
+using StreamMaster.PlayList.Models;
 using StreamMaster.SchedulesDirect.Domain.Extensions;
 
 using System.Collections.Concurrent;
@@ -12,7 +13,7 @@ using System.Diagnostics;
 using System.Globalization;
 
 namespace StreamMaster.SchedulesDirect.Converters;
-public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IServiceProvider serviceProvider, IOptionsMonitor<Setting> intSettings, IIconHelper iconHelper, IEPGHelper ePGHelper, ISchedulesDirectDataService schedulesDirectDataService, ILogger<XMLTVBuilder> logger)
+public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IServiceProvider serviceProvider, ICustomPlayListBuilder customPlayListBuilder, IOptionsMonitor<Setting> intSettings, IIconHelper iconHelper, IEPGHelper ePGHelper, ISchedulesDirectDataService schedulesDirectDataService, ILogger<XMLTVBuilder> logger)
     : IXMLTVBuilder
 {
 
@@ -58,19 +59,26 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IServicePro
 
             foreach (MxfSeriesInfo seriesInfo in schedulesDirectDataService.AllSeriesInfos)
             {
-                seriesDict.TryAdd(seriesInfo.Index, seriesInfo);
+                _ = seriesDict.TryAdd(seriesInfo.Index, seriesInfo);
             }
 
             List<MxfService> services = [.. schedulesDirectDataService.AllServices.OrderBy(a => a.EPGNumber)];
 
-            //List<int> chNos = [];
-            //List<int> existingChNos = new(videoStreamConfigs.Select(a => a.ChannelNumber).Distinct());
-
             foreach (VideoStreamConfig videoStreamConfig in videoStreamConfigs.OrderBy(a => a.ChannelNumber))
             {
+
                 MxfService? origService = services.GetMxfService(videoStreamConfig.EPGId);
                 if (origService == null)
                 {
+                    if (videoStreamConfig.EPGId.StartsWith(EPGHelper.CustomPlayListId.ToString()))
+                    {
+                        (_, string title) = videoStreamConfig.EPGId.ExtractEPGNumberAndStationId();
+                        origService = schedulesDirectDataService.SchedulesDirectData().FindOrCreateService(videoStreamConfig.EPGId);
+                        origService.EPGNumber = EPGHelper.CustomPlayListId;
+                        origService.CallSign = title;
+                    }
+                    else
+
                     if (!videoStreamConfig.EPGId.StartsWith(EPGHelper.DummyId.ToString()) && !videoStreamConfig.EPGId.StartsWith(EPGHelper.SchedulesDirectId.ToString()))
                     {
                         origService = schedulesDirectDataService.SchedulesDirectData().FindOrCreateService(videoStreamConfig.EPGId);
@@ -231,9 +239,31 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IServicePro
         return null;
     }
 
+    private readonly Dictionary<string, MxfProgram> _programsByTitle = [];
+    public MxfProgram GetOrCreateProgram(int progCount, string serviceName, Movie movie)
+    {
+        string title = serviceName;
+
+        if (_programsByTitle.TryGetValue(title, out MxfProgram? existingProgram))
+        {
+            return existingProgram;
+        }
+        else
+        {
+            MxfProgram newProgram = new(progCount + 1, $"SM-{movie.Id}")
+            {
+                Title = serviceName,
+                Description = serviceName,
+                IsGeneric = true
+            };
+
+            _programsByTitle[title] = newProgram;
+            return newProgram;
+        }
+    }
     private void DoPrograms(List<MxfService> services, int progCount, XMLTV xmlTv, OutputProfile outputProfile, List<VideoStreamConfig>? videoStreamConfigs = null)
     {
-
+        _programsByTitle.Clear();
         videoStreamConfigs ??= [];
 
         ParallelOptions options = new() { MaxDegreeOfParallelism = Environment.ProcessorCount };
@@ -260,28 +290,64 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IServicePro
 
                 if (service.MxfScheduleEntries.ScheduleEntry.Count == 0 && sdsettings.XmltvAddFillerData)
                 {
-                    // add a program specific for this service
-                    MxfProgram program = new(progCount + 1, $"SM-{service.StationId}")
+                    if (service.EPGNumber == EPGHelper.CustomPlayListId)
                     {
-                        Title = service.Name,
-                        Description = service.Name,
-                        IsGeneric = true
-                    };
-
-                    // populate the schedule entries
-                    DateTime startTime = new(SMDT.UtcNow.Year, SMDT.UtcNow.Month, SMDT.UtcNow.Day, 0, 0, 0);
-                    DateTime stopTime = startTime + TimeSpan.FromDays(sdsettings.SDEPGDays);
-                    do
-                    {
-                        service.MxfScheduleEntries.ScheduleEntry.Add(new MxfScheduleEntry
+                        List<(Movie Movie, DateTime StartTime, DateTime EndTime)> moviesForPeriod = customPlayListBuilder.GetMoviesForPeriod(service.CallSign, SMDT.UtcNow, sdsettings.SDEPGDays);
+                        foreach ((Movie movie, DateTime startTime2, DateTime endTime) in moviesForPeriod)
                         {
-                            Duration = sdsettings.XmltvFillerProgramLength * 60 * 60,
-                            mxfProgram = program,
-                            StartTime = startTime,
-                            IsRepeat = true
-                        });
-                        startTime += TimeSpan.FromHours(sdsettings.XmltvFillerProgramLength);
-                    } while (startTime < stopTime);
+                            int duration = (int)(endTime - startTime2).TotalMinutes;
+                            if (duration < 0)
+                            {
+                                continue;
+                            }
+
+                            //MxfProgram program1 = new(progCount + 1, $"SM-{movie.Id}")
+                            //{
+                            //    Title = service.Name,
+                            //    Description = service.Name,
+                            //    IsGeneric = true
+                            //};
+
+                            MxfProgram program1 = GetOrCreateProgram(progCount, service.Name, movie);
+
+
+                            Console.WriteLine($"Movie: {movie.Title}, Start Time: {startTime2}, End Time: {endTime}");
+
+                            service.MxfScheduleEntries.ScheduleEntry.Add(new MxfScheduleEntry
+                            {
+                                Duration = duration,
+                                mxfProgram = program1,
+                                StartTime = startTime2,
+                                IsRepeat = true
+                            });
+
+                        }
+                    }
+                    else
+                    {
+                        // add a program specific for this service
+                        MxfProgram program = new(progCount + 1, $"SM-{service.StationId}")
+                        {
+                            Title = service.Name,
+                            Description = service.Name,
+                            IsGeneric = true
+                        };
+
+                        // populate the schedule entries
+                        DateTime startTime = new(SMDT.UtcNow.Year, SMDT.UtcNow.Month, SMDT.UtcNow.Day, 0, 0, 0);
+                        DateTime stopTime = startTime + TimeSpan.FromDays(sdsettings.SDEPGDays);
+                        do
+                        {
+                            service.MxfScheduleEntries.ScheduleEntry.Add(new MxfScheduleEntry
+                            {
+                                Duration = sdsettings.XmltvFillerProgramLength * 60 * 60,
+                                mxfProgram = program,
+                                StartTime = startTime,
+                                IsRepeat = true
+                            });
+                            startTime += TimeSpan.FromHours(sdsettings.XmltvFillerProgramLength);
+                        } while (startTime < stopTime);
+                    }
                 }
 
                 List<MxfScheduleEntry> scheduleEntries = service.MxfScheduleEntries.ScheduleEntry;
@@ -321,7 +387,7 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IServicePro
                 {
                 }
 
-                Parallel.ForEach(service.MxfScheduleEntries.ScheduleEntry, options, scheduleEntry =>
+                _ = Parallel.ForEach(service.MxfScheduleEntries.ScheduleEntry, options, scheduleEntry =>
                 {
                     XmltvProgramme program = BuildXmltvProgram(scheduleEntry, channel.Id, timeShift);
                     xmltvProgrammes.Add(program);
@@ -418,7 +484,7 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IServicePro
         }
 
         // add logo if available
-        if (mxfService.extras.TryGetValue("logo", out dynamic? logos))
+        if (mxfService.extras.TryGetValue("logo", out _))
         {
             ret.Icons =
                 [
@@ -465,10 +531,23 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IServicePro
             return scheduleEntry.XmltvProgramme;
         }
 
+        if (mxfProgram.ProgramId.StartsWith($"SM-"))
+        {
+            string movieIdString = mxfProgram.ProgramId[3..];
+
+            Movie movie = customPlayListBuilder.GetCustomPlayListByMovieId(movieIdString);
+            if (movie is not null)
+            {
+                XmltvProgramme test = XmltvProgrammeConverter.ConvertMovieToXmltvProgramme(movie);
+                test.Channel = channelId;
+                test.Start = scheduleEntry.StartTime.ToString("yyyyMMddHHmmss", CultureInfo.InvariantCulture);
+                test.Stop = scheduleEntry.StartTime.AddMinutes(scheduleEntry.Duration).ToString("yyyyMMddHHmmss", CultureInfo.InvariantCulture);
+                return test;
+            }
+        }
+
         XmltvProgramme ret = new()
         {
-
-
             Start = $"{scheduleEntry.StartTime.AddHours(timeShift):yyyyMMddHHmmss} +0000",
             Stop = $"{scheduleEntry.StartTime.AddHours(timeShift) + TimeSpan.FromSeconds(scheduleEntry.Duration):yyyyMMddHHmmss} +0000",
             Channel = channelId,
@@ -719,7 +798,7 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IServicePro
         // Remove "Kids" if "Children" is also present
         if (categories.Contains("Movies"))
         {
-            categories.Remove("Movies");
+            _ = categories.Remove("Movies");
             if (!categories.Contains("Movie"))
             {
                 categories.Add("Movie");
@@ -729,7 +808,7 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IServicePro
         // Remove "Kids" if "Children" is also present
         if (categories.Contains("Children"))
         {
-            categories.Remove("Kids");
+            _ = categories.Remove("Kids");
         }
 
         return categories.Count == 0 ? null : categories.Select(category => new XmltvText { Text = category }).ToList();
@@ -797,14 +876,6 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IServicePro
         List<XmltvEpisodeNum> list = [];
         MxfProgram mxfProgram = mxfScheduleEntry.mxfProgram;
 
-        //if (!mxfProgram.ProgramId.StartsWith("StreamMaster"))
-        //{
-        //    list.Add(new XmltvEpisodeNum
-        //    {
-        //        System = "dd_progid",
-        //        Text = mxfProgram.Uid[9..].Replace("_", ".")
-        //    });
-        //}
 
         if (mxfProgram.EpisodeNumber != 0 || mxfScheduleEntry.Part != 0)
         {
@@ -816,7 +887,7 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IServicePro
 
             list.Add(new XmltvEpisodeNum { System = "xmltv_ns", Text = text });
         }
-        else if (mxfProgram.EPGNumber == EPGHelper.DummyId)
+        else if (mxfProgram.EPGNumber is EPGHelper.DummyId or EPGHelper.CustomPlayListId)
         {
             list.Add(new XmltvEpisodeNum { System = "original-air-date", Text = $"{mxfScheduleEntry.StartTime.ToLocalTime():yyyy-MM-dd}" });
         }

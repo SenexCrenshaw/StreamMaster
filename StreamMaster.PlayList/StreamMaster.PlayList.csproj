@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\StreamMaster.Domain\StreamMaster.Domain.csproj" />
+    <ProjectReference Include="..\StreamMaster.SchedulesDirect.Domain\StreamMaster.SchedulesDirect.Domain.csproj" />
   </ItemGroup>
 
 </Project>

@@ -60,4 +60,9 @@ public class EPGHelper() : IEPGHelper
         MatchCollection matches = Regex.Matches(epgId, EPGMatch);
         return matches.Count > 0;
     }
+
+    public bool IsCustom(int epgNumber)
+    {
+        return epgNumber == CustomPlayListId;
+    }
 }

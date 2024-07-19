@@ -12,6 +12,7 @@
   <ItemGroup>
     <ProjectReference Include="..\StreamMaster.Domain\StreamMaster.Domain.csproj" />
     <ProjectReference Include="..\StreamMaster.Logging\StreamMaster.Logging.csproj" />
+    <ProjectReference Include="..\StreamMaster.PlayList\StreamMaster.PlayList.csproj" />
     <ProjectReference Include="..\StreamMaster.SchedulesDirect.Domain\StreamMaster.SchedulesDirect.Domain.csproj" />
   </ItemGroup>
   <ItemGroup>

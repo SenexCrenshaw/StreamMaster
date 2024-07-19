@@ -5,6 +5,7 @@ using Reinforced.Typings.Attributes;
 using StreamMaster.Domain.Common;
 using StreamMaster.Domain.Configuration;
 using StreamMaster.PlayList.Models;
+using StreamMaster.SchedulesDirect.Domain.XmltvXml;
 
 using System.Xml.Serialization;
 
@@ -153,10 +154,80 @@ public class CustomPlayListBuilder(ILogger<CustomPlayListBuilder> logger, INfoFi
         }
     }
 
+    public List<(Movie Movie, DateTime StartTime, DateTime EndTime)> GetMoviesForPeriod(string customPlayListName, DateTime startDate, int days)
+    {
+        CustomPlayList? customPlayList = GetCustomPlayList(customPlayListName);
+        if (customPlayList == null)
+        {
+            throw new ArgumentException($"Custom playlist with name {customPlayListName} not found.");
+        }
+
+        // Calculate the start and end times for the period
+        DateTime periodStartTime = new DateTime(startDate.Year, startDate.Month, startDate.Day, 23, 0, 0).AddDays(-1);
+        DateTime periodEndTime = periodStartTime.AddDays(days + 1);
+
+        // Total length is in seconds, converting runtime from minutes to seconds
+        int totalLength = customPlayList.CustomStreamNfos.Where(nfo => nfo.Movie.Runtime >= 1).Sum(nfo => nfo.Movie.Runtime * 60);
+        double totalPeriodSeconds = (periodEndTime - periodStartTime).TotalSeconds;
+
+        List<(Movie Movie, DateTime StartTime, DateTime EndTime)> moviesForPeriod = [];
+
+        double currentSecond = (periodStartTime - SequenceStartTime).TotalSeconds % totalLength;
+        if (currentSecond < 0)
+        {
+            currentSecond += totalLength; // Correct for negative modulo results
+        }
+
+        DateTime currentPeriodTime = periodStartTime.AddSeconds(-currentSecond);
+
+        while (totalPeriodSeconds > 0)
+        {
+            foreach (CustomStreamNfo customStreamNfo in customPlayList.CustomStreamNfos)
+            {
+                if (customStreamNfo.Movie.Runtime < 1)
+                {
+                    continue; // Skip movies less than 1 minute
+                }
+
+                int videoLengthInSeconds = customStreamNfo.Movie.Runtime * 60;
+
+                if (currentSecond < videoLengthInSeconds)
+                {
+                    DateTime movieStartTime = currentPeriodTime.AddSeconds(currentSecond);
+                    DateTime movieEndTime = movieStartTime.AddSeconds(videoLengthInSeconds - currentSecond);
+
+                    if (movieEndTime > periodEndTime)
+                    {
+                        movieEndTime = periodEndTime;
+                    }
+
+                    moviesForPeriod.Add((customStreamNfo.Movie, movieStartTime, movieEndTime));
+
+                    totalPeriodSeconds -= videoLengthInSeconds - currentSecond;
+                    if (totalPeriodSeconds <= 0)
+                    {
+                        break;
+                    }
+
+                    currentPeriodTime = movieEndTime;
+                    currentSecond = 0; // After the first video, we start from 0 for subsequent videos
+                }
+                else
+                {
+                    currentSecond -= videoLengthInSeconds;
+                }
+            }
+            currentSecond = 0; // Loop back to the beginning of the playlist
+        }
+
+        return moviesForPeriod;
+    }
+
     public (CustomStreamNfo StreamNfo, int SecondsIn) GetCurrentVideoAndElapsedSeconds(string customPlayListName)
     {
         CustomPlayList? customPlayList = GetCustomPlayList(customPlayListName) ?? throw new ArgumentException($"Custom playlist with name {customPlayListName} not found.");
 
+        CustomStreamNfo? intro = GetIntro();
         // Calculate the total length of the playlist
         int totalLength = customPlayList.CustomStreamNfos.Sum(nfo => nfo.Movie.Runtime) * 60;
 
@@ -171,7 +242,7 @@ public class CustomPlayListBuilder(ILogger<CustomPlayListBuilder> logger, INfoFi
         // Find the current video and the seconds into it
         foreach (CustomStreamNfo customStreamNfo in customPlayList.CustomStreamNfos)
         {
-            int videoLength = customStreamNfo.Movie.Runtime * 60;
+            int videoLength = (customStreamNfo.Movie.Runtime * 60) + (intro == null ? 0 : 6);
             logger.LogInformation("Checking video: {customStreamNfo.VideoFileName}, length: {videoLength} seconds", customStreamNfo.VideoFileName, videoLength);
 
             if (elapsedSeconds < accumulatedTime + videoLength)
@@ -190,4 +261,28 @@ public class CustomPlayListBuilder(ILogger<CustomPlayListBuilder> logger, INfoFi
         logger.LogInformation("Fallback to the first video: {firstVideo.VideoFileName}, elapsed seconds: {elapsedSeconds}", firstVideo.VideoFileName, elapsedSeconds);
         return (firstVideo, (int)elapsedSeconds);
     }
+
+    public List<XmltvProgramme> GetXmltvProgrammeForPeriod(string customPlayListName, DateTime startDate, int days)
+    {
+        return [];
+        //var movies = GetMoviesForPeriod(customPlayListName, startDate, days);
+        //return movies.ConvertAll(XmltvProgrammeConverter.ConvertMovieToXmltvProgramme);
+    }
+
+    public Movie GetCustomPlayListByMovieId(string movieId)
+    {
+
+        foreach (CustomPlayList customPlayList in GetCustomPlayLists())
+        {
+            foreach (CustomStreamNfo customStreamNfo in customPlayList.CustomStreamNfos)
+            {
+                if (customStreamNfo.Movie.Id == movieId)
+                {
+                    return customStreamNfo.Movie;
+                }
+            }
+        }
+        return new Movie();
+    }
 }
+

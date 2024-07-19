@@ -73,7 +73,7 @@ public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, IOptionsMonitor<Setting> intSe
             return null;
         }
 
-        BuildKeywords();
+        _ = BuildKeywords();
         schedulesDirectDataService.Set(EPGNumber, schedulesDirectData);
         return xmlTv;
     }
@@ -115,12 +115,12 @@ public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, IOptionsMonitor<Setting> intSe
             ConcurrentHashSet<string> lcns = [];
             foreach (XmltvText lcn in channel.Lcn)
             {
-                lcns.Add(lcn.Text ??= "");
+                _ = lcns.Add(lcn.Text ??= "");
             }
 
             foreach (XmltvText? dn in channel.DisplayNames.Where(arg => arg.Text != null && Regex.Match(arg.Text, "^\\d*\\.?\\d+$").Success))
             {
-                lcns.Add(dn.Text ??= "");
+                _ = lcns.Add(dn.Text ??= "");
             }
 
             // add service with channel numbers to lineup
@@ -132,10 +132,6 @@ public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, IOptionsMonitor<Setting> intSe
 
                     int number = int.Parse(numbers[0]);
                     int subNumber = numbers.Length > 1 ? int.Parse(numbers[1]) : 0;
-                    if (number == 2117 || subNumber == 2117)
-                    {
-                        int aaa = 1;
-                    }
                     MxfChannel newChannel = new(mxfLineup, mxfService, number, subNumber);
 
                     mxfLineup.channels.Add(newChannel);
@@ -143,10 +139,6 @@ public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, IOptionsMonitor<Setting> intSe
             }
             else
             {
-                if (mxfService.ChNo is 2117 or 2117)
-                {
-                    int aaa = 1;
-                }
                 mxfLineup.channels.Add(new MxfChannel(mxfLineup, mxfService));
             }
 
