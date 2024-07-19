@@ -51,5 +51,5 @@ public interface IChannelStatus
     /// </summary>
     SMStreamDto SMStream { get; }
     SMChannelDto SMChannel { get; }
-
+    bool PlayedIntro { get; set; }
 }

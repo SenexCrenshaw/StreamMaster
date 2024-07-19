@@ -25,7 +25,7 @@ const StreamGroupDeleteDialog = ({ streamGroup, onHide, zIndex }: StreamGroupDel
 
     const request = {} as DeleteStreamGroupRequest;
 
-    request.Id = streamGroup.Id;
+    request.StreamGroupId = streamGroup.Id;
 
     await DeleteStreamGroup(request)
       .then(() => {})
@@ -33,7 +33,7 @@ const StreamGroupDeleteDialog = ({ streamGroup, onHide, zIndex }: StreamGroupDel
         console.error('Error Deleting SG', error);
       })
       .finally(() => {
-        request.Id = streamGroup.Id;
+        request.StreamGroupId = streamGroup.Id;
         if (selectedStreamGroup?.Id === streamGroup.Id) {
           setSelectedStreamGroup(undefined);
         }

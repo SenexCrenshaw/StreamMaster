@@ -85,12 +85,6 @@ public class CustomPlayListBuilder(ILogger<CustomPlayListBuilder> logger, INfoFi
                 }
 
 
-                CustomStreamNfo? intro = GetIntro();
-                if (intro != null)
-                {
-                    customPlayList.CustomStreamNfos.Add(intro);
-                }
-
                 CustomStreamNfo customStreamNfo = new(file, fileNfo);
                 customPlayList.CustomStreamNfos.Add(customStreamNfo);
             }
@@ -99,7 +93,7 @@ public class CustomPlayListBuilder(ILogger<CustomPlayListBuilder> logger, INfoFi
         return ret;
     }
 
-    public static CustomStreamNfo? GetIntro()
+    public CustomStreamNfo? GetIntro()
     {
         string introMovie = Path.Combine(BuildInfo.CustomPlayListFolder, "Intro.mp4");
         if (File.Exists(introMovie))

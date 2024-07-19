@@ -39,7 +39,7 @@ const StreamGroupDataSelector = ({ id }: StreamGroupDataSelectorProperties) => {
     }
     return (
       <div className="flex justify-content-center align-items-center">
-        <StreamGroupDeleteDialog streamGroup={streamGroupDto} />
+        <StreamGroupDeleteDialog streamGroup={streamGroupDto} zIndex={12} />
         {/* <M3UFileRefreshDialog selectedFile={rowData} />
          <M3UFileRemoveDialog selectedFile={rowData} /> */}
         {/* <EPGFileEditDialog selectedFile={rowData} /> */}

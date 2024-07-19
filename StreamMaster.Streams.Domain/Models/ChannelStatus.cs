@@ -18,6 +18,7 @@ public sealed class ChannelStatus(SMChannelDto smChannel) : IChannelStatus
     public int StreamGroupProfileId { get; set; }
     public CommandProfileDto CommandProfile { get; set; }
     public CustomPlayList? CustomPlayList { get; set; }
+    public bool PlayedIntro { get; set; }
 
     public void SetCurrentSMStream(SMStreamDto smStream)
     {

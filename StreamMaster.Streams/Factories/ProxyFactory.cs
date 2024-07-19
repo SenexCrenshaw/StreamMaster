@@ -146,11 +146,29 @@ public sealed class ProxyFactory(ILogger<ProxyFactory> logger, IMessageService m
                     logger.LogCritical("Profile {profileName} Command {command} not found", channelStatus.CommandProfile.ProfileName, channelStatus.CommandProfile.Command);
                     return (null, -1, new ProxyStreamError() { ErrorCode = ProxyStreamErrorCode.FileNotFound, Message = "FFMPEG not found" });
                 }
-                (CustomStreamNfo StreamNfo, int secondsIn) = customPlayListBuilder.GetCurrentVideoAndElapsedSeconds(channelStatus.CustomPlayList.Name);
-                string options = CustomPlayListFFMpegOptions.Replace("{secondsIn}", $"{secondsIn}");
+
+                string options = CustomPlayListFFMpegOptions;
+
+                string VideoFileName;
+
+                CustomStreamNfo? intro = customPlayListBuilder.GetIntro();
+                if (intro != null && !channelStatus.PlayedIntro)
+                {
+                    channelStatus.PlayedIntro = true;
+                    options = CustomPlayListFFMpegOptions.Replace("{secondsIn}", "0");
+                    VideoFileName = intro.VideoFileName;
+                }
+                else
+                {
+                    channelStatus.PlayedIntro = false;
+                    (CustomStreamNfo StreamNfo, int secondsIn) = customPlayListBuilder.GetCurrentVideoAndElapsedSeconds(channelStatus.CustomPlayList.Name);
+                    VideoFileName = StreamNfo.VideoFileName;
+                    options = CustomPlayListFFMpegOptions.Replace("{secondsIn}", $"{secondsIn}");
+
+                }
                 //await messageService.SendInfo($"Client Watching {StreamNfo.Movie.Title}", "Custom Stream");
 
-                return GetCommandStream(StreamNfo.VideoFileName, "ffmpeg", options, clientUserAgent);
+                return GetCommandStream(VideoFileName, "ffmpeg", options, clientUserAgent);
             }
             SMStreamDto smStream = channelStatus.SMStream;
 
