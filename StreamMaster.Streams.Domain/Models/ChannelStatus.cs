@@ -1,4 +1,4 @@
-﻿using StreamMaster.PlayList;
+﻿using StreamMaster.PlayList.Models;
 
 namespace StreamMaster.Streams.Domain.Models;
 

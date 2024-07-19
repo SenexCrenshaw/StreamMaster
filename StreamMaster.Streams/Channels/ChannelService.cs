@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 using StreamMaster.Domain.Configuration;
 using StreamMaster.PlayList;
+using StreamMaster.PlayList.Models;
 using StreamMaster.Streams.Domain.Extensions;
 
 using System.Collections.Concurrent;

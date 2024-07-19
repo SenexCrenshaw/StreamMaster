@@ -1,6 +1,6 @@
-﻿namespace StreamMaster.PlayList.Models;
-using System.Xml.Serialization;
+﻿using System.Xml.Serialization;
 
+namespace StreamMaster.PlayList.Models;
 [XmlRoot(ElementName = "rating")]
 public class Rating
 {
@@ -161,7 +161,7 @@ public class Movie
     [XmlElement(ElementName = "tagline")]
     public string Tagline { get; set; }
     [XmlElement(ElementName = "runtime")]
-    public string Runtime { get; set; }
+    public int Runtime { get; set; }
     [XmlElement(ElementName = "thumb")]
     public Thumb Thumb { get; set; }
     [XmlElement(ElementName = "fanart")]

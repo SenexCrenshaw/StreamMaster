@@ -1,14 +1,15 @@
 ﻿using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Extensions;
+using StreamMaster.PlayList;
 
 using System.Diagnostics;
 namespace StreamMaster.Streams.Factories;
 
-public sealed class ProxyFactory(ILogger<ProxyFactory> logger, IHttpClientFactory httpClientFactory, IOptionsMonitor<Setting> intSettings, IOptionsMonitor<VideoOutputProfiles> intProfileSettings)
+public sealed class ProxyFactory(ILogger<ProxyFactory> logger, ICustomPlayListBuilder customPlayListBuilder, IHttpClientFactory httpClientFactory, IOptionsMonitor<Setting> intSettings, IOptionsMonitor<VideoOutputProfiles> intProfileSettings)
     : IProxyFactory
 {
     public string FFMpegOptions { get; set; } = "-hide_banner -loglevel error -user_agent {clientUserAgent} -i {streamUrl} -reconnect 1 -map 0:v -map 0:a? -map 0:s? -c copy -f mpegts pipe:1";
-    public string CustomPlayListFFMpegOptions { get; set; } = "-hide_banner -loglevel error -re -i {streamUrl} -map 0:v -map 0:a? -map 0:s? -c copy -f mpegts pipe:1";
+    public string CustomPlayListFFMpegOptions { get; set; } = "-hide_banner -loglevel error -re -ss {secondsIn} -i {streamUrl} -map 0:v -map 0:a? -map 0:s? -c copy -f mpegts pipe:1";
 
     public async Task<(Stream? stream, int processId, ProxyStreamError? error)> GetProxy(IChannelStatus channelStatus, CancellationToken cancellationToken)
     {
@@ -145,7 +146,10 @@ public sealed class ProxyFactory(ILogger<ProxyFactory> logger, IHttpClientFactor
                     logger.LogCritical("Profile {profileName} Command {command} not found", channelStatus.VideoProfile.ProfileName, channelStatus.VideoProfile.Command);
                     return (null, -1, new ProxyStreamError() { ErrorCode = ProxyStreamErrorCode.FileNotFound, Message = "FFMPEG not found" });
                 }
-                return GetCommandStream(channelStatus.CustomPlayList.CustomStreamNfos[channelStatus.CurrentRank].VideoFileName, "ffmpeg", CustomPlayListFFMpegOptions, clientUserAgent);
+                (string VideoFileName, int secondsIn) = customPlayListBuilder.GetCurrentVideoAndElapsedSeconds(channelStatus.CustomPlayList.Name);
+                string options = CustomPlayListFFMpegOptions.Replace("{secondsIn}", $"{secondsIn}");
+
+                return GetCommandStream(VideoFileName, "ffmpeg", options, clientUserAgent);
             }
             SMStreamDto smStream = channelStatus.SMStream;
 

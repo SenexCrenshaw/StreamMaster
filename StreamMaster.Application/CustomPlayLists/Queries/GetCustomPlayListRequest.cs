@@ -1,4 +1,6 @@
-﻿namespace StreamMaster.Application.CustomPlayLists.Queries;
+﻿using StreamMaster.PlayList.Models;
+
+namespace StreamMaster.Application.CustomPlayLists.Queries;
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]

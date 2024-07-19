@@ -1,5 +1,5 @@
 ﻿using StreamMaster.Domain.Extensions;
-using StreamMaster.PlayList;
+using StreamMaster.PlayList.Models;
 using StreamMaster.Streams.Buffers;
 
 using System.Diagnostics;

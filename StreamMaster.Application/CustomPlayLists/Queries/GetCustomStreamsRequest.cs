@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using StreamMaster.PlayList.Models;
 namespace StreamMaster.Application.CustomPlayLists.Queries;
 
 [SMAPI]

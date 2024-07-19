@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using StreamMaster.Application.CustomPlayLists.Commands;
 using StreamMaster.Application.CustomPlayLists.Queries;
+using StreamMaster.PlayList.Models;
 
 namespace StreamMaster.Application.CustomPlayLists.Controllers
 {
