@@ -5,14 +5,14 @@ import React, { useMemo } from 'react';
 import { getInputNumberLine } from './components/getInputNumberLine';
 import { getInputTextLine } from './components/getInputTextLine';
 import { useSettingChangeHandler } from './hooks/useSettingChangeHandler';
-import useGetVideoProfiles from '@lib/smAPI/Profiles/useGetVideoProfiles';
+
+import { BaseSettings } from './BaseSettings';
 import { getCheckBoxLine } from './components/getCheckBoxLine';
 import { GetDropDownLine } from './components/getDropDownLine';
-import { BaseSettings } from './BaseSettings';
 
 export function StreamingSettings(): React.ReactElement {
   const { onChange, currentSettingRequest } = useSettingChangeHandler();
-  const { data: videoProfiles } = useGetVideoProfiles();
+  // const { data: CommandProfiles } = useGetCommandProfiles();
 
   const getHandlersOptions = useMemo((): SelectItem[] => {
     const DefaultStreamingProxyTypes = ['SystemDefault', 'None', 'StreamMaster'];
@@ -22,16 +22,16 @@ export function StreamingSettings(): React.ReactElement {
       value: type
     }));
 
-    if (videoProfiles) {
-      videoProfiles.forEach((profile) => {
-        options.push({
-          label: profile.ProfileName,
-          value: profile.ProfileName
-        });
-      });
-    }
+    // if (CommandProfiles) {
+    //   CommandProfiles.forEach((profile) => {
+    //     options.push({
+    //       label: profile.ProfileName,
+    //       value: profile.ProfileName
+    //     });
+    //   });
+    // }
     return options;
-  }, [videoProfiles]);
+  }, []);
 
   if (!currentSettingRequest) {
     return (

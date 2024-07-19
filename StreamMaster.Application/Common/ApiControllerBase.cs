@@ -18,13 +18,13 @@ public abstract class ApiControllerBase : ControllerBase
     private IHubContext<StreamMasterHub, IStreamMasterHub> _intHubContext = null!;
     private IRepositoryWrapper _intRepository = null!;
 
-    protected Setting Settings => intsettings.CurrentValue;
+    protected Setting Settings => intSettings.CurrentValue;
     protected HLSSettings HLSSettings => inthlssettings.CurrentValue;
 
     protected IHubContext<StreamMasterHub, IStreamMasterHub> HubContext => intHubContext;
     protected IRepositoryWrapper Repository => intRepository;
 
-    protected IOptionsMonitor<Setting> intsettings => _intsettings ??= HttpContext.RequestServices.GetRequiredService<IOptionsMonitor<Setting>>();
+    protected IOptionsMonitor<Setting> intSettings => _intsettings ??= HttpContext.RequestServices.GetRequiredService<IOptionsMonitor<Setting>>();
     protected IOptionsMonitor<HLSSettings> inthlssettings => _inthlssettings ??= HttpContext.RequestServices.GetRequiredService<IOptionsMonitor<HLSSettings>>();
 
     protected IHubContext<StreamMasterHub, IStreamMasterHub> intHubContext => _intHubContext ??= HttpContext.RequestServices.GetRequiredService<IHubContext<StreamMasterHub, IStreamMasterHub>>();

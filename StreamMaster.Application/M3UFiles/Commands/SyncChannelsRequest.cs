@@ -26,6 +26,16 @@ internal class SyncChannelsRequestHandler(ILogger<SyncChannelsRequest> logger, I
                 return APIResponse.ErrorWithMessage("Sync Channels not set");
             }
 
+            int? sgId = null; ;
+            if (m3uFile.DefaultStreamGroupName != null)
+            {
+                StreamGroupDto? sg = await Repository.StreamGroup.GetStreamGroupByName(m3uFile.DefaultStreamGroupName);
+                if (sg != null)
+                {
+                    sgId = sg.Id;
+                }
+            }
+
             IQueryable<SMStream> streams = Repository.SMStream.GetQuery().Where(a => a.M3UFileId == request.M3UFileId);
             IQueryable<SMChannel> existingSMChannels = Repository.SMChannel.GetQuery().Where(a => a.M3UFileId == request.M3UFileId);
 
@@ -48,7 +58,7 @@ internal class SyncChannelsRequestHandler(ILogger<SyncChannelsRequest> logger, I
 
             if (streamsToBeCreated.Count != 0)
             {
-                APIResponse res = await Repository.SMChannel.CreateSMChannelsFromStreams(streamsToBeCreated, null, m3uFile.Id);
+                APIResponse res = await Repository.SMChannel.CreateSMChannelsFromStreams(streamsToBeCreated, sgId);
                 //await sender.Send(new CreateSMChannelFromStreamsRequest(streamsToBeCreated, null, request.M3UFileId), cancellationToken).ConfigureAwait(false);
             }
 
@@ -83,10 +93,10 @@ internal class SyncChannelsRequestHandler(ILogger<SyncChannelsRequest> logger, I
             //        //    smChannel.Logo = stream.Logo;
             //        //}
 
-            //        //if (smChannel.VideoOutputProfileName != stream.VideoOutputProfileName)
+            //        //if (smChannel.CommandProfileName != stream.CommandProfileName)
             //        //{
             //        //    changed = true;
-            //        //    smChannel.VideoOutputProfileName = stream.VideoOutputProfileName;
+            //        //    smChannel.CommandProfileName = stream.CommandProfileName;
             //        //}
 
             //        if (smChannel.StationId != stream.StationId)

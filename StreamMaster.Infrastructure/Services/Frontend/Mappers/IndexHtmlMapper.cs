@@ -4,10 +4,10 @@ using StreamMaster.Domain.Configuration;
 
 namespace StreamMaster.Infrastructure.Services.Frontend.Mappers
 {
-    public class IndexHtmlMapper(IOptionsMonitor<Setting> intsettings,
+    public class IndexHtmlMapper(IOptionsMonitor<Setting> intSettings,
                            ILogger<IndexHtmlMapper> logger) : HtmlMapperBase(logger)
     {
-        private readonly Setting settings = intsettings.CurrentValue;
+        private readonly Setting settings = intSettings.CurrentValue;
 
         public override bool CanHandle(string resourceUrl)
         {

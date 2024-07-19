@@ -18,7 +18,8 @@ import { useSMChannelNameColumnConfig } from '@components/smchannels/columns/use
 import { useSMChannelNumberColumnConfig } from '@components/smchannels/columns/useSMChannelNumberColumnConfig';
 
 import { useSMChannelSGColumnConfig } from '@components/smchannels/columns/useSMChannelSGColumnConfig';
-import { useSMVideoOutputProfileNameColumnConfig } from '@components/smchannels/columns/useSMVideoOutputProfileNameColumnConfig';
+
+import { useSMCommandProfileNameColumnConfig } from '@components/smchannels/columns/useSMVideoOutputProfileNameColumnConfig';
 import StreamCopyLinkDialog from '@components/smstreams/StreamCopyLinkDialog';
 import StreamGroupButton from '@components/streamGroup/StreamGroupButton';
 import StreamGroupProfileButton from '@components/streamGroup/profiles/StreamGroupProfileButton';
@@ -50,7 +51,7 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id }: SMChannelDat
   const epgColumnConfig = useSMChannelEPGColumnConfig({ width: smTableIsSimple ? 150 : 125 });
   const groupColumnConfig = useSMChannelGroupColumnConfig({ dataKey, width: smTableIsSimple ? 200 : 125 });
   const sgColumnConfig = useSMChannelSGColumnConfig({ dataKey: dataKey + '-sg', id: dataKey });
-  const { columnConfig: proxyColumnConfig } = useSMVideoOutputProfileNameColumnConfig({ enableEdit, useFilter: false });
+  const { columnConfig: proxyColumnConfig } = useSMCommandProfileNameColumnConfig({ enableEdit, useFilter: false });
   const { queryFilter } = useQueryFilter(dataKey);
   const { isLoading } = useGetPagedSMChannels(queryFilter);
   const smDataTableRef = useRef<SMDataTableRef<DataTableValue>>(null);

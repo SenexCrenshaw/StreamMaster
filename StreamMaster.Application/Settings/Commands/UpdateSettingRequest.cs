@@ -31,8 +31,11 @@ public class UpdateSettingParameters
     public int? MaxConnectRetryTimeMS { get; set; }
     public string? SSLCertPassword { get; set; }
     public string? SSLCertPath { get; set; }
+
+    public string? DefaultOutputProfileName { get; set; }
+    public string? DefaultCommandProfileName { get; set; }
     public string? StreamingClientUserAgent { get; set; }
-    public string? VideoOutputProfileName { get; set; }
+    //public string? CommandProfileName { get; set; }
     public bool? VideoStreamAlwaysUseEPGLogo { get; set; }
     public bool? EnablePrometheus { get; set; }
     public int? MaxLogFiles { get; set; }
@@ -51,11 +54,11 @@ public partial class UpdateSettingRequestHandler(
     ILogger<UpdateSettingRequest> Logger,
     IMapper Mapper,
     IDataRefreshService dataRefreshService,
-    IOptionsMonitor<Setting> intsettings
+    IOptionsMonitor<Setting> intSettings
     )
 : IRequestHandler<UpdateSettingRequest, UpdateSettingResponse>
 {
-    private readonly Setting settings = intsettings.CurrentValue;
+    private readonly Setting settings = intSettings.CurrentValue;
     private readonly SDSettings sdsettings = intsdsettings.CurrentValue;
 
     public static void CopyNonNullFields(SDSettingsRequest source, SDSettings destination)
@@ -333,6 +336,16 @@ public partial class UpdateSettingRequestHandler(
             currentSetting.SSLCertPath = request.parameters.SSLCertPath;
         }
 
+        if (!string.IsNullOrEmpty(request.parameters.DefaultCommandProfileName) && request.parameters.DefaultCommandProfileName != currentSetting.DefaultCommandProfileName)
+        {
+            currentSetting.DefaultCommandProfileName = request.parameters.DefaultCommandProfileName;
+        }
+
+        if (!string.IsNullOrEmpty(request.parameters.DefaultOutputProfileName) && request.parameters.DefaultOutputProfileName != currentSetting.DefaultOutputProfileName)
+        {
+            currentSetting.DefaultOutputProfileName = request.parameters.DefaultOutputProfileName;
+        }
+
         if (request.parameters.SSLCertPassword != null && request.parameters.SSLCertPassword != currentSetting.SSLCertPassword)
         {
             currentSetting.SSLCertPassword = request.parameters.SSLCertPassword;
@@ -343,9 +356,9 @@ public partial class UpdateSettingRequestHandler(
             currentSetting.ClientUserAgent = request.parameters.ClientUserAgent;
         }
 
-        if (request.parameters.StreamingClientUserAgent != null && request.parameters.StreamingClientUserAgent != currentSetting.StreamingClientUserAgent)
+        if (request.parameters.StreamingClientUserAgent != null && request.parameters.StreamingClientUserAgent != currentSetting.SourceClientUserAgent)
         {
-            currentSetting.StreamingClientUserAgent = request.parameters.StreamingClientUserAgent;
+            currentSetting.SourceClientUserAgent = request.parameters.StreamingClientUserAgent;
         }
 
         if (!string.IsNullOrEmpty(request.parameters.ApiKey) && request.parameters.ApiKey != currentSetting.ApiKey)
@@ -401,10 +414,10 @@ public partial class UpdateSettingRequestHandler(
             currentSetting.NameRegex = request.parameters.NameRegex;
         }
 
-        if (request.parameters.VideoOutputProfileName != null && request.parameters.VideoOutputProfileName != currentSetting.VideoOutputProfileName)
-        {
-            currentSetting.VideoOutputProfileName = request.parameters.VideoOutputProfileName;
-        }
+        //if (request.parameters.CommandProfileName != null && request.parameters.CommandProfileName != currentSetting.CommandProfileName)
+        //{
+        //    currentSetting.CommandProfileName = request.parameters.CommandProfileName;
+        //}
 
         if (request.parameters.AuthenticationMethod != null && request.parameters.AuthenticationMethod != currentSetting.AuthenticationMethod)
         {

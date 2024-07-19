@@ -3,9 +3,9 @@ using System.Collections.Specialized;
 using System.Text.Json;
 
 namespace StreamMaster.SchedulesDirect.Images;
-public class SeriesImages(ILogger<SeriesImages> logger, IEPGCache<SeriesImages> epgCache, IImageDownloadQueue imageDownloadQueue, IOptionsMonitor<SDSettings> intsettings, ISchedulesDirectAPIService schedulesDirectAPI, ISchedulesDirectDataService schedulesDirectDataService) : ISeriesImages
+public class SeriesImages(ILogger<SeriesImages> logger, IEPGCache<SeriesImages> epgCache, IImageDownloadQueue imageDownloadQueue, IOptionsMonitor<SDSettings> intSettings, ISchedulesDirectAPIService schedulesDirectAPI, ISchedulesDirectDataService schedulesDirectDataService) : ISeriesImages
 {
-    private readonly SDSettings sdsettings = intsettings.CurrentValue;
+    private readonly SDSettings sdsettings = intSettings.CurrentValue;
 
     private List<string> seriesImageQueue = [];
     private ConcurrentBag<ProgramMetadata> seriesImageResponses = [];

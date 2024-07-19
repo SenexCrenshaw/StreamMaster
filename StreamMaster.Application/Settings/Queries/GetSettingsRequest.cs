@@ -6,13 +6,13 @@ public record GetSettingsRequest : IRequest<DataResponse<SettingDto>>;
 
 internal class GetSettingsRequestHandler(
         IMapper mapper,
-        IOptionsMonitor<Setting> intsettings,
+        IOptionsMonitor<Setting> intSettings,
         IOptionsMonitor<HLSSettings> inthlssettings,
         IOptionsMonitor<SDSettings> intsdsettings
 
     ) : IRequestHandler<GetSettingsRequest, DataResponse<SettingDto>>
 {
-    private readonly Setting settings = intsettings.CurrentValue;
+    private readonly Setting settings = intSettings.CurrentValue;
 
     public async Task<DataResponse<SettingDto>> Handle(GetSettingsRequest request, CancellationToken cancellationToken)
     {

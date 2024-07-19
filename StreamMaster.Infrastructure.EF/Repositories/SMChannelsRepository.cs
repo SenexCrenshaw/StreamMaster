@@ -13,13 +13,12 @@ using StreamMaster.SchedulesDirect.Domain.Interfaces;
 using StreamMaster.SchedulesDirect.Domain.JsonClasses;
 using StreamMaster.SchedulesDirect.Domain.Models;
 
-using System.Collections.Concurrent;
 using System.Linq.Expressions;
 using System.Text.Json;
 
 namespace StreamMaster.Infrastructure.EF.Repositories;
 
-public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepositoryWrapper repository, IRepositoryContext repositoryContext, IMapper mapper, IOptionsMonitor<Setting> intSettings, IOptionsMonitor<VideoOutputProfiles> intProfileSettings, ISchedulesDirectDataService schedulesDirectDataService)
+public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepositoryWrapper repository, IRepositoryContext repositoryContext, IMapper mapper, IOptionsMonitor<Setting> intSettings, IOptionsMonitor<CommandProfileList> intProfileSettings, ISchedulesDirectDataService schedulesDirectDataService)
     : RepositoryBase<SMChannel>(repositoryContext, intLogger), ISMChannelsRepository
 {
     private ConcurrentHashSet<int> existingNumbers = [];
@@ -140,15 +139,13 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
         return FirstOrDefault(a => a.Id == smchannelId, tracking: false);
     }
 
-    private async Task<SMChannel?> CreateSMChannelFromStream(string streamId, ConcurrentDictionary<string, byte> generatedIdsDict, int? AddToStreamGroupId, int? M3UFileId = EPGHelper.DummyId, bool? forced = false)
+    private async Task<SMChannel?> CreateSMChannelFromStream(string streamId, int? M3UFileId = null, bool? forced = false)
     {
         SMStreamDto? smStream = repository.SMStream.GetSMStream(streamId) ?? throw new APIException($"Stream with Id {streamId} is not found");
         if (smStream == null || (forced == false && smStream.IsCustomStream))
         {
             return null;
         }
-
-        string videoOutputProfileName = intSettings.CurrentValue.VideoOutputProfileName ?? "StreamMaster";
 
         SMChannel smChannel = new()
         {
@@ -158,11 +155,10 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
             Logo = smStream.Logo,
             EPGId = smStream.EPGID,
             StationId = smStream.StationId,
-            M3UFileId = M3UFileId,
+            M3UFileId = M3UFileId ?? smStream.M3UFileId,
             StreamID = smStream.Id,
-            ShortSMChannelId = UniqueHexGenerator.GenerateUniqueHex(generatedIdsDict),
             IsCustomStream = smStream.IsCustomStream,
-            VideoOutputProfileName = videoOutputProfileName,
+            CommandProfileName = M3UFileId == EPGHelper.CustomPlayListId ? "StreamMaster" : BuildInfo.DefaultCommandProfileName,
         };
 
         await CreateSMChannel(smChannel);
@@ -276,7 +272,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
 
         //if (streamGroup == null)
         //{
-        //    ret.APIResponse = APIResponse.ErrorWithMessage("Stream VideoOutputProfileName not found");
+        //    ret.APIResponse = APIResponse.ErrorWithMessage("Stream CommandProfileName not found");
         //    return ret;
         //}
 
@@ -487,15 +483,61 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
     }
 
     [LogExecutionTimeAspect]
-    public async Task<APIResponse> CreateSMChannelsFromStreams(List<string> streamIds, int? AddToStreamGroupId, int? M3UFileId = EPGHelper.DummyId, bool? IsCustomPlayList = false, bool? forced = false)
+    public async Task<APIResponse> CreateSMChannelsFromStreams(List<string> streamIds, int? AddToStreamGroupId)
     {
         try
         {
-            int? defaultSGId = AddToStreamGroupId;
-
-            if (defaultSGId == null && M3UFileId > 0)
+            List<SMChannel> addedSMChannels = [];
+            Setting Settings = intSettings.CurrentValue;
+            int count = 0;
+            foreach (string streamId in streamIds)
             {
-                M3UFile? m3uFile = await repository.M3UFile.GetM3UFile(M3UFileId.Value);
+                SMChannel? smChannel = await CreateSMChannelFromStream(streamId);
+
+                if (smChannel is null)
+                {
+                    _ = await RepositoryContext.SaveChangesAsync().ConfigureAwait(false);
+                    return APIResponse.ErrorWithMessage("Error creating SMChannel from streams");
+                }
+                addedSMChannels.Add(smChannel);
+
+                ++count;
+                if (count % 100 == 0)
+                {
+                    // Log the message, e.g., using a logger (replace with your logging mechanism)
+                    logger.LogInformation("{count} SMChannels have been added.", count);
+
+                    await BulkUpdate(addedSMChannels, AddToStreamGroupId);
+
+                    addedSMChannels = [];
+                }
+            }
+
+            if (addedSMChannels.Count > 0)
+            {
+                // Log the message, e.g., using a logger (replace with your logging mechanism)
+                //logger.LogInformation("{addedSMChannels.Count} SMChannels have been added.", addedSMChannels.Count);
+                await BulkUpdate(addedSMChannels, AddToStreamGroupId);
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error creating SMChannel from streams");
+            return APIResponse.ErrorWithMessage(ex, "Error creating SMChannel from streams");
+        }
+        _ = await RepositoryContext.SaveChangesAsync().ConfigureAwait(false);
+        return APIResponse.Success;
+    }
+
+    public async Task<APIResponse> CreateSMChannelsFromCustomStreams(List<string> streamIds, int m3UFileId, bool isCustomPlayList)
+    {
+        try
+        {
+            int? defaultSGId = m3UFileId;
+
+            if (m3UFileId > 0)
+            {
+                M3UFile? m3uFile = await repository.M3UFile.GetM3UFile(m3UFileId);
                 if (m3uFile != null && !string.IsNullOrEmpty(m3uFile.DefaultStreamGroupName))
                 {
                     StreamGroup? sg = await repository.StreamGroup.GetQuery().FirstOrDefaultAsync(a => a.Name == m3uFile.DefaultStreamGroupName);
@@ -506,49 +548,42 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
                 }
             }
 
-            ConcurrentDictionary<string, byte> generatedIdsDict = new();
-            foreach (SMChannel channel in GetQuery())
-            {
-                _ = generatedIdsDict.TryAdd(channel.ShortSMChannelId, 0);
-            }
-
             List<SMChannel> addedSMChannels = [];
             Setting Settings = intSettings.CurrentValue;
             int count = 0;
             foreach (string streamId in streamIds)
             {
-                SMChannel? smChannel = await CreateSMChannelFromStream(streamId, generatedIdsDict, AddToStreamGroupId, M3UFileId, forced: forced);
+                SMChannel? smChannel = await CreateSMChannelFromStream(streamId, m3UFileId, forced: true);
 
                 if (smChannel is null)
                 {
                     _ = await RepositoryContext.SaveChangesAsync().ConfigureAwait(false);
-                    return APIResponse.ErrorWithMessage("Error creating SMChannel from streams");
+                    return APIResponse.ErrorWithMessage("Error creating SMChannel from custom streams");
                 }
                 addedSMChannels.Add(smChannel);
-                _ = generatedIdsDict.TryAdd(smChannel.Id.ToString(), 0);
+
                 ++count;
                 if (count % 100 == 0)
                 {
-                    // Log the message, e.g., using a logger (replace with your logging mechanism)
-                    logger.LogInformation($"{count} SMChannels have been added.");
-                    await BulkUpdate(addedSMChannels, defaultSGId);
+                    logger.LogInformation("{count} SMChannels have been added.", count);
+                    if (!isCustomPlayList)
+                    {
+                        await BulkUpdate(addedSMChannels, defaultSGId);
+                    }
                     addedSMChannels = [];
-
                 }
             }
 
-            if (addedSMChannels.Count > 0)
+            if (!isCustomPlayList && addedSMChannels.Count > 0)
             {
-                // Log the message, e.g., using a logger (replace with your logging mechanism)
-                logger.LogInformation($"{generatedIdsDict.Count} SMChannels have been added.");
+                logger.LogInformation("{count} SMChannels have been added.", count);
                 await BulkUpdate(addedSMChannels, defaultSGId);
             }
-
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error creating SMChannel from streams");
-            return APIResponse.ErrorWithMessage(ex, "Error creating SMChannel from streams");
+            logger.LogError(ex, "Error creating SMChannel from custom streams");
+            return APIResponse.ErrorWithMessage(ex, "Error creating SMChannel from custom streams");
         }
         _ = await RepositoryContext.SaveChangesAsync().ConfigureAwait(false);
         return APIResponse.Success;
@@ -570,10 +605,10 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
             }
         }
     }
-    public async Task<APIResponse> CreateSMChannelsFromStreamParameters(QueryStringParameters Parameters, int? AddToStreamGroupId, int? M3UFileId)
+    public async Task<APIResponse> CreateSMChannelsFromStreamParameters(QueryStringParameters Parameters, int? AddToStreamGroupId)
     {
         IQueryable<SMStream> toCreate = repository.SMStream.GetQuery(Parameters);
-        APIResponse ret = await CreateSMChannelsFromStreams([.. toCreate.Select(a => a.Id)], AddToStreamGroupId, M3UFileId);
+        APIResponse ret = await CreateSMChannelsFromStreams([.. toCreate.Select(a => a.Id)], AddToStreamGroupId);
         _ = await RepositoryContext.SaveChangesAsync().ConfigureAwait(false);
         return ret;
     }
@@ -759,7 +794,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
         return fds;
     }
 
-    public async Task<APIResponse> SetSMChannelVideoOutputProfileName(int sMChannelId, string VideoOutputProfileName)
+    public async Task<APIResponse> SetSMChannelCommandProfileName(int sMChannelId, string CommandProfileName)
     {
         SMChannel? channel = GetSMChannel(sMChannelId);
         if (channel == null)
@@ -767,7 +802,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
             return APIResponse.NotFound;
         }
 
-        channel.VideoOutputProfileName = VideoOutputProfileName;
+        channel.CommandProfileName = CommandProfileName;
         Update(channel);
         _ = await SaveChangesAsync();
 
@@ -828,29 +863,29 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
         return APIResponse.Success;
     }
 
-    public async Task<APIResponse> SetSMChannelsVideoOutputProfileName(List<int> sMChannelIds, string videoOutputProfileName)
+    public async Task<APIResponse> SetSMChannelsCommandProfileName(List<int> sMChannelIds, string CommandProfileName)
     {
         IQueryable<SMChannel> toUpdate = GetQuery(tracking: true).Where(a => sMChannelIds.Contains(a.Id));
-        return await SetSMChannelsVideoOutputProfileName(toUpdate, videoOutputProfileName);
+        return await SetSMChannelsCommandProfileName(toUpdate, CommandProfileName);
     }
 
-    public async Task<APIResponse> SetSMChannelsVideoOutputProfileNameFromParameters(QueryStringParameters parameters, string videoOutputProfileName)
+    public async Task<APIResponse> SetSMChannelsCommandProfileNameFromParameters(QueryStringParameters parameters, string CommandProfileName)
     {
         IQueryable<SMChannel> toUpdate = GetQuery(parameters, tracking: true);
-        return await SetSMChannelsVideoOutputProfileName(toUpdate, videoOutputProfileName);
+        return await SetSMChannelsCommandProfileName(toUpdate, CommandProfileName);
     }
 
-    private async Task<APIResponse> SetSMChannelsVideoOutputProfileName(IQueryable<SMChannel> query, string videoOutputProfileName)
+    private async Task<APIResponse> SetSMChannelsCommandProfileName(IQueryable<SMChannel> query, string CommandProfileName)
     {
-        if (!intProfileSettings.CurrentValue.VideoProfiles.ContainsKey(videoOutputProfileName))
+        if (!intProfileSettings.CurrentValue.CommandProfiles.ContainsKey(CommandProfileName))
         {
-            return APIResponse.ErrorWithMessage($"VideoOutputProfileName '{videoOutputProfileName}' not found");
+            return APIResponse.ErrorWithMessage($"CommandProfileName '{CommandProfileName}' not found");
         }
         List<SMChannel> toUpdate = await query.ToListAsync();
 
         foreach (SMChannel smChannl in toUpdate)
         {
-            smChannl.VideoOutputProfileName = videoOutputProfileName;
+            smChannl.CommandProfileName = CommandProfileName;
         }
 
         BulkUpdate(toUpdate);

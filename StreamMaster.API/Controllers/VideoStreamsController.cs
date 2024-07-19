@@ -28,7 +28,7 @@ public class VideoStreamsController(IChannelManager channelManager, IMapper mapp
             return new NotFoundResult();
         }
 
-        SMChannel? smChannel = streamGroupId == 0
+        SMChannel? smChannel = streamGroupId < 2
             ? repositoryWrapper.SMChannel.GetSMChannel(smChannelId.Value)
             : repositoryWrapper.SMChannel.GetSMChannelFromStreamGroup(smChannelId.Value, streamGroupId.Value);
 
@@ -47,7 +47,7 @@ public class VideoStreamsController(IChannelManager channelManager, IMapper mapp
 
         StreamGroupProfile? streamGroupProfile = repositoryWrapper.StreamGroupProfile.GetStreamGroupProfile(streamGroupId.Value, streamGroupProfileId.Value);
 
-        if (streamGroupProfile?.VideoProfileName == "None")
+        if (streamGroupProfile == null || streamGroupProfile?.CommandProfileName == "None")
         {
             logger.LogInformation("GetVideoStreamStream request SG Number {id} ChannelId {channelId} proxy is none, sending redirect", streamGroupId.Value, smChannelId);
 
@@ -62,7 +62,7 @@ public class VideoStreamsController(IChannelManager channelManager, IMapper mapp
         string originalUrl = $"{request.Scheme}://{request.Host}{request.PathBase}{request.Path}{request.QueryString}";
         smChannelDto.StreamUrl = originalUrl;
 
-        ClientStreamerConfiguration config = new(smChannelDto, streamGroupId.Value, streamGroupProfileId.Value, Request.Headers.UserAgent.ToString(), ipAddress ?? "unknown", HttpContext.Response, cancellationToken);
+        ClientStreamerConfiguration config = new(smChannelDto, streamGroupId.Value, streamGroupProfile!.Id, Request.Headers.UserAgent.ToString(), ipAddress ?? "unknown", HttpContext.Response, cancellationToken);
         Stream? stream = await channelManager.GetChannelAsync(config, cancellationToken);
 
         HttpContext.Response.RegisterForDispose(new UnregisterClientOnDispose(channelManager, config));

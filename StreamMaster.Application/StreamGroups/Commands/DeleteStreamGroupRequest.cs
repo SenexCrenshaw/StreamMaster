@@ -4,7 +4,7 @@ namespace StreamMaster.Application.StreamGroups.Commands;
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record DeleteStreamGroupRequest(int Id) : IRequest<APIResponse>;
+public record DeleteStreamGroupRequest(int StreamGroupId) : IRequest<APIResponse>;
 
 public class DeleteStreamGroupRequestHandler(IRepositoryWrapper Repository, IDataRefreshService dataRefreshService, IMessageService messageService, IPublisher Publisher)
     : IRequestHandler<DeleteStreamGroupRequest, APIResponse>
@@ -12,15 +12,15 @@ public class DeleteStreamGroupRequestHandler(IRepositoryWrapper Repository, IDat
     public async Task<APIResponse> Handle(DeleteStreamGroupRequest request, CancellationToken cancellationToken = default)
     {
 
-        if (request.Id < 1)
+        if (request.StreamGroupId < 2)
         {
             await messageService.SendError("Stream Group not found");
             return APIResponse.NotFound;
         }
 
-        if (await Repository.StreamGroup.DeleteStreamGroup(request.Id) != null)
+        if (await Repository.StreamGroup.DeleteStreamGroup(request.StreamGroupId) != null)
         {
-            await Repository.SaveAsync();
+            _ = await Repository.SaveAsync();
             await Publisher.Publish(new StreamGroupDeleteEvent(), cancellationToken);
             await dataRefreshService.RefreshStreamGroups();
             await messageService.SendSuccess("Stream Group deleted successfully");

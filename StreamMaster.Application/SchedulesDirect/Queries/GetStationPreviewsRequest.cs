@@ -5,10 +5,10 @@
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record GetStationPreviewsRequest : IRequest<DataResponse<List<StationPreview>>>;
 
-internal class GetStationPreviewsRequestHandler(ILineups lineups, IOptionsMonitor<SDSettings> intsettings)
+internal class GetStationPreviewsRequestHandler(ILineups lineups, IOptionsMonitor<SDSettings> intSettings)
     : IRequestHandler<GetStationPreviewsRequest, DataResponse<List<StationPreview>>>
 {
-    private readonly SDSettings settings = intsettings.CurrentValue;
+    private readonly SDSettings settings = intSettings.CurrentValue;
 
     public async Task<DataResponse<List<StationPreview>>> Handle(GetStationPreviewsRequest request, CancellationToken cancellationToken)
     {

@@ -23,10 +23,10 @@ using StreamMaster.SchedulesDirect.Domain.Interfaces;
 
 namespace StreamMaster.Infrastructure.Services;
 
-public class TimerService(IServiceProvider serviceProvider, IOptionsMonitor<Setting> intsettings, IOptionsMonitor<SDSettings> intsdsettings, IJobStatusService jobStatusService, ILogger<TimerService> logger) : IHostedService, IDisposable
+public class TimerService(IServiceProvider serviceProvider, IOptionsMonitor<Setting> intSettings, IOptionsMonitor<SDSettings> intsdsettings, IJobStatusService jobStatusService, ILogger<TimerService> logger) : IHostedService, IDisposable
 {
     private readonly object Lock = new();
-    private readonly Setting settings = intsettings.CurrentValue;
+    private readonly Setting settings = intSettings.CurrentValue;
     private readonly SDSettings sdsettings = intsdsettings.CurrentValue;
     private Timer? _timer;
     private bool isActive = false;

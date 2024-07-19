@@ -9,7 +9,7 @@ namespace StreamMaster.Application.StreamGroups.Queries;
 
 [RequireAll]
 public record GetStreamGroupVideoConfigs(int StreamGroupId, int StreamGroupProfileId) : IRequest<(List<VideoStreamConfig> videoStreamConfigs, OutputProfile outputProfile)>;
-public class GetStreamGroupVideoConfigsHandler(IHttpContextAccessor httpContextAccessor, ISender sender, IRepositoryWrapper repositoryWrapper, IEPGHelper epgHelper, IXMLTVBuilder xMLTVBuilder, ILogger<GetStreamGroupVideoConfigs> logger, ISchedulesDirectDataService schedulesDirectDataService, IRepositoryWrapper Repository, IOptionsMonitor<Setting> intsettings)
+public class GetStreamGroupVideoConfigsHandler(IHttpContextAccessor httpContextAccessor, ISender sender, IRepositoryWrapper repositoryWrapper, IEPGHelper epgHelper, IXMLTVBuilder xMLTVBuilder, ILogger<GetStreamGroupVideoConfigs> logger, ISchedulesDirectDataService schedulesDirectDataService, IRepositoryWrapper Repository, IOptionsMonitor<Setting> intSettings)
     : IRequestHandler<GetStreamGroupVideoConfigs, (List<VideoStreamConfig> videoStreamConfigs, OutputProfile outputProfile)>
 {
     private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;

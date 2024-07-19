@@ -4,7 +4,7 @@ namespace StreamMaster.PlayList
 {
     public interface ICustomPlayListBuilder
     {
-        (string VideoFileName, int SecondsIn) GetCurrentVideoAndElapsedSeconds(string customPlayListName);
+        (CustomStreamNfo StreamNfo, int SecondsIn) GetCurrentVideoAndElapsedSeconds(string customPlayListName);
         List<CustomPlayList> GetCustomPlayLists();
         CustomPlayList? GetCustomPlayList(string Name);
     }

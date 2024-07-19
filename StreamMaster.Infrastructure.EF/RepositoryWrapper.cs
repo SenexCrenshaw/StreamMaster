@@ -28,7 +28,7 @@ public class RepositoryWrapper(
     IIconService iconService,
     IMessageService messageService,
     IOptionsMonitor<Setting> intSettings,
-    IOptionsMonitor<VideoOutputProfiles> intProfileSettings,
+    IOptionsMonitor<CommandProfileList> intProfileSettings,
     IJobStatusService jobStatusService,
     ISender sender,
     IDataRefreshService dataRefreshService,

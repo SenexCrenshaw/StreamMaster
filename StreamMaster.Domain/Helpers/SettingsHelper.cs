@@ -43,9 +43,9 @@ public static class SettingsHelper
             dir = Path.GetDirectoryName(fileName);
         }
 
-        if (typeof(VideoOutputProfiles).IsAssignableFrom(setting.GetType()))
+        if (typeof(CommandProfileList).IsAssignableFrom(setting.GetType()))
         {
-            fileName = BuildInfo.VideoProfileSettingsFile;
+            fileName = BuildInfo.CommandProfileSettingsFile;
             dir = Path.GetDirectoryName(fileName);
         }
 
@@ -75,11 +75,10 @@ public static class SettingsHelper
 
         if (!Directory.Exists(dir))
         {
-            Directory.CreateDirectory(dir);
+            _ = Directory.CreateDirectory(dir);
         }
 
         string jsonString = JsonSerializer.Serialize(setting, new JsonSerializerOptions { WriteIndented = true });
         File.WriteAllText(fileName, jsonString);
     }
-
 }

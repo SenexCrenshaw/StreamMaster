@@ -11,15 +11,9 @@ interface CreateSMStreamDialogProperties {
 }
 
 const CreateSMStreamDialog = ({ label }: CreateSMStreamDialogProperties) => {
-  // const dataKey = 'SMChannelSMStreamDialog-SMStreamDataForSMChannelSelector';
-  // const { setSelectedItems } = useSelectedItems<SMStreamDto>(dataKey);
   const [saveEnabled, setSaveEnabled] = useState<boolean>(false);
   const smChannelDialogRef = useRef<SMChannelDialogRef>(null);
   const smDialogRef = useRef<SMDialogRef>(null);
-
-  // const ReturnToParent = React.useCallback(() => {
-  //   setSelectedItems([]);
-  // }, [setSelectedItems]);
 
   const onSave = React.useCallback((request: any) => {
     CreateSMStream(request)

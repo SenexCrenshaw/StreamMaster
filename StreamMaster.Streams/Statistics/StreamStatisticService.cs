@@ -8,10 +8,10 @@ using System.Net.Sockets;
 
 namespace StreamMaster.Streams.Statistics;
 
-public sealed class StreamStatisticService(IChannelStreamingStatisticsManager inputStatisticsManager, IMemoryCache memoryCache, IStreamStreamingStatisticsManager streamStreamingStatisticsManager, IClientStatisticsManager statisticsManager, IOptionsMonitor<Setting> intsettings)
+public sealed class StreamStatisticService(IChannelStreamingStatisticsManager inputStatisticsManager, IMemoryCache memoryCache, IStreamStreamingStatisticsManager streamStreamingStatisticsManager, IClientStatisticsManager statisticsManager, IOptionsMonitor<Setting> intSettings)
     : IStreamStatisticService
 {
-    private readonly Setting settings = intsettings.CurrentValue;
+    private readonly Setting settings = intSettings.CurrentValue;
 
     public List<StreamStreamingStatistic> GetStreamStreamingStatistics()
     {

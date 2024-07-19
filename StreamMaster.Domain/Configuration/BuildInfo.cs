@@ -27,9 +27,10 @@ namespace StreamMaster.Domain.Configuration
                     ? informationalVersion.InformationalVersion[..(informationalVersion.InformationalVersion.IndexOf("Sha", StringComparison.Ordinal) - 1)]
                     : informationalVersion.InformationalVersion;
             }
-            GetSettingFiles();
+            _ = GetSettingFiles();
         }
 
+        public static string DefaultCommandProfileName => "Use SG";
         public static bool IsLinux => RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
         public static bool IsWindows => RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
         public static bool IsOSX => RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
@@ -150,8 +151,8 @@ namespace StreamMaster.Domain.Configuration
         public static readonly string HLSSettingFileName = "hlssettings.json";
         public static readonly string HLSSettingsFile = GetSettingFilePath(HLSSettingFileName);
 
-        public static readonly string VideoProfileFileName = "videoprofiles.json";
-        public static readonly string VideoProfileSettingsFile = GetSettingFilePath(VideoProfileFileName);
+        public static readonly string CommandProfileFileName = "commandprofiles.json";
+        public static readonly string CommandProfileSettingsFile = GetSettingFilePath(CommandProfileFileName);
 
         public static readonly string OutputProfileFileName = "outputprofiles.json";
         public static readonly string OutputProfileSettingsFile = GetSettingFilePath(OutputProfileFileName);

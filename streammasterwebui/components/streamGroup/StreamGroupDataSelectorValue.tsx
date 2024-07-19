@@ -6,9 +6,9 @@ import { UpdateStreamGroupProfile } from '@lib/smAPI/StreamGroups/StreamGroupsCo
 import { StreamGroupDto, StreamGroupProfile, UpdateStreamGroupProfileRequest } from '@lib/smAPI/smapiTypes';
 import { memo, useCallback, useMemo } from 'react';
 import AttachStreamGroupProfileDialog from './profiles/AttachStreamGroupProfileDialog';
+import CommandProfileDropDown from './profiles/CommandProfileDropDown';
 import OutputProfileDropDown from './profiles/OutputProfileDropDown';
 import RemoveStreamGroupProfileDialog from './profiles/RemoveStreamGroupProfileDialog';
-import VideoProfileDropDown from './profiles/VideoProfileDropDown';
 interface StreamGroupDataSelectorValueProperties {
   readonly id: string;
   readonly streamGroupDto: StreamGroupDto;
@@ -76,7 +76,7 @@ const StreamGroupDataSelectorValue = ({ id, streamGroupDto }: StreamGroupDataSel
     [streamGroupDto.StreamGroupProfiles, update]
   );
 
-  const videoProfileTemplate = useCallback(
+  const CommandProfileTemplate = useCallback(
     (rowData: StreamGroupProfile) => {
       var found = streamGroupDto.StreamGroupProfiles.find((x) => x.Id === rowData.Id);
       if (found === undefined) {
@@ -84,11 +84,11 @@ const StreamGroupDataSelectorValue = ({ id, streamGroupDto }: StreamGroupDataSel
       }
 
       return (
-        <VideoProfileDropDown
-          value={found.VideoProfileName}
+        <CommandProfileDropDown
+          value={found.CommandProfileName}
           onChange={(e) => {
             if (e !== undefined) {
-              const ret = { Name: rowData.Name, VideoProfileName: e.ProfileName } as UpdateStreamGroupProfileRequest;
+              const ret = { Name: rowData.Name, CommandProfileName: e.ProfileName } as UpdateStreamGroupProfileRequest;
               update(ret);
             }
           }}
@@ -102,7 +102,7 @@ const StreamGroupDataSelectorValue = ({ id, streamGroupDto }: StreamGroupDataSel
     (): ColumnMeta[] => [
       { bodyTemplate: nameTemplate, field: 'Name', sortable: false, width: 80 },
       { bodyTemplate: fileProfileTemplate, field: 'OutputProfileName', header: 'Output', sortable: false, width: 50 },
-      // { bodyTemplate: videoProfileTemplate, field: 'VideoProfileName', header: 'Video', sortable: false, width: 50 },
+      { bodyTemplate: CommandProfileTemplate, field: 'CommandProfileName', header: 'Video', sortable: false, width: 50 },
       {
         align: 'center',
         field: 'HDHRLink',
@@ -128,7 +128,7 @@ const StreamGroupDataSelectorValue = ({ id, streamGroupDto }: StreamGroupDataSel
         width: 12
       }
     ],
-    [actionTemplate, fileProfileTemplate, nameTemplate, videoProfileTemplate]
+    [actionTemplate, fileProfileTemplate, nameTemplate, CommandProfileTemplate]
   );
 
   if (!streamGroupDto?.StreamGroupProfiles) {

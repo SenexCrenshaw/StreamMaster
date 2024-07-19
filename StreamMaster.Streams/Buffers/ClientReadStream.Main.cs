@@ -12,7 +12,7 @@ public sealed partial class ClientReadStream : Stream, IClientReadStream
 
     public ClientReadStream(IClientStatisticsManager clientStatisticsManager, ILoggerFactory loggerFactory, ClientStreamerConfiguration config)
     {
-        //Setting settings = intsettings.CurrentValue;
+        //Setting settings = intSettings.CurrentValue;
 
         //var streamer = new FfmpegOverlayStreamer(ffmpegPath, inputUrl, outputUrl);
         //CancellationTokenSource cts = new();

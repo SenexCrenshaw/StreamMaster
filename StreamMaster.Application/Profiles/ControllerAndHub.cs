@@ -9,6 +9,38 @@ namespace StreamMaster.Application.Profiles.Controllers
 
         [HttpGet]
         [Route("[action]")]
+        public async Task<ActionResult<CommandProfileDto>> GetCommandProfile([FromQuery] GetCommandProfileRequest request)
+        {
+            try
+            {
+            DataResponse<CommandProfileDto> ret = await Sender.Send(request).ConfigureAwait(false);
+             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetCommandProfile.", statusCode: 500) : Ok(ret.Data);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An unexpected error occurred while processing the request to get GetCommandProfile.");
+                return Problem(detail: "An unexpected error occurred. Please try again later.", statusCode: 500);
+            }
+        }
+
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<ActionResult<List<CommandProfileDto>>> GetCommandProfiles()
+        {
+            try
+            {
+            DataResponse<List<CommandProfileDto>> ret = await Sender.Send(new GetCommandProfilesRequest()).ConfigureAwait(false);
+             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetCommandProfiles.", statusCode: 500) : Ok(ret.Data);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An unexpected error occurred while processing the request to get GetCommandProfiles.");
+                return Problem(detail: "An unexpected error occurred. Please try again later.", statusCode: 500);
+            }
+        }
+
+        [HttpGet]
+        [Route("[action]")]
         public async Task<ActionResult<OutputProfileDto>> GetOutputProfile([FromQuery] GetOutputProfileRequest request)
         {
             try
@@ -39,20 +71,12 @@ namespace StreamMaster.Application.Profiles.Controllers
             }
         }
 
-        [HttpGet]
+        [HttpPatch]
         [Route("[action]")]
-        public async Task<ActionResult<List<VideoOutputProfileDto>>> GetVideoProfiles()
+        public async Task<ActionResult<APIResponse>> AddCommandProfile(AddCommandProfileRequest request)
         {
-            try
-            {
-            DataResponse<List<VideoOutputProfileDto>> ret = await Sender.Send(new GetVideoProfilesRequest()).ConfigureAwait(false);
-             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetVideoProfiles.", statusCode: 500) : Ok(ret.Data);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "An unexpected error occurred while processing the request to get GetVideoProfiles.");
-                return Problem(detail: "An unexpected error occurred. Please try again later.", statusCode: 500);
-            }
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            return ret == null ? NotFound(ret) : Ok(ret);
         }
 
         [HttpPatch]
@@ -63,9 +87,9 @@ namespace StreamMaster.Application.Profiles.Controllers
             return ret == null ? NotFound(ret) : Ok(ret);
         }
 
-        [HttpPatch]
+        [HttpDelete]
         [Route("[action]")]
-        public async Task<ActionResult<APIResponse>> AddVideoProfile(AddVideoProfileRequest request)
+        public async Task<ActionResult<APIResponse>> RemoveCommandProfile(RemoveCommandProfileRequest request)
         {
             APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
@@ -79,9 +103,9 @@ namespace StreamMaster.Application.Profiles.Controllers
             return ret == null ? NotFound(ret) : Ok(ret);
         }
 
-        [HttpDelete]
+        [HttpPatch]
         [Route("[action]")]
-        public async Task<ActionResult<APIResponse>> RemoveVideoProfile(RemoveVideoProfileRequest request)
+        public async Task<ActionResult<APIResponse>> UpdateCommandProfile(UpdateCommandProfileRequest request)
         {
             APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
@@ -95,14 +119,6 @@ namespace StreamMaster.Application.Profiles.Controllers
             return ret == null ? NotFound(ret) : Ok(ret);
         }
 
-        [HttpPatch]
-        [Route("[action]")]
-        public async Task<ActionResult<APIResponse>> UpdateVideoProfile(UpdateVideoProfileRequest request)
-        {
-            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
-            return ret == null ? NotFound(ret) : Ok(ret);
-        }
-
     }
 }
 
@@ -110,6 +126,18 @@ namespace StreamMaster.Application.Hubs
 {
     public partial class StreamMasterHub : IProfilesHub
     {
+        public async Task<CommandProfileDto> GetCommandProfile(GetCommandProfileRequest request)
+        {
+             DataResponse<CommandProfileDto> ret = await Sender.Send(request).ConfigureAwait(false);
+            return ret.Data;
+        }
+
+        public async Task<List<CommandProfileDto>> GetCommandProfiles()
+        {
+             DataResponse<List<CommandProfileDto>> ret = await Sender.Send(new GetCommandProfilesRequest()).ConfigureAwait(false);
+            return ret.Data;
+        }
+
         public async Task<OutputProfileDto> GetOutputProfile(GetOutputProfileRequest request)
         {
              DataResponse<OutputProfileDto> ret = await Sender.Send(request).ConfigureAwait(false);
@@ -122,10 +150,10 @@ namespace StreamMaster.Application.Hubs
             return ret.Data;
         }
 
-        public async Task<List<VideoOutputProfileDto>> GetVideoProfiles()
+        public async Task<APIResponse> AddCommandProfile(AddCommandProfileRequest request)
         {
-             DataResponse<List<VideoOutputProfileDto>> ret = await Sender.Send(new GetVideoProfilesRequest()).ConfigureAwait(false);
-            return ret.Data;
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            return ret;
         }
 
         public async Task<APIResponse> AddOutputProfile(AddOutputProfileRequest request)
@@ -134,7 +162,7 @@ namespace StreamMaster.Application.Hubs
             return ret;
         }
 
-        public async Task<APIResponse> AddVideoProfile(AddVideoProfileRequest request)
+        public async Task<APIResponse> RemoveCommandProfile(RemoveCommandProfileRequest request)
         {
             APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;
@@ -146,19 +174,13 @@ namespace StreamMaster.Application.Hubs
             return ret;
         }
 
-        public async Task<APIResponse> RemoveVideoProfile(RemoveVideoProfileRequest request)
+        public async Task<APIResponse> UpdateCommandProfile(UpdateCommandProfileRequest request)
         {
             APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;
         }
 
         public async Task<APIResponse> UpdateOutputProfile(UpdateOutputProfileRequest request)
-        {
-            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
-            return ret;
-        }
-
-        public async Task<APIResponse> UpdateVideoProfile(UpdateVideoProfileRequest request)
         {
             APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;

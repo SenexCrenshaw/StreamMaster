@@ -27,37 +27,18 @@ public static class SettingFiles
                         Group=nameof(ValidM3USetting.Group),
                         EPGId=nameof(ValidM3USetting.EPGId),
                  }
-            },
-
-             {
-                "PLEX",
-                 new OutputProfile
-                 {
-
-                      EnableIcon=true,
-                        EnableId=true,
-                        EnableGroupTitle=true,
-                         EnableChannelNumber =true,
-
-                        Name=ValidM3USetting.Name.ToString(),
-                        EPGId=ValidM3USetting.EPGId.ToString(),
-                        Group=ValidM3USetting.Group.ToString(),
-
-                 }
-            },
-
-
+            }
         }
 
     };
-    public static VideoOutputProfiles DefaultVideoProfileSetting = new()
+    public static CommandProfileList DefauCommandProfileSetting = new()
     {
-        VideoProfiles = new Dictionary<string, VideoOutputProfile>
+        CommandProfiles = new Dictionary<string, CommandProfile>
         {
 
             {
                 "FFMPEG",
-                new VideoOutputProfile
+                new CommandProfile
                 {
                     IsReadOnly=true,
                     Command="ffmpeg",
@@ -66,14 +47,21 @@ public static class SettingFiles
             },
              {
                 "StreamMaster",
-                new VideoOutputProfile
+                new CommandProfile
                 {
                     IsReadOnly=true
                 }
             },
              {
                 "None",
-                new VideoOutputProfile
+                new CommandProfile
+                {
+                    IsReadOnly=true
+                }
+            },
+             {
+                BuildInfo.DefaultCommandProfileName,
+                new CommandProfile
                 {
                     IsReadOnly=true
                 }

@@ -21,7 +21,7 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
     private readonly ILogger<ImageDownloadService> logger;
     private readonly ISchedulesDirectDataService schedulesDirectDataService;
     private readonly SemaphoreSlim downloadSemaphore;
-    private readonly IOptionsMonitor<Setting> intsettings;
+    private readonly IOptionsMonitor<Setting> intSettings;
     private readonly IHubContext<StreamMasterHub, IStreamMasterHub> hubContext;
     private readonly Setting settings;
     private readonly IImageDownloadQueue imageDownloadQueue;
@@ -53,7 +53,7 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
         };
     }
 
-    public ImageDownloadService(ILogger<ImageDownloadService> logger, IOptionsMonitor<SDSettings> intsdsettings, ISchedulesDirectAPIService schedulesDirectAPI, IImageDownloadQueue imageDownloadQueue, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IOptionsMonitor<Setting> intsettings, ISchedulesDirectDataService schedulesDirectDataService)
+    public ImageDownloadService(ILogger<ImageDownloadService> logger, IOptionsMonitor<SDSettings> intsdsettings, ISchedulesDirectAPIService schedulesDirectAPI, IImageDownloadQueue imageDownloadQueue, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IOptionsMonitor<Setting> intSettings, ISchedulesDirectDataService schedulesDirectDataService)
     {
         this.logger = logger;
         this.hubContext = hubContext;
@@ -61,7 +61,7 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
         this.schedulesDirectAPI = schedulesDirectAPI;
         sdsettings = intsdsettings.CurrentValue;
         this.imageDownloadQueue = imageDownloadQueue;
-        settings = intsettings.CurrentValue;
+        settings = intSettings.CurrentValue;
 
         downloadSemaphore = new(settings.MaxConcurrentDownloads);
 

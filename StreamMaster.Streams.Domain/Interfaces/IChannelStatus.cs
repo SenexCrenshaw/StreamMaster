@@ -1,4 +1,5 @@
-﻿using StreamMaster.PlayList.Models;
+﻿using StreamMaster.Domain.Configuration;
+using StreamMaster.PlayList.Models;
 
 namespace StreamMaster.Streams.Domain.Interfaces;
 
@@ -10,7 +11,7 @@ public interface IChannelStatus
     CustomPlayList? CustomPlayList { get; set; }
     bool Shutdown { get; set; }
     int ClientCount { get; set; }
-    VideoOutputProfileDto VideoProfile { get; set; }
+    CommandProfileDto CommandProfile { get; set; }
     string OverrideVideoStreamId { get; set; }
 
     /// <summary>

@@ -127,8 +127,8 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
             return;
         }
 
+        await hub.Clients.All.DataRefresh("GetCommandProfiles");
         await hub.Clients.All.DataRefresh("GetOutputProfiles");
-        await hub.Clients.All.DataRefresh("GetVideoProfiles");
     }
 
     public async Task RefreshSchedulesDirect(bool alwaysRun = false)

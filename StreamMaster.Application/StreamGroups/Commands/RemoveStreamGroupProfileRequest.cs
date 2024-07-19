@@ -10,7 +10,7 @@ public class RemoveStreamGroupProfileRequestHandler(IRepositoryWrapper Repositor
 {
     public async Task<APIResponse> Handle(RemoveStreamGroupProfileRequest request, CancellationToken cancellationToken)
     {
-        if (request.StreamGroupId < 1 || string.IsNullOrEmpty(request.Name))
+        if (request.StreamGroupId < 2 || string.IsNullOrEmpty(request.Name))
         {
             return APIResponse.NotFound;
         }
@@ -26,12 +26,17 @@ public class RemoveStreamGroupProfileRequestHandler(IRepositoryWrapper Repositor
             return APIResponse.ErrorWithMessage("Stream Group not found");
         }
 
+        if (streamGroup.Name.Equals("all", StringComparison.OrdinalIgnoreCase))
+        {
+            return APIResponse.ErrorWithMessage("Cannot use All stream group");
+        }
 
-        var test = Repository.StreamGroupProfile.GetStreamGroupProfiles().Find(a => a.StreamGroupId == streamGroup.Id && a.Name == request.Name);
+
+        StreamGroupProfile? test = Repository.StreamGroupProfile.GetStreamGroupProfiles().Find(a => a.StreamGroupId == streamGroup.Id && a.Name == request.Name);
         if (test is not null)
         {
             Repository.StreamGroupProfile.DeleteStreamGroupProfile(test);
-            await Repository.SaveAsync();
+            _ = await Repository.SaveAsync();
             await dataRefreshService.RefreshStreamGroups();
         }
 

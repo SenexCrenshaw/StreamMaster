@@ -1,4 +1,4 @@
-import { VideoProfileColumnConfigProps, useVideoProfileColumnConfig } from './useVideoProfileColumnConfig';
+import { VideoProfileColumnConfigProps, useVideoProfileColumnConfig } from './useCommandProfileColumnConfig';
 
 export const useVideoProfileTimeoutColumnConfig = (props?: VideoProfileColumnConfigProps) => {
   const test = useVideoProfileColumnConfig({ ...props, field: 'Timeout', header: 'Timeout' });

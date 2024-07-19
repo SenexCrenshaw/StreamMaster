@@ -33,6 +33,7 @@ global using StreamMaster.Domain.Pagination;
 global using StreamMaster.Domain.Repository;
 global using StreamMaster.Domain.Services;
 global using StreamMaster.PlayList;
+global using StreamMaster.PlayList.Models;
 global using StreamMaster.SchedulesDirect.Domain.Dto;
 global using StreamMaster.SchedulesDirect.Domain.Interfaces;
 global using StreamMaster.SchedulesDirect.Domain.JsonClasses;

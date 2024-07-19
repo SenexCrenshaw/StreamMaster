@@ -225,7 +225,7 @@ namespace StreamMaster.Application.SMChannels.Controllers
 
         [HttpPatch]
         [Route("[action]")]
-        public async Task<ActionResult<APIResponse>> SetSMChannelsVideoOutputProfileNameFromParameters(SetSMChannelsVideoOutputProfileNameFromParametersRequest request)
+        public async Task<ActionResult<APIResponse>> SetSMChannelsCommandProfileNameFromParameters(SetSMChannelsCommandProfileNameFromParametersRequest request)
         {
             APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
@@ -233,7 +233,7 @@ namespace StreamMaster.Application.SMChannels.Controllers
 
         [HttpPatch]
         [Route("[action]")]
-        public async Task<ActionResult<APIResponse>> SetSMChannelsVideoOutputProfileName(SetSMChannelsVideoOutputProfileNameRequest request)
+        public async Task<ActionResult<APIResponse>> SetSMChannelsCommandProfileName(SetSMChannelsCommandProfileNameRequest request)
         {
             APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
@@ -241,7 +241,7 @@ namespace StreamMaster.Application.SMChannels.Controllers
 
         [HttpPatch]
         [Route("[action]")]
-        public async Task<ActionResult<APIResponse>> SetSMChannelVideoOutputProfileName(SetSMChannelVideoOutputProfileNameRequest request)
+        public async Task<ActionResult<APIResponse>> SetSMChannelCommandProfileName(SetSMChannelCommandProfileNameRequest request)
         {
             APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
@@ -430,19 +430,19 @@ namespace StreamMaster.Application.Hubs
             return ret;
         }
 
-        public async Task<APIResponse> SetSMChannelsVideoOutputProfileNameFromParameters(SetSMChannelsVideoOutputProfileNameFromParametersRequest request)
+        public async Task<APIResponse> SetSMChannelsCommandProfileNameFromParameters(SetSMChannelsCommandProfileNameFromParametersRequest request)
         {
             APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;
         }
 
-        public async Task<APIResponse> SetSMChannelsVideoOutputProfileName(SetSMChannelsVideoOutputProfileNameRequest request)
+        public async Task<APIResponse> SetSMChannelsCommandProfileName(SetSMChannelsCommandProfileNameRequest request)
         {
             APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;
         }
 
-        public async Task<APIResponse> SetSMChannelVideoOutputProfileName(SetSMChannelVideoOutputProfileNameRequest request)
+        public async Task<APIResponse> SetSMChannelCommandProfileName(SetSMChannelCommandProfileNameRequest request)
         {
             APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;

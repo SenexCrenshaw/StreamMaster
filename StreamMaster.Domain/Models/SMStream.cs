@@ -1,6 +1,4 @@
-﻿using StreamMaster.Domain.Extensions;
-
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace StreamMaster.Domain.Models;
@@ -10,6 +8,8 @@ public class SMStream
     public static string APIName => "SMStreams";
     [Key]
     public string Id { get; set; } = string.Empty;
+
+    [Column(TypeName = "citext")]
     public string? ClientUserAgent { get; set; }
     public int FilePosition { get; set; }
     public bool IsHidden { get; set; } = false;
@@ -20,8 +20,8 @@ public class SMStream
 
     [Column(TypeName = "citext")]
     public string M3UFileName { get; set; } = string.Empty;
-    [Column(TypeName = "citext")]
-    public string ShortSMStreamId { get; set; } = UniqueHexGenerator.SMChannelIdEmpty;
+
+    //public string ShortSMStreamId { get; set; } = UniqueHexGenerator.SMChannelIdEmpty;
     [Column(TypeName = "citext")]
     public string Group { get; set; } = "Dummy";
     [Column(TypeName = "citext")]

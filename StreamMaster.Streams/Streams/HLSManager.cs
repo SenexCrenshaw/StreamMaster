@@ -4,7 +4,7 @@ using System.Collections.Concurrent;
 
 namespace StreamMaster.Streams.Streams;
 
-public class HLSManager(ILogger<HLSManager> logger, IChannelService channelService, IStreamTracker streamTracker, ILogger<HLSHandler> HLSHandlerlogger, ILogger<FFMPEGRunner> FFMPEGRunnerlogger, IOptionsMonitor<HLSSettings> inthlssettings, IOptionsMonitor<Setting> intsettings)
+public class HLSManager(ILogger<HLSManager> logger, IChannelService channelService, IStreamTracker streamTracker, ILogger<HLSHandler> HLSHandlerlogger, ILogger<FFMPEGRunner> FFMPEGRunnerlogger, IOptionsMonitor<HLSSettings> inthlssettings, IOptionsMonitor<Setting> intSettings)
     : IHLSManager
 {
     private readonly ConcurrentDictionary<int, IHLSHandler> hlsHandlers = new();
@@ -21,7 +21,7 @@ public class HLSManager(ILogger<HLSManager> logger, IChannelService channelServi
         IChannelStatus? channelStatus = await channelService.SetupChannel(smChannel);
 
         logger.LogInformation("Adding HLSHandler for {name}", smChannel.Name);
-        HLSHandler hlsHandler = new(HLSHandlerlogger, FFMPEGRunnerlogger, channelService, smChannel, intsettings, inthlssettings);
+        HLSHandler hlsHandler = new(HLSHandlerlogger, FFMPEGRunnerlogger, channelService, smChannel, intSettings, inthlssettings);
         hlsHandler.Start(channelStatus.SMStream.Url);
 
         hlsHandler.ProcessExited += async (sender, args) =>

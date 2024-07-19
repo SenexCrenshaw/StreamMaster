@@ -30,9 +30,9 @@ namespace StreamMaster.Application.SMChannels
         Task<ActionResult<APIResponse>> SetSMChannelsGroup(SetSMChannelsGroupRequest request);
         Task<ActionResult<APIResponse>> SetSMChannelsLogoFromEPGFromParameters(SetSMChannelsLogoFromEPGFromParametersRequest request);
         Task<ActionResult<APIResponse>> SetSMChannelsLogoFromEPG(SetSMChannelsLogoFromEPGRequest request);
-        Task<ActionResult<APIResponse>> SetSMChannelsVideoOutputProfileNameFromParameters(SetSMChannelsVideoOutputProfileNameFromParametersRequest request);
-        Task<ActionResult<APIResponse>> SetSMChannelsVideoOutputProfileName(SetSMChannelsVideoOutputProfileNameRequest request);
-        Task<ActionResult<APIResponse>> SetSMChannelVideoOutputProfileName(SetSMChannelVideoOutputProfileNameRequest request);
+        Task<ActionResult<APIResponse>> SetSMChannelsCommandProfileNameFromParameters(SetSMChannelsCommandProfileNameFromParametersRequest request);
+        Task<ActionResult<APIResponse>> SetSMChannelsCommandProfileName(SetSMChannelsCommandProfileNameRequest request);
+        Task<ActionResult<APIResponse>> SetSMChannelCommandProfileName(SetSMChannelCommandProfileNameRequest request);
         Task<ActionResult<APIResponse>> ToggleSMChannelsVisibleById(ToggleSMChannelsVisibleByIdRequest request);
         Task<ActionResult<APIResponse>> ToggleSMChannelVisibleById(ToggleSMChannelVisibleByIdRequest request);
         Task<ActionResult<APIResponse>> ToggleSMChannelVisibleByParameters(ToggleSMChannelVisibleByParametersRequest request);
@@ -68,9 +68,9 @@ namespace StreamMaster.Application.Hubs
         Task<APIResponse> SetSMChannelsGroup(SetSMChannelsGroupRequest request);
         Task<APIResponse> SetSMChannelsLogoFromEPGFromParameters(SetSMChannelsLogoFromEPGFromParametersRequest request);
         Task<APIResponse> SetSMChannelsLogoFromEPG(SetSMChannelsLogoFromEPGRequest request);
-        Task<APIResponse> SetSMChannelsVideoOutputProfileNameFromParameters(SetSMChannelsVideoOutputProfileNameFromParametersRequest request);
-        Task<APIResponse> SetSMChannelsVideoOutputProfileName(SetSMChannelsVideoOutputProfileNameRequest request);
-        Task<APIResponse> SetSMChannelVideoOutputProfileName(SetSMChannelVideoOutputProfileNameRequest request);
+        Task<APIResponse> SetSMChannelsCommandProfileNameFromParameters(SetSMChannelsCommandProfileNameFromParametersRequest request);
+        Task<APIResponse> SetSMChannelsCommandProfileName(SetSMChannelsCommandProfileNameRequest request);
+        Task<APIResponse> SetSMChannelCommandProfileName(SetSMChannelCommandProfileNameRequest request);
         Task<APIResponse> ToggleSMChannelsVisibleById(ToggleSMChannelsVisibleByIdRequest request);
         Task<APIResponse> ToggleSMChannelVisibleById(ToggleSMChannelVisibleByIdRequest request);
         Task<APIResponse> ToggleSMChannelVisibleByParameters(ToggleSMChannelVisibleByParametersRequest request);

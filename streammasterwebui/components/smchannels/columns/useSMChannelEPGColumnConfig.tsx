@@ -23,7 +23,6 @@ export const useSMChannelEPGColumnConfig = ({ width = 125 }: SMChannelEPGColumnC
   const epgFiles = useMemo(() => {
     let additionalOptions = [] as EPGFileDto[];
     if (settings.SDSettings?.SDEnabled === undefined) {
-      console.log('sa', isSystemReady);
       return;
     }
     if (settings.SDSettings.SDEnabled === true) {

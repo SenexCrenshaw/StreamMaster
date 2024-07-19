@@ -8,9 +8,9 @@ using System.Web;
 
 namespace StreamMaster.SchedulesDirect.Helpers;
 
-public class IconHelper(IEPGHelper ePGHelper, IIconService iconService, IOptionsMonitor<Setting> intsettings) : IIconHelper
+public class IconHelper(IEPGHelper ePGHelper, IIconService iconService, IOptionsMonitor<Setting> intSettings) : IIconHelper
 {
-    private readonly Setting settings = intsettings.CurrentValue;
+    private readonly Setting settings = intSettings.CurrentValue;
 
     public string GetIconUrl(int EPGNumber, string iconOriginalSource, string _baseUrl, SMFileTypes? sMFileTypes = null)
     {
@@ -94,7 +94,7 @@ public class IconHelper(IEPGHelper ePGHelper, IIconService iconService, IOptions
     ///// <param name="setting"></param>
     ///// <param name="cancellationToken"></param>
     ///// <returns></returns>
-    //public static IconFileDto AddIcon(string sourceUrl, string? recommendedName, int fileId, int Id, IOptionsMonitor<Setting> intsettings, FileDefinition fileDefinition, CancellationToken cancellationToken, bool ignoreAdd = false)
+    //public static IconFileDto AddIcon(string sourceUrl, string? recommendedName, int fileId, int Id, IOptionsMonitor<Setting> intSettings, FileDefinition fileDefinition, CancellationToken cancellationToken, bool ignoreAdd = false)
     //{
     //    string source = HttpUtility.UrlDecode(sourceUrl);
 
@@ -128,7 +128,7 @@ public class IconHelper(IEPGHelper ePGHelper, IIconService iconService, IOptions
     //    return icon;
     //}
 
-    //public static async Task<bool> ReadDirectoryLogos(IOptionsMonitor<Setting> intsettings, CancellationToken cancellationToken = default)
+    //public static async Task<bool> ReadDirectoryLogos(IOptionsMonitor<Setting> intSettings, CancellationToken cancellationToken = default)
     //{
     //    FileDefinition fd = FileDefinitions.TVLogo;
     //    if (!Directory.Exists(fd.DirectoryLocation))

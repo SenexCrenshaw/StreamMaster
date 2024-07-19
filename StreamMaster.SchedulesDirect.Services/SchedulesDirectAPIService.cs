@@ -19,11 +19,11 @@ public partial class SchedulesDirectAPIService : ISchedulesDirectAPIService
 
     private const string BaseAddress = "https://json.schedulesdirect.org/20141201/";
 
-    public SchedulesDirectAPIService(ILogger<SchedulesDirectAPIService> logger, IOptionsMonitor<SDSettings> intsdsettings, IOptionsMonitor<Setting> intsettings)
+    public SchedulesDirectAPIService(ILogger<SchedulesDirectAPIService> logger, IOptionsMonitor<SDSettings> intsdsettings, IOptionsMonitor<Setting> intSettings)
     {
         this.logger = logger;
         sdsettings = intsdsettings.CurrentValue;
-        settings = intsettings.CurrentValue;
+        settings = intSettings.CurrentValue;
         CreateHttpClient();
 
     }

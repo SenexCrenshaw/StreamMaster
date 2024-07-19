@@ -45,7 +45,7 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
     //ILogger<GetStreamGroupM3U> logger,    
     ISender sender,
     IRepositoryWrapper Repository,
-    IOptionsMonitor<Setting> intsettings,
+    IOptionsMonitor<Setting> intSettings,
     IOptionsMonitor<HLSSettings> inthlssettings
     )
     : IRequestHandler<GetStreamGroupM3U, string>
@@ -99,7 +99,7 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
             return DefaultReturn;
         }
 
-        Setting settings = intsettings.CurrentValue;
+        Setting settings = intSettings.CurrentValue;
         string url = httpContextAccessor.GetUrl();
         string requestPath = httpContextAccessor.HttpContext.Request.Path.Value!.ToString();
         byte[]? iv = requestPath.GetIVFromPath(settings.ServerKey, 128);
@@ -131,7 +131,7 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
 
         (List<VideoStreamConfig> videoStreamConfigs, OutputProfile profile) = await sender.Send(new GetStreamGroupVideoConfigs(request.StreamGroupId, sgProfileId.Value), cancellationToken);
 
-        //VideoOutputProfile videoOutputProfile = intProfileSettings.CurrentValue.VideoProfiles[sgProfile.VideoProfileName];
+        //CommandProfile videoOutputProfile = intProfileSettings.CurrentValue.CommandProfiles[sgProfile.CommandProfileName];
 
 
         // Retrieve necessary data in parallel
@@ -319,7 +319,7 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
         string logo = GetIconUrl(smChannel.Logo, setting);
         smChannel.Logo = logo;
         HLSSettings hlssettings = inthlssettings.CurrentValue;
-        string videoUrl = $"{url}/v/v/{smChannel.ShortSMChannelId}";
+        string videoUrl ="";
         //if (request.UseSMChannelId)
         //{
         //    videoUrl = $"{url}/v/v/{smChannel.ShortSMChannelId}";

@@ -20,7 +20,7 @@ public class ChannelNumberConfig
 
 [RequireAll]
 public record GetStreamGroupEPG(int StreamGroupId, int StreamGroupProfileId) : IRequest<string>;
-public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, ISender sender, IEPGHelper epgHelper, IXMLTVBuilder xMLTVBuilder, ILogger<GetStreamGroupEPG> logger, ISchedulesDirectDataService schedulesDirectDataService, IOptionsMonitor<Setting> intsettings)
+public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, ISender sender, IEPGHelper epgHelper, IXMLTVBuilder xMLTVBuilder, ILogger<GetStreamGroupEPG> logger, ISchedulesDirectDataService schedulesDirectDataService, IOptionsMonitor<Setting> intSettings)
     : IRequestHandler<GetStreamGroupEPG, string>
 {
     private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
@@ -104,7 +104,7 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
 
     private string SerializeXMLTVData(XMLTV xmltv)
     {
-        Setting settings = intsettings.CurrentValue;
+        Setting settings = intSettings.CurrentValue;
 
 
         XmlSerializerNamespaces ns = new();

@@ -67,10 +67,10 @@ if (Directory.Exists(BuildInfo.SettingsFolder))
     builder.Configuration.SetBasePath(BuildInfo.AppDataFolder);
 }
 
-var videoProfileSetting = SettingsHelper.GetSetting<VideoOutputProfiles>(BuildInfo.VideoProfileSettingsFile);
-if (videoProfileSetting == default(VideoOutputProfiles))
+var commandProfileSetting = SettingsHelper.GetSetting<CommandProfileList>(BuildInfo.CommandProfileSettingsFile);
+if (commandProfileSetting == default(CommandProfileList))
 {
-    SettingsHelper.UpdateSetting(SettingFiles.DefaultVideoProfileSetting);
+    SettingsHelper.UpdateSetting(SettingFiles.DefauCommandProfileSetting);
 }
 
 var fileProfileSetting = SettingsHelper.GetSetting<OutputProfiles>(BuildInfo.OutputProfileSettingsFile);
@@ -120,7 +120,7 @@ foreach (var file in settingsFiles)
 builder.Services.Configure<Setting>(builder.Configuration);
 builder.Services.Configure<SDSettings>(builder.Configuration);
 builder.Services.Configure<HLSSettings>(builder.Configuration);
-builder.Services.Configure<VideoOutputProfiles>(builder.Configuration);
+builder.Services.Configure<CommandProfileList>(builder.Configuration);
 builder.Services.Configure<OutputProfiles>(builder.Configuration);
 
 bool enableSsl = false;
@@ -223,15 +223,8 @@ app.UseSession();
 
 using (IServiceScope scope = app.Services.CreateScope())
 {
-    LogDbContextInitialiser logInitialiser = scope.ServiceProvider.GetRequiredService<LogDbContextInitialiser>();
-    await logInitialiser.InitialiseAsync().ConfigureAwait(false);
-    if (app.Environment.IsDevelopment())
-    {
-        logInitialiser.TrySeed();
-    }
-
-    RepositoryContextInitializer initialiser = scope.ServiceProvider.GetRequiredService<RepositoryContextInitializer>();
-    await initialiser.InitializeAsync(mainSetting!).ConfigureAwait(false);
+       RepositoryContextInitializer initialiser = scope.ServiceProvider.GetRequiredService<RepositoryContextInitializer>();
+    await initialiser.InitializeAsync().ConfigureAwait(false);
     if (app.Environment.IsDevelopment())
     {
         initialiser.TrySeed();

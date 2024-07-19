@@ -17,9 +17,9 @@ public interface IAuthenticationService
     void LogUnauthorized(HttpRequest context);
 }
 
-public class AuthenticationService(ILogger<AuthenticationService> logger, IOptionsMonitor<Setting> intsettings) : IAuthenticationService
+public class AuthenticationService(ILogger<AuthenticationService> logger, IOptionsMonitor<Setting> intSettings) : IAuthenticationService
 {
-    private readonly Setting settings = intsettings.CurrentValue;
+    private readonly Setting settings = intSettings.CurrentValue;
 
     private async Task<AuthenticationType> GetAuthMethod()
     {

@@ -6,10 +6,10 @@ namespace StreamMaster.Application.SchedulesDirect.Commands;
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record RemoveStationRequest(List<StationRequest> Requests) : IRequest<APIResponse>;
 
-public class RemoveStationRequestHandler(ILogger<RemoveStationRequest> logger, IDataRefreshService dataRefreshService, IJobStatusService jobStatusService, ISchedulesDirect schedulesDirect, ISender Sender, IOptionsMonitor<SDSettings> intsettings)
+public class RemoveStationRequestHandler(ILogger<RemoveStationRequest> logger, IDataRefreshService dataRefreshService, IJobStatusService jobStatusService, ISchedulesDirect schedulesDirect, ISender Sender, IOptionsMonitor<SDSettings> intSettings)
 : IRequestHandler<RemoveStationRequest, APIResponse>
 {
-    private readonly SDSettings sdsettings = intsettings.CurrentValue;
+    private readonly SDSettings sdsettings = intSettings.CurrentValue;
 
     public async Task<APIResponse> Handle(RemoveStationRequest request, CancellationToken cancellationToken)
     {

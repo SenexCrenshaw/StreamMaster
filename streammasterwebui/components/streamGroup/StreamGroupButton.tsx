@@ -6,6 +6,7 @@ import { memo, useMemo } from 'react';
 import StreamGroupCreateDialog from './StreamGroupCreateDialog';
 import StreamGroupDataSelector from './StreamGroupDataSelector';
 import { StreamGroupSelector } from './StreamGroupSelector';
+import StreamGroupProfileButton from './profiles/StreamGroupProfileButton';
 
 interface StreamGroupButtonProperties {
   className?: string;
@@ -16,7 +17,12 @@ const StreamGroupButton = ({ className = 'sm-w-10rem sm-input-dark' }: StreamGro
   const { selectedStreamGroup, setSelectedStreamGroup } = useSelectedStreamGroup('StreamGroup');
 
   const headerTemplate = useMemo(() => {
-    return <StreamGroupCreateDialog />;
+    return (
+      <>
+        <StreamGroupProfileButton />
+        <StreamGroupCreateDialog />
+      </>
+    );
   }, []);
 
   return (

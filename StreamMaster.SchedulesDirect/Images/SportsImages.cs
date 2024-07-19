@@ -2,12 +2,12 @@
 using System.Text.Json;
 
 namespace StreamMaster.SchedulesDirect.Images;
-public class SportsImages(ILogger<SportsImages> logger, IEPGCache<SportsImages> epgCache, IImageDownloadQueue imageDownloadQueue, IOptionsMonitor<SDSettings> intsettings, ISchedulesDirectAPIService schedulesDirectAPI) : ISportsImages
+public class SportsImages(ILogger<SportsImages> logger, IEPGCache<SportsImages> epgCache, IImageDownloadQueue imageDownloadQueue, IOptionsMonitor<SDSettings> intSettings, ISchedulesDirectAPIService schedulesDirectAPI) : ISportsImages
 {
     public List<MxfProgram> SportEvents { get; set; } = [];
     private List<string> sportsImageQueue = [];
     private ConcurrentBag<ProgramMetadata> sportsImageResponses = [];
-    private readonly SDSettings sdsettings = intsettings.CurrentValue;
+    private readonly SDSettings sdsettings = intSettings.CurrentValue;
 
     private int processedObjects;
     private int totalObjects;

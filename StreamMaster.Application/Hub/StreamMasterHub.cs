@@ -4,14 +4,14 @@ namespace StreamMaster.Application.Hubs;
 
 public partial class StreamMasterHub(
     ISender Sender,
-    IOptionsMonitor<Setting> intsettings,
+    IOptionsMonitor<Setting> intSettings,
     IBackgroundTaskQueue taskQueue,
     ILogger<StreamMasterHub> _logger
     )
     : Hub<IStreamMasterHub>
 {
     private static readonly ConcurrentHashSet<string> _connections = [];
-    private readonly Setting settings = intsettings.CurrentValue;
+    private readonly Setting settings = intSettings.CurrentValue;
     public static bool IsConnected
     {
         get

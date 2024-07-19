@@ -1,7 +1,5 @@
 ﻿using StreamMaster.Application.SMChannelStreamLinks.Commands;
 
-using System.Collections.Concurrent;
-
 namespace StreamMaster.Application.SMChannels.Commands;
 
 [SMAPI]
@@ -9,16 +7,13 @@ namespace StreamMaster.Application.SMChannels.Commands;
 public record CreateSMChannelRequest(
     string Name,
     List<string>? SMStreamsIds,
-    string? VideoOutputProfileName,
+    string? CommandProfileName,
     int? ChannelNumber,
     int? TimeShift,
     string? Group,
     string? EPGId,
-    string? Logo,
-    VideoStreamHandlers? VideoStreamHandler
-
-    ) : IRequest<APIResponse>
-{ }
+    string? Logo
+    ) : IRequest<APIResponse>;
 
 [LogExecutionTimeAspect]
 public class CreateSMChannelRequestHandler(ILogger<CreateSMChannelRequest> Logger, ISender Sender, IMessageService messageService, IDataRefreshService dataRefreshService, IRepositoryWrapper Repository)
@@ -31,12 +26,6 @@ public class CreateSMChannelRequestHandler(ILogger<CreateSMChannelRequest> Logge
             return APIResponse.NotFound;
         }
 
-        ConcurrentDictionary<string, byte> generatedIdsDict = new();
-        foreach (SMChannel channel in Repository.SMChannel.GetQuery())
-        {
-            _ = generatedIdsDict.TryAdd(channel.ShortSMChannelId, 0);
-        }
-
         try
         {
             SMChannel smChannel = new()
@@ -47,9 +36,7 @@ public class CreateSMChannelRequestHandler(ILogger<CreateSMChannelRequest> Logge
                 Group = request.Group ?? "All",
                 EPGId = request.EPGId ?? string.Empty,
                 Logo = request.Logo ?? string.Empty,
-                VideoStreamHandler = request.VideoStreamHandler ?? VideoStreamHandlers.SystemDefault,
-                VideoOutputProfileName = request.VideoOutputProfileName ?? "StreamMaster",
-                ShortSMChannelId = UniqueHexGenerator.GenerateUniqueHex(generatedIdsDict)
+                CommandProfileName = request.CommandProfileName ?? BuildInfo.DefaultCommandProfileName
             };
 
             Repository.SMChannel.Create(smChannel);
@@ -65,21 +52,7 @@ public class CreateSMChannelRequestHandler(ILogger<CreateSMChannelRequest> Logge
                 _ = await Repository.SaveAsync();
 
                 DataResponse<List<SMStreamDto>> streams = await Sender.Send(new UpdateStreamRanksRequest(smChannel.Id, request.SMStreamsIds), cancellationToken);
-
             }
-
-
-            //GetSMChannelStreamsRequest re = new(smChannel.Id);
-
-            //List<FieldData> ret = new()
-            //{
-            //    new("GetSMChannelStreams", re, streams.Data),
-            //    new(SMChannel.APIName, smChannel.Id, "SMStreams", streams.Data)
-            //};
-            ////await dataRefreshService.RefreshSMChannelStreamLinks();
-            //await dataRefreshService.SetField(ret).ConfigureAwait(false);
-
-
 
             await dataRefreshService.RefreshAllSMChannels();
             await messageService.SendSuccess("Channel Added", $"Channel '{request.Name}' added successfully");

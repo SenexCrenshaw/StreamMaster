@@ -38,11 +38,11 @@ public class BaseSettings
     public List<string> NameRegex { get; set; } = [];
     public string SSLCertPassword { get; set; } = string.Empty;
     public string SSLCertPath { get; set; } = string.Empty;
-    public string StreamingClientUserAgent { get; set; } = "VLC/3.0.20-git LibVLC/3.0.20-git";
-    public string VideoOutputProfileName { get; set; } = "StreamMaster";
+    public string SourceClientUserAgent { get; set; } = "VLC/3.0.20-git LibVLC/3.0.20-git";
+    public string DefaultOutputProfileName { get; set; } = "Default";
+    public string DefaultCommandProfileName { get; set; } = "StreamMaster";
     public bool VideoStreamAlwaysUseEPGLogo { get; set; } = true;
     public bool ShowClientHostNames { get; set; }
-
 }
 
 public class Setting : BaseSettings

@@ -14,9 +14,9 @@ namespace StreamMaster.API.Controllers
     [ApiExplorerSettings(IgnoreApi = true)]
     [AllowAnonymous]
     [ApiController]
-    public class AuthenticationController(IAuthenticationService authService, IOptionsMonitor<Setting> intsettings) : Controller
+    public class AuthenticationController(IAuthenticationService authService, IOptionsMonitor<Setting> intSettings) : Controller
     {
-        private readonly Setting settings = intsettings.CurrentValue;
+        private readonly Setting settings = intSettings.CurrentValue;
 
         [AllowAnonymous]
         [HttpPost("login")]

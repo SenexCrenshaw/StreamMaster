@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 
 namespace StreamMaster.SchedulesDirect;
 
-public class Schedules(ILogger<Schedules> logger, IOptionsMonitor<SDSettings> intsettings, IEPGHelper ePGHelper, ISchedulesDirectAPIService schedulesDirectAPI, IEPGCache<Schedules> epgCache, ISchedulesDirectDataService schedulesDirectDataService) : ISchedules
+public class Schedules(ILogger<Schedules> logger, IOptionsMonitor<SDSettings> intSettings, IEPGHelper ePGHelper, ISchedulesDirectAPIService schedulesDirectAPI, IEPGCache<Schedules> epgCache, ISchedulesDirectDataService schedulesDirectDataService) : ISchedules
 {
     private int cachedSchedules;
     private int downloadedSchedules;
@@ -15,7 +15,7 @@ public class Schedules(ILogger<Schedules> logger, IOptionsMonitor<SDSettings> in
     private int processedObjects;
     private int totalObjects;
     private int processStage;
-    private readonly SDSettings sdsettings = intsettings.CurrentValue;
+    private readonly SDSettings sdsettings = intSettings.CurrentValue;
 
     public async Task<bool> GetAllScheduleEntryMd5S(CancellationToken cancellationToken)
     {

@@ -7,10 +7,10 @@ namespace StreamMaster.Application.SchedulesDirect.Commands;
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record SetStationsRequest(List<StationRequest> Requests) : IRequest<APIResponse>;
 
-public class SetStationsHandler(ILogger<SetStationsRequest> logger, IDataRefreshService dataRefreshService, IJobStatusService jobStatusService, ISchedulesDirect schedulesDirect, ISender Sender, IOptionsMonitor<SDSettings> intsettings)
+public class SetStationsHandler(ILogger<SetStationsRequest> logger, IDataRefreshService dataRefreshService, IJobStatusService jobStatusService, ISchedulesDirect schedulesDirect, ISender Sender, IOptionsMonitor<SDSettings> intSettings)
 : IRequestHandler<SetStationsRequest, APIResponse>
 {
-    private readonly SDSettings sdsettings = intsettings.CurrentValue;
+    private readonly SDSettings sdsettings = intSettings.CurrentValue;
 
     public async Task<APIResponse> Handle(SetStationsRequest request, CancellationToken cancellationToken)
     {

@@ -1,5 +1,4 @@
 ﻿using StreamMaster.Domain.API;
-using StreamMaster.Domain.Helpers;
 using StreamMaster.Domain.Pagination;
 
 using System.Linq.Expressions;
@@ -22,9 +21,9 @@ public interface ISMChannelsRepository : IRepositoryBase<SMChannel>
 
     //Task<APIResponse> CreateSMChannelFromStream(string streamId, string? DefaultStreamGroupName, int? AddToStreamGroupId, int? M3UFileId);
 
-    Task<APIResponse> CreateSMChannelsFromStreamParameters(QueryStringParameters Parameters, int? AddToStreamGroupId, int? M3UFileId);
+    Task<APIResponse> CreateSMChannelsFromStreamParameters(QueryStringParameters Parameters, int? AddToStreamGroupId);
 
-    Task<APIResponse> CreateSMChannelsFromStreams(List<string> streamIds, int? AddToStreamGroupId, int? M3UFileId = EPGHelper.DummyId, bool? IsCustomPlayList = false, bool? forced = false);
+    Task<APIResponse> CreateSMChannelsFromStreams(List<string> streamIds, int? AddToStreamGroupId);
 
     Task<APIResponse> DeleteSMChannel(int smchannelId);
 
@@ -56,7 +55,7 @@ public interface ISMChannelsRepository : IRepositoryBase<SMChannel>
 
     Task<APIResponse> SetSMChannelName(int sMChannelId, string name);
 
-    Task<APIResponse> SetSMChannelVideoOutputProfileName(int sMChannelId, string VideoOutputProfileName);
+    Task<APIResponse> SetSMChannelCommandProfileName(int sMChannelId, string CommandProfileName);
 
     Task<List<FieldData>> SetSMChannelsLogoFromEPGFromIds(List<int> ids, CancellationToken cancellationToken);
 
@@ -71,6 +70,7 @@ public interface ISMChannelsRepository : IRepositoryBase<SMChannel>
     Task<List<FieldData>> ToggleSMChannelVisibleByParameters(QueryStringParameters Parameters, CancellationToken cancellationToken);
     Task<APIResponse> SetSMChannelsGroup(List<int> sMChannelIds, string GroupName);
     Task<APIResponse> SetSMChannelsGroupFromParameters(QueryStringParameters Parameters, string GroupName);
-    Task<APIResponse> SetSMChannelsVideoOutputProfileName(List<int> sMChannelIds, string videoOutputProfileName);
-    Task<APIResponse> SetSMChannelsVideoOutputProfileNameFromParameters(QueryStringParameters parameters, string videoOutputProfileName);
+    Task<APIResponse> SetSMChannelsCommandProfileName(List<int> sMChannelIds, string CommandProfileName);
+    Task<APIResponse> SetSMChannelsCommandProfileNameFromParameters(QueryStringParameters parameters, string CommandProfileName);
+    Task<APIResponse> CreateSMChannelsFromCustomStreams(List<string> streamIds, int m3UFileId, bool isCustomPlayList);
 }

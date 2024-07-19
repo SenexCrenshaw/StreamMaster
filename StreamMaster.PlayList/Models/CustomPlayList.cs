@@ -1,5 +1,8 @@
-﻿namespace StreamMaster.PlayList.Models;
+﻿using Reinforced.Typings.Attributes;
 
+namespace StreamMaster.PlayList.Models;
+
+[TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public class CustomPlayList
 {
     public string Name { get; set; } = string.Empty;

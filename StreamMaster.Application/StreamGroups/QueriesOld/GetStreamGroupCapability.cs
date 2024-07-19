@@ -12,10 +12,10 @@ namespace StreamMaster.Application.StreamGroups.QueriesOld;
 public record GetStreamGroupCapability(int StreamGroupId, int StreamGroupProfileId) : IRequest<string>;
 
 [LogExecutionTimeAspect]
-public class GetStreamGroupCapabilityHandler(IHttpContextAccessor httpContextAccessor, ILogger<GetStreamGroupCapability> logger, IRepositoryWrapper Repository, IOptionsMonitor<Setting> intsettings)
+public class GetStreamGroupCapabilityHandler(IHttpContextAccessor httpContextAccessor, ILogger<GetStreamGroupCapability> logger, IRepositoryWrapper Repository, IOptionsMonitor<Setting> intSettings)
     : IRequestHandler<GetStreamGroupCapability, string>
 {
-    private readonly Setting settings = intsettings.CurrentValue;
+    private readonly Setting settings = intSettings.CurrentValue;
 
     public async Task<string> Handle(GetStreamGroupCapability request, CancellationToken cancellationToken)
     {

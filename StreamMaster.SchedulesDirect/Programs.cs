@@ -6,9 +6,9 @@ using System.Text.Json;
 
 namespace StreamMaster.SchedulesDirect;
 
-public class Programs(ILogger<Programs> logger, IOptionsMonitor<SDSettings> intsettings, ISeriesImages seriesImages, ISportsImages sportsImages, ISchedulesDirectAPIService schedulesDirectAPI, IEPGCache<Programs> epgCache, ISchedulesDirectDataService schedulesDirectDataService) : IPrograms
+public class Programs(ILogger<Programs> logger, IOptionsMonitor<SDSettings> intSettings, ISeriesImages seriesImages, ISportsImages sportsImages, ISchedulesDirectAPIService schedulesDirectAPI, IEPGCache<Programs> epgCache, ISchedulesDirectDataService schedulesDirectDataService) : IPrograms
 {
-    private readonly SDSettings sdsettings = intsettings.CurrentValue;
+    private readonly SDSettings sdsettings = intSettings.CurrentValue;
 
     private List<string> programQueue = [];
     private ConcurrentBag<Programme> programResponses = [];

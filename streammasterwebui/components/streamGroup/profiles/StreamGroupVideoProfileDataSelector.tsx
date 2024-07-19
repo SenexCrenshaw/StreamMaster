@@ -1,32 +1,32 @@
 import StringEditor from '@components/inputs/StringEditor';
 import SMDataTable from '@components/smDataTable/SMDataTable';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
-import { UpdateVideoProfile } from '@lib/smAPI/Profiles/ProfilesCommands';
-import useGetVideoProfiles from '@lib/smAPI/Profiles/useGetVideoProfiles';
-import { UpdateVideoProfileRequest, VideoOutputProfileDto } from '@lib/smAPI/smapiTypes';
+import { UpdateCommandProfile } from '@lib/smAPI/Profiles/ProfilesCommands';
+import useGetCommandProfiles from '@lib/smAPI/Profiles/useGetCommandProfiles';
+import { CommandProfileDto, UpdateCommandProfileRequest } from '@lib/smAPI/smapiTypes';
 import { DataTableRowClickEvent } from 'primereact/datatable';
 import { memo, useCallback, useMemo } from 'react';
-import CreateVideoProfileDialog from './CreateVideoProfileDialog';
-import RemoveVideoProfileDialog from './RemoveVideoProfileDialog';
-import { useVideoProfileCommandColumnConfig } from './columns/useVideoProfileCommandColumnConfig';
-import { useVideoProfileParametersColumnConfig } from './columns/useVideoProfileParametersColumnConfig';
+import { useCommandProfileCommandColumnConfig } from './columns/useCommandProfileCommandColumnConfig';
+import { useCommandProfileParametersColumnConfig } from './columns/useCommandProfileParametersColumnConfig';
+import CreateCommandProfileDialog from './CreateCommandProfileDialog';
+import RemoveCommandProfileDialog from './RemoveCommandProfileDialog';
 
-const StreamGroupVideoProfileDataSelector = () => {
-  const id = 'StreamGroupVideoProfileDataSelector';
-  const { data } = useGetVideoProfiles();
-  const videoProfileCommandColumnConfig = useVideoProfileCommandColumnConfig({ width: 40 });
-  const videoProfileParametersColumnConfig = useVideoProfileParametersColumnConfig({ width: 200 });
+const StreamGroupCommandProfileDataSelector = () => {
+  const id = 'StreamGroupCommandProfileDataSelector';
+  const { data } = useGetCommandProfiles();
+  const CommandProfileCommandColumnConfig = useCommandProfileCommandColumnConfig({ width: 40 });
+  const CommandProfileParametersColumnConfig = useCommandProfileParametersColumnConfig({ width: 200 });
 
-  const actionTemplate = useCallback((rowData: VideoOutputProfileDto) => {
+  const actionTemplate = useCallback((rowData: CommandProfileDto) => {
     return (
       <div className="sm-center-stuff">
-        <RemoveVideoProfileDialog videoOutputProfileDto={rowData} />
+        <RemoveCommandProfileDialog videoOutputProfileDto={rowData} />
       </div>
     );
   }, []);
 
-  const update = useCallback((request: UpdateVideoProfileRequest) => {
-    UpdateVideoProfile(request)
+  const update = useCallback((request: UpdateCommandProfileRequest) => {
+    UpdateCommandProfile(request)
       .then((res) => {})
       .catch((error) => {
         console.error('error', error);
@@ -35,7 +35,7 @@ const StreamGroupVideoProfileDataSelector = () => {
   }, []);
 
   const nameTemplate = useCallback(
-    (rowData: VideoOutputProfileDto) => {
+    (rowData: CommandProfileDto) => {
       if (
         rowData.ProfileName.toLowerCase() === 'default' ||
         rowData.ProfileName.toLowerCase() === 'defaultffmpeg' ||
@@ -48,7 +48,7 @@ const StreamGroupVideoProfileDataSelector = () => {
           value={rowData.ProfileName}
           onSave={(e) => {
             if (e !== undefined) {
-              const ret = { NewName: e, ProfileName: rowData.ProfileName } as UpdateVideoProfileRequest;
+              const ret = { NewProfileName: e, ProfileName: rowData.ProfileName } as UpdateCommandProfileRequest;
               update(ret);
             }
           }}
@@ -67,9 +67,9 @@ const StreamGroupVideoProfileDataSelector = () => {
         sortable: true,
         width: 60
       },
-      videoProfileCommandColumnConfig,
-      videoProfileParametersColumnConfig,
-      // videoProfileTimeoutColumnConfig,
+      CommandProfileCommandColumnConfig,
+      CommandProfileParametersColumnConfig,
+      // CommandProfileTimeoutColumnConfig,
       {
         align: 'center',
         bodyTemplate: actionTemplate,
@@ -78,7 +78,7 @@ const StreamGroupVideoProfileDataSelector = () => {
         width: 20
       }
     ],
-    [actionTemplate, nameTemplate, videoProfileCommandColumnConfig, videoProfileParametersColumnConfig]
+    [actionTemplate, nameTemplate, CommandProfileCommandColumnConfig, CommandProfileParametersColumnConfig]
   );
 
   // const rowClass = useCallback((data: DataTableRowData<any>) => {
@@ -86,7 +86,7 @@ const StreamGroupVideoProfileDataSelector = () => {
   //     return '';
   //   }
 
-  //   const videoOutputProfileDto = data as unknown as VideoOutputProfileDto;
+  //   const videoOutputProfileDto = data as unknown as CommandProfileDto;
 
   //   if (videoOutputProfileDto.IsReadOnly === true || videoOutputProfileDto.ProfileName.toLowerCase() === 'defaultffmpeg') {
   //     return 'p-disabled';
@@ -96,7 +96,7 @@ const StreamGroupVideoProfileDataSelector = () => {
 
   return (
     <SMDataTable
-      actionHeaderTemplate={<CreateVideoProfileDialog />}
+      actionHeaderTemplate={<CreateCommandProfileDialog />}
       columns={columns}
       dataSource={data}
       defaultSortField="Name"
@@ -114,6 +114,6 @@ const StreamGroupVideoProfileDataSelector = () => {
   );
 };
 
-StreamGroupVideoProfileDataSelector.displayName = 'StreamGroupVideoProfileDataSelector';
+StreamGroupCommandProfileDataSelector.displayName = 'StreamGroupCommandProfileDataSelector';
 
-export default memo(StreamGroupVideoProfileDataSelector);
+export default memo(StreamGroupCommandProfileDataSelector);

@@ -3,10 +3,10 @@
 
 public record EPGSync() : IRequest<APIResponse>;
 
-public class EPGSyncHandler(ISchedulesDirect schedulesDirect, ILogger<EPGSync> logger, IDataRefreshService dataRefreshService, IOptionsMonitor<SDSettings> intsettings)
+public class EPGSyncHandler(ISchedulesDirect schedulesDirect, ILogger<EPGSync> logger, IDataRefreshService dataRefreshService, IOptionsMonitor<SDSettings> intSettings)
 : IRequestHandler<EPGSync, APIResponse>
 {
-    private readonly SDSettings settings = intsettings.CurrentValue;
+    private readonly SDSettings settings = intSettings.CurrentValue;
 
     public async Task<APIResponse> Handle(EPGSync request, CancellationToken cancellationToken)
     {

@@ -23,23 +23,6 @@ export interface OutputProfileDto
 	Name: string;
 	ProfileName: string;
 }
-export interface VideoOutputProfile
-{
-	Command: string;
-	IsM3U8: boolean;
-	IsReadOnly: boolean;
-	Parameters: string;
-	Timeout: number;
-}
-export interface VideoOutputProfileDto
-{
-	Command: string;
-	IsM3U8: boolean;
-	IsReadOnly: boolean;
-	Parameters: string;
-	ProfileName: string;
-	Timeout: number;
-}
 export interface QueryStringParameters
 {
 	JSONArgumentString?: string;
@@ -85,21 +68,21 @@ export interface StationIdLineup
 }
 export interface StreamGroupProfile
 {
+	CommandProfileName: string;
 	Id: number;
 	Name: string;
 	OutputProfileName: string;
 	StreamGroupId: number;
-	VideoProfileName: string;
 }
 export interface StreamGroupProfileDto
 {
+	CommandProfileName: string;
 	HDHRLink: string;
 	Id: number;
 	M3ULink: string;
 	Name: string;
 	OutputProfileName: string;
 	StreamGroupId: number;
-	VideoProfileName: string;
 	XMLLink: string;
 	Mapping(profile: any) : void;
 }
@@ -285,7 +268,9 @@ export interface SettingDto
 	CacheIcons: boolean;
 	CleanURLs: boolean;
 	ClientUserAgent: string;
+	DefaultCommandProfileName: string;
 	DefaultIcon: string;
+	DefaultOutputProfileName: string;
 	DeviceID: string;
 	DummyRegex: string;
 	EnablePrometheus: boolean;
@@ -308,19 +293,19 @@ export interface SettingDto
 	Release: string;
 	SDSettings: SDSettings;
 	ShowClientHostNames: boolean;
+	SourceClientUserAgent: string;
 	SSLCertPassword: string;
 	SSLCertPath: string;
-	StreamingClientUserAgent: string;
 	UiFolder: string;
 	UrlBase: string;
 	Version: string;
-	VideoOutputProfileName: string;
 	VideoStreamAlwaysUseEPGLogo: boolean;
 }
 export interface SMChannelDto
 {
 	APIName: string;
 	ChannelNumber: number;
+	CommandProfileName: string;
 	EPGId: string;
 	Group: string;
 	GroupTitle: string;
@@ -328,19 +313,16 @@ export interface SMChannelDto
 	IsCustomStream: boolean;
 	IsHidden: boolean;
 	Logo: string;
-	M3UFileId?: number;
+	M3UFileId: number;
 	Name: string;
 	Rank: number;
-	ShortSMChannelId: string;
 	SMStreams: SMStreamDto[];
 	StationId: string;
 	StreamGroupIds: number[];
 	StreamGroups: StreamGroupSMChannelLink[];
-	StreamID?: string;
+	StreamID: string;
 	StreamUrl: string;
 	TimeShift: number;
-	VideoOutputProfileName: string;
-	VideoStreamHandler: VideoStreamHandlers;
 }
 export interface SMStreamDto
 {
@@ -360,7 +342,6 @@ export interface SMStreamDto
 	Name: string;
 	Rank: number;
 	RealUrl: string;
-	ShortSMStreamId: string;
 	StationId: string;
 	Url: string;
 }
@@ -381,6 +362,19 @@ export interface StreamGroupDto
 	StartingChannelNumber: number;
 	StreamGroupProfiles: StreamGroupProfileDto[];
 	XMLLink: string;
+}
+export interface CommandProfile
+{
+	Command: string;
+	IsReadOnly: boolean;
+	Parameters: string;
+}
+export interface CommandProfileDto
+{
+	Command: string;
+	IsReadOnly: boolean;
+	Parameters: string;
+	ProfileName: string;
 }
 export interface HLSSettings
 {
@@ -693,21 +687,20 @@ export interface GetStreamGroupsRequest
 }
 export interface AddProfileToStreamGroupRequest
 {
+	CommandProfileName: string;
 	Name: string;
 	OutputProfileName: string;
 	StreamGroupId: number;
-	VideoProfileName: string;
 }
 export interface CreateStreamGroupRequest
 {
-	AutoSetChannelNumbers?: boolean;
-	IgnoreExistingChannelNumbers?: boolean;
+	CommandProfileName?: string;
 	Name: string;
-	StartingChannelNumber?: number;
+	OutputProfileName?: string;
 }
 export interface DeleteStreamGroupRequest
 {
-	Id: number;
+	StreamGroupId: number;
 }
 export interface RemoveStreamGroupProfileRequest
 {
@@ -716,11 +709,11 @@ export interface RemoveStreamGroupProfileRequest
 }
 export interface UpdateStreamGroupProfileRequest
 {
+	CommandProfileName?: string;
 	Name: string;
 	NewName: string;
 	OutputProfileName?: string;
 	StreamGroupId: number;
-	VideoProfileName?: string;
 }
 export interface UpdateStreamGroupRequest
 {
@@ -891,27 +884,23 @@ export interface CopySMChannelRequest
 export interface CreateSMChannelRequest
 {
 	ChannelNumber?: number;
+	CommandProfileName?: string;
 	EPGId?: string;
 	Group?: string;
 	Logo?: string;
 	Name: string;
 	SMStreamsIds?: string[];
 	TimeShift?: number;
-	VideoOutputProfileName?: string;
-	VideoStreamHandler?: VideoStreamHandlers;
 }
 export interface CreateSMChannelsFromStreamParametersRequest
 {
 	DefaultStreamGroupName?: string;
-	M3UFileId?: number;
+	M3UFileId: number;
 	Parameters: QueryStringParameters;
 	StreamGroupId?: number;
 }
 export interface CreateSMChannelsFromStreamsRequest
 {
-	forced?: boolean;
-	IsCustomPlayList?: boolean;
-	M3UFileId?: number;
 	StreamGroupId?: number;
 	StreamIds: string[];
 }
@@ -970,20 +959,20 @@ export interface SetSMChannelsLogoFromEPGRequest
 {
 	Ids: number[];
 }
-export interface SetSMChannelsVideoOutputProfileNameFromParametersRequest
+export interface SetSMChannelsCommandProfileNameFromParametersRequest
 {
+	CommandProfileName: string;
 	Parameters: QueryStringParameters;
-	VideoOutputProfileName: string;
 }
-export interface SetSMChannelsVideoOutputProfileNameRequest
+export interface SetSMChannelsCommandProfileNameRequest
 {
+	CommandProfileName: string;
 	SMChannelIds: number[];
-	VideoOutputProfileName: string;
 }
-export interface SetSMChannelVideoOutputProfileNameRequest
+export interface SetSMChannelCommandProfileNameRequest
 {
+	CommandProfileName: string;
 	SMChannelId: number;
-	VideoOutputProfileName: string;
 }
 export interface ToggleSMChannelsVisibleByIdRequest
 {
@@ -1000,6 +989,7 @@ export interface ToggleSMChannelVisibleByParametersRequest
 export interface UpdateSMChannelRequest
 {
 	ChannelNumber?: number;
+	CommandProfileName?: string;
 	EPGId?: string;
 	Group?: string;
 	Id: number;
@@ -1007,7 +997,6 @@ export interface UpdateSMChannelRequest
 	Name?: string;
 	SMStreamsIds?: string[];
 	TimeShift?: number;
-	VideoOutputProfileName?: string;
 	VideoStreamHandler?: VideoStreamHandlers;
 }
 export interface GetSMChannelStreamsRequest
@@ -1045,6 +1034,8 @@ export interface UpdateSettingParameters
 	CacheIcons?: boolean;
 	CleanURLs?: boolean;
 	ClientUserAgent?: string;
+	DefaultCommandProfileName?: string;
+	DefaultOutputProfileName?: string;
 	DeviceID?: string;
 	DummyRegex?: string;
 	EnablePrometheus?: boolean;
@@ -1063,7 +1054,6 @@ export interface UpdateSettingParameters
 	SSLCertPassword?: string;
 	SSLCertPath?: string;
 	StreamingClientUserAgent?: string;
-	VideoOutputProfileName?: string;
 	VideoStreamAlwaysUseEPGLogo?: boolean;
 }
 export interface UpdateSettingRequest
@@ -1137,6 +1127,15 @@ export interface SetStationsRequest
 {
 	Requests: StationRequest[];
 }
+export interface GetCommandProfileRequest
+{
+	CommandProfileName: string;
+	StreamGroupId: number;
+	StreamGroupProfileId: number;
+}
+export interface GetCommandProfilesRequest
+{
+}
 export interface GetOutputProfileRequest
 {
 	OutputProfileName: string;
@@ -1144,28 +1143,30 @@ export interface GetOutputProfileRequest
 export interface GetOutputProfilesRequest
 {
 }
-export interface GetVideoProfilesRequest
+export interface AddCommandProfileRequest
 {
+	Command: string;
+	Parameters: string;
+	ProfileName: string;
 }
 export interface AddOutputProfileRequest
 {
 	OutputProfileDto: OutputProfileDto;
 }
-export interface AddVideoProfileRequest
+export interface RemoveCommandProfileRequest
 {
-	Command: string;
-	IsM3U8: boolean;
-	Name: string;
-	Parameters: string;
-	Timeout: number;
+	ProfileName: string;
 }
 export interface RemoveOutputProfileRequest
 {
 	Name: string;
 }
-export interface RemoveVideoProfileRequest
+export interface UpdateCommandProfileRequest
 {
-	Name: string;
+	Command?: string;
+	NewProfileName?: string;
+	Parameters?: string;
+	ProfileName: string;
 }
 export interface UpdateOutputProfileRequest
 {
@@ -1178,15 +1179,6 @@ export interface UpdateOutputProfileRequest
 	Name?: string;
 	NewName?: string;
 	ProfileName: string;
-}
-export interface UpdateVideoProfileRequest
-{
-	Command?: string;
-	IsM3U8?: boolean;
-	NewName?: string;
-	Parameters?: string;
-	ProfileName: string;
-	Timeout?: number;
 }
 export interface GetM3UFileNamesRequest
 {
@@ -1452,6 +1444,18 @@ export interface StreamInfo
 	SMChannel: SMChannelDto;
 	SMStream: SMStreamDto;
 	StreamStatistics: StreamStreamingStatistic[];
+}
+export interface CustomStreamNfo
+{
+	Movie: any;
+	VideoFileName: string;
+}
+export interface CustomPlayList
+{
+	CustomStreamNfos: CustomStreamNfo[];
+	FolderNfo?: any;
+	Logo: string;
+	Name: string;
 }
 export enum AuthenticationType {
 	None = 0,

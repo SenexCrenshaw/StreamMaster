@@ -28,7 +28,7 @@ public class StreamGroupProfileRepository(ILogger<StreamGroupProfileRepository> 
                 StreamGroupId = StreamGroupId,
                 Name = "Default",
                 OutputProfileName = "Default",
-                VideoProfileName = "Default"
+                CommandProfileName = "Default"
             };
             Create(profile);
             await SaveChangesAsync();

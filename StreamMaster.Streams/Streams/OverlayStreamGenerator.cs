@@ -61,7 +61,7 @@
 
 //    private string? GetFFPMpegExec()
 //    {
-//        Setting settings = intsettings.CurrentValue;
+//        Setting settings = intSettings.CurrentValue;
 
 //        string ffmpegExec = Path.Combine(BuildInfo.AppDataFolder, settings.FFMPegExecutable);
 

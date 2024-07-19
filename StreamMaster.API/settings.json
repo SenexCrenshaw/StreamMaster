@@ -32,9 +32,7 @@
   "PrettyEPG": true,
   "SSLCertPassword": "",
   "SSLCertPath": "",
-  "ShowClientHostNames": false,
-  "StreamingClientUserAgent": "Mozilla/5.0 (compatible; streammaster/1.0)",
-  "StreamingProxyType": "StreamMaster",
+  "ShowClientHostNames": false,  
   "UiFolder": "wwwroot",
   "UrlBase": "",
   "VideoStreamAlwaysUseEPGLogo": true

@@ -1,9 +1,9 @@
-import VideoOutputProfileNameSelector from '../VideoOutputProfileNameSelector';
+import CommandProfileNameSelector from '../CommandProfileNameSelector';
 import createSMChannelMultiSelectColumnConfigHook from './createSMChannelMultiSelectColumnConfigHook';
 
-export const useSMVideoOutputProfileNameColumnConfig = createSMChannelMultiSelectColumnConfigHook({
-  dataField: 'VideoOutputProfileName',
-  EditorComponent: VideoOutputProfileNameSelector,
+export const useSMCommandProfileNameColumnConfig = createSMChannelMultiSelectColumnConfigHook({
+  dataField: 'CommandProfileName',
+  EditorComponent: CommandProfileNameSelector,
   headerTitle: 'Profile Name',
   sortable: true,
   width: 125

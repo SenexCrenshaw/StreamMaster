@@ -9,10 +9,10 @@ public record StationRequest(string StationId, string Lineup);
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record AddStationRequest(List<StationRequest> Requests) : IRequest<APIResponse>;
 
-public class AddStationHandler(ILogger<AddStationRequest> logger, IDataRefreshService dataRefreshService, IJobStatusService jobStatusService, ISchedulesDirect schedulesDirect, ISender Sender, IOptionsMonitor<SDSettings> intsettings)
+public class AddStationHandler(ILogger<AddStationRequest> logger, IDataRefreshService dataRefreshService, IJobStatusService jobStatusService, ISchedulesDirect schedulesDirect, ISender Sender, IOptionsMonitor<SDSettings> intSettings)
 : IRequestHandler<AddStationRequest, APIResponse>
 {
-    private readonly SDSettings sdsettings = intsettings.CurrentValue;
+    private readonly SDSettings sdsettings = intSettings.CurrentValue;
 
     public async Task<APIResponse> Handle(AddStationRequest request, CancellationToken cancellationToken)
     {

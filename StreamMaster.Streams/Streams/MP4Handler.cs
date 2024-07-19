@@ -1,8 +1,8 @@
 ﻿using StreamMaster.Domain.Configuration;
 
 namespace StreamMaster.Streams.Streams;
-public class MP4Handler(ILogger<MP4Handler> logger, ILogger<FFMPEGRunner> FFMPEGRunnerlogger, IChannelService channelService, SMChannel smChannel, string url, IOptionsMonitor<HLSSettings> inthlssettings, IOptionsMonitor<Setting> intsettings)
-    : MP4HandlerBase(FFMPEGRunnerlogger, channelService, smChannel, intsettings, inthlssettings), IHLSHandler, IDisposable
+public class MP4Handler(ILogger<MP4Handler> logger, ILogger<FFMPEGRunner> FFMPEGRunnerlogger, IChannelService channelService, SMChannel smChannel, string url, IOptionsMonitor<HLSSettings> inthlssettings, IOptionsMonitor<Setting> intSettings)
+    : MP4HandlerBase(FFMPEGRunnerlogger, channelService, smChannel, intSettings, inthlssettings), IHLSHandler, IDisposable
 {
     public event EventHandler<ProcessExitEventArgs> ProcessExited;
 

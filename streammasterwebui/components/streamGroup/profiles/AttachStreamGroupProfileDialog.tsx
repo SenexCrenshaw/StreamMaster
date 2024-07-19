@@ -4,6 +4,7 @@ import { Logger } from '@lib/common/logger';
 import { AddProfileToStreamGroup } from '@lib/smAPI/StreamGroups/StreamGroupsCommands';
 import { AddProfileToStreamGroupRequest, StreamGroupDto } from '@lib/smAPI/smapiTypes';
 import { useCallback, useRef, useState } from 'react';
+import CommandProfileDropDown from './CommandProfileDropDown';
 import OutputProfileDropDown from './OutputProfileDropDown';
 
 interface AttachStreamGroupProfileDialogProps {
@@ -11,7 +12,7 @@ interface AttachStreamGroupProfileDialogProps {
 }
 
 const AttachStreamGroupProfileDialog = ({ streamGroupDto }: AttachStreamGroupProfileDialogProps) => {
-  const defaultValues = { OutputProfileName: 'Default', VideoProfileName: 'StreamMaster' } as AddProfileToStreamGroupRequest;
+  const defaultValues = { OutputProfileName: 'Default', CommandProfileName: 'StreamMaster' } as AddProfileToStreamGroupRequest;
   const [fileRequest, setFileRequest] = useState<AddProfileToStreamGroupRequest>(defaultValues);
   const smPopUpRef = useRef<SMPopUpRef>(null);
   const [name, setName] = useState<string>();
@@ -44,7 +45,7 @@ const AttachStreamGroupProfileDialog = ({ streamGroupDto }: AttachStreamGroupPro
   return (
     <SMPopUp
       buttonClassName="icon-green"
-      contentWidthSize="3"
+      contentWidthSize="4"
       icon="pi-plus-circle"
       modal
       ref={smPopUpRef}
@@ -60,7 +61,7 @@ const AttachStreamGroupProfileDialog = ({ streamGroupDto }: AttachStreamGroupPro
         <div className="sm-headerBg dialog-padding border-sides">
           <div className="layout-padding-bottom-lg" />
           <div className="sm-center-stuff gap-1">
-            <div className="sm-w-6">
+            <div className="sm-w-4">
               <StringEditor
                 autoFocus
                 label="Profile Name"
@@ -85,15 +86,15 @@ const AttachStreamGroupProfileDialog = ({ streamGroupDto }: AttachStreamGroupPro
                 }}
               />
             </div>
-            {/* <div className={dropdownClass}>
-              <VideoProfileDropDown
+            <div className={dropdownClass}>
+              <CommandProfileDropDown
                 buttonDarkBackground
-                value={fileRequest.VideoProfileName}
+                value={fileRequest.CommandProfileName}
                 onChange={(e) => {
-                  updateM3UOutputProfileStateAndRequest({ VideoProfileName: e.ProfileName });
+                  updateM3UOutputProfileStateAndRequest({ CommandProfileName: e.ProfileName });
                 }}
               />
-            </div> */}
+            </div>
           </div>
 
           <div className="layout-padding-bottom-lg" />

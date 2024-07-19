@@ -5,7 +5,7 @@ namespace StreamMaster.Domain.Services
         Task RefreshSelectedStationIds();
         Task RefreshStationPreviews();
         Task RefreshOutputProfiles();
-        Task RefreshVideoProfiles();
+        Task RefreshCommandProfiles();
         Task IsSystemReady();
         Task TaskIsRunning();
         Task SendMessage(SMMessage smMessage);

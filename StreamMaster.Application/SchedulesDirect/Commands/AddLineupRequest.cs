@@ -4,10 +4,10 @@
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record AddLineupRequest(string Lineup) : IRequest<APIResponse>;
 
-public class AddLineupRequestHandler(ISchedulesDirect schedulesDirect, IMessageService messageService, IDataRefreshService dataRefreshService, IJobStatusService jobStatusService, ILogger<AddLineupRequest> logger, IOptionsMonitor<SDSettings> intsettings)
+public class AddLineupRequestHandler(ISchedulesDirect schedulesDirect, IMessageService messageService, IDataRefreshService dataRefreshService, IJobStatusService jobStatusService, ILogger<AddLineupRequest> logger, IOptionsMonitor<SDSettings> intSettings)
 : IRequestHandler<AddLineupRequest, APIResponse>
 {
-    private readonly SDSettings sdSettings = intsettings.CurrentValue;
+    private readonly SDSettings sdSettings = intSettings.CurrentValue;
 
     public async Task<APIResponse> Handle(AddLineupRequest request, CancellationToken cancellationToken)
     {

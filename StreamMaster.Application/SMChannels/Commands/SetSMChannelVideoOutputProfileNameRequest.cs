@@ -2,13 +2,13 @@
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record SetSMChannelVideoOutputProfileNameRequest(int SMChannelId, string VideoOutputProfileName) : IRequest<APIResponse>;
+public record SetSMChannelCommandProfileNameRequest(int SMChannelId, string CommandProfileName) : IRequest<APIResponse>;
 
-internal class SetSMChannelVideoOutputProfileNameRequestHandler(IRepositoryWrapper Repository, IMessageService messageService, IDataRefreshService dataRefreshService) : IRequestHandler<SetSMChannelVideoOutputProfileNameRequest, APIResponse>
+internal class SetSMChannelCommandProfileNameRequestHandler(IRepositoryWrapper Repository, IMessageService messageService, IDataRefreshService dataRefreshService) : IRequestHandler<SetSMChannelCommandProfileNameRequest, APIResponse>
 {
-    public async Task<APIResponse> Handle(SetSMChannelVideoOutputProfileNameRequest request, CancellationToken cancellationToken)
+    public async Task<APIResponse> Handle(SetSMChannelCommandProfileNameRequest request, CancellationToken cancellationToken)
     {
-        APIResponse ret = await Repository.SMChannel.SetSMChannelVideoOutputProfileName(request.SMChannelId, request.VideoOutputProfileName).ConfigureAwait(false);
+        APIResponse ret = await Repository.SMChannel.SetSMChannelCommandProfileName(request.SMChannelId, request.CommandProfileName).ConfigureAwait(false);
         if (ret.IsError)
         {
             await messageService.SendError($"Set EPG failed {ret.Message}");

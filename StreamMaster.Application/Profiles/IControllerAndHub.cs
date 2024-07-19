@@ -6,15 +6,16 @@ namespace StreamMaster.Application.Profiles
 {
     public interface IProfilesController
     {        
+        Task<ActionResult<CommandProfileDto>> GetCommandProfile(GetCommandProfileRequest request);
+        Task<ActionResult<List<CommandProfileDto>>> GetCommandProfiles();
         Task<ActionResult<OutputProfileDto>> GetOutputProfile(GetOutputProfileRequest request);
         Task<ActionResult<List<OutputProfileDto>>> GetOutputProfiles();
-        Task<ActionResult<List<VideoOutputProfileDto>>> GetVideoProfiles();
+        Task<ActionResult<APIResponse>> AddCommandProfile(AddCommandProfileRequest request);
         Task<ActionResult<APIResponse>> AddOutputProfile(AddOutputProfileRequest request);
-        Task<ActionResult<APIResponse>> AddVideoProfile(AddVideoProfileRequest request);
+        Task<ActionResult<APIResponse>> RemoveCommandProfile(RemoveCommandProfileRequest request);
         Task<ActionResult<APIResponse>> RemoveOutputProfile(RemoveOutputProfileRequest request);
-        Task<ActionResult<APIResponse>> RemoveVideoProfile(RemoveVideoProfileRequest request);
+        Task<ActionResult<APIResponse>> UpdateCommandProfile(UpdateCommandProfileRequest request);
         Task<ActionResult<APIResponse>> UpdateOutputProfile(UpdateOutputProfileRequest request);
-        Task<ActionResult<APIResponse>> UpdateVideoProfile(UpdateVideoProfileRequest request);
     }
 }
 
@@ -22,14 +23,15 @@ namespace StreamMaster.Application.Hubs
 {
     public interface IProfilesHub
     {
+        Task<CommandProfileDto> GetCommandProfile(GetCommandProfileRequest request);
+        Task<List<CommandProfileDto>> GetCommandProfiles();
         Task<OutputProfileDto> GetOutputProfile(GetOutputProfileRequest request);
         Task<List<OutputProfileDto>> GetOutputProfiles();
-        Task<List<VideoOutputProfileDto>> GetVideoProfiles();
+        Task<APIResponse> AddCommandProfile(AddCommandProfileRequest request);
         Task<APIResponse> AddOutputProfile(AddOutputProfileRequest request);
-        Task<APIResponse> AddVideoProfile(AddVideoProfileRequest request);
+        Task<APIResponse> RemoveCommandProfile(RemoveCommandProfileRequest request);
         Task<APIResponse> RemoveOutputProfile(RemoveOutputProfileRequest request);
-        Task<APIResponse> RemoveVideoProfile(RemoveVideoProfileRequest request);
+        Task<APIResponse> UpdateCommandProfile(UpdateCommandProfileRequest request);
         Task<APIResponse> UpdateOutputProfile(UpdateOutputProfileRequest request);
-        Task<APIResponse> UpdateVideoProfile(UpdateVideoProfileRequest request);
     }
 }

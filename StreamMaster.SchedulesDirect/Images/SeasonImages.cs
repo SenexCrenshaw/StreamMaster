@@ -2,7 +2,7 @@
 using System.Text.Json;
 
 namespace StreamMaster.SchedulesDirect.Images;
-public class SeasonImages(ILogger<SeasonImages> logger, IEPGCache<SeasonImages> epgCache, IImageDownloadQueue imageDownloadQueue, IOptionsMonitor<SDSettings> intsettings, ISchedulesDirectAPIService schedulesDirectAPI, ISchedulesDirectDataService schedulesDirectDataService) : ISeasonImages
+public class SeasonImages(ILogger<SeasonImages> logger, IEPGCache<SeasonImages> epgCache, IImageDownloadQueue imageDownloadQueue, IOptionsMonitor<SDSettings> intSettings, ISchedulesDirectAPIService schedulesDirectAPI, ISchedulesDirectDataService schedulesDirectDataService) : ISeasonImages
 {
     private readonly List<MxfSeason> seasons = [];
     private List<string> seasonImageQueue = [];
@@ -10,7 +10,7 @@ public class SeasonImages(ILogger<SeasonImages> logger, IEPGCache<SeasonImages> 
     private int processedObjects;
     private int totalObjects;
 
-    private readonly SDSettings sdsettings = intsettings.CurrentValue;
+    private readonly SDSettings sdsettings = intSettings.CurrentValue;
     public async Task<bool> GetAllSeasonImages()
     {
 

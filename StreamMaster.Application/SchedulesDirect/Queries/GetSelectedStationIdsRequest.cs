@@ -4,10 +4,10 @@
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record GetSelectedStationIdsRequest : IRequest<DataResponse<List<StationIdLineup>>>;
 
-internal class GetSelectedStationIdsRequestHandler(IOptionsMonitor<SDSettings> intsettings)
+internal class GetSelectedStationIdsRequestHandler(IOptionsMonitor<SDSettings> intSettings)
     : IRequestHandler<GetSelectedStationIdsRequest, DataResponse<List<StationIdLineup>>>
 {
-    private readonly SDSettings settings = intsettings.CurrentValue;
+    private readonly SDSettings settings = intSettings.CurrentValue;
     public Task<DataResponse<List<StationIdLineup>>> Handle(GetSelectedStationIdsRequest request, CancellationToken cancellationToken)
     {
 

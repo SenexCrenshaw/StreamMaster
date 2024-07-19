@@ -1,13 +1,13 @@
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
-import { UpdateVideoProfile } from '@lib/smAPI/Profiles/ProfilesCommands';
-import { UpdateVideoProfileRequest, VideoOutputProfileDto } from '@lib/smAPI/smapiTypes';
+import { UpdateCommandProfile } from '@lib/smAPI/Profiles/ProfilesCommands';
+import { CommandProfileDto, UpdateCommandProfileRequest } from '@lib/smAPI/smapiTypes';
 import { Checkbox } from 'primereact/checkbox';
 import { useCallback } from 'react';
 import { OutputProfileColumnConfigProps } from './useOutputProfileColumnConfig';
 
 export const useVideoIsM3U8ColumnConfig = (props?: OutputProfileColumnConfigProps) => {
-  const update = useCallback((request: UpdateVideoProfileRequest) => {
-    UpdateVideoProfile(request)
+  const update = useCallback((request: UpdateCommandProfileRequest) => {
+    UpdateCommandProfile(request)
       .then((res) => {})
       .catch((error) => {
         console.log('error', error);
@@ -16,13 +16,13 @@ export const useVideoIsM3U8ColumnConfig = (props?: OutputProfileColumnConfigProp
   }, []);
 
   const bodyTemplate = useCallback(
-    (videoOutputProfileDto: VideoOutputProfileDto) => {
+    (videoOutputProfileDto: CommandProfileDto) => {
       return (
         <div className="flex w-full justify-content-center align-content-center">
           <Checkbox
             checked={videoOutputProfileDto.IsM3U8}
             onChange={(e) => {
-              const outputProfile = { IsM3U8: e.checked, ProfileName: videoOutputProfileDto.ProfileName } as UpdateVideoProfileRequest;
+              const outputProfile = { IsM3U8: e.checked, ProfileName: videoOutputProfileDto.ProfileName } as UpdateCommandProfileRequest;
               update(outputProfile);
             }}
           />

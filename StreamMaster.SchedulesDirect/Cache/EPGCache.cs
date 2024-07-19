@@ -19,9 +19,9 @@ public class EPGCache<T> : IEPGCache<T>
 
     public EPGCache(ILogger<EPGCache<T>> logger,
                     ISchedulesDirectDataService schedulesDirectDataService,
-                    IOptionsMonitor<SDSettings> intsettings)
+                    IOptionsMonitor<SDSettings> intSettings)
     {
-        sdsettings = intsettings.CurrentValue;
+        sdsettings = intSettings.CurrentValue;
         this.logger = logger;
         this.schedulesDirectDataService = schedulesDirectDataService;
         LoadCache();

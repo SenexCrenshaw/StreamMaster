@@ -13,11 +13,11 @@ public class FileLoggingService : IFileLoggingService, IDisposable
     private readonly CancellationTokenSource _cts = new();
     private readonly Task _loggingTask;
     private readonly string _logFilePath;
-    private readonly IOptionsMonitor<Setting> intsettings;
+    private readonly IOptionsMonitor<Setting> intSettings;
 
-    public FileLoggingService(string logFilePath, IOptionsMonitor<Setting> intsettings)
+    public FileLoggingService(string logFilePath, IOptionsMonitor<Setting> intSettings)
     {
-        this.intsettings = intsettings;
+        this.intSettings = intSettings;
         _logFilePath = logFilePath;
         _loggingTask = Task.Run(ProcessLogQueue);
     }
@@ -85,7 +85,7 @@ public class FileLoggingService : IFileLoggingService, IDisposable
     {
 
         FileInfo logFileInfo = new(_logFilePath);
-        long maxFileSizeInBytes = Math.Max(1 * 1024 * 1024, Math.Min(intsettings.CurrentValue.MaxLogFileSizeMB * 1024 * 1024, 100 * 1024 * 1024)); // Convert MB to Bytes
+        long maxFileSizeInBytes = Math.Max(1 * 1024 * 1024, Math.Min(intSettings.CurrentValue.MaxLogFileSizeMB * 1024 * 1024, 100 * 1024 * 1024)); // Convert MB to Bytes
 
         if (logFileInfo.Exists && logFileInfo.Length > maxFileSizeInBytes && !string.IsNullOrEmpty(logFileInfo.DirectoryName))
         {
@@ -94,7 +94,7 @@ public class FileLoggingService : IFileLoggingService, IDisposable
             string extension = logFileInfo.Extension;
 
             // Bump log files, renaming log.N.log to log.(N+1).log
-            for (int i = intsettings.CurrentValue.MaxLogFiles - 1; i >= 1; i--)
+            for (int i = intSettings.CurrentValue.MaxLogFiles - 1; i >= 1; i--)
             {
                 string oldFileName = Path.Combine(directory, $"{baseFileName}.{i}{extension}");
                 string newFileName = Path.Combine(directory, $"{baseFileName}.{i + 1}{extension}");
@@ -137,9 +137,9 @@ public class FileLoggingService : IFileLoggingService, IDisposable
                                     .OrderByDescending(f => f.Name)
                                     .ToArray();
 
-            if (logFiles.Length > intsettings.CurrentValue.MaxLogFiles)
+            if (logFiles.Length > intSettings.CurrentValue.MaxLogFiles)
             {
-                foreach (FileInfo file in logFiles.Skip(intsettings.CurrentValue.MaxLogFiles))
+                foreach (FileInfo file in logFiles.Skip(intSettings.CurrentValue.MaxLogFiles))
                 {
                     file.Delete();
                 }

@@ -6,10 +6,11 @@ import { memo, useCallback } from 'react';
 
 interface StreamGroupDeleteDialogProperties {
   readonly streamGroup: StreamGroupDto;
+  readonly zIndex?: number;
   readonly onHide?: () => void;
 }
 
-const StreamGroupDeleteDialog = ({ streamGroup, onHide }: StreamGroupDeleteDialogProperties) => {
+const StreamGroupDeleteDialog = ({ streamGroup, onHide, zIndex }: StreamGroupDeleteDialogProperties) => {
   const { selectedStreamGroup, setSelectedStreamGroup } = useSelectedStreamGroup('StreamGroup');
   const ReturnToParent = useCallback(() => {
     onHide?.();
@@ -42,7 +43,16 @@ const StreamGroupDeleteDialog = ({ streamGroup, onHide }: StreamGroupDeleteDialo
 
   return (
     <div className="flex justify-content-center w-full">
-      <SMPopUp buttonClassName="icon-red" info="" title="Delete Stream Group" onOkClick={() => deleteStreamGroup()} icon="pi-times">
+      <SMPopUp
+        placement="bottom-end"
+        zIndex={zIndex}
+        buttonClassName="icon-red"
+        modal
+        info=""
+        title="Delete Stream Group"
+        onOkClick={() => deleteStreamGroup()}
+        icon="pi-times"
+      >
         <div className="sm-center-stuff">
           <div className="text-container">{streamGroup.Name}</div>
         </div>

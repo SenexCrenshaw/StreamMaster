@@ -25,10 +25,10 @@ public partial class DataRefreshService : IDataRefreshServicePartial
 
     }
 
-    public async Task RefreshVideoProfiles()
+    public async Task RefreshCommandProfiles()
     {
 
-        await hub.Clients.All.DataRefresh("GetVideoProfiles");
+        await hub.Clients.All.DataRefresh("GetCommandProfiles");
     }
 
     public async Task RefreshStationPreviews()

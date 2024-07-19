@@ -1,3 +1,4 @@
+import SyncCustomListsButton from '@components/customPlayList/SyncCustomListsButton';
 import SMButton from '@components/sm/SMButton';
 import { baseHostURL } from '@lib/settings';
 import React from 'react';
@@ -19,6 +20,9 @@ export function DevelopmentSettings(): React.ReactElement {
             }}
             tooltip="Swagger Link"
           />
+        </div>
+        <div className="sm-w-9rem">
+          <SyncCustomListsButton />
         </div>
       </div>
     </BaseSettings>

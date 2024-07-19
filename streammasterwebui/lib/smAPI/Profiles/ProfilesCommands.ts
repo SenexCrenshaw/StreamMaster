@@ -1,6 +1,19 @@
 import { isSkipToken } from '@lib/common/isSkipToken';
 import SignalRService from '@lib/signalr/SignalRService';
-import { APIResponse,AddOutputProfileRequest,AddVideoProfileRequest,RemoveOutputProfileRequest,RemoveVideoProfileRequest,UpdateOutputProfileRequest,UpdateVideoProfileRequest,OutputProfileDto,VideoOutputProfileDto,GetOutputProfileRequest } from '@lib/smAPI/smapiTypes';
+import { APIResponse,AddCommandProfileRequest,AddOutputProfileRequest,RemoveCommandProfileRequest,RemoveOutputProfileRequest,UpdateCommandProfileRequest,UpdateOutputProfileRequest,CommandProfileDto,OutputProfileDto,GetCommandProfileRequest,GetOutputProfileRequest } from '@lib/smAPI/smapiTypes';
+
+export const GetCommandProfile = async (request: GetCommandProfileRequest): Promise<CommandProfileDto | undefined> => {
+  if ( request === undefined ) {
+    return undefined;
+  }
+  const signalRService = SignalRService.getInstance();
+  return await signalRService.invokeHubCommand<CommandProfileDto>('GetCommandProfile', request);
+};
+
+export const GetCommandProfiles = async (): Promise<CommandProfileDto[] | undefined> => {
+  const signalRService = SignalRService.getInstance();
+  return await signalRService.invokeHubCommand<CommandProfileDto[]>('GetCommandProfiles');
+};
 
 export const GetOutputProfile = async (request: GetOutputProfileRequest): Promise<OutputProfileDto | undefined> => {
   if ( request === undefined ) {
@@ -15,9 +28,9 @@ export const GetOutputProfiles = async (): Promise<OutputProfileDto[] | undefine
   return await signalRService.invokeHubCommand<OutputProfileDto[]>('GetOutputProfiles');
 };
 
-export const GetVideoProfiles = async (): Promise<VideoOutputProfileDto[] | undefined> => {
+export const AddCommandProfile = async (request: AddCommandProfileRequest): Promise<APIResponse | undefined> => {
   const signalRService = SignalRService.getInstance();
-  return await signalRService.invokeHubCommand<VideoOutputProfileDto[]>('GetVideoProfiles');
+  return await signalRService.invokeHubCommand<APIResponse>('AddCommandProfile', request);
 };
 
 export const AddOutputProfile = async (request: AddOutputProfileRequest): Promise<APIResponse | undefined> => {
@@ -25,9 +38,9 @@ export const AddOutputProfile = async (request: AddOutputProfileRequest): Promis
   return await signalRService.invokeHubCommand<APIResponse>('AddOutputProfile', request);
 };
 
-export const AddVideoProfile = async (request: AddVideoProfileRequest): Promise<APIResponse | undefined> => {
+export const RemoveCommandProfile = async (request: RemoveCommandProfileRequest): Promise<APIResponse | undefined> => {
   const signalRService = SignalRService.getInstance();
-  return await signalRService.invokeHubCommand<APIResponse>('AddVideoProfile', request);
+  return await signalRService.invokeHubCommand<APIResponse>('RemoveCommandProfile', request);
 };
 
 export const RemoveOutputProfile = async (request: RemoveOutputProfileRequest): Promise<APIResponse | undefined> => {
@@ -35,18 +48,13 @@ export const RemoveOutputProfile = async (request: RemoveOutputProfileRequest): 
   return await signalRService.invokeHubCommand<APIResponse>('RemoveOutputProfile', request);
 };
 
-export const RemoveVideoProfile = async (request: RemoveVideoProfileRequest): Promise<APIResponse | undefined> => {
+export const UpdateCommandProfile = async (request: UpdateCommandProfileRequest): Promise<APIResponse | undefined> => {
   const signalRService = SignalRService.getInstance();
-  return await signalRService.invokeHubCommand<APIResponse>('RemoveVideoProfile', request);
+  return await signalRService.invokeHubCommand<APIResponse>('UpdateCommandProfile', request);
 };
 
 export const UpdateOutputProfile = async (request: UpdateOutputProfileRequest): Promise<APIResponse | undefined> => {
   const signalRService = SignalRService.getInstance();
   return await signalRService.invokeHubCommand<APIResponse>('UpdateOutputProfile', request);
-};
-
-export const UpdateVideoProfile = async (request: UpdateVideoProfileRequest): Promise<APIResponse | undefined> => {
-  const signalRService = SignalRService.getInstance();
-  return await signalRService.invokeHubCommand<APIResponse>('UpdateVideoProfile', request);
 };
 

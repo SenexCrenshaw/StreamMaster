@@ -2,7 +2,7 @@
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record UpdateStreamGroupProfileRequest(int StreamGroupId, string Name, string NewName, string? OutputProfileName, string? VideoProfileName) : IRequest<APIResponse>;
+public record UpdateStreamGroupProfileRequest(int StreamGroupId, string Name, string NewName, string? OutputProfileName, string? CommandProfileName) : IRequest<APIResponse>;
 
 [LogExecutionTimeAspect]
 public class UpdateStreamGroupProfileRequestHandler(IRepositoryWrapper Repository, IMessageService messageService, IDataRefreshService dataRefreshService)
@@ -10,7 +10,7 @@ public class UpdateStreamGroupProfileRequestHandler(IRepositoryWrapper Repositor
 {
     public async Task<APIResponse> Handle(UpdateStreamGroupProfileRequest request, CancellationToken cancellationToken)
     {
-        if (request.StreamGroupId < 1 || string.IsNullOrEmpty(request.Name))
+        if (request.StreamGroupId < 2 || string.IsNullOrEmpty(request.Name))
         {
             return APIResponse.NotFound;
         }
@@ -27,6 +27,10 @@ public class UpdateStreamGroupProfileRequestHandler(IRepositoryWrapper Repositor
         {
             return APIResponse.ErrorWithMessage("Stream Group not found");
         }
+        if (streamGroup.Name.Equals("all", StringComparison.OrdinalIgnoreCase))
+        {
+            return APIResponse.ErrorWithMessage("Cannot use All stream group");
+        }
         //List<FieldData> fields = new List<FieldData>();
 
         StreamGroupProfile? streamGroupProfile = streamGroup.StreamGroupProfiles.FirstOrDefault(x => x.Name == request.Name);
@@ -41,10 +45,10 @@ public class UpdateStreamGroupProfileRequestHandler(IRepositoryWrapper Repositor
             // fields.Add(new FieldData("GetStreamGroupProfiles", streamGroupProfile.Name, "OutputProfileName", request.OutputProfileName));
         }
 
-        if (!string.IsNullOrEmpty(request.VideoProfileName) && streamGroupProfile.VideoProfileName != request.VideoProfileName)
+        if (!string.IsNullOrEmpty(request.CommandProfileName) && streamGroupProfile.CommandProfileName != request.CommandProfileName)
         {
-            streamGroupProfile.VideoProfileName = request.VideoProfileName;
-            // fields.Add(new FieldData("GetStreamGroupProfiles", streamGroupProfile.Name, "VideoProfileName", request.VideoProfileName));
+            streamGroupProfile.CommandProfileName = request.CommandProfileName;
+            // fields.Add(new FieldData("GetStreamGroupProfiles", streamGroupProfile.Name, "CommandProfileName", request.CommandProfileName));
         }
 
         if (!string.IsNullOrEmpty(request.NewName) && streamGroupProfile.Name != request.NewName)

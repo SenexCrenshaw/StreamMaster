@@ -6,6 +6,8 @@ import GetChannelGroupsReducer from '@lib/smAPI/ChannelGroups/GetChannelGroupsSl
 import GetChannelGroupsFromSMChannelsReducer from '@lib/smAPI/ChannelGroups/GetChannelGroupsFromSMChannelsSlice';
 import GetChannelStreamingStatisticsReducer from '@lib/smAPI/Statistics/GetChannelStreamingStatisticsSlice';
 import GetClientStreamingStatisticsReducer from '@lib/smAPI/Statistics/GetClientStreamingStatisticsSlice';
+import GetCommandProfileReducer from '@lib/smAPI/Profiles/GetCommandProfileSlice';
+import GetCommandProfilesReducer from '@lib/smAPI/Profiles/GetCommandProfilesSlice';
 import GetCustomPlayListReducer from '@lib/smAPI/CustomPlayLists/GetCustomPlayListSlice';
 import GetCustomPlayListsReducer from '@lib/smAPI/CustomPlayLists/GetCustomPlayListsSlice';
 import GetDownloadServiceStatusReducer from '@lib/smAPI/General/GetDownloadServiceStatusSlice';
@@ -47,7 +49,6 @@ import GetSubscribedLineupsReducer from '@lib/smAPI/SchedulesDirect/GetSubscribe
 import GetSystemStatusReducer from '@lib/smAPI/General/GetSystemStatusSlice';
 import GetTaskIsRunningReducer from '@lib/smAPI/General/GetTaskIsRunningSlice';
 import GetVideoInfoFromIdReducer from '@lib/smAPI/SMChannels/GetVideoInfoFromIdSlice';
-import GetVideoProfilesReducer from '@lib/smAPI/Profiles/GetVideoProfilesSlice';
 import GetVideoStreamNamesAndUrlsReducer from '@lib/smAPI/Streaming/GetVideoStreamNamesAndUrlsSlice';
 import isTrue from '@lib/redux/hooks/isTrue';
 import loading from '@lib/redux/hooks/loading';
@@ -147,6 +148,8 @@ export const rootReducer = combineReducers({
   GetChannelGroupsFromSMChannels: GetChannelGroupsFromSMChannelsReducer,
   GetChannelStreamingStatistics: GetChannelStreamingStatisticsReducer,
   GetClientStreamingStatistics: GetClientStreamingStatisticsReducer,
+  GetCommandProfile: GetCommandProfileReducer,
+  GetCommandProfiles: GetCommandProfilesReducer,
   GetCustomPlayList: GetCustomPlayListReducer,
   GetCustomPlayLists: GetCustomPlayListsReducer,
   GetDownloadServiceStatus: GetDownloadServiceStatusReducer,
@@ -188,7 +191,6 @@ export const rootReducer = combineReducers({
   GetSystemStatus: GetSystemStatusReducer,
   GetTaskIsRunning: GetTaskIsRunningReducer,
   GetVideoInfoFromId: GetVideoInfoFromIdReducer,
-  GetVideoProfiles: GetVideoProfilesReducer,
   GetVideoStreamNamesAndUrls: GetVideoStreamNamesAndUrlsReducer,
   isTrue: persistReducer(isTrueConfig, isTrue),
   loading: loading,

@@ -15,7 +15,7 @@ internal class SetSMChannelGroupRequestHandler(IRepositoryWrapper Repository, IM
             return ret;
         }
 
-        //FieldData fd = new(SMChannel.APIName, request.SMChannelId, "VideoOutputProfileName", request.VideoOutputProfileName);
+        //FieldData fd = new(SMChannel.APIName, request.SMChannelId, "CommandProfileName", request.CommandProfileName);
         //await dataRefreshService.SetField([fd]).ConfigureAwait(false);
         await dataRefreshService.RefreshSMChannels().ConfigureAwait(false);
 

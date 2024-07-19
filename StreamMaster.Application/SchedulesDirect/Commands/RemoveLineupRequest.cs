@@ -4,10 +4,10 @@
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record RemoveLineupRequest(string Lineup) : IRequest<APIResponse>;
 
-public class RemoveLineupRequestHandler(ISchedulesDirect schedulesDirect, IDataRefreshService dataRefreshService, IMessageService messageService, IJobStatusService jobStatusService, ILogger<RemoveLineupRequest> logger, IHubContext<StreamMasterHub, IStreamMasterHub> HubContext, IOptionsMonitor<SDSettings> intsettings)
+public class RemoveLineupRequestHandler(ISchedulesDirect schedulesDirect, IDataRefreshService dataRefreshService, IMessageService messageService, IJobStatusService jobStatusService, ILogger<RemoveLineupRequest> logger, IHubContext<StreamMasterHub, IStreamMasterHub> HubContext, IOptionsMonitor<SDSettings> intSettings)
 : IRequestHandler<RemoveLineupRequest, APIResponse>
 {
-    private readonly SDSettings sdSettings = intsettings.CurrentValue;
+    private readonly SDSettings sdSettings = intSettings.CurrentValue;
 
     public async Task<APIResponse> Handle(RemoveLineupRequest request, CancellationToken cancellationToken)
     {

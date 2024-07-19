@@ -88,7 +88,7 @@ public class FFMPEGRunner(ILogger<FFMPEGRunner> logger, IChannelService channelS
 
             formattedArgs +=
        $"-reconnect_delay_max {hlssettings.HLSReconnectDurationInSeconds} " +
-       $"-user_agent \"{settings.StreamingClientUserAgent}\" ";
+       $"-user_agent \"{settings.SourceClientUserAgent}\" ";
 
 
             formattedArgs += $"-hls_time {hlssettings.HLSSegmentDurationInSeconds} " +
@@ -172,7 +172,7 @@ public class FFMPEGRunner(ILogger<FFMPEGRunner> logger, IChannelService channelS
             string options = string.IsNullOrEmpty(FFMpegOptions) ? BuildInfo.FFMPEGDefaultOptions : FFMpegOptions;
 
             string formattedArgs = options.Replace("{streamUrl}", $"\"{streamUrl}\"");
-            formattedArgs += $" -user_agent \"{settings.StreamingClientUserAgent}\"";
+            formattedArgs += $" -user_agent \"{settings.SourceClientUserAgent}\"";
 
             process = new();
             process.StartInfo.FileName = ffmpegExec;
@@ -232,7 +232,7 @@ public class FFMPEGRunner(ILogger<FFMPEGRunner> logger, IChannelService channelS
             //string options = string.IsNullOrEmpty(FFMpegOptions) ? BuildInfo.FFMPEGDefaultOptions : FFMpegOptions;
 
             //string formattedArgs = options.Replace("{streamUrl}", $"\"{streamUrl}\"");
-            //formattedArgs += $" -user_agent \"{settings.StreamingClientUserAgent}\"";
+            //formattedArgs += $" -user_agent \"{settings.SourceClientUserAgent}\"";
 
             process = new();
             process.StartInfo.FileName = ffmpegExec;

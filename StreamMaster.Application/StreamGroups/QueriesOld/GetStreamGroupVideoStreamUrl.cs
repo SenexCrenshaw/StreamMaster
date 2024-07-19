@@ -7,10 +7,10 @@ namespace StreamMaster.Application.StreamGroups.QueriesOld;
 
 public record GetStreamGroupVideoStreamUrl(int smChannelId) : IRequest<string?>;
 
-internal class GetStreamGroupVideoStreamUrlHandler(IHttpContextAccessor httpContextAccessor, ILogger<GetStreamGroupVideoStreamUrl> logger, IRepositoryWrapper Repository, IOptionsMonitor<HLSSettings> inthlssettings, IOptionsMonitor<Setting> intsettings)
+internal class GetStreamGroupVideoStreamUrlHandler(IHttpContextAccessor httpContextAccessor, ILogger<GetStreamGroupVideoStreamUrl> logger, IRepositoryWrapper Repository, IOptionsMonitor<HLSSettings> inthlssettings, IOptionsMonitor<Setting> intSettings)
     : IRequestHandler<GetStreamGroupVideoStreamUrl, string?>
 {
-    private readonly Setting settings = intsettings.CurrentValue;
+    private readonly Setting settings = intSettings.CurrentValue;
     private readonly HLSSettings hlssettings = inthlssettings.CurrentValue;
 
     public async Task<string?> Handle(GetStreamGroupVideoStreamUrl request, CancellationToken cancellationToken = default)

@@ -8,7 +8,7 @@ import useGetStationChannelNames from '@lib/smAPI/SchedulesDirect/useGetStationC
 import { SMChannelDto, SMStreamDto, StationChannelName, UpdateSMChannelRequest } from '@lib/smAPI/smapiTypes';
 import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useState } from 'react';
 import SMChannelSMStreamDialog from './SMChannelSMStreamDialog';
-import StreamingProxyTypeSelector from './VideoOutputProfileNameSelector';
+import StreamingProxyTypeSelector from './CommandProfileNameSelector';
 
 interface SMChannelDialogProperties {
   onSave: (request: UpdateSMChannelRequest) => void;
@@ -45,11 +45,11 @@ const SMChannelDialog = forwardRef<SMChannelDialogRef, SMChannelDialogProperties
       request.Name !== smChannel.Name ||
       request.Logo !== smChannel.Logo ||
       request.Group !== smChannel.Group ||
-      request.VideoOutputProfileName !== smChannel.VideoOutputProfileName ||
+      request.CommandProfileName !== smChannel.CommandProfileName ||
       request.ChannelNumber !== smChannel.ChannelNumber ||
       request.EPGId !== smChannel.EPGId
     );
-  }, [request.ChannelNumber, request.EPGId, request.Group, request.Logo, request.Name, request.VideoOutputProfileName, smChannel]);
+  }, [request.ChannelNumber, request.EPGId, request.Group, request.Logo, request.Name, request.CommandProfileName, smChannel]);
 
   const doSave = useCallback(() => {
     if (!isSaveEnabled) {
@@ -115,16 +115,16 @@ const SMChannelDialog = forwardRef<SMChannelDialogRef, SMChannelDialogProperties
     [query.data, request.EPGId, tempSMChannel]
   );
 
-  const setVideoOutputProfileName = useCallback(
+  const setCommandProfileName = useCallback(
     (value: string) => {
-      if (request.VideoOutputProfileName !== value) {
-        const newTempSMChannel = tempSMChannel ? { ...tempSMChannel, VideoOutputProfileName: value } : ({ VideoOutputProfileName: value } as SMChannelDto);
+      if (request.CommandProfileName !== value) {
+        const newTempSMChannel = tempSMChannel ? { ...tempSMChannel, CommandProfileName: value } : ({ CommandProfileName: value } as SMChannelDto);
         setTempSMChannel(newTempSMChannel);
 
-        setRequest((prevRequest) => ({ ...prevRequest, VideoOutputProfileName: value }));
+        setRequest((prevRequest) => ({ ...prevRequest, CommandProfileName: value }));
       }
     },
-    [request.VideoOutputProfileName, tempSMChannel]
+    [request.CommandProfileName, tempSMChannel]
   );
 
   useEffect(() => {
@@ -182,7 +182,7 @@ const SMChannelDialog = forwardRef<SMChannelDialogRef, SMChannelDialogProperties
                 <SMChannelGroupDropDown label="GROUP" darkBackGround value={request.Group} onChange={(e) => e !== undefined && setGroup(e)} />
               </div>
               <div className="w-6">
-                <StreamingProxyTypeSelector darkBackGround label="Proxy" data={tempSMChannel} onChange={(e) => setVideoOutputProfileName(e)} />
+                <StreamingProxyTypeSelector darkBackGround label="Proxy" data={tempSMChannel} onChange={(e) => setCommandProfileName(e)} />
               </div>
             </div>
           </div>

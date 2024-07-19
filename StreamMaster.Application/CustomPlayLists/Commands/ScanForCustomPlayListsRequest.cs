@@ -1,6 +1,4 @@
-﻿using StreamMaster.Application.SMChannels.Commands;
-using StreamMaster.PlayList.Models;
-using System.Web;
+﻿using System.Web;
 
 namespace StreamMaster.Application.CustomPlayLists.Commands;
 
@@ -64,7 +62,8 @@ public class ScanForCustomPlayListsRequestHandler(ILogger<ScanForCustomPlayLists
 
         _ = await Repository.SaveAsync();
 
-        _ = await Sender.Send(new CreateSMChannelsFromStreamsRequest(smStreamIds, M3UFileId: EPGHelper.CustomPlayListId, IsCustomPlayList: true, forced: true), cancellationToken);
+        _ = await Repository.SMChannel.CreateSMChannelsFromCustomStreams(smStreamIds, EPGHelper.CustomPlayListId, true);
+
 
         _ = await Repository.SaveAsync();
 

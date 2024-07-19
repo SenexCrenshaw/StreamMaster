@@ -4,10 +4,10 @@ namespace StreamMaster.Application.StreamGroups.Commands;
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record CreateStreamGroupRequest(string Name, bool? AutoSetChannelNumbers, bool? IgnoreExistingChannelNumbers, int? StartingChannelNumber) : IRequest<APIResponse>;
+public record CreateStreamGroupRequest(string Name, string? OutputProfileName, string? CommandProfileName) : IRequest<APIResponse>;
 
 [LogExecutionTimeAspect]
-public class CreateStreamGroupRequestHandler(IRepositoryWrapper Repository, IMessageService messageService, IDataRefreshService dataRefreshService)
+public class CreateStreamGroupRequestHandler(IRepositoryWrapper Repository, IMessageService messageService, IOptionsMonitor<Setting> intSettings, IDataRefreshService dataRefreshService)
     : IRequestHandler<CreateStreamGroupRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(CreateStreamGroupRequest request, CancellationToken cancellationToken)
@@ -17,32 +17,28 @@ public class CreateStreamGroupRequestHandler(IRepositoryWrapper Repository, IMes
             return APIResponse.NotFound;
         }
 
-
         if (request.Name.Equals("all", StringComparison.CurrentCultureIgnoreCase))
         {
             return APIResponse.ErrorWithMessage($"The name '{request.Name}' is reserved");
         }
 
         ConcurrentDictionary<string, byte> generatedIdsDict = new();
-        foreach (StreamGroup channel in Repository.StreamGroup.GetQuery())
+        foreach (StreamGroup sg in Repository.StreamGroup.GetQuery())
         {
-            _ = generatedIdsDict.TryAdd(channel.DeviceID, 0);
+            _ = generatedIdsDict.TryAdd(sg.DeviceID, 0);
         }
 
         StreamGroup streamGroup = new()
         {
             Name = request.Name,
-            //IgnoreExistingChannelNumbers = request.IgnoreExistingChannelNumbers ?? true,
-            //StartingChannelNumber = request.StartingChannelNumber ?? 1,
-            //AutoSetChannelNumbers = request.AutoSetChannelNumbers ?? true,
             DeviceID = UniqueHexGenerator.GenerateUniqueHex(generatedIdsDict)
         };
 
         streamGroup.StreamGroupProfiles.Add(new StreamGroupProfile
         {
             Name = "Default",
-            OutputProfileName = "Default",
-            VideoProfileName = "StreamMaster"
+            OutputProfileName = request.OutputProfileName ?? intSettings.CurrentValue.DefaultOutputProfileName,
+            CommandProfileName = request.CommandProfileName ?? intSettings.CurrentValue.DefaultCommandProfileName
         });
 
         Repository.StreamGroup.CreateStreamGroup(streamGroup);

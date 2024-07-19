@@ -15,7 +15,7 @@ using System.Web;
 
 namespace StreamMaster.API.Controllers
 {
-    public class StreamController(ILogger<StreamController> logger, IMapper Mapper, IChannelService channelService, IHttpContextAccessor httpContextAccessor, IOptionsMonitor<Setting> intSettings, IStreamTracker streamTracker, ILogger<FFMPEGRunner> FFMPEGRunnerlogger, IAccessTracker accessTracker, IHLSManager hLsManager, IRepositoryWrapper repositoryWrapper)
+    public class StreamController(ILogger<StreamController> logger, IMapper Mapper, IChannelService channelService, IHttpContextAccessor httpContextAccessor, IStreamTracker streamTracker, ILogger<FFMPEGRunner> FFMPEGRunnerlogger, IAccessTracker accessTracker, IHLSManager hLsManager, IRepositoryWrapper repositoryWrapper)
         : ApiControllerBase
     {
 
@@ -39,16 +39,15 @@ namespace StreamMaster.API.Controllers
             //}
 
             SMChannelDto smChannelDto = Mapper.Map<SMChannelDto>(smChannel);
-            Setting settings = intSettings.CurrentValue;
 
             string encodedName = HttpUtility.HtmlEncode(smChannelDto.Name).Trim()
                      .Replace("/", "")
                      .Replace(" ", "_");
-            string encodedNumbers = 0.EncodeValues128(smChannelDto.Id, settings.ServerKey);
+            string encodedNumbers = 0.EncodeValues128(smChannelDto.Id, Settings.ServerKey);
             string baseUrl = httpContextAccessor.GetUrl();
             string url = $"{baseUrl}/api/videostreams/stream/";
 
-            await hLsManager.GetOrAdd(smChannelDto, url);
+            _ = await hLsManager.GetOrAdd(smChannelDto, url);
 
             int timeOut = HLSSettings.HLSM3U8CreationTimeOutInSeconds;
             string m3u8File = Path.Combine(BuildInfo.HLSOutputFolder, smChannelDto.Id.ToString(), $"index.m3u8");
@@ -141,7 +140,7 @@ namespace StreamMaster.API.Controllers
                 string url = "http://127.0.0.1:7095/api/stream/" + videoStreamId + ".m3u8";
 
                 logger.LogInformation("Adding MP4Handler for {name}", smStream.Name);
-                FFMPEGRunner ffmpegRunner = new(FFMPEGRunnerlogger, channelService, intsettings, inthlssettings);
+                FFMPEGRunner ffmpegRunner = new(FFMPEGRunnerlogger, channelService, intSettings, inthlssettings);
                 ffmpegRunner.ProcessExited += (sender, args) => logger.LogInformation("MP4Handler Process Exited for {Name} with exit code {ExitCode}", smStream.Name, args.ExitCode);
                 (Stream? stream, int processId, ProxyStreamError? error) = await ffmpegRunner.CreateFFMpegStream(url, smStream.Name);
 

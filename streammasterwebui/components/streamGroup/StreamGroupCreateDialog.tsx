@@ -1,10 +1,11 @@
 import StringEditor from '@components/inputs/StringEditor';
 import { SMDialogRef } from '@components/sm/SMDialog';
 import SMPopUp, { SMPopUpRef } from '@components/sm/SMPopUp';
-import { Logger } from '@lib/common/logger';
 import { CreateStreamGroup } from '@lib/smAPI/StreamGroups/StreamGroupsCommands';
 import { CreateStreamGroupRequest } from '@lib/smAPI/smapiTypes';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
+import CommandProfileDropDown from './profiles/CommandProfileDropDown';
+import OutputProfileDropDown from './profiles/OutputProfileDropDown';
 
 export interface StreamGroupCreateDialogProperties {
   readonly showButton?: boolean | null;
@@ -18,10 +19,9 @@ export const StreamGroupCreateDialog = ({ modal, zIndex }: StreamGroupCreateDial
   const defaultValues = useMemo(
     () =>
       ({
-        AutoSetChannelNumbers: true,
-        IgnoreExistingChannelNumbers: true,
+        CommandProfileName: 'StreamMaster',
         Name: '',
-        StartChannelNumber: 1
+        OutputProfileName: 'Default'
       } as CreateStreamGroupRequest),
     []
   );
@@ -30,9 +30,9 @@ export const StreamGroupCreateDialog = ({ modal, zIndex }: StreamGroupCreateDial
 
   const ReturnToParent = useCallback(() => {
     smDialogRef.current?.hide();
-    setCreateStreamGroupRequest({} as CreateStreamGroupRequest);
+    setCreateStreamGroupRequest(defaultValues);
     setSaving(false);
-  }, []);
+  }, [defaultValues]);
 
   const create = useCallback(() => {
     if (saving || createStreamGroupRequest === undefined || createStreamGroupRequest.Name === undefined || createStreamGroupRequest.Name === '') {
@@ -71,8 +71,6 @@ export const StreamGroupCreateDialog = ({ modal, zIndex }: StreamGroupCreateDial
     return true;
   }, [createStreamGroupRequest]);
 
-  Logger.debug('StreamGroupCreateDialog', 'render', { createStreamGroupRequest });
-
   return (
     <SMPopUp
       ref={smPopUpRef}
@@ -90,26 +88,34 @@ export const StreamGroupCreateDialog = ({ modal, zIndex }: StreamGroupCreateDial
       tooltip="Add SG"
       zIndex={zIndex ?? 10}
     >
-      <div className="w-full p-2">
-        <StringEditor
-          disableDebounce
-          darkBackGround
-          autoFocus
-          value={createStreamGroupRequest.Name}
-          label="Stream Group Name"
-          onSave={() => create()}
-          onChange={(e) => e !== undefined && updateStateAndRequest({ Name: e })}
-        />
-        <div className="layout-padding-bottom-lg" />
-        <div className="flex w-12 justify-content-end align-content-center">
-          {/* <div className="sm-w-6  sm-center-stuff">
-            <NumberEditor darkBackGround disableDebounce showButtons label="START CH #" onChange={(e) => {}} value={1} />
-          </div> */}
-          {/* <div className="sm-w-6 flex flex-column align-items-center">
-            <BooleanEditor checked={true} label="Fill Channel #" onChange={(e) => {}} />
-            <BooleanEditor checked={true} label="Skip Existing #" onChange={(e) => {}} />
-          </div> */}
+      <div className="sm-center-stuff p-2">
+        <div className="sm-w-4">
+          <StringEditor
+            autoFocus
+            darkBackGround
+            disableDebounce
+            label="Name"
+            onChange={(e) => e !== undefined && updateStateAndRequest({ Name: e })}
+            onSave={() => create()}
+            value={createStreamGroupRequest.Name}
+          />
         </div>
+        <div className="sm-w-4">
+          <OutputProfileDropDown
+            buttonDarkBackground
+            value={createStreamGroupRequest.OutputProfileName ?? ''}
+            onChange={(e) => e !== undefined && updateStateAndRequest({ OutputProfileName: e.ProfileName })}
+          />
+        </div>
+        <div className="sm-w-4">
+          <CommandProfileDropDown
+            buttonDarkBackground
+            value={createStreamGroupRequest.CommandProfileName ?? ''}
+            onChange={(e) => e !== undefined && updateStateAndRequest({ CommandProfileName: e.ProfileName })}
+          />
+        </div>
+        <div className="layout-padding-bottom-lg" />
+        <div className="flex w-12 justify-content-end align-content-center"></div>
         <div className="layout-padding-bottom-lg" />
       </div>
     </SMPopUp>

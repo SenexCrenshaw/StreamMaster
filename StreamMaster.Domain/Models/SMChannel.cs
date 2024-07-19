@@ -3,7 +3,7 @@
 using MessagePack;
 
 using StreamMaster.Domain.Attributes;
-using StreamMaster.Domain.Extensions;
+using StreamMaster.Domain.Configuration;
 
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
@@ -30,11 +30,16 @@ public class SMChannel
     [XmlIgnore]
     public ICollection<StreamGroupSMChannelLink> StreamGroups { get; set; } = [];
     public static string APIName => "SMChannels";
-    public string VideoOutputProfileName { get; set; } = "StreamMaster";
+
+    [Column(TypeName = "citext")]
+    public string CommandProfileName { get; set; } = BuildInfo.DefaultCommandProfileName;
+
     public bool IsHidden { get; set; } = false;
     public bool IsCustomStream { get; set; } = false;
-    public string? StreamID { get; set; }
-    public int? M3UFileId { get; set; }
+
+    public string StreamID { get; set; } = string.Empty;
+
+    public int M3UFileId { get; set; }
     public int ChannelNumber { get; set; } = 0;
     public int TimeShift { get; set; } = 0;
 
@@ -56,8 +61,8 @@ public class SMChannel
     [Column(TypeName = "citext")]
     public string GroupTitle { get; set; } = string.Empty;
 
-    public VideoStreamHandlers VideoStreamHandler { get; set; } = VideoStreamHandlers.SystemDefault;
+    //public VideoStreamHandlers VideoStreamHandler { get; set; } = VideoStreamHandlers.SystemDefault;
 
-    [Column(TypeName = "citext")]
-    public string ShortSMChannelId { get; set; } = UniqueHexGenerator.SMChannelIdEmpty;
+    //[Column(TypeName = "citext")]
+    //public string ShortSMChannelId { get; set; } = UniqueHexGenerator.SMChannelIdEmpty;
 }

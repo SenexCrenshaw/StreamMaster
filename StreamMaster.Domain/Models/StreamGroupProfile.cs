@@ -7,7 +7,7 @@ public class StreamGroupProfile
     public int StreamGroupId { get; set; }
     public string Name { get; set; } = "Default";
     public string OutputProfileName { get; set; } = "Default";
-    public string VideoProfileName { get; set; } = "Default";
+    public string CommandProfileName { get; set; } = "Default";
 }
 
 

@@ -12,10 +12,10 @@ public record GetStreamGroupLineup(int StreamGroupId, int StreamGroupProfileId) 
 
 
 [LogExecutionTimeAspect]
-public class GetStreamGroupLineupHandler(IHttpContextAccessor httpContextAccessor, IIconHelper iconHelper, IEPGHelper epgHelper, ISchedulesDirectDataService schedulesDirectDataService, ILogger<GetStreamGroupLineup> logger, IRepositoryWrapper Repository, IOptionsMonitor<HLSSettings> inthlssettings, IOptionsMonitor<Setting> intsettings)
+public class GetStreamGroupLineupHandler(IHttpContextAccessor httpContextAccessor, IIconHelper iconHelper, IEPGHelper epgHelper, ISchedulesDirectDataService schedulesDirectDataService, ILogger<GetStreamGroupLineup> logger, IRepositoryWrapper Repository, IOptionsMonitor<HLSSettings> inthlssettings, IOptionsMonitor<Setting> intSettings)
     : IRequestHandler<GetStreamGroupLineup, string>
 {
-    private readonly Setting settings = intsettings.CurrentValue;
+    private readonly Setting settings = intSettings.CurrentValue;
     private readonly HLSSettings hlssettings = inthlssettings.CurrentValue;
 
     public async Task<string> Handle(GetStreamGroupLineup request, CancellationToken cancellationToken)

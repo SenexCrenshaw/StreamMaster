@@ -2,9 +2,9 @@
 
 namespace StreamMaster.Domain.Logging;
 
-public class LoggingUtils(IOptionsMonitor<Setting> intsettings) : ILoggingUtils
+public class LoggingUtils(IOptionsMonitor<Setting> intSettings) : ILoggingUtils
 {
-    private readonly Setting settings = intsettings.CurrentValue;
+    private readonly Setting settings = intSettings.CurrentValue;
     private bool? _cleanUrlsCache;
 
     public string GetLoggableURL(string sourceUrl)

@@ -249,6 +249,10 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
                     b.Property<int>("ChannelNumber")
                         .HasColumnType("integer");
 
+                    b.Property<string>("CommandProfileName")
+                        .IsRequired()
+                        .HasColumnType("citext");
+
                     b.Property<string>("EPGId")
                         .IsRequired()
                         .HasColumnType("citext");
@@ -271,14 +275,10 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
                         .IsRequired()
                         .HasColumnType("citext");
 
-                    b.Property<int?>("M3UFileId")
+                    b.Property<int>("M3UFileId")
                         .HasColumnType("integer");
 
                     b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("citext");
-
-                    b.Property<string>("ShortSMChannelId")
                         .IsRequired()
                         .HasColumnType("citext");
 
@@ -287,16 +287,10 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
                         .HasColumnType("citext");
 
                     b.Property<string>("StreamID")
-                        .HasColumnType("text");
-
-                    b.Property<int>("TimeShift")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("VideoOutputProfileName")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("VideoStreamHandler")
+                    b.Property<int>("TimeShift")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
@@ -334,7 +328,7 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
                         .HasColumnType("integer");
 
                     b.Property<string>("ClientUserAgent")
-                        .HasColumnType("text");
+                        .HasColumnType("citext");
 
                     b.Property<string>("EPGID")
                         .IsRequired()
@@ -368,10 +362,6 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
                         .HasColumnType("citext");
 
                     b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("citext");
-
-                    b.Property<string>("ShortSMStreamId")
                         .IsRequired()
                         .HasColumnType("citext");
 
@@ -441,6 +431,10 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityAlwaysColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("CommandProfileName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
@@ -451,10 +445,6 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
 
                     b.Property<int>("StreamGroupId")
                         .HasColumnType("integer");
-
-                    b.Property<string>("VideoProfileName")
-                        .IsRequired()
-                        .HasColumnType("text");
 
                     b.HasKey("Id");
 

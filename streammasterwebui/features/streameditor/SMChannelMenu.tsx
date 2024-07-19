@@ -3,7 +3,8 @@ import AddSMChannelsToGroupEditor from '@components/smchannels/AddSMChannelsToGr
 import AddSMChannelsToSGEditor from '@components/smchannels/AddSMChannelsToSGEditor';
 import AutoSetEPGSMChannelDialog from '@components/smchannels/AutoSetEPGSMChannelDialog';
 import AutoSetSMChannelNumbersDialog from '@components/smchannels/AutoSetSMChannelNumbersDialog';
-import SetSMChannelsVideoOutputProfileNameDialog from '@components/smchannels/SetSMChannelsVideoOutputProfileNameDialog';
+import SetSMChannelsCommandProfileNameDialog from '@components/smchannels/SetSMChannelsCommandProfileNameDialog';
+
 import SMChannelMultiVisibleDialog from '@components/smchannels/SMChannelMultiVisibleDialog';
 
 import { useIsTrue } from '@lib/redux/hooks/isTrue';
@@ -44,7 +45,7 @@ const SMChannelMenu = () => {
         <div className="sm-channel-menu gap-2">
           <AutoSetEPGSMChannelDialog menu />
           <AutoSetSMChannelNumbersDialog selectedItemsKey={selectedItemsKey} />
-          <SetSMChannelsVideoOutputProfileNameDialog selectedItemsKey={selectedItemsKey} />
+          <SetSMChannelsCommandProfileNameDialog selectedItemsKey={selectedItemsKey} />
           <AddSMChannelsToSGEditor />
           <AddSMChannelsToGroupEditor />
           <SMChannelMultiVisibleDialog selectedItemsKey={selectedItemsKey} menu />

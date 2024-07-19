@@ -1,37 +1,37 @@
 import StringEditor from '@components/inputs/StringEditor';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
-import { StreamGroupProfile, UpdateVideoProfileRequest } from '@lib/smAPI/smapiTypes';
+import { StreamGroupProfile } from '@lib/smAPI/smapiTypes';
 import { useCallback } from 'react';
 
-export interface VideoProfileColumnConfigProps {
+export interface CommandProfileColumnConfigProps {
   readonly field?: string;
   readonly header?: string;
   readonly width?: number | string;
 }
 
-interface IntVideoProfileColumnConfigProps {
+interface IntCommandProfileColumnConfigProps {
   readonly field: string;
   readonly header: string;
   readonly width?: number | string;
 }
 
-export const useStreamGroupProfileColumnConfig = ({ field, header, width = 80 }: IntVideoProfileColumnConfigProps) => {
-  function updateProfile<T extends keyof UpdateVideoProfileRequest>(profile: UpdateVideoProfileRequest, key: T, value: UpdateVideoProfileRequest[T]) {
-    if (value !== undefined && value !== null) {
-      profile[key] = value;
-    }
-  }
+export const useStreamGroupProfileColumnConfig = ({ field, header, width = 80 }: IntCommandProfileColumnConfigProps) => {
+  // function updateProfile<T extends keyof UpdateCommandProfileRequest>(profile: UpdateCommandProfileRequest, key: T, value: UpdateCommandProfileRequest[T]) {
+  //   if (value !== undefined && value !== null) {
+  //     profile[key] = value;
+  //   }
+  // }
 
-  const update = useCallback((request: UpdateVideoProfileRequest) => {
-    console.log('update', request);
+  // const update = useCallback((request: UpdateCommandProfileRequest) => {
+  //   console.log('update', request);
 
-    // UpdateVideoProfile(request)
-    //   .then((res) => {})
-    //   .catch((error) => {
-    //     console.log('error', error);
-    //   })
-    //   .finally();
-  }, []);
+  //   // UpdateCommandProfile(request)
+  //   //   .then((res) => {})
+  //   //   .catch((error) => {
+  //   //     console.log('error', error);
+  //   //   })
+  //   //   .finally();
+  // }, []);
 
   const bodyTemplate = useCallback(
     (videoOutputProfile: StreamGroupProfile) => {
@@ -42,10 +42,10 @@ export const useStreamGroupProfileColumnConfig = ({ field, header, width = 80 }:
         <StringEditor
           onSave={(e) => {
             if (e !== undefined) {
-              // const updateVideoProfileRequest = { Name: videoOutputProfile.Name } as UpdateVideoProfileRequest;
-              // var key = field as keyof UpdateVideoProfileRequest;
-              // updateProfile(updateVideoProfileRequest, key, e);
-              // update(updateVideoProfileRequest);
+              // const updateCommandProfileRequest = { Name: videoOutputProfile.Name } as UpdateCommandProfileRequest;
+              // var key = field as keyof UpdateCommandProfileRequest;
+              // updateProfile(updateCommandProfileRequest, key, e);
+              // update(updateCommandProfileRequest);
             }
           }}
           value={value}

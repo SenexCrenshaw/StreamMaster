@@ -6,12 +6,11 @@ using System.Web;
 
 namespace StreamMaster.Application.SMChannels.Queries;
 
-
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record GetPagedSMChannelsRequest(QueryStringParameters Parameters) : IRequest<PagedResponse<SMChannelDto>>;
 
-internal class GetPagedSMChannelsRequestHandler(IRepositoryWrapper Repository, IOptionsMonitor<Setting> settings, IOptionsMonitor<HLSSettings> hlsSettings, IHttpContextAccessor httpContextAccessor)
+internal class GetPagedSMChannelsRequestHandler(IRepositoryWrapper Repository, IOptionsMonitor<Setting> intSettings, IOptionsMonitor<HLSSettings> hlsSettings, IHttpContextAccessor httpContextAccessor)
     : IRequestHandler<GetPagedSMChannelsRequest, PagedResponse<SMChannelDto>>
 {
     public async Task<PagedResponse<SMChannelDto>> Handle(GetPagedSMChannelsRequest request, CancellationToken cancellationToken)
@@ -29,12 +28,12 @@ internal class GetPagedSMChannelsRequestHandler(IRepositoryWrapper Repository, I
 
         foreach (SMChannelDto channel in res.Data)
         {
-            List<SMChannelStreamLink> links = Repository.SMChannelStreamLink.GetQuery(true).Where(a => a.SMChannelId == channel.Id).ToList();
+            List<SMChannelStreamLink> links = [.. Repository.SMChannelStreamLink.GetQuery(true).Where(a => a.SMChannelId == channel.Id)];
 
             string videoUrl;
             foreach (SMStreamDto stream in channel.SMStreams)
             {
-                SMChannelStreamLink? link = links.FirstOrDefault(a => a.SMStreamId == stream.Id);
+                SMChannelStreamLink? link = links.Find(a => a.SMStreamId == stream.Id);
 
                 if (link != null)
                 {
@@ -42,9 +41,8 @@ internal class GetPagedSMChannelsRequestHandler(IRepositoryWrapper Repository, I
                 }
             }
 
-            channel.SMStreams = channel.SMStreams.OrderBy(a => a.Rank).ToList();
+            channel.SMStreams = [.. channel.SMStreams.OrderBy(a => a.Rank)];
             channel.StreamGroupIds = channel.StreamGroups.Select(a => a.StreamGroupId).ToList();
-
 
             if (hlsSettings.CurrentValue.HLSM3U8Enable)
             {
@@ -53,12 +51,12 @@ internal class GetPagedSMChannelsRequestHandler(IRepositoryWrapper Repository, I
             else
             {
                 string encodedName = HttpUtility.HtmlEncode(channel.Name).Trim()
-                        .Replace("/", "")
-                        .Replace(" ", "_");
+                                    .Replace("/", "")
+                                    .Replace(" ", "_");
 
-                string encodedNumbers = 0.EncodeValues128(channel.Id, settings.CurrentValue.ServerKey);
+                string encodedNumbers = 1.EncodeValues128(1, channel.Id, intSettings.CurrentValue.ServerKey);
+
                 videoUrl = $"{url}/api/videostreams/stream/{encodedNumbers}/{encodedName}";
-
             }
 
             string jsonString = JsonSerializer.Serialize(videoUrl);

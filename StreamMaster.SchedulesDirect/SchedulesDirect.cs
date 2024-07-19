@@ -12,7 +12,7 @@ public partial class SchedulesDirect(
     IJobStatusService jobStatusService,
     ISchedulesDirectDataService schedulesDirectDataService,
     ISchedulesDirectAPIService schedulesDirectAPI,
-    IOptionsMonitor<SDSettings> intsettings,
+    IOptionsMonitor<SDSettings> intSettings,
     IDescriptions descriptions,
     IKeywords keywords,
     ILineups lineups,
@@ -36,7 +36,7 @@ public partial class SchedulesDirect(
 
     public async Task<APIResponse> SDSync(CancellationToken cancellationToken)
     {
-        SDSettings sdSettings = intsettings.CurrentValue;
+        SDSettings sdSettings = intSettings.CurrentValue;
 
 
         JobStatusManager jobManager = jobStatusService.GetJobManageSDSync(EPGHelper.SchedulesDirectId);

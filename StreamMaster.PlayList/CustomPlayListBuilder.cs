@@ -1,20 +1,24 @@
-﻿using StreamMaster.Domain.Common;
+﻿using Microsoft.Extensions.Logging;
+
+using Reinforced.Typings.Attributes;
+
+using StreamMaster.Domain.Common;
 using StreamMaster.Domain.Configuration;
 using StreamMaster.PlayList.Models;
 
 using System.Xml.Serialization;
 
 namespace StreamMaster.PlayList;
-
+[TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record CustomStreamNfo(string VideoFileName, Movie Movie);
 
-public class CustomPlayListBuilder(INfoFileReader nfoFileReader) : ICustomPlayListBuilder
+public class CustomPlayListBuilder(ILogger<CustomPlayListBuilder> logger, INfoFileReader nfoFileReader) : ICustomPlayListBuilder
 {
-    private static readonly DateTime SequenceStartTime = new(2024, 7, 19, 0, 0, 0);
+    private static readonly DateTime SequenceStartTime = new(2024, 7, 18, 0, 0, 0);
 
     public CustomPlayList? GetCustomPlayList(string Name)
     {
-        CustomPlayList? ret = GetCustomPlayLists().FirstOrDefault(x => x.Name == Name);
+        CustomPlayList? ret = GetCustomPlayLists().Find(x => x.Name == Name);
         ret ??= GetCustomPlayLists().Find(x => FileUtil.EncodeToBase64(x.Name) == Name);
         return ret;
     }
@@ -32,6 +36,8 @@ public class CustomPlayListBuilder(INfoFileReader nfoFileReader) : ICustomPlayLi
         {
             return ret;
         }
+
+
 
         string[] folders = Directory.GetDirectories(BuildInfo.CustomPlayListFolder);
 
@@ -78,12 +84,36 @@ public class CustomPlayListBuilder(INfoFileReader nfoFileReader) : ICustomPlayLi
                     continue;
                 }
 
+
+                CustomStreamNfo? intro = GetIntro();
+                if (intro != null)
+                {
+                    customPlayList.CustomStreamNfos.Add(intro);
+                }
+
                 CustomStreamNfo customStreamNfo = new(file, fileNfo);
                 customPlayList.CustomStreamNfos.Add(customStreamNfo);
             }
             ret.Add(customPlayList);
         }
         return ret;
+    }
+
+    public static CustomStreamNfo? GetIntro()
+    {
+        string introMovie = Path.Combine(BuildInfo.CustomPlayListFolder, "Intro.mp4");
+        if (File.Exists(introMovie))
+        {
+            _ = Path.Combine(BuildInfo.CustomPlayListFolder, "Intro.jpg");
+            Movie movie = new()
+            {
+                Title = "Intro",
+            };
+            CustomStreamNfo customStreamNfo = new(introMovie, movie);
+            customStreamNfo.Movie.Runtime = 0;
+            return customStreamNfo;
+        }
+        return null;
     }
 
     public static string GetFirstVideoFileInDirectory(string dir)
@@ -129,40 +159,41 @@ public class CustomPlayListBuilder(INfoFileReader nfoFileReader) : ICustomPlayLi
         }
     }
 
-    public (string VideoFileName, int SecondsIn) GetCurrentVideoAndElapsedSeconds(string customPlayListName)
+    public (CustomStreamNfo StreamNfo, int SecondsIn) GetCurrentVideoAndElapsedSeconds(string customPlayListName)
     {
-        CustomPlayList? customPlayList = GetCustomPlayList(customPlayListName);
-        if (customPlayList == null)
-        {
-            throw new ArgumentException($"Custom playlist with name {customPlayListName} not found.");
-        }
+        CustomPlayList? customPlayList = GetCustomPlayList(customPlayListName) ?? throw new ArgumentException($"Custom playlist with name {customPlayListName} not found.");
 
         // Calculate the total length of the playlist
-        int totalLength = customPlayList.CustomStreamNfos.Sum(nfo => nfo.Movie.Runtime);
+        int totalLength = customPlayList.CustomStreamNfos.Sum(nfo => nfo.Movie.Runtime) * 60;
+
+        logger.LogInformation("Total playlist length: {totalLength} seconds", totalLength);
 
         // Calculate elapsed seconds since the sequence start time
         double elapsedSeconds = (DateTime.Now - SequenceStartTime).TotalSeconds % totalLength;
+        logger.LogInformation("Elapsed seconds since sequence start time: {elapsedSeconds}", elapsedSeconds);
 
         int accumulatedTime = 0;
 
         // Find the current video and the seconds into it
         foreach (CustomStreamNfo customStreamNfo in customPlayList.CustomStreamNfos)
         {
-            int videoLength = customStreamNfo.Movie.Runtime;
+            int videoLength = customStreamNfo.Movie.Runtime * 60;
+            logger.LogInformation("Checking video: {customStreamNfo.VideoFileName}, length: {videoLength} seconds", customStreamNfo.VideoFileName, videoLength);
 
             if (elapsedSeconds < accumulatedTime + videoLength)
             {
                 int secondsIn = (int)(elapsedSeconds - accumulatedTime);
-                return (customStreamNfo.VideoFileName, secondsIn);
+                logger.LogInformation("Current video: {customStreamNfo.VideoFileName}, seconds in: {secondsIn}", customStreamNfo.VideoFileName, secondsIn);
+                return (customStreamNfo, secondsIn);
             }
 
             accumulatedTime += videoLength;
+            logger.LogInformation("Accumulated time: {accumulatedTime} seconds", accumulatedTime);
         }
 
         // If for some reason no video was found (though this should not happen), return the first video
-        CustomStreamNfo firstVideo = customPlayList.CustomStreamNfos.First();
-        return (firstVideo.VideoFileName, (int)elapsedSeconds);
+        CustomStreamNfo firstVideo = customPlayList.CustomStreamNfos[0];
+        logger.LogInformation("Fallback to the first video: {firstVideo.VideoFileName}, elapsed seconds: {elapsedSeconds}", firstVideo.VideoFileName, elapsedSeconds);
+        return (firstVideo, (int)elapsedSeconds);
     }
-
-
 }

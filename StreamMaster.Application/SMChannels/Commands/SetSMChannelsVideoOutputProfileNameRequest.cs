@@ -2,16 +2,16 @@
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record SetSMChannelsVideoOutputProfileNameRequest(List<int> SMChannelIds, string VideoOutputProfileName) : IRequest<APIResponse>;
+public record SetSMChannelsCommandProfileNameRequest(List<int> SMChannelIds, string CommandProfileName) : IRequest<APIResponse>;
 
-internal class SetSMChannelsVideoOutputProfileNameRequestHandler(IRepositoryWrapper Repository, IMessageService messageService, IDataRefreshService dataRefreshService) : IRequestHandler<SetSMChannelsVideoOutputProfileNameRequest, APIResponse>
+internal class SetSMChannelsCommandProfileNameRequestHandler(IRepositoryWrapper Repository, IMessageService messageService, IDataRefreshService dataRefreshService) : IRequestHandler<SetSMChannelsCommandProfileNameRequest, APIResponse>
 {
-    public async Task<APIResponse> Handle(SetSMChannelsVideoOutputProfileNameRequest request, CancellationToken cancellationToken)
+    public async Task<APIResponse> Handle(SetSMChannelsCommandProfileNameRequest request, CancellationToken cancellationToken)
     {
-        APIResponse ret = await Repository.SMChannel.SetSMChannelsVideoOutputProfileName(request.SMChannelIds, request.VideoOutputProfileName).ConfigureAwait(false);
+        APIResponse ret = await Repository.SMChannel.SetSMChannelsCommandProfileName(request.SMChannelIds, request.CommandProfileName).ConfigureAwait(false);
         if (ret.IsError)
         {
-            await messageService.SendError($"Set VideoOutputProfileName failed {ret.Message}");
+            await messageService.SendError($"Set CommandProfileName failed {ret.Message}");
             return ret;
         }
         await dataRefreshService.RefreshSMChannels().ConfigureAwait(false);

@@ -62,7 +62,7 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, IMessageSer
 
             m3uFile.LastUpdated = SMDT.UtcNow;
             UpdateM3UFile(m3uFile);
-            await SaveChangesAsync();
+            _ = await SaveChangesAsync();
 
             jobManager.SetSuccessful();
             return m3uFile;
@@ -90,7 +90,7 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, IMessageSer
         List<string> newGroups = streams.Where(a => a.Group is not null and not "").Select(a => a.Group).Distinct().ToList();
         List<ChannelGroup> channelGroups = await repositoryWrapper.ChannelGroup.GetQuery().ToListAsync();
 
-        CreateNewChannelGroups(newGroups, channelGroups);
+        _ = CreateNewChannelGroups(newGroups, channelGroups);
 
         logger.LogInformation("Updating channel groups took {sw.Elapsed.TotalSeconds} seconds", sw.Elapsed.TotalSeconds);
     }
@@ -118,7 +118,7 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, IMessageSer
         await messageService.SendSuccess($"{streams.Count} total streams in file, Added {newStreamCount} \r\nnew streams, removed {removedCount} missing steams and ignored {dupStreamCount} duplicate streams", $"Processed M3U {m3uFile.Name}");
 
         UpdateM3UFile(m3uFile);
-        await SaveChangesAsync();
+        _ = await SaveChangesAsync();
     }
 
     /// <summary>
@@ -365,12 +365,6 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, IMessageSer
 
         ConcurrentBag<SMStream> toWrite = [];
         ConcurrentBag<SMStream> toUpdate = [];
-        ConcurrentDictionary<string, byte> generatedIdsDict = new();
-
-        foreach (SMStream stream in streams)
-        {
-            generatedIdsDict.TryAdd(stream.ShortSMStreamId, 0);
-        }
 
         _ = Parallel.ForEach(streams.Select((stream, index) => (stream, index)), tuple =>
         {
@@ -390,17 +384,12 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, IMessageSer
                 if (!existingLookup.TryGetValue(stream.Id, out SMStream? existingStream))
                 {
                     ProcessNewStream(stream, group?.IsHidden ?? false, m3uFile.Name, index);
-                    stream.ShortSMStreamId = UniqueHexGenerator.GenerateUniqueHex(generatedIdsDict);
                     toWrite.Add(stream);
                 }
                 else
                 {
                     if (ProcessExistingStream(stream, existingStream, m3uFile, index))
                     {
-                        if (string.IsNullOrEmpty(existingStream.ShortSMStreamId) || existingStream.ShortSMStreamId == UniqueHexGenerator.SMChannelIdEmpty)
-                        {
-                            existingStream.ShortSMStreamId = UniqueHexGenerator.GenerateUniqueHex(generatedIdsDict);
-                        }
                         toUpdate.Add(existingStream);
                     }
                 }
@@ -408,7 +397,7 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, IMessageSer
             }
             else
             {
-                Interlocked.Increment(ref dupTotalCount);
+                _ = Interlocked.Increment(ref dupTotalCount);
             }
 
             _ = Interlocked.Increment(ref processedCount);
@@ -482,13 +471,6 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, IMessageSer
             changed = true;
 
             existingStream.Name = stream.Name;
-        }
-
-        if (existingStream.ShortSMStreamId != stream.ShortSMStreamId)
-        {
-            //changed = true;
-
-            //existingStream.SMStreamId = stream.SMStreamId;
         }
 
         if (existingStream.FilePosition != index)
