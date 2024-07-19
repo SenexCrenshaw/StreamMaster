@@ -5,7 +5,6 @@ import { AddProfileToStreamGroup } from '@lib/smAPI/StreamGroups/StreamGroupsCom
 import { AddProfileToStreamGroupRequest, StreamGroupDto } from '@lib/smAPI/smapiTypes';
 import { useCallback, useRef, useState } from 'react';
 import OutputProfileDropDown from './OutputProfileDropDown';
-import VideoProfileDropDown from './VideoProfileDropDown';
 
 interface AttachStreamGroupProfileDialogProps {
   readonly streamGroupDto: StreamGroupDto;
@@ -45,7 +44,7 @@ const AttachStreamGroupProfileDialog = ({ streamGroupDto }: AttachStreamGroupPro
   return (
     <SMPopUp
       buttonClassName="icon-green"
-      contentWidthSize="5"
+      contentWidthSize="3"
       icon="pi-plus-circle"
       modal
       ref={smPopUpRef}
@@ -86,7 +85,7 @@ const AttachStreamGroupProfileDialog = ({ streamGroupDto }: AttachStreamGroupPro
                 }}
               />
             </div>
-            <div className={dropdownClass}>
+            {/* <div className={dropdownClass}>
               <VideoProfileDropDown
                 buttonDarkBackground
                 value={fileRequest.VideoProfileName}
@@ -94,7 +93,7 @@ const AttachStreamGroupProfileDialog = ({ streamGroupDto }: AttachStreamGroupPro
                   updateM3UOutputProfileStateAndRequest({ VideoProfileName: e.ProfileName });
                 }}
               />
-            </div>
+            </div> */}
           </div>
 
           <div className="layout-padding-bottom-lg" />

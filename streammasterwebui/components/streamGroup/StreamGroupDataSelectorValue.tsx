@@ -102,7 +102,7 @@ const StreamGroupDataSelectorValue = ({ id, streamGroupDto }: StreamGroupDataSel
     (): ColumnMeta[] => [
       { bodyTemplate: nameTemplate, field: 'Name', sortable: false, width: 80 },
       { bodyTemplate: fileProfileTemplate, field: 'OutputProfileName', header: 'Output', sortable: false, width: 50 },
-      { bodyTemplate: videoProfileTemplate, field: 'VideoProfileName', header: 'Video', sortable: false, width: 50 },
+      // { bodyTemplate: videoProfileTemplate, field: 'VideoProfileName', header: 'Video', sortable: false, width: 50 },
       {
         align: 'center',
         field: 'HDHRLink',
