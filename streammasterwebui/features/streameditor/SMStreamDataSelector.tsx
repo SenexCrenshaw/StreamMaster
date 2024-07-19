@@ -86,6 +86,9 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
 
   const addOrRemoveTemplate = useCallback(
     (data: any) => {
+      if (data.IsCustomStream) {
+        return <div className="flex align-content-center justify-content-center" />;
+      }
       const found = selectedSMChannel?.SMStreams?.some((item) => item.Id === data.Id) ?? false;
 
       let toolTip = 'Add Channel';

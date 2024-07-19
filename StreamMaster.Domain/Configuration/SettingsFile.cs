@@ -61,7 +61,7 @@ public static class SettingFiles
                 {
                     IsReadOnly=true,
                     Command="ffmpeg",
-                    Parameters = "-hide_banner -loglevel error -user_agent {clientUserAgent} -i {streamUrl} -reconnect 1 -map 0:v -map 0:a? -map 0:s? -c copy -bsf:v h264_mp4toannexb -f mpegts pipe:1"
+                    Parameters = "-hide_banner -loglevel error -user_agent {clientUserAgent} -i {streamUrl} -reconnect 1 -map 0:v -map 0:a? -map 0:s? -c copy -f mpegts pipe:1"
                 }
             },
              {

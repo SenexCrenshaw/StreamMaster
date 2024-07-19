@@ -131,7 +131,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
 
     public async Task<List<int>> DeleteSMChannelsFromParameters(QueryStringParameters parameters)
     {
-        IQueryable<SMChannel> toDelete = GetQuery(parameters);
+        IQueryable<SMChannel> toDelete = GetQuery(parameters).Where(a => !a.IsCustomStream);
         return await DeleteSMChannelsAsync(toDelete).ConfigureAwait(false);
     }
 
@@ -140,10 +140,10 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
         return FirstOrDefault(a => a.Id == smchannelId, tracking: false);
     }
 
-    private async Task<SMChannel?> CreateSMChannelFromStream(string streamId, ConcurrentDictionary<string, byte> generatedIdsDict, int? AddToStreamGroupId, int? M3UFileId = EPGHelper.DummyId, bool? IsCustomPlayList = false)
+    private async Task<SMChannel?> CreateSMChannelFromStream(string streamId, ConcurrentDictionary<string, byte> generatedIdsDict, int? AddToStreamGroupId, int? M3UFileId = EPGHelper.DummyId, bool? forced = false)
     {
-        SMStream? smStream = repository.SMStream.GetSMStream(streamId) ?? throw new APIException($"Stream with Id {streamId} is not found");
-        if (smStream == null)
+        SMStreamDto? smStream = repository.SMStream.GetSMStream(streamId) ?? throw new APIException($"Stream with Id {streamId} is not found");
+        if (smStream == null || (forced == false && smStream.IsCustomStream))
         {
             return null;
         }
@@ -161,7 +161,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
             M3UFileId = M3UFileId,
             StreamID = smStream.Id,
             ShortSMChannelId = UniqueHexGenerator.GenerateUniqueHex(generatedIdsDict),
-            IsCustomStream = IsCustomPlayList ?? false,
+            IsCustomStream = smStream.IsCustomStream,
             VideoOutputProfileName = videoOutputProfileName,
         };
 
@@ -193,7 +193,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
 
     public async Task<APIResponse> DeleteSMChannels(List<int> smchannelIds)
     {
-        IQueryable<SMChannel> toDelete = GetQuery(true).Where(a => smchannelIds.Contains(a.Id));
+        IQueryable<SMChannel> toDelete = GetQuery(true).Where(a => smchannelIds.Contains(a.Id) && !a.IsCustomStream);
         if (!toDelete.Any())
         {
             return APIResponse.NotFound;
@@ -487,7 +487,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
     }
 
     [LogExecutionTimeAspect]
-    public async Task<APIResponse> CreateSMChannelsFromStreams(List<string> streamIds, int? AddToStreamGroupId, int? M3UFileId = EPGHelper.DummyId, bool? IsCustomPlayList = false)
+    public async Task<APIResponse> CreateSMChannelsFromStreams(List<string> streamIds, int? AddToStreamGroupId, int? M3UFileId = EPGHelper.DummyId, bool? IsCustomPlayList = false, bool? forced = false)
     {
         try
         {
@@ -517,7 +517,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
             int count = 0;
             foreach (string streamId in streamIds)
             {
-                SMChannel? smChannel = await CreateSMChannelFromStream(streamId, generatedIdsDict, AddToStreamGroupId, M3UFileId, IsCustomPlayList);
+                SMChannel? smChannel = await CreateSMChannelFromStream(streamId, generatedIdsDict, AddToStreamGroupId, M3UFileId, forced: forced);
 
                 if (smChannel is null)
                 {

@@ -7,7 +7,7 @@ namespace StreamMaster.Streams.Factories;
 public sealed class ProxyFactory(ILogger<ProxyFactory> logger, IHttpClientFactory httpClientFactory, IOptionsMonitor<Setting> intSettings, IOptionsMonitor<VideoOutputProfiles> intProfileSettings)
     : IProxyFactory
 {
-    public string FFMpegOptions { get; set; } = "-hide_banner -loglevel error -user_agent {clientUserAgent} -i {streamUrl} -reconnect 1 -map 0:v -map 0:a? -map 0:s? -c copy -bsf:v h264_mp4toannexb -f mpegts pipe:1";
+    public string FFMpegOptions { get; set; } = "-hide_banner -loglevel error -user_agent {clientUserAgent} -i {streamUrl} -reconnect 1 -map 0:v -map 0:a? -map 0:s? -c copy -f mpegts pipe:1";
     public string CustomPlayListFFMpegOptions { get; set; } = "-hide_banner -loglevel error -re -i {streamUrl} -map 0:v -map 0:a? -map 0:s? -c copy -f mpegts pipe:1";
 
     public async Task<(Stream? stream, int processId, ProxyStreamError? error)> GetProxy(IChannelStatus channelStatus, CancellationToken cancellationToken)

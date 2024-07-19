@@ -56,7 +56,7 @@ internal class SyncChannelsRequestHandler(ILogger<SyncChannelsRequest> logger, I
             {
                 List<int> smChannelIds = await Repository.SMChannel.GetQuery().Where(a => a.M3UFileId == request.M3UFileId && a.StreamID != null && streamsToBeDeleted.Contains(a.StreamID)).Select(a => a.Id).ToListAsync(cancellationToken: cancellationToken);
 
-                await sender.Send(new DeleteSMChannelsRequest(smChannelIds), cancellationToken).ConfigureAwait(false);
+                _ = await sender.Send(new DeleteSMChannelsRequest(smChannelIds), cancellationToken).ConfigureAwait(false);
             }
             bool changed = false;
             //if (existingStreamsInDb.Count != 0)

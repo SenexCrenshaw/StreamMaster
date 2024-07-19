@@ -22,14 +22,14 @@ public class ScanForCustomPlayListsRequestHandler(ILogger<ScanForCustomPlayLists
             AddIcon(customPlayList);
 
 
-            var currentStream = await Repository.SMStream.FirstOrDefaultAsync(s => s.Id == id, cancellationToken: cancellationToken, tracking: true);
+            SMStream? currentStream = await Repository.SMStream.FirstOrDefaultAsync(s => s.Id == id, cancellationToken: cancellationToken, tracking: true);
             if (currentStream != null)
             {
                 if (currentStream.Logo != customPlayList.Logo)
                 {
                     currentStream.Logo = customPlayList.Logo;
                 }
-                var smChannel = await Repository.SMChannel.GetQuery(true).FirstOrDefaultAsync(a => a.IsCustomStream && a.StreamID != null && a.StreamID == id, cancellationToken: cancellationToken);
+                SMChannel? smChannel = await Repository.SMChannel.GetQuery(true).FirstOrDefaultAsync(a => a.IsCustomStream && a.StreamID != null && a.StreamID == id, cancellationToken: cancellationToken);
                 if (smChannel != null)
                 {
                     if (smChannel.Logo != customPlayList.Logo)
@@ -41,12 +41,12 @@ public class ScanForCustomPlayListsRequestHandler(ILogger<ScanForCustomPlayLists
 
                 continue;
             }
-            var settings = intSettings.CurrentValue;
+            Setting settings = intSettings.CurrentValue;
 
             string encodedName = HttpUtility.HtmlEncode(customPlayList.Name).Trim().Replace("/", "").Replace(" ", "_");
             string encodedId = id.EncodeValue128(settings.ServerKey);
 
-            var smStream = new SMStream
+            SMStream smStream = new()
             {
                 Id = id,
                 EPGID = EPGHelper.CustomPlayListId + "-" + customPlayList.Name,
@@ -62,11 +62,11 @@ public class ScanForCustomPlayListsRequestHandler(ILogger<ScanForCustomPlayLists
             smStreamIds.Add(id);
         }
 
-        await Repository.SaveAsync();
+        _ = await Repository.SaveAsync();
 
-        await Sender.Send(new CreateSMChannelsFromStreamsRequest(smStreamIds, M3UFileId: EPGHelper.CustomPlayListId, IsCustomPlayList: true), cancellationToken);
+        _ = await Sender.Send(new CreateSMChannelsFromStreamsRequest(smStreamIds, M3UFileId: EPGHelper.CustomPlayListId, IsCustomPlayList: true, forced: true), cancellationToken);
 
-        await Repository.SaveAsync();
+        _ = await Repository.SaveAsync();
 
         return APIResponse.Success;
     }

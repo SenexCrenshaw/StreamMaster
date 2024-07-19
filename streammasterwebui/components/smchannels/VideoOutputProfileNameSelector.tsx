@@ -100,9 +100,9 @@ const VideoOutputProfileNameSelector: React.FC<VideoOutputProfileNameSelectorPro
     return <div className="text-xs text-container">{option?.label ?? ''}</div>;
   }, []);
 
-  // if (!data?.VideoOutputProfileName || data.IsCustomStream) {
-  //   return <div className="text-xs text-container  pl-1">StreamMaster</div>;
-  // }
+  if (!data?.VideoOutputProfileName || data.IsCustomStream === true) {
+    return <div className="text-xs text-container  pl-1">StreamMaster</div>;
+  }
 
   // if (data?.VideoOutputProfileName === undefined) {
   //   return null;
@@ -112,7 +112,6 @@ const VideoOutputProfileNameSelector: React.FC<VideoOutputProfileNameSelectorPro
     <SMDropDown
       buttonLabel="PROXY"
       buttonDarkBackground={darkBackGround}
-      buttonDisabled={data?.IsCustomStream === true}
       buttonTemplate={buttonTemplate}
       data={getHandlersOptions}
       dataKey="label"

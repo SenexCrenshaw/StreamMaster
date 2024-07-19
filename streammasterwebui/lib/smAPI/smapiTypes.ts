@@ -909,6 +909,7 @@ export interface CreateSMChannelsFromStreamParametersRequest
 }
 export interface CreateSMChannelsFromStreamsRequest
 {
+	forced?: boolean;
 	IsCustomPlayList?: boolean;
 	M3UFileId?: number;
 	StreamGroupId?: number;
