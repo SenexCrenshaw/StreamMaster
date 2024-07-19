@@ -148,7 +148,7 @@ public sealed class ProxyFactory(ILogger<ProxyFactory> logger, IMessageService m
                 }
                 (CustomStreamNfo StreamNfo, int secondsIn) = customPlayListBuilder.GetCurrentVideoAndElapsedSeconds(channelStatus.CustomPlayList.Name);
                 string options = CustomPlayListFFMpegOptions.Replace("{secondsIn}", $"{secondsIn}");
-                await messageService.SendInfo($"Client Watching {StreamNfo.Movie.Title}", "Custom Stream");
+                //await messageService.SendInfo($"Client Watching {StreamNfo.Movie.Title}", "Custom Stream");
 
                 return GetCommandStream(StreamNfo.VideoFileName, "ffmpeg", options, clientUserAgent);
             }
