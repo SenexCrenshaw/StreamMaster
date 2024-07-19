@@ -49,6 +49,10 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
 
     private async void SetStreamGroupLinks(StreamGroupDto streamGroupDto, string Url)
     {
+        if (Url.StartsWith("wss"))
+        {
+            Url = "https://" + Url[3..];
+        }
         Setting Settings = intSettings.CurrentValue;
 
         if (streamGroupDto.StreamGroupProfiles.Count > 0)
@@ -171,7 +175,7 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
         RepositoryContext.StreamGroupChannelGroups.RemoveRange(channelGroups);
         RepositoryContext.StreamGroupSMChannelLinks.RemoveRange(smChannels);
         RepositoryContext.StreamGroupProfiles.RemoveRange(profiles);
-        await RepositoryContext.SaveChangesAsync();
+        _ = await RepositoryContext.SaveChangesAsync();
 
         StreamGroup? streamGroup = await FirstOrDefaultAsync(c => c.Id == StreamGroupId);
         if (streamGroup == null)
@@ -179,7 +183,7 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
             return null;
         }
         Delete(streamGroup);
-        await RepositoryContext.SaveChangesAsync();
+        _ = await RepositoryContext.SaveChangesAsync();
         return streamGroup.Id;
     }
 
@@ -217,7 +221,7 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
         //}
 
         Update(streamGroup);
-        await RepositoryContext.SaveChangesAsync();
+        _ = await RepositoryContext.SaveChangesAsync();
         StreamGroupDto ret = mapper.Map<StreamGroupDto>(streamGroup);
 
         SetStreamGroupsLink(ret);
