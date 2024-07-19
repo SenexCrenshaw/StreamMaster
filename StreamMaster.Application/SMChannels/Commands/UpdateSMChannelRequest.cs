@@ -3,7 +3,7 @@
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record UpdateSMChannelRequest(int Id, string? Name, List<string>? SMStreamsIds, string? StreamingProxyType, int? ChannelNumber, int? TimeShift, string? Group, string? EPGId, string? Logo, VideoStreamHandlers? VideoStreamHandler)
+public record UpdateSMChannelRequest(int Id, string? Name, List<string>? SMStreamsIds, string? VideoOutputProfileName, int? ChannelNumber, int? TimeShift, string? Group, string? EPGId, string? Logo, VideoStreamHandlers? VideoStreamHandler)
     : IRequest<APIResponse>;
 
 [LogExecutionTimeAspect]
@@ -48,11 +48,12 @@ public class UpdateSMChannelRequestHandler(IRepositoryWrapper Repository, IDataR
                 ret.Add(new FieldData(() => smChannel.Logo));
             }
 
-            if (!string.IsNullOrEmpty(request.StreamingProxyType) && request.StreamingProxyType != smChannel.StreamingProxyType)
+            if (!string.IsNullOrEmpty(request.VideoOutputProfileName) && request.VideoOutputProfileName != smChannel.VideoOutputProfileName)
             {
-                smChannel.StreamingProxyType = request.StreamingProxyType;
-                ret.Add(new FieldData(() => smChannel.StreamingProxyType));
+                smChannel.Logo = request.VideoOutputProfileName;
+                ret.Add(new FieldData(() => smChannel.VideoOutputProfileName));
             }
+
 
             if (request.ChannelNumber.HasValue && request.ChannelNumber.Value != smChannel.ChannelNumber)
             {
@@ -70,7 +71,7 @@ public class UpdateSMChannelRequestHandler(IRepositoryWrapper Repository, IDataR
             if (ret.Count > 0)
             {
                 Repository.SMChannel.Update(smChannel);
-                await Repository.SaveAsync().ConfigureAwait(false);
+                _ = await Repository.SaveAsync().ConfigureAwait(false);
                 await dataRefreshService.RefreshSMChannels().ConfigureAwait(false);
                 //await dataRefreshService.ClearByTag(SMChannel.APIName, "IsHidden").ConfigureAwait(false);
 

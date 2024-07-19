@@ -36,7 +36,11 @@ const StreamGroupVideoProfileDataSelector = () => {
 
   const nameTemplate = useCallback(
     (rowData: VideoOutputProfileDto) => {
-      if (rowData.ProfileName.toLowerCase() === 'default' || rowData.ProfileName.toLowerCase() === 'defaultffmpeg') {
+      if (
+        rowData.ProfileName.toLowerCase() === 'default' ||
+        rowData.ProfileName.toLowerCase() === 'defaultffmpeg' ||
+        rowData.ProfileName.toLowerCase() === 'streammaster'
+      ) {
         return <div className="text-container pl-1">{rowData.ProfileName}</div>;
       }
       return (

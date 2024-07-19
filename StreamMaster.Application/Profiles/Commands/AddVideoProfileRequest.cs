@@ -4,17 +4,23 @@
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record AddVideoProfileRequest(string Name, string Command, string Parameters, int Timeout, bool IsM3U8) : IRequest<APIResponse>;
 
-public class AddVideoVideoProfileRequestHandler(ILogger<AddVideoProfileRequest> Logger, IDataRefreshService dataRefreshService, IOptionsMonitor<VideoOutputProfiles> intprofilesettings, IMapper Mapper)
+public class AddVideoVideoProfileRequestHandler(ILogger<AddVideoProfileRequest> Logger, IDataRefreshService dataRefreshService, IOptionsMonitor<VideoOutputProfiles> intProfileSettings)
 : IRequestHandler<AddVideoProfileRequest, APIResponse>
 {
 
-    private readonly VideoOutputProfiles profileSettings = intprofilesettings.CurrentValue;
 
     public async Task<APIResponse> Handle(AddVideoProfileRequest request, CancellationToken cancellationToken)
     {
-        if (request.Name.Equals("DefaultFFmpeg", StringComparison.OrdinalIgnoreCase))
+        VideoOutputProfiles profileSettings = intProfileSettings.CurrentValue;
+
+        List<string> badNames = profileSettings.VideoProfiles
+            .Where(kvp => kvp.Value.IsReadOnly)
+            .Select(kvp => kvp.Key)
+            .ToList();
+
+        if (badNames.Contains(request.Name, StringComparer.OrdinalIgnoreCase))
         {
-            return APIResponse.ErrorWithMessage("Cannot use name DefaultFFmpeg");
+            return APIResponse.ErrorWithMessage($"Cannot use name {request.Name}");
         }
 
         VideoOutputProfile profile = new()

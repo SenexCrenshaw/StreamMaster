@@ -13,6 +13,8 @@ public sealed class ChannelStatus(SMChannelDto smChannel) : IChannelStatus
     public int ClientCount { get; set; }
     public SMStreamDto SMStream { get; private set; }
     public SMChannelDto SMChannel => smChannel;
+    public int StreamGroupId { get; set; }
+    public int StreamGroupProfileId { get; set; }
     public VideoOutputProfileDto VideoProfile { get; set; }
     public CustomPlayList? CustomPlayList { get; set; }
 

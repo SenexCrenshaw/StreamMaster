@@ -2,10 +2,9 @@
 using StreamMaster.Domain.Extensions;
 
 using System.Diagnostics;
-using System.Runtime.InteropServices;
 namespace StreamMaster.Streams.Factories;
 
-public sealed class ProxyFactory(ILogger<ProxyFactory> logger, IHttpClientFactory httpClientFactory, IOptionsMonitor<Setting> intSettings)
+public sealed class ProxyFactory(ILogger<ProxyFactory> logger, IHttpClientFactory httpClientFactory, IOptionsMonitor<Setting> intSettings, IOptionsMonitor<VideoOutputProfiles> intProfileSettings)
     : IProxyFactory
 {
     public string FFMpegOptions { get; set; } = "-hide_banner -loglevel error -user_agent {clientUserAgent} -i {streamUrl} -reconnect 1 -map 0:v -map 0:a? -map 0:s? -c copy -bsf:v h264_mp4toannexb -f mpegts pipe:1";
@@ -32,29 +31,25 @@ public sealed class ProxyFactory(ILogger<ProxyFactory> logger, IHttpClientFactor
 
     private (Stream? stream, int processId, ProxyStreamError? error) GetCommandStream(string streamUrl, string Command, string Parameters, string clientUserAgent)
     {
-        string commandExec = Path.Combine(BuildInfo.AppDataFolder, Command);
+        string? exec = FileUtil.GetExec(Command);
 
-        if (!File.Exists(commandExec) && !File.Exists(commandExec + ".exe"))
+        if (string.IsNullOrEmpty(exec))
         {
-            if (!IsCommandAvailable(Command))
-            {
-                ProxyStreamError error = new() { ErrorCode = ProxyStreamErrorCode.FileNotFound, Message = $"Executable file not found: {Command}" };
-                return (null, -1, error);
-            }
-            commandExec = Command;
+            ProxyStreamError error = new() { ErrorCode = ProxyStreamErrorCode.FileNotFound, Message = $"Executable file not found: {Command}" };
+            return (null, -1, error);
         }
 
         try
         {
-            return CreateCommandStream(commandExec, Parameters, streamUrl, clientUserAgent);
+            return CreateCommandStream(exec, Parameters, streamUrl, clientUserAgent);
         }
         catch (IOException ex)
         {
-            return HandleFFMpegStreamException(ProxyStreamErrorCode.IoError, ex);
+            return HandleStreamException(ProxyStreamErrorCode.IoError, ex);
         }
         catch (Exception ex)
         {
-            return HandleFFMpegStreamException(ProxyStreamErrorCode.UnknownError, ex);
+            return HandleStreamException(ProxyStreamErrorCode.UnknownError, ex);
         }
     }
     private (Stream? stream, int processId, ProxyStreamError? error) CreateCommandStream(
@@ -113,10 +108,10 @@ public sealed class ProxyFactory(ILogger<ProxyFactory> logger, IHttpClientFactor
         process.StartInfo.RedirectStandardError = true;
     }
 
-    private (Stream? stream, int processId, ProxyStreamError? error) HandleFFMpegStreamException<T>(ProxyStreamErrorCode errorCode, T exception) where T : Exception
+    private (Stream? stream, int processId, ProxyStreamError? error) HandleStreamException<T>(ProxyStreamErrorCode errorCode, T exception) where T : Exception
     {
         ProxyStreamError error = new() { ErrorCode = errorCode, Message = exception.Message };
-        logger.LogError(exception, "GetFFMpegStream Error: {message}", error.Message);
+        logger.LogError(exception, "GetProxy Error: {message}", error.Message);
         return (null, -1, error);
     }
 
@@ -127,8 +122,6 @@ public sealed class ProxyFactory(ILogger<ProxyFactory> logger, IHttpClientFactor
         try
         {
             Setting settings = intSettings.CurrentValue;
-
-            string? ffmpeg = FileUtil.GetExec(settings.FFMPegExecutable);
 
             string clientUserAgent = settings.StreamingClientUserAgent;
             if (!string.IsNullOrEmpty(channelStatus.SMStream.ClientUserAgent))
@@ -146,25 +139,42 @@ public sealed class ProxyFactory(ILogger<ProxyFactory> logger, IHttpClientFactor
                     return (null, -1, error);
                 }
 
-                if (ffmpeg == null)
+                string? exec = FileUtil.GetExec(channelStatus.VideoProfile.Command);
+                if (exec == null)
                 {
-                    logger.LogCritical("FFMPEG not found");
+                    logger.LogCritical("Profile {profileName} Command {command} not found", channelStatus.VideoProfile.ProfileName, channelStatus.VideoProfile.Command);
                     return (null, -1, new ProxyStreamError() { ErrorCode = ProxyStreamErrorCode.FileNotFound, Message = "FFMPEG not found" });
                 }
-                return GetCommandStream(channelStatus.CustomPlayList.CustomStreamNfos[channelStatus.CurrentRank].VideoFileName, ffmpeg, CustomPlayListFFMpegOptions, clientUserAgent);
+                return GetCommandStream(channelStatus.CustomPlayList.CustomStreamNfos[channelStatus.CurrentRank].VideoFileName, "ffmpeg", CustomPlayListFFMpegOptions, clientUserAgent);
             }
             SMStreamDto smStream = channelStatus.SMStream;
 
             if (smStream.Url.EndsWith(".m3u8"))
             {
+                string? exec = FileUtil.GetExec(channelStatus.VideoProfile.Command);
 
-                if (ffmpeg == null)
+                if (exec == null)
                 {
-                    logger.LogCritical("FFMPEG not found");
+                    logger.LogCritical("Profile {profileName} Command {command} not found", channelStatus.VideoProfile.ProfileName, channelStatus.VideoProfile.Command);
                     return (null, -1, new ProxyStreamError() { ErrorCode = ProxyStreamErrorCode.FileNotFound, Message = "FFMPEG not found" });
                 }
                 logger.LogInformation("Stream URL has HLS content, using FFMpeg for streaming: {StreamUrl} {streamName}", smStream.Url, smStream.Name);
-                return GetCommandStream(smStream.Url, ffmpeg, FFMpegOptions, clientUserAgent);
+                return GetCommandStream(smStream.Url, exec, channelStatus.VideoProfile.Parameters, clientUserAgent);
+            }
+
+            if (channelStatus.VideoProfile.ProfileName != "StreamMaster")
+            {
+                string? exec = FileUtil.GetExec(channelStatus.VideoProfile.Command);
+
+                if (exec == null)
+                {
+                    logger.LogCritical("Profile {profileName} {command} not found", channelStatus.VideoProfile.ProfileName, channelStatus.VideoProfile.Command);
+                    return (null, -1, new ProxyStreamError() { ErrorCode = ProxyStreamErrorCode.FileNotFound, Message = "FFMPEG not found" });
+                }
+
+                logger.LogInformation("Using {command} for streaming: {streamName}", channelStatus.VideoProfile.Command, smStream.Name);
+
+                return GetCommandStream(smStream.Url, exec, channelStatus.VideoProfile.Parameters, clientUserAgent);
             }
 
             HttpClient client = CreateHttpClient(clientUserAgent);
@@ -186,30 +196,32 @@ public sealed class ProxyFactory(ILogger<ProxyFactory> logger, IHttpClientFactor
                 )
             {
 
-                if (ffmpeg == null)
+                if (intProfileSettings.CurrentValue.VideoProfiles.TryGetValue("FFMPEG", out VideoOutputProfile? ffmpegProfile))
                 {
-                    logger.LogCritical("FFMPEG not found");
-                    return (null, -1, new ProxyStreamError() { ErrorCode = ProxyStreamErrorCode.FileNotFound, Message = "FFMPEG not found" });
+                    logger.LogInformation("Stream URL has HLS content, using {command} for streaming: {streamName}", ffmpegProfile.Command, smStream.Name);
+                    return GetCommandStream(smStream.Url, ffmpegProfile.Command, ffmpegProfile.Parameters, clientUserAgent);
                 }
 
-                logger.LogInformation("Stream URL has HLS content, using FFMpeg for streaming: {StreamUrl} {streamName}", smStream.Url, smStream.Name);
+                logger.LogInformation("Stream URL has HLS content, using ffmpeg for streaming: {streamName}", smStream.Name);
 
-                return GetCommandStream(smStream.Url, ffmpeg, FFMpegOptions, clientUserAgent);
+                return GetCommandStream(smStream.Url, "ffmpeg", FFMpegOptions, clientUserAgent);
             }
 
             Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
-            stopwatch.Stop(); // Stop the stopwatch when the stream is retrieved
             logger.LogInformation("Opened stream for {streamName} in {ElapsedMilliseconds} ms", smStream.Name, stopwatch.ElapsedMilliseconds);
 
             return (stream, -1, null);
         }
         catch (Exception ex) when (ex is HttpRequestException or Exception)
         {
-            stopwatch.Stop();
             ProxyStreamError error = new() { ErrorCode = ProxyStreamErrorCode.DownloadError, Message = ex.Message };
             string message = $"GetProxyStream Error for {channelStatus.SMStream.Name}";
             logger.LogError(ex, message, error.Message);
             return (null, -1, error);
+        }
+        finally
+        {
+            stopwatch.Stop();
         }
     }
 
@@ -221,20 +233,20 @@ public sealed class ProxyFactory(ILogger<ProxyFactory> logger, IHttpClientFactor
         return client;
     }
 
-    private static bool IsCommandAvailable(string proxyCommand)
-    {
-        string command = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "where" : "which";
-        ProcessStartInfo startInfo = new(command, proxyCommand)
-        {
-            RedirectStandardOutput = true,
-            UseShellExecute = false
-        };
-        Process process = new()
-        {
-            StartInfo = startInfo
-        };
-        _ = process.Start();
-        process.WaitForExit();
-        return process.ExitCode == 0;
-    }
+    //private static bool IsCommandAvailable(string proxyCommand)
+    //{
+    //    string command = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "where" : "which";
+    //    ProcessStartInfo startInfo = new(command, proxyCommand)
+    //    {
+    //        RedirectStandardOutput = true,
+    //        UseShellExecute = false
+    //    };
+    //    Process process = new()
+    //    {
+    //        StartInfo = startInfo
+    //    };
+    //    _ = process.Start();
+    //    process.WaitForExit();
+    //    return process.ExitCode == 0;
+    //}
 }

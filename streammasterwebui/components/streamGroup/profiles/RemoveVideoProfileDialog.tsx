@@ -31,7 +31,8 @@ const RemoveVideoProfileDialog = ({ ...props }: RemoveVideoProfileDialogProps) =
       buttonDisabled={
         props.videoOutputProfileDto.IsReadOnly ||
         props.videoOutputProfileDto.ProfileName.toLowerCase() === 'default' ||
-        props.videoOutputProfileDto.ProfileName.toLowerCase() === 'defaultffmpeg'
+        props.videoOutputProfileDto.ProfileName.toLowerCase() === 'defaultffmpeg' ||
+        props.videoOutputProfileDto.ProfileName.toLowerCase() === 'streammaster'
       }
       buttonClassName="icon-red"
       icon="pi-times"

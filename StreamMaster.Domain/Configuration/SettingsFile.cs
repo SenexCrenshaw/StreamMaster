@@ -54,21 +54,28 @@ public static class SettingFiles
     {
         VideoProfiles = new Dictionary<string, VideoOutputProfile>
         {
+
             {
-                "Default",
-                new VideoOutputProfile
-                {
-                    Command="ffmpeg",
-                    Parameters = "-hide_banner -loglevel error -user_agent {clientUserAgent} -i {streamUrl} -reconnect 1 -map 0:v -map 0:a? -map 0:s? -c copy -bsf:v h264_mp4toannexb -f mpegts pipe:1"
-                }
-             },
-            {
-                "DefaultFFmpeg",
+                "FFMPEG",
                 new VideoOutputProfile
                 {
                     IsReadOnly=true,
                     Command="ffmpeg",
                     Parameters = "-hide_banner -loglevel error -user_agent {clientUserAgent} -i {streamUrl} -reconnect 1 -map 0:v -map 0:a? -map 0:s? -c copy -bsf:v h264_mp4toannexb -f mpegts pipe:1"
+                }
+            },
+             {
+                "StreamMaster",
+                new VideoOutputProfile
+                {
+                    IsReadOnly=true
+                }
+            },
+             {
+                "None",
+                new VideoOutputProfile
+                {
+                    IsReadOnly=true
                 }
             }
         }

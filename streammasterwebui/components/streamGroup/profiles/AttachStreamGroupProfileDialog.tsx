@@ -12,7 +12,7 @@ interface AttachStreamGroupProfileDialogProps {
 }
 
 const AttachStreamGroupProfileDialog = ({ streamGroupDto }: AttachStreamGroupProfileDialogProps) => {
-  const defaultValues = { OutputProfileName: 'Default', VideoProfileName: 'Default' } as AddProfileToStreamGroupRequest;
+  const defaultValues = { OutputProfileName: 'Default', VideoProfileName: 'StreamMaster' } as AddProfileToStreamGroupRequest;
   const [fileRequest, setFileRequest] = useState<AddProfileToStreamGroupRequest>(defaultValues);
   const smPopUpRef = useRef<SMPopUpRef>(null);
   const [name, setName] = useState<string>();
@@ -89,7 +89,7 @@ const AttachStreamGroupProfileDialog = ({ streamGroupDto }: AttachStreamGroupPro
             <div className={dropdownClass}>
               <VideoProfileDropDown
                 buttonDarkBackground
-                value={fileRequest.OutputProfileName}
+                value={fileRequest.VideoProfileName}
                 onChange={(e) => {
                   updateM3UOutputProfileStateAndRequest({ VideoProfileName: e.ProfileName });
                 }}

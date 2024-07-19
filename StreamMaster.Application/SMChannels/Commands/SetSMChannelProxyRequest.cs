@@ -2,13 +2,13 @@
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record SetSMChannelProxyRequest(int SMChannelId, string StreamingProxy) : IRequest<APIResponse>;
+public record SetSMChannelProxyRequest(int SMChannelId, string VideoOutputProfileName) : IRequest<APIResponse>;
 
 internal class SetSMChannelProxyRequestHandler(IRepositoryWrapper Repository, IMessageService messageService, IDataRefreshService dataRefreshService) : IRequestHandler<SetSMChannelProxyRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(SetSMChannelProxyRequest request, CancellationToken cancellationToken)
     {
-        APIResponse ret = await Repository.SMChannel.SetSMChannelProxy(request.SMChannelId, request.StreamingProxy).ConfigureAwait(false);
+        APIResponse ret = await Repository.SMChannel.SetSMChannelVideoOutputProfileName(request.SMChannelId, request.VideoOutputProfileName).ConfigureAwait(false);
         if (ret.IsError)
         {
             await messageService.SendError($"Set EPG failed {ret.Message}");

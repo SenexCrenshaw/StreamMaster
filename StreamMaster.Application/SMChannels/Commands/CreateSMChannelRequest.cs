@@ -9,7 +9,7 @@ namespace StreamMaster.Application.SMChannels.Commands;
 public record CreateSMChannelRequest(
     string Name,
     List<string>? SMStreamsIds,
-    string? StreamingProxyType,
+    string? VideoOutputProfileName,
     int? ChannelNumber,
     int? TimeShift,
     string? Group,
@@ -34,7 +34,7 @@ public class CreateSMChannelRequestHandler(ILogger<CreateSMChannelRequest> Logge
         ConcurrentDictionary<string, byte> generatedIdsDict = new();
         foreach (SMChannel channel in Repository.SMChannel.GetQuery())
         {
-            generatedIdsDict.TryAdd(channel.ShortSMChannelId, 0);
+            _ = generatedIdsDict.TryAdd(channel.ShortSMChannelId, 0);
         }
 
         try
@@ -48,12 +48,12 @@ public class CreateSMChannelRequestHandler(ILogger<CreateSMChannelRequest> Logge
                 EPGId = request.EPGId ?? string.Empty,
                 Logo = request.Logo ?? string.Empty,
                 VideoStreamHandler = request.VideoStreamHandler ?? VideoStreamHandlers.SystemDefault,
-                StreamingProxyType = request.StreamingProxyType ?? "SystemDefault",
+                VideoOutputProfileName = request.VideoOutputProfileName ?? "StreamMaster",
                 ShortSMChannelId = UniqueHexGenerator.GenerateUniqueHex(generatedIdsDict)
             };
 
             Repository.SMChannel.Create(smChannel);
-            await Repository.SaveAsync();
+            _ = await Repository.SaveAsync();
 
             if (request.SMStreamsIds != null)
             {
@@ -62,7 +62,7 @@ public class CreateSMChannelRequestHandler(ILogger<CreateSMChannelRequest> Logge
                 {
                     APIResponse res = await Repository.SMChannel.AddSMStreamToSMChannel(smChannel.Id, streamId, count++).ConfigureAwait(false);
                 }
-                await Repository.SaveAsync();
+                _ = await Repository.SaveAsync();
 
                 DataResponse<List<SMStreamDto>> streams = await Sender.Send(new UpdateStreamRanksRequest(smChannel.Id, request.SMStreamsIds), cancellationToken);
 

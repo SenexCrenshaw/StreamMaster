@@ -12,7 +12,6 @@ import { DataTableRowClickEvent, DataTableRowData, DataTableRowExpansionTemplate
 import { memo, useCallback, useMemo } from 'react';
 import StreamGroupDataSelectorValue from './StreamGroupDataSelectorValue';
 import { useStreamGroupDeviceIDColumnConfig } from './columns/useStreamGroupDeviceIDColumnConfig';
-import AttachStreamGroupProfileDialog from './profiles/AttachStreamGroupProfileDialog';
 
 export interface StreamGroupDataSelectorProperties {
   readonly id: string;
@@ -36,7 +35,7 @@ const StreamGroupDataSelector = ({ id }: StreamGroupDataSelectorProperties) => {
 
   const actionTemplate = useCallback((streamGroupDto: StreamGroupDto) => {
     if (streamGroupDto.IsReadOnly === true) {
-      return <AttachStreamGroupProfileDialog streamGroupDto={streamGroupDto} />;
+      return <div />; // <AttachStreamGroupProfileDialog streamGroupDto={streamGroupDto} />;
     }
     return (
       <div className="flex justify-content-center align-items-center">

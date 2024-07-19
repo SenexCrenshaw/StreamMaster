@@ -13,7 +13,6 @@ namespace StreamMaster.API.Controllers;
 public class VideoStreamsController(IChannelManager channelManager, IMapper mapper, IRepositoryWrapper repositoryWrapper, ILogger<VideoStreamsController> logger)
     : ApiControllerBase
 {
-
     [Authorize(Policy = "SGLinks")]
     [HttpGet]
     [HttpHead]
@@ -23,46 +22,34 @@ public class VideoStreamsController(IChannelManager channelManager, IMapper mapp
     [Route("stream/{encodedIds}/{name}")]
     public async Task<ActionResult> GetVideoStreamStream(string encodedIds, string name, CancellationToken cancellationToken)
     {
-
-        (int? StreamGroupNumberNull, string? SMChannelId) = encodedIds.DecodeTwoValuesAsString128(Settings.ServerKey);
-        if (StreamGroupNumberNull == null || string.IsNullOrEmpty(SMChannelId))
-        {
-            return new NotFoundResult();
-        }
-
-        int streamGroupId = (int)StreamGroupNumberNull;
-
-        if (!int.TryParse(SMChannelId, out int smChannelId))
+        (int? streamGroupId, int? streamGroupProfileId, int? smChannelId) = encodedIds.DecodeThreeValuesAsString128(Settings.ServerKey);
+        if (!streamGroupId.HasValue || !streamGroupProfileId.HasValue || !smChannelId.HasValue)
         {
             return new NotFoundResult();
         }
 
         SMChannel? smChannel = streamGroupId == 0
-            ? repositoryWrapper.SMChannel.GetSMChannel(smChannelId)
-            : repositoryWrapper.SMChannel.GetSMChannelFromStreamGroup(smChannelId, streamGroupId);
+            ? repositoryWrapper.SMChannel.GetSMChannel(smChannelId.Value)
+            : repositoryWrapper.SMChannel.GetSMChannelFromStreamGroup(smChannelId.Value, streamGroupId.Value);
 
         if (smChannel == null)
         {
-            logger.LogInformation("GetStreamGroupVideoStream request. SG Number {id} ChannelId {channelId} not found exiting", streamGroupId, smChannelId);
+            logger.LogInformation("GetVideoStreamStream request. SG Number {id} ChannelId {channelId} not found exiting", streamGroupId.Value, smChannelId);
             return NotFound();
         }
-        logger.LogInformation("GetStreamGroupVideoStream request. SG Number {id} ChannelId {channelId}", streamGroupId, smChannelId);
+        logger.LogInformation("GetVideoStreamStream request. SG Number {id} ChannelId {channelId}", streamGroupId.Value, smChannelId);
 
         if (smChannel.SMStreams.Count == 0 || string.IsNullOrEmpty(smChannel.SMStreams.First().SMStream.Url))
         {
-            logger.LogInformation("GetStreamGroupVideoStream request. SG Number {id} ChannelId {channelId} missing url or additional streams", streamGroupId, smChannelId);
+            logger.LogInformation("GetVideoStreamStream request. SG Number {id} ChannelId {channelId} no streams", streamGroupId.Value, smChannelId);
             return new NotFoundResult();
         }
 
-        HttpContext.Session.Remove("ClientId");
+        StreamGroupProfile? streamGroupProfile = repositoryWrapper.StreamGroupProfile.GetStreamGroupProfile(streamGroupId.Value, streamGroupProfileId.Value);
 
-
-        string proxyType = GetStreamingProxyType(smChannel);
-        bool redirect = proxyType == "None";
-
-        if (redirect)
+        if (streamGroupProfile?.VideoProfileName == "None")
         {
-            logger.LogInformation("GetStreamGroupVideoStream request SG Number {id} ChannelId {channelId} proxy is none, sending redirect", streamGroupId, smChannelId);
+            logger.LogInformation("GetVideoStreamStream request SG Number {id} ChannelId {channelId} proxy is none, sending redirect", streamGroupId.Value, smChannelId);
 
             return Redirect(smChannel.SMStreams.First().SMStream.Url);
         }
@@ -75,81 +62,13 @@ public class VideoStreamsController(IChannelManager channelManager, IMapper mapp
         string originalUrl = $"{request.Scheme}://{request.Host}{request.PathBase}{request.Path}{request.QueryString}";
         smChannelDto.StreamUrl = originalUrl;
 
-        ClientStreamerConfiguration config = new(smChannelDto, streamGroupId, Request.Headers.UserAgent.ToString(), ipAddress ?? "unknown", HttpContext.Response, cancellationToken);
-        Stream? stream = await channelManager.GetChannelAsync(config);
+        ClientStreamerConfiguration config = new(smChannelDto, streamGroupId.Value, streamGroupProfileId.Value, Request.Headers.UserAgent.ToString(), ipAddress ?? "unknown", HttpContext.Response, cancellationToken);
+        Stream? stream = await channelManager.GetChannelAsync(config, cancellationToken);
 
         HttpContext.Response.RegisterForDispose(new UnregisterClientOnDispose(channelManager, config));
         return stream != null ? new FileStreamResult(stream, "video/mp4") : StatusCode(StatusCodes.Status404NotFound);
     }
-
-    //[Authorize(Policy = "SGLinks")]
-    //[HttpGet]
-    //[HttpHead]
-    //[Route("customstream/{encodedId}")]
-    //[Route("customstream/{encodedId}/{name}")]
-    //public async Task<ActionResult> GetCustomVideoStreamStream(string encodedId, string name, CancellationToken cancellationToken)
-    //{
-    //    string? SMStreamId = encodedId.DecodeValueAsString128(Settings.ServerKey);
-    //    if (SMStreamId == null || string.IsNullOrEmpty(SMStreamId))
-    //    {
-    //        return new NotFoundResult();
-    //    }
-
-    //    var test = await Sender.Send(new GetCustomPlayListRequest(SMStreamId), cancellationToken);
-
-    //    return Ok();
-    //    //SMChannel? smChannel = streamGroupId == 0
-    //    //    ? repositoryWrapper.SMChannel.GetSMChannel(smChannelId)
-    //    //    : repositoryWrapper.SMChannel.GetSMChannelFromStreamGroup(smChannelId, streamGroupId);
-
-    //    //if (smChannel == null)
-    //    //{
-    //    //    logger.LogInformation("GetStreamGroupVideoStream request. SG Number {id} ChannelId {channelId} not found exiting", streamGroupId, smChannelId);
-    //    //    return NotFound();
-    //    //}
-    //    //logger.LogInformation("GetStreamGroupVideoStream request. SG Number {id} ChannelId {channelId}", streamGroupId, smChannelId);
-
-    //    //if (smChannel.SMStreams.Count == 0 || string.IsNullOrEmpty(smChannel.SMStreams.First().SMStream.Url))
-    //    //{
-    //    //    logger.LogInformation("GetStreamGroupVideoStream request. SG Number {id} ChannelId {channelId} missing url or additional streams", streamGroupId, smChannelId);
-    //    //    return new NotFoundResult();
-    //    //}
-
-    //    //HttpContext.Session.Remove("ClientId");
-
-
-    //    //string proxyType = GetStreamingProxyType(smChannel);
-    //    //bool redirect = proxyType == "None";
-
-    //    //if (redirect)
-    //    //{
-    //    //    logger.LogInformation("GetStreamGroupVideoStream request SG Number {id} ChannelId {channelId} proxy is none, sending redirect", streamGroupId, smChannelId);
-
-    //    //    return Redirect(smChannel.SMStreams.First().SMStream.Url);
-    //    //}
-
-    //    //string? ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
-
-    //    //SMChannelDto smChannelDto = mapper.Map<SMChannelDto>(smChannel);
-
-    //    //HttpRequest request = HttpContext.Request;
-    //    //string originalUrl = $"{request.Scheme}://{request.Host}{request.PathBase}{request.Path}{request.QueryString}";
-    //    //smChannelDto.StreamUrl = originalUrl;
-
-    //    //ClientStreamerConfiguration config = new(smChannelDto, streamGroupId, Request.Headers.UserAgent.ToString(), ipAddress ?? "unknown", HttpContext.Response, cancellationToken);
-    //    //Stream? stream = await channelManager.GetChannelAsync(config);
-
-    //    //HttpContext.Response.RegisterForDispose(new UnregisterClientOnDispose(channelManager, config));
-    //    //return stream != null ? new FileStreamResult(stream, "video/mp4") : StatusCode(StatusCodes.Status404NotFound);
-    //}
-
-    private string GetStreamingProxyType(SMChannel smChannel)
-    {
-        return smChannel.StreamingProxyType == "SystemDefault"
-            ? Settings.StreamingProxyType
-            : smChannel.StreamingProxyType;
-    }
-    public async Task ReadAndWriteAsync(Stream sourceStream, string filePath, CancellationToken cancellationToken = default)
+    private async Task ReadAndWriteAsync(Stream sourceStream, string filePath, CancellationToken cancellationToken = default)
     {
         const int bufferSize = 1024; // Read in chunks of 1024 bytes
         const int totalSize = 1 * 1024 * 1024;

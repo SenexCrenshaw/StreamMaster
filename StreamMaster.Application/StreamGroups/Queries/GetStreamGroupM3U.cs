@@ -42,7 +42,7 @@ public class GetStreamGroupM3UValidator : AbstractValidator<GetStreamGroupM3U>
 public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
     ISchedulesDirectDataService schedulesDirectDataService,
     //IEPGHelper epgHelper,
-    //ILogger<GetStreamGroupM3U> logger,
+    //ILogger<GetStreamGroupM3U> logger,    
     ISender sender,
     IRepositoryWrapper Repository,
     IOptionsMonitor<Setting> intsettings,
@@ -116,30 +116,37 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
             return DefaultReturn;
         }
 
-        var sgProfileId = request.StreamGroupProfileId;
-        if (sgProfileId == null)
+        StreamGroupProfileDto sgProfile;
+        int? sgProfileId = request.StreamGroupProfileId;
+        if (sgProfileId.HasValue)
         {
-            var sgProfile = await Repository.StreamGroupProfile.GetDefaultStreamGroupProfile(request.StreamGroupId);
+            sgProfile = await Repository.StreamGroupProfile.GetDefaultStreamGroupProfile(sgProfileId.Value);
+        }
+        else
+        {
+            sgProfile = await Repository.StreamGroupProfile.GetDefaultStreamGroupProfile(request.StreamGroupId);
             sgProfileId = sgProfile.Id;
         }
 
 
         (List<VideoStreamConfig> videoStreamConfigs, OutputProfile profile) = await sender.Send(new GetStreamGroupVideoConfigs(request.StreamGroupId, sgProfileId.Value), cancellationToken);
 
+        //VideoOutputProfile videoOutputProfile = intProfileSettings.CurrentValue.VideoProfiles[sgProfile.VideoProfileName];
+
 
         // Retrieve necessary data in parallel
         var videoStreamData = smChannels
-     .AsParallel()
-     .WithDegreeOfParallelism(Environment.ProcessorCount)
-     .Select((smChannel, index) =>
+ .AsParallel()
+ .WithDegreeOfParallelism(Environment.ProcessorCount)
+ .Select((smChannel, index) =>
+ {
+     (int ChNo, string m3uLine) = BuildM3ULineForVideoStream(smChannel, url, request, profile, sgProfileId.Value, index, settings, videoStreamConfigs);
+     return new
      {
-         (int ChNo, string m3uLine) = BuildM3ULineForVideoStream(smChannel, url, request, profile, index, settings, videoStreamConfigs);
-         return new
-         {
-             ChNo,
-             m3uLine
-         };
-     }).ToList();
+         ChNo,
+         m3uLine
+     };
+ }).ToList();
 
         //ConcurrentDictionary<int, string> retlist = new();
 
@@ -165,7 +172,7 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
         {
             if (!string.IsNullOrEmpty(data.m3uLine))
             {
-                ret.AppendLine(data.m3uLine);
+                _ = ret.AppendLine(data.m3uLine);
             }
         }
 
@@ -218,7 +225,7 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
         finally
         {
 
-            semaphore.Release();
+            _ = semaphore.Release();
         }
 
     }
@@ -253,7 +260,7 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
         }
     }
 
-    private (int ChNo, string m3uLine) BuildM3ULineForVideoStream(SMChannel smChannel, string url, GetStreamGroupM3U request, OutputProfile profile, int index, Setting setting, List<VideoStreamConfig> videoStreamConfigs)
+    private (int ChNo, string m3uLine) BuildM3ULineForVideoStream(SMChannel smChannel, string url, GetStreamGroupM3U request, OutputProfile profile, int sgProfileId, int index, Setting setting, List<VideoStreamConfig> videoStreamConfigs)
     {
         UpdateProfile(profile, smChannel);
         //if (request.StreamGroupId == 1 && profile.ChannelNumber == "0")//ALL
@@ -329,7 +336,7 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
                      .Replace("/", "")
                      .Replace(" ", "_");
 
-            string encodedNumbers = request.StreamGroupId.EncodeValues128(smChannel.Id, setting.ServerKey, iv);
+            string encodedNumbers = request.StreamGroupId.EncodeValues128(sgProfileId, smChannel.Id, setting.ServerKey, iv);
             videoUrl = $"{url}/api/videostreams/stream/{encodedNumbers}/{encodedName}";
         }
 

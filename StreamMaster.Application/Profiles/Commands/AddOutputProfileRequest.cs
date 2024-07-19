@@ -7,18 +7,23 @@ public record AddOutputProfileRequest(OutputProfileDto OutputProfileDto) : IRequ
 
 public class AddOutputProfileRequestHandler(ILogger<AddOutputProfileRequest> Logger,
     IMessageService messageService,
-    IOptionsMonitor<OutputProfiles> intprofilesettings, IDataRefreshService dataRefreshService)
+    IOptionsMonitor<OutputProfiles> intProfileSettings, IDataRefreshService dataRefreshService)
 : IRequestHandler<AddOutputProfileRequest, APIResponse>
 {
 
-    private readonly OutputProfiles profileSettings = intprofilesettings.CurrentValue;
 
     public async Task<APIResponse> Handle(AddOutputProfileRequest request, CancellationToken cancellationToken)
     {
+        OutputProfiles profileSettings = intProfileSettings.CurrentValue;
 
-        if (request.OutputProfileDto.Name.Equals("default", StringComparison.OrdinalIgnoreCase))
+        List<string> badNames = profileSettings.OutProfiles
+            .Where(kvp => kvp.Value.IsReadOnly)
+            .Select(kvp => kvp.Key)
+            .ToList();
+
+        if (badNames.Contains(request.OutputProfileDto.Name, StringComparer.OrdinalIgnoreCase))
         {
-            return APIResponse.ErrorWithMessage("Cannot use name default");
+            return APIResponse.ErrorWithMessage($"Cannot use name {request.OutputProfileDto.Name}");
         }
 
         if (profileSettings.OutProfiles.TryGetValue(request.OutputProfileDto.Name, out _))

@@ -9,19 +9,18 @@ public record UpdateVideoProfileRequest(string ProfileName, string? NewName, str
 
 public class UpdateVideoProfileRequestHandler(
     ILogger<UpdateVideoProfileRequest> Logger,
-    IOptionsMonitor<VideoOutputProfiles> intprofilesettings,
+    IOptionsMonitor<VideoOutputProfiles> intProfileSettings,
     IDataRefreshService dataRefreshService
     )
 : IRequestHandler<UpdateVideoProfileRequest, APIResponse>
 {
 
-    private readonly VideoOutputProfiles profilesettings = intprofilesettings.CurrentValue;
 
     public async Task<APIResponse> Handle(UpdateVideoProfileRequest request, CancellationToken cancellationToken)
     {
 
 
-        if (!profilesettings.VideoProfiles.ContainsKey(request.ProfileName))
+        if (!intProfileSettings.CurrentValue.VideoProfiles.ContainsKey(request.ProfileName))
         {
             return APIResponse.ErrorWithMessage($"VideoProfile '" + request.ProfileName + "' doesnt exist"); ;
         }
@@ -34,7 +33,7 @@ public class UpdateVideoProfileRequestHandler(
 
         List<FieldData> fields = [];
 
-        if (profilesettings.VideoProfiles.TryGetValue(request.ProfileName, out VideoOutputProfile? existingProfile))
+        if (intProfileSettings.CurrentValue.VideoProfiles.TryGetValue(request.ProfileName, out VideoOutputProfile? existingProfile))
         {
 
             if (request.Command != null && existingProfile.Command != request.Command)
@@ -62,13 +61,13 @@ public class UpdateVideoProfileRequestHandler(
             if (request.NewName != null)
             {
                 nameChanged = true;
-                _ = profilesettings.VideoProfiles.Remove(request.ProfileName);
-                profilesettings.VideoProfiles.Add(request.NewName, existingProfile);
+                _ = intProfileSettings.CurrentValue.VideoProfiles.Remove(request.ProfileName);
+                intProfileSettings.CurrentValue.VideoProfiles.Add(request.NewName, existingProfile);
 
             }
             Logger.LogInformation("UpdateVideoProfileRequest");
 
-            SettingsHelper.UpdateSetting(profilesettings);
+            SettingsHelper.UpdateSetting(intProfileSettings.CurrentValue);
             if (nameChanged)
             {
                 await dataRefreshService.RefreshVideoProfiles();

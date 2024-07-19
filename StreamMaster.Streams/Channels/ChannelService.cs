@@ -51,21 +51,42 @@ public sealed class ChannelService(
         }
     }
 
-    private VideoOutputProfileDto VideoOutputProfileDto(string StreamingProxyType)
+    private VideoOutputProfileDto VideoOutputProfileDto(int StreamGroupId, int StreamGroupProfileId)
     {
-        return intProfileSettings.CurrentValue.VideoProfiles.TryGetValue(StreamingProxyType, out VideoOutputProfile? videoOutputProfile)
+        _ = settingsMonitor.CurrentValue ?? throw new ArgumentNullException(nameof(settingsMonitor));
+        using IServiceScope scope = _serviceProvider.CreateScope();
+        IRepositoryWrapper repository = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
+
+        StreamGroupProfile? sgpr = repository.StreamGroupProfile.GetStreamGroupProfile(StreamGroupId, StreamGroupProfileId);
+
+        return sgpr == null
+            ? new VideoOutputProfileDto
+            {
+                ProfileName = "Default",
+            }
+            : intProfileSettings.CurrentValue.VideoProfiles.TryGetValue(sgpr.VideoProfileName, out VideoOutputProfile? videoOutputProfile)
             ? new VideoOutputProfileDto
             {
                 Command = videoOutputProfile.Command,
-                ProfileName = StreamingProxyType,
+                ProfileName = sgpr.VideoProfileName,
                 IsReadOnly = videoOutputProfile.IsReadOnly,
                 Parameters = videoOutputProfile.Parameters,
                 Timeout = videoOutputProfile.Timeout,
                 IsM3U8 = videoOutputProfile.IsM3U8
             }
+            : intProfileSettings.CurrentValue.VideoProfiles.TryGetValue("StreamMaster", out VideoOutputProfile? videoOutputProfile2)
+            ? new VideoOutputProfileDto
+            {
+                Command = videoOutputProfile2.Command,
+                ProfileName = sgpr.VideoProfileName,
+                IsReadOnly = videoOutputProfile2.IsReadOnly,
+                Parameters = videoOutputProfile2.Parameters,
+                Timeout = videoOutputProfile2.Timeout,
+                IsM3U8 = videoOutputProfile2.IsM3U8
+            }
             : new VideoOutputProfileDto
             {
-                ProfileName = StreamingProxyType,
+                ProfileName = "Default",
             };
     }
     public async Task<IChannelStatus?> RegisterChannel(ClientStreamerConfiguration config)
@@ -78,7 +99,7 @@ public sealed class ChannelService(
 
         IChannelStatus? channelStatus = GetChannelStatus(config.SMChannel.Id);
 
-        clientStreamerManager.RegisterClient(config);
+        _ = clientStreamerManager.RegisterClient(config);
 
         if (channelStatus != null)
         {
@@ -90,13 +111,13 @@ public sealed class ChannelService(
                 UnRegisterChannel(config.SMChannel.Id);
                 return null;
             }
-            channelStatus.VideoProfile = VideoOutputProfileDto(config.SMChannel.StreamingProxyType);
+            channelStatus.VideoProfile = VideoOutputProfileDto(config.StreamGroupId, config.StreamGroupProfileId);
 
             if (handler.IsFailed)
             {
                 logger.LogInformation("Existing handler is failed, creating");
 
-                await SwitchChannelToNextStream(channelStatus);
+                _ = await SwitchChannelToNextStream(channelStatus);
             }
 
             streamManager.AddClientToHandler(config, handler);
@@ -115,16 +136,17 @@ public sealed class ChannelService(
 
         channelStatus = new ChannelStatus(config.SMChannel)
         {
-            VideoProfile = VideoOutputProfileDto(config.SMChannel.StreamingProxyType),
+            StreamGroupProfileId = config.StreamGroupProfileId,
+            VideoProfile = VideoOutputProfileDto(config.StreamGroupId, config.StreamGroupProfileId),
             CustomPlayList = customPlayList
         };
 
-        _channelStatuses.TryAdd(config.SMChannel.Id, channelStatus);
+        _ = _channelStatuses.TryAdd(config.SMChannel.Id, channelStatus);
 
         //await SetNextChildVideoStream(channelStatus).ConfigureAwait(false);
-        await SwitchChannelToNextStream(channelStatus);
+        _ = await SwitchChannelToNextStream(channelStatus);
 
-        channelStreamingStatisticsManager.RegisterInputReader(channelStatus.SMChannel, channelStatus.CurrentRank, channelStatus.SMStream.Id);
+        _ = channelStreamingStatisticsManager.RegisterInputReader(channelStatus.SMChannel, channelStatus.CurrentRank, channelStatus.SMStream.Id);
 
         return channelStatus;
     }
@@ -142,11 +164,11 @@ public sealed class ChannelService(
         {
             channelStatus = new ChannelStatus(smChannel)
             {
-                VideoProfile = VideoOutputProfileDto(smChannel.StreamingProxyType)
+                VideoProfile = VideoOutputProfileDto(0, 0)
             };
-            _channelStatuses.TryAdd(smChannel.Id, channelStatus);
+            _ = _channelStatuses.TryAdd(smChannel.Id, channelStatus);
 
-            await SetNextChildVideoStream(channelStatus).ConfigureAwait(false);
+            _ = await SetNextChildVideoStream(channelStatus).ConfigureAwait(false);
 
         }
 
@@ -155,34 +177,15 @@ public sealed class ChannelService(
 
     public void UnRegisterChannel(int smChannelId)
     {
-        _channelStatuses.TryRemove(smChannelId, out _);
+        _ = _channelStatuses.TryRemove(smChannelId, out _);
         channelStreamingStatisticsManager.DecrementClient(smChannelId);
         //channelStreamingStatisticsManager.UnRegister(smChannelId);
     }
 
-    private List<VideoOutputProfileDto> GetProfiles()
-    {
-
-        List<VideoOutputProfileDto> ret = [];
-
-        foreach (string key in intProfileSettings.CurrentValue.VideoProfiles.Keys)
-        {
-            ret.Add(new VideoOutputProfileDto
-            {
-                ProfileName = key,
-                IsReadOnly = intProfileSettings.CurrentValue.VideoProfiles[key].IsReadOnly,
-                Parameters = intProfileSettings.CurrentValue.VideoProfiles[key].Parameters,
-                Timeout = intProfileSettings.CurrentValue.VideoProfiles[key].Timeout,
-                IsM3U8 = intProfileSettings.CurrentValue.VideoProfiles[key].IsM3U8
-            });
-        }
-
-        return ret;
-    }
 
     public IChannelStatus? GetChannelStatus(int smChannelId)
     {
-        _channelStatuses.TryGetValue(smChannelId, out IChannelStatus? channelStatus);
+        _ = _channelStatuses.TryGetValue(smChannelId, out IChannelStatus? channelStatus);
         return channelStatus;
     }
 
@@ -237,8 +240,7 @@ public sealed class ChannelService(
         }
 
         logger.LogDebug("Starting SwitchToNextVideoStream with channelStatus: {channelStatus} and overrideNextVideoStreamId: {overrideNextVideoStreamId}", channelStatus, overrideNextVideoStreamId);
-
-        IStreamHandler? oldStreamHandler = streamManager.GetStreamHandler(channelStatus.SMStream?.Url);
+        _ = streamManager.GetStreamHandler(channelStatus.SMStream?.Url);
 
         bool didChange = await SetNextChildVideoStream(channelStatus, overrideNextVideoStreamId);
 

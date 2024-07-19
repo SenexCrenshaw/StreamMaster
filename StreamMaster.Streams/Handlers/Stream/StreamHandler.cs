@@ -58,7 +58,7 @@ namespace StreamMaster.Streams.Streams
         public async Task StartVideoStreamingAsync(Stream stream)
         {
             VideoStreamingCancellationToken = new CancellationTokenSource();
-            logger.LogInformation("Starting video read streaming, chunk size is {ChunkSize}, for stream: {StreamUrl} name: {name}", ChunkSize, SMStream.Url, SMStream.Name);
+            logger.LogInformation("Starting video read streaming, chunk size is {ChunkSize}, for stream name: {name}", ChunkSize, SMStream.Name);
 
             bool inputStreamError = false;
             CancellationTokenSource linkedToken = VideoStreamingCancellationToken;
@@ -119,7 +119,7 @@ namespace StreamMaster.Streams.Streams
                     inputStreamError = true;
                     logger.LogInformation(ex, "Stream stopped for: {StreamUrl} {name}", SMStream.Url, SMStream.Name);
                     ErrorCounter.Add(1);
-                    Interlocked.Increment(ref errorCount);
+                    _ = Interlocked.Increment(ref errorCount);
                     lastErrorTime = DateTime.UtcNow;
                 }
                 finally
@@ -164,16 +164,16 @@ namespace StreamMaster.Streams.Streams
                         }
                     }
                 }
-                catch (TaskCanceledException ex)
+                catch (TaskCanceledException)
                 {
                     ErrorCounter.Add(1);
-                    Interlocked.Increment(ref errorCount);
+                    _ = Interlocked.Increment(ref errorCount);
                 }
                 catch (Exception ex)
                 {
                     logger.LogError(ex, "Processing error for: {StreamUrl} {name}", SMStream.Url, SMStream.Name);
                     ErrorCounter.Add(1);
-                    Interlocked.Increment(ref errorCount);
+                    _ = Interlocked.Increment(ref errorCount);
                 }
             }
 

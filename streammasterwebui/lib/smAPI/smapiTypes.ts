@@ -337,9 +337,9 @@ export interface SMChannelDto
 	StreamGroupIds: number[];
 	StreamGroups: StreamGroupSMChannelLink[];
 	StreamID?: string;
-	StreamingProxyType: string;
 	StreamUrl: string;
 	TimeShift: number;
+	VideoOutputProfileName?: string;
 	VideoStreamHandler: VideoStreamHandlers;
 }
 export interface SMStreamDto
@@ -896,8 +896,8 @@ export interface CreateSMChannelRequest
 	Logo?: string;
 	Name: string;
 	SMStreamsIds?: string[];
-	StreamingProxyType?: string;
 	TimeShift?: number;
+	VideoOutputProfileName?: string;
 	VideoStreamHandler?: VideoStreamHandlers;
 }
 export interface CreateSMChannelsFromStreamParametersRequest
@@ -954,7 +954,7 @@ export interface SetSMChannelNumberRequest
 export interface SetSMChannelProxyRequest
 {
 	SMChannelId: number;
-	StreamingProxy: string;
+	VideoOutputProfileName: string;
 }
 export interface SetSMChannelsGroupFromParametersRequest
 {
@@ -995,8 +995,8 @@ export interface UpdateSMChannelRequest
 	Logo?: string;
 	Name?: string;
 	SMStreamsIds?: string[];
-	StreamingProxyType?: string;
 	TimeShift?: number;
+	VideoOutputProfileName?: string;
 	VideoStreamHandler?: VideoStreamHandlers;
 }
 export interface GetSMChannelStreamsRequest

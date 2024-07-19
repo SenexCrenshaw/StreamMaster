@@ -39,7 +39,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
     public async Task ChangeGroupName(string oldGroupName, string newGroupName)
     {
         string sql = $"UPDATE public.\"SMChannels\" SET \"Group\"='{newGroupName}' WHERE \"Group\"={oldGroupName};";
-        await RepositoryContext.ExecuteSqlRawAsyncEntities(sql);
+        _ = await RepositoryContext.ExecuteSqlRawAsyncEntities(sql);
     }
     public IQueryable<SMChannel> GetPagedSMChannelsQueryable(QueryStringParameters parameters)
     {
@@ -105,7 +105,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
     public async Task CreateSMChannel(SMChannel smChannel)
     {
         Create(smChannel);
-        await SaveChangesAsync();
+        _ = await SaveChangesAsync();
     }
 
     public async Task<APIResponse> DeleteSMChannel(int smchannelId)
@@ -119,7 +119,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
             }
 
             Delete(channel);
-            await SaveChangesAsync();
+            _ = await SaveChangesAsync();
             return APIResponse.OkWithMessage(channel.Name);
         }
         catch (Exception ex)
@@ -196,7 +196,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
             return APIResponse.NotFound;
         }
 
-        await DeleteSMChannelsAsync(toDelete);
+        _ = await DeleteSMChannelsAsync(toDelete);
 
         return APIResponse.Success;
     }
@@ -214,9 +214,9 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
             List<int> ret = [.. a.Select(a => a.Id)];
             IQueryable<SMChannelStreamLink> linksToDelete = repository.SMChannelStreamLink.GetQuery(true).Where(a => ret.Contains(a.SMChannelId));
             await repository.SMChannelStreamLink.DeleteSMChannelStreamLinks(linksToDelete);
-            await SaveChangesAsync();
+            _ = await SaveChangesAsync();
             BulkDelete(a);
-            await SaveChangesAsync();
+            _ = await SaveChangesAsync();
             return ret;
         }
         catch (Exception ex)
@@ -255,7 +255,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
         {
             foreach (int channelNumber in smChannels.Select(a => a.ChannelNumber).Distinct())
             {
-                existingNumbers.Add(channelNumber);
+                _ = existingNumbers.Add(channelNumber);
             }
         }
 
@@ -263,11 +263,11 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
         {
             int channelNumber = GetNextChannelNumber(smChannel.ChannelNumber, OverwriteExisting);
             smChannel.ChannelNumber = channelNumber;
-            RepositoryContext.SMChannels.Update(smChannel);
+            _ = RepositoryContext.SMChannels.Update(smChannel);
             ret.Add(new IdIntResult { Id = smChannel.Id, Result = smChannel });
         }
 
-        await RepositoryContext.SaveChangesAsync();
+        _ = await RepositoryContext.SaveChangesAsync();
 
         //StreamGroup? streamGroup = await GetQuery(true).FirstOrDefaultAsync(a => a.Id == streamGroupId);
 
@@ -340,7 +340,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
         }
 
         await repository.SMChannelStreamLink.CreateSMChannelStreamLink(smChannel.Id, SMStreamId, Rank);
-        await SaveChangesAsync();
+        _ = await SaveChangesAsync();
 
         return APIResponse.Success;
     }
@@ -372,7 +372,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
 
         channel.Logo = logo;
         Update(channel);
-        await SaveChangesAsync();
+        _ = await SaveChangesAsync();
 
         return APIResponse.Success;
     }
@@ -399,7 +399,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
 
         channel.ChannelNumber = channelNumber;
         Update(channel);
-        await SaveChangesAsync();
+        _ = await SaveChangesAsync();
 
         return APIResponse.Success;
     }
@@ -414,7 +414,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
 
         channel.Name = name;
         Update(channel);
-        await SaveChangesAsync();
+        _ = await SaveChangesAsync();
 
         return APIResponse.Success;
     }
@@ -429,7 +429,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
 
         channel.EPGId = EPGId;
         Update(channel);
-        await SaveChangesAsync();
+        _ = await SaveChangesAsync();
 
         return APIResponse.Success;
     }
@@ -444,7 +444,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
 
         channel.Group = group;
         Update(channel);
-        await SaveChangesAsync();
+        _ = await SaveChangesAsync();
 
         return APIResponse.Success;
     }
@@ -462,7 +462,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
 
         newChannel.Name = newName;
         await CreateSMChannel(newChannel);
-        await SaveChangesAsync();
+        _ = await SaveChangesAsync();
         List<SMChannelStreamLink> links = [.. repository.SMChannelStreamLink.GetQuery().Where(a => a.SMChannelId == sMChannelId)];
 
         foreach (SMChannelStreamLink? link in links)
@@ -478,7 +478,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
 
             repository.SMChannelStreamLink.Create(newLink);
         }
-        await SaveChangesAsync();
+        _ = await SaveChangesAsync();
 
         return APIResponse.Success;
     }
@@ -492,10 +492,10 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
 
             if (defaultSGId == null && M3UFileId > 0)
             {
-                var m3uFile = await repository.M3UFile.GetM3UFile(M3UFileId.Value);
+                M3UFile? m3uFile = await repository.M3UFile.GetM3UFile(M3UFileId.Value);
                 if (m3uFile != null && !string.IsNullOrEmpty(m3uFile.DefaultStreamGroupName))
                 {
-                    var sg = await repository.StreamGroup.GetQuery().FirstOrDefaultAsync(a => a.Name == m3uFile.DefaultStreamGroupName);
+                    StreamGroup? sg = await repository.StreamGroup.GetQuery().FirstOrDefaultAsync(a => a.Name == m3uFile.DefaultStreamGroupName);
                     if (sg != null)
                     {
                         defaultSGId = sg.Id;
@@ -506,7 +506,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
             ConcurrentDictionary<string, byte> generatedIdsDict = new();
             foreach (SMChannel channel in GetQuery())
             {
-                generatedIdsDict.TryAdd(channel.ShortSMChannelId, 0);
+                _ = generatedIdsDict.TryAdd(channel.ShortSMChannelId, 0);
             }
 
             List<SMChannel> addedSMChannels = [];
@@ -518,11 +518,11 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
 
                 if (smChannel is null)
                 {
-                    await RepositoryContext.SaveChangesAsync().ConfigureAwait(false);
+                    _ = await RepositoryContext.SaveChangesAsync().ConfigureAwait(false);
                     return APIResponse.ErrorWithMessage("Error creating SMChannel from streams");
                 }
                 addedSMChannels.Add(smChannel);
-                generatedIdsDict.TryAdd(smChannel.Id.ToString(), 0);
+                _ = generatedIdsDict.TryAdd(smChannel.Id.ToString(), 0);
                 ++count;
                 if (count % 100 == 0)
                 {
@@ -547,7 +547,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
             logger.LogError(ex, "Error creating SMChannel from streams");
             return APIResponse.ErrorWithMessage(ex, "Error creating SMChannel from streams");
         }
-        await RepositoryContext.SaveChangesAsync().ConfigureAwait(false);
+        _ = await RepositoryContext.SaveChangesAsync().ConfigureAwait(false);
         return APIResponse.Success;
     }
 
@@ -556,22 +556,22 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
         Setting Settings = intSettings.CurrentValue;
         if (Settings.AutoSetEPG)
         {
-            await AutoSetEPGs(addedSMChannels, CancellationToken.None);
+            _ = await AutoSetEPGs(addedSMChannels, CancellationToken.None);
         }
 
         if (defaultSGId.HasValue)
         {
-            foreach (var smChannel in addedSMChannels)
+            foreach (SMChannel smChannel in addedSMChannels)
             {
-                await repository.StreamGroupSMChannelLink.AddSMChannelToStreamGroup(defaultSGId.Value, smChannel.Id, true);
+                _ = await repository.StreamGroupSMChannelLink.AddSMChannelToStreamGroup(defaultSGId.Value, smChannel.Id, true);
             }
         }
     }
     public async Task<APIResponse> CreateSMChannelsFromStreamParameters(QueryStringParameters Parameters, int? AddToStreamGroupId, int? M3UFileId)
     {
         IQueryable<SMStream> toCreate = repository.SMStream.GetQuery(Parameters);
-        var ret = await CreateSMChannelsFromStreams([.. toCreate.Select(a => a.Id)], AddToStreamGroupId, M3UFileId);
-        await RepositoryContext.SaveChangesAsync().ConfigureAwait(false);
+        APIResponse ret = await CreateSMChannelsFromStreams([.. toCreate.Select(a => a.Id)], AddToStreamGroupId, M3UFileId);
+        _ = await RepositoryContext.SaveChangesAsync().ConfigureAwait(false);
         return ret;
     }
 
@@ -585,7 +585,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
             channel.IsHidden = !channel.IsHidden;
             ret.Add(new FieldData(() => channel.IsHidden));
         }
-        await RepositoryContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        _ = await RepositoryContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         return ret;
     }
 
@@ -603,7 +603,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
         }
         channel.IsHidden = !channel.IsHidden;
         Update(channel);
-        await SaveChangesAsync();
+        _ = await SaveChangesAsync();
         return mapper.Map<SMChannelDto>(channel);
     }
 
@@ -615,13 +615,13 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
 
     public async Task<List<FieldData>> AutoSetEPGFromParameters(QueryStringParameters parameters, CancellationToken cancellationToken)
     {
-        var smChannels = await GetQuery(parameters).ToListAsync(cancellationToken: cancellationToken);
+        List<SMChannel> smChannels = await GetQuery(parameters).ToListAsync(cancellationToken: cancellationToken);
         return await AutoSetEPGs(smChannels, cancellationToken).ConfigureAwait(false);
     }
 
     public async Task<List<FieldData>> AutoSetEPGFromIds(List<int> ids, CancellationToken cancellationToken)
     {
-        var smChannels = await GetQuery(a => ids.Contains(a.Id)).ToListAsync(cancellationToken: cancellationToken);
+        List<SMChannel> smChannels = await GetQuery(a => ids.Contains(a.Id)).ToListAsync(cancellationToken: cancellationToken);
         return await AutoSetEPGs(smChannels, cancellationToken).ConfigureAwait(false);
     }
 
@@ -644,7 +644,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
             {
                 if (fds.Count != 0)
                 {
-                    await RepositoryContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+                    _ = await RepositoryContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
                 }
                 return fds;
             }
@@ -751,12 +751,12 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
 
         if (fds.Count != 0)
         {
-            await RepositoryContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+            _ = await RepositoryContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         }
         return fds;
     }
 
-    public async Task<APIResponse> SetSMChannelProxy(int sMChannelId, string streamingProxy)
+    public async Task<APIResponse> SetSMChannelVideoOutputProfileName(int sMChannelId, string VideoOutputProfileName)
     {
         SMChannel? channel = GetSMChannel(sMChannelId);
         if (channel == null)
@@ -764,9 +764,9 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
             return APIResponse.NotFound;
         }
 
-        channel.StreamingProxyType = streamingProxy;
+        channel.VideoOutputProfileName = VideoOutputProfileName;
         Update(channel);
-        await SaveChangesAsync();
+        _ = await SaveChangesAsync();
 
         return APIResponse.Success;
     }
@@ -821,7 +821,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
         }
 
         BulkUpdate(toUpdate);
-        RepositoryContext.SaveChanges();
+        _ = RepositoryContext.SaveChanges();
         return APIResponse.Success;
     }
 }

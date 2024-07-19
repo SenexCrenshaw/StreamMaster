@@ -14,7 +14,7 @@ const VideoProfileDropDown = ({ buttonDarkBackground = false, onChange, value }:
   const { data, isLoading } = useGetVideoProfiles();
 
   const selectedVideoProfile = useMemo(() => {
-    if (!data) {
+    if (!data || !value) {
       return undefined;
     }
 
@@ -29,13 +29,11 @@ const VideoProfileDropDown = ({ buttonDarkBackground = false, onChange, value }:
 
   const buttonTemplate = useMemo((): ReactNode => {
     return (
-      <div className="sm-epg-selector">
-        <div className="text-container" style={{ paddingLeft: '0.24rem' }}>
-          {selectedVideoProfile?.ProfileName ?? ''}
-        </div>
+      <div className="text-container" style={{ paddingLeft: '0.24rem' }}>
+        {selectedVideoProfile?.ProfileName ?? ''}
       </div>
     );
-  }, [selectedVideoProfile?.ProfileName]);
+  }, [selectedVideoProfile]);
 
   return (
     <SMDropDown
