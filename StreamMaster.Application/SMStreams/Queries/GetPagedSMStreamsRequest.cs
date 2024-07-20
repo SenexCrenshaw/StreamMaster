@@ -21,14 +21,17 @@ internal class GetPagedSMStreamsRequestHandler(IRepositoryWrapper Repository, IO
 
         PagedResponse<SMStreamDto> res = await Repository.SMStream.GetPagedSMStreams(request.Parameters, CancellationToken.None).ConfigureAwait(false);
 
-        string url = httpContextAccessor.GetUrl();
+
+        string Url = httpContextAccessor.GetUrl();
+
+
         foreach (SMStreamDto stream in res.Data)
         {
             string videoUrl;
 
             if (hlsSettings.CurrentValue.HLSM3U8Enable)
             {
-                videoUrl = $"{url}/api/stream/{stream.Id}.m3u8";
+                videoUrl = $"{Url}/api/stream/{stream.Id}.m3u8";
             }
             else
             {
@@ -37,7 +40,7 @@ internal class GetPagedSMStreamsRequestHandler(IRepositoryWrapper Repository, IO
                         .Replace(" ", "_");
 
                 string encodedNumbers = 0.EncodeValues128(stream.Id, settings.CurrentValue.ServerKey);
-                videoUrl = $"{url}/api/videostreams/stream/{encodedNumbers}/{encodedName}";
+                videoUrl = $"{Url}/api/videostreams/stream/{encodedNumbers}/{encodedName}";
 
             }
 

@@ -49,10 +49,7 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
 
     private async void SetStreamGroupLinks(StreamGroupDto streamGroupDto, string Url)
     {
-        if (Url.StartsWith("wss"))
-        {
-            Url = "https" + Url[3..];
-        }
+
         Setting Settings = intSettings.CurrentValue;
 
         if (streamGroupDto.StreamGroupProfiles.Count > 0)

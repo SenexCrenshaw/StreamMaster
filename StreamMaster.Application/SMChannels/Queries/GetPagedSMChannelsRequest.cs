@@ -25,10 +25,7 @@ internal class GetPagedSMChannelsRequestHandler(IRepositoryWrapper Repository, I
         PagedResponse<SMChannelDto> res = await Repository.SMChannel.GetPagedSMChannels(request.Parameters).ConfigureAwait(false);
 
         string Url = httpContextAccessor.GetUrl();
-        if (Url.StartsWith("wss"))
-        {
-            Url = "https" + Url[3..];
-        }
+       
 
         foreach (SMChannelDto channel in res.Data)
         {
