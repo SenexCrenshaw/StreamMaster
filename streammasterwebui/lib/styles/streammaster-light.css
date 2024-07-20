@@ -59,6 +59,12 @@
   width: calc(100% - 0.4rem);
 }
 
+.sm-between-stuff {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
 .sm-center-stuff {
   display: flex;
   justify-content: center;

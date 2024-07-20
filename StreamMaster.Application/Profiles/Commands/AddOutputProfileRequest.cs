@@ -28,7 +28,7 @@ public class AddOutputProfileRequestHandler(ILogger<AddOutputProfileRequest> Log
 
         if (profileSettings.OutProfiles.TryGetValue(request.OutputProfileDto.Name, out _))
         {
-            //profileSettings.FileProfiles[request.OutputProfileDto.Name] = request.OutputProfileDto;
+            //profileSettings.FileProfiles[request.OutputProfileDto.ProfileName] = request.OutputProfileDto;
             await messageService.SendError("Profile already exists");
             return APIResponse.ErrorWithMessage("Profile already exists");
         }

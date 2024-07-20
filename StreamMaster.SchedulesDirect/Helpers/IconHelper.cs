@@ -149,7 +149,7 @@ public class IconHelper(IEPGHelper ePGHelper, IIconService iconService, IOptions
     //            Id = 0,
     //            Source = BuildInfo.IconDefault,
     //            FileExists = true,
-    //            Name = "Default Icon"
+    //            ProfileName = "Default Icon"
     //        },
 
     //        new TvLogoFile
@@ -157,7 +157,7 @@ public class IconHelper(IEPGHelper ePGHelper, IIconService iconService, IOptions
     //            Id = 1,
     //            Source = "images/StreamMaster.png",
     //            FileExists = true,
-    //            Name = "Stream Master"
+    //            ProfileName = "Stream Master"
     //        }
     //    ];
 

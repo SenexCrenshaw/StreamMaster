@@ -36,16 +36,32 @@ export const useCommandProfileColumnConfig = ({ field, header, width = 80 }: Int
 
   const bodyTemplate = useCallback(
     (videoOutputProfile: CommandProfileDto) => {
-      var key = field as keyof CommandProfileDto;
-      let value = videoOutputProfile[key] as string;
-
-      if (videoOutputProfile.ProfileName === 'StreamMaster') {
+      if (videoOutputProfile === undefined) {
         return (
           <div className="sm-epg-selector">
             <div className="text-container pl-1"></div>
           </div>
         );
       }
+      var key = field as keyof CommandProfileDto;
+
+      if (field === 'Command') {
+        if (
+          !videoOutputProfile.ProfileName ||
+          videoOutputProfile.ProfileName.toLowerCase() === 'none' ||
+          videoOutputProfile.ProfileName.toLowerCase() === 'use sg' ||
+          videoOutputProfile.ProfileName.toLowerCase() === 'streammaster'
+        ) {
+          return (
+            <div className="sm-epg-selector">
+              <div className="text-container pl-1"></div>
+            </div>
+          );
+        }
+      }
+
+      let value = videoOutputProfile[key] as string;
+
       if (videoOutputProfile.IsReadOnly === true) {
         return (
           <div className="sm-epg-selector">

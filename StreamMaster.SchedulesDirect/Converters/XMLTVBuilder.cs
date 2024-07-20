@@ -303,8 +303,8 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IServicePro
 
                             //MxfProgram program1 = new(progCount + 1, $"SM-{movie.Id}")
                             //{
-                            //    Title = service.Name,
-                            //    Description = service.Name,
+                            //    Title = service.ProfileName,
+                            //    Description = service.ProfileName,
                             //    IsGeneric = true
                             //};
 

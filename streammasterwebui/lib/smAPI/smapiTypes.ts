@@ -70,8 +70,8 @@ export interface StreamGroupProfile
 {
 	CommandProfileName: string;
 	Id: number;
-	Name: string;
 	OutputProfileName: string;
+	ProfileName: string;
 	StreamGroupId: number;
 }
 export interface StreamGroupProfileDto
@@ -80,8 +80,8 @@ export interface StreamGroupProfileDto
 	HDHRLink: string;
 	Id: number;
 	M3ULink: string;
-	Name: string;
 	OutputProfileName: string;
+	ProfileName: string;
 	StreamGroupId: number;
 	XMLLink: string;
 	Mapping(profile: any) : void;
@@ -688,8 +688,8 @@ export interface GetStreamGroupsRequest
 export interface AddProfileToStreamGroupRequest
 {
 	CommandProfileName: string;
-	Name: string;
 	OutputProfileName: string;
+	ProfileName: string;
 	StreamGroupId: number;
 }
 export interface CreateStreamGroupRequest
@@ -704,15 +704,15 @@ export interface DeleteStreamGroupRequest
 }
 export interface RemoveStreamGroupProfileRequest
 {
-	Name: string;
+	ProfileName: string;
 	StreamGroupId: number;
 }
 export interface UpdateStreamGroupProfileRequest
 {
 	CommandProfileName?: string;
-	Name: string;
-	NewName: string;
+	NewProfileName: string;
 	OutputProfileName?: string;
+	ProfileName: string;
 	StreamGroupId: number;
 }
 export interface UpdateStreamGroupRequest

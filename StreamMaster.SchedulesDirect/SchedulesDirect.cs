@@ -154,7 +154,7 @@ public partial class SchedulesDirect(
     //    ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
     //    MxfService mxfService = schedulesDirectData.FindOrCreateService($"{EPGHelper.DummyId}-DUMMY");
     //    mxfService.CallSign = "DUMMY";
-    //    mxfService.Name = "DUMMY EPG";
+    //    mxfService.ProfileName = "DUMMY EPG";
 
     //    //MxfLineup mxfLineup = schedulesDirectData.FindOrCreateLineup("ZZZ-DUMMY-StreamMaster", "ZZZSM Dummy Lineup");
     //    //mxfLineup.channels.Add(new MxfChannel(mxfLineup, mxfService));

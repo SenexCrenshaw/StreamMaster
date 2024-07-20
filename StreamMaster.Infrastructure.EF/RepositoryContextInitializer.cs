@@ -23,7 +23,7 @@ public class RepositoryContextInitializer(ILogger<RepositoryContextInitializer> 
                 _ = context.Add(sg);
                 StreamGroupProfile profile = new()
                 {
-                    Name = "Default",
+                    ProfileName = "Default",
                     OutputProfileName = "Default",
                     CommandProfileName = settings.DefaultCommandProfileName
                 };

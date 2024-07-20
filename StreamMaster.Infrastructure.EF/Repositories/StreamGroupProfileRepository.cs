@@ -5,9 +5,10 @@ namespace StreamMaster.Infrastructure.EF.Repositories;
 public class StreamGroupProfileRepository(ILogger<StreamGroupProfileRepository> intLogger, IMapper mapper, IRepositoryContext repositoryContext)
     : RepositoryBase<StreamGroupProfile>(repositoryContext, intLogger), IStreamGroupProfileRepository
 {
-    public void DeleteStreamGroupProfile(StreamGroupProfile StreamGroupProfile)
+    public async Task DeleteStreamGroupProfile(StreamGroupProfile StreamGroupProfile)
     {
         Delete(StreamGroupProfile);
+        _ = await SaveChangesAsync();
     }
 
     public List<StreamGroupProfile> GetStreamGroupProfiles()
@@ -17,7 +18,7 @@ public class StreamGroupProfileRepository(ILogger<StreamGroupProfileRepository> 
 
     public async Task<StreamGroupProfileDto> GetDefaultStreamGroupProfile(int StreamGroupId)
     {
-        StreamGroupProfile? profile = GetQuery().FirstOrDefault(a => a.Name == "Default");
+        StreamGroupProfile? profile = GetQuery().FirstOrDefault(a => a.ProfileName == "Default");
 
         profile ??= GetQuery().Where(a => a.StreamGroupId == StreamGroupId).OrderBy(a => a.Id).FirstOrDefault();
 
@@ -26,15 +27,15 @@ public class StreamGroupProfileRepository(ILogger<StreamGroupProfileRepository> 
             profile = new StreamGroupProfile
             {
                 StreamGroupId = StreamGroupId,
-                Name = "Default",
+                ProfileName = "Default",
                 OutputProfileName = "Default",
                 CommandProfileName = "Default"
             };
             Create(profile);
-            await SaveChangesAsync();
+            _ = await SaveChangesAsync();
         }
 
-        var dto = mapper.Map<StreamGroupProfileDto>(profile);
+        StreamGroupProfileDto dto = mapper.Map<StreamGroupProfileDto>(profile);
 
         return dto;
 

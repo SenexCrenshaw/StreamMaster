@@ -5,14 +5,14 @@ import { CommandProfileDto, RemoveCommandProfileRequest } from '@lib/smAPI/smapi
 import { useCallback, useRef } from 'react';
 
 interface RemoveCommandProfileDialogProps {
-  videoOutputProfileDto: CommandProfileDto;
+  commandProfileDto: CommandProfileDto;
 }
 
 const RemoveCommandProfileDialog = ({ ...props }: RemoveCommandProfileDialogProps) => {
   const smPopUpRef = useRef<SMPopUpRef>(null);
   const remove = useCallback(() => {
     const request = {
-      ProfileName: props.videoOutputProfileDto.ProfileName
+      ProfileName: props.commandProfileDto.ProfileName
     } as RemoveCommandProfileRequest;
 
     RemoveCommandProfile(request)
@@ -28,12 +28,7 @@ const RemoveCommandProfileDialog = ({ ...props }: RemoveCommandProfileDialogProp
   return (
     <SMPopUp
       contentWidthSize="2"
-      buttonDisabled={
-        props.videoOutputProfileDto.IsReadOnly ||
-        props.videoOutputProfileDto.ProfileName.toLowerCase() === 'default' ||
-        props.videoOutputProfileDto.ProfileName.toLowerCase() === 'defaultffmpeg' ||
-        props.videoOutputProfileDto.ProfileName.toLowerCase() === 'streammaster'
-      }
+      buttonDisabled={props.commandProfileDto.IsReadOnly}
       buttonClassName="icon-red"
       icon="pi-times"
       info=""
@@ -44,12 +39,12 @@ const RemoveCommandProfileDialog = ({ ...props }: RemoveCommandProfileDialogProp
         remove();
       }}
       ref={smPopUpRef}
-      okButtonDisabled={!props.videoOutputProfileDto.ProfileName}
+      okButtonDisabled={!props.commandProfileDto.ProfileName}
       tooltip="Remove Profile"
-      zIndex={10}
+      zIndex={12}
     >
       <div className="sm-center-stuff">
-        <div className="text-container"> {props.videoOutputProfileDto.ProfileName}</div>
+        <div className="text-container"> {props.commandProfileDto.ProfileName}</div>
       </div>
     </SMPopUp>
   );

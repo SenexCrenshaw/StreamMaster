@@ -54,49 +54,51 @@ const CreateCommandProfileDialog = () => {
       okButtonDisabled={!AddCommandProfileRequest.ProfileName || !AddCommandProfileRequest.Command || !AddCommandProfileRequest.Parameters}
       placement="top-end"
       ref={smPopUpRef}
-      title="Create Profile"
-      tooltip="Create Profile"
+      title="Create Command Profile"
+      tooltip="Create Command Profile"
       zIndex={12}
     >
       <>
-        <div className="sm-center-stuff gap-1">
+        <div className="sm-between-stuff gap-1">
           <div className="layout-padding-bottom-lg" />
-          <div className="sm-w-2">
-            <StringEditor
-              autoFocus
-              label="Name"
-              placeholder="Name"
-              darkBackGround
-              disableDebounce
-              onChange={(e) => {
-                if (e !== undefined) {
-                  AddCommandProfileRequest.ProfileName = e;
-                  setAddCommandProfileRequest({ ...AddCommandProfileRequest });
-                }
-              }}
-              onSave={(e) => {
-                save();
-              }}
-              value={AddCommandProfileRequest.ProfileName}
-            />
-          </div>
-          <div className="sm-w-2">
-            <StringEditor
-              label="Command"
-              placeholder="Command"
-              darkBackGround
-              disableDebounce
-              onChange={(e) => {
-                if (e !== undefined) {
-                  AddCommandProfileRequest.Command = e;
-                  setAddCommandProfileRequest({ ...AddCommandProfileRequest });
-                }
-              }}
-              onSave={(e) => {
-                save();
-              }}
-              value={AddCommandProfileRequest.Command}
-            />
+          <div className="w-6 sm-between-stuff">
+            <div className="w-6">
+              <StringEditor
+                autoFocus
+                label="Name"
+                placeholder="Name"
+                darkBackGround
+                disableDebounce
+                onChange={(e) => {
+                  if (e !== undefined) {
+                    AddCommandProfileRequest.ProfileName = e;
+                    setAddCommandProfileRequest({ ...AddCommandProfileRequest });
+                  }
+                }}
+                onSave={(e) => {
+                  save();
+                }}
+                value={AddCommandProfileRequest.ProfileName}
+              />
+            </div>
+            <div className="w-6">
+              <StringEditor
+                label="Command"
+                placeholder="Command"
+                darkBackGround
+                disableDebounce
+                onChange={(e) => {
+                  if (e !== undefined) {
+                    AddCommandProfileRequest.Command = e;
+                    setAddCommandProfileRequest({ ...AddCommandProfileRequest });
+                  }
+                }}
+                onSave={(e) => {
+                  save();
+                }}
+                value={AddCommandProfileRequest.Command}
+              />
+            </div>
           </div>
           <div className="sm-w-6">
             <StringEditor

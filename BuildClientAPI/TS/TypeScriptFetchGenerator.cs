@@ -81,11 +81,11 @@ public static class TypeScriptFetchGenerator
         content.AppendLine($"    const response = await {method.Name}({paramName2});");
         //if (method.IsList)
         //{
-        //    content.AppendLine($"    Logger.debug('Fetched {method.Name} ',response?.length);");
+        //    content.AppendLine($"    Logger.debug('Fetched {method.ProfileName} ',response?.length);");
         //}
         //else
         //{
-        //    content.AppendLine($"    Logger.debug('Fetched {method.Name}',response);");
+        //    content.AppendLine($"    Logger.debug('Fetched {method.ProfileName}',response);");
         //}
 
 
@@ -110,10 +110,10 @@ public static class TypeScriptFetchGenerator
         content.AppendLine("        return undefined;");
         content.AppendLine("    }");
         content.AppendLine("    if (query === undefined) return;");
-        //content.AppendLine($"    Logger.debug('Fetching {method.Name}');");
+        //content.AppendLine($"    Logger.debug('Fetching {method.ProfileName}');");
         content.AppendLine("    const params = JSON.parse(query);");
         content.AppendLine($"    const response = await {method.Name}(params);");
-        //content.AppendLine($"    Logger.debug('Fetched {method.Name} ',response?.Data.length);");
+        //content.AppendLine($"    Logger.debug('Fetched {method.ProfileName} ',response?.Data.length);");
         content.AppendLine("    return { query: query, value: response };");
         content.AppendLine("  } catch (error) {");
         content.AppendLine("    console.error('Failed to fetch', error);");

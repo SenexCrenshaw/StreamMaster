@@ -36,7 +36,7 @@ public class CreateStreamGroupRequestHandler(IRepositoryWrapper Repository, IMes
 
         streamGroup.StreamGroupProfiles.Add(new StreamGroupProfile
         {
-            Name = "Default",
+            ProfileName = "Default",
             OutputProfileName = request.OutputProfileName ?? intSettings.CurrentValue.DefaultOutputProfileName,
             CommandProfileName = request.CommandProfileName ?? intSettings.CurrentValue.DefaultCommandProfileName
         });

@@ -13,7 +13,7 @@ const RemoveStreamGroupProfileDialog = ({ ...props }: RemoveStreamGroupProfileDi
   const smPopUpRef = useRef<SMPopUpRef>(null);
   const remove = useCallback(() => {
     const request = {
-      Name: props.streamGroupProfile.Name,
+      ProfileName: props.streamGroupProfile.ProfileName,
       StreamGroupId: props.streamGroupProfile.StreamGroupId
     } as RemoveStreamGroupProfileRequest;
 
@@ -30,7 +30,7 @@ const RemoveStreamGroupProfileDialog = ({ ...props }: RemoveStreamGroupProfileDi
   return (
     <SMPopUp
       contentWidthSize="2"
-      buttonDisabled={!props.streamGroupProfile.Name || props.streamGroupProfile.Name.toLowerCase() === 'default'}
+      buttonDisabled={!props.streamGroupProfile.ProfileName || props.streamGroupProfile.ProfileName.toLowerCase() === 'default'}
       buttonClassName="icon-red"
       icon="pi-times"
       info=""
@@ -41,12 +41,12 @@ const RemoveStreamGroupProfileDialog = ({ ...props }: RemoveStreamGroupProfileDi
         remove();
       }}
       ref={smPopUpRef}
-      okButtonDisabled={!props.streamGroupProfile.Name || props.streamGroupProfile.Name.toLowerCase() === 'default'}
+      okButtonDisabled={!props.streamGroupProfile.ProfileName || props.streamGroupProfile.ProfileName.toLowerCase() === 'default'}
       tooltip="Remove Profile"
       zIndex={10}
     >
       <div className="sm-center-stuff">
-        <div className="text-container"> {props.streamGroupProfile.Name}</div>
+        <div className="text-container"> {props.streamGroupProfile.ProfileName}</div>
       </div>
     </SMPopUp>
   );

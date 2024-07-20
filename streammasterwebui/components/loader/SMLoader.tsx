@@ -8,8 +8,8 @@ const SMLoader = () => {
   // Logger.debug('SMLoader');
 
   return (
-    <div className="sm-loader">
-      <div className="sm-modal-20 flex flex-column justify-content-center align-items-center align-content-center">
+    <div className="sm-loader sm-modal-20 z-20">
+      <div className=" flex flex-column justify-content-center align-items-center align-content-center">
         <SMTasksDataSelector />
         <div className="la-ball-beat la-2x w-full flex justify-content-center align-items-center z-20 surface-ground">
           <div></div>

@@ -29,7 +29,7 @@ const AttachStreamGroupProfileDialog = ({ streamGroupDto }: AttachStreamGroupPro
 
   const save = useCallback(() => {
     if (!name || !streamGroupDto) return;
-    fileRequest.Name = name;
+    fileRequest.ProfileName = name;
     fileRequest.StreamGroupId = streamGroupDto.Id;
     AddProfileToStreamGroup(fileRequest)
       .then((response) => {})

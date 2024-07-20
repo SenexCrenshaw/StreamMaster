@@ -2,7 +2,7 @@
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record RemoveStreamGroupProfileRequest(int StreamGroupId, string Name) : IRequest<APIResponse>;
+public record RemoveStreamGroupProfileRequest(int StreamGroupId, string ProfileName) : IRequest<APIResponse>;
 
 [LogExecutionTimeAspect]
 public class RemoveStreamGroupProfileRequestHandler(IRepositoryWrapper Repository, IMessageService messageService, IDataRefreshService dataRefreshService)
@@ -10,14 +10,9 @@ public class RemoveStreamGroupProfileRequestHandler(IRepositoryWrapper Repositor
 {
     public async Task<APIResponse> Handle(RemoveStreamGroupProfileRequest request, CancellationToken cancellationToken)
     {
-        if (request.StreamGroupId < 2 || string.IsNullOrEmpty(request.Name))
+        if (request.StreamGroupId < 1 || string.IsNullOrEmpty(request.ProfileName))
         {
             return APIResponse.NotFound;
-        }
-
-        if (request.Name.Equals("default", StringComparison.OrdinalIgnoreCase))
-        {
-            return APIResponse.ErrorWithMessage("Cannot use name default");
         }
 
         StreamGroup? streamGroup = Repository.StreamGroup.GetStreamGroup(request.StreamGroupId);
@@ -26,16 +21,10 @@ public class RemoveStreamGroupProfileRequestHandler(IRepositoryWrapper Repositor
             return APIResponse.ErrorWithMessage("Stream Group not found");
         }
 
-        if (streamGroup.Name.Equals("all", StringComparison.OrdinalIgnoreCase))
-        {
-            return APIResponse.ErrorWithMessage("Cannot use All stream group");
-        }
-
-
-        StreamGroupProfile? test = Repository.StreamGroupProfile.GetStreamGroupProfiles().Find(a => a.StreamGroupId == streamGroup.Id && a.Name == request.Name);
+        StreamGroupProfile? test = Repository.StreamGroupProfile.GetStreamGroupProfiles().Find(a => a.StreamGroupId == streamGroup.Id && a.ProfileName == request.ProfileName);
         if (test is not null)
         {
-            Repository.StreamGroupProfile.DeleteStreamGroupProfile(test);
+            await Repository.StreamGroupProfile.DeleteStreamGroupProfile(test);
             _ = await Repository.SaveAsync();
             await dataRefreshService.RefreshStreamGroups();
         }

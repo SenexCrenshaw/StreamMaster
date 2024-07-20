@@ -15,7 +15,11 @@
     width: calc(100% - ($inputBorder-size*4));
 }
 
-
+.sm-between-stuff {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
 
 .sm-center-stuff {
     display: flex;

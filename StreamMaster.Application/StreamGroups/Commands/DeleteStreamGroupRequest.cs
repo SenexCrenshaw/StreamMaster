@@ -18,6 +18,18 @@ public class DeleteStreamGroupRequestHandler(IRepositoryWrapper Repository, IDat
             return APIResponse.NotFound;
         }
 
+        StreamGroup? streamGroup = await Repository.StreamGroup.FirstOrDefaultAsync(a => a.Id == request.StreamGroupId);
+        if (streamGroup == null)
+        {
+            await messageService.SendError("Stream Group not found");
+            return APIResponse.NotFound;
+        }
+
+        if (streamGroup.Name.Equals("default", StringComparison.OrdinalIgnoreCase))
+        {
+            return APIResponse.ErrorWithMessage("Cannot use name default");
+        }
+
         if (await Repository.StreamGroup.DeleteStreamGroup(request.StreamGroupId) != null)
         {
             _ = await Repository.SaveAsync();

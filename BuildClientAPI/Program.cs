@@ -199,7 +199,7 @@ namespace BuildClientAPI
                 SignalRGeneratorDataRefreshAll.GenerateFile([.. methodsByNamespace.SelectMany(a => a.Value).Where(a => a.IsGet).OrderBy(a => a.Name)], DataRefreshAllFilePath);
 
                 //string refreshFilePath = Path.Combine(SignalRFilePathPrefix, "useDataRefresh.tsx");
-                //SignalRGeneratorDataRefresh.GenerateFile(methodsByNamespace.SelectMany(a => a.Value).OrderBy(a => a.Name).ToList(), refreshFilePath);
+                //SignalRGeneratorDataRefresh.GenerateFile(methodsByNamespace.SelectMany(a => a.Value).OrderBy(a => a.ProfileName).ToList(), refreshFilePath);
 
                 //string setFieldFilePath = Path.Combine(SignalRFilePathPrefix, "useSetField.tsx");
                 //SignalRGeneratorSetField.GenerateFile(methodsByNamespace.SelectMany(a => a.Value).ToList(), setFieldFilePath);

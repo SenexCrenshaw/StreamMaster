@@ -210,7 +210,7 @@ public class ChannelGroupRepository(
 
     public async Task<APIResponse> DeleteChannelGroupsByNameRequest(List<string> channelGroupNames)
     {
-        IQueryable<ChannelGroup> toDelete = GetQuery().Where(a => channelGroupNames.Contains(a.Name) && !a.IsSystem);        //IQueryable<ChannelGroup> toDelete = GetQuery().Where(a => channelGroupNames.Contains(a.Name) && !a.IsReadOnly);
+        IQueryable<ChannelGroup> toDelete = GetQuery().Where(a => channelGroupNames.Contains(a.Name) && !a.IsSystem);        //IQueryable<ChannelGroup> toDelete = GetQuery().Where(a => channelGroupNames.Contains(a.ProfileName) && !a.IsReadOnly);
         if (toDelete.Any())
         {
             await BulkDeleteAsync(toDelete);

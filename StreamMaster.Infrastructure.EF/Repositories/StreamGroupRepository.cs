@@ -70,7 +70,7 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
                 sgProfile.HDHRLink = $"{Url}/api/streamgroups/{encodedStreamGroupNumber}";
             }
 
-            StreamGroupProfileDto? defaultProfile = streamGroupDto.StreamGroupProfiles.FirstOrDefault(a => a.Name == "Default");
+            StreamGroupProfileDto? defaultProfile = streamGroupDto.StreamGroupProfiles.FirstOrDefault(a => a.ProfileName == "Default");
 
             defaultProfile ??= streamGroupDto.StreamGroupProfiles.OrderBy(a => a.Id).FirstOrDefault();
 

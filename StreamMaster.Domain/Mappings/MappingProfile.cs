@@ -28,7 +28,7 @@ public class IgnoreMappingProfile : Profile
     //            {
     //                if (property.GetCustomAttribute<IgnoreMapAttribute>() != null)
     //                {
-    //                    typeMap.ForMember(property.Name, opt => opt.Ignore());
+    //                    typeMap.ForMember(property.ProfileName, opt => opt.Ignore());
     //                }
     //            }
     //        }

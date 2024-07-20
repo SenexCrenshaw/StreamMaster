@@ -3,7 +3,7 @@
     public interface IStreamGroupProfileRepository
     {
         StreamGroupProfile? GetStreamGroupProfile(int StreamGroupId, int StreamGroupProfileId);
-        void DeleteStreamGroupProfile(StreamGroupProfile StreamGroupProfile);
+        Task DeleteStreamGroupProfile(StreamGroupProfile StreamGroupProfile);
         List<StreamGroupProfile> GetStreamGroupProfiles();
 
         Task<StreamGroupProfileDto> GetDefaultStreamGroupProfile(int StreamGroupId);

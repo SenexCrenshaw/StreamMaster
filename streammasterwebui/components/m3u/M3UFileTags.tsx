@@ -48,7 +48,7 @@ const M3UFileTags = ({ m3uFileDto, onChange, vodTags }: M3UFileTagsProperties) =
           title="URL Regex Tags"
           contentWidthSize="3"
           icon="pi-chevron-down"
-          zIndex={10}
+          zIndex={13}
         >
           <div className="p-fluid h-3rem w-full">
             <Chips

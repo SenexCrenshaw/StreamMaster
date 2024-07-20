@@ -3,7 +3,7 @@ import SMDataTable from '@components/smDataTable/SMDataTable';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 import { Logger } from '@lib/common/logger';
 import { UpdateStreamGroupProfile } from '@lib/smAPI/StreamGroups/StreamGroupsCommands';
-import { StreamGroupDto, StreamGroupProfile, UpdateStreamGroupProfileRequest } from '@lib/smAPI/smapiTypes';
+import { StreamGroupDto, StreamGroupProfile, StreamGroupProfileDto, UpdateStreamGroupProfileRequest } from '@lib/smAPI/smapiTypes';
 import { memo, useCallback, useMemo } from 'react';
 import AttachStreamGroupProfileDialog from './profiles/AttachStreamGroupProfileDialog';
 import CommandProfileDropDown from './profiles/CommandProfileDropDown';
@@ -18,7 +18,6 @@ const StreamGroupDataSelectorValue = ({ id, streamGroupDto }: StreamGroupDataSel
   Logger.debug('StreamGroupDataSelectorValue ', streamGroupDto.StreamGroupProfiles);
   const update = useCallback(
     (request: UpdateStreamGroupProfileRequest) => {
-      Logger.debug('UpdateStreamGroupProfileRequest', request);
       request.StreamGroupId = streamGroupDto.Id;
       UpdateStreamGroupProfile(request)
         .then((res) => {})
@@ -36,16 +35,16 @@ const StreamGroupDataSelectorValue = ({ id, streamGroupDto }: StreamGroupDataSel
   );
 
   const nameTemplate = useCallback(
-    (rowData: StreamGroupDto) => {
-      if (rowData.IsReadOnly === true || rowData.Name.toLowerCase() === 'default') {
-        return <div className="text-container pl-1">{rowData.Name}</div>;
+    (rowData: StreamGroupProfileDto) => {
+      if (rowData.OutputProfileName.toLowerCase() === 'default') {
+        return <div className="text-container pl-1">{rowData.ProfileName}</div>;
       }
       return (
         <StringEditor
-          value={rowData.Name}
+          value={rowData.ProfileName}
           onSave={(e) => {
             if (e !== undefined) {
-              const ret = { Name: rowData.Name, NewName: e } as UpdateStreamGroupProfileRequest;
+              const ret = { NewProfileName: e, ProfileName: rowData.ProfileName } as UpdateStreamGroupProfileRequest;
               update(ret);
             }
           }}
@@ -66,7 +65,7 @@ const StreamGroupDataSelectorValue = ({ id, streamGroupDto }: StreamGroupDataSel
           value={found.OutputProfileName}
           onChange={(e) => {
             if (e !== undefined) {
-              const ret = { Name: rowData.Name, OutputProfileName: e.ProfileName } as UpdateStreamGroupProfileRequest;
+              const ret = { OutputProfileName: e.ProfileName, ProfileName: rowData.ProfileName } as UpdateStreamGroupProfileRequest;
               update(ret);
             }
           }}
@@ -88,7 +87,7 @@ const StreamGroupDataSelectorValue = ({ id, streamGroupDto }: StreamGroupDataSel
           value={found.CommandProfileName}
           onChange={(e) => {
             if (e !== undefined) {
-              const ret = { Name: rowData.Name, CommandProfileName: e.ProfileName } as UpdateStreamGroupProfileRequest;
+              const ret = { CommandProfileName: e.ProfileName, ProfileName: rowData.ProfileName } as UpdateStreamGroupProfileRequest;
               update(ret);
             }
           }}
@@ -100,9 +99,9 @@ const StreamGroupDataSelectorValue = ({ id, streamGroupDto }: StreamGroupDataSel
 
   const columns = useMemo(
     (): ColumnMeta[] => [
-      { bodyTemplate: nameTemplate, field: 'Name', sortable: false, width: 80 },
-      { bodyTemplate: fileProfileTemplate, field: 'OutputProfileName', header: 'Output', sortable: false, width: 50 },
-      { bodyTemplate: CommandProfileTemplate, field: 'CommandProfileName', header: 'Video', sortable: false, width: 50 },
+      { bodyTemplate: nameTemplate, header: 'Profile Name', field: 'Name', sortable: false, width: 80 },
+      { bodyTemplate: fileProfileTemplate, field: 'OutputProfileName', header: 'Output Profile', sortable: false, width: 50 },
+      { bodyTemplate: CommandProfileTemplate, field: 'CommandProfileName', header: 'Command Profile', sortable: false, width: 50 },
       {
         align: 'center',
         field: 'HDHRLink',

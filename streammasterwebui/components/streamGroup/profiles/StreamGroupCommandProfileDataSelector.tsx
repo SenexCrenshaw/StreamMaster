@@ -20,7 +20,7 @@ const StreamGroupCommandProfileDataSelector = () => {
   const actionTemplate = useCallback((rowData: CommandProfileDto) => {
     return (
       <div className="sm-center-stuff">
-        <RemoveCommandProfileDialog videoOutputProfileDto={rowData} />
+        <RemoveCommandProfileDialog commandProfileDto={rowData} />
       </div>
     );
   }, []);
@@ -37,9 +37,11 @@ const StreamGroupCommandProfileDataSelector = () => {
   const nameTemplate = useCallback(
     (rowData: CommandProfileDto) => {
       if (
-        rowData.ProfileName.toLowerCase() === 'default' ||
-        rowData.ProfileName.toLowerCase() === 'defaultffmpeg' ||
-        rowData.ProfileName.toLowerCase() === 'streammaster'
+        rowData.IsReadOnly === true
+        // rowData.ProfileName.toLowerCase() === 'none' ||
+        // rowData.ProfileName.toLowerCase() === 'ffmpeg' ||
+        // rowData.ProfileName.toLowerCase() === 'use sg' ||
+        // rowData.ProfileName.toLowerCase() === 'streammaster'
       ) {
         return <div className="text-container pl-1">{rowData.ProfileName}</div>;
       }
@@ -64,6 +66,7 @@ const StreamGroupCommandProfileDataSelector = () => {
         bodyTemplate: nameTemplate,
         field: 'ProfileName',
         filter: true,
+        header: 'Profile Name',
         sortable: true,
         width: 60
       },
@@ -104,7 +107,7 @@ const StreamGroupCommandProfileDataSelector = () => {
       emptyMessage="No Profiles"
       enableClick
       enableExport={false}
-      headerName="Video Profiles"
+      headerName="Command Profiles"
       // rowClass={rowClass}
       id={id}
       lazy

@@ -2,7 +2,7 @@
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record UpdateStreamGroupProfileRequest(int StreamGroupId, string Name, string NewName, string? OutputProfileName, string? CommandProfileName) : IRequest<APIResponse>;
+public record UpdateStreamGroupProfileRequest(int StreamGroupId, string ProfileName, string NewProfileName, string? OutputProfileName, string? CommandProfileName) : IRequest<APIResponse>;
 
 [LogExecutionTimeAspect]
 public class UpdateStreamGroupProfileRequestHandler(IRepositoryWrapper Repository, IMessageService messageService, IDataRefreshService dataRefreshService)
@@ -10,16 +10,15 @@ public class UpdateStreamGroupProfileRequestHandler(IRepositoryWrapper Repositor
 {
     public async Task<APIResponse> Handle(UpdateStreamGroupProfileRequest request, CancellationToken cancellationToken)
     {
-        if (request.StreamGroupId < 2 || string.IsNullOrEmpty(request.Name))
+        if (request.StreamGroupId < 1 || string.IsNullOrEmpty(request.ProfileName))
         {
             return APIResponse.NotFound;
         }
 
-        if (request.NewName != null && request.NewName.Equals("default", StringComparison.OrdinalIgnoreCase))
+        if (request.NewProfileName?.Equals("default", StringComparison.OrdinalIgnoreCase) == true)
         {
-            return APIResponse.ErrorWithMessage("Cannot use name default");
+            return APIResponse.ErrorWithMessage("Cannot use new name default");
         }
-
 
         StreamGroup? streamGroup = Repository.StreamGroup.GetQuery().FirstOrDefault(a => a.Id == request.StreamGroupId);
 
@@ -27,13 +26,9 @@ public class UpdateStreamGroupProfileRequestHandler(IRepositoryWrapper Repositor
         {
             return APIResponse.ErrorWithMessage("Stream Group not found");
         }
-        if (streamGroup.Name.Equals("all", StringComparison.OrdinalIgnoreCase))
-        {
-            return APIResponse.ErrorWithMessage("Cannot use All stream group");
-        }
-        //List<FieldData> fields = new List<FieldData>();
 
-        StreamGroupProfile? streamGroupProfile = streamGroup.StreamGroupProfiles.FirstOrDefault(x => x.Name == request.Name);
+
+        StreamGroupProfile? streamGroupProfile = streamGroup.StreamGroupProfiles.Find(x => x.ProfileName == request.ProfileName);
         if (streamGroupProfile is null)
         {
             return APIResponse.ErrorWithMessage("Stream Group Profile not found");
@@ -42,21 +37,20 @@ public class UpdateStreamGroupProfileRequestHandler(IRepositoryWrapper Repositor
         if (!string.IsNullOrEmpty(request.OutputProfileName) && streamGroupProfile.OutputProfileName != request.OutputProfileName)
         {
             streamGroupProfile.OutputProfileName = request.OutputProfileName;
-            // fields.Add(new FieldData("GetStreamGroupProfiles", streamGroupProfile.Name, "OutputProfileName", request.OutputProfileName));
+            // fields.Add(new FieldData("GetStreamGroupProfiles", streamGroupProfile.ProfileName, "OutputProfileName", request.OutputProfileName));
         }
 
         if (!string.IsNullOrEmpty(request.CommandProfileName) && streamGroupProfile.CommandProfileName != request.CommandProfileName)
         {
             streamGroupProfile.CommandProfileName = request.CommandProfileName;
-            // fields.Add(new FieldData("GetStreamGroupProfiles", streamGroupProfile.Name, "CommandProfileName", request.CommandProfileName));
+            // fields.Add(new FieldData("GetStreamGroupProfiles", streamGroupProfile.ProfileName, "CommandProfileName", request.CommandProfileName));
         }
 
-        if (!string.IsNullOrEmpty(request.NewName) && streamGroupProfile.Name != request.NewName)
+        if (!string.IsNullOrEmpty(request.NewProfileName) && streamGroupProfile.ProfileName != request.NewProfileName)
         {
-            streamGroupProfile.Name = request.NewName;
-            // fields.Add(new FieldData("GetStreamGroupProfiles", streamGroupProfile.Name, "Name", request.NewName));
+            streamGroupProfile.ProfileName = request.NewProfileName;
+            // fields.Add(new FieldData("GetStreamGroupProfiles", streamGroupProfile.ProfileName, "ProfileName", request.NewName));
         }
-
 
         //if (fields.Count > 0)
         //{

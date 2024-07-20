@@ -81,10 +81,10 @@ internal class SyncChannelsRequestHandler(ILogger<SyncChannelsRequest> logger, I
             //            continue;
             //        }
 
-            //        if (smChannel.Name != stream.Name)
+            //        if (smChannel.ProfileName != stream.ProfileName)
             //        {
             //            changed = true;
-            //            smChannel.Name = stream.Name;
+            //            smChannel.ProfileName = stream.ProfileName;
             //        }
 
             //        //if (smChannel.Logo != stream.Logo)

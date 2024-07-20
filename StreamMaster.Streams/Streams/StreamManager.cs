@@ -179,7 +179,7 @@ public class StreamManager(IStreamHandlerFactory streamHandlerFactory, IClientSt
     //        return;
     //    }
 
-    //    logger.LogInformation("Moving clients {count} from {OldStreamUrl} to {NewStreamUrl}", configs.Count(), oldStreamHandler.SMStream.Name, newStreamHandler.SMStream.Name);
+    //    logger.LogInformation("Moving clients {count} from {OldStreamUrl} to {NewStreamUrl}", configs.Count(), oldStreamHandler.SMStream.ProfileName, newStreamHandler.SMStream.ProfileName);
 
     //    AddClientsToHandler(configs, newStreamHandler);
 

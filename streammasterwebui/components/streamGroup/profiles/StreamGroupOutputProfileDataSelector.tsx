@@ -86,6 +86,7 @@ const StreamGroupOutputProfileDataSelector = () => {
         bodyTemplate: nameTemplate,
         field: 'ProfileName',
         filter: true,
+        header: 'Profile Name',
         sortable: true,
         width: 40
       },

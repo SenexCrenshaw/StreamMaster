@@ -8,7 +8,7 @@ namespace StreamMaster.API
         {
             //builder
             //    .ExportAsInterface<SMStreamDto>()
-            //    .WithMethods(prop => prop.Name == "Mapping", conf => conf.Ignore())
+            //    .WithMethods(prop => prop.ProfileName == "Mapping", conf => conf.Ignore())
             //    .WithPublicProperties();
         }
     }

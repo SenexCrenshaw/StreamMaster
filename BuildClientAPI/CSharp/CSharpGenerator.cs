@@ -69,7 +69,7 @@ public static class CSharpGenerator
                 else if (method.IsGetCached)
                 {
                     string fromQ = "[FromQuery] ";
-                    //if (method.Name == "GetIcons")
+                    //if (method.ProfileName == "GetIcons")
                     //{
                     //    int aa = 1;
                     //     fromQ = "[FromQuery] ";

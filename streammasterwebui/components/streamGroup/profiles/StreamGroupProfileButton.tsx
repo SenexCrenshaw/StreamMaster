@@ -1,7 +1,7 @@
 import SMPopUp from '@components/sm/SMPopUp';
 import StreamGroupOutputProfileDataSelector from '@components/streamGroup/profiles/StreamGroupOutputProfileDataSelector';
-import StreamGroupVideoProfileDataSelector from '@components/streamGroup/profiles/StreamGroupVideoProfileDataSelector';
 import React from 'react';
+import StreamGroupCommandProfileDataSelector from './StreamGroupCommandProfileDataSelector';
 
 export const StreamGroupProfileButton = () => {
   return (
@@ -23,7 +23,7 @@ export const StreamGroupProfileButton = () => {
     >
       <StreamGroupOutputProfileDataSelector />
       <div className="layout-padding-bottom-lg" />
-      <StreamGroupVideoProfileDataSelector />
+      <StreamGroupCommandProfileDataSelector />
     </SMPopUp>
   );
 };

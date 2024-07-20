@@ -46,7 +46,7 @@ public class IconService(IMapper mapper, IOptionsMonitor<Setting> intSettings, I
     //public void SetIndexes()
     //{
     //    //var index = 0;
-    //    //foreach (var icon in Icons.OrderBy(a => a.Value.Name))
+    //    //foreach (var icon in Icons.OrderBy(a => a.Value.ProfileName))
     //    //{
     //    //    icon.Value.Id = index++;
     //    //}

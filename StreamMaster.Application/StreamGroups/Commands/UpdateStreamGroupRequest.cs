@@ -18,6 +18,11 @@ public class UpdateStreamGroupRequestHandler(IDataRefreshService dataRefreshServ
             return APIResponse.NotFound;
         }
 
+        if (request.NewName?.Equals("default", StringComparison.OrdinalIgnoreCase) == true)
+        {
+            return APIResponse.ErrorWithMessage("Cannot use name default");
+        }
+
         StreamGroupDto? streamGroup = await Repository.StreamGroup.UpdateStreamGroup(request.StreamGroupId, request.StreamGroupId == 1 ? null : request.NewName, request.DeviceID);
         if (streamGroup is not null)
         {

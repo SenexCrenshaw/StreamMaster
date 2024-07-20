@@ -44,17 +44,17 @@ public class ScanDirectoryForIconFilesRequestHandler : IRequestHandler<ScanDirec
         // string source = "";
 
         // if (FileUtil.ReadUrlFromFile(filePath, out string? url)) { source =
-        // url; } else { source = fileInfo.Name; }
+        // url; } else { source = fileInfo.ProfileName; }
 
         // ++count;
 
         // if (_context.Icons.Where(a => a.FileExists).ToList().Any(a =>
         // a.Source.Equals(source))) { continue; }
 
-        // string ext = Path.GetExtension(fileInfo.Name); if
+        // string ext = Path.GetExtension(fileInfo.ProfileName); if
         // (ext.StartsWith('.')) { ext = ext[1..]; } fd.FileExtension = ext;
-        // IconFile icon = new() { Source = source, Name =
-        // Path.GetFileNameWithoutExtension(fileInfo.Name), ContentType =
+        // IconFile icon = new() { Source = source, ProfileName =
+        // Path.GetFileNameWithoutExtension(fileInfo.ProfileName), ContentType =
         // $"image/{ext}", LastDownloaded = DateTime.Now, LastDownloadAttempt =
         // DateTime.Now, FileExists = true, FileExtension = ext };
 
