@@ -17,28 +17,28 @@ internal class MoveSMChannelsToStreamGroupRequestHandler(IRepositoryWrapper Repo
             return APIResponse.ErrorWithMessage($"Default StreamGroup {request.M3UFile.DefaultStreamGroupName} not found");
         }
 
-        var sg = await Repository.StreamGroup.GetStreamGroupByName(request.M3UFile.DefaultStreamGroupName);
+        StreamGroupDto? sg = await Repository.StreamGroup.GetStreamGroupByName(request.M3UFile.DefaultStreamGroupName);
         if (sg is null)
         {
             return APIResponse.ErrorWithMessage("SG not found");
         }
 
-        var channelsIds = await Repository.SMChannel.GetQuery().Where(a => a.M3UFileId == request.M3UFile.Id).Select(a => a.Id).ToListAsync();
+        List<int> channelsIds = await Repository.SMChannel.GetQuery().Where(a => a.M3UFileId == request.M3UFile.Id).Select(a => a.Id).ToListAsync();
         if (channelsIds.Count == 0)
         {
             return APIResponse.Success;
         }
 
-        var links = Repository.StreamGroupSMChannelLink.GetQuery().Where(a => channelsIds.Contains(a.SMChannelId) && a.StreamGroupId == request.OldStreamGroupId);
+        IQueryable<StreamGroupSMChannelLink> links = Repository.StreamGroupSMChannelLink.GetQuery().Where(a => channelsIds.Contains(a.SMChannelId) && a.StreamGroupId == request.OldStreamGroupId);
         if (!links.Any())
         {
             return APIResponse.Success;
         }
 
-        await Repository.StreamGroupSMChannelLink.RemoveSMChannelsFromStreamGroup(request.OldStreamGroupId, channelsIds);
-        await Repository.SaveAsync();
+        _ = await Repository.StreamGroupSMChannelLink.RemoveSMChannelsFromStreamGroup(request.OldStreamGroupId, channelsIds);
+        _ = await Repository.SaveAsync();
         await Repository.StreamGroupSMChannelLink.AddSMChannelsToStreamGroup(sg.Id, channelsIds);
-
+        await dataRefreshService.RefreshStreamGroups();
         return APIResponse.Success;
     }
 }

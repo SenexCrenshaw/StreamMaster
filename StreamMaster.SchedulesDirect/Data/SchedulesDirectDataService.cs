@@ -12,15 +12,18 @@ public class SchedulesDirectDataService : ISchedulesDirectDataService
     {
         this.logger = logger;
 
-        DummyData();
+        _ = DummyData();
     }
 
     public ConcurrentDictionary<int, ISchedulesDirectData> SchedulesDirectDatas { get; private set; } = new();
+
+    public ConcurrentDictionary<int, ICustomStreamData> CustomStreamDatas { get; private set; } = new();
+
     public void Reset(int? EPGNumber = null)
     {
         if (EPGNumber.HasValue)
         {
-            SchedulesDirectDatas.TryRemove(EPGNumber.Value, out _);
+            _ = SchedulesDirectDatas.TryRemove(EPGNumber.Value, out _);
         }
         else
         {
@@ -31,15 +34,15 @@ public class SchedulesDirectDataService : ISchedulesDirectDataService
 
     public void Set(int EPGNumber, ISchedulesDirectData schedulesDirectData)
     {
-        SchedulesDirectDatas.AddOrUpdate(EPGNumber, schedulesDirectData, (key, oldValue) => schedulesDirectData);
+        _ = SchedulesDirectDatas.AddOrUpdate(EPGNumber, schedulesDirectData, (key, oldValue) => schedulesDirectData);
     }
 
     public List<MxfService> AllServices
     {
         get
-        {
+        {            
             List<MxfService> services = SchedulesDirectDatas.Values.SelectMany(d => d.Services.Values).ToList();
-            return services;
+            return services.Concat(CustomStreamDatas.Values.SelectMany(d => d.Services.Values)).ToList();
         }
     }
 
@@ -155,6 +158,23 @@ public class SchedulesDirectDataService : ISchedulesDirectDataService
         }
     }
 
+
+    public ICustomStreamData CustomStreamData()
+    {
+        return CustomStreamDatas.GetOrAdd(EPGHelper.CustomPlayListId, (epgId) =>
+        {
+            CustomStreamData data = new(logger, EPGHelper.CustomPlayListId)
+            {
+                EPGNumber = EPGHelper.CustomPlayListId
+            };
+            return data;
+        });
+    }
+
+    public void ClearCustom()
+    {
+        CustomStreamDatas.Clear();
+    }
 
     public List<MxfProgram> GetAllSDPrograms
     {

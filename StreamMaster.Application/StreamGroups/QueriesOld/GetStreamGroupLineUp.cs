@@ -64,7 +64,7 @@ public class GetStreamGroupLineupHandler(IHttpContextAccessor httpContextAccesso
                     IsDuplicate = false,
                     IsDummy = false
                 };
-                dummyData.FindOrCreateDummyService(smChannel.EPGId, videoStreamConfig);
+                _ = dummyData.FindOrCreateDummyService(smChannel.EPGId, videoStreamConfig);
             }
 
             int epgNumber = EPGHelper.DummyId;
@@ -94,10 +94,18 @@ public class GetStreamGroupLineupHandler(IHttpContextAccessor httpContextAccesso
             }
             else
             {
-                string encodedNumbers = request.StreamGroupId.EncodeValues128(smChannel.Id, settings.ServerKey, iv);
+                string encodedName = HttpUtility.HtmlEncode(smChannel.Name).Trim()
+                         .Replace("/", "")
+                         .Replace(" ", "_");
 
-                string encodedName = HttpUtility.HtmlEncode(smChannel.Name).Trim().Replace(" ", "_");
+                string encodedNumbers = request.StreamGroupId.EncodeValues128(request.StreamGroupProfileId, smChannel.Id, settings.ServerKey, iv);
                 videoUrl = $"{url}/api/videostreams/stream/{encodedNumbers}/{encodedName}";
+
+
+                //string encodedName = HttpUtility.HtmlEncode(smChannel.Name).Trim().Replace(" ", "_");
+
+                //string encodedNumbers = request.StreamGroupId.EncodeValues128(smChannel.Id, settings.ServerKey, iv);
+                //videoUrl = $"{url}/api/videostreams/stream/{encodedNumbers}/{encodedName}";
             }
 
             MxfService? service = schedulesDirectDataService.AllServices.GetMxfService(smChannel.EPGId);

@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
 using StreamMaster.Domain.Comparer;
+using StreamMaster.Domain.Enums;
 using StreamMaster.Domain.Helpers;
 using StreamMaster.Domain.Models;
 using StreamMaster.Domain.Repository;
@@ -39,6 +40,7 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IServicePro
         try
         {
 
+            schedulesDirectDataService.CustomStreamData().ResetLists();
 
             List<MxfService> toProcess = [];
 
@@ -73,7 +75,7 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IServicePro
                     if (videoStreamConfig.EPGId.StartsWith(EPGHelper.CustomPlayListId.ToString()))
                     {
                         (_, string title) = videoStreamConfig.EPGId.ExtractEPGNumberAndStationId();
-                        origService = schedulesDirectDataService.SchedulesDirectData().FindOrCreateService(videoStreamConfig.EPGId);
+                        origService = schedulesDirectDataService.CustomStreamData().FindOrCreateService(videoStreamConfig.EPGId);
                         origService.EPGNumber = EPGHelper.CustomPlayListId;
                         origService.CallSign = title;
                     }
@@ -81,7 +83,7 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IServicePro
 
                     if (!videoStreamConfig.EPGId.StartsWith(EPGHelper.DummyId.ToString()) && !videoStreamConfig.EPGId.StartsWith(EPGHelper.SchedulesDirectId.ToString()))
                     {
-                        origService = schedulesDirectDataService.SchedulesDirectData().FindOrCreateService(videoStreamConfig.EPGId);
+                        origService = schedulesDirectDataService.DummyData().FindOrCreateService(videoStreamConfig.EPGId);
                         origService.EPGNumber = EPGHelper.DummyId;
                         origService.CallSign = videoStreamConfig.EPGId;
                     }
@@ -131,7 +133,6 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IServicePro
 
                     });
                 }
-
                 toProcess.Add(newService);
 
             }
@@ -240,11 +241,9 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IServicePro
     }
 
     private readonly Dictionary<string, MxfProgram> _programsByTitle = [];
-    public MxfProgram GetOrCreateProgram(int progCount, string serviceName, Movie movie)
+    public MxfProgram GetOrCreateProgram(int progCount, string serviceName, Movie movie, int EPGNumber)
     {
-        string title = serviceName;
-
-        if (_programsByTitle.TryGetValue(title, out MxfProgram? existingProgram))
+        if (_programsByTitle.TryGetValue(movie.Id, out MxfProgram? existingProgram))
         {
             return existingProgram;
         }
@@ -252,12 +251,13 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IServicePro
         {
             MxfProgram newProgram = new(progCount + 1, $"SM-{movie.Id}")
             {
+                EPGNumber = EPGNumber,
                 Title = serviceName,
                 Description = serviceName,
                 IsGeneric = true
             };
 
-            _programsByTitle[title] = newProgram;
+            _programsByTitle[movie.Id] = newProgram;
             return newProgram;
         }
     }
@@ -308,13 +308,14 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IServicePro
                             //    IsGeneric = true
                             //};
 
-                            MxfProgram program1 = GetOrCreateProgram(progCount, service.Name, movie);
+                            MxfProgram program1 = GetOrCreateProgram(progCount, service.Name, movie, service.EPGNumber);
 
 
                             Console.WriteLine($"Movie: {movie.Title}, Start Time: {startTime2}, End Time: {endTime}");
 
                             service.MxfScheduleEntries.ScheduleEntry.Add(new MxfScheduleEntry
                             {
+
                                 Duration = duration,
                                 mxfProgram = program1,
                                 StartTime = startTime2,
@@ -328,6 +329,7 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IServicePro
                         // add a program specific for this service
                         MxfProgram program = new(progCount + 1, $"SM-{service.StationId}")
                         {
+
                             Title = service.Name,
                             Description = service.Name,
                             IsGeneric = true
@@ -535,13 +537,34 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IServicePro
         {
             string movieIdString = mxfProgram.ProgramId[3..];
 
-            Movie movie = customPlayListBuilder.GetCustomPlayListByMovieId(movieIdString);
-            if (movie is not null)
+            (CustomPlayList? customPlayList, CustomStreamNfo? customStreamNfo) = customPlayListBuilder.GetCustomPlayListByMovieId(movieIdString);
+
+            if (customPlayList is not null && customStreamNfo is not null)
             {
-                XmltvProgramme test = XmltvProgrammeConverter.ConvertMovieToXmltvProgramme(movie);
+                XmltvProgramme test = XmltvProgrammeConverter.ConvertMovieToXmltvProgramme(customStreamNfo.Movie);
                 test.Channel = channelId;
                 test.Start = scheduleEntry.StartTime.ToString("yyyyMMddHHmmss", CultureInfo.InvariantCulture);
                 test.Stop = scheduleEntry.StartTime.AddMinutes(scheduleEntry.Duration).ToString("yyyyMMddHHmmss", CultureInfo.InvariantCulture);
+
+
+                mxfProgram.Description = customStreamNfo.Movie.Plot;
+
+
+                string directory = Path.GetDirectoryName(customStreamNfo.VideoFileName);
+                string fanArt = Path.Combine(directory, "poster.jpg");
+                string artUrl = fanArt.Replace(BuildInfo.CustomPlayListFolder, "");
+                string encodedFilePath = Uri.EscapeDataString(artUrl);
+                string IconSource = $"{_baseUrl}/api/files/{(int)SMFileTypes.CustomPlayListArt}/{encodedFilePath}";
+
+                test.Icons = File.Exists(fanArt)
+                    ? ([new XmltvIcon {
+                        Src =IconSource
+                    }])
+                    : null;
+
+
+                mxfProgram.Title = customStreamNfo.Movie.Title;
+
                 return test;
             }
         }

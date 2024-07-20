@@ -151,19 +151,37 @@ public sealed class ProxyFactory(ILogger<ProxyFactory> logger, IMessageService m
 
                 string VideoFileName;
 
-                CustomStreamNfo? intro = customPlayListBuilder.GetIntro();
+                CustomStreamNfo? intro = customPlayListBuilder.GetIntro(channelStatus.IntroIndex);
                 if (intro != null && !channelStatus.PlayedIntro)
                 {
                     channelStatus.PlayedIntro = true;
+                    channelStatus.IntroIndex++;
+                    if (channelStatus.IntroIndex >= customPlayListBuilder.IntroCount)
+                    {
+                        channelStatus.IntroIndex = 0;
+                    }
+
                     options = CustomPlayListFFMpegOptions.Replace("{secondsIn}", "0");
                     VideoFileName = intro.VideoFileName;
                 }
                 else
                 {
                     channelStatus.PlayedIntro = false;
-                    (CustomStreamNfo StreamNfo, int secondsIn) = customPlayListBuilder.GetCurrentVideoAndElapsedSeconds(channelStatus.CustomPlayList.Name);
-                    VideoFileName = StreamNfo.VideoFileName;
-                    options = CustomPlayListFFMpegOptions.Replace("{secondsIn}", $"{secondsIn}");
+                    int secondsIn = 0;
+
+                    if (channelStatus.IsFirst)
+                    {
+                        channelStatus.IsFirst = false;
+                        (CustomStreamNfo StreamNfo, secondsIn) = customPlayListBuilder.GetCurrentVideoAndElapsedSeconds(channelStatus.CustomPlayList.Name);
+                        VideoFileName = StreamNfo.VideoFileName;
+                    }
+                    else
+                    {
+                        (CustomStreamNfo StreamNfo, _) = customPlayListBuilder.GetCurrentVideoAndElapsedSeconds(channelStatus.CustomPlayList.Name);
+                        VideoFileName = StreamNfo.VideoFileName;
+                    }
+
+                    options = CustomPlayListFFMpegOptions.Replace("{secondsIn}", secondsIn.ToString());
 
                 }
                 //await messageService.SendInfo($"Client Watching {StreamNfo.Movie.Title}", "Custom Stream");

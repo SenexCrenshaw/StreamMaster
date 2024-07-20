@@ -9,8 +9,8 @@ internal class AddSMChannelsToStreamGroupRequestHandler(IRepositoryWrapper Repos
 {
     public async Task<APIResponse> Handle(AddSMChannelsToStreamGroupRequest request, CancellationToken cancellationToken)
     {
-        var fieldDatas = new List<FieldData>();
-        foreach (var smChannelId in request.SMChannelIds)
+        List<FieldData> fieldDatas = new();
+        foreach (int smChannelId in request.SMChannelIds)
         {
             APIResponse res = await Repository.StreamGroupSMChannelLink.AddSMChannelToStreamGroup(request.StreamGroupId, smChannelId).ConfigureAwait(false);
             if (res.IsError)
@@ -50,6 +50,7 @@ internal class AddSMChannelsToStreamGroupRequestHandler(IRepositoryWrapper Repos
             await dataRefreshService.ClearByTag(SMChannel.APIName, "notInSG").ConfigureAwait(false);
             await dataRefreshService.ClearByTag(SMChannel.APIName, "inSG").ConfigureAwait(false);
         }
+        await dataRefreshService.RefreshStreamGroups();
         return APIResponse.Success;
     }
 }

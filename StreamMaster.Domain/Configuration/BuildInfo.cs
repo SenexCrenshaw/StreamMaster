@@ -134,6 +134,8 @@ namespace StreamMaster.Domain.Configuration
 
         public static readonly string CustomPlayListFolder = Path.Combine(AppDataFolder, "CustomPlayList");
 
+        public static readonly string IntrosFolder = Path.Combine(AppDataFolder, "Intros");
+
         public static readonly string SDEPGCacheFile = Path.Combine(SDJSONFolder, "epgCache.json");
         public static readonly string IconDefault = Path.Combine("images", "default.png");
         public static readonly string FFMPEGDefaultOptions = "-hide_banner -loglevel error -i {streamUrl} -c copy -f mpegts pipe:1";

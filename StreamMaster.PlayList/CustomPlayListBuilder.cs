@@ -93,10 +93,40 @@ public class CustomPlayListBuilder(ILogger<CustomPlayListBuilder> logger, INfoFi
         }
         return ret;
     }
+    public int IntroCount => Directory.GetFiles(BuildInfo.IntrosFolder, "*.mp4").Count();
+    public CustomStreamNfo? GetIntro(int introIndex)
+    {
+        string[] introMovies = Directory.GetFiles(BuildInfo.IntrosFolder, "*.mp4");
 
+        if (introMovies.Length == 0)
+        {
+            return null;
+        }
+
+        if (introIndex >= introMovies.Length)
+        {
+            introIndex = 0;
+        }
+
+        string introMovie = Path.Combine(BuildInfo.IntrosFolder, introMovies[introIndex]);
+        if (File.Exists(introMovie))
+        {
+            string introMovieName = Path.GetFileNameWithoutExtension(introMovie);
+            _ = Path.Combine(introMovieName, $"{introMovieName}.jpg");
+
+            Movie movie = new()
+            {
+                Title = introMovieName,
+            };
+            CustomStreamNfo customStreamNfo = new(introMovie, movie);
+            customStreamNfo.Movie.Runtime = 0;
+            return customStreamNfo;
+        }
+        return null;
+    }
     public CustomStreamNfo? GetIntro()
     {
-        string introMovie = Path.Combine(BuildInfo.CustomPlayListFolder, "Intro.mp4");
+        string introMovie = Path.Combine(BuildInfo.IntrosFolder, "Intro.mp4");
         if (File.Exists(introMovie))
         {
             _ = Path.Combine(BuildInfo.CustomPlayListFolder, "Intro.jpg");
@@ -269,7 +299,7 @@ public class CustomPlayListBuilder(ILogger<CustomPlayListBuilder> logger, INfoFi
         //return movies.ConvertAll(XmltvProgrammeConverter.ConvertMovieToXmltvProgramme);
     }
 
-    public Movie GetCustomPlayListByMovieId(string movieId)
+    public (CustomPlayList? customPlayList, CustomStreamNfo? customStreamNfo) GetCustomPlayListByMovieId(string movieId)
     {
 
         foreach (CustomPlayList customPlayList in GetCustomPlayLists())
@@ -278,11 +308,11 @@ public class CustomPlayListBuilder(ILogger<CustomPlayListBuilder> logger, INfoFi
             {
                 if (customStreamNfo.Movie.Id == movieId)
                 {
-                    return customStreamNfo.Movie;
+                    return (customPlayList, customStreamNfo);
                 }
             }
         }
-        return new Movie();
+        return (null, null);
     }
 }
 

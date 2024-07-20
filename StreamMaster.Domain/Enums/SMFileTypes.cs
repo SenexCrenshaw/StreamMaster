@@ -16,4 +16,5 @@ public enum SMFileTypes
     SDImage = 10,
     SDStationLogo = 11,
     CustomPlayList = 12,
+    CustomPlayListArt = 13,
 }

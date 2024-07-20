@@ -9,7 +9,7 @@ internal class AddSMChannelsToStreamGroupByParametersRequestHandler(IRepositoryW
 {
     public async Task<APIResponse> Handle(AddSMChannelsToStreamGroupByParametersRequest request, CancellationToken cancellationToken)
     {
-        List<FieldData> fieldDatas = new();
+        List<FieldData> fieldDatas = [];
         IQueryable<SMChannel> smChannels = Repository.SMChannel.GetPagedSMChannelsQueryable(request.Parameters);
         foreach (SMChannel smChannel in smChannels)
         {
@@ -36,6 +36,7 @@ internal class AddSMChannelsToStreamGroupByParametersRequestHandler(IRepositoryW
             await dataRefreshService.ClearByTag(SMChannel.APIName, "notInSG").ConfigureAwait(false);
             await dataRefreshService.ClearByTag(SMChannel.APIName, "inSG").ConfigureAwait(false);
         }
+        await dataRefreshService.RefreshStreamGroups();
         return APIResponse.Success;
     }
 }

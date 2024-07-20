@@ -1479,7 +1479,8 @@ export enum SMFileTypes {
 	ChannelIcon = 9,
 	SDImage = 10,
 	SDStationLogo = 11,
-	CustomPlayList = 12
+	CustomPlayList = 12,
+	CustomPlayListArt = 13
 }
 export enum ValidM3USetting {
 	NotMapped = 0,

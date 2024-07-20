@@ -10,22 +10,6 @@ using System.Text;
 using System.Web;
 
 namespace StreamMaster.Application.StreamGroups.Queries;
-//public static class PropertySetterExtensions
-//{
-//    public static void SetProperty<T>(this T property, OutputProfile profile, object value)
-//    {
-//        if (property == null)
-//        {
-//            return;
-//        }
-
-//        PropertyInfo? propertyInfo = typeof(OutputProfile).GetProperty(property!!.ToString());
-//        if (propertyInfo?.CanWrite == true)
-//        {
-//            propertyInfo.SetValue(profile, value);
-//        }
-//    }
-//}
 
 [RequireAll]
 public record GetStreamGroupM3U(int StreamGroupId, int? StreamGroupProfileId) : IRequest<string>;
@@ -41,8 +25,6 @@ public class GetStreamGroupM3UValidator : AbstractValidator<GetStreamGroupM3U>
 
 public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
     ISchedulesDirectDataService schedulesDirectDataService,
-    //IEPGHelper epgHelper,
-    //ILogger<GetStreamGroupM3U> logger,    
     ISender sender,
     IRepositoryWrapper Repository,
     IOptionsMonitor<Setting> intSettings,
@@ -89,7 +71,6 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
     private readonly ConcurrentDictionary<int, bool> chNos = new();
     private readonly SemaphoreSlim semaphore = new(1, 1); // Allow only one thread at a time
 
-    //private ConcurrentBag<int> existingChNos = [];
 
     [LogExecutionTimeAspect]
     public async Task<string> Handle(GetStreamGroupM3U request, CancellationToken cancellationToken)
@@ -103,7 +84,7 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
         string url = httpContextAccessor.GetUrl();
         string requestPath = httpContextAccessor.HttpContext.Request.Path.Value!.ToString();
         byte[]? iv = requestPath.GetIVFromPath(settings.ServerKey, 128);
-        if (iv == null) // && !request.UseSMChannelId)
+        if (iv == null)
         {
             return DefaultReturn;
         }
@@ -131,8 +112,6 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
 
         (List<VideoStreamConfig> videoStreamConfigs, OutputProfile profile) = await sender.Send(new GetStreamGroupVideoConfigs(request.StreamGroupId, sgProfileId.Value), cancellationToken);
 
-        //CommandProfile videoOutputProfile = intProfileSettings.CurrentValue.CommandProfiles[sgProfile.CommandProfileName];
-
 
         // Retrieve necessary data in parallel
         var videoStreamData = smChannels
@@ -148,24 +127,6 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
      };
  }).ToList();
 
-        //ConcurrentDictionary<int, string> retlist = new();
-
-        ////// Process the data serially
-        //foreach (var data in videoStreamData.OrderBy(a => a.ChNo))
-        //{
-        //    if (!string.IsNullOrEmpty(data.m3uLine))
-        //    {
-        //        retlist.TryAdd(ChNo, data.m3uLine);
-        //    }
-        //}
-
-
-        //   var ret = videoStreamData
-        //.Select(c => new { VideoStream = c, IsNumeric = int.TryParse(c., out var num), NumericId = num })
-        //.OrderBy(c => c.IsNumeric)
-        //.ThenBy(c => c.NumericId)     
-        //.Select(c => c.VideoStream)
-        //.ToList();
 
         StringBuilder ret = new("#EXTM3U\r\n");
         foreach (var data in videoStreamData.OrderBy(a => a.ChNo))
@@ -319,7 +280,7 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
         string logo = GetIconUrl(smChannel.Logo, setting);
         smChannel.Logo = logo;
         HLSSettings hlssettings = inthlssettings.CurrentValue;
-        string videoUrl ="";
+        string videoUrl = "";
         //if (request.UseSMChannelId)
         //{
         //    videoUrl = $"{url}/v/v/{smChannel.ShortSMChannelId}";

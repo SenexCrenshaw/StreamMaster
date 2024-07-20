@@ -67,11 +67,10 @@ public interface ISchedulesDirectDataService
     /// <param name="stationId">The station ID for which to retrieve service information.</param>
     /// <returns>The <see cref="MxfService"/> associated with the specified station ID, or null if not found.</returns>
     MxfService? GetService(string stationId);
-
+    ICustomStreamData CustomStreamData();
     ISchedulesDirectData SchedulesDirectData();
     ISchedulesDirectData DummyData();
     void ChangeServiceEPGNumber(int oldEPGNumber, int newEPGNumber);
-
     List<MxfService> GetAllSDServices { get; }
     List<MxfProgram> GetAllSDPrograms { get; }
 }

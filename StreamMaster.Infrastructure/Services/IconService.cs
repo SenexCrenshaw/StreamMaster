@@ -22,7 +22,7 @@ public class IconService(IMapper mapper, IOptionsMonitor<Setting> intSettings, I
 
     public void AddIcon(IconFileDto iconFile)
     {
-        Icons.TryAdd(iconFile.Source, iconFile);
+        _ = Icons.TryAdd(iconFile.Source, iconFile);
     }
 
     public void AddIcon(string artworkUri, string title)
@@ -87,14 +87,26 @@ public class IconService(IMapper mapper, IOptionsMonitor<Setting> intSettings, I
     public ImagePath? GetValidImagePath(string URL, SMFileTypes? fileType = null)
     {
         string source = HttpUtility.UrlDecode(URL);
-        string fileName = "";
-        string returnName = "";
+        string fileName;
+        if (fileType == SMFileTypes.CustomPlayListArt)
+        {
+            string fullPath = BuildInfo.CustomPlayListFolder + URL;
+            if (File.Exists(fullPath))
+            {
+                return new ImagePath
+                {
+                    ReturnName = Path.GetFileName(fullPath),
+                    FullPath = fullPath,
+                    SMFileType = SMFileTypes.CustomPlayListArt
+                };
+            }
+        }
 
         if (fileType == SMFileTypes.CustomPlayList)
         {
             fileName = Path.GetFileNameWithoutExtension(URL);
-            customPlayListBuilder.GetCustomPlayList(fileName);
-            var fullPath = Path.Combine(BuildInfo.CustomPlayListFolder, fileName, URL);
+            _ = customPlayListBuilder.GetCustomPlayList(fileName);
+            string fullPath = Path.Combine(BuildInfo.CustomPlayListFolder, fileName, URL);
             if (File.Exists(fullPath))
             {
                 return new ImagePath
@@ -120,7 +132,7 @@ public class IconService(IMapper mapper, IOptionsMonitor<Setting> intSettings, I
             }
         }
 
-
+        string returnName;
         if (TvLogos.TryGetValue(source, out TvLogoFile? cache))
         {
             returnName = cache.Source;
@@ -175,10 +187,10 @@ public class IconService(IMapper mapper, IOptionsMonitor<Setting> intSettings, I
             icons.AddRange(Icons.Values);
         }
 
-        var test = icons.Where(a => a.Name.Contains("Wick") || a.SMFileType == SMFileTypes.CustomPlayList).ToList();
+        List<IconFileDto> test = icons.Where(a => a.Name.Contains("Wick") || a.SMFileType == SMFileTypes.CustomPlayList).ToList();
         if (test.Count > 0)
         {
-            var aaa = 1;
+            int aaa = 1;
         }
         IOrderedEnumerable<IconFileDto> ret = icons.OrderBy(a => a.Name);
 
@@ -223,7 +235,7 @@ public class IconService(IMapper mapper, IOptionsMonitor<Setting> intSettings, I
 
         foreach (TvLogoFile tvLogoFile in tvLogoFiles)
         {
-            TvLogos.TryAdd(tvLogoFile.Source, tvLogoFile);
+            _ = TvLogos.TryAdd(tvLogoFile.Source, tvLogoFile);
         }
 
         return true;
@@ -233,7 +245,7 @@ public class IconService(IMapper mapper, IOptionsMonitor<Setting> intSettings, I
     {
         foreach (KeyValuePair<string, IconFileDto> icon in Icons.Where(a => a.Value.FileId == id))
         {
-            Icons.TryRemove(icon.Key, out _);
+            _ = Icons.TryRemove(icon.Key, out _);
         }
     }
 }
