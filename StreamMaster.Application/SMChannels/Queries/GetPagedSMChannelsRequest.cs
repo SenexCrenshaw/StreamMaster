@@ -24,7 +24,11 @@ internal class GetPagedSMChannelsRequestHandler(IRepositoryWrapper Repository, I
 
         PagedResponse<SMChannelDto> res = await Repository.SMChannel.GetPagedSMChannels(request.Parameters).ConfigureAwait(false);
 
-        string url = httpContextAccessor.GetUrl();
+        string Url = httpContextAccessor.GetUrl();
+        if (Url.StartsWith("wss"))
+        {
+            Url = "https" + Url[3..];
+        }
 
         foreach (SMChannelDto channel in res.Data)
         {
@@ -46,7 +50,7 @@ internal class GetPagedSMChannelsRequestHandler(IRepositoryWrapper Repository, I
 
             if (hlsSettings.CurrentValue.HLSM3U8Enable)
             {
-                videoUrl = $"{url}/api/stream/{channel.Id}.m3u8";
+                videoUrl = $"{Url}/api/stream/{channel.Id}.m3u8";
             }
             else
             {
@@ -56,7 +60,7 @@ internal class GetPagedSMChannelsRequestHandler(IRepositoryWrapper Repository, I
 
                 string encodedNumbers = 1.EncodeValues128(1, channel.Id, intSettings.CurrentValue.ServerKey);
 
-                videoUrl = $"{url}/api/videostreams/stream/{encodedNumbers}/{encodedName}";
+                videoUrl = $"{Url}/api/videostreams/stream/{encodedNumbers}/{encodedName}";
             }
 
             string jsonString = JsonSerializer.Serialize(videoUrl);

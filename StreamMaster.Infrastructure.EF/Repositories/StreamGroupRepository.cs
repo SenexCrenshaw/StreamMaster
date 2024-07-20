@@ -51,7 +51,7 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
     {
         if (Url.StartsWith("wss"))
         {
-            Url = "https://" + Url[3..];
+            Url = "https" + Url[3..];
         }
         Setting Settings = intSettings.CurrentValue;
 
