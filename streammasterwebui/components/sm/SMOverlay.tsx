@@ -17,7 +17,6 @@ import {
   useRole,
   useTransitionStyles
 } from '@floating-ui/react';
-import { Logger } from '@lib/common/logger';
 import { BlockUI } from 'primereact/blockui';
 import { CSSProperties, ReactNode, forwardRef, useCallback, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import { CombinedProvider } from './Context/CombinedContext';
@@ -72,7 +71,7 @@ const SMOverlayInner = forwardRef<SMOverlayRef, ExtendedSMOverlayProperties>(
     const { refs, floatingStyles, context } = useFloating({
       middleware,
       onOpenChange(nextOpen, event, reason) {
-        Logger.debug('onOpenChange', { closeOnLostFocus: closeOnLostFocus, event, reason });
+        // Logger.debug('onOpenChange', { closeOnLostFocus: closeOnLostFocus, event, reason });
 
         if (reason && !DISALLOWED_CLOSE_REASONS.includes(reason)) {
           if (props.modal && !modalClosable && !nextOpen) return;

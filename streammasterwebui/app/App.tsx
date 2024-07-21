@@ -211,15 +211,13 @@ const App = (): JSX.Element => {
   // useIconsGetIconsQuery();
 
   return (
-    <div className="App p-fluid">
-      <IntlProvider locale={locale} messages={messages}>
-        <MessageProcessor>
-          <SignalRProvider>
-            <RouterProvider router={router} />
-          </SignalRProvider>
-        </MessageProcessor>
-      </IntlProvider>
-    </div>
+    <IntlProvider locale={locale} messages={messages}>
+      <MessageProcessor>
+        <SignalRProvider>
+          <RouterProvider router={router} />
+        </SignalRProvider>
+      </MessageProcessor>
+    </IntlProvider>
   );
 };
 

@@ -21,6 +21,7 @@ import {
   type DataTableValue
 } from 'primereact/datatable';
 import { MultiSelect, MultiSelectChangeEvent } from 'primereact/multiselect';
+import { Tooltip } from 'primereact/tooltip';
 import { forwardRef, memo, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import TableHeader from './helpers/TableHeader';
 import { arraysEqualByKey } from './helpers/arraysEqual';
@@ -718,7 +719,8 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>, ref: 
   const getRowExpanderHeader = useMemo(() => {
     return (
       <div className="flex align-items-center justify-content-center">
-        <span className="pi pi-equals" />
+        <Tooltip target=".custom-target-icon" />
+        <div className="custom-target-icon pi pi-sort" data-pr-position="right" data-pr-tooltip="Drag rows to reorder priority" />
       </div>
     );
   }, []);
@@ -886,24 +888,17 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>, ref: 
             } as ColumnMeta)}
           />
           <Column
-            body={
-              props.reorderable
-                ? undefined
-                : (e) => {
-                    return <div></div>;
-                  }
-            }
             filter
             filterElement={getRowExpanderHeader}
             hidden={!props.reorderable}
-            rowReorderIcon="pi pi-equals"
+            rowReorderIcon="font-bold pi pi-equals"
             rowReorder
             showClearButton={false}
             showFilterMatchModes={false}
             showFilterMenu={false}
             showFilterOperator={false}
-            bodyClassName={'flex justify-content-center align-items-center'}
-            style={getColumnStyles({ width: 12 } as ColumnMeta)}
+            className={'sm-rowreorder'}
+            // style={getColumnStyles({ width: '2rem' } as ColumnMeta)}
           />
           {props.columns &&
             props.columns

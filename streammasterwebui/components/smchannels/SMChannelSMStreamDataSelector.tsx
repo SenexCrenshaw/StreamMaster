@@ -63,10 +63,10 @@ const SMChannelSMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, da
   const columns = useMemo((): ColumnMeta[] => {
     const w = '12rem';
     const z = '4rem';
-    const x = '2rem';
+    // const x = '2rem';
 
     return [
-      { field: 'Rank', maxWidth: x, minWidth: x, width: x },
+      // { field: 'Rank', maxWidth: x, minWidth: x, width: x },
       { field: 'Name', maxWidth: w, minWidth: w, width: w },
       { field: 'M3UFileName', header: 'M3U', maxWidth: z, minWidth: z, width: z },
       {

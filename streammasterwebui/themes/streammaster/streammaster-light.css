@@ -8598,6 +8598,19 @@ div[aria-haspopup=dialog] {
   text-align: right;
 }
 
+.sm-rowreorder[data-pc-section=headercell] {
+  max-width: 1rem !important;
+  min-width: 1rem !important;
+  width: 1rem !important;
+}
+
+.sm-rowreorder[data-pc-section=bodycell] {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+
 .sm-col-header-wrap {
   height: unset;
   white-space: normal;

@@ -865,7 +865,7 @@
   --gray-800: #262b2c;
   --icon-green: #22c55e;
   --icon-blue: #94abec;
-  --icon-red: #e693a9;
+  --icon-red: hwb(344 58% 10%);
   --icon-orange: #ff935a;
   --surface-section: #161d21;
   --surface-card: #161d21;
@@ -7999,7 +7999,7 @@
 }
 
 .red-bg, .icon-red-primary-filled, .icon-red-filled {
-  background-color: #e693a9;
+  background-color: hwb(344 58% 10%);
 }
 
 .orange-bg, .icon-orange-filled {
@@ -8054,12 +8054,12 @@
 }
 
 .icon-red {
-  color: #e693a9;
+  color: hwb(344 58% 10%);
 }
 
 .icon-red-filled {
   color: #12181b;
-  border: 2px solid #e693a9;
+  border: 2px solid hwb(344 58% 10%);
 }
 
 .icon-orange {
@@ -8096,7 +8096,7 @@
 
 .icon-red-primary-filled {
   color: white;
-  border: 2px solid #e693a9;
+  border: 2px solid hwb(344 58% 10%);
 }
 
 .sm-padding-xs, .sm-text-xs, .sm-input-xs {
@@ -8352,7 +8352,7 @@ div[aria-haspopup=dialog] {
   --gray-800: #262b2c;
   --icon-green: #22c55e;
   --icon-blue: #94abec;
-  --icon-red: #e693a9;
+  --icon-red: hwb(344 58% 10%);
   --icon-orange: #ff935a;
   --surface-section: #161d21;
   --surface-card: #161d21;
@@ -8598,6 +8598,19 @@ div[aria-haspopup=dialog] {
   text-align: right;
 }
 
+.sm-rowreorder[data-pc-section=headercell] {
+  max-width: 1rem !important;
+  min-width: 1rem !important;
+  width: 1rem !important;
+}
+
+.sm-rowreorder[data-pc-section=bodycell] {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+
 .sm-col-header-wrap {
   height: unset;
   white-space: normal;
@@ -8633,8 +8646,8 @@ div[aria-haspopup=dialog] {
 }
 
 .sm-visible-button {
-  background-color: #e693a9 !important;
-  border-color: #e693a9 !important;
+  background-color: hwb(344 58% 10%) !important;
+  border-color: hwb(344 58% 10%) !important;
   color: #12181b !important;
 }
 

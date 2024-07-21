@@ -14,6 +14,22 @@
     text-align: right;
 }
 
+$wid: 1rem;
+
+.sm-rowreorder[data-pc-section="headercell"] {
+    max-width: $wid !important;
+    min-width: $wid !important;
+    width: $wid !important;
+
+}
+
+.sm-rowreorder[data-pc-section="bodycell"] {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+
 .sm-col-header-wrap {
     @extend .sm-col-header;
     @include text-wrap();

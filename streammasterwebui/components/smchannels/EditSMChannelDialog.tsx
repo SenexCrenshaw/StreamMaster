@@ -59,18 +59,18 @@ const EditSMChannelDialog = ({ smChannelDto }: EditSMChannelDialogProperties) =>
     <SMPopUp
       buttonClassName="icon-yellow"
       buttonIsLoading={isRowLoading}
-      contentWidthSize="5"
+      contentWidthSize="6"
       icon="pi-pencil"
       info=""
       isPopupLoading={isRowLoading}
       modal
       modalCentered
-      noCloseButton={false}
       noBorderChildren
+      noCloseButton={false}
+      okButtonDisabled={!saveEnabled}
       ref={propUpRef}
       showRemember={false}
       title={`EDIT CHANNEL : ${smChannelDto.Name}`}
-      okButtonDisabled={!saveEnabled}
       onOkClick={() => {
         dialogRef.current?.save();
       }}

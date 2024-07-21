@@ -12,12 +12,13 @@ const root = ReactDOM.createRoot(document.querySelector('#root') as HTMLElement)
 root.render(
   <React.StrictMode>
     <Provider store={store}>
-      <PersistGate persistor={persistor} />
-      <PrimeReactProvider value={{ inputStyle: 'outlined', ripple: false }}>
-        <SMProvider>
-          <App />
-        </SMProvider>
-      </PrimeReactProvider>
+      <PersistGate persistor={persistor}>
+        <PrimeReactProvider value={{ inputStyle: 'outlined', ripple: false }}>
+          <SMProvider>
+            <App />
+          </SMProvider>
+        </PrimeReactProvider>
+      </PersistGate>
     </Provider>
   </React.StrictMode>
 );

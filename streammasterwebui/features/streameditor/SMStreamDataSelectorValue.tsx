@@ -3,6 +3,7 @@ import SMButton from '@components/sm/SMButton';
 import SMDataTable from '@components/smDataTable/SMDataTable';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 import { GetMessage } from '@lib/common/intl';
+import { Logger } from '@lib/common/logger';
 import { RemoveSMStreamFromSMChannel, SetSMStreamRanks } from '@lib/smAPI/SMChannelStreamLinks/SMChannelStreamLinksCommands';
 
 import { RemoveSMStreamFromSMChannelRequest, SMChannelDto, SMChannelRankRequest, SMStreamDto, SetSMStreamRanksRequest } from '@lib/smAPI/smapiTypes';
@@ -71,18 +72,16 @@ const SMStreamDataSelectorValue = ({ id, smChannel }: SMStreamDataSelectorValueP
       }}
     >
       <SMDataTable
-        headerSize="small"
-        enablePaginator={false}
-        rows={5}
-        noSourceHeader
-        reorderable
         columns={columns}
+        dataSource={smChannel.SMStreams}
         defaultSortField="Rank"
         defaultSortOrder={1}
-        dataSource={smChannel.SMStreams}
         emptyMessage="No Streams"
+        enablePaginator={false}
         headerName={GetMessage('streams').toUpperCase()}
+        headerSize="small"
         id={dataKey}
+        noSourceHeader
         onRowReorder={(event: DataTableValue[]) => {
           const channels = event as unknown as SMStreamDto[];
           if (smChannel === undefined || channels === undefined) {
@@ -95,16 +94,16 @@ const SMStreamDataSelectorValue = ({ id, smChannel }: SMStreamDataSelectorValueP
 
           SetSMStreamRanks({ Requests: tosend } as SetSMStreamRanksRequest)
             .then((response) => {
-              console.log('SetSMStreamRanks', response);
+              // console.log('SetSMStreamRanks', response);
             })
             .catch((error) => {
-              console.error('SetSMStreamRanks', error.message);
+              Logger.error('SetSMStreamRanks', error.message);
             });
 
-          console.log('tosend', tosend);
+          // console.log('tosend', tosend);
         }}
-
-        // selectedItemsKey={'SMStreamDataSelectorValue-selectSelectedSMStreamDtoItems'}
+        reorderable
+        rows={5}
       />
     </div>
   );
