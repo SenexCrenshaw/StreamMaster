@@ -1,9 +1,9 @@
 import SearchButton from '@components/buttons/SearchButton';
 import StringEditor from '@components/inputs/StringEditor';
 import SMDropDown from '@components/sm/SMDropDown';
+import { useSMContext } from '@lib/context/SMProvider';
 import { useSelectedCountry } from '@lib/redux/hooks/selectedCountry';
 import { useSelectedPostalCode } from '@lib/redux/hooks/selectedPostalCode';
-import { useSMContext } from '@lib/signalr/SMProvider';
 
 import useGetAvailableCountries from '@lib/smAPI/SchedulesDirect/useGetAvailableCountries';
 import { UpdateSetting } from '@lib/smAPI/Settings/SettingsCommands';

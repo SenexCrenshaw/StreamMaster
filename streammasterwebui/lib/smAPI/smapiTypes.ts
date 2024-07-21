@@ -259,8 +259,7 @@ export interface SettingDto
 {
 	AdminPassword: string;
 	AdminUserName: string;
-	ApiKey: string;
-	AuthenticationMethod: AuthenticationType;
+	AuthenticationMethod: string;
 	AutoSetEPG: boolean;
 	BackupEnabled: boolean;
 	BackupInterval: number;
@@ -273,15 +272,11 @@ export interface SettingDto
 	DefaultOutputProfileName: string;
 	DeviceID: string;
 	DummyRegex: string;
-	EnablePrometheus: boolean;
 	EnableSSL: boolean;
-	FFMPEGDefaultOptions: string;
 	FFMPegExecutable: string;
 	FFProbeExecutable: string;
 	GlobalStreamLimit: number;
-	HLS: HLSSettings;
 	IsDebug: boolean;
-	LogPerformance: string[];
 	MaxConcurrentDownloads: number;
 	MaxConnectRetry: number;
 	MaxConnectRetryTimeMS: number;
@@ -1025,9 +1020,7 @@ export interface UpdateSettingParameters
 {
 	AdminPassword?: string;
 	AdminUserName?: string;
-	ApiKey?: string;
-	AuthenticationMethod?: AuthenticationType;
-	AutoSetEPG?: boolean;
+	AuthenticationMethod?: string;
 	BackupEnabled?: boolean;
 	BackupInterval?: number;
 	BackupVersionsToKeep?: number;
@@ -1038,10 +1031,9 @@ export interface UpdateSettingParameters
 	DefaultOutputProfileName?: string;
 	DeviceID?: string;
 	DummyRegex?: string;
-	EnablePrometheus?: boolean;
 	EnableSSL?: boolean;
 	FFMPegExecutable?: string;
-	FFMpegOptions?: string;
+	FFProbeExecutable?: string;
 	GlobalStreamLimit?: number;
 	MaxConnectRetry?: number;
 	MaxConnectRetryTimeMS?: number;
@@ -1054,11 +1046,10 @@ export interface UpdateSettingParameters
 	SSLCertPassword?: string;
 	SSLCertPath?: string;
 	StreamingClientUserAgent?: string;
-	VideoStreamAlwaysUseEPGLogo?: boolean;
 }
 export interface UpdateSettingRequest
 {
-	parameters: UpdateSettingParameters;
+	Parameters: UpdateSettingParameters;
 }
 export interface GetAvailableCountriesRequest
 {

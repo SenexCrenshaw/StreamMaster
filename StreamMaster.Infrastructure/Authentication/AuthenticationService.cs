@@ -28,7 +28,7 @@ public class AuthenticationService(ILogger<AuthenticationService> logger, IOptio
         string AdminUserName = settings.AdminUserName;
         AuthenticationType authMethod = AuthenticationType.None;
         if (
-            settings.AuthenticationMethod != AuthenticationType.None &&
+            settings.AuthenticationMethod != "None" &&
             !string.IsNullOrEmpty(AdminPassword) && !string.IsNullOrEmpty(AdminUserName)
             )
         {

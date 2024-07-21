@@ -5,45 +5,35 @@ import { isEmptyObject } from '@lib/common/common';
 import { SettingsEditorIcon } from '@lib/common/icons';
 import { GetMessage } from '@lib/common/intl';
 import { Logger } from '@lib/common/logger';
-import { useCurrentSettingRequest } from '@lib/redux/hooks/currentSettingRequest';
-import { useUpdateSettingRequest } from '@lib/redux/hooks/updateSettingRequest';
-import { useSMContext } from '@lib/signalr/SMProvider';
+import { useSMContext } from '@lib/context/SMProvider';
+import { useSettingsContext } from '@lib/context/SettingsProvider';
 import { UpdateSetting } from '@lib/smAPI/Settings/SettingsCommands';
-import { AuthenticationType, UpdateSettingRequest } from '@lib/smAPI/smapiTypes';
+import useGetSettings from '@lib/smAPI/Settings/useGetSettings';
+import { UpdateSettingRequest } from '@lib/smAPI/smapiTypes';
 import { ScrollPanel } from 'primereact/scrollpanel';
-import { memo, useCallback, useEffect, useMemo } from 'react';
+import { memo, useCallback, useMemo } from 'react';
 import { AuthenticationSettings } from './AuthenticationSettings';
 import { BackupSettings } from './BackupSettings';
 import { DevelopmentSettings } from './DevelopmentSettings';
-import { MiscSettings } from './MiscSettings';
 import { GeneralSettings } from './GeneralSettings';
+import { MiscSettings } from './MiscSettings';
 import { SDSettings } from './SDSettings';
 import { StreamingSettings } from './StreamingSettings';
 
-export const SettingsEditor = () => {
-  const { currentSettingRequest, setCurrentSettingRequest } = useCurrentSettingRequest('CurrentSettingDto');
-  const { updateSettingRequest, setUpdateSettingRequest } = useUpdateSettingRequest('UpdateSettingRequest');
+const SettingsEditor = () => {
+  const { currentSettingRequest, setCurrentSettingRequest, updateSettingRequest, setUpdateSettingRequest } = useSettingsContext();
   const { isSystemReady, settings } = useSMContext();
-
-  useEffect(() => {
-    if (!isSystemReady || settings.ApiKey === undefined) return;
-
-    if (currentSettingRequest.ApiKey === undefined) {
-      Logger.info('SettingsEditor', settings);
-      setCurrentSettingRequest({ ...settings });
-      setUpdateSettingRequest({} as UpdateSettingRequest);
-    }
-  }, [isSystemReady, settings, currentSettingRequest, setCurrentSettingRequest, setUpdateSettingRequest]);
+  const getSettings = useGetSettings();
 
   const adminUserNameError = useMemo((): string | undefined => {
-    if (currentSettingRequest?.AuthenticationMethod === AuthenticationType.Forms && currentSettingRequest?.AdminUserName === '')
+    if (currentSettingRequest?.AuthenticationMethod !== 'None' && currentSettingRequest?.AdminUserName === '')
       return GetMessage('formsAuthRequiresAdminUserName');
 
     return undefined;
   }, [currentSettingRequest?.AdminUserName, currentSettingRequest?.AuthenticationMethod]);
 
   const adminPasswordError = useMemo((): string | undefined => {
-    if (currentSettingRequest?.AuthenticationMethod === AuthenticationType.Forms && currentSettingRequest?.AdminPassword === '')
+    if (currentSettingRequest?.AuthenticationMethod !== 'None' && currentSettingRequest?.AdminPassword === '')
       return GetMessage('formsAuthRequiresAdminPassword');
 
     return undefined;
@@ -72,19 +62,30 @@ export const SettingsEditor = () => {
 
     UpdateSetting(updateSettingRequest)
       .then(() => {
-        setUpdateSettingRequest({} as UpdateSettingRequest);
+        //
       })
       .catch((error) => {
         console.error(error);
       })
-      .finally(() => {});
-  }, [isSaveEnabled, updateSettingRequest, setUpdateSettingRequest]);
+      .finally(() => {
+        setCurrentSettingRequest({
+          ...currentSettingRequest,
+          ...updateSettingRequest.Parameters
+        });
+        setUpdateSettingRequest({} as UpdateSettingRequest);
+        getSettings.SetIsForced(true);
+      });
+  }, [isSaveEnabled, updateSettingRequest, setCurrentSettingRequest, setUpdateSettingRequest, getSettings]);
 
   const resetData = useCallback(() => {
-    setCurrentSettingRequest({ ...settings });
-  }, [setCurrentSettingRequest, settings]);
+    Logger.debug('SettingsEditor', 'Resetting data', settings.DeviceID);
+    setUpdateSettingRequest({} as UpdateSettingRequest);
+    // setCurrentSettingRequest({ ...settings });
+    getSettings.SetIsForced(true);
+  }, [getSettings, setUpdateSettingRequest, settings.DeviceID]);
 
-  if (!isSystemReady || settings === undefined || currentSettingRequest.ApiKey === undefined) {
+  if (!isSystemReady) {
+    //|| settings === undefined || !propertyExists(currentSettingRequest, 'DeviceID')) {
     return <div>Loading</div>;
   }
 

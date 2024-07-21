@@ -7,8 +7,7 @@ public record GetSettingsRequest : IRequest<DataResponse<SettingDto>>;
 internal class GetSettingsRequestHandler(
         IMapper mapper,
         IOptionsMonitor<Setting> intSettings,
-        IOptionsMonitor<HLSSettings> inthlssettings,
-        IOptionsMonitor<SDSettings> intsdsettings
+        IOptionsMonitor<SDSettings> intSDSettings
 
     ) : IRequestHandler<GetSettingsRequest, DataResponse<SettingDto>>
 {
@@ -18,8 +17,7 @@ internal class GetSettingsRequestHandler(
     {
         SettingDto ret = mapper.Map<SettingDto>(settings);
 
-        ret.HLS = inthlssettings.CurrentValue;
-        ret.SDSettings = intsdsettings.CurrentValue;
+        ret.SDSettings = intSDSettings.CurrentValue;
 
         return await Task.FromResult(DataResponse<SettingDto>.Success(ret));
     }

@@ -1,58 +1,49 @@
 import { GetMessage } from '@lib/common/intl';
+import { useSettingsContext } from '@lib/context/SettingsProvider';
 import { getDefaultSetting } from '@lib/locales/default_setting';
 import { getHelp } from '@lib/locales/help_en';
 import { SettingDto } from '@lib/smAPI/smapiTypes';
 import { Password } from 'primereact/password';
 import React from 'react';
-import { UpdateChanges, getRecordString } from '../SettingsUtils';
+import { SettingsInterface } from '../SettingsInterface';
+import { getRecordString } from '../SettingsUtils';
 import { GetLine } from './GetLine';
 
-type PasswordLineProps = {
-  onChange: (existing: SettingDto, updatedValues: SettingDto) => void | undefined;
+interface PasswordLineProps extends SettingsInterface {
   readonly autoFocus?: boolean;
-  readonly currentSettingRequest: SettingDto;
-  readonly field: string;
   readonly labelInline?: boolean;
-  // readonly labelInlineSmall?: boolean;
-  readonly warning?: string | null;
-};
+}
 
-export function getPasswordLine({
-  currentSettingRequest,
-  field,
-  labelInline = true,
-  // labelInlineSmall = true,
-  onChange,
-  warning
-}: PasswordLineProps): React.ReactElement {
-  const label = GetMessage(field);
-  const help = getHelp(field);
-  const defaultSetting = getDefaultSetting(field);
+export function GetPasswordLine({ ...props }: PasswordLineProps): React.ReactElement {
+  const { currentSettingRequest, updateStateAndRequest } = useSettingsContext();
+  const label = GetMessage(props.field);
+  const help = getHelp(props.field);
+  const defaultSetting = getDefaultSetting(props.field);
 
   return GetLine({
     defaultSetting,
     help,
     value: (
       <div className="sm-w-12">
-        {label && !labelInline && (
+        {label && !props.labelInline && (
           <>
             <label className="pl-15">{label.toUpperCase()}</label>
             <div className="pt-small" />
           </>
         )}
-        <div className={`flex ${labelInline ? 'align-items-center' : 'flex-column align-items-start'}`}>
-          {label && labelInline && <div className={labelInline ? 'w-4' : 'w-6'}>{label.toUpperCase()}</div>}
+        <div className={`flex ${props.labelInline ? 'align-items-center' : 'flex-column align-items-start'}`}>
+          {label && props.labelInline && <div className={props.labelInline ? 'w-4' : 'w-6'}>{label.toUpperCase()}</div>}
           <Password
             className={'w-6'}
             feedback
             onChange={(e) => {
-              UpdateChanges({ currentSettingRequest, field, onChange, value: e.target.value });
+              e !== undefined && updateStateAndRequest?.({ [props.field]: e });
             }}
             toggleMask
-            value={currentSettingRequest ? getRecordString<SettingDto>(field, currentSettingRequest) : undefined}
+            value={currentSettingRequest ? getRecordString<SettingDto>(props.field, currentSettingRequest) : undefined}
           />
           <br />
-          {warning !== null && warning !== undefined && <span className="text-xs text-orange-500">{warning}</span>}
+          {props.warning !== null && props.warning !== undefined && <span className="text-xs text-orange-500">{props.warning}</span>}
         </div>
       </div>
     )

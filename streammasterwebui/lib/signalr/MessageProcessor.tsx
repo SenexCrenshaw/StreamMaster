@@ -1,7 +1,7 @@
+import { useSMContext } from '@lib/context/SMProvider';
 import { useSMMessages } from '@lib/redux/hooks/useSMMessages';
 import { Toast } from 'primereact/toast';
 import { useEffect, useRef } from 'react';
-import { useSMContext } from './SMProvider';
 
 export const MessageProcessor = ({ children }: React.PropsWithChildren): JSX.Element => {
   const { isSystemReady } = useSMContext();

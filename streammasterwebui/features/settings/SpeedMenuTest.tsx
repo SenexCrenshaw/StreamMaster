@@ -2,8 +2,7 @@ import { LinkButton } from '@components/buttons/LinkButton';
 import { Direction, Shape } from '@components/sm/Interfaces/SMSpeedDialTypes';
 import SMPopUp from '@components/sm/SMPopUp';
 import SMSpeedMenu from '@components/sm/SMSpeedMenu';
-import { Logger } from '@lib/common/logger';
-import { useSMContext } from '@lib/signalr/SMProvider';
+import { useSMContext } from '@lib/context/SMProvider';
 import { motion } from 'framer-motion';
 import { memo } from 'react';
 

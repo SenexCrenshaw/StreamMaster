@@ -3,7 +3,7 @@ import SchedulesDirectHeadendDataSelector from '@components/schedulesDirect/Sche
 import SchedulesDirectLineUpsDataSelector from '@components/schedulesDirect/SchedulesDirectLineUpsDataSelector';
 import SchedulesDirectStationDataSelector from '@components/schedulesDirect/SchedulesDirectStationDataSelector';
 import { SDIcon } from '@lib/common/icons';
-import { useSMContext } from '@lib/signalr/SMProvider';
+import { useSMContext } from '@lib/context/SMProvider';
 
 import { BlockUI } from 'primereact/blockui';
 

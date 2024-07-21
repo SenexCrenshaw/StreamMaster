@@ -1,8 +1,8 @@
 import SMDataTable from '@components/smDataTable/SMDataTable';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
+import { useSMContext } from '@lib/context/SMProvider';
 import { useSelectedCountry } from '@lib/redux/hooks/selectedCountry';
 import { useSelectedPostalCode } from '@lib/redux/hooks/selectedPostalCode';
-import { useSMContext } from '@lib/signalr/SMProvider';
 import useGetHeadendsByCountryPostal from '@lib/smAPI/SchedulesDirect/useGetHeadendsByCountryPostal';
 import useGetSubscribedLineups from '@lib/smAPI/SchedulesDirect/useGetSubscribedLineups';
 import { GetHeadendsByCountryPostalRequest, HeadendDto } from '@lib/smAPI/smapiTypes';

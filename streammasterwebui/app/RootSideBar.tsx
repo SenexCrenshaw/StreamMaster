@@ -1,6 +1,7 @@
 import MenuItemSM from '@components/MenuItemSM';
 import { HelpIcon, PlayListEditorIcon, SDIcon, SettingsEditorIcon, SideBarMenuIcon, StreamingStatusIcon } from '@lib/common/icons';
-import { useSMContext } from '@lib/signalr/SMProvider';
+import { useSMContext } from '@lib/context/SMProvider';
+
 import { useLocalStorage } from 'primereact/hooks';
 import { Tooltip } from 'primereact/tooltip';
 import { useCallback } from 'react';

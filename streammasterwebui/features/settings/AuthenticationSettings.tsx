@@ -1,29 +1,29 @@
 import SMButton from '@components/sm/SMButton';
 import { GetMessage } from '@lib/common/intl';
-import { useSMContext } from '@lib/signalr/SMProvider';
+import { useSettingsContext } from '@lib/context/SettingsProvider';
+import { useSMContext } from '@lib/context/SMProvider';
 import { AuthenticationType } from '@lib/smAPI/smapiTypes';
 import { Fieldset } from 'primereact/fieldset';
 import { SelectItem } from 'primereact/selectitem';
 import React, { useMemo } from 'react';
-import { GetDropDownLine } from './components/getDropDownLine';
-import { getInputTextLine } from './components/getInputTextLine';
-import { getPasswordLine } from './components/getPasswordLine';
-import { useSettingChangeHandler } from './hooks/useSettingChangeHandler';
 import { BaseSettings } from './BaseSettings';
+import { GetDropDownLine } from './components/GetDropDownLine';
+import { GetInputTextLine } from './components/GetInputTextLine';
+import { GetPasswordLine } from './components/GetPasswordLine';
 
 export function AuthenticationSettings(): React.ReactElement {
   const { settings } = useSMContext();
-  const { onChange, currentSettingRequest } = useSettingChangeHandler();
+  const { currentSettingRequest } = useSettingsContext();
 
   const adminUserNameError = useMemo((): string | undefined => {
-    if (currentSettingRequest?.AuthenticationMethod === AuthenticationType.Forms && currentSettingRequest?.AdminUserName === '')
+    if (currentSettingRequest?.AuthenticationMethod !== 'None' && currentSettingRequest?.AdminUserName === '')
       return GetMessage('formsAuthRequiresAdminUserName');
 
     return undefined;
   }, [currentSettingRequest]);
 
   const adminPasswordError = useMemo((): string | undefined => {
-    if (currentSettingRequest?.AuthenticationMethod === AuthenticationType.Forms && currentSettingRequest?.AdminPassword === '')
+    if (currentSettingRequest?.AuthenticationMethod !== 'None' && currentSettingRequest?.AdminPassword === '')
       return GetMessage('formsAuthRequiresAdminPassword');
 
     return undefined;
@@ -51,15 +51,15 @@ export function AuthenticationSettings(): React.ReactElement {
   return (
     <BaseSettings title="AUTHENTICATION">
       <>
-        {getInputTextLine({ currentSettingRequest, field: 'ApiKey', onChange })}
-        {GetDropDownLine({ currentSettingRequest, field: 'AuthenticationMethod', onChange, options: getAuthTypeOptions() })}
-        {getInputTextLine({ currentSettingRequest, field: 'AdminUserName', onChange, warning: adminUserNameError })}
-        {getPasswordLine({ currentSettingRequest, field: 'AdminPassword', onChange, warning: adminPasswordError })}
+        {/* {getInputTextLine({  field: 'ApiKey', onChange })} */}
+        {GetDropDownLine({ field: 'AuthenticationMethod', options: getAuthTypeOptions() })}
+        {GetInputTextLine({ field: 'AdminUserName', warning: adminUserNameError })}
+        {GetPasswordLine({ field: 'AdminPassword', warning: adminPasswordError })}
         <div className="flex w-12 settings-line justify-content-end align-items-center">
           <div className="w-2 text-right pr-2">{GetMessage('signout')}</div>
           <div className="w-2">
             <SMButton
-              buttonDisabled={!settings.AuthenticationMethod || (settings.AuthenticationMethod as number) === 0}
+              buttonDisabled={!settings.AuthenticationMethod || settings.AuthenticationMethod === 'None'}
               icon="pi-check"
               label={GetMessage('signout')}
               onClick={() => (window.location.href = '/logout')}

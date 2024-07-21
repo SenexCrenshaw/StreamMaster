@@ -18,6 +18,7 @@ import 'primereact/resources/primereact.min.css'; //core css
 import SMLoader from '@components/loader/SMLoader';
 
 import SDLineUpsDataSelector from '@features/sdEditor/SDLineUpsDataSelector';
+import { SettingsProvider } from '@lib/context/SettingsProvider';
 import { Suspense, lazy } from 'react';
 
 const App = (): JSX.Element => {
@@ -66,7 +67,9 @@ const App = (): JSX.Element => {
         <Route
           element={
             <Suspense>
-              <SettingsEditor />
+              <SettingsProvider>
+                <SettingsEditor />
+              </SettingsProvider>
             </Suspense>
           }
           path="/settings"

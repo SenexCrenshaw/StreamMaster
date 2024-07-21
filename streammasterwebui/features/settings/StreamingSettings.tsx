@@ -2,17 +2,16 @@ import { GetMessage } from '@lib/common/intl';
 import { Fieldset } from 'primereact/fieldset';
 import { SelectItem } from 'primereact/selectitem';
 import React, { useMemo } from 'react';
-import { getInputNumberLine } from './components/getInputNumberLine';
-import { getInputTextLine } from './components/getInputTextLine';
-import { useSettingChangeHandler } from './hooks/useSettingChangeHandler';
+import { GetInputNumberLine } from './components/GetInputNumberLine';
 
+import { useSettingsContext } from '@lib/context/SettingsProvider';
 import { BaseSettings } from './BaseSettings';
-import { getCheckBoxLine } from './components/getCheckBoxLine';
-import { GetDropDownLine } from './components/getDropDownLine';
+import { GetCheckBoxLine } from './components/GetCheckBoxLine';
+import { GetDropDownLine } from './components/GetDropDownLine';
+import { GetInputTextLine } from './components/GetInputTextLine';
 
 export function StreamingSettings(): React.ReactElement {
-  const { onChange, currentSettingRequest } = useSettingChangeHandler();
-  // const { data: CommandProfiles } = useGetCommandProfiles();
+  const { currentSettingRequest } = useSettingsContext();
 
   const getHandlersOptions = useMemo((): SelectItem[] => {
     const DefaultStreamingProxyTypes = ['SystemDefault', 'None', 'StreamMaster'];
@@ -44,12 +43,12 @@ export function StreamingSettings(): React.ReactElement {
   return (
     <BaseSettings title="STREAMING">
       <>
-        {GetDropDownLine({ currentSettingRequest, field: 'StreamingProxyType', onChange, options: getHandlersOptions })}
-        {getInputNumberLine({ currentSettingRequest, field: 'GlobalStreamLimit', onChange })}
-        {getInputTextLine({ currentSettingRequest, field: 'ClientUserAgent', onChange })}
-        {getInputTextLine({ currentSettingRequest, field: 'StreamingClientUserAgent', onChange })}
-        {/* {getInputTextLine({ currentSettingRequest, field: 'FFMpegOptions', onChange })} */}
-        {getCheckBoxLine({ currentSettingRequest, field: 'ShowClientHostNames', onChange })}
+        {GetDropDownLine({ field: 'StreamingProxyType', options: getHandlersOptions })}
+        {GetInputNumberLine({ field: 'GlobalStreamLimit' })}
+        {GetInputTextLine({ field: 'ClientUserAgent' })}
+        {GetInputTextLine({ field: 'StreamingClientUserAgent' })}
+        {/* {getInputTextLine({  field: 'FFMpegOptions' })} */}
+        {GetCheckBoxLine({ field: 'ShowClientHostNames' })}
       </>
     </BaseSettings>
   );

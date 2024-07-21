@@ -1,35 +1,34 @@
 import { GetMessage } from '@lib/common/intl';
+import { useSettingsContext } from '@lib/context/SettingsProvider';
 import React from 'react';
-import { getCheckBoxLine } from './components/getCheckBoxLine';
-import { getInputNumberLine } from './components/getInputNumberLine';
-import { getInputTextLine } from './components/getInputTextLine';
-import { getPasswordLine } from './components/getPasswordLine';
-import { useSettingChangeHandler } from './hooks/useSettingChangeHandler';
 import { BaseSettings } from './BaseSettings';
+import { GetCheckBoxLine } from './components/GetCheckBoxLine';
+import { GetInputNumberLine } from './components/GetInputNumberLine';
+import { GetInputTextLine } from './components/GetInputTextLine';
+import { GetPasswordLine } from './components/GetPasswordLine';
 
 export function GeneralSettings(): React.ReactElement {
-  const { onChange, currentSettingRequest } = useSettingChangeHandler();
+  const { currentSettingRequest } = useSettingsContext();
   return (
     <BaseSettings title="GENERAL">
       <>
-        {getInputTextLine({ currentSettingRequest, field: 'DeviceID', onChange })}
-        {getCheckBoxLine({ currentSettingRequest, field: 'CleanURLs', onChange })}
-        {getInputTextLine({ currentSettingRequest, field: 'FFMPegExecutable', onChange })}
-        {getCheckBoxLine({ currentSettingRequest, field: 'EnableSSL', onChange })}
+        {GetInputTextLine({ field: 'DeviceID' })}
+        {GetCheckBoxLine({ field: 'CleanURLs' })}
+        {GetInputTextLine({ field: 'FFMPegExecutable' })}
+        {GetInputTextLine({ field: 'FFProbeExecutable' })}
+        {GetCheckBoxLine({ field: 'EnableSSL' })}
         {currentSettingRequest?.EnableSSL === true && (
           <>
-            {getInputTextLine({ currentSettingRequest, field: 'SSLCertPath', onChange, warning: GetMessage('changesServiceRestart') })}
-            {getPasswordLine({
-              currentSettingRequest,
+            {GetInputTextLine({ field: 'SSLCertPath', warning: GetMessage('changesServiceRestart') })}
+            {GetPasswordLine({
               field: 'SSLCertPassword',
-              onChange,
               warning: GetMessage('changesServiceRestart')
             })}
           </>
         )}
-        {getCheckBoxLine({ currentSettingRequest, field: 'EnablePrometheus', onChange })}
-        {getInputNumberLine({ currentSettingRequest, field: 'MaxLogFiles', onChange })}
-        {getInputNumberLine({ currentSettingRequest, field: 'MaxLogFileSizeMB', onChange })}
+        {/* {getCheckBoxLine({ currentSettingRequest, field: 'EnablePrometheus', onChange })} */}
+        {GetInputNumberLine({ field: 'MaxLogFiles' })}
+        {GetInputNumberLine({ field: 'MaxLogFileSizeMB' })}
       </>
     </BaseSettings>
   );

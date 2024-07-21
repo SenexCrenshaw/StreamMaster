@@ -3,7 +3,6 @@ using Microsoft.Extensions.Logging;
 
 using StreamMaster.Domain.Authentication;
 using StreamMaster.Domain.Configuration;
-using StreamMaster.Domain.Enums;
 
 using System.Diagnostics;
 using System.Security.Claims;
@@ -28,7 +27,7 @@ public class ApiKeyAuthenticationHandler(IOptionsMonitor<ApiKeyAuthenticationOpt
     protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
     {
         Setting settings = intSettings.CurrentValue;
-        bool needsAuth = settings.AuthenticationMethod != AuthenticationType.None;
+        bool needsAuth = settings.AuthenticationMethod != "None";
 
         if (!needsAuth)
         {
@@ -45,7 +44,7 @@ public class ApiKeyAuthenticationHandler(IOptionsMonitor<ApiKeyAuthenticationOpt
             return AuthenticateResult.Success(ticket);
         }
 
-        string? providedApiKey = ParseApiKey(settings.ApiKey, settings.ServerKey);
+        string? providedApiKey = ParseApiKey(settings.ServerKey);
 
         if (string.IsNullOrWhiteSpace(providedApiKey))
         {
@@ -53,7 +52,7 @@ public class ApiKeyAuthenticationHandler(IOptionsMonitor<ApiKeyAuthenticationOpt
             return AuthenticateResult.NoResult();
         }
 
-        if (settings.ApiKey == providedApiKey || settings.ServerKey == providedApiKey)
+        if (settings.ServerKey == providedApiKey)
         {
             List<Claim> claims =
             [
@@ -83,12 +82,12 @@ public class ApiKeyAuthenticationHandler(IOptionsMonitor<ApiKeyAuthenticationOpt
         return Task.CompletedTask;
     }
 
-    private string? ParseApiKey(string apiKey, string serverKey)
+    private string? ParseApiKey(string serverKey)
     {
         if (Request.Path.Value.StartsWith("/swagger") && Debugger.IsAttached)
         {
             _logger.LogDebug("Swagger Authentication success");
-            return apiKey;
+            return serverKey;
         }
         string requestPath = Context.Request.Path.Value.ToString();
 

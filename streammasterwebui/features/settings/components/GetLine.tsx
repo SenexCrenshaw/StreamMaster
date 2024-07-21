@@ -1,6 +1,5 @@
 import { SMCard } from '@components/sm/SMCard';
 import SMPopUp from '@components/sm/SMPopUp';
-import { Logger } from '@lib/common/logger';
 import { useMemo } from 'react';
 
 type GetLineProps = {

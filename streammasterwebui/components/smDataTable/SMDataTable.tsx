@@ -6,7 +6,7 @@ import { SMTriSelectShowSelected } from '@components/sm/SMTriSelectShowSelected'
 import generateFilterData from '@components/smDataTable/helpers/generateFilterData';
 import useSelectedSMItems from '@features/streameditor/useSelectedSMItems';
 import { camel2title, isEmptyObject } from '@lib/common/common';
-import { useSMContext } from '@lib/signalr/SMProvider';
+import { useSMContext } from '@lib/context/SMProvider';
 import { PagedResponse, SMChannelDto } from '@lib/smAPI/smapiTypes';
 import { Checkbox } from 'primereact/checkbox';
 import { Column, ColumnFilterElementTemplateOptions } from 'primereact/column';

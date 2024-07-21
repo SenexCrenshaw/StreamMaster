@@ -1,17 +1,17 @@
 import { GetMessage } from '@lib/common/intl';
+import { useSettingsContext } from '@lib/context/SettingsProvider';
 import { Fieldset } from 'primereact/fieldset';
 import { SelectItem } from 'primereact/selectitem';
 import React from 'react';
-import { GetDropDownLine } from './components/getDropDownLine';
-import { getInputNumberLine } from './components/getInputNumberLine';
-import { getInputTextLine } from './components/getInputTextLine';
-import { getPasswordLine } from './components/getPasswordLine';
-import { useSettingChangeHandler } from './hooks/useSettingChangeHandler';
-import { getCheckBoxLine } from './components/getCheckBoxLine';
 import { BaseSettings } from './BaseSettings';
+import { GetCheckBoxLine } from './components/GetCheckBoxLine';
+import { GetDropDownLine } from './components/GetDropDownLine';
+import { GetInputNumberLine } from './components/GetInputNumberLine';
+import { GetInputTextLine } from './components/GetInputTextLine';
+import { GetPasswordLine } from './components/GetPasswordLine';
 
 export function SDSettings(): React.ReactElement {
-  const { onChange, currentSettingRequest } = useSettingChangeHandler();
+  const { currentSettingRequest } = useSettingsContext();
 
   const getLogoStyleOptions = (): SelectItem[] => {
     var options = ['Dark', 'Gray', 'Light', 'White'];
@@ -66,28 +66,28 @@ export function SDSettings(): React.ReactElement {
   return (
     <BaseSettings title="SCHEDULES DIRECT">
       <>
-        {getInputNumberLine({ currentSettingRequest, field: 'SDSettings.MaxSubscribedLineups', onChange })}
-        {getCheckBoxLine({ currentSettingRequest, field: 'SDSettings.SDEnabled', onChange })}
-        {getInputTextLine({ currentSettingRequest, field: 'SDSettings.SDUserName', onChange })}
-        {getPasswordLine({ currentSettingRequest, field: 'SDSettings.SDPassword', onChange })}
-        {GetDropDownLine({ currentSettingRequest, field: 'SDSettings.PreferredLogoStyle', onChange, options: getLogoStyleOptions() })}
-        {GetDropDownLine({ currentSettingRequest, field: 'SDSettings.AlternateLogoStyle', onChange, options: getLogoStyleOptions() })}
-        {getCheckBoxLine({ currentSettingRequest, field: 'SDSettings.SeriesPosterArt', onChange })}
-        {getCheckBoxLine({ currentSettingRequest, field: 'SDSettings.SeriesWsArt', onChange })}
-        {GetDropDownLine({ currentSettingRequest, field: 'SDSettings.SeriesPosterAspect', onChange, options: getArtworkAspectOptions() })}
-        {GetDropDownLine({ currentSettingRequest, field: 'SDSettings.ArtworkSize', onChange, options: getArtworkSizeOptions() })}
-        {getCheckBoxLine({ currentSettingRequest, field: 'SDSettings.ExcludeCastAndCrew', onChange })}
-        {getCheckBoxLine({ currentSettingRequest, field: 'SDSettings.XmltvIncludeChannelNumbers', onChange })}
-        {getCheckBoxLine({ currentSettingRequest, field: 'SDSettings.AlternateSEFormat', onChange })}
-        {getCheckBoxLine({ currentSettingRequest, field: 'SDSettings.PrefixEpisodeDescription', onChange })}
-        {getCheckBoxLine({ currentSettingRequest, field: 'SDSettings.PrefixEpisodeTitle', onChange })}
-        {getCheckBoxLine({ currentSettingRequest, field: 'SDSettings.AppendEpisodeDesc', onChange })}
-        {getInputNumberLine({ currentSettingRequest, field: 'SDSettings.SDepgDays', onChange })}
-        {getInputNumberLine({ currentSettingRequest, field: 'SDSettings.XmltvFillerProgramLength', onChange })}
-        {getCheckBoxLine({ currentSettingRequest, field: 'SDSettings.SeasonEventImages', onChange })}
-        {getCheckBoxLine({ currentSettingRequest, field: 'SDSettings.XmltvAddFillerData', onChange })}
-        {getCheckBoxLine({ currentSettingRequest, field: 'SDSettings.XmltvExtendedInfoInTitleDescriptions', onChange })}
-        {getCheckBoxLine({ currentSettingRequest, field: 'SDSettings.XmltvSingleImage', onChange })}
+        {GetInputNumberLine({ field: 'SDSettings.MaxSubscribedLineups' })}
+        {GetCheckBoxLine({ field: 'SDSettings.SDEnabled' })}
+        {GetInputTextLine({ field: 'SDSettings.SDUserName' })}
+        {GetPasswordLine({ field: 'SDSettings.SDPassword' })}
+        {GetDropDownLine({ field: 'SDSettings.PreferredLogoStyle', options: getLogoStyleOptions() })}
+        {GetDropDownLine({ field: 'SDSettings.AlternateLogoStyle', options: getLogoStyleOptions() })}
+        {GetCheckBoxLine({ field: 'SDSettings.SeriesPosterArt' })}
+        {GetCheckBoxLine({ field: 'SDSettings.SeriesWsArt' })}
+        {GetDropDownLine({ field: 'SDSettings.SeriesPosterAspect', options: getArtworkAspectOptions() })}
+        {GetDropDownLine({ field: 'SDSettings.ArtworkSize', options: getArtworkSizeOptions() })}
+        {GetCheckBoxLine({ field: 'SDSettings.ExcludeCastAndCrew' })}
+        {GetCheckBoxLine({ field: 'SDSettings.XmltvIncludeChannelNumbers' })}
+        {GetCheckBoxLine({ field: 'SDSettings.AlternateSEFormat' })}
+        {GetCheckBoxLine({ field: 'SDSettings.PrefixEpisodeDescription' })}
+        {GetCheckBoxLine({ field: 'SDSettings.PrefixEpisodeTitle' })}
+        {GetCheckBoxLine({ field: 'SDSettings.AppendEpisodeDesc' })}
+        {GetInputNumberLine({ field: 'SDSettings.SDepgDays' })}
+        {GetInputNumberLine({ field: 'SDSettings.XmltvFillerProgramLength' })}
+        {GetCheckBoxLine({ field: 'SDSettings.SeasonEventImages' })}
+        {GetCheckBoxLine({ field: 'SDSettings.XmltvAddFillerData' })}
+        {GetCheckBoxLine({ field: 'SDSettings.XmltvExtendedInfoInTitleDescriptions' })}
+        {GetCheckBoxLine({ field: 'SDSettings.XmltvSingleImage' })}
       </>
     </BaseSettings>
   );

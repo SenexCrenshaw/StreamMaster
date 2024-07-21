@@ -1,8 +1,5 @@
 interface DefaultSettingType {
   [key: string]: string;
-  CleanURLs: string;
-  DeviceID: string;
-  FFMPegExecutable: string;
 }
 
 const defaultSetting: DefaultSettingType = {
@@ -19,6 +16,7 @@ const defaultSetting: DefaultSettingType = {
   EnableSSL: 'false',
   FFMpegOptions: '-hide_banner -loglevel error -i {streamUrl} -c copy -f mpegts pipe:1',
   FFMPegExecutable: 'ffmpeg',
+  FFProbeExecutable: 'ffprobe',
   'SDSettings.MaxSubscribedLineups': '4',
   GlobalStreamLimit: '1',
   MaxLogFiles: '10',

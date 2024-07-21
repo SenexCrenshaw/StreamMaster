@@ -19,7 +19,6 @@ import {
 } from '@floating-ui/react';
 import { BlockUI } from 'primereact/blockui';
 import { CSSProperties, ReactNode, forwardRef, useCallback, useImperativeHandle, useMemo, useRef, useState } from 'react';
-import { CombinedProvider } from './Context/CombinedContext';
 import { SMOverlayProperties } from './Interfaces/SMOverlayProperties';
 import SMButton from './SMButton';
 import { SMCard } from './SMCard';
@@ -207,10 +206,6 @@ const SMOverlayInner = forwardRef<SMOverlayRef, ExtendedSMOverlayProperties>(
   }
 );
 
-const SMOverlay = forwardRef<SMOverlayRef, ExtendedSMOverlayProperties>((props, ref) => (
-  <CombinedProvider>
-    <SMOverlayInner ref={ref} {...props} />
-  </CombinedProvider>
-));
+const SMOverlay = forwardRef<SMOverlayRef, ExtendedSMOverlayProperties>((props, ref) => <SMOverlayInner ref={ref} {...props} />);
 
 export default SMOverlay;

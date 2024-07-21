@@ -1,5 +1,5 @@
+import { SMProvider } from '@lib/context/SMProvider';
 import store, { persistor } from '@lib/redux/store';
-import { SMProvider } from '@lib/signalr/SMProvider';
 import { PrimeReactProvider } from 'primereact/api';
 import React from 'react';
 import ReactDOM from 'react-dom/client';

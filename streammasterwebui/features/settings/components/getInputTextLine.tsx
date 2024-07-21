@@ -1,27 +1,29 @@
 import StringEditor from '@components/inputs/StringEditor';
 import { GetMessage } from '@lib/common/intl';
-import { Logger } from '@lib/common/logger';
+import { propertyExists } from '@lib/common/propertyExists';
+import { useSettingsContext } from '@lib/context/SettingsProvider';
 import { getDefaultSetting } from '@lib/locales/default_setting';
 import { getHelp } from '@lib/locales/help_en';
-import { SettingDto } from '@lib/smAPI/smapiTypes';
+import { UpdateSettingParameters } from '@lib/smAPI/smapiTypes';
 import React from 'react';
-import { UpdateChanges, getRecordString } from '../SettingsUtils';
+import { SettingsInterface } from '../SettingsInterface';
+import { getRecordString } from '../SettingsUtils';
 import { GetLine } from './GetLine';
 
-type InputTextLineProps = {
-  field: string;
-  warning?: string | null;
-  currentSettingRequest: SettingDto;
-  onChange: (existing: SettingDto, updatedValues: SettingDto) => void | undefined;
-};
+interface InputTextLineProps extends SettingsInterface {}
 
-export function getInputTextLine({ field, warning, currentSettingRequest, onChange }: InputTextLineProps): React.ReactElement {
-  const label = GetMessage(field);
-  const help = getHelp(field);
-  const defaultSetting = getDefaultSetting(field);
+export function GetInputTextLine({ ...props }: InputTextLineProps): React.ReactElement {
+  const { currentSettingRequest, updateSettingRequest, updateStateAndRequest } = useSettingsContext();
+  const label = GetMessage(props.field);
+  const help = getHelp(props.field);
+  const defaultSetting = getDefaultSetting(props.field);
 
-  const value = getRecordString<SettingDto>(field, currentSettingRequest);
-  Logger.debug('getInputTextLine', { defaultSetting, field, value });
+  let value = '';
+  if (propertyExists(updateSettingRequest.Parameters, props.field)) {
+    value = getRecordString<UpdateSettingParameters>(props.field, updateSettingRequest.Parameters) ?? '';
+  } else {
+    value = getRecordString<UpdateSettingParameters>(props.field, currentSettingRequest) ?? '';
+  }
 
   return GetLine({
     defaultSetting,
@@ -33,16 +35,13 @@ export function getInputTextLine({ field, warning, currentSettingRequest, onChan
           disableDebounce
           label={label}
           labelInline
-          // labelInlineSmall={
-          //   defaultSetting === null || defaultSetting === undefined || defaultSetting === '' || help === null || help === undefined || help !== ''
-          // }
           onChange={(e) => {
-            e !== undefined && UpdateChanges({ currentSettingRequest, field, onChange, value: e });
+            e !== undefined && updateStateAndRequest?.({ [props.field]: e });
           }}
-          value={currentSettingRequest ? getRecordString<SettingDto>(field, currentSettingRequest) : undefined}
+          value={value}
         />
 
-        {warning !== null && warning !== undefined && <span className="text-xs text-orange-500">{warning}</span>}
+        {props.warning !== null && props.warning !== undefined && <span className="text-xs text-orange-500">{props.warning}</span>}
       </div>
     )
   });
