@@ -7,8 +7,9 @@ import React, { useRef, useState } from 'react';
 import SMChannelDialog, { SMChannelDialogRef } from './SMChannelDialog';
 
 const CreateSMChannelDialog = () => {
-  const dataKey = 'SMChannelSMStreamDialog';
+  const dataKey = 'CreateSMChannelDialog';
   const { selectedItems, setSelectedItems } = useSelectedItems<SMStreamDto>(dataKey);
+
   const [saveEnabled, setSaveEnabled] = useState<boolean>(false);
   const smDialogRef = useRef<SMChannelDialogRef>(null);
   const popUpRef = useRef<SMPopUpRef>(null);
@@ -59,7 +60,7 @@ const CreateSMChannelDialog = () => {
         </div>
       }
     >
-      <SMChannelDialog ref={smDialogRef} onSave={onSave} onSaveEnabled={setSaveEnabled} />
+      <SMChannelDialog dataKey={dataKey} ref={smDialogRef} onSave={onSave} onSaveEnabled={setSaveEnabled} />
     </SMPopUp>
   );
 };

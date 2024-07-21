@@ -68,7 +68,6 @@ public class StreamManager(IStreamHandlerFactory streamHandlerFactory, IClientSt
 
                 // Clear the dictionary
                 _streamHandlers.Clear();
-
             }
             catch (Exception ex)
             {
@@ -95,9 +94,9 @@ public class StreamManager(IStreamHandlerFactory streamHandlerFactory, IClientSt
 
         _ = _streamHandlers.TryGetValue(smStream.Url, out IStreamHandler? streamHandler);
 
-        if (streamHandler is not null && streamHandler.IsFailed == true)
+        if (streamHandler?.IsFailed == true)
         {
-            StopAndUnRegisterHandler(smStream.Url);
+            _ = StopAndUnRegisterHandler(smStream.Url);
             _ = _streamHandlers.TryGetValue(smStream.Url, out streamHandler);
         }
 
@@ -120,31 +119,10 @@ public class StreamManager(IStreamHandlerFactory streamHandlerFactory, IClientSt
         logger.LogInformation("Reusing handler for stream: {Id} {name}", smStream.Id, smStream.Name);
         return streamHandler;
     }
-    //private async Task<IStreamHandler?> CreateStreamHandler(IChannelStatus channelStatus, CancellationToken cancellation)
-    //{
-
-    //    IStreamHandler? streamHandler = await streamHandlerFactory.CreateStreamHandlerAsync(channelStatus, cancellation);
-
-    //    return streamHandler;
-    //}
 
     private void StreamHandler_OnStreamingStoppedEvent(object? sender, StreamHandlerStopped StoppedEvent)
     {
-        //if (sender is not null and IStreamHandler streamHandler)
-        //{
-        //    //if (StoppedEvent.InputStreamError )
-        //    //{
-        //    //    OnStreamingStoppedEvent?.Invoke(sender, streamHandler);
-        //    //}
-        //    //else
-        //    //{
-        //    //    OnStreamingStoppedEvent?.Invoke(sender, streamHandler);
-        //    //}
-        //    //streamHandler.UnRegisterAllClientStreamers();
-        //    //streamHandler.Stop();
-        //    //StopAndUnRegisterHandler(streamHandler.SMStream.Url);
-        //    OnStreamingStoppedEvent?.Invoke(sender, StoppedEvent);
-        //}
+
         OnStreamingStoppedEvent?.Invoke(sender, StoppedEvent);
     }
 
@@ -158,8 +136,6 @@ public class StreamManager(IStreamHandlerFactory streamHandlerFactory, IClientSt
     {
         return _streamHandlers.Values.FirstOrDefault(x => x.SMStream.Url == streamUrl);
     }
-
-
     public int GetStreamsCountForM3UFile(int m3uFileId)
     {
         return _streamHandlers.Count(x => x.Value.SMStream.M3UFileId == m3uFileId);
@@ -169,42 +145,6 @@ public class StreamManager(IStreamHandlerFactory streamHandlerFactory, IClientSt
     {
         return _streamHandlers.Values == null ? ([]) : ([.. _streamHandlers.Values]);
     }
-
-    //public async Task MoveClientStreamers(IStreamHandler oldStreamHandler, IStreamHandler newStreamHandler, CancellationToken cancellationToken = default)
-    //{
-    //    List<ClientStreamerConfiguration> configs = oldStreamHandler.GetClientStreamerClientIdConfigs.ToList();
-
-    //    if (!configs.Any())
-    //    {
-    //        return;
-    //    }
-
-    //    logger.LogInformation("Moving clients {count} from {OldStreamUrl} to {NewStreamUrl}", configs.Count(), oldStreamHandler.SMStream.ProfileName, newStreamHandler.SMStream.ProfileName);
-
-    //    AddClientsToHandler(configs, newStreamHandler);
-
-    //    foreach (ClientStreamerConfiguration? streamerConfiguration in configs)
-    //    {
-
-    //        if (streamerConfiguration == null)
-    //        {
-    //            logger.LogError("Error registering stream configuration for client {ClientId}, streamerConfiguration null.", streamerConfiguration.ClientId);
-    //            return;
-    //        }
-
-
-    //        _ = oldStreamHandler.UnRegisterClientStreamer(streamerConfiguration.ClientId);
-
-    //    }
-
-
-    //    if (oldStreamHandler.ClientCount == 0)
-    //    {
-    //        //await Task.Delay(100);
-    //        StopAndUnRegisterHandler(oldStreamHandler.SMStream.Url);
-
-    //    }
-    //}
 
     public void AddClientsToHandler(List<ClientStreamerConfiguration> clientIds, IStreamHandler streamHandler)
     {
@@ -222,7 +162,6 @@ public class StreamManager(IStreamHandlerFactory streamHandlerFactory, IClientSt
 
             logger.LogDebug("Adding client {ClientId} {ReaderID} ", streamerConfiguration.ClientId, streamerConfiguration.ClientStream?.Id ?? Guid.NewGuid());
             streamHandler.RegisterClientStreamer(streamerConfiguration);
-
         }
         else
         {
@@ -245,7 +184,6 @@ public class StreamManager(IStreamHandlerFactory streamHandlerFactory, IClientSt
 
         logger.LogWarning("StopAndUnRegisterHandler {VideoStreamUrl} doesnt exist", VideoStreamUrl);
         return false;
-
     }
 
     public int UnRegisterClientStreamer(string url, Guid clientId, string SMChannelName)
@@ -256,13 +194,13 @@ public class StreamManager(IStreamHandlerFactory streamHandlerFactory, IClientSt
             return 0;
         }
 
-        streamHandler.UnRegisterClientStreamer(clientId);
+        _ = streamHandler.UnRegisterClientStreamer(clientId);
 
-        if (streamHandler.ClientCount == 0)
-        {
-            logger.LogInformation("No more clients, stopping streaming for {clientId} {name}", clientId, SMChannelName);
-            StopAndUnRegisterHandler(url);
-        }
+        //if (streamHandler.ClientCount == 0)
+        //{
+        //    logger.LogInformation("No more clients, stopping streaming for {clientId} {name}", clientId, SMChannelName);
+        //    _ = StopAndUnRegisterHandler(url);
+        //}
         return streamHandler.ClientCount;
     }
 }

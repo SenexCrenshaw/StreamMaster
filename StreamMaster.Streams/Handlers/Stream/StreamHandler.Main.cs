@@ -100,12 +100,7 @@ public sealed partial class StreamHandler : IStreamHandler
     public void Stop(bool inputStreamError = false)
     {
         SetFailed();
-        //streamStreamingStatisticsManager.UnRegisterStream(SMStream.Id);
-        //foreach (Guid clientUrl in clientStreamerConfigs.Keys)
-        //{
-        //    UnRegisterClientStreamer(clientUrl);
-        //}
-        //clientStreamerConfigs = new();
+
         if (VideoStreamingCancellationToken?.IsCancellationRequested == false)
         {
             VideoStreamingCancellationToken.Cancel();
@@ -116,7 +111,7 @@ public sealed partial class StreamHandler : IStreamHandler
 
             try
             {
-                ProcessHelper.KillProcessById(ProcessId);
+                _ = ProcessHelper.KillProcessById(ProcessId);
 
             }
             catch (Exception ex)
@@ -152,7 +147,7 @@ public sealed partial class StreamHandler : IStreamHandler
     {
         foreach (Guid key in clientStreamerConfigs.Keys)
         {
-            UnRegisterClientStreamer(key);
+            _ = UnRegisterClientStreamer(key);
         }
     }
 

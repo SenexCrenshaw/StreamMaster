@@ -36,7 +36,7 @@ public sealed class ChannelManager : IChannelManager
     {
         if (sender is not null and IStreamHandler streamHandler)
         {
-            streamHandler.Stop();
+            //streamHandler.Stop();
 
             logger.LogInformation("Streaming Stopped Event for StreamId: {StreamId} {ChannelName} {StreamName}", streamHandler.SMStream.Id, streamHandler.SMChannel.Name, streamHandler.SMChannel.Name);
 
@@ -75,7 +75,7 @@ public sealed class ChannelManager : IChannelManager
 
             if (streamHandler.ClientCount == 0)
             {
-                streamManager.StopAndUnRegisterHandler(streamHandler.SMStream.Url);
+                _ = streamManager.StopAndUnRegisterHandler(streamHandler.SMStream.Url);
 
             }
 
@@ -206,16 +206,14 @@ public sealed class ChannelManager : IChannelManager
     {
         try
         {
-            //await _registerSemaphore.WaitAsync();
-
-            if (clientStreamerManager.HasClient(config.ClientId))
-            {
-                await messageService.SendInfo($"Client Exited from {config.SMChannel.Name}", "Client Exited");
-                await clientStreamerManager.UnRegisterClient(config.ClientId);
-            }
 
             logger.LogInformation("UnRegisterWithChannelManager client: {clientId}  {name}", config.ClientId, config.SMChannel.Name);
 
+            if (clientStreamerManager.HasClient(config.ClientId))
+            {
+                await messageService.SendInfo("Client Stopped Watching", $"Client stopped watching {config.SMChannel.Name}");
+                await clientStreamerManager.UnRegisterClient(config.ClientId);
+            }
 
             if (!channelService.HasChannel(config.SMChannel.Id))
             {
@@ -226,21 +224,12 @@ public sealed class ChannelManager : IChannelManager
             IChannelStatus? channelStatus = channelService.GetChannelStatus(config.SMChannel.Id);
             if (channelStatus != null)
             {
-
-                IStreamHandler? StreamHandler = streamManager.GetStreamHandler(channelStatus.SMStream.Url);
-                if (StreamHandler == null)
-                {
-                    logger.LogError("UnRegisterWithChannelManager cannot find handler for {clientId}  {name}", config.ClientId, config.SMChannel.Name);
-                    return;
-                }
-
                 if (streamManager.UnRegisterClientStreamer(channelStatus.SMStream.Url, config.ClientId, config.SMChannel.Name) == 0)
                 {
                     logger.LogInformation("UnRegisterWithChannelManager No more clients, unregister channel {name}", config.SMChannel.Name);
 
                     channelService.UnRegisterChannel(config.SMChannel.Id);
                 }
-
             }
 
             logger.LogInformation("UnRegisterWithChannelManager Finished with client: {clientId}  {name}", config.ClientId, config.SMChannel.Name);

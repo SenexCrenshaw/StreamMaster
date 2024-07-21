@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../store';
 
 export interface SortInfo {
+  orderBy?: string;
   sortField?: string;
   sortOrder?: -1 | 0 | 1;
   typename: string;
@@ -53,13 +54,18 @@ export const useSortInfo = (typename: string) => {
   const dispatch: AppDispatch = useDispatch();
 
   const setSortInfo = (isSortInfo: { sortField?: string; sortOrder?: -1 | 0 | 1 }) => {
-    dispatch(
-      sortInfoSlice.actions.setSortInfo({
-        sortField: isSortInfo.sortField,
-        sortOrder: isSortInfo.sortOrder,
-        typename
-      })
-    );
+    const newValue = isSortInfo.sortField ? (isSortInfo.sortOrder === -1 ? `${isSortInfo.sortField} desc` : `${isSortInfo.sortField} asc`) : '';
+
+    dispatch((action) => {
+      action(
+        sortInfoSlice.actions.setSortInfo({
+          orderBy: newValue,
+          sortField: isSortInfo.sortField,
+          sortOrder: isSortInfo.sortOrder,
+          typename
+        })
+      );
+    });
   };
 
   const sortInfo = useSelector((rootState: RootState) => rootState.sortInfo[typename]);

@@ -3,26 +3,17 @@ import { SMTriSelectShowHidden } from '@components/sm/SMTriSelectShowHidden';
 import SMDataTable from '@components/smDataTable/SMDataTable';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 import { Logger } from '@lib/common/logger';
-
 import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
 import { useShowHidden } from '@lib/redux/hooks/showHidden';
 import { RemoveSMStreamFromSMChannel, SetSMStreamRanks } from '@lib/smAPI/SMChannelStreamLinks/SMChannelStreamLinksCommands';
-import useGetSMChannelStreams from '@lib/smAPI/SMChannelStreamLinks/useGetSMChannelStreams';
-import {
-  GetSMChannelStreamsRequest,
-  RemoveSMStreamFromSMChannelRequest,
-  SMChannelDto,
-  SMChannelRankRequest,
-  SMStreamDto,
-  SetSMStreamRanksRequest
-} from '@lib/smAPI/smapiTypes';
+import { RemoveSMStreamFromSMChannelRequest, SetSMStreamRanksRequest, SMChannelDto, SMChannelRankRequest, SMStreamDto } from '@lib/smAPI/smapiTypes';
 import { DataTableValue } from 'primereact/datatable';
-import { ReactNode, memo, useCallback, useMemo } from 'react';
+import { memo, ReactNode, useCallback, useMemo } from 'react';
 
 interface SMChannelSMStreamDataSelectorProperties {
+  readonly dataKey: string;
   readonly enableEdit?: boolean;
   readonly height?: string;
-  readonly dataKey: string;
   readonly name: string | undefined;
   readonly smChannel?: SMChannelDto;
 }
@@ -30,16 +21,9 @@ interface SMChannelSMStreamDataSelectorProperties {
 const SMChannelSMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, dataKey, name, smChannel }: SMChannelSMStreamDataSelectorProperties) => {
   const { selectedItems, setSelectedItems } = useSelectedItems<SMStreamDto>(dataKey);
   const { showHidden } = useShowHidden(dataKey);
-  // const [enableEdit, setEnableEdit] = useState<boolean>(true);
-  const { data: smChannelData, isLoading: smChannelIsLoading } = useGetSMChannelStreams({ SMChannelId: smChannel?.Id } as GetSMChannelStreamsRequest);
+  // const { data: smChannelData, isLoading: smChannelIsLoading } = useGetSMChannelStreams({ SMChannelId: smChannel?.Id } as GetSMChannelStreamsRequest);
 
-  // useEffect(() => {
-  //   if (propsEnableEdit !== enableEdit) {
-  //     setEnableEdit(propsEnableEdit ?? true);
-  //   }
-  // }, [enableEdit, propsEnableEdit]);
-
-  Logger.debug('SMChannelSMStreamDataSelector', 'selectedItems', selectedItems);
+  // Logger.debug('SMChannelSMStreamDataSelector', selectedItems[0].Name, { dataKey, selectedItems: selectedItems });
 
   const actionTemplate = useCallback(
     (smStream: SMStreamDto) => (
@@ -57,7 +41,7 @@ const SMChannelSMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, da
                   console.error('Remove Stream', error.message);
                 });
             } else {
-              const newSelectedItems = selectedItems.filter((item) => item.Id !== smStream.Id);
+              const newSelectedItems = selectedItems.filter((item) => item.Id !== smStream.Id).sort((a, b) => a.Rank - b.Rank);
               setSelectedItems(newSelectedItems);
             }
           }}
@@ -79,8 +63,10 @@ const SMChannelSMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, da
   const columns = useMemo((): ColumnMeta[] => {
     const w = '12rem';
     const z = '4rem';
+    const x = '2rem';
 
     return [
+      { field: 'Rank', maxWidth: x, minWidth: x, width: x },
       { field: 'Name', maxWidth: w, minWidth: w, width: w },
       { field: 'M3UFileName', header: 'M3U', maxWidth: z, minWidth: z, width: z },
       {
@@ -95,61 +81,90 @@ const SMChannelSMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, da
     ];
   }, [actionTemplate, addOrRemoveHeaderTemplate]);
 
-  const getSMChannelData = useMemo(() => {
-    if (!smChannelData) {
-      return undefined;
+  const dataSource = useMemo(() => {
+    if (!smChannel || !smChannel.SMStreams) {
+      return [];
     }
-
-    if (showHidden === true) {
-      return smChannelData.filter((a: SMStreamDto) => a.IsHidden !== true);
+    try {
+      const toRet = [...smChannel.SMStreams];
+      const smChannelData = toRet.sort((a, b) => a.Rank - b.Rank);
+      if (showHidden === true) {
+        return smChannelData.filter((a: SMStreamDto) => a.IsHidden !== true);
+      }
+      if (showHidden === false) {
+        return smChannelData.filter((a: SMStreamDto) => a.IsHidden === true);
+      }
+      return smChannelData;
+    } catch (e) {
+      console.error(e);
     }
+  }, [showHidden, smChannel]);
 
-    if (showHidden === false) {
-      return smChannelData.filter((a: SMStreamDto) => a.IsHidden === true);
-    }
-
-    return smChannelData;
-  }, [showHidden, smChannelData]);
-
+  //EDIT MODE
   if (smChannel) {
+    if (!smChannel?.SMStreams) {
+      return null;
+    }
+
+    if (!smChannel.SMStreams || !Array.isArray(smChannel.SMStreams)) {
+      return null;
+    }
+
+    // Logger.debug('SMChannelSMStreamDataSelector', dataKey, smChannel.Name, { data: smChannel.SMStreams });
     return (
       <SMDataTable
         columns={columns}
+        dataSource={dataSource}
         defaultSortField="Rank"
         defaultSortOrder={1}
-        reorderable
+        emptyMessage="No Streams"
+        enablePaginator
+        headerClassName="header-text-channels"
+        headerName="ACTIVE STREAMS s"
+        id={dataKey}
+        // isLoading={smChannelIsLoading}
         onRowReorder={(event: DataTableValue[]) => {
           const channels = [...(event as unknown as SMStreamDto[])];
 
-          const tosend: SMChannelRankRequest[] = channels.map((item, index) => {
+          const updatedChannels = channels.map((item, index) => {
+            return {
+              ...item,
+              Rank: index
+            };
+          });
+
+          const tosend: SMChannelRankRequest[] = updatedChannels.map((item, index) => {
             return { Rank: index, SMChannelId: smChannel.Id, SMStreamId: item.Id } as SMChannelRankRequest;
           });
+
           SetSMStreamRanks({ Requests: tosend } as SetSMStreamRanksRequest)
             .then((response) => {
-              console.log('SetSMStreamRanks', response);
+              // console.log('SetSMStreamRanks', response);
+              setSelectedItems(updatedChannels);
             })
             .catch((error) => {
-              console.error('SetSMStreamRanks', error.message);
+              Logger.error('SetSMStreamRanks', error.message);
             });
         }}
-        dataSource={getSMChannelData}
-        enablePaginator
-        emptyMessage="No Streams"
-        headerName="ACTIVE STREAMS"
-        headerClassName="header-text-channels"
-        isLoading={smChannelIsLoading}
-        id={dataKey}
+        reorderable
         style={{ height: height ?? 'calc(100vh - 100px)' }}
       />
     );
   }
-  Logger.debug('SMChannelSMStreamDataSelector', 'selectedItems', selectedItems);
+
+  // Logger.debug('SMChannelSMStreamDataSelector', { dataKey, selectedItem: selectedItems[0], selectedItems: selectedItems });
   return (
     <SMDataTable
       columns={columns}
       defaultSortField="Rank"
       defaultSortOrder={1}
-      reorderable
+      dataSource={selectedItems}
+      enablePaginator
+      emptyMessage="No Streams"
+      headerName="ACTIVE STREAMS"
+      headerClassName="header-text-channels"
+      isLoading={false}
+      id={dataKey}
       onRowReorder={(event: DataTableValue[]) => {
         const channels = [...(event as unknown as SMStreamDto[])];
         const updatedChannels = channels.map((item, index) => {
@@ -161,13 +176,7 @@ const SMChannelSMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, da
 
         setSelectedItems(updatedChannels);
       }}
-      dataSource={selectedItems}
-      enablePaginator
-      emptyMessage="No Streams"
-      headerName="ACTIVE STREAMS"
-      headerClassName="header-text-channels"
-      isLoading={false}
-      id={dataKey}
+      reorderable
       style={{ height: height ?? 'calc(100vh - 100px)' }}
     />
   );

@@ -6,12 +6,14 @@ import StringEditor from '@components/inputs/StringEditor';
 import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
 import useGetStationChannelNames from '@lib/smAPI/SchedulesDirect/useGetStationChannelNames';
 import { SMChannelDto, SMStreamDto, StationChannelName, UpdateSMChannelRequest } from '@lib/smAPI/smapiTypes';
-import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useState } from 'react';
-import SMChannelSMStreamDialog from './SMChannelSMStreamDialog';
+import React, { forwardRef, Suspense, useCallback, useEffect, useImperativeHandle, useMemo, useState } from 'react';
 import StreamingProxyTypeSelector from './CommandProfileNameSelector';
 
+const SMChannelSMStreamDialog = React.lazy(() => import('./SMChannelSMStreamDialog'));
+
 interface SMChannelDialogProperties {
-  onSave: (request: UpdateSMChannelRequest) => void;
+  readonly dataKey: string;
+  readonly onSave: (request: UpdateSMChannelRequest) => void;
   readonly onSaveEnabled?: (saveEnabled: boolean) => void;
   readonly smChannel?: SMChannelDto;
 }
@@ -21,11 +23,9 @@ export interface SMChannelDialogRef {
   reset: () => void;
 }
 
-const SMChannelDialog = forwardRef<SMChannelDialogRef, SMChannelDialogProperties>(({ smChannel, onSaveEnabled, onSave }, ref) => {
-  const dataKey = 'SMChannelSMStreamDialog';
+const SMChannelDialog = forwardRef<SMChannelDialogRef, SMChannelDialogProperties>(({ dataKey, onSave, onSaveEnabled, smChannel }, ref) => {
   const { selectedItems } = useSelectedItems<SMStreamDto>(dataKey);
   const [tempSMChannel, setTempSMChannel] = useState<SMChannelDto | undefined>(undefined);
-
   const query = useGetStationChannelNames();
   const [request, setRequest] = useState<UpdateSMChannelRequest>({} as UpdateSMChannelRequest);
   const [stationChannelName, setStationChannelName] = useState<StationChannelName | undefined>(undefined);
@@ -205,7 +205,9 @@ const SMChannelDialog = forwardRef<SMChannelDialogRef, SMChannelDialogProperties
         <div className="layout-padding-bottom-lg sm-headerBg" />
       </div>
       <div className="layout-padding-bottom-lg sm-bgColor" />
-      <SMChannelSMStreamDialog dataKey={dataKey} name={request.Name} smChannel={smChannel} />
+      <Suspense>
+        <SMChannelSMStreamDialog dataKey={dataKey} name={request.Name} smChannel={smChannel} />
+      </Suspense>
     </>
   );
 });

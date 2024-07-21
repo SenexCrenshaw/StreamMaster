@@ -1,5 +1,4 @@
 ﻿using StreamMaster.Domain.Extensions;
-using StreamMaster.PlayList.Models;
 using StreamMaster.Streams.Buffers;
 
 using System.Diagnostics;
@@ -51,9 +50,6 @@ namespace StreamMaster.Streams.Streams
             }
         }
 
-        public async Task StartVideoStreamingAsync(CustomPlayList customPlayList)
-        {
-        }
 
         public async Task StartVideoStreamingAsync(Stream stream)
         {

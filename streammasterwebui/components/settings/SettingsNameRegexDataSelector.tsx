@@ -1,8 +1,8 @@
+import SMDataTable from '@components/smDataTable/SMDataTable';
+import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 import React from 'react';
 import ProfileNameRegexAddDialog from './SettingsNameRegexAddDialog';
 import SettingsNameRegexDeleteDialog from './SettingsNameRegexDeleteDialog';
-import SMDataTable from '@components/smDataTable/SMDataTable';
-import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 
 interface RankedString {
   rank: number;
@@ -64,7 +64,7 @@ const SettingsNameRegexDataSelector = (props: SettingsNameRegexDataSelectorPrope
       <SMDataTable
         columns={sourceColumns}
         dataSource={dataSource}
-        defaultSortField="rank"
+        defaultSortField="Rank"
         emptyMessage="No Data"
         id="SettingsNameRegexDataSelector"
         reorderable

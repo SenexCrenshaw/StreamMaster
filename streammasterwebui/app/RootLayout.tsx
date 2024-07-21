@@ -44,7 +44,9 @@ export const RootLayout = (): JSX.Element => {
     const persistData = localStorage.getItem(persistKey);
 
     if (persistData === null) {
-      setSortInfo({ sortField: 'isSelected', sortOrder: sortInfo.sortOrder });
+      if (sortInfo?.sortOrder !== undefined) {
+        setSortInfo({ sortField: 'isSelected', sortOrder: sortInfo.sortOrder });
+      }
     } else {
       try {
         const parsedData = JSON.parse(persistData);
@@ -55,7 +57,7 @@ export const RootLayout = (): JSX.Element => {
         setSortInfo({ sortField: 'isSelected', sortOrder: 1 });
       }
     }
-  }, [setSortInfo]);
+  }, [setSortInfo, sortInfo]);
 
   useEffect(() => {
     if (!initialized.current) {

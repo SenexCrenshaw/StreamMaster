@@ -77,12 +77,12 @@ const SMStreamDataSelectorValue = ({ id, smChannel }: SMStreamDataSelectorValueP
         noSourceHeader
         reorderable
         columns={columns}
-        defaultSortField="rank"
+        defaultSortField="Rank"
         defaultSortOrder={1}
         dataSource={smChannel.SMStreams}
         emptyMessage="No Streams"
         headerName={GetMessage('streams').toUpperCase()}
-        // isLoading={isLoading}
+        id={dataKey}
         onRowReorder={(event: DataTableValue[]) => {
           const channels = event as unknown as SMStreamDto[];
           if (smChannel === undefined || channels === undefined) {
@@ -103,8 +103,8 @@ const SMStreamDataSelectorValue = ({ id, smChannel }: SMStreamDataSelectorValueP
 
           console.log('tosend', tosend);
         }}
-        id={dataKey}
-        selectedItemsKey={'SMStreamDataSelectorValue-selectSelectedSMStreamDtoItems'}
+
+        // selectedItemsKey={'SMStreamDataSelectorValue-selectSelectedSMStreamDtoItems'}
       />
     </div>
   );

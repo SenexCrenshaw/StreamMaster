@@ -22,6 +22,7 @@ public static class ConfigureServices
         _ = services.AddSingleton<IChannelStreamingStatisticsManager, ChannelStreamingStatisticsManager>();
         _ = services.AddSingleton<IStreamStreamingStatisticsManager, StreamStreamingStatisticsManager>();
         _ = services.AddSingleton<IStreamManager, StreamManager>();
+        _ = services.AddSingleton<ICommandExecutor, CommandExecutor>();
         //_ = services.AddScoped<IOverlayStreamGenerator, OverlayStreamGenerator>();
         _ = services.AddSingleton<IHLSManager, HLSManager>();
 

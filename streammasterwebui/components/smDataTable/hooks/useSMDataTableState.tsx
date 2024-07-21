@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { useSelectAll } from '@lib/redux/hooks/selectAll';
 import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
 import { useShowHidden } from '@lib/redux/hooks/showHidden';
-import { useSortInfo } from '@lib/redux/hooks/sortInfo';
+import { SortInfo, useSortInfo } from '@lib/redux/hooks/sortInfo';
 
 import { useFilters } from '@lib/redux/hooks/filters';
 import { useIsTrue } from '@lib/redux/hooks/isTrue';
@@ -36,7 +36,10 @@ const SMDataTableState = <T extends DataTableValue>(id: string, selectedItemsKey
   const [expandedRows, setExpandedRows] = useState<DataTableExpandedRows>();
 
   const setSortField = (value: string) => {
-    setSortInfo({ sortField: value });
+    setSortInfo((prev: SortInfo) => ({
+      ...prev,
+      sortField: value
+    }));
   };
 
   const setSortOrder = (value: -1 | 0 | 1) => {
@@ -80,6 +83,7 @@ const SMDataTableState = <T extends DataTableValue>(id: string, selectedItemsKey
       showSelections,
       smTableIsSimple,
       sortField,
+      sortInfo,
       sortOrder,
       visibleColumns
     }

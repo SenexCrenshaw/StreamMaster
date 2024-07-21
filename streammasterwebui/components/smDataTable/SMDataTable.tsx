@@ -4,6 +4,7 @@ import { SMTriSelectShowHidden } from '@components/sm/SMTriSelectShowHidden';
 import { SMTriSelectShowSelect } from '@components/sm/SMTriSelectShowSelect';
 import { SMTriSelectShowSelected } from '@components/sm/SMTriSelectShowSelected';
 import generateFilterData from '@components/smDataTable/helpers/generateFilterData';
+import useSelectedSMItems from '@features/streameditor/useSelectedSMItems';
 import { camel2title, isEmptyObject } from '@lib/common/common';
 import { useSMContext } from '@lib/signalr/SMProvider';
 import { PagedResponse, SMChannelDto } from '@lib/smAPI/smapiTypes';
@@ -34,8 +35,6 @@ import useSMDataSelectorValuesState from './hooks/useSMDataTableState';
 import { useSetQueryFilter } from './hooks/useSetQueryFilter';
 import { ColumnMeta } from './types/ColumnMeta';
 import { SMDataTableProps, SMDataTableRef } from './types/smDataTableInterfaces';
-import useSelectedSMItems from '@features/streameditor/useSelectedSMItems';
-import { Logger } from '@lib/common/logger';
 
 const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>, ref: React.Ref<SMDataTableRef<T>>) => {
   const { state, setters } = useSMDataSelectorValuesState<T>(props.id, props.selectedItemsKey);
@@ -48,6 +47,16 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>, ref: 
   const { data, isLoading } = props.queryFilter ? props.queryFilter(queryFilter) : { data: undefined, isLoading: false };
   const [dataSource, setDataSource] = useState<T[]>([]);
   const { setSelectedSMChannel } = useSelectedSMItems();
+
+  useEffect(() => {
+    if (!props.defaultSortField || state.sortInfo === undefined || state.sortInfo.sortField === undefined) {
+      return;
+    }
+
+    if (state.sortInfo.sortField !== props.defaultSortField) {
+      setters.setSortField(props.defaultSortField);
+    }
+  }, [props.defaultSortField, state.sortInfo]);
 
   useImperativeHandle(ref, () => ({
     clearExpanded() {
@@ -111,16 +120,6 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>, ref: 
       observer.disconnect();
     };
   }, []);
-
-  useEffect(() => {
-    if (!props.defaultSortField) {
-      return;
-    }
-
-    if ((!state.sortField || state.sortField === '') && state.sortField !== props.defaultSortField) {
-      setters.setSortField(props.defaultSortField);
-    }
-  }, [props.defaultSortField, setters, state.sortField]);
 
   useEffect(() => {
     if (!props.defaultSortOrder) {
