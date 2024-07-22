@@ -1,6 +1,4 @@
-﻿using StreamMaster.SchedulesDirect;
-
-namespace StreamMaster.Application.Settings.Commands;
+﻿namespace StreamMaster.Application.Settings.Commands;
 
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public class UpdateSettingParameters
@@ -9,6 +7,8 @@ public class UpdateSettingParameters
     public bool? BackupEnabled { get; set; }
     public int? BackupVersionsToKeep { get; set; }
     public int? BackupInterval { get; set; }
+
+    [TsProperty(ForceNullable = true)]
     public SDSettingsRequest? SDSettings { get; set; }
     public bool? ShowClientHostNames { get; set; }
     public string? AdminPassword { get; set; }
@@ -38,6 +38,8 @@ public class UpdateSettingParameters
     //public bool? EnablePrometheus { get; set; }
     public int? MaxLogFiles { get; set; }
     public int? MaxLogFileSizeMB { get; set; }
+
+    [TsProperty(ForceNullable = true)]
     public List<string>? NameRegex { get; set; } = [];
 }
 
@@ -55,16 +57,46 @@ public partial class UpdateSettingRequestHandler(
     private readonly Setting settings = intSettings.CurrentValue;
     private readonly SDSettings sdSettings = intsdsettings.CurrentValue;
 
-    public static void CopyNonNullFields(SDSettingsRequest source, SDSettings destination)
+    public async Task<UpdateSettingResponse> Handle(UpdateSettingRequest request, CancellationToken cancellationToken)
+    {
+        Setting currentSetting = settings;
+
+        bool needsLogOut = UpdateSetting(currentSetting, sdSettings, request);
+
+        Logger.LogInformation("UpdateSettingRequest");
+        SettingsHelper.UpdateSetting(currentSetting);
+
+        SettingDto ret = Mapper.Map<SettingDto>(currentSetting);
+        //await HubContext.Clients.All.SettingsUpdate(ret).ConfigureAwait(false);
+        //if (request.Parameters.SDSettings?.SDStationIds != null)
+        //{
+        //    await HubContext.Clients.All.SchedulesDirectsRefresh().ConfigureAwait(false);
+        //}
+
+        return new UpdateSettingResponse { Settings = ret, NeedsLogOut = needsLogOut };
+    }
+
+
+    private static void CopySDNonNullFields(SDSettingsRequest source, SDSettings destination)
     {
         if (source == null || destination == null)
         {
             return;
         }
 
+        if (source.PreferredLogoStyle != null)
+        {
+            destination.PreferredLogoStyle = source.PreferredLogoStyle;
+        }
+
+        if (source.AlternateLogoStyle != null)
+        {
+            destination.AlternateLogoStyle = source.AlternateLogoStyle;
+        }
+
         if (source.SeriesPosterArt.HasValue)
         {
-            destination.SeriesPosterArt = source.SeriesPosterArt.HasValue;
+            destination.SeriesPosterArt = source.SeriesPosterArt.Value;
         }
 
         if (source.SeriesWsArt.HasValue)
@@ -92,19 +124,9 @@ public partial class UpdateSettingRequestHandler(
             destination.AlternateSEFormat = source.AlternateSEFormat.Value;
         }
 
-        if (source.PrefixEpisodeDescription != null)
+        if (source.PrefixEpisodeDescription.HasValue)
         {
-            destination.PrefixEpisodeDescription = (bool)source.PrefixEpisodeDescription;
-        }
-
-        if (source.PrefixEpisodeTitle.HasValue)
-        {
-            destination.PrefixEpisodeTitle = source.PrefixEpisodeTitle.Value;
-        }
-
-        if (source.AlternateLogoStyle != null)
-        {
-            destination.AlternateLogoStyle = source.AlternateLogoStyle;
+            destination.PrefixEpisodeDescription = source.PrefixEpisodeDescription.Value;
         }
 
         if (source.PrefixEpisodeTitle.HasValue)
@@ -139,17 +161,22 @@ public partial class UpdateSettingRequestHandler(
 
         if (source.SDPassword != null)
         {
-            destination.SDPassword = source.SDPassword.GetSHA1Hash();
+            destination.SDPassword = source.SDPassword;
         }
 
-        if (!string.IsNullOrEmpty(source.SDPostalCode))
+        if (source.SDPostalCode != null)
         {
             destination.SDPostalCode = source.SDPostalCode;
         }
 
+        if (source.HeadendsToView != null)
+        {
+            destination.HeadendsToView = new List<HeadendToView>(source.HeadendsToView);
+        }
+
         if (source.SDStationIds != null)
         {
-            destination.SDStationIds = source.SDStationIds;
+            destination.SDStationIds = new List<StationIdLineup>(source.SDStationIds);
         }
 
         if (source.SeasonEventImages.HasValue)
@@ -188,25 +215,6 @@ public partial class UpdateSettingRequestHandler(
         }
     }
 
-    public async Task<UpdateSettingResponse> Handle(UpdateSettingRequest request, CancellationToken cancellationToken)
-    {
-        Setting currentSetting = settings;
-
-        bool needsLogOut = UpdateSetting(currentSetting, sdSettings, request);
-
-        Logger.LogInformation("UpdateSettingRequest");
-        SettingsHelper.UpdateSetting(currentSetting);
-
-        SettingDto ret = Mapper.Map<SettingDto>(currentSetting);
-        //await HubContext.Clients.All.SettingsUpdate(ret).ConfigureAwait(false);
-        //if (request.Parameters.SDSettings?.SDStationIds != null)
-        //{
-        //    await HubContext.Clients.All.SchedulesDirectsRefresh().ConfigureAwait(false);
-        //}
-
-        return new UpdateSettingResponse { Settings = ret, NeedsLogOut = needsLogOut };
-    }
-
     /// <summary>
     /// Updates the current setting based on the provided request.Parameters.
     /// </summary>
@@ -229,7 +237,7 @@ public partial class UpdateSettingRequestHandler(
 
         if (request.Parameters.SDSettings != null)
         {
-            CopyNonNullFields(request.Parameters.SDSettings, sdsettings);
+            CopySDNonNullFields(request.Parameters.SDSettings, sdsettings);
             SettingsHelper.UpdateSetting(sdsettings);
         }
 

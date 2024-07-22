@@ -11,7 +11,7 @@ import { GetInputTextLine } from './components/GetInputTextLine';
 import { GetPasswordLine } from './components/GetPasswordLine';
 
 export function SDSettings(): React.ReactElement {
-  const { currentSettingRequest } = useSettingsContext();
+  const { currentSetting } = useSettingsContext();
 
   const getLogoStyleOptions = (): SelectItem[] => {
     var options = ['Dark', 'Gray', 'Light', 'White'];
@@ -55,7 +55,7 @@ export function SDSettings(): React.ReactElement {
     return test;
   };
 
-  if (currentSettingRequest === null || currentSettingRequest === undefined) {
+  if (currentSetting === null || currentSetting === undefined) {
     return (
       <Fieldset className="mt-4 pt-10" legend={GetMessage('SD')}>
         <div className="text-center">{GetMessage('loading')}</div>

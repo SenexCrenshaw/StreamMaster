@@ -13,21 +13,19 @@ import { GetPasswordLine } from './components/GetPasswordLine';
 
 export function AuthenticationSettings(): React.ReactElement {
   const { settings } = useSMContext();
-  const { currentSettingRequest } = useSettingsContext();
+  const { currentSetting } = useSettingsContext();
 
   const adminUserNameError = useMemo((): string | undefined => {
-    if (currentSettingRequest?.AuthenticationMethod !== 'None' && currentSettingRequest?.AdminUserName === '')
-      return GetMessage('formsAuthRequiresAdminUserName');
+    if (currentSetting?.AuthenticationMethod !== 'None' && currentSetting?.AdminUserName === '') return GetMessage('formsAuthRequiresAdminUserName');
 
     return undefined;
-  }, [currentSettingRequest]);
+  }, [currentSetting]);
 
   const adminPasswordError = useMemo((): string | undefined => {
-    if (currentSettingRequest?.AuthenticationMethod !== 'None' && currentSettingRequest?.AdminPassword === '')
-      return GetMessage('formsAuthRequiresAdminPassword');
+    if (currentSetting?.AuthenticationMethod !== 'None' && currentSetting?.AdminPassword === '') return GetMessage('formsAuthRequiresAdminPassword');
 
     return undefined;
-  }, [currentSettingRequest]);
+  }, [currentSetting]);
 
   const getAuthTypeOptions = (): SelectItem[] => {
     const options = Object.keys(AuthenticationType)
@@ -40,7 +38,7 @@ export function AuthenticationSettings(): React.ReactElement {
     return options;
   };
 
-  if (currentSettingRequest === null || currentSettingRequest === undefined) {
+  if (currentSetting === null || currentSetting === undefined) {
     return (
       <Fieldset className="mt-4 pt-10" legend={GetMessage('SD')}>
         <div className="text-center">{GetMessage('loading')}</div>
@@ -54,10 +52,9 @@ export function AuthenticationSettings(): React.ReactElement {
         {/* {getInputTextLine({  field: 'ApiKey', onChange })} */}
         {GetDropDownLine({ field: 'AuthenticationMethod', options: getAuthTypeOptions() })}
         {GetInputTextLine({ field: 'AdminUserName', warning: adminUserNameError })}
-        {GetPasswordLine({ field: 'AdminPassword', warning: adminPasswordError })}
+        {GetPasswordLine({ field: 'AdminPassword', warning: adminPasswordError, labelInline: true })}
         <div className="flex w-12 settings-line justify-content-end align-items-center">
-          <div className="w-2 text-right pr-2">{GetMessage('signout')}</div>
-          <div className="w-2">
+          <div className="w-3">
             <SMButton
               buttonDisabled={!settings.AuthenticationMethod || settings.AuthenticationMethod === 'None'}
               icon="pi-check"

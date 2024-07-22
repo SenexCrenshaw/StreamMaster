@@ -29,6 +29,8 @@ public class BaseSettings
     public int MaxLogFileSizeMB { get; set; } = 1;
     public int MaxLogFiles { get; set; } = 10;
     public int MaxStreamReStart { get; set; } = 3;
+
+    [TsProperty(ForceNullable = true)]
     public List<string> NameRegex { get; set; } = [];
     public bool PrettyEPG { get; set; } = false;
     public bool ShowClientHostNames { get; set; }

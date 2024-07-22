@@ -150,6 +150,14 @@
   background-color: $headerBg;
 }
 
+.p-password-input.p-inputtext.p-component {
+  @extend .sm-input-border;
+  max-height: 1.2rem;
+  height: 1.2rem;
+  min-height: 1.2rem;
+
+}
+
 .p-inputgroup {
   height: $datatable-row-height;
   padding: 0;

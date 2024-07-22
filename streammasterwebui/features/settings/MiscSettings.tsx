@@ -10,8 +10,8 @@ import { GetInputTextLine } from './components/GetInputTextLine';
 
 export function MiscSettings(): React.ReactElement {
   const settingsQuery = useGetSettings();
-  const { currentSettingRequest } = useSettingsContext();
-  if (currentSettingRequest === null || currentSettingRequest === undefined) {
+  const { currentSetting } = useSettingsContext();
+  if (currentSetting === null || currentSetting === undefined) {
     return (
       <Fieldset className="mt-4 pt-10" legend={GetMessage('SD')}>
         <div className="text-center">{GetMessage('loading')}</div>

@@ -20,8 +20,12 @@ public class SDSettingsRequest
     public string? SDCountry { get; set; }
     public string? SDPassword { get; set; }
     public string? SDPostalCode { get; set; }
-    public List<HeadendToView>? HeadendsToView { get; set; } = [];
+
+    [TsProperty(ForceNullable = true)]
+    public List<HeadendToView>? HeadendsToView { get; set; }
+    [TsProperty(ForceNullable = true)]
     public List<StationIdLineup>? SDStationIds { get; set; }
+
     public bool? SeasonEventImages { get; set; }
     public bool? XmltvAddFillerData { get; set; }
     //public string? XmltvFillerProgramDescription { get; set; }

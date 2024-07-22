@@ -1,11 +1,12 @@
 import SMDropDown from '@components/sm/SMDropDown';
 import { GetMessage } from '@lib/common/intl';
+import { propertyExists } from '@lib/common/propertyExists';
 import { useSettingsContext } from '@lib/context/SettingsProvider';
 import { getDefaultSetting } from '@lib/locales/default_setting';
 import { getHelp } from '@lib/locales/help_en';
-import { SettingDto } from '@lib/smAPI/smapiTypes';
+import { UpdateSettingParameters } from '@lib/smAPI/smapiTypes';
 import { SelectItem } from 'primereact/selectitem';
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useMemo } from 'react';
 import { SettingsInterface } from '../SettingsInterface';
 import { getRecordString } from '../SettingsUtils';
 import { GetLine } from './GetLine';
@@ -15,19 +16,25 @@ interface DropDownLineProps extends SettingsInterface {
 }
 
 export function GetDropDownLine({ ...props }: DropDownLineProps): React.ReactElement {
-  const { currentSettingRequest, updateStateAndRequest } = useSettingsContext();
+  const { currentSetting, updateStateAndRequest, updateSettingRequest } = useSettingsContext();
   const label = GetMessage(props.field);
   const help = getHelp(props.field);
   const defaultSetting = getDefaultSetting(props.field);
+
+  const getValue = useMemo(() => {
+    if (propertyExists(updateSettingRequest.Parameters, props.field)) {
+      return getRecordString<UpdateSettingParameters>(props.field, updateSettingRequest.Parameters) ?? '';
+    }
+
+    return getRecordString<UpdateSettingParameters>(props.field, currentSetting) ?? '';
+  }, [currentSetting, props.field, updateSettingRequest.Parameters]);
 
   const valueTemplate = (option: SelectItem): JSX.Element => {
     return <div className="text-xs text-container">{option?.label ?? ''}</div>;
   };
 
-  const value = currentSettingRequest ? getRecordString<SettingDto>(props.field, currentSettingRequest) : undefined;
-
   const buttonTemplate = (): ReactNode => {
-    var found = props.options.find((o) => o.label === value);
+    var found = props.options.find((o) => o.label?.toLowerCase() === getValue.toLowerCase());
     return <div className="text-container pl-1">{found?.label ?? 'NA'}</div>;
   };
 
@@ -47,12 +54,10 @@ export function GetDropDownLine({ ...props }: DropDownLineProps): React.ReactEle
           label={label}
           labelInline
           onChange={(e) => {
-            updateStateAndRequest?.({ [props.field]: e.label });
-            // var found = props.options.find((o) => o.label === e.label);
-            // found !== undefined && props.updateStateAndRequest?.({ [props.field]: found.label });
+            updateStateAndRequest({ [props.field]: e.label });
           }}
           title={label}
-          value={value}
+          value={getValue}
         />
       </div>
     )

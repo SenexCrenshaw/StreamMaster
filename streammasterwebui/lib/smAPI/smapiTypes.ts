@@ -283,7 +283,7 @@ export interface SettingDto
 	MaxLogFiles: number;
 	MaxLogFileSizeMB: number;
 	MaxStreamReStart: number;
-	NameRegex: string[];
+	NameRegex?: string[];
 	PrettyEPG: boolean;
 	Release: string;
 	SDSettings: SDSettings;

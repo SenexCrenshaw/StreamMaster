@@ -7900,14 +7900,14 @@
   color: #bcbfbf;
 }
 
-.sm-input-border, .icon-template img, .sm-streamingproxy-selector, .sm-list-container, .sm-streamgroupselector, #startNumber > input, .p-multiselect {
+.sm-input-border, .icon-template img, .sm-streamingproxy-selector, .sm-list-container, .sm-streamgroupselector, #startNumber > input, .p-password-input.p-inputtext.p-component, .p-multiselect {
   border-radius: 6px;
   border-color: #263238;
   border-width: 0.1rem;
   border-style: solid;
   transition: border-color 0.15s;
 }
-.sm-input-border:not(.p-disabled):hover:not(:focus), .icon-template img:not(.p-disabled):hover:not(:focus), .sm-streamingproxy-selector:not(.p-disabled):hover:not(:focus), .sm-list-container:not(.p-disabled):hover:not(:focus), .sm-streamgroupselector:not(.p-disabled):hover:not(:focus), #startNumber > input:not(.p-disabled):hover:not(:focus), .p-multiselect:not(.p-disabled):hover:not(:focus) {
+.sm-input-border:not(.p-disabled):hover:not(:focus), .icon-template img:not(.p-disabled):hover:not(:focus), .sm-streamingproxy-selector:not(.p-disabled):hover:not(:focus), .sm-list-container:not(.p-disabled):hover:not(:focus), .sm-streamgroupselector:not(.p-disabled):hover:not(:focus), #startNumber > input:not(.p-disabled):hover:not(:focus), .p-password-input.p-inputtext.p-component:not(.p-disabled):hover:not(:focus), .p-multiselect:not(.p-disabled):hover:not(:focus) {
   border-color: #bcbfbf;
   border-radius: 6px;
   border-style: solid;
@@ -8516,6 +8516,12 @@ div[aria-haspopup=dialog] {
 
 .p-checkbox-box {
   background-color: #21282c;
+}
+
+.p-password-input.p-inputtext.p-component {
+  max-height: 1.2rem;
+  height: 1.2rem;
+  min-height: 1.2rem;
 }
 
 .p-inputgroup {

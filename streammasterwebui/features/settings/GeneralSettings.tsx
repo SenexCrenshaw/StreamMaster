@@ -8,7 +8,7 @@ import { GetInputTextLine } from './components/GetInputTextLine';
 import { GetPasswordLine } from './components/GetPasswordLine';
 
 export function GeneralSettings(): React.ReactElement {
-  const { currentSettingRequest } = useSettingsContext();
+  const { currentSetting } = useSettingsContext();
   return (
     <BaseSettings title="GENERAL">
       <>
@@ -17,7 +17,7 @@ export function GeneralSettings(): React.ReactElement {
         {GetInputTextLine({ field: 'FFMPegExecutable' })}
         {GetInputTextLine({ field: 'FFProbeExecutable' })}
         {GetCheckBoxLine({ field: 'EnableSSL' })}
-        {currentSettingRequest?.EnableSSL === true && (
+        {currentSetting?.EnableSSL === true && (
           <>
             {GetInputTextLine({ field: 'SSLCertPath', warning: GetMessage('changesServiceRestart') })}
             {GetPasswordLine({
@@ -26,7 +26,7 @@ export function GeneralSettings(): React.ReactElement {
             })}
           </>
         )}
-        {/* {getCheckBoxLine({ currentSettingRequest, field: 'EnablePrometheus', onChange })} */}
+        {/* {getCheckBoxLine({ currentSetting, field: 'EnablePrometheus', onChange })} */}
         {GetInputNumberLine({ field: 'MaxLogFiles' })}
         {GetInputNumberLine({ field: 'MaxLogFileSizeMB' })}
       </>

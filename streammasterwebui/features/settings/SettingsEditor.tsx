@@ -21,26 +21,24 @@ import { SDSettings } from './SDSettings';
 import { StreamingSettings } from './StreamingSettings';
 
 const SettingsEditor = () => {
-  const { currentSettingRequest, setCurrentSettingRequest, updateSettingRequest, setUpdateSettingRequest } = useSettingsContext();
+  const { currentSetting, setCurrentSetting, updateSettingRequest, setUpdateSettingRequest } = useSettingsContext();
   const { isSystemReady, settings } = useSMContext();
   const getSettings = useGetSettings();
 
   const adminUserNameError = useMemo((): string | undefined => {
-    if (currentSettingRequest?.AuthenticationMethod !== 'None' && currentSettingRequest?.AdminUserName === '')
-      return GetMessage('formsAuthRequiresAdminUserName');
+    if (currentSetting?.AuthenticationMethod !== 'None' && currentSetting?.AdminUserName === '') return GetMessage('formsAuthRequiresAdminUserName');
 
     return undefined;
-  }, [currentSettingRequest?.AdminUserName, currentSettingRequest?.AuthenticationMethod]);
+  }, [currentSetting?.AdminUserName, currentSetting?.AuthenticationMethod]);
 
   const adminPasswordError = useMemo((): string | undefined => {
-    if (currentSettingRequest?.AuthenticationMethod !== 'None' && currentSettingRequest?.AdminPassword === '')
-      return GetMessage('formsAuthRequiresAdminPassword');
+    if (currentSetting?.AuthenticationMethod !== 'None' && currentSetting?.AdminPassword === '') return GetMessage('formsAuthRequiresAdminPassword');
 
     return undefined;
-  }, [currentSettingRequest?.AdminPassword, currentSettingRequest?.AuthenticationMethod]);
+  }, [currentSetting?.AdminPassword, currentSetting?.AuthenticationMethod]);
 
   const isSaveEnabled = useMemo((): boolean => {
-    if (currentSettingRequest?.EnableSSL === true && currentSettingRequest?.SSLCertPath === '') {
+    if (currentSetting?.EnableSSL === true && currentSetting?.SSLCertPath === '') {
       return false;
     }
 
@@ -53,7 +51,7 @@ const SettingsEditor = () => {
     }
 
     return true;
-  }, [currentSettingRequest, updateSettingRequest, adminUserNameError, adminPasswordError]);
+  }, [currentSetting, updateSettingRequest, adminUserNameError, adminPasswordError]);
 
   const onSave = useCallback(() => {
     if (!isSaveEnabled || !updateSettingRequest) {
@@ -68,24 +66,34 @@ const SettingsEditor = () => {
         console.error(error);
       })
       .finally(() => {
-        setCurrentSettingRequest({
-          ...currentSettingRequest,
+        var t = {
+          ...currentSetting,
           ...updateSettingRequest.Parameters
-        });
+        };
+
+        var sdSettings = {
+          ...currentSetting.SDSettings,
+          ...updateSettingRequest.Parameters.SDSettings
+        };
+
+        t.SDSettings = sdSettings;
+
+        Logger.debug('SettingsEditor', 'Updating settings', t);
+        setCurrentSetting(t);
         setUpdateSettingRequest({} as UpdateSettingRequest);
         getSettings.SetIsForced(true);
       });
-  }, [isSaveEnabled, updateSettingRequest, setCurrentSettingRequest, setUpdateSettingRequest, getSettings]);
+  }, [isSaveEnabled, updateSettingRequest, setCurrentSetting, currentSetting, setUpdateSettingRequest, getSettings]);
 
   const resetData = useCallback(() => {
     Logger.debug('SettingsEditor', 'Resetting data', settings.DeviceID);
     setUpdateSettingRequest({} as UpdateSettingRequest);
-    // setCurrentSettingRequest({ ...settings });
+    // setCurrentSetting({ ...settings });
     getSettings.SetIsForced(true);
   }, [getSettings, setUpdateSettingRequest, settings.DeviceID]);
 
   if (!isSystemReady) {
-    //|| settings === undefined || !propertyExists(currentSettingRequest, 'DeviceID')) {
+    //|| settings === undefined || !propertyExists(currentSetting, 'DeviceID')) {
     return <div>Loading</div>;
   }
 

@@ -15,7 +15,7 @@ interface PasswordLineProps extends SettingsInterface {
 }
 
 export function GetPasswordLine({ ...props }: PasswordLineProps): React.ReactElement {
-  const { currentSettingRequest, updateStateAndRequest } = useSettingsContext();
+  const { currentSetting, updateStateAndRequest } = useSettingsContext();
   const label = GetMessage(props.field);
   const help = getHelp(props.field);
   const defaultSetting = getDefaultSetting(props.field);
@@ -34,13 +34,13 @@ export function GetPasswordLine({ ...props }: PasswordLineProps): React.ReactEle
         <div className={`flex ${props.labelInline ? 'align-items-center' : 'flex-column align-items-start'}`}>
           {label && props.labelInline && <div className={props.labelInline ? 'w-4' : 'w-6'}>{label.toUpperCase()}</div>}
           <Password
-            className={'w-6'}
+            className="text-container sm-input"
             feedback
             onChange={(e) => {
               e !== undefined && updateStateAndRequest?.({ [props.field]: e });
             }}
             toggleMask
-            value={currentSettingRequest ? getRecordString<SettingDto>(props.field, currentSettingRequest) : undefined}
+            value={currentSetting ? getRecordString<SettingDto>(props.field, currentSetting) : undefined}
           />
           <br />
           {props.warning !== null && props.warning !== undefined && <span className="text-xs text-orange-500">{props.warning}</span>}

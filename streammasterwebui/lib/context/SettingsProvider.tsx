@@ -4,8 +4,8 @@ import { SettingDto, UpdateSettingParameters, UpdateSettingRequest } from '@lib/
 import React, { ReactNode, createContext, useCallback, useContext, useEffect, useState } from 'react';
 
 interface SettingsProviderState {
-  currentSettingRequest: SettingDto;
-  setCurrentSettingRequest: (setting: SettingDto) => void;
+  currentSetting: SettingDto;
+  setCurrentSetting: (setting: SettingDto) => void;
   updateSettingRequest: UpdateSettingRequest;
   setUpdateSettingRequest: (updateSettingRequest: UpdateSettingRequest) => void;
   updateStateAndRequest: (updatedFields: Partial<UpdateSettingParameters>) => void;
@@ -18,25 +18,54 @@ interface SettingsProviderProps {
 }
 
 export const SettingsProvider: React.FC<SettingsProviderProps> = ({ children }) => {
-  const [currentSettingRequest, setIntCurrentSettingRequest] = useState<SettingDto>({} as SettingDto);
+  const [currentSetting, setIntCurrentSetting] = useState<SettingDto>({} as SettingDto);
   const [updateSettingRequest, setUpdateSettingRequest] = useState<UpdateSettingRequest>({} as UpdateSettingRequest);
 
   const data = useGetSettings();
 
-  const setCurrentSettingRequest = useCallback((setting: SettingDto) => {
-    setIntCurrentSettingRequest(setting);
+  const setCurrentSetting = useCallback((setting: SettingDto) => {
+    setIntCurrentSetting(setting);
   }, []);
 
   useEffect(() => {
     if (data.data !== undefined) {
-      setCurrentSettingRequest(data.data);
+      setCurrentSetting(data.data);
       // setUpdateSettingRequest({} as UpdateSettingRequest);
     }
-  }, [data, setCurrentSettingRequest]);
+  }, [data, setCurrentSetting]);
 
   const updateStateAndRequest = useCallback(
     (updatedFields: Partial<UpdateSettingParameters>) => {
-      const updateSettingParameters = { ...updateSettingRequest.Parameters, ...updatedFields };
+      // Initialize the updateSettingParameters with existing settings and updated fields
+      const updateSettingParameters = {
+        ...updateSettingRequest.Parameters,
+        ...updatedFields,
+        SDSettings: updatedFields.SDSettings
+      };
+      // Get a list of updated fields including nested fields
+      const updatedFieldsList = getUpdatedFieldsList(updatedFields);
+
+      // Iterate over the updated fields to handle nested SDSettings updates
+      updatedFieldsList.forEach((field) => {
+        if (field.key.startsWith('SDSettings.')) {
+          Logger.debug('SettingsProvider', field.key, field.value);
+          const key = field.key.replace('SDSettings.', '');
+
+          // Ensure SDSettings object exists
+          if (!updateSettingParameters.SDSettings) {
+            updateSettingParameters.SDSettings = {};
+          }
+
+          // Type assertion for SDSettings object
+          (updateSettingParameters.SDSettings as any)[key] = field.value;
+        } else {
+          Logger.debug('SettingsProvider', field.key, field.value);
+
+          // Type assertion for updateSettingParameters object
+          (updateSettingParameters as any)[field.key] = field.value;
+        }
+      });
+
       Logger.debug('SettingsProvider', updateSettingParameters, { toSet: updatedFields });
 
       const request = {
@@ -48,9 +77,28 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({ children }) 
     [updateSettingRequest]
   );
 
+  // Utility function to return a list of { key, value } objects
+  function getUpdatedFieldsList(fields: any): { key: string; value: any }[] {
+    const updatedFieldsList: { key: string; value: any }[] = [];
+
+    function flattenObject(obj: any, prefix = '') {
+      for (const [key, value] of Object.entries(obj)) {
+        const newKey = prefix ? `${prefix}.${key}` : key;
+        if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+          flattenObject(value, newKey);
+        } else {
+          updatedFieldsList.push({ key: newKey, value });
+        }
+      }
+    }
+
+    flattenObject(fields);
+    return updatedFieldsList;
+  }
+
   const contextValue = {
-    currentSettingRequest: currentSettingRequest,
-    setCurrentSettingRequest: setCurrentSettingRequest,
+    currentSetting: currentSetting,
+    setCurrentSetting: setCurrentSetting,
     setUpdateSettingRequest: setUpdateSettingRequest,
     updateSettingRequest: updateSettingRequest,
     updateStateAndRequest: updateStateAndRequest

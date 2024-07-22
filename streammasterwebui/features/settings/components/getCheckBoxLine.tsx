@@ -13,7 +13,7 @@ import { GetLine } from './GetLine';
 interface CheckBoxLineProps extends SettingsInterface {}
 
 export function GetCheckBoxLine({ ...props }: CheckBoxLineProps): React.ReactElement {
-  const { currentSettingRequest, updateStateAndRequest, updateSettingRequest } = useSettingsContext();
+  const { currentSetting, updateStateAndRequest, updateSettingRequest } = useSettingsContext();
   const label = GetMessage(props.field);
   const help = getHelp(props.field);
   const defaultSetting = getDefaultSetting(props.field);
@@ -22,7 +22,7 @@ export function GetCheckBoxLine({ ...props }: CheckBoxLineProps): React.ReactEle
   if (propertyExists(updateSettingRequest.Parameters, props.field)) {
     value = getRecord<UpdateSettingParameters, boolean>(props.field, updateSettingRequest.Parameters) ?? false;
   } else {
-    value = getRecord<UpdateSettingParameters, boolean>(props.field, currentSettingRequest) ?? false;
+    value = getRecord<UpdateSettingParameters, boolean>(props.field, currentSetting) ?? false;
   }
 
   return GetLine({

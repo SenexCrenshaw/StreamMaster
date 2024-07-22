@@ -15,7 +15,7 @@ interface InputNumberLineProps extends SettingsInterface {
 }
 
 export function GetInputNumberLine({ ...props }: InputNumberLineProps): React.ReactElement {
-  const { currentSettingRequest, updateStateAndRequest } = useSettingsContext();
+  const { currentSetting, updateStateAndRequest } = useSettingsContext();
   const label = GetMessage(props.field);
   const help = getHelp(props.field);
   const defaultSetting = getDefaultSetting(props.field);
@@ -38,7 +38,7 @@ export function GetInputNumberLine({ ...props }: InputNumberLineProps): React.Re
             e !== undefined && updateStateAndRequest?.({ [props.field]: e });
           }}
           showButtons
-          value={currentSettingRequest ? getRecord<SettingDto, number>(props.field, currentSettingRequest) : undefined}
+          value={currentSetting ? getRecord<SettingDto, number>(props.field, currentSetting) : undefined}
         />
       </div>
     )
