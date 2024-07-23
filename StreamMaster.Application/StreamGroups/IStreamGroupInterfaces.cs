@@ -6,7 +6,7 @@ namespace StreamMaster.Application.StreamGroups;
 
 public interface IStreamGroupController
 {
-    Task<ActionResult<string?>> GetStreamGroupVideoStreamUrl(string VideoStreamId);
+    //Task<ActionResult<string?>> GetStreamGroupVideoStreamUrl(string VideoStreamId);
     Task<ActionResult> CreateStreamGroup(CreateStreamGroupRequest request);
 
     Task<ActionResult> DeleteStreamGroup(DeleteStreamGroupRequest request);

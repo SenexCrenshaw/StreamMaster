@@ -4,7 +4,7 @@ namespace StreamMaster.Application.StreamGroups.Commands;
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record CreateStreamGroupRequest(string Name, string? OutputProfileName, string? CommandProfileName) : IRequest<APIResponse>;
+public record CreateStreamGroupRequest(string Name, string? OutputProfileName, string? CommandProfileName, string? GroupKey) : IRequest<APIResponse>;
 
 [LogExecutionTimeAspect]
 public class CreateStreamGroupRequestHandler(IRepositoryWrapper Repository, IMessageService messageService, IOptionsMonitor<Setting> intSettings, IDataRefreshService dataRefreshService)
@@ -31,7 +31,8 @@ public class CreateStreamGroupRequestHandler(IRepositoryWrapper Repository, IMes
         StreamGroup streamGroup = new()
         {
             Name = request.Name,
-            DeviceID = UniqueHexGenerator.GenerateUniqueHex(generatedIdsDict)
+            DeviceID = UniqueHexGenerator.GenerateUniqueHex(generatedIdsDict),
+            GroupKey = request.GroupKey ?? Guid.NewGuid().ToString().Replace("-", "")
         };
 
         streamGroup.StreamGroupProfiles.Add(new StreamGroupProfile

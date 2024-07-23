@@ -1,16 +1,18 @@
 ﻿using AutoMapper;
 
+using MediatR;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-using StreamMaster.Domain.Authentication;
+using StreamMaster.Application.Crypto.Commands;
 using StreamMaster.Domain.Repository;
 using StreamMaster.Streams.Domain.Interfaces;
 using StreamMaster.Streams.Domain.Models;
 
 namespace StreamMaster.API.Controllers;
 
-public class VideoStreamsController(IChannelManager channelManager, IMapper mapper, IRepositoryWrapper repositoryWrapper, ILogger<VideoStreamsController> logger)
+public class VideoStreamsController(IChannelManager channelManager, ISender sender, IMapper mapper, IRepositoryWrapper repositoryWrapper, ILogger<VideoStreamsController> logger)
     : ApiControllerBase
 {
     [Authorize(Policy = "SGLinks")]
@@ -22,7 +24,8 @@ public class VideoStreamsController(IChannelManager channelManager, IMapper mapp
     [Route("stream/{encodedIds}/{name}")]
     public async Task<ActionResult> GetVideoStreamStream(string encodedIds, string name, CancellationToken cancellationToken)
     {
-        (int? streamGroupId, int? streamGroupProfileId, int? smChannelId) = encodedIds.DecodeThreeValuesAsString128(Settings.ServerKey);
+        (int? streamGroupId, int? streamGroupProfileId, int? smChannelId) = await sender.Send(new DecodeProfileIdSMChannelIdFromEncoded(encodedIds), cancellationToken);
+
         if (!streamGroupId.HasValue || !streamGroupProfileId.HasValue || !smChannelId.HasValue)
         {
             return new NotFoundResult();

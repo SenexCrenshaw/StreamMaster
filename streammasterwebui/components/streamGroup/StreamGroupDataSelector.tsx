@@ -77,6 +77,25 @@ const StreamGroupDataSelector = ({ id }: StreamGroupDataSelectorProperties) => {
     },
     [update]
   );
+  const groupKeyTemplate = useCallback(
+    (rowData: StreamGroupDto) => {
+      // if (rowData.IsReadOnly === true || rowData.Name.toLowerCase() === 'default') {
+      //   return <div className="text-container pl-1">{rowData.GroupKey}</div>;
+      // }
+      return (
+        <StringEditor
+          value={rowData.GroupKey}
+          onSave={(e) => {
+            if (e !== undefined) {
+              const ret = { GroupKey: e, StreamGroupId: rowData.Id } as UpdateStreamGroupRequest;
+              update(ret);
+            }
+          }}
+        />
+      );
+    },
+    [update]
+  );
 
   const columns = useMemo(
     (): ColumnMeta[] => [
@@ -85,7 +104,12 @@ const StreamGroupDataSelector = ({ id }: StreamGroupDataSelectorProperties) => {
         field: 'Name',
         filter: true,
         sortable: true,
-        width: 100
+        width: 70
+      },
+      {
+        bodyTemplate: groupKeyTemplate,
+        field: 'GroupKey',
+        width: 84
       },
       {
         align: 'right',
@@ -110,9 +134,6 @@ const StreamGroupDataSelector = ({ id }: StreamGroupDataSelectorProperties) => {
         width: 16
       },
       streamGroupDeviceIDColumnConfig,
-      // streamGroupStartChnColumnConfig,
-      // streamGroupAutoSetChannelNumbersColumnConfig,
-      // streamGroupIgnoreExistingChannelNumbersColumnConfig,
       {
         align: 'center',
         bodyTemplate: actionTemplate,
@@ -121,7 +142,7 @@ const StreamGroupDataSelector = ({ id }: StreamGroupDataSelectorProperties) => {
         width: 14
       }
     ],
-    [nameTemplate, streamGroupDeviceIDColumnConfig, actionTemplate]
+    [nameTemplate, groupKeyTemplate, streamGroupDeviceIDColumnConfig, actionTemplate]
   );
 
   return (

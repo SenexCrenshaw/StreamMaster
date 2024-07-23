@@ -6,6 +6,7 @@ import { setIsForced as GetChannelStreamingStatisticsSetIsForced } from '@lib/sm
 import { setIsForced as GetClientStreamingStatisticsSetIsForced } from '@lib/smAPI/Statistics/GetClientStreamingStatisticsSlice';
 import { setIsForced as GetCommandProfilesSetIsForced } from '@lib/smAPI/Profiles/GetCommandProfilesSlice';
 import { setIsForced as GetCustomPlayListsSetIsForced } from '@lib/smAPI/CustomPlayLists/GetCustomPlayListsSlice';
+import { setIsForced as GetDefaultStreamGroupProfileIdSetIsForced } from '@lib/smAPI/StreamGroups/GetDefaultStreamGroupProfileIdSlice';
 import { setIsForced as GetDownloadServiceStatusSetIsForced } from '@lib/smAPI/General/GetDownloadServiceStatusSlice';
 import { setIsForced as GetEPGColorsSetIsForced } from '@lib/smAPI/EPG/GetEPGColorsSlice';
 import { setIsForced as GetEPGFilesSetIsForced } from '@lib/smAPI/EPGFiles/GetEPGFilesSlice';
@@ -29,7 +30,6 @@ import { setIsForced as GetSubScribedHeadendsSetIsForced } from '@lib/smAPI/Sche
 import { setIsForced as GetSubscribedLineupsSetIsForced } from '@lib/smAPI/SchedulesDirect/GetSubscribedLineupsSlice';
 import { setIsForced as GetSystemStatusSetIsForced } from '@lib/smAPI/General/GetSystemStatusSlice';
 import { setIsForced as GetTaskIsRunningSetIsForced } from '@lib/smAPI/General/GetTaskIsRunningSlice';
-import { setIsForced as GetVideoStreamNamesAndUrlsSetIsForced } from '@lib/smAPI/Streaming/GetVideoStreamNamesAndUrlsSlice';
 
 export const DataRefreshAll = () => {
   store.dispatch(GetAvailableCountriesSetIsForced({ force: true }));
@@ -39,6 +39,7 @@ export const DataRefreshAll = () => {
   store.dispatch(GetClientStreamingStatisticsSetIsForced({ force: true }));
   store.dispatch(GetCommandProfilesSetIsForced({ force: true }));
   store.dispatch(GetCustomPlayListsSetIsForced({ force: true }));
+  store.dispatch(GetDefaultStreamGroupProfileIdSetIsForced({ force: true }));
   store.dispatch(GetDownloadServiceStatusSetIsForced({ force: true }));
   store.dispatch(GetEPGColorsSetIsForced({ force: true }));
   store.dispatch(GetEPGFilesSetIsForced({ force: true }));
@@ -62,5 +63,4 @@ export const DataRefreshAll = () => {
   store.dispatch(GetSubscribedLineupsSetIsForced({ force: true }));
   store.dispatch(GetSystemStatusSetIsForced({ force: true }));
   store.dispatch(GetTaskIsRunningSetIsForced({ force: true }));
-  store.dispatch(GetVideoStreamNamesAndUrlsSetIsForced({ force: true }));
 };

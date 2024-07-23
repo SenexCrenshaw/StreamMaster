@@ -1,12 +1,12 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import { Logger } from '@lib/common/logger';
-import {FieldData, IdNameUrl } from '@lib/smAPI/smapiTypes';
-import { fetchGetVideoStreamNamesAndUrls } from '@lib/smAPI/Streaming/GetVideoStreamNamesAndUrlsFetch';
+import {FieldData, StreamGroupProfile } from '@lib/smAPI/smapiTypes';
+import { fetchGetDefaultStreamGroupProfileId } from '@lib/smAPI/StreamGroups/GetDefaultStreamGroupProfileIdFetch';
 import { updateFieldInData } from '@lib/redux/updateFieldInData';
 
 
 interface QueryState {
-  data: IdNameUrl[] | undefined;
+  data: StreamGroupProfile | undefined;
   error: string | undefined;
   isError: boolean;
   isForced: boolean;
@@ -21,46 +21,46 @@ const initialState: QueryState = {
   isLoading: false
 };
 
-const getVideoStreamNamesAndUrlsSlice = createSlice({
+const getDefaultStreamGroupProfileIdSlice = createSlice({
   initialState,
-  name: 'GetVideoStreamNamesAndUrls',
+  name: 'GetDefaultStreamGroupProfileId',
   reducers: {
     clear: (state) => {
       state = initialState;
-      Logger.debug('GetVideoStreamNamesAndUrls clear');
+      Logger.debug('GetDefaultStreamGroupProfileId clear');
     },
 
     clearByTag: (state, action: PayloadAction<{ tag: string }>) => {
       state.data = undefined;
-      Logger.debug('GetVideoStreamNamesAndUrls clearByTag');
+      Logger.debug('GetDefaultStreamGroupProfileId clearByTag');
     },
 
     setField: (state, action: PayloadAction<{ fieldData: FieldData }>) => {
       const { fieldData } = action.payload;
       state.data = updateFieldInData(state.data, fieldData);
-      Logger.debug('GetVideoStreamNamesAndUrls setField');
+      Logger.debug('GetDefaultStreamGroupProfileId setField');
     },
     setIsForced: (state, action: PayloadAction<{ force: boolean }>) => {
       const { force } = action.payload;
       state.isForced = force;
       state.data = undefined;
-      Logger.debug('GetVideoStreamNamesAndUrls  setIsForced ', force);
+      Logger.debug('GetDefaultStreamGroupProfileId  setIsForced ', force);
     },
     setIsLoading: (state, action: PayloadAction<{isLoading: boolean }>) => {
       state.isLoading = action.payload.isLoading;
-      Logger.debug('GetVideoStreamNamesAndUrls setIsLoading ', action.payload.isLoading);
+      Logger.debug('GetDefaultStreamGroupProfileId setIsLoading ', action.payload.isLoading);
     }
 },
 
   extraReducers: (builder) => {
     builder
-      .addCase(fetchGetVideoStreamNamesAndUrls.pending, (state, action) => {
+      .addCase(fetchGetDefaultStreamGroupProfileId.pending, (state, action) => {
         state.isLoading = true;
         state.isError = false;
         state.error = undefined;
         state.isForced = false;
       })
-      .addCase(fetchGetVideoStreamNamesAndUrls.fulfilled, (state, action) => {
+      .addCase(fetchGetDefaultStreamGroupProfileId.fulfilled, (state, action) => {
         if (action.payload) {
           const { value } = action.payload;
           state.data = value ?? undefined;
@@ -71,7 +71,7 @@ const getVideoStreamNamesAndUrlsSlice = createSlice({
           state.isForced = false;
         }
       })
-      .addCase(fetchGetVideoStreamNamesAndUrls.rejected, (state, action) => {
+      .addCase(fetchGetDefaultStreamGroupProfileId.rejected, (state, action) => {
         state.error = action.error.message || 'Failed to fetch';
         state.isError = true;
         setIsLoading({ isLoading: false });
@@ -82,5 +82,5 @@ const getVideoStreamNamesAndUrlsSlice = createSlice({
   }
 });
 
-export const { clear, clearByTag, setIsLoading, setIsForced, setField } = getVideoStreamNamesAndUrlsSlice.actions;
-export default getVideoStreamNamesAndUrlsSlice.reducer;
+export const { clear, clearByTag, setIsLoading, setIsForced, setField } = getDefaultStreamGroupProfileIdSlice.actions;
+export default getDefaultStreamGroupProfileIdSlice.reducer;

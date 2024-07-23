@@ -1,11 +1,6 @@
 import { isSkipToken } from '@lib/common/isSkipToken';
 import SignalRService from '@lib/signalr/SignalRService';
-import { APIResponse,CancelAllChannelsRequest,CancelChannelRequest,CancelClientRequest,MoveToNextStreamRequest,IdNameUrl } from '@lib/smAPI/smapiTypes';
-
-export const GetVideoStreamNamesAndUrls = async (): Promise<IdNameUrl[] | undefined> => {
-  const signalRService = SignalRService.getInstance();
-  return await signalRService.invokeHubCommand<IdNameUrl[]>('GetVideoStreamNamesAndUrls');
-};
+import { APIResponse,CancelAllChannelsRequest,CancelChannelRequest,CancelClientRequest,MoveToNextStreamRequest } from '@lib/smAPI/smapiTypes';
 
 export const CancelAllChannels = async (): Promise<APIResponse | undefined> => {
   const signalRService = SignalRService.getInstance();

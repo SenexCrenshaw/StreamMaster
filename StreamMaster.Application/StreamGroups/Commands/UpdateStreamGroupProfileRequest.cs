@@ -15,9 +15,13 @@ public class UpdateStreamGroupProfileRequestHandler(IRepositoryWrapper Repositor
             return APIResponse.NotFound;
         }
 
-        if (request.NewProfileName?.Equals("default", StringComparison.OrdinalIgnoreCase) == true)
+        if (request.NewProfileName.Equals("all", StringComparison.CurrentCultureIgnoreCase))
         {
-            return APIResponse.ErrorWithMessage("Cannot use new name default");
+            return APIResponse.ErrorWithMessage($"The New Profile Name '{request.NewProfileName}' is reserved");
+        }
+        if (request.NewProfileName.Equals("default", StringComparison.CurrentCultureIgnoreCase))
+        {
+            return APIResponse.ErrorWithMessage($"The New Profile Name '{request.NewProfileName}' is reserved");
         }
 
         StreamGroup? streamGroup = Repository.StreamGroup.GetQuery().FirstOrDefault(a => a.Id == request.StreamGroupId);

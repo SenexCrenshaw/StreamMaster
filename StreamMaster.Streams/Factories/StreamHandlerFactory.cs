@@ -13,7 +13,7 @@ public sealed class StreamHandlerFactory(IStreamStreamingStatisticsManager strea
             return null;
         }
 
-        StreamHandler streamHandler = new(channelStatus, processId, intSettings, loggerFactory, streamStreamingStatisticsManager);
+        StreamHandler streamHandler = new(channelStatus.SMStream, processId, intSettings, loggerFactory, streamStreamingStatisticsManager);
 
         _ = Task.Run(() => streamHandler.StartVideoStreamingAsync(stream), cancellationToken);
 

@@ -15,13 +15,19 @@ public class RemoveStreamGroupProfileRequestHandler(IRepositoryWrapper Repositor
             return APIResponse.NotFound;
         }
 
+
+        if (request.ProfileName.Equals("default", StringComparison.OrdinalIgnoreCase))
+        {
+            return APIResponse.ErrorWithMessage($"The Profile Name '{request.ProfileName}' is reserved");
+        }
+
         StreamGroup? streamGroup = Repository.StreamGroup.GetStreamGroup(request.StreamGroupId);
         if (streamGroup is null)
         {
             return APIResponse.ErrorWithMessage("Stream Group not found");
         }
 
-        StreamGroupProfile? test = Repository.StreamGroupProfile.GetStreamGroupProfiles().Find(a => a.StreamGroupId == streamGroup.Id && a.ProfileName == request.ProfileName);
+        StreamGroupProfile? test = Repository.StreamGroupProfile.GetQuery().FirstOrDefault(a => a.StreamGroupId == streamGroup.Id && a.ProfileName == request.ProfileName);
         if (test is not null)
         {
             await Repository.StreamGroupProfile.DeleteStreamGroupProfile(test);

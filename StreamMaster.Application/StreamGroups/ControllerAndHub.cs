@@ -9,6 +9,22 @@ namespace StreamMaster.Application.StreamGroups.Controllers
 
         [HttpGet]
         [Route("[action]")]
+        public async Task<ActionResult<StreamGroupProfile>> GetDefaultStreamGroupProfileId()
+        {
+            try
+            {
+            DataResponse<StreamGroupProfile> ret = await Sender.Send(new GetDefaultStreamGroupProfileIdRequest()).ConfigureAwait(false);
+             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetDefaultStreamGroupProfileId.", statusCode: 500) : Ok(ret.Data);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An unexpected error occurred while processing the request to get GetDefaultStreamGroupProfileId.");
+                return Problem(detail: "An unexpected error occurred. Please try again later.", statusCode: 500);
+            }
+        }
+
+        [HttpGet]
+        [Route("[action]")]
         public async Task<ActionResult<PagedResponse<StreamGroupDto>>> GetPagedStreamGroups([FromQuery] QueryStringParameters Parameters)
         {
             PagedResponse<StreamGroupDto> ret = await Sender.Send(new GetPagedStreamGroupsRequest(Parameters)).ConfigureAwait(false);
@@ -118,6 +134,12 @@ namespace StreamMaster.Application.Hubs
 {
     public partial class StreamMasterHub : IStreamGroupsHub
     {
+        public async Task<StreamGroupProfile> GetDefaultStreamGroupProfileId()
+        {
+             DataResponse<StreamGroupProfile> ret = await Sender.Send(new GetDefaultStreamGroupProfileIdRequest()).ConfigureAwait(false);
+            return ret.Data;
+        }
+
         public async Task<PagedResponse<StreamGroupDto>> GetPagedStreamGroups(QueryStringParameters Parameters)
         {
             PagedResponse<StreamGroupDto> ret = await Sender.Send(new GetPagedStreamGroupsRequest(Parameters)).ConfigureAwait(false);

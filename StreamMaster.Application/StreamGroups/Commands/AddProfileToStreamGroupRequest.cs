@@ -15,10 +15,10 @@ public class AddProfileToStreamGroupRequestHandler(IRepositoryWrapper Repository
             return APIResponse.NotFound;
         }
 
-        //if (request.ProfileName.Equals("default", StringComparison.OrdinalIgnoreCase))
-        //{
-        //    return APIResponse.ErrorWithMessage("Cannot use name default");
-        //}
+        if (request.ProfileName.Equals("default", StringComparison.OrdinalIgnoreCase))
+        {
+            return APIResponse.ErrorWithMessage($"The name '{request.ProfileName}' is reserved");
+        }
 
         StreamGroup? streamGroup = Repository.StreamGroup.GetStreamGroup(request.StreamGroupId);
         if (streamGroup is null)

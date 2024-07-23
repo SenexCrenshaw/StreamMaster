@@ -38,7 +38,7 @@ public sealed class ChannelManager : IChannelManager
         {
             //streamHandler.Stop();
 
-            logger.LogInformation("Streaming Stopped Event for StreamId: {StreamId} {ChannelName} {StreamName}", streamHandler.SMStream.Id, streamHandler.SMChannel.Name, streamHandler.SMChannel.Name);
+            logger.LogInformation("Streaming Stopped Event for StreamId: {StreamId} {StreamName}", streamHandler.SMStream.Id, streamHandler.SMStream.Name);
 
             List<IChannelStatus> affectedChannelStatuses = channelService.GetChannelStatusesFromSMStreamId(streamHandler.SMStream.Id);
             //List<IChannelStatus> affectedChannelStatuses = channelService.GetChannelStatusesFromSMStreamId(streamHandler.SMStream.Id);
@@ -73,11 +73,11 @@ public sealed class ChannelManager : IChannelManager
                 }
             }
 
-            if (streamHandler.ClientCount == 0)
-            {
-                _ = streamManager.StopAndUnRegisterHandler(streamHandler.SMStream.Url);
+            //if (streamHandler.ClientCount == 0)
+            //{
+            //    _ = streamManager.StopAndUnRegisterHandler(streamHandler.SMStream.Url);
 
-            }
+            //}
 
         }
     }
@@ -264,7 +264,7 @@ public sealed class ChannelManager : IChannelManager
             }
             channelService.UnRegisterChannel(SMChannelId);
 
-            logger.LogInformation("Simulating stream failure for: {VideoStreamName}", handler.SMStream.Name);
+            logger.LogInformation("Simulating stream failure for: {VideoStreamName}", stat.SMStream.Name);
         }
         else
         {
@@ -289,7 +289,7 @@ public sealed class ChannelManager : IChannelManager
         {
             handler.CancelStreamThread();
 
-            logger.LogInformation("Simulating stream failure for: {VideoStreamName}", handler.SMStream.Name);
+            logger.LogInformation("Simulating stream failure for: {VideoStreamName}", stat.SMStream.Name);
         }
         else
         {

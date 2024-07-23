@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Http;
 
+using StreamMaster.Application.Crypto.Commands;
 using StreamMaster.SchedulesDirect.Domain.Extensions;
 
 using System.Text.Json;
-using System.Web;
 
 namespace StreamMaster.Application.StreamGroups.QueriesOld;
 
@@ -12,21 +12,20 @@ public record GetStreamGroupLineup(int StreamGroupId, int StreamGroupProfileId) 
 
 
 [LogExecutionTimeAspect]
-public class GetStreamGroupLineupHandler(IHttpContextAccessor httpContextAccessor, IIconHelper iconHelper, IEPGHelper epgHelper, ISchedulesDirectDataService schedulesDirectDataService, ILogger<GetStreamGroupLineup> logger, IRepositoryWrapper Repository, IOptionsMonitor<HLSSettings> inthlssettings, IOptionsMonitor<Setting> intSettings)
+public class GetStreamGroupLineupHandler(IHttpContextAccessor httpContextAccessor, ISender sender, IIconHelper iconHelper, IEPGHelper epgHelper, ISchedulesDirectDataService schedulesDirectDataService, ILogger<GetStreamGroupLineup> logger, IRepositoryWrapper Repository, IOptionsMonitor<HLSSettings> inthlssettings, IOptionsMonitor<Setting> intSettings)
     : IRequestHandler<GetStreamGroupLineup, string>
 {
     private readonly Setting settings = intSettings.CurrentValue;
-    private readonly HLSSettings hlssettings = inthlssettings.CurrentValue;
 
     public async Task<string> Handle(GetStreamGroupLineup request, CancellationToken cancellationToken)
     {
 
         string requestPath = httpContextAccessor.GetUrlWithPathValue();
-        byte[]? iv = requestPath.GetIVFromPath(settings.ServerKey, 128);
-        if (iv == null)
-        {
-            return "";
-        }
+        //byte[]? iv = requestPath.GetIVFromPath(settings.ServerKey, 128);
+        //if (iv == null)
+        //{
+        //    return "";
+        //}
 
         string url = httpContextAccessor.GetUrl();
         List<SGLineup> ret = [];
@@ -88,19 +87,19 @@ public class GetStreamGroupLineupHandler(IHttpContextAccessor httpContextAccesso
             }
 
             string videoUrl;
-            if (hlssettings.HLSM3U8Enable)
-            {
-                videoUrl = $"{url}/api/stream/{smChannel.Id}.m3u8";
-            }
-            else
-            {
-                string encodedName = HttpUtility.HtmlEncode(smChannel.Name).Trim()
-                         .Replace("/", "")
-                         .Replace(" ", "_");
 
-                string encodedNumbers = request.StreamGroupId.EncodeValues128(request.StreamGroupProfileId, smChannel.Id, settings.ServerKey, iv);
-                videoUrl = $"{url}/api/videostreams/stream/{encodedNumbers}/{encodedName}";
+            (string EncodedString, string CleanName) = await sender.Send(new EncodeStreamGroupIdProfileIdChannelId(request.StreamGroupId, request.StreamGroupProfileId, smChannel.Id, smChannel.Name), cancellationToken);
+            if (string.IsNullOrEmpty(EncodedString) || string.IsNullOrEmpty(CleanName))
+            {
+                continue;
             }
+            //string encodedName = HttpUtility.HtmlEncode(smChannel.Name).Trim()
+            //         .Replace("/", "")
+            //         .Replace(" ", "_");
+
+            //string encodedNumbers = request.StreamGroupId.EncodeValues128(request.StreamGroupProfileId, smChannel.Id, settings.ServerKey, iv);
+            videoUrl = $"{url}/api/videostreams/stream/{EncodedString}/{CleanName}";
+
 
             MxfService? service = schedulesDirectDataService.AllServices.GetMxfService(smChannel.EPGId);
             if (service == null)

@@ -9,7 +9,6 @@ using StreamMaster.Domain.API;
 using StreamMaster.Domain.Configuration;
 using StreamMaster.PlayList;
 using StreamMaster.PlayList.Models;
-using StreamMaster.Streams.Domain.Extensions;
 
 using System.Collections.Concurrent;
 namespace StreamMaster.Streams.Channels;
@@ -64,11 +63,9 @@ public sealed class ChannelService(
             throw new ArgumentNullException(nameof(config.SMChannel));
         }
 
-        IChannelStatus? channelStatus = GetChannelStatus(config.SMChannel.Id);
-
         _ = clientStreamerManager.RegisterClient(config);
 
-        CommandProfileList profileSettings = intProfileSettings.CurrentValue;
+        IChannelStatus? channelStatus = GetChannelStatus(config.SMChannel.Id);
 
         if (channelStatus != null)
         {
@@ -76,27 +73,29 @@ public sealed class ChannelService(
             if (handler is null)
             {
                 logger.LogError("Could not find handler for {ClientId} {ChannelVideoStreamId} {name}", config.ClientId, config.SMChannel.Id, config.SMChannel.Name);
-                await clientStreamerManager.UnRegisterClient(config.ClientId);
+                await clientStreamerManager.UnRegisterClient(config.ClientId).ConfigureAwait(false);
                 UnRegisterChannel(config.SMChannel.Id);
                 return null;
             }
 
-            channelStatus.CommandProfile = profileSettings.CommandProfiles.FirstOrDefault(a => a.Key == channelStatus.SMChannel.CommandProfileName).Value.ToCommandProfileDto(channelStatus.SMChannel.CommandProfileName);
-
             if (handler.IsFailed)
             {
                 logger.LogInformation("Existing handler is failed, creating");
-
-                _ = await SwitchChannelToNextStream(channelStatus);
+                _ = await SwitchChannelToNextStream(channelStatus).ConfigureAwait(false);
             }
 
+
+
             streamManager.AddClientToHandler(config, handler);
-            logger.LogInformation("Reuse existing stream handler for {ClientId} {ChannelVideoStreamId} {name}", config.ClientId, config.SMChannel.Id, config.SMChannel.Name);
+            logger.LogInformation("Reuse existing stream handler for {ClientId} {ChannelVideoStreamId} {name}",
+                                  config.ClientId, config.SMChannel.Id, config.SMChannel.Name);
 
             return channelStatus;
         }
 
-        logger.LogInformation("No existing channel for {ClientId} {ChannelVideoStreamId} {name}", config.ClientId, config.SMChannel.Id, config.SMChannel.Name);
+        logger.LogInformation("No existing channel for {ClientId} {ChannelVideoStreamId} {name}",
+                              config.ClientId, config.SMChannel.Id, config.SMChannel.Name);
+
 
         CustomPlayList? customPlayList = null;
         if (config.SMChannel.IsCustomStream)
@@ -104,35 +103,34 @@ public sealed class ChannelService(
             customPlayList = customPlayListBuilder.GetCustomPlayList(config.SMChannel.Name);
         }
 
-
         using IServiceScope scope = _serviceProvider.CreateScope();
         ISender sender = scope.ServiceProvider.GetRequiredService<ISender>();
 
-        DataResponse<CommandProfileDto> commandProfileData = await sender.Send(new GetCommandProfileRequest(BuildInfo.DefaultCommandProfileName, config.StreamGroupId, config.StreamGroupProfileId));
-
+        DataResponse<CommandProfileDto> commandProfileData = await sender.Send(new GetCommandProfileRequest(BuildInfo.DefaultCommandProfileName,
+                                                                               config.StreamGroupId,
+                                                                               config.StreamGroupProfileId)).ConfigureAwait(false);
         if (commandProfileData.Data == null)
         {
-
             logger.LogError("Could not find video profile for {CommandProfileName}", config.SMChannel.CommandProfileName);
             return null;
         }
 
-        CommandProfileDto? commandProfile = commandProfileData.Data;
-        string profileName = commandProfile.ProfileName;
+        CommandProfileDto commandProfile = commandProfileData.Data;
 
         channelStatus = new ChannelStatus(config.SMChannel)
         {
             StreamGroupProfileId = config.StreamGroupProfileId,
-            CommandProfile = commandProfileData.Data,
+            CommandProfile = commandProfile,
             CustomPlayList = customPlayList
         };
 
         _ = _channelStatuses.TryAdd(config.SMChannel.Id, channelStatus);
 
-        //await SetNextChildVideoStream(channelStatus).ConfigureAwait(false);
-        _ = await SwitchChannelToNextStream(channelStatus);
+        _ = await SwitchChannelToNextStream(channelStatus).ConfigureAwait(false);
 
-        _ = channelStreamingStatisticsManager.RegisterInputReader(channelStatus.SMChannel, channelStatus.CurrentRank, channelStatus.SMStream.Id);
+        _ = channelStreamingStatisticsManager.RegisterInputReader(channelStatus.SMChannel,
+                                                               channelStatus.CurrentRank,
+                                                               channelStatus.SMStream.Id);
 
         return channelStatus;
     }
@@ -253,6 +251,7 @@ public sealed class ChannelService(
         return true;
     }
 
+
     public async Task<bool> SetNextChildVideoStream(IChannelStatus channelStatus, string? overrideNextVideoStreamId = null)
     {
         if (channelStatus.SMChannel.IsCustomStream)
@@ -316,24 +315,17 @@ public sealed class ChannelService(
         }
 
         SMChannel? channel = repository.SMChannel.GetSMChannel(channelStatus.SMChannel.Id);
-        if (channel == null)
+        if (channel == null || channel.SMStreams.Count == 0)
         {
             logger.LogError("SetNextChildVideoStream could not get videoStreams for id {ParentVideoStreamId}", channelStatus.SMChannel.Id);
-            //channelStatus.SetCurrentSMStream(null);
-            return false;
-        }
-
-        if (channel.SMStreams.Count == 0)
-        {
-            logger.LogDebug("Exiting SetNextChildVideoStream with null due to no suitable videoStream found");
-            //channelStatus.SetCurrentSMStream(null);
+            channelStatus.SetCurrentSMStream(null);
             return false;
         }
 
         if (channelStatus.CurrentRank + 1 >= channel.SMStreams.Count)
         {
             logger.LogInformation("SetNextChildVideoStream no more streams for id {ParentVideoStreamId}, exiting", channelStatus.SMChannel.Id);
-            //channelStatus.SetCurrentSMStream(null);
+            channelStatus.SetCurrentSMStream(null);
             return false;
         }
 

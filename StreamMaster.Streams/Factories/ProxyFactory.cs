@@ -69,7 +69,7 @@ public sealed class ProxyFactory(
 
         (string videoFileName, int secondsIn) = GetCustomStreamFileName(channelStatus);
         string options = CustomPlayListFFMpegOptions.Replace("{secondsIn}", secondsIn.ToString());
-        return commandExecutor.ExecuteCommand("ffmpeg", options, "StreamMaster", videoFileName, clientUserAgent, cancellationToken);
+        return commandExecutor.ExecuteCommand("ffmpeg", options, channelStatus.SMStream.Id, videoFileName, clientUserAgent, cancellationToken);
     }
 
     private (string videoFileName, int secondsIn) GetCustomStreamFileName(IChannelStatus channelStatus)

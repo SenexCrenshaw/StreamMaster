@@ -1,6 +1,4 @@
-﻿using System.Web;
-
-namespace StreamMaster.Application.CustomPlayLists.Commands;
+﻿namespace StreamMaster.Application.CustomPlayLists.Commands;
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
@@ -39,10 +37,6 @@ public class ScanForCustomPlayListsRequestHandler(ILogger<ScanForCustomPlayLists
 
                 continue;
             }
-            Setting settings = intSettings.CurrentValue;
-
-            string encodedName = HttpUtility.HtmlEncode(customPlayList.Name).Trim().Replace("/", "").Replace(" ", "_");
-            string encodedId = id.EncodeValue128(settings.ServerKey);
 
             SMStream smStream = new()
             {
@@ -54,7 +48,7 @@ public class ScanForCustomPlayListsRequestHandler(ILogger<ScanForCustomPlayLists
                 Group = "CustomPlayList",
                 IsCustomStream = true,
                 Logo = customPlayList.Logo,
-                Url = $"/api/videostreams/customstream/{encodedId}/{encodedName}"
+                Url = "STREAMMASTER"
             };
             Repository.SMStream.Create(smStream);
             smStreamIds.Add(id);

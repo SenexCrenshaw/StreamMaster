@@ -4,7 +4,7 @@ namespace StreamMaster.Application.StreamGroups.Commands;
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record UpdateStreamGroupRequest(int StreamGroupId, string? NewName, string? DeviceID, List<string>? StreamGroupProfiles)
+public record UpdateStreamGroupRequest(int StreamGroupId, string? GroupKey, string? NewName, string? DeviceID)
  : IRequest<APIResponse>;
 
 [LogExecutionTimeAspect]
@@ -18,12 +18,12 @@ public class UpdateStreamGroupRequestHandler(IDataRefreshService dataRefreshServ
             return APIResponse.NotFound;
         }
 
-        if (request.NewName?.Equals("default", StringComparison.OrdinalIgnoreCase) == true)
+        if (request.NewName != null && request.NewName.Equals("all", StringComparison.CurrentCultureIgnoreCase))
         {
-            return APIResponse.ErrorWithMessage("Cannot use name default");
+            return APIResponse.ErrorWithMessage($"The name '{request.NewName}' is reserved");
         }
 
-        StreamGroupDto? streamGroup = await Repository.StreamGroup.UpdateStreamGroup(request.StreamGroupId, request.StreamGroupId == 1 ? null : request.NewName, request.DeviceID);
+        StreamGroupDto? streamGroup = await Repository.StreamGroup.UpdateStreamGroup(request.StreamGroupId, request.StreamGroupId == 1 ? null : request.NewName, request.DeviceID, request.GroupKey);
         if (streamGroup is not null)
         {
             await dataRefreshService.RefreshStreamGroups();

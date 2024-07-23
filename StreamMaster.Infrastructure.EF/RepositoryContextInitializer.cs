@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-using StreamMaster.Application.Settings;
 using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Helpers;
 using StreamMaster.Infrastructure.EF.PGSQL;
@@ -14,12 +13,12 @@ public class RepositoryContextInitializer(ILogger<RepositoryContextInitializer> 
         try
         {
             await context.Database.MigrateAsync().ConfigureAwait(false);
-            
-            var settings = intSettings.CurrentValue;
+
+            Setting settings = intSettings.CurrentValue;
 
             if (!context.StreamGroups.Any(a => a.Name == "ALL"))
             {
-                StreamGroup sg = new() { Name = "ALL", IsReadOnly = true, IsSystem = true, DeviceID = settings.DeviceID };
+                StreamGroup sg = new() { Name = "ALL", IsReadOnly = true, IsSystem = true, DeviceID = settings.DeviceID, GroupKey = Guid.NewGuid().ToString().Replace("-", "") };
                 _ = context.Add(sg);
                 StreamGroupProfile profile = new()
                 {

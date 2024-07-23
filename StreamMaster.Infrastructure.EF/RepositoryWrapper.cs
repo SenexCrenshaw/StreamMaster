@@ -93,7 +93,7 @@ public class RepositoryWrapper(
     {
         get
         {
-            _streamGroup ??= new StreamGroupRepository(StreamGroupRepositoryLogger, this, repositoryContext, mapper, intSettings, httpContextAccessor);
+            _streamGroup ??= new StreamGroupRepository(StreamGroupRepositoryLogger, sender, this, repositoryContext, mapper, intSettings, httpContextAccessor);
             return _streamGroup;
         }
     }

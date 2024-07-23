@@ -30,7 +30,7 @@ public class StreamManager(IStreamHandlerFactory streamHandlerFactory, IClientSt
             {
                 BytesRead = handler.GetBytesRead(),
                 BytesWritten = handler.GetBytesWritten(),
-                ClientCount = handler.GetClientCount(),
+                ClientCount = handler.ClientCount,
                 Kbps = handler.GetKbps(),
                 StartTime = handler.GetStartTime(),
                 AverageLatency = handler.GetAverageLatency(),

@@ -1,12 +1,12 @@
-﻿namespace StreamMaster.Domain.Services
+﻿using StreamMaster.Domain.Repository;
+
+namespace StreamMaster.Domain.Services
 {
-    public interface IStreamGroupProfileRepository
+    public interface IStreamGroupProfileRepository : IRepositoryBase<StreamGroupProfile>
     {
         StreamGroupProfile? GetStreamGroupProfile(int StreamGroupId, int StreamGroupProfileId);
         Task DeleteStreamGroupProfile(StreamGroupProfile StreamGroupProfile);
-        List<StreamGroupProfile> GetStreamGroupProfiles();
-
-        Task<StreamGroupProfileDto> GetDefaultStreamGroupProfile(int StreamGroupId);
+        //List<StreamGroupProfile> GetStreamGroupProfiles();
         void Update(StreamGroupProfile streamGroupProfile);
     }
 }

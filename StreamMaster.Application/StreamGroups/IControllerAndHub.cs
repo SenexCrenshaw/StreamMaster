@@ -6,6 +6,7 @@ namespace StreamMaster.Application.StreamGroups
 {
     public interface IStreamGroupsController
     {        
+        Task<ActionResult<StreamGroupProfile>> GetDefaultStreamGroupProfileId();
         Task<ActionResult<PagedResponse<StreamGroupDto>>> GetPagedStreamGroups(QueryStringParameters Parameters);
         Task<ActionResult<List<StreamGroupProfile>>> GetStreamGroupProfiles();
         Task<ActionResult<StreamGroupDto>> GetStreamGroup(GetStreamGroupRequest request);
@@ -23,6 +24,7 @@ namespace StreamMaster.Application.Hubs
 {
     public interface IStreamGroupsHub
     {
+        Task<StreamGroupProfile> GetDefaultStreamGroupProfileId();
         Task<PagedResponse<StreamGroupDto>> GetPagedStreamGroups(QueryStringParameters Parameters);
         Task<List<StreamGroupProfile>> GetStreamGroupProfiles();
         Task<StreamGroupDto> GetStreamGroup(GetStreamGroupRequest request);

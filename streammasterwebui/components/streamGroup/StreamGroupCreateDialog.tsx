@@ -4,9 +4,9 @@ import SMPopUp, { SMPopUpRef } from '@components/sm/SMPopUp';
 import { CreateStreamGroup } from '@lib/smAPI/StreamGroups/StreamGroupsCommands';
 import { CreateStreamGroupRequest } from '@lib/smAPI/smapiTypes';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 import CommandProfileDropDown from './profiles/CommandProfileDropDown';
 import OutputProfileDropDown from './profiles/OutputProfileDropDown';
-
 export interface StreamGroupCreateDialogProperties {
   readonly showButton?: boolean | null;
   readonly zIndex?: number | undefined;
@@ -20,6 +20,7 @@ export const StreamGroupCreateDialog = ({ modal, zIndex }: StreamGroupCreateDial
     () =>
       ({
         CommandProfileName: 'StreamMaster',
+        GroupKey: uuidv4().replace(/-/g, ''),
         Name: '',
         OutputProfileName: 'Default'
       } as CreateStreamGroupRequest),
@@ -77,7 +78,7 @@ export const StreamGroupCreateDialog = ({ modal, zIndex }: StreamGroupCreateDial
       icon="pi-plus"
       iconFilled
       modal={modal ?? false}
-      contentWidthSize="3"
+      contentWidthSize="4"
       title="ADD SG"
       onOkClick={() => {
         create();
@@ -89,7 +90,7 @@ export const StreamGroupCreateDialog = ({ modal, zIndex }: StreamGroupCreateDial
       zIndex={zIndex ?? 10}
     >
       <div className="sm-center-stuff p-2">
-        <div className="sm-w-4">
+        <div className="sm-w-3">
           <StringEditor
             autoFocus
             darkBackGround
@@ -100,20 +101,32 @@ export const StreamGroupCreateDialog = ({ modal, zIndex }: StreamGroupCreateDial
             value={createStreamGroupRequest.Name}
           />
         </div>
-        <div className="sm-w-4">
+        <div className="sm-w-3">
+          <StringEditor
+            autoFocus
+            darkBackGround
+            disableDebounce
+            label="Group Key"
+            onChange={(e) => e !== undefined && updateStateAndRequest({ GroupKey: e })}
+            onSave={() => create()}
+            value={createStreamGroupRequest.GroupKey}
+          />
+        </div>
+        <div className="sm-w-3">
           <OutputProfileDropDown
             buttonDarkBackground
             value={createStreamGroupRequest.OutputProfileName ?? ''}
             onChange={(e) => e !== undefined && updateStateAndRequest({ OutputProfileName: e.ProfileName })}
           />
         </div>
-        <div className="sm-w-4">
+        <div className="sm-w-3">
           <CommandProfileDropDown
             buttonDarkBackground
             value={createStreamGroupRequest.CommandProfileName ?? ''}
             onChange={(e) => e !== undefined && updateStateAndRequest({ CommandProfileName: e.ProfileName })}
           />
         </div>
+
         <div className="layout-padding-bottom-lg" />
         <div className="flex w-12 justify-content-end align-content-center"></div>
         <div className="layout-padding-bottom-lg" />

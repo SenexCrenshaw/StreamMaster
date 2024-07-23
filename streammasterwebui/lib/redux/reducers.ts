@@ -10,6 +10,7 @@ import GetCommandProfileReducer from '@lib/smAPI/Profiles/GetCommandProfileSlice
 import GetCommandProfilesReducer from '@lib/smAPI/Profiles/GetCommandProfilesSlice';
 import GetCustomPlayListReducer from '@lib/smAPI/CustomPlayLists/GetCustomPlayListSlice';
 import GetCustomPlayListsReducer from '@lib/smAPI/CustomPlayLists/GetCustomPlayListsSlice';
+import GetDefaultStreamGroupProfileIdReducer from '@lib/smAPI/StreamGroups/GetDefaultStreamGroupProfileIdSlice';
 import GetDownloadServiceStatusReducer from '@lib/smAPI/General/GetDownloadServiceStatusSlice';
 import GetEPGColorsReducer from '@lib/smAPI/EPG/GetEPGColorsSlice';
 import GetEPGFilePreviewByIdReducer from '@lib/smAPI/EPGFiles/GetEPGFilePreviewByIdSlice';
@@ -32,7 +33,6 @@ import GetPagedSMStreamsReducer from '@lib/smAPI/SMStreams/GetPagedSMStreamsSlic
 import GetPagedStreamGroupsReducer from '@lib/smAPI/StreamGroups/GetPagedStreamGroupsSlice';
 import GetSelectedStationIdsReducer from '@lib/smAPI/SchedulesDirect/GetSelectedStationIdsSlice';
 import GetSettingsReducer from '@lib/smAPI/Settings/GetSettingsSlice';
-import GetSMChannelReducer from '@lib/smAPI/SMChannels/GetSMChannelSlice';
 import GetSMChannelNamesReducer from '@lib/smAPI/SMChannels/GetSMChannelNamesSlice';
 import GetSMChannelStreamsReducer from '@lib/smAPI/SMChannelStreamLinks/GetSMChannelStreamsSlice';
 import GetSMTasksReducer from '@lib/smAPI/SMTasks/GetSMTasksSlice';
@@ -49,7 +49,6 @@ import GetSubscribedLineupsReducer from '@lib/smAPI/SchedulesDirect/GetSubscribe
 import GetSystemStatusReducer from '@lib/smAPI/General/GetSystemStatusSlice';
 import GetTaskIsRunningReducer from '@lib/smAPI/General/GetTaskIsRunningSlice';
 import GetVideoInfoFromIdReducer from '@lib/smAPI/SMChannels/GetVideoInfoFromIdSlice';
-import GetVideoStreamNamesAndUrlsReducer from '@lib/smAPI/Streaming/GetVideoStreamNamesAndUrlsSlice';
 import isTrue from '@lib/redux/hooks/isTrue';
 import loading from '@lib/redux/hooks/loading';
 import messages from '@lib/redux/hooks/messages';
@@ -152,6 +151,7 @@ export const rootReducer = combineReducers({
   GetCommandProfiles: GetCommandProfilesReducer,
   GetCustomPlayList: GetCustomPlayListReducer,
   GetCustomPlayLists: GetCustomPlayListsReducer,
+  GetDefaultStreamGroupProfileId: GetDefaultStreamGroupProfileIdReducer,
   GetDownloadServiceStatus: GetDownloadServiceStatusReducer,
   GetEPGColors: GetEPGColorsReducer,
   GetEPGFilePreviewById: GetEPGFilePreviewByIdReducer,
@@ -174,7 +174,6 @@ export const rootReducer = combineReducers({
   GetPagedStreamGroups: GetPagedStreamGroupsReducer,
   GetSelectedStationIds: GetSelectedStationIdsReducer,
   GetSettings: GetSettingsReducer,
-  GetSMChannel: GetSMChannelReducer,
   GetSMChannelNames: GetSMChannelNamesReducer,
   GetSMChannelStreams: GetSMChannelStreamsReducer,
   GetSMTasks: GetSMTasksReducer,
@@ -191,7 +190,6 @@ export const rootReducer = combineReducers({
   GetSystemStatus: GetSystemStatusReducer,
   GetTaskIsRunning: GetTaskIsRunningReducer,
   GetVideoInfoFromId: GetVideoInfoFromIdReducer,
-  GetVideoStreamNamesAndUrls: GetVideoStreamNamesAndUrlsReducer,
   isTrue: persistReducer(isTrueConfig, isTrue),
   loading: loading,
   messages: messages,

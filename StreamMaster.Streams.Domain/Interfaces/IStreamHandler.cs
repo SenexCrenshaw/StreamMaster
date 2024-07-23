@@ -12,13 +12,13 @@ public interface IStreamHandler : IDisposable
     double GetAverageLatency();
     int GetErrorCount();
     DateTime GetStartTime();
-    int GetClientCount();
+    //int GetClientCount();
     void UnRegisterAllClientStreamers();
     IEnumerable<ClientStreamerConfiguration> GetClientStreamerClientIdConfigs { get; }
     Task StartVideoStreamingAsync(Stream stream);
-    int ProcessId { get; set; }
+    //int ProcessId { get; set; }
     SMStreamDto SMStream { get; }
-    SMChannelDto SMChannel { get; }
+    //SMChannelDto SMChannel { get; }
 
     bool IsFailed { get; }
     VideoInfo GetVideoInfo();
@@ -49,7 +49,7 @@ public interface IStreamHandler : IDisposable
     ///// Gets the current number of clients connected.
     ///// </summary>
     int ClientCount { get; }
-    int RestartCount { get; set; }
+    //int RestartCount { get; set; }
 
     /// <summary>
     /// Registers a client streamer with the given configuration.

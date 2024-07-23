@@ -345,6 +345,7 @@ export interface StreamGroupDto
 	AutoSetChannelNumbers: boolean;
 	ChannelCount: number;
 	DeviceID: string;
+	GroupKey: string;
 	HDHRLink: string;
 	Id: number;
 	IgnoreExistingChannelNumbers: boolean;
@@ -648,9 +649,6 @@ export interface HeadendDto
 	PostCode: string;
 	Transport: string;
 }
-export interface GetVideoStreamNamesAndUrlsRequest
-{
-}
 export interface CancelAllChannelsRequest
 {
 }
@@ -665,6 +663,9 @@ export interface CancelClientRequest
 export interface MoveToNextStreamRequest
 {
 	SMChannelId: number;
+}
+export interface GetDefaultStreamGroupProfileIdRequest
+{
 }
 export interface GetPagedStreamGroupsRequest
 {
@@ -690,6 +691,7 @@ export interface AddProfileToStreamGroupRequest
 export interface CreateStreamGroupRequest
 {
 	CommandProfileName?: string;
+	GroupKey?: string;
 	Name: string;
 	OutputProfileName?: string;
 }
@@ -713,9 +715,9 @@ export interface UpdateStreamGroupProfileRequest
 export interface UpdateStreamGroupRequest
 {
 	DeviceID?: string;
+	GroupKey?: string;
 	NewName?: string;
 	StreamGroupId: number;
-	StreamGroupProfiles?: string[];
 }
 export interface GetStreamGroupSMChannelsRequest
 {
@@ -840,10 +842,6 @@ export interface GetPagedSMChannelsRequest
 }
 export interface GetSMChannelNamesRequest
 {
-}
-export interface GetSMChannelRequest
-{
-	SMChannelId: number;
 }
 export interface GetVideoInfoFromIdRequest
 {

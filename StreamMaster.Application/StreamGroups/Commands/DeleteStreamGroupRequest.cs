@@ -25,9 +25,9 @@ public class DeleteStreamGroupRequestHandler(IRepositoryWrapper Repository, IDat
             return APIResponse.NotFound;
         }
 
-        if (streamGroup.Name.Equals("default", StringComparison.OrdinalIgnoreCase))
+        if (streamGroup.Name.Equals("all", StringComparison.CurrentCultureIgnoreCase))
         {
-            return APIResponse.ErrorWithMessage("Cannot use name default");
+            return APIResponse.ErrorWithMessage($"Cannot delete reserved '{streamGroup.Name}' streamgroup");
         }
 
         if (await Repository.StreamGroup.DeleteStreamGroup(request.StreamGroupId) != null)

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
+using StreamMaster.Application.Crypto.Commands;
 using StreamMaster.Application.StreamGroups.Queries;
 using StreamMaster.Application.StreamGroups.QueriesOld;
 
@@ -11,7 +12,6 @@ namespace StreamMaster.Application.StreamGroups.Controllers;
 public partial class StreamGroupsController : ApiControllerBase
 {
 
-
     [HttpGet]
     [AllowAnonymous]
     [Route("{encodedId}")]
@@ -19,8 +19,7 @@ public partial class StreamGroupsController : ApiControllerBase
     [Route("{encodedId}/device.xml")]
     public async Task<IActionResult> GetStreamGroupCapability(string encodedId)
     {
-
-        (int? streamGroupId, int? streamGroupProfileId) = encodedId.DecodeValues128(Settings.ServerKey);
+        (int? streamGroupId, int? streamGroupProfileId) = await Sender.Send(new DecodeProfileIdFromEncoded(encodedId)).ConfigureAwait(false);
         if (!streamGroupId.HasValue || !streamGroupProfileId.HasValue)
         {
             return new NotFoundResult();
@@ -40,7 +39,7 @@ public partial class StreamGroupsController : ApiControllerBase
     [Route("{encodedId}/discover.json")]
     public async Task<IActionResult> GetStreamGroupDiscover(string encodedId)
     {
-        (int? streamGroupId, int? streamGroupProfileId) = encodedId.DecodeValues128(Settings.ServerKey);
+        (int? streamGroupId, int? streamGroupProfileId) = await Sender.Send(new DecodeProfileIdFromEncoded(encodedId)).ConfigureAwait(false);
         if (!streamGroupId.HasValue || !streamGroupProfileId.HasValue)
         {
             return new NotFoundResult();
@@ -60,8 +59,7 @@ public partial class StreamGroupsController : ApiControllerBase
     [Route("{encodedId}/epg.xml")]
     public async Task<IActionResult> GetStreamGroupEPG(string encodedId)
     {
-
-        (int? streamGroupId, int? streamGroupProfileId) = encodedId.DecodeValues128(Settings.ServerKey);
+        (int? streamGroupId, int? streamGroupProfileId) = await Sender.Send(new DecodeProfileIdFromEncoded(encodedId)).ConfigureAwait(false);
         if (!streamGroupId.HasValue || !streamGroupProfileId.HasValue)
         {
             return new NotFoundResult();
@@ -82,7 +80,7 @@ public partial class StreamGroupsController : ApiControllerBase
     [Route("{encodedId}/lineup.json")]
     public async Task<IActionResult> GetStreamGroupLineup(string encodedId)
     {
-        (int? streamGroupId, int? streamGroupProfileId) = encodedId.DecodeValues128(Settings.ServerKey);
+        (int? streamGroupId, int? streamGroupProfileId) = await Sender.Send(new DecodeProfileIdFromEncoded(encodedId)).ConfigureAwait(false);
         if (!streamGroupId.HasValue || !streamGroupProfileId.HasValue)
         {
             return new NotFoundResult();
@@ -102,8 +100,7 @@ public partial class StreamGroupsController : ApiControllerBase
     [Route("{encodedId}/lineup_status.json")]
     public async Task<IActionResult> GetStreamGroupLineupStatus(string encodedId)
     {
-
-        (int? streamGroupId, int? streamGroupProfileId) = encodedId.DecodeValues128(Settings.ServerKey);
+        (int? streamGroupId, int? streamGroupProfileId) = await Sender.Send(new DecodeProfileIdFromEncoded(encodedId)).ConfigureAwait(false);
         if (!streamGroupId.HasValue || !streamGroupProfileId.HasValue)
         {
             return new NotFoundResult();
@@ -123,8 +120,7 @@ public partial class StreamGroupsController : ApiControllerBase
     [Route("{encodedId}/m3u.m3u")]
     public async Task<IActionResult> GetStreamGroupM3U(string encodedId)
     {
-
-        (int? streamGroupId, int? streamGroupProfileId) = encodedId.DecodeValues128(Settings.ServerKey);
+        (int? streamGroupId, int? streamGroupProfileId) = await Sender.Send(new DecodeProfileIdFromEncoded(encodedId)).ConfigureAwait(false);
         if (!streamGroupId.HasValue || !streamGroupProfileId.HasValue)
         {
             return new NotFoundResult();

@@ -11,20 +11,11 @@ internal class GetPagedStreamGroupsRequestHandler(IRepositoryWrapper Repository)
     public async Task<PagedResponse<StreamGroupDto>> Handle(GetPagedStreamGroupsRequest request, CancellationToken cancellationToken = default)
     {
 
-        var ret = request.Parameters.PageSize == 0
+        PagedResponse<StreamGroupDto> ret = request.Parameters.PageSize == 0
             ? Repository.StreamGroup.CreateEmptyPagedResponse()
             : await Repository.StreamGroup.GetPagedStreamGroups(request.Parameters).ConfigureAwait(false);
 
-        //if (ret.Count > 0)
-        //{
-        //    var profiles = Repository.StreamGroupProfile.GetStreamGroupProfiles();
-        //    foreach (var sg in ret.Data)
-        //    {
-        //        sg.StreamGroupProfiles = profiles.Where(a => a.StreamGroupId == sg.Id).ToList();
-        //    }
-
-        //}
-        foreach (var streamGroupDto in ret.Data)
+        foreach (StreamGroupDto streamGroupDto in ret.Data)
         {
             if (streamGroupDto.Id == 1)
             {

@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Logging;
 
-using StreamMaster.Domain.Authentication;
 using StreamMaster.Domain.Configuration;
 
 using System.Diagnostics;
@@ -109,8 +108,11 @@ public class ApiKeyAuthenticationHandler(IOptionsMonitor<ApiKeyAuthenticationOpt
                 return null;
             }
 
-
-            string? crypt = requestPath.GetAPIKeyFromPath(serverKey);
+            //public static string? GetAPIKeyFromPath(this string requestPath, string serverKey, int keySize = 128)
+            //{
+            //    return requestPath.GetIVFromPath(serverKey) == null ? null : serverKey;
+            //}
+            string? crypt = serverKey;// requestPath.GetAPIKeyFromPath(serverKey);
             if (string.IsNullOrEmpty(crypt))
             {
                 _logger.LogDebug("SGLinks: crypt is blank for {requestPath}", requestPath);
