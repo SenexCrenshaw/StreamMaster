@@ -7,10 +7,10 @@
     //    //[Authorize(Policy = "SGLinks")]
     //    //[HttpGet]
     //    //[HttpHead]
-    //    //[Route("{SMChannelId}.m3u8")]
-    //    //public async Task<ActionResult> GetM3U8(int SMChannelId, CancellationToken cancellationToken)
+    //    //[Route("{Id}.m3u8")]
+    //    //public async Task<ActionResult> GetM3U8(int Id, CancellationToken cancellationToken)
     //    //{
-    //    //    SMChannel? smChannel = await repositoryWrapper.SMChannel.FirstOrDefaultAsync(a => a.Id == SMChannelId);
+    //    //    SMChannel? smChannel = await repositoryWrapper.SMChannel.FirstOrDefaultAsync(a => a.Id == Id);
     //    //    if (smChannel is null)
     //    //    {
     //    //        return NotFound();
@@ -149,7 +149,7 @@
     //            IChannelStatus? status = _channelService.GetChannelStatusFromSMChannelId(smChannelId);
 
     //            //int count = _channelService.GetChannelStatusesFromSMChannelId(smChannelId);
-    //            if (status == null || status.ClientCount == 0)
+    //            if (status == null || status.ChannelCount == 0)
     //            {
     //                _channelService.UnRegisterChannel(smChannelId);
     //            }

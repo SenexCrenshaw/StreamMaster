@@ -815,6 +815,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>, ref: 
           onFilter={onFilter}
           onPage={onPage}
           onRowClick={props.selectRow === true ? props.onRowClick : undefined}
+          // onSort={}
           paginator={showPageination}
           paginatorClassName="text-xs p-0 m-0"
           paginatorTemplate={getPageTemplate}

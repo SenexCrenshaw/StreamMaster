@@ -1,4 +1,5 @@
 ﻿using System.Collections.Concurrent;
+using StreamMaster.Domain.Crypto;
 
 namespace StreamMaster.Application.StreamGroups.Commands;
 
@@ -32,7 +33,7 @@ public class CreateStreamGroupRequestHandler(IRepositoryWrapper Repository, IMes
         {
             Name = request.Name,
             DeviceID = UniqueHexGenerator.GenerateUniqueHex(generatedIdsDict),
-            GroupKey = request.GroupKey ?? Guid.NewGuid().ToString().Replace("-", "")
+            GroupKey = request.GroupKey ?? KeyGenerator.GenerateKey()
         };
 
         streamGroup.StreamGroupProfiles.Add(new StreamGroupProfile

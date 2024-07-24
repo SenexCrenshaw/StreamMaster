@@ -71,6 +71,12 @@
   align-items: center;
 }
 
+.sm-end-stuff {
+  display: flex;
+  justify-content: end;
+  align-items: center;
+}
+
 .sm-w-1-5rem {
   flex: 0 0 1.5rem;
   min-width: 1.5rem !important;

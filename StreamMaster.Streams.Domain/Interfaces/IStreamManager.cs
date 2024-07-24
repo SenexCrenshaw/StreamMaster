@@ -12,8 +12,8 @@ public interface IStreamManager
 
     bool IsHealthy();
     IDictionary<string, StreamHandlerMetrics> GetAggregatedMetrics();
-    void AddClientsToHandler(List<ClientStreamerConfiguration> clientIds, IStreamHandler streamHandler);
-    void AddClientToHandler(ClientStreamerConfiguration streamerConfiguration, IStreamHandler streamHandler);
+    //void AddClientsToHandler(List<ClientStreamerConfiguration> UniqueRequestIds, IStreamHandler streamHandler);
+    //void AddClientToHandler(ClientStreamerConfiguration streamerConfiguration, IStreamHandler streamHandler);
     VideoInfo GetVideoInfo(string streamUrl);
 
     event EventHandler<StreamHandlerStopped> OnStreamingStoppedEvent;
@@ -45,7 +45,7 @@ public interface IStreamManager
     /// <returns>An IStreamHandler if the stream exists; otherwise, returns null.</returns>
     IStreamHandler? GetStreamHandler(string? VideoStreamId);
 
-    IStreamHandler? GetStreamHandlerByClientId(Guid ClientId);
+    //IStreamHandler? GetStreamHandlerByUniqueRequestId(string UniqueRequestId);
 
     ///// <summary>
     ///// Retrieves the information for all streams.
@@ -72,5 +72,6 @@ public interface IStreamManager
     /// <param name="VideoStreamUrl">The URL of the video stream to stop.</param>
     /// <returns>Returns true if the stopped stream, false if CurrentVideoStreamId not found.</returns>
     bool StopAndUnRegisterHandler(string VideoStreamUrl);
-    int UnRegisterClientStreamer(string url, Guid clientId, string SMChannelName);
+    //void CheckHandler(string url);
+    //int UnRegisterClientStreamer(string url, string UniqueRequestId, string SMChannelName);
 }

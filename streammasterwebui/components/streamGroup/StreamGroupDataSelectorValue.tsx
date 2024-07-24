@@ -1,6 +1,7 @@
 import StringEditor from '@components/inputs/StringEditor';
 import SMDataTable from '@components/smDataTable/SMDataTable';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
+import VButton from '@components/vs/VButton';
 import { Logger } from '@lib/common/logger';
 import { UpdateStreamGroupProfile } from '@lib/smAPI/StreamGroups/StreamGroupsCommands';
 import { StreamGroupDto, StreamGroupProfile, StreamGroupProfileDto, UpdateStreamGroupProfileRequest } from '@lib/smAPI/smapiTypes';
@@ -30,8 +31,15 @@ const StreamGroupDataSelectorValue = ({ id, streamGroupDto }: StreamGroupDataSel
   );
 
   const actionTemplate = useCallback(
-    (streamGroupProfile: StreamGroupProfile) => <RemoveStreamGroupProfileDialog streamGroupProfile={streamGroupProfile} />,
-    []
+    (streamGroupProfile: StreamGroupProfile) => {
+      return (
+        <div className="sm-end-stuff">
+          <RemoveStreamGroupProfileDialog streamGroupProfile={streamGroupProfile} />
+          <VButton streamGroupDto={streamGroupDto} streamGroupProfile={streamGroupProfile} />
+        </div>
+      );
+    },
+    [streamGroupDto]
   );
 
   const nameTemplate = useCallback(

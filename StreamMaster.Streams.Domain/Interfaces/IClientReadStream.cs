@@ -1,14 +1,12 @@
-﻿using System.Threading.Channels;
-
-namespace StreamMaster.Streams.Domain.Interfaces;
+﻿namespace StreamMaster.Streams.Domain.Interfaces;
 
 /// <summary>
 /// Provides an interface for reading from a ring buffer stream.
 /// </summary>
 public interface IClientReadStream : IDisposable
 {
-    string VideoStreamName { get; set; }
-    Channel<byte[]> Channel { get; }
+    //IByteTrackingChannel Channel { get; }
+    IByteTrackingChannel<byte[]> Channel { get; }
 
     /// <summary>
     /// Gets a value indicating whether the stream supports reading.

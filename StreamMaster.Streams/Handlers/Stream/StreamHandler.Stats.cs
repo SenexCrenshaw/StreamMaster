@@ -5,16 +5,11 @@ using System.Diagnostics.Metrics;
 
 namespace StreamMaster.Streams.Streams;
 
-
-/// <summary>
-/// Manages the streaming of a single video stream, including client registrations and circularRingbuffer handling.
-/// </summary>
 public sealed partial class StreamHandler
 {
     private static readonly Meter Meter = new("StreamHandlerMetrics", "1.0");
     private static readonly Counter<long> BytesReadCounter = Meter.CreateCounter<long>("bytes_read");
     private static readonly Counter<long> BytesWrittenCounter = Meter.CreateCounter<long>("bytes_written");
-    private static readonly Counter<int> ClientCountCounter = Meter.CreateCounter<int>("client_count");
     private static readonly Histogram<double> KbpsHistogram = Meter.CreateHistogram<double>("kbps", "kbps");
     private static readonly Histogram<double> LatencyHistogram = Meter.CreateHistogram<double>("latency", "ms");
     private static readonly Counter<int> ErrorCounter = Meter.CreateCounter<int>("errors");
@@ -22,7 +17,6 @@ public sealed partial class StreamHandler
     private readonly BPSStatistics _bpsStatistics = new();
     private long bytesRead;
     private long bytesWritten;
-    private int clientCount;
 
     private DateTime lastErrorTime;
     private readonly TimeSpan errorThreshold = TimeSpan.FromMinutes(5);
@@ -50,11 +44,6 @@ public sealed partial class StreamHandler
         return latencies.IsEmpty ? 0 : latencies.Average();
     }
 
-    public int GetClientCount()
-    {
-        return Volatile.Read(ref clientCount);
-    }
-
     public double GetKbps()
     {
         return _bpsStatistics.BitsPerSecond / 1000.0;
@@ -69,11 +58,10 @@ public sealed partial class StreamHandler
     {
         Interlocked.Add(ref this.bytesRead, bytesRead);
         Interlocked.Add(ref this.bytesWritten, bytesWritten);
-        clientCount = ClientCount;
+
 
         BytesReadCounter.Add(bytesRead);
         BytesWrittenCounter.Add(bytesWritten);
-        ClientCountCounter.Add(ClientCount);
         LatencyHistogram.Record(latency);
 
         _bpsStatistics.AddBytesRead(bytesRead);
@@ -100,11 +88,11 @@ public sealed partial class StreamHandler
         //}
 
         // Check if there are clients connected
-        if (ClientCount == 0)
-        {
-            logger.LogWarning("StreamHandler is unhealthy: no clients connected.");
-            return false;
-        }
+        //if (ChannelCount == 0)
+        //{
+        //    logger.LogWarning("StreamHandler is unhealthy: no clients connected.");
+        //    return false;
+        //}
 
         // Check for any recent errors
         if ((DateTime.UtcNow - lastErrorTime) < errorThreshold)

@@ -48,7 +48,7 @@ public class VideoStreamsController(IChannelManager channelManager, ISender send
             return new NotFoundResult();
         }
 
-        StreamGroupProfile? streamGroupProfile = repositoryWrapper.StreamGroupProfile.GetStreamGroupProfile(streamGroupId.Value, streamGroupProfileId.Value);
+        StreamGroupProfile? streamGroupProfile = await repositoryWrapper.StreamGroupProfile.GetStreamGroupProfileAsync(streamGroupId.Value, streamGroupProfileId.Value);
 
         if (streamGroupProfile == null || streamGroupProfile?.CommandProfileName == "None")
         {
@@ -64,9 +64,9 @@ public class VideoStreamsController(IChannelManager channelManager, ISender send
         HttpRequest request = HttpContext.Request;
         string originalUrl = $"{request.Scheme}://{request.Host}{request.PathBase}{request.Path}{request.QueryString}";
         smChannelDto.StreamUrl = originalUrl;
-
-        ClientStreamerConfiguration config = new(smChannelDto, streamGroupId.Value, streamGroupProfile!.Id, Request.Headers.UserAgent.ToString(), ipAddress ?? "unknown", HttpContext.Response, cancellationToken);
-        Stream? stream = await channelManager.GetChannelAsync(config, cancellationToken);
+        string uniqueRequestId = request.HttpContext.TraceIdentifier;
+        ClientStreamerConfiguration config = new(uniqueRequestId, smChannelDto, streamGroupId.Value, streamGroupProfile!.Id, Request.Headers.UserAgent.ToString(), ipAddress ?? "unknown", HttpContext.Response, cancellationToken);
+        Stream? stream = await channelManager.GetChannelStreamAsync(config, cancellationToken);
 
         HttpContext.Response.RegisterForDispose(new UnregisterClientOnDispose(channelManager, config));
         return stream != null ? new FileStreamResult(stream, "video/mp4") : StatusCode(StatusCodes.Status404NotFound);

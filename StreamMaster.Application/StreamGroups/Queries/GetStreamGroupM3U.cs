@@ -103,18 +103,7 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
             return "";
         }
 
-        StreamGroupProfile? sgProfile = null;
-
-        if (request.StreamGroupProfileId != null)
-        {
-            StreamGroupProfile? test = Repository.StreamGroupProfile.GetStreamGroupProfile(request.StreamGroupId, request.StreamGroupProfileId.Value);
-            if (test != null)
-            {
-                sgProfile = test;
-            }
-
-        }
-        sgProfile ??= Repository.StreamGroupProfile.GetQuery().FirstOrDefault(a => a.StreamGroupId == request.StreamGroupId && a.ProfileName.Equals("default", StringComparison.CurrentCultureIgnoreCase));
+        StreamGroupProfile? sgProfile = await Repository.StreamGroupProfile.GetStreamGroupProfileAsync(request.StreamGroupId, request.StreamGroupProfileId);
         if (sgProfile == null)
         {
             return DefaultReturn;

@@ -24,7 +24,7 @@ using StreamMaster.Infrastructure.EF.PGSQL;
 using StreamMaster.Infrastructure.Logger;
 using StreamMaster.Infrastructure.Services.Frontend;
 using StreamMaster.Infrastructure.Services.QueueService;
-using StreamMaster.Streams.Handlers.Stream;
+
 using StreamMasterAPI.SchemaHelpers;
 
 using System.Reflection;
@@ -71,7 +71,6 @@ public static class ConfigureServices
 
         services.AddSingleton<IContentTypeProvider, FileExtensionContentTypeProvider>();
         services.AddRouting(options => options.LowercaseUrls = true);
-        services.AddHealthChecks().AddCheck<StreamHandlerHealthCheck>("stream_handler_health_check");
         services.AddResponseCompression(options => options.EnableForHttps = true);
 
         services.AddCors(options =>

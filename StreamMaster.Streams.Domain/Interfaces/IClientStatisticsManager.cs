@@ -4,12 +4,12 @@ namespace StreamMaster.Streams.Domain.Interfaces
 {
     public interface IClientStatisticsManager
     {
-        bool UnRegisterClient(Guid clientId);
-        List<Guid> GetAllClientIds();
+        bool UnRegisterClient(string clientId);
+        List<string> GetAllUniqueRequestIds();
         //List<ClientStreamingStatistics> GetAllClientStatisticsByClientIds(ICollection<Guid> ClientIds);
-        void AddBytesRead(Guid clientId, int bytesRead);
+        void AddBytesRead(string clientId, int bytesRead);
         List<ClientStreamingStatistics> GetAllClientStatistics();
-        void IncrementBytesRead(Guid clientId);
+        void IncrementBytesRead(string clientId);
         void RegisterClient(ClientStreamerConfiguration streamerConfiguration);
     }
 }

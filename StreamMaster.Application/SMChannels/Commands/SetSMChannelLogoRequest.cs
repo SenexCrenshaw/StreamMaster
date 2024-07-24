@@ -15,7 +15,7 @@ internal class SetSMChannelLogoRequestHandler(IRepositoryWrapper Repository, IMe
             return ret;
         }
 
-        //FieldData fd = new(SMChannel.APIName, request.SMChannelId, "Logo", request.Logo);
+        //FieldData fd = new(SMChannel.APIName, request.Id, "Logo", request.Logo);
         //await hubContext.Clients.All.SetField([fd]).ConfigureAwait(false);
         //await hubContext.Clients.All.DataRefresh("GetSMChannel");
         await dataRefreshService.RefreshSMChannels().ConfigureAwait(false);

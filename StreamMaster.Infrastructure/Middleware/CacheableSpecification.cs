@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Http;
+
 using StreamMaster.Domain.Configuration;
 
 namespace StreamMaster.Infrastructure.Middleware
@@ -22,7 +23,10 @@ namespace StreamMaster.Infrastructure.Middleware
                 return true;
             }
 
-            if (request.Path.StartsWithSegments("/api", StringComparison.CurrentCultureIgnoreCase))
+            if (
+                request.Path.StartsWithSegments("/api/", StringComparison.CurrentCultureIgnoreCase) ||
+                request.Path.StartsWithSegments("/v/", StringComparison.CurrentCultureIgnoreCase)
+                )
             {
                 //if (request.Path.ToString().ContainsIgnoreCase("/MediaCover"))
                 //{

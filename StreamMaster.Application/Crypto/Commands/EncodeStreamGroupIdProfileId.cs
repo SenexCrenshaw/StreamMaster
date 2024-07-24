@@ -1,4 +1,6 @@
-﻿namespace StreamMaster.Application.Crypto.Commands;
+﻿using StreamMaster.Domain.Crypto;
+
+namespace StreamMaster.Application.Crypto.Commands;
 
 [RequireAll]
 public record EncodeStreamGroupIdProfileId(int StreamGroupId, int StreamGroupProfileId)

@@ -1,4 +1,6 @@
-﻿namespace cryptoTester
+﻿using StreamMaster.Domain.Crypto;
+
+namespace cryptoTester
 {
     internal class Program
     {

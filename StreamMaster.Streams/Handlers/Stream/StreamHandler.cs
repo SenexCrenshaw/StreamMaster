@@ -6,50 +6,25 @@ using System.Threading.Channels;
 
 namespace StreamMaster.Streams.Streams
 {
-    /// <summary>
-    /// Manages the streaming of a single video stream, including client registrations and handling.
-    /// </summary>
+
     public sealed partial class StreamHandler
     {
         private const int videoBufferSize = 1 * 1024 * 1000;
         public const int ChunkSize = 64 * 1024;
         private DateTime LastVideoInfoRun = DateTime.MinValue;
+        //public async Task StartVideo(IChannelStatus channelStatus)
+        //{
 
-        private async Task WriteToAllClientsAsync(byte[] data, CancellationToken cancellationToken)
-        {
-            IEnumerable<Task> tasks = clientStreamerConfigs.Values
-                .Where(c => c.ClientStream?.Channel?.Writer != null)
-                .Select(async clientStreamerConfig =>
-                {
-                    try
-                    {
-                        ChannelWriter<byte[]>? writer = clientStreamerConfig.ClientStream?.Channel?.Writer;
-                        if (writer != null)
-                        {
-                            await writer.WriteAsync(data, cancellationToken).ConfigureAwait(false);
-                        }
-                    }
-                    catch (OperationCanceledException)
-                    {
-                        // Handle task cancellation if needed
-                        logger.LogInformation("Write to client {ClientId} was canceled.", clientStreamerConfig.ClientId);
-                    }
-                    catch (Exception ex)
-                    {
-                        logger.LogError(ex, "Failed to write to client {ClientId}", clientStreamerConfig.ClientId);
-                    }
-                });
+        //    (Stream? stream, int processId, ProxyStreamError? error) = await proxyFactory.GetProxy(channelStatus, cancellationToken).ConfigureAwait(false);
+        //    //if (stream == null || error != null || processId == 0)
+        //    //{
+        //    //    return null;
+        //    //}
 
-            try
-            {
-                await Task.WhenAll(tasks).ConfigureAwait(false);
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "An error occurred while writing to all clients.");
-            }
-        }
+        //    //StreamHandler streamHandler = new(channelStatus.SMStream, processId, intSettings, loggerFactory);
 
+        //    //_ = Task.Run(() => streamHandler.StartVideoStreamingAsync(stream), cancellationToken);
+        //}
 
         public async Task StartVideoStreamingAsync(Stream stream)
         {
@@ -63,7 +38,7 @@ namespace StreamMaster.Streams.Streams
 
             Stopwatch testSw = Stopwatch.StartNew();
             Memory<byte> bufferMemory = new byte[ChunkSize];
-            //Queue<byte> intervalBuffer = new(videoBufferSize);
+
             Task? runTask = null;
             Channel<byte[]> channel = Channel.CreateUnbounded<byte[]>();
 
@@ -75,16 +50,6 @@ namespace StreamMaster.Streams.Streams
                     {
                         while (!token.IsCancellationRequested)
                         {
-                            if (ClientCount == 0)
-                            {
-                                if (ran)
-                                {
-                                    logger.LogWarning("No more clients, breaking");
-                                    break;
-                                }
-                                await Task.Delay(10, token).ConfigureAwait(false);
-                                continue;
-                            }
 
                             Stopwatch readStart = Stopwatch.StartNew();
                             int readBytes = await stream.ReadAsync(bufferMemory, token).ConfigureAwait(false);
@@ -132,7 +97,7 @@ namespace StreamMaster.Streams.Streams
                 {
                     await foreach (byte[]? data in reader.ReadAllAsync(token).ConfigureAwait(false))
                     {
-                        await WriteToAllClientsAsync(data, token).ConfigureAwait(false);
+                        await _outputChannel.Writer.WriteAsync(data, token);
 
                         SetMetrics(0, data.Length, 0);
 
@@ -190,7 +155,7 @@ namespace StreamMaster.Streams.Streams
                 {
                     stream.Dispose();
                 }
-                //Stop(inputStreamError);
+
                 OnStreamingStopped(inputStreamError);
             }
         }

@@ -1,12 +1,13 @@
 import StringEditor from '@components/inputs/StringEditor';
 import { SMDialogRef } from '@components/sm/SMDialog';
 import SMPopUp, { SMPopUpRef } from '@components/sm/SMPopUp';
+import { generateKey } from '@lib/common/crypto';
 import { CreateStreamGroup } from '@lib/smAPI/StreamGroups/StreamGroupsCommands';
 import { CreateStreamGroupRequest } from '@lib/smAPI/smapiTypes';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
-import { v4 as uuidv4 } from 'uuid';
 import CommandProfileDropDown from './profiles/CommandProfileDropDown';
 import OutputProfileDropDown from './profiles/OutputProfileDropDown';
+
 export interface StreamGroupCreateDialogProperties {
   readonly showButton?: boolean | null;
   readonly zIndex?: number | undefined;
@@ -20,7 +21,7 @@ export const StreamGroupCreateDialog = ({ modal, zIndex }: StreamGroupCreateDial
     () =>
       ({
         CommandProfileName: 'StreamMaster',
-        GroupKey: uuidv4().replace(/-/g, ''),
+        GroupKey: generateKey(),
         Name: '',
         OutputProfileName: 'Default'
       } as CreateStreamGroupRequest),
@@ -74,20 +75,21 @@ export const StreamGroupCreateDialog = ({ modal, zIndex }: StreamGroupCreateDial
 
   return (
     <SMPopUp
-      ref={smPopUpRef}
+      contentWidthSize="4"
       icon="pi-plus"
       iconFilled
-      modal={modal ?? false}
-      contentWidthSize="4"
+      ref={smPopUpRef}
       title="ADD SG"
+      modal
       onOkClick={() => {
         create();
       }}
-      onCloseClick={() => ReturnToParent()}
-      okButtonDisabled={!isSaveEnabled}
       buttonClassName="icon-green"
+      okButtonDisabled={!isSaveEnabled}
+      onCloseClick={() => ReturnToParent()}
       tooltip="Add SG"
-      zIndex={zIndex ?? 10}
+      placement="bottom-end"
+      zIndex={12}
     >
       <div className="sm-center-stuff p-2">
         <div className="sm-w-3">
@@ -103,7 +105,6 @@ export const StreamGroupCreateDialog = ({ modal, zIndex }: StreamGroupCreateDial
         </div>
         <div className="sm-w-3">
           <StringEditor
-            autoFocus
             darkBackGround
             disableDebounce
             label="Group Key"

@@ -12,8 +12,8 @@ export interface SortInfo {
 type SortInfoState = Record<string, { orderBy: string; sortField: string; sortOrder: -1 | 0 | 1 }>;
 
 const defaultSortInfo = {
-  orderBy: 'id asc',
-  sortField: 'id',
+  orderBy: 'Id asc',
+  sortField: 'Id',
   sortOrder: 1 as -1 | 0 | 1
 };
 const initialState: SortInfoState = {};

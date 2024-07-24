@@ -1,80 +1,38 @@
 ﻿using StreamMaster.Domain.Models;
 
-namespace StreamMaster.Streams.Domain.Interfaces;
+using System.Threading.Channels;
 
-public interface IStreamHandler : IDisposable
+namespace StreamMaster.Streams.Domain.Interfaces
 {
-    void CancelStreamThread();
-    bool IsHealthy();
-    long GetBytesRead();
-    long GetBytesWritten();
-    double GetKbps();
-    double GetAverageLatency();
-    int GetErrorCount();
-    DateTime GetStartTime();
-    //int GetClientCount();
-    void UnRegisterAllClientStreamers();
-    IEnumerable<ClientStreamerConfiguration> GetClientStreamerClientIdConfigs { get; }
-    Task StartVideoStreamingAsync(Stream stream);
-    //int ProcessId { get; set; }
-    SMStreamDto SMStream { get; }
-    //SMChannelDto SMChannel { get; }
+    public interface IStreamHandler
+    {
+        ChannelReader<byte[]> GetOutputChannelReader();
+        //int ChannelCount { get; set; }
+        //IEnumerable<IChannelStatus> GetChannelStatuses { get; }
+        bool IsFailed { get; set; }
+        SMStreamDto SMStream { get; }
 
-    bool IsFailed { get; }
-    VideoInfo GetVideoInfo();
-    //string StreamName { get; }
+        event EventHandler<StreamHandlerStopped> OnStreamingStoppedEvent;
 
-    event EventHandler<StreamHandlerStopped> OnStreamingStoppedEvent;
+        Task BuildVideoInfoAsync(byte[] videoMemory);
+        void CancelStreamThread();
+        void Dispose();
+        double GetAverageLatency();
+        long GetBytesRead();
+        long GetBytesWritten();
+        //IEnumerable<int> GetChannelStatusIds();
 
-    /// <summary>
-    /// true if there is an existing client registered; otherwise, false.
-    /// </summary>
-    bool HasClient(Guid clientId);
-
-
-    /// <summary>
-    /// Gets or sets the M3U file ID.
-    /// </summary>
-   // int M3UFileId { get; }
-
-    /// <summary>
-    /// Gets or sets the URL of the stream.
-    /// </summary>
-   // string StreamUrl { get; }
-
-    //int SMStreamId { get; }
-
-
-    ///// <summary>
-    ///// Gets the current number of clients connected.
-    ///// </summary>
-    int ClientCount { get; }
-    //int RestartCount { get; set; }
-
-    /// <summary>
-    /// Registers a client streamer with the given configuration.
-    /// </summary>
-    /// <param name="streamerConfiguration">The configuration for the client streamer.</param>
-    void RegisterClientStreamer(ClientStreamerConfiguration streamerConfiguration);
-
-    /// <summary>
-    /// Stops all video streaming activities.
-    /// </summary>
-    void Stop(bool inputStreamError = false);
-
-    /// <summary>
-    /// Unregisters a client streamer with the given configuration.
-    /// </summary>
-    /// <param name="ClientId">The ClientId for the client streamer.</param>
-    /// <returns>True if the client streamer is unregistered successfully; otherwise, false.</returns>
-    bool UnRegisterClientStreamer(Guid ClientId);
-
-    /// <summary>
-    /// Gets all registered client streamer configurations.
-    /// </summary>
-    /// <returns>A collection of client streamer configurations; null if none found.</returns>
-    //ICollection<IClientStreamerConfiguration>? GetClientStreamerConfigurations();
-
-    IEnumerable<Guid> GetClientStreamerClientIds();
-    void SetFailed();
+        int GetErrorCount();
+        double GetKbps();
+        DateTime GetStartTime();
+        VideoInfo GetVideoInfo();
+        //bool HasChannel(int smChannelId);
+        bool IsHealthy();
+        //void RegisterChannel(IChannelStatus channelStatus);
+        void SetFailed();
+        Task StartVideoStreamingAsync(Stream stream);
+        void Stop(bool inputStreamError = false);
+        //void UnRegisterAllChannels();
+        //bool UnRegisterChannel(int smChannelId);
+    }
 }

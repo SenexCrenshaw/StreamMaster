@@ -29,7 +29,7 @@ public sealed partial class ClientReadStream
 
     private readonly PerformanceBpsMetrics metrics = new();
     private readonly DateTime _lastUpdateTime = SMDT.UtcNow;
-    private int acculmativeBytesRead = 0;
+    private readonly int acculmativeBytesRead = 0;
     private void SetMetrics(int bytesRead)
     {
         DateTime currentTime = SMDT.UtcNow;
@@ -38,10 +38,10 @@ public sealed partial class ClientReadStream
         //if (setting.EnablePrometheus && (currentTime - _lastUpdateTime > TimeSpan.FromSeconds(5)))
         //{
         double bps = metrics.GetBitsPerSecond();
-        _clientStatisticsManager.AddBytesRead(ClientId, bytesRead);
+        _clientStatisticsManager.AddBytesRead(UniqueRequestId, bytesRead);
 
-        //_bitsPerSecond.WithLabels(ClientId.ToString(), StreamName).Set(bps);
-        //_bytesReadCounter.WithLabels(ClientId.ToString(), StreamName).Inc(acculmativeBytesRead);
+        //_bitsPerSecond.WithLabels(UniqueRequestId.ToString(), StreamName).Set(bps);
+        //_bytesReadCounter.WithLabels(UniqueRequestId.ToString(), StreamName).Inc(acculmativeBytesRead);
 
         //acculmativeBytesRead = 0;
         //_lastUpdateTime = currentTime;

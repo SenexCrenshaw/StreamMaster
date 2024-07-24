@@ -1,51 +1,36 @@
-﻿using System.Threading.Channels;
-
-namespace StreamMaster.Streams.Buffers;
+﻿namespace StreamMaster.Streams.Buffers;
 
 public sealed partial class ClientReadStream : Stream, IClientReadStream
 {
     private readonly ILogger<ClientReadStream> logger;
-    private readonly IClientStreamerConfiguration config;
+    //private readonly IClientStreamerConfiguration config;
     private readonly IClientStatisticsManager _clientStatisticsManager;
-
-    public string VideoStreamName { get; set; }
-
     public ClientReadStream(IClientStatisticsManager clientStatisticsManager, ILoggerFactory loggerFactory, ClientStreamerConfiguration config)
     {
-        //Setting settings = intSettings.CurrentValue;
-
-        //var streamer = new FfmpegOverlayStreamer(ffmpegPath, inputUrl, outputUrl);
-        //CancellationTokenSource cts = new();
-
-        //string overlayOutputPath = "overlay.flv";
-        //overlayStreamGenerator.StartOverlayStreamAsync("Hello, world!", "image.png", CancellationToken.None);
-
-
-        this.config = config ?? throw new ArgumentNullException(nameof(config));
+        //this.config = config ?? throw new ArgumentNullException(nameof(config));
 
         logger = loggerFactory.CreateLogger<ClientReadStream>();
-        _readLogger = loggerFactory.CreateLogger<ReadsLogger>();
 
-        ClientId = config.ClientId;
+        UniqueRequestId = config.UniqueRequestId;
 
         _clientStatisticsManager = clientStatisticsManager;
-
         _clientStatisticsManager.RegisterClient(config);
-        UnboundedChannelOptions options = new()
-        {
-            SingleReader = true,
-            SingleWriter = true
-        };
-        Channel = System.Threading.Channels.Channel.CreateUnbounded<byte[]>(options);
 
-        logger.LogInformation("Starting client read stream for ClientId: {ClientId}", ClientId);
+        //BoundedChannelOptions options = new(100)
+        //{
+        //    SingleReader = true,
+        //    SingleWriter = true
+        //};
+        Channel = new ByteTrackingChannel(loggerFactory.CreateLogger<ByteTrackingChannel>(), 200, 10);
+
+        logger.LogInformation("Starting client read stream for UniqueRequestId: {UniqueRequestId}", UniqueRequestId);
     }
 
-    public Channel<byte[]> Channel { get; private set; }
+    public IByteTrackingChannel<byte[]> Channel { get; private set; }
 
     private bool IsCancelled { get; set; }
 
-    private Guid ClientId { get; set; }
+    private string UniqueRequestId { get; set; }
     public Guid Id { get; } = Guid.NewGuid();
     public override bool CanRead => true;
     public override bool CanSeek => false;
@@ -68,19 +53,17 @@ public sealed partial class ClientReadStream : Stream, IClientReadStream
         }
         catch (TaskCanceledException ex)
         {
-
-
-            logger.LogInformation(ex, "Read Task ended for ClientId: {ClientId}", ClientId);
+            logger.LogInformation(ex, "Read Task ended for UniqueRequestId: {UniqueRequestId}", UniqueRequestId);
         }
         catch (Exception ex)
         {
             //
             //if (setting.EnablePrometheus)
             //{
-            //    _readErrorsCounter.WithLabels(ClientId.ToString(), StreamName).Inc();
+            //    _readErrorsCounter.WithLabels(UniqueRequestId.ToString(), StreamName).Inc();
             //}
 
-            logger.LogError(ex, "Error reading buffer for ClientId: {ClientId}", ClientId);
+            logger.LogError(ex, "Error reading buffer for UniqueRequestId: {UniqueRequestId}", UniqueRequestId);
         }
 
         return bytesRead;
@@ -117,12 +100,12 @@ public sealed partial class ClientReadStream : Stream, IClientReadStream
         {
             if (disposing)
             {
-                _clientStatisticsManager.UnRegisterClient(ClientId);
+                _clientStatisticsManager.UnRegisterClient(UniqueRequestId);
                 //if (!string.IsNullOrEmpty(StreamName))
                 //{
-                //    _bitsPerSecond.RemoveLabelled(ClientId.ToString(), StreamName);
-                //    _bytesReadCounter.RemoveLabelled(ClientId.ToString(), StreamName);
-                //    _readErrorsCounter.RemoveLabelled(ClientId.ToString(), StreamName);
+                //    _bitsPerSecond.RemoveLabelled(UniqueRequestId.ToString(), StreamName);
+                //    _bytesReadCounter.RemoveLabelled(UniqueRequestId.ToString(), StreamName);
+                //    _readErrorsCounter.RemoveLabelled(UniqueRequestId.ToString(), StreamName);
                 //}
                 //_bitsPerSecond.Unpublish();
 

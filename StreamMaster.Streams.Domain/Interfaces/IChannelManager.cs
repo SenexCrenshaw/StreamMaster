@@ -28,8 +28,8 @@ public interface IChannelManager : IDisposable
     /// <summary>
     /// Fails a client by its unique identifier.
     /// </summary>
-    /// <param name="clientId">The unique identifier of the client to fail.</param>
-    Task CancelClient(Guid clientId);
+    /// <param name="UniqueRequestIds">The unique identifier of the client to fail.</param>
+    Task CancelClient(string UniqueRequestIds);
 
     /// <summary>
     /// Asynchronously gets a stream based on the given client streamer configuration.
@@ -37,7 +37,7 @@ public interface IChannelManager : IDisposable
     /// <param name="config">The configuration settings for the client streamer.</param>
     /// <param name="cancellationToken">A cancellation token to observe while waiting for the task to complete.</param>
     /// <returns>A Task returning the stream. Returns null if the stream could not be obtained.</returns>
-    Task<Stream?> GetChannelAsync(ClientStreamerConfiguration config, CancellationToken cancellationToken = default);
+    Task<Stream?> GetChannelStreamAsync(ClientStreamerConfiguration config, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Asynchronously removes a client based on the given client streamer configuration.

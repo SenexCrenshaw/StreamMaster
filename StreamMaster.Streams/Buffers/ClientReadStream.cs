@@ -6,7 +6,6 @@ namespace StreamMaster.Streams.Buffers;
 public sealed partial class ClientReadStream
 {
     private readonly CancellationTokenSource _readCancel = new();
-    private readonly ILogger<ReadsLogger> _readLogger;
 
     public override async ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken)
     {
@@ -19,20 +18,18 @@ public sealed partial class ClientReadStream
 
         int bytesRead = 0;
 
-
-        _readLogger.LogDebug($"-------------------{VideoStreamName}-----------------------------");
         try
         {
             CancellationTokenSource timedToken = new(TimeSpan.FromSeconds(30));
             using CancellationTokenSource linkedCts = CancellationTokenSource.CreateLinkedTokenSource(_readCancel.Token, timedToken.Token, cancellationToken);
 
-            while (!Channel.Reader.CanPeek)
+            while (!Channel.CanPeek)
             {
                 await Task.Delay(10, cancellationToken);
             }
-            byte[] read = await Channel.Reader.ReadAsync(linkedCts.Token);
+            byte[] read = await Channel.ReadAsync(linkedCts.Token);
             bytesRead = read.Length;
-            _readLogger.LogDebug("End bytesRead: {bytesRead}", bytesRead);
+
             if (bytesRead == 0)
             {
                 return 0;
@@ -43,17 +40,17 @@ public sealed partial class ClientReadStream
 
             if (timedToken.IsCancellationRequested)
             {
-                logger.LogWarning("ReadAsync timedToken cancelled for ClientId: {ClientId}", ClientId);
+                logger.LogWarning("ReadAsync timedToken cancelled for UniqueRequestId: {UniqueRequestId}", UniqueRequestId);
                 return bytesRead;
             }
         }
         catch (ChannelClosedException ex)
         {
-            logger.LogInformation(ex, "ReadAsync closed for ClientId: {ClientId}", ClientId);
+            logger.LogInformation(ex, "ReadAsync closed for UniqueRequestId: {UniqueRequestId}", UniqueRequestId);
         }
         catch (TaskCanceledException ex)
         {
-            logger.LogInformation(ex, "ReadAsync cancelled ended for ClientId: {ClientId}", ClientId);
+            logger.LogInformation(ex, "ReadAsync cancelled ended for UniqueRequestId: {UniqueRequestId}", UniqueRequestId);
             logger.LogInformation("ReadAsync {_readCancel.Token}", _readCancel.Token.IsCancellationRequested);
             logger.LogInformation("ReadAsync {cancellationToken}", cancellationToken.IsCancellationRequested);
             bytesRead = 1;
@@ -66,13 +63,11 @@ public sealed partial class ClientReadStream
 
             if (bytesRead == 0)
             {
-                logger.LogDebug("Read 0 bytes for ClientId: {ClientId}", ClientId);
+                logger.LogDebug("Read 0 bytes for UniqueRequestId: {UniqueRequestId}", UniqueRequestId);
             }
         }
 
-        //_clientStatisticsManager.AddBytesRead(ClientId, bytesRead);
+        //_clientStatisticsManager.AddBytesRead(UniqueRequestId, bytesRead);
         return bytesRead;
     }
-
-
 }

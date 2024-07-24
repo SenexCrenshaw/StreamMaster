@@ -49,6 +49,7 @@ import GetSubscribedLineupsReducer from '@lib/smAPI/SchedulesDirect/GetSubscribe
 import GetSystemStatusReducer from '@lib/smAPI/General/GetSystemStatusSlice';
 import GetTaskIsRunningReducer from '@lib/smAPI/General/GetTaskIsRunningSlice';
 import GetVideoInfoFromIdReducer from '@lib/smAPI/SMChannels/GetVideoInfoFromIdSlice';
+import GetVsReducer from '@lib/smAPI/Vs/GetVsSlice';
 import isTrue from '@lib/redux/hooks/isTrue';
 import loading from '@lib/redux/hooks/loading';
 import messages from '@lib/redux/hooks/messages';
@@ -190,6 +191,7 @@ export const rootReducer = combineReducers({
   GetSystemStatus: GetSystemStatusReducer,
   GetTaskIsRunning: GetTaskIsRunningReducer,
   GetVideoInfoFromId: GetVideoInfoFromIdReducer,
+  GetVs: GetVsReducer,
   isTrue: persistReducer(isTrueConfig, isTrue),
   loading: loading,
   messages: messages,

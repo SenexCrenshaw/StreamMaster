@@ -99,9 +99,7 @@ public class ApiKeyAuthenticationHandler(IOptionsMonitor<ApiKeyAuthenticationOpt
                 &&
                 !requestPath.StartsWith("/api/streamgroups/", StringComparison.InvariantCultureIgnoreCase)
                 &&
-                 !requestPath.StartsWith("/v/v/", StringComparison.InvariantCultureIgnoreCase)
-                &&
-                !requestPath.StartsWith("/v/s/", StringComparison.InvariantCultureIgnoreCase)
+                 !requestPath.StartsWith("/v/", StringComparison.InvariantCultureIgnoreCase)
                 )
             {
                 _logger.LogDebug("SGLinks: Bad path No Authentication for {requestPath}", requestPath);

@@ -4,7 +4,6 @@ public class StreamHandlerMetrics
 {
     public long BytesRead { get; set; }
     public long BytesWritten { get; set; }
-    public int ClientCount { get; set; }
     public double Kbps { get; set; }
     public DateTime StartTime { get; set; }
     public double AverageLatency { get; set; }

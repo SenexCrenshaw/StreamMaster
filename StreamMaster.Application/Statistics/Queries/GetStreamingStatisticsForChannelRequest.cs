@@ -9,26 +9,26 @@ internal class GetStreamingStatisticsForChannelRequestHandler(IStreamStatisticSe
 {
     public async Task<DataResponse<List<StreamStreamingStatistic>>> Handle(GetStreamingStatisticsForChannelRequest request, CancellationToken cancellationToken)
     {
-        var streamingStatistics = streamStatisticService.GetStreamStreamingStatistics();
-        var smChannel = repositoryWrapper.SMChannel.GetSMChannel(request.ChannelId);
+        List<StreamStreamingStatistic> streamingStatistics = streamStatisticService.GetStreamStreamingStatistics();
+        SMChannel? smChannel = repositoryWrapper.SMChannel.GetSMChannel(request.ChannelId);
         if (smChannel == null)
         {
             return DataResponse<List<StreamStreamingStatistic>>.ErrorWithMessage("Channel not found");
         }
 
-        var smStreamIds = smChannel.SMStreams.Select(a => a.SMStreamId).ToList();
+        List<string> smStreamIds = smChannel.SMStreams.Select(a => a.SMStreamId).ToList();
 
-        var channelStreamingStatistics = streamingStatistics.Where(a => smStreamIds.Contains(a.Id)).DeepCopy().ToList();
-        var channelStreamingStatisticsIds = channelStreamingStatistics.Select(a => a.Id).ToList();
+        List<StreamStreamingStatistic> channelStreamingStatistics = streamingStatistics.Where(a => smStreamIds.Contains(a.Id)).DeepCopy().ToList();
+        List<string> channelStreamingStatisticsIds = channelStreamingStatistics.Select(a => a.Id).ToList();
 
-        var smStreamsToCreate = smChannel.SMStreams.Where(a => !channelStreamingStatisticsIds.Contains(a.SMStreamId)).ToList();
+        List<SMChannelStreamLink> smStreamsToCreate = smChannel.SMStreams.Where(a => !channelStreamingStatisticsIds.Contains(a.SMStreamId)).ToList();
 
-        foreach (var stat in channelStreamingStatistics)
+        foreach (StreamStreamingStatistic? stat in channelStreamingStatistics)
         {
             stat.UpdateValues();
         }
 
-        foreach (var smStream in smStreamsToCreate)
+        foreach (SMChannelStreamLink? smStream in smStreamsToCreate)
         {
             channelStreamingStatistics.Add(new StreamStreamingStatistic
             {
@@ -42,7 +42,7 @@ internal class GetStreamingStatisticsForChannelRequestHandler(IStreamStatisticSe
 
         List<SMChannelStreamLink> links = repositoryWrapper.SMChannelStreamLink.GetQuery().Where(a => a.SMChannelId == request.ChannelId).ToList();
 
-        foreach (var stat in channelStreamingStatistics)
+        foreach (StreamStreamingStatistic? stat in channelStreamingStatistics)
         {
 
             SMChannelStreamLink? link = links.FirstOrDefault(a => a.SMStreamId == stat.Id);

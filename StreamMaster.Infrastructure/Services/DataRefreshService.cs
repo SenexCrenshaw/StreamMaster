@@ -30,6 +30,7 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
         await RefreshStatistics(true);
         await RefreshStreamGroups(true);
         await RefreshStreamGroupSMChannelLinks(true);
+        await RefreshVs(true);
     }
 
     public async Task RefreshChannelGroups(bool alwaysRun = false)
@@ -239,5 +240,16 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
         }
 
         await hub.Clients.All.DataRefresh("GetStreamGroupSMChannels");
+    }
+
+    public async Task RefreshVs(bool alwaysRun = false)
+    {
+
+        if (!alwaysRun && !BuildInfo.IsSystemReady)
+        {
+            return;
+        }
+
+        await hub.Clients.All.DataRefresh("GetVs");
     }
 }

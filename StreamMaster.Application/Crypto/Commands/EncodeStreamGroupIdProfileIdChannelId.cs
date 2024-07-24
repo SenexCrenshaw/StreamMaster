@@ -1,4 +1,5 @@
 ﻿using System.Web;
+using StreamMaster.Domain.Crypto;
 
 namespace StreamMaster.Application.Crypto.Commands;
 

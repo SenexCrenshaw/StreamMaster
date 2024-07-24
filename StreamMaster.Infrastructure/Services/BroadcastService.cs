@@ -1,21 +1,13 @@
 ﻿using Microsoft.Extensions.Logging;
 
-using StreamMaster.SchedulesDirect.Domain.Interfaces;
-using StreamMaster.Streams.Domain.Interfaces;
-
 using System.Diagnostics;
 
 namespace StreamMaster.Infrastructure.Services;
 
 public class BroadcastService(
-    IDataRefreshService dataRefreshService,
+
     IFileLoggingServiceFactory factory,
-    ISchedulesDirectDataService schedulesDirectDataService,
-    IClientStatisticsManager clientStatisticsManager,
-    IClientStreamerManager clientStreamer,
-    IStreamManager streamManager,
-    IChannelService channelService,
-    IStreamStatisticService streamStatisticService,
+
     ILogger<BroadcastService> logger) : IBroadcastService, IDisposable
 {
     private readonly IFileLoggingService debugLogger = factory.Create("FileLoggerDebug");
@@ -60,7 +52,7 @@ public class BroadcastService(
 
         //foreach (IStreamHandler handler in streamManager.GetStreamHandlers())
         //{
-        //    printDebug("Stream: {0} {2} {3}", handler.ClientCount, handler.StreamName, handler.StreamUrl);
+        //    printDebug("Stream: {0} {2} {3}", handler.ChannelCount, handler.StreamName, handler.StreamUrl);
         //}
     }
 

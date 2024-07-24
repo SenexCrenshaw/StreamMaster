@@ -1,8 +1,13 @@
-﻿using AutoMapper;
+﻿using MediatR;
+
+using Microsoft.EntityFrameworkCore;
+
+using StreamMaster.Application.StreamGroups.Queries;
+using StreamMaster.Domain.API;
 
 namespace StreamMaster.Infrastructure.EF.Repositories;
 
-public class StreamGroupProfileRepository(ILogger<StreamGroupProfileRepository> intLogger, IMapper mapper, IRepositoryContext repositoryContext)
+public class StreamGroupProfileRepository(ILogger<StreamGroupProfileRepository> intLogger, ISender sender, IRepositoryContext repositoryContext)
     : RepositoryBase<StreamGroupProfile>(repositoryContext, intLogger), IStreamGroupProfileRepository
 {
     public async Task DeleteStreamGroupProfile(StreamGroupProfile StreamGroupProfile)
@@ -16,10 +21,34 @@ public class StreamGroupProfileRepository(ILogger<StreamGroupProfileRepository> 
         return [.. GetQuery()];
     }
 
-    public StreamGroupProfile? GetStreamGroupProfile(int StreamGroupId, int StreamGroupProfileId)
+    public async Task<StreamGroupProfile> GetStreamGroupProfileAsync(int? StreamGroupId = null, int? StreamGroupProfileId = null)
     {
-        StreamGroupProfile? profile = GetQuery().FirstOrDefault(a => a.StreamGroupId == StreamGroupId && a.Id == StreamGroupProfileId);
+        if (StreamGroupProfileId.HasValue)
+        {
+            StreamGroupProfile? profile = GetQuery().FirstOrDefault(a => a.Id == StreamGroupProfileId);
+            if (profile != null)
+            {
+                return profile;
+            }
+        }
 
-        return profile ?? GetQuery().FirstOrDefault(a => a.StreamGroupId == StreamGroupId && a.OutputProfileName == "Default");
+        if (StreamGroupId.HasValue)
+        {
+            StreamGroupProfile? profile = GetQuery().FirstOrDefault(a => a.StreamGroupId == StreamGroupId && a.ProfileName == "Default");
+            if (profile != null)
+            {
+                return profile;
+            }
+        }
+
+        DataResponse<StreamGroupProfile> def = await sender.Send(new GetDefaultStreamGroupProfileIdRequest());
+        return def.Data;
+    }
+
+    public async Task<List<StreamGroupProfile>> GetStreamGroupProfiles(int? StreamGroupId = null)
+    {
+        return StreamGroupId.HasValue
+            ? await GetQuery().Where(a => a.StreamGroupId == StreamGroupId).ToListAsync()
+            : await GetQuery().ToListAsync();
     }
 }

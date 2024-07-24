@@ -45,7 +45,7 @@ public static class ConfigureServices
         });
 
         services.AddSingleton<IAccessTracker, AccessTracker>();
-        services.AddHostedService<InactiveStreamMonitor>();
+        //services.AddHostedService<InactiveStreamMonitor>();
 
         _ = services.AddAutoMapper(
             Assembly.Load("StreamMaster.Domain"),

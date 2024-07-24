@@ -2,6 +2,7 @@ import StringEditor from '@components/inputs/StringEditor';
 import SMDataTable from '@components/smDataTable/SMDataTable';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 import StreamGroupDeleteDialog from '@components/streamGroup/StreamGroupDeleteDialog';
+import VButton from '@components/vs/VButton';
 import { Logger } from '@lib/common/logger';
 import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
 import { useSelectedStreamGroup } from '@lib/redux/hooks/selectedStreamGroup';
@@ -35,11 +36,17 @@ const StreamGroupDataSelector = ({ id }: StreamGroupDataSelectorProperties) => {
 
   const actionTemplate = useCallback((streamGroupDto: StreamGroupDto) => {
     if (streamGroupDto.IsReadOnly === true) {
-      return <div />; // <AttachStreamGroupProfileDialog streamGroupDto={streamGroupDto} />;
+      return (
+        <div className="sm-end-stuff">
+          <VButton streamGroupDto={null} />
+        </div>
+      );
     }
     return (
-      <div className="flex justify-content-center align-items-center">
+      <div className="sm-end-stuff pl-2">
         <StreamGroupDeleteDialog streamGroup={streamGroupDto} zIndex={12} />
+        <VButton streamGroupDto={streamGroupDto} />
+
         {/* <M3UFileRefreshDialog selectedFile={rowData} />
          <M3UFileRemoveDialog selectedFile={rowData} /> */}
         {/* <EPGFileEditDialog selectedFile={rowData} /> */}
@@ -122,6 +129,7 @@ const StreamGroupDataSelector = ({ id }: StreamGroupDataSelectorProperties) => {
         fieldType: 'url',
         width: 16
       },
+
       {
         align: 'center',
         field: 'XMLLink',
@@ -139,7 +147,7 @@ const StreamGroupDataSelector = ({ id }: StreamGroupDataSelectorProperties) => {
         bodyTemplate: actionTemplate,
         field: 'autoUpdate',
         header: '',
-        width: 14
+        width: 22
       }
     ],
     [nameTemplate, groupKeyTemplate, streamGroupDeviceIDColumnConfig, actionTemplate]

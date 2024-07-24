@@ -7,6 +7,7 @@ namespace StreamMaster.Streams.Domain.Models;
 public sealed class ClientStreamerConfiguration : IClientStreamerConfiguration
 {
     public ClientStreamerConfiguration(
+        string uniqueRequestId,
         SMChannelDto smChannel,
         int streamGroupId,
          int streamGroupProfileId,
@@ -16,6 +17,7 @@ public sealed class ClientStreamerConfiguration : IClientStreamerConfiguration
         CancellationToken cancellationToken
     )
     {
+        UniqueRequestId = uniqueRequestId;
         Response = response;
         ClientCancellationToken = cancellationToken;
         StreamGroupId = streamGroupId;
@@ -33,16 +35,16 @@ public sealed class ClientStreamerConfiguration : IClientStreamerConfiguration
     [IgnoreMember]
     public string HttpContextId => Response.HttpContext.TraceIdentifier;
 
-    //Buffering
     [IgnoreMember]
     public IClientReadStream? ClientStream { get; set; }
 
     [IgnoreMember]
     public CancellationToken ClientCancellationToken { get; }
 
+    public string UniqueRequestId { get; set; }
     public string ClientIPAddress { get; set; }
 
-    public Guid ClientId { get; set; } = Guid.NewGuid();
+
     public string ClientUserAgent { get; set; }
 
     public int StreamGroupProfileId { get; set; }

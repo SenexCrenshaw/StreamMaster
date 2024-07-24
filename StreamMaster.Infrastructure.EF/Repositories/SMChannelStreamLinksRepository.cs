@@ -12,21 +12,21 @@ public class SMChannelStreamLinksRepository(ILogger<SMChannelStreamLinksReposito
         return [.. GetQuery()];
     }
 
-    //public async Task CreateSMChannelStreamLink(int SMChannelId, string SMStreamId, int? Rank);
+    //public async Task CreateSMChannelStreamLink(int Id, string SMStreamId, int? CurrentRank);
     //{
-    //    if (Any(a => a.SMStreamId == SMStreamId && a.SMChannelId == smChannel.Id))
+    //    if (Any(a => a.SMStreamId == SMStreamId && a.Id == smChannel.Id))
     //    {
     //        return;
     //    }
 
-    //    int nextRank = Rank ?? GetMaxRank(smChannel.Id);
+    //    int nextRank = CurrentRank ?? GetMaxRank(smChannel.Id);
     //    SMChannelStreamLink link = new()
     //    {
     //        SMStream = SMStream,
     //        SMChannel = smChannel,
-    //        SMChannelId = smChannel.Id,
+    //        Id = smChannel.Id,
     //        SMStreamId = SMStream.Id,
-    //        Rank = nextRank,
+    //        CurrentRank = nextRank,
     //    };
 
 

@@ -39,7 +39,7 @@ public class RepositoryWrapper(
     {
         get
         {
-            _streamGroupProfileRepository ??= new StreamGroupProfileRepository(StreamGroupProfileRepositoryLogger, mapper, repositoryContext);
+            _streamGroupProfileRepository ??= new StreamGroupProfileRepository(StreamGroupProfileRepositoryLogger, sender, repositoryContext);
             return _streamGroupProfileRepository;
         }
     }

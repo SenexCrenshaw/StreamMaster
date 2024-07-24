@@ -1,4 +1,6 @@
-﻿namespace StreamMaster.Application.Crypto.Commands;
+﻿using StreamMaster.Domain.Crypto;
+
+namespace StreamMaster.Application.Crypto.Commands;
 
 [RequireAll]
 public record DecodeProfileIdSMChannelIdFromEncoded(string EncodedIds) : IRequest<(int? streamGroupId, int? StreamGroupProfileId, int? SMChannelId)>;

@@ -8,29 +8,106 @@ using StreamMaster.Application.Profiles.Queries;
 using StreamMaster.Domain.API;
 using StreamMaster.Domain.Configuration;
 using StreamMaster.PlayList;
-using StreamMaster.PlayList.Models;
+using StreamMaster.Streams.Buffers;
 
 using System.Collections.Concurrent;
 namespace StreamMaster.Streams.Channels;
 
-public sealed class ChannelService(
-    ILogger<ChannelService> logger,
-    IStreamManager streamManager,
-    IClientStreamerManager clientStreamerManager,
-    IOptionsMonitor<CommandProfileList> intProfileSettings,
-    IServiceProvider serviceProvider,
-    IMapper mapper,
-    ICustomPlayListBuilder customPlayListBuilder,
-    IOptionsMonitor<Setting> settingsMonitor,
-    IChannelStreamingStatisticsManager channelStreamingStatisticsManager
-    ) : IChannelService, IDisposable
+public sealed class ChannelService : IChannelService, IDisposable
+
 {
-    private readonly ILogger<ChannelService> logger = logger ?? throw new ArgumentNullException(nameof(logger));
-    private readonly IServiceProvider _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
+    private readonly ILogger<ChannelService> logger;
+    private readonly IServiceProvider _serviceProvider;
 
     private readonly ConcurrentDictionary<int, IChannelStatus> _channelStatuses = new();
     private readonly object _disposeLock = new();
+    private readonly ILoggerFactory loggerFactory;
+    private readonly IStreamManager streamManager;
+    private readonly IMapper mapper;
+    private readonly ICustomPlayListBuilder customPlayListBuilder;
+    private readonly IOptionsMonitor<Setting> settingsMonitor;
+    private readonly IClientStatisticsManager statisticsManager;
+
     private bool _disposed = false;
+
+    public ChannelService(
+        ILogger<ChannelService> logger,
+        ILoggerFactory loggerFactory,
+        IStreamManager streamManager,
+        IServiceProvider serviceProvider,
+        IMapper mapper,
+        ICustomPlayListBuilder customPlayListBuilder,
+        IOptionsMonitor<Setting> settingsMonitor,
+         IClientStatisticsManager statisticsManager
+    )
+    {
+        this.loggerFactory = loggerFactory;
+        this.streamManager = streamManager;
+        this.mapper = mapper;
+        this.customPlayListBuilder = customPlayListBuilder;
+        this.settingsMonitor = settingsMonitor;
+        this.statisticsManager = statisticsManager;
+        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
+        this.streamManager.OnStreamingStoppedEvent += StreamManager_OnStreamingStoppedEvent;
+    }
+
+    private async void StreamManager_OnStreamingStoppedEvent(object? sender, StreamHandlerStopped StoppedEvent)
+    {
+        if (sender is not null and IStreamHandler streamHandler)
+        {
+            logger.LogInformation("Streaming Stopped Event for StreamId: {StreamId} {StreamName}", streamHandler.SMStream.Id, streamHandler.SMStream.Name);
+
+            //List<IChannelStatus> affectedChannelStatuses = streamHandler.GetChannelStatuses.ToList();
+
+            //foreach (IChannelStatus channelStatus in affectedChannelStatuses)
+            //{
+            //    if (channelStatus != null && channelStatus.Shutdown != true)
+            //    {
+            //        if (channelStatus.FailoverInProgress)
+            //        {
+            //            continue;
+            //        }
+
+            //        if (!string.IsNullOrEmpty(channelStatus.OverrideVideoStreamId))
+            //        {
+            //            channelStatus.OverrideVideoStreamId = "";
+            //            continue;
+            //        }
+
+            //        bool didSwitch = await SwitchChannelToNextStream(channelStatus);
+
+            //        if (!didSwitch)
+            //        {
+            //            //clientStreamerManager.GetClientStreamerConfigurationsBySMChannelId(channelStatus.SMChannel.Id)
+            //            //    .ForEach(async x =>
+            //            //    {
+            //            //        await CancelClient(x.UniqueRequestId);
+            //            //    }
+            //            //    );
+
+            //            continue;
+            //        }
+            //    }
+            //}
+
+            //if (streamHandler.ChannelCount == 0)
+            //{
+            //    _ = streamManager.StopAndUnRegisterHandler(streamHandler.SMStream.Url);
+
+        }
+    }
+    public async Task<ClientStreamerConfiguration?> GetClientStreamerConfiguration(string UniqueRequestId, CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        ClientStreamerConfiguration? config = _channelStatuses.Values.SelectMany(a => a.ClientStreamerConfigurations.Values).FirstOrDefault(a => a.UniqueRequestId == UniqueRequestId);
+        if (config != null)
+        {
+            return await Task.FromResult(config).ConfigureAwait(false);
+        }
+        logger.LogDebug("Client configuration for {UniqueRequestId} not found", UniqueRequestId);
+        return null;
+    }
 
     public void Dispose()
     {
@@ -58,79 +135,74 @@ public sealed class ChannelService(
 
     public async Task<IChannelStatus?> RegisterChannel(ClientStreamerConfiguration config)
     {
-        if (config.SMChannel == null)
-        {
-            throw new ArgumentNullException(nameof(config.SMChannel));
-        }
-
-        _ = clientStreamerManager.RegisterClient(config);
+        config.ClientStream ??= new ClientReadStream(statisticsManager, loggerFactory, config);
 
         IChannelStatus? channelStatus = GetChannelStatus(config.SMChannel.Id);
 
-        if (channelStatus != null)
+        if (channelStatus == null)
         {
-            IStreamHandler? handler = streamManager.GetStreamHandler(channelStatus.SMStream.Url);
-            if (handler is null)
+            logger.LogInformation("No existing channel for {UniqueRequestId} {ChannelVideoStreamId} {name}",
+                              config.UniqueRequestId, config.SMChannel.Id, config.SMChannel.Name);
+
+            using IServiceScope scope = _serviceProvider.CreateScope();
+            ISender sender = scope.ServiceProvider.GetRequiredService<ISender>();
+
+            DataResponse<CommandProfileDto> commandProfileData = await sender.Send(new GetCommandProfileRequest(BuildInfo.DefaultCommandProfileName,
+                                                                                   config.StreamGroupId,
+                                                                                   config.StreamGroupProfileId)).ConfigureAwait(false);
+            if (commandProfileData.Data == null)
             {
-                logger.LogError("Could not find handler for {ClientId} {ChannelVideoStreamId} {name}", config.ClientId, config.SMChannel.Id, config.SMChannel.Name);
-                await clientStreamerManager.UnRegisterClient(config.ClientId).ConfigureAwait(false);
-                UnRegisterChannel(config.SMChannel.Id);
+                logger.LogError("Could not find video profile for {CommandProfileName}", config.SMChannel.CommandProfileName);
                 return null;
             }
 
-            if (handler.IsFailed)
+            channelStatus = new ChannelStatus(config.SMChannel)
             {
-                logger.LogInformation("Existing handler is failed, creating");
-                _ = await SwitchChannelToNextStream(channelStatus).ConfigureAwait(false);
+                StreamGroupProfileId = config.StreamGroupProfileId,
+                CommandProfile = commandProfileData.Data
+            };
+
+            if (config.SMChannel.IsCustomStream)
+            {
+                channelStatus.CustomPlayList = customPlayListBuilder.GetCustomPlayList(config.SMChannel.Name);
             }
 
+            _channelStatuses.TryAdd(config.SMChannel.Id, channelStatus);
 
-
-            streamManager.AddClientToHandler(config, handler);
-            logger.LogInformation("Reuse existing stream handler for {ClientId} {ChannelVideoStreamId} {name}",
-                                  config.ClientId, config.SMChannel.Id, config.SMChannel.Name);
-
-            return channelStatus;
+            if (!await SwitchChannelToNextStream(channelStatus).ConfigureAwait(false))
+            {
+                await CheckForEmptyChannelsAsync();
+                return null;
+            }
+        }
+        else
+        {
+            logger.LogInformation("Reuse existing stream handler for {UniqueRequestId} {ChannelVideoStreamId} {name}",
+                                  config.UniqueRequestId, config.SMChannel.Id, config.SMChannel.Name);
         }
 
-        logger.LogInformation("No existing channel for {ClientId} {ChannelVideoStreamId} {name}",
-                              config.ClientId, config.SMChannel.Id, config.SMChannel.Name);
-
-
-        CustomPlayList? customPlayList = null;
-        if (config.SMChannel.IsCustomStream)
+        IStreamHandler? handler = streamManager.GetStreamHandler(channelStatus.SMStream.Url);
+        if (handler is null)
         {
-            customPlayList = customPlayListBuilder.GetCustomPlayList(config.SMChannel.Name);
-        }
-
-        using IServiceScope scope = _serviceProvider.CreateScope();
-        ISender sender = scope.ServiceProvider.GetRequiredService<ISender>();
-
-        DataResponse<CommandProfileDto> commandProfileData = await sender.Send(new GetCommandProfileRequest(BuildInfo.DefaultCommandProfileName,
-                                                                               config.StreamGroupId,
-                                                                               config.StreamGroupProfileId)).ConfigureAwait(false);
-        if (commandProfileData.Data == null)
-        {
-            logger.LogError("Could not find video profile for {CommandProfileName}", config.SMChannel.CommandProfileName);
+            logger.LogError("Could not find handler for {UniqueRequestId} {ChannelVideoStreamId} {name}", config.UniqueRequestId, config.SMChannel.Id, config.SMChannel.Name);
+            //await clientStreamerManager.UnRegisterClient(config.UniqueRequestId).ConfigureAwait(false);
+            await CheckForEmptyChannelsAsync();
             return null;
         }
 
-        CommandProfileDto commandProfile = commandProfileData.Data;
-
-        channelStatus = new ChannelStatus(config.SMChannel)
+        if (handler.IsFailed)
         {
-            StreamGroupProfileId = config.StreamGroupProfileId,
-            CommandProfile = commandProfile,
-            CustomPlayList = customPlayList
-        };
+            logger.LogInformation("Existing handler is failed, creating");
+            if (!await SwitchChannelToNextStream(channelStatus).ConfigureAwait(false))
+            {
+                logger.LogError("Could SwitchChannelToNextStream failed for {UniqueRequestId} {ChannelVideoStreamId} {name}", config.UniqueRequestId, config.SMChannel.Id, config.SMChannel.Name);
+                //await clientStreamerManager.UnRegisterClient(config.UniqueRequestId).ConfigureAwait(false);
+                await CheckForEmptyChannelsAsync();
+                return null;
+            }
+        }
 
-        _ = _channelStatuses.TryAdd(config.SMChannel.Id, channelStatus);
-
-        _ = await SwitchChannelToNextStream(channelStatus).ConfigureAwait(false);
-
-        _ = channelStreamingStatisticsManager.RegisterInputReader(channelStatus.SMChannel,
-                                                               channelStatus.CurrentRank,
-                                                               channelStatus.SMStream.Id);
+        channelStatus.ClientStreamerConfigurations.TryAdd(config.UniqueRequestId, config);
 
         return channelStatus;
     }
@@ -157,11 +229,38 @@ public sealed class ChannelService(
         return channelStatus;
     }
 
-    public void UnRegisterChannel(int smChannelId)
+    private List<string> RunningUrls => _channelStatuses.Values.Where(a => a.ClientCount > 0).Select(a => a.SMStream.Url).Distinct().ToList();
+
+    public async Task CheckForEmptyChannelsAsync(CancellationToken cancellationToken = default)
     {
-        _ = _channelStatuses.TryRemove(smChannelId, out _);
-        channelStreamingStatisticsManager.DecrementClient(smChannelId);
-        //channelStreamingStatisticsManager.UnRegister(smChannelId);
+        TimeSpan delay = TimeSpan.FromSeconds(5);
+        List<Task> tasks = [];
+
+        foreach (IChannelStatus channelStatus in _channelStatuses.Values)
+        {
+            if (channelStatus.ClientCount == 0 && !RunningUrls.Contains(channelStatus.SMStream.Url))
+            {
+                tasks.Add(UnregisterChannelAfterDelayAsync(channelStatus, delay, cancellationToken));
+            }
+        }
+
+        await Task.WhenAll(tasks).ConfigureAwait(false);
+    }
+
+    private async Task UnregisterChannelAfterDelayAsync(IChannelStatus channelStatus, TimeSpan delay, CancellationToken cancellationToken)
+    {
+        await Task.Delay(delay, cancellationToken).ConfigureAwait(false);
+
+        if (channelStatus.ClientCount == 0 && !RunningUrls.Contains(channelStatus.SMStream.Url))
+        {
+            UnRegisterChannel(channelStatus);
+        }
+    }
+
+    private void UnRegisterChannel(IChannelStatus channelStatus)
+    {
+        _channelStatuses.TryRemove(channelStatus.SMChannel.Id, out _);
+        streamManager.StopAndUnRegisterHandler(channelStatus.SMStream.Url);
     }
 
     public IChannelStatus? GetChannelStatus(int smChannelId)
@@ -193,6 +292,11 @@ public sealed class ChannelService(
         return _channelStatuses.TryGetValue(smChannelId, out IChannelStatus? channelStatus) ? channelStatus : null;
     }
 
+    public List<IChannelStatus> GetChannelStatusFromStreamUrl(string videoUrl)
+    {
+        return _channelStatuses.Values.Where(a => a.SMStream.Url == videoUrl).ToList();
+    }
+
     public List<IChannelStatus> GetChannelStatuses()
     {
         return [.. _channelStatuses.Values];
@@ -221,7 +325,7 @@ public sealed class ChannelService(
         }
 
         logger.LogDebug("Starting SwitchToNextVideoStream with channelStatus: {channelStatus} and overrideNextVideoStreamId: {overrideNextVideoStreamId}", channelStatus, overrideNextVideoStreamId);
-        _ = streamManager.GetStreamHandler(channelStatus.SMStream?.Url);
+        //_ = streamManager.GetStreamHandler(channelStatus.SMStream?.Url);
 
         bool didChange = await SetNextChildVideoStream(channelStatus, overrideNextVideoStreamId);
 
@@ -242,15 +346,17 @@ public sealed class ChannelService(
             return false;
         }
 
-        List<ClientStreamerConfiguration> clientConfigs = clientStreamerManager.GetClientStreamerConfigurationsBySMChannelId(channelStatus.SMChannel.Id);
-        streamManager.AddClientsToHandler(clientConfigs, newStreamHandler);
+        channelStatus.SetSourceChannel(newStreamHandler.GetOutputChannelReader(), CancellationToken.None);
+        //newStreamHandler.RegisterChannel(channelStatus);
+
+        //List<ClientStreamerConfiguration> clientConfigs = clientStreamerManager.GetClientStreamerConfigurationsBySMChannelId(channelStatus.SMChannel.Id);
+        //streamManager.AddClientsToHandler(channelStatus, newStreamHandler);
 
         channelStatus.FailoverInProgress = false;
 
         logger.LogDebug("Finished SwitchToNextVideoStream");
         return true;
     }
-
 
     public async Task<bool> SetNextChildVideoStream(IChannelStatus channelStatus, string? overrideNextVideoStreamId = null)
     {
@@ -369,5 +475,38 @@ public sealed class ChannelService(
     private int GetCurrentStreamCountForM3UFile(int m3uFileId)
     {
         return 0;
+    }
+
+    public async Task<bool> UnRegisterClient(string UniqueRequestId, CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        bool removed = false;
+        foreach (IChannelStatus channelStatus in _channelStatuses.Values)
+        {
+            ConcurrentDictionary<string, ClientStreamerConfiguration> clientConfigs = channelStatus.ClientStreamerConfigurations;
+            ClientStreamerConfiguration? configToRemove = clientConfigs.Values.FirstOrDefault(a => a.UniqueRequestId == UniqueRequestId);
+
+            if (configToRemove != null)
+            {
+                if (clientConfigs.TryRemove(configToRemove.UniqueRequestId, out ClientStreamerConfiguration? config))
+                {
+                    await CheckForEmptyChannelsAsync(cancellationToken);
+                    removed = true;
+                    break;
+                }
+            }
+        }
+
+        if (removed)
+        {
+            logger.LogDebug("Client configuration for {UniqueRequestId} removed", UniqueRequestId);
+        }
+        else
+        {
+            logger.LogDebug("Client configuration for {UniqueRequestId} not found", UniqueRequestId);
+        }
+
+        return await Task.FromResult(removed).ConfigureAwait(false);
     }
 }

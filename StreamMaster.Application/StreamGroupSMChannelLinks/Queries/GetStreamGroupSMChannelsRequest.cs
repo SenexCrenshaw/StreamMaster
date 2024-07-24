@@ -25,18 +25,19 @@ internal class GetStreamGroupSMChannelsRequestHandler(IRepositoryWrapper Reposit
         List<StreamGroupSMChannelLink> links = Repository.StreamGroupSMChannelLink.GetQuery(true).Where(a => a.StreamGroupId == request.StreamGroupId).ToList();
         List<SMChannelDto> ret = [];
 
+
         foreach (StreamGroupSMChannelLink link in links)
         {
             SMChannel channel = link.SMChannel;
             if (link != null)
             {
                 SMChannelDto dto = mapper.Map<SMChannelDto>(channel);
-                dto.Rank = link.Rank;
+                dto.CurrentRank = link.Rank;
                 ret.Add(dto);
             }
         }
 
-        return Task.FromResult(DataResponse<List<SMChannelDto>>.Success(ret.OrderBy(a => a.Rank).ToList()));
+        return Task.FromResult(DataResponse<List<SMChannelDto>>.Success(ret.OrderBy(a => a.CurrentRank).ToList()));
     }
 
 

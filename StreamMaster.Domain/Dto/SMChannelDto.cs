@@ -7,5 +7,5 @@ public class SMChannelDto : SMChannel, IMapFrom<SMChannel>
     public new List<SMStreamDto> SMStreams { get; set; } = [];
     public List<int> StreamGroupIds { get; set; } = [];
     public string StreamUrl { get; set; } = string.Empty;
-    public int Rank { get; set; }
+    public int CurrentRank { get; set; } = -1;
 }

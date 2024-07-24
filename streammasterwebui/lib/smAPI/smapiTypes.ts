@@ -301,6 +301,7 @@ export interface SMChannelDto
 	APIName: string;
 	ChannelNumber: number;
 	CommandProfileName: string;
+	CurrentRank: number;
 	EPGId: string;
 	Group: string;
 	GroupTitle: string;
@@ -310,7 +311,6 @@ export interface SMChannelDto
 	Logo: string;
 	M3UFileId: number;
 	Name: string;
-	Rank: number;
 	SMStreams: SMStreamDto[];
 	StationId: string;
 	StreamGroupIds: number[];
@@ -649,6 +649,23 @@ export interface HeadendDto
 	PostCode: string;
 	Transport: string;
 }
+export interface GetVsRequest
+{
+	StreamGroupId?: number;
+	StreamGroupProfileId?: number;
+}
+export interface V
+{
+	BaseUrl: string;
+	DefaultRealUrl: string;
+	Id: number;
+	Name: string;
+	RealUrl: string;
+	StreamGroupId: number;
+	StreamGroupName: string;
+	StreamGroupProfileId: number;
+	StreamGroupProfileName: string;
+}
 export interface CancelAllChannelsRequest
 {
 }
@@ -658,7 +675,7 @@ export interface CancelChannelRequest
 }
 export interface CancelClientRequest
 {
-	ClientId: any;
+	UniqueRequestId: string;
 }
 export interface MoveToNextStreamRequest
 {
@@ -1405,12 +1422,12 @@ export interface ClientStreamingStatistics
 	ChannelId: number;
 	ChannelName: string;
 	ClientAgent: string;
-	ClientId: any;
 	ClientIPAddress: string;
 	Clients: number;
 	ElapsedTime: string;
 	IsSet: boolean;
 	StartTime: any;
+	UniqueRequestId: string;
 }
 export interface StreamStreamingStatistic
 {

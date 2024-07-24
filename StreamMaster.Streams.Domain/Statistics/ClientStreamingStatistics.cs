@@ -11,7 +11,7 @@ public class ClientStreamingStatistics : BPSStatistics
         ChannelName = StreamerConfiguration.SMChannel.Name;
         ChannelId = StreamerConfiguration.SMChannel.Id;
         ClientAgent = StreamerConfiguration.ClientUserAgent;
-        ClientId = StreamerConfiguration.ClientId;
+        UniqueRequestId = StreamerConfiguration.UniqueRequestId;
 
     }
 
@@ -19,7 +19,7 @@ public class ClientStreamingStatistics : BPSStatistics
     public string ChannelName { get; set; } = string.Empty;
     public int ChannelId { get; set; }
 
-    public Guid ClientId { get; set; }
+    public string UniqueRequestId { get; set; }
     public string ClientAgent { get; set; } = string.Empty;
     public string ClientIPAddress { get; set; } = string.Empty;
 

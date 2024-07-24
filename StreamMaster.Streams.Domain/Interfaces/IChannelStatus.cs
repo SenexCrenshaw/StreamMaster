@@ -1,6 +1,9 @@
 ﻿using StreamMaster.Domain.Configuration;
 using StreamMaster.PlayList.Models;
 
+using System.Collections.Concurrent;
+using System.Threading.Channels;
+
 namespace StreamMaster.Streams.Domain.Interfaces;
 
 /// <summary>
@@ -8,9 +11,11 @@ namespace StreamMaster.Streams.Domain.Interfaces;
 /// </summary>
 public interface IChannelStatus
 {
+    void SetSourceChannel(ChannelReader<byte[]> sourceChannelReader, CancellationToken cancellationToken);
+    ConcurrentDictionary<string, ClientStreamerConfiguration> ClientStreamerConfigurations { get; set; }
     CustomPlayList? CustomPlayList { get; set; }
     bool Shutdown { get; set; }
-    int ClientCount { get; set; }
+    int ClientCount { get; }
     CommandProfileDto CommandProfile { get; set; }
     string OverrideVideoStreamId { get; set; }
 

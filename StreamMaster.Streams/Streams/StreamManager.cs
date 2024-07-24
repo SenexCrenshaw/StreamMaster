@@ -1,11 +1,10 @@
-﻿using StreamMaster.Streams.Buffers;
-using StreamMaster.Streams.Domain.Statistics;
+﻿using StreamMaster.Streams.Domain.Statistics;
 
 using System.Collections.Concurrent;
 
 namespace StreamMaster.Streams.Streams;
 
-public class StreamManager(IStreamHandlerFactory streamHandlerFactory, IClientStatisticsManager statisticsManager, ILoggerFactory loggerFactory)
+public class StreamManager(IStreamHandlerFactory streamHandlerFactory, ILoggerFactory loggerFactory)
     : IStreamManager
 {
     public event EventHandler<StreamHandlerStopped> OnStreamingStoppedEvent;
@@ -30,7 +29,6 @@ public class StreamManager(IStreamHandlerFactory streamHandlerFactory, IClientSt
             {
                 BytesRead = handler.GetBytesRead(),
                 BytesWritten = handler.GetBytesWritten(),
-                ClientCount = handler.ClientCount,
                 Kbps = handler.GetKbps(),
                 StartTime = handler.GetStartTime(),
                 AverageLatency = handler.GetAverageLatency(),
@@ -146,34 +144,6 @@ public class StreamManager(IStreamHandlerFactory streamHandlerFactory, IClientSt
         return _streamHandlers.Values == null ? ([]) : ([.. _streamHandlers.Values]);
     }
 
-    public void AddClientsToHandler(List<ClientStreamerConfiguration> clientIds, IStreamHandler streamHandler)
-    {
-        foreach (ClientStreamerConfiguration clientId in clientIds)
-        {
-            AddClientToHandler(clientId, streamHandler);
-        }
-    }
-
-    public void AddClientToHandler(ClientStreamerConfiguration streamerConfiguration, IStreamHandler streamHandler)
-    {
-        if (streamerConfiguration != null)
-        {
-            streamerConfiguration.ClientStream ??= new ClientReadStream(statisticsManager, loggerFactory, streamerConfiguration);
-
-            logger.LogDebug("Adding client {ClientId} {ReaderID} ", streamerConfiguration.ClientId, streamerConfiguration.ClientStream?.Id ?? Guid.NewGuid());
-            streamHandler.RegisterClientStreamer(streamerConfiguration);
-        }
-        else
-        {
-            logger.LogDebug("Error Add client, null");
-        }
-    }
-
-    public IStreamHandler? GetStreamHandlerByClientId(Guid ClientId)
-    {
-        return _streamHandlers.Values.FirstOrDefault(x => x.HasClient(ClientId));
-    }
-
     public bool StopAndUnRegisterHandler(string VideoStreamUrl)
     {
         if (_streamHandlers.TryRemove(VideoStreamUrl, out IStreamHandler? streamHandler))
@@ -185,22 +155,24 @@ public class StreamManager(IStreamHandlerFactory streamHandlerFactory, IClientSt
         logger.LogWarning("StopAndUnRegisterHandler {VideoStreamUrl} doesnt exist", VideoStreamUrl);
         return false;
     }
+   
 
-    public int UnRegisterClientStreamer(string url, Guid clientId, string SMChannelName)
-    {
-        IStreamHandler? streamHandler = GetStreamHandlerFromStreamUrl(url);
-        if (streamHandler == null)
-        {
-            return 0;
-        }
+    //public int UnRegisterClientStreamer(string url, string UniqueRequestId, string SMChannelName)
+    //{
+    //    //IStreamHandler? streamHandler = GetStreamHandlerFromStreamUrl(url);
+    //    //if (streamHandler == null)
+    //    //{
+    //    //    return 0;
+    //    //}
 
-        _ = streamHandler.UnRegisterClientStreamer(clientId);
+    //    //_ = streamHandler.UnRegisterChannel(UniqueRequestId);
 
-        //if (streamHandler.ClientCount == 0)
-        //{
-        //    logger.LogInformation("No more clients, stopping streaming for {clientId} {name}", clientId, SMChannelName);
-        //    _ = StopAndUnRegisterHandler(url);
-        //}
-        return streamHandler.ClientCount;
-    }
+    //    ////if (streamHandler.ChannelCount == 0)
+    //    ////{
+    //    ////    logger.LogInformation("No more clients, stopping streaming for {UniqueRequestId} {name}", UniqueRequestId, SMChannelName);
+    //    ////    _ = StopAndUnRegisterHandler(url);
+    //    ////}
+    //    //return streamHandler.ChannelCount;
+    //    return 0;
+    //}
 }

@@ -4,9 +4,10 @@ namespace StreamMaster.Domain.Services
 {
     public interface IStreamGroupProfileRepository : IRepositoryBase<StreamGroupProfile>
     {
-        StreamGroupProfile? GetStreamGroupProfile(int StreamGroupId, int StreamGroupProfileId);
+        Task<StreamGroupProfile> GetStreamGroupProfileAsync(int? StreamGroupId = null, int? StreamGroupProfileId = null);
+
         Task DeleteStreamGroupProfile(StreamGroupProfile StreamGroupProfile);
-        //List<StreamGroupProfile> GetStreamGroupProfiles();
+        Task<List<StreamGroupProfile>> GetStreamGroupProfiles(int? StreamGroupId = null);
         void Update(StreamGroupProfile streamGroupProfile);
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace StreamMaster.Domain.Authentication
+﻿namespace StreamMaster.Domain.Crypto
 {
     /// <summary>
     /// Utility class for encoding and decoding stream group data with AES encryption.
@@ -15,7 +15,7 @@
         /// <param name="groupKey">The group key for encryption.</param>
         /// <param name="keySize">The size of the encryption key in bits. Default is 128 bits.</param>
         /// <returns>The encrypted string.</returns>
-        public static string EncodeThreeValues(int streamGroupId, int streamGroupProfileId, int smChannelId, string serverKey, string groupKey, int keySize = 128)
+        public static string EncodeThreeValues(int streamGroupId, int streamGroupProfileId, int smChannelId, string serverKey, string groupKey, int keySize = AesEncryption.DEFAULT_KEY_SIZE)
         {
             string plainText = $"{streamGroupId},{streamGroupProfileId},{smChannelId}";
             string groupEncryptedText = AesEncryption.Encrypt(plainText, groupKey, keySize);
@@ -34,7 +34,7 @@
         /// <param name="groupKey">The group key for encryption.</param>
         /// <param name="keySize">The size of the encryption key in bits. Default is 128 bits.</param>
         /// <returns>The encrypted string.</returns>
-        public static string EncodeThreeValues(int streamGroupId, int streamGroupProfileId, string smStreamId, string serverKey, string groupKey, int keySize = 128)
+        public static string EncodeThreeValues(int streamGroupId, int streamGroupProfileId, string smStreamId, string serverKey, string groupKey, int keySize = AesEncryption.DEFAULT_KEY_SIZE)
         {
             string plainText = $"{streamGroupId},{streamGroupProfileId},{smStreamId}";
             string groupEncryptedText = AesEncryption.Encrypt(plainText, groupKey, keySize);
@@ -52,7 +52,7 @@
         /// <param name="groupKey">The group key for encryption.</param>
         /// <param name="keySize">The size of the encryption key in bits. Default is 128 bits.</param>
         /// <returns>The encrypted string.</returns>
-        public static string EncodeTwoValues(int streamGroupId, int streamGroupProfileId, string serverKey, string groupKey, int keySize = 128)
+        public static string EncodeTwoValues(int streamGroupId, int streamGroupProfileId, string serverKey, string groupKey, int keySize = AesEncryption.DEFAULT_KEY_SIZE)
         {
             string plainText = $"{streamGroupId},{streamGroupProfileId}";
             string groupEncryptedText = AesEncryption.Encrypt(plainText, groupKey, keySize);
@@ -68,7 +68,7 @@
         /// <param name="serverKey">The server key for encryption.</param>
         /// <param name="keySize">The size of the encryption key in bits. Default is 128 bits.</param>
         /// <returns>The encrypted string.</returns>
-        public static string EncodeValue(int streamGroupId, string serverKey, int keySize = 128)
+        public static string EncodeValue(int streamGroupId, string serverKey, int keySize = AesEncryption.DEFAULT_KEY_SIZE)
         {
             string plainText = $"{streamGroupId}";
             string encryptedText = AesEncryption.Encrypt(plainText, serverKey, keySize);

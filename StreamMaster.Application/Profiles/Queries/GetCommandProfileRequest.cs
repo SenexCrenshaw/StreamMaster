@@ -17,7 +17,7 @@ internal class GetCommandProfileRequestHandler(IOptionsMonitor<CommandProfileLis
         if (request.CommandProfileName == BuildInfo.DefaultCommandProfileName)
         {
 
-            StreamGroupProfile? profile = repositoryWrapper.StreamGroupProfile.GetStreamGroupProfile(request.StreamGroupId, request.StreamGroupProfileId);
+            StreamGroupProfile? profile = await repositoryWrapper.StreamGroupProfile.GetStreamGroupProfileAsync(request.StreamGroupId, request.StreamGroupProfileId);
 
             if (profile != null && !string.IsNullOrEmpty(profile.CommandProfileName) && profile.CommandProfileName != BuildInfo.DefaultCommandProfileName)
             {

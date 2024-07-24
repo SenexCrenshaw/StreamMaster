@@ -16,7 +16,7 @@ internal class SetSMChannelChannelNumberRequestHandler(IRepositoryWrapper Reposi
             return ret;
         }
 
-        //FieldData fd = new(SMChannel.APIName, request.SMChannelId, "ChannelNumber", request.ChannelNumber);
+        //FieldData fd = new(SMChannel.APIName, request.Id, "ChannelNumber", request.ChannelNumber);
 
         //await hubContext.Clients.All.SetField([fd]).ConfigureAwait(false);
         await dataRefreshService.RefreshSMChannels().ConfigureAwait(false);

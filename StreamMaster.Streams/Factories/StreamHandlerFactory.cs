@@ -2,7 +2,7 @@
 using StreamMaster.Streams.Streams;
 namespace StreamMaster.Streams.Factories;
 
-public sealed class StreamHandlerFactory(IStreamStreamingStatisticsManager streamStreamingStatisticsManager, IOptionsMonitor<Setting> intSettings, ILoggerFactory loggerFactory, IProxyFactory proxyFactory)
+public sealed class StreamHandlerFactory(IOptionsMonitor<Setting> intSettings, ILoggerFactory loggerFactory, IProxyFactory proxyFactory)
     : IStreamHandlerFactory
 {
     public async Task<IStreamHandler?> CreateStreamHandlerAsync(IChannelStatus channelStatus, CancellationToken cancellationToken)
@@ -13,7 +13,7 @@ public sealed class StreamHandlerFactory(IStreamStreamingStatisticsManager strea
             return null;
         }
 
-        StreamHandler streamHandler = new(channelStatus.SMStream, processId, intSettings, loggerFactory, streamStreamingStatisticsManager);
+        StreamHandler streamHandler = new(channelStatus.SMStream, processId, intSettings, loggerFactory);
 
         _ = Task.Run(() => streamHandler.StartVideoStreamingAsync(stream), cancellationToken);
 

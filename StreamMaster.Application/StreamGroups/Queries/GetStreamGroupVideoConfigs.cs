@@ -28,7 +28,7 @@ public class GetStreamGroupVideoConfigsHandler(ISender sender, ILogger<GetStream
             return new();
         }
 
-        StreamGroupProfile sgProfile = Repository.StreamGroupProfile.GetStreamGroupProfile(request.StreamGroupId, request.StreamGroupProfileId) ?? new StreamGroupProfile();
+        StreamGroupProfile sgProfile = await Repository.StreamGroupProfile.GetStreamGroupProfileAsync(request.StreamGroupId, request.StreamGroupProfileId);
         DataResponse<OutputProfileDto> profileRequest = await sender.Send(new GetOutputProfileRequest(sgProfile.OutputProfileName), cancellationToken);
         OutputProfile profile = profileRequest == null ? SettingFiles.DefaultOutputProfileSetting.OutProfiles["Default"] : profileRequest.Data;
         List<VideoStreamConfig> videoStreamConfigs = [];
