@@ -41,11 +41,15 @@ const SMStreamDialog = forwardRef<SMStreamDialogRef, SMStreamDialogProperties>((
 
   const updateStateAndRequest = useCallback(
     (updatedFields: Partial<SMStreamDto>) => {
-      if (smStreamDto === undefined) {
+      if (smStreamDto !== undefined) {
+        const updatedDto = { ...smStreamDto, ...updatedFields };
+        const updatedRequest = { ...request, Id: updatedDto.Id, ...updatedFields };
+
+        setRequest(updatedRequest);
         return;
       }
-      const updatedDto = { ...smStreamDto, ...updatedFields };
-      const updatedRequest = { ...request, Id: updatedDto.Id, ...updatedFields };
+
+      const updatedRequest = { ...request, ...updatedFields };
 
       setRequest(updatedRequest);
     },

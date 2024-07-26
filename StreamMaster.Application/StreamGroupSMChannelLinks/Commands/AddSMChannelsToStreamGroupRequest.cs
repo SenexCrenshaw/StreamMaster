@@ -29,13 +29,13 @@ internal class AddSMChannelsToStreamGroupRequestHandler(IRepositoryWrapper Repos
             fieldDatas.Add(new(SMChannel.APIName, smChannel.Id, "StreamGroupIds", streamGroupIds));
         }
 
-        //APIResponse res = await Repository.StreamGroupSMChannelLink.AddSMChannelsToStreamGroup(request.StreamGroupId, request.SMChannelIds).ConfigureAwait(false);
+        //APIResponse res = await Repositorywrapper.StreamGroupSMChannelLink.AddSMChannelsToStreamGroup(request.StreamGroupId, request.SMChannelIds).ConfigureAwait(false);
         //if (res.IsErrored)
         //{
         //    return APIResponse.ErrorWithMessage(res.ErrorMessage);
         //}
 
-        //SMChannel? smChannel = Repository.SMChannel.GetSMChannel(request.ShortSMChannelId);
+        //SMChannel? smChannel = Repositorywrapper.SMChannel.GetSMChannel(request.ShortSMChannelId);
         //if (smChannel is null)
         //{
         //    return APIResponse.ErrorWithMessage("Channel not found");

@@ -12,41 +12,44 @@ namespace StreamMaster.Domain.Common;
 
 public sealed class FileUtil
 {
-
+    /// <summary>
+    /// Searches for the specified executable name in predefined directories.
+    /// </summary>
+    /// <param name="executableName">The name of the executable to locate.</param>
+    /// <returns>The full path to the executable if found, otherwise null.</returns>
     public static string? GetExec(string executableName)
     {
-
-        if (File.Exists(executableName))
+        if (string.IsNullOrEmpty(executableName))
         {
-            return executableName;
+            throw new ArgumentException("Executable name cannot be null or empty.", nameof(executableName));
         }
 
-        string exec = Path.Combine(BuildInfo.AppDataFolder, executableName);
-        if (File.Exists(exec))
+        // List of directories to search for the executable
+        string[] directoriesToSearch =
+        [
+            string.Empty, // Current directory
+            BuildInfo.AppDataFolder,
+            "/usr/local/bin",
+            "/usr/bin",
+            "/bin"
+        ];
+
+        foreach (string? directory in directoriesToSearch)
         {
-            return exec;
+            string execPath = Path.Combine(directory, executableName);
+
+            if (File.Exists(execPath))
+            {
+                return execPath;
+            }
+
+            if (File.Exists(execPath + ".exe"))
+            {
+                return execPath + ".exe";
+            }
         }
 
-        if (File.Exists(exec + ".exe"))
-        {
-            return exec + ".exe";
-        }
-
-        exec = Path.Combine("/bin", executableName);
-
-        if (File.Exists(exec))
-        {
-            return exec;
-        }
-
-        if (File.Exists(exec + ".exe"))
-        {
-            return exec + ".exe";
-        }
-
-        exec = Path.Combine("/usr/local/bin", executableName);
-
-        return File.Exists(exec) ? exec : File.Exists(exec + ".exe") ? exec + ".exe" : null;
+        return null;
     }
 
     public static string EncodeToBase64(string url)
@@ -61,20 +64,43 @@ public sealed class FileUtil
     }
     public static async Task<bool> WaitForFileAsync(string filePath, int timeoutSeconds, int checkIntervalMilliseconds, CancellationToken cancellationToken)
     {
-        CancellationTokenSource timeoutTokenSource = new(TimeSpan.FromSeconds(timeoutSeconds));
-        CancellationTokenSource linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutTokenSource.Token);
+        try
+        {
+            if (File.Exists(filePath))
+            {
+                return true;
+            }
+        }
+        catch (Exception ex)
+        {
+            return false;
+        }
+
+        bool didReport = false;
+        using CancellationTokenSource timeoutTokenSource = new(TimeSpan.FromSeconds(timeoutSeconds));
+        using CancellationTokenSource linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutTokenSource.Token);
 
         try
         {
-            string? dir = Path.GetDirectoryName(filePath);
-            if (dir != null && !Directory.Exists(dir))
+
+
+            string? directoryPath = Path.GetDirectoryName(filePath);
+
+            if (directoryPath != null && !Directory.Exists(directoryPath))
             {
-                while (!Directory.Exists(dir))
+                // Wait for the directory to exist
+                while (!Directory.Exists(directoryPath))
                 {
+                    if (!didReport)
+                    {
+                        didReport = true;
+                        Debug.WriteLine("Waited on {directoryPath}", directoryPath);
+                    }
                     await Task.Delay(checkIntervalMilliseconds, linkedTokenSource.Token).ConfigureAwait(false);
                 }
             }
 
+            // Wait for the file to exist
             while (!File.Exists(filePath))
             {
                 await Task.Delay(checkIntervalMilliseconds, linkedTokenSource.Token).ConfigureAwait(false);
@@ -82,40 +108,42 @@ public sealed class FileUtil
 
             return true;
         }
-        catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
+        catch (OperationCanceledException) when (timeoutTokenSource.Token.IsCancellationRequested)
         {
             // Timeout has occurred
             return false;
         }
-        catch (OperationCanceledException)
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
             // External cancellation request
             throw;
         }
     }
 
+
+    private static readonly char[] separator = [' '];
+
     public static string CleanUpFileName(string fullName)
     {
         // Remove double spaces, trim, and replace spaces with underscores
-        fullName = string.Join("_", fullName.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim()));
+        fullName = string.Join("_", fullName.Split(separator, StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim()));
 
         // Ensure the file name doesn't start or end with an underscore
-        if (fullName.StartsWith("_"))
+        if (fullName.StartsWith('_'))
         {
             fullName = fullName.TrimStart('_');
         }
 
-        if (fullName.EndsWith("_"))
+        if (fullName.EndsWith('_'))
         {
             fullName = fullName.TrimEnd('_');
         }
         return fullName;
     }
 
-
     public static string BytesToString(long bytes)
     {
-        string[] unit = { "", "K", "M", "G", "T" };
+        string[] unit = ["", "K", "M", "G", "T"];
         for (int i = 0; i < unit.Length; ++i)
         {
             double calc;
@@ -165,7 +193,7 @@ public sealed class FileUtil
 
     public static async Task<(bool success, Exception? ex)> DownloadUrlAsync(string url, string fullName, CancellationToken cancellationdefault)
     {
-        if (url == null || !url.Contains("://"))
+        if (url?.Contains("://") != true)
         {
             return (false, null);
         }
@@ -174,7 +202,7 @@ public sealed class FileUtil
         {
             using HttpClient httpClient = new();
 
-            string userAgentString = @"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36 Edg/110.0.1587.57";
+            const string userAgentString = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36 Edg/110.0.1587.57";
 
             httpClient.DefaultRequestHeaders.Add("User-Agent", userAgentString);
 
@@ -185,7 +213,7 @@ public sealed class FileUtil
                 {
                     return (false, null);
                 }
-                using FileStream fileStream = new(fullName, FileMode.Create);
+                await using FileStream fileStream = new(fullName, FileMode.Create);
                 using HttpResponseMessage response = await httpClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, cancellationdefault).ConfigureAwait(false);
                 if (response.StatusCode is HttpStatusCode.Forbidden or HttpStatusCode.NotFound)
                 {
@@ -248,7 +276,6 @@ public sealed class FileUtil
 
     public static Stream GetFileDataStream(string source)
     {
-
         if (!IsFileGzipped(source))
         {
             return File.OpenRead(source);
@@ -260,7 +287,7 @@ public sealed class FileUtil
     public static async Task Backup(int? versionsToKeep = null)
     {
         Setting? setting = SettingsHelper.GetSetting<Setting>(BuildInfo.SettingFileName);
-        if (setting == null || setting.BackupEnabled == false)
+        if (setting?.BackupEnabled != true)
         {
             return;
         }
@@ -306,7 +333,6 @@ public sealed class FileUtil
         {
             Console.WriteLine($"Backup Exception occurred: {ex.Message}");
         }
-
     }
 
     public static async Task<string> GetFileData(string source)
@@ -318,8 +344,8 @@ public sealed class FileUtil
                 return await File.ReadAllTextAsync(source).ConfigureAwait(false);
             }
 
-            using FileStream fs = File.OpenRead(source);
-            using GZipStream gzStream = new(fs, CompressionMode.Decompress);
+            await using FileStream fs = File.OpenRead(source);
+            await using GZipStream gzStream = new(fs, CompressionMode.Decompress);
             using StreamReader reader = new(gzStream, Encoding.Default);
 
             return await reader.ReadToEndAsync().ConfigureAwait(false);
@@ -379,7 +405,6 @@ public sealed class FileUtil
         return ret;
     }
 
-
     public static bool IsFileGzipped(string filePath)
     {
         try
@@ -399,6 +424,4 @@ public sealed class FileUtil
             return false;
         }
     }
-
-
 }

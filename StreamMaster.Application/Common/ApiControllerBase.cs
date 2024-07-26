@@ -1,35 +1,62 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
-
-
+using StreamMaster.Application.Interfaces;
 
 namespace StreamMaster.Application.Common;
 
-//[ApiController]
 [V1ApiController("api/[controller]")]
 public abstract class ApiControllerBase : ControllerBase
 {
     private IMediator _mediator = null!;
     private ISender _sender = null!;
+    private IOptionsMonitor<Setting> _settingsMonitor = null!;
+    private IOptionsMonitor<HLSSettings> _hlsSettingsMonitor = null!;
+    private IHubContext<StreamMasterHub, IStreamMasterHub> _hubContext = null!;
+    private IRepositoryWrapper _repositoryWrapper = null!;
 
-    private IOptionsMonitor<Setting> _intsettings = null!;
-    private IOptionsMonitor<HLSSettings> _inthlssettings = null!;
+    /// <summary>
+    /// Gets the current settings.
+    /// </summary>
+    protected Setting Settings => SettingsMonitor.CurrentValue;
 
-    private IHubContext<StreamMasterHub, IStreamMasterHub> _intHubContext = null!;
-    private IRepositoryWrapper _intRepository = null!;
+    /// <summary>
+    /// Gets the current HLS settings.
+    /// </summary>
+    protected HLSSettings HLSSettings => HlsSettingsMonitor.CurrentValue;
 
-    protected Setting Settings => intSettings.CurrentValue;
-    protected HLSSettings HLSSettings => inthlssettings.CurrentValue;
+    /// <summary>
+    /// Gets the hub context for streaming.
+    /// </summary>
+    protected IHubContext<StreamMasterHub, IStreamMasterHub> HubContext =>
+        _hubContext ??= HttpContext.RequestServices.GetRequiredService<IHubContext<StreamMasterHub, IStreamMasterHub>>();
 
-    protected IHubContext<StreamMasterHub, IStreamMasterHub> HubContext => intHubContext;
-    protected IRepositoryWrapper Repository => intRepository;
+    /// <summary>
+    /// Gets the repository wrapper.
+    /// </summary>
+    protected IRepositoryWrapper RepositoryWrapper =>
+        _repositoryWrapper ??= HttpContext.RequestServices.GetRequiredService<IRepositoryWrapper>();
 
-    protected IOptionsMonitor<Setting> intSettings => _intsettings ??= HttpContext.RequestServices.GetRequiredService<IOptionsMonitor<Setting>>();
-    protected IOptionsMonitor<HLSSettings> inthlssettings => _inthlssettings ??= HttpContext.RequestServices.GetRequiredService<IOptionsMonitor<HLSSettings>>();
+    /// <summary>
+    /// Gets the settings monitor, initializing it if necessary.
+    /// </summary>
+    private IOptionsMonitor<Setting> SettingsMonitor =>
+        _settingsMonitor ??= HttpContext.RequestServices.GetRequiredService<IOptionsMonitor<Setting>>();
 
-    protected IHubContext<StreamMasterHub, IStreamMasterHub> intHubContext => _intHubContext ??= HttpContext.RequestServices.GetRequiredService<IHubContext<StreamMasterHub, IStreamMasterHub>>();
-    protected IRepositoryWrapper intRepository => _intRepository ??= HttpContext.RequestServices.GetRequiredService<IRepositoryWrapper>();
+    /// <summary>
+    /// Gets the HLS settings monitor, initializing it if necessary.
+    /// </summary>
+    private IOptionsMonitor<HLSSettings> HlsSettingsMonitor =>
+        _hlsSettingsMonitor ??= HttpContext.RequestServices.GetRequiredService<IOptionsMonitor<HLSSettings>>();
 
-    protected ISender Sender => _sender ??= HttpContext.RequestServices.GetRequiredService<ISender>();
-    protected IMediator Mediator => _mediator ??= HttpContext.RequestServices.GetRequiredService<IMediator>();
+    /// <summary>
+    /// Gets the sender, initializing it if necessary.
+    /// </summary>
+    protected ISender Sender =>
+        _sender ??= HttpContext.RequestServices.GetRequiredService<ISender>();
+
+    /// <summary>
+    /// Gets the mediator, initializing it if necessary.
+    /// </summary>
+    protected IMediator Mediator =>
+        _mediator ??= HttpContext.RequestServices.GetRequiredService<IMediator>();
 }

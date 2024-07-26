@@ -1,9 +1,8 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-
-using StreamMaster.Application.Common.Interfaces;
 using StreamMaster.Application.Hubs;
+using StreamMaster.Application.Interfaces;
 using StreamMaster.Domain.Common;
 using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Extensions;

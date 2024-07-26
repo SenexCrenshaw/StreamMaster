@@ -46,12 +46,12 @@ public static class DirectoryHelper
         // Get fields marked with [CreateDir] or named "*Folder"
         IEnumerable<string?> fieldPaths = targetType.GetFields(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
                         .Where(f => (f.IsDefined(typeof(CreateDirAttribute), false) || f.Name.EndsWith("Folder")) && f.FieldType == typeof(string))
-                        .Select(f => (string    ?)f.GetValue(null));
+                        .Select(f => (string?)f.GetValue(null));
 
         // Get properties marked with [CreateDir] or named "*Folder"
         IEnumerable<string?> propertyPaths = targetType.GetProperties(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
                             .Where(p => (p.IsDefined(typeof(CreateDirAttribute), false) || p.Name.EndsWith("Folder")) && p.PropertyType == typeof(string))
-                            .Select(p => (string    ?)p.GetValue(null));
+                            .Select(p => (string?)p.GetValue(null));
 
         // Combine paths from fields and properties
         IEnumerable<string?> paths = fieldPaths.Concat(propertyPaths);
@@ -131,7 +131,7 @@ public static class DirectoryHelper
             // Check if the directory exists
             if (!Directory.Exists(directoryPath))
             {
-                Log("Attempted to empty a non-existing directory: {DirectoryPath}", directoryPath);
+                Log("Attempted to empty a non-existing directory: {0}", directoryPath);
                 return;
             }
 
@@ -143,11 +143,11 @@ public static class DirectoryHelper
                 try
                 {
                     file.Delete();
-                    Log("File deleted: {FilePath}", file.FullName);
+                    Log("File deleted: {0}", file.FullName);
                 }
                 catch (Exception ex)
                 {
-                    Log("Failed to delete file: {FilePath} {ex}", file.FullName, ex.InnerException);
+                    Log("Failed to delete file: {0}. Exception: {1}", file.FullName, ex.InnerException?.ToString() ?? ex.Message);
                 }
             }
 
@@ -157,22 +157,23 @@ public static class DirectoryHelper
                 try
                 {
                     dir.Delete(true); // true to remove directories, subdirectories, and files
-                    Log("Directory deleted: {DirectoryPath}", dir.FullName);
+                    Log("Directory deleted: {0}", dir.FullName);
                 }
                 catch (Exception ex)
                 {
-                    Log("Failed to delete directory: {DirectoryPath} {ex}", dir.FullName, ex?.InnerException);
+                    Log("Failed to delete directory: {0}. Exception: {1}", dir.FullName, ex.InnerException?.ToString() ?? ex.Message);
                 }
             }
         }
         catch (OperationCanceledException)
         {
-            Log("Operation cancelled while emptying directory: {DirectoryPath}", directoryPath);
+            Log("Operation cancelled while emptying directory: {0}", directoryPath);
             throw; // Propagate the cancellation exception
         }
         catch (Exception ex)
         {
-            Log("An unexpected error occurred while emptying directory: {DirectoryPath} {ex}", directoryPath, ex.InnerException);
+            Log("An unexpected error occurred while emptying directory: {0}. Exception: {1}", directoryPath, ex.InnerException?.ToString() ?? ex.Message);
         }
     }
+
 }

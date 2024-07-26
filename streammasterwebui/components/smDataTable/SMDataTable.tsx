@@ -436,19 +436,6 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>, ref: 
     setters.setFilters(newFilters as any);
   };
 
-  // const arraysMatch = (arr1: T[], arr2: T[]): boolean => {
-  //   if (arr1.length !== arr2.length) {
-  //     return false;
-  //   }
-  //   var key = props.arrayKey ?? ('Id' as keyof T);
-  //   for (let i = 0; i < arr1.length; i++) {
-  //     if (arr1[i][key] !== arr2[i][key]) {
-  //       return false;
-  //     }
-  //   }
-  //   return true;
-  // };
-
   useEffect(() => {
     if (props.queryFilter) {
       // Logger.debug('DataTable queryFilter', { queryFilter });

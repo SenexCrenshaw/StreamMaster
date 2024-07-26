@@ -1,6 +1,6 @@
 ﻿using StreamMaster.Application.SMStreams.Commands;
 
-namespace StreamMaster.Application.Common.Interfaces;
+namespace StreamMaster.Application.Interfaces;
 
 public interface IStreamMasterHub
 {

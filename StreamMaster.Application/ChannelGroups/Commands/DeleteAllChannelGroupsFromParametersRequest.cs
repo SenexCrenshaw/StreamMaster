@@ -10,7 +10,7 @@ public class DeleteAllChannelGroupsFromParametersRequestHandler(IRepositoryWrapp
     public async Task<APIResponse> Handle(DeleteAllChannelGroupsFromParametersRequest request, CancellationToken cancellationToken)
     {
         APIResponse res = await Repository.ChannelGroup.DeleteAllChannelGroupsFromParameters(request.Parameters, cancellationToken).ConfigureAwait(false);
-        //await Repository.VideoStream.UpdateVideoStreamsChannelGroupNames(VideoStreams.Select(a => a.Id), "").ConfigureAwait(false);
+        //await Repositorywrapper.VideoStream.UpdateVideoStreamsChannelGroupNames(VideoStreams.Select(a => a.Id), "").ConfigureAwait(false);
         _ = await Repository.SaveAsync().ConfigureAwait(false);
         await dataRefreshService.RefreshChannelGroups().ConfigureAwait(false);
         return res;

@@ -1,10 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
+
 using StreamMaster.Application.SMMessages.Commands;
 
-namespace StreamMaster.Application.SMMessages.Controllers
+namespace StreamMaster.Application.SMMessages
 {
     public partial class SMMessagesController(ILogger<SMMessagesController> _logger) : ApiControllerBase, ISMMessagesController
-    {        
+    {
 
         [HttpPatch]
         [Route("[action]")]

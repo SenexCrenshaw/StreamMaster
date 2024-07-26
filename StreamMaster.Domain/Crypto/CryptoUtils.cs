@@ -75,6 +75,26 @@
             return encryptedText;
         }
 
+        public static string EncodeValue(string plainText, string serverKey, int keySize = AesEncryption.DEFAULT_KEY_SIZE)
+        {
+            string encryptedText = AesEncryption.Encrypt(plainText, serverKey, keySize);
+            return encryptedText;
+        }
+
+        public static string? DecodeValue(string encryptedString, string serverKey)
+        {
+            try
+            {
+                string decryptedText = AesEncryption.Decrypt(encryptedString, serverKey);
+                return decryptedText;
+            }
+            catch
+            {
+                // Handle exception appropriately
+            }
+            return null;
+        }
+
         /// <summary>
         /// Decodes the stream group ID and encrypted values string from the provided encrypted string.
         /// </summary>

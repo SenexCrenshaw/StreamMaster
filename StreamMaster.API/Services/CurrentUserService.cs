@@ -1,5 +1,4 @@
-﻿using StreamMaster.Application.Common.Interfaces;
-
+﻿using StreamMaster.Application.Interfaces;
 using System.Security.Claims;
 
 namespace StreamMaster.API.Services;

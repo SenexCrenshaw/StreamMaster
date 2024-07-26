@@ -12,6 +12,7 @@ export const LinkButton = ({
   readonly filled?: boolean;
   readonly title: string;
   readonly bolt?: boolean;
+  readonly toolTip?: string;
   readonly justText?: boolean;
 }) => {
   const [, copyToClipboard] = useCopyToClipboard(true);

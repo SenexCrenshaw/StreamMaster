@@ -18,6 +18,7 @@ import { useSMStreamChannelGroupColumnConfig } from '@components/smstreams/colum
 import { useSelectedStreamGroup } from '@lib/redux/hooks/selectedStreamGroup';
 import { AddSMStreamToSMChannel, RemoveSMStreamFromSMChannel } from '@lib/smAPI/SMChannelStreamLinks/SMChannelStreamLinksCommands';
 
+import { LinkButton } from '@components/buttons/LinkButton';
 import { CreateSMChannelsFromStreams } from '@lib/smAPI/SMChannels/SMChannelsCommands';
 import useGetPagedSMStreams from '@lib/smAPI/SMStreams/useGetPagedSMStreams';
 import {
@@ -63,6 +64,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
   const actionTemplate = useCallback((data: SMStreamDto) => {
     return (
       <div className="flex justify-content-end align-items-center" style={{ paddingRight: '0.1rem' }}>
+        <LinkButton bolt link={data.Url} toolTip="Original Source UR" title="Original Source Link" />
         <StreamCopyLinkDialog realUrl={data.RealUrl} />
         <StreamVisibleDialog iconFilled={false} value={data} />
         <EditSMStreamDialog smStreamDto={data} />
@@ -77,7 +79,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
       groupColumnConfig,
       smStreamM3UColumnConfig,
       { field: 'M3UFileId', fieldType: 'filterOnly' },
-      { align: 'right', bodyTemplate: actionTemplate, field: 'IsHidden', fieldType: 'actions', header: 'Actions', width: 82 }
+      { align: 'right', bodyTemplate: actionTemplate, field: 'IsHidden', fieldType: 'actions', header: 'Actions', width: 108 }
     ],
     [actionTemplate, groupColumnConfig, smStreamM3UColumnConfig]
   );

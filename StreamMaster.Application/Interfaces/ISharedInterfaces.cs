@@ -5,7 +5,7 @@ using StreamMaster.Application.M3UFiles;
 using StreamMaster.Application.Programmes;
 using StreamMaster.Application.Settings;
 
-namespace StreamMaster.Application.Common.Interfaces;
+namespace StreamMaster.Application.Interfaces;
 
 public interface ISharedTasks :
 

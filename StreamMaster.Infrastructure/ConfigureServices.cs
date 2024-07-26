@@ -8,6 +8,8 @@ using StreamMaster.Infrastructure.Services.Downloads;
 using StreamMaster.Infrastructure.Services.Frontend.Mappers;
 using StreamMaster.SchedulesDirect.Domain.Interfaces;
 using StreamMaster.SchedulesDirect.Helpers;
+using StreamMaster.Streams.Domain.Interfaces;
+using StreamMaster.Streams.Services;
 
 using System.Reflection;
 
@@ -18,6 +20,7 @@ public static class ConfigureServices
     public static IServiceCollection AddInfrastructureServices(this IServiceCollection services)
     {
         _ = services.AddMemoryCache();
+
         _ = services.AddSingleton<IIconService, IconService>();
         services.AddSingleton<IVideoStreamService, VideoStreamService>();
         _ = services.AddSingleton<IImageDownloadQueue, ImageDownloadQueue>();
@@ -68,7 +71,6 @@ public static class ConfigureServices
 
     public static IServiceCollection AddInfrastructureServicesEx(this IServiceCollection services)
     {
-
         _ = services.AddSingleton<IBroadcastService, BroadcastService>();
 
         _ = services.AddHostedService<TimerService>();

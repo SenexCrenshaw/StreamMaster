@@ -65,7 +65,7 @@ public partial class StreamGroupsController : ApiControllerBase
             return new NotFoundResult();
         }
 
-        StreamGroupProfile? profile = await Repository.StreamGroupProfile.GetStreamGroupProfileAsync(streamGroupId.Value, streamGroupProfileId.Value);
+        StreamGroupProfile? profile = await RepositoryWrapper.StreamGroupProfile.GetStreamGroupProfileAsync(streamGroupId.Value, streamGroupProfileId.Value);
 
         string xml = await Mediator.Send(new GetStreamGroupEPG(streamGroupId.Value, streamGroupProfileId.Value)).ConfigureAwait(false);
         return new FileContentResult(Encoding.UTF8.GetBytes(xml), "application/xml")

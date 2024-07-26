@@ -1,4 +1,6 @@
-﻿namespace StreamMaster.Application.SchedulesDirect.Commands;
+﻿using StreamMaster.Application.Interfaces;
+
+namespace StreamMaster.Application.SchedulesDirect.Commands;
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]

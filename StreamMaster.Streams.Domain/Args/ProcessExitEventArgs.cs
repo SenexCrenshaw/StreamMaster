@@ -1,4 +1,4 @@
-﻿namespace StreamMaster.Domain.Models;
+﻿namespace StreamMaster.Streams.Domain.Args;
 
 public class ProcessExitEventArgs : EventArgs
 {

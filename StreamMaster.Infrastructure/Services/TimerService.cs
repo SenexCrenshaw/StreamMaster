@@ -4,11 +4,10 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-
-using StreamMaster.Application.Common.Interfaces;
 using StreamMaster.Application.EPGFiles.Commands;
 using StreamMaster.Application.EPGFiles.Queries;
 using StreamMaster.Application.Hubs;
+using StreamMaster.Application.Interfaces;
 using StreamMaster.Application.M3UFiles.Commands;
 using StreamMaster.Application.M3UFiles.Queries;
 using StreamMaster.Application.Services;

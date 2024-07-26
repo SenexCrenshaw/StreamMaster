@@ -1,11 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
+
 using StreamMaster.Application.SchedulesDirect.Commands;
 using StreamMaster.Application.SchedulesDirect.Queries;
 
-namespace StreamMaster.Application.SchedulesDirect.Controllers
+namespace StreamMaster.Application.SchedulesDirect
 {
     public partial class SchedulesDirectController(ILogger<SchedulesDirectController> _logger) : ApiControllerBase, ISchedulesDirectController
-    {        
+    {
 
         [HttpGet]
         [Route("[action]")]
@@ -13,8 +14,8 @@ namespace StreamMaster.Application.SchedulesDirect.Controllers
         {
             try
             {
-            DataResponse<List<CountryData>> ret = await Sender.Send(new GetAvailableCountriesRequest()).ConfigureAwait(false);
-             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetAvailableCountries.", statusCode: 500) : Ok(ret.Data);
+                DataResponse<List<CountryData>> ret = await Sender.Send(new GetAvailableCountriesRequest()).ConfigureAwait(false);
+                return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetAvailableCountries.", statusCode: 500) : Ok(ret.Data);
             }
             catch (Exception ex)
             {
@@ -29,8 +30,8 @@ namespace StreamMaster.Application.SchedulesDirect.Controllers
         {
             try
             {
-            DataResponse<List<HeadendDto>> ret = await Sender.Send(request).ConfigureAwait(false);
-             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetHeadendsByCountryPostal.", statusCode: 500) : Ok(ret.Data);
+                DataResponse<List<HeadendDto>> ret = await Sender.Send(request).ConfigureAwait(false);
+                return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetHeadendsByCountryPostal.", statusCode: 500) : Ok(ret.Data);
             }
             catch (Exception ex)
             {
@@ -45,8 +46,8 @@ namespace StreamMaster.Application.SchedulesDirect.Controllers
         {
             try
             {
-            DataResponse<List<HeadendToView>> ret = await Sender.Send(new GetHeadendsToViewRequest()).ConfigureAwait(false);
-             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetHeadendsToView.", statusCode: 500) : Ok(ret.Data);
+                DataResponse<List<HeadendToView>> ret = await Sender.Send(new GetHeadendsToViewRequest()).ConfigureAwait(false);
+                return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetHeadendsToView.", statusCode: 500) : Ok(ret.Data);
             }
             catch (Exception ex)
             {
@@ -61,8 +62,8 @@ namespace StreamMaster.Application.SchedulesDirect.Controllers
         {
             try
             {
-            DataResponse<List<LineupPreviewChannel>> ret = await Sender.Send(request).ConfigureAwait(false);
-             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetLineupPreviewChannel.", statusCode: 500) : Ok(ret.Data);
+                DataResponse<List<LineupPreviewChannel>> ret = await Sender.Send(request).ConfigureAwait(false);
+                return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetLineupPreviewChannel.", statusCode: 500) : Ok(ret.Data);
             }
             catch (Exception ex)
             {
@@ -77,8 +78,8 @@ namespace StreamMaster.Application.SchedulesDirect.Controllers
         {
             try
             {
-            DataResponse<List<StationIdLineup>> ret = await Sender.Send(new GetSelectedStationIdsRequest()).ConfigureAwait(false);
-             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetSelectedStationIds.", statusCode: 500) : Ok(ret.Data);
+                DataResponse<List<StationIdLineup>> ret = await Sender.Send(new GetSelectedStationIdsRequest()).ConfigureAwait(false);
+                return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetSelectedStationIds.", statusCode: 500) : Ok(ret.Data);
             }
             catch (Exception ex)
             {
@@ -93,8 +94,8 @@ namespace StreamMaster.Application.SchedulesDirect.Controllers
         {
             try
             {
-            DataResponse<List<StationChannelName>> ret = await Sender.Send(new GetStationChannelNamesRequest()).ConfigureAwait(false);
-             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetStationChannelNames.", statusCode: 500) : Ok(ret.Data);
+                DataResponse<List<StationChannelName>> ret = await Sender.Send(new GetStationChannelNamesRequest()).ConfigureAwait(false);
+                return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetStationChannelNames.", statusCode: 500) : Ok(ret.Data);
             }
             catch (Exception ex)
             {
@@ -109,8 +110,8 @@ namespace StreamMaster.Application.SchedulesDirect.Controllers
         {
             try
             {
-            DataResponse<List<StationPreview>> ret = await Sender.Send(new GetStationPreviewsRequest()).ConfigureAwait(false);
-             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetStationPreviews.", statusCode: 500) : Ok(ret.Data);
+                DataResponse<List<StationPreview>> ret = await Sender.Send(new GetStationPreviewsRequest()).ConfigureAwait(false);
+                return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetStationPreviews.", statusCode: 500) : Ok(ret.Data);
             }
             catch (Exception ex)
             {
@@ -125,8 +126,8 @@ namespace StreamMaster.Application.SchedulesDirect.Controllers
         {
             try
             {
-            DataResponse<List<HeadendDto>> ret = await Sender.Send(new GetSubScribedHeadendsRequest()).ConfigureAwait(false);
-             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetSubScribedHeadends.", statusCode: 500) : Ok(ret.Data);
+                DataResponse<List<HeadendDto>> ret = await Sender.Send(new GetSubScribedHeadendsRequest()).ConfigureAwait(false);
+                return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetSubScribedHeadends.", statusCode: 500) : Ok(ret.Data);
             }
             catch (Exception ex)
             {
@@ -141,8 +142,8 @@ namespace StreamMaster.Application.SchedulesDirect.Controllers
         {
             try
             {
-            DataResponse<List<SubscribedLineup>> ret = await Sender.Send(new GetSubscribedLineupsRequest()).ConfigureAwait(false);
-             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetSubscribedLineups.", statusCode: 500) : Ok(ret.Data);
+                DataResponse<List<SubscribedLineup>> ret = await Sender.Send(new GetSubscribedLineupsRequest()).ConfigureAwait(false);
+                return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetSubscribedLineups.", statusCode: 500) : Ok(ret.Data);
             }
             catch (Exception ex)
             {
@@ -216,55 +217,55 @@ namespace StreamMaster.Application.Hubs
     {
         public async Task<List<CountryData>> GetAvailableCountries()
         {
-             DataResponse<List<CountryData>> ret = await Sender.Send(new GetAvailableCountriesRequest()).ConfigureAwait(false);
+            DataResponse<List<CountryData>> ret = await Sender.Send(new GetAvailableCountriesRequest()).ConfigureAwait(false);
             return ret.Data;
         }
 
         public async Task<List<HeadendDto>> GetHeadendsByCountryPostal(GetHeadendsByCountryPostalRequest request)
         {
-             DataResponse<List<HeadendDto>> ret = await Sender.Send(request).ConfigureAwait(false);
+            DataResponse<List<HeadendDto>> ret = await Sender.Send(request).ConfigureAwait(false);
             return ret.Data;
         }
 
         public async Task<List<HeadendToView>> GetHeadendsToView()
         {
-             DataResponse<List<HeadendToView>> ret = await Sender.Send(new GetHeadendsToViewRequest()).ConfigureAwait(false);
+            DataResponse<List<HeadendToView>> ret = await Sender.Send(new GetHeadendsToViewRequest()).ConfigureAwait(false);
             return ret.Data;
         }
 
         public async Task<List<LineupPreviewChannel>> GetLineupPreviewChannel(GetLineupPreviewChannelRequest request)
         {
-             DataResponse<List<LineupPreviewChannel>> ret = await Sender.Send(request).ConfigureAwait(false);
+            DataResponse<List<LineupPreviewChannel>> ret = await Sender.Send(request).ConfigureAwait(false);
             return ret.Data;
         }
 
         public async Task<List<StationIdLineup>> GetSelectedStationIds()
         {
-             DataResponse<List<StationIdLineup>> ret = await Sender.Send(new GetSelectedStationIdsRequest()).ConfigureAwait(false);
+            DataResponse<List<StationIdLineup>> ret = await Sender.Send(new GetSelectedStationIdsRequest()).ConfigureAwait(false);
             return ret.Data;
         }
 
         public async Task<List<StationChannelName>> GetStationChannelNames()
         {
-             DataResponse<List<StationChannelName>> ret = await Sender.Send(new GetStationChannelNamesRequest()).ConfigureAwait(false);
+            DataResponse<List<StationChannelName>> ret = await Sender.Send(new GetStationChannelNamesRequest()).ConfigureAwait(false);
             return ret.Data;
         }
 
         public async Task<List<StationPreview>> GetStationPreviews()
         {
-             DataResponse<List<StationPreview>> ret = await Sender.Send(new GetStationPreviewsRequest()).ConfigureAwait(false);
+            DataResponse<List<StationPreview>> ret = await Sender.Send(new GetStationPreviewsRequest()).ConfigureAwait(false);
             return ret.Data;
         }
 
         public async Task<List<HeadendDto>> GetSubScribedHeadends()
         {
-             DataResponse<List<HeadendDto>> ret = await Sender.Send(new GetSubScribedHeadendsRequest()).ConfigureAwait(false);
+            DataResponse<List<HeadendDto>> ret = await Sender.Send(new GetSubScribedHeadendsRequest()).ConfigureAwait(false);
             return ret.Data;
         }
 
         public async Task<List<SubscribedLineup>> GetSubscribedLineups()
         {
-             DataResponse<List<SubscribedLineup>> ret = await Sender.Send(new GetSubscribedLineupsRequest()).ConfigureAwait(false);
+            DataResponse<List<SubscribedLineup>> ret = await Sender.Send(new GetSubscribedLineupsRequest()).ConfigureAwait(false);
             return ret.Data;
         }
 

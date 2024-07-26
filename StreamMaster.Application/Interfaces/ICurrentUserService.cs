@@ -1,4 +1,4 @@
-﻿namespace StreamMaster.Application.Common.Interfaces;
+﻿namespace StreamMaster.Application.Interfaces;
 
 public interface ICurrentUserService
 {

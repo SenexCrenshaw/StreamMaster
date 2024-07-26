@@ -53,7 +53,7 @@ public class RemoveStationRequestHandler(ILogger<RemoveStationRequest> logger, I
             await dataRefreshService.RefreshSchedulesDirect();
 
 
-            //foreach (EPGFileDto epg in await Repository.EPGFile.GetEPGFiles())
+            //foreach (EPGFileDto epg in await Repositorywrapper.EPGFile.GetEPGFiles())
             //{
             //    await Sender.Send(new RefreshEPGFileRequest(epg.Id), cancellationToken).ConfigureAwait(false);
             //}

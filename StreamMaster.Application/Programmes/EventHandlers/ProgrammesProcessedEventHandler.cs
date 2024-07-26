@@ -1,4 +1,6 @@
-﻿namespace StreamMaster.Application.Programmes.EventHandlers;
+﻿using StreamMaster.Application.Interfaces;
+
+namespace StreamMaster.Application.Programmes.EventHandlers;
 
 public class ProgrammesProcessedEventHandler(ILogger<ProgrammesProcessedEventHandler> logger, IHubContext<StreamMasterHub, IStreamMasterHub> HubContext)
     : INotificationHandler<ProgrammesProcessedEvent>

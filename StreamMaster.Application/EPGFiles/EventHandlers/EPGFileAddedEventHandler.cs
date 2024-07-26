@@ -1,4 +1,5 @@
-﻿using StreamMaster.Application.Services;
+﻿using StreamMaster.Application.Interfaces;
+using StreamMaster.Application.Services;
 
 namespace StreamMaster.Application.EPGFiles.EventHandlers;
 

@@ -2,7 +2,7 @@
 
 using Microsoft.AspNetCore.Http;
 
-using StreamMaster.Application.Crypto.Commands;
+using StreamMaster.Application.Interfaces;
 
 using System.Collections.Concurrent;
 using System.Linq.Expressions;
@@ -25,11 +25,11 @@ public class GetStreamGroupM3UValidator : AbstractValidator<GetStreamGroupM3U>
 }
 
 public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
+    ICryptoService cryptoService,
     ISchedulesDirectDataService schedulesDirectDataService,
     ISender sender,
     IRepositoryWrapper Repository,
-    IOptionsMonitor<Setting> intSettings,
-    IOptionsMonitor<HLSSettings> inthlssettings
+    IOptionsMonitor<Setting> intSettings
     )
     : IRequestHandler<GetStreamGroupM3U, string>
 {
@@ -113,7 +113,18 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
 
         var encodedData = smChannels.Select(smChannel =>
     {
-        (string? EncodedString, string? CleanName) = sender.Send(new EncodeStreamGroupIdProfileIdChannelId(request.StreamGroupId, sgProfile.Id, smChannel.Id, smChannel.Name)).Result;
+        //    (string? EncodedString, string? CleanName) = sender.Send(new EncodeStreamGroupIdProfileIdChannelId(request.StreamGroupId, sgProfile.Id, smChannel.Id, smChannel.Name)).Result;
+        //    return new
+        //    {
+        //        smChannel,
+        //        EncodedString,
+        //        CleanName
+        //    };
+        //})
+        //.ToList();
+
+        (string? EncodedString, string? CleanName) = cryptoService.EncodeStreamGroupIdChannelId(request.StreamGroupId, smChannel.Id, smChannel.Name);
+
         return new
         {
             smChannel,
@@ -138,18 +149,18 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
         //}).ToList();
 
         var videoStreamData = encodedData
-    .AsParallel()
-    .WithDegreeOfParallelism(Environment.ProcessorCount)
-    .Select((data, index) =>
-    {
-        (int ChNo, string m3uLine) = BuildM3ULineForVideoStream(data.smChannel, url, request, profile, sgProfile.Id, settings, videoStreamConfigs, data.EncodedString, data.CleanName);
-        return new
+        .AsParallel()
+        .WithDegreeOfParallelism(Environment.ProcessorCount)
+        .Select((data, index) =>
         {
-            ChNo,
-            m3uLine
-        };
-    })
-    .ToList();
+            (int ChNo, string m3uLine) = BuildM3ULineForVideoStream(data.smChannel, url, request, profile, sgProfile.Id, settings, videoStreamConfigs, data.EncodedString, data.CleanName);
+            return new
+            {
+                ChNo,
+                m3uLine
+            };
+        })
+        .ToList();
 
         StringBuilder ret = new("#EXTM3U\r\n");
         foreach (var data in videoStreamData.OrderBy(a => a.ChNo))
@@ -244,9 +255,9 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
         }
     }
 
-    private (int ChNo, string m3uLine) BuildM3ULineForVideoStream(SMChannel smChannel, string url, GetStreamGroupM3U request, OutputProfile profile, int sgProfileId, Setting settings, List<VideoStreamConfig> videoStreamConfigs, string encodedIds, string cleanName)
+    private (int ChNo, string m3uLine) BuildM3ULineForVideoStream(SMChannel smChannel, string url, GetStreamGroupM3U request, OutputProfile profile, int sgProfileId, Setting settings, List<VideoStreamConfig> videoStreamConfigs, string encodedString, string cleanName)
     {
-        if (string.IsNullOrEmpty(encodedIds) || string.IsNullOrEmpty(cleanName))
+        if (string.IsNullOrEmpty(encodedString) || string.IsNullOrEmpty(cleanName))
         {
             return (0, "");
         }
@@ -298,37 +309,11 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
         //    showM3UFieldTvgId = !(string.IsNullOrEmpty(videoStream.EPGId) && string.IsNullOrEmpty(smChannelDto.EPGId));
         //}
 
-
-
-
         string logo = GetIconUrl(smChannel.Logo, settings);
         smChannel.Logo = logo;
-        HLSSettings hlssettings = inthlssettings.CurrentValue;
-        string videoUrl = "";
 
-        //if (hlssettings.HLSM3U8Enable)
-        //{
-        //    videoUrl = $"{url}/api/stream/{smChannel.Id}.m3u8";
-        //}
-        //else
-        //{
+        string videoUrl = $"{url}/m/{encodedString}.m3u8";// : $"{url}/api/videostreams/stream/{encodedString}/{cleanName}";
 
-        //string encryptedGroupKey = CryptoExtension.EncryptGroupKey(GroupKey, settings.ServerKey);
-
-        //string encodedNumbers = request.StreamGroupId.EncodeValueWithGroupKey(
-        //    sgProfileId.ToString(), smChannel.Id.ToString(), settings.ServerKey, encryptedGroupKey, iv);
-
-        //string encodedName = HttpUtility.HtmlEncode(smChannel.Name).Trim()
-        //    .Replace("/", "")
-        //    .Replace(" ", "_");
-
-
-        //(string? EncodedString, string? CleanName) = sender.Send(new EncodeStreamGroupIdProfileIdChannelId(request.StreamGroupId, sgProfileId, smChannel.Id, smChannel.Name)).Result;
-        if (string.IsNullOrEmpty(encodedIds) || string.IsNullOrEmpty(cleanName))
-        {
-            return (0, "");
-        }
-        videoUrl = $"{url}/api/videostreams/stream/{encodedIds}/{cleanName}";
 
         //}
 

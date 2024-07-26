@@ -69,9 +69,9 @@ public sealed class ChannelService : IChannelService, IDisposable
             //            continue;
             //        }
 
-            //        if (!string.IsNullOrEmpty(channelStatus.OverrideVideoStreamId))
+            //        if (!string.IsNullOrEmpty(channelStatus.OverrideSMStreamId))
             //        {
-            //            channelStatus.OverrideVideoStreamId = "";
+            //            channelStatus.OverrideSMStreamId = "";
             //            continue;
             //        }
 

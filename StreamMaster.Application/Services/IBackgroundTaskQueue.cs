@@ -1,4 +1,5 @@
 ﻿using StreamMaster.Application.Common.Models;
+using StreamMaster.Application.Interfaces;
 
 namespace StreamMaster.Application.Services;
 

@@ -71,7 +71,7 @@ internal class SyncChannelsRequestHandler(ILogger<SyncChannelsRequest> logger, I
             bool changed = false;
             //if (existingStreamsInDb.Count != 0)
             //{
-            //    List<SMChannel> smChannels = await Repository.SMChannel.GetQuery(true).Where(a => a.M3UFileId == request.M3UFileId && a.StreamID != null && existingStreamsIDsInDb.Contains(a.StreamID)).ToListAsync(cancellationToken: cancellationToken);
+            //    List<SMChannel> smChannels = await Repositorywrapper.SMChannel.GetQuery(true).Where(a => a.M3UFileId == request.M3UFileId && a.StreamID != null && existingStreamsIDsInDb.Contains(a.StreamID)).ToListAsync(cancellationToken: cancellationToken);
 
             //    foreach (SMChannel smChannel in smChannels)
             //    {
@@ -108,7 +108,7 @@ internal class SyncChannelsRequestHandler(ILogger<SyncChannelsRequest> logger, I
             //    }
             //    if (changed)
             //    {
-            //        await Repository.SaveAsync();
+            //        await Repositorywrapper.SaveAsync();
             //    }
             //}
 

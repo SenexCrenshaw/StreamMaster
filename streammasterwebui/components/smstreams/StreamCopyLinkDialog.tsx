@@ -3,10 +3,11 @@ import { memo } from 'react';
 
 interface StreamCopyLinkDialogProperties {
   readonly realUrl?: string | undefined;
+  readonly toolTip?: string | undefined;
 }
 
-const StreamCopyLinkDialog = ({ realUrl }: StreamCopyLinkDialogProperties) => {
-  return <LinkButton link={realUrl ?? ''} title="Stream Link" />;
+const StreamCopyLinkDialog = ({ realUrl, toolTip = 'Stream Link' }: StreamCopyLinkDialogProperties) => {
+  return <LinkButton link={realUrl ?? ''} title={toolTip} />;
 };
 
 StreamCopyLinkDialog.displayName = 'StreamCopyLinkDialog';

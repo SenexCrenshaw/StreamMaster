@@ -7,7 +7,6 @@ namespace StreamMaster.Streams.Factories;
 public sealed class ProxyFactory(ILogger<ProxyFactory> logger, ICustomPlayListStream CustomPlayListStream, ICommandStream CommandStream, IOptionsMonitor<Setting> settings)
     : IProxyFactory
 {
-
     public async Task<(Stream? stream, int processId, ProxyStreamError? error)> GetProxy(IChannelStatus channelStatus, CancellationToken cancellationToken)
     {
         (Stream? stream, int processId, ProxyStreamError? error) = await GetProxyStream(channelStatus, cancellationToken).ConfigureAwait(false);
@@ -24,7 +23,6 @@ public sealed class ProxyFactory(ILogger<ProxyFactory> logger, ICustomPlayListSt
 
         try
         {
-
             string clientUserAgent = !string.IsNullOrEmpty(channelStatus.SMStream.ClientUserAgent) ? channelStatus.SMStream.ClientUserAgent : settings.CurrentValue.SourceClientUserAgent;
 
             return channelStatus.SMChannel.IsCustomStream
@@ -42,5 +40,4 @@ public sealed class ProxyFactory(ILogger<ProxyFactory> logger, ICustomPlayListSt
             stopwatch.Stop();
         }
     }
-
 }

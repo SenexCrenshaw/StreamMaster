@@ -1,4 +1,6 @@
-﻿namespace StreamMaster.Application.Icons.EventHandlers;
+﻿using StreamMaster.Application.Interfaces;
+
+namespace StreamMaster.Application.Icons.EventHandlers;
 
 public class IconFileAddedEventHandler : INotificationHandler<IconFileAddedEvent>
 {

@@ -1,10 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
+
 using StreamMaster.Application.Icons.Queries;
 
-namespace StreamMaster.Application.Icons.Controllers
+namespace StreamMaster.Application.Icons
 {
     public partial class IconsController(ILogger<IconsController> _logger) : ApiControllerBase, IIconsController
-    {        
+    {
 
         [HttpGet]
         [Route("[action]")]
@@ -12,8 +13,8 @@ namespace StreamMaster.Application.Icons.Controllers
         {
             try
             {
-            DataResponse<List<IconFileDto>> ret = await Sender.Send(new GetIconsRequest()).ConfigureAwait(false);
-             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetIcons.", statusCode: 500) : Ok(ret.Data);
+                DataResponse<List<IconFileDto>> ret = await Sender.Send(new GetIconsRequest()).ConfigureAwait(false);
+                return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetIcons.", statusCode: 500) : Ok(ret.Data);
             }
             catch (Exception ex)
             {
@@ -31,7 +32,7 @@ namespace StreamMaster.Application.Hubs
     {
         public async Task<List<IconFileDto>> GetIcons()
         {
-             DataResponse<List<IconFileDto>> ret = await Sender.Send(new GetIconsRequest()).ConfigureAwait(false);
+            DataResponse<List<IconFileDto>> ret = await Sender.Send(new GetIconsRequest()).ConfigureAwait(false);
             return ret.Data;
         }
 

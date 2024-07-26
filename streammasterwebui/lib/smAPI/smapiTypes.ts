@@ -228,7 +228,8 @@ export interface IconFileDto
 }
 export interface IdNameUrl
 {
-	Id: number;
+	Id: string;
+	IsCustomStream: boolean;
 	Name: string;
 	Url: string;
 }

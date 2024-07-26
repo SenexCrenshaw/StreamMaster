@@ -1,4 +1,5 @@
-﻿using StreamMaster.Application.StreamGroups.Events;
+﻿using StreamMaster.Application.Interfaces;
+using StreamMaster.Application.StreamGroups.Events;
 
 namespace StreamMaster.Application.StreamGroups.EventHandlers;
 

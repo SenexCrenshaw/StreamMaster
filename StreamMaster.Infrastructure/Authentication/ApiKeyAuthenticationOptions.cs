@@ -18,10 +18,13 @@ public class ApiKeyAuthenticationOptions : AuthenticationSchemeOptions
     public string Scheme => DefaultScheme;
 }
 
+
+
 public class ApiKeyAuthenticationHandler(IOptionsMonitor<ApiKeyAuthenticationOptions> options, IOptionsMonitor<Setting> intSettings, ILoggerFactory logger, UrlEncoder encoder)
     : AuthenticationHandler<ApiKeyAuthenticationOptions>(options, logger, encoder)
 {
     private readonly ILogger<ApiKeyAuthenticationHandler> _logger = logger.CreateLogger<ApiKeyAuthenticationHandler>();
+    public static List<string> SafePaths = ["/api/videostreams/", "/api/streamgroups/", "/m/", "/v/"];
 
     protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
     {
@@ -94,13 +97,7 @@ public class ApiKeyAuthenticationHandler(IOptionsMonitor<ApiKeyAuthenticationOpt
         {
             _logger.LogDebug("SGLinks Authentication start for {requestPath}", requestPath);
             // Get the request path
-            if (
-                !requestPath.StartsWith("/api/videostreams/", StringComparison.InvariantCultureIgnoreCase)
-                &&
-                !requestPath.StartsWith("/api/streamgroups/", StringComparison.InvariantCultureIgnoreCase)
-                &&
-                 !requestPath.StartsWith("/v/", StringComparison.InvariantCultureIgnoreCase)
-                )
+            if (SafePaths.Contains(requestPath.ToLower()))
             {
                 _logger.LogDebug("SGLinks: Bad path No Authentication for {requestPath}", requestPath);
                 return null;

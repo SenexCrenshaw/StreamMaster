@@ -12,7 +12,7 @@ public class BuildProgIconsCacheFromEPGsRequestHandler(ILogger<BuildProgIconsCac
 
         //int startId = MemoryCache.GetIconsRequest(Mapper).Count;
 
-        //List<EPGFileDto> epgFiles = await Repository.EPGFile.GetEPGFiles();
+        //List<EPGFileDto> epgFiles = await Repositorywrapper.EPGFile.GetEPGFiles();
         //foreach (EPGFileDto epg in epgFiles)
         //{
         //    Tv? tv = await GetTV(epg.Source);
@@ -110,7 +110,7 @@ public class BuildProgIconsCacheFromEPGsRequestHandler(ILogger<BuildProgIconsCac
 
     //private async Task WorkOnProgrammeIcons(int startId, CancellationToken cancellationToken)
     //{
-    //    List<string> epgids = await Repository.StreamGroup
+    //    List<string> epgids = await Repositorywrapper.StreamGroup
     //    .GetStreamGroupQuery()
     //    .Include(a => a.ChildVideoStreams)
     //    .SelectMany(a => a.ChildVideoStreams)
@@ -121,7 +121,7 @@ public class BuildProgIconsCacheFromEPGsRequestHandler(ILogger<BuildProgIconsCac
     //    .ConfigureAwait(false);
 
 
-    //    //List<StreamGroupDto> sgs = await Repository.StreamGroupVideoStream.GetStreamGroupVideoStreamIds();
+    //    //List<StreamGroupDto> sgs = await Repositorywrapper.StreamGroupVideoStream.GetStreamGroupVideoStreamIds();
 
     //    //IEnumerable<string> epgids = sgs.SelectMany(x => x.ChildVideoStreams.Select(a => a.User_Tvg_ID)).Distinct();
 

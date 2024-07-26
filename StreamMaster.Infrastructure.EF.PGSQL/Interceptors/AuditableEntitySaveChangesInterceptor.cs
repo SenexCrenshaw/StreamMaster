@@ -1,8 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-
-using StreamMaster.Application.Common.Interfaces;
+using StreamMaster.Application.Interfaces;
 
 namespace StreamMaster.Infrastructure.EF.PGSQL.Interceptors;
 

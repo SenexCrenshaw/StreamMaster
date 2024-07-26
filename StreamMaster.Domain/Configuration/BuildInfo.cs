@@ -152,6 +152,7 @@ namespace StreamMaster.Domain.Configuration
 
         public static readonly string HLSSettingFileName = "hlssettings.json";
         public static readonly string HLSSettingsFile = GetSettingFilePath(HLSSettingFileName);
+        public static readonly string HLSLogFolder = Path.Combine(LogFolder, "HLS");
 
         public static readonly string CommandProfileFileName = "commandprofiles.json";
         public static readonly string CommandProfileSettingsFile = GetSettingFilePath(CommandProfileFileName);

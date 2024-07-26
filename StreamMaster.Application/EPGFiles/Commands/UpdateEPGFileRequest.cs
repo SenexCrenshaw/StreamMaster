@@ -1,4 +1,6 @@
-﻿namespace StreamMaster.Application.EPGFiles.Commands;
+﻿using StreamMaster.Application.Interfaces;
+
+namespace StreamMaster.Application.EPGFiles.Commands;
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
@@ -46,7 +48,7 @@ public class UpdateEPGFileRequestHandler(ILogger<UpdateEPGFileRequest> logger, I
 
             if (request.Url != null && epgFile.Url != request.Url)
             {
-                epgFile.Url = request.Url == "" ? null : request.Url;
+                epgFile.Url = request.Url?.Length == 0 ? null : request.Url;
                 ret.Add(new FieldData(() => epgFile.Url));
             }
 

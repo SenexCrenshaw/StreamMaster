@@ -9,7 +9,7 @@
 //[TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 //public record GetVideoStreamNamesAndUrlsRequest() : IRequest<DataResponse<List<IdNameUrl>>>;
 
-//internal class GetVideoStreamNamesAndUrlsHandler(IOptionsMonitor<HLSSettings> intHLSettings,ISender sender, IOptionsMonitor<Setting> intSettings, IHttpContextAccessor httpContextAccessor, IRepositoryWrapper Repository) : IRequestHandler<GetVideoStreamNamesAndUrlsRequest, DataResponse<List<IdNameUrl>>>
+//internal class GetVideoStreamNamesAndUrlsHandler(IOptionsMonitor<HLSSettings> intHLSettings,ISender sender, IOptionsMonitor<Setting> intSettings, IHttpContextAccessor httpContextAccessor, IRepositoryWrapper Repositorywrapper) : IRequestHandler<GetVideoStreamNamesAndUrlsRequest, DataResponse<List<IdNameUrl>>>
 //{
 
 //    public async Task<DataResponse<List<IdNameUrl>>> Handle(GetVideoStreamNamesAndUrlsRequest request, CancellationToken cancellationToken)
@@ -18,7 +18,7 @@
 //        Setting settings = intSettings.CurrentValue;
 //        HLSSettings hlsSettings = intHLSettings.CurrentValue;
 
-//        List<IdNameUrl> matchedIds = await Repository.SMChannel.GetQuery()
+//        List<IdNameUrl> matchedIds = await Repositorywrapper.SMChannel.GetQuery()
 //            .Where(vs => !vs.IsHidden)
 //            .OrderBy(vs => vs.Name)
 //            .Select(vs => new IdNameUrl(vs.Id, vs.Name, GetVideoStreamUrl(vs, hlsSettings, settings, url)))

@@ -14,7 +14,6 @@ global using Reinforced.Typings.Attributes;
 global using StreamMaster.Application.Common;
 global using StreamMaster.Application.Common.Events;
 global using StreamMaster.Application.Common.Extensions;
-global using StreamMaster.Application.Common.Interfaces;
 global using StreamMaster.Application.Hubs;
 global using StreamMaster.Application.Profiles.Queries;
 global using StreamMaster.Application.Settings.Queries;

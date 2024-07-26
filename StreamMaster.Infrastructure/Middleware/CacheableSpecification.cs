@@ -25,7 +25,8 @@ namespace StreamMaster.Infrastructure.Middleware
 
             if (
                 request.Path.StartsWithSegments("/api/", StringComparison.CurrentCultureIgnoreCase) ||
-                request.Path.StartsWithSegments("/v/", StringComparison.CurrentCultureIgnoreCase)
+                request.Path.StartsWithSegments("/v/", StringComparison.CurrentCultureIgnoreCase) ||
+                request.Path.StartsWithSegments("/m/", StringComparison.CurrentCultureIgnoreCase)
                 )
             {
                 //if (request.Path.ToString().ContainsIgnoreCase("/MediaCover"))

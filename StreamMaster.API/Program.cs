@@ -28,11 +28,6 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text.Json.Serialization;
 
 [assembly: TsGlobal(CamelCaseForProperties = false, CamelCaseForMethods = false, UseModules = true, DiscardNamespacesWhenUsingModules = true, AutoOptionalProperties = true, WriteWarningComment = false, ReorderMembers = true)]
-//ProcessHelper.KillProcessByName("ffmpeg");
-
-//DirectoryHelper.RenameDirectory(Path.Combine(BuildInfo.AppDataFolder, "hls"), BuildInfo.HLSOutputFolder);
-//DirectoryHelper.RenameDirectory(Path.Combine(BuildInfo.AppDataFolder, "settings"), BuildInfo.SettingsFolder);
-//DirectoryHelper.RenameDirectory(Path.Combine(BuildInfo.AppDataFolder, "backups"), BuildInfo.BackupFolder);
 
 DirectoryHelper.CreateApplicationDirectories();
 
@@ -84,17 +79,6 @@ if (hlsSetting == default(HLSSettings))
 {
     SettingsHelper.UpdateSetting(new HLSSettings());
 }
-
-//var mainSetting = SettingsHelper.GetSetting<OldSetting>(BuildInfo.SettingsFile);
-//if (mainSetting != default(OldSetting))
-//{
-//    if (mainSetting.SDSettings != default(SDSettings))
-//    {
-//        SettingsHelper.UpdateSetting(mainSetting.SDSettings);
-//        var toWrite = mainSetting.ConvertToSetting();
-//        SettingsHelper.UpdateSetting(toWrite);
-//    }
-//}
 
 var mainSetting = SettingsHelper.GetSetting<Setting>(BuildInfo.SettingsFile);
 if (mainSetting == default(Setting))
@@ -257,6 +241,7 @@ else
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseMiddleware<CacheHeaderMiddleware>();
+
 //if (app.Environment.IsDevelopment())
 //{
 //    //RecurringJob.AddOrUpdate("Hello World", () => Console.WriteLine("hello world"), Cron.Minutely);    
