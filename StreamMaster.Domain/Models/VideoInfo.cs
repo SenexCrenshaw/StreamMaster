@@ -114,6 +114,7 @@ public class VideoInfoDto : VideoInfo
         Created = DateTime.UtcNow; // Assuming SMDT.UtcNow returns DateTime.UtcNow
         //Streams = info.Value.Streams;
         //Format = info.Value.Format;
+        JsonOutput = info.Value.JsonOutput;
     }
 
     //public string Key { get; set; }

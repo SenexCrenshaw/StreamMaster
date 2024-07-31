@@ -25,6 +25,10 @@ namespace StreamMaster.Streams.Plugins
         private readonly string key;
         private readonly CancellationTokenSource cancellationTokenSource = new();
         public event EventHandler<VideoInfoEventArgs>? VideoInfoUpdated;
+        private static readonly JsonSerializerOptions jsonOptions = new()
+        {
+            WriteIndented = true
+        };
 
         public VideoInfoPlugin(ILogger<VideoInfoPlugin> logger, IOptionsMonitor<Setting> settingsMonitor, ChannelReader<byte[]> channelReader, string key)
         {
@@ -40,6 +44,12 @@ namespace StreamMaster.Streams.Plugins
 
         private async Task StartVideoInfoLoopAsync(CancellationToken cancellationToken)
         {
+            TimeSpan initialDelay = TimeSpan.FromSeconds(15);
+            TimeSpan normalDelay = TimeSpan.FromMinutes(5);
+            TimeSpan errorDelay = TimeSpan.FromMinutes(1);
+
+            await Task.Delay(initialDelay, cancellationToken);
+
             while (!cancellationToken.IsCancellationRequested)
             {
                 try
@@ -50,15 +60,18 @@ namespace StreamMaster.Streams.Plugins
                     {
                         _logger.LogInformation("Got video info for {key}", key);
                         OnVideoInfoUpdated(videoInfo);
+                        await Task.Delay(normalDelay, cancellationToken);
                     }
-
+                    else
+                    {
+                        await Task.Delay(errorDelay, cancellationToken);
+                    }
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, "Error getting video info for {key}", key);
+                    await Task.Delay(errorDelay, cancellationToken);
                 }
-
-                await Task.Delay(TimeSpan.FromMinutes(5), cancellationToken);
             }
         }
 
@@ -101,7 +114,7 @@ namespace StreamMaster.Streams.Plugins
                     {
                         ffprobeProcess.Kill();
                     }
-                }, null, 10000, Timeout.Infinite);
+                }, null, 60000, Timeout.Infinite);
 
                 try
                 {
@@ -115,25 +128,30 @@ namespace StreamMaster.Streams.Plugins
                     string output = await ffprobeProcess.StandardOutput.ReadToEndAsync(cancellationToken).ConfigureAwait(false);
                     ffprobeProcess.WaitForExit();
                     timer.Dispose();
-                    VideoInfo? videoInfo = JsonSerializer.Deserialize<VideoInfo>(output);
 
-                    //if (videoInfo == null || videoInfo.Format == null)
                     if (string.IsNullOrEmpty(output))
                     {
                         _logger.LogError("Failed to deserialize FFProbe output: {output}", output);
                         return null;
                     }
 
-                    return new VideoInfo { JsonOutput = output, StreamName = key };
+                    using JsonDocument document = JsonDocument.Parse(output);
+
+                    // Serialize the document back to a JSON string with formatting
+                    string formattedJsonString = JsonSerializer.Serialize(document.RootElement, jsonOptions);
+
+                    return new VideoInfo { JsonOutput = formattedJsonString, StreamName = key };
+
                 }
                 finally
                 {
+                    ffprobeProcess?.Kill();
                     timer.Dispose();
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                _logger.LogError(ex, "Exception occurred in GetVideoInfoAsync.");
+                _logger.LogError("Exception occurred in GetVideoInfoAsync. Trying again in 1 minute");
                 return null;
             }
         }
@@ -191,4 +209,5 @@ namespace StreamMaster.Streams.Plugins
             }
         }
     }
+
 }
