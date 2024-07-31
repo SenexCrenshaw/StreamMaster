@@ -145,7 +145,10 @@ namespace StreamMaster.Streams.Plugins
                 }
                 finally
                 {
-                    ffprobeProcess?.Kill();
+                    if (!ffprobeProcess.HasExited)
+                    {
+                        ffprobeProcess?.Kill();
+                    }
                     timer.Dispose();
                 }
             }

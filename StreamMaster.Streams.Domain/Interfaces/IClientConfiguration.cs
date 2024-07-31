@@ -3,6 +3,7 @@ namespace StreamMaster.Streams.Domain.Interfaces;
 
 public interface IClientConfiguration
 {
+    void SetUniqueRequestId(string uniqueRequestId);
     CancellationToken ClientCancellationToken { get; }
     string HttpContextId { get; }
     SMChannelDto SMChannel { get; set; }

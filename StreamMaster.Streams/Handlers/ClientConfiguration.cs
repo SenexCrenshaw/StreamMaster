@@ -34,6 +34,10 @@ public sealed class ClientConfiguration : IClientConfiguration
     public HttpResponse Response { get; }
     public int StreamGroupId { get; set; }
 
+    public void SetUniqueRequestId(string uniqueRequestId)
+    {
+        UniqueRequestId = uniqueRequestId;
+    }
     [IgnoreMember]
     public string HttpContextId => Response.HttpContext.TraceIdentifier;
 
