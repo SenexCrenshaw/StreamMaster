@@ -10,6 +10,6 @@ namespace StreamMaster.Streams.Domain.Interfaces
         void AddBytesRead(string clientId, int bytesRead);
         List<ClientStreamingStatistics> GetAllClientStatistics();
         void IncrementBytesRead(string clientId);
-        void RegisterClient(ClientStreamerConfiguration streamerConfiguration);
+        void RegisterClient(IClientConfiguration streamerConfiguration);
     }
 }

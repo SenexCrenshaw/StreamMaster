@@ -5,6 +5,7 @@ namespace StreamMaster.Application.Statistics
 {
     public interface IStatisticsController
     {        
+        Task<ActionResult<List<ChannelDistributorDto>>> GetChannelDistributors();
         Task<ActionResult<List<ChannelStreamingStatistics>>> GetChannelStreamingStatistics();
         Task<ActionResult<List<ClientStreamingStatistics>>> GetClientStreamingStatistics();
         Task<ActionResult<List<StreamStreamingStatistic>>> GetStreamingStatisticsForChannel(GetStreamingStatisticsForChannelRequest request);
@@ -16,6 +17,7 @@ namespace StreamMaster.Application.Hubs
 {
     public interface IStatisticsHub
     {
+        Task<List<ChannelDistributorDto>> GetChannelDistributors();
         Task<List<ChannelStreamingStatistics>> GetChannelStreamingStatistics();
         Task<List<ClientStreamingStatistics>> GetClientStreamingStatistics();
         Task<List<StreamStreamingStatistic>> GetStreamingStatisticsForChannel(GetStreamingStatisticsForChannelRequest request);

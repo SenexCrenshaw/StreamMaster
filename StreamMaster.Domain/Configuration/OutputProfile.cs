@@ -4,6 +4,8 @@ using MessagePack;
 
 using System.Text.Json.Serialization;
 
+namespace StreamMaster.Domain.Configuration;
+
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public class OutputProfile
 {
@@ -25,7 +27,6 @@ public class OutputProfile
     public string Group { get; set; } = string.Empty;
     //public string ChannelNumber { get; set; } = string.Empty;
 
-
 }
 
 //[TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
@@ -43,14 +44,77 @@ public record OutputProfileRequest
 
 }
 
-
-public class OutputProfiles
-{
-    public Dictionary<string, OutputProfile> OutProfiles { get; set; } = [];
-}
-
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public class OutputProfileDto : OutputProfile
 {
     public string ProfileName { get; set; } = "";
+}
+
+public class OutputProfiles
+{
+    public Dictionary<string, OutputProfile> Profiles { get; set; } = [];
+    public OutputProfile? GetProfile(string OutputProfileName)
+    {
+        return Profiles.TryGetValue(OutputProfileName, out OutputProfile? existingProfile)
+            ? existingProfile
+            : null;
+    }
+
+    public OutputProfileDto GetDefaultProfileDto(string defaultName = "Default")
+    {
+
+        OutputProfile? defaultProfile = GetProfile(defaultName);
+        return defaultProfile == null
+            ? throw new Exception($"Command Profile {defaultName} not found")
+            : GetProfileDtoFromProfile(defaultProfile, defaultName);
+    }
+
+    public OutputProfileDto GetProfileDtoFromProfile(OutputProfile outputProfile, string ProfileName)
+    {
+        return new OutputProfileDto
+        {
+            ProfileName = ProfileName,
+            IsReadOnly = outputProfile.IsReadOnly,
+            EnableIcon = outputProfile.EnableIcon,
+            EnableId = outputProfile.EnableId,
+            EnableGroupTitle = outputProfile.EnableGroupTitle,
+            EnableChannelNumber = outputProfile.EnableChannelNumber,
+            Name = outputProfile.Name,
+            EPGId = outputProfile.EPGId,
+            Group = outputProfile.Group,
+        };
+    }
+
+    public OutputProfileDto GetProfileDto(string OutputProfileName)
+    {
+        return GetDefaultProfileDto(OutputProfileName);
+
+    }
+    public List<OutputProfileDto> GetProfilesDto()
+    {
+        List<OutputProfileDto> ret = [];
+
+        foreach (string key in Profiles.Keys)
+        {
+            if (Profiles.TryGetValue(key, out OutputProfile? profile))
+            {
+                ret.Add(GetProfileDtoFromProfile(profile, key));
+            }
+        }
+        return ret;
+    }
+
+    public List<OutputProfile> GetProfiles()
+    {
+        List<OutputProfile> ret = [];
+
+        foreach (string key in Profiles.Keys)
+        {
+            if (Profiles.TryGetValue(key, out OutputProfile? profile))
+            {
+                ret.Add(profile);
+            }
+        }
+        return ret;
+    }
 }

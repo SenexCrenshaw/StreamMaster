@@ -1,13 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-using StreamMaster.Streams.Domain.Interfaces;
-using StreamMaster.Streams.Domain.Statistics;
-
 using System.Text;
 
 namespace StreamMaster.API.Controllers;
 
-public class MiscController(IImageDownloadService imageDownloadService, IStreamManager streamManager) : ApiControllerBase
+public class MiscController(IImageDownloadService imageDownloadService, IVideoInfoService videoInfoService, IChannelDistributorService channelDistributorService) : ApiControllerBase
 {
     [HttpGet]
     [Route("[action]")]
@@ -19,18 +16,45 @@ public class MiscController(IImageDownloadService imageDownloadService, IStreamM
 
     [HttpGet]
     [Route("[action]")]
-    public ActionResult<IDictionary<string, StreamHandlerMetrics>> GetStreamManagerStats()
+    public ActionResult<List<IChannelDistributor>> GetChannelDiGetChannelDistributors()
     {
-        IDictionary<string, StreamHandlerMetrics> metrics = streamManager.GetAggregatedMetrics();
+        List<IChannelDistributor> channelDistributors = channelDistributorService.GetChannelDistributors();
+        IDictionary<string, IStreamHandlerMetrics> a = channelDistributorService.GetAggregatedMetrics();
+        return Ok(channelDistributors);
+    }
+
+
+
+    [HttpGet]
+    [Route("[action]")]
+    public ActionResult<List<VideoInfoDto>> GetVideoInfos()
+    {
+        System.Collections.Concurrent.ConcurrentDictionary<string, VideoInfo> infos = videoInfoService.VideoInfos;
+        List<VideoInfoDto> ret = [];
+        foreach (KeyValuePair<string, VideoInfo> info in infos)
+        {
+            ret.Add(new VideoInfoDto(info));
+        }
+        return Ok(ret);
+    }
+
+
+
+
+    [HttpGet]
+    [Route("[action]")]
+    public ActionResult<IDictionary<string, IStreamHandlerMetrics>> GetAggregatedMetrics()
+    {
+        IDictionary<string, IStreamHandlerMetrics> metrics = channelDistributorService.GetAggregatedMetrics();
         return Ok(metrics);
     }
 
-    [HttpGet("health")]
-    public IActionResult GetStreamManagerHealth()
-    {
-        bool isHealthy = streamManager.IsHealthy();
-        return isHealthy ? Ok("Healthy") : StatusCode(500, "Unhealthy");
-    }
+    //[HttpGet("health")]
+    //public IActionResult GetStreamManagerHealth()
+    //{
+    //    bool isHealthy = channelDistributorService.IsHealthy();
+    //    return isHealthy ? Ok("Healthy") : StatusCode(500, "Unhealthy");
+    //}
 
     [HttpGet]
     [Route("[action]")]

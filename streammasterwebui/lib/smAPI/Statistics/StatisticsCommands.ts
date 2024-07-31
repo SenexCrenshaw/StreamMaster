@@ -1,6 +1,11 @@
 import { isSkipToken } from '@lib/common/isSkipToken';
 import SignalRService from '@lib/signalr/SignalRService';
-import { ChannelStreamingStatistics,ClientStreamingStatistics,StreamStreamingStatistic,GetStreamingStatisticsForChannelRequest } from '@lib/smAPI/smapiTypes';
+import { ChannelDistributorDto,ChannelStreamingStatistics,ClientStreamingStatistics,StreamStreamingStatistic,GetStreamingStatisticsForChannelRequest } from '@lib/smAPI/smapiTypes';
+
+export const GetChannelDistributors = async (): Promise<ChannelDistributorDto[] | undefined> => {
+  const signalRService = SignalRService.getInstance();
+  return await signalRService.invokeHubCommand<ChannelDistributorDto[]>('GetChannelDistributors');
+};
 
 export const GetChannelStreamingStatistics = async (): Promise<ChannelStreamingStatistics[] | undefined> => {
   const signalRService = SignalRService.getInstance();

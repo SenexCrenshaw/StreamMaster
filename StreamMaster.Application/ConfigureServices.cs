@@ -1,7 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
 using StreamMaster.Application.Crypto;
-using StreamMaster.Application.Interfaces;
+using StreamMaster.Application.Profiles;
+using StreamMaster.Application.StreamGroups;
 namespace StreamMaster.Application;
 
 public static class ConfigureServices
@@ -13,6 +14,8 @@ public static class ConfigureServices
         //_ = services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>));
         //_ = services.AddTransient(typeof(IPipelineBehavior<,
         services.AddTransient<ICryptoService, CryptoService>();
+        services.AddTransient<IProfileService, ProfileService>();
+        services.AddTransient<IStreamGroupService, StreamGroupService>();
         return services;
     }
 }

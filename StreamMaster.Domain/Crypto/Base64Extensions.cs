@@ -51,12 +51,6 @@ public static class Base64Extensions
         string base64String = Convert.ToBase64String(bytes);
         return base64String.Replace('+', '-').Replace('/', '_').TrimEnd('=');
     }
-    public static string ToUrlSafeString(this string input)
-    {
-        return string.IsNullOrWhiteSpace(input)
-            ? throw new ArgumentException("Input cannot be null or whitespace.", nameof(input))
-            : input.Replace('+', '-').Replace('/', '_').TrimEnd('=');
-    }
 
 
     /// <summary>

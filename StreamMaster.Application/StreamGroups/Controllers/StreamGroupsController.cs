@@ -9,7 +9,7 @@ using System.Text;
 
 namespace StreamMaster.Application.StreamGroups.Controllers;
 
-public partial class StreamGroupsController : ApiControllerBase
+public partial class StreamGroupsController
 {
 
     [HttpGet]
@@ -25,7 +25,7 @@ public partial class StreamGroupsController : ApiControllerBase
             return new NotFoundResult();
         }
 
-        string xml = await Mediator.Send(new GetStreamGroupCapability(streamGroupId.Value, streamGroupProfileId.Value)).ConfigureAwait(false);
+        string xml = await Sender.Send(new GetStreamGroupCapability(streamGroupId.Value, streamGroupProfileId.Value)).ConfigureAwait(false);
         return new ContentResult
         {
             Content = xml,
@@ -45,7 +45,7 @@ public partial class StreamGroupsController : ApiControllerBase
             return new NotFoundResult();
         }
 
-        string json = await Mediator.Send(new GetStreamGroupDiscover(streamGroupId.Value, streamGroupProfileId.Value)).ConfigureAwait(false);
+        string json = await Sender.Send(new GetStreamGroupDiscover(streamGroupId.Value, streamGroupProfileId.Value)).ConfigureAwait(false);
         return new ContentResult
         {
             Content = json,
@@ -65,12 +65,16 @@ public partial class StreamGroupsController : ApiControllerBase
             return new NotFoundResult();
         }
 
-        StreamGroupProfile? profile = await RepositoryWrapper.StreamGroupProfile.GetStreamGroupProfileAsync(streamGroupId.Value, streamGroupProfileId.Value);
+        StreamGroup? sg = await StreamGroupService.GetStreamGroupFromIdAsync(streamGroupId.Value).ConfigureAwait(false);
+        if (sg == null)
+        {
+            return new NotFoundResult();
+        }
 
-        string xml = await Mediator.Send(new GetStreamGroupEPG(streamGroupId.Value, streamGroupProfileId.Value)).ConfigureAwait(false);
+        string xml = await Sender.Send(new GetStreamGroupEPG(streamGroupId.Value, streamGroupProfileId.Value)).ConfigureAwait(false);
         return new FileContentResult(Encoding.UTF8.GetBytes(xml), "application/xml")
         {
-            FileDownloadName = $"epg-{profile?.OutputProfileName ?? streamGroupProfileId.Value.ToString()}.xml"
+            FileDownloadName = $"epg-{sg.Name}.xml"
         };
     }
 
@@ -86,7 +90,7 @@ public partial class StreamGroupsController : ApiControllerBase
             return new NotFoundResult();
         }
 
-        string json = await Mediator.Send(new GetStreamGroupLineup(streamGroupId.Value, streamGroupProfileId.Value)).ConfigureAwait(false);
+        string json = await Sender.Send(new GetStreamGroupLineup(streamGroupId.Value, streamGroupProfileId.Value)).ConfigureAwait(false);
         return new ContentResult
         {
             Content = json,
@@ -106,7 +110,7 @@ public partial class StreamGroupsController : ApiControllerBase
             return new NotFoundResult();
         }
 
-        string json = await Mediator.Send(new GetStreamGroupLineupStatus(streamGroupId.Value, streamGroupProfileId.Value)).ConfigureAwait(false);
+        string json = await Sender.Send(new GetStreamGroupLineupStatus(streamGroupId.Value, streamGroupProfileId.Value)).ConfigureAwait(false);
         return new ContentResult
         {
             Content = json,
@@ -126,7 +130,7 @@ public partial class StreamGroupsController : ApiControllerBase
             return new NotFoundResult();
         }
 
-        string data = await Mediator.Send(new GetStreamGroupM3U(streamGroupId.Value, streamGroupProfileId.Value)).ConfigureAwait(false);
+        string data = await Sender.Send(new GetStreamGroupM3U(streamGroupId.Value, streamGroupProfileId.Value)).ConfigureAwait(false);
 
         return new FileContentResult(Encoding.UTF8.GetBytes(data), "application/x-mpegURL")
         {

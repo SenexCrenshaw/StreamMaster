@@ -8,15 +8,16 @@ internal class SetSMChannelCommandProfileNameRequestHandler(IRepositoryWrapper R
 {
     public async Task<APIResponse> Handle(SetSMChannelCommandProfileNameRequest request, CancellationToken cancellationToken)
     {
-        APIResponse ret = await Repository.SMChannel.SetSMChannelCommandProfileName(request.SMChannelId, request.CommandProfileName).ConfigureAwait(false);
-        if (ret.IsError)
-        {
-            await messageService.SendError($"Set EPG failed {ret.Message}");
-            return ret;
-        }
+        //APIResponse ret = await Repository.SMChannel.SetSMChannelCommandProfileName(request.SMChannelId, request.CommandProfileName).ConfigureAwait(false);
+        //if (ret.IsError)
+        //{
+        //    await messageService.SendError($"Set EPG failed {ret.Message}");
+        //    return ret;
+        //}
 
-        await dataRefreshService.RefreshSMChannels().ConfigureAwait(false);
+        //await dataRefreshService.RefreshSMChannels().ConfigureAwait(false);
 
-        return ret;
+        //return ret;
+        return APIResponse.Success;
     }
 }

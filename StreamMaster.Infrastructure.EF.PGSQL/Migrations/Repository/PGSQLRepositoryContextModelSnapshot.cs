@@ -249,10 +249,6 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
                     b.Property<int>("ChannelNumber")
                         .HasColumnType("integer");
 
-                    b.Property<string>("CommandProfileName")
-                        .IsRequired()
-                        .HasColumnType("citext");
-
                     b.Property<string>("EPGId")
                         .IsRequired()
                         .HasColumnType("citext");
@@ -406,6 +402,9 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("citext");
+
+                    b.Property<int>("ShowIntros")
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 

@@ -14,14 +14,13 @@ public class BaseSettings
     public bool CacheIcons { get; set; } = true;
     public bool CleanURLs { get; set; } = true;
     public string ClientUserAgent { get; set; } = "VLC/3.0.20-git LibVLC/3.0.20-git";
-    public string DefaultCommandProfileName { get; set; } = "StreamMaster";
+
     public string DefaultIcon { get; set; } = "images/default.png";
-    public string DefaultOutputProfileName { get; set; } = "Default";
+
     public string DeviceID { get; set; } = "device1";
     public string DummyRegex { get; set; } = "(no tvg-id)";
     public bool EnableSSL { get; set; }
-    public string FFMPegExecutable { get; set; } = "ffmpeg";
-    public string FFProbeExecutable { get; set; } = "ffprobe";
+
     public int GlobalStreamLimit { get; set; } = 1;
     public int MaxConcurrentDownloads { get; set; } = 8;
     public int MaxConnectRetry { get; set; } = 20;
@@ -34,16 +33,24 @@ public class BaseSettings
     public List<string> NameRegex { get; set; } = [];
     public bool PrettyEPG { get; set; } = false;
     public bool ShowClientHostNames { get; set; }
+    public int ShowIntros { get; set; } = 0; // 0: None 1: First Time 2: Always
     public string SSLCertPassword { get; set; } = string.Empty;
     public string SSLCertPath { get; set; } = string.Empty;
     public string SourceClientUserAgent { get; set; } = "VLC/3.0.20-git LibVLC/3.0.20-git";
     public string UiFolder { get; set; } = "wwwroot";
     public string UrlBase { get; set; } = string.Empty;
     public bool VideoStreamAlwaysUseEPGLogo { get; set; } = true;
-
 }
 
-public class Setting : BaseSettings
+public class StreamSettings : BaseSettings
+{
+    public string FFMPegExecutable { get; set; } = "ffmpeg";
+    public string FFProbeExecutable { get; set; } = "ffprobe";
+    public string DefaultCommandProfileName { get; set; } = "Default";
+    public string DefaultOutputProfileName { get; set; } = "Default";
+}
+
+public class Setting : StreamSettings
 {
     [IgnoreMap]
     public string ServerKey { get; set; } = Guid.NewGuid().ToString().Replace("-", "");

@@ -7,9 +7,9 @@ public class ByteTrackingChannel : IByteTrackingChannel<byte[]>
     private long _currentByteSize;
     private readonly int _debugIntervalSeconds;
     private readonly CancellationTokenSource _debugCts;
-    private readonly ILogger<ByteTrackingChannel> logger;
+    private readonly ILogger<IByteTrackingChannel<byte[]>> logger;
 
-    public ByteTrackingChannel(ILogger<ByteTrackingChannel> logger, int itemCapacity, int debugIntervalSeconds = 0)
+    public ByteTrackingChannel(ILogger<IByteTrackingChannel<byte[]>> logger, int itemCapacity, int debugIntervalSeconds = 0)
     {
         _channel = Channel.CreateBounded<byte[]>(itemCapacity);
         _currentByteSize = 0;
@@ -37,6 +37,8 @@ public class ByteTrackingChannel : IByteTrackingChannel<byte[]>
 
     public bool CanPeek => _channel.Reader.CanPeek;
 
+    public ChannelReader<byte[]> Reader => _channel.Reader;
+
     public async ValueTask<byte[]> ReadAsync(CancellationToken cancellationToken = default)
     {
         byte[] data = await _channel.Reader.ReadAsync(cancellationToken).ConfigureAwait(false);
@@ -60,5 +62,10 @@ public class ByteTrackingChannel : IByteTrackingChannel<byte[]>
                 logger.LogDebug("Current byte size in channel: {CurrentByteSize} bytes", CurrentByteSize);
             }
         }, cancellationToken);
+    }
+
+    public IAsyncEnumerable<byte[]> ReadAllAsync(CancellationToken cancellationToken = default)
+    {
+        return _channel.Reader.ReadAllAsync(cancellationToken);
     }
 }

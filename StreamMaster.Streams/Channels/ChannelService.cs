@@ -1,106 +1,93 @@
-﻿using AutoMapper;
-
-using MediatR;
-
-using Microsoft.Extensions.DependencyInjection;
-
-using StreamMaster.Application.Profiles.Queries;
-using StreamMaster.Domain.API;
-using StreamMaster.Domain.Configuration;
-using StreamMaster.PlayList;
-using StreamMaster.Streams.Buffers;
+﻿using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
 using System.Collections.Concurrent;
 namespace StreamMaster.Streams.Channels;
 
 public sealed class ChannelService : IChannelService, IDisposable
-
 {
     private readonly ILogger<ChannelService> logger;
-    private readonly IServiceProvider _serviceProvider;
-
+    private readonly ILogger<IChannelStatus> channelStatusLogger;
     private readonly ConcurrentDictionary<int, IChannelStatus> _channelStatuses = new();
-    private readonly object _disposeLock = new();
-    private readonly ILoggerFactory loggerFactory;
-    private readonly IStreamManager streamManager;
-    private readonly IMapper mapper;
     private readonly ICustomPlayListBuilder customPlayListBuilder;
-    private readonly IOptionsMonitor<Setting> settingsMonitor;
+    private readonly IOptionsMonitor<Setting> intSettings;
     private readonly IClientStatisticsManager statisticsManager;
+    private readonly IProfileService profileService;
+    private readonly ISwitchToNextStreamService switchToNextStreamService;
+    private readonly IDubcer dubcer;
+    private readonly IChannelDistributorService channelDistributorService;
+    private readonly IChannelStatusService channelStatusService;
 
+    private readonly object _disposeLock = new();
     private bool _disposed = false;
 
     public ChannelService(
         ILogger<ChannelService> logger,
-        ILoggerFactory loggerFactory,
-        IStreamManager streamManager,
-        IServiceProvider serviceProvider,
-        IMapper mapper,
+        IDubcer dubcer,
+        IChannelDistributorService channelDistributorService,
+        ILogger<IChannelStatus> channelStatusLogger,
+        IProfileService profileService,
         ICustomPlayListBuilder customPlayListBuilder,
-        IOptionsMonitor<Setting> settingsMonitor,
+        IOptionsMonitor<Setting> intSettings,
+        ISwitchToNextStreamService switchToNextStreamService,
+        IChannelStatusService channelStatusService,
          IClientStatisticsManager statisticsManager
     )
     {
-        this.loggerFactory = loggerFactory;
-        this.streamManager = streamManager;
-        this.mapper = mapper;
+        this.channelDistributorService = channelDistributorService;
+        this.profileService = profileService;
+        this.switchToNextStreamService = switchToNextStreamService;
         this.customPlayListBuilder = customPlayListBuilder;
-        this.settingsMonitor = settingsMonitor;
+        this.intSettings = intSettings;
+        this.channelStatusLogger = channelStatusLogger;
         this.statisticsManager = statisticsManager;
+        this.dubcer = dubcer;
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
-        this.streamManager.OnStreamingStoppedEvent += StreamManager_OnStreamingStoppedEvent;
+        this.channelDistributorService.OnStoppedEvent += ChannelDistributorService_OnStoppedEvent;
+        this.channelStatusService = channelStatusService;
     }
 
-    private async void StreamManager_OnStreamingStoppedEvent(object? sender, StreamHandlerStopped StoppedEvent)
+    private async Task ChannelDistributorService_OnStoppedEvent(object? sender, ChannelDirectorStopped e)
     {
-        if (sender is not null and IStreamHandler streamHandler)
+        if (sender is not null and IChannelDistributor channelDistributor)
         {
-            logger.LogInformation("Streaming Stopped Event for StreamId: {StreamId} {StreamName}", streamHandler.SMStream.Id, streamHandler.SMStream.Name);
 
-            //List<IChannelStatus> affectedChannelStatuses = streamHandler.GetChannelStatuses.ToList();
+            logger.LogInformation("Streaming Stopped Event for StreamId: {StreamId} {StreamName}", e.SMStreamInfo.Id, e.SMStreamInfo.Name);
+            string url = e.SMStreamInfo.Url;
 
-            //foreach (IChannelStatus channelStatus in affectedChannelStatuses)
-            //{
-            //    if (channelStatus != null && channelStatus.Shutdown != true)
-            //    {
-            //        if (channelStatus.FailoverInProgress)
-            //        {
-            //            continue;
-            //        }
+            List<IChannelStatus> affectedChannelStatuses = _channelStatuses.Values.Where(a => a.SMStreamInfo?.Url == url).ToList();
 
-            //        if (!string.IsNullOrEmpty(channelStatus.OverrideSMStreamId))
-            //        {
-            //            channelStatus.OverrideSMStreamId = "";
-            //            continue;
-            //        }
+            foreach (IChannelStatus channelStatus in affectedChannelStatuses)
+            {
+                if (channelStatus?.Shutdown == false)
+                {
+                    if (channelStatus.FailoverInProgress)
+                    {
+                        continue;
+                    }
 
-            //        bool didSwitch = await SwitchChannelToNextStream(channelStatus);
+                    if (!string.IsNullOrEmpty(channelStatus.OverrideSMStreamId))
+                    {
+                        channelStatus.OverrideSMStreamId = "";
+                        continue;
+                    }
 
-            //        if (!didSwitch)
-            //        {
-            //            //clientStreamerManager.GetClientStreamerConfigurationsBySMChannelId(channelStatus.SMChannel.Id)
-            //            //    .ForEach(async x =>
-            //            //    {
-            //            //        await CancelClient(x.UniqueRequestId);
-            //            //    }
-            //            //    );
+                    bool didSwitch = await SwitchChannelToNextStream(channelStatus);
 
-            //            continue;
-            //        }
-            //    }
-            //}
+                    if (!didSwitch)
+                    {
+                        await CloseChannel(channelStatus);
 
-            //if (streamHandler.ChannelCount == 0)
-            //{
-            //    _ = streamManager.StopAndUnRegisterHandler(streamHandler.SMStream.Url);
-
+                        continue;
+                    }
+                }
+            }
         }
     }
-    public async Task<ClientStreamerConfiguration?> GetClientStreamerConfiguration(string UniqueRequestId, CancellationToken cancellationToken = default)
+
+    public async Task<IClientConfiguration?> GetClientStreamerConfiguration(string UniqueRequestId, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        ClientStreamerConfiguration? config = _channelStatuses.Values.SelectMany(a => a.ClientStreamerConfigurations.Values).FirstOrDefault(a => a.UniqueRequestId == UniqueRequestId);
+        IClientConfiguration? config = _channelStatuses.Values.SelectMany(a => a.GetClientStreamerConfigurations()).FirstOrDefault(a => a.UniqueRequestId == UniqueRequestId);
         if (config != null)
         {
             return await Task.FromResult(config).ConfigureAwait(false);
@@ -120,6 +107,10 @@ public sealed class ChannelService : IChannelService, IDisposable
 
             try
             {
+                foreach (IChannelStatus channelStatus in _channelStatuses.Values)
+                {
+                    channelStatus.ChannelDistributor.Stop();
+                }
                 _channelStatuses.Clear();
             }
             catch (Exception ex)
@@ -133,10 +124,8 @@ public sealed class ChannelService : IChannelService, IDisposable
         }
     }
 
-    public async Task<IChannelStatus?> RegisterChannel(ClientStreamerConfiguration config)
+    public async Task<IChannelStatus?> RegisterChannel(IClientConfiguration config)
     {
-        config.ClientStream ??= new ClientReadStream(statisticsManager, loggerFactory, config);
-
         IChannelStatus? channelStatus = GetChannelStatus(config.SMChannel.Id);
 
         if (channelStatus == null)
@@ -144,28 +133,17 @@ public sealed class ChannelService : IChannelService, IDisposable
             logger.LogInformation("No existing channel for {UniqueRequestId} {ChannelVideoStreamId} {name}",
                               config.UniqueRequestId, config.SMChannel.Id, config.SMChannel.Name);
 
-            using IServiceScope scope = _serviceProvider.CreateScope();
-            ISender sender = scope.ServiceProvider.GetRequiredService<ISender>();
-
-            DataResponse<CommandProfileDto> commandProfileData = await sender.Send(new GetCommandProfileRequest(BuildInfo.DefaultCommandProfileName,
-                                                                                   config.StreamGroupId,
-                                                                                   config.StreamGroupProfileId)).ConfigureAwait(false);
-            if (commandProfileData.Data == null)
+            CommandProfileDto commandProfileData = profileService.GetCommandProfile();
+            if (commandProfileData == null)
             {
-                logger.LogError("Could not find video profile for {CommandProfileName}", config.SMChannel.CommandProfileName);
+                logger.LogError("Could not find command profile");
                 return null;
             }
 
-            channelStatus = new ChannelStatus(config.SMChannel)
-            {
-                StreamGroupProfileId = config.StreamGroupProfileId,
-                CommandProfile = commandProfileData.Data
-            };
+            channelStatus = channelStatusService.NewChannelStatus(config.SMChannel);
+            channelStatus.StreamGroupProfileId = config.StreamGroupProfileId;
+            channelStatus.CommandProfile = commandProfileData;
 
-            if (config.SMChannel.IsCustomStream)
-            {
-                channelStatus.CustomPlayList = customPlayListBuilder.GetCustomPlayList(config.SMChannel.Name);
-            }
 
             _channelStatuses.TryAdd(config.SMChannel.Id, channelStatus);
 
@@ -181,86 +159,135 @@ public sealed class ChannelService : IChannelService, IDisposable
                                   config.UniqueRequestId, config.SMChannel.Id, config.SMChannel.Name);
         }
 
-        IStreamHandler? handler = streamManager.GetStreamHandler(channelStatus.SMStream.Url);
-        if (handler is null)
+        if (channelStatus.SMStreamInfo == null)
+        {
+            if (_channelStatuses.TryRemove(config.SMChannel.Id, out IChannelStatus? test))
+            {
+                test.ChannelDistributor.Stop();
+            }
+
+            return null;
+        }
+
+        IChannelDistributor? channelDistributor = channelDistributorService.GetStreamHandler(channelStatus.SMStreamInfo.Url);
+        if (channelDistributor is null)
         {
             logger.LogError("Could not find handler for {UniqueRequestId} {ChannelVideoStreamId} {name}", config.UniqueRequestId, config.SMChannel.Id, config.SMChannel.Name);
-            //await clientStreamerManager.UnRegisterClient(config.UniqueRequestId).ConfigureAwait(false);
             await CheckForEmptyChannelsAsync();
             return null;
         }
 
-        if (handler.IsFailed)
+        if (channelDistributor.IsFailed)
         {
             logger.LogInformation("Existing handler is failed, creating");
             if (!await SwitchChannelToNextStream(channelStatus).ConfigureAwait(false))
             {
                 logger.LogError("Could SwitchChannelToNextStream failed for {UniqueRequestId} {ChannelVideoStreamId} {name}", config.UniqueRequestId, config.SMChannel.Id, config.SMChannel.Name);
-                //await clientStreamerManager.UnRegisterClient(config.UniqueRequestId).ConfigureAwait(false);
                 await CheckForEmptyChannelsAsync();
                 return null;
             }
         }
+        channelStatus.ClientUserAgent = config.ClientUserAgent;
 
-        channelStatus.ClientStreamerConfigurations.TryAdd(config.UniqueRequestId, config);
+        channelStatus.AddClient(config.UniqueRequestId, config);
 
         return channelStatus;
     }
 
     public async Task<IChannelStatus?> SetupChannel(SMChannelDto smChannel)
     {
-        if (smChannel == null)
-        {
-            throw new ArgumentNullException(nameof(smChannel));
-        }
+        ArgumentNullException.ThrowIfNull(smChannel);
 
         IChannelStatus? channelStatus = GetChannelStatus(smChannel.Id);
         if (channelStatus == null)
         {
-            channelStatus = new ChannelStatus(smChannel)
-            {
-                CommandProfile = new CommandProfileDto()
-            };
-            _ = _channelStatuses.TryAdd(smChannel.Id, channelStatus);
+            channelStatus = channelStatusService.NewChannelStatus(smChannel);
+            channelStatus.CommandProfile = new CommandProfileDto();
 
-            _ = await SetNextChildVideoStream(channelStatus).ConfigureAwait(false);
+            if (!await switchToNextStreamService.SetNextStreamAsync(channelStatus))
+            {
+                return null;
+            }
+
+            Setting settings = intSettings.CurrentValue;
+            channelStatus.ClientUserAgent = settings.ClientUserAgent;
+            _ = _channelStatuses.TryAdd(smChannel.Id, channelStatus);
         }
 
         return channelStatus;
     }
 
-    private List<string> RunningUrls => _channelStatuses.Values.Where(a => a.ClientCount > 0).Select(a => a.SMStream.Url).Distinct().ToList();
+    private List<string> RunningUrls => _channelStatuses.Values.Where(a => a.ClientCount > 0 && a.SMStreamInfo != null).Select(a => a.SMStreamInfo!.Url).Distinct().ToList();
 
     public async Task CheckForEmptyChannelsAsync(CancellationToken cancellationToken = default)
     {
         TimeSpan delay = TimeSpan.FromSeconds(5);
         List<Task> tasks = [];
 
-        foreach (IChannelStatus channelStatus in _channelStatuses.Values)
+        foreach (IChannelStatus channelStatus in _channelStatuses.Values.Where(a => a.SMStreamInfo != null))
         {
-            if (channelStatus.ClientCount == 0 && !RunningUrls.Contains(channelStatus.SMStream.Url))
+            if (channelStatus.ClientCount == 0 && !RunningUrls.Contains(channelStatus.SMStreamInfo!.Url))
             {
-                tasks.Add(UnregisterChannelAfterDelayAsync(channelStatus, delay, cancellationToken));
+                await CloseChannel(channelStatus);
             }
         }
 
         await Task.WhenAll(tasks).ConfigureAwait(false);
     }
 
-    private async Task UnregisterChannelAfterDelayAsync(IChannelStatus channelStatus, TimeSpan delay, CancellationToken cancellationToken)
+    public async Task CloseChannel(IChannelStatus channelStatus)
     {
-        await Task.Delay(delay, cancellationToken).ConfigureAwait(false);
+        bool closed = true;
 
-        if (channelStatus.ClientCount == 0 && !RunningUrls.Contains(channelStatus.SMStream.Url))
+        if (channelStatus.SMStreamInfo?.IsCustomStream == true)
         {
-            UnRegisterChannel(channelStatus);
+            await UnRegisterChannelAsync(channelStatus);
+        }
+        else
+        {
+            TimeSpan delay = TimeSpan.FromSeconds(5);
+            closed = await UnRegisterChannelAfterDelayAsync(channelStatus, delay, CancellationToken.None);
+        }
+        if (closed)
+        {
+            channelStatus.ChannelDistributor.Stop();
+            foreach (ClientConfiguration config in channelStatus.GetClientStreamerConfigurations())
+            {
+                config.ClientStream?.Flush();
+                config.ClientStream?.Dispose();
+                await config.Response.CompleteAsync();
+            }
         }
     }
 
-    private void UnRegisterChannel(IChannelStatus channelStatus)
+    private async Task<bool> UnRegisterChannelAfterDelayAsync(IChannelStatus channelStatus, TimeSpan delay, CancellationToken cancellationToken)
+    {
+        await Task.Delay(delay, cancellationToken).ConfigureAwait(false);
+
+        if (channelStatus.ClientCount == 0)
+        {
+            if (channelStatus.SMStreamInfo != null && !RunningUrls.Contains(channelStatus.SMStreamInfo.Url))
+            {
+                await UnRegisterChannelAsync(channelStatus);
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private async Task UnRegisterChannelAsync(IChannelStatus channelStatus)
     {
         _channelStatuses.TryRemove(channelStatus.SMChannel.Id, out _);
-        streamManager.StopAndUnRegisterHandler(channelStatus.SMStream.Url);
+        if (channelStatus.SMStreamInfo?.Url != null)
+        {
+            channelDistributorService.StopAndUnRegister(channelStatus.SMStreamInfo.Url);
+        }
+
+        foreach (IClientConfiguration config in channelStatus.GetClientStreamerConfigurations())
+        {
+            await UnRegisterClient(config.UniqueRequestId);
+        }
     }
 
     public IChannelStatus? GetChannelStatus(int smChannelId)
@@ -278,7 +305,7 @@ public sealed class ChannelService : IChannelService, IDisposable
                 logger.LogError("StreamId is null");
                 return [];
             }
-            return _channelStatuses.Values.Where(a => a.SMStream.Id == StreamId).ToList();
+            return _channelStatuses.Values.Where(a => a?.SMStreamInfo?.Id == StreamId).ToList();
         }
         catch (Exception ex)
         {
@@ -294,7 +321,7 @@ public sealed class ChannelService : IChannelService, IDisposable
 
     public List<IChannelStatus> GetChannelStatusFromStreamUrl(string videoUrl)
     {
-        return _channelStatuses.Values.Where(a => a.SMStream.Url == videoUrl).ToList();
+        return _channelStatuses.Values.Where(a => a?.SMStreamInfo?.Url == videoUrl).ToList();
     }
 
     public List<IChannelStatus> GetChannelStatuses()
@@ -311,170 +338,43 @@ public sealed class ChannelService : IChannelService, IDisposable
     {
         return _channelStatuses.Values.Count(a => a.IsGlobal);
     }
-    public async Task<bool> SwitchChannelToNextStream(IChannelStatus channelStatus, string? overrideNextVideoStreamId = null)
+    public async Task<bool> SwitchChannelToNextStream(IChannelStatus channelStatus, string? OverrideSMStreamId = null)
     {
         if (channelStatus.FailoverInProgress)
         {
             return false;
         }
 
-        channelStatus.FailoverInProgress = true;
-        if (!string.IsNullOrEmpty(overrideNextVideoStreamId))
-        {
-            channelStatus.OverrideVideoStreamId = overrideNextVideoStreamId;
-        }
 
-        logger.LogDebug("Starting SwitchToNextVideoStream with channelStatus: {channelStatus} and overrideNextVideoStreamId: {overrideNextVideoStreamId}", channelStatus, overrideNextVideoStreamId);
-        //_ = streamManager.GetStreamHandler(channelStatus.SMStream?.Url);
+        channelStatus.OverrideSMStreamId = OverrideSMStreamId;
 
-        bool didChange = await SetNextChildVideoStream(channelStatus, overrideNextVideoStreamId);
 
-        if (channelStatus.SMStream is null || !didChange)
+        logger.LogDebug("Starting SwitchToNextVideoStream with channelStatus: {channelStatus} and overrideNextVideoStreamId: {overrideNextVideoStreamId}", channelStatus, OverrideSMStreamId);
+
+        bool didChange = await switchToNextStreamService.SetNextStreamAsync(channelStatus, OverrideSMStreamId);
+
+        if (channelStatus.SMStreamInfo is null || !didChange)
         {
             logger.LogDebug("Exiting SwitchToNextVideoStream with false due to smStream being null");
             channelStatus.FailoverInProgress = false;
             return false;
         }
 
-        IStreamHandler? newStreamHandler = await streamManager.GetOrCreateStreamHandler(channelStatus);
+        IChannelDistributor? sourceChannelDistributor = await channelDistributorService.GetOrCreateSourceChannelDistributorAsync(channelStatus.SMStreamInfo, CancellationToken.None);
 
-        if (newStreamHandler is null)
+        if (sourceChannelDistributor is null)
         {
-            logger.LogDebug("Exiting SwitchToNextVideoStream with false due to channelStatus. newStreamHandler is null");
+            logger.LogDebug("Exiting, Source Channel Distributor is null");
             channelStatus.FailoverInProgress = false;
-
             return false;
         }
 
-        channelStatus.SetSourceChannel(newStreamHandler.GetOutputChannelReader(), CancellationToken.None);
-        //newStreamHandler.RegisterChannel(channelStatus);
-
-        //List<ClientStreamerConfiguration> clientConfigs = clientStreamerManager.GetClientStreamerConfigurationsBySMChannelId(channelStatus.SMChannel.Id);
-        //streamManager.AddClientsToHandler(channelStatus, newStreamHandler);
+        channelStatus.SetSourceChannel(sourceChannelDistributor, channelStatus.SMStreamInfo.Name, channelStatus.SMStreamInfo.IsCustomStream);
 
         channelStatus.FailoverInProgress = false;
 
         logger.LogDebug("Finished SwitchToNextVideoStream");
         return true;
-    }
-
-    public async Task<bool> SetNextChildVideoStream(IChannelStatus channelStatus, string? overrideNextVideoStreamId = null)
-    {
-        if (channelStatus.SMChannel.IsCustomStream)
-        {
-            if (channelStatus.CustomPlayList == null)
-            {
-                return false;
-            }
-
-            if (channelStatus.CurrentRank > -1)
-            {
-                channelStatus.CurrentRank++;
-
-                if (channelStatus.CurrentRank >= channelStatus.CustomPlayList.CustomStreamNfos.Count)
-                {
-                    channelStatus.CurrentRank = 0;
-                }
-                return true;
-            }
-        }
-
-        Setting _settings = settingsMonitor.CurrentValue ?? throw new ArgumentNullException(nameof(settingsMonitor));
-        using IServiceScope scope = _serviceProvider.CreateScope();
-        IRepositoryWrapper repository = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
-
-        Dictionary<int, M3UFileDto> m3uFilesRepo = (await repository.M3UFile.GetM3UFiles().ConfigureAwait(false))
-                            .ToDictionary(m => m.Id);
-
-        if (!string.IsNullOrEmpty(overrideNextVideoStreamId))
-        {
-            SMStreamDto? smStream = repository.SMStream.GetSMStream(overrideNextVideoStreamId);
-            if (smStream == null)
-            {
-                return false;
-            }
-
-            if (!m3uFilesRepo.TryGetValue(smStream.M3UFileId, out M3UFileDto? m3uFile))
-            {
-                if (GetGlobalStreamsCount() >= _settings.GlobalStreamLimit)
-                {
-                    logger.LogInformation("Max global stream count {GlobalStreamsCount} reached for stream: {StreamUrl}", GetGlobalStreamsCount(), smStream.Url);
-                    return false;
-                }
-
-                channelStatus.SetIsGlobal();
-                logger.LogInformation("Global stream count {GlobalStreamsCount}", GetGlobalStreamsCount());
-            }
-            else if (m3uFile.MaxStreamCount > 0)
-            {
-                int allStreamsCount = GetCurrentStreamCountForM3UFile(m3uFile.Id);
-                if (allStreamsCount >= m3uFile.MaxStreamCount)
-                {
-                    logger.LogInformation("Max stream count {AllStreamsCount}/{MaxStreams} reached for stream: {StreamUrl}", allStreamsCount, m3uFile.MaxStreamCount, smStream.Url);
-                    return false;
-                }
-            }
-
-            logger.LogDebug("Exiting SetNextChildVideoStream with to Return: {Id} {Name}", smStream.Id, smStream.Name);
-            channelStatus.SetCurrentSMStream(smStream);
-            return false;
-        }
-
-        SMChannel? channel = repository.SMChannel.GetSMChannel(channelStatus.SMChannel.Id);
-        if (channel == null || channel.SMStreams.Count == 0)
-        {
-            logger.LogError("SetNextChildVideoStream could not get videoStreams for id {ParentVideoStreamId}", channelStatus.SMChannel.Id);
-            channelStatus.SetCurrentSMStream(null);
-            return false;
-        }
-
-        if (channelStatus.CurrentRank + 1 >= channel.SMStreams.Count)
-        {
-            logger.LogInformation("SetNextChildVideoStream no more streams for id {ParentVideoStreamId}, exiting", channelStatus.SMChannel.Id);
-            channelStatus.SetCurrentSMStream(null);
-            return false;
-        }
-
-        List<SMStream> smStreams = channel.SMStreams.OrderBy(a => a.Rank).Select(a => a.SMStream).ToList();
-
-        for (int i = 0; i < smStreams.Count; i++)
-        {
-            channelStatus.CurrentRank = (channelStatus.CurrentRank + 1) % smStreams.Count;
-            SMStream toReturn = smStreams[channelStatus.CurrentRank];
-
-            if (!m3uFilesRepo.TryGetValue(toReturn.M3UFileId, out M3UFileDto? m3uFile))
-            {
-                if (GetGlobalStreamsCount() >= _settings.GlobalStreamLimit)
-                {
-                    logger.LogInformation("Max global stream count {GlobalStreamsCount} reached for stream: {StreamUrl}", GetGlobalStreamsCount(), toReturn.Url);
-                    continue;
-                }
-
-                channelStatus.SetIsGlobal();
-                logger.LogInformation("Global stream count {GlobalStreamsCount}", GetGlobalStreamsCount());
-            }
-            else if (m3uFile.MaxStreamCount > 0)
-            {
-                int allStreamsCount = GetCurrentStreamCountForM3UFile(m3uFile.Id);
-                if (allStreamsCount >= m3uFile.MaxStreamCount)
-                {
-                    logger.LogInformation("Max stream count {AllStreamsCount}/{MaxStreams} reached for stream: {StreamUrl}", allStreamsCount, m3uFile.MaxStreamCount, toReturn.Url);
-                    continue;
-                }
-            }
-
-            logger.LogDebug("Exiting SetNextChildVideoStream with to Return: {Id} {Name}", toReturn.Id, toReturn.Name);
-            SMStreamDto a = mapper.Map<SMStreamDto>(toReturn);
-            channelStatus.SetCurrentSMStream(a);
-            return true;
-        }
-        return false;
-    }
-
-    // Helper method to get current stream count for a specific M3U file
-    private int GetCurrentStreamCountForM3UFile(int m3uFileId)
-    {
-        return 0;
     }
 
     public async Task<bool> UnRegisterClient(string UniqueRequestId, CancellationToken cancellationToken = default)
@@ -484,22 +384,19 @@ public sealed class ChannelService : IChannelService, IDisposable
         bool removed = false;
         foreach (IChannelStatus channelStatus in _channelStatuses.Values)
         {
-            ConcurrentDictionary<string, ClientStreamerConfiguration> clientConfigs = channelStatus.ClientStreamerConfigurations;
-            ClientStreamerConfiguration? configToRemove = clientConfigs.Values.FirstOrDefault(a => a.UniqueRequestId == UniqueRequestId);
+            List<IClientConfiguration> clientConfigs = channelStatus.GetClientStreamerConfigurations();
+            IClientConfiguration? configToRemove = clientConfigs.Find(a => a.UniqueRequestId == UniqueRequestId);
 
-            if (configToRemove != null)
+            if (channelStatus.RemoveClient(UniqueRequestId))
             {
-                if (clientConfigs.TryRemove(configToRemove.UniqueRequestId, out ClientStreamerConfiguration? config))
-                {
-                    await CheckForEmptyChannelsAsync(cancellationToken);
-                    removed = true;
-                    break;
-                }
+                removed = true;
+                break;
             }
         }
 
         if (removed)
         {
+            await CheckForEmptyChannelsAsync(cancellationToken);
             logger.LogDebug("Client configuration for {UniqueRequestId} removed", UniqueRequestId);
         }
         else

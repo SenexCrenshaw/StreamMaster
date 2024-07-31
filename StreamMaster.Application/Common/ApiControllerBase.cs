@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
-using StreamMaster.Application.Interfaces;
 
 namespace StreamMaster.Application.Common;
 
@@ -13,6 +12,10 @@ public abstract class ApiControllerBase : ControllerBase
     private IOptionsMonitor<HLSSettings> _hlsSettingsMonitor = null!;
     private IHubContext<StreamMasterHub, IStreamMasterHub> _hubContext = null!;
     private IRepositoryWrapper _repositoryWrapper = null!;
+    private IStreamGroupService _streamGroupService = null!;
+
+    protected IStreamGroupService StreamGroupService =>
+        _streamGroupService ??= HttpContext.RequestServices.GetRequiredService<IStreamGroupService>();
 
     /// <summary>
     /// Gets the current settings.

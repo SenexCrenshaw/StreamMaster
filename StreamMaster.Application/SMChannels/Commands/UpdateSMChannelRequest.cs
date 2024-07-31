@@ -3,7 +3,7 @@
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record UpdateSMChannelRequest(int Id, string? Name, List<string>? SMStreamsIds, string? CommandProfileName, int? ChannelNumber, int? TimeShift, string? Group, string? EPGId, string? Logo, VideoStreamHandlers? VideoStreamHandler)
+public record UpdateSMChannelRequest(int Id, string? Name, List<string>? SMStreamsIds, int? ChannelNumber, int? TimeShift, string? Group, string? EPGId, string? Logo, VideoStreamHandlers? VideoStreamHandler)
     : IRequest<APIResponse>;
 
 [LogExecutionTimeAspect]
@@ -48,11 +48,11 @@ public class UpdateSMChannelRequestHandler(IRepositoryWrapper Repository, IDataR
                 ret.Add(new FieldData(() => smChannel.Logo));
             }
 
-            if (!string.IsNullOrEmpty(request.CommandProfileName) && request.CommandProfileName != smChannel.CommandProfileName)
-            {
-                smChannel.CommandProfileName = request.CommandProfileName;
-                ret.Add(new FieldData(() => smChannel.CommandProfileName));
-            }
+            //if (!string.IsNullOrEmpty(request.CommandProfileName) && request.CommandProfileName != smChannel.CommandProfileName)
+            //{
+            //    smChannel.CommandProfileName = request.CommandProfileName;
+            //    ret.Add(new FieldData(() => smChannel.CommandProfileName));
+            //}
 
             if (request.ChannelNumber.HasValue && request.ChannelNumber.Value != smChannel.ChannelNumber)
             {

@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
 
-using StreamMaster.Application.Crypto.Commands;
 using StreamMaster.SchedulesDirect.Domain.Extensions;
 
 using System.Text.Json;
@@ -12,7 +11,7 @@ public record GetStreamGroupLineup(int StreamGroupId, int StreamGroupProfileId) 
 
 
 [LogExecutionTimeAspect]
-public class GetStreamGroupLineupHandler(IHttpContextAccessor httpContextAccessor, ISender sender, IIconHelper iconHelper, IEPGHelper epgHelper, ISchedulesDirectDataService schedulesDirectDataService, ILogger<GetStreamGroupLineup> logger, IRepositoryWrapper Repository, IOptionsMonitor<HLSSettings> inthlssettings, IOptionsMonitor<Setting> intSettings)
+public class GetStreamGroupLineupHandler(IHttpContextAccessor httpContextAccessor, ICryptoService cryptoService, IIconHelper iconHelper, IEPGHelper epgHelper, ISchedulesDirectDataService schedulesDirectDataService, ILogger<GetStreamGroupLineup> logger, IRepositoryWrapper Repository, IOptionsMonitor<HLSSettings> inthlssettings, IOptionsMonitor<Setting> intSettings)
     : IRequestHandler<GetStreamGroupLineup, string>
 {
     private readonly Setting settings = intSettings.CurrentValue;
@@ -88,17 +87,29 @@ public class GetStreamGroupLineupHandler(IHttpContextAccessor httpContextAccesso
 
             string videoUrl;
 
-            (string EncodedString, string CleanName) = await sender.Send(new EncodeStreamGroupIdProfileIdChannelId(request.StreamGroupId, request.StreamGroupProfileId, smChannel.Id, smChannel.Name), cancellationToken);
-            if (string.IsNullOrEmpty(EncodedString) || string.IsNullOrEmpty(CleanName))
+            string? EncodedString = await cryptoService.EncodeStreamGroupIdChannelIdAsync(request.StreamGroupId, smChannel.Id);
+
+
+            //(string EncodedString, string CleanName) = await sender.Send(new EncodeStreamGroupIdProfileIdChannelId(request.StreamGroupId, request.StreamGroupProfileId, smChannel.Id, smChannel.Name), cancellationToken);
+            if (string.IsNullOrEmpty(EncodedString))
             {
                 continue;
             }
-            //string encodedName = HttpUtility.HtmlEncode(smChannel.Name).Trim()
-            //         .Replace("/", "")
-            //         .Replace(" ", "_");
+            videoUrl = $"{url}/m/{EncodedString}.m3u8";
 
-            //string encodedNumbers = request.StreamGroupId.EncodeValues128(request.StreamGroupProfileId, smChannel.Id, settings.ServerKey, iv);
-            videoUrl = $"{url}/api/videostreams/stream/{EncodedString}/{CleanName}";
+            if (smChannel.Name.Contains("comedy", StringComparison.CurrentCultureIgnoreCase))
+            {
+                videoUrl = $"{url}/m/comedy.ts";
+            }
+
+            if (smChannel.Name.Contains("intros", StringComparison.CurrentCultureIgnoreCase))
+            {
+                videoUrl = $"{url}/m/intros.ts";
+            }
+            // : $"{url}/api/videostreams/stream/{encodedString}/{cleanName}";
+
+            //videoUrl = $"{url}/api/videostreams/stream/{EncodedString}/{CleanName}";
+
 
 
             MxfService? service = schedulesDirectDataService.AllServices.GetMxfService(smChannel.EPGId);

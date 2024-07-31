@@ -4,7 +4,7 @@ public static class SettingFiles
 {
     public static readonly OutputProfiles DefaultOutputProfileSetting = new()
     {
-        OutProfiles = new Dictionary<string, OutputProfile>
+        Profiles = new Dictionary<string, OutputProfile>
     {
         {
             "Default",
@@ -25,17 +25,17 @@ public static class SettingFiles
     }
     };
 
-    public static readonly CommandProfileList DefauCommandProfileSetting = new()
+    public static readonly CommandProfiles DefauCommandProfileSetting = new()
     {
-        CommandProfiles = new Dictionary<string, CommandProfile>
+        Profiles = new Dictionary<string, CommandProfile>
     {
         {
-            "FFMPEG",
+            "Default",
             new CommandProfile
             {
                 IsReadOnly = true,
                 Command = "ffmpeg",
-                Parameters = "-hide_banner -loglevel error -user_agent {clientUserAgent} -i {streamUrl} -reconnect 1 -map 0:v -map 0:a? -map 0:s? -c copy -f mpegts pipe:1"
+                Parameters = "-map 0:v -map 0:a? -map 0:s? -c:v libx264 -c:a ac3"
             }
         },
         {
@@ -47,13 +47,6 @@ public static class SettingFiles
         },
         {
             "None",
-            new CommandProfile
-            {
-                IsReadOnly = true
-            }
-        },
-        {
-            BuildInfo.DefaultCommandProfileName,
             new CommandProfile
             {
                 IsReadOnly = true

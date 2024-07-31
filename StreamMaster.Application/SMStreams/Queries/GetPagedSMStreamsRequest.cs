@@ -1,8 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
 
-using StreamMaster.Application.Crypto.Commands;
-using StreamMaster.Application.StreamGroups.Queries;
-
 using System.Text.Json;
 
 namespace StreamMaster.Application.SMStreams.Queries;
@@ -11,7 +8,7 @@ namespace StreamMaster.Application.SMStreams.Queries;
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record GetPagedSMStreamsRequest(QueryStringParameters Parameters) : IRequest<PagedResponse<SMStreamDto>>;
 
-internal class GetPagedSMStreamsRequestHandler(IRepositoryWrapper Repository, ISender sender, IOptionsMonitor<Setting> intSettings, IHttpContextAccessor httpContextAccessor)
+internal class GetPagedSMStreamsRequestHandler(IRepositoryWrapper Repository, IStreamGroupService streamGroupService, ICryptoService cryptoService, IOptionsMonitor<Setting> intSettings, IHttpContextAccessor httpContextAccessor)
     : IRequestHandler<GetPagedSMStreamsRequest, PagedResponse<SMStreamDto>>
 {
     public async Task<PagedResponse<SMStreamDto>> Handle(GetPagedSMStreamsRequest request, CancellationToken cancellationToken)
@@ -28,8 +25,7 @@ internal class GetPagedSMStreamsRequestHandler(IRepositoryWrapper Repository, IS
 
 
         string Url = httpContextAccessor.GetUrl();
-        DataResponse<StreamGroupProfile> defaultSGProfile = await sender.Send(new GetDefaultStreamGroupProfileIdRequest()).ConfigureAwait(false);
-
+        int sgId = await streamGroupService.GetDefaultSGIdAsync().ConfigureAwait(false);
         foreach (SMStreamDto stream in res.Data)
         {
             string videoUrl;
@@ -42,12 +38,14 @@ internal class GetPagedSMStreamsRequestHandler(IRepositoryWrapper Repository, IS
             //string encodedNumbers = 0.EncodeValues128(stream.Id, settings.CurrentValue.ServerKey);
             //videoUrl = $"{Url}/api/videostreams/stream/{encodedNumbers}/{encodedName}";
 
-            (string EncodedString, string CleanName) = await sender.Send(new EncodeStreamGroupIdProfileIdStreamId(defaultSGProfile.Data.StreamGroupId, defaultSGProfile.Data.Id, stream.Id, stream.Name), cancellationToken);
-            if (string.IsNullOrEmpty(EncodedString) || string.IsNullOrEmpty(CleanName))
+            //(string EncodedString, string CleanName) = await sender.Send(new EncodeStreamGroupIdProfileIdStreamId(defaultSGProfile.Data.StreamGroupId, defaultSGProfile.Data.Id, stream.Id, stream.Name), cancellationToken);
+            string? EncodedString = await cryptoService.EncodeStreamGroupIdStreamIdAsync(sgId, stream.Id);
+
+            if (string.IsNullOrEmpty(EncodedString))
             {
                 continue;
             }
-            videoUrl = $"{Url}/api/videostreams/stream/{EncodedString}/{CleanName}";
+            videoUrl = $"{Url}/m/{EncodedString}.ts";
 
 
             string jsonString = JsonSerializer.Serialize(videoUrl);

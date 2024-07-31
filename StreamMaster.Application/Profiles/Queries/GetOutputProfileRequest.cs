@@ -9,7 +9,7 @@ internal class GetOutputProfileRequestHandler(IOptionsMonitor<OutputProfiles> in
 {
     public async Task<DataResponse<OutputProfileDto>> Handle(GetOutputProfileRequest request, CancellationToken cancellationToken)
     {
-        if (intprofilesettings.CurrentValue.OutProfiles.TryGetValue(request.OutputProfileName, out var profile))
+        if (intprofilesettings.CurrentValue.Profiles.TryGetValue(request.OutputProfileName, out var profile))
         {
             OutputProfileDto ret = new OutputProfileDto
             {

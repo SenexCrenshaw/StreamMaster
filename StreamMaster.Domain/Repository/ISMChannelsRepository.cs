@@ -19,7 +19,6 @@ public interface ISMChannelsRepository : IRepositoryBase<SMChannel>
 
     Task CreateSMChannel(SMChannel sMChannel);
 
-    //Task<APIResponse> CreateSMChannelFromStream(string streamId, string? DefaultStreamGroupName, int? AddToStreamGroupId, int? M3UFileId);
 
     Task<APIResponse> CreateSMChannelsFromStreamParameters(QueryStringParameters Parameters, int? AddToStreamGroupId);
 
@@ -55,7 +54,7 @@ public interface ISMChannelsRepository : IRepositoryBase<SMChannel>
 
     Task<APIResponse> SetSMChannelName(int sMChannelId, string name);
 
-    Task<APIResponse> SetSMChannelCommandProfileName(int sMChannelId, string CommandProfileName);
+    //Task<APIResponse> SetSMChannelCommandProfileName(int sMChannelId, string CommandProfileName);
 
     Task<List<FieldData>> SetSMChannelsLogoFromEPGFromIds(List<int> ids, CancellationToken cancellationToken);
 
@@ -70,7 +69,7 @@ public interface ISMChannelsRepository : IRepositoryBase<SMChannel>
     Task<List<FieldData>> ToggleSMChannelVisibleByParameters(QueryStringParameters Parameters, CancellationToken cancellationToken);
     Task<APIResponse> SetSMChannelsGroup(List<int> sMChannelIds, string GroupName);
     Task<APIResponse> SetSMChannelsGroupFromParameters(QueryStringParameters Parameters, string GroupName);
-    Task<APIResponse> SetSMChannelsCommandProfileName(List<int> sMChannelIds, string CommandProfileName);
-    Task<APIResponse> SetSMChannelsCommandProfileNameFromParameters(QueryStringParameters parameters, string CommandProfileName);
+    //Task<APIResponse> SetSMChannelsCommandProfileName(List<int> sMChannelIds, string CommandProfileName);
+    //Task<APIResponse> SetSMChannelsCommandProfileNameFromParameters(QueryStringParameters parameters, string CommandProfileName);
     Task<APIResponse> CreateSMChannelsFromCustomStreams(List<string> streamIds, int m3UFileId, bool isCustomPlayList);
 }

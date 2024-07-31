@@ -1,14 +1,6 @@
 import { isSkipToken } from '@lib/common/isSkipToken';
 import SignalRService from '@lib/signalr/SignalRService';
-import { APIResponse,AddCommandProfileRequest,AddOutputProfileRequest,RemoveCommandProfileRequest,RemoveOutputProfileRequest,UpdateCommandProfileRequest,UpdateOutputProfileRequest,CommandProfileDto,OutputProfileDto,GetCommandProfileRequest,GetOutputProfileRequest } from '@lib/smAPI/smapiTypes';
-
-export const GetCommandProfile = async (request: GetCommandProfileRequest): Promise<CommandProfileDto | undefined> => {
-  if ( request === undefined ) {
-    return undefined;
-  }
-  const signalRService = SignalRService.getInstance();
-  return await signalRService.invokeHubCommand<CommandProfileDto>('GetCommandProfile', request);
-};
+import { APIResponse,AddCommandProfileRequest,AddOutputProfileRequest,RemoveCommandProfileRequest,RemoveOutputProfileRequest,UpdateCommandProfileRequest,UpdateOutputProfileRequest,CommandProfileDto,OutputProfileDto,GetOutputProfileRequest } from '@lib/smAPI/smapiTypes';
 
 export const GetCommandProfiles = async (): Promise<CommandProfileDto[] | undefined> => {
   const signalRService = SignalRService.getInstance();

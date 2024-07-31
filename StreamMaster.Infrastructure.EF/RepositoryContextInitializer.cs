@@ -44,6 +44,12 @@ public class RepositoryContextInitializer(ILogger<RepositoryContextInitializer> 
                 _ = context.Add(new ChannelGroup { Name = "CustomPlayList", IsReadOnly = true, IsSystem = true });
                 _ = await context.SaveChangesAsync().ConfigureAwait(false);
             }
+
+            if (!context.ChannelGroups.Any(a => a.Name == "Intros"))
+            {
+                _ = context.Add(new ChannelGroup { Name = "Intros", IsReadOnly = true, IsSystem = true });
+                _ = await context.SaveChangesAsync().ConfigureAwait(false);
+            }
         }
         catch (Exception ex)
         {

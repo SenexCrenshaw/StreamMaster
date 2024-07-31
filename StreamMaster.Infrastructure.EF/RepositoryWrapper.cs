@@ -25,10 +25,9 @@ public class RepositoryWrapper(
     PGSQLRepositoryContext repositoryContext,
     IMapper mapper,
     IXmltv2Mxf xmltv2Mxf,
-    IIconService iconService,
     IMessageService messageService,
     IOptionsMonitor<Setting> intSettings,
-    IOptionsMonitor<CommandProfileList> intProfileSettings,
+    IOptionsMonitor<CommandProfiles> intProfileSettings,
     IJobStatusService jobStatusService,
     ISender sender,
     IDataRefreshService dataRefreshService,
@@ -39,7 +38,7 @@ public class RepositoryWrapper(
     {
         get
         {
-            _streamGroupProfileRepository ??= new StreamGroupProfileRepository(StreamGroupProfileRepositoryLogger, sender, repositoryContext);
+            _streamGroupProfileRepository ??= new StreamGroupProfileRepository(StreamGroupProfileRepositoryLogger, repositoryContext);
             return _streamGroupProfileRepository;
         }
     }

@@ -3,7 +3,6 @@
 using MessagePack;
 
 using StreamMaster.Domain.Attributes;
-using StreamMaster.Domain.Configuration;
 
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
@@ -31,8 +30,8 @@ public class SMChannel
     public ICollection<StreamGroupSMChannelLink> StreamGroups { get; set; } = [];
     public static string APIName => "SMChannels";
 
-    [Column(TypeName = "citext")]
-    public string CommandProfileName { get; set; } = BuildInfo.DefaultCommandProfileName;
+    //[Column(TypeName = "citext")]
+    //public string CommandProfileName { get; set; } = BuildInfo.DefaultCommandProfileName;
 
     public bool IsHidden { get; set; } = false;
     public bool IsCustomStream { get; set; } = false;

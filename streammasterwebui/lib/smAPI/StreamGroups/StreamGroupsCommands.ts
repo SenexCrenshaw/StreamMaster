@@ -1,11 +1,6 @@
 import { isSkipToken } from '@lib/common/isSkipToken';
 import SignalRService from '@lib/signalr/SignalRService';
-import { APIResponse,AddProfileToStreamGroupRequest,CreateStreamGroupRequest,DeleteStreamGroupRequest,RemoveStreamGroupProfileRequest,UpdateStreamGroupProfileRequest,UpdateStreamGroupRequest,StreamGroupProfile,StreamGroupDto,GetStreamGroupRequest,PagedResponse,QueryStringParameters } from '@lib/smAPI/smapiTypes';
-
-export const GetDefaultStreamGroupProfileId = async (): Promise<StreamGroupProfile | undefined> => {
-  const signalRService = SignalRService.getInstance();
-  return await signalRService.invokeHubCommand<StreamGroupProfile>('GetDefaultStreamGroupProfileId');
-};
+import { APIResponse,AddProfileToStreamGroupRequest,CreateStreamGroupRequest,DeleteStreamGroupRequest,RemoveStreamGroupProfileRequest,UpdateStreamGroupProfileRequest,UpdateStreamGroupRequest,StreamGroupDto,StreamGroupProfile,GetStreamGroupRequest,PagedResponse,QueryStringParameters } from '@lib/smAPI/smapiTypes';
 
 export const GetPagedStreamGroups = async (parameters: QueryStringParameters): Promise<PagedResponse<StreamGroupDto> | undefined> => {
   if (isSkipToken(parameters) || parameters === undefined) {

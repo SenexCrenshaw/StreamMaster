@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 
-using StreamMaster.Application.Crypto.Commands;
-using StreamMaster.Application.StreamGroups.Queries;
+using StreamMaster.Domain.Crypto;
 
 using System.Diagnostics;
 using System.Text.Json;
@@ -12,7 +11,7 @@ namespace StreamMaster.Application.SMChannels.Queries;
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record GetPagedSMChannelsRequest(QueryStringParameters Parameters) : IRequest<PagedResponse<SMChannelDto>>;
 
-internal class GetPagedSMChannelsRequestHandler(IRepositoryWrapper Repository, ISender sender, IOptionsMonitor<Setting> intSettings, IHttpContextAccessor httpContextAccessor)
+internal class GetPagedSMChannelsRequestHandler(IRepositoryWrapper Repository, IStreamGroupService streamGroupService, ICryptoService cryptoService, ISender sender, IOptionsMonitor<Setting> intSettings, IHttpContextAccessor httpContextAccessor)
     : IRequestHandler<GetPagedSMChannelsRequest, PagedResponse<SMChannelDto>>
 {
     public async Task<PagedResponse<SMChannelDto>> Handle(GetPagedSMChannelsRequest request, CancellationToken cancellationToken)
@@ -29,12 +28,14 @@ internal class GetPagedSMChannelsRequestHandler(IRepositoryWrapper Repository, I
         string Url = httpContextAccessor.GetUrl();
         string requestPath = httpContextAccessor.GetUrlWithPathValue();
 
-        DataResponse<StreamGroupProfile> defaultSGProfile = await sender.Send(new GetDefaultStreamGroupProfileIdRequest()).ConfigureAwait(false);
+        int sgId = await streamGroupService.GetDefaultSGIdAsync().ConfigureAwait(false);
+
+
         foreach (SMChannelDto channel in res.Data)
         {
             List<SMChannelStreamLink> links = [.. Repository.SMChannelStreamLink.GetQuery(true).Where(a => a.SMChannelId == channel.Id)];
 
-            string videoUrl;
+            //string videoUrl;
             foreach (SMStreamDto stream in channel.SMStreams)
             {
                 SMChannelStreamLink? link = links.Find(a => a.SMStreamId == stream.Id);
@@ -49,23 +50,18 @@ internal class GetPagedSMChannelsRequestHandler(IRepositoryWrapper Repository, I
             channel.StreamGroupIds = channel.StreamGroups.Select(a => a.StreamGroupId).ToList();
 
 
-            //string encodedName = HttpUtility.HtmlEncode(channel.Name).Trim()
-            //                    .Replace("/", "")
-            //                    .Replace(" ", "_");
+            string? EncodedString = await cryptoService.EncodeStreamGroupIdChannelIdAsync(sgId, channel.Id);
 
-            //string encodedNumbers = 1.EncodeValues128(1, channel.Id, intSettings.CurrentValue.ServerKey);
-            //string? EncodedString = await sender.Send(new EncodeFromStreamGroupIdProfileIdRequest(1, 1));
-            //if (EncodedString == null || CleanName == null)
-            //{
-            //    continue;
-            //}
-            (string EncodedString, string CleanName) = await sender.Send(new EncodeStreamGroupIdProfileIdChannelId(defaultSGProfile.Data.StreamGroupId, defaultSGProfile.Data.Id, channel.Id, channel.Name), cancellationToken);
-            if (string.IsNullOrEmpty(EncodedString) || string.IsNullOrEmpty(CleanName))
+            //(string EncodedString, string CleanName) = await sender.Send(new EncodeStreamGroupIdProfileIdChannelId(defaultSGProfile.Data.StreamGroupId, defaultSGProfile.Data.Id, channel.Id, channel.Name), cancellationToken);
+            if (string.IsNullOrEmpty(EncodedString))
             {
                 continue;
             }
 
-            videoUrl = $"{Url}/api/videostreams/stream/{EncodedString}/{CleanName}";
+            //string videoUrl = $"{url}/m/{encodedString}.m3u8"
+
+            string videoUrl = $"{Url}/api/videostreams/stream/{EncodedString}/{channel.Name.ToCleanFileString()}";
+            //videoUrl = $"{Url}/m/{EncodedString}.m3u8";
 
 
             string jsonString = JsonSerializer.Serialize(videoUrl);

@@ -8,15 +8,16 @@ internal class SetSMChannelsCommandProfileNameRequestHandler(IRepositoryWrapper 
 {
     public async Task<APIResponse> Handle(SetSMChannelsCommandProfileNameRequest request, CancellationToken cancellationToken)
     {
-        APIResponse ret = await Repository.SMChannel.SetSMChannelsCommandProfileName(request.SMChannelIds, request.CommandProfileName).ConfigureAwait(false);
-        if (ret.IsError)
-        {
-            await messageService.SendError($"Set CommandProfileName failed {ret.Message}");
-            return ret;
-        }
-        await dataRefreshService.RefreshSMChannels().ConfigureAwait(false);
+        //APIResponse ret = await Repository.SMChannel.SetSMChannelsCommandProfileName(request.SMChannelIds, request.CommandProfileName).ConfigureAwait(false);
+        //if (ret.IsError)
+        //{
+        //    await messageService.SendError($"Set CommandProfileName failed {ret.Message}");
+        //    return ret;
+        //}
+        //await dataRefreshService.RefreshSMChannels().ConfigureAwait(false);
 
-        return ret;
+        //return ret;
+        return APIResponse.Success;
     }
 }
 

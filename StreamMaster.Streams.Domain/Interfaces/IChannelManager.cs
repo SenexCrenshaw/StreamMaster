@@ -1,6 +1,4 @@
-﻿using StreamMaster.Domain.Models;
-
-namespace StreamMaster.Streams.Domain.Interfaces;
+﻿namespace StreamMaster.Streams.Domain.Interfaces;
 
 /// <summary>
 /// Provides methods for managing video streams and clients in a channel.
@@ -9,12 +7,12 @@ namespace StreamMaster.Streams.Domain.Interfaces;
 public interface IChannelManager : IDisposable
 {
     void MoveToNextStream(int SMChannelId);
-    /// <summary>
-    /// Gets the video information for a specific channel.
-    /// </summary>
-    /// <param name="SMChannelId">The ID of the channel.</param>
-    /// <returns>The video information.</returns>
-    VideoInfo GetVideoInfo(int SMChannelId);
+    ///// <summary>
+    ///// Gets the video information for a specific channel.
+    ///// </summary>
+    ///// <param name="SMChannelId">The ID of the channel.</param>
+    ///// <returns>The video information.</returns>
+    //VideoInfo GetVideoInfo(int SMChannelId);
 
     /// <summary>
     /// Asynchronously changes the video stream of a channel.
@@ -37,14 +35,14 @@ public interface IChannelManager : IDisposable
     /// <param name="config">The configuration settings for the client streamer.</param>
     /// <param name="cancellationToken">A cancellation token to observe while waiting for the task to complete.</param>
     /// <returns>A Task returning the stream. Returns null if the stream could not be obtained.</returns>
-    Task<Stream?> GetChannelStreamAsync(ClientStreamerConfiguration config, CancellationToken cancellationToken = default);
+    Task<Stream?> GetChannelStreamAsync(IClientConfiguration config, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Asynchronously removes a client based on the given client streamer configuration.
     /// </summary>
     /// <param name="config">The configuration settings for the client to be removed.</param>
     /// <returns>A Task representing the asynchronous operation.</returns>
-    Task RemoveClientAsync(ClientStreamerConfiguration config);
+    Task RemoveClientAsync(IClientConfiguration config);
 
 
     Task CancelChannel(int SMChannelId);

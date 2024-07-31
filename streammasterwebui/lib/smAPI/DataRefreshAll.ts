@@ -1,18 +1,19 @@
 import store from '@lib/redux/store';
 import { setIsForced as GetAvailableCountriesSetIsForced } from '@lib/smAPI/SchedulesDirect/GetAvailableCountriesSlice';
+import { setIsForced as GetChannelDistributorsSetIsForced } from '@lib/smAPI/Statistics/GetChannelDistributorsSlice';
 import { setIsForced as GetChannelGroupsSetIsForced } from '@lib/smAPI/ChannelGroups/GetChannelGroupsSlice';
 import { setIsForced as GetChannelGroupsFromSMChannelsSetIsForced } from '@lib/smAPI/ChannelGroups/GetChannelGroupsFromSMChannelsSlice';
 import { setIsForced as GetChannelStreamingStatisticsSetIsForced } from '@lib/smAPI/Statistics/GetChannelStreamingStatisticsSlice';
 import { setIsForced as GetClientStreamingStatisticsSetIsForced } from '@lib/smAPI/Statistics/GetClientStreamingStatisticsSlice';
 import { setIsForced as GetCommandProfilesSetIsForced } from '@lib/smAPI/Profiles/GetCommandProfilesSlice';
-import { setIsForced as GetCustomPlayListsSetIsForced } from '@lib/smAPI/CustomPlayLists/GetCustomPlayListsSlice';
-import { setIsForced as GetDefaultStreamGroupProfileIdSetIsForced } from '@lib/smAPI/StreamGroups/GetDefaultStreamGroupProfileIdSlice';
+import { setIsForced as GetCustomPlayListsSetIsForced } from '@lib/smAPI/Custom/GetCustomPlayListsSlice';
 import { setIsForced as GetDownloadServiceStatusSetIsForced } from '@lib/smAPI/General/GetDownloadServiceStatusSlice';
 import { setIsForced as GetEPGColorsSetIsForced } from '@lib/smAPI/EPG/GetEPGColorsSlice';
 import { setIsForced as GetEPGFilesSetIsForced } from '@lib/smAPI/EPGFiles/GetEPGFilesSlice';
 import { setIsForced as GetEPGNextEPGNumberSetIsForced } from '@lib/smAPI/EPGFiles/GetEPGNextEPGNumberSlice';
 import { setIsForced as GetHeadendsToViewSetIsForced } from '@lib/smAPI/SchedulesDirect/GetHeadendsToViewSlice';
 import { setIsForced as GetIconsSetIsForced } from '@lib/smAPI/Icons/GetIconsSlice';
+import { setIsForced as GetIntroPlayListsSetIsForced } from '@lib/smAPI/Custom/GetIntroPlayListsSlice';
 import { setIsForced as GetIsSystemReadySetIsForced } from '@lib/smAPI/General/GetIsSystemReadySlice';
 import { setIsForced as GetM3UFileNamesSetIsForced } from '@lib/smAPI/M3UFiles/GetM3UFileNamesSlice';
 import { setIsForced as GetM3UFilesSetIsForced } from '@lib/smAPI/M3UFiles/GetM3UFilesSlice';
@@ -33,19 +34,20 @@ import { setIsForced as GetTaskIsRunningSetIsForced } from '@lib/smAPI/General/G
 
 export const DataRefreshAll = () => {
   store.dispatch(GetAvailableCountriesSetIsForced({ force: true }));
+  store.dispatch(GetChannelDistributorsSetIsForced({ force: true }));
   store.dispatch(GetChannelGroupsSetIsForced({ force: true }));
   store.dispatch(GetChannelGroupsFromSMChannelsSetIsForced({ force: true }));
   store.dispatch(GetChannelStreamingStatisticsSetIsForced({ force: true }));
   store.dispatch(GetClientStreamingStatisticsSetIsForced({ force: true }));
   store.dispatch(GetCommandProfilesSetIsForced({ force: true }));
   store.dispatch(GetCustomPlayListsSetIsForced({ force: true }));
-  store.dispatch(GetDefaultStreamGroupProfileIdSetIsForced({ force: true }));
   store.dispatch(GetDownloadServiceStatusSetIsForced({ force: true }));
   store.dispatch(GetEPGColorsSetIsForced({ force: true }));
   store.dispatch(GetEPGFilesSetIsForced({ force: true }));
   store.dispatch(GetEPGNextEPGNumberSetIsForced({ force: true }));
   store.dispatch(GetHeadendsToViewSetIsForced({ force: true }));
   store.dispatch(GetIconsSetIsForced({ force: true }));
+  store.dispatch(GetIntroPlayListsSetIsForced({ force: true }));
   store.dispatch(GetIsSystemReadySetIsForced({ force: true }));
   store.dispatch(GetM3UFileNamesSetIsForced({ force: true }));
   store.dispatch(GetM3UFilesSetIsForced({ force: true }));

@@ -4,15 +4,15 @@
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record RemoveCommandProfileRequest(string ProfileName) : IRequest<APIResponse>;
 
-public class RemoveCommandProfileRequestHandler(IOptionsMonitor<CommandProfileList> intProfileSettings, IDataRefreshService dataRefreshService, ILogger<RemoveCommandProfileRequest> Logger, IMapper Mapper)
+public class RemoveCommandProfileRequestHandler(IOptionsMonitor<CommandProfiles> intProfileSettings, IDataRefreshService dataRefreshService, ILogger<RemoveCommandProfileRequest> Logger, IMapper Mapper)
 : IRequestHandler<RemoveCommandProfileRequest, APIResponse>
 {
 
     public async Task<APIResponse> Handle(RemoveCommandProfileRequest request, CancellationToken cancellationToken)
     {
-        CommandProfileList profileSettings = intProfileSettings.CurrentValue;
+        CommandProfiles profileSettings = intProfileSettings.CurrentValue;
 
-        List<string> badNames = profileSettings.CommandProfiles
+        List<string> badNames = profileSettings.Profiles
             .Where(kvp => kvp.Value.IsReadOnly)
             .Select(kvp => kvp.Key)
             .ToList();
@@ -22,9 +22,9 @@ public class RemoveCommandProfileRequestHandler(IOptionsMonitor<CommandProfileLi
             return APIResponse.ErrorWithMessage($"Cannot use name {request.ProfileName}");
         }
 
-        if (profileSettings.CommandProfiles.TryGetValue(request.ProfileName, out CommandProfile? profile))
+        if (profileSettings.Profiles.TryGetValue(request.ProfileName, out CommandProfile? profile))
         {
-            _ = profileSettings.CommandProfiles.Remove(request.ProfileName);
+            _ = profileSettings.Profiles.Remove(request.ProfileName);
 
             SettingsHelper.UpdateSetting(profileSettings);
 

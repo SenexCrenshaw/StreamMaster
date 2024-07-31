@@ -43,7 +43,7 @@ public static class SettingsHelper
             dir = Path.GetDirectoryName(fileName);
         }
 
-        if (typeof(CommandProfileList).IsAssignableFrom(setting.GetType()))
+        if (typeof(CommandProfiles).IsAssignableFrom(setting.GetType()))
         {
             fileName = BuildInfo.CommandProfileSettingsFile;
             dir = Path.GetDirectoryName(fileName);

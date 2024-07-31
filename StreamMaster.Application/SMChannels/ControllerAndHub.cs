@@ -32,22 +32,6 @@ namespace StreamMaster.Application.SMChannels
             }
         }
 
-        [HttpGet]
-        [Route("[action]")]
-        public async Task<ActionResult<VideoInfo>> GetVideoInfoFromId([FromQuery] GetVideoInfoFromIdRequest request)
-        {
-            try
-            {
-                DataResponse<VideoInfo> ret = await Sender.Send(request).ConfigureAwait(false);
-                return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetVideoInfoFromId.", statusCode: 500) : Ok(ret.Data);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "An unexpected error occurred while processing the request to get GetVideoInfoFromId.");
-                return Problem(detail: "An unexpected error occurred. Please try again later.", statusCode: 500);
-            }
-        }
-
         [HttpPatch]
         [Route("[action]")]
         public async Task<ActionResult<APIResponse>> AutoSetEPGFromParameters(AutoSetEPGFromParametersRequest request)
@@ -280,12 +264,6 @@ namespace StreamMaster.Application.Hubs
         public async Task<List<string>> GetSMChannelNames()
         {
             DataResponse<List<string>> ret = await Sender.Send(new GetSMChannelNamesRequest()).ConfigureAwait(false);
-            return ret.Data;
-        }
-
-        public async Task<VideoInfo> GetVideoInfoFromId(GetVideoInfoFromIdRequest request)
-        {
-            DataResponse<VideoInfo> ret = await Sender.Send(request).ConfigureAwait(false);
             return ret.Data;
         }
 

@@ -1,62 +1,34 @@
 ﻿using StreamMaster.Domain.Configuration;
 using StreamMaster.PlayList.Models;
 
-using System.Collections.Concurrent;
-using System.Threading.Channels;
-
 namespace StreamMaster.Streams.Domain.Interfaces;
+
+public interface IStreamStatus : IIntroStatus
+{
+    string? OverrideSMStreamId { get; set; }
+    CustomPlayList? CustomPlayList { get; set; }
+    bool Shutdown { get; set; }
+    string ClientUserAgent { get; set; }
+    bool FailoverInProgress { get; set; }
+    void SetSMStreamInfo(SMStreamInfo? idNameUrl);
+    SMStreamInfo? SMStreamInfo { get; }
+    SMChannelDto SMChannel { get; }
+}
 
 /// <summary>
 /// Provides methods and properties to manage the status and configuration of a channel.
 /// </summary>
-public interface IChannelStatus
+public interface IChannelStatus : IStreamStatus
 {
-    void SetSourceChannel(ChannelReader<byte[]> sourceChannelReader, CancellationToken cancellationToken);
-    ConcurrentDictionary<string, ClientStreamerConfiguration> ClientStreamerConfigurations { get; set; }
-    CustomPlayList? CustomPlayList { get; set; }
-    bool Shutdown { get; set; }
-    int ClientCount { get; }
+    int StreamGroupProfileId { get; set; }
     CommandProfileDto CommandProfile { get; set; }
-    string OverrideVideoStreamId { get; set; }
-
-    /// <summary>
-    /// Sets the channel to a global state.
-    /// </summary>
     void SetIsGlobal();
-    void SetCurrentSMStream(SMStreamDto? smStream);
+    void SetSourceChannel(IChannelDistributor channelDistributor, string Name, bool IsCustom);
 
-    /// <summary>
-    /// Indicates whether a failover operation is currently in progress.
-    /// </summary>
-    bool FailoverInProgress { get; set; }
-
-    /// <summary>
-    /// Indicates whether the channel is in a global state.
-    /// </summary>
+    void AddClient(string UniqueRequestId, IClientConfiguration config);
+    bool RemoveClient(string UniqueRequestId);
+    int ClientCount { get; }
+    IChannelDistributor ChannelDistributor { get; }
     bool IsGlobal { get; set; }
-
-    /// <summary>
-    /// Gets or sets the rank of the channel.
-    /// </summary>
-    int CurrentRank { get; set; }
-
-    /// <summary>
-    /// Gets or sets the ID of the SM Channel
-    /// </summary>
-    //int Id { get; set; }
-
-    ///// <summary>
-    ///// Gets or sets the name of the video stream associated with this channel.
-    ///// </summary>
-    //string CurrentVideoStreamName { get; set; }
-    //string ChannelName { get; set; }
-
-    /// <summary>
-    /// Gets or sets the name of the video stream associated with this channel.
-    /// </summary>
-    SMStreamDto SMStream { get; }
-    SMChannelDto SMChannel { get; }
-    int IntroIndex { get; set; }
-    bool PlayedIntro { get; set; }
-    bool IsFirst { get; set; }
+    List<IClientConfiguration> GetClientStreamerConfigurations();
 }

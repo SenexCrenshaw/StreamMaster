@@ -2,6 +2,12 @@
 
 namespace StreamMaster.Domain.Mappings;
 
+public class SMChannelStreamLinkDto
+{
+    public string SMStreamId { get; set; }
+    public int Rank { get; set; }
+}
+
 public interface IMapFrom<T>
 {
     void Mapping(Profile profile)
@@ -25,7 +31,6 @@ public interface IMapFrom<T>
             return;
 
         }
-
 
         //if (typeof(T) == typeof(StreamGroup))
         //{

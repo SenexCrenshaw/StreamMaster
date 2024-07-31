@@ -90,13 +90,13 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id }: SMChannelDat
 
   const actionTemplate = useCallback(
     (smChannel: SMChannelDto) => {
-      if (smChannel.IsCustomStream === true) {
-        return (
-          <div className="flex justify-content-end align-items-center" style={{ paddingRight: '0.1rem' }}>
-            <StreamCopyLinkDialog realUrl={smChannel?.StreamUrl} />
-          </div>
-        );
-      }
+      // if (smChannel.IsCustomStream === true) {
+      //   return (
+      //     <div className="flex justify-content-end align-items-center" style={{ paddingRight: '0.1rem' }}>
+      //       <StreamCopyLinkDialog realUrl={smChannel?.StreamUrl} />
+      //     </div>
+      //   );
+      // }
       return (
         <div className="flex justify-content-end align-items-center" style={{ paddingRight: '0.1rem' }}>
           <StreamCopyLinkDialog realUrl={smChannel?.StreamUrl} />

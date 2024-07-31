@@ -223,7 +223,7 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IServicePro
             List<MxfProgram> programs = schedulesDirectDataService.GetAllSDPrograms;
 
 
-            OutputProfile profile = SettingFiles.DefaultOutputProfileSetting.OutProfiles["Default"];
+            OutputProfile profile = SettingFiles.DefaultOutputProfileSetting.Profiles["Default"];
 
             DoPrograms(services, programs.Count, xmlTv, profile);
 

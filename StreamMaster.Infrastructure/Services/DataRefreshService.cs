@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.SignalR;
-using StreamMaster.Application.Hubs;
+
 using StreamMaster.Application.Interfaces;
+using StreamMaster.Application.Hubs;
 using StreamMaster.Application.Services;
 using StreamMaster.Domain.Configuration;
 
@@ -13,7 +14,7 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
     {
 
         await RefreshChannelGroups(true);
-        await RefreshCustomPlayLists(true);
+        await RefreshCustom(true);
         await RefreshEPG(true);
         await RefreshEPGFiles(true);
         await RefreshGeneral(true);
@@ -45,7 +46,7 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
         await hub.Clients.All.DataRefresh("GetPagedChannelGroups");
     }
 
-    public async Task RefreshCustomPlayLists(bool alwaysRun = false)
+    public async Task RefreshCustom(bool alwaysRun = false)
     {
 
         if (!alwaysRun && !BuildInfo.IsSystemReady)
@@ -54,6 +55,7 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
         }
 
         await hub.Clients.All.DataRefresh("GetCustomPlayLists");
+        await hub.Clients.All.DataRefresh("GetIntroPlayLists");
     }
 
     public async Task RefreshEPG(bool alwaysRun = false)
@@ -211,6 +213,7 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
             return;
         }
 
+        await hub.Clients.All.DataRefresh("GetChannelDistributors");
         await hub.Clients.All.DataRefresh("GetChannelStreamingStatistics");
         await hub.Clients.All.DataRefresh("GetClientStreamingStatistics");
         await hub.Clients.All.DataRefresh("GetStreamStreamingStatistics");
@@ -224,7 +227,6 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
             return;
         }
 
-        await hub.Clients.All.DataRefresh("GetDefaultStreamGroupProfileId");
         await hub.Clients.All.DataRefresh("GetPagedStreamGroups");
         await hub.Clients.All.DataRefresh("GetStreamGroupProfiles");
         await hub.Clients.All.DataRefresh("GetStreamGroups");

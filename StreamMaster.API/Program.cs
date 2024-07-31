@@ -62,8 +62,8 @@ if (Directory.Exists(BuildInfo.SettingsFolder))
     builder.Configuration.SetBasePath(BuildInfo.AppDataFolder);
 }
 
-var commandProfileSetting = SettingsHelper.GetSetting<CommandProfileList>(BuildInfo.CommandProfileSettingsFile);
-if (commandProfileSetting == default(CommandProfileList))
+var commandProfileSetting = SettingsHelper.GetSetting<CommandProfiles>(BuildInfo.CommandProfileSettingsFile);
+if (commandProfileSetting == default(CommandProfiles))
 {
     SettingsHelper.UpdateSetting(SettingFiles.DefauCommandProfileSetting);
 }
@@ -104,7 +104,7 @@ foreach (var file in settingsFiles)
 builder.Services.Configure<Setting>(builder.Configuration);
 builder.Services.Configure<SDSettings>(builder.Configuration);
 builder.Services.Configure<HLSSettings>(builder.Configuration);
-builder.Services.Configure<CommandProfileList>(builder.Configuration);
+builder.Services.Configure<CommandProfiles>(builder.Configuration);
 builder.Services.Configure<OutputProfiles>(builder.Configuration);
 
 bool enableSsl = false;

@@ -36,7 +36,7 @@ public class CreateSMChannelRequestHandler(ILogger<CreateSMChannelRequest> Logge
                 Group = request.Group ?? "All",
                 EPGId = request.EPGId ?? string.Empty,
                 Logo = request.Logo ?? string.Empty,
-                CommandProfileName = request.CommandProfileName ?? BuildInfo.DefaultCommandProfileName
+                //CommandProfileName = request.CommandProfileName ?? BuildInfo.DefaultCommandProfileName
             };
 
             Repository.SMChannel.Create(smChannel);

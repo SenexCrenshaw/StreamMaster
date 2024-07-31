@@ -1,12 +1,13 @@
 import SMPopUp, { SMPopUpRef } from '@components/sm/SMPopUp';
-import { ScanForCustomPlayLists } from '@lib/smAPI/CustomPlayLists/CustomPlayListsCommands';
+import { ScanForCustom } from '@lib/smAPI/Custom/CustomCommands';
+
 import React, { useRef } from 'react';
 
 const SyncCustomListsButton = () => {
   const smPopUpRef = useRef<SMPopUpRef>(null);
 
   const onSave = React.useCallback(() => {
-    ScanForCustomPlayLists()
+    ScanForCustom()
       .then(() => {})
       .catch((e: any) => {
         console.error(e);

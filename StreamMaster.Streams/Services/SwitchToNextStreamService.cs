@@ -1,103 +1,123 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
-using StreamMaster.Domain.Configuration;
-using StreamMaster.PlayList;
-
 namespace StreamMaster.Streams.Services;
 
-public sealed class SwitchToNextStreamService(ILogger<SwitchToNextStreamService> logger, IOptionsMonitor<Setting> intSettings, IServiceProvider serviceProvider) : ISwitchToNextStreamService
+public sealed class SwitchToNextStreamService(ILogger<SwitchToNextStreamService> logger, IIntroPlayListBuilder introPlayListBuilder, ICustomPlayListBuilder customPlayListBuilder, IOptionsMonitor<Setting> intSettings, IServiceProvider serviceProvider) : ISwitchToNextStreamService
 {
-    public async Task<bool> SetNextStreamAsync(IM3U8ChannelStatus ChannelStatus, string? overrideSMStreamId = null)
+    public async Task<bool> SetNextStreamAsync(IStreamStatus ChannelStatus, string? OverrideSMStreamId = null)
     {
-        if (ChannelStatus.FailoverInProgress)
+        ChannelStatus.FailoverInProgress = true;
+
+        ChannelStatus.OverrideSMStreamId = OverrideSMStreamId;
+        Setting _settings = intSettings.CurrentValue;
+
+        if (_settings.ShowIntros > 0)
         {
-            return false;
+            if (
+                (_settings.ShowIntros == 1 && ChannelStatus.IsFirst) ||
+                (_settings.ShowIntros == 2 && !ChannelStatus.PlayedIntro)
+                )
+            {
+                CustomStreamNfo? intro = introPlayListBuilder.GetRandomIntro(ChannelStatus.IsFirst ? null : ChannelStatus.IntroIndex);
+
+                ChannelStatus.IsFirst = false;
+                ChannelStatus.PlayedIntro = true;
+
+                if (intro != null)
+                {
+                    logger.LogDebug("Exiting with : {Id} {Name}", intro.Movie.Id, intro.Movie.Title);
+                    string streamId = $"{IntroPlayListBuilder.IntroIDPrefix}{intro.Movie.Title}";
+                    SMStreamInfo siOverRide = new()
+                    {
+                        Id = streamId,
+                        Name = intro.Movie.Title,
+                        Url = intro.VideoFileName,
+                        IsCustomStream = true,
+                        ClientUserAgent = intSettings.CurrentValue.SourceClientUserAgent,
+                        M3UFileId = EPGHelper.CustomPlayListId
+                    };
+
+                    ChannelStatus.SetSMStreamInfo(siOverRide);
+                    return true;
+                }
+            }
         }
 
-        ChannelStatus.FailoverInProgress = true;
-        if (!string.IsNullOrEmpty(overrideSMStreamId))
-        {
-            ChannelStatus.OverrideSMStreamId = overrideSMStreamId;
-        }
+        ChannelStatus.PlayedIntro = false;
 
         if (ChannelStatus.SMChannel.IsCustomStream)
         {
-            ChannelStatus.ClientUserAgent = intSettings.CurrentValue.ClientUserAgent;
+            ChannelStatus.CustomPlayList = customPlayListBuilder.GetCustomPlayList(ChannelStatus.SMChannel.Name);
+
             if (ChannelStatus.CustomPlayList == null)
             {
                 return false;
             }
 
-            ChannelStatus.SMChannel.CurrentRank++;
+            //ChannelStatus.SMChannel.CurrentRank++;
 
-            if (ChannelStatus.SMChannel.CurrentRank >= ChannelStatus.CustomPlayList.CustomStreamNfos.Count)
-            {
-                ChannelStatus.SMChannel.CurrentRank = 0;
-            }
+            //if (ChannelStatus.SMChannel.CurrentRank >= ChannelStatus.CustomPlayList.CustomStreamNfos.Count)
+            //{
+            //    ChannelStatus.SMChannel.CurrentRank = 0;
+            //}
 
-            CustomStreamNfo nfo = ChannelStatus.CustomPlayList.CustomStreamNfos[ChannelStatus.SMChannel.CurrentRank];
-            IdNameUrl si = new()
+            (CustomStreamNfo StreamNfo, int SecondsIn) = customPlayListBuilder.GetCurrentVideoAndElapsedSeconds(ChannelStatus.CustomPlayList.Name);
+
+            string clientUserAgent = !string.IsNullOrEmpty(ChannelStatus.ClientUserAgent) ? ChannelStatus.ClientUserAgent : intSettings.CurrentValue.SourceClientUserAgent;
+            SMStreamInfo si = new()
             {
-                Id = nfo.Movie.Title,
-                Name = nfo.Movie.Title,
-                Url = ChannelStatus.CustomPlayList.CustomStreamNfos[ChannelStatus.SMChannel.CurrentRank].VideoFileName,
-                IsCustomStream = true
+                Id = StreamNfo.Movie.Title,
+                Name = StreamNfo.Movie.Title,
+                Url = StreamNfo.VideoFileName,
+                IsCustomStream = true,
+                SecondsIn = SecondsIn,
+                ClientUserAgent = clientUserAgent,
+                M3UFileId = EPGHelper.CustomPlayListId
             };
+            //SMStreamInfo si = new()
+            //{
+            //    Id = ChannelStatus.SMChannel.SourceName,
+            //    SourceName = ChannelStatus.SMChannel.SourceName,
+            //    Url = ChannelStatus.SMChannel.SourceName,
+            //    IsCustomStream = true,
+            //    ClientUserAgent = clientUserAgent,
+            //    M3UFileId = EPGHelper.CustomPlayListId
+            //};
 
             ChannelStatus.SetSMStreamInfo(si);
             return await Task.FromResult(true);
-
         }
         else
         {
-            Setting _settings = intSettings.CurrentValue;
-
-            using IServiceScope scope = serviceProvider.CreateScope();
-            IRepositoryWrapper repository = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
-
-            Dictionary<int, M3UFileDto> m3uFilesRepo = (await repository.M3UFile.GetM3UFiles().ConfigureAwait(false))
-                                .ToDictionary(m => m.Id);
-
-            if (!string.IsNullOrEmpty(overrideSMStreamId))
+            if (!string.IsNullOrEmpty(OverrideSMStreamId))
             {
-                SMStreamDto? smStream = repository.SMStream.GetSMStream(overrideSMStreamId);
-                if (smStream == null)
+                using IServiceScope scope = serviceProvider.CreateScope();
+                IRepositoryWrapper repository = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
+
+                Dictionary<int, M3UFileDto> m3uFilesRepo = (await repository.M3UFile.GetM3UFiles().ConfigureAwait(false))
+                                    .ToDictionary(m => m.Id);
+
+                SMStreamDto? smOverRideStream = repository.SMStream.GetSMStream(OverrideSMStreamId);
+                if (smOverRideStream == null)
                 {
                     return false;
                 }
 
-                //if (!m3uFilesRepo.TryGetValue(smStream.M3UFileId, out M3UFileDto? m3uFile))
-                //{
-                //    if (GetGlobalStreamsCount() >= _settings.GlobalStreamLimit)
-                //    {
-                //        logger.LogInformation("Max global stream count {GlobalStreamsCount} reached for stream: {StreamUrl}", GetGlobalStreamsCount(), smStream.Url);
-                //        return false;
-                //    }
+                string clientUserAgentOverRide = !string.IsNullOrEmpty(smOverRideStream.ClientUserAgent) ? smOverRideStream.ClientUserAgent : intSettings.CurrentValue.SourceClientUserAgent;
 
-                //    channelStatus.SetIsGlobal();
-                //    logger.LogInformation("Global stream count {GlobalStreamsCount}", GetGlobalStreamsCount());
-                //}
-                //else if (m3uFile.MaxStreamCount > 0)
-                //{
-                //    int allStreamsCount = GetCurrentStreamCountForM3UFile(m3uFile.Id);
-                //    if (allStreamsCount >= m3uFile.MaxStreamCount)
-                //    {
-                //        logger.LogInformation("Max stream count {AllStreamsCount}/{MaxStreams} reached for stream: {StreamUrl}", allStreamsCount, m3uFile.MaxStreamCount, smStream.Url);
-                //        return false;
-                //    }
-                //}
-
-                logger.LogDebug("Exiting SetNextChildVideoStream with to Return: {Id} {Name}", smStream.Id, smStream.Name);
-                IdNameUrl si = new()
+                logger.LogDebug("Exiting with : {Id} {Name}", smOverRideStream.Id, smOverRideStream.Name);
+                SMStreamInfo siOverRide = new()
                 {
-                    Id = smStream.Id,
-                    Name = smStream.Name,
-                    Url = smStream.Url,
-                    IsCustomStream = true
+                    Id = smOverRideStream.Id,
+                    Name = smOverRideStream.Name,
+                    Url = smOverRideStream.Url,
+                    IsCustomStream = smOverRideStream.IsCustomStream,
+                    ClientUserAgent = clientUserAgentOverRide,
+                    M3UFileId = smOverRideStream.M3UFileId
                 };
 
-                ChannelStatus.SetSMStreamInfo(si);
-                return false;
+                ChannelStatus.SetSMStreamInfo(siOverRide);
+                return true;
             }
 
             SMChannelDto channel = ChannelStatus.SMChannel;
@@ -111,53 +131,32 @@ public sealed class SwitchToNextStreamService(ILogger<SwitchToNextStreamService>
             if (channel.CurrentRank + 1 >= channel.SMStreams.Count)
             {
                 logger.LogInformation("SetNextChildVideoStream no more streams for id {ParentVideoStreamId}, exiting", channel.Id);
-                ChannelStatus.SetSMStreamInfo(null);
                 return false;
             }
 
-            List<SMStreamDto> smStreams = channel.SMStreams.OrderBy(a => a.Rank).ToList();
+            List<SMStreamDto> smStreams = [.. channel.SMStreams.OrderBy(a => a.Rank)];
 
-            for (int i = 0; i < smStreams.Count; i++)
+            //for (int i = 0; i < smStreams.Count; i++)
+            //{
+            channel.CurrentRank = (channel.CurrentRank + 1) % smStreams.Count;
+            SMStreamDto smStream = smStreams[channel.CurrentRank];
+            logger.LogDebug("Exiting with : {Id} {Name}", smStream.Id, smStream.Name);
+
+            string clientUserAgent = !string.IsNullOrEmpty(smStream.ClientUserAgent) ? smStream.ClientUserAgent : intSettings.CurrentValue.SourceClientUserAgent;
+
+            SMStreamInfo si = new()
             {
-                channel.CurrentRank = (channel.CurrentRank + 1) % smStreams.Count;
-                SMStreamDto smStream = smStreams[channel.CurrentRank];
+                Id = smStream.Id,
+                Name = smStream.Name,
+                Url = smStream.Url,
+                IsCustomStream = smStream.IsCustomStream,
+                ClientUserAgent = clientUserAgent,
+                M3UFileId = smStream.M3UFileId
+            };
 
-                //if (!m3uFilesRepo.TryGetValue(toReturn.M3UFileId, out M3UFileDto? m3uFile))
-                //{
-                //    if (GetGlobalStreamsCount() >= _settings.GlobalStreamLimit)
-                //    {
-                //        logger.LogInformation("Max global stream count {GlobalStreamsCount} reached for stream: {StreamUrl}", GetGlobalStreamsCount(), toReturn.Url);
-                //        continue;
-                //    }
-
-                //    channelStatus.SetIsGlobal();
-                //    logger.LogInformation("Global stream count {GlobalStreamsCount}", GetGlobalStreamsCount());
-                //}
-                //else if (m3uFile.MaxStreamCount > 0)
-                //{
-                //    int allStreamsCount = GetCurrentStreamCountForM3UFile(m3uFile.Id);
-                //    if (allStreamsCount >= m3uFile.MaxStreamCount)
-                //    {
-                //        logger.LogInformation("Max stream count {AllStreamsCount}/{MaxStreams} reached for stream: {StreamUrl}", allStreamsCount, m3uFile.MaxStreamCount, toReturn.Url);
-                //        continue;
-                //    }
-                //}
-
-                logger.LogDebug("Exiting SetNextChildVideoStream with to Return: {Id} {Name}", smStream.Id, smStream.Name);
-                //SMStreamDto a = mapper.Map<SMStreamDto>(toReturn);
-                //channelStatus.SetCurrentSMStream(a);
-                IdNameUrl si = new()
-                {
-                    Id = smStream.Id,
-                    Name = smStream.Name,
-                    Url = smStream.Url,
-                    IsCustomStream = true
-                };
-
-                ChannelStatus.SetSMStreamInfo(si);
-                return true;
-            }
+            ChannelStatus.SetSMStreamInfo(si);
+            return true;
+            //}
         }
-        return false;
     }
 }

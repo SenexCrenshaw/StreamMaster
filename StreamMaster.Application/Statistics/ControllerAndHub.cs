@@ -9,6 +9,22 @@ namespace StreamMaster.Application.Statistics
 
         [HttpGet]
         [Route("[action]")]
+        public async Task<ActionResult<List<ChannelDistributorDto>>> GetChannelDistributors()
+        {
+            try
+            {
+                DataResponse<List<ChannelDistributorDto>> ret = await Sender.Send(new GetChannelDistributorsRequest()).ConfigureAwait(false);
+                return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetChannelDistributors.", statusCode: 500) : Ok(ret.Data);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An unexpected error occurred while processing the request to get GetChannelDistributors.");
+                return Problem(detail: "An unexpected error occurred. Please try again later.", statusCode: 500);
+            }
+        }
+
+        [HttpGet]
+        [Route("[action]")]
         public async Task<ActionResult<List<ChannelStreamingStatistics>>> GetChannelStreamingStatistics()
         {
             try
@@ -78,6 +94,12 @@ namespace StreamMaster.Application.Hubs
 {
     public partial class StreamMasterHub : IStatisticsHub
     {
+        public async Task<List<ChannelDistributorDto>> GetChannelDistributors()
+        {
+            DataResponse<List<ChannelDistributorDto>> ret = await Sender.Send(new GetChannelDistributorsRequest()).ConfigureAwait(false);
+            return ret.Data;
+        }
+
         public async Task<List<ChannelStreamingStatistics>> GetChannelStreamingStatistics()
         {
             DataResponse<List<ChannelStreamingStatistics>> ret = await Sender.Send(new GetChannelStreamingStatisticsRequest()).ConfigureAwait(false);

@@ -22,7 +22,7 @@ public class V
     public required string RealUrl { get; set; }
 }
 
-internal class GetVsRequestHandler(ILogger<GetVsRequest> logger, IHttpContextAccessor httpContextAccessor, ISender sender, IRepositoryWrapper repositoryWrapper)
+internal class GetVsRequestHandler(ILogger<GetVsRequest> logger, IStreamGroupService streamGroupService, IProfileService profileService, IHttpContextAccessor httpContextAccessor, ISender sender, IRepositoryWrapper repositoryWrapper)
     : IRequestHandler<GetVsRequest, DataResponse<List<V>>>
 {
 
@@ -67,18 +67,23 @@ internal class GetVsRequestHandler(ILogger<GetVsRequest> logger, IHttpContextAcc
             return DataResponse<List<V>>.Success(sgRet);
         }
 
-        StreamGroupProfile streamGroupProfile = await repositoryWrapper.StreamGroupProfile.GetStreamGroupProfileAsync(request.StreamGroupId, request.StreamGroupProfileId);
-        if (streamGroupProfile == null)
-        {
-            logger.LogError("GetVsRequest streamGroupProfile not found!");
-            throw new ApplicationException("StreamGroupProfile not found!");
-        }
-        StreamGroup? sg = repositoryWrapper.StreamGroup.GetStreamGroup(streamGroupProfile.StreamGroupId);
-        if (sg == null)
-        {
-            logger.LogError("GetVsRequest streamGroup not found!");
-            throw new ApplicationException("StreamGroup not found!");
-        }
+        //int? sgId = request.StreamGroupId;
+        //if (!sgId.HasValue)
+        //{
+        //    sgId = await streamGroupService.GetDefaultSGIdAsync().ConfigureAwait(false);
+        //}
+        //StreamGroupProfile streamGroupProfile = await profileService.GetStreamGroupProfileAsync(request.StreamGroupId, request.StreamGroupProfileId);
+        //if (streamGroupProfile == null)
+        //{
+        //    logger.LogError("GetVsRequest streamGroupProfile not found!");
+        //    throw new ApplicationException("StreamGroupProfile not found!");
+        //}
+        StreamGroup sg = await streamGroupService.GetDefaultSGAsync().ConfigureAwait(false);
+        //if (sg == null)
+        //{
+        //    logger.LogError("GetVsRequest streamGroup not found!");
+        //    throw new ApplicationException("StreamGroup not found!");
+        //}
 
         if (sg.Name.Equals("ALL", StringComparison.CurrentCultureIgnoreCase))
         {
@@ -87,19 +92,19 @@ internal class GetVsRequestHandler(ILogger<GetVsRequest> logger, IHttpContextAcc
             {
                 Id = a.Id,
                 StreamGroupId = sg.Id,
-                StreamGroupProfileId = streamGroupProfile.Id,
-                StreamGroupProfileName = streamGroupProfile.ProfileName,
-                StreamGroupName = "ALL",
+                StreamGroupProfileId = 1,
+                StreamGroupProfileName = "TEST",
+                StreamGroupName = sg.Name,
                 Name = a.Name,
                 BaseUrl = baseUrl,
                 DefaultRealUrl = $"{baseUrl}/v/{a.Id}",
-                RealUrl = $"{baseUrl}/v/{streamGroupProfile.Id}/{a.Id}"
+                RealUrl = $"{baseUrl}/v/{sg.Id}/{a.Id}"
             });
             return DataResponse<List<V>>.Success(allRet);
         }
 
 
-        DataResponse<List<SMChannelDto>> smChannels = await sender.Send(new GetStreamGroupSMChannelsRequest(streamGroupProfile.StreamGroupId), cancellationToken);
+        DataResponse<List<SMChannelDto>> smChannels = await sender.Send(new GetStreamGroupSMChannelsRequest(sg.Id), cancellationToken);
         if (smChannels.IsError)
         {
             logger.LogError("GetVsRequest streamGroupSMChannelLinks not found!");
@@ -110,12 +115,12 @@ internal class GetVsRequestHandler(ILogger<GetVsRequest> logger, IHttpContextAcc
             Id = a.Id,
             StreamGroupId = sg.Id,
             StreamGroupName = sg.Name,
-            StreamGroupProfileId = streamGroupProfile.Id,
-            StreamGroupProfileName = streamGroupProfile.ProfileName,
+            StreamGroupProfileId = 1,
+            StreamGroupProfileName = "TEST",
             Name = a.Name,
             BaseUrl = baseUrl,
             DefaultRealUrl = $"{baseUrl}/v/{a.Id}",
-            RealUrl = $"{baseUrl}/v/{streamGroupProfile.Id}/{a.Id}"
+            RealUrl = $"{baseUrl}/v/{sg.Id}/{a.Id}"
         });
 
 

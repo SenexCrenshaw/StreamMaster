@@ -41,7 +41,29 @@ public class Disposition
 
     [JsonPropertyName("timed_thumbnails")]
     public int TimedThumbnails { get; set; }
+
+    [JsonPropertyName("non_diegetic")]
+    public int NonDiegetic { get; set; }
+
+    [JsonPropertyName("captions")]
+    public int Captions { get; set; }
+
+    [JsonPropertyName("descriptions")]
+    public int Descriptions { get; set; }
+
+    [JsonPropertyName("metadata")]
+    public int Metadata { get; set; }
+
+    [JsonPropertyName("dependent")]
+    public int Dependent { get; set; }
+
+    [JsonPropertyName("still_image")]
+    public int StillImage { get; set; }
+
+    [JsonPropertyName("multilayer")]
+    public int Multilayer { get; set; }
 }
+
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public class Format
 {
@@ -70,13 +92,31 @@ public class Format
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public class VideoInfo
 {
-    [JsonPropertyName("streamName")]
-    public string StreamName { get; set; }
-    [JsonPropertyName("streams")]
-    public List<VideoStreamInfo> Streams { get; set; }
+    public DateTime Created { get; set; }
 
-    [JsonPropertyName("format")]
-    public Format Format { get; set; }
+    //[JsonPropertyName("streamName")]
+    public string StreamName { get; set; }
+
+    //[JsonPropertyName("streams")]
+    //public List<VideoStreamInfo> Streams { get; set; }
+
+    ////[JsonPropertyName("format")]
+    //public Format Format { get; set; }
+    public string JsonOutput { get; set; }
+}
+
+public class VideoInfoDto : VideoInfo
+{
+    public VideoInfoDto(KeyValuePair<string, VideoInfo> info)
+    {
+        //Key = info.Key;
+        StreamName = info.Value.StreamName;
+        Created = DateTime.UtcNow; // Assuming SMDT.UtcNow returns DateTime.UtcNow
+        //Streams = info.Value.Streams;
+        //Format = info.Value.Format;
+    }
+
+    //public string Key { get; set; }
 }
 
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
@@ -160,6 +200,12 @@ public class VideoStreamInfo
     [JsonPropertyName("nal_length_size")]
     public string NalLengthSize { get; set; }
 
+    [JsonPropertyName("ts_id")]
+    public string TsId { get; set; }
+
+    [JsonPropertyName("ts_packetsize")]
+    public string TsPacketSize { get; set; }
+
     [JsonPropertyName("id")]
     public string Id { get; set; }
 
@@ -201,5 +247,22 @@ public class VideoStreamInfo
 
     [JsonPropertyName("bit_rate")]
     public string BitRate { get; set; }
+
+    [JsonPropertyName("tags")]
+    public Tags Tags { get; set; }
+
+    [JsonPropertyName("film_grain")]
+    public int FilmGrain { get; set; }
+
+    [JsonPropertyName("initial_padding")]
+    public int InitialPadding { get; set; }
+
+    [JsonPropertyName("extradata_size")]
+    public int ExtradataSize { get; set; }
 }
 
+public class Tags
+{
+    [JsonPropertyName("language")]
+    public string Language { get; set; }
+}

@@ -1,3 +1,4 @@
+import ResetButton from '@components/buttons/ResetButton';
 import SMPopUp from '@components/sm/SMPopUp';
 import { SMChannelDialogRef } from '@components/smchannels/SMChannelDialog';
 import useIsRowLoading from '@lib/redux/hooks/useIsRowLoading';
@@ -5,7 +6,6 @@ import { UpdateSMStream } from '@lib/smAPI/SMStreams/SMStreamsCommands';
 import { SMStreamDto, UpdateSMStreamRequest } from '@lib/smAPI/smapiTypes';
 import React, { useEffect, useRef, useState } from 'react';
 import SMStreamDialog from './SMStreamDialog';
-import ResetButton from '@components/buttons/ResetButton';
 
 interface EditSMStreamDialogProperties {
   smStreamDto: SMStreamDto;
@@ -47,7 +47,7 @@ const EditSMStreamDialog = ({ smStreamDto }: EditSMStreamDialogProperties) => {
   return (
     <SMPopUp
       buttonClassName="icon-yellow"
-      buttonDisabled={smStreamDto === undefined || smStreamDto.IsUserCreated === false}
+      buttonDisabled={smStreamDto === undefined || smStreamDto.IsUserCreated !== true}
       contentWidthSize="5"
       header={
         <div className="flex w-12 gap-1 justify-content-end align-content-center">

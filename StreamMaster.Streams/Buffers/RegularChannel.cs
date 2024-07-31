@@ -37,6 +37,10 @@ public class RegularChannel<T> : ISMRegularChannel<T>
         }
         return false;
     }
+    public IAsyncEnumerable<T> ReadAllAsync(CancellationToken cancellationToken = default)
+    {
+        return _channel.Reader.ReadAllAsync(cancellationToken);
+    }
     public bool CanPeek => _channel.Reader.CanPeek;
 
     public async ValueTask<T> ReadAsync(CancellationToken cancellationToken = default)

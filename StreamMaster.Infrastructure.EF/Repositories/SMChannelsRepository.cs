@@ -18,7 +18,7 @@ using System.Text.Json;
 
 namespace StreamMaster.Infrastructure.EF.Repositories;
 
-public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepositoryWrapper repository, IRepositoryContext repositoryContext, IMapper mapper, IOptionsMonitor<Setting> intSettings, IOptionsMonitor<CommandProfileList> intProfileSettings, ISchedulesDirectDataService schedulesDirectDataService)
+public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepositoryWrapper repository, IRepositoryContext repositoryContext, IMapper mapper, IOptionsMonitor<Setting> intSettings, IOptionsMonitor<CommandProfiles> intProfileSettings, ISchedulesDirectDataService schedulesDirectDataService)
     : RepositoryBase<SMChannel>(repositoryContext, intLogger), ISMChannelsRepository
 {
     private ConcurrentHashSet<int> existingNumbers = [];
@@ -142,7 +142,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
     private async Task<SMChannel?> CreateSMChannelFromStream(string streamId, int? M3UFileId = null, bool? forced = false)
     {
         SMStreamDto? smStream = repository.SMStream.GetSMStream(streamId) ?? throw new APIException($"Stream with Id {streamId} is not found");
-        if (smStream == null || (forced == false && smStream.IsCustomStream))
+        if (smStream == null)//|| (forced == false))//&& smStream.IsCustomStream))
         {
             return null;
         }
@@ -158,7 +158,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
             M3UFileId = M3UFileId ?? smStream.M3UFileId,
             StreamID = smStream.Id,
             IsCustomStream = smStream.IsCustomStream,
-            CommandProfileName = M3UFileId == EPGHelper.CustomPlayListId ? "StreamMaster" : BuildInfo.DefaultCommandProfileName,
+            //CommandProfileName = M3UFileId == EPGHelper.CustomPlayListId ? "StreamMaster" : BuildInfo.DefaultCommandProfileName,
         };
 
         await CreateSMChannel(smChannel);
@@ -794,20 +794,20 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
         return fds;
     }
 
-    public async Task<APIResponse> SetSMChannelCommandProfileName(int sMChannelId, string CommandProfileName)
-    {
-        SMChannel? channel = GetSMChannel(sMChannelId);
-        if (channel == null)
-        {
-            return APIResponse.NotFound;
-        }
+    //public async Task<APIResponse> SetSMChannelCommandProfileName(int sMChannelId, string CommandProfileName)
+    //{
+    //    SMChannel? channel = GetSMChannel(sMChannelId);
+    //    if (channel == null)
+    //    {
+    //        return APIResponse.NotFound;
+    //    }
 
-        channel.CommandProfileName = CommandProfileName;
-        Update(channel);
-        _ = await SaveChangesAsync();
+    //    channel.CommandProfileName = CommandProfileName;
+    //    Update(channel);
+    //    _ = await SaveChangesAsync();
 
-        return APIResponse.Success;
-    }
+    //    return APIResponse.Success;
+    //}
 
     public async Task<List<SMChannel>> GetSMChannelsFromStreamGroup(int streamGroupId)
     {
@@ -863,33 +863,33 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
         return APIResponse.Success;
     }
 
-    public async Task<APIResponse> SetSMChannelsCommandProfileName(List<int> sMChannelIds, string CommandProfileName)
-    {
-        IQueryable<SMChannel> toUpdate = GetQuery(tracking: true).Where(a => sMChannelIds.Contains(a.Id));
-        return await SetSMChannelsCommandProfileName(toUpdate, CommandProfileName);
-    }
+    //public async Task<APIResponse> SetSMChannelsCommandProfileName(List<int> sMChannelIds, string CommandProfileName)
+    //{
+    //    IQueryable<SMChannel> toUpdate = GetQuery(tracking: true).Where(a => sMChannelIds.Contains(a.Id));
+    //    return await SetSMChannelsCommandProfileName(toUpdate, CommandProfileName);
+    //}
 
-    public async Task<APIResponse> SetSMChannelsCommandProfileNameFromParameters(QueryStringParameters parameters, string CommandProfileName)
-    {
-        IQueryable<SMChannel> toUpdate = GetQuery(parameters, tracking: true);
-        return await SetSMChannelsCommandProfileName(toUpdate, CommandProfileName);
-    }
+    //public async Task<APIResponse> SetSMChannelsCommandProfileNameFromParameters(QueryStringParameters parameters, string CommandProfileName)
+    //{
+    //    IQueryable<SMChannel> toUpdate = GetQuery(parameters, tracking: true);
+    //    return await SetSMChannelsCommandProfileName(toUpdate, CommandProfileName);
+    //}
 
-    private async Task<APIResponse> SetSMChannelsCommandProfileName(IQueryable<SMChannel> query, string CommandProfileName)
-    {
-        if (!intProfileSettings.CurrentValue.CommandProfiles.ContainsKey(CommandProfileName))
-        {
-            return APIResponse.ErrorWithMessage($"CommandProfileName '{CommandProfileName}' not found");
-        }
-        List<SMChannel> toUpdate = await query.ToListAsync();
+    //private async Task<APIResponse> SetSMChannelsCommandProfileName(IQueryable<SMChannel> query, string CommandProfileName)
+    //{
+    //    if (!intProfileSettings.CurrentValue.CommandProfiles.ContainsKey(CommandProfileName))
+    //    {
+    //        return APIResponse.ErrorWithMessage($"CommandProfileName '{CommandProfileName}' not found");
+    //    }
+    //    List<SMChannel> toUpdate = await query.ToListAsync();
 
-        foreach (SMChannel smChannl in toUpdate)
-        {
-            smChannl.CommandProfileName = CommandProfileName;
-        }
+    //    foreach (SMChannel smChannl in toUpdate)
+    //    {
+    //        smChannl.CommandProfileName = CommandProfileName;
+    //    }
 
-        BulkUpdate(toUpdate);
-        _ = RepositoryContext.SaveChanges();
-        return APIResponse.Success;
-    }
+    //    BulkUpdate(toUpdate);
+    //    _ = RepositoryContext.SaveChanges();
+    //    return APIResponse.Success;
+    //}
 }

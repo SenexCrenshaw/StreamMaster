@@ -10,22 +10,6 @@ namespace StreamMaster.Application.Profiles
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<ActionResult<CommandProfileDto>> GetCommandProfile([FromQuery] GetCommandProfileRequest request)
-        {
-            try
-            {
-                DataResponse<CommandProfileDto> ret = await Sender.Send(request).ConfigureAwait(false);
-                return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetCommandProfile.", statusCode: 500) : Ok(ret.Data);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "An unexpected error occurred while processing the request to get GetCommandProfile.");
-                return Problem(detail: "An unexpected error occurred. Please try again later.", statusCode: 500);
-            }
-        }
-
-        [HttpGet]
-        [Route("[action]")]
         public async Task<ActionResult<List<CommandProfileDto>>> GetCommandProfiles()
         {
             try
@@ -127,12 +111,6 @@ namespace StreamMaster.Application.Hubs
 {
     public partial class StreamMasterHub : IProfilesHub
     {
-        public async Task<CommandProfileDto> GetCommandProfile(GetCommandProfileRequest request)
-        {
-            DataResponse<CommandProfileDto> ret = await Sender.Send(request).ConfigureAwait(false);
-            return ret.Data;
-        }
-
         public async Task<List<CommandProfileDto>> GetCommandProfiles()
         {
             DataResponse<List<CommandProfileDto>> ret = await Sender.Send(new GetCommandProfilesRequest()).ConfigureAwait(false);

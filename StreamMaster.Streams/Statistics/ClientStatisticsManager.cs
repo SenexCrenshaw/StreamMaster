@@ -10,7 +10,7 @@ public sealed class ClientStatisticsManager(ILogger<ClientStatisticsManager> log
     private readonly ConcurrentDictionary<string, ClientStreamingStatistics> _clientStatistics = new();
     private readonly ILogger<ClientStatisticsManager> _logger = logger;
 
-    public void RegisterClient(ClientStreamerConfiguration streamerConfiguration)
+    public void RegisterClient(IClientConfiguration streamerConfiguration)
     {
         if (!_clientStatistics.ContainsKey(streamerConfiguration.UniqueRequestId))
         {

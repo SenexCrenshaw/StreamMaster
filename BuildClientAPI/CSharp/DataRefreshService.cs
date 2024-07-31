@@ -103,7 +103,7 @@ public static class DataRefreshService
 
         content.AppendLine("using Microsoft.AspNetCore.SignalR;");
         content.AppendLine("");
-        content.AppendLine("using StreamMaster.Application.Common.Interfaces;");
+        content.AppendLine("using StreamMaster.Application.Interfaces;");
         content.AppendLine("using StreamMaster.Application.Hubs;");
         content.AppendLine("using StreamMaster.Application.Services;");
         content.AppendLine("using StreamMaster.Domain.Configuration;");

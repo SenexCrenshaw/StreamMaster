@@ -3,16 +3,13 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-using StreamMaster.Domain.Repository;
-using StreamMaster.Streams.Domain.Interfaces;
-using StreamMaster.Streams.Domain.Models;
-
 namespace StreamMaster.API.Controllers;
 
 [V1ApiController("v")]
-public class VsController(ILogger<VsController> logger, IRepositoryWrapper repositoryWrapper, IMapper mapper) : Controller
+public class VsController(ILogger<VsController> logger, IRepositoryWrapper repositoryWrapper, IClientConfigurationService clientConfigurationService, IMapper mapper) : Controller
 
 {
+
     [Authorize(Policy = "SGLinks")]
     [HttpGet]
     [HttpHead]
@@ -20,7 +17,7 @@ public class VsController(ILogger<VsController> logger, IRepositoryWrapper repos
     [Route("{smChannelId}.ts")]
     [Route("{streamGroupProfileId}/{smChannelId}")]
     [Route("{streamGroupProfileId}/{smChannelId}.ts")]
-    public async Task<ActionResult> GetVideoStreamStream(int smChannelId, IChannelManager channelManager, int? streamGroupProfileId, CancellationToken cancellationToken)
+    public async Task<ActionResult> GetVideoStreamStream(int smChannelId, IStreamGroupService streamGroupService, IChannelManager channelManager, int? streamGroupProfileId, CancellationToken cancellationToken)
     {
         SMChannel? smChannel = repositoryWrapper.SMChannel.GetSMChannel(smChannelId);
         if (smChannel == null)
@@ -29,27 +26,27 @@ public class VsController(ILogger<VsController> logger, IRepositoryWrapper repos
             return NotFound();
         }
 
-        StreamGroupProfile? streamGroupProfile = await repositoryWrapper.StreamGroupProfile.GetStreamGroupProfileAsync(streamGroupProfileId);
-        if (streamGroupProfile == null)
+        int? sgId = await streamGroupService.GetDefaultSGIdAsync().ConfigureAwait(false);
+        if (sgId == null)
         {
-            logger.LogInformation("GetVideoStreamStream streamGroupProfile not found for ChannelId {smChannelId} exiting", smChannelId);
+            logger.LogInformation("GetVideoStreamStream sgId not found for ChannelId {smChannelId} exiting", smChannelId);
             return NotFound();
         }
 
-        logger.LogInformation("GetVideoStreamStream request. SG Number {id} ChannelId {channelId}", streamGroupProfile.StreamGroupId, smChannelId);
+        logger.LogInformation("GetVideoStreamStream request. SG Number {id} ChannelId {channelId}", sgId, smChannelId);
 
         if (smChannel.SMStreams.Count == 0 || string.IsNullOrEmpty(smChannel.SMStreams.First().SMStream.Url))
         {
-            logger.LogInformation("GetVideoStreamStream request. SG Number {id} ChannelId {channelId} no streams", streamGroupProfile.StreamGroupId, smChannelId);
+            logger.LogInformation("GetVideoStreamStream request. SG Number {id} ChannelId {channelId} no streams", sgId, smChannelId);
             return new NotFoundResult();
         }
 
-        if (streamGroupProfile == null || streamGroupProfile?.CommandProfileName == "None")
-        {
-            logger.LogInformation("GetVideoStreamStream request streamGroupProfileId {streamGroupProfileId} ChannelId {channelId} proxy is none, sending redirect", streamGroupProfileId, smChannelId);
+        //if (streamGroupProfile == null || streamGroupProfile?.CommandProfileName == "None")
+        //{
+        //    logger.LogInformation("GetVideoStreamStream request streamGroupProfileId {streamGroupProfileId} ChannelId {channelId} proxy is none, sending redirect", streamGroupProfileId, smChannelId);
 
-            return Redirect(smChannel.SMStreams.First().SMStream.Url);
-        }
+        //    return Redirect(smChannel.SMStreams.First().SMStream.Url);
+        //}
 
         string? ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
 
@@ -59,17 +56,17 @@ public class VsController(ILogger<VsController> logger, IRepositoryWrapper repos
         string originalUrl = $"{request.Scheme}://{request.Host}{request.PathBase}{request.Path}{request.QueryString}";
         smChannelDto.StreamUrl = originalUrl;
         string uniqueRequestId = request.HttpContext.TraceIdentifier;
-        ClientStreamerConfiguration config = new(uniqueRequestId, smChannelDto, streamGroupProfile!.StreamGroupId, streamGroupProfile!.Id, Request.Headers.UserAgent.ToString(), ipAddress ?? "unknown", HttpContext.Response, cancellationToken);
+        IClientConfiguration config = clientConfigurationService.NewClientConfiguration(uniqueRequestId, smChannelDto, sgId.Value, 1, Request.Headers.UserAgent.ToString(), ipAddress ?? "unknown", HttpContext.Response, cancellationToken);
         Stream? stream = await channelManager.GetChannelStreamAsync(config, cancellationToken);
 
         HttpContext.Response.RegisterForDispose(new UnregisterClientOnDispose(channelManager, config));
         return stream != null ? new FileStreamResult(stream, "video/mp4") : StatusCode(StatusCodes.Status404NotFound);
     }
 
-    private class UnregisterClientOnDispose(IChannelManager channelManager, ClientStreamerConfiguration config) : IDisposable
+    private class UnregisterClientOnDispose(IChannelManager channelManager, IClientConfiguration config) : IDisposable
     {
         private readonly IChannelManager _channelManager = channelManager;
-        private readonly ClientStreamerConfiguration _config = config;
+        private readonly IClientConfiguration _config = config;
 
         public void Dispose()
         {

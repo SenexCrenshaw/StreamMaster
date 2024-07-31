@@ -1,28 +1,3 @@
-export interface OutputProfile
-{
-	APIName: string;
-	EnableChannelNumber: boolean;
-	EnableGroupTitle: boolean;
-	EnableIcon: boolean;
-	EnableId: boolean;
-	EPGId: string;
-	Group: string;
-	IsReadOnly: boolean;
-	Name: string;
-}
-export interface OutputProfileDto
-{
-	APIName: string;
-	EnableChannelNumber: boolean;
-	EnableGroupTitle: boolean;
-	EnableIcon: boolean;
-	EnableId: boolean;
-	EPGId: string;
-	Group: string;
-	IsReadOnly: boolean;
-	Name: string;
-	ProfileName: string;
-}
 export interface QueryStringParameters
 {
 	JSONArgumentString?: string;
@@ -98,15 +73,22 @@ export interface StreamGroupSMChannelLink
 export interface Disposition
 {
 	AttachedPic: number;
+	Captions: number;
 	CleanEffects: number;
 	Comment: number;
 	Default: number;
+	Dependent: number;
+	Descriptions: number;
 	Dub: number;
 	Forced: number;
 	HearingImpaired: number;
 	Karaoke: number;
 	Lyrics: number;
+	Metadata: number;
+	Multilayer: number;
+	NonDiegetic: number;
 	Original: number;
+	StillImage: number;
 	TimedThumbnails: number;
 	VisualImpaired: number;
 }
@@ -122,9 +104,9 @@ export interface Format
 }
 export interface VideoInfo
 {
-	Format: Format;
+	Created: any;
+	JsonOutput: string;
 	StreamName: string;
-	Streams: VideoStreamInfo[];
 }
 export interface VideoStreamInfo
 {
@@ -149,11 +131,14 @@ export interface VideoStreamInfo
 	ColorTransfer: string;
 	DisplayAspectRatio: string;
 	Disposition: Disposition;
+	ExtradataSize: number;
 	FieldOrder: string;
+	FilmGrain: number;
 	HasBFrames: number;
 	Height: number;
 	Id: string;
 	Index: number;
+	InitialPadding: number;
 	IsAvc: string;
 	Level: number;
 	NalLengthSize: string;
@@ -166,7 +151,10 @@ export interface VideoStreamInfo
 	SampleRate: string;
 	StartPts: any;
 	StartTime: string;
+	Tags: any;
 	TimeBase: string;
+	TsId: string;
+	TsPacketSize: string;
 	Width: number;
 }
 export interface ChannelGroupDto
@@ -226,13 +214,6 @@ export interface IconFileDto
 	SMFileType: SMFileTypes;
 	Source: string;
 }
-export interface IdNameUrl
-{
-	Id: string;
-	IsCustomStream: boolean;
-	Name: string;
-	Url: string;
-}
 export interface M3UFileDto
 {
 	AutoUpdate: boolean;
@@ -268,14 +249,10 @@ export interface SettingDto
 	CacheIcons: boolean;
 	CleanURLs: boolean;
 	ClientUserAgent: string;
-	DefaultCommandProfileName: string;
 	DefaultIcon: string;
-	DefaultOutputProfileName: string;
 	DeviceID: string;
 	DummyRegex: string;
 	EnableSSL: boolean;
-	FFMPegExecutable: string;
-	FFProbeExecutable: string;
 	GlobalStreamLimit: number;
 	IsDebug: boolean;
 	MaxConcurrentDownloads: number;
@@ -289,6 +266,7 @@ export interface SettingDto
 	Release: string;
 	SDSettings: SDSettings;
 	ShowClientHostNames: boolean;
+	ShowIntros: number;
 	SourceClientUserAgent: string;
 	SSLCertPassword: string;
 	SSLCertPath: string;
@@ -301,7 +279,6 @@ export interface SMChannelDto
 {
 	APIName: string;
 	ChannelNumber: number;
-	CommandProfileName: string;
 	CurrentRank: number;
 	EPGId: string;
 	Group: string;
@@ -341,6 +318,16 @@ export interface SMStreamDto
 	StationId: string;
 	Url: string;
 }
+export interface SMStreamInfo
+{
+	ClientUserAgent?: string;
+	Id: string;
+	IsCustomStream: boolean;
+	M3UFileId: number;
+	Name: string;
+	SecondsIn?: number;
+	Url: string;
+}
 export interface StreamGroupDto
 {
 	AutoSetChannelNumbers: boolean;
@@ -350,12 +337,14 @@ export interface StreamGroupDto
 	HDHRLink: string;
 	Id: number;
 	IgnoreExistingChannelNumbers: boolean;
-	IsLoading: boolean;
 	IsReadOnly: boolean;
+	IsSystem: boolean;
 	M3ULink: string;
 	Name: string;
 	ShortEPGLink: string;
 	ShortM3ULink: string;
+	ShowIntros: number;
+	SMChannels: StreamGroupSMChannelLink[];
 	StartingChannelNumber: number;
 	StreamGroupProfiles: StreamGroupProfileDto[];
 	XMLLink: string;
@@ -383,6 +372,31 @@ export interface HLSSettings
 	HLSSegmentCount: number;
 	HLSSegmentDurationInSeconds: number;
 	HLSTSReadTimeOutInSeconds: number;
+}
+export interface OutputProfile
+{
+	APIName: string;
+	EnableChannelNumber: boolean;
+	EnableGroupTitle: boolean;
+	EnableIcon: boolean;
+	EnableId: boolean;
+	EPGId: string;
+	Group: string;
+	IsReadOnly: boolean;
+	Name: string;
+}
+export interface OutputProfileDto
+{
+	APIName: string;
+	EnableChannelNumber: boolean;
+	EnableGroupTitle: boolean;
+	EnableIcon: boolean;
+	EnableId: boolean;
+	EPGId: string;
+	Group: string;
+	IsReadOnly: boolean;
+	Name: string;
+	ProfileName: string;
 }
 export interface SDSettings
 {
@@ -682,9 +696,6 @@ export interface MoveToNextStreamRequest
 {
 	SMChannelId: number;
 }
-export interface GetDefaultStreamGroupProfileIdRequest
-{
-}
 export interface GetPagedStreamGroupsRequest
 {
 	Parameters: QueryStringParameters;
@@ -760,6 +771,9 @@ export interface RemoveSMChannelFromStreamGroupRequest
 {
 	SMChannelId: number;
 	StreamGroupId: number;
+}
+export interface GetChannelDistributorsRequest
+{
 }
 export interface GetChannelStreamingStatisticsRequest
 {
@@ -860,10 +874,6 @@ export interface GetPagedSMChannelsRequest
 }
 export interface GetSMChannelNamesRequest
 {
-}
-export interface GetVideoInfoFromIdRequest
-{
-	SMChannelId: number;
 }
 export interface AutoSetEPGFromParametersRequest
 {
@@ -1000,7 +1010,6 @@ export interface ToggleSMChannelVisibleByParametersRequest
 export interface UpdateSMChannelRequest
 {
 	ChannelNumber?: number;
-	CommandProfileName?: string;
 	EPGId?: string;
 	Group?: string;
 	Id: number;
@@ -1059,6 +1068,7 @@ export interface UpdateSettingParameters
 	PrettyEPG?: boolean;
 	SDSettings?: SDSettingsRequest;
 	ShowClientHostNames?: boolean;
+	ShowIntros?: number;
 	SSLCertPassword?: string;
 	SSLCertPath?: string;
 	StreamingClientUserAgent?: string;
@@ -1133,12 +1143,6 @@ export interface RemoveStationRequest
 export interface SetStationsRequest
 {
 	Requests: StationRequest[];
-}
-export interface GetCommandProfileRequest
-{
-	CommandProfileName: string;
-	StreamGroupId: number;
-	StreamGroupProfileId: number;
 }
 export interface GetCommandProfilesRequest
 {
@@ -1336,7 +1340,10 @@ export interface GetCustomPlayListRequest
 export interface GetCustomPlayListsRequest
 {
 }
-export interface ScanForCustomPlayListsRequest
+export interface GetIntroPlayListsRequest
+{
+}
+export interface ScanForCustomRequest
 {
 }
 export interface GetChannelGroupsFromSMChannelsRequest

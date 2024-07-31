@@ -17,8 +17,66 @@ public class CommandProfileDto : CommandProfile
     public string ProfileName { get; set; } = "";
 }
 
-
-public class CommandProfileList
+public class CommandProfiles
 {
-    public Dictionary<string, CommandProfile> CommandProfiles { get; set; } = [];
+    public Dictionary<string, CommandProfile> Profiles { get; set; } = [];
+    public CommandProfile? GetProfile(string CommandProfileName)
+    {
+        return Profiles.TryGetValue(CommandProfileName, out CommandProfile? existingProfile)
+            ? existingProfile
+            : null;
+    }
+
+    public CommandProfileDto GetProfileDto(string CommandProfileName)
+    {
+        return GetDefaultProfileDto(CommandProfileName);
+    }
+
+    public CommandProfileDto GetDefaultProfileDto(string defaultName = "Default")
+    {
+
+        CommandProfile? defaultProfile = GetProfile(defaultName);
+        return defaultProfile == null
+            ? throw new Exception($"Command Profile {defaultName} not found")
+            : GetProfileDtoFromProfile(defaultProfile, defaultName);
+    }
+
+    public CommandProfileDto GetProfileDtoFromProfile(CommandProfile commandProfile, string ProfileName)
+    {
+        return new CommandProfileDto
+        {
+            Command = commandProfile.Command,
+            ProfileName = ProfileName,
+            IsReadOnly = commandProfile.IsReadOnly,
+            Parameters = commandProfile.Parameters,
+        };
+    }
+
+    public List<CommandProfileDto> GetProfilesDto()
+    {
+        List<CommandProfileDto> ret = [];
+
+        foreach (string key in Profiles.Keys)
+        {
+            if (Profiles.TryGetValue(key, out CommandProfile? profile))
+            {
+                ret.Add(GetProfileDtoFromProfile(profile, key));
+            }
+        }
+        return ret;
+    }
+
+    public List<CommandProfile> GetProfiles()
+    {
+        List<CommandProfile> ret = [];
+
+        foreach (string key in Profiles.Keys)
+        {
+            if (Profiles.TryGetValue(key, out CommandProfile? profile))
+            {
+                ret.Add(profile);
+            }
+        }
+        return ret;
+    }
 }

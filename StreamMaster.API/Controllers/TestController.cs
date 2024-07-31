@@ -26,6 +26,8 @@ public class TestController(IBackgroundTaskQueue backgroundTaskQueue) : ApiContr
         return Ok();
     }
 
+
+
     [HttpPut]
     [Route("[action]")]
     public async Task<IActionResult> SetSystemReady(SetIsSystemReadyRequest request)

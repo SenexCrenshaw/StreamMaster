@@ -1,6 +1,4 @@
-﻿using StreamMaster.Application.Interfaces;
-using StreamMaster.Domain.Configuration;
-using StreamMaster.Domain.Crypto;
+﻿using StreamMaster.Domain.Crypto;
 using StreamMaster.Streams.Domain.Args;
 
 using System.Diagnostics;
@@ -100,7 +98,7 @@ namespace StreamMaster.Streams.Streams
                 string args = hlssettings.HLSFFMPEGOptions;
                 if (channelStatus.SMStreamInfo.Url.Contains("://"))
                 {
-                    string clientUserAgent = !string.IsNullOrEmpty(channelStatus.ClientUserAgent) ? channelStatus.ClientUserAgent : settings.SourceClientUserAgent;
+                    string clientUserAgent = !string.IsNullOrEmpty(channelStatus.SMStreamInfo.ClientUserAgent) ? channelStatus.SMStreamInfo.ClientUserAgent : settings.SourceClientUserAgent;
                     args += $" -user_agent \"{clientUserAgent}\"";
                 }
 
@@ -178,7 +176,7 @@ namespace StreamMaster.Streams.Streams
                     Directory.CreateDirectory(logDir);
                 }
 
-                string logFileName = $"{ChannelStatus.SMStreamInfo?.Name.ToUrlSafeString() ?? "NA"}_error.log";
+                string logFileName = $"{ChannelStatus.SMStreamInfo?.Name.ToCleanFileString() ?? "NA"}_error.log";
                 string logFilePath = Path.Combine(logDir, logFileName);
 
                 using StreamWriter writer = new(logFilePath, false);

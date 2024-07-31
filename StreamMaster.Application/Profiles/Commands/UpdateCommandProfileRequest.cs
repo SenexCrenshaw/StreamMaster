@@ -7,22 +7,22 @@ public record UpdateCommandProfileRequest(string ProfileName, string? NewProfile
 
 public class UpdateVideoProfileRequestHandler(
     ILogger<UpdateCommandProfileRequest> Logger,
-    IOptionsMonitor<CommandProfileList> intProfileSettings,
+    IOptionsMonitor<CommandProfiles> intProfileSettings,
     IDataRefreshService dataRefreshService
     ) : IRequestHandler<UpdateCommandProfileRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(UpdateCommandProfileRequest request, CancellationToken cancellationToken)
     {
-        if (!intProfileSettings.CurrentValue.CommandProfiles.ContainsKey(request.ProfileName))
+        if (!intProfileSettings.CurrentValue.Profiles.ContainsKey(request.ProfileName))
         {
             return APIResponse.ErrorWithMessage($"CommandProfile '" + request.ProfileName + "' doesnt exist"); ;
         }
 
         if (!string.IsNullOrEmpty(request.NewProfileName))
         {
-            CommandProfileList profileSettings = intProfileSettings.CurrentValue;
+            CommandProfiles profileSettings = intProfileSettings.CurrentValue;
 
-            List<string> badNames = profileSettings.CommandProfiles
+            List<string> badNames = profileSettings.Profiles
                 .Where(kvp => kvp.Value.IsReadOnly)
                 .Select(kvp => kvp.Key)
                 .ToList();
@@ -35,7 +35,7 @@ public class UpdateVideoProfileRequestHandler(
 
         List<FieldData> fields = [];
 
-        if (intProfileSettings.CurrentValue.CommandProfiles.TryGetValue(request.ProfileName, out CommandProfile? existingProfile))
+        if (intProfileSettings.CurrentValue.Profiles.TryGetValue(request.ProfileName, out CommandProfile? existingProfile))
         {
 
             if (request.Command != null && existingProfile.Command != request.Command)
@@ -52,8 +52,8 @@ public class UpdateVideoProfileRequestHandler(
                 if (request.NewProfileName != null)
                 {
                     nameChanged = true;
-                    _ = intProfileSettings.CurrentValue.CommandProfiles.Remove(request.ProfileName);
-                    intProfileSettings.CurrentValue.CommandProfiles.Add(request.NewProfileName, existingProfile);
+                    _ = intProfileSettings.CurrentValue.Profiles.Remove(request.ProfileName);
+                    intProfileSettings.CurrentValue.Profiles.Add(request.NewProfileName, existingProfile);
 
                 }
                 Logger.LogInformation("UpdateVideoProfileRequest");

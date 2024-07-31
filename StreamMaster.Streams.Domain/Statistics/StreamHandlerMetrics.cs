@@ -1,6 +1,6 @@
 ﻿namespace StreamMaster.Streams.Domain.Statistics;
 
-public class StreamHandlerMetrics
+public class StreamHandlerMetrics : IStreamHandlerMetrics
 {
     public long BytesRead { get; set; }
     public long BytesWritten { get; set; }

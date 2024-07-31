@@ -1,28 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
-
 using StreamMaster.Application.StreamGroups.Commands;
 using StreamMaster.Application.StreamGroups.Queries;
 
 namespace StreamMaster.Application.StreamGroups.Controllers
 {
     public partial class StreamGroupsController(ILogger<StreamGroupsController> _logger) : ApiControllerBase, IStreamGroupsController
-    {
-
-        [HttpGet]
-        [Route("[action]")]
-        public async Task<ActionResult<StreamGroupProfile>> GetDefaultStreamGroupProfileId()
-        {
-            try
-            {
-                DataResponse<StreamGroupProfile> ret = await Sender.Send(new GetDefaultStreamGroupProfileIdRequest()).ConfigureAwait(false);
-                return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetDefaultStreamGroupProfileId.", statusCode: 500) : Ok(ret.Data);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "An unexpected error occurred while processing the request to get GetDefaultStreamGroupProfileId.");
-                return Problem(detail: "An unexpected error occurred. Please try again later.", statusCode: 500);
-            }
-        }
+    {        
 
         [HttpGet]
         [Route("[action]")]
@@ -38,8 +21,8 @@ namespace StreamMaster.Application.StreamGroups.Controllers
         {
             try
             {
-                DataResponse<List<StreamGroupProfile>> ret = await Sender.Send(new GetStreamGroupProfilesRequest()).ConfigureAwait(false);
-                return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetStreamGroupProfiles.", statusCode: 500) : Ok(ret.Data);
+            DataResponse<List<StreamGroupProfile>> ret = await Sender.Send(new GetStreamGroupProfilesRequest()).ConfigureAwait(false);
+             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetStreamGroupProfiles.", statusCode: 500) : Ok(ret.Data);
             }
             catch (Exception ex)
             {
@@ -54,8 +37,8 @@ namespace StreamMaster.Application.StreamGroups.Controllers
         {
             try
             {
-                DataResponse<StreamGroupDto> ret = await Sender.Send(request).ConfigureAwait(false);
-                return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetStreamGroup.", statusCode: 500) : Ok(ret.Data);
+            DataResponse<StreamGroupDto> ret = await Sender.Send(request).ConfigureAwait(false);
+             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetStreamGroup.", statusCode: 500) : Ok(ret.Data);
             }
             catch (Exception ex)
             {
@@ -70,8 +53,8 @@ namespace StreamMaster.Application.StreamGroups.Controllers
         {
             try
             {
-                DataResponse<List<StreamGroupDto>> ret = await Sender.Send(new GetStreamGroupsRequest()).ConfigureAwait(false);
-                return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetStreamGroups.", statusCode: 500) : Ok(ret.Data);
+            DataResponse<List<StreamGroupDto>> ret = await Sender.Send(new GetStreamGroupsRequest()).ConfigureAwait(false);
+             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetStreamGroups.", statusCode: 500) : Ok(ret.Data);
             }
             catch (Exception ex)
             {
@@ -135,12 +118,6 @@ namespace StreamMaster.Application.Hubs
 {
     public partial class StreamMasterHub : IStreamGroupsHub
     {
-        public async Task<StreamGroupProfile> GetDefaultStreamGroupProfileId()
-        {
-            DataResponse<StreamGroupProfile> ret = await Sender.Send(new GetDefaultStreamGroupProfileIdRequest()).ConfigureAwait(false);
-            return ret.Data;
-        }
-
         public async Task<PagedResponse<StreamGroupDto>> GetPagedStreamGroups(QueryStringParameters Parameters)
         {
             PagedResponse<StreamGroupDto> ret = await Sender.Send(new GetPagedStreamGroupsRequest(Parameters)).ConfigureAwait(false);
@@ -149,19 +126,19 @@ namespace StreamMaster.Application.Hubs
 
         public async Task<List<StreamGroupProfile>> GetStreamGroupProfiles()
         {
-            DataResponse<List<StreamGroupProfile>> ret = await Sender.Send(new GetStreamGroupProfilesRequest()).ConfigureAwait(false);
+             DataResponse<List<StreamGroupProfile>> ret = await Sender.Send(new GetStreamGroupProfilesRequest()).ConfigureAwait(false);
             return ret.Data;
         }
 
         public async Task<StreamGroupDto> GetStreamGroup(GetStreamGroupRequest request)
         {
-            DataResponse<StreamGroupDto> ret = await Sender.Send(request).ConfigureAwait(false);
+             DataResponse<StreamGroupDto> ret = await Sender.Send(request).ConfigureAwait(false);
             return ret.Data;
         }
 
         public async Task<List<StreamGroupDto>> GetStreamGroups()
         {
-            DataResponse<List<StreamGroupDto>> ret = await Sender.Send(new GetStreamGroupsRequest()).ConfigureAwait(false);
+             DataResponse<List<StreamGroupDto>> ret = await Sender.Send(new GetStreamGroupsRequest()).ConfigureAwait(false);
             return ret.Data;
         }
 

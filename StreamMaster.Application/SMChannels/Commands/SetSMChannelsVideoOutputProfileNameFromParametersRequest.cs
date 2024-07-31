@@ -8,14 +8,15 @@ internal class SetSMChannelsCommandProfileNameFromParametersRequestHandler(IRepo
 {
     public async Task<APIResponse> Handle(SetSMChannelsCommandProfileNameFromParametersRequest request, CancellationToken cancellationToken)
     {
-        APIResponse ret = await Repository.SMChannel.SetSMChannelsCommandProfileNameFromParameters(request.Parameters, request.CommandProfileName).ConfigureAwait(false);
-        if (ret.IsError)
-        {
-            await messageService.SendError($"Set Group failed {ret.Message}");
-            return ret;
-        }
-        await dataRefreshService.RefreshSMChannels().ConfigureAwait(false);
+        //APIResponse ret = await Repository.SMChannel.SetSMChannelsCommandProfileNameFromParameters(request.Parameters, request.CommandProfileName).ConfigureAwait(false);
+        //if (ret.IsError)
+        //{
+        //    await messageService.SendError($"Set Group failed {ret.Message}");
+        //    return ret;
+        //}
+        //await dataRefreshService.RefreshSMChannels().ConfigureAwait(false);
 
-        return ret;
+        //return ret;
+        return APIResponse.Success;
     }
 }

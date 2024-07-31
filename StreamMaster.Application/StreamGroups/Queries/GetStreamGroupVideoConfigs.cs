@@ -1,11 +1,13 @@
 ﻿using FluentValidation;
 
+
+
 namespace StreamMaster.Application.StreamGroups.Queries;
 
 
 [RequireAll]
 public record GetStreamGroupVideoConfigs(int StreamGroupId, int StreamGroupProfileId) : IRequest<(List<VideoStreamConfig> videoStreamConfigs, OutputProfile outputProfile)>;
-public class GetStreamGroupVideoConfigsHandler(ISender sender, ILogger<GetStreamGroupVideoConfigs> logger, IRepositoryWrapper Repository)
+public class GetStreamGroupVideoConfigsHandler(ISender sender, IProfileService profileService, ILogger<GetStreamGroupVideoConfigs> logger, IRepositoryWrapper Repository)
     : IRequestHandler<GetStreamGroupVideoConfigs, (List<VideoStreamConfig> videoStreamConfigs, OutputProfile outputProfile)>
 {
     [LogExecutionTimeAspect]
@@ -28,9 +30,10 @@ public class GetStreamGroupVideoConfigsHandler(ISender sender, ILogger<GetStream
             return new();
         }
 
-        StreamGroupProfile sgProfile = await Repository.StreamGroupProfile.GetStreamGroupProfileAsync(request.StreamGroupId, request.StreamGroupProfileId);
-        DataResponse<OutputProfileDto> profileRequest = await sender.Send(new GetOutputProfileRequest(sgProfile.OutputProfileName), cancellationToken);
-        OutputProfile profile = profileRequest == null ? SettingFiles.DefaultOutputProfileSetting.OutProfiles["Default"] : profileRequest.Data;
+        CommandProfileDto commandProfile = profileService.GetCommandProfile();
+
+        DataResponse<OutputProfileDto> profileRequest = await sender.Send(new GetOutputProfileRequest(commandProfile.ProfileName), cancellationToken);
+        OutputProfile profile = profileRequest == null ? SettingFiles.DefaultOutputProfileSetting.Profiles["Default"] : profileRequest.Data;
         List<VideoStreamConfig> videoStreamConfigs = [];
 
         logger.LogInformation("GetStreamGroupVideoConfigsHandler: Handling {Count} channels", smChannels.Count);
@@ -57,6 +60,4 @@ public class GetStreamGroupVideoConfigsHandler(ISender sender, ILogger<GetStream
         return (videoStreamConfigs, profile);
 
     }
-
-
 }

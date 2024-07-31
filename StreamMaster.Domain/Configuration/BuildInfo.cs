@@ -29,8 +29,6 @@ namespace StreamMaster.Domain.Configuration
             }
             _ = GetSettingFiles();
         }
-
-        public static string DefaultCommandProfileName => "Use SG";
         public static bool IsLinux => RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
         public static bool IsWindows => RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
         public static bool IsOSX => RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
@@ -138,7 +136,7 @@ namespace StreamMaster.Domain.Configuration
 
         public static readonly string SDEPGCacheFile = Path.Combine(SDJSONFolder, "epgCache.json");
         public static readonly string IconDefault = Path.Combine("images", "default.png");
-        public static readonly string FFMPEGDefaultOptions = "-hide_banner -loglevel error -i {streamUrl} -c copy -f mpegts pipe:1";
+
         public static readonly string LogFilePath = Path.Combine(LogFolder, "StreamMasterAPI.log");
 
         public static readonly string LoggingFileName = "logsettings.json";

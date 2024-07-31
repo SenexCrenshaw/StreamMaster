@@ -45,7 +45,7 @@ public class BroadcastService(
         //}
 
         //logger.LogInformation("GetStreamHandlers: {GetStreamHandlers}", streamManager.GetStreamHandlers().Count);
-        //foreach (IClientStreamerConfiguration clientStreamerConfiguration in clientStreamer.GetAllClientStreamerConfigurations)
+        //foreach (IClientConfiguration clientStreamerConfiguration in clientStreamer.GetAllClientStreamerConfigurations)
         //{
         //    printDebug("Client: {0} {1}", clientStreamerConfiguration.SMChannel.ProfileName, clientStreamerConfiguration.ClientStream?.Id ?? Guid.Empty);
         //}

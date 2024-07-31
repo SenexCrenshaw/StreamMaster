@@ -49,7 +49,6 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, ISende
 
     private async void SetStreamGroupLinks(StreamGroupDto streamGroupDto, string Url)
     {
-
         Setting Settings = intSettings.CurrentValue;
         StreamGroup? sg = Repository.StreamGroup.GetQuery().FirstOrDefault(a => a.Id == streamGroupDto.Id);
         if (sg == null)
@@ -59,8 +58,6 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, ISende
 
         if (streamGroupDto.StreamGroupProfiles.Count > 0)
         {
-
-
             foreach (StreamGroupProfileDto sgProfile in streamGroupDto.StreamGroupProfiles)
             {
                 string? EncodedString = await sender.Send(new EncodeStreamGroupIdProfileId(sg.Id, sgProfile.Id));
@@ -80,7 +77,6 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, ISende
 
             //defaultProfile ??= streamGroupDto.StreamGroupProfiles.OrderBy(a => a.Id).FirstOrDefault();
 
-
             if (defaultProfile != null)
             {
                 //streamGroupDto.ShortM3ULink = defaultProfile.ShortM3ULink;
@@ -90,8 +86,6 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, ISende
                 streamGroupDto.HDHRLink = defaultProfile.HDHRLink;
             }
         }
-
-
     }
 
     public async Task<StreamGroupDto?> GetStreamGroupByName(string Name)
@@ -205,7 +199,6 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, ISende
         {
             streamGroup.GroupKey = GroupKey;
         }
-
 
         if (!string.IsNullOrEmpty(DeviceID))
         {

@@ -2,15 +2,14 @@ import { combineReducers } from 'redux';
 import currentSettingRequest from '@lib/redux/hooks/currentSettingRequest';
 import filters from '@lib/redux/hooks/filters';
 import GetAvailableCountriesReducer from '@lib/smAPI/SchedulesDirect/GetAvailableCountriesSlice';
+import GetChannelDistributorsReducer from '@lib/smAPI/Statistics/GetChannelDistributorsSlice';
 import GetChannelGroupsReducer from '@lib/smAPI/ChannelGroups/GetChannelGroupsSlice';
 import GetChannelGroupsFromSMChannelsReducer from '@lib/smAPI/ChannelGroups/GetChannelGroupsFromSMChannelsSlice';
 import GetChannelStreamingStatisticsReducer from '@lib/smAPI/Statistics/GetChannelStreamingStatisticsSlice';
 import GetClientStreamingStatisticsReducer from '@lib/smAPI/Statistics/GetClientStreamingStatisticsSlice';
-import GetCommandProfileReducer from '@lib/smAPI/Profiles/GetCommandProfileSlice';
 import GetCommandProfilesReducer from '@lib/smAPI/Profiles/GetCommandProfilesSlice';
-import GetCustomPlayListReducer from '@lib/smAPI/CustomPlayLists/GetCustomPlayListSlice';
-import GetCustomPlayListsReducer from '@lib/smAPI/CustomPlayLists/GetCustomPlayListsSlice';
-import GetDefaultStreamGroupProfileIdReducer from '@lib/smAPI/StreamGroups/GetDefaultStreamGroupProfileIdSlice';
+import GetCustomPlayListReducer from '@lib/smAPI/Custom/GetCustomPlayListSlice';
+import GetCustomPlayListsReducer from '@lib/smAPI/Custom/GetCustomPlayListsSlice';
 import GetDownloadServiceStatusReducer from '@lib/smAPI/General/GetDownloadServiceStatusSlice';
 import GetEPGColorsReducer from '@lib/smAPI/EPG/GetEPGColorsSlice';
 import GetEPGFilePreviewByIdReducer from '@lib/smAPI/EPGFiles/GetEPGFilePreviewByIdSlice';
@@ -19,6 +18,7 @@ import GetEPGNextEPGNumberReducer from '@lib/smAPI/EPGFiles/GetEPGNextEPGNumberS
 import GetHeadendsByCountryPostalReducer from '@lib/smAPI/SchedulesDirect/GetHeadendsByCountryPostalSlice';
 import GetHeadendsToViewReducer from '@lib/smAPI/SchedulesDirect/GetHeadendsToViewSlice';
 import GetIconsReducer from '@lib/smAPI/Icons/GetIconsSlice';
+import GetIntroPlayListsReducer from '@lib/smAPI/Custom/GetIntroPlayListsSlice';
 import GetIsSystemReadyReducer from '@lib/smAPI/General/GetIsSystemReadySlice';
 import GetLineupPreviewChannelReducer from '@lib/smAPI/SchedulesDirect/GetLineupPreviewChannelSlice';
 import GetM3UFileNamesReducer from '@lib/smAPI/M3UFiles/GetM3UFileNamesSlice';
@@ -48,7 +48,6 @@ import GetSubScribedHeadendsReducer from '@lib/smAPI/SchedulesDirect/GetSubScrib
 import GetSubscribedLineupsReducer from '@lib/smAPI/SchedulesDirect/GetSubscribedLineupsSlice';
 import GetSystemStatusReducer from '@lib/smAPI/General/GetSystemStatusSlice';
 import GetTaskIsRunningReducer from '@lib/smAPI/General/GetTaskIsRunningSlice';
-import GetVideoInfoFromIdReducer from '@lib/smAPI/SMChannels/GetVideoInfoFromIdSlice';
 import GetVsReducer from '@lib/smAPI/Vs/GetVsSlice';
 import isTrue from '@lib/redux/hooks/isTrue';
 import loading from '@lib/redux/hooks/loading';
@@ -144,15 +143,14 @@ export const rootReducer = combineReducers({
   currentSettingRequest: currentSettingRequest,
   filters: persistReducer(filtersConfig, filters),
   GetAvailableCountries: GetAvailableCountriesReducer,
+  GetChannelDistributors: GetChannelDistributorsReducer,
   GetChannelGroups: GetChannelGroupsReducer,
   GetChannelGroupsFromSMChannels: GetChannelGroupsFromSMChannelsReducer,
   GetChannelStreamingStatistics: GetChannelStreamingStatisticsReducer,
   GetClientStreamingStatistics: GetClientStreamingStatisticsReducer,
-  GetCommandProfile: GetCommandProfileReducer,
   GetCommandProfiles: GetCommandProfilesReducer,
   GetCustomPlayList: GetCustomPlayListReducer,
   GetCustomPlayLists: GetCustomPlayListsReducer,
-  GetDefaultStreamGroupProfileId: GetDefaultStreamGroupProfileIdReducer,
   GetDownloadServiceStatus: GetDownloadServiceStatusReducer,
   GetEPGColors: GetEPGColorsReducer,
   GetEPGFilePreviewById: GetEPGFilePreviewByIdReducer,
@@ -161,6 +159,7 @@ export const rootReducer = combineReducers({
   GetHeadendsByCountryPostal: GetHeadendsByCountryPostalReducer,
   GetHeadendsToView: GetHeadendsToViewReducer,
   GetIcons: GetIconsReducer,
+  GetIntroPlayLists: GetIntroPlayListsReducer,
   GetIsSystemReady: GetIsSystemReadyReducer,
   GetLineupPreviewChannel: GetLineupPreviewChannelReducer,
   GetM3UFileNames: GetM3UFileNamesReducer,
@@ -190,7 +189,6 @@ export const rootReducer = combineReducers({
   GetSubscribedLineups: GetSubscribedLineupsReducer,
   GetSystemStatus: GetSystemStatusReducer,
   GetTaskIsRunning: GetTaskIsRunningReducer,
-  GetVideoInfoFromId: GetVideoInfoFromIdReducer,
   GetVs: GetVsReducer,
   isTrue: persistReducer(isTrueConfig, isTrue),
   loading: loading,

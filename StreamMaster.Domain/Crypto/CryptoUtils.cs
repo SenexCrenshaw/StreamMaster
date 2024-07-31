@@ -61,6 +61,15 @@
             return finalEncryptedText;
         }
 
+        public static string EncodeTwoValues(int streamGroupId, string streamId, string serverKey, string groupKey, int keySize = AesEncryption.DEFAULT_KEY_SIZE)
+        {
+            string plainText = $"{streamGroupId},{streamId}";
+            string groupEncryptedText = AesEncryption.Encrypt(plainText, groupKey, keySize);
+            string combinedText = $"{streamGroupId},{groupEncryptedText}";
+            string finalEncryptedText = AesEncryption.Encrypt(combinedText, serverKey, keySize);
+            return finalEncryptedText;
+        }
+
         /// <summary>
         /// Encodes a single integer value using the server key.
         /// </summary>

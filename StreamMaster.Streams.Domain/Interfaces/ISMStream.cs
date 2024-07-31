@@ -2,6 +2,6 @@
 {
     public interface ISMStream
     {
-        Task<(Stream? stream, int processId, ProxyStreamError? error)> HandleStream(IChannelStatus channelStatus, string clientUserAgent, CancellationToken cancellationToken);
+        Task<(Stream? stream, int processId, ProxyStreamError? error)> HandleStream(SMStreamInfo smStreamInfo, string clientUserAgent, CancellationToken cancellationToken);
     }
 }

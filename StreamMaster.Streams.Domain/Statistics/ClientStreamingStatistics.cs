@@ -5,7 +5,7 @@ namespace StreamMaster.Streams.Domain.Statistics;
 public class ClientStreamingStatistics : BPSStatistics
 {
 
-    public void SetStreamerConfiguration(ClientStreamerConfiguration StreamerConfiguration)
+    public void SetStreamerConfiguration(IClientConfiguration StreamerConfiguration)
     {
         ClientIPAddress = StreamerConfiguration.ClientIPAddress;
         ChannelName = StreamerConfiguration.SMChannel.Name;

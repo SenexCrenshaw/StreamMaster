@@ -54,7 +54,8 @@ public static class ConfigureServices
             Assembly.Load("StreamMaster.Domain"),
             Assembly.Load("StreamMaster.Application"),
             Assembly.Load("StreamMaster.Infrastructure"),
-            Assembly.Load("StreamMaster.Streams")
+            Assembly.Load("StreamMaster.Streams"),
+             Assembly.Load("StreamMaster.Streams.Domain")
         );
 
         _ = services.AddMediatR(cfg =>
@@ -63,7 +64,8 @@ public static class ConfigureServices
                 Assembly.Load("StreamMaster.Domain"),
                 Assembly.Load("StreamMaster.Application"),
                 Assembly.Load("StreamMaster.Infrastructure"),
-                Assembly.Load("StreamMaster.Streams")
+                Assembly.Load("StreamMaster.Streams"),
+                 Assembly.Load("StreamMaster.Streams.Domain")
             );
         });
         return services;

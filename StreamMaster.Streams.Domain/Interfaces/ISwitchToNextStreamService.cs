@@ -2,6 +2,6 @@
 {
     public interface ISwitchToNextStreamService
     {
-        Task<bool> SetNextStreamAsync(IM3U8ChannelStatus ChannelStatus, string? overrideSMStreamId = null);
+        Task<bool> SetNextStreamAsync(IStreamStatus ChannelStatus, string? overrideSMStreamId = null);
     }
 }

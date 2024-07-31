@@ -25,6 +25,7 @@ public class UpdateSettingParameters
     public string? FFProbeExecutable { get; set; }
     public int? GlobalStreamLimit { get; set; }
     public bool? PrettyEPG { get; set; }
+    public int? ShowIntros { get; set; }
     public int? MaxConnectRetry { get; set; }
     public int? MaxConnectRetryTimeMS { get; set; }
     public string? SSLCertPassword { get; set; }
@@ -251,9 +252,16 @@ public partial class UpdateSettingRequestHandler(
         //    currentSetting.VideoStreamAlwaysUseEPGLogo = request.Parameters.VideoStreamAlwaysUseEPGLogo.Value;
         //}
 
+
+
         if (request.Parameters.PrettyEPG.HasValue)
         {
             currentSetting.PrettyEPG = request.Parameters.PrettyEPG.Value;
+        }
+
+        if (request.Parameters.ShowIntros.HasValue)
+        {
+            currentSetting.ShowIntros = request.Parameters.ShowIntros.Value;
         }
 
         //if (request.Parameters.M3UIgnoreEmptyEPGID != null)

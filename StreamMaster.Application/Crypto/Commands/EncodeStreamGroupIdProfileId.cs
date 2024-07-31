@@ -5,7 +5,7 @@ namespace StreamMaster.Application.Crypto.Commands;
 [RequireAll]
 public record EncodeStreamGroupIdProfileId(int StreamGroupId, int StreamGroupProfileId)
     : IRequest<string?>;
-public class EncodeStreamGroupIdProfileIdHandler(IRepositoryWrapper repositoryWrapper, ISender sender, IOptionsMonitor<Setting> intSettings)
+public class EncodeStreamGroupIdProfileIdHandler(IRepositoryWrapper repositoryWrapper, IOptionsMonitor<Setting> intSettings)
     : IRequestHandler<EncodeStreamGroupIdProfileId, string?>
 {
 

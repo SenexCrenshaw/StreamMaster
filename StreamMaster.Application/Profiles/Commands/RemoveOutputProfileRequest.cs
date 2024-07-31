@@ -13,7 +13,7 @@ public class RemoveOutputProfileRequestHandler(IOptionsMonitor<OutputProfiles> i
     {
         OutputProfiles profileSettings = intProfileSettings.CurrentValue;
 
-        List<string> badNames = profileSettings.OutProfiles
+        List<string> badNames = profileSettings.Profiles
             .Where(kvp => kvp.Value.IsReadOnly)
             .Select(kvp => kvp.Key)
             .ToList();
@@ -24,9 +24,9 @@ public class RemoveOutputProfileRequestHandler(IOptionsMonitor<OutputProfiles> i
             return APIResponse.ErrorWithMessage($"Cannot use name {request.Name}");
 
         }
-        if (profileSettings.OutProfiles.TryGetValue(request.Name, out OutputProfile? profile))
+        if (profileSettings.Profiles.TryGetValue(request.Name, out OutputProfile? profile))
         {
-            _ = profileSettings.OutProfiles.Remove(request.Name);
+            _ = profileSettings.Profiles.Remove(request.Name);
 
             Logger.LogInformation("RemoveFileProfileRequest");
 

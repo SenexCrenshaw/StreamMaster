@@ -7,14 +7,9 @@ using System.Text.Json.Serialization;
 
 namespace StreamMaster.Domain.Models;
 
-public class StreamGroup : BaseEntity
+public class StreamGroupBase : BaseEntity
 {
-    public static string APIName => "StreamGroups";
-
-    public required string DeviceID { get; set; } = string.Empty;
-    public List<StreamGroupChannelGroup> ChannelGroups { get; set; } = [];
-    public List<StreamGroupProfile> StreamGroupProfiles { get; set; } = [];
-
+    public string DeviceID { get; set; } = string.Empty;
 
     [Ignore]
     [JsonIgnore]
@@ -22,12 +17,17 @@ public class StreamGroup : BaseEntity
     public ICollection<StreamGroupSMChannelLink> SMChannels { get; set; } = [];
 
     public bool IsReadOnly { get; set; } = false;
-
+    public int ShowIntros { get; set; } = 0; // 0: None 1: First Time 2: Always
     public bool IsSystem { get; set; } = false;
 
     [Column(TypeName = "citext")]
-    public required string Name { get; set; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
 
-    public required string GroupKey { get; set; } = string.Empty;
-
+    public string GroupKey { get; set; } = string.Empty;
+}
+public class StreamGroup : StreamGroupBase
+{
+    public static string APIName => "StreamGroups";
+    public List<StreamGroupChannelGroup> ChannelGroups { get; set; } = [];
+    public List<StreamGroupProfile> StreamGroupProfiles { get; set; } = [];
 }

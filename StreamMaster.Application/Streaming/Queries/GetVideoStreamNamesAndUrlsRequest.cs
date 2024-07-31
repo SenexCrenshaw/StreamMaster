@@ -7,25 +7,25 @@
 
 //[SMAPI]
 //[TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-//public record GetVideoStreamNamesAndUrlsRequest() : IRequest<DataResponse<List<IdNameUrl>>>;
+//public record GetVideoStreamNamesAndUrlsRequest() : IRequest<DataResponse<List<SMStreamInfo>>>;
 
-//internal class GetVideoStreamNamesAndUrlsHandler(IOptionsMonitor<HLSSettings> intHLSettings,ISender sender, IOptionsMonitor<Setting> intSettings, IHttpContextAccessor httpContextAccessor, IRepositoryWrapper Repositorywrapper) : IRequestHandler<GetVideoStreamNamesAndUrlsRequest, DataResponse<List<IdNameUrl>>>
+//internal class GetVideoStreamNamesAndUrlsHandler(IOptionsMonitor<HLSSettings> intHLSettings,ISender sender, IOptionsMonitor<Setting> intSettings, IHttpContextAccessor httpContextAccessor, IRepositoryWrapper Repositorywrapper) : IRequestHandler<GetVideoStreamNamesAndUrlsRequest, DataResponse<List<SMStreamInfo>>>
 //{
 
-//    public async Task<DataResponse<List<IdNameUrl>>> Handle(GetVideoStreamNamesAndUrlsRequest request, CancellationToken cancellationToken)
+//    public async Task<DataResponse<List<SMStreamInfo>>> Handle(GetVideoStreamNamesAndUrlsRequest request, CancellationToken cancellationToken)
 //    {
 //        string url = httpContextAccessor.GetUrl();
 //        Setting settings = intSettings.CurrentValue;
 //        HLSSettings hlsSettings = intHLSettings.CurrentValue;
 
-//        List<IdNameUrl> matchedIds = await Repositorywrapper.SMChannel.GetQuery()
+//        List<SMStreamInfo> matchedIds = await Repositorywrapper.SMChannel.GetQuery()
 //            .Where(vs => !vs.IsHidden)
 //            .OrderBy(vs => vs.Name)
-//            .Select(vs => new IdNameUrl(vs.Id, vs.Name, GetVideoStreamUrl(vs, hlsSettings, settings, url)))
+//            .Select(vs => new SMStreamInfo(vs.Id, vs.Name, GetVideoStreamUrl(vs, hlsSettings, settings, url)))
 //            .ToListAsync(cancellationToken: cancellationToken);
 
 
-//        return DataResponse<List<IdNameUrl>>.Success(matchedIds);
+//        return DataResponse<List<SMStreamInfo>>.Success(matchedIds);
 
 //    }
 //    private  async Task<string> GetVideoStreamUrl(SMChannel SMChannel, HLSSettings hlsSettings, Setting settings, string url)
