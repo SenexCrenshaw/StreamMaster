@@ -1,4 +1,6 @@
-﻿using System.Diagnostics;
+﻿using StreamMaster.Domain.Extensions;
+
+using System.Diagnostics;
 using System.Text.Json;
 using System.Threading.Channels;
 
@@ -140,7 +142,7 @@ namespace StreamMaster.Streams.Plugins
                     // Serialize the document back to a JSON string with formatting
                     string formattedJsonString = JsonSerializer.Serialize(document.RootElement, jsonOptions);
 
-                    return new VideoInfo { JsonOutput = formattedJsonString, StreamName = key };
+                    return new VideoInfo { JsonOutput = formattedJsonString, StreamName = key, Created = SMDT.UtcNow };
 
                 }
                 finally

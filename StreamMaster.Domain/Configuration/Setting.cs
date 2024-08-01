@@ -33,7 +33,7 @@ public class BaseSettings
     public List<string> NameRegex { get; set; } = [];
     public bool PrettyEPG { get; set; } = false;
     public bool ShowClientHostNames { get; set; }
-    public int ShowIntros { get; set; } = 0; // 0: None 1: First Time 2: Always
+    public string ShowIntros { get; set; } = "None";
     public string SSLCertPassword { get; set; } = string.Empty;
     public string SSLCertPath { get; set; } = string.Empty;
     public string SourceClientUserAgent { get; set; } = "VLC/3.0.20-git LibVLC/3.0.20-git";

@@ -11,6 +11,7 @@ namespace StreamMaster.Streams.Domain.Interfaces
     {
         SMStreamInfo SMStreamInfo { get; }
         string SourceName { get; }
+
         event EventHandler<ChannelDirectorStopped> OnStoppedEvent;
         long GetChannelItemCount { get; }
         bool IsChannelEmpty();

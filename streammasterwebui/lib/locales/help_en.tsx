@@ -15,6 +15,7 @@ const help_en: help_enType = {
   BackupInterval: 'Backup Interval (hours)',
   CacheIcons: 'Cache Icons to the local disk to speed things up',
   CleanURLs: 'Remove URLs from being logged',
+  ShowIntros: 'Show Intros never, once at the beginning, or always',
   // ClientUserAgent: 'Client User Agent used for downloads, epg/m3u/icons/schedules direct',
   development: 'Development',
   DeviceID: 'HDHR Device ID and capability ID',

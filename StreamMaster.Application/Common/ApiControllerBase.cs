@@ -13,7 +13,10 @@ public abstract class ApiControllerBase : ControllerBase
     private IHubContext<StreamMasterHub, IStreamMasterHub> _hubContext = null!;
     private IRepositoryWrapper _repositoryWrapper = null!;
     private IStreamGroupService _streamGroupService = null!;
+    private ICryptoService _cryptoService = null!;
 
+    protected ICryptoService CryptoService =>
+     _cryptoService ??= HttpContext.RequestServices.GetRequiredService<ICryptoService>();
     protected IStreamGroupService StreamGroupService =>
         _streamGroupService ??= HttpContext.RequestServices.GetRequiredService<IStreamGroupService>();
 

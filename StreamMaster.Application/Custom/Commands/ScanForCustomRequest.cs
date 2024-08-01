@@ -46,7 +46,7 @@ public class ScanForCustomPlayListsRequestHandler(ILogger<ScanForCustomRequest> 
                 IsCustomStream = true,
                 Logo = customPlayList.Logo,
                 Url = "STREAMMASTER",
-                IsSystem=true,
+                IsSystem = true,
             };
             Repository.SMStream.Create(smStream);
             smStreamIdsToChannels.Add(id);
@@ -99,7 +99,7 @@ public class ScanForCustomPlayListsRequestHandler(ILogger<ScanForCustomRequest> 
 
                 SMStream newStream = new()
                 {
-                    Id = streamId + "-" + nfo.Movie.Title,
+                    Id = streamId,
                     EPGID = EPGHelper.CustomPlayListId + "-" + nfo.Movie.Title,
                     Name = nfo.Movie.Title,
                     M3UFileName = Path.GetFileName(nfo.VideoFileName),

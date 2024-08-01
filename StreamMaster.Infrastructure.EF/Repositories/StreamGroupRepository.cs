@@ -6,13 +6,13 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
-using StreamMaster.Application.Crypto.Commands;
+using StreamMaster.Application.Interfaces;
 using StreamMaster.Domain.API;
 using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Filtering;
 namespace StreamMaster.Infrastructure.EF.Repositories;
 
-public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, ISender sender, IRepositoryWrapper Repository, IRepositoryContext repositoryContext, IMapper mapper, IOptionsMonitor<Setting> intSettings, IHttpContextAccessor httpContextAccessor)
+public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, ISender sender, IRepositoryWrapper Repository, IRepositoryContext repositoryContext, IMapper mapper, IOptionsMonitor<Setting> intSettings, ICryptoService cryptoService, IHttpContextAccessor httpContextAccessor)
     : RepositoryBase<StreamGroup>(repositoryContext, logger), IStreamGroupRepository
 {
     public PagedResponse<StreamGroupDto> CreateEmptyPagedResponse()
@@ -60,7 +60,7 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, ISende
         {
             foreach (StreamGroupProfileDto sgProfile in streamGroupDto.StreamGroupProfiles)
             {
-                string? EncodedString = await sender.Send(new EncodeStreamGroupIdProfileId(sg.Id, sgProfile.Id));
+                string? EncodedString = await cryptoService.EncodeStreamGroupIdProfileId(sg.Id, sgProfile.Id);
                 if (EncodedString == null)
                 {
                     continue;

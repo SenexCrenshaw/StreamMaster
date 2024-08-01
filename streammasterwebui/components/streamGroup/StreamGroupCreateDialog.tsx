@@ -20,7 +20,7 @@ export const StreamGroupCreateDialog = ({ modal, zIndex }: StreamGroupCreateDial
   const defaultValues = useMemo(
     () =>
       ({
-        CommandProfileName: 'StreamMaster',
+        CommandProfileName: 'Default',
         GroupKey: generateKey(),
         Name: '',
         OutputProfileName: 'Default'

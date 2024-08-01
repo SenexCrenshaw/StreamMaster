@@ -24,7 +24,7 @@ public class CommandExecutor(ILogger<CommandExecutor> logger) : ICommandExecutor
             }
 
             string options = streamUrl.Contains("://")
-            ? $"{prefix} -user_agent \"{clientUserAgent}\" -i \"{streamUrl}\" -reconnect 1 -map 0:v -map 0:a? -map 0:s? {commandProfile.Parameters} -f mpegts pipe:1"
+            ? $"{prefix} -user_agent \"{clientUserAgent}\" -i \"{streamUrl}\" -reconnect 1 {commandProfile.Parameters} -f mpegts pipe:1"
             : $"{prefix} -i \"{streamUrl}\" {commandProfile.Parameters} -f mpegts pipe:1";
 
             using Process process = new();

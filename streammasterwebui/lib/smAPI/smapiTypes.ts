@@ -70,92 +70,12 @@ export interface StreamGroupSMChannelLink
 	StreamGroup: any;
 	StreamGroupId: number;
 }
-export interface Disposition
-{
-	AttachedPic: number;
-	Captions: number;
-	CleanEffects: number;
-	Comment: number;
-	Default: number;
-	Dependent: number;
-	Descriptions: number;
-	Dub: number;
-	Forced: number;
-	HearingImpaired: number;
-	Karaoke: number;
-	Lyrics: number;
-	Metadata: number;
-	Multilayer: number;
-	NonDiegetic: number;
-	Original: number;
-	StillImage: number;
-	TimedThumbnails: number;
-	VisualImpaired: number;
-}
-export interface Format
-{
-	Filename: string;
-	FormatLongName: string;
-	FormatName: string;
-	NbPrograms: number;
-	NbStreams: number;
-	ProbeScore: number;
-	StartTime: string;
-}
 export interface VideoInfo
 {
 	Created: any;
 	JsonOutput: string;
+	Key: string;
 	StreamName: string;
-}
-export interface VideoStreamInfo
-{
-	AvgFrameRate: string;
-	BitRate: string;
-	BitsPerRawSample: string;
-	BitsPerSample?: number;
-	ChannelLayout: string;
-	Channels?: number;
-	ChromaLocation: string;
-	ClosedCaptions: number;
-	CodecLongName: string;
-	CodecName: string;
-	CodecTag: string;
-	CodecTagString: string;
-	CodecType: string;
-	CodedHeight: number;
-	CodedWidth: number;
-	ColorPrimaries: string;
-	ColorRange: string;
-	ColorSpace: string;
-	ColorTransfer: string;
-	DisplayAspectRatio: string;
-	Disposition: Disposition;
-	ExtradataSize: number;
-	FieldOrder: string;
-	FilmGrain: number;
-	HasBFrames: number;
-	Height: number;
-	Id: string;
-	Index: number;
-	InitialPadding: number;
-	IsAvc: string;
-	Level: number;
-	NalLengthSize: string;
-	PixFmt: string;
-	Profile: string;
-	Refs: number;
-	RFrameRate: string;
-	SampleAspectRatio: string;
-	SampleFmt: string;
-	SampleRate: string;
-	StartPts: any;
-	StartTime: string;
-	Tags: any;
-	TimeBase: string;
-	TsId: string;
-	TsPacketSize: string;
-	Width: number;
 }
 export interface ChannelGroupDto
 {
@@ -249,10 +169,14 @@ export interface SettingDto
 	CacheIcons: boolean;
 	CleanURLs: boolean;
 	ClientUserAgent: string;
+	DefaultCommandProfileName: string;
 	DefaultIcon: string;
+	DefaultOutputProfileName: string;
 	DeviceID: string;
 	DummyRegex: string;
 	EnableSSL: boolean;
+	FFMPegExecutable: string;
+	FFProbeExecutable: string;
 	GlobalStreamLimit: number;
 	IsDebug: boolean;
 	MaxConcurrentDownloads: number;
@@ -266,7 +190,7 @@ export interface SettingDto
 	Release: string;
 	SDSettings: SDSettings;
 	ShowClientHostNames: boolean;
-	ShowIntros: number;
+	ShowIntros: string;
 	SourceClientUserAgent: string;
 	SSLCertPassword: string;
 	SSLCertPath: string;
@@ -1074,7 +998,7 @@ export interface UpdateSettingParameters
 	PrettyEPG?: boolean;
 	SDSettings?: SDSettingsRequest;
 	ShowClientHostNames?: boolean;
-	ShowIntros?: number;
+	ShowIntros?: string;
 	SSLCertPassword?: string;
 	SSLCertPath?: string;
 	StreamingClientUserAgent?: string;

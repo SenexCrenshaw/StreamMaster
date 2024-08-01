@@ -4,6 +4,7 @@ using MediatR;
 
 using Microsoft.AspNetCore.Http;
 
+using StreamMaster.Application.Interfaces;
 using StreamMaster.Domain.Configuration;
 using StreamMaster.Infrastructure.EF.PGSQL;
 using StreamMaster.Infrastructure.EF.Repositories;
@@ -26,6 +27,7 @@ public class RepositoryWrapper(
     IMapper mapper,
     IXmltv2Mxf xmltv2Mxf,
     IMessageService messageService,
+    ICryptoService cryptoService,
     IOptionsMonitor<Setting> intSettings,
     IOptionsMonitor<CommandProfiles> intProfileSettings,
     IJobStatusService jobStatusService,
@@ -92,7 +94,7 @@ public class RepositoryWrapper(
     {
         get
         {
-            _streamGroup ??= new StreamGroupRepository(StreamGroupRepositoryLogger, sender, this, repositoryContext, mapper, intSettings, httpContextAccessor);
+            _streamGroup ??= new StreamGroupRepository(StreamGroupRepositoryLogger, sender, this, repositoryContext, mapper, intSettings, cryptoService, httpContextAccessor);
             return _streamGroup;
         }
     }

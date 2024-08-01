@@ -11,11 +11,14 @@ public sealed class SwitchToNextStreamService(ILogger<SwitchToNextStreamService>
         ChannelStatus.OverrideSMStreamId = OverrideSMStreamId;
         Setting _settings = intSettings.CurrentValue;
 
-        if (_settings.ShowIntros > 0)
+
+        //if ( _settings.ShowIntros != "None" && _settings.ShowIntros != "None" && _settings.ShowIntros != "None")
+
+        if (_settings.ShowIntros != "None")
         {
             if (
-                (_settings.ShowIntros == 1 && ChannelStatus.IsFirst) ||
-                (_settings.ShowIntros == 2 && !ChannelStatus.PlayedIntro)
+                (_settings.ShowIntros == "Once" && ChannelStatus.IsFirst) ||
+                (_settings.ShowIntros == "Always" && !ChannelStatus.PlayedIntro)
                 )
             {
                 CustomStreamNfo? intro = introPlayListBuilder.GetRandomIntro(ChannelStatus.IsFirst ? null : ChannelStatus.IntroIndex);

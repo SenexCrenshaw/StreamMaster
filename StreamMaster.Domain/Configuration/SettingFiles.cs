@@ -29,24 +29,34 @@ public static class SettingFiles
     {
         Profiles = new Dictionary<string, CommandProfile>
     {
+
         {
             "Default",
+            new CommandProfile
+            {
+                Command="STREAMMASTER",
+                IsReadOnly = true
+            }
+        },{
+         "SMFFMPEG",
             new CommandProfile
             {
                 IsReadOnly = true,
                 Command = "ffmpeg",
                 Parameters = "-map 0:v -map 0:a? -map 0:s? -c:v libx264 -c:a ac3"
             }
-        },
+            },
         {
-            "StreamMaster",
-            new CommandProfile
-            {
-                IsReadOnly = true
+         "mkvToTs",
+            new CommandProfile{
+                IsReadOnly = true,
+                Command = "ffmpeg",
+                Parameters = "-map 0:v -map 0:a -map 0:a? -map 0:s? -c:v copy -c:a:0 copy -c:a:1 ac3 -c:s dvbsub"
             }
-        },
+            },
+
         {
-            "None",
+            "Redirect",
             new CommandProfile
             {
                 IsReadOnly = true

@@ -9,4 +9,6 @@ public class VideoStreamConfig : SMChannel
     public bool IsDummy { get; set; }
     public bool IsCustom => M3UFileId == EPGHelper.CustomPlayListId;
     public int FilePosition { get; set; }
+    public CommandProfileDto CommandProfile { get; set; } = new();
+    public OutputProfileDto OutputProfile { get; set; } = new();
 }

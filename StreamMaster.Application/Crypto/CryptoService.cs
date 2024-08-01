@@ -2,9 +2,10 @@
 
 namespace StreamMaster.Application.Crypto;
 
-public class CryptoService(IOptionsMonitor<Setting> intSettings, IStreamGroupService streamGroupService) : ICryptoService
+public class CryptoService(IOptionsMonitor<Setting> intSettings, IStreamGroupService streamGroupService)
+    : ICryptoService
 {
-    private async Task<(int? streamGroupId, string? groupKey, string? valuesEncryptedString)> GetGroupKeyAsync(string EncodedString)
+    private async Task<(int? streamGroupId, string? groupKey, string? valuesEncryptedString)> GetGroupKeyFromEncodeAsync(string EncodedString)
     {
         Setting settings = intSettings.CurrentValue;
         (int? streamGroupId, string? valuesEncryptedString) = CryptoUtils.DecodeStreamGroupId(EncodedString, settings.ServerKey);
@@ -16,9 +17,17 @@ public class CryptoService(IOptionsMonitor<Setting> intSettings, IStreamGroupSer
         StreamGroup? sg = await streamGroupService.GetStreamGroupFromIdAsync(streamGroupId.Value);
         return sg == null || string.IsNullOrEmpty(sg.GroupKey) ? (null, null, null) : (streamGroupId, sg.GroupKey, valuesEncryptedString);
     }
+
+    private async Task<string?> GetStreamGroupKeyFromId(int StreamGroupId)
+    {
+        StreamGroup? StreamGroup = StreamGroupId < 0
+            ? await streamGroupService.GetStreamGroupFromNameAsync("ALl")
+            : await streamGroupService.GetStreamGroupFromIdAsync(StreamGroupId);
+        return StreamGroup == null ? null : string.IsNullOrEmpty(StreamGroup.GroupKey) ? null : StreamGroup.GroupKey;
+    }
     public async Task<(int? StreamGroupId, int? StreamGroupProfileId, int? SMChannelId)> DecodeProfileIdSMChannelIdFromEncodedAsync(string EncodedString)
     {
-        (int? streamGroupId, string? groupKey, string? valuesEncryptedString) = await GetGroupKeyAsync(EncodedString);
+        (int? streamGroupId, string? groupKey, string? valuesEncryptedString) = await GetGroupKeyFromEncodeAsync(EncodedString);
         if (streamGroupId == null || groupKey == null || string.IsNullOrEmpty(valuesEncryptedString))
         {
             return (null, null, null);
@@ -39,7 +48,7 @@ public class CryptoService(IOptionsMonitor<Setting> intSettings, IStreamGroupSer
 
     public async Task<(int? StreamGroupId, string? SMStreamId)> DecodeStreamGroupIdStreamIdAsync(string EncodedString)
     {
-        (int? streamGroupId, string? groupKey, string? valuesEncryptedString) = await GetGroupKeyAsync(EncodedString);
+        (int? streamGroupId, string? groupKey, string? valuesEncryptedString) = await GetGroupKeyFromEncodeAsync(EncodedString);
         if (streamGroupId == null || groupKey == null || string.IsNullOrEmpty(valuesEncryptedString))
         {
             return (null, null);
@@ -52,7 +61,7 @@ public class CryptoService(IOptionsMonitor<Setting> intSettings, IStreamGroupSer
 
     public async Task<(int? StreamGroupId, int? SMChannelId)> DecodeStreamGroupIdChannelIdAsync(string EncodedString)
     {
-        (int? streamGroupId, string? groupKey, string? valuesEncryptedString) = await GetGroupKeyAsync(EncodedString);
+        (int? streamGroupId, string? groupKey, string? valuesEncryptedString) = await GetGroupKeyFromEncodeAsync(EncodedString);
         if (streamGroupId == null || groupKey == null || string.IsNullOrEmpty(valuesEncryptedString))
         {
             return (null, null);
@@ -126,44 +135,136 @@ public class CryptoService(IOptionsMonitor<Setting> intSettings, IStreamGroupSer
 
     public async Task<string?> EncodeStreamGroupIdStreamIdAsync(int StreamGroupId, string SMStreamId)
     {
-        StreamGroup? StreamGroup = StreamGroupId < 0
-            ? await streamGroupService.GetStreamGroupFromNameAsync("ALl")
-            : await streamGroupService.GetStreamGroupFromIdAsync(StreamGroupId);
-        if (StreamGroup == null)
-        {
-            return null;
-        }
 
-        if (string.IsNullOrEmpty(StreamGroup.GroupKey))
+        string? groupKey = await GetStreamGroupKeyFromId(StreamGroupId);
+        if (string.IsNullOrEmpty(groupKey))
         {
             return null;
         }
 
         Setting settings = intSettings.CurrentValue;
 
-        string encryptedString = CryptoUtils.EncodeTwoValues(StreamGroup.Id, SMStreamId, settings.ServerKey, StreamGroup.GroupKey);
+        string encryptedString = CryptoUtils.EncodeTwoValues(StreamGroupId, SMStreamId, settings.ServerKey, groupKey);
 
         return encryptedString;
     }
 
     public async Task<string?> EncodeStreamGroupIdChannelIdAsync(int StreamGroupId, int SMChannelId)
     {
-        StreamGroup? StreamGroup = StreamGroupId < 0
-            ? await streamGroupService.GetStreamGroupFromNameAsync("ALl")
-            : await streamGroupService.GetStreamGroupFromIdAsync(StreamGroupId);
-        if (StreamGroup == null)
-        {
-            return null;
-        }
-
-        if (string.IsNullOrEmpty(StreamGroup.GroupKey))
+        string? groupKey = await GetStreamGroupKeyFromId(StreamGroupId);
+        if (string.IsNullOrEmpty(groupKey))
         {
             return null;
         }
 
         Setting settings = intSettings.CurrentValue;
 
-        string encryptedString = CryptoUtils.EncodeTwoValues(StreamGroup.Id, SMChannelId, settings.ServerKey, StreamGroup.GroupKey);
+        string encryptedString = CryptoUtils.EncodeTwoValues(StreamGroupId, SMChannelId, settings.ServerKey, groupKey);
+
+        return encryptedString;
+    }
+
+    public async Task<(int? StreamGroupId, int? StreamGroupProfileId, int? SMChannelId)> DecodeStreamGroupIdProfileIdChannelId(string encodedString)
+    {
+        (int? streamGroupId, string? groupKey, string? valuesEncryptedString) = await GetGroupKeyFromEncodeAsync(encodedString);
+        if (streamGroupId == null || groupKey == null || string.IsNullOrEmpty(valuesEncryptedString))
+        {
+            return (null, null, null);
+        }
+
+        string decryptedTextWithGroupKey = AesEncryption.Decrypt(valuesEncryptedString, groupKey);
+        string[] values = decryptedTextWithGroupKey.Split(',');
+        if (values.Length == 3)
+        {
+            int streamGroupProfileId = int.Parse(values[1]);
+            int smChannelId = int.Parse(values[2]);
+            return (streamGroupId, streamGroupProfileId, smChannelId);
+        }
+
+        return (null, null, null);
+    }
+
+    public async Task<(int? StreamGroupId, int? StreamGroupProfileId, string? SMStreamId)> DecodeStreamGroupIdProfileIdStreamId(string encodedString)
+    {
+        (int? streamGroupId, string? groupKey, string? valuesEncryptedString) = await GetGroupKeyFromEncodeAsync(encodedString);
+        if (streamGroupId == null || groupKey == null || string.IsNullOrEmpty(valuesEncryptedString))
+        {
+            return (null, null, null);
+        }
+
+        string decryptedTextWithGroupKey = AesEncryption.Decrypt(valuesEncryptedString, groupKey);
+        string[] values = decryptedTextWithGroupKey.Split(',');
+        if (values.Length == 3)
+        {
+            int streamGroupProfileId = int.Parse(values[1]);
+            string smStreamId = values[2];
+            return (streamGroupId, streamGroupProfileId, smStreamId);
+        }
+
+        return (null, null, null);
+    }
+
+    public async Task<string?> EncodeStreamGroupIdProfileIdChannelId(int StreamGroupId, int StreamGroupProfileId, int SMChannelId)
+    {
+        string? groupKey = await GetStreamGroupKeyFromId(StreamGroupId);
+        if (string.IsNullOrEmpty(groupKey))
+        {
+            return null;
+        }
+
+        Setting settings = intSettings.CurrentValue;
+
+        string encryptedString = CryptoUtils.EncodeThreeValues(StreamGroupId, StreamGroupProfileId, SMChannelId, settings.ServerKey, groupKey);
+
+        return encryptedString;
+    }
+
+    public async Task<string?> EncodeStreamGroupIdProfileIdStreamId(int StreamGroupId, int StreamGroupProfileId, string SMStreamId)
+    {
+        string? groupKey = await GetStreamGroupKeyFromId(StreamGroupId);
+        if (string.IsNullOrEmpty(groupKey))
+        {
+            return null;
+        }
+
+        Setting settings = intSettings.CurrentValue;
+
+        string encryptedString = CryptoUtils.EncodeThreeValues(StreamGroupId, StreamGroupProfileId, SMStreamId, settings.ServerKey, groupKey);
+
+        return encryptedString;
+    }
+
+    public async Task<(int? StreamGroupId, int? StreamGroupProfileId)> DecodeStreamGroupIdProfileIdAsync(string encodedString)
+    {
+        (int? streamGroupId, string? groupKey, string? valuesEncryptedString) = await GetGroupKeyFromEncodeAsync(encodedString);
+        if (streamGroupId == null || groupKey == null || string.IsNullOrEmpty(valuesEncryptedString))
+        {
+            return (null, null);
+        }
+
+        string decryptedTextWithGroupKey = AesEncryption.Decrypt(valuesEncryptedString, groupKey);
+        string[] values = decryptedTextWithGroupKey.Split(',');
+        if (values.Length == 2)
+        {
+            int streamGroupProfileId = int.Parse(values[1]);
+            int smChannelId = int.Parse(values[2]);
+            return (streamGroupId, streamGroupProfileId);
+        }
+
+        return (null, null);
+    }
+
+    public async Task<string?> EncodeStreamGroupIdProfileId(int StreamGroupId, int StreamGroupProfileId)
+    {
+        string? groupKey = await GetStreamGroupKeyFromId(StreamGroupId);
+        if (string.IsNullOrEmpty(groupKey))
+        {
+            return null;
+        }
+
+        Setting settings = intSettings.CurrentValue;
+
+        string encryptedString = CryptoUtils.EncodeTwoValues(StreamGroupId, StreamGroupProfileId, settings.ServerKey, groupKey);
 
         return encryptedString;
     }

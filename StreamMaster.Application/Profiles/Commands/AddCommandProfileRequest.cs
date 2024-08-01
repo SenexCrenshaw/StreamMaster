@@ -27,8 +27,7 @@ public class AddCommandProfileRequestHandler(ILogger<AddCommandProfileRequest> L
         {
             Command = request.Command,
             Parameters = request.Parameters,
-            //Timeout = request.Timeout,
-            //IsM3U8 = request.IsM3U8
+
         };
         if (profileSettings.Profiles.TryGetValue(request.ProfileName, out _))
         {

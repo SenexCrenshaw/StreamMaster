@@ -87,15 +87,14 @@ public sealed class ChannelStatus : IntroStatus, IChannelStatus, IDisposable
     {
         Channel<byte[]> channel = ChannelHelper.GetChannel(IsCustom);
 
-
         sourceChannelDistributor.AddClientChannel(SMChannel.Id, channel.Writer);
 
-        if (!sourceChannelDistributor.SMStreamInfo.Id.StartsWith(IntroPlayListBuilder.IntroIDPrefix, StringComparison.InvariantCulture))
-        {
-            Channel<byte[]> channelVideoInfo = Channel.CreateBounded<byte[]>(new BoundedChannelOptions(200) { SingleReader = true, SingleWriter = true, FullMode = BoundedChannelFullMode.DropOldest });
-            sourceChannelDistributor.AddClientChannel("VideoInfo " + SMChannel.Id, channelVideoInfo.Writer);
-            VideoInfoService.SetSourceChannel(channelVideoInfo.Reader, Name);
-        }
+        //if (!sourceChannelDistributor.SMStreamInfo.Id.StartsWith(IntroPlayListBuilder.IntroIDPrefix, StringComparison.InvariantCulture))
+        //{
+        //    Channel<byte[]> channelVideoInfo = Channel.CreateBounded<byte[]>(new BoundedChannelOptions(200) { SingleReader = true, SingleWriter = true, FullMode = BoundedChannelFullMode.DropOldest });
+        //    sourceChannelDistributor.AddClientChannel("VideoInfo " + SMChannel.Id, channelVideoInfo.Writer);
+        //    VideoInfoService.SetSourceChannel(channelVideoInfo.Reader, Name);
+        //}
         //Dubcer.DubcerChannels(channel.Reader, channelMux.Writer, CancellationToken.None);
         ChannelDistributor.SetSourceChannel(channel.Reader, Name, CancellationToken.None);
     }

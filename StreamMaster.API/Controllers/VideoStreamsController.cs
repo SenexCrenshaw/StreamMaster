@@ -2,7 +2,6 @@
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-
 namespace StreamMaster.API.Controllers;
 
 public class VideoStreamsController(IChannelManager channelManager, IClientConfigurationService clientConfigurationService, IStreamGroupService streamGroupService, ICryptoService cryptoService, IMapper mapper, IRepositoryWrapper repositoryWrapper, ILogger<VideoStreamsController> logger)
@@ -17,9 +16,9 @@ public class VideoStreamsController(IChannelManager channelManager, IClientConfi
     [Route("stream/{encodedIds}/{name}")]
     public async Task<ActionResult> GetVideoStreamStream(string encodedIds, string name, CancellationToken cancellationToken)
     {
-        (int? streamGroupId, int? smChannelId) = await cryptoService.DecodeStreamGroupIdChannelIdAsync(encodedIds);
+        (int? streamGroupId, int? streamGroupProfileId, int? smChannelId) = await cryptoService.DecodeProfileIdSMChannelIdFromEncodedAsync(encodedIds);
 
-        if (!streamGroupId.HasValue || !smChannelId.HasValue)
+        if (!streamGroupId.HasValue || !streamGroupProfileId.HasValue || !smChannelId.HasValue)
         {
             return new NotFoundResult();
         }
@@ -43,14 +42,14 @@ public class VideoStreamsController(IChannelManager channelManager, IClientConfi
             return new NotFoundResult();
         }
 
-        //StreamGroupProfile? streamGroupProfile = await profileService.GetStreamGroupProfileAsync(streamGroupId.Value, streamGroupProfileId.Value);
+        StreamGroupProfile streamGroupProfile = await streamGroupService.GetStreamGroupProfileAsync(streamGroupId.Value, streamGroupProfileId.Value);
 
-        //if (streamGroupProfile == null || streamGroupProfile?.CommandProfileName == "None")
-        //{
-        //    logger.LogInformation("GetVideoStreamStream request SG Number {id} ChannelId {channelId} proxy is none, sending redirect", streamGroupId.Value, smChannelId);
+        if (streamGroupProfile.OutputProfileName.Equals("Default", StringComparison.InvariantCultureIgnoreCase))
+        {
+            logger.LogInformation("GetVideoStreamStream request SG Number {id} ChannelId {channelId} proxy is none, sending redirect", streamGroupId.Value, smChannelId);
 
-        //    return Redirect(smChannel.SMStreams.First().SMStream.Url);
-        //}
+            return Redirect(smChannel.SMStreams.First().SMStream.Url);
+        }
 
         string? ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
 

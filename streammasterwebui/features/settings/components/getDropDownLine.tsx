@@ -35,6 +35,9 @@ export function GetDropDownLine({ ...props }: DropDownLineProps): React.ReactEle
 
   const buttonTemplate = (): ReactNode => {
     var found = props.options.find((o) => o.label?.toLowerCase() === getValue.toLowerCase());
+    // if (!found) {
+    //   found = props.options.find((o) => o.value.toString() === getValue);
+    // }
     return <div className="text-container pl-1">{found?.label ?? 'NA'}</div>;
   };
 

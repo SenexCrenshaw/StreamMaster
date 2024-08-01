@@ -3,7 +3,7 @@ using System.Threading.Channels;
 
 namespace StreamMaster.Streams.Plugins
 {
-    public class VideoInfoService(ILogger<VideoInfoService> logger, ILogger<VideoInfoPlugin> infoLogger, IOptionsMonitor<Setting> intSettings)
+    public class VideoInfoService(ILogger<VideoInfoPlugin> infoLogger, IOptionsMonitor<Setting> intSettings)
         : IVideoInfoService, IDisposable
     {
         public ConcurrentDictionary<string, VideoInfo> VideoInfos { get; } = new();

@@ -25,6 +25,7 @@ const SettingsEditor = () => {
   const { isSystemReady, settings } = useSMContext();
   const getSettings = useGetSettings();
 
+  Logger.debug('SettingsEditor', 'currentSetting', currentSetting);
   const adminUserNameError = useMemo((): string | undefined => {
     if (currentSetting?.AuthenticationMethod !== 'None' && currentSetting?.AdminUserName === '') return GetMessage('formsAuthRequiresAdminUserName');
 
