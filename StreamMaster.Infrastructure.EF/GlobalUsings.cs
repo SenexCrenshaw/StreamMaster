@@ -14,3 +14,4 @@ global using StreamMaster.Domain.Requests;
 global using StreamMaster.Domain.Services;
 
 global using X.PagedList;
+global using X.Extensions.PagedList.EF;
