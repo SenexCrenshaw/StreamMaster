@@ -34,3 +34,4 @@ global using StreamMaster.Streams.Domain.Interfaces;
 global using StreamMaster.Streams.Domain.Models;
 
 global using X.PagedList;
+global using X.Extensions.PagedList.EF;

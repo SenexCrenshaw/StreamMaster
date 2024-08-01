@@ -7,3 +7,4 @@ global using StreamMaster.Domain.Mappings;
 global using StreamMaster.Domain.Models;
 
 global using X.PagedList;
+global using X.Extensions.PagedList.EF;
