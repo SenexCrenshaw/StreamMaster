@@ -100,9 +100,11 @@ const SMButton = forwardRef<Button, InternalSMButtonProperties>(
         return 'sm-input-dark-large-image';
       }
       let divClass = buttonLarge ? 'sm-input-dark-large' : 'sm-input-dark';
-
+      if (buttonDisabled) {
+        divClass += ' p-disabled';
+      }
       return divClass;
-    }, [buttonLarge, buttonLargeImage]);
+    }, [buttonDisabled, buttonLarge, buttonLargeImage]);
 
     const getHoverDiv = useMemo(() => {
       if (buttonLarge) {

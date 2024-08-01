@@ -13,7 +13,14 @@ using System.Xml.Serialization;
 namespace StreamMaster.PlayList
 {
     [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-    public record CustomStreamNfo(string VideoFileName, Movie Movie);
+    public class CustomStreamNfo
+    {
+        public CustomStreamNfo() { }
+        public CustomStreamNfo(string VideoFileName, Movie Movie) { this.VideoFileName = VideoFileName; this.Movie = Movie; }
+        public string VideoFileName { get; set; }
+        public Movie Movie { get; set; }
+    }
+
 
     public class CustomPlayListBuilder : ICustomPlayListBuilder
     {
@@ -79,7 +86,7 @@ namespace StreamMaster.PlayList
 
         private List<CustomPlayList> LoadCustomPlayLists()
         {
-            List<CustomPlayList> ret = new();
+            List<CustomPlayList> ret = [];
 
             if (string.IsNullOrWhiteSpace(BuildInfo.CustomPlayListFolder) || !Directory.Exists(BuildInfo.CustomPlayListFolder))
             {

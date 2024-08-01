@@ -278,7 +278,10 @@ export interface SettingDto
 export interface SMChannelDto
 {
 	APIName: string;
+	BaseStreamID: string;
 	ChannelNumber: number;
+	ChannelType: number;
+	CommandProfileName: string;
 	CurrentRank: number;
 	EPGId: string;
 	Group: string;
@@ -286,14 +289,15 @@ export interface SMChannelDto
 	Id: number;
 	IsCustomStream: boolean;
 	IsHidden: boolean;
+	IsSystem: boolean;
 	Logo: string;
 	M3UFileId: number;
 	Name: string;
+	SMChannels: any[];
 	SMStreams: SMStreamDto[];
 	StationId: string;
 	StreamGroupIds: number[];
 	StreamGroups: StreamGroupSMChannelLink[];
-	StreamID: string;
 	StreamUrl: string;
 	TimeShift: number;
 }
@@ -308,6 +312,7 @@ export interface SMStreamDto
 	Id: string;
 	IsCustomStream: boolean;
 	IsHidden: boolean;
+	IsSystem: boolean;
 	IsUserCreated: boolean;
 	Logo: string;
 	M3UFileId: number;
@@ -1010,6 +1015,7 @@ export interface ToggleSMChannelVisibleByParametersRequest
 export interface UpdateSMChannelRequest
 {
 	ChannelNumber?: number;
+	CommandProfileName?: string;
 	EPGId?: string;
 	Group?: string;
 	Id: number;

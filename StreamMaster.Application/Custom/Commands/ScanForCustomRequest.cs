@@ -10,7 +10,8 @@ public class ScanForCustomPlayListsRequestHandler(ILogger<ScanForCustomRequest> 
     public async Task<APIResponse> Handle(ScanForCustomRequest command, CancellationToken cancellationToken)
     {
         List<CustomPlayList> customPlayLists = CustomPlayListBuilder.GetCustomPlayLists();
-        List<string> smStreamIds = [];
+        //List<string> smStreamIdsToChannelsIsSystem = [];
+        List<string> smStreamIdsToChannels = [];
         foreach (CustomPlayList customPlayList in customPlayLists)
         {
             string id = customPlayList.Name;// FileUtil.EncodeToBase64(customPlayList.Name);
@@ -23,7 +24,7 @@ public class ScanForCustomPlayListsRequestHandler(ILogger<ScanForCustomRequest> 
                 {
                     currentStream.Logo = customPlayList.Logo;
                 }
-                SMChannel? smChannel = await Repository.SMChannel.GetQuery(true).FirstOrDefaultAsync(a => a.IsCustomStream && a.StreamID != null && a.StreamID == id, cancellationToken: cancellationToken);
+                SMChannel? smChannel = await Repository.SMChannel.GetQuery(true).FirstOrDefaultAsync(a => a.IsCustomStream && a.BaseStreamID != null && a.BaseStreamID == id, cancellationToken: cancellationToken);
                 if (smChannel != null)
                 {
                     if (smChannel.Logo != customPlayList.Logo)
@@ -44,10 +45,11 @@ public class ScanForCustomPlayListsRequestHandler(ILogger<ScanForCustomRequest> 
                 Group = "CustomPlayList",
                 IsCustomStream = true,
                 Logo = customPlayList.Logo,
-                Url = "STREAMMASTER"
+                Url = "STREAMMASTER",
+                IsSystem=true,
             };
             Repository.SMStream.Create(smStream);
-            smStreamIds.Add(id);
+            smStreamIdsToChannels.Add(id);
 
             foreach (CustomStreamNfo nfo in customPlayList.CustomStreamNfos)
             {
@@ -76,7 +78,8 @@ public class ScanForCustomPlayListsRequestHandler(ILogger<ScanForCustomRequest> 
             }
         }
         _ = await Repository.SaveAsync();
-        _ = await Repository.SMChannel.CreateSMChannelsFromCustomStreams(smStreamIds, EPGHelper.CustomPlayListId, true);
+
+        _ = await Repository.SMChannel.CreateSMChannelsFromCustomStreams(smStreamIdsToChannels, EPGHelper.CustomPlayListId, true);
 
         List<CustomPlayList> introPlayLists = introPlayListBuilder.GetIntroPlayLists();
         foreach (CustomPlayList customPlayList in introPlayLists)
@@ -96,12 +99,12 @@ public class ScanForCustomPlayListsRequestHandler(ILogger<ScanForCustomRequest> 
 
                 SMStream newStream = new()
                 {
-                    Id = streamId,
+                    Id = streamId + "-" + nfo.Movie.Title,
                     EPGID = EPGHelper.CustomPlayListId + "-" + nfo.Movie.Title,
                     Name = nfo.Movie.Title,
                     M3UFileName = Path.GetFileName(nfo.VideoFileName),
                     M3UFileId = EPGHelper.CustomPlayListId,
-                    Group = "Intros",
+                    Group = "CustomPlayList",
                     IsCustomStream = true,
                     Url = $"http://127.0.0.1:7095/m/{c}.ts"
                 };

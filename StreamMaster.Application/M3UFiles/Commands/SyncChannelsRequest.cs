@@ -41,7 +41,7 @@ internal class SyncChannelsRequestHandler(ILogger<SyncChannelsRequest> logger, I
 
             // Get the stream IDs as strings
             List<string> streamIds = await streams.Select(s => s.Id).ToListAsync(cancellationToken).ConfigureAwait(false);
-            List<string?> existingChannelStreamIds = await existingSMChannels.Select(c => c.StreamID).ToListAsync(cancellationToken).ConfigureAwait(false);
+            List<string?> existingChannelStreamIds = await existingSMChannels.Select(c => c.BaseStreamID).ToListAsync(cancellationToken).ConfigureAwait(false);
 
             // Filter out null values and convert to List<string>
             List<string> existingChannelStreamIdsNonNull = existingChannelStreamIds.OfType<string>().ToList();
@@ -64,18 +64,18 @@ internal class SyncChannelsRequestHandler(ILogger<SyncChannelsRequest> logger, I
 
             if (streamsToBeDeleted.Count != 0)
             {
-                List<int> smChannelIds = await Repository.SMChannel.GetQuery().Where(a => a.M3UFileId == request.M3UFileId && a.StreamID != null && streamsToBeDeleted.Contains(a.StreamID)).Select(a => a.Id).ToListAsync(cancellationToken: cancellationToken);
+                List<int> smChannelIds = await Repository.SMChannel.GetQuery().Where(a => a.M3UFileId == request.M3UFileId && a.BaseStreamID != null && streamsToBeDeleted.Contains(a.BaseStreamID)).Select(a => a.Id).ToListAsync(cancellationToken: cancellationToken);
 
                 _ = await sender.Send(new DeleteSMChannelsRequest(smChannelIds), cancellationToken).ConfigureAwait(false);
             }
             bool changed = false;
             //if (existingStreamsInDb.Count != 0)
             //{
-            //    List<SMChannel> smChannels = await Repositorywrapper.SMChannel.GetQuery(true).Where(a => a.M3UFileId == request.M3UFileId && a.StreamID != null && existingStreamsIDsInDb.Contains(a.StreamID)).ToListAsync(cancellationToken: cancellationToken);
+            //    List<SMChannel> smChannels = await Repositorywrapper.SMChannel.GetQuery(true).Where(a => a.M3UFileId == request.M3UFileId && a.BaseStreamID != null && existingStreamsIDsInDb.Contains(a.BaseStreamID)).ToListAsync(cancellationToken: cancellationToken);
 
             //    foreach (SMChannel smChannel in smChannels)
             //    {
-            //        SMStream? stream = existingStreamsInDb.Find(a => a.Id == smChannel.StreamID);
+            //        SMStream? stream = existingStreamsInDb.Find(a => a.Id == smChannel.BaseStreamID);
             //        if (stream == null)
             //        {
             //            continue;

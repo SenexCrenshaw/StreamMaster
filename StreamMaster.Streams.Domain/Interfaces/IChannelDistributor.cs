@@ -2,6 +2,7 @@
 
 using System.Collections.Concurrent;
 using System.Threading.Channels;
+using System.Xml.Serialization;
 
 namespace StreamMaster.Streams.Domain.Interfaces
 {
@@ -13,12 +14,13 @@ namespace StreamMaster.Streams.Domain.Interfaces
         event EventHandler<ChannelDirectorStopped> OnStoppedEvent;
         long GetChannelItemCount { get; }
         bool IsChannelEmpty();
+        [XmlIgnore]
         ConcurrentDictionary<string, ChannelWriter<byte[]>> ClientChannels { get; }
         void AddClientChannel(string key, ChannelWriter<byte[]> Channel);
         void AddClientChannel(int key, ChannelWriter<byte[]> Channel);
         bool RemoveClientChannel(string key);
         bool RemoveClientChannel(int key);
-
+        [XmlIgnore]
         ConcurrentDictionary<string, Stream> ClientStreams { get; }
         void AddClientStream(string key, Stream stream);
         void AddClientStream(int key, Stream stream);
@@ -28,6 +30,7 @@ namespace StreamMaster.Streams.Domain.Interfaces
         void SetSourceChannel(ChannelReader<byte[]> sourceChannelReader, string Name, CancellationToken cancellationToken);
         void SetSourceStream(Stream sourceStream, string Name, CancellationToken cancellationToken);
         void Stop();
+        [XmlIgnore]
         StreamHandlerMetrics GetMetrics { get; }
 
         public bool IsFailed { get; }

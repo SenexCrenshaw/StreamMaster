@@ -2,8 +2,11 @@
 
 using MessagePack;
 
+using StreamMaster.Domain.Attributes;
+
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
+using System.Xml.Serialization;
 
 namespace StreamMaster.Domain.Models;
 
@@ -11,9 +14,12 @@ public class StreamGroupBase : BaseEntity
 {
     public string DeviceID { get; set; } = string.Empty;
 
+
     [Ignore]
     [JsonIgnore]
     [IgnoreMember]
+    [IgnoreMap]
+    [XmlIgnore]
     public ICollection<StreamGroupSMChannelLink> SMChannels { get; set; } = [];
 
     public bool IsReadOnly { get; set; } = false;

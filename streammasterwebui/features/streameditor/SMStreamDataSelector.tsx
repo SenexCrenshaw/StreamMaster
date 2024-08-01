@@ -88,7 +88,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
 
   const addOrRemoveTemplate = useCallback(
     (data: any) => {
-      if (data.IsCustomStream && !data.Id.toString().startsWith('|intro|')) {
+      if (data.IsSystem === true) {
         return <div className="flex align-content-center justify-content-center" />;
       }
       const found = selectedSMChannel?.SMStreams?.some((item) => item.Id === data.Id) ?? false;

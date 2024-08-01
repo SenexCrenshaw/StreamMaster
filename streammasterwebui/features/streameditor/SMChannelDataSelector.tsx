@@ -65,7 +65,7 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id }: SMChannelDat
   const rowExpansionTemplate = useCallback((data: DataTableRowData<any>, options: DataTableRowExpansionTemplate) => {
     const channel = data as unknown as SMChannelDto;
 
-    if (channel.IsCustomStream === true) {
+    if (channel.IsSystem === true) {
       return <div className="ml-3 m-1">Custom Stream</div>;
     }
 

@@ -34,4 +34,6 @@ public class SMStream
     public string Url { get; set; } = string.Empty;
     [Column(TypeName = "citext")]
     public string StationId { get; set; } = string.Empty;
+
+    public bool IsSystem { get; set; }
 }

@@ -12,11 +12,11 @@ const StreamEditor = () => {
   if (smTableIsSimple) {
     return (
       <StandardHeader displayName="PLAYLIST" icon={<PlayListEditorIcon />}>
-        <div className="w-10">
+        <div className="w-9">
           <SMChannelDataSelector id={id} />
         </div>
 
-        <div className="w-2 layout-padding-left">
+        <div className="w-3 layout-padding-left">
           <SMStreamDataSelector id={id} />
         </div>
       </StandardHeader>

@@ -6,6 +6,7 @@ namespace StreamMaster.Domain.Repository;
 
 public interface IRepositoryContext
 {
+
     Task BulkUpdateAsync<TEntity>(IEnumerable<TEntity> entities) where TEntity : class;
     DbSet<TEntity> Set<TEntity>() where TEntity : class;
     int SaveChanges();
@@ -23,7 +24,7 @@ public interface IRepositoryContext
     DbSet<M3UFile> M3UFiles { get; set; }
     DbSet<StreamGroupChannelGroup> StreamGroupChannelGroups { get; set; }
     DbSet<StreamGroupSMChannelLink> StreamGroupSMChannelLinks { get; set; }
-
+    DbSet<SMChannelChannelLink> SMChannelChannelLinks { get; set; }
     DbSet<SMChannelStreamLink> SMChannelStreamLinks { get; set; }
     DbSet<StreamGroupProfile> StreamGroupProfiles { get; set; }
 

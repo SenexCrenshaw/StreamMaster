@@ -1,12 +1,17 @@
-﻿using System.Threading.Channels;
+﻿using Microsoft.Extensions.DependencyInjection;
+
+using System.Threading.Channels;
 
 namespace StreamMaster.Streams.Streams
 {
-    public class VideoCombinerService(ILogger<VideoCombinerService> logger, IVideoCombiner videoCombiner, IChannelManager channelManager, IRepositoryWrapper repositoryWrapper)
+    public class VideoCombinerService(ILogger<VideoCombinerService> logger, IVideoCombiner videoCombiner, IChannelManager channelManager, IServiceProvider serviceProvider)
         : IVideoCombinerService
     {
         public async Task CombineVideosServiceAsync(IClientConfiguration config, int SMChannelId1, int SMChannelId2, int SMChannelId3, int SMChannelId4, ChannelWriter<byte[]> channelWriter, CancellationToken cancellationToken)
         {
+            using IServiceScope scope = serviceProvider.CreateScope();
+            IRepositoryWrapper repositoryWrapper = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
+
             SMChannel? smChannel1 = await repositoryWrapper.SMChannel.FirstOrDefaultAsync(a => a.Id == SMChannelId1);
             if (smChannel1 == null)
             {

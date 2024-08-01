@@ -27,6 +27,11 @@ public class CommandProfiles
             : null;
     }
 
+    public bool HasProfile(string CommandProfileName)
+    {
+        return Profiles.TryGetValue(CommandProfileName, out _);
+    }
+
     public CommandProfileDto GetProfileDto(string CommandProfileName)
     {
         return GetDefaultProfileDto(CommandProfileName);

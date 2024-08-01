@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using StreamMaster.Infrastructure.EF.PGSQL;
@@ -12,9 +13,11 @@ using StreamMaster.Infrastructure.EF.PGSQL;
 namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
 {
     [DbContext(typeof(PGSQLRepositoryContext))]
-    partial class PGSQLRepositoryContextModelSnapshot : ModelSnapshot
+    [Migration("20240731232916_Added_issystem_channel")]
+    partial class Added_issystem_channel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -253,9 +256,6 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
                     b.Property<int>("ChannelNumber")
                         .HasColumnType("integer");
 
-                    b.Property<int>("ChannelType")
-                        .HasColumnType("integer");
-
                     b.Property<string>("CommandProfileName")
                         .IsRequired()
                         .HasColumnType("citext");
@@ -307,31 +307,13 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
                     b.ToTable("SMChannels");
                 });
 
-            modelBuilder.Entity("StreamMaster.Domain.Models.SMChannelChannelLink", b =>
-                {
-                    b.Property<int>("ParentSMChannelId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("ChildSMChannelId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("Rank")
-                        .HasColumnType("integer");
-
-                    b.HasKey("ParentSMChannelId", "ChildSMChannelId");
-
-                    b.HasIndex("ChildSMChannelId");
-
-                    b.ToTable("SMChannelChannelLinks");
-                });
-
             modelBuilder.Entity("StreamMaster.Domain.Models.SMChannelStreamLink", b =>
                 {
                     b.Property<int>("SMChannelId")
                         .HasColumnType("integer");
 
                     b.Property<string>("SMStreamId")
-                        .HasColumnType("text");
+                        .HasColumnType("citext");
 
                     b.Property<int>("Rank")
                         .HasColumnType("integer");
@@ -369,9 +351,6 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
                         .HasColumnType("boolean");
 
                     b.Property<bool>("IsHidden")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsSystem")
                         .HasColumnType("boolean");
 
                     b.Property<bool>("IsUserCreated")
@@ -529,25 +508,6 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
                     b.ToTable("SystemKeyValues");
                 });
 
-            modelBuilder.Entity("StreamMaster.Domain.Models.SMChannelChannelLink", b =>
-                {
-                    b.HasOne("StreamMaster.Domain.Models.SMChannel", "ChildSMChannel")
-                        .WithMany()
-                        .HasForeignKey("ChildSMChannelId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("StreamMaster.Domain.Models.SMChannel", "ParentSMChannel")
-                        .WithMany("SMChannels")
-                        .HasForeignKey("ParentSMChannelId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ChildSMChannel");
-
-                    b.Navigation("ParentSMChannel");
-                });
-
             modelBuilder.Entity("StreamMaster.Domain.Models.SMChannelStreamLink", b =>
                 {
                     b.HasOne("StreamMaster.Domain.Models.SMChannel", "SMChannel")
@@ -616,8 +576,6 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
 
             modelBuilder.Entity("StreamMaster.Domain.Models.SMChannel", b =>
                 {
-                    b.Navigation("SMChannels");
-
                     b.Navigation("SMStreams");
 
                     b.Navigation("StreamGroups");

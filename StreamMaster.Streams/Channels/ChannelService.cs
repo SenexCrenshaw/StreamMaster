@@ -16,7 +16,6 @@ public sealed class ChannelService : IChannelService, IDisposable
     private readonly IDubcer dubcer;
     private readonly IChannelDistributorService channelDistributorService;
     private readonly IChannelStatusService channelStatusService;
-    private readonly IVideoCombinerService videoCombinerService;
 
     private readonly object _disposeLock = new();
     private bool _disposed = false;
@@ -31,7 +30,7 @@ public sealed class ChannelService : IChannelService, IDisposable
         IOptionsMonitor<Setting> intSettings,
         ISwitchToNextStreamService switchToNextStreamService,
         IChannelStatusService channelStatusService,
-        IVideoCombinerService videoCombinerService,
+
          IClientStatisticsManager statisticsManager
     )
     {

@@ -19,7 +19,6 @@ public class MiscController(IImageDownloadService imageDownloadService, IVideoIn
     public ActionResult<List<IChannelDistributor>> GetChannelDiGetChannelDistributors()
     {
         List<IChannelDistributor> channelDistributors = channelDistributorService.GetChannelDistributors();
-        IDictionary<string, IStreamHandlerMetrics> a = channelDistributorService.GetAggregatedMetrics();
         return Ok(channelDistributors);
     }
 
