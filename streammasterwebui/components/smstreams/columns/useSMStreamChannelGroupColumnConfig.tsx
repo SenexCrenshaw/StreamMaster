@@ -54,7 +54,7 @@ export const useSMStreamChannelGroupColumnConfig = ({ dataKey }: SMStreamGroupCo
     }
 
     const columnConfig: ColumnMeta = {
-      align: 'left',
+      align: 'right',
       field: 'Group',
       filter: true,
       filterElement: filterTemplate,

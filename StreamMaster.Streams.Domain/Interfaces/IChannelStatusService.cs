@@ -2,6 +2,7 @@
 {
     public interface IChannelStatusService
     {
-        IChannelStatus NewChannelStatus(SMChannelDto smChannel);
+
+        Task<IChannelStatus> NewChannelStatus(SMChannelDto smChannel);
     }
 }

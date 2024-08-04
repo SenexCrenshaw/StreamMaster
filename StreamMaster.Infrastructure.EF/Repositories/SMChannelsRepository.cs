@@ -205,7 +205,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
             BaseStreamID = smStream.Id,
             IsCustomStream = smStream.IsCustomStream,
             IsSystem = smStream.IsSystem,
-            CommandProfileName = M3UFileId == EPGHelper.CustomPlayListId ? "StreamMaster" : "Default",
+            CommandProfileName = "Default",
         };
 
         await CreateSMChannel(smChannel);

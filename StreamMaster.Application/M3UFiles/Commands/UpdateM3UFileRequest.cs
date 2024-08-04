@@ -5,7 +5,7 @@ namespace StreamMaster.Application.M3UFiles.Commands;
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record UpdateM3UFileRequest(int? MaxStreamCount, int? StartingChannelNumber, string? DefaultStreamGroupName, bool? SyncChannels, List<string>? VODTags, bool? AutoUpdate, int? HoursToUpdate, int Id, string? Name, string? Url)
+public record UpdateM3UFileRequest(int? MaxStreamCount, int? StartingChannelNumber, string? DefaultStreamGroupName, bool? SyncChannels, List<string>? VODTags, bool? AutoSetChannelNumbers, bool? AutoUpdate, int? HoursToUpdate, int Id, string? Name, string? Url)
     : IRequest<APIResponse>;
 
 [LogExecutionTimeAspect]
@@ -32,10 +32,39 @@ public class UpdateM3UFileRequestHandler(IRepositoryWrapper Repository, IReposit
             jobManager.Start();
 
             bool needsUpdate = false;
+            bool autoSetChannelNumbers = false;
             bool needsRefresh = false;
             bool nameChange = false;
             bool defaultNameChange = false;
             int oldSGId = 0;
+
+
+            if (request.StartingChannelNumber.HasValue && m3uFile.StartingChannelNumber != request.StartingChannelNumber.Value)
+            {
+                m3uFile.StartingChannelNumber = request.StartingChannelNumber.Value;
+                autoSetChannelNumbers = true;
+            }
+
+            if (request.AutoSetChannelNumbers.HasValue)
+            {
+                m3uFile.AutoSetChannelNumbers = request.AutoSetChannelNumbers.Value;
+                autoSetChannelNumbers = true;
+            }
+
+            if (autoSetChannelNumbers)
+            {
+                if (m3uFile.AutoSetChannelNumbers)
+                {
+
+                    string sql = $"UPDATE public.\"SMStreams\" SET \"ChannelNumber\"=\"FilePosition\"+{m3uFile.StartingChannelNumber} WHERE \"M3UFileId\"={m3uFile.Id};";
+                    await repositoryContext.ExecuteSqlRawAsyncEntities(sql, cancellationToken);
+                    await dataRefreshService.RefreshSMStreams().ConfigureAwait(false);
+                }
+                else
+                {
+                    needsUpdate = true;
+                }
+            }
 
             if (request.VODTags != null)
             {
@@ -62,7 +91,7 @@ public class UpdateM3UFileRequestHandler(IRepositoryWrapper Repository, IReposit
             {
                 if (m3uFile.DefaultStreamGroupName != null)
                 {
-                    var sg = await Repository.StreamGroup.GetStreamGroupByName(m3uFile.DefaultStreamGroupName);
+                    StreamGroupDto? sg = await Repository.StreamGroup.GetStreamGroupByName(m3uFile.DefaultStreamGroupName);
                     if (sg != null)
                     {
                         oldSGId = sg.Id;
@@ -127,7 +156,7 @@ public class UpdateM3UFileRequestHandler(IRepositoryWrapper Repository, IReposit
 
             if (needsUpdate)
             {
-                ProcessM3UFileRequest processM3UFileRequest = new(m3uFile.Id);
+                ProcessM3UFileRequest processM3UFileRequest = new(m3uFile.Id, true);
                 await taskQueue.ProcessM3UFile(processM3UFileRequest, cancellationToken: cancellationToken).ConfigureAwait(false);
             }
 
@@ -141,6 +170,12 @@ public class UpdateM3UFileRequestHandler(IRepositoryWrapper Repository, IReposit
                 await dataRefreshService.Refresh("GetM3UFileNames").ConfigureAwait(false);
             }
             _ = await Repository.SaveAsync().ConfigureAwait(false);
+
+            //if (request.AutoSetChannelNumbers.HasValue)
+            //{
+            //    await dataRefreshService.RefreshAllM3U().ConfigureAwait(false);
+            //}
+
             jobManager.SetSuccessful();
             return APIResponse.Success;
         }

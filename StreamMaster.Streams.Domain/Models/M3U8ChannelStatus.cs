@@ -15,6 +15,9 @@ public sealed class M3U8ChannelStatus(SMChannelDto sMChannelDto) : IntroStatus, 
     public string ClientUserAgent { get; set; } = string.Empty;
     public string M3U8File { get; private set; }
     public string M3U8Directory { get; private set; }
+    public CommandProfileDto CommandProfile { get; set; }
+    public int StreamGroupProfileId { get; set; }
+    public int StreamGroupId { get; set; }
 
     public void SetSMStreamInfo(SMStreamInfo? idNameUrl)
     {

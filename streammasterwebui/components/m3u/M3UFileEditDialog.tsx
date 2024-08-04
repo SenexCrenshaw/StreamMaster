@@ -46,7 +46,7 @@ const M3UFileEditDialog = ({ selectedFile }: M3UFileEditDialogProperties) => {
   return (
     <SMPopUp
       buttonClassName="icon-yellow"
-      contentWidthSize="4"
+      contentWidthSize="5"
       onOkClick={onSave}
       header={
         <div className="flex w-12 gap-1 justify-content-end align-content-center">

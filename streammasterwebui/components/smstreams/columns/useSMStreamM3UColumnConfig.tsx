@@ -96,7 +96,7 @@ export const useSMStreamM3UColumnConfig = ({ className = 'sm-w-7rem', dataKey }:
   }
 
   const columnConfig: ColumnMeta = {
-    align: 'left',
+    align: 'right',
     field: 'M3UFileName',
     filter: true,
     filterElement: filterTemplate,

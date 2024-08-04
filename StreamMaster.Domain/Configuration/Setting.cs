@@ -36,7 +36,7 @@ public class BaseSettings
     public string ShowIntros { get; set; } = "None";
     public string SSLCertPassword { get; set; } = string.Empty;
     public string SSLCertPath { get; set; } = string.Empty;
-    public string SourceClientUserAgent { get; set; } = "VLC/3.0.20-git LibVLC/3.0.20-git";
+    //public string SourceClientUserAgent { get; set; } = "VLC/3.0.20-git LibVLC/3.0.20-git";
     public string UiFolder { get; set; } = "wwwroot";
     public string UrlBase { get; set; } = string.Empty;
     public bool VideoStreamAlwaysUseEPGLogo { get; set; } = true;

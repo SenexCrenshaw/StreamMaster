@@ -8,6 +8,7 @@ public record CreateSMChannelRequest(
     string Name,
     List<string>? SMStreamsIds,
     string? CommandProfileName,
+     string? ClientUserAgent,
     int? ChannelNumber,
     int? TimeShift,
     string? Group,
@@ -36,7 +37,8 @@ public class CreateSMChannelRequestHandler(ILogger<CreateSMChannelRequest> Logge
                 Group = request.Group ?? "All",
                 EPGId = request.EPGId ?? string.Empty,
                 Logo = request.Logo ?? string.Empty,
-                CommandProfileName = request.CommandProfileName ?? "Default"
+                CommandProfileName = request.CommandProfileName ?? "Default",
+                ClientUserAgent = request.ClientUserAgent
             };
 
             Repository.SMChannel.Create(smChannel);

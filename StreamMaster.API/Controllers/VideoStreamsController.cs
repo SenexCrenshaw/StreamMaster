@@ -42,9 +42,10 @@ public class VideoStreamsController(IChannelManager channelManager, IClientConfi
             return new NotFoundResult();
         }
 
-        StreamGroupProfile streamGroupProfile = await streamGroupService.GetStreamGroupProfileAsync(streamGroupId.Value, streamGroupProfileId.Value);
+        CommandProfileDto? commandProfileDto = await streamGroupService.GetProfileFromSMChannelDtoAsync(streamGroupId.Value, streamGroupProfileId.Value, smChannel.CommandProfileName);
 
-        if (streamGroupProfile.OutputProfileName.Equals("Default", StringComparison.InvariantCultureIgnoreCase))
+
+        if (commandProfileDto.ProfileName.Equals("Redirect", StringComparison.InvariantCultureIgnoreCase))
         {
             logger.LogInformation("GetVideoStreamStream request SG Number {id} ChannelId {channelId} proxy is none, sending redirect", streamGroupId.Value, smChannelId);
 
@@ -63,7 +64,7 @@ public class VideoStreamsController(IChannelManager channelManager, IClientConfi
         string originalUrl = $"{request.Scheme}://{request.Host}{request.PathBase}{request.Path}{request.QueryString}";
         smChannelDto.StreamUrl = originalUrl;
         string uniqueRequestId = request.HttpContext.TraceIdentifier;
-        IClientConfiguration config = clientConfigurationService.NewClientConfiguration(uniqueRequestId, smChannelDto, streamGroupId.Value, 1, Request.Headers.UserAgent.ToString(), ipAddress ?? "unknown", HttpContext.Response, cancellationToken);
+        IClientConfiguration config = clientConfigurationService.NewClientConfiguration(uniqueRequestId, smChannelDto, streamGroupId.Value, streamGroupProfileId.Value, Request.Headers.UserAgent.ToString(), ipAddress ?? "unknown", HttpContext.Response, cancellationToken);
         Stream? stream = await channelManager.GetChannelStreamAsync(config, cancellationToken);
 
         HttpContext.Response.RegisterForDispose(new UnregisterClientOnDispose(channelManager, config));

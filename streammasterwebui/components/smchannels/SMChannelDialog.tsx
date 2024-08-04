@@ -46,6 +46,7 @@ const SMChannelDialog = forwardRef<SMChannelDialogRef, SMChannelDialogProperties
       request.Logo !== smChannel.Logo ||
       request.Group !== smChannel.Group ||
       request.CommandProfileName !== smChannel.CommandProfileName ||
+      request.ClientUserAgent !== smChannel.ClientUserAgent ||
       request.ChannelNumber !== smChannel.ChannelNumber ||
       request.EPGId !== smChannel.EPGId
     );
@@ -66,6 +67,15 @@ const SMChannelDialog = forwardRef<SMChannelDialogRef, SMChannelDialogProperties
     (value: string) => {
       if (request.Name !== value) {
         setRequest((prevRequest) => ({ ...prevRequest, Name: value }));
+      }
+    },
+    [request.Name]
+  );
+
+  const setClientUserAgent = useCallback(
+    (value: string) => {
+      if (request.Name !== value) {
+        setRequest((prevRequest) => ({ ...prevRequest, ClientUserAgent: value }));
       }
     },
     [request.Name]
@@ -183,6 +193,21 @@ const SMChannelDialog = forwardRef<SMChannelDialogRef, SMChannelDialogProperties
               </div>
               <div className="w-6">
                 <StreamingProxyTypeSelector darkBackGround label="Proxy" data={tempSMChannel} onChange={(e) => setCommandProfileName(e)} />
+              </div>
+            </div>
+            <div className="flex w-12 gap-1">
+              <div className="w-6 justify-content-start align-items-center">
+                <StringEditor
+                  autoFocus
+                  label="Client User Agent"
+                  darkBackGround
+                  disableDebounce
+                  onChange={(e) => e !== undefined && setClientUserAgent(e)}
+                  onSave={() => {
+                    doSave();
+                  }}
+                  value={request.ClientUserAgent}
+                />
               </div>
             </div>
           </div>

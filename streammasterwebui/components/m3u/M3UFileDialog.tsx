@@ -64,12 +64,14 @@ const M3UFileDialog = forwardRef<M3UFileDialogRef, M3UFileDialogProperties>(
     const defaultValues = useMemo(
       () =>
         ({
+          AutoSetChannelNumbers: false,
           AutoUpdate: true,
           DefaultStreamGroupName: null,
           HoursToUpdate: 72,
           MaxStreamCount: 1,
           Name: '',
           SyncChannels: false,
+          StartingChannelNumber: 0,
           Url: ''
         } as M3UFileDto),
       []
@@ -221,7 +223,32 @@ const M3UFileDialog = forwardRef<M3UFileDialogRef, M3UFileDialogProperties>(
         )}
         <div className="w-12">
           <div className="flex gap-1">
-            <div className="sm-border-right pr-1 w-7 flex flex-row gap-1">
+            <div className="pr-1 w-7 flex flex-row gap-1">
+              <div className="w-3">
+                <BooleanEditor
+                  label="Set Ch #s"
+                  onChange={(e) => updateStateAndRequest({ AutoSetChannelNumbers: e })}
+                  checked={m3uFileDto?.AutoSetChannelNumbers}
+                />
+              </div>
+              <div>
+                <NumberEditor
+                  // disabled={!m3uFileDto?.AutoSetChannelNumbers}
+                  darkBackGround
+                  disableDebounce
+                  label="Starting Channel #"
+                  onChange={(e) => updateStateAndRequest({ StartingChannelNumber: e })}
+                  showButtons
+                  value={m3uFileDto?.StartingChannelNumber}
+                />
+              </div>
+            </div>
+            <div className="w-5">
+              <M3UFileTags vodTags={m3uFileDto?.VODTags} onChange={(e) => updateStateAndRequest({ VODTags: e })} />
+            </div>
+          </div>
+          <div className="flex gap-1">
+            <div className="pr-1 w-7 flex flex-row gap-1">
               <div className="w-5">
                 <BooleanEditor label="Sync Channels" onChange={(e) => updateStateAndRequest({ SyncChannels: e })} checked={m3uFileDto?.SyncChannels} />
               </div>
@@ -238,9 +265,9 @@ const M3UFileDialog = forwardRef<M3UFileDialogRef, M3UFileDialogProperties>(
                 />
               </div>
             </div>
-            <div className="w-5">
+            {/* <div className="w-5">
               <M3UFileTags vodTags={m3uFileDto?.VODTags} onChange={(e) => updateStateAndRequest({ VODTags: e })} />
-            </div>
+            </div> */}
           </div>
           <div className="layout-padding-bottom-lg" />
         </div>

@@ -10,34 +10,37 @@ public sealed class ChannelStatus : IntroStatus, IChannelStatus, IDisposable
 {
     private readonly IChannelDistributorService channelDistributorService;
     private readonly IVideoInfoService VideoInfoService;
+    private readonly ILogger<IChannelStatus> logger;
 
-    public ChannelStatus(ILogger<IChannelStatus> logger, IVideoInfoService VideoInfoService, IChannelDistributorService channelDistributorService, IDubcer Dubcer, SMChannelDto smChannel)
+    public ChannelStatus(ILogger<IChannelStatus> logger, IVideoInfoService VideoInfoService, IChannelDistributorService channelDistributorService, SMChannelDto smChannel)
     {
+        this.logger = logger;
         this.VideoInfoService = VideoInfoService;
         this.channelDistributorService = channelDistributorService;
         SMChannel = smChannel;
-        CurrentRank = smChannel.CurrentRank;
-
-        this.Dubcer = Dubcer;
+        //SMStreamInfo = SMStreamInfo.NewSMStreamInfo(SMChannel.Id.ToString(), SMChannel.Name, CommandProfile, SMChannel.IsCustomStream);
+        //this.Dubcer = Dubcer;
     }
 
-
-    public IDubcer Dubcer { get; }
+    public int Id => SMChannel.Id;
+    public string Name => SMChannel.Name;
+    //public IDubcer Dubcer { get; }
     public SMChannelDto SMChannel { get; }
     private ConcurrentDictionary<string, IClientConfiguration> ClientStreamerConfigurations { get; } = new();
     public bool Shutdown { get; set; } = false;
     public bool IsStarted { get; set; }
+
     public SMStreamInfo? SMStreamInfo { get; private set; }
     public bool IsGlobal { get; set; }
     public bool FailoverInProgress { get; set; }
-    public int CurrentRank { get; set; }
+
     public string? OverrideSMStreamId { get; set; } = null;
     public string ClientUserAgent { get; set; } = string.Empty;
     public int ClientCount => ClientStreamerConfigurations.Keys.Count;
 
     public int StreamGroupId { get; set; }
     public int StreamGroupProfileId { get; set; }
-    public CommandProfileDto CommandProfile { get; set; }
+
     public CustomPlayList? CustomPlayList { get; set; }
 
     public IChannelDistributor ChannelDistributor { get; set; }
@@ -73,9 +76,18 @@ public sealed class ChannelStatus : IntroStatus, IChannelStatus, IDisposable
         return false;
     }
 
-    public void SetSMStreamInfo(SMStreamInfo? idNameUrl)
+    public void SetSMStreamInfo(SMStreamInfo? smStreamInfo)
     {
-        SMStreamInfo = idNameUrl;
+        if (smStreamInfo == null)
+        {
+            logger.LogDebug("SetSMStreamInfo null");
+        }
+        else
+        {
+            logger.LogDebug("SetSMStreamInfo: {Id} {Name} {Url}", smStreamInfo.Id, smStreamInfo.Name, smStreamInfo.Url);
+        }
+
+        SMStreamInfo = smStreamInfo;
     }
 
     public void SetIsGlobal()
@@ -83,10 +95,11 @@ public sealed class ChannelStatus : IntroStatus, IChannelStatus, IDisposable
         IsGlobal = true;
     }
 
-    public void SetSourceChannel(IChannelDistributor sourceChannelDistributor, string Name, bool IsCustom)
+    public void SetSourceChannel(IChannelDistributor sourceChannelDistributor)
     {
-        Channel<byte[]> channel = ChannelHelper.GetChannel(IsCustom);
-
+        //FIXME
+        Channel<byte[]> channel = ChannelHelper.GetChannel(SMChannel.IsCustom);
+        //ChannelDistributor = sourceChannelDistributor;
         sourceChannelDistributor.AddClientChannel(SMChannel.Id, channel.Writer);
 
         //if (!sourceChannelDistributor.SMStreamInfo.Id.StartsWith(IntroPlayListBuilder.IntroIDPrefix, StringComparison.InvariantCulture))
@@ -96,7 +109,7 @@ public sealed class ChannelStatus : IntroStatus, IChannelStatus, IDisposable
         //    VideoInfoService.SetSourceChannel(channelVideoInfo.Reader, Name);
         //}
         //Dubcer.DubcerChannels(channel.Reader, channelMux.Writer, CancellationToken.None);
-        ChannelDistributor.SetSourceChannel(channel.Reader, Name, CancellationToken.None);
+        ChannelDistributor.SetSourceChannel(channel.Reader, channelName, sourceChannelName, CancellationToken.None);
     }
 
     public void Dispose()

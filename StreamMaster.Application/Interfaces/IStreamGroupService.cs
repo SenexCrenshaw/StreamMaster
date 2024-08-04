@@ -8,5 +8,6 @@ public interface IStreamGroupService
     Task<StreamGroup> GetDefaultSGAsync();
     Task<int> GetDefaultSGIdAsync();
     Task<StreamGroupProfile> GetDefaultStreamGroupProfileAsync();
+    Task<CommandProfileDto> GetProfileFromSMChannelDtoAsync(int streamGroupId, int streamGroupProfileId, string CommandProfileName);
     Task<StreamGroupProfile> GetStreamGroupProfileAsync(int? StreamGroupId = null, int? StreamGroupProfileId = null);
 }

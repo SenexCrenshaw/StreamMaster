@@ -26,6 +26,9 @@ public class M3UFile : AutoUpdateEntity
     public int MaxStreamCount { get; set; }
     public int StreamCount { get; set; }
     public bool SyncChannels { get; set; }
+    public int StartingChannelNumber { get; set; }
+    public bool AutoSetChannelNumbers { get; set; }
+
     //public string? DefaultGroup { get; set; }
     public string? DefaultStreamGroupName { get; set; }
 

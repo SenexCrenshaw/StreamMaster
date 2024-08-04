@@ -33,7 +33,7 @@ public class UpdateSettingParameters
 
     public string? DefaultOutputProfileName { get; set; }
     public string? DefaultCommandProfileName { get; set; }
-    public string? StreamingClientUserAgent { get; set; }
+    //public string? StreamingClientUserAgent { get; set; }
     //public string? CommandProfileName { get; set; }
     //public bool? VideoStreamAlwaysUseEPGLogo { get; set; }
     //public bool? EnablePrometheus { get; set; }
@@ -363,10 +363,10 @@ public partial class UpdateSettingRequestHandler(
             currentSetting.ClientUserAgent = request.Parameters.ClientUserAgent;
         }
 
-        if (request.Parameters.StreamingClientUserAgent != null && request.Parameters.StreamingClientUserAgent != currentSetting.SourceClientUserAgent)
-        {
-            currentSetting.SourceClientUserAgent = request.Parameters.StreamingClientUserAgent;
-        }
+        //if (request.Parameters.StreamingClientUserAgent != null && request.Parameters.StreamingClientUserAgent != currentSetting.SourceClientUserAgent)
+        //{
+        //    currentSetting.SourceClientUserAgent = request.Parameters.StreamingClientUserAgent;
+        //}
 
         //if (!string.IsNullOrEmpty(request.Parameters.ApiKey) && request.Parameters.ApiKey != currentSetting.ApiKey)
         //{

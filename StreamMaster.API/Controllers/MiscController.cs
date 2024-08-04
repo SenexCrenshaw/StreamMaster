@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
+using StreamMaster.Streams.Handlers;
+
 using System.Text;
 
 namespace StreamMaster.API.Controllers;
@@ -16,7 +18,7 @@ public class MiscController(IImageDownloadService imageDownloadService, IVideoIn
 
     [HttpGet]
     [Route("[action]")]
-    public ActionResult<List<IChannelDistributor>> GetChannelDiGetChannelDistributors()
+    public ActionResult<List<ChannelDistributor>> GetChannelDiGetChannelDistributors()
     {
         List<IChannelDistributor> channelDistributors = channelDistributorService.GetChannelDistributors();
         return Ok(channelDistributors);

@@ -21,8 +21,8 @@ public sealed class ProxyFactory(ILogger<ProxyFactory> logger, IHTTPStream HTTPS
 
         try
         {
-            CommandProfileDto profile = profileService.GetCommandProfile();
-            string clientUserAgent = !string.IsNullOrEmpty(smStreamInfo.ClientUserAgent) ? smStreamInfo.ClientUserAgent : settings.CurrentValue.SourceClientUserAgent;
+            CommandProfileDto profile = smStreamInfo.CommandProfile;// profileService.GetCommandProfile();
+            string clientUserAgent = !string.IsNullOrEmpty(smStreamInfo.ClientUserAgent) ? smStreamInfo.ClientUserAgent : settings.CurrentValue.ClientUserAgent;
 
             if (smStreamInfo.IsCustomStream)
             {

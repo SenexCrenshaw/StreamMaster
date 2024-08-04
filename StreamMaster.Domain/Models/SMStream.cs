@@ -27,6 +27,7 @@ public class SMStream
     [Column(TypeName = "citext")]
     public string EPGID { get; set; } = "Dummy";
     [Column(TypeName = "citext")]
+
     public string Logo { get; set; } = string.Empty;
     [Column(TypeName = "citext")]
     public string Name { get; set; } = string.Empty;
@@ -36,4 +37,8 @@ public class SMStream
     public string StationId { get; set; } = string.Empty;
 
     public bool IsSystem { get; set; }
+
+    [Column(TypeName = "citext")]
+
+    public string CUID { get; set; } = string.Empty;
 }

@@ -2,7 +2,7 @@
 
 namespace StreamMaster.Application.StreamGroups;
 
-public class StreamGroupService(ILogger<StreamGroupService> logger, IMemoryCache _memoryCache, IProfileService profileService, IServiceProvider _serviceProvider)
+public class StreamGroupService(ILogger<StreamGroupService> logger, IOptionsMonitor<CommandProfiles> intCommandProfileSettings, IOptionsMonitor<Setting> intSettings, IMemoryCache _memoryCache, IProfileService profileService, IServiceProvider _serviceProvider)
     : IStreamGroupService
 {
     private const string DefaultStreamGroupName = "all";
@@ -11,6 +11,25 @@ public class StreamGroupService(ILogger<StreamGroupService> logger, IMemoryCache
     {
         StreamGroup sg = await GetDefaultSGAsync();
         return sg.Id;
+    }
+
+    public async Task<CommandProfileDto> GetProfileFromSMChannelDtoAsync(int streamGroupId, int streamGroupProfileId, string CommandProfileName)
+    {
+        CommandProfileDto? commandProfileDto = null;
+        if (!CommandProfileName.Equals("Default", StringComparison.InvariantCultureIgnoreCase))
+        {
+            commandProfileDto = intCommandProfileSettings.CurrentValue.GetProfileDto(CommandProfileName);
+        }
+
+        if (commandProfileDto == null || commandProfileDto.ProfileName.Equals("Default", StringComparison.InvariantCultureIgnoreCase))
+        {
+            StreamGroupProfile streamGroupProfile = await GetStreamGroupProfileAsync(streamGroupId, streamGroupProfileId);
+            commandProfileDto = !streamGroupProfile.CommandProfileName.Equals("Default", StringComparison.InvariantCultureIgnoreCase)
+                ? intCommandProfileSettings.CurrentValue.GetProfileDto(streamGroupProfile.CommandProfileName)
+                : intCommandProfileSettings.CurrentValue.GetProfileDto(intSettings.CurrentValue.DefaultCommandProfileName);
+
+        }
+        return commandProfileDto;
     }
 
     public async Task<(List<VideoStreamConfig> videoStreamConfigs, StreamGroupProfile streamGroupProfile)> GetStreamGroupVideoConfigs(int StreamGroupId, int StreamGroupProfileId)
@@ -91,22 +110,34 @@ public class StreamGroupService(ILogger<StreamGroupService> logger, IMemoryCache
         IRepositoryWrapper repositoryWrapper = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
         if (StreamGroupProfileId.HasValue)
         {
-            StreamGroupProfile? profile = repositoryWrapper.StreamGroupProfile.GetQuery().FirstOrDefault(a => a.Id == StreamGroupProfileId);
+            StreamGroupProfile? sgProfile = repositoryWrapper.StreamGroupProfile.GetQuery().FirstOrDefault(a => a.Id == StreamGroupProfileId);
+            if (sgProfile != null)
+            {
+                return sgProfile;
+            }
+        }
+
+        if (StreamGroupId.HasValue)
+        {
+            StreamGroupProfile? profile = repositoryWrapper.StreamGroupProfile.GetQuery().FirstOrDefault(a => a.StreamGroupId == StreamGroupId && a.ProfileName == "Default");
             if (profile != null)
             {
                 return profile;
             }
         }
 
-        StreamGroupProfile? sgProfile = repositoryWrapper.StreamGroupProfile.GetQuery().FirstOrDefault(a => a.StreamGroupId == StreamGroupId && a.ProfileName == "Default");
-        if (sgProfile != null)
-        {
-            return sgProfile;
-        }
-
         StreamGroupProfile def = await GetDefaultStreamGroupProfileAsync();
         return def;
     }
+
+    private void UpdateStreamGroupProfile(StreamGroupProfile streamGroupProfile)
+    {
+        if (streamGroupProfile.OutputProfileName.Equals("Default", StringComparison.InvariantCultureIgnoreCase))
+        {
+
+        }
+    }
+
 
     public async Task<StreamGroup?> GetStreamGroupFromIdAsync(int streamGroupId)
     {

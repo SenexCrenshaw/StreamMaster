@@ -13,5 +13,7 @@ public class M3UFileDto : BaseFileDto, IMapFrom<M3UFile>
     public int MaxStreamCount { get; set; }
     //public M3UFileStreamURLPrefix StreamURLPrefix { get; set; }
     public int StreamCount { get; set; }
+    public int StartingChannelNumber { get; set; }
+    public bool AutoSetChannelNumbers { get; set; }
 
 }

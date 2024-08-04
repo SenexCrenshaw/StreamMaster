@@ -26,4 +26,6 @@ public class ProfileService(IOptionsMonitor<Setting> intSettings, IOptionsMonito
            : intOutProfileSettings.CurrentValue.GetDefaultProfileDto(settings.DefaultOutputProfileName);
         ;
     }
+
+
 }

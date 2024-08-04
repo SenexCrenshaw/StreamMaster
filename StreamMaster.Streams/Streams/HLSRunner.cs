@@ -98,7 +98,7 @@ namespace StreamMaster.Streams.Streams
                 string args = hlssettings.HLSFFMPEGOptions;
                 if (channelStatus.SMStreamInfo.Url.Contains("://"))
                 {
-                    string clientUserAgent = !string.IsNullOrEmpty(channelStatus.SMStreamInfo.ClientUserAgent) ? channelStatus.SMStreamInfo.ClientUserAgent : settings.SourceClientUserAgent;
+                    string clientUserAgent = !string.IsNullOrEmpty(channelStatus.SMStreamInfo.ClientUserAgent) ? channelStatus.SMStreamInfo.ClientUserAgent : settings.ClientUserAgent;
                     args += $" -user_agent \"{clientUserAgent}\"";
                 }
 

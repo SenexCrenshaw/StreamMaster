@@ -28,7 +28,7 @@ public class ChannelDistributorService(ILogger<ChannelDistributorService> logger
             ? null
             : !_channelDistributors.TryGetValue(key, out IChannelDistributor? channelDistributor) ? null : channelDistributor;
     }
-    public async Task<IChannelDistributor?> CreateChannelDistributorFromSMChannelDtoAsync(SMChannelDto smChannel, CancellationToken cancellationToken)
+    public async Task<IChannelDistributor?> CreateChannelDistributorFromSMChannelDtoAsync(SMChannelDto smChannel, IChannelStatus channelStatus, CancellationToken cancellationToken)
     {
 
         await GetOrCreateSourceChannelDistributorSlim.WaitAsync(cancellationToken).ConfigureAwait(false);
@@ -51,7 +51,7 @@ public class ChannelDistributorService(ILogger<ChannelDistributorService> logger
             }
 
 
-            channelDistributor = new ChannelDistributor(channelDirectorlogger, smChannel);
+            channelDistributor = new ChannelDistributor(channelDirectorlogger, smChannel, channelStatus);
 
             if (channelDistributor == null)
             {
@@ -73,7 +73,7 @@ public class ChannelDistributorService(ILogger<ChannelDistributorService> logger
 
     private readonly SemaphoreSlim GetOrCreateSourceChannelDistributorSlim = new(1, 1);
 
-    public async Task<IChannelDistributor?> GetOrCreateSourceChannelDistributorAsync(SMStreamInfo smStreamInfo, CancellationToken cancellationToken)
+    public async Task<IChannelDistributor?> GetOrCreateSourceChannelDistributorAsync(string channelName, SMStreamInfo smStreamInfo, CancellationToken cancellationToken)
     {
         await GetOrCreateSourceChannelDistributorSlim.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
@@ -86,7 +86,7 @@ public class ChannelDistributorService(ILogger<ChannelDistributorService> logger
                     _ = _channelDistributors.TryGetValue(smStreamInfo.Url, out channelDistributor);
                 }
 
-                logger.LogInformation("Reusing channel distributor: {Id} {name}", smStreamInfo.Id, smStreamInfo.Name);
+                logger.LogInformation("Reusing source channel distributor: {Id} {name}", smStreamInfo.Id, smStreamInfo.Name);
                 return channelDistributor;
             }
 
@@ -94,19 +94,19 @@ public class ChannelDistributorService(ILogger<ChannelDistributorService> logger
 
             if (channelDistributor == null)
             {
-                logger.LogError("Could not create new channel distributor: {Id} {name}", smStreamInfo.Id, smStreamInfo.Name);
+                logger.LogError("Could not create new source channel distributor: {Id} {name}", smStreamInfo.Id, smStreamInfo.Name);
                 return null;
             }
 
-            logger.LogInformation("Created new channel distributor: {Id} {name}", smStreamInfo.Id, smStreamInfo.Name);
+            logger.LogInformation("Created new source channel distributor: {Id} {name}", smStreamInfo.Id, smStreamInfo.Name);
 
             (Stream? stream, int processId, ProxyStreamError? error) = await proxyFactory.GetProxy(smStreamInfo, cancellationToken).ConfigureAwait(false);
             if (stream == null || error != null || processId == 0)
             {
-                logger.LogError("Could not create stream for channel distributor: {Id} {name} {error}", smStreamInfo.Id, smStreamInfo.Name, error?.Message);
+                logger.LogError("Could not source create stream for channel distributor: {Id} {name} {error}", smStreamInfo.Id, smStreamInfo.Name, error?.Message);
                 return null;
             }
-            channelDistributor.SetSourceStream(stream, smStreamInfo.Name, cancellationToken);
+            channelDistributor.SetSourceStream(stream, channelName, smStreamInfo.Name, cancellationToken);
 
             channelDistributor.OnStoppedEvent += OnDistributorStoppedEvent;
             bool test = _channelDistributors.TryAdd(smStreamInfo.Url, channelDistributor);
@@ -134,7 +134,7 @@ public class ChannelDistributorService(ILogger<ChannelDistributorService> logger
     private void OnChannelStoppedEvent(object? sender, ChannelDirectorStopped e)
     {
         OnStoppedEvent?.Invoke(sender!, e);
-        StopAndUnRegister(e.SMStreamInfo.Name);
+        StopAndUnRegister(e.SMStreamInfo.Id);
 
     }
 

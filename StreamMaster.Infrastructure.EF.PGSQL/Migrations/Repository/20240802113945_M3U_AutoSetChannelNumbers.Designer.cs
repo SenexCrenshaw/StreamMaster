@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using StreamMaster.Infrastructure.EF.PGSQL;
@@ -12,9 +13,11 @@ using StreamMaster.Infrastructure.EF.PGSQL;
 namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
 {
     [DbContext(typeof(PGSQLRepositoryContext))]
-    partial class PGSQLRepositoryContextModelSnapshot : ModelSnapshot
+    [Migration("20240802113945_M3U_AutoSetChannelNumbers")]
+    partial class M3U_AutoSetChannelNumbers
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -222,9 +225,6 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
                     b.Property<string>("Source")
                         .IsRequired()
                         .HasColumnType("citext");
-
-                    b.Property<int>("StartingChannelNumber")
-                        .HasColumnType("integer");
 
                     b.Property<int>("StreamCount")
                         .HasColumnType("integer");

@@ -40,7 +40,7 @@ public static partial class IPTVExtensions
                             if (clientUserAgent != null)
                             {
 
-                                var commadIndex = segmentBuilder.ToString().LastIndexOf(',');
+                                int commadIndex = segmentBuilder.ToString().LastIndexOf(',');
 
                                 segmentBuilder.Insert(commadIndex, $" clientUserAgent=\"{clientUserAgent}\" ");
                             }
@@ -228,7 +228,7 @@ public static partial class IPTVExtensions
                         case "cuid":
                             if (!string.IsNullOrEmpty(parameter[1].Trim()))
                             {
-                                SMStream.Id = parameter[1].Trim();
+                                SMStream.CUID = parameter[1].Trim();
                             }
                             break;
 
@@ -247,12 +247,12 @@ public static partial class IPTVExtensions
                             }
                             break;
 
-                        case "channel-id":
-                            if (!string.IsNullOrEmpty(parameter[1].Trim()))
-                            {
-                                SMStream.Id = parameter[1].Trim();
-                            }
-                            break;
+                        //case "channel-id":
+                        //    if (!string.IsNullOrEmpty(parameter[1].Trim()))
+                        //    {
+                        //        SMStream.Id = parameter[1].Trim();
+                        //    }
+                        //    break;
 
                         case "channel-number":
                             if (!string.IsNullOrEmpty(parameter[1].Trim()))
@@ -341,14 +341,12 @@ public static partial class IPTVExtensions
 
         if (string.IsNullOrEmpty(SMStream.Id))
         {
-            SMStream.Id = FileUtil.EncodeToBase64(SMStream.Url);//.ConvertStringToId();
+            SMStream.Id = FileUtil.EncodeToBase64(SMStream.Url);
         }
 
         return SMStream;
     }
 
-    //[GeneratedRegex("#EXTGRP: *(.*)", RegexOptions.IgnoreCase | RegexOptions.Compiled, "en-US")]
-    //private static partial Regex grpRegex();
 
     [GeneratedRegex(",([^\\n]*|,[^\\r]*)", RegexOptions.IgnoreCase | RegexOptions.Compiled, "en-US")]
     private static partial Regex nameRegex();

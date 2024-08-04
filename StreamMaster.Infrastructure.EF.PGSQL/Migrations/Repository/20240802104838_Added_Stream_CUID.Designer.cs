@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using StreamMaster.Infrastructure.EF.PGSQL;
@@ -12,9 +13,11 @@ using StreamMaster.Infrastructure.EF.PGSQL;
 namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
 {
     [DbContext(typeof(PGSQLRepositoryContext))]
-    partial class PGSQLRepositoryContextModelSnapshot : ModelSnapshot
+    [Migration("20240802104838_Added_Stream_CUID")]
+    partial class Added_Stream_CUID
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -171,9 +174,6 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityAlwaysColumn(b.Property<int>("Id"));
 
-                    b.Property<bool>("AutoSetChannelNumbers")
-                        .HasColumnType("boolean");
-
                     b.Property<bool>("AutoUpdate")
                         .HasColumnType("boolean");
 
@@ -222,9 +222,6 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
                     b.Property<string>("Source")
                         .IsRequired()
                         .HasColumnType("citext");
-
-                    b.Property<int>("StartingChannelNumber")
-                        .HasColumnType("integer");
 
                     b.Property<int>("StreamCount")
                         .HasColumnType("integer");

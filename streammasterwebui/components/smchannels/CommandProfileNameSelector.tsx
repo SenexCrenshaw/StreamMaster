@@ -82,9 +82,9 @@ const CommandProfileNameSelector: React.FC<CommandProfileNameSelectorProperties>
   }, [data?.CommandProfileName, getHandlersOptions, onIChange, value]);
 
   const buttonTemplate = useMemo((): ReactNode => {
-    if (data?.IsCustomStream) {
-      return <div className="text-xs text-container pl-1">StreamMaster</div>;
-    }
+    // if (data?.IsCustomStream) {
+    //   return <div className="text-xs text-container pl-1">StreamMaster</div>;
+    // }
     if (!data?.CommandProfileName) {
       return <div className="text-xs text-container pl-1">{value}</div>;
     }
@@ -100,9 +100,9 @@ const CommandProfileNameSelector: React.FC<CommandProfileNameSelectorProperties>
     return <div className="text-xs text-container">{option?.label ?? ''}</div>;
   }, []);
 
-  if (!value && (!data?.CommandProfileName || data.IsCustomStream === true)) {
-    return <div className="text-xs text-container  pl-1">StreamMaster</div>;
-  }
+  // if (!value && (!data?.CommandProfileName || data.IsCustomStream === true)) {
+  //   return <div className="text-xs text-container  pl-1">StreamMaster</div>;
+  // }
 
   // if (data?.CommandProfileName === undefined) {
   //   return null;

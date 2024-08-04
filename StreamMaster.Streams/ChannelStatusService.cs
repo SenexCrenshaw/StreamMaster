@@ -3,13 +3,13 @@
 public sealed class ChannelStatusService(ILogger<IChannelStatus> logger, IVideoInfoService videoInfoService, IChannelDistributorService channelDistributorService, IDubcer Dubcer)
     : IChannelStatusService
 {
-    public IChannelStatus NewChannelStatus(SMChannelDto smChannel)
+    public async Task<IChannelStatus> NewChannelStatus(SMChannelDto smChannel)
     {
-        ChannelStatus channelStatus = new(logger, videoInfoService, channelDistributorService, Dubcer, smChannel);
-        IChannelDistributor? channelDistributor = channelDistributorService.CreateChannelDistributorFromSMChannelDtoAsync(smChannel, CancellationToken.None).Result;
+        IChannelStatus channelStatus = new ChannelStatus(logger, videoInfoService, channelDistributorService,  smChannel);
+        IChannelDistributor? channelDistributor = await channelDistributorService.CreateChannelDistributorFromSMChannelDtoAsync(smChannel, channelStatus, CancellationToken.None);
         if (channelDistributor == null)
         {
-            int a = 1;
+            throw new ApplicationException("channelDistributor == null");
         }
         channelStatus.ChannelDistributor = channelDistributor;
         return channelStatus;

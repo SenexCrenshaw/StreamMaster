@@ -28,8 +28,8 @@ namespace StreamMaster.Streams.Domain.Interfaces
         bool RemoveClientStream(string key);
         bool RemoveClientStream(int key);
 
-        void SetSourceChannel(ChannelReader<byte[]> sourceChannelReader, string Name, CancellationToken cancellationToken);
-        void SetSourceStream(Stream sourceStream, string Name, CancellationToken cancellationToken);
+        void SetSourceChannel(ChannelReader<byte[]> sourceChannelReader, string channelName, string sourceChannelName, CancellationToken cancellationToken);
+        void SetSourceStream(Stream sourceStream, string channelName, string streamName, CancellationToken cancellationToken);
         void Stop();
         [XmlIgnore]
         StreamHandlerMetrics GetMetrics { get; }

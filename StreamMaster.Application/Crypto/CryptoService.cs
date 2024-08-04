@@ -247,7 +247,6 @@ public class CryptoService(IOptionsMonitor<Setting> intSettings, IStreamGroupSer
         if (values.Length == 2)
         {
             int streamGroupProfileId = int.Parse(values[1]);
-            int smChannelId = int.Parse(values[2]);
             return (streamGroupId, streamGroupProfileId);
         }
 

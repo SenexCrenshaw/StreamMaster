@@ -62,6 +62,9 @@ public class SMChannel
     public string Name { get; set; } = string.Empty;
 
     [Column(TypeName = "citext")]
+    public string? ClientUserAgent = string.Empty;
+
+    [Column(TypeName = "citext")]
     public string StationId { get; set; } = string.Empty;
 
     [Column(TypeName = "citext")]

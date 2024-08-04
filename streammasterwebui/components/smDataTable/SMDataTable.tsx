@@ -36,6 +36,7 @@ import useSMDataSelectorValuesState from './hooks/useSMDataTableState';
 import { useSetQueryFilter } from './hooks/useSetQueryFilter';
 import { ColumnMeta } from './types/ColumnMeta';
 import { SMDataTableProps, SMDataTableRef } from './types/smDataTableInterfaces';
+import { Logger } from '@lib/common/logger';
 
 const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>, ref: React.Ref<SMDataTableRef<T>>) => {
   const { state, setters } = useSMDataSelectorValuesState<T>(props.id, props.selectedItemsKey);
@@ -49,8 +50,9 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>, ref: 
   const [dataSource, setDataSource] = useState<T[]>([]);
   const { setSelectedSMChannel } = useSelectedSMItems();
 
+  // Logger.debug('SMDataTable', state.sortField, state.sortInfo);
   useEffect(() => {
-    if (!props.defaultSortField || state.sortInfo === undefined || state.sortInfo.sortField === undefined) {
+    if (!props.defaultSortField || state.sortInfo === undefined || state.sortInfo.sortField !== undefined) {
       return;
     }
 
@@ -289,7 +291,8 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>, ref: 
           icon={getSortIcon(options.field)}
           onClick={() => {
             setters.setSortField(options.field);
-            setters.setSortOrder(state.sortOrder === 1 ? -1 : 1);
+            setters.setSortInfo(options.field, state.sortOrder === 1 ? -1 : 1);
+            //  setters.setSortOrder(state.sortOrder === 1 ? -1 : 1);
           }}
         />
       );
@@ -506,9 +509,22 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>, ref: 
         filteredData = filteredData.sort((a: any, b: any) => {
           const aSelected = selectedItems.includes(a.Id);
           const bSelected = selectedItems.includes(b.Id);
-          // Logger.debug('DataTable', { aSelected, bSelected });
           if (aSelected && !bSelected) return -1 * state.sortOrder;
           if (!aSelected && bSelected) return 1 * state.sortOrder;
+          return 0;
+        });
+      } else if (state.sortField === 'ChannelNumber') {
+        filteredData = filteredData.sort((a: any, b: any) => {
+          const sortField = state.sortField as keyof typeof a;
+          const aValue = a[sortField];
+          const bValue = b[sortField];
+
+          // Ensure the values are compared as numbers
+          const aNumber = typeof aValue === 'number' ? aValue : parseFloat(aValue);
+          const bNumber = typeof bValue === 'number' ? bValue : parseFloat(bValue);
+
+          if (aNumber < bNumber) return -1 * state.sortOrder;
+          if (aNumber > bNumber) return 1 * state.sortOrder;
           return 0;
         });
       } else {

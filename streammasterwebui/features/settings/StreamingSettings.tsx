@@ -67,7 +67,7 @@ export function StreamingSettings(): React.ReactElement {
   return (
     <BaseSettings title="STREAMING">
       {GetInputNumberLine({ field: 'GlobalStreamLimit' })}
-      {GetInputTextLine({ field: 'StreamingClientUserAgent' })}
+      {GetInputTextLine({ field: 'ClientUserAgent' })}
       {GetCheckBoxLine({ field: 'ShowClientHostNames' })}
       {GetDropDownLine({ field: 'ShowIntros', options: getIntroOptions() })}
       {GetDropDownLine({ field: 'DefaultCommandProfileName', options: DefaultCommandProfileNameOptions })}

@@ -100,11 +100,11 @@ public class ScanForCustomPlayListsRequestHandler(ILogger<ScanForCustomRequest> 
                 SMStream newStream = new()
                 {
                     Id = streamId,
-                    EPGID = EPGHelper.CustomPlayListId + "-" + nfo.Movie.Title,
+                    EPGID = EPGHelper.IntroPlayListId + "-" + nfo.Movie.Title,
                     Name = nfo.Movie.Title,
                     M3UFileName = Path.GetFileName(nfo.VideoFileName),
-                    M3UFileId = EPGHelper.CustomPlayListId,
-                    Group = "CustomPlayList",
+                    M3UFileId = EPGHelper.IntroPlayListId,
+                    Group = "Intros",
                     IsCustomStream = true,
                     Url = $"http://127.0.0.1:7095/m/{c}.ts"
                 };

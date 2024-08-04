@@ -15,7 +15,7 @@ import { PagedResponse } from '@lib/smAPI/smapiTypes';
 import { ColumnMeta } from '../types/ColumnMeta';
 
 const SMDataTableState = <T extends DataTableValue>(id: string, selectedItemsKey?: string) => {
-  const { sortInfo, setSortInfo } = useSortInfo(id);
+  const { sortInfo, setSortInfo: hookSetSortInfo } = useSortInfo(id);
   const { showHidden } = useShowHidden(id);
   const { showSelected } = useShowSelected(id);
   const { showSelections, setShowSelections } = useShowSelections(id);
@@ -36,16 +36,21 @@ const SMDataTableState = <T extends DataTableValue>(id: string, selectedItemsKey
   const [expandedRows, setExpandedRows] = useState<DataTableExpandedRows>();
 
   const setSortField = (value: string) => {
-    setSortInfo({
+    const toset = {
       ...sortInfo,
       sortField: value
-    });
+    };
+
+    hookSetSortInfo(toset);
   };
 
   const setSortOrder = (value: -1 | 0 | 1) => {
-    setSortInfo({ ...sortInfo, sortOrder: value });
+    hookSetSortInfo({ ...sortInfo, sortOrder: value });
   };
 
+  const setSortInfo = (field: string, sortOrder: -1 | 0 | 1) => {
+    hookSetSortInfo({ sortField: field, sortOrder });
+  };
   const sortField = sortInfo?.sortField ?? '';
   const sortOrder = sortInfo?.sortOrder ?? 1;
 
@@ -64,6 +69,7 @@ const SMDataTableState = <T extends DataTableValue>(id: string, selectedItemsKey
       setShowSelections,
       setSMTableIsSimple,
       setSortField,
+      setSortInfo,
       setSortOrder,
       setVisibleColumns
     },

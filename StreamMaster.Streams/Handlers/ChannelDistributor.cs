@@ -13,6 +13,7 @@ namespace StreamMaster.Streams.Handlers
     /// </summary>
     public class ChannelDistributor : IChannelDistributor
     {
+        public ChannelDistributor() { }
         public event EventHandler<ChannelDirectorStopped>? OnStoppedEvent;
         public SMStreamInfo SMStreamInfo { get; }
         public ConcurrentDictionary<string, Stream> ClientStreams { get; } = new();
@@ -76,11 +77,12 @@ namespace StreamMaster.Streams.Handlers
             _latencyHistogram = _meter.CreateHistogram<double>("latency", "ms");
         }
 
-        public ChannelDistributor(ILogger<IChannelDistributor> logger, SMChannelDto smChannelDto)
+        public ChannelDistributor(ILogger<IChannelDistributor> logger, SMChannelDto smChannelDto, IChannelStatus channelStatus)
         {
             SourceName = smChannelDto.Name;
+            //SMStreamInfo = SMStreamInfo.NewSMStreamInfo(smChannelDto.Id.ToString(), smChannelDto.Name, channelStatus.CommandProfile, smChannelDto.IsCustomStream);
+
             _logger = logger;
-            SMStreamInfo = SMStreamInfo.NewSMStreamInfo(smChannelDto.Name, smChannelDto.IsCustomStream);
             _meter = new Meter("StreamHandlerMetrics", "1.0");
             _bytesReadCounter = _meter.CreateCounter<long>("bytes_read");
             _kbpsHistogram = _meter.CreateHistogram<double>("kbps", "kbps");
@@ -101,9 +103,10 @@ namespace StreamMaster.Streams.Handlers
         /// </summary>
         /// <param name="sourceChannelReader">The source channel reader.</param>
         /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
-        public void SetSourceChannel(ChannelReader<byte[]> sourceChannelReader, string Name, CancellationToken cancellationToken)
+        public void SetSourceChannel(ChannelReader<byte[]> sourceChannelReader, string channelName, string sourceChannelName, CancellationToken cancellationToken)
         {
-            SourceName = Name;
+            _logger.LogInformation($"Setting source channel for {channelName} to {sourceChannelName}");
+            SourceName = sourceChannelName;
             Channel<byte[]> newChannel = Channel.CreateUnbounded<byte[]>(new UnboundedChannelOptions { SingleReader = true, SingleWriter = true });
 
             // Stop the current channel processing
@@ -118,9 +121,10 @@ namespace StreamMaster.Streams.Handlers
         /// </summary>
         /// <param name="sourceStream">The source stream.</param>
         /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
-        public void SetSourceStream(Stream sourceStream, string Name, CancellationToken cancellationToken)
+        public void SetSourceStream(Stream sourceStream, string channelName, string streamName, CancellationToken cancellationToken)
         {
-            SourceName = Name;
+            _logger.LogInformation($"Setting source stream for {channelName} to {streamName}");
+            SourceName = streamName;
             Channel<byte[]> newChannel = Channel.CreateUnbounded<byte[]>(new UnboundedChannelOptions { SingleReader = true, SingleWriter = true });
 
             // Stop the current channel processing
@@ -135,6 +139,7 @@ namespace StreamMaster.Streams.Handlers
         /// </summary>
         public void Stop()
         {
+            _logger.LogInformation($"Stoped distributor for: {SMStreamInfo.Id} {SMStreamInfo.Name}");
             Debug.WriteLine($"Dist had {GetChannelItemCount} left");
             if (!_cancellationTokenSource.IsCancellationRequested)
             {
@@ -231,7 +236,7 @@ namespace StreamMaster.Streams.Handlers
                 }
                 catch (OperationCanceledException)
                 {
-                    _logger.LogInformation("Stream reading canceled for: {name}", SMStreamInfo);
+                    _logger.LogInformation("Stream reading canceled for: {id} {name}", SMStreamInfo.Id, SMStreamInfo.Name);
                 }
                 catch (Exception ex)
                 {
@@ -274,7 +279,7 @@ namespace StreamMaster.Streams.Handlers
                 }
                 catch (OperationCanceledException)
                 {
-                    _logger.LogInformation("Stream reading canceled for: {name}", SMStreamInfo);
+                    _logger.LogInformation("Stream reading canceled for: {id} {name}", SMStreamInfo.Id, SMStreamInfo.Name);
                 }
                 catch (Exception ex)
                 {
@@ -293,18 +298,18 @@ namespace StreamMaster.Streams.Handlers
             {
                 case TaskCanceledException _:
                 case OperationCanceledException _:
-                    _logger.LogInformation(ex, "Stream reading canceled for: {name}", SMStreamInfo);
+                    _logger.LogInformation(ex, "Stream reading canceled for: {id} {name}", SMStreamInfo.Id, SMStreamInfo.Name);
                     break;
                 case EndOfStreamException _:
-                    _logger.LogInformation(ex, "End of stream reached for: {name}", SMStreamInfo);
+                    _logger.LogInformation(ex, "End of stream reached for: {id} {name}", SMStreamInfo.Id, SMStreamInfo.Name);
                     inputStreamError = true;
                     break;
                 case HttpIOException _:
-                    _logger.LogInformation(ex, "HTTP I/O exception for: {name}", SMStreamInfo);
+                    _logger.LogInformation(ex, "HTTP I/O exception for: {id} {name}", SMStreamInfo.Id, SMStreamInfo.Name);
                     inputStreamError = true;
                     break;
                 default:
-                    _logger.LogError(ex, "Unexpected error for: {name}", SMStreamInfo);
+                    _logger.LogError(ex, "Unexpected error for: {name}", SMStreamInfo.Name);
                     break;
             }
         }
@@ -339,11 +344,11 @@ namespace StreamMaster.Streams.Handlers
                 }
                 catch (OperationCanceledException)
                 {
-                    _logger.LogInformation("Stream operation canceled or ended for: {name}", SMStreamInfo);
+                    _logger.LogInformation("Stream operation canceled or ended for: {name}", SMStreamInfo.Name);
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Unexpected error during stream reading for: {name}", SMStreamInfo);
+                    _logger.LogError(ex, "Unexpected error during stream reading for: {name}", SMStreamInfo.Name);
                 }
             }, token);
         }

@@ -384,12 +384,17 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, IMessageSer
                 if (!existingLookup.TryGetValue(stream.Id, out SMStream? existingStream))
                 {
                     ProcessNewStream(stream, group?.IsHidden ?? false, m3uFile.Name, index);
+                    if (m3uFile.AutoSetChannelNumbers)
+                    {
+                        stream.ChannelNumber = index + m3uFile.StartingChannelNumber;
+                    }
                     toWrite.Add(stream);
                 }
                 else
                 {
                     if (ProcessExistingStream(stream, existingStream, m3uFile, index))
                     {
+
                         toUpdate.Add(existingStream);
                     }
                 }
@@ -432,6 +437,11 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, IMessageSer
         {
             changed = true;
             existingStream.M3UFileName = m3uFile.Name;
+        }
+
+        if (m3uFile.AutoSetChannelNumbers)
+        {
+            stream.ChannelNumber = index + m3uFile.StartingChannelNumber;
         }
 
         if (existingStream.ChannelNumber != stream.ChannelNumber)
@@ -490,6 +500,7 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, IMessageSer
         }
         stream.FilePosition = index;
         stream.M3UFileName = mu3FileName;
+
     }
     private void ProcessBatches(ConcurrentBag<SMStream> toWrite, ConcurrentBag<SMStream> toUpdate)
     {

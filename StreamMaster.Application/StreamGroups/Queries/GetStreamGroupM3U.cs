@@ -126,21 +126,7 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
                 CleanName = cleanName
             };
         }));
-        ;
 
-        //       // Retrieve necessary data in parallel
-        //       var videoStreamData = smChannels
-        //.AsParallel()
-        //.WithDegreeOfParallelism(Environment.ProcessorCount)
-        //.Select((smChannel, index) =>
-        //{
-        //    (int ChNo, string m3uLine) = BuildM3ULineForVideoStream(smChannel, url, request, profile, sgProfile.Id, settings, videoStreamConfigs);
-        //    return new
-        //    {
-        //        ChNo,
-        //        m3uLine
-        //    };
-        //}).ToList();
         OutputProfileDto outputProfile = profileService.GetOutputProfile(streamGroupProfile.OutputProfileName);
 
         var videoStreamData = encodedData

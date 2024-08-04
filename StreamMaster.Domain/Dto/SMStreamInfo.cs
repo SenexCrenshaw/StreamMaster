@@ -1,4 +1,5 @@
 ﻿using StreamMaster.Domain.Attributes;
+using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Helpers;
 
 namespace StreamMaster.Domain.Dto;
@@ -7,17 +8,19 @@ namespace StreamMaster.Domain.Dto;
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public class SMStreamInfo
 {
-    public static SMStreamInfo NewSMStreamInfo(string name, bool isCustomStream)
+    public static SMStreamInfo NewSMStreamInfo(string id, string name, CommandProfileDto CommandProfile, bool isCustomStream)
     {
         return new SMStreamInfo
         {
-            Id = name,
+            Id = id,
             Name = name,
             Url = "",
             M3UFileId = EPGHelper.CustomPlayListId,
-            IsCustomStream = isCustomStream
+            IsCustomStream = isCustomStream,
+            CommandProfile = CommandProfile
         };
     }
+    public required CommandProfileDto CommandProfile { get; set; }
     public required string Id { get; set; }
     public string? ClientUserAgent { get; set; } = null;
     public required string Name { get; set; } = string.Empty;

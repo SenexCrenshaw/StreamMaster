@@ -136,6 +136,7 @@ export interface IconFileDto
 }
 export interface M3UFileDto
 {
+	AutoSetChannelNumbers: boolean;
 	AutoUpdate: boolean;
 	DefaultStreamGroupName?: string;
 	Description: string;
@@ -148,6 +149,7 @@ export interface M3UFileDto
 	Name: string;
 	NeedsUpdate: boolean;
 	Source: string;
+	StartingChannelNumber: number;
 	StreamCount: number;
 	SyncChannels: boolean;
 	Url: string;
@@ -191,7 +193,6 @@ export interface SettingDto
 	SDSettings: SDSettings;
 	ShowClientHostNames: boolean;
 	ShowIntros: string;
-	SourceClientUserAgent: string;
 	SSLCertPassword: string;
 	SSLCertPath: string;
 	UiFolder: string;
@@ -230,6 +231,7 @@ export interface SMStreamDto
 	APIName: string;
 	ChannelNumber: number;
 	ClientUserAgent?: string;
+	CUID: string;
 	EPGID: string;
 	FilePosition: number;
 	Group: string;
@@ -250,6 +252,7 @@ export interface SMStreamDto
 export interface SMStreamInfo
 {
 	ClientUserAgent?: string;
+	CommandProfile: CommandProfileDto;
 	Id: string;
 	IsCustomStream: boolean;
 	M3UFileId: number;
@@ -834,6 +837,7 @@ export interface CopySMChannelRequest
 export interface CreateSMChannelRequest
 {
 	ChannelNumber?: number;
+	ClientUserAgent?: string;
 	CommandProfileName?: string;
 	EPGId?: string;
 	Group?: string;
@@ -939,6 +943,7 @@ export interface ToggleSMChannelVisibleByParametersRequest
 export interface UpdateSMChannelRequest
 {
 	ChannelNumber?: number;
+	ClientUserAgent?: string;
 	CommandProfileName?: string;
 	EPGId?: string;
 	Group?: string;
@@ -1001,7 +1006,6 @@ export interface UpdateSettingParameters
 	ShowIntros?: string;
 	SSLCertPassword?: string;
 	SSLCertPath?: string;
-	StreamingClientUserAgent?: string;
 }
 export interface UpdateSettingRequest
 {
@@ -1173,6 +1177,7 @@ export interface SyncChannelsRequest
 }
 export interface UpdateM3UFileRequest
 {
+	AutoSetChannelNumbers?: boolean;
 	AutoUpdate?: boolean;
 	DefaultStreamGroupName?: string;
 	HoursToUpdate?: number;

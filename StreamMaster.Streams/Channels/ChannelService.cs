@@ -16,6 +16,7 @@ public sealed class ChannelService : IChannelService, IDisposable
     private readonly IDubcer dubcer;
     private readonly IChannelDistributorService channelDistributorService;
     private readonly IChannelStatusService channelStatusService;
+    private readonly IStreamGroupService streamGroupService;
 
     private readonly object _disposeLock = new();
     private bool _disposed = false;
@@ -28,12 +29,14 @@ public sealed class ChannelService : IChannelService, IDisposable
         IProfileService profileService,
         ICustomPlayListBuilder customPlayListBuilder,
         IOptionsMonitor<Setting> intSettings,
+        IStreamGroupService streamGroupService,
         ISwitchToNextStreamService switchToNextStreamService,
         IChannelStatusService channelStatusService,
 
          IClientStatisticsManager statisticsManager
     )
     {
+        this.streamGroupService = streamGroupService;
         this.channelDistributorService = channelDistributorService;
         this.profileService = profileService;
         this.switchToNextStreamService = switchToNextStreamService;
@@ -42,7 +45,7 @@ public sealed class ChannelService : IChannelService, IDisposable
         this.channelStatusLogger = channelStatusLogger;
         this.statisticsManager = statisticsManager;
         this.dubcer = dubcer;
-        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        this.logger = logger;
         this.channelDistributorService.OnStoppedEvent += ChannelDistributorService_OnStoppedEvent;
         this.channelStatusService = channelStatusService;
     }
@@ -66,11 +69,11 @@ public sealed class ChannelService : IChannelService, IDisposable
                         continue;
                     }
 
-                    if (!string.IsNullOrEmpty(channelStatus.OverrideSMStreamId))
-                    {
-                        channelStatus.OverrideSMStreamId = "";
-                        continue;
-                    }
+                    //if (!string.IsNullOrEmpty(channelStatus.OverrideSMStreamId))
+                    //{
+                    //    channelStatus.OverrideSMStreamId = "";
+                    //    continue;
+                    //}
 
                     bool didSwitch = await SwitchChannelToNextStream(channelStatus);
 
@@ -134,18 +137,16 @@ public sealed class ChannelService : IChannelService, IDisposable
             logger.LogInformation("No existing channel for {UniqueRequestId} {ChannelVideoStreamId} {name}",
                               config.UniqueRequestId, config.SMChannel.Id, config.SMChannel.Name);
 
-            CommandProfileDto commandProfileData = profileService.GetCommandProfile();
-            if (commandProfileData == null)
+            //CommandProfileDto commandProfileData = profileService.GetCommandProfile(config.SMChannel.CommandProfileName);
+            CommandProfileDto commandProfileDto = await streamGroupService.GetProfileFromSMChannelDtoAsync(config.StreamGroupId, config.StreamGroupProfileId, config.SMChannel.CommandProfileName);
+            if (commandProfileDto == null)
             {
                 logger.LogError("Could not find command profile");
                 return null;
             }
-
-            channelStatus = channelStatusService.NewChannelStatus(config.SMChannel);
+            channelStatus = await channelStatusService.NewChannelStatus(config.SMChannel);
             channelStatus.StreamGroupProfileId = config.StreamGroupProfileId;
-            channelStatus.CommandProfile = commandProfileData;
-
-
+            //channelStatus.CommandProfile = commandProfileDto;
             _channelStatuses.TryAdd(config.SMChannel.Id, channelStatus);
 
             if (!await SwitchChannelToNextStream(channelStatus).ConfigureAwait(false))
@@ -188,7 +189,6 @@ public sealed class ChannelService : IChannelService, IDisposable
                 return null;
             }
         }
-        channelStatus.ClientUserAgent = config.ClientUserAgent;
 
         channelStatus.AddClient(config.UniqueRequestId, config);
 
@@ -197,25 +197,26 @@ public sealed class ChannelService : IChannelService, IDisposable
 
     public async Task<IChannelStatus?> SetupChannel(SMChannelDto smChannel)
     {
-        ArgumentNullException.ThrowIfNull(smChannel);
+        //ArgumentNullException.ThrowIfNull(smChannel);
 
-        IChannelStatus? channelStatus = GetChannelStatus(smChannel.Id);
-        if (channelStatus == null)
-        {
-            channelStatus = channelStatusService.NewChannelStatus(smChannel);
-            channelStatus.CommandProfile = new CommandProfileDto();
+        //IChannelStatus? channelStatus = GetChannelStatus(smChannel.Id);
+        //if (channelStatus == null)
+        //{
+        //    channelStatus = await channelStatusService.NewChannelStatus(smChannel);
+        //    channelStatus.CommandProfile = new CommandProfileDto();
 
-            if (!await switchToNextStreamService.SetNextStreamAsync(channelStatus))
-            {
-                return null;
-            }
+        //    if (!await switchToNextStreamService.SetNextStreamAsync(channelStatus))
+        //    {
+        //        return null;
+        //    }
 
-            Setting settings = intSettings.CurrentValue;
-            channelStatus.ClientUserAgent = settings.ClientUserAgent;
-            _ = _channelStatuses.TryAdd(smChannel.Id, channelStatus);
-        }
+        //    Setting settings = intSettings.CurrentValue;
+        //    channelStatus.ClientUserAgent = settings.ClientUserAgent;
+        //    _ = _channelStatuses.TryAdd(smChannel.Id, channelStatus);
+        //}
 
-        return channelStatus;
+        //return channelStatus;
+        return null;
     }
 
     private List<string> RunningUrls => _channelStatuses.Values.Where(a => a.ClientCount > 0 && a.SMStreamInfo != null).Select(a => a.SMStreamInfo!.Url).Distinct().ToList();
@@ -347,7 +348,7 @@ public sealed class ChannelService : IChannelService, IDisposable
         }
 
 
-        channelStatus.OverrideSMStreamId = OverrideSMStreamId;
+        //channelStatus.OverrideSMStreamId = OverrideSMStreamId;
 
 
         logger.LogDebug("Starting SwitchToNextVideoStream with channelStatus: {channelStatus} and overrideNextVideoStreamId: {overrideNextVideoStreamId}", channelStatus, OverrideSMStreamId);
@@ -361,7 +362,7 @@ public sealed class ChannelService : IChannelService, IDisposable
             return false;
         }
 
-        IChannelDistributor? sourceChannelDistributor = await channelDistributorService.GetOrCreateSourceChannelDistributorAsync(channelStatus.SMStreamInfo, CancellationToken.None);
+        IChannelDistributor? sourceChannelDistributor = await channelDistributorService.GetOrCreateSourceChannelDistributorAsync(channelStatus.SMChannel.Name, channelStatus.SMStreamInfo, CancellationToken.None);
 
         if (sourceChannelDistributor is null)
         {
@@ -370,7 +371,7 @@ public sealed class ChannelService : IChannelService, IDisposable
             return false;
         }
 
-        channelStatus.SetSourceChannel(sourceChannelDistributor, channelStatus.SMStreamInfo.Name, channelStatus.SMStreamInfo.IsCustomStream);
+        channelStatus.SetSourceChannel(sourceChannelDistributor, channelStatus);
 
         channelStatus.FailoverInProgress = false;
 
