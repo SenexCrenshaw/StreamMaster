@@ -29,10 +29,11 @@ public class RepositoryWrapper(
     IMessageService messageService,
     ICryptoService cryptoService,
     IOptionsMonitor<Setting> intSettings,
-    IOptionsMonitor<CommandProfiles> intProfileSettings,
+    IOptionsMonitor<CommandProfileDict> intProfileSettings,
     IJobStatusService jobStatusService,
     ISender sender,
     IDataRefreshService dataRefreshService,
+    IStreamGroupService streamGroupService,
     IHttpContextAccessor httpContextAccessor) : IRepositoryWrapper
 {
     private IStreamGroupProfileRepository _streamGroupProfileRepository;
@@ -72,7 +73,7 @@ public class RepositoryWrapper(
     {
         get
         {
-            _smChannel ??= new SMChannelsRepository(SMChannelLogger, this, repositoryContext, mapper, intSettings, intProfileSettings, schedulesDirectDataService);
+            _smChannel ??= new SMChannelsRepository(SMChannelLogger, streamGroupService, this, repositoryContext, mapper, intSettings, intProfileSettings, schedulesDirectDataService);
             return _smChannel;
         }
     }

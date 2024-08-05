@@ -4,16 +4,16 @@
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record RemoveOutputProfileRequest(string Name) : IRequest<APIResponse>;
 
-public class RemoveOutputProfileRequestHandler(IOptionsMonitor<OutputProfiles> intProfileSettings, IDataRefreshService dataRefreshService, ILogger<RemoveOutputProfileRequest> Logger, IMapper Mapper)
+public class RemoveOutputProfileRequestHandler(IOptionsMonitor<OutputProfileDict> intProfileSettings, IDataRefreshService dataRefreshService, ILogger<RemoveOutputProfileRequest> Logger, IMapper Mapper)
 : IRequestHandler<RemoveOutputProfileRequest, APIResponse>
 {
 
 
     public async Task<APIResponse> Handle(RemoveOutputProfileRequest request, CancellationToken cancellationToken)
     {
-        OutputProfiles profileSettings = intProfileSettings.CurrentValue;
+        OutputProfileDict profileSettings = intProfileSettings.CurrentValue;
 
-        List<string> badNames = profileSettings.Profiles
+        List<string> badNames = profileSettings.OutputProfiles
             .Where(kvp => kvp.Value.IsReadOnly)
             .Select(kvp => kvp.Key)
             .ToList();
@@ -24,9 +24,9 @@ public class RemoveOutputProfileRequestHandler(IOptionsMonitor<OutputProfiles> i
             return APIResponse.ErrorWithMessage($"Cannot use name {request.Name}");
 
         }
-        if (profileSettings.Profiles.TryGetValue(request.Name, out OutputProfile? profile))
+        if (profileSettings.OutputProfiles.TryGetValue(request.Name, out OutputProfile? profile))
         {
-            _ = profileSettings.Profiles.Remove(request.Name);
+            _ = profileSettings.OutputProfiles.Remove(request.Name);
 
             Logger.LogInformation("RemoveFileProfileRequest");
 

@@ -2,7 +2,7 @@
 
 namespace StreamMaster.Application.StreamGroups;
 
-public class StreamGroupService(ILogger<StreamGroupService> logger, IOptionsMonitor<CommandProfiles> intCommandProfileSettings, IOptionsMonitor<Setting> intSettings, IMemoryCache _memoryCache, IProfileService profileService, IServiceProvider _serviceProvider)
+public class StreamGroupService(ILogger<StreamGroupService> logger, IOptionsMonitor<CommandProfileDict> intCommandProfileSettings, IOptionsMonitor<Setting> intSettings, IMemoryCache _memoryCache, IProfileService profileService, IServiceProvider _serviceProvider)
     : IStreamGroupService
 {
     private const string DefaultStreamGroupName = "all";

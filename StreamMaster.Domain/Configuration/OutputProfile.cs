@@ -50,12 +50,12 @@ public class OutputProfileDto : OutputProfile
     public string ProfileName { get; set; } = "";
 }
 
-public class OutputProfiles
+public class OutputProfileDict
 {
-    public Dictionary<string, OutputProfile> Profiles { get; set; } = [];
+    public Dictionary<string, OutputProfile> OutputProfiles { get; set; } = [];
     public OutputProfile? GetProfile(string OutputProfileName)
     {
-        return Profiles.TryGetValue(OutputProfileName, out OutputProfile? existingProfile)
+        return OutputProfiles.TryGetValue(OutputProfileName, out OutputProfile? existingProfile)
             ? existingProfile
             : null;
     }
@@ -94,9 +94,9 @@ public class OutputProfiles
     {
         List<OutputProfileDto> ret = [];
 
-        foreach (string key in Profiles.Keys)
+        foreach (string key in OutputProfiles.Keys)
         {
-            if (Profiles.TryGetValue(key, out OutputProfile? profile))
+            if (OutputProfiles.TryGetValue(key, out OutputProfile? profile))
             {
                 ret.Add(GetProfileDtoFromProfile(profile, key));
             }
@@ -108,9 +108,9 @@ public class OutputProfiles
     {
         List<OutputProfile> ret = [];
 
-        foreach (string key in Profiles.Keys)
+        foreach (string key in OutputProfiles.Keys)
         {
-            if (Profiles.TryGetValue(key, out OutputProfile? profile))
+            if (OutputProfiles.TryGetValue(key, out OutputProfile? profile))
             {
                 ret.Add(profile);
             }

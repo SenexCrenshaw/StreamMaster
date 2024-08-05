@@ -4,12 +4,12 @@
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record GetChannelDistributorsRequest() : IRequest<DataResponse<List<ChannelDistributorDto>>>;
 
-internal class GetChannelDistributorsRequestHandler(IRepositoryWrapper repositoryWrapper, IChannelDistributorService channelDistributorService)
+internal class GetChannelDistributorsRequestHandler(IRepositoryWrapper repositoryWrapper, IChannelBroadcasterService channelDistributorService)
     : IRequestHandler<GetChannelDistributorsRequest, DataResponse<List<ChannelDistributorDto>>>
 {
     public async Task<DataResponse<List<ChannelDistributorDto>>> Handle(GetChannelDistributorsRequest request, CancellationToken cancellationToken)
     {
-        List<IChannelDistributor> channelDistributors = channelDistributorService.GetChannelDistributors();
+        List<IChannelBroadcaster> channelDistributors = channelDistributorService.GetChannelBroadcasters();
         List<ChannelDistributorDto> dtos = [];
 
         List<string> smChannelIds = channelDistributors.SelectMany(a => a.ClientChannels.Keys).ToList();
@@ -18,7 +18,7 @@ internal class GetChannelDistributorsRequestHandler(IRepositoryWrapper repositor
         List<SMChannel> smChannels = await repositoryWrapper.SMChannel.GetQuery(a => smChannelIds.Contains(a.Id.ToString())).ToListAsync(cancellationToken);
         List<SMStream> smStreams = await repositoryWrapper.SMStream.GetQuery(a => smStreamIds.Contains(a.Id)).ToListAsync(cancellationToken);
 
-        foreach (IChannelDistributor channelDistributor in channelDistributors)
+        foreach (IChannelBroadcaster channelDistributor in channelDistributors)
         {
             List<ClientChannelDto> channelDtos = [];
 
@@ -50,9 +50,8 @@ internal class GetChannelDistributorsRequestHandler(IRepositoryWrapper repositor
 
             ChannelDistributorDto dto = new()
             {
-                Name = channelDistributor.SourceName,
-                //Name2 =  channelDistributor.SourceName,
-                SMStreamInfo = channelDistributor.SMStreamInfo,
+                Name = channelDistributor.Name,
+                //SMStreamInfo = channelDistributor.SMStreamInfo,
                 ClientChannels = channelDtos,
                 ClientStreams = streamDtos,
                 GetChannelItemCount = channelDistributor.GetChannelItemCount,

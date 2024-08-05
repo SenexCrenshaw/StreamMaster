@@ -3,6 +3,7 @@ using AutoMapper.QueryableExtensions;
 
 using Microsoft.EntityFrameworkCore;
 
+using StreamMaster.Application.Interfaces;
 using StreamMaster.Domain.API;
 using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Exceptions;
@@ -18,7 +19,7 @@ using System.Text.Json;
 
 namespace StreamMaster.Infrastructure.EF.Repositories;
 
-public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepositoryWrapper repository, IRepositoryContext repositoryContext, IMapper mapper, IOptionsMonitor<Setting> intSettings, IOptionsMonitor<CommandProfiles> intProfileSettings, ISchedulesDirectDataService schedulesDirectDataService)
+public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IStreamGroupService streamGroupService, IRepositoryWrapper repository, IRepositoryContext repositoryContext, IMapper mapper, IOptionsMonitor<Setting> intSettings, IOptionsMonitor<CommandProfileDict> intProfileSettings, ISchedulesDirectDataService schedulesDirectDataService)
     : RepositoryBase<SMChannel>(repositoryContext, intLogger), ISMChannelsRepository
 {
     private ConcurrentHashSet<int> existingNumbers = [];
@@ -176,7 +177,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
 
     public async Task<List<int>> DeleteSMChannelsFromParameters(QueryStringParameters parameters)
     {
-        IQueryable<SMChannel> toDelete = GetQuery(parameters).Where(a => !a.IsCustomStream);
+        IQueryable<SMChannel> toDelete = GetQuery(parameters).Where(a => a.SMChannelType == SMChannelTypeEnum.Regular && !a.IsSystem);
         return await DeleteSMChannelsAsync(toDelete).ConfigureAwait(false);
     }
 
@@ -203,7 +204,6 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
             StationId = smStream.StationId,
             M3UFileId = M3UFileId ?? smStream.M3UFileId,
             BaseStreamID = smStream.Id,
-            IsCustomStream = smStream.IsCustomStream,
             IsSystem = smStream.IsSystem,
             CommandProfileName = "Default",
         };
@@ -236,7 +236,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
 
     public async Task<APIResponse> DeleteSMChannels(List<int> smchannelIds)
     {
-        IQueryable<SMChannel> toDelete = GetQuery(true).Where(a => smchannelIds.Contains(a.Id) && !a.IsCustomStream);
+        IQueryable<SMChannel> toDelete = GetQuery(true).Where(a => smchannelIds.Contains(a.Id) && !a.IsSystem);
         if (!toDelete.Any())
         {
             return APIResponse.NotFound;
@@ -576,31 +576,18 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
         return APIResponse.Success;
     }
 
-    public async Task<APIResponse> CreateSMChannelsFromCustomStreams(List<string> streamIds, int m3UFileId, bool isCustomPlayList)
+    public async Task<APIResponse> CreateSMChannelsFromCustomStreams(List<string> smStreamIds)
     {
         try
         {
-            int? defaultSGId = m3UFileId;
-
-            if (m3UFileId > 0)
-            {
-                M3UFile? m3uFile = await repository.M3UFile.GetM3UFile(m3UFileId);
-                if (m3uFile != null && !string.IsNullOrEmpty(m3uFile.DefaultStreamGroupName))
-                {
-                    StreamGroup? sg = await repository.StreamGroup.GetQuery().FirstOrDefaultAsync(a => a.Name == m3uFile.DefaultStreamGroupName);
-                    if (sg != null)
-                    {
-                        defaultSGId = sg.Id;
-                    }
-                }
-            }
+            //int defaultSGId = await streamGroupService.GetDefaultSGIdAsync();
 
             List<SMChannel> addedSMChannels = [];
             Setting Settings = intSettings.CurrentValue;
             int count = 0;
-            foreach (string streamId in streamIds)
+            foreach (string streamId in smStreamIds)
             {
-                SMChannel? smChannel = await CreateSMChannelFromStream(streamId, m3UFileId, forced: true);
+                SMChannel? smChannel = await CreateSMChannelFromStream(streamId, forced: true);
 
                 if (smChannel is null)
                 {
@@ -614,18 +601,19 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
                 if (count % 100 == 0)
                 {
                     logger.LogInformation("{count} SMChannels have been added.", count);
-                    if (!isCustomPlayList)
-                    {
-                        await BulkUpdate(addedSMChannels, defaultSGId);
-                    }
+                    //if (!isCustomPlayList)
+                    //{
+                    await BulkUpdate(addedSMChannels, null);
+                    //}
                     addedSMChannels = [];
                 }
             }
 
-            if (!isCustomPlayList && addedSMChannels.Count > 0)
+            //if (!isCustomPlayList && addedSMChannels.Count > 0)
+            if (addedSMChannels.Count > 0)
             {
                 logger.LogInformation("{count} SMChannels have been added.", count);
-                await BulkUpdate(addedSMChannels, defaultSGId);
+                await BulkUpdate(addedSMChannels, null);
             }
         }
         catch (Exception ex)
@@ -925,7 +913,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
 
     //private async Task<APIResponse> SetSMChannelsCommandProfileName(IQueryable<SMChannel> query, string CommandProfileName)
     //{
-    //    if (!intProfileSettings.CurrentValue.CommandProfiles.ContainsKey(CommandProfileName))
+    //    if (!intProfileSettings.CurrentValue.CommandProfileDict.ContainsKey(CommandProfileName))
     //    {
     //        return APIResponse.ErrorWithMessage($"CommandProfileName '{CommandProfileName}' not found");
     //    }

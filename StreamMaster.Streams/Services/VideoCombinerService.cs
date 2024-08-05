@@ -2,7 +2,7 @@
 
 using System.Threading.Channels;
 
-namespace StreamMaster.Streams.Streams
+namespace StreamMaster.Streams.Services
 {
     public class VideoCombinerService(ILogger<VideoCombinerService> logger, IVideoCombiner videoCombiner, IChannelManager channelManager, IServiceProvider serviceProvider)
         : IVideoCombinerService

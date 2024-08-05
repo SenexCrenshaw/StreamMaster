@@ -7,16 +7,16 @@ public record AddOutputProfileRequest(OutputProfileDto OutputProfileDto) : IRequ
 
 public class AddOutputProfileRequestHandler(ILogger<AddOutputProfileRequest> Logger,
     IMessageService messageService,
-    IOptionsMonitor<OutputProfiles> intProfileSettings, IDataRefreshService dataRefreshService)
+    IOptionsMonitor<OutputProfileDict> intProfileSettings, IDataRefreshService dataRefreshService)
 : IRequestHandler<AddOutputProfileRequest, APIResponse>
 {
 
 
     public async Task<APIResponse> Handle(AddOutputProfileRequest request, CancellationToken cancellationToken)
     {
-        OutputProfiles profileSettings = intProfileSettings.CurrentValue;
+        OutputProfileDict profileSettings = intProfileSettings.CurrentValue;
 
-        List<string> badNames = profileSettings.Profiles
+        List<string> badNames = profileSettings.OutputProfiles
             .Where(kvp => kvp.Value.IsReadOnly)
             .Select(kvp => kvp.Key)
             .ToList();
@@ -26,7 +26,7 @@ public class AddOutputProfileRequestHandler(ILogger<AddOutputProfileRequest> Log
             return APIResponse.ErrorWithMessage($"Cannot use name {request.OutputProfileDto.Name}");
         }
 
-        if (profileSettings.Profiles.TryGetValue(request.OutputProfileDto.Name, out _))
+        if (profileSettings.OutputProfiles.TryGetValue(request.OutputProfileDto.Name, out _))
         {
             //profileSettings.FileProfiles[request.OutputProfileDto.ProfileName] = request.OutputProfileDto;
             await messageService.SendError("Profile already exists");
@@ -34,7 +34,7 @@ public class AddOutputProfileRequestHandler(ILogger<AddOutputProfileRequest> Log
         }
         else
         {
-            profileSettings.Profiles.Add(request.OutputProfileDto.Name, request.OutputProfileDto);
+            profileSettings.OutputProfiles.Add(request.OutputProfileDto.Name, request.OutputProfileDto);
         }
 
 

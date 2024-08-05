@@ -12,7 +12,7 @@ interface AttachStreamGroupProfileDialogProps {
 }
 
 const AttachStreamGroupProfileDialog = ({ streamGroupDto }: AttachStreamGroupProfileDialogProps) => {
-  const defaultValues = { OutputProfileName: 'Default', CommandProfileName: 'StreamMaster' } as AddProfileToStreamGroupRequest;
+  const defaultValues = { CommandProfileName: 'Default', OutputProfileName: 'Default' } as AddProfileToStreamGroupRequest;
   const [fileRequest, setFileRequest] = useState<AddProfileToStreamGroupRequest>(defaultValues);
   const smPopUpRef = useRef<SMPopUpRef>(null);
   const [name, setName] = useState<string>();

@@ -1,4 +1,6 @@
-﻿using System.Diagnostics;
+﻿using StreamMaster.Domain.Enums;
+
+using System.Diagnostics;
 
 namespace StreamMaster.Streams.Factories;
 
@@ -21,10 +23,14 @@ public sealed class ProxyFactory(ILogger<ProxyFactory> logger, IHTTPStream HTTPS
 
         try
         {
-            CommandProfileDto profile = smStreamInfo.CommandProfile;// profileService.GetCommandProfile();
             string clientUserAgent = !string.IsNullOrEmpty(smStreamInfo.ClientUserAgent) ? smStreamInfo.ClientUserAgent : settings.CurrentValue.ClientUserAgent;
 
-            if (smStreamInfo.IsCustomStream)
+            if (smStreamInfo.SMStreamType == SMStreamTypeEnum.CustomPlayList)
+            {
+                return await CustomPlayListStream.HandleStream(smStreamInfo, clientUserAgent, cancellationToken).ConfigureAwait(false);
+            }
+
+            if (smStreamInfo.SMStreamType == SMStreamTypeEnum.Intro)
             {
                 return await CustomPlayListStream.HandleStream(smStreamInfo, clientUserAgent, cancellationToken).ConfigureAwait(false);
             }
@@ -32,14 +38,13 @@ public sealed class ProxyFactory(ILogger<ProxyFactory> logger, IHTTPStream HTTPS
             if (smStreamInfo.Url.EndsWith(".m3u8"))
             {
                 logger.LogInformation("Stream URL has m3u8 extension, using ffmpeg for streaming: {streamName}", smStreamInfo.Name);
-                return commandExecutor.ExecuteCommand(profile, smStreamInfo.Url, clientUserAgent, null, cancellationToken);
+                return commandExecutor.ExecuteCommand(smStreamInfo.CommandProfile, smStreamInfo.Url, clientUserAgent, null, cancellationToken);
             }
 
+
+            //FIX ME : Handler for just commands and not stream master proxy
             return await HTTPStream.HandleStream(smStreamInfo, clientUserAgent, cancellationToken).ConfigureAwait(false);
 
-            //return (smStreamInfo.IsCustomStream && !smStreamInfo.Id.StartsWith(IntroPlayListBuilder.IntroIDPrefix, StringComparison.CurrentCultureIgnoreCase))
-            //    ? await CustomPlayListStream.HandleStream(smStreamInfo, clientUserAgent, cancellationToken).ConfigureAwait(false)
-            //    : await HTTPStream.HandleStream(smStreamInfo, clientUserAgent, cancellationToken).ConfigureAwait(false);
         }
         catch (Exception ex) when (ex is HttpRequestException or Exception)
         {

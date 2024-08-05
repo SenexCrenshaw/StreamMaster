@@ -1,11 +1,16 @@
 ﻿namespace StreamMaster.Streams.Domain.Models;
 
-public class ChannelDirectorStopped
+public class ChannelDirectorStopped(string Id, string Name)
 {
-    public SMStreamInfo SMStreamInfo { get; set; }
-
-    public ChannelDirectorStopped(SMStreamInfo smStreamInfo)
-    {
-        SMStreamInfo = smStreamInfo;
-    }
+    public string Id { get; set; } = Id;
+    public string Name { get; set; } = Name;
+    //public string Url { get; set; } = Url;
 }
+
+public class ChannelStatusStopped(int Id, string Name)
+{
+    public int Id { get; set; } = Id;
+    public string Name { get; set; } = Name;
+    //public IChannelStatus ChannelStatus { get; set; }
+}
+

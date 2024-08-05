@@ -1,8 +1,4 @@
-﻿using StreamMaster.Application.Interfaces;
-using StreamMaster.Domain.Configuration;
-using StreamMaster.PlayList;
-
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 namespace StreamMaster.Streams.Streams;
 
 public class HLSManager(ILogger<HLSManager> logger, ICryptoService cryptoService, IAccessTracker accessTracker, ISwitchToNextStreamService switchToNextStreamService, ICustomPlayListBuilder customPlayListBuilder, IStreamTracker streamTracker, ILoggerFactory loggerFactory, IOptionsMonitor<HLSSettings> intHLSSettings, IOptionsMonitor<Setting> intSettings)
@@ -29,15 +25,15 @@ public class HLSManager(ILogger<HLSManager> logger, ICryptoService cryptoService
 
             channelStatus = new M3U8ChannelStatus(smChannel);
 
-            if (smChannel.IsCustomStream)
-            {
-                channelStatus.CustomPlayList = customPlayListBuilder.GetCustomPlayList(smChannel.Name);
-                if (channelStatus.CustomPlayList == null || channelStatus.CustomPlayList.CustomStreamNfos.Count == 0)
-                {
-                    logger.LogError("No custom video files for {name}", smChannel.Name);
-                    return null;
-                }
-            }
+            //if (smChannel.SMChannelType == StreamMaster.Domain.Enums.SMChannelTypeEnum.CustomPlayList)
+            //{
+            //    channelStatus.CustomPlayList = customPlayListBuilder.GetCustomPlayList(smChannel.Name);
+            //    if (channelStatus.CustomPlayList == null || channelStatus.CustomPlayList.CustomStreamNfos.Count == 0)
+            //    {
+            //        logger.LogError("No custom video files for {name}", smChannel.Name);
+            //        return null;
+            //    }
+            //}
 
             if (!await switchToNextStreamService.SetNextStreamAsync(channelStatus).ConfigureAwait(false))
             {

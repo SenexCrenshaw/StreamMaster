@@ -25,6 +25,17 @@ export interface SMMessage
 	Severity: string;
 	Summary: string;
 }
+export interface SMStreamInfo
+{
+	ClientUserAgent?: string;
+	CommandProfile: CommandProfileDto;
+	Id: string;
+	Name: string;
+	SecondsIn: number;
+	ShutDownDelay: number;
+	SMStreamType: number;
+	Url: string;
+}
 export interface SMTask
 {
 	Command: string;
@@ -205,20 +216,19 @@ export interface SMChannelDto
 	APIName: string;
 	BaseStreamID: string;
 	ChannelNumber: number;
-	ChannelType: number;
 	CommandProfileName: string;
 	CurrentRank: number;
 	EPGId: string;
 	Group: string;
 	GroupTitle: string;
 	Id: number;
-	IsCustomStream: boolean;
 	IsHidden: boolean;
 	IsSystem: boolean;
 	Logo: string;
 	M3UFileId: number;
 	Name: string;
 	SMChannels: any[];
+	SMChannelType: number;
 	SMStreams: SMStreamDto[];
 	StationId: string;
 	StreamGroupIds: number[];
@@ -236,7 +246,6 @@ export interface SMStreamDto
 	FilePosition: number;
 	Group: string;
 	Id: string;
-	IsCustomStream: boolean;
 	IsHidden: boolean;
 	IsSystem: boolean;
 	IsUserCreated: boolean;
@@ -246,18 +255,8 @@ export interface SMStreamDto
 	Name: string;
 	Rank: number;
 	RealUrl: string;
+	SMStreamType: number;
 	StationId: string;
-	Url: string;
-}
-export interface SMStreamInfo
-{
-	ClientUserAgent?: string;
-	CommandProfile: CommandProfileDto;
-	Id: string;
-	IsCustomStream: boolean;
-	M3UFileId: number;
-	Name: string;
-	SecondsIn?: number;
 	Url: string;
 }
 export interface StreamGroupDto
@@ -1386,13 +1385,6 @@ export interface StreamStreamingStatistic
 	StreamLogo?: string;
 	StreamName: string;
 	StreamUrl?: string;
-}
-export interface StreamInfo
-{
-	CurrentRank: number;
-	SMChannel: SMChannelDto;
-	SMStream: SMStreamDto;
-	StreamStatistics: StreamStreamingStatistic[];
 }
 export interface CustomStreamNfo
 {

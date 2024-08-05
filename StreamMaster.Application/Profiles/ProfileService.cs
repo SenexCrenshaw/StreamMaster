@@ -1,6 +1,6 @@
 ﻿namespace StreamMaster.Application.Profiles;
 
-public class ProfileService(IOptionsMonitor<Setting> intSettings, IOptionsMonitor<OutputProfiles> intOutProfileSettings, IOptionsMonitor<CommandProfiles> intCommandProfileSettings
+public class ProfileService(IOptionsMonitor<Setting> intSettings, IOptionsMonitor<OutputProfileDict> intOutProfileSettings, IOptionsMonitor<CommandProfileDict> intCommandProfileSettings
     ) : IProfileService
 {
     public List<CommandProfileDto> GetCommandProfiles()

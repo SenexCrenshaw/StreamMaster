@@ -6,13 +6,13 @@ public sealed class ChannelManager : IChannelManager
     private readonly object _disposeLock = new();
     private readonly ILogger<ChannelManager> logger;
     private readonly IChannelService channelService;
-    private readonly IChannelDistributorService channelDistributorService;
+    private readonly IChannelBroadcasterService channelDistributorService;
 
     private readonly IMessageService messageService;
     private bool _disposed = false;
     public ChannelManager(
     ILogger<ChannelManager> logger,
-    IChannelDistributorService channelDistributorService,
+    IChannelBroadcasterService channelDistributorService,
     IChannelService channelService,
     IMessageService messageService
     )
@@ -34,7 +34,7 @@ public sealed class ChannelManager : IChannelManager
                 return null;
             }
 
-            IChannelStatus? channelStatus = await channelService.RegisterChannel(config);
+            IChannelStatus? channelStatus = await channelService.GetChannelStatusAsync(config);
 
             if (channelStatus == null)
             {
@@ -136,18 +136,18 @@ public sealed class ChannelManager : IChannelManager
     }
     public async Task CancelChannel(int SMChannelId)
     {
-        IChannelStatus? stat = channelService.GetChannelStatus(SMChannelId);
-        if (stat is null)
+        IChannelStatus? channelStatus = channelService.GetChannelStatus(SMChannelId);
+        if (channelStatus is null)
         {
             logger.LogWarning("Channel not found: {SMChannelId}", SMChannelId);
             return;
         }
 
-        stat.Shutdown = true;
-        stat.ChannelDistributor.Stop();
+        channelStatus.Shutdown = true;
+        channelStatus.Stop();
         await channelService.CheckForEmptyChannelsAsync();
 
-        //IChannelDistributor? channelDistributor = channelDistributorService.GetChannelDistributor(stat.SMStreamInfo.Url);
+        //IChannelBroadcaster? channelDistributor = ChannelDistributorService.GetChannelBroadcaster(stat.SMStreamInfo.Url);
 
         //if (channelDistributor is not null)
         //{
@@ -159,7 +159,7 @@ public sealed class ChannelManager : IChannelManager
         //    //}
         //    await channelService.CheckForEmptyChannelsAsync();
 
-        //    logger.LogInformation("Simulating stream failure for: {VideoStreamName}", stat.SMStreamInfo.SourceName);
+        //    logger.LogInformation("Simulating stream failure for: {VideoStreamName}", stat.SMStreamInfo.Name);
         //}
         //else
         //{
@@ -176,7 +176,7 @@ public sealed class ChannelManager : IChannelManager
             return;
         }
 
-        IChannelDistributor? channelDistributor = channelDistributorService.GetChannelDistributor(channelStatus.SMStreamInfo.Url);
+        IChannelBroadcaster? channelDistributor = channelDistributorService.GetChannelBroadcaster(channelStatus.SMStreamInfo.Url);
 
         if (channelDistributor is not null)
         {
@@ -192,7 +192,7 @@ public sealed class ChannelManager : IChannelManager
 
     public void CancelAllChannels()
     {
-        foreach (IChannelDistributor s in channelDistributorService.GetChannelDistributors())
+        foreach (IChannelBroadcaster s in channelDistributorService.GetChannelBroadcasters())
         {
             s.Stop();
         }

@@ -2,9 +2,10 @@
 
 public static class SettingFiles
 {
-    public static readonly OutputProfiles DefaultOutputProfileSetting = new()
+    public static readonly OutputProfileDict DefaultOutputProfileSetting = new()
     {
-        Profiles = new Dictionary<string, OutputProfile>
+
+        OutputProfiles = new Dictionary<string, OutputProfile>
     {
         {
             "Default",
@@ -25,9 +26,9 @@ public static class SettingFiles
     }
     };
 
-    public static readonly CommandProfiles DefauCommandProfileSetting = new()
+    public static readonly CommandProfileDict DefaultCommandProfileSetting = new()
     {
-        Profiles = new Dictionary<string, CommandProfile>
+        CommandProfiles = new Dictionary<string, CommandProfile>
     {
 
         {
@@ -43,7 +44,7 @@ public static class SettingFiles
             {
                 IsReadOnly = true,
                 Command = "ffmpeg",
-                Parameters = "-map 0:v -map 0:a? -map 0:s? -c:v libx264 -c:a ac3"
+                Parameters = "-map 0:v -map 0:a? -map 0:s? -c:v h264_nvenc -c:a ac3"
             }
             },
         {
@@ -51,7 +52,7 @@ public static class SettingFiles
             new CommandProfile{
                 IsReadOnly = true,
                 Command = "ffmpeg",
-                Parameters = "-map 0:v -map 0:a -map 0:a? -map 0:s? -c:v copy -c:a:0 copy -c:a:1 ac3 -c:s dvbsub"
+                Parameters = "-map 0:v -map 0:a -map 0:a? -map 0:s? -c:v copy -c:a:0 copy -c:a:1 ac3 -c:s copy"
             }
             },
 

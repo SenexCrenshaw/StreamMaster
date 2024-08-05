@@ -4,13 +4,13 @@ import React, { useMemo } from 'react';
 import { GetInputNumberLine } from './components/GetInputNumberLine';
 
 import { useSettingsContext } from '@lib/context/SettingsProvider';
-import { BaseSettings } from './BaseSettings';
-import { GetCheckBoxLine } from './components/GetCheckBoxLine';
-import { GetInputTextLine } from './components/GetInputTextLine';
-import { GetDropDownLine } from './components/GetDropDownLine';
-import { SelectItem } from 'primereact/selectitem';
 import useGetCommandProfiles from '@lib/smAPI/Profiles/useGetCommandProfiles';
 import useGetOutputProfiles from '@lib/smAPI/Profiles/useGetOutputProfiles';
+import { SelectItem } from 'primereact/selectitem';
+import { BaseSettings } from './BaseSettings';
+import { GetCheckBoxLine } from './components/GetCheckBoxLine';
+import { GetDropDownLine } from './components/GetDropDownLine';
+import { GetInputTextLine } from './components/GetInputTextLine';
 
 export function StreamingSettings(): React.ReactElement {
   const { currentSetting } = useSettingsContext();

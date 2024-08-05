@@ -26,6 +26,7 @@ using System.Diagnostics;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text.Json.Serialization;
+using StreamMaster.Domain.Configuration;
 
 [assembly: TsGlobal(CamelCaseForProperties = false, CamelCaseForMethods = false, UseModules = true, DiscardNamespacesWhenUsingModules = true, AutoOptionalProperties = true, WriteWarningComment = false, ReorderMembers = true)]
 
@@ -53,45 +54,21 @@ builder.WebHost.ConfigureKestrel((context, serverOptions) =>
     serverOptions.Limits.MaxRequestBodySize = null;
 });
 
+
 var settingsFiles = BuildInfo.GetSettingFiles();
 
-builder.Configuration.SetBasePath(BuildInfo.StartUpPath).AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
+// Set base configuration path
+var configPath = Directory.Exists(BuildInfo.SettingsFolder) ? BuildInfo.AppDataFolder : BuildInfo.StartUpPath;
+builder.Configuration.SetBasePath(configPath).AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
 
-if (Directory.Exists(BuildInfo.SettingsFolder))
-{
-    builder.Configuration.SetBasePath(BuildInfo.AppDataFolder);
-}
+// Load and validate settings
+LoadAndValidateSettings<CommandProfileDict>(BuildInfo.CommandProfileSettingsFile, SettingFiles.DefaultCommandProfileSetting);
+LoadAndValidateSettings<OutputProfileDict>(BuildInfo.OutputProfileSettingsFile, SettingFiles.DefaultOutputProfileSetting);
+LoadAndValidateSettings<HLSSettings>(BuildInfo.HLSSettingsFile, new HLSSettings());
+LoadAndValidateSettings<Setting>(BuildInfo.SettingsFile, new Setting());
+LoadAndValidateSettings<SDSettings>(BuildInfo.SDSettingsFile, new SDSettings());
 
-var commandProfileSetting = SettingsHelper.GetSetting<CommandProfiles>(BuildInfo.CommandProfileSettingsFile);
-if (commandProfileSetting == default(CommandProfiles))
-{
-    SettingsHelper.UpdateSetting(SettingFiles.DefauCommandProfileSetting);
-}
-
-var fileProfileSetting = SettingsHelper.GetSetting<OutputProfiles>(BuildInfo.OutputProfileSettingsFile);
-if (fileProfileSetting == default(OutputProfiles))
-{
-    SettingsHelper.UpdateSetting(SettingFiles.DefaultOutputProfileSetting);
-}
-
-var hlsSetting = SettingsHelper.GetSetting<HLSSettings>(BuildInfo.HLSSettingsFile);
-if (hlsSetting == default(HLSSettings))
-{
-    SettingsHelper.UpdateSetting(new HLSSettings());
-}
-
-var mainSetting = SettingsHelper.GetSetting<Setting>(BuildInfo.SettingsFile);
-if (mainSetting == default(Setting))
-{
-    SettingsHelper.UpdateSetting(new Setting());
-}
-
-var sdSettings = SettingsHelper.GetSetting<SDSettings>(BuildInfo.SDSettingsFile);
-if (sdSettings == default(SDSettings))
-{
-    SettingsHelper.UpdateSetting(new SDSettings());
-}
-
+// Add additional settings files if they exist
 foreach (var file in settingsFiles)
 {
     if (File.Exists(file))
@@ -101,11 +78,29 @@ foreach (var file in settingsFiles)
     }
 }
 
-builder.Services.Configure<Setting>(builder.Configuration);
-builder.Services.Configure<SDSettings>(builder.Configuration);
-builder.Services.Configure<HLSSettings>(builder.Configuration);
-builder.Services.Configure<CommandProfiles>(builder.Configuration);
-builder.Services.Configure<OutputProfiles>(builder.Configuration);
+// Configure services with settings
+ConfigureSettings<Setting>(builder);
+ConfigureSettings<SDSettings>(builder);
+ConfigureSettings<HLSSettings>(builder);
+ConfigureSettings<CommandProfileDict>(builder);
+ConfigureSettings<OutputProfileDict>(builder);
+
+// Helper method to load and validate settings
+void LoadAndValidateSettings<T>(string settingsFile, object defaultSetting)
+{
+    var setting = SettingsHelper.GetSetting<T>(settingsFile);
+    if (EqualityComparer<T>.Default.Equals(setting, default(T)))
+    {
+        SettingsHelper.UpdateSetting(defaultSetting);
+    }
+}
+
+// Helper method to configure settings in services
+void ConfigureSettings<T>(WebApplicationBuilder builder) where T : class
+{
+    builder.Services.Configure<T>(builder.Configuration);
+}
+
 
 bool enableSsl = false;
 

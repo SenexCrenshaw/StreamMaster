@@ -2,7 +2,7 @@
 
 using Microsoft.AspNetCore.Http;
 
-namespace StreamMaster.Streams.Handlers;
+namespace StreamMaster.Streams;
 
 public sealed class ClientConfiguration : IClientConfiguration
 {

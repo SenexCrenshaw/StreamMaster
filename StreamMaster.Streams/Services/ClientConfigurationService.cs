@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 
-namespace StreamMaster.Streams.Handlers;
+namespace StreamMaster.Streams.Services;
 
 public class ClientConfigurationService(ILoggerFactory loggerFactory) : IClientConfigurationService
 {

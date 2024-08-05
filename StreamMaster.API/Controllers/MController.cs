@@ -21,11 +21,11 @@
 //    //        return NotFound();
 //    //    }
 
-//    //    logger.LogInformation("GetSMChannelM3U SG Number {id} Channel SourceName {name}", streamGroupId, smChannel.SourceName);
+//    //    logger.LogInformation("GetSMChannelM3U SG Number {id} Channel Name {name}", streamGroupId, smChannel.Name);
 
 //    //    if (smChannel.SMStreams.Count == 0 || string.IsNullOrEmpty(smChannel.SMStreams.First().SMStream.Url))
 //    //    {
-//    //        logger.LogInformation("GetSMChannelM3U SG Number {id} hannel SourceName {name} no streams", streamGroupId, smChannel.SourceName);
+//    //        logger.LogInformation("GetSMChannelM3U SG Number {id} hannel Name {name} no streams", streamGroupId, smChannel.Name);
 //    //        return new NotFoundResult();
 //    //    }
 
@@ -36,7 +36,7 @@
 //    //    List<string> Ids = [];
 //    //    if (smChannel.IsCustomStream)
 //    //    {
-//    //        CustomPlayList? customPlayList = customPlayListBuilder.GetCustomPlayList(smChannel.SourceName);
+//    //        CustomPlayList? customPlayList = customPlayListBuilder.GetCustomPlayList(smChannel.Name);
 //    //        if (customPlayList == null)
 //    //        {
 //    //            return NotFound();
@@ -44,7 +44,7 @@
 
 //    //        foreach (CustomStreamNfo customStreamNfo in customPlayList.CustomStreamNfos)
 //    //        {
-//    //            string smStreamId = $"{customPlayList.SourceName}|{customStreamNfo.Movie.Title}";
+//    //            string smStreamId = $"{customPlayList.Name}|{customStreamNfo.Movie.Title}";
 //    //            SMStreamDto? smStream = repositoryWrapper.SMStream.GetSMStream(smStreamId);
 //    //            if (smStream == null)
 //    //            {
@@ -91,7 +91,7 @@
 //    //        smStreamDto = new()
 //    //        {
 //    //            Id = "comedy",
-//    //            SourceName = "Comedy SPecial",
+//    //            Name = "Comedy SPecial",
 //    //            Url = "http://127.0.0.1:7095/m/kjUXihuLvcv7rwA8Z8GfgZA7pPtpZo-B4LjG1USoxF14zwI-AEGtYlwotviuIaruPkG3zAF4KFF9DXCuQZ_mpg.m3u8"
 //    //        };
 //    //    }
@@ -100,7 +100,7 @@
 //    //        smStreamDto = new()
 //    //        {
 //    //            Id = "Intros",
-//    //            SourceName = "Intros",
+//    //            Name = "Intros",
 //    //            Url = "http://10.3.10.50:7095/m/PY_BagGUAPGoCSnuCkx1K2zFVNcb4gj42nggyaOCQUKe2sia9m52j90u4jBPsQ8DkwPALKl7EmkSAH8SJOHbDA.m3u8"
 //    //        };
 //    //    }
@@ -110,7 +110,7 @@
 //    //        smStreamDto = new()
 //    //        {
 //    //            Id = "Intros",
-//    //            SourceName = "Intros",
+//    //            Name = "Intros",
 //    //            Url = "http://127.0.0.1:7095/m/kjUXihuLvcv7rwA8Z8GfgZA7pPtpZo-B4LjG1USoxF14zwI-AEGtYlwotviuIaruPkG3zAF4KFF9DXCuQZ_mpg.m3u8"
 //    //        };
 //    //    }
@@ -139,7 +139,7 @@
 //    //    SMStreamInfo idname = new()
 //    //    {
 //    //        Id = smStreamDto.Id,
-//    //        SourceName = smStreamDto.SourceName,
+//    //        Name = smStreamDto.Name,
 //    //        Url = smStreamDto.Url,
 //    //        IsCustomStream = smStreamDto.IsCustomStream,
 //    //        M3UFileId = smStreamDto.M3UFileId

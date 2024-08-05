@@ -4,16 +4,16 @@
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record AddCommandProfileRequest(string ProfileName, string Command, string Parameters) : IRequest<APIResponse>;
 
-public class AddCommandProfileRequestHandler(ILogger<AddCommandProfileRequest> Logger, IDataRefreshService dataRefreshService, IOptionsMonitor<CommandProfiles> intProfileSettings)
+public class AddCommandProfileRequestHandler(ILogger<AddCommandProfileRequest> Logger, IDataRefreshService dataRefreshService, IOptionsMonitor<CommandProfileDict> intProfileSettings)
 : IRequestHandler<AddCommandProfileRequest, APIResponse>
 {
 
 
     public async Task<APIResponse> Handle(AddCommandProfileRequest request, CancellationToken cancellationToken)
     {
-        CommandProfiles profileSettings = intProfileSettings.CurrentValue;
+        CommandProfileDict profileSettings = intProfileSettings.CurrentValue;
 
-        List<string> badNames = profileSettings.Profiles
+        List<string> badNames = profileSettings.CommandProfiles
             .Where(kvp => kvp.Value.IsReadOnly)
             .Select(kvp => kvp.Key)
             .ToList();
@@ -29,13 +29,13 @@ public class AddCommandProfileRequestHandler(ILogger<AddCommandProfileRequest> L
             Parameters = request.Parameters,
 
         };
-        if (profileSettings.Profiles.TryGetValue(request.ProfileName, out _))
+        if (profileSettings.CommandProfiles.TryGetValue(request.ProfileName, out _))
         {
             return APIResponse.ErrorWithMessage("Profile already exists");
         }
         else
         {
-            profileSettings.Profiles.Add(request.ProfileName, profile);
+            profileSettings.CommandProfiles.Add(request.ProfileName, profile);
         }
 
 

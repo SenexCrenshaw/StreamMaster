@@ -1,11 +1,15 @@
 ﻿using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Crypto;
+using StreamMaster.Domain.Models;
 using StreamMaster.PlayList.Models;
 
 namespace StreamMaster.Streams.Domain.Models;
 
-public sealed class M3U8ChannelStatus(SMChannelDto sMChannelDto) : IntroStatus, IM3U8ChannelStatus
+public sealed class M3U8ChannelStatus(SMChannelDto sMChannelDto) : IM3U8ChannelStatus
 {
+    public int IntroIndex { get; set; }
+    public bool PlayedIntro { get; set; }
+    public bool IsFirst { get; set; } = true;
     public bool Shutdown { get; set; } = false;
     public bool FailoverInProgress { get; set; }
     public SMChannelDto SMChannel { get; set; } = sMChannelDto;
@@ -18,6 +22,8 @@ public sealed class M3U8ChannelStatus(SMChannelDto sMChannelDto) : IntroStatus, 
     public CommandProfileDto CommandProfile { get; set; }
     public int StreamGroupProfileId { get; set; }
     public int StreamGroupId { get; set; }
+
+    public string SourceName { get; private set; }
 
     public void SetSMStreamInfo(SMStreamInfo? idNameUrl)
     {

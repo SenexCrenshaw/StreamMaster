@@ -41,7 +41,7 @@ public class SMChannel
     public string CommandProfileName { get; set; } = "Default";
 
     public bool IsHidden { get; set; } = false;
-    public bool IsCustomStream { get; set; } = false;
+    //public bool IsCustomStream { get; set; } = false;
 
     public string BaseStreamID { get; set; } = string.Empty;
 
@@ -70,5 +70,5 @@ public class SMChannel
     [Column(TypeName = "citext")]
     public string GroupTitle { get; set; } = string.Empty;
     public bool IsSystem { get; set; }
-    public int ChannelType { get; set; }
+    public SMChannelTypeEnum SMChannelType { get; set; } = SMChannelTypeEnum.Regular;
 }

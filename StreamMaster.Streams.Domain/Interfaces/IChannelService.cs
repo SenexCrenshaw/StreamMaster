@@ -14,10 +14,9 @@ public interface IChannelService
     List<IChannelStatus> GetChannelStatusesFromSMStreamId(string smStreamId);
     int GetGlobalStreamsCount();
     bool HasChannel(int SMChannelId);
-    Task<IChannelStatus?> RegisterChannel(IClientConfiguration config);
+    Task<IChannelStatus?> GetChannelStatusAsync(IClientConfiguration config);
     Task<bool> UnRegisterClient(string UniqueRequestId, CancellationToken cancellationToken = default);
 
     Task<IChannelStatus?> SetupChannel(SMChannelDto smChannel);
-    //Task<bool> SetNextChildVideoStream(IChannelStatus channelStatus, string? overrideNextVideoStreamId = null);
 
 }

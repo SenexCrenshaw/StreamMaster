@@ -19,7 +19,6 @@ public interface ISMChannelsRepository : IRepositoryBase<SMChannel>
 
     Task CreateSMChannel(SMChannel sMChannel);
 
-
     Task<APIResponse> CreateSMChannelsFromStreamParameters(QueryStringParameters Parameters, int? AddToStreamGroupId);
 
     Task<APIResponse> CreateSMChannelsFromStreams(List<string> streamIds, int? AddToStreamGroupId);
@@ -71,5 +70,5 @@ public interface ISMChannelsRepository : IRepositoryBase<SMChannel>
     Task<APIResponse> SetSMChannelsGroupFromParameters(QueryStringParameters Parameters, string GroupName);
     Task<APIResponse> SetSMChannelsCommandProfileName(List<int> sMChannelIds, string CommandProfileName);
     Task<APIResponse> SetSMChannelsCommandProfileNameFromParameters(QueryStringParameters parameters, string CommandProfileName);
-    Task<APIResponse> CreateSMChannelsFromCustomStreams(List<string> streamIds, int m3UFileId, bool isCustomPlayList);
+    Task<APIResponse> CreateSMChannelsFromCustomStreams(List<string> smStreamIds);
 }

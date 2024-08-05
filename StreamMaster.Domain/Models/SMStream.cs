@@ -13,7 +13,6 @@ public class SMStream
     public string? ClientUserAgent { get; set; }
     public int FilePosition { get; set; }
     public bool IsHidden { get; set; } = false;
-    public bool IsCustomStream { get; set; } = false;
     public bool IsUserCreated { get; set; } = false;
     public int M3UFileId { get; set; } = 0;
     public int ChannelNumber { get; set; } = 0;
@@ -41,4 +40,6 @@ public class SMStream
     [Column(TypeName = "citext")]
 
     public string CUID { get; set; } = string.Empty;
+
+    public SMStreamTypeEnum SMStreamType { get; set; } = SMStreamTypeEnum.Regular;
 }

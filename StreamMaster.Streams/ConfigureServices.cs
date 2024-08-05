@@ -34,7 +34,7 @@ public static class ConfigureServices
         services.AddHostedService<InActiveStreamMonitor>();
         services.AddSingleton<ISwitchToNextStreamService, SwitchToNextStreamService>();
         services.AddSingleton<IM3U8Generator, M3U8Generator>();
-        services.AddSingleton<IChannelDistributorService, ChannelDistributorService>();
+        services.AddSingleton<IChannelBroadcasterService, ChannelBroadcasterService>();
         services.AddSingleton<IClientConfigurationService, ClientConfigurationService>();
         services.AddSingleton<IVideoInfoService, VideoInfoService>();
         services.AddTransient<IVideoCombiner, VideoCombiner>();

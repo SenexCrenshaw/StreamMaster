@@ -1,4 +1,6 @@
-﻿using System.Diagnostics;
+﻿using StreamMaster.Streams.Domain.Helpers;
+
+using System.Diagnostics;
 using System.Threading.Channels;
 
 namespace StreamMaster.Streams.Buffers;
@@ -14,7 +16,8 @@ public sealed class ClientReadStream : Stream, IClientReadStream
 
         this.UniqueRequestId = UniqueRequestId;
 
-        Channel = System.Threading.Channels.Channel.CreateUnbounded<byte[]>();
+        Channel = ChannelHelper.GetChannel();
+        //Channel = System.Threading.Channels.Channel.CreateUnbounded<byte[]>();
 
         logger.LogInformation("Starting client read stream for UniqueRequestId: {UniqueRequestId}", UniqueRequestId);
     }

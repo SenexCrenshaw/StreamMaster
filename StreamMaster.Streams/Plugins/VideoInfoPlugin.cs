@@ -89,7 +89,7 @@ namespace StreamMaster.Streams.Plugins
                     _logger.LogError("FFProbe executable \"{settings.FFProbeExecutable}\" not found.", settings.FFProbeExecutable);
                     return null;
                 }
-
+                byte[] videoMemory = await ReadChannelDataAsync(channelReader, 1 * 1024 * 1024, cancellationToken);
                 const string options = "-loglevel error -print_format json -show_format -sexagesimal -show_streams - ";
                 ProcessStartInfo startInfo = new()
                 {
@@ -120,15 +120,19 @@ namespace StreamMaster.Streams.Plugins
 
                 try
                 {
+
                     await using (Stream stdin = ffprobeProcess.StandardInput.BaseStream)
                     {
-                        byte[] videoMemory = await ReadChannelDataAsync(channelReader, 1 * 1024 * 1024, cancellationToken);
-                        await stdin.WriteAsync(videoMemory.AsMemory(0, videoMemory.Length), cancellationToken).ConfigureAwait(false);
+                        await stdin.WriteAsync(videoMemory, cancellationToken).ConfigureAwait(false);
                         await stdin.FlushAsync(cancellationToken).ConfigureAwait(false);
                     }
 
                     string output = await ffprobeProcess.StandardOutput.ReadToEndAsync(cancellationToken).ConfigureAwait(false);
-                    ffprobeProcess.WaitForExit();
+                    await ffprobeProcess.WaitForExitAsync(cancellationToken);
+                    //if (ffprobeProcess?.HasExited == false)
+                    //{
+                    //    ffprobeProcess.Kill();
+                    //}
                     timer.Dispose();
 
                     if (string.IsNullOrEmpty(output))

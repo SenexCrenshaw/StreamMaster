@@ -7,17 +7,17 @@ public record UpdateOutputProfileRequest(string ProfileName, string? NewName) : 
 
 public class UpdateFileProfileRequestHandler(
     ILogger<UpdateOutputProfileRequest> Logger,
-    IOptionsMonitor<OutputProfiles> intprofilesettings,
+    IOptionsMonitor<OutputProfileDict> intprofilesettings,
     IDataRefreshService dataRefreshService,
     IRepositoryWrapper repositoryWrapper
     ) : IRequestHandler<UpdateOutputProfileRequest, APIResponse>
 {
 
-    private readonly OutputProfiles profilesettings = intprofilesettings.CurrentValue;
+    private readonly OutputProfileDict profilesettings = intprofilesettings.CurrentValue;
 
     public async Task<APIResponse> Handle(UpdateOutputProfileRequest request, CancellationToken cancellationToken)
     {
-        if (!profilesettings.Profiles.ContainsKey(request.ProfileName))
+        if (!profilesettings.OutputProfiles.ContainsKey(request.ProfileName))
         {
             return APIResponse.Ok;
         }
@@ -37,7 +37,7 @@ public class UpdateFileProfileRequestHandler(
 
         List<FieldData> fields = [];
 
-        if (!profilesettings.Profiles.TryGetValue(request.ProfileName, out OutputProfile? existingProfile))
+        if (!profilesettings.OutputProfiles.TryGetValue(request.ProfileName, out OutputProfile? existingProfile))
         {
             existingProfile = new OutputProfile();
         }
@@ -89,8 +89,8 @@ public class UpdateFileProfileRequestHandler(
         if (!string.IsNullOrEmpty(request.NewName) && request.ProfileName != request.NewName)
         {
             nameChanged = true;
-            _ = profilesettings.Profiles.Remove(request.ProfileName);
-            profilesettings.Profiles.Add(request.NewName, existingProfile);
+            _ = profilesettings.OutputProfiles.Remove(request.ProfileName);
+            profilesettings.OutputProfiles.Add(request.NewName, existingProfile);
         }
 
         SettingsHelper.UpdateSetting(profilesettings);

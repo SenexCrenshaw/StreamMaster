@@ -19,7 +19,7 @@ namespace StreamMaster.Streams.Domain.Models
 
     public class ChannelDistributorDto
     {
-        public SMStreamInfo SMStreamInfo { get; set; }
+        //public SMStreamInfo SMStreamInfo { get; set; }
 
         public long GetChannelItemCount { get; set; }
 

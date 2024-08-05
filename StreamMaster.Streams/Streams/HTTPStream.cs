@@ -4,7 +4,7 @@ using System.Diagnostics;
 
 namespace StreamMaster.Streams.Streams;
 
-public class HTTPStream(ILogger<HTTPStream> logger, IHttpClientFactory httpClientFactory, IOptionsMonitor<Setting> intSettings, IProfileService profileService, ICommandExecutor commandExecutor) : IHTTPStream
+public class HTTPStream(ILogger<HTTPStream> logger, IHttpClientFactory httpClientFactory, IProfileService profileService, ICommandExecutor commandExecutor) : IHTTPStream
 {
     private HttpClient CreateHttpClient(string streamingClientUserAgent)
     {

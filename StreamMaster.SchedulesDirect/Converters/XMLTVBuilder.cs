@@ -14,7 +14,7 @@ using System.Diagnostics;
 using System.Globalization;
 
 namespace StreamMaster.SchedulesDirect.Converters;
-public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IServiceProvider serviceProvider, ICustomPlayListBuilder customPlayListBuilder, IOptionsMonitor<Setting> intSettings, IIconHelper iconHelper, IEPGHelper ePGHelper, ISchedulesDirectDataService schedulesDirectDataService, ILogger<XMLTVBuilder> logger)
+public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IOptionsMonitor<OutputProfileDict> intOutputProfileDict, IServiceProvider serviceProvider, ICustomPlayListBuilder customPlayListBuilder, IIconHelper iconHelper, IEPGHelper ePGHelper, ISchedulesDirectDataService schedulesDirectDataService, ILogger<XMLTVBuilder> logger)
     : IXMLTVBuilder
 {
 
@@ -32,7 +32,7 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IServicePro
 
     private static readonly string[] mpaaRatings = ["", "G", "PG", "PG-13", "R", "NC-17", "X", "NR", "AO"];
 
-    public XMLTV? CreateXmlTv(string baseUrl, List<VideoStreamConfig> videoStreamConfigs, OutputProfile outputProfile)
+    public XMLTV? CreateXmlTv(string baseUrl, List<VideoStreamConfig> videoStreamConfigs, OutputProfileDto outputProfile)
     {
         seriesDict = [];
         keywordDict = [];
@@ -223,7 +223,7 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IServicePro
             List<MxfProgram> programs = schedulesDirectDataService.GetAllSDPrograms;
 
 
-            OutputProfile profile = SettingFiles.DefaultOutputProfileSetting.Profiles["Default"];
+            OutputProfileDto profile = intOutputProfileDict.CurrentValue.GetDefaultProfileDto();
 
             DoPrograms(services, programs.Count, xmlTv, profile);
 
@@ -261,7 +261,7 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IServicePro
             return newProgram;
         }
     }
-    private void DoPrograms(List<MxfService> services, int progCount, XMLTV xmlTv, OutputProfile outputProfile, List<VideoStreamConfig>? videoStreamConfigs = null)
+    private void DoPrograms(List<MxfService> services, int progCount, XMLTV xmlTv, OutputProfileDto outputProfile, List<VideoStreamConfig>? videoStreamConfigs = null)
     {
         _programsByTitle.Clear();
         videoStreamConfigs ??= [];
@@ -410,7 +410,7 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IServicePro
 
 
     #region ========== XMLTV Channels and Functions ==========
-    private XmltvChannel BuildXmltvChannel(MxfService mxfService, OutputProfile outputProfile)
+    private XmltvChannel BuildXmltvChannel(MxfService mxfService, OutputProfileDto outputProfile)
     {
 
         string id = mxfService.CallSign;

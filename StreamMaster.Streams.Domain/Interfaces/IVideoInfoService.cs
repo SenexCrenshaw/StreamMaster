@@ -1,7 +1,6 @@
 ﻿using StreamMaster.Domain.Models;
 
 using System.Collections.Concurrent;
-using System.Threading.Channels;
 
 namespace StreamMaster.Streams.Domain.Interfaces
 {
@@ -9,7 +8,7 @@ namespace StreamMaster.Streams.Domain.Interfaces
     {
         ConcurrentDictionary<string, VideoInfo> VideoInfos { get; }
         bool HasVideoInfo(string key);
-        void SetSourceChannel(ChannelReader<byte[]> channelReader, string key);
+        void SetSourceChannel(IChannelBroadcaster sourceChannelBroadcaster);
         bool RemoveSourceChannel(string key);
     }
 }

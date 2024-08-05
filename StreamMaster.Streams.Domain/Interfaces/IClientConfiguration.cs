@@ -14,6 +14,4 @@ public interface IClientConfiguration
     string UniqueRequestId { get; }
     int StreamGroupProfileId { get; }
     int StreamGroupId { get; }
-    //CancellationTokenSource ClientMasterToken { get; set; }
-    //Task CancelClient(bool includeResponse = true);
 }
