@@ -76,7 +76,6 @@ public class ChannelBroadcasterBase : IChannelBroadcasterBase
     {
         logger.LogInformation("Setting source channel for {Name} to {sourceChannelName}", Name, sourceChannelName);
         SourceName = sourceChannelName;
-        //Channel<byte[]> newChannel = Channel.CreateUnbounded<byte[]>(new UnboundedChannelOptions { SingleReader = true, SingleWriter = true });
         Channel<byte[]> newChannel = ChannelHelper.GetChannel();
         //_currentChannel?.Writer.TryComplete();
         _currentChannel = newChannel;
@@ -86,7 +85,7 @@ public class ChannelBroadcasterBase : IChannelBroadcasterBase
     /// <inheritdoc/>
     public void SetSourceStream(Stream sourceStream, string channelName, string streamName, CancellationToken cancellationToken)
     {
-        logger.LogInformation("Setting source stream for {channelName} to {streamName}", channelName, streamName);
+        logger.LogInformation("Setting source stream for Channel {channelName} to {streamName}", channelName, streamName);
         SourceName = streamName;
         Channel<byte[]> newChannel = ChannelHelper.GetChannel();
         //_currentChannel?.Writer.TryComplete();
@@ -98,73 +97,55 @@ public class ChannelBroadcasterBase : IChannelBroadcasterBase
     public void Stop()
     {
         logger.LogInformation("Stopped broadcaster for: {Id} {Name}", StringId(), Name);
-        Debug.WriteLine($"Broadcaster had {GetChannelItemCount} left");
+        Debug.WriteLine($"Broadcaster had {StringId()} {Name} {ChannelItemBackLog} left");
 
         if (!_cancellationTokenSource.IsCancellationRequested)
         {
             _cancellationTokenSource.Cancel();
 
         }
-        _currentChannel?.Writer.TryComplete();
+        //_currentChannel?.Writer.TryComplete();
     }
 
-    ///// <inheritdoc/>
-    //public void AddClientStream(string key, Stream stream)
-    //{
-    //    ClientStreams.TryAdd(key, stream);
-    //}
-
-    /// <inheritdoc/>
-    //public void AddClientStream(int key, Stream stream)
-    //{
-    //    ClientStreams.TryAdd(key.ToString(), stream);
-    //}
-
-
-
-    /// <inheritdoc/>
-    //public bool RemoveClientStream(string key)
-    //{
-    //    return ClientStreams.TryRemove(key, out _);
-    //}
-
-    public void AddClient(string UniqueRequestId, IClientConfiguration config)
+    public void AddClientStreamer(string UniqueRequestId, IClientConfiguration config)
     {
         ClientStreamerConfigurations[UniqueRequestId] = config;
+        logger.LogInformation("Add client streamer: {UniqueRequestId} to Channel {name}", UniqueRequestId, Name);
         logger.LogInformation("Add client: {UniqueRequestId} {name}", UniqueRequestId, Name);
         AddClientChannel(UniqueRequestId, config.ClientStream.Channel);
-    }
-
-
-    /// <inheritdoc/>
-    public void AddClientChannel(string key, ChannelWriter<byte[]> channel)
-    {
-        logger.LogInformation("Add client channel string: {key} {name}", key, Name);
-        ClientChannels.TryAdd(key, channel);
-    }
-
-    /// <inheritdoc/>
-    public void AddClientChannel(int key, ChannelWriter<byte[]> channel)
-    {
-        logger.LogInformation("Add client channel int: {key} {name}", key, Name);
-        ClientChannels.TryAdd(key.ToString(), channel);
     }
 
     /// <summary>
     /// Removes a client streamer configuration from the dictionary.
     /// </summary>
     /// <param name="UniqueRequestId">The client identifier.</param>
-    public bool RemoveClient(string UniqueRequestId)
+    public bool RemoveClientStreamer(string UniqueRequestId)
     {
         if (ClientStreamerConfigurations.TryRemove(UniqueRequestId, out IClientConfiguration? _))
         {
-            logger.LogInformation("Removed client: {UniqueRequestId} {name}", UniqueRequestId, Name);
+            logger.LogInformation("Removed client streamer: {UniqueRequestId} from Channel {name}", UniqueRequestId, Name);
             RemoveClientChannel(UniqueRequestId);
             return true;
         }
 
         return false;
     }
+
+
+    /// <inheritdoc/>
+    public void AddClientChannel(string key, ChannelWriter<byte[]> channel)
+    {
+        logger.LogInformation("Add client channel: {key} {name}", key, Name);
+        ClientChannels.TryAdd(key, channel);
+    }
+
+    /// <inheritdoc/>
+    public void AddClientChannel(int key, ChannelWriter<byte[]> channel)
+    {
+        logger.LogInformation("Add client channel: {key} {name}", key, Name);
+        ClientChannels.TryAdd(key.ToString(), channel);
+    }
+
 
     /// <inheritdoc/>
     public bool RemoveClientChannel(string key)
@@ -313,9 +294,6 @@ public class ChannelBroadcasterBase : IChannelBroadcasterBase
                 break;
         }
     }
-
-
-
     private Task DistributeToClients(Channel<byte[]> newChannel, CancellationToken token)
     {
         return Task.Run(async () =>
@@ -325,19 +303,14 @@ public class ChannelBroadcasterBase : IChannelBroadcasterBase
                 await foreach (byte[] item in newChannel.Reader.ReadAllAsync(token))
                 {
                     List<Task> writeTasks = [];
-                    foreach (string key in ClientChannels.Keys)
+                    foreach (ChannelWriter<byte[]> clientChannel in ClientChannels.Values)
                     {
-                        ChannelWriter<byte[]> clientChannel = ClientChannels[key];
-                        //if (key != "270" && !SourceName.StartsWith("Intro"))
-                        //{
-                        //    Debug.WriteLine($"DistributeToClients channel {Name} {SourceName} to {key}");
-                        //}
+                        //ChannelWriter<byte[]> clientChannel = ClientChannels[key];
                         writeTasks.Add(clientChannel.WriteAsync(item, token).AsTask());
                     }
-                    foreach (string key in ClientStreams.Keys)
+                    foreach (Stream clientStream in ClientStreams.Values)
                     {
-                        Stream clientStream = ClientStreams[key];
-                        //Debug.WriteLine($"DistributeToClients stream {Name} to {key}");
+                        //Stream clientStream = ClientStreams[key];
                         writeTasks.Add(clientStream.WriteAsync(item, 0, item.Length, token));
                     }
                     await Task.WhenAll(writeTasks).ConfigureAwait(false);
@@ -430,11 +403,11 @@ public class ChannelBroadcasterBase : IChannelBroadcasterBase
     }
 
     /// <inheritdoc/>
-    public long GetChannelItemCount => Interlocked.Read(ref _channelItemCount);
+    public long ChannelItemBackLog => Interlocked.Read(ref _channelItemCount);
 
     /// <inheritdoc/>
     public bool IsChannelEmpty()
     {
-        return GetChannelItemCount == 0;
+        return ChannelItemBackLog == 0;
     }
 }

@@ -41,7 +41,8 @@ namespace StreamMaster.Streams.Plugins
                 FullMode = BoundedChannelFullMode.DropOldest
             });
 
-            sourceChannelBroadcaster.AddClientChannel($"VideoInfo {sourceChannelBroadcaster.Id}", channelVideoInfo.Writer);
+            //sourceChannelBroadcaster.AddClientChannel($"VideoInfo {sourceChannelBroadcaster.Id}", channelVideoInfo.Writer);
+            sourceChannelBroadcaster.AddClientChannel("VideoInfo", channelVideoInfo.Writer);
             string key = sourceChannelBroadcaster.Name;
 
             if (!VideoInfoPlugins.TryGetValue(key, out VideoInfoPlugin? videoInfoPlugin))

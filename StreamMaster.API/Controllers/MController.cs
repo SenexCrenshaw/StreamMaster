@@ -202,7 +202,7 @@
 
 //    //    public void Dispose()
 //    //    {
-//    //        _streamManager.RemoveClient(_smStreamDto);
+//    //        _streamManager.RemoveClientStreamer(_smStreamDto);
 //    //    }
 //    //}
 

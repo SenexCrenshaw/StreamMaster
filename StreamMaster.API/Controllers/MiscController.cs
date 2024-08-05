@@ -46,7 +46,7 @@ public class MiscController(IImageDownloadService imageDownloadService, IVideoIn
     [Route("[action]")]
     public ActionResult<IDictionary<string, IStreamHandlerMetrics>> GetAggregatedMetrics()
     {
-        IDictionary<string, IStreamHandlerMetrics> metrics = channelDistributorService.GetAggregatedMetrics();
+        IDictionary<string, IStreamHandlerMetrics> metrics = channelDistributorService.GetMetrics();
         return Ok(metrics);
     }
 

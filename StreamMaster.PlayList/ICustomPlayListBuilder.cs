@@ -12,5 +12,5 @@ public interface ICustomPlayListBuilder
     List<CustomPlayList> GetCustomPlayLists();
     CustomPlayList? GetCustomPlayList(string Name);
     (CustomPlayList? customPlayList, CustomStreamNfo? customStreamNfo) GetCustomPlayListByMovieId(string movieId);
-
+    string GetCustomPlayListLogoFromFileName(string FileName);
 }

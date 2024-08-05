@@ -2,11 +2,9 @@ import { combineReducers } from 'redux';
 import currentSettingRequest from '@lib/redux/hooks/currentSettingRequest';
 import filters from '@lib/redux/hooks/filters';
 import GetAvailableCountriesReducer from '@lib/smAPI/SchedulesDirect/GetAvailableCountriesSlice';
-import GetChannelDistributorsReducer from '@lib/smAPI/Statistics/GetChannelDistributorsSlice';
 import GetChannelGroupsReducer from '@lib/smAPI/ChannelGroups/GetChannelGroupsSlice';
 import GetChannelGroupsFromSMChannelsReducer from '@lib/smAPI/ChannelGroups/GetChannelGroupsFromSMChannelsSlice';
-import GetChannelStreamingStatisticsReducer from '@lib/smAPI/Statistics/GetChannelStreamingStatisticsSlice';
-import GetClientStreamingStatisticsReducer from '@lib/smAPI/Statistics/GetClientStreamingStatisticsSlice';
+import GetChannelMetricsReducer from '@lib/smAPI/Statistics/GetChannelMetricsSlice';
 import GetCommandProfilesReducer from '@lib/smAPI/Profiles/GetCommandProfilesSlice';
 import GetCustomPlayListReducer from '@lib/smAPI/Custom/GetCustomPlayListSlice';
 import GetCustomPlayListsReducer from '@lib/smAPI/Custom/GetCustomPlayListsSlice';
@@ -42,8 +40,6 @@ import GetStreamGroupReducer from '@lib/smAPI/StreamGroups/GetStreamGroupSlice';
 import GetStreamGroupProfilesReducer from '@lib/smAPI/StreamGroups/GetStreamGroupProfilesSlice';
 import GetStreamGroupsReducer from '@lib/smAPI/StreamGroups/GetStreamGroupsSlice';
 import GetStreamGroupSMChannelsReducer from '@lib/smAPI/StreamGroupSMChannelLinks/GetStreamGroupSMChannelsSlice';
-import GetStreamingStatisticsForChannelReducer from '@lib/smAPI/Statistics/GetStreamingStatisticsForChannelSlice';
-import GetStreamStreamingStatisticsReducer from '@lib/smAPI/Statistics/GetStreamStreamingStatisticsSlice';
 import GetSubScribedHeadendsReducer from '@lib/smAPI/SchedulesDirect/GetSubScribedHeadendsSlice';
 import GetSubscribedLineupsReducer from '@lib/smAPI/SchedulesDirect/GetSubscribedLineupsSlice';
 import GetSystemStatusReducer from '@lib/smAPI/General/GetSystemStatusSlice';
@@ -143,11 +139,9 @@ export const rootReducer = combineReducers({
   currentSettingRequest: currentSettingRequest,
   filters: persistReducer(filtersConfig, filters),
   GetAvailableCountries: GetAvailableCountriesReducer,
-  GetChannelDistributors: GetChannelDistributorsReducer,
   GetChannelGroups: GetChannelGroupsReducer,
   GetChannelGroupsFromSMChannels: GetChannelGroupsFromSMChannelsReducer,
-  GetChannelStreamingStatistics: GetChannelStreamingStatisticsReducer,
-  GetClientStreamingStatistics: GetClientStreamingStatisticsReducer,
+  GetChannelMetrics: GetChannelMetricsReducer,
   GetCommandProfiles: GetCommandProfilesReducer,
   GetCustomPlayList: GetCustomPlayListReducer,
   GetCustomPlayLists: GetCustomPlayListsReducer,
@@ -183,8 +177,6 @@ export const rootReducer = combineReducers({
   GetStreamGroupProfiles: GetStreamGroupProfilesReducer,
   GetStreamGroups: GetStreamGroupsReducer,
   GetStreamGroupSMChannels: GetStreamGroupSMChannelsReducer,
-  GetStreamingStatisticsForChannel: GetStreamingStatisticsForChannelReducer,
-  GetStreamStreamingStatistics: GetStreamStreamingStatisticsReducer,
   GetSubScribedHeadends: GetSubScribedHeadendsReducer,
   GetSubscribedLineups: GetSubscribedLineupsReducer,
   GetSystemStatus: GetSystemStatusReducer,

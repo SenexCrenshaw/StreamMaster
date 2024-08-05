@@ -68,6 +68,18 @@ public sealed class SwitchToNextStreamService(ILogger<SwitchToNextStreamService>
         }
         else
         {
+            if (ChannelStatus.SMChannel.SMStreams.Count == 0)
+            {
+                logger.LogError("Set Next for Channel {SourceName}, {Id} {Name} starting has no streams", ChannelStatus.SourceName, ChannelStatus.SMChannel.Id, ChannelStatus.SMChannel.Name);
+                ChannelStatus.SetSMStreamInfo(null);
+                return false;
+            }
+
+            if (ChannelStatus.SMChannel.CurrentRank + 1 >= ChannelStatus.SMChannel.SMStreams.Count)
+            {
+                logger.LogInformation("Set Next for Channel {SourceName}, {Id} {Name} at end of stream list", ChannelStatus.SourceName, ChannelStatus.SMChannel.Id, ChannelStatus.SMChannel.Name);
+                return false;
+            }
 
             List<SMStreamDto> smStreams = [.. ChannelStatus.SMChannel.SMStreams.OrderBy(a => a.Rank)];
 
@@ -118,19 +130,6 @@ public sealed class SwitchToNextStreamService(ILogger<SwitchToNextStreamService>
             return await Task.FromResult(true);
         }
 
-
-        if (ChannelStatus.SMChannel.SMStreams.Count == 0)
-        {
-            logger.LogError("Set Next for Channel {SourceName}, {Id} {Name} starting has no streams", ChannelStatus.SourceName, ChannelStatus.SMChannel.Id, ChannelStatus.SMChannel.Name);
-            ChannelStatus.SetSMStreamInfo(null);
-            return false;
-        }
-
-        if (ChannelStatus.SMChannel.CurrentRank + 1 >= ChannelStatus.SMChannel.SMStreams.Count)
-        {
-            logger.LogInformation("Set Next for Channel {SourceName}, {Id} {Name} at end of stream list", ChannelStatus.SourceName, ChannelStatus.SMChannel.Id, ChannelStatus.SMChannel.Name);
-            return false;
-        }
 
         CommandProfileDto commandProfileDto = await streamGroupService.GetProfileFromSMChannelDtoAsync(ChannelStatus.StreamGroupId, ChannelStatus.StreamGroupProfileId, ChannelStatus.SMChannel.CommandProfileName);
 

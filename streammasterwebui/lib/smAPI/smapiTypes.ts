@@ -703,20 +703,7 @@ export interface RemoveSMChannelFromStreamGroupRequest
 	SMChannelId: number;
 	StreamGroupId: number;
 }
-export interface GetChannelDistributorsRequest
-{
-}
-export interface GetChannelStreamingStatisticsRequest
-{
-}
-export interface GetClientStreamingStatisticsRequest
-{
-}
-export interface GetStreamingStatisticsForChannelRequest
-{
-	ChannelId: number;
-}
-export interface GetStreamStreamingStatisticsRequest
+export interface GetChannelMetricsRequest
 {
 }
 export interface GetSMTasksRequest
@@ -1371,6 +1358,15 @@ export interface ClientStreamingStatistics
 	StartTime: any;
 	UniqueRequestId: string;
 }
+export interface StreamHandlerMetrics
+{
+	AverageLatency: number;
+	BytesRead: number;
+	BytesWritten: number;
+	ErrorCount: number;
+	Kbps: number;
+	StartTime: any;
+}
 export interface StreamStreamingStatistic
 {
 	BitsPerSecond: number;
@@ -1385,6 +1381,31 @@ export interface StreamStreamingStatistic
 	StreamLogo?: string;
 	StreamName: string;
 	StreamUrl?: string;
+}
+export interface ChannelMetric
+{
+	ChannelItemBackLog: number;
+	ClientChannels: ClientChannelDto[];
+	ClientStreams: ClientStreamsDto[];
+	GetMetrics: StreamHandlerMetrics;
+	Id: string;
+	IsFailed: boolean;
+	Logo?: string;
+	Name: string;
+	SMStreamInfo?: SMStreamInfo;
+	SourceName: string;
+}
+export interface ClientChannelDto
+{
+	Logo?: string;
+	Name: string;
+	SMChannelId: number;
+}
+export interface ClientStreamsDto
+{
+	Logo?: string;
+	Name: string;
+	SMStreamId: string;
 }
 export interface CustomStreamNfo
 {

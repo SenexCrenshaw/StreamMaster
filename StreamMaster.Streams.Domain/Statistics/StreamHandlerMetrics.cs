@@ -1,5 +1,11 @@
-﻿namespace StreamMaster.Streams.Domain.Statistics;
+﻿using Reinforced.Typings.Attributes;
 
+using StreamMaster.Domain.Attributes;
+
+namespace StreamMaster.Streams.Domain.Statistics;
+
+[RequireAll]
+[TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public class StreamHandlerMetrics : IStreamHandlerMetrics
 {
     public long BytesRead { get; set; }

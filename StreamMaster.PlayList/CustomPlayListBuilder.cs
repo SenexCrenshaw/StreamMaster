@@ -16,7 +16,11 @@ namespace StreamMaster.PlayList
     public class CustomStreamNfo
     {
         public CustomStreamNfo() { }
-        public CustomStreamNfo(string VideoFileName, Movie Movie) { this.VideoFileName = VideoFileName; this.Movie = Movie; }
+        public CustomStreamNfo(string VideoFileName, Movie Movie)
+        {
+            this.VideoFileName = VideoFileName; this.Movie = Movie;
+
+        }
         public string VideoFileName { get; set; }
         public Movie Movie { get; set; }
     }
@@ -58,6 +62,16 @@ namespace StreamMaster.PlayList
             List<CustomPlayList> customPlayLists = GetCustomPlayLists();
             return customPlayLists.Find(x => x.Name == name) ?? customPlayLists.Find(x => FileUtil.EncodeToBase64(x.Name) == name);
         }
+
+        public string GetCustomPlayListLogoFromFileName(string FileName)
+        {
+            string dir = Path.GetDirectoryName(FileName);
+            string logoName = Path.GetFileNameWithoutExtension(FileName);
+            string[] files = Directory.GetFiles(dir);
+            string logo = files.FirstOrDefault(file => file.EndsWith("poster.png") || file.EndsWith($"poster.jpg")) ?? string.Empty;
+            return logo;
+        }
+
 
         public CustomPlayList? GetCustomForFilePlayList(string name)
         {
@@ -258,7 +272,7 @@ namespace StreamMaster.PlayList
             foreach (CustomStreamNfo customStreamNfo in customPlayList.CustomStreamNfos)
             {
                 int videoLength = customStreamNfo.Movie.Runtime * 60;
-                _logger.LogInformation("Checking video: {customStreamNfo.VideoFileName}, length: {videoLength} seconds", customStreamNfo.VideoFileName, videoLength);
+                //_logger.LogInformation("Checking video: {customStreamNfo.VideoFileName}, length: {videoLength} seconds", customStreamNfo.VideoFileName, videoLength);
 
                 if (elapsedSeconds < accumulatedTime + videoLength)
                 {

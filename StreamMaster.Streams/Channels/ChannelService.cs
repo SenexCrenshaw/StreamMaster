@@ -124,8 +124,7 @@ public sealed class ChannelService : IChannelService, IDisposable
 
         if (channelStatus == null)
         {
-            logger.LogInformation("No existing channel for {UniqueRequestId} {ChannelVideoStreamId} {name}",
-                config.UniqueRequestId, config.SMChannel.Id, config.SMChannel.Name);
+            logger.LogInformation("No existing channel for {ChannelVideoStreamId} {name}", config.SMChannel.Id, config.SMChannel.Name);
 
             channelStatus = await ChannelStatusService.GetOrCreateChannelStatusAsync(config, CancellationToken.None).ConfigureAwait(false);
             _channelStatuses.TryAdd(config.SMChannel.Id, channelStatus);
@@ -139,16 +138,11 @@ public sealed class ChannelService : IChannelService, IDisposable
         }
         else
         {
-            logger.LogInformation("Reuse existing stream handler for {UniqueRequestId} {ChannelVideoStreamId} {name}",
-                config.UniqueRequestId, config.SMChannel.Id, config.SMChannel.Name);
+            logger.LogInformation("Reuse existing stream handler for {ChannelVideoStreamId} {name}", config.SMChannel.Id, config.SMChannel.Name);
         }
 
         if (channelStatus.SMStreamInfo == null)
         {
-            //if (_channelStatuses.TryRemove(config.SMChannel.Id, out IChannelStatus? channelStatusRemoved))
-            //{
-            //    channelStatusRemoved.Stop();
-            //}
 
             await UnRegisterChannelAsync(channelStatus);
             await CheckForEmptyChannelsAsync().ConfigureAwait(false);
@@ -167,7 +161,7 @@ public sealed class ChannelService : IChannelService, IDisposable
             }
         }
 
-        channelStatus.AddClient(config.UniqueRequestId, config);
+        channelStatus.AddClientStreamer(config.UniqueRequestId, config);
 
         return channelStatus;
     }
@@ -358,7 +352,7 @@ public sealed class ChannelService : IChannelService, IDisposable
             List<IClientConfiguration> clientConfigs = channelStatus.GetClientStreamerConfigurations();
             IClientConfiguration? configToRemove = clientConfigs.Find(a => a.UniqueRequestId == UniqueRequestId);
 
-            if (configToRemove != null && channelStatus.RemoveClient(UniqueRequestId))
+            if (configToRemove != null && channelStatus.RemoveClientStreamer(UniqueRequestId))
             {
                 removed = true;
                 break;

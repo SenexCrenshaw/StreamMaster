@@ -155,6 +155,12 @@ public sealed class ClientReadStream : Stream, IClientReadStream
             logger.LogInformation("ReadAsync {cancellationToken}", cancellationToken.IsCancellationRequested);
             bytesRead = 1;
         }
+        catch (Exception ex)
+        {
+
+            logger.LogInformation("ReadAsync {cancellationToken}", cancellationToken.IsCancellationRequested);
+            bytesRead = 1;
+        }
         finally
         {
             stopWatch.Stop();

@@ -59,7 +59,7 @@ namespace StreamMaster.Streams.Services
 
                 channelDistributor = new ChannelBroadcaster(_channelDirectorLogger, smStreamInfo.Url, smStreamInfo.Name);
 
-                _logger.LogInformation("Created new source channel distributor: {Id} {name}", smStreamInfo.Id, smStreamInfo.Name);
+                _logger.LogInformation("Created new source channel for: {Id} {name}", smStreamInfo.Id, smStreamInfo.Name);
 
                 (Stream stream, int processId, ProxyStreamError error) = await _proxyFactory.GetProxy(smStreamInfo, cancellationToken).ConfigureAwait(false);
                 if (stream == null || error != null || processId == 0)
@@ -97,7 +97,7 @@ namespace StreamMaster.Streams.Services
             return false;
         }
 
-        public IDictionary<string, IStreamHandlerMetrics> GetAggregatedMetrics()
+        public IDictionary<string, IStreamHandlerMetrics> GetMetrics()
         {
             Dictionary<string, IStreamHandlerMetrics> metrics = [];
 

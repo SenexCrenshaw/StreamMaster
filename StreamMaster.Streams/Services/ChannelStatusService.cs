@@ -24,6 +24,19 @@ namespace StreamMaster.Streams.Services
             _videoInfoService = videoInfoService;
         }
 
+        public IDictionary<int, IStreamHandlerMetrics> GetMetrics()
+        {
+            Dictionary<int, IStreamHandlerMetrics> metrics = [];
+
+            foreach (KeyValuePair<int, IChannelStatus> kvp in _sourceChannelDistributors)
+            {
+                IChannelStatus channelDistributor = kvp.Value;
+                metrics[kvp.Key] = channelDistributor.GetMetrics;
+            }
+
+            return metrics;
+        }
+
         public async Task<IChannelStatus> GetOrCreateChannelStatusAsync(IClientConfiguration config, CancellationToken cancellationToken)
         {
             await GetOrCreateSourceChannelDistributorSlim.WaitAsync(cancellationToken).ConfigureAwait(false);
@@ -50,7 +63,7 @@ namespace StreamMaster.Streams.Services
 
                 channelStatus = a;
 
-                _logger.LogInformation("Created new channel status: {Id} {name}", config.SMChannel.Id, config.SMChannel.Name);
+                _logger.LogInformation("Created new channel for: {Id} {name}", config.SMChannel.Id, config.SMChannel.Name);
 
                 channelStatus.OnChannelStatusStoppedEvent += OnChannelStatusStopped;
                 bool test = _sourceChannelDistributors.TryAdd(config.SMChannel.Id, channelStatus);
@@ -74,9 +87,10 @@ namespace StreamMaster.Streams.Services
             return false;
         }
 
-        public IDictionary<int, IChannelStatus> GetChannelStatuses()
+        //public IDictionary<int, IChannelStatus> GetChannelStatuses()
+        public List<IChannelStatus> GetChannelStatuses()
         {
-            return _sourceChannelDistributors;
+            return _sourceChannelDistributors.Values.ToList();
         }
 
         private void OnChannelStatusStopped(object? sender, ChannelStatusStopped e)

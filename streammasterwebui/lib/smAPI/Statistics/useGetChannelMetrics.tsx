@@ -1,12 +1,12 @@
 import { QueryHookResult } from '@lib/apiDefs';
 import store, { RootState } from '@lib/redux/store';
 import { useAppDispatch, useAppSelector } from '@lib/redux/hooks';
-import { clear, clearByTag, setField, setIsForced, setIsLoading } from './GetChannelDistributorsSlice';
+import { clear, clearByTag, setField, setIsForced, setIsLoading } from './GetChannelMetricsSlice';
 import { useCallback,useEffect } from 'react';
-import { fetchGetChannelDistributors } from './GetChannelDistributorsFetch';
-import {FieldData, ChannelDistributorDto } from '@lib/smAPI/smapiTypes';
+import { fetchGetChannelMetrics } from './GetChannelMetricsFetch';
+import {FieldData, ChannelMetric } from '@lib/smAPI/smapiTypes';
 
-interface ExtendedQueryHookResult extends QueryHookResult<ChannelDistributorDto[] | undefined> {}
+interface ExtendedQueryHookResult extends QueryHookResult<ChannelMetric[] | undefined> {}
 interface Result extends ExtendedQueryHookResult {
   Clear: () => void;
   ClearByTag: (tag: string) => void;
@@ -14,9 +14,9 @@ interface Result extends ExtendedQueryHookResult {
   SetIsForced: (force: boolean) => void;
   SetIsLoading: (isLoading: boolean, query: string) => void;
 }
-const useGetChannelDistributors = (): Result => {
+const useGetChannelMetrics = (): Result => {
   const dispatch = useAppDispatch();
-  const isForced = useAppSelector((state) => state.GetChannelDistributors.isForced ?? false);
+  const isForced = useAppSelector((state) => state.GetChannelMetrics.isForced ?? false);
 
   const SetIsForced = useCallback(
     (forceRefresh: boolean): void => {
@@ -40,40 +40,40 @@ const SetIsLoading = useCallback(
   [dispatch]
 );
 const selectData = (state: RootState) => {
-    return state.GetChannelDistributors.data;
+    return state.GetChannelMetrics.data;
   };
 const data = useAppSelector(selectData);
 
 const selectError = (state: RootState) => {
-    return state.GetChannelDistributors.error;
+    return state.GetChannelMetrics.error;
   };
 const error = useAppSelector(selectError);
 
 const selectIsError = (state: RootState) => {
-    return state.GetChannelDistributors.isError;
+    return state.GetChannelMetrics.isError;
   };
 const isError = useAppSelector(selectIsError);
 
 const selectIsLoading = (state: RootState) => {
-    return state.GetChannelDistributors.isLoading;
+    return state.GetChannelMetrics.isLoading;
   };
 const isLoading = useAppSelector(selectIsLoading);
 
 
   useEffect(() => {
-    const state = store.getState().GetChannelDistributors;
+    const state = store.getState().GetChannelMetrics;
     if (data === undefined && state.isLoading !== true && state.isForced !== true) {
       SetIsForced(true);
     }
   }, [SetIsForced, data]);
 
 useEffect(() => {
-  const state = store.getState().GetChannelDistributors;
+  const state = store.getState().GetChannelMetrics;
   if (state.isLoading) return;
   if (data !== undefined && !isForced) return;
 
   SetIsLoading(true);
-  dispatch(fetchGetChannelDistributors());
+  dispatch(fetchGetChannelMetrics());
 }, [SetIsLoading, data, dispatch, isForced]);
 
 const SetField = (fieldData: FieldData): void => {
@@ -97,4 +97,4 @@ return {
 };
 };
 
-export default useGetChannelDistributors;
+export default useGetChannelMetrics;

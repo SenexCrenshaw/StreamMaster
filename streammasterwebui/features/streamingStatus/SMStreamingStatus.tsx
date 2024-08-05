@@ -1,6 +1,5 @@
 import { memo } from 'react';
 import SMChannelStatus from './SMChannelStatus';
-import SMClientStatus from './SMClientStatus';
 
 export const StreamingStatus = (): JSX.Element => {
   return (
@@ -8,9 +7,9 @@ export const StreamingStatus = (): JSX.Element => {
       <div className="sm-w-6">
         <SMChannelStatus />
       </div>
-      <div className="sm-w-6">
+      {/* <div className="sm-w-6">
         <SMClientStatus />
-      </div>
+      </div> */}
     </div>
   );
 };

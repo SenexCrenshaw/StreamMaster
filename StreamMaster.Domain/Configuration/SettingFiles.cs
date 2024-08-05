@@ -44,7 +44,7 @@ public static class SettingFiles
             {
                 IsReadOnly = true,
                 Command = "ffmpeg",
-                Parameters = "-map 0:v -map 0:a? -map 0:s? -c:v h264_nvenc -c:a ac3"
+                Parameters = "-map 0:v -map 0:a? -map 0:s? -c copy"
             }
             },
         {

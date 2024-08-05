@@ -50,30 +50,45 @@ namespace StreamMaster.Streams.Plugins
             TimeSpan normalDelay = TimeSpan.FromMinutes(5);
             TimeSpan errorDelay = TimeSpan.FromMinutes(1);
 
-            await Task.Delay(initialDelay, cancellationToken);
-
-            while (!cancellationToken.IsCancellationRequested)
+            try
             {
-                try
-                {
-                    VideoInfo? videoInfo = await GetVideoInfoAsync(_channelReader, cancellationToken);
+                await Task.Delay(initialDelay, cancellationToken);
 
-                    if (videoInfo != null)
+                while (!cancellationToken.IsCancellationRequested)
+                {
+                    try
                     {
-                        _logger.LogInformation("Got video info for {key}", key);
-                        OnVideoInfoUpdated(videoInfo);
-                        await Task.Delay(normalDelay, cancellationToken);
+                        VideoInfo? videoInfo = await GetVideoInfoAsync(_channelReader, cancellationToken);
+
+                        if (videoInfo != null)
+                        {
+                            //_logger.LogInformation("Got video info for {key}", key);
+                            OnVideoInfoUpdated(videoInfo);
+                            await Task.Delay(normalDelay, cancellationToken);
+                        }
+                        else
+                        {
+                            await Task.Delay(errorDelay, cancellationToken);
+                        }
                     }
-                    else
+                    catch (Exception ex)
                     {
+                        _logger.LogError(ex, "Error getting video info for {key}", key);
                         await Task.Delay(errorDelay, cancellationToken);
                     }
                 }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Error getting video info for {key}", key);
-                    await Task.Delay(errorDelay, cancellationToken);
-                }
+            }
+            catch (TaskCanceledException ex)
+            {
+                _logger.LogInformation(ex, "Error starting video info loop for {key}", key);
+            }
+            catch (OperationCanceledException ex)
+            {
+                _logger.LogInformation(ex, "Error starting video info loop for {key}", key);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogInformation(ex, "Error starting video info loop for {key}", key);
             }
         }
 

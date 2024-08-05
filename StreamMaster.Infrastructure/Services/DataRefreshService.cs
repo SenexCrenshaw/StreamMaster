@@ -213,10 +213,7 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
             return;
         }
 
-        await hub.Clients.All.DataRefresh("GetChannelDistributors");
-        await hub.Clients.All.DataRefresh("GetChannelStreamingStatistics");
-        await hub.Clients.All.DataRefresh("GetClientStreamingStatistics");
-        await hub.Clients.All.DataRefresh("GetStreamStreamingStatistics");
+        await hub.Clients.All.DataRefresh("GetChannelMetrics");
     }
 
     public async Task RefreshStreamGroups(bool alwaysRun = false)

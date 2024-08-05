@@ -43,7 +43,7 @@ public interface IChannelStatusBroadcaster : IChannelBroadcasterBase
 public interface IChannelBroadcasterBase : IStreamStats, ISourceName
 {
     //void AddClientStream(int key, Stream stream);
-    void AddClient(string UniqueRequestId, IClientConfiguration config);
+    void AddClientStreamer(string UniqueRequestId, IClientConfiguration config);
 
     /// <summary>
     /// Adds a client stream.
@@ -72,7 +72,7 @@ public interface IChannelBroadcasterBase : IStreamStats, ISourceName
     /// <returns><c>true</c> if the client channel was removed; otherwise, <c>false</c>.</returns>
     bool RemoveClientChannel(int key);
 
-    bool RemoveClient(string UniqueRequestId);
+    bool RemoveClientStreamer(string UniqueRequestId);
     void AddClientChannel(int key, ChannelWriter<byte[]> channel);
 
     List<IClientConfiguration> GetClientStreamerConfigurations();
@@ -88,7 +88,7 @@ public interface IChannelBroadcasterBase : IStreamStats, ISourceName
     /// <summary>
     /// Gets the count of items in the channel.
     /// </summary>
-    long GetChannelItemCount { get; }
+    long ChannelItemBackLog { get; }
 
     /// <summary>
     /// Determines whether the channel is empty.

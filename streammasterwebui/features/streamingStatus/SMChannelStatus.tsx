@@ -1,45 +1,60 @@
 import SMDataTable from '@components/smDataTable/SMDataTable';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 import { formatJSONDateString, getElapsedTimeString } from '@lib/common/dateTime';
-import { ChannelStreamingStatistics } from '@lib/smAPI/smapiTypes';
+import { ChannelMetric } from '@lib/smAPI/smapiTypes';
 import { DataTableRowData, DataTableRowExpansionTemplate } from 'primereact/datatable';
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import SMChannelStatusValue from './SMChannelStatusValue';
-import { GetChannelStreamingStatistics } from '@lib/smAPI/Statistics/StatisticsCommands';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+
 import CancelChannelDialog from '@components/streaming/CancelChannelDialog';
 import MoveToNextStreamDialog from '@components/streaming/MoveToNextStreamDialog';
+import { GetChannelMetrics } from '@lib/smAPI/Statistics/StatisticsCommands';
 
 const SMChannelStatus = () => {
-  const [channelStreamingStatistics, setChannelStreamingStatistics] = useState<ChannelStreamingStatistics[]>([]);
+  const [channelMetrics, setChannelMetrics] = useState<ChannelMetric[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
 
-  const getStats = useCallback(async () => {
+  const channelMetricsRef = useRef<ChannelMetric[]>([]);
+  const setChannelMetricsWithRef = (metrics: ChannelMetric[]) => {
+    channelMetricsRef.current = metrics;
+    setChannelMetrics(metrics);
+  };
+
+  const getChannelMetrics = useCallback(async () => {
     try {
-      const [channelStats] = await Promise.all([GetChannelStreamingStatistics()]);
-
-      setChannelStreamingStatistics(channelStats ?? []);
-    } catch (error) {}
-  }, [setChannelStreamingStatistics]);
+      const [channelMetricsData] = await Promise.all([GetChannelMetrics()]);
+      setChannelMetricsWithRef(channelMetricsData ?? []);
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching channel metrics:', error);
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    getStats();
-    const intervalId = setInterval(getStats, 1000);
+    const fetchData = () => {
+      getChannelMetrics();
+    };
+
+    fetchData();
+    const intervalId = setInterval(fetchData, 3000);
+
     return () => clearInterval(intervalId);
-  }, [getStats]);
+  }, [getChannelMetrics]);
 
-  const clientBitsPerSecondTemplate = (rowData: ChannelStreamingStatistics) => {
-    if (rowData.BitsPerSecond === undefined) return <div />;
+  const clientBitsPerSecondTemplate = (rowData: ChannelMetric) => {
+    const found = channelMetricsRef.current.find((predicate) => predicate.Id === rowData.Id);
 
-    const kbps = rowData.BitsPerSecond / 1000;
+    if (found === undefined || found.GetMetrics.Kbps === undefined) return <div />;
+    const kbps = found.GetMetrics.Kbps;
     const roundedKbps = Math.ceil(kbps);
-
     return <div>{roundedKbps.toLocaleString('en-US')}</div>;
   };
 
-  const elapsedTSTemplate = useCallback((rowData: ChannelStreamingStatistics) => {
+  const elapsedTSTemplate = useCallback((rowData: ChannelMetric) => {
     return <div className="numeric-field">{getElapsedTimeString(rowData.StartTime, new Date().toString(), true)}</div>;
   }, []);
 
-  const actionTemplate = useCallback((rowData: ChannelStreamingStatistics) => {
+  const actionTemplate = useCallback((rowData: ChannelMetric) => {
     return (
       <div className="sm-center-stuff">
         <CancelChannelDialog channelId={rowData.Id} />
@@ -48,12 +63,12 @@ const SMChannelStatus = () => {
     );
   }, []);
 
-  const clientStartTimeTemplate = (rowData: ChannelStreamingStatistics) => <div>{formatJSONDateString(rowData.StartTime ?? '')}</div>;
+  const clientStartTimeTemplate = (rowData: ChannelMetric) => <div>{formatJSONDateString(rowData.StartTime ?? '')}</div>;
 
-  const logoTemplate = useCallback((rowData: ChannelStreamingStatistics) => {
+  const logoTemplate = useCallback((rowData: ChannelMetric) => {
     return (
       <div className="flex icon-button-template justify-content-center align-items-center w-full">
-        <img alt="Icon logo" src={rowData.ChannelLogo} />
+        <img alt="Icon logo" src={rowData.Logo} />
       </div>
     );
   }, []);
@@ -61,39 +76,39 @@ const SMChannelStatus = () => {
   const columns = useMemo(
     (): ColumnMeta[] => [
       { bodyTemplate: logoTemplate, field: 'Logo', fieldType: 'image', header: '' },
-      { field: 'ChannelName', filter: true, sortable: true, width: 200 },
-      { align: 'right', bodyTemplate: clientBitsPerSecondTemplate, field: 'BitsPerSecond', header: 'Input Kbps', width: 80 },
-      { align: 'center', bodyTemplate: clientStartTimeTemplate, field: 'StartTime', header: 'Start', width: 180 },
-      { align: 'right', bodyTemplate: elapsedTSTemplate, field: 'ElapsedTime', header: '(d hh:mm:ss)', width: 85 },
-      { align: 'center', bodyTemplate: actionTemplate, field: 'actions', fieldType: 'actions', header: '', width: 42 }
+      { field: 'Name', filter: true, sortable: true, width: 200 },
+      { align: 'right', bodyTemplate: clientBitsPerSecondTemplate, field: 'GetMetrics.Kbps', header: 'Kbps', width: 80 }
+      // { align: 'center', bodyTemplate: clientStartTimeTemplate, field: 'StartTime', header: 'Start', width: 180 },
+      // { align: 'right', bodyTemplate: elapsedTSTemplate, field: 'ElapsedTime', header: '(d hh:mm:ss)', width: 85 },
+      // { align: 'center', bodyTemplate: actionTemplate, field: 'actions', fieldType: 'actions', header: '', width: 42 }
     ],
-    [actionTemplate, elapsedTSTemplate, logoTemplate]
+    [logoTemplate]
   );
 
   const rowExpansionTemplate = useCallback((data: DataTableRowData<any>, options: DataTableRowExpansionTemplate) => {
-    const ChannelStreamingStatistics = data as unknown as ChannelStreamingStatistics;
-
-    return (
-      <div className="ml-3 m-1">
-        {
-          <SMChannelStatusValue
-            ChannelId={ChannelStreamingStatistics.Id}
-            CurrentRank={ChannelStreamingStatistics.CurrentRank}
-            StreamStreamingStatistics={ChannelStreamingStatistics.StreamStreamingStatistics}
-          />
-        }
-      </div>
-    );
+    const ChannelMetric = data as unknown as ChannelMetric;
+    return <div />;
+    // return (
+    //   <div className="ml-3 m-1">
+    //     {
+    //       <SMChannelStatusValue
+    //         ChannelId={ChannelMetric.Id}
+    //         CurrentRank={ChannelMetric.CurrentRank}
+    //         StreamStreamingStatistics={ChannelMetric.StreamStreamingStatistics}
+    //       />
+    //     }
+    //   </div>
+    // );
   }, []);
 
-  if (channelStreamingStatistics === undefined) return <div>Loading...</div>;
+  if (loading) return <div>Loading...</div>;
 
   return (
     <SMDataTable
       headerName="CHANNELS"
       columns={columns}
       id="channelStatus"
-      dataSource={channelStreamingStatistics}
+      dataSource={channelMetrics}
       showExpand
       rowExpansionTemplate={rowExpansionTemplate}
     />

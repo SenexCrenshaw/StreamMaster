@@ -1,10 +1,8 @@
 import store from '@lib/redux/store';
 import { setIsForced as GetAvailableCountriesSetIsForced } from '@lib/smAPI/SchedulesDirect/GetAvailableCountriesSlice';
-import { setIsForced as GetChannelDistributorsSetIsForced } from '@lib/smAPI/Statistics/GetChannelDistributorsSlice';
 import { setIsForced as GetChannelGroupsSetIsForced } from '@lib/smAPI/ChannelGroups/GetChannelGroupsSlice';
 import { setIsForced as GetChannelGroupsFromSMChannelsSetIsForced } from '@lib/smAPI/ChannelGroups/GetChannelGroupsFromSMChannelsSlice';
-import { setIsForced as GetChannelStreamingStatisticsSetIsForced } from '@lib/smAPI/Statistics/GetChannelStreamingStatisticsSlice';
-import { setIsForced as GetClientStreamingStatisticsSetIsForced } from '@lib/smAPI/Statistics/GetClientStreamingStatisticsSlice';
+import { setIsForced as GetChannelMetricsSetIsForced } from '@lib/smAPI/Statistics/GetChannelMetricsSlice';
 import { setIsForced as GetCommandProfilesSetIsForced } from '@lib/smAPI/Profiles/GetCommandProfilesSlice';
 import { setIsForced as GetCustomPlayListsSetIsForced } from '@lib/smAPI/Custom/GetCustomPlayListsSlice';
 import { setIsForced as GetDownloadServiceStatusSetIsForced } from '@lib/smAPI/General/GetDownloadServiceStatusSlice';
@@ -26,7 +24,6 @@ import { setIsForced as GetStationChannelNamesSetIsForced } from '@lib/smAPI/Sch
 import { setIsForced as GetStationPreviewsSetIsForced } from '@lib/smAPI/SchedulesDirect/GetStationPreviewsSlice';
 import { setIsForced as GetStreamGroupProfilesSetIsForced } from '@lib/smAPI/StreamGroups/GetStreamGroupProfilesSlice';
 import { setIsForced as GetStreamGroupsSetIsForced } from '@lib/smAPI/StreamGroups/GetStreamGroupsSlice';
-import { setIsForced as GetStreamStreamingStatisticsSetIsForced } from '@lib/smAPI/Statistics/GetStreamStreamingStatisticsSlice';
 import { setIsForced as GetSubScribedHeadendsSetIsForced } from '@lib/smAPI/SchedulesDirect/GetSubScribedHeadendsSlice';
 import { setIsForced as GetSubscribedLineupsSetIsForced } from '@lib/smAPI/SchedulesDirect/GetSubscribedLineupsSlice';
 import { setIsForced as GetSystemStatusSetIsForced } from '@lib/smAPI/General/GetSystemStatusSlice';
@@ -34,11 +31,9 @@ import { setIsForced as GetTaskIsRunningSetIsForced } from '@lib/smAPI/General/G
 
 export const DataRefreshAll = () => {
   store.dispatch(GetAvailableCountriesSetIsForced({ force: true }));
-  store.dispatch(GetChannelDistributorsSetIsForced({ force: true }));
   store.dispatch(GetChannelGroupsSetIsForced({ force: true }));
   store.dispatch(GetChannelGroupsFromSMChannelsSetIsForced({ force: true }));
-  store.dispatch(GetChannelStreamingStatisticsSetIsForced({ force: true }));
-  store.dispatch(GetClientStreamingStatisticsSetIsForced({ force: true }));
+  store.dispatch(GetChannelMetricsSetIsForced({ force: true }));
   store.dispatch(GetCommandProfilesSetIsForced({ force: true }));
   store.dispatch(GetCustomPlayListsSetIsForced({ force: true }));
   store.dispatch(GetDownloadServiceStatusSetIsForced({ force: true }));
@@ -60,7 +55,6 @@ export const DataRefreshAll = () => {
   store.dispatch(GetStationPreviewsSetIsForced({ force: true }));
   store.dispatch(GetStreamGroupProfilesSetIsForced({ force: true }));
   store.dispatch(GetStreamGroupsSetIsForced({ force: true }));
-  store.dispatch(GetStreamStreamingStatisticsSetIsForced({ force: true }));
   store.dispatch(GetSubScribedHeadendsSetIsForced({ force: true }));
   store.dispatch(GetSubscribedLineupsSetIsForced({ force: true }));
   store.dispatch(GetSystemStatusSetIsForced({ force: true }));

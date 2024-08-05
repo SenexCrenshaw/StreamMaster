@@ -8,6 +8,12 @@ namespace StreamMaster.Streams.Domain.Interfaces
     public interface IChannelStatusService
     {
         /// <summary>
+        /// Gets aggregated metrics for all channel distributors.
+        /// </summary>
+        /// <returns>A dictionary of aggregated metrics for all channel distributors.</returns>
+        IDictionary<int, IStreamHandlerMetrics> GetMetrics();
+
+        /// <summary>
         /// Occurs when a channel status is stopped.
         /// </summary>
         event AsyncEventHandler<ChannelStatusStopped>? OnChannelStatusStoppedEvent;
@@ -31,6 +37,7 @@ namespace StreamMaster.Streams.Domain.Interfaces
         /// Gets all channel statuses.
         /// </summary>
         /// <returns>A dictionary of all channel statuses.</returns>
-        IDictionary<int, IChannelStatus> GetChannelStatuses();
+        //IDictionary<int, IChannelStatus> GetChannelStatuses();
+        List<IChannelStatus> GetChannelStatuses();
     }
 }
