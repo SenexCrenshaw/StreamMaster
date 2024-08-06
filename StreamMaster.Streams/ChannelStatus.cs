@@ -17,7 +17,7 @@ public sealed class ChannelStatus : ChannelStatusBroadcaster, IChannelStatus, ID
     public int IntroIndex { get; set; }
     public bool PlayedIntro { get; set; }
     public bool IsFirst { get; set; } = true;
-    public required int StreamGroupId { get; set; }
+    //public required int StreamGroupId { get; set; }
     public required int StreamGroupProfileId { get; set; }
     public required SMChannelDto SMChannel { get; set; }
     public bool Shutdown { get; set; } = false;

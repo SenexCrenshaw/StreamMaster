@@ -56,21 +56,21 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
 
         if (streamGroupDto.StreamGroupProfiles.Count > 0)
         {
-            foreach (StreamGroupProfileDto sgProfile in streamGroupDto.StreamGroupProfiles)
+            foreach (StreamGroupProfileDto streamGroupProfile in streamGroupDto.StreamGroupProfiles)
             {
-                string? EncodedString = cryptoService.EncodeInt(sgProfile.Id);
+                string? EncodedString = cryptoService.EncodeInt(streamGroupProfile.Id);
                 if (EncodedString == null)
                 {
                     continue;
                 }
 
-                sgProfile.ShortHDHRLink = $"{Url}/s/{sgProfile.Id}";
-                sgProfile.ShortM3ULink = $"{Url}/s/{sgProfile.Id}.m3u";
-                sgProfile.ShortEPGLink = $"{Url}/s/{sgProfile.Id}.xml";
+                streamGroupProfile.ShortHDHRLink = $"{Url}/s/{streamGroupProfile.Id}";
+                streamGroupProfile.ShortM3ULink = $"{Url}/s/{streamGroupProfile.Id}.m3u";
+                streamGroupProfile.ShortEPGLink = $"{Url}/s/{streamGroupProfile.Id}.xml";
 
-                sgProfile.HDHRLink = $"{Url}/api/streamgroups/{EncodedString}";
-                sgProfile.M3ULink = $"{Url}/api/streamgroups/{EncodedString}/m3u.m3u";
-                sgProfile.XMLLink = $"{Url}/api/streamgroups/{EncodedString}/epg.xml";
+                streamGroupProfile.HDHRLink = $"{Url}/api/streamgroups/{EncodedString}";
+                streamGroupProfile.M3ULink = $"{Url}/api/streamgroups/{EncodedString}/m3u.m3u";
+                streamGroupProfile.XMLLink = $"{Url}/api/streamgroups/{EncodedString}/epg.xml";
 
             }
 

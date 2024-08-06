@@ -9,7 +9,6 @@ public sealed class ClientConfiguration : IClientConfiguration
     public ClientConfiguration(
         string uniqueRequestId,
         SMChannelDto smChannel,
-        int streamGroupId,
          int streamGroupProfileId,
         string clientUserAgent,
         string clientIPAddress,
@@ -21,7 +20,6 @@ public sealed class ClientConfiguration : IClientConfiguration
         UniqueRequestId = uniqueRequestId;
         Response = response;
         ClientCancellationToken = cancellationToken;
-        StreamGroupId = streamGroupId;
         ClientIPAddress = clientIPAddress;
         ClientUserAgent = clientUserAgent;
         StreamGroupProfileId = streamGroupProfileId;
@@ -32,7 +30,6 @@ public sealed class ClientConfiguration : IClientConfiguration
 
     [IgnoreMember]
     public HttpResponse Response { get; }
-    public int StreamGroupId { get; set; }
 
     public void SetUniqueRequestId(string uniqueRequestId)
     {

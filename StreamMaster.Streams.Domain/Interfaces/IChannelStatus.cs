@@ -18,7 +18,7 @@ public interface IStreamStatus : IIntroStatus, ISourceName
     SMStreamInfo? SMStreamInfo { get; }
 
     int StreamGroupProfileId { get; set; }
-    int StreamGroupId { get; set; }
+    //int StreamGroupId { get; set; }
 }
 
 /// <summary>

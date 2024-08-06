@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 
 using StreamMaster.Application.StreamGroups.Queries;
-using StreamMaster.Application.StreamGroups.QueriesOld;
 
 using System.Text;
 
@@ -25,7 +25,13 @@ public partial class StreamGroupsController
             return new NotFoundResult();
         }
 
-        string xml = await Sender.Send(new GetStreamGroupCapability(streamGroupProfileId.Value)).ConfigureAwait(false);
+        if (HttpContext.Request == null)
+        {
+            return NotFound();
+        }
+
+        string xml = await StreamGroupService.GetStreamGroupCapability(streamGroupProfileId.Value, HttpContext.Request).ConfigureAwait(false);
+
         return new ContentResult
         {
             Content = xml,
@@ -45,7 +51,14 @@ public partial class StreamGroupsController
             return new NotFoundResult();
         }
 
-        string json = await Sender.Send(new GetStreamGroupDiscover(streamGroupProfileId.Value)).ConfigureAwait(false);
+        if (HttpContext.Request == null)
+        {
+            return NotFound();
+        }
+
+        string json = await StreamGroupService.GetStreamGroupDiscover(streamGroupProfileId.Value, HttpContext.Request).ConfigureAwait(false);
+
+        //string json = await Sender.Send(new GetStreamGroupDiscover(streamGroupProfileId.Value, false)).ConfigureAwait(false);
         return new ContentResult
         {
             Content = json,
@@ -90,7 +103,12 @@ public partial class StreamGroupsController
             return new NotFoundResult();
         }
 
-        string json = await Sender.Send(new GetStreamGroupLineup(streamGroupProfileId.Value, false)).ConfigureAwait(false);
+        if (HttpContext.Request == null)
+        {
+            return NotFound();
+        }
+
+        string json = await StreamGroupService.GetStreamGroupLineup(streamGroupProfileId.Value, HttpContext.Request, true).ConfigureAwait(false);
         return new ContentResult
         {
             Content = json,
@@ -102,7 +120,7 @@ public partial class StreamGroupsController
     [HttpGet]
     [Authorize(Policy = "SGLinks")]
     [Route("{encodedId}/lineup_status.json")]
-    public async Task<IActionResult> GetStreamGroupLineupStatus(string encodedId)
+    public IActionResult GetStreamGroupLineupStatus(string encodedId)
     {
         int? streamGroupProfileId = CryptoService.DecodeInt(encodedId);
         if (!streamGroupProfileId.HasValue)
@@ -110,7 +128,7 @@ public partial class StreamGroupsController
             return new NotFoundResult();
         }
 
-        string json = await Sender.Send(new GetStreamGroupLineupStatus()).ConfigureAwait(false);
+        string json = StreamGroupService.GetStreamGroupLineupStatus();
         return new ContentResult
         {
             Content = json,

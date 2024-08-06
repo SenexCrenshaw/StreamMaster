@@ -1,6 +1,4 @@
-﻿using StreamMaster.Domain.Configuration;
-
-namespace StreamMaster.Application.Common.Models
+﻿namespace StreamMaster.Application.Common.Models
 {
     public class Discover
     {

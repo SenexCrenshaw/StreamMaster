@@ -11,7 +11,7 @@ namespace StreamMaster.Application.SMChannels.Queries;
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record GetPagedSMChannelsRequest(QueryStringParameters Parameters) : IRequest<PagedResponse<SMChannelDto>>;
 
-internal class GetPagedSMChannelsRequestHandler(IRepositoryWrapper Repository, IStreamGroupService streamGroupService, ICryptoService cryptoService, ISender sender, IOptionsMonitor<Setting> intSettings, IHttpContextAccessor httpContextAccessor)
+internal class GetPagedSMChannelsRequestHandler(IRepositoryWrapper Repository, IStreamGroupService streamGroupService, IHttpContextAccessor httpContextAccessor)
     : IRequestHandler<GetPagedSMChannelsRequest, PagedResponse<SMChannelDto>>
 {
     public async Task<PagedResponse<SMChannelDto>> Handle(GetPagedSMChannelsRequest request, CancellationToken cancellationToken)
@@ -52,7 +52,7 @@ internal class GetPagedSMChannelsRequestHandler(IRepositoryWrapper Repository, I
 
             StreamGroupProfile test = await streamGroupService.GetDefaultStreamGroupProfileAsync();
 
-            string? EncodedString = await cryptoService.EncodeStreamGroupIdProfileIdChannelId(sgId, test.Id, channel.Id);
+            string? EncodedString = await streamGroupService.EncodeStreamGroupIdProfileIdChannelId(sgId, test.Id, channel.Id);
 
             //(string EncodedString, string CleanName) = await sender.Send(new EncodeStreamGroupIdProfileIdChannelId(defaultSGProfile.Data.StreamGroupId, defaultSGProfile.Data.Id, channel.Id, channel.Name), cancellationToken);
             if (string.IsNullOrEmpty(EncodedString))

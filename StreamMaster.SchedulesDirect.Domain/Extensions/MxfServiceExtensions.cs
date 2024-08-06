@@ -1,7 +1,5 @@
 ﻿using StreamMaster.Domain.Helpers;
 
-using StreamMaster.SchedulesDirect.Domain.Models;
-
 namespace StreamMaster.SchedulesDirect.Domain.Extensions;
 
 public static class MxfServiceExtensions

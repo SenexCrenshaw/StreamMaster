@@ -4,7 +4,7 @@
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record ScanForCustomRequest : IRequest<APIResponse>;
 
-public class ScanForCustomPlayListsRequestHandler(ILogger<ScanForCustomRequest> Logger, ICryptoService cryptoService, IIconService iconService, IIntroPlayListBuilder introPlayListBuilder, ICustomPlayListBuilder CustomPlayListBuilder, IRepositoryWrapper Repository)
+public class ScanForCustomPlayListsRequestHandler(ILogger<ScanForCustomRequest> Logger, IStreamGroupService streamGroupService, IIconService iconService, IIntroPlayListBuilder introPlayListBuilder, ICustomPlayListBuilder CustomPlayListBuilder, IRepositoryWrapper Repository)
     : IRequestHandler<ScanForCustomRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(ScanForCustomRequest command, CancellationToken cancellationToken)
@@ -62,7 +62,7 @@ public class ScanForCustomPlayListsRequestHandler(ILogger<ScanForCustomRequest> 
                     continue;
                 }
 
-                string? c = await cryptoService.EncodeStreamGroupIdStreamIdAsync(EPGHelper.CustomPlayListId, streamId);
+                string? c = await streamGroupService.EncodeStreamGroupIdStreamIdAsync(EPGHelper.CustomPlayListId, streamId);
 
                 SMStream newStream = new()
                 {
@@ -97,7 +97,7 @@ public class ScanForCustomPlayListsRequestHandler(ILogger<ScanForCustomRequest> 
                     continue;
                 }
 
-                string? c = await cryptoService.EncodeStreamGroupIdStreamIdAsync(EPGHelper.CustomPlayListId, streamId);
+                string? c = await streamGroupService.EncodeStreamGroupIdStreamIdAsync(EPGHelper.CustomPlayListId, streamId);
 
                 SMStream newStream = new()
                 {

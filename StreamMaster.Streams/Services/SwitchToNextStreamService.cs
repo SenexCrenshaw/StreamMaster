@@ -5,7 +5,7 @@ using StreamMaster.PlayList.Models;
 namespace StreamMaster.Streams.Services;
 
 
-public sealed class SwitchToNextStreamService(ILogger<SwitchToNextStreamService> logger, IProfileService profileService, IStreamGroupService streamGroupService, IOptionsMonitor<CommandProfileDict> optionsOutputProfiles, IIntroPlayListBuilder introPlayListBuilder, ICustomPlayListBuilder customPlayListBuilder, IOptionsMonitor<Setting> intSettings, IServiceProvider serviceProvider)
+public sealed class SwitchToNextStreamService(ILogger<SwitchToNextStreamService> logger, IProfileService profileService, IServiceProvider _serviceProvider, IOptionsMonitor<CommandProfileDict> optionsOutputProfiles, IIntroPlayListBuilder introPlayListBuilder, ICustomPlayListBuilder customPlayListBuilder, IOptionsMonitor<Setting> intSettings, IServiceProvider serviceProvider)
     : ISwitchToNextStreamService
 {
     private static string GetClientUserAgent(SMChannelDto smChannel, SMStreamDto? smStream, Setting setting)
@@ -55,11 +55,14 @@ public sealed class SwitchToNextStreamService(ILogger<SwitchToNextStreamService>
             }
         }
 
+
+        using IServiceScope scope = _serviceProvider.CreateScope();
+
         ChannelStatus.PlayedIntro = false;
         SMStreamDto? smStream;
         if (!string.IsNullOrEmpty(OverrideSMStreamId))
         {
-            using IServiceScope scope = serviceProvider.CreateScope();
+
             IRepositoryWrapper repository = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
 
             //Dictionary<int, M3UFileDto> m3uFilesRepo = (await repository.M3UFile.GetM3UFiles().ConfigureAwait(false)).ToDictionary(m => m.Id);
@@ -92,6 +95,8 @@ public sealed class SwitchToNextStreamService(ILogger<SwitchToNextStreamService>
             return false;
         }
 
+        IStreamGroupService streamGroupService = scope.ServiceProvider.GetRequiredService<IStreamGroupService>();
+
         string clientUserAgent = GetClientUserAgent(ChannelStatus.SMChannel, smStream, intSettings.CurrentValue);
 
         if (smStream.SMStreamType is SMStreamTypeEnum.CustomPlayList)
@@ -107,7 +112,7 @@ public sealed class SwitchToNextStreamService(ILogger<SwitchToNextStreamService>
 
             (CustomStreamNfo StreamNfo, int SecondsIn) = customPlayListBuilder.GetCurrentVideoAndElapsedSeconds(ChannelStatus.CustomPlayList.Name);
 
-            CommandProfileDto customPlayListProfileDto = await streamGroupService.GetProfileFromSMChannelDtoAsync(ChannelStatus.StreamGroupId, ChannelStatus.StreamGroupProfileId, ChannelStatus.SMChannel.CommandProfileName);
+            CommandProfileDto customPlayListProfileDto = await streamGroupService.GetProfileFromSGIdsCommandProfileNameAsync(null, ChannelStatus.StreamGroupProfileId, ChannelStatus.SMChannel.CommandProfileName);
 
             if (customPlayListProfileDto.Command.Equals("STREAMMASTER"))
             {
@@ -131,7 +136,7 @@ public sealed class SwitchToNextStreamService(ILogger<SwitchToNextStreamService>
         }
 
 
-        CommandProfileDto commandProfileDto = await streamGroupService.GetProfileFromSMChannelDtoAsync(ChannelStatus.StreamGroupId, ChannelStatus.StreamGroupProfileId, ChannelStatus.SMChannel.CommandProfileName);
+        CommandProfileDto commandProfileDto = await streamGroupService.GetProfileFromSGIdsCommandProfileNameAsync(null, ChannelStatus.StreamGroupProfileId, ChannelStatus.SMChannel.CommandProfileName);
 
         SMStreamInfo smStreamInfo = new()
         {

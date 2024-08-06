@@ -57,7 +57,7 @@ namespace StreamMaster.Streams.Services
                 ChannelStatus a = new(_channelStatusLogger, config.SMChannel)
                 {
                     SMChannel = config.SMChannel,
-                    StreamGroupId = config.StreamGroupId,
+                    //StreamGroupId = config.StreamGroupId,
                     StreamGroupProfileId = config.StreamGroupProfileId
                 };
 

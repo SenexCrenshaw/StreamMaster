@@ -103,8 +103,7 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
 
         var encodedData = await Task.WhenAll(smChannels.Select(async smChannel =>
         {
-            //string? encodedString = await cryptoService.EncodeStreamGroupIdChannelIdAsync(request.StreamGroupId, smChannel.Id).ConfigureAwait(false);
-            string? encodedString = await cryptoService.EncodeStreamGroupIdProfileIdChannelId(sg.Id, streamGroupProfile.Id, smChannel.Id).ConfigureAwait(false);
+            string? encodedString = await streamGroupService.EncodeStreamGroupProfileIdChannelId(streamGroupProfile.Id, smChannel.Id).ConfigureAwait(false);
 
             string cleanName = smChannel.Name.ToCleanFileString();
 
@@ -147,24 +146,21 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
     {
         int newChNo = baseChNo;
 
-        // Wait for the semaphore
-        //semaphore.Wait();
 
         try
         {
-            // Find the next available unique channel number starting from baseChNo
+
             while (chNos.ContainsKey(newChNo))
             {
-                newChNo++; // Increment to find the next available number
+                newChNo++;
             }
 
-            // Add the new channel number to the collection
+
             chNos[newChNo] = true;
         }
         finally
         {
-            // Release the semaphore
-            //semaphore.Release();
+
         }
 
         return newChNo;
@@ -172,16 +168,15 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
 
     private void UpdateProfile(OutputProfile profile, SMChannel smChannel)
     {
-        // Wait for the semaphore
+
         semaphore.Wait();
 
         try
         {
-            // Use the generic method to update each property
+
             UpdateProperty(profile, smChannel, p => p.Name);
             UpdateProperty(profile, smChannel, p => p.Group);
             UpdateProperty(profile, smChannel, p => p.EPGId);
-            //UpdateProperty(profile, smChannel, p => p.ChannelNumber.ToString());
 
             smChannel.ChannelNumber = GetNextChNo(smChannel.ChannelNumber);
 
@@ -197,26 +192,26 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
 
     private static void UpdateProperty<T>(OutputProfile profile, SMChannel smChannel, Expression<Func<OutputProfile, T>> propertySelector)
     {
-        // Extract the property name from the expression
+
         if (propertySelector.Body is MemberExpression memberExpression)
         {
-            // Retrieve the property value from the OutputProfile
+
             T? profileValue = propertySelector.Compile()(profile);
 
-            // Check if the property value is a valid M3U settings
+
             if (Enum.TryParse<ValidM3USetting>(profileValue?.ToString(), out ValidM3USetting setting))
             {
-                // Only update if the settings is not NotMapped
+
                 if (setting != ValidM3USetting.NotMapped)
                 {
-                    // Use reflection to get the corresponding property from SMChannel
+
                     PropertyInfo? smChannelProperty = typeof(SMChannel).GetProperty(memberExpression.Member.Name);
                     if (smChannelProperty != null)
                     {
-                        // Get the value from SMChannel
+
                         object? newValue = smChannelProperty.GetValue(smChannel);
 
-                        // Update the OutputProfile property with the new value
+
                         PropertyInfo? profileProperty = typeof(OutputProfile).GetProperty(memberExpression.Member.Name);
                         profileProperty?.SetValue(profile, newValue);
                     }
@@ -250,16 +245,10 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
             {
                 (_, epgChannelId) = smChannel.EPGId.ExtractEPGNumberAndStationId();
                 MxfService? service = schedulesDirectDataService.GetService(smChannel.EPGId);
-                //if (settings.M3UUseCUIDForChannelID)
-                //{
-                //    tvgID = epgChannelId;
-                //    channelId = smChannel.Id.ToString();
-                //}
-                //else
-                //{
+
                 tvgID = service?.CallSign ?? epgChannelId;
                 channelId = tvgID;
-                //}
+
             }
             else
             {
@@ -274,46 +263,15 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
 
         string name = smChannel.Name;
 
-        //if (settings.M3UIgnoreEmptyEPGID)
-        //{
-        //    showM3UFieldTvgId = !(string.IsNullOrEmpty(videoStream.EPGId) && string.IsNullOrEmpty(smChannelDto.EPGId));
-        //}
-
         string logo = GetIconUrl(smChannel.Logo, settings);
         smChannel.Logo = logo;
 
-        //string videoUrl = $"{url}/m/{encodedString}.m3u8";
 
-        //if (smChannel.Name.Contains("comedy", StringComparison.CurrentCultureIgnoreCase))
-        //{
-        //    videoUrl = $"{url}/m/comedy.ts";
-        //}
-
-        //if (smChannel.Name.Contains("intros", StringComparison.CurrentCultureIgnoreCase))
-        //{
-        //    videoUrl = $"{url}/m/intros.ts";
-        //}
         string videoUrl = request.IsShort
             ? $"{url}/v/{request.StreamGroupProfileId}/{smChannel.Id}"
             : $"{url}/api/videostreams/stream/{encodedString}/{cleanName}";
 
 
-
-        //string videoUrl = $"{url}/m/{encodedString}.m3u8";// : $"{url}/api/videostreams/stream/{encodedString}/{cleanName}";
-        //videoUrl = $"{url}/m/comedy.ts";
-
-        //}
-
-        //}
-
-        //if (settings.M3UUseChnoForId)
-        //{
-        //    tvgID = smChannel.ChannelNumber.ToString();
-        //    if (!settings.M3UUseCUIDForChannelID)
-        //    {
-        //        channelId = tvgID;
-        //    }
-        //}
 
         List<string> fieldList = ["#EXTINF:-1"];
 
@@ -343,12 +301,6 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
             fieldList.Add($"tvg-chno=\"{videoStreamConfig.ChannelNumber}\"");
             fieldList.Add($"channel-number=\"{videoStreamConfig.ChannelNumber}\"");
         }
-
-        //if (settings.M3UStationId)
-        //{
-        //    string toDisplay = string.IsNullOrEmpty(smChannel.StationId) ? epgChannelId : smChannel.StationId;
-        //    fieldList.Add($"tvc-guide-stationid=\"{toDisplay}\"");
-        //}
 
         if (profile.EnableGroupTitle)
         {
