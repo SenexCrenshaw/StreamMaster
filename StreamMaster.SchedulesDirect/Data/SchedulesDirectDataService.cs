@@ -7,17 +7,18 @@ namespace StreamMaster.SchedulesDirect.Data;
 public class SchedulesDirectDataService : ISchedulesDirectDataService
 {
     private readonly ILogger<SchedulesDirectData> logger;
+    private readonly IOptionsMonitor<SDSettings> _sdSettings;
 
-    public SchedulesDirectDataService(ILogger<SchedulesDirectData> logger)
+    public SchedulesDirectDataService(ILogger<SchedulesDirectData> logger, IOptionsMonitor<SDSettings> sdSettings)
     {
         this.logger = logger;
-
+        _sdSettings = sdSettings;
         _ = DummyData();
     }
 
-    public ConcurrentDictionary<int, ISchedulesDirectData> SchedulesDirectDatas { get; private set; } = new();
+    public ConcurrentDictionary<int, ISchedulesDirectData> SchedulesDirectDatas { get; } = new();
 
-    public ConcurrentDictionary<int, ICustomStreamData> CustomStreamDatas { get; private set; } = new();
+    public ConcurrentDictionary<int, ICustomStreamData> CustomStreamDatas { get; } = new();
 
     public void Reset(int? EPGNumber = null)
     {
@@ -29,20 +30,19 @@ public class SchedulesDirectDataService : ISchedulesDirectDataService
         {
             SchedulesDirectDatas.Clear();
         }
-
     }
 
     public void Set(int EPGNumber, ISchedulesDirectData schedulesDirectData)
     {
-        _ = SchedulesDirectDatas.AddOrUpdate(EPGNumber, schedulesDirectData, (key, oldValue) => schedulesDirectData);
+        _ = SchedulesDirectDatas.AddOrUpdate(EPGNumber, schedulesDirectData, (_, _) => schedulesDirectData);
     }
 
     public List<MxfService> AllServices
     {
         get
-        {            
+        {
             List<MxfService> services = SchedulesDirectDatas.Values.SelectMany(d => d.Services.Values).ToList();
-            return services.Concat(CustomStreamDatas.Values.SelectMany(d => d.Services.Values)).ToList();
+            return [.. services, .. CustomStreamDatas.Values.SelectMany(d => d.Services.Values)];
         }
     }
 
@@ -84,7 +84,7 @@ public class SchedulesDirectDataService : ISchedulesDirectDataService
 
     public ISchedulesDirectData GetEPGData(int EPGNumber)
     {
-        return SchedulesDirectDatas.GetOrAdd(EPGNumber, (epgId) =>
+        return SchedulesDirectDatas.GetOrAdd(EPGNumber, (_) =>
         {
             SchedulesDirectData data = new(logger, EPGNumber);
             return data;
@@ -93,7 +93,7 @@ public class SchedulesDirectDataService : ISchedulesDirectDataService
 
     public ISchedulesDirectData SchedulesDirectData()
     {
-        return SchedulesDirectDatas.GetOrAdd(EPGHelper.SchedulesDirectId, (epgId) =>
+        return SchedulesDirectDatas.GetOrAdd(EPGHelper.SchedulesDirectId, (_) =>
         {
             SchedulesDirectData data = new(logger, EPGHelper.SchedulesDirectId)
             {
@@ -107,8 +107,7 @@ public class SchedulesDirectDataService : ISchedulesDirectDataService
     {
         List<KeyValuePair<int, ISchedulesDirectData>> test = SchedulesDirectDatas.Where(a => a.Key == EPGHelper.DummyId).ToList();
 
-
-        return SchedulesDirectDatas.GetOrAdd(EPGHelper.DummyId, (epgId) =>
+        return SchedulesDirectDatas.GetOrAdd(EPGHelper.DummyId, (_) =>
         {
             SchedulesDirectData data = new(logger, EPGHelper.DummyId)
             {
@@ -125,14 +124,17 @@ public class SchedulesDirectDataService : ISchedulesDirectDataService
 
     public MxfService? GetService(string stationId)
     {
-        MxfService? ret = AllServices.FirstOrDefault(s => s.StationId == stationId);
+        MxfService? ret = AllServices.Find(s => s.StationId == stationId);
         return ret;
     }
 
     public IEnumerable<StationChannelName> GetStationChannelNames()
     {
-
         List<StationChannelName> ret = [];
+        if (!_sdSettings.CurrentValue.SDEnabled)
+        {
+            return ret;
+        }
 
         foreach (MxfService station in AllServices.Where(a => !a.StationId.StartsWith("DUMMY-")))
         {
@@ -158,10 +160,9 @@ public class SchedulesDirectDataService : ISchedulesDirectDataService
         }
     }
 
-
     public ICustomStreamData CustomStreamData()
     {
-        return CustomStreamDatas.GetOrAdd(EPGHelper.CustomPlayListId, (epgId) =>
+        return CustomStreamDatas.GetOrAdd(EPGHelper.CustomPlayListId, (_) =>
         {
             CustomStreamData data = new(logger, EPGHelper.CustomPlayListId)
             {
@@ -194,4 +195,3 @@ public class SchedulesDirectDataService : ISchedulesDirectDataService
         }
     }
 }
-

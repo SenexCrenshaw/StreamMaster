@@ -21,6 +21,7 @@ public class BaseSettings
     public string DummyRegex { get; set; } = "(no tvg-id)";
     public bool EnableSSL { get; set; }
 
+    public bool EnableDBDebug { get; set; } = false;
     public int GlobalStreamLimit { get; set; } = 1;
     public int MaxConcurrentDownloads { get; set; } = 8;
     public int MaxConnectRetry { get; set; } = 20;

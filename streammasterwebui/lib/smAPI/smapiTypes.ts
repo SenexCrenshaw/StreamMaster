@@ -201,6 +201,7 @@ export interface SettingDto
 	DefaultOutputProfileName: string;
 	DeviceID: string;
 	DummyRegex: string;
+	EnableDBDebug: boolean;
 	EnableSSL: boolean;
 	FFMPegExecutable: string;
 	FFProbeExecutable: string;

@@ -7,6 +7,7 @@ namespace StreamMaster.Domain.Repository;
 
 public interface ISMStreamRepository : IRepositoryBase<SMStream>
 {
+    SMStream? GetSMStreamById(string streamId);
     Task ChangeGroupName(string oldGroupName, string newGroupName);
 
     PagedResponse<SMStreamDto> CreateEmptyPagedResponse();

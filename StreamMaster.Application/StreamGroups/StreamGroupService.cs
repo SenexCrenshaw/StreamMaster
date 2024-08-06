@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
 
 using StreamMaster.Application.Common.Models;
 using StreamMaster.Domain.Crypto;
@@ -12,7 +11,7 @@ using System.Xml.Serialization;
 using static StreamMaster.Domain.Common.GetStreamGroupEPGHandler;
 namespace StreamMaster.Application.StreamGroups;
 
-public class StreamGroupService(ILogger<StreamGroupService> _logger, IMapper _mapper, ISchedulesDirectDataService _schedulesDirectDataService, IIconHelper _iconHelper, IEPGHelper _epgHelper, ICryptoService _cryptoService, IOptionsMonitor<CommandProfileDict> _commandProfileSettings, IOptionsMonitor<Setting> _settings, IMemoryCache _memoryCache, IProfileService _profileService, IServiceProvider _serviceProvider)
+public class StreamGroupService(ILogger<StreamGroupService> _logger, IMapper _mapper, IRepositoryWrapper repositoryWrapper, ISchedulesDirectDataService _schedulesDirectDataService, IIconHelper _iconHelper, IEPGHelper _epgHelper, ICryptoService _cryptoService, IOptionsMonitor<CommandProfileDict> _commandProfileSettings, IOptionsMonitor<Setting> _settings, IMemoryCache _memoryCache, IProfileService _profileService)
     : IStreamGroupService
 {
     private const string DefaultStreamGroupName = "all";
@@ -101,6 +100,16 @@ public class StreamGroupService(ILogger<StreamGroupService> _logger, IMapper _ma
         return (null, null, null);
     }
 
+    public string EncodeStreamGroupIdProfileIdChannelId(StreamGroup streamGroup, int StreamGroupProfileId, int SMChannelId)
+    {
+
+        Setting settings = _settings.CurrentValue;
+
+        string encryptedString = CryptoUtils.EncodeThreeValues(streamGroup.Id, StreamGroupProfileId, SMChannelId, settings.ServerKey, streamGroup.GroupKey);
+
+        return encryptedString;
+    }
+
     public async Task<string?> EncodeStreamGroupIdProfileIdChannelId(int StreamGroupId, int StreamGroupProfileId, int SMChannelId)
     {
         string? groupKey = await GetStreamGroupKeyFromId(StreamGroupId);
@@ -181,8 +190,9 @@ public class StreamGroupService(ILogger<StreamGroupService> _logger, IMapper _ma
 
     public async Task<List<StreamGroupDto>> GetStreamGroups()
     {
-        using IServiceScope scope = _serviceProvider.CreateScope();
-        IRepositoryWrapper repositoryWrapper = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
+        //using IServiceScope scope = _serviceProvider.CreateScope();
+        //IRepositoryWrapper repositoryWrapper = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
+        //return await repositoryWrapper.StreamGroup.ProjectTo<StreamGroupDto>(_mapper.ConfigurationProvider).ToListAsync();
         return await repositoryWrapper.StreamGroup.GetQuery().ProjectTo<StreamGroupDto>(_mapper.ConfigurationProvider).ToListAsync();
     }
 
@@ -249,8 +259,8 @@ public class StreamGroupService(ILogger<StreamGroupService> _logger, IMapper _ma
             return JsonSerializer.Serialize(ret);
         }
 
-        using IServiceScope scope = _serviceProvider.CreateScope();
-        IRepositoryWrapper repositoryWrapper = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
+        //using IServiceScope scope = _serviceProvider.CreateScope();
+        //IRepositoryWrapper repositoryWrapper = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
 
         List<SMChannel> smChannels = await repositoryWrapper.SMChannel.GetSMChannelsFromStreamGroup(streamGroup.Id);
 
@@ -349,8 +359,9 @@ public class StreamGroupService(ILogger<StreamGroupService> _logger, IMapper _ma
 
     public async Task<string> GetStreamGroupDiscover(int StreamGroupProfileId, HttpRequest request)
     {
-        using IServiceScope scope = _serviceProvider.CreateScope();
-        IRepositoryWrapper repositoryWrapper = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
+        //using IServiceScope scope = _serviceProvider.CreateScope();
+        //IRepositoryWrapper repositoryWrapper = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
+
         string url = request.GetUrlWithPath();
         int maxTuners = await repositoryWrapper.M3UFile.GetM3UMaxStreamCount();
         Discover discover = new(url, StreamGroupProfileId, maxTuners);
@@ -404,8 +415,9 @@ public class StreamGroupService(ILogger<StreamGroupService> _logger, IMapper _ma
 
     public async Task<(List<VideoStreamConfig> videoStreamConfigs, StreamGroupProfile streamGroupProfile)> GetStreamGroupVideoConfigs(int streamGroupProfileId)
     {
-        using IServiceScope scope = _serviceProvider.CreateScope();
-        IRepositoryWrapper repositoryWrapper = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
+        //using IServiceScope scope = _serviceProvider.CreateScope();
+        //IRepositoryWrapper repositoryWrapper = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
+
         StreamGroup? streamGroup = await GetStreamGroupFromSGProfileIdAsync(streamGroupProfileId);
         if (streamGroup == null)
         {
@@ -457,8 +469,8 @@ public class StreamGroupService(ILogger<StreamGroupService> _logger, IMapper _ma
 
     public async Task<StreamGroupProfile> GetDefaultStreamGroupProfileAsync()
     {
-        using IServiceScope scope = _serviceProvider.CreateScope();
-        IRepositoryWrapper repositoryWrapper = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
+        //using IServiceScope scope = _serviceProvider.CreateScope();
+        //IRepositoryWrapper repositoryWrapper = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
         StreamGroup defaultSg = await GetDefaultSGAsync();
 
         StreamGroupProfile defaultPolicy = await repositoryWrapper.StreamGroupProfile.GetQuery()
@@ -474,8 +486,8 @@ public class StreamGroupService(ILogger<StreamGroupService> _logger, IMapper _ma
             return defaultSG;
         }
 
-        using IServiceScope scope = _serviceProvider.CreateScope();
-        IRepositoryWrapper repositoryWrapper = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
+        //using IServiceScope scope = _serviceProvider.CreateScope();
+        //IRepositoryWrapper repositoryWrapper = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
         if (streamGroupProfileId.HasValue)
         {
             StreamGroupProfile? sgProfile = repositoryWrapper.StreamGroupProfile.GetQuery()
@@ -503,8 +515,8 @@ public class StreamGroupService(ILogger<StreamGroupService> _logger, IMapper _ma
 
     public async Task<StreamGroup?> GetStreamGroupFromNameAsync(string streamGroupName)
     {
-        using IServiceScope scope = _serviceProvider.CreateScope();
-        IRepositoryWrapper repositoryWrapper = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
+        //using IServiceScope scope = _serviceProvider.CreateScope();
+        //IRepositoryWrapper repositoryWrapper = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
         return await repositoryWrapper.StreamGroup.FirstOrDefaultAsync(a => a.Name == streamGroupName).ConfigureAwait(false);
     }
 
@@ -542,8 +554,8 @@ public class StreamGroupService(ILogger<StreamGroupService> _logger, IMapper _ma
     public async Task<StreamGroup?> GetStreamGroupFromSGProfileIdAsync(int streamGroupProfileId)
     {
         //IRepositoryWrapper repositoryWrapper = ResolveScopedService<IRepositoryWrapper>();
-        using IServiceScope scope = _serviceProvider.CreateScope();
-        IRepositoryWrapper repositoryWrapper = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
+        //using IServiceScope scope = _serviceProvider.CreateScope();
+        //IRepositoryWrapper repositoryWrapper = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
         StreamGroupProfile? test = await repositoryWrapper.StreamGroupProfile.FirstOrDefaultAsync(a => a.Id == streamGroupProfileId);
         if (test == null)
         {
@@ -557,8 +569,8 @@ public class StreamGroupService(ILogger<StreamGroupService> _logger, IMapper _ma
     public async Task<StreamGroup?> GetStreamGroupFromIdAsync(int streamGroupId)
     {
         //IRepositoryWrapper repositoryWrapper = ResolveScopedService<IRepositoryWrapper>();
-        using IServiceScope scope = _serviceProvider.CreateScope();
-        IRepositoryWrapper repositoryWrapper = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
+        //using IServiceScope scope = _serviceProvider.CreateScope();
+        //IRepositoryWrapper repositoryWrapper = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
         return await repositoryWrapper.StreamGroup.FirstOrDefaultAsync(a => a.Id == streamGroupId).ConfigureAwait(false);
     }
 

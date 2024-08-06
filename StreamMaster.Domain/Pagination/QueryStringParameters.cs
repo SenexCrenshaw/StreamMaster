@@ -1,6 +1,4 @@
-﻿using Reinforced.Typings.Attributes;
-
-namespace StreamMaster.Domain.Pagination
+﻿namespace StreamMaster.Domain.Pagination
 {
     [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
     public class QueryStringParameters
@@ -9,7 +7,7 @@ namespace StreamMaster.Domain.Pagination
 
         public int PageNumber { get; set; } = 1;
         private int _pageSize = 25;
-        private string orderBy;
+        private string orderBy = "Id";
 
         public int PageSize
         {
@@ -26,7 +24,8 @@ namespace StreamMaster.Domain.Pagination
 
         public string OrderBy
         {
-            get => orderBy; set
+            get => orderBy;
+            set
             {
                 if (!string.IsNullOrEmpty(value))
                 {

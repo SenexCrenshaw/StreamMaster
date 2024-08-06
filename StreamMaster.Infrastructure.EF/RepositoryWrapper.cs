@@ -1,7 +1,5 @@
 ﻿using AutoMapper;
 
-using MediatR;
-
 using Microsoft.AspNetCore.Http;
 
 using StreamMaster.Application.Interfaces;
@@ -26,14 +24,13 @@ public class RepositoryWrapper(
     PGSQLRepositoryContext repositoryContext,
     IMapper mapper,
     IXmltv2Mxf xmltv2Mxf,
+    IServiceProvider serviceProvider,
     IMessageService messageService,
     ICryptoService cryptoService,
     IOptionsMonitor<Setting> intSettings,
     IOptionsMonitor<CommandProfileDict> intProfileSettings,
     IJobStatusService jobStatusService,
-    ISender sender,
     IDataRefreshService dataRefreshService,
-    //IStreamGroupService streamGroupService,
     IHttpContextAccessor httpContextAccessor) : IRepositoryWrapper
 {
     private IStreamGroupProfileRepository _streamGroupProfileRepository;
@@ -73,7 +70,7 @@ public class RepositoryWrapper(
     {
         get
         {
-            _smChannel ??= new SMChannelsRepository(SMChannelLogger, this, repositoryContext, mapper, intSettings, intProfileSettings, schedulesDirectDataService);
+            _smChannel ??= new SMChannelsRepository(SMChannelLogger, serviceProvider, this, repositoryContext, mapper, intSettings, intProfileSettings, schedulesDirectDataService);
             return _smChannel;
         }
     }

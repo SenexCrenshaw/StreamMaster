@@ -15,6 +15,13 @@ namespace StreamMaster.Application.StreamGroups.Queries;
 [RequireAll]
 public record GetStreamGroupM3U(int StreamGroupProfileId, bool IsShort) : IRequest<string>;
 
+public class EncodedData
+{
+    public SMChannel smChannel { get; set; }
+    public string? EncodedString { get; set; }
+    public string CleanName { get; set; }
+}
+
 public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
     ICryptoService cryptoService,
     IProfileService profileService,
@@ -26,38 +33,6 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
     : IRequestHandler<GetStreamGroupM3U, string>
 {
 
-    public string GetIconUrl(string iconOriginalSource, Setting setting)
-    {
-        string url = httpContextAccessor.GetUrl();
-
-        if (string.IsNullOrEmpty(iconOriginalSource))
-        {
-            iconOriginalSource = $"{url}{setting.DefaultIcon}";
-            return iconOriginalSource;
-        }
-
-        string originalUrl = iconOriginalSource;
-
-        if (iconOriginalSource.StartsWith('/'))
-        {
-            iconOriginalSource = iconOriginalSource[1..];
-        }
-
-        if (iconOriginalSource.StartsWith("images/"))
-        {
-            iconOriginalSource = $"{url}/{iconOriginalSource}";
-        }
-        else if (!iconOriginalSource.StartsWith("http"))
-        {
-            iconOriginalSource = GetApiUrl(SMFileTypes.TvLogo, originalUrl);
-        }
-        else if (setting.CacheIcons)
-        {
-            iconOriginalSource = GetApiUrl(SMFileTypes.Icon, originalUrl);
-        }
-
-        return iconOriginalSource;
-    }
 
     private const string DefaultReturn = "#EXTM3U\r\n";
     private readonly ConcurrentDictionary<int, bool> chNos = new();
@@ -81,13 +56,13 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
         //    return DefaultReturn;
         //}
 
-        StreamGroup? sg = await streamGroupService.GetStreamGroupFromSGProfileIdAsync(request.StreamGroupProfileId);
-        if (sg == null)
+        StreamGroup? streamGroup = await streamGroupService.GetStreamGroupFromSGProfileIdAsync(request.StreamGroupProfileId);
+        if (streamGroup == null)
         {
             return "";
         }
 
-        List<SMChannel> smChannels = (await Repository.SMChannel.GetSMChannelsFromStreamGroup(sg.Id)).Where(a => !a.IsHidden).ToList();
+        List<SMChannel> smChannels = (await Repository.SMChannel.GetSMChannelsFromStreamGroup(streamGroup.Id)).Where(a => !a.IsHidden).ToList();
 
         if (smChannels.Count == 0)
         {
@@ -101,35 +76,66 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
             return string.Empty;
         }
 
-        var encodedData = await Task.WhenAll(smChannels.Select(async smChannel =>
-        {
-            string? encodedString = await streamGroupService.EncodeStreamGroupProfileIdChannelId(streamGroupProfile.Id, smChannel.Id).ConfigureAwait(false);
+        OutputProfileDto outputProfile = profileService.GetOutputProfile(streamGroupProfile.OutputProfileName);
 
+        //List<EncodedData> encodedData = [];
+        //foreach (SMChannel smChannel in smChannels)
+        //{
+        //    string? encodedString = streamGroupService.EncodeStreamGroupIdProfileIdChannelId(streamGroup, request.StreamGroupProfileId, smChannel.Id);
+
+        //    string cleanName = smChannel.Name.ToCleanFileString();
+
+        //    encodedData.Add(new EncodedData
+        //    {
+        //        smChannel = smChannel,
+        //        EncodedString = encodedString,
+        //        CleanName = cleanName
+        //    });
+        //}
+
+        ConcurrentBag<EncodedData> encodedData = [];
+
+        Parallel.ForEach(smChannels, smChannel =>
+        {
+            string? encodedString = streamGroupService.EncodeStreamGroupIdProfileIdChannelId(streamGroup, streamGroupProfile.Id, smChannel.Id);
+            if (string.IsNullOrEmpty(encodedString))
+            {
+                return;
+            }
             string cleanName = smChannel.Name.ToCleanFileString();
 
-            return new
+            EncodedData data = new()
             {
-                smChannel,
+                smChannel = smChannel,
                 EncodedString = encodedString,
                 CleanName = cleanName
             };
-        }));
 
-        OutputProfileDto outputProfile = profileService.GetOutputProfile(streamGroupProfile.OutputProfileName);
+            encodedData.Add(data);
+        });
 
         var videoStreamData = encodedData
-        .AsParallel()
-        .WithDegreeOfParallelism(Environment.ProcessorCount)
-        .Select((data, _) =>
-        {
-            (int ChNo, string m3uLine) = BuildM3ULineForVideoStream(data.smChannel, url, request, outputProfile, settings, videoStreamConfigs, data.EncodedString, data.CleanName);
-            return new
+            .AsParallel()
+            .WithDegreeOfParallelism(Environment.ProcessorCount)
+            .Select(data =>
             {
-                ChNo,
-                m3uLine
-            };
-        })
-        .ToList();
+                (int ChNo, string m3uLine) = BuildM3ULineForVideoStream(
+                    data.smChannel,
+                    url,
+                    request,
+                    outputProfile,
+                    settings,
+                    videoStreamConfigs,
+                    data.EncodedString,
+                    data.CleanName);
+
+                return new
+                {
+                    ChNo,
+                    m3uLine
+                };
+            })
+            .ToList();
 
         StringBuilder ret = new("#EXTM3U\r\n");
         foreach (var data in videoStreamData.OrderBy(a => a.ChNo))
@@ -325,6 +331,38 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
         lines += $"{videoUrl}";
 
         return (smChannel.ChannelNumber, lines);
+    }
+    private string GetIconUrl(string iconOriginalSource, Setting setting)
+    {
+        string url = httpContextAccessor.GetUrl();
+
+        if (string.IsNullOrEmpty(iconOriginalSource))
+        {
+            iconOriginalSource = $"{url}{setting.DefaultIcon}";
+            return iconOriginalSource;
+        }
+
+        string originalUrl = iconOriginalSource;
+
+        if (iconOriginalSource.StartsWith('/'))
+        {
+            iconOriginalSource = iconOriginalSource[1..];
+        }
+
+        if (iconOriginalSource.StartsWith("images/"))
+        {
+            iconOriginalSource = $"{url}/{iconOriginalSource}";
+        }
+        else if (!iconOriginalSource.StartsWith("http"))
+        {
+            iconOriginalSource = GetApiUrl(SMFileTypes.TvLogo, originalUrl);
+        }
+        else if (setting.CacheIcons)
+        {
+            iconOriginalSource = GetApiUrl(SMFileTypes.Icon, originalUrl);
+        }
+
+        return iconOriginalSource;
     }
 
     private string GetApiUrl(SMFileTypes path, string source)

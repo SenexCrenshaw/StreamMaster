@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Helpers;
@@ -8,7 +9,7 @@ using StreamMaster.SchedulesDirect.Domain.Models;
 
 namespace StreamMaster.Infrastructure.EF.PGSQL
 {
-    public partial class PGSQLRepositoryContext(DbContextOptions<PGSQLRepositoryContext> options) : BaseRepositoryContext(options)
+    public partial class PGSQLRepositoryContext(DbContextOptions<PGSQLRepositoryContext> options, ILoggerFactory loggerFactory, IOptionsMonitor<Setting> _settings) : BaseRepositoryContext(options)
     {
 
         public static string DbConnectionString => $"Host={BuildInfo.DBHost};Database={BuildInfo.DBName};Username={BuildInfo.DBUser};Password={BuildInfo.DBPassword}";
@@ -38,21 +39,19 @@ namespace StreamMaster.Infrastructure.EF.PGSQL
             //}
         }
 
-
-
-        public static readonly ILoggerFactory MyLoggerFactory = LoggerFactory.Create(builder =>
-        {
-            builder
-                .AddConsole()
-                .AddFilter((category, level) =>
-                    category == DbLoggerCategory.Database.Command.Name
-                    && level == LogLevel.Information);
-        });
+        //public static readonly ILoggerFactory MyLoggerFactory = LoggerFactory.Create(builder =>
+        //{
+        //    builder
+        //        .AddConsole()
+        //        .AddFilter((category, level) =>
+        //            category == DbLoggerCategory.Database.Command.Name &&
+        //            level == LogLevel.Information)
+        //        .AddDebug();
+        //});
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
             DirectoryHelper.CreateApplicationDirectories();
-            //options.EnableSensitiveDataLogging().UseLoggerFactory(MyLoggerFactory);
             options.UseNpgsql(DbConnectionString,
                 o =>
                 {
@@ -60,7 +59,10 @@ namespace StreamMaster.Infrastructure.EF.PGSQL
                     o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
                 }
                 );
-
+            if (_settings.CurrentValue.EnableDBDebug)
+            {
+                options.EnableSensitiveDataLogging(true).UseLoggerFactory(loggerFactory);
+            }
         }
 
         protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)

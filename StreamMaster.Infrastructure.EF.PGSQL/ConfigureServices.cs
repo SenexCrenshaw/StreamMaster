@@ -17,7 +17,7 @@ public static class ConfigureServices
 
         _ = services.AddDbContextFactory<PGSQLRepositoryContext>(options =>
             {
-                //options.EnableSensitiveDataLogging();
+                options.EnableSensitiveDataLogging();
                 _ = options.UseNpgsql(dataSource, pgsqlOptions =>
                 {
                     _ = pgsqlOptions.MigrationsAssembly(typeof(PGSQLRepositoryContext).Assembly.FullName);

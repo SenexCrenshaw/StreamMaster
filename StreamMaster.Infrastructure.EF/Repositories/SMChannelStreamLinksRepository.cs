@@ -63,6 +63,55 @@ public class SMChannelStreamLinksRepository(ILogger<SMChannelStreamLinksReposito
         }
     }
 
+    public async Task CreateSMChannelStreamLink(SMChannel smChannel, string smStreamId, int? Rank)
+    {
+        if (Any(a => a.SMStreamId == smStreamId && a.SMChannelId == smChannel.Id))
+        {
+            return;
+        }
+
+        if (smChannel != null && smStreamId != null)
+        {
+            int nextRank = Rank ?? GetMaxRank(smChannel.Id);
+
+            SMChannelStreamLink link = new()
+            {
+                //SMStream = smStream,
+                SMChannel = smChannel,
+                SMChannelId = smChannel.Id,
+                SMStreamId = smStreamId,
+                Rank = nextRank,
+            };
+
+            RepositoryContext.SMChannelStreamLinks.Add(link);
+
+        }
+    }
+    public async Task CreateSMChannelStreamLink(SMChannel smChannel, SMStream smStream, int? Rank)
+    {
+        if (Any(a => a.SMStreamId == smStream.Id && a.SMChannelId == smChannel.Id))
+        {
+            return;
+        }
+
+        if (smChannel != null && smStream != null)
+        {
+            int nextRank = Rank ?? GetMaxRank(smChannel.Id);
+
+            SMChannelStreamLink link = new()
+            {
+                SMStream = smStream,
+                SMChannel = smChannel,
+                SMChannelId = smChannel.Id,
+                SMStreamId = smStream.Id,
+                Rank = nextRank,
+            };
+
+            RepositoryContext.SMChannelStreamLinks.Add(link);
+
+        }
+    }
+
     private int GetMaxRank(int SMChannelId)
     {
         List<SMChannelStreamLink> links = [.. GetQuery(false).Where(a => a.SMChannelId == SMChannelId)];

@@ -7,8 +7,11 @@ internal class GetStationChannelNameFromDisplayNameHandler(ILogger<GetStationCha
 {
     public Task<StationChannelName?> Handle(GetStationChannelNameFromDisplayName request, CancellationToken cancellationToken)
     {
-        IEnumerable<StationChannelName> stationChannelNames = schedulesDirectDataService.GetStationChannelNames();
-
+        IEnumerable<StationChannelName>? stationChannelNames = schedulesDirectDataService.GetStationChannelNames();
+        if (stationChannelNames == null)
+        {
+            return Task.FromResult<StationChannelName?>(null);
+        }
         StationChannelName? check = stationChannelNames.FirstOrDefault(a => a.Channel == request.value);
         return Task.FromResult(check);
     }

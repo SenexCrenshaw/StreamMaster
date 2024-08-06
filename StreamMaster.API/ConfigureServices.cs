@@ -32,7 +32,7 @@ namespace StreamMaster.API;
 
 public static class ConfigureServices
 {
-    public static IServiceCollection AddWebUIServices(this IServiceCollection services, WebApplicationBuilder builder)
+    public static IServiceCollection AddWebUIServices(this IServiceCollection services, WebApplicationBuilder builder, bool DBDebug)
     {
         // Register SMLoggerProvider with DI
         services.AddSingleton<ILoggerProvider, SMLoggerProvider>(provider =>
@@ -43,6 +43,10 @@ public static class ConfigureServices
             string test = DbLoggerCategory.Database.Command.Name;
 
             loggingBuilder.AddFilter("StreamMaster.Domain.Logging.CustomLogger", LogLevel.Information);
+            if (DBDebug)
+            {
+                loggingBuilder.AddFilter(DbLoggerCategory.Database.Command.Name, LogLevel.Information);
+            }
             loggingBuilder.AddConsole();
             loggingBuilder.AddDebug();
             loggingBuilder.AddConfiguration(builder.Configuration.GetSection("Logging"));

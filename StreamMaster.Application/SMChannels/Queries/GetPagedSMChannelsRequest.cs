@@ -23,6 +23,11 @@ internal class GetPagedSMChannelsRequestHandler(IRepositoryWrapper Repository, I
             return Repository.SMChannel.CreateEmptyPagedResponse();
         }
 
+        if (string.IsNullOrEmpty(request.Parameters.OrderBy))
+        {
+            request.Parameters.OrderBy = "Id";
+        }
+
         PagedResponse<SMChannelDto> res = await Repository.SMChannel.GetPagedSMChannels(request.Parameters).ConfigureAwait(false);
 
         string Url = httpContextAccessor.GetUrl();

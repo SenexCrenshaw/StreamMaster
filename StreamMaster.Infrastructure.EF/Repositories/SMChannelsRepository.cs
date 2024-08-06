@@ -2,7 +2,9 @@
 using AutoMapper.QueryableExtensions;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
+using StreamMaster.Application.Interfaces;
 using StreamMaster.Domain.API;
 using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Exceptions;
@@ -18,7 +20,7 @@ using System.Text.Json;
 
 namespace StreamMaster.Infrastructure.EF.Repositories;
 
-public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepositoryWrapper repository, IRepositoryContext repositoryContext, IMapper mapper, IOptionsMonitor<Setting> intSettings, IOptionsMonitor<CommandProfileDict> intProfileSettings, ISchedulesDirectDataService schedulesDirectDataService)
+public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IServiceProvider serviceProvider, IRepositoryWrapper repository, IRepositoryContext repositoryContext, IMapper mapper, IOptionsMonitor<Setting> intSettings, IOptionsMonitor<CommandProfileDict> intProfileSettings, ISchedulesDirectDataService schedulesDirectDataService)
     : RepositoryBase<SMChannel>(repositoryContext, intLogger), ISMChannelsRepository
 {
     private ConcurrentHashSet<int> existingNumbers = [];
@@ -185,9 +187,9 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
         return FirstOrDefault(a => a.Id == smchannelId, tracking: false);
     }
 
-    private async Task<SMChannel?> CreateSMChannelFromStream(string streamId, int? M3UFileId = null, bool? forced = false)
+    private async Task<SMChannel?> CreateSMChannelFromStreamNoLink(string streamId, int? M3UFileId = null, bool? forced = false)
     {
-        SMStreamDto? smStream = repository.SMStream.GetSMStream(streamId) ?? throw new APIException($"Stream with Id {streamId} is not found");
+        SMStream? smStream = repository.SMStream.GetSMStreamById(streamId) ?? throw new APIException($"Stream with Id {streamId} is not found");
         if (smStream == null)//|| (forced == false))//&& smStream.IsCustomStream))
         {
             return null;
@@ -206,10 +208,37 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
             IsSystem = smStream.IsSystem,
             CommandProfileName = "Default",
         };
+        Create(smChannel);
 
-        await CreateSMChannel(smChannel);
+        return smChannel;
+    }
+
+    private async Task<SMChannel?> CreateSMChannelFromStream(string streamId, int? M3UFileId = null, bool? forced = false)
+    {
+        SMStream? smStream = repository.SMStream.GetSMStreamById(streamId) ?? throw new APIException($"Stream with Id {streamId} is not found");
+        if (smStream == null)//|| (forced == false))//&& smStream.IsCustomStream))
+        {
+            return null;
+        }
+
+        SMChannel smChannel = new()
+        {
+            ChannelNumber = smStream.ChannelNumber,
+            Group = smStream.Group,
+            Name = smStream.Name,
+            Logo = smStream.Logo,
+            EPGId = smStream.EPGID,
+            StationId = smStream.StationId,
+            M3UFileId = M3UFileId ?? smStream.M3UFileId,
+            BaseStreamID = smStream.Id,
+            IsSystem = smStream.IsSystem,
+            CommandProfileName = "Default",
+        };
+        Create(smChannel);
+
+        //await CreateSMChannel(smChannel);
         //await SaveChangesAsync();
-        await repository.SMChannelStreamLink.CreateSMChannelStreamLink(smChannel.Id, smStream.Id, null);
+        await repository.SMChannelStreamLink.CreateSMChannelStreamLink(smChannel, smStream, null);
         //if (StreamGroup)
         //{
         //    await sender.Send(new AddSMChannelToStreamGroupRequest(StreamGroupId.Value, smChannel.Id));
@@ -538,7 +567,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
             int count = 0;
             foreach (string streamId in streamIds)
             {
-                SMChannel? smChannel = await CreateSMChannelFromStream(streamId);
+                SMChannel? smChannel = await CreateSMChannelFromStreamNoLink(streamId);
 
                 if (smChannel is null)
                 {
@@ -548,22 +577,36 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
                 addedSMChannels.Add(smChannel);
 
                 ++count;
-                if (count % 100 == 0)
+                if (count % 500 == 0)
                 {
-                    // Log the message, e.g., using a logger (replace with your logging mechanism)
-                    logger.LogInformation("{count} SMChannels have been added.", count);
 
+                    await SaveChangesAsync();
                     await BulkUpdate(addedSMChannels, AddToStreamGroupId);
-
+                    foreach (SMChannel addedSMChannel in addedSMChannels)
+                    {
+                        await repository.SMChannelStreamLink.CreateSMChannelStreamLink(addedSMChannel, addedSMChannel.BaseStreamID, null);
+                    }
+                    await SaveChangesAsync();
+                    logger.LogInformation("{count} channels have been added.", count);
                     addedSMChannels = [];
                 }
             }
 
+
+
             if (addedSMChannels.Count > 0)
             {
-                // Log the message, e.g., using a logger (replace with your logging mechanism)
-                //logger.LogInformation("{addedSMChannels.Count} SMChannels have been added.", addedSMChannels.Count);
+                await SaveChangesAsync();
                 await BulkUpdate(addedSMChannels, AddToStreamGroupId);
+
+                foreach (SMChannel addedSMChannel in addedSMChannels)
+                {
+                    await repository.SMChannelStreamLink.CreateSMChannelStreamLink(addedSMChannel, addedSMChannel.BaseStreamID, null);
+                }
+                await SaveChangesAsync();
+                logger.LogInformation("{count} channels have been added.", count + addedSMChannels.Count);
+                addedSMChannels = [];
+
             }
         }
         catch (Exception ex)
@@ -846,7 +889,10 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IRepo
 
     public async Task<List<SMChannel>> GetSMChannelsFromStreamGroup(int streamGroupId)
     {
-        if (streamGroupId < 2)
+        using IServiceScope scope = serviceProvider.CreateScope();
+        IStreamGroupService streamGroupService = scope.ServiceProvider.GetRequiredService<IStreamGroupService>();
+
+        if (streamGroupId == await streamGroupService.GetDefaultSGIdAsync())
         {
             return await GetQuery().ToListAsync();
         }

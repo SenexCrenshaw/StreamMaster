@@ -16,6 +16,7 @@ public class ChannelBroadcasterBase : IChannelBroadcasterBase
     /// <inheritdoc/>
     [XmlIgnore]
     public ConcurrentDictionary<string, Stream> ClientStreams { get; } = new();
+    [XmlIgnore]
     public ConcurrentDictionary<string, IClientConfiguration> ClientStreamerConfigurations { get; set; } = new();
 
     private readonly Meter _meter;

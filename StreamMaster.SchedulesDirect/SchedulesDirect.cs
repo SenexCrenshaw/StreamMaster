@@ -12,7 +12,7 @@ public partial class SchedulesDirect(
     IJobStatusService jobStatusService,
     ISchedulesDirectDataService schedulesDirectDataService,
     ISchedulesDirectAPIService schedulesDirectAPI,
-    IOptionsMonitor<SDSettings> intSettings,
+    IOptionsMonitor<SDSettings> _sdSettings,
     IDescriptions descriptions,
     IKeywords keywords,
     ILineups lineups,
@@ -36,8 +36,6 @@ public partial class SchedulesDirect(
 
     public async Task<APIResponse> SDSync(CancellationToken cancellationToken)
     {
-        SDSettings sdSettings = intSettings.CurrentValue;
-
 
         JobStatusManager jobManager = jobStatusService.GetJobManageSDSync(EPGHelper.SchedulesDirectId);
 
@@ -52,7 +50,7 @@ public partial class SchedulesDirect(
             }
 
 
-            if (!sdSettings.SDEnabled)
+            if (!_sdSettings.CurrentValue.SDEnabled)
             {
                 jobManager.SetSuccessful();
                 return APIResponse.Ok;
@@ -80,7 +78,7 @@ public partial class SchedulesDirect(
             }
 
 
-            logger.LogInformation($"DaysToDownload: {sdSettings.SDEPGDays}");
+            logger.LogInformation($"DaysToDownload: {_sdSettings.CurrentValue.SDEPGDays}");
 
             // load cache file
             ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();

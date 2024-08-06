@@ -367,6 +367,10 @@ public class Lineups(ILogger<Lineups> logger, IOptionsMonitor<SDSettings> intSDS
 
     public async Task<List<SubscribedLineup>> GetLineups(CancellationToken cancellationToken)
     {
+        if (!intSDSettings.CurrentValue.SDEnabled)
+        {
+            return [];
+        }
         List<LineupPreviewChannel> res = [];
         LineupResponse? lineups = await GetSubscribedLineups(cancellationToken);
 

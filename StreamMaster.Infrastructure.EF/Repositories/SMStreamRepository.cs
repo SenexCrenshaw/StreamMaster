@@ -126,6 +126,13 @@ public class SMStreamRepository(ILogger<SMStreamRepository> intLogger, IReposito
         return channel == null ? null : mapper.Map<SMStreamDto>(channel);
     }
 
+    public SMStream? GetSMStreamById(string streamId)
+    {
+        SMStream? stream = FirstOrDefault(a => a.Id == streamId);
+        return stream ?? null;
+    }
+
+
     public async Task DeleteSMStreamsByM3UFiledId(int id, CancellationToken cancellationToken)
     {
         IQueryable<SMStream> query = GetQuery(a => a.M3UFileId == id);

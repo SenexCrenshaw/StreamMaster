@@ -1,6 +1,4 @@
-﻿using StreamMaster.SchedulesDirect.Domain.Models;
-
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 
 namespace StreamMaster.SchedulesDirect.Domain.Interfaces;
 

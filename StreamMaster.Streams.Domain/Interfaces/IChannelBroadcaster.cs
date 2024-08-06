@@ -78,7 +78,7 @@ public interface IChannelBroadcasterBase : IStreamStats, ISourceName
     List<IClientConfiguration> GetClientStreamerConfigurations();
     int ClientCount { get; }
 
-    ConcurrentDictionary<string, IClientConfiguration> ClientStreamerConfigurations { get; set; }
+    //ConcurrentDictionary<string, IClientConfiguration> ClientStreamerConfigurations { get; set; }
 
     /// <summary>
     /// Gets the name of the channel.

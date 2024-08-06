@@ -15,7 +15,7 @@ public static class ConfigureServices
         //_ = services.AddTransient(typeof(IPipelineBehavior<,
         services.AddTransient<ICryptoService, CryptoService>();
         services.AddTransient<IProfileService, ProfileService>();
-        services.AddTransient<IStreamGroupService, StreamGroupService>();
+        services.AddScoped<IStreamGroupService, StreamGroupService>();
         return services;
     }
 }

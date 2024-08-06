@@ -9,6 +9,11 @@ public partial class SchedulesDirect
 
     public async Task<List<CountryData>?> GetAvailableCountries(CancellationToken cancellationToken)
     {
+        if (!_sdSettings.CurrentValue.SDEnabled)
+        {
+            return null;
+        }
+
         List<CountryData>? cache = await GetValidCachedDataAsync<List<CountryData>>("AvailableCountries", cancellationToken).ConfigureAwait(false);
         if (cache != null)
         {
@@ -34,6 +39,11 @@ public partial class SchedulesDirect
 
     public async Task<List<Headend>?> GetHeadendsByCountryPostal(string country, string postalCode, CancellationToken cancellationToken = default)
     {
+        if (!_sdSettings.CurrentValue.SDEnabled)
+        {
+            return null;
+        }
+
         if (string.IsNullOrEmpty(country) || string.IsNullOrEmpty(postalCode))
         {
             logger.LogWarning($"Country {country} or postal code {postalCode} is empty");
@@ -62,6 +72,11 @@ public partial class SchedulesDirect
 
     public async Task<List<LineupPreviewChannel>?> GetLineupPreviewChannel(string lineup, CancellationToken cancellationToken)
     {
+        if (!_sdSettings.CurrentValue.SDEnabled)
+        {
+            return null;
+        }
+
         List<LineupPreviewChannel>? ret = await GetValidCachedDataAsync<List<LineupPreviewChannel>>("LineupPreviewChannel" + lineup, cancellationToken).ConfigureAwait(false);
 
         if (ret != null)

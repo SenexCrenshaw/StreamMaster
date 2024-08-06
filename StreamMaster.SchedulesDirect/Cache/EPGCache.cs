@@ -24,7 +24,10 @@ public class EPGCache<T> : IEPGCache<T>
         sdsettings = intSettings.CurrentValue;
         this.logger = logger;
         this.schedulesDirectDataService = schedulesDirectDataService;
-        LoadCache();
+        if (intSettings.CurrentValue.SDEnabled)
+        {
+            LoadCache();
+        }
     }
 
     private string GetFilename()
