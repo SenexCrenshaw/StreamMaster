@@ -281,9 +281,13 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IOptionsMon
         {
             SDSettings sdsettings = intsdsettings.CurrentValue;
             int count = 0;
-            //Parallel.ForEach(services, service =>
+
             Stopwatch sw = Stopwatch.StartNew();
-            foreach (MxfService service in services)
+            ParallelOptions parallelOptions = new() { MaxDegreeOfParallelism = Environment.ProcessorCount };
+
+            ConcurrentBag<XmltvProgramme> xmltvProgrammes = [];
+
+            Parallel.ForEach(services, parallelOptions, service =>
             {
                 XmltvChannel channel = BuildXmltvChannel(service, outputProfile);
                 xmlTv.Channels.Add(channel);
@@ -301,41 +305,26 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IOptionsMon
                                 continue;
                             }
 
-                            //MxfProgram program1 = new(progCount + 1, $"SM-{movie.Id}")
-                            //{
-                            //    Title = service.ProfileName,
-                            //    Description = service.ProfileName,
-                            //    IsGeneric = true
-                            //};
-
                             MxfProgram program1 = GetOrCreateProgram(progCount, service.Name, movie, service.EPGNumber);
-
-
-                            Console.WriteLine($"Movie: {movie.Title}, Start Time: {startTime2}, End Time: {endTime}");
 
                             service.MxfScheduleEntries.ScheduleEntry.Add(new MxfScheduleEntry
                             {
-
                                 Duration = duration,
                                 mxfProgram = program1,
                                 StartTime = startTime2,
                                 IsRepeat = true
                             });
-
                         }
                     }
                     else
                     {
-                        // add a program specific for this service
                         MxfProgram program = new(progCount + 1, $"SM-{service.StationId}")
                         {
-
                             Title = service.Name,
                             Description = service.Name,
                             IsGeneric = true
                         };
 
-                        // populate the schedule entries
                         DateTime startTime = new(SMDT.UtcNow.Year, SMDT.UtcNow.Month, SMDT.UtcNow.Day, 0, 0, 0);
                         DateTime stopTime = startTime + TimeSpan.FromDays(sdsettings.SDEPGDays);
                         do
@@ -353,8 +342,6 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IOptionsMon
                 }
 
                 List<MxfScheduleEntry> scheduleEntries = service.MxfScheduleEntries.ScheduleEntry;
-
-                ConcurrentBag<XmltvProgramme> xmltvProgrammes = [];
 
                 int timeShift = 0;
                 if (videoStreamConfigs is not null)
@@ -382,30 +369,34 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IOptionsMon
                             }
                         }
                     }
-
                 }
 
                 if (timeShift > 0)
                 {
+                    foreach (MxfScheduleEntry scheduleEntry in scheduleEntries)
+                    {
+                        scheduleEntry.StartTime = scheduleEntry.StartTime.AddMinutes(timeShift);
+                    }
                 }
 
-                _ = Parallel.ForEach(service.MxfScheduleEntries.ScheduleEntry, options, scheduleEntry =>
+                Parallel.ForEach(scheduleEntries, scheduleEntry =>
                 {
                     XmltvProgramme program = BuildXmltvProgram(scheduleEntry, channel.Id, timeShift);
                     xmltvProgrammes.Add(program);
-                    ++count;
-
+                    Interlocked.Increment(ref count);
                 });
+            });
 
-                xmlTv.Programs.AddRange(xmltvProgrammes);
-            };
+            xmlTv.Programs.AddRange(xmltvProgrammes);
+
             sw.Stop();
-            logger.LogInformation($"Finsihed processing {count} programs in {sw.ElapsedMilliseconds} ms");
+            logger.LogInformation($"Finished processing {count} programs in {sw.ElapsedMilliseconds} ms");
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-
+            logger.LogError(ex, "An error occurred while processing channels.");
         }
+
     }
 
 

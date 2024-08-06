@@ -2,23 +2,10 @@
 
 namespace StreamMaster.Domain.Mappings;
 
-public class SMChannelStreamLinkDto
-{
-    public string SMStreamId { get; set; }
-    public int Rank { get; set; }
-}
-
 public interface IMapFrom<T>
 {
     void Mapping(Profile profile)
     {
-        //if (typeof(T) == typeof(VideoStream))
-        //{
-        //    profile.CreateMap<VideoStream, VideoStreamDto>(MemberList.None)
-        //    .ForMember(dest => dest.ChildVideoStreams, opt => opt.MapFrom(src => src.ChildVideoStreams.Select(cr => cr.ChildVideoStream)));
-        //    return;
-        //}
-
 
         if (typeof(T) == typeof(SMChannel))
         {
@@ -32,13 +19,11 @@ public interface IMapFrom<T>
 
         }
 
-        //if (typeof(T) == typeof(StreamGroup))
-        //{
-        //    profile.CreateMap<StreamGroup, StreamGroupDto>(MemberList.None)
-        //    .ForMember(dest => dest.ChannelGroups, opt => opt.MapFrom(src => src.ChannelGroups.Select(cr => cr.ChannelGroup)))
-        //    .ForMember(dest => dest.ChildVideoStreams, opt => opt.MapFrom(src => src.ChildVideoStreams.Select(cr => cr.ChildVideoStream)));            
-        //    return;
-        //}
+        if (typeof(T) == typeof(SMStream))
+        {
+            profile.CreateMap<SMStream, SMStreamDto>().ForMember(dest => dest.SMStreamType, opt => opt.MapFrom(src => (int)src.SMStreamType));
+            return;
+        }
 
         _ = profile.CreateMap(typeof(T), GetType(), MemberList.None);
     }

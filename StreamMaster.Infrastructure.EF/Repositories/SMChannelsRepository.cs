@@ -187,10 +187,10 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IServ
         return FirstOrDefault(a => a.Id == smchannelId, tracking: false);
     }
 
-    private async Task<SMChannel?> CreateSMChannelFromStreamNoLink(string streamId, int? M3UFileId = null, bool? forced = false)
+    private SMChannel? CreateSMChannelFromStreamNoLink(string streamId, int? M3UFileId = null)
     {
         SMStream? smStream = repository.SMStream.GetSMStreamById(streamId) ?? throw new APIException($"Stream with Id {streamId} is not found");
-        if (smStream == null)//|| (forced == false))//&& smStream.IsCustomStream))
+        if (smStream == null)
         {
             return null;
         }
@@ -234,9 +234,9 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IServ
             IsSystem = smStream.IsSystem,
             CommandProfileName = "Default",
         };
-        Create(smChannel);
+        //Create(smChannel);
 
-        //await CreateSMChannel(smChannel);
+        await CreateSMChannel(smChannel);
         //await SaveChangesAsync();
         await repository.SMChannelStreamLink.CreateSMChannelStreamLink(smChannel, smStream, null);
         //if (StreamGroup)
@@ -558,55 +558,39 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IServ
     }
 
     [LogExecutionTimeAspect]
-    public async Task<APIResponse> CreateSMChannelsFromStreams(List<string> streamIds, int? AddToStreamGroupId)
+    public async Task<APIResponse> CreateSMChannelsFromStreams(List<string> streamIds, int? addToStreamGroupId)
     {
         try
         {
             List<SMChannel> addedSMChannels = [];
-            Setting Settings = intSettings.CurrentValue;
-            int count = 0;
-            foreach (string streamId in streamIds)
+            Setting settings = intSettings.CurrentValue;
+            int batchSize = 500;
+
+            for (int i = 0; i < streamIds.Count; i += batchSize)
             {
-                SMChannel? smChannel = await CreateSMChannelFromStreamNoLink(streamId);
-
-                if (smChannel is null)
+                List<string> batch = streamIds.Skip(i).Take(batchSize).ToList();
+                foreach (string streamId in batch)
                 {
-                    _ = await RepositoryContext.SaveChangesAsync().ConfigureAwait(false);
-                    return APIResponse.ErrorWithMessage("Error creating SMChannel from streams");
-                }
-                addedSMChannels.Add(smChannel);
+                    SMChannel? smChannel = CreateSMChannelFromStreamNoLink(streamId);
 
-                ++count;
-                if (count % 500 == 0)
-                {
-
-                    await SaveChangesAsync();
-                    await BulkUpdate(addedSMChannels, AddToStreamGroupId);
-                    foreach (SMChannel addedSMChannel in addedSMChannels)
+                    if (smChannel is null)
                     {
-                        await repository.SMChannelStreamLink.CreateSMChannelStreamLink(addedSMChannel, addedSMChannel.BaseStreamID, null);
+                        _ = await RepositoryContext.SaveChangesAsync().ConfigureAwait(false);
+                        return APIResponse.ErrorWithMessage("Error creating SMChannel from streams");
                     }
-                    await SaveChangesAsync();
-                    logger.LogInformation("{count} channels have been added.", count);
-                    addedSMChannels = [];
+                    addedSMChannels.Add(smChannel);
                 }
-            }
 
-
-
-            if (addedSMChannels.Count > 0)
-            {
                 await SaveChangesAsync();
-                await BulkUpdate(addedSMChannels, AddToStreamGroupId);
+                await BulkUpdate(addedSMChannels, addToStreamGroupId);
 
                 foreach (SMChannel addedSMChannel in addedSMChannels)
                 {
                     await repository.SMChannelStreamLink.CreateSMChannelStreamLink(addedSMChannel, addedSMChannel.BaseStreamID, null);
                 }
                 await SaveChangesAsync();
-                logger.LogInformation("{count} channels have been added.", count + addedSMChannels.Count);
-                addedSMChannels = [];
-
+                logger.LogInformation("{count} channels have been added.", i + batch.Count);
+                addedSMChannels.Clear();
             }
         }
         catch (Exception ex)
@@ -618,71 +602,32 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IServ
         return APIResponse.Success;
     }
 
-    public async Task<APIResponse> CreateSMChannelsFromCustomStreams(List<string> smStreamIds)
-    {
-        try
-        {
-            //int defaultSGId = await streamGroupService.GetDefaultSGIdAsync();
-
-            List<SMChannel> addedSMChannels = [];
-            Setting Settings = intSettings.CurrentValue;
-            int count = 0;
-            foreach (string streamId in smStreamIds)
-            {
-                SMChannel? smChannel = await CreateSMChannelFromStream(streamId, forced: true);
-
-                if (smChannel is null)
-                {
-                    _ = await RepositoryContext.SaveChangesAsync().ConfigureAwait(false);
-                    return APIResponse.ErrorWithMessage("Error creating SMChannel from custom streams");
-                }
-
-                addedSMChannels.Add(smChannel);
-
-                ++count;
-                if (count % 100 == 0)
-                {
-                    logger.LogInformation("{count} SMChannels have been added.", count);
-                    //if (!isCustomPlayList)
-                    //{
-                    await BulkUpdate(addedSMChannels, null);
-                    //}
-                    addedSMChannels = [];
-                }
-            }
-
-            //if (!isCustomPlayList && addedSMChannels.Count > 0)
-            if (addedSMChannels.Count > 0)
-            {
-                logger.LogInformation("{count} SMChannels have been added.", count);
-                await BulkUpdate(addedSMChannels, null);
-            }
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Error creating SMChannel from custom streams");
-            return APIResponse.ErrorWithMessage(ex, "Error creating SMChannel from custom streams");
-        }
-        _ = await RepositoryContext.SaveChangesAsync().ConfigureAwait(false);
-        return APIResponse.Success;
-    }
-
     private async Task BulkUpdate(List<SMChannel> addedSMChannels, int? defaultSGId)
     {
-        Setting Settings = intSettings.CurrentValue;
-        if (Settings.AutoSetEPG)
-        {
-            _ = await AutoSetEPGs(addedSMChannels, CancellationToken.None);
-        }
+        Setting settings = intSettings.CurrentValue;
+        int batchSize = 500;
 
-        if (defaultSGId.HasValue)
+        for (int i = 0; i < addedSMChannels.Count; i += batchSize)
         {
-            foreach (SMChannel smChannel in addedSMChannels)
+            List<SMChannel> batch = addedSMChannels.Skip(i).Take(batchSize).ToList();
+
+            if (settings.AutoSetEPG)
             {
-                _ = await repository.StreamGroupSMChannelLink.AddSMChannelToStreamGroup(defaultSGId.Value, smChannel.Id, true);
+                _ = await AutoSetEPGs(batch, CancellationToken.None).ConfigureAwait(false);
+            }
+
+            if (defaultSGId.HasValue)
+            {
+                foreach (SMChannel smChannel in batch)
+                {
+                    _ = await repository.StreamGroupSMChannelLink.AddSMChannelToStreamGroup(defaultSGId.Value, smChannel.Id, true).ConfigureAwait(false);
+                }
             }
         }
     }
+
+
+
     public async Task<APIResponse> CreateSMChannelsFromStreamParameters(QueryStringParameters Parameters, int? AddToStreamGroupId)
     {
         IQueryable<SMStream> toCreate = repository.SMStream.GetQuery(Parameters);

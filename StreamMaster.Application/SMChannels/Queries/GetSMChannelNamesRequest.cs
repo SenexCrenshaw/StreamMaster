@@ -9,7 +9,7 @@ internal class GetSMChannelNamesRequestHandler(IRepositoryWrapper Repository)
 {
     public async Task<DataResponse<List<string>>> Handle(GetSMChannelNamesRequest request, CancellationToken cancellationToken)
     {
-        List<string> channelNames = await Repository.SMChannel.GetQuery().OrderBy(a => a.Name).Select(a => a.Name).ToListAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
+        List<string> channelNames = await Repository.SMChannel.GetQuery().OrderBy(a => a.Name).OrderBy(a => a.Name).Select(a => a.Name).ToListAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
         return DataResponse<List<string>>.Success(channelNames);
     }
 }

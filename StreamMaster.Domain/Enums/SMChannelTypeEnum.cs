@@ -1,11 +1,12 @@
 ﻿namespace StreamMaster.Domain.Enums;
-
+[TsEnum]
 public enum SMChannelTypeEnum
 {
     Regular = 0,
     Quad = 1
 }
 
+[TsEnum]
 public enum SMStreamTypeEnum
 {
     Regular = 0,

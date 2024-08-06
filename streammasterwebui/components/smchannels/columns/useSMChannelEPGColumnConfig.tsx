@@ -33,7 +33,7 @@ export const useSMChannelEPGColumnConfig = ({ width = 125 }: SMChannelEPGColumnC
     if (data) return [...additionalOptions, ...data];
 
     return additionalOptions;
-  }, [data, isSystemReady, settings]);
+  }, [data, settings]);
 
   const getColor = useCallback(
     (epgNumber: number) => {

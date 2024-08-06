@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
 
-using System.Text.Json;
-
 namespace StreamMaster.Application.SMStreams.Queries;
 
 [SMAPI]
@@ -24,22 +22,21 @@ internal class GetPagedSMStreamsRequestHandler(IRepositoryWrapper Repository, IS
         PagedResponse<SMStreamDto> res = await Repository.SMStream.GetPagedSMStreams(request.Parameters, CancellationToken.None).ConfigureAwait(false);
 
 
-        string Url = httpContextAccessor.GetUrl();
-        int sgId = await streamGroupService.GetDefaultSGIdAsync().ConfigureAwait(false);
-        foreach (SMStreamDto stream in res.Data)
-        {
+        //string Url = httpContextAccessor.GetUrl();
+        //StreamGroup sg = await streamGroupService.GetDefaultSGAsync().ConfigureAwait(false);
+        //foreach (SMStreamDto stream in res.Data)
+        //{
+        //    string? EncodedString = streamGroupService.EncodeStreamGroupIdStreamId(sg, stream.Id);
 
-            string? EncodedString = await streamGroupService.EncodeStreamGroupIdStreamIdAsync(sgId, stream.Id);
+        //    if (string.IsNullOrEmpty(EncodedString))
+        //    {
+        //        continue;
+        //    }
+        //    string videoUrl = $"{Url}/m/{EncodedString}.ts";
 
-            if (string.IsNullOrEmpty(EncodedString))
-            {
-                continue;
-            }
-            string videoUrl = $"{Url}/m/{EncodedString}.ts";
-
-            string jsonString = JsonSerializer.Serialize(videoUrl);
-            stream.RealUrl = jsonString;
-        }
+        //    string jsonString = JsonSerializer.Serialize(videoUrl);
+        //    stream.RealUrl = jsonString;
+        //}
         return res;
     }
 }

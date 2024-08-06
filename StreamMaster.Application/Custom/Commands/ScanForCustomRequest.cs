@@ -81,7 +81,7 @@ public class ScanForCustomPlayListsRequestHandler(ILogger<ScanForCustomRequest> 
         }
         _ = await Repository.SaveAsync();
 
-        _ = await Repository.SMChannel.CreateSMChannelsFromCustomStreams(smStreamIdsToChannels);
+        _ = await Repository.SMChannel.CreateSMChannelsFromStreams(smStreamIdsToChannels, null);
 
         List<CustomPlayList> introPlayLists = introPlayListBuilder.GetIntroPlayLists();
         foreach (CustomPlayList customPlayList in introPlayLists)

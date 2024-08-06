@@ -464,7 +464,7 @@ const EPGSelector = ({ buttonDarkBackground = false, value, enableEditMode = tru
 
   return (
     <SMDropDown
-      buttonDisabled={smChannel === undefined || smChannel.IsCustomStream}
+      buttonDisabled={smChannel === undefined}
       buttonDarkBackground={buttonDarkBackground}
       buttonIsLoading={loading || isLoading}
       buttonLabel="EPG"

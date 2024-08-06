@@ -23,7 +23,6 @@ public class EncodedData
 }
 
 public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
-    ICryptoService cryptoService,
     IProfileService profileService,
     IStreamGroupService streamGroupService,
     ISchedulesDirectDataService schedulesDirectDataService,
@@ -32,8 +31,6 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
     )
     : IRequestHandler<GetStreamGroupM3U, string>
 {
-
-
     private const string DefaultReturn = "#EXTM3U\r\n";
     private readonly ConcurrentDictionary<int, bool> chNos = new();
     private readonly SemaphoreSlim semaphore = new(1, 1); // Allow only one thread at a time
@@ -77,21 +74,6 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
         }
 
         OutputProfileDto outputProfile = profileService.GetOutputProfile(streamGroupProfile.OutputProfileName);
-
-        //List<EncodedData> encodedData = [];
-        //foreach (SMChannel smChannel in smChannels)
-        //{
-        //    string? encodedString = streamGroupService.EncodeStreamGroupIdProfileIdChannelId(streamGroup, request.StreamGroupProfileId, smChannel.Id);
-
-        //    string cleanName = smChannel.Name.ToCleanFileString();
-
-        //    encodedData.Add(new EncodedData
-        //    {
-        //        smChannel = smChannel,
-        //        EncodedString = encodedString,
-        //        CleanName = cleanName
-        //    });
-        //}
 
         ConcurrentBag<EncodedData> encodedData = [];
 

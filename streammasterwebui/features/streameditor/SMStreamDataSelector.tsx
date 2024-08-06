@@ -3,7 +3,6 @@ import SMButton from '@components/sm/SMButton';
 import { SMTriSelectShowHidden } from '@components/sm/SMTriSelectShowHidden';
 import getRecord from '@components/smDataTable/helpers/getRecord';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
-import StreamCopyLinkDialog from '@components/smstreams/StreamCopyLinkDialog';
 import StreamVisibleDialog from '@components/smstreams/StreamVisibleDialog';
 import { useSMStreamM3UColumnConfig } from '@components/smstreams/columns/useSMStreamM3UColumnConfig';
 import { GetMessage } from '@lib/common/intl';
@@ -65,7 +64,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
     return (
       <div className="flex justify-content-end align-items-center" style={{ paddingRight: '0.1rem' }}>
         <LinkButton bolt link={data.Url} toolTip="Original Source UR" title="Original Source Link" />
-        <StreamCopyLinkDialog realUrl={data.RealUrl} />
+        {/* <StreamCopyLinkDialog realUrl={data.RealUrl} /> */}
         <StreamVisibleDialog iconFilled={false} value={data} />
         <EditSMStreamDialog smStreamDto={data} />
         <DeleteSMStreamDialog smStream={data} />
@@ -89,10 +88,12 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
 
   const addOrRemoveTemplate = useCallback(
     (data: any) => {
-      if (data.IsSystem === true) {
+      const smStream = data as unknown as SMStreamDto;
+
+      if (smStream.SMStreamType.toString() === 'CustomPlayList') {
         return <div className="flex align-content-center justify-content-center" />;
       }
-      const found = selectedSMChannel?.SMStreams?.some((item) => item.Id === data.Id) ?? false;
+      const found = selectedSMChannel?.SMStreams?.some((item) => item.Id === smStream.Id) ?? false;
 
       let toolTip = 'Add Channel';
       if (selectedSMChannel !== undefined) {
@@ -105,10 +106,10 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
                 buttonClassName="border-noround borderread icon-red"
                 iconFilled={false}
                 onClick={() => {
-                  if (!data.Id || selectedSMChannel === undefined) {
+                  if (!smStream.Id || selectedSMChannel === undefined) {
                     return;
                   }
-                  const request: RemoveSMStreamFromSMChannelRequest = { SMChannelId: selectedSMChannel.Id, SMStreamId: data.Id };
+                  const request: RemoveSMStreamFromSMChannelRequest = { SMChannelId: selectedSMChannel.Id, SMStreamId: smStream.Id };
                   RemoveSMStreamFromSMChannel(request)
                     .then((response) => {
                       console.log('Remove Stream', response);
@@ -130,7 +131,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
               buttonClassName="border-noround borderread icon-green"
               iconFilled={false}
               onClick={() => {
-                const request = { SMChannelId: selectedSMChannel?.Id ?? 0, SMStreamId: data.Id } as AddSMStreamToSMChannelRequest;
+                const request = { SMChannelId: selectedSMChannel?.Id ?? 0, SMStreamId: smStream.Id } as AddSMStreamToSMChannelRequest;
 
                 AddSMStreamToSMChannel(request)
                   .then((response) => {})
@@ -152,7 +153,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
             iconFilled={false}
             buttonClassName="border-noround borderread icon-green"
             onClick={() => {
-              const request = { StreamIds: [data.Id] } as CreateSMChannelsFromStreamsRequest;
+              const request = { StreamIds: [smStream.Id] } as CreateSMChannelsFromStreamsRequest;
               if (selectedStreamGroup?.Id) {
                 request.StreamGroupId = selectedStreamGroup.Id;
               }

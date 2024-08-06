@@ -70,5 +70,5 @@ public interface ISMChannelsRepository : IRepositoryBase<SMChannel>
     Task<APIResponse> SetSMChannelsGroupFromParameters(QueryStringParameters Parameters, string GroupName);
     Task<APIResponse> SetSMChannelsCommandProfileName(List<int> sMChannelIds, string CommandProfileName);
     Task<APIResponse> SetSMChannelsCommandProfileNameFromParameters(QueryStringParameters parameters, string CommandProfileName);
-    Task<APIResponse> CreateSMChannelsFromCustomStreams(List<string> smStreamIds);
+    //Task<APIResponse> CreateSMChannelsFromCustomStreams(List<string> smStreamIds);
 }

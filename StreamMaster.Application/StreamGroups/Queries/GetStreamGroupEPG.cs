@@ -97,9 +97,5 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
 
         return xmlText;
     }
-    //private string GetApiUrl(SMFileTypes path, string source)
-    //{
-    //    string url = _httpContextAccessor.GetUrl();
-    //    return $"{url}/api/files/{(int)path}/{WebUtility.UrlEncode(source)}";
-    //}
+
 }

@@ -131,10 +131,10 @@ public class SchedulesDirectDataService : ISchedulesDirectDataService
     public IEnumerable<StationChannelName> GetStationChannelNames()
     {
         List<StationChannelName> ret = [];
-        if (!_sdSettings.CurrentValue.SDEnabled)
-        {
-            return ret;
-        }
+        //if (!_sdSettings.CurrentValue.SDEnabled)
+        //{
+        //    return ret;
+        //}
 
         foreach (MxfService station in AllServices.Where(a => !a.StationId.StartsWith("DUMMY-")))
         {

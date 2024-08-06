@@ -153,6 +153,13 @@ public class StreamGroupService(ILogger<StreamGroupService> _logger, IMapper _ma
         return encryptedString;
     }
 
+    //public async Task<string?> EncodeStreamGroupProfileIdChannelId(StreamGroup streamGroup,int StreamGroupProfileId, int SMChannelId)
+    //{
+    //    string? encryptedString =  EncodeStreamGroupIdProfileIdChannelId(streamGroup, StreamGroupProfileId, SMChannelId);
+
+    //    return encryptedString;
+    //}
+
     public async Task<(int? StreamGroupId, int? StreamGroupProfileId, int? SMChannelId)> DecodeStreamGroupdProfileIdChannelId(string encodedString)
     {
         (int? streamGroupId, string? groupKey, string? valuesEncryptedString) = await GetGroupKeyFromEncodeAsync(encodedString);
@@ -171,6 +178,12 @@ public class StreamGroupService(ILogger<StreamGroupService> _logger, IMapper _ma
         }
 
         return (null, null, null);
+    }
+    public string? EncodeStreamGroupIdStreamId(StreamGroup StreamGroup, string SMStreamId)
+    {
+        string encryptedString = CryptoUtils.EncodeTwoValues(StreamGroup.Id, SMStreamId, _settings.CurrentValue.ServerKey, StreamGroup.GroupKey);
+
+        return encryptedString;
     }
 
     public async Task<string?> EncodeStreamGroupIdStreamIdAsync(int StreamGroupId, string SMStreamId)
@@ -268,13 +281,15 @@ public class StreamGroupService(ILogger<StreamGroupService> _logger, IMapper _ma
         {
             return JsonSerializer.Serialize(ret);
         }
+        List<SMChannel> smChannelsOrdered = smChannels.OrderBy(a => a.ChannelNumber).ToList();
+
 
         ISchedulesDirectData dummyData = _schedulesDirectDataService.DummyData();
-        foreach (SMChannel? smChannel in smChannels.OrderBy(a => a.ChannelNumber))
+        await Parallel.ForEachAsync(smChannelsOrdered, async (smChannel, ct) =>
         {
-            if (string.IsNullOrEmpty(smChannel.EPGId))
+            if (string.IsNullOrEmpty(smChannel?.EPGId))
             {
-                continue;
+                return;
             }
 
             bool isDummy = _epgHelper.IsDummy(smChannel.EPGId);
@@ -314,17 +329,16 @@ public class StreamGroupService(ILogger<StreamGroupService> _logger, IMapper _ma
                     stationId = smChannel.EPGId;
                 }
             }
-            string videoUrl;
 
-            string? encodedString = await EncodeStreamGroupProfileIdChannelId(StreamGroupProfileId, smChannel.Id).ConfigureAwait(false);
-            videoUrl = isShort
+            string? encodedString = EncodeStreamGroupIdProfileIdChannelId(streamGroup, StreamGroupProfileId, smChannel.Id);
+            string videoUrl = isShort
                 ? $"{url}/v/{StreamGroupProfileId}/{smChannel.Id}"
                 : $"{url}/api/videostreams/stream/{encodedString}/{smChannel.Name.ToCleanFileString()}";
 
             MxfService? service = _schedulesDirectDataService.AllServices.GetMxfService(smChannel.EPGId);
             if (service == null)
             {
-                continue;
+                return;
             }
             string graceNote = service?.CallSign ?? stationId;
             string id = graceNote;
@@ -350,8 +364,11 @@ public class StreamGroupService(ILogger<StreamGroupService> _logger, IMapper _ma
                 URL = videoUrl
             };
 
-            ret.Add(lu);
-        }
+            lock (ret)
+            {
+                ret.Add(lu);
+            }
+        });
 
         string jsonString = JsonSerializer.Serialize(ret);
         return jsonString;

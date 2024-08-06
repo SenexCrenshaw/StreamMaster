@@ -33,7 +33,7 @@ export interface SMStreamInfo
 	Name: string;
 	SecondsIn: number;
 	ShutDownDelay: number;
-	SMStreamType: number;
+	SMStreamType: SMStreamTypeEnum;
 	Url: string;
 }
 export interface SMTask
@@ -243,7 +243,7 @@ export interface SMChannelDto
 	M3UFileId: number;
 	Name: string;
 	SMChannels: any[];
-	SMChannelType: number;
+	SMChannelType: SMChannelTypeEnum;
 	SMStreams: SMStreamDto[];
 	StationId: string;
 	StreamGroupIds: number[];
@@ -270,7 +270,7 @@ export interface SMStreamDto
 	Name: string;
 	Rank: number;
 	RealUrl: string;
-	SMStreamType: number;
+	SMStreamType: SMStreamTypeEnum;
 	StationId: string;
 	Url: string;
 }
@@ -1549,6 +1549,16 @@ export enum M3UFileStreamURLPrefix {
 	SystemDefault = 0,
 	TS = 1,
 	M3U8 = 2
+}
+export enum SMChannelTypeEnum {
+	Regular = 0,
+	Quad = 1
+}
+export enum SMStreamTypeEnum {
+	Regular = 0,
+	CustomPlayList = 1,
+	Custom = 2,
+	Intro = 3
 }
 export enum SMFileTypes {
 	M3U = 0,
