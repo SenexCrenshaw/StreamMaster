@@ -92,7 +92,7 @@ public class GetStreamGroupLineupHandler(IHttpContextAccessor httpContextAccesso
             //string? EncodedString = await cryptoService.EncodeStreamGroupIdChannelIdAsync(request.StreamGroupId, smChannel.Id);
 
 
-            string? EncodedString = await cryptoService.EncodeStreamGroupdProfileIdChannelId(request.StreamGroupProfileId, smChannel.Id);
+            string? EncodedString = await cryptoService.EncodeStreamGroupIdProfileIdChannelId(streamGroup.Id, request.StreamGroupProfileId, smChannel.Id);
 
 
             //(string EncodedString, string CleanName) = await sender.Send(new EncodeStreamGroupIdProfileIdChannelId(request.StreamGroupId, request.StreamGroupProfileId, smChannel.Id, smChannel.Name), cancellationToken);

@@ -3,8 +3,6 @@ using MediatR;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Data.Sqlite;
 
-using Prometheus;
-
 using Reinforced.Typings.Attributes;
 
 using StreamMaster.API;
@@ -220,7 +218,6 @@ app.UseDefaultFiles();
 app.UseStaticFiles();
 
 app.UseRouting();
-app.UseHttpMetrics();
 app.UseWebSockets();
 
 if (app.Environment.IsDevelopment())
@@ -267,7 +264,6 @@ app.MapGet("/routes", async context =>
 });
 
 app.MapHub<StreamMasterHub>("/streammasterhub");//.RequireAuthorization(AuthenticationType.Forms.ToString());
-app.MapMetrics();
 
 app.Run();
 

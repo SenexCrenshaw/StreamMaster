@@ -13,7 +13,6 @@ using Microsoft.EntityFrameworkCore;
 using NSwag;
 using NSwag.Generation.Processors.Security;
 
-using Prometheus;
 
 using StreamMaster.API.Services;
 using StreamMaster.Application.Services;
@@ -67,7 +66,6 @@ public static class ConfigureServices
         });
 
         services.AddHttpLogging(o => o = new HttpLoggingOptions());
-        services.UseHttpClientMetrics();
 
         services.AddSingleton<IContentTypeProvider, FileExtensionContentTypeProvider>();
         services.AddRouting(options => options.LowercaseUrls = true);

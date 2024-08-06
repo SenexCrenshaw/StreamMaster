@@ -1424,15 +1424,121 @@ export interface ClientStreamsDto
 }
 export interface CustomStreamNfo
 {
-	Movie: any;
+	Movie: Movie;
 	VideoFileName: string;
+}
+export interface Actor
+{
+	Name: string;
+	Order: string;
+	Role: string;
+	Thumb: string;
+}
+export interface Audio
+{
+	Bitrate: string;
+	Channels: string;
+	Codec: string;
+	Language: string;
 }
 export interface CustomPlayList
 {
 	CustomStreamNfos: CustomStreamNfo[];
-	FolderNfo?: any;
+	FolderNfo?: Movie;
 	Logo: string;
 	Name: string;
+}
+export interface Fanart
+{
+	Thumb: Thumb;
+}
+export interface Fileinfo
+{
+	Streamdetails: Streamdetails;
+}
+export interface Movie
+{
+	Actor: Actor[];
+	Country: string;
+	Criticrating: string;
+	Fanart: Fanart;
+	Fileinfo: Fileinfo;
+	Genre: string[];
+	Id: string;
+	Lastplayed: string;
+	Mpaa: string;
+	Originaltitle: string;
+	Outline: string;
+	Playcount: string;
+	Plot: string;
+	Premiered: string;
+	Rating: string;
+	Ratings: Ratings;
+	Runtime: number;
+	Set: Set;
+	Sorttitle: string;
+	Status: string;
+	Studio: string;
+	Tagline: string;
+	Thumb: Thumb;
+	Title: string;
+	Top250: string;
+	Trailer: string;
+	Uniqueid: Uniqueid[];
+	Userrating: string;
+	Watched: string;
+	Year: string;
+}
+export interface Rating
+{
+	Default: string;
+	Max: string;
+	Name: string;
+	Value: string;
+	Votes: string;
+}
+export interface Ratings
+{
+	Rating: Rating[];
+}
+export interface Set
+{
+	Name: string;
+	Overview: string;
+}
+export interface Streamdetails
+{
+	Audio: Audio;
+	Subtitle: Subtitle;
+	Video: Video;
+}
+export interface Subtitle
+{
+	Language: string;
+}
+export interface Thumb
+{
+	Aspect: string;
+	Preview: string;
+	Text: string;
+}
+export interface Uniqueid
+{
+	Default: string;
+	Text: string;
+	Type: string;
+}
+export interface Video
+{
+	Aspect: string;
+	Bitrate: string;
+	Codec: string;
+	Duration: string;
+	Durationinseconds: string;
+	Framerate: string;
+	Height: string;
+	Scantype: string;
+	Width: string;
 }
 export enum AuthenticationType {
 	None = 0,
