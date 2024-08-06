@@ -68,9 +68,23 @@ export interface StreamGroupProfileDto
 	M3ULink: string;
 	OutputProfileName: string;
 	ProfileName: string;
+	ShortEPGLink: string;
+	ShortHDHRLink: string;
+	ShortM3ULink: string;
 	StreamGroupId: number;
 	XMLLink: string;
 	Mapping(profile: any) : void;
+}
+export interface StreamGroupProfileLinks
+{
+	CommandProfileName: string;
+	HDHRLink: string;
+	Id: number;
+	M3ULink: string;
+	OutputProfileName: string;
+	ProfileName: string;
+	StreamGroupId: number;
+	XMLLink: string;
 }
 export interface StreamGroupSMChannelLink
 {
@@ -273,6 +287,7 @@ export interface StreamGroupDto
 	M3ULink: string;
 	Name: string;
 	ShortEPGLink: string;
+	ShortHDHRLink: string;
 	ShortM3ULink: string;
 	ShowIntros: number;
 	SMChannels: StreamGroupSMChannelLink[];

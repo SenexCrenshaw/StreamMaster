@@ -1,8 +1,6 @@
 ﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
 
-using MediatR;
-
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,7 +10,7 @@ using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Filtering;
 namespace StreamMaster.Infrastructure.EF.Repositories;
 
-public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, ISender sender, IRepositoryWrapper Repository, IRepositoryContext repositoryContext, IMapper mapper, IOptionsMonitor<Setting> intSettings, ICryptoService cryptoService, IHttpContextAccessor httpContextAccessor)
+public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepositoryWrapper Repository, IRepositoryContext repositoryContext, IMapper mapper, IOptionsMonitor<Setting> intSettings, ICryptoService cryptoService, IHttpContextAccessor httpContextAccessor)
     : RepositoryBase<StreamGroup>(repositoryContext, logger), IStreamGroupRepository
 {
     public PagedResponse<StreamGroupDto> CreateEmptyPagedResponse()
@@ -60,31 +58,32 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, ISende
         {
             foreach (StreamGroupProfileDto sgProfile in streamGroupDto.StreamGroupProfiles)
             {
-                string? EncodedString = await cryptoService.EncodeStreamGroupIdProfileId(sg.Id, sgProfile.Id);
+                string? EncodedString = cryptoService.EncodeInt(sgProfile.Id);
                 if (EncodedString == null)
                 {
                     continue;
                 }
 
-                sgProfile.M3ULink = $"{Url}/api/streamgroups/{EncodedString}/m3u.m3u";
-                //sgProfile.ShortM3ULink = $"{Url}/v/s/{encodedName}.m3u";
-                //sgProfile.ShortEPGLink = $"{Url}/v/s/{encodedName}.xml
-                sgProfile.XMLLink = $"{Url}/api/streamgroups/{EncodedString}/epg.xml";
+                sgProfile.ShortHDHRLink = $"{Url}/s/{sgProfile.Id}";
+                sgProfile.ShortM3ULink = $"{Url}/s/{sgProfile.Id}.m3u";
+                sgProfile.ShortEPGLink = $"{Url}/s/{sgProfile.Id}.xml";
+
                 sgProfile.HDHRLink = $"{Url}/api/streamgroups/{EncodedString}";
+                sgProfile.M3ULink = $"{Url}/api/streamgroups/{EncodedString}/m3u.m3u";
+                sgProfile.XMLLink = $"{Url}/api/streamgroups/{EncodedString}/epg.xml";
+
             }
 
             StreamGroupProfileDto? defaultProfile = streamGroupDto.StreamGroupProfiles.Find(a => a.ProfileName.Equals("default", StringComparison.CurrentCultureIgnoreCase));
 
-            //defaultProfile ??= streamGroupDto.StreamGroupProfiles.OrderBy(a => a.Id).FirstOrDefault();
+            streamGroupDto.ShortHDHRLink = $"{Url}/s/{defaultProfile.Id}";
+            streamGroupDto.ShortM3ULink = $"{Url}/s/{defaultProfile.Id}.m3u";
+            streamGroupDto.ShortEPGLink = $"{Url}/s/{defaultProfile.Id}.xml";
 
-            if (defaultProfile != null)
-            {
-                //streamGroupDto.ShortM3ULink = defaultProfile.ShortM3ULink;
-                //streamGroupDto.ShortEPGLink = defaultProfile.ShortEPGLink;
-                streamGroupDto.M3ULink = defaultProfile.M3ULink;
-                streamGroupDto.XMLLink = defaultProfile.XMLLink;
-                streamGroupDto.HDHRLink = defaultProfile.HDHRLink;
-            }
+            streamGroupDto.HDHRLink = defaultProfile.HDHRLink;
+            streamGroupDto.M3ULink = defaultProfile.M3ULink;
+            streamGroupDto.XMLLink = defaultProfile.XMLLink;
+
         }
     }
 

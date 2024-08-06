@@ -25,6 +25,7 @@ namespace StreamMaster.Infrastructure.Middleware
 
             if (
                 request.Path.StartsWithSegments("/api/", StringComparison.CurrentCultureIgnoreCase) ||
+                request.Path.StartsWithSegments("/s/", StringComparison.CurrentCultureIgnoreCase) ||
                 request.Path.StartsWithSegments("/v/", StringComparison.CurrentCultureIgnoreCase) ||
                 request.Path.StartsWithSegments("/m/", StringComparison.CurrentCultureIgnoreCase)
                 )

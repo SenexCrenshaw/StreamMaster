@@ -95,7 +95,8 @@ public class RepositoryWrapper(
     {
         get
         {
-            _streamGroup ??= new StreamGroupRepository(StreamGroupRepositoryLogger, sender, this, repositoryContext, mapper, intSettings, cryptoService, httpContextAccessor);
+            //ILogger<StreamGroupRepository> logger,  IRepositoryWrapper Repository, IRepositoryContext repositoryContext, IMapper mapper, IOptionsMonitor<Setting> intSettings, ICryptoService cryptoService, IHttpContextAccessor httpContextAccessor)
+            _streamGroup ??= new StreamGroupRepository(StreamGroupRepositoryLogger, this, repositoryContext, mapper, intSettings, cryptoService, httpContextAccessor);
             return _streamGroup;
         }
     }

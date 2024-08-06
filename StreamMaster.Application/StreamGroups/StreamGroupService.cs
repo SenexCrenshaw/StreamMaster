@@ -32,21 +32,21 @@ public class StreamGroupService(ILogger<StreamGroupService> logger, IOptionsMoni
         return commandProfileDto;
     }
 
-    public async Task<(List<VideoStreamConfig> videoStreamConfigs, StreamGroupProfile streamGroupProfile)> GetStreamGroupVideoConfigs(int StreamGroupId, int StreamGroupProfileId)
+    public async Task<(List<VideoStreamConfig> videoStreamConfigs, StreamGroupProfile streamGroupProfile)> GetStreamGroupVideoConfigs(int StreamGroupProfileId)
     {
         using IServiceScope scope = _serviceProvider.CreateScope();
         IRepositoryWrapper repositoryWrapper = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
 
-        StreamGroup? streamGroup = repositoryWrapper.StreamGroup.GetStreamGroup(StreamGroupId);
+        StreamGroup? streamGroup = await GetStreamGroupFromSGProfileIdAsync(StreamGroupProfileId);
         if (streamGroup == null)
         {
             StreamGroupProfile d = await GetDefaultStreamGroupProfileAsync();
             return ([], d);
         }
 
-        List<SMChannel> smChannels = (StreamGroupId < 2 ?
+        List<SMChannel> smChannels = (streamGroup.Id < 2 ?
              await repositoryWrapper.SMChannel.GetQuery().ToListAsync() :
-             await repositoryWrapper.SMChannel.GetSMChannelsFromStreamGroup(StreamGroupId)).Where(a => !a.IsHidden).ToList();
+             await repositoryWrapper.SMChannel.GetSMChannelsFromStreamGroup(streamGroup.Id)).Where(a => !a.IsHidden).ToList();
 
         if (smChannels.Count == 0)
         {
@@ -54,7 +54,7 @@ public class StreamGroupService(ILogger<StreamGroupService> logger, IOptionsMoni
             return ([], d);
         }
 
-        StreamGroupProfile StreamGroupProfile = await GetStreamGroupProfileAsync(StreamGroupId, StreamGroupProfileId);
+        StreamGroupProfile StreamGroupProfile = await GetStreamGroupProfileAsync(streamGroup.Id, StreamGroupProfileId);
 
         CommandProfileDto commandProfile = profileService.GetCommandProfile(StreamGroupProfile.CommandProfileName);
         OutputProfileDto outputProfile = profileService.GetOutputProfile(StreamGroupProfile.OutputProfileName);
@@ -170,6 +170,25 @@ public class StreamGroupService(ILogger<StreamGroupService> logger, IOptionsMoni
             Priority = CacheItemPriority.NeverRemove
         });
 
+        return sg;
+    }
+
+    public async Task<int> GetStreamGroupIdFromSGProfileIdAsync(int sgProfileId)
+    {
+        StreamGroup? sg = await GetStreamGroupFromSGProfileIdAsync(sgProfileId);
+        return (sg?.Id) ?? 0;
+    }
+
+    public async Task<StreamGroup?> GetStreamGroupFromSGProfileIdAsync(int streamGroupProfileId)
+    {
+        using IServiceScope scope = _serviceProvider.CreateScope();
+        IRepositoryWrapper repositoryWrapper = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
+        StreamGroupProfile? test = await repositoryWrapper.StreamGroupProfile.FirstOrDefaultAsync(a => a.Id == streamGroupProfileId);
+        if (test == null)
+        {
+            return null;
+        }
+        StreamGroup? sg = await GetStreamGroupFromIdAsync(test.StreamGroupId);
         return sg;
     }
 }

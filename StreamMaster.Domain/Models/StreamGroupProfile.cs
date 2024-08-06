@@ -14,15 +14,16 @@ public class StreamGroupProfile
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true)]
 public class StreamGroupProfileDto : StreamGroupProfileLinks, IMapFrom<StreamGroupProfile>
 {
-
+    public string ShortHDHRLink { get; set; }
+    public string ShortM3ULink { get; set; }
+    public string ShortEPGLink { get; set; }
 }
 
 
+[TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true)]
 public class StreamGroupProfileLinks : StreamGroupProfile
 {
     public string XMLLink { get; set; } = string.Empty;
-    //public string ShortM3ULink { get; set; } = string.Empty;
-    //public string ShortEPGLink { get; set; } = string.Empty;
     public string M3ULink { get; set; } = string.Empty;
     public string HDHRLink { get; set; } = string.Empty;
 

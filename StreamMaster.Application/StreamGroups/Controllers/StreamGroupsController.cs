@@ -19,13 +19,13 @@ public partial class StreamGroupsController
     [Route("{encodedId}/device.xml")]
     public async Task<IActionResult> GetStreamGroupCapability(string encodedId)
     {
-        (int? streamGroupId, int? streamGroupProfileId) = await CryptoService.DecodeStreamGroupIdProfileIdAsync(encodedId).ConfigureAwait(false);
-        if (!streamGroupId.HasValue || !streamGroupProfileId.HasValue)
+        int? streamGroupProfileId = CryptoService.DecodeInt(encodedId);
+        if (!streamGroupProfileId.HasValue)
         {
             return new NotFoundResult();
         }
 
-        string xml = await Sender.Send(new GetStreamGroupCapability(streamGroupId.Value, streamGroupProfileId.Value)).ConfigureAwait(false);
+        string xml = await Sender.Send(new GetStreamGroupCapability(streamGroupProfileId.Value)).ConfigureAwait(false);
         return new ContentResult
         {
             Content = xml,
@@ -39,13 +39,13 @@ public partial class StreamGroupsController
     [Route("{encodedId}/discover.json")]
     public async Task<IActionResult> GetStreamGroupDiscover(string encodedId)
     {
-        (int? streamGroupId, int? streamGroupProfileId) = await CryptoService.DecodeStreamGroupIdProfileIdAsync(encodedId).ConfigureAwait(false);
-        if (!streamGroupId.HasValue || !streamGroupProfileId.HasValue)
+        int? streamGroupProfileId = CryptoService.DecodeInt(encodedId);
+        if (!streamGroupProfileId.HasValue)
         {
             return new NotFoundResult();
         }
 
-        string json = await Sender.Send(new GetStreamGroupDiscover(streamGroupId.Value, streamGroupProfileId.Value)).ConfigureAwait(false);
+        string json = await Sender.Send(new GetStreamGroupDiscover(streamGroupProfileId.Value)).ConfigureAwait(false);
         return new ContentResult
         {
             Content = json,
@@ -59,19 +59,19 @@ public partial class StreamGroupsController
     [Route("{encodedId}/epg.xml")]
     public async Task<IActionResult> GetStreamGroupEPG(string encodedId)
     {
-        (int? streamGroupId, int? streamGroupProfileId) = await CryptoService.DecodeStreamGroupIdProfileIdAsync(encodedId).ConfigureAwait(false);
-        if (!streamGroupId.HasValue || !streamGroupProfileId.HasValue)
+        int? streamGroupProfileId = CryptoService.DecodeInt(encodedId);
+        if (!streamGroupProfileId.HasValue)
         {
             return new NotFoundResult();
         }
 
-        StreamGroup? sg = await StreamGroupService.GetStreamGroupFromIdAsync(streamGroupId.Value).ConfigureAwait(false);
+        StreamGroup? sg = await StreamGroupService.GetStreamGroupFromSGProfileIdAsync(streamGroupProfileId.Value).ConfigureAwait(false);
         if (sg == null)
         {
             return new NotFoundResult();
         }
 
-        string xml = await Sender.Send(new GetStreamGroupEPG(streamGroupId.Value, streamGroupProfileId.Value)).ConfigureAwait(false);
+        string xml = await Sender.Send(new GetStreamGroupEPG(streamGroupProfileId.Value)).ConfigureAwait(false);
         return new FileContentResult(Encoding.UTF8.GetBytes(xml), "application/xml")
         {
             FileDownloadName = $"epg-{sg.Name}.xml"
@@ -84,13 +84,13 @@ public partial class StreamGroupsController
     [Route("{encodedId}/lineup.json")]
     public async Task<IActionResult> GetStreamGroupLineup(string encodedId)
     {
-        (int? streamGroupId, int? streamGroupProfileId) = await CryptoService.DecodeStreamGroupIdProfileIdAsync(encodedId).ConfigureAwait(false);
-        if (!streamGroupId.HasValue || !streamGroupProfileId.HasValue)
+        int? streamGroupProfileId = CryptoService.DecodeInt(encodedId);
+        if (!streamGroupProfileId.HasValue)
         {
             return new NotFoundResult();
         }
 
-        string json = await Sender.Send(new GetStreamGroupLineup(streamGroupId.Value, streamGroupProfileId.Value)).ConfigureAwait(false);
+        string json = await Sender.Send(new GetStreamGroupLineup(streamGroupProfileId.Value, false)).ConfigureAwait(false);
         return new ContentResult
         {
             Content = json,
@@ -104,13 +104,13 @@ public partial class StreamGroupsController
     [Route("{encodedId}/lineup_status.json")]
     public async Task<IActionResult> GetStreamGroupLineupStatus(string encodedId)
     {
-        (int? streamGroupId, int? streamGroupProfileId) = await CryptoService.DecodeStreamGroupIdProfileIdAsync(encodedId).ConfigureAwait(false);
-        if (!streamGroupId.HasValue || !streamGroupProfileId.HasValue)
+        int? streamGroupProfileId = CryptoService.DecodeInt(encodedId);
+        if (!streamGroupProfileId.HasValue)
         {
             return new NotFoundResult();
         }
 
-        string json = await Sender.Send(new GetStreamGroupLineupStatus(streamGroupId.Value, streamGroupProfileId.Value)).ConfigureAwait(false);
+        string json = await Sender.Send(new GetStreamGroupLineupStatus()).ConfigureAwait(false);
         return new ContentResult
         {
             Content = json,
@@ -124,17 +124,23 @@ public partial class StreamGroupsController
     [Route("{encodedId}/m3u.m3u")]
     public async Task<IActionResult> GetStreamGroupM3U(string encodedId)
     {
-        (int? streamGroupId, int? streamGroupProfileId) = await CryptoService.DecodeStreamGroupIdProfileIdAsync(encodedId).ConfigureAwait(false);
-        if (!streamGroupId.HasValue || !streamGroupProfileId.HasValue)
+        int? streamGroupProfileId = CryptoService.DecodeInt(encodedId);
+        if (!streamGroupProfileId.HasValue)
         {
             return new NotFoundResult();
         }
 
-        string data = await Sender.Send(new GetStreamGroupM3U(streamGroupId.Value, streamGroupProfileId.Value)).ConfigureAwait(false);
+        StreamGroup? sg = await StreamGroupService.GetStreamGroupFromSGProfileIdAsync(streamGroupProfileId.Value).ConfigureAwait(false);
+        if (sg == null)
+        {
+            return new NotFoundResult();
+        }
+
+        string data = await Sender.Send(new GetStreamGroupM3U(streamGroupProfileId.Value, false)).ConfigureAwait(false);
 
         return new FileContentResult(Encoding.UTF8.GetBytes(data), "application/x-mpegURL")
         {
-            FileDownloadName = $"m3u-{streamGroupId.Value}.m3u"
+            FileDownloadName = $"m3u-{streamGroupProfileId.Value}.m3u"
         };
     }
 

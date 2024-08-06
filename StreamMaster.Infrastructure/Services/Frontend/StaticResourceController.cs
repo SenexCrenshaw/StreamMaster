@@ -23,7 +23,7 @@ namespace StreamMaster.Infrastructure.Services.Frontend
         }
 
         [HttpGet("")]
-        [HttpGet("/{**path:regex(^(?!(m|V|api|feed)/).*)}")]
+        [HttpGet("/{**path:regex(^(?!(m|V|s|api|feed)/).*)}")]
         public async Task<IActionResult> Index([FromRoute] string path)
         {
             return await MapResource(path);

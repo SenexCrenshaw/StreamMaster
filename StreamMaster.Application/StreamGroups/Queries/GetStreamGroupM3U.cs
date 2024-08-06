@@ -13,21 +13,12 @@ using System.Text;
 namespace StreamMaster.Application.StreamGroups.Queries;
 
 [RequireAll]
-public record GetStreamGroupM3U(int StreamGroupId, int StreamGroupProfileId) : IRequest<string>;
-
-public class GetStreamGroupM3UValidator : AbstractValidator<GetStreamGroupM3U>
-{
-    public GetStreamGroupM3UValidator()
-    {
-        _ = RuleFor(v => v.StreamGroupId)
-            .NotNull().GreaterThanOrEqualTo(0);
-    }
-}
+public record GetStreamGroupM3U(int StreamGroupProfileId, bool IsShort) : IRequest<string>;
 
 public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
     ICryptoService cryptoService,
     IProfileService profileService,
-     IStreamGroupService streamGroupService,
+    IStreamGroupService streamGroupService,
     ISchedulesDirectDataService schedulesDirectDataService,
     IRepositoryWrapper Repository,
     IOptionsMonitor<Setting> intSettings
@@ -90,32 +81,30 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
         //    return DefaultReturn;
         //}
 
+        StreamGroup? sg = await streamGroupService.GetStreamGroupFromSGProfileIdAsync(request.StreamGroupProfileId);
+        if (sg == null)
+        {
+            return "";
+        }
 
-        List<SMChannel> smChannels = (await Repository.SMChannel.GetSMChannelsFromStreamGroup(request.StreamGroupId)).Where(a => !a.IsHidden).ToList();
+        List<SMChannel> smChannels = (await Repository.SMChannel.GetSMChannelsFromStreamGroup(sg.Id)).Where(a => !a.IsHidden).ToList();
 
         if (smChannels.Count == 0)
         {
             return DefaultReturn;
         }
 
-        StreamGroup? sg = Repository.StreamGroup.GetStreamGroup(request.StreamGroupId);
-        if (sg == null)
-        {
-            return "";
-        }
-
-        (List<VideoStreamConfig> videoStreamConfigs, StreamGroupProfile streamGroupProfile) = await streamGroupService.GetStreamGroupVideoConfigs(request.StreamGroupId, request.StreamGroupProfileId);
+        (List<VideoStreamConfig> videoStreamConfigs, StreamGroupProfile streamGroupProfile) = await streamGroupService.GetStreamGroupVideoConfigs(request.StreamGroupProfileId);
 
         if (videoStreamConfigs is null || streamGroupProfile is null)
         {
             return string.Empty;
         }
 
-
         var encodedData = await Task.WhenAll(smChannels.Select(async smChannel =>
         {
             //string? encodedString = await cryptoService.EncodeStreamGroupIdChannelIdAsync(request.StreamGroupId, smChannel.Id).ConfigureAwait(false);
-            string? encodedString = await cryptoService.EncodeStreamGroupIdProfileIdChannelId(request.StreamGroupId, streamGroupProfile.Id, smChannel.Id).ConfigureAwait(false);
+            string? encodedString = await cryptoService.EncodeStreamGroupIdProfileIdChannelId(sg.Id, streamGroupProfile.Id, smChannel.Id).ConfigureAwait(false);
 
             string cleanName = smChannel.Name.ToCleanFileString();
 
@@ -304,8 +293,11 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
         //{
         //    videoUrl = $"{url}/m/intros.ts";
         //}
+        string videoUrl = request.IsShort
+            ? $"{url}/v/{request.StreamGroupProfileId}/{smChannel.Id}"
+            : $"{url}/api/videostreams/stream/{encodedString}/{cleanName}";
 
-        string videoUrl = $"{url}/api/videostreams/stream/{encodedString}/{cleanName}";
+
 
         //string videoUrl = $"{url}/m/{encodedString}.m3u8";// : $"{url}/api/videostreams/stream/{encodedString}/{cleanName}";
         //videoUrl = $"{url}/m/comedy.ts";

@@ -9,26 +9,19 @@ using static StreamMaster.Domain.Common.GetStreamGroupEPGHandler;
 namespace StreamMaster.Application.StreamGroups.QueriesOld;
 
 [RequireAll]
-public record GetStreamGroupCapability(int StreamGroupId, int StreamGroupProfileId) : IRequest<string>;
+public record GetStreamGroupCapability(int StreamGroupProfileId) : IRequest<string>;
 
 [LogExecutionTimeAspect]
-public class GetStreamGroupCapabilityHandler(IHttpContextAccessor httpContextAccessor, ILogger<GetStreamGroupCapability> logger, IRepositoryWrapper Repository, IOptionsMonitor<Setting> intSettings)
+public class GetStreamGroupCapabilityHandler(IHttpContextAccessor httpContextAccessor, IStreamGroupService streamGroupService)
     : IRequestHandler<GetStreamGroupCapability, string>
 {
-    private readonly Setting settings = intSettings.CurrentValue;
 
     public async Task<string> Handle(GetStreamGroupCapability request, CancellationToken cancellationToken)
     {
-        if (request.StreamGroupId > 1)
-        {
-            bool streamGroup = await Repository.StreamGroup.GetStreamGroupById(request.StreamGroupId).ConfigureAwait(false) != null;
-            if (!streamGroup)
-            {
-                return "";
-            }
-        }
 
-        Capability capability = new(GetUrl(), $"{settings.DeviceID}-{request.StreamGroupId}");
+        StreamGroup streamGroup = await streamGroupService.GetStreamGroupFromSGProfileIdAsync(request.StreamGroupProfileId).ConfigureAwait(false);
+
+        Capability capability = new(GetUrl(), $"{streamGroup.DeviceID}-{request.StreamGroupProfileId}");
 
         using Utf8StringWriter textWriter = new();
         XmlSerializer serializer = new(typeof(Capability));

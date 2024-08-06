@@ -13,4 +13,5 @@ public class StreamGroupDto : StreamGroupBase, IMapFrom<StreamGroup>
     public string M3ULink { get; set; } = string.Empty;
     public string XMLLink { get; set; } = string.Empty;
     public string HDHRLink { get; set; } = string.Empty;
+    public string ShortHDHRLink { get; set; }
 }

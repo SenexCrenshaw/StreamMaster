@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 
+using StreamMaster.Domain.Crypto;
 using StreamMaster.SchedulesDirect.Domain.Extensions;
 
 using System.Text.Json;
@@ -7,11 +8,11 @@ using System.Text.Json;
 namespace StreamMaster.Application.StreamGroups.QueriesOld;
 
 [RequireAll]
-public record GetStreamGroupLineup(int StreamGroupId, int StreamGroupProfileId) : IRequest<string>;
+public record GetStreamGroupLineup(int StreamGroupProfileId, bool IsShort) : IRequest<string>;
 
 
 [LogExecutionTimeAspect]
-public class GetStreamGroupLineupHandler(IHttpContextAccessor httpContextAccessor, ICryptoService cryptoService, IIconHelper iconHelper, IEPGHelper epgHelper, ISchedulesDirectDataService schedulesDirectDataService, ILogger<GetStreamGroupLineup> logger, IRepositoryWrapper Repository, IOptionsMonitor<HLSSettings> inthlssettings, IOptionsMonitor<Setting> intSettings)
+public class GetStreamGroupLineupHandler(IHttpContextAccessor httpContextAccessor, IStreamGroupService streamGroupService, ICryptoService cryptoService, IIconHelper iconHelper, IEPGHelper epgHelper, ISchedulesDirectDataService schedulesDirectDataService, IRepositoryWrapper Repository, IOptionsMonitor<Setting> intSettings)
     : IRequestHandler<GetStreamGroupLineup, string>
 {
     private readonly Setting settings = intSettings.CurrentValue;
@@ -29,7 +30,8 @@ public class GetStreamGroupLineupHandler(IHttpContextAccessor httpContextAccesso
         string url = httpContextAccessor.GetUrl();
         List<SGLineup> ret = [];
 
-        List<SMChannel> smChannels = await Repository.SMChannel.GetSMChannelsFromStreamGroup(request.StreamGroupId);
+        StreamGroup streamGroup = await streamGroupService.GetStreamGroupFromSGProfileIdAsync(request.StreamGroupProfileId);
+        List<SMChannel> smChannels = await Repository.SMChannel.GetSMChannelsFromStreamGroup(streamGroup.Id);
 
         if (!smChannels.Any())
         {
@@ -87,28 +89,33 @@ public class GetStreamGroupLineupHandler(IHttpContextAccessor httpContextAccesso
 
             string videoUrl;
 
-            string? EncodedString = await cryptoService.EncodeStreamGroupIdChannelIdAsync(request.StreamGroupId, smChannel.Id);
+            //string? EncodedString = await cryptoService.EncodeStreamGroupIdChannelIdAsync(request.StreamGroupId, smChannel.Id);
+
+
+            string? EncodedString = await cryptoService.EncodeStreamGroupdProfileIdChannelId(request.StreamGroupProfileId, smChannel.Id);
 
 
             //(string EncodedString, string CleanName) = await sender.Send(new EncodeStreamGroupIdProfileIdChannelId(request.StreamGroupId, request.StreamGroupProfileId, smChannel.Id, smChannel.Name), cancellationToken);
-            if (string.IsNullOrEmpty(EncodedString))
-            {
-                continue;
-            }
-            videoUrl = $"{url}/m/{EncodedString}.m3u8";
+            //if (string.IsNullOrEmpty(EncodedString))
+            //{
+            //    continue;
+            //}
+            //videoUrl = $"{url}/m/{EncodedString}.m3u8";
 
-            if (smChannel.Name.Contains("comedy", StringComparison.CurrentCultureIgnoreCase))
-            {
-                videoUrl = $"{url}/m/comedy.ts";
-            }
+            //if (smChannel.Name.Contains("comedy", StringComparison.CurrentCultureIgnoreCase))
+            //{
+            //    videoUrl = $"{url}/m/comedy.ts";
+            //}
 
-            if (smChannel.Name.Contains("intros", StringComparison.CurrentCultureIgnoreCase))
-            {
-                videoUrl = $"{url}/m/intros.ts";
-            }
-            // : $"{url}/api/videostreams/stream/{encodedString}/{cleanName}";
-
-            //videoUrl = $"{url}/api/videostreams/stream/{EncodedString}/{CleanName}";
+            //if (smChannel.Name.Contains("intros", StringComparison.CurrentCultureIgnoreCase))
+            //{
+            //    videoUrl = $"{url}/m/intros.ts";
+            //}
+            //// : $"{url}/api/videostreams/stream/{encodedString}/{cleanName}";
+            //object sgProfileId = Repository.StreamGroupProfile.GetStreamGroupProfile(request.StreamGroupId, "default");
+            videoUrl = request.IsShort
+                ? $"{url}/v/{request.StreamGroupProfileId}/{smChannel.Id}"
+                : $"{url}/api/videostreams/stream/{EncodedString}/{smChannel.Name.ToCleanFileString()}";
 
 
 
