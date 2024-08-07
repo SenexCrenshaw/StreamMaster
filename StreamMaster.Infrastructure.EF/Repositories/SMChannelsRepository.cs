@@ -40,7 +40,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IServ
 
     public async Task<APIResponse> SetSMChannelsCommandProfileNameFromParameters(QueryStringParameters parameters, string CommandProfileName)
     {
-        IQueryable<SMChannel> toUpdate = GetQuery(parameters, tracking: true);
+        IQueryable<SMChannel> toUpdate = GetPagedSMChannelsQueryable(parameters, tracking: true);
         return await SetSMChannelsCommandProfileName(toUpdate, CommandProfileName);
     }
 
@@ -88,9 +88,9 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IServ
         string sql = $"UPDATE public.\"SMChannels\" SET \"Group\"='{newGroupName}' WHERE \"Group\"={oldGroupName};";
         _ = await RepositoryContext.ExecuteSqlRawAsyncEntities(sql);
     }
-    public IQueryable<SMChannel> GetPagedSMChannelsQueryable(QueryStringParameters parameters)
+    public IQueryable<SMChannel> GetPagedSMChannelsQueryable(QueryStringParameters parameters, bool? tracking = false)
     {
-        IQueryable<SMChannel> query = GetQuery(parameters).Include(a => a.SMStreams).ThenInclude(a => a.SMStream).Include(a => a.StreamGroups);
+        IQueryable<SMChannel> query = GetQuery(parameters, tracking == true).Include(a => a.SMStreams).ThenInclude(a => a.SMStream).Include(a => a.StreamGroups);
 
         if (!string.IsNullOrEmpty(parameters.JSONFiltersString))
         {
@@ -178,7 +178,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IServ
 
     public async Task<List<int>> DeleteSMChannelsFromParameters(QueryStringParameters parameters)
     {
-        IQueryable<SMChannel> toDelete = GetQuery(parameters).Where(a => a.SMChannelType == SMChannelTypeEnum.Regular && !a.IsSystem);
+        IQueryable<SMChannel> toDelete = GetPagedSMChannelsQueryable(parameters).Where(a => a.SMChannelType == SMChannelTypeEnum.Regular && !a.IsSystem);
         return await DeleteSMChannelsAsync(toDelete).ConfigureAwait(false);
     }
 
@@ -308,7 +308,8 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IServ
 
     public async Task<IdIntResultWithResponse> AutoSetSMChannelNumbersFromParameters(int streamGroupId, QueryStringParameters Parameters, int? StartingNumber, bool? OverwriteExisting)
     {
-        IQueryable<SMChannel> query = GetQuery(Parameters);
+        //GetPagedSMChannelsQueryable
+        IQueryable<SMChannel> query = GetPagedSMChannelsQueryable(Parameters);
         return await AutoSetSMChannelNumbers(query, StartingNumber ?? 1, OverwriteExisting ?? true);
     }
 
@@ -677,7 +678,8 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IServ
 
     public async Task<List<FieldData>> AutoSetEPGFromParameters(QueryStringParameters parameters, CancellationToken cancellationToken)
     {
-        List<SMChannel> smChannels = await GetQuery(parameters).ToListAsync(cancellationToken: cancellationToken);
+        //List<SMChannel> smChannels = await GetQuery(parameters).ToListAsync(cancellationToken: cancellationToken);
+        List<SMChannel> smChannels = await GetPagedSMChannelsQueryable(parameters).ToListAsync(cancellationToken: cancellationToken);
         return await AutoSetEPGs(smChannels, cancellationToken).ConfigureAwait(false);
     }
 
@@ -796,7 +798,8 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IServ
 
     public async Task<List<FieldData>> SetSMChannelsLogoFromEPGFromParameters(QueryStringParameters parameters, CancellationToken cancellationToken)
     {
-        IQueryable<SMChannel> query = GetQuery(parameters);
+        //IQueryable<SMChannel> query = GetQuery(parameters);
+        IQueryable<SMChannel> query = GetPagedSMChannelsQueryable(parameters);
         return await SetSMChannelsLogoFromEPG(query, cancellationToken);
     }
 
@@ -868,7 +871,8 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IServ
 
     public async Task<APIResponse> SetSMChannelsGroupFromParameters(QueryStringParameters parameters, string GroupName)
     {
-        IQueryable<SMChannel> toUpdate = GetQuery(parameters, tracking: true);
+        //IQueryable<SMChannel> toUpdate = GetQuery(parameters, tracking: true);
+        IQueryable<SMChannel> toUpdate = GetPagedSMChannelsQueryable(parameters, tracking: true);
         return await SetSMChannelsGroup(toUpdate, GroupName);
     }
     private async Task<APIResponse> SetSMChannelsGroup(IQueryable<SMChannel> query, string GroupName)

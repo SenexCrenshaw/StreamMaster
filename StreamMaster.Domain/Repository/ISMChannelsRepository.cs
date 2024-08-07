@@ -9,7 +9,8 @@ public interface ISMChannelsRepository : IRepositoryBase<SMChannel>
 {
     Task<IdIntResultWithResponse> AutoSetSMChannelNumbersFromParameters(int StreamGroupId, QueryStringParameters Parameters, int? StartingNumber, bool? OverwriteExisting);
     Task<IdIntResultWithResponse> AutoSetSMChannelNumbersRequest(int StreamGroupId, List<int> SMChannelIds, int? StartingNumber, bool? OverwriteExisting);
-    IQueryable<SMChannel> GetPagedSMChannelsQueryable(QueryStringParameters Parameters);
+    //IQueryable<SMChannel> GetPagedSMChannelsQueryable(QueryStringParameters Parameters);
+    IQueryable<SMChannel> GetPagedSMChannelsQueryable(QueryStringParameters parameters, bool? tracking = false);
     Task<APIResponse> AddSMStreamToSMChannel(int SMChannelId, string SMStreamId, int? Rank);
     Task<List<FieldData>> AutoSetEPGFromIds(List<int> ids, CancellationToken cancellationToken);
     Task<List<FieldData>> AutoSetEPGFromParameters(QueryStringParameters Parameters, CancellationToken cancellationToken);

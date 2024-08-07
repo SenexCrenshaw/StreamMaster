@@ -59,7 +59,7 @@ export const useSMChannelSGColumnConfig = ({ dataKey, id }: SMChannelSGColumnCon
 
     if (previousSGID === 0) {
       setPreviousSGID(selectedStreamGroup.Id);
-      setQueryAdditionalFilters(undefined);
+      updateFilters(showHidden); // Ensure updateFilters is called on initial load
       return;
     }
 
