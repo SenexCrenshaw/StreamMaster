@@ -1,5 +1,7 @@
 ﻿using StreamMaster.Domain.Events;
 
+using StreamMaster.Streams.Domain.Events;
+
 namespace StreamMaster.Streams.Domain.Interfaces
 {
     /// <summary>

@@ -21,7 +21,7 @@ public class RefreshM3UFileRequestHandler(ILogger<RefreshM3UFileRequest> Logger,
             jobManager.Start();
 
 
-            M3UFile? m3uFile = await Repository.M3UFile.GetM3UFile(request.Id).ConfigureAwait(false);
+            M3UFile? m3uFile = await Repository.M3UFile.GetM3UFileAsync(request.Id).ConfigureAwait(false);
             if (m3uFile == null)
             {
                 jobManager.SetError();

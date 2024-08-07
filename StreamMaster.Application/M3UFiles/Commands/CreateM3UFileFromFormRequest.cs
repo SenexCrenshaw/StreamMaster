@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Http;
-
 namespace StreamMaster.Application.M3UFiles.Commands;
 
 [SMAPI(JustController = true, JustHub = true)]
@@ -7,7 +6,7 @@ namespace StreamMaster.Application.M3UFiles.Commands;
 public record CreateM3UFileFromFormRequest(string Name, int? MaxStreamCount, string? DefaultStreamGroupName, int? HoursToUpdate, bool? SyncChannels, IFormFile? FormFile, List<string>? VODTags) : IRequest<APIResponse>;
 
 [LogExecutionTimeAspect]
-public class CreateM3UFileFromFormRequestHandler(ILogger<CreateM3UFileFromFormRequest> Logger, IMessageService messageService, IDataRefreshService dataRefreshService, IRepositoryWrapper Repository, IPublisher Publisher)
+public class CreateM3UFileFromFormRequestHandler(ILogger<CreateM3UFileFromFormRequest> Logger, ICacheManager CacheManager, IMessageService messageService, IDataRefreshService dataRefreshService, IRepositoryWrapper Repository, IPublisher Publisher)
     : IRequestHandler<CreateM3UFileFromFormRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(CreateM3UFileFromFormRequest request, CancellationToken cancellationToken)
@@ -73,9 +72,9 @@ public class CreateM3UFileFromFormRequestHandler(ILogger<CreateM3UFileFromFormRe
 
             Repository.M3UFile.CreateM3UFile(m3UFile);
             _ = await Repository.SaveAsync().ConfigureAwait(false);
+            CacheManager.M3UMaxStreamCounts.AddOrUpdate(m3UFile.Id, m3UFile.MaxStreamCount, (_, _) => m3UFile.MaxStreamCount);
 
             m3UFile.WriteJSON();
-
             await dataRefreshService.RefreshAllM3U();
 
             await Publisher.Publish(new M3UFileProcessEvent(m3UFile.Id, false), cancellationToken).ConfigureAwait(false);

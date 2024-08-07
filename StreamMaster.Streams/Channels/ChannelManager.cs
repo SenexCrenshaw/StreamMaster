@@ -1,4 +1,6 @@
-﻿namespace StreamMaster.Streams.Channels;
+﻿
+
+namespace StreamMaster.Streams.Channels;
 
 public sealed class ChannelManager : IChannelManager
 {

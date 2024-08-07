@@ -1,4 +1,5 @@
-﻿using StreamMaster.Streams.Domain.Statistics;
+﻿using StreamMaster.Streams.Domain.Events;
+using StreamMaster.Streams.Domain.Statistics;
 
 using System.Collections.Concurrent;
 using System.Threading.Channels;
@@ -42,28 +43,7 @@ public interface IChannelStatusBroadcaster : IChannelBroadcasterBase
 /// </summary>
 public interface IChannelBroadcasterBase : IStreamStats, ISourceName
 {
-    //void AddClientStream(int key, Stream stream);
     void AddClientStreamer(string UniqueRequestId, IClientConfiguration config);
-
-    /// <summary>
-    /// Adds a client stream.
-    /// </summary>
-    /// <param name="key">The key for the client stream.</param>
-    /// <param name="stream">The client stream.</param>
-    //void AddClientStream(string key, Stream stream);
-
-    /// <summary>
-    /// Removes a client stream.
-    /// </summary>
-    /// <param name="key">The key for the client stream.</param>
-    /// <returns><c>true</c> if the client stream was removed; otherwise, <c>false</c>.</returns>
-    //bool RemoveClientStream(string key);
-    ///// <summary>
-    ///// Adds a client stream.
-    ///// </summary>
-    ///// <param name="key">The key for the client stream.</param>
-    ///// <param name="stream">The client stream.</param>
-    //void AddClientStream(int key, Stream stream);
 
     /// <summary>
     /// Removes a client channel.

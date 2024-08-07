@@ -1,5 +1,6 @@
 ﻿using StreamMaster.Domain.Events;
 
+using StreamMaster.Streams.Domain.Events;
 using System.Collections.Concurrent;
 
 namespace StreamMaster.Streams.Services

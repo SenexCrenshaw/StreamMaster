@@ -1,4 +1,7 @@
-﻿namespace StreamMaster.Streams.Handlers;
+﻿
+using StreamMaster.Streams.Domain.Events;
+
+namespace StreamMaster.Streams.Handlers;
 
 public class ChannelStatusBroadcaster : ChannelBroadcasterBase, IChannelStatusBroadcaster
 {

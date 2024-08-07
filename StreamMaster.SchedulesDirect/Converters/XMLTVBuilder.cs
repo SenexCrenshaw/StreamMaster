@@ -17,12 +17,12 @@ namespace StreamMaster.SchedulesDirect.Converters;
 public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IOptionsMonitor<OutputProfileDict> intOutputProfileDict, IServiceProvider serviceProvider, ICustomPlayListBuilder customPlayListBuilder, IIconHelper iconHelper, IEPGHelper ePGHelper, ISchedulesDirectDataService schedulesDirectDataService, ILogger<XMLTVBuilder> logger)
     : IXMLTVBuilder
 {
-
-
     private string _baseUrl = "";
-    //private ISchedulesDirectDataService schedulesDirectDataService;
-    private static Dictionary<int, MxfSeriesInfo> seriesDict = [];
-    private static Dictionary<string, string> keywordDict = [];
+
+    private static ConcurrentDictionary<int, MxfSeriesInfo> seriesDict = [];
+    private static ConcurrentDictionary<string, string> keywordDict = [];
+
+    private readonly ConcurrentDictionary<string, MxfProgram> _programsByTitle = [];
 
     private static readonly string[] tvRatings = [ "", "TV-Y", "TV-Y7", "TV-G", "TV-PG", "TV-14", "TV-MA",
                 "", "Kinder bis 12 Jahren", "Freigabe ab 12 Jahren", "Freigabe ab 16 Jahren", "Keine Jugendfreigabe",
@@ -46,18 +46,33 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IOptionsMon
 
             int newServiceCount = 0;
 
-            keywordDict = schedulesDirectDataService.AllKeywords
-                .Where(k => !string.Equals(k.Word, "Uncategorized", StringComparison.OrdinalIgnoreCase) &&
-                !k.Word.Contains("premiere", StringComparison.OrdinalIgnoreCase))
-                .GroupBy(k => k.Id)
-                .ToDictionary(
-                    g => g.Key,
-                    g =>
-                    {
-                        string word = g.First().Word;
-                        return string.Equals(word, "Movies", StringComparison.OrdinalIgnoreCase) ? "Movie" : word;
-                    }
-                );
+            //keywordDict = schedulesDirectDataService.AllKeywords
+            //    .Where(k => !string.Equals(k.Word, "Uncategorized", StringComparison.OrdinalIgnoreCase) &&
+            //    !k.Word.Contains("premiere", StringComparison.OrdinalIgnoreCase))
+            //    .GroupBy(k => k.Id)
+            //    .ToDictionary(
+            //        g => g.Key,
+            //        g =>
+            //        {
+            //            string word = g.First().Word;
+            //            return string.Equals(word, "Movies", StringComparison.OrdinalIgnoreCase) ? "Movie" : word;
+            //        }
+            //    );
+
+            keywordDict = new ConcurrentDictionary<string, string>(
+                schedulesDirectDataService.AllKeywords
+                    .Where(k => !string.Equals(k.Word, "Uncategorized", StringComparison.OrdinalIgnoreCase) &&
+                                !k.Word.Contains("premiere", StringComparison.OrdinalIgnoreCase))
+                    .GroupBy(k => k.Id)
+                    .ToDictionary(
+                        g => g.Key,
+                        g =>
+                        {
+                            string word = g.First().Word;
+                            return string.Equals(word, "Movies", StringComparison.OrdinalIgnoreCase) ? "Movie" : word;
+                        }
+                    )
+            );
 
             foreach (MxfSeriesInfo seriesInfo in schedulesDirectDataService.AllSeriesInfos)
             {
@@ -173,7 +188,7 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IOptionsMon
         return null;
     }
 
-    //[LogExecutionTimeAspect]
+
     public XMLTV? CreateSDXmlTv(string baseUrl)
     {
         _baseUrl = baseUrl;
@@ -193,19 +208,21 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IOptionsMon
             };
 
 
-            // Pre-process all keywords into a HashSet for faster lookup
-            keywordDict = schedulesDirectDataService.AllKeywords
-     .Where(k => !string.Equals(k.Word, "Uncategorized", StringComparison.OrdinalIgnoreCase) &&
-                 !k.Word.Contains("premiere", StringComparison.OrdinalIgnoreCase))
-     .GroupBy(k => k.Id)
-     .ToDictionary(
-         g => g.Key,
-         g =>
-         {
-             string word = g.First().Word;
-             return string.Equals(word, "Movies", StringComparison.OrdinalIgnoreCase) ? "Movie" : word;
-         }
-     );
+            keywordDict = new ConcurrentDictionary<string, string>(
+      schedulesDirectDataService.AllKeywords
+          .Where(k => !string.Equals(k.Word, "Uncategorized", StringComparison.OrdinalIgnoreCase) &&
+                      !k.Word.Contains("premiere", StringComparison.OrdinalIgnoreCase))
+          .GroupBy(k => k.Id)
+          .ToDictionary(
+              g => g.Key,
+              g =>
+              {
+                  string word = g.First().Word;
+                  return string.Equals(word, "Movies", StringComparison.OrdinalIgnoreCase) ? "Movie" : word;
+              }
+          )
+  );
+
             foreach (MxfSeriesInfo seriesInfo in schedulesDirectDataService.AllSeriesInfos)
             {
                 if (seriesDict.ContainsKey(seriesInfo.Index))
@@ -214,7 +231,7 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IOptionsMon
 
                     continue;
                 }
-                seriesDict.Add(seriesInfo.Index, seriesInfo);
+                seriesDict.TryAdd(seriesInfo.Index, seriesInfo);
             }
             //Func<ISchedulesDirectData> data = schedulesDirectDataService.SchedulesDirectData;
 
@@ -240,26 +257,21 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IOptionsMon
         return null;
     }
 
-    private readonly Dictionary<string, MxfProgram> _programsByTitle = [];
     public MxfProgram GetOrCreateProgram(int progCount, string serviceName, Movie movie, int EPGNumber)
     {
-        if (_programsByTitle.TryGetValue(movie.Id, out MxfProgram? existingProgram))
+        if (!_programsByTitle.TryGetValue(movie.Id, out MxfProgram? existingProgram))
         {
-            return existingProgram;
-        }
-        else
-        {
-            MxfProgram newProgram = new(progCount + 1, $"SM-{movie.Id}")
+            existingProgram = new(progCount + 1, $"SM-{movie.Id}")
             {
                 EPGNumber = EPGNumber,
                 Title = serviceName,
                 Description = serviceName,
                 IsGeneric = true
             };
-
-            _programsByTitle[movie.Id] = newProgram;
-            return newProgram;
+            _programsByTitle.TryAdd(movie.Id, existingProgram);
         }
+
+        return existingProgram;
     }
     private void DoPrograms(List<MxfService> services, int progCount, XMLTV xmlTv, OutputProfileDto outputProfile, List<VideoStreamConfig>? videoStreamConfigs = null)
     {
@@ -734,7 +746,6 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IOptionsMon
 
         return advisories;
     }
-
 
     // Titles, SubTitles, and Descriptions
     private static List<XmltvText>? MxfStringToXmlTextArray(string mxfString)

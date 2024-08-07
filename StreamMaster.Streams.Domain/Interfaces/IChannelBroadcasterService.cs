@@ -1,6 +1,8 @@
 ﻿using StreamMaster.Domain.Events;
 using StreamMaster.Domain.Models;
 
+using StreamMaster.Streams.Domain.Events;
+
 namespace StreamMaster.Streams.Domain.Interfaces
 {
     /// <summary>

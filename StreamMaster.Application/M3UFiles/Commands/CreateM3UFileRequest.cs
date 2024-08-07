@@ -7,7 +7,7 @@ namespace StreamMaster.Application.M3UFiles.Commands;
 public record CreateM3UFileRequest(string Name, int MaxStreamCount, string? DefaultStreamGroupName, string? UrlSource, bool? SyncChannels, int? HoursToUpdate, List<string>? VODTags) : IRequest<APIResponse>;
 
 [LogExecutionTimeAspect]
-public class CreateM3UFileRequestHandler(ILogger<CreateM3UFileRequest> Logger, IMessageService messageService, IDataRefreshService dataRefreshService, IRepositoryWrapper Repository, IPublisher Publisher)
+public class CreateM3UFileRequestHandler(ILogger<CreateM3UFileRequest> Logger, ICacheManager CacheManager, IMessageService messageService, IDataRefreshService dataRefreshService, IRepositoryWrapper Repository, IPublisher Publisher)
     : IRequestHandler<CreateM3UFileRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(CreateM3UFileRequest request, CancellationToken cancellationToken)
@@ -77,6 +77,7 @@ public class CreateM3UFileRequestHandler(ILogger<CreateM3UFileRequest> Logger, I
 
             Repository.M3UFile.CreateM3UFile(m3UFile);
             _ = await Repository.SaveAsync().ConfigureAwait(false);
+            CacheManager.M3UMaxStreamCounts.AddOrUpdate(m3UFile.Id, m3UFile.MaxStreamCount, (_, _) => m3UFile.MaxStreamCount);
             m3UFile.WriteJSON();
 
             await dataRefreshService.RefreshAllM3U();

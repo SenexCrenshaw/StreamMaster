@@ -3,6 +3,7 @@
 using StreamMaster.Application.Crypto;
 using StreamMaster.Application.Profiles;
 using StreamMaster.Application.StreamGroups;
+using StreamMaster.Domain.Cache;
 namespace StreamMaster.Application;
 
 public static class ConfigureServices
@@ -16,6 +17,7 @@ public static class ConfigureServices
         services.AddTransient<ICryptoService, CryptoService>();
         services.AddTransient<IProfileService, ProfileService>();
         services.AddScoped<IStreamGroupService, StreamGroupService>();
+        services.AddScoped(typeof(CachedConcurrentDictionary<,>));
         return services;
     }
 }

@@ -35,7 +35,7 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, IMessageSer
         M3UFile? m3uFile;
         try
         {
-            m3uFile = await GetM3UFile(M3UFileId);
+            m3uFile = await GetM3UFileAsync(M3UFileId);
             if (m3uFile == null)
             {
                 logger.LogCritical("Could parse M3U file M3UFileId: {M3UFileId}", M3UFileId);
@@ -277,7 +277,7 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, IMessageSer
         return await GetQuery().ProjectTo<M3UFileDto>(mapper.ConfigurationProvider).ToListAsync().ConfigureAwait(false);
     }
 
-    public async Task<M3UFile?> GetM3UFile(int Id)
+    public async Task<M3UFile?> GetM3UFileAsync(int Id)
     {
         return await FirstOrDefaultAsync(c => c.Id == Id, false).ConfigureAwait(false);
     }

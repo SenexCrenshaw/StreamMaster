@@ -5,7 +5,7 @@ public record ScanDirectoryForM3UFilesRequest : IRequest<DataResponse<bool>>;
 
 
 [LogExecutionTimeAspect]
-public class ScanDirectoryForM3UFilesRequestHandler(IPublisher Publisher, IRepositoryWrapper Repository, IMapper Mapper)
+public class ScanDirectoryForM3UFilesRequestHandler(IPublisher Publisher, ICacheManager CacheManager, IRepositoryWrapper Repository, IMapper Mapper)
     : IRequestHandler<ScanDirectoryForM3UFilesRequest, DataResponse<bool>>
 {
     public async Task<DataResponse<bool>> Handle(ScanDirectoryForM3UFilesRequest command, CancellationToken cancellationToken)
@@ -49,6 +49,7 @@ public class ScanDirectoryForM3UFilesRequestHandler(IPublisher Publisher, IRepos
 
         if (m3uFile != null)
         {
+            CacheManager.M3UMaxStreamCounts.AddOrUpdate(m3uFile.Id, m3uFile.MaxStreamCount, (_, _) => m3uFile.MaxStreamCount);
 
             M3UFileDto ret = Mapper.Map<M3UFileDto>(m3uFile);
             await Publisher.Publish(new M3UFileProcessEvent(ret.Id, true), cancellationToken).ConfigureAwait(false);

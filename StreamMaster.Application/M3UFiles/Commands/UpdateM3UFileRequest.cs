@@ -9,7 +9,7 @@ public record UpdateM3UFileRequest(int? MaxStreamCount, int? StartingChannelNumb
     : IRequest<APIResponse>;
 
 [LogExecutionTimeAspect]
-public class UpdateM3UFileRequestHandler(IRepositoryWrapper Repository, IRepositoryContext repositoryContext, IBackgroundTaskQueue taskQueue, IJobStatusService jobStatusService, ISender Sender, IDataRefreshService dataRefreshService)
+public class UpdateM3UFileRequestHandler(IRepositoryWrapper Repository, IRepositoryContext repositoryContext, ICacheManager CacheManager, IBackgroundTaskQueue taskQueue, IJobStatusService jobStatusService, ISender Sender, IDataRefreshService dataRefreshService)
     : IRequestHandler<UpdateM3UFileRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(UpdateM3UFileRequest request, CancellationToken cancellationToken)
@@ -24,7 +24,7 @@ public class UpdateM3UFileRequestHandler(IRepositoryWrapper Repository, IReposit
             }
 
             List<FieldData> ret = [];
-            M3UFile? m3uFile = await Repository.M3UFile.GetM3UFile(request.Id).ConfigureAwait(false);
+            M3UFile? m3uFile = await Repository.M3UFile.GetM3UFileAsync(request.Id).ConfigureAwait(false);
             if (m3uFile == null)
             {
                 return APIResponse.NotFound;
@@ -106,6 +106,8 @@ public class UpdateM3UFileRequestHandler(IRepositoryWrapper Repository, IReposit
             {
                 m3uFile.MaxStreamCount = request.MaxStreamCount.Value;
                 ret.Add(new FieldData(() => m3uFile.MaxStreamCount));
+
+                CacheManager.M3UMaxStreamCounts.AddOrUpdate(m3uFile.Id, m3uFile.MaxStreamCount, (_, _) => m3uFile.MaxStreamCount);
             }
 
             if (request.SyncChannels.HasValue)

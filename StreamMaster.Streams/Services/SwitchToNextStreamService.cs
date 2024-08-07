@@ -1,11 +1,12 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
 using StreamMaster.Domain.Enums;
+
 using StreamMaster.PlayList.Models;
 namespace StreamMaster.Streams.Services;
 
 
-public sealed class SwitchToNextStreamService(ILogger<SwitchToNextStreamService> logger, IProfileService profileService, IServiceProvider _serviceProvider, IOptionsMonitor<CommandProfileDict> optionsOutputProfiles, IIntroPlayListBuilder introPlayListBuilder, ICustomPlayListBuilder customPlayListBuilder, IOptionsMonitor<Setting> intSettings, IServiceProvider serviceProvider)
+public sealed class SwitchToNextStreamService(ILogger<SwitchToNextStreamService> logger, IStreamLimitsService streamLimitsService, IProfileService profileService, IServiceProvider _serviceProvider, IOptionsMonitor<CommandProfileDict> optionsOutputProfiles, IIntroPlayListBuilder introPlayListBuilder, ICustomPlayListBuilder customPlayListBuilder, IOptionsMonitor<Setting> intSettings, IServiceProvider serviceProvider)
     : ISwitchToNextStreamService
 {
     private static string GetClientUserAgent(SMChannelDto smChannel, SMStreamDto? smStream, Setting setting)
@@ -59,17 +60,15 @@ public sealed class SwitchToNextStreamService(ILogger<SwitchToNextStreamService>
         using IServiceScope scope = _serviceProvider.CreateScope();
 
         ChannelStatus.PlayedIntro = false;
-        SMStreamDto? smStream;
+
+        SMStreamDto? smStream = null;
         if (!string.IsNullOrEmpty(OverrideSMStreamId))
         {
-
             IRepositoryWrapper repository = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
-
-            //Dictionary<int, M3UFileDto> m3uFilesRepo = (await repository.M3UFile.GetM3UFiles().ConfigureAwait(false)).ToDictionary(m => m.Id);
-
             smStream = repository.SMStream.GetSMStream(OverrideSMStreamId);
         }
-        else
+
+        if (smStream == null || await streamLimitsService.IsLimitedAsync(smStream.Id))
         {
             if (ChannelStatus.SMChannel.SMStreams.Count == 0)
             {
@@ -78,20 +77,39 @@ public sealed class SwitchToNextStreamService(ILogger<SwitchToNextStreamService>
                 return false;
             }
 
-            if (ChannelStatus.SMChannel.CurrentRank + 1 >= ChannelStatus.SMChannel.SMStreams.Count)
-            {
-                logger.LogInformation("Set Next for Channel {SourceName}, {Id} {Name} at end of stream list", ChannelStatus.SourceName, ChannelStatus.SMChannel.Id, ChannelStatus.SMChannel.Name);
-                return false;
-            }
-
             List<SMStreamDto> smStreams = [.. ChannelStatus.SMChannel.SMStreams.OrderBy(a => a.Rank)];
 
-            ChannelStatus.SMChannel.CurrentRank = (ChannelStatus.SMChannel.CurrentRank + 1) % smStreams.Count;
-            smStream = smStreams[ChannelStatus.SMChannel.CurrentRank];
+            bool isChannelLimited = true;
+            while (isChannelLimited)
+            {
+                if (ChannelStatus.SMChannel.CurrentRank + 1 >= ChannelStatus.SMChannel.SMStreams.Count)
+                {
+                    logger.LogInformation("Set Next for Channel {SourceName}, {Id} {Name} at end of stream list", ChannelStatus.SourceName, ChannelStatus.SMChannel.Id, ChannelStatus.SMChannel.Name);
+                    return false;
+                }
+
+                ChannelStatus.SMChannel.CurrentRank = (ChannelStatus.SMChannel.CurrentRank + 1) % smStreams.Count;
+                smStream = smStreams[ChannelStatus.SMChannel.CurrentRank];
+                isChannelLimited = await streamLimitsService.IsLimitedAsync(smStream.Id);
+                if (isChannelLimited)
+                {
+                    logger.LogInformation("Set Next for Channel {SourceName}, {Id} {Name}, max Streams reached, trying next in list", ChannelStatus.SourceName, ChannelStatus.SMChannel.Id, ChannelStatus.SMChannel.Name);
+                }
+            }
         }
+
 
         if (smStream == null)
         {
+            return false;
+        }
+
+
+        bool isLimited = await streamLimitsService.IsLimitedAsync(smStream.Id);
+        if (isLimited)
+        {
+            logger.LogInformation("Set Next for Channel {SourceName}, {Id} {Name}, max Streams reached", ChannelStatus.SourceName, ChannelStatus.SMChannel.Id, ChannelStatus.SMChannel.Name);
+
             return false;
         }
 

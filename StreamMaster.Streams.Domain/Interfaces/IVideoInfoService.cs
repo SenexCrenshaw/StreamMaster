@@ -1,5 +1,6 @@
 ﻿using StreamMaster.Domain.Models;
 
+
 using System.Collections.Concurrent;
 
 namespace StreamMaster.Streams.Domain.Interfaces

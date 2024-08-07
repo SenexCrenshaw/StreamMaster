@@ -1,4 +1,6 @@
-﻿namespace StreamMaster.Streams.Domain.Interfaces;
+﻿
+
+namespace StreamMaster.Streams.Domain.Interfaces;
 public interface IChannelService
 {
 

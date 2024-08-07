@@ -1,4 +1,5 @@
-﻿using StreamMaster.Streams.Domain.Helpers;
+﻿
+using StreamMaster.Streams.Domain.Helpers;
 using StreamMaster.Streams.Domain.Statistics;
 
 using System.Collections.Concurrent;

@@ -13,7 +13,7 @@ internal class SyncChannelsRequestHandler(ILogger<SyncChannelsRequest> logger, I
     {
         try
         {
-            M3UFile? m3uFile = await Repository.M3UFile.GetM3UFile(request.M3UFileId).ConfigureAwait(false);
+            M3UFile? m3uFile = await Repository.M3UFile.GetM3UFileAsync(request.M3UFileId).ConfigureAwait(false);
             if (m3uFile == null)
             {
                 await messageService.SendError("Sync Channels M3U Not Found");

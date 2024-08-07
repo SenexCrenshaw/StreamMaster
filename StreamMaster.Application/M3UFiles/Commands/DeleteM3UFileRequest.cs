@@ -5,12 +5,12 @@ namespace StreamMaster.Application.M3UFiles.Commands;
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record DeleteM3UFileRequest(bool DeleteFile, int Id) : IRequest<APIResponse>;
 
-public class DeleteM3UFileRequestHandler(ILogger<DeleteM3UFileRequest> logger, IMessageService messageService, IDataRefreshService dataRefreshService, IIconService iconService, IRepositoryWrapper Repository)
+public class DeleteM3UFileRequestHandler(ILogger<DeleteM3UFileRequest> logger, ICacheManager CacheManager, IMessageService messageService, IDataRefreshService dataRefreshService, IIconService iconService, IRepositoryWrapper Repository)
     : IRequestHandler<DeleteM3UFileRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(DeleteM3UFileRequest request, CancellationToken cancellationToken = default)
     {
-        M3UFile? m3UFile = await Repository.M3UFile.GetM3UFile(request.Id).ConfigureAwait(false);
+        M3UFile? m3UFile = await Repository.M3UFile.GetM3UFileAsync(request.Id).ConfigureAwait(false);
         if (m3UFile == null)
         {
             await messageService.SendError("M3U file not found");
@@ -73,6 +73,7 @@ public class DeleteM3UFileRequestHandler(ILogger<DeleteM3UFileRequest> logger, I
             await Repository.SMStream.DeleteSMStreamsByM3UFiledId(m3UFile.Id, cancellationToken);
 
             await Repository.SaveAsync().ConfigureAwait(false);
+            CacheManager.M3UMaxStreamCounts.TryRemove(m3UFile.Id, out _);
 
             iconService.RemoveIconsByM3UFileId(m3UFile.Id);
 

@@ -25,6 +25,8 @@ using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text.Json.Serialization;
 using StreamMaster.Domain.Configuration;
+using Microsoft.Extensions.Caching.Memory;
+using StreamMaster.Streams.Domain;
 
 [assembly: TsGlobal(CamelCaseForProperties = false, CamelCaseForMethods = false, UseModules = true, DiscardNamespacesWhenUsingModules = true, AutoOptionalProperties = true, WriteWarningComment = false, ReorderMembers = true)]
 
@@ -161,6 +163,8 @@ builder.Services.AddControllers(options =>
 });
 
 WebApplication app = builder.Build();
+
+
 app.UseForwardedHeaders();
 
 var lifetime = app.Services.GetService<IHostApplicationLifetime>();
@@ -271,6 +275,7 @@ app.MapGet("/routes", async context =>
 app.MapHub<StreamMasterHub>("/streammasterhub");//.RequireAuthorization(AuthenticationType.Forms.ToString());
 
 app.Run();
+
 
 static string GetRoutePattern(Endpoint endpoint)
 {

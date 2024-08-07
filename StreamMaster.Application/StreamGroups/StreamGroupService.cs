@@ -432,8 +432,6 @@ public class StreamGroupService(ILogger<StreamGroupService> _logger, IMapper _ma
 
     public async Task<(List<VideoStreamConfig> videoStreamConfigs, StreamGroupProfile streamGroupProfile)> GetStreamGroupVideoConfigs(int streamGroupProfileId)
     {
-        //using IServiceScope scope = _serviceProvider.CreateScope();
-        //IRepositoryWrapper repositoryWrapper = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
 
         StreamGroup? streamGroup = await GetStreamGroupFromSGProfileIdAsync(streamGroupProfileId);
         if (streamGroup == null)

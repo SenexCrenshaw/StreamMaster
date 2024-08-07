@@ -1,4 +1,4 @@
-﻿namespace StreamMaster.Streams.Domain.Models;
+﻿namespace StreamMaster.Streams.Domain.Events;
 
 public class ChannelDirectorStopped(string Id, string Name)
 {

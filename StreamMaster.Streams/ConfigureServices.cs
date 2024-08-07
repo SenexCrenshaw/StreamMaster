@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 
 using StreamMaster.Streams.Channels;
+using StreamMaster.Streams.Domain;
 using StreamMaster.Streams.Factories;
 using StreamMaster.Streams.Plugins;
 using StreamMaster.Streams.Services;
@@ -39,6 +40,8 @@ public static class ConfigureServices
         services.AddSingleton<IVideoInfoService, VideoInfoService>();
         services.AddTransient<IVideoCombiner, VideoCombiner>();
         services.AddSingleton<IVideoCombinerService, VideoCombinerService>();
+        services.AddSingleton<IStreamLimitsService, StreamLimitsService>();
+        services.AddSingleton<ICacheManager, CacheManager>();
         return services;
     }
 }
