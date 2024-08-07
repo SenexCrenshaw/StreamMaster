@@ -6,7 +6,7 @@ using StreamMaster.PlayList.Models;
 namespace StreamMaster.Streams.Services;
 
 
-public sealed class SwitchToNextStreamService(ILogger<SwitchToNextStreamService> logger, IStreamLimitsService streamLimitsService, IProfileService profileService, IServiceProvider _serviceProvider, IOptionsMonitor<CommandProfileDict> optionsOutputProfiles, IIntroPlayListBuilder introPlayListBuilder, ICustomPlayListBuilder customPlayListBuilder, IOptionsMonitor<Setting> intSettings, IServiceProvider serviceProvider)
+public sealed class SwitchToNextStreamService(ILogger<SwitchToNextStreamService> logger, ICacheManager cacheManager, IStreamLimitsService streamLimitsService, IProfileService profileService, IServiceProvider _serviceProvider, IOptionsMonitor<CommandProfileDict> optionsOutputProfiles, IIntroPlayListBuilder introPlayListBuilder, ICustomPlayListBuilder customPlayListBuilder, IOptionsMonitor<Setting> intSettings, IServiceProvider serviceProvider)
     : ISwitchToNextStreamService
 {
     private static string GetClientUserAgent(SMChannelDto smChannel, SMStreamDto? smStream, Setting setting)
@@ -68,7 +68,7 @@ public sealed class SwitchToNextStreamService(ILogger<SwitchToNextStreamService>
             smStream = repository.SMStream.GetSMStream(OverrideSMStreamId);
         }
 
-        if (smStream == null || await streamLimitsService.IsLimitedAsync(smStream.Id))
+        if (smStream == null || streamLimitsService.IsLimited(smStream))
         {
             if (ChannelStatus.SMChannel.SMStreams.Count == 0)
             {
@@ -79,18 +79,20 @@ public sealed class SwitchToNextStreamService(ILogger<SwitchToNextStreamService>
 
             List<SMStreamDto> smStreams = [.. ChannelStatus.SMChannel.SMStreams.OrderBy(a => a.Rank)];
 
+
             bool isChannelLimited = true;
+
             while (isChannelLimited)
             {
                 if (ChannelStatus.SMChannel.CurrentRank + 1 >= ChannelStatus.SMChannel.SMStreams.Count)
                 {
                     logger.LogInformation("Set Next for Channel {SourceName}, {Id} {Name} at end of stream list", ChannelStatus.SourceName, ChannelStatus.SMChannel.Id, ChannelStatus.SMChannel.Name);
-                    return false;
+                    break;
                 }
 
                 ChannelStatus.SMChannel.CurrentRank = (ChannelStatus.SMChannel.CurrentRank + 1) % smStreams.Count;
                 smStream = smStreams[ChannelStatus.SMChannel.CurrentRank];
-                isChannelLimited = await streamLimitsService.IsLimitedAsync(smStream.Id);
+                isChannelLimited = streamLimitsService.IsLimited(smStream);
                 if (isChannelLimited)
                 {
                     logger.LogInformation("Set Next for Channel {SourceName}, {Id} {Name}, max Streams reached, trying next in list", ChannelStatus.SourceName, ChannelStatus.SMChannel.Id, ChannelStatus.SMChannel.Name);
@@ -105,11 +107,17 @@ public sealed class SwitchToNextStreamService(ILogger<SwitchToNextStreamService>
         }
 
 
-        bool isLimited = await streamLimitsService.IsLimitedAsync(smStream.Id);
+        bool isLimited = streamLimitsService.IsLimited(smStream);
         if (isLimited)
         {
-            logger.LogInformation("Set Next for Channel {SourceName}, {Id} {Name}, max Streams reached", ChannelStatus.SourceName, ChannelStatus.SMChannel.Id, ChannelStatus.SMChannel.Name);
+            if (_settings.ShowMessageVideos && cacheManager.MessageNoStreamsLeft != null)
+            {
+                ChannelStatus.SetSMStreamInfo(cacheManager.MessageNoStreamsLeft);
+                logger.LogDebug("No more streams found, {SourceName} {Id} {Name} , sending message", ChannelStatus.SourceName, cacheManager.MessageNoStreamsLeft.Id, cacheManager.MessageNoStreamsLeft.Name);
+                return true;
 
+            }
+            logger.LogInformation("Set Next for Channel {SourceName}, {Id} {Name}, max Streams reached", ChannelStatus.SourceName, ChannelStatus.SMChannel.Id, ChannelStatus.SMChannel.Name);
             return false;
         }
 

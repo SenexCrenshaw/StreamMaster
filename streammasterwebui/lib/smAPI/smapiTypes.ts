@@ -219,6 +219,7 @@ export interface SettingDto
 	SDSettings: SDSettings;
 	ShowClientHostNames: boolean;
 	ShowIntros: string;
+	ShowMessageVideos: boolean;
 	SSLCertPassword: string;
 	SSLCertPath: string;
 	UiFolder: string;
@@ -1006,6 +1007,7 @@ export interface UpdateSettingParameters
 	SDSettings?: SDSettingsRequest;
 	ShowClientHostNames?: boolean;
 	ShowIntros?: string;
+	ShowMessageVideos?: boolean;
 	SSLCertPassword?: string;
 	SSLCertPath?: string;
 }
@@ -1561,7 +1563,8 @@ export enum SMStreamTypeEnum {
 	Regular = 0,
 	CustomPlayList = 1,
 	Custom = 2,
-	Intro = 3
+	Intro = 3,
+	Message = 4
 }
 export enum SMFileTypes {
 	M3U = 0,

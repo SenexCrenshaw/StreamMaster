@@ -52,7 +52,7 @@ public class SMLogger : ILogger
     //    db.LogEntries.GetOrAdd(new LogEntry
     //    {
     //        LogLevel = logLevel,
-    //        Message = message,
+    //        MessageId = message,
     //        TimeStamp = DateTime.Now
     //    });
 
@@ -62,7 +62,7 @@ public class SMLogger : ILogger
     //        db.LogEntries.GetOrAdd(new LogEntry
     //        {
     //            LogLevel = LogLevel.Error,
-    //            Message = exception.ToString(),
+    //            MessageId = exception.ToString(),
     //            TimeStamp = DateTime.Now
     //        });
     //    }

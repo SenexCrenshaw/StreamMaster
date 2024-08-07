@@ -43,7 +43,7 @@ public class BuildProgIconsCacheFromEPGsRequestHandler(ILogger<BuildProgIconsCac
     //    }
     //    catch (Exception ex)
     //    {
-    //        Console.WriteLine(ex.Message);
+    //        Console.WriteLine(ex.MessageId);
     //    }
     //    return null;
     //}
@@ -60,7 +60,7 @@ public class BuildProgIconsCacheFromEPGsRequestHandler(ILogger<BuildProgIconsCac
     //    }
     //    catch (Exception ex)
     //    {
-    //        Console.WriteLine(ex.Message);
+    //        Console.WriteLine(ex.MessageId);
     //    }
     //    return null;
     //}

@@ -35,6 +35,12 @@ public sealed class ProxyFactory(ILogger<ProxyFactory> logger, IHTTPStream HTTPS
                 return await CustomPlayListStream.HandleStream(smStreamInfo, clientUserAgent, cancellationToken).ConfigureAwait(false);
             }
 
+
+            if (smStreamInfo.SMStreamType == SMStreamTypeEnum.Message)
+            {
+                return await CustomPlayListStream.HandleStream(smStreamInfo, clientUserAgent, cancellationToken).ConfigureAwait(false);
+            }
+
             if (smStreamInfo.Url.EndsWith(".m3u8"))
             {
                 logger.LogInformation("Stream URL has m3u8 extension, using ffmpeg for streaming: {streamName}", smStreamInfo.Name);

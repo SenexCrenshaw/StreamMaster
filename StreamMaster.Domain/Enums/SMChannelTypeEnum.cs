@@ -12,6 +12,7 @@ public enum SMStreamTypeEnum
     Regular = 0,
     CustomPlayList = 1,
     Custom = 2,
-    Intro = 3
+    Intro = 3,
+    Message = 4,
 }
 

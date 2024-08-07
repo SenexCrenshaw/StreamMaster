@@ -45,6 +45,12 @@ public class RepositoryContextInitializer(ILogger<RepositoryContextInitializer> 
                 _ = await context.SaveChangesAsync().ConfigureAwait(false);
             }
 
+            if (!context.ChannelGroups.Any(a => a.Name == "SystemMessages"))
+            {
+                _ = context.Add(new ChannelGroup { Name = "SystemMessages", IsReadOnly = true, IsSystem = true });
+                _ = await context.SaveChangesAsync().ConfigureAwait(false);
+            }
+
             if (!context.ChannelGroups.Any(a => a.Name == "Intros"))
             {
                 _ = context.Add(new ChannelGroup { Name = "Intros", IsReadOnly = true, IsSystem = true });

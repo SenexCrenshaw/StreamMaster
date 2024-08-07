@@ -70,6 +70,7 @@ export function StreamingSettings(): React.ReactElement {
       {GetInputTextLine({ field: 'ClientUserAgent' })}
       {GetCheckBoxLine({ field: 'ShowClientHostNames' })}
       {GetDropDownLine({ field: 'ShowIntros', options: getIntroOptions() })}
+      {GetCheckBoxLine({ field: 'ShowMessageVideos' })}
       {GetDropDownLine({ field: 'DefaultCommandProfileName', options: DefaultCommandProfileNameOptions })}
       {GetDropDownLine({ field: 'DefaultOutputProfileName', options: DefaultOutputProfileNameOptions })}
     </BaseSettings>

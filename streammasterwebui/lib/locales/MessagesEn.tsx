@@ -90,6 +90,7 @@ const MessagesEn: messages_enType = {
   password: 'Password',
   playlist: 'Playlist',
   PrettyEPG: 'Format EPG output',
+  ShowMessageVideos: 'Show Message Videos',
   profiles: 'Profiles',
   regex: 'Regex',
   rememberme: 'Remember Me',

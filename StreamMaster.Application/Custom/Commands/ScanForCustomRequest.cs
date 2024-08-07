@@ -4,7 +4,7 @@
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record ScanForCustomRequest : IRequest<APIResponse>;
 
-public class ScanForCustomPlayListsRequestHandler(ILogger<ScanForCustomRequest> Logger, IStreamGroupService streamGroupService, IIconService iconService, IIntroPlayListBuilder introPlayListBuilder, ICustomPlayListBuilder CustomPlayListBuilder, IRepositoryWrapper Repository)
+public class ScanForCustomPlayListsRequestHandler(ILogger<ScanForCustomRequest> Logger, IOptionsMonitor<CommandProfileDict> optionsOutputProfiles, IOptionsMonitor<Setting> _settings, ICacheManager cacheManager, IStreamGroupService streamGroupService, IIconService iconService, IIntroPlayListBuilder introPlayListBuilder, ICustomPlayListBuilder CustomPlayListBuilder, IRepositoryWrapper Repository)
     : IRequestHandler<ScanForCustomRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(ScanForCustomRequest command, CancellationToken cancellationToken)
@@ -25,14 +25,6 @@ public class ScanForCustomPlayListsRequestHandler(ILogger<ScanForCustomRequest> 
                     currentStream.Logo = customPlayList.Logo;
                 }
 
-                //SMChannel? smChannel = await Repository.SMChannel.GetQuery(true).FirstOrDefaultAsync(a => a.SMChannelType == SMChannelTypeEnum.CustomPlayList && a.BaseStreamID != null && a.BaseStreamID == id, cancellationToken: cancellationToken);
-                //if (smChannel != null)
-                //{
-                //    if (smChannel.Logo != customPlayList.Logo)
-                //    {
-                //        smChannel.Logo = customPlayList.Logo;
-                //    }
-                //}
                 continue;
             }
 
@@ -54,7 +46,7 @@ public class ScanForCustomPlayListsRequestHandler(ILogger<ScanForCustomRequest> 
 
             foreach (CustomStreamNfo nfo in customPlayList.CustomStreamNfos)
             {
-                string streamId = $"{id}|{nfo.Movie.Title}";// FileUtil.EncodeToBase64($"{id},{nfo.Movie.Title}");
+                string streamId = $"{id}|{nfo.Movie.Title}";
                 SMStream? nfoStream = await Repository.SMStream.FirstOrDefaultAsync(s => s.Id == streamId, tracking: true, cancellationToken: cancellationToken);
 
                 if (nfoStream != null)
@@ -97,8 +89,6 @@ public class ScanForCustomPlayListsRequestHandler(ILogger<ScanForCustomRequest> 
                     continue;
                 }
 
-                string? c = await streamGroupService.EncodeStreamGroupIdStreamIdAsync(EPGHelper.CustomPlayListId, streamId);
-
                 SMStream newStream = new()
                 {
                     Id = streamId,
@@ -115,6 +105,42 @@ public class ScanForCustomPlayListsRequestHandler(ILogger<ScanForCustomRequest> 
             }
         }
         _ = await Repository.SaveAsync();
+
+        if (File.Exists(BuildInfo.MessageNoStreamsLeft))
+        {
+            SMStream? stream = await Repository.SMStream.FirstOrDefaultAsync(a => a.Id == "MessageNoStreamsLeft");
+            if (stream == null)
+            {
+                stream = new()
+                {
+                    Id = "MessageNoStreamsLeft",
+                    EPGID = EPGHelper.MessageId + "-MessageNoStreamsLeft",
+                    Name = "No Streams Left",
+                    M3UFileName = Path.GetFileName(BuildInfo.MessageNoStreamsLeft),
+                    M3UFileId = EPGHelper.IntroPlayListId,
+                    Group = "SystemMessages",
+                    SMStreamType = SMStreamTypeEnum.Message,
+                    Url = BuildInfo.MessageNoStreamsLeft,
+                    IsSystem = true
+                };
+                Repository.SMStream.Create(stream);
+                await Repository.SaveAsync();
+            }
+            if (stream != null)
+            {
+                CommandProfileDto introCommandProfileDto = optionsOutputProfiles.CurrentValue.GetProfileDto("SMFFMPEG");
+                SMStreamInfo smStreamInfo = new()
+                {
+                    Id = stream.Id,
+                    Name = stream.Name,
+                    Url = stream.Url,
+                    ClientUserAgent = _settings.CurrentValue.ClientUserAgent,
+                    CommandProfile = introCommandProfileDto,
+                    SMStreamType = SMStreamTypeEnum.Message
+                };
+                cacheManager.MessageNoStreamsLeft = smStreamInfo;
+            }
+        }
 
         return APIResponse.Success;
     }

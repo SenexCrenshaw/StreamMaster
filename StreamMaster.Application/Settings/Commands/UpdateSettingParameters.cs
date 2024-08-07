@@ -21,6 +21,8 @@ public class UpdateSettingParameters
     public string? DeviceID { get; set; }
     public string? DummyRegex { get; set; }
     public bool? EnableSSL { get; set; }
+
+    public bool? ShowMessageVideos { get; set; }
     public string? FFMPegExecutable { get; set; }
     public string? FFProbeExecutable { get; set; }
     public int? GlobalStreamLimit { get; set; }

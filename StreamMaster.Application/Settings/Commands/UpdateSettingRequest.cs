@@ -95,6 +95,7 @@ public partial class UpdateSettingRequestHandler(
             destination.PrefixEpisodeTitle = source.PrefixEpisodeTitle.Value;
         }
 
+
         if (source.AppendEpisodeDesc.HasValue)
         {
             destination.AppendEpisodeDesc = source.AppendEpisodeDesc.Value;
@@ -207,10 +208,11 @@ public partial class UpdateSettingRequestHandler(
             currentSetting.EnableSSL = request.Parameters.EnableSSL.Value;
         }
 
-        //if (request.Parameters.VideoStreamAlwaysUseEPGLogo.HasValue)
-        //{
-        //    currentSetting.VideoStreamAlwaysUseEPGLogo = request.Parameters.VideoStreamAlwaysUseEPGLogo.Value;
-        //}
+
+        if (request.Parameters.ShowMessageVideos.HasValue)
+        {
+            currentSetting.ShowMessageVideos = request.Parameters.ShowMessageVideos.Value;
+        }
 
 
 

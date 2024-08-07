@@ -10,6 +10,8 @@ public class EPGHelper() : IEPGHelper
     public const int DummyId = -2;
     public const int CustomPlayListId = -3;
     public const int IntroPlayListId = -4;
+    public const int MessageId = -5;
+
     public const string EPGMatch = @"(^\-?\d+)-(.*)";
 
     public (int epgNumber, string stationId) ExtractEPGNumberAndStationId(string epgId)

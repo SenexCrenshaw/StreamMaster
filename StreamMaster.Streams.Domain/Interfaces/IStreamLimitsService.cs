@@ -2,5 +2,6 @@ namespace StreamMaster.Streams.Domain.Interfaces;
 
 public interface IStreamLimitsService
 {
-    Task<bool> IsLimitedAsync(string smStreamDtoId);
+    bool IsLimited(SMStreamDto smStreamDto);
+    bool IsLimited(string smStreamDtoId);
 }
