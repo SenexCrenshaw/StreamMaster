@@ -4,8 +4,6 @@ using SixLabors.ImageSharp.PixelFormats;
 using StreamMaster.Domain.Helpers;
 
 using System.Text.RegularExpressions;
-
-
 namespace StreamMaster.SchedulesDirect;
 public class Lineups(ILogger<Lineups> logger, IOptionsMonitor<SDSettings> intSDSettings, IIconService iconService, ISchedulesDirectAPIService schedulesDirectAPI, IEPGCache<LineupResult> epgCache, ISchedulesDirectDataService schedulesDirectDataService)
     : ILineups
@@ -35,27 +33,29 @@ public class Lineups(ILogger<Lineups> logger, IOptionsMonitor<SDSettings> intSDS
         foreach (SubscribedLineup clientLineup in clientLineups.Lineups)
         {
             // don't download station map if lineup not included
-            if (sdSettings.SDStationIds.FirstOrDefault(a => a.Lineup == clientLineup.Lineup) == null)
+            if (sdSettings.SDStationIds.Find(a => a.Lineup == clientLineup.Lineup) == null)
             {
+                //StationIdLineup stationIdLineup = new() { Id = $"{clientLineup.Id}|{clientLineup.Lineup}", Lineup = clientLineup.Lineup };
+                //sdSettings.SDStationIds.Add(stationIdLineup);
+                //SettingsHelper.UpdateSetting(sdSettings);
                 //logger.LogWarning($"Subscribed lineup {clientLineup.Lineup} has been EXCLUDED by user from download and processing.");
                 continue;
             }
 
             if (clientLineup.IsDeleted)
             {
-                logger.LogWarning($"Subscribed lineup {clientLineup.Lineup} has been DELETED at the headend.");
+                logger.LogWarning("Subscribed lineup {clientLineup.Lineup} has been DELETED at the headend.", clientLineup.Lineup);
                 continue;
             }
-
 
             // get/create lineup
             MxfLineup mxfLineup = schedulesDirectData.FindOrCreateLineup(clientLineup.Lineup, $"SM {clientLineup.Name} ({clientLineup.Location})");
 
             // request the lineup's station maps
-            StationChannelMap? lineupMap = await GetStationChannelMap(clientLineup.Lineup, cancellationToken);
+            StationChannelMap? lineupMap = await GetStationChannelMap(clientLineup.Lineup);
             if (lineupMap == null || ((lineupMap?.Stations?.Count ?? 0) == 0))
             {
-                logger.LogError($"Subscribed lineup {clientLineup.Lineup} does not contain any stations.");
+                logger.LogError("Subscribed lineup {clientLineup.Lineup} does not contain any stations.", clientLineup.Lineup);
                 //return false;
                 continue;
             }
@@ -64,10 +64,10 @@ public class Lineups(ILogger<Lineups> logger, IOptionsMonitor<SDSettings> intSDS
             ConcurrentHashSet<string> channelNumbers = [];
 
             // build the services and lineup
-            foreach (LineupStation station in lineupMap.Stations)
+            foreach (LineupStation station in lineupMap!.Stations)
             {
                 // check if station should be downloaded and processed
-                if (station == null || sdSettings.SDStationIds.FirstOrDefault(a => a.StationId == station.StationId) == null)
+                if (station == null || sdSettings.SDStationIds.Find(a => a.StationId == station.StationId) == null)
                 {
                     continue;
                 }
@@ -103,8 +103,8 @@ public class Lineups(ILogger<Lineups> logger, IOptionsMonitor<SDSettings> intSDS
                     if (station.StationLogos != null)
                     {
                         List<string> cats = station.StationLogos.Select(a => a.Category).Distinct().ToList();
-                        stationLogo = station.StationLogos?.FirstOrDefault(arg => arg.Category != null && arg.Category.Equals(preferredLogoStyle, StringComparison.OrdinalIgnoreCase)) ??
-                                      station.StationLogos?.FirstOrDefault(arg => arg.Category != null && arg.Category.Equals(alternateLogoStyle, StringComparison.OrdinalIgnoreCase)) ??
+                        stationLogo = station.StationLogos?.FirstOrDefault(arg => arg.Category?.Equals(preferredLogoStyle, StringComparison.OrdinalIgnoreCase) == true) ??
+                                      station.StationLogos?.FirstOrDefault(arg => arg.Category?.Equals(alternateLogoStyle, StringComparison.OrdinalIgnoreCase) == true) ??
                                       station.Logo;
 
                         // initialize as custom logo
@@ -128,7 +128,6 @@ public class Lineups(ILogger<Lineups> logger, IOptionsMonitor<SDSettings> intSDS
                             {
                                 StationLogosToDownload.Add(new KeyValuePair<MxfService, string[]>(mxfService, [logoPath, stationLogo.Url]));
                             }
-
                         }
 
                         // add to mxf guide images if file exists already
@@ -147,7 +146,7 @@ public class Lineups(ILogger<Lineups> logger, IOptionsMonitor<SDSettings> intSDS
                         {
                             if (!string.IsNullOrEmpty(logoPath) && File.Exists(logoPath))
                             {
-                                using FileStream stream = File.OpenRead(logoPath);
+                                await using FileStream stream = File.OpenRead(logoPath);
                                 using Image image = await Image.LoadAsync(stream, cancellationToken);
 
                                 mxfService.extras.Add("logo", new StationImage
@@ -215,7 +214,7 @@ public class Lineups(ILogger<Lineups> logger, IOptionsMonitor<SDSettings> intSDS
                     //    number = -1; subnumber = 0;
                     //}
 
-                    string channelNumber = "1";// $"{number}{(subnumber > 0 ? $".{subnumber}" : "")}";
+                    const string channelNumber = "1";// $"{number}{(subnumber > 0 ? $".{subnumber}" : "")}";
                     if (channelNumbers.Add($"{channelNumber}:{station.StationId}"))
                     {
                         mxfLineup.channels.Add(new MxfChannel(mxfLineup, mxfService)
@@ -229,7 +228,7 @@ public class Lineups(ILogger<Lineups> logger, IOptionsMonitor<SDSettings> intSDS
 
         if (StationLogosToDownload.Count > 0)
         {
-            logger.LogInformation($"Kicking off background worker to download and process {StationLogosToDownload.Count} station logos.");
+            logger.LogInformation("Starting background worker to download and process {StationLogosToDownload.Count} station logos.", StationLogosToDownload.Count);
             await Task.Run(async () =>
             {
                 try
@@ -243,8 +242,7 @@ public class Lineups(ILogger<Lineups> logger, IOptionsMonitor<SDSettings> intSDS
             }, cancellationToken);
         }
 
-
-        if (schedulesDirectData.Services.Count > 0)
+        if (!schedulesDirectData.Services.IsEmpty)
         {
             //// report specific stations that are no longer available
             //var missing = (from station in IncludedStations where schedulesDirectData.Services.FirstOrDefault(arg => arg.StationId.Equals(station)) == null select config.StationId.Single(arg => arg.StationId.Equals(station)).CallSign).ToList();
@@ -260,27 +258,23 @@ public class Lineups(ILogger<Lineups> logger, IOptionsMonitor<SDSettings> intSDS
             //    Logger.WriteInformation($"Stations added for download since last configuration save are: {string.Join(", ", extras.Select(e => e.CallSign))}");
             //}
 
-
             UpdateIcons(schedulesDirectData.Services.Values);
-
-
 
             logger.LogInformation("Exiting BuildLineupServices(). SUCCESS.");
             epgCache.SaveCache();
             return true;
         }
 
-        logger.LogError($"There are 0 stations queued for download from {clientLineups.Lineups.Count} subscribed lineups. Exiting.");
+        logger.LogWarning("There are 0 stations queued for download from {LineupsCount} subscribed lineups. Exiting.", clientLineups.Lineups.Count);
         return false;
     }
 
     public async Task<List<StationChannelMap>> GetStationChannelMaps(CancellationToken cancellationToken)
     {
-
         List<StationChannelMap> ret = [];
         foreach (Station station in await GetStations(cancellationToken))
         {
-            StationChannelMap? s = await GetStationChannelMap(station.Lineup, cancellationToken);
+            StationChannelMap? s = await GetStationChannelMap(station.Lineup);
             if (s is not null)
             {
                 ret.Add(s);
@@ -296,7 +290,6 @@ public class Lineups(ILogger<Lineups> logger, IOptionsMonitor<SDSettings> intSDS
             StationImage artwork = service.extras["logo"];
             iconService.AddIcon(artwork.Url, service.CallSign);
         }
-
     }
 
     public async Task<List<StationPreview>> GetStationPreviews(CancellationToken cancellationToken)
@@ -317,8 +310,7 @@ public class Lineups(ILogger<Lineups> logger, IOptionsMonitor<SDSettings> intSDS
         return ret;
     }
 
-
-    private async Task<StationChannelMap?> GetStationChannelMap(string lineup, CancellationToken cancellationToken)
+    private async Task<StationChannelMap?> GetStationChannelMap(string lineup)
     {
         //StationChannelMap? cache = await GetValidCachedDataAsync<StationChannelMap>("StationChannelMap-" + lineup).ConfigureAwait(false);
         //if (cache != null)
@@ -326,17 +318,16 @@ public class Lineups(ILogger<Lineups> logger, IOptionsMonitor<SDSettings> intSDS
         //    return cache;
         //}
 
-
         StationChannelMap? ret = await schedulesDirectAPI.GetApiResponse<StationChannelMap>(APIMethod.GET, $"lineups/{lineup}");
         if (ret != null)
         {
             //await WriteToCacheAsync("StationChannelMap-" + lineup, ret).ConfigureAwait(false);
 
-            logger.LogDebug($"Successfully retrieved the station mapping for lineup {lineup}. ({ret.Stations.Count} stations; {ret.Map.Count} channels)");
+            logger.LogDebug("Successfully retrieved the station mapping for lineup {lineup}. ({StationsCount} stations; {MapCount} channels)", lineup, ret.Stations.Count, ret.Map.Count);
         }
         else
         {
-            logger.LogError($"Did not receive a response from Schedules Direct for retrieval of lineup {lineup}.");
+            logger.LogError("Did not receive a response from Schedules Direct for retrieval of lineup {lineup}.", lineup);
         }
 
         return ret;
@@ -349,8 +340,6 @@ public class Lineups(ILogger<Lineups> logger, IOptionsMonitor<SDSettings> intSDS
         //{
         //    return cache;
         //}
-
-
         LineupResponse? cache = await schedulesDirectAPI.GetApiResponse<LineupResponse>(APIMethod.GET, "lineups", cancellationToken: cancellationToken).ConfigureAwait(false);
         if (cache != null)
         {
@@ -371,7 +360,7 @@ public class Lineups(ILogger<Lineups> logger, IOptionsMonitor<SDSettings> intSDS
         {
             return [];
         }
-        List<LineupPreviewChannel> res = [];
+
         LineupResponse? lineups = await GetSubscribedLineups(cancellationToken);
 
         return lineups is null ? ([]) : lineups.Lineups;
@@ -382,7 +371,7 @@ public class Lineups(ILogger<Lineups> logger, IOptionsMonitor<SDSettings> intSDS
         List<Station> ret = [];
 
         List<SubscribedLineup> lineups = await GetLineups(cancellationToken).ConfigureAwait(false);
-        if (lineups?.Any() != true)
+        if (lineups.Count == 0)
         {
             return ret;
         }
@@ -437,12 +426,12 @@ public class Lineups(ILogger<Lineups> logger, IOptionsMonitor<SDSettings> intSDS
         if (cache != null)
         {
             await epgCache.WriteToCacheAsync("Lineup-" + lineup, cache, cancellationToken).ConfigureAwait(false);
-            logger.LogDebug($"Successfully retrieved the channels in lineup {lineup}.");
+            logger.LogDebug("Successfully retrieved the channels in lineup {lineup}.", lineup);
             return cache;
         }
         else
         {
-            logger.LogError($"Did not receive a response from Schedules Direct for retrieval of lineup {lineup}.");
+            logger.LogError("Did not receive a response from Schedules Direct for retrieval of lineup {lineup}.", lineup);
         }
         return null;
     }
@@ -507,7 +496,7 @@ public class Lineups(ILogger<Lineups> logger, IOptionsMonitor<SDSettings> intSDS
 
             if (response.IsSuccessStatusCode)
             {
-                using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken);
+                await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken);
 
                 using Image<Rgba32> image = await Image.LoadAsync<Rgba32>(stream, cancellationToken).ConfigureAwait(false);
                 if (image == null)
@@ -530,12 +519,12 @@ public class Lineups(ILogger<Lineups> logger, IOptionsMonitor<SDSettings> intSDS
             }
             else
             {
-                logger.LogError($"HTTP request failed with status code: {response.StatusCode}");
+                logger.LogError("HTTP request failed with status code: {StatusCode}", response.StatusCode);
             }
         }
         catch (Exception ex)
         {
-            logger.LogError($"An exception occurred during DownloadSDLogoAsync(). Message:{FileUtil.ReportExceptionMessages(ex)}");
+            logger.LogError("An exception occurred during DownloadSDLogoAsync(). Message:{ReportExceptionMessage}", FileUtil.ReportExceptionMessages(ex));
         }
         return (0, 0);
     }
@@ -544,5 +533,4 @@ public class Lineups(ILogger<Lineups> logger, IOptionsMonitor<SDSettings> intSDS
     {
         epgCache.ResetCache();
     }
-
 }

@@ -302,7 +302,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IServ
 
     public async Task<IdIntResultWithResponse> AutoSetSMChannelNumbersRequest(int StreamGroupId, List<int> SMChannelIds, int? StartingNumber, bool? OverwriteExisting)
     {
-        IQueryable<SMChannel> query = GetQuery(true).Where(a => SMChannelIds.Contains(a.Id));
+        IQueryable<SMChannel> query = GetQuery().Where(a => SMChannelIds.Contains(a.Id));
         return await AutoSetSMChannelNumbers(query, StartingNumber ?? 1, OverwriteExisting ?? true);
     }
 
@@ -332,8 +332,9 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IServ
                 _ = existingNumbers.Add(channelNumber);
             }
         }
+        List<SMChannel> smChannelsList = await smChannels.ToListAsync();
 
-        foreach (SMChannel smChannel in smChannels)
+        foreach (SMChannel smChannel in smChannelsList)
         {
             int channelNumber = GetNextChannelNumber(smChannel.ChannelNumber, OverwriteExisting);
             smChannel.ChannelNumber = channelNumber;

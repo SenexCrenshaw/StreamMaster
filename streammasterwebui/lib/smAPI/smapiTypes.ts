@@ -1213,6 +1213,9 @@ export interface SetTestTaskRequest
 export interface GetEPGColorsRequest
 {
 }
+export interface EPGSyncRequest
+{
+}
 export interface GetEPGFilePreviewByIdRequest
 {
 	Id: number;

@@ -12,7 +12,7 @@ import { ColumnFieldType } from '../types/smDataTableTypes';
 import getRecord from './getRecord';
 import getRecordString from './getRecordString';
 
-function bodyTemplate(data: object, fieldName: string, fieldType: ColumnFieldType, defaultIcon: string, camelize?: boolean) {
+function bodyTemplate(data: object, fieldName: string, fieldType: ColumnFieldType, defaultIcon: string, camelize?: boolean, dataKey?: string) {
   switch (fieldType) {
     case 'blank': {
       return blankTemplate();
@@ -34,8 +34,8 @@ function bodyTemplate(data: object, fieldName: string, fieldType: ColumnFieldTyp
       return imageBodyTemplate(data, fieldName, defaultIcon);
     }
     case 'streams': {
-      const activeCount = getRecord(data, 'activeCount');
-      const totalCount = getRecord(data, 'totalCount');
+      const activeCount = getRecord({ data, dataKey, fieldName: 'activeCount' });
+      const totalCount = getRecord({ data, dataKey, fieldName: 'totalCount' });
 
       return streamsBodyTemplate(activeCount, totalCount);
     }
@@ -43,7 +43,7 @@ function bodyTemplate(data: object, fieldName: string, fieldType: ColumnFieldTyp
       return isHiddenTemplate(data, fieldName);
     }
     default: {
-      return defaultTemplate(data, fieldName, camelize);
+      return defaultTemplate(data, fieldName, camelize, dataKey);
     }
   }
 }

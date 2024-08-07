@@ -66,10 +66,10 @@ export function SDSettings(): React.ReactElement {
   return (
     <BaseSettings title="SCHEDULES DIRECT">
       <>
-        {GetInputNumberLine({ field: 'SDSettings.MaxSubscribedLineups' })}
         {GetCheckBoxLine({ field: 'SDSettings.SDEnabled' })}
         {GetInputTextLine({ field: 'SDSettings.SDUserName' })}
-        {GetPasswordLine({ field: 'SDSettings.SDPassword' })}
+        {GetPasswordLine({ field: 'SDSettings.SDPassword', labelInline: true })}
+        {GetInputNumberLine({ field: 'SDSettings.MaxSubscribedLineups' })}
         {GetDropDownLine({ field: 'SDSettings.PreferredLogoStyle', options: getLogoStyleOptions() })}
         {GetDropDownLine({ field: 'SDSettings.AlternateLogoStyle', options: getLogoStyleOptions() })}
         {GetCheckBoxLine({ field: 'SDSettings.SeriesPosterArt' })}

@@ -9,7 +9,7 @@ import { BlockUI } from 'primereact/blockui';
 
 import { memo, useMemo } from 'react';
 
-const SDLineUpsDataSelector = () => {
+const SDEditor = () => {
   const { settings } = useSMContext();
 
   const isSDReady = useMemo((): boolean => {
@@ -31,6 +31,7 @@ const SDLineUpsDataSelector = () => {
       </div>
     );
   }, [isSDReady]);
+  // Logger.debug('refresh');
 
   return (
     <BlockUI blocked={!isSDReady}>
@@ -48,4 +49,4 @@ const SDLineUpsDataSelector = () => {
   );
 };
 
-export default memo(SDLineUpsDataSelector);
+export default memo(SDEditor);

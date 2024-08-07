@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using StreamMaster.Application.EPG.Commands;
 using StreamMaster.Application.EPG.Queries;
 
 namespace StreamMaster.Application.EPG.Controllers
@@ -22,6 +23,14 @@ namespace StreamMaster.Application.EPG.Controllers
             }
         }
 
+        [HttpPatch]
+        [Route("[action]")]
+        public async Task<ActionResult<APIResponse>> EPGSync()
+        {
+            APIResponse ret = await Sender.Send(new EPGSyncRequest()).ConfigureAwait(false);
+            return ret == null ? NotFound(ret) : Ok(ret);
+        }
+
     }
 }
 
@@ -33,6 +42,12 @@ namespace StreamMaster.Application.Hubs
         {
              DataResponse<List<EPGColorDto>> ret = await Sender.Send(new GetEPGColorsRequest()).ConfigureAwait(false);
             return ret.Data;
+        }
+
+        public async Task<APIResponse> EPGSync()
+        {
+            APIResponse ret = await Sender.Send(new EPGSyncRequest()).ConfigureAwait(false);
+            return ret;
         }
 
     }

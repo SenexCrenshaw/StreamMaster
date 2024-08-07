@@ -17,8 +17,8 @@ const SchedulesDirectHeadendDataSelector = () => {
   const { selectedCountry } = useSelectedCountry('Country');
   const { selectedPostalCode } = useSelectedPostalCode('PostalCode');
   const { data } = useGetHeadendsByCountryPostal({
-    Country: selectedCountry ?? 'USA',
-    PostalCode: selectedPostalCode ?? '00000'
+    Country: selectedCountry || 'USA',
+    PostalCode: selectedPostalCode || '00000'
   } as GetHeadendsByCountryPostalRequest);
   const { data: subscribedLineups } = useGetSubscribedLineups();
   const { settings } = useSMContext();

@@ -1,48 +1,7 @@
-﻿namespace StreamMaster.Application.Settings.Commands;
+﻿using StreamMaster.Application.Services;
+using StreamMaster.SchedulesDirect;
 
-[TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public class UpdateSettingParameters
-{
-    //public bool? AutoSetEPG { get; set; }
-    public bool? BackupEnabled { get; set; }
-    public int? BackupVersionsToKeep { get; set; }
-    public int? BackupInterval { get; set; }
-
-    [TsProperty(ForceNullable = true)]
-    public SDSettingsRequest? SDSettings { get; set; }
-    public bool? ShowClientHostNames { get; set; }
-    public string? AdminPassword { get; set; }
-    public string? AdminUserName { get; set; }
-    //public string? ApiKey { get; set; }
-    public string? AuthenticationMethod { get; set; }
-    public bool? CacheIcons { get; set; }
-    public bool? CleanURLs { get; set; }
-    public string? ClientUserAgent { get; set; }
-    public string? DeviceID { get; set; }
-    public string? DummyRegex { get; set; }
-    public bool? EnableSSL { get; set; }
-    public string? FFMPegExecutable { get; set; }
-    public string? FFProbeExecutable { get; set; }
-    public int? GlobalStreamLimit { get; set; }
-    public bool? PrettyEPG { get; set; }
-    public string? ShowIntros { get; set; }
-    public int? MaxConnectRetry { get; set; }
-    public int? MaxConnectRetryTimeMS { get; set; }
-    public string? SSLCertPassword { get; set; }
-    public string? SSLCertPath { get; set; }
-
-    public string? DefaultOutputProfileName { get; set; }
-    public string? DefaultCommandProfileName { get; set; }
-    //public string? StreamingClientUserAgent { get; set; }
-    //public string? CommandProfileName { get; set; }
-    //public bool? VideoStreamAlwaysUseEPGLogo { get; set; }
-    //public bool? EnablePrometheus { get; set; }
-    public int? MaxLogFiles { get; set; }
-    public int? MaxLogFileSizeMB { get; set; }
-
-    [TsProperty(ForceNullable = true)]
-    public List<string>? NameRegex { get; set; } = [];
-}
+namespace StreamMaster.Application.Settings.Commands;
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
@@ -52,6 +11,7 @@ public partial class UpdateSettingRequestHandler(
     IOptionsMonitor<SDSettings> intsdsettings,
     ILogger<UpdateSettingRequest> Logger,
     IMapper Mapper,
+    IBackgroundTaskQueue backgroundTaskQueue,
     IOptionsMonitor<Setting> intSettings)
 : IRequestHandler<UpdateSettingRequest, UpdateSettingResponse>
 {
@@ -62,7 +22,7 @@ public partial class UpdateSettingRequestHandler(
     {
         Setting currentSetting = settings;
 
-        bool needsLogOut = UpdateSetting(currentSetting, sdSettings, request);
+        bool needsLogOut = await UpdateSetting(currentSetting, sdSettings, request);
 
         Logger.LogInformation("UpdateSettingRequest");
         SettingsHelper.UpdateSetting(currentSetting);
@@ -78,7 +38,7 @@ public partial class UpdateSettingRequestHandler(
     }
 
 
-    private static void CopySDNonNullFields(SDSettingsRequest source, SDSettings destination)
+    private async ValueTask CopySDNonNullFieldsAsync(SDSettingsRequest source, SDSettings destination)
     {
         if (source == null || destination == null)
         {
@@ -162,7 +122,7 @@ public partial class UpdateSettingRequestHandler(
 
         if (source.SDPassword != null)
         {
-            destination.SDPassword = source.SDPassword;
+            destination.SDPassword = source.SDPassword.GetSHA1Hash();
         }
 
         if (source.SDPostalCode != null)
@@ -222,7 +182,7 @@ public partial class UpdateSettingRequestHandler(
     /// <param name="currentSetting">The current setting.</param>
     /// <param name="request">The update setting request.Parameters.</param>
     /// <returns>The updated setting as a SettingDto object.</returns>
-    private static bool UpdateSetting(Setting currentSetting, SDSettings sdsettings, UpdateSettingRequest request)
+    private async Task<bool> UpdateSetting(Setting currentSetting, SDSettings sdsettings, UpdateSettingRequest request)
     {
         bool needsLogOut = false;
         //bool needsSetProgrammes = false;
@@ -238,7 +198,7 @@ public partial class UpdateSettingRequestHandler(
 
         if (request.Parameters.SDSettings != null)
         {
-            CopySDNonNullFields(request.Parameters.SDSettings, sdsettings);
+            await CopySDNonNullFieldsAsync(request.Parameters.SDSettings, sdsettings);
             SettingsHelper.UpdateSetting(sdsettings);
         }
 
@@ -429,6 +389,11 @@ public partial class UpdateSettingRequestHandler(
         {
             needsLogOut = true;
             currentSetting.AuthenticationMethod = request.Parameters.AuthenticationMethod;
+        }
+
+        if (request.Parameters.SDSettings?.SDEnabled.HasValue == true)
+        {
+            await backgroundTaskQueue.EPGSync().ConfigureAwait(false);
         }
 
         //if (needsSetProgrammes)

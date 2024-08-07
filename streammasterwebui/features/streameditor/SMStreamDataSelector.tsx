@@ -217,14 +217,14 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
         // Logger.debug('SMStreamDataSelector', 'rowClass', 'data is null or undefined');
         return '';
       }
-      const isHidden = getRecord(data, 'IsHidden');
+      const isHidden = getRecord({ data, fieldName: 'IsHidden' });
 
       if (isHidden === true) {
         return 'bg-red-900';
       }
 
       if (data && selectedSMChannel?.SMStreams !== undefined && selectedSMChannel.SMStreams.length > 0) {
-        const id = getRecord(data, 'Id');
+        const id = getRecord({ data, fieldName: 'Id' });
         if (id === undefined) {
           // Logger.debug('SMStreamDataSelector', 'rowClass', 'Id is undefined');
           return '';

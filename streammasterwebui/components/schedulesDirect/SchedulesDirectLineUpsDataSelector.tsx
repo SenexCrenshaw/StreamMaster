@@ -1,10 +1,9 @@
-import { memo, useCallback, useMemo } from 'react';
 import SMDataTable from '@components/smDataTable/SMDataTable';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 import useGetSubscribedLineups from '@lib/smAPI/SchedulesDirect/useGetSubscribedLineups';
 import { HeadendDto } from '@lib/smAPI/smapiTypes';
+import { memo, useCallback, useMemo } from 'react';
 import SchedulesDirectRemoveHeadendDialog from './SchedulesDirectRemoveHeadendDialog';
-import { Logger } from '@lib/common/logger';
 interface SchedulesDirectLineUpsDataSelectorProperties {
   id: string;
 }
@@ -39,12 +38,16 @@ const SchedulesDirectLineUpsDataSelector = ({ id }: SchedulesDirectLineUpsDataSe
     [actionBodyTemplate]
   );
 
-  Logger.debug('SchedulesDirectLineUpsDataSelector', data);
+  if (data === undefined) {
+    return <div />;
+  }
 
   return (
     <SMDataTable
       arrayKey="Lineup"
+      key="Lineup"
       columns={columns}
+      dataKey="Lineup"
       defaultSortField="Lineup"
       defaultSortOrder={-1}
       dataSource={data}

@@ -17,7 +17,6 @@ import 'primereact/resources/primereact.min.css'; //core css
 // import 'primereact/resources/themes/viva-dark/theme.css'; // theme
 import SMLoader from '@components/loader/SMLoader';
 
-import SDLineUpsDataSelector from '@features/sdEditor/SDLineUpsDataSelector';
 import { SettingsProvider } from '@lib/context/SettingsProvider';
 import { Suspense, lazy } from 'react';
 
@@ -28,6 +27,7 @@ const App = (): JSX.Element => {
 
   const StreamEditor = lazy(() => import('@features/streameditor/StreamEditor'));
   const SettingsEditor = lazy(() => import('@features/settings/SettingsEditor'));
+  const SDEditor = lazy(() => import('@features/sdEditor/SDEditor'));
   // const TestPanel = lazy(() => import('./testing/TestPanel'));
   // const FilesEditor = lazy(() => import('@features/filesEditor/FilesEditor'));
   // const LogViewer = lazy(() => import('@features/logViewer/LogViewer'));
@@ -93,7 +93,7 @@ const App = (): JSX.Element => {
         <Route
           element={
             <Suspense>
-              <SDLineUpsDataSelector />
+              <SDEditor />
             </Suspense>
           }
           path="/editor/sdHeadEndLineUps"

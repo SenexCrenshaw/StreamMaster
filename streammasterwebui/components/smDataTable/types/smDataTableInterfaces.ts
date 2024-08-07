@@ -17,6 +17,7 @@ interface BaseDataSelectorProperties<T> extends DataTableHeaderProperties {
   arrayKey?: string;
   className?: string;
   columns: ColumnMeta[];
+  dataKey?: string;
   defaultSortField?: string;
   defaultSortOrder?: -1 | 0 | 1;
   emptyMessage?: ReactNode;

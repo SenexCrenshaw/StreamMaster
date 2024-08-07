@@ -115,13 +115,13 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id }: SMChannelDat
 
   const simpleActionTemplate = useCallback(
     (smChannel: SMChannelDto) => {
-      if (smChannel.IsCustomStream === true) {
-        return (
-          <div className="flex justify-content-end align-items-center" style={{ paddingRight: '0.1rem' }}>
-            <StreamCopyLinkDialog realUrl={smChannel?.StreamUrl} />
-          </div>
-        );
-      }
+      // if (smChannel.IsCustomStream === true) {
+      //   return (
+      //     <div className="flex justify-content-end align-items-center" style={{ paddingRight: '0.1rem' }}>
+      //       <StreamCopyLinkDialog realUrl={smChannel?.StreamUrl} />
+      //     </div>
+      //   );
+      // }
       return (
         <div className="flex justify-content-end align-items-center" style={{ paddingRight: '0.1rem' }}>
           <StreamCopyLinkDialog realUrl={smChannel?.StreamUrl} />
@@ -186,10 +186,10 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id }: SMChannelDat
 
   const rowClass = useCallback(
     (data: unknown): string => {
-      const isHidden = getRecord(data, 'IsHidden');
+      const isHidden = getRecord({ data, fieldName: 'IsHidden' });
 
       if (selectedSMChannel !== undefined) {
-        const id = getRecord(data, 'Id') as number;
+        const id = getRecord({ data, fieldName: 'Id' }) as number;
         if (id === selectedSMChannel.Id) {
           if (isHidden === true) {
             return 'channel-row-selected-hidden';

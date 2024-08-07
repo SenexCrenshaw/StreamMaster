@@ -36,7 +36,6 @@ import useSMDataSelectorValuesState from './hooks/useSMDataTableState';
 import { useSetQueryFilter } from './hooks/useSetQueryFilter';
 import { ColumnMeta } from './types/ColumnMeta';
 import { SMDataTableProps, SMDataTableRef } from './types/smDataTableInterfaces';
-import { Logger } from '@lib/common/logger';
 
 const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>, ref: React.Ref<SMDataTableRef<T>>) => {
   const { state, setters } = useSMDataSelectorValuesState<T>(props.id, props.selectedItemsKey);
@@ -216,14 +215,14 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>, ref: 
 
   const rowClass = useCallback(
     (data: DataTableRowData<T[]>): string => {
-      const isHidden = getRecord(data as T, 'IsHidden');
+      const isHidden = getRecord({ data, dataKey: props.dataKey, fieldName: 'IsHidden' });
 
       if (isHidden === true) {
         return 'bg-red-900';
       }
 
       if (props.selectRow === true && state.selectedItems !== undefined) {
-        const id = getRecord(data, 'Id') as number;
+        const id = getRecord({ data, dataKey: props.dataKey, fieldName: 'Id' }) as number;
         if (state.selectedItems.some((item) => item.Id === id)) {
           return 'channel-row-selected';
         }
@@ -231,7 +230,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>, ref: 
 
       return '';
     },
-    [props.selectRow, state.selectedItems]
+    [props.dataKey, props.selectRow, state.selectedItems]
   );
 
   const onColumnToggle = useCallback(
@@ -561,21 +560,20 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>, ref: 
   }, [
     data,
     dataSource,
+    props.arrayKey,
     props.dataSource,
     props.queryFilter,
+    setters,
     state.filters,
     state.first,
     state.page,
+    state.pagedInformation,
     state.rows,
     state.selectAll,
     state.selectedItems,
     state.showSelected,
     state.sortField,
-    state.sortOrder,
-    state.pagedInformation,
-    props.arrayKey,
-    setters,
-    queryFilter
+    state.sortOrder
   ]);
 
   const sourceRenderHeader = useMemo(() => {
@@ -791,7 +789,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>, ref: 
 
         <DataTable
           // id={props.id}
-          dataKey="Id"
+          dataKey={props.dataKey || 'Id'}
           cellSelection={false}
           editMode="cell"
           filterDisplay="row"
@@ -915,7 +913,9 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>, ref: 
                   filterElement={col.headerTemplate ? col.headerTemplate : colFilterTemplate}
                   filterPlaceholder={col.filter === true ? (col.fieldType === 'epg' ? 'EPG' : col.header ? col.header : camel2title(col.field)) : undefined}
                   // header={col.headerTemplate ? col.headerTemplate : getHeader(col.field, col.header, col.fieldType)}
-                  body={(e) => (col.bodyTemplate ? col.bodyTemplate(e) : bodyTemplate(e, col.field, col.fieldType, settings.DefaultIcon, col.camelize))}
+                  body={(e) =>
+                    col.bodyTemplate ? col.bodyTemplate(e) : bodyTemplate(e, col.field, col.fieldType, settings.DefaultIcon, col.camelize, props.dataKey)
+                  }
                   editor={col.editor}
                   field={col.field}
                   hidden={col.isHidden === true || col.fieldType === 'filterOnly'}

@@ -36,37 +36,37 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({ children }) 
 
   const updateStateAndRequest = useCallback(
     (updatedFields: Partial<UpdateSettingParameters>) => {
-      // Initialize the updateSettingParameters with existing settings and updated fields
-      const updateSettingParameters = {
-        ...updateSettingRequest.Parameters,
-        ...updatedFields,
-        SDSettings: updatedFields.SDSettings
+      // Initial object spread to create the base parameters object
+      const updateSettingParameters: UpdateSettingParameters = {
+        ...updateSettingRequest.Parameters
       };
-      // Get a list of updated fields including nested fields
-      const updatedFieldsList = getUpdatedFieldsList(updatedFields);
 
-      // Iterate over the updated fields to handle nested SDSettings updates
-      updatedFieldsList.forEach((field) => {
-        if (field.key.startsWith('SDSettings.')) {
-          Logger.debug('SettingsProvider', field.key, field.value);
-          const key = field.key.replace('SDSettings.', '');
+      // New object to store non-nested updated fields
+      const nonNestedUpdatedFields: Partial<UpdateSettingParameters> = {};
+
+      // Process the updated fields
+      Object.keys(updatedFields).forEach((key) => {
+        const value = updatedFields[key as keyof UpdateSettingParameters];
+        if (key.startsWith('SDSettings.')) {
+          // Nested field in SDSettings
+          Logger.debug('SettingsProvider', key, value);
 
           // Ensure SDSettings object exists
           if (!updateSettingParameters.SDSettings) {
             updateSettingParameters.SDSettings = {};
           }
 
-          // Type assertion for SDSettings object
-          (updateSettingParameters.SDSettings as any)[key] = field.value;
+          const nestedKey = key.replace('SDSettings.', '');
+          (updateSettingParameters.SDSettings as any)[nestedKey] = value;
         } else {
-          Logger.debug('SettingsProvider', field.key, field.value);
-
-          // Type assertion for updateSettingParameters object
-          (updateSettingParameters as any)[field.key] = field.value;
+          // Regular field
+          Logger.debug('SettingsProvider', key, value);
+          (updateSettingParameters as any)[key] = value;
+          (nonNestedUpdatedFields as any)[key] = value;
         }
       });
 
-      Logger.debug('SettingsProvider', updateSettingParameters, { toSet: updatedFields });
+      Logger.debug('SettingsProvider', updateSettingParameters, { toSet: nonNestedUpdatedFields });
 
       const request = {
         Parameters: updateSettingParameters
@@ -77,24 +77,24 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({ children }) 
     [updateSettingRequest]
   );
 
-  // Utility function to return a list of { key, value } objects
-  function getUpdatedFieldsList(fields: any): { key: string; value: any }[] {
-    const updatedFieldsList: { key: string; value: any }[] = [];
+  // // Utility function to return a list of { key, value } objects
+  // function getUpdatedFieldsList(fields: any): { key: string; value: any }[] {
+  //   const updatedFieldsList: { key: string; value: any }[] = [];
 
-    function flattenObject(obj: any, prefix = '') {
-      for (const [key, value] of Object.entries(obj)) {
-        const newKey = prefix ? `${prefix}.${key}` : key;
-        if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
-          flattenObject(value, newKey);
-        } else {
-          updatedFieldsList.push({ key: newKey, value });
-        }
-      }
-    }
+  //   function flattenObject(obj: any, prefix = '') {
+  //     for (const [key, value] of Object.entries(obj)) {
+  //       const newKey = prefix ? `${prefix}.${key}` : key;
+  //       if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+  //         flattenObject(value, newKey);
+  //       } else {
+  //         updatedFieldsList.push({ key: newKey, value });
+  //       }
+  //     }
+  //   }
 
-    flattenObject(fields);
-    return updatedFieldsList;
-  }
+  //   flattenObject(fields);
+  //   return updatedFieldsList;
+  // }
 
   const contextValue = {
     currentSetting: currentSetting,

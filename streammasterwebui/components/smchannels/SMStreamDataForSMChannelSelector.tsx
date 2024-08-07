@@ -191,7 +191,7 @@ const SMStreamDataForSMChannelSelector = ({ enableEdit: propsEnableEdit, height,
 
   const rowClass = useCallback(
     (data: unknown): string => {
-      const id = getRecord(data, 'Id');
+      const id = getRecord({ data, fieldName: 'Id' });
       let found = false;
       if (smChannel) {
         found = smChannelData?.some((item) => item.Id === id) ?? false;
@@ -203,7 +203,7 @@ const SMStreamDataForSMChannelSelector = ({ enableEdit: propsEnableEdit, height,
         return 'p-hidden';
       }
 
-      const isHidden = getRecord(data, 'IsHidden');
+      const isHidden = getRecord({ data, fieldName: 'IsHidden' });
 
       if (isHidden === true) {
         return 'bg-red-900';

@@ -11,7 +11,7 @@ import { SetStations } from '@lib/smAPI/SchedulesDirect/SchedulesDirectCommands'
 import useGetSelectedStationIds from '@lib/smAPI/SchedulesDirect/useGetSelectedStationIds';
 import useGetStationPreviews from '@lib/smAPI/SchedulesDirect/useGetStationPreviews';
 import { SetStationsRequest, StationPreview, StationRequest } from '@lib/smAPI/smapiTypes';
-import { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const SchedulesDirectStationDataSelector = () => {
   const dataKey = 'SchedulesDirectSchedulesDataSelector';
@@ -20,12 +20,17 @@ const SchedulesDirectStationDataSelector = () => {
   const { columnConfig: lineUpColumnConfig } = useLineUpColumnConfig();
   const { selectedItems, setSelectedItems } = useSelectedItems<StationPreview>(dataKey);
   const [originalSelectedItems, setOriginalSelectedItems] = useState<StationPreview[] | undefined>(undefined);
+  const isInitialLoad = useRef(true);
 
   useEffect(() => {
     if (
+      (originalSelectedItems !== undefined && originalSelectedItems.length > 0) ||
       schedulesDirectGetSelectedStationIdsQuery.isLoading ||
       schedulesDirectGetSelectedStationIdsQuery.data === undefined ||
-      stationPreviews.data === undefined
+      schedulesDirectGetSelectedStationIdsQuery.data.length === 0 ||
+      stationPreviews.isLoading ||
+      stationPreviews.data === undefined ||
+      stationPreviews.data.length === 0
     ) {
       return;
     }
@@ -38,17 +43,35 @@ const SchedulesDirectStationDataSelector = () => {
       )
       .filter((station) => station !== undefined) as StationPreview[];
 
-    if (originalSelectedItems === undefined || originalSelectedItems.length === 0) {
-      setOriginalSelectedItems(sp);
-      setSelectedItems(sp);
+    if (isInitialLoad.current) {
+      if (originalSelectedItems === undefined || originalSelectedItems.length === 0) {
+        setOriginalSelectedItems(sp);
+        setSelectedItems(sp);
+      }
+      isInitialLoad.current = false;
     }
-
-    // if (findDifferenceStationIdLineUps(sp, selectedItems).length > 0) {
-    //   setSelectedItems(sp as StationPreview[]);
-    // }
-  }, [originalSelectedItems, schedulesDirectGetSelectedStationIdsQuery.data, schedulesDirectGetSelectedStationIdsQuery.isLoading, stationPreviews.data]);
+  }, [
+    originalSelectedItems,
+    schedulesDirectGetSelectedStationIdsQuery.isLoading,
+    schedulesDirectGetSelectedStationIdsQuery.data,
+    stationPreviews.data,
+    setOriginalSelectedItems,
+    setSelectedItems,
+    stationPreviews.isLoading
+  ]);
 
   const isSaveEnabled = useMemo(() => {
+    if (originalSelectedItems === undefined) {
+      if (selectedItems === undefined) {
+        return false;
+      }
+      if (selectedItems.length > 0) {
+        return true;
+      }
+
+      return false;
+    }
+
     if (originalSelectedItems) {
       const test = arraysEqualByKey(originalSelectedItems, selectedItems, 'StationId');
       return !test;
@@ -66,12 +89,14 @@ const SchedulesDirectStationDataSelector = () => {
 
   const onSave = useCallback(
     (stationIdLineUps: StationPreview[]) => {
-      if (stationIdLineUps === undefined || schedulesDirectGetSelectedStationIdsQuery.data === undefined || originalSelectedItems === undefined) {
+      if (stationIdLineUps === undefined) {
         return;
       }
 
-      if (arraysEqualByKey(originalSelectedItems, selectedItems, 'StationId')) {
-        return;
+      if (originalSelectedItems !== undefined) {
+        if (arraysEqualByKey(originalSelectedItems, selectedItems, 'StationId')) {
+          return;
+        }
       }
 
       const request = {} as SetStationsRequest;
@@ -90,7 +115,7 @@ const SchedulesDirectStationDataSelector = () => {
           setOriginalSelectedItems(selectedItems);
         });
     },
-    [originalSelectedItems, schedulesDirectGetSelectedStationIdsQuery.data, selectedItems]
+    [originalSelectedItems, selectedItems]
   );
 
   function imageBodyTemplate(data: StationPreview) {
