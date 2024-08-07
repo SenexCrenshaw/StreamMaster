@@ -45,7 +45,7 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
         SetStreamGroupLinks(streamGroupDto, Url);
     }
 
-    private async void SetStreamGroupLinks(StreamGroupDto streamGroupDto, string Url)
+    private void SetStreamGroupLinks(StreamGroupDto streamGroupDto, string Url)
     {
         Setting Settings = intSettings.CurrentValue;
         StreamGroup? sg = Repository.StreamGroup.GetQuery().FirstOrDefault(a => a.Id == streamGroupDto.Id);
@@ -74,7 +74,7 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
 
             }
 
-            StreamGroupProfileDto? defaultProfile = streamGroupDto.StreamGroupProfiles.Find(a => a.ProfileName.Equals("default", StringComparison.CurrentCultureIgnoreCase));
+            StreamGroupProfileDto defaultProfile = streamGroupDto.StreamGroupProfiles.First(a => a.ProfileName.Equals("default", StringComparison.CurrentCultureIgnoreCase));
 
             streamGroupDto.ShortHDHRLink = $"{Url}/s/{defaultProfile.Id}";
             streamGroupDto.ShortM3ULink = $"{Url}/s/{defaultProfile.Id}.m3u";

@@ -15,7 +15,7 @@ namespace StreamMaster.Infrastructure.EF.Repositories;
 /// <summary>
 /// Repositorywrapper to manage EPGFile entities in the database.
 /// </summary>
-public class EPGFileRepository(ILogger<EPGFileRepository> intLogger, IXmltv2Mxf xmltv2Mxf, IJobStatusService jobStatusService, IRepositoryContext repositoryContext, ISchedulesDirectDataService schedulesDirectDataService, IOptionsMonitor<Setting> intSettings, IMapper mapper)
+public class EPGFileRepository(ILogger<EPGFileRepository> intLogger, IXmltv2Mxf xmltv2Mxf, IJobStatusService jobStatusService, IRepositoryContext repositoryContext, ISchedulesDirectDataService schedulesDirectDataService,  IMapper mapper)
     : RepositoryBase<EPGFile>(repositoryContext, intLogger), IEPGFileRepository
 {
     public IXmltv2Mxf Xmltv2Mxf { get; } = xmltv2Mxf;

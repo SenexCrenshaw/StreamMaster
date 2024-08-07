@@ -1,6 +1,4 @@
-﻿using Reinforced.Typings.Attributes;
-
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 using System.Reflection;
 using System.Text.Json;
 
@@ -17,9 +15,10 @@ public class FieldData
         Entity = entity;
         Id = jsonString;
         Value = value;
+        Field = "";
     }
 
-    public FieldData(string entity, int id, string field, object? value)
+    public FieldData(string entity, int id, string field, object value)
     {
         Entity = entity;
         Id = id.ToString();
@@ -27,7 +26,7 @@ public class FieldData
         Value = value;
     }
 
-    public FieldData(string entity, string id, string field, object? value)
+    public FieldData(string entity, string id, string field, object value)
     {
         Entity = entity;
         Id = id;

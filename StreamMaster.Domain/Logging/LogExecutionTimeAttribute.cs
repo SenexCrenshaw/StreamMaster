@@ -19,15 +19,16 @@ public class LogExecutionTimeAspect : Attribute
     [Argument(Source.ReturnType)] Type retType,
     [Argument(Source.Triggers)] Attribute[] triggers)
     {
-        //List<string> LogPerformance = SettingsHelper.GetSetting<Setting>(BuildInfo.SettingFileName).LogPerformance;
-        string abbreviatedNamespace = AbbreviateNamespace(method.DeclaringType.FullName);
+        string fullName = method.DeclaringType?.FullName ?? "";
+
+        string abbreviatedNamespace = AbbreviateNamespace(fullName);
         string nameToLog = $"{abbreviatedNamespace}.{name}";
 
 
         List<string> whiteList = ["xmltvbuilder", "processm3ufile", "deletevideostreams", "processstreams"];
 
         if (!whiteList.Any(a => nameToLog.Contains(a, StringComparison.OrdinalIgnoreCase))
-            && !ShouldLog(method.DeclaringType.FullName, ["*.Queries"]))
+            && !ShouldLog(fullName, ["*.Queries"]))
         {
             return target(args); // If the name doesn't match any string in the list, execute the method without any logging logic.
         }

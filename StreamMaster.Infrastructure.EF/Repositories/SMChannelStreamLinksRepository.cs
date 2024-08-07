@@ -63,7 +63,7 @@ public class SMChannelStreamLinksRepository(ILogger<SMChannelStreamLinksReposito
         }
     }
 
-    public async Task CreateSMChannelStreamLink(SMChannel smChannel, string smStreamId, int? Rank)
+    public void CreateSMChannelStreamLink(SMChannel smChannel, string smStreamId, int? Rank)
     {
         if (Any(a => a.SMStreamId == smStreamId && a.SMChannelId == smChannel.Id))
         {
@@ -87,7 +87,7 @@ public class SMChannelStreamLinksRepository(ILogger<SMChannelStreamLinksReposito
 
         }
     }
-    public async Task CreateSMChannelStreamLink(SMChannel smChannel, SMStream smStream, int? Rank)
+    public void CreateSMChannelStreamLink(SMChannel smChannel, SMStream smStream, int? Rank)
     {
         if (Any(a => a.SMStreamId == smStream.Id && a.SMChannelId == smChannel.Id))
         {

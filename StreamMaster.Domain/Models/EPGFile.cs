@@ -10,10 +10,14 @@ public class EPGFile : AutoUpdateEntity
     public int EPGNumber { get; set; }
 
     [Column(TypeName = "citext")]
-    public string Color { get; set; }
+    public string Color { get; set; } = "FFFFFF";
 
     public static EPGFile? ReadJSON(FileInfo fileInfo)
     {
+        if (string.IsNullOrEmpty(fileInfo.DirectoryName))
+        {
+            return null;
+        }
         string filePath = Path.Combine(fileInfo.DirectoryName, Path.GetFileNameWithoutExtension(fileInfo.FullName) + ".json");
 
         if (!File.Exists(filePath))

@@ -71,7 +71,7 @@ public sealed class FileUtil
                 return true;
             }
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             return false;
         }
@@ -159,7 +159,7 @@ public sealed class FileUtil
     {
         try
         {
-            _ = Directory.CreateDirectory(Path.GetDirectoryName(filepath));
+
             XmlSerializer serializer = new(obj.GetType());
             XmlSerializerNamespaces ns = new();
             ns.Add("", "");

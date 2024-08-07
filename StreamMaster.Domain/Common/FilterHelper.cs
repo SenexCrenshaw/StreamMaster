@@ -28,7 +28,6 @@ public static class FilterHelper<T> where T : class
             }
         }
 
-
         // Apply sorting
         if (!string.IsNullOrWhiteSpace(orderBy))
         {
@@ -121,35 +120,6 @@ public static class FilterHelper<T> where T : class
             : Expression.Call(stringExpression, methodInfoString, searchStringExpression);
     }
 
-
-    private static List<string> ConvertToJsonStringList(string jsonString)
-    {
-        try
-        {
-            List<string>? stringList = JsonSerializer.Deserialize<List<string>>(jsonString);
-            return stringList == null ? throw new JsonException("Deserialization returned null.") : stringList;
-        }
-        catch (JsonException ex)
-        {
-            Console.WriteLine($"Failed to convert to List<string>: {ex.Message}");
-            return null;
-        }
-    }
-
-    private static List<int> ConvertToJsonIntList(string jsonString)
-    {
-        try
-        {
-            List<int>? intList = JsonSerializer.Deserialize<List<int>>(jsonString);
-            return intList == null ? throw new JsonException("Deserialization returned null.") : intList;
-        }
-        catch (JsonException ex)
-        {
-            Console.WriteLine($"Failed to convert to List<int>: {ex.Message}");
-            return null;
-        }
-    }
-
     private static Expression CreateArrayExpression(DataTableFilterMetaData filter, Expression propertyAccess, bool forceToLower)
     {
         string stringValue = filter.Value?.ToString() ?? string.Empty;
@@ -163,12 +133,11 @@ public static class FilterHelper<T> where T : class
             filter.MatchMode = "equals";
         }
 
-
         List<Expression> containsExpressions = [];
 
         if ((stringValue.StartsWith("[\"") && stringValue.EndsWith("\"]"))
            ||
-        (stringValue.StartsWith("[") && stringValue.EndsWith(""))
+        stringValue.StartsWith('[')
             )
         {
             string[] values = ConvertToArray(stringValue);
@@ -183,10 +152,15 @@ public static class FilterHelper<T> where T : class
                 {
                     if (forceToLower)
                     {
-                        MethodInfo? methodInfoString = GetMethodCaseInsensitive(typeof(string), filter.MatchMode, new[] { typeof(string) });
-                        MethodCallExpression toLowerCall = Expression.Call(propertyAccess, typeof(string).GetMethod("ToLower", Type.EmptyTypes));
-                        MethodCallExpression matchCall = Expression.Call(toLowerCall, methodInfoString, Expression.Constant(value.ToLower()));
-                        containsExpressions.Add(matchCall);
+                        MethodInfo? methodInfoString = GetMethodCaseInsensitive(typeof(string), filter.MatchMode, [typeof(string)]);
+                        MethodInfo? method = typeof(string).GetMethod("ToLower", Type.EmptyTypes);
+
+                        if (methodInfoString != null && method != null)
+                        {
+                            MethodCallExpression toLowerCall = Expression.Call(propertyAccess, method);
+                            MethodCallExpression matchCall = Expression.Call(toLowerCall, methodInfoString, Expression.Constant(value.ToLower()));
+                            containsExpressions.Add(matchCall);
+                        }
                     }
                     else
                     {
@@ -209,42 +183,58 @@ public static class FilterHelper<T> where T : class
         }
         else
         {
-            if (propertyAccess.Type == typeof(int))
             {
-                string newValue = filter.Value.ToString()[2..^2];
-                BinaryExpression equalExpression = Expression.Equal(propertyAccess, Expression.Constant(int.Parse(newValue)));
-                containsExpressions.Add(equalExpression);
-            }
-            if (propertyAccess.Type == typeof(bool))
-            {
-                if (filter.Value != null)
                 {
-                    bool newValue = bool.TryParse(filter.Value.ToString(), out bool parsedValue) && parsedValue;
-                    BinaryExpression equalExpression = Expression.Equal(propertyAccess, Expression.Constant(newValue));
-                    containsExpressions.Add(equalExpression);
-                }
-            }
-            else
-            {
-                if (forceToLower)
-                {
-                    MethodInfo? methodInfoString = GetMethodCaseInsensitive(typeof(string), filter.MatchMode, new[] { typeof(string) });
-                    MethodCallExpression toLowerCall = Expression.Call(propertyAccess, typeof(string).GetMethod("ToLower", Type.EmptyTypes));
-                    MethodCallExpression matchCall = Expression.Call(toLowerCall, methodInfoString, Expression.Constant(stringValue.ToLower()));
-                    containsExpressions.Add(matchCall);
-                }
-                else
-                {
-                    MethodCallExpression containsCall = StringExpression(filter.MatchMode, propertyAccess, Expression.Constant(stringValue));
-                    if (filter.MatchMode.Equals("notContains"))
+                    if (propertyAccess.Type == typeof(int))
                     {
-                        UnaryExpression notContainsCall = Expression.Not(containsCall);
-                        containsExpressions.Add(notContainsCall);
+                        if (filter.Value != null)
+                        {
+                            string? valueString = filter.Value.ToString();
+                            if (!string.IsNullOrEmpty(valueString) && valueString.Length > 4)
+                            {
+                                string newValue = valueString[2..^2];
+                                BinaryExpression equalExpression = Expression.Equal(propertyAccess, Expression.Constant(int.Parse(newValue)));
+                                containsExpressions.Add(equalExpression);
+                            }
+                        }
 
+                    }
+                    if (propertyAccess.Type == typeof(bool))
+                    {
+                        if (filter.Value != null)
+                        {
+                            bool newValue = bool.TryParse(filter.Value.ToString(), out bool parsedValue) && parsedValue;
+                            BinaryExpression equalExpression = Expression.Equal(propertyAccess, Expression.Constant(newValue));
+                            containsExpressions.Add(equalExpression);
+                        }
                     }
                     else
                     {
-                        containsExpressions.Add(containsCall);
+                        if (forceToLower)
+                        {
+                            MethodInfo? methodInfoString = GetMethodCaseInsensitive(typeof(string), filter.MatchMode, new[] { typeof(string) });
+                            MethodInfo? method = typeof(string).GetMethod("ToLower", Type.EmptyTypes);
+                            if (methodInfoString != null && method != null)
+                            {
+                                MethodCallExpression toLowerCall = Expression.Call(propertyAccess, method);
+                                MethodCallExpression matchCall = Expression.Call(toLowerCall, methodInfoString, Expression.Constant(stringValue.ToLower()));
+                                containsExpressions.Add(matchCall);
+                            }
+                        }
+                        else
+                        {
+                            MethodCallExpression containsCall = StringExpression(filter.MatchMode, propertyAccess, Expression.Constant(stringValue));
+                            if (filter.MatchMode.Equals("notContains"))
+                            {
+                                UnaryExpression notContainsCall = Expression.Not(containsCall);
+                                containsExpressions.Add(notContainsCall);
+
+                            }
+                            else
+                            {
+                                containsExpressions.Add(containsCall);
+                            }
+                        }
                     }
                 }
             }
@@ -261,19 +251,14 @@ public static class FilterHelper<T> where T : class
 
     private static string[] ConvertToArray(string stringValue)
     {
-        // Check if the string contains unquoted numbers
-        //if (Regex.IsMatch(stringValue, @"\[\s*(\d+)\s*(,\s*\d+\s*)*\]"))
-        //{
-        //    // Add quotes around numbers
-        //    stringValue = Regex.Replace(stringValue, @"(\d+)", "\"$1\"");
-        //}
+
         if (Regex.IsMatch(stringValue, @"\[\s*(-?\d+)\s*(,\s*-?\d+\s*)*\]"))
         {
-            // Add quotes around numbers, including negative numbers
+
             stringValue = Regex.Replace(stringValue, @"(-?\d+)", "\"$1\"");
         }
 
-        // Ensure all single quotes are replaced by double quotes
+
         string normalizedInput = stringValue.Replace("'", "\"");
 
 
@@ -313,9 +298,9 @@ public static class FilterHelper<T> where T : class
             return bool.TryParse(value.ToString(), out bool parsedValue) && parsedValue;
         }
 
-        if (targetType.IsEnum)
+        if (targetType!.IsEnum)
         {
-            return Enum.Parse(targetType, value.ToString());
+            return Enum.Parse(targetType, value!.ToString() ?? "");
         }
 
         // For all other types, attempt to change the type

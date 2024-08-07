@@ -126,7 +126,7 @@ public class RepositoryWrapper(
     {
         get
         {
-            _epgFile ??= new EPGFileRepository(EPGFileRepositoryLogger, xmltv2Mxf, jobStatusService, repositoryContext, schedulesDirectDataService, intSettings, mapper);
+            _epgFile ??= new EPGFileRepository(EPGFileRepositoryLogger, xmltv2Mxf, jobStatusService, repositoryContext, schedulesDirectDataService, mapper);
             return _epgFile;
         }
     }

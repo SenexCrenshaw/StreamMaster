@@ -107,7 +107,7 @@ public abstract class RepositoryBase<T>(IRepositoryContext RepositoryContext, IL
         {
             return await RepositoryContext.SaveChangesAsync().ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             return 0;
         }
