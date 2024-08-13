@@ -1,0 +1,31 @@
+site_name: Stream Master
+repo_url: https://github.com/SenexCrenshaw/StreamMaster
+theme:
+  name: material
+  logo: "assets/sm_logo.png"
+  palette:
+    # Palette toggle for light mode
+    - scheme: default
+      primary: deep orange
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+
+    # Palette toggle for dark mode
+    - scheme: slate
+      primary: deep orange
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
+plugins:
+  - i18n:
+      docs_structure: folder
+      languages:
+        - locale: en
+          default: true
+          name: English
+          build: true
+        - locale: es
+          name: Spanish
+          build: true
