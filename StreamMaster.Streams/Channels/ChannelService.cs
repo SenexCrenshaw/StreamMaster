@@ -207,7 +207,7 @@ namespace StreamMaster.Streams.Channels
 
             int delay = _settings.CurrentValue.ShutDownDelay;
             bool closed = delay > 0
-                ? await UnRegisterChannelAfterDelayAsync(channelStatus, TimeSpan.FromSeconds(delay), CancellationToken.None).ConfigureAwait(false)
+                ? await UnRegisterChannelAfterDelayAsync(channelStatus, TimeSpan.FromMilliseconds(delay), CancellationToken.None).ConfigureAwait(false)
                 : await UnRegisterChannelAsync(channelStatus).ConfigureAwait(false);
 
             if (closed)

@@ -349,7 +349,7 @@ public class StreamGroupService(ILogger<StreamGroupService> _logger, IMapper _ma
                 return;
             }
             string graceNote = service?.CallSign ?? stationId;
-            string id = graceNote;
+            //string id = graceNote;
 
             string logo;
             if (service?.mxfGuideImage != null && !string.IsNullOrEmpty(service.mxfGuideImage.ImageUrl))
@@ -363,18 +363,19 @@ public class StreamGroupService(ILogger<StreamGroupService> _logger, IMapper _ma
                 logo = GetIconUrl(videoStreamConfig.Logo, httpRequest);
             }
 
-            id = videoStreamConfig.Name;//videoStreamConfig.ChannelNumber.ToString();
+            //id = videoStreamConfig.Name;//videoStreamConfig.ChannelNumber.ToString();
 
-            string guideName = videoStreamConfig.Name;
-            if (videoStreamConfig.OutputProfile.AppendChannelNumberToId)
-            {
-                guideName = videoStreamConfig.ChannelNumber.ToString() + " " + videoStreamConfig.Name;
-            }
+            //string guideName = videoStreamConfig.Name;
+            //if (videoStreamConfig.OutputProfile.AppendChannelNumberToId)
+            //{
+            //    guideName = videoStreamConfig.ChannelNumber.ToString() + " " + videoStreamConfig.Name;
+            //}
+            string channelNumber = videoStreamConfig.ChannelNumber.ToString();
             SGLineup lu = new()
             {
                 GuideName = videoStreamConfig.Name,
-                GuideNumber = videoStreamConfig.ChannelNumber.ToString(),
-                Station = guideName,//id,
+                GuideNumber = channelNumber,
+                Station = channelNumber,
                 Logo = logo,
                 URL = videoUrl
             };

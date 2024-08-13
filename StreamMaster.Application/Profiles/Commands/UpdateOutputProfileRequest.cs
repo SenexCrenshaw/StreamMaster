@@ -65,11 +65,11 @@ public class UpdateFileProfileRequestHandler(
             fields.Add(new FieldData(OutputProfile.APIName, request.ProfileName, "EnableChannelNumber", request.EnableChannelNumber.Value));
         }
 
-        if (request.UseChannelNumberForGuideName.HasValue)
-        {
-            existingProfile.AppendChannelNumberToId = request.UseChannelNumberForGuideName.Value;
-            fields.Add(new FieldData(OutputProfile.APIName, request.ProfileName, "UseChannelNumberForGuideName", request.UseChannelNumberForGuideName.Value));
-        }
+        //if (request.AppendChannelNumberToId.HasValue)
+        //{
+        //    existingProfile.AppendChannelNumberToId = request.AppendChannelNumberToId.Value;
+        //    fields.Add(new FieldData(OutputProfile.APIName, request.ProfileName, "AppendChannelNumberToId", request.AppendChannelNumberToId.Value));
+        //}
 
         if (request.EnableGroupTitle.HasValue)
         {

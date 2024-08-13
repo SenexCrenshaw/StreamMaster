@@ -22,7 +22,7 @@ public class OutputProfile
 
     public bool EnableChannelNumber { get; set; } = true;
 
-    public bool AppendChannelNumberToId { get; set; } = false;
+    //public bool AppendChannelNumberToId { get; set; } = false;
 
 
     public string Name { get; set; } = string.Empty;
@@ -39,7 +39,7 @@ public record OutputProfileRequest
     public bool? EnableGroupTitle { get; set; }
     public bool? EnableId { get; set; }
     public bool? EnableChannelNumber { get; set; }
-    public bool? UseChannelNumberForGuideName { get; set; }
+    //public bool? AppendChannelNumberToId { get; set; }
 
     public string? Name { get; set; }
     public string? EPGId { get; set; }
@@ -86,7 +86,7 @@ public class OutputProfileDict
             Name = outputProfile.Name,
             EPGId = outputProfile.EPGId,
             Group = outputProfile.Group,
-            AppendChannelNumberToId = outputProfile.AppendChannelNumberToId,
+            //AppendChannelNumberToId = outputProfile.AppendChannelNumberToId,
         };
     }
 

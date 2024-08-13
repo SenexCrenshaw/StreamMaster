@@ -18,8 +18,8 @@ const CreateOutputProfileDialog = () => {
     EPGId: getEnumKeyByValue(ValidM3USetting, ValidM3USetting.EPGId),
     Group: getEnumKeyByValue(ValidM3USetting, ValidM3USetting.Group),
     IsReadOnly: false,
-    Name: getEnumKeyByValue(ValidM3USetting, ValidM3USetting.Name),
-    AppendChannelNumberToId: false
+    Name: getEnumKeyByValue(ValidM3USetting, ValidM3USetting.Name)
+    // AppendChannelNumberToId: false
   } as OutputProfileDto;
 
   const [fileProfile, setFileProfile] = useState<OutputProfileDto>(defaultValues);
@@ -150,7 +150,7 @@ const CreateOutputProfileDialog = () => {
                 }}
               />
             </div>
-            <div className={boolClass}>
+            {/* <div className={boolClass}>
               <BooleanEditor
                 label="Append Channel #"
                 checked={fileProfile.AppendChannelNumberToId}
@@ -158,7 +158,7 @@ const CreateOutputProfileDialog = () => {
                   updateOutputProfileStateAndRequest({ AppendChannelNumberToId: e });
                 }}
               />
-            </div>
+            </div> */}
             <div className={boolClass}>
               <BooleanEditor
                 label="Group Title"
