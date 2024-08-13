@@ -416,15 +416,15 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IOptionsMon
     private XmltvChannel BuildXmltvChannel(MxfService mxfService, OutputProfileDto outputProfile)
     {
 
-        string id = mxfService.CallSign;// mxfService.ChNo.ToString();
-        //if (outputProfile.EnableChannelNumber)
-        //{
-        //    id = mxfService.ChNo.ToString();
-        //}
-        //if (settings.M3UUseChnoForId)
-        //{
-        //    id = mxfService.ChNo.ToString();
-        //}
+        string id = mxfService.Name; //mxfService.CallSign;// mxfService.ChNo.ToString();
+                                     //if (outputProfile.EnableChannelNumber)
+                                     //{
+                                     //    id = mxfService.ChNo.ToString();
+                                     //}
+                                     //if (settings.M3UUseChnoForId)
+                                     //{
+                                     //    id = mxfService.ChNo.ToString();
+                                     //}
 
         //if (sdsettings.M3UUseCUIDForChannelID)
         //{
@@ -434,26 +434,36 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IOptionsMon
         //}
 
         // initialize the return channel
+        if (outputProfile.AppendChannelNumberToId
+            )
+        {
+            id = mxfService.ChNo.ToString() + " " + mxfService.Name;
+        }
+
         XmltvChannel ret = new()
         {
             Id = id,
             DisplayNames = []
         };
 
+        ret.DisplayNames.Add(new XmltvText { Text = id });
+
         //ret.DisplayNames.Add(new XmltvText { Text = id });
-        ret.DisplayNames.Add(new XmltvText { Text = mxfService.CallSign });
-        if (mxfService.Name == null)
-        {
-            mxfService.Name = mxfService.CallSign;
-            ret.DisplayNames.Add(new XmltvText { Text = mxfService.Name });
-        }
-        else
-        {
-            if (!mxfService.Name.Equals(mxfService.CallSign))
-            {
-                ret.DisplayNames.Add(new XmltvText { Text = mxfService.Name });
-            }
-        }
+        //ret.DisplayNames.Add(new XmltvText { Text = mxfService.ChNo.ToString() });
+        //ret.DisplayNames.Add(new XmltvText { Text = mxfService.Name });
+        //ret.DisplayNames.Add(new XmltvText { Text = mxfService.CallSign });
+        //if (mxfService.Name == null)
+        //{
+        //    mxfService.Name = mxfService.CallSign;
+        //    ret.DisplayNames.Add(new XmltvText { Text = mxfService.Name });
+        //}
+        //else
+        //{
+        //    if (!mxfService.Name.Equals(mxfService.CallSign))
+        //    {
+        //        ret.DisplayNames.Add(new XmltvText { Text = mxfService.Name });
+        //    }
+        //}
         SDSettings sdsettings = intsdsettings.CurrentValue;
         // add channel number if requested
         if (sdsettings.XmltvIncludeChannelNumbers)

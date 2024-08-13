@@ -5,13 +5,13 @@
         public Discover()
         { }
 
-        public Discover(string urlBase, int deviceID, int tunerCount)
+        public Discover(string urlBase, string deviceID, int tunerCount)
         {
             string version = BuildInfo.Version.ToString();
 
             BaseURL = urlBase;
             DeviceAuth = "StreamMaster";
-            DeviceID = $"2022-6MOKBM:{deviceID}";
+            DeviceID = deviceID;
             FirmwareName = $"bin_{version}";
             FirmwareVersion = version;
             FriendlyName = "StreamMaster";

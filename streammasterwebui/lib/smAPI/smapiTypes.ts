@@ -324,6 +324,7 @@ export interface HLSSettings
 export interface OutputProfile
 {
 	APIName: string;
+	AppendChannelNumberToId: boolean;
 	EnableChannelNumber: boolean;
 	EnableGroupTitle: boolean;
 	EnableIcon: boolean;
@@ -336,6 +337,7 @@ export interface OutputProfile
 export interface OutputProfileDto
 {
 	APIName: string;
+	AppendChannelNumberToId: boolean;
 	EnableChannelNumber: boolean;
 	EnableGroupTitle: boolean;
 	EnableIcon: boolean;
@@ -1128,6 +1130,7 @@ export interface UpdateOutputProfileRequest
 	Name?: string;
 	NewName?: string;
 	ProfileName: string;
+	UseChannelNumberForGuideName?: boolean;
 }
 export interface GetM3UFileNamesRequest
 {

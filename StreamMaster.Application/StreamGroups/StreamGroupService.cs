@@ -363,11 +363,18 @@ public class StreamGroupService(ILogger<StreamGroupService> _logger, IMapper _ma
                 logo = GetIconUrl(videoStreamConfig.Logo, httpRequest);
             }
 
+            id = videoStreamConfig.Name;//videoStreamConfig.ChannelNumber.ToString();
+
+            string guideName = videoStreamConfig.Name;
+            if (videoStreamConfig.OutputProfile.AppendChannelNumberToId)
+            {
+                guideName = videoStreamConfig.ChannelNumber.ToString() + " " + videoStreamConfig.Name;
+            }
             SGLineup lu = new()
             {
                 GuideName = videoStreamConfig.Name,
                 GuideNumber = videoStreamConfig.ChannelNumber.ToString(),
-                Station = id,
+                Station = guideName,//id,
                 Logo = logo,
                 URL = videoUrl
             };
@@ -389,14 +396,15 @@ public class StreamGroupService(ILogger<StreamGroupService> _logger, IMapper _ma
 
         string url = request.GetUrlWithPath();
         int maxTuners = await repositoryWrapper.M3UFile.GetM3UMaxStreamCount();
-        Discover discover = new(url, StreamGroupProfileId, maxTuners);
+
 
         StreamGroup? streamGroup = await GetStreamGroupFromSGProfileIdAsync(StreamGroupProfileId);
         if (streamGroup == null)
         {
             return "";
         }
-        discover.DeviceID = streamGroup.DeviceID;
+
+        Discover discover = new(url, streamGroup.DeviceID + "-" + StreamGroupProfileId, maxTuners);
 
         string jsonString = JsonSerializer.Serialize(discover, new JsonSerializerOptions { WriteIndented = true });
         return jsonString;

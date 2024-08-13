@@ -5,7 +5,7 @@ import { Checkbox } from 'primereact/checkbox';
 import { useCallback } from 'react';
 import { OutputProfileColumnConfigProps } from './useOutputProfileColumnConfig';
 
-export const useOutputProfileChannelNumberColumnConfig = (props?: OutputProfileColumnConfigProps) => {
+export const useOutputProfileUseChannelNumberForGuideNameColumnConfig = (props?: OutputProfileColumnConfigProps) => {
   const update = useCallback((request: UpdateOutputProfileRequest) => {
     UpdateOutputProfile(request)
       .then((res) => {})
@@ -20,12 +20,11 @@ export const useOutputProfileChannelNumberColumnConfig = (props?: OutputProfileC
       return (
         <div className="flex w-full justify-content-center align-content-center">
           <Checkbox
-            checked={outputProfileDto.EnableChannelNumber}
+            checked={outputProfileDto.AppendChannelNumberToId}
             onChange={(e) => {
-              const outputProfile = { EnableChannelNumber: e.checked, ProfileName: outputProfileDto.ProfileName } as UpdateOutputProfileRequest;
+              const outputProfile = { ProfileName: outputProfileDto.ProfileName, AppendChannelNumberToId: e.checked } as UpdateOutputProfileRequest;
               update(outputProfile);
             }}
-            tooltip="Channel Number for ID"
           />
         </div>
       );
@@ -36,8 +35,8 @@ export const useOutputProfileChannelNumberColumnConfig = (props?: OutputProfileC
   const columnConfig: ColumnMeta = {
     align: 'left',
     bodyTemplate: bodyTemplate,
-    field: 'EnableChannelNumber',
-    header: 'Enable Ch#',
+    field: 'AppendChannelNumberToId',
+    header: 'Use Ch# Name',
     width: 40
   };
 

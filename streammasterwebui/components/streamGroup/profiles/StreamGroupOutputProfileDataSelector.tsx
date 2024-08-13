@@ -7,7 +7,7 @@ import useGetOutputProfiles from '@lib/smAPI/Profiles/useGetOutputProfiles';
 import { OutputProfileDto, UpdateOutputProfileRequest } from '@lib/smAPI/smapiTypes';
 import { DataTableRowClickEvent } from 'primereact/datatable';
 import { memo, useCallback, useMemo } from 'react';
-import CreateFileProfileDialog from './CreateFileProfileDialog';
+import CreateOutputProfileDialog from './CreateOutputProfileDialog';
 import RemoveOutputProfileDialog from './RemoveOutputProfileDialog';
 import { useOutputProfileChannelNumberColumnConfig } from './columns/useOutputProfileChannelNumberColumnConfig';
 import { useOutputProfileEPGIdColumnConfig } from './columns/useOutputProfileEPGIdColumnConfig';
@@ -16,6 +16,7 @@ import { useOutputProfileGroupTitleColumnConfig } from './columns/useOutputProfi
 import { useOutputProfileIconColumnConfig } from './columns/useOutputProfileIconColumnConfig';
 import { useOutputProfileIdColumnConfig } from './columns/useOutputProfileIdColumnConfig';
 import { useOutputProfileNameColumnConfig } from './columns/useOutputProfileNameColumnConfig';
+import { useOutputProfileUseChannelNumberForGuideNameColumnConfig } from './columns/useOutputProfileUseChannelNumberForGuideNameColumnConfig';
 
 const StreamGroupOutputProfileDataSelector = () => {
   const id = 'StreamGroupOutputProfileDataSelector';
@@ -36,6 +37,7 @@ const StreamGroupOutputProfileDataSelector = () => {
   const channelNumberColumnConfig = useOutputProfileChannelNumberColumnConfig({ width: 40 });
   const epgIdColumnConfig = useOutputProfileEPGIdColumnConfig({ width: 40 });
   const iconColumnConfig = useOutputProfileIconColumnConfig({ width: 40 });
+  const outputProfileUseChannelNumberForGuideNameColumnConfig = useOutputProfileUseChannelNumberForGuideNameColumnConfig({ width: 40 });
 
   const actionTemplate = useCallback((rowData: OutputProfileDto) => {
     return (
@@ -95,6 +97,7 @@ const StreamGroupOutputProfileDataSelector = () => {
       groupColumnConfig,
       iDColumnConfig,
       channelNumberColumnConfig,
+      outputProfileUseChannelNumberForGuideNameColumnConfig,
       groupTitleColumnConfig,
       iconColumnConfig,
 
@@ -113,6 +116,7 @@ const StreamGroupOutputProfileDataSelector = () => {
       epgIdColumnConfig,
       groupColumnConfig,
       iDColumnConfig,
+      outputProfileUseChannelNumberForGuideNameColumnConfig,
       channelNumberColumnConfig,
       groupTitleColumnConfig,
       iconColumnConfig,
@@ -122,7 +126,7 @@ const StreamGroupOutputProfileDataSelector = () => {
 
   return (
     <SMDataTable
-      actionHeaderTemplate={<CreateFileProfileDialog />}
+      actionHeaderTemplate={<CreateOutputProfileDialog />}
       columns={columns}
       dataSource={dataSource}
       defaultSortField="Name"

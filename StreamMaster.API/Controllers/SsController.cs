@@ -89,6 +89,7 @@ public class SsController(ISender Sender, IStreamGroupService streamGroupService
     [Authorize(Policy = "SGLinks")]
     [HttpGet]
     [Route("{streamGroupProfileId}/epg.xml")]
+    [Route("{streamGroupProfileId}.xml")]
     //[Route("{streamGroupId}/{streamGroupProfileId}/epg.xml")]
     public async Task<IActionResult> GetStreamGroupEPG(int streamGroupProfileId)
     {
@@ -106,6 +107,7 @@ public class SsController(ISender Sender, IStreamGroupService streamGroupService
     [Authorize(Policy = "SGLinks")]
     [HttpGet]
     [Route("{streamGroupProfileId}/m3u.m3u")]
+    [Route("{streamGroupProfileId}.m3u")]
     //[Route("{streamGroupId}/{streamGroupProfileId}/m3u.m3u")]
     public async Task<IActionResult> GetStreamGroupM3U(int streamGroupProfileId)
     {

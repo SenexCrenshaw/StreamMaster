@@ -8,8 +8,7 @@ public record UpdateOutputProfileRequest(string ProfileName, string? NewName) : 
 public class UpdateFileProfileRequestHandler(
     ILogger<UpdateOutputProfileRequest> Logger,
     IOptionsMonitor<OutputProfileDict> intprofilesettings,
-    IDataRefreshService dataRefreshService,
-    IRepositoryWrapper repositoryWrapper
+    IDataRefreshService dataRefreshService
     ) : IRequestHandler<UpdateOutputProfileRequest, APIResponse>
 {
 
@@ -66,6 +65,11 @@ public class UpdateFileProfileRequestHandler(
             fields.Add(new FieldData(OutputProfile.APIName, request.ProfileName, "EnableChannelNumber", request.EnableChannelNumber.Value));
         }
 
+        if (request.UseChannelNumberForGuideName.HasValue)
+        {
+            existingProfile.AppendChannelNumberToId = request.UseChannelNumberForGuideName.Value;
+            fields.Add(new FieldData(OutputProfile.APIName, request.ProfileName, "UseChannelNumberForGuideName", request.UseChannelNumberForGuideName.Value));
+        }
 
         if (request.EnableGroupTitle.HasValue)
         {
