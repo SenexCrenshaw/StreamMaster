@@ -71,6 +71,7 @@ public class DeleteM3UFileRequestHandler(ILogger<DeleteM3UFileRequest> logger, I
             }
 
             await Repository.SMStream.DeleteSMStreamsByM3UFiledId(m3UFile.Id, cancellationToken);
+            Repository.M3UFile.Delete(m3UFile);
 
             await Repository.SaveAsync().ConfigureAwait(false);
             CacheManager.M3UMaxStreamCounts.TryRemove(m3UFile.Id, out _);

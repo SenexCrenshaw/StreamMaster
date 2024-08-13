@@ -244,10 +244,10 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
             }
         }
         VideoStreamConfig videoStreamConfig = videoStreamConfigs.First(a => a.Id == smChannel.Id);
-        if (profile.EnableChannelNumber)
-        {
-            channelId = videoStreamConfig.ChannelNumber.ToString();
-        }
+        //if (profile.EnableChannelNumber)
+        //{
+        //    channelId = videoStreamConfig.ChannelNumber.ToString();
+        //}
 
         string name = smChannel.Name;
 
@@ -265,7 +265,7 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
 
         if (profile.EnableId)
         {
-            fieldList.Add($"CUID =\"{smChannel.Id}\"");
+            fieldList.Add($"CUID=\"{channelId}\"");
             fieldList.Add($"channel-id=\"{channelId}\"");
         }
 

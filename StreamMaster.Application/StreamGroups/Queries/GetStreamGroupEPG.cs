@@ -7,19 +7,19 @@ using static StreamMaster.Domain.Common.GetStreamGroupEPGHandler;
 
 namespace StreamMaster.Application.StreamGroups.Queries;
 
-public class ChannelNumberConfig
-{
-    public int SMChannelId { get; set; }
-    public int ChannelNumber
-    {
-        get; set;
-    }
-    public int M3UFileId { get; set; }
-    public int FilePosition { get; set; }
-}
+//public class ChannelNumberConfig
+//{
+//    public int SMChannelId { get; set; }
+//    public int ChannelNumber
+//    {
+//        get; set;
+//    }
+//    public int M3UFileId { get; set; }
+//    public int FilePosition { get; set; }
+//}
 
 [RequireAll]
-public record GetStreamGroupEPG( int StreamGroupProfileId) : IRequest<string>;
+public record GetStreamGroupEPG(int StreamGroupProfileId) : IRequest<string>;
 public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, IProfileService profileService, IStreamGroupService streamGroupService, ISender sender, IEPGHelper epgHelper, IXMLTVBuilder xMLTVBuilder, ILogger<GetStreamGroupEPG> logger, ISchedulesDirectDataService schedulesDirectDataService, IOptionsMonitor<Setting> intSettings)
     : IRequestHandler<GetStreamGroupEPG, string>
 {
@@ -28,7 +28,7 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
     public async Task<string> Handle(GetStreamGroupEPG request, CancellationToken cancellationToken)
     {
 
-        (List<VideoStreamConfig> videoStreamConfigs, StreamGroupProfile streamGroupProfile) = await streamGroupService.GetStreamGroupVideoConfigs( request.StreamGroupProfileId);
+        (List<VideoStreamConfig> videoStreamConfigs, StreamGroupProfile streamGroupProfile) = await streamGroupService.GetStreamGroupVideoConfigs(request.StreamGroupProfileId);
 
         if (videoStreamConfigs is null || streamGroupProfile is null)
         {

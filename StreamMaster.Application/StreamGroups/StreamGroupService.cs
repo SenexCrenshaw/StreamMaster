@@ -272,70 +272,78 @@ public class StreamGroupService(ILogger<StreamGroupService> _logger, IMapper _ma
             return JsonSerializer.Serialize(ret);
         }
 
+        (List<VideoStreamConfig> videoStreamConfigs, StreamGroupProfile streamGroupProfile) = await GetStreamGroupVideoConfigs(StreamGroupProfileId);
+
+        if (videoStreamConfigs is null || streamGroupProfile is null)
+        {
+            return string.Empty;
+        }
+
         //using IServiceScope scope = _serviceProvider.CreateScope();
         //IRepositoryWrapper repositoryWrapper = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
 
-        List<SMChannel> smChannels = await repositoryWrapper.SMChannel.GetSMChannelsFromStreamGroup(streamGroup.Id);
+        //List<SMChannel> smChannels = await repositoryWrapper.SMChannel.GetSMChannelsFromStreamGroup(streamGroup.Id);
 
-        if (smChannels.Count == 0)
-        {
-            return JsonSerializer.Serialize(ret);
-        }
-        List<SMChannel> smChannelsOrdered = smChannels.OrderBy(a => a.ChannelNumber).ToList();
+        //if (smChannels.Count == 0)
+        //{
+        //    return JsonSerializer.Serialize(ret);
+        //}
+        //List<SMChannel> smChannelsOrdered = smChannels.OrderBy(a => a.ChannelNumber).ToList();
 
 
         ISchedulesDirectData dummyData = _schedulesDirectDataService.DummyData();
-        await Parallel.ForEachAsync(smChannelsOrdered, async (smChannel, ct) =>
+        await Parallel.ForEachAsync(videoStreamConfigs, async (videoStreamConfig, ct) =>
         {
-            if (string.IsNullOrEmpty(smChannel?.EPGId))
+            if (string.IsNullOrEmpty(videoStreamConfig?.EPGId))
             {
                 return;
             }
 
-            bool isDummy = _epgHelper.IsDummy(smChannel.EPGId);
+            bool isDummy = _epgHelper.IsDummy(videoStreamConfig.EPGId);
 
             if (isDummy)
             {
-                smChannel.EPGId = $"{EPGHelper.DummyId}-{smChannel.Id}";
+                videoStreamConfig.EPGId = $"{EPGHelper.DummyId}-{videoStreamConfig.Id}";
 
-                VideoStreamConfig videoStreamConfig = new()
+                VideoStreamConfig videoStreamConfig2 = new()
                 {
-                    Id = smChannel.Id,
-                    Name = smChannel.Name,
-                    EPGId = smChannel.EPGId,
-                    Logo = smChannel.Logo,
-                    ChannelNumber = smChannel.ChannelNumber,
+                    Id = videoStreamConfig.Id,
+                    Name = videoStreamConfig.Name,
+                    EPGId = videoStreamConfig.EPGId,
+                    Logo = videoStreamConfig.Logo,
+                    ChannelNumber = videoStreamConfig.ChannelNumber,
                     IsDuplicate = false,
                     IsDummy = false
                 };
-                _ = dummyData.FindOrCreateDummyService(smChannel.EPGId, videoStreamConfig);
+                _ = dummyData.FindOrCreateDummyService(videoStreamConfig2.EPGId, videoStreamConfig2);
+                return;
             }
 
             int epgNumber = EPGHelper.DummyId;
             string stationId;
 
-            if (string.IsNullOrEmpty(smChannel.EPGId))
+            if (string.IsNullOrEmpty(videoStreamConfig.EPGId))
             {
-                stationId = smChannel.Group;
+                stationId = videoStreamConfig.Group;
             }
             else
             {
-                if (EPGHelper.IsValidEPGId(smChannel.EPGId))
+                if (EPGHelper.IsValidEPGId(videoStreamConfig.EPGId))
                 {
-                    (epgNumber, stationId) = smChannel.EPGId.ExtractEPGNumberAndStationId();
+                    (epgNumber, stationId) = videoStreamConfig.EPGId.ExtractEPGNumberAndStationId();
                 }
                 else
                 {
-                    stationId = smChannel.EPGId;
+                    stationId = videoStreamConfig.EPGId;
                 }
             }
 
-            string? encodedString = EncodeStreamGroupIdProfileIdChannelId(streamGroup, StreamGroupProfileId, smChannel.Id);
+            string? encodedString = EncodeStreamGroupIdProfileIdChannelId(streamGroup, StreamGroupProfileId, videoStreamConfig.Id);
             string videoUrl = isShort
-                ? $"{url}/v/{StreamGroupProfileId}/{smChannel.Id}"
-                : $"{url}/api/videostreams/stream/{encodedString}/{smChannel.Name.ToCleanFileString()}";
+                ? $"{url}/v/{StreamGroupProfileId}/{videoStreamConfig.Id}"
+                : $"{url}/api/videostreams/stream/{encodedString}/{videoStreamConfig.Name.ToCleanFileString()}";
 
-            MxfService? service = _schedulesDirectDataService.AllServices.GetMxfService(smChannel.EPGId);
+            MxfService? service = _schedulesDirectDataService.AllServices.GetMxfService(videoStreamConfig.EPGId);
             if (service == null)
             {
                 return;
@@ -352,13 +360,13 @@ public class StreamGroupService(ILogger<StreamGroupService> _logger, IMapper _ma
             }
             else
             {
-                logo = GetIconUrl(smChannel.Logo, httpRequest);
+                logo = GetIconUrl(videoStreamConfig.Logo, httpRequest);
             }
 
             SGLineup lu = new()
             {
-                GuideName = smChannel.Name,
-                GuideNumber = id,
+                GuideName = videoStreamConfig.Name,
+                GuideNumber = videoStreamConfig.ChannelNumber.ToString(),
                 Station = id,
                 Logo = logo,
                 URL = videoUrl
@@ -478,6 +486,7 @@ public class StreamGroupService(ILogger<StreamGroupService> _logger, IMapper _ma
                 OutputProfile = outputProfile
             });
         }
+        videoStreamConfigs = videoStreamConfigs.OrderBy(a => a.ChannelNumber).ToList();
 
         return (videoStreamConfigs, streamGroupProfile);
     }

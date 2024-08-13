@@ -416,11 +416,11 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IOptionsMon
     private XmltvChannel BuildXmltvChannel(MxfService mxfService, OutputProfileDto outputProfile)
     {
 
-        string id = mxfService.CallSign;
-        if (outputProfile.EnableChannelNumber)
-        {
-            id = mxfService.ChNo.ToString();
-        }
+        string id = mxfService.CallSign;// mxfService.ChNo.ToString();
+        //if (outputProfile.EnableChannelNumber)
+        //{
+        //    id = mxfService.ChNo.ToString();
+        //}
         //if (settings.M3UUseChnoForId)
         //{
         //    id = mxfService.ChNo.ToString();
@@ -440,6 +440,7 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IOptionsMon
             DisplayNames = []
         };
 
+        //ret.DisplayNames.Add(new XmltvText { Text = id });
         ret.DisplayNames.Add(new XmltvText { Text = mxfService.CallSign });
         if (mxfService.Name == null)
         {
