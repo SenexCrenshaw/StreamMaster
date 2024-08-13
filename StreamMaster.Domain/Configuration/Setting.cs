@@ -13,7 +13,7 @@ public class BaseSettings
     public int BackupVersionsToKeep { get; set; } = 18;
     public bool CacheIcons { get; set; } = true;
     public bool CleanURLs { get; set; } = true;
-
+    public int ShutDownDelay { get; set; } = 1000;
     public bool ShowMessageVideos { get; set; } = false;
     public string ClientUserAgent { get; set; } = "VLC/3.0.20-git LibVLC/3.0.20-git";
 

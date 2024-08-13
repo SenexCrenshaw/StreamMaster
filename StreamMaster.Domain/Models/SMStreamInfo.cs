@@ -43,7 +43,7 @@ namespace StreamMaster.Domain.Models
         public int SecondsIn { get; set; } = 0;
 
         /// <inheritdoc/>
-        public int ShutDownDelay { get; set; } = 0;
+        //public int ShutDownDelay { get; set; } = 0;
 
         /// <inheritdoc/>
         public required SMStreamTypeEnum SMStreamType { get; set; }

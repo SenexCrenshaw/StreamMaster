@@ -73,6 +73,7 @@ export function StreamingSettings(): React.ReactElement {
       {GetCheckBoxLine({ field: 'ShowMessageVideos' })}
       {GetDropDownLine({ field: 'DefaultCommandProfileName', options: DefaultCommandProfileNameOptions })}
       {GetDropDownLine({ field: 'DefaultOutputProfileName', options: DefaultOutputProfileNameOptions })}
+      {GetInputNumberLine({ field: 'ShutDownDelay', max: 3600 })}
     </BaseSettings>
   );
 }

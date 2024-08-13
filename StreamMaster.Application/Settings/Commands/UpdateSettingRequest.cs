@@ -265,6 +265,13 @@ public partial class UpdateSettingRequestHandler(
             currentSetting.BackupEnabled = request.Parameters.BackupEnabled.Value;
         }
 
+        if (request.Parameters.ShutDownDelay.HasValue)
+        {
+            currentSetting.ShutDownDelay = request.Parameters.ShutDownDelay.Value;
+        }
+
+
+
         //if (request.Parameters.AutoSetEPG.HasValue)
         //{
         //    currentSetting.AutoSetEPG = request.Parameters.AutoSetEPG.Value;

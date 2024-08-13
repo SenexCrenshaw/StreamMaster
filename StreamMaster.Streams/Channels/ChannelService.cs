@@ -11,23 +11,22 @@ namespace StreamMaster.Streams.Channels
         private readonly IChannelStatusService ChannelStatusService;
         private readonly IVideoInfoService VideoInfoService;
         private readonly ICacheManager CacheManager;
-        private readonly IStreamLimitsService streamLimitsService;
         private readonly IDubcer dubcer;
+        private readonly IOptionsMonitor<Setting> _settings;
 
         private readonly object _disposeLock = new();
         private bool _disposed = false;
 
         public ChannelService(
             ILogger<ChannelService> logger,
+            IOptionsMonitor<Setting> _settings,
             IVideoInfoService VideoInfoService,
             IDubcer dubcer,
             IChannelBroadcasterService channelDistributorService,
             IChannelStatusService ChannelStatusService,
-            IStreamLimitsService streamLimitsService,
             ICacheManager CacheManager,
             ISwitchToNextStreamService switchToNextStreamService)
         {
-            this.streamLimitsService = streamLimitsService;
             this.ChannelStatusService = ChannelStatusService;
             this.CacheManager = CacheManager;
             this.VideoInfoService = VideoInfoService;
@@ -35,6 +34,7 @@ namespace StreamMaster.Streams.Channels
             this.switchToNextStreamService = switchToNextStreamService;
             this.logger = logger;
             this.dubcer = dubcer;
+            this._settings = _settings;
 
             ChannelDistributorService.OnChannelDirectorStoppedEvent += ChannelDistributorService_OnStoppedEvent;
             ChannelStatusService.OnChannelStatusStoppedEvent += ChannelStatusService_OnChannelStatusStoppedEvent;
@@ -205,8 +205,9 @@ namespace StreamMaster.Streams.Channels
         {
             channelStatus.Shutdown = true;
 
-            bool closed = channelStatus.SMStreamInfo?.ShutDownDelay > 0
-                ? await UnRegisterChannelAfterDelayAsync(channelStatus, TimeSpan.FromSeconds(channelStatus.SMStreamInfo.ShutDownDelay), CancellationToken.None).ConfigureAwait(false)
+            int delay = _settings.CurrentValue.ShutDownDelay;
+            bool closed = delay > 0
+                ? await UnRegisterChannelAfterDelayAsync(channelStatus, TimeSpan.FromSeconds(delay), CancellationToken.None).ConfigureAwait(false)
                 : await UnRegisterChannelAsync(channelStatus).ConfigureAwait(false);
 
             if (closed)
@@ -343,7 +344,7 @@ namespace StreamMaster.Streams.Channels
                 VideoInfoService.SetSourceChannel(sourceChannelBroadcaster);
             }
 
-       
+
             channelStatus.FailoverInProgress = false;
 
             logger.LogDebug("Finished SwitchToNextVideoStream");

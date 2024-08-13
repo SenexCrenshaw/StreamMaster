@@ -32,7 +32,6 @@ export interface SMStreamInfo
 	Id: string;
 	Name: string;
 	SecondsIn: number;
-	ShutDownDelay: number;
 	SMStreamType: SMStreamTypeEnum;
 	Url: string;
 }
@@ -220,6 +219,7 @@ export interface SettingDto
 	ShowClientHostNames: boolean;
 	ShowIntros: string;
 	ShowMessageVideos: boolean;
+	ShutDownDelay: number;
 	SSLCertPassword: string;
 	SSLCertPath: string;
 	UiFolder: string;
@@ -1010,6 +1010,7 @@ export interface UpdateSettingParameters
 	ShowClientHostNames?: boolean;
 	ShowIntros?: string;
 	ShowMessageVideos?: boolean;
+	ShutDownDelay?: number;
 	SSLCertPassword?: string;
 	SSLCertPath?: string;
 }

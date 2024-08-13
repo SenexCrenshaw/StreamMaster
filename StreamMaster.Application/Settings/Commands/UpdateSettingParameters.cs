@@ -22,6 +22,7 @@ public class UpdateSettingParameters
     public string? DummyRegex { get; set; }
     public bool? EnableSSL { get; set; }
 
+    public int? ShutDownDelay { get; set; }
     public bool? ShowMessageVideos { get; set; }
     public string? FFMPegExecutable { get; set; }
     public string? FFProbeExecutable { get; set; }

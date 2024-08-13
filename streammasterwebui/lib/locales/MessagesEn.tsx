@@ -115,7 +115,8 @@ const MessagesEn: messages_enType = {
   useDummyEPGForBlanks: 'Use Dummy EPG',
   user: 'User',
   VideoStreamAlwaysUseEPGLogo: 'Always use EPG Logo',
-  visible: 'Visible'
+  visible: 'Visible',
+  ShutDownDelay: 'Shutdown Delay (ms)'
 };
 
 export default MessagesEn;
