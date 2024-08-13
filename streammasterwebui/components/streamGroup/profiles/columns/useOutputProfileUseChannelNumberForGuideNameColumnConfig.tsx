@@ -22,7 +22,7 @@ export const useOutputProfileUseChannelNumberForGuideNameColumnConfig = (props?:
           <Checkbox
             checked={outputProfileDto.AppendChannelNumberToId}
             onChange={(e) => {
-              const outputProfile = { ProfileName: outputProfileDto.ProfileName, AppendChannelNumberToId: e.checked } as UpdateOutputProfileRequest;
+              const outputProfile = { AppendChannelNumberToId: e.checked, ProfileName: outputProfileDto.ProfileName } as UpdateOutputProfileRequest;
               update(outputProfile);
             }}
           />
@@ -36,7 +36,7 @@ export const useOutputProfileUseChannelNumberForGuideNameColumnConfig = (props?:
     align: 'left',
     bodyTemplate: bodyTemplate,
     field: 'AppendChannelNumberToId',
-    header: 'Use Ch# Name',
+    header: 'Append Channel #',
     width: 40
   };
 

@@ -152,7 +152,7 @@ const CreateOutputProfileDialog = () => {
             </div>
             <div className={boolClass}>
               <BooleanEditor
-                label="Use Channel # for Name"
+                label="Append Channel #"
                 checked={fileProfile.AppendChannelNumberToId}
                 onChange={(e) => {
                   updateOutputProfileStateAndRequest({ AppendChannelNumberToId: e });
