@@ -3,14 +3,16 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
+using StreamMaster.Application.Common.Extensions;
 using StreamMaster.Application.StreamGroups.Queries;
+using StreamMaster.SchedulesDirect.Domain.Models;
 
 using System.Text;
 
 namespace StreamMaster.API.Controllers;
 
 [V1ApiController("s")]
-public class SsController(ISender Sender, IStreamGroupService streamGroupService, IHttpContextAccessor httpContextAccessor) : Controller
+public class SsController(ISender Sender, IStreamGroupService streamGroupService) : Controller
 {
     [HttpGet]
     [AllowAnonymous]
@@ -19,12 +21,12 @@ public class SsController(ISender Sender, IStreamGroupService streamGroupService
     [Route("{streamGroupProfileId}/device.xml")]
     public async Task<IActionResult> GetStreamGroupCapability(int streamGroupProfileId)
     {
-        if (httpContextAccessor?.HttpContext?.Request == null)
+        if (HttpContext.Request == null)
         {
             return NotFound();
         }
 
-        string xml = await streamGroupService.GetStreamGroupCapability(streamGroupProfileId, httpContextAccessor.HttpContext.Request).ConfigureAwait(false);
+        string xml = await streamGroupService.GetStreamGroupCapability(streamGroupProfileId, HttpContext.Request).ConfigureAwait(false);
         return new ContentResult
         {
             Content = xml,
@@ -122,4 +124,39 @@ public class SsController(ISender Sender, IStreamGroupService streamGroupService
             FileDownloadName = $"m3u-{streamGroupProfileId}-{streamGroupProfileId}.m3u"
         };
     }
+
+
+    [Authorize(Policy = "SGLinks")]
+    [HttpGet]
+    [Route("{streamGroupProfileId}/auto/v{channelNumber}")]
+    public async Task<IActionResult> GetAutoStream(int streamGroupProfileId, string channelNumber)
+    {
+
+        StreamGroup? streamGroup = await streamGroupService.GetStreamGroupFromSGProfileIdAsync(streamGroupProfileId).ConfigureAwait(false);
+        if (streamGroup == null)
+        {
+            return new NotFoundResult();
+        }
+
+        (List<VideoStreamConfig> videoStreamConfigs, StreamGroupProfile streamGroupProfile) = await streamGroupService.GetStreamGroupVideoConfigs(streamGroupProfileId);
+
+        if (videoStreamConfigs is null || streamGroupProfile is null)
+        {
+            return new NotFoundResult();
+        }
+        VideoStreamConfig? videoStreamConfig = videoStreamConfigs.FirstOrDefault(a => a.ChannelNumber.ToString() == channelNumber);
+
+        if (videoStreamConfig == null)
+        {
+            return new NotFoundResult();
+        }
+
+        string url = HttpContext.Request.GetUrl();
+        string? encodedString = streamGroupService.EncodeStreamGroupIdProfileIdChannelId(streamGroup, streamGroupProfileId, videoStreamConfig.Id);
+        string cleanName = videoStreamConfig.Name.ToCleanFileString();
+        string videoUrl = $"{url}/api/videostreams/stream/{encodedString}/{cleanName}";
+
+        return Redirect(videoUrl);
+    }
+
 }
