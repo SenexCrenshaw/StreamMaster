@@ -46,11 +46,10 @@ This wiki is dedicated to providing information and resources for StreamMaster, 
 
 ## Version Tags
 
-| Tag     | Description           |
-| ------- | --------------------- |
-| latest  | Latest stable version |
-| x.x.x   | Released versions     |
-| nightly | Nightly build         |
+| Tag    | Description           |
+| ------ | --------------------- |
+| latest | Latest stable version |
+| x.x.x  | Released versions     |
 
 ## Support
 

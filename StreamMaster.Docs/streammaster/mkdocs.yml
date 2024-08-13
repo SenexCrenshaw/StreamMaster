@@ -19,6 +19,7 @@ theme:
         name: Switch to light mode
 
 plugins:
+  - search
   - i18n:
       docs_structure: folder
       languages:
