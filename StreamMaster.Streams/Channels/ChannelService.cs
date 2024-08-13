@@ -12,6 +12,7 @@ namespace StreamMaster.Streams.Channels
         private readonly IVideoInfoService VideoInfoService;
         private readonly ICacheManager CacheManager;
         private readonly IStreamLimitsService streamLimitsService;
+        private readonly IDubcer dubcer;
 
         private readonly object _disposeLock = new();
         private bool _disposed = false;
@@ -19,6 +20,7 @@ namespace StreamMaster.Streams.Channels
         public ChannelService(
             ILogger<ChannelService> logger,
             IVideoInfoService VideoInfoService,
+            IDubcer dubcer,
             IChannelBroadcasterService channelDistributorService,
             IChannelStatusService ChannelStatusService,
             IStreamLimitsService streamLimitsService,
@@ -32,6 +34,7 @@ namespace StreamMaster.Streams.Channels
             ChannelDistributorService = channelDistributorService;
             this.switchToNextStreamService = switchToNextStreamService;
             this.logger = logger;
+            this.dubcer = dubcer;
 
             ChannelDistributorService.OnChannelDirectorStoppedEvent += ChannelDistributorService_OnStoppedEvent;
             ChannelStatusService.OnChannelStatusStoppedEvent += ChannelStatusService_OnChannelStatusStoppedEvent;
@@ -340,6 +343,7 @@ namespace StreamMaster.Streams.Channels
                 VideoInfoService.SetSourceChannel(sourceChannelBroadcaster);
             }
 
+       
             channelStatus.FailoverInProgress = false;
 
             logger.LogDebug("Finished SwitchToNextVideoStream");

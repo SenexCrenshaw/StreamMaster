@@ -44,7 +44,10 @@ public static partial class IPTVExtensions
 
                                 segmentBuilder.Insert(commadIndex, $" clientUserAgent=\"{clientUserAgent}\" ");
                             }
-                            ProcessSegment(segmentNumber++, segmentBuilder.ToString());
+                            if (!ProcessSegment(segmentNumber++, segmentBuilder.ToString()))
+                            {
+                                logger.LogWarning("Could not create stream from: {line}", line);
+                            }
                             segmentBuilder.Clear();
                             clientUserAgent = null;
                         }
@@ -85,33 +88,36 @@ public static partial class IPTVExtensions
         logger.LogInformation("Imported {processedCount} streams.", processedCount);
         return results;
 
-        void ProcessSegment(int segmentNum, string segment)
+        bool ProcessSegment(int segmentNum, string segment)
         {
             SMStream? smStream = segment.StringToSMStream();
-
-            if (smStream != null)
+            if (smStream == null)
             {
-                if (vodExclusion.Count > 0)
+                return false;
+            }
+
+
+            if (vodExclusion.Count > 0)
+            {
+                if (CheckExcluded(smStream.Url))
                 {
-                    if (CheckExcluded(smStream.Url))
-                    {
-                        return;
-                    }
-                }
-
-                UpdateSMStreamProperties(smStream, Id, Name);
-
-                blockingCollection.Add(new KeyValuePair<int, SMStream>(segmentNum, smStream));
-
-                lock (lockObj)
-                {
-                    processedCount++;
-                    if (processedCount % 5000 == 0)
-                    {
-                        logger.LogInformation("Importing {processedCount} streams.", processedCount);
-                    }
+                    return false;
                 }
             }
+
+            UpdateSMStreamProperties(smStream, Id, Name);
+
+            blockingCollection.Add(new KeyValuePair<int, SMStream>(segmentNum, smStream));
+
+            lock (lockObj)
+            {
+                processedCount++;
+                if (processedCount % 5000 == 0)
+                {
+                    logger.LogInformation("Importing {processedCount} streams.", processedCount);
+                }
+            }
+            return true;
         }
 
         bool CheckExcluded(string URL)
@@ -342,6 +348,10 @@ public static partial class IPTVExtensions
 
         if (string.IsNullOrEmpty(SMStream.Id))
         {
+            if (string.IsNullOrEmpty(SMStream.Url))
+            {
+                return null;
+            }
             SMStream.Id = FileUtil.EncodeToBase64(SMStream.Url);
         }
 

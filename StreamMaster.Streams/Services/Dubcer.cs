@@ -1,14 +1,24 @@
-﻿using System.Diagnostics;
+﻿using StreamMaster.Streams.Domain.Helpers;
+
+using System.Diagnostics;
 using System.Threading.Channels;
 
 namespace StreamMaster.Streams.Services
 {
-    public class Dubcer : IDubcer
+    public class Dubcer(ILogger<Dubcer> logger) : IDubcer
     {
+        public string SourceName { get; set; }
+
         private readonly Channel<byte[]> inputChannel = Channel.CreateUnbounded<byte[]>(new UnboundedChannelOptions { SingleReader = true, SingleWriter = true });
+        public void SetSourceChannel(ChannelReader<byte[]> sourceChannelReader, string sourceChannelName, CancellationToken cancellationToken)
+        {
+            Channel<byte[]> dubcerChannel = ChannelHelper.GetChannel();
+            DubcerChannels(sourceChannelReader, dubcerChannel.Writer, CancellationToken.None);
+        }
 
         public void DubcerChannels(ChannelReader<byte[]> channelReader, ChannelWriter<byte[]> channelWriter, CancellationToken cancellationToken)
         {
+            logger.LogInformation("Starting dubcer");
             _ = Task.Run(async () =>
             {
                 Process ffmpegProcess = StartFFmpegProcess();
@@ -71,7 +81,7 @@ namespace StreamMaster.Streams.Services
             ProcessStartInfo startInfo = new()
             {
                 FileName = exec,
-                Arguments = "-hide_banner -loglevel error -i pipe:0 -c:v libx264 -c:a ac3 -vsync 1 -f mpegts pipe:1",
+                Arguments = "-hide_banner -loglevel error -i pipe:0 -c copy -vsync 1 -f mpegts pipe:1",
                 RedirectStandardInput = true,
                 RedirectStandardOutput = true,
                 UseShellExecute = false,

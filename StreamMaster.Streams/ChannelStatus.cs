@@ -9,9 +9,10 @@ namespace StreamMaster.Streams;
 public sealed class ChannelStatus : ChannelStatusBroadcaster, IChannelStatus, IDisposable
 {
     private readonly ILogger<IChannelBroadcaster> logger;
-
-    public ChannelStatus(ILogger<IChannelBroadcaster> logger, SMChannelDto smChannelDto) : base(logger, smChannelDto)
+    private readonly IDubcer dubcer;
+    public ChannelStatus(ILogger<IChannelBroadcaster> logger, IDubcer dubcer, SMChannelDto smChannelDto) : base(logger, smChannelDto)
     {
+        this.dubcer = dubcer;
         this.logger = logger;
     }
 
@@ -51,9 +52,15 @@ public sealed class ChannelStatus : ChannelStatusBroadcaster, IChannelStatus, ID
 
     public void SetSourceChannelBroadcaster(IChannelBroadcaster SourceChannelBroadcaster)
     {
-        Channel<byte[]> channel = ChannelHelper.GetChannel(ChannelHelper.DefaultChannelCapacity);
+        Channel<byte[]> channel = ChannelHelper.GetChannel();
+        //Channel<byte[]> dubcerChannel = ChannelHelper.GetChannel();
+
         SourceChannelBroadcaster.AddClientChannel(SMChannel.Id, channel.Writer);
+
+        //dubcer.DubcerChannels(channel.Reader, dubcerChannel.Writer, CancellationToken.None);
+
         SetSourceChannel(channel.Reader, SourceChannelBroadcaster.Name, CancellationToken.None);
+        //SetSourceChannel(dubcerChannel.Reader, SourceChannelBroadcaster.Name, CancellationToken.None);
     }
 
     public void Dispose()

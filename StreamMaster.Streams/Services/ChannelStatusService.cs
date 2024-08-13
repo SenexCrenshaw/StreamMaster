@@ -1,6 +1,7 @@
 ﻿using StreamMaster.Domain.Events;
 
 using StreamMaster.Streams.Domain.Events;
+
 using System.Collections.Concurrent;
 
 namespace StreamMaster.Streams.Services
@@ -14,13 +15,16 @@ namespace StreamMaster.Streams.Services
         private readonly ILogger<ChannelStatusService> _logger;
         private readonly ILogger<IChannelBroadcaster> _channelStatusLogger;
         private readonly IVideoInfoService _videoInfoService;
+        private readonly IDubcer dubcer;
 
         public ChannelStatusService(
             ILogger<ChannelStatusService> logger,
+            IDubcer dubcer,
             ILogger<IChannelBroadcaster> channelStatusLogger,
             IVideoInfoService videoInfoService)
         {
             _logger = logger;
+            this.dubcer = dubcer;
             _channelStatusLogger = channelStatusLogger;
             _videoInfoService = videoInfoService;
         }
@@ -55,7 +59,7 @@ namespace StreamMaster.Streams.Services
                         return channelStatus;
                     }
                 }
-                ChannelStatus a = new(_channelStatusLogger, config.SMChannel)
+                ChannelStatus a = new(_channelStatusLogger, dubcer, config.SMChannel)
                 {
                     SMChannel = config.SMChannel,
                     //StreamGroupId = config.StreamGroupId,
