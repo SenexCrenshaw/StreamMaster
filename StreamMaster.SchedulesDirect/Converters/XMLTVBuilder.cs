@@ -416,35 +416,14 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IOptionsMon
     private XmltvChannel BuildXmltvChannel(MxfService mxfService, OutputProfileDto outputProfile)
     {
 
-        //string id = mxfService.Name; //mxfService.CallSign;// mxfService.ChNo.ToString();
-        //if (outputProfile.EnableChannelNumber)
-        //{
-        //    id = mxfService.ChNo.ToString();
-        //}
-        //if (settings.M3UUseChnoForId)
-        //{
-        //    id = mxfService.ChNo.ToString();
-        //}
-
-        //if (sdsettings.M3UUseCUIDForChannelID)
-        //{
-        //    VideoStreamConfig? vc = mxfService.extras["videoStreamConfig"] as VideoStreamConfig;
-        //    id = vc.Id;
-        //    //id = mxfService.ChNo.ToString();
-        //}
-
-        // initialize the return channel
-        //if (outputProfile.AppendChannelNumberToId
-        //    )
-        //{
-        //    id = mxfService.ChNo.ToString() + " " + mxfService.Name;
-        //}
         string id = mxfService.ChNo.ToString();
         XmltvChannel ret = new()
         {
             Id = id,
             DisplayNames = []
         };
+
+        mxfService.Name ??= mxfService.CallSign;
 
         ret.DisplayNames.Add(new XmltvText { Text = mxfService.Name });
         //ret.DisplayNames.Add(new XmltvText { Text = mxfService.CallSign });
