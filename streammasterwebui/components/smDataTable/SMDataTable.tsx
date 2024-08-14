@@ -6,6 +6,7 @@ import { SMTriSelectShowSelected } from '@components/sm/SMTriSelectShowSelected'
 import generateFilterData from '@components/smDataTable/helpers/generateFilterData';
 import useSelectedSMItems from '@features/streameditor/useSelectedSMItems';
 import { camel2title, isEmptyObject } from '@lib/common/common';
+import { Logger } from '@lib/common/logger';
 import { useSMContext } from '@lib/context/SMProvider';
 import { PagedResponse, SMChannelDto } from '@lib/smAPI/smapiTypes';
 import { Checkbox } from 'primereact/checkbox';
@@ -437,6 +438,10 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>, ref: 
 
     setters.setFilters(newFilters as any);
   };
+
+  if (props.id === 'EditSMChannelDialog') {
+    Logger.debug('SMDataTable', { dataSource: props.dataSource, id: props.id });
+  }
 
   useEffect(() => {
     if (props.queryFilter) {

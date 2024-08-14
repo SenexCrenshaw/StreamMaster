@@ -8,9 +8,11 @@ import useGetStationChannelNames from '@lib/smAPI/SchedulesDirect/useGetStationC
 import { SMChannelDto, SMStreamDto, StationChannelName, UpdateSMChannelRequest } from '@lib/smAPI/smapiTypes';
 import React, { forwardRef, Suspense, useCallback, useEffect, useImperativeHandle, useMemo, useState } from 'react';
 import StreamingProxyTypeSelector from './CommandProfileNameSelector';
+// import SMChannelSMStreamDialog from './SMChannelSMStreamDialog';
+// import SMChannelSMStreamFromDataKeyDialog from './SMChannelSMStreamFromDataKeyDialog';
 
 const SMChannelSMStreamDialog = React.lazy(() => import('./SMChannelSMStreamDialog'));
-
+const SMChannelSMStreamFromDataKeyDialog = React.lazy(() => import('./SMChannelSMStreamFromDataKeyDialog'));
 interface SMChannelDialogProperties {
   readonly dataKey: string;
   readonly onSave: (request: UpdateSMChannelRequest) => void;
@@ -46,7 +48,7 @@ const SMChannelDialog = forwardRef<SMChannelDialogRef, SMChannelDialogProperties
       request.Logo !== smChannel.Logo ||
       request.Group !== smChannel.Group ||
       request.CommandProfileName !== smChannel.CommandProfileName ||
-      request.ClientUserAgent !== smChannel.ClientUserAgent ||
+      // request.ClientUserAgent !== smChannel.cl ||
       request.ChannelNumber !== smChannel.ChannelNumber ||
       request.EPGId !== smChannel.EPGId
     );
@@ -231,7 +233,11 @@ const SMChannelDialog = forwardRef<SMChannelDialogRef, SMChannelDialogProperties
       </div>
       <div className="layout-padding-bottom-lg sm-bgColor" />
       <Suspense>
-        <SMChannelSMStreamDialog dataKey={dataKey} name={request.Name} smChannel={smChannel} />
+        {smChannel !== null && smChannel !== undefined ? (
+          <SMChannelSMStreamDialog name={request.Name} selectionKey={dataKey + '1'} smChannel={smChannel} />
+        ) : (
+          <SMChannelSMStreamFromDataKeyDialog dataKey={dataKey} name={request.Name} />
+        )}
       </Suspense>
     </>
   );

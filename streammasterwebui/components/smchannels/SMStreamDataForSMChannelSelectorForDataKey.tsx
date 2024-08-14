@@ -2,33 +2,36 @@ import { SMTriSelectShowHidden } from '@components/sm/SMTriSelectShowHidden';
 import getRecord from '@components/smDataTable/helpers/getRecord';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 import { AdditionalFilterProperties, isEmptyObject } from '@lib/common/common';
-import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
 
 import SMButton from '@components/sm/SMButton';
 import SMDataTable from '@components/smDataTable/SMDataTable';
 import { useQueryAdditionalFilters } from '@lib/redux/hooks/queryAdditionalFilters';
 import useGetM3UFiles from '@lib/smAPI/M3UFiles/useGetM3UFiles';
-import { AddSMStreamToSMChannel, RemoveSMStreamFromSMChannel } from '@lib/smAPI/SMChannelStreamLinks/SMChannelStreamLinksCommands';
-import useGetSMChannelStreams from '@lib/smAPI/SMChannelStreamLinks/useGetSMChannelStreams';
 import useGetPagedSMStreams from '@lib/smAPI/SMStreams/useGetPagedSMStreams';
-import { GetSMChannelStreamsRequest, M3UFileDto, RemoveSMStreamFromSMChannelRequest, SMChannelDto, SMStreamDto } from '@lib/smAPI/smapiTypes';
+import { M3UFileDto, SMStreamDto } from '@lib/smAPI/smapiTypes';
 import { ColumnFilterElementTemplateOptions } from 'primereact/column';
 import { MultiSelect, MultiSelectChangeEvent } from 'primereact/multiselect';
 import { ReactNode, memo, useCallback, useMemo, useState } from 'react';
 
-interface SMStreamDataForSMChannelSelectorProperties {
-  readonly selectionKey: string;
+interface SMStreamDataForSMChannelSelectorForDataKeyProperties {
+  readonly dataKey: string;
   readonly height?: string;
   readonly name: string | undefined;
-  readonly smChannel: SMChannelDto;
+  readonly selectedItems: SMStreamDto[];
+  onChange: (e: SMStreamDto[]) => void;
 }
 
-const SMStreamDataForSMChannelSelector = ({ height, selectionKey, name, smChannel }: SMStreamDataForSMChannelSelectorProperties) => {
-  const { setQueryAdditionalFilters } = useQueryAdditionalFilters(selectionKey);
+const SMStreamDataForSMChannelSelectorForDataKey = ({
+  height,
+  dataKey,
+  onChange,
+  selectedItems,
+  name
+}: SMStreamDataForSMChannelSelectorForDataKeyProperties) => {
+  const { setQueryAdditionalFilters } = useQueryAdditionalFilters(dataKey);
   const [selectedM3UFiles, setSelectedM3UFiles] = useState<M3UFileDto[]>([]);
   const { data: m3uFiles } = useGetM3UFiles();
-  const { data: smChannelData, isLoading: smChannelIsLoading } = useGetSMChannelStreams({ SMChannelId: smChannel?.Id } as GetSMChannelStreamsRequest);
-  const { selectedItems, setSelectedItems } = useSelectedItems<SMStreamDto>(selectionKey);
+  // const { selectedItems, setSelectedItems } = useSelectedItems<SMStreamDto>(dataKey);
 
   const itemTemplate = useCallback(
     (option: M3UFileDto) => {
@@ -96,12 +99,7 @@ const SMStreamDataForSMChannelSelector = ({ height, selectionKey, name, smChanne
 
   const addOrRemoveTemplate = useCallback(
     (data: any) => {
-      let found = false;
-      if (smChannel) {
-        found = smChannelData?.some((item) => item.Id === data.Id) ?? false;
-      } else {
-        found = selectedItems?.some((item) => item.Id === data.Id) ?? false;
-      }
+      const found = selectedItems?.some((item) => item.Id === data.Id) ?? false;
 
       let toolTip = '';
 
@@ -123,21 +121,8 @@ const SMStreamDataForSMChannelSelector = ({ height, selectionKey, name, smChanne
                     return;
                   }
 
-                  if (smChannel) {
-                    const request = {} as RemoveSMStreamFromSMChannelRequest;
-                    request.SMChannelId = smChannel.Id;
-                    request.SMStreamId = data.Id;
-                    RemoveSMStreamFromSMChannel(request)
-                      .then((response) => {
-                        console.log('Remove Stream', response);
-                      })
-                      .catch((error) => {
-                        console.error('Remove Stream', error.message);
-                      });
-                  } else {
-                    const newData = selectedItems?.filter((item) => item.Id !== data.Id);
-                    setSelectedItems(newData);
-                  }
+                  const newData = selectedItems?.filter((item) => item.Id !== data.Id);
+                  onChange(newData);
                 }}
                 tooltip={toolTip}
               />
@@ -161,38 +146,25 @@ const SMStreamDataForSMChannelSelector = ({ height, selectionKey, name, smChanne
             buttonClassName="w-2rem border-noround borderread icon-green"
             iconFilled={false}
             onClick={() => {
-              if (smChannel) {
-                AddSMStreamToSMChannel({ SMChannelId: smChannel?.Id ?? 0, SMStreamId: data.Id })
-                  .then((response) => {})
-                  .catch((error) => {
-                    console.error(error.message);
-                    throw error;
-                  });
-              } else {
-                setSelectedItems([...(selectedItems ?? []), data]);
-              }
+              onChange([...(selectedItems ?? []), data]);
             }}
             tooltip={toolTip}
           />
         </div>
       );
     },
-    [name, selectedItems, setSelectedItems, smChannel, smChannelData]
+    [name, onChange, selectedItems]
   );
 
   function addOrRemoveHeaderTemplate() {
-    return <SMTriSelectShowHidden dataKey={selectionKey} />;
+    return <SMTriSelectShowHidden dataKey={dataKey} />;
   }
 
   const rowClass = useCallback(
     (data: unknown): string => {
       const id = getRecord({ data, fieldName: 'Id' });
-      let found = false;
-      if (smChannel) {
-        found = smChannelData?.some((item) => item.Id === id) ?? false;
-      } else {
-        found = selectedItems?.some((item) => item.Id === id) ?? false;
-      }
+
+      const found = selectedItems?.some((item) => item.Id === id) ?? false;
 
       if (found) {
         return 'p-hidden';
@@ -206,7 +178,7 @@ const SMStreamDataForSMChannelSelector = ({ height, selectionKey, name, smChanne
 
       return '';
     },
-    [selectedItems, smChannel, smChannelData]
+    [selectedItems]
   );
 
   return (
@@ -220,8 +192,7 @@ const SMStreamDataForSMChannelSelector = ({ height, selectionKey, name, smChanne
       enablePaginator
       headerClassName="header-text-channels"
       headerName="STREAMS"
-      id={selectionKey}
-      isLoading={smChannelIsLoading}
+      id={dataKey}
       queryFilter={useGetPagedSMStreams}
       rowClass={rowClass}
       style={{ height: height ?? 'calc(100vh - 100px)' }}
@@ -229,4 +200,4 @@ const SMStreamDataForSMChannelSelector = ({ height, selectionKey, name, smChanne
   );
 };
 
-export default memo(SMStreamDataForSMChannelSelector);
+export default memo(SMStreamDataForSMChannelSelectorForDataKey);
