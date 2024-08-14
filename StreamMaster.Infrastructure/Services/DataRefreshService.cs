@@ -215,6 +215,7 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
         }
 
         await hub.Clients.All.DataRefresh("GetChannelMetrics");
+        await hub.Clients.All.DataRefresh("GetVideoInfos");
     }
 
     public async Task RefreshStreamGroups(bool alwaysRun = false)

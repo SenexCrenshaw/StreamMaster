@@ -735,6 +735,9 @@ export interface GetVideoInfoRequest
 {
 	SMStreamId: string;
 }
+export interface GetVideoInfosRequest
+{
+}
 export interface GetSMTasksRequest
 {
 }

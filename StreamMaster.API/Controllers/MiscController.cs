@@ -7,7 +7,7 @@ using System.Text;
 
 namespace StreamMaster.API.Controllers;
 
-public class MiscController(IImageDownloadService imageDownloadService, IVideoInfoService videoInfoService, IChannelBroadcasterService channelDistributorService) : ApiControllerBase
+public class MiscController(IImageDownloadService imageDownloadService, IChannelBroadcasterService channelDistributorService) : ApiControllerBase
 {
     [HttpGet]
     [Route("[action]")]
@@ -25,24 +25,6 @@ public class MiscController(IImageDownloadService imageDownloadService, IVideoIn
         return Ok(channelDistributors);
     }
 
-
-
-    [HttpGet]
-    [Route("[action]")]
-    public ActionResult<List<VideoInfoDto>> GetVideoInfos()
-    {
-        System.Collections.Concurrent.ConcurrentDictionary<string, VideoInfo> infos = videoInfoService.VideoInfos;
-        List<VideoInfoDto> ret = [];
-        foreach (KeyValuePair<string, VideoInfo> info in infos)
-        {
-            ret.Add(new VideoInfoDto(info));
-        }
-        return Ok(ret);
-    }
-
-
-
-
     [HttpGet]
     [Route("[action]")]
     public ActionResult<IDictionary<string, IStreamHandlerMetrics>> GetAggregatedMetrics()
@@ -50,13 +32,6 @@ public class MiscController(IImageDownloadService imageDownloadService, IVideoIn
         IDictionary<string, IStreamHandlerMetrics> metrics = channelDistributorService.GetMetrics();
         return Ok(metrics);
     }
-
-    //[HttpGet("health")]
-    //public IActionResult GetStreamManagerHealth()
-    //{
-    //    bool isHealthy = channelDistributorService.IsHealthy();
-    //    return isHealthy ? Ok("Healthy") : StatusCode(500, "Unhealthy");
-    //}
 
     [HttpGet]
     [Route("[action]")]

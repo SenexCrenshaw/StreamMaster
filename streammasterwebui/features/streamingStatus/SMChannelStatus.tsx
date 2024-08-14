@@ -36,7 +36,7 @@ const SMChannelStatus = () => {
     };
 
     fetchData();
-    const intervalId = setInterval(fetchData, 3000);
+    const intervalId = setInterval(fetchData, 2000);
 
     return () => clearInterval(intervalId);
   }, [getChannelMetrics]);

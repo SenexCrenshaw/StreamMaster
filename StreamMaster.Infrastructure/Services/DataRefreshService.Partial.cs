@@ -18,28 +18,51 @@ public partial class DataRefreshService : IDataRefreshServicePartial
 
     }
 
-    public async Task RefreshOutputProfiles()
+    public async Task RefreshVideoInfos()
     {
 
+        if (!BuildInfo.IsSystemReady)
+        {
+            return;
+        }
+
+        await hub.Clients.All.DataRefresh("GetVideoInfos");
+    }
+
+    public async Task RefreshOutputProfiles()
+    {
+        if (!BuildInfo.IsSystemReady)
+        {
+            return;
+        }
         await hub.Clients.All.DataRefresh("GetOutputProfiles");
 
     }
 
     public async Task RefreshCommandProfiles()
     {
-
+        if (!BuildInfo.IsSystemReady)
+        {
+            return;
+        }
         await hub.Clients.All.DataRefresh("GetCommandProfiles");
     }
 
     public async Task RefreshStationPreviews()
     {
-
+        if (!BuildInfo.IsSystemReady)
+        {
+            return;
+        }
         await hub.Clients.All.DataRefresh("GetStationPreviews");
 
     }
     public async Task RefreshSelectedStationIds()
     {
-
+        if (!BuildInfo.IsSystemReady)
+        {
+            return;
+        }
         await hub.Clients.All.DataRefresh("GetSelectedStationIds");
     }
 

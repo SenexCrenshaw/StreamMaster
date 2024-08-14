@@ -7,6 +7,7 @@ namespace StreamMaster.Application.Statistics
     {        
         Task<ActionResult<List<ChannelMetric>>> GetChannelMetrics();
         Task<ActionResult<VideoInfo>> GetVideoInfo(GetVideoInfoRequest request);
+        Task<ActionResult<List<VideoInfoDto>>> GetVideoInfos();
     }
 }
 
@@ -16,5 +17,6 @@ namespace StreamMaster.Application.Hubs
     {
         Task<List<ChannelMetric>> GetChannelMetrics();
         Task<VideoInfo> GetVideoInfo(GetVideoInfoRequest request);
+        Task<List<VideoInfoDto>> GetVideoInfos();
     }
 }

@@ -1,24 +1,12 @@
-﻿
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Threading.Channels;
 
 namespace StreamMaster.Streams.Plugins
 {
-    public class VideoInfoService : IVideoInfoService, IDisposable
+    public class VideoInfoService(ILogger<VideoInfoService> logger, IDataRefreshService dataRefreshService, ILogger<VideoInfoPlugin> pluginLogger, IOptionsMonitor<Setting> intSettings) : IVideoInfoService, IDisposable
     {
-        private readonly ILogger<VideoInfoService> _logger;
-        private readonly ILogger<VideoInfoPlugin> pluginLogger;
-        private readonly IOptionsMonitor<Setting> _intSettings;
-
         public ConcurrentDictionary<string, VideoInfo> VideoInfos { get; } = new();
         public ConcurrentDictionary<string, VideoInfoPlugin> VideoInfoPlugins { get; } = new();
-
-        public VideoInfoService(ILogger<VideoInfoService> logger, ILogger<VideoInfoPlugin> pluginLogger, IOptionsMonitor<Setting> intSettings)
-        {
-            _logger = logger;
-            this.pluginLogger = pluginLogger;
-            _intSettings = intSettings;
-        }
 
         public void Stop()
         {
@@ -38,6 +26,11 @@ namespace StreamMaster.Streams.Plugins
             return VideoInfos.TryGetValue(key, out VideoInfo? videoInfo) ? videoInfo : null;
         }
 
+        public VideoInfo? GetVideoInfos(string key)
+        {
+            return VideoInfos.TryGetValue(key, out VideoInfo? videoInfo) ? videoInfo : null;
+        }
+
         public void SetSourceChannel(IChannelBroadcaster sourceChannelBroadcaster, string Id, string Name)
         {
             Channel<byte[]> channelVideoInfo = Channel.CreateBounded<byte[]>(new BoundedChannelOptions(200)
@@ -48,12 +41,11 @@ namespace StreamMaster.Streams.Plugins
             });
 
             sourceChannelBroadcaster.AddClientChannel("VideoInfo", channelVideoInfo.Writer);
-            //string key = sourceChannelBroadcaster.Name;
 
             if (!VideoInfoPlugins.TryGetValue(Id, out VideoInfoPlugin? videoInfoPlugin))
             {
-                _logger.LogInformation("Video info service started for {Id}", Id);
-                videoInfoPlugin = new VideoInfoPlugin(pluginLogger, _intSettings, channelVideoInfo.Reader, Id, Name);
+                logger.LogInformation("Video info service started for {Id}", Id);
+                videoInfoPlugin = new VideoInfoPlugin(pluginLogger, intSettings, channelVideoInfo.Reader, Id, Name);
                 videoInfoPlugin.VideoInfoUpdated += OnVideoInfoUpdated;
                 VideoInfoPlugins.TryAdd(Id, videoInfoPlugin);
             }
@@ -71,9 +63,10 @@ namespace StreamMaster.Streams.Plugins
 
         private void OnVideoInfoUpdated(object? sender, VideoInfoEventArgs e)
         {
-            _logger.LogInformation("Video info got info for {key} {JsonOutput}", e.Id, e.VideoInfo.JsonOutput);
+            logger.LogInformation("Video info got info for {key} {JsonOutput}", e.Id, e.VideoInfo.JsonOutput);
             VideoInfo updatedVideoInfo = e.VideoInfo;
             VideoInfos.AddOrUpdate(e.Id, updatedVideoInfo, (_, _) => updatedVideoInfo);
+            dataRefreshService.RefreshVideoInfos().Wait();
         }
 
         public void Dispose()

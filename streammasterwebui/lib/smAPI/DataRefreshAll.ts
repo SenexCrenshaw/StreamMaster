@@ -29,6 +29,7 @@ import { setIsForced as GetSubScribedHeadendsSetIsForced } from '@lib/smAPI/Sche
 import { setIsForced as GetSubscribedLineupsSetIsForced } from '@lib/smAPI/SchedulesDirect/GetSubscribedLineupsSlice';
 import { setIsForced as GetSystemStatusSetIsForced } from '@lib/smAPI/General/GetSystemStatusSlice';
 import { setIsForced as GetTaskIsRunningSetIsForced } from '@lib/smAPI/General/GetTaskIsRunningSlice';
+import { setIsForced as GetVideoInfosSetIsForced } from '@lib/smAPI/Statistics/GetVideoInfosSlice';
 
 export const DataRefreshAll = () => {
   store.dispatch(GetAvailableCountriesSetIsForced({ force: true }));
@@ -61,4 +62,5 @@ export const DataRefreshAll = () => {
   store.dispatch(GetSubscribedLineupsSetIsForced({ force: true }));
   store.dispatch(GetSystemStatusSetIsForced({ force: true }));
   store.dispatch(GetTaskIsRunningSetIsForced({ force: true }));
+  store.dispatch(GetVideoInfosSetIsForced({ force: true }));
 };

@@ -2,6 +2,7 @@ import SMPopUp from '@components/sm/SMPopUp';
 import { Logger } from '@lib/common/logger';
 import { GetVideoInfoRequest, VideoInfo } from '@lib/smAPI/smapiTypes';
 import { GetVideoInfo } from '@lib/smAPI/Statistics/StatisticsCommands';
+import useGetVideoInfos from '@lib/smAPI/Statistics/useGetVideoInfos';
 import { JsonEditor } from 'json-edit-react';
 
 import { ScrollPanel } from 'primereact/scrollpanel';
@@ -11,39 +12,19 @@ type VideoInfoProps = {
   smStreamId: string;
 };
 
-const DisplayTable: React.FC<{ data: any; title?: string }> = ({ data, title }) => {
-  return (
-    <div>
-      {title && <h4>{title}</h4>}
-      <table style={{ width: '100%' }}>
-        <tbody className="videoinfo-selector">
-          {Object.entries(data).map(([key, value]) => (
-            <tr key={key}>
-              <td style={{ padding: '5px' }}>{key}</td>
-              <td style={{ padding: '5px' }}>
-                {value !== null && typeof value === 'object' ? <DisplayTable data={value} /> : value !== null && value !== undefined ? value.toString() : 'N/A'}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-};
-
 export const VideoInfoDisplay: React.FC<VideoInfoProps> = ({ smStreamId }) => {
   const [videoInfo, setVideoInfo] = useState<VideoInfo | null>(null);
-
+  const { data: videoInfos } = useGetVideoInfos();
   const getVideoInfo = useCallback(() => {
     // if (smStreamId === null || videoInfo?.Format !== undefined) return;
 
     const request = { SMStreamId: smStreamId } as GetVideoInfoRequest;
 
     GetVideoInfo(request)
-      .then((data) => {
-        if (data === null || data === undefined) return;
+      .then((videoInfo) => {
+        if (videoInfo === null || videoInfo === undefined) return;
 
-        setVideoInfo(data);
+        setVideoInfo(videoInfo);
       })
       .catch((error) => {
         console.error(error);
@@ -58,8 +39,18 @@ export const VideoInfoDisplay: React.FC<VideoInfoProps> = ({ smStreamId }) => {
     return <JsonEditor data={jsonObject} restrictEdit restrictDelete restrictAdd theme="githubDark" />;
   }, [videoInfo]);
 
+  const hasVideoInfo = useMemo(() => {
+    if (videoInfos === undefined || videoInfos === null) return false;
+
+    const found = videoInfos.some((info: VideoInfo) => info.StreamId === smStreamId);
+
+    return found;
+  }, [smStreamId, videoInfos]);
+
   return (
     <SMPopUp
+      buttonClassName="icon-blue"
+      buttonDisabled={!hasVideoInfo}
       onOpen={(e) => {
         if (e === true) {
           getVideoInfo();

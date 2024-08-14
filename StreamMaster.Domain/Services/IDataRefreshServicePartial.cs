@@ -13,5 +13,6 @@ namespace StreamMaster.Domain.Services
         Task RefreshAllEPG();
         Task RefreshAllM3U();
         Task RefreshAllSMChannels();
+        Task RefreshVideoInfos();
     }
 }

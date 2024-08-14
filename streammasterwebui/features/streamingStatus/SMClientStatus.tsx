@@ -51,7 +51,7 @@ const SMClientStatus = () => {
     };
 
     fetchData();
-    const intervalId = setInterval(fetchData, 3000);
+    const intervalId = setInterval(fetchData, 2000);
 
     return () => clearInterval(intervalId);
   }, [getChannelMetrics]);
@@ -59,7 +59,11 @@ const SMClientStatus = () => {
   const clientBitsPerSecondTemplate = (rowData: ChannelMetric) => {
     if (rowData.Metrics.Kbps === undefined) return <div />;
 
-    const kbps = rowData.Metrics.Kbps;
+    const found = channelMetricsRef.current.find((predicate) => predicate.Name === rowData.Name);
+
+    if (found === undefined || found.Metrics === undefined) return <div />;
+
+    const kbps = found.Metrics.Kbps;
     const roundedKbps = Math.ceil(kbps);
 
     return <div>{roundedKbps.toLocaleString('en-US')}</div>;
