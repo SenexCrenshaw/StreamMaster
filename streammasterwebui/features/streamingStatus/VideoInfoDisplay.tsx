@@ -62,7 +62,7 @@ export const VideoInfoDisplay: React.FC<VideoInfoProps> = ({ smStreamId }) => {
       placement="bottom-end"
       icon="pi-id-card"
       title={'Video Info : ' + videoInfo?.StreamName}
-      tooltip="Stream Info"
+      tooltip="Video Info"
       isLeft
     >
       <ScrollPanel style={{ height: '50vh', width: '100%' }}>{getContent}</ScrollPanel>
