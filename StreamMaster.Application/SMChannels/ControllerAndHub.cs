@@ -17,6 +17,22 @@ namespace StreamMaster.Application.SMChannels.Controllers
 
         [HttpGet]
         [Route("[action]")]
+        public async Task<ActionResult<List<NameLogo>>> GetSMChannelNameLogos()
+        {
+            try
+            {
+            DataResponse<List<NameLogo>> ret = await Sender.Send(new GetSMChannelNameLogosRequest()).ConfigureAwait(false);
+             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetSMChannelNameLogos.", statusCode: 500) : Ok(ret.Data);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An unexpected error occurred while processing the request to get GetSMChannelNameLogos.");
+                return Problem(detail: "An unexpected error occurred. Please try again later.", statusCode: 500);
+            }
+        }
+
+        [HttpGet]
+        [Route("[action]")]
         public async Task<ActionResult<List<string>>> GetSMChannelNames()
         {
             try
@@ -258,6 +274,12 @@ namespace StreamMaster.Application.Hubs
         {
             PagedResponse<SMChannelDto> ret = await Sender.Send(new GetPagedSMChannelsRequest(Parameters)).ConfigureAwait(false);
             return ret;
+        }
+
+        public async Task<List<NameLogo>> GetSMChannelNameLogos()
+        {
+             DataResponse<List<NameLogo>> ret = await Sender.Send(new GetSMChannelNameLogosRequest()).ConfigureAwait(false);
+            return ret.Data;
         }
 
         public async Task<List<string>> GetSMChannelNames()

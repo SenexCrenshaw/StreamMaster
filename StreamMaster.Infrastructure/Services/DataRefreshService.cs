@@ -169,6 +169,7 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
         }
 
         await hub.Clients.All.DataRefresh("GetPagedSMChannels");
+        await hub.Clients.All.DataRefresh("GetSMChannelNameLogos");
         await hub.Clients.All.DataRefresh("GetSMChannelNames");
     }
 

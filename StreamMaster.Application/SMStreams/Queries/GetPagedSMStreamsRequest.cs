@@ -1,12 +1,10 @@
-﻿using Microsoft.AspNetCore.Http;
-
-namespace StreamMaster.Application.SMStreams.Queries;
+﻿namespace StreamMaster.Application.SMStreams.Queries;
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record GetPagedSMStreamsRequest(QueryStringParameters Parameters) : IRequest<PagedResponse<SMStreamDto>>;
 
-internal class GetPagedSMStreamsRequestHandler(IRepositoryWrapper Repository, IStreamGroupService streamGroupService, IOptionsMonitor<Setting> intSettings, IHttpContextAccessor httpContextAccessor)
+internal class GetPagedSMStreamsRequestHandler(IRepositoryWrapper Repository)
     : IRequestHandler<GetPagedSMStreamsRequest, PagedResponse<SMStreamDto>>
 {
     public async Task<PagedResponse<SMStreamDto>> Handle(GetPagedSMStreamsRequest request, CancellationToken cancellationToken)
@@ -16,27 +14,52 @@ internal class GetPagedSMStreamsRequestHandler(IRepositoryWrapper Repository, IS
             return Repository.SMStream.CreateEmptyPagedResponse();
         }
 
-        _ = intSettings.CurrentValue;
-        _ = httpContextAccessor.GetUrlWithPathValue();
+        // Fetch the paged stream data
+        PagedResponse<SMStreamDto> res = await Repository.SMStream
+            .GetPagedSMStreams(request.Parameters, cancellationToken)
+            .ConfigureAwait(false);
 
-        PagedResponse<SMStreamDto> res = await Repository.SMStream.GetPagedSMStreams(request.Parameters, CancellationToken.None).ConfigureAwait(false);
+        // Get all relevant SMStreamIds from the response data
+        List<string> ids = res.Data.ConvertAll(a => a.Id);
 
+        // Fetch all the channelNameLogos in one go
+        var channelNameLogos = await Repository.SMChannelStreamLink.GetQuery()
+            .Where(a => ids.Contains(a.SMStreamId))
+            .Include(a => a.SMChannel)
+            .Select(a => new
+            {
+                a.SMStreamId,
+                NameLogo = new NameLogo
+                {
+                    Name = a.SMChannel.Name,
+                    Logo = a.SMChannel.Logo
+                }
+            })
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
 
-        //string Url = httpContextAccessor.GetUrl();
-        //StreamGroup sg = await streamGroupService.GetDefaultSGAsync().ConfigureAwait(false);
-        //foreach (SMStreamDto stream in res.Data)
-        //{
-        //    string? EncodedString = streamGroupService.EncodeStreamGroupIdStreamId(sg, stream.Id);
+        // Group by SMStreamId for efficient mapping
+        Dictionary<string, List<NameLogo>> groupedChannelNameLogos = channelNameLogos
+            .GroupBy(a => a.SMStreamId)
+            .ToDictionary(g => g.Key, g => g.Select(x => x.NameLogo).OrderBy(nl => nl.Name).ToList());
 
-        //    if (string.IsNullOrEmpty(EncodedString))
-        //    {
-        //        continue;
-        //    }
-        //    string videoUrl = $"{Url}/m/{EncodedString}.ts";
+        // Set Ids and assign the channel memberships to the corresponding streams
+        foreach (SMStreamDto smStream in res.Data)
+        {
+            if (groupedChannelNameLogos.TryGetValue(smStream.Id, out List<NameLogo>? logos))
+            {
+                for (int i = 0; i < logos.Count; i++)
+                {
+                    logos[i].Id = i;
+                }
+                smStream.ChannelMembership = logos;
+            }
+            else
+            {
+                smStream.ChannelMembership = []; // Empty list if no memberships
+            }
+        }
 
-        //    string jsonString = JsonSerializer.Serialize(videoUrl);
-        //    stream.RealUrl = jsonString;
-        //}
         return res;
     }
 }

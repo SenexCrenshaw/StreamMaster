@@ -73,7 +73,11 @@ const SMScroller: React.FC<SMScrollerProperties> = ({ filter = false, itemSize =
     (toTest: any) => {
       const key = equalityKey();
       if (key) {
-        const test = selectedItems.findIndex((item: any) => ObjectUtils.equals(toTest, getOptionValue(item), key));
+        const test = selectedItems.findIndex((item: any) => {
+          const o = getOptionValue(item);
+          const a = ObjectUtils.equals(toTest, getOptionValue(item), key);
+          return a;
+        });
         return test !== -1;
       }
       return false;

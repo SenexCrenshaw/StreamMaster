@@ -36,8 +36,8 @@ public class HTTPStream(ILogger<HTTPStream> logger, IHttpClientFactory httpClien
                 contentType.Equals("audio/mpegurl", StringComparison.OrdinalIgnoreCase) ||
                 contentType.Equals("application/x-mpegURL", StringComparison.OrdinalIgnoreCase)))
             {
-                logger.LogInformation("Stream contains has HLS content, using ffmpeg for streaming: {streamName}", sMStreamInfo.Name);
-                CommandProfileDto profile = profileService.GetCommandProfile();
+                logger.LogInformation("Stream contains HLS content, using ffmpeg for streaming: {streamName}", sMStreamInfo.Name);
+                CommandProfileDto profile = profileService.GetCommandProfile("SMFFMPEG");
                 return commandExecutor.ExecuteCommand(profile, sMStreamInfo.Url, clientUserAgent, null, cancellationToken);
             }
 

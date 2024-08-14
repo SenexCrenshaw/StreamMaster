@@ -43,7 +43,7 @@ const ChannelGroupVisibleDialog = ({ id, onClose, skipOverLayer = false, value }
         });
     } else if (selectedItems) {
       const toSend = {} as UpdateChannelGroupsRequest;
-      toSend.requests = selectedItems.map(
+      toSend.UpdateChannelGroupRequests = selectedItems.map(
         (item) =>
           ({
             ChannelGroupId: item.Id,

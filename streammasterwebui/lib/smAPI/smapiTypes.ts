@@ -179,6 +179,12 @@ export interface M3UFileDto
 	Url: string;
 	VODTags: string[];
 }
+export interface NameLogo
+{
+	Id: number;
+	Logo: string;
+	Name: string;
+}
 export interface SDSystemStatus
 {
 	IsSystemReady: boolean;
@@ -255,6 +261,7 @@ export interface SMChannelDto
 export interface SMStreamDto
 {
 	APIName: string;
+	ChannelMembership: NameLogo[];
 	ChannelNumber: number;
 	ClientUserAgent?: string;
 	CUID: string;
@@ -806,6 +813,9 @@ export interface SendSuccessRequest
 export interface GetPagedSMChannelsRequest
 {
 	Parameters: QueryStringParameters;
+}
+export interface GetSMChannelNameLogosRequest
+{
 }
 export interface GetSMChannelNamesRequest
 {

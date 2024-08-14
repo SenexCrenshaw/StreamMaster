@@ -31,6 +31,7 @@ import GetPagedSMStreamsReducer from '@lib/smAPI/SMStreams/GetPagedSMStreamsSlic
 import GetPagedStreamGroupsReducer from '@lib/smAPI/StreamGroups/GetPagedStreamGroupsSlice';
 import GetSelectedStationIdsReducer from '@lib/smAPI/SchedulesDirect/GetSelectedStationIdsSlice';
 import GetSettingsReducer from '@lib/smAPI/Settings/GetSettingsSlice';
+import GetSMChannelNameLogosReducer from '@lib/smAPI/SMChannels/GetSMChannelNameLogosSlice';
 import GetSMChannelNamesReducer from '@lib/smAPI/SMChannels/GetSMChannelNamesSlice';
 import GetSMChannelStreamsReducer from '@lib/smAPI/SMChannelStreamLinks/GetSMChannelStreamsSlice';
 import GetSMTasksReducer from '@lib/smAPI/SMTasks/GetSMTasksSlice';
@@ -168,6 +169,7 @@ export const rootReducer = combineReducers({
   GetPagedStreamGroups: GetPagedStreamGroupsReducer,
   GetSelectedStationIds: GetSelectedStationIdsReducer,
   GetSettings: GetSettingsReducer,
+  GetSMChannelNameLogos: GetSMChannelNameLogosReducer,
   GetSMChannelNames: GetSMChannelNamesReducer,
   GetSMChannelStreams: GetSMChannelStreamsReducer,
   GetSMTasks: GetSMTasksReducer,

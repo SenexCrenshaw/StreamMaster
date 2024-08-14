@@ -100,7 +100,7 @@ const IconSelector = ({
         <img alt="Icon logo" src={iconUrl} />
       </div>
     );
-  }, [iconSource, large]);
+  }, [iconSource, isCustomPlayList, large]);
 
   const itemTemplate = (icon: IconFileDto) => {
     if (icon === null) return <div />;

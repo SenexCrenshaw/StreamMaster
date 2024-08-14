@@ -18,6 +18,7 @@ import { useSelectedStreamGroup } from '@lib/redux/hooks/selectedStreamGroup';
 import { AddSMStreamToSMChannel, RemoveSMStreamFromSMChannel } from '@lib/smAPI/SMChannelStreamLinks/SMChannelStreamLinksCommands';
 
 import { LinkButton } from '@components/buttons/LinkButton';
+import { useSMStreamMembershipColumnConfig } from '@components/smstreams/columns/useSMStreamMembershipColumnConfig';
 import { CreateSMChannelsFromStreams } from '@lib/smAPI/SMChannels/SMChannelsCommands';
 import useGetPagedSMStreams from '@lib/smAPI/SMStreams/useGetPagedSMStreams';
 import {
@@ -51,6 +52,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
   const { setSelectedSMStreams } = useSelectedSMStreams(dataKey);
   const groupColumnConfig = useSMStreamChannelGroupColumnConfig({ dataKey });
   const smStreamM3UColumnConfig = useSMStreamM3UColumnConfig({ dataKey });
+  const smStreamMembershipColumnConfig = useSMStreamMembershipColumnConfig({ dataKey });
   const { queryFilter } = useQueryFilter(dataKey);
   const { isLoading } = useGetPagedSMStreams(queryFilter);
 
@@ -75,13 +77,14 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
   const columns = useMemo(
     (): ColumnMeta[] => [
       { field: 'Name', filter: true, sortable: true, width: 200 },
-      { align: 'right', field: 'ChannelNumber', header: '#', sortable: true, width: 40 },
+      // { align: 'right', field: 'ChannelNumber', header: '#', sortable: true, width: 40 },
+      smStreamMembershipColumnConfig,
       groupColumnConfig,
       smStreamM3UColumnConfig,
       { align: 'right', field: 'M3UFileId', fieldType: 'filterOnly' },
       { align: 'right', bodyTemplate: actionTemplate, field: 'IsHidden', fieldType: 'actions', header: 'Actions', width: 108 }
     ],
-    [actionTemplate, groupColumnConfig, smStreamM3UColumnConfig]
+    [actionTemplate, groupColumnConfig, smStreamM3UColumnConfig, smStreamMembershipColumnConfig]
   );
 
   const simpleColumns = useMemo((): ColumnMeta[] => [{ field: 'Name', filter: true, sortable: true, width: '10rem' }], []);

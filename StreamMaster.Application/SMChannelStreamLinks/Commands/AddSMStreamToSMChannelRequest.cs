@@ -35,6 +35,7 @@ internal class AddSMStreamToSMChannelRequestHandler(IRepositoryWrapper Repositor
             //];
             await dataRefreshService.RefreshSMChannelStreamLinks();
             await dataRefreshService.RefreshSMChannels();
+            await dataRefreshService.RefreshSMStreams();
             //await dataRefreshService.SetField(ret).ConfigureAwait(false);
 
         }
