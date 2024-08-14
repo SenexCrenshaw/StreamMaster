@@ -1429,12 +1429,16 @@ export interface ChannelMetric
 }
 export interface ClientChannelDto
 {
+	ClientIPAddress?: string;
+	ClientUserAgent?: string;
 	Logo?: string;
 	Name: string;
 	SMChannelId: number;
 }
 export interface ClientStreamsDto
 {
+	ClientIPAddress?: string;
+	ClientUserAgent?: string;
 	Logo?: string;
 	Name: string;
 	SMStreamId: string;

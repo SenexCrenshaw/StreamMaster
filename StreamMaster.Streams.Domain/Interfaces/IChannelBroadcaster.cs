@@ -1,4 +1,5 @@
-﻿using StreamMaster.Streams.Domain.Events;
+﻿using StreamMaster.Domain.Models;
+using StreamMaster.Streams.Domain.Events;
 using StreamMaster.Streams.Domain.Statistics;
 
 using System.Collections.Concurrent;
@@ -19,7 +20,7 @@ public interface IChannelBroadcaster : IChannelBroadcasterBase
     /// </summary>
     event EventHandler<ChannelDirectorStopped> OnStoppedEvent;
 
-
+    public SMStreamInfo SMStreamInfo { get; }
 }
 
 public interface IChannelStatusBroadcaster : IChannelBroadcasterBase

@@ -4,7 +4,7 @@ namespace StreamMaster.Streams.Domain.Interfaces;
 public interface IChannelService
 {
 
-    //Task UnRegisterChannelAsync(int smChannelId, CancellationToken cancellationToken = default);
+    List<IClientConfiguration> GetClientStreamerConfigurations();
     Task CheckForEmptyChannelsAsync(CancellationToken cancellationToken = default);
     List<IChannelStatus> GetChannelStatusFromStreamUrl(string videoUrl);
     Task<IClientConfiguration?> GetClientStreamerConfiguration(string UniqueRequestId, CancellationToken cancellationToken = default);

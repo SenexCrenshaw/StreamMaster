@@ -5,7 +5,6 @@ using StreamMaster.Streams.Domain;
 using StreamMaster.Streams.Factories;
 using StreamMaster.Streams.Plugins;
 using StreamMaster.Streams.Services;
-using StreamMaster.Streams.Statistics;
 using StreamMaster.Streams.Streams;
 
 namespace StreamMaster.Streams;
@@ -18,10 +17,10 @@ public static class ConfigureServices
         services.AddSingleton<IChannelService, ChannelService>();
         services.AddSingleton<IProxyFactory, ProxyFactory>();
 
-        services.AddSingleton<IStreamStatisticService, StreamStatisticService>();
-        services.AddSingleton<IClientStatisticsManager, ClientStatisticsManager>();
-        services.AddSingleton<IChannelStreamingStatisticsManager, ChannelStreamingStatisticsManager>();
-        services.AddSingleton<IStreamStreamingStatisticsManager, StreamStreamingStatisticsManager>();
+        //services.AddSingleton<IStreamStatisticService, StreamStatisticService>();
+        //services.AddSingleton<IClientStatisticsManager, ClientStatisticsManager>();
+        //services.AddSingleton<IChannelStreamingStatisticsManager, ChannelStreamingStatisticsManager>();
+        //services.AddSingleton<IStreamStreamingStatisticsManager, StreamStreamingStatisticsManager>();
         //services.AddSingleton<IStreamManager, StreamManager>();
         services.AddTransient<ICommandExecutor, CommandExecutor>();
         services.AddTransient<ICustomPlayListStream, CustomPlayListStream>();

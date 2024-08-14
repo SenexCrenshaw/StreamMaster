@@ -1,31 +1,62 @@
 import SMDataTable from '@components/smDataTable/SMDataTable';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 import { formatJSONDateString, getElapsedTimeString } from '@lib/common/dateTime';
-import { ClientStreamingStatistics } from '@lib/smAPI/smapiTypes';
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { VideoInfoDisplay } from './VideoInfoDisplay';
-import { GetClientStreamingStatistics } from '@lib/smAPI/Statistics/StatisticsCommands';
-import CancelClientDialog from '@components/streaming/CancelClientDialog';
+import { ChannelMetric, ClientChannelDto } from '@lib/smAPI/smapiTypes';
+
+import { GetChannelMetrics } from '@lib/smAPI/Statistics/StatisticsCommands';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+
+interface IntClientChannelDto extends ClientChannelDto {
+  readonly SourceName: string;
+  readonly Logo?: string;
+}
 
 const SMClientStatus = () => {
-  const [clientStreamingStatistics, setClientStreamingStatistics] = useState<ClientStreamingStatistics[]>([]);
+  const [clientChannelMetrics, setClientChannelMetrics] = useState<IntClientChannelDto[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
 
-  const getStats = useCallback(async () => {
+  const channelMetricsRef = useRef<IntClientChannelDto[]>([]);
+
+  const setChannelMetricsWithRef = (metrics: ChannelMetric[]) => {
+    const sourceMetrics = metrics.filter((metric) => metric.SMStreamInfo === null);
+    const intMetrics = [] as IntClientChannelDto[];
+
+    for (const metric of sourceMetrics) {
+      for (const clientChannel of metric.ClientChannels) {
+        intMetrics.push({ ...clientChannel, Logo: metric.Logo, SourceName: metric.SourceName });
+      }
+    }
+
+    channelMetricsRef.current = intMetrics;
+    setClientChannelMetrics(intMetrics);
+
+    // Log the client metrics for debugging
+    // Logger.debug('SMClientStatus:', intMetrics);
+  };
+
+  const getChannelMetrics = useCallback(async () => {
     try {
-      const [clientStats] = await Promise.all([GetClientStreamingStatistics()]);
-
-      setClientStreamingStatistics(clientStats ?? []);
-      // setStreamStreamingStatistics(streamStats ?? []);
-    } catch (error) {}
-  }, [setClientStreamingStatistics]);
+      const [channelMetricsData] = await Promise.all([GetChannelMetrics()]);
+      setChannelMetricsWithRef(channelMetricsData ?? []);
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching channel metrics:', error);
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    getStats();
-    const intervalId = setInterval(getStats, 1000);
-    return () => clearInterval(intervalId);
-  }, [getStats]);
+    const fetchData = () => {
+      getChannelMetrics();
+    };
 
-  const clientBitsPerSecondTemplate = (rowData: ClientStreamingStatistics) => {
+    fetchData();
+    const intervalId = setInterval(fetchData, 3000);
+
+    return () => clearInterval(intervalId);
+  }, [getChannelMetrics]);
+
+  const clientBitsPerSecondTemplate = (rowData: ChannelMetric) => {
     if (rowData.BitsPerSecond === undefined) return <div />;
 
     const kbps = rowData.BitsPerSecond / 1000;
@@ -34,37 +65,44 @@ const SMClientStatus = () => {
     return <div>{roundedKbps.toLocaleString('en-US')}</div>;
   };
 
-  const elapsedTSTemplate = useCallback((rowData: ClientStreamingStatistics) => {
+  const elapsedTSTemplate = useCallback((rowData: ChannelMetric) => {
     return <div className="numeric-field">{getElapsedTimeString(rowData.StartTime, new Date().toString(), true)}</div>;
   }, []);
 
-  const clientStartTimeTemplate = (rowData: ClientStreamingStatistics) => <div>{formatJSONDateString(rowData.StartTime ?? '')}</div>;
+  const clientStartTimeTemplate = (rowData: ChannelMetric) => <div>{formatJSONDateString(rowData.StartTime ?? '')}</div>;
 
-  const actionTemplate = useCallback((data: ClientStreamingStatistics) => {
+  const actionTemplate = useCallback((data: ChannelMetric) => {
     return (
       <div className="sm-center-stuff">
-        <VideoInfoDisplay channelId={data.ChannelId} />
-        <CancelClientDialog clientId={data.ClientId} />
+        {/* <VideoInfoDisplay channelId={data.ChannelId} /> */}
+        {/* <CancelClientDialog clientId={data.ClientId} /> */}
+      </div>
+    );
+  }, []);
+
+  const logoTemplate = useCallback((rowData: IntClientChannelDto) => {
+    return (
+      <div className="flex icon-button-template justify-content-center align-items-center w-full">
+        <img alt="Icon logo" src={rowData.Logo} />
       </div>
     );
   }, []);
 
   const columns = useMemo(
     (): ColumnMeta[] => [
-      { align: 'left', field: 'ChannelName', filter: true, header: 'Channel', sortable: true, width: 120 },
+      { bodyTemplate: logoTemplate, field: 'Logo', fieldType: 'image', header: '' },
+      { align: 'left', field: 'SourceName', filter: true, header: 'Source', sortable: true, width: 120 },
       { align: 'right', field: 'ClientIPAddress', filter: true, header: 'IPAddress', sortable: true, width: 100 },
-      { align: 'right', field: 'ClientAgent', filter: true, header: 'Agent', sortable: true, width: 180 },
-      { align: 'right', bodyTemplate: clientBitsPerSecondTemplate, field: 'BitsPerSecond', header: 'Kbps', width: 50 },
-      { align: 'center', bodyTemplate: clientStartTimeTemplate, field: 'StartTime', header: 'StartTime', width: 150 },
-      { align: 'right', bodyTemplate: elapsedTSTemplate, field: 'ElapsedTime', header: '(d hh:mm:ss)', width: 85 },
-      { align: 'center', bodyTemplate: actionTemplate, field: 'actions', fieldType: 'actions', header: '', width: 44 }
+      { align: 'right', field: 'ClientUserAgent', filter: true, header: 'Agent', sortable: true, width: 180 }
+      // { align: 'right', bodyTemplate: clientBitsPerSecondTemplate, field: 'BitsPerSecond', header: 'Kbps', width: 50 },
+      // { align: 'center', bodyTemplate: clientStartTimeTemplate, field: 'StartTime', header: 'StartTime', width: 150 },
+      // { align: 'right', bodyTemplate: elapsedTSTemplate, field: 'ElapsedTime', header: '(d hh:mm:ss)', width: 85 },
+      // { align: 'center', bodyTemplate: actionTemplate, field: 'actions', fieldType: 'actions', header: '', width: 44 }
     ],
-    [actionTemplate, elapsedTSTemplate]
+    [logoTemplate]
   );
 
-  if (clientStreamingStatistics === undefined) return <div>Loading...</div>;
-
-  return <SMDataTable headerName="CLIENTS" columns={columns} id="clientStatus" dataSource={clientStreamingStatistics} />;
+  return <SMDataTable headerName="CLIENTS" columns={columns} id="SMClientStatus" dataKey="Name" dataSource={clientChannelMetrics} />;
 };
 
 export default SMClientStatus;

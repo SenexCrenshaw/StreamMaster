@@ -1,6 +1,7 @@
 ﻿using StreamMaster.Domain.Events;
 
 using StreamMaster.Streams.Domain.Events;
+
 using System.Collections.Concurrent;
 
 namespace StreamMaster.Streams.Services
@@ -58,12 +59,12 @@ namespace StreamMaster.Streams.Services
                     return channelDistributor;
                 }
 
-                channelDistributor = new ChannelBroadcaster(_channelDirectorLogger, smStreamInfo.Url, smStreamInfo.Name);
+                channelDistributor = new ChannelBroadcaster(_channelDirectorLogger, smStreamInfo);
 
                 _logger.LogInformation("Created new source channel for: {Id} {name}", smStreamInfo.Id, smStreamInfo.Name);
 
-                (Stream stream, int processId, ProxyStreamError error) = await _proxyFactory.GetProxy(smStreamInfo, cancellationToken).ConfigureAwait(false);
-                if (stream == null || error != null || processId == 0)
+                (Stream? stream, int? processId, ProxyStreamError? error) = await _proxyFactory.GetProxy(smStreamInfo, cancellationToken).ConfigureAwait(false);
+                if (stream == null || processId == null || error != null)
                 {
                     _logger.LogError("Could not create source stream for channel distributor: {Id} {name} {error}", smStreamInfo.Id, smStreamInfo.Name, error?.Message);
                     return null;

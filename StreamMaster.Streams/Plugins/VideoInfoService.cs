@@ -34,7 +34,7 @@ namespace StreamMaster.Streams.Plugins
             return VideoInfos.ContainsKey(key);
         }
 
-        public void SetSourceChannel(IChannelBroadcaster sourceChannelBroadcaster)
+        public void SetSourceChannel(IChannelBroadcaster sourceChannelBroadcaster, string Id)
         {
             Channel<byte[]> channelVideoInfo = Channel.CreateBounded<byte[]>(new BoundedChannelOptions(200)
             {

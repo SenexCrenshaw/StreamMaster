@@ -13,5 +13,7 @@ namespace StreamMaster.Streams.Domain.Models
         public string SMStreamId { get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;
         public string? Logo { get; set; }
+        public string? ClientIPAddress { get; set; }
+        public string? ClientUserAgent { get; set; }
     }
 }

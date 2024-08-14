@@ -98,6 +98,15 @@ namespace StreamMaster.Streams.Channels
             return null;
         }
 
+        public List<IClientConfiguration> GetClientStreamerConfigurations()
+        {
+
+            List<IClientConfiguration> configs = CacheManager.ChannelStatuses.Values
+                .SelectMany(a => a.GetClientStreamerConfigurations()).ToList();
+
+            return configs;
+        }
+
         public void Dispose()
         {
             lock (_disposeLock)
@@ -240,7 +249,8 @@ namespace StreamMaster.Streams.Channels
         {
             await Task.Delay(delay, cancellationToken).ConfigureAwait(false);
 
-            return channelStatus.ClientCount == 0 && channelStatus.SMStreamInfo != null && !RunningUrls.Contains(channelStatus.SMStreamInfo.Url)
+            // )//&& !RunningUrls.Contains(channelStatus.SMStreamInfo.Url)
+            return channelStatus.ClientCount == 0 && channelStatus.SMStreamInfo != null
             && await UnRegisterChannelAsync(channelStatus).ConfigureAwait(false);
         }
 
@@ -341,7 +351,7 @@ namespace StreamMaster.Streams.Channels
 
             if (!channelStatus.SMStreamInfo.Id.StartsWith(IntroPlayListBuilder.IntroIDPrefix, StringComparison.InvariantCulture))
             {
-                VideoInfoService.SetSourceChannel(sourceChannelBroadcaster);
+                VideoInfoService.SetSourceChannel(sourceChannelBroadcaster, channelStatus.SMStreamInfo.Id);
             }
 
 

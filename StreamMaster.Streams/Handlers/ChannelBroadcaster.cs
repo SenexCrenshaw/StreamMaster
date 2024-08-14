@@ -8,11 +8,10 @@ public class ChannelBroadcaster : ChannelBroadcasterBase, IChannelBroadcaster
 
     public event EventHandler<ChannelDirectorStopped>? OnStoppedEvent;
 
-    public ChannelBroadcaster(ILogger<IChannelBroadcaster> logger, string id, string name) : base(logger)
+    public ChannelBroadcaster(ILogger<IChannelBroadcaster> logger, SMStreamInfo smStreamInfo) : base(logger)
     {
-        Id = id;
-        Name = name;
-
+        SMStreamInfo = smStreamInfo;
+        Name = SMStreamInfo.Name;
     }
 
     public override string StringId()
@@ -21,7 +20,9 @@ public class ChannelBroadcaster : ChannelBroadcasterBase, IChannelBroadcaster
     }
 
     /// <inheritdoc/>
-    public string Id { get; } = string.Empty;
+    public string Id => SMStreamInfo.Url;
+
+    public SMStreamInfo SMStreamInfo { get; private set; }
 
     /// <inheritdoc/>
     public override void OnStreamingStopped()

@@ -8,8 +8,6 @@ import useGetStationChannelNames from '@lib/smAPI/SchedulesDirect/useGetStationC
 import { SMChannelDto, SMStreamDto, StationChannelName, UpdateSMChannelRequest } from '@lib/smAPI/smapiTypes';
 import React, { forwardRef, Suspense, useCallback, useEffect, useImperativeHandle, useMemo, useState } from 'react';
 import StreamingProxyTypeSelector from './CommandProfileNameSelector';
-// import SMChannelSMStreamDialog from './SMChannelSMStreamDialog';
-// import SMChannelSMStreamFromDataKeyDialog from './SMChannelSMStreamFromDataKeyDialog';
 
 const SMChannelSMStreamDialog = React.lazy(() => import('./SMChannelSMStreamDialog'));
 const SMChannelSMStreamFromDataKeyDialog = React.lazy(() => import('./SMChannelSMStreamFromDataKeyDialog'));
