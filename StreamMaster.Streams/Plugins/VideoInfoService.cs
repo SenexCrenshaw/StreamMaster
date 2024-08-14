@@ -1,5 +1,4 @@
 ﻿
-
 using System.Collections.Concurrent;
 using System.Threading.Channels;
 
@@ -34,7 +33,12 @@ namespace StreamMaster.Streams.Plugins
             return VideoInfos.ContainsKey(key);
         }
 
-        public void SetSourceChannel(IChannelBroadcaster sourceChannelBroadcaster, string Id)
+        public VideoInfo? GetVideoInfo(string key)
+        {
+            return VideoInfos.TryGetValue(key, out VideoInfo? videoInfo) ? videoInfo : null;
+        }
+
+        public void SetSourceChannel(IChannelBroadcaster sourceChannelBroadcaster, string Id, string Name)
         {
             Channel<byte[]> channelVideoInfo = Channel.CreateBounded<byte[]>(new BoundedChannelOptions(200)
             {
@@ -43,22 +47,21 @@ namespace StreamMaster.Streams.Plugins
                 FullMode = BoundedChannelFullMode.DropOldest
             });
 
-            //sourceChannelBroadcaster.AddClientChannel($"VideoInfo {sourceChannelBroadcaster.Id}", channelVideoInfo.Writer);
             sourceChannelBroadcaster.AddClientChannel("VideoInfo", channelVideoInfo.Writer);
-            string key = sourceChannelBroadcaster.Name;
+            //string key = sourceChannelBroadcaster.Name;
 
-            if (!VideoInfoPlugins.TryGetValue(key, out VideoInfoPlugin? videoInfoPlugin))
+            if (!VideoInfoPlugins.TryGetValue(Id, out VideoInfoPlugin? videoInfoPlugin))
             {
-                _logger.LogInformation("Video info service started for {key}", key);
-                videoInfoPlugin = new VideoInfoPlugin(pluginLogger, _intSettings, channelVideoInfo.Reader, key);
+                _logger.LogInformation("Video info service started for {Id}", Id);
+                videoInfoPlugin = new VideoInfoPlugin(pluginLogger, _intSettings, channelVideoInfo.Reader, Id, Name);
                 videoInfoPlugin.VideoInfoUpdated += OnVideoInfoUpdated;
-                VideoInfoPlugins.TryAdd(key, videoInfoPlugin);
+                VideoInfoPlugins.TryAdd(Id, videoInfoPlugin);
             }
         }
 
-        public bool RemoveSourceChannel(string key)
+        public bool RemoveSourceChannel(string Id)
         {
-            if (VideoInfoPlugins.TryRemove(key, out VideoInfoPlugin? videoInfoPlugin))
+            if (VideoInfoPlugins.TryRemove(Id, out VideoInfoPlugin? videoInfoPlugin))
             {
                 videoInfoPlugin.Stop();
                 return true;
@@ -68,14 +71,15 @@ namespace StreamMaster.Streams.Plugins
 
         private void OnVideoInfoUpdated(object? sender, VideoInfoEventArgs e)
         {
-            _logger.LogInformation("Video info got info for {key} {JsonOutput}", e.Key, e.VideoInfo.JsonOutput);
+            _logger.LogInformation("Video info got info for {key} {JsonOutput}", e.Id, e.VideoInfo.JsonOutput);
             VideoInfo updatedVideoInfo = e.VideoInfo;
-            VideoInfos.AddOrUpdate(e.Key, updatedVideoInfo, (_, _) => updatedVideoInfo);
+            VideoInfos.AddOrUpdate(e.Id, updatedVideoInfo, (_, _) => updatedVideoInfo);
         }
 
         public void Dispose()
         {
             Stop();
+            GC.SuppressFinalize(this);
         }
     }
 }

@@ -21,7 +21,7 @@ internal class GetChannelMetricsRequestHandler(IRepositoryWrapper repositoryWrap
 
         List<string> smChannelIds2 = channelStatuses.SelectMany(a => a.ClientChannels.Keys).ToList();
         List<string> smStreamIds2 = channelStatuses.SelectMany(a => a.ClientStreams.Keys).ToList();
-        List<string> smStreamIds3 = channelStatuses.Select(a => a.SMStreamInfo.Id).ToList();
+        List<string> smStreamIds3 = channelStatuses.Where(a => a.SMStreamInfo?.Id != null).Select(a => a.SMStreamInfo!.Id).ToList();
 
         smChannelIds.AddRange(smChannelIds2);
         smStreamIds.AddRange(smStreamIds2);
@@ -53,9 +53,15 @@ internal class GetChannelMetricsRequestHandler(IRepositoryWrapper repositoryWrap
             foreach (KeyValuePair<string, System.Threading.Channels.ChannelWriter<byte[]>> channel in channelStatus.ClientChannels)
             {
                 IClientConfiguration? config = clientConfigurations.Find(a => a.UniqueRequestId == channel.Key);
+                StreamHandlerMetrics? metric = null;
+                if (config?.ClientStream != null)
+                {
+                    metric = config.ClientStream.Metrics;
+                }
+
                 channelDtos.Add(new ClientChannelDto()
                 {
-                    //ClientId = config?.UniqueRequestId,
+                    Metrics = metric,
                     ClientIPAddress = config?.ClientIPAddress,
                     ClientUserAgent = config?.ClientUserAgent,
                     SMChannelId = test?.Id ?? channelCount++,
@@ -99,7 +105,7 @@ internal class GetChannelMetricsRequestHandler(IRepositoryWrapper repositoryWrap
                 ClientChannels = channelDtos,
                 ClientStreams = streamDtos,
                 ChannelItemBackLog = channelStatus.ChannelItemBackLog,
-                GetMetrics = channelStatus.GetMetrics,
+                Metrics = channelStatus.Metrics,
                 IsFailed = channelStatus.IsFailed,
                 Id = channelStatus.Id.ToString(),
                 Logo = logo
@@ -156,7 +162,7 @@ internal class GetChannelMetricsRequestHandler(IRepositoryWrapper repositoryWrap
 
             SMStreamInfo? d = channelBroadcaster.SMStreamInfo?.DeepCopy() ?? null;
             d.Url = "Hidden";
-
+            string id = d.Id;
 
             string? metricLogo = null;
             if (!channelBroadcaster.Id.Contains("://"))
@@ -170,6 +176,7 @@ internal class GetChannelMetricsRequestHandler(IRepositoryWrapper repositoryWrap
                 if (smStream != null)
                 {
                     metricLogo = smStream.Logo;
+                    //id = smStream.Id;
                 }
             }
 
@@ -182,9 +189,9 @@ internal class GetChannelMetricsRequestHandler(IRepositoryWrapper repositoryWrap
                 ClientChannels = channelDtos,
                 ClientStreams = streamDtos,
                 ChannelItemBackLog = channelBroadcaster.ChannelItemBackLog,
-                GetMetrics = channelBroadcaster.GetMetrics,
+                Metrics = channelBroadcaster.Metrics,
                 IsFailed = channelBroadcaster.IsFailed,
-                Id = "Hidden",
+                Id = id,
                 Logo = metricLogo
             };
 

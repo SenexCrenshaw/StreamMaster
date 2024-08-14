@@ -1,9 +1,7 @@
-﻿
-
-namespace StreamMaster.Streams.Domain.Interfaces;
+﻿namespace StreamMaster.Streams.Domain.Interfaces;
 public interface IChannelService
 {
-
+    Task CloseChannelAsync(IChannelStatus channelStatus, bool force = false);
     List<IClientConfiguration> GetClientStreamerConfigurations();
     Task CheckForEmptyChannelsAsync(CancellationToken cancellationToken = default);
     List<IChannelStatus> GetChannelStatusFromStreamUrl(string videoUrl);

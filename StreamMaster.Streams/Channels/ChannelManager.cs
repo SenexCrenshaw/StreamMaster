@@ -1,5 +1,4 @@
 ﻿
-
 namespace StreamMaster.Streams.Channels;
 
 public sealed class ChannelManager : IChannelManager
@@ -109,8 +108,6 @@ public sealed class ChannelManager : IChannelManager
     }
     public async Task CancelClient(string UniqueRequestId)
     {
-        //_ = clientStreamerManager.CancelClient(UniqueRequestId, true);
-
         IClientConfiguration? config = await channelService.GetClientStreamerConfiguration(UniqueRequestId);
         if (config == null)
         {
@@ -138,35 +135,24 @@ public sealed class ChannelManager : IChannelManager
     }
     public async Task CancelChannel(int SMChannelId)
     {
+
         IChannelStatus? channelStatus = channelService.GetChannelStatus(SMChannelId);
         if (channelStatus is null)
         {
             logger.LogWarning("Channel not found: {SMChannelId}", SMChannelId);
             return;
         }
+        await channelService.CloseChannelAsync(channelStatus, true);
 
-        channelStatus.Shutdown = true;
-        channelStatus.Stop();
-        await channelService.CheckForEmptyChannelsAsync();
-
-        //IChannelBroadcaster? channelDistributor = ChannelDistributorService.GetChannelBroadcaster(stat.SMStreamInfo.Url);
-
-        //if (channelDistributor is not null)
+        //channelStatus.Shutdown = true;
+        //foreach (IClientConfiguration config in channelStatus.GetClientStreamerConfigurations())
         //{
-        //    channelDistributor.Stop();
-
-        //    //foreach (ClientConfiguration? config in handler.GetChannelStatuses.SelectMany(a => a.ClientStreamerConfigurations.Values))
-        //    //{
-        //    //    await CancelClient(config.UniqueRequestId);
-        //    //}
-        //    await channelService.CheckForEmptyChannelsAsync();
-
-        //    logger.LogInformation("Simulating stream failure for: {VideoStreamName}", stat.SMStreamInfo.Name);
+        //    await CancelClient(config.UniqueRequestId);
         //}
-        //else
-        //{
-        //    logger.LogWarning("Stream not found, cannot simulate stream failure: {StreamUrl}", SMChannelId);
-        //}
+
+        //channelStatus.Stop();
+
+        //await channelService.CheckForEmptyChannelsAsync();
     }
 
     public void MoveToNextStream(int SMChannelId)

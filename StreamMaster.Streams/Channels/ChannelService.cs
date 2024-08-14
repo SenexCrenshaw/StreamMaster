@@ -11,7 +11,6 @@ namespace StreamMaster.Streams.Channels
         private readonly IChannelStatusService ChannelStatusService;
         private readonly IVideoInfoService VideoInfoService;
         private readonly ICacheManager CacheManager;
-        private readonly IDubcer dubcer;
         private readonly IOptionsMonitor<Setting> _settings;
 
         private readonly object _disposeLock = new();
@@ -21,7 +20,6 @@ namespace StreamMaster.Streams.Channels
             ILogger<ChannelService> logger,
             IOptionsMonitor<Setting> _settings,
             IVideoInfoService VideoInfoService,
-            IDubcer dubcer,
             IChannelBroadcasterService channelDistributorService,
             IChannelStatusService ChannelStatusService,
             ICacheManager CacheManager,
@@ -33,20 +31,18 @@ namespace StreamMaster.Streams.Channels
             ChannelDistributorService = channelDistributorService;
             this.switchToNextStreamService = switchToNextStreamService;
             this.logger = logger;
-            this.dubcer = dubcer;
             this._settings = _settings;
 
             ChannelDistributorService.OnChannelDirectorStoppedEvent += ChannelDistributorService_OnStoppedEvent;
             ChannelStatusService.OnChannelStatusStoppedEvent += ChannelStatusService_OnChannelStatusStoppedEvent;
         }
 
-
         private async Task ChannelStatusService_OnChannelStatusStoppedEvent(object? sender, ChannelStatusStopped e)
         {
             if (sender is IChannelStatus channelStatus)
             {
                 logger.LogInformation("Streaming Stopped Event for StreamId: {StreamId} {StreamName}", e.Id, e.Name);
-                await CloseChannel(channelStatus).ConfigureAwait(false);
+                await CloseChannelAsync(channelStatus).ConfigureAwait(false);
             }
         }
 
@@ -75,7 +71,7 @@ namespace StreamMaster.Streams.Channels
                     bool didSwitch = await SwitchChannelToNextStream(channelStatus).ConfigureAwait(false);
                     if (!didSwitch)
                     {
-                        await CloseChannel(channelStatus).ConfigureAwait(false);
+                        await CloseChannelAsync(channelStatus).ConfigureAwait(false);
                     }
                 }
             }
@@ -100,7 +96,6 @@ namespace StreamMaster.Streams.Channels
 
         public List<IClientConfiguration> GetClientStreamerConfigurations()
         {
-
             List<IClientConfiguration> configs = CacheManager.ChannelStatuses.Values
                 .SelectMany(a => a.GetClientStreamerConfigurations()).ToList();
 
@@ -166,7 +161,7 @@ namespace StreamMaster.Streams.Channels
             }
 
             IChannelBroadcaster? channelDistributor = ChannelDistributorService.GetChannelBroadcaster(channelStatus.SMStreamInfo.Url);
-            if (channelDistributor is null || channelDistributor.IsFailed)
+            if (channelDistributor?.IsFailed != false)
             {
                 if (!await SwitchChannelToNextStream(channelStatus).ConfigureAwait(false))
                 {
@@ -203,18 +198,18 @@ namespace StreamMaster.Streams.Channels
             {
                 if (channelStatus.ClientCount == 0 && !RunningUrls.Contains(channelStatus.SMStreamInfo!.Url))
                 {
-                    tasks.Add(CloseChannel(channelStatus));
+                    tasks.Add(CloseChannelAsync(channelStatus));
                 }
             }
 
             await Task.WhenAll(tasks).ConfigureAwait(false);
         }
 
-        public async Task CloseChannel(IChannelStatus channelStatus)
+        public async Task CloseChannelAsync(IChannelStatus channelStatus, bool force = false)
         {
             channelStatus.Shutdown = true;
 
-            int delay = _settings.CurrentValue.ShutDownDelay;
+            int delay = force ? 0 : _settings.CurrentValue.ShutDownDelay;
             bool closed = delay > 0
                 ? await UnRegisterChannelAfterDelayAsync(channelStatus, TimeSpan.FromMilliseconds(delay), CancellationToken.None).ConfigureAwait(false)
                 : await UnRegisterChannelAsync(channelStatus).ConfigureAwait(false);
@@ -307,7 +302,7 @@ namespace StreamMaster.Streams.Channels
 
         public List<IChannelStatus> GetChannelStatuses()
         {
-            return CacheManager.ChannelStatuses.Values.ToList();
+            return [.. CacheManager.ChannelStatuses.Values];
         }
 
         public bool HasChannel(int smChannelId)
@@ -351,9 +346,8 @@ namespace StreamMaster.Streams.Channels
 
             if (!channelStatus.SMStreamInfo.Id.StartsWith(IntroPlayListBuilder.IntroIDPrefix, StringComparison.InvariantCulture))
             {
-                VideoInfoService.SetSourceChannel(sourceChannelBroadcaster, channelStatus.SMStreamInfo.Id);
+                VideoInfoService.SetSourceChannel(sourceChannelBroadcaster, channelStatus.SMStreamInfo.Id, channelStatus.SMStreamInfo.Name);
             }
-
 
             channelStatus.FailoverInProgress = false;
 

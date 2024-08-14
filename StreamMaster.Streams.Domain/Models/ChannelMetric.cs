@@ -18,7 +18,7 @@ namespace StreamMaster.Streams.Domain.Models
 
         public List<ClientStreamsDto> ClientStreams { get; set; }
 
-        public StreamHandlerMetrics GetMetrics { get; set; }
+        public StreamHandlerMetrics Metrics { get; set; }
 
         public bool IsFailed { get; set; }
         public string Name { get; set; }

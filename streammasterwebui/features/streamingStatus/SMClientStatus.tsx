@@ -13,7 +13,7 @@ interface IntClientChannelDto extends ClientChannelDto {
 
 const SMClientStatus = () => {
   const [clientChannelMetrics, setClientChannelMetrics] = useState<IntClientChannelDto[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  // const [loading, setLoading] = useState<boolean>(true);
 
   const channelMetricsRef = useRef<IntClientChannelDto[]>([]);
 
@@ -38,10 +38,10 @@ const SMClientStatus = () => {
     try {
       const [channelMetricsData] = await Promise.all([GetChannelMetrics()]);
       setChannelMetricsWithRef(channelMetricsData ?? []);
-      setLoading(false);
+      // setLoading(false);
     } catch (error) {
       console.error('Error fetching channel metrics:', error);
-      setLoading(false);
+      // setLoading(false);
     }
   }, []);
 
@@ -57,19 +57,19 @@ const SMClientStatus = () => {
   }, [getChannelMetrics]);
 
   const clientBitsPerSecondTemplate = (rowData: ChannelMetric) => {
-    if (rowData.BitsPerSecond === undefined) return <div />;
+    if (rowData.Metrics.Kbps === undefined) return <div />;
 
-    const kbps = rowData.BitsPerSecond / 1000;
+    const kbps = rowData.Metrics.Kbps;
     const roundedKbps = Math.ceil(kbps);
 
     return <div>{roundedKbps.toLocaleString('en-US')}</div>;
   };
 
   const elapsedTSTemplate = useCallback((rowData: ChannelMetric) => {
-    return <div className="numeric-field">{getElapsedTimeString(rowData.StartTime, new Date().toString(), true)}</div>;
+    return <div className="numeric-field">{getElapsedTimeString(rowData.Metrics.StartTime, new Date().toString(), true)}</div>;
   }, []);
 
-  const clientStartTimeTemplate = (rowData: ChannelMetric) => <div>{formatJSONDateString(rowData.StartTime ?? '')}</div>;
+  const clientStartTimeTemplate = (rowData: ChannelMetric) => <div>{formatJSONDateString(rowData.Metrics.StartTime ?? '')}</div>;
 
   const actionTemplate = useCallback((data: ChannelMetric) => {
     return (
@@ -93,13 +93,14 @@ const SMClientStatus = () => {
       { bodyTemplate: logoTemplate, field: 'Logo', fieldType: 'image', header: '' },
       { align: 'left', field: 'SourceName', filter: true, header: 'Source', sortable: true, width: 120 },
       { align: 'right', field: 'ClientIPAddress', filter: true, header: 'IPAddress', sortable: true, width: 100 },
-      { align: 'right', field: 'ClientUserAgent', filter: true, header: 'Agent', sortable: true, width: 180 }
-      // { align: 'right', bodyTemplate: clientBitsPerSecondTemplate, field: 'BitsPerSecond', header: 'Kbps', width: 50 },
-      // { align: 'center', bodyTemplate: clientStartTimeTemplate, field: 'StartTime', header: 'StartTime', width: 150 },
-      // { align: 'right', bodyTemplate: elapsedTSTemplate, field: 'ElapsedTime', header: '(d hh:mm:ss)', width: 85 },
-      // { align: 'center', bodyTemplate: actionTemplate, field: 'actions', fieldType: 'actions', header: '', width: 44 }
+      { align: 'right', field: 'ClientUserAgent', filter: true, header: 'Agent', sortable: true, width: 180 },
+
+      { align: 'center', bodyTemplate: clientStartTimeTemplate, field: 'StartTime', header: 'StartTime', width: 150 },
+      { align: 'right', bodyTemplate: elapsedTSTemplate, field: 'ElapsedTime', header: '(d hh:mm:ss)', width: 85 },
+      { align: 'right', bodyTemplate: clientBitsPerSecondTemplate, field: 'kbps', header: 'Kbps', width: 50 },
+      { align: 'center', bodyTemplate: actionTemplate, field: 'actions', fieldType: 'actions', header: '', width: 44 }
     ],
-    [logoTemplate]
+    [actionTemplate, elapsedTSTemplate, logoTemplate]
   );
 
   return <SMDataTable headerName="CLIENTS" columns={columns} id="SMClientStatus" dataKey="Name" dataSource={clientChannelMetrics} />;

@@ -49,7 +49,6 @@ public class ChannelBroadcasterBase : IChannelBroadcasterBase
         return [.. ClientStreamerConfigurations.Values];
     }
 
-
     /// <inheritdoc/>
     [XmlIgnore]
     public ConcurrentDictionary<string, ChannelWriter<byte[]>> ClientChannels { get; } = new();
@@ -65,7 +64,7 @@ public class ChannelBroadcasterBase : IChannelBroadcasterBase
     public string SourceName { get; private set; } = string.Empty;
 
     /// <inheritdoc/>
-    public StreamHandlerMetrics GetMetrics => new()
+    public StreamHandlerMetrics Metrics => new()
     {
         BytesRead = GetBytesRead(),
         Kbps = GetKbps(),
@@ -104,9 +103,9 @@ public class ChannelBroadcasterBase : IChannelBroadcasterBase
         if (!_cancellationTokenSource.IsCancellationRequested)
         {
             _cancellationTokenSource.Cancel();
-
         }
         //_currentChannel?.Writer.TryComplete();
+
     }
 
     public void AddClientStreamer(string UniqueRequestId, IClientConfiguration config)
@@ -133,7 +132,6 @@ public class ChannelBroadcasterBase : IChannelBroadcasterBase
         return false;
     }
 
-
     /// <inheritdoc/>
     public void AddClientChannel(string key, ChannelWriter<byte[]> channel)
     {
@@ -147,7 +145,6 @@ public class ChannelBroadcasterBase : IChannelBroadcasterBase
         logger.LogInformation("Add client channel: {key} {name}", key, Name);
         ClientChannels.TryAdd(key.ToString(), channel);
     }
-
 
     /// <inheritdoc/>
     public bool RemoveClientChannel(string key)
@@ -180,7 +177,6 @@ public class ChannelBroadcasterBase : IChannelBroadcasterBase
             return true;
         }
         return false;
-
     }
 
     private void StartProcessingSource(ChannelReader<byte[]>? sourceChannelReader, Stream? sourceStream, Channel<byte[]> newChannel, CancellationToken cancellationToken)

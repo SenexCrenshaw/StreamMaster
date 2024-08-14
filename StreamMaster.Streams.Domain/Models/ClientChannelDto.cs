@@ -1,6 +1,7 @@
 ﻿using Reinforced.Typings.Attributes;
 
 using StreamMaster.Domain.Attributes;
+using StreamMaster.Streams.Domain.Statistics;
 
 namespace StreamMaster.Streams.Domain.Models
 {
@@ -15,5 +16,6 @@ namespace StreamMaster.Streams.Domain.Models
         //public string? ClientId { get; set; }
         public string? ClientIPAddress { get; set; }
         public string? ClientUserAgent { get; set; }
+        public StreamHandlerMetrics? Metrics { get; set; }
     }
 }

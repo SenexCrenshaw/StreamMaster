@@ -9,12 +9,12 @@ namespace StreamMaster.Streams.Plugins
     public class VideoInfoEventArgs : EventArgs
     {
         public VideoInfo VideoInfo { get; }
-        public string Key { get; }
+        public string Id { get; }
 
-        public VideoInfoEventArgs(VideoInfo videoInfo, string key)
+        public VideoInfoEventArgs(VideoInfo videoInfo, string id)
         {
             VideoInfo = videoInfo;
-            Key = key;
+            Id = id;
         }
     }
 
@@ -23,8 +23,9 @@ namespace StreamMaster.Streams.Plugins
         private readonly ILogger<VideoInfoPlugin> _logger;
         private readonly IOptionsMonitor<Setting> _settingsMonitor;
         private readonly ChannelReader<byte[]> _channelReader;
-        private readonly AutoResetEvent _videoInfoUpdatedEvent;
-        private readonly string key;
+
+        private readonly string name;
+        private readonly string id;
         private readonly CancellationTokenSource cancellationTokenSource = new();
         public event EventHandler<VideoInfoEventArgs>? VideoInfoUpdated;
         private static readonly JsonSerializerOptions jsonOptions = new()
@@ -32,13 +33,14 @@ namespace StreamMaster.Streams.Plugins
             WriteIndented = true
         };
 
-        public VideoInfoPlugin(ILogger<VideoInfoPlugin> logger, IOptionsMonitor<Setting> settingsMonitor, ChannelReader<byte[]> channelReader, string key)
+        public VideoInfoPlugin(ILogger<VideoInfoPlugin> logger, IOptionsMonitor<Setting> settingsMonitor, ChannelReader<byte[]> channelReader, string id, string name)
         {
-            this.key = key;
+            this.id = id;
+            this.name = name;
             _logger = logger;
             _settingsMonitor = settingsMonitor;
             _channelReader = channelReader;
-            _videoInfoUpdatedEvent = new AutoResetEvent(false);
+
 
             // Start the background task
             _ = StartVideoInfoLoopAsync(cancellationTokenSource.Token);
@@ -62,7 +64,7 @@ namespace StreamMaster.Streams.Plugins
 
                         if (videoInfo != null)
                         {
-                            //_logger.LogInformation("Got video info for {key}", key);
+
                             OnVideoInfoUpdated(videoInfo);
                             await Task.Delay(normalDelay, cancellationToken);
                         }
@@ -73,22 +75,22 @@ namespace StreamMaster.Streams.Plugins
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogError(ex, "Error getting video info for {key}", key);
+                        _logger.LogError(ex, "Error getting video info for {name}", name);
                         await Task.Delay(errorDelay, cancellationToken);
                     }
                 }
             }
             catch (TaskCanceledException ex)
             {
-                _logger.LogInformation(ex, "Error starting video info loop for {key}", key);
+                _logger.LogInformation(ex, "Error starting video info loop for {name}", name);
             }
             catch (OperationCanceledException ex)
             {
-                _logger.LogInformation(ex, "Error starting video info loop for {key}", key);
+                _logger.LogInformation(ex, "Error starting video info loop for {name}", name);
             }
             catch (Exception ex)
             {
-                _logger.LogInformation(ex, "Error starting video info loop for {key}", key);
+                _logger.LogInformation(ex, "Error starting video info loop for {name}", name);
             }
         }
 
@@ -161,7 +163,7 @@ namespace StreamMaster.Streams.Plugins
                     // Serialize the document back to a JSON string with formatting
                     string formattedJsonString = JsonSerializer.Serialize(document.RootElement, jsonOptions);
 
-                    return new VideoInfo { JsonOutput = formattedJsonString, StreamName = key, Created = SMDT.UtcNow };
+                    return new VideoInfo { JsonOutput = formattedJsonString, StreamId = id, StreamName = name, Created = SMDT.UtcNow };
 
                 }
                 finally
@@ -222,7 +224,7 @@ namespace StreamMaster.Streams.Plugins
 
         protected virtual void OnVideoInfoUpdated(VideoInfo videoInfo)
         {
-            VideoInfoUpdated?.Invoke(this, new VideoInfoEventArgs(videoInfo, key));
+            VideoInfoUpdated?.Invoke(this, new VideoInfoEventArgs(videoInfo, id));
         }
 
         public void Stop()

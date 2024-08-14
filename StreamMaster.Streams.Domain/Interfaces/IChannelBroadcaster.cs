@@ -1,6 +1,5 @@
 ﻿using StreamMaster.Domain.Models;
 using StreamMaster.Streams.Domain.Events;
-using StreamMaster.Streams.Domain.Statistics;
 
 using System.Collections.Concurrent;
 using System.Threading.Channels;
@@ -126,11 +125,6 @@ public interface IChannelBroadcasterBase : IStreamStats, ISourceName
     /// <returns><c>true</c> if the client channel was removed; otherwise, <c>false</c>.</returns>
     bool RemoveClientChannel(string key);
 
-    /// <summary>
-    /// Gets the metrics for the stream handler.
-    /// </summary>
-    [XmlIgnore]
-    StreamHandlerMetrics GetMetrics { get; }
 
     /// <summary>
     /// Gets a value indicating whether the broadcaster has failed.

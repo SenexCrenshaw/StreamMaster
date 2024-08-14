@@ -39,7 +39,7 @@ namespace StreamMaster.Streams.Services
 
         public List<IChannelBroadcaster> GetChannelBroadcasters()
         {
-            return channelBroadcasters.Values.ToList();
+            return [.. channelBroadcasters.Values];
         }
 
         public async Task<IChannelBroadcaster?> GetOrCreateChannelDistributorAsync(string sourceChannelName, SMStreamInfo smStreamInfo, CancellationToken cancellationToken)
@@ -95,7 +95,7 @@ namespace StreamMaster.Streams.Services
                 return true;
             }
 
-            _logger.LogWarning("StopAndUnRegister channel distributor: {Id} does not exist!", key);
+            //_logger.LogWarning("StopAndUnRegister channel distributor: {Id} does not exist!", key);
             return false;
         }
 
@@ -106,7 +106,7 @@ namespace StreamMaster.Streams.Services
             foreach (KeyValuePair<string, IChannelBroadcaster> kvp in channelBroadcasters)
             {
                 IChannelBroadcaster channelDistributor = kvp.Value;
-                metrics[kvp.Key] = channelDistributor.GetMetrics;
+                metrics[kvp.Key] = channelDistributor.Metrics;
             }
 
             return metrics;

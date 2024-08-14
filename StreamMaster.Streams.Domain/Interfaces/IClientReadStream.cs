@@ -5,7 +5,7 @@ namespace StreamMaster.Streams.Domain.Interfaces;
 /// <summary>
 /// Provides an interface for reading from a ring buffer stream.
 /// </summary>
-public interface IClientReadStream : IDisposable
+public interface IClientReadStream : IDisposable, IStreamStats
 {
     //IByteTrackingChannel Channel { get; }
     Channel<byte[]> Channel { get; }

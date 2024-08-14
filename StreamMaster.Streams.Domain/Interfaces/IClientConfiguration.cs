@@ -13,5 +13,5 @@ public interface IClientConfiguration
     HttpResponse Response { get; }
     string UniqueRequestId { get; }
     int StreamGroupProfileId { get; }
-    //int StreamGroupId { get; }
+
 }

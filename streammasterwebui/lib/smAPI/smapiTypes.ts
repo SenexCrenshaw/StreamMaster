@@ -99,6 +99,7 @@ export interface VideoInfo
 	Created: any;
 	JsonOutput: string;
 	Key: string;
+	StreamId: string;
 	StreamName: string;
 }
 export interface ChannelGroupDto
@@ -729,6 +730,10 @@ export interface RemoveSMChannelFromStreamGroupRequest
 }
 export interface GetChannelMetricsRequest
 {
+}
+export interface GetVideoInfoRequest
+{
+	SMStreamId: string;
 }
 export interface GetSMTasksRequest
 {
@@ -1419,10 +1424,10 @@ export interface ChannelMetric
 	ChannelItemBackLog: number;
 	ClientChannels: ClientChannelDto[];
 	ClientStreams: ClientStreamsDto[];
-	GetMetrics: StreamHandlerMetrics;
 	Id: string;
 	IsFailed: boolean;
 	Logo?: string;
+	Metrics: StreamHandlerMetrics;
 	Name: string;
 	SMStreamInfo?: SMStreamInfo;
 	SourceName: string;
@@ -1432,6 +1437,7 @@ export interface ClientChannelDto
 	ClientIPAddress?: string;
 	ClientUserAgent?: string;
 	Logo?: string;
+	Metrics?: StreamHandlerMetrics;
 	Name: string;
 	SMChannelId: number;
 }

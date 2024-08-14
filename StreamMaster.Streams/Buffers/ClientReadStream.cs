@@ -1,4 +1,5 @@
 ﻿using StreamMaster.Streams.Domain.Helpers;
+using StreamMaster.Streams.Domain.Statistics;
 
 using System.Diagnostics;
 using System.Threading.Channels;
@@ -9,19 +10,28 @@ public sealed class ClientReadStream : Stream, IClientReadStream
 {
     private readonly CancellationTokenSource _readCancel = new();
     private readonly ILogger<ClientReadStream> logger;
+    private long totalBytesRead = 0;
+    private double totalLatency = 0;
+    private int readOperations = 0;
+    private readonly DateTime startTime;
 
     public ClientReadStream(ILoggerFactory loggerFactory, string UniqueRequestId)
     {
         logger = loggerFactory.CreateLogger<ClientReadStream>();
 
         this.UniqueRequestId = UniqueRequestId;
-
         Channel = ChannelHelper.GetChannel();
-        //Channel = System.Threading.Channels.Channel.CreateUnbounded<byte[]>();
-
+        startTime = DateTime.UtcNow;
         logger.LogInformation("Starting client read stream for UniqueRequestId: {UniqueRequestId}", UniqueRequestId);
     }
 
+    public StreamHandlerMetrics Metrics => new()
+    {
+        BytesRead = GetBytesRead(),
+        Kbps = GetKbps(),
+        StartTime = GetStartTime(),
+        AverageLatency = GetAverageLatency()
+    };
     public Channel<byte[]> Channel { get; }
 
     private bool IsCancelled { get; set; }
@@ -137,7 +147,9 @@ public sealed class ClientReadStream : Stream, IClientReadStream
                 return 0;
             }
             read[..bytesRead].CopyTo(buffer);
-
+            // Update statistics
+            totalBytesRead += bytesRead;
+            readOperations++;
             if (timedToken.IsCancellationRequested)
             {
                 logger.LogWarning("ReadAsync timedToken cancelled for UniqueRequestId: {UniqueRequestId}", UniqueRequestId);
@@ -157,14 +169,13 @@ public sealed class ClientReadStream : Stream, IClientReadStream
         }
         catch (Exception ex)
         {
-
             logger.LogInformation("ReadAsync {cancellationToken}", cancellationToken.IsCancellationRequested);
             bytesRead = 1;
         }
         finally
         {
             stopWatch.Stop();
-
+            totalLatency += stopWatch.Elapsed.TotalMilliseconds;
             if (bytesRead == 0)
             {
                 logger.LogDebug("Read 0 bytes for UniqueRequestId: {UniqueRequestId}", UniqueRequestId);
@@ -172,5 +183,30 @@ public sealed class ClientReadStream : Stream, IClientReadStream
         }
 
         return bytesRead;
+    }
+
+    public double GetAverageLatency()
+    {
+        return readOperations == 0 ? 0 : totalLatency / readOperations;
+    }
+
+    public long GetBytesRead()
+    {
+        return totalBytesRead;
+    }
+
+    public double GetKbps()
+    {
+        TimeSpan elapsed = DateTime.UtcNow - startTime;
+        if (elapsed.TotalSeconds == 0)
+        {
+            return 0;
+        }
+        return totalBytesRead * 8 / elapsed.TotalSeconds / 1000; // bytes to kilobits
+    }
+
+    public DateTime GetStartTime()
+    {
+        return startTime;
     }
 }

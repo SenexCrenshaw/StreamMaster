@@ -22,7 +22,7 @@ public class ChannelBroadcaster : ChannelBroadcasterBase, IChannelBroadcaster
     /// <inheritdoc/>
     public string Id => SMStreamInfo.Url;
 
-    public SMStreamInfo SMStreamInfo { get; private set; }
+    public SMStreamInfo SMStreamInfo { get; }
 
     /// <inheritdoc/>
     public override void OnStreamingStopped()

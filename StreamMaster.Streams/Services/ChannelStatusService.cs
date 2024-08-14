@@ -36,7 +36,7 @@ namespace StreamMaster.Streams.Services
             foreach (KeyValuePair<int, IChannelStatus> kvp in _sourceChannelDistributors)
             {
                 IChannelStatus channelDistributor = kvp.Value;
-                metrics[kvp.Key] = channelDistributor.GetMetrics;
+                metrics[kvp.Key] = channelDistributor.Metrics;
             }
 
             return metrics;

@@ -4,7 +4,9 @@ import { formatJSONDateString, getElapsedTimeString } from '@lib/common/dateTime
 import { ChannelMetric } from '@lib/smAPI/smapiTypes';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
+import CancelChannelDialog from '@components/streaming/CancelChannelDialog';
 import { GetChannelMetrics } from '@lib/smAPI/Statistics/StatisticsCommands';
+import { VideoInfoDisplay } from './VideoInfoDisplay';
 
 const SMChannelStatus = () => {
   const [sourceChannelMetrics, setSourceChannelMetrics] = useState<ChannelMetric[]>([]);
@@ -42,27 +44,37 @@ const SMChannelStatus = () => {
   const clientBitsPerSecondTemplate = (rowData: ChannelMetric) => {
     const found = channelMetricsRef.current.find((predicate) => predicate.Id === rowData.Id);
 
-    if (found === undefined || found.GetMetrics.Kbps === undefined) return <div />;
-    const kbps = found.GetMetrics.Kbps;
+    if (found === undefined || found.Metrics.Kbps === undefined) return <div />;
+    const kbps = found.Metrics.Kbps;
     const roundedKbps = Math.ceil(kbps);
     return <div>{roundedKbps.toLocaleString('en-US')}</div>;
   };
 
   const elapsedTSTemplate = useCallback((rowData: ChannelMetric) => {
-    return <div className="numeric-field">{getElapsedTimeString(rowData.GetMetrics.StartTime, new Date().toString(), true)}</div>;
+    return <div className="numeric-field">{getElapsedTimeString(rowData.Metrics.StartTime, new Date().toString(), true)}</div>;
   }, []);
 
   const actionTemplate = useCallback((rowData: ChannelMetric) => {
+    if (!rowData?.SMStreamInfo) {
+      return <div />;
+    }
+
+    const test = rowData.ClientChannels.find((predicate) => predicate.SMChannelId !== 0);
+    if (test === undefined) {
+      return <div />;
+    }
+
     return (
       <div className="sm-center-stuff">
-        {/* <CancelChannelDialog channelId={rowData.Id} />
-        <MoveToNextStreamDialog channelId={rowData.Id} /> */}
+        <VideoInfoDisplay smStreamId={rowData.SMStreamInfo.Id} />
+        <CancelChannelDialog channelId={test.SMChannelId} />
+        {/* <MoveToNextStreamDialog channelId={rowData.Id} /> */}
       </div>
     );
   }, []);
 
   const clientStartTimeTemplate = (rowData: ChannelMetric) => {
-    return <div>{formatJSONDateString(rowData.GetMetrics.StartTime ?? '')}</div>;
+    return <div>{formatJSONDateString(rowData.Metrics.StartTime ?? '')}</div>;
   };
   const logoTemplate = useCallback((rowData: ChannelMetric) => {
     return (
@@ -75,11 +87,11 @@ const SMChannelStatus = () => {
   const columns = useMemo(
     (): ColumnMeta[] => [
       { bodyTemplate: logoTemplate, field: 'Logo', fieldType: 'image', header: '' },
-      { field: 'Name', filter: true, sortable: true, width: 200 },
+      { field: 'Name', filter: true, sortable: true, width: 160 },
 
       { align: 'center', bodyTemplate: clientStartTimeTemplate, field: 'StartTime', header: 'Start', width: 180 },
-      { align: 'right', bodyTemplate: elapsedTSTemplate, field: 'ElapsedTime', header: '(d hh:mm:ss)', width: 85 },
-      { align: 'right', bodyTemplate: clientBitsPerSecondTemplate, field: 'GetMetrics.Kbps', header: 'Kbps', width: 80 },
+      { align: 'right', bodyTemplate: elapsedTSTemplate, field: 'ElapsedTime', header: '(d hh:mm:ss)', width: 95 },
+      { align: 'right', bodyTemplate: clientBitsPerSecondTemplate, field: 'Metrics.Kbps', header: 'Kbps', width: 70 },
       { align: 'center', bodyTemplate: actionTemplate, field: 'actions', fieldType: 'actions', header: '', width: 42 }
     ],
     [actionTemplate, elapsedTSTemplate, logoTemplate]

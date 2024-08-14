@@ -1,12 +1,14 @@
-import { SMCard } from '@components/sm/SMCard';
 import SMPopUp from '@components/sm/SMPopUp';
-import { GetVideoInfoFromId } from '@lib/smAPI/SMChannels/SMChannelsCommands';
-import { GetVideoInfoFromIdRequest, VideoInfo } from '@lib/smAPI/smapiTypes';
+import { Logger } from '@lib/common/logger';
+import { GetVideoInfoRequest, VideoInfo } from '@lib/smAPI/smapiTypes';
+import { GetVideoInfo } from '@lib/smAPI/Statistics/StatisticsCommands';
+import { JsonEditor } from 'json-edit-react';
+
 import { ScrollPanel } from 'primereact/scrollpanel';
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 type VideoInfoProps = {
-  channelId: number;
+  smStreamId: string;
 };
 
 const DisplayTable: React.FC<{ data: any; title?: string }> = ({ data, title }) => {
@@ -29,15 +31,15 @@ const DisplayTable: React.FC<{ data: any; title?: string }> = ({ data, title }) 
   );
 };
 
-export const VideoInfoDisplay: React.FC<VideoInfoProps> = ({ channelId }) => {
+export const VideoInfoDisplay: React.FC<VideoInfoProps> = ({ smStreamId }) => {
   const [videoInfo, setVideoInfo] = useState<VideoInfo | null>(null);
 
   const getVideoInfo = useCallback(() => {
-    if (channelId === 0 || videoInfo?.Format !== undefined) return;
+    // if (smStreamId === null || videoInfo?.Format !== undefined) return;
 
-    const request = { SMChannelId: channelId } as GetVideoInfoFromIdRequest;
+    const request = { SMStreamId: smStreamId } as GetVideoInfoRequest;
 
-    GetVideoInfoFromId(request)
+    GetVideoInfo(request)
       .then((data) => {
         if (data === null || data === undefined) return;
 
@@ -46,35 +48,14 @@ export const VideoInfoDisplay: React.FC<VideoInfoProps> = ({ channelId }) => {
       .catch((error) => {
         console.error(error);
       });
-  }, [channelId, videoInfo?.Format]);
+  }, [smStreamId]);
 
-  const getContent = useCallback(() => {
+  const getContent = useMemo(() => {
     if (!videoInfo) return <div>Loading...</div>;
-    return (
-      <div>
-        {videoInfo.Format && (
-          <SMCard title="Format" info="" noCloseButton>
-            <DisplayTable data={videoInfo.Format} />
-          </SMCard>
-        )}
 
-        {videoInfo.Streams && videoInfo.Streams.length > 0 && (
-          <>
-            <div className="layout-padding-bottom-lg" />
-            <SMCard title="Video Streams" info="" noBorderChildren noCloseButton>
-              {videoInfo.Streams.map((stream, index) => (
-                <div key={index}>
-                  <div className="layout-padding-bottom" />
-                  <SMCard title={'Stream ' + (index + 1)} info="" noCloseButton>
-                    <DisplayTable data={stream} />
-                  </SMCard>
-                </div>
-              ))}
-            </SMCard>
-          </>
-        )}
-      </div>
-    );
+    let jsonObject = JSON.parse(videoInfo.JsonOutput);
+    Logger.debug('VideoInfoDisplay:', jsonObject);
+    return <JsonEditor data={jsonObject} restrictEdit restrictDelete restrictAdd theme="githubDark" />;
   }, [videoInfo]);
 
   return (
@@ -93,7 +74,7 @@ export const VideoInfoDisplay: React.FC<VideoInfoProps> = ({ channelId }) => {
       tooltip="Stream Info"
       isLeft
     >
-      <ScrollPanel style={{ height: '50vh', width: '100%' }}>{getContent()}</ScrollPanel>
+      <ScrollPanel style={{ height: '50vh', width: '100%' }}>{getContent}</ScrollPanel>
     </SMPopUp>
   );
 };
