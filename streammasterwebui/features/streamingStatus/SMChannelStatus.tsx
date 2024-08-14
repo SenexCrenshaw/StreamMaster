@@ -6,6 +6,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import CancelChannelDialog from '@components/streaming/CancelChannelDialog';
 import { GetChannelMetrics } from '@lib/smAPI/Statistics/StatisticsCommands';
+import { StreamInfoDisplay } from './StreamInfoDisplay';
 import { VideoInfoDisplay } from './VideoInfoDisplay';
 
 const SMChannelStatus = () => {
@@ -67,6 +68,7 @@ const SMChannelStatus = () => {
     return (
       <div className="sm-center-stuff">
         <VideoInfoDisplay smStreamId={rowData.SMStreamInfo.Id} />
+        <StreamInfoDisplay streamInfo={rowData.SMStreamInfo} />
         <CancelChannelDialog channelId={test.SMChannelId} />
         {/* <MoveToNextStreamDialog channelId={rowData.Id} /> */}
       </div>
@@ -89,10 +91,10 @@ const SMChannelStatus = () => {
       { bodyTemplate: logoTemplate, field: 'Logo', fieldType: 'image', header: '' },
       { field: 'Name', filter: true, sortable: true, width: 160 },
 
-      { align: 'center', bodyTemplate: clientStartTimeTemplate, field: 'StartTime', header: 'Start', width: 180 },
-      { align: 'right', bodyTemplate: elapsedTSTemplate, field: 'ElapsedTime', header: '(d hh:mm:ss)', width: 95 },
+      { align: 'center', bodyTemplate: clientStartTimeTemplate, field: 'StartTime', header: 'Start', width: 140 },
+      { align: 'right', bodyTemplate: elapsedTSTemplate, field: 'ElapsedTime', header: '(d hh:mm:ss)', width: 85 },
       { align: 'right', bodyTemplate: clientBitsPerSecondTemplate, field: 'Metrics.Kbps', header: 'Kbps', width: 70 },
-      { align: 'center', bodyTemplate: actionTemplate, field: 'actions', fieldType: 'actions', header: '', width: 42 }
+      { align: 'center', bodyTemplate: actionTemplate, field: 'actions', fieldType: 'actions', header: '', width: 62 }
     ],
     [actionTemplate, elapsedTSTemplate, logoTemplate]
   );

@@ -1,8 +1,7 @@
-import { useEffect, useMemo } from 'react';
-import { SMCardProperties } from './Interfaces/SMCardProperties';
 import CloseButton from '@components/buttons/CloseButton';
 import OKButton from '@components/buttons/OKButton';
-import { Logger } from '@lib/common/logger';
+import { useEffect, useMemo } from 'react';
+import { SMCardProperties } from './Interfaces/SMCardProperties';
 
 interface InternalSMCardProperties extends SMCardProperties {
   readonly children: React.ReactNode;
