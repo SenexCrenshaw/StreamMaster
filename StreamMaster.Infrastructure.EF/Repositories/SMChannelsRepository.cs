@@ -94,6 +94,11 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IServ
     {
         IQueryable<SMChannel> query = GetQuery(parameters, tracking == true).Include(a => a.SMStreams).ThenInclude(a => a.SMStream).Include(a => a.StreamGroups);
 
+        IServiceScope scope = serviceProvider.CreateScope();
+        IStreamGroupService streamGroupService = scope.ServiceProvider.GetRequiredService<IStreamGroupService>();
+
+        int defaultSGID = streamGroupService.GetDefaultSGIdAsync().Result;
+
         if (!string.IsNullOrEmpty(parameters.JSONFiltersString))
         {
             List<DataTableFilterMetaData>? filters = JsonSerializer.Deserialize<List<DataTableFilterMetaData>>(parameters.JSONFiltersString);
@@ -108,8 +113,12 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IServ
                         if (!string.IsNullOrWhiteSpace(streamGroupIdString))
                         {
                             int streamGroupId = Convert.ToInt32(streamGroupIdString);
-                            List<int> linkIds = [.. repository.StreamGroupSMChannelLink.GetQuery().Where(a => a.StreamGroupId == streamGroupId).Select(a => a.SMChannelId)];
-                            query = query.Where(a => linkIds.Contains(a.Id));
+                            if (streamGroupId != defaultSGID)
+                            {
+
+                                List<int> linkIds = [.. repository.StreamGroupSMChannelLink.GetQuery().Where(a => a.StreamGroupId == streamGroupId).Select(a => a.SMChannelId)];
+                                query = query.Where(a => linkIds.Contains(a.Id));
+                            }
                         }
                     }
                     catch (Exception ex)
@@ -775,7 +784,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IServ
         //    }
         //}
 
-        List<SMChannel> entitiesToUpdate = new();
+        List<SMChannel> entitiesToUpdate = [];
 
         await Task.Run(() =>
         {
