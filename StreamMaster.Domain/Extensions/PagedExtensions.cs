@@ -1,8 +1,11 @@
 ﻿using AutoMapper;
 
 using Microsoft.EntityFrameworkCore;
+
 using StreamMaster.Domain.API;
 using StreamMaster.Domain.Filtering;
+
+using X.Extensions.PagedList.EF;
 namespace StreamMaster.Domain.Extensions;
 
 public static class PagedExtensions

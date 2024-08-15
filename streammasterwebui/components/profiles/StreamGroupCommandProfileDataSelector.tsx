@@ -110,6 +110,7 @@ const StreamGroupCommandProfileDataSelector = () => {
       headerName="Command Profiles"
       // rowClass={rowClass}
       id={id}
+      dataKey="ProfileName"
       lazy
       onRowClick={(e: DataTableRowClickEvent) => {}}
       style={{ height: '30vh' }}

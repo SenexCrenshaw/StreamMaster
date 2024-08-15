@@ -12,28 +12,6 @@ public class SMChannelStreamLinksRepository(ILogger<SMChannelStreamLinksReposito
         return [.. GetQuery()];
     }
 
-    //public async Task CreateSMChannelStreamLink(int Id, string SMStreamId, int? CurrentRank);
-    //{
-    //    if (Any(a => a.SMStreamId == SMStreamId && a.Id == smChannel.Id))
-    //    {
-    //        return;
-    //    }
-
-    //    int nextRank = CurrentRank ?? GetMaxRank(smChannel.Id);
-    //    SMChannelStreamLink link = new()
-    //    {
-    //        SMStream = SMStream,
-    //        SMChannel = smChannel,
-    //        Id = smChannel.Id,
-    //        SMStreamId = SMStream.Id,
-    //        CurrentRank = nextRank,
-    //    };
-
-
-    //    RepositoryContext.SMChannelStreamLinks.Add(link);
-    //    //smChannel.SMStreams.Add(link);
-    //    await SaveChangesAsync();
-    //}
 
     public async Task CreateSMChannelStreamLink(int SMChannelId, string SMStreamId, int? Rank)
     {

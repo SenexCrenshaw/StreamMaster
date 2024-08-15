@@ -8,7 +8,7 @@ namespace StreamMaster.Application.ChannelGroups.Commands;
 public record UpdateChannelGroupRequest(int ChannelGroupId, string? NewGroupName, bool? IsHidden, bool? ToggleVisibility)
     : IRequest<APIResponse>;
 
-public class UpdateChannelGroupRequestHandler(IRepositoryWrapper Repository, IMapper Mapper, IPublisher Publisher, ISender Sender)
+public class UpdateChannelGroupRequestHandler(IRepositoryWrapper Repository, IChannelGroupService channelGroupService, IMapper Mapper, IPublisher Publisher, ISender Sender)
     : IRequestHandler<UpdateChannelGroupRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(UpdateChannelGroupRequest request, CancellationToken cancellationToken)
@@ -60,7 +60,7 @@ public class UpdateChannelGroupRequestHandler(IRepositoryWrapper Repository, IMa
             ChannelGroupDto dto = Mapper.Map<ChannelGroupDto>(channelGroup);
             if (checkCounts)
             {
-                await Sender.Send(new UpdateChannelGroupCountRequest(dto), cancellationToken).ConfigureAwait(false);
+                await channelGroupService.UpdateChannelGroupCountRequestAsync(dto).ConfigureAwait(false);
             }
 
             await Publisher.Publish(new UpdateChannelGroupEvent(dto, request.ToggleVisibility ?? false, nameChanged != null), cancellationToken).ConfigureAwait(false);

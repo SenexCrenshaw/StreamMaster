@@ -35,4 +35,5 @@ public interface ISMStreamRepository : IRepositoryBase<SMStream>
     Task<SMStreamDto?> ToggleSMStreamVisibleById(string id, CancellationToken cancellationToken);
 
     Task<List<FieldData>> ToggleSMStreamVisibleByParameters(QueryStringParameters parameters, CancellationToken cancellationToken);
+
 }

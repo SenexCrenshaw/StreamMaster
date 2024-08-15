@@ -1,5 +1,6 @@
 import SMDropDown from '@components/sm/SMDropDown';
 import { getEnumValueByKey } from '@lib/common/enumTools';
+import { Logger } from '@lib/common/logger';
 import { UpdateOutputProfile } from '@lib/smAPI/Profiles/ProfilesCommands';
 import { UpdateOutputProfileRequest, ValidM3USetting } from '@lib/smAPI/smapiTypes';
 import { SelectItem } from 'primereact/selectitem';
@@ -57,6 +58,7 @@ const OutputProfileValueDropDown = ({ ...props }: OutputProfileValueDropDownProp
         value: ValidM3USetting[key as keyof typeof ValidM3USetting]
       }));
 
+    Logger.debug('OutputProfileValueDropDown', options);
     return options;
   }, []);
 
@@ -74,9 +76,12 @@ const OutputProfileValueDropDown = ({ ...props }: OutputProfileValueDropDownProp
     );
   }, [props.value]);
 
+  Logger.debug('OutputProfileValueDropDown', { id: getEnumValueByKey(ValidM3USetting, props.value as keyof typeof ValidM3USetting), label: props.value });
+
   return (
     <SMDropDown
       buttonDarkBackground={props.darkBackGround}
+      buttonDisabled={false}
       buttonTemplate={buttonTemplate}
       contentWidthSize="2"
       data={getHandlersOptions}
@@ -89,6 +94,7 @@ const OutputProfileValueDropDown = ({ ...props }: OutputProfileValueDropDownProp
       scrollHeight="20vh"
       title={props.header + ' Mapping'}
       value={{ id: getEnumValueByKey(ValidM3USetting, props.value as keyof typeof ValidM3USetting), label: props.value }}
+      zIndex={11}
     />
   );
 };

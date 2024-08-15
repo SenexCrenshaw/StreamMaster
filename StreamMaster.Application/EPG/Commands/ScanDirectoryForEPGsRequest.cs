@@ -1,6 +1,6 @@
 ﻿using StreamMaster.Domain.Color;
 
-namespace StreamMaster.Application.EPGFiles.Commands;
+namespace StreamMaster.Application.EPG.Commands;
 
 public record ScanDirectoryForEPGFilesRequest : IRequest<APIResponse>;
 

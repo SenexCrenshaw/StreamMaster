@@ -29,7 +29,7 @@ internal class AddSMChannelsToStreamGroupRequestHandler(IRepositoryWrapper Repos
             fieldDatas.Add(new(SMChannel.APIName, smChannel.Id, "StreamGroupIds", streamGroupIds));
         }
 
-        //APIResponse res = await Repositorywrapper.StreamGroupSMChannelLink.AddSMChannelsToStreamGroup(request.StreamGroupId, request.SMChannelIds).ConfigureAwait(false);
+        //APIResponse res = await Repositorywrapper.StreamGroupSMChannelLink.AddSMChannelsToStreamGroupAsync(request.StreamGroupId, request.SMChannelIds).ConfigureAwait(false);
         //if (res.IsErrored)
         //{
         //    return APIResponse.ErrorWithMessage(res.ErrorMessage);

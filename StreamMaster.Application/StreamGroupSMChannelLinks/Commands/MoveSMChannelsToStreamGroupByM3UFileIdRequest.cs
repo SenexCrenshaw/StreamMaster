@@ -37,7 +37,7 @@ internal class MoveSMChannelsToStreamGroupRequestHandler(IRepositoryWrapper Repo
 
         _ = await Repository.StreamGroupSMChannelLink.RemoveSMChannelsFromStreamGroup(request.OldStreamGroupId, channelsIds);
         _ = await Repository.SaveAsync();
-        await Repository.StreamGroupSMChannelLink.AddSMChannelsToStreamGroup(sg.Id, channelsIds);
+        await Repository.StreamGroupSMChannelLink.AddSMChannelsToStreamGroupAsync(sg.Id, channelsIds);
         await dataRefreshService.RefreshStreamGroups();
         return APIResponse.Success;
     }

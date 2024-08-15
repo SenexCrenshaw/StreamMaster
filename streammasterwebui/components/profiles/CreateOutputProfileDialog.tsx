@@ -60,7 +60,7 @@ const CreateOutputProfileDialog = () => {
 
   return (
     <SMPopUp
-      contentWidthSize="5"
+      contentWidthSize="7"
       buttonClassName="icon-green"
       icon="pi-plus-circle"
       title="Create Profile"
@@ -75,7 +75,7 @@ const CreateOutputProfileDialog = () => {
       zIndex={11}
     >
       <>
-        <div className="flex flex-column border-1 gap-1">
+        <div className="flex flex-column gap-1">
           <div className="layout-padding-bottom-lg" />
           <div className="sm-between-stuff w-full">
             <div className="sm-w-3">
@@ -130,8 +130,7 @@ const CreateOutputProfileDialog = () => {
                 }}
               />
             </div>
-          </div>
-          <div className="sm-between-stuff w-full">
+
             <div className="sm-w-2rem pl-2">
               <BooleanEditor
                 label="Id"

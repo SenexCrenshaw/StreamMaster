@@ -2,6 +2,8 @@
 
 using System.Text.Json;
 
+using X.Extensions.PagedList.EF;
+
 namespace StreamMaster.Application.SchedulesDirect.Queries;
 
 public record GetPagedStationChannelNameSelections(QueryStringParameters Parameters) : IRequest<PagedResponse<StationChannelName>>;

@@ -1,17 +1,17 @@
-﻿using StreamMaster.Application.ChannelGroups.Commands;
-using StreamMaster.Application.ChannelGroups.Events;
-using StreamMaster.Application.Interfaces;
+﻿using StreamMaster.Application.ChannelGroups.Events;
 
 
 namespace StreamMaster.Application.ChannelGroups.EventHandlers;
 
-public class UpdateChannelGroupsEventHandler(ILogger<UpdateChannelGroupsEvent> logger, IMapper mapper, ISender Sender, IHubContext<StreamMasterHub, IStreamMasterHub> HubContext)
+public class UpdateChannelGroupsEventHandler(IChannelGroupService channelGroupService, IDataRefreshService dataRefreshService)
     : INotificationHandler<UpdateChannelGroupsEvent>
 {
     public async Task Handle(UpdateChannelGroupsEvent notification, CancellationToken cancellationToken)
     {
-        await Sender.Send(new UpdateChannelGroupCountsRequest(notification.ChannelGroups), cancellationToken).ConfigureAwait(false);
-        List<int> ids = notification.ChannelGroups.Select(x => x.Id).ToList();
+        await channelGroupService.UpdateChannelGroupCountsRequestAsync(notification.ChannelGroups);
+        await dataRefreshService.RefreshChannelGroups();
+
+        //List<int> ids = notification.ChannelGroups.Select(x => x.Id).ToList();
         //IEnumerable<StreamGroupDto> sgs = await Sender.Send(new GetStreamGroupsFromChannelGroupsQuery(ids), cancellationToken).ConfigureAwait(false);
 
         //ChannelGroupDto[] dtos = mapper.Map<ChannelGroupDto[]>(notification.ChannelGroups);

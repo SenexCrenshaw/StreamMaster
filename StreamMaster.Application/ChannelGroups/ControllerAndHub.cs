@@ -1,11 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
+
 using StreamMaster.Application.ChannelGroups.Commands;
 using StreamMaster.Application.ChannelGroups.Queries;
 
-namespace StreamMaster.Application.ChannelGroups.Controllers
+namespace StreamMaster.Application.ChannelGroups
 {
     public partial class ChannelGroupsController(ILogger<ChannelGroupsController> _logger) : ApiControllerBase, IChannelGroupsController
-    {        
+    {
 
         [HttpGet]
         [Route("[action]")]
@@ -13,8 +14,8 @@ namespace StreamMaster.Application.ChannelGroups.Controllers
         {
             try
             {
-            DataResponse<List<ChannelGroupDto>> ret = await Sender.Send(new GetChannelGroupsFromSMChannelsRequest()).ConfigureAwait(false);
-             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetChannelGroupsFromSMChannels.", statusCode: 500) : Ok(ret.Data);
+                DataResponse<List<ChannelGroupDto>> ret = await Sender.Send(new GetChannelGroupsFromSMChannelsRequest()).ConfigureAwait(false);
+                return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetChannelGroupsFromSMChannels.", statusCode: 500) : Ok(ret.Data);
             }
             catch (Exception ex)
             {
@@ -29,8 +30,8 @@ namespace StreamMaster.Application.ChannelGroups.Controllers
         {
             try
             {
-            DataResponse<List<ChannelGroupDto>> ret = await Sender.Send(new GetChannelGroupsRequest()).ConfigureAwait(false);
-             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetChannelGroups.", statusCode: 500) : Ok(ret.Data);
+                DataResponse<List<ChannelGroupDto>> ret = await Sender.Send(new GetChannelGroupsRequest()).ConfigureAwait(false);
+                return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetChannelGroups.", statusCode: 500) : Ok(ret.Data);
             }
             catch (Exception ex)
             {
@@ -104,13 +105,13 @@ namespace StreamMaster.Application.Hubs
     {
         public async Task<List<ChannelGroupDto>> GetChannelGroupsFromSMChannels()
         {
-             DataResponse<List<ChannelGroupDto>> ret = await Sender.Send(new GetChannelGroupsFromSMChannelsRequest()).ConfigureAwait(false);
+            DataResponse<List<ChannelGroupDto>> ret = await Sender.Send(new GetChannelGroupsFromSMChannelsRequest()).ConfigureAwait(false);
             return ret.Data;
         }
 
         public async Task<List<ChannelGroupDto>> GetChannelGroups()
         {
-             DataResponse<List<ChannelGroupDto>> ret = await Sender.Send(new GetChannelGroupsRequest()).ConfigureAwait(false);
+            DataResponse<List<ChannelGroupDto>> ret = await Sender.Send(new GetChannelGroupsRequest()).ConfigureAwait(false);
             return ret.Data;
         }
 

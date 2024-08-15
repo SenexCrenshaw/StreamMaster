@@ -309,6 +309,16 @@ public abstract class RepositoryBase<T>(IRepositoryContext RepositoryContext, IL
         RepositoryContext.Set<T>().AddRange(entities);
     }
 
+    public void CreateRange(List<T> entities)
+    {
+        if (entities == null || entities.Count == 0)
+        {
+            logger.LogWarning("Attempted to insert a null or empty array of entities.");
+            throw new ArgumentNullException(nameof(entities));
+        }
+        RepositoryContext.Set<T>().AddRange(entities);
+    }
+
     public async Task BulkInsertEntitiesAsync<TEntity>(IEnumerable<TEntity> entities) where TEntity : class
     {
         await RepositoryContext.BulkInsertEntitiesAsync(entities);

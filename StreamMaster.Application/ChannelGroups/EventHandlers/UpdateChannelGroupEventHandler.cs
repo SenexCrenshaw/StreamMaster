@@ -1,11 +1,9 @@
-﻿using StreamMaster.Application.ChannelGroups.Commands;
-using StreamMaster.Application.ChannelGroups.Events;
-using StreamMaster.Application.Interfaces;
+﻿using StreamMaster.Application.ChannelGroups.Events;
 
 
 namespace StreamMaster.Application.ChannelGroups.EventHandlers;
 
-public class UpdateChannelGroupEventHandler(ILogger<UpdateChannelGroupEvent> logger, IDataRefreshService dataRefreshService, IRepositoryWrapper Repository, ISender Sender, IHubContext<StreamMasterHub, IStreamMasterHub> HubContext)
+public class UpdateChannelGroupEventHandler(IDataRefreshService dataRefreshService, IChannelGroupService channelGroupService)
     : INotificationHandler<UpdateChannelGroupEvent>
 {
     public async Task Handle(UpdateChannelGroupEvent notification, CancellationToken cancellationToken)
@@ -13,7 +11,7 @@ public class UpdateChannelGroupEventHandler(ILogger<UpdateChannelGroupEvent> log
         List<FieldData> fds = [];
         if (notification.ChannelGroupToggelVisibility)
         {
-            await Sender.Send(new UpdateChannelGroupCountRequest(notification.ChannelGroup), cancellationToken).ConfigureAwait(false);
+            await channelGroupService.UpdateChannelGroupCountRequestAsync(notification.ChannelGroup).ConfigureAwait(false);
             fds.AddRange([
                 new(ChannelGroup.APIName, notification.ChannelGroup.Id, "IsHidden", notification.ChannelGroup.IsHidden),
                 new(ChannelGroup.APIName, notification.ChannelGroup.Id, "ActiveCount", notification.ChannelGroup.ActiveCount),

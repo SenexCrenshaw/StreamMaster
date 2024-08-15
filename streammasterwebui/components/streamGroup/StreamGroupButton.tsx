@@ -3,10 +3,10 @@ import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
 import SMPopUp from '@components/sm/SMPopUp';
 import { useSelectedStreamGroup } from '@lib/redux/hooks/selectedStreamGroup';
 import { memo, useMemo } from 'react';
+import StreamGroupProfileButton from '../profiles/StreamGroupProfileButton';
 import StreamGroupCreateDialog from './StreamGroupCreateDialog';
 import StreamGroupDataSelector from './StreamGroupDataSelector';
 import { StreamGroupSelector } from './StreamGroupSelector';
-import StreamGroupProfileButton from './profiles/StreamGroupProfileButton';
 
 interface StreamGroupButtonProperties {
   className?: string;

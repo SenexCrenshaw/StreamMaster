@@ -19,10 +19,10 @@ import { useSMChannelNumberColumnConfig } from '@components/smchannels/columns/u
 
 import { useSMChannelSGColumnConfig } from '@components/smchannels/columns/useSMChannelSGColumnConfig';
 
+import StreamGroupProfileButton from '@components/profiles/StreamGroupProfileButton';
 import { useSMCommandProfileNameColumnConfig } from '@components/smchannels/columns/useSMVideoOutputProfileNameColumnConfig';
 import StreamCopyLinkDialog from '@components/smstreams/StreamCopyLinkDialog';
 import StreamGroupButton from '@components/streamGroup/StreamGroupButton';
-import StreamGroupProfileButton from '@components/streamGroup/profiles/StreamGroupProfileButton';
 import { GetMessage } from '@lib/common/intl';
 import { useIsTrue } from '@lib/redux/hooks/isTrue';
 import { useQueryFilter } from '@lib/redux/hooks/queryFilter';

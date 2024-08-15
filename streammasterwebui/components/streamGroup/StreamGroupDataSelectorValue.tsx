@@ -6,10 +6,10 @@ import { Logger } from '@lib/common/logger';
 import { UpdateStreamGroupProfile } from '@lib/smAPI/StreamGroups/StreamGroupsCommands';
 import { StreamGroupDto, StreamGroupProfile, StreamGroupProfileDto, UpdateStreamGroupProfileRequest } from '@lib/smAPI/smapiTypes';
 import { memo, useCallback, useMemo } from 'react';
-import AttachStreamGroupProfileDialog from './profiles/AttachStreamGroupProfileDialog';
-import CommandProfileDropDown from './profiles/CommandProfileDropDown';
-import OutputProfileDropDown from './profiles/OutputProfileDropDown';
-import RemoveStreamGroupProfileDialog from './profiles/RemoveStreamGroupProfileDialog';
+import AttachStreamGroupProfileDialog from '../profiles/AttachStreamGroupProfileDialog';
+import CommandProfileDropDown from '../profiles/CommandProfileDropDown';
+import OutputProfileDropDown from '../profiles/OutputProfileDropDown';
+import RemoveStreamGroupProfileDialog from '../profiles/RemoveStreamGroupProfileDialog';
 interface StreamGroupDataSelectorValueProperties {
   readonly id: string;
   readonly streamGroupDto: StreamGroupDto;

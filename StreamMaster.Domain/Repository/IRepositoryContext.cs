@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 
 namespace StreamMaster.Domain.Repository;
@@ -32,6 +33,8 @@ public interface IRepositoryContext
     DbSet<SMStream> SMStreams { get; set; }
     DbSet<SMChannel> SMChannels { get; set; }
     DbSet<SystemKeyValue> SystemKeyValues { get; set; }
+    ChangeTracker ChangeTracker { get; }
+
     void Dispose();
     bool IsEntityTracked<TEntity>(TEntity entity) where TEntity : class;
     abstract Task MigrateData();

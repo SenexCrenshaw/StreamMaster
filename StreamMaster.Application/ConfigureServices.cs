@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
+using StreamMaster.Application.ChannelGroups;
 using StreamMaster.Application.Crypto;
 using StreamMaster.Application.Profiles;
 using StreamMaster.Application.StreamGroups;
@@ -17,6 +18,7 @@ public static class ConfigureServices
         services.AddTransient<ICryptoService, CryptoService>();
         services.AddTransient<IProfileService, ProfileService>();
         services.AddScoped<IStreamGroupService, StreamGroupService>();
+        services.AddScoped<IChannelGroupService, ChannelGroupService>();
         services.AddScoped(typeof(CachedConcurrentDictionary<,>));
         return services;
     }

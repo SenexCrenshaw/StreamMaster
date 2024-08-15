@@ -7,6 +7,7 @@ import useGetOutputProfiles from '@lib/smAPI/Profiles/useGetOutputProfiles';
 import { OutputProfileDto, UpdateOutputProfileRequest } from '@lib/smAPI/smapiTypes';
 import { DataTableRowClickEvent } from 'primereact/datatable';
 import { memo, useCallback, useMemo } from 'react';
+
 import CreateOutputProfileDialog from './CreateOutputProfileDialog';
 import RemoveOutputProfileDialog from './RemoveOutputProfileDialog';
 import { useOutputProfileChannelNumberColumnConfig } from './columns/useOutputProfileChannelNumberColumnConfig';
@@ -97,7 +98,6 @@ const StreamGroupOutputProfileDataSelector = () => {
       groupColumnConfig,
       iDColumnConfig,
       channelNumberColumnConfig,
-      // outputProfileUseChannelNumberForGuideNameColumnConfig,
       groupTitleColumnConfig,
       iconColumnConfig,
 
@@ -135,6 +135,7 @@ const StreamGroupOutputProfileDataSelector = () => {
       enableExport={false}
       headerName="M3U/EPG Profiles"
       id={id}
+      dataKey="ProfileName"
       onRowClick={(e: DataTableRowClickEvent) => {}}
       style={{ height: '30vh' }}
     />

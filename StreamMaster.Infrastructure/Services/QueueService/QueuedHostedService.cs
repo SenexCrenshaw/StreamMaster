@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 
 using StreamMaster.Application.Common.Models;
 using StreamMaster.Application.Custom.Commands;
+using StreamMaster.Application.EPG.Commands;
 using StreamMaster.Application.EPGFiles.Commands;
 using StreamMaster.Application.General.Commands;
 using StreamMaster.Application.Icons.Commands;

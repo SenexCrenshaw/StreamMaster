@@ -5,8 +5,8 @@ import { generateKey } from '@lib/common/crypto';
 import { CreateStreamGroup } from '@lib/smAPI/StreamGroups/StreamGroupsCommands';
 import { CreateStreamGroupRequest } from '@lib/smAPI/smapiTypes';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
-import CommandProfileDropDown from './profiles/CommandProfileDropDown';
-import OutputProfileDropDown from './profiles/OutputProfileDropDown';
+import CommandProfileDropDown from '../profiles/CommandProfileDropDown';
+import OutputProfileDropDown from '../profiles/OutputProfileDropDown';
 
 export interface StreamGroupCreateDialogProperties {
   readonly showButton?: boolean | null;

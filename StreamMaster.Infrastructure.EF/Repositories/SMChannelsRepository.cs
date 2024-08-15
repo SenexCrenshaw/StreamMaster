@@ -15,6 +15,8 @@ using StreamMaster.SchedulesDirect.Domain.Interfaces;
 using StreamMaster.SchedulesDirect.Domain.JsonClasses;
 using StreamMaster.SchedulesDirect.Domain.Models;
 
+using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Linq.Expressions;
 using System.Text.Json;
 namespace StreamMaster.Infrastructure.EF.Repositories;
@@ -189,6 +191,11 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IServ
     private SMChannel? CreateSMChannelFromStreamNoLink(string streamId, int? M3UFileId = null)
     {
         SMStream? smStream = repository.SMStream.GetSMStreamById(streamId) ?? throw new APIException($"Stream with Id {streamId} is not found");
+        return smStream == null ? null : CreateSMChannelFromStreamNoLink(smStream, M3UFileId);
+    }
+
+    private SMChannel? CreateSMChannelFromStreamNoLink(SMStream smStream, int? M3UFileId = null)
+    {
         if (smStream == null)
         {
             return null;
@@ -529,17 +536,31 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IServ
     [LogExecutionTimeAspect]
     public async Task<APIResponse> CreateSMChannelsFromStreams(List<string> streamIds, int? addToStreamGroupId)
     {
+        Stopwatch stopwatch = Stopwatch.StartNew(); // Start the timer
         try
         {
+            // Preload streams into a dictionary for quick lookup
+            Dictionary<string, SMStream> smStreams = GetSMStreamsByIds(streamIds).ToDictionary(s => s.Id);
+
             List<SMChannel> addedSMChannels = [];
+            List<SMChannel> bulkSMChannels = [];
+
             Setting settings = intSettings.CurrentValue;
 
             for (int i = 0; i < streamIds.Count; i += BuildInfo.DBBatchSize)
             {
+                Stopwatch batchStopwatch = Stopwatch.StartNew(); // Timer for each batch
                 List<string> batch = streamIds.Skip(i).Take(BuildInfo.DBBatchSize).ToList();
+
                 foreach (string streamId in batch)
                 {
-                    SMChannel? smChannel = CreateSMChannelFromStreamNoLink(streamId);
+                    if (!smStreams.TryGetValue(streamId, out SMStream? smStream))
+                    {
+                        logger.LogError("Stream with Id {streamId} not found.", streamId);
+                        continue; // Skip if the stream is not found
+                    }
+
+                    SMChannel? smChannel = CreateSMChannelFromStreamNoLink(smStream);
 
                     if (smChannel is null)
                     {
@@ -547,27 +568,43 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IServ
                         return APIResponse.ErrorWithMessage("Error creating SMChannel from streams");
                     }
                     addedSMChannels.Add(smChannel);
+                    bulkSMChannels.Add(smChannel);
                 }
 
-                await SaveChangesAsync();
-                await BulkUpdate(addedSMChannels, addToStreamGroupId);
+                await SaveChangesAsync().ConfigureAwait(false);
+
 
                 foreach (SMChannel addedSMChannel in addedSMChannels)
                 {
                     repository.SMChannelStreamLink.CreateSMChannelStreamLink(addedSMChannel, addedSMChannel.BaseStreamID, null);
                 }
-                await SaveChangesAsync();
-                logger.LogInformation("{count} channels have been added.", i + batch.Count);
+
+                await SaveChangesAsync().ConfigureAwait(false);
+                logger.LogInformation("{count} channels have been added in {elapsed}ms.", i + batch.Count, batchStopwatch.ElapsedMilliseconds);
                 addedSMChannels.Clear();
             }
+            await SaveChangesAsync().ConfigureAwait(false);
+            Stopwatch bulkStopwatch = Stopwatch.StartNew();
+            await BulkUpdate(bulkSMChannels, addToStreamGroupId).ConfigureAwait(false);
+            await SaveChangesAsync().ConfigureAwait(false);
+            bulkStopwatch.Stop();
+            logger.LogInformation("Bulk update {count} channels in {elapsed}ms.", bulkSMChannels.Count, bulkStopwatch.ElapsedMilliseconds);
+
+            logger.LogInformation("Total elapsed time: {elapsed}ms.", stopwatch.ElapsedMilliseconds);
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error creating SMChannel from streams");
+            logger.LogError(ex, "Error creating SMChannel from streams after {elapsed}ms.", stopwatch.ElapsedMilliseconds);
             return APIResponse.ErrorWithMessage(ex, "Error creating SMChannel from streams");
         }
         _ = await RepositoryContext.SaveChangesAsync().ConfigureAwait(false);
+
         return APIResponse.Success;
+    }
+
+    public IQueryable<SMStream> GetSMStreamsByIds(List<string> streamIds)
+    {
+        return repository.SMStream.GetQuery().Where(s => streamIds.Contains(s.Id));
     }
 
     private async Task BulkUpdate(List<SMChannel> addedSMChannels, int? defaultSGId)
@@ -576,22 +613,33 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IServ
 
         for (int i = 0; i < addedSMChannels.Count; i += BuildInfo.DBBatchSize)
         {
+            Stopwatch batchStopwatch = Stopwatch.StartNew(); // Timer for each batch
             List<SMChannel> batch = addedSMChannels.Skip(i).Take(BuildInfo.DBBatchSize).ToList();
+
 
             if (settings.AutoSetEPG)
             {
-                _ = await AutoSetEPGs(batch, CancellationToken.None).ConfigureAwait(false);
+                Stopwatch AutoSetEPGStopwatch = Stopwatch.StartNew();
+                _ = await AutoSetEPGs(batch, true, CancellationToken.None).ConfigureAwait(false);
+                AutoSetEPGStopwatch.Stop();
+                logger.LogInformation("AutoSet {count} channels have been processed in {elapsed}ms.", batch.Count, AutoSetEPGStopwatch.ElapsedMilliseconds);
             }
 
             if (defaultSGId.HasValue)
             {
-                foreach (SMChannel smChannel in batch)
-                {
-                    _ = await repository.StreamGroupSMChannelLink.AddSMChannelToStreamGroup(defaultSGId.Value, smChannel.Id, true).ConfigureAwait(false);
-                }
+                List<int> ids = batch.ConvertAll(a => a.Id);
+                Stopwatch linksStopwatch = Stopwatch.StartNew();
+                await repository.StreamGroupSMChannelLink.AddSMChannelsToStreamGroupAsync(defaultSGId.Value, ids, skipSave: true);
+                linksStopwatch.Stop();
+                logger.LogInformation("Add to StreamGroup {count} channels have been processed in {elapsed}ms.", batch.Count, linksStopwatch.ElapsedMilliseconds);
             }
+
+            _ = await RepositoryContext.SaveChangesAsync().ConfigureAwait(false);
+            batchStopwatch.Stop();
+            logger.LogInformation("{count} channels have been processed in {elapsed}ms.", batch.Count, batchStopwatch.ElapsedMilliseconds);
         }
     }
+
 
     public async Task<APIResponse> CreateSMChannelsFromStreamParameters(QueryStringParameters Parameters, int? AddToStreamGroupId)
     {
@@ -642,80 +690,81 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IServ
     public async Task<List<FieldData>> AutoSetEPGFromParameters(QueryStringParameters parameters, CancellationToken cancellationToken)
     {
         List<SMChannel> smChannels = await GetPagedSMChannelsQueryable(parameters).ToListAsync(cancellationToken: cancellationToken);
-        return await AutoSetEPGs(smChannels, cancellationToken).ConfigureAwait(false);
+        return await AutoSetEPGs(smChannels, false, cancellationToken).ConfigureAwait(false);
     }
 
     public async Task<List<FieldData>> AutoSetEPGFromIds(List<int> ids, CancellationToken cancellationToken)
     {
         List<SMChannel> smChannels = await GetQuery(a => ids.Contains(a.Id)).ToListAsync(cancellationToken: cancellationToken);
-        return await AutoSetEPGs(smChannels, cancellationToken).ConfigureAwait(false);
+        return await AutoSetEPGs(smChannels, false, cancellationToken).ConfigureAwait(false);
     }
 
-    private async Task<List<FieldData>> AutoSetEPGs(List<SMChannel> smChannels, CancellationToken cancellationToken)
+    private async Task<List<FieldData>> AutoSetEPGs(List<SMChannel> smChannels, bool skipSave, CancellationToken cancellationToken)
     {
-        List<StationChannelName> stationChannelNames = schedulesDirectDataService.GetStationChannelNames().ToList();
-        stationChannelNames = [.. stationChannelNames.OrderBy(a => a.Channel)];
+        List<StationChannelName> stationChannelNames = [.. schedulesDirectDataService.GetStationChannelNames().OrderBy(a => a.Channel)];
 
-        List<string> toMatch = stationChannelNames.Select(a => a.DisplayName).Distinct().ToList();
+        HashSet<string> toMatch = new(stationChannelNames.Select(a => a.DisplayName).Distinct());
         string toMatchString = string.Join(',', toMatch);
 
-        List<FieldData> fds = [];
+        ConcurrentBag<FieldData> fds = []; // Use ConcurrentBag for thread-safe operations
 
-        Setting Settings = intSettings.CurrentValue;
+        Setting settings = intSettings.CurrentValue;
+
+        List<StationChannelName> stationChannelList = stationChannelNames.ToList();
+
         foreach (SMChannel smChannel in smChannels)
         {
             if (cancellationToken.IsCancellationRequested)
             {
-                if (fds.Count != 0)
-                {
-                    _ = await RepositoryContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-                }
-                return fds;
+                return [.. fds];
             }
 
             try
             {
-                var scoredMatches = stationChannelNames.Select(p => new
-                {
-                    Channel = p,
-                    Score = AutoEPGMatch.GetMatchingScore(smChannel.Name, p.Channel)
-                })
-                .Where(x => x.Score > 0)
-                .OrderByDescending(x => x.Score)
-                .ToList();
+                var scoredMatches = stationChannelList
+                    .Select(p => new
+                    {
+                        Channel = p,
+                        Score = AutoEPGMatch.GetMatchingScore(smChannel.Name, p.Channel)
+                    })
+                    .Where(x => x.Score > 0)
+                    .OrderByDescending(x => x.Score)
+                    .ToList();
 
                 if (scoredMatches.Count == 0)
                 {
-                    scoredMatches = [.. stationChannelNames
+                    scoredMatches = stationChannelList
                         .Select(p => new
                         {
                             Channel = p,
                             Score = AutoEPGMatch.GetMatchingScore(smChannel.Name, p.DisplayName)
                         })
                         .Where(x => x.Score > 0)
-                        .OrderByDescending(x => x.Score)];
+                        .OrderByDescending(x => x.Score)
+                        .ToList();
                 }
 
                 if (scoredMatches.Count > 0)
                 {
-                    smChannel.EPGId = !scoredMatches[0].Channel.Channel.StartsWith(EPGHelper.SchedulesDirectId.ToString()) && scoredMatches.Count > 1 && scoredMatches[1].Channel.Channel.StartsWith(EPGHelper.SchedulesDirectId.ToString())
-                        ? scoredMatches[1].Channel.Channel
-                        : scoredMatches[0].Channel.Channel;
-
-                    fds.Add(new FieldData(SMChannel.APIName, smChannel.Id, "EPGId", smChannel.EPGId));
-
-                    if (Settings.VideoStreamAlwaysUseEPGLogo)
+                    var bestMatch = scoredMatches[0];
+                    if (!bestMatch.Channel.Channel.StartsWith(EPGHelper.SchedulesDirectId.ToString()) && scoredMatches.Count > 1 && scoredMatches[1].Channel.Channel.StartsWith(EPGHelper.SchedulesDirectId.ToString()))
                     {
-                        if (SetVideoStreamLogoFromEPG(smChannel))
-                        {
-                            fds.Add(new FieldData(SMChannel.APIName, smChannel.Id, "Logo", smChannel.Logo));
-                        }
+                        bestMatch = scoredMatches[1];
                     }
 
-                    EntityState state = RepositoryContext.SMChannels.Entry(smChannel).State;
-                    if (state is EntityState.Unchanged)
+                    if (smChannel.EPGId != bestMatch.Channel.Channel)
                     {
-                        Update(smChannel);
+                        smChannel.EPGId = bestMatch.Channel.Channel;
+
+                        fds.Add(new FieldData(SMChannel.APIName, smChannel.Id, "EPGId", smChannel.EPGId));
+
+                        if (settings.VideoStreamAlwaysUseEPGLogo)
+                        {
+                            if (SetVideoStreamLogoFromEPG(smChannel))
+                            {
+                                fds.Add(new FieldData(SMChannel.APIName, smChannel.Id, "Logo", smChannel.Logo));
+                            }
+                        }
                     }
                 }
             }
@@ -724,8 +773,17 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IServ
                 logger.LogWarning("An error occurred while processing channel {ChannelName}: {ErrorMessage}", smChannel.Name, ex.Message);
             }
         }
-        return fds;
+
+
+
+        if (!skipSave && !fds.IsEmpty)
+        {
+            _ = await RepositoryContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        }
+
+        return [.. fds];
     }
+
 
     private bool SetVideoStreamLogoFromEPG(SMChannel smChannel)
     {

@@ -1,5 +1,5 @@
+import StreamGroupOutputProfileDataSelector from '@components/profiles/StreamGroupOutputProfileDataSelector';
 import SMPopUp from '@components/sm/SMPopUp';
-import StreamGroupOutputProfileDataSelector from '@components/streamGroup/profiles/StreamGroupOutputProfileDataSelector';
 import React from 'react';
 import StreamGroupCommandProfileDataSelector from './StreamGroupCommandProfileDataSelector';
 

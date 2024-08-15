@@ -40,6 +40,7 @@ public interface IRepositoryBase<T> where T : class
     /// </summary>
     /// <param name="entities">Entities to add.</param>
     void CreateRange(T[] entities);
+    void CreateRange(List<T> entities);
 
     /// <summary>
     /// Updates an existing entity in the database.

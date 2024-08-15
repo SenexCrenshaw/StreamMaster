@@ -33,10 +33,10 @@
     <PackageReference Include="Microsoft.AspNetCore.DataProtection.EntityFrameworkCore" Version="8.0.8" />
     <PackageReference Include="Reinforced.Typings" Version="1.6.3" />
     <PackageReference Include="System.Linq.Dynamic.Core" Version="1.4.4" />
-    <PackageReference Include="X.PagedList.EF" Version="9.1.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.8" />
     <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Features" Version="8.0.8" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.1" />
+    <PackageReference Include="X.Extensions.PagedList.EF" Version="10.1.2" />
   </ItemGroup>
 </Project>
