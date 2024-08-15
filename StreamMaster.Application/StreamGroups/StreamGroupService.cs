@@ -485,6 +485,7 @@ public class StreamGroupService(ILogger<StreamGroupService> _logger, IMapper _ma
                 Name = smChannel.Name,
                 EPGId = smChannel.EPGId,
                 Logo = smChannel.Logo,
+                Group = smChannel.Group,
                 ChannelNumber = smChannel.ChannelNumber,
                 TimeShift = smChannel.TimeShift,
                 IsDuplicate = false,
