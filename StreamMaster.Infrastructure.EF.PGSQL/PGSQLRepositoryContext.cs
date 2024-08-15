@@ -1,6 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Helpers;
@@ -9,7 +7,7 @@ using StreamMaster.SchedulesDirect.Domain.Models;
 
 namespace StreamMaster.Infrastructure.EF.PGSQL
 {
-    public partial class PGSQLRepositoryContext(DbContextOptions<PGSQLRepositoryContext> options, ILoggerFactory loggerFactory, IOptionsMonitor<Setting> _settings) : BaseRepositoryContext(options)
+    public partial class PGSQLRepositoryContext(DbContextOptions<PGSQLRepositoryContext> options) : BaseRepositoryContext(options)
     {
 
         public static string DbConnectionString => $"Host={BuildInfo.DBHost};Database={BuildInfo.DBName};Username={BuildInfo.DBUser};Password={BuildInfo.DBPassword}";
@@ -59,9 +57,10 @@ namespace StreamMaster.Infrastructure.EF.PGSQL
                     o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
                 }
                 );
-            if (_settings.CurrentValue.EnableDBDebug)
+            Setting? setting = SettingsHelper.GetSetting<Setting>(BuildInfo.SettingFileName);
+            if (setting?.EnableDBDebug == true)
             {
-                options.EnableSensitiveDataLogging(true).UseLoggerFactory(loggerFactory);
+                options.EnableSensitiveDataLogging(true);
             }
         }
 

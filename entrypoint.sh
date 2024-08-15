@@ -5,6 +5,35 @@ group_name="nonRootGroup"
 
 . /env.sh
 
+# Function to check if a specific MigrationId exists in the __EFMigrationsHistory table
+check_migration_exists() {
+    local migration_id=$1
+    local exists=$(psql -U $POSTGRES_USER -d $POSTGRES_DB -h $POSTGRES_HOST -tAc "SELECT 1 FROM public.\"__EFMigrationsHistory\" WHERE \"MigrationId\" = '$migration_id';")
+    if [ "$exists" = "1" ]; then
+        return 0  # MigrationId exists
+    else
+        return 1  # MigrationId does not exist
+    fi
+}
+
+# Perform the database migration check and update
+perform_migration_update() {
+    local migration_id_to_check="20240804181253_Custom_Setup"
+    local new_migration_id="20240815125224_Initital"
+    local product_version="8.0.8"
+
+    if check_migration_exists "$migration_id_to_check"; then
+        echo "MigrationId $migration_id_to_check exists. Performing DELETE and INSERT operations."
+        
+        psql -U $POSTGRES_USER -d $POSTGRES_DB -h $POSTGRES_HOST -c 'DELETE FROM public."__EFMigrationsHistory";'
+        psql -U $POSTGRES_USER -d $POSTGRES_DB -h $POSTGRES_HOST -c "INSERT INTO public.\"__EFMigrationsHistory\"(\"MigrationId\", \"ProductVersion\") VALUES ('$new_migration_id', '$product_version');"
+        
+        echo "MigrationId updated to $new_migration_id with ProductVersion $product_version."
+    else
+        echo "MigrationId $migration_id_to_check does not exist. No changes made."
+    fi
+}
+
 moveFilesAndDeleteDir() {
     local source_dir=$1
     local destination_dir=$2
@@ -215,6 +244,10 @@ fi
 if [ $? -eq 0 ]; then
     # PostgreSQL is ready, you can proceed with your tasks
     echo "Postgres is up"
+
+    # Perform migration update
+    perform_migration_update
+    
 else
     # PostgreSQL is not ready after max_attempts, handle the error
     echo "Error: PostgreSQL is not ready."

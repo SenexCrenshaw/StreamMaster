@@ -8,7 +8,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
 {
     /// <inheritdoc />
-    public partial class Initial : Migration
+    public partial class Initital : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -91,6 +91,8 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
                     MaxStreamCount = table.Column<int>(type: "integer", nullable: false),
                     StreamCount = table.Column<int>(type: "integer", nullable: false),
                     SyncChannels = table.Column<bool>(type: "boolean", nullable: false),
+                    StartingChannelNumber = table.Column<int>(type: "integer", nullable: false),
+                    AutoSetChannelNumbers = table.Column<bool>(type: "boolean", nullable: false),
                     DefaultStreamGroupName = table.Column<string>(type: "text", nullable: true),
                     ContentType = table.Column<string>(type: "citext", nullable: false),
                     DownloadErrors = table.Column<int>(type: "integer", nullable: false),
@@ -120,8 +122,7 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityAlwaysColumn),
                     CommandProfileName = table.Column<string>(type: "citext", nullable: false),
                     IsHidden = table.Column<bool>(type: "boolean", nullable: false),
-                    IsCustomStream = table.Column<bool>(type: "boolean", nullable: false),
-                    StreamID = table.Column<string>(type: "text", nullable: false),
+                    BaseStreamID = table.Column<string>(type: "text", nullable: false),
                     M3UFileId = table.Column<int>(type: "integer", nullable: false),
                     ChannelNumber = table.Column<int>(type: "integer", nullable: false),
                     TimeShift = table.Column<int>(type: "integer", nullable: false),
@@ -130,7 +131,9 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
                     Logo = table.Column<string>(type: "citext", nullable: false),
                     Name = table.Column<string>(type: "citext", nullable: false),
                     StationId = table.Column<string>(type: "citext", nullable: false),
-                    GroupTitle = table.Column<string>(type: "citext", nullable: false)
+                    GroupTitle = table.Column<string>(type: "citext", nullable: false),
+                    IsSystem = table.Column<bool>(type: "boolean", nullable: false),
+                    SMChannelType = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -145,7 +148,6 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
                     ClientUserAgent = table.Column<string>(type: "citext", nullable: true),
                     FilePosition = table.Column<int>(type: "integer", nullable: false),
                     IsHidden = table.Column<bool>(type: "boolean", nullable: false),
-                    IsCustomStream = table.Column<bool>(type: "boolean", nullable: false),
                     IsUserCreated = table.Column<bool>(type: "boolean", nullable: false),
                     M3UFileId = table.Column<int>(type: "integer", nullable: false),
                     ChannelNumber = table.Column<int>(type: "integer", nullable: false),
@@ -155,7 +157,10 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
                     Logo = table.Column<string>(type: "citext", nullable: false),
                     Name = table.Column<string>(type: "citext", nullable: false),
                     Url = table.Column<string>(type: "citext", nullable: false),
-                    StationId = table.Column<string>(type: "citext", nullable: false)
+                    StationId = table.Column<string>(type: "citext", nullable: false),
+                    IsSystem = table.Column<bool>(type: "boolean", nullable: false),
+                    CUID = table.Column<string>(type: "citext", nullable: false),
+                    SMStreamType = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -170,8 +175,10 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityAlwaysColumn),
                     DeviceID = table.Column<string>(type: "text", nullable: false),
                     IsReadOnly = table.Column<bool>(type: "boolean", nullable: false),
+                    ShowIntros = table.Column<int>(type: "integer", nullable: false),
                     IsSystem = table.Column<bool>(type: "boolean", nullable: false),
-                    Name = table.Column<string>(type: "citext", nullable: false)
+                    Name = table.Column<string>(type: "citext", nullable: false),
+                    GroupKey = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -193,11 +200,36 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
                 });
 
             migrationBuilder.CreateTable(
+                name: "SMChannelChannelLinks",
+                columns: table => new
+                {
+                    ParentSMChannelId = table.Column<int>(type: "integer", nullable: false),
+                    ChildSMChannelId = table.Column<int>(type: "integer", nullable: false),
+                    Rank = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SMChannelChannelLinks", x => new { x.ParentSMChannelId, x.ChildSMChannelId });
+                    table.ForeignKey(
+                        name: "FK_SMChannelChannelLinks_SMChannels_ChildSMChannelId",
+                        column: x => x.ChildSMChannelId,
+                        principalTable: "SMChannels",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_SMChannelChannelLinks_SMChannels_ParentSMChannelId",
+                        column: x => x.ParentSMChannelId,
+                        principalTable: "SMChannels",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "SMChannelStreamLinks",
                 columns: table => new
                 {
                     SMChannelId = table.Column<int>(type: "integer", nullable: false),
-                    SMStreamId = table.Column<string>(type: "citext", nullable: false),
+                    SMStreamId = table.Column<string>(type: "text", nullable: false),
                     Rank = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
@@ -248,7 +280,7 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityAlwaysColumn),
                     StreamGroupId = table.Column<int>(type: "integer", nullable: false),
-                    Name = table.Column<string>(type: "text", nullable: false),
+                    ProfileName = table.Column<string>(type: "text", nullable: false),
                     OutputProfileName = table.Column<string>(type: "text", nullable: false),
                     CommandProfileName = table.Column<string>(type: "text", nullable: false)
                 },
@@ -300,6 +332,11 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
                 columns: new[] { "Name", "IsHidden" });
 
             migrationBuilder.CreateIndex(
+                name: "IX_SMChannelChannelLinks_ChildSMChannelId",
+                table: "SMChannelChannelLinks",
+                column: "ChildSMChannelId");
+
+            migrationBuilder.CreateIndex(
                 name: "idx_SMChannelName",
                 table: "SMChannels",
                 column: "Name");
@@ -341,6 +378,9 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
 
             migrationBuilder.DropTable(
                 name: "M3UFiles");
+
+            migrationBuilder.DropTable(
+                name: "SMChannelChannelLinks");
 
             migrationBuilder.DropTable(
                 name: "SMChannelStreamLinks");
