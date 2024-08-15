@@ -578,6 +578,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IServ
                         return APIResponse.ErrorWithMessage("Error creating SMChannel from streams");
                     }
                     addedSMChannels.Add(smChannel);
+
                     bulkSMChannels.Add(smChannel);
                 }
 
@@ -791,6 +792,13 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IServ
             Parallel.ForEach(smChannels, new ParallelOptions { CancellationToken = cancellationToken }, smChannel =>
             {
                 if (cancellationToken.IsCancellationRequested)
+                {
+                    return;
+                }
+
+                (int epgNumber, string stationId) = smChannel.EPGId.ExtractEPGNumberAndStationId();
+
+                if (epgNumber < EPGHelper.DummyId)
                 {
                     return;
                 }
