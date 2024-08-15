@@ -14,13 +14,13 @@ public static class SettingFiles
                 IsReadOnly = true,
 
                 EnableIcon = true,
-                EnableId = true,
+                //EnableId = true,
                 EnableGroupTitle = true,
                 EnableChannelNumber = true,
-
+                Id = nameof(ValidM3USetting.ChannelNumber),
                 Name = nameof(ValidM3USetting.Name),
                 Group = nameof(ValidM3USetting.Group),
-                EPGId = nameof(ValidM3USetting.EPGId),
+                //EPGId = nameof(ValidM3USetting.EPGId),
             }
         }
     }

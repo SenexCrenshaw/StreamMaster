@@ -17,16 +17,16 @@ public class OutputProfile
 
     public bool IsReadOnly { get; set; } = false;
     public bool EnableIcon { get; set; } = true;
-    public bool EnableId { get; set; } = true;
+    //public bool EnableId { get; set; } = true;
     public bool EnableGroupTitle { get; set; } = true;
 
     public bool EnableChannelNumber { get; set; } = true;
 
     //public bool AppendChannelNumberToId { get; set; } = false;
 
-
+    public string Id { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
-    public string EPGId { get; set; } = string.Empty;
+    //public string EPGId { get; set; } = string.Empty;
     public string Group { get; set; } = string.Empty;
     //public string ChannelNumber { get; set; } = string.Empty;
 
@@ -37,12 +37,12 @@ public record OutputProfileRequest
 {
     public bool? EnableIcon { get; set; }
     public bool? EnableGroupTitle { get; set; }
-    public bool? EnableId { get; set; }
+    //public bool? EnableId { get; set; }
     public bool? EnableChannelNumber { get; set; }
     //public bool? AppendChannelNumberToId { get; set; }
-
+    public string? Id { get; set; }
     public string? Name { get; set; }
-    public string? EPGId { get; set; }
+    //public string? EPGId { get; set; }
     public string? Group { get; set; }
     //public string? ChannelNumber { get; set; }
 
@@ -80,11 +80,12 @@ public class OutputProfileDict
             ProfileName = ProfileName,
             IsReadOnly = outputProfile.IsReadOnly,
             EnableIcon = outputProfile.EnableIcon,
-            EnableId = outputProfile.EnableId,
+            //EnableId = outputProfile.EnableId,
+            Id = outputProfile.Id,
             EnableGroupTitle = outputProfile.EnableGroupTitle,
             EnableChannelNumber = outputProfile.EnableChannelNumber,
             Name = outputProfile.Name,
-            EPGId = outputProfile.EPGId,
+            //EPGId = outputProfile.EPGId,
             Group = outputProfile.Group,
             //AppendChannelNumberToId = outputProfile.AppendChannelNumberToId,
         };

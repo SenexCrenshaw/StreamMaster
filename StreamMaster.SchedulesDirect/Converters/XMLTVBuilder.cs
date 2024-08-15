@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
 using StreamMaster.Domain.Comparer;
+using StreamMaster.Domain.Crypto;
 using StreamMaster.Domain.Enums;
 using StreamMaster.Domain.Helpers;
 using StreamMaster.Domain.Models;
@@ -301,7 +302,8 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IOptionsMon
 
             Parallel.ForEach(services, parallelOptions, service =>
             {
-                XmltvChannel channel = BuildXmltvChannel(service, outputProfile);
+                VideoStreamConfig? VideoStreamConfig = videoStreamConfigs.FirstOrDefault(a => service.StationId == a.EPGId);
+                XmltvChannel channel = BuildXmltvChannel(service, VideoStreamConfig, outputProfile);
                 xmlTv.Channels.Add(channel);
 
                 if (service.MxfScheduleEntries.ScheduleEntry.Count == 0 && sdsettings.XmltvAddFillerData)
@@ -413,11 +415,30 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IOptionsMon
 
 
     #region ========== XMLTV Channels and Functions ==========
-    private XmltvChannel BuildXmltvChannel(MxfService mxfService, OutputProfileDto outputProfile)
+    private XmltvChannel BuildXmltvChannel(MxfService mxfService, VideoStreamConfig? VideoStreamConfig, OutputProfileDto outputProfile)
     {
-
         string id = mxfService.ChNo.ToString();
-        //id = mxfService.Name.ToCleanFileString();
+
+        if (outputProfile.Id != nameof(ValidM3USetting.NotMapped))
+        {
+            switch (outputProfile.Id)
+            {
+                case nameof(ValidM3USetting.Group):
+                    if (VideoStreamConfig != null && !string.IsNullOrEmpty(VideoStreamConfig.Group))
+                    {
+                        id = VideoStreamConfig.Group;
+                    }
+                    break;
+                case nameof(ValidM3USetting.ChannelNumber):
+                    id = mxfService.ChNo.ToString();
+                    break;
+
+                case nameof(ValidM3USetting.Name):
+                    id = mxfService.Name.ToCleanFileString();
+                    break;
+            }
+        }
+
         XmltvChannel ret = new()
         {
             Id = id,
@@ -426,7 +447,7 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IOptionsMon
 
         mxfService.Name ??= mxfService.CallSign;
 
-        //ret.DisplayNames.Add(new XmltvText { Text = id });
+
         ret.DisplayNames.Add(new XmltvText { Text = mxfService.Name });
         //ret.DisplayNames.Add(new XmltvText { Text = mxfService.CallSign });
 

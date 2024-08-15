@@ -47,11 +47,17 @@ public class UpdateFileProfileRequestHandler(
             fields.Add(new FieldData(OutputProfile.APIName, request.ProfileName, "Name", request.Name));
         }
 
-        if (!string.IsNullOrEmpty(request.EPGId) && request.EPGId != existingProfile.EPGId)
+        if (!string.IsNullOrEmpty(request.Id) && request.Id != existingProfile.Id)
         {
-            existingProfile.EPGId = request.EPGId;
-            fields.Add(new FieldData(OutputProfile.APIName, request.ProfileName, "EPGId", request.EPGId));
+            existingProfile.Id = request.Id;
+            fields.Add(new FieldData(OutputProfile.APIName, request.ProfileName, "Id", request.Id));
         }
+
+        //if (!string.IsNullOrEmpty(request.EPGId) && request.EPGId != existingProfile.EPGId)
+        //{
+        //    existingProfile.EPGId = request.EPGId;
+        //    fields.Add(new FieldData(OutputProfile.APIName, request.ProfileName, "EPGId", request.EPGId));
+        //}
 
         if (!string.IsNullOrEmpty(request.Group) && request.Group != existingProfile.Group)
         {
@@ -77,11 +83,11 @@ public class UpdateFileProfileRequestHandler(
             fields.Add(new FieldData(OutputProfile.APIName, request.ProfileName, "EnableGroupTitle", request.EnableGroupTitle.Value));
         }
 
-        if (request.EnableId.HasValue)
-        {
-            existingProfile.EnableId = request.EnableId.Value;
-            fields.Add(new FieldData(OutputProfile.APIName, request.ProfileName, "EnableId", request.EnableId.Value));
-        }
+        //if (request.EnableId.HasValue)
+        //{
+        //    existingProfile.EnableId = request.EnableId.Value;
+        //    fields.Add(new FieldData(OutputProfile.APIName, request.ProfileName, "EnableId", request.EnableId.Value));
+        //}
 
         if (request.EnableIcon.HasValue)
         {

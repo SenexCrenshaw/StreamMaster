@@ -11,7 +11,7 @@ import { memo, useCallback, useMemo } from 'react';
 import CreateOutputProfileDialog from './CreateOutputProfileDialog';
 import RemoveOutputProfileDialog from './RemoveOutputProfileDialog';
 import { useOutputProfileChannelNumberColumnConfig } from './columns/useOutputProfileChannelNumberColumnConfig';
-import { useOutputProfileEPGIdColumnConfig } from './columns/useOutputProfileEPGIdColumnConfig';
+// import { useOutputProfileEPGIdColumnConfig } from './columns/useOutputProfileEPGIdColumnConfig';
 import { useOutputProfileGroupColumnConfig } from './columns/useOutputProfileGroupColumnConfig';
 import { useOutputProfileGroupTitleColumnConfig } from './columns/useOutputProfileGroupTitleColumnConfig';
 import { useOutputProfileIconColumnConfig } from './columns/useOutputProfileIconColumnConfig';
@@ -36,7 +36,7 @@ const StreamGroupOutputProfileDataSelector = () => {
   const iDColumnConfig = useOutputProfileIdColumnConfig({ width: 40 });
   const groupTitleColumnConfig = useOutputProfileGroupTitleColumnConfig({ width: 40 });
   const channelNumberColumnConfig = useOutputProfileChannelNumberColumnConfig({ width: 40 });
-  const epgIdColumnConfig = useOutputProfileEPGIdColumnConfig({ width: 40 });
+  // const epgIdColumnConfig = useOutputProfileEPGIdColumnConfig({ width: 40 });
   const iconColumnConfig = useOutputProfileIconColumnConfig({ width: 40 });
   // const outputProfileUseChannelNumberForGuideNameColumnConfig = useOutputProfileUseChannelNumberForGuideNameColumnConfig({ width: 40 });
 
@@ -93,14 +93,13 @@ const StreamGroupOutputProfileDataSelector = () => {
         sortable: true,
         width: 40
       },
-      nameColumnConfig,
-      epgIdColumnConfig,
-      groupColumnConfig,
       iDColumnConfig,
+      nameColumnConfig,
+      // epgIdColumnConfig,
+      groupColumnConfig,
       channelNumberColumnConfig,
       groupTitleColumnConfig,
       iconColumnConfig,
-
       {
         align: 'center',
         bodyTemplate: actionTemplate,
@@ -113,7 +112,7 @@ const StreamGroupOutputProfileDataSelector = () => {
     [
       nameTemplate,
       nameColumnConfig,
-      epgIdColumnConfig,
+      // epgIdColumnConfig,
       groupColumnConfig,
       iDColumnConfig,
       channelNumberColumnConfig,

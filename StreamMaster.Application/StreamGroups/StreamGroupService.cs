@@ -370,12 +370,34 @@ public class StreamGroupService(ILogger<StreamGroupService> _logger, IMapper _ma
             //{
             //    guideName = videoStreamConfig.ChannelNumber.ToString() + " " + videoStreamConfig.Name;
             //}
-            string channelNumber = videoStreamConfig.ChannelNumber.ToString();
+
+            string id = videoStreamConfig.ChannelNumber.ToString();
+
+            if (videoStreamConfig.OutputProfile.Id != nameof(ValidM3USetting.NotMapped))
+            {
+                switch (videoStreamConfig.OutputProfile.Id)
+                {
+                    case nameof(ValidM3USetting.Group):
+                        if (videoStreamConfig.OutputProfile != null && !string.IsNullOrEmpty(videoStreamConfig.OutputProfile.Group))
+                        {
+                            id = videoStreamConfig.Group;
+                        }
+                        break;
+                    case nameof(ValidM3USetting.ChannelNumber):
+                        id = videoStreamConfig.ChannelNumber.ToString();
+                        break;
+
+                    case nameof(ValidM3USetting.Name):
+                        id = videoStreamConfig.Name.ToCleanFileString();
+                        break;
+                }
+            }
+
             SGLineup lu = new()
             {
-                GuideName = videoStreamConfig.Name.ToCleanFileString(),
-                GuideNumber = channelNumber,
-                Station = channelNumber,
+                GuideName = videoStreamConfig.Name,
+                GuideNumber = videoStreamConfig.ChannelNumber.ToString(),
+                Station = id,
                 Logo = logo,
                 URL = videoUrl
             };

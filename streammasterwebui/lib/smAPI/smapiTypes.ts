@@ -335,9 +335,8 @@ export interface OutputProfile
 	EnableChannelNumber: boolean;
 	EnableGroupTitle: boolean;
 	EnableIcon: boolean;
-	EnableId: boolean;
-	EPGId: string;
 	Group: string;
+	Id: string;
 	IsReadOnly: boolean;
 	Name: string;
 }
@@ -347,9 +346,8 @@ export interface OutputProfileDto
 	EnableChannelNumber: boolean;
 	EnableGroupTitle: boolean;
 	EnableIcon: boolean;
-	EnableId: boolean;
-	EPGId: string;
 	Group: string;
+	Id: string;
 	IsReadOnly: boolean;
 	Name: string;
 	ProfileName: string;
@@ -1141,9 +1139,8 @@ export interface UpdateOutputProfileRequest
 	EnableChannelNumber?: boolean;
 	EnableGroupTitle?: boolean;
 	EnableIcon?: boolean;
-	EnableId?: boolean;
-	EPGId?: string;
 	Group?: string;
+	Id?: string;
 	Name?: string;
 	NewName?: string;
 	ProfileName: string;
@@ -1610,8 +1607,7 @@ export enum ValidM3USetting {
 	NotMapped = 0,
 	Name = 2,
 	Group = 3,
-	EPGId = 4,
-	ChannelNumber = 5
+	ChannelNumber = 4
 }
 export enum VideoStreamHandlers {
 	SystemDefault = 0,
