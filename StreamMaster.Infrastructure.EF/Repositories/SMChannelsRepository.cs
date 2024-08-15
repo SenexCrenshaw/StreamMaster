@@ -11,6 +11,7 @@ using StreamMaster.Domain.Exceptions;
 using StreamMaster.Domain.Filtering;
 using StreamMaster.Domain.Helpers;
 using StreamMaster.Infrastructure.EF.Helpers;
+using StreamMaster.Infrastructure.EF.PGSQL;
 using StreamMaster.SchedulesDirect.Domain.Interfaces;
 using StreamMaster.SchedulesDirect.Domain.JsonClasses;
 using StreamMaster.SchedulesDirect.Domain.Models;
@@ -631,12 +632,12 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IServ
                 Stopwatch linksStopwatch = Stopwatch.StartNew();
                 await repository.StreamGroupSMChannelLink.AddSMChannelsToStreamGroupAsync(defaultSGId.Value, ids, skipSave: true);
                 linksStopwatch.Stop();
-                logger.LogInformation("Add to StreamGroup {count} channels have been processed in {elapsed}ms.", batch.Count, linksStopwatch.ElapsedMilliseconds);
+                logger.LogInformation("Add StreamGroup {count} channels have been processed in {elapsed}ms.", batch.Count, linksStopwatch.ElapsedMilliseconds);
             }
 
             _ = await RepositoryContext.SaveChangesAsync().ConfigureAwait(false);
             batchStopwatch.Stop();
-            logger.LogInformation("{count} channels have been processed in {elapsed}ms.", batch.Count, batchStopwatch.ElapsedMilliseconds);
+            logger.LogInformation("BulkUpdate {count} channels have been processed in {elapsed}ms.", batch.Count, batchStopwatch.ElapsedMilliseconds);
         }
     }
 
@@ -712,68 +713,153 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IServ
 
         List<StationChannelName> stationChannelList = stationChannelNames.ToList();
 
-        foreach (SMChannel smChannel in smChannels)
+        //foreach (SMChannel smChannel in smChannels)
+        //{
+        //    if (cancellationToken.IsCancellationRequested)
+        //    {
+        //        return [.. fds];
+        //    }
+
+        //    try
+        //    {
+        //        var scoredMatches = stationChannelList
+        //            .Select(p => new
+        //            {
+        //                Channel = p,
+        //                Score = AutoEPGMatch.GetMatchingScore(smChannel.Name, p.Channel)
+        //            })
+        //            .Where(x => x.Score > 0)
+        //            .OrderByDescending(x => x.Score)
+        //            .ToList();
+
+        //        if (scoredMatches.Count == 0)
+        //        {
+        //            scoredMatches = stationChannelList
+        //                .Select(p => new
+        //                {
+        //                    Channel = p,
+        //                    Score = AutoEPGMatch.GetMatchingScore(smChannel.Name, p.DisplayName)
+        //                })
+        //                .Where(x => x.Score > 0)
+        //                .OrderByDescending(x => x.Score)
+        //                .ToList();
+        //        }
+
+        //        if (scoredMatches.Count > 0)
+        //        {
+        //            var bestMatch = scoredMatches[0];
+        //            if (!bestMatch.Channel.Channel.StartsWith(EPGHelper.SchedulesDirectId.ToString()) && scoredMatches.Count > 1 && scoredMatches[1].Channel.Channel.StartsWith(EPGHelper.SchedulesDirectId.ToString()))
+        //            {
+        //                bestMatch = scoredMatches[1];
+        //            }
+
+        //            if (smChannel.EPGId != bestMatch.Channel.Channel)
+        //            {
+        //                smChannel.EPGId = bestMatch.Channel.Channel;
+
+        //                fds.Add(new FieldData(SMChannel.APIName, smChannel.Id, "EPGId", smChannel.EPGId));
+
+        //                if (settings.VideoStreamAlwaysUseEPGLogo)
+        //                {
+        //                    if (SetVideoStreamLogoFromEPG(smChannel))
+        //                    {
+        //                        fds.Add(new FieldData(SMChannel.APIName, smChannel.Id, "Logo", smChannel.Logo));
+        //                    }
+        //                }
+        //            }
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        logger.LogWarning("An error occurred while processing channel {ChannelName}: {ErrorMessage}", smChannel.Name, ex.Message);
+        //    }
+        //}
+
+        List<SMChannel> entitiesToUpdate = new();
+
+        await Task.Run(() =>
         {
-            if (cancellationToken.IsCancellationRequested)
+            Parallel.ForEach(smChannels, new ParallelOptions { CancellationToken = cancellationToken }, smChannel =>
             {
-                return [.. fds];
-            }
-
-            try
-            {
-                var scoredMatches = stationChannelList
-                    .Select(p => new
-                    {
-                        Channel = p,
-                        Score = AutoEPGMatch.GetMatchingScore(smChannel.Name, p.Channel)
-                    })
-                    .Where(x => x.Score > 0)
-                    .OrderByDescending(x => x.Score)
-                    .ToList();
-
-                if (scoredMatches.Count == 0)
+                if (cancellationToken.IsCancellationRequested)
                 {
-                    scoredMatches = stationChannelList
+                    return;
+                }
+
+                try
+                {
+                    var scoredMatches = stationChannelNames
                         .Select(p => new
                         {
                             Channel = p,
-                            Score = AutoEPGMatch.GetMatchingScore(smChannel.Name, p.DisplayName)
+                            Score = AutoEPGMatch.GetMatchingScore(smChannel.Name, p.Channel)
                         })
                         .Where(x => x.Score > 0)
                         .OrderByDescending(x => x.Score)
                         .ToList();
-                }
 
-                if (scoredMatches.Count > 0)
-                {
-                    var bestMatch = scoredMatches[0];
-                    if (!bestMatch.Channel.Channel.StartsWith(EPGHelper.SchedulesDirectId.ToString()) && scoredMatches.Count > 1 && scoredMatches[1].Channel.Channel.StartsWith(EPGHelper.SchedulesDirectId.ToString()))
+                    if (scoredMatches.Count == 0)
                     {
-                        bestMatch = scoredMatches[1];
+                        scoredMatches = stationChannelNames
+                            .Select(p => new
+                            {
+                                Channel = p,
+                                Score = AutoEPGMatch.GetMatchingScore(smChannel.Name, p.DisplayName)
+                            })
+                            .Where(x => x.Score > 0)
+                            .OrderByDescending(x => x.Score)
+                            .ToList();
                     }
 
-                    if (smChannel.EPGId != bestMatch.Channel.Channel)
+                    if (scoredMatches.Count > 0)
                     {
-                        smChannel.EPGId = bestMatch.Channel.Channel;
-
-                        fds.Add(new FieldData(SMChannel.APIName, smChannel.Id, "EPGId", smChannel.EPGId));
-
-                        if (settings.VideoStreamAlwaysUseEPGLogo)
+                        var bestMatch = scoredMatches[0];
+                        if (!bestMatch.Channel.Channel.StartsWith(EPGHelper.SchedulesDirectId.ToString()) && scoredMatches.Count > 1 && scoredMatches[1].Channel.Channel.StartsWith(EPGHelper.SchedulesDirectId.ToString()))
                         {
-                            if (SetVideoStreamLogoFromEPG(smChannel))
+                            bestMatch = scoredMatches[1];
+                        }
+
+                        if (smChannel.EPGId != bestMatch.Channel.Channel)
+                        {
+                            smChannel.EPGId = bestMatch.Channel.Channel;
+
+                            lock (entitiesToUpdate)
                             {
-                                fds.Add(new FieldData(SMChannel.APIName, smChannel.Id, "Logo", smChannel.Logo));
+                                entitiesToUpdate.Add(smChannel);
+                            }
+
+                            fds.Add(new FieldData(SMChannel.APIName, smChannel.Id, "EPGId", smChannel.EPGId));
+
+                            if (settings.VideoStreamAlwaysUseEPGLogo)
+                            {
+                                if (SetVideoStreamLogoFromEPG(smChannel))
+                                {
+                                    fds.Add(new FieldData(SMChannel.APIName, smChannel.Id, "Logo", smChannel.Logo));
+                                }
                             }
                         }
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                logger.LogWarning("An error occurred while processing channel {ChannelName}: {ErrorMessage}", smChannel.Name, ex.Message);
-            }
-        }
+                catch (Exception ex)
+                {
+                    logger.LogWarning("An error occurred while processing channel {ChannelName}: {ErrorMessage}", smChannel.Name, ex.Message);
+                }
+            });
+        }, cancellationToken).ConfigureAwait(false);
 
+        // Batch update the entities after the parallel processing
+        using (IServiceScope scope = serviceProvider.CreateScope())
+        {
+            PGSQLRepositoryContext context = scope.ServiceProvider.GetRequiredService<PGSQLRepositoryContext>();
+
+            foreach (SMChannel smChannel in entitiesToUpdate)
+            {
+                context.SMChannels.Attach(smChannel);
+                context.Entry(smChannel).State = EntityState.Modified;
+            }
+
+            await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        }
 
 
         if (!skipSave && !fds.IsEmpty)
