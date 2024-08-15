@@ -417,6 +417,7 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IOptionsMon
     {
 
         string id = mxfService.ChNo.ToString();
+        //id = mxfService.Name.ToCleanFileString();
         XmltvChannel ret = new()
         {
             Id = id,
@@ -425,9 +426,9 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IOptionsMon
 
         mxfService.Name ??= mxfService.CallSign;
 
-
+        //ret.DisplayNames.Add(new XmltvText { Text = id });
         ret.DisplayNames.Add(new XmltvText { Text = mxfService.Name });
-        ret.DisplayNames.Add(new XmltvText { Text = mxfService.CallSign });
+        //ret.DisplayNames.Add(new XmltvText { Text = mxfService.CallSign });
 
         //ret.DisplayNames.Add(new XmltvText { Text = mxfService.CallSign });
         //ret.DisplayNames.Add(new XmltvText { Text = id });

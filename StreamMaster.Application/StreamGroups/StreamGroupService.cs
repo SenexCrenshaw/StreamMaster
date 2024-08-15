@@ -373,7 +373,7 @@ public class StreamGroupService(ILogger<StreamGroupService> _logger, IMapper _ma
             string channelNumber = videoStreamConfig.ChannelNumber.ToString();
             SGLineup lu = new()
             {
-                GuideName = videoStreamConfig.Name,
+                GuideName = videoStreamConfig.Name.ToCleanFileString(),
                 GuideNumber = channelNumber,
                 Station = channelNumber,
                 Logo = logo,
