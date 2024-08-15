@@ -4,9 +4,13 @@ namespace StreamMaster.Domain.Configuration;
 
 public class BaseSettings
 {
+    public BaseSettings()
+    {
+        AuthenticationMethod = "None";
+    }
     public string AdminPassword { get; set; } = string.Empty;
     public string AdminUserName { get; set; } = string.Empty;
-    public string AuthenticationMethod { get; set; } = "None";
+    public string AuthenticationMethod { get; set; }
     public bool AutoSetEPG { get; set; } = true;
     public bool BackupEnabled { get; set; } = true;
     public int BackupInterval { get; set; } = 4;

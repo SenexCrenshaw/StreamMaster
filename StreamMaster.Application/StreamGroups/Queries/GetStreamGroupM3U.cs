@@ -248,7 +248,7 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
         //{
         //    channelId = videoStreamConfig.ChannelNumber.ToString();
         //}
-
+        channelId = videoStreamConfig.ChannelNumber.ToString();
         string name = smChannel.Name;
 
         string logo = GetIconUrl(smChannel.Logo, settings);
@@ -258,7 +258,6 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
         string videoUrl = request.IsShort
             ? $"{url}/v/{request.StreamGroupProfileId}/{smChannel.Id}"
             : $"{url}/api/videostreams/stream/{encodedString}/{cleanName}";
-
 
 
         List<string> fieldList = ["#EXTINF:-1"];
@@ -281,7 +280,7 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
 
         if (profile.Group != nameof(ValidM3USetting.NotMapped))
         {
-            fieldList.Add($"tvg-group=\"{profile.Group}\"");
+            fieldList.Add($"tvg-group=\"{videoStreamConfig.Group}\"");
         }
 
         if (profile.EnableChannelNumber)

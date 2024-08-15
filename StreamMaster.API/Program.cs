@@ -143,7 +143,7 @@ builder.Services.AddInfrastructureServicesEx();
 builder.Services.AddStreamsServices();
 builder.Services.AddCustomPlayListServices();
 
-var setting = SettingsHelper.GetSetting<Setting>(BuildInfo.SettingFileName);
+var setting = SettingsHelper.GetSetting<Setting>(BuildInfo.SettingsFile);
 
     builder.Services.AddWebUIServices(builder, setting?.EnableDBDebug?? false);
 

@@ -25,7 +25,7 @@ public static class SettingsHelper
                 ret = JsonSerializer.Deserialize<T>(jsonString);
                 return ret != null ? ret : default;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 return default;
             }

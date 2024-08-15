@@ -286,7 +286,7 @@ public sealed class FileUtil
 
     public static async Task Backup(int? versionsToKeep = null)
     {
-        Setting? setting = SettingsHelper.GetSetting<Setting>(BuildInfo.SettingFileName);
+        Setting? setting = SettingsHelper.GetSetting<Setting>(BuildInfo.SettingsFile);
         if (setting?.BackupEnabled != true)
         {
             return;
@@ -294,7 +294,7 @@ public sealed class FileUtil
 
         try
         {
-            versionsToKeep ??= SettingsHelper.GetSetting<Setting>(BuildInfo.SettingFileName)?.BackupVersionsToKeep ?? 5;
+            versionsToKeep ??= SettingsHelper.GetSetting<Setting>(BuildInfo.SettingsFile)?.BackupVersionsToKeep ?? 5;
             using Process process = new();
             process.StartInfo.FileName = "/bin/bash";
             process.StartInfo.Arguments = $"/usr/local/bin/backup.sh {versionsToKeep}";

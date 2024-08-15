@@ -57,7 +57,7 @@ namespace StreamMaster.Infrastructure.EF.PGSQL
                     o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
                 }
                 );
-            Setting? setting = SettingsHelper.GetSetting<Setting>(BuildInfo.SettingFileName);
+            Setting? setting = SettingsHelper.GetSetting<Setting>(BuildInfo.SettingsFile);
             if (setting?.EnableDBDebug == true)
             {
                 options.EnableSensitiveDataLogging(true);
