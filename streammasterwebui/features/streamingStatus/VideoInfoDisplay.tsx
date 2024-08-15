@@ -60,7 +60,7 @@ export const VideoInfoDisplay: React.FC<VideoInfoProps> = ({ smStreamId }) => {
       noBorderChildren
       contentWidthSize="4"
       placement="bottom-end"
-      icon="pi-id-card"
+      icon="pi-video"
       title={'Video Info : ' + videoInfo?.StreamName}
       tooltip="Video Info"
       isLeft

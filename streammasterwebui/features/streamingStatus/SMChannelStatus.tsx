@@ -86,14 +86,24 @@ const SMChannelStatus = () => {
     );
   }, []);
 
+  const averageLatencyTemplate = (rowData: ChannelMetric) => {
+    if (rowData.Metrics.AverageLatency === undefined) return <div />;
+
+    const found = channelMetricsRef.current.find((predicate) => predicate.Name === rowData.Name);
+
+    if (found === undefined || found.Metrics === undefined) return <div />;
+    return <div>{found.Metrics.AverageLatency.toFixed(2)}</div>;
+  };
+
   const columns = useMemo(
     (): ColumnMeta[] => [
       { bodyTemplate: logoTemplate, field: 'Logo', fieldType: 'image', header: '' },
-      { field: 'Name', filter: true, sortable: true, width: 160 },
+      { field: 'Name', filter: true, sortable: true, width: 120 },
 
       { align: 'center', bodyTemplate: clientStartTimeTemplate, field: 'StartTime', header: 'Start', width: 140 },
-      { align: 'right', bodyTemplate: elapsedTSTemplate, field: 'ElapsedTime', header: '(d hh:mm:ss)', width: 85 },
       { align: 'right', bodyTemplate: clientBitsPerSecondTemplate, field: 'Metrics.Kbps', header: 'Kbps', width: 70 },
+      { align: 'right', bodyTemplate: averageLatencyTemplate, field: 'AverageLatency', header: 'Read ms', width: 60 },
+      { align: 'right', bodyTemplate: elapsedTSTemplate, field: 'ElapsedTime', header: '(d hh:mm:ss)', width: 95 },
       { align: 'center', bodyTemplate: actionTemplate, field: 'actions', fieldType: 'actions', header: '', width: 62 }
     ],
     [actionTemplate, elapsedTSTemplate, logoTemplate]

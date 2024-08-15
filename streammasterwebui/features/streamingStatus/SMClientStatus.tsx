@@ -69,6 +69,15 @@ const SMClientStatus = () => {
     return <div>{roundedKbps.toLocaleString('en-US')}</div>;
   };
 
+  const averageLatencyTemplate = (rowData: ChannelMetric) => {
+    if (rowData.Metrics.AverageLatency === undefined) return <div />;
+
+    const found = channelMetricsRef.current.find((predicate) => predicate.Name === rowData.Name);
+
+    if (found === undefined || found.Metrics === undefined) return <div />;
+    return <div>{found.Metrics.AverageLatency.toFixed(2)}</div>;
+  };
+
   const elapsedTSTemplate = useCallback((rowData: ChannelMetric) => {
     return <div className="numeric-field">{getElapsedTimeString(rowData.Metrics.StartTime, new Date().toString(), true)}</div>;
   }, []);
@@ -99,9 +108,11 @@ const SMClientStatus = () => {
       { align: 'right', field: 'ClientIPAddress', filter: true, header: 'IPAddress', sortable: true, width: 100 },
       { align: 'right', field: 'ClientUserAgent', filter: true, header: 'Agent', sortable: true, width: 180 },
 
-      { align: 'center', bodyTemplate: clientStartTimeTemplate, field: 'StartTime', header: 'StartTime', width: 150 },
-      { align: 'right', bodyTemplate: elapsedTSTemplate, field: 'ElapsedTime', header: '(d hh:mm:ss)', width: 85 },
+      { align: 'center', bodyTemplate: clientStartTimeTemplate, field: 'StartTime', header: 'StartTime', width: 140 },
       { align: 'right', bodyTemplate: clientBitsPerSecondTemplate, field: 'kbps', header: 'Kbps', width: 50 },
+      { align: 'right', bodyTemplate: averageLatencyTemplate, field: 'AverageLatency', header: 'Read ms', width: 60 },
+      { align: 'right', bodyTemplate: elapsedTSTemplate, field: 'ElapsedTime', header: '(d hh:mm:ss)', width: 95 },
+
       { align: 'center', bodyTemplate: actionTemplate, field: 'actions', fieldType: 'actions', header: '', width: 44 }
     ],
     [actionTemplate, elapsedTSTemplate, logoTemplate]
