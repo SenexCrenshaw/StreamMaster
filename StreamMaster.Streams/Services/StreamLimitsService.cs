@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
+using StreamMaster.Domain.Enums;
+
 using System.Collections.Concurrent;
 
 namespace StreamMaster.Streams.Services;
@@ -18,6 +20,13 @@ public class StreamLimitsService(ILogger<StreamLimitsService> logger, ICacheMana
 
     public bool IsLimited(SMStreamDto smStreamDto)
     {
+        if (smStreamDto.SMStreamType > SMStreamTypeEnum.Regular)
+        {
+            logger.LogInformation("Check stream limits for {name} : stream is custom, no limits", smStreamDto.Name);
+
+            return false;
+        }
+
         ConcurrentDictionary<int, int> M3UStreamCount = new();
 
 
@@ -42,7 +51,10 @@ public class StreamLimitsService(ILogger<StreamLimitsService> logger, ICacheMana
                 //}
 
                 // Increment the current stream count for the M3U file
+
+
                 M3UStreamCount.AddOrUpdate(smStream.M3UFileId, 1, (_, oldValue) => oldValue + 1);
+
             }
         }
 
