@@ -12,7 +12,7 @@ const SMStreamMenu = () => {
       <div className="sm-channel-menu gap-2">
         <CreateSMChannelsFromSMStreamsDialog selectedItemsKey="selectSelectedSMStreamDtoItems" id="streameditor-SMStreamDataSelector" />
         <CreateSMStreamDialog label="Add Custom" />
-        <StreamMultiVisibleDialog label="Hide Selected" selectedItemsKey="selectSelectedSMStreamDtoItems" id="streameditor-SMStreamDataSelector" />
+        <StreamMultiVisibleDialog label="Toggle Visibility" selectedItemsKey="selectSelectedSMStreamDtoItems" id="streameditor-SMStreamDataSelector" />
       </div>
     </SMPopUp>
   );
