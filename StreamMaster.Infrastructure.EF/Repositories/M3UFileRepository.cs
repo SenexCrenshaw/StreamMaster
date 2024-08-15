@@ -517,15 +517,13 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, IMessageSer
         List<SMStream> writeList = [.. toWrite];
         List<SMStream> updateList = [.. toUpdate];
 
-        const int batchSize = 500;
-
         if (writeList.Count > 0)
         {
             logger.LogInformation("Inserting {writeList.Count} new streams in the DB", writeList.Count);
 
-            for (int i = 0; i < writeList.Count; i += batchSize)
+            for (int i = 0; i < writeList.Count; i += BuildInfo.DBBatchSize)
             {
-                List<SMStream> batch = writeList.Skip(i).Take(batchSize).ToList();
+                List<SMStream> batch = writeList.Skip(i).Take(BuildInfo.DBBatchSize).ToList();
                 repositoryWrapper.SMStream.BulkInsert(batch);
                 //await repositoryWrapper.SMStream.BulkInsertEntitiesAsync(batch);
                 batchWriteCount += batch.Count;
@@ -540,9 +538,9 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, IMessageSer
         if (updateList.Count > 0)
         {
             logger.LogInformation("Updating {updateList.Count} streams in DB", updateList.Count);
-            for (int i = 0; i < updateList.Count; i += batchSize)
+            for (int i = 0; i < updateList.Count; i += BuildInfo.DBBatchSize)
             {
-                List<SMStream> batch = updateList.Skip(i).Take(batchSize).ToList();
+                List<SMStream> batch = updateList.Skip(i).Take(BuildInfo.DBBatchSize).ToList();
                 //await repositoryWrapper.SMStream.BulkUpdateAsync(batch);
                 repositoryWrapper.SMStream.BulkUpdate(batch);
                 batchUpdateCount += batch.Count;
