@@ -3,7 +3,7 @@
     /// <inheritdoc/>
     public sealed class ChannelManager(
         ILogger<ChannelManager> logger,
-        IStreamBroadcasterService streamBroadcasterService,
+        ISourceBroadcasterService streamBroadcasterService,
         IChannelService channelService,
         IMessageService messageService
     ) : IChannelManager
@@ -26,7 +26,7 @@
                 IChannelBroadcaster? channelStatus = await channelService.GetOrCreateChannelBroadcasterAsync(config, streamGroupProfileId);
                 if (channelStatus == null)
                 {
-                    await UnRegisterWithChannelManagerAsync(config);
+                    await UnRegisterClientAsync(config);
                     logger.LogInformation("Exiting GetChannelStreamAsync: channel status is null.");
                     return null;
                 }
@@ -95,24 +95,24 @@
             IClientConfiguration? config = channelService.GetClientConfiguration(uniqueRequestId);
             if (config != null)
             {
-                await UnRegisterWithChannelManagerAsync(config).ConfigureAwait(false);
+                await UnRegisterClientAsync(config).ConfigureAwait(false);
             }
         }
 
         /// <inheritdoc/>
         public async Task RemoveClientAsync(IClientConfiguration config)
         {
-            logger.LogInformation("Client exited");
-            await UnRegisterWithChannelManagerAsync(config);
+            logger.LogInformation("Client exited {UniqueRequestId}", config.UniqueRequestId);
+            await UnRegisterClientAsync(config);
         }
 
-        private async Task UnRegisterWithChannelManagerAsync(IClientConfiguration config)
+        private async Task UnRegisterClientAsync(IClientConfiguration config)
         {
-            logger.LogInformation("UnRegisterWithChannelManagerAsync client: {UniqueRequestId} {name}", config.UniqueRequestId, config.SMChannel.Name);
+            logger.LogInformation("UnRegister With ChannelManager client: {UniqueRequestId} {name}", config.UniqueRequestId, config.SMChannel.Name);
 
             if (!await channelService.UnRegisterClientAsync(config.UniqueRequestId))
             {
-                logger.LogWarning("UnRegisterWithChannelManagerAsync: channelService does not have client: {UniqueRequestId} {name}", config.UniqueRequestId, config.SMChannel.Name);
+                logger.LogWarning("UnRegisterClientAsync: channelService does not have client: {UniqueRequestId} {name}", config.UniqueRequestId, config.SMChannel.Name);
             }
         }
 
@@ -139,11 +139,11 @@
                 return;
             }
 
-            IStreamBroadcaster? channelDistributor = streamBroadcasterService.GetStreamBroadcaster(channelStatus.SMStreamInfo.Url);
+            ISourceBroadcaster? sourceBroadcaster = streamBroadcasterService.GetStreamBroadcaster(channelStatus.SMStreamInfo.Url);
 
-            if (channelDistributor is not null)
+            if (sourceBroadcaster is not null)
             {
-                channelDistributor.Stop();
+                sourceBroadcaster.Stop();
                 logger.LogInformation("Simulating stream failure for: {VideoStreamName}", channelStatus.SMStreamInfo.Name);
             }
             else
@@ -155,9 +155,9 @@
         /// <inheritdoc/>
         public void CancelAllChannels()
         {
-            foreach (IStreamBroadcaster s in streamBroadcasterService.GetStreamBroadcasters())
+            foreach (ISourceBroadcaster sourceBroadcaster in streamBroadcasterService.GetStreamBroadcasters())
             {
-                s.Stop();
+                sourceBroadcaster.Stop();
             }
         }
     }

@@ -5,8 +5,7 @@ using StreamMaster.Domain.Enums;
 using StreamMaster.PlayList.Models;
 namespace StreamMaster.Streams.Services;
 
-
-public sealed class SwitchToNextStreamService(ILogger<SwitchToNextStreamService> logger, ICacheManager cacheManager, IStreamLimitsService streamLimitsService, IProfileService profileService, IServiceProvider _serviceProvider, IOptionsMonitor<CommandProfileDict> optionsOutputProfiles, IIntroPlayListBuilder introPlayListBuilder, ICustomPlayListBuilder customPlayListBuilder, IOptionsMonitor<Setting> intSettings, IServiceProvider serviceProvider)
+public sealed class SwitchToNextStreamService(ILogger<SwitchToNextStreamService> logger, ICacheManager cacheManager, IStreamLimitsService streamLimitsService, IProfileService profileService, IServiceProvider _serviceProvider, IOptionsMonitor<CommandProfileDict> optionsOutputProfiles, IIntroPlayListBuilder introPlayListBuilder, ICustomPlayListBuilder customPlayListBuilder, IOptionsMonitor<Setting> intSettings)
     : ISwitchToNextStreamService
 {
     private static string GetClientUserAgent(SMChannelDto smChannel, SMStreamDto? smStream, Setting setting)
@@ -56,7 +55,6 @@ public sealed class SwitchToNextStreamService(ILogger<SwitchToNextStreamService>
             }
         }
 
-
         using IServiceScope scope = _serviceProvider.CreateScope();
 
         ChannelStatus.PlayedIntro = false;
@@ -79,7 +77,6 @@ public sealed class SwitchToNextStreamService(ILogger<SwitchToNextStreamService>
 
             List<SMStreamDto> smStreams = [.. ChannelStatus.SMChannel.SMStreams.OrderBy(a => a.Rank)];
 
-
             bool isChannelLimited = true;
 
             while (isChannelLimited)
@@ -100,13 +97,10 @@ public sealed class SwitchToNextStreamService(ILogger<SwitchToNextStreamService>
             }
         }
 
-
         if (smStream == null)
         {
             return false;
         }
-
-
         bool isLimited = streamLimitsService.IsLimited(smStream);
         if (isLimited)
         {
@@ -115,7 +109,6 @@ public sealed class SwitchToNextStreamService(ILogger<SwitchToNextStreamService>
                 ChannelStatus.SetSMStreamInfo(cacheManager.MessageNoStreamsLeft);
                 logger.LogDebug("No more streams found, {SourceName} {Id} {Name} , sending message", ChannelStatus.SourceName, cacheManager.MessageNoStreamsLeft.Id, cacheManager.MessageNoStreamsLeft.Name);
                 return true;
-
             }
             logger.LogInformation("Set Next for Channel {SourceName}, {Id} {Name}, max Streams reached", ChannelStatus.SourceName, ChannelStatus.SMChannel.Id, ChannelStatus.SMChannel.Name);
             return false;
@@ -161,7 +154,6 @@ public sealed class SwitchToNextStreamService(ILogger<SwitchToNextStreamService>
             return await Task.FromResult(true);
         }
 
-
         CommandProfileDto commandProfileDto = await streamGroupService.GetProfileFromSGIdsCommandProfileNameAsync(null, ChannelStatus.StreamGroupProfileId, ChannelStatus.SMChannel.CommandProfileName);
 
         SMStreamInfo smStreamInfo = new()
@@ -178,7 +170,5 @@ public sealed class SwitchToNextStreamService(ILogger<SwitchToNextStreamService>
         logger.LogDebug("Set Next for Channel {SourceName}, switched to {Id} {Name}", ChannelStatus.SourceName, smStreamInfo.Id, smStreamInfo.Name);
 
         return true;
-
-
     }
 }

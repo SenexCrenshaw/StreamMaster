@@ -7,7 +7,7 @@ using System.Xml.Serialization;
 
 namespace StreamMaster.Streams.Domain.Interfaces;
 
-public interface IStreamBroadcaster : IBroadcasterBase
+public interface ISourceBroadcaster : IBroadcasterBase
 {
     /// <summary>
     /// Gets the unique identifier for the channel.
@@ -17,7 +17,7 @@ public interface IStreamBroadcaster : IBroadcasterBase
     /// <summary>
     /// Occurs when the channel director is stopped.
     /// </summary>
-    event EventHandler<StreamBroadcasterStopped> OnStoppedEvent;
+    event EventHandler<StreamBroadcasterStopped> OnStreamBroadcasterStoppedEvent;
 
     public SMStreamInfo SMStreamInfo { get; }
 }
@@ -29,22 +29,21 @@ public interface IStreamBroadcaster : IBroadcasterBase
 /// </summary>
 public interface IBroadcasterBase : IStreamStats, ISourceName
 {
+    //Channels
+    void AddChannelStreamer(int key, ChannelWriter<byte[]> channel);
+    bool RemoveChannelStreamer(int key);
+
+    //Plugins
+    void AddChannelStreamer(string UniqueRequestId, ChannelWriter<byte[]> channel);
+    bool RemoveChannelStreamer(string UniqueRequestId);
+
+    //Clients
     void AddClientStreamer(string UniqueRequestId, IClientConfiguration config);
-
-    /// <summary>
-    /// Removes a client channel.
-    /// </summary>
-    /// <param name="key">The key for the client channel.</param>
-    /// <returns><c>true</c> if the client channel was removed; otherwise, <c>false</c>.</returns>
-    bool RemoveClientChannel(int key);
-
     bool RemoveClientStreamer(string UniqueRequestId);
-    void AddClientChannel(int key, ChannelWriter<byte[]> channel);
 
     List<IClientConfiguration> GetClientStreamerConfigurations();
     int ClientCount { get; }
 
-    //ConcurrentDictionary<string, IClientConfiguration> ClientStreamerConfigurations { get; set; }
 
     /// <summary>
     /// Gets the name of the channel.
@@ -66,13 +65,13 @@ public interface IBroadcasterBase : IStreamStats, ISourceName
     /// Gets the client channels.
     /// </summary>
     [XmlIgnore]
-    ConcurrentDictionary<string, ChannelWriter<byte[]>> ClientChannels { get; }
+    ConcurrentDictionary<string, ChannelWriter<byte[]>> ClientChannelWriters { get; }
 
-    /// <summary>
-    /// Gets the client streams.
-    /// </summary>
-    [XmlIgnore]
-    ConcurrentDictionary<string, Stream> ClientStreams { get; }
+    ///// <summary>
+    ///// Gets the client streams.
+    ///// </summary>
+    //[XmlIgnore]
+    //ConcurrentDictionary<string, Stream> ClientStreams { get; }
 
 
     /// <summary>
@@ -87,30 +86,14 @@ public interface IBroadcasterBase : IStreamStats, ISourceName
     /// Sets the source stream.
     /// </summary>
     /// <param name="sourceStream">The source stream.</param>
-    /// <param name="channelName">The name of the channel.</param>
     /// <param name="streamName">The name of the stream.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    void SetSourceStream(Stream sourceStream, string channelName, string streamName, CancellationToken cancellationToken);
+    void SetSourceStream(Stream sourceStream, string streamName, CancellationToken cancellationToken);
 
     /// <summary>
     /// Stops the channel broadcaster.
     /// </summary>
     void Stop();
-
-    /// <summary>
-    /// Adds a client channel.
-    /// </summary>
-    /// <param name="key">The key for the client channel.</param>
-    /// <param name="Channel">The client channel writer.</param>
-    void AddClientChannel(string key, ChannelWriter<byte[]> Channel);
-
-    /// <summary>
-    /// Removes a client channel.
-    /// </summary>
-    /// <param name="key">The key for the client channel.</param>
-    /// <returns><c>true</c> if the client channel was removed; otherwise, <c>false</c>.</returns>
-    bool RemoveClientChannel(string key);
-
 
     /// <summary>
     /// Gets a value indicating whether the broadcaster has failed.

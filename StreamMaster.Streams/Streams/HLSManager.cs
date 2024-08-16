@@ -1,7 +1,7 @@
 ﻿using System.Collections.Concurrent;
 namespace StreamMaster.Streams.Streams;
 
-public class HLSManager(ILogger<HLSManager> logger, ICryptoService cryptoService, IAccessTracker accessTracker, ISwitchToNextStreamService switchToNextStreamService, ICustomPlayListBuilder customPlayListBuilder, IStreamTracker streamTracker, ILoggerFactory loggerFactory, IOptionsMonitor<HLSSettings> intHLSSettings, IOptionsMonitor<Setting> intSettings)
+public class HLSManager(ILogger<HLSManager> logger, ICryptoService cryptoService, ISwitchToNextStreamService switchToNextStreamService, IStreamTracker streamTracker, ILoggerFactory loggerFactory, IOptionsMonitor<HLSSettings> intHLSSettings, IOptionsMonitor<Setting> intSettings)
     : IHLSManager
 {
     private readonly ConcurrentDictionary<int, IM3U8ChannelStatus> channelStatuses = new();

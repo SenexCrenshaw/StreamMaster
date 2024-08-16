@@ -34,13 +34,13 @@ public interface IChannelBroadcaster : IBroadcasterBase, IStreamStatus
     /// <summary>
     /// Occurs when the channel director is stopped.
     /// </summary>
-    event EventHandler<ChannelBroascasterStopped>? OnChannelStatusStoppedEvent;
+    event EventHandler<ChannelBroascasterStopped>? OnChannelBroadcasterStoppedEvent;
 
     //SMChannelDto SMChannel { get; }
     void SetIsGlobal();
-    void SetSourceChannelBroadcaster(IStreamBroadcaster ChannelBroadcaster);
+    void SetSourceChannelBroadcaster(ISourceBroadcaster ChannelBroadcaster);
 
-    //IStreamBroadcaster ChannelDistributor { get; set; }
+    //ISourceBroadcaster ChannelDistributor { get; set; }
     bool IsGlobal { get; set; }
 
 }

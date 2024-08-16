@@ -3,7 +3,8 @@ using System.Threading.Channels;
 
 namespace StreamMaster.Streams.Plugins
 {
-    public class VideoInfoService(ILogger<VideoInfoService> logger, IDataRefreshService dataRefreshService, ILogger<VideoInfoPlugin> pluginLogger, IOptionsMonitor<Setting> intSettings) : IVideoInfoService, IDisposable
+    public class VideoInfoService(ILogger<VideoInfoService> logger, IDataRefreshService dataRefreshService, ILogger<VideoInfoPlugin> pluginLogger, IOptionsMonitor<Setting> intSettings)
+        : IVideoInfoService, IDisposable
     {
         public ConcurrentDictionary<string, VideoInfo> VideoInfos { get; } = new();
         public ConcurrentDictionary<string, VideoInfoPlugin> VideoInfoPlugins { get; } = new();
@@ -31,7 +32,7 @@ namespace StreamMaster.Streams.Plugins
             return VideoInfos.TryGetValue(key, out VideoInfo? videoInfo) ? videoInfo : null;
         }
 
-        public void SetSourceChannel(IStreamBroadcaster sourceChannelBroadcaster, string Id, string Name)
+        public void SetSourceChannel(ISourceBroadcaster sourceBroadcaster, string Id, string Name)
         {
             Channel<byte[]> channelVideoInfo = Channel.CreateBounded<byte[]>(new BoundedChannelOptions(200)
             {
@@ -40,7 +41,7 @@ namespace StreamMaster.Streams.Plugins
                 FullMode = BoundedChannelFullMode.DropOldest
             });
 
-            sourceChannelBroadcaster.AddClientChannel("VideoInfo", channelVideoInfo.Writer);
+            sourceBroadcaster.AddChannelStreamer("VideoInfo", channelVideoInfo.Writer);
 
             if (!VideoInfoPlugins.TryGetValue(Id, out VideoInfoPlugin? videoInfoPlugin))
             {
@@ -63,7 +64,7 @@ namespace StreamMaster.Streams.Plugins
 
         private void OnVideoInfoUpdated(object? sender, VideoInfoEventArgs e)
         {
-            logger.LogInformation("Video info got info for {key} {JsonOutput}", e.Id, e.VideoInfo.JsonOutput);
+            logger.LogDebug("Video info got info for {key} {JsonOutput}", e.Id, e.VideoInfo.JsonOutput);
             VideoInfo updatedVideoInfo = e.VideoInfo;
             VideoInfos.AddOrUpdate(e.Id, updatedVideoInfo, (_, _) => updatedVideoInfo);
             dataRefreshService.RefreshVideoInfos().Wait();

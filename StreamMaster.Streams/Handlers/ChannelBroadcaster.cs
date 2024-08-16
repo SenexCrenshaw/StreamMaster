@@ -8,16 +8,13 @@ namespace StreamMaster.Streams.Handlers;
 
 public sealed class ChannelBroadcaster : BroadcasterBase, IChannelBroadcaster, IDisposable
 {
-    private readonly ILogger<IChannelBroadcaster> logger;
     public ChannelBroadcaster(ILogger<IChannelBroadcaster> logger, SMChannelDto smChannelDto) : base(logger)
     {
         Id = smChannelDto.Id;
         Name = smChannelDto.Name;
-        this.logger = logger;
     }
 
-
-    public event EventHandler<ChannelBroascasterStopped>? OnChannelStatusStoppedEvent;
+    public event EventHandler<ChannelBroascasterStopped>? OnChannelBroadcasterStoppedEvent;
 
     /// <inheritdoc/>
     public int Id { get; }
@@ -26,12 +23,10 @@ public sealed class ChannelBroadcaster : BroadcasterBase, IChannelBroadcaster, I
         return Id.ToString();
     }
 
-
-
     /// <inheritdoc/>
-    public override void OnStreamingStopped()
+    public override void OnBaseStopped()
     {
-        OnChannelStatusStoppedEvent?.Invoke(this, new ChannelBroascasterStopped(Id, Name));
+        OnChannelBroadcasterStoppedEvent?.Invoke(this, new ChannelBroascasterStopped(Id, Name));
     }
 
     public int IntroIndex { get; set; }
@@ -68,12 +63,12 @@ public sealed class ChannelBroadcaster : BroadcasterBase, IChannelBroadcaster, I
         IsGlobal = true;
     }
 
-    public void SetSourceChannelBroadcaster(IStreamBroadcaster SourceChannelBroadcaster)
+    public void SetSourceChannelBroadcaster(ISourceBroadcaster SourceChannelBroadcaster)
     {
         Channel<byte[]> channel = ChannelHelper.GetChannel();
         //Channel<byte[]> dubcerChannel = ChannelHelper.GetChannel();
 
-        SourceChannelBroadcaster.AddClientChannel(SMChannel.Id, channel.Writer);
+        SourceChannelBroadcaster.AddChannelStreamer(SMChannel.Id, channel.Writer);
 
         //dubcer.DubcerChannels(channel.Reader, dubcerChannel.Writer, CancellationToken.None);
 

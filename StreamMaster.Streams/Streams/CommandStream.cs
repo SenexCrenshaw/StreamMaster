@@ -1,6 +1,6 @@
 ﻿namespace StreamMaster.Streams.Streams;
 
-public class CommandStream(ILogger<CommandStream> logger, IHTTPStream HTTPStream) : ICommandStream
+public class CommandStream(IHTTPStream HTTPStream) : ICommandStream
 {
     public async Task<(Stream? stream, int processId, ProxyStreamError? error)> HandleStream(SMStreamInfo SMStreamInfo, string clientUserAgent, CancellationToken cancellationToken)
     {

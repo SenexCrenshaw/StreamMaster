@@ -35,6 +35,6 @@ namespace StreamMaster.Streams.Domain.Interfaces
         /// </summary>
         /// <param name="key">The integer key of the channel status.</param>
         /// <returns><c>true</c> if the channel status was stopped and unregistered; otherwise, <c>false</c>.</returns>
-        bool StopAndUnRegisterChannelStatus(int key);
+        bool StopAndUnRegisterChannelBroadcaster(int key);
     }
 }

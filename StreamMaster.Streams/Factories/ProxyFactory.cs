@@ -4,7 +4,7 @@ using System.Diagnostics;
 
 namespace StreamMaster.Streams.Factories;
 
-public sealed class ProxyFactory(ILogger<ProxyFactory> logger, IHTTPStream HTTPStream, ICommandExecutor commandExecutor, IProfileService profileService, ICustomPlayListStream CustomPlayListStream, IOptionsMonitor<Setting> settings)
+public sealed class ProxyFactory(ILogger<ProxyFactory> logger, IHTTPStream HTTPStream, ICommandExecutor commandExecutor, ICustomPlayListStream CustomPlayListStream, IOptionsMonitor<Setting> settings)
     : IProxyFactory
 {
     public async Task<(Stream? stream, int processId, ProxyStreamError? error)> GetProxy(SMStreamInfo smStreamInfo, CancellationToken cancellationToken)
