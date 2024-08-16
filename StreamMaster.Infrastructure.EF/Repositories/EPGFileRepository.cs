@@ -4,7 +4,6 @@ using AutoMapper.QueryableExtensions;
 using Microsoft.EntityFrameworkCore;
 
 using StreamMaster.Domain.API;
-using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Helpers;
 using StreamMaster.SchedulesDirect.Domain.Interfaces;
 using StreamMaster.SchedulesDirect.Domain.Models;
@@ -15,7 +14,7 @@ namespace StreamMaster.Infrastructure.EF.Repositories;
 /// <summary>
 /// Repositorywrapper to manage EPGFile entities in the database.
 /// </summary>
-public class EPGFileRepository(ILogger<EPGFileRepository> intLogger, IXmltv2Mxf xmltv2Mxf, IJobStatusService jobStatusService, IRepositoryContext repositoryContext, ISchedulesDirectDataService schedulesDirectDataService,  IMapper mapper)
+public class EPGFileRepository(ILogger<EPGFileRepository> intLogger, IXmltv2Mxf xmltv2Mxf, IJobStatusService jobStatusService, IRepositoryContext repositoryContext, ISchedulesDirectDataService schedulesDirectDataService, IMapper mapper)
     : RepositoryBase<EPGFile>(repositoryContext, intLogger), IEPGFileRepository
 {
     public IXmltv2Mxf Xmltv2Mxf { get; } = xmltv2Mxf;
@@ -70,7 +69,11 @@ public class EPGFileRepository(ILogger<EPGFileRepository> intLogger, IXmltv2Mxf 
                 continue;
             }
 
-            (int EPGNumber, string stationId) = service.StationId.ExtractEPGNumberAndStationId();
+            string stationId = service.StationId;
+            if (EPGHelper.IsValidEPGId(service.StationId))
+            {
+                (int EPGNumber, stationId) = service.StationId.ExtractEPGNumberAndStationId();
+            }
 
             ret.Add(new EPGFilePreviewDto
             {

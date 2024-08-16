@@ -90,10 +90,14 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IOptionsMon
                 {
                     if (videoStreamConfig.EPGId.StartsWith(EPGHelper.CustomPlayListId.ToString()))
                     {
-                        (_, string title) = videoStreamConfig.EPGId.ExtractEPGNumberAndStationId();
+                        string callsign = videoStreamConfig.EPGId;
+                        if (EPGHelper.IsValidEPGId(videoStreamConfig.EPGId))
+                        {
+                            (_, callsign) = videoStreamConfig.EPGId.ExtractEPGNumberAndStationId();
+                        }
                         origService = schedulesDirectDataService.CustomStreamData().FindOrCreateService(videoStreamConfig.EPGId);
                         origService.EPGNumber = EPGHelper.CustomPlayListId;
-                        origService.CallSign = title;
+                        origService.CallSign = callsign;
                     }
                     else
 

@@ -796,7 +796,13 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IServ
                     return;
                 }
 
-                (int epgNumber, string stationId) = smChannel.EPGId.ExtractEPGNumberAndStationId();
+                string stationId = smChannel.EPGId;
+                int epgNumber = EPGHelper.DummyId;
+
+                if (EPGHelper.IsValidEPGId(smChannel.EPGId))
+                {
+                    (epgNumber, stationId) = smChannel.EPGId.ExtractEPGNumberAndStationId();
+                }
 
                 if (epgNumber < EPGHelper.DummyId)
                 {
