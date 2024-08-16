@@ -4,13 +4,12 @@ namespace StreamMaster.Streams.Channels
 {
     public sealed class ChannelService : IChannelService, IDisposable
     {
-        private readonly ILogger<ChannelService> logger;
-
-        private readonly ISwitchToNextStreamService switchToNextStreamService;
-        private readonly IChannelBroadcasterService ChannelDistributorService;
-        private readonly IChannelStatusService ChannelStatusService;
-        private readonly IVideoInfoService VideoInfoService;
-        private readonly ICacheManager CacheManager;
+        private readonly ILogger<ChannelService> _logger;
+        private readonly ISwitchToNextStreamService _switchToNextStreamService;
+        private readonly IChannelBroadcasterService _channelDistributorService;
+        private readonly IChannelStatusService _channelStatusService;
+        private readonly IVideoInfoService _videoInfoService;
+        private readonly ICacheManager _cacheManager;
         private readonly IOptionsMonitor<Setting> _settings;
 
         private readonly object _disposeLock = new();
@@ -18,57 +17,52 @@ namespace StreamMaster.Streams.Channels
 
         public ChannelService(
             ILogger<ChannelService> logger,
-            IOptionsMonitor<Setting> _settings,
-            IVideoInfoService VideoInfoService,
+            IOptionsMonitor<Setting> settings,
+            IVideoInfoService videoInfoService,
             IChannelBroadcasterService channelDistributorService,
-            IChannelStatusService ChannelStatusService,
-            ICacheManager CacheManager,
+            IChannelStatusService channelStatusService,
+            ICacheManager cacheManager,
             ISwitchToNextStreamService switchToNextStreamService)
         {
-            this.ChannelStatusService = ChannelStatusService;
-            this.CacheManager = CacheManager;
-            this.VideoInfoService = VideoInfoService;
-            ChannelDistributorService = channelDistributorService;
-            this.switchToNextStreamService = switchToNextStreamService;
-            this.logger = logger;
-            this._settings = _settings;
+            _channelStatusService = channelStatusService;
+            _cacheManager = cacheManager;
+            _videoInfoService = videoInfoService;
+            _channelDistributorService = channelDistributorService;
+            _switchToNextStreamService = switchToNextStreamService;
+            _logger = logger;
+            _settings = settings;
 
-            ChannelDistributorService.OnChannelDirectorStoppedEvent += ChannelDistributorService_OnStoppedEvent;
-            ChannelStatusService.OnChannelStatusStoppedEvent += ChannelStatusService_OnChannelStatusStoppedEvent;
+            _channelDistributorService.OnChannelDirectorStoppedEvent += ChannelDistributorService_OnStoppedEventAsync;
+            _channelStatusService.OnChannelStatusStoppedEvent += ChannelStatusService_OnChannelStatusStoppedEventAsync;
         }
 
-        private async Task ChannelStatusService_OnChannelStatusStoppedEvent(object? sender, ChannelStatusStopped e)
+        private async Task ChannelStatusService_OnChannelStatusStoppedEventAsync(object? sender, ChannelStatusStopped e)
         {
             if (sender is IChannelStatus channelStatus)
             {
-                logger.LogInformation("Streaming Stopped Event for StreamId: {StreamId} {StreamName}", e.Id, e.Name);
+                _logger.LogInformation("Streaming Stopped Event for StreamId: {StreamId} {StreamName}", e.Id, e.Name);
                 await CloseChannelAsync(channelStatus).ConfigureAwait(false);
             }
         }
 
-        private async Task ChannelDistributorService_OnStoppedEvent(object? sender, ChannelDirectorStopped e)
+        private async Task ChannelDistributorService_OnStoppedEventAsync(object? sender, ChannelDirectorStopped e)
         {
             if (sender is IChannelBroadcaster channelDistributor)
             {
-                logger.LogInformation("Streaming Stopped Event for StreamId: {StreamId} {StreamName}", e.Id, e.Name);
+                _logger.LogInformation("Streaming Stopped Event for StreamId: {StreamId} {StreamName}", e.Id, e.Name);
 
-                List<IChannelStatus> affectedChannelStatuses = CacheManager.ChannelStatuses.Values
+                List<IChannelStatus> affectedChannelStatuses = _cacheManager.ChannelStatuses.Values
                     .Where(a => a.SMStreamInfo?.Url == e.Id)
                     .ToList();
 
                 foreach (IChannelStatus? channelStatus in affectedChannelStatuses)
                 {
-                    if (channelStatus.Shutdown)
+                    if (channelStatus.Shutdown || channelStatus.FailoverInProgress)
                     {
                         continue;
                     }
 
-                    if (channelStatus.FailoverInProgress)
-                    {
-                        continue;
-                    }
-
-                    bool didSwitch = await SwitchChannelToNextStream(channelStatus).ConfigureAwait(false);
+                    bool didSwitch = await SwitchChannelToNextStreamAsync(channelStatus).ConfigureAwait(false);
                     if (!didSwitch)
                     {
                         await CloseChannelAsync(channelStatus).ConfigureAwait(false);
@@ -77,29 +71,28 @@ namespace StreamMaster.Streams.Channels
             }
         }
 
-        public async Task<IClientConfiguration?> GetClientStreamerConfiguration(string UniqueRequestId, CancellationToken cancellationToken = default)
+        public async Task<IClientConfiguration?> GetClientStreamerConfigurationAsync(string uniqueRequestId, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            IClientConfiguration? config = CacheManager.ChannelStatuses.Values
+            IClientConfiguration? config = _cacheManager.ChannelStatuses.Values
                 .SelectMany(a => a.GetClientStreamerConfigurations())
-                .FirstOrDefault(a => a.UniqueRequestId == UniqueRequestId);
+                .FirstOrDefault(a => a.UniqueRequestId == uniqueRequestId);
 
             if (config != null)
             {
                 return await Task.FromResult(config).ConfigureAwait(false);
             }
 
-            logger.LogDebug("Client configuration for {UniqueRequestId} not found", UniqueRequestId);
+            _logger.LogDebug("Client configuration for {UniqueRequestId} not found", uniqueRequestId);
             return null;
         }
 
         public List<IClientConfiguration> GetClientStreamerConfigurations()
         {
-            List<IClientConfiguration> configs = CacheManager.ChannelStatuses.Values
-                .SelectMany(a => a.GetClientStreamerConfigurations()).ToList();
-
-            return configs;
+            return _cacheManager.ChannelStatuses.Values
+                .SelectMany(a => a.GetClientStreamerConfigurations())
+                .ToList();
         }
 
         public void Dispose()
@@ -113,15 +106,15 @@ namespace StreamMaster.Streams.Channels
 
                 try
                 {
-                    foreach (IChannelStatus channelStatus in CacheManager.ChannelStatuses.Values)
+                    foreach (IChannelStatus channelStatus in _cacheManager.ChannelStatuses.Values)
                     {
                         channelStatus.Stop();
                     }
-                    CacheManager.ChannelStatuses.Clear();
+                    _cacheManager.ChannelStatuses.Clear();
                 }
                 catch (Exception ex)
                 {
-                    logger.LogError(ex, "An error occurred while disposing the ChannelService.");
+                    _logger.LogError(ex, "An error occurred while disposing the ChannelService.");
                 }
                 finally
                 {
@@ -130,18 +123,18 @@ namespace StreamMaster.Streams.Channels
             }
         }
 
-        public async Task<IChannelStatus?> GetChannelStatusAsync(IClientConfiguration config)
+        public async Task<IChannelStatus?> GetOrCreateChannelStatusAsync(IClientConfiguration config, int streamGroupProfileId)
         {
             IChannelStatus? channelStatus = GetChannelStatus(config.SMChannel.Id);
 
             if (channelStatus == null)
             {
-                logger.LogInformation("No existing channel for {ChannelVideoStreamId} {name}", config.SMChannel.Id, config.SMChannel.Name);
+                _logger.LogInformation("No existing channel for {ChannelVideoStreamId} {name}", config.SMChannel.Id, config.SMChannel.Name);
 
-                channelStatus = await ChannelStatusService.GetOrCreateChannelStatusAsync(config, CancellationToken.None).ConfigureAwait(false);
-                CacheManager.ChannelStatuses.TryAdd(config.SMChannel.Id, channelStatus);
+                channelStatus = await _channelStatusService.GetOrCreateChannelStatusAsync(config, streamGroupProfileId, CancellationToken.None).ConfigureAwait(false);
+                _cacheManager.ChannelStatuses.TryAdd(config.SMChannel.Id, channelStatus);
 
-                if (!await SwitchChannelToNextStream(channelStatus).ConfigureAwait(false))
+                if (!await SwitchChannelToNextStreamAsync(channelStatus).ConfigureAwait(false))
                 {
                     await UnRegisterChannelAsync(channelStatus);
                     await CheckForEmptyChannelsAsync().ConfigureAwait(false);
@@ -150,7 +143,7 @@ namespace StreamMaster.Streams.Channels
             }
             else
             {
-                logger.LogInformation("Reuse existing stream handler for {ChannelVideoStreamId} {name}", config.SMChannel.Id, config.SMChannel.Name);
+                _logger.LogInformation("Reuse existing stream handler for {ChannelVideoStreamId} {name}", config.SMChannel.Id, config.SMChannel.Name);
             }
 
             if (channelStatus.SMStreamInfo == null)
@@ -160,12 +153,12 @@ namespace StreamMaster.Streams.Channels
                 return null;
             }
 
-            IChannelBroadcaster? channelDistributor = ChannelDistributorService.GetChannelBroadcaster(channelStatus.SMStreamInfo.Url);
+            IChannelBroadcaster? channelDistributor = _channelDistributorService.GetChannelBroadcaster(channelStatus.SMStreamInfo.Url);
             if (channelDistributor?.IsFailed != false)
             {
-                if (!await SwitchChannelToNextStream(channelStatus).ConfigureAwait(false))
+                if (!await SwitchChannelToNextStreamAsync(channelStatus).ConfigureAwait(false))
                 {
-                    logger.LogError("SwitchChannelToNextStream failed for {UniqueRequestId} {ChannelVideoStreamId} {name}", config.UniqueRequestId, config.SMChannel.Id, config.SMChannel.Name);
+                    _logger.LogError("SwitchChannelToNextStream failed for {UniqueRequestId} {ChannelVideoStreamId} {name}", config.UniqueRequestId, config.SMChannel.Id, config.SMChannel.Name);
                     await UnRegisterChannelAsync(channelStatus);
                     await CheckForEmptyChannelsAsync().ConfigureAwait(false);
                     return null;
@@ -177,13 +170,13 @@ namespace StreamMaster.Streams.Channels
             return channelStatus;
         }
 
-        public async Task<IChannelStatus?> SetupChannel(SMChannelDto smChannel)
+        public async Task<IChannelStatus?> SetupChannelAsync(SMChannelDto smChannel)
         {
             // Implementation commented out for brevity
             return null;
         }
 
-        private List<string> RunningUrls => CacheManager.ChannelStatuses.Values
+        private List<string> RunningUrls => _cacheManager.ChannelStatuses.Values
             .Where(a => a.ClientCount > 0 && a.SMStreamInfo != null)
             .Select(a => a.SMStreamInfo!.Url)
             .Distinct()
@@ -191,10 +184,9 @@ namespace StreamMaster.Streams.Channels
 
         public async Task CheckForEmptyChannelsAsync(CancellationToken cancellationToken = default)
         {
-            TimeSpan delay = TimeSpan.FromSeconds(5);
             List<Task> tasks = [];
 
-            foreach (IChannelStatus? channelStatus in CacheManager.ChannelStatuses.Values.Where(a => a.SMStreamInfo != null))
+            foreach (IChannelStatus? channelStatus in _cacheManager.ChannelStatuses.Values.Where(a => a.SMStreamInfo != null))
             {
                 if (channelStatus.ClientCount == 0 && !RunningUrls.Contains(channelStatus.SMStreamInfo!.Url))
                 {
@@ -224,7 +216,7 @@ namespace StreamMaster.Streams.Channels
                     await config.Response.CompleteAsync().ConfigureAwait(false);
                 }
 
-                List<IChannelBroadcaster> channelBroadcasters = ChannelDistributorService.GetChannelBroadcasters()
+                List<IChannelBroadcaster> channelBroadcasters = _channelDistributorService.GetChannelBroadcasters()
                     .Where(cd => cd.ClientChannels.Any(cc => cc.Key == channelStatus.Id.ToString()))
                     .ToList();
 
@@ -232,7 +224,7 @@ namespace StreamMaster.Streams.Channels
                 {
                     if (channelBroadcaster.RemoveClientChannel(channelStatus.Id))
                     {
-                        ChannelDistributorService.StopAndUnRegister(channelBroadcaster.Id);
+                        _channelDistributorService.StopAndUnRegister(channelBroadcaster.Id);
                     }
                 }
 
@@ -244,22 +236,21 @@ namespace StreamMaster.Streams.Channels
         {
             await Task.Delay(delay, cancellationToken).ConfigureAwait(false);
 
-            // )//&& !RunningUrls.Contains(channelStatus.SMStreamInfo.Url)
             return channelStatus.ClientCount == 0 && channelStatus.SMStreamInfo != null
-            && await UnRegisterChannelAsync(channelStatus).ConfigureAwait(false);
+                && await UnRegisterChannelAsync(channelStatus).ConfigureAwait(false);
         }
 
         private async Task<bool> UnRegisterChannelAsync(IChannelStatus channelStatus)
         {
-            CacheManager.ChannelStatuses.TryRemove(channelStatus.SMChannel.Id, out _);
+            _cacheManager.ChannelStatuses.TryRemove(channelStatus.SMChannel.Id, out _);
             if (channelStatus.SMStreamInfo?.Url != null)
             {
-                ChannelStatusService.StopAndUnRegisterChannelStatus(channelStatus.Id);
+                _channelStatusService.StopAndUnRegisterChannelStatus(channelStatus.Id);
             }
 
             foreach (IClientConfiguration config in channelStatus.GetClientStreamerConfigurations())
             {
-                await UnRegisterClient(config.UniqueRequestId).ConfigureAwait(false);
+                await UnRegisterClientAsync(config.UniqueRequestId).ConfigureAwait(false);
             }
 
             return true;
@@ -267,77 +258,81 @@ namespace StreamMaster.Streams.Channels
 
         public IChannelStatus? GetChannelStatus(int smChannelId)
         {
-            CacheManager.ChannelStatuses.TryGetValue(smChannelId, out IChannelStatus? channelStatus);
+            _cacheManager.ChannelStatuses.TryGetValue(smChannelId, out IChannelStatus? channelStatus);
             return channelStatus;
         }
 
-        public List<IChannelStatus> GetChannelStatusesFromSMStreamId(string StreamId)
+        public List<IChannelStatus> GetChannelStatusesFromSMStreamId(string streamId)
         {
-            if (StreamId == null)
+            if (string.IsNullOrEmpty(streamId))
             {
-                logger.LogError("StreamId is null");
+                _logger.LogError("StreamId is null or empty");
                 return [];
             }
 
             try
             {
-                return CacheManager.ChannelStatuses.Values.Where(a => a?.SMStreamInfo?.Id == StreamId).ToList();
+                return _cacheManager.ChannelStatuses.Values
+                    .Where(a => a?.SMStreamInfo?.Id == streamId)
+                    .ToList();
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "An error occurred while getting channel statuses from SMStream ID {StreamId}.", StreamId);
+                _logger.LogError(ex, "An error occurred while getting channel statuses from SMStream ID {StreamId}.", streamId);
                 return [];
             }
         }
 
         public IChannelStatus? GetChannelStatusFromSMChannelId(int smChannelId)
         {
-            return CacheManager.ChannelStatuses.TryGetValue(smChannelId, out IChannelStatus? channelStatus) ? channelStatus : null;
+            return _cacheManager.ChannelStatuses.TryGetValue(smChannelId, out IChannelStatus? channelStatus) ? channelStatus : null;
         }
 
         public List<IChannelStatus> GetChannelStatusFromStreamUrl(string videoUrl)
         {
-            return CacheManager.ChannelStatuses.Values.Where(a => a?.SMStreamInfo?.Url == videoUrl).ToList();
+            return _cacheManager.ChannelStatuses.Values
+                .Where(a => a?.SMStreamInfo?.Url == videoUrl)
+                .ToList();
         }
 
         public List<IChannelStatus> GetChannelStatuses()
         {
-            return [.. CacheManager.ChannelStatuses.Values];
+            return [.. _cacheManager.ChannelStatuses.Values];
         }
 
         public bool HasChannel(int smChannelId)
         {
-            return CacheManager.ChannelStatuses.ContainsKey(smChannelId);
+            return _cacheManager.ChannelStatuses.ContainsKey(smChannelId);
         }
 
         public int GetGlobalStreamsCount()
         {
-            return CacheManager.ChannelStatuses.Values.Count(a => a.IsGlobal);
+            return _cacheManager.ChannelStatuses.Values.Count(a => a.IsGlobal);
         }
 
-        public async Task<bool> SwitchChannelToNextStream(IChannelStatus channelStatus, string? OverrideSMStreamId = null)
+        public async Task<bool> SwitchChannelToNextStreamAsync(IChannelStatus channelStatus, string? overrideSMStreamId = null)
         {
             if (channelStatus.FailoverInProgress)
             {
                 return false;
             }
 
-            logger.LogDebug("Starting SwitchToNextVideoStream with channelStatus: {channelStatus} and overrideNextVideoStreamId: {overrideNextVideoStreamId}", channelStatus, OverrideSMStreamId);
+            _logger.LogDebug("Starting SwitchToNextStream with channelStatus: {channelStatus} and overrideNextVideoStreamId: {overrideNextVideoStreamId}", channelStatus, overrideSMStreamId);
 
-            bool didChange = await switchToNextStreamService.SetNextStreamAsync(channelStatus, OverrideSMStreamId).ConfigureAwait(false);
+            bool didChange = await _switchToNextStreamService.SetNextStreamAsync(channelStatus, overrideSMStreamId).ConfigureAwait(false);
 
             if (channelStatus.SMStreamInfo == null || !didChange)
             {
-                logger.LogDebug("Exiting SwitchToNextVideoStream with false due to smStream being null");
+                _logger.LogDebug("Exiting SwitchToNextStream with false due to smStream being null");
                 channelStatus.FailoverInProgress = false;
                 return false;
             }
 
-            IChannelBroadcaster? sourceChannelBroadcaster = await ChannelDistributorService.GetOrCreateChannelDistributorAsync(channelStatus.SMChannel.Name, channelStatus.SMStreamInfo, CancellationToken.None).ConfigureAwait(false);
+            IChannelBroadcaster? sourceChannelBroadcaster = await _channelDistributorService.GetOrCreateChannelDistributorAsync(channelStatus.SMChannel.Name, channelStatus.SMStreamInfo, CancellationToken.None).ConfigureAwait(false);
 
             if (sourceChannelBroadcaster == null)
             {
-                logger.LogDebug("Exiting, Source Channel Distributor is null");
+                _logger.LogDebug("Exiting, Source Channel Distributor is null");
                 channelStatus.FailoverInProgress = false;
                 return false;
             }
@@ -346,26 +341,26 @@ namespace StreamMaster.Streams.Channels
 
             if (!channelStatus.SMStreamInfo.Id.StartsWith(IntroPlayListBuilder.IntroIDPrefix, StringComparison.InvariantCulture))
             {
-                VideoInfoService.SetSourceChannel(sourceChannelBroadcaster, channelStatus.SMStreamInfo.Id, channelStatus.SMStreamInfo.Name);
+                _videoInfoService.SetSourceChannel(sourceChannelBroadcaster, channelStatus.SMStreamInfo.Id, channelStatus.SMStreamInfo.Name);
             }
 
             channelStatus.FailoverInProgress = false;
 
-            logger.LogDebug("Finished SwitchToNextVideoStream");
+            _logger.LogDebug("Finished SwitchToNextStream");
             return true;
         }
 
-        public async Task<bool> UnRegisterClient(string UniqueRequestId, CancellationToken cancellationToken = default)
+        public async Task<bool> UnRegisterClientAsync(string uniqueRequestId, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
             bool removed = false;
-            foreach (IChannelStatus channelStatus in CacheManager.ChannelStatuses.Values)
+            foreach (IChannelStatus channelStatus in _cacheManager.ChannelStatuses.Values)
             {
                 List<IClientConfiguration> clientConfigs = channelStatus.GetClientStreamerConfigurations();
-                IClientConfiguration? configToRemove = clientConfigs.Find(a => a.UniqueRequestId == UniqueRequestId);
+                IClientConfiguration? configToRemove = clientConfigs.Find(a => a.UniqueRequestId == uniqueRequestId);
 
-                if (configToRemove != null && channelStatus.RemoveClientStreamer(UniqueRequestId))
+                if (configToRemove != null && channelStatus.RemoveClientStreamer(uniqueRequestId))
                 {
                     removed = true;
                     break;
@@ -375,11 +370,11 @@ namespace StreamMaster.Streams.Channels
             if (removed)
             {
                 await CheckForEmptyChannelsAsync(cancellationToken).ConfigureAwait(false);
-                logger.LogDebug("Client configuration for {UniqueRequestId} removed", UniqueRequestId);
+                _logger.LogDebug("Client configuration for {UniqueRequestId} removed", uniqueRequestId);
             }
             else
             {
-                logger.LogDebug("Client configuration for {UniqueRequestId} not found", UniqueRequestId);
+                _logger.LogDebug("Client configuration for {UniqueRequestId} not found", uniqueRequestId);
             }
 
             return await Task.FromResult(removed).ConfigureAwait(false);

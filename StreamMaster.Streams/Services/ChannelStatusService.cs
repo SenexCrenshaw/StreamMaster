@@ -1,34 +1,33 @@
 ﻿using StreamMaster.Domain.Events;
-
 using StreamMaster.Streams.Domain.Events;
 
 using System.Collections.Concurrent;
 
 namespace StreamMaster.Streams.Services
 {
-    public class ChannelStatusService : IChannelStatusService
+    /// <summary>
+    /// Service for managing the status of channels, including creation, monitoring, and disposal.
+    /// </summary>
+    /// <remarks>
+    /// Initializes a new instance of the <see cref="ChannelStatusService"/> class.
+    /// </remarks>
+    /// <param name="logger">Logger for this service.</param>
+    /// <param name="dubcer">Service responsible for handling dubc operations.</param>
+    /// <param name="channelStatusLogger">Logger for channel status.</param>
+    /// <param name="videoInfoService">Service for managing video information.</param>
+    public class ChannelStatusService(
+        ILogger<ChannelStatusService> logger,
+        IDubcer dubcer,
+        ILogger<IChannelBroadcaster> channelStatusLogger,
+        IVideoInfoService videoInfoService) : IChannelStatusService
     {
+        /// <inheritdoc/>
         public event AsyncEventHandler<ChannelStatusStopped>? OnChannelStatusStoppedEvent;
 
         private readonly ConcurrentDictionary<int, IChannelStatus> _sourceChannelDistributors = new();
-        private readonly SemaphoreSlim GetOrCreateSourceChannelDistributorSlim = new(1, 1);
-        private readonly ILogger<ChannelStatusService> _logger;
-        private readonly ILogger<IChannelBroadcaster> _channelStatusLogger;
-        private readonly IVideoInfoService _videoInfoService;
-        private readonly IDubcer dubcer;
+        private readonly SemaphoreSlim _getOrCreateSourceChannelDistributorSlim = new(1, 1);
 
-        public ChannelStatusService(
-            ILogger<ChannelStatusService> logger,
-            IDubcer dubcer,
-            ILogger<IChannelBroadcaster> channelStatusLogger,
-            IVideoInfoService videoInfoService)
-        {
-            _logger = logger;
-            this.dubcer = dubcer;
-            _channelStatusLogger = channelStatusLogger;
-            _videoInfoService = videoInfoService;
-        }
-
+        /// <inheritdoc/>
         public IDictionary<int, IStreamHandlerMetrics> GetMetrics()
         {
             Dictionary<int, IStreamHandlerMetrics> metrics = [];
@@ -42,45 +41,45 @@ namespace StreamMaster.Streams.Services
             return metrics;
         }
 
-        public async Task<IChannelStatus> GetOrCreateChannelStatusAsync(IClientConfiguration config, CancellationToken cancellationToken)
+        /// <inheritdoc/>
+        public async Task<IChannelStatus> GetOrCreateChannelStatusAsync(IClientConfiguration config, int streamGroupProfileId, CancellationToken cancellationToken)
         {
-            await GetOrCreateSourceChannelDistributorSlim.WaitAsync(cancellationToken).ConfigureAwait(false);
+            await _getOrCreateSourceChannelDistributorSlim.WaitAsync(cancellationToken).ConfigureAwait(false);
             try
             {
                 if (_sourceChannelDistributors.TryGetValue(config.SMChannel.Id, out IChannelStatus? channelStatus))
                 {
                     if (channelStatus.IsFailed)
                     {
-                        _ = StopAndUnRegisterChannelStatus(config.SMChannel.Id);
+                        StopAndUnRegisterChannelStatus(config.SMChannel.Id);
                     }
                     else
                     {
-                        _logger.LogInformation("Reusing channel distributor: {Id} {name}", config.SMChannel.Id, config.SMChannel.Name);
+                        logger.LogInformation("Reusing channel distributor: {Id} {Name}", config.SMChannel.Id, config.SMChannel.Name);
                         return channelStatus;
                     }
                 }
-                ChannelStatus a = new(_channelStatusLogger, dubcer, config.SMChannel)
+
+                channelStatus = new ChannelStatus(channelStatusLogger, dubcer, config.SMChannel)
                 {
                     SMChannel = config.SMChannel,
-                    //StreamGroupId = config.StreamGroupId,
-                    StreamGroupProfileId = config.StreamGroupProfileId
+                    StreamGroupProfileId = streamGroupProfileId
                 };
 
-                channelStatus = a;
-
-                _logger.LogInformation("Created new channel for: {Id} {name}", config.SMChannel.Id, config.SMChannel.Name);
+                logger.LogInformation("Created new channel for: {Id} {Name}", config.SMChannel.Id, config.SMChannel.Name);
 
                 channelStatus.OnChannelStatusStoppedEvent += OnChannelStatusStopped;
-                bool test = _sourceChannelDistributors.TryAdd(config.SMChannel.Id, channelStatus);
+                _sourceChannelDistributors.TryAdd(config.SMChannel.Id, channelStatus);
 
                 return channelStatus;
             }
             finally
             {
-                GetOrCreateSourceChannelDistributorSlim.Release();
+                _getOrCreateSourceChannelDistributorSlim.Release();
             }
         }
 
+        /// <inheritdoc/>
         public bool StopAndUnRegisterChannelStatus(int key)
         {
             if (_sourceChannelDistributors.TryRemove(key, out IChannelStatus? channelStatus))
@@ -92,27 +91,22 @@ namespace StreamMaster.Streams.Services
             return false;
         }
 
-        //public IDictionary<int, IChannelStatus> GetChannelStatuses()
+        /// <inheritdoc/>
         public List<IChannelStatus> GetChannelStatuses()
         {
-            return _sourceChannelDistributors.Values.ToList();
+            return [.. _sourceChannelDistributors.Values];
         }
 
+        /// <inheritdoc/>
         private void OnChannelStatusStopped(object? sender, ChannelStatusStopped e)
         {
-            if (sender is not null and IChannelStatus channelStatus)
+            if (sender is IChannelStatus channelStatus)
             {
                 channelStatus.Shutdown = true;
-                //if (channelStatus.Shutdown)
-                //{
-                channelStatus.Shutdown = true;
-                OnChannelStatusStoppedEvent?.Invoke(sender!, e);
+                OnChannelStatusStoppedEvent?.Invoke(sender, e);
                 StopAndUnRegisterChannelStatus(e.Id);
-                _videoInfoService.RemoveSourceChannel(e.Name);
-                //}
+                videoInfoService.RemoveSourceChannel(e.Name);
             }
-
-
         }
     }
 }

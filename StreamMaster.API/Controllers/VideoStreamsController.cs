@@ -4,8 +4,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 namespace StreamMaster.API.Controllers;
 
+[V1ApiController("api/[controller]")]
 public class VideoStreamsController(IChannelManager channelManager, IClientConfigurationService clientConfigurationService, IStreamGroupService streamGroupService, IMapper mapper, IRepositoryWrapper repositoryWrapper, ILogger<VideoStreamsController> logger)
-    : ApiControllerBase
+     : ControllerBase
 {
     [Authorize(Policy = "SGLinks")]
     [HttpGet]
@@ -13,8 +14,12 @@ public class VideoStreamsController(IChannelManager channelManager, IClientConfi
     [Route("stream/{encodedIds}")]
     [Route("stream/{encodedIds}.mp4")]
     [Route("stream/{encodedIds}.ts")]
-    [Route("stream/{encodedIds}/{name}")]
-    public async Task<ActionResult> GetVideoStreamStream(string encodedIds, string name, CancellationToken cancellationToken)
+    [Route("stream/{encodedIds}/{name?}")]
+#pragma warning disable RCS1163 // Unused parameter
+#pragma warning disable IDE0060 // Remove unused parameter
+    public async Task<ActionResult> GetVideoStreamStream(string encodedIds, string? name, CancellationToken cancellationToken)
+#pragma warning restore IDE0060 // Remove unused parameter
+#pragma warning restore RCS1163 // Unused parameter
     {
         (int? sgId, int? streamGroupProfileId, int? smChannelId) = await streamGroupService.DecodeProfileIdSMChannelIdFromEncodedAsync(encodedIds);
 
@@ -63,10 +68,10 @@ public class VideoStreamsController(IChannelManager channelManager, IClientConfi
         smChannelDto.StreamUrl = originalUrl;
 
         string uniqueRequestId = request.HttpContext.TraceIdentifier;
-        IClientConfiguration config = clientConfigurationService.NewClientConfiguration(uniqueRequestId, smChannelDto, streamGroupProfile.Id, Request.Headers.UserAgent.ToString(), ipAddress ?? "unknown", HttpContext.Response, cancellationToken);
+        IClientConfiguration config = clientConfigurationService.NewClientConfiguration(uniqueRequestId, smChannelDto, Request.Headers.UserAgent.ToString(), ipAddress ?? "unknown", HttpContext.Response, cancellationToken);
 
         logger.LogInformation("Requesting channel with ChannelId {channelId}", smChannelId);
-        Stream? stream = await channelManager.GetChannelStreamAsync(config, cancellationToken);
+        Stream? stream = await channelManager.GetChannelStreamAsync(config, streamGroupProfile.Id, cancellationToken);
         logger.LogInformation("Streaming channel with ChannelId {channelId} to client {id}", smChannelId, uniqueRequestId);
 
         HttpContext.Response.RegisterForDispose(new UnregisterClientOnDispose(channelManager, config));

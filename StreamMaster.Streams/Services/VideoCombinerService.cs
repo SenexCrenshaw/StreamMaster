@@ -7,7 +7,7 @@ namespace StreamMaster.Streams.Services
     public class VideoCombinerService(ILogger<VideoCombinerService> logger, IVideoCombiner videoCombiner, IChannelManager channelManager, IServiceProvider serviceProvider)
         : IVideoCombinerService
     {
-        public async Task CombineVideosServiceAsync(IClientConfiguration config, int SMChannelId1, int SMChannelId2, int SMChannelId3, int SMChannelId4, ChannelWriter<byte[]> channelWriter, CancellationToken cancellationToken)
+        public async Task CombineVideosServiceAsync(IClientConfiguration config, int SMChannelId1, int SMChannelId2, int SMChannelId3, int SMChannelId4, int streamGroupProfileId, ChannelWriter<byte[]> channelWriter, CancellationToken cancellationToken)
         {
             using IServiceScope scope = serviceProvider.CreateScope();
             IRepositoryWrapper repositoryWrapper = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
@@ -47,25 +47,25 @@ namespace StreamMaster.Streams.Services
             config3.SetUniqueRequestId(config1.UniqueRequestId + "-3");
             config4.SetUniqueRequestId(config1.UniqueRequestId + "-4");
 
-            Stream? smChannel1Stream = await channelManager.GetChannelStreamAsync(config1, cancellationToken);
+            Stream? smChannel1Stream = await channelManager.GetChannelStreamAsync(config1, streamGroupProfileId, cancellationToken);
             if (smChannel1Stream == null)
             {
                 logger.LogError("SMChannel1 {smChannel1} getting stream failed", smChannel1);
                 return;
             }
-            Stream? smChannel2Stream = await channelManager.GetChannelStreamAsync(config2, cancellationToken);
+            Stream? smChannel2Stream = await channelManager.GetChannelStreamAsync(config2, streamGroupProfileId, cancellationToken);
             if (smChannel2Stream == null)
             {
                 logger.LogError("SMChannel2 {smChannel2} getting stream failed", smChannel2);
                 return;
             }
-            Stream? smChannel3Stream = await channelManager.GetChannelStreamAsync(config3, cancellationToken);
+            Stream? smChannel3Stream = await channelManager.GetChannelStreamAsync(config3, streamGroupProfileId, cancellationToken);
             if (smChannel3Stream == null)
             {
                 logger.LogError("SMChannel3 {smChannel3} getting stream failed", smChannel3);
                 return;
             }
-            Stream? smChannel4Stream = await channelManager.GetChannelStreamAsync(config4, cancellationToken);
+            Stream? smChannel4Stream = await channelManager.GetChannelStreamAsync(config4, streamGroupProfileId, cancellationToken);
             if (smChannel4Stream == null)
             {
                 logger.LogError("SMChannel4 {smChannel4} getting stream failed", smChannel4);

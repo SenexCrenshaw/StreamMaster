@@ -3,5 +3,5 @@
 namespace StreamMaster.Streams.Domain.Interfaces;
 public interface IVideoCombinerService
 {
-    Task CombineVideosServiceAsync(IClientConfiguration config, int SMChannelId1, int SMChannelId2, int SMChannelId3, int SMChannelId4, ChannelWriter<byte[]> channelWriter, CancellationToken cancellationToken);
+    Task CombineVideosServiceAsync(IClientConfiguration config, int SMChannelId1, int SMChannelId2, int SMChannelId3, int SMChannelId4, int streamGroupProfileId, ChannelWriter<byte[]> channelWriter, CancellationToken cancellationToken);
 }

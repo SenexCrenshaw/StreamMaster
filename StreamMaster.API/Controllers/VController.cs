@@ -58,10 +58,10 @@ public class VsController(ILogger<VsController> logger, IRepositoryWrapper repos
         smChannelDto.StreamUrl = originalUrl;
 
         string uniqueRequestId = request.HttpContext.TraceIdentifier;
-        IClientConfiguration config = clientConfigurationService.NewClientConfiguration(uniqueRequestId, smChannelDto, streamGroupProfile.Id, Request.Headers.UserAgent.ToString(), ipAddress ?? "unknown", HttpContext.Response, cancellationToken);
+        IClientConfiguration config = clientConfigurationService.NewClientConfiguration(uniqueRequestId, smChannelDto, Request.Headers.UserAgent.ToString(), ipAddress ?? "unknown", HttpContext.Response, cancellationToken);
 
         logger.LogInformation("Requesting channel with ChannelId {channelId}", smChannelId);
-        Stream? stream = await channelManager.GetChannelStreamAsync(config, cancellationToken);
+        Stream? stream = await channelManager.GetChannelStreamAsync(config, streamGroupProfile.Id, cancellationToken);
         logger.LogInformation("Streaming channel with ChannelId {channelId} to client {id}", smChannelId, uniqueRequestId);
 
         HttpContext.Response.RegisterForDispose(new UnregisterClientOnDispose(channelManager, config));

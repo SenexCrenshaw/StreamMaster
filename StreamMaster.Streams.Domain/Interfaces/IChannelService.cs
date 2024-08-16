@@ -1,22 +1,21 @@
-﻿namespace StreamMaster.Streams.Domain.Interfaces;
-public interface IChannelService
+﻿namespace StreamMaster.Streams.Domain.Interfaces
 {
-    Task CloseChannelAsync(IChannelStatus channelStatus, bool force = false);
-    List<IClientConfiguration> GetClientStreamerConfigurations();
-    Task CheckForEmptyChannelsAsync(CancellationToken cancellationToken = default);
-    List<IChannelStatus> GetChannelStatusFromStreamUrl(string videoUrl);
-    Task<IClientConfiguration?> GetClientStreamerConfiguration(string UniqueRequestId, CancellationToken cancellationToken = default);
-    Task<bool> SwitchChannelToNextStream(IChannelStatus channelStatus, string? overrideNextVideoStreamId = null);
-    void Dispose();
-    IChannelStatus? GetChannelStatus(int smChannelId);
-    List<IChannelStatus> GetChannelStatuses();
-    IChannelStatus? GetChannelStatusFromSMChannelId(int smChannelId);
-    List<IChannelStatus> GetChannelStatusesFromSMStreamId(string smStreamId);
-    int GetGlobalStreamsCount();
-    bool HasChannel(int SMChannelId);
-    Task<IChannelStatus?> GetChannelStatusAsync(IClientConfiguration config);
-    Task<bool> UnRegisterClient(string UniqueRequestId, CancellationToken cancellationToken = default);
-
-    Task<IChannelStatus?> SetupChannel(SMChannelDto smChannel);
-
+    public interface IChannelService : IDisposable
+    {
+        Task CheckForEmptyChannelsAsync(CancellationToken cancellationToken = default);
+        Task CloseChannelAsync(IChannelStatus channelStatus, bool force = false);
+        Task<IClientConfiguration?> GetClientStreamerConfigurationAsync(string UniqueRequestId, CancellationToken cancellationToken = default);
+        List<IClientConfiguration> GetClientStreamerConfigurations();
+        Task<IChannelStatus?> GetOrCreateChannelStatusAsync(IClientConfiguration config, int streamGroupProfileId);
+        IChannelStatus? GetChannelStatus(int smChannelId);
+        List<IChannelStatus> GetChannelStatusFromStreamUrl(string videoUrl);
+        IChannelStatus? GetChannelStatusFromSMChannelId(int smChannelId);
+        List<IChannelStatus> GetChannelStatuses();
+        List<IChannelStatus> GetChannelStatusesFromSMStreamId(string smStreamId);
+        int GetGlobalStreamsCount();
+        bool HasChannel(int SMChannelId);
+        Task<IChannelStatus?> SetupChannelAsync(SMChannelDto smChannel);
+        Task<bool> SwitchChannelToNextStreamAsync(IChannelStatus channelStatus, string? overrideNextVideoStreamId = null);
+        Task<bool> UnRegisterClientAsync(string UniqueRequestId, CancellationToken cancellationToken = default);
+    }
 }
