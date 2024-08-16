@@ -30,12 +30,12 @@ public class StreamLimitsService(ILogger<StreamLimitsService> logger, ICacheMana
         ConcurrentDictionary<int, int> M3UStreamCount = new();
 
 
-        List<IChannelStatus> channelStatuses = CacheManager.ChannelStatuses.Values
+        List<IChannelBroadcaster> channelStatuses = CacheManager.ChannelBroadcasters.Values
                 .Where(a => a.SMStreamInfo != null)
                 .ToList();
 
 
-        foreach (IChannelStatus channelStatus in channelStatuses)
+        foreach (IChannelBroadcaster channelStatus in channelStatuses)
         {
             SMStreamDto? smStream = channelStatus.SMChannel.SMStreams.Find(a => a.Id == channelStatus.SMStreamInfo!.Id);
 

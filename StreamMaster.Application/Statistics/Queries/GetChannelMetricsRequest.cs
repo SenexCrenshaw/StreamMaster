@@ -6,22 +6,22 @@ namespace StreamMaster.Application.Statistics.Queries;
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record GetChannelMetricsRequest() : IRequest<DataResponse<List<ChannelMetric>>>;
 
-internal class GetChannelMetricsRequestHandler(IRepositoryWrapper repositoryWrapper, IHttpContextAccessor httpContextAccessor, IIconHelper iconHelper, IChannelService channelService, ICustomPlayListBuilder customPlayListBuilder, IChannelStatusService channelStatusService, IChannelBroadcasterService channelBroadcasterService)
+internal class GetChannelMetricsRequestHandler(IRepositoryWrapper repositoryWrapper, IHttpContextAccessor httpContextAccessor, IIconHelper iconHelper, IChannelService channelService, ICustomPlayListBuilder customPlayListBuilder, IChannelBroadcasterService channelBroadcasterService, IStreamBroadcasterService streamBroadcasterService)
     : IRequestHandler<GetChannelMetricsRequest, DataResponse<List<ChannelMetric>>>
 {
     public async Task<DataResponse<List<ChannelMetric>>> Handle(GetChannelMetricsRequest request, CancellationToken cancellationToken)
     {
         List<IChannelBroadcaster> channelBroadcasters = channelBroadcasterService.GetChannelBroadcasters();
-        List<IChannelStatus> channelStatuses = channelStatusService.GetChannelStatuses();
+        List<IStreamBroadcaster> streamBroadcasters = streamBroadcasterService.GetStreamBroadcasters();
 
         List<ChannelMetric> dtos = [];
 
         List<string> smChannelIds = channelBroadcasters.SelectMany(a => a.ClientChannels.Keys).ToList();
         List<string> smStreamIds = channelBroadcasters.SelectMany(a => a.ClientStreams.Keys).ToList();
 
-        List<string> smChannelIds2 = channelStatuses.SelectMany(a => a.ClientChannels.Keys).ToList();
-        List<string> smStreamIds2 = channelStatuses.SelectMany(a => a.ClientStreams.Keys).ToList();
-        List<string> smStreamIds3 = channelStatuses.Where(a => a.SMStreamInfo?.Id != null).Select(a => a.SMStreamInfo!.Id).ToList();
+        List<string> smChannelIds2 = channelBroadcasters.SelectMany(a => a.ClientChannels.Keys).ToList();
+        List<string> smStreamIds2 = channelBroadcasters.SelectMany(a => a.ClientStreams.Keys).ToList();
+        List<string> smStreamIds3 = channelBroadcasters.Where(a => a.SMStreamInfo?.Id != null).Select(a => a.SMStreamInfo!.Id).ToList();
 
         smChannelIds.AddRange(smChannelIds2);
         smStreamIds.AddRange(smStreamIds2);
@@ -32,12 +32,12 @@ internal class GetChannelMetricsRequestHandler(IRepositoryWrapper repositoryWrap
         string _baseUrl = httpContextAccessor.GetUrl();
         List<IClientConfiguration> clientConfigurations = channelService.GetClientStreamerConfigurations();
 
-        foreach (IChannelStatus channelStatus in channelStatuses)
+        foreach (IChannelBroadcaster channelBroadcaster in channelBroadcasters)
         {
             List<ClientChannelDto> channelDtos = [];
 
             int channelCount = 0;
-            SMChannel? test = smChannels.Find(a => a.Id == channelStatus.Id);
+            SMChannel? test = smChannels.Find(a => a.Id == channelBroadcaster.Id);
             string? logo = null;
             if (test?.Logo != null)
             {
@@ -46,11 +46,11 @@ internal class GetChannelMetricsRequestHandler(IRepositoryWrapper repositoryWrap
             //channelDtos.Add(new ClientChannelDto()
             //{
             //    SMChannelId = test?.Id ?? channelCount++,
-            //    Name = channelStatus.Name,
+            //    Name = channelBroadcaster.Name,
             //    Logo = logo
             //});
 
-            foreach (KeyValuePair<string, System.Threading.Channels.ChannelWriter<byte[]>> channel in channelStatus.ClientChannels)
+            foreach (KeyValuePair<string, System.Threading.Channels.ChannelWriter<byte[]>> channel in channelBroadcaster.ClientChannels)
             {
                 IClientConfiguration? config = clientConfigurations.Find(a => a.UniqueRequestId == channel.Key);
                 StreamHandlerMetrics? metric = null;
@@ -72,7 +72,7 @@ internal class GetChannelMetricsRequestHandler(IRepositoryWrapper repositoryWrap
 
             List<ClientStreamsDto> streamDtos = [];
 
-            foreach (KeyValuePair<string, Stream> stream in channelStatus.ClientStreams)
+            foreach (KeyValuePair<string, Stream> stream in channelBroadcaster.ClientStreams)
             {
                 SMStream? test2 = smStreams.Find(a => a.Id == stream.Key);
                 logo = null;
@@ -99,19 +99,19 @@ internal class GetChannelMetricsRequestHandler(IRepositoryWrapper repositoryWrap
 
             ChannelMetric dto = new()
             {
-                Name = channelStatus.Name,
-                SourceName = channelStatus.SourceName,
+                Name = channelBroadcaster.Name,
+                SourceName = channelBroadcaster.SourceName,
                 //SMStreamInfo = d,
                 ClientChannels = channelDtos,
                 ClientStreams = streamDtos,
-                ChannelItemBackLog = channelStatus.ChannelItemBackLog,
-                Metrics = channelStatus.Metrics,
-                IsFailed = channelStatus.IsFailed,
-                Id = channelStatus.Id.ToString(),
+                ChannelItemBackLog = channelBroadcaster.ChannelItemBackLog,
+                Metrics = channelBroadcaster.Metrics,
+                IsFailed = channelBroadcaster.IsFailed,
+                Id = channelBroadcaster.Id.ToString(),
                 Logo = logo
             };
 
-            //foreach (string channel in channelStatus.ClientChannels.Keys)
+            //foreach (string channel in channelBroadcaster.ClientChannels.Keys)
             //{
 
             //}
@@ -119,7 +119,7 @@ internal class GetChannelMetricsRequestHandler(IRepositoryWrapper repositoryWrap
             dtos.Add(dto);
         }
 
-        foreach (IChannelBroadcaster channelBroadcaster in channelBroadcasters)
+        foreach (IStreamBroadcaster channelBroadcaster in channelBroadcasters)
         {
             List<ClientChannelDto> channelDtos = [];
 

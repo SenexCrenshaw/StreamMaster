@@ -1,8 +1,9 @@
 ﻿namespace StreamMaster.Streams.Channels
 {
+    /// <inheritdoc/>
     public sealed class ChannelManager(
         ILogger<ChannelManager> logger,
-        IChannelBroadcasterService channelDistributorService,
+        IStreamBroadcasterService streamBroadcasterService,
         IChannelService channelService,
         IMessageService messageService
     ) : IChannelManager
@@ -10,7 +11,7 @@
         private readonly SemaphoreSlim _registerSemaphore = new(1, 1);
         private readonly object _disposeLock = new();
         private bool _disposed = false;
-
+        /// <inheritdoc/>
         public async Task<Stream?> GetChannelStreamAsync(IClientConfiguration config, int streamGroupProfileId, CancellationToken cancellationToken = default)
         {
             try
@@ -22,7 +23,7 @@
                     return null;
                 }
 
-                IChannelStatus? channelStatus = await channelService.GetOrCreateChannelStatusAsync(config, streamGroupProfileId);
+                IChannelBroadcaster? channelStatus = await channelService.GetOrCreateChannelBroadcasterAsync(config, streamGroupProfileId);
                 if (channelStatus == null)
                 {
                     await UnRegisterWithChannelManagerAsync(config);
@@ -39,11 +40,12 @@
             }
         }
 
+        /// <inheritdoc/>
         public async Task ChangeVideoStreamChannelAsync(string playingSMStreamId, string newSMStreamId, CancellationToken cancellationToken = default)
         {
             logger.LogDebug("Starting ChangeVideoStreamChannel with playingSMStreamId: {playingSMStreamId} and newSMStreamId: {newSMStreamId}", playingSMStreamId, newSMStreamId);
 
-            foreach (IChannelStatus channelStatus in channelService.GetChannelStatusesFromSMStreamId(playingSMStreamId))
+            foreach (IChannelBroadcaster channelStatus in channelService.GetChannelStatusesFromSMStreamId(playingSMStreamId))
             {
                 if (cancellationToken.IsCancellationRequested)
                 {
@@ -87,16 +89,17 @@
                 }
             }
         }
-
+        /// <inheritdoc/>
         public async Task CancelClientAsync(string uniqueRequestId)
         {
-            IClientConfiguration? config = await channelService.GetClientStreamerConfigurationAsync(uniqueRequestId);
+            IClientConfiguration? config = channelService.GetClientConfiguration(uniqueRequestId);
             if (config != null)
             {
                 await UnRegisterWithChannelManagerAsync(config).ConfigureAwait(false);
             }
         }
 
+        /// <inheritdoc/>
         public async Task RemoveClientAsync(IClientConfiguration config)
         {
             logger.LogInformation("Client exited");
@@ -113,9 +116,10 @@
             }
         }
 
+        /// <inheritdoc/>
         public async Task CancelChannelAsync(int smChannelId)
         {
-            IChannelStatus? channelStatus = channelService.GetChannelStatus(smChannelId);
+            IChannelBroadcaster? channelStatus = channelService.GetChannelBroadcaster(smChannelId);
             if (channelStatus is null)
             {
                 logger.LogWarning("Channel not found: {smChannelId}", smChannelId);
@@ -125,16 +129,17 @@
             await channelService.CloseChannelAsync(channelStatus, true);
         }
 
+        /// <inheritdoc/>
         public void MoveToNextStream(int smChannelId)
         {
-            IChannelStatus? channelStatus = channelService.GetChannelStatus(smChannelId);
+            IChannelBroadcaster? channelStatus = channelService.GetChannelBroadcaster(smChannelId);
             if (channelStatus is null || channelStatus.SMStreamInfo is null)
             {
                 logger.LogWarning("Channel not found: {smChannelId}", smChannelId);
                 return;
             }
 
-            IChannelBroadcaster? channelDistributor = channelDistributorService.GetChannelBroadcaster(channelStatus.SMStreamInfo.Url);
+            IStreamBroadcaster? channelDistributor = streamBroadcasterService.GetStreamBroadcaster(channelStatus.SMStreamInfo.Url);
 
             if (channelDistributor is not null)
             {
@@ -147,9 +152,10 @@
             }
         }
 
+        /// <inheritdoc/>
         public void CancelAllChannels()
         {
-            foreach (IChannelBroadcaster s in channelDistributorService.GetChannelBroadcasters())
+            foreach (IStreamBroadcaster s in streamBroadcasterService.GetStreamBroadcasters())
             {
                 s.Stop();
             }

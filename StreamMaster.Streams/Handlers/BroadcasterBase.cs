@@ -10,9 +10,9 @@ using System.Xml.Serialization;
 
 namespace StreamMaster.Streams.Handlers;
 
-public class ChannelBroadcasterBase : IChannelBroadcasterBase
+public class BroadcasterBase : IBroadcasterBase
 {
-    public ChannelBroadcasterBase() { ClientStreamerConfigurations = new(); }
+    public BroadcasterBase() { ClientStreamerConfigurations = new(); }
 
     /// <inheritdoc/>
     [XmlIgnore]
@@ -29,11 +29,11 @@ public class ChannelBroadcasterBase : IChannelBroadcasterBase
     private long _channelItemCount;
     private readonly DateTime _startTime = DateTime.UtcNow;
     private readonly ConcurrentQueue<double> _latencies = new();
-    private readonly ILogger<IChannelBroadcaster> logger;
-    private Channel<byte[]>? _currentChannel;// = Channel.CreateUnbounded<byte[]>(new UnboundedChannelOptions { SingleReader = true, SingleWriter = true });
+    private readonly ILogger<IBroadcasterBase> logger;
+
     private readonly CancellationTokenSource _cancellationTokenSource = new();
 
-    public ChannelBroadcasterBase(ILogger<IChannelBroadcaster> logger)
+    public BroadcasterBase(ILogger<IBroadcasterBase> logger)
     {
         this.logger = logger;
         _meter = new Meter("StreamHandlerMetrics", "1.0");
@@ -41,9 +41,9 @@ public class ChannelBroadcasterBase : IChannelBroadcasterBase
         _kbpsHistogram = _meter.CreateHistogram<double>("kbps", "kbps");
         _latencyHistogram = _meter.CreateHistogram<double>("latency", "ms");
     }
-
+    /// <inheritdoc/>
     public int ClientCount => ClientStreamerConfigurations.Keys.Count;
-
+    /// <inheritdoc/>
     public List<IClientConfiguration> GetClientStreamerConfigurations()
     {
         return [.. ClientStreamerConfigurations.Values];
@@ -79,7 +79,7 @@ public class ChannelBroadcasterBase : IChannelBroadcasterBase
         SourceName = sourceChannelName;
         Channel<byte[]> newChannel = ChannelHelper.GetChannel();
         //_currentChannel?.Writer.TryComplete();
-        _currentChannel = newChannel;
+        //_currentChannel = newChannel;
         StartProcessingSource(sourceChannelReader, null, newChannel, cancellationToken);
     }
 
@@ -90,7 +90,7 @@ public class ChannelBroadcasterBase : IChannelBroadcasterBase
         SourceName = streamName;
         Channel<byte[]> newChannel = ChannelHelper.GetChannel();
         //_currentChannel?.Writer.TryComplete();
-        _currentChannel = newChannel;
+        //_currentChannel = newChannel;
         StartProcessingSource(null, sourceStream, newChannel, cancellationToken);
     }
 
@@ -107,7 +107,7 @@ public class ChannelBroadcasterBase : IChannelBroadcasterBase
         //_currentChannel?.Writer.TryComplete();
 
     }
-
+    /// <inheritdoc/>
     public void AddClientStreamer(string UniqueRequestId, IClientConfiguration config)
     {
         ClientStreamerConfigurations[UniqueRequestId] = config;
@@ -116,10 +116,7 @@ public class ChannelBroadcasterBase : IChannelBroadcasterBase
         AddClientChannel(UniqueRequestId, config.ClientStream.Channel);
     }
 
-    /// <summary>
-    /// Removes a client streamer configuration from the dictionary.
-    /// </summary>
-    /// <param name="UniqueRequestId">The client identifier.</param>
+    /// <inheritdoc/>
     public bool RemoveClientStreamer(string UniqueRequestId)
     {
         if (ClientStreamerConfigurations.TryRemove(UniqueRequestId, out IClientConfiguration? _))
@@ -349,10 +346,11 @@ public class ChannelBroadcasterBase : IChannelBroadcasterBase
             }
         }, token);
     }
-
+    /// <inheritdoc/>
     public virtual void OnStreamingStopped()
     {
     }
+    /// <inheritdoc/>
 
     public virtual string StringId()
     {

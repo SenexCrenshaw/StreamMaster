@@ -39,9 +39,9 @@ public class BroadcastService(
         //    printDebug("Global: {0}", channelService.GetGlobalStreamsCount());
         //}
 
-        //if (channelService.GetChannelStatuses().Any())
+        //if (channelService.GetChannelBroadcasters().Any())
         //{
-        //    printDebug("GetChannelStatuses: {0}", channelService.GetChannelStatuses().Count);
+        //    printDebug("GetChannelBroadcasters: {0}", channelService.GetChannelBroadcasters().Count);
         //}
 
         //logger.LogInformation("GetStreamHandlers: {GetStreamHandlers}", streamManager.GetStreamHandlers().Count);

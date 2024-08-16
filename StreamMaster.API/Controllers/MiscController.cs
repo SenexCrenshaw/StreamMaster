@@ -7,7 +7,7 @@ using System.Text;
 
 namespace StreamMaster.API.Controllers;
 
-public class MiscController(IImageDownloadService imageDownloadService, IChannelBroadcasterService channelDistributorService) : ApiControllerBase
+public class MiscController(IImageDownloadService imageDownloadService, IStreamBroadcasterService channelDistributorService) : ApiControllerBase
 {
     [HttpGet]
     [Route("[action]")]
@@ -19,9 +19,9 @@ public class MiscController(IImageDownloadService imageDownloadService, IChannel
 
     [HttpGet]
     [Route("[action]")]
-    public ActionResult<List<ChannelBroadcaster>> GetChannelDiGetChannelDistributors()
+    public ActionResult<List<StreamBroadcaster>> GetChannelDiGetChannelDistributors()
     {
-        List<IChannelBroadcaster> channelDistributors = channelDistributorService.GetChannelBroadcasters();
+        List<IStreamBroadcaster> channelDistributors = channelDistributorService.GetStreamBroadcasters();
         return Ok(channelDistributors);
     }
 

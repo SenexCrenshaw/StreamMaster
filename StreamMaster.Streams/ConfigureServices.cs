@@ -27,7 +27,7 @@ public static class ConfigureServices
         services.AddTransient<IHTTPStream, HTTPStream>();
         services.AddTransient<ICommandStream, CommandStream>();
         services.AddTransient<IDubcer, Dubcer>();
-        services.AddSingleton<IChannelStatusService, ChannelStatusService>();
+        services.AddSingleton<IStreamBroadcasterService, StreamBroadcasterService>();
         services.AddSingleton<IHLSManager, HLSManager>();
         services.AddSingleton<IStreamTracker, StreamTracker>();
         services.AddSingleton<IAccessTracker, AccessTracker>();

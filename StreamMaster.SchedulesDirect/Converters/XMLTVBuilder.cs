@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
 using StreamMaster.Domain.Comparer;
-using StreamMaster.Domain.Crypto;
 using StreamMaster.Domain.Enums;
 using StreamMaster.Domain.Helpers;
 using StreamMaster.Domain.Models;
@@ -438,7 +437,7 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IOptionsMon
                     break;
 
                 case nameof(ValidM3USetting.Name):
-                    id = mxfService.Name.ToCleanFileString();
+                    id = mxfService.Name;
                     break;
             }
         }
