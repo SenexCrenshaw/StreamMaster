@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 using StreamMaster.Domain.API;
 using StreamMaster.Domain.Configuration;
+using StreamMaster.Domain.Exceptions;
 
 using System.Collections.Concurrent;
 using System.Diagnostics;
@@ -137,10 +138,14 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, IMessageSer
                 .ToListAsync()
                 .ConfigureAwait(false);
 
-            if (toDeleteStreamIds.Count != 0)
+            if (toDeleteStreamIds.Count > 0)
             {
-                await DeleteRelatedVideoStreamLinks(toDeleteStreamIds);
-                await DeleteSMStreams(toDeleteStreamIds);
+                // Process in batches of 200
+                foreach (IEnumerable<string> batch in toDeleteStreamIds.Batch(BuildInfo.DBBatchSize))
+                {
+                    await DeleteRelatedVideoStreamLinks(batch.ToList());
+                    await DeleteSMStreams(batch.ToList());
+                }
                 return toDeleteStreamIds.Count;
             }
             return 0;
@@ -155,7 +160,7 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, IMessageSer
     private async Task DeleteRelatedVideoStreamLinks(List<string> streamIds)
     {
         IQueryable<SMChannelStreamLink> toDelete = repositoryWrapper.SMChannelStreamLink.GetQuery(a => streamIds.Contains(a.SMStreamId));
-        if (!await toDelete.AnyAsync())
+        if (!await toDelete.AnyAsync().ConfigureAwait(false))
         {
             return;
         }
@@ -176,6 +181,7 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, IMessageSer
         }
         await repositoryWrapper.SMStream.BulkDeleteAsync(toDelete).ConfigureAwait(false);
     }
+
 
     [LogExecutionTimeAspect]
     private async Task<(List<SMStream>? streams, int streamCount)> ProcessStreams(M3UFile m3uFile)

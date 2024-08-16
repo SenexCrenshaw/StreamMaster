@@ -203,7 +203,7 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
 
 
                         PropertyInfo? profileProperty = typeof(OutputProfile).GetProperty(memberExpression.Member.Name);
-                        profileProperty?.SetValue(profile, newValue.ToString().ToCleanFileString());
+                        profileProperty?.SetValue(profile, newValue.ToString());
                     }
                 }
             }
