@@ -1,12 +1,10 @@
-﻿using StreamMaster.Application.Interfaces;
-
-namespace StreamMaster.Application.SchedulesDirect.Commands;
+﻿namespace StreamMaster.Application.SchedulesDirect.Commands;
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record RemoveLineupRequest(string Lineup) : IRequest<APIResponse>;
 
-public class RemoveLineupRequestHandler(ISchedulesDirect schedulesDirect, IDataRefreshService dataRefreshService, IMessageService messageService, IJobStatusService jobStatusService, ILogger<RemoveLineupRequest> logger, IHubContext<StreamMasterHub, IStreamMasterHub> HubContext, IOptionsMonitor<SDSettings> intSettings)
+public class RemoveLineupRequestHandler(ISchedulesDirect schedulesDirect, IDataRefreshService dataRefreshService, IMessageService messageService, IJobStatusService jobStatusService, ILogger<RemoveLineupRequest> logger, IOptionsMonitor<SDSettings> intSettings)
 : IRequestHandler<RemoveLineupRequest, APIResponse>
 {
     private readonly SDSettings sdSettings = intSettings.CurrentValue;
@@ -20,7 +18,7 @@ public class RemoveLineupRequestHandler(ISchedulesDirect schedulesDirect, IDataR
             return APIResponse.ErrorWithMessage("Sd is not enabled");
         }
         logger.LogInformation("Remove line up {lineup}", request.Lineup);
-        var changesRemaining = await schedulesDirect.RemoveLineup(request.Lineup, cancellationToken).ConfigureAwait(false);
+        int changesRemaining = await schedulesDirect.RemoveLineup(request.Lineup, cancellationToken).ConfigureAwait(false);
 
         if (changesRemaining > -1)
         {

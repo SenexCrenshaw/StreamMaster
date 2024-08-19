@@ -116,7 +116,6 @@ public class BroadcasterBase : IBroadcasterBase
         return RemoveChannelStreamer(smChannelId.ToString());
     }
 
-
     //Plugins
 
     /// <inheritdoc/>
@@ -136,7 +135,6 @@ public class BroadcasterBase : IBroadcasterBase
         }
         return false;
     }
-
 
     //Clients
     /// <inheritdoc/>

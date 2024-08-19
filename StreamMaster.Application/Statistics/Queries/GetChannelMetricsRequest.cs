@@ -182,7 +182,6 @@ internal class GetChannelMetricsRequestHandler(IRepositoryWrapper repositoryWrap
                 }
             }
 
-
             ChannelMetric dto = new()
             {
                 Name = sourceBroadcaster.Name,

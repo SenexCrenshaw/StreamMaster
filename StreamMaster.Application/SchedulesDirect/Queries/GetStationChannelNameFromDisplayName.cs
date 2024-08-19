@@ -2,7 +2,7 @@
 
 public record GetStationChannelNameFromDisplayName(string value) : IRequest<StationChannelName?>;
 
-internal class GetStationChannelNameFromDisplayNameHandler(ILogger<GetStationChannelNameFromDisplayName> logger, ISchedulesDirectDataService schedulesDirectDataService)
+internal class GetStationChannelNameFromDisplayNameHandler(ISchedulesDirectDataService schedulesDirectDataService)
     : IRequestHandler<GetStationChannelNameFromDisplayName, StationChannelName?>
 {
     public Task<StationChannelName?> Handle(GetStationChannelNameFromDisplayName request, CancellationToken cancellationToken)

@@ -100,7 +100,6 @@ namespace StreamMaster.Streams.Handlers
                 channelBroadcaster.Shutdown = true;
                 StopAndUnRegisterChannelBroadcaster(e.Id);
                 _OnChannelBroadcasterStoppedEvent?.Invoke(sender, e);
-
             }
         }
     }

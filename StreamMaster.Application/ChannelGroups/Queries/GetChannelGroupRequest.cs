@@ -2,7 +2,7 @@
 
 public record GetChannelGroupRequest(int Id) : IRequest<DataResponse<ChannelGroupDto?>>;
 
-internal class GetChannelGroupHandler(IRepositoryWrapper Repository, IMapper Mapper, IMemoryCache MemoryCache)
+internal class GetChannelGroupHandler(IRepositoryWrapper Repository, IMapper Mapper)
     : IRequestHandler<GetChannelGroupRequest, DataResponse<ChannelGroupDto?>>
 {
     public async Task<DataResponse<ChannelGroupDto?>> Handle(GetChannelGroupRequest request, CancellationToken cancellationToken)

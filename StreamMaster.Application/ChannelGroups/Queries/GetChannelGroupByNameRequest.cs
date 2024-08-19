@@ -3,7 +3,7 @@
 
 public record GetChannelGroupByNameRequest(string Name) : IRequest<DataResponse<ChannelGroupDto?>>;
 
-internal class GetChannelGroupByNameHandler(IRepositoryWrapper Repository, IMapper Mapper, IMemoryCache MemoryCache)
+internal class GetChannelGroupByNameHandler(IRepositoryWrapper Repository, IMapper Mapper)
     : IRequestHandler<GetChannelGroupByNameRequest, DataResponse<ChannelGroupDto?>>
 {
     public async Task<DataResponse<ChannelGroupDto?>> Handle(GetChannelGroupByNameRequest request, CancellationToken cancellationToken)

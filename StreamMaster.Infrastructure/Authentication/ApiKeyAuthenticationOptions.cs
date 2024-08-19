@@ -19,7 +19,6 @@ public class ApiKeyAuthenticationOptions : AuthenticationSchemeOptions
 }
 
 
-
 public class ApiKeyAuthenticationHandler(IOptionsMonitor<ApiKeyAuthenticationOptions> options, IOptionsMonitor<Setting> intSettings, ILoggerFactory logger, UrlEncoder encoder)
     : AuthenticationHandler<ApiKeyAuthenticationOptions>(options, logger, encoder)
 {

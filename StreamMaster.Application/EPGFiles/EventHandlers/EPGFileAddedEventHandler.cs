@@ -1,12 +1,9 @@
-﻿using StreamMaster.Application.Interfaces;
-using StreamMaster.Application.Services;
+﻿using StreamMaster.Application.Services;
 
 namespace StreamMaster.Application.EPGFiles.EventHandlers;
 
-public class EPGFileAddedEventHandler(
-    IHubContext<StreamMasterHub, IStreamMasterHub> hubContext,
-    IBackgroundTaskQueue taskQueue
-        ) : INotificationHandler<EPGFileAddedEvent>
+public class EPGFileAddedEventHandler(IBackgroundTaskQueue taskQueue)
+    : INotificationHandler<EPGFileAddedEvent>
 {
     public async Task Handle(EPGFileAddedEvent notification, CancellationToken cancellationToken)
     {

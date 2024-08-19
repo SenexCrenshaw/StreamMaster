@@ -2,7 +2,7 @@
 
 namespace StreamMaster.Application.Programmes.EventHandlers;
 
-public class ProgrammesProcessedEventHandler(ILogger<ProgrammesProcessedEventHandler> logger, IHubContext<StreamMasterHub, IStreamMasterHub> HubContext)
+public class ProgrammesProcessedEventHandler()
     : INotificationHandler<ProgrammesProcessedEvent>
 {
     public async Task Handle(ProgrammesProcessedEvent notification, CancellationToken cancellationToken)

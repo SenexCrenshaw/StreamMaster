@@ -8,7 +8,6 @@ namespace StreamMaster.Streams.Handlers;
 
 public sealed class ChannelBroadcaster : BroadcasterBase, IChannelBroadcaster, IDisposable
 {
-    
     public ChannelBroadcaster(ILogger<IChannelBroadcaster> logger, SMChannelDto smChannelDto) : base(logger)
     {
         Id = smChannelDto.Id;

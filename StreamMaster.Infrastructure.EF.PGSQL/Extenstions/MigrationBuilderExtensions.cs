@@ -12,7 +12,7 @@ public static class MigrationBuilderExtensions
             string sql = $"DROP TABLE IF EXISTS \"{tableName}\" CASCADE;";
             migrationBuilder.Sql(sql);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             //logger.LogError(ex, "Error dropping table {TableName}.", tableName);
             throw; // Ensure the migration stops if there's an error

@@ -1,12 +1,9 @@
-﻿using StreamMaster.Application.Interfaces;
-
-namespace StreamMaster.Application.EPGFiles.Commands;
+﻿namespace StreamMaster.Application.EPGFiles.Commands;
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record UpdateEPGFileRequest(int? EPGNumber, string? Color, int? TimeShift, bool? AutoUpdate, int? HoursToUpdate, int Id, string? Name, string? Url)
     : IRequest<APIResponse>;
-
 
 public class UpdateEPGFileRequestHandler(ILogger<UpdateEPGFileRequest> logger, IDataRefreshService dataRefreshService, IJobStatusService jobStatusService, IRepositoryWrapper Repository, IHubContext<StreamMasterHub, IStreamMasterHub> HubContext)
     : IRequestHandler<UpdateEPGFileRequest, APIResponse>
@@ -16,12 +13,10 @@ public class UpdateEPGFileRequestHandler(ILogger<UpdateEPGFileRequest> logger, I
         JobStatusManager jobManager = jobStatusService.GetJobManagerUpdateEPG(request.Id);
         try
         {
-
             if (jobManager.IsRunning)
             {
                 return APIResponse.NotFound;
             }
-
 
             List<FieldData> ret = [];
 
@@ -90,9 +85,7 @@ public class UpdateEPGFileRequestHandler(ILogger<UpdateEPGFileRequest> logger, I
 
             if (isNameChanged)
             {
-
                 await dataRefreshService.RefreshAllEPG();
-
             }
             else
             {
@@ -105,8 +98,6 @@ public class UpdateEPGFileRequestHandler(ILogger<UpdateEPGFileRequest> logger, I
                     await HubContext.Clients.All.DataRefresh("GetEPGColors");
                 }
             }
-
-
             jobManager.SetSuccessful();
             return APIResponse.Success;
         }
@@ -115,6 +106,5 @@ public class UpdateEPGFileRequestHandler(ILogger<UpdateEPGFileRequest> logger, I
             jobManager.SetError();
             return APIResponse.ErrorWithMessage(ex, "Refresh EPG failed");
         }
-
     }
 }

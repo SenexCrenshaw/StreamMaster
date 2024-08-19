@@ -1,10 +1,9 @@
 ﻿using System.Collections.Concurrent;
 namespace StreamMaster.Domain.Common;
 
-public class ThreadSafeIntList(int startingValue)
+public class ThreadSafeIntList(int nextAvailableInt)
 {
     private readonly ConcurrentDictionary<int, bool> intSet = new();
-    private int nextAvailableInt = startingValue;
 
     public void AddInt(int value)
     {
@@ -21,7 +20,7 @@ public class ThreadSafeIntList(int startingValue)
         int desiredValue = value ?? Interlocked.Increment(ref nextAvailableInt);
 
         // Ensure desiredValue is not less than startingValue
-        desiredValue = Math.Max(desiredValue, startingValue);
+        desiredValue = Math.Max(desiredValue, nextAvailableInt);
 
         while (true)
         {

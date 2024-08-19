@@ -13,7 +13,6 @@ public class SeasonImages(ILogger<SeasonImages> logger, IEPGCache<SeasonImages> 
     private readonly SDSettings sdsettings = intSettings.CurrentValue;
     public async Task<bool> GetAllSeasonImages()
     {
-
         // reset counters
         seasonImageQueue = [];
         seasonImageResponses = [];
@@ -131,7 +130,6 @@ public class SeasonImages(ILogger<SeasonImages> logger, IEPGCache<SeasonImages> 
 
     private void ProcessSeasonImageResponses()
     {
-
         string artworkSize = string.IsNullOrEmpty(sdsettings.ArtworkSize) ? "Md" : sdsettings.ArtworkSize;
 
         // process request response
@@ -164,7 +162,6 @@ public class SeasonImages(ILogger<SeasonImages> logger, IEPGCache<SeasonImages> 
                 season.extras.Add("artwork", SDHelpers.GetTieredImages(response.Data, ["season"], artworkSize));
                 artwork = season.extras["artwork"];
             }
-
 
             // create a season entry in cache
             string uid = $"{season.SeriesId}_{season.SeasonNumber}";

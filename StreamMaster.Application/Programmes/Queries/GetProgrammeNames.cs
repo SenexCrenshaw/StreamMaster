@@ -2,7 +2,7 @@
 
 public record GetProgrammeNames : IRequest<List<string>>;
 
-internal class GetProgrammeNamesHandler(ILogger<GetProgrammeNames> logger, ISender Sender)
+internal class GetProgrammeNamesHandler(ISender Sender)
     : IRequestHandler<GetProgrammeNames, List<string>>
 {
     public async Task<List<string>> Handle(GetProgrammeNames request, CancellationToken cancellationToken)

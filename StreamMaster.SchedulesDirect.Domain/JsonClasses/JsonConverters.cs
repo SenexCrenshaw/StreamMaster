@@ -5,7 +5,6 @@ namespace StreamMaster.SchedulesDirect.Domain.JsonClasses
 {
     internal class SingleOrListConverter<T> : JsonConverter<List<T>>
     {
-
         public override bool CanConvert(Type typeToConvert)
         {
             return typeToConvert == typeof(List<T>);
@@ -13,7 +12,6 @@ namespace StreamMaster.SchedulesDirect.Domain.JsonClasses
 
         public override List<T> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-
             string rootString = "";
             try
             {
@@ -47,7 +45,6 @@ namespace StreamMaster.SchedulesDirect.Domain.JsonClasses
 
         public override void Write(Utf8JsonWriter writer, List<T> value, JsonSerializerOptions options)
         {
-
         }
     }
 

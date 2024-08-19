@@ -324,6 +324,4 @@ public class EPGCache<T> : IEPGCache<T>
         ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
         return image != null ? schedulesDirectData.FindOrCreateGuideImage(image.Uri) : null;
     }
-
 }
-

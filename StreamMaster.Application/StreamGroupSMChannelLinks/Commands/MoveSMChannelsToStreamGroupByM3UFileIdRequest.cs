@@ -1,9 +1,8 @@
 ﻿namespace StreamMaster.Application.StreamGroupSMChannelLinks.Commands;
 
-
 public record MoveSMChannelsToStreamGroupByM3UFileIdRequest(M3UFile M3UFile, int OldStreamGroupId) : IRequest<APIResponse>;
 
-internal class MoveSMChannelsToStreamGroupRequestHandler(IRepositoryWrapper Repository, IRepositoryContext repositoryContext, IDataRefreshService dataRefreshService) : IRequestHandler<MoveSMChannelsToStreamGroupByM3UFileIdRequest, APIResponse>
+internal class MoveSMChannelsToStreamGroupRequestHandler(IRepositoryWrapper Repository,IDataRefreshService dataRefreshService) : IRequestHandler<MoveSMChannelsToStreamGroupByM3UFileIdRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(MoveSMChannelsToStreamGroupByM3UFileIdRequest request, CancellationToken cancellationToken)
     {

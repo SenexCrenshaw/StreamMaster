@@ -22,8 +22,6 @@ public interface ISourceBroadcaster : IBroadcasterBase
     public SMStreamInfo SMStreamInfo { get; }
 }
 
-
-
 /// <summary>
 /// Defines the properties and methods for broadcasting channels in StreamMaster.
 /// </summary>
@@ -43,7 +41,6 @@ public interface IBroadcasterBase : IStreamStats, ISourceName
 
     List<IClientConfiguration> GetClientStreamerConfigurations();
     int ClientCount { get; }
-
 
     /// <summary>
     /// Gets the name of the channel.
@@ -72,7 +69,6 @@ public interface IBroadcasterBase : IStreamStats, ISourceName
     ///// </summary>
     //[XmlIgnore]
     //ConcurrentDictionary<string, Stream> ClientStreams { get; }
-
 
     /// <summary>
     /// Sets the source channel.

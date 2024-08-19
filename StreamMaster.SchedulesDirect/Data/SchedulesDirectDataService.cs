@@ -86,7 +86,7 @@ public class SchedulesDirectDataService : ISchedulesDirectDataService
     {
         return SchedulesDirectDatas.GetOrAdd(EPGNumber, (_) =>
         {
-            SchedulesDirectData data = new(logger, EPGNumber);
+            SchedulesDirectData data = new(EPGNumber);
             return data;
         });
     }
@@ -95,7 +95,7 @@ public class SchedulesDirectDataService : ISchedulesDirectDataService
     {
         return SchedulesDirectDatas.GetOrAdd(EPGHelper.SchedulesDirectId, (_) =>
         {
-            SchedulesDirectData data = new(logger, EPGHelper.SchedulesDirectId)
+            SchedulesDirectData data = new(EPGHelper.SchedulesDirectId)
             {
                 EPGNumber = EPGHelper.SchedulesDirectId
             };
@@ -109,7 +109,7 @@ public class SchedulesDirectDataService : ISchedulesDirectDataService
 
         return SchedulesDirectDatas.GetOrAdd(EPGHelper.DummyId, (_) =>
         {
-            SchedulesDirectData data = new(logger, EPGHelper.DummyId)
+            SchedulesDirectData data = new(EPGHelper.DummyId)
             {
                 EPGNumber = EPGHelper.DummyId
             };
@@ -164,7 +164,7 @@ public class SchedulesDirectDataService : ISchedulesDirectDataService
     {
         return CustomStreamDatas.GetOrAdd(EPGHelper.CustomPlayListId, (_) =>
         {
-            CustomStreamData data = new(logger, EPGHelper.CustomPlayListId)
+            CustomStreamData data = new(EPGHelper.CustomPlayListId)
             {
                 EPGNumber = EPGHelper.CustomPlayListId
             };

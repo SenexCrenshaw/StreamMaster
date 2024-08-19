@@ -4,7 +4,7 @@
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record GetChannelGroupsFromSMChannelsRequest() : IRequest<DataResponse<List<ChannelGroupDto>>>;
 
-internal class GetChannelGroupsFromSMChannelsRequestHandler(IRepositoryWrapper Repository, IMapper mapper, IMemoryCache MemoryCache)
+internal class GetChannelGroupsFromSMChannelsRequestHandler(IRepositoryWrapper Repository, IMapper mapper)
     : IRequestHandler<GetChannelGroupsFromSMChannelsRequest, DataResponse<List<ChannelGroupDto>>>
 {
     public async Task<DataResponse<List<ChannelGroupDto>>> Handle(GetChannelGroupsFromSMChannelsRequest request, CancellationToken cancellationToken)

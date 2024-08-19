@@ -2,7 +2,7 @@
 
 public record GetProgrammeNamesDto : IRequest<IEnumerable<ProgrammeNameDto>>;
 
-internal class GetProgrammeNamesDtoHandler(ILogger<GetProgrammeNamesDto> logger, ISender Sender)
+internal class GetProgrammeNamesDtoHandler( ISender Sender)
     : IRequestHandler<GetProgrammeNamesDto, IEnumerable<ProgrammeNameDto>>
 {
     public async Task<IEnumerable<ProgrammeNameDto>> Handle(GetProgrammeNamesDto request, CancellationToken cancellationToken)

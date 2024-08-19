@@ -4,7 +4,7 @@
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record GetHeadendsToViewRequest() : IRequest<DataResponse<List<HeadendToView>>>;
 
-internal class GetHeadendsToViewRequestHandler(ISchedulesDirect schedulesDirect, IOptionsMonitor<SDSettings> intSDSettings)
+internal class GetHeadendsToViewRequestHandler(IOptionsMonitor<SDSettings> intSDSettings)
     : IRequestHandler<GetHeadendsToViewRequest, DataResponse<List<HeadendToView>>>
 {
     private readonly SDSettings sdSettings = intSDSettings.CurrentValue;

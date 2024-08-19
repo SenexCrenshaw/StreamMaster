@@ -41,7 +41,6 @@ namespace StreamMaster.Streams.Plugins
             _settingsMonitor = settingsMonitor;
             _channelReader = channelReader;
 
-
             // Start the background task
             _ = StartVideoInfoLoopAsync(cancellationTokenSource.Token);
         }
@@ -64,7 +63,6 @@ namespace StreamMaster.Streams.Plugins
 
                         if (videoInfo != null)
                         {
-
                             OnVideoInfoUpdated(videoInfo);
                             await Task.Delay(normalDelay, cancellationToken);
                         }
@@ -128,7 +126,6 @@ namespace StreamMaster.Streams.Plugins
 
                 await using Timer timer = new(_ =>
                 {
-
                     if (ffprobeProcess?.HasExited == false)
                     {
                         ffprobeProcess.Kill();
@@ -137,7 +134,6 @@ namespace StreamMaster.Streams.Plugins
 
                 try
                 {
-
                     await using (Stream stdin = ffprobeProcess.StandardInput.BaseStream)
                     {
                         await stdin.WriteAsync(videoMemory, cancellationToken).ConfigureAwait(false);
@@ -164,7 +160,6 @@ namespace StreamMaster.Streams.Plugins
                     string formattedJsonString = JsonSerializer.Serialize(document.RootElement, jsonOptions);
 
                     return new VideoInfo { JsonOutput = formattedJsonString, StreamId = id, StreamName = name, Created = SMDT.UtcNow };
-
                 }
                 finally
                 {
@@ -235,5 +230,4 @@ namespace StreamMaster.Streams.Plugins
             }
         }
     }
-
 }

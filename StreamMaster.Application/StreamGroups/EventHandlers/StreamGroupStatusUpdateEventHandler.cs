@@ -1,9 +1,8 @@
-﻿using StreamMaster.Application.Interfaces;
-using StreamMaster.Application.StreamGroups.Events;
+﻿using StreamMaster.Application.StreamGroups.Events;
 
 namespace StreamMaster.Application.StreamGroups.EventHandlers;
 
-public class StreamGroupStatusUpdateEventHandler(IHubContext<StreamMasterHub, IStreamMasterHub> hubContext) : INotificationHandler<StreamGroupStatusUpdateEvent>
+public class StreamGroupStatusUpdateEventHandler() : INotificationHandler<StreamGroupStatusUpdateEvent>
 {
     public static void Handle(StreamGroupStatusUpdateEvent notification, CancellationToken cancellationToken)
     {

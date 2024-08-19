@@ -12,19 +12,16 @@ public class Programs(ILogger<Programs> logger, IOptionsMonitor<SDSettings> intS
 
     private List<string> programQueue = [];
     private ConcurrentBag<Programme> programResponses = [];
-    private readonly int totalObjects;
-    private readonly int processedObjects;
+     private readonly int processedObjects;
 
     public async Task<bool> BuildAllProgramEntries(CancellationToken cancellationToken)
     {
-
         // reset counters
         programQueue = [];
         programResponses = [];
 
         //sportsEvents = new List<MxfProgram>();
         //IncrementNextStage(mxf.ProgramsToProcess.Count);
-
 
         // fill mxf programs with cached values and queue the rest
         programQueue = [];
@@ -48,7 +45,7 @@ public class Programs(ILogger<Programs> logger, IOptionsMonitor<SDSettings> intS
                     BuildMxfProgram(mxfProgram, sdProgram);
                     //IncrementProgress();
                 }
-                catch (Exception ex)
+                catch (Exception )
                 {
                     programQueue.Add(mxfProgram.ProgramId);
                 }
@@ -130,7 +127,6 @@ public class Programs(ILogger<Programs> logger, IOptionsMonitor<SDSettings> intS
         return ret;
     }
 
-
     private void ProcessProgramResponses()
     {
         // process request response
@@ -166,7 +162,6 @@ public class Programs(ILogger<Programs> logger, IOptionsMonitor<SDSettings> intS
         }
     }
 
-
     private void BuildMxfProgram(MxfProgram mxfProgram, Programme sdProgram)
     {
         // set program flags
@@ -185,7 +180,7 @@ public class Programs(ILogger<Programs> logger, IOptionsMonitor<SDSettings> intS
         }
         else
         {
-            DetermineSeriesInfo(mxfProgram, sdProgram);
+            DetermineSeriesInfo(mxfProgram);
             DetermineEpisodeInfo(mxfProgram, sdProgram);
             CompleteEpisodeTitle(mxfProgram);
         }
@@ -211,7 +206,6 @@ public class Programs(ILogger<Programs> logger, IOptionsMonitor<SDSettings> intS
 
     private void DetermineTitlesAndDescriptions(MxfProgram mxfProgram, Programme sdProgram)
     {
-
         // populate titles
         if (sdProgram.Titles != null)
         {
@@ -221,7 +215,6 @@ public class Programs(ILogger<Programs> logger, IOptionsMonitor<SDSettings> intS
         {
             logger.LogWarning($"Program {sdProgram.ProgramId} is missing required content.");
         }
-
 
         mxfProgram.EpisodeTitle = sdProgram.EpisodeTitle150;
 
@@ -462,7 +455,7 @@ public class Programs(ILogger<Programs> logger, IOptionsMonitor<SDSettings> intS
         }
     }
 
-    private void DetermineSeriesInfo(MxfProgram mxfProgram, Programme sdProgram)
+    private void DetermineSeriesInfo(MxfProgram mxfProgram)
     {
         ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
         // for sports programs that start with "SP", create a series entry based on program title
@@ -504,7 +497,6 @@ public class Programs(ILogger<Programs> logger, IOptionsMonitor<SDSettings> intS
                             string jsonString = JsonSerializer.Serialize(cached);
                             epgCache.UpdateAssetJsonEntry(mxfProgram.ProgramId, jsonString);
                         }
-
                     }
                     catch
                     {
@@ -524,7 +516,6 @@ public class Programs(ILogger<Programs> logger, IOptionsMonitor<SDSettings> intS
                     using StringWriter writer = new();
                     string jsonString = JsonSerializer.Serialize(newEntry);
                     epgCache.AddAsset(mxfProgram.ProgramId, jsonString);
-
                 }
             }
         }
@@ -548,7 +539,7 @@ public class Programs(ILogger<Programs> logger, IOptionsMonitor<SDSettings> intS
             // grab season and episode numbers if available
             foreach (Dictionary<string, ProgramMetadataProvider> providers in sdProgram.Metadata)
             {
-                ProgramMetadataProvider provider = null;
+                ProgramMetadataProvider? provider = null;
                 //if (config.TheTvdbNumbers)
                 //{
                 //    if (providers.TryGetValue("TheTVDB", out provider) || providers.TryGetValue("TVmaze", out provider))
@@ -573,7 +564,6 @@ public class Programs(ILogger<Programs> logger, IOptionsMonitor<SDSettings> intS
             mxfProgram.mxfSeason = schedulesDirectData.FindOrCreateSeason(mxfProgram.mxfSeriesInfo.SeriesId, mxfProgram.SeasonNumber,
                 sdProgram.HasSeasonArtwork ? mxfProgram.ProgramId : null);
 
-
             if (sdsettings.AppendEpisodeDesc || sdsettings.PrefixEpisodeDescription || sdsettings.PrefixEpisodeTitle)
             {
                 mxfProgram.mxfSeason.HideSeasonTitle = true;
@@ -592,7 +582,6 @@ public class Programs(ILogger<Programs> logger, IOptionsMonitor<SDSettings> intS
         {
             return;
         }
-
 
         string se = sdsettings.AlternateSEFormat ? "S{0}:E{1} " : "s{0:D2}e{1:D2} ";
         se = mxfProgram.SeasonNumber != 0
@@ -668,7 +657,6 @@ public class Programs(ILogger<Programs> logger, IOptionsMonitor<SDSettings> intS
             }
 
             mxfProgram.extras.AddOrUpdate("ratings", contentRatings);
-
         }
 
         if (sdProgram.ContentAdvisory != null)
@@ -700,21 +688,20 @@ public class Programs(ILogger<Programs> logger, IOptionsMonitor<SDSettings> intS
 
     private void DetermineCastAndCrew(MxfProgram prg, Programme sd)
     {
-
         if (sdsettings.ExcludeCastAndCrew)
         {
             return;
         }
 
-        prg.ActorRole = GetPersons(sd.Cast, new[] { "Actor", "Voice", "Judge", "Self" });
-        prg.DirectorRole = GetPersons(sd.Crew, new[] { "Director" });
-        prg.GuestActorRole = GetPersons(sd.Cast, new[] { "Guest" }); // "Guest Star", "Guest"
-        prg.HostRole = GetPersons(sd.Cast, new[] { "Anchor", "Host", "Presenter", "Narrator", "Correspondent" });
-        prg.ProducerRole = GetPersons(sd.Crew, new[] { "Executive Producer" }); // "Producer", "Executive Producer", "Co-Executive Producer"
-        prg.WriterRole = GetPersons(sd.Crew, new[] { "Writer", "Story" }); // "Screenwriter", "Writer", "Co-Writer"
+        prg.ActorRole = GetPersons(sd.Cast, ["Actor", "Voice", "Judge", "Self"]);
+        prg.DirectorRole = GetPersons(sd.Crew, ["Director"]);
+        prg.GuestActorRole = GetPersons(sd.Cast, [  "Guest" ]); // "Guest Star", "Guest"
+        prg.HostRole = GetPersons(sd.Cast, ["Anchor", "Host", "Presenter", "Narrator", "Correspondent" ]);
+        prg.ProducerRole = GetPersons(sd.Crew, [ "Executive Producer" ]); // "Producer", "Executive Producer", "Co-Executive Producer"
+        prg.WriterRole = GetPersons(sd.Crew,["Writer", "Story"]); // "Screenwriter", "Writer", "Co-Writer"
     }
 
-    private List<MxfPersonRank> GetPersons(List<ProgramPerson> persons, string[] roles)
+    private List<MxfPersonRank>? GetPersons(List<ProgramPerson> persons, string[] roles)
     {
         if (persons == null)
         {
@@ -784,7 +771,7 @@ public class Programs(ILogger<Programs> logger, IOptionsMonitor<SDSettings> intS
             return 0;
         }
 
-        double maxValue = (from rating in sdProgramQualityRatings where !string.IsNullOrEmpty(rating.MaxRating) let numerator = double.Parse(rating.Rating, CultureInfo.InvariantCulture) let denominator = double.Parse(rating.MaxRating, CultureInfo.InvariantCulture) select numerator / denominator).Concat(new[] { 0.0 }).Max();
+        double maxValue = (from rating in sdProgramQualityRatings where !string.IsNullOrEmpty(rating.MaxRating) let numerator = double.Parse(rating.Rating, CultureInfo.InvariantCulture) let denominator = double.Parse(rating.MaxRating, CultureInfo.InvariantCulture) select numerator / denominator).Concat([0.0]).Max();
 
         // return rounded number of half stars in a 4 star scale
         return maxValue > 0.0 ? (int)((8.0 * maxValue) + 0.125) : 0;
@@ -794,7 +781,6 @@ public class Programs(ILogger<Programs> logger, IOptionsMonitor<SDSettings> intS
     {
         programQueue = [];
         programResponses = [];
-
     }
 
     public void ClearCache()

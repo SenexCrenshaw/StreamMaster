@@ -80,7 +80,7 @@ namespace StreamMaster.PlayList
 
         private List<CustomPlayList> LoadIntroPlayLists()
         {
-            List<CustomPlayList> playlists = new();
+            List<CustomPlayList> playlists = [];
 
             if (string.IsNullOrWhiteSpace(BuildInfo.IntrosFolder) || !Directory.Exists(BuildInfo.IntrosFolder))
             {
@@ -111,6 +111,10 @@ namespace StreamMaster.PlayList
         {
             string logoName = Path.GetFileNameWithoutExtension(introFileName);
             string? dir = Path.GetDirectoryName(introFileName);
+            if (dir == null)
+            {
+                return "";
+            }
 
             string pngPath = Path.Combine(dir, logoName + ".png");
             if (File.Exists(pngPath))

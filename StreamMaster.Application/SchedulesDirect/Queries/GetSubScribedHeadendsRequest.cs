@@ -6,21 +6,20 @@ namespace StreamMaster.Application.SchedulesDirect.Queries;
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record GetSubScribedHeadendsRequest() : IRequest<DataResponse<List<HeadendDto>>>;
 
-internal class GetHeadendsRequestHandler(ISchedulesDirect schedulesDirect, ISender Sender, IOptionsMonitor<SDSettings> intSDSettings)
+internal class GetHeadendsRequestHandler(ISender Sender, IOptionsMonitor<SDSettings> intSDSettings)
     : IRequestHandler<GetSubScribedHeadendsRequest, DataResponse<List<HeadendDto>>>
 {
-    private static readonly Regex FileNamePattern = new Regex(@"Headends-(?<country>[A-Z]{3})-(?<postalCode>\d{5})\.json", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+    private static readonly Regex FileNamePattern = new(@"Headends-(?<country>[A-Z]{3})-(?<postalCode>\d{5})\.json", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
-    public async Task<HashSet<(string Country, string PostalCode)>> GetCountryAndPostalCodesAsync(string directoryPath)
+    public static HashSet<(string Country, string PostalCode)> GetCountryAndPostalCodes(string directoryPath)
     {
-        DirectoryInfo directoryInfo = new DirectoryInfo(directoryPath);
-        EnumerationOptions enumerationOptions = new EnumerationOptions { MatchCasing = MatchCasing.CaseInsensitive };
-        HashSet<(string Country, string PostalCode)> results = new HashSet<(string Country, string PostalCode)>();
+        DirectoryInfo directoryInfo = new(directoryPath);
+        //EnumerationOptions enumerationOptions = new EnumerationOptions { MatchCasing = MatchCasing.CaseInsensitive };
+        HashSet<(string Country, string PostalCode)> results = [];
 
         FileInfo[] files = directoryInfo.GetFiles("Headends-*.json", SearchOption.AllDirectories);
-        foreach (var file in files)
+        foreach (FileInfo file in files)
         {
-
             Match match = FileNamePattern.Match(file.Name);
             if (match.Success)
             {
@@ -35,15 +34,14 @@ internal class GetHeadendsRequestHandler(ISchedulesDirect schedulesDirect, ISend
 
     public async Task<DataResponse<List<HeadendDto>>> Handle(GetSubScribedHeadendsRequest request, CancellationToken cancellationToken)
     {
-        List<HeadendDto> ret = new();
-        var sdSettings = intSDSettings.CurrentValue;
+        List<HeadendDto> ret = [];
+        SDSettings sdSettings = intSDSettings.CurrentValue;
 
-        var toView = sdSettings.HeadendsToView.Select(a => (a.Country, a.PostalCode)).ToList();
+        List<(string Country, string PostalCode)> toView = sdSettings.HeadendsToView.ConvertAll(a => (a.Country, a.PostalCode));
 
-        foreach (var sd in toView)
+        foreach ((string Country, string PostalCode) sd in toView)
         {
-
-            var results = await Sender.Send(new GetHeadendsByCountryPostalRequest(sd.Country, sd.PostalCode));
+            DataResponse<List<HeadendDto>> results = await Sender.Send(new GetHeadendsByCountryPostalRequest(sd.Country, sd.PostalCode));
             if (!results.IsError)
             {
                 ret.AddRange(results.Data);

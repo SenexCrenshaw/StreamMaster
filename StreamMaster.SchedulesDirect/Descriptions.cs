@@ -50,7 +50,7 @@ public class Descriptions(ILogger<Descriptions> logger, ISchedulesDirectAPIServi
                     using StringReader reader = new(epgCache.GetAsset(seriesId));
                     GenericDescription? cached = JsonSerializer.Deserialize<GenericDescription>(reader.ReadToEnd());
 
-                    if (cached is not null && cached.Code == 0)
+                    if (cached?.Code == 0)
                     {
                         series.ShortDescription = cached.Description100;
                         series.Description = cached.Description1000;
@@ -59,7 +59,6 @@ public class Descriptions(ILogger<Descriptions> logger, ISchedulesDirectAPIServi
                             series.StartAirdate = cached.StartAirdate;
                         }
                     }
-
 
                     //IncrementProgress();
                 }
@@ -143,7 +142,6 @@ public class Descriptions(ILogger<Descriptions> logger, ISchedulesDirectAPIServi
             }
         }
 
-
         logger.LogInformation("Exiting BuildAllGenericSeriesInfoDescriptions(). SUCCESS.");
         seriesDescriptionQueue = []; seriesDescriptionResponses = [];
         epgCache.SaveCache();
@@ -177,9 +175,6 @@ public class Descriptions(ILogger<Descriptions> logger, ISchedulesDirectAPIServi
             });
         }
     }
-
-
-
     private void DownloadGenericSeriesDescriptions(int start = 0)
     {
         // reject 0 requests
@@ -269,7 +264,6 @@ public class Descriptions(ILogger<Descriptions> logger, ISchedulesDirectAPIServi
             using StringWriter writer = new();
             string jsonString = JsonSerializer.Serialize(cached, options);
             epgCache.UpdateAssetJsonEntry(seriesId, jsonString);
-
         }
         catch
         {
@@ -297,5 +291,4 @@ public class Descriptions(ILogger<Descriptions> logger, ISchedulesDirectAPIServi
         epgCache.ResetCache();
     }
 }
-
 

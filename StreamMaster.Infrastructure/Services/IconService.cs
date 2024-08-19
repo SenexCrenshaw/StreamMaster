@@ -14,7 +14,7 @@ using System.Diagnostics;
 using System.Web;
 
 namespace StreamMaster.Infrastructure.Services;
-public class IconService(IMapper mapper, IOptionsMonitor<Setting> intSettings, ICustomPlayListBuilder customPlayListBuilder, ILogger<IconService> logger)
+public class IconService(IMapper mapper, ICustomPlayListBuilder customPlayListBuilder, ILogger<IconService> logger)
     : IIconService
 {
     private ConcurrentDictionary<string, IconFileDto> Icons { get; set; } = [];
@@ -40,7 +40,6 @@ public class IconService(IMapper mapper, IOptionsMonitor<Setting> intSettings, I
         }
 
         AddIcon(new IconFileDto { Source = artworkUri, SMFileType = SMFileTypes.SDImage, Name = title });
-
     }
 
     //public void SetIndexes()
@@ -188,10 +187,6 @@ public class IconService(IMapper mapper, IOptionsMonitor<Setting> intSettings, I
         }
 
         List<IconFileDto> test = icons.Where(a => a.Name.Contains("Wick") || a.SMFileType == SMFileTypes.CustomPlayList).ToList();
-        if (test.Count > 0)
-        {
-            int aaa = 1;
-        }
         IOrderedEnumerable<IconFileDto> ret = icons.OrderBy(a => a.Name);
 
         return [.. ret];

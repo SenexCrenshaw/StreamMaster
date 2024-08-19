@@ -4,7 +4,7 @@ namespace StreamMaster.Application.EPG.Queries;
 
 public record GetEPGNameTvgName(string User_Tvg_Name) : IRequest<string?>;
 
-internal class GetEPGNameTvgNameHandler(ILogger<GetEPGNameTvgName> logger, ISender Sender)
+internal class GetEPGNameTvgNameHandler(ISender Sender)
 {
     public async Task<string?> Handle(GetEPGNameTvgName request, CancellationToken cancellationToken = default)
     {

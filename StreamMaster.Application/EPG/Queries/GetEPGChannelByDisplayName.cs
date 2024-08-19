@@ -1,11 +1,9 @@
 ﻿using StreamMaster.Application.Programmes.Queries;
-
-
 namespace StreamMaster.Application.EPG.Queries;
 
 public record GetEPGChannelByDisplayName(string DisplayName) : IRequest<ProgrammeNameDto?>;
 
-internal class GetEPGChannelByDisplayNameHandler(ILogger<GetEPGChannelByDisplayName> logger, ISender Sender)
+internal class GetEPGChannelByDisplayNameHandler(ISender Sender)
     : IRequestHandler<GetEPGChannelByDisplayName, ProgrammeNameDto?>
 {
     public async Task<ProgrammeNameDto?> Handle(GetEPGChannelByDisplayName request, CancellationToken cancellationToken = default)

@@ -11,7 +11,7 @@ using System.Xml.Serialization;
 using static StreamMaster.Domain.Common.GetStreamGroupEPGHandler;
 namespace StreamMaster.Application.StreamGroups;
 
-public class StreamGroupService(ILogger<StreamGroupService> _logger, IMapper _mapper, IRepositoryWrapper repositoryWrapper, ISchedulesDirectDataService _schedulesDirectDataService, IIconHelper _iconHelper, IEPGHelper _epgHelper, ICryptoService _cryptoService, IOptionsMonitor<CommandProfileDict> _commandProfileSettings, IOptionsMonitor<Setting> _settings, IMemoryCache _memoryCache, IProfileService _profileService)
+public class StreamGroupService(ILogger<StreamGroupService> _logger, IMapper _mapper, IRepositoryWrapper repositoryWrapper, ISchedulesDirectDataService _schedulesDirectDataService, IIconHelper _iconHelper, IEPGHelper _epgHelper,  IOptionsMonitor<CommandProfileDict> _commandProfileSettings, IOptionsMonitor<Setting> _settings, IMemoryCache _memoryCache, IProfileService _profileService)
     : IStreamGroupService
 {
     private const string DefaultStreamGroupName = "all";
@@ -102,7 +102,6 @@ public class StreamGroupService(ILogger<StreamGroupService> _logger, IMapper _ma
 
     public string EncodeStreamGroupIdProfileIdChannelId(StreamGroup streamGroup, int StreamGroupProfileId, int SMChannelId)
     {
-
         Setting settings = _settings.CurrentValue;
 
         string encryptedString = CryptoUtils.EncodeThreeValues(streamGroup.Id, StreamGroupProfileId, SMChannelId, settings.ServerKey, streamGroup.GroupKey);
@@ -290,7 +289,6 @@ public class StreamGroupService(ILogger<StreamGroupService> _logger, IMapper _ma
         //}
         //List<SMChannel> smChannelsOrdered = smChannels.OrderBy(a => a.ChannelNumber).ToList();
 
-
         ISchedulesDirectData dummyData = _schedulesDirectDataService.DummyData();
         await Parallel.ForEachAsync(videoStreamConfigs, async (videoStreamConfig, ct) =>
         {
@@ -420,7 +418,6 @@ public class StreamGroupService(ILogger<StreamGroupService> _logger, IMapper _ma
         string url = request.GetUrlWithPath();
         int maxTuners = await repositoryWrapper.M3UFile.GetM3UMaxStreamCount();
 
-
         StreamGroup? streamGroup = await GetStreamGroupFromSGProfileIdAsync(StreamGroupProfileId);
         if (streamGroup == null)
         {
@@ -471,7 +468,6 @@ public class StreamGroupService(ILogger<StreamGroupService> _logger, IMapper _ma
 
     public async Task<(List<VideoStreamConfig> videoStreamConfigs, StreamGroupProfile streamGroupProfile)> GetStreamGroupVideoConfigs(int streamGroupProfileId)
     {
-
         StreamGroup? streamGroup = await GetStreamGroupFromSGProfileIdAsync(streamGroupProfileId);
         if (streamGroup == null)
         {
@@ -568,7 +564,6 @@ public class StreamGroupService(ILogger<StreamGroupService> _logger, IMapper _ma
         return def;
     }
 
-
     public async Task<StreamGroup?> GetStreamGroupFromNameAsync(string streamGroupName)
     {
         //using IServiceScope scope = _serviceProvider.CreateScope();
@@ -621,7 +616,6 @@ public class StreamGroupService(ILogger<StreamGroupService> _logger, IMapper _ma
         return sg;
     }
 
-
     public async Task<StreamGroup?> GetStreamGroupFromIdAsync(int streamGroupId)
     {
         //IRepositoryWrapper repositoryWrapper = ResolveScopedService<IRepositoryWrapper>();
@@ -629,6 +623,4 @@ public class StreamGroupService(ILogger<StreamGroupService> _logger, IMapper _ma
         //IRepositoryWrapper repositoryWrapper = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
         return await repositoryWrapper.StreamGroup.FirstOrDefaultAsync(a => a.Id == streamGroupId).ConfigureAwait(false);
     }
-
-
 }

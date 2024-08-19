@@ -2,7 +2,7 @@
 
 namespace StreamMaster.Application.Common.Behaviours;
 
-public class PerformanceBehaviour<TRequest, TResponse>(ILogger<TRequest> logger) : IPipelineBehavior<TRequest, TResponse> where TRequest : IRequest<TResponse>
+public class PerformanceBehaviour<TRequest, TResponse>() : IPipelineBehavior<TRequest, TResponse> where TRequest : IRequest<TResponse>
 {
     private readonly Stopwatch _timer = new();
 
@@ -14,8 +14,6 @@ public class PerformanceBehaviour<TRequest, TResponse>(ILogger<TRequest> logger)
         //}
 
         //_timer.Start();
-
-
 
         //_timer.Stop();
 

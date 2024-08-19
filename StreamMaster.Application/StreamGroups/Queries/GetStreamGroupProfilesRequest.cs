@@ -5,12 +5,12 @@
 public record GetStreamGroupProfilesRequest() : IRequest<DataResponse<List<StreamGroupProfile>>>;
 
 [LogExecutionTimeAspect]
-internal class GetStreamGroupProfilesRequestHandler(IRepositoryWrapper Repository, IMapper mapper)
+internal class GetStreamGroupProfilesRequestHandler(IRepositoryWrapper Repository)
     : IRequestHandler<GetStreamGroupProfilesRequest, DataResponse<List<StreamGroupProfile>>>
 {
     public async Task<DataResponse<List<StreamGroupProfile>>> Handle(GetStreamGroupProfilesRequest request, CancellationToken cancellationToken = default)
     {
-        var streamGroups = Repository.StreamGroup.GetQuery().SelectMany(a => a.StreamGroupProfiles).OrderBy(a => a.ProfileName).ToList();
+        List<StreamGroupProfile> streamGroups = Repository.StreamGroup.GetQuery().SelectMany(a => a.StreamGroupProfiles).OrderBy(a => a.ProfileName).ToList();
 
         return DataResponse<List<StreamGroupProfile>>.Success(streamGroups);
     }

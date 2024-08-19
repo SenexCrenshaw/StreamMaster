@@ -20,14 +20,12 @@ namespace StreamMaster.Application.StreamGroups.Queries;
 
 [RequireAll]
 public record GetStreamGroupEPG(int StreamGroupProfileId) : IRequest<string>;
-public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, IProfileService profileService, IStreamGroupService streamGroupService, ISender sender, IEPGHelper epgHelper, IXMLTVBuilder xMLTVBuilder, ILogger<GetStreamGroupEPG> logger, ISchedulesDirectDataService schedulesDirectDataService, IOptionsMonitor<Setting> intSettings)
+public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, IProfileService profileService, IStreamGroupService streamGroupService, IEPGHelper epgHelper, IXMLTVBuilder xMLTVBuilder, ISchedulesDirectDataService schedulesDirectDataService, IOptionsMonitor<Setting> intSettings)
     : IRequestHandler<GetStreamGroupEPG, string>
 {
-
     [LogExecutionTimeAspect]
     public async Task<string> Handle(GetStreamGroupEPG request, CancellationToken cancellationToken)
     {
-
         (List<VideoStreamConfig> videoStreamConfigs, StreamGroupProfile streamGroupProfile) = await streamGroupService.GetStreamGroupVideoConfigs(request.StreamGroupProfileId);
 
         if (videoStreamConfigs is null || streamGroupProfile is null)
@@ -41,7 +39,6 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
 
         foreach (VideoStreamConfig videoStreamConfig in videoStreamConfigs)
         {
-
             videoStreamConfig.IsDummy = epgHelper.IsDummy(videoStreamConfig.EPGId);
 
             if (videoStreamConfig.IsDummy)
@@ -55,10 +52,8 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
             {
                 videoStreamConfig.IsDuplicate = true;
             }
-
         }
         OutputProfileDto outputProfile = profileService.GetOutputProfile(streamGroupProfile.OutputProfileName);
-
 
         XMLTV epgData = xMLTVBuilder.CreateXmlTv(httpContextAccessor.GetUrl(), videoStreamConfigs, outputProfile) ?? new XMLTV();
 
@@ -68,7 +63,6 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
     private string SerializeXMLTVData(XMLTV xmltv)
     {
         Setting settings = intSettings.CurrentValue;
-
 
         XmlSerializerNamespaces ns = new();
         ns.Add("", "");
@@ -97,5 +91,4 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
 
         return xmlText;
     }
-
 }

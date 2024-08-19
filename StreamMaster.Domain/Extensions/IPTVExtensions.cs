@@ -34,12 +34,10 @@ public static partial class IPTVExtensions
 
                     if (line.StartsWith("#EXTINF"))
                     {
-
                         if (segmentBuilder.Length > 0)
                         {
                             if (clientUserAgent != null)
                             {
-
                                 int commadIndex = segmentBuilder.ToString().LastIndexOf(',');
 
                                 segmentBuilder.Insert(commadIndex, $" clientUserAgent=\"{clientUserAgent}\" ");
@@ -95,7 +93,6 @@ public static partial class IPTVExtensions
             {
                 return false;
             }
-
 
             if (vodExclusion.Count > 0)
             {
@@ -173,11 +170,9 @@ public static partial class IPTVExtensions
         return dir.GetRandomFileName(fd.FileExtension);
     }
 
-
     public static SMStream? StringToSMStream(this string bodyline)
     {
         SMStream SMStream = new();
-
 
         string[] lines = bodyline.Replace("\r\n", "\n").Split("\n");
 
@@ -357,7 +352,6 @@ public static partial class IPTVExtensions
 
         return SMStream;
     }
-
 
     [GeneratedRegex(",([^\\n]*|,[^\\r]*)", RegexOptions.IgnoreCase | RegexOptions.Compiled, "en-US")]
     private static partial Regex nameRegex();

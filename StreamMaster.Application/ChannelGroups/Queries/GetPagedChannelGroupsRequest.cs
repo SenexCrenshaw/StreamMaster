@@ -5,7 +5,7 @@
 public record GetPagedChannelGroupsRequest(QueryStringParameters Parameters) : IRequest<PagedResponse<ChannelGroupDto>>;
 
 [LogExecutionTimeAspect]
-internal class GetPagedChannelGroupsQueryHandler(IRepositoryWrapper Repository, ISender Sender, IMapper Mapper, IMemoryCache MemoryCache)
+internal class GetPagedChannelGroupsQueryHandler(IRepositoryWrapper Repository, IMapper Mapper)
     : IRequestHandler<GetPagedChannelGroupsRequest, PagedResponse<ChannelGroupDto>>
 {
     public async Task<PagedResponse<ChannelGroupDto>> Handle(GetPagedChannelGroupsRequest request, CancellationToken cancellationToken)

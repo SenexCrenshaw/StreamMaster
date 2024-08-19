@@ -22,13 +22,11 @@ public class V
     public required string RealUrl { get; set; }
 }
 
-internal class GetVsRequestHandler(ILogger<GetVsRequest> logger, IStreamGroupService streamGroupService, IProfileService profileService, IHttpContextAccessor httpContextAccessor, ISender sender, IRepositoryWrapper repositoryWrapper)
+internal class GetVsRequestHandler(ILogger<GetVsRequest> logger, IStreamGroupService streamGroupService, IHttpContextAccessor httpContextAccessor, ISender sender, IRepositoryWrapper repositoryWrapper)
     : IRequestHandler<GetVsRequest, DataResponse<List<V>>>
 {
-
     public async Task<DataResponse<List<V>>> Handle(GetVsRequest request, CancellationToken cancellationToken)
     {
-
         string baseUrl = httpContextAccessor.GetUrl();
 
         if (request.StreamGroupId.HasValue && !request.StreamGroupProfileId.HasValue)
@@ -61,7 +59,6 @@ internal class GetVsRequestHandler(ILogger<GetVsRequest> logger, IStreamGroupSer
                     DefaultRealUrl = $"{baseUrl}/v/{a.Id}",
                     RealUrl = $"{baseUrl}/v/{sgStreamGroupProfile.Id}/{a.Id}"
                 }));
-
             }
 
             return DataResponse<List<V>>.Success(sgRet);
@@ -103,7 +100,6 @@ internal class GetVsRequestHandler(ILogger<GetVsRequest> logger, IStreamGroupSer
             return DataResponse<List<V>>.Success(allRet);
         }
 
-
         DataResponse<List<SMChannelDto>> smChannels = await sender.Send(new GetStreamGroupSMChannelsRequest(sg.Id), cancellationToken);
         if (smChannels.IsError)
         {
@@ -122,7 +118,6 @@ internal class GetVsRequestHandler(ILogger<GetVsRequest> logger, IStreamGroupSer
             DefaultRealUrl = $"{baseUrl}/v/{a.Id}",
             RealUrl = $"{baseUrl}/v/{sg.Id}/{a.Id}"
         });
-
 
         return DataResponse<List<V>>.Success(ret);
     }

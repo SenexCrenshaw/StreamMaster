@@ -29,7 +29,7 @@
         /// <summary>
         /// Retrieves the client streamer configuration asynchronously by its unique request ID.
         /// </summary>
-        /// <param name="uniqueRequestId">The unique request ID of the client.</param>        
+        /// <param name="uniqueRequestId">The unique request ID of the client.</param>
         /// <returns>The client configuration if found; otherwise, <c>null</c>.</returns>
         IClientConfiguration? GetClientConfiguration(string uniqueRequestId);
 

@@ -4,10 +4,9 @@
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record RemoveCommandProfileRequest(string ProfileName) : IRequest<APIResponse>;
 
-public class RemoveCommandProfileRequestHandler(IOptionsMonitor<CommandProfileDict> intProfileSettings, IDataRefreshService dataRefreshService, ILogger<RemoveCommandProfileRequest> Logger, IMapper Mapper)
+public class RemoveCommandProfileRequestHandler(IOptionsMonitor<CommandProfileDict> intProfileSettings, IDataRefreshService dataRefreshService)
 : IRequestHandler<RemoveCommandProfileRequest, APIResponse>
 {
-
     public async Task<APIResponse> Handle(RemoveCommandProfileRequest request, CancellationToken cancellationToken)
     {
         CommandProfileDict profileSettings = intProfileSettings.CurrentValue;
@@ -27,12 +26,9 @@ public class RemoveCommandProfileRequestHandler(IOptionsMonitor<CommandProfileDi
             _ = profileSettings.CommandProfiles.Remove(request.ProfileName);
 
             SettingsHelper.UpdateSetting(profileSettings);
-
         }
 
         await dataRefreshService.RefreshCommandProfiles();
         return APIResponse.Ok;
-
     }
-
 }

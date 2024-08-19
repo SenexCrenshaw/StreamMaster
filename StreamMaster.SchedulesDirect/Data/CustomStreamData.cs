@@ -3,7 +3,7 @@ using System.Xml.Serialization;
 
 namespace StreamMaster.SchedulesDirect.Data;
 
-public class CustomStreamData(ILogger logger, int EPGNumber) : ICustomStreamData
+public class CustomStreamData(int EPGNumber) : ICustomStreamData
 {
     public int EPGNumber { get; set; } = EPGNumber;
 
@@ -31,7 +31,6 @@ public class CustomStreamData(ILogger logger, int EPGNumber) : ICustomStreamData
         });
         return created ? service : service;
     }
-
 
     public MxfService? GetService(string stationId)
     {
@@ -66,7 +65,6 @@ public class CustomStreamData(ILogger logger, int EPGNumber) : ICustomStreamData
 
         //People.Clear();
 
-
         //Providers.Clear();
 
         //Seasons.Clear();
@@ -75,8 +73,6 @@ public class CustomStreamData(ILogger logger, int EPGNumber) : ICustomStreamData
         //SeriesInfos.Clear();
         //SeriesInfosToProcess.Clear();
         //ScheduleEntries.Clear();
-
-
         //ServicesToProcess.Clear();
     }
 }

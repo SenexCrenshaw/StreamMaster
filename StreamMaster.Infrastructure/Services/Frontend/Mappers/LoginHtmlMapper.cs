@@ -15,7 +15,6 @@ namespace StreamMaster.Infrastructure.Services.Frontend.Mappers
 
         public override async Task<string> Map(string resourceUrl)
         {
-
             HtmlPath = Path.Combine(BuildInfo.StartUpPath, settings.UiFolder, "login.html");
             return HtmlPath;
         }

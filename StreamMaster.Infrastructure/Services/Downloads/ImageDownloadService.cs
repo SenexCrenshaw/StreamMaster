@@ -1,8 +1,6 @@
-﻿using Microsoft.AspNetCore.SignalR;
-using Microsoft.Extensions.Hosting;
+﻿using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using StreamMaster.Application.Hubs;
-using StreamMaster.Application.Interfaces;
+
 using StreamMaster.Domain.Common;
 using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Extensions;
@@ -20,8 +18,6 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
     private readonly ILogger<ImageDownloadService> logger;
     private readonly ISchedulesDirectDataService schedulesDirectDataService;
     private readonly SemaphoreSlim downloadSemaphore;
-    private readonly IOptionsMonitor<Setting> intSettings;
-    private readonly IHubContext<StreamMasterHub, IStreamMasterHub> hubContext;
     private readonly Setting settings;
     private readonly IImageDownloadQueue imageDownloadQueue;
     private readonly ISchedulesDirectAPIService schedulesDirectAPI;
@@ -52,10 +48,10 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
         };
     }
 
-    public ImageDownloadService(ILogger<ImageDownloadService> logger, IOptionsMonitor<SDSettings> intsdsettings, ISchedulesDirectAPIService schedulesDirectAPI, IImageDownloadQueue imageDownloadQueue, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IOptionsMonitor<Setting> intSettings, ISchedulesDirectDataService schedulesDirectDataService)
+    public ImageDownloadService(ILogger<ImageDownloadService> logger, IOptionsMonitor<SDSettings> intsdsettings, ISchedulesDirectAPIService schedulesDirectAPI, IImageDownloadQueue imageDownloadQueue, IOptionsMonitor<Setting> intSettings, ISchedulesDirectDataService schedulesDirectDataService)
     {
         this.logger = logger;
-        this.hubContext = hubContext;
+
         this.schedulesDirectDataService = schedulesDirectDataService;
         this.schedulesDirectAPI = schedulesDirectAPI;
         sdsettings = intsdsettings.CurrentValue;
@@ -63,7 +59,6 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
         settings = intSettings.CurrentValue;
 
         downloadSemaphore = new(settings.MaxConcurrentDownloads);
-
     }
     private readonly SDSettings sdsettings;
 
@@ -77,7 +72,6 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
             }
             _ = StartAsync(CancellationToken.None).ConfigureAwait(false);
             IsActive = true;
-
         }
     }
 
@@ -85,7 +79,6 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
     {
         while (!cancellationToken.IsCancellationRequested && !exitLoop)
         {
-
             if (sdsettings.SDEnabled && !imageDownloadQueue.IsEmpty() && BuildInfo.IsSystemReady)
             {
                 await DownloadImagesAsync(cancellationToken);
@@ -120,7 +113,6 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
                 return false;
             }
 
-
             int maxRetryCount = 1; // Set the maximum number of retries
 
             for (int retryCount = 0; retryCount <= maxRetryCount; retryCount++)
@@ -147,7 +139,6 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
                     ++TotalErrors;
                     return false;
                 }
-
 
                 if (response.StatusCode == HttpStatusCode.TooManyRequests)
                 {
@@ -205,7 +196,6 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
 
         while (!cancellationToken.IsCancellationRequested)
         {
-
             ProgramMetadata? response = imageDownloadQueue.GetNext();
 
             if (response == null)
@@ -269,7 +259,6 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
                         {
                             deq = false;
                         }
-
                     }
                     //catch (Exception ex)
                     //{
@@ -293,16 +282,12 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
             }
             catch (Exception ex)
             {
-
             }
             finally
             {
-
             }
-
         }
     }
-
 
     public void Dispose()
     {

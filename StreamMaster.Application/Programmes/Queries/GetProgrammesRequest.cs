@@ -2,7 +2,7 @@
 
 public record GetProgrammesRequest : IRequest<List<XmltvProgramme>>;
 
-public class GetProgrammesRequestHandler(ILogger<GetProgrammesRequest> logger)
+public class GetProgrammesRequestHandler()
 : IRequestHandler<GetProgrammesRequest, List<XmltvProgramme>>
 {
     public async Task<List<XmltvProgramme>> Handle(GetProgrammesRequest request, CancellationToken cancellationToken)
@@ -12,7 +12,6 @@ public class GetProgrammesRequestHandler(ILogger<GetProgrammesRequest> logger)
         //Setting setting = await GetSettingsAsync();
         //if (setting.SDSettings.SDEnabled)
         //{        
-
 
         //XMLTV? xmltv = schedulesDirect.CreateXmltv(httpContextAccessor.GetUrl());
         //if (xmltv == null)
@@ -53,6 +52,5 @@ public class GetProgrammesRequestHandler(ILogger<GetProgrammesRequest> logger)
         //    }
         //}
 
-        return [];
     }
 }

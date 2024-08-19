@@ -4,7 +4,7 @@
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record ScanForCustomRequest : IRequest<APIResponse>;
 
-public class ScanForCustomPlayListsRequestHandler(ILogger<ScanForCustomRequest> Logger, IOptionsMonitor<CommandProfileDict> optionsOutputProfiles, IOptionsMonitor<Setting> _settings, ICacheManager cacheManager, IStreamGroupService streamGroupService, IIconService iconService, IIntroPlayListBuilder introPlayListBuilder, ICustomPlayListBuilder CustomPlayListBuilder, IRepositoryWrapper Repository)
+public class ScanForCustomPlayListsRequestHandler(IOptionsMonitor<CommandProfileDict> optionsOutputProfiles, IOptionsMonitor<Setting> _settings, ICacheManager cacheManager, IStreamGroupService streamGroupService, IIconService iconService, IIntroPlayListBuilder introPlayListBuilder, ICustomPlayListBuilder CustomPlayListBuilder, IRepositoryWrapper Repository)
     : IRequestHandler<ScanForCustomRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(ScanForCustomRequest command, CancellationToken cancellationToken)
@@ -78,7 +78,6 @@ public class ScanForCustomPlayListsRequestHandler(ILogger<ScanForCustomRequest> 
         List<CustomPlayList> introPlayLists = introPlayListBuilder.GetIntroPlayLists();
         foreach (CustomPlayList customPlayList in introPlayLists)
         {
-
             foreach (CustomStreamNfo nfo in customPlayList.CustomStreamNfos)
             {
                 string streamId = $"{IntroPlayListBuilder.IntroIDPrefix}{nfo.Movie.Title}";

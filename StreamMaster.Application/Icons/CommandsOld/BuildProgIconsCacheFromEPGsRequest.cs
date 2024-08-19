@@ -3,7 +3,7 @@
 public class BuildProgIconsCacheFromEPGsRequest : IRequest<bool>;
 
 [LogExecutionTimeAspect]
-public class BuildProgIconsCacheFromEPGsRequestHandler(ILogger<BuildProgIconsCacheFromEPGsRequest> logger)
+public class BuildProgIconsCacheFromEPGsRequestHandler()
     : IRequestHandler<BuildProgIconsCacheFromEPGsRequest, bool>
 {
     public async Task<bool> Handle(BuildProgIconsCacheFromEPGsRequest command, CancellationToken cancellationToken)
@@ -119,8 +119,6 @@ public class BuildProgIconsCacheFromEPGsRequestHandler(ILogger<BuildProgIconsCac
     //    .AsNoTracking() // Only add this if you're using Entity Framework Core and you don't need to track the entities.
     //    .ToListAsync(cancellationToken: cancellationToken)
     //    .ConfigureAwait(false);
-
-
     //    //List<StreamGroupDto> sgs = await Repositorywrapper.StreamGroupVideoStream.GetStreamGroupVideoStreamIds();
 
     //    //IEnumerable<string> epgids = sgs.SelectMany(x => x.ChildVideoStreams.Select(a => a.User_Tvg_ID)).Distinct();
@@ -148,8 +146,6 @@ public class BuildProgIconsCacheFromEPGsRequestHandler(ILogger<BuildProgIconsCac
     //        {
     //            continue;
     //        }
-
-
     //        string source = HttpUtility.UrlDecode(programme.Icon[0].Src);
     //        string? ext = Path.GetExtension(source);
     //        string name = string.Join("_", programme.Title[0].Text.Split(Path.GetInvalidFileNameChars())) + $".{ext}";

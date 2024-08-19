@@ -5,9 +5,8 @@ using StreamMaster.Application.SMStreams.Queries;
 
 namespace StreamMaster.Application.SMStreams
 {
-    public partial class SMStreamsController(ILogger<SMStreamsController> _logger) : ApiControllerBase, ISMStreamsController
+    public partial class SMStreamsController() : ApiControllerBase, ISMStreamsController
     {
-
         [HttpGet]
         [Route("[action]")]
         public async Task<ActionResult<PagedResponse<SMStreamDto>>> GetPagedSMStreams([FromQuery] QueryStringParameters Parameters)
@@ -71,7 +70,6 @@ namespace StreamMaster.Application.SMStreams
             APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
         }
-
     }
 }
 
@@ -126,6 +124,5 @@ namespace StreamMaster.Application.Hubs
             APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;
         }
-
     }
 }

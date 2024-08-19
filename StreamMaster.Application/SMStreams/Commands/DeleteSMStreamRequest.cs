@@ -5,7 +5,7 @@
 public record DeleteSMStreamRequest(string SMStreamId) : IRequest<APIResponse>;
 
 [LogExecutionTimeAspect]
-public class DeleteSMStreamRequestHandler(ILogger<DeleteSMStreamRequest> Logger, IMessageService messageService, IDataRefreshService dataRefreshService, IRepositoryWrapper Repository)
+public class DeleteSMStreamRequestHandler(IMessageService messageService, IDataRefreshService dataRefreshService, IRepositoryWrapper Repository)
     : IRequestHandler<DeleteSMStreamRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(DeleteSMStreamRequest request, CancellationToken cancellationToken)
@@ -15,13 +15,11 @@ public class DeleteSMStreamRequestHandler(ILogger<DeleteSMStreamRequest> Logger,
             return APIResponse.NotFound;
         }
 
-        var smStream = await Repository.SMStream.FirstOrDefaultAsync(a => a.Id == request.SMStreamId).ConfigureAwait(false);
+        SMStream? smStream = await Repository.SMStream.FirstOrDefaultAsync(a => a.Id == request.SMStreamId).ConfigureAwait(false);
         if (smStream == null)
         {
             return APIResponse.NotFound;
         }
-
-
         Repository.SMStream.Delete(smStream);
         await Repository.SaveAsync().ConfigureAwait(false);
 

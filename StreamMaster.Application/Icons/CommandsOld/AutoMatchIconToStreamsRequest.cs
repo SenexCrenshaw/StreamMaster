@@ -12,7 +12,7 @@ public class AutoMatchIconToStreamsRequestValidator : AbstractValidator<AutoMatc
     }
 }
 
-public class AutoMatchIconToStreamsRequestHandler(ILogger<AutoMatchIconToStreamsRequest> logger, IRepositoryWrapper Repository)
+public class AutoMatchIconToStreamsRequestHandler(IRepositoryWrapper Repository)
     : IRequestHandler<AutoMatchIconToStreamsRequest, IconFileDto?>
 {
     public async Task<IconFileDto?> Handle(AutoMatchIconToStreamsRequest request, CancellationToken cancellationToken)
@@ -22,7 +22,6 @@ public class AutoMatchIconToStreamsRequestHandler(ILogger<AutoMatchIconToStreams
             return null;
         }
 
-
         _ = await Repository.SaveAsync().ConfigureAwait(false);
         //if (videoStreamDtos.Any())
         //{
@@ -31,9 +30,6 @@ public class AutoMatchIconToStreamsRequestHandler(ILogger<AutoMatchIconToStreams
 
         return null;
     }
-
-
-
     private class WeightedMatch
     {
         public required string Name { get; set; }

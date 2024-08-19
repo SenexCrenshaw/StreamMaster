@@ -4,9 +4,8 @@ using StreamMaster.Application.SMMessages.Commands;
 
 namespace StreamMaster.Application.SMMessages
 {
-    public partial class SMMessagesController(ILogger<SMMessagesController> _logger) : ApiControllerBase, ISMMessagesController
+    public partial class SMMessagesController() : ApiControllerBase, ISMMessagesController
     {
-
         [HttpPatch]
         [Route("[action]")]
         public async Task<ActionResult<APIResponse>> SendSMError(SendSMErrorRequest request)
@@ -46,7 +45,6 @@ namespace StreamMaster.Application.SMMessages
             APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
         }
-
     }
 }
 
@@ -83,6 +81,5 @@ namespace StreamMaster.Application.Hubs
             APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;
         }
-
     }
 }

@@ -14,7 +14,7 @@ using System.Diagnostics;
 using System.Globalization;
 
 namespace StreamMaster.SchedulesDirect.Converters;
-public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IOptionsMonitor<OutputProfileDict> intOutputProfileDict, IServiceProvider serviceProvider, ICustomPlayListBuilder customPlayListBuilder, IIconHelper iconHelper, IEPGHelper ePGHelper, ISchedulesDirectDataService schedulesDirectDataService, ILogger<XMLTVBuilder> logger)
+public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IOptionsMonitor<OutputProfileDict> intOutputProfileDict, IServiceProvider serviceProvider, ICustomPlayListBuilder customPlayListBuilder, IIconHelper iconHelper, ISchedulesDirectDataService schedulesDirectDataService, ILogger<XMLTVBuilder> logger)
     : IXMLTVBuilder
 {
     private string _baseUrl = "";
@@ -39,7 +39,6 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IOptionsMon
         _baseUrl = baseUrl;
         try
         {
-
             schedulesDirectDataService.CustomStreamData().ResetLists();
 
             List<MxfService> toProcess = [];
@@ -83,7 +82,6 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IOptionsMon
 
             foreach (VideoStreamConfig videoStreamConfig in videoStreamConfigs.OrderBy(a => a.ChannelNumber))
             {
-
                 MxfService? origService = services.GetMxfService(videoStreamConfig.EPGId);
                 if (origService == null)
                 {
@@ -99,7 +97,6 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IOptionsMon
                         origService.CallSign = callsign;
                     }
                     else
-
                     if (!videoStreamConfig.EPGId.StartsWith(EPGHelper.DummyId.ToString()) && !videoStreamConfig.EPGId.StartsWith(EPGHelper.SchedulesDirectId.ToString()))
                     {
                         origService = schedulesDirectDataService.DummyData().FindOrCreateService(videoStreamConfig.EPGId);
@@ -110,7 +107,6 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IOptionsMon
                     {
                         continue;
                     }
-
                 }
 
                 string stationId = videoStreamConfig.EPGId;
@@ -149,11 +145,9 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IOptionsMon
                     newService.extras.AddOrUpdate("logo", new StationImage
                     {
                         Url = videoStreamConfig.Logo
-
                     });
                 }
                 toProcess.Add(newService);
-
             }
 
             XMLTV xmlTv = new()
@@ -166,7 +160,6 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IOptionsMon
                 Channels = [],
                 Programs = []
             };
-
 
             List<MxfProgram> programs = schedulesDirectDataService.AllPrograms;
 
@@ -191,8 +184,6 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IOptionsMon
         }
         return null;
     }
-
-
     public XMLTV? CreateSDXmlTv(string baseUrl)
     {
         _baseUrl = baseUrl;
@@ -210,7 +201,6 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IOptionsMon
                 Channels = [],
                 Programs = []
             };
-
 
             keywordDict = new ConcurrentDictionary<string, string>(
       schedulesDirectDataService.AllKeywords
@@ -243,14 +233,12 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IOptionsMon
 
             List<MxfProgram> programs = schedulesDirectDataService.GetAllSDPrograms;
 
-
             OutputProfileDto profile = intOutputProfileDict.CurrentValue.GetDefaultProfileDto();
 
             DoPrograms(services, programs.Count, xmlTv, profile);
 
             xmlTv.Channels = [.. xmlTv.Channels.OrderBy(a => a.Id, new NumericStringComparer())];
             xmlTv.Programs = [.. xmlTv.Programs.Where(a => a is not null).OrderBy(a => a.Channel).ThenBy(a => a.StartDateTime)];
-
 
             return xmlTv;
         }
@@ -305,7 +293,7 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IOptionsMon
 
             Parallel.ForEach(services, parallelOptions, service =>
             {
-                VideoStreamConfig? VideoStreamConfig = videoStreamConfigs.FirstOrDefault(a => service.StationId == a.EPGId);
+                VideoStreamConfig? VideoStreamConfig = videoStreamConfigs.Find(a => service.StationId == a.EPGId);
                 XmltvChannel channel = BuildXmltvChannel(service, VideoStreamConfig, outputProfile);
                 xmlTv.Channels.Add(channel);
 
@@ -363,7 +351,7 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IOptionsMon
                 int timeShift = 0;
                 if (videoStreamConfigs is not null)
                 {
-                    VideoStreamConfig? videoStreamConfig = videoStreamConfigs.FirstOrDefault(a => service.StationId == a.EPGId);
+                    VideoStreamConfig? videoStreamConfig = videoStreamConfigs.Find(a => service.StationId == a.EPGId);
                     if (videoStreamConfig is not null)
                     {
                         if (videoStreamConfig?.TimeShift > 0)
@@ -377,7 +365,7 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IOptionsMon
                                 (int epgNumber, string stationId) = videoStreamConfig.EPGId.ExtractEPGNumberAndStationId();
                                 if (epgNumber > 0)
                                 {
-                                    EPGFile? epg = epgs.FirstOrDefault(a => a.EPGNumber == epgNumber);
+                                    EPGFile? epg = epgs.Find(a => a.EPGNumber == epgNumber);
                                     if (epg is not null)
                                     {
                                         timeShift = epg.TimeShift;
@@ -413,9 +401,7 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IOptionsMon
         {
             logger.LogError(ex, "An error occurred while processing channels.");
         }
-
     }
-
 
     #region ========== XMLTV Channels and Functions ==========
     private XmltvChannel BuildXmltvChannel(MxfService mxfService, VideoStreamConfig? VideoStreamConfig, OutputProfileDto outputProfile)
@@ -449,7 +435,6 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IOptionsMon
         };
 
         mxfService.Name ??= mxfService.CallSign;
-
 
         ret.DisplayNames.Add(new XmltvText { Text = mxfService.Name });
         //ret.DisplayNames.Add(new XmltvText { Text = mxfService.CallSign });
@@ -519,7 +504,6 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IOptionsMon
                         Width = mxfService.extras["logo"].Width
                     }
                 ];
-
         }
         return ret;
     }
@@ -530,7 +514,6 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IOptionsMon
     //[LogExecutionTimeAspect]
     public XmltvProgramme BuildXmltvProgram(MxfScheduleEntry scheduleEntry, string channelId, int timeShift)
     {
-
         MxfProgram mxfProgram = scheduleEntry.mxfProgram;
         SDSettings sdsettings = intsdsettings.CurrentValue;
         string descriptionExtended = sdsettings.XmltvExtendedInfoInTitleDescriptions
@@ -569,9 +552,7 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IOptionsMon
                 test.Start = scheduleEntry.StartTime.ToString("yyyyMMddHHmmss", CultureInfo.InvariantCulture);
                 test.Stop = scheduleEntry.StartTime.AddMinutes(scheduleEntry.Duration).ToString("yyyyMMddHHmmss", CultureInfo.InvariantCulture);
 
-
                 mxfProgram.Description = customStreamNfo.Movie.Plot;
-
 
                 string directory = Path.GetDirectoryName(customStreamNfo.VideoFileName);
                 string fanArt = Path.Combine(directory, "poster.jpg");
@@ -584,7 +565,6 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IOptionsMon
                         Src =IconSource
                     }])
                     : null;
-
 
                 mxfProgram.Title = customStreamNfo.Movie.Title;
 
@@ -624,7 +604,6 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IOptionsMon
 
     private static string GetDescriptionExtended(MxfProgram mxfProgram, MxfScheduleEntry scheduleEntry, SDSettings sdsettings)
     {
-
         string descriptionExtended = "";
         if (mxfProgram.IsMovie && mxfProgram.Year > 0)
         {
@@ -673,8 +652,6 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IOptionsMon
         //if (scheduleEntry.IsSap) descriptionExtended += " SAP";
         //if (scheduleEntry.IsSubtitled) descriptionExtended += " SUB";
 
-
-
         if (!string.IsNullOrEmpty(tvRatings[scheduleEntry.TvRating]))
         {
             descriptionExtended += $" {tvRatings[scheduleEntry.TvRating]}";
@@ -693,7 +670,6 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IOptionsMon
         {
             descriptionExtended += $" ({advisories.Trim().TrimEnd(',').Replace(",", ", ")})";
         }
-
 
         if (mxfProgram.IsMovie && mxfProgram.HalfStars > 0)
         {
@@ -856,7 +832,7 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IOptionsMon
             _ = categories.Remove("Kids");
         }
 
-        return categories.Count == 0 ? null : categories.Select(category => new XmltvText { Text = category }).ToList();
+        return categories.Count == 0 ? null : categories.ConvertAll(category => new XmltvText { Text = category });
     }
 
 
@@ -909,7 +885,7 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IOptionsMon
     {
         return !program.IsSports || !program.extras.TryGetValue("teams", out dynamic? value)
             ? (List<XmltvText>?)null
-            : ((List<string>)value).Select(team => new XmltvText { Text = team }).ToList();
+            : ((List<string>)value).ConvertAll(team => new XmltvText { Text = team });
     }
 
     // EpisodeNums
@@ -1120,7 +1096,6 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IOptionsMon
             }
         }
     }
-
 
     private static void AddProgramRatingAdvisory(bool mxfProgramAdvise, List<XmltvRating> list, string advisory)
     {

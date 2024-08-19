@@ -4,7 +4,7 @@
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record RemoveSMStreamFromSMChannelRequest(int SMChannelId, string SMStreamId) : IRequest<APIResponse>;
 
-internal class RemoveSMStreamFromSMChannelRequestHandler(IRepositoryWrapper Repository, ISender Sender, IDataRefreshService dataRefreshService)
+internal class RemoveSMStreamFromSMChannelRequestHandler(IRepositoryWrapper Repository, IDataRefreshService dataRefreshService)
     : IRequestHandler<RemoveSMStreamFromSMChannelRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(RemoveSMStreamFromSMChannelRequest request, CancellationToken cancellationToken)

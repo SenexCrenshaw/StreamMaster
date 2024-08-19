@@ -36,9 +36,7 @@ public partial class SchedulesDirect(
 
     public async Task<APIResponse> SDSync(CancellationToken cancellationToken)
     {
-
         JobStatusManager jobManager = jobStatusService.GetJobManageSDSync(EPGHelper.SchedulesDirectId);
-
 
         try
         {
@@ -48,7 +46,6 @@ public partial class SchedulesDirect(
                 jobManager.SetSuccessful();
                 return APIResponse.Ok;
             }
-
 
             if (!_sdSettings.CurrentValue.SDEnabled)
             {
@@ -76,7 +73,6 @@ public partial class SchedulesDirect(
                 jobManager.SetError();
                 return APIResponse.ErrorWithMessage("SD Check token errored");
             }
-
 
             logger.LogInformation($"DaysToDownload: {_sdSettings.CurrentValue.SDEPGDays}");
 
@@ -239,7 +235,7 @@ public partial class SchedulesDirect(
 
             return cacheEntry != null && (DateTime.Now - cacheEntry.Timestamp) <= CacheDuration ? cacheEntry.Data : default;
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             return default;
         }

@@ -8,11 +8,9 @@ using System.Xml.Serialization;
 
 namespace StreamMaster.SchedulesDirect.Converters;
 
-public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, IOptionsMonitor<Setting> intSettings, ISchedulesDirectDataService schedulesDirectDataService) : IXmltv2Mxf
+public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, ISchedulesDirectDataService schedulesDirectDataService) : IXmltv2Mxf
 {
-    private ISchedulesDirectData schedulesDirectData;
-    private readonly Setting settings = intSettings.CurrentValue;
-
+    private SchedulesDirectData schedulesDirectData;
     private class SeriesEpisodeInfo
     {
         public string TmsId = string.Empty;
@@ -64,7 +62,7 @@ public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, IOptionsMonitor<Setting> intSe
 
     private XMLTV? ConvertToMxf(XMLTV xmlTv, int EPGNumber)
     {
-        schedulesDirectData = new SchedulesDirectData(logger, EPGNumber);
+        schedulesDirectData = new SchedulesDirectData(EPGNumber);
         if (
             !BuildLineupAndChannelServices(xmlTv, EPGNumber) ||
             !BuildScheduleEntries(xmlTv, EPGNumber)
@@ -80,7 +78,6 @@ public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, IOptionsMonitor<Setting> intSe
 
     private bool BuildLineupAndChannelServices(XMLTV xmlTv, int epgNumber, string lineupName = "SM+ Default Lineup Name")
     {
-
         logger.LogInformation("Building lineup and channel services.");
         MxfLineup mxfLineup = schedulesDirectData.FindOrCreateLineup(lineupName.ToUpper().Replace(" ", "-"), lineupName);
 
@@ -107,7 +104,6 @@ public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, IOptionsMonitor<Setting> intSe
                 mxfService.extras.Add("logo", new StationImage
                 {
                     Url = channel.Icons[0].Src,
-
                 });
             }
 
@@ -141,14 +137,12 @@ public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, IOptionsMonitor<Setting> intSe
             {
                 mxfLineup.channels.Add(new MxfChannel(mxfLineup, mxfService));
             }
-
         }
         return true;
     }
 
     private bool BuildScheduleEntries(XMLTV xmlTv, int epgNumber)
     {
-
         logger.LogInformation("Building schedule entries and programs.");
         foreach (XmltvProgramme program in xmlTv.Programs)
         {
@@ -167,49 +161,47 @@ public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, IOptionsMonitor<Setting> intSe
                                           program.Categories.Any(arg => arg?.Text != null && arg.Text.Contains("adventure", StringComparison.OrdinalIgnoreCase));
                     mxfProgram.IsAdultOnly = program.Categories.Any(arg => arg?.Text != null && arg.Text.Contains("adults only", StringComparison.OrdinalIgnoreCase));
                     mxfProgram.IsComedy = program.Categories.Any(arg => arg?.Text != null && arg.Text.Contains("comedy", StringComparison.OrdinalIgnoreCase));
-                    mxfProgram.IsDocumentary = program.Categories.Any(arg => arg?.Text != null && arg.Text.ToLower().Contains("documentary"));
-                    mxfProgram.IsDrama = program.Categories.Any(arg => arg?.Text != null && arg.Text.ToLower().Contains("drama"));
-                    mxfProgram.IsEducational = program.Categories.Any(arg => arg?.Text != null && arg.Text.ToLower().Contains("educational"));
-                    mxfProgram.IsHorror = program.Categories.Any(arg => arg?.Text != null && arg.Text.ToLower().Contains("horror"));
-                    mxfProgram.IsIndy = program.Categories.Any(arg => arg?.Text != null && arg.Text.ToLower().Contains("independent")) ||
-                                        program.Categories.Any(arg => arg?.Text != null && arg.Text.ToLower().Contains("indy"));
-                    mxfProgram.IsKids = program.Categories.Any(arg => arg?.Text != null && arg.Text.ToLower().Contains("kids")) ||
-                                        program.Categories.Any(arg => arg?.Text != null && arg.Text.ToLower().Contains("children"));
-                    mxfProgram.IsMusic = program.Categories.Any(arg => arg?.Text != null && arg.Text.ToLower().Contains("music"));
-                    mxfProgram.IsNews = program.Categories.Any(arg => arg?.Text != null && arg.Text.ToLower().Contains("news"));
-                    mxfProgram.IsReality = program.Categories.Any(arg => arg?.Text != null && arg.Text.ToLower().Contains("reality"));
-                    mxfProgram.IsRomance = program.Categories.Any(arg => arg?.Text != null && arg.Text.ToLower().Contains("romance")) ||
-                                           program.Categories.Any(arg => arg?.Text != null && arg.Text.ToLower().Contains("romantic"));
-                    mxfProgram.IsScienceFiction = program.Categories.Any(arg => arg?.Text != null && arg.Text.ToLower().Contains("science fiction"));
-                    mxfProgram.IsSoap = program.Categories.Any(arg => arg?.Text != null && arg.Text.ToLower().Contains("soap"));
-                    mxfProgram.IsThriller = program.Categories.Any(arg => arg?.Text != null && arg.Text.ToLower().Contains("suspense")) ||
-                                            program.Categories.Any(arg => arg?.Text != null && arg.Text.ToLower().Contains("thriller"));
+                    mxfProgram.IsDocumentary = program.Categories.Any(arg => arg?.Text != null && arg.Text.Contains("documentary", StringComparison.CurrentCultureIgnoreCase));
+                    mxfProgram.IsDrama = program.Categories.Any(arg => arg?.Text != null && arg.Text.Contains("drama", StringComparison.CurrentCultureIgnoreCase));
+                    mxfProgram.IsEducational = program.Categories.Any(arg => arg?.Text != null && arg.Text.Contains("educational", StringComparison.CurrentCultureIgnoreCase));
+                    mxfProgram.IsHorror = program.Categories.Any(arg => arg?.Text != null && arg.Text.Contains("horror", StringComparison.CurrentCultureIgnoreCase));
+                    mxfProgram.IsIndy = program.Categories.Any(arg => arg?.Text != null && arg.Text.Contains("independent", StringComparison.CurrentCultureIgnoreCase)) ||
+                                        program.Categories.Any(arg => arg?.Text != null && arg.Text.Contains("indy", StringComparison.CurrentCultureIgnoreCase));
+                    mxfProgram.IsKids = program.Categories.Any(arg => arg?.Text != null && arg.Text.Contains("kids", StringComparison.CurrentCultureIgnoreCase)) ||
+                                        program.Categories.Any(arg => arg?.Text != null && arg.Text.Contains("children", StringComparison.CurrentCultureIgnoreCase));
+                    mxfProgram.IsMusic = program.Categories.Any(arg => arg?.Text != null && arg.Text.Contains("music", StringComparison.CurrentCultureIgnoreCase));
+                    mxfProgram.IsNews = program.Categories.Any(arg => arg?.Text != null && arg.Text.Contains("news", StringComparison.CurrentCultureIgnoreCase));
+                    mxfProgram.IsReality = program.Categories.Any(arg => arg?.Text != null && arg.Text.Contains("reality", StringComparison.CurrentCultureIgnoreCase));
+                    mxfProgram.IsRomance = program.Categories.Any(arg => arg?.Text != null && arg.Text.Contains("romance", StringComparison.CurrentCultureIgnoreCase)) ||
+                                           program.Categories.Any(arg => arg?.Text != null && arg.Text.Contains("romantic", StringComparison.CurrentCultureIgnoreCase));
+                    mxfProgram.IsScienceFiction = program.Categories.Any(arg => arg?.Text != null && arg.Text.Contains("science fiction", StringComparison.CurrentCultureIgnoreCase));
+                    mxfProgram.IsSoap = program.Categories.Any(arg => arg?.Text != null && arg.Text.Contains("soap", StringComparison.CurrentCultureIgnoreCase));
+                    mxfProgram.IsThriller = program.Categories.Any(arg => arg?.Text != null && arg.Text.Contains("suspense", StringComparison.CurrentCultureIgnoreCase)) ||
+                                            program.Categories.Any(arg => arg?.Text != null && arg.Text.Contains("thriller", StringComparison.CurrentCultureIgnoreCase));
 
                     //mxfProgram.IsSeasonFinale = NOT PART OF XMLTV
-                    mxfProgram.IsSeasonPremiere = program.Premiere?.Text?.ToLower().Contains("season") ?? false;
+                    mxfProgram.IsSeasonPremiere = program.Premiere?.Text?.ToLower().Contains("season", StringComparison.CurrentCultureIgnoreCase) ?? false;
                     //mxfProgram.IsSeriesFinale = NOT PART OF XMLTV
-                    mxfProgram.IsSeriesPremiere = program.Premiere?.Text?.ToLower().Contains("series") ?? false;
+                    mxfProgram.IsSeriesPremiere = program.Premiere?.Text?.ToLower().Contains("series", StringComparison.CurrentCultureIgnoreCase) ?? false;
 
-                    mxfProgram.IsLimitedSeries = program.Categories.Any(arg => arg?.Text != null && arg.Text.ToLower().Contains("limited series"));
-                    mxfProgram.IsMiniseries = program.Categories.Any(arg => arg?.Text != null && arg.Text.ToLower().Contains("miniseries"));
-                    mxfProgram.IsMovie = info.Type?.Equals("MV") ?? (program.Categories.Any(arg => arg?.Text != null && arg.Text.ToLower().Contains("movie")) ||
-                                                                    program.Categories.Any(arg => arg?.Text != null && arg.Text.ToLower().Equals("feature film")));
-                    mxfProgram.IsPaidProgramming = program.Categories.Any(arg => arg?.Text != null && arg.Text.ToLower().Contains("paid programming"));
-                    mxfProgram.IsProgramEpisodic = program.Categories.Any(arg => arg?.Text != null && arg.Text.ToLower().Contains("episodic"));
-                    mxfProgram.IsSerial = program.Categories.Any(arg => arg?.Text != null && arg.Text.ToLower().Contains("serial"));
-                    mxfProgram.IsSeries = (info.SeasonNumber > 0 && info.EpisodeNumber > 0) || program.SubTitles2 != null || (program.Categories.Any(arg => arg?.Text != null && arg.Text.ToLower().Equals("series")) &&
-                                                                                                                               !program.Categories.Any(arg => arg?.Text != null && arg.Text.ToLower().Contains("sports talk")));
-                    mxfProgram.IsShortFilm = program.Categories.Any(arg => arg?.Text != null && arg.Text.ToLower().Equals("short film"));
-                    mxfProgram.IsSpecial = program.Categories.Any(arg => arg?.Text != null && arg.Text.ToLower().Contains("special"));
-                    mxfProgram.IsSports = program.Categories.Any(arg => arg?.Text != null && arg.Text.ToLower().Contains("sports event")) ||
-                                          program.Categories.Any(arg => arg?.Text != null && arg.Text.ToLower().Contains("sports non-event")) ||
-                                          program.Categories.Any(arg => arg?.Text != null && arg.Text.ToLower().Contains("team event")) ||
-                                          program.Categories.Any(arg => arg?.Text != null && arg.Text.ToLower().Contains("sports talk"));
+                    mxfProgram.IsLimitedSeries = program.Categories.Any(arg => arg?.Text != null && arg.Text.Contains("limited series", StringComparison.CurrentCultureIgnoreCase));
+                    mxfProgram.IsMiniseries = program.Categories.Any(arg => arg?.Text != null && arg.Text.Contains("miniseries"));
+                    mxfProgram.IsMovie = info.Type?.Equals("MV") ?? (program.Categories.Any(arg => arg?.Text != null && arg.Text.Contains("movie")) ||
+                                                                    program.Categories.Any(arg => arg?.Text != null && arg.Text.Equals("feature film", StringComparison.OrdinalIgnoreCase)));
+                    mxfProgram.IsPaidProgramming = program.Categories.Any(arg => arg?.Text != null && arg.Text.Contains("paid programming", StringComparison.CurrentCultureIgnoreCase));
+                    mxfProgram.IsProgramEpisodic = program.Categories.Any(arg => arg?.Text != null && arg.Text.Contains("episodic"));
+                    mxfProgram.IsSerial = program.Categories.Any(arg => arg?.Text != null && arg.Text.Contains("serial"));
+                    mxfProgram.IsSeries = (info.SeasonNumber > 0 && info.EpisodeNumber > 0) || program.SubTitles2 != null || (program.Categories.Any(arg => arg?.Text != null && arg.Text.Equals("series", StringComparison.OrdinalIgnoreCase)) &&
+                                                                                                                               !program.Categories.Any(arg => arg?.Text != null && arg.Text.Contains("sports talk")));
+                    mxfProgram.IsShortFilm = program.Categories.Any(arg => arg?.Text != null && arg.Text.Equals("short film", StringComparison.OrdinalIgnoreCase));
+                    mxfProgram.IsSpecial = program.Categories.Any(arg => arg?.Text != null && arg.Text.Contains("special"));
+                    mxfProgram.IsSports = program.Categories.Any(arg => arg?.Text != null && arg.Text.Contains("sports event")) ||
+                                          program.Categories.Any(arg => arg?.Text != null && arg.Text.Contains("sports non-event")) ||
+                                          program.Categories.Any(arg => arg?.Text != null && arg.Text.Contains("team event")) ||
+                                          program.Categories.Any(arg => arg?.Text != null && arg.Text.Contains("sports talk"));
 
                     //mxfProgram.Keywords =
                     DetermineProgramKeywords(mxfProgram, program.Categories.Select(arg => arg.Text ?? "").ToArray());
-
-
                 }
 
                 mxfProgram.Title = program.Titles?.FirstOrDefault(arg => arg?.Text != null)?.Text ?? "";
@@ -228,7 +220,6 @@ public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, IOptionsMonitor<Setting> intSe
                 mxfProgram.OriginalAirdate = !mxfProgram.IsMovie && (program.Date?.Length ?? 0) >= 8 ? $"{program.Date?[..4] ?? ""}-{program.Date?.Substring(4, 2) ?? ""}-{program.Date?.Substring(6, 2) ?? ""}" : !mxfProgram.IsMovie ? "1970-01-01" : $"{DateTime.MinValue}";
                 mxfProgram.HalfStars = mxfProgram.IsMovie ? DetermineHalfStarRatings(program) : 0;
                 mxfProgram.MpaaRating = mxfProgram.IsMovie ? DetermineMpaaRatings(program) : 0;
-
 
                 //mxfProgram.mxfGuideImage =
                 DetermineGuideImage(mxfProgram, program);
@@ -383,6 +374,11 @@ public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, IOptionsMonitor<Setting> intSe
     private static SeriesEpisodeInfo GetSeriesEpisodeInfo(XmltvProgramme xmltvProgramme)
     {
         SeriesEpisodeInfo ret = new();
+        if (xmltvProgramme.EpisodeNums == null)
+        {
+            return ret;
+        }
+
         foreach (XmltvEpisodeNum epNum in xmltvProgramme.EpisodeNums)
         {
             if (epNum.System == null)
@@ -393,7 +389,7 @@ public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, IOptionsMonitor<Setting> intSe
             switch (epNum.System.ToLower())
             {
                 case "dd_progid":
-                    Match m = Regex.Match(epNum.Text, @"(MV|SH|EP|SP)[0-9]{8}.[0-9]{4}");
+                    Match m = Regex.Match(epNum.Text, "(MV|SH|EP|SP)[0-9]{8}.[0-9]{4}");
                     if (m.Length > 0)
                     {
                         ret.TmsId = epNum.Text.ToUpper().Replace(".", "_");
@@ -410,7 +406,7 @@ public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, IOptionsMonitor<Setting> intSe
                     ++ret.EpisodeNumber;
                     _ = int.TryParse(se1[2].Split('/')[0], out ret.PartNumber);
                     ++ret.PartNumber;
-                    if (!se1[2].Contains("/") || !int.TryParse(se1[2].Split('/')[1], out ret.NumberOfParts))
+                    if (!se1[2].Contains('/') || !int.TryParse(se1[2].Split('/')[1], out ret.NumberOfParts))
                     {
                         ret.NumberOfParts = 1;
                     }
@@ -452,19 +448,19 @@ public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, IOptionsMonitor<Setting> intSe
         return (hash & 0x7fffffff).ToString();
     }
 
-    private static int DetermineAudioFormat(XmltvProgramme program)
-    {
-        return program.Audio?.Stereo == null
-            ? 0
-            : program.Audio.Stereo.ToLower() switch
-            {
-                "mono" => 1,
-                "stereo" => 2,
-                "dolby" => 3,
-                "surround" or "dolby digital" => 4,
-                _ => 0,
-            };
-    }
+    //private static int DetermineAudioFormat(XmltvProgramme program)
+    //{
+    //    return program.Audio?.Stereo == null
+    //        ? 0
+    //        : program.Audio.Stereo.ToLower() switch
+    //        {
+    //            "mono" => 1,
+    //            "stereo" => 2,
+    //            "dolby" => 3,
+    //            "surround" or "dolby digital" => 4,
+    //            _ => 0,
+    //        };
+    //}
 
     private static void DetermineRatingAdvisories(MxfProgram mxfProgram, XmltvProgramme xmltvProgramme)
     {
@@ -529,7 +525,6 @@ public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, IOptionsMonitor<Setting> intSe
 
         if (xmltvProgramme.Credits.Actors != null)
         {
-
             foreach (XmltvActor person in xmltvProgramme.Credits.Actors)
             {
                 mxfProgram.ActorRole ??= [];
@@ -619,7 +614,7 @@ public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, IOptionsMonitor<Setting> intSe
         {
             return 0;
         }
-        string? rating = xmltvProgramme.Rating.FirstOrDefault(arg => (arg.System?.Equals("motion picture association of america", StringComparison.OrdinalIgnoreCase) ?? false) ||
+        string? rating = xmltvProgramme.Rating.Find(arg => (arg.System?.Equals("motion picture association of america", StringComparison.OrdinalIgnoreCase) ?? false) ||
                                                              (arg.System?.Equals("mpaa", StringComparison.OrdinalIgnoreCase) ?? false))?.Value;
         return rating == null
             ? 0
@@ -664,57 +659,55 @@ public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, IOptionsMonitor<Setting> intSe
         return 0;
     }
 
-    private static int DetermineTvRatings(XmltvProgramme xmltvProgramme)
-    {
-        if (xmltvProgramme.Rating == null)
-        {
-            return 0;
-        }
+    //private static int DetermineTvRatings(XmltvProgramme xmltvProgramme)
+    //{
+    //    if (xmltvProgramme.Rating == null)
+    //    {
+    //        return 0;
+    //    }
 
-        foreach (XmltvRating rating in xmltvProgramme.Rating)
-        {
-            switch (rating.Value.ToLower())
-            {
-                // usa
-                case "tv-y": case "tvy": return 1;
-                case "tv-y7": case "tvy7": return 2;
-                case "tv-g": case "tvg": return 3;
-                case "tv-pg": case "tvpg": return 4;
-                case "tv-14": case "tv14": return 5;
-                case "tv-ma": case "tvma": return 6;
+    //    foreach (XmltvRating rating in xmltvProgramme.Rating)
+    //    {
+    //        switch (rating.Value.ToLower())
+    //        {
+    //            // usa
+    //            case "tv-y": case "tvy": return 1;
+    //            case "tv-y7": case "tvy7": return 2;
+    //            case "tv-g": case "tvg": return 3;
+    //            case "tv-pg": case "tvpg": return 4;
+    //            case "tv-14": case "tv14": return 5;
+    //            case "tv-ma": case "tvma": return 6;
 
-                // germany
-                case "0": return 7;
-                case "6": return 8;
-                case "12": return 9;
-                case "16": return 10;
-                //case "18": return 11;
+    //            // germany
+    //            case "0": return 7;
+    //            case "6": return 8;
+    //            case "12": return 9;
+    //            case "16": return 10;
+    //            //case "18": return 11;
 
-                // france
-                case "-10": return 13;
-                case "-12": return 14;
-                case "-16": return 15;
-                case "-18": return 16;
+    //            // france
+    //            case "-10": return 13;
+    //            case "-12": return 14;
+    //            case "-16": return 15;
+    //            case "-18": return 16;
 
-                // great britain
-                case "uc": return 22;
-                case "u": return 23;
-                case "pg": return 24;
-                case "12a": return 25;
-                case "15": return 26;
-                case "18": return 27;
-                case "r18": return 28;
-            }
-        }
-        return 0;
-    }
+    //            // great britain
+    //            case "uc": return 22;
+    //            case "u": return 23;
+    //            case "pg": return 24;
+    //            case "12a": return 25;
+    //            case "15": return 26;
+    //            case "18": return 27;
+    //            case "r18": return 28;
+    //        }
+    //    }
+    //    return 0;
+    //}
 
     private void DetermineGuideImage(MxfProgram mxfProgram, XmltvProgramme xmltvProgramme)
     {
-
-        if (xmltvProgramme.Icons == null || !xmltvProgramme.Icons.Any())
+        if (xmltvProgramme.Icons == null || xmltvProgramme.Icons.Count == 0)
         {
-
             return;
         }
 
@@ -725,18 +718,17 @@ public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, IOptionsMonitor<Setting> intSe
             return;
         }
 
-        XmltvIcon? posters = xmltvProgramme.Icons.FirstOrDefault(arg => arg.Width / (double)arg.Height < 0.7);
+        XmltvIcon? posters = xmltvProgramme.Icons.Find(arg => arg.Width / (double)arg.Height < 0.7);
         mxfProgram.mxfGuideImage = posters != null
             ? schedulesDirectData.FindOrCreateGuideImage(posters.Src)
             : schedulesDirectData.FindOrCreateGuideImage(xmltvProgramme.Icons[0].Src);
 
-
-        List<ProgramArtwork> artworks = xmltvProgramme.Icons.Select(arg => new ProgramArtwork
+        List<ProgramArtwork> artworks = xmltvProgramme.Icons.ConvertAll(arg => new ProgramArtwork
         {
             Uri = arg.Src,
             Width = arg.Width,
             Height = arg.Height
-        }).ToList();
+        });
 
         mxfProgram.extras.AddOrUpdate("artwork", artworks);
 

@@ -4,11 +4,9 @@ using System.Text.Json;
 
 namespace StreamMaster.Domain.Models;
 
-
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public class FieldData
 {
-
     public FieldData(string entity, object Parameter, object value)
     {
         string jsonString = JsonSerializer.Serialize(Parameter);
@@ -53,7 +51,6 @@ public class FieldData
 
     public FieldData(Expression<Func<object>> propertyExpression)
     {
-
         (string entity, string id, string propertyName, object value) = ExtractEntityPropertyNameAndValue(propertyExpression);
         Entity = entity;
         Id = id ?? throw new InvalidOperationException("ID cannot be null.");
@@ -76,7 +73,7 @@ public class FieldData
 
         throw new ArgumentException("Invalid property expression", nameof(propertyExpression));
     }
-    private static object ExtractEntityFromMemberExpression(MemberExpression memberExpression)
+    private static object? ExtractEntityFromMemberExpression(MemberExpression memberExpression)
     {
         // Extract the constant expression that represents the target object ('entity')
         if (memberExpression.Expression is ConstantExpression constantExpression)
@@ -93,7 +90,7 @@ public class FieldData
         throw new ArgumentException("Could not determine the target entity from the expression.");
     }
 
-    private static string ExtractAPIName(object entity)
+    private static string? ExtractAPIName(object entity)
     {
         PropertyInfo? idProperty = entity.GetType().GetProperty("APIName");
         return idProperty != null ? (idProperty.GetValue(entity)?.ToString()) : entity.GetType().Name;
@@ -154,4 +151,3 @@ public class FieldData
     public string Field { get; set; }
     public object Value { get; set; }
 }
-

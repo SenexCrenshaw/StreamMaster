@@ -13,14 +13,12 @@ public class StreamGroupSMChannelLinkRepository(ILogger<StreamGroupSMChannelLink
         foreach (int smChannelId in SMChannelIds)
         {
             AddSMChannelToStreamGroupInternal(StreamGroupId, smChannelId);
-
         }
 
         if (skipSave == false)
         {
             await SaveChangesAsync();
         }
-
     }
 
     private void AddSMChannelToStreamGroupInternal(int StreamGroupId, int SMChannelId)
@@ -45,10 +43,9 @@ public class StreamGroupSMChannelLinkRepository(ILogger<StreamGroupSMChannelLink
 
         //Create(link);
 
-
         string sql = $"INSERT INTO public.\"StreamGroupSMChannelLink\" (\"SMChannelId\", \"StreamGroupId\", \"IsReadOnly\", \"Rank\") VALUES ({SMChannelId}, {StreamGroupId}, false, 0);";
 
-        repositoryContext.ExecuteSqlRaw(sql);
+        RepositoryContext.ExecuteSqlRaw(sql);
         //}
         //else
         //{
@@ -125,6 +122,4 @@ public class StreamGroupSMChannelLinkRepository(ILogger<StreamGroupSMChannelLink
             ? base.GetQuery(tracking).Include(a => a.SMChannel)
             : base.GetQuery(tracking).Include(a => a.SMChannel).AsNoTracking();
     }
-
-
 }

@@ -26,7 +26,7 @@ public class CachedConcurrentDictionary<TKey, TValue> where TKey : notnull
         return new ConcurrentDictionary<TKey, TValue>();
     })!;
 
-    public bool TryGetValue(TKey key, out TValue value)
+    public bool TryGetValue(TKey key, out TValue? value)
     {
         return Dictionary.TryGetValue(key, out value);
     }
@@ -36,7 +36,7 @@ public class CachedConcurrentDictionary<TKey, TValue> where TKey : notnull
         return Dictionary.TryAdd(key, value);
     }
 
-    public bool TryRemove(TKey key, out TValue value)
+    public bool TryRemove(TKey key, out TValue? value)
     {
         return Dictionary.TryRemove(key, out value);
     }
@@ -73,12 +73,11 @@ public class CachedConcurrentDictionary<TKey, TValue> where TKey : notnull
     }
     public TValue IncrementValue(TKey key, TValue incrementValue, TValue initialValue)
     {
-        return Dictionary.AddOrUpdate(key, initialValue, (_, oldValue) => (dynamic)oldValue + incrementValue);
+        return Dictionary.AddOrUpdate(key, initialValue, (_, oldValue) => (dynamic?)oldValue + incrementValue);
     }
 
     public TValue DecrementValue(TKey key, TValue decrementValue, TValue initialValue)
     {
-        return Dictionary.AddOrUpdate(key, initialValue, (_, oldValue) => (dynamic)oldValue - decrementValue);
+        return Dictionary.AddOrUpdate(key, initialValue, (_, oldValue) => (dynamic?)oldValue - decrementValue);
     }
-
 }

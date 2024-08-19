@@ -4,11 +4,9 @@
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record RemoveOutputProfileRequest(string Name) : IRequest<APIResponse>;
 
-public class RemoveOutputProfileRequestHandler(IOptionsMonitor<OutputProfileDict> intProfileSettings, IDataRefreshService dataRefreshService, ILogger<RemoveOutputProfileRequest> Logger, IMapper Mapper)
+public class RemoveOutputProfileRequestHandler(IOptionsMonitor<OutputProfileDict> intProfileSettings, IDataRefreshService dataRefreshService, ILogger<RemoveOutputProfileRequest> Logger)
 : IRequestHandler<RemoveOutputProfileRequest, APIResponse>
 {
-
-
     public async Task<APIResponse> Handle(RemoveOutputProfileRequest request, CancellationToken cancellationToken)
     {
         OutputProfileDict profileSettings = intProfileSettings.CurrentValue;
@@ -18,11 +16,9 @@ public class RemoveOutputProfileRequestHandler(IOptionsMonitor<OutputProfileDict
             .Select(kvp => kvp.Key)
             .ToList();
 
-
         if (badNames.Contains(request.Name, StringComparer.OrdinalIgnoreCase))
         {
             return APIResponse.ErrorWithMessage($"Cannot use name {request.Name}");
-
         }
         if (profileSettings.OutputProfiles.TryGetValue(request.Name, out OutputProfile? profile))
         {
@@ -37,7 +33,5 @@ public class RemoveOutputProfileRequestHandler(IOptionsMonitor<OutputProfileDict
         //SettingDto settingsDto = Mapper.Map<SettingDto>(profileSettings);
         //APIResponse.Success(new UpdateSettingResponse { Settings = settingsDto, NeedsLogOut = false });
         return APIResponse.Ok;
-
     }
-
 }

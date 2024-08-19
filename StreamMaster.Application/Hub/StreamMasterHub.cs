@@ -6,8 +6,8 @@ namespace StreamMaster.Application.Hubs;
 public partial class StreamMasterHub(
     ISender Sender,
     IOptionsMonitor<Setting> intSettings,
-    IBackgroundTaskQueue taskQueue,
-    ILogger<StreamMasterHub> _logger
+    IBackgroundTaskQueue taskQueue
+
     )
     : Hub<IStreamMasterHub>
 {

@@ -4,8 +4,7 @@
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record AddSMStreamToSMChannelRequest(int SMChannelId, string SMStreamId, int? Rank) : IRequest<APIResponse>;
 
-
-internal class AddSMStreamToSMChannelRequestHandler(IRepositoryWrapper Repository, ISender Sender, IMapper Mapper, IDataRefreshService dataRefreshService)
+internal class AddSMStreamToSMChannelRequestHandler(IRepositoryWrapper Repository, IDataRefreshService dataRefreshService)
     : IRequestHandler<AddSMStreamToSMChannelRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(AddSMStreamToSMChannelRequest request, CancellationToken cancellationToken)

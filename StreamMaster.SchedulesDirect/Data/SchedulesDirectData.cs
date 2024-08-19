@@ -3,7 +3,7 @@ using System.Xml.Serialization;
 
 namespace StreamMaster.SchedulesDirect.Data;
 
-public partial class SchedulesDirectData(ILogger logger, int EPGNumber) : ISchedulesDirectData
+public partial class SchedulesDirectData(int EPGNumber) : ISchedulesDirectData
 {
     public int EPGNumber { get; set; } = EPGNumber;
 
@@ -59,5 +59,4 @@ public partial class SchedulesDirectData(ILogger logger, int EPGNumber) : ISched
         Services.Clear();
         ServicesToProcess.Clear();
     }
-
 }

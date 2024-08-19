@@ -23,7 +23,6 @@ public class AuthenticationService(ILogger<AuthenticationService> logger, IOptio
 
     private async Task<AuthenticationType> GetAuthMethod()
     {
-
         string AdminPassword = settings.AdminPassword;
         string AdminUserName = settings.AdminUserName;
         AuthenticationType authMethod = AuthenticationType.None;
@@ -38,7 +37,6 @@ public class AuthenticationService(ILogger<AuthenticationService> logger, IOptio
     }
     public async Task<User> Login(HttpRequest request, string username, string password)
     {
-
         string AdminPassword = settings.AdminPassword;
         string AdminUserName = settings.AdminUserName;
         AuthenticationType authMethod = await GetAuthMethod();

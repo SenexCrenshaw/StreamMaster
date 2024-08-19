@@ -52,6 +52,16 @@ public sealed class FileUtil
         return null;
     }
 
+    public static string EncodeToMD5(string url)
+    {
+        if (string.IsNullOrEmpty(url))
+        {
+            throw new ArgumentNullException(nameof(url), "URL cannot be null or empty.");
+        }
+        byte[] hashBytes = System.Security.Cryptography.MD5.HashData(Encoding.UTF8.GetBytes(url));
+        return BitConverter.ToString(hashBytes).Replace("-", "").ToLowerInvariant();
+    }
+
     public static string EncodeToBase64(string url)
     {
         if (string.IsNullOrEmpty(url))
@@ -82,8 +92,6 @@ public sealed class FileUtil
 
         try
         {
-
-
             string? directoryPath = Path.GetDirectoryName(filePath);
 
             if (directoryPath != null && !Directory.Exists(directoryPath))
@@ -119,7 +127,6 @@ public sealed class FileUtil
             throw;
         }
     }
-
 
     private static readonly char[] separator = [' '];
 
@@ -159,7 +166,6 @@ public sealed class FileUtil
     {
         try
         {
-
             XmlSerializer serializer = new(obj.GetType());
             XmlSerializerNamespaces ns = new();
             ns.Add("", "");

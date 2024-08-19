@@ -27,11 +27,13 @@
   <ItemGroup>
     <PackageReference Include="AspectInjector" Version="2.8.2" />
     <PackageReference Include="AutoMapper" Version="13.0.1" />
+    <PackageReference Include="Azure.Identity" Version="1.12.0" />
     <PackageReference Include="EFCore.BulkExtensions" Version="8.1.0" />
     <PackageReference Include="MediatR" Version="12.4.0" />
     <PackageReference Include="MessagePack.Annotations" Version="2.5.172" />
     <PackageReference Include="Microsoft.AspNetCore.DataProtection.EntityFrameworkCore" Version="8.0.8" />
     <PackageReference Include="Reinforced.Typings" Version="1.6.3" />
+    <PackageReference Include="System.Formats.Asn1" Version="8.0.1" />
     <PackageReference Include="System.Linq.Dynamic.Core" Version="1.4.4" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.8" />
     <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="8.0.0" />

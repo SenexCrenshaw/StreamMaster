@@ -25,10 +25,6 @@ public static class SignalRGeneratorDataRefreshAll
 
         foreach (MethodDetails? method in methods.Where(a => a.IsGet && a.ParameterNames == ""))
         {
-            if (method.Name.Contains("GetEPGFilePreviewById"))
-            {
-                var a = 1;
-            }
             content.AppendLine($"  store.dispatch({method.Name}SetIsForced({{ force: true }}));");
         }
 
@@ -49,5 +45,4 @@ public static class SignalRGeneratorDataRefreshAll
         content.AppendLine();
         return content.ToString();
     }
-
 }
