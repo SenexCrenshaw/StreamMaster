@@ -1,6 +1,5 @@
 ﻿using StreamMaster.Domain.Extensions;
 
-using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
@@ -35,7 +34,7 @@ namespace StreamMaster.Domain.Configuration
         public static bool IsFreeBSD => RuntimeInformation.IsOSPlatform(OSPlatform.FreeBSD);
         public static string StartUpPath = new FileInfo(Assembly.GetExecutingAssembly().Location).Directory.FullName;
 
-        public static int DBBatchSize = 200;
+        public const int DBBatchSize = 100;
         public static DateTime StartTime { get; set; }
 
         #region Database Configuration Properties
@@ -46,7 +45,6 @@ namespace StreamMaster.Domain.Configuration
         public static string DBName => GetEnvironmentVariableOrDefault("POSTGRES_DB", "StreamMaster");
 
         public static string DBHost => GetEnvironmentVariableOrDefault("POSTGRES_HOST", "127.0.0.1");
-
 
         /// <summary>
         /// Database user, fetched from environment variable or default if not set.
@@ -109,7 +107,7 @@ namespace StreamMaster.Domain.Configuration
 
         #region File and Directory Path Fields
 
-        public static string AppDataFolder { get; private set; } = IsWindows ? $"c:{Path.DirectorySeparatorChar}config{Path.DirectorySeparatorChar}" : $"{Path.DirectorySeparatorChar}config{Path.DirectorySeparatorChar}";
+        public static string AppDataFolder { get; } = IsWindows ? $"c:{Path.DirectorySeparatorChar}config{Path.DirectorySeparatorChar}" : $"{Path.DirectorySeparatorChar}config{Path.DirectorySeparatorChar}";
         public static readonly string DataFolder = Path.Combine(AppDataFolder, "DB");
         public static readonly string CacheFolder = Path.Combine(AppDataFolder, "Cache");
         public static readonly string LogFolder = Path.Combine(AppDataFolder, "Logs");
@@ -128,7 +126,6 @@ namespace StreamMaster.Domain.Configuration
         public static readonly string BackupFolder = Path.Combine(AppDataFolder, "Backups");
         public static readonly string SettingsFolder = Path.Combine(AppDataFolder, "Settings");
         public static readonly string RestoreFolder = Path.Combine(AppDataFolder, "Restore");
-
 
         public static readonly string CustomPlayListFolder = Path.Combine(AppDataFolder, "CustomPlayList");
 
@@ -164,7 +161,6 @@ namespace StreamMaster.Domain.Configuration
 
         public static List<string> GetSettingFiles()
         {
-
             Type targetType = typeof(BuildInfo);
 
             // Get fields marked with [CreateDir] or named "*Folder"
@@ -185,12 +181,12 @@ namespace StreamMaster.Domain.Configuration
 
         #region Helper Methods
 
-        private static void Log(string format, params object[] args)
-        {
-            string message = string.Format(format, args);
-            Console.WriteLine(message);
-            Debug.WriteLine(message);
-        }
+        //private static void Log(string format, params object[] args)
+        //{
+        //    string message = string.Format(format, args);
+        //    Console.WriteLine(message);
+        //    Debug.WriteLine(message);
+        //}
 
         private static string GetSettingFilePath(string settingFileName, string? folder = null)
         {
@@ -199,7 +195,6 @@ namespace StreamMaster.Domain.Configuration
                 folder = SettingsFolder;
             }
             return Path.Combine(folder, settingFileName);
-
 
             //return File.Exists(Path.Combine(folder, settingFileName)) ? Path.Combine(folder, settingFileName) : settingFileName;
         }
