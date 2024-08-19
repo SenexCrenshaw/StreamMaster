@@ -347,7 +347,7 @@ public static partial class IPTVExtensions
             {
                 return null;
             }
-            SMStream.Id = FileUtil.EncodeToBase64(SMStream.Url);
+            SMStream.Id = FileUtil.EncodeToMD5(SMStream.Url);
         }
 
         return SMStream;

@@ -60,7 +60,7 @@ namespace StreamMaster.PlayList
         public CustomPlayList? GetCustomPlayList(string name)
         {
             List<CustomPlayList> customPlayLists = GetCustomPlayLists();
-            return customPlayLists.Find(x => x.Name == name) ?? customPlayLists.Find(x => FileUtil.EncodeToBase64(x.Name) == name);
+            return customPlayLists.Find(x => x.Name == name) ?? customPlayLists.Find(x => FileUtil.EncodeToMD5(x.Name) == name);
         }
 
         public string GetCustomPlayListLogoFromFileName(string FileName)

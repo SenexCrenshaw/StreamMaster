@@ -5,7 +5,7 @@
 public record UpdateEPGFileRequest(int? EPGNumber, string? Color, int? TimeShift, bool? AutoUpdate, int? HoursToUpdate, int Id, string? Name, string? Url)
     : IRequest<APIResponse>;
 
-public class UpdateEPGFileRequestHandler(ILogger<UpdateEPGFileRequest> logger, IDataRefreshService dataRefreshService, IJobStatusService jobStatusService, IRepositoryWrapper Repository, IHubContext<StreamMasterHub, IStreamMasterHub> HubContext)
+public class UpdateEPGFileRequestHandler(ILogger<UpdateEPGFileRequest> logger, IDataRefreshService dataRefreshService, IJobStatusService jobStatusService, IRepositoryWrapper Repository)
     : IRequestHandler<UpdateEPGFileRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(UpdateEPGFileRequest request, CancellationToken cancellationToken)
@@ -91,11 +91,11 @@ public class UpdateEPGFileRequestHandler(ILogger<UpdateEPGFileRequest> logger, I
             {
                 if (ret.Count > 0)
                 {
-                    await HubContext.Clients.All.SetField(ret).ConfigureAwait(false);
+                    await dataRefreshService.SetField(ret).ConfigureAwait(false);
                 }
                 if (isColorChanged)
                 {
-                    await HubContext.Clients.All.DataRefresh("GetEPGColors");
+                    await dataRefreshService.RefreshEPGColors();
                 }
             }
             jobManager.SetSuccessful();

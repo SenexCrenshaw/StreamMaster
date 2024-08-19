@@ -1,13 +1,11 @@
 ﻿using MediatR;
 
-using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+
 using StreamMaster.Application.EPGFiles.Commands;
 using StreamMaster.Application.EPGFiles.Queries;
-using StreamMaster.Application.Hubs;
-using StreamMaster.Application.Interfaces;
 using StreamMaster.Application.M3UFiles.Commands;
 using StreamMaster.Application.M3UFiles.Queries;
 using StreamMaster.Application.Services;
@@ -17,8 +15,6 @@ using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Dto;
 using StreamMaster.Domain.Enums;
 using StreamMaster.Domain.Helpers;
-using StreamMaster.Domain.Repository;
-using StreamMaster.SchedulesDirect.Domain.Interfaces;
 
 namespace StreamMaster.Infrastructure.Services;
 
@@ -37,7 +33,6 @@ public class TimerService(IServiceProvider serviceProvider, IOptionsMonitor<Sett
 
     public Task StartAsync(CancellationToken cancellationToken)
     {
-
         _timer = new Timer(async state => await DoWorkAsync(state, cancellationToken), null, TimeSpan.Zero, TimeSpan.FromSeconds(5));
 
         return Task.CompletedTask;
@@ -80,13 +75,11 @@ public class TimerService(IServiceProvider serviceProvider, IOptionsMonitor<Sett
 
         using IServiceScope scope = serviceProvider.CreateScope();
         IMediator mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-        IHubContext<StreamMasterHub, IStreamMasterHub> hubContext = scope.ServiceProvider.GetRequiredService<IHubContext<StreamMasterHub, IStreamMasterHub>>();
+        //IHubContext<StreamMasterHub, IStreamMasterHub> hubContext = scope.ServiceProvider.GetRequiredService<IHubContext<StreamMasterHub, IStreamMasterHub>>();
         IBackgroundTaskQueue backgroundTask = scope.ServiceProvider.GetRequiredService<IBackgroundTaskQueue>();
 
-
-        IRepositoryWrapper repository = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
-        ISchedulesDirect schedulesDirect = scope.ServiceProvider.GetRequiredService<ISchedulesDirect>();
-
+        //IRepositoryWrapper repository = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
+        //ISchedulesDirect schedulesDirect = scope.ServiceProvider.GetRequiredService<ISchedulesDirect>();
 
         DateTime now = DateTime.Now;
 
@@ -130,7 +123,7 @@ public class TimerService(IServiceProvider serviceProvider, IOptionsMonitor<Sett
             {
                 jobManager.Start();
                 DataResponse<List<EPGFileDto>> epgFilesToUpdated = await mediator.Send(new GetEPGFilesNeedUpdatingRequest(), cancellationToken).ConfigureAwait(false);
-                if (epgFilesToUpdated.Data.Any())
+                if (epgFilesToUpdated.Data.Count != 0)
                 {
                     logger.LogInformation("EPG Files to update count: {epgFiles.Count()}", epgFilesToUpdated.Count);
 
@@ -154,7 +147,7 @@ public class TimerService(IServiceProvider serviceProvider, IOptionsMonitor<Sett
             {
                 jobManager.Start();
                 DataResponse<List<M3UFileDto>> m3uFilesToUpdated = await mediator.Send(new GetM3UFilesNeedUpdating(), cancellationToken).ConfigureAwait(false);
-                if (m3uFilesToUpdated.Data.Any())
+                if (m3uFilesToUpdated.Data.Count != 0)
                 {
                     logger.LogInformation("M3U Files to update count: {m3uFiles.Count()}", m3uFilesToUpdated.Count);
 

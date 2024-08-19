@@ -62,16 +62,16 @@ public sealed class FileUtil
         return BitConverter.ToString(hashBytes).Replace("-", "").ToLowerInvariant();
     }
 
-    public static string EncodeToBase64(string url)
-    {
-        if (string.IsNullOrEmpty(url))
-        {
-            throw new ArgumentNullException(nameof(url), "URL cannot be null or empty.");
-        }
+    //public static string EncodeToBase64(string url)
+    //{
+    //    if (string.IsNullOrEmpty(url))
+    //    {
+    //        throw new ArgumentNullException(nameof(url), "URL cannot be null or empty.");
+    //    }
 
-        byte[] plainTextBytes = Encoding.UTF8.GetBytes(url);
-        return Convert.ToBase64String(plainTextBytes);
-    }
+    //    byte[] plainTextBytes = Encoding.UTF8.GetBytes(url);
+    //    return Convert.ToBase64String(plainTextBytes);
+    //}
     public static async Task<bool> WaitForFileAsync(string filePath, int timeoutSeconds, int checkIntervalMilliseconds, CancellationToken cancellationToken)
     {
         try

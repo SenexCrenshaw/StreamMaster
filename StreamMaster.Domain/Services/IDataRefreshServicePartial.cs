@@ -2,6 +2,7 @@ namespace StreamMaster.Domain.Services
 {
     public interface IDataRefreshServicePartial
     {
+        Task RefreshEPGColors();
         Task RefreshSelectedStationIds();
         Task RefreshStationPreviews();
         Task RefreshOutputProfiles();

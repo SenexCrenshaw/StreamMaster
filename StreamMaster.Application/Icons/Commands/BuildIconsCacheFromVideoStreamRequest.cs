@@ -1,5 +1,4 @@
-﻿using StreamMaster.Application.Interfaces;
-using StreamMaster.SchedulesDirect.Helpers;
+﻿using StreamMaster.SchedulesDirect.Helpers;
 
 using System.Web;
 
@@ -8,7 +7,7 @@ namespace StreamMaster.Application.Icons.Commands;
 public class BuildIconsCacheFromVideoStreamRequest : IRequest<DataResponse<bool>>;
 
 [LogExecutionTimeAspect]
-public class BuildIconsCacheFromVideoStreamRequestHandler(IIconService iconService, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IRepositoryWrapper Repository)
+public class BuildIconsCacheFromVideoStreamRequestHandler(IIconService iconService, IDataRefreshService dataRefreshService, IRepositoryWrapper Repository)
     : IRequestHandler<BuildIconsCacheFromVideoStreamRequest, DataResponse<bool>>
 {
     public async Task<DataResponse<bool>> Handle(BuildIconsCacheFromVideoStreamRequest command, CancellationToken cancellationToken)
@@ -38,7 +37,7 @@ public class BuildIconsCacheFromVideoStreamRequestHandler(IIconService iconServi
             IconFileDto icon = IconHelper.GetIcon(source, stream.Name, stream.M3UFileId, FileDefinitions.Icon);
             iconService.AddIcon(icon);
         });
-        await hubContext.Clients.All.DataRefresh("GetIcons").ConfigureAwait(false);
+        await dataRefreshService.RefreshIcons();
         return DataResponse.True;
     }
 }

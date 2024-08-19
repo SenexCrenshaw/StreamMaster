@@ -125,6 +125,15 @@ public partial class DataRefreshService : IDataRefreshServicePartial
         await hub.Clients.All.ClearByTag(new ClearByTag(Entity, Tag));
     }
 
+    public async Task RefreshEPGColors()
+    {
+        if (!BuildInfo.IsSystemReady)
+        {
+            return;
+        }
+        await hub.Clients.All.DataRefresh("GetEPGColors");
+    }
+
     public async Task SetField(List<FieldData> fieldData)
     {
         if (!BuildInfo.IsSystemReady)

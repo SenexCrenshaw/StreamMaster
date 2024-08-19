@@ -14,7 +14,7 @@ public class ScanForCustomPlayListsRequestHandler(IOptionsMonitor<CommandProfile
 
         foreach (CustomPlayList customPlayList in customPlayLists)
         {
-            string id = customPlayList.Name;// FileUtil.EncodeToBase64(customPlayList.Name);
+            string id = customPlayList.Name;
             AddIcon(customPlayList);
 
             SMStream? currentStream = await Repository.SMStream.FirstOrDefaultAsync(s => s.Id == id, tracking: true, cancellationToken: cancellationToken);
