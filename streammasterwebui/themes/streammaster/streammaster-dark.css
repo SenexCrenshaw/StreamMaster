@@ -9158,6 +9158,13 @@ div[aria-haspopup=dialog] {
 .sm-datatable td {
   padding: 0;
 }
+.sm-datatable tr[role=row] {
+  transition: background-color 0.3s ease;
+}
+.sm-datatable tr[role=row]:hover {
+  background-color: rgba(86, 86, 86, 0.4745098039);
+  cursor: pointer;
+}
 
 .sm-expander .p-row-toggler {
   height: 1.4rem;

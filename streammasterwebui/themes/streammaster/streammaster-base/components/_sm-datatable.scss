@@ -1,3 +1,5 @@
+$hover-background-color: #56565679;
+
 .sm-datatable {
     border-radius: $borderRadius;
 
@@ -8,6 +10,15 @@
     td {
         padding: 0;
         // border: unset;
+    }
+
+    tr[role="row"] {
+        transition: background-color 0.3s ease;
+
+        &:hover {
+            background-color: $hover-background-color;
+            cursor: pointer; // Optional: changes the cursor to a pointer on hover
+        }
     }
 }
 
