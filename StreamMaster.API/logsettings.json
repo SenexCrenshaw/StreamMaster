@@ -2,27 +2,10 @@
   "Logging": {
     "LogLevel": {
       "Default": "Information",
-      "Microsoft.EntityFrameworkCore.Query": "Information",
       "Microsoft": "Warning",
-      "Microsoft.AspNetCore.SignalR": "Information",
-      "Microsoft.AspNetCore.Http.Connections": "Information",
-      //"Microsoft.AspNetCore.Mvc.Formatters": "Debug",
-      //"System.Xml.Serialization": "Debug",      
-      "StreamMaster.Infrastructure.VideoStreamManager": "Information",
-      "StreamMaster.Application.Common.Interfaces.ICircularRingBuffer": "Information",
-      "StreamMaster.Infrastructure.VideoStreamManager.Buffers.CircularRingBuffer": "Information",
-      "StreamMaster.Infrastructure.VideoStreamManager.Buffers": "Information",
-      "StreamMaster.Infrastructure.Services.Downloads": "Information",
-      "StreamMaster.Logging": "Information",
-      "StreamMaster.Logging.ReadsLogger": "Information",
-      "StreamMaster.Logging.WriteLogger": "Information",
-      "StreamMaster.Streams.Streams.FFMPEGRunner": "Information",
-      "StreamMaster.Logging.StatsLogger": "Information",
-
-      "StreamMaster.Logging.CircularBufferLogger": "Information",
-
-      "StreamMaster.Logging.WaitsLogger": "Information",
-      "StreamMaster.Logging.Dist_Logger": "Information"
+      "Microsoft.AspNetCore.SignalR": "Warning",
+      "Microsoft.AspNetCore.Http.Connections": "Warning",
+      "Microsoft.EntityFrameworkCore.Query": "Warning"
     }
   }
 }
