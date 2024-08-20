@@ -27,8 +27,8 @@ const CancelChannelDialog = (props: { channelId: number }) => {
       title="Cancel Channel?"
       info=""
       tooltip="Cancel Channel"
-      showRemember
-      rememberKey="cancelChannel"
+      // showRemember
+      // rememberKey="cancelChannel"
     />
   );
 };

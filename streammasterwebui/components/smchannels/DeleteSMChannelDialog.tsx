@@ -42,7 +42,7 @@ const DeleteSMChannelDialog = ({ onDelete, smChannel }: DeleteSMChannelPropertie
   return (
     <SMPopUp
       placement={smTableIsSimple ? 'bottom-end' : 'bottom'}
-      rememberKey={'DeleteSMChannelDialog'}
+      // rememberKey={'DeleteSMChannelDialog'}
       title="Delete?"
       info=""
       onOkClick={() => accept()}

@@ -78,7 +78,7 @@ const CloneSMChannelDialog = ({ label, onHide, smChannel }: CloneSMChannelDialog
       icon="pi-clone"
       info=""
       onOkClick={async () => await onSave()}
-      rememberKey={'CloneSMChannelDialog'}
+      // rememberKey={'CloneSMChannelDialog'}
       title="Clone"
     >
       <div className="w-full">

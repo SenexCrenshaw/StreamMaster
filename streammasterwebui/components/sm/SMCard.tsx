@@ -1,6 +1,6 @@
 import CloseButton from '@components/buttons/CloseButton';
 import OKButton from '@components/buttons/OKButton';
-import { useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 import { SMCardProperties } from './Interfaces/SMCardProperties';
 
 interface InternalSMCardProperties extends SMCardProperties {
@@ -33,12 +33,13 @@ export const SMCard = ({
 
   const borderClass = info !== '' ? 'sm-border-bottom' : 'info-header-text';
 
-  useEffect(() => {
-    if (props.answer !== undefined) {
-      props.onAnswered?.();
-      return;
-    }
-  }, [props, props.answer]);
+  // useEffect(() => {
+  //   if (props.answer !== undefined) {
+  //     props.onAnswered?.();
+  //     props.answer = undefined;
+  //     return;
+  //   }
+  // }, [props, props.answer]);
 
   if (simple === true || title === undefined || title === '') {
     return <div>{children}</div>;

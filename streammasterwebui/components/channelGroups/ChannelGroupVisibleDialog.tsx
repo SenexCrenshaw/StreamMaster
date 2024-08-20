@@ -83,7 +83,7 @@ const ChannelGroupVisibleDialog = ({ id, onClose, skipOverLayer = false, value }
       buttonDisabled={selectedItems.length === 0 && !selectAll}
       icon="pi-eye-slash"
       iconFilled
-      rememberKey={'ChannelGroupVisibility'}
+      // rememberKey={'ChannelGroupVisibility'}
       title="TOGGLE VISIBILITY"
       onOkClick={async () => await onVisibleClick()}
     >

@@ -118,10 +118,11 @@ namespace StreamMaster.Streams.Handlers
                 return;
             }
 
-            //if (sourceChannelBroadcaster.Shutdown)
-            //{
-            //    return;
-            //}
+            foreach (IClientConfiguration config in sourceChannelBroadcaster.GetClientStreamerConfigurations())
+            {
+                await UnRegisterClientAsync(config.UniqueRequestId).ConfigureAwait(false);
+            }
+
 
             sourceChannelBroadcaster.Shutdown = true;
             int delay = _settings.CurrentValue.ShutDownDelay;

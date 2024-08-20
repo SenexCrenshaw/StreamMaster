@@ -15,8 +15,6 @@ namespace StreamMaster.Streams.Channels
 
         public ChannelService(
             ILogger<ChannelService> logger,
-            IOptionsMonitor<Setting> settings,
-            IVideoInfoService videoInfoService,
             ISourceBroadcasterService sourceBroadcasterService,
             IChannelBroadcasterService channelBroadcasterService,
             ICacheManager cacheManager,

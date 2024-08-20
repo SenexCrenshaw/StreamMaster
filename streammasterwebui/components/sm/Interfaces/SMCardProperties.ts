@@ -5,7 +5,7 @@ export interface SMCardProperties {
   readonly okButtonDisabled?: boolean;
   readonly closeButtonDisabled?: boolean;
   onCloseClick?: () => void;
-  readonly answer?: boolean;
+  // readonly answer?: boolean;
   readonly center?: React.ReactNode;
   readonly darkBackGround?: boolean;
   readonly noCloseButton?: boolean;
@@ -18,5 +18,5 @@ export interface SMCardProperties {
   readonly simple?: boolean;
   readonly simpleChildren?: boolean;
   readonly title?: string | React.ReactNode | undefined;
-  onAnswered?(): void;
+  // onAnswered?(): void;
 }

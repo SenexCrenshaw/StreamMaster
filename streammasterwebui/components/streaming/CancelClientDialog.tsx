@@ -7,7 +7,7 @@ import { memo } from 'react';
 
 const CancelClientDialog = (props: { clientId: string }) => {
   const cancelClient = () => {
-    const request = { ClientId: props.clientId } as CancelClientRequest;
+    const request = { UniqueRequestId: props.clientId } as CancelClientRequest;
     CancelClient(request)
       .then(() => {})
       .catch(() => {
@@ -24,8 +24,8 @@ const CancelClientDialog = (props: { clientId: string }) => {
       title="Cancel Client?"
       info=""
       tooltip="Cancel Client"
-      showRemember
-      rememberKey="cancelClient"
+      // showRemember
+      // rememberKey="cancelClient"
     />
   );
 };

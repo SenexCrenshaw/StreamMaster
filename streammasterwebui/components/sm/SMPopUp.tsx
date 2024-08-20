@@ -1,5 +1,3 @@
-import BooleanEditor from '@components/inputs/BooleanEditor';
-import { useLocalStorage } from 'primereact/hooks';
 import { forwardRef, useCallback, useImperativeHandle, useRef } from 'react';
 import { SMPopUpProperties } from './Interfaces/SMPopUpProperties';
 import { SMCard } from './SMCard';
@@ -11,10 +9,10 @@ export interface SMPopUpRef {
   show: (event: any) => void;
 }
 
-interface RememberProps {
-  value: boolean;
-  checked: boolean;
-}
+// interface RememberProps {
+//   value: boolean;
+//   checked: boolean;
+// }
 
 const SMPopUp = forwardRef<SMPopUpRef, SMPopUpProperties>(
   (
@@ -26,15 +24,15 @@ const SMPopUp = forwardRef<SMPopUpRef, SMPopUpProperties>(
       isPopupLoading = false,
       onCloseClick,
       onOkClick,
-      rememberKey,
-      showRemember = false,
+      // rememberKey,
+      // showRemember = false,
       ...props
     },
     ref
   ) => {
     const overlayRef = useRef<SMOverlayRef>(null);
-    const [remember, setRemeber] = useLocalStorage<RememberProps | null>(null, 'remember-' + rememberKey);
-    const checked = remember?.checked ? remember.checked : false ?? false;
+    // const [remember, setRemeber] = useLocalStorage<RememberProps | null>(null, 'remember-' + rememberKey);
+    // const checked = remember?.checked ? remember.checked : false ?? false;
 
     const ok = useCallback((): void | undefined => {
       onOkClick?.(); // Call the custom onClick handler if provided
@@ -72,23 +70,24 @@ const SMPopUp = forwardRef<SMPopUpRef, SMPopUpProperties>(
         contentWidthSize={contentWidthSize}
         onOkClick={onOkClick ? ok : undefined}
         onCloseClick={closed}
-        onAnswered={() => {
-          if (rememberKey && rememberKey !== '' && remember !== null) {
-            if (remember.checked === true) {
-              onOkClick && onOkClick();
-              overlayRef.current?.hide();
-            }
-          }
-        }}
-        answer={remember?.checked ? remember?.value : undefined ?? undefined}
+        // onAnswered={() => {
+        //   if (rememberKey && rememberKey !== '' && remember !== null) {
+        //     if (remember.checked === true) {
+        //       onOkClick && onOkClick();
+        //       overlayRef.current?.hide();
+        //     }
+        //   }
+        // }}
+        // answer={remember?.checked ? remember?.value : undefined ?? undefined}
         {...props}
       >
-        {children ||
-          (showRemember && rememberKey && (
+        {
+          children && (
+            // (showRemember && rememberKey && ( */}
             <SMCard>
               <>
                 {children}
-                {showRemember && !props.modal && (
+                {/* {showRemember && !props.modal && (
                   <div className="flex w-full align-items-center justify-content-end pt-1">
                     <div className="sm-border-divider pt-1">
                       <BooleanEditor
@@ -100,10 +99,12 @@ const SMPopUp = forwardRef<SMPopUpRef, SMPopUpProperties>(
                       />
                     </div>
                   </div>
-                )}
+                )} */}
               </>
             </SMCard>
-          ))}
+          )
+          // {/* )) */}
+        }
       </SMOverlay>
     );
   }

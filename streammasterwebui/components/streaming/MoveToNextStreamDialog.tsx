@@ -27,8 +27,8 @@ const MoveToNextStreamDialog = (props: { channelId: number }) => {
       title="Move to next stream"
       info=""
       tooltip="Move to next stream"
-      showRemember
-      rememberKey="simulateChannel"
+      // showRemember
+      // rememberKey="simulateChannel"
     />
   );
 };

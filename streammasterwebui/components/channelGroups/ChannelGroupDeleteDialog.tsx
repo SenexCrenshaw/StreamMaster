@@ -118,7 +118,7 @@ const ChannelGroupDeleteDialog = ({ id, onClose, value }: ChannelGroupDeleteDial
     <SMPopUp
       buttonDisabled={isDisabled}
       iconFilled={value === undefined}
-      rememberKey={'DeleteChannelGroupDialog'}
+      // rememberKey={'DeleteChannelGroupDialog'}
       title="Delete"
       onOkClick={() => onDeleteClick()}
       icon="pi-times"
