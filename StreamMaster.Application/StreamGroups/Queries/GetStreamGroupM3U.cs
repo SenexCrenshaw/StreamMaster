@@ -278,6 +278,12 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
             fieldList.Add($"tvg-name=\"{outputProfile.Name}\"");
         }
 
+
+        if (!string.IsNullOrEmpty(smChannel.StationId))
+        {
+            fieldList.Add($"tvc-guide-stationid=\"{smChannel.StationId}\"");
+        }
+
         //if (profile.EPGId != nameof(ValidM3USetting.NotMapped))
         //{
         //    fieldList.Add($"tvg-id=\"{profile.Id}\"");
@@ -293,6 +299,7 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
             fieldList.Add($"tvg-chno=\"{videoStreamConfig.ChannelNumber}\"");
             fieldList.Add($"channel-number=\"{videoStreamConfig.ChannelNumber}\"");
         }
+
 
         if (outputProfile.EnableGroupTitle)
         {
