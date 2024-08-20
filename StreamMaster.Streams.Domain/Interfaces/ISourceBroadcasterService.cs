@@ -48,5 +48,8 @@ namespace StreamMaster.Streams.Domain.Interfaces
         /// </summary>
         /// <returns>A list of all channel distributors.</returns>
         List<ISourceBroadcaster> GetStreamBroadcasters();
+        //void Stop(string channelBroadcasterId);
+
+        Task UnRegisterChannelBroadcasterAsync(string channelBroadcasterId);
     }
 }

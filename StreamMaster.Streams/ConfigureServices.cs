@@ -40,6 +40,7 @@ public static class ConfigureServices
         services.AddTransient<IVideoCombiner, VideoCombiner>();
         services.AddSingleton<IVideoCombinerService, VideoCombinerService>();
         services.AddSingleton<IStreamLimitsService, StreamLimitsService>();
+        services.AddScoped<IVideoService, VideoService>();
         services.AddSingleton<ICacheManager, CacheManager>();
         return services;
     }

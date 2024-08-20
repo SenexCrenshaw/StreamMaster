@@ -14,11 +14,14 @@ public class BroadcasterBase : IBroadcasterBase
 {
     public BroadcasterBase() { ClientStreamerConfigurations = new(); }
 
-    /// <inheritdoc/>
-    //[XmlIgnore]
-    //public ConcurrentDictionary<string, Stream> ClientStreams { get; } = new();
+    /// <inheritdoc/> 
     [XmlIgnore]
     public ConcurrentDictionary<string, IClientConfiguration> ClientStreamerConfigurations { get; set; } = new();
+
+    /// <inheritdoc/>
+    [XmlIgnore]
+    public ConcurrentDictionary<string, ChannelWriter<byte[]>> ClientChannelWriters { get; } = new();
+
 
     private readonly Meter _meter;
     private readonly Counter<long> _bytesReadCounter;
@@ -49,9 +52,6 @@ public class BroadcasterBase : IBroadcasterBase
         return [.. ClientStreamerConfigurations.Values];
     }
 
-    /// <inheritdoc/>
-    [XmlIgnore]
-    public ConcurrentDictionary<string, ChannelWriter<byte[]>> ClientChannelWriters { get; } = new();
 
     /// <inheritdoc/>
     public bool IsFailed { get; set; } = false;
@@ -101,8 +101,18 @@ public class BroadcasterBase : IBroadcasterBase
             Debug.WriteLine($"Broadcaster had {StringId()} {Name} {ChannelItemBackLog} left");
             _cancellationTokenSource.Cancel();
         }
-        //_currentChannel?.Writer.TryComplete();
+
+        if (!ClientChannelWriters.IsEmpty)
+        {
+            foreach (KeyValuePair<string, System.Threading.Channels.ChannelWriter<byte[]>> client in ClientChannelWriters)
+            {
+
+                RemoveChannelStreamer(client.Key);
+            }
+            return;
+        }
     }
+
 
     //Channels
     /// <inheritdoc/>
@@ -158,10 +168,10 @@ public class BroadcasterBase : IBroadcasterBase
             clientConfiguration.ClientStream?.Dispose();
             clientConfiguration.Response.CompleteAsync().Wait();
 
-            if (ClientChannelWriters.TryRemove(UniqueRequestId, out _))
-            {
-                logger.LogInformation("Remove client streamer: {UniqueRequestId} {Name}", UniqueRequestId, Name);
-            }
+            //if (ClientChannelWriters.TryRemove(UniqueRequestId, out _))
+            //{
+            //    logger.LogInformation("Remove client streamer: {UniqueRequestId} {Name}", UniqueRequestId, Name);
+            //}
             return true;
         }
 
@@ -226,11 +236,11 @@ public class BroadcasterBase : IBroadcasterBase
             bool localInputStreamError = false;
             try
             {
-                byte[] buffer = new byte[8192]; // Buffer size can be adjusted as needed
+                byte[] buffer = new byte[16384];
                 while (!token.IsCancellationRequested)
                 {
                     Stopwatch sw = Stopwatch.StartNew();
-                    //Debug.WriteLine($"ProcessSourceStream stream {Name}");
+
                     int bytesRead = await sourceStream.ReadAsync(buffer, token).ConfigureAwait(false);
                     sw.Stop();
                     if (bytesRead == 0)
@@ -242,7 +252,7 @@ public class BroadcasterBase : IBroadcasterBase
                     await newChannel.Writer.WriteAsync(data, token).ConfigureAwait(false);
                     Interlocked.Increment(ref _channelItemCount);
 
-                    SetMetrics(bytesRead, sw.Elapsed.TotalMilliseconds); // Update metrics with latency
+                    SetMetrics(bytesRead, sw.Elapsed.TotalMilliseconds);
                 }
             }
             catch (OperationCanceledException)

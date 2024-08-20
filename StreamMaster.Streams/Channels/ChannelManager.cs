@@ -92,7 +92,7 @@
         /// <inheritdoc/>
         public async Task CancelClientAsync(string uniqueRequestId)
         {
-            IClientConfiguration? config = channelService.GetClientConfiguration(uniqueRequestId);
+            IClientConfiguration? config = channelService.GetClientStreamerConfiguration(uniqueRequestId);
             if (config != null)
             {
                 await UnRegisterClientAsync(config).ConfigureAwait(false);
@@ -126,7 +126,7 @@
                 return;
             }
 
-            await channelService.CloseChannelAsync(channelStatus, true);
+            await channelService.StopChannelAsync(channelStatus, true);
         }
 
         /// <inheritdoc/>

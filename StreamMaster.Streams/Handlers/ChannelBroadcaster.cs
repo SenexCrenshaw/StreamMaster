@@ -12,6 +12,7 @@ public sealed class ChannelBroadcaster : BroadcasterBase, IChannelBroadcaster, I
     {
         Id = smChannelDto.Id;
         Name = smChannelDto.Name;
+
     }
 
     public event EventHandler<ChannelBroascasterStopped>? OnChannelBroadcasterStoppedEvent;
@@ -73,6 +74,11 @@ public sealed class ChannelBroadcaster : BroadcasterBase, IChannelBroadcaster, I
         //dubcer.DubcerChannels(channel.Reader, dubcerChannel.Writer, CancellationToken.None);
 
         SetSourceChannel(channel.Reader, SourceChannelBroadcaster.Name, CancellationToken.None);
+
+        //if (!SourceChannelBroadcaster.SMStreamInfo.Id.StartsWith(IntroPlayListBuilder.IntroIDPrefix, StringComparison.InvariantCulture))
+        //{
+        //    videoInfoService.SetSourceChannel(SourceChannelBroadcaster, SourceChannelBroadcaster.SMStreamInfo.Url, SourceChannelBroadcaster.SMStreamInfo.Name);
+        //}
         //SetSourceChannel(dubcerChannel.Reader, SourceChannelBroadcaster.Name, CancellationToken.None);
     }
 

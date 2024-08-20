@@ -5,18 +5,14 @@
     /// </summary>
     public interface IChannelService : IDisposable
     {
-        /// <summary>
-        /// Checks for and handles any empty channels asynchronously.
-        /// </summary>
-        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
-        Task CheckForEmptyChannelsAsync(CancellationToken cancellationToken = default);
+
 
         /// <summary>
         /// Closes the specified channel asynchronously.
         /// </summary>
         /// <param name="channelStatus">The status of the channel to close.</param>
         /// <param name="force">Indicates whether to forcefully close the channel.</param>
-        Task CloseChannelAsync(IChannelBroadcaster channelStatus, bool force = false);
+        Task StopChannelAsync(IChannelBroadcaster channelStatus, bool force = false);
 
         /// <summary>
         /// Gets or creates a channel status asynchronously based on the specified client configuration.
@@ -31,7 +27,7 @@
         /// </summary>
         /// <param name="uniqueRequestId">The unique request ID of the client.</param>
         /// <returns>The client configuration if found; otherwise, <c>null</c>.</returns>
-        IClientConfiguration? GetClientConfiguration(string uniqueRequestId);
+        IClientConfiguration? GetClientStreamerConfiguration(string uniqueRequestId);
 
         /// <summary>
         /// Retrieves all client streamer configurations.

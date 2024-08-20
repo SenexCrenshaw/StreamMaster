@@ -23,7 +23,7 @@ namespace StreamMaster.Streams.Plugins
         private readonly ILogger<VideoInfoPlugin> _logger;
         private readonly IOptionsMonitor<Setting> _settingsMonitor;
         private readonly ChannelReader<byte[]> _channelReader;
-
+        private bool _stopRequested;
         private readonly string name;
         private readonly string id;
         private readonly CancellationTokenSource cancellationTokenSource = new();
@@ -55,7 +55,7 @@ namespace StreamMaster.Streams.Plugins
             {
                 await Task.Delay(initialDelay, cancellationToken);
 
-                while (!cancellationToken.IsCancellationRequested)
+                while (!cancellationToken.IsCancellationRequested && !_stopRequested)
                 {
                     try
                     {
@@ -224,10 +224,12 @@ namespace StreamMaster.Streams.Plugins
 
         public void Stop()
         {
-            if (!cancellationTokenSource.IsCancellationRequested)
-            {
-                cancellationTokenSource.Cancel();
-            }
+            //if (!cancellationTokenSource.IsCancellationRequested)
+            //{
+            //    cancellationTokenSource.Cancel();
+            //}
+            _stopRequested = true;
+            _logger.LogInformation("Stop requested for video info plugin {name}", name);
         }
     }
 }

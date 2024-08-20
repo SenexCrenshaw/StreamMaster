@@ -13,7 +13,7 @@ namespace StreamMaster.Streams.Handlers
     /// </remarks>
     /// <param name="logger">Logger for this service.</param>
     /// <param name="channelStatusLogger">Logger for channel status.</param>
-    public class ChannelBroadcasterService(ILogger<ChannelBroadcasterService> logger, ILogger<IChannelBroadcaster> channelStatusLogger)
+    public class ChannelBroadcasterService(ILogger<ChannelBroadcasterService> logger, ICacheManager cacheManager, ILogger<IChannelBroadcaster> channelStatusLogger)
         : IChannelBroadcasterService
     {
         /// <inheritdoc/>
@@ -92,12 +92,95 @@ namespace StreamMaster.Streams.Handlers
             return [.. _sourceChannelBroadcasters.Values];
         }
 
+        private async Task CheckForEmptyBroadcastersAsync(CancellationToken cancellationToken = default)
+        {
+
+            foreach (IChannelBroadcaster? channelBroadcaster in cacheManager.ChannelBroadcasters.Values.Where(a => a.SMStreamInfo != null))
+            {
+                if (channelBroadcaster.ClientChannelWriters.IsEmpty)
+                {
+                    await StopChannelAsync(channelBroadcaster).ConfigureAwait(false);
+                }
+            }
+
+        }
+
+        public async Task StopChannelAsync(IChannelBroadcaster channelBroadcaster, bool force = false)
+        {
+            if (channelBroadcaster.Shutdown)
+            {
+                return;
+            }
+
+            channelBroadcaster.Shutdown = true;
+
+            await UnRegisterChannelAsync(channelBroadcaster).ConfigureAwait(false);
+        }
+
+        public async Task<bool> UnRegisterChannelAfterDelayAsync(IChannelBroadcaster channelBroadcaster, TimeSpan delay, CancellationToken cancellationToken)
+        {
+            await Task.Delay(delay, cancellationToken).ConfigureAwait(false);
+
+            return channelBroadcaster.ClientCount == 0 && channelBroadcaster.SMStreamInfo != null
+                && await UnRegisterChannelAsync(channelBroadcaster).ConfigureAwait(false);
+        }
+
+        public async Task<bool> UnRegisterChannelAsync(IChannelBroadcaster channelBroadcaster)
+        {
+            if (cacheManager.ChannelBroadcasters.TryRemove(channelBroadcaster.SMChannel.Id, out _))
+            {
+
+                //_channelBroadcasterService.StopAndUnRegisterChannelBroadcaster(channelBroadcaster.Id);
+
+                foreach (IClientConfiguration config in channelBroadcaster.GetClientStreamerConfigurations())
+                {
+                    await UnRegisterClientAsync(config.UniqueRequestId).ConfigureAwait(false);
+                }
+
+                channelBroadcaster.Stop();
+                return true;
+            }
+
+            return false;
+        }
+
+
+
+        public async Task<bool> UnRegisterClientAsync(string uniqueRequestId, CancellationToken cancellationToken = default)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            bool removed = false;
+            foreach (IChannelBroadcaster channelBroadcaster in cacheManager.ChannelBroadcasters.Values)
+            {
+                IClientConfiguration? clientConfig = channelBroadcaster.GetClientStreamerConfigurations().Find(config => config.UniqueRequestId == uniqueRequestId);
+
+                if (clientConfig != null)
+                {
+                    if (channelBroadcaster.RemoveClientStreamer(uniqueRequestId))
+                    {
+
+                        logger.LogDebug("Client configuration for {UniqueRequestId} removed", uniqueRequestId);
+                        removed = true;
+                    }
+                }
+            }
+            if (removed)
+            {
+                await CheckForEmptyBroadcastersAsync(cancellationToken).ConfigureAwait(false);
+                return true;
+            }
+
+            logger.LogDebug("Client configuration for {UniqueRequestId} not found", uniqueRequestId);
+            return false;
+        }
+
         /// <inheritdoc/>
         private void OnStoppedEvent(object? sender, ChannelBroascasterStopped e)
         {
             if (sender is IChannelBroadcaster channelBroadcaster)
             {
                 channelBroadcaster.Shutdown = true;
+
                 StopAndUnRegisterChannelBroadcaster(e.Id);
                 _OnChannelBroadcasterStoppedEvent?.Invoke(sender, e);
             }

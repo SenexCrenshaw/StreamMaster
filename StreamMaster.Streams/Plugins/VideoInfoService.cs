@@ -45,14 +45,14 @@ namespace StreamMaster.Streams.Plugins
 
             if (!VideoInfoPlugins.TryGetValue(Id, out VideoInfoPlugin? videoInfoPlugin))
             {
-                logger.LogInformation("Video info service started for {Id}", Id);
+                logger.LogInformation("Video info service started for {Name}", Name);
                 videoInfoPlugin = new VideoInfoPlugin(pluginLogger, intSettings, channelVideoInfo.Reader, Id, Name);
                 videoInfoPlugin.VideoInfoUpdated += OnVideoInfoUpdated;
                 VideoInfoPlugins.TryAdd(Id, videoInfoPlugin);
             }
         }
 
-        public bool RemoveSourceChannel(string Id)
+        public bool RemoveSource(string Id)
         {
             if (VideoInfoPlugins.TryRemove(Id, out VideoInfoPlugin? videoInfoPlugin))
             {

@@ -10,7 +10,7 @@ using System.Xml.Serialization;
 
 namespace StreamMaster.Domain.Models;
 
-public class SMChannel
+public class SMChannel : ISMChannel
 {
     [System.ComponentModel.DataAnnotations.Key]
     public int Id { get; set; }

@@ -11,6 +11,6 @@ namespace StreamMaster.Streams.Domain.Interfaces
         ConcurrentDictionary<string, VideoInfo> VideoInfos { get; }
         bool HasVideoInfo(string key);
         void SetSourceChannel(ISourceBroadcaster sourceChannelBroadcaster, string Id, string Name);
-        bool RemoveSourceChannel(string key);
+        bool RemoveSource(string key);
     }
 }

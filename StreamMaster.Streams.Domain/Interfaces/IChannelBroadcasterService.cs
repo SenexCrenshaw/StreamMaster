@@ -4,7 +4,18 @@ using StreamMaster.Streams.Domain.Events;
 namespace StreamMaster.Streams.Domain.Interfaces
 {
     public interface IChannelBroadcasterService
-    {
+    {        /// <summary>
+             /// Unregisters a client asynchronously by its unique request ID.
+             /// </summary>
+             /// <param name="uniqueRequestId">The unique request ID of the client.</param>
+             /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+             /// <returns><c>true</c> if the client was unregistered successfully; otherwise, <c>false</c>.</returns>
+        Task<bool> UnRegisterClientAsync(string uniqueRequestId, CancellationToken cancellationToken = default);
+
+        Task StopChannelAsync(IChannelBroadcaster channelBroadcaster, bool force = false);
+
+        Task<bool> UnRegisterChannelAfterDelayAsync(IChannelBroadcaster channelBroadcaster, TimeSpan delay, CancellationToken cancellationToken);
+        Task<bool> UnRegisterChannelAsync(IChannelBroadcaster channelBroadcaster);
         /// <summary>
         /// Gets or creates a channel status channel asynchronously.
         /// </summary>

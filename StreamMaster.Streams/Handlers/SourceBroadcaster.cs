@@ -30,4 +30,6 @@ public class SourceBroadcaster : BroadcasterBase, ISourceBroadcaster
     {
         OnStreamBroadcasterStoppedEvent?.Invoke(this, new StreamBroadcasterStopped(Id, Name));
     }
+
+
 }
