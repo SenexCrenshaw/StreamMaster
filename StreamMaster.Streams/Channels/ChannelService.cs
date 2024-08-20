@@ -35,7 +35,7 @@ namespace StreamMaster.Streams.Channels
         {
             if (sender is IChannelBroadcaster channelBroadcaster)
             {
-                _logger.LogInformation("Streaming Stopped Event for channel Id: {StreamName}", e.Name);
+                _logger.LogInformation("Channel Stopped Event for channel Id: {StreamName}", e.Name);
                 if (channelBroadcaster.SMStreamInfo != null)
                 {
                     await _sourceBroadcasterService.UnRegisterChannelBroadcasterAsync(channelBroadcaster.Id);
@@ -65,7 +65,8 @@ namespace StreamMaster.Streams.Channels
                     bool didSwitch = await SwitchChannelToNextStreamAsync(channelBroadcaster).ConfigureAwait(false);
                     if (!didSwitch)
                     {
-                        //await StopChannelAsync(channelBroadcaster).ConfigureAwait(false);
+                        await StopChannel(channelBroadcaster.Id);
+                        // clientConfiguration.Stop();
                     }
                 }
             }
@@ -116,10 +117,7 @@ namespace StreamMaster.Streams.Channels
                 {
                     await StopChannel(channelBroadcaster.Id);
                     clientConfiguration.Stop();
-                    //_channelBroadcasterService.StopBroadcaster(channelBroadcaster.Id);
 
-                    //await _sourceBroadcasterService.UnRegisterChannelBroadcasterAsync(channelBroadcaster.Id);
-                    //await CheckForEmptyBroadcastersAsync().ConfigureAwait(false);
                     return null;
                 }
 
@@ -134,11 +132,6 @@ namespace StreamMaster.Streams.Channels
             {
                 await StopChannel(channelBroadcaster.Id);
                 clientConfiguration.Stop();
-                ////await _channelBroadcasterService.UnRegisterChannelAsync(channelBroadcaster);
-                //_channelBroadcasterService.StopBroadcaster(channelBroadcaster.Id);
-                ////channelBroadcaster.Stop();
-                //await _sourceBroadcasterService.UnRegisterChannelBroadcasterAsync(channelBroadcaster.Id);
-                ////await CheckForEmptyBroadcastersAsync().ConfigureAwait(false);
                 return null;
             }
 
@@ -148,9 +141,7 @@ namespace StreamMaster.Streams.Channels
                 if (!await SwitchChannelToNextStreamAsync(channelBroadcaster).ConfigureAwait(false))
                 {
                     _logger.LogError("SwitchChannelToNextStream failed for {UniqueRequestId} {ChannelVideoStreamId} {name}", clientConfiguration.UniqueRequestId, clientConfiguration.SMChannel.Id, clientConfiguration.SMChannel.Name);
-                    //await _channelBroadcasterService.UnRegisterChannelAsync(channelBroadcaster.Id);
-                    //await _sourceBroadcasterService.UnRegisterChannelBroadcasterAsync(channelBroadcaster.Id);
-                    //await CheckForEmptyBroadcastersAsync().ConfigureAwait(false);
+
                     await StopChannel(channelBroadcaster.Id);
                     clientConfiguration.Stop();
                     return null;

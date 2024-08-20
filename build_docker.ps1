@@ -324,6 +324,8 @@ function Invoke-Build($buildCommand) {
 
     $endTime = Get-Date
     $overallTime = $endTime - $startTime
+     
+    Write-Host "Build completed on: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')"
     Write-Host "`nOverall time taken: $($overallTime.TotalSeconds) seconds"
 }
 
@@ -334,3 +336,4 @@ Main
 
 Write-Host "Tags to be used:"
 $global:tags | ForEach-Object { Write-Host $_ }
+

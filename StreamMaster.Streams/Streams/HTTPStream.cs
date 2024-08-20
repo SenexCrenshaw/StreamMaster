@@ -24,7 +24,7 @@ public class HTTPStream(ILogger<HTTPStream> logger, IHttpClientFactory httpClien
 
             if (response?.IsSuccessStatusCode != true)
             {
-                ProxyStreamError error = new() { ErrorCode = ProxyStreamErrorCode.DownloadError, Message = $"Could not retrieve stream for {sMStreamInfo.Name} {response?.StatusCode}" };
+                ProxyStreamError error = new() { ErrorCode = ProxyStreamErrorCode.DownloadError, Message = $"Could not retrieve stream for {sMStreamInfo.Name} Response Was: \"{response?.StatusCode}\"" };
                 logger.LogError("GetProxyStream Error: {message}", error.Message);
                 return (null, -1, error);
             }

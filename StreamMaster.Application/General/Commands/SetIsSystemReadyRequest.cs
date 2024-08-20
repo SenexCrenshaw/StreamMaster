@@ -2,14 +2,13 @@
 
 public record SetIsSystemReadyRequest(bool IsSystemReady) : IRequest;
 
-public class SetIsSystemReadyRequestHandler(
+public class SetIsSystemReadyRequestHandler(ILogger<SetIsSystemReadyRequest> logger,
     IDataRefreshService dataRefreshService) : IRequestHandler<SetIsSystemReadyRequest>
 {
     public async Task Handle(SetIsSystemReadyRequest request, CancellationToken cancellationToken)
     {
         BuildInfo.IsSystemReady = request.IsSystemReady;
         await dataRefreshService.RefreshSettings(true).ConfigureAwait(false);
-        //await hubContext.Clients.All.DataRefresh("Settings");
-        //await hubContext.Clients.All.SystemStatusUpdate(new SDSystemStatus { IsSystemReady = request.IsSystemReady }).ConfigureAwait(false);
+        logger.LogInformation("System build {build}", BuildInfo.Release);
     }
 }

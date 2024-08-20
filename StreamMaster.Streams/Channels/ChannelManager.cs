@@ -110,10 +110,11 @@
         {
             logger.LogInformation("UnRegister With ChannelManager client: {UniqueRequestId} {name}", config.UniqueRequestId, config.SMChannel.Name);
 
-            if (!await channelService.UnRegisterClientAsync(config.UniqueRequestId))
-            {
-                logger.LogWarning("UnRegisterClientAsync: channelService does not have client: {UniqueRequestId} {name}", config.UniqueRequestId, config.SMChannel.Name);
-            }
+            await channelService.UnRegisterClientAsync(config.UniqueRequestId);
+            //if (!await channelService.UnRegisterClientAsync(config.UniqueRequestId))
+            //{
+            //    logger.LogWarning("UnRegisterClientAsync: channelService does not have client: {UniqueRequestId} {name}", config.UniqueRequestId, config.SMChannel.Name);
+            //}
         }
 
         /// <inheritdoc/>

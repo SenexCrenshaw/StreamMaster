@@ -154,6 +154,7 @@ namespace StreamMaster.Streams.Handlers
                 foreach (IClientConfiguration config in channelBroadcaster.GetClientStreamerConfigurations())
                 {
                     await UnRegisterClientAsync(config.UniqueRequestId).ConfigureAwait(false);
+                    config.Stop();
                 }
 
                 channelBroadcaster.Stop();
@@ -189,6 +190,7 @@ namespace StreamMaster.Streams.Handlers
                     logger.LogDebug("Client configuration for {UniqueRequestId} removed", uniqueRequestId);
                     removed = true;
                 }
+
             }
 
 
