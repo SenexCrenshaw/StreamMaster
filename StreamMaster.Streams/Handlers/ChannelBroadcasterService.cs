@@ -140,8 +140,7 @@ namespace StreamMaster.Streams.Handlers
         {
             await Task.Delay(delay, cancellationToken).ConfigureAwait(false);
 
-            return channelBroadcaster.ClientCount == 0 && channelBroadcaster.SMStreamInfo != null
-                && await UnRegisterChannelAsync(channelBroadcaster.SMChannel.Id).ConfigureAwait(false);
+            return channelBroadcaster.ClientCount == 0 && await UnRegisterChannelAsync(channelBroadcaster.SMChannel.Id).ConfigureAwait(false);
         }
 
         private async Task<bool> UnRegisterChannelAsync(int channelBroadcasterId)

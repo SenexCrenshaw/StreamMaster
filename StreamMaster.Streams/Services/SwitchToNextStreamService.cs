@@ -90,16 +90,17 @@ public sealed class SwitchToNextStreamService(ILogger<SwitchToNextStreamService>
                 ChannelStatus.SMChannel.CurrentRank = (ChannelStatus.SMChannel.CurrentRank + 1) % smStreams.Count;
                 smStream = smStreams[ChannelStatus.SMChannel.CurrentRank];
                 isChannelLimited = streamLimitsService.IsLimited(smStream);
-                if (isChannelLimited)
+                if (!isChannelLimited)
                 {
-                    logger.LogInformation("Set Next for Channel {SourceName}, {Id} {Name}, max Streams reached, trying next in list", ChannelStatus.SourceName, ChannelStatus.SMChannel.Id, ChannelStatus.SMChannel.Name);
-                    return false;
+                    break;
                 }
             }
+
         }
 
         if (smStream == null)
         {
+            logger.LogInformation("Set Next for Channel {SourceName}, {Id} {Name}, max Streams reached, trying next in list", ChannelStatus.SourceName, ChannelStatus.SMChannel.Id, ChannelStatus.SMChannel.Name);
             return false;
         }
         bool isLimited = streamLimitsService.IsLimited(smStream);
