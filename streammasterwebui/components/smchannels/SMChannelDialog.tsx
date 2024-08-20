@@ -46,11 +46,12 @@ const SMChannelDialog = forwardRef<SMChannelDialogRef, SMChannelDialogProperties
       request.Logo !== smChannel.Logo ||
       request.Group !== smChannel.Group ||
       request.CommandProfileName !== smChannel.CommandProfileName ||
+      request.StationId !== smChannel.StationId ||
       // request.ClientUserAgent !== smChannel.cl ||
       request.ChannelNumber !== smChannel.ChannelNumber ||
       request.EPGId !== smChannel.EPGId
     );
-  }, [request.ChannelNumber, request.EPGId, request.Group, request.Logo, request.Name, request.CommandProfileName, smChannel]);
+  }, [smChannel, request.Name, request.Logo, request.Group, request.CommandProfileName, request.StationId, request.ChannelNumber, request.EPGId]);
 
   const doSave = useCallback(() => {
     if (!isSaveEnabled) {
@@ -137,6 +138,15 @@ const SMChannelDialog = forwardRef<SMChannelDialogRef, SMChannelDialogProperties
     [request.CommandProfileName, tempSMChannel]
   );
 
+  const setStationId = useCallback(
+    (value: string) => {
+      if (request.StationId !== value) {
+        setRequest((prevRequest) => ({ ...prevRequest, StationId: value }));
+      }
+    },
+    [request.StationId]
+  );
+
   useEffect(() => {
     onSaveEnabled && onSaveEnabled(isSaveEnabled);
   }, [isSaveEnabled, onSaveEnabled]);
@@ -198,7 +208,6 @@ const SMChannelDialog = forwardRef<SMChannelDialogRef, SMChannelDialogProperties
             <div className="flex w-12 gap-1">
               <div className="w-6 justify-content-start align-items-center">
                 <StringEditor
-                  autoFocus
                   label="Client User Agent"
                   darkBackGround
                   disableDebounce
@@ -207,6 +216,18 @@ const SMChannelDialog = forwardRef<SMChannelDialogRef, SMChannelDialogProperties
                     doSave();
                   }}
                   value={request.ClientUserAgent}
+                />
+              </div>
+              <div className="w-6 justify-content-start align-items-center">
+                <StringEditor
+                  label="Station Id"
+                  darkBackGround
+                  disableDebounce
+                  onChange={(e) => e !== undefined && setStationId(e)}
+                  onSave={() => {
+                    doSave();
+                  }}
+                  value={request.StationId}
                 />
               </div>
             </div>

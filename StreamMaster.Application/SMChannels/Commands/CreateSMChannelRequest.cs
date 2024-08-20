@@ -13,6 +13,7 @@ public record CreateSMChannelRequest(
     int? TimeShift,
     string? Group,
     string? EPGId,
+     string? StationId,
     string? Logo
     ) : IRequest<APIResponse>;
 
@@ -37,6 +38,7 @@ public class CreateSMChannelRequestHandler(ILogger<CreateSMChannelRequest> Logge
                 Group = request.Group ?? "All",
                 EPGId = request.EPGId ?? string.Empty,
                 Logo = request.Logo ?? string.Empty,
+                StationId = request.StationId ?? string.Empty,
                 CommandProfileName = request.CommandProfileName ?? "Default",
                 ClientUserAgent = request.ClientUserAgent
             };

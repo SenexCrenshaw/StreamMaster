@@ -863,6 +863,7 @@ export interface CreateSMChannelRequest
 	Logo?: string;
 	Name: string;
 	SMStreamsIds?: string[];
+	StationId?: string;
 	TimeShift?: number;
 }
 export interface CreateSMChannelsFromStreamParametersRequest
@@ -970,6 +971,7 @@ export interface UpdateSMChannelRequest
 	Logo?: string;
 	Name?: string;
 	SMStreamsIds?: string[];
+	StationId?: string;
 	TimeShift?: number;
 	VideoStreamHandler?: VideoStreamHandlers;
 }
