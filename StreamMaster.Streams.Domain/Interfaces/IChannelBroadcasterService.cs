@@ -4,18 +4,20 @@ using StreamMaster.Streams.Domain.Events;
 namespace StreamMaster.Streams.Domain.Interfaces
 {
     public interface IChannelBroadcasterService
-    {        /// <summary>
-             /// Unregisters a client asynchronously by its unique request ID.
-             /// </summary>
-             /// <param name="uniqueRequestId">The unique request ID of the client.</param>
-             /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
-             /// <returns><c>true</c> if the client was unregistered successfully; otherwise, <c>false</c>.</returns>
+    {
+        /// <summary>
+        /// Unregisters a client asynchronously by its unique request ID.
+        /// </summary>
+        /// <param name="uniqueRequestId">The unique request ID of the client.</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+        /// <returns><c>true</c> if the client was unregistered successfully; otherwise, <c>false</c>.</returns>
         Task<bool> UnRegisterClientAsync(string uniqueRequestId, CancellationToken cancellationToken = default);
 
-        Task StopChannelAsync(IChannelBroadcaster channelBroadcaster, bool force = false);
+        Task StopChannelAsync(IChannelBroadcaster channelBroadcaster);
+        Task StopChannelAsync(int channelBroadcasterId);
 
-        Task<bool> UnRegisterChannelAfterDelayAsync(IChannelBroadcaster channelBroadcaster, TimeSpan delay, CancellationToken cancellationToken);
-        Task<bool> UnRegisterChannelAsync(IChannelBroadcaster channelBroadcaster);
+        //Task<bool> UnRegisterChannelAfterDelayAsync(IChannelBroadcaster channelBroadcaster, TimeSpan delay, CancellationToken cancellationToken);
+        //Task<bool> UnRegisterChannelAsync(int channelBroadcasterId);
         /// <summary>
         /// Gets or creates a channel status channel asynchronously.
         /// </summary>
@@ -41,11 +43,5 @@ namespace StreamMaster.Streams.Domain.Interfaces
         /// </summary>
         event AsyncEventHandler<ChannelBroascasterStopped>? _OnChannelBroadcasterStoppedEvent;
 
-        /// <summary>
-        /// Stops and unregisters a channel status by its integer key.
-        /// </summary>
-        /// <param name="key">The integer key of the channel status.</param>
-        /// <returns><c>true</c> if the channel status was stopped and unregistered; otherwise, <c>false</c>.</returns>
-        bool StopAndUnRegisterChannelBroadcaster(int key);
     }
 }

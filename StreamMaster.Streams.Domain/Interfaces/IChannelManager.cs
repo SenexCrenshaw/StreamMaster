@@ -12,10 +12,10 @@
         void CancelAllChannels();
 
         /// <summary>
-        /// Cancels a specific channel by its ID.
+        /// Stops a specific channel by its ID.
         /// </summary>
-        /// <param name="SMChannelId">The ID of the channel to cancel.</param>
-        Task CancelChannelAsync(int SMChannelId);
+        /// <param name="smChannelId">The ID of the channel to stop.</param>
+        void StopChannel(int smChannelId);
 
         /// <summary>
         /// Fails a client by its unique identifier.

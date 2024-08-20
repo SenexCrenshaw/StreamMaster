@@ -50,6 +50,6 @@ namespace StreamMaster.Streams.Domain.Interfaces
         List<ISourceBroadcaster> GetStreamBroadcasters();
         //void Stop(string channelBroadcasterId);
 
-        Task UnRegisterChannelBroadcasterAsync(string channelBroadcasterId);
+        Task UnRegisterChannelBroadcasterAsync(int channelBroadcasterId);
     }
 }

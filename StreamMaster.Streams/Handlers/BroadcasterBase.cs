@@ -104,7 +104,7 @@ public class BroadcasterBase : IBroadcasterBase
 
         if (!ClientChannelWriters.IsEmpty)
         {
-            foreach (KeyValuePair<string, System.Threading.Channels.ChannelWriter<byte[]>> client in ClientChannelWriters)
+            foreach (KeyValuePair<string, ChannelWriter<byte[]>> client in ClientChannelWriters)
             {
 
                 RemoveChannelStreamer(client.Key);
@@ -164,10 +164,7 @@ public class BroadcasterBase : IBroadcasterBase
         {
             logger.LogInformation("Remove client streamer: {UniqueRequestId} {Name}", UniqueRequestId, Name);
 
-            clientConfiguration.ClientStream?.Flush();
-            clientConfiguration.ClientStream?.Dispose();
-            clientConfiguration.Response.CompleteAsync().Wait();
-
+            clientConfiguration.Stop();
             //if (ClientChannelWriters.TryRemove(UniqueRequestId, out _))
             //{
             //    logger.LogInformation("Remove client streamer: {UniqueRequestId} {Name}", UniqueRequestId, Name);

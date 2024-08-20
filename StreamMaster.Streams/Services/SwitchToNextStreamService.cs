@@ -93,6 +93,7 @@ public sealed class SwitchToNextStreamService(ILogger<SwitchToNextStreamService>
                 if (isChannelLimited)
                 {
                     logger.LogInformation("Set Next for Channel {SourceName}, {Id} {Name}, max Streams reached, trying next in list", ChannelStatus.SourceName, ChannelStatus.SMChannel.Id, ChannelStatus.SMChannel.Name);
+                    return false;
                 }
             }
         }

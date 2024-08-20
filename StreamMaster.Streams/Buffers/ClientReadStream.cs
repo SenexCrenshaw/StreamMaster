@@ -22,7 +22,7 @@ public sealed class ClientReadStream : Stream, IClientReadStream
         this.UniqueRequestId = UniqueRequestId;
         Channel = ChannelHelper.GetChannel();
         startTime = DateTime.UtcNow;
-        logger.LogInformation("Starting client read stream for UniqueRequestId: {UniqueRequestId}", UniqueRequestId);
+        logger.LogInformation("New client read stream for UniqueRequestId: {UniqueRequestId}", UniqueRequestId);
     }
 
     public StreamHandlerMetrics Metrics => new()
@@ -86,8 +86,36 @@ public sealed class ClientReadStream : Stream, IClientReadStream
 
     public override void Write(byte[] buffer, int offset, int count)
     {
-        throw new NotSupportedException();
+        if (buffer == null)
+        {
+            throw new ArgumentNullException(nameof(buffer));
+        }
+
+        if (offset < 0 || offset >= buffer.Length)
+        {
+            throw new ArgumentOutOfRangeException(nameof(offset), "Offset is out of range.");
+        }
+
+        if (count < 0 || (offset + count) > buffer.Length)
+        {
+            throw new ArgumentOutOfRangeException(nameof(count), "Count is out of range.");
+        }
+
+        byte[] dataToWrite = new byte[count];
+        Array.Copy(buffer, offset, dataToWrite, 0, count);
+
+        try
+        {
+            // Writing the data to the channel
+            Channel.Writer.TryWrite(dataToWrite);
+        }
+        catch (ChannelClosedException ex)
+        {
+            logger.LogError(ex, "Attempted to write to a closed channel for UniqueRequestId: {UniqueRequestId}", UniqueRequestId);
+            throw new InvalidOperationException("The channel is closed and cannot accept writes.", ex);
+        }
     }
+
 
     public void Cancel()
     {

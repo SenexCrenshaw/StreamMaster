@@ -20,7 +20,7 @@ public class StreamLimitsService(ILogger<StreamLimitsService> logger, ICacheMana
 
     public bool IsLimited(SMStreamDto smStreamDto)
     {
-        if (smStreamDto.SMStreamType > SMStreamTypeEnum.Regular)
+        if (smStreamDto.SMStreamType > SMStreamTypeEnum.Regular || smStreamDto.M3UFileId < 0)
         {
             logger.LogInformation("Check stream limits for {name} : stream is custom, no limits", smStreamDto.Name);
 

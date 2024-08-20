@@ -15,7 +15,7 @@ public class CancelChannelRequestHandler(IChannelManager ChannelManager, IMessag
             await messageService.SendWarn("Channel Cancelled failed");
             return APIResponse.NotFound;
         }
-        await ChannelManager.CancelChannelAsync(request.SMChannelId);
+        ChannelManager.StopChannel(request.SMChannelId);
 
         await messageService.SendSuccess("Channel Cancelled Successfully", "Channel Cancel");
         return APIResponse.Ok;

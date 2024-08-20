@@ -62,7 +62,15 @@ public class VideoService(ILogger<VideoService> logger, IMapper mapper, IHttpCon
         logger.LogInformation("Requesting channel with ChannelId {channelId}", smChannelId);
         Stream? stream = await channelManager.GetChannelStreamAsync(clientConfiguration, streamGroupProfile.Id, CancellationToken.None);
         sw.Stop();
-        logger.LogInformation("Streaming channel with ChannelId {channelId} to client {id}, took {elapsed}ms", smChannelId, uniqueRequestId, sw.ElapsedMilliseconds);
+        if (stream == null)
+        {
+            //logger.LogInformation("Could not str channel with ChannelId {channelId} to client {id}, took {elapsed}ms", smChannelId, uniqueRequestId, sw.ElapsedMilliseconds);
+        }
+        else
+        {
+            logger.LogInformation("Streaming channel with ChannelId {channelId} to client {id}, took {elapsed}ms", smChannelId, uniqueRequestId, sw.ElapsedMilliseconds);
+        }
+
         return (stream, clientConfiguration, null);
     }
 }

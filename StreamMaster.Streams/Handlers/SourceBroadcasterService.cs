@@ -138,15 +138,15 @@ namespace StreamMaster.Streams.Handlers
 
         }
 
-        public async Task UnRegisterChannelBroadcasterAsync(string channelBroadcasterId)
+        public async Task UnRegisterChannelBroadcasterAsync(int channelBroadcasterId)
         {
-            ISourceBroadcaster? sourceBroadcaster = sourceBroadcasters.Values.FirstOrDefault(broadcaster => broadcaster.ClientChannelWriters.ContainsKey(channelBroadcasterId));
+            ISourceBroadcaster? sourceBroadcaster = sourceBroadcasters.Values.FirstOrDefault(broadcaster => broadcaster.ClientChannelWriters.ContainsKey(channelBroadcasterId.ToString()));
             if (sourceBroadcaster == null)
             {
                 return;
             }
 
-            if (sourceBroadcaster.ClientChannelWriters.TryRemove(channelBroadcasterId, out _))
+            if (sourceBroadcaster.ClientChannelWriters.TryRemove(channelBroadcasterId.ToString(), out _))
             {
                 await CheckForEmptyBroadcastersAsync();
             }

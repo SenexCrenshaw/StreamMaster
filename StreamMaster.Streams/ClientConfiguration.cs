@@ -52,6 +52,16 @@ namespace StreamMaster.Streams
             UniqueRequestId = uniqueRequestId;
         }
 
+        public void Stop()
+        {
+            ClientStream?.Write([0], 0, 1);
+            ClientStream?.Cancel();
+            ClientStream?.Flush();
+            ClientStream?.Dispose();
+            //  Response.CompleteAsync().Wait();
+
+        }
+
         /// <inheritdoc/>
         [IgnoreMember]
         public string HttpContextId => Response.HttpContext.TraceIdentifier;

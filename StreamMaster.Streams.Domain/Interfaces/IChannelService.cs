@@ -5,14 +5,11 @@
     /// </summary>
     public interface IChannelService : IDisposable
     {
-
-
         /// <summary>
         /// Closes the specified channel asynchronously.
         /// </summary>
-        /// <param name="channelStatus">The status of the channel to close.</param>
-        /// <param name="force">Indicates whether to forcefully close the channel.</param>
-        Task StopChannelAsync(IChannelBroadcaster channelStatus, bool force = false);
+        /// <param name="channelId">The channel Id.</param>
+        Task StopChannel(int channelId);
 
         /// <summary>
         /// Gets or creates a channel status asynchronously based on the specified client configuration.

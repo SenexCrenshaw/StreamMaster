@@ -52,5 +52,6 @@ namespace StreamMaster.Streams.Domain.Interfaces
         /// </summary>
         /// <param name="uniqueRequestId">The unique request identifier to set.</param>
         void SetUniqueRequestId(string uniqueRequestId);
+        void Stop();
     }
 }

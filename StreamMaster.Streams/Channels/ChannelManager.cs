@@ -117,16 +117,16 @@
         }
 
         /// <inheritdoc/>
-        public async Task CancelChannelAsync(int smChannelId)
+        public void StopChannel(int smChannelId)
         {
-            IChannelBroadcaster? channelStatus = channelService.GetChannelBroadcaster(smChannelId);
-            if (channelStatus is null)
-            {
-                logger.LogWarning("Channel not found: {smChannelId}", smChannelId);
-                return;
-            }
+            //IChannelBroadcaster? channelStatus = channelService.GetChannelBroadcaster(smChannelId);
+            //if (channelStatus is null)
+            //{
+            //    logger.LogWarning("Channel not found: {smChannelId}", smChannelId);
+            //    return;
+            //}
 
-            await channelService.StopChannelAsync(channelStatus, true);
+            channelService.StopChannel(smChannelId);
         }
 
         /// <inheritdoc/>
