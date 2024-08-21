@@ -1,12 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
-
 using StreamMaster.Application.SMChannels.Commands;
 using StreamMaster.Application.SMChannels.Queries;
 
-namespace StreamMaster.Application.SMChannels
+namespace StreamMaster.Application.SMChannels.Controllers
 {
     public partial class SMChannelsController(ILogger<SMChannelsController> _logger) : ApiControllerBase, ISMChannelsController
-    {
+    {        
 
         [HttpGet]
         [Route("[action]")]
@@ -22,8 +21,8 @@ namespace StreamMaster.Application.SMChannels
         {
             try
             {
-                DataResponse<List<NameLogo>> ret = await Sender.Send(new GetSMChannelNameLogosRequest()).ConfigureAwait(false);
-                return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetSMChannelNameLogos.", statusCode: 500) : Ok(ret.Data);
+            DataResponse<List<NameLogo>> ret = await Sender.Send(new GetSMChannelNameLogosRequest()).ConfigureAwait(false);
+             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetSMChannelNameLogos.", statusCode: 500) : Ok(ret.Data);
             }
             catch (Exception ex)
             {
@@ -38,12 +37,28 @@ namespace StreamMaster.Application.SMChannels
         {
             try
             {
-                DataResponse<List<string>> ret = await Sender.Send(new GetSMChannelNamesRequest()).ConfigureAwait(false);
-                return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetSMChannelNames.", statusCode: 500) : Ok(ret.Data);
+            DataResponse<List<string>> ret = await Sender.Send(new GetSMChannelNamesRequest()).ConfigureAwait(false);
+             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetSMChannelNames.", statusCode: 500) : Ok(ret.Data);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An unexpected error occurred while processing the request to get GetSMChannelNames.");
+                return Problem(detail: "An unexpected error occurred. Please try again later.", statusCode: 500);
+            }
+        }
+
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<ActionResult<List<IdNameUrl>>> GetVideoStreamNamesAndUrls()
+        {
+            try
+            {
+            DataResponse<List<IdNameUrl>> ret = await Sender.Send(new GetVideoStreamNamesAndUrlsRequest()).ConfigureAwait(false);
+             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetVideoStreamNamesAndUrls.", statusCode: 500) : Ok(ret.Data);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An unexpected error occurred while processing the request to get GetVideoStreamNamesAndUrls.");
                 return Problem(detail: "An unexpected error occurred. Please try again later.", statusCode: 500);
             }
         }
@@ -279,13 +294,19 @@ namespace StreamMaster.Application.Hubs
 
         public async Task<List<NameLogo>> GetSMChannelNameLogos()
         {
-            DataResponse<List<NameLogo>> ret = await Sender.Send(new GetSMChannelNameLogosRequest()).ConfigureAwait(false);
+             DataResponse<List<NameLogo>> ret = await Sender.Send(new GetSMChannelNameLogosRequest()).ConfigureAwait(false);
             return ret.Data;
         }
 
         public async Task<List<string>> GetSMChannelNames()
         {
-            DataResponse<List<string>> ret = await Sender.Send(new GetSMChannelNamesRequest()).ConfigureAwait(false);
+             DataResponse<List<string>> ret = await Sender.Send(new GetSMChannelNamesRequest()).ConfigureAwait(false);
+            return ret.Data;
+        }
+
+        public async Task<List<IdNameUrl>> GetVideoStreamNamesAndUrls()
+        {
+             DataResponse<List<IdNameUrl>> ret = await Sender.Send(new GetVideoStreamNamesAndUrlsRequest()).ConfigureAwait(false);
             return ret.Data;
         }
 

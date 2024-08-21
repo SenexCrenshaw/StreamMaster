@@ -826,6 +826,15 @@ export interface GetSMChannelNameLogosRequest
 export interface GetSMChannelNamesRequest
 {
 }
+export interface GetVideoStreamNamesAndUrlsRequest
+{
+}
+export interface IdNameUrl
+{
+	Id: number;
+	Name: string;
+	Url: string;
+}
 export interface AutoSetEPGFromParametersRequest
 {
 	Parameters: QueryStringParameters;

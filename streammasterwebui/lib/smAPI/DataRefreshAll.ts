@@ -30,6 +30,7 @@ import { setIsForced as GetSubscribedLineupsSetIsForced } from '@lib/smAPI/Sched
 import { setIsForced as GetSystemStatusSetIsForced } from '@lib/smAPI/General/GetSystemStatusSlice';
 import { setIsForced as GetTaskIsRunningSetIsForced } from '@lib/smAPI/General/GetTaskIsRunningSlice';
 import { setIsForced as GetVideoInfosSetIsForced } from '@lib/smAPI/Statistics/GetVideoInfosSlice';
+import { setIsForced as GetVideoStreamNamesAndUrlsSetIsForced } from '@lib/smAPI/SMChannels/GetVideoStreamNamesAndUrlsSlice';
 
 export const DataRefreshAll = () => {
   store.dispatch(GetAvailableCountriesSetIsForced({ force: true }));
@@ -63,4 +64,5 @@ export const DataRefreshAll = () => {
   store.dispatch(GetSystemStatusSetIsForced({ force: true }));
   store.dispatch(GetTaskIsRunningSetIsForced({ force: true }));
   store.dispatch(GetVideoInfosSetIsForced({ force: true }));
+  store.dispatch(GetVideoStreamNamesAndUrlsSetIsForced({ force: true }));
 };

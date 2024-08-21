@@ -208,7 +208,7 @@ public class CryptoService(IOptionsMonitor<Setting> intSettings) : ICryptoServic
     //    return (null, null, null);
     //}
 
-    //public async Task<string?> EncodeStreamGroupIdProfileIdChannelId(int StreamGroupId, int StreamGroupProfileId, int SMChannelId)
+    //public async Task<string?> EncodeStreamGroupIdProfileIdChannelIdAsync(int StreamGroupId, int StreamGroupProfileId, int SMChannelId)
     //{
     //    string? groupKey = await GetStreamGroupKeyFromId(StreamGroupId);
     //    if (string.IsNullOrEmpty(groupKey))
@@ -281,7 +281,7 @@ public class CryptoService(IOptionsMonitor<Setting> intSettings) : ICryptoServic
     //        return null;
     //    }
 
-    //    string? encryptedString = await EncodeStreamGroupIdProfileIdChannelId(sg.Id, StreamGroupProfileId, SMChannelId);
+    //    string? encryptedString = await EncodeStreamGroupIdProfileIdChannelIdAsync(sg.Id, StreamGroupProfileId, SMChannelId);
 
     //    return encryptedString;
     //}

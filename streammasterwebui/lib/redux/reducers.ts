@@ -47,6 +47,7 @@ import GetSystemStatusReducer from '@lib/smAPI/General/GetSystemStatusSlice';
 import GetTaskIsRunningReducer from '@lib/smAPI/General/GetTaskIsRunningSlice';
 import GetVideoInfoReducer from '@lib/smAPI/Statistics/GetVideoInfoSlice';
 import GetVideoInfosReducer from '@lib/smAPI/Statistics/GetVideoInfosSlice';
+import GetVideoStreamNamesAndUrlsReducer from '@lib/smAPI/SMChannels/GetVideoStreamNamesAndUrlsSlice';
 import GetVsReducer from '@lib/smAPI/Vs/GetVsSlice';
 import isTrue from '@lib/redux/hooks/isTrue';
 import loading from '@lib/redux/hooks/loading';
@@ -187,6 +188,7 @@ export const rootReducer = combineReducers({
   GetTaskIsRunning: GetTaskIsRunningReducer,
   GetVideoInfo: GetVideoInfoReducer,
   GetVideoInfos: GetVideoInfosReducer,
+  GetVideoStreamNamesAndUrls: GetVideoStreamNamesAndUrlsReducer,
   GetVs: GetVsReducer,
   isTrue: persistReducer(isTrueConfig, isTrue),
   loading: loading,

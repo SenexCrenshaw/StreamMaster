@@ -57,9 +57,9 @@ internal class GetPagedSMChannelsRequestHandler(IRepositoryWrapper Repository, I
 
             StreamGroupProfile test = await streamGroupService.GetDefaultStreamGroupProfileAsync();
 
-            string? EncodedString = await streamGroupService.EncodeStreamGroupIdProfileIdChannelId(sgId, test.Id, channel.Id);
+            string? EncodedString = await streamGroupService.EncodeStreamGroupIdProfileIdChannelIdAsync(sgId, test.Id, channel.Id);
 
-            //(string EncodedString, string CleanName) = await sender.Send(new EncodeStreamGroupIdProfileIdChannelId(defaultSGProfile.Data.StreamGroupId, defaultSGProfile.Data.Id, channel.Id, channel.Name), cancellationToken);
+            //(string EncodedString, string CleanName) = await sender.Send(new EncodeStreamGroupIdProfileIdChannelIdAsync(defaultSGProfile.Data.StreamGroupId, defaultSGProfile.Data.Id, channel.Id, channel.Name), cancellationToken);
             if (string.IsNullOrEmpty(EncodedString))
             {
                 continue;

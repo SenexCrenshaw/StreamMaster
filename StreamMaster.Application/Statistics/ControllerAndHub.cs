@@ -1,11 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
-
 using StreamMaster.Application.Statistics.Queries;
 
-namespace StreamMaster.Application.Statistics
+namespace StreamMaster.Application.Statistics.Controllers
 {
     public partial class StatisticsController(ILogger<StatisticsController> _logger) : ApiControllerBase, IStatisticsController
-    {
+    {        
 
         [HttpGet]
         [Route("[action]")]
@@ -13,8 +12,8 @@ namespace StreamMaster.Application.Statistics
         {
             try
             {
-                DataResponse<List<ChannelMetric>> ret = await Sender.Send(new GetChannelMetricsRequest()).ConfigureAwait(false);
-                return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetChannelMetrics.", statusCode: 500) : Ok(ret.Data);
+            DataResponse<List<ChannelMetric>> ret = await Sender.Send(new GetChannelMetricsRequest()).ConfigureAwait(false);
+             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetChannelMetrics.", statusCode: 500) : Ok(ret.Data);
             }
             catch (Exception ex)
             {
@@ -29,8 +28,8 @@ namespace StreamMaster.Application.Statistics
         {
             try
             {
-                DataResponse<VideoInfo> ret = await Sender.Send(request).ConfigureAwait(false);
-                return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetVideoInfo.", statusCode: 500) : Ok(ret.Data);
+            DataResponse<VideoInfo> ret = await Sender.Send(request).ConfigureAwait(false);
+             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetVideoInfo.", statusCode: 500) : Ok(ret.Data);
             }
             catch (Exception ex)
             {
@@ -45,8 +44,8 @@ namespace StreamMaster.Application.Statistics
         {
             try
             {
-                DataResponse<List<VideoInfoDto>> ret = await Sender.Send(new GetVideoInfosRequest()).ConfigureAwait(false);
-                return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetVideoInfos.", statusCode: 500) : Ok(ret.Data);
+            DataResponse<List<VideoInfoDto>> ret = await Sender.Send(new GetVideoInfosRequest()).ConfigureAwait(false);
+             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetVideoInfos.", statusCode: 500) : Ok(ret.Data);
             }
             catch (Exception ex)
             {
@@ -64,19 +63,19 @@ namespace StreamMaster.Application.Hubs
     {
         public async Task<List<ChannelMetric>> GetChannelMetrics()
         {
-            DataResponse<List<ChannelMetric>> ret = await Sender.Send(new GetChannelMetricsRequest()).ConfigureAwait(false);
+             DataResponse<List<ChannelMetric>> ret = await Sender.Send(new GetChannelMetricsRequest()).ConfigureAwait(false);
             return ret.Data;
         }
 
         public async Task<VideoInfo> GetVideoInfo(GetVideoInfoRequest request)
         {
-            DataResponse<VideoInfo> ret = await Sender.Send(request).ConfigureAwait(false);
+             DataResponse<VideoInfo> ret = await Sender.Send(request).ConfigureAwait(false);
             return ret.Data;
         }
 
         public async Task<List<VideoInfoDto>> GetVideoInfos()
         {
-            DataResponse<List<VideoInfoDto>> ret = await Sender.Send(new GetVideoInfosRequest()).ConfigureAwait(false);
+             DataResponse<List<VideoInfoDto>> ret = await Sender.Send(new GetVideoInfosRequest()).ConfigureAwait(false);
             return ret.Data;
         }
 

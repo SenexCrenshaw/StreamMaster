@@ -9,6 +9,7 @@ namespace StreamMaster.Application.SMChannels
         Task<ActionResult<PagedResponse<SMChannelDto>>> GetPagedSMChannels(QueryStringParameters Parameters);
         Task<ActionResult<List<NameLogo>>> GetSMChannelNameLogos();
         Task<ActionResult<List<string>>> GetSMChannelNames();
+        Task<ActionResult<List<IdNameUrl>>> GetVideoStreamNamesAndUrls();
         Task<ActionResult<APIResponse>> AutoSetEPGFromParameters(AutoSetEPGFromParametersRequest request);
         Task<ActionResult<APIResponse>> AutoSetEPG(AutoSetEPGRequest request);
         Task<ActionResult<APIResponse>> AutoSetSMChannelNumbersFromParameters(AutoSetSMChannelNumbersFromParametersRequest request);
@@ -46,6 +47,7 @@ namespace StreamMaster.Application.Hubs
         Task<PagedResponse<SMChannelDto>> GetPagedSMChannels(QueryStringParameters Parameters);
         Task<List<NameLogo>> GetSMChannelNameLogos();
         Task<List<string>> GetSMChannelNames();
+        Task<List<IdNameUrl>> GetVideoStreamNamesAndUrls();
         Task<APIResponse> AutoSetEPGFromParameters(AutoSetEPGFromParametersRequest request);
         Task<APIResponse> AutoSetEPG(AutoSetEPGRequest request);
         Task<APIResponse> AutoSetSMChannelNumbersFromParameters(AutoSetSMChannelNumbersFromParametersRequest request);

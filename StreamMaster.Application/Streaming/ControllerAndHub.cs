@@ -1,11 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
-
 using StreamMaster.Application.Streaming.Commands;
 
-namespace StreamMaster.Application.Streaming
+namespace StreamMaster.Application.Streaming.Controllers
 {
-    public partial class StreamingController() : ApiControllerBase, IStreamingController
-    {
+    public partial class StreamingController(ILogger<StreamingController> _logger) : ApiControllerBase, IStreamingController
+    {        
+
         [HttpPatch]
         [Route("[action]")]
         public async Task<ActionResult<APIResponse>> CancelAllChannels()
@@ -37,6 +37,7 @@ namespace StreamMaster.Application.Streaming
             APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
         }
+
     }
 }
 
@@ -67,5 +68,6 @@ namespace StreamMaster.Application.Hubs
             APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;
         }
+
     }
 }
