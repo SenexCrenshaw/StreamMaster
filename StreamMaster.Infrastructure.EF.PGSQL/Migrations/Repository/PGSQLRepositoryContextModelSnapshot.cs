@@ -40,7 +40,7 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
 
                     b.HasKey("Id");
 
-                    b.ToTable("DataProtectionKeys");
+                    b.ToTable("DataProtectionKeys", (string)null);
                 });
 
             modelBuilder.Entity("StreamMaster.Domain.Models.ChannelGroup", b =>
@@ -85,7 +85,7 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
                     b.HasIndex("Name", "IsHidden")
                         .HasDatabaseName("idx_Name_IsHidden");
 
-                    b.ToTable("ChannelGroups");
+                    b.ToTable("ChannelGroups", (string)null);
                 });
 
             modelBuilder.Entity("StreamMaster.Domain.Models.EPGFile", b =>
@@ -160,7 +160,7 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
 
                     b.HasKey("Id");
 
-                    b.ToTable("EPGFiles");
+                    b.ToTable("EPGFiles", (string)null);
                 });
 
             modelBuilder.Entity("StreamMaster.Domain.Models.M3UFile", b =>
@@ -241,7 +241,7 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
 
                     b.HasKey("Id");
 
-                    b.ToTable("M3UFiles");
+                    b.ToTable("M3UFiles", (string)null);
                 });
 
             modelBuilder.Entity("StreamMaster.Domain.Models.SMChannel", b =>
@@ -307,7 +307,7 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
                     b.HasIndex("Name")
                         .HasDatabaseName("idx_SMChannelName");
 
-                    b.ToTable("SMChannels");
+                    b.ToTable("SMChannels", (string)null);
                 });
 
             modelBuilder.Entity("StreamMaster.Domain.Models.SMChannelChannelLink", b =>
@@ -325,7 +325,7 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
 
                     b.HasIndex("ChildSMChannelId");
 
-                    b.ToTable("SMChannelChannelLinks");
+                    b.ToTable("SMChannelChannelLinks", (string)null);
                 });
 
             modelBuilder.Entity("StreamMaster.Domain.Models.SMChannelStreamLink", b =>
@@ -343,7 +343,7 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
 
                     b.HasIndex("SMStreamId");
 
-                    b.ToTable("SMChannelStreamLinks");
+                    b.ToTable("SMChannelStreamLinks", (string)null);
                 });
 
             modelBuilder.Entity("StreamMaster.Domain.Models.SMStream", b =>
@@ -412,7 +412,7 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
                     b.HasIndex("Name")
                         .HasDatabaseName("idx_SMStreamName");
 
-                    b.ToTable("SMStreams");
+                    b.ToTable("SMStreams", (string)null);
                 });
 
             modelBuilder.Entity("StreamMaster.Domain.Models.StreamGroup", b =>
@@ -446,7 +446,7 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
 
                     b.HasKey("Id");
 
-                    b.ToTable("StreamGroups");
+                    b.ToTable("StreamGroups", (string)null);
                 });
 
             modelBuilder.Entity("StreamMaster.Domain.Models.StreamGroupChannelGroup", b =>
@@ -461,7 +461,7 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
 
                     b.HasIndex("StreamGroupId");
 
-                    b.ToTable("StreamGroupChannelGroups");
+                    b.ToTable("StreamGroupChannelGroups", (string)null);
                 });
 
             modelBuilder.Entity("StreamMaster.Domain.Models.StreamGroupProfile", b =>
@@ -491,7 +491,7 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
 
                     b.HasIndex("StreamGroupId");
 
-                    b.ToTable("StreamGroupProfiles");
+                    b.ToTable("StreamGroupProfiles", (string)null);
                 });
 
             modelBuilder.Entity("StreamMaster.Domain.Models.StreamGroupSMChannelLink", b =>
@@ -512,7 +512,7 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
 
                     b.HasIndex("SMChannelId");
 
-                    b.ToTable("StreamGroupSMChannelLink");
+                    b.ToTable("StreamGroupSMChannelLink", (string)null);
                 });
 
             modelBuilder.Entity("StreamMaster.Domain.Models.SystemKeyValue", b =>
@@ -533,7 +533,7 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
 
                     b.HasKey("Id");
 
-                    b.ToTable("SystemKeyValues");
+                    b.ToTable("SystemKeyValues", (string)null);
                 });
 
             modelBuilder.Entity("StreamMaster.Domain.Models.SMChannelChannelLink", b =>
