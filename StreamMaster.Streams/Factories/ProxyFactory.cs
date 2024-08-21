@@ -4,7 +4,7 @@ using System.Diagnostics;
 
 namespace StreamMaster.Streams.Factories;
 
-public sealed class ProxyFactory(ILogger<ProxyFactory> logger, IHTTPStream HTTPStream, ICommandExecutor commandExecutor, ICustomPlayListStream CustomPlayListStream, IOptionsMonitor<Setting> settings)
+public sealed class ProxyFactory(ILogger<ProxyFactory> logger, IHTTPStream HTTPStream, ICommandExecutor commandExecutor, IProfileService profileService, ICustomPlayListStream CustomPlayListStream, IOptionsMonitor<Setting> settings)
     : IProxyFactory
 {
     public async Task<(Stream? stream, int processId, ProxyStreamError? error)> GetProxy(SMStreamInfo smStreamInfo, CancellationToken cancellationToken)
@@ -44,7 +44,8 @@ public sealed class ProxyFactory(ILogger<ProxyFactory> logger, IHTTPStream HTTPS
             if (smStreamInfo.Url.EndsWith(".m3u8"))
             {
                 logger.LogInformation("Stream URL has m3u8 extension, using ffmpeg for streaming: {streamName}", smStreamInfo.Name);
-                return commandExecutor.ExecuteCommand(smStreamInfo.CommandProfile, smStreamInfo.Url, clientUserAgent, null, cancellationToken);
+                CommandProfileDto commandProfileDto = profileService.GetCommandProfile("SMFFMPEG");
+                return commandExecutor.ExecuteCommand(commandProfileDto, smStreamInfo.Url, clientUserAgent, null, cancellationToken);
             }
 
 
