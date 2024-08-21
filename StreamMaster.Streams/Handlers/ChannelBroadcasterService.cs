@@ -55,11 +55,7 @@ namespace StreamMaster.Streams.Handlers
                     }
                 }
 
-                channelBroadcaster = new ChannelBroadcaster(channelStatusLogger, config.SMChannel)
-                {
-                    SMChannel = config.SMChannel,
-                    StreamGroupProfileId = streamGroupProfileId
-                };
+                channelBroadcaster = new ChannelBroadcaster(channelStatusLogger, config.SMChannel, streamGroupProfileId);
 
                 logger.LogInformation("Created new channel for: {Id} {Name}", config.SMChannel.Id, config.SMChannel.Name);
 
@@ -80,9 +76,8 @@ namespace StreamMaster.Streams.Handlers
             return [.. _sourceChannelBroadcasters.Values];
         }
 
-        private async Task CheckForEmptyBroadcastersAsync(CancellationToken cancellationToken = default)
+        private async Task CheckForEmptyBroadcastersAsync()
         {
-
             foreach (IChannelBroadcaster? channelBroadcaster in cacheManager.ChannelBroadcasters.Values.Where(a => a.SMStreamInfo != null))
             {
                 if (channelBroadcaster.ClientChannelWriters.IsEmpty)
@@ -90,21 +85,7 @@ namespace StreamMaster.Streams.Handlers
                     await StopChannelAsync(channelBroadcaster).ConfigureAwait(false);
                 }
             }
-
         }
-
-
-        ///// <inheritdoc/>
-        //public bool StopBroadcaster(int key)
-        //{
-        //    if (_sourceChannelBroadcasters.TryRemove(key, out IChannelBroadcaster? channelBroadcaster))
-        //    {
-        //        channelBroadcaster.Stop();
-        //        return true;
-        //    }
-
-        //    return false;
-        //}
 
         public async Task StopChannelAsync(IChannelBroadcaster channelBroadcaster)
         {
@@ -122,7 +103,6 @@ namespace StreamMaster.Streams.Handlers
             {
                 await UnRegisterClientAsync(config.UniqueRequestId).ConfigureAwait(false);
             }
-
 
             sourceChannelBroadcaster.Shutdown = true;
             int delay = _settings.CurrentValue.ShutDownDelay;
@@ -149,7 +129,6 @@ namespace StreamMaster.Streams.Handlers
 
             if (cacheManager.ChannelBroadcasters.TryRemove(channelBroadcasterId, out IChannelBroadcaster? channelBroadcaster))
             {
-
                 foreach (IClientConfiguration config in channelBroadcaster.GetClientStreamerConfigurations())
                 {
                     await UnRegisterClientAsync(config.UniqueRequestId).ConfigureAwait(false);
@@ -163,40 +142,22 @@ namespace StreamMaster.Streams.Handlers
             return false;
         }
 
-
-        //IChannelBroadcaster channelBroadcaster in cacheManager.ChannelBroadcasters.Values causes to not flsuh clients
         public async Task<bool> UnRegisterClientAsync(string uniqueRequestId, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
             bool removed = false;
             foreach (IChannelBroadcaster channelBroadcaster in cacheManager.ChannelBroadcasters.Values)
             {
-                //IClientConfiguration? clientConfig = channelBroadcaster.GetClientStreamerConfigurations().Find(config => config.UniqueRequestId == uniqueRequestId);
-
-                //if (clientConfig != null)
-                //{
-                //    if (channelBroadcaster.RemoveClientStreamer(uniqueRequestId))
-                //    {
-
-                //        logger.LogDebug("Client configuration for {UniqueRequestId} removed", uniqueRequestId);
-                //        removed = true;
-                //    }
-                //}
-
                 if (channelBroadcaster.RemoveClientStreamer(uniqueRequestId))
                 {
-
                     logger.LogDebug("Client configuration for {UniqueRequestId} removed", uniqueRequestId);
                     removed = true;
                 }
-
             }
-
-
 
             if (removed)
             {
-                await CheckForEmptyBroadcastersAsync(cancellationToken).ConfigureAwait(false);
+                await CheckForEmptyBroadcastersAsync().ConfigureAwait(false);
                 return true;
             }
 

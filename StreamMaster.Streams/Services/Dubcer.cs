@@ -7,10 +7,10 @@ namespace StreamMaster.Streams.Services
 {
     public class Dubcer(ILogger<Dubcer> logger) : IDubcer
     {
-        public string SourceName { get; set; }
+        public string SourceName { get; set; } = string.Empty;
 
         private readonly Channel<byte[]> inputChannel = Channel.CreateUnbounded<byte[]>(new UnboundedChannelOptions { SingleReader = true, SingleWriter = true });
-        public void SetSourceChannel(ChannelReader<byte[]> sourceChannelReader, string sourceChannelName, CancellationToken cancellationToken)
+        public void SetSourceChannel(ChannelReader<byte[]> sourceChannelReader)
         {
             Channel<byte[]> dubcerChannel = ChannelHelper.GetChannel();
             DubcerChannels(sourceChannelReader, dubcerChannel.Writer, CancellationToken.None);
@@ -21,8 +21,7 @@ namespace StreamMaster.Streams.Services
             logger.LogInformation("Starting dubcer");
             _ = Task.Run(async () =>
             {
-                Process ffmpegProcess = StartFFmpegProcess();
-
+                Process? ffmpegProcess = StartFFmpegProcess() ?? throw new Exception("Failed to start ffmpeg process");
                 try
                 {
                     // Writing to ffmpeg
@@ -75,7 +74,7 @@ namespace StreamMaster.Streams.Services
             }, cancellationToken);
         }
 
-        private Process StartFFmpegProcess()
+        private static Process? StartFFmpegProcess()
         {
             string? exec = FileUtil.GetExec("ffmpeg");
             ProcessStartInfo startInfo = new()

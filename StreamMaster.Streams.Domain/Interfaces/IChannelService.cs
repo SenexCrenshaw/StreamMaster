@@ -79,12 +79,12 @@
         /// <returns><c>true</c> if the channel exists; otherwise, <c>false</c>.</returns>
         bool HasChannel(int smChannelId);
 
-        /// <summary>
-        /// Sets up a channel asynchronously based on the specified SM channel DTO.
-        /// </summary>
-        /// <param name="smChannel">The SM channel DTO.</param>
-        /// <returns>The channel status if set up successfully; otherwise, <c>null</c>.</returns>
-        Task<IChannelBroadcaster?> SetupChannelAsync(SMChannelDto smChannel);
+        ///// <summary>
+        ///// Sets up a channel asynchronously based on the specified SM channel DTO.
+        ///// </summary>
+        ///// <param name="smChannel">The SM channel DTO.</param>
+        ///// <returns>The channel status if set up successfully; otherwise, <c>null</c>.</returns>
+        //Task<IChannelBroadcaster?> SetupChannelAsync(SMChannelDto smChannel);
 
         /// <summary>
         /// Switches the channel to the next video stream asynchronously.

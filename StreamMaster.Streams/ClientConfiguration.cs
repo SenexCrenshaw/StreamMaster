@@ -7,44 +7,33 @@ namespace StreamMaster.Streams
     /// <summary>
     /// Represents the configuration for a client, including details such as the client's IP address, user agent, and associated stream channel.
     /// </summary>
-    public sealed class ClientConfiguration : IClientConfiguration
+    /// <remarks>
+    /// Initializes a new instance of the <see cref="ClientConfiguration"/> class with the specified parameters.
+    /// </remarks>
+    /// <param name="uniqueRequestId">The unique request identifier.</param>
+    /// <param name="smChannel">The SMChannel associated with the client.</param>
+    /// <param name="clientUserAgent">The client's user agent string.</param>
+    /// <param name="clientIPAddress">The client's IP address.</param>
+    /// <param name="response">The HTTP response associated with the client.</param>
+    /// <param name="loggerFactory">The logger factory for creating loggers.</param>
+    /// <param name="cancellationToken">The cancellation token associated with the client.</param>
+    public sealed class ClientConfiguration(
+        string uniqueRequestId,
+        SMChannelDto smChannel,
+        string clientUserAgent,
+        string clientIPAddress,
+        HttpResponse response,
+        ILoggerFactory loggerFactory,
+        CancellationToken cancellationToken) : IClientConfiguration
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ClientConfiguration"/> class with the specified parameters.
-        /// </summary>
-        /// <param name="uniqueRequestId">The unique request identifier.</param>
-        /// <param name="smChannel">The SMChannel associated with the client.</param>
-        /// <param name="clientUserAgent">The client's user agent string.</param>
-        /// <param name="clientIPAddress">The client's IP address.</param>
-        /// <param name="response">The HTTP response associated with the client.</param>
-        /// <param name="loggerFactory">The logger factory for creating loggers.</param>
-        /// <param name="cancellationToken">The cancellation token associated with the client.</param>
-        public ClientConfiguration(
-            string uniqueRequestId,
-            SMChannelDto smChannel,
-            string clientUserAgent,
-            string clientIPAddress,
-            HttpResponse response,
-            ILoggerFactory loggerFactory,
-            CancellationToken cancellationToken)
-        {
-            UniqueRequestId = uniqueRequestId;
-            Response = response;
-            ClientCancellationToken = cancellationToken;
-            ClientIPAddress = clientIPAddress;
-            ClientUserAgent = clientUserAgent;
-            SMChannel = smChannel;
-            ClientStream = new ClientReadStream(loggerFactory, uniqueRequestId);
-        }
-
         /// <summary>
         /// Initializes a new instance of the <see cref="ClientConfiguration"/> class for serialization purposes.
         /// </summary>
-        public ClientConfiguration() { }
+        //public ClientConfiguration() { }
 
         /// <inheritdoc/>
         [IgnoreMember]
-        public HttpResponse Response { get; }
+        public HttpResponse Response { get; } = response;
 
         /// <inheritdoc/>
         public void SetUniqueRequestId(string uniqueRequestId)
@@ -68,22 +57,22 @@ namespace StreamMaster.Streams
 
         /// <inheritdoc/>
         [IgnoreMember]
-        public IClientReadStream? ClientStream { get; set; }
+        public IClientReadStream? ClientStream { get; set; } = new ClientReadStream(loggerFactory, uniqueRequestId);
 
         /// <inheritdoc/>
         [IgnoreMember]
-        public CancellationToken ClientCancellationToken { get; }
+        public CancellationToken ClientCancellationToken { get; } = cancellationToken;
 
         /// <inheritdoc/>
-        public string UniqueRequestId { get; set; }
+        public string UniqueRequestId { get; set; } = uniqueRequestId;
 
         /// <inheritdoc/>
-        public string ClientIPAddress { get; set; }
+        public string ClientIPAddress { get; set; } = clientIPAddress;
 
         /// <inheritdoc/>
-        public string ClientUserAgent { get; set; }
+        public string ClientUserAgent { get; set; } = clientUserAgent;
 
         /// <inheritdoc/>
-        public SMChannelDto SMChannel { get; set; }
+        public SMChannelDto SMChannel { get; set; } = smChannel;
     }
 }

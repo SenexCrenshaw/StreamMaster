@@ -1,6 +1,4 @@
-﻿using StreamMaster.Application.Interfaces;
-using StreamMaster.Domain.Configuration;
-using StreamMaster.Streams.Domain.Args;
+﻿using StreamMaster.Streams.Domain.Args;
 
 namespace StreamMaster.Streams.Streams;
 
@@ -30,7 +28,7 @@ public class HLSHandler(ILoggerFactory loggerFactory, ICryptoService cryptoServi
         GC.SuppressFinalize(this);
     }
 
-    public event EventHandler<ProcessExitEventArgs> ProcessExited;
+    public event EventHandler<ProcessExitEventArgs>? ProcessExited;
     public Stream? Stream { get; }
     public void Start()
     {

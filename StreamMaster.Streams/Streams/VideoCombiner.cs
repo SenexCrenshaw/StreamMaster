@@ -5,17 +5,17 @@ public class VideoCombiner : IVideoCombiner
 {
     public async Task CombineVideosAsync(Stream stream1, Stream stream2, Stream stream3, Stream stream4, ChannelWriter<byte[]> writer, CancellationToken cancellationToken)
     {
-        Process ffmpegProcess = StartFFmpegProcess();
+        Process ffmpegProcess = StartFFmpegProcess() ?? throw new Exception("Failed to start ffmpeg process");
         Stream ffmpegInputStream = ffmpegProcess.StandardInput.BaseStream;
         Stream ffmpegOutputStream = ffmpegProcess.StandardOutput.BaseStream;
 
-        Task[] readTasks = new[]
-        {
+        Task[] readTasks =
+        [
             ReadFromStreamAsync(stream1, ffmpegInputStream, cancellationToken),
             ReadFromStreamAsync(stream2, ffmpegInputStream, cancellationToken),
             ReadFromStreamAsync(stream3, ffmpegInputStream, cancellationToken),
             ReadFromStreamAsync(stream4, ffmpegInputStream, cancellationToken)
-        };
+        ];
 
         Task writeTask = WriteToChannelAsync(ffmpegOutputStream, writer, cancellationToken);
 
@@ -25,7 +25,7 @@ public class VideoCombiner : IVideoCombiner
         ffmpegProcess.WaitForExit();
     }
 
-    private static Process StartFFmpegProcess()
+    private static Process? StartFFmpegProcess()
     {
         ProcessStartInfo ffmpegStartInfo = new()
         {
@@ -44,9 +44,9 @@ public class VideoCombiner : IVideoCombiner
     {
         byte[] buffer = new byte[4096];
         int bytesRead;
-        while ((bytesRead = await inputStream.ReadAsync(buffer, 0, buffer.Length, cancellationToken)) > 0)
+        while ((bytesRead = await inputStream.ReadAsync(buffer, cancellationToken)) > 0)
         {
-            await ffmpegInputStream.WriteAsync(buffer, 0, bytesRead, cancellationToken);
+            await ffmpegInputStream.WriteAsync(buffer.AsMemory(0, bytesRead), cancellationToken);
         }
     }
 
@@ -54,7 +54,7 @@ public class VideoCombiner : IVideoCombiner
     {
         byte[] buffer = new byte[4096];
         int bytesRead;
-        while ((bytesRead = await ffmpegOutputStream.ReadAsync(buffer, 0, buffer.Length, cancellationToken)) > 0)
+        while ((bytesRead = await ffmpegOutputStream.ReadAsync(buffer, cancellationToken)) > 0)
         {
             byte[] data = new byte[bytesRead];
             Buffer.BlockCopy(buffer, 0, data, 0, bytesRead);

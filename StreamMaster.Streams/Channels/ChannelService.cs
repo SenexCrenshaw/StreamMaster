@@ -47,8 +47,6 @@ namespace StreamMaster.Streams.Channels
         {
             if (sender is ISourceBroadcaster sourceBroadcaster)
             {
-
-
                 _logger.LogInformation("Streaming Stopped Event for stream Id: {StreamName}", e.Name);
 
                 List<IChannelBroadcaster> channelBroadcasters = _cacheManager.ChannelBroadcasters.Values
@@ -74,10 +72,8 @@ namespace StreamMaster.Streams.Channels
 
         public async Task StopChannel(int channelId)
         {
-
             await _channelBroadcasterService.StopChannelAsync(channelId);
             await _sourceBroadcasterService.UnRegisterChannelBroadcasterAsync(channelId);
-
         }
 
         public IClientConfiguration? GetClientStreamerConfiguration(string uniqueRequestId)
@@ -102,7 +98,6 @@ namespace StreamMaster.Streams.Channels
                 .ToList();
         }
 
-
         public async Task<IChannelBroadcaster?> GetOrCreateChannelBroadcasterAsync(IClientConfiguration clientConfiguration, int streamGroupProfileId)
         {
             IChannelBroadcaster? channelBroadcaster = GetChannelBroadcaster(clientConfiguration.SMChannel.Id);
@@ -120,8 +115,6 @@ namespace StreamMaster.Streams.Channels
 
                     return null;
                 }
-
-
             }
             else
             {
@@ -153,17 +146,17 @@ namespace StreamMaster.Streams.Channels
             return channelBroadcaster;
         }
 
-        public async Task<IChannelBroadcaster?> SetupChannelAsync(SMChannelDto smChannel)
-        {
-            // Implementation commented out for brevity
-            return null;
-        }
+        //public async Task<IChannelBroadcaster?> SetupChannelAsync(SMChannelDto smChannel)
+        //{
+        //    // Implementation commented out for brevity
+        //    return null;
+        //}
 
-        private List<string> RunningUrls => _cacheManager.ChannelBroadcasters.Values
-            .Where(a => a.ClientCount > 0 && a.SMStreamInfo != null)
-            .Select(a => a.SMStreamInfo!.Url)
-            .Distinct()
-            .ToList();
+        //private List<string> RunningUrls => _cacheManager.ChannelBroadcasters.Values
+        //    .Where(a => a.ClientCount > 0 && a.SMStreamInfo != null)
+        //    .Select(a => a.SMStreamInfo!.Url)
+        //    .Distinct()
+        //    .ToList();
 
         //public async Task CheckForEmptyBroadcastersAsync(CancellationToken cancellationToken = default)
         //{
@@ -221,8 +214,6 @@ namespace StreamMaster.Streams.Channels
         //    //    //await CheckForEmptyBroadcastersAsync().ConfigureAwait(false);
         //    //}
         //}
-
-
         public IChannelBroadcaster? GetChannelBroadcaster(int smChannelId)
         {
             _cacheManager.ChannelBroadcasters.TryGetValue(smChannelId, out IChannelBroadcaster? channelBroadcaster);

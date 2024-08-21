@@ -3,7 +3,7 @@ using StreamMaster.Streams.Domain.Events;
 
 using System.Collections.Concurrent;
 
-namespace StreamMaster.Streams.Handlers
+namespace StreamMaster.Streams.Services
 {
     public class SourceBroadcasterService(ILogger<SourceBroadcasterService> logger, IVideoInfoService _videoInfoService, ILogger<ISourceBroadcaster> sourceBroadcasterLogger, IOptionsMonitor<Setting> _settings, IProxyFactory proxyFactory)
         : ISourceBroadcasterService

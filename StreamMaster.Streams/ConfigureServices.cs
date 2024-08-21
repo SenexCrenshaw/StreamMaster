@@ -16,12 +16,6 @@ public static class ConfigureServices
         services.AddSingleton<IChannelManager, ChannelManager>();
         services.AddSingleton<IChannelService, ChannelService>();
         services.AddSingleton<IProxyFactory, ProxyFactory>();
-
-        //services.AddSingleton<IStreamStatisticService, StreamStatisticService>();
-        //services.AddSingleton<IClientStatisticsManager, ClientStatisticsManager>();
-        //services.AddSingleton<IChannelStreamingStatisticsManager, ChannelStreamingStatisticsManager>();
-        //services.AddSingleton<IStreamStreamingStatisticsManager, StreamStreamingStatisticsManager>();
-        //services.AddSingleton<IStreamManager, StreamManager>();
         services.AddTransient<ICommandExecutor, CommandExecutor>();
         services.AddTransient<ICustomPlayListStream, CustomPlayListStream>();
         services.AddTransient<IHTTPStream, HTTPStream>();
@@ -39,9 +33,13 @@ public static class ConfigureServices
         services.AddSingleton<IVideoInfoService, VideoInfoService>();
         services.AddTransient<IVideoCombiner, VideoCombiner>();
         services.AddSingleton<IVideoCombinerService, VideoCombinerService>();
+
         services.AddSingleton<IStreamLimitsService, StreamLimitsService>();
         services.AddScoped<IVideoService, VideoService>();
         services.AddSingleton<ICacheManager, CacheManager>();
+
+        services.AddTransient<IMetricsService, MetricsService>();
+        services.AddTransient<ISourceProcessingService, SourceProcessingService>();
         return services;
     }
 }

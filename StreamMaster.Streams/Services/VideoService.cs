@@ -44,7 +44,7 @@ public class VideoService(ILogger<VideoService> logger, IMapper mapper, IHttpCon
             return (null, null, smChannel.SMStreams.First().SMStream.Url);
         }
 
-        string? ipAddress = httpContextAccessor.HttpContext.Connection.RemoteIpAddress?.ToString();
+        string? ipAddress = httpContextAccessor.HttpContext!.Connection.RemoteIpAddress?.ToString();
 
         SMChannelDto smChannelDto = mapper.Map<SMChannelDto>(smChannel);
         foreach (SMStreamDto sm in smChannelDto.SMStreams.OrderBy(a => a.Rank))

@@ -15,7 +15,6 @@ public class HTTPStream(ILogger<HTTPStream> logger, IHttpClientFactory httpClien
 
     public async Task<(Stream? stream, int processId, ProxyStreamError? error)> HandleStream(SMStreamInfo sMStreamInfo, string clientUserAgent, CancellationToken cancellationToken)
     {
-
         Stopwatch stopwatch = Stopwatch.StartNew();
         try
         {
