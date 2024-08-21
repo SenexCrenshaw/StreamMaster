@@ -18,6 +18,6 @@ public class GetIntroPlayListsRequestHandler(IHttpContextAccessor httpContextAcc
 
         List<CustomPlayList> customPlayLists = introPlayListBuilder.GetIntroPlayLists();
 
-        return DataResponse<List<CustomPlayList>>.Success(customPlayLists);
+        return await Task.FromResult(DataResponse<List<CustomPlayList>>.Success(customPlayLists));
     }
 }

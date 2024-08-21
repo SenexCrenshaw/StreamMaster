@@ -30,7 +30,7 @@ public class BuildProgIconsCacheFromEPGsRequestHandler()
 
         //await WorkOnProgrammeIcons(startId, cancellationToken).ConfigureAwait(false);
 
-        return true;
+        return await Task.FromResult(true);
     }
 
     //public async Task<Tv?> GetTV(string Source)

@@ -12,6 +12,6 @@ internal class GetStreamGroupProfilesRequestHandler(IRepositoryWrapper Repositor
     {
         List<StreamGroupProfile> streamGroups = Repository.StreamGroup.GetQuery().SelectMany(a => a.StreamGroupProfiles).OrderBy(a => a.ProfileName).ToList();
 
-        return DataResponse<List<StreamGroupProfile>>.Success(streamGroups);
+        return await Task.FromResult(DataResponse<List<StreamGroupProfile>>.Success(streamGroups));
     }
 }

@@ -35,6 +35,6 @@ internal class GetEPGColorsHandler(IRepositoryWrapper Repository, ISchedulesDire
 
         }
 
-        return DataResponse<List<EPGColorDto>>.Success(epgColors);
+        return await Task.FromResult(DataResponse<List<EPGColorDto>>.Success(epgColors));
     }
 }

@@ -7,7 +7,6 @@ public record GetSMChannelStreamsRequest(int SMChannelId) : IRequest<DataRespons
 internal class GetSMChannelStreamssRequestHandler(IRepositoryWrapper Repository, IMapper mapper)
     : IRequestHandler<GetSMChannelStreamsRequest, DataResponse<List<SMStreamDto>>>
 {
-
     public async Task<DataResponse<List<SMStreamDto>>> Handle(GetSMChannelStreamsRequest request, CancellationToken cancellationToken)
     {
         SMChannel? channel = Repository.SMChannel.GetSMChannel(request.SMChannelId);
@@ -17,11 +16,11 @@ internal class GetSMChannelStreamssRequestHandler(IRepositoryWrapper Repository,
 
         }
 
-        List<SMChannelStreamLink> links = Repository.SMChannelStreamLink.GetQuery(true).Where(a => a.SMChannelId == request.SMChannelId).ToList();
+        List<SMChannelStreamLink> links = [.. Repository.SMChannelStreamLink.GetQuery(true).Where(a => a.SMChannelId == request.SMChannelId)];
         List<SMStreamDto> ret = [];
         foreach (SMStream? stream in channel.SMStreams.Select(a => a.SMStream))
         {
-            SMChannelStreamLink? link = links.FirstOrDefault(a => a.SMStreamId == stream.Id);
+            SMChannelStreamLink? link = links.Find(a => a.SMStreamId == stream.Id);
 
             if (link != null)
             {
@@ -31,7 +30,7 @@ internal class GetSMChannelStreamssRequestHandler(IRepositoryWrapper Repository,
             }
         }
 
-        return DataResponse<List<SMStreamDto>>.Success(ret.OrderBy(a => a.Rank).ToList());
+        return await Task.FromResult(DataResponse<List<SMStreamDto>>.Success([.. ret.OrderBy(a => a.Rank)]));
     }
 
 

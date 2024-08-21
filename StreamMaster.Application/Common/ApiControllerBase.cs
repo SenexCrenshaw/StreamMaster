@@ -10,7 +10,6 @@ public abstract class ApiControllerBase : ControllerBase
     private ISender _sender = null!;
     private IOptionsMonitor<Setting> _settingsMonitor = null!;
     private IOptionsMonitor<HLSSettings> _hlsSettingsMonitor = null!;
-    private readonly IHubContext<StreamMasterHub, IStreamMasterHub> _hubContext = null!;
     private IRepositoryWrapper _repositoryWrapper = null!;
     private IStreamGroupService _streamGroupService = null!;
     private ICryptoService _cryptoService = null!;

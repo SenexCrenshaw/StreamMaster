@@ -1,6 +1,4 @@
-﻿using StreamMaster.Domain.Enums;
-
-namespace StreamMaster.Application.Common.Models;
+﻿namespace StreamMaster.Application.Common.Models;
 
 public class BackgroundTaskQueueConfig
 {
@@ -13,7 +11,7 @@ public class BackgroundTaskQueueConfig
 public class DownloadTaskQueueConfig
 {
     public CancellationToken CancellationToken { get; set; }
-    public ProgramMetadata ProgramMetadata { get; set; }
+    public ProgramMetadata ProgramMetadata { get; set; } = new();
     public object? Entity { get; set; }
     public Guid Id { get; set; } = Guid.NewGuid();
 }

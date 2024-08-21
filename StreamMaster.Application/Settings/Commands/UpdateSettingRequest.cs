@@ -38,7 +38,7 @@ public partial class UpdateSettingRequestHandler(
     }
 
 
-    private async ValueTask CopySDNonNullFieldsAsync(SDSettingsRequest source, SDSettings destination)
+    private static void CopySDNonNullFields(SDSettingsRequest source, SDSettings destination)
     {
         if (source == null || destination == null)
         {
@@ -199,7 +199,7 @@ public partial class UpdateSettingRequestHandler(
 
         if (request.Parameters.SDSettings != null)
         {
-            await CopySDNonNullFieldsAsync(request.Parameters.SDSettings, sdsettings);
+            CopySDNonNullFields(request.Parameters.SDSettings, sdsettings);
             SettingsHelper.UpdateSetting(sdsettings);
         }
 

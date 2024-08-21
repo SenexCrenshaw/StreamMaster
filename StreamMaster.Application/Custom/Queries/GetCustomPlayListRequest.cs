@@ -1,6 +1,4 @@
-﻿using StreamMaster.PlayList.Models;
-
-namespace StreamMaster.Application.Custom.Queries;
+﻿namespace StreamMaster.Application.Custom.Queries;
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
@@ -17,7 +15,8 @@ public class GetCustomStreamRequestHandler(ICustomPlayListBuilder customPlayList
         }
 
         CustomPlayList? customPlayList = customPlayListBuilder.GetCustomPlayList(request.SMStreamId);
+        DataResponse<CustomPlayList?> ret = DataResponse<CustomPlayList?>.Success(customPlayList);
 
-        return DataResponse<CustomPlayList?>.Success(customPlayList);
+        return await Task.FromResult(ret);
     }
 }

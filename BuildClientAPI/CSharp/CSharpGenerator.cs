@@ -12,6 +12,7 @@ public static class CSharpGenerator
 
         bool needsQueryInclude = methods.Any(a => a.IsGet);
         bool needsCommandInclude = methods.Any(a => !a.IsGet);
+        bool needsLogger = false;
 
         foreach (MethodDetails method in methods)
         {
@@ -78,7 +79,7 @@ public static class CSharpGenerator
                     //{
 
                     //}
-
+                    needsLogger = true;
                     controllerContent.AppendLine($"        public async Task<ActionResult<{method.ReturnType}>> {method.Name}({fromQ}{method.Name}Request request)");
                     controllerContent.AppendLine($"        {{");
                     controllerContent.AppendLine($"            try");
@@ -99,7 +100,7 @@ public static class CSharpGenerator
                     if (method.Name == "GetIcons")
                     {
                     }
-
+                    needsLogger = true;
                     controllerContent.AppendLine($"        public async Task<ActionResult<{method.ReturnType}>> {method.Name}({method.Parameter})");
                     controllerContent.AppendLine($"        {{");
                     controllerContent.AppendLine($"            try");
@@ -200,7 +201,8 @@ public static class CSharpGenerator
 
         string assssa = controllerContent.ToString();
 
-        WriteControllerAndHub(filePath, namespaceName, controllerContent, hubContent, needsQueryInclude, needsCommandInclude);
+
+        WriteControllerAndHub(filePath, namespaceName, controllerContent, hubContent, needsQueryInclude, needsCommandInclude, needsLogger);
         WriteIControllerAndHub(IFilePath, namespaceName, IcontrollerContent, IhubContent, needsQueryInclude, needsCommandInclude);
     }
 
@@ -240,7 +242,7 @@ namespace StreamMaster.Application.Hubs
         File.WriteAllText(IFilePath, fileContent);
     }
 
-    private static void WriteControllerAndHub(string filePath, string namespaceName, StringBuilder controllerContent, StringBuilder hubContent, bool NeedsQueryInclude, bool NeedsCommandInclude)
+    private static void WriteControllerAndHub(string filePath, string namespaceName, StringBuilder controllerContent, StringBuilder hubContent, bool NeedsQueryInclude, bool NeedsCommandInclude, bool needsLogger)
     {
         string fileContent = "using Microsoft.AspNetCore.Mvc;\n";
         if (NeedsCommandInclude)
@@ -255,10 +257,11 @@ namespace StreamMaster.Application.Hubs
 
         string ns = namespaceName + ".Controllers";
 
+        string logger = needsLogger ? "ILogger<" + namespaceName + "Controller> _logger" : "";
         fileContent += $@"
 namespace StreamMaster.Application.{ns}
 {{
-    public partial class {namespaceName}Controller(ILogger<{namespaceName}Controller> _logger) : ApiControllerBase, I{namespaceName}Controller
+    public partial class {namespaceName}Controller({logger}) : ApiControllerBase, I{namespaceName}Controller
     {{        
 
 {controllerContent}    }}

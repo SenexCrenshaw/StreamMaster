@@ -10,9 +10,9 @@ public class VersionedApiControllerAttribute(int version, string resource = Vers
     public const string API_CORS_POLICY = "ApiCorsPolicy";
     public const string CONTROLLER_RESOURCE = "[controller]";
 
-    public string Name { get; set; }
+    public string Name { get; set; } = string.Empty;
     public int? Order => 2;
-    public string PolicyName { get; set; } = API_CORS_POLICY;
+    public string? PolicyName { get; set; } = API_CORS_POLICY;
     public string Resource { get; } = resource;
     public string Template { get; } = $"{resource}";
 }

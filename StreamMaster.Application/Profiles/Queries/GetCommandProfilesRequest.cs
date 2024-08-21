@@ -9,6 +9,6 @@ internal class GetCommandProfilesRequestHandler(IProfileService profileService)
 {
     public async Task<DataResponse<List<CommandProfileDto>>> Handle(GetCommandProfilesRequest request, CancellationToken cancellationToken)
     {
-        return DataResponse<List<CommandProfileDto>>.Success(profileService.GetCommandProfiles());
+        return await Task.FromResult(DataResponse<List<CommandProfileDto>>.Success(profileService.GetCommandProfiles()));
     }
 }

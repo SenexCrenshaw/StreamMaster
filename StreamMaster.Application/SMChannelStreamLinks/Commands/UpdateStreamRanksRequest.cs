@@ -25,6 +25,6 @@ internal class UpdateStreamRanksRequestHandler(IRepositoryWrapper Repository, IM
             }
         }
         List<SMStreamDto> test = ret.OrderBy(a => a.Rank).ToList();
-        return DataResponse<List<SMStreamDto>>.Success(test);
+        return await Task.FromResult(DataResponse<List<SMStreamDto>>.Success(test));
     }
 }

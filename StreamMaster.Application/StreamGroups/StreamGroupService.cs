@@ -290,11 +290,11 @@ public class StreamGroupService(ILogger<StreamGroupService> _logger, IMapper _ma
         //List<SMChannel> smChannelsOrdered = smChannels.OrderBy(a => a.ChannelNumber).ToList();
 
         ISchedulesDirectData dummyData = _schedulesDirectDataService.DummyData();
-        await Parallel.ForEachAsync(videoStreamConfigs, async (videoStreamConfig, ct) =>
+        await Parallel.ForEachAsync(videoStreamConfigs, (videoStreamConfig, ct) =>
         {
             if (string.IsNullOrEmpty(videoStreamConfig?.EPGId))
             {
-                return;
+                return ValueTask.CompletedTask;
             }
 
             bool isDummy = _epgHelper.IsDummy(videoStreamConfig.EPGId);
@@ -314,7 +314,7 @@ public class StreamGroupService(ILogger<StreamGroupService> _logger, IMapper _ma
                     IsDummy = false
                 };
                 _ = dummyData.FindOrCreateDummyService(videoStreamConfig2.EPGId, videoStreamConfig2);
-                return;
+                return ValueTask.CompletedTask;
             }
 
             int epgNumber = EPGHelper.DummyId;
@@ -344,10 +344,9 @@ public class StreamGroupService(ILogger<StreamGroupService> _logger, IMapper _ma
             MxfService? service = _schedulesDirectDataService.AllServices.GetMxfService(videoStreamConfig.EPGId);
             if (service == null)
             {
-                return;
+                return ValueTask.CompletedTask;
             }
             string graceNote = service?.CallSign ?? stationId;
-            //string id = graceNote;
 
             string logo;
             if (service?.mxfGuideImage != null && !string.IsNullOrEmpty(service.mxfGuideImage.ImageUrl))
@@ -360,14 +359,6 @@ public class StreamGroupService(ILogger<StreamGroupService> _logger, IMapper _ma
             {
                 logo = GetIconUrl(videoStreamConfig.Logo, httpRequest);
             }
-
-            //id = videoStreamConfig.Name;//videoStreamConfig.ChannelNumber.ToString();
-
-            //string guideName = videoStreamConfig.Name;
-            //if (videoStreamConfig.OutputProfile.AppendChannelNumberToId)
-            //{
-            //    guideName = videoStreamConfig.ChannelNumber.ToString() + " " + videoStreamConfig.Name;
-            //}
 
             string id = videoStreamConfig.ChannelNumber.ToString();
 
@@ -404,6 +395,8 @@ public class StreamGroupService(ILogger<StreamGroupService> _logger, IMapper _ma
             {
                 ret.Add(lu);
             }
+
+            return ValueTask.CompletedTask;
         });
 
         string jsonString = JsonSerializer.Serialize(ret.OrderBy(a => a.GuideNumber));

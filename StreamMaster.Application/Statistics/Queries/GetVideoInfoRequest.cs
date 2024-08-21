@@ -10,6 +10,6 @@ internal class GetVideoInfoRequestHandler(IVideoInfoService videoInfoService)
     public async Task<DataResponse<VideoInfo?>> Handle(GetVideoInfoRequest request, CancellationToken cancellationToken)
     {
         VideoInfo? ret = videoInfoService.GetVideoInfo(request.SMStreamId);
-        return DataResponse<VideoInfo?>.Success(ret);
+        return await Task.FromResult(DataResponse<VideoInfo?>.Success(ret));
     }
 }

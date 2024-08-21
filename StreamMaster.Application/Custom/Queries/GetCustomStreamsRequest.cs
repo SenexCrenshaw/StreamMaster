@@ -1,6 +1,4 @@
 ﻿using Microsoft.AspNetCore.Http;
-
-using StreamMaster.PlayList.Models;
 namespace StreamMaster.Application.Custom.Queries;
 
 [SMAPI]
@@ -20,6 +18,6 @@ public class GetCustomPlayListsRequestHandler(IHttpContextAccessor httpContextAc
 
         List<CustomPlayList> customPlayLists = customPlayListBuilder.GetCustomPlayLists();
 
-        return DataResponse<List<CustomPlayList>>.Success(customPlayLists);
+        return await Task.FromResult(DataResponse<List<CustomPlayList>>.Success(customPlayLists));
     }
 }

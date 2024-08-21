@@ -11,8 +11,8 @@ internal class GetSMTasksRequestHandler(IBackgroundTaskQueue backgroundTaskQueue
 {
     public async Task<DataResponse<List<SMTask>>> Handle(GetSMTasksRequest request, CancellationToken cancellationToken)
     {
-        var smTasks = backgroundTaskQueue.GetSMTasks();
+        List<SMTask> smTasks = backgroundTaskQueue.GetSMTasks();
 
-        return DataResponse<List<SMTask>>.Success(smTasks);
+        return await Task.FromResult(DataResponse<List<SMTask>>.Success(smTasks));
     }
 }

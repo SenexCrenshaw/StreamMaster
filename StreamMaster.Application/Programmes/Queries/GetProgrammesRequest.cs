@@ -31,7 +31,7 @@ public class GetProgrammesRequestHandler()
 
         //List<XmltvProgramme> sdprogrammes = progs.OrderBy(a => a.Channel).ToList();
         //programmes = programmes.Concat(sdprogrammes).OrderBy(a => a.Channel).ToList();
-        return [];
+        return await Task.FromResult(new List<XmltvProgramme>());
         //}
 
         //List<IconFileDto> icons = MemoryCache.Icons();

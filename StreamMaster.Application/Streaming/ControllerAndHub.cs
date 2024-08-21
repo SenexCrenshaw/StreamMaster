@@ -3,7 +3,7 @@ using StreamMaster.Application.Streaming.Commands;
 
 namespace StreamMaster.Application.Streaming.Controllers
 {
-    public partial class StreamingController(ILogger<StreamingController> _logger) : ApiControllerBase, IStreamingController
+    public partial class StreamingController() : ApiControllerBase, IStreamingController
     {        
 
         [HttpPatch]

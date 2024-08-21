@@ -3,7 +3,7 @@ using StreamMaster.Application.SMMessages.Commands;
 
 namespace StreamMaster.Application.SMMessages.Controllers
 {
-    public partial class SMMessagesController(ILogger<SMMessagesController> _logger) : ApiControllerBase, ISMMessagesController
+    public partial class SMMessagesController() : ApiControllerBase, ISMMessagesController
     {        
 
         [HttpPatch]

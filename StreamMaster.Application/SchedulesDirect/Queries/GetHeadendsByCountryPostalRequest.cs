@@ -8,16 +8,16 @@ internal class GetHeadendsByCountryPostalRequestHandler(ISchedulesDirect schedul
     : IRequestHandler<GetHeadendsByCountryPostalRequest, DataResponse<List<HeadendDto>>>
 {
 
-    private async Task<List<HeadendDto>> MapFrom(List<Headend> headends, string Country, string PostalCode)
+    private static List<HeadendDto> MapFrom(List<Headend> headends, string Country, string PostalCode)
     {
         //var result = await lineups.GetLineups(CancellationToken.None);
         //var subscribedLineups = result.Select(x => x.Lineup).ToList();
-        var ret = new List<HeadendDto>();
-        foreach (var headend in headends)
+        List<HeadendDto> ret = new();
+        foreach (Headend headend in headends)
         {
-            foreach (var lineup in headend.Lineups)
+            foreach (HeadendLineup lineup in headend.Lineups)
             {
-                var headendDto = new HeadendDto
+                HeadendDto headendDto = new()
                 {
                     Id = headend.HeadendId + "|" + lineup.Lineup,
                     HeadendId = headend.HeadendId,
@@ -39,13 +39,13 @@ internal class GetHeadendsByCountryPostalRequestHandler(ISchedulesDirect schedul
 
     public async Task<DataResponse<List<HeadendDto>>> Handle(GetHeadendsByCountryPostalRequest request, CancellationToken cancellationToken)
     {
-        var result = await schedulesDirect.GetHeadendsByCountryPostal(request.Country, request.PostalCode, cancellationToken);
+        List<Headend>? result = await schedulesDirect.GetHeadendsByCountryPostal(request.Country, request.PostalCode, cancellationToken);
         if (result == null)
         {
             return DataResponse<List<HeadendDto>>.ErrorWithMessage("Request failed");
         }
 
-        var ret = await MapFrom(result, request.Country, request.PostalCode);
+        List<HeadendDto> ret = MapFrom(result, request.Country, request.PostalCode);
 
         return DataResponse<List<HeadendDto>>.Success(ret);
     }

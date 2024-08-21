@@ -10,6 +10,6 @@ internal class GetOutputProfileRequestHandler(IOptionsMonitor<OutputProfileDict>
     public async Task<DataResponse<OutputProfileDto>> Handle(GetOutputProfileRequest request, CancellationToken cancellationToken)
     {
         OutputProfileDto a = intOutputProfileDict.CurrentValue.GetProfileDto(request.OutputProfileName);
-        return DataResponse<OutputProfileDto>.Success(a);
+        return await Task.FromResult(DataResponse<OutputProfileDto>.Success(a));
     }
 }
