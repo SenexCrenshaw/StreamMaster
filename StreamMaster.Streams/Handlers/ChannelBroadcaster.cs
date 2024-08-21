@@ -1,16 +1,17 @@
 ﻿using StreamMaster.PlayList.Models;
 using StreamMaster.Streams.Domain.Events;
 using StreamMaster.Streams.Domain.Helpers;
+using StreamMaster.Streams.Services;
 
 using System.Threading.Channels;
 
 namespace StreamMaster.Streams.Handlers;
 
-public sealed class ChannelBroadcaster(ILogger<IChannelBroadcaster> logger, SMChannelDto smChannelDto, int streamGroupProfileId)
+public sealed class ChannelBroadcaster(ILogger<IChannelBroadcaster> logger, SMChannelDto smChannelDto, int streamGroupProfileId, bool remux)
     : BroadcasterBase(logger), IChannelBroadcaster, IDisposable
 {
     public event EventHandler<ChannelBroascasterStopped>? OnChannelBroadcasterStoppedEvent;
-
+    private readonly Dubcer _dubcer = new(logger);
     /// <inheritdoc/>
     public int Id { get; }
     public override string StringId()
@@ -25,6 +26,8 @@ public sealed class ChannelBroadcaster(ILogger<IChannelBroadcaster> logger, SMCh
 
         // Call base class stop logic
         base.Stop();
+
+        Dubcer?.Stop();
 
         // Additional cleanup or finalization
         OnChannelBroadcasterStoppedEvent?.Invoke(this, new ChannelBroascasterStopped(Id, Name));
@@ -41,6 +44,8 @@ public sealed class ChannelBroadcaster(ILogger<IChannelBroadcaster> logger, SMCh
     public bool FailoverInProgress { get; set; }
     public string? OverrideSMStreamId { get; set; } = null;
     public CustomPlayList? CustomPlayList { get; set; }
+
+    private Dubcer? Dubcer = null;
 
     public void SetSMStreamInfo(SMStreamInfo? smStreamInfo)
     {
@@ -70,7 +75,14 @@ public sealed class ChannelBroadcaster(ILogger<IChannelBroadcaster> logger, SMCh
 
         //dubcer.DubcerChannels(channel.Reader, dubcerChannel.Writer, CancellationToken.None);
 
-        SetSourceChannel(channel.Reader, SourceChannelBroadcaster.Name, CancellationToken.None);
+        if (remux)
+        {
+            Dubcer ??= new(logger);
+            Dubcer.SetSourceChannel(channel.Reader);
+            channel = Dubcer.DubcerChannel;
+        }
+
+        SetSourceChannel(channel.Reader, SourceChannelBroadcaster.Name, channel, CancellationToken.None);
     }
 
     public void Dispose()

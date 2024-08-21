@@ -26,7 +26,6 @@ public abstract class BroadcasterBase(ILogger<IBroadcasterBase> logger) : IBroad
     public bool IsFailed { get; set; } = false;
     public string Name { get; set; } = string.Empty;
     public string SourceName { get; private set; } = string.Empty;
-
     public long ChannelItemBackLog => Interlocked.Read(ref _channelItemCount);
 
     public virtual void Stop()
@@ -53,11 +52,17 @@ public abstract class BroadcasterBase(ILogger<IBroadcasterBase> logger) : IBroad
 
     public StreamHandlerMetrics Metrics => metricsService.Metrics;
 
-    public void SetSourceChannel(ChannelReader<byte[]> sourceChannelReader, string sourceChannelName, CancellationToken cancellationToken)
+    public void SetSourceChannel(ChannelReader<byte[]> sourceChannelReader, string sourceChannelName, Channel<byte[]> newChannel, CancellationToken cancellationToken)
     {
         logger.LogInformation("Setting source channel for {Name} to {sourceChannelName}", Name, sourceChannelName);
         SourceName = sourceChannelName;
-        Channel<byte[]> newChannel = ChannelHelper.GetChannel();
+
+
+        //else
+        //{
+        //    newChannel = ChannelHelper.GetChannel(); // or any other channel configuration
+        //}
+        //Channel<byte[]> newChannel = ChannelHelper.GetChannel();
         StartProcessingSource(sourceChannelReader, null, newChannel, cancellationToken);
     }
 
@@ -66,6 +71,7 @@ public abstract class BroadcasterBase(ILogger<IBroadcasterBase> logger) : IBroad
         logger.LogInformation("Setting source stream to {streamName}", streamName);
         SourceName = streamName;
         Channel<byte[]> newChannel = ChannelHelper.GetChannel();
+
         StartProcessingSource(null, sourceStream, newChannel, cancellationToken);
     }
 

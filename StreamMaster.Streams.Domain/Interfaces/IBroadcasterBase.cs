@@ -58,7 +58,7 @@ public interface IBroadcasterBase : IStreamStats, ISourceName
     /// <param name="sourceChannelReader">The source channel reader.</param>
     /// <param name="sourceChannelName">The name of the source channel.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    void SetSourceChannel(ChannelReader<byte[]> sourceChannelReader, string sourceChannelName, CancellationToken cancellationToken);
+    void SetSourceChannel(ChannelReader<byte[]> sourceChannelReader, string sourceChannelName, Channel<byte[]> newChannel, CancellationToken cancellationToken);
 
     /// <summary>
     /// Sets the source stream.

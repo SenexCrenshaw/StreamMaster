@@ -5,76 +5,93 @@ using System.Threading.Channels;
 
 namespace StreamMaster.Streams.Services
 {
-    public class Dubcer(ILogger<Dubcer> logger) : IDubcer
+    public class Dubcer
     {
         public string SourceName { get; set; } = string.Empty;
-
+        private readonly ILogger<IBroadcasterBase> logger;
         private readonly Channel<byte[]> inputChannel = Channel.CreateUnbounded<byte[]>(new UnboundedChannelOptions { SingleReader = true, SingleWriter = true });
-        public void SetSourceChannel(ChannelReader<byte[]> sourceChannelReader)
+        private Process? ffmpegProcess;
+        private readonly CancellationTokenSource cancellationTokenSource = new();
+
+        public Channel<byte[]> DubcerChannel { get; } = ChannelHelper.GetChannel();
+
+        public Dubcer(ILogger<IBroadcasterBase> logger)
         {
-            Channel<byte[]> dubcerChannel = ChannelHelper.GetChannel();
-            DubcerChannels(sourceChannelReader, dubcerChannel.Writer, CancellationToken.None);
+            this.logger = logger;
+            StartFFmpegProcess();
+            StartFeedingFFmpeg(inputChannel.Reader);
         }
 
-        public void DubcerChannels(ChannelReader<byte[]> channelReader, ChannelWriter<byte[]> channelWriter, CancellationToken cancellationToken)
+        public void SetSourceChannel(ChannelReader<byte[]> sourceChannelReader)
         {
-            logger.LogInformation("Starting dubcer");
             _ = Task.Run(async () =>
             {
-                Process? ffmpegProcess = StartFFmpegProcess() ?? throw new Exception("Failed to start ffmpeg process");
+                await foreach (byte[] data in sourceChannelReader.ReadAllAsync(cancellationTokenSource.Token))
+                {
+                    await inputChannel.Writer.WriteAsync(data, cancellationTokenSource.Token);
+                }
+            });
+        }
+
+        public void Stop()
+        {
+            try
+            {
+                // Signal cancellation to any ongoing tasks
+                cancellationTokenSource.Cancel();
+
+                // Complete the input channel
+                inputChannel.Writer.TryComplete();
+
+                // Wait for ffmpeg process to exit
+                if (ffmpegProcess != null && !ffmpegProcess.HasExited)
+                {
+                    ffmpegProcess.StandardInput.Close(); // Close input to ffmpeg
+                    ffmpegProcess.WaitForExit();
+                }
+
+                DubcerChannel.Writer.TryComplete();
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error during shutdown of Dubcer");
+            }
+            finally
+            {
+                ffmpegProcess?.Dispose();
+                cancellationTokenSource.Dispose();
+            }
+        }
+
+        private void StartFeedingFFmpeg(ChannelReader<byte[]> channelReader)
+        {
+            _ = Task.Run(async () =>
+            {
                 try
                 {
-                    // Writing to ffmpeg
-                    Task writeTask = Task.Run(async () =>
+                    while (await channelReader.WaitToReadAsync(cancellationTokenSource.Token).ConfigureAwait(false))
                     {
-                        await foreach (byte[] data in channelReader.ReadAllAsync(cancellationToken).ConfigureAwait(false))
+                        while (channelReader.TryRead(out byte[]? data))
                         {
-                            if (cancellationToken.IsCancellationRequested)
-                            {
-                                break;
-                            }
-
-                            await ffmpegProcess.StandardInput.BaseStream.WriteAsync(data, cancellationToken).ConfigureAwait(false);
-                            await inputChannel.Writer.WriteAsync(data, cancellationToken).ConfigureAwait(false);
+                            await ffmpegProcess!.StandardInput.BaseStream.WriteAsync(data, cancellationTokenSource.Token).ConfigureAwait(false);
                         }
-                        ffmpegProcess.StandardInput.Close();
-                    }, cancellationToken);
-
-                    // Reading from ffmpeg
-                    Task readTask = Task.Run(async () =>
-                    {
-                        byte[] buffer = new byte[8192];
-                        int bytesRead;
-                        while ((bytesRead = await ffmpegProcess.StandardOutput.BaseStream.ReadAsync(buffer, cancellationToken).ConfigureAwait(false)) > 0)
-                        {
-                            if (cancellationToken.IsCancellationRequested)
-                            {
-                                break;
-                            }
-
-                            byte[] data = new byte[bytesRead];
-                            Array.Copy(buffer, data, bytesRead);
-                            await channelWriter.WriteAsync(data, cancellationToken).ConfigureAwait(false);
-                        }
-                        channelWriter.Complete();
-                    }, cancellationToken);
-
-                    await Task.WhenAll(writeTask, readTask).ConfigureAwait(false);
+                    }
                 }
                 catch (Exception ex)
                 {
-                    // Log error
-                    Debug.WriteLine($"Error in DubcerChannels: {ex.Message}");
+                    if (!cancellationTokenSource.IsCancellationRequested)
+                    {
+                        logger.LogError(ex, "Error feeding data to ffmpeg");
+                    }
                 }
                 finally
                 {
-                    ffmpegProcess.WaitForExit();
-                    ffmpegProcess.Dispose();
+                    ffmpegProcess?.StandardInput.Close();
                 }
-            }, cancellationToken);
+            });
         }
 
-        private static Process? StartFFmpegProcess()
+        private void StartFFmpegProcess()
         {
             string? exec = FileUtil.GetExec("ffmpeg");
             ProcessStartInfo startInfo = new()
@@ -87,7 +104,34 @@ namespace StreamMaster.Streams.Services
                 CreateNoWindow = true
             };
 
-            return Process.Start(startInfo);
+            ffmpegProcess = Process.Start(startInfo);
+
+            // Start reading from ffmpeg and writing to DubcerChannel
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    byte[] buffer = new byte[8192];
+                    int bytesRead;
+                    while ((bytesRead = await ffmpegProcess!.StandardOutput.BaseStream.ReadAsync(buffer, cancellationTokenSource.Token).ConfigureAwait(false)) > 0)
+                    {
+                        byte[] data = new byte[bytesRead];
+                        Array.Copy(buffer, data, bytesRead);
+                        await DubcerChannel.Writer.WriteAsync(data, cancellationTokenSource.Token).ConfigureAwait(false);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    if (!cancellationTokenSource.IsCancellationRequested)
+                    {
+                        logger.LogError(ex, "Error reading from ffmpeg");
+                    }
+                }
+                finally
+                {
+                    DubcerChannel.Writer.Complete();
+                }
+            });
         }
     }
 }
