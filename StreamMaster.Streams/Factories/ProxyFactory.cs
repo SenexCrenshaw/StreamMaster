@@ -35,7 +35,6 @@ public sealed class ProxyFactory(ILogger<ProxyFactory> logger, IHTTPStream HTTPS
                 return await CustomPlayListStream.HandleStream(smStreamInfo, clientUserAgent, cancellationToken).ConfigureAwait(false);
             }
 
-
             if (smStreamInfo.SMStreamType == SMStreamTypeEnum.Message)
             {
                 return await CustomPlayListStream.HandleStream(smStreamInfo, clientUserAgent, cancellationToken).ConfigureAwait(false);
@@ -48,10 +47,8 @@ public sealed class ProxyFactory(ILogger<ProxyFactory> logger, IHTTPStream HTTPS
                 return commandExecutor.ExecuteCommand(commandProfileDto, smStreamInfo.Url, clientUserAgent, null, cancellationToken);
             }
 
-
             //FIX ME : Handler for just commands and not stream master proxy
             return await HTTPStream.HandleStream(smStreamInfo, clientUserAgent, cancellationToken).ConfigureAwait(false);
-
         }
         catch (Exception ex) when (ex is HttpRequestException or Exception)
         {
