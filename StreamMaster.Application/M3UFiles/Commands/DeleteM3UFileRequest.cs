@@ -73,12 +73,6 @@ public class DeleteM3UFileRequestHandler(ILogger<DeleteM3UFileRequest> logger, I
             await Repository.SMStream.DeleteSMStreamsByM3UFiledId(m3UFile.Id, cancellationToken);
             await Repository.SaveAsync().ConfigureAwait(false);
 
-            EntityState state = repositoryContext.M3UFiles.Entry(m3UFile).State;
-
-            Repository.M3UFile.Delete(m3UFile);
-            EntityState state2 = repositoryContext.M3UFiles.Entry(m3UFile).State;
-
-            //  await Repository.SaveAsync().ConfigureAwait(false);
             CacheManager.M3UMaxStreamCounts.TryRemove(m3UFile.Id, out _);
 
             iconService.RemoveIconsByM3UFileId(m3UFile.Id);
