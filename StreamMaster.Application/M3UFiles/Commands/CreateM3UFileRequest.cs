@@ -4,7 +4,7 @@ namespace StreamMaster.Application.M3UFiles.Commands;
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record CreateM3UFileRequest(string Name, int MaxStreamCount, string? DefaultStreamGroupName, string? UrlSource, bool? SyncChannels, int? HoursToUpdate, List<string>? VODTags) : IRequest<APIResponse>;
+public record CreateM3UFileRequest(string Name, int MaxStreamCount, string? DefaultStreamGroupName, string? UrlSource, bool? SyncChannels, int? HoursToUpdate, int? StartingChannelNumber, bool? AutoSetChannelNumbers, List<string>? VODTags) : IRequest<APIResponse>;
 
 [LogExecutionTimeAspect]
 public class CreateM3UFileRequestHandler(ILogger<CreateM3UFileRequest> Logger, ICacheManager CacheManager, IMessageService messageService, IDataRefreshService dataRefreshService, IRepositoryWrapper Repository, IPublisher Publisher)
@@ -33,6 +33,8 @@ public class CreateM3UFileRequestHandler(ILogger<CreateM3UFileRequest> Logger, I
                 HoursToUpdate = request.HoursToUpdate ?? 72,
                 SyncChannels = request.SyncChannels ?? false,
                 DefaultStreamGroupName = request.DefaultStreamGroupName,
+                AutoSetChannelNumbers = request.AutoSetChannelNumbers ?? false,
+                StartingChannelNumber = request.StartingChannelNumber ?? 1
             };
 
             string source = HttpUtility.UrlDecode(request.UrlSource);

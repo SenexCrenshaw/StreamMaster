@@ -70,8 +70,8 @@ const M3UFileDialog = forwardRef<M3UFileDialogRef, M3UFileDialogProperties>(
           HoursToUpdate: 72,
           MaxStreamCount: 1,
           Name: '',
-          SyncChannels: false,
           StartingChannelNumber: 0,
+          SyncChannels: false,
           Url: ''
         } as M3UFileDto),
       []
@@ -110,6 +110,9 @@ const M3UFileDialog = forwardRef<M3UFileDialogRef, M3UFileDialogProperties>(
         createM3UFileRequest.HoursToUpdate = m3uFileDto.HoursToUpdate;
         createM3UFileRequest.SyncChannels = m3uFileDto.SyncChannels;
         createM3UFileRequest.DefaultStreamGroupName = selectedStreamGroup?.Name;
+
+        createM3UFileRequest.AutoSetChannelNumbers = m3uFileDto.AutoSetChannelNumbers;
+        createM3UFileRequest.StartingChannelNumber = m3uFileDto.StartingChannelNumber;
 
         await CreateM3UFile(createM3UFileRequest)
           .then(() => {})

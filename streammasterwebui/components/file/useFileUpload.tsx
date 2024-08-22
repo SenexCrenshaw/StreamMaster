@@ -50,6 +50,8 @@ export function useFileUpload() {
           syncChannels: params.m3uFileDto?.SyncChannels,
           vodTags: params.m3uFileDto?.VODTags,
           file: params.file,
+          autoSetChannelNumbers: params.m3uFileDto?.AutoSetChannelNumbers,
+          startingChannelNumber: params.m3uFileDto?.StartingChannelNumber,
           fileType: params.m3uFileDto === undefined ? 'epg' : 'm3u',
           onUploadProgress: (event: axios.AxiosProgressEvent) => {
             setUploadedBytes(event.loaded);

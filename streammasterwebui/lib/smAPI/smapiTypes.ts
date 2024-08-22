@@ -1168,20 +1168,24 @@ export interface GetPagedM3UFilesRequest
 }
 export interface CreateM3UFileFromFormRequest
 {
+	AutoSetChannelNumbers?: boolean;
 	DefaultStreamGroupName?: string;
 	FormFile?: any;
 	HoursToUpdate?: number;
 	MaxStreamCount?: number;
 	Name: string;
+	StartingChannelNumber?: number;
 	SyncChannels?: boolean;
 	VODTags?: string[];
 }
 export interface CreateM3UFileRequest
 {
+	AutoSetChannelNumbers?: boolean;
 	DefaultStreamGroupName?: string;
 	HoursToUpdate?: number;
 	MaxStreamCount: number;
 	Name: string;
+	StartingChannelNumber?: number;
 	SyncChannels?: boolean;
 	UrlSource?: string;
 	VODTags?: string[];

@@ -2,6 +2,7 @@ import { type AxiosProgressEvent } from 'axios';
 import http from './axios';
 
 export interface UploadProperties {
+  autoSetChannelNumbers?: boolean;
   color?: string;
   defaultStreamGroupName?: string;
   epgNumber?: number;
@@ -18,6 +19,7 @@ export interface UploadProperties {
 }
 
 export const uploadToAPI = async ({
+  autoSetChannelNumbers,
   color,
   defaultStreamGroupName,
   epgNumber,
@@ -44,6 +46,7 @@ export const uploadToAPI = async ({
   if (overWriteChannels) formData.append('overWriteChannels', overWriteChannels?.toString() ?? 'true');
   if (maxStreamCount) formData.append('maxStreamCount', maxStreamCount?.toString() ?? '1');
   if (startingChannelNumber) formData.append('startingChannelNumber', startingChannelNumber?.toString() ?? '1');
+  if (autoSetChannelNumbers) formData.append('autoSetChannelNumbers', autoSetChannelNumbers?.toString() ?? 'false');
   if (epgNumber) formData.append('epgNumber', epgNumber?.toString() ?? '1');
   if (timeShift) formData.append('timeShift', timeShift?.toString() ?? '0');
   if (vodTags)

@@ -2,9 +2,21 @@
 
 namespace StreamMaster.Streams.Handlers;
 
-public class SourceBroadcaster(ILogger<ISourceBroadcaster> logger, SMStreamInfo smStreamInfo)
-    : BroadcasterBase(logger), ISourceBroadcaster
+public class SourceBroadcaster : BroadcasterBase, ISourceBroadcaster
 {
+    private readonly ILogger<ISourceBroadcaster> logger;
+
+    public SourceBroadcaster() : base(null)
+    {
+
+    }
+
+    public SourceBroadcaster(ILogger<ISourceBroadcaster> logger, SMStreamInfo smStreamInfo) : base(logger)
+    {
+        this.logger = logger;
+        this.SMStreamInfo = smStreamInfo;
+    }
+
     public event EventHandler<StreamBroadcasterStopped>? OnStreamBroadcasterStoppedEvent;
 
     public override string StringId()
@@ -15,7 +27,7 @@ public class SourceBroadcaster(ILogger<ISourceBroadcaster> logger, SMStreamInfo 
     /// <inheritdoc/>
     public string Id => SMStreamInfo.Url;
 
-    public SMStreamInfo SMStreamInfo => smStreamInfo;
+    public SMStreamInfo SMStreamInfo { get; }
 
     /// <inheritdoc/>
     public override void Stop()
