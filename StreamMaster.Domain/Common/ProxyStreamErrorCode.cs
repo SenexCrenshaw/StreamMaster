@@ -12,5 +12,6 @@ public enum ProxyStreamErrorCode
     DownloadError,
     MasterPlayListNotSupported,
     ProcessStartFailed,
-    OperationCancelled
+    OperationCancelled,
+    Timeout
 }

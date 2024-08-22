@@ -20,7 +20,7 @@ export function GetInputNumberLine({ ...props }: InputNumberLineProps): React.Re
   const help = getHelp(props.field);
   const defaultSetting = getDefaultSetting(props.field);
 
-  const validatedMax = props.max === null ? 3600 : Math.min(props.max ?? 3600, 3600);
+  const validatedMax = props.max === null ? 3600 : Math.min(props.max ?? 999999, 999999);
   const validatedMin = props.min === null ? 0 : Math.max(Math.min(props.min ?? 0, validatedMax - 1), 0);
 
   return GetLine({
