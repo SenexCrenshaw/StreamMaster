@@ -7,7 +7,7 @@ namespace StreamMaster.Streams.Domain.Helpers
     /// </summary>
     public static class ChannelHelper
     {
-        public const int DefaultChannelCapacity = 100;
+        public const int DefaultChannelCapacity = 20;
         /// <summary>
         /// Creates a channel for transferring byte arrays.
         /// </summary>
