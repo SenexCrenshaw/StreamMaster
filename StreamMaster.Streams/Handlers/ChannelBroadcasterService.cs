@@ -13,7 +13,7 @@ namespace StreamMaster.Streams.Handlers
     /// </remarks>
     /// <param name="logger">Logger for this service.</param>
     /// <param name="channelStatusLogger">Logger for channel status.</param>
-    public class ChannelBroadcasterService(ILogger<ChannelBroadcasterService> logger, IOptionsMonitor<Setting> _settings, ICacheManager cacheManager, ILogger<IChannelBroadcaster> channelStatusLogger)
+    public class ChannelBroadcasterService(ILogger<ChannelBroadcasterService> logger, IOptionsMonitor<Setting> _settings, ICacheManager cacheManager, IStreamLimitsService streamLimitsService, ILogger<IChannelBroadcaster> channelStatusLogger)
         : IChannelBroadcasterService
     {
         /// <inheritdoc/>
@@ -104,8 +104,11 @@ namespace StreamMaster.Streams.Handlers
                 await UnRegisterClientAsync(config.UniqueRequestId).ConfigureAwait(false);
             }
 
+            bool limited = streamLimitsService.IsLimited(sourceChannelBroadcaster.SMStreamInfo.Id);
+            //(int currentStreamCount, int maxStreamCount) = streamLimitsService.GetStreamLimits(sourceChannelBroadcaster.SMStreamInfo.Id);
+
             sourceChannelBroadcaster.Shutdown = true;
-            int delay = _settings.CurrentValue.ShutDownDelay;
+            int delay = limited ? 0 : _settings.CurrentValue.ShutDownDelay;
             if (delay > 0)
             {
                 await UnRegisterChannelAfterDelayAsync(sourceChannelBroadcaster, TimeSpan.FromMilliseconds(delay), CancellationToken.None).ConfigureAwait(false);

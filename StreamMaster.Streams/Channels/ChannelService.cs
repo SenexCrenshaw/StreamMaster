@@ -145,75 +145,6 @@ namespace StreamMaster.Streams.Channels
 
             return channelBroadcaster;
         }
-
-        //public async Task<IChannelBroadcaster?> SetupChannelAsync(SMChannelDto smChannel)
-        //{
-        //    // Implementation commented out for brevity
-        //    return null;
-        //}
-
-        //private List<string> RunningUrls => _cacheManager.ChannelBroadcasters.Values
-        //    .Where(a => a.ClientCount > 0 && a.SMStreamInfo != null)
-        //    .Select(a => a.SMStreamInfo!.Url)
-        //    .Distinct()
-        //    .ToList();
-
-        //public async Task CheckForEmptyBroadcastersAsync(CancellationToken cancellationToken = default)
-        //{
-        //    List<Task> tasks = [];
-
-        //    foreach (IChannelBroadcaster? channelBroadcaster in _cacheManager.ChannelBroadcasters.Values.Where(a => a.SMStreamInfo != null))
-        //    {
-        //        if (channelBroadcaster.ClientChannelWriters.IsEmpty && !RunningUrls.Contains(channelBroadcaster.SMStreamInfo!.Url))
-        //        {
-        //            tasks.Add(StopChannelAsync(channelBroadcaster));
-        //        }
-        //    }
-
-        //    await Task.WhenAll(tasks).ConfigureAwait(false);
-        //}
-
-        //public async Task StopChannelAsync(IChannelBroadcaster channelBroadcaster, bool force = false)
-        //{
-        //    if (channelBroadcaster.Shutdown)
-        //    {
-        //        return;
-        //    }
-
-        //    channelBroadcaster.Shutdown = true;
-
-        //    //int delay = force ? 0 : _settings.CurrentValue.ShutDownDelay;
-        //    //bool closed = delay > 0
-        //    //    ? await UnRegisterChannelAfterDelayAsync(channelBroadcaster, TimeSpan.FromMilliseconds(delay), CancellationToken.None).ConfigureAwait(false)
-        //    //    : await UnRegisterChannelAsync(channelBroadcaster).ConfigureAwait(false);
-        //    await UnRegisterChannelAsync(channelBroadcaster).ConfigureAwait(false);
-
-        //    //if (closed)
-        //    //{
-        //    //    //channelBroadcaster.Stop();
-        //    //    //_sourceBroadcasterService.Stop(channelBroadcaster.Id.ToString());
-        //    //    //foreach (IClientConfiguration clientConfiguration in channelBroadcaster.GetClientStreamerConfigurations())
-        //    //    //{
-        //    //    //    clientConfiguration.ClientStream?.Flush();
-        //    //    //    clientConfiguration.ClientStream?.Dispose();
-        //    //    //    await clientConfiguration.Response.CompleteAsync().ConfigureAwait(false);
-        //    //    //}
-
-        //    //    //List<ISourceBroadcaster> streamBroadcasters = _sourceBroadcasterService.GetStreamBroadcasters()
-        //    //    //    .Where(cd => cd.ClientChannelWriters.Any(cc => cc.Key == channelBroadcaster.Id.ToString()))
-        //    //    //    .ToList();
-
-        //    //    //foreach (ISourceBroadcaster? sourceBroadcaster in streamBroadcasters)
-        //    //    //{
-        //    //    //    //if (_sourceBroadcasterService.RemoveChannelStreamer(sourceBroadcaster.Id))
-        //    //    //    //{
-        //    //    //    _sourceBroadcasterService.StopAndUnRegisterSourceBroadcaster(sourceBroadcaster.Id);
-        //    //    //    //}
-        //    //    //}
-
-        //    //    //await CheckForEmptyBroadcastersAsync().ConfigureAwait(false);
-        //    //}
-        //}
         public IChannelBroadcaster? GetChannelBroadcaster(int smChannelId)
         {
             _cacheManager.ChannelBroadcasters.TryGetValue(smChannelId, out IChannelBroadcaster? channelBroadcaster);
@@ -296,11 +227,6 @@ namespace StreamMaster.Streams.Channels
             }
 
             channelBroadcaster.SetSourceChannelBroadcaster(sourceChannelBroadcaster);
-
-            //if (!channelBroadcaster.SMStreamInfo.Id.StartsWith(IntroPlayListBuilder.IntroIDPrefix, StringComparison.InvariantCulture))
-            //{
-            //    _videoInfoService.SetSourceChannel(sourceChannelBroadcaster, channelBroadcaster.SMStreamInfo.Url, channelBroadcaster.SMStreamInfo.Name);
-            //}
 
             channelBroadcaster.FailoverInProgress = false;
 

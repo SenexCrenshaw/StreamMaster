@@ -110,8 +110,15 @@
         {
             logger.LogInformation("UnRegister With ChannelManager client: {UniqueRequestId} {name}", config.UniqueRequestId, config.SMChannel.Name);
 
-            await channelService.UnRegisterClientAsync(config.UniqueRequestId);
-
+            try
+            {
+                await _registerSemaphore.WaitAsync();
+                await channelService.UnRegisterClientAsync(config.UniqueRequestId);
+            }
+            finally
+            {
+                _ = _registerSemaphore.Release();
+            }
         }
 
         /// <inheritdoc/>
