@@ -66,6 +66,7 @@ public sealed class ChannelBroadcaster(ILogger<IChannelBroadcaster> logger, SMCh
         IsGlobal = true;
     }
 
+
     public void SetSourceChannelBroadcaster(ISourceBroadcaster SourceChannelBroadcaster)
     {
 
@@ -73,13 +74,14 @@ public sealed class ChannelBroadcaster(ILogger<IChannelBroadcaster> logger, SMCh
         {
             Dubcer ??= new(logger);
             SourceChannelBroadcaster.AddChannelStreamer(SMChannel.Id, Dubcer.DubcerChannel.Writer);
-            SetSourceChannel(Dubcer.DubcerChannel, SourceChannelBroadcaster.Name, CancellationToken.None);
+            //SetSourceChannel(Dubcer.DubcerChannel, SourceChannelBroadcaster.Name, CancellationToken.None);
+            SetSourceChannel(Dubcer.DubcerChannel.Reader, SourceChannelBroadcaster.Name, CancellationToken.None);
         }
         else
         {
             Channel<byte[]> channel = ChannelHelper.GetChannel();
             SourceChannelBroadcaster.AddChannelStreamer(SMChannel.Id, channel.Writer);
-            SetSourceChannel(channel, SourceChannelBroadcaster.Name, CancellationToken.None);
+            SetSourceChannel(channel.Reader, SourceChannelBroadcaster.Name, CancellationToken.None);
         }
 
     }

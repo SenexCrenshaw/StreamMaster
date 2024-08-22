@@ -9,12 +9,7 @@ namespace StreamMaster.Streams.Clients;
 
 public sealed class ClientReadStream : Stream, IClientReadStream
 {
-    private readonly CancellationTokenSource _readCancel = new();
     private readonly ILogger<ClientReadStream> logger;
-    //private long totalBytesRead = 0;
-    //private double totalLatency = 0;
-    //private int readOperations = 0;
-    //private readonly DateTime startTime;
     private readonly MetricsService MetricsService = new();
 
     public ClientReadStream(ILoggerFactory loggerFactory, string UniqueRequestId)
@@ -23,17 +18,8 @@ public sealed class ClientReadStream : Stream, IClientReadStream
 
         this.UniqueRequestId = UniqueRequestId;
         Channel = ChannelHelper.GetChannel();
-        //startTime = DateTime.UtcNow;
         logger.LogInformation("New client read stream for UniqueRequestId: {UniqueRequestId}", UniqueRequestId);
     }
-
-    //public StreamHandlerMetrics Metrics => new()
-    //{
-    //    BytesRead = GetBytesRead(),
-    //    Kbps = GetKbps(),
-    //    StartTime = GetStartTime(),
-    //    AverageLatency = GetAverageLatency()
-    //};
     public StreamHandlerMetrics Metrics => MetricsService.Metrics;
 
     public Channel<byte[]> Channel { get; }
@@ -120,7 +106,8 @@ public sealed class ClientReadStream : Stream, IClientReadStream
     {
         IsCancelled = true;
     }
-    private bool _disposed = false; // To track whether Dispose has been called
+
+    private bool _disposed = false;
 
     protected override void Dispose(bool disposing)
     {
@@ -129,8 +116,6 @@ public sealed class ClientReadStream : Stream, IClientReadStream
             if (disposing)
             {
             }
-
-            // Dispose unmanaged resources here if any
 
             _disposed = true;
         }
@@ -164,7 +149,7 @@ public sealed class ClientReadStream : Stream, IClientReadStream
         try
         {
             CancellationTokenSource timedToken = new(TimeSpan.FromSeconds(30));
-            using CancellationTokenSource linkedCts = CancellationTokenSource.CreateLinkedTokenSource(_readCancel.Token, timedToken.Token, cancellationToken);
+            using CancellationTokenSource linkedCts = CancellationTokenSource.CreateLinkedTokenSource(timedToken.Token, cancellationToken);
 
             byte[] read = await Channel.Reader.ReadAsync(linkedCts.Token);
             bytesRead = read.Length;
@@ -174,9 +159,6 @@ public sealed class ClientReadStream : Stream, IClientReadStream
                 return 0;
             }
             read[..bytesRead].CopyTo(buffer);
-            // Update statistics
-            //totalBytesRead += bytesRead;
-            //readOperations++;
 
             if (timedToken.IsCancellationRequested)
             {
@@ -191,19 +173,17 @@ public sealed class ClientReadStream : Stream, IClientReadStream
         catch (TaskCanceledException ex)
         {
             logger.LogInformation(ex, "ReadAsync cancelled ended for UniqueRequestId: {UniqueRequestId}", UniqueRequestId);
-            logger.LogInformation("ReadAsync {_readCancel.Token}", _readCancel.Token.IsCancellationRequested);
             logger.LogInformation("ReadAsync {cancellationToken}", cancellationToken.IsCancellationRequested);
-            bytesRead = 1;
+            bytesRead = 0;
         }
         catch (Exception ex)
         {
-            logger.LogInformation(ex, "ReadAsync {cancellationToken}", cancellationToken.IsCancellationRequested);
-            bytesRead = 1;
+            //logger.LogInformation(ex, "ReadAsync {cancellationToken}", cancellationToken.IsCancellationRequested);
+            bytesRead = 0;
         }
         finally
         {
             stopWatch.Stop();
-            //totalLatency += stopWatch.Elapsed.TotalMilliseconds;
             MetricsService.RecordMetrics(bytesRead, stopWatch.Elapsed.TotalMilliseconds);
             if (bytesRead == 0)
             {
@@ -213,29 +193,4 @@ public sealed class ClientReadStream : Stream, IClientReadStream
 
         return bytesRead;
     }
-
-    //public double GetAverageLatency()
-    //{
-    //    return readOperations == 0 ? 0 : totalLatency / readOperations;
-    //}
-
-    //public long GetBytesRead()
-    //{
-    //    return totalBytesRead;
-    //}
-
-    //public double GetKbps()
-    //{
-    //    TimeSpan elapsed = DateTime.UtcNow - startTime;
-    //    if (elapsed.TotalSeconds == 0)
-    //    {
-    //        return 0;
-    //    }
-    //    return totalBytesRead * 8 / elapsed.TotalSeconds / 1000; // bytes to kilobits
-    //}
-
-    //public DateTime GetStartTime()
-    //{
-    //    return startTime;
-    //}
 }

@@ -80,18 +80,22 @@ public class SourceProcessingService(ILogger<IBroadcasterBase> logger) : ISource
         {
             case TaskCanceledException _:
             case OperationCanceledException _:
-                logger.LogInformation(ex, "Stream reading canceled.");
+                logger.LogInformation("Source Reader stopped.");
+                logger.LogDebug(ex, "Source Reader stopped.");
                 break;
             case EndOfStreamException _:
-                logger.LogInformation(ex, "End of stream reached.");
+                logger.LogInformation("Source Reader stopped.");
+                logger.LogDebug(ex, "Source Reader End of stream reached.");
                 inputStreamError = true;
                 break;
             case HttpIOException _:
-                logger.LogInformation(ex, "HTTP I/O exception occurred.");
+                logger.LogInformation("Source Reader stopped.");
+                logger.LogDebug(ex, "Source Reader HTTP I/O exception occurred.");
                 inputStreamError = true;
                 break;
             default:
-                logger.LogError(ex, "Unexpected error occurred.");
+                logger.LogInformation("Source Reader stopped.");
+                logger.LogDebug(ex, "Source Reader Unexpected error occurred.");
                 break;
         }
     }

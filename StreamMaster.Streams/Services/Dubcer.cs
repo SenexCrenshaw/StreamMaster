@@ -65,7 +65,7 @@ namespace StreamMaster.Streams.Services
             ProcessStartInfo startInfo = new()
             {
                 FileName = exec,
-                Arguments = "-hide_banner -loglevel error -i pipe:0 -c copy -vsync 1 -f mpegts pipe:1",
+                Arguments = "-hide_banner -loglevel error -hwaccel cuda -i pipe:0 -c:v h264_nvenc -preset fast -cq 23 -c:a aac -b:a 128k -f mpegts pipe:1",// " - hide_banner -loglevel error -i pipe:0 -c copy -vsync 1 -f mpegts pipe:1",
                 RedirectStandardInput = true,
                 RedirectStandardOutput = true,
                 UseShellExecute = false,
@@ -106,30 +106,57 @@ namespace StreamMaster.Streams.Services
         {
             try
             {
-                // Signal cancellation to any ongoing tasks
-                cancellationTokenSource.Cancel();
+                // Check if cancellation has already been requested
+                if (!cancellationTokenSource.IsCancellationRequested)
+                {
+                    // Signal cancellation to any ongoing tasks
+                    cancellationTokenSource.Cancel();
+                }
 
                 // Complete the input channel
                 inputChannel.Writer.TryComplete();
 
-                // Wait for ffmpeg process to exit
+                // Wait for ffmpeg process to exit quietly
                 if (ffmpegProcess != null && !ffmpegProcess.HasExited)
                 {
-                    ffmpegProcess.StandardInput.Close(); // Close input to ffmpeg
-                    ffmpegProcess.WaitForExit();
+                    try
+                    {
+                        ffmpegProcess.StandardInput.Close(); // Close input to ffmpeg
+                        ffmpegProcess.WaitForExit();
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.LogWarning(ex, "Error while waiting for ffmpeg process to exit, but continuing with shutdown.");
+                    }
                 }
 
                 DubcerChannel.Writer.TryComplete();
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Error during shutdown of Dubcer");
+                logger.LogError(ex, "Unexpected error during shutdown of Dubcer");
             }
             finally
             {
-                ffmpegProcess?.Dispose();
-                cancellationTokenSource.Dispose();
+                try
+                {
+                    ffmpegProcess?.Dispose();
+                }
+                catch (Exception ex)
+                {
+                    logger.LogWarning(ex, "Error disposing ffmpeg process, but continuing with shutdown.");
+                }
+
+                try
+                {
+                    cancellationTokenSource.Dispose();
+                }
+                catch (Exception ex)
+                {
+                    logger.LogWarning(ex, "Error disposing CancellationTokenSource, but continuing with shutdown.");
+                }
             }
         }
+
     }
 }

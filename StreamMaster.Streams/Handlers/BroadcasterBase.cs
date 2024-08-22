@@ -52,6 +52,16 @@ public abstract class BroadcasterBase(ILogger<IBroadcasterBase> logger) : IBroad
 
     public StreamHandlerMetrics Metrics => metricsService.Metrics;
 
+    public void SetSourceChannel(ChannelReader<byte[]> sourceChannelReader, string sourceChannelName, CancellationToken cancellationToken)
+    {
+        logger.LogInformation("Setting source channel for {Name} to {sourceChannelName}", Name, sourceChannelName);
+        SourceName = sourceChannelName;
+        Channel<byte[]> newChannel = ChannelHelper.GetChannel();
+        //_currentChannel?.Writer.TryComplete();
+        StartProcessingSource(sourceChannelReader, null, newChannel, cancellationToken);
+    }
+
+
     public void SetSourceChannel(Channel<byte[]> sourceChannel, string sourceChannelName, CancellationToken cancellationToken)
     {
         logger.LogInformation("Setting source channel for {Name} to {sourceChannelName}", Name, sourceChannelName);
@@ -107,12 +117,19 @@ public abstract class BroadcasterBase(ILogger<IBroadcasterBase> logger) : IBroad
                     Interlocked.Decrement(ref _channelItemCount);
                 }
             }
-            catch (OperationCanceledException)
+            catch (OperationCanceledException ex)
             {
-                logger.LogInformation("Stream operation canceled or ended for: {name}", Name);
+                logger.LogInformation("Stream operation stopped for: {name}", Name);
+                logger.LogDebug(ex, "Stream operation stopped for: {name}", Name);
+            }
+            catch (ChannelClosedException ex)
+            {
+                logger.LogInformation("Stream operation stopped for: {name}", Name);
+                logger.LogDebug(ex, "Stream channel closed for: {name}", Name);
             }
             catch (Exception ex)
             {
+                logger.LogInformation("Stream operation stopped for: {name}", Name);
                 logger.LogError(ex, "Unexpected error during stream reading for: {name}", Name);
             }
         }, token);
