@@ -181,7 +181,7 @@ void OnShutdown()
     IImageDownloadService imageDownloadService = app.Services.GetRequiredService<IImageDownloadService>();
     imageDownloadService.StopAsync(CancellationToken.None).Wait();
 
-    DirectoryHelper.EmptyDirectory(BuildInfo.HLSOutputFolder);
+    //DirectoryHelper.EmptyDirectory(BuildInfo.HLSOutputFolder);
 
     FileUtil.Backup().Wait();
 }

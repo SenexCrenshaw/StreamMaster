@@ -1,5 +1,4 @@
 ﻿using StreamMaster.Application.Services;
-using StreamMaster.Domain.Helpers;
 using StreamMaster.Infrastructure.EF.PGSQL;
 
 namespace StreamMaster.API.Services;
@@ -16,7 +15,7 @@ public class PostStartup(ILogger<PostStartup> logger, IServiceProvider servicePr
 
         logger.LogInformation($"Stream Master is starting.");
 
-        DirectoryHelper.EmptyDirectory(BuildInfo.HLSOutputFolder);
+        //DirectoryHelper.EmptyDirectory(BuildInfo.HLSOutputFolder);
 
         using IServiceScope scope = serviceProvider.CreateScope();
         PGSQLRepositoryContext repositoryContext = scope.ServiceProvider.GetRequiredService<PGSQLRepositoryContext>();

@@ -21,12 +21,12 @@ public static class ConfigureServices
         services.AddTransient<IHTTPStream, HTTPStream>();
         services.AddTransient<ICommandStream, CommandStream>();
         services.AddSingleton<ISourceBroadcasterService, SourceBroadcasterService>();
-        services.AddSingleton<IHLSManager, HLSManager>();
+        //services.AddSingleton<IHLSManager, HLSManager>();
         services.AddSingleton<IStreamTracker, StreamTracker>();
         services.AddSingleton<IAccessTracker, AccessTracker>();
-        services.AddHostedService<InActiveStreamMonitor>();
+        //services.AddHostedService<InActiveStreamMonitor>();
         services.AddSingleton<ISwitchToNextStreamService, SwitchToNextStreamService>();
-        services.AddSingleton<IM3U8Generator, M3U8Generator>();
+        //services.AddSingleton<IM3U8Generator, M3U8Generator>();
         services.AddSingleton<IChannelBroadcasterService, ChannelBroadcasterService>();
         services.AddSingleton<IClientConfigurationService, ClientConfigurationService>();
         services.AddSingleton<IVideoInfoService, VideoInfoService>();
