@@ -52,7 +52,7 @@ public abstract class BroadcasterBase(ILogger<IBroadcasterBase> logger) : IBroad
 
     public StreamHandlerMetrics Metrics => metricsService.Metrics;
 
-    public void SetSourceChannel(ChannelReader<byte[]> sourceChannelReader, string sourceChannelName, Channel<byte[]> newChannel, CancellationToken cancellationToken)
+    public void SetSourceChannel(Channel<byte[]> sourceChannel, string sourceChannelName, CancellationToken cancellationToken)
     {
         logger.LogInformation("Setting source channel for {Name} to {sourceChannelName}", Name, sourceChannelName);
         SourceName = sourceChannelName;
@@ -63,7 +63,7 @@ public abstract class BroadcasterBase(ILogger<IBroadcasterBase> logger) : IBroad
         //    newChannel = ChannelHelper.GetChannel(); // or any other channel configuration
         //}
         //Channel<byte[]> newChannel = ChannelHelper.GetChannel();
-        StartProcessingSource(sourceChannelReader, null, newChannel, cancellationToken);
+        StartProcessingSource(sourceChannel.Reader, null, sourceChannel, cancellationToken);
     }
 
     public void SetSourceStream(Stream sourceStream, string streamName, CancellationToken cancellationToken)
@@ -186,7 +186,7 @@ public abstract class BroadcasterBase(ILogger<IBroadcasterBase> logger) : IBroad
     {
         if (ClientStreamerConfigurations.TryRemove(uniqueRequestId, out IClientConfiguration? clientConfiguration) && ClientChannelWriters.TryRemove(uniqueRequestId, out _))
         {
-            logger.LogInformation("Remove client streamer: {UniqueRequestId} {Name}", uniqueRequestId, Name);
+            logger.LogInformation("Removed client streamer: {UniqueRequestId} {Name}", uniqueRequestId, Name);
             clientConfiguration.Stop();
             return true;
         }

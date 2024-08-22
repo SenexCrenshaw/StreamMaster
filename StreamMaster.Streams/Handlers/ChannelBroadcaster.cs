@@ -11,9 +11,9 @@ public sealed class ChannelBroadcaster(ILogger<IChannelBroadcaster> logger, SMCh
     : BroadcasterBase(logger), IChannelBroadcaster, IDisposable
 {
     public event EventHandler<ChannelBroascasterStopped>? OnChannelBroadcasterStoppedEvent;
-    private readonly Dubcer _dubcer = new(logger);
+
     /// <inheritdoc/>
-    public int Id { get; }
+    public int Id => smChannelDto.Id;
     public override string StringId()
     {
         return Id.ToString();
@@ -68,21 +68,20 @@ public sealed class ChannelBroadcaster(ILogger<IChannelBroadcaster> logger, SMCh
 
     public void SetSourceChannelBroadcaster(ISourceBroadcaster SourceChannelBroadcaster)
     {
-        Channel<byte[]> channel = ChannelHelper.GetChannel();
-        //Channel<byte[]> dubcerChannel = ChannelHelper.GetChannel();
-
-        SourceChannelBroadcaster.AddChannelStreamer(SMChannel.Id, channel.Writer);
-
-        //dubcer.DubcerChannels(channel.Reader, dubcerChannel.Writer, CancellationToken.None);
 
         if (remux)
         {
             Dubcer ??= new(logger);
-            Dubcer.SetSourceChannel(channel.Reader);
-            channel = Dubcer.DubcerChannel;
+            SourceChannelBroadcaster.AddChannelStreamer(SMChannel.Id, Dubcer.DubcerChannel.Writer);
+            SetSourceChannel(Dubcer.DubcerChannel, SourceChannelBroadcaster.Name, CancellationToken.None);
+        }
+        else
+        {
+            Channel<byte[]> channel = ChannelHelper.GetChannel();
+            SourceChannelBroadcaster.AddChannelStreamer(SMChannel.Id, channel.Writer);
+            SetSourceChannel(channel, SourceChannelBroadcaster.Name, CancellationToken.None);
         }
 
-        SetSourceChannel(channel.Reader, SourceChannelBroadcaster.Name, channel, CancellationToken.None);
     }
 
     public void Dispose()
