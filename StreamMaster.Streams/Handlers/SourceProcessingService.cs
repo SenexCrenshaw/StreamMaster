@@ -50,24 +50,35 @@ public class SourceProcessingService(ILogger<IBroadcasterBase> logger, IOptionsM
                     // Start the read task
                     Task<int> readTask = sourceStream.ReadAsync(buffer, token).AsTask();
 
-                    // Wait for the read task or timeout
                     Task completedTask;
                     if (_settings.CurrentValue.ReadTimeOutMs > 0)
                     {
                         // Create a timeout task if ReadTimeOutMs is greater than 0
                         Task timeoutTask = Task.Delay(_settings.CurrentValue.ReadTimeOutMs, token);
+
+                        sw.Restart(); // Start the stopwatch to measure time for the read/timeout decision
                         completedTask = await Task.WhenAny(readTask, timeoutTask).ConfigureAwait(false);
+                        sw.Stop();
+
+                        // Log the time taken for the read or timeout decision
+                        logger.LogDebug("Read/timeout decision took {ElapsedMilliseconds} ms", sw.ElapsedMilliseconds);
 
                         if (completedTask == timeoutTask)
                         {
                             // Handle the timeout case
+                            logger.LogDebug("Read operation timed out after {ElapsedMilliseconds} ms", sw.ElapsedMilliseconds);
                             throw new TimeoutException("Read operation timed out.");
                         }
                     }
                     else
                     {
                         // No timeout, just await the read task
+                        sw.Restart(); // Start the stopwatch for just the read operation
                         completedTask = readTask;
+                        sw.Stop();
+
+                        // Log the time taken for the read operation
+                        logger.LogDebug("Read operation took {ElapsedMilliseconds} ms", sw.ElapsedMilliseconds);
                     }
 
                     int bytesRead = await readTask.ConfigureAwait(false);
