@@ -42,7 +42,7 @@ namespace StreamMaster.Streams.Services
                     return sourceBroadcaster;
                 }
 
-                sourceBroadcaster = new SourceBroadcaster(sourceBroadcasterLogger, smStreamInfo);
+                sourceBroadcaster = new SourceBroadcaster(sourceBroadcasterLogger, smStreamInfo, _settings);
 
                 logger.LogInformation("Created new source stream for: {Id} {name}", smStreamInfo.Id, smStreamInfo.Name);
 

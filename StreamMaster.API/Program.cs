@@ -201,7 +201,7 @@ else
     _ = app.UseHsts();
 }
 
-app.UseHttpLogging();
+//app.UseHttpLogging();
 app.UseMigrationsEndPoint();
 app.UseSession();
 

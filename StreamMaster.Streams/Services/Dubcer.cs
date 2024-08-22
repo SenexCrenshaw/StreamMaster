@@ -79,7 +79,7 @@ namespace StreamMaster.Streams.Services
             {
                 try
                 {
-                    byte[] buffer = new byte[8192];
+                    byte[] buffer = new byte[BuildInfo.BufferSize];
                     int bytesRead;
                     while ((bytesRead = await ffmpegProcess!.StandardOutput.BaseStream.ReadAsync(buffer, cancellationTokenSource.Token).ConfigureAwait(false)) > 0)
                     {

@@ -6,15 +6,15 @@ public class SourceBroadcaster : BroadcasterBase, ISourceBroadcaster
 {
     private readonly ILogger<ISourceBroadcaster> logger;
 
-    public SourceBroadcaster() : base(null)
+    public SourceBroadcaster() : base(null, null)
     {
 
     }
 
-    public SourceBroadcaster(ILogger<ISourceBroadcaster> logger, SMStreamInfo smStreamInfo) : base(logger)
+    public SourceBroadcaster(ILogger<ISourceBroadcaster> logger, SMStreamInfo smStreamInfo, IOptionsMonitor<Setting> _settings) : base(logger, _settings)
     {
         this.logger = logger;
-        this.SMStreamInfo = smStreamInfo;
+        SMStreamInfo = smStreamInfo;
     }
 
     public event EventHandler<StreamBroadcasterStopped>? OnStreamBroadcasterStoppedEvent;
@@ -27,18 +27,25 @@ public class SourceBroadcaster : BroadcasterBase, ISourceBroadcaster
     /// <inheritdoc/>
     public string Id => SMStreamInfo.Url;
 
+    public override string Name => SMStreamInfo.Name;
+
     public SMStreamInfo SMStreamInfo { get; }
+
+    private int _isStopped;
 
     /// <inheritdoc/>
     public override void Stop()
     {
-        // Derived-specific logic before stopping
-        logger.LogInformation("Source Broadcaster stopped: {Name}", Name);
+        if (Interlocked.CompareExchange(ref _isStopped, 1, 0) == 0)
+        {
+            // Derived-specific logic before stopping
+            logger.LogInformation("Source Broadcaster stopped: {Name}", Name);
 
-        // Call base class stop logic
-        base.Stop();
+            // Call base class stop logic
+            base.Stop();
 
-        // Additional cleanup or finalization
-        OnStreamBroadcasterStoppedEvent?.Invoke(this, new StreamBroadcasterStopped(Id, Name));
+            // Additional cleanup or finalization
+            OnStreamBroadcasterStoppedEvent?.Invoke(this, new StreamBroadcasterStopped(Id, Name));
+        }
     }
 }

@@ -9,10 +9,10 @@ using System.Xml.Serialization;
 
 namespace StreamMaster.Streams.Handlers;
 
-public abstract class BroadcasterBase(ILogger<IBroadcasterBase> logger) : IBroadcasterBase
+public abstract class BroadcasterBase(ILogger<IBroadcasterBase> logger, IOptionsMonitor<Setting> _settings) : IBroadcasterBase
 {
     private readonly MetricsService metricsService = new();
-    private readonly SourceProcessingService sourceProcessingService = new(logger);
+    private readonly SourceProcessingService sourceProcessingService = new(logger, _settings);
     private readonly CancellationTokenSource _cancellationTokenSource = new();
     private long _channelItemCount;
 
@@ -24,7 +24,9 @@ public abstract class BroadcasterBase(ILogger<IBroadcasterBase> logger) : IBroad
 
     public int ClientCount => ClientStreamerConfigurations.Keys.Count;
     public bool IsFailed { get; set; } = false;
-    public string Name { get; set; } = string.Empty;
+    public virtual string Name { get; set; } = string.Empty;
+
+    [XmlIgnore]
     public string SourceName { get; private set; } = string.Empty;
     public long ChannelItemBackLog => Interlocked.Read(ref _channelItemCount);
 
@@ -57,58 +59,44 @@ public abstract class BroadcasterBase(ILogger<IBroadcasterBase> logger) : IBroad
         logger.LogInformation("Setting source channel for {Name} to {sourceChannelName}", Name, sourceChannelName);
         SourceName = sourceChannelName;
         Channel<byte[]> newChannel = ChannelHelper.GetChannel();
-        //_currentChannel?.Writer.TryComplete();
         StartProcessingSource(sourceChannelReader, null, newChannel, cancellationToken);
-    }
-
-
-    public void SetSourceChannel(Channel<byte[]> sourceChannel, string sourceChannelName, CancellationToken cancellationToken)
-    {
-        logger.LogInformation("Setting source channel for {Name} to {sourceChannelName}", Name, sourceChannelName);
-        SourceName = sourceChannelName;
-
-
-        //else
-        //{
-        //    newChannel = ChannelHelper.GetChannel(); // or any other channel configuration
-        //}
-        //Channel<byte[]> newChannel = ChannelHelper.GetChannel();
-        StartProcessingSource(sourceChannel.Reader, null, sourceChannel, cancellationToken);
     }
 
     public void SetSourceStream(Stream sourceStream, string streamName, CancellationToken cancellationToken)
     {
-        logger.LogInformation("Setting source stream to {streamName}", streamName);
+        logger.LogInformation("Setting source stream {Name} to {streamName}", Name, streamName);
         SourceName = streamName;
         Channel<byte[]> newChannel = ChannelHelper.GetChannel();
 
         StartProcessingSource(null, sourceStream, newChannel, cancellationToken);
     }
 
-    protected virtual void StartProcessingSource(ChannelReader<byte[]>? sourceChannelReader, Stream? sourceStream, Channel<byte[]> newChannel, CancellationToken cancellationToken)
+    protected void StartProcessingSource(ChannelReader<byte[]>? sourceChannelReader, Stream? sourceStream, Channel<byte[]> newChannel, CancellationToken cancellationToken)
     {
-        CancellationTokenSource linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(_cancellationTokenSource.Token, cancellationToken);
+        using CancellationTokenSource linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(_cancellationTokenSource.Token, cancellationToken);
         CancellationToken token = linkedTokenSource.Token;
 
         Task readerTask = sourceChannelReader != null
-            ? sourceProcessingService.ProcessSourceChannelReaderAsync(sourceChannelReader, newChannel, metricsService, token)
-            : sourceStream != null
-                ? sourceProcessingService.ProcessSourceStreamAsync(sourceStream, newChannel, metricsService, token)
-                : Task.CompletedTask;
+       ? sourceProcessingService.ProcessSourceChannelReaderAsync(sourceChannelReader, newChannel, metricsService, token)
+       : sourceStream != null
+           ? sourceProcessingService.ProcessSourceStreamAsync(sourceStream, newChannel, metricsService, token)
+           : Task.CompletedTask;
 
-        Task writerTask = DistributeToClients(newChannel, token);
-        _ = MonitorTasksCompletion(readerTask, writerTask, sourceStream, token);
+        Task writerTask = DistributeToClientsAsync(newChannel, token);
+        _ = MonitorTasksCompletionAsync(readerTask, writerTask, sourceStream, token);
     }
 
-    private Task DistributeToClients(Channel<byte[]> newChannel, CancellationToken token)
+    private Task DistributeToClientsAsync(Channel<byte[]> newChannel, CancellationToken token)
     {
+        List<Task> writeTasks = [];
+
         return Task.Run(async () =>
         {
             try
             {
                 await foreach (byte[] item in newChannel.Reader.ReadAllAsync(token))
                 {
-                    List<Task> writeTasks = [];
+                    writeTasks.Clear();
                     foreach (ChannelWriter<byte[]> clientChannel in ClientChannelWriters.Values)
                     {
                         writeTasks.Add(clientChannel.WriteAsync(item, token).AsTask());
@@ -135,8 +123,9 @@ public abstract class BroadcasterBase(ILogger<IBroadcasterBase> logger) : IBroad
         }, token);
     }
 
-    private Task MonitorTasksCompletion(Task readerTask, Task writerTask, Stream? sourceStream, CancellationToken token)
+    private Task MonitorTasksCompletionAsync(Task readerTask, Task writerTask, Stream? sourceStream, CancellationToken token)
     {
+
         return Task.Run(async () =>
         {
             try

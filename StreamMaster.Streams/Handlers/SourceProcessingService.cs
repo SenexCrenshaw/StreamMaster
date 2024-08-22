@@ -3,7 +3,7 @@ using System.Threading.Channels;
 
 namespace StreamMaster.Streams.Handlers;
 
-public class SourceProcessingService(ILogger<IBroadcasterBase> logger) : ISourceProcessingService
+public class SourceProcessingService(ILogger<IBroadcasterBase> logger, IOptionsMonitor<Setting> _settings) : ISourceProcessingService
 {
     public Task ProcessSourceChannelReaderAsync(ChannelReader<byte[]> sourceChannelReader, Channel<byte[]> newChannel, IMetricsService metricsService, CancellationToken token)
     {
@@ -46,7 +46,32 @@ public class SourceProcessingService(ILogger<IBroadcasterBase> logger) : ISource
                 while (!token.IsCancellationRequested)
                 {
                     Stopwatch sw = Stopwatch.StartNew();
-                    int bytesRead = await sourceStream.ReadAsync(buffer, token).ConfigureAwait(false);
+
+                    // Start the read task
+                    Task<int> readTask = sourceStream.ReadAsync(buffer, token).AsTask();
+
+                    // Wait for the read task or timeout
+                    Task completedTask;
+                    if (_settings.CurrentValue.ReadTimeOutMs > 0)
+                    {
+                        // Create a timeout task if ReadTimeOutMs is greater than 0
+                        Task timeoutTask = Task.Delay(_settings.CurrentValue.ReadTimeOutMs, token);
+                        completedTask = await Task.WhenAny(readTask, timeoutTask).ConfigureAwait(false);
+
+                        if (completedTask == timeoutTask)
+                        {
+                            // Handle the timeout case
+                            throw new TimeoutException("Read operation timed out.");
+                        }
+                    }
+                    else
+                    {
+                        // No timeout, just await the read task
+                        completedTask = readTask;
+                    }
+
+                    int bytesRead = await readTask.ConfigureAwait(false);
+
                     if (bytesRead == 0)
                     {
                         break;
@@ -55,9 +80,15 @@ public class SourceProcessingService(ILogger<IBroadcasterBase> logger) : ISource
                     byte[] data = new byte[bytesRead];
                     Array.Copy(buffer, data, bytesRead);
                     await newChannel.Writer.WriteAsync(data, token).ConfigureAwait(false);
+
                     sw.Stop();
                     metricsService.RecordMetrics(bytesRead, sw.Elapsed.TotalMilliseconds);
                 }
+            }
+            catch (TimeoutException ex)
+            {
+                // Handle the timeout exception specifically
+                HandleReaderExceptions(ex, ref localInputStreamError);
             }
             catch (Exception ex)
             {

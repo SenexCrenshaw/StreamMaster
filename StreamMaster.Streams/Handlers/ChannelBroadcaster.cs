@@ -7,8 +7,8 @@ using System.Threading.Channels;
 
 namespace StreamMaster.Streams.Handlers;
 
-public sealed class ChannelBroadcaster(ILogger<IChannelBroadcaster> logger, SMChannelDto smChannelDto, int streamGroupProfileId, bool remux)
-    : BroadcasterBase(logger), IChannelBroadcaster, IDisposable
+public sealed class ChannelBroadcaster(ILogger<IChannelBroadcaster> logger, SMChannelDto smChannelDto, int streamGroupProfileId, bool remux, IOptionsMonitor<Setting> _settings)
+    : BroadcasterBase(logger, _settings), IChannelBroadcaster, IDisposable
 {
     public event EventHandler<ChannelBroascasterStopped>? OnChannelBroadcasterStoppedEvent;
 
@@ -18,6 +18,8 @@ public sealed class ChannelBroadcaster(ILogger<IChannelBroadcaster> logger, SMCh
     {
         return Id.ToString();
     }
+
+    public override string Name => smChannelDto.Name;
 
     public override void Stop()
     {
@@ -69,12 +71,11 @@ public sealed class ChannelBroadcaster(ILogger<IChannelBroadcaster> logger, SMCh
 
     public void SetSourceChannelBroadcaster(ISourceBroadcaster SourceChannelBroadcaster)
     {
-
         if (remux)
         {
             Dubcer ??= new(logger);
             SourceChannelBroadcaster.AddChannelStreamer(SMChannel.Id, Dubcer.DubcerChannel.Writer);
-            //SetSourceChannel(Dubcer.DubcerChannel, SourceChannelBroadcaster.Name, CancellationToken.None);
+            //SetSourceChannelAsync(Dubcer.DubcerChannel, SourceChannelBroadcaster.Name, CancellationToken.None);
             SetSourceChannel(Dubcer.DubcerChannel.Reader, SourceChannelBroadcaster.Name, CancellationToken.None);
         }
         else

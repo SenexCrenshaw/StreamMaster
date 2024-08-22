@@ -5,7 +5,8 @@
       "Microsoft": "Warning",
       "Microsoft.AspNetCore.SignalR": "Warning",
       "Microsoft.AspNetCore.Http.Connections": "Warning",
-      "Microsoft.EntityFrameworkCore.Query": "Warning"
+      "Microsoft.EntityFrameworkCore.Query": "Warning",
+      "System.Net.Http.HttpClient": "Warning"
     }
   }
 }

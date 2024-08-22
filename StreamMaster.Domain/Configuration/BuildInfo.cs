@@ -108,6 +108,8 @@ namespace StreamMaster.Domain.Configuration
         #region File and Directory Path Fields
 
         public static string AppDataFolder { get; } = IsWindows ? $"c:{Path.DirectorySeparatorChar}config{Path.DirectorySeparatorChar}" : $"{Path.DirectorySeparatorChar}config{Path.DirectorySeparatorChar}";
+        public static readonly int BufferSize = 4096;
+
         public static readonly string DataFolder = Path.Combine(AppDataFolder, "DB");
         public static readonly string CacheFolder = Path.Combine(AppDataFolder, "Cache");
         public static readonly string LogFolder = Path.Combine(AppDataFolder, "Logs");

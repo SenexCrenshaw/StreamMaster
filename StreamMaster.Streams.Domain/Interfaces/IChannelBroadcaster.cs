@@ -18,7 +18,7 @@ public interface IChannelBroadcaster : IBroadcasterBase, IStreamStatus
 
     //SMChannelDto SMChannel { get; }
     void SetIsGlobal();
-    void SetSourceChannelBroadcaster(ISourceBroadcaster ChannelBroadcaster);
+    void SetSourceChannelBroadcaster(ISourceBroadcaster SourceChannelBroadcaster);
 
     bool IsGlobal { get; set; }
 }

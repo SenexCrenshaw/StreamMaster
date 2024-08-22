@@ -42,7 +42,7 @@ public class VideoCombiner : IVideoCombiner
 
     private static async Task ReadFromStreamAsync(Stream inputStream, Stream ffmpegInputStream, CancellationToken cancellationToken)
     {
-        byte[] buffer = new byte[4096];
+        byte[] buffer = new byte[BuildInfo.BufferSize];
         int bytesRead;
         while ((bytesRead = await inputStream.ReadAsync(buffer, cancellationToken)) > 0)
         {
@@ -52,7 +52,7 @@ public class VideoCombiner : IVideoCombiner
 
     private static async Task WriteToChannelAsync(Stream ffmpegOutputStream, ChannelWriter<byte[]> writer, CancellationToken cancellationToken)
     {
-        byte[] buffer = new byte[4096];
+        byte[] buffer = new byte[BuildInfo.BufferSize];
         int bytesRead;
         while ((bytesRead = await ffmpegOutputStream.ReadAsync(buffer, cancellationToken)) > 0)
         {

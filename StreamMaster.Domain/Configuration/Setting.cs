@@ -61,4 +61,5 @@ public class Setting : StreamSettings
 {
     [IgnoreMap]
     public string ServerKey { get; set; } = Guid.NewGuid().ToString().Replace("-", "");
+    public int ReadTimeOutMs { get; set; } = 1000;
 }

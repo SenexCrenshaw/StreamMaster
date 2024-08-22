@@ -4,7 +4,6 @@ using MediatR;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
-using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.StaticFiles;
@@ -69,7 +68,7 @@ public static class ConfigureServices
             GlobalLoggerProvider.Configure(loggerFactory);
         });
 
-        services.AddHttpLogging(o => o = new HttpLoggingOptions());
+        //services.AddHttpLogging(o => o = new HttpLoggingOptions());
 
         services.AddSingleton<IContentTypeProvider, FileExtensionContentTypeProvider>();
         services.AddRouting(options => options.LowercaseUrls = true);

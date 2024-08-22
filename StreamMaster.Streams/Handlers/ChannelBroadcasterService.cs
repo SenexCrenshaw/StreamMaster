@@ -55,7 +55,7 @@ namespace StreamMaster.Streams.Handlers
                     }
                 }
 
-                channelBroadcaster = new ChannelBroadcaster(channelStatusLogger, config.SMChannel, streamGroupProfileId, false);
+                channelBroadcaster = new ChannelBroadcaster(channelStatusLogger, config.SMChannel, streamGroupProfileId, false, _settings);
 
                 logger.LogInformation("Created new channel for: {Id} {Name}", config.SMChannel.Id, config.SMChannel.Name);
 
