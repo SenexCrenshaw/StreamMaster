@@ -3,6 +3,7 @@ import store, { RootState } from '@lib/redux/store';
 import { useAppDispatch, useAppSelector } from '@lib/redux/hooks';
 import { clear, clearByTag, setField, setIsForced, setIsLoading } from './GetPagedSMChannelsSlice';
 import { useCallback,useEffect } from 'react';
+import { useSMContext } from '@lib/context/SMProvider';
 import { SkipToken } from '@reduxjs/toolkit/query';
 import { getParameters } from '@lib/common/getParameters';
 import { fetchGetPagedSMChannels } from './GetPagedSMChannelsFetch';
@@ -17,6 +18,7 @@ interface Result extends ExtendedQueryHookResult {
   SetIsLoading: (isLoading: boolean, query: string) => void;
 }
 const useGetPagedSMChannels = (params?: QueryStringParameters | undefined | SkipToken): Result => {
+  const { isSystemReady } = useSMContext();
   const dispatch = useAppDispatch();
   const query = getParameters(params);
   const isForced = useAppSelector((state) => state.GetPagedSMChannels.isForced ?? false);
@@ -78,14 +80,15 @@ useEffect(() => {
 }, [data, query, SetIsForced]);
 
 useEffect(() => {
-  if (query === undefined) return;
-  const state = store.getState().GetPagedSMChannels;
-  if (state.isLoading[query]) return;
-  if (data !== undefined && !isForced) return;
+    if (!isSystemReady) return;
+    if (query === undefined) return;
+    const state = store.getState().GetPagedSMChannels;
+    if (state.isLoading[query]) return;
+    if (data !== undefined && !isForced) return;
 
-  SetIsLoading(true, query);
-  dispatch(fetchGetPagedSMChannels(query));
-}, [data, dispatch, isForced, query, SetIsLoading]);
+    SetIsLoading(true, query);
+    dispatch(fetchGetPagedSMChannels(query));
+}, [data, dispatch, isForced, isSystemReady, query, SetIsLoading]);
 
 const SetField = (fieldData: FieldData): void => {
   dispatch(setField({ fieldData: fieldData }));

@@ -69,13 +69,12 @@ public sealed class ChannelBroadcaster(ILogger<IChannelBroadcaster> logger, SMCh
     }
 
 
-    public void SetSourceChannelBroadcaster(ISourceBroadcaster SourceChannelBroadcaster)
+    public void SetSourceChannelBroadcaster(IBroadcasterBase SourceChannelBroadcaster)
     {
         if (remux)
         {
             Dubcer ??= new(logger);
             SourceChannelBroadcaster.AddChannelStreamer(SMChannel.Id, Dubcer.DubcerChannel.Writer);
-            //SetSourceChannelAsync(Dubcer.DubcerChannel, SourceChannelBroadcaster.Name, CancellationToken.None);
             SetSourceChannel(Dubcer.DubcerChannel.Reader, SourceChannelBroadcaster.Name, CancellationToken.None);
         }
         else

@@ -92,7 +92,7 @@
         /// <param name="channelStatus">The status of the channel to switch.</param>
         /// <param name="overrideNextVideoStreamId">The ID of the next video stream to switch to, if overridden.</param>
         /// <returns><c>true</c> if the switch was successful; otherwise, <c>false</c>.</returns>
-        Task<bool> SwitchChannelToNextStreamAsync(IChannelBroadcaster channelStatus, string? overrideNextVideoStreamId = null);
+        Task<bool> SwitchChannelToNextStreamAsync(IChannelBroadcaster channelBroadcaster, IClientConfiguration? clientConfiguration, string? overrideSMStreamId = null);
 
         /// <summary>
         /// Unregisters a client asynchronously by its unique request ID.

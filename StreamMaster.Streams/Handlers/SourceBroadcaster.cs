@@ -5,6 +5,7 @@ namespace StreamMaster.Streams.Handlers;
 public class SourceBroadcaster : BroadcasterBase, ISourceBroadcaster
 {
     private readonly ILogger<ISourceBroadcaster> logger;
+    private int _isStopped;
 
     public SourceBroadcaster() : base(null, null)
     {
@@ -31,7 +32,7 @@ public class SourceBroadcaster : BroadcasterBase, ISourceBroadcaster
 
     public SMStreamInfo SMStreamInfo { get; }
 
-    private int _isStopped;
+
 
     /// <inheritdoc/>
     public override void Stop()

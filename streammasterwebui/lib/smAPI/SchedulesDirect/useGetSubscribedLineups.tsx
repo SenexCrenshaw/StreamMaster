@@ -3,6 +3,7 @@ import store, { RootState } from '@lib/redux/store';
 import { useAppDispatch, useAppSelector } from '@lib/redux/hooks';
 import { clear, clearByTag, setField, setIsForced, setIsLoading } from './GetSubscribedLineupsSlice';
 import { useCallback,useEffect } from 'react';
+import { useSMContext } from '@lib/context/SMProvider';
 import { fetchGetSubscribedLineups } from './GetSubscribedLineupsFetch';
 import {FieldData, SubscribedLineup } from '@lib/smAPI/smapiTypes';
 
@@ -15,6 +16,7 @@ interface Result extends ExtendedQueryHookResult {
   SetIsLoading: (isLoading: boolean, query: string) => void;
 }
 const useGetSubscribedLineups = (): Result => {
+  const { isSystemReady } = useSMContext();
   const dispatch = useAppDispatch();
   const isForced = useAppSelector((state) => state.GetSubscribedLineups.isForced ?? false);
 
@@ -68,13 +70,14 @@ const isLoading = useAppSelector(selectIsLoading);
   }, [SetIsForced, data]);
 
 useEffect(() => {
+    if (!isSystemReady) return;
   const state = store.getState().GetSubscribedLineups;
   if (state.isLoading) return;
   if (data !== undefined && !isForced) return;
 
   SetIsLoading(true);
   dispatch(fetchGetSubscribedLineups());
-}, [SetIsLoading, data, dispatch, isForced]);
+}, [SetIsLoading, data, dispatch, isForced, isSystemReady]);
 
 const SetField = (fieldData: FieldData): void => {
   dispatch(setField({ fieldData: fieldData }));

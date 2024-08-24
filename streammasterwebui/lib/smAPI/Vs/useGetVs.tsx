@@ -3,6 +3,7 @@ import store, { RootState } from '@lib/redux/store';
 import { useAppDispatch, useAppSelector } from '@lib/redux/hooks';
 import { clear, clearByTag, setField, setIsForced, setIsLoading } from './GetVsSlice';
 import { useCallback,useEffect } from 'react';
+import { useSMContext } from '@lib/context/SMProvider';
 import { SkipToken } from '@reduxjs/toolkit/query';
 import { getParameters } from '@lib/common/getParameters';
 import { fetchGetVs } from './GetVsFetch';
@@ -17,6 +18,7 @@ interface Result extends ExtendedQueryHookResult {
   SetIsLoading: (isLoading: boolean, query: string) => void;
 }
 const useGetVs = (params?: GetVsRequest | undefined | SkipToken): Result => {
+  const { isSystemReady } = useSMContext();
   const dispatch = useAppDispatch();
   const param = getParameters(params);
   const isForced = useAppSelector((state) => state.GetVs.isForced ?? false);
@@ -78,6 +80,7 @@ useEffect(() => {
 }, [data, param, SetIsForced]);
 
 useEffect(() => {
+    if (!isSystemReady) return;
   if (param === undefined) return;
   const state = store.getState().GetVs;
   if (params === undefined || param === undefined || param === '{}' ) return;
@@ -86,7 +89,7 @@ useEffect(() => {
 
   SetIsLoading(true, param);
   dispatch(fetchGetVs(params as GetVsRequest));
-}, [SetIsLoading, data, dispatch, isForced, param, params]);
+}, [SetIsLoading, data, dispatch, isForced, isSystemReady, param, params]);
 
 const SetField = (fieldData: FieldData): void => {
   dispatch(setField({ fieldData: fieldData }));

@@ -3,6 +3,7 @@ import store, { RootState } from '@lib/redux/store';
 import { useAppDispatch, useAppSelector } from '@lib/redux/hooks';
 import { clear, clearByTag, setField, setIsForced, setIsLoading } from './GetM3UFilesSlice';
 import { useCallback,useEffect } from 'react';
+import { useSMContext } from '@lib/context/SMProvider';
 import { fetchGetM3UFiles } from './GetM3UFilesFetch';
 import {FieldData, M3UFileDto } from '@lib/smAPI/smapiTypes';
 
@@ -15,6 +16,7 @@ interface Result extends ExtendedQueryHookResult {
   SetIsLoading: (isLoading: boolean, query: string) => void;
 }
 const useGetM3UFiles = (): Result => {
+  const { isSystemReady } = useSMContext();
   const dispatch = useAppDispatch();
   const isForced = useAppSelector((state) => state.GetM3UFiles.isForced ?? false);
 
@@ -68,13 +70,14 @@ const isLoading = useAppSelector(selectIsLoading);
   }, [SetIsForced, data]);
 
 useEffect(() => {
+    if (!isSystemReady) return;
   const state = store.getState().GetM3UFiles;
   if (state.isLoading) return;
   if (data !== undefined && !isForced) return;
 
   SetIsLoading(true);
   dispatch(fetchGetM3UFiles());
-}, [SetIsLoading, data, dispatch, isForced]);
+}, [SetIsLoading, data, dispatch, isForced, isSystemReady]);
 
 const SetField = (fieldData: FieldData): void => {
   dispatch(setField({ fieldData: fieldData }));

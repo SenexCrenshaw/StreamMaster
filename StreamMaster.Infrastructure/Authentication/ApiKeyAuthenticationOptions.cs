@@ -23,7 +23,7 @@ public class ApiKeyAuthenticationHandler(IOptionsMonitor<ApiKeyAuthenticationOpt
     : AuthenticationHandler<ApiKeyAuthenticationOptions>(options, logger, encoder)
 {
     private readonly ILogger<ApiKeyAuthenticationHandler> _logger = logger.CreateLogger<ApiKeyAuthenticationHandler>();
-    public static List<string> SafePaths = ["/api/videostreams/", "/api/streamgroups/", "/m/", "/s/", "/v/"];
+    public static List<string> SafePaths = ["/api/videostreams/", "/streammasterhub/", "/api/streamgroups/", "/m/", "/s/", "/v/"];
 
     protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
     {

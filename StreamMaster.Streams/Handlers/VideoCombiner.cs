@@ -1,8 +1,52 @@
-﻿using System.Diagnostics;
+﻿using StreamMaster.Streams.Domain.Events;
+
+using System.Diagnostics;
 using System.Threading.Channels;
-namespace StreamMaster.Streams.Streams;
-public class VideoCombiner : IVideoCombiner
+namespace StreamMaster.Streams.Handlers;
+public class VideoCombiner : BroadcasterBase, IVideoCombiner
 {
+    private readonly ILogger<IVideoCombiner> logger;
+
+    private int _isStopped;
+
+    public VideoCombiner() : base(null, null)
+    {
+
+    }
+
+    public VideoCombiner(ILogger<IVideoCombiner> logger, SMStreamInfo smStreamInfo, IOptionsMonitor<Setting> _settings) : base(logger, _settings)
+    {
+        this.logger = logger;
+        SMStreamInfo = smStreamInfo;
+    }
+
+    public event EventHandler<VideoCombinerStopped>? OnVideoCombinerStoppedEvent;
+
+    public override string StringId()
+    {
+        return Id;
+    }
+
+    /// <inheritdoc/>
+    public string Id => SMStreamInfo.Url;
+
+    public override string Name => SMStreamInfo.Name;
+    public SMStreamInfo SMStreamInfo { get; }
+
+    public override void Stop()
+    {
+        if (Interlocked.CompareExchange(ref _isStopped, 1, 0) == 0)
+        {
+            // Derived-specific logic before stopping
+            logger.LogInformation("Source Broadcaster stopped: {Name}", Name);
+
+            // Call base class stop logic
+            base.Stop();
+
+            // Additional cleanup or finalization
+            OnVideoCombinerStoppedEvent?.Invoke(this, new VideoCombinerStopped(Id, Name));
+        }
+    }
     public async Task CombineVideosAsync(Stream stream1, Stream stream2, Stream stream3, Stream stream4, ChannelWriter<byte[]> writer, CancellationToken cancellationToken)
     {
         Process ffmpegProcess = StartFFmpegProcess() ?? throw new Exception("Failed to start ffmpeg process");

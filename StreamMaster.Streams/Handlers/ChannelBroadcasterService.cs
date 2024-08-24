@@ -19,7 +19,7 @@ namespace StreamMaster.Streams.Handlers
         /// <inheritdoc/>
         public event AsyncEventHandler<ChannelBroascasterStopped>? _OnChannelBroadcasterStoppedEvent;
 
-        private readonly ConcurrentDictionary<int, IChannelBroadcaster> _sourceChannelBroadcasters = new();
+        private readonly ConcurrentDictionary<int, IChannelBroadcaster> _channelBroadcasters = new();
         private readonly SemaphoreSlim _getOrCreateSourceChannelBroadcasterSlim = new(1, 1);
 
         /// <inheritdoc/>
@@ -27,7 +27,7 @@ namespace StreamMaster.Streams.Handlers
         {
             Dictionary<int, IStreamHandlerMetrics> metrics = [];
 
-            foreach (KeyValuePair<int, IChannelBroadcaster> kvp in _sourceChannelBroadcasters)
+            foreach (KeyValuePair<int, IChannelBroadcaster> kvp in _channelBroadcasters)
             {
                 IChannelBroadcaster channelBroadcaster = kvp.Value;
                 metrics[kvp.Key] = channelBroadcaster.Metrics;
@@ -42,7 +42,7 @@ namespace StreamMaster.Streams.Handlers
             await _getOrCreateSourceChannelBroadcasterSlim.WaitAsync(cancellationToken).ConfigureAwait(false);
             try
             {
-                if (_sourceChannelBroadcasters.TryGetValue(config.SMChannel.Id, out IChannelBroadcaster? channelBroadcaster))
+                if (_channelBroadcasters.TryGetValue(config.SMChannel.Id, out IChannelBroadcaster? channelBroadcaster))
                 {
                     if (channelBroadcaster.IsFailed)
                     {
@@ -60,7 +60,7 @@ namespace StreamMaster.Streams.Handlers
                 logger.LogInformation("Created new channel for: {Id} {Name}", config.SMChannel.Id, config.SMChannel.Name);
 
                 channelBroadcaster.OnChannelBroadcasterStoppedEvent += async (sender, args) => await OnStoppedEvent(sender, args).ConfigureAwait(false);
-                _sourceChannelBroadcasters.TryAdd(config.SMChannel.Id, channelBroadcaster);
+                _channelBroadcasters.TryAdd(config.SMChannel.Id, channelBroadcaster);
 
                 return channelBroadcaster;
             }
@@ -73,7 +73,7 @@ namespace StreamMaster.Streams.Handlers
         /// <inheritdoc/>
         public List<IChannelBroadcaster> GetChannelBroadcasters()
         {
-            return [.. _sourceChannelBroadcasters.Values];
+            return [.. _channelBroadcasters.Values];
         }
 
         private async Task CheckForEmptyBroadcastersAsync()
@@ -94,7 +94,7 @@ namespace StreamMaster.Streams.Handlers
 
         public async Task StopChannelAsync(int channelBroadcasterId)
         {
-            if (!_sourceChannelBroadcasters.TryGetValue(channelBroadcasterId, out IChannelBroadcaster? sourceChannelBroadcaster))
+            if (!_channelBroadcasters.TryGetValue(channelBroadcasterId, out IChannelBroadcaster? sourceChannelBroadcaster))
             {
                 return;
             }
@@ -128,7 +128,7 @@ namespace StreamMaster.Streams.Handlers
 
         private async Task<bool> UnRegisterChannelAsync(int channelBroadcasterId)
         {
-            _sourceChannelBroadcasters.TryRemove(channelBroadcasterId, out _);
+            _channelBroadcasters.TryRemove(channelBroadcasterId, out _);
 
             if (cacheManager.ChannelBroadcasters.TryRemove(channelBroadcasterId, out IChannelBroadcaster? channelBroadcaster))
             {

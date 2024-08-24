@@ -24,7 +24,6 @@ export const SMProvider: React.FC<SMProviderProps> = ({ children }) => {
   const [settings, setSettings] = useState<SettingDto>({} as SettingDto);
 
   const settingsQuery = useGetSettings();
-  // const { data: isSystemReadyQ } = useGetIsSystemReady();
   const { data: isTaskRunning } = useGetTaskIsRunning();
 
   useEffect(() => {
@@ -59,10 +58,12 @@ export const SMProvider: React.FC<SMProviderProps> = ({ children }) => {
     isTaskRunning: isTaskRunning ?? false,
     settings
   };
+
   return (
     <SMContext.Provider value={contextValue}>
       {!contextValue.isSystemReady && <SMLoader />}
       <BlockUI blocked={!contextValue.isSystemReady}>{children}</BlockUI>
+      {/* {!contextValue.isSystemReady ? <SMLoader /> : children} */}
     </SMContext.Provider>
   );
 };

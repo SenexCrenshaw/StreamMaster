@@ -2,6 +2,9 @@
 
 public static class TypeScriptHookGenerator
 {
+
+    private static readonly string[] IgnoreSystemUp = ["GetSettings", "GetTaskIsRunning"];
+
     public static void GenerateFile(List<MethodDetails> methods, string path)
     {
         foreach (MethodDetails method in methods.Where(a => a.IsGet))
@@ -75,6 +78,11 @@ public static class TypeScriptHookGenerator
         content.AppendLine("import { useAppDispatch, useAppSelector } from '@lib/redux/hooks';");
         content.AppendLine($"import {{ clear, clearByTag, setField, setIsForced, setIsLoading }} from './{method.Name}Slice';");
         content.AppendLine("import { useCallback,useEffect } from 'react';");
+        if (!IgnoreSystemUp.Contains(method.Name))
+        {
+            content.AppendLine("import { useSMContext } from '@lib/context/SMProvider';");
+        }
+
         if (method.IsGet && (method.IsGetPaged || method.ParameterNames.Length != 0))
         {
             content.AppendLine("import { SkipToken } from '@reduxjs/toolkit/query';");
@@ -294,6 +302,11 @@ public static class TypeScriptHookGenerator
         StringBuilder content = new();
         content.AppendLine($"const use{method.Name} = (): Result => {{");
 
+        if (!IgnoreSystemUp.Contains(method.Name))
+        {
+            content.AppendLine("  const { isSystemReady } = useSMContext();");
+        }
+
         content.AppendLine("  const dispatch = useAppDispatch();");
 
         content.AppendLine(GenerateHeader(method));
@@ -325,6 +338,11 @@ public static class TypeScriptHookGenerator
         StringBuilder content = new();
 
         content.AppendLine($"const use{method.Name} = (params?: {method.TsParameter} | undefined | SkipToken): Result => {{");
+
+        if (!IgnoreSystemUp.Contains(method.Name))
+        {
+            content.AppendLine("  const { isSystemReady } = useSMContext();");
+        }
 
         content.AppendLine("  const dispatch = useAppDispatch();");
 
@@ -362,6 +380,11 @@ public static class TypeScriptHookGenerator
         StringBuilder content = new();
 
         content.AppendLine($"const use{method.Name} = (params?: QueryStringParameters | undefined | SkipToken): Result => {{");
+
+        if (!IgnoreSystemUp.Contains(method.Name))
+        {
+            content.AppendLine("  const { isSystemReady } = useSMContext();");
+        }
 
         content.AppendLine("  const dispatch = useAppDispatch();");
 
@@ -404,20 +427,36 @@ public static class TypeScriptHookGenerator
         if (method.IsGetPaged)
         {
             content.AppendLine("useEffect(() => {");
-            content.AppendLine("  if (query === undefined) return;");
-            content.AppendLine($"  const state = store.getState().{method.Name};");
-            content.AppendLine("  if (state.isLoading[query]) return;");
-            content.AppendLine("  if (data !== undefined && !isForced) return;");
+            if (!IgnoreSystemUp.Contains(method.Name))
+            {
+                content.AppendLine("    if (!isSystemReady) return;");
+            }
+
+            content.AppendLine("    if (query === undefined) return;");
+            content.AppendLine($"    const state = store.getState().{method.Name};");
+            content.AppendLine("    if (state.isLoading[query]) return;");
+            content.AppendLine("    if (data !== undefined && !isForced) return;");
             content.AppendLine();
-            content.AppendLine("  SetIsLoading(true, query);");
-            content.AppendLine($"  dispatch(fetch{method.Name}(query));");
-            content.AppendLine("}, [data, dispatch, isForced, query, SetIsLoading]);");
+            content.AppendLine("    SetIsLoading(true, query);");
+            content.AppendLine($"    dispatch(fetch{method.Name}(query));");
+            if (!IgnoreSystemUp.Contains(method.Name))
+            {
+                content.AppendLine("}, [data, dispatch, isForced, isSystemReady, query, SetIsLoading]);");
+            }
+            else
+            {
+                content.AppendLine("}, [data, dispatch, isForced, query, SetIsLoading]);");
+            }
 
         }
         else if (method.IsGetCached)
         {
 
             content.AppendLine("useEffect(() => {");
+            if (!IgnoreSystemUp.Contains(method.Name))
+            {
+                content.AppendLine("    if (!isSystemReady) return;");
+            }
             content.AppendLine("  if (param === undefined) return;");
             content.AppendLine($"  const state = store.getState().{method.Name};");
 
@@ -428,24 +467,43 @@ public static class TypeScriptHookGenerator
             content.AppendLine();
             content.AppendLine("  SetIsLoading(true, param);");
             content.AppendLine($"  dispatch(fetch{method.Name}(params as {method.TsParameter}));");
-            content.AppendLine("}, [SetIsLoading, data, dispatch, isForced, param, params]);");
+
+            if (!IgnoreSystemUp.Contains(method.Name))
+            {
+                content.AppendLine("}, [SetIsLoading, data, dispatch, isForced, isSystemReady, param, params]);");
+            }
+            else
+            {
+                content.AppendLine("}, [SetIsLoading, data, dispatch, isForced, param, params]);");
+            }
 
         }
         else
         {
-
-
             content.AppendLine("useEffect(() => {");
+            if (!IgnoreSystemUp.Contains(method.Name))
+            {
+                content.AppendLine("    if (!isSystemReady) return;");
+            }
+
             content.AppendLine($"  const state = store.getState().{method.Name};");
 
             content.AppendLine("  if (state.isLoading) return;");
             content.AppendLine("  if (data !== undefined && !isForced) return;");
             content.AppendLine("");
 
-
             content.AppendLine("  SetIsLoading(true);");
             content.AppendLine($"  dispatch(fetch{method.Name}());");
-            content.AppendLine("}, [SetIsLoading, data, dispatch, isForced]);");
+
+
+            if (!IgnoreSystemUp.Contains(method.Name))
+            {
+                content.AppendLine("}, [SetIsLoading, data, dispatch, isForced, isSystemReady]);");
+            }
+            else
+            {
+                content.AppendLine("}, [SetIsLoading, data, dispatch, isForced ]);");
+            }
 
         }
 

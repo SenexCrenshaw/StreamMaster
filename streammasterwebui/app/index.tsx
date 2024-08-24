@@ -1,4 +1,3 @@
-import { SMProvider } from '@lib/context/SMProvider';
 import store, { persistor } from '@lib/redux/store';
 import { PrimeReactProvider } from 'primereact/api';
 import React from 'react';
@@ -14,9 +13,7 @@ root.render(
     <Provider store={store}>
       <PersistGate persistor={persistor}>
         <PrimeReactProvider value={{ inputStyle: 'outlined', ripple: false }}>
-          <SMProvider>
-            <App />
-          </SMProvider>
+          <App />
         </PrimeReactProvider>
       </PersistGate>
     </Provider>

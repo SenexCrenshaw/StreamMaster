@@ -74,7 +74,7 @@ useEffect(() => {
 
   SetIsLoading(true);
   dispatch(fetchGetTaskIsRunning());
-}, [SetIsLoading, data, dispatch, isForced]);
+}, [SetIsLoading, data, dispatch, isForced ]);
 
 const SetField = (fieldData: FieldData): void => {
   dispatch(setField({ fieldData: fieldData }));

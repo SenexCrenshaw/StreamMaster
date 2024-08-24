@@ -52,7 +52,7 @@
                     return;
                 }
 
-                if (!await channelService.SwitchChannelToNextStreamAsync(channelStatus, newSMStreamId))
+                if (!await channelService.SwitchChannelToNextStreamAsync(channelStatus, clientConfiguration: null, newSMStreamId))
                 {
                     logger.LogWarning("Exiting ChangeVideoStreamChannel. Could not change channel to {newSMStreamId}", newSMStreamId);
                     return;
