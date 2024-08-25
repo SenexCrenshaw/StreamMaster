@@ -13,7 +13,14 @@ export const fetchGetCustomPlayList = createAsyncThunk('cache/getGetCustomPlayLi
         return undefined;
     }
     Logger.debug('Fetching GetCustomPlayList');
+  const fetchDebug = localStorage.getItem('fetchDebug');
+ const start = performance.now();
     const response = await GetCustomPlayList(param);
+    if (fetchDebug) {
+      const duration = performance.now() - start;
+      Logger.debug(`Fetch GetM3UFiles completed in ${duration.toFixed(2)}ms`);
+    }
+
     return {param: param, value: response };
   } catch (error) {
     console.error('Failed to fetch', error);

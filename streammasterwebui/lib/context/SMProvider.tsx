@@ -5,11 +5,14 @@ import useGetTaskIsRunning from '@lib/smAPI/General/useGetTaskIsRunning';
 import useGetSettings from '@lib/smAPI/Settings/useGetSettings';
 import { SettingDto } from '@lib/smAPI/smapiTypes';
 import { BlockUI } from 'primereact/blockui';
+import { useLocalStorage } from 'primereact/hooks';
 import React, { ReactNode, createContext, useCallback, useContext, useEffect, useState } from 'react';
 
 interface SMContextState {
+  fetchDebug: boolean;
   isSystemReady: boolean;
   isTaskRunning: boolean;
+  enableFetchDebug: (enable: boolean) => void;
   settings: SettingDto;
 }
 
@@ -21,6 +24,7 @@ interface SMProviderProps {
 
 export const SMProvider: React.FC<SMProviderProps> = ({ children }) => {
   const [isSystemReady, setSystemReady] = useState<boolean>(false);
+  const [fetchDebug, setFetchDebug] = useLocalStorage<boolean>(false, 'fetchDebug');
   const [settings, setSettings] = useState<SettingDto>({} as SettingDto);
 
   const settingsQuery = useGetSettings();
@@ -31,6 +35,10 @@ export const SMProvider: React.FC<SMProviderProps> = ({ children }) => {
       setSettings(settingsQuery.data);
     }
   }, [settingsQuery.data]);
+
+  const enableFetchDebug = useCallback((enable: boolean) => {
+    setFetchDebug(enable);
+  }, []);
 
   const checkSystemReady = useCallback(async () => {
     try {
@@ -54,6 +62,8 @@ export const SMProvider: React.FC<SMProviderProps> = ({ children }) => {
   }, [checkSystemReady]);
 
   const contextValue = {
+    enableFetchDebug: enableFetchDebug,
+    fetchDebug: fetchDebug,
     isSystemReady: isSystemReady === true && settings.EnableSSL !== undefined,
     isTaskRunning: isTaskRunning ?? false,
     settings

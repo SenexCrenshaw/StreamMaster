@@ -1,5 +1,5 @@
 ﻿using System.Text;
-
+namespace BuildClientAPI.TS;
 public static class StoreGenerator
 {
     public static void GenerateFile(List<MethodDetails> methods, string filePath)

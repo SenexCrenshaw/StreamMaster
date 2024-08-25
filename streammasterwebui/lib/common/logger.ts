@@ -50,10 +50,19 @@ const logGroup = (groupName: string, messages: { level: keyof typeof log; messag
   endGroup();
 };
 
+// Custom FetchDebug logger
+const fetchDebug = createLoggerFunction((...args: any[]) => {
+  const a = log.getLevel();
+  if (a <= log.levels.DEBUG) {
+    console.debug(...args);
+  }
+});
+
 export const Logger = {
   debug: createLoggerFunction(log.debug),
   endGroup,
   error: createLoggerFunction(log.error),
+  fetchDebug,
   info: createLoggerFunction(log.info),
   logGroup,
   startGroup,

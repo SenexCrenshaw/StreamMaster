@@ -13,7 +13,14 @@ export const fetchGetLineupPreviewChannel = createAsyncThunk('cache/getGetLineup
         return undefined;
     }
     Logger.debug('Fetching GetLineupPreviewChannel');
+  const fetchDebug = localStorage.getItem('fetchDebug');
+ const start = performance.now();
     const response = await GetLineupPreviewChannel(param);
+    if (fetchDebug) {
+      const duration = performance.now() - start;
+      Logger.debug(`Fetch GetM3UFiles completed in ${duration.toFixed(2)}ms`);
+    }
+
     return {param: param, value: response };
   } catch (error) {
     console.error('Failed to fetch', error);

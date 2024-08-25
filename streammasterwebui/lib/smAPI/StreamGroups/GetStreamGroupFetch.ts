@@ -13,7 +13,14 @@ export const fetchGetStreamGroup = createAsyncThunk('cache/getGetStreamGroup', a
         return undefined;
     }
     Logger.debug('Fetching GetStreamGroup');
+  const fetchDebug = localStorage.getItem('fetchDebug');
+ const start = performance.now();
     const response = await GetStreamGroup(param);
+    if (fetchDebug) {
+      const duration = performance.now() - start;
+      Logger.debug(`Fetch GetM3UFiles completed in ${duration.toFixed(2)}ms`);
+    }
+
     return {param: param, value: response };
   } catch (error) {
     console.error('Failed to fetch', error);

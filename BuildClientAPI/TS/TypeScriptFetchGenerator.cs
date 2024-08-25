@@ -1,10 +1,10 @@
 ﻿using System.Text;
 
+namespace BuildClientAPI.TS;
 public static class TypeScriptFetchGenerator
 {
     public static void GenerateFile(string namespaceName, List<MethodDetails> methods, string path)
     {
-
         // Loop through each method to generate fetch functions
         foreach (MethodDetails method in methods.Where(a => a.IsGet))
         {
@@ -20,14 +20,11 @@ public static class TypeScriptFetchGenerator
                 Directory.CreateDirectory(path);
             }
             File.WriteAllText(filePath, content.ToString());
-
         }
-
     }
 
     public static string GetImports(string namespaceName, MethodDetails method)
     {
-
         StringBuilder content = new();
         content.AppendLine($"import {{ {method.Name} }} from '@lib/smAPI/{namespaceName}/{namespaceName}Commands';");
         if (!string.IsNullOrEmpty(method.TsParameter) && !method.IsGetPaged)
@@ -49,7 +46,6 @@ public static class TypeScriptFetchGenerator
 
     public static string GetFetch(MethodDetails method)
     {
-
         StringBuilder content = new();
 
         string a = method.IsGetPaged ? CreateGetPaged(method) : CreateGet(method);
@@ -77,8 +73,16 @@ public static class TypeScriptFetchGenerator
             content.AppendLine("        return undefined;");
             content.AppendLine("    }");
         }
+
         content.AppendLine($"    Logger.debug('Fetching {method.Name}');");
+        content.AppendLine("    const fetchDebug = localStorage.getItem('fetchDebug');");
+        content.AppendLine("    const start = performance.now();");
         content.AppendLine($"    const response = await {method.Name}({paramName2});");
+        content.AppendLine("    if (fetchDebug) {");
+        content.AppendLine("      const duration = performance.now() - start;");
+        content.AppendLine("      Logger.debug(`Fetch GetM3UFiles completed in ${duration.toFixed(2)}ms`);");
+        content.AppendLine("    }");
+        content.AppendLine("");
         //if (method.IsList)
         //{
         //    content.AppendLine($"    Logger.debug('Fetched {method.ProfileName} ',response?.length);");
@@ -87,7 +91,6 @@ public static class TypeScriptFetchGenerator
         //{
         //    content.AppendLine($"    Logger.debug('Fetched {method.ProfileName}',response);");
         //}
-
 
         content.AppendLine($"    return {{param: {paramName}, value: response }};");
         content.AppendLine("  } catch (error) {");
@@ -111,9 +114,15 @@ public static class TypeScriptFetchGenerator
         content.AppendLine("    }");
         content.AppendLine("    if (query === undefined) return;");
         //content.AppendLine($"    Logger.debug('Fetching {method.ProfileName}');");
+        content.AppendLine("    const fetchDebug = localStorage.getItem('fetchDebug');");
+        content.AppendLine("    const start = performance.now();");
         content.AppendLine("    const params = JSON.parse(query);");
         content.AppendLine($"    const response = await {method.Name}(params);");
         //content.AppendLine($"    Logger.debug('Fetched {method.ProfileName} ',response?.Data.length);");
+        content.AppendLine("    if (fetchDebug) {");
+        content.AppendLine("      const duration = performance.now() - start;");
+        content.AppendLine("      Logger.debug(`Fetch GetM3UFiles completed in ${duration.toFixed(2)}ms`);");
+        content.AppendLine("    }");
         content.AppendLine("    return { query: query, value: response };");
         content.AppendLine("  } catch (error) {");
         content.AppendLine("    console.error('Failed to fetch', error);");

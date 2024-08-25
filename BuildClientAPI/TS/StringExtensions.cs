@@ -1,4 +1,5 @@
-﻿public static class StringExtensions
+﻿namespace BuildClientAPI.TS;
+public static class StringExtensions
 {
     public static string ToCamelCase(this string str)
     {
