@@ -58,8 +58,6 @@ export function GetPasswordLine({ ...props }: PasswordLineProps): React.ReactEle
     return getRecordString<UpdateSettingParameters>(props.field, currentSetting) ?? '';
   }, [currentSetting, props.field, updateSettingRequest.Parameters]);
 
-  Logger.debug('GetPasswordLine', getValue);
-
   return GetLine({
     defaultSetting,
     help,

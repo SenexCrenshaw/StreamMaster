@@ -1,11 +1,10 @@
-import { SMOverlayRef } from '@components/sm/SMOverlay';
-import SMPopUp from '@components/sm/SMPopUp';
+import SMPopUp, { SMPopUpRef } from '@components/sm/SMPopUp';
 import { memo, useRef } from 'react';
 import M3UFileCreateDialog from './M3UFileCreateDialog';
 import M3UFilesDataSelector from './M3UFilesDataSelector';
 
 const M3UFilesButton = () => {
-  const op = useRef<SMOverlayRef>(null);
+  const op = useRef<SMPopUpRef>(null);
   const closeOverlay = () => op.current?.hide();
 
   return (
@@ -20,6 +19,7 @@ const M3UFilesButton = () => {
       modal
       onOkClick={undefined}
       placement="bottom-end"
+      ref={op}
       title="M3U FILES"
     >
       <M3UFilesDataSelector />

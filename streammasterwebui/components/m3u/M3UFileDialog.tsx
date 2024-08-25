@@ -70,7 +70,7 @@ const M3UFileDialog = forwardRef<M3UFileDialogRef, M3UFileDialogProperties>(
           HoursToUpdate: 72,
           MaxStreamCount: 1,
           Name: '',
-          StartingChannelNumber: 0,
+          StartingChannelNumber: 1,
           SyncChannels: false,
           Url: ''
         } as M3UFileDto),

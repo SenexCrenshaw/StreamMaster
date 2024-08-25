@@ -133,23 +133,6 @@
             font-size: 14px;
         }
 
-        .forgot-password {
-            margin-left: auto;
-            color: #909fa7;
-            text-decoration: none;
-            font-size: 13px;
-        }
-
-        .forgot-password:focus,
-        .forgot-password:hover {
-            color: #748690;
-            text-decoration: underline;
-        }
-
-        .forgot-password:visited {
-            color: #748690;
-        }
-
         .login-failed {
             margin-top: 20px;
             color: #f05050;
@@ -172,12 +155,13 @@
     <div class="center">
         <div class="content">
             <div class="panel">
-                <div class="panel-header" style="background-color: #cb5e01">
+                <div class="panel-header" style="background-color: #263238
+">
                     <img src="/images/sm_logo.png" alt="Image" class="logo" />
                 </div>
 
-                <div class="panel-body" style="background-color: #161d21;">
-                    <div class="sign-in">SIGN IN TO CONTINUE</div>
+                <div class="panel-body" style="background-color: #21282c;">
+                    <div class="sign-in">Log In</div>
 
                     <form role="form" data-parsley-validate="" novalidate="" class="mb-lg" method="POST">
                         <div class="form-group">
@@ -189,8 +173,8 @@
                         <div class="form-group">
                             <input type="password" name="password" class="form-input" placeholder="Password" required />
                         </div>
-                        <button type="submit" class="button"
-                            style="background-color: #6dc831ee; color: white">Login</button>
+                        <button type="submit" class="button" style="background-color: #6dc831ee; color: white">Log
+                            In</button>
 
                         <div id="login-failed" class="login-failed hidden">Incorrect Username or Password</div>
                     </form>
