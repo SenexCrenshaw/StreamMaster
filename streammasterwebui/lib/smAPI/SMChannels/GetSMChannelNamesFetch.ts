@@ -6,12 +6,12 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 export const fetchGetSMChannelNames = createAsyncThunk('cache/getGetSMChannelNames', async (_: void, thunkAPI) => {
   try {
     Logger.debug('Fetching GetSMChannelNames');
-  const fetchDebug = localStorage.getItem('fetchDebug');
- const start = performance.now();
+    const fetchDebug = localStorage.getItem('fetchDebug');
+    const start = performance.now();
     const response = await GetSMChannelNames();
     if (fetchDebug) {
       const duration = performance.now() - start;
-      Logger.debug(`Fetch GetM3UFiles completed in ${duration.toFixed(2)}ms`);
+      Logger.debug(`Fetch GetSMChannelNames completed in ${duration.toFixed(2)}ms`);
     }
 
     return {param: _, value: response };

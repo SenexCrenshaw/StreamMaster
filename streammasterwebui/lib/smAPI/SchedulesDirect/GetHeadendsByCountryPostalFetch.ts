@@ -13,12 +13,12 @@ export const fetchGetHeadendsByCountryPostal = createAsyncThunk('cache/getGetHea
         return undefined;
     }
     Logger.debug('Fetching GetHeadendsByCountryPostal');
-  const fetchDebug = localStorage.getItem('fetchDebug');
- const start = performance.now();
+    const fetchDebug = localStorage.getItem('fetchDebug');
+    const start = performance.now();
     const response = await GetHeadendsByCountryPostal(param);
     if (fetchDebug) {
       const duration = performance.now() - start;
-      Logger.debug(`Fetch GetM3UFiles completed in ${duration.toFixed(2)}ms`);
+      Logger.debug(`Fetch GetHeadendsByCountryPostal completed in ${duration.toFixed(2)}ms`);
     }
 
     return {param: param, value: response };

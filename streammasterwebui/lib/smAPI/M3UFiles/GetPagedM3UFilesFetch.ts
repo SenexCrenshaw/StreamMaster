@@ -3,11 +3,13 @@ import { isSkipToken } from '@lib/common/isSkipToken';
 import { Logger } from '@lib/common/logger';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 
+
 export const fetchGetPagedM3UFiles = createAsyncThunk('cache/getGetPagedM3UFiles', async (query: string, thunkAPI) => {
   try {
-    if (isSkipToken(query)) {
-      Logger.error('Skipping GetEPGFilePreviewById');
-      return undefined;
+    if (isSkipToken(query))
+    {
+        Logger.error('Skipping GetEPGFilePreviewById');
+        return undefined;
     }
     if (query === undefined) return;
     const fetchDebug = localStorage.getItem('fetchDebug');
@@ -16,7 +18,7 @@ export const fetchGetPagedM3UFiles = createAsyncThunk('cache/getGetPagedM3UFiles
     const response = await GetPagedM3UFiles(params);
     if (fetchDebug) {
       const duration = performance.now() - start;
-      Logger.debug(`Fetch GetM3UFiles completed in ${duration.toFixed(2)}ms`);
+      Logger.debug(`Fetch GetPagedM3UFiles completed in ${duration.toFixed(2)}ms`);
     }
     return { query: query, value: response };
   } catch (error) {
@@ -24,3 +26,5 @@ export const fetchGetPagedM3UFiles = createAsyncThunk('cache/getGetPagedM3UFiles
     return thunkAPI.rejectWithValue({ error: error || 'Unknown error' });
   }
 });
+
+

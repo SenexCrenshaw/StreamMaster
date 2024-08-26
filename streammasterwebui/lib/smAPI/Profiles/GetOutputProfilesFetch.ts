@@ -6,12 +6,12 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 export const fetchGetOutputProfiles = createAsyncThunk('cache/getGetOutputProfiles', async (_: void, thunkAPI) => {
   try {
     Logger.debug('Fetching GetOutputProfiles');
-  const fetchDebug = localStorage.getItem('fetchDebug');
- const start = performance.now();
+    const fetchDebug = localStorage.getItem('fetchDebug');
+    const start = performance.now();
     const response = await GetOutputProfiles();
     if (fetchDebug) {
       const duration = performance.now() - start;
-      Logger.debug(`Fetch GetM3UFiles completed in ${duration.toFixed(2)}ms`);
+      Logger.debug(`Fetch GetOutputProfiles completed in ${duration.toFixed(2)}ms`);
     }
 
     return {param: _, value: response };

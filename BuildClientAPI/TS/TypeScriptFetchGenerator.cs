@@ -80,7 +80,7 @@ public static class TypeScriptFetchGenerator
         content.AppendLine($"    const response = await {method.Name}({paramName2});");
         content.AppendLine("    if (fetchDebug) {");
         content.AppendLine("      const duration = performance.now() - start;");
-        content.AppendLine("      Logger.debug(`Fetch GetM3UFiles completed in ${duration.toFixed(2)}ms`);");
+        content.AppendLine($"      Logger.debug(`Fetch {method.Name}" + " completed in ${duration.toFixed(2)}ms`);");
         content.AppendLine("    }");
         content.AppendLine("");
         //if (method.IsList)
@@ -121,7 +121,7 @@ public static class TypeScriptFetchGenerator
         //content.AppendLine($"    Logger.debug('Fetched {method.ProfileName} ',response?.Data.length);");
         content.AppendLine("    if (fetchDebug) {");
         content.AppendLine("      const duration = performance.now() - start;");
-        content.AppendLine("      Logger.debug(`Fetch GetM3UFiles completed in ${duration.toFixed(2)}ms`);");
+        content.AppendLine($"      Logger.debug(`Fetch {method.Name}" + " completed in ${duration.toFixed(2)}ms`);");
         content.AppendLine("    }");
         content.AppendLine("    return { query: query, value: response };");
         content.AppendLine("  } catch (error) {");

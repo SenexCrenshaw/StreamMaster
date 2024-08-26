@@ -12,13 +12,13 @@ export const fetchGetPagedStreamGroups = createAsyncThunk('cache/getGetPagedStre
         return undefined;
     }
     if (query === undefined) return;
-  const fetchDebug = localStorage.getItem('fetchDebug');
- const start = performance.now();
+    const fetchDebug = localStorage.getItem('fetchDebug');
+    const start = performance.now();
     const params = JSON.parse(query);
     const response = await GetPagedStreamGroups(params);
     if (fetchDebug) {
       const duration = performance.now() - start;
-      Logger.debug(`Fetch GetM3UFiles completed in ${duration.toFixed(2)}ms`);
+      Logger.debug(`Fetch GetPagedStreamGroups completed in ${duration.toFixed(2)}ms`);
     }
     return { query: query, value: response };
   } catch (error) {

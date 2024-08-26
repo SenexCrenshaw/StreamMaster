@@ -582,7 +582,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IServ
                     bulkSMChannels.Add(smChannel);
                 }
 
-                await SaveChangesAsync().ConfigureAwait(false);
+                //await SaveChangesAsync().ConfigureAwait(false);
 
 
                 foreach (SMChannel addedSMChannel in addedSMChannels)

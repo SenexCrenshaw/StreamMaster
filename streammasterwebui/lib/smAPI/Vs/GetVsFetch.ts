@@ -13,12 +13,12 @@ export const fetchGetVs = createAsyncThunk('cache/getGetVs', async (param: GetVs
         return undefined;
     }
     Logger.debug('Fetching GetVs');
-  const fetchDebug = localStorage.getItem('fetchDebug');
- const start = performance.now();
+    const fetchDebug = localStorage.getItem('fetchDebug');
+    const start = performance.now();
     const response = await GetVs(param);
     if (fetchDebug) {
       const duration = performance.now() - start;
-      Logger.debug(`Fetch GetM3UFiles completed in ${duration.toFixed(2)}ms`);
+      Logger.debug(`Fetch GetVs completed in ${duration.toFixed(2)}ms`);
     }
 
     return {param: param, value: response };
