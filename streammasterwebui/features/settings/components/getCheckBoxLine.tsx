@@ -1,4 +1,4 @@
-import BooleanEditor from '@components/inputs/BooleanEditor';
+
 import { GetMessage } from '@lib/common/intl';
 import { useSettingsContext } from '@lib/context/SettingsProvider';
 import { getDefaultSetting } from '@lib/locales/default_setting';
@@ -8,8 +8,9 @@ import React, { useMemo } from 'react';
 import { SettingsInterface } from '../SettingsInterface';
 import { getRecord } from '../SettingsUtils';
 import { GetLine } from './GetLine';
+import BooleanEditor from '@components/inputs/BooleanEditor';
 
-interface CheckBoxLineProps extends SettingsInterface {}
+interface CheckBoxLineProps extends SettingsInterface { }
 
 export function GetCheckBoxLine({ ...props }: CheckBoxLineProps): React.ReactElement {
   const { currentSetting, updateStateAndRequest, updateSettingRequest } = useSettingsContext();

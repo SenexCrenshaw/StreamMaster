@@ -1,8 +1,9 @@
-import { GetMessage } from '@lib/common/intl';
-import { useSettingsContext } from '@lib/context/SettingsProvider';
+
 import { Fieldset } from 'primereact/fieldset';
 import React from 'react';
 import { BaseSettings } from './BaseSettings';
+import { GetMessage } from '@lib/common/intl';
+import { useSettingsContext } from '@lib/context/SettingsProvider';
 import { GetCheckBoxLine } from './components/GetCheckBoxLine';
 import { GetInputNumberLine } from './components/GetInputNumberLine';
 

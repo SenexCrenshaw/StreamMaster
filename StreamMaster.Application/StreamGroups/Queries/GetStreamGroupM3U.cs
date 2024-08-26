@@ -17,23 +17,22 @@ public record GetStreamGroupM3U(int StreamGroupProfileId, bool IsShort) : IReque
 
 public class EncodedData
 {
-    public SMChannel smChannel { get; set; }
+    public SMChannel SMChannel { get; set; }
     public string? EncodedString { get; set; }
-    public string CleanName { get; set; }
+    public string CleanName { get; set; } = string.Empty;
 }
 
 public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
     IProfileService profileService,
     IStreamGroupService streamGroupService,
     IRepositoryWrapper Repository,
-    IOptionsMonitor<Setting> intSettings
+    IOptionsMonitor<Setting> _settings
     )
     : IRequestHandler<GetStreamGroupM3U, string>
 {
     private const string DefaultReturn = "#EXTM3U\r\n";
     private readonly ConcurrentDictionary<int, bool> chNos = new();
     private readonly SemaphoreSlim semaphore = new(1, 1); // Allow only one thread at a time
-
 
     [LogExecutionTimeAspect]
     public async Task<string> Handle(GetStreamGroupM3U request, CancellationToken cancellationToken)
@@ -43,14 +42,9 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
             return DefaultReturn;
         }
 
-        Setting settings = intSettings.CurrentValue;
+        Setting settings = _settings.CurrentValue;
         string url = httpContextAccessor.GetUrl();
-        string requestPath = httpContextAccessor.HttpContext.Request.Path.Value!.ToString();
-        //byte[]? iv = requestPath.GetIVFromPath(settings.ServerKey, 128);
-        //if (iv == null)
-        //{
-        //    return DefaultReturn;
-        //}
+        string requestPath = httpContextAccessor.HttpContext.Request.Path.Value!;
 
         StreamGroup? streamGroup = await streamGroupService.GetStreamGroupFromSGProfileIdAsync(request.StreamGroupProfileId);
         if (streamGroup == null)
@@ -87,7 +81,7 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
 
             EncodedData data = new()
             {
-                smChannel = smChannel,
+                SMChannel = smChannel,
                 EncodedString = encodedString,
                 CleanName = cleanName
             };
@@ -101,13 +95,13 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
             .Select(data =>
             {
                 (int ChNo, string m3uLine) = BuildM3ULineForVideoStream(
-                    data.smChannel,
+                    data.SMChannel,
                     url,
                     request,
                     outputProfile,
                     settings,
                     videoStreamConfigs,
-                    data.EncodedString,
+                    data.EncodedString!,
                     data.CleanName);
 
                 return new
@@ -133,29 +127,18 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
     {
         int newChNo = baseChNo;
 
-
-        try
+        while (chNos.ContainsKey(newChNo))
         {
-
-            while (chNos.ContainsKey(newChNo))
-            {
-                newChNo++;
-            }
-
-
-            chNos[newChNo] = true;
+            newChNo++;
         }
-        finally
-        {
 
-        }
+        chNos[newChNo] = true;
 
         return newChNo;
     }
 
     private OutputProfile UpdateProfile(OutputProfile profile, SMChannel smChannel)
     {
-
         semaphore.Wait();
 
         try
@@ -166,44 +149,35 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
 
             UpdateProperty(outputProfile, smChannel, p => p.Name);
             UpdateProperty(outputProfile, smChannel, p => p.Group);
-            //UpdateProperty(outputProfile, smChannel, p => p.EPGId);
+            //UpdateProperty(outputProfile, SMChannel, p => p.EPGId);
             UpdateProperty(outputProfile, smChannel, p => p.Id);
             return outputProfile;
         }
         finally
         {
-
             _ = semaphore.Release();
         }
-
-
     }
 
     private static void UpdateProperty<T>(OutputProfile profile, SMChannel smChannel, Expression<Func<OutputProfile, T>> propertySelector)
     {
-
         if (propertySelector.Body is MemberExpression memberExpression)
         {
-
             T? profileValue = propertySelector.Compile()(profile);
-
 
             if (Enum.TryParse<ValidM3USetting>(profileValue?.ToString(), out ValidM3USetting setting))
             {
-
                 if (setting != ValidM3USetting.NotMapped)
                 {
-
-                    string t = setting.ToString();
                     PropertyInfo? smChannelProperty = typeof(SMChannel).GetProperty(setting.ToString());
                     if (smChannelProperty != null)
                     {
-
                         object? newValue = smChannelProperty.GetValue(smChannel);
-
-
-                        PropertyInfo? profileProperty = typeof(OutputProfile).GetProperty(memberExpression.Member.Name);
-                        profileProperty?.SetValue(profile, newValue.ToString());
+                        if (newValue != null)
+                        {
+                            PropertyInfo? profileProperty = typeof(OutputProfile).GetProperty(memberExpression.Member.Name);
+                            profileProperty?.SetValue(profile, newValue.ToString());
+                        }
                     }
                 }
             }
@@ -219,42 +193,7 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
 
         OutputProfile outputProfile = UpdateProfile(profile, smChannel);
 
-        //string epgChannelId;
-
-        //string channelId = string.Empty;
-        //string tvgID = string.Empty;
-
-        //if (string.IsNullOrEmpty(smChannel.EPGId))
-        //{
-        //    //epgChannelId = smChannel.Group;
-        //}
-
-        //else
-        //{
-        //    if (EPGHelper.IsValidEPGId(smChannel.EPGId))
-        //    {
-        //        (_, epgChannelId) = smChannel.EPGId.ExtractEPGNumberAndStationId();
-        //        MxfService? service = schedulesDirectDataService.GetService(smChannel.EPGId);
-
-        //        tvgID = service?.CallSign ?? epgChannelId;
-        //        //channelId = tvgID;
-
-        //    }
-        //    else
-        //    {
-        //        //epgChannelId = tvgID = channelId = smChannel.EPGId;
-        //    }
-        //}
         VideoStreamConfig videoStreamConfig = videoStreamConfigs.First(a => a.Id == smChannel.Id);
-        //if (profile.EnableChannelNumber)
-        //{
-        //    channelId = videoStreamConfig.ChannelNumber.ToString();
-        //}
-
-        //channelId = videoStreamConfig.OutputProfile.Id;
-        //channelId = videoStreamConfig.Name.ToCleanFileString();
-
-        //string name = smChannel.Name;
 
         string logo = GetIconUrl(smChannel.Logo, settings);
         smChannel.Logo = logo;
@@ -262,7 +201,6 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
         string videoUrl = request.IsShort
             ? $"{url}/v/{request.StreamGroupProfileId}/{smChannel.Id}"
             : $"{url}/api/videostreams/stream/{encodedString}/{cleanName}";
-
 
         List<string> fieldList = ["#EXTINF:-1"];
 
@@ -278,16 +216,10 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
             fieldList.Add($"tvg-name=\"{outputProfile.Name}\"");
         }
 
-
         if (!string.IsNullOrEmpty(smChannel.StationId))
         {
             fieldList.Add($"tvc-guide-stationid=\"{smChannel.StationId}\"");
         }
-
-        //if (profile.EPGId != nameof(ValidM3USetting.NotMapped))
-        //{
-        //    fieldList.Add($"tvg-id=\"{profile.Id}\"");
-        //}
 
         if (outputProfile.Group != nameof(ValidM3USetting.NotMapped))
         {
@@ -300,7 +232,6 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
             fieldList.Add($"channel-number=\"{videoStreamConfig.ChannelNumber}\"");
         }
 
-
         if (outputProfile.EnableGroupTitle)
         {
             if (!string.IsNullOrEmpty(smChannel.GroupTitle))
@@ -312,7 +243,6 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
                 fieldList.Add($"group-title=\"{outputProfile.Group}\"");
             }
         }
-
 
         if (outputProfile.EnableIcon)
         {
@@ -331,8 +261,7 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
 
         if (string.IsNullOrEmpty(iconOriginalSource))
         {
-            iconOriginalSource = $"{url}{setting.DefaultIcon}";
-            return iconOriginalSource;
+            return $"{url}{setting.DefaultIcon}";
         }
 
         string originalUrl = iconOriginalSource;
@@ -344,15 +273,15 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
 
         if (iconOriginalSource.StartsWith("images/"))
         {
-            iconOriginalSource = $"{url}/{iconOriginalSource}";
+            return $"{url}/{iconOriginalSource}";
         }
         else if (!iconOriginalSource.StartsWith("http"))
         {
-            iconOriginalSource = GetApiUrl(SMFileTypes.TvLogo, originalUrl);
+            return GetApiUrl(SMFileTypes.TvLogo, originalUrl);
         }
         else if (setting.CacheIcons)
         {
-            iconOriginalSource = GetApiUrl(SMFileTypes.Icon, originalUrl);
+            return GetApiUrl(SMFileTypes.Icon, originalUrl);
         }
 
         return iconOriginalSource;
@@ -363,5 +292,4 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
         string url = httpContextAccessor.GetUrl();
         return $"{url}/api/files/{(int)path}/{WebUtility.UrlEncode(source)}";
     }
-
 }

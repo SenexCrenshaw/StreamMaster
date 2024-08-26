@@ -15,8 +15,9 @@ export interface StreamGroupCreateDialogProperties {
 }
 
 export const StreamGroupCreateDialog = ({ modal, zIndex }: StreamGroupCreateDialogProperties) => {
-  const [saving, setSaving] = useState<boolean>(false);
+  const saving = useRef<boolean>(false);
   const smPopUpRef = useRef<SMPopUpRef>(null);
+
   const defaultValues = useMemo(
     () =>
       ({
@@ -33,15 +34,22 @@ export const StreamGroupCreateDialog = ({ modal, zIndex }: StreamGroupCreateDial
   const ReturnToParent = useCallback(() => {
     smDialogRef.current?.hide();
     setCreateStreamGroupRequest(defaultValues);
-    setSaving(false);
+    saving.current = false;
+    // setSaving(false);
   }, [defaultValues]);
 
   const create = useCallback(() => {
-    if (saving || createStreamGroupRequest === undefined || createStreamGroupRequest.Name === undefined || createStreamGroupRequest.Name === '') {
+    if (
+      saving == null ||
+      saving.current ||
+      createStreamGroupRequest === undefined ||
+      createStreamGroupRequest.Name === undefined ||
+      createStreamGroupRequest.Name === ''
+    ) {
       return;
     }
 
-    setSaving(true);
+    saving.current = true;
 
     CreateStreamGroup(createStreamGroupRequest)
       .then(() => {})

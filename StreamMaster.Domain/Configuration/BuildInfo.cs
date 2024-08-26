@@ -2,6 +2,7 @@
 
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Text.Json;
 
 namespace StreamMaster.Domain.Configuration
 {
@@ -10,6 +11,7 @@ namespace StreamMaster.Domain.Configuration
     /// </summary>
     public static class BuildInfo
     {
+        public static JsonSerializerOptions JsonSerializerOptions = new() { WriteIndented = true };
         static BuildInfo()
         {
             Assembly? assembly = Assembly.GetEntryAssembly() ?? throw new InvalidOperationException("Failed to get entry assembly.");

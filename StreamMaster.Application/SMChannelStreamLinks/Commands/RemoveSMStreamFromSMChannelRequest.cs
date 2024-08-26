@@ -18,7 +18,7 @@ internal class RemoveSMStreamFromSMChannelRequestHandler(IRepositoryWrapper Repo
         SMChannel? smChannel = Repository.SMChannel.GetSMChannel(request.SMChannelId);
         if (smChannel != null)
         {
-            //DataResponse<List<SMStreamDto>> streams = await Sender.Send(new UpdateStreamRanksRequest(smChannel.Id, smChannel.SMStreams.Select(a => a.SMStream.Id).ToList()), cancellationToken);
+            //DataResponse<List<SMStreamDto>> streams = await Sender.Send(new UpdateStreamRanksRequest(SMChannel.Id, SMChannel.SMStreams.Select(a => a.SMStream.Id).ToList()), cancellationToken);
 
             //GetSMChannelStreamsRequest re = new(request.Id);
             //List<FieldData> ret = new()

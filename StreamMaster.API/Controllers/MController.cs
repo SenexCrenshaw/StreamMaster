@@ -14,18 +14,18 @@
 //    //        return NotFound();
 //    //    }
 
-//    //    SMChannel? smChannel = repositoryWrapper.SMChannel.GetSMChannel(smChannelId.Value);
-//    //    if (smChannel == null)
+//    //    SMChannel? SMChannel = repositoryWrapper.SMChannel.GetSMChannel(smChannelId.Value);
+//    //    if (SMChannel == null)
 //    //    {
 //    //        logger.LogInformation("GetSMChannelM3U SG Number {id} Channel Id {Id}", smChannelId, smChannelId);
 //    //        return NotFound();
 //    //    }
 
-//    //    logger.LogInformation("GetSMChannelM3U SG Number {id} Channel Name {name}", streamGroupId, smChannel.Name);
+//    //    logger.LogInformation("GetSMChannelM3U SG Number {id} Channel Name {name}", streamGroupId, SMChannel.Name);
 
-//    //    if (smChannel.SMStreams.Count == 0 || string.IsNullOrEmpty(smChannel.SMStreams.First().SMStream.Url))
+//    //    if (SMChannel.SMStreams.Count == 0 || string.IsNullOrEmpty(SMChannel.SMStreams.First().SMStream.Url))
 //    //    {
-//    //        logger.LogInformation("GetSMChannelM3U SG Number {id} hannel Name {name} no streams", streamGroupId, smChannel.Name);
+//    //        logger.LogInformation("GetSMChannelM3U SG Number {id} hannel Name {name} no streams", streamGroupId, SMChannel.Name);
 //    //        return new NotFoundResult();
 //    //    }
 
@@ -34,9 +34,9 @@
 //    //    HttpContext.Response.Headers.AccessControlExposeHeaders = "Content-Length";
 //    //    HttpContext.Response.Headers.CacheControl = "no-cache";
 //    //    List<string> Ids = [];
-//    //    if (smChannel.IsCustomStream)
+//    //    if (SMChannel.IsCustomStream)
 //    //    {
-//    //        CustomPlayList? customPlayList = customPlayListBuilder.GetCustomPlayList(smChannel.Name);
+//    //        CustomPlayList? customPlayList = customPlayListBuilder.GetCustomPlayList(SMChannel.Name);
 //    //        if (customPlayList == null)
 //    //        {
 //    //            return NotFound();
@@ -62,7 +62,7 @@
 //    //    else
 //    //    {
 
-//    //        foreach (string? id in smChannel.SMStreams.Select(a => a.SMStream.Id))
+//    //        foreach (string? id in SMChannel.SMStreams.Select(a => a.SMStream.Id))
 //    //        {
 //    //            string? c = await cryptoService.EncodeStreamGroupIdStreamIdAsync(streamGroupId.Value, id);
 //    //            if (c != null)
@@ -216,13 +216,13 @@
 
 //    //    (int? streamGroupId, int? SMChannelId) = cryptoService.DecodeStreamGroupIdChannelIdAsync(encodedString);
 
-//    //    SMChannel? smChannel = await repositoryWrapper.SMChannel.FirstOrDefaultAsync(a => a.Id == SMChannelId, cancellationToken: cancellationToken);
-//    //    if (smChannel is null)
+//    //    SMChannel? SMChannel = await repositoryWrapper.SMChannel.FirstOrDefaultAsync(a => a.Id == SMChannelId, cancellationToken: cancellationToken);
+//    //    if (SMChannel is null)
 //    //    {
 //    //        return NotFound();
 //    //    }
 
-//    //    SMChannelDto smChannelDto = mapper.Map<SMChannelDto>(smChannel);
+//    //    SMChannelDto smChannelDto = mapper.Map<SMChannelDto>(SMChannel);
 
 //    //    IM3U8ChannelStatus? channelStatus = await hlsManager.TryAddAsync(smChannelDto, CancellationToken.None);
 //    //    if (channelStatus == null || channelStatus.SMStreamInfo == null || string.IsNullOrEmpty(channelStatus.SMStreamInfo.Url))

@@ -36,7 +36,7 @@ public class SMChannelStreamLinksRepository(ILogger<SMChannelStreamLinksReposito
 
 
             RepositoryContext.SMChannelStreamLinks.Add(link);
-            //smChannel.SMStreams.Add(link);
+            //SMChannel.SMStreams.Add(link);
             await SaveChangesAsync();
         }
     }

@@ -18,19 +18,19 @@ internal class AddSMStreamToSMChannelRequestHandler(IRepositoryWrapper Repositor
         SMChannel? smChannel = Repository.SMChannel.GetSMChannel(request.SMChannelId);
         if (smChannel != null)
         {
-            //smChannel.SMStreams.Add
+            //SMChannel.SMStreams.Add
             await Repository.SMChannelStreamLink.CreateSMChannelStreamLink(smChannel.Id, request.SMStreamId, null);
             await Repository.SaveAsync();
-            //DataResponse<List<SMStreamDto>> streams = await Sender.Send(new UpdateStreamRanksRequest(smChannel.Id, smChannel.SMStreams.Select(a => a.SMStream.Id).ToList()), cancellationToken);
+            //DataResponse<List<SMStreamDto>> streams = await Sender.Send(new UpdateStreamRanksRequest(SMChannel.Id, SMChannel.SMStreams.Select(a => a.SMStream.Id).ToList()), cancellationToken);
 
             //GetSMChannelStreamsRequest re = new(request.Id);
 
-            //List<SMStreamDto> dtos = Mapper.Map<List<SMStreamDto>>(smChannel.SMStreams.Select(a => a.SMStream));
+            //List<SMStreamDto> dtos = Mapper.Map<List<SMStreamDto>>(SMChannel.SMStreams.Select(a => a.SMStream));
 
             //List<FieldData> ret =
             //[
             //    new("GetSMChannelStreams", re, streams.Data),
-            //    new(SMChannel.APIName, smChannel.Id, "SMStreams",streams.Data)
+            //    new(SMChannel.APIName, SMChannel.Id, "SMStreams",streams.Data)
             //];
             await dataRefreshService.RefreshSMChannelStreamLinks();
             await dataRefreshService.RefreshSMChannels();

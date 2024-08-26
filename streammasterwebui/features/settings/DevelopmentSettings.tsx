@@ -27,7 +27,9 @@ export function DevelopmentSettings(): React.ReactElement {
         </div>
         <div className="sm-w-9rem">
           <SyncCustomListsButton />
-          <BooleanEditor checked={fetchDebug} onChange={enableFetchDebug} label="Fetch Debug" />
+        </div>
+        <div className="sm-w-9rem">
+          <BooleanEditor labelInline checked={fetchDebug} onChange={enableFetchDebug} label="Fetch Debug" />
         </div>
       </div>
     </BaseSettings>

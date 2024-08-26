@@ -73,36 +73,36 @@ internal class SyncChannelsRequestHandler(ILogger<SyncChannelsRequest> logger, I
             //{
             //    List<SMChannel> smChannels = await Repositorywrapper.SMChannel.GetQuery(true).Where(a => a.M3UFileId == request.M3UFileId && a.BaseStreamID != null && existingStreamsIDsInDb.Contains(a.BaseStreamID)).ToListAsync(cancellationToken: cancellationToken);
 
-            //    foreach (SMChannel smChannel in smChannels)
+            //    foreach (SMChannel SMChannel in smChannels)
             //    {
-            //        SMStream? stream = existingStreamsInDb.Find(a => a.Id == smChannel.BaseStreamID);
+            //        SMStream? stream = existingStreamsInDb.Find(a => a.Id == SMChannel.BaseStreamID);
             //        if (stream == null)
             //        {
             //            continue;
             //        }
 
-            //        if (smChannel.ProfileName != stream.ProfileName)
+            //        if (SMChannel.ProfileName != stream.ProfileName)
             //        {
             //            changed = true;
-            //            smChannel.ProfileName = stream.ProfileName;
+            //            SMChannel.ProfileName = stream.ProfileName;
             //        }
 
-            //        //if (smChannel.Logo != stream.Logo)
+            //        //if (SMChannel.Logo != stream.Logo)
             //        //{
             //        //    changed = true;
-            //        //    smChannel.Logo = stream.Logo;
+            //        //    SMChannel.Logo = stream.Logo;
             //        //}
 
-            //        //if (smChannel.CommandProfileName != stream.CommandProfileName)
+            //        //if (SMChannel.CommandProfileName != stream.CommandProfileName)
             //        //{
             //        //    changed = true;
-            //        //    smChannel.CommandProfileName = stream.CommandProfileName;
+            //        //    SMChannel.CommandProfileName = stream.CommandProfileName;
             //        //}
 
-            //        if (smChannel.StationId != stream.StationId)
+            //        if (SMChannel.StationId != stream.StationId)
             //        {
             //            changed = true;
-            //            smChannel.StationId = stream.StationId;
+            //            SMChannel.StationId = stream.StationId;
             //        }
 
             //    }

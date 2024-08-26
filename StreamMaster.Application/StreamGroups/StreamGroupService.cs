@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Http;
 
 using StreamMaster.Application.Common.Models;
+using StreamMaster.Application.StreamGroups.Queries;
 using StreamMaster.Domain.Crypto;
 using StreamMaster.SchedulesDirect.Domain.Extensions;
 
+using System.Collections.Concurrent;
 using System.Net;
 using System.Text.Json;
 using System.Xml.Serialization;
@@ -11,7 +13,7 @@ using System.Xml.Serialization;
 using static StreamMaster.Domain.Common.GetStreamGroupEPGHandler;
 namespace StreamMaster.Application.StreamGroups;
 
-public class StreamGroupService(ILogger<StreamGroupService> _logger, IMapper _mapper, IRepositoryWrapper repositoryWrapper, ISchedulesDirectDataService _schedulesDirectDataService, IIconHelper _iconHelper, IEPGHelper _epgHelper, IOptionsMonitor<CommandProfileDict> _commandProfileSettings, IOptionsMonitor<Setting> _settings, IMemoryCache _memoryCache, IProfileService _profileService)
+public class StreamGroupService(ILogger<StreamGroupService> _logger, IMapper _mapper, IRepositoryWrapper repositoryWrapper, ISchedulesDirectDataService _schedulesDirectDataService, IIconHelper _iconHelper, IOptionsMonitor<CommandProfileDict> _commandProfileSettings, IOptionsMonitor<Setting> _settings, IMemoryCache _memoryCache, IProfileService _profileService)
     : IStreamGroupService
 {
     private const string DefaultStreamGroupName = "all";
@@ -216,11 +218,11 @@ public class StreamGroupService(ILogger<StreamGroupService> _logger, IMapper _ma
 
     public string GetStreamGroupLineupStatus()
     {
-        string jsonString = JsonSerializer.Serialize(new LineupStatus(), new JsonSerializerOptions { WriteIndented = true });
+        string jsonString = JsonSerializer.Serialize(new LineupStatus(), BuildInfo.JsonSerializerOptions);
 
         return jsonString;
     }
-    private string GetApiUrl(SMFileTypes path, string source, HttpRequest httpRequest)
+    private static string GetApiUrl(SMFileTypes path, string source, HttpRequest httpRequest)
     {
         string url = httpRequest.GetUrl();
         return $"{url}/api/files/{(int)path}/{WebUtility.UrlEncode(source)}";
@@ -232,8 +234,7 @@ public class StreamGroupService(ILogger<StreamGroupService> _logger, IMapper _ma
 
         if (string.IsNullOrEmpty(iconOriginalSource))
         {
-            iconOriginalSource = $"{url}{_settings.CurrentValue.DefaultIcon}";
-            return iconOriginalSource;
+            return $"{url}{_settings.CurrentValue.DefaultIcon}";
         }
 
         string originalUrl = iconOriginalSource;
@@ -245,15 +246,15 @@ public class StreamGroupService(ILogger<StreamGroupService> _logger, IMapper _ma
 
         if (iconOriginalSource.StartsWith("images/"))
         {
-            iconOriginalSource = $"{url}/{iconOriginalSource}";
+            return $"{url}/{iconOriginalSource}";
         }
         else if (!iconOriginalSource.StartsWith("http"))
         {
-            iconOriginalSource = GetApiUrl(SMFileTypes.TvLogo, originalUrl, httpRequest);
+            return GetApiUrl(SMFileTypes.TvLogo, originalUrl, httpRequest);
         }
         else if (_settings.CurrentValue.CacheIcons)
         {
-            iconOriginalSource = GetApiUrl(SMFileTypes.Icon, originalUrl, httpRequest);
+            return GetApiUrl(SMFileTypes.Icon, originalUrl, httpRequest);
         }
 
         return iconOriginalSource;
@@ -271,6 +272,13 @@ public class StreamGroupService(ILogger<StreamGroupService> _logger, IMapper _ma
             return JsonSerializer.Serialize(ret);
         }
 
+        List<SMChannel> smChannels = (await repositoryWrapper.SMChannel.GetSMChannelsFromStreamGroup(streamGroup.Id)).Where(a => !a.IsHidden).ToList();
+
+        if (smChannels.Count == 0)
+        {
+            return JsonSerializer.Serialize(ret);
+        }
+
         (List<VideoStreamConfig> videoStreamConfigs, StreamGroupProfile streamGroupProfile) = await GetStreamGroupVideoConfigs(StreamGroupProfileId);
 
         if (videoStreamConfigs is null || streamGroupProfile is null)
@@ -278,46 +286,60 @@ public class StreamGroupService(ILogger<StreamGroupService> _logger, IMapper _ma
             return string.Empty;
         }
 
-        //using IServiceScope scope = _serviceProvider.CreateScope();
-        //IRepositoryWrapper repositoryWrapper = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
+        ConcurrentBag<EncodedData> encodedData = [];
 
-        //List<SMChannel> smChannels = await repositoryWrapper.SMChannel.GetSMChannelsFromStreamGroup(streamGroup.Id);
-
-        //if (smChannels.Count == 0)
-        //{
-        //    return JsonSerializer.Serialize(ret);
-        //}
-        //List<SMChannel> smChannelsOrdered = smChannels.OrderBy(a => a.ChannelNumber).ToList();
-
-        ISchedulesDirectData dummyData = _schedulesDirectDataService.DummyData();
-        await Parallel.ForEachAsync(videoStreamConfigs, (videoStreamConfig, ct) =>
+        Parallel.ForEach(smChannels, smChannel =>
         {
-            if (string.IsNullOrEmpty(videoStreamConfig?.EPGId))
+            string? encodedString = EncodeStreamGroupIdProfileIdChannelId(streamGroup, streamGroupProfile.Id, smChannel.Id);
+            if (string.IsNullOrEmpty(encodedString))
+            {
+                return;
+            }
+            string cleanName = smChannel.Name.ToCleanFileString();
+
+            EncodedData data = new()
+            {
+                SMChannel = smChannel,
+                EncodedString = encodedString,
+                CleanName = cleanName
+            };
+
+            encodedData.Add(data);
+        });
+
+        await Parallel.ForEachAsync(encodedData, (encodedData, _) =>
+        {
+            //if (string.IsNullOrEmpty(videoStreamConfig?.EPGId))
+            //{
+            //    return ValueTask.CompletedTask;
+            //}
+            VideoStreamConfig? videoStreamConfig = videoStreamConfigs.Find(a => a.Id == encodedData.SMChannel.Id);
+            if (videoStreamConfig == null)
             {
                 return ValueTask.CompletedTask;
             }
 
-            bool isDummy = _epgHelper.IsDummy(videoStreamConfig.EPGId);
+            //bool isDummy = _epgHelper.IsDummy(videoStreamConfig.EPGId);
 
-            if (isDummy)
-            {
-                videoStreamConfig.EPGId = $"{EPGHelper.DummyId}-{videoStreamConfig.Id}";
+            //if (isDummy)
+            //{
+            //    videoStreamConfig.EPGId = $"{EPGHelper.DummyId}-{videoStreamConfig.Id}";
 
-                VideoStreamConfig videoStreamConfig2 = new()
-                {
-                    Id = videoStreamConfig.Id,
-                    Name = videoStreamConfig.Name,
-                    EPGId = videoStreamConfig.EPGId,
-                    Logo = videoStreamConfig.Logo,
-                    ChannelNumber = videoStreamConfig.ChannelNumber,
-                    IsDuplicate = false,
-                    IsDummy = false
-                };
-                _ = dummyData.FindOrCreateDummyService(videoStreamConfig2.EPGId, videoStreamConfig2);
-                return ValueTask.CompletedTask;
-            }
+            //    videoStreamConfig = new()
+            //    {
+            //        Id = videoStreamConfig.Id,
+            //        Name = videoStreamConfig.Name,
+            //        EPGId = videoStreamConfig.EPGId,
+            //        Logo = videoStreamConfig.Logo,
+            //        ChannelNumber = videoStreamConfig.ChannelNumber,
+            //        IsDuplicate = false,
+            //        IsDummy = false
+            //    };
+            //    //_ = dummyData.FindOrCreateDummyService(videoStreamConfig2.EPGId, videoStreamConfig2);
+            //    //return ValueTask.CompletedTask;
+            //}
 
-            int epgNumber = EPGHelper.DummyId;
+            //int epgNumber = EPGHelper.DummyId;
             string stationId;
 
             if (string.IsNullOrEmpty(videoStreamConfig.EPGId))
@@ -328,7 +350,7 @@ public class StreamGroupService(ILogger<StreamGroupService> _logger, IMapper _ma
             {
                 if (EPGHelper.IsValidEPGId(videoStreamConfig.EPGId))
                 {
-                    (epgNumber, stationId) = videoStreamConfig.EPGId.ExtractEPGNumberAndStationId();
+                    (int _, stationId) = videoStreamConfig.EPGId.ExtractEPGNumberAndStationId();
                 }
                 else
                 {
@@ -419,7 +441,7 @@ public class StreamGroupService(ILogger<StreamGroupService> _logger, IMapper _ma
 
         Discover discover = new(url, streamGroup.DeviceID + "-" + StreamGroupProfileId, maxTuners);
 
-        string jsonString = JsonSerializer.Serialize(discover, new JsonSerializerOptions { WriteIndented = true });
+        string jsonString = JsonSerializer.Serialize(discover, BuildInfo.JsonSerializerOptions);
         return jsonString;
     }
 
@@ -507,7 +529,7 @@ public class StreamGroupService(ILogger<StreamGroupService> _logger, IMapper _ma
                 OutputProfile = outputProfile
             });
         }
-        videoStreamConfigs = videoStreamConfigs.OrderBy(a => a.ChannelNumber).ToList();
+        videoStreamConfigs = [.. videoStreamConfigs.OrderBy(a => a.ChannelNumber)];
 
         return (videoStreamConfigs, streamGroupProfile);
     }

@@ -35,14 +35,14 @@ internal class AddSMChannelsToStreamGroupRequestHandler(IRepositoryWrapper Repos
         //    return APIResponse.ErrorWithMessage(res.ErrorMessage);
         //}
 
-        //SMChannel? smChannel = Repositorywrapper.SMChannel.GetSMChannel(request.ShortSMChannelId);
-        //if (smChannel is null)
+        //SMChannel? SMChannel = Repositorywrapper.SMChannel.GetSMChannel(request.ShortSMChannelId);
+        //if (SMChannel is null)
         //{
         //    return APIResponse.ErrorWithMessage("Channel not found");
         //}
-        //List<int> streamGroupIds = smChannel.StreamGroups.Select(a => a.StreamGroupId).ToList();
+        //List<int> streamGroupIds = SMChannel.StreamGroups.Select(a => a.StreamGroupId).ToList();
 
-        //FieldData fd = new(SMChannel.APIName, smChannel.Id, "StreamGroupIds", streamGroupIds);
+        //FieldData fd = new(SMChannel.APIName, SMChannel.Id, "StreamGroupIds", streamGroupIds);
         if (fieldDatas.Count > 0)
         {
             await dataRefreshService.SetField(fieldDatas).ConfigureAwait(false);

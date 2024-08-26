@@ -237,7 +237,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IServ
     //        return null;
     //    }
 
-    //    SMChannel smChannel = new()
+    //    SMChannel SMChannel = new()
     //    {
     //        ChannelNumber = smStream.ChannelNumber,
     //        Group = smStream.Group,
@@ -251,31 +251,31 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IServ
     //        CommandProfileName = "Default",
     //    };
 
-    //    await CreateSMChannel(smChannel);
+    //    await CreateSMChannel(SMChannel);
 
-    //    await repository.SMChannelStreamLink.CreateSMChannelStreamLink(smChannel, smStream, null);
+    //    await repository.SMChannelStreamLink.CreateSMChannelStreamLink(SMChannel, smStream, null);
 
     //    //if (StreamGroup)
     //    //{
-    //    //    await sender.Send(new AddSMChannelToStreamGroupRequest(StreamGroupId.Value, smChannel.Id));
+    //    //    await sender.Send(new AddSMChannelToStreamGroupRequest(StreamGroupId.Value, SMChannel.Id));
     //    //}
     //    //if (Settings.AutoSetEPG)
     //    //{
-    //    //    List<FieldData> fds = await AutoSetEPGs(GetQuery(a => a.Id == smChannel.Id), CancellationToken.None);
+    //    //    List<FieldData> fds = await AutoSetEPGs(GetQuery(a => a.Id == SMChannel.Id), CancellationToken.None);
     //    //    if (fds.Count != 0)
     //    //    {
-    //    //        FieldData test = fds.First(a => a.Id == smChannel.Id.ToString() && a.Field == "EPGId");
+    //    //        FieldData test = fds.First(a => a.Id == SMChannel.Id.ToString() && a.Field == "EPGId");
     //    //        if (test.Value is string value && !string.IsNullOrEmpty(value))
     //    //        {
-    //    //            smChannel.EPGId = value;
-    //    //            //Update(smChannel);
+    //    //            SMChannel.EPGId = value;
+    //    //            //Update(SMChannel);
     //    //            //await SaveChangesAsync();
     //    //        }
     //    //    }
     //    //    //RepositoryContext.SaveChanges();
     //    //}
     //    //RepositoryContext.SaveChanges();
-    //    return smChannel;
+    //    return SMChannel;
     //}
 
     public async Task<APIResponse> DeleteSMChannels(List<int> smchannelIds)
@@ -723,7 +723,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IServ
 
         List<StationChannelName> stationChannelList = stationChannelNames.ToList();
 
-        //foreach (SMChannel smChannel in smChannels)
+        //foreach (SMChannel SMChannel in smChannels)
         //{
         //    if (cancellationToken.IsCancellationRequested)
         //    {
@@ -736,7 +736,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IServ
         //            .Select(p => new
         //            {
         //                Channel = p,
-        //                Score = AutoEPGMatch.GetMatchingScore(smChannel.Name, p.Channel)
+        //                Score = AutoEPGMatch.GetMatchingScore(SMChannel.Name, p.Channel)
         //            })
         //            .Where(x => x.Score > 0)
         //            .OrderByDescending(x => x.Score)
@@ -748,7 +748,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IServ
         //                .Select(p => new
         //                {
         //                    Channel = p,
-        //                    Score = AutoEPGMatch.GetMatchingScore(smChannel.Name, p.DisplayName)
+        //                    Score = AutoEPGMatch.GetMatchingScore(SMChannel.Name, p.DisplayName)
         //                })
         //                .Where(x => x.Score > 0)
         //                .OrderByDescending(x => x.Score)
@@ -763,17 +763,17 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IServ
         //                bestMatch = scoredMatches[1];
         //            }
 
-        //            if (smChannel.EPGId != bestMatch.Channel.Channel)
+        //            if (SMChannel.EPGId != bestMatch.Channel.Channel)
         //            {
-        //                smChannel.EPGId = bestMatch.Channel.Channel;
+        //                SMChannel.EPGId = bestMatch.Channel.Channel;
 
-        //                fds.Add(new FieldData(SMChannel.APIName, smChannel.Id, "EPGId", smChannel.EPGId));
+        //                fds.Add(new FieldData(SMChannel.APIName, SMChannel.Id, "EPGId", SMChannel.EPGId));
 
         //                if (settings.VideoStreamAlwaysUseEPGLogo)
         //                {
-        //                    if (SetVideoStreamLogoFromEPG(smChannel))
+        //                    if (SetVideoStreamLogoFromEPG(SMChannel))
         //                    {
-        //                        fds.Add(new FieldData(SMChannel.APIName, smChannel.Id, "Logo", smChannel.Logo));
+        //                        fds.Add(new FieldData(SMChannel.APIName, SMChannel.Id, "Logo", SMChannel.Logo));
         //                    }
         //                }
         //            }
@@ -781,7 +781,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IServ
         //    }
         //    catch (Exception ex)
         //    {
-        //        logger.LogWarning("An error occurred while processing channel {ChannelName}: {ErrorMessage}", smChannel.Name, ex.Message);
+        //        logger.LogWarning("An error occurred while processing channel {ChannelName}: {ErrorMessage}", SMChannel.Name, ex.Message);
         //    }
         //}
 
