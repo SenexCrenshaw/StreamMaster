@@ -34,7 +34,7 @@ public abstract class BroadcasterBase(ILogger<IBroadcasterBase> logger, IOptions
     {
         if (!_cancellationTokenSource.IsCancellationRequested)
         {
-            logger.LogInformation("Stopped broadcaster for: {Id} {Name}", StringId(), Name);
+            logger.LogInformation("Stopped broadcaster for: {Name}", Name);
             _cancellationTokenSource.Cancel();
         }
 
