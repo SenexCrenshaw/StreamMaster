@@ -18,15 +18,15 @@ namespace StreamMaster.Streams.Plugins
         }
     }
 
-    public class VideoInfoPlugin
+    public class VideoInfoPlugin : IDisposable
     {
         private readonly ILogger<VideoInfoPlugin> _logger;
         private readonly IOptionsMonitor<Setting> _settingsMonitor;
         private readonly ChannelReader<byte[]> _channelReader;
-        private bool _stopRequested;
         private readonly string name;
         private readonly string id;
         private readonly CancellationTokenSource cancellationTokenSource = new();
+        private readonly Task? videoInfoTask;
         public event EventHandler<VideoInfoEventArgs>? VideoInfoUpdated;
         private static readonly JsonSerializerOptions jsonOptions = new()
         {
@@ -42,7 +42,7 @@ namespace StreamMaster.Streams.Plugins
             _channelReader = channelReader;
 
             // Start the background task
-            _ = StartVideoInfoLoopAsync(cancellationTokenSource.Token);
+            videoInfoTask = StartVideoInfoLoopAsync(cancellationTokenSource.Token);
         }
 
         private async Task StartVideoInfoLoopAsync(CancellationToken cancellationToken)
@@ -55,11 +55,12 @@ namespace StreamMaster.Streams.Plugins
             {
                 await Task.Delay(initialDelay, cancellationToken);
 
-                while (!cancellationToken.IsCancellationRequested && !_stopRequested)
+                while (!cancellationToken.IsCancellationRequested)
                 {
+                    VideoInfo? videoInfo = null;
                     try
                     {
-                        VideoInfo? videoInfo = await GetVideoInfoAsync(_channelReader, cancellationToken);
+                        videoInfo = await GetVideoInfoAsync(_channelReader, cancellationToken);
 
                         if (videoInfo != null)
                         {
@@ -71,24 +72,20 @@ namespace StreamMaster.Streams.Plugins
                             await Task.Delay(errorDelay, cancellationToken);
                         }
                     }
-                    catch (Exception ex)
+                    catch (Exception ex) when (ex is not OperationCanceledException)
                     {
                         _logger.LogError(ex, "Error getting video info for {name}", name);
                         await Task.Delay(errorDelay, cancellationToken);
                     }
                 }
             }
-            catch (TaskCanceledException ex)
+            catch (OperationCanceledException)
             {
-                _logger.LogInformation(ex, "Error starting video info loop for {name}", name);
-            }
-            catch (OperationCanceledException ex)
-            {
-                _logger.LogInformation(ex, "Error starting video info loop for {name}", name);
+                // Handle the cancellation gracefully, no need to log TaskCanceledException
             }
             catch (Exception ex)
             {
-                _logger.LogInformation(ex, "Error starting video info loop for {name}", name);
+                _logger.LogError(ex, "Unexpected error in video info loop for {name}", name);
             }
         }
 
@@ -104,6 +101,7 @@ namespace StreamMaster.Streams.Plugins
                     _logger.LogError("FFProbe executable \"{settings.FFProbeExecutable}\" not found.", settings.FFProbeExecutable);
                     return null;
                 }
+
                 byte[] videoMemory = await ReadChannelDataAsync(channelReader, 1 * 1024 * 1024, cancellationToken);
                 const string options = "-loglevel error -print_format json -show_format -sexagesimal -show_streams - ";
                 ProcessStartInfo startInfo = new()
@@ -142,10 +140,7 @@ namespace StreamMaster.Streams.Plugins
 
                     string output = await ffprobeProcess.StandardOutput.ReadToEndAsync(cancellationToken).ConfigureAwait(false);
                     await ffprobeProcess.WaitForExitAsync(cancellationToken);
-                    //if (ffprobeProcess?.HasExited == false)
-                    //{
-                    //    ffprobeProcess.Kill();
-                    //}
+
                     timer.Dispose();
 
                     if (string.IsNullOrEmpty(output))
@@ -156,7 +151,6 @@ namespace StreamMaster.Streams.Plugins
 
                     using JsonDocument document = JsonDocument.Parse(output);
 
-                    // Serialize the document back to a JSON string with formatting
                     string formattedJsonString = JsonSerializer.Serialize(document.RootElement, jsonOptions);
 
                     return new VideoInfo { JsonOutput = formattedJsonString, StreamId = id, StreamName = name, Created = SMDT.UtcNow };
@@ -170,9 +164,9 @@ namespace StreamMaster.Streams.Plugins
                     timer.Dispose();
                 }
             }
-            catch (Exception)
+            catch (Exception ex) when (ex is not OperationCanceledException)
             {
-                _logger.LogError("Exception occurred in GetVideoInfoAsync. Trying again in 1 minute");
+                _logger.LogError(ex, "Exception occurred in GetVideoInfoAsync. Trying again in 1 minute");
                 return null;
             }
         }
@@ -224,12 +218,30 @@ namespace StreamMaster.Streams.Plugins
 
         public void Stop()
         {
-            //if (!cancellationTokenSource.IsCancellationRequested)
-            //{
-            //    cancellationTokenSource.Cancel();
-            //}
-            _stopRequested = true;
-            _logger.LogInformation("Stop requested for video info plugin {name}", name);
+            if (!cancellationTokenSource.IsCancellationRequested)
+            {
+                cancellationTokenSource.Cancel();
+                _logger.LogInformation("Stop requested for video info plugin {name}", name);
+
+                if (videoInfoTask != null)
+                {
+                    try
+                    {
+                        videoInfoTask.Wait();  // Wait for the task to complete
+                    }
+                    catch (AggregateException ex) when (ex.InnerException is TaskCanceledException)
+                    {
+                        // Handle the expected task cancellation without logging
+                    }
+                }
+            }
+        }
+
+        public void Dispose()
+        {
+            Stop();
+            cancellationTokenSource.Dispose();
         }
     }
+
 }
