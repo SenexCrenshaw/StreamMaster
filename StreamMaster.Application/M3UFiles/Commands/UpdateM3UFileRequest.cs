@@ -57,7 +57,7 @@ public class UpdateM3UFileRequestHandler(IRepositoryWrapper Repository, IReposit
                 {
 
                     string sql = $"UPDATE public.\"SMStreams\" SET \"ChannelNumber\"=\"FilePosition\"+{m3uFile.StartingChannelNumber} WHERE \"M3UFileId\"={m3uFile.Id};";
-                    await repositoryContext.ExecuteSqlRawAsyncEntities(sql, cancellationToken);
+                    await repositoryContext.ExecuteSqlRawAsync(sql, cancellationToken);
                     await dataRefreshService.RefreshSMStreams().ConfigureAwait(false);
                 }
                 else
@@ -147,7 +147,7 @@ public class UpdateM3UFileRequestHandler(IRepositoryWrapper Repository, IReposit
             if (nameChange)
             {
                 string sql = $"UPDATE public.\"SMStreams\" SET \"M3UFileName\"='{m3uFile.Name}' WHERE \"M3UFileId\"={m3uFile.Id};";
-                await repositoryContext.ExecuteSqlRawAsyncEntities(sql, cancellationToken);
+                await repositoryContext.ExecuteSqlRawAsync(sql, cancellationToken);
                 await dataRefreshService.RefreshSMStreams().ConfigureAwait(false);
             }
 

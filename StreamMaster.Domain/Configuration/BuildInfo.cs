@@ -36,7 +36,7 @@ namespace StreamMaster.Domain.Configuration
         public static bool IsFreeBSD => RuntimeInformation.IsOSPlatform(OSPlatform.FreeBSD);
         public static string StartUpPath = new FileInfo(Assembly.GetExecutingAssembly().Location).Directory.FullName;
 
-        public const int DBBatchSize = 100;
+        public const int DBBatchSize = 500;
         public static DateTime StartTime { get; set; }
 
         #region Database Configuration Properties

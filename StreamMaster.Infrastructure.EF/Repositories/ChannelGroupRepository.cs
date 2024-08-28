@@ -173,10 +173,10 @@ public class ChannelGroupRepository(
             string namesList = string.Join(",", channelGroupNames.Select(name => $"'{name.Replace("'", "''")}'"));
             string sql = $"UPDATE public.\"SMStreams\" SET \"Group\"='Dummy' WHERE \"Group\" IN ({namesList});";
 
-            await RepositoryContext.ExecuteSqlRawAsyncEntities(sql, cancellationToken).ConfigureAwait(false);
+            await RepositoryContext.ExecuteSqlRawAsync(sql, cancellationToken).ConfigureAwait(false);
 
             sql = $"UPDATE public.\"SMChannels\" SET \"Group\"='Dummy' WHERE \"Group\" IN ({namesList});";
-            await RepositoryContext.ExecuteSqlRawAsyncEntities(sql, cancellationToken).ConfigureAwait(false);
+            await RepositoryContext.ExecuteSqlRawAsync(sql, cancellationToken).ConfigureAwait(false);
 
             await dataRefreshService.RefreshSMStreams().ConfigureAwait(false);
         }

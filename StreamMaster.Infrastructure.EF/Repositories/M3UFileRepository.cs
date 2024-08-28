@@ -255,7 +255,7 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, IMessageSer
             throw new ArgumentNullException(nameof(m3uFile));
         }
         Create(m3uFile);
-        logger.LogInformation("Created M3UFile with ID: {m3uFile.Id}.", m3uFile.Id);
+
     }
 
     /// <inheritdoc/>
@@ -526,7 +526,7 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, IMessageSer
         if (writeList.Count > 0)
         {
             logger.LogInformation("Inserting {writeList.Count} new streams in the DB", writeList.Count);
-
+            Stopwatch batchStopwatch = Stopwatch.StartNew();
             for (int i = 0; i < writeList.Count; i += BuildInfo.DBBatchSize)
             {
                 List<SMStream> batch = writeList.Skip(i).Take(BuildInfo.DBBatchSize).ToList();
@@ -536,7 +536,8 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, IMessageSer
 
                 if (batchWriteCount % 5000 == 0)
                 {
-                    logger.LogInformation("Inserted {batchWriteCount}/{totalToWrite} new streams into DB", batchWriteCount, totalToWrite);
+                    logger.LogInformation("Inserted {batchWriteCount}/{totalToWrite} new streams into DB in {elaspsed} ms", batchWriteCount, totalToWrite, batchStopwatch.ElapsedMilliseconds);
+                    batchStopwatch.Restart();
                 }
             }
         }

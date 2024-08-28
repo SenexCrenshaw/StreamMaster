@@ -1,18 +1,30 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
+using Npgsql;
+
 using StreamMaster.Domain.API;
 using StreamMaster.Domain.Exceptions;
+
+using System.Text;
 
 namespace StreamMaster.Infrastructure.EF.Repositories;
 
 public class StreamGroupSMChannelLinkRepository(ILogger<StreamGroupSMChannelLinkRepository> logger, IRepositoryContext repositoryContext, IRepositoryWrapper repository)
     : RepositoryBase<StreamGroupSMChannelLink>(repositoryContext, logger), IStreamGroupSMChannelLinkRepository
 {
-    public async Task AddSMChannelsToStreamGroupAsync(int StreamGroupId, List<int> SMChannelIds, bool? skipSave = false)
+    public async Task AddSMChannelsToStreamGroupAsync(int streamGroupId, List<int> smChannelIds, bool? skipSave = false)
     {
-        foreach (int smChannelId in SMChannelIds)
+        if (smChannelIds == null || smChannelIds.Count == 0)
         {
-            AddSMChannelToStreamGroupInternal(StreamGroupId, smChannelId);
+            return;
+        }
+
+        int batchSize = 50;
+        // Break the smChannelIds list into batches
+        for (int i = 0; i < smChannelIds.Count; i += batchSize)
+        {
+            List<int> batch = smChannelIds.Skip(i).Take(batchSize).ToList();
+            await InsertBatchAsync(streamGroupId, batch);
         }
 
         if (skipSave == false)
@@ -21,39 +33,47 @@ public class StreamGroupSMChannelLinkRepository(ILogger<StreamGroupSMChannelLink
         }
     }
 
-    private void AddSMChannelToStreamGroupInternal(int StreamGroupId, int SMChannelId)
+    private async Task InsertBatchAsync(int streamGroupId, List<int> smChannelIds)
     {
-        // Check if the entity is already tracked by EF Core
-        //EntityEntry<StreamGroupSMChannelLink>? existingLink = repositoryContext.ChangeTracker.Entries<StreamGroupSMChannelLink>()
-        //    .FirstOrDefault(e => e.Entity.SMChannelId == SMChannelId && e.Entity.StreamGroupId == StreamGroupId);
+        if (smChannelIds == null || smChannelIds.Count == 0)
+        {
+            return;
+        }
 
-        //EntityEntry<StreamGroupSMChannelLink>? existingLink = repositoryContext.StreamGroupSMChannelLinks.has
-        //  .FirstOrDefault(e => e.Entity.SMChannelId == SMChannelId && e.Entity.StreamGroupId == StreamGroupId);
+        StringBuilder sqlBuilder = new();
+        sqlBuilder.Append("INSERT INTO public.\"StreamGroupSMChannelLink\" (\"SMChannelId\", \"StreamGroupId\", \"IsReadOnly\", \"Rank\") VALUES ");
 
-        // If the link isn't tracked, create it
-        //if (existingLink == null)
-        //{
-        //StreamGroupSMChannelLink link = new()
-        //{
-        //    SMChannelId = SMChannelId,
-        //    StreamGroupId = StreamGroupId,
-        //    IsReadOnly = false,
-        //    Rank = 0
-        //};
+        List<NpgsqlParameter> parameters = [];
 
-        //Create(link);
+        for (int i = 0; i < smChannelIds.Count; i++)
+        {
+            int smChannelId = smChannelIds[i];
+            NpgsqlParameter paramSmChannelId = new($"@smChannelId{i}", smChannelId);
+            NpgsqlParameter paramStreamGroupId = new($"@streamGroupId{i}", streamGroupId);
+            sqlBuilder.Append($"({paramSmChannelId.ParameterName}, {paramStreamGroupId.ParameterName}, false, 0)");
 
-        string sql = $"INSERT INTO public.\"StreamGroupSMChannelLink\" (\"SMChannelId\", \"StreamGroupId\", \"IsReadOnly\", \"Rank\") VALUES ({SMChannelId}, {StreamGroupId}, false, 0);";
+            if (i < smChannelIds.Count - 1)
+            {
+                sqlBuilder.Append(", ");
+            }
 
-        RepositoryContext.ExecuteSqlRaw(sql);
-        //}
-        //else
-        //{
-        //    // Optionally, handle the situation where the link is already tracked
-        //    // For example, you might update the tracked entity if necessary
-        //    //existingLink.Entity.IsReadOnly = false; // Example update
-        //    //Update(existingLink.Entity);
-        //}
+            parameters.Add(paramSmChannelId);
+            parameters.Add(paramStreamGroupId);
+        }
+
+        sqlBuilder.Append(';');
+
+        await using Microsoft.EntityFrameworkCore.Storage.IDbContextTransaction transaction = await RepositoryContext.BeginTransactionAsync();
+        try
+        {
+            await RepositoryContext.ExecuteSqlRawAsync(sqlBuilder.ToString(), [.. parameters]);
+            await transaction.CommitAsync();
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
     }
 
     public async Task<APIResponse> AddSMChannelToStreamGroup(int StreamGroupId, int SMChannelId, bool? skipSave = false, bool? skipCheck = false)

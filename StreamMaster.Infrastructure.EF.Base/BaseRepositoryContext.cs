@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace StreamMaster.Infrastructure.EF.Base;
 
@@ -30,9 +31,19 @@ public class BaseRepositoryContext(DbContextOptions options) : DbContext(options
         return Database.ExecuteSqlRaw(sql, parameters);
     }
 
-    public Task<int> ExecuteSqlRawAsyncEntities(string sql, CancellationToken cancellationToken = default)
+    public Task<int> ExecuteSqlRawAsync(string sql, CancellationToken cancellationToken = default)
     {
         return Database.ExecuteSqlRawAsync(sql, cancellationToken);
+    }
+
+    public Task<int> ExecuteSqlRawAsync(string sql, params object[] parameters)
+    {
+        return Database.ExecuteSqlRawAsync(sql, parameters);
+    }
+
+    public Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
+    {
+        return Database.BeginTransactionAsync(cancellationToken);
     }
 
     public void BulkUpdateEntities<TEntity>(IEnumerable<TEntity> entities) where TEntity : class

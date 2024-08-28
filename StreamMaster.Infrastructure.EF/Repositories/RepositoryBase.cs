@@ -139,7 +139,7 @@ public abstract class RepositoryBase<T>(IRepositoryContext RepositoryContext, IL
     /// Creates a new entity.
     /// </summary>
     /// <param name="entity">Entity to be created.</param>
-    public void Create(T entity)
+    public void Create(T entity, bool? track = true)
     {
         if (entity == null)
         {
@@ -147,7 +147,11 @@ public abstract class RepositoryBase<T>(IRepositoryContext RepositoryContext, IL
             throw new ArgumentNullException(nameof(entity));
         }
 
-        RepositoryContext.Set<T>().Add(entity);
+        Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry<T> entry = RepositoryContext.Set<T>().Add(entity);
+        if (track == false)
+        {
+            entry.State = EntityState.Detached;
+        }
     }
 
     /// <summary>

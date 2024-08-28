@@ -33,7 +33,7 @@ public interface IRepositoryBase<T> where T : class
     /// Adds a new entity to the database.
     /// </summary>
     /// <param name="entity">Entity to add.</param>
-    void Create(T entity);
+    void Create(T entity, bool? track = true);
 
     /// <summary>
     /// Adds a range of entities to the database.

@@ -31,7 +31,7 @@ public class SMStreamRepository(ILogger<SMStreamRepository> intLogger, IReposito
     public async Task ChangeGroupName(string oldGroupName, string newGroupName)
     {
         string sql = $"UPDATE public.\"SMStreams\" SET \"Group\"='{newGroupName}' WHERE \"Group\"={oldGroupName};";
-        await RepositoryContext.ExecuteSqlRawAsyncEntities(sql);
+        await RepositoryContext.ExecuteSqlRawAsync(sql);
     }
 
     public async Task<IEnumerable<string>> DeleteAllSMStreamsFromParameters(QueryStringParameters parameters, CancellationToken cancellationToken)
