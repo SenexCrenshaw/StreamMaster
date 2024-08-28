@@ -20,6 +20,11 @@ public class SourceProcessingService(ILogger<IBroadcasterBase> logger, IOptionsM
                     metricsService.RecordMetrics(item.Length, sw.Elapsed.TotalMilliseconds);
                 }
             }
+            catch (OperationCanceledException)
+            {
+                // Handle task cancellation if needed, otherwise it will propagate.
+                throw;
+            }
             catch (Exception ex)
             {
                 HandleReaderExceptions(ex, ref localInputStreamError);
@@ -43,42 +48,29 @@ public class SourceProcessingService(ILogger<IBroadcasterBase> logger, IOptionsM
             try
             {
                 byte[] buffer = new byte[16384];
+                Stopwatch sw = new();
+
                 while (!token.IsCancellationRequested)
                 {
-                    Stopwatch sw = Stopwatch.StartNew();
+                    sw.Restart();
 
-                    // Start the read task
                     Task<int> readTask = sourceStream.ReadAsync(buffer, token).AsTask();
-
                     Task completedTask;
+
                     if (_settings.CurrentValue.ReadTimeOutMs > 0)
                     {
-                        // Create a timeout task if ReadTimeOutMs is greater than 0
                         Task timeoutTask = Task.Delay(_settings.CurrentValue.ReadTimeOutMs, token);
-
-                        sw.Restart(); // Start the stopwatch to measure time for the read/timeout decision
                         completedTask = await Task.WhenAny(readTask, timeoutTask).ConfigureAwait(false);
-                        sw.Stop();
-
-                        // Log the time taken for the read or timeout decision
-                        logger.LogDebug("Read/timeout decision took {ElapsedMilliseconds} ms", sw.ElapsedMilliseconds);
 
                         if (completedTask == timeoutTask)
                         {
-                            // Handle the timeout case
                             logger.LogDebug("Read operation timed out after {ElapsedMilliseconds} ms", sw.ElapsedMilliseconds);
                             throw new TimeoutException("Read operation timed out.");
                         }
                     }
                     else
                     {
-                        // No timeout, just await the read task
-                        sw.Restart(); // Start the stopwatch for just the read operation
                         completedTask = readTask;
-                        sw.Stop();
-
-                        // Log the time taken for the read operation
-                        logger.LogDebug("Read operation took {ElapsedMilliseconds} ms", sw.ElapsedMilliseconds);
                     }
 
                     int bytesRead = await readTask.ConfigureAwait(false);
@@ -93,12 +85,12 @@ public class SourceProcessingService(ILogger<IBroadcasterBase> logger, IOptionsM
                     await newChannel.Writer.WriteAsync(data, token).ConfigureAwait(false);
 
                     sw.Stop();
+                    logger.LogDebug("Read operation took {ElapsedMilliseconds} ms and read {BytesRead} bytes", sw.ElapsedMilliseconds, bytesRead);
                     metricsService.RecordMetrics(bytesRead, sw.Elapsed.TotalMilliseconds);
                 }
             }
             catch (TimeoutException ex)
             {
-                // Handle the timeout exception specifically
                 HandleReaderExceptions(ex, ref localInputStreamError);
             }
             catch (Exception ex)

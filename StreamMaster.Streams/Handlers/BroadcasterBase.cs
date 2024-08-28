@@ -73,17 +73,17 @@ public abstract class BroadcasterBase(ILogger<IBroadcasterBase> logger, IOptions
 
     protected void StartProcessingSource(ChannelReader<byte[]>? sourceChannelReader, Stream? sourceStream, Channel<byte[]> newChannel, CancellationToken cancellationToken)
     {
-        using CancellationTokenSource linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(_cancellationTokenSource.Token, cancellationToken);
-        CancellationToken token = linkedTokenSource.Token;
+        //using CancellationTokenSource linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(_cancellationTokenSource.Token, cancellationToken);
+        //CancellationToken token = linkedTokenSource.Token;
 
         Task readerTask = sourceChannelReader != null
-       ? sourceProcessingService.ProcessSourceChannelReaderAsync(sourceChannelReader, newChannel, metricsService, token)
+       ? sourceProcessingService.ProcessSourceChannelReaderAsync(sourceChannelReader, newChannel, metricsService, _cancellationTokenSource.Token)
        : sourceStream != null
-           ? sourceProcessingService.ProcessSourceStreamAsync(sourceStream, newChannel, metricsService, token)
+           ? sourceProcessingService.ProcessSourceStreamAsync(sourceStream, newChannel, metricsService, _cancellationTokenSource.Token)
            : Task.CompletedTask;
 
-        Task writerTask = DistributeToClientsAsync(newChannel, token);
-        _ = MonitorTasksCompletionAsync(readerTask, writerTask, sourceStream, token);
+        Task writerTask = DistributeToClientsAsync(newChannel, _cancellationTokenSource.Token);
+        _ = MonitorTasksCompletionAsync(readerTask, writerTask, sourceStream, _cancellationTokenSource.Token);
     }
 
     private Task DistributeToClientsAsync(Channel<byte[]> newChannel, CancellationToken token)
