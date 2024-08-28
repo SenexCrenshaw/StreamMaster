@@ -9,6 +9,7 @@ param (
     [switch]$SkipRelease = $false,
     [switch]$SkipMainBuild = $false
 )
+
 $global:tags
 function Main {
     Set-EnvironmentVariables
