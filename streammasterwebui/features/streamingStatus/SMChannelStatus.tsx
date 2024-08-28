@@ -60,7 +60,7 @@ const SMChannelStatus = () => {
       return <div />;
     }
 
-    const test = rowData.ClientChannels.find((predicate) => predicate.SMChannelId !== 0);
+    const test = rowData.ClientChannels.find((predicate) => predicate.Name !== 'VideoInfo');
     if (test === undefined) {
       return <div />;
     }

@@ -61,12 +61,12 @@ public class StreamGroupSMChannelLinkRepository(ILogger<StreamGroupSMChannelLink
             parameters.Add(paramStreamGroupId);
         }
 
-        sqlBuilder.Append(';');
+        sqlBuilder.Append(" ON CONFLICT (\"SMChannelId\", \"StreamGroupId\") DO NOTHING;");
 
         await using Microsoft.EntityFrameworkCore.Storage.IDbContextTransaction transaction = await RepositoryContext.BeginTransactionAsync();
         try
         {
-            await RepositoryContext.ExecuteSqlRawAsync(sqlBuilder.ToString(), [.. parameters]);
+            await RepositoryContext.ExecuteSqlRawAsync(sqlBuilder.ToString(), parameters.ToArray());
             await transaction.CommitAsync();
         }
         catch
