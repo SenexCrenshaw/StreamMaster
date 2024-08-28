@@ -16,7 +16,7 @@ public class StreamLimitsService(ILogger<StreamLimitsService> logger, ICacheMana
         SMStreamDto? smStreamDto = repositoryWrapper.SMStream.GetSMStream(smStreamId);
         if (smStreamDto != null)
         {
-            (int currentStreamCount, int maxStreamCount) = Get2(smStreamDto.M3UFileId);
+            (int currentStreamCount, int maxStreamCount) = GetStreamCountsForM3UFile(smStreamDto.M3UFileId);
             return (currentStreamCount, maxStreamCount);
         }
         return (0, 0);
@@ -30,7 +30,7 @@ public class StreamLimitsService(ILogger<StreamLimitsService> logger, ICacheMana
         return smStreamDto == null || IsLimited(smStreamDto);
     }
 
-    private (int currentStreamCount, int maxStreamCount) Get2(int M3UFileId)
+    private (int currentStreamCount, int maxStreamCount) GetStreamCountsForM3UFile(int M3UFileId)
     {
         ConcurrentDictionary<int, int> M3UStreamCount = new();
         List<IChannelBroadcaster> channelStatuses = CacheManager.ChannelBroadcasters.Values
@@ -63,7 +63,7 @@ public class StreamLimitsService(ILogger<StreamLimitsService> logger, ICacheMana
             return false;
         }
 
-        (int currentStreamCount, int maxStreamCount) = Get2(smStreamDto.M3UFileId);
+        (int currentStreamCount, int maxStreamCount) = GetStreamCountsForM3UFile(smStreamDto.M3UFileId);
 
         logger.LogInformation("Check stream limits for {name} : currentStreamCount: {currentStreamCount}, maxStreamCount: {maxStreamCount}", smStreamDto.Name, currentStreamCount, maxStreamCount);
         return currentStreamCount >= maxStreamCount;

@@ -209,31 +209,49 @@ namespace StreamMaster.Streams.Channels
                 return false;
             }
 
-            _logger.LogDebug("Starting SwitchToNextStream with channelBroadcaster: {channelBroadcaster} and overrideNextVideoStreamId: {overrideNextVideoStreamId}", channelBroadcaster, overrideSMStreamId);
 
-            bool didChange = await _switchToNextStreamService.SetNextStreamAsync(channelBroadcaster, overrideSMStreamId).ConfigureAwait(false);
+            ISourceBroadcaster? sourceChannelBroadcaster = null;
 
-            if (channelBroadcaster.SMStreamInfo == null || !didChange)
+            while (sourceChannelBroadcaster == null)
             {
-                _logger.LogDebug("Exiting SwitchToNextStream with false due to smStream being null");
-                channelBroadcaster.FailoverInProgress = false;
-                return false;
+                _logger.LogDebug("Starting SwitchToNextStream with channelBroadcaster: {channelBroadcaster} and overrideNextVideoStreamId: {overrideNextVideoStreamId}", channelBroadcaster, overrideSMStreamId);
+
+                bool didChange = await _switchToNextStreamService.SetNextStreamAsync(channelBroadcaster, overrideSMStreamId).ConfigureAwait(false);
+
+                if (channelBroadcaster.SMStreamInfo == null || !didChange)
+                {
+                    _logger.LogDebug("Exiting SwitchToNextStream with false due to smStream being null");
+                    channelBroadcaster.FailoverInProgress = false;
+                    return false;
+                }
+
+
+                //Channel<byte[]> newChannel = ChannelHelper.GetChannel();
+
+                //IVideoCombiner? videoCombiner = await _videoCombinerService.GetOrCreateVideoCombinerAsync(clientConfiguration, this, 4, 5, 7, 8, channelBroadcaster.StreamGroupProfileId, CancellationToken.None).ConfigureAwait(false);
+
+                //if (videoCombiner == null)
+                //{
+                //    _logger.LogDebug("Exiting, Source Channel Distributor is null");
+                //    channelBroadcaster.FailoverInProgress = false;
+                //    return false;
+                //}
+                //channelBroadcaster.SetSourceChannelBroadcaster(videoCombiner);
+
+                sourceChannelBroadcaster = await _sourceBroadcasterService.GetOrCreateStreamBroadcasterAsync(channelBroadcaster.SMStreamInfo, CancellationToken.None).ConfigureAwait(false);
+
+                //if (sourceChannelBroadcaster == null)
+                //{
+                //    _logger.LogDebug("Exiting, Source Channel Distributor is null");
+                //    channelBroadcaster.FailoverInProgress = false;
+                //    return false;
+                //}
+
+                if (sourceChannelBroadcaster != null)
+                {
+                    break;
+                }
             }
-
-
-            //Channel<byte[]> newChannel = ChannelHelper.GetChannel();
-
-            //IVideoCombiner? videoCombiner = await _videoCombinerService.GetOrCreateVideoCombinerAsync(clientConfiguration, this, 4, 5, 7, 8, channelBroadcaster.StreamGroupProfileId, CancellationToken.None).ConfigureAwait(false);
-
-            //if (videoCombiner == null)
-            //{
-            //    _logger.LogDebug("Exiting, Source Channel Distributor is null");
-            //    channelBroadcaster.FailoverInProgress = false;
-            //    return false;
-            //}
-            //channelBroadcaster.SetSourceChannelBroadcaster(videoCombiner);
-
-            ISourceBroadcaster? sourceChannelBroadcaster = await _sourceBroadcasterService.GetOrCreateStreamBroadcasterAsync(channelBroadcaster.SMStreamInfo, CancellationToken.None).ConfigureAwait(false);
 
             if (sourceChannelBroadcaster == null)
             {
