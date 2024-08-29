@@ -197,7 +197,7 @@ public sealed class FileUtil
         return ret;
     }
 
-    public static async Task<(bool success, Exception? ex)> DownloadUrlAsync(string url, string fullName, CancellationToken cancellationdefault)
+    public static async Task<(bool success, Exception? ex)> DownloadUrlAsync(string url, string fullName, CancellationToken cancellationToken)
     {
         if (url?.Contains("://") != true)
         {
@@ -206,10 +206,15 @@ public sealed class FileUtil
 
         try
         {
-            using HttpClient httpClient = new();
+            HttpClientHandler handler = new()
+            {
+                AllowAutoRedirect = true,
+                MaxAutomaticRedirections = 10
+            };
+
+            using HttpClient httpClient = new(handler);
 
             const string userAgentString = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36 Edg/110.0.1587.57";
-
             httpClient.DefaultRequestHeaders.Add("User-Agent", userAgentString);
 
             try
@@ -219,8 +224,10 @@ public sealed class FileUtil
                 {
                     return (false, null);
                 }
+
                 await using FileStream fileStream = new(fullName, FileMode.Create);
-                using HttpResponseMessage response = await httpClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, cancellationdefault).ConfigureAwait(false);
+                using HttpResponseMessage response = await httpClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+
                 if (response.StatusCode is HttpStatusCode.Forbidden or HttpStatusCode.NotFound)
                 {
                     return (false, null);
@@ -228,18 +235,14 @@ public sealed class FileUtil
 
                 _ = response.EnsureSuccessStatusCode();
 
-                Stream stream = await response.Content.ReadAsStreamAsync(cancellationdefault).ConfigureAwait(false);
-
+                Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
                 if (stream != null)
                 {
-                    await stream.CopyToAsync(fileStream, cancellationdefault).ConfigureAwait(false);
+                    await stream.CopyToAsync(fileStream, cancellationToken).ConfigureAwait(false);
                     stream.Close();
-
-                    //string filePath = Path.Combine(path, Path.GetFileNameWithoutExtension(fullName) + ".url");
-                    //_ = WriteUrlToFile(filePath, url);
                 }
-                fileStream.Close();
 
+                fileStream.Close();
                 return (true, null);
             }
             catch (HttpRequestException ex)
