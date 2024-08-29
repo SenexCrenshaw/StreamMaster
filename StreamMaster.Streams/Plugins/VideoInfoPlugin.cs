@@ -166,7 +166,7 @@ namespace StreamMaster.Streams.Plugins
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
-                _logger.LogError(ex, "Exception occurred in GetVideoInfoAsync. Trying again in 1 minute");
+                //_logger.LogError(ex, "Exception occurred in GetVideoInfoAsync. Trying again in 1 minute");
                 return null;
             }
         }
