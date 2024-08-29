@@ -17,7 +17,7 @@ public class CryptoService(IOptionsMonitor<Setting> intSettings) : ICryptoServic
     //    return sg == null || string.IsNullOrEmpty(sg.GroupKey) ? (null, null, null) : (streamGroupId, sg.GroupKey, valuesEncryptedString);
     //}
 
-    //private async Task<string?> GetStreamGroupKeyFromId(int StreamGroupId)
+    //private async Task<string?> GetStreamGroupKeyFromIdAsync(int StreamGroupId)
     //{
     //    StreamGroup? StreamGroup = StreamGroupId < 0
     //        ? await streamGroupService.GetStreamGroupFromNameAsync("ALL")
@@ -140,7 +140,7 @@ public class CryptoService(IOptionsMonitor<Setting> intSettings) : ICryptoServic
     //public async Task<string?> EncodeStreamGroupIdStreamIdAsync(int StreamGroupId, string SMStreamId)
     //{
 
-    //    string? groupKey = await GetStreamGroupKeyFromId(StreamGroupId);
+    //    string? groupKey = await GetStreamGroupKeyFromIdAsync(StreamGroupId);
     //    if (string.IsNullOrEmpty(groupKey))
     //    {
     //        return null;
@@ -155,7 +155,7 @@ public class CryptoService(IOptionsMonitor<Setting> intSettings) : ICryptoServic
 
     //public async Task<string?> EncodeStreamGroupIdChannelIdAsync(int StreamGroupId, int SMChannelId)
     //{
-    //    string? groupKey = await GetStreamGroupKeyFromId(StreamGroupId);
+    //    string? groupKey = await GetStreamGroupKeyFromIdAsync(StreamGroupId);
     //    if (string.IsNullOrEmpty(groupKey))
     //    {
     //        return null;
@@ -210,7 +210,7 @@ public class CryptoService(IOptionsMonitor<Setting> intSettings) : ICryptoServic
 
     //public async Task<string?> EncodeStreamGroupIdProfileIdChannelIdAsync(int StreamGroupId, int StreamGroupProfileId, int SMChannelId)
     //{
-    //    string? groupKey = await GetStreamGroupKeyFromId(StreamGroupId);
+    //    string? groupKey = await GetStreamGroupKeyFromIdAsync(StreamGroupId);
     //    if (string.IsNullOrEmpty(groupKey))
     //    {
     //        return null;
@@ -225,7 +225,7 @@ public class CryptoService(IOptionsMonitor<Setting> intSettings) : ICryptoServic
 
     //public async Task<string?> EncodeStreamGroupIdProfileIdStreamId(int StreamGroupId, int StreamGroupProfileId, string SMStreamId)
     //{
-    //    string? groupKey = await GetStreamGroupKeyFromId(StreamGroupId);
+    //    string? groupKey = await GetStreamGroupKeyFromIdAsync(StreamGroupId);
     //    if (string.IsNullOrEmpty(groupKey))
     //    {
     //        return null;
@@ -259,7 +259,7 @@ public class CryptoService(IOptionsMonitor<Setting> intSettings) : ICryptoServic
 
     //public async Task<string?> EncodeStreamGroupIdProfileId(int StreamGroupId, int StreamGroupProfileId)
     //{
-    //    string? groupKey = await GetStreamGroupKeyFromId(StreamGroupId);
+    //    string? groupKey = await GetStreamGroupKeyFromIdAsync(StreamGroupId);
     //    if (string.IsNullOrEmpty(groupKey))
     //    {
     //        return null;

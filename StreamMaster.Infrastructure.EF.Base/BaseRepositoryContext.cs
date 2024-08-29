@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace StreamMaster.Infrastructure.EF.Base;
@@ -36,6 +37,10 @@ public class BaseRepositoryContext(DbContextOptions options) : DbContext(options
         return Database.ExecuteSqlRawAsync(sql, cancellationToken);
     }
 
+    public IQueryable<ReturnType> SqlQueryRaw<ReturnType>([NotParameterized] string sql, params object[] parameters)
+    {
+        return Database.SqlQueryRaw<ReturnType>(sql, parameters);
+    }
     public Task<int> ExecuteSqlRawAsync(string sql, params object[] parameters)
     {
         return Database.ExecuteSqlRawAsync(sql, parameters);
@@ -65,8 +70,6 @@ public class BaseRepositoryContext(DbContextOptions options) : DbContext(options
     {
         await BulkUpdateAsync(entities);
     }
-
-
     public Task BulkDeleteAsyncEntities<TEntity>(IQueryable<TEntity> entities, CancellationToken cancellationToken = default) where TEntity : class
     {
         return entities.ExecuteDeleteAsync(cancellationToken);
@@ -88,22 +91,18 @@ public class BaseRepositoryContext(DbContextOptions options) : DbContext(options
     {
         Dispose(true);
         GC.SuppressFinalize(this);
-
     }
 
     protected void Dispose(bool disposing)
     {
         if (!_disposed)
         {
-
-
             if (disposing)
             {
 #if DEBUG
                 SqliteConnection.ClearAllPools();
 #endif
                 base.Dispose();
-
             }
         }
         _disposed = true;
@@ -148,7 +147,6 @@ public class BaseRepositoryContext(DbContextOptions options) : DbContext(options
         //    .HasIndex(p => p.User_Tvg_chno)
         //    .HasDatabaseName("IX_VideoStream_User_Tvg_chno");
 
-
         //modelBuilder.Entity<VideoStream>()
         //    .HasIndex(p => p.ShortSMChannelId)
         //    .HasDatabaseName("IX_VideoStream_SMChannelId");
@@ -158,7 +156,5 @@ public class BaseRepositoryContext(DbContextOptions options) : DbContext(options
         modelBuilder.ApplyUtcDateTimeConverter();
 
         base.OnModelCreating(modelBuilder);
-
     }
-
 }

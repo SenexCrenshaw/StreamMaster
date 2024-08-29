@@ -277,6 +277,7 @@ export interface SMStreamDto
 	M3UFileId: number;
 	M3UFileName: string;
 	Name: string;
+	NeedsDelete: boolean;
 	Rank: number;
 	RealUrl: string;
 	SMStreamType: SMStreamTypeEnum;

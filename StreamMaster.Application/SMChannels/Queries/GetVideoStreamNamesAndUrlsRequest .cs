@@ -16,22 +16,37 @@ internal class GetVideoStreamNamesAndUrlsHandler(IRepositoryWrapper Repository, 
         string url = httpContextAccessor.GetUrl();
 
         int defaultStreamGroupId = await streamGroupService.GetDefaultSGIdAsync();
-        StreamGroupProfile test = await streamGroupService.GetDefaultStreamGroupProfileAsync();
+        StreamGroupProfile streamGroupProfile = await streamGroupService.GetDefaultStreamGroupProfileAsync();
 
-        List<IdNameUrl> ret = new();
+        List<IdNameUrl> ret = [];
 
-        IOrderedQueryable<SMChannel> Q = Repository.SMChannel.GetQuery().Where(vs => !vs.IsHidden).OrderBy(vs => vs.ChannelNumber);
-        foreach (SMChannel? smChannel in Q)
+        IOrderedQueryable<SMChannel> Q = Repository.SMChannel.GetQuery()
+         .Where(vs => !vs.IsHidden)
+         .OrderBy(vs => vs.ChannelNumber);
+
+        List<Task<IdNameUrl>> tasks = [];
+
+        foreach (SMChannel smChannel in Q)
         {
-            string Url = await GetVideoStreamUrl(smChannel.Name, smChannel.Id, defaultStreamGroupId, test.Id, url);
-            ret.Add(new IdNameUrl(smChannel.Id, smChannel.Name, Url));
+            string Url = await GetVideoStreamUrlAsync(smChannel.Name, smChannel.Id, defaultStreamGroupId, streamGroupProfile.Id, url);
+            IdNameUrl idNameUrl = new(smChannel.Id, smChannel.Name, Url);
+            ret.Add(idNameUrl);
         }
+        //{
+        //    string Url = await GetVideoStreamUrlAsync(smChannel.Name, smChannel.Id, defaultStreamGroupId, streamGroupProfile.Id, url);
+        //    IdNameUrl idNameUrl = new(smChannel.Id, smChannel.Name, Url);
+        //    lock (tasks)
+        //    {
+        //        tasks.Add(Task.FromResult(idNameUrl));
+        //    }
+        //});
 
+        //ret.AddRange(await Task.WhenAll(tasks));
 
         return DataResponse<List<IdNameUrl>>.Success(ret);
 
     }
-    private async Task<string> GetVideoStreamUrl(string name, int smId, int sgId, int sgPId, string url)
+    private async Task<string> GetVideoStreamUrlAsync(string name, int smId, int sgId, int sgPId, string url)
     {
         string cleanName = HttpUtility.UrlEncode(name);
 

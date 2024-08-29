@@ -54,19 +54,19 @@ public class RefreshM3UFileRequestHandler(ILogger<RefreshM3UFileRequest> Logger,
                     }
                 }
 
-                List<SMStream>? streams = await m3uFile.GetSMStreamsFromM3U(Logger);
-                if (streams == null)
-                {
-                    Logger.LogCritical("Exception M3U {fullName} format is not supported", fullName);
-                    await messageService.SendError($"Exception M3U {fullName} format is not supported");
-                    //Bad M3U
-                    if (File.Exists(fullName))
-                    {
-                        File.Delete(fullName);
-                    }
-                    jobManager.SetError();
-                    return APIResponse.NotFound;
-                }
+                //List<SMStream>? streams = await m3uFile.GetSMStreamsFromM3U(Logger);
+                //if (streams == null)
+                //{
+                //    Logger.LogCritical("Exception M3U {fullName} format is not supported", fullName);
+                //    await messageService.SendError($"Exception M3U {fullName} format is not supported");
+                //    //Bad M3U
+                //    if (File.Exists(fullName))
+                //    {
+                //        File.Delete(fullName);
+                //    }
+                //    jobManager.SetError();
+                //    return APIResponse.NotFound;
+                //}
             }
 
             //m3uFile.LastUpdated = SMDT.UtcNow;

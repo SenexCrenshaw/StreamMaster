@@ -23,67 +23,67 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, IMessageSer
         return PagedExtensions.CreateEmptyPagedResponse<M3UFileDto>(Count());
     }
 
-    [LogExecutionTimeAspect]
-    public async Task<M3UFile?> ProcessM3UFile(int M3UFileId, bool ForceRun = false)
-    {
-        JobStatusManager jobManager = jobStatusService.GetJobManagerProcessM3U(M3UFileId);
-        if (jobManager.IsRunning)//|| jobManager.IsErrored)
-        {
-            return null;
-        }
+    //[LogExecutionTimeAspect]
+    //public async Task<M3UFile?> ProcessM3UFile(int M3UFileId, bool ForceRun = false)
+    //{
+    //    JobStatusManager jobManager = jobStatusService.GetJobManagerProcessM3U(M3UFileId);
+    //    if (jobManager.IsRunning)//|| jobManager.IsErrored)
+    //    {
+    //        return null;
+    //    }
 
-        jobManager.Start();
-        M3UFile? m3uFile;
-        try
-        {
-            m3uFile = await GetM3UFileAsync(M3UFileId);
-            if (m3uFile == null)
-            {
-                logger.LogCritical("Could parse M3U file M3UFileId: {M3UFileId}", M3UFileId);
-                jobManager.SetError();
-                return null;
-            }
+    //    jobManager.Start();
+    //    M3UFile? m3uFile;
+    //    try
+    //    {
+    //        m3uFile = await GetM3UFileAsync(M3UFileId);
+    //        if (m3uFile == null)
+    //        {
+    //            logger.LogCritical("Could parse M3U file M3UFileId: {M3UFileId}", M3UFileId);
+    //            jobManager.SetError();
+    //            return null;
+    //        }
 
-            (List<SMStream>? streams, int streamCount) = await ProcessStreams(m3uFile).ConfigureAwait(false);
-            if (streams == null)
-            {
-                logger.LogCritical("Error while processing M3U file {m3uFile.Name}, bad format", m3uFile.Name);
-                jobManager.SetError();
-                return null;
-            }
+    //        (List<SMStream>? streams, int streamCount) = await ProcessStreams(m3uFile).ConfigureAwait(false);
+    //        if (streams == null)
+    //        {
+    //            logger.LogCritical("Error while processing M3U file {m3uFile.Name}, bad format", m3uFile.Name);
+    //            jobManager.SetError();
+    //            return null;
+    //        }
 
-            if (!ForceRun && !ShouldUpdate(m3uFile, m3uFile.VODTags))
-            {
-                jobManager.SetSuccessful();
-                return m3uFile;
-            }
+    //        if (!ForceRun && !ShouldUpdate(m3uFile, m3uFile.VODTags))
+    //        {
+    //            jobManager.SetSuccessful();
+    //            return m3uFile;
+    //        }
 
-            await ProcessAndUpdateStreams(m3uFile, streams);
-            await UpdateChannelGroups(streams);
+    //        await ProcessAndUpdateStreams(m3uFile, streams);
+    //        await UpdateChannelGroups(streams);
 
-            m3uFile.LastUpdated = SMDT.UtcNow;
-            UpdateM3UFile(m3uFile);
-            _ = await SaveChangesAsync();
+    //        m3uFile.LastUpdated = SMDT.UtcNow;
+    //        UpdateM3UFile(m3uFile);
+    //        _ = await SaveChangesAsync();
 
-            jobManager.SetSuccessful();
-            return m3uFile;
-        }
-        catch (Exception ex)
-        {
-            jobManager.SetError();
-            logger.LogCritical(ex, "Error while processing M3U file");
-            return null;
-        }
-        finally
-        {
-            //if (m3uFile != null)
-            //{
-            //    m3uFile.LastUpdated = SMDT.UtcNow;
-            //    UpdateM3UFile(m3uFile);
-            //    await SaveChangesAsync();
-            //}
-        }
-    }
+    //        jobManager.SetSuccessful();
+    //        return m3uFile;
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        jobManager.SetError();
+    //        logger.LogCritical(ex, "Error while processing M3U file");
+    //        return null;
+    //    }
+    //    finally
+    //    {
+    //        //if (m3uFile != null)
+    //        //{
+    //        //    m3uFile.LastUpdated = SMDT.UtcNow;
+    //        //    UpdateM3UFile(m3uFile);
+    //        //    await SaveChangesAsync();
+    //        //}
+    //    }
+    //}
     private async Task UpdateChannelGroups(List<SMStream> streams)
     {
         Stopwatch sw = Stopwatch.StartNew();
@@ -183,24 +183,24 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, IMessageSer
     }
 
 
-    [LogExecutionTimeAspect]
-    private async Task<(List<SMStream>? streams, int streamCount)> ProcessStreams(M3UFile m3uFile)
-    {
-        Stopwatch sw = Stopwatch.StartNew();
+    //[LogExecutionTimeAspect]
+    //private async Task<(List<SMStream>? streams, int streamCount)> ProcessStreams(M3UFile m3uFile)
+    //{
+    //    Stopwatch sw = Stopwatch.StartNew();
 
-        List<SMStream>? streams = await m3uFile.GetSMStreamsFromM3U(logger).ConfigureAwait(false);
+    //    List<SMStream>? streams = await m3uFile.GetSMStreamsFromM3U(logger).ConfigureAwait(false);
 
-        int streamsCount = 0;
-        if (streams != null)
-        {
-            streamsCount = GetRealSMStreamCount(streams);
-            streams = RemoveIgnoredStreams(streams);
-            streams = RemoveDuplicates(streams);
-        }
-        sw.Stop();
-        logger.LogInformation("Processing M3U {streamsCount}, streams took {sw.Elapsed.TotalSeconds} seconds", streamsCount, sw.Elapsed.TotalSeconds);
-        return (streams, streamsCount);
-    }
+    //    int streamsCount = 0;
+    //    if (streams != null)
+    //    {
+    //        streamsCount = GetRealSMStreamCount(streams);
+    //        streams = RemoveIgnoredStreams(streams);
+    //        streams = RemoveDuplicates(streams);
+    //    }
+    //    sw.Stop();
+    //    logger.LogInformation("Processing M3U {streamsCount}, streams took {sw.Elapsed.TotalSeconds} seconds", streamsCount, sw.Elapsed.TotalSeconds);
+    //    return (streams, streamsCount);
+    //}
 
     private static int GetRealSMStreamCount(List<SMStream> streams)
     {
@@ -321,7 +321,7 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, IMessageSer
         Update(m3uFile);
         m3uFile.WriteJSON();
 
-        logger.LogInformation("Updated M3UFile with ID: {m3uFile.Id}.", m3uFile.Id);
+        //logger.LogInformation("Updated M3UFile with ID: {m3uFile.Id}.", m3uFile.Id);
     }
 
     /// <inheritdoc/>

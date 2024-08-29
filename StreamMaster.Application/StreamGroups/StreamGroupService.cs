@@ -13,7 +13,7 @@ using System.Xml.Serialization;
 using static StreamMaster.Domain.Common.GetStreamGroupEPGHandler;
 namespace StreamMaster.Application.StreamGroups;
 
-public class StreamGroupService(ILogger<StreamGroupService> _logger, IMapper _mapper, IRepositoryWrapper repositoryWrapper, ISchedulesDirectDataService _schedulesDirectDataService, IIconHelper _iconHelper, IOptionsMonitor<CommandProfileDict> _commandProfileSettings, IOptionsMonitor<Setting> _settings, IMemoryCache _memoryCache, IProfileService _profileService)
+public class StreamGroupService(ILogger<StreamGroupService> _logger, ICacheManager CacheManager, IMapper _mapper, IRepositoryWrapper repositoryWrapper, ISchedulesDirectDataService _schedulesDirectDataService, IIconHelper _iconHelper, IOptionsMonitor<CommandProfileDict> _commandProfileSettings, IOptionsMonitor<Setting> _settings, IMemoryCache _memoryCache, IProfileService _profileService)
     : IStreamGroupService
 {
     private const string DefaultStreamGroupName = "all";
@@ -34,12 +34,31 @@ public class StreamGroupService(ILogger<StreamGroupService> _logger, IMapper _ma
         return sg == null || string.IsNullOrEmpty(sg.GroupKey) ? (null, null, null) : (streamGroupId, sg.GroupKey, valuesEncryptedString);
     }
 
-    private async Task<string?> GetStreamGroupKeyFromId(int StreamGroupId)
+    private async Task<string?> GetStreamGroupKeyFromIdAsync(int StreamGroupId)
     {
-        StreamGroup? StreamGroup = StreamGroupId < 0
+        //StreamGroup? StreamGroup = StreamGroupId < 0
+        //    ? await GetStreamGroupFromNameAsync(DefaultStreamGroupName)
+        //    : await GetStreamGroupFromIdAsync(StreamGroupId);
+        //return StreamGroup == null ? null : string.IsNullOrEmpty(StreamGroup.GroupKey) ? null : StreamGroup.GroupKey;
+        // Try to get the value from the cache first
+        if (CacheManager.StreamGroupKeyCache.TryGetValue(StreamGroupId, out string? cachedGroupKey))
+        {
+            return cachedGroupKey;
+        }
+
+        // Value is not in the cache, proceed to retrieve it
+        StreamGroup? streamGroup = StreamGroupId < 0
             ? await GetStreamGroupFromNameAsync(DefaultStreamGroupName)
             : await GetStreamGroupFromIdAsync(StreamGroupId);
-        return StreamGroup == null ? null : string.IsNullOrEmpty(StreamGroup.GroupKey) ? null : StreamGroup.GroupKey;
+
+        string? groupKey = streamGroup == null || string.IsNullOrEmpty(streamGroup.GroupKey)
+            ? null
+            : streamGroup.GroupKey;
+
+        // Add the value to the cache
+        CacheManager.StreamGroupKeyCache.TryAdd(StreamGroupId, groupKey);
+
+        return groupKey;
     }
 
     public async Task<(int? StreamGroupId, int? StreamGroupProfileId, int? SMChannelId)> DecodeProfileIdSMChannelIdFromEncodedAsync(string EncodedString)
@@ -113,7 +132,7 @@ public class StreamGroupService(ILogger<StreamGroupService> _logger, IMapper _ma
 
     public async Task<string?> EncodeStreamGroupIdProfileIdChannelIdAsync(int StreamGroupId, int StreamGroupProfileId, int SMChannelId)
     {
-        string? groupKey = await GetStreamGroupKeyFromId(StreamGroupId);
+        string? groupKey = await GetStreamGroupKeyFromIdAsync(StreamGroupId);
         if (string.IsNullOrEmpty(groupKey))
         {
             return null;
@@ -128,7 +147,7 @@ public class StreamGroupService(ILogger<StreamGroupService> _logger, IMapper _ma
 
     public async Task<string?> EncodeStreamGroupIdProfileIdStreamId(int StreamGroupId, int StreamGroupProfileId, string SMStreamId)
     {
-        string? groupKey = await GetStreamGroupKeyFromId(StreamGroupId);
+        string? groupKey = await GetStreamGroupKeyFromIdAsync(StreamGroupId);
         if (string.IsNullOrEmpty(groupKey))
         {
             return null;
@@ -189,7 +208,7 @@ public class StreamGroupService(ILogger<StreamGroupService> _logger, IMapper _ma
 
     public async Task<string?> EncodeStreamGroupIdStreamIdAsync(int StreamGroupId, string SMStreamId)
     {
-        string? groupKey = await GetStreamGroupKeyFromId(StreamGroupId);
+        string? groupKey = await GetStreamGroupKeyFromIdAsync(StreamGroupId);
         if (string.IsNullOrEmpty(groupKey))
         {
             return null;

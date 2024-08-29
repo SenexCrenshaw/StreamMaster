@@ -11,6 +11,7 @@ namespace StreamMaster.Application.M3UFiles
         Task<ActionResult<PagedResponse<M3UFileDto>>> GetPagedM3UFiles(QueryStringParameters Parameters);
         Task<ActionResult<APIResponse>> CreateM3UFile(CreateM3UFileRequest request);
         Task<ActionResult<APIResponse>> DeleteM3UFile(DeleteM3UFileRequest request);
+        Task<ActionResult<APIResponse>> ProcessM3UFile(ProcessM3UFileRequest request);
         Task<ActionResult<APIResponse>> RefreshM3UFile(RefreshM3UFileRequest request);
         Task<ActionResult<APIResponse>> SyncChannels(SyncChannelsRequest request);
         Task<ActionResult<APIResponse>> UpdateM3UFile(UpdateM3UFileRequest request);

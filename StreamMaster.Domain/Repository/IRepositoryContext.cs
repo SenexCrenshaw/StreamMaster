@@ -1,12 +1,14 @@
 ﻿using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace StreamMaster.Domain.Repository;
 
 public interface IRepositoryContext
 {
+    IQueryable<TResult> SqlQueryRaw<TResult>([NotParameterized] string sql, params object[] parameters);
     Task<int> ExecuteSqlRawAsync(string sql, params object[] parameters);
     Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default);
     Task BulkUpdateAsync<TEntity>(IEnumerable<TEntity> entities) where TEntity : class;

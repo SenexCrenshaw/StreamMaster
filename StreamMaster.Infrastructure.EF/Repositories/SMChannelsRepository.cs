@@ -656,7 +656,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IServ
         return await AutoSetEPGs(smChannels, false, cancellationToken).ConfigureAwait(false);
     }
 
-    private async Task<List<FieldData>> AutoSetEPGs(List<SMChannel> smChannels, bool skipSave, CancellationToken cancellationToken)
+    public async Task<List<FieldData>> AutoSetEPGs(List<SMChannel> smChannels, bool skipSave, CancellationToken cancellationToken)
     {
         List<StationChannelName> stationChannelNames = [.. schedulesDirectDataService.GetStationChannelNames().OrderBy(a => a.Channel)];
 
@@ -737,7 +737,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IServ
         {
             Parallel.ForEach(smChannels, new ParallelOptions { CancellationToken = cancellationToken }, smChannel =>
             {
-                if (cancellationToken.IsCancellationRequested)
+                if (cancellationToken.IsCancellationRequested || smChannel.EPGId == "Dummy")
                 {
                     return;
                 }

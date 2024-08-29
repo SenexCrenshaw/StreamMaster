@@ -55,5 +55,5 @@ public interface IM3UFileRepository : IRepositoryBase<M3UFile>
     /// <param name="m3uFile">The M3U file to delete.</param>
     Task<M3UFileDto?> DeleteM3UFile(int M3UFileId);
 
-    Task<M3UFile?> ProcessM3UFile(int M3UFileId, bool ForceRun = false);
+    //Task<M3UFile?> ProcessM3UFile(int M3UFileId, bool ForceRun = false);
 }

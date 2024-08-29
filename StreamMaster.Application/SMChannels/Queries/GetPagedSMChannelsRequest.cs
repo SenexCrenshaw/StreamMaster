@@ -1,9 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 
-using StreamMaster.Domain.Crypto;
-
 using System.Diagnostics;
-using System.Text.Json;
 
 namespace StreamMaster.Application.SMChannels.Queries;
 
@@ -36,46 +33,49 @@ internal class GetPagedSMChannelsRequestHandler(IRepositoryWrapper Repository, I
         int sgId = await streamGroupService.GetDefaultSGIdAsync().ConfigureAwait(false);
 
 
+        StreamGroupProfile streamGroupProfile = await streamGroupService.GetDefaultStreamGroupProfileAsync();
+
         foreach (SMChannelDto channel in res.Data)
         {
             List<SMChannelStreamLink> links = [.. Repository.SMChannelStreamLink.GetQuery(true).Where(a => a.SMChannelId == channel.Id)];
 
             //string videoUrl;
-            foreach (SMStreamDto stream in channel.SMStreams)
-            {
-                SMChannelStreamLink? link = links.Find(a => a.SMStreamId == stream.Id);
+            //foreach (SMStreamDto stream in channel.SMStreams)
+            //{
+            //    SMChannelStreamLink? link = links.Find(a => a.SMStreamId == stream.Id);
 
-                if (link != null)
-                {
-                    stream.Rank = link.Rank;
-                }
-            }
+            //    if (link != null)
+            //    {
+            //        stream.Rank = link.Rank;
+            //    }
+            //}
 
             channel.SMStreams = [.. channel.SMStreams.OrderBy(a => a.Rank)];
             channel.StreamGroupIds = channel.StreamGroups.Select(a => a.StreamGroupId).ToList();
 
 
-            StreamGroupProfile test = await streamGroupService.GetDefaultStreamGroupProfileAsync();
+            //string? EncodedString = await streamGroupService.EncodeStreamGroupIdProfileIdChannelIdAsync(sgId, streamGroupProfile.Id, channel.Id);
+            //if (string.IsNullOrEmpty(EncodedString))
+            //{
+            //    continue;
+            //}
 
-            string? EncodedString = await streamGroupService.EncodeStreamGroupIdProfileIdChannelIdAsync(sgId, test.Id, channel.Id);
-
-            //(string EncodedString, string CleanName) = await sender.Send(new EncodeStreamGroupIdProfileIdChannelIdAsync(defaultSGProfile.Data.StreamGroupId, defaultSGProfile.Data.Id, channel.Id, channel.Name), cancellationToken);
-            if (string.IsNullOrEmpty(EncodedString))
-            {
-                continue;
-            }
-
-            //string videoUrl = $"{url}/m/{encodedString}.m3u8"
-
-            string videoUrl = $"{Url}/api/videostreams/stream/{EncodedString}/{channel.Name.ToCleanFileString()}";
-            //videoUrl = $"{Url}/m/{EncodedString}.m3u8";
-
-
-            string jsonString = JsonSerializer.Serialize(videoUrl);
-            channel.StreamUrl = jsonString;
+            //string videoUrl = await GetVideoStreamUrlAsync(channel.Name, channel.Id, sgId, streamGroupProfile.Id, Url);// $"{Url}/api/videostreams/stream/{EncodedString}/{channel.Name.ToCleanFileString()}";
+            //channel.StreamUrl = JsonSerializer.Serialize(videoUrl);
         }
 
         Debug.WriteLine($"GetPagedSMChannelsRequestHandler returning {res.Data.Count} items");
         return res;
     }
+
+    //private async Task<string> GetVideoStreamUrlAsync(string name, int smChannelId, int sgId, int sgPId, string url)
+    //{
+    //    string cleanName = HttpUtility.UrlEncode(name);
+
+    //    string? encodedString = await streamGroupService.EncodeStreamGroupIdProfileIdChannelIdAsync(sgId, sgPId, smChannelId);
+
+    //    string videoUrl = $"{url}/api/videostreams/stream/{encodedString}/{cleanName}";
+
+    //    return videoUrl;
+    //}
 }

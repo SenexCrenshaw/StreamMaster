@@ -1,176 +1,105 @@
-﻿using StreamMaster.Domain.Logging;
-
-using System.Collections.Concurrent;
-using System.Text;
+﻿using System.Text;
 using System.Text.RegularExpressions;
 
-namespace StreamMaster.Domain.Common;
+namespace StreamMaster.Application.M3UFiles;
 
-public static partial class IPTVExtensions
+public partial class M3UToSMStreamsService(ILogger<M3UToSMStreamsService> logger, IOptionsMonitor<Setting> _settings) : IM3UToSMStreamsService
 {
-    [LogExecutionTimeAspect]
-    public static async Task<List<SMStream>?> ConvertToSMStreamAsync(Stream dataStream, int Id, string Name, List<string> vodExclusion, ILogger logger)
+    public async IAsyncEnumerable<SMStream> GetSMStreamsFromM3U(M3UFile m3UFile)
     {
-        BlockingCollection<KeyValuePair<int, SMStream>> blockingCollection = new(new ConcurrentQueue<KeyValuePair<int, SMStream>>());
+        logger.LogInformation("Reading m3uFile {Name} and ignoring URLs with {VODS}", m3UFile.Name, string.Join(',', m3UFile.VODTags));
+        await using Stream dataStream = FileUtil.GetFileDataStream(Path.Combine(FileDefinitions.M3U.DirectoryLocation, m3UFile.Source));
+
         int segmentNumber = 0;
-        int processedCount = 0;
-        object lockObj = new();
         StringBuilder segmentBuilder = new();
 
         using StreamReader reader = new(dataStream);
-        await Task.Run(() =>
+        string? clientUserAgent = null;
+
+        while (!reader.EndOfStream)
         {
-            try
+            string? line = await reader.ReadLineAsync();
+
+            if (string.IsNullOrWhiteSpace(line))
             {
-                string? clientUserAgent = null;
-                while (!reader.EndOfStream)
-                {
-                    string? line = reader.ReadLine();
+                continue;
+            }
 
-                    if (string.IsNullOrWhiteSpace(line))
-                    {
-                        continue;
-                    }
-
-                    if (line.StartsWith("#EXTINF"))
-                    {
-                        if (segmentBuilder.Length > 0)
-                        {
-                            if (clientUserAgent != null)
-                            {
-                                int commadIndex = segmentBuilder.ToString().LastIndexOf(',');
-
-                                segmentBuilder.Insert(commadIndex, $" clientUserAgent=\"{clientUserAgent}\" ");
-                            }
-                            if (!ProcessSegment(segmentNumber++, segmentBuilder.ToString()))
-                            {
-                                logger.LogWarning("Could not create stream from: {line}", line);
-                            }
-                            segmentBuilder.Clear();
-                            clientUserAgent = null;
-                        }
-                    }
-                    else if (line.StartsWith("#EXTVLCOPT"))
-                    {
-                        if (line.StartsWith("#EXTVLCOPT:http-user-agent"))
-                        {
-                            clientUserAgent = line.Replace("#EXTVLCOPT:http-user-agent=", "");
-                            //segmentBuilder.Insert(1, $" clientUserAgent=\"{clientUserAgent}\" ");
-                            continue;
-                        }
-                    }
-                    else
-                    {
-                        if (segmentBuilder.Length == 0)
-                        {
-                            continue;
-                        }
-                    }
-
-                    segmentBuilder.AppendLine(line);
-                }
-
-                // Process the last segment
+            if (line.StartsWith("#EXTINF"))
+            {
                 if (segmentBuilder.Length > 0)
                 {
-                    ProcessSegment(segmentNumber, segmentBuilder.ToString());
+                    if (clientUserAgent != null)
+                    {
+                        int commadIndex = segmentBuilder.ToString().LastIndexOf(',');
+                        segmentBuilder.Insert(commadIndex, $" clientUserAgent=\"{clientUserAgent}\" ");
+                    }
+
+                    SMStream? smStream = ProcessSegment(segmentNumber++, segmentBuilder.ToString(), m3UFile, logger);
+                    if (smStream != null)
+                    {
+                        yield return smStream;
+                    }
+
+                    segmentBuilder.Clear();
+                    clientUserAgent = null;
                 }
             }
-            finally
+            else if (line.StartsWith("#EXTVLCOPT"))
             {
-                blockingCollection.CompleteAdding();
-            }
-        });
-
-        List<SMStream> results = blockingCollection.OrderBy(kvp => kvp.Key).Select(kvp => kvp.Value).ToList();
-        logger.LogInformation("Imported {processedCount} streams.", processedCount);
-        return results;
-
-        bool ProcessSegment(int segmentNum, string segment)
-        {
-            SMStream? smStream = segment.StringToSMStream();
-            if (smStream == null)
-            {
-                return false;
-            }
-
-            if (vodExclusion.Count > 0)
-            {
-                if (CheckExcluded(smStream.Url))
+                if (line.StartsWith("#EXTVLCOPT:http-user-agent"))
                 {
-                    return false;
+                    clientUserAgent = line.Replace("#EXTVLCOPT:http-user-agent=", "");
+                    continue;
                 }
             }
-
-            UpdateSMStreamProperties(smStream, Id, Name);
-
-            blockingCollection.Add(new KeyValuePair<int, SMStream>(segmentNum, smStream));
-
-            lock (lockObj)
+            else
             {
-                processedCount++;
-                if (processedCount % 5000 == 0)
+                if (segmentBuilder.Length == 0)
                 {
-                    logger.LogInformation("Importing {processedCount} streams.", processedCount);
+                    continue;
                 }
             }
-            return true;
+
+            segmentBuilder.AppendLine(line);
         }
 
-        bool CheckExcluded(string URL)
+        // Process the last segment
+        if (segmentBuilder.Length > 0)
         {
-            foreach (string vodPattern in vodExclusion)
+            SMStream? smStream = ProcessSegment(segmentNumber, segmentBuilder.ToString(), m3UFile, logger);
+            if (smStream != null)
             {
-                string regexPattern;
-
-                // Check if vodPattern is a simple substring (no special regex characters)
-                if (vodPattern.Any(ch => char.IsPunctuation(ch) && ch != '_'))
-                {
-                    // vodPattern contains special characters, so use it as a regex pattern
-                    regexPattern = vodPattern;
-                }
-                else
-                {
-                    // vodPattern is a simple substring, so create a regex pattern for 'string.Contains' behavior
-                    regexPattern = ".*" + Regex.Escape(vodPattern) + ".*";
-                }
-
-                Regex regex = new(regexPattern, RegexOptions.IgnoreCase);
-
-                if (regex.IsMatch(URL))
-                {
-                    return true;
-                }
+                yield return smStream;
             }
-            return false;
         }
     }
 
-    private static void UpdateSMStreamProperties(SMStream smStream, int m3uFileId, string m3uFileName)
+    private static SMStream? ProcessSegment(int segmentNum, string segment, M3UFile m3UFile, ILogger logger)
     {
-        // Set the M3U file-related properties
-        smStream.M3UFileId = m3uFileId;
-        smStream.M3UFileName = m3uFileName;
-        smStream.IsHidden = false;
-    }
-
-    //private static bool IsValidM3UFile(string body)
-    //{
-    //    return !(body.Contains("#EXT-X-TARGETDURATION") || body.Contains("#EXT-X-MEDIA-SEQUENCE")) && body.Contains("EXTM3U");
-    //}
-
-    public static (string fullName, string name) GetRandomFileName(this FileDefinition fd)
-    {
-        if (!Directory.Exists(fd.DirectoryLocation))
+        int? chNo = null;
+        if (m3UFile.AutoSetChannelNumbers)
         {
-            return ("", "");
+            chNo = segmentNum + m3UFile.StartingChannelNumber;
+        }
+        SMStream? smStream = StringToSMStream(segment, chNo);
+        if (smStream == null)
+        {
+            logger.LogWarning("Could not create stream from segment {segmentNum}", segmentNum);
+            return null;
         }
 
-        DirectoryInfo dir = new(fd.DirectoryLocation);
-        return dir.GetRandomFileName(fd.FileExtension);
+        if (m3UFile.VODTags.Count > 0 && CheckExcluded(smStream.Url, m3UFile.VODTags))
+        {
+            return null;
+        }
+
+        UpdateSMStreamProperties(smStream, m3UFile);
+
+        return smStream;
     }
 
-    public static SMStream? StringToSMStream(this string bodyline)
+    public static SMStream? StringToSMStream(string bodyline, int? channelNumber)
     {
         SMStream SMStream = new();
 
@@ -350,6 +279,11 @@ public static partial class IPTVExtensions
             SMStream.Id = FileUtil.EncodeToMD5(SMStream.Url);
         }
 
+        if (channelNumber.HasValue)
+        {
+            SMStream.ChannelNumber = channelNumber.Value;
+        }
+
         return SMStream;
     }
 
@@ -358,4 +292,29 @@ public static partial class IPTVExtensions
 
     [GeneratedRegex("[a-z-A-Z=]*(\".*?\")", RegexOptions.IgnoreCase | RegexOptions.Compiled, "en-US")]
     private static partial Regex paramRegex();
+
+    private static bool CheckExcluded(string url, List<string> vodExclusion)
+    {
+        foreach (string vodPattern in vodExclusion)
+        {
+            string regexPattern = vodPattern.Any(ch => char.IsPunctuation(ch) && ch != '_')
+                ? vodPattern
+                : ".*" + Regex.Escape(vodPattern) + ".*";
+
+            Regex regex = new(regexPattern, RegexOptions.IgnoreCase);
+
+            if (regex.IsMatch(url))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static void UpdateSMStreamProperties(SMStream smStream, M3UFile m3UFile)
+    {
+        smStream.M3UFileId = m3UFile.Id;
+        smStream.M3UFileName = m3UFile.Name;
+        smStream.IsHidden = false;
+    }
 }

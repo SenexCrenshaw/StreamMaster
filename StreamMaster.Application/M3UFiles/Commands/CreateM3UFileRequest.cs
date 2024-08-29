@@ -59,23 +59,23 @@ public class CreateM3UFileRequestHandler(ILogger<CreateM3UFileRequest> Logger, I
 
             m3UFile.MaxStreamCount = Math.Max(0, request.MaxStreamCount);
 
-            List<SMStream>? streams = await m3UFile.GetSMStreamsFromM3U(Logger).ConfigureAwait(false);
-            if (streams == null || streams.Count == 0)
-            {
-                Logger.LogCritical("Exception M3U '{name}' format is not supported", request.Name);
-                await messageService.SendError($"Exception M3U '{request.Name}' format is not supported");
-                //Bad M3U
-                if (File.Exists(fullName))
-                {
-                    File.Delete(fullName);
-                }
-                string urlPath = Path.GetFileNameWithoutExtension(fullName) + ".url";
-                if (File.Exists(urlPath))
-                {
-                    File.Delete(urlPath);
-                }
-                return APIResponse.NotFound;
-            }
+            //List<SMStream>? streams = await m3UFile.GetSMStreamsFromM3U(Logger).ConfigureAwait(false);
+            //if (streams == null || streams.Count == 0)
+            //{
+            //    Logger.LogCritical("Exception M3U '{name}' format is not supported", request.Name);
+            //    await messageService.SendError($"Exception M3U '{request.Name}' format is not supported");
+            //    //Bad M3U
+            //    if (File.Exists(fullName))
+            //    {
+            //        File.Delete(fullName);
+            //    }
+            //    string urlPath = Path.GetFileNameWithoutExtension(fullName) + ".url";
+            //    if (File.Exists(urlPath))
+            //    {
+            //        File.Delete(urlPath);
+            //    }
+            //    return APIResponse.NotFound;
+            //}
 
             Repository.M3UFile.CreateM3UFile(m3UFile);
             _ = await Repository.SaveAsync().ConfigureAwait(false);

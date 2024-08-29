@@ -36,6 +36,8 @@ public class SMStream
     public string StationId { get; set; } = string.Empty;
 
     public bool IsSystem { get; set; }
+    public bool NeedsDelete { get; set; }
+
 
     [Column(TypeName = "citext")]
 

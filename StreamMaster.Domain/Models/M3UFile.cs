@@ -1,6 +1,4 @@
-﻿using StreamMaster.Domain.Logging;
-
-using System.Text.Json;
+﻿using System.Text.Json;
 
 namespace StreamMaster.Domain.Models;
 
@@ -15,7 +13,6 @@ public class M3UFile : AutoUpdateEntity
         string jsonString = JsonSerializer.Serialize(this, jsonSerializerOptions);
         File.WriteAllText(jsonPath, jsonString);
     }
-
     public M3UFile()
     {
         FileExtension = FileDefinitions.M3U.FileExtension;
@@ -40,15 +37,6 @@ public class M3UFile : AutoUpdateEntity
         return lastWrite;
     }
 
-    [LogExecutionTimeAspect]
-    public async Task<List<SMStream>?> GetSMStreamsFromM3U(ILogger logger)
-    {
-        await using Stream dataStream = FileUtil.GetFileDataStream(Path.Combine(FileDefinitions.M3U.DirectoryLocation, Source));
-        logger.LogInformation("Reading m3uFile {Name} and ignoring URLs with {VODS}", Name, string.Join(',', VODTags));
-        List<SMStream>? ret = await IPTVExtensions.ConvertToSMStreamAsync(dataStream, Id, Name, VODTags, logger);
-        return ret;
-    }
-
     public M3UFile? ReadJSON()
     {
         string jsonPath = Path.Combine(FileDefinitions.M3U.DirectoryLocation, Path.GetFileNameWithoutExtension(Source) + ".json");
@@ -60,6 +48,7 @@ public class M3UFile : AutoUpdateEntity
         string jsonString = File.ReadAllText(jsonPath);
         return JsonSerializer.Deserialize<M3UFile>(jsonString);
     }
+
     public static M3UFile? ReadJSON(FileInfo fileInfo)
     {
         if (fileInfo.DirectoryName == null)
