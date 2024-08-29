@@ -38,7 +38,6 @@ public class UpdateM3UFileRequestHandler(IRepositoryWrapper Repository, IReposit
             bool defaultNameChange = false;
             int oldSGId = 0;
 
-
             if (request.StartingChannelNumber.HasValue && m3uFile.StartingChannelNumber != request.StartingChannelNumber.Value)
             {
                 m3uFile.StartingChannelNumber = request.StartingChannelNumber.Value;
@@ -55,7 +54,6 @@ public class UpdateM3UFileRequestHandler(IRepositoryWrapper Repository, IReposit
             {
                 if (m3uFile.AutoSetChannelNumbers)
                 {
-
                     string sql = $"UPDATE public.\"SMStreams\" SET \"ChannelNumber\"=\"FilePosition\"+{m3uFile.StartingChannelNumber} WHERE \"M3UFileId\"={m3uFile.Id};";
                     await repositoryContext.ExecuteSqlRawAsync(sql, cancellationToken);
                     await dataRefreshService.RefreshSMStreams().ConfigureAwait(false);
@@ -110,7 +108,7 @@ public class UpdateM3UFileRequestHandler(IRepositoryWrapper Repository, IReposit
                 CacheManager.M3UMaxStreamCounts.AddOrUpdate(m3uFile.Id, m3uFile.MaxStreamCount, (_, _) => m3uFile.MaxStreamCount);
             }
 
-            if (request.SyncChannels.HasValue)
+            if (request.SyncChannels == true)
             {
                 m3uFile.SyncChannels = request.SyncChannels.Value;
                 ret.Add(new FieldData(() => m3uFile.SyncChannels));
@@ -126,7 +124,6 @@ public class UpdateM3UFileRequestHandler(IRepositoryWrapper Repository, IReposit
             {
                 m3uFile.HoursToUpdate = request.HoursToUpdate.Value;
                 ret.Add(new FieldData(() => m3uFile.HoursToUpdate));
-
             }
 
             Repository.M3UFile.UpdateM3UFile(m3uFile);
@@ -134,7 +131,8 @@ public class UpdateM3UFileRequestHandler(IRepositoryWrapper Repository, IReposit
 
             if (request.SyncChannels == true)
             {
-                await Sender.Send(new SyncChannelsRequest(m3uFile.Id, m3uFile.DefaultStreamGroupName), cancellationToken);
+                needsUpdate = true;
+                // await Sender.Send(new SyncChannelsRequest(m3uFile.Id, m3uFile.DefaultStreamGroupName), cancellationToken);
             }
 
             if (defaultNameChange && oldSGId != 0)
@@ -184,7 +182,7 @@ public class UpdateM3UFileRequestHandler(IRepositoryWrapper Repository, IReposit
         catch (Exception ex)
         {
             jobManager.SetError();
-            return APIResponse.ErrorWithMessage(ex, $"Failed M3U update");
+            return APIResponse.ErrorWithMessage(ex, "Failed M3U update");
         }
     }
 }

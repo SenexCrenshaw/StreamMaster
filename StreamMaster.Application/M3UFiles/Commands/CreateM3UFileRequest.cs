@@ -14,7 +14,6 @@ public class CreateM3UFileRequestHandler(ILogger<CreateM3UFileRequest> Logger, I
     {
         if (string.IsNullOrEmpty(request.UrlSource))
         {
-
             return APIResponse.NotFound;
         }
 
@@ -53,8 +52,7 @@ public class CreateM3UFileRequestHandler(ILogger<CreateM3UFileRequest> Logger, I
                 ++m3UFile.DownloadErrors;
 
                 Logger.LogCritical("Exception M3U From URL '{ex}'", ex);
-                await messageService.SendError($"Exception M3U", ex?.Message);
-
+                await messageService.SendError("Exception M3U", ex?.Message);
             }
 
             m3UFile.MaxStreamCount = Math.Max(0, request.MaxStreamCount);

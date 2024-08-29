@@ -13,6 +13,7 @@ internal class SyncChannelsRequestHandler(ILogger<SyncChannelsRequest> logger, I
     {
         try
         {
+
             M3UFile? m3uFile = await Repository.M3UFile.GetM3UFileAsync(request.M3UFileId).ConfigureAwait(false);
             if (m3uFile == null)
             {
@@ -69,48 +70,6 @@ internal class SyncChannelsRequestHandler(ILogger<SyncChannelsRequest> logger, I
                 _ = await sender.Send(new DeleteSMChannelsRequest(smChannelIds), cancellationToken).ConfigureAwait(false);
             }
             bool changed = false;
-            //if (existingStreamsInDb.Count != 0)
-            //{
-            //    List<SMChannel> smChannels = await Repositorywrapper.SMChannel.GetQuery(true).Where(a => a.M3UFileId == request.M3UFileId && a.BaseStreamID != null && existingStreamsIDsInDb.Contains(a.BaseStreamID)).ToListAsync(cancellationToken: cancellationToken);
-
-            //    foreach (SMChannel SMChannel in smChannels)
-            //    {
-            //        SMStream? stream = existingStreamsInDb.Find(a => a.Id == SMChannel.BaseStreamID);
-            //        if (stream == null)
-            //        {
-            //            continue;
-            //        }
-
-            //        if (SMChannel.ProfileName != stream.ProfileName)
-            //        {
-            //            changed = true;
-            //            SMChannel.ProfileName = stream.ProfileName;
-            //        }
-
-            //        //if (SMChannel.Logo != stream.Logo)
-            //        //{
-            //        //    changed = true;
-            //        //    SMChannel.Logo = stream.Logo;
-            //        //}
-
-            //        //if (SMChannel.CommandProfileName != stream.CommandProfileName)
-            //        //{
-            //        //    changed = true;
-            //        //    SMChannel.CommandProfileName = stream.CommandProfileName;
-            //        //}
-
-            //        if (SMChannel.StationId != stream.StationId)
-            //        {
-            //            changed = true;
-            //            SMChannel.StationId = stream.StationId;
-            //        }
-
-            //    }
-            //    if (changed)
-            //    {
-            //        await Repositorywrapper.SaveAsync();
-            //    }
-            //}
 
             if (streamsToBeCreated.Count != 0 || streamsToBeDeleted.Count != 0 || changed)
             {

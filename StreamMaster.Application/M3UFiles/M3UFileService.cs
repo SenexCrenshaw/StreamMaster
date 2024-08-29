@@ -197,7 +197,6 @@ public class M3UFileService(ILogger<M3UFileService> logger, IM3UToSMStreamsServi
             Interlocked.Increment(ref processedCount);
             if (processedCount % 20000 == 0)
             {
-
                 logger.LogInformation("Processing {processedCount} streams in {elapsed}ms", processedCount, stopwatch.ElapsedMilliseconds);
                 stopwatch.Restart();
             }
@@ -301,7 +300,7 @@ public class M3UFileService(ILogger<M3UFileService> logger, IM3UToSMStreamsServi
         // Generate the SQL command manually
         string sqlCommand = GenerateBatchSqlCommandForDebugging(streams, m3uFileId, m3uFileName, streamGroupId, createChannels);
 
-        List<int> channelIds = [];
+        List<int> channelIds;
 
         try
         {
@@ -351,7 +350,7 @@ public class M3UFileService(ILogger<M3UFileService> logger, IM3UToSMStreamsServi
         return sqlCommand;
     }
 
-    private string EscapeString(string input)
+    private static string EscapeString(string input)
     {
         return input.Replace("'", "''"); // Handle escaping of single quotes
     }
@@ -366,24 +365,6 @@ public class M3UFileService(ILogger<M3UFileService> logger, IM3UToSMStreamsServi
         M3UFile? json = m3uFile.ReadJSON();
         return json is null || m3uFile.LastWrite() >= m3uFile.LastUpdated;
     }
-    private List<SMStream> RemoveIgnoredStreams(List<SMStream> streams)
-    {
-        Setting Settings = _settings.CurrentValue;
-        if (Settings.NameRegex.Count == 0)
-        {
-            return streams;
-        }
-
-        foreach (string regex in Settings.NameRegex)
-        {
-            List<SMStream> toIgnore = ListHelper.GetMatchingProperty(streams, "name", regex);
-            logger.LogInformation("Ignoring {toIgnore.Count} streams with regex {regex}", toIgnore.Count, regex);
-            _ = streams.RemoveAll(toIgnore.Contains);
-        }
-
-        return streams;
-    }
-
     public async Task<M3UFile?> GetM3UFileAsync(int Id)
     {
         return await repositoryWrapper.M3UFile.FirstOrDefaultAsync(c => c.Id == Id, false).ConfigureAwait(false);
