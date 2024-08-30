@@ -381,7 +381,7 @@ public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, ISchedulesDirectDataService sc
 
         foreach (XmltvEpisodeNum epNum in xmltvProgramme.EpisodeNums)
         {
-            if (epNum.System == null)
+            if (epNum.System == null || string.IsNullOrEmpty(epNum.Text))
             {
                 continue;
             }
