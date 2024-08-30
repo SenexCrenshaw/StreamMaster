@@ -56,22 +56,20 @@ const SMChannelStatus = () => {
   }, []);
 
   const actionTemplate = useCallback((rowData: ChannelMetric) => {
-    if (!rowData?.SMStreamInfo) {
+    const found = channelMetricsRef.current.find((predicate) => predicate.Id === rowData.Id);
+    if (!found) {
       return <div />;
     }
-
-    // const found = channelMetricsRef.current.find((predicate) => predicate.Id === rowData.Id);
-
-    const test = channelMetricsRef.current.find((predicate) => predicate.Name !== 'VideoInfo');
+    const test = found?.ClientChannels.find((predicate) => predicate.Name !== 'VideoInfo');
     if (test === undefined) {
       return <div />;
     }
 
     return (
       <div className="sm-center-stuff">
-        <VideoInfoDisplay name={test.Name} videoInfo={test.VideoInfo} />
-        <StreamInfoDisplay streamInfo={test.SMStreamInfo!} />
-        <CancelChannelDialog channelId={Number(test.Name)} />
+        <VideoInfoDisplay name={test.Name} videoInfo={found.VideoInfo} />
+        <StreamInfoDisplay streamInfo={found.SMStreamInfo!} />
+        <CancelChannelDialog channelId={test.SMChannelId} />
         {/* <MoveToNextStreamDialog channelId={rowData.Id} /> */}
       </div>
     );

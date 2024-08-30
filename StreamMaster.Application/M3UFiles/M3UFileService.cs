@@ -231,20 +231,18 @@ public class M3UFileService(ILogger<M3UFileService> logger, IM3UToSMStreamsServi
         // Generate the SQL command manually
         string sqlCommand = GenerateBatchSqlCommandForDebugging(streams, m3uFileId, m3uFileName, streamGroupId, createChannels);
 
-        List<int> channelIds;
-
         try
         {
             // Execute the SQL command and retrieve the list of channel IDs
-            channelIds = await repositoryContext.SqlQueryRaw<int>(sqlCommand).ToListAsync();
+            return await repositoryContext.SqlQueryRaw<int>(sqlCommand).ToListAsync();
         }
         catch (Exception ex)
         {
             logger.LogError(ex, "Failed to execute SQL command: {sqlCommand}", sqlCommand);
-            throw;
+            // throw;
         }
 
-        return channelIds;
+        return [];
     }
 
     private static string GenerateBatchSqlCommandForDebugging(List<SMStream> streams, int m3uFileId, string m3uFileName, int streamGroupId, bool createChannels)
@@ -272,9 +270,9 @@ public class M3UFileService(ILogger<M3UFileService> logger, IM3UToSMStreamsServi
             ARRAY[{string.Join(", ", urls)}]::CITEXT[],
             ARRAY[{string.Join(", ", stationIds)}]::CITEXT[],
             {m3uFileId}, -- p_m3u_file_id as INTEGER
-            '{EscapeString(m3uFileName)}'::CITEXT, -- p_m3u_file_name as CITEXT
-            {streamGroupId}, -- p_stream_group_id as INTEGER
-            {createChannels.ToString().ToUpper()} -- p_create_channels as BOOLEAN
+            '{EscapeString(m3uFileName)}'::CITEXT,
+            {streamGroupId},
+            {createChannels.ToString().ToUpper()}
         );
     ";
 
@@ -283,7 +281,7 @@ public class M3UFileService(ILogger<M3UFileService> logger, IM3UToSMStreamsServi
 
     private static string EscapeString(string input)
     {
-        return input.Replace("'", "''"); // Handle escaping of single quotes
+        return input.Replace("'", "''");
     }
 
     private static bool ShouldUpdate(M3UFile m3uFile, List<string> VODTags)
