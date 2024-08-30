@@ -130,7 +130,6 @@ namespace StreamMaster.Streams.Channels
                 return null;
             }
 
-
             ISourceBroadcaster? streamBroadcaster = _sourceBroadcasterService.GetStreamBroadcaster(channelBroadcaster.SMStreamInfo.Url);
             if (streamBroadcaster?.IsFailed != false)
             {
@@ -209,8 +208,7 @@ namespace StreamMaster.Streams.Channels
                 return false;
             }
 
-
-            ISourceBroadcaster? sourceChannelBroadcaster = null;
+            IBroadcasterBase? sourceChannelBroadcaster = null;
 
             while (sourceChannelBroadcaster == null)
             {
@@ -224,11 +222,9 @@ namespace StreamMaster.Streams.Channels
                     channelBroadcaster.FailoverInProgress = false;
                     return false;
                 }
-
-
                 //Channel<byte[]> newChannel = ChannelHelper.GetChannel();
 
-                //IVideoCombiner? videoCombiner = await _videoCombinerService.GetOrCreateVideoCombinerAsync(clientConfiguration, this, 4, 5, 7, 8, channelBroadcaster.StreamGroupProfileId, CancellationToken.None).ConfigureAwait(false);
+                //   sourceChannelBroadcaster = await _videoCombinerService.GetOrCreateVideoCombinerAsync(clientConfiguration, this, 1767, 1769, 1771, 1772, channelBroadcaster.StreamGroupProfileId, CancellationToken.None).ConfigureAwait(false);
 
                 //if (videoCombiner == null)
                 //{
@@ -239,13 +235,6 @@ namespace StreamMaster.Streams.Channels
                 //channelBroadcaster.SetSourceChannelBroadcaster(videoCombiner);
 
                 sourceChannelBroadcaster = await _sourceBroadcasterService.GetOrCreateStreamBroadcasterAsync(channelBroadcaster.SMStreamInfo, CancellationToken.None).ConfigureAwait(false);
-
-                //if (sourceChannelBroadcaster == null)
-                //{
-                //    _logger.LogDebug("Exiting, Source Channel Distributor is null");
-                //    channelBroadcaster.FailoverInProgress = false;
-                //    return false;
-                //}
 
                 if (sourceChannelBroadcaster != null)
                 {

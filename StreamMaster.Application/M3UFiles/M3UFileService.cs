@@ -142,7 +142,7 @@ public class M3UFileService(ILogger<M3UFileService> logger, IM3UToSMStreamsServi
             }
         }
 
-        const int batchSize = 100;// BuildInfo.DBBatchSize;
+        int batchSize = _settings.CurrentValue.DBBatchSize;// BuildInfo.DBBatchSize;
         List<SMStream> batch = [];
 
         repositoryContext.ExecuteSqlRaw($"UPDATE public.\"SMStreams\"\r\n  SET \"NeedsDelete\" = true\r\n    WHERE \"M3UFileId\" = {m3uFile.Id}");

@@ -36,25 +36,25 @@ namespace StreamMaster.Streams.Handlers
                 using IServiceScope scope = serviceProvider.CreateScope();
                 IRepositoryWrapper repositoryWrapper = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
 
-                SMChannel? smChannel1 = await repositoryWrapper.SMChannel.FirstOrDefaultAsync(a => a.Id == SMChannelId1);
+                SMChannel? smChannel1 = await repositoryWrapper.SMChannel.FirstOrDefaultAsync(a => a.Id == SMChannelId1, cancellationToken: cancellationToken);
                 if (smChannel1 == null)
                 {
                     logger.LogError("SMChannel1 {smChannel1} of the channels is not found", smChannel1);
                     return null;
                 }
-                SMChannel? smChannel2 = await repositoryWrapper.SMChannel.FirstOrDefaultAsync(a => a.Id == SMChannelId2);
+                SMChannel? smChannel2 = await repositoryWrapper.SMChannel.FirstOrDefaultAsync(a => a.Id == SMChannelId2, cancellationToken: cancellationToken);
                 if (smChannel1 == null)
                 {
                     logger.LogError("SMChannel2 {smChannel2} of the channels is not found", smChannel2);
                     return null;
                 }
-                SMChannel? smChannel3 = await repositoryWrapper.SMChannel.FirstOrDefaultAsync(a => a.Id == SMChannelId3);
+                SMChannel? smChannel3 = await repositoryWrapper.SMChannel.FirstOrDefaultAsync(a => a.Id == SMChannelId3, cancellationToken: cancellationToken);
                 if (smChannel1 == null)
                 {
                     logger.LogError("SMChannel3 {smChannel3} of the channels is not found", smChannel3);
                     return null;
                 }
-                SMChannel? smChannel4 = await repositoryWrapper.SMChannel.FirstOrDefaultAsync(a => a.Id == SMChannelId4);
+                SMChannel? smChannel4 = await repositoryWrapper.SMChannel.FirstOrDefaultAsync(a => a.Id == SMChannelId4, cancellationToken: cancellationToken);
                 if (smChannel1 == null)
                 {
                     logger.LogError("SMChannel4 {smChannel4} of the channels is not found", smChannel4);
@@ -70,7 +70,6 @@ namespace StreamMaster.Streams.Handlers
                 config2.SetUniqueRequestId(config1.UniqueRequestId + "-2");
                 config3.SetUniqueRequestId(config1.UniqueRequestId + "-3");
                 config4.SetUniqueRequestId(config1.UniqueRequestId + "-4");
-
 
                 IChannelBroadcaster? smChannel1Broadcaster = await channelService.GetOrCreateChannelBroadcasterAsync(config1, streamGroupProfileId);
                 if (smChannel1Broadcaster == null)
@@ -168,9 +167,7 @@ namespace StreamMaster.Streams.Handlers
                     //StopAndUnRegisterSourceBroadcaster(videoCombiner.Id);
 
                 }
-
             }
-
         }
 
         public async Task UnRegisterChannelBroadcasterAsync(int channelBroadcasterId)

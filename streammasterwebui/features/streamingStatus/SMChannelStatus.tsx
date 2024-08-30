@@ -67,7 +67,7 @@ const SMChannelStatus = () => {
 
     return (
       <div className="sm-center-stuff">
-        <VideoInfoDisplay name={test.Name} videoInfo={found.VideoInfo} />
+        <VideoInfoDisplay name={found.Name} videoInfo={found.VideoInfo} />
         <StreamInfoDisplay streamInfo={found.SMStreamInfo!} />
         <CancelChannelDialog channelId={test.SMChannelId} />
         {/* <MoveToNextStreamDialog channelId={rowData.Id} /> */}

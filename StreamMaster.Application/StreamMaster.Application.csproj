@@ -32,6 +32,7 @@
     <Compile Remove="Programmes\Commands\**" />
     <Compile Remove="SchedulesDirect\NewFolder\**" />
     <Compile Remove="StreamGroupChannelGroupLinks\**" />
+    <Compile Remove="Streaming\Queries\**" />
     <Compile Remove="VideoStreamLinks\**" />
     <EmbeddedResource Remove="ChannelGroups\Hub\**" />
     <EmbeddedResource Remove="Common\Aspects\**" />
@@ -41,6 +42,7 @@
     <EmbeddedResource Remove="Programmes\Commands\**" />
     <EmbeddedResource Remove="SchedulesDirect\NewFolder\**" />
     <EmbeddedResource Remove="StreamGroupChannelGroupLinks\**" />
+    <EmbeddedResource Remove="Streaming\Queries\**" />
     <EmbeddedResource Remove="VideoStreamLinks\**" />
     <None Remove="ChannelGroups\Hub\**" />
     <None Remove="Common\Aspects\**" />
@@ -50,6 +52,7 @@
     <None Remove="Programmes\Commands\**" />
     <None Remove="SchedulesDirect\NewFolder\**" />
     <None Remove="StreamGroupChannelGroupLinks\**" />
+    <None Remove="Streaming\Queries\**" />
     <None Remove="VideoStreamLinks\**" />
   </ItemGroup>
   <ItemGroup>
@@ -75,8 +78,5 @@
     <ProjectReference Include="..\StreamMaster.PlayList\StreamMaster.PlayList.csproj" />
     <ProjectReference Include="..\StreamMaster.SchedulesDirect\StreamMaster.SchedulesDirect.csproj" />
     <ProjectReference Include="..\StreamMaster.Streams.Domain\StreamMaster.Streams.Domain.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Streaming\Queries\" />
   </ItemGroup>
 </Project>
