@@ -8,7 +8,6 @@ import CancelChannelDialog from '@components/streaming/CancelChannelDialog';
 import { GetChannelMetrics } from '@lib/smAPI/Statistics/StatisticsCommands';
 import { StreamInfoDisplay } from './StreamInfoDisplay';
 import { VideoInfoDisplay } from './VideoInfoDisplay';
-import { Logger } from '@lib/common/logger';
 
 const SMChannelStatus = () => {
   const [sourceChannelMetrics, setSourceChannelMetrics] = useState<ChannelMetric[]>([]);

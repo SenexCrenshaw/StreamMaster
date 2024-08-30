@@ -1,12 +1,7 @@
 import SMPopUp from '@components/sm/SMPopUp';
-import { Logger } from '@lib/common/logger';
-import { GetVideoInfoRequest, VideoInfo, VideoInfoDto } from '@lib/smAPI/smapiTypes';
-import { GetVideoInfo } from '@lib/smAPI/Statistics/StatisticsCommands';
-import useGetVideoInfos from '@lib/smAPI/Statistics/useGetVideoInfos';
 import { JsonEditor } from 'json-edit-react';
-
 import { ScrollPanel } from 'primereact/scrollpanel';
-import { useCallback, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 
 type VideoInfoProps = {
   name: string;
