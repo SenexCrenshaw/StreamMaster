@@ -5,12 +5,13 @@ using System.Collections.Concurrent;
 
 namespace StreamMaster.Streams.Domain.Interfaces
 {
-    public interface IVideoInfoService
+    public interface IVideoInfoService : IDisposable
     {
+        IEnumerable<VideoInfo> GetVideoInfos();
         VideoInfo? GetVideoInfo(string smStreamId);
         ConcurrentDictionary<string, VideoInfo> VideoInfos { get; }
         bool HasVideoInfo(string key);
         void SetSourceChannel(ISourceBroadcaster sourceChannelBroadcaster, string Id, string Name);
-        bool RemoveSource(string key);
+        bool StopVideoPlugin(string key);
     }
 }

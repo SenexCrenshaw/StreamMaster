@@ -92,7 +92,7 @@ namespace StreamMaster.Streams.Plugins
                     return null;
                 }
 
-                byte[] videoMemory = await ReadChannelDataAsync(channelReader, 1 * 1024 * 1024, cancellationToken);
+                byte[] videoMemory = await ReadChannelDataAsync(channelReader, 128 * 1024, cancellationToken);
                 const string options = "-loglevel error -print_format json -show_format -sexagesimal -show_streams - ";
                 ProcessStartInfo startInfo = new()
                 {
@@ -116,6 +116,7 @@ namespace StreamMaster.Streams.Plugins
                 {
                     if (ffprobeProcess?.HasExited == false)
                     {
+                        _logger.LogError("FFprobe timeout");
                         ffprobeProcess.Kill();
                     }
                 }, null, 60000, Timeout.Infinite);
@@ -127,15 +128,15 @@ namespace StreamMaster.Streams.Plugins
                         await stdin.WriteAsync(videoMemory, cancellationToken).ConfigureAwait(false);
                         await stdin.FlushAsync(cancellationToken).ConfigureAwait(false);
                     }
-
+                    //_logger.LogError("Written FFProbe data");
                     string output = await ffprobeProcess.StandardOutput.ReadToEndAsync(cancellationToken).ConfigureAwait(false);
-                    await ffprobeProcess.WaitForExitAsync(cancellationToken);
+                    await ffprobeProcess.WaitForExitAsync(cancellationToken).ConfigureAwait(false);
 
                     timer.Dispose();
 
                     if (string.IsNullOrEmpty(output))
                     {
-                        _logger.LogError("Failed to deserialize FFProbe output: {output}", output);
+                        _logger.LogError("Failed to get FFProbe output: {output}", output);
                         return null;
                     }
 
@@ -147,9 +148,13 @@ namespace StreamMaster.Streams.Plugins
                 }
                 finally
                 {
-                    if (!ffprobeProcess.HasExited)
+                    if (ffprobeProcess != null)
                     {
-                        ffprobeProcess?.Kill();
+                        if (!ffprobeProcess.HasExited)
+                        {
+                            ffprobeProcess?.Kill();
+                        }
+                        ffprobeProcess?.Dispose();
                     }
                     timer.Dispose();
                 }
@@ -197,7 +202,7 @@ namespace StreamMaster.Streams.Plugins
             {
                 // Log error and return an empty buffer
                 Console.WriteLine($"Error reading channel data: {ex.Message}");
-                return Array.Empty<byte>();
+                return [];
             }
         }
 
@@ -233,5 +238,4 @@ namespace StreamMaster.Streams.Plugins
             cancellationTokenSource.Dispose();
         }
     }
-
 }

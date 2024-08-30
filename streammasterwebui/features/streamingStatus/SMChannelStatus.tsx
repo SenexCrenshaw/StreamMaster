@@ -8,6 +8,7 @@ import CancelChannelDialog from '@components/streaming/CancelChannelDialog';
 import { GetChannelMetrics } from '@lib/smAPI/Statistics/StatisticsCommands';
 import { StreamInfoDisplay } from './StreamInfoDisplay';
 import { VideoInfoDisplay } from './VideoInfoDisplay';
+import { Logger } from '@lib/common/logger';
 
 const SMChannelStatus = () => {
   const [sourceChannelMetrics, setSourceChannelMetrics] = useState<ChannelMetric[]>([]);
@@ -60,15 +61,17 @@ const SMChannelStatus = () => {
       return <div />;
     }
 
-    const test = rowData.ClientChannels.find((predicate) => predicate.Name !== 'VideoInfo');
+    // const found = channelMetricsRef.current.find((predicate) => predicate.Id === rowData.Id);
+
+    const test = channelMetricsRef.current.find((predicate) => predicate.Name !== 'VideoInfo');
     if (test === undefined) {
       return <div />;
     }
 
     return (
       <div className="sm-center-stuff">
-        <VideoInfoDisplay smStreamId={rowData.SMStreamInfo.Id} />
-        <StreamInfoDisplay streamInfo={rowData.SMStreamInfo} />
+        <VideoInfoDisplay name={test.Name} videoInfo={test.VideoInfo} />
+        <StreamInfoDisplay streamInfo={test.SMStreamInfo!} />
         <CancelChannelDialog channelId={Number(test.Name)} />
         {/* <MoveToNextStreamDialog channelId={rowData.Id} /> */}
       </div>
@@ -111,16 +114,7 @@ const SMChannelStatus = () => {
 
   if (loading) return <div>Loading...</div>;
 
-  return (
-    <SMDataTable
-      columns={columns}
-      dataSource={sourceChannelMetrics}
-      headerName="CHANNELS"
-      id="channelStatus"
-      // rowExpansionTemplate={rowExpansionTemplate}
-      // showExpand
-    />
-  );
+  return <SMDataTable columns={columns} dataSource={sourceChannelMetrics} headerName="CHANNELS" id="channelStatus" />;
 };
 
 export default SMChannelStatus;

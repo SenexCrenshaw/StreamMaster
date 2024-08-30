@@ -8,7 +8,7 @@ namespace StreamMaster.Application.Statistics.Queries;
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record GetChannelMetricsRequest() : IRequest<DataResponse<List<ChannelMetric>>>;
 
-internal class GetChannelMetricsRequestHandler(IRepositoryWrapper repositoryWrapper, IHttpContextAccessor httpContextAccessor, IIconHelper iconHelper, IChannelService channelService, ICustomPlayListBuilder customPlayListBuilder, IChannelBroadcasterService channelBroadcasterService, ISourceBroadcasterService sourceBroadcasterService)
+internal class GetChannelMetricsRequestHandler(IRepositoryWrapper repositoryWrapper, IVideoInfoService videoInfoService, IHttpContextAccessor httpContextAccessor, IIconHelper iconHelper, IChannelService channelService, ICustomPlayListBuilder customPlayListBuilder, IChannelBroadcasterService channelBroadcasterService, ISourceBroadcasterService sourceBroadcasterService)
     : IRequestHandler<GetChannelMetricsRequest, DataResponse<List<ChannelMetric>>>
 {
     public async Task<DataResponse<List<ChannelMetric>>> Handle(GetChannelMetricsRequest request, CancellationToken cancellationToken)
@@ -18,18 +18,18 @@ internal class GetChannelMetricsRequestHandler(IRepositoryWrapper repositoryWrap
 
         List<ChannelMetric> dtos = [];
 
-        List<string> smChannelIds = channelBroadcasters.SelectMany(a => a.ClientChannelWriters.Keys).ToList();
-        List<string> smStreamIds = sourceBroadcasters.SelectMany(a => a.ClientChannelWriters.Keys).ToList();
+        List<int> smChannelIds = channelBroadcasters.ConvertAll(a => a.Id);
+        List<string> smStreamIds = sourceBroadcasters.ConvertAll(a => a.SMStreamInfo.Id).ToList();
 
-        List<string> smChannelIds2 = channelBroadcasters.SelectMany(a => a.ClientChannelWriters.Keys).ToList();
+        //List<string> smChannelIds2 = channelBroadcasters.SelectMany(a => a.ClientChannelWriters.Keys).ToList();
         //List<string> smStreamIds2 = channelBroadcasters.SelectMany(a => a.ClientStreams.Keys).ToList();
-        List<string> smStreamIds3 = channelBroadcasters.Where(a => a.SMStreamInfo?.Id != null).Select(a => a.SMStreamInfo!.Id).ToList();
+        //List<string> smStreamIds3 = channelBroadcasters.Where(a => a.SMStreamInfo?.Id != null).Select(a => a.SMStreamInfo!.Id).ToList();
 
-        smChannelIds.AddRange(smChannelIds2);
+        //smChannelIds.AddRange(smChannelIds2);
         //smStreamIds.AddRange(smStreamIds2);
         //smStreamIds.AddRange(smStreamIds3);
 
-        List<SMChannel> smChannels = await repositoryWrapper.SMChannel.GetQuery(a => smChannelIds.Contains(a.Id.ToString())).ToListAsync(cancellationToken);
+        List<SMChannel> smChannels = await repositoryWrapper.SMChannel.GetQuery(a => smChannelIds.Contains(a.Id)).ToListAsync(cancellationToken);
         List<SMStream> smStreams = await repositoryWrapper.SMStream.GetQuery(a => smStreamIds.Contains(a.Id)).ToListAsync(cancellationToken);
         string _baseUrl = httpContextAccessor.GetUrl();
         List<IClientConfiguration> clientConfigurations = channelService.GetClientStreamerConfigurations();
@@ -177,10 +177,20 @@ internal class GetChannelMetricsRequestHandler(IRepositoryWrapper repositoryWrap
                 SMStream? smStream = smStreams.Find(a => a.Id == d.Id);
                 if (smStream != null)
                 {
+
                     metricLogo = smStream.Logo;
                     //id = smStream.Id;
                 }
             }
+
+            VideoInfo? info = videoInfoService.GetVideoInfo(id);
+            VideoInfoDto? videoInfoDto = null;
+            if (info != null)
+            {
+                videoInfoDto = new(info);
+
+            }
+
 
             ChannelMetric dto = new()
             {
@@ -193,7 +203,8 @@ internal class GetChannelMetricsRequestHandler(IRepositoryWrapper repositoryWrap
                 Metrics = sourceBroadcaster.Metrics,
                 IsFailed = sourceBroadcaster.IsFailed,
                 Id = id,
-                Logo = metricLogo
+                Logo = metricLogo,
+                VideoInfo = videoInfoDto?.JsonOutput
             };
 
             dtos.Add(dto);

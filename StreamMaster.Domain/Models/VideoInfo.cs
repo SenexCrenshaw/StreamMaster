@@ -10,9 +10,18 @@ public class VideoInfo
     public string JsonOutput { get; set; } = string.Empty;
 }
 
+[TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public class VideoInfoDto : VideoInfo
 {
     public VideoInfoDto() { }
+    public VideoInfoDto(VideoInfo info)
+    {
+        Key = info.Key;
+        StreamName = info.StreamName;
+        JsonOutput = info.JsonOutput;
+        StreamId = info.StreamId;
+    }
+
     public VideoInfoDto(KeyValuePair<string, VideoInfo> info)
     {
         Key = info.Key;

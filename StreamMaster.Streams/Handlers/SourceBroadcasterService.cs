@@ -60,7 +60,7 @@ namespace StreamMaster.Streams.Handlers
                 {
                     if (!smStreamInfo.Id.StartsWith(IntroPlayListBuilder.IntroIDPrefix, StringComparison.InvariantCulture))
                     {
-                        _videoInfoService.SetSourceChannel(sourceBroadcaster, smStreamInfo.Url, smStreamInfo.Name);
+                        _videoInfoService.SetSourceChannel(sourceBroadcaster, smStreamInfo.Id, smStreamInfo.Name);
                     }
                 }
 
@@ -82,7 +82,7 @@ namespace StreamMaster.Streams.Handlers
             if (sourceBroadcasters.TryRemove(key, out ISourceBroadcaster? sourceBroadcaster))
             {
                 sourceBroadcaster.Stop();
-                _videoInfoService.RemoveSource(sourceBroadcaster.Id);
+                _videoInfoService.StopVideoPlugin(sourceBroadcaster.SMStreamInfo.Id);
                 return true;
             }
 

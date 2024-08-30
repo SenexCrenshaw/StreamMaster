@@ -102,6 +102,14 @@ export interface VideoInfo
 	StreamId: string;
 	StreamName: string;
 }
+export interface VideoInfoDto
+{
+	Created: any;
+	JsonOutput: string;
+	Key: string;
+	StreamId: string;
+	StreamName: string;
+}
 export interface ChannelGroupDto
 {
 	ActiveCount: number;
@@ -1447,6 +1455,7 @@ export interface ChannelMetric
 	Name: string;
 	SMStreamInfo?: SMStreamInfo;
 	SourceName: string;
+	VideoInfo?: string;
 }
 export interface ClientChannelDto
 {

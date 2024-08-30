@@ -4,10 +4,10 @@ using System.Threading.Channels;
 namespace StreamMaster.Streams.Plugins
 {
     public class VideoInfoService(ILogger<VideoInfoService> logger, IDataRefreshService dataRefreshService, ILogger<VideoInfoPlugin> pluginLogger, IOptionsMonitor<Setting> intSettings)
-        : IVideoInfoService, IDisposable
+        : IVideoInfoService
     {
         public ConcurrentDictionary<string, VideoInfo> VideoInfos { get; } = new();
-        public ConcurrentDictionary<string, VideoInfoPlugin> VideoInfoPlugins { get; } = new();
+        private ConcurrentDictionary<string, VideoInfoPlugin> VideoInfoPlugins { get; } = new();
 
         public void Stop()
         {
@@ -27,9 +27,9 @@ namespace StreamMaster.Streams.Plugins
             return VideoInfos.TryGetValue(key, out VideoInfo? videoInfo) ? videoInfo : null;
         }
 
-        public VideoInfo? GetVideoInfos(string key)
+        public IEnumerable<VideoInfo> GetVideoInfos()
         {
-            return VideoInfos.TryGetValue(key, out VideoInfo? videoInfo) ? videoInfo : null;
+            return VideoInfos.Values;
         }
 
         public void SetSourceChannel(ISourceBroadcaster sourceBroadcaster, string Id, string Name)
@@ -52,10 +52,11 @@ namespace StreamMaster.Streams.Plugins
             }
         }
 
-        public bool RemoveSource(string Id)
+        public bool StopVideoPlugin(string Id)
         {
             if (VideoInfoPlugins.TryRemove(Id, out VideoInfoPlugin? videoInfoPlugin))
             {
+                VideoInfos.TryRemove(Id, out _);
                 videoInfoPlugin.Stop();
                 return true;
             }
