@@ -281,7 +281,10 @@ public class M3UFileService(ILogger<M3UFileService> logger, IM3UToSMStreamsServi
 
     private static string EscapeString(string input)
     {
-        return input.Replace("'", "''");
+        return input.Replace("'", "''")
+
+                          .Replace("{", "[")     // Escape opening curly brace
+                          .Replace("}", "]");
     }
 
     private static bool ShouldUpdate(M3UFile m3uFile, List<string> VODTags)

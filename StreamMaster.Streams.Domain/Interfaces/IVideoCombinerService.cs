@@ -1,4 +1,6 @@
-﻿using StreamMaster.Domain.Events;
+﻿using AutoMapper;
+
+using StreamMaster.Domain.Events;
 using StreamMaster.Streams.Domain.Events;
 
 namespace StreamMaster.Streams.Domain.Interfaces;
@@ -11,9 +13,9 @@ public interface IVideoCombinerService
     /// <summary>
     /// Gets a channel distributor by its string key.
     /// </summary>
-    /// <param name="key">The string key of the channel distributor.</param>
+    /// <param name="key">The int key of the channel distributor.</param>
     /// <returns>The channel distributor if found; otherwise, <c>null</c>.</returns>
-    IVideoCombiner? GetVideoCombiner(string? key);
+    IVideoCombiner? GetVideoCombiner(int key);
 
     /// <summary>
     /// Gets aggregated metrics for all channel distributors.
@@ -27,14 +29,14 @@ public interface IVideoCombinerService
     /// <param name="smStreamInfo">The stream information for the channel.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The channel distributor if created; otherwise, <c>null</c>.</returns>
-    Task<IVideoCombiner?> GetOrCreateVideoCombinerAsync(IClientConfiguration config, IChannelService channelService, int SMChannelId1, int SMChannelId2, int SMChannelId3, int SMChannelId4, int streamGroupProfileId, CancellationToken cancellationToken);
+    Task<IVideoCombiner?> GetOrCreateVideoCombinerAsync(IClientConfiguration config, IMapper mapper, IChannelService channelService, int SMChannelId1, int SMChannelId2, int SMChannelId3, int SMChannelId4, int streamGroupProfileId, CancellationToken cancellationToken);
 
     /// <summary>
     /// Stops and unregisters a channel distributor by its string key.
     /// </summary>
     /// <param name="key">The string key of the channel distributor.</param>
     /// <returns><c>true</c> if the channel distributor was stopped and unregistered; otherwise, <c>false</c>.</returns>
-    bool StopAndUnRegisterSourceBroadcaster(string key);
+    bool StopAndUnRegisterSourceBroadcaster(int key);
 
     /// <summary>
     /// Gets all channel distributors.

@@ -1,15 +1,11 @@
-﻿using StreamMaster.Domain.Models;
-using StreamMaster.Streams.Domain.Events;
-
-using System.Threading.Channels;
+﻿using StreamMaster.Streams.Domain.Events;
 
 namespace StreamMaster.Streams.Domain.Interfaces
 {
     public interface IVideoCombiner : IBroadcasterBase
     {
-        public SMStreamInfo SMStreamInfo { get; }
-        string Id { get; }
+        int Id { get; }
         event EventHandler<VideoCombinerStopped>? OnVideoCombinerStoppedEvent;
-        Task CombineVideosAsync(Stream stream1, Stream stream2, Stream stream3, Stream stream4, ChannelWriter<byte[]> writer, CancellationToken cancellationToken);
+        Task CombineVideosAsync(IChannelBroadcaster channelBroadcaster1, IChannelBroadcaster channelBroadcaster2, IChannelBroadcaster channelBroadcaster3, IChannelBroadcaster channelBroadcaster4, CancellationToken cancellationToken);
     }
 }

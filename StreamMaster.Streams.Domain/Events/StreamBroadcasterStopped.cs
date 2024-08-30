@@ -1,8 +1,8 @@
 ﻿namespace StreamMaster.Streams.Domain.Events;
 
-public class VideoCombinerStopped(string Id, string Name)
+public class VideoCombinerStopped(int Id, string Name)
 {
-    public string Id { get; set; } = Id;
+    public int Id { get; set; } = Id;
     public string Name { get; set; } = Name;
 
 }

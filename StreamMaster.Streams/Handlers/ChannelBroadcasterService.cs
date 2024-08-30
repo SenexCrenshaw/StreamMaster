@@ -103,8 +103,11 @@ namespace StreamMaster.Streams.Handlers
             {
                 await UnRegisterClientAsync(config.UniqueRequestId).ConfigureAwait(false);
             }
-
-            bool limited = streamLimitsService.IsLimited(sourceChannelBroadcaster.SMStreamInfo.Id);
+            bool limited = false;
+            if (sourceChannelBroadcaster.SMStreamInfo != null)
+            {
+                limited = streamLimitsService.IsLimited(sourceChannelBroadcaster.SMStreamInfo.Id);
+            }
             //(int currentStreamCount, int maxStreamCount) = streamLimitsService.GetStreamLimits(sourceChannelBroadcaster.SMStreamInfo.Id);
 
             sourceChannelBroadcaster.Shutdown = true;

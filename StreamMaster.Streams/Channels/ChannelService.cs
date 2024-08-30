@@ -1,4 +1,7 @@
-﻿using StreamMaster.Streams.Domain.Events;
+﻿using AutoMapper;
+
+using StreamMaster.Domain.Enums;
+using StreamMaster.Streams.Domain.Events;
 
 namespace StreamMaster.Streams.Channels
 {
@@ -10,6 +13,7 @@ namespace StreamMaster.Streams.Channels
         private readonly IChannelBroadcasterService _channelBroadcasterService;
         private readonly ICacheManager _cacheManager;
         private readonly IVideoCombinerService _videoCombinerService;
+        private readonly IMapper _mapper;
         private readonly object _disposeLock = new();
         private bool _disposed = false;
 
@@ -18,13 +22,14 @@ namespace StreamMaster.Streams.Channels
             ISourceBroadcasterService sourceBroadcasterService,
             IChannelBroadcasterService channelBroadcasterService,
             ICacheManager cacheManager,
+            IMapper mapper,
             IVideoCombinerService videoCombinerService,
             ISwitchToNextStreamService switchToNextStreamService)
         {
             _videoCombinerService = videoCombinerService;
             _channelBroadcasterService = channelBroadcasterService;
             _cacheManager = cacheManager;
-
+            _mapper = mapper;
             _sourceBroadcasterService = sourceBroadcasterService;
             _switchToNextStreamService = switchToNextStreamService;
             _logger = logger;
@@ -106,10 +111,16 @@ namespace StreamMaster.Streams.Channels
 
             if (channelBroadcaster == null)
             {
+                //if (clientConfiguration.SMChannel.Id == 4464)
+                //{
+                //    clientConfiguration.SMChannel.SMChannelType = SMChannelTypeEnum.Quad;
+                //}
+
                 _logger.LogInformation("No existing channel for {ChannelVideoStreamId} {name}", clientConfiguration.SMChannel.Id, clientConfiguration.SMChannel.Name);
 
                 channelBroadcaster = await _channelBroadcasterService.GetOrCreateChannelBroadcasterAsync(clientConfiguration, streamGroupProfileId, CancellationToken.None).ConfigureAwait(false);
                 _cacheManager.ChannelBroadcasters.TryAdd(clientConfiguration.SMChannel.Id, channelBroadcaster);
+
                 if (!await SwitchChannelToNextStreamAsync(channelBroadcaster, clientConfiguration).ConfigureAwait(false))
                 {
                     await StopChannel(channelBroadcaster.Id);
@@ -123,23 +134,26 @@ namespace StreamMaster.Streams.Channels
                 _logger.LogInformation("Reuse existing stream handler for {ChannelVideoStreamId} {name}", clientConfiguration.SMChannel.Id, clientConfiguration.SMChannel.Name);
             }
 
-            if (channelBroadcaster.SMStreamInfo == null)
+            if (clientConfiguration.SMChannel.SMChannelType == SMChannelTypeEnum.Regular)
             {
-                await StopChannel(channelBroadcaster.Id);
-                clientConfiguration.Stop();
-                return null;
-            }
-
-            ISourceBroadcaster? streamBroadcaster = _sourceBroadcasterService.GetStreamBroadcaster(channelBroadcaster.SMStreamInfo.Url);
-            if (streamBroadcaster?.IsFailed != false)
-            {
-                if (!await SwitchChannelToNextStreamAsync(channelBroadcaster, clientConfiguration).ConfigureAwait(false))
+                if (channelBroadcaster.SMStreamInfo == null)
                 {
-                    _logger.LogError("SwitchChannelToNextStream failed for {UniqueRequestId} {ChannelVideoStreamId} {name}", clientConfiguration.UniqueRequestId, clientConfiguration.SMChannel.Id, clientConfiguration.SMChannel.Name);
-
                     await StopChannel(channelBroadcaster.Id);
                     clientConfiguration.Stop();
                     return null;
+                }
+
+                ISourceBroadcaster? streamBroadcaster = _sourceBroadcasterService.GetStreamBroadcaster(channelBroadcaster.SMStreamInfo.Url);
+                if (streamBroadcaster?.IsFailed != false)
+                {
+                    if (!await SwitchChannelToNextStreamAsync(channelBroadcaster, clientConfiguration).ConfigureAwait(false))
+                    {
+                        _logger.LogError("SwitchChannelToNextStream failed for {UniqueRequestId} {ChannelVideoStreamId} {name}", clientConfiguration.UniqueRequestId, clientConfiguration.SMChannel.Id, clientConfiguration.SMChannel.Name);
+
+                        await StopChannel(channelBroadcaster.Id);
+                        clientConfiguration.Stop();
+                        return null;
+                    }
                 }
             }
 
@@ -203,6 +217,8 @@ namespace StreamMaster.Streams.Channels
 
         public async Task<bool> SwitchChannelToNextStreamAsync(IChannelBroadcaster channelBroadcaster, IClientConfiguration? clientConfiguration, string? overrideSMStreamId = null)
         {
+
+
             if (channelBroadcaster.FailoverInProgress)
             {
                 return false;
@@ -214,27 +230,24 @@ namespace StreamMaster.Streams.Channels
             {
                 _logger.LogDebug("Starting SwitchToNextStream with channelBroadcaster: {channelBroadcaster} and overrideNextVideoStreamId: {overrideNextVideoStreamId}", channelBroadcaster, overrideSMStreamId);
 
-                bool didChange = await _switchToNextStreamService.SetNextStreamAsync(channelBroadcaster, overrideSMStreamId).ConfigureAwait(false);
-
-                if (channelBroadcaster.SMStreamInfo == null || !didChange)
+                if (channelBroadcaster.SMChannel.SMChannelType == SMChannelTypeEnum.Quad)
                 {
-                    _logger.LogDebug("Exiting SwitchToNextStream with false due to smStream being null");
-                    channelBroadcaster.FailoverInProgress = false;
-                    return false;
+                    sourceChannelBroadcaster = await _videoCombinerService.GetOrCreateVideoCombinerAsync(clientConfiguration, _mapper, this, 1767, 1769, 1771, 1772, channelBroadcaster.StreamGroupProfileId, CancellationToken.None).ConfigureAwait(false);
+
                 }
-                //Channel<byte[]> newChannel = ChannelHelper.GetChannel();
+                else
+                {
+                    bool didChange = await _switchToNextStreamService.SetNextStreamAsync(channelBroadcaster, overrideSMStreamId).ConfigureAwait(false);
+                    if (channelBroadcaster.SMStreamInfo == null || !didChange)
+                    {
+                        _logger.LogDebug("Exiting SwitchToNextStream with false due to smStream being null");
+                        channelBroadcaster.FailoverInProgress = false;
+                        return false;
+                    }
 
-                //   sourceChannelBroadcaster = await _videoCombinerService.GetOrCreateVideoCombinerAsync(clientConfiguration, this, 1767, 1769, 1771, 1772, channelBroadcaster.StreamGroupProfileId, CancellationToken.None).ConfigureAwait(false);
+                    sourceChannelBroadcaster = await _sourceBroadcasterService.GetOrCreateStreamBroadcasterAsync(channelBroadcaster.SMStreamInfo, CancellationToken.None).ConfigureAwait(false);
 
-                //if (videoCombiner == null)
-                //{
-                //    _logger.LogDebug("Exiting, Source Channel Distributor is null");
-                //    channelBroadcaster.FailoverInProgress = false;
-                //    return false;
-                //}
-                //channelBroadcaster.SetSourceChannelBroadcaster(videoCombiner);
-
-                sourceChannelBroadcaster = await _sourceBroadcasterService.GetOrCreateStreamBroadcasterAsync(channelBroadcaster.SMStreamInfo, CancellationToken.None).ConfigureAwait(false);
+                }
 
                 if (sourceChannelBroadcaster != null)
                 {

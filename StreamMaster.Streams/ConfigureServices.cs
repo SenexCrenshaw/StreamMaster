@@ -30,7 +30,7 @@ public static class ConfigureServices
         services.AddSingleton<IChannelBroadcasterService, ChannelBroadcasterService>();
         services.AddSingleton<IClientConfigurationService, ClientConfigurationService>();
         services.AddSingleton<IVideoInfoService, VideoInfoService>();
-        services.AddTransient<IVideoCombiner, VideoCombiner>();
+        //services.AddTransient<IVideoCombiner, VideoCombiner>();
         services.AddSingleton<IVideoCombinerService, VideoCombinerService>();
 
         services.AddSingleton<IStreamLimitsService, StreamLimitsService>();

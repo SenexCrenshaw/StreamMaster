@@ -1,4 +1,9 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using MessagePack;
+
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
+
+using System.Text.Json.Serialization;
 
 namespace StreamMaster.Streams.Domain.Interfaces
 {
@@ -15,12 +20,16 @@ namespace StreamMaster.Streams.Domain.Interfaces
         /// <summary>
         /// Gets the cancellation token associated with the client.
         /// </summary>
-        CancellationToken ClientCancellationToken { get; }
+        /// [IgnoreMember]
+        [JsonIgnore]
+        CancellationToken ClientCancellationToken { get; set; }
 
         /// <summary>
         /// Gets or sets the SMChannel associated with the client.
         /// </summary>
         SMChannelDto SMChannel { get; set; }
+
+        ILoggerFactory LoggerFactory { get; set; }
 
         /// <summary>
         /// Gets or sets the client's IP address.
@@ -35,6 +44,8 @@ namespace StreamMaster.Streams.Domain.Interfaces
         /// <summary>
         /// Gets or sets the stream that the client is reading from.
         /// </summary>
+        [IgnoreMember]
+        [JsonIgnore]
         IClientReadStream? ClientStream { get; set; }
 
         /// <summary>

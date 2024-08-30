@@ -2,77 +2,82 @@
 
 using Microsoft.AspNetCore.Http;
 
-namespace StreamMaster.Streams
+using System.Text.Json.Serialization;
+
+namespace StreamMaster.Streams;
+
+/// <summary>
+/// Represents the configuration for a client, including details such as the client's IP address, user agent, and associated stream channel.
+/// </summary>
+/// <remarks>
+/// Initializes a new instance of the <see cref="ClientConfiguration"/> class with the specified parameters.
+/// </remarks>
+/// <param name="uniqueRequestId">The unique request identifier.</param>
+/// <param name="smChannel">The SMChannel associated with the client.</param>
+/// <param name="clientUserAgent">The client's user agent string.</param>
+/// <param name="clientIPAddress">The client's IP address.</param>
+/// <param name="response">The HTTP response associated with the client.</param>
+/// <param name="loggerFactory">The logger factory for creating loggers.</param>
+/// <param name="cancellationToken">The cancellation token associated with the client.</param>
+public sealed class ClientConfiguration(
+    string uniqueRequestId,
+    SMChannelDto smChannel,
+    string clientUserAgent,
+    string clientIPAddress,
+    HttpResponse response,
+    ILoggerFactory loggerFactory,
+    CancellationToken cancellationToken) : IClientConfiguration
 {
     /// <summary>
-    /// Represents the configuration for a client, including details such as the client's IP address, user agent, and associated stream channel.
+    /// Initializes a new instance of the <see cref="ClientConfiguration"/> class for serialization purposes.
     /// </summary>
-    /// <remarks>
-    /// Initializes a new instance of the <see cref="ClientConfiguration"/> class with the specified parameters.
-    /// </remarks>
-    /// <param name="uniqueRequestId">The unique request identifier.</param>
-    /// <param name="smChannel">The SMChannel associated with the client.</param>
-    /// <param name="clientUserAgent">The client's user agent string.</param>
-    /// <param name="clientIPAddress">The client's IP address.</param>
-    /// <param name="response">The HTTP response associated with the client.</param>
-    /// <param name="loggerFactory">The logger factory for creating loggers.</param>
-    /// <param name="cancellationToken">The cancellation token associated with the client.</param>
-    public sealed class ClientConfiguration(
-        string uniqueRequestId,
-        SMChannelDto smChannel,
-        string clientUserAgent,
-        string clientIPAddress,
-        HttpResponse response,
-        ILoggerFactory loggerFactory,
-        CancellationToken cancellationToken) : IClientConfiguration
+    //public ClientConfiguration() { }
+
+    /// <inheritdoc/>
+    [IgnoreMember]
+    public HttpResponse Response { get; } = response;
+
+    /// <inheritdoc/>
+    public void SetUniqueRequestId(string uniqueRequestId)
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ClientConfiguration"/> class for serialization purposes.
-        /// </summary>
-        //public ClientConfiguration() { }
-
-        /// <inheritdoc/>
-        [IgnoreMember]
-        public HttpResponse Response { get; } = response;
-
-        /// <inheritdoc/>
-        public void SetUniqueRequestId(string uniqueRequestId)
-        {
-            UniqueRequestId = uniqueRequestId;
-        }
-
-        public void Stop()
-        {
-            ClientStream?.Write([0], 0, 1);
-            ClientStream?.Cancel();
-            ClientStream?.Flush();
-            ClientStream?.Dispose();
-            //  Response.CompleteAsync().Wait();
-
-        }
-
-        /// <inheritdoc/>
-        [IgnoreMember]
-        public string HttpContextId => Response.HttpContext.TraceIdentifier;
-
-        /// <inheritdoc/>
-        [IgnoreMember]
-        public IClientReadStream? ClientStream { get; set; } = new ClientReadStream(loggerFactory, uniqueRequestId);
-
-        /// <inheritdoc/>
-        [IgnoreMember]
-        public CancellationToken ClientCancellationToken { get; } = cancellationToken;
-
-        /// <inheritdoc/>
-        public string UniqueRequestId { get; set; } = uniqueRequestId;
-
-        /// <inheritdoc/>
-        public string ClientIPAddress { get; set; } = clientIPAddress;
-
-        /// <inheritdoc/>
-        public string ClientUserAgent { get; set; } = clientUserAgent;
-
-        /// <inheritdoc/>
-        public SMChannelDto SMChannel { get; set; } = smChannel;
+        UniqueRequestId = uniqueRequestId;
     }
+
+    public void Stop()
+    {
+        ClientStream?.Write([0], 0, 1);
+        ClientStream?.Cancel();
+        ClientStream?.Flush();
+        ClientStream?.Dispose();
+        //  Response.CompleteAsync().Wait();
+
+    }
+
+    public ILoggerFactory LoggerFactory { get; set; } = loggerFactory;
+
+    /// <inheritdoc/>
+    [IgnoreMember]
+    public string HttpContextId => Response.HttpContext.TraceIdentifier;
+
+    /// <inheritdoc/>
+    [IgnoreMember]
+    [JsonIgnore]
+    public IClientReadStream? ClientStream { get; set; } = new ClientReadStream(loggerFactory, uniqueRequestId);
+
+    /// <inheritdoc/>
+    [IgnoreMember]
+    [JsonIgnore]
+    public CancellationToken ClientCancellationToken { get; set; } = cancellationToken;
+
+    /// <inheritdoc/>
+    public string UniqueRequestId { get; set; } = uniqueRequestId;
+
+    /// <inheritdoc/>
+    public string ClientIPAddress { get; set; } = clientIPAddress;
+
+    /// <inheritdoc/>
+    public string ClientUserAgent { get; set; } = clientUserAgent;
+
+    /// <inheritdoc/>
+    public SMChannelDto SMChannel { get; set; } = smChannel;
 }

@@ -1,37 +1,35 @@
 ﻿using StreamMaster.Streams.Domain.Events;
+using StreamMaster.Streams.Domain.Helpers;
 
 using System.Diagnostics;
 using System.Threading.Channels;
 namespace StreamMaster.Streams.Handlers;
 public class VideoCombiner : BroadcasterBase, IVideoCombiner
 {
-    private readonly ILogger<IVideoCombiner> logger;
-
+    private readonly ILogger logger;
     private int _isStopped;
 
-    public VideoCombiner() : base(null, null)
-    {
+    //public VideoCombiner() : base(null, null)
+    //{
 
-    }
+    //}
 
-    public VideoCombiner(ILogger<IVideoCombiner> logger, SMStreamInfo smStreamInfo, IOptionsMonitor<Setting> _settings) : base(logger, _settings)
+    public VideoCombiner(ILogger<IBroadcasterBase> logger, int Id, string Name, IOptionsMonitor<Setting> _settings) : base(logger, _settings)
     {
         this.logger = logger;
-        SMStreamInfo = smStreamInfo;
+        this.Id = Id;
+        this.Name = Name;
     }
 
     public event EventHandler<VideoCombinerStopped>? OnVideoCombinerStoppedEvent;
 
     public override string StringId()
     {
-        return Id;
+        return Id.ToString();
     }
 
     /// <inheritdoc/>
-    public string Id => SMStreamInfo.Url;
-
-    public override string Name => SMStreamInfo.Name;
-    public SMStreamInfo SMStreamInfo { get; }
+    public int Id { get; }
 
     public override void Stop()
     {
@@ -47,33 +45,46 @@ public class VideoCombiner : BroadcasterBase, IVideoCombiner
             OnVideoCombinerStoppedEvent?.Invoke(this, new VideoCombinerStopped(Id, Name));
         }
     }
-    public async Task CombineVideosAsync(Stream stream1, Stream stream2, Stream stream3, Stream stream4, ChannelWriter<byte[]> writer, CancellationToken cancellationToken)
+    public async Task CombineVideosAsync(IChannelBroadcaster channelBroadcaster1, IChannelBroadcaster channelBroadcaster2, IChannelBroadcaster channelBroadcaster3, IChannelBroadcaster channelBroadcaster4, CancellationToken cancellationToken)
     {
-        Process ffmpegProcess = StartFFmpegProcess() ?? throw new Exception("Failed to start ffmpeg process");
-        Stream ffmpegInputStream = ffmpegProcess.StandardInput.BaseStream;
-        Stream ffmpegOutputStream = ffmpegProcess.StandardOutput.BaseStream;
+        _ = Task.Run(async () =>
+        {
+            Process ffmpegProcess = StartFFmpegProcess() ?? throw new Exception("Failed to start ffmpeg process");
+            Stream ffmpegInputStream = ffmpegProcess.StandardInput.BaseStream;
+            Stream ffmpegOutputStream = ffmpegProcess.StandardOutput.BaseStream;
 
-        Task[] readTasks =
-        [
-            ReadFromStreamAsync(stream1, ffmpegInputStream, cancellationToken),
-            ReadFromStreamAsync(stream2, ffmpegInputStream, cancellationToken),
-            ReadFromStreamAsync(stream3, ffmpegInputStream, cancellationToken),
-            ReadFromStreamAsync(stream4, ffmpegInputStream, cancellationToken)
-        ];
+            Task[] readTasks =
+            [
+                ReadFromStreamAsync(channelBroadcaster1, ffmpegInputStream, cancellationToken),
+            ReadFromStreamAsync(channelBroadcaster2, ffmpegInputStream, cancellationToken),
+            ReadFromStreamAsync(channelBroadcaster3, ffmpegInputStream, cancellationToken),
+            ReadFromStreamAsync(channelBroadcaster4, ffmpegInputStream, cancellationToken)
+            ];
 
-        Task writeTask = WriteToChannelAsync(ffmpegOutputStream, writer, cancellationToken);
+            SetSourceStream(ffmpegOutputStream, Name, cancellationToken);
 
-        await Task.WhenAll(readTasks);
-        ffmpegProcess.StandardInput.Close(); // Signal FFmpeg that no more input is coming
-        await writeTask;
-        ffmpegProcess.WaitForExit();
+            //Task writeTask = WriteToChannelAsync(ffmpegOutputStream, writer, cancellationToken);
+
+            await Task.WhenAll(readTasks);
+            ffmpegProcess.StandardInput.Close(); // Signal FFmpeg that no more input is coming
+                                                 //await writeTask;
+
+            ffmpegProcess.WaitForExit();
+            OnVideoCombinerStoppedEvent?.Invoke(this, new VideoCombinerStopped(Id, Name));
+        }, cancellationToken);
     }
 
     private static Process? StartFFmpegProcess()
     {
+        string? exec = FileUtil.GetExec("ffmpeg");
+        if (exec == null)
+        {
+            return null;
+        }
+
         ProcessStartInfo ffmpegStartInfo = new()
         {
-            FileName = "ffmpeg",
+            FileName = exec,
             Arguments = "-f rawvideo -pixel_format yuv420p -video_size 1280x720 -i - -filter_complex \"[0:v][1:v][2:v][3:v]xstack=inputs=4:layout=0_0|w0_0|0_h0|w0_h0[v]\" -map \"[v]\" -f rawvideo -",
             RedirectStandardInput = true,
             RedirectStandardOutput = true,
@@ -84,14 +95,13 @@ public class VideoCombiner : BroadcasterBase, IVideoCombiner
         return Process.Start(ffmpegStartInfo);
     }
 
-    private static async Task ReadFromStreamAsync(Stream inputStream, Stream ffmpegInputStream, CancellationToken cancellationToken)
+    private static async Task ReadFromStreamAsync(IChannelBroadcaster ChannelBroadcaster, Stream ffmpegInputStream, CancellationToken cancellationToken)
     {
-        byte[] buffer = new byte[BuildInfo.BufferSize];
-        int bytesRead;
-        while ((bytesRead = await inputStream.ReadAsync(buffer, cancellationToken)) > 0)
-        {
-            await ffmpegInputStream.WriteAsync(buffer.AsMemory(0, bytesRead), cancellationToken);
-        }
+        Channel<byte[]> channel = ChannelHelper.GetChannel();
+        ChannelBroadcaster.AddChannelStreamer(ChannelBroadcaster.Id, channel.Writer);
+
+        byte[] read = await channel.Reader.ReadAsync(cancellationToken);
+        await ffmpegInputStream.WriteAsync(read.AsMemory(0, read.Length), cancellationToken);
     }
 
     private static async Task WriteToChannelAsync(Stream ffmpegOutputStream, ChannelWriter<byte[]> writer, CancellationToken cancellationToken)

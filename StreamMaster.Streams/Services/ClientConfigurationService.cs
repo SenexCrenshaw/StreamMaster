@@ -37,5 +37,18 @@ namespace StreamMaster.Streams.Services
             config.ClientStream ??= new ClientReadStream(loggerFactory, config.UniqueRequestId);
             return config;
         }
+
+        public IClientConfiguration Copy(IClientConfiguration clientConfiguration)
+        {
+            return new ClientConfiguration(
+                clientConfiguration.UniqueRequestId,
+                clientConfiguration.SMChannel,
+                clientConfiguration.ClientUserAgent,
+                clientConfiguration.ClientIPAddress,
+                clientConfiguration.Response,
+                clientConfiguration.LoggerFactory,
+                clientConfiguration.ClientCancellationToken);
+
+        }
     }
 }
