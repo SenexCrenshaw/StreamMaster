@@ -267,7 +267,7 @@ public class Schedules(ILogger<Schedules> logger, IOptionsMonitor<SDSettings> in
                     {
                         JsonSerializerOptions jsonSerializerOptions = new()
                         {
-                            // Add any desired JsonSerializerOptions here
+                            // Add any desired JsonIndentOptions here
                             // For example, to ignore null values during serialization:
                             DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull,
                             WriteIndented = false // Formatting.None equivalent
@@ -331,7 +331,7 @@ public class Schedules(ILogger<Schedules> logger, IOptionsMonitor<SDSettings> in
         {
             JsonSerializerOptions jsonSerializerOptions = new()
             {
-                // Add any desired JsonSerializerOptions here
+                // Add any desired JsonIndentOptions here
                 // For example, to ignore null values during deserialization:
                 DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
             };

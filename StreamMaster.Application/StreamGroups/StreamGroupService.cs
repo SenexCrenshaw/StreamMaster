@@ -237,7 +237,7 @@ public class StreamGroupService(ILogger<StreamGroupService> _logger, ICacheManag
 
     public string GetStreamGroupLineupStatus()
     {
-        string jsonString = JsonSerializer.Serialize(new LineupStatus(), BuildInfo.JsonSerializerOptions);
+        string jsonString = JsonSerializer.Serialize(new LineupStatus(), BuildInfo.JsonIndentOptions);
 
         return jsonString;
     }
@@ -460,7 +460,7 @@ public class StreamGroupService(ILogger<StreamGroupService> _logger, ICacheManag
 
         Discover discover = new(url, streamGroup.DeviceID + "-" + StreamGroupProfileId, maxTuners);
 
-        string jsonString = JsonSerializer.Serialize(discover, BuildInfo.JsonSerializerOptions);
+        string jsonString = JsonSerializer.Serialize(discover, BuildInfo.JsonIndentOptions);
         return jsonString;
     }
 

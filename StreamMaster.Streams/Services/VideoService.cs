@@ -64,7 +64,7 @@ public class VideoService(ILogger<VideoService> logger, IMapper mapper, IHttpCon
         sw.Stop();
         if (stream == null)
         {
-            //logger.LogInformation("Could not str channel with ChannelId {channelId} to client {id}, took {elapsed}ms", smChannelId, uniqueRequestId, sw.ElapsedMilliseconds);
+            logger.LogInformation("Channel with ChannelId {channelId} to client {id}, failed", smChannelId, uniqueRequestId);
         }
         else
         {

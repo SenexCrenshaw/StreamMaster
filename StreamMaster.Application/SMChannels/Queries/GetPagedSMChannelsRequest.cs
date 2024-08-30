@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
 
 using System.Diagnostics;
+using System.Text.Json;
+using System.Web;
 
 namespace StreamMaster.Application.SMChannels.Queries;
 
@@ -60,22 +62,22 @@ internal class GetPagedSMChannelsRequestHandler(IRepositoryWrapper Repository, I
             //    continue;
             //}
 
-            //string videoUrl = await GetVideoStreamUrlAsync(channel.Name, channel.Id, sgId, streamGroupProfile.Id, Url);// $"{Url}/api/videostreams/stream/{EncodedString}/{channel.Name.ToCleanFileString()}";
-            //channel.StreamUrl = JsonSerializer.Serialize(videoUrl);
+            string videoUrl = await GetVideoStreamUrlAsync(channel.Name, channel.Id, sgId, streamGroupProfile.Id, Url);// $"{Url}/api/videostreams/stream/{EncodedString}/{channel.Name.ToCleanFileString()}";
+            channel.StreamUrl = JsonSerializer.Serialize(videoUrl);
         }
 
         Debug.WriteLine($"GetPagedSMChannelsRequestHandler returning {res.Data.Count} items");
         return res;
     }
 
-    //private async Task<string> GetVideoStreamUrlAsync(string name, int smChannelId, int sgId, int sgPId, string url)
-    //{
-    //    string cleanName = HttpUtility.UrlEncode(name);
+    private async Task<string> GetVideoStreamUrlAsync(string name, int smChannelId, int sgId, int sgPId, string url)
+    {
+        string cleanName = HttpUtility.UrlEncode(name);
 
-    //    string? encodedString = await streamGroupService.EncodeStreamGroupIdProfileIdChannelIdAsync(sgId, sgPId, smChannelId);
+        string? encodedString = await streamGroupService.EncodeStreamGroupIdProfileIdChannelIdAsync(sgId, sgPId, smChannelId);
 
-    //    string videoUrl = $"{url}/api/videostreams/stream/{encodedString}/{cleanName}";
+        string videoUrl = $"{url}/api/videostreams/stream/{encodedString}/{cleanName}";
 
-    //    return videoUrl;
-    //}
+        return videoUrl;
+    }
 }

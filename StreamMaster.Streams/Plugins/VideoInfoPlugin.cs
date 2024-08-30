@@ -6,16 +6,10 @@ using System.Threading.Channels;
 
 namespace StreamMaster.Streams.Plugins
 {
-    public class VideoInfoEventArgs : EventArgs
+    public class VideoInfoEventArgs(VideoInfo videoInfo, string id) : EventArgs
     {
-        public VideoInfo VideoInfo { get; }
-        public string Id { get; }
-
-        public VideoInfoEventArgs(VideoInfo videoInfo, string id)
-        {
-            VideoInfo = videoInfo;
-            Id = id;
-        }
+        public VideoInfo VideoInfo { get; } = videoInfo;
+        public string Id { get; } = id;
     }
 
     public class VideoInfoPlugin : IDisposable
@@ -28,10 +22,6 @@ namespace StreamMaster.Streams.Plugins
         private readonly CancellationTokenSource cancellationTokenSource = new();
         private readonly Task? videoInfoTask;
         public event EventHandler<VideoInfoEventArgs>? VideoInfoUpdated;
-        private static readonly JsonSerializerOptions jsonOptions = new()
-        {
-            WriteIndented = true
-        };
 
         public VideoInfoPlugin(ILogger<VideoInfoPlugin> logger, IOptionsMonitor<Setting> settingsMonitor, ChannelReader<byte[]> channelReader, string id, string name)
         {
@@ -151,7 +141,7 @@ namespace StreamMaster.Streams.Plugins
 
                     using JsonDocument document = JsonDocument.Parse(output);
 
-                    string formattedJsonString = JsonSerializer.Serialize(document.RootElement, jsonOptions);
+                    string formattedJsonString = JsonSerializer.Serialize(document.RootElement, BuildInfo.JsonIndentOptions);
 
                     return new VideoInfo { JsonOutput = formattedJsonString, StreamId = id, StreamName = name, Created = SMDT.UtcNow };
                 }

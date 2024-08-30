@@ -99,7 +99,7 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id }: SMChannelDat
       // }
       return (
         <div className="flex justify-content-end align-items-center" style={{ paddingRight: '0.1rem' }}>
-          <StreamCopyLinkDialog realUrl={smChannel?.StreamUrl} />
+          <StreamCopyLinkDialog realUrl={smChannel.StreamUrl} />
           <DeleteSMChannelDialog
             smChannel={smChannel}
             onDelete={() => {

@@ -33,19 +33,21 @@ public class VideoStreamsController(ILogger<VideoStreamsController> logger, IVid
             return StatusCode(StatusCodes.Status404NotFound);
         }
 
-        HttpContext.Response.RegisterForDispose(new UnregisterClientOnDispose(channelManager, clientConfiguration));
+        HttpContext.Response.RegisterForDispose(new UnregisterClientOnDispose(channelManager, clientConfiguration, logger));
 
         return stream != null ? new FileStreamResult(stream, "video/mp4") { EnableRangeProcessing = false } : StatusCode(StatusCodes.Status404NotFound);
     }
-    private class UnregisterClientOnDispose(IChannelManager channelManager, IClientConfiguration config) : IDisposable
+    private class UnregisterClientOnDispose(IChannelManager channelManager, IClientConfiguration config, ILogger logger) : IDisposable
     {
         private readonly IChannelManager _channelManager = channelManager;
         private readonly IClientConfiguration _config = config;
 
         public void Dispose()
         {
+            logger.LogInformation("Client {UniqueRequestId} {name} disposing", _config.UniqueRequestId, _config.SMChannel.Name);
             _config.Response.CompleteAsync().Wait();
 
+            logger.LogInformation("Client {UniqueRequestId} {name} disposing next", _config.UniqueRequestId, _config.SMChannel.Name);
             _ = _channelManager.RemoveClientAsync(_config);
         }
     }

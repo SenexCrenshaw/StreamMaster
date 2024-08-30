@@ -77,7 +77,7 @@ public class IntConverter : JsonConverter<int>
 //        return Int32.TryParse(typeToConvert.ToString(), out _);
 //    }
 
-//    public override object Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+//    public override object Read(ref Utf8JsonReader reader, Type typeToConvert, JsonIndentOptions options)
 //    {
 //        return Int32.Parse(reader.GetString());
 //    }

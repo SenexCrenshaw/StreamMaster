@@ -1,11 +1,7 @@
 ﻿namespace StreamMaster.Streams.Channels
 {
     /// <inheritdoc/>
-    public sealed class ChannelManager(
-        ILogger<ChannelManager> logger,
-        ISourceBroadcasterService streamBroadcasterService,
-        IChannelService channelService,
-        IMessageService messageService
+    public sealed class ChannelManager(ILogger<ChannelManager> logger, ISourceBroadcasterService streamBroadcasterService, IChannelService channelService, IMessageService messageService
     ) : IChannelManager
     {
         private readonly SemaphoreSlim _registerSemaphore = new(1, 1);
@@ -18,6 +14,8 @@
             {
                 logger.LogInformation("Client {UniqueRequestId} requesting channel {Name}.", config.UniqueRequestId, config.SMChannel.Name);
                 await _registerSemaphore.WaitAsync(cancellationToken);
+                logger.LogInformation("Client {UniqueRequestId} requesting channel {Name} next.", config.UniqueRequestId, config.SMChannel.Name);
+
                 if (cancellationToken.IsCancellationRequested)
                 {
                     logger.LogInformation("Exiting GetChannelStreamAsync {UniqueRequestId} {Name} due to cancellation.", config.UniqueRequestId, config.SMChannel.Name);
@@ -27,7 +25,7 @@
                 IChannelBroadcaster? channelStatus = await channelService.GetOrCreateChannelBroadcasterAsync(config, streamGroupProfileId);
                 if (channelStatus == null)
                 {
-                    await UnRegisterClientAsync(config);
+                    await RemoveClientAsync(config);
                     logger.LogInformation("Exiting GetChannelStreamAsync:  {UniqueRequestId} channel {Name} status is null.", config.UniqueRequestId, config.SMChannel.Name);
                     return null;
                 }
@@ -37,6 +35,8 @@
             }
             finally
             {
+                logger.LogInformation("Client {UniqueRequestId} requesting channel {Name} release.", config.UniqueRequestId, config.SMChannel.Name);
+
                 _ = _registerSemaphore.Release();
             }
         }
@@ -96,36 +96,20 @@
             IClientConfiguration? config = channelService.GetClientStreamerConfiguration(uniqueRequestId);
             if (config != null)
             {
-                await UnRegisterClientAsync(config).ConfigureAwait(false);
+                await RemoveClientAsync(config).ConfigureAwait(false);
             }
         }
 
         /// <inheritdoc/>
         public async Task RemoveClientAsync(IClientConfiguration config)
         {
-            logger.LogInformation("Client exited {UniqueRequestId}", config.UniqueRequestId);
-            await UnRegisterClientAsync(config);
-        }
-
-        private async Task UnRegisterClientAsync(IClientConfiguration config)
-        {
-            logger.LogInformation("UnRegister With ChannelManager client: {UniqueRequestId} {name}", config.UniqueRequestId, config.SMChannel.Name);
-
-            try
-            {
-                await _registerSemaphore.WaitAsync();
-                await channelService.UnRegisterClientAsync(config.UniqueRequestId);
-            }
-            finally
-            {
-                _ = _registerSemaphore.Release();
-            }
+            logger.LogInformation("UnRegister client: {UniqueRequestId} {name}", config.UniqueRequestId, config.SMChannel.Name);
+            await channelService.UnRegisterClientAsync(config.UniqueRequestId);
         }
 
         /// <inheritdoc/>
         public void StopChannel(int smChannelId)
         {
-
             channelService.StopChannel(smChannelId);
         }
 

@@ -50,7 +50,7 @@ public class EPGCache<T> : IEPGCache<T>
 
             JsonSerializerOptions jsonSerializerOptions = new()
             {
-                // Add any desired JsonSerializerOptions here
+                // Add any desired JsonIndentOptions here
                 // For example, to ignore null values during serialization:
                 DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
             };
