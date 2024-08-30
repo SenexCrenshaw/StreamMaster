@@ -16,10 +16,11 @@
         {
             try
             {
+                logger.LogInformation("Client {UniqueRequestId} requesting channel {Name}.", config.UniqueRequestId, config.SMChannel.Name);
                 await _registerSemaphore.WaitAsync(cancellationToken);
                 if (cancellationToken.IsCancellationRequested)
                 {
-                    logger.LogInformation("Exiting GetChannelStreamAsync due to cancellation.");
+                    logger.LogInformation("Exiting GetChannelStreamAsync {UniqueRequestId} {Name} due to cancellation.", config.UniqueRequestId, config.SMChannel.Name);
                     return null;
                 }
 
@@ -27,7 +28,7 @@
                 if (channelStatus == null)
                 {
                     await UnRegisterClientAsync(config);
-                    logger.LogInformation("Exiting GetChannelStreamAsync: channel status is null.");
+                    logger.LogInformation("Exiting GetChannelStreamAsync:  {UniqueRequestId} channel {Name} status is null.", config.UniqueRequestId, config.SMChannel.Name);
                     return null;
                 }
 

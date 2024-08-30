@@ -4,7 +4,7 @@
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record ProcessM3UFileRequest(int M3UFileId, bool ForceRun = false) : IRequest<APIResponse>;
 
-internal class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger, IM3UFileService m3UFileService, IChannelGroupService channelGroupService, ISender sender, IMessageService messageService, IRepositoryWrapper Repository, IDataRefreshService dataRefreshService)
+internal class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger, IM3UFileService m3UFileService, IChannelGroupService channelGroupService, IMessageService messageService, IDataRefreshService dataRefreshService)
     : IRequestHandler<ProcessM3UFileRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(ProcessM3UFileRequest request, CancellationToken cancellationToken)

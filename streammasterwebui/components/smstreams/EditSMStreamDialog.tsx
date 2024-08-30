@@ -67,7 +67,6 @@ const EditSMStreamDialog = ({ smStreamDto }: EditSMStreamDialogProperties) => {
       okToolTip="Save"
       onOkClick={() => dialogRef.current?.save()}
       placement="bottom-end"
-      showRemember={false}
       title="Edit Stream"
       zIndex={10}
     >

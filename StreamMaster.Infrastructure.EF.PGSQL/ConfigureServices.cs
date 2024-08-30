@@ -10,7 +10,6 @@ public static class ConfigureServices
 {
     public static IServiceCollection AddInfrastructureEFPGSQLServices(this IServiceCollection services)
     {
-
         NpgsqlDataSourceBuilder dataSourceBuilder = new(PGSQLRepositoryContext.DbConnectionString);
         _ = dataSourceBuilder.UseNodaTime();
         NpgsqlDataSource dataSource = dataSourceBuilder.Build();
@@ -22,7 +21,6 @@ public static class ConfigureServices
                 {
                     _ = pgsqlOptions.MigrationsAssembly(typeof(PGSQLRepositoryContext).Assembly.FullName);
                     _ = pgsqlOptions.UseNodaTime();
-
                 });
             }
         );

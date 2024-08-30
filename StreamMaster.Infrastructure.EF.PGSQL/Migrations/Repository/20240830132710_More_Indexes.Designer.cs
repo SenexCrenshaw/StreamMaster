@@ -13,8 +13,8 @@ using StreamMaster.Infrastructure.EF.PGSQL;
 namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
 {
     [DbContext(typeof(PGSQLRepositoryContext))]
-    [Migration("20240829175653_AddCreateOrUpdateSmStreamsAndChannelsFunction")]
-    partial class AddCreateOrUpdateSmStreamsAndChannelsFunction
+    [Migration("20240830132710_More_Indexes")]
+    partial class More_Indexes
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -163,6 +163,9 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Url")
+                        .HasDatabaseName("idx_epgfiles_url");
+
                     b.ToTable("EPGFiles");
                 });
 
@@ -307,8 +310,18 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
 
                     b.HasKey("Id");
 
+                    b.HasIndex("BaseStreamID")
+                        .HasDatabaseName("idx_smchannels_basestreamid");
+
+                    b.HasIndex("Id")
+                        .IsUnique()
+                        .HasDatabaseName("idx_smchannels_id");
+
                     b.HasIndex("Name")
                         .HasDatabaseName("idx_SMChannelName");
+
+                    b.HasIndex("ChannelNumber", "Id")
+                        .HasDatabaseName("idx_smchannels_channelnumber_id");
 
                     b.ToTable("SMChannels");
                 });
@@ -345,6 +358,13 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
                     b.HasKey("SMChannelId", "SMStreamId");
 
                     b.HasIndex("SMStreamId");
+
+                    b.HasIndex("SMChannelId", "Rank")
+                        .HasDatabaseName("idx_smchannelstreamlinks_smchannelid_rank");
+
+                    b.HasIndex("SMChannelId", "SMStreamId")
+                        .IsUnique()
+                        .HasDatabaseName("idx_smchannelstreamlinks_smchannelid_smstreamid");
 
                     b.ToTable("SMChannelStreamLinks");
                 });
@@ -415,6 +435,10 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Id")
+                        .IsUnique()
+                        .HasDatabaseName("idx_smstreams_id");
+
                     b.HasIndex("Name")
                         .HasDatabaseName("idx_SMStreamName");
 
@@ -451,6 +475,9 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Name", "Id")
+                        .HasDatabaseName("idx_streamgroups_name_id");
 
                     b.ToTable("StreamGroups");
                 });
@@ -516,7 +543,9 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
 
                     b.HasKey("StreamGroupId", "SMChannelId");
 
-                    b.HasIndex("SMChannelId");
+                    b.HasIndex("SMChannelId", "StreamGroupId")
+                        .IsUnique()
+                        .HasDatabaseName("idx_streamgroupsmchannellink_smchannelid_streamgroupid");
 
                     b.ToTable("StreamGroupSMChannelLink");
                 });

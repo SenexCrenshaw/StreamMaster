@@ -64,7 +64,7 @@ public class SourceProcessingService(ILogger<IBroadcasterBase> logger, IOptionsM
 
                         if (completedTask == timeoutTask)
                         {
-                            logger.LogDebug("Read operation timed out after {ElapsedMilliseconds} ms", sw.ElapsedMilliseconds);
+                            logger.LogWarning("Read operation timed out after {ElapsedMilliseconds} ms", sw.ElapsedMilliseconds);
                             throw new TimeoutException("Read operation timed out.");
                         }
                     }

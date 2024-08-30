@@ -216,8 +216,6 @@ using (IServiceScope scope = app.Services.CreateScope())
         initialiser.TrySeed();
     }
 
-    initialiser.MigrateData();
-
     IImageDownloadService imageDownloadService = scope.ServiceProvider.GetRequiredService<IImageDownloadService>();
     imageDownloadService.Start();
 }

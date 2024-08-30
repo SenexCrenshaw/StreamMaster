@@ -7,26 +7,16 @@ using System.Threading.Channels;
 
 namespace StreamMaster.Streams.Clients;
 
-public sealed class ClientReadStream : Stream, IClientReadStream
+public sealed class ClientReadStream(ILoggerFactory loggerFactory, string UniqueRequestId) : Stream, IClientReadStream
 {
-    private readonly ILogger<ClientReadStream> logger;
+    private readonly ILogger<ClientReadStream> logger = loggerFactory.CreateLogger<ClientReadStream>();
     private readonly MetricsService MetricsService = new();
 
-    public ClientReadStream(ILoggerFactory loggerFactory, string UniqueRequestId)
-    {
-        logger = loggerFactory.CreateLogger<ClientReadStream>();
-
-        this.UniqueRequestId = UniqueRequestId;
-        Channel = ChannelHelper.GetChannel();
-        logger.LogInformation("New client read stream for UniqueRequestId: {UniqueRequestId}", UniqueRequestId);
-    }
     public StreamHandlerMetrics Metrics => MetricsService.Metrics;
 
-    public Channel<byte[]> Channel { get; }
+    public Channel<byte[]> Channel { get; } = ChannelHelper.GetChannel();
 
     private bool IsCancelled { get; set; }
-
-    private string UniqueRequestId { get; }
     public Guid Id { get; } = Guid.NewGuid();
     public override bool CanRead => true;
     public override bool CanSeek => false;

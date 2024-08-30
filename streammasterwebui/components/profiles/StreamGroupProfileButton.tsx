@@ -17,7 +17,6 @@ export const StreamGroupProfileButton = () => {
       info=""
       modalCentered
       noBorderChildren
-      showRemember={false}
       title="PROFILES"
       zIndex={11}
     >

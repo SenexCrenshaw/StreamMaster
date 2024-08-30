@@ -5,7 +5,7 @@ namespace StreamMaster.Application.M3UFiles.Commands;
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record DeleteM3UFileRequest(bool DeleteFile, int Id) : IRequest<APIResponse>;
 
-public class DeleteM3UFileRequestHandler(ILogger<DeleteM3UFileRequest> logger, IRepositoryContext repositoryContext, ICacheManager CacheManager, IMessageService messageService, IDataRefreshService dataRefreshService, IIconService iconService, IRepositoryWrapper Repository)
+public class DeleteM3UFileRequestHandler(ILogger<DeleteM3UFileRequest> logger, ICacheManager CacheManager, IMessageService messageService, IDataRefreshService dataRefreshService, IIconService iconService, IRepositoryWrapper Repository)
     : IRequestHandler<DeleteM3UFileRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(DeleteM3UFileRequest request, CancellationToken cancellationToken = default)

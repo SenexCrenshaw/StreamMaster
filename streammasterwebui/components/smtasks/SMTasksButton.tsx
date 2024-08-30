@@ -25,7 +25,6 @@ const SMTasksButton = () => {
       modal
       placement="bottom-end"
       ref={popUpRef}
-      showRemember={false}
       title="Tasks"
     >
       <SMTasksDataSelector />

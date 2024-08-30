@@ -23,12 +23,13 @@ public class VideoStreamsController(ILogger<VideoStreamsController> logger, IVid
 
         if (!string.IsNullOrEmpty(RedirectUrl))
         {
-            logger.LogInformation("Channel with ChannelId {channelId} redirecting", smChannelId);
+            logger.LogInformation("Channel with ChannelId {channelId} {name} redirecting", smChannelId, clientConfiguration?.SMChannel.Name ?? "");
             return Redirect(RedirectUrl);
         }
 
         if (stream == null || clientConfiguration == null)
         {
+            logger.LogInformation("Channel with ChannelId {channelId} {name} failed", smChannelId, clientConfiguration?.SMChannel.Name ?? "");
             return StatusCode(StatusCodes.Status404NotFound);
         }
 

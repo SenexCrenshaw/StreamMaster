@@ -28,7 +28,6 @@ const SyncCustomListsButton = () => {
       onOkClick={() => onSave()}
       placement="top"
       ref={smPopUpRef}
-      showRemember={false}
       title="Sync Custom Play Lists"
     >
       <div className="sm-center-stuff">Sync Custom Lists</div>

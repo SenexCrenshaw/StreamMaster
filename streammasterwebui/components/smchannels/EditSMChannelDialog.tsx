@@ -69,7 +69,6 @@ const EditSMChannelDialog = ({ smChannelDto }: EditSMChannelDialogProperties) =>
       noCloseButton={false}
       okButtonDisabled={!saveEnabled}
       ref={propUpRef}
-      showRemember={false}
       title={`EDIT CHANNEL : ${smChannelDto.Name}`}
       onOkClick={() => {
         dialogRef.current?.save();

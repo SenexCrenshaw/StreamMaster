@@ -142,7 +142,7 @@ public class M3UFileService(ILogger<M3UFileService> logger, IM3UToSMStreamsServi
             }
         }
 
-        const int batchSize = 50;// BuildInfo.DBBatchSize;
+        const int batchSize = 100;// BuildInfo.DBBatchSize;
         List<SMStream> batch = [];
 
         repositoryContext.ExecuteSqlRaw($"UPDATE public.\"SMStreams\"\r\n  SET \"NeedsDelete\" = true\r\n    WHERE \"M3UFileId\" = {m3uFile.Id}");
@@ -195,9 +195,10 @@ public class M3UFileService(ILogger<M3UFileService> logger, IM3UToSMStreamsServi
             }
 
             Interlocked.Increment(ref processedCount);
-            if (processedCount % 20000 == 0)
+            if (processedCount % 10000 == 0)
             {
-                logger.LogInformation("Processing {processedCount} streams in {elapsed}ms", processedCount, stopwatch.ElapsedMilliseconds);
+                int streamPerSecond = (int)(10000 / stopwatch.Elapsed.TotalSeconds);
+                logger.LogInformation("Processing {processedCount} streams in {elapsed}ms / {streamPerSecond} streams per second ", processedCount, stopwatch.ElapsedMilliseconds, streamPerSecond);
                 stopwatch.Restart();
             }
         }
@@ -205,7 +206,13 @@ public class M3UFileService(ILogger<M3UFileService> logger, IM3UToSMStreamsServi
         // Process any remaining streams in the batch
         if (batch.Count > 0)
         {
-            await ExecuteCreateSmStreamsAndChannelsAsync(batch, m3uFile.Id, m3uFile.Name, streamGroupId, m3uFile.SyncChannels);
+            List<int> smChannelIds = await ExecuteCreateSmStreamsAndChannelsAsync(batch, m3uFile.Id, m3uFile.Name, streamGroupId, m3uFile.SyncChannels);
+            if (smChannelIds.Count > 0)
+            {
+                await repositoryWrapper.SMChannel.AutoSetEPGFromIds(smChannelIds, CancellationToken.None);
+                await repositoryWrapper.SaveAsync();
+            }
+            batch.Clear();
         }
         batch.Clear();
 
@@ -217,82 +224,6 @@ public class M3UFileService(ILogger<M3UFileService> logger, IM3UToSMStreamsServi
         mainStopwatch.Stop();
         logger.LogInformation("Processed {processedCount} streams in {elapsed}ms", processedCount, mainStopwatch.ElapsedMilliseconds);
         return (Cgs.ToList(), processedCount, dupTotalCount, toDelete.Count());
-    }
-
-    private static bool ProcessExistingStream(SMStream stream, SMStream existingStream, M3UFile m3uFile, int index)
-    {
-        bool changed = false;
-
-        if (existingStream.M3UFileId != m3uFile.Id)
-        {
-            changed = true;
-            existingStream.M3UFileId = m3uFile.Id;
-        }
-
-        if (existingStream.ClientUserAgent != stream.ClientUserAgent)
-        {
-            changed = true;
-            existingStream.ClientUserAgent = stream.ClientUserAgent;
-        }
-
-        if (string.IsNullOrEmpty(existingStream.M3UFileName) || existingStream.M3UFileName != m3uFile.Name)
-        {
-            changed = true;
-            existingStream.M3UFileName = m3uFile.Name;
-        }
-
-        if (m3uFile.AutoSetChannelNumbers)
-        {
-            stream.ChannelNumber = index + m3uFile.StartingChannelNumber;
-        }
-
-        if (existingStream.ChannelNumber != stream.ChannelNumber)
-        {
-            changed = true;
-            existingStream.ChannelNumber = stream.ChannelNumber;
-        }
-
-        if (existingStream.Group != stream.Group)
-        {
-            changed = true;
-            existingStream.Group = stream.Group;
-        }
-
-        if (existingStream.EPGID != stream.EPGID)
-        {
-            changed = true;
-            existingStream.EPGID = stream.EPGID;
-        }
-
-        if (existingStream.Logo != stream.Logo)
-        {
-            changed = true;
-
-            existingStream.Logo = stream.Logo;
-        }
-
-        if (existingStream.Url != stream.Url)
-        {
-            changed = true;
-
-            existingStream.Url = stream.Url;
-        }
-
-        if (existingStream.Name != stream.Name)
-        {
-            changed = true;
-
-            existingStream.Name = stream.Name;
-        }
-
-        if (existingStream.FilePosition != index)
-        {
-            changed = true;
-
-            existingStream.FilePosition = index;
-        }
-
-        return changed;
     }
 
     private async Task<List<int>> ExecuteCreateSmStreamsAndChannelsAsync(List<SMStream> streams, int m3uFileId, string m3uFileName, int streamGroupId, bool createChannels)
@@ -316,7 +247,7 @@ public class M3UFileService(ILogger<M3UFileService> logger, IM3UToSMStreamsServi
         return channelIds;
     }
 
-    private string GenerateBatchSqlCommandForDebugging(List<SMStream> streams, int m3uFileId, string m3uFileName, int streamGroupId, bool createChannels)
+    private static string GenerateBatchSqlCommandForDebugging(List<SMStream> streams, int m3uFileId, string m3uFileName, int streamGroupId, bool createChannels)
     {
         string[] ids = streams.Select(s => $"'{EscapeString(s.Id)}'").ToArray();
         string[] filePositions = streams.Select(s => s.FilePosition.ToString()).ToArray();

@@ -113,45 +113,61 @@ public class BaseRepositoryContext(DbContextOptions options) : DbContext(options
         modelBuilder.UseIdentityAlwaysColumns();
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(BaseRepositoryContext).Assembly);
 
-        //_ = modelBuilder.Entity<VideoStream>()
-        // .HasIndex(e => e.User_Tvg_group)
-        // .HasDatabaseName("idx_User_Tvg_group");
-
-        //// Composite index on User_Tvg_group and IsHidden
-        //_ = modelBuilder.Entity<VideoStream>()
-        //    .HasIndex(e => new { e.User_Tvg_group, e.IsHidden })
-        //    .HasDatabaseName("idx_User_Tvg_group_IsHidden");
-
         _ = modelBuilder.Entity<ChannelGroup>()
-           .HasIndex(e => e.Name)
-           .HasDatabaseName("idx_Name");
+            .HasIndex(e => e.Name)
+            .HasDatabaseName("idx_Name");
 
         _ = modelBuilder.Entity<SMChannel>()
-          .HasIndex(e => e.Name)
-          .HasDatabaseName("idx_SMChannelName");
+            .HasIndex(e => e.Id)
+            .HasDatabaseName("idx_smchannels_id")
+            .IsUnique();
+
+        _ = modelBuilder.Entity<SMChannel>()
+            .HasIndex(e => e.BaseStreamID)
+            .HasDatabaseName("idx_smchannels_basestreamid");
+
+        _ = modelBuilder.Entity<SMChannel>()
+            .HasIndex(e => e.Name)
+            .HasDatabaseName("idx_SMChannelName");
+
+        _ = modelBuilder.Entity<SMChannel>()
+            .HasIndex(e => new { e.ChannelNumber, e.Id })
+            .HasDatabaseName("idx_smchannels_channelnumber_id");
+
+        _ = modelBuilder.Entity<SMStream>()
+            .HasIndex(e => e.Id)
+            .HasDatabaseName("idx_smstreams_id")
+            .IsUnique();
 
         _ = modelBuilder.Entity<SMStream>()
             .HasIndex(e => e.Name)
             .HasDatabaseName("idx_SMStreamName");
 
-        // Composite index on User_Tvg_group and IsHidden
+        _ = modelBuilder.Entity<SMChannelStreamLink>()
+            .HasIndex(e => new { e.SMChannelId, e.SMStreamId })
+            .HasDatabaseName("idx_smchannelstreamlinks_smchannelid_smstreamid")
+            .IsUnique();
+
+        _ = modelBuilder.Entity<SMChannelStreamLink>()
+            .HasIndex(e => new { e.SMChannelId, e.Rank })
+            .HasDatabaseName("idx_smchannelstreamlinks_smchannelid_rank");
+
+        _ = modelBuilder.Entity<StreamGroupSMChannelLink>()
+            .HasIndex(e => new { e.SMChannelId, e.StreamGroupId })
+            .HasDatabaseName("idx_streamgroupsmchannellink_smchannelid_streamgroupid")
+            .IsUnique();
+
+        _ = modelBuilder.Entity<StreamGroup>()
+            .HasIndex(e => new { e.Name, e.Id })
+            .HasDatabaseName("idx_streamgroups_name_id");
+
         _ = modelBuilder.Entity<ChannelGroup>()
             .HasIndex(e => new { e.Name, e.IsHidden })
             .HasDatabaseName("idx_Name_IsHidden");
 
-        //_ = modelBuilder.Entity<VideoStream>()
-        //  .HasIndex(e => e.User_Tvg_name)
-        //  .HasDatabaseName("IX_VideoStream_User_Tvg_name");
-
-        //modelBuilder.Entity<VideoStream>()
-        //    .HasIndex(p => p.User_Tvg_chno)
-        //    .HasDatabaseName("IX_VideoStream_User_Tvg_chno");
-
-        //modelBuilder.Entity<VideoStream>()
-        //    .HasIndex(p => p.ShortSMChannelId)
-        //    .HasDatabaseName("IX_VideoStream_SMChannelId");
-
-        //modelBuilder.OnHangfireModelCreating();
+        _ = modelBuilder.Entity<EPGFile>()
+            .HasIndex(e => e.Url)
+            .HasDatabaseName("idx_epgfiles_url");
 
         modelBuilder.ApplyUtcDateTimeConverter();
 

@@ -1,14 +1,6 @@
-﻿using StreamMaster.Application.Interfaces;
-using StreamMaster.Application.Services;
+﻿namespace StreamMaster.Application.Hubs;
 
-namespace StreamMaster.Application.Hubs;
-
-public partial class StreamMasterHub(
-    ISender Sender,
-    IOptionsMonitor<Setting> intSettings,
-    IBackgroundTaskQueue taskQueue
-
-    )
+public partial class StreamMasterHub(ISender Sender, IOptionsMonitor<Setting> intSettings)
     : Hub<IStreamMasterHub>
 {
     private static readonly ConcurrentHashSet<string> _connections = [];

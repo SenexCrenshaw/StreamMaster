@@ -38,7 +38,6 @@ const CreateSMStreamDialog = ({ label }: CreateSMStreamDialogProperties) => {
       okButtonDisabled={!saveEnabled}
       onOkClick={() => smChannelDialogRef.current?.save()}
       placement="bottom-end"
-      showRemember={false}
       title="Create Stream"
     >
       <SMStreamDialog ref={smChannelDialogRef} onSave={onSave} onSaveEnabled={setSaveEnabled} />

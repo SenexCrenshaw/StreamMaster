@@ -63,7 +63,6 @@ const M3UFileEditDialog = ({ selectedFile }: M3UFileEditDialogProperties) => {
       noCloseButton={false}
       placement="bottom-end"
       ref={smPopupRef}
-      showRemember={false}
       title="EDIT M3U"
       zIndex={11}
     >

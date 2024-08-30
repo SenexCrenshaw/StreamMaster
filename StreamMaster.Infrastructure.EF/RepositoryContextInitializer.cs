@@ -68,8 +68,4 @@ public class RepositoryContextInitializer(ILogger<RepositoryContextInitializer> 
     {
         DirectoryHelper.CreateApplicationDirectories();
     }
-
-    public void MigrateData()
-    {
-    }
 }

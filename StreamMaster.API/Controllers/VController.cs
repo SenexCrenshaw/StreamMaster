@@ -27,6 +27,7 @@ public class VsController(ILogger<VsController> logger, IVideoService videoServi
 
         if (stream == null || clientConfiguration == null)
         {
+            logger.LogInformation("Channel with ChannelId {channelId} failed", smChannelId);
             return StatusCode(StatusCodes.Status404NotFound);
         }
 

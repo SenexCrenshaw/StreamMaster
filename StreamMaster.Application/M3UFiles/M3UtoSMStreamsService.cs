@@ -3,7 +3,7 @@ using System.Text.RegularExpressions;
 
 namespace StreamMaster.Application.M3UFiles;
 
-public partial class M3UToSMStreamsService(ILogger<M3UToSMStreamsService> logger, IOptionsMonitor<Setting> _settings) : IM3UToSMStreamsService
+public partial class M3UToSMStreamsService(ILogger<M3UToSMStreamsService> logger) : IM3UToSMStreamsService
 {
     public async IAsyncEnumerable<SMStream> GetSMStreamsFromM3U(M3UFile m3UFile)
     {

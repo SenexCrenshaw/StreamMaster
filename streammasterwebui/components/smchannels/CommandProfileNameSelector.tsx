@@ -46,8 +46,8 @@ const CommandProfileNameSelector: React.FC<CommandProfileNameSelectorProperties>
       }
       setIsCellLoading(true);
       const request: SetSMChannelCommandProfileNameRequest = {
-        SMChannelId: data.Id,
-        CommandProfileName: option
+        CommandProfileName: option,
+        SMChannelId: data.Id
       };
 
       try {

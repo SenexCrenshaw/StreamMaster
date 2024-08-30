@@ -47,7 +47,6 @@ const StreamGroupButton = ({ className = 'sm-w-10rem sm-input-dark' }: StreamGro
           icon="pi-list-check"
           modal
           iconFilled
-          showRemember={false}
           title="Stream Groups"
         >
           <StreamGroupDataSelector id={'StreamGroup'} />

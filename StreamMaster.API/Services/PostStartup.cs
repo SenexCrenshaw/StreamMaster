@@ -5,7 +5,6 @@ namespace StreamMaster.API.Services;
 
 public class PostStartup(ILogger<PostStartup> logger, IServiceProvider serviceProvider, IBackgroundTaskQueue taskQueue) : BackgroundService
 {
-
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
     {
         if (cancellationToken.IsCancellationRequested)
@@ -13,7 +12,7 @@ public class PostStartup(ILogger<PostStartup> logger, IServiceProvider servicePr
             return;
         }
 
-        logger.LogInformation($"Stream Master is starting.");
+        logger.LogInformation("Stream Master is starting.");
 
         //DirectoryHelper.EmptyDirectory(BuildInfo.HLSOutputFolder);
 
@@ -22,7 +21,7 @@ public class PostStartup(ILogger<PostStartup> logger, IServiceProvider servicePr
         IDataRefreshService dataRefreshService = scope.ServiceProvider.GetRequiredService<IDataRefreshService>();
 
         //ISchedulesDirectDataService schedulesDirectService = scope.ServiceProvider.GetRequiredService<ISchedulesDirectDataService>();
-        await repositoryContext.MigrateData();
+        repositoryContext.MigrateData();
 
         await taskQueue.EPGSync(cancellationToken).ConfigureAwait(false);
 
@@ -38,18 +37,14 @@ public class PostStartup(ILogger<PostStartup> logger, IServiceProvider servicePr
 
         await taskQueue.BuildIconCaches(cancellationToken).ConfigureAwait(false);
 
-
         while (taskQueue.HasJobs())
         {
             await Task.Delay(250, cancellationToken).ConfigureAwait(false);
         }
 
-
         //await dataRefreshService.RefreshAll();
 
         await taskQueue.SetIsSystemReady(true, cancellationToken).ConfigureAwait(false);
-
-
 
     }
 }

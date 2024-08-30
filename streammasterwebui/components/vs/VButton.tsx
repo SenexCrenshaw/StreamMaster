@@ -16,7 +16,6 @@ const VButton = ({ streamGroupDto, streamGroupProfile }: VButtonProperties) => {
       icon="pi-list-check"
       modal
       placement="bottom-end"
-      showRemember={false}
       title="Short Urls"
       tooltip="Short Urls"
       zIndex={12}

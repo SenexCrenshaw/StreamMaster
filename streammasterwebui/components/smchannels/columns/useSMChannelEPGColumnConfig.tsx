@@ -18,7 +18,7 @@ export const useSMChannelEPGColumnConfig = ({ width = 125 }: SMChannelEPGColumnC
   const dataKey = 'epgColumn-selections';
   const { data, isLoading } = useGetEPGFiles();
   const colorsQuery = useGetEPGColors();
-  const { isSystemReady, settings } = useSMContext();
+  const { settings } = useSMContext();
 
   const epgFiles = useMemo(() => {
     let additionalOptions = [] as EPGFileDto[];

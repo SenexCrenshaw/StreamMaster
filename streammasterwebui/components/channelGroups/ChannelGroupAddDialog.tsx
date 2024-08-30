@@ -53,7 +53,6 @@ const ChannelGroupAddDialog: FC = () => {
       onOkClick={() => addGroup()}
       okButtonDisabled={!isSaveEnabled}
       placement="bottom-end"
-      showRemember={false}
       title="Create Group"
       tooltip="Create Group"
     >
