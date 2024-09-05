@@ -22,7 +22,7 @@ public class BaseSettings
     public string ClientUserAgent { get; set; } = "VLC/3.0.20-git LibVLC/3.0.20-git";
 
     public string DefaultIcon { get; set; } = "images/default.png";
-
+    public string DefaultCompression { get; set; } = "gz";
     public string DeviceID { get; set; } = "device1";
     public string DummyRegex { get; set; } = "(no tvg-id)";
     public bool EnableSSL { get; set; }

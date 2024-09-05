@@ -3,12 +3,12 @@ using System.Text.RegularExpressions;
 
 namespace StreamMaster.Application.M3UFiles;
 
-public partial class M3UToSMStreamsService(ILogger<M3UToSMStreamsService> logger) : IM3UToSMStreamsService
+public partial class M3UToSMStreamsService(ILogger<M3UToSMStreamsService> logger, IFileUtilService fileUtilService) : IM3UToSMStreamsService
 {
     public async IAsyncEnumerable<SMStream> GetSMStreamsFromM3U(M3UFile m3UFile)
     {
         logger.LogInformation("Reading m3uFile {Name} and ignoring URLs with {VODS}", m3UFile.Name, string.Join(',', m3UFile.VODTags));
-        await using Stream dataStream = FileUtil.GetFileDataStream(Path.Combine(FileDefinitions.M3U.DirectoryLocation, m3UFile.Source));
+        await using Stream dataStream = fileUtilService.GetFileDataStream(Path.Combine(FileDefinitions.M3U.DirectoryLocation, m3UFile.Source));
 
         int segmentNumber = 0;
         StringBuilder segmentBuilder = new();

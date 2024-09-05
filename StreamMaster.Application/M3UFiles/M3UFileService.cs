@@ -282,7 +282,6 @@ public class M3UFileService(ILogger<M3UFileService> logger, IM3UToSMStreamsServi
     private static string EscapeString(string input)
     {
         return input.Replace("'", "''")
-
                           .Replace("{", "[")     // Escape opening curly brace
                           .Replace("}", "]");
     }

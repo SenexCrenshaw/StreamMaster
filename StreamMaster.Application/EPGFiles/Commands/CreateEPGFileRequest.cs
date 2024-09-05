@@ -9,7 +9,7 @@ public record CreateEPGFileRequest(string Name, string FileName, int EPGNumber, 
     : IRequest<APIResponse>
 { }
 
-public class CreateEPGFileRequestHandler(ILogger<CreateEPGFileRequest> Logger, IDataRefreshService dataRefreshService, IMessageService messageService, IXmltv2Mxf xmltv2Mxf, IRepositoryWrapper Repository, IMapper Mapper, IPublisher Publisher)
+public class CreateEPGFileRequestHandler(ILogger<CreateEPGFileRequest> Logger, IFileUtilService fileUtilService, IDataRefreshService dataRefreshService, IMessageService messageService, IXmltv2Mxf xmltv2Mxf, IRepositoryWrapper Repository, IMapper Mapper, IPublisher Publisher)
     : IRequestHandler<CreateEPGFileRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(CreateEPGFileRequest command, CancellationToken cancellationToken)
@@ -51,7 +51,7 @@ public class CreateEPGFileRequestHandler(ILogger<CreateEPGFileRequest> Logger, I
             epgFile.LastDownloadAttempt = SMDT.UtcNow;
 
             Logger.LogInformation("Add EPG From URL {command.UrlSource}", command.UrlSource);
-            (bool success, Exception? ex) = await FileUtil.DownloadUrlAsync(source, fullName, cancellationToken).ConfigureAwait(false);
+            (bool success, Exception? ex) = await fileUtilService.DownloadUrlAsync(source, fullName, cancellationToken).ConfigureAwait(false);
             if (success)
             {
                 epgFile.LastDownloaded = File.GetLastWriteTime(fullName);

@@ -9,7 +9,7 @@ public record CreateEPGFileFromFormRequest(IFormFile? FormFile, string Name, int
     : IRequest<APIResponse>
 { }
 
-public class CreateEPGFileFromFormRequestHandler(ILogger<CreateEPGFileFromFormRequest> Logger, IDataRefreshService dataRefreshService, IMessageService messageService, IXmltv2Mxf xmltv2Mxf, IRepositoryWrapper Repository, IMapper Mapper, IPublisher Publisher)
+public class CreateEPGFileFromFormRequestHandler(ILogger<CreateEPGFileFromFormRequest> Logger, IFileUtilService fileUtilService, IDataRefreshService dataRefreshService, IMessageService messageService, IXmltv2Mxf xmltv2Mxf, IRepositoryWrapper Repository, IMapper Mapper, IPublisher Publisher)
     : IRequestHandler<CreateEPGFileFromFormRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(CreateEPGFileFromFormRequest command, CancellationToken cancellationToken)
@@ -48,7 +48,7 @@ public class CreateEPGFileFromFormRequestHandler(ILogger<CreateEPGFileFromFormRe
 
 
             Logger.LogInformation("Adding EPG From Form: {fullName}", fullName);
-            (bool success, Exception? ex) = await FormHelper.SaveFormFileAsync(command.FormFile!, fullName).ConfigureAwait(false);
+            (bool success, Exception? ex) = await fileUtilService.SaveFormFileAsync(command.FormFile!, fullName).ConfigureAwait(false);
             if (success)
             {
                 epgFile.LastDownloaded = File.GetLastWriteTime(fullName);

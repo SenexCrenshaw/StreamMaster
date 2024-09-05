@@ -32,7 +32,6 @@ public class UpdateM3UFileRequestHandler(IRepositoryWrapper Repository, IReposit
             jobManager.Start();
 
             bool needsUpdate = false;
-            bool autoSetChannelNumbers = false;
             bool needsRefresh = false;
             bool nameChange = false;
             bool defaultNameChange = false;
@@ -41,16 +40,16 @@ public class UpdateM3UFileRequestHandler(IRepositoryWrapper Repository, IReposit
             if (request.StartingChannelNumber.HasValue && m3uFile.StartingChannelNumber != request.StartingChannelNumber.Value)
             {
                 m3uFile.StartingChannelNumber = request.StartingChannelNumber.Value;
-                autoSetChannelNumbers = true;
+                ret.Add(new FieldData(() => m3uFile.StartingChannelNumber));
             }
 
             if (request.AutoSetChannelNumbers.HasValue)
             {
                 m3uFile.AutoSetChannelNumbers = request.AutoSetChannelNumbers.Value;
-                autoSetChannelNumbers = true;
+                ret.Add(new FieldData(() => m3uFile.AutoSetChannelNumbers));
             }
 
-            if (autoSetChannelNumbers)
+            if (request.AutoSetChannelNumbers.HasValue)
             {
                 if (m3uFile.AutoSetChannelNumbers)
                 {
@@ -108,7 +107,7 @@ public class UpdateM3UFileRequestHandler(IRepositoryWrapper Repository, IReposit
                 CacheManager.M3UMaxStreamCounts.AddOrUpdate(m3uFile.Id, m3uFile.MaxStreamCount, (_, _) => m3uFile.MaxStreamCount);
             }
 
-            if (request.SyncChannels == true)
+            if (request.SyncChannels.HasValue)
             {
                 m3uFile.SyncChannels = request.SyncChannels.Value;
                 ret.Add(new FieldData(() => m3uFile.SyncChannels));
@@ -129,7 +128,7 @@ public class UpdateM3UFileRequestHandler(IRepositoryWrapper Repository, IReposit
             Repository.M3UFile.UpdateM3UFile(m3uFile);
             _ = await Repository.SaveAsync().ConfigureAwait(false);
 
-            if (request.SyncChannels == true)
+            if (request.SyncChannels.HasValue)
             {
                 needsUpdate = true;
                 // await Sender.Send(new SyncChannelsRequest(m3uFile.Id, m3uFile.DefaultStreamGroupName), cancellationToken);

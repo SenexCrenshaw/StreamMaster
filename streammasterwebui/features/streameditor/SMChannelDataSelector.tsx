@@ -16,9 +16,7 @@ import { useSMChannelGroupColumnConfig } from '@components/smchannels/columns/us
 import { useSMChannelLogoColumnConfig } from '@components/smchannels/columns/useSMChannelLogoColumnConfig';
 import { useSMChannelNameColumnConfig } from '@components/smchannels/columns/useSMChannelNameColumnConfig';
 import { useSMChannelNumberColumnConfig } from '@components/smchannels/columns/useSMChannelNumberColumnConfig';
-
 import { useSMChannelSGColumnConfig } from '@components/smchannels/columns/useSMChannelSGColumnConfig';
-
 import StreamGroupProfileButton from '@components/profiles/StreamGroupProfileButton';
 import { useSMCommandProfileNameColumnConfig } from '@components/smchannels/columns/useSMVideoOutputProfileNameColumnConfig';
 import StreamCopyLinkDialog from '@components/smstreams/StreamCopyLinkDialog';
@@ -41,7 +39,6 @@ interface SMChannelDataSelectorProperties {
 
 const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id }: SMChannelDataSelectorProperties) => {
   const dataKey = `${id}-SMChannelDataSelector`;
-
   const { isTrue: smTableIsSimple } = useIsTrue('isSimple');
   const { selectedSMChannel, setSelectedSMChannel } = useSelectedSMItems();
   const [enableEdit, setEnableEdit] = useState<boolean>(true);

@@ -6,14 +6,13 @@ namespace StreamMaster.Application.M3UFiles.Commands;
 public record CreateM3UFileFromFormRequest(string Name, int? MaxStreamCount, int? StartingChannelNumber, bool? AutoSetChannelNumbers, string? DefaultStreamGroupName, int? HoursToUpdate, bool? SyncChannels, IFormFile? FormFile, List<string>? VODTags) : IRequest<APIResponse>;
 
 [LogExecutionTimeAspect]
-public class CreateM3UFileFromFormRequestHandler(ILogger<CreateM3UFileFromFormRequest> Logger, ICacheManager CacheManager, IMessageService messageService, IDataRefreshService dataRefreshService, IRepositoryWrapper Repository, IPublisher Publisher)
+public class CreateM3UFileFromFormRequestHandler(ILogger<CreateM3UFileFromFormRequest> Logger, IFileUtilService fileUtilService, ICacheManager CacheManager, IMessageService messageService, IDataRefreshService dataRefreshService, IRepositoryWrapper Repository, IPublisher Publisher)
     : IRequestHandler<CreateM3UFileFromFormRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(CreateM3UFileFromFormRequest request, CancellationToken cancellationToken)
     {
         if (request.FormFile == null)
         {
-
             return APIResponse.NotFound;
         }
 
@@ -35,9 +34,8 @@ public class CreateM3UFileFromFormRequestHandler(ILogger<CreateM3UFileFromFormRe
                 StartingChannelNumber = request.StartingChannelNumber ?? 1
             };
 
-
             Logger.LogInformation("Adding M3U From Form: '{name}'", request.Name);
-            (bool success, Exception? ex) = await FormHelper.SaveFormFileAsync(request.FormFile!, fullName).ConfigureAwait(false);
+            (bool success, Exception? ex) = await fileUtilService.SaveFormFileAsync(request.FormFile!, fullName).ConfigureAwait(false);
             if (success)
             {
                 m3UFile.LastDownloaded = File.GetLastWriteTime(fullName);
@@ -45,12 +43,10 @@ public class CreateM3UFileFromFormRequestHandler(ILogger<CreateM3UFileFromFormRe
             }
             else
             {
-
                 Logger.LogCritical("Exception M3U From Form '{ex}'", ex);
-                await messageService.SendError($"Exception M3U From Form", ex?.Message);
+                await messageService.SendError("Exception M3U From Form", ex?.Message);
                 return APIResponse.NotFound;
             }
-
 
             m3UFile.MaxStreamCount = Math.Max(0, request.MaxStreamCount ?? 0);
 

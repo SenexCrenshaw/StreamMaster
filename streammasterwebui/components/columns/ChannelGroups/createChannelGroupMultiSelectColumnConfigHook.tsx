@@ -2,7 +2,6 @@ import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 import { ColumnFieldType } from '@components/smDataTable/types/smDataTableTypes';
 import { QueryHook } from '@lib/apiDefs';
 import { isEmptyObject } from '@lib/common/common';
-
 import { ChannelGroupDto } from '@lib/smAPI/smapiTypes';
 import { type ColumnFilterElementTemplateOptions } from 'primereact/column';
 import { MultiSelect, type MultiSelectChangeEvent } from 'primereact/multiselect';

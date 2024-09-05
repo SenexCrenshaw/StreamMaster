@@ -1,10 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
+
 using StreamMaster.Application.Streaming.Commands;
 
-namespace StreamMaster.Application.Streaming.Controllers
+namespace StreamMaster.Application.Streaming
 {
     public partial class StreamingController() : ApiControllerBase, IStreamingController
-    {        
+    {
 
         [HttpPatch]
         [Route("[action]")]

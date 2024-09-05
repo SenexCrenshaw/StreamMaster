@@ -51,6 +51,7 @@ const MessagesEn: messages_enType = {
   ClientUserAgent: 'Client User Agent',
   delete: 'Delete',
   development: 'Development',
+  DefaultCompression: 'Default Compression',
   DeviceID: 'ALL HDHR ID',
   DummyRegex: 'Dummy Regex',
   edit: 'Edit',

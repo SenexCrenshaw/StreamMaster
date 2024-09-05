@@ -211,6 +211,7 @@ export interface SettingDto
 	CleanURLs: boolean;
 	ClientUserAgent: string;
 	DefaultCommandProfileName: string;
+	DefaultCompression: string;
 	DefaultIcon: string;
 	DefaultOutputProfileName: string;
 	DeviceID: string;
@@ -1027,6 +1028,7 @@ export interface UpdateSettingParameters
 	CleanURLs?: boolean;
 	ClientUserAgent?: string;
 	DefaultCommandProfileName?: string;
+	DefaultCompression?: string;
 	DefaultOutputProfileName?: string;
 	DeviceID?: string;
 	DummyRegex?: string;

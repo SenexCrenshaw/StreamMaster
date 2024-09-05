@@ -8,7 +8,7 @@ using System.Xml.Serialization;
 
 namespace StreamMaster.SchedulesDirect.Converters;
 
-public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, ISchedulesDirectDataService schedulesDirectDataService) : IXmltv2Mxf
+public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, ISchedulesDirectDataService schedulesDirectDataService, IFileUtilService fileUtilService) : IXmltv2Mxf
 {
     private SchedulesDirectData schedulesDirectData;
     private class SeriesEpisodeInfo
@@ -30,7 +30,7 @@ public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, ISchedulesDirectDataService sc
         return xmlTv == null ? null : ConvertToMxf(xmlTv, EPGNumber);
     }
 
-    private static XMLTV? ReadXmlFile(string filepath)
+    private XMLTV? ReadXmlFile(string filepath)
     {
         if (!File.Exists(filepath))
         {
@@ -48,7 +48,7 @@ public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, ISchedulesDirectDataService sc
             };
 
             XmlSerializer serializer = new(typeof(XMLTV));
-            using Stream fileStream = FileUtil.GetFileDataStream(filepath);
+            using Stream fileStream = fileUtilService.GetFileDataStream(filepath);
             using XmlReader reader = XmlReader.Create(fileStream, settings);
             object? result = serializer.Deserialize(reader);
             return (XMLTV?)result;

@@ -25,7 +25,6 @@ public class RepositoryWrapper(
     IMapper mapper,
     IXmltv2Mxf xmltv2Mxf,
     IServiceProvider serviceProvider,
-    IMessageService messageService,
     ICryptoService cryptoService,
     IOptionsMonitor<Setting> intSettings,
     IOptionsMonitor<CommandProfileDict> intProfileSettings,
@@ -92,7 +91,6 @@ public class RepositoryWrapper(
     {
         get
         {
-            //ILogger<StreamGroupRepository> logger,  IRepositoryWrapper Repository, IRepositoryContext repositoryContext, IMapper mapper, IOptionsMonitor<Setting> intSettings, ICryptoService cryptoService, IHttpContextAccessor httpContextAccessor)
             _streamGroup ??= new StreamGroupRepository(StreamGroupRepositoryLogger, this, repositoryContext, mapper, intSettings, cryptoService, httpContextAccessor);
             return _streamGroup;
         }
@@ -115,7 +113,7 @@ public class RepositoryWrapper(
     {
         get
         {
-            _m3uFile ??= new M3UFileRepository(M3UFileRepositoryLogger, messageService, this, jobStatusService, repositoryContext, intSettings, mapper);
+            _m3uFile ??= new M3UFileRepository(M3UFileRepositoryLogger, repositoryContext, mapper);
             return _m3uFile;
         }
     }

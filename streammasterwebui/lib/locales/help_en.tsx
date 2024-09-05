@@ -18,6 +18,7 @@ const help_en: help_enType = {
   ShowIntros: 'Show Intros never, once at the beginning, or always',
   // ClientUserAgent: 'Client User Agent used for downloads, epg/m3u/icons/schedules direct',
   development: 'Development',
+  DefaultCompression: 'Default Compression for m3u/epg files',
   DeviceID: 'HDHR Device ID and capability ID',
   DummyRegex: 'EPG will be set to dummy if this matches the channel EPG',
   EnableSSL: 'Enable SSL',

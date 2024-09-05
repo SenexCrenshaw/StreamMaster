@@ -11,8 +11,22 @@ internal class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logge
     {
         try
         {
-            //M3UFile? m3uFile = await Repository.M3UFile.ProcessM3UFile(request.M3UFileId, request.ForceRun).ConfigureAwait(false);
-            M3UFile? m3uFile = await m3UFileService.ProcessM3UFile(request.M3UFileId, request.ForceRun).ConfigureAwait(false);
+            M3UFile? m3uFile = await m3UFileService.GetM3UFileAsync(request.M3UFileId);
+            if (m3uFile == null)
+            {
+                await messageService.SendError("Process M3U Not Found");
+                return APIResponse.NotFound;
+            }
+
+            //if (m3uFile.AutoUpdate && !request.ForceRun)
+            //{
+            //    if (m3uFile.LastUpdated.AddHours(m3uFile.HoursToUpdate) >= SMDT.UtcNow)
+            //    {
+            //        return APIResponse.Success;
+            //    }
+            //}
+
+            m3uFile = await m3UFileService.ProcessM3UFile(request.M3UFileId, request.ForceRun).ConfigureAwait(false);
             if (m3uFile == null)
             {
                 await messageService.SendError("Process M3U Not Found");
@@ -20,11 +34,6 @@ internal class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logge
             }
 
             await channelGroupService.UpdateChannelGroupCountsRequestAsync();
-
-            //if (m3uFile.SyncChannels)
-            //{
-            //    await sender.Send(new SyncChannelsRequest(m3uFile.Id, m3uFile.DefaultStreamGroupName), cancellationToken);
-            //}
 
             await dataRefreshService.RefreshAllM3U();
 

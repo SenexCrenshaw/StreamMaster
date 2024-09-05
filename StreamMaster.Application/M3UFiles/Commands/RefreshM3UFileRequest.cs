@@ -5,7 +5,7 @@
 public record RefreshM3UFileRequest(int Id, bool ForceRun = false) : IRequest<APIResponse>;
 
 [LogExecutionTimeAspect]
-public class RefreshM3UFileRequestHandler(ILogger<RefreshM3UFileRequest> Logger, IMessageService messageService, IJobStatusService jobStatusService, IRepositoryWrapper Repository, IMapper Mapper, IPublisher Publisher)
+public class RefreshM3UFileRequestHandler(ILogger<RefreshM3UFileRequest> Logger, IFileUtilService fileUtilService, IMessageService messageService, IJobStatusService jobStatusService, IRepositoryWrapper Repository, IMapper Mapper, IPublisher Publisher)
     : IRequestHandler<RefreshM3UFileRequest, APIResponse>
 {
 
@@ -39,7 +39,7 @@ public class RefreshM3UFileRequestHandler(ILogger<RefreshM3UFileRequest> Logger,
 
                     m3uFile.LastDownloadAttempt = SMDT.UtcNow;
 
-                    (bool success, Exception? ex) = await FileUtil.DownloadUrlAsync(m3uFile.Url, fullName, cancellationToken).ConfigureAwait(false);
+                    (bool success, Exception? ex) = await fileUtilService.DownloadUrlAsync(m3uFile.Url, fullName, cancellationToken).ConfigureAwait(false);
                     if (success)
                     {
                         m3uFile.DownloadErrors = 0;

@@ -67,15 +67,15 @@ public class UpdateEPGFileRequestHandler(ILogger<UpdateEPGFileRequest> logger, I
                 ret.Add(new FieldData(() => epgFile.Name));
             }
 
-            if (request.AutoUpdate != null && epgFile.AutoUpdate != request.AutoUpdate)
+            if (request.AutoUpdate.HasValue && epgFile.AutoUpdate != request.AutoUpdate)
             {
-                epgFile.AutoUpdate = (bool)request.AutoUpdate;
+                epgFile.AutoUpdate = request.AutoUpdate.Value;
                 ret.Add(new FieldData(() => epgFile.AutoUpdate));
             }
 
-            if (request.HoursToUpdate != null && epgFile.HoursToUpdate != request.HoursToUpdate)
+            if (request.HoursToUpdate.HasValue && epgFile.HoursToUpdate != request.HoursToUpdate)
             {
-                epgFile.HoursToUpdate = (int)request.HoursToUpdate;
+                epgFile.HoursToUpdate = request.HoursToUpdate.Value;
                 ret.Add(new FieldData(() => epgFile.HoursToUpdate));
             }
 

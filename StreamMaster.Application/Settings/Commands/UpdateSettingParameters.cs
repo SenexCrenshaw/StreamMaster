@@ -11,6 +11,8 @@ public class UpdateSettingParameters
     [TsProperty(ForceNullable = true)]
     public SDSettingsRequest? SDSettings { get; set; }
     public bool? ShowClientHostNames { get; set; }
+
+    public string? DefaultCompression { get; set; }
     public string? AdminPassword { get; set; }
     public string? AdminUserName { get; set; }
     //public string? ApiKey { get; set; }
@@ -24,6 +26,7 @@ public class UpdateSettingParameters
 
     public int? ShutDownDelay { get; set; }
     public bool? ShowMessageVideos { get; set; }
+
     public string? FFMPegExecutable { get; set; }
     public string? FFProbeExecutable { get; set; }
     public int? GlobalStreamLimit { get; set; }

@@ -3,8 +3,6 @@ using StreamMaster.Domain.Extensions;
 using StreamMaster.Domain.Helpers;
 
 using System.Diagnostics;
-using System.IO.Compression;
-using System.Net;
 using System.Text;
 using System.Xml.Serialization;
 
@@ -62,16 +60,6 @@ public sealed class FileUtil
         return BitConverter.ToString(hashBytes).Replace("-", "").ToLowerInvariant();
     }
 
-    //public static string EncodeToBase64(string url)
-    //{
-    //    if (string.IsNullOrEmpty(url))
-    //    {
-    //        throw new ArgumentNullException(nameof(url), "URL cannot be null or empty.");
-    //    }
-
-    //    byte[] plainTextBytes = Encoding.UTF8.GetBytes(url);
-    //    return Convert.ToBase64String(plainTextBytes);
-    //}
     public static async Task<bool> WaitForFileAsync(string filePath, int timeoutSeconds, int checkIntervalMilliseconds, CancellationToken cancellationToken)
     {
         try
@@ -197,71 +185,71 @@ public sealed class FileUtil
         return ret;
     }
 
-    public static async Task<(bool success, Exception? ex)> DownloadUrlAsync(string url, string fullName, CancellationToken cancellationToken)
-    {
-        if (url?.Contains("://") != true)
-        {
-            return (false, null);
-        }
+    //public static async Task<(bool success, Exception? ex)> DownloadUrlAsync(string url, string fullName, CancellationToken cancellationToken)
+    //{
+    //    if (url?.Contains("://") != true)
+    //    {
+    //        return (false, null);
+    //    }
 
-        try
-        {
-            HttpClientHandler handler = new()
-            {
-                AllowAutoRedirect = true,
-                MaxAutomaticRedirections = 10
-            };
+    //    try
+    //    {
+    //        HttpClientHandler handler = new()
+    //        {
+    //            AllowAutoRedirect = true,
+    //            MaxAutomaticRedirections = 10
+    //        };
 
-            using HttpClient httpClient = new(handler);
+    //        using HttpClient httpClient = new(handler);
 
-            const string userAgentString = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36 Edg/110.0.1587.57";
-            httpClient.DefaultRequestHeaders.Add("User-Agent", userAgentString);
+    //        const string userAgentString = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36 Edg/110.0.1587.57";
+    //        httpClient.DefaultRequestHeaders.Add("User-Agent", userAgentString);
 
-            try
-            {
-                string? path = Path.GetDirectoryName(fullName);
-                if (string.IsNullOrEmpty(path))
-                {
-                    return (false, null);
-                }
+    //        try
+    //        {
+    //            string? path = Path.GetDirectoryName(fullName);
+    //            if (string.IsNullOrEmpty(path))
+    //            {
+    //                return (false, null);
+    //            }
 
-                await using FileStream fileStream = new(fullName, FileMode.Create);
-                using HttpResponseMessage response = await httpClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+    //            await using FileStream fileStream = new(fullName, FileMode.Create);
+    //            using HttpResponseMessage response = await httpClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
 
-                if (response.StatusCode is HttpStatusCode.Forbidden or HttpStatusCode.NotFound)
-                {
-                    return (false, null);
-                }
+    //            if (response.StatusCode is HttpStatusCode.Forbidden or HttpStatusCode.NotFound)
+    //            {
+    //                return (false, null);
+    //            }
 
-                _ = response.EnsureSuccessStatusCode();
+    //            _ = response.EnsureSuccessStatusCode();
 
-                Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
-                if (stream != null)
-                {
-                    await stream.CopyToAsync(fileStream, cancellationToken).ConfigureAwait(false);
-                    stream.Close();
-                }
+    //            Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
+    //            if (stream != null)
+    //            {
+    //                await stream.CopyToAsync(fileStream, cancellationToken).ConfigureAwait(false);
+    //                stream.Close();
+    //            }
 
-                fileStream.Close();
-                return (true, null);
-            }
-            catch (HttpRequestException ex)
-            {
-                Console.WriteLine(ex.ToString());
-                return (false, ex);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.ToString());
-                return (false, ex);
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex.ToString());
-            return (false, ex);
-        }
-    }
+    //            fileStream.Close();
+    //            return (true, null);
+    //        }
+    //        catch (HttpRequestException ex)
+    //        {
+    //            Console.WriteLine(ex.ToString());
+    //            return (false, ex);
+    //        }
+    //        catch (Exception ex)
+    //        {
+    //            Console.WriteLine(ex.ToString());
+    //            return (false, ex);
+    //        }
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        Console.WriteLine(ex.ToString());
+    //        return (false, ex);
+    //    }
+    //}
 
     public static async Task<string> GetContentType(string Url)
     {
@@ -281,16 +269,6 @@ public sealed class FileUtil
         {
             return "";
         }
-    }
-
-    public static Stream GetFileDataStream(string source)
-    {
-        if (!IsFileGzipped(source))
-        {
-            return File.OpenRead(source);
-        }
-        FileStream fs = File.OpenRead(source);
-        return new GZipStream(fs, CompressionMode.Decompress);
     }
 
     public static async Task Backup(int? versionsToKeep = null)
@@ -343,29 +321,6 @@ public sealed class FileUtil
             Console.WriteLine($"Backup Exception occurred: {ex.Message}");
         }
     }
-
-    public static async Task<string> GetFileData(string source)
-    {
-        try
-        {
-            if (!IsFileGzipped(source))
-            {
-                return await File.ReadAllTextAsync(source).ConfigureAwait(false);
-            }
-
-            await using FileStream fs = File.OpenRead(source);
-            await using GZipStream gzStream = new(fs, CompressionMode.Decompress);
-            using StreamReader reader = new(gzStream, Encoding.Default);
-
-            return await reader.ReadToEndAsync().ConfigureAwait(false);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex.ToString());
-            return "";
-        }
-    }
-
     public static async Task<List<TvLogoFile>> GetTVLogosFromDirectory(DirectoryInfo dirInfo, string tvLogosLocation, int startingId, CancellationToken cancellationToken = default)
     {
         List<TvLogoFile> ret = [];
@@ -412,25 +367,5 @@ public sealed class FileUtil
         }
 
         return ret;
-    }
-
-    public static bool IsFileGzipped(string filePath)
-    {
-        try
-        {
-            using FileStream fileStream = File.OpenRead(filePath);
-            byte[] signature = new byte[3];
-
-            // Read the first two bytes from the file
-            _ = fileStream.Read(signature, 0, 3);
-
-            // Gzip files start with the signature bytes 0x1F 0x8B
-            return signature[0] == 0x1F && signature[1] == 0x8B && signature[2] == 0x08;
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine("Error: " + ex.Message);
-            return false;
-        }
     }
 }

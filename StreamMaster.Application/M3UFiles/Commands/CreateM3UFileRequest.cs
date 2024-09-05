@@ -7,7 +7,7 @@ namespace StreamMaster.Application.M3UFiles.Commands;
 public record CreateM3UFileRequest(string Name, int MaxStreamCount, string? DefaultStreamGroupName, string? UrlSource, bool? SyncChannels, int? HoursToUpdate, int? StartingChannelNumber, bool? AutoSetChannelNumbers, List<string>? VODTags) : IRequest<APIResponse>;
 
 [LogExecutionTimeAspect]
-public class CreateM3UFileRequestHandler(ILogger<CreateM3UFileRequest> Logger, ICacheManager CacheManager, IMessageService messageService, IDataRefreshService dataRefreshService, IRepositoryWrapper Repository, IPublisher Publisher)
+public class CreateM3UFileRequestHandler(ILogger<CreateM3UFileRequest> Logger, IFileUtilService fileUtilService, ICacheManager CacheManager, IMessageService messageService, IDataRefreshService dataRefreshService, IRepositoryWrapper Repository, IPublisher Publisher)
     : IRequestHandler<CreateM3UFileRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(CreateM3UFileRequest request, CancellationToken cancellationToken)
@@ -20,7 +20,6 @@ public class CreateM3UFileRequestHandler(ILogger<CreateM3UFileRequest> Logger, I
         try
         {
             FileDefinition fd = FileDefinitions.M3U;
-            string fullName = Path.Combine(fd.DirectoryLocation, request.Name + fd.FileExtension);
 
             M3UFile m3UFile = new()
             {
@@ -41,7 +40,10 @@ public class CreateM3UFileRequestHandler(ILogger<CreateM3UFileRequest> Logger, I
             m3UFile.LastDownloadAttempt = SMDT.UtcNow;
 
             Logger.LogInformation("Add M3U From URL '{command.UrlSource}'", request.UrlSource);
-            (bool success, Exception? ex) = await FileUtil.DownloadUrlAsync(source, fullName, cancellationToken).ConfigureAwait(false);
+            string nameWithExtension = request.Name.EndsWith(fd.FileExtension) ? request.Name : request.Name + fd.FileExtension;
+            string fullName = Path.Combine(fd.DirectoryLocation, nameWithExtension);
+
+            (bool success, Exception? ex) = await fileUtilService.DownloadUrlAsync(source, fullName, cancellationToken).ConfigureAwait(false);
             if (success)
             {
                 m3UFile.LastDownloaded = File.GetLastWriteTime(fullName);
@@ -90,6 +92,16 @@ public class CreateM3UFileRequestHandler(ILogger<CreateM3UFileRequest> Logger, I
         }
         catch (Exception exception)
         {
+            //    if (File.Exists(fullName))
+            //    {
+            //        File.Delete(fullName);
+            //    }
+            //    string urlPath = Path.GetFileNameWithoutExtension(fullName) + ".url";
+            //    if (File.Exists(urlPath))
+            //    {
+            //        File.Delete(urlPath);
+            //    }
+
             await messageService.SendError("Exception adding M3U", exception.Message);
             Logger.LogCritical("Exception M3U From Form '{exception}'", exception);
         }

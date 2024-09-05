@@ -11,6 +11,11 @@ internal class GetChannelGroupsFromSMChannelsRequestHandler(IRepositoryWrapper R
     {
         List<string> cgNames = await Repository.SMChannel.GetQuery().Select(a => a.Group).Distinct().ToListAsync(cancellationToken: cancellationToken);
         List<ChannelGroup> channelGroups = await Repository.ChannelGroup.GetQuery().Where(a => cgNames.Contains(a.Name)).ToListAsync(cancellationToken: cancellationToken);
+        foreach (ChannelGroup channelGroup in channelGroups)
+        {
+            int active = await Repository.SMChannel.GetQuery().CountAsync(a => a.Group == channelGroup.Name, cancellationToken: cancellationToken);
+            channelGroup.ActiveCount = active;
+        }
         List<ChannelGroupDto> channelGroupDtos = mapper.Map<List<ChannelGroupDto>>(channelGroups);
         return DataResponse<List<ChannelGroupDto>>.Success(channelGroupDtos);
     }

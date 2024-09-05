@@ -7,6 +7,8 @@ import React from 'react';
 import { BaseSettings } from './BaseSettings';
 import { GetCheckBoxLine } from './components/GetCheckBoxLine';
 import { GetInputTextLine } from './components/GetInputTextLine';
+import { GetDropDownLine } from './components/GetDropDownLine';
+import { SelectItem } from 'primereact/selectitem';
 
 export function MiscSettings(): React.ReactElement {
   const settingsQuery = useGetSettings();
@@ -19,6 +21,34 @@ export function MiscSettings(): React.ReactElement {
     );
   }
 
+  const getLogoStyleOptions = (): SelectItem[] => {
+    var options = ['Dark', 'Gray', 'Light', 'White'];
+
+    const test = options.map(
+      (word) =>
+        ({
+          label: word,
+          value: word.toLocaleLowerCase()
+        } as SelectItem)
+    );
+
+    return test;
+  };
+
+  const getDefaultCompressionOptions = (): SelectItem[] => {
+    var options = ['None', 'GZ', 'ZIP'];
+
+    const test = options.map(
+      (word) =>
+        ({
+          label: word,
+          value: word.toLocaleLowerCase()
+        } as SelectItem)
+    );
+
+    return test;
+  };
+
   return (
     <BaseSettings title="MISC">
       <>
@@ -27,7 +57,8 @@ export function MiscSettings(): React.ReactElement {
         {GetCheckBoxLine({ field: 'CacheIcons' })}
         {/* {getCheckBoxLine({  field: 'VideoStreamAlwaysUseEPGLogo' })} */}
         {GetInputTextLine({ field: 'DummyRegex' })}
-        {GetCheckBoxLine({ field: 'M3UIgnoreEmptyEPGID' })}
+        {/* {GetCheckBoxLine({ field: 'M3UIgnoreEmptyEPGID' })} */}
+        {GetDropDownLine({ field: 'DefaultCompression', options: getDefaultCompressionOptions() })}
         {/* {getCheckBoxLine({  field: 'm3UFieldGroupTitle' })} */}
         {/* {getCheckBoxLine({  field: 'm3UUseChnoForId' })} */}
         {/* {getCheckBoxLine({  field: 'm3UStationId' })} */}

@@ -1,11 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
+
 using StreamMaster.Application.SMTasks.Commands;
 using StreamMaster.Application.SMTasks.Queries;
 
-namespace StreamMaster.Application.SMTasks.Controllers
+namespace StreamMaster.Application.SMTasks
 {
     public partial class SMTasksController(ILogger<SMTasksController> _logger) : ApiControllerBase, ISMTasksController
-    {        
+    {
 
         [HttpGet]
         [Route("[action]")]
@@ -13,8 +14,8 @@ namespace StreamMaster.Application.SMTasks.Controllers
         {
             try
             {
-            DataResponse<List<SMTask>> ret = await Sender.Send(new GetSMTasksRequest()).ConfigureAwait(false);
-             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetSMTasks.", statusCode: 500) : Ok(ret.Data);
+                DataResponse<List<SMTask>> ret = await Sender.Send(new GetSMTasksRequest()).ConfigureAwait(false);
+                return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetSMTasks.", statusCode: 500) : Ok(ret.Data);
             }
             catch (Exception ex)
             {
@@ -40,7 +41,7 @@ namespace StreamMaster.Application.Hubs
     {
         public async Task<List<SMTask>> GetSMTasks()
         {
-             DataResponse<List<SMTask>> ret = await Sender.Send(new GetSMTasksRequest()).ConfigureAwait(false);
+            DataResponse<List<SMTask>> ret = await Sender.Send(new GetSMTasksRequest()).ConfigureAwait(false);
             return ret.Data;
         }
 

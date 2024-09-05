@@ -1,16 +1,14 @@
 ﻿namespace StreamMaster.Application.M3UFiles.Commands;
 
-
 public record ScanDirectoryForM3UFilesRequest : IRequest<DataResponse<bool>>;
 
-
 [LogExecutionTimeAspect]
-public class ScanDirectoryForM3UFilesRequestHandler(IPublisher Publisher, ICacheManager CacheManager, IRepositoryWrapper Repository, IMapper Mapper)
+public class ScanDirectoryForM3UFilesRequestHandler(IPublisher Publisher, ICacheManager CacheManager, IFileUtilService fileUtilService, IRepositoryWrapper Repository, IMapper Mapper)
     : IRequestHandler<ScanDirectoryForM3UFilesRequest, DataResponse<bool>>
 {
     public async Task<DataResponse<bool>> Handle(ScanDirectoryForM3UFilesRequest command, CancellationToken cancellationToken)
     {
-        IEnumerable<FileInfo> m3uFiles = GetM3UFilesFromDirectory();
+        IEnumerable<FileInfo> m3uFiles = fileUtilService.GetFilesFromDirectory(FileDefinitions.M3U);
         foreach (FileInfo m3uFileInfo in m3uFiles)
         {
             if (cancellationToken.IsCancellationRequested)
@@ -24,15 +22,6 @@ public class ScanDirectoryForM3UFilesRequestHandler(IPublisher Publisher, ICache
         return DataResponse.True;
     }
 
-    private static IEnumerable<FileInfo> GetM3UFilesFromDirectory()
-    {
-        FileDefinition fd = FileDefinitions.M3U;
-        DirectoryInfo m3uDirInfo = new(fd.DirectoryLocation);
-        EnumerationOptions er = new() { MatchCasing = MatchCasing.CaseInsensitive };
-
-        return m3uDirInfo.GetFiles($"*{fd.FileExtension}", er);
-    }
-
     private async Task ProcessM3UFile(FileInfo m3uFileInfo, CancellationToken cancellationToken)
     {
         if (string.IsNullOrEmpty(m3uFileInfo.DirectoryName))
@@ -44,7 +33,7 @@ public class ScanDirectoryForM3UFilesRequestHandler(IPublisher Publisher, ICache
         if (m3uFile == null)
         {
             m3uFile = CreateOrUpdateM3UFile(m3uFileInfo);
-            await SaveM3UFile(m3uFile, cancellationToken);
+            await SaveM3UFile(m3uFile);
         }
 
         if (m3uFile != null)
@@ -52,7 +41,7 @@ public class ScanDirectoryForM3UFilesRequestHandler(IPublisher Publisher, ICache
             CacheManager.M3UMaxStreamCounts.AddOrUpdate(m3uFile.Id, m3uFile.MaxStreamCount, (_, _) => m3uFile.MaxStreamCount);
 
             M3UFileDto ret = Mapper.Map<M3UFileDto>(m3uFile);
-            await Publisher.Publish(new M3UFileProcessEvent(ret.Id, true), cancellationToken).ConfigureAwait(false);
+            await Publisher.Publish(new M3UFileProcessEvent(ret.Id, false), cancellationToken).ConfigureAwait(false);
         }
     }
 
@@ -75,7 +64,7 @@ public class ScanDirectoryForM3UFilesRequestHandler(IPublisher Publisher, ICache
         return m3uFile;
     }
 
-    private async Task SaveM3UFile(M3UFile m3uFile, CancellationToken cancellationToken)
+    private async Task SaveM3UFile(M3UFile m3uFile)
     {
         Repository.M3UFile.CreateM3UFile(m3uFile);
 

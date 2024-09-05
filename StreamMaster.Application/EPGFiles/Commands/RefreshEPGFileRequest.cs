@@ -4,7 +4,7 @@
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record RefreshEPGFileRequest(int Id) : IRequest<APIResponse>;
 
-public class RefreshEPGFileRequestHandler(ILogger<RefreshEPGFileRequest> Logger, IMessageService messageService, IMapper Mapper, IJobStatusService jobStatusService, IRepositoryWrapper Repository, IPublisher Publisher)
+public class RefreshEPGFileRequestHandler(ILogger<RefreshEPGFileRequest> Logger, IFileUtilService fileUtilService, IMessageService messageService, IMapper Mapper, IJobStatusService jobStatusService, IRepositoryWrapper Repository, IPublisher Publisher)
     : IRequestHandler<RefreshEPGFileRequest, APIResponse>
 {
 
@@ -43,7 +43,7 @@ public class RefreshEPGFileRequestHandler(ILogger<RefreshEPGFileRequest> Logger,
 
                     epgFile.LastDownloadAttempt = SMDT.UtcNow;
 
-                    (bool success, Exception? ex) = await FileUtil.DownloadUrlAsync(epgFile.Url, fullName, cancellationToken).ConfigureAwait(false);
+                    (bool success, Exception? ex) = await fileUtilService.DownloadUrlAsync(epgFile.Url, fullName, cancellationToken).ConfigureAwait(false);
                     if (success)
                     {
                         epgFile.DownloadErrors = 0;

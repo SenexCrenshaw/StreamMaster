@@ -1,11 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
+
 using StreamMaster.Application.Settings.Commands;
 using StreamMaster.Application.Settings.Queries;
 
-namespace StreamMaster.Application.Settings.Controllers
+namespace StreamMaster.Application.Settings
 {
     public partial class SettingsController(ILogger<SettingsController> _logger) : ApiControllerBase, ISettingsController
-    {        
+    {
 
         [HttpGet]
         [Route("[action]")]
@@ -13,8 +14,8 @@ namespace StreamMaster.Application.Settings.Controllers
         {
             try
             {
-            DataResponse<SettingDto> ret = await Sender.Send(new GetSettingsRequest()).ConfigureAwait(false);
-             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetSettings.", statusCode: 500) : Ok(ret.Data);
+                DataResponse<SettingDto> ret = await Sender.Send(new GetSettingsRequest()).ConfigureAwait(false);
+                return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetSettings.", statusCode: 500) : Ok(ret.Data);
             }
             catch (Exception ex)
             {
@@ -40,7 +41,7 @@ namespace StreamMaster.Application.Hubs
     {
         public async Task<SettingDto> GetSettings()
         {
-             DataResponse<SettingDto> ret = await Sender.Send(new GetSettingsRequest()).ConfigureAwait(false);
+            DataResponse<SettingDto> ret = await Sender.Send(new GetSettingsRequest()).ConfigureAwait(false);
             return ret.Data;
         }
 

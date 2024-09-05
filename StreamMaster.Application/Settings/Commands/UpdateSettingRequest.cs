@@ -75,6 +75,7 @@ public partial class UpdateSettingRequestHandler(
             destination.ArtworkSize = source.ArtworkSize;
         }
 
+
         if (source.ExcludeCastAndCrew.HasValue)
         {
             destination.ExcludeCastAndCrew = source.ExcludeCastAndCrew.Value;
@@ -214,7 +215,13 @@ public partial class UpdateSettingRequestHandler(
             currentSetting.ShowMessageVideos = request.Parameters.ShowMessageVideos.Value;
         }
 
-
+        if (!string.IsNullOrEmpty(request.Parameters.DefaultCompression))
+        {
+            string[] validCompressions = ["none", "gz", "zip"];
+            currentSetting.DefaultCompression = validCompressions.Contains(request.Parameters.DefaultCompression.ToLower())
+                ? request.Parameters.DefaultCompression
+                : "gz";
+        }
 
         if (request.Parameters.PrettyEPG.HasValue)
         {

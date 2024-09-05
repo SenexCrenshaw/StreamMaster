@@ -81,9 +81,6 @@ const SourceOrFileDialog = forwardRef<SMFileUploadRef, ExtSourceOrFileDialogProp
             darkBackGround
             disabled={file !== null}
             disableDebounce
-            placeholder="Source URL or File"
-            showClear={false}
-            value={sourceValue}
             onChange={(e) => {
               clearInputFile();
               if (e !== undefined) {
@@ -91,6 +88,9 @@ const SourceOrFileDialog = forwardRef<SMFileUploadRef, ExtSourceOrFileDialogProp
                 // onFileNameChange?.(e);
               }
             }}
+            placeholder="Source URL or File"
+            showClear={false}
+            value={sourceValue}
           />
         </div>
       );

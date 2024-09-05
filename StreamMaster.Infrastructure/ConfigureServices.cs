@@ -32,6 +32,8 @@ public static class ConfigureServices
         _ = services.AddSingleton<IStreamTracker, StreamTracker>();
         _ = services.AddSingleton<IMessageService, MessageService>();
         _ = services.AddSingleton<IDataRefreshService, DataRefreshService>();
+        _ = services.AddSingleton<IFileUtilService, FileUtilService>();
+
 
 
         // If needed, you can also pre-register specific instances
