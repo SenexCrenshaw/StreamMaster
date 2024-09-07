@@ -707,12 +707,12 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>, ref: 
     return 'sm-datatable surface-overlay';
   }, []);
 
-  const getWrapperDiv = useMemo(() => {
-    if (showPageination !== true) {
-      return 'sm-standard-border-bottom';
-    }
-    return 'sm-standard-border-bottom-no-radius';
-  }, [showPageination]);
+  // const getWrapperDiv = useMemo(() => {
+  //   if (showPageination !== true) {
+  //     return 'sm-standard-border-bottom';
+  //   }
+  //   return 'sm-standard-border-bottom-no-radius';
+  // }, [showPageination]);
 
   const getExpanderHeader = useMemo(() => {
     if (props.expanderHeader !== undefined) {
@@ -793,23 +793,30 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>, ref: 
         )}
 
         <DataTable
-          // id={props.id}
-          dataKey={props.dataKey || 'Id'}
           cellSelection={false}
+          currentPageReportTemplate="{first} to {last} of {totalRecords}"
+          dataKey={props.dataKey || 'Id'}
           editMode="cell"
-          filterDisplay="row"
           expandedRows={state.expandedRows}
+          filterDisplay="row"
           filters={isEmptyObject(state.filters) ? getEmptyFilter(props.columns, state.showHidden) : state.filters}
           first={state.pagedInformation ? state.pagedInformation.First : state.first}
           loading={props.noIsLoading !== true ? props.isLoading === true || isLoading === true : false}
+          lazy={isLazy}
+          onRowCollapse={(e) => {
+            setIsExpanded(false);
+            props.onRowCollapse?.(e);
+          }}
+          onRowExpand={(e) => {
+            setIsExpanded(true);
+            props.onRowExpand?.(e);
+          }}
           onRowReorder={(e) => {
             onRowReorder(e.value);
           }}
-          lazy={isLazy}
           onRowToggle={(e: any) => {
             if (props.singleExpand === true) {
               const expandedRows = findMissingKeys(state.expandedRows, e.data);
-
               setters.setExpandedRows(expandedRows);
             } else {
               setters.setExpandedRows(e.data as DataTableExpandedRows);
@@ -821,13 +828,12 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>, ref: 
           onFilter={onFilter}
           onPage={onPage}
           onRowClick={props.selectRow === true ? props.onRowClick : undefined}
-          // onSort={}
           paginator={showPageination}
           paginatorClassName="text-xs p-0 m-0"
           paginatorTemplate={getPageTemplate}
-          pt={{
-            wrapper: { className: getWrapperDiv }
-          }}
+          // pt={{
+          //   wrapper: { className: getWrapperDiv }
+          // }}
           ref={tableReference}
           rowClassName={props.rowClass ? props.rowClass : rowClass}
           rowExpansionTemplate={props.rowExpansionTemplate}
@@ -844,14 +850,6 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>, ref: 
           style={props.style}
           reorderableRows={props.reorderable}
           totalRecords={state.pagedInformation ? state.pagedInformation.TotalItemCount : undefined}
-          onRowCollapse={(e) => {
-            setIsExpanded(false);
-            props.onRowCollapse?.(e);
-          }}
-          onRowExpand={(e) => {
-            setIsExpanded(true);
-            props.onRowExpand?.(e);
-          }}
           value={dataSource} //props.dataSource !== undefined ? filteredValues : getDataFromQ} //{state.dataSource}
         >
           <Column

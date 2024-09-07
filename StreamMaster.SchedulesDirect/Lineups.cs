@@ -5,7 +5,7 @@ using StreamMaster.Domain.Helpers;
 
 using System.Text.RegularExpressions;
 namespace StreamMaster.SchedulesDirect;
-public class Lineups(ILogger<Lineups> logger, IOptionsMonitor<SDSettings> intSDSettings, IIconService iconService, ISchedulesDirectAPIService schedulesDirectAPI, IEPGCache<LineupResult> epgCache, ISchedulesDirectDataService schedulesDirectDataService)
+public class Lineups(ILogger<Lineups> logger, IOptionsMonitor<SDSettings> intSDSettings, ILogoService logoService, ISchedulesDirectAPIService schedulesDirectAPI, IEPGCache<LineupResult> epgCache, ISchedulesDirectDataService schedulesDirectDataService)
     : ILineups
 {
     private List<KeyValuePair<MxfService, string[]>> StationLogosToDownload = [];
@@ -288,7 +288,7 @@ public class Lineups(ILogger<Lineups> logger, IOptionsMonitor<SDSettings> intSDS
         foreach (MxfService? service in Services.Where(a => a.extras.ContainsKey("logo")))
         {
             StationImage artwork = service.extras["logo"];
-            iconService.AddIcon(artwork.Url, service.CallSign);
+            logoService.AddLogo(artwork.Url, service.CallSign);
         }
     }
 

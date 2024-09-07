@@ -34,20 +34,20 @@ public class GetProgrammesRequestHandler()
         return await Task.FromResult(new List<XmltvProgramme>());
         //}
 
-        //List<IconFileDto> icons = MemoryCache.Icons();
+        //List<LogoFileDto> icons = MemoryCache.Icons();
 
-        //foreach (Programme? prog in programmes.Where(a => a.Icon.Any()))
+        //foreach (Programme? prog in programmes.Where(a => a.M3ULogo.Any()))
         //{
-        //    foreach (TvIcon progIcon in prog.Icon)
+        //    foreach (TvIcon progIcon in prog.M3ULogo)
         //    {
         //        if (progIcon != null && !string.IsNullOrEmpty(progIcon.Src))
         //        {
-        //            IconFileDto? icon = icons.Find(a => a.SMFileType == SMFileTypes.ProgrammeIcon && a.Source == progIcon.Src);
+        //            LogoFileDto? icon = icons.Find(a => a.SMFileType == SMFileTypes.ProgrammeLogo && a.Source == progIcon.Src);
         //            if (icon == null)
         //            {
         //                continue;
         //            }
-        //            progIcon.Src = $"/api/files/{(int)SMFileTypes.ProgrammeIcon}/{HttpUtility.UrlEncode(icon.Source)}";
+        //            progIcon.Src = $"/api/files/{(int)SMFileTypes.ProgrammeLogo}/{HttpUtility.UrlEncode(icon.Source)}";
         //        }
         //    }
         //}

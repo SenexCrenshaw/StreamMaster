@@ -20,7 +20,7 @@ internal static class CSharpUtils
                 // Extract the generic arguments of the DataResponse type
                 Type? genericArgument = typeToCheck.GetGenericArguments().FirstOrDefault();
 
-                // Now we check if the generic argument is the expected type, in this case, List<IconFileDto>
+                // Now we check if the generic argument is the expected type, in this case, List<LogoFileDto>
                 if (genericArgument?.IsGenericType == true &&
                     genericArgument.GetGenericTypeDefinition() == typeof(List<>) &&
                     genericArgument.GetGenericArguments().FirstOrDefault()?.FullName == "StreamMaster.Domain.Dto.IconFileDto")

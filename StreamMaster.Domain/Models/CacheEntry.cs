@@ -34,7 +34,7 @@ public class CacheEntity : BaseEntity
     {
         if (string.IsNullOrEmpty(FileExtension))
         {
-            FileExtension = fd.FileExtension;
+            FileExtension = fd.DefaultExtension;
         }
 
         SMFileType = fd.SMFileType;

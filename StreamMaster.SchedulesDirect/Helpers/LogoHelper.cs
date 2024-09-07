@@ -7,7 +7,7 @@ using System.Web;
 
 namespace StreamMaster.SchedulesDirect.Helpers;
 
-public class IconHelper(IEPGHelper ePGHelper, IIconService iconService, IOptionsMonitor<Setting> intSettings) : IIconHelper
+public class LogoHelper(IEPGHelper ePGHelper, ILogoService logoService, IOptionsMonitor<Setting> intSettings) : IIconHelper
 {
     private readonly Setting settings = intSettings.CurrentValue;
 
@@ -32,7 +32,7 @@ public class IconHelper(IEPGHelper ePGHelper, IIconService iconService, IOptions
 
         if (string.IsNullOrEmpty(iconOriginalSource))
         {
-            return $"{_baseUrl}{settings.DefaultIcon}";
+            return $"{_baseUrl}{settings.DefaultLogo}";
         }
 
         string originalUrl = iconOriginalSource;
@@ -45,7 +45,7 @@ public class IconHelper(IEPGHelper ePGHelper, IIconService iconService, IOptions
         SMFileTypes? smtype = sMFileTypes;
         if (smtype == null)
         {
-            ImagePath? imagePath = iconService.GetValidImagePath(iconOriginalSource);
+            ImagePath? imagePath = logoService.GetValidImagePath(iconOriginalSource);
 
             if (imagePath != null)
             {
@@ -53,14 +53,14 @@ public class IconHelper(IEPGHelper ePGHelper, IIconService iconService, IOptions
             }
 
         }
-        smtype ??= SMFileTypes.Icon;
+        smtype ??= SMFileTypes.Logo;
 
-        string icon = settings.CacheIcons ? GetApiUrl((SMFileTypes)smtype, originalUrl, _baseUrl) : iconOriginalSource;
+        string icon = settings.LogoCache.Equals("cache", StringComparison.CurrentCultureIgnoreCase) ? GetApiUrl((SMFileTypes)smtype, originalUrl, _baseUrl) : iconOriginalSource;
 
         return icon;
     }
 
-    public static IconFileDto GetIcon(string sourceUrl, string? recommendedName, int fileId, FileDefinition fileDefinition)
+    public static LogoFileDto GetLogo(string sourceUrl, string? recommendedName, int fileId, FileDefinition fileDefinition)
     {
         string source = HttpUtility.UrlDecode(sourceUrl);
         string ext = Path.GetExtension(source)?.TrimStart('.') ?? string.Empty;
@@ -76,7 +76,7 @@ public class IconHelper(IEPGHelper ePGHelper, IIconService iconService, IOptions
             (_, name) = fileDefinition.DirectoryLocation.GetRandomFileName($".{ext}");
         }
 
-        IconFileDto icon = new()
+        LogoFileDto icon = new()
         {
             Source = source,
             Extension = ext,

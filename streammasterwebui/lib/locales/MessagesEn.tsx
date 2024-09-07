@@ -43,7 +43,7 @@ const MessagesEn: messages_enType = {
   BackupInterval: 'Interval',
   backups: 'Backups',
   BackupVersionsToKeep: 'Versions',
-  CacheIcons: 'Cache Icons',
+  LogoCache: 'Cache Logos',
   changesServiceRestart: 'Changes require a service restart',
   channel: 'Channel',
   channels: 'Channels',

@@ -1,6 +1,5 @@
 import ChannelGroupSelectorForSMChannels from '@components/channelGroups/ChannelGroupSelectorForSMChannels';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
-
 import { arraysEqual } from '@components/smDataTable/helpers/arraysEqual';
 import useSelectedAndQ from '@lib/hooks/useSelectedAndQ';
 import { useFilters } from '@lib/redux/hooks/filters';

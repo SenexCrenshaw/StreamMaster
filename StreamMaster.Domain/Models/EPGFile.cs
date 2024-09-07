@@ -44,15 +44,21 @@ public class EPGFile : AutoUpdateEntity
 
     public EPGFile()
     {
-        FileExtension = FileDefinitions.EPG.FileExtension;
+        FileExtension = FileDefinitions.EPG.DefaultExtension;
         SMFileType = FileDefinitions.EPG.SMFileType;
     }
+
     public DateTime LastWrite()
     {
         string fileName = Path.Combine(FileDefinitions.EPG.DirectoryLocation, Source);
-        DateTime lastWrite = File.GetLastWriteTime(fileName);
+        if (File.Exists(fileName))
+        {
+            return File.GetLastWriteTime(fileName);
+        }
 
-        return lastWrite;
+        return File.Exists(fileName + ".gz")
+            ? File.GetLastWriteTime(fileName + ".gz")
+            : File.Exists(fileName + ".zip") ? File.GetLastWriteTime(fileName + ".zip") : default;
     }
     public int ChannelCount { get; set; }
     public int ProgrammeCount { get; set; }

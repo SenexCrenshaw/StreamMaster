@@ -4,7 +4,7 @@
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record ScanForCustomRequest : IRequest<APIResponse>;
 
-public class ScanForCustomPlayListsRequestHandler(IOptionsMonitor<CommandProfileDict> optionsOutputProfiles, IOptionsMonitor<Setting> _settings, ICacheManager cacheManager, IStreamGroupService streamGroupService, IIconService iconService, IIntroPlayListBuilder introPlayListBuilder, ICustomPlayListBuilder CustomPlayListBuilder, IRepositoryWrapper Repository)
+public class ScanForCustomPlayListsRequestHandler(IOptionsMonitor<CommandProfileDict> optionsOutputProfiles, IOptionsMonitor<Setting> _settings, ICacheManager cacheManager, IStreamGroupService streamGroupService, ILogoService logoService, IIntroPlayListBuilder introPlayListBuilder, ICustomPlayListBuilder CustomPlayListBuilder, IRepositoryWrapper Repository)
     : IRequestHandler<ScanForCustomRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(ScanForCustomRequest command, CancellationToken cancellationToken)
@@ -148,13 +148,13 @@ public class ScanForCustomPlayListsRequestHandler(IOptionsMonitor<CommandProfile
     {
         if (!string.IsNullOrEmpty(customPlayList.Logo))
         {
-            IconFileDto iconFileDto = new()
+            LogoFileDto iconFileDto = new()
             {
                 Name = customPlayList.Name,
                 Source = customPlayList.Logo,
                 SMFileType = SMFileTypes.CustomPlayList
             };
-            iconService.AddIcon(iconFileDto);
+            logoService.AddLogo(iconFileDto);
         }
     }
 }

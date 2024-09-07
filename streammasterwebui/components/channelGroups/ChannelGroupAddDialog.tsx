@@ -55,6 +55,7 @@ const ChannelGroupAddDialog: FC = () => {
       placement="bottom-end"
       title="Create Group"
       tooltip="Create Group"
+      zIndex={12}
     >
       <div className="flex grid justify-content-center align-items-center w-full">
         <div className="flex col-10 mt-1">

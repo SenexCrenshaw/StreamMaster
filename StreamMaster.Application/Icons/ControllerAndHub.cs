@@ -9,11 +9,11 @@ namespace StreamMaster.Application.Icons
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<ActionResult<List<IconFileDto>>> GetIcons()
+        public async Task<ActionResult<List<LogoFileDto>>> GetIcons()
         {
             try
             {
-                DataResponse<List<IconFileDto>> ret = await Sender.Send(new GetIconsRequest()).ConfigureAwait(false);
+                DataResponse<List<LogoFileDto>> ret = await Sender.Send(new GetIconsRequest()).ConfigureAwait(false);
                 return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetIcons.", statusCode: 500) : Ok(ret.Data);
             }
             catch (Exception ex)
@@ -30,9 +30,9 @@ namespace StreamMaster.Application.Hubs
 {
     public partial class StreamMasterHub : IIconsHub
     {
-        public async Task<List<IconFileDto>> GetIcons()
+        public async Task<List<LogoFileDto>> GetIcons()
         {
-            DataResponse<List<IconFileDto>> ret = await Sender.Send(new GetIconsRequest()).ConfigureAwait(false);
+            DataResponse<List<LogoFileDto>> ret = await Sender.Send(new GetIconsRequest()).ConfigureAwait(false);
             return ret.Data;
         }
 

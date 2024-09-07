@@ -8550,6 +8550,7 @@ div[aria-haspopup=dialog] {
   padding-left: 0.1rem;
   padding-right: 0.1rem;
 }
+
 .p-datatable-thead {
   padding: 0;
   height: 2.2rem;
@@ -8558,11 +8559,6 @@ div[aria-haspopup=dialog] {
 
 .pl-15 {
   padding-left: 0.35rem;
-}
-
-.p-paginator-bottom {
-  border-top-left-radius: 0 !important;
-  border-top-right-radius: 0 !important;
 }
 
 .p-dropdown-label.p-inputtext {
@@ -8800,10 +8796,6 @@ div[aria-haspopup=dialog] {
 .sm-card .sm-card-children-content .p-datatable-table, .sm-card-dark .sm-card-children-content .p-datatable-table, .sm-card-simple .sm-card-children-content .p-datatable-table {
   border: unset !important;
 }
-.sm-card .sm-card-children-content .p-dropdown, .sm-card-dark .sm-card-children-content .p-dropdown, .sm-card-simple .sm-card-children-content .p-dropdown {
-  height: 0;
-  max-width: 0;
-}
 
 .sm-card-simple .sm-card-children-info {
   border-bottom-left-radius: 0;
@@ -8830,10 +8822,6 @@ div[aria-haspopup=dialog] {
 }
 .sm-card-simple .sm-card-children-content .p-datatable-table {
   border: unset !important;
-}
-.sm-card-simple .sm-card-children-content .p-dropdown {
-  height: 0;
-  max-width: 0;
 }
 
 .sm-card-dark .sm-card-children-info {
@@ -9282,6 +9270,10 @@ div[aria-haspopup=dialog] {
   z-index: 2;
   width: 100%;
   padding: 0.5rem;
+}
+
+.p-paginator-bottom .p-dropdown {
+  align-items: center;
 }
 
 .sm-modal {

@@ -18,7 +18,7 @@ public class ScanDirectoryForIconFilesRequestHandler : IRequestHandler<ScanDirec
     public Task<bool> Handle(ScanDirectoryForIconFilesRequest command, CancellationToken cancellationToken)
     {
         return Task.FromResult(false);
-        //FileDefinition fd = FileDefinitions.Icon;
+        //FileDefinition fd = FileDefinitions.M3ULogo;
 
         //DirectoryInfo iconDirInfo = new(fd.DirectoryLocation);
 

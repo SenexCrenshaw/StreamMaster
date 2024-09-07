@@ -10,16 +10,41 @@ namespace StreamMaster.Infrastructure.Services
     public class FileUtilService(ILogger<FileUtilService> logger, IOptionsMonitor<Setting> _settings)
         : IFileUtilService
     {
-        public Stream GetFileDataStream(string source)
+        public Stream? GetFileDataStream(string source)
         {
             string extension = Path.GetExtension(source).ToLowerInvariant();
-            FileStream fileStream = File.OpenRead(source);
 
-            if (extension == ".gz" || IsFileGzipped(source))
+            FileStream? fileStream;
+
+            if (File.Exists(source + ".gz"))
+            {
+                fileStream = File.OpenRead(source + ".gz");
+                return new GZipStream(fileStream, CompressionMode.Decompress);
+            }
+            else if (File.Exists(source + ".zip"))
+            {
+                fileStream = File.OpenRead(source + ".zip");
+                ZipArchive zipArchive = new(fileStream, ZipArchiveMode.Read);
+                ZipArchiveEntry zipEntry = zipArchive.Entries[0]; // Read the first entry
+                return zipEntry.Open(); // Stream remains open even after ZipArchive is disposed
+            }
+            else
+            {
+                if (File.Exists(source))
+                {
+                    fileStream = File.OpenRead(source);
+                }
+                else
+                {
+                    return null;
+                }
+            }
+
+            if (IsFileGzipped(source))
             {
                 return new GZipStream(fileStream, CompressionMode.Decompress);
             }
-            else if (extension == ".zip" || IsFileZipped(source))
+            else if (IsFileZipped(source))
             {
                 ZipArchive zipArchive = new(fileStream, ZipArchiveMode.Read);
                 ZipArchiveEntry zipEntry = zipArchive.Entries[0]; // Read the first entry
@@ -31,7 +56,7 @@ namespace StreamMaster.Infrastructure.Services
         public IEnumerable<FileInfo> GetFilesFromDirectory(FileDefinition fileDefinition)
         {
             DirectoryInfo dirInfo = new(fileDefinition.DirectoryLocation);
-            string[] extensions = fileDefinition.FileExtension.Split('|');
+            string[] extensions = fileDefinition.FileExtensions.Split('|');
 
             return dirInfo.GetFiles("*.*", SearchOption.AllDirectories)
                 .Where(file => extensions.Contains(file.Extension.ToLower()) ||
@@ -39,7 +64,7 @@ namespace StreamMaster.Infrastructure.Services
                                extensions.Contains(file.Extension.ToLower() + ".zip"));
         }
 
-        public async Task<(bool success, Exception? ex)> DownloadUrlAsync(string url, string fullName, CancellationToken cancellationToken)
+        public async Task<(bool success, Exception? ex)> DownloadUrlAsync(string url, string fullName, bool? ignoreCompression = false)
         {
             if (string.IsNullOrWhiteSpace(url) || !url.Contains("://"))
             {
@@ -55,19 +80,19 @@ namespace StreamMaster.Infrastructure.Services
 
                 Directory.CreateDirectory(Path.GetDirectoryName(fullName) ?? string.Empty); // Ensure directory exists
 
-                using HttpResponseMessage response = await httpClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+                using HttpResponseMessage response = await httpClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
                 response.EnsureSuccessStatusCode(); // Ensure success
 
-                await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
+                await using Stream stream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
 
                 // Check if the file is already compressed
-                if (string.Equals(_settings.CurrentValue.DefaultCompression, "none", StringComparison.OrdinalIgnoreCase) || IsFileGzipped(fullName) || IsFileZipped(fullName))
+                if (ignoreCompression == true || string.Equals(_settings.CurrentValue.DefaultCompression, "none", StringComparison.OrdinalIgnoreCase) || IsFileGzipped(fullName) || IsFileZipped(fullName))
                 {
-                    await SaveStreamToFile(stream, fullName, "none", cancellationToken);
+                    await SaveStreamToFile(stream, fullName, "none");
                 }
                 else
                 {
-                    await SaveStreamToFile(stream, fullName, _settings.CurrentValue.DefaultCompression, cancellationToken);
+                    await SaveStreamToFile(stream, fullName, _settings.CurrentValue.DefaultCompression);
                 }
 
                 return (true, null);
@@ -88,11 +113,11 @@ namespace StreamMaster.Infrastructure.Services
                 // Check if the uploaded file is already compressed
                 if (IsFileGzipped(fileName) || IsFileZipped(fileName))
                 {
-                    await SaveStreamToFile(data.OpenReadStream(), fileName, "none", CancellationToken.None); // No additional compression
+                    await SaveStreamToFile(data.OpenReadStream(), fileName, "none"); // No additional compression
                 }
                 else
                 {
-                    await SaveStreamToFile(data.OpenReadStream(), fileName, compression, CancellationToken.None);
+                    await SaveStreamToFile(data.OpenReadStream(), fileName, compression);
                 }
 
                 return (true, null);
@@ -104,15 +129,8 @@ namespace StreamMaster.Infrastructure.Services
             }
         }
 
-        private static async Task SaveStreamToFile(Stream inputStream, string fileName, string compression, CancellationToken cancellationToken)
+        private static async Task SaveStreamToFile(Stream inputStream, string fileName, string compression)
         {
-            //string compressedFileName = compression switch
-            //{
-            //    "gz" => fileName + ".gz",
-            //    "zip" => Path.ChangeExtension(fileName, ".zip"),
-            //    _ => fileName // No compression
-            //};
-
             string compressedFileName = fileName;
 
             await using FileStream fileStream = File.Create(compressedFileName);
@@ -120,18 +138,18 @@ namespace StreamMaster.Infrastructure.Services
             if (compression == "gz")
             {
                 await using GZipStream gzipStream = new(fileStream, CompressionMode.Compress);
-                await inputStream.CopyToAsync(gzipStream, cancellationToken).ConfigureAwait(false);
+                await inputStream.CopyToAsync(gzipStream).ConfigureAwait(false);
             }
             else if (compression == "zip")
             {
                 using ZipArchive zipArchive = new(fileStream, ZipArchiveMode.Create);
                 ZipArchiveEntry zipEntry = zipArchive.CreateEntry(Path.GetFileName(fileName));
                 await using Stream zipStream = zipEntry.Open();
-                await inputStream.CopyToAsync(zipStream, cancellationToken).ConfigureAwait(false);
+                await inputStream.CopyToAsync(zipStream).ConfigureAwait(false);
             }
             else // No compression
             {
-                await inputStream.CopyToAsync(fileStream, cancellationToken).ConfigureAwait(false);
+                await inputStream.CopyToAsync(fileStream).ConfigureAwait(false);
             }
         }
 
@@ -167,6 +185,16 @@ namespace StreamMaster.Infrastructure.Services
                 logger.LogError(ex, "Error checking if file {FilePath} is gzipped.", filePath);
                 return false;
             }
+        }
+
+        public string CheckNeedsCompression(string fullName)
+        {
+            return (_settings.CurrentValue.DefaultCompression?.ToLower()) switch
+            {
+                "gz" => fullName + ".gz",
+                "zip" => fullName + ".zip",
+                _ => fullName,
+            };
         }
     }
 }

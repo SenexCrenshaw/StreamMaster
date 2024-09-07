@@ -13,7 +13,7 @@ const help_en: help_enType = {
   BackupEnabled: 'Enable Backups',
   BackupVersionsToKeep: 'Number of Backup Versions to keep',
   BackupInterval: 'Backup Interval (hours)',
-  CacheIcons: 'Cache Icons to the local disk to speed things up',
+  LogoCache: 'Cache Logos to the local disk to speed things up',
   CleanURLs: 'Remove URLs from being logged',
   ShowIntros: 'Show Intros never, once at the beginning, or always',
   // ClientUserAgent: 'Client User Agent used for downloads, epg/m3u/icons/schedules direct',

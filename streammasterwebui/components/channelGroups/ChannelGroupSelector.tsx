@@ -1,7 +1,7 @@
 import useGetChannelGroups from '@lib/smAPI/ChannelGroups/useGetChannelGroups';
 import { ChannelGroupDto } from '@lib/smAPI/smapiTypes';
 import { memo } from 'react';
-import BaseChannelGroupSelector from './BaseChannelGroupSelector';
+import BaseChannelGroupPagedSelector from './BaseChannelGroupPagedSelector';
 
 type ChannelGroupSelectorProperties = {
   readonly dataKey: string;
@@ -15,7 +15,7 @@ type ChannelGroupSelectorProperties = {
 };
 
 const ChannelGroupSelector = (props: ChannelGroupSelectorProperties) => {
-  return <BaseChannelGroupSelector {...props} getNamesQuery={useGetChannelGroups} />;
+  return <BaseChannelGroupPagedSelector {...props} getNamesQuery={useGetChannelGroups} />;
 };
 
 ChannelGroupSelector.displayName = 'ChannelGroupSelector';

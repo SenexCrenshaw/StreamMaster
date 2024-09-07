@@ -6,7 +6,6 @@ using StreamMaster.Domain.Crypto;
 
 using System.Collections.Concurrent;
 using System.Linq.Expressions;
-using System.Net;
 using System.Reflection;
 using System.Text;
 
@@ -25,6 +24,7 @@ public class EncodedData
 public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
     IProfileService profileService,
     IStreamGroupService streamGroupService,
+    ILogoService logoService,
     IRepositoryWrapper Repository,
     IOptionsMonitor<Setting> _settings
     )
@@ -184,7 +184,7 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
         }
     }
 
-    private (int ChNo, string m3uLine) BuildM3ULineForVideoStream(SMChannel smChannel, string url, GetStreamGroupM3U request, OutputProfile profile, Setting settings, List<VideoStreamConfig> videoStreamConfigs, string encodedString, string cleanName)
+    private (int ChNo, string m3uLine) BuildM3ULineForVideoStream(SMChannel smChannel, string baseUrl, GetStreamGroupM3U request, OutputProfile profile, Setting settings, List<VideoStreamConfig> videoStreamConfigs, string encodedString, string cleanName)
     {
         if (string.IsNullOrEmpty(encodedString) || string.IsNullOrEmpty(cleanName))
         {
@@ -195,12 +195,12 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
 
         VideoStreamConfig videoStreamConfig = videoStreamConfigs.First(a => a.Id == smChannel.Id);
 
-        string logo = GetIconUrl(smChannel.Logo, settings);
+        string logo = logoService.GetLogoUrl(smChannel.Logo, baseUrl);
         smChannel.Logo = logo;
 
         string videoUrl = request.IsShort
-            ? $"{url}/v/{request.StreamGroupProfileId}/{smChannel.Id}"
-            : $"{url}/api/videostreams/stream/{encodedString}/{cleanName}";
+            ? $"{baseUrl}/v/{request.StreamGroupProfileId}/{smChannel.Id}"
+            : $"{baseUrl}/api/videostreams/stream/{encodedString}/{cleanName}";
 
         List<string> fieldList = ["#EXTINF:-1"];
 
@@ -255,41 +255,41 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
 
         return (smChannel.ChannelNumber, lines);
     }
-    private string GetIconUrl(string iconOriginalSource, Setting setting)
-    {
-        string url = httpContextAccessor.GetUrl();
+    //private string GetIconUrl(string iconOriginalSource, Setting setting)
+    //{
+    //    string baseUrl = httpContextAccessor.GetUrl();
 
-        if (string.IsNullOrEmpty(iconOriginalSource))
-        {
-            return $"{url}{setting.DefaultIcon}";
-        }
+    //    if (string.IsNullOrEmpty(iconOriginalSource))
+    //    {
+    //        return $"{baseUrl}{setting.DefaultLogo}";
+    //    }
 
-        string originalUrl = iconOriginalSource;
+    //    string originalUrl = iconOriginalSource;
 
-        if (iconOriginalSource.StartsWith('/'))
-        {
-            iconOriginalSource = iconOriginalSource[1..];
-        }
+    //    if (iconOriginalSource.StartsWith('/'))
+    //    {
+    //        iconOriginalSource = iconOriginalSource[1..];
+    //    }
 
-        if (iconOriginalSource.StartsWith("images/"))
-        {
-            return $"{url}/{iconOriginalSource}";
-        }
-        else if (!iconOriginalSource.StartsWith("http"))
-        {
-            return GetApiUrl(SMFileTypes.TvLogo, originalUrl);
-        }
-        else if (setting.CacheIcons)
-        {
-            return GetApiUrl(SMFileTypes.Icon, originalUrl);
-        }
+    //    if (iconOriginalSource.StartsWith("images/"))
+    //    {
+    //        return $"{baseUrl}/{iconOriginalSource}";
+    //    }
+    //    else if (!iconOriginalSource.StartsWith("http"))
+    //    {
+    //        return GetApiUrl(SMFileTypes.TvLogo, originalUrl);
+    //    }
+    //    else if (string.Equals(setting.LogoCache, "cache", StringComparison.OrdinalIgnoreCase))
+    //    {
+    //        return GetApiUrl(SMFileTypes.Logo, originalUrl);
+    //    }
 
-        return iconOriginalSource;
-    }
+    //    return iconOriginalSource;
+    //}
 
-    private string GetApiUrl(SMFileTypes path, string source)
-    {
-        string url = httpContextAccessor.GetUrl();
-        return $"{url}/api/files/{(int)path}/{WebUtility.UrlEncode(source)}";
-    }
+    //private string GetApiUrl(SMFileTypes path, string source)
+    //{
+    //    string baseUrl = httpContextAccessor.GetUrl();
+    //    return $"{baseUrl}/api/files/{(int)path}/{WebUtility.UrlEncode(source)}";
+    //}
 }

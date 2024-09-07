@@ -2,7 +2,7 @@
 
 namespace StreamMaster.Application.Icons.CommandsOld;
 
-public record AutoMatchIconToStreamsRequest(List<string> Ids) : IRequest<IconFileDto?>;
+public record AutoMatchIconToStreamsRequest(List<string> Ids) : IRequest<LogoFileDto?>;
 
 public class AutoMatchIconToStreamsRequestValidator : AbstractValidator<AutoMatchIconToStreamsRequest>
 {
@@ -13,9 +13,9 @@ public class AutoMatchIconToStreamsRequestValidator : AbstractValidator<AutoMatc
 }
 
 public class AutoMatchIconToStreamsRequestHandler(IRepositoryWrapper Repository)
-    : IRequestHandler<AutoMatchIconToStreamsRequest, IconFileDto?>
+    : IRequestHandler<AutoMatchIconToStreamsRequest, LogoFileDto?>
 {
-    public async Task<IconFileDto?> Handle(AutoMatchIconToStreamsRequest request, CancellationToken cancellationToken)
+    public async Task<LogoFileDto?> Handle(AutoMatchIconToStreamsRequest request, CancellationToken cancellationToken)
     {
         if (request.Ids == null || request.Ids.Count == 0)
         {

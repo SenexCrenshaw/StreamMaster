@@ -6,7 +6,7 @@ using System.Text;
 
 namespace StreamMaster.API.Controllers;
 
-public class MiscController(IImageDownloadService imageDownloadService, ISourceBroadcasterService channelDistributorService) : ApiControllerBase
+public class MiscController(IImageDownloadService imageDownloadService, ILogoService logoService, ISourceBroadcasterService channelDistributorService) : ApiControllerBase
 {
     [HttpGet]
     [Route("[action]")]
@@ -22,6 +22,14 @@ public class MiscController(IImageDownloadService imageDownloadService, ISourceB
     {
         List<ISourceBroadcaster> channelDistributors = channelDistributorService.GetStreamBroadcasters();
         return Ok(channelDistributors);
+    }
+
+    [HttpGet]
+    [Route("[action]")]
+    public async Task<IActionResult> CacheSMChannelIcons()
+    {
+        await logoService.CacheSMChannelLogos();
+        return Ok();
     }
 
     [HttpGet]

@@ -2,7 +2,7 @@
 // import ExportButton from '@components/export/ExportButton';
 
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
-import { IconFileDto, SMFileTypes, StationIdLineup, StationPreview } from '@lib/smAPI/smapiTypes';
+import { SMFileTypes, StationIdLineup, StationPreview } from '@lib/smAPI/smapiTypes';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { Checkbox } from 'primereact/checkbox';
 import { type DataTableFilterMeta, type DataTableFilterMetaData } from 'primereact/datatable';
@@ -270,28 +270,6 @@ export interface HasId {
   id: number | string;
 }
 
-export function compareIconFileDto(a: IconFileDto, b: IconFileDto): number {
-  // Compare by id
-  if (a.Id !== undefined && b.Id !== undefined) {
-    if (a.Id < b.Id) return -1;
-    if (a.Id > b.Id) return 1;
-  }
-
-  // Compare by source
-  if (a.Source !== undefined && b.Source !== undefined) {
-    const sourceComparison = a.Source.localeCompare(b.Source);
-
-    if (sourceComparison !== 0) return sourceComparison;
-  }
-
-  // Compare by name
-  if (a.Name !== undefined && b.Name !== undefined) {
-    return a.Name.localeCompare(b.Name);
-  }
-
-  return 0;
-}
-
 export function arraysContainSameStrings(array1: string[] | undefined, array2: string[] | undefined): boolean {
   if (!array1 || !array2) return false;
 
@@ -306,20 +284,6 @@ export function arraysContainSameStrings(array1: string[] | undefined, array2: s
 
   for (const [index, element] of sortedArray1.entries()) {
     if (element !== sortedArray2[index]) return false;
-  }
-
-  return true;
-}
-
-export function areIconFileDtosEqual(array1: IconFileDto[], array2: IconFileDto[]): boolean {
-  if (array1.length !== array2.length) {
-    return false;
-  }
-
-  for (const [index, element] of array1.entries()) {
-    if (compareIconFileDto(element, array2[index]) !== 0) {
-      return false;
-    }
   }
 
   return true;
@@ -438,7 +402,7 @@ export function getIconUrl(iconOriginalSource: string | null | undefined, defaul
   } else if (!iconOriginalSource.startsWith('http')) {
     iconOriginalSource = getApiUrl(SMFileTypes.TvLogo, originalUrl);
   } else if (cacheIcon) {
-    iconOriginalSource = getApiUrl(SMFileTypes.Icon, originalUrl);
+    iconOriginalSource = getApiUrl(SMFileTypes.Logo, originalUrl);
   }
 
   return iconOriginalSource;

@@ -26,7 +26,7 @@ import { useIsTrue } from '@lib/redux/hooks/isTrue';
 import { useQueryFilter } from '@lib/redux/hooks/queryFilter';
 import useGetPagedSMChannels from '@lib/smAPI/SMChannels/useGetPagedSMChannels';
 import { SMChannelDto } from '@lib/smAPI/smapiTypes';
-import { DataTableRowData, DataTableRowEvent, DataTableRowExpansionTemplate, DataTableValue } from 'primereact/datatable';
+import { DataTableRowData, DataTableRowExpansionTemplate, DataTableValue } from 'primereact/datatable';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import SMChannelMenu from './SMChannelMenu';
 import SMStreamDataSelectorValue from './SMStreamDataSelectorValue';
@@ -263,16 +263,6 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id }: SMChannelDat
       headerName={headerTitle()}
       id={dataKey}
       isLoading={isLoading}
-      onRowExpand={(e: DataTableRowEvent) => {
-        // if (e.data.Id !== selectedSMChannel?.Id) {
-        //   setSelectedSMChannel(e.data as SMChannelDto);
-        // }
-      }}
-      onRowCollapse={(e: DataTableRowEvent) => {
-        // if (e.data.Id === selectedSMChannel?.Id) {
-        //   setSelectedSMChannel(undefined);
-        // }
-      }}
       ref={smDataTableRef}
       rowClass={rowClass}
       setSelectedSMChannel

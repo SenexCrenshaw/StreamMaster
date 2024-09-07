@@ -15,13 +15,15 @@ public class BaseSettings
     public bool BackupEnabled { get; set; } = true;
     public int BackupInterval { get; set; } = 4;
     public int BackupVersionsToKeep { get; set; } = 18;
-    public bool CacheIcons { get; set; } = true;
+    //public bool CacheIcons { get; set; } = true;
+    public string LogoCache { get; set; } = "Cache";
+    public int IconCacheExpirationDays { get; set; } = 7;
     public bool CleanURLs { get; set; } = true;
     public int ShutDownDelay { get; set; } = 1000;
     public bool ShowMessageVideos { get; set; } = false;
     public string ClientUserAgent { get; set; } = "VLC/3.0.20-git LibVLC/3.0.20-git";
 
-    public string DefaultIcon { get; set; } = "images/default.png";
+    public string DefaultLogo { get; set; } = "images/default.png";
     public string DefaultCompression { get; set; } = "gz";
     public string DeviceID { get; set; } = "device1";
     public string DummyRegex { get; set; } = "(no tvg-id)";

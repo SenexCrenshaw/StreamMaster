@@ -19,12 +19,15 @@ public class CreateM3UFileFromFormRequestHandler(ILogger<CreateM3UFileFromFormRe
         try
         {
             FileDefinition fd = FileDefinitions.M3U;
-            string fullName = Path.Combine(fd.DirectoryLocation, request.Name + fd.FileExtension);
+
+            string name = request.Name + fd.DefaultExtension;
+            string compressedFileName = fileUtilService.CheckNeedsCompression(name);
+            string fullName = Path.Combine(fd.DirectoryLocation, compressedFileName);
 
             M3UFile m3UFile = new()
             {
                 Name = request.Name,
-                Source = request.Name + fd.FileExtension,
+                Source = name,
                 MaxStreamCount = request.MaxStreamCount ?? 0,
                 VODTags = request.VODTags ?? [],
                 HoursToUpdate = request.HoursToUpdate ?? 72,

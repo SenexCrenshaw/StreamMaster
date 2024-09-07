@@ -21,7 +21,7 @@ public class BuildProgIconsCacheFromEPGsRequestHandler()
         //        continue;
         //    }
 
-        //    IEnumerable<TvChannel> epgChannels = tv.Channel.Where(a => a != null && a.Icon != null && a.Icon.Src != null && a.Icon.Src != "");
+        //    IEnumerable<TvChannel> epgChannels = tv.Channel.Where(a => a != null && a.M3ULogo != null && a.M3ULogo.Src != null && a.M3ULogo.Src != "");
 
         //    if (!epgChannels.Any()) { continue; }
 
@@ -69,13 +69,13 @@ public class BuildProgIconsCacheFromEPGsRequestHandler()
     //{
     //    foreach (TvChannel? channel in channels)
     //    {
-    //        if (channel is null || channel.Icon == null || string.IsNullOrEmpty(channel.Icon.Src) || channel.Displayname == null || channel.Displayname[0] == null || channel.Displayname[0] == "")
+    //        if (channel is null || channel.M3ULogo == null || string.IsNullOrEmpty(channel.M3ULogo.Src) || channel.Displayname == null || channel.Displayname[0] == null || channel.Displayname[0] == "")
     //        {
     //            continue;
     //        }
 
     //        if (cancellationToken.IsCancellationRequested) { return; }
-    //        string icon = channel.Icon.Src;
+    //        string icon = channel.M3ULogo.Src;
     //        string source = HttpUtility.UrlDecode(icon);
 
     //        if (source.ToLower().StartsWith("https://json.schedulesdirect.org/20141201/image/"))
@@ -84,7 +84,7 @@ public class BuildProgIconsCacheFromEPGsRequestHandler()
     //        else
     //        {
     //            string name = channel.Displayname != null ? channel.Displayname[0].ToString() : Path.GetFileNameWithoutExtension(source);
-    //            IconFileDto? iconDto = IconHelper.AddIcon(source, name, epgFileId, startId++, MemoryCache, FileDefinitions.ChannelIcon, cancellationToken);
+    //            LogoFileDto? iconDto = LogoHelper.AddIcon(source, name, epgFileId, startId++, MemoryCache, FileDefinitions.ChannelLogo, cancellationToken);
     //            if (iconDto is null)
     //            {
     //                continue;
@@ -133,7 +133,7 @@ public class BuildProgIconsCacheFromEPGsRequestHandler()
     //               epgids.Contains(a.Channel.ToLower()) ||
     //               epgids.Contains(a.DisplayName.ToLower())
     //           )
-    //           && a.Icon is not null && a.Icon.Count > 0 && a.Icon.Any(a => a.Src is not null)
+    //           && a.M3ULogo is not null && a.M3ULogo.Count > 0 && a.M3ULogo.Any(a => a.Src is not null)
     //           ).ToList();
 
     //    if (!programmes.Any()) { return; }
@@ -142,14 +142,14 @@ public class BuildProgIconsCacheFromEPGsRequestHandler()
     //    {
     //        if (cancellationToken.IsCancellationRequested) { return; }
 
-    //        if (programme is null || !programme.Icon.Any() || string.IsNullOrEmpty(programme.Icon[0].Src))
+    //        if (programme is null || !programme.M3ULogo.Any() || string.IsNullOrEmpty(programme.M3ULogo[0].Src))
     //        {
     //            continue;
     //        }
-    //        string source = HttpUtility.UrlDecode(programme.Icon[0].Src);
+    //        string source = HttpUtility.UrlDecode(programme.M3ULogo[0].Src);
     //        string? ext = Path.GetExtension(source);
     //        string name = string.Join("_", programme.Title[0].Text.Split(Path.GetInvalidFileNameChars())) + $".{ext}";
-    //        string fileName = $"{FileDefinitions.ProgrammeIcon.DirectoryLocation}{name}";
+    //        string fileName = $"{FileDefinitions.ProgrammeLogo.DirectoryLocation}{name}";
     //        bool result = true;
 
     //        if (source.ToLower().StartsWith("https://json.schedulesdirect.org/20141201/image/"))
@@ -162,7 +162,7 @@ public class BuildProgIconsCacheFromEPGsRequestHandler()
 
     //        if (result)
     //        {
-    //            IconFileDto? iconDto = IconHelper.AddIcon(source, programme.Title[0].Text, programme.EPGFileId, startId, MemoryCache, FileDefinitions.ProgrammeIcon, cancellationToken);
+    //            LogoFileDto? iconDto = LogoHelper.AddIcon(source, programme.Title[0].Text, programme.EPGFileId, startId, MemoryCache, FileDefinitions.ProgrammeLogo, cancellationToken);
     //            if (iconDto is null)
     //            {
     //                continue;

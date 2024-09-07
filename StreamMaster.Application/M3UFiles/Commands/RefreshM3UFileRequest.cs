@@ -39,7 +39,7 @@ public class RefreshM3UFileRequestHandler(ILogger<RefreshM3UFileRequest> Logger,
 
                     m3uFile.LastDownloadAttempt = SMDT.UtcNow;
 
-                    (bool success, Exception? ex) = await fileUtilService.DownloadUrlAsync(m3uFile.Url, fullName, cancellationToken).ConfigureAwait(false);
+                    (bool success, Exception? ex) = await fileUtilService.DownloadUrlAsync(m3uFile.Url, fullName).ConfigureAwait(false);
                     if (success)
                     {
                         m3uFile.DownloadErrors = 0;

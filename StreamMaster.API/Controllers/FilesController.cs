@@ -11,7 +11,7 @@ using System.Web;
 
 namespace StreamMaster.API.Controllers;
 
-public class FilesController(IMemoryCache memoryCache, IIconService iconService, IContentTypeProvider mimeTypeProvider) : ApiControllerBase, IFileController
+public class FilesController(IMemoryCache memoryCache, ILogoService logoService, IContentTypeProvider mimeTypeProvider) : ApiControllerBase, IFileController
 {
     [AllowAnonymous]
     [Route("{filetype}/{source}")]
@@ -46,12 +46,11 @@ public class FilesController(IMemoryCache memoryCache, IIconService iconService,
         //string returnName = "";
 
 
-        ImagePath? imagePath = iconService.GetValidImagePath(URL, fileType);
+        ImagePath? imagePath = logoService.GetValidImagePath(URL, fileType);
         if (imagePath == null)
         {
             return (null, null);
         }
-
 
         if (System.IO.File.Exists(imagePath.FullPath))
         {

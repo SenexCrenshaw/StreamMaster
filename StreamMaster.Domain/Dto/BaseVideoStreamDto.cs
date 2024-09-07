@@ -93,7 +93,7 @@ public class BaseVideoStreamDto /*: IMapFrom<VideoStream>*/
     /// <summary>
     /// Gets or sets the URL for the channel logo for the video stream.
     /// </summary>
-    public string Tvg_logo { get; set; } = BuildInfo.IconDefault;
+    public string Tvg_logo { get; set; } = BuildInfo.LogoDefault;
 
     /// <summary>
     /// Gets or sets the callsign for the video stream.
@@ -114,7 +114,7 @@ public class BaseVideoStreamDto /*: IMapFrom<VideoStream>*/
     public string User_Tvg_group { get; set; } = "All";
     public string User_Tvg_ID { get; set; } = string.Empty;
     public string User_Tvg_ID_DisplayName { get; set; } = string.Empty;
-    public string User_Tvg_logo { get; set; } = BuildInfo.IconDefault;
+    public string User_Tvg_logo { get; set; } = BuildInfo.LogoDefault;
 
     public string User_Tvg_name { get; set; } = string.Empty;
     public string User_Url { get; set; } = string.Empty;

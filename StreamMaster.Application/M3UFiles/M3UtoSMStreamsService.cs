@@ -7,7 +7,15 @@ public partial class M3UToSMStreamsService(ILogger<M3UToSMStreamsService> logger
 {
     public async IAsyncEnumerable<SMStream> GetSMStreamsFromM3U(M3UFile m3UFile)
     {
-        logger.LogInformation("Reading m3uFile {Name} and ignoring URLs with {VODS}", m3UFile.Name, string.Join(',', m3UFile.VODTags));
+        if (m3UFile.VODTags.Count != 0)
+        {
+            logger.LogInformation("Reading m3uFile {Name} and ignoring URLs with {VODS}", m3UFile.Name, string.Join(',', m3UFile.VODTags));
+        }
+        else
+        {
+            logger.LogInformation("Reading m3uFile {Name}", m3UFile.Name);
+        }
+
         await using Stream dataStream = fileUtilService.GetFileDataStream(Path.Combine(FileDefinitions.M3U.DirectoryLocation, m3UFile.Source));
 
         int segmentNumber = 0;
@@ -82,10 +90,11 @@ public partial class M3UToSMStreamsService(ILogger<M3UToSMStreamsService> logger
         {
             chNo = segmentNum + m3UFile.StartingChannelNumber;
         }
+
         SMStream? smStream = StringToSMStream(segment, chNo);
         if (smStream == null)
         {
-            logger.LogWarning("Could not create stream from segment {segmentNum}", segmentNum);
+            logger.LogWarning("Could not create stream from m3u line # {segmentNum} {segment}", segmentNum, segment);
             return null;
         }
 

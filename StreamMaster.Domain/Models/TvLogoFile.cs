@@ -1,13 +1,11 @@
-﻿using StreamMaster.Domain.Enums;
-
-namespace StreamMaster.Domain.Models;
+﻿namespace StreamMaster.Domain.Models;
 
 public class TvLogoFile : IconFile
 {
     public TvLogoFile()
     {
         //DirectoryLocation = FileDefinitions.TVLogo.DirectoryLocation;
-        FileExtension = FileDefinitions.TVLogo.FileExtension;
+        FileExtension = FileDefinitions.TVLogo.DefaultExtension;
         SMFileType = FileDefinitions.TVLogo.SMFileType;
     }
 }

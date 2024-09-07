@@ -83,9 +83,12 @@ const ChannelGroupVisibleDialog = ({ id, onClose, skipOverLayer = false, value }
       buttonDisabled={selectedItems.length === 0 && !selectAll}
       icon="pi-eye-slash"
       iconFilled
-      // rememberKey={'ChannelGroupVisibility'}
-      title="TOGGLE VISIBILITY"
+      modal
       onOkClick={async () => await onVisibleClick()}
+      placement="bottom-end"
+      title="TOGGLE VISIBILITY"
+      tooltip="Toggle Visibility"
+      zIndex={12}
     >
       {message}
     </SMPopUp>

@@ -33,7 +33,7 @@ public class TimerService(IServiceProvider serviceProvider, IOptionsMonitor<Sett
 
     public Task StartAsync(CancellationToken cancellationToken)
     {
-        _timer = new Timer(async state => await DoWorkAsync(state, cancellationToken), null, TimeSpan.Zero, TimeSpan.FromSeconds(5));
+        _timer = new Timer(async state => await DoWorkAsync(state, cancellationToken), null, TimeSpan.Zero, TimeSpan.FromSeconds(60));
 
         return Task.CompletedTask;
     }

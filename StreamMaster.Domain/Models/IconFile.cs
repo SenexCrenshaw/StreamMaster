@@ -1,13 +1,11 @@
-﻿using StreamMaster.Domain.Enums;
-
-namespace StreamMaster.Domain.Models;
+﻿namespace StreamMaster.Domain.Models;
 
 public class IconFile : CacheEntity
 {
     public IconFile()
     {
-        //DirectoryLocation = FileDefinitions.Icon.DirectoryLocation;
-        FileExtension = FileDefinitions.Icon.FileExtension;
-        SMFileType = FileDefinitions.Icon.SMFileType;
+        //DirectoryLocation = FileDefinitions.M3ULogo.DirectoryLocation;
+        FileExtension = FileDefinitions.Logo.DefaultExtension;
+        SMFileType = FileDefinitions.Logo.SMFileType;
     }
 }

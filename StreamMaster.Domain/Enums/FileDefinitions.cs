@@ -4,59 +4,37 @@ namespace StreamMaster.Domain.Enums;
 
 public static class FileDefinitions
 {
-    public static FileDefinition ChannelIcon => new()
+    private static FileDefinition CreateDefinition(string folder, string fileExtensions, SMFileTypes type)
     {
-        DirectoryLocation = BuildInfo.ChannelIconDataFolder,
-        FileExtension = ".jpg|.png|.jpeg",
-        SMFileType = SMFileTypes.ChannelIcon
-    };
+        return new FileDefinition
+        {
+            DefaultExtension = fileExtensions.Split("|")[0],
+            DirectoryLocation = folder,
+            FileExtensions = fileExtensions,
+            SMFileType = type
+        };
+    }
 
-    public static FileDefinition EPG => new()
-    {
-        DirectoryLocation = BuildInfo.EPGFolder,
-        FileExtension = ".xml|.xmltv",
-        SMFileType = SMFileTypes.EPG
-    };
 
-    public static FileDefinition Icon => new()
-    {
-        DirectoryLocation = BuildInfo.IconDataFolder,
-        FileExtension = ".jpg|.png|.jpeg",
-        SMFileType = SMFileTypes.Icon
-    };
+    //public static FileDefinition ChannelLogo { get; } = CreateDefinition(BuildInfo.ChannelLogoDataFolder, ".jpg|.png|.jpeg", SMFileTypes.ChannelLogo);
+    public static FileDefinition EPG { get; } = CreateDefinition(BuildInfo.EPGFolder, ".xml|.xmltv", SMFileTypes.EPG);
+    public static FileDefinition Logo { get; } = CreateDefinition(BuildInfo.LogoFolder, ".jpg|.png|.jpeg", SMFileTypes.Logo);
+    public static FileDefinition M3U { get; } = CreateDefinition(BuildInfo.M3UFolder, ".m3u", SMFileTypes.M3U);
+    public static FileDefinition TVLogo { get; } = CreateDefinition(BuildInfo.TVLogoFolder, ".jpg|.png|.jpeg", SMFileTypes.TvLogo);
+    public static FileDefinition SDImage { get; } = CreateDefinition(BuildInfo.SDImagesFolder, ".png", SMFileTypes.SDImage);
+    public static FileDefinition SDStationLogos { get; } = CreateDefinition(BuildInfo.SDStationLogosFolder, ".png", SMFileTypes.SDStationLogo);
 
-    public static FileDefinition M3U => new()
+    public static FileDefinition? GetFileDefinition(SMFileTypes fileType)
     {
-        DirectoryLocation = BuildInfo.M3UFolder,
-        FileExtension = ".m3u",
-        SMFileType = SMFileTypes.M3U
-    };
-
-    public static FileDefinition ProgrammeIcon => new()
-    {
-        DirectoryLocation = BuildInfo.ProgrammeIconDataFolder,
-        FileExtension = ".jpg|.png|.jpeg",
-        SMFileType = SMFileTypes.ProgrammeIcon
-    };
-
-    public static FileDefinition TVLogo => new()
-    {
-        DirectoryLocation = BuildInfo.TVLogoDataFolder,
-        FileExtension = ".jpg|.png|.jpeg",
-        SMFileType = SMFileTypes.TvLogo
-    };
-
-    public static FileDefinition SDImage => new()
-    {
-        DirectoryLocation = BuildInfo.SDImagesFolder,
-        FileExtension = ".png",
-        SMFileType = SMFileTypes.SDImage
-    };
-
-    public static FileDefinition SDStationLogos => new()
-    {
-        DirectoryLocation = BuildInfo.SDStationLogosFolder,
-        FileExtension = ".png",
-        SMFileType = SMFileTypes.SDStationLogo
-    };
+        return fileType switch
+        {
+            SMFileTypes.EPG => EPG,
+            SMFileTypes.Logo => Logo,
+            SMFileTypes.M3U => M3U,
+            SMFileTypes.TvLogo => TVLogo,
+            SMFileTypes.SDImage => SDImage,
+            SMFileTypes.SDStationLogo => SDStationLogos,
+            _ => null
+        };
+    }
 }

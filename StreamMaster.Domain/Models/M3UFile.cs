@@ -15,7 +15,7 @@ public class M3UFile : AutoUpdateEntity
     }
     public M3UFile()
     {
-        FileExtension = FileDefinitions.M3U.FileExtension;
+        FileExtension = FileDefinitions.M3U.DefaultExtension;
         SMFileType = FileDefinitions.M3U.SMFileType;
     }
 
@@ -32,9 +32,14 @@ public class M3UFile : AutoUpdateEntity
     public DateTime LastWrite()
     {
         string fileName = Path.Combine(FileDefinitions.M3U.DirectoryLocation, Source);
-        DateTime lastWrite = File.GetLastWriteTime(fileName);
+        if (File.Exists(fileName))
+        {
+            return File.GetLastWriteTime(fileName);
+        }
 
-        return lastWrite;
+        return File.Exists(fileName + ".gz")
+            ? File.GetLastWriteTime(fileName + ".gz")
+            : File.Exists(fileName + ".zip") ? File.GetLastWriteTime(fileName + ".zip") : default;
     }
 
     public M3UFile? ReadJSON()

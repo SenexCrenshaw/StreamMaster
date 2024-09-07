@@ -5,7 +5,7 @@ namespace StreamMaster.Application.Icons
 {
     public interface IIconsController
     {        
-        Task<ActionResult<List<IconFileDto>>> GetIcons();
+        Task<ActionResult<List<LogoFileDto>>> GetIcons();
     }
 }
 
@@ -13,6 +13,6 @@ namespace StreamMaster.Application.Hubs
 {
     public interface IIconsHub
     {
-        Task<List<IconFileDto>> GetIcons();
+        Task<List<LogoFileDto>> GetIcons();
     }
 }

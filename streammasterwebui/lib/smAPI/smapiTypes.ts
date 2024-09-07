@@ -158,7 +158,7 @@ export interface EPGFilePreviewDto
 	ChannelNumber: string;
 	Id: string;
 }
-export interface IconFileDto
+export interface LogoFileDto
 {
 	Extension: string;
 	FileId: number;
@@ -207,12 +207,11 @@ export interface SettingDto
 	BackupEnabled: boolean;
 	BackupInterval: number;
 	BackupVersionsToKeep: number;
-	CacheIcons: boolean;
 	CleanURLs: boolean;
 	ClientUserAgent: string;
 	DefaultCommandProfileName: string;
 	DefaultCompression: string;
-	DefaultIcon: string;
+	DefaultLogo: string;
 	DefaultOutputProfileName: string;
 	DeviceID: string;
 	DummyRegex: string;
@@ -221,7 +220,9 @@ export interface SettingDto
 	FFMPegExecutable: string;
 	FFProbeExecutable: string;
 	GlobalStreamLimit: number;
+	IconCacheExpirationDays: number;
 	IsDebug: boolean;
+	LogoCache: string;
 	MaxConcurrentDownloads: number;
 	MaxConnectRetry: number;
 	MaxConnectRetryTimeMS: number;
@@ -1024,7 +1025,6 @@ export interface UpdateSettingParameters
 	BackupEnabled?: boolean;
 	BackupInterval?: number;
 	BackupVersionsToKeep?: number;
-	CacheIcons?: boolean;
 	CleanURLs?: boolean;
 	ClientUserAgent?: string;
 	DefaultCommandProfileName?: string;
@@ -1036,6 +1036,8 @@ export interface UpdateSettingParameters
 	FFMPegExecutable?: string;
 	FFProbeExecutable?: string;
 	GlobalStreamLimit?: number;
+	IconCacheExpirationDays?: number;
+	LogoCache?: string;
 	MaxConnectRetry?: number;
 	MaxConnectRetryTimeMS?: number;
 	MaxLogFiles?: number;
@@ -1620,11 +1622,10 @@ export enum SMFileTypes {
 	HDHR = 2,
 	Channel = 3,
 	M3UStream = 4,
-	Icon = 5,
+	Logo = 5,
 	Image = 6,
 	TvLogo = 7,
-	ProgrammeIcon = 8,
-	ChannelIcon = 9,
+	CustomLogo = 9,
 	SDImage = 10,
 	SDStationLogo = 11,
 	CustomPlayList = 12,

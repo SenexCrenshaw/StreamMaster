@@ -180,16 +180,6 @@
   padding-top: $input-padding * 2;
   padding-left: 0.1rem;
   padding-right: 0.1rem;
-
-  .save {
-    .p-inputtext {
-      // border-color: $input-save-color !important;
-
-      // &:enabled:hover {
-      //     border-color: $input-save-color;
-      // }
-    }
-  }
 }
 
 .p-datatable-thead {
@@ -200,11 +190,6 @@
 
 .pl-15 {
   padding-left: 0.35rem;
-}
-
-.p-paginator-bottom {
-  border-top-left-radius: 0 !important;
-  border-top-right-radius: 0 !important;
 }
 
 .p-dropdown-label.p-inputtext {

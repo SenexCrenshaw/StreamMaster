@@ -33,7 +33,6 @@ interface BaseDataSelectorProperties<T> extends DataTableHeaderProperties {
   isLoading?: boolean;
   lazy?: boolean;
   noIsLoading?: boolean;
-  singleExpand?: boolean;
   noSourceHeader?: boolean;
   reorderable?: boolean;
   rows?: number;
@@ -45,6 +44,7 @@ interface BaseDataSelectorProperties<T> extends DataTableHeaderProperties {
   showSelectAll?: boolean;
   showSelected?: boolean;
   showSortSelected?: boolean;
+  singleExpand?: boolean;
   style?: CSSProperties;
   useSelectedItemsFilter?: boolean;
   onRowReorder?: (value: T[]) => void;

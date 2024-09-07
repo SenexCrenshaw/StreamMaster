@@ -21,12 +21,16 @@ public class CreateM3UFileRequestHandler(ILogger<CreateM3UFileRequest> Logger, I
         {
             FileDefinition fd = FileDefinitions.M3U;
 
+            string name = request.Name + fd.DefaultExtension;
+            string compressedFileName = fileUtilService.CheckNeedsCompression(name);
+            string fullName = Path.Combine(fd.DirectoryLocation, compressedFileName);
+
             M3UFile m3UFile = new()
             {
                 Name = request.Name,
                 Url = request.UrlSource,
                 MaxStreamCount = request.MaxStreamCount,
-                Source = request.Name + fd.FileExtension,
+                Source = name,
                 VODTags = request.VODTags ?? [],
                 HoursToUpdate = request.HoursToUpdate ?? 72,
                 SyncChannels = request.SyncChannels ?? false,
@@ -40,10 +44,8 @@ public class CreateM3UFileRequestHandler(ILogger<CreateM3UFileRequest> Logger, I
             m3UFile.LastDownloadAttempt = SMDT.UtcNow;
 
             Logger.LogInformation("Add M3U From URL '{command.UrlSource}'", request.UrlSource);
-            string nameWithExtension = request.Name.EndsWith(fd.FileExtension) ? request.Name : request.Name + fd.FileExtension;
-            string fullName = Path.Combine(fd.DirectoryLocation, nameWithExtension);
 
-            (bool success, Exception? ex) = await fileUtilService.DownloadUrlAsync(source, fullName, cancellationToken).ConfigureAwait(false);
+            (bool success, Exception? ex) = await fileUtilService.DownloadUrlAsync(source, fullName).ConfigureAwait(false);
             if (success)
             {
                 m3UFile.LastDownloaded = File.GetLastWriteTime(fullName);

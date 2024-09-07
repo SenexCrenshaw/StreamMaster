@@ -116,13 +116,14 @@ namespace StreamMaster.Domain.Configuration
         public static readonly string CacheFolder = Path.Combine(AppDataFolder, "Cache");
         public static readonly string LogFolder = Path.Combine(AppDataFolder, "Logs");
         public static readonly string PlayListFolder = Path.Combine(AppDataFolder, "PlayLists");
-        public static readonly string TVLogoDataFolder = Path.Combine(AppDataFolder, "tv-logos");
-        public static readonly string IconDataFolder = Path.Combine(CacheFolder, "Icons");
-        public static readonly string ChannelIconDataFolder = Path.Combine(CacheFolder, "ChannelIcons");
-        public static readonly string ProgrammeIconDataFolder = Path.Combine(CacheFolder, "ProgrammeIcons");
+        public static readonly string TVLogoFolder = Path.Combine(AppDataFolder, "tv-logos");
+        public static readonly string LogoFolder = Path.Combine(CacheFolder, "Logos");
+
+        //public static readonly string ProgrammeIconDataFolder = Path.Combine(CacheFolder, "ProgrammeIcons");
         public static readonly string SDJSONFolder = Path.Combine(CacheFolder, "SDJson");
         public static readonly string SDStationLogosFolder = Path.Combine(CacheFolder, "SDStationLogos");
         public static readonly string SDStationLogosCacheFolder = Path.Combine(CacheFolder, "SDStationLogosCache");
+
         public static readonly string SDImagesFolder = Path.Combine(CacheFolder, "SDImages");
         public static readonly string EPGFolder = Path.Combine(PlayListFolder, "EPG");
         public static readonly string M3UFolder = Path.Combine(PlayListFolder, "M3U");
@@ -138,7 +139,7 @@ namespace StreamMaster.Domain.Configuration
         public static readonly string MessageNoStreamsLeft = Path.Combine(MessagesFolder, "NoStreamsLeft.mp4");
 
         public static readonly string SDEPGCacheFile = Path.Combine(SDJSONFolder, "epgCache.json");
-        public static readonly string IconDefault = Path.Combine("images", "default.png");
+        public static readonly string LogoDefault = Path.Combine("images", "default.png");
 
         public static readonly string LogFilePath = Path.Combine(LogFolder, "StreamMasterAPI.log");
 

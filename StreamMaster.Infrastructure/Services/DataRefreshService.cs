@@ -18,7 +18,7 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
         await RefreshEPG(true);
         await RefreshEPGFiles(true);
         await RefreshGeneral(true);
-        await RefreshIcons(true);
+        await RefreshLogos(true);
         await RefreshM3UFiles(true);
         await RefreshProfiles(true);
         await RefreshSchedulesDirect(true);
@@ -96,7 +96,7 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
         await hub.Clients.All.DataRefresh("GetTaskIsRunning");
     }
 
-    public async Task RefreshIcons(bool alwaysRun = false)
+    public async Task RefreshLogos(bool alwaysRun = false)
     {
 
         if (!alwaysRun && !BuildInfo.IsSystemReady)

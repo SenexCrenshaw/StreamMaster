@@ -21,13 +21,13 @@ public static class ConfigureServices
     {
         _ = services.AddMemoryCache();
 
-        _ = services.AddSingleton<IIconService, IconService>();
+        _ = services.AddSingleton<ILogoService, LogoService>();
         services.AddSingleton<IVideoStreamService, VideoStreamService>();
         _ = services.AddSingleton<IImageDownloadQueue, ImageDownloadQueue>();
         _ = services.AddSingleton<ICacheableSpecification, CacheableSpecification>();
         _ = services.AddSingleton<IJobStatusService, JobStatusService>();
         _ = services.AddSingleton<IEPGHelper, EPGHelper>();
-        _ = services.AddSingleton<IIconHelper, IconHelper>();
+        _ = services.AddSingleton<IIconHelper, LogoHelper>();
         _ = services.AddSingleton<IFileLoggingServiceFactory, FileLoggingServiceFactory>();
         _ = services.AddSingleton<IStreamTracker, StreamTracker>();
         _ = services.AddSingleton<IMessageService, MessageService>();

@@ -4,7 +4,8 @@ using System.Text.RegularExpressions;
 
 namespace StreamMaster.Application.M3UFiles;
 
-public class M3UFileService(ILogger<M3UFileService> logger, IM3UToSMStreamsService m3UtoSMStreamsService, IJobStatusService jobStatusService, IOptionsMonitor<Setting> _settings, IMessageService messageService, IRepositoryWrapper repositoryWrapper, IRepositoryContext repositoryContext) : IM3UFileService
+public class M3UFileService(ILogger<M3UFileService> logger, ILogoService logoService, IM3UToSMStreamsService m3UtoSMStreamsService, IJobStatusService jobStatusService, IOptionsMonitor<Setting> _settings, IMessageService messageService, IRepositoryWrapper repositoryWrapper, IRepositoryContext repositoryContext)
+    : IM3UFileService
 {
     public async Task<M3UFile?> ProcessM3UFile(int M3UFileId, bool ForceRun = false)
     {
@@ -48,6 +49,7 @@ public class M3UFileService(ILogger<M3UFileService> logger, IM3UToSMStreamsServi
             jobManager.SetSuccessful();
             stopwatch.Stop();
             logger.LogInformation("ProcessM3UFile {name} took {elapsed}ms", m3uFile.Name, stopwatch.ElapsedMilliseconds);
+
             return m3uFile;
         }
         catch (Exception ex)
@@ -300,4 +302,10 @@ public class M3UFileService(ILogger<M3UFileService> logger, IM3UToSMStreamsServi
     {
         return await repositoryWrapper.M3UFile.FirstOrDefaultAsync(c => c.Id == Id, false).ConfigureAwait(false);
     }
+
+    public async Task<List<M3UFile>> GetM3UFilesAsync()
+    {
+        return await repositoryWrapper.M3UFile.GetQuery().ToListAsync();
+    }
+
 }

@@ -53,14 +53,14 @@ public partial class SchedulesDirect
             return;
         }
 
-        List<IconFileDto> icons = iconService.GetIcons();
+        List<LogoFileDto> icons = logoService.GetLogos();
 
         if (icons.Any(a => a.SMFileType == SMFileTypes.SDImage && a.Source == artworkUri))
         {
             return;
         }
 
-        iconService.AddIcon(new IconFileDto { Source = artworkUri, SMFileType = SMFileTypes.SDImage, Name = title });
+        logoService.AddLogo(new LogoFileDto { Source = artworkUri, SMFileType = SMFileTypes.SDImage, Name = title });
 
     }
 
@@ -71,7 +71,7 @@ public partial class SchedulesDirect
             return;
         }
 
-        List<IconFileDto> icons = iconService.GetIcons(SMFileTypes.SDImage);
+        List<LogoFileDto> icons = logoService.GetLogos(SMFileTypes.SDImage);
 
         foreach (string artworkUri in artworkUris)
         {
@@ -81,6 +81,6 @@ public partial class SchedulesDirect
             }
             AddIcon(artworkUri, title);
         }
-        //iconService.SetIndexes();
+        //logoService.SetIndexes();
     }
 }

@@ -13,7 +13,7 @@ using System.Xml.Serialization;
 using static StreamMaster.Domain.Common.GetStreamGroupEPGHandler;
 namespace StreamMaster.Application.StreamGroups;
 
-public class StreamGroupService(ILogger<StreamGroupService> _logger, ICacheManager CacheManager, IMapper _mapper, IRepositoryWrapper repositoryWrapper, ISchedulesDirectDataService _schedulesDirectDataService, IIconHelper _iconHelper, IOptionsMonitor<CommandProfileDict> _commandProfileSettings, IOptionsMonitor<Setting> _settings, IMemoryCache _memoryCache, IProfileService _profileService)
+public class StreamGroupService(ILogger<StreamGroupService> _logger, ILogoService logoService, ICacheManager CacheManager, IMapper _mapper, IRepositoryWrapper repositoryWrapper, ISchedulesDirectDataService _schedulesDirectDataService, IIconHelper _iconHelper, IOptionsMonitor<CommandProfileDict> _commandProfileSettings, IOptionsMonitor<Setting> _settings, IMemoryCache _memoryCache, IProfileService _profileService)
     : IStreamGroupService
 {
     private const string DefaultStreamGroupName = "all";
@@ -253,7 +253,7 @@ public class StreamGroupService(ILogger<StreamGroupService> _logger, ICacheManag
 
         if (string.IsNullOrEmpty(iconOriginalSource))
         {
-            return $"{url}{_settings.CurrentValue.DefaultIcon}";
+            return $"{url}{_settings.CurrentValue.DefaultLogo}";
         }
 
         string originalUrl = iconOriginalSource;
@@ -271,9 +271,9 @@ public class StreamGroupService(ILogger<StreamGroupService> _logger, ICacheManag
         {
             return GetApiUrl(SMFileTypes.TvLogo, originalUrl, httpRequest);
         }
-        else if (_settings.CurrentValue.CacheIcons)
+        else if (_settings.CurrentValue.LogoCache.Equals("cache", StringComparison.CurrentCultureIgnoreCase))
         {
-            return GetApiUrl(SMFileTypes.Icon, originalUrl, httpRequest);
+            return GetApiUrl(SMFileTypes.Logo, originalUrl, httpRequest);
         }
 
         return iconOriginalSource;
@@ -389,17 +389,21 @@ public class StreamGroupService(ILogger<StreamGroupService> _logger, ICacheManag
             }
             string graceNote = service?.CallSign ?? stationId;
 
-            string logo;
-            if (service?.mxfGuideImage != null && !string.IsNullOrEmpty(service.mxfGuideImage.ImageUrl))
-            {
-                logo = service.mxfGuideImage.ImageUrl;
-                string baseUrl = url;
-                logo = _iconHelper.GetIconUrl(service.EPGNumber, service.extras["logo"].Url, baseUrl);
-            }
-            else
-            {
-                logo = GetIconUrl(videoStreamConfig.Logo, httpRequest);
-            }
+            //string logo;
+            //if (service?.mxfGuideImage != null && !string.IsNullOrEmpty(service.mxfGuideImage.ImageUrl))
+            //{
+            //    //logo = service.mxfGuideImage.ImageUrl;
+            //    //string baseUrl = url;
+            //    //logo = _iconHelper.GetIconUrl(service.EPGNumber, service.extras["logo"].Url, baseUrl);
+            //    logo = logoService.GetLogoUrl(videoStreamConfig.Logo, url);
+            //}
+            //else
+            //{
+            //    logo = GetIconUrl(videoStreamConfig.Logo, httpRequest);
+            //    string logoUrl = logoService.GetLogoUrl(videoStreamConfig.Logo, url);
+            //}
+
+            string logo = logoService.GetLogoUrl(videoStreamConfig.Logo, url);
 
             string id = videoStreamConfig.ChannelNumber.ToString();
 

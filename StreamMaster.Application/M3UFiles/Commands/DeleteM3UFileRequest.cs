@@ -5,7 +5,7 @@ namespace StreamMaster.Application.M3UFiles.Commands;
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record DeleteM3UFileRequest(bool DeleteFile, int Id) : IRequest<APIResponse>;
 
-public class DeleteM3UFileRequestHandler(ILogger<DeleteM3UFileRequest> logger, ICacheManager CacheManager, IMessageService messageService, IDataRefreshService dataRefreshService, IIconService iconService, IRepositoryWrapper Repository)
+public class DeleteM3UFileRequestHandler(ILogger<DeleteM3UFileRequest> logger, ICacheManager CacheManager, IMessageService messageService, IDataRefreshService dataRefreshService, ILogoService logoService, IRepositoryWrapper Repository)
     : IRequestHandler<DeleteM3UFileRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(DeleteM3UFileRequest request, CancellationToken cancellationToken = default)
@@ -75,7 +75,7 @@ public class DeleteM3UFileRequestHandler(ILogger<DeleteM3UFileRequest> logger, I
 
             CacheManager.M3UMaxStreamCounts.TryRemove(m3UFile.Id, out _);
 
-            iconService.RemoveIconsByM3UFileId(m3UFile.Id);
+            logoService.RemoveLogosByM3UFileId(m3UFile.Id);
 
             await dataRefreshService.RefreshAllM3U();
             if (groupsToDelete.Count > 0)

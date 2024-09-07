@@ -37,7 +37,6 @@ public partial class UpdateSettingRequestHandler(
         return new UpdateSettingResponse { Settings = ret, NeedsLogOut = needsLogOut };
     }
 
-
     private static void CopySDNonNullFields(SDSettingsRequest source, SDSettings destination)
     {
         if (source == null || destination == null)
@@ -75,7 +74,6 @@ public partial class UpdateSettingRequestHandler(
             destination.ArtworkSize = source.ArtworkSize;
         }
 
-
         if (source.ExcludeCastAndCrew.HasValue)
         {
             destination.ExcludeCastAndCrew = source.ExcludeCastAndCrew.Value;
@@ -95,7 +93,6 @@ public partial class UpdateSettingRequestHandler(
         {
             destination.PrefixEpisodeTitle = source.PrefixEpisodeTitle.Value;
         }
-
 
         if (source.AppendEpisodeDesc.HasValue)
         {
@@ -188,9 +185,14 @@ public partial class UpdateSettingRequestHandler(
     {
         bool needsLogOut = false;
         //bool needsSetProgrammes = false;
-        if (request.Parameters.CacheIcons.HasValue)
+        if (request.Parameters.LogoCache != null)
         {
-            currentSetting.CacheIcons = request.Parameters.CacheIcons.Value;
+            currentSetting.LogoCache = request.Parameters.LogoCache.ToLowerInvariant() switch
+            {
+                "redirect" => "Redirect",
+                "cache" => "Cache",
+                _ => "Proxy",// Default to "Proxy"
+            };
         }
 
         if (request.Parameters.CleanURLs.HasValue)
@@ -208,7 +210,6 @@ public partial class UpdateSettingRequestHandler(
         {
             currentSetting.EnableSSL = request.Parameters.EnableSSL.Value;
         }
-
 
         if (request.Parameters.ShowMessageVideos.HasValue)
         {
@@ -277,8 +278,6 @@ public partial class UpdateSettingRequestHandler(
             currentSetting.ShutDownDelay = request.Parameters.ShutDownDelay.Value;
         }
 
-
-
         //if (request.Parameters.AutoSetEPG.HasValue)
         //{
         //    currentSetting.AutoSetEPG = request.Parameters.AutoSetEPG.Value;
@@ -292,6 +291,11 @@ public partial class UpdateSettingRequestHandler(
         if (request.Parameters.BackupInterval.HasValue)
         {
             currentSetting.BackupInterval = request.Parameters.BackupInterval.Value;
+        }
+
+        if (request.Parameters.IconCacheExpirationDays.HasValue)
+        {
+            currentSetting.IconCacheExpirationDays = request.Parameters.IconCacheExpirationDays.Value;
         }
 
         if (request.Parameters.ShowClientHostNames.HasValue)

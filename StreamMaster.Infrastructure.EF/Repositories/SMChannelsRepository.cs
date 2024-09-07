@@ -22,7 +22,7 @@ using System.Linq.Expressions;
 using System.Text.Json;
 namespace StreamMaster.Infrastructure.EF.Repositories;
 
-public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IServiceProvider serviceProvider, IRepositoryWrapper repository, IRepositoryContext repositoryContext, IMapper mapper, IOptionsMonitor<Setting> intSettings, IOptionsMonitor<CommandProfileDict> intProfileSettings, ISchedulesDirectDataService schedulesDirectDataService)
+public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, ILogoService logoService, IServiceProvider serviceProvider, IRepositoryWrapper repository, IRepositoryContext repositoryContext, IMapper mapper, IOptionsMonitor<Setting> intSettings, IOptionsMonitor<CommandProfileDict> intProfileSettings, ISchedulesDirectDataService schedulesDirectDataService)
     : RepositoryBase<SMChannel>(repositoryContext, intLogger), ISMChannelsRepository
 {
     private ConcurrentHashSet<int> existingNumbers = [];
@@ -523,7 +523,8 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IServ
                         return APIResponse.ErrorWithMessage("Error creating SMChannel from streams");
                     }
                     addedSMChannels.Add(smChannel);
-
+                    NameLogo NameLogo = new(smChannel);
+                    await logoService.DownloadAndAddAsync(NameLogo, SMFileTypes.Logo);
                     //bulkSMChannels.Add(smChannel);
                 }
 

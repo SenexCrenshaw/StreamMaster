@@ -10,7 +10,7 @@ namespace StreamMaster.Domain.Dto;
 
 [RequireAll]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public class IconFileDto : IMapFrom<IconFile>
+public class LogoFileDto : IMapFrom<IconFile>
 {
     [JsonIgnore]
     [IgnoreMember]

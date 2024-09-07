@@ -16,20 +16,20 @@ internal class GetProgrammeHandler(ISender sender) : IRequestHandler<GetProgramm
         }
         //SettingDto setting = await sender.Send(new GetSettingsRequest(), cancellationToken).ConfigureAwait(false);
 
-        //List<IconFileDto> icons = memoryCache.Icons();
+        //List<LogoFileDto> icons = memoryCache.Icons();
 
-        //foreach (Programme? prog in programmes.Where(a => a.Icon.Any()))
+        //foreach (Programme? prog in programmes.Where(a => a.M3ULogo.Any()))
         //{
-        //    foreach (TvIcon progIcon in prog.Icon)
+        //    foreach (TvIcon progIcon in prog.M3ULogo)
         //    {
         //        if (progIcon != null && !string.IsNullOrEmpty(progIcon.Src))
         //        {
-        //            IconFileDto? icon = icons.FirstOrDefault(a => a.SMFileType == SMFileTypes.ProgrammeIcon && a.Source == progIcon.Src);
+        //            LogoFileDto? icon = icons.FirstOrDefault(a => a.SMFileType == SMFileTypes.ProgrammeLogo && a.Source == progIcon.Src);
         //            if (icon == null)
         //            {
         //                continue;
         //            }
-        //            string IconSource = $"/api/files/{(int)SMFileTypes.ProgrammeIcon}/{HttpUtility.UrlEncode(icon.Source)}";
+        //            string IconSource = $"/api/files/{(int)SMFileTypes.ProgrammeLogo}/{HttpUtility.UrlEncode(icon.Source)}";
         //            progIcon.Src = IconSource;
         //        }
         //    }

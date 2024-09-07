@@ -21,8 +21,22 @@ export function MiscSettings(): React.ReactElement {
     );
   }
 
-  const getLogoStyleOptions = (): SelectItem[] => {
-    var options = ['Dark', 'Gray', 'Light', 'White'];
+  // const getLogoStyleOptions = (): SelectItem[] => {
+  //   var options = ['Dark', 'Gray', 'Light', 'White'];
+
+  //   const test = options.map(
+  //     (word) =>
+  //       ({
+  //         label: word,
+  //         value: word.toLocaleLowerCase()
+  //       } as SelectItem)
+  //   );
+
+  //   return test;
+  // };
+
+  const getDefaultCompressionOptions = (): SelectItem[] => {
+    var options = ['None', 'GZ', 'ZIP'];
 
     const test = options.map(
       (word) =>
@@ -35,8 +49,8 @@ export function MiscSettings(): React.ReactElement {
     return test;
   };
 
-  const getDefaultCompressionOptions = (): SelectItem[] => {
-    var options = ['None', 'GZ', 'ZIP'];
+  const getLogoCacheOptions = (): SelectItem[] => {
+    var options = ['None', 'Cache'];
 
     const test = options.map(
       (word) =>
@@ -54,7 +68,7 @@ export function MiscSettings(): React.ReactElement {
       <>
         {GetCheckBoxLine({ field: 'PrettyEPG' })}
         {/* {getCheckBoxLine({  field: 'AutoSetEPG' })} */}
-        {GetCheckBoxLine({ field: 'CacheIcons' })}
+        {GetDropDownLine({ field: 'LogoCache', options: getLogoCacheOptions() })}
         {/* {getCheckBoxLine({  field: 'VideoStreamAlwaysUseEPGLogo' })} */}
         {GetInputTextLine({ field: 'DummyRegex' })}
         {/* {GetCheckBoxLine({ field: 'M3UIgnoreEmptyEPGID' })} */}

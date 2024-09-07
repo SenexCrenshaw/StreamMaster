@@ -2,7 +2,7 @@
 
 public record ReadDirectoryLogosRequest : IRequest { }
 
-public class ReadDirectoryLogosRequestHandler(IIconService IconService) : IRequestHandler<ReadDirectoryLogosRequest>
+public class ReadDirectoryLogosRequestHandler(ILogoService IconService) : IRequestHandler<ReadDirectoryLogosRequest>
 {
     public async Task Handle(ReadDirectoryLogosRequest command, CancellationToken cancellationToken)
     {

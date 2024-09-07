@@ -11,31 +11,21 @@ import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import ChannelGroupAddDialog from './ChannelGroupAddDialog';
 import ChannelGroupDeleteDialog from './ChannelGroupDeleteDialog';
 import ChannelGroupVisibleDialog from './ChannelGroupVisibleDialog';
-import { Logger } from '@lib/common/logger';
+import useGetPagedChannelGroups from '@lib/smAPI/ChannelGroups/useGetPagedChannelGroups';
 
-type BaseChannelGroupSelectorProps = {
+type BaseChannelGroupPagedSelectorProps = {
   readonly className?: string;
   readonly dataKey: string;
   readonly enableEditMode?: boolean;
   readonly label?: string;
   readonly onChange?: (value: ChannelGroupDto[]) => void;
-  readonly useSelectedItemsFilter?: boolean;
   readonly value?: string;
   readonly showTotals?: boolean;
   getNamesQuery: () => ReturnType<QueryHook<ChannelGroupDto[]>>;
 };
 
-const BaseChannelGroupSelector = memo(
-  ({
-    enableEditMode = true,
-    dataKey,
-    showTotals = true,
-    onChange,
-    useSelectedItemsFilter,
-
-    value,
-    getNamesQuery
-  }: BaseChannelGroupSelectorProps) => {
+const BaseChannelGroupPagedSelector = memo(
+  ({ enableEditMode = true, dataKey, showTotals = true, onChange, value, getNamesQuery }: BaseChannelGroupPagedSelectorProps) => {
     const { selectedItems } = useSelectedAndQ(dataKey);
     const [input, setInput] = useState<string | undefined>(value);
     const { isSystemReady } = useSMContext();
@@ -114,18 +104,25 @@ const BaseChannelGroupSelector = memo(
       [actionTemplate, channelGroupNameColumnConfig, streamCountTemplate]
     );
 
-    const rowClass = useCallback((data: unknown): string => {
-      var channelGroup = data as ChannelGroupDto;
-      if (channelGroup.Name.includes('ARNOLD')) {
-        Logger.debug('channelGroup', channelGroup.Name, channelGroup.IsHidden);
-      }
+    const rowClass = useCallback(
+      (data: unknown): string => {
+        var channelGroup = data as ChannelGroupDto;
+        const found = selectedItems?.find((x) => x.Id === channelGroup.Id);
+        if (found) {
+          if (channelGroup.IsHidden === true) {
+            return 'channel-row-selected-hidden';
+          }
 
-      if (channelGroup.IsHidden === true) {
-        return 'channel-row-selected';
-      }
+          return 'channel-row-selected';
+        }
 
-      return '';
-    }, []);
+        if (channelGroup.IsHidden === true) {
+          return 'bg-red-900';
+        }
+        return '';
+      },
+      [selectedItems]
+    );
 
     if (loading) {
       return (
@@ -140,28 +137,28 @@ const BaseChannelGroupSelector = memo(
     }
 
     return (
-      <SMDropDown info="" buttonDarkBackground buttonTemplate={buttonTemplate} title="GROUP" contentWidthSize="4" header={headerRightTemplate}>
+      <SMDropDown contentWidthSize="4" info="" buttonDarkBackground buttonTemplate={buttonTemplate} title="GROUP" header={headerRightTemplate}>
         <SMDataTable
           columns={columns}
-          dataSource={namesQuery.data}
+          defaultSortField="Name"
+          defaultSortOrder={1}
           enablePaginator
           id={dataKey}
-          lazy
           noSourceHeader
           onSelectionChange={(value: any) => {
             if (onChange) {
               onChange(value);
             }
           }}
+          queryFilter={useGetPagedChannelGroups}
           rowClass={rowClass}
           selectionMode="multiple"
           showHiddenInSelection
           style={{ height: '50vh' }}
-          useSelectedItemsFilter={useSelectedItemsFilter}
         />
       </SMDropDown>
     );
   }
 );
 
-export default BaseChannelGroupSelector;
+export default BaseChannelGroupPagedSelector;

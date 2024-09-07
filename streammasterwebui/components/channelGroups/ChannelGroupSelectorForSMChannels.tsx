@@ -14,7 +14,7 @@ type ChannelGroupSelectorForSMChannelsProperties = {
 };
 
 const ChannelGroupSelectorForSMChannels = (props: ChannelGroupSelectorForSMChannelsProperties) => {
-  return <BaseChannelGroupSelector {...props} getNamesQuery={useGetChannelGroupsFromSMChannels} />;
+  return <BaseChannelGroupSelector {...props} showTotals={false} getNamesQuery={useGetChannelGroupsFromSMChannels} />;
 };
 
 ChannelGroupSelectorForSMChannels.displayName = 'ChannelGroupSelectorForSMChannels';

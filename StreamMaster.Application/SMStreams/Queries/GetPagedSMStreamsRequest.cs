@@ -29,11 +29,7 @@ internal class GetPagedSMStreamsRequestHandler(IRepositoryWrapper Repository)
             .Select(a => new
             {
                 a.SMStreamId,
-                NameLogo = new NameLogo
-                {
-                    Name = a.SMChannel.Name,
-                    Logo = a.SMChannel.Logo
-                }
+                NameLogo = new NameLogo(a.SMChannel)
             })
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);

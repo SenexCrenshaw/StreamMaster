@@ -7,7 +7,7 @@ using System.Text.Json;
 namespace StreamMaster.SchedulesDirect;
 public partial class SchedulesDirect(
     ILogger<SchedulesDirect> logger,
-    IIconService iconService,
+    ILogoService logoService,
     IXMLTVBuilder xMLTVBuilder,
     IJobStatusService jobStatusService,
     ISchedulesDirectDataService schedulesDirectDataService,
