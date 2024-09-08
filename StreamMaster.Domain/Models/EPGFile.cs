@@ -28,18 +28,11 @@ public class EPGFile : AutoUpdateEntity
         return JsonSerializer.Deserialize<EPGFile>(jsonString);
     }
 
-    public void WriteJSON(ILogger logger)
+    public void WriteJSON()
     {
-        try
-        {
-            string jsonPath = Path.Combine(FileDefinitions.EPG.DirectoryLocation, Path.GetFileNameWithoutExtension(Source) + ".json");
-            string jsonString = JsonSerializer.Serialize(this, jsonSerializerOptions);
-            File.WriteAllText(jsonPath, jsonString);
-        }
-        catch
-        {
-            throw;
-        }
+        string jsonPath = Path.Combine(FileDefinitions.EPG.DirectoryLocation, Path.GetFileNameWithoutExtension(Source) + ".json");
+        string jsonString = JsonSerializer.Serialize(this, jsonSerializerOptions);
+        File.WriteAllText(jsonPath, jsonString);
     }
 
     public EPGFile()
@@ -51,17 +44,14 @@ public class EPGFile : AutoUpdateEntity
     public DateTime LastWrite()
     {
         string fileName = Path.Combine(FileDefinitions.EPG.DirectoryLocation, Source);
-        if (File.Exists(fileName))
-        {
-            return File.GetLastWriteTime(fileName);
-        }
-
-        return File.Exists(fileName + ".gz")
+        return File.Exists(fileName)
+            ? File.GetLastWriteTime(fileName)
+            : File.Exists(fileName + ".gz")
             ? File.GetLastWriteTime(fileName + ".gz")
             : File.Exists(fileName + ".zip") ? File.GetLastWriteTime(fileName + ".zip") : default;
     }
+
     public int ChannelCount { get; set; }
     public int ProgrammeCount { get; set; }
     public int TimeShift { get; set; } = 0;
-
 }

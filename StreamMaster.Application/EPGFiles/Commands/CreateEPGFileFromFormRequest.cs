@@ -43,7 +43,9 @@ public class CreateEPGFileFromFormRequestHandler(ILogger<CreateEPGFileFromFormRe
                 TimeShift = request.TimeShift ?? 0
             };
 
-            Logger.LogInformation("Adding EPG From Form: {fullName}", fullName);
+            await messageService.SendInfo($"Adding EPG '{request.Name}'");
+            Logger.LogInformation("Adding EPG '{name}'", request.Name);
+
             (bool success, Exception? ex) = await fileUtilService.SaveFormFileAsync(request.FormFile!, fullName).ConfigureAwait(false);
             if (success)
             {
@@ -56,8 +58,8 @@ public class CreateEPGFileFromFormRequestHandler(ILogger<CreateEPGFileFromFormRe
                 await messageService.SendError("Exception EPG From Form", ex?.Message);
                 return APIResponse.NotFound;
             }
-
-            XMLTV? tv = xmltv2Mxf.ConvertToMxf(Path.Combine(FileDefinitions.EPG.DirectoryLocation, epgFile.Source), epgFile.EPGNumber);
+            await messageService.SendInfo("Adding EPG '" + epgFile.Name + "'");
+            XMLTV? tv = xmltv2Mxf.ConvertToMxf(fullName, epgFile.EPGNumber);
             if (tv == null)
             {
                 Logger.LogCritical("Exception EPG {fullName} format is not supported", fullName);
@@ -75,7 +77,7 @@ public class CreateEPGFileFromFormRequestHandler(ILogger<CreateEPGFileFromFormRe
 
             Repository.EPGFile.CreateEPGFile(epgFile);
             _ = await Repository.SaveAsync().ConfigureAwait(false);
-            epgFile.WriteJSON(Logger);
+            epgFile.WriteJSON();
 
             EPGFileDto ret = Mapper.Map<EPGFileDto>(epgFile);
             await Publisher.Publish(new EPGFileAddedEvent(ret), cancellationToken).ConfigureAwait(false);

@@ -1,4 +1,3 @@
-import OKButton from '@components/buttons/OKButton';
 import ResetButton from '@components/buttons/ResetButton';
 import SMPopUp, { SMPopUpRef } from '@components/sm/SMPopUp';
 import { getRandomColorHex } from '@lib/common/colors';
@@ -56,6 +55,11 @@ export const EPGFileCreateDialog = ({ onHide, onUploadComplete, showButton }: EP
       buttonClassName="icon-green"
       contentWidthSize="3"
       icon="pi-plus"
+      onOkClick={() => {
+        fileDialogRef.current?.save();
+        ReturnToParent();
+      }}
+      okButtonDisabled={!isSaveEnabled}
       onCloseClick={() => {
         ReturnToParent();
       }}
@@ -69,13 +73,13 @@ export const EPGFileCreateDialog = ({ onHide, onUploadComplete, showButton }: EP
               setEPGFileDto(defaultValues);
             }}
           />
-          <OKButton
+          {/* <OKButton
             buttonDisabled={!isSaveEnabled}
             onClick={(request) => {
               fileDialogRef.current?.save();
               ReturnToParent();
             }}
-          />
+          /> */}
         </div>
       }
       iconFilled

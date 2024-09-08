@@ -4,7 +4,7 @@
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record DeleteEPGFileRequest(bool DeleteFile, int Id) : IRequest<APIResponse>;
 
-public class DeleteEPGFileRequestHandler(ILogger<DeleteEPGFileRequest> logger, IDataRefreshService dataRefreshService, ISchedulesDirectDataService schedulesDirectDataService, IMessageService messageService, IRepositoryWrapper Repository, IPublisher Publisher)
+public class DeleteEPGFileRequestHandler(ILogger<DeleteEPGFileRequest> logger, IFileUtilService fileUtilService, IDataRefreshService dataRefreshService, ISchedulesDirectDataService schedulesDirectDataService, IMessageService messageService, IRepositoryWrapper Repository, IPublisher Publisher)
     : IRequestHandler<DeleteEPGFileRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(DeleteEPGFileRequest request, CancellationToken cancellationToken = default)
@@ -21,16 +21,12 @@ public class DeleteEPGFileRequestHandler(ILogger<DeleteEPGFileRequest> logger, I
 
             if (request.DeleteFile)
             {
-                string fullName = Path.Combine(FileDefinitions.EPG.DirectoryLocation, epgFile.Source);
-                if (File.Exists(fullName))
+                string path = Path.Combine(FileDefinitions.EPG.DirectoryLocation, epgFile.Source);
+                string? fullName = fileUtilService.GetExistingFilePath(path);
+                if (fullName != null && File.Exists(fullName))
                 {
                     File.Delete(fullName);
                     string txtName = Path.Combine(FileDefinitions.EPG.DirectoryLocation, Path.GetFileNameWithoutExtension(epgFile.Source) + ".json");
-                    if (File.Exists(txtName))
-                    {
-                        File.Delete(txtName);
-                    }
-                    txtName = Path.Combine(FileDefinitions.EPG.DirectoryLocation, Path.GetFileNameWithoutExtension(epgFile.Source) + ".url");
                     if (File.Exists(txtName))
                     {
                         File.Delete(txtName);

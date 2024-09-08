@@ -37,7 +37,9 @@ public class CreateM3UFileFromFormRequestHandler(ILogger<CreateM3UFileFromFormRe
                 StartingChannelNumber = request.StartingChannelNumber ?? 1
             };
 
-            Logger.LogInformation("Adding M3U From Form: '{name}'", request.Name);
+            await messageService.SendInfo($"Adding M3U '{request.Name}'");
+            Logger.LogInformation("Adding M3U '{name}'", request.Name);
+
             (bool success, Exception? ex) = await fileUtilService.SaveFormFileAsync(request.FormFile!, fullName).ConfigureAwait(false);
             if (success)
             {

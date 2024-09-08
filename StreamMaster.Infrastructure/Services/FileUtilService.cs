@@ -12,45 +12,46 @@ namespace StreamMaster.Infrastructure.Services
     {
         public Stream? GetFileDataStream(string source)
         {
-            string extension = Path.GetExtension(source).ToLowerInvariant();
-
-            FileStream? fileStream;
-
-            if (File.Exists(source + ".gz"))
+            string? filePath = GetExistingFilePath(source);
+            if (filePath == null)
             {
-                fileStream = File.OpenRead(source + ".gz");
+                return null;
+            }
+
+            FileStream fileStream = File.OpenRead(filePath);
+
+            if (IsFileGzipped(fileStream))
+            {
+                fileStream.Seek(0, SeekOrigin.Begin);
                 return new GZipStream(fileStream, CompressionMode.Decompress);
+            }
+            else if (IsFileZipped(fileStream))
+            {
+                fileStream.Seek(0, SeekOrigin.Begin);
+                ZipArchive zipArchive = new(fileStream, ZipArchiveMode.Read, leaveOpen: true);
+                ZipArchiveEntry zipEntry = zipArchive.Entries[0]; // Read the first entry
+                return zipEntry.Open(); // Stream remains open even after ZipArchive is disposed
+            }
+
+            fileStream.Seek(0, SeekOrigin.Begin);
+            return fileStream;
+        }
+        public string? GetExistingFilePath(string source)
+        {
+            if (File.Exists(source))
+            {
+                return source;
+            }
+            else if (File.Exists(source + ".gz"))
+            {
+                return source + ".gz";
             }
             else if (File.Exists(source + ".zip"))
             {
-                fileStream = File.OpenRead(source + ".zip");
-                ZipArchive zipArchive = new(fileStream, ZipArchiveMode.Read);
-                ZipArchiveEntry zipEntry = zipArchive.Entries[0]; // Read the first entry
-                return zipEntry.Open(); // Stream remains open even after ZipArchive is disposed
-            }
-            else
-            {
-                if (File.Exists(source))
-                {
-                    fileStream = File.OpenRead(source);
-                }
-                else
-                {
-                    return null;
-                }
+                return source + ".zip";
             }
 
-            if (IsFileGzipped(source))
-            {
-                return new GZipStream(fileStream, CompressionMode.Decompress);
-            }
-            else if (IsFileZipped(source))
-            {
-                ZipArchive zipArchive = new(fileStream, ZipArchiveMode.Read);
-                ZipArchiveEntry zipEntry = zipArchive.Entries[0]; // Read the first entry
-                return zipEntry.Open(); // Stream remains open even after ZipArchive is disposed
-            }
-            return fileStream;
+            return null;
         }
 
         public IEnumerable<FileInfo> GetFilesFromDirectory(FileDefinition fileDefinition)
@@ -153,19 +154,50 @@ namespace StreamMaster.Infrastructure.Services
             }
         }
 
+        private static bool IsFileZipped(Stream fileStream)
+        {
+            try
+            {
+                byte[] signature = new byte[4];
+                fileStream.Read(signature, 0, 4);
+                return signature[0] == 0x50 && signature[1] == 0x4B && signature[2] == 0x03 && signature[3] == 0x04;
+            }
+            catch
+            {
+                // logger.LogError(ex, "Error checking if file stream is zipped.");
+                return false;
+            }
+        }
+
+        private static bool IsFileGzipped(Stream fileStream)
+        {
+            try
+            {
+                byte[] signature = new byte[3];
+                fileStream.Read(signature, 0, 3);
+                return signature[0] == 0x1F && signature[1] == 0x8B && signature[2] == 0x08;
+            }
+            catch
+            {
+                // logger.LogError(ex, "Error checking if file stream is gzipped.");
+                return false;
+            }
+        }
+
         public bool IsFileZipped(string filePath)
         {
             try
             {
+                if (!File.Exists(filePath))
+                {
+                    return false;
+                }
                 using FileStream fileStream = File.OpenRead(filePath);
-                byte[] signature = new byte[4];
-                fileStream.Read(signature, 0, 4);
-
-                return signature[0] == 0x50 && signature[1] == 0x4B && signature[2] == 0x03 && signature[3] == 0x04;
+                return IsFileZipped(fileStream);
             }
-            catch (Exception ex)
+            catch
             {
-                logger.LogError(ex, "Error checking if file {FilePath} is zipped.", filePath);
+                // logger.LogError(ex, "Er                ror checking if file { FilePath} is zipped.", filePath);
                 return false;
             }
         }
@@ -174,15 +206,16 @@ namespace StreamMaster.Infrastructure.Services
         {
             try
             {
+                if (!File.Exists(filePath))
+                {
+                    return false;
+                }
                 using FileStream fileStream = File.OpenRead(filePath);
-                byte[] signature = new byte[3];
-                fileStream.Read(signature, 0, 3);
-
-                return signature[0] == 0x1F && signature[1] == 0x8B && signature[2] == 0x08;
+                return IsFileGzipped(fileStream);
             }
-            catch (Exception ex)
+            catch
             {
-                logger.LogError(ex, "Error checking if file {FilePath} is gzipped.", filePath);
+                //logger.LogError(ex, "Error checking if file {FilePath} is gzipped.", filePath);
                 return false;
             }
         }

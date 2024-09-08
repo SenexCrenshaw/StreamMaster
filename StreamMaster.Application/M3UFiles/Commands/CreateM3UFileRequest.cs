@@ -43,7 +43,8 @@ public class CreateM3UFileRequestHandler(ILogger<CreateM3UFileRequest> Logger, I
             m3UFile.Url = source;
             m3UFile.LastDownloadAttempt = SMDT.UtcNow;
 
-            Logger.LogInformation("Add M3U From URL '{command.UrlSource}'", request.UrlSource);
+            await messageService.SendInfo($"Adding M3U '{request.Name}'");
+            Logger.LogInformation("Adding M3U '{name}'", request.Name);
 
             (bool success, Exception? ex) = await fileUtilService.DownloadUrlAsync(source, fullName).ConfigureAwait(false);
             if (success)

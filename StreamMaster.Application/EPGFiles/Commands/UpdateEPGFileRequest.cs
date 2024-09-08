@@ -81,7 +81,7 @@ public class UpdateEPGFileRequestHandler(ILogger<UpdateEPGFileRequest> logger, I
 
             Repository.EPGFile.UpdateEPGFile(epgFile);
             _ = await Repository.SaveAsync().ConfigureAwait(false);
-            epgFile.WriteJSON(logger);
+            epgFile.WriteJSON();
 
             if (isNameChanged)
             {

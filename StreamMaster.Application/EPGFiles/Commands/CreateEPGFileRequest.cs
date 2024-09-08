@@ -48,7 +48,9 @@ public class CreateEPGFileRequestHandler(ILogger<CreateEPGFileRequest> Logger, I
             epgFile.Url = source;
             epgFile.LastDownloadAttempt = SMDT.UtcNow;
 
-            Logger.LogInformation("Add EPG From URL {command.UrlSource}", request.UrlSource);
+            await messageService.SendInfo($"Adding EPG '{request.Name}'");
+            Logger.LogInformation("Adding EPG '{name}'", request.Name);
+
             (bool success, Exception? ex) = await fileUtilService.DownloadUrlAsync(source, fullName).ConfigureAwait(false);
             if (success)
             {
@@ -62,7 +64,7 @@ public class CreateEPGFileRequestHandler(ILogger<CreateEPGFileRequest> Logger, I
                 await messageService.SendError("Exception EPG ", ex?.Message);
             }
 
-            XMLTV? tv = xmltv2Mxf.ConvertToMxf(Path.Combine(FileDefinitions.EPG.DirectoryLocation, epgFile.Source), epgFile.EPGNumber);
+            XMLTV? tv = xmltv2Mxf.ConvertToMxf(fullName, epgFile.EPGNumber);
             if (tv == null)
             {
                 Logger.LogCritical("Exception EPG {fullName} format is not supported", fullName);
@@ -80,7 +82,7 @@ public class CreateEPGFileRequestHandler(ILogger<CreateEPGFileRequest> Logger, I
 
             Repository.EPGFile.CreateEPGFile(epgFile);
             _ = await Repository.SaveAsync().ConfigureAwait(false);
-            epgFile.WriteJSON(Logger);
+            epgFile.WriteJSON();
 
             EPGFileDto ret = Mapper.Map<EPGFileDto>(epgFile);
             await Publisher.Publish(new EPGFileAddedEvent(ret), cancellationToken).ConfigureAwait(false);
