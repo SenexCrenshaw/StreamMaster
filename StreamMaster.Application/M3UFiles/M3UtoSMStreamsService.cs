@@ -16,7 +16,7 @@ public partial class M3UToSMStreamsService(ILogger<M3UToSMStreamsService> logger
             logger.LogInformation("Reading m3uFile {Name}", m3UFile.Name);
         }
 
-        await using Stream dataStream = fileUtilService.GetFileDataStream(Path.Combine(FileDefinitions.M3U.DirectoryLocation, m3UFile.Source));
+        await using Stream? dataStream = fileUtilService.GetFileDataStream(Path.Combine(FileDefinitions.M3U.DirectoryLocation, m3UFile.Source));
 
         int segmentNumber = 0;
         StringBuilder segmentBuilder = new();

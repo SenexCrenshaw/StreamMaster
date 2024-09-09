@@ -18,14 +18,6 @@ internal class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logge
                 return APIResponse.NotFound;
             }
 
-            //if (m3uFile.AutoUpdate && !request.ForceRun)
-            //{
-            //    if (m3uFile.LastUpdated.AddHours(m3uFile.HoursToUpdate) >= SMDT.UtcNow)
-            //    {
-            //        return APIResponse.Success;
-            //    }
-            //}
-
             m3uFile = await m3UFileService.ProcessM3UFile(request.M3UFileId, request.ForceRun).ConfigureAwait(false);
             if (m3uFile == null)
             {

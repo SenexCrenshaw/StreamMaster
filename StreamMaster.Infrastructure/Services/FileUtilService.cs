@@ -60,10 +60,15 @@ namespace StreamMaster.Infrastructure.Services
             string[] extensions = fileDefinition.FileExtensions.Split('|');
 
             return dirInfo.GetFiles("*.*", SearchOption.AllDirectories)
-                .Where(file => extensions.Contains(file.Extension.ToLower()) ||
-                               extensions.Contains(file.Extension.ToLower() + ".gz") ||
-                               extensions.Contains(file.Extension.ToLower() + ".zip"));
+                .Where(file =>
+                    extensions.Any(ext =>
+                        file.Name.EndsWith(ext, StringComparison.OrdinalIgnoreCase) ||
+                        file.Name.EndsWith(ext + ".gz", StringComparison.OrdinalIgnoreCase) ||
+                        file.Name.EndsWith(ext + ".zip", StringComparison.OrdinalIgnoreCase)
+                    )
+                );
         }
+
 
         public async Task<(bool success, Exception? ex)> DownloadUrlAsync(string url, string fullName, bool? ignoreCompression = false)
         {

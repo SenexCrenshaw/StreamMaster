@@ -9,7 +9,7 @@ public class M3UFile : AutoUpdateEntity
     private readonly JsonSerializerOptions jsonSerializerOptions = new() { WriteIndented = true };
     public void WriteJSON()
     {
-        string jsonPath = Path.Combine(FileDefinitions.M3U.DirectoryLocation, Path.GetFileNameWithoutExtension(Source) + ".json");
+        string jsonPath = Path.Combine(FileDefinitions.M3U.DirectoryLocation, Source + ".json");
         string jsonString = JsonSerializer.Serialize(this, jsonSerializerOptions);
         File.WriteAllText(jsonPath, jsonString);
     }
@@ -32,19 +32,16 @@ public class M3UFile : AutoUpdateEntity
     public DateTime LastWrite()
     {
         string fileName = Path.Combine(FileDefinitions.M3U.DirectoryLocation, Source);
-        if (File.Exists(fileName))
-        {
-            return File.GetLastWriteTime(fileName);
-        }
-
-        return File.Exists(fileName + ".gz")
+        return File.Exists(fileName)
+            ? File.GetLastWriteTime(fileName)
+            : File.Exists(fileName + ".gz")
             ? File.GetLastWriteTime(fileName + ".gz")
             : File.Exists(fileName + ".zip") ? File.GetLastWriteTime(fileName + ".zip") : default;
     }
 
     public M3UFile? ReadJSON()
     {
-        string jsonPath = Path.Combine(FileDefinitions.M3U.DirectoryLocation, Path.GetFileNameWithoutExtension(Source) + ".json");
+        string jsonPath = Path.Combine(FileDefinitions.M3U.DirectoryLocation, Source + ".json");
 
         if (!File.Exists(jsonPath))
         {

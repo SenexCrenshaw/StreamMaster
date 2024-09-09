@@ -10,7 +10,7 @@ public class M3UFileService(ILogger<M3UFileService> logger, ILogoService logoSer
     public async Task<M3UFile?> ProcessM3UFile(int M3UFileId, bool ForceRun = false)
     {
         JobStatusManager jobManager = jobStatusService.GetJobManagerProcessM3U(M3UFileId);
-        if (jobManager.IsRunning)//|| jobManager.IsErrored)
+        if (jobManager.IsRunning)
         {
             return null;
         }

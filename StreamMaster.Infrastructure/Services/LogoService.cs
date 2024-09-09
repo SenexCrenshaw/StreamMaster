@@ -61,7 +61,7 @@ public class LogoService(IMapper mapper, ICustomPlayListBuilder customPlayListBu
             (bool success, Exception? ex) = await fileUtilService.DownloadUrlAsync(nameLogo.Logo, fullPath, true);
             if (success)
             {
-                logger.LogInformation("Downloaded {smFileType} to {Name} {fullPath}", smFileType.ToString(), nameLogo.Name, fullPath);
+                //logger.LogInformation("Downloaded {smFileType} to {Name} {fullPath}", smFileType.ToString(), nameLogo.Name, fullPath);
                 LogoFileDto logoFileDto = new() { Extension = ext, Source = fullPath, Name = nameLogo.Name, SMFileType = smFileType };
                 AddLogo(logoFileDto);
             }
