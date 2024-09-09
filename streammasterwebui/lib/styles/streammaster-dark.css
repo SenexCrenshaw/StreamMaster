@@ -9276,6 +9276,10 @@ div[aria-haspopup=dialog] {
   align-items: center;
 }
 
+.p-paginator-page-input {
+  width: unset !important;
+}
+
 .sm-modal {
   z-index: 10;
 }

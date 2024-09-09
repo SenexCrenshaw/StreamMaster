@@ -735,7 +735,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>, ref: 
     if (state.smTableIsSimple === true) {
       return 'FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink';
     }
-    return 'RowsPerPageDropdown FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink';
+    return 'RowsPerPageDropdown  FirstPageLink PrevPageLink JumpToPageInput CurrentPageReport NextPageLink LastPageLink';
   }, [state.smTableIsSimple]);
 
   const getColClassName = useCallback((col: ColumnMeta) => {
