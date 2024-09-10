@@ -40,26 +40,19 @@ internal class GetPagedSMChannelsRequestHandler(IRepositoryWrapper Repository, I
         {
             List<SMChannelStreamLink> links = [.. Repository.SMChannelStreamLink.GetQuery(true).Where(a => a.SMChannelId == channel.Id)];
 
-            //string videoUrl;
-            //foreach (SMStreamDto stream in channel.SMStreams)
-            //{
-            //    SMChannelStreamLink? link = links.Find(a => a.SMStreamId == stream.Id);
 
-            //    if (link != null)
-            //    {
-            //        stream.Rank = link.Rank;
-            //    }
-            //}
+            foreach (SMStreamDto stream in channel.SMStreams)
+            {
+                SMChannelStreamLink? link = links.Find(a => a.SMStreamId == stream.Id);
+
+                if (link != null)
+                {
+                    stream.Rank = link.Rank;
+                }
+            }
 
             channel.SMStreams = [.. channel.SMStreams.OrderBy(a => a.Rank)];
             channel.StreamGroupIds = channel.StreamGroups.Select(a => a.StreamGroupId).ToList();
-
-
-            //string? EncodedString = await streamGroupService.EncodeStreamGroupIdProfileIdChannelIdAsync(sgId, streamGroupProfile.Id, channel.Id);
-            //if (string.IsNullOrEmpty(EncodedString))
-            //{
-            //    continue;
-            //}
 
             string videoUrl = await GetVideoStreamUrlAsync(channel.Name, channel.Id, sgId, streamGroupProfile.Id, Url);// $"{Url}/api/videostreams/stream/{EncodedString}/{channel.Name.ToCleanFileString()}";
             channel.StreamUrl = videoUrl;// JsonSerializer.Serialize(videoUrl);
