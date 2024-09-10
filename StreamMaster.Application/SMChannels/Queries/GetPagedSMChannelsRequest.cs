@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 
 using System.Diagnostics;
-using System.Text.Json;
 using System.Web;
 
 namespace StreamMaster.Application.SMChannels.Queries;
@@ -63,7 +62,7 @@ internal class GetPagedSMChannelsRequestHandler(IRepositoryWrapper Repository, I
             //}
 
             string videoUrl = await GetVideoStreamUrlAsync(channel.Name, channel.Id, sgId, streamGroupProfile.Id, Url);// $"{Url}/api/videostreams/stream/{EncodedString}/{channel.Name.ToCleanFileString()}";
-            channel.StreamUrl = JsonSerializer.Serialize(videoUrl);
+            channel.StreamUrl = videoUrl;// JsonSerializer.Serialize(videoUrl);
         }
 
         Debug.WriteLine($"GetPagedSMChannelsRequestHandler returning {res.Data.Count} items");
