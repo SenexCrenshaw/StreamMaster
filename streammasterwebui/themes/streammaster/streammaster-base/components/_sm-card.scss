@@ -1,17 +1,21 @@
 .sm-overlay {
     font-size: $common-font-size;
     background-color: var(--surface-ground);
+    transition: none;
 
     .p-float-label {
         font-size: $common-font-size;
     }
 }
 
+.sm-overlay-transition {
+    transition: all 0.3s ease !important;
+}
+
 .sm-dialog {
     @extend .sm-overlay;
     padding: $layoutPadding*2;
 }
-
 
 .sm-card {
     background-color: var(--surface-ground);

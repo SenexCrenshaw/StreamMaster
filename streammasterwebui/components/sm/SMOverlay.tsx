@@ -53,19 +53,20 @@ const SMOverlayInner = forwardRef<SMOverlayRef, ExtendedSMOverlayProperties>(
     ref
   ) => {
     const [isOpen, setIsOpen] = useState(false);
+    const [fullScreen, setFullScreen] = useState(false);
     const arrowRef = useRef(null);
     const elementRef = useRef<HTMLDivElement>(null);
     const headingId = useId();
 
     const middleware = useMemo(() => {
-      if (props.modalCentered) {
+      if (props.modalCentered || fullScreen) {
         return [arrow({ element: arrowRef })];
       }
 
       return innerAutoPlacement
         ? [offset(() => ARROW_HEIGHT_OFFSET, [ARROW_HEIGHT_OFFSET]), autoPlacement(), arrow({ element: arrowRef })]
         : [offset(() => ARROW_HEIGHT_OFFSET, [ARROW_HEIGHT_OFFSET]), shift(), flip(), arrow({ element: arrowRef })];
-    }, [innerAutoPlacement, props.modalCentered]);
+    }, [fullScreen, innerAutoPlacement, props.modalCentered]);
 
     const { refs, floatingStyles, context } = useFloating({
       middleware,
@@ -96,7 +97,9 @@ const SMOverlayInner = forwardRef<SMOverlayRef, ExtendedSMOverlayProperties>(
     const changeOpen = useCallback(
       (open: boolean) => {
         setIsOpen(open);
-        // openPanel?.(open);
+        if (open === false) {
+          setFullScreen(false);
+        }
         props.onOpen?.(open);
       },
       [props]
@@ -111,15 +114,19 @@ const SMOverlayInner = forwardRef<SMOverlayRef, ExtendedSMOverlayProperties>(
     }));
 
     const content = useMemo(() => {
-      return <SMCard {...props}>{props.children}</SMCard>;
-    }, [props]);
+      return (
+        <SMCard {...props} onFullScreenToggle={() => setFullScreen(!fullScreen)}>
+          {props.children}
+        </SMCard>
+      );
+    }, [fullScreen, props]);
 
     const getStyle = useMemo((): CSSProperties => {
-      if (props.modalCentered) {
+      if (props.modalCentered || fullScreen) {
         return { left: '50%', position: 'absolute', top: '50%', transform: 'translate(-50%, -50%)', width: '100%' };
       }
       return floatingStyles;
-    }, [props.modalCentered, floatingStyles]);
+    }, [props.modalCentered, fullScreen, floatingStyles]);
 
     const zIndex = useMemo(() => {
       let z = props.zIndex ?? 0;
@@ -158,6 +165,13 @@ const SMOverlayInner = forwardRef<SMOverlayRef, ExtendedSMOverlayProperties>(
       return '';
     }, [props.modal, zIndex]);
 
+    const getSize = useMemo(() => {
+      if (fullScreen === true) {
+        return 'w-full h-full';
+      }
+      return 'sm-w-' + contentWidthSize;
+    }, [contentWidthSize, fullScreen]);
+
     return (
       <div ref={elementRef}>
         <SMButton
@@ -183,13 +197,15 @@ const SMOverlayInner = forwardRef<SMOverlayRef, ExtendedSMOverlayProperties>(
                 <FloatingOverlay className={getOverLayClass} lockScroll />
                 <FloatingFocusManager context={context} modal={props.modal}>
                   <div
-                    className={`sm-overlay sm-popover sm-w-${contentWidthSize} pt-2 ${zIndex !== undefined ? 'z-' + zIndex : ''} ${getModelClass}`}
+                    className={`sm-overlay ${fullScreen === true ? 'sm-overlay-transition' : ''} sm-popover ${getSize} pt-2 ${
+                      zIndex !== undefined ? 'z-' + zIndex : ''
+                    } ${getModelClass}`}
                     ref={refs.setFloating}
                     style={getStyle}
                     aria-labelledby={headingId}
                     {...getFloatingProps()}
                   >
-                    {props.modalCentered !== true && (
+                    {props.modalCentered !== true && fullScreen !== true && (
                       <FloatingArrow ref={arrowRef} context={context} height={ARROW_HEIGHT} fill="var(--surface-border)" tipRadius={4} />
                     )}
                     <div className="w-full" style={transitionStyles}>

@@ -2,6 +2,7 @@ import { ReactNode } from 'react';
 
 export interface SMCardProperties {
   onOkClick?: () => void;
+  onFullScreenToggle?: () => void;
   readonly okButtonDisabled?: boolean;
   readonly closeButtonDisabled?: boolean;
   onCloseClick?: () => void;

@@ -8750,9 +8750,14 @@ div[aria-haspopup=dialog] {
 .sm-overlay, .sm-dialog {
   font-size: 0.75rem;
   background-color: var(--surface-ground);
+  transition: none;
 }
 .sm-overlay .p-float-label, .sm-dialog .p-float-label {
   font-size: 0.75rem;
+}
+
+.sm-overlay-transition {
+  transition: all 0.3s ease !important;
 }
 
 .sm-dialog {
