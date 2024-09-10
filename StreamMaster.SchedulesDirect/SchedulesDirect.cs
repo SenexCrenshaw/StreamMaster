@@ -113,7 +113,6 @@ public partial class SchedulesDirect(
                 jobManager.SetSuccessful();
                 return APIResponse.Ok;
             }
-            //StationLogosToDownload = [];
 
         }
         catch (OperationCanceledException)
