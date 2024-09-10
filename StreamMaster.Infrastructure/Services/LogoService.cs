@@ -43,6 +43,11 @@ public class LogoService(IMapper mapper, ICustomPlayListBuilder customPlayListBu
 
     public async Task DownloadAndAddAsync(NameLogo nameLogo, SMFileTypes smFileType)
     {
+        if (string.IsNullOrEmpty(nameLogo.Logo))
+        {
+            return;
+        }
+
         FileDefinition? fd = FileDefinitions.GetFileDefinition(smFileType);
         if (fd is null)
         {
