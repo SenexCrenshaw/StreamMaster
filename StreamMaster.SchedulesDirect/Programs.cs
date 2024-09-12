@@ -12,7 +12,7 @@ public class Programs(ILogger<Programs> logger, IOptionsMonitor<SDSettings> intS
 
     private List<string> programQueue = [];
     private ConcurrentBag<Programme> programResponses = [];
-     private readonly int processedObjects;
+    private readonly int processedObjects;
 
     public async Task<bool> BuildAllProgramEntries(CancellationToken cancellationToken)
     {
@@ -45,7 +45,7 @@ public class Programs(ILogger<Programs> logger, IOptionsMonitor<SDSettings> intS
                     BuildMxfProgram(mxfProgram, sdProgram);
                     //IncrementProgress();
                 }
-                catch (Exception )
+                catch (Exception)
                 {
                     programQueue.Add(mxfProgram.ProgramId);
                 }
@@ -460,7 +460,7 @@ public class Programs(ILogger<Programs> logger, IOptionsMonitor<SDSettings> intS
         ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
         // for sports programs that start with "SP", create a series entry based on program title
         // this groups them all together as a series for recordings
-        MxfSeriesInfo mxfSeriesInfo;
+        SeriesInfo mxfSeriesInfo;
         if (mxfProgram.ProgramId.StartsWith("SP"))
         {
             string name = mxfProgram.Title.Replace(' ', '_');
@@ -695,10 +695,10 @@ public class Programs(ILogger<Programs> logger, IOptionsMonitor<SDSettings> intS
 
         prg.ActorRole = GetPersons(sd.Cast, ["Actor", "Voice", "Judge", "Self"]);
         prg.DirectorRole = GetPersons(sd.Crew, ["Director"]);
-        prg.GuestActorRole = GetPersons(sd.Cast, [  "Guest" ]); // "Guest Star", "Guest"
-        prg.HostRole = GetPersons(sd.Cast, ["Anchor", "Host", "Presenter", "Narrator", "Correspondent" ]);
-        prg.ProducerRole = GetPersons(sd.Crew, [ "Executive Producer" ]); // "Producer", "Executive Producer", "Co-Executive Producer"
-        prg.WriterRole = GetPersons(sd.Crew,["Writer", "Story"]); // "Screenwriter", "Writer", "Co-Writer"
+        prg.GuestActorRole = GetPersons(sd.Cast, ["Guest"]); // "Guest Star", "Guest"
+        prg.HostRole = GetPersons(sd.Cast, ["Anchor", "Host", "Presenter", "Narrator", "Correspondent"]);
+        prg.ProducerRole = GetPersons(sd.Crew, ["Executive Producer"]); // "Producer", "Executive Producer", "Co-Executive Producer"
+        prg.WriterRole = GetPersons(sd.Crew, ["Writer", "Story"]); // "Screenwriter", "Writer", "Co-Writer"
     }
 
     private List<MxfPersonRank>? GetPersons(List<ProgramPerson> persons, string[] roles)

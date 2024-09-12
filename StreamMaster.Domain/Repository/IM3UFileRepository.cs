@@ -28,7 +28,7 @@ public interface IM3UFileRepository : IRepositoryBase<M3UFile>
     /// </summary>
     /// <param name="source">The source of the M3U file to retrieve.</param>
     /// <returns>An M3UFile object if found, or null if not found.</returns>
-    Task<M3UFile?> GetM3UFileBySource(string Source);
+    Task<M3UFile?> GetM3UFileBySourceAsync(string source);
 
     Task<List<M3UFileDto>> GetM3UFilesNeedUpdating();
 

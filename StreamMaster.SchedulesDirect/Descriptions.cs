@@ -24,15 +24,15 @@ public class Descriptions(ILogger<Descriptions> logger, ISchedulesDirectAPIServi
         seriesDescriptionQueue = [];
         seriesDescriptionResponses = [];
 
-        List<MxfSeriesInfo> a = schedulesDirectData.SeriesInfosToProcess;
+        List<SeriesInfo> a = schedulesDirectData.SeriesInfosToProcess;
         ConcurrentDictionary<string, MxfProgram> b = schedulesDirectData.Programs;
         ConcurrentBag<MxfProvider> c = schedulesDirectData.Providers;
-        List<MxfSeriesInfo> toProcess = schedulesDirectData.SeriesInfosToProcess;
+        List<SeriesInfo> toProcess = schedulesDirectData.SeriesInfosToProcess;
 
         logger.LogInformation($"Entering BuildAllGenericSeriesInfoDescriptions() for {toProcess.Count} series.");
 
         // fill mxf programs with cached values and queue the rest
-        foreach (MxfSeriesInfo series in toProcess)
+        foreach (SeriesInfo series in toProcess)
         {
             // sports events will not have a generic description
             if (series.SeriesId.StartsWith("SP") || string.IsNullOrEmpty(series.ProtoTypicalProgram))
@@ -216,7 +216,7 @@ public class Descriptions(ILogger<Descriptions> logger, ISchedulesDirectAPIServi
             GenericDescription description = response.Value;
 
             // determine which seriesInfo this belongs to
-            MxfSeriesInfo mxfSeriesInfo = schedulesDirectData.FindOrCreateSeriesInfo(seriesId.Substring(2, 8));
+            SeriesInfo mxfSeriesInfo = schedulesDirectData.FindOrCreateSeriesInfo(seriesId.Substring(2, 8));
 
             // populate descriptions
             mxfSeriesInfo.ShortDescription = description.Description100;

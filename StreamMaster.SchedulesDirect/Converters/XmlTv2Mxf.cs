@@ -1,5 +1,6 @@
 ﻿using StreamMaster.Domain.Logging;
 using StreamMaster.SchedulesDirect.Data;
+using StreamMaster.Streams.Domain.Interfaces;
 
 using System.Globalization;
 using System.Text.RegularExpressions;
@@ -8,7 +9,7 @@ using System.Xml.Serialization;
 
 namespace StreamMaster.SchedulesDirect.Converters;
 
-public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, ISchedulesDirectDataService schedulesDirectDataService, IFileUtilService fileUtilService) : IXmltv2Mxf
+public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, ISchedulesDirectDataService schedulesDirectDataService, ICacheManager cacheManager, IFileUtilService fileUtilService) : IXmltv2Mxf
 {
     private SchedulesDirectData schedulesDirectData;
     private class SeriesEpisodeInfo
@@ -266,7 +267,7 @@ public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, ISchedulesDirectDataService sc
 
                         if (info.SeasonNumber > 0)
                         {
-                            mxfProgram.mxfSeason = schedulesDirectData.FindOrCreateSeason(info.SeriesId, info.SeasonNumber, info.TmsId);
+                            mxfProgram.Season = "";// schedulesDirectData.FindOrCreateSeason(info.SeriesId, info.SeasonNumber, info.TmsId);
                         }
                     }
                 }

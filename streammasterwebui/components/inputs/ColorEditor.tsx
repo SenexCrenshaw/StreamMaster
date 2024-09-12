@@ -17,14 +17,14 @@ const ColorEditor = ({ color: clientColor, editable = true, label, onChange }: C
     if (clientColor !== undefined) {
       if (color === undefined) {
         if (clientColor === '') {
-          const c = getRandomColorHex();
-          onChange && onChange(c);
+          // /const c = getRandomColorHex();
+          // onChange && onChange(c);
         } else if (color !== clientColor) {
           setColor(clientColor);
         }
       }
     }
-  }, [clientColor, color, onChange]);
+  }, [clientColor, color]);
 
   const buttonTemplate = useMemo(() => {
     return (
@@ -72,8 +72,9 @@ const ColorEditor = ({ color: clientColor, editable = true, label, onChange }: C
             iconFilled
             label="Random Color"
             onClick={() => {
-              setColor(undefined);
-              onChange && onChange('');
+              const color = getRandomColorHex();
+              setColor(color);
+              onChange && onChange(color);
             }}
           />
         </div>

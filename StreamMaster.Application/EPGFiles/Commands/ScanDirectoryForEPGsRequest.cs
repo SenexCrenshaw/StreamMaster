@@ -30,7 +30,7 @@ public class ScanDirectoryForEPGFilesRequestHandler(ILogger<ScanDirectoryForEPGF
             return;
         }
 
-        EPGFile? epgFile = await Repository.EPGFile.GetEPGFileBySource(epgFileInfo.Name);
+        EPGFile? epgFile = await Repository.EPGFile.GetEPGFileBySourceAsync(epgFileInfo.Name);
         if (epgFile == null)
         {
             epgFile = await CreateOrUpdateEPGFile(epgFileInfo);

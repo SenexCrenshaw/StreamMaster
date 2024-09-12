@@ -22,7 +22,6 @@ public static class ConfigureServices
         _ = services.AddMemoryCache();
 
         _ = services.AddSingleton<ILogoService, LogoService>();
-        services.AddSingleton<IVideoStreamService, VideoStreamService>();
         _ = services.AddSingleton<IImageDownloadQueue, ImageDownloadQueue>();
         _ = services.AddSingleton<ICacheableSpecification, CacheableSpecification>();
         _ = services.AddSingleton<IJobStatusService, JobStatusService>();

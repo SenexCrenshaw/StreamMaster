@@ -1,6 +1,4 @@
-﻿using StreamMaster.SchedulesDirect.Domain.Models;
-
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 
 
 namespace StreamMaster.SchedulesDirect.Domain.Interfaces;
@@ -19,11 +17,11 @@ public interface ISchedulesDirectData
 
     ConcurrentBag<MxfProvider> Providers { get; set; }
 
-    ConcurrentDictionary<string, MxfSeason> Seasons { get; set; }
-    ConcurrentDictionary<string, MxfSeriesInfo> SeriesInfos { get; set; }
-    List<MxfSeriesInfo> SeriesInfosToProcess { get; set; }
+    ConcurrentDictionary<string, Season> Seasons { get; set; }
+    ConcurrentDictionary<string, SeriesInfo> SeriesInfos { get; set; }
+    List<SeriesInfo> SeriesInfosToProcess { get; set; }
     List<MxfScheduleEntries> ScheduleEntries { get; set; }
-    List<MxfSeason> SeasonsToProcess { get; set; }
+    List<Season> SeasonsToProcess { get; set; }
 
 
     ConcurrentDictionary<string, MxfService> Services { get; set; }
@@ -31,8 +29,8 @@ public interface ISchedulesDirectData
     void RemoveLineup(string lineup);
 
     MxfPerson FindOrCreatePerson(string name);
-    MxfSeason FindOrCreateSeason(string seriesId, int seasonNumber, string protoTypicalProgram);
-    MxfSeriesInfo FindOrCreateSeriesInfo(string seriesId, string? protoTypicalProgram = null);
+    Season FindOrCreateSeason(string seriesId, int seasonNumber, string protoTypicalProgram);
+    SeriesInfo FindOrCreateSeriesInfo(string seriesId, string? protoTypicalProgram = null);
     MxfKeywordGroup FindOrCreateKeywordGroup(KeywordGroupsEnum groupEnum, bool overflow = false);
     MxfProgram FindOrCreateProgram(string programId);
     MxfAffiliate FindOrCreateAffiliate(string affiliateName);

@@ -2,35 +2,30 @@
 
 namespace StreamMaster.Application.SchedulesDirect.Commands;
 
-
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record SetStationsRequest(List<StationRequest> Requests) : IRequest<APIResponse>;
 
-public class SetStationsHandler(ILogger<SetStationsRequest> logger, IDataRefreshService dataRefreshService, IJobStatusService jobStatusService, ISchedulesDirect schedulesDirect, ISender Sender, IOptionsMonitor<SDSettings> intSettings)
+public class SetStationsHandler(ILogger<SetStationsRequest> logger, IDataRefreshService dataRefreshService, IJobStatusService jobStatusService, ISchedulesDirect schedulesDirect, ISender Sender, IOptionsMonitor<SDSettings> _sdSettings)
 : IRequestHandler<SetStationsRequest, APIResponse>
 {
-    private readonly SDSettings sdsettings = intSettings.CurrentValue;
-
     public async Task<APIResponse> Handle(SetStationsRequest request, CancellationToken cancellationToken)
     {
-        if (!request.Requests.Any())
+        if (request.Requests.Count == 0)
         {
             return APIResponse.Ok;
         }
 
-
-        if (!sdsettings.SDEnabled)
+        if (!_sdSettings.CurrentValue.SDEnabled)
         {
             return APIResponse.Ok;
         }
-
 
         UpdateSettingParameters updateSetting = new()
         {
             SDSettings = new SDSettingsRequest
             {
-                SDStationIds = sdsettings.SDStationIds
+                SDStationIds = _sdSettings.CurrentValue.SDStationIds
             }
         };
 
@@ -49,7 +44,7 @@ public class SetStationsHandler(ILogger<SetStationsRequest> logger, IDataRefresh
             changed = true;
         }
 
-        var newStatsions = updateSetting.SDSettings.SDStationIds.DeepCopy();
+        List<StationIdLineup> newStatsions = updateSetting.SDSettings.SDStationIds.DeepCopy();
 
         foreach (StationIdLineup station in newStatsions)
         {

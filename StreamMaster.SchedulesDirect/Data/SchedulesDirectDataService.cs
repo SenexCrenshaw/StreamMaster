@@ -73,11 +73,11 @@ public class SchedulesDirectDataService : ISchedulesDirectDataService
         }
     }
 
-    public List<MxfSeriesInfo> AllSeriesInfos
+    public List<SeriesInfo> AllSeriesInfos
     {
         get
         {
-            List<MxfSeriesInfo> seriesInfo = SchedulesDirectDatas.Values.SelectMany(d => d.SeriesInfos.Values).ToList();
+            List<SeriesInfo> seriesInfo = SchedulesDirectDatas.Values.SelectMany(d => d.SeriesInfos.Values).ToList();
             return seriesInfo;
         }
     }

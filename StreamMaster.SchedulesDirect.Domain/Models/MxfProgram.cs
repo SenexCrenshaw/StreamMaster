@@ -15,8 +15,8 @@ public class MxfProgram
     private DateTime _originalAirDate = DateTime.MinValue;
 
     [XmlIgnore] public string UidOverride;
-    [XmlIgnore] public MxfSeriesInfo mxfSeriesInfo;
-    [XmlIgnore] public MxfSeason mxfSeason;
+    [XmlIgnore] public SeriesInfo mxfSeriesInfo;
+    [XmlIgnore] public Season mxfSeason;
     [XmlIgnore] public MxfGuideImage? mxfGuideImage;
     [XmlIgnore] public List<MxfKeyword> mxfKeywords = [];
     [XmlIgnore] public bool IsAdultOnly;

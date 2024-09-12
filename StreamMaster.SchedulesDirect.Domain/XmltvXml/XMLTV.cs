@@ -28,11 +28,5 @@ namespace StreamMaster.SchedulesDirect.Domain.XmltvXml
 
         [XmlElement("programme")]
         public List<XmltvProgramme> Programs { get; set; } = [];
-
-        //[XmlAttribute("version")]
-        //public string Version { get; set; } = "1.0";
-
-        //[XmlAttribute("encoding")]
-        //public string Encoding { get; set; } = "UTF-8";
     }
 }

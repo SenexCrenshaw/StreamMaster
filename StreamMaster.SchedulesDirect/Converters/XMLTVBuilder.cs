@@ -19,7 +19,7 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IOptionsMon
 {
     private string _baseUrl = "";
 
-    private static ConcurrentDictionary<int, MxfSeriesInfo> seriesDict = [];
+    private static ConcurrentDictionary<int, SeriesInfo> seriesDict = [];
     private static ConcurrentDictionary<string, string> keywordDict = [];
 
     private readonly ConcurrentDictionary<string, MxfProgram> _programsByTitle = [];
@@ -73,7 +73,7 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IOptionsMon
                     )
             );
 
-            foreach (MxfSeriesInfo seriesInfo in schedulesDirectDataService.AllSeriesInfos)
+            foreach (SeriesInfo seriesInfo in schedulesDirectDataService.AllSeriesInfos)
             {
                 _ = seriesDict.TryAdd(seriesInfo.Index, seriesInfo);
             }
@@ -217,11 +217,11 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IOptionsMon
           )
   );
 
-            foreach (MxfSeriesInfo seriesInfo in schedulesDirectDataService.AllSeriesInfos)
+            foreach (SeriesInfo seriesInfo in schedulesDirectDataService.AllSeriesInfos)
             {
                 if (seriesDict.ContainsKey(seriesInfo.Index))
                 {
-                    MxfSeriesInfo a = seriesDict[seriesInfo.Index];
+                    SeriesInfo a = seriesDict[seriesInfo.Index];
 
                     continue;
                 }
@@ -780,12 +780,12 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IOptionsMon
 
     private static List<string>? MxfPersonRankToXmltvCrew(List<MxfPersonRank>? mxfPersons)
     {
-        return mxfPersons is null ? (List<string>?)null : (mxfPersons?.Select(person => person.Name).ToList());
+        return mxfPersons is null ? null : (mxfPersons?.Select(person => person.Name).ToList());
     }
     private static List<XmltvActor>? MxfPersonRankToXmltvActors(List<MxfPersonRank>? mxfPersons)
     {
         return mxfPersons is null
-            ? (List<XmltvActor>?)null
+            ? null
             : (mxfPersons?.Select(person => new XmltvActor { Actor = person.Name, Role = person.Character }).ToList());
     }
 
@@ -852,7 +852,7 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IOptionsMon
             // Use the first available image URL
             string? url = mxfProgram.mxfGuideImage?.ImageUrl ??
                           mxfProgram.mxfSeason?.mxfGuideImage?.ImageUrl ??
-                          mxfProgram.mxfSeriesInfo?.mxfGuideImage?.ImageUrl;
+                          mxfProgram.mxfSeriesInfo?.MxfGuideImage?.ImageUrl;
 
             return url != null ? [new XmltvIcon {
                 Src = iconHelper.GetIconUrl(mxfProgram.EPGNumber, url,  _baseUrl)
@@ -862,7 +862,7 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IOptionsMon
         // Retrieve artwork from the program, season, or series info
         List<ProgramArtwork>? artwork = mxfProgram.extras.GetValueOrDefault("artwork") as List<ProgramArtwork> ??
                                        mxfProgram.mxfSeason?.extras.GetValueOrDefault("artwork") as List<ProgramArtwork> ??
-                                       mxfProgram.mxfSeriesInfo?.extras.GetValueOrDefault("artwork") as List<ProgramArtwork>;
+                                       mxfProgram.mxfSeriesInfo?.Extras.GetValueOrDefault("artwork") as List<ProgramArtwork>;
 
         // Convert artwork to XmltvIcon list
         return artwork?.Select(image => new XmltvIcon
@@ -884,7 +884,7 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IOptionsMon
     private static List<XmltvText>? BuildSportTeams(MxfProgram program)
     {
         return !program.IsSports || !program.extras.TryGetValue("teams", out dynamic? value)
-            ? (List<XmltvText>?)null
+            ? null
             : ((List<string>)value).ConvertAll(team => new XmltvText { Text = team });
     }
 
@@ -938,8 +938,8 @@ public class XMLTVBuilder(IOptionsMonitor<SDSettings> intsdsettings, IOptionsMon
 
         if (mxfProgram.Series != null)
         {
-            if (seriesDict.TryGetValue(int.Parse(mxfProgram.Series[2..]) - 1, out MxfSeriesInfo? mxfSeriesInfo) &&
-                mxfSeriesInfo.extras.TryGetValue("tvdb", out dynamic? value))
+            if (seriesDict.TryGetValue(int.Parse(mxfProgram.Series[2..]) - 1, out SeriesInfo? mxfSeriesInfo) &&
+                mxfSeriesInfo.Extras.TryGetValue("tvdb", out dynamic? value))
             {
                 list.Add(new XmltvEpisodeNum { System = "thetvdb.com", Text = $"series/{value}" });
             }

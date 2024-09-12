@@ -40,7 +40,7 @@ public interface ISchedulesDirectDataService
     /// <summary>
     /// Gets all series information.
     /// </summary>
-    List<MxfSeriesInfo> AllSeriesInfos { get; }
+    List<SeriesInfo> AllSeriesInfos { get; }
 
     /// <summary>
     /// Gets all services.

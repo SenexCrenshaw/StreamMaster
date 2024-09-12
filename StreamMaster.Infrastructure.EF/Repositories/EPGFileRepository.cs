@@ -8,13 +8,17 @@ using StreamMaster.Domain.Helpers;
 using StreamMaster.SchedulesDirect.Domain.Interfaces;
 using StreamMaster.SchedulesDirect.Domain.Models;
 using StreamMaster.SchedulesDirect.Domain.XmltvXml;
+using StreamMaster.Streams.Domain.Interfaces;
+
+using System.Diagnostics;
+using System.Xml.Serialization;
 
 namespace StreamMaster.Infrastructure.EF.Repositories;
 
 /// <summary>
 /// Repositorywrapper to manage EPGFile entities in the database.
 /// </summary>
-public class EPGFileRepository(ILogger<EPGFileRepository> intLogger, IXmltv2Mxf xmltv2Mxf, IJobStatusService jobStatusService, IRepositoryContext repositoryContext, ISchedulesDirectDataService schedulesDirectDataService, IMapper mapper)
+public class EPGFileRepository(ILogger<EPGFileRepository> intLogger, IFileUtilService fileUtilService, ICacheManager cacheManager, IXmltv2Mxf xmltv2Mxf, IJobStatusService jobStatusService, IRepositoryContext repositoryContext, ISchedulesDirectDataService schedulesDirectDataService, IMapper mapper)
     : RepositoryBase<EPGFile>(repositoryContext, intLogger), IEPGFileRepository
 {
     public IXmltv2Mxf Xmltv2Mxf { get; } = xmltv2Mxf;
@@ -139,9 +143,33 @@ public class EPGFileRepository(ILogger<EPGFileRepository> intLogger, IXmltv2Mxf 
     /// <summary>
     /// Retrieves a specific EPGFile by its source.
     /// </summary>
-    public async Task<EPGFile?> GetEPGFileBySource(string Source)
+    public async Task<EPGFile?> GetEPGFileBySourceAsync(string source)
     {
-        return await FirstOrDefaultAsync(c => c.Source == Source).ConfigureAwait(false);
+        if (string.IsNullOrWhiteSpace(source))
+        {
+            return null;
+        }
+
+        // Normalize source by removing .gz or .zip extensions if present
+        string normalizedSource = source.EndsWith(".gz", StringComparison.OrdinalIgnoreCase) || source.EndsWith(".zip", StringComparison.OrdinalIgnoreCase)
+            ? Path.GetFileNameWithoutExtension(source)
+            : source;
+
+        // Define possible variations of the source
+        List<string> possibleSources =
+        [
+        normalizedSource,             // The base source (without extensions)
+        $"{normalizedSource}.gz",     // The source with .gz extension
+        $"{normalizedSource}.zip",    // The source with .zip extension
+        $"{normalizedSource}.xml",    // The base file as .xml
+        $"{normalizedSource}.xml.gz", // The .xml file with .gz extension
+        $"{normalizedSource}.xml.zip" // The .xml file with .zip extension
+    ];
+
+        // Query for a match with any of the possible source variations
+        EPGFile? epgFile = await FirstOrDefaultAsync(c => possibleSources.Contains(c.Source)).ConfigureAwait(false);
+
+        return epgFile;
     }
 
     public PagedResponse<EPGFileDto> CreateEmptyPagedResponse()
@@ -224,6 +252,30 @@ public class EPGFileRepository(ILogger<EPGFileRepository> intLogger, IXmltv2Mxf 
                 return null;
             }
 
+            Stopwatch timer = Stopwatch.StartNew();
+
+            XmlSerializer serializer = new(typeof(XMLTV));
+            string filePath = Path.Combine(FileDefinitions.EPG.DirectoryLocation, epgFile.Source);
+            Stream? fileStream = fileUtilService.GetFileDataStream(filePath);
+
+            if (fileStream == null)
+            {
+                logger.LogCritical("Could not find EPG file");
+                jobManager.SetError();
+                return null;
+            }
+
+            //await using FileStream fileStream = new(filePath, FileMode.Create);
+            //Tv? tv = (Tv?)serializer.Deserialize(fileStream);
+            //timer.Stop();
+            //logger.LogInformation("Deserialized EPG file in {timer.ElapsedMilliseconds}ms", timer.ElapsedMilliseconds);
+            //List<Channel>? channnels = tv?.Channels;
+            //cacheManager.Channels[epgFile.EPGNumber] = tv?.Channels ?? [];
+            //cacheManager.Programmes[epgFile.EPGNumber] = tv?.Programmes ?? [];
+            //if (tv2 != null)
+            //{
+            //    int aaa = 1;
+            //}
             XMLTV? tv = Xmltv2Mxf.ConvertToMxf(Path.Combine(FileDefinitions.EPG.DirectoryLocation, epgFile.Source), epgFile.EPGNumber);
 
             if (tv != null)

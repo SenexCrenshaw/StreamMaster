@@ -7,6 +7,7 @@ using StreamMaster.Domain.Configuration;
 using StreamMaster.Infrastructure.EF.PGSQL;
 using StreamMaster.Infrastructure.EF.Repositories;
 using StreamMaster.SchedulesDirect.Domain.Interfaces;
+using StreamMaster.Streams.Domain.Interfaces;
 
 namespace StreamMaster.Infrastructure.EF;
 
@@ -23,12 +24,14 @@ public class RepositoryWrapper(
     ISchedulesDirectDataService schedulesDirectDataService,
     PGSQLRepositoryContext repositoryContext,
     IMapper mapper,
+    ICacheManager cacheManager,
     IXmltv2Mxf xmltv2Mxf,
     IServiceProvider serviceProvider,
     ICryptoService cryptoService,
     IOptionsMonitor<Setting> intSettings,
     IOptionsMonitor<CommandProfileDict> intProfileSettings,
     IJobStatusService jobStatusService,
+    IFileUtilService fileUtilService,
     IDataRefreshService dataRefreshService,
     ILogoService logoService,
     IHttpContextAccessor httpContextAccessor) : IRepositoryWrapper
@@ -125,7 +128,7 @@ public class RepositoryWrapper(
     {
         get
         {
-            _epgFile ??= new EPGFileRepository(EPGFileRepositoryLogger, xmltv2Mxf, jobStatusService, repositoryContext, schedulesDirectDataService, mapper);
+            _epgFile ??= new EPGFileRepository(EPGFileRepositoryLogger, fileUtilService, cacheManager, xmltv2Mxf, jobStatusService, repositoryContext, schedulesDirectDataService, mapper);
             return _epgFile;
         }
     }

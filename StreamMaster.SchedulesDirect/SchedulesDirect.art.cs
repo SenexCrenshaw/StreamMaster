@@ -2,7 +2,6 @@
 
 using StreamMaster.Domain.Dto;
 using StreamMaster.Domain.Enums;
-using StreamMaster.SchedulesDirect.Domain.Enums;
 
 namespace StreamMaster.SchedulesDirect;
 public partial class SchedulesDirect
@@ -30,19 +29,19 @@ public partial class SchedulesDirect
         }
     }
 
-    private void UpdateSeasonIcons(List<MxfSeason> mxfSeasons)
+    private void UpdateSeasonIcons(List<Season> mxfSeasons)
     {
-        foreach (MxfSeason? prog in mxfSeasons.Where(a => a.extras.ContainsKey("artwork")))
+        foreach (Season? prog in mxfSeasons.Where(a => a.extras.ContainsKey("artwork")))
         {
             List<ProgramArtwork> artwork = prog.extras["artwork"];
             UpdateIcons(artwork.Select(a => a.Uri), prog.Title);
         }
     }
-    private void UpdateIcons(List<MxfSeriesInfo> mxfSeriesInfos)
+    private void UpdateIcons(List<SeriesInfo> mxfSeriesInfos)
     {
-        foreach (MxfSeriesInfo? prog in mxfSeriesInfos.Where(a => a.extras.ContainsKey("artwork")))
+        foreach (SeriesInfo? prog in mxfSeriesInfos.Where(a => a.Extras.ContainsKey("artwork")))
         {
-            List<ProgramArtwork> artwork = prog.extras["artwork"];
+            List<ProgramArtwork> artwork = prog.Extras["artwork"];
             UpdateIcons(artwork.Select(a => a.Uri), prog.Title);
         }
     }

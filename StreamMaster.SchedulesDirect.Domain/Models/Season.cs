@@ -3,7 +3,7 @@ using System.Xml.Serialization;
 
 namespace StreamMaster.SchedulesDirect.Domain.Models;
 
-public class MxfSeason
+public class Season
 {
     public string SeriesId => mxfSeriesInfo.SeriesId;
 
@@ -15,19 +15,19 @@ public class MxfSeason
 
     [XmlIgnore] public string ProtoTypicalProgram;
     [XmlIgnore] public MxfGuideImage mxfGuideImage;
-    [XmlIgnore] public MxfSeriesInfo mxfSeriesInfo;
+    [XmlIgnore] public SeriesInfo mxfSeriesInfo;
     [XmlIgnore] public bool HideSeasonTitle;
 
     [XmlIgnore] public Dictionary<string, dynamic> extras = [];
 
-    public MxfSeason(int index, MxfSeriesInfo seriesInfo, int seasonNumber, string protoTypicalProgram)
+    public Season(int index, SeriesInfo seriesInfo, int seasonNumber, string protoTypicalProgram)
     {
         _index = index;
         mxfSeriesInfo = seriesInfo;
         SeasonNumber = seasonNumber;
         ProtoTypicalProgram = protoTypicalProgram;
     }
-    private MxfSeason() { }
+    private Season() { }
 
     /// <summary>
     /// An ID that is unique to the document and defines this element.
@@ -37,7 +37,7 @@ public class MxfSeason
     public string Id
     {
         get => $"sn{_index}";
-        set { _index = int.Parse(value[2..]); }
+        set => _index = int.Parse(value[2..]);
     }
 
     /// <summary>
@@ -48,7 +48,7 @@ public class MxfSeason
     public string Uid
     {
         get => _uid ?? $"!Season!{mxfSeriesInfo.SeriesId}_{SeasonNumber}";
-        set { _uid = value; }
+        set => _uid = value;
     }
 
     /// <summary>
@@ -65,7 +65,7 @@ public class MxfSeason
     public string GuideImage
     {
         get => _guideImage ?? mxfGuideImage?.Id ?? "";
-        set { _guideImage = value; }
+        set => _guideImage = value;
     }
 
     /// <summary>
@@ -89,7 +89,7 @@ public class MxfSeason
     public string Series
     {
         get => _series ?? mxfSeriesInfo.Id;
-        set { _series = value; }
+        set => _series = value;
     }
 
     /// <summary>
@@ -100,7 +100,7 @@ public class MxfSeason
     public string Title
     {
         get => _title ?? (!HideSeasonTitle ? $"{mxfSeriesInfo.Title}, Season {SeasonNumber}" : "");
-        set { _title = value; }
+        set => _title = value;
     }
 
     /// <summary>

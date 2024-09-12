@@ -4,7 +4,7 @@ using System.Text.Json;
 namespace StreamMaster.SchedulesDirect.Images;
 public class SeasonImages(ILogger<SeasonImages> logger, IEPGCache<SeasonImages> epgCache, IImageDownloadQueue imageDownloadQueue, IOptionsMonitor<SDSettings> intSettings, ISchedulesDirectAPIService schedulesDirectAPI, ISchedulesDirectDataService schedulesDirectDataService) : ISeasonImages
 {
-    private readonly List<MxfSeason> seasons = [];
+    private readonly List<Season> seasons = [];
     private List<string> seasonImageQueue = [];
     private ConcurrentBag<ProgramMetadata> seasonImageResponses = [];
     private int processedObjects;
@@ -23,10 +23,10 @@ public class SeasonImages(ILogger<SeasonImages> logger, IEPGCache<SeasonImages> 
         }
 
         ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
-        List<MxfSeason> toProcess = schedulesDirectData.SeasonsToProcess;
+        List<Season> toProcess = schedulesDirectData.SeasonsToProcess;
         // scan through each series in the mxf
         logger.LogInformation("Entering GetAllSeasonImages() for {totalObjects} seasons.", toProcess.Count);
-        foreach (MxfSeason season in toProcess)
+        foreach (Season season in toProcess)
         {
             string uid = $"{season.SeriesId}_{season.SeasonNumber}";
             if (epgCache.JsonFiles.ContainsKey(uid) && !string.IsNullOrEmpty(epgCache.JsonFiles[uid].Images))
@@ -141,7 +141,7 @@ public class SeasonImages(ILogger<SeasonImages> logger, IEPGCache<SeasonImages> 
                 continue;
             }
 
-            MxfSeason? season = seasons.SingleOrDefault(arg => arg.ProtoTypicalProgram == response.ProgramId);
+            Season? season = seasons.SingleOrDefault(arg => arg.ProtoTypicalProgram == response.ProgramId);
             if (season == null)
             {
                 continue;

@@ -29,7 +29,7 @@ public class ScanDirectoryForM3UFilesRequestHandler(IPublisher Publisher, ICache
             return;
         }
 
-        M3UFile? m3uFile = await Repository.M3UFile.GetM3UFileBySource(m3uFileInfo.Name).ConfigureAwait(false);
+        M3UFile? m3uFile = await Repository.M3UFile.GetM3UFileBySourceAsync(m3uFileInfo.Name).ConfigureAwait(false);
         if (m3uFile == null)
         {
             m3uFile = CreateOrUpdateM3UFile(m3uFileInfo);

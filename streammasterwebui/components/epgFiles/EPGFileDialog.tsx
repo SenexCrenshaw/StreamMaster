@@ -2,7 +2,6 @@ import ColorEditor from '@components/inputs/ColorEditor';
 import NumberEditor from '@components/inputs/NumberEditor';
 import StringEditor from '@components/inputs/StringEditor';
 import SMFileUpload, { SMFileUploadRef } from '@components/sm/SMFileUpload';
-import { Logger } from '@lib/common/logger';
 import useScrollAndKeyEvents from '@lib/hooks/useScrollAndKeyEvents';
 import { CreateEPGFile, UpdateEPGFile } from '@lib/smAPI/EPGFiles/EPGFilesCommands';
 
@@ -140,9 +139,9 @@ const EPGFileDialog = forwardRef<EPGFileDialogRef, EPGFileDialogProperties>(({ o
     [ReturnToParent, epgFileDto.Color, epgFileDto.EPGNumber, epgFileDto.HoursToUpdate, epgFileDto.Name, epgFileDto.TimeShift]
   );
 
-  if (epgFileDto !== undefined) {
-    Logger.debug('EPGFileDialog', { isSaveEnabled, epgFileDto: epgFileDto.Url, originalEPGFileDto: originalEPGFileDto?.Url });
-  }
+  // if (epgFileDto !== undefined) {
+  //   Logger.debug('EPGFileDialog', { isSaveEnabled, epgFileDto: epgFileDto.Url, originalEPGFileDto: originalEPGFileDto?.Url });
+  // }
 
   if (selectedFile === undefined) {
     return null;
@@ -183,7 +182,13 @@ const EPGFileDialog = forwardRef<EPGFileDialogRef, EPGFileDialogProperties>(({ o
         <div className="w-1">
           <div className="sm-sourceorfiledialog-toggle">
             <div className="flex flex-column">
-              <ColorEditor color={epgFileDto.Color} label="ID" onChange={(e) => updateStateAndRequest({ Color: e })} />
+              <ColorEditor
+                color={epgFileDto.Color}
+                label="ID"
+                onChange={(e) => {
+                  updateStateAndRequest({ Color: e });
+                }}
+              />
             </div>
           </div>
         </div>

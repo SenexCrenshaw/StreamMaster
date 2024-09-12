@@ -2,7 +2,8 @@
 using System.Text.Json;
 
 namespace StreamMaster.SchedulesDirect.Images;
-public class SportsImages(ILogger<SportsImages> logger, IEPGCache<SportsImages> epgCache, IImageDownloadQueue imageDownloadQueue, IOptionsMonitor<SDSettings> intSettings, ISchedulesDirectAPIService schedulesDirectAPI) : ISportsImages
+public class SportsImages(ILogger<SportsImages> logger, IEPGCache<SportsImages> epgCache, IImageDownloadQueue imageDownloadQueue, IOptionsMonitor<SDSettings> intSettings, ISchedulesDirectAPIService schedulesDirectAPI)
+    : ISportsImages
 {
     public List<MxfProgram> SportEvents { get; set; } = [];
     private List<string> sportsImageQueue = [];
@@ -37,8 +38,8 @@ public class SportsImages(ILogger<SportsImages> logger, IEPGCache<SportsImages> 
                 List<ProgramArtwork>? artwork = JsonSerializer.Deserialize<List<ProgramArtwork>>(reader.ReadToEnd());
                 if (artwork != null)
                 {
-                    sportEvent.extras.AddOrUpdate("artwork", artwork);
-                    sportEvent.mxfGuideImage = epgCache.GetGuideImageAndUpdateCache(artwork, ImageType.Program);
+                    //sportEvent.extras.AddOrUpdate("artwork", artwork);
+                    //sportEvent.mxfGuideImage = epgCache.GetGuideImageAndUpdateCache(artwork, ImageType.Program);
                 }
             }
             else
@@ -138,17 +139,17 @@ public class SportsImages(ILogger<SportsImages> logger, IEPGCache<SportsImages> 
                 continue;
             }
 
-            MxfProgram? mxfProgram = SportEvents.SingleOrDefault(arg => arg.ProgramId == response.ProgramId);
-            if (mxfProgram == null)
+            MxfProgram? program = SportEvents.FirstOrDefault(arg => arg.ProgramId == response.ProgramId);
+            if (program == null)
             {
                 continue;
             }
 
             // get sports event images      
             List<ProgramArtwork> artwork = SDHelpers.GetTieredImages(response.Data, ["team event", "sport event"], artworkSize);
-            mxfProgram.extras.AddOrUpdate("artwork", artwork);
+            //mxfProgram.extras.AddOrUpdate("artwork", artwork);
 
-            mxfProgram.mxfGuideImage = epgCache.GetGuideImageAndUpdateCache(artwork, ImageType.Program, mxfProgram.extras["md5"]);
+            //mxfProgram.mxfGuideImage = epgCache.GetGuideImageAndUpdateCache(artwork, ImageType.Program, mxfProgram.extras["md5"]);
         }
     }
 

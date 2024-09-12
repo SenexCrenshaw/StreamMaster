@@ -58,10 +58,37 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, IRepository
         return await FirstOrDefaultAsync(c => c.Id == Id, false).ConfigureAwait(false);
     }
 
-    /// <inheritdoc/>
-    public async Task<M3UFile?> GetM3UFileBySource(string Source)
+    /// <summary>
+    /// Asynchronously retrieves an M3UFile by its source name, accounting for possible .gz or .zip extensions in both the input and the database.
+    /// </summary>
+    /// <param name="source">The source name of the M3U file, which might include .gz or .zip extensions.</param>
+    /// <returns>The M3UFile if found, or null if no match is found.</returns>
+    public async Task<M3UFile?> GetM3UFileBySourceAsync(string source)
     {
-        M3UFile? m3uFile = await FirstOrDefaultAsync(c => c.Source == Source).ConfigureAwait(false);
+        if (string.IsNullOrWhiteSpace(source))
+        {
+            return null;
+        }
+
+        // Normalize source by removing .gz or .zip extensions if present
+        string normalizedSource = source.EndsWith(".gz", StringComparison.OrdinalIgnoreCase) || source.EndsWith(".zip", StringComparison.OrdinalIgnoreCase)
+            ? Path.GetFileNameWithoutExtension(source)
+            : source;
+
+        // Define possible variations of the source
+        List<string> possibleSources =
+        [
+        normalizedSource,             // The base source (without extensions)
+        $"{normalizedSource}.gz",     // The source with .gz extension
+        $"{normalizedSource}.zip",    // The source with .zip extension
+        $"{normalizedSource}.m3u",    // The base file as .m3u
+        $"{normalizedSource}.m3u.gz", // The .m3u file with .gz extension
+        $"{normalizedSource}.m3u.zip" // The .m3u file with .zip extension
+    ];
+
+        // Query for a match with any of the possible source variations
+        M3UFile? m3uFile = await FirstOrDefaultAsync(c => possibleSources.Contains(c.Source))
+            .ConfigureAwait(false);
 
         return m3uFile;
     }

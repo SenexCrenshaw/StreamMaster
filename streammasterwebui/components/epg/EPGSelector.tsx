@@ -440,7 +440,7 @@ const EPGSelector = ({ buttonDarkBackground = false, value, enableEditMode = tru
     );
   }
 
-  if (smChannel?.IsCustomStream === true) {
+  if (smChannel?.IsSystem === true) {
     const epgName = smChannel.Name;
     let color = '#124482';
 

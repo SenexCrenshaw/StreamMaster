@@ -96,6 +96,7 @@ public class UpdateEPGFileRequestHandler(ILogger<UpdateEPGFileRequest> logger, I
                 if (isColorChanged)
                 {
                     await dataRefreshService.RefreshEPGColors();
+                    await dataRefreshService.RefreshAllEPG();
                 }
             }
             jobManager.SetSuccessful();

@@ -191,7 +191,7 @@ public partial class UpdateSettingRequestHandler(
             {
                 "redirect" => "Redirect",
                 "cache" => "Cache",
-                _ => "Proxy",// Default to "Proxy"
+                _ => "None",
             };
         }
 

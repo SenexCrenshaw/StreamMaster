@@ -23,7 +23,7 @@ public class SeriesImages(ILogger<SeriesImages> logger, IEPGCache<SeriesImages> 
         seriesImageResponses = [];
 
         ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
-        List<MxfSeriesInfo> toProcess = schedulesDirectData.SeriesInfosToProcess;
+        List<SeriesInfo> toProcess = schedulesDirectData.SeriesInfosToProcess;
 
         logger.LogInformation("Entering GetAllSeriesImages() for {totalObjects} series.", toProcess.Count);
         int refreshing = 0;
@@ -31,7 +31,7 @@ public class SeriesImages(ILogger<SeriesImages> logger, IEPGCache<SeriesImages> 
 
 
         // scan through each series in the mxf
-        foreach (MxfSeriesInfo series in toProcess)
+        foreach (SeriesInfo series in toProcess)
         {
             string seriesId;
 
@@ -71,13 +71,13 @@ public class SeriesImages(ILogger<SeriesImages> logger, IEPGCache<SeriesImages> 
                 // Add artwork to series.extras
                 if (artwork != null)
                 {
-                    series.extras.AddOrUpdate("artwork", artwork);
+                    series.Extras.AddOrUpdate("artwork", artwork);
                 }
 
                 MxfGuideImage? res = epgCache.GetGuideImageAndUpdateCache(artwork, ImageType.Series);
                 if (res != null)
                 {
-                    series.mxfGuideImage = res;
+                    series.MxfGuideImage = res;
                 }
 
             }
@@ -171,7 +171,7 @@ public class SeriesImages(ILogger<SeriesImages> logger, IEPGCache<SeriesImages> 
             string uid = response.ProgramId!;
 
             ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
-            MxfSeriesInfo? series = null;
+            SeriesInfo? series = null;
             if (programId.StartsWith("SP"))
             {
                 foreach (string? key in SportsSeries.AllKeys)
@@ -195,7 +195,7 @@ public class SeriesImages(ILogger<SeriesImages> logger, IEPGCache<SeriesImages> 
             {
                 series = schedulesDirectData.FindOrCreateSeriesInfo(response.ProgramId.Substring(2, 8));
             }
-            if (series == null || !string.IsNullOrEmpty(series.GuideImage) || series.extras.ContainsKey("artwork"))
+            if (series == null || !string.IsNullOrEmpty(series.GuideImage) || series.Extras.ContainsKey("artwork"))
             {
                 continue;
             }
@@ -207,13 +207,13 @@ public class SeriesImages(ILogger<SeriesImages> logger, IEPGCache<SeriesImages> 
                 continue;
             }
 
-            series.extras.Add("artwork", artwork);
+            series.Extras.Add("artwork", artwork);
 
             MxfGuideImage? res = epgCache.GetGuideImageAndUpdateCache(artwork, ImageType.Series, uid);
             if (res != null)
             {
 
-                series.mxfGuideImage = res;
+                series.MxfGuideImage = res;
             }
         }
     }

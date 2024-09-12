@@ -1,5 +1,4 @@
 ﻿using StreamMaster.SchedulesDirect.Domain.Enums;
-using StreamMaster.SchedulesDirect.Domain.Models;
 
 namespace StreamMaster.SchedulesDirect.Domain.Interfaces
 {
