@@ -160,6 +160,7 @@ namespace StreamMaster.Infrastructure.Services.Downloads
                 return;
             }
 
+
             logger.LogDebug("Processing NameLogo: {Name}", nameLogo.Name);
             ImageDownloadServiceStatus.TotalNameLogoDownloadAttempts++;
 
