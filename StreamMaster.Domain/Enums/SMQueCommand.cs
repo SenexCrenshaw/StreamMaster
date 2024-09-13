@@ -3,6 +3,7 @@
 public enum SMQueCommand
 {
     BuildIconCaches,
+    BuildLogosCacheFromStreams,
     BuildProgIconsCacheFromEPGs,
     BuildIconsCacheFromVideoStreams,
     ReadDirectoryLogosRequest,

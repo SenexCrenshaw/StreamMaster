@@ -69,7 +69,6 @@ namespace StreamMaster.Infrastructure.Services
                 );
         }
 
-
         public async Task<(bool success, Exception? ex)> DownloadUrlAsync(string url, string fullName, bool? ignoreCompression = false)
         {
             if (string.IsNullOrWhiteSpace(url) || !url.Contains("://"))
@@ -105,7 +104,7 @@ namespace StreamMaster.Infrastructure.Services
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Download failed for {Url}", url);
+                logger.LogError("Download failed for {Url} : {message}", url, ex.Message);
                 return (false, ex);
             }
         }

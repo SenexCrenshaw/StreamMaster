@@ -58,8 +58,8 @@ public class CreateSMChannelRequestHandler(ILogger<CreateSMChannelRequest> Logge
                 DataResponse<List<SMStreamDto>> streams = await Sender.Send(new UpdateStreamRanksRequest(smChannel.Id, request.SMStreamsIds), cancellationToken);
             }
 
-            NameLogo NameLogo = new(smChannel);
-            await logoService.DownloadAndAddAsync(NameLogo, SMFileTypes.Logo);
+            NameLogo NameLogo = new(smChannel, SMFileTypes.Logo);
+            logoService.DownloadAndAdd(NameLogo);
 
             await dataRefreshService.RefreshAllSMChannels();
             await messageService.SendSuccess("Channel Added", $"Channel '{request.Name}' added successfully");

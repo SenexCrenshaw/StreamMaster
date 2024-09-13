@@ -219,7 +219,7 @@ public class EPGFileRepository(ILogger<EPGFileRepository> intLogger, IFileUtilSe
         ArgumentNullException.ThrowIfNull(EPGFile);
 
         Update(EPGFile);
-        logger.LogInformation("EPGFile with number {EPGFile.EPGNumber} was updated.", EPGFile.EPGNumber);
+        //logger.LogInformation("EPGFile with number {EPGFile.EPGNumber} was updated.", EPGFile.EPGNumber);
     }
 
     public List<EPGColorDto> GetEPGColors()

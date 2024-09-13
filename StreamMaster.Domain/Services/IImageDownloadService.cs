@@ -2,8 +2,9 @@
 {
     public interface IImageDownloadService
     {
-        Task StopAsync(CancellationToken cancellationToken);
         void Start();
-        ImageDownloadServiceStatus GetStatus();
+        Task StopAsync(CancellationToken cancellationToken);
+        //Task StartAsync(CancellationToken cancellationToken);
+        ImageDownloadServiceStatus ImageDownloadServiceStatus { get; }
     }
 }

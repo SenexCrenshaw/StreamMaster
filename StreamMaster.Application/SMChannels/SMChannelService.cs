@@ -2,9 +2,9 @@
 
 public class SMChannelService(IRepositoryWrapper repositoryWrapper) : ISMChannelService
 {
-    public async Task<List<NameLogo>> GetNameLogos()
+    public IQueryable<NameLogo> GetNameLogos()
     {
-        List<NameLogo> channelNames = await repositoryWrapper.SMChannel.GetQuery().OrderBy(a => a.Name).Select(a => new NameLogo(a)).ToListAsync().ConfigureAwait(false);
+        IQueryable<NameLogo> channelNames = repositoryWrapper.SMChannel.GetQuery().OrderBy(a => a.Name).Select(a => new NameLogo(a, SMFileTypes.Logo));
         return channelNames;
     }
 }

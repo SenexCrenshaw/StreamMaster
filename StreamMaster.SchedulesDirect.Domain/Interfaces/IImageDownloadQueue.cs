@@ -1,12 +1,19 @@
 ﻿
+using StreamMaster.Domain.Dto;
+
 namespace StreamMaster.SchedulesDirect.Domain.Interfaces;
 
 public interface IImageDownloadQueue
 {
-    void EnqueueProgramMetadataCollection(IEnumerable<ProgramMetadata> metadataCollection);
+    void EnqueueNameLogo(NameLogo nameLogo);
     void EnqueueProgramMetadata(ProgramMetadata metadata);
-    void TryDequeue(string Id);
-    int Count();
-    bool IsEmpty();
-    ProgramMetadata? GetNext();
+    void EnqueueProgramMetadataCollection(IEnumerable<ProgramMetadata> metadataCollection);
+    NameLogo? GetNextNameLogo();
+    ProgramMetadata? GetNextProgramMetadata();
+    bool IsNameLogoQueueEmpty();
+    bool IsProgramMetadataQueueEmpty();
+    int NameLogoCount();
+    int ProgramMetadataCount();
+    void TryDequeueNameLogo(string id);
+    void TryDequeueProgramMetadata(string id);
 }

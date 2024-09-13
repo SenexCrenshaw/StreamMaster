@@ -5,7 +5,7 @@ namespace StreamMaster.Domain.Services
     public interface ILogoService
     {
         string GetLogoUrl(string iconSource, string baseUrl);
-        Task DownloadAndAddAsync(NameLogo nameLogo, SMFileTypes smFileType);
+        void DownloadAndAdd(NameLogo nameLogo);
         Task CacheSMChannelLogos();
         void AddLogo(string artworkUri, string title);
         ImagePath? GetValidImagePath(string URL, SMFileTypes? fileType = null);

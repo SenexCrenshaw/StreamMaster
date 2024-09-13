@@ -12,8 +12,7 @@ public class MiscController(IImageDownloadService imageDownloadService, ILogoSer
     [Route("[action]")]
     public ActionResult<ImageDownloadServiceStatus> GetDownloadServiceStatus()
     {
-        ImageDownloadServiceStatus status = imageDownloadService.GetStatus();
-        return Ok(status);
+        return Ok(imageDownloadService.ImageDownloadServiceStatus);
     }
 
     [HttpGet]

@@ -215,7 +215,7 @@ using (IServiceScope scope = app.Services.CreateScope())
     }
 
     IImageDownloadService imageDownloadService = scope.ServiceProvider.GetRequiredService<IImageDownloadService>();
-    imageDownloadService.Start();
+     imageDownloadService.Start();
 }
 
 app.UseDefaultFiles();

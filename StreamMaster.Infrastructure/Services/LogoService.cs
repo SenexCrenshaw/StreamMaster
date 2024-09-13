@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -10,6 +11,7 @@ using StreamMaster.Domain.Dto;
 using StreamMaster.Domain.Enums;
 using StreamMaster.Domain.Extensions;
 using StreamMaster.PlayList;
+using StreamMaster.SchedulesDirect.Domain.Interfaces;
 using StreamMaster.SchedulesDirect.Helpers;
 
 using System.Collections.Concurrent;
@@ -18,7 +20,7 @@ using System.Net;
 using System.Web;
 
 namespace StreamMaster.Infrastructure.Services;
-public class LogoService(IMapper mapper, ICustomPlayListBuilder customPlayListBuilder, IServiceProvider serviceProvider, IDataRefreshService dataRefreshService, IFileUtilService fileUtilService, IOptionsMonitor<Setting> _settings, ILogger<LogoService> logger)
+public class LogoService(IMapper mapper, ICustomPlayListBuilder customPlayListBuilder, IImageDownloadQueue imageDownloadQueue, IServiceProvider serviceProvider, IDataRefreshService dataRefreshService, IFileUtilService fileUtilService, IOptionsMonitor<Setting> _settings, ILogger<LogoService> logger)
     : ILogoService
 {
     private ConcurrentDictionary<string, LogoFileDto> Logos { get; } = [];
@@ -34,21 +36,24 @@ public class LogoService(IMapper mapper, ICustomPlayListBuilder customPlayListBu
         using IServiceScope scope = serviceProvider.CreateScope();
         ISMChannelService smChannelService = scope.ServiceProvider.GetRequiredService<ISMChannelService>();
 
-        List<NameLogo> smChannelsLogos = await smChannelService.GetNameLogos();
+        // Fetch all NameLogos without manually handling batching
+        List<NameLogo> smChannelsLogos = await smChannelService.GetNameLogos().ToListAsync(); // Assuming you're using EF Core or similar
+
+        // Enqueue each NameLogo into the ImageDownloadService for processing
         foreach (NameLogo smChannelsLogo in smChannelsLogos)
         {
-            await DownloadAndAddAsync(smChannelsLogo, SMFileTypes.Logo);
+            imageDownloadQueue.EnqueueNameLogo(smChannelsLogo); // Enqueue to the ImageDownloadService
         }
     }
 
-    public async Task DownloadAndAddAsync(NameLogo nameLogo, SMFileTypes smFileType)
+    public void DownloadAndAdd(NameLogo nameLogo)
     {
         if (string.IsNullOrEmpty(nameLogo.Logo))
         {
             return;
         }
 
-        FileDefinition? fd = FileDefinitions.GetFileDefinition(smFileType);
+        FileDefinition? fd = FileDefinitions.GetFileDefinition(nameLogo.SMFileType);
         if (fd is null)
         {
             return;
@@ -61,19 +66,24 @@ public class LogoService(IMapper mapper, ICustomPlayListBuilder customPlayListBu
 
         string fullPath = Path.Combine(fd.DirectoryLocation, subDir, fileName);
 
+        LogoFileDto logoFileDto = new() { Extension = ext, Source = fullPath, Name = nameLogo.Name, SMFileType = nameLogo.SMFileType };
+        AddLogo(logoFileDto);
+
         if (!File.Exists(fullPath))
         {
-            (bool success, Exception? ex) = await fileUtilService.DownloadUrlAsync(nameLogo.Logo, fullPath, true);
-            if (success)
-            {
-                //logger.LogInformation("Downloaded {smFileType} to {Name} {fullPath}", smFileType.ToString(), nameLogo.Name, fullPath);
-                LogoFileDto logoFileDto = new() { Extension = ext, Source = fullPath, Name = nameLogo.Name, SMFileType = smFileType };
-                AddLogo(logoFileDto);
-            }
+            imageDownloadQueue.EnqueueNameLogo(nameLogo);
+
+            //(bool success, Exception? _) = await fileUtilService.DownloadUrlAsync(nameLogo.Logo, fullPath, true);
+            //if (success)
+            //{
+            //    //logger.LogInformation("Downloaded {smFileType} to {Name} {fullPath}", smFileType.ToString(), nameLogo.Name, fullPath);
+            //    LogoFileDto logoFileDto = new() { Extension = ext, Source = fullPath, Name = nameLogo.Name, SMFileType = smFileType };
+            //    AddLogo(logoFileDto);
+            //}
         }
     }
 
-    private string? GetCachedFile(string source, SMFileTypes smFileType)
+    private static string? GetCachedFile(string source, SMFileTypes smFileType)
     {
         FileDefinition? fd = FileDefinitions.GetFileDefinition(smFileType);
         if (fd is null)
@@ -90,8 +100,6 @@ public class LogoService(IMapper mapper, ICustomPlayListBuilder customPlayListBu
 
         return !File.Exists(fullPath) ? null : fullPath;
     }
-
-
     public string GetLogoUrl(string logoSource, string baseUrl)
     {
         if (string.IsNullOrEmpty(logoSource))
@@ -126,6 +134,11 @@ public class LogoService(IMapper mapper, ICustomPlayListBuilder customPlayListBu
 
     public async Task<DataResponse<bool>> BuildLogosCacheFromSMStreamsAsync(CancellationToken cancellationToken)
     {
+        if (_settings.CurrentValue.LogoCache != "Cache")
+        {
+            return DataResponse.False;
+        }
+
         using IServiceScope scope = serviceProvider.CreateScope();
         ISMStreamService smStreamService = scope.ServiceProvider.GetRequiredService<ISMStreamService>();
 
@@ -213,7 +226,6 @@ public class LogoService(IMapper mapper, ICustomPlayListBuilder customPlayListBu
 
         if (fileType == SMFileTypes.Logo)
         {
-
             string LogoReturnName = Path.GetFileName(url);
             string? cachedFile = GetCachedFile(url, SMFileTypes.Logo);
             if (cachedFile != null)
@@ -226,7 +238,6 @@ public class LogoService(IMapper mapper, ICustomPlayListBuilder customPlayListBu
                 };
             }
         }
-
 
         if (fileType == SMFileTypes.CustomPlayListArt)
         {
@@ -257,7 +268,6 @@ public class LogoService(IMapper mapper, ICustomPlayListBuilder customPlayListBu
                 };
             }
         }
-
 
         if (!url.StartsWith("http"))
         {

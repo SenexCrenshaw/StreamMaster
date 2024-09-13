@@ -62,12 +62,16 @@ public sealed class QueuedHostedService(
                         await _sender.Send(new BuildIconCachesRequest(), cancellationToken).ConfigureAwait(false);
                         break;
 
+                    case SMQueCommand.BuildLogosCacheFromStreams:
+                        await _sender.Send(new BuildLogosCacheFromStreamsRequest(), cancellationToken).ConfigureAwait(false);
+                        break;
+
                     case SMQueCommand.BuildProgIconsCacheFromEPGs:
                         _ = await _sender.Send(new BuildProgIconsCacheFromEPGsRequest(), cancellationToken).ConfigureAwait(false);
                         break;
 
                     case SMQueCommand.BuildIconsCacheFromVideoStreams:
-                        _ = await _sender.Send(new BuildIconsCacheFromVideoStreamRequest(), cancellationToken).ConfigureAwait(false);
+                        _ = await _sender.Send(new BuildLogosCacheFromStreamsRequest(), cancellationToken).ConfigureAwait(false);
                         break;
 
                     case SMQueCommand.ReadDirectoryLogosRequest:

@@ -9,6 +9,7 @@ public record UpdateSettingRequest(UpdateSettingParameters Parameters) : IReques
 
 public partial class UpdateSettingRequestHandler(
     IOptionsMonitor<SDSettings> intsdsettings,
+    ILogoService logoService,
     ILogger<UpdateSettingRequest> Logger,
     IMapper Mapper,
     IBackgroundTaskQueue backgroundTaskQueue,
@@ -193,6 +194,7 @@ public partial class UpdateSettingRequestHandler(
                 "cache" => "Cache",
                 _ => "None",
             };
+            await logoService.BuildLogosCacheFromSMStreamsAsync(CancellationToken.None);
         }
 
         if (request.Parameters.CleanURLs.HasValue)

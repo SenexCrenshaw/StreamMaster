@@ -193,6 +193,7 @@ export interface NameLogo
 	Id: number;
 	Logo: string;
 	Name: string;
+	SMFileType: SMFileTypes;
 }
 export interface SDSystemStatus
 {

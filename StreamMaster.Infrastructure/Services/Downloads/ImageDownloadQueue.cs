@@ -1,45 +1,71 @@
-﻿using StreamMaster.SchedulesDirect.Domain.Interfaces;
+﻿using StreamMaster.Domain.Dto;
+using StreamMaster.SchedulesDirect.Domain.Interfaces;
 using StreamMaster.SchedulesDirect.Domain.JsonClasses;
 
 using System.Collections.Concurrent;
 
-namespace StreamMaster.Infrastructure.Services.Downloads;
-
-public class ImageDownloadQueue : IImageDownloadQueue
+namespace StreamMaster.Infrastructure.Services.Downloads
 {
-    private readonly ConcurrentDictionary<string, ProgramMetadata> downloadQueue = new();
-
-    public void EnqueueProgramMetadataCollection(IEnumerable<ProgramMetadata> metadataCollection)
+    public class ImageDownloadQueue : IImageDownloadQueue
     {
-        foreach (ProgramMetadata metadata in metadataCollection)
+        private readonly ConcurrentDictionary<string, ProgramMetadata> programMetadataQueue = new();
+        private readonly ConcurrentDictionary<string, NameLogo> nameLogoQueue = new();
+
+        public void EnqueueProgramMetadata(ProgramMetadata metadata)
         {
-            downloadQueue.TryAdd(metadata.ProgramId, metadata);
+            programMetadataQueue.TryAdd(metadata.ProgramId, metadata);
         }
-    }
 
-    public void EnqueueProgramMetadata(ProgramMetadata metadata)
-    {
-        downloadQueue.TryAdd(metadata.ProgramId, metadata);
-    }
+        public void EnqueueNameLogo(NameLogo nameLogo)
+        {
+            nameLogoQueue.TryAdd(nameLogo.Name, nameLogo);
+        }
+        public void EnqueueProgramMetadataCollection(IEnumerable<ProgramMetadata> metadataCollection)
+        {
+            foreach (ProgramMetadata metadata in metadataCollection)
+            {
+                programMetadataQueue.TryAdd(metadata.ProgramId, metadata);
+            }
+        }
 
-    public ProgramMetadata? GetNext()
-    {
-        return downloadQueue.Keys.Count == 0 ? null : downloadQueue.First().Value;
-    }
+        public ProgramMetadata? GetNextProgramMetadata()
+        {
+            return programMetadataQueue.IsEmpty ? null : programMetadataQueue.First().Value;
+        }
 
-    public void TryDequeue(string Id)
-    {
+        public NameLogo? GetNextNameLogo()
+        {
+            return nameLogoQueue.IsEmpty ? null : nameLogoQueue.First().Value;
+        }
 
-        downloadQueue.TryRemove(Id, out _);
-    }
+        public void TryDequeueProgramMetadata(string id)
+        {
+            programMetadataQueue.TryRemove(id, out _);
+        }
 
-    public int Count()
-    {
-        return downloadQueue.Count;
-    }
+        public void TryDequeueNameLogo(string id)
+        {
+            nameLogoQueue.TryRemove(id, out _);
+        }
 
-    public bool IsEmpty()
-    {
-        return downloadQueue.IsEmpty;
+        public int ProgramMetadataCount()
+        {
+            return programMetadataQueue.Count;
+        }
+
+        public int NameLogoCount()
+        {
+            return nameLogoQueue.Count;
+        }
+
+        public bool IsProgramMetadataQueueEmpty()
+        {
+            return programMetadataQueue.IsEmpty;
+        }
+
+        public bool IsNameLogoQueueEmpty()
+        {
+            return nameLogoQueue.IsEmpty;
+        }
     }
 }

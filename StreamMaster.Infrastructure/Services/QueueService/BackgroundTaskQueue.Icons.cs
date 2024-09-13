@@ -11,6 +11,11 @@ public partial class BackgroundTaskQueue : IIconTasks
         await QueueAsync(SMQueCommand.BuildIconCaches, cancellationToken).ConfigureAwait(false);
     }
 
+    public async ValueTask BuildLogosCacheFromStreams(CancellationToken cancellationToken = default)
+    {
+        await QueueAsync(SMQueCommand.BuildLogosCacheFromStreams, cancellationToken).ConfigureAwait(false);
+    }
+
     public async ValueTask BuildIconsCacheFromVideoStreams(CancellationToken cancellationToken = default)
     {
         await QueueAsync(SMQueCommand.BuildIconsCacheFromVideoStreams, cancellationToken).ConfigureAwait(false);

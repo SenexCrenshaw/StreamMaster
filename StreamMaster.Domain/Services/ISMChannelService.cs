@@ -2,6 +2,6 @@
 {
     public interface ISMChannelService
     {
-        Task<List<NameLogo>> GetNameLogos();
+        IQueryable<NameLogo> GetNameLogos();
     }
 }
