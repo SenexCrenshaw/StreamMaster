@@ -22,7 +22,7 @@ using System.Linq.Expressions;
 using System.Text.Json;
 namespace StreamMaster.Infrastructure.EF.Repositories;
 
-public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, ILogoService logoService, IServiceProvider serviceProvider, IRepositoryWrapper repository, IRepositoryContext repositoryContext, IMapper mapper, IOptionsMonitor<Setting> intSettings, IOptionsMonitor<CommandProfileDict> intProfileSettings, ISchedulesDirectDataService schedulesDirectDataService)
+public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IImageDownloadQueue imageDownloadQueue, IServiceProvider serviceProvider, IRepositoryWrapper repository, IRepositoryContext repositoryContext, IMapper mapper, IOptionsMonitor<Setting> intSettings, IOptionsMonitor<CommandProfileDict> intProfileSettings, ISchedulesDirectDataService schedulesDirectDataService)
     : RepositoryBase<SMChannel>(repositoryContext, intLogger), ISMChannelsRepository
 {
     private ConcurrentHashSet<int> existingNumbers = [];
@@ -524,7 +524,8 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, ILogo
                     }
                     addedSMChannels.Add(smChannel);
                     NameLogo NameLogo = new(smChannel, SMFileTypes.Logo);
-                    logoService.DownloadAndAdd(NameLogo);
+                    imageDownloadQueue.EnqueueNameLogo(NameLogo);
+                    //logoService.DownloadAndAdd(NameLogo);
                     //bulkSMChannels.Add(smChannel);
                 }
 

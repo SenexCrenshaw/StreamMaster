@@ -8,6 +8,6 @@ internal class GetDownloadServiceStatusRequestHandler(IImageDownloadService imag
 {
     public Task<DataResponse<ImageDownloadServiceStatus>> Handle(GetDownloadServiceStatusRequest request, CancellationToken cancellationToken)
     {
-        return Task.FromResult(DataResponse<ImageDownloadServiceStatus>.Success(imageDownloadService.ImageDownloadServiceStatus));
+        return Task.FromResult(DataResponse<ImageDownloadServiceStatus>.Success(imageDownloadService.imageDownloadServiceStatus));
     }
 }

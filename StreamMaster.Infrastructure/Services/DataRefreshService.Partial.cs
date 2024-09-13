@@ -48,6 +48,15 @@ public partial class DataRefreshService : IDataRefreshServicePartial
         await hub.Clients.All.DataRefresh("GetCommandProfiles");
     }
 
+    public async Task RefreshDownloadServiceStatus()
+    {
+        if (!BuildInfo.IsSystemReady)
+        {
+            return;
+        }
+        await hub.Clients.All.DataRefresh("GetDownloadServiceStatus");
+    }
+
     public async Task RefreshStationPreviews()
     {
         if (!BuildInfo.IsSystemReady)

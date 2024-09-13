@@ -1,15 +1,13 @@
 using Microsoft.AspNetCore.SignalR;
 
-using StreamMaster.Application.Interfaces;
 using StreamMaster.Application.Hubs;
-using StreamMaster.Application.Services;
+using StreamMaster.Application.Interfaces;
 using StreamMaster.Domain.Configuration;
 
 namespace StreamMaster.Infrastructure.Services;
 
 public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMasterHub> hub) : IDataRefreshService, IDataRefreshServicePartial
 {
-
     public async Task RefreshAll()
     {
 

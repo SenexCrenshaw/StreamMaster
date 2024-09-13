@@ -12,7 +12,7 @@ public class MiscController(IImageDownloadService imageDownloadService, ILogoSer
     [Route("[action]")]
     public ActionResult<ImageDownloadServiceStatus> GetDownloadServiceStatus()
     {
-        return Ok(imageDownloadService.ImageDownloadServiceStatus);
+        return Ok(imageDownloadService.imageDownloadServiceStatus);
     }
 
     [HttpGet]
@@ -25,9 +25,9 @@ public class MiscController(IImageDownloadService imageDownloadService, ILogoSer
 
     [HttpGet]
     [Route("[action]")]
-    public async Task<IActionResult> CacheSMChannelIcons()
+    public IActionResult CacheSMChannelIcons()
     {
-        await logoService.CacheSMChannelLogos();
+        logoService.CacheSMChannelLogos();
         return Ok();
     }
 

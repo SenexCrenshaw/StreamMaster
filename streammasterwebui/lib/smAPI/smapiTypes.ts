@@ -19,6 +19,22 @@ export interface FieldData
 	Id: string;
 	Value: any;
 }
+export interface ImageDownloadServiceStatus
+{
+	Id: number;
+	TotalAlreadyExists: number;
+	TotalNameLogo: number;
+	TotalNameLogoAlreadyExists: number;
+	TotalNameLogoDownloadAttempts: number;
+	TotalNameLogoErrors: number;
+	TotalNameLogoSuccessful: number;
+	TotalNoArt: number;
+	TotalProgramMetadata: number;
+	TotalProgramMetadataAlreadyExists: number;
+	TotalProgramMetadataDownloadAttempts: number;
+	TotalProgramMetadataErrors: number;
+	TotalProgramMetadataSuccessful: number;
+}
 export interface SMMessage
 {
 	Detail?: string;

@@ -5,6 +5,6 @@
         void Start();
         Task StopAsync(CancellationToken cancellationToken);
         //Task StartAsync(CancellationToken cancellationToken);
-        ImageDownloadServiceStatus ImageDownloadServiceStatus { get; }
+        ImageDownloadServiceStatus imageDownloadServiceStatus { get; }
     }
 }

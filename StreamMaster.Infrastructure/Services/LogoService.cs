@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -26,7 +25,7 @@ public class LogoService(IMapper mapper, ICustomPlayListBuilder customPlayListBu
     private ConcurrentDictionary<string, LogoFileDto> Logos { get; } = [];
     private ConcurrentDictionary<string, TvLogoFile> TvLogos { get; set; } = [];
 
-    public async Task CacheSMChannelLogos()
+    public void CacheSMChannelLogos()
     {
         if (!string.Equals(_settings.CurrentValue.LogoCache, "Cache", StringComparison.OrdinalIgnoreCase))
         {
@@ -36,52 +35,50 @@ public class LogoService(IMapper mapper, ICustomPlayListBuilder customPlayListBu
         using IServiceScope scope = serviceProvider.CreateScope();
         ISMChannelService smChannelService = scope.ServiceProvider.GetRequiredService<ISMChannelService>();
 
-        // Fetch all NameLogos without manually handling batching
-        List<NameLogo> smChannelsLogos = await smChannelService.GetNameLogos().ToListAsync(); // Assuming you're using EF Core or similar
+        IQueryable<NameLogo> smChannelsLogos = smChannelService.GetNameLogos();
 
-        // Enqueue each NameLogo into the ImageDownloadService for processing
         foreach (NameLogo smChannelsLogo in smChannelsLogos)
         {
-            imageDownloadQueue.EnqueueNameLogo(smChannelsLogo); // Enqueue to the ImageDownloadService
+            imageDownloadQueue.EnqueueNameLogo(smChannelsLogo);
         }
     }
 
-    public void DownloadAndAdd(NameLogo nameLogo)
-    {
-        if (string.IsNullOrEmpty(nameLogo.Logo))
-        {
-            return;
-        }
+    //public void DownloadAndAdd(NameLogo nameLogo)
+    //{
+    //    if (string.IsNullOrEmpty(nameLogo.Logo))
+    //    {
+    //        return;
+    //    }
 
-        FileDefinition? fd = FileDefinitions.GetFileDefinition(nameLogo.SMFileType);
-        if (fd is null)
-        {
-            return;
-        }
+    //    FileDefinition? fd = FileDefinitions.GetFileDefinition(nameLogo.SMFileType);
+    //    if (fd is null)
+    //    {
+    //        return;
+    //    }
 
-        string ext = Path.GetExtension(nameLogo.Logo) ?? fd.DefaultExtension;
+    //    string ext = Path.GetExtension(nameLogo.Logo) ?? fd.DefaultExtension;
 
-        string fileName = FileUtil.EncodeToMD5(nameLogo.Logo) + ext;
-        string subDir = char.ToLower(fileName[0]).ToString();
+    //    string fileName = FileUtil.EncodeToMD5(nameLogo.Logo) + ext;
+    //    string subDir = char.ToLower(fileName[0]).ToString();
 
-        string fullPath = Path.Combine(fd.DirectoryLocation, subDir, fileName);
+    //    string fullPath = Path.Combine(fd.DirectoryLocation, subDir, fileName);
 
-        LogoFileDto logoFileDto = new() { Extension = ext, Source = fullPath, Name = nameLogo.Name, SMFileType = nameLogo.SMFileType };
-        AddLogo(logoFileDto);
+    //    LogoFileDto logoFileDto = new() { Extension = ext, Source = fullPath, Name = nameLogo.Name, SMFileType = nameLogo.SMFileType };
+    //    AddLogo(logoFileDto);
 
-        if (!File.Exists(fullPath))
-        {
-            imageDownloadQueue.EnqueueNameLogo(nameLogo);
+    //    if (!File.Exists(fullPath))
+    //    {
+    //        imageDownloadQueue.EnqueueNameLogo(nameLogo);
 
-            //(bool success, Exception? _) = await fileUtilService.DownloadUrlAsync(nameLogo.Logo, fullPath, true);
-            //if (success)
-            //{
-            //    //logger.LogInformation("Downloaded {smFileType} to {Name} {fullPath}", smFileType.ToString(), nameLogo.Name, fullPath);
-            //    LogoFileDto logoFileDto = new() { Extension = ext, Source = fullPath, Name = nameLogo.Name, SMFileType = smFileType };
-            //    AddLogo(logoFileDto);
-            //}
-        }
-    }
+    //        //(bool success, Exception? _) = await fileUtilService.DownloadUrlAsync(nameLogo.Logo, fullPath, true);
+    //        //if (success)
+    //        //{
+    //        //    //logger.LogInformation("Downloaded {smFileType} to {Name} {fullPath}", smFileType.ToString(), nameLogo.Name, fullPath);
+    //        //    LogoFileDto logoFileDto = new() { Extension = ext, Source = fullPath, Name = nameLogo.Name, SMFileType = smFileType };
+    //        //    AddLogo(logoFileDto);
+    //        //}
+    //    }
+    //}
 
     private static string? GetCachedFile(string source, SMFileTypes smFileType)
     {

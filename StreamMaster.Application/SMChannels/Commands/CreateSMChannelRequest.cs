@@ -18,7 +18,7 @@ public record CreateSMChannelRequest(
     ) : IRequest<APIResponse>;
 
 [LogExecutionTimeAspect]
-public class CreateSMChannelRequestHandler(ILogger<CreateSMChannelRequest> Logger, ILogoService logoService, ISender Sender, IMessageService messageService, IDataRefreshService dataRefreshService, IRepositoryWrapper Repository)
+public class CreateSMChannelRequestHandler(ILogger<CreateSMChannelRequest> Logger, IImageDownloadQueue imageDownloadQueue, ILogoService logoService, ISender Sender, IMessageService messageService, IDataRefreshService dataRefreshService, IRepositoryWrapper Repository)
     : IRequestHandler<CreateSMChannelRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(CreateSMChannelRequest request, CancellationToken cancellationToken)
@@ -59,7 +59,8 @@ public class CreateSMChannelRequestHandler(ILogger<CreateSMChannelRequest> Logge
             }
 
             NameLogo NameLogo = new(smChannel, SMFileTypes.Logo);
-            logoService.DownloadAndAdd(NameLogo);
+            imageDownloadQueue.EnqueueNameLogo(NameLogo);
+            //logoService.DownloadAndAdd(NameLogo);
 
             await dataRefreshService.RefreshAllSMChannels();
             await messageService.SendSuccess("Channel Added", $"Channel '{request.Name}' added successfully");

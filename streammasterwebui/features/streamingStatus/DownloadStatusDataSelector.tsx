@@ -12,17 +12,51 @@ const DownloadStatusDataSelector = () => {
     (): ColumnMeta[] => [
       {
         align: 'center',
-        field: 'TotalDownloadAttempts'
+        field: 'TotalProgramMetadata'
       },
       {
         align: 'center',
-        field: 'TotalInQueue',
+        field: 'TotalNameLogo',
         width: '10rem'
       },
       {
         align: 'center',
-        field: 'TotalSuccessful',
-        width: '16rem'
+        field: 'TotalProgramMetadataDownloadAttempts'
+      },
+      {
+        align: 'center',
+        field: 'TotalNameLogoDownloadAttempts',
+        width: '10rem'
+      },
+      {
+        align: 'center',
+        field: 'TotalProgramMetadataSuccessful',
+        width: '10rem'
+      },
+      {
+        align: 'center',
+        field: 'TotalNameLogoSuccessful',
+        width: '10rem'
+      },
+      {
+        align: 'center',
+        field: 'TotalProgramMetadataAlreadyExists',
+        width: '10rem'
+      },
+      {
+        align: 'center',
+        field: 'TotalNameLogoAlreadyExists',
+        width: '10rem'
+      },
+      {
+        align: 'center',
+        field: 'TotalProgramMetadataErrors',
+        width: '10rem'
+      },
+      {
+        align: 'center',
+        field: 'TotalNameLogoErrors',
+        width: '10rem'
       },
       {
         align: 'center',
@@ -33,10 +67,6 @@ const DownloadStatusDataSelector = () => {
         align: 'center',
         field: 'TotalNoArt',
         width: '10rem'
-      },
-      {
-        align: 'center',
-        field: 'TotalErrors'
       }
     ],
     []

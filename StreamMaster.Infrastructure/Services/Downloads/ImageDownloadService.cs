@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using StreamMaster.Domain.Common;
 using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Dto;
+using StreamMaster.Domain.Enums;
 using StreamMaster.Domain.Extensions;
 using StreamMaster.SchedulesDirect.Domain.Interfaces;
 using StreamMaster.SchedulesDirect.Domain.JsonClasses;
@@ -14,7 +15,7 @@ using System.Net;
 
 namespace StreamMaster.Infrastructure.Services.Downloads
 {
-    public class ImageDownloadService(ILogger<ImageDownloadService> logger, IOptionsMonitor<Setting> _settings, IOptionsMonitor<SDSettings> _sdSettings, ISchedulesDirectAPIService schedulesDirectAPI, IImageDownloadQueue imageDownloadQueue, ISchedulesDirectDataService schedulesDirectDataService)
+    public class ImageDownloadService(ILogger<ImageDownloadService> logger, IDataRefreshService dataRefreshService, IOptionsMonitor<Setting> _settings, IOptionsMonitor<SDSettings> _sdSettings, ISchedulesDirectAPIService schedulesDirectAPI, IImageDownloadQueue imageDownloadQueue, ISchedulesDirectDataService schedulesDirectDataService)
         : IHostedService, IDisposable, IImageDownloadService
     {
         //private readonly ILogger<ImageDownloadService> logger;
@@ -27,8 +28,10 @@ namespace StreamMaster.Infrastructure.Services.Downloads
         private bool IsActive = false;  // Used to prevent multiple starts
         private DateTime ImageLockOutDate = DateTime.MinValue;
         private readonly object _lockObject = new();
+        private static DateTime _lastRefreshTime = DateTime.MinValue;
+        private static readonly object _refreshLock = new();
 
-        public ImageDownloadServiceStatus ImageDownloadServiceStatus { get; } = new();
+        public ImageDownloadServiceStatus imageDownloadServiceStatus { get; } = new();
 
         //public ImageDownloadService(ILogger<ImageDownloadService> logger, IOptionsMonitor<Setting> settingsMonitor, ISchedulesDirectAPIService schedulesDirectAPI, IImageDownloadQueue imageDownloadQueue, ISchedulesDirectDataService schedulesDirectDataService)
         //{
@@ -67,15 +70,32 @@ namespace StreamMaster.Infrastructure.Services.Downloads
         {
             await ProcessProgramMetadataQueue(cancellationToken);
             await ProcessNameLogoQueue(cancellationToken);
+
+            // Throttle the call to RefreshDownloadServiceStatus to once per second
+            bool shouldRefresh = false;
+            lock (_refreshLock)
+            {
+                if ((DateTime.UtcNow - _lastRefreshTime).TotalSeconds >= 1)
+                {
+                    _lastRefreshTime = DateTime.UtcNow;
+                    shouldRefresh = true;
+                }
+            }
+
+            if (shouldRefresh)
+            {
+                await dataRefreshService.RefreshDownloadServiceStatus();
+            }
         }
 
         private async Task ProcessProgramMetadataQueue(CancellationToken cancellationToken)
         {
             ProgramMetadata? metadata = imageDownloadQueue.GetNextProgramMetadata();
+            imageDownloadServiceStatus.TotalProgramMetadata = imageDownloadQueue.ProgramMetadataCount();
             if (metadata != null)
             {
                 logger.LogDebug("Processing ProgramMetadata: {ProgramId}", metadata.ProgramId);
-                ImageDownloadServiceStatus.TotalProgramMetadataDownloadAttempts++;
+                imageDownloadServiceStatus.TotalProgramMetadataDownloadAttempts++;
 
                 // Skip if ImageLockOut is active for Schedules Direct downloads
                 if (ImageLockOut)
@@ -89,7 +109,7 @@ namespace StreamMaster.Infrastructure.Services.Downloads
                 if (artwork.Count == 0)
                 {
                     logger.LogDebug("No artwork to download for ProgramId: {ProgramId}", metadata.ProgramId);
-                    ImageDownloadServiceStatus.TotalNoArt++;
+                    imageDownloadServiceStatus.TotalNoArt++;
                     imageDownloadQueue.TryDequeueProgramMetadata(metadata.ProgramId);
                     return;
                 }
@@ -128,7 +148,7 @@ namespace StreamMaster.Infrastructure.Services.Downloads
                     string? logoPath = art.Uri.GetSDImageFullPath();
                     if (string.IsNullOrEmpty(logoPath) || File.Exists(logoPath))
                     {
-                        ImageDownloadServiceStatus.TotalAlreadyExists++;
+                        imageDownloadServiceStatus.TotalAlreadyExists++;
                         continue;
                     }
 
@@ -155,19 +175,26 @@ namespace StreamMaster.Infrastructure.Services.Downloads
         private async Task ProcessNameLogoQueue(CancellationToken cancellationToken)
         {
             NameLogo? nameLogo = imageDownloadQueue.GetNextNameLogo();
-            if (nameLogo?.Logo.StartsWith("http") != true)
+            imageDownloadServiceStatus.TotalNameLogo = imageDownloadQueue.NameLogoCount();
+            if (nameLogo == null)
             {
+                return;
+            }
+
+            if (nameLogo.Logo.StartsWith("http") != true)
+            {
+                imageDownloadQueue.TryDequeueNameLogo(nameLogo.Name);
                 return;
             }
 
 
             logger.LogDebug("Processing NameLogo: {Name}", nameLogo.Name);
-            ImageDownloadServiceStatus.TotalNameLogoDownloadAttempts++;
+            imageDownloadServiceStatus.TotalNameLogoDownloadAttempts++;
 
-            string filePath = GetFilePath(nameLogo.Logo);
+            string filePath = GetFilePath(nameLogo);
             if (File.Exists(filePath))
             {
-                ImageDownloadServiceStatus.TotalNameLogoAlreadyExists++;
+                imageDownloadServiceStatus.TotalNameLogoAlreadyExists++;
                 imageDownloadQueue.TryDequeueNameLogo(nameLogo.Name);
                 return;
             }
@@ -175,12 +202,12 @@ namespace StreamMaster.Infrastructure.Services.Downloads
             // Do not enforce ImageLockOut for NameLogo
             if (await DownloadImageAsync(nameLogo.Logo, filePath, isSchedulesDirect: false, cancellationToken))
             {
-                ImageDownloadServiceStatus.TotalNameLogoSuccessful++;
+                imageDownloadServiceStatus.TotalNameLogoSuccessful++;
                 imageDownloadQueue.TryDequeueNameLogo(nameLogo.Name);
             }
             else
             {
-                ImageDownloadServiceStatus.TotalNameLogoErrors++;
+                imageDownloadServiceStatus.TotalNameLogoErrors++;
             }
         }
 
@@ -231,11 +258,38 @@ namespace StreamMaster.Infrastructure.Services.Downloads
             return await schedulesDirectAPI.GetSdImage(uri);
         }
 
-        private static string GetFilePath(string logoUrl)
+        private static string? GetFilePath(NameLogo nameLogo)
         {
-            string fileName = FileUtil.EncodeToMD5(logoUrl) + Path.GetExtension(logoUrl);
-            return Path.Combine(BuildInfo.LogoFolder, fileName);
+            // Ensure the 'Logo' property is not null or empty.
+            if (string.IsNullOrEmpty(nameLogo.Logo))
+            {
+                return null;
+            }
+
+            // Retrieve the file definition; return null if not found.
+            FileDefinition? fd = FileDefinitions.GetFileDefinition(nameLogo.SMFileType);
+            if (fd == null)
+            {
+                return null;
+            }
+
+            // Get the file extension, defaulting if necessary.
+            string ext = Path.GetExtension(nameLogo.Logo);
+            if (string.IsNullOrEmpty(ext))
+            {
+                ext = fd.DefaultExtension;
+            }
+
+            // Generate the filename using MD5 hash.
+            string fileName = FileUtil.EncodeToMD5(nameLogo.Logo) + ext;
+
+            // Determine the subdirectory based on the first character.
+            string subDir = char.ToLowerInvariant(fileName[0]).ToString();
+
+            // Build the full path using Path.Combine with multiple arguments.
+            return Path.Combine(BuildInfo.LogoFolder, fd.DirectoryLocation, subDir, fileName);
         }
+
 
         public Task StopAsync(CancellationToken cancellationToken)
         {

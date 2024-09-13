@@ -16,6 +16,6 @@ public class BuildIconCachesRequestHandler(ISender Sender, ILogoService logoServ
 
         //_ = await Sender.Send(new BuildLogosCacheFromStreamsRequest(), cancellationToken).ConfigureAwait(false);
 
-        await logoService.CacheSMChannelLogos();
+        logoService.CacheSMChannelLogos();
     }
 }

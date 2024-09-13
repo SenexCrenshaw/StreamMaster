@@ -33,7 +33,7 @@ public class RepositoryWrapper(
     IJobStatusService jobStatusService,
     IFileUtilService fileUtilService,
     IDataRefreshService dataRefreshService,
-    ILogoService logoService,
+   IImageDownloadQueue imageDownloadQueue,
     IHttpContextAccessor httpContextAccessor) : IRepositoryWrapper
 {
     private IStreamGroupProfileRepository _streamGroupProfileRepository;
@@ -73,7 +73,7 @@ public class RepositoryWrapper(
     {
         get
         {
-            _smChannel ??= new SMChannelsRepository(SMChannelLogger, logoService, serviceProvider, this, repositoryContext, mapper, intSettings, intProfileSettings, schedulesDirectDataService);
+            _smChannel ??= new SMChannelsRepository(SMChannelLogger, imageDownloadQueue, serviceProvider, this, repositoryContext, mapper, intSettings, intProfileSettings, schedulesDirectDataService);
             return _smChannel;
         }
     }
