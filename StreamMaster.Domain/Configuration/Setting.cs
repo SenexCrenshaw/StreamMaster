@@ -16,7 +16,7 @@ public class BaseSettings
     public int BackupInterval { get; set; } = 4;
     public int BackupVersionsToKeep { get; set; } = 18;
     //public bool CacheIcons { get; set; } = true;
-    public string LogoCache { get; set; } = "Cache";
+    public string LogoCache { get; set; } = "None";
     public int IconCacheExpirationDays { get; set; } = 7;
     public bool CleanURLs { get; set; } = true;
     public int ShutDownDelay { get; set; } = 1000;
