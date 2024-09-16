@@ -11,7 +11,6 @@ using StreamMaster.Domain.Enums;
 using StreamMaster.Domain.Extensions;
 using StreamMaster.PlayList;
 using StreamMaster.SchedulesDirect.Domain.Interfaces;
-using StreamMaster.SchedulesDirect.Helpers;
 
 using System.Collections.Concurrent;
 using System.Diagnostics;
@@ -19,7 +18,7 @@ using System.Text;
 using System.Web;
 
 namespace StreamMaster.Infrastructure.Services;
-public class LogoService(IMapper mapper, ICustomPlayListBuilder customPlayListBuilder, IImageDownloadQueue imageDownloadQueue, IServiceProvider serviceProvider, IDataRefreshService dataRefreshService, IFileUtilService fileUtilService, IOptionsMonitor<Setting> _settings, ILogger<LogoService> logger)
+public class LogoService(IMapper mapper, ICustomPlayListBuilder customPlayListBuilder, IImageDownloadQueue imageDownloadQueue, IServiceProvider serviceProvider, IDataRefreshService dataRefreshService, IOptionsMonitor<Setting> _settings, ILogger<LogoService> logger)
     : ILogoService
 {
     private ConcurrentDictionary<string, LogoFileDto> Logos { get; } = [];
@@ -42,43 +41,6 @@ public class LogoService(IMapper mapper, ICustomPlayListBuilder customPlayListBu
             imageDownloadQueue.EnqueueNameLogo(smChannelsLogo);
         }
     }
-
-    //public void DownloadAndAdd(NameLogo nameLogo)
-    //{
-    //    if (string.IsNullOrEmpty(nameLogo.Logo))
-    //    {
-    //        return;
-    //    }
-
-    //    FileDefinition? fd = FileDefinitions.GetFileDefinition(nameLogo.SMFileType);
-    //    if (fd is null)
-    //    {
-    //        return;
-    //    }
-
-    //    string ext = Path.GetExtension(nameLogo.Logo) ?? fd.DefaultExtension;
-
-    //    string fileName = FileUtil.EncodeToMD5(nameLogo.Logo) + ext;
-    //    string subDir = char.ToLower(fileName[0]).ToString();
-
-    //    string fullPath = Path.Combine(fd.DirectoryLocation, subDir, fileName);
-
-    //    LogoFileDto logoFileDto = new() { Extension = ext, Source = fullPath, Name = nameLogo.Name, SMFileType = nameLogo.SMFileType };
-    //    AddLogo(logoFileDto);
-
-    //    if (!File.Exists(fullPath))
-    //    {
-    //        imageDownloadQueue.EnqueueNameLogo(nameLogo);
-
-    //        //(bool success, Exception? _) = await fileUtilService.DownloadUrlAsync(nameLogo.Logo, fullPath, true);
-    //        //if (success)
-    //        //{
-    //        //    //logger.LogInformation("Downloaded {smFileType} to {Name} {fullPath}", smFileType.ToString(), nameLogo.Name, fullPath);
-    //        //    LogoFileDto logoFileDto = new() { Extension = ext, Source = fullPath, Name = nameLogo.Name, SMFileType = smFileType };
-    //        //    AddLogo(logoFileDto);
-    //        //}
-    //    }
-    //}
 
     private static string? GetCachedFile(string source, SMFileTypes smFileType)
     {
@@ -131,9 +93,18 @@ public class LogoService(IMapper mapper, ICustomPlayListBuilder customPlayListBu
     }
     private static string GetApiUrl(string url, string source, SMFileTypes path)
     {
-        //string encodedFilePath = Uri.EscapeDataString(source);
-        //string a = WebUtility.UrlEncode(source);
+        if (source.Contains("ZjBhMjNhMDhkYjc"))
+        {
+            int aaa = 1;
+        }
+
         string encodedPath = Convert.ToBase64String(Encoding.UTF8.GetBytes(source));
+
+        if (encodedPath.Contains("ZjBhMjNhMDhkYjc"))
+        {
+            int aaa = 1;
+
+        }
         return $"{url}/api/files/{(int)path}/{encodedPath}";
     }
 
@@ -165,11 +136,39 @@ public class LogoService(IMapper mapper, ICustomPlayListBuilder customPlayListBu
 
             string source = HttpUtility.UrlDecode(stream.Logo);
 
-            LogoFileDto logo = LogoHelper.GetLogo(source, stream.Name, stream.M3UFileId, FileDefinitions.Logo);
+            LogoFileDto logo = ToLogoFileDto(source, stream.Name, stream.M3UFileId, FileDefinitions.Logo);
             AddLogo(logo);
         });
         await dataRefreshService.RefreshLogos();
         return DataResponse.True;
+    }
+
+    private static LogoFileDto ToLogoFileDto(string sourceUrl, string? recommendedName, int fileId, FileDefinition fileDefinition)
+    {
+        string source = HttpUtility.UrlDecode(sourceUrl);
+        string ext = Path.GetExtension(source)?.TrimStart('.') ?? string.Empty;
+
+        string name;
+        if (!string.IsNullOrEmpty(recommendedName))
+        {
+            name = string.Join("_", recommendedName.Split(Path.GetInvalidFileNameChars())) + $".{ext}";
+            //fullName = $"{fileDefinition.DirectoryLocation}{name}";
+        }
+        else
+        {
+            (_, name) = fileDefinition.DirectoryLocation.GetRandomFileName($".{ext}");
+        }
+
+        LogoFileDto icon = new()
+        {
+            Source = source,
+            Extension = ext,
+            Name = Path.GetFileNameWithoutExtension(name),
+            SMFileType = fileDefinition.SMFileType,
+            FileId = fileId
+        };
+
+        return icon;
     }
 
     public void AddLogo(LogoFileDto LogoFile)

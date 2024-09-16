@@ -1,6 +1,5 @@
 ﻿using StreamMaster.Domain.Logging;
 using StreamMaster.SchedulesDirect.Data;
-using StreamMaster.Streams.Domain.Interfaces;
 
 using System.Globalization;
 using System.Text.RegularExpressions;
@@ -9,9 +8,8 @@ using System.Xml.Serialization;
 
 namespace StreamMaster.SchedulesDirect.Converters;
 
-public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, ISchedulesDirectDataService schedulesDirectDataService, ICacheManager cacheManager, IFileUtilService fileUtilService) : IXmltv2Mxf
+public partial class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, ISchedulesDirectDataService schedulesDirectDataService, IFileUtilService fileUtilService) : IXmltv2Mxf
 {
-    private SchedulesDirectData schedulesDirectData;
     private class SeriesEpisodeInfo
     {
         public string TmsId = string.Empty;
@@ -49,7 +47,11 @@ public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, ISchedulesDirectDataService sc
             };
 
             XmlSerializer serializer = new(typeof(XMLTV));
-            using Stream fileStream = fileUtilService.GetFileDataStream(filepath);
+            using Stream? fileStream = fileUtilService.GetFileDataStream(filepath);
+            if (fileStream == null)
+            {
+                return null;
+            }
             using XmlReader reader = XmlReader.Create(fileStream, settings);
             object? result = serializer.Deserialize(reader);
             return (XMLTV?)result;
@@ -63,21 +65,22 @@ public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, ISchedulesDirectDataService sc
 
     private XMLTV? ConvertToMxf(XMLTV xmlTv, int EPGNumber)
     {
-        schedulesDirectData = new SchedulesDirectData(EPGNumber);
+        SchedulesDirectData schedulesDirectData = new(EPGNumber);
+
         if (
-            !BuildLineupAndChannelServices(xmlTv, EPGNumber) ||
-            !BuildScheduleEntries(xmlTv, EPGNumber)
-            )
+            !BuildLineupAndChannelServices(xmlTv, EPGNumber, schedulesDirectData) ||
+            !BuildScheduleEntries(xmlTv, EPGNumber, schedulesDirectData)
+        )
         {
             return null;
         }
 
-        _ = BuildKeywords();
+        _ = BuildKeywords(schedulesDirectData);
         schedulesDirectDataService.Set(EPGNumber, schedulesDirectData);
         return xmlTv;
     }
 
-    private bool BuildLineupAndChannelServices(XMLTV xmlTv, int epgNumber, string lineupName = "SM+ Default Lineup Name")
+    private bool BuildLineupAndChannelServices(XMLTV xmlTv, int epgNumber, SchedulesDirectData schedulesDirectData, string lineupName = "SM+ Default Lineup Name")
     {
         logger.LogInformation("Building lineup and channel services.");
         MxfLineup mxfLineup = schedulesDirectData.FindOrCreateLineup(lineupName.ToUpper().Replace(" ", "-"), lineupName);
@@ -115,7 +118,7 @@ public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, ISchedulesDirectDataService sc
                 _ = lcns.Add(lcn.Text ??= "");
             }
 
-            foreach (XmltvText? dn in channel.DisplayNames.Where(arg => arg.Text != null && Regex.Match(arg.Text, "^\\d*\\.?\\d+$").Success))
+            foreach (XmltvText? dn in channel.DisplayNames.Where(arg => arg.Text != null && NumericRegex().Match(arg.Text).Success))
             {
                 _ = lcns.Add(dn.Text ??= "");
             }
@@ -131,18 +134,18 @@ public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, ISchedulesDirectDataService sc
                     int subNumber = numbers.Length > 1 ? int.Parse(numbers[1]) : 0;
                     MxfChannel newChannel = new(mxfLineup, mxfService, number, subNumber);
 
-                    mxfLineup.channels.Add(newChannel);
+                    mxfLineup.Channels.Add(newChannel);
                 }
             }
             else
             {
-                mxfLineup.channels.Add(new MxfChannel(mxfLineup, mxfService));
+                mxfLineup.Channels.Add(new MxfChannel(mxfLineup, mxfService));
             }
         }
         return true;
     }
 
-    private bool BuildScheduleEntries(XMLTV xmlTv, int epgNumber)
+    private bool BuildScheduleEntries(XMLTV xmlTv, int epgNumber, SchedulesDirectData schedulesDirectData)
     {
         logger.LogInformation("Building schedule entries and programs.");
         foreach (XmltvProgramme program in xmlTv.Programs)
@@ -202,7 +205,7 @@ public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, ISchedulesDirectDataService sc
                                           program.Categories.Any(arg => arg?.Text != null && arg.Text.Contains("sports talk"));
 
                     //mxfProgram.Keywords =
-                    DetermineProgramKeywords(mxfProgram, program.Categories.Select(arg => arg.Text ?? "").ToArray());
+                    DetermineProgramKeywords(mxfProgram, program.Categories.Select(arg => arg.Text ?? ""), schedulesDirectData);
                 }
 
                 mxfProgram.Title = program.Titles?.FirstOrDefault(arg => arg?.Text != null)?.Text ?? "";
@@ -223,7 +226,7 @@ public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, ISchedulesDirectDataService sc
                 mxfProgram.MpaaRating = mxfProgram.IsMovie ? DetermineMpaaRatings(program) : 0;
 
                 //mxfProgram.mxfGuideImage =
-                DetermineGuideImage(mxfProgram, program);
+                DetermineGuideImage(mxfProgram, program, schedulesDirectData);
 
                 // advisories
                 //mxfProgram.HasAdult =
@@ -245,7 +248,7 @@ public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, ISchedulesDirectDataService sc
                 //mxfProgram.HostRole =
                 //mxfProgram.ProducerRole =
                 //mxfProgram.DirectorRole =
-                DetermineCastAndCrewCredits(mxfProgram, program);
+                DetermineCastAndCrewCredits(mxfProgram, program, schedulesDirectData);
 
                 //mxfProgram.IsGeneric =
                 //mxfProgram.Season =
@@ -371,6 +374,28 @@ public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, ISchedulesDirectDataService sc
         }
         return true;
     }
+    private bool BuildKeywords(SchedulesDirectData schedulesDirectData)
+    {
+        logger.LogInformation("Building keyword categories.");
+        foreach (MxfKeywordGroup? group in schedulesDirectData.KeywordGroups.Values)
+        {
+            // sort the group keywords
+            group.mxfKeywords = [.. group.mxfKeywords.OrderBy(k => k.Word)];
+
+            // add the keywords
+            schedulesDirectData.Keywords.AddRange(group.mxfKeywords);
+
+            // create an overflow for this group giving a max 198 keywords for each group
+            MxfKeywordGroup overflow = schedulesDirectData.FindOrCreateKeywordGroup((KeywordGroupsEnum)group.Index - 1, true);
+            if (group.mxfKeywords.Count <= 99)
+            {
+                continue;
+            }
+
+            overflow.mxfKeywords = group.mxfKeywords.Skip(99).Take(99).ToList();
+        }
+        return true;
+    }
 
     private static SeriesEpisodeInfo GetSeriesEpisodeInfo(XmltvProgramme xmltvProgramme)
     {
@@ -390,7 +415,7 @@ public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, ISchedulesDirectDataService sc
             switch (epNum.System.ToLower())
             {
                 case "dd_progid":
-                    Match m = Regex.Match(epNum.Text, "(MV|SH|EP|SP)[0-9]{8}.[0-9]{4}");
+                    Match m = ProgramIDMatcherRegex().Match(epNum.Text);
                     if (m.Length > 0)
                     {
                         ret.TmsId = epNum.Text.ToUpper().Replace(".", "_");
@@ -508,7 +533,7 @@ public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, ISchedulesDirectDataService sc
         }
     }
 
-    private void DetermineCastAndCrewCredits(MxfProgram mxfProgram, XmltvProgramme xmltvProgramme)
+    private static void DetermineCastAndCrewCredits(MxfProgram mxfProgram, XmltvProgramme xmltvProgramme, SchedulesDirectData schedulesDirectData)
     {
         if (xmltvProgramme.Credits == null)
         {
@@ -705,7 +730,7 @@ public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, ISchedulesDirectDataService sc
     //    return 0;
     //}
 
-    private void DetermineGuideImage(MxfProgram mxfProgram, XmltvProgramme xmltvProgramme)
+    private static void DetermineGuideImage(MxfProgram mxfProgram, XmltvProgramme xmltvProgramme, SchedulesDirectData schedulesDirectData)
     {
         if (xmltvProgramme.Icons == null || xmltvProgramme.Icons.Count == 0)
         {
@@ -736,30 +761,7 @@ public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, ISchedulesDirectDataService sc
         //mxfProgram.mxfGuideImage = schedulesDirectData.FindOrCreateGuideImage(xmltvProgramme.Icons[0].Src);
     }
 
-    private bool BuildKeywords()
-    {
-        logger.LogInformation("Building keyword categories.");
-        foreach (MxfKeywordGroup? group in schedulesDirectData.KeywordGroups.Values)
-        {
-            // sort the group keywords
-            group.mxfKeywords = [.. group.mxfKeywords.OrderBy(k => k.Word)];
-
-            // add the keywords
-            schedulesDirectData.Keywords.AddRange(group.mxfKeywords);
-
-            // create an overflow for this group giving a max 198 keywords for each group
-            MxfKeywordGroup overflow = schedulesDirectData.FindOrCreateKeywordGroup((KeywordGroupsEnum)group.Index - 1, true);
-            if (group.mxfKeywords.Count <= 99)
-            {
-                continue;
-            }
-
-            overflow.mxfKeywords = group.mxfKeywords.Skip(99).Take(99).ToList();
-        }
-        return true;
-    }
-
-    private void DetermineProgramKeywords(MxfProgram mxfProgram, string[] categories)
+    private static void DetermineProgramKeywords(MxfProgram mxfProgram, IEnumerable<string> categories, SchedulesDirectData schedulesDirectData)
     {
         // determine primary group of program
         KeywordGroupsEnum group = KeywordGroupsEnum.UNKNOWN;
@@ -857,4 +859,9 @@ public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, ISchedulesDirectDataService sc
 
         mxfProgram.mxfKeywords.Add(mxfKeyGroup.FindOrCreateKeyword("Uncategorized"));
     }
+
+    [GeneratedRegex("^\\d*\\.?\\d+$")]
+    private static partial Regex NumericRegex();
+    [GeneratedRegex("(MV|SH|EP|SP)[0-9]{8}.[0-9]{4}")]
+    private static partial Regex ProgramIDMatcherRegex();
 }

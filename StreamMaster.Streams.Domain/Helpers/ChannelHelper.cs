@@ -3,7 +3,7 @@
 namespace StreamMaster.Streams.Domain.Helpers
 {
     /// <summary>
-    /// Provides helper methods for creating channels.
+    /// Provides helper methods for creating Channels.
     /// </summary>
     public static class ChannelHelper
     {

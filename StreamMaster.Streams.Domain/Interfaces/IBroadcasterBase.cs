@@ -5,7 +5,7 @@ using System.Xml.Serialization;
 namespace StreamMaster.Streams.Domain.Interfaces;
 
 /// <summary>
-/// Defines the properties and methods for broadcasting channels in StreamMaster.
+/// Defines the properties and methods for broadcasting Channels in StreamMaster.
 /// </summary>
 public interface IBroadcasterBase : IStreamStats, ISourceName
 {
@@ -41,7 +41,7 @@ public interface IBroadcasterBase : IStreamStats, ISourceName
     bool IsChannelEmpty();
 
     /// <summary>
-    /// Gets the client channels.
+    /// Gets the client Channels.
     /// </summary>
     [XmlIgnore]
     ConcurrentDictionary<string, ChannelWriter<byte[]>> ClientChannelWriters { get; }

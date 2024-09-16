@@ -217,7 +217,7 @@ public class Lineups(ILogger<Lineups> logger, IOptionsMonitor<SDSettings> intSDS
                     const string channelNumber = "1";// $"{number}{(subnumber > 0 ? $".{subnumber}" : "")}";
                     if (channelNumbers.Add($"{channelNumber}:{station.StationId}"))
                     {
-                        mxfLineup.channels.Add(new MxfChannel(mxfLineup, mxfService)
+                        mxfLineup.Channels.Add(new MxfChannel(mxfLineup, mxfService)
                         {
                             MatchName = ""
                         });

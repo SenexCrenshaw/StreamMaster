@@ -7,7 +7,7 @@
     public interface IChannelManager : IDisposable
     {
         /// <summary>
-        /// Cancels all active channels.
+        /// Cancels all active Channels.
         /// </summary>
         void CancelAllChannels();
 

@@ -59,7 +59,7 @@ public class FilesController(IMemoryCache memoryCache, ILogoService logoService,
         return File(image, contentType, fileName);
     }
 
-    private bool IsBase64String(string base64)
+    private static bool IsBase64String(string base64)
     {
         if (string.IsNullOrEmpty(base64) || base64.Length % 4 != 0)
         {

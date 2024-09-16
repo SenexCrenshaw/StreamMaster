@@ -1,6 +1,4 @@
-﻿using Reinforced.Typings.Attributes;
-
-using StreamMaster.Domain.Attributes;
+﻿using StreamMaster.Domain.Attributes;
 
 using System.Xml.Serialization;
 
@@ -59,7 +57,7 @@ public class DataResponse<T> : APIResponse
 
     public static new DataResponse<T> ErrorWithMessage(Exception exception, string message)
     {
-        var ErrorMessage = $"{message} : {exception}";
+        string ErrorMessage = $"{message} : {exception}";
 
         return ErrorWithMessage(ErrorMessage);
     }

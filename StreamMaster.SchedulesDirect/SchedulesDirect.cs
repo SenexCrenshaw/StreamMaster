@@ -150,7 +150,7 @@ public partial class SchedulesDirect(
     //    mxfService.ProfileName = "DUMMY EPG";
 
     //    //MxfLineup mxfLineup = schedulesDirectData.FindOrCreateLineup("ZZZ-DUMMY-StreamMaster", "ZZZSM Dummy Lineup");
-    //    //mxfLineup.channels.Add(new MxfChannel(mxfLineup, mxfService));
+    //    //mxfLineup.Channels.Add(new MxfChannel(mxfLineup, mxfService));
 
     //}
 

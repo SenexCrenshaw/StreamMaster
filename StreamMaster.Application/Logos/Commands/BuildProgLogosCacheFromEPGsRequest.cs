@@ -65,9 +65,9 @@ public class BuildProgLogoCacheFromEPGsRequestHandler()
     //    return null;
     //}
 
-    //private void WorkOnEPGChannelLogos(int epgFileId, int startId, IEnumerable<TvChannel> channels, CancellationToken cancellationToken)
+    //private void WorkOnEPGChannelLogos(int epgFileId, int startId, IEnumerable<TvChannel> Channels, CancellationToken cancellationToken)
     //{
-    //    foreach (TvChannel? channel in channels)
+    //    foreach (TvChannel? channel in Channels)
     //    {
     //        if (channel is null || channel.M3ULogo == null || string.IsNullOrEmpty(channel.M3ULogo.Src) || channel.Displayname == null || channel.Displayname[0] == null || channel.Displayname[0] == "")
     //        {

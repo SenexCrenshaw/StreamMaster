@@ -876,6 +876,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IImag
             if (SetVideoStreamLogoFromEPG(smChannel))
             {
                 fds.Add(new FieldData(SMChannel.APIName, smChannel.Id, "Logo", smChannel.Logo));
+                RepositoryContext.SMChannels.Update(smChannel);
             }
         }
 
