@@ -7,17 +7,6 @@ using static StreamMaster.Domain.Common.GetStreamGroupEPGHandler;
 
 namespace StreamMaster.Application.StreamGroups.Queries;
 
-//public class ChannelNumberConfig
-//{
-//    public int SMChannelId { get; set; }
-//    public int ChannelNumber
-//    {
-//        get; set;
-//    }
-//    public int M3UFileId { get; set; }
-//    public int FilePosition { get; set; }
-//}
-
 [RequireAll]
 public record GetStreamGroupEPG(int StreamGroupProfileId) : IRequest<string>;
 public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, IProfileService profileService, IStreamGroupService streamGroupService, IEPGHelper epgHelper, IXMLTVBuilder xMLTVBuilder, ISchedulesDirectDataService schedulesDirectDataService, IOptionsMonitor<Setting> intSettings)

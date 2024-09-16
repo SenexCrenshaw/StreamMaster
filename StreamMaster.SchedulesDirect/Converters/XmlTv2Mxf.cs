@@ -102,7 +102,7 @@ public class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, ISchedulesDirectDataService sc
             {
                 mxfService.mxfGuideImage = schedulesDirectData.FindOrCreateGuideImage(channel.Icons[0].Src);
 
-                mxfService.extras.Add("logo", new StationImage
+                mxfService.extras.TryAdd("logo", new StationImage
                 {
                     Url = channel.Icons[0].Src,
                 });

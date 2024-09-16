@@ -2,10 +2,10 @@
 
 public enum SMQueCommand
 {
-    BuildIconCaches,
+    BuildLogoCaches,
     BuildLogosCacheFromStreams,
-    BuildProgIconsCacheFromEPGs,
-    BuildIconsCacheFromVideoStreams,
+    BuildProgLogosCacheFromEPGs,
+    BuildLogosCacheFromVideoStreams,
     ReadDirectoryLogosRequest,
 
     ProcessEPGFile,
@@ -13,7 +13,7 @@ public enum SMQueCommand
     ProcessM3UFiles,
 
     ScanDirectoryForEPGFiles,
-    ScanDirectoryForIconFiles,
+    ScanDirectoryForLogoFiles,
     ScanDirectoryForM3UFiles,
     ScanForCustomPlayLists,
 

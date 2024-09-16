@@ -23,7 +23,7 @@ internal static class CSharpUtils
                 // Now we check if the generic argument is the expected type, in this case, List<LogoFileDto>
                 if (genericArgument?.IsGenericType == true &&
                     genericArgument.GetGenericTypeDefinition() == typeof(List<>) &&
-                    genericArgument.GetGenericArguments().FirstOrDefault()?.FullName == "StreamMaster.Domain.Dto.IconFileDto")
+                    genericArgument.GetGenericArguments().FirstOrDefault()?.FullName == "StreamMaster.Domain.Dto.LogoFileDto")
                 {
                     return true;
                 }

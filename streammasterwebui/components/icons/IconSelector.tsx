@@ -1,7 +1,9 @@
 import SMDropDown from '@components/sm/SMDropDown';
 import { getIconUrl } from '@lib/common/common';
-import useGetIcons from '@lib/smAPI/Icons/useGetIcons';
-import { IconFileDto, SMFileTypes } from '@lib/smAPI/smapiTypes';
+import { Logger } from '@lib/common/logger';
+import useGetLogos from '@lib/smAPI/Logos/useGetLogos';
+
+import { LogoFileDto, SMFileTypes } from '@lib/smAPI/smapiTypes';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import React, { useEffect, useMemo, useState } from 'react';
 
@@ -32,11 +34,11 @@ const IconSelector = ({
 }: IconSelectorProperties) => {
   const [origValue, setOrigValue] = useState<string | undefined>(undefined);
   const [iconSource, setIconSource] = useState<string | undefined>(undefined);
-  const [iconDto, setIconDto] = useState<IconFileDto | undefined>(undefined);
+  const [iconDto, setIconDto] = useState<LogoFileDto | undefined>(undefined);
 
-  const query = useGetIcons();
+  const query = useGetLogos();
 
-  const handleOnChange = (source: IconFileDto) => {
+  const handleOnChange = (source: LogoFileDto) => {
     if (!source?.Source) {
       return;
     }
@@ -69,18 +71,7 @@ const IconSelector = ({
     }
   }, [iconSource, origValue, query.data, value]);
 
-  // const getDistinctSMFileTypes = (): SMFileTypes[] => {
-  //   if (query.data === undefined) {
-  //     return [];
-  //   }
-
-  //   const fileTypes = query.data.map((item) => item.SMFileType);
-  //   return Array.from(new Set(fileTypes));
-  // };
-
-  // const customPlayListString = SMFileTypes[SMFileTypes.CustomPlayList];
-  // const found = query.data?.find((i) => i.SMFileType === customPlayListString);
-  // Logger.debug('Custom Playlist', { found: found, DistinctSMFileTypes: getDistinctSMFileTypes() });
+  Logger.debug('IconSelector', 'IconSelector', value);
 
   const buttonTemplate = useMemo(() => {
     const iconUrl = iconSource
@@ -102,7 +93,7 @@ const IconSelector = ({
     );
   }, [iconSource, isCustomPlayList, large]);
 
-  const itemTemplate = (icon: IconFileDto) => {
+  const itemTemplate = (icon: LogoFileDto) => {
     if (icon === null) return <div />;
 
     const iconUrl = icon ? getIconUrl(icon.Source, '/images/default.png', false, icon.SMFileType) : '';

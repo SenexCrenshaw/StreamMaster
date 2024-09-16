@@ -35,12 +35,12 @@ const SMChannelLogoEditor = ({ data }: StreamDataSelectorProperties) => {
 
   return (
     <IconSelector
-      enableEditMode={data.IsCustomStream !== true}
+      enableEditMode={data.IsSystem !== true}
       isLoading={isCellLoading}
       onChange={async (e: string) => {
         onSetLogo(e);
       }}
-      isCustomPlayList={data.IsCustomStream}
+      isCustomPlayList={data.IsSystem}
       value={data.Logo}
     />
   );

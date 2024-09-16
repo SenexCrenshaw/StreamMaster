@@ -15,7 +15,7 @@ using StreamMaster.SchedulesDirect.Helpers;
 
 using System.Collections.Concurrent;
 using System.Diagnostics;
-using System.Net;
+using System.Text;
 using System.Web;
 
 namespace StreamMaster.Infrastructure.Services;
@@ -109,6 +109,11 @@ public class LogoService(IMapper mapper, ICustomPlayListBuilder customPlayListBu
             logoSource = logoSource[1..];
         }
 
+        if (logoSource.StartsWith(BuildInfo.CustomPlayListFolder))
+        {
+            return GetApiUrl(baseUrl, logoSource, SMFileTypes.CustomLogo);
+        }
+
         if (logoSource.StartsWith("images/"))
         {
             return $"{baseUrl}/{logoSource}";
@@ -126,7 +131,10 @@ public class LogoService(IMapper mapper, ICustomPlayListBuilder customPlayListBu
     }
     private static string GetApiUrl(string url, string source, SMFileTypes path)
     {
-        return $"{url}/api/files/{(int)path}/{WebUtility.UrlEncode(source)}";
+        //string encodedFilePath = Uri.EscapeDataString(source);
+        //string a = WebUtility.UrlEncode(source);
+        string encodedPath = Convert.ToBase64String(Encoding.UTF8.GetBytes(source));
+        return $"{url}/api/files/{(int)path}/{encodedPath}";
     }
 
     public async Task<DataResponse<bool>> BuildLogosCacheFromSMStreamsAsync(CancellationToken cancellationToken)
@@ -236,7 +244,7 @@ public class LogoService(IMapper mapper, ICustomPlayListBuilder customPlayListBu
             }
         }
 
-        if (fileType == SMFileTypes.CustomPlayListArt)
+        if (fileType == SMFileTypes.CustomPlayListLogo)
         {
             string fullPath = BuildInfo.CustomPlayListFolder + baseURL;
             if (File.Exists(fullPath))
@@ -245,7 +253,7 @@ public class LogoService(IMapper mapper, ICustomPlayListBuilder customPlayListBu
                 {
                     ReturnName = Path.GetFileName(fullPath),
                     FullPath = fullPath,
-                    SMFileType = SMFileTypes.CustomPlayListArt
+                    SMFileType = SMFileTypes.CustomPlayListLogo
                 };
             }
         }

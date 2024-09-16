@@ -1,13 +1,13 @@
 import { QueryHookResult } from '@lib/apiDefs';
 import store, { RootState } from '@lib/redux/store';
 import { useAppDispatch, useAppSelector } from '@lib/redux/hooks';
-import { clear, clearByTag, setField, setIsForced, setIsLoading } from './GetIconsSlice';
+import { clear, clearByTag, setField, setIsForced, setIsLoading } from './GetLogosSlice';
 import { useCallback,useEffect } from 'react';
 import { useSMContext } from '@lib/context/SMProvider';
-import { fetchGetIcons } from './GetIconsFetch';
-import {FieldData, IconFileDto } from '@lib/smAPI/smapiTypes';
+import { fetchGetLogos } from './GetLogosFetch';
+import {FieldData, LogoFileDto } from '@lib/smAPI/smapiTypes';
 
-interface ExtendedQueryHookResult extends QueryHookResult<IconFileDto[] | undefined> {}
+interface ExtendedQueryHookResult extends QueryHookResult<LogoFileDto[] | undefined> {}
 interface Result extends ExtendedQueryHookResult {
   Clear: () => void;
   ClearByTag: (tag: string) => void;
@@ -15,10 +15,10 @@ interface Result extends ExtendedQueryHookResult {
   SetIsForced: (force: boolean) => void;
   SetIsLoading: (isLoading: boolean, query: string) => void;
 }
-const useGetIcons = (): Result => {
+const useGetLogos = (): Result => {
   const { isSystemReady } = useSMContext();
   const dispatch = useAppDispatch();
-  const isForced = useAppSelector((state) => state.GetIcons.isForced ?? false);
+  const isForced = useAppSelector((state) => state.GetLogos.isForced ?? false);
 
   const SetIsForced = useCallback(
     (forceRefresh: boolean): void => {
@@ -42,28 +42,28 @@ const SetIsLoading = useCallback(
   [dispatch]
 );
 const selectData = (state: RootState) => {
-    return state.GetIcons.data;
+    return state.GetLogos.data;
   };
 const data = useAppSelector(selectData);
 
 const selectError = (state: RootState) => {
-    return state.GetIcons.error;
+    return state.GetLogos.error;
   };
 const error = useAppSelector(selectError);
 
 const selectIsError = (state: RootState) => {
-    return state.GetIcons.isError;
+    return state.GetLogos.isError;
   };
 const isError = useAppSelector(selectIsError);
 
 const selectIsLoading = (state: RootState) => {
-    return state.GetIcons.isLoading;
+    return state.GetLogos.isLoading;
   };
 const isLoading = useAppSelector(selectIsLoading);
 
 
   useEffect(() => {
-    const state = store.getState().GetIcons;
+    const state = store.getState().GetLogos;
     if (data === undefined && state.isLoading !== true && state.isForced !== true) {
       SetIsForced(true);
     }
@@ -71,12 +71,12 @@ const isLoading = useAppSelector(selectIsLoading);
 
 useEffect(() => {
     if (!isSystemReady) return;
-  const state = store.getState().GetIcons;
+  const state = store.getState().GetLogos;
   if (state.isLoading) return;
   if (data !== undefined && !isForced) return;
 
   SetIsLoading(true);
-  dispatch(fetchGetIcons());
+  dispatch(fetchGetLogos());
 }, [SetIsLoading, data, dispatch, isForced, isSystemReady]);
 
 const SetField = (fieldData: FieldData): void => {
@@ -100,4 +100,4 @@ return {
 };
 };
 
-export default useGetIcons;
+export default useGetLogos;

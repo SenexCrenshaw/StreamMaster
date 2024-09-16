@@ -1,4 +1,4 @@
-﻿namespace StreamMaster.Application.Icons.Commands;
+﻿namespace StreamMaster.Application.Logos.Commands;
 
 public class BuildLogosCacheFromStreamsRequest : IRequest<DataResponse<bool>>;
 

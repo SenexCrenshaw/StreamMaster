@@ -7,6 +7,7 @@ using StreamMaster.Domain.Enums;
 
 using StreamMasterAPI.Interfaces;
 
+using System.Text;
 using System.Web;
 
 namespace StreamMaster.API.Controllers;
@@ -18,7 +19,31 @@ public class FilesController(IMemoryCache memoryCache, ILogoService logoService,
 
     public async Task<IActionResult> GetFile(string source, SMFileTypes filetype, CancellationToken cancellationToken)
     {
-        string sourceDecoded = HttpUtility.UrlDecode(source);
+        string sourceDecoded;
+        if (IsBase64String(source))
+        {
+            try
+            {
+                sourceDecoded = Encoding.UTF8.GetString(Convert.FromBase64String(source));
+            }
+            catch (FormatException)
+            {
+                // Handle cases where the base64 string might be improperly formatted
+                sourceDecoded = HttpUtility.UrlDecode(source);
+            }
+        }
+        else
+        {
+            sourceDecoded = HttpUtility.UrlDecode(source);
+        }
+
+        if (sourceDecoded == "noimage.png")
+        {
+            return Redirect("/images/default.png");
+        }
+
+        // string sourceDecoded = HttpUtility.UrlDecode(source);
+        //string sourceDecoded = Encoding.UTF8.GetString(Convert.FromBase64String(source));
         if (source == "noimage.png")
         {
             return Redirect("/images/default.png");
@@ -32,6 +57,25 @@ public class FilesController(IMemoryCache memoryCache, ILogoService logoService,
 
         string contentType = GetContentType(sourceDecoded);
         return File(image, contentType, fileName);
+    }
+
+    private bool IsBase64String(string base64)
+    {
+        if (string.IsNullOrEmpty(base64) || base64.Length % 4 != 0)
+        {
+            return false;
+        }
+
+        try
+        {
+            // Attempt to convert; if it fails, it's not a valid base64 string
+            Convert.FromBase64String(base64);
+            return true;
+        }
+        catch (FormatException)
+        {
+            return false;
+        }
     }
 
     private async Task<(byte[]? image, string? fileName)> GetCacheEntryAsync(string URL, SMFileTypes fileType, CancellationToken cancellationToken)

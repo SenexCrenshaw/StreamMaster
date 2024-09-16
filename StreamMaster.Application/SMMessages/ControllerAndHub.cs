@@ -1,11 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
-
 using StreamMaster.Application.SMMessages.Commands;
 
-namespace StreamMaster.Application.SMMessages
+namespace StreamMaster.Application.SMMessages.Controllers
 {
     public partial class SMMessagesController() : ApiControllerBase, ISMMessagesController
-    {
+    {        
 
         [HttpPatch]
         [Route("[action]")]
