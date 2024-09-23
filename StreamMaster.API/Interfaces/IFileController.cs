@@ -2,7 +2,7 @@
 
 using StreamMaster.Domain.Enums;
 
-namespace StreamMasterAPI.Interfaces;
+namespace StreamMaster.API.Interfaces;
 
 public interface IFileController
 {

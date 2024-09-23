@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace StreamMaster.Infrastructure.EF.PGSQL.Configurations;
+namespace StreamMaster.Infrastructure.EF.Base.Configurations;
 
 public class SMChannelChannelLinkConfiguration : IEntityTypeConfiguration<SMChannelChannelLink>
 {

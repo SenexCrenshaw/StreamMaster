@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using NSwag;
 using NSwag.Generation.Processors.Security;
 
-
+using StreamMaster.API.SchemaHelpers;
 using StreamMaster.API.Services;
 using StreamMaster.Application.Services;
 using StreamMaster.Domain.Enums;
@@ -22,8 +22,6 @@ using StreamMaster.Infrastructure.EF.PGSQL;
 using StreamMaster.Infrastructure.Logger;
 using StreamMaster.Infrastructure.Services.Frontend;
 using StreamMaster.Infrastructure.Services.QueueService;
-
-using StreamMasterAPI.SchemaHelpers;
 
 using System.Reflection;
 

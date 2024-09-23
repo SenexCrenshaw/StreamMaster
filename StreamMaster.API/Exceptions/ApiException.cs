@@ -1,6 +1,6 @@
 using System.Net;
 
-namespace StreamMasterAPI.Exceptions
+namespace StreamMaster.API.Exceptions
 {
     public abstract class NzbDroneException : ApplicationException
     {
