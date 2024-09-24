@@ -53,7 +53,7 @@ public partial class SchedulesDirectData
             if (!string.IsNullOrEmpty(videoStreamConfig.Logo) && videoStreamConfig.Logo.StartsWith("http"))
             {
                 service.LogoImage = videoStreamConfig.Logo;
-                service.extras.AddOrUpdate("logo", new StationImage
+                service.extras.TryAdd("logo", new StationImage
                 {
                     Url = videoStreamConfig.Logo
 

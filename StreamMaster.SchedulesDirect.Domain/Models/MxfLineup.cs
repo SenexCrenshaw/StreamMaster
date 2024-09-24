@@ -58,7 +58,7 @@ public class MxfLineup
     }
 
     [XmlArrayItem("Channel")]
-    public List<MxfChannel> channels { get; set; } = [];
+    public List<MxfChannel> Channels { get; set; } = [];
 
     [XmlIgnore] public Dictionary<string, dynamic> extras = [];
 }

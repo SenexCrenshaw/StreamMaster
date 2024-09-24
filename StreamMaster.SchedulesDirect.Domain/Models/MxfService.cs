@@ -1,4 +1,5 @@
-﻿using System.Xml.Serialization;
+﻿using System.Collections.Concurrent;
+using System.Xml.Serialization;
 
 namespace StreamMaster.SchedulesDirect.Domain.Models;
 public class MxfService
@@ -13,7 +14,7 @@ public class MxfService
     public MxfGuideImage mxfGuideImage;
     public MxfScheduleEntries MxfScheduleEntries;
 
-    [XmlIgnore] public Dictionary<string, dynamic> extras = [];
+    [XmlIgnore] public ConcurrentDictionary<string, dynamic> extras = [];
     [XmlIgnore] public int EPGNumber;
     public MxfService(int index, string stationId)
     {

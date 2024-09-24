@@ -7,7 +7,6 @@ using StreamMaster.Infrastructure.Services;
 using StreamMaster.Infrastructure.Services.Downloads;
 using StreamMaster.Infrastructure.Services.Frontend.Mappers;
 using StreamMaster.SchedulesDirect.Domain.Interfaces;
-using StreamMaster.SchedulesDirect.Helpers;
 using StreamMaster.Streams.Domain.Interfaces;
 using StreamMaster.Streams.Services;
 
@@ -26,14 +25,11 @@ public static class ConfigureServices
         _ = services.AddSingleton<ICacheableSpecification, CacheableSpecification>();
         _ = services.AddSingleton<IJobStatusService, JobStatusService>();
         _ = services.AddSingleton<IEPGHelper, EPGHelper>();
-        _ = services.AddSingleton<IIconHelper, LogoHelper>();
         _ = services.AddSingleton<IFileLoggingServiceFactory, FileLoggingServiceFactory>();
         _ = services.AddSingleton<IStreamTracker, StreamTracker>();
         _ = services.AddSingleton<IMessageService, MessageService>();
         _ = services.AddSingleton<IDataRefreshService, DataRefreshService>();
         _ = services.AddSingleton<IFileUtilService, FileUtilService>();
-
-
 
         // If needed, you can also pre-register specific instances
         _ = services.AddSingleton(provider =>

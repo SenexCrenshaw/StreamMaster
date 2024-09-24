@@ -6,11 +6,10 @@ using Microsoft.Extensions.Logging;
 
 using StreamMaster.Application.Common.Models;
 using StreamMaster.Application.Custom.Commands;
-using StreamMaster.Application.EPG.Commands;
 using StreamMaster.Application.EPGFiles.Commands;
 using StreamMaster.Application.General.Commands;
-using StreamMaster.Application.Icons.Commands;
-using StreamMaster.Application.Icons.CommandsOld;
+using StreamMaster.Application.Logos.Commands;
+using StreamMaster.Application.Logos.CommandsOld;
 using StreamMaster.Application.M3UFiles.Commands;
 using StreamMaster.Application.SchedulesDirect.Commands;
 using StreamMaster.Application.Services;
@@ -58,19 +57,19 @@ public sealed class QueuedHostedService(
 
                 switch (command.Command)
                 {
-                    case SMQueCommand.BuildIconCaches:
-                        await _sender.Send(new BuildIconCachesRequest(), cancellationToken).ConfigureAwait(false);
+                    case SMQueCommand.BuildLogoCaches:
+                        await _sender.Send(new BuildLogoCachesRequest(), cancellationToken).ConfigureAwait(false);
                         break;
 
                     case SMQueCommand.BuildLogosCacheFromStreams:
                         await _sender.Send(new BuildLogosCacheFromStreamsRequest(), cancellationToken).ConfigureAwait(false);
                         break;
 
-                    case SMQueCommand.BuildProgIconsCacheFromEPGs:
-                        _ = await _sender.Send(new BuildProgIconsCacheFromEPGsRequest(), cancellationToken).ConfigureAwait(false);
+                    case SMQueCommand.BuildProgLogosCacheFromEPGs:
+                        _ = await _sender.Send(new BuildProgLogosCacheFromEPGsRequest(), cancellationToken).ConfigureAwait(false);
                         break;
 
-                    case SMQueCommand.BuildIconsCacheFromVideoStreams:
+                    case SMQueCommand.BuildLogosCacheFromVideoStreams:
                         _ = await _sender.Send(new BuildLogosCacheFromStreamsRequest(), cancellationToken).ConfigureAwait(false);
                         break;
 
@@ -108,8 +107,8 @@ public sealed class QueuedHostedService(
 
                         break;
 
-                    case SMQueCommand.ScanDirectoryForIconFiles:
-                        _ = await _sender.Send(new ScanDirectoryForIconFilesRequest(), cancellationToken).ConfigureAwait(false);
+                    case SMQueCommand.ScanDirectoryForLogoFiles:
+                        _ = await _sender.Send(new ScanDirectoryForLogoFilesRequest(), cancellationToken).ConfigureAwait(false);
                         break;
 
                     case SMQueCommand.ScanDirectoryForM3UFiles:

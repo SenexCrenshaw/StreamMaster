@@ -1254,7 +1254,7 @@ export interface UpdateM3UFileRequest
 	Url?: string;
 	VODTags?: string[];
 }
-export interface GetIconsRequest
+export interface GetLogosRequest
 {
 }
 export interface GetDownloadServiceStatusRequest
@@ -1646,7 +1646,7 @@ export enum SMFileTypes {
 	SDImage = 10,
 	SDStationLogo = 11,
 	CustomPlayList = 12,
-	CustomPlayListArt = 13
+	CustomPlayListLogo = 13
 }
 export enum ValidM3USetting {
 	NotMapped = 0,

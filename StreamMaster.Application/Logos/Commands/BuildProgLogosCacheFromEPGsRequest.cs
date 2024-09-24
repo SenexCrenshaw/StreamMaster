@@ -1,16 +1,16 @@
-﻿namespace StreamMaster.Application.Icons.CommandsOld;
+﻿namespace StreamMaster.Application.Logos.Commands;
 
-public class BuildProgIconsCacheFromEPGsRequest : IRequest<bool>;
+public class BuildProgLogosCacheFromEPGsRequest : IRequest<bool>;
 
 [LogExecutionTimeAspect]
-public class BuildProgIconsCacheFromEPGsRequestHandler()
-    : IRequestHandler<BuildProgIconsCacheFromEPGsRequest, bool>
+public class BuildProgLogoCacheFromEPGsRequestHandler()
+    : IRequestHandler<BuildProgLogosCacheFromEPGsRequest, bool>
 {
-    public async Task<bool> Handle(BuildProgIconsCacheFromEPGsRequest command, CancellationToken cancellationToken)
+    public async Task<bool> Handle(BuildProgLogosCacheFromEPGsRequest command, CancellationToken cancellationToken)
     {
         //Setting setting = await GetSettingsAsync();
 
-        //int startId = MemoryCache.GetIconsRequest(Mapper).Count;
+        //int startId = MemoryCache.GetLogosRequest(Mapper).Count;
 
         //List<EPGFileDto> epgFiles = await Repositorywrapper.EPGFile.GetEPGFiles();
         //foreach (EPGFileDto epg in epgFiles)
@@ -25,10 +25,10 @@ public class BuildProgIconsCacheFromEPGsRequestHandler()
 
         //    if (!epgChannels.Any()) { continue; }
 
-        //    WorkOnEPGChannelIcons(epg.Id, startId, epgChannels, cancellationToken);
+        //    WorkOnEPGChannelLogos(epg.Id, startId, epgChannels, cancellationToken);
         //}
 
-        //await WorkOnProgrammeIcons(startId, cancellationToken).ConfigureAwait(false);
+        //await WorkOnProgrammeLogos(startId, cancellationToken).ConfigureAwait(false);
 
         return await Task.FromResult(true);
     }
@@ -65,9 +65,9 @@ public class BuildProgIconsCacheFromEPGsRequestHandler()
     //    return null;
     //}
 
-    //private void WorkOnEPGChannelIcons(int epgFileId, int startId, IEnumerable<TvChannel> channels, CancellationToken cancellationToken)
+    //private void WorkOnEPGChannelLogos(int epgFileId, int startId, IEnumerable<TvChannel> Channels, CancellationToken cancellationToken)
     //{
-    //    foreach (TvChannel? channel in channels)
+    //    foreach (TvChannel? channel in Channels)
     //    {
     //        if (channel is null || channel.M3ULogo == null || string.IsNullOrEmpty(channel.M3ULogo.Src) || channel.Displayname == null || channel.Displayname[0] == null || channel.Displayname[0] == "")
     //        {
@@ -84,7 +84,7 @@ public class BuildProgIconsCacheFromEPGsRequestHandler()
     //        else
     //        {
     //            string name = channel.Displayname != null ? channel.Displayname[0].ToString() : Path.GetFileNameWithoutExtension(source);
-    //            LogoFileDto? iconDto = LogoHelper.AddIcon(source, name, epgFileId, startId++, MemoryCache, FileDefinitions.ChannelLogo, cancellationToken);
+    //            LogoFileDto? iconDto = LogoHelper.AddLogo(source, name, epgFileId, startId++, MemoryCache, FileDefinitions.ChannelLogo, cancellationToken);
     //            if (iconDto is null)
     //            {
     //                continue;
@@ -108,7 +108,7 @@ public class BuildProgIconsCacheFromEPGsRequestHandler()
     //    }
     //}
 
-    //private async Task WorkOnProgrammeIcons(int startId, CancellationToken cancellationToken)
+    //private async Task WorkOnProgrammeLogos(int startId, CancellationToken cancellationToken)
     //{
     //    List<string> epgids = await Repositorywrapper.StreamGroup
     //    .GetStreamGroupQuery()
@@ -162,7 +162,7 @@ public class BuildProgIconsCacheFromEPGsRequestHandler()
 
     //        if (result)
     //        {
-    //            LogoFileDto? iconDto = LogoHelper.AddIcon(source, programme.Title[0].Text, programme.EPGFileId, startId, MemoryCache, FileDefinitions.ProgrammeLogo, cancellationToken);
+    //            LogoFileDto? iconDto = LogoHelper.AddLogo(source, programme.Title[0].Text, programme.EPGFileId, startId, MemoryCache, FileDefinitions.ProgrammeLogo, cancellationToken);
     //            if (iconDto is null)
     //            {
     //                continue;

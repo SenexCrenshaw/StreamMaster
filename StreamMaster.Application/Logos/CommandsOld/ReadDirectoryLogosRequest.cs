@@ -1,4 +1,4 @@
-﻿namespace StreamMaster.Application.Icons.CommandsOld;
+﻿namespace StreamMaster.Application.Logos.CommandsOld;
 
 public record ReadDirectoryLogosRequest : IRequest { }
 

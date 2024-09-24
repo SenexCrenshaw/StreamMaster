@@ -1,12 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
-
 using StreamMaster.Application.SMStreams.Commands;
 using StreamMaster.Application.SMStreams.Queries;
 
-namespace StreamMaster.Application.SMStreams
+namespace StreamMaster.Application.SMStreams.Controllers
 {
     public partial class SMStreamsController() : ApiControllerBase, ISMStreamsController
-    {
+    {        
 
         [HttpGet]
         [Route("[action]")]

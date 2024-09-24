@@ -6,14 +6,13 @@ using StreamMaster.Domain.Crypto;
 using StreamMaster.SchedulesDirect.Domain.Extensions;
 
 using System.Collections.Concurrent;
-using System.Net;
 using System.Text.Json;
 using System.Xml.Serialization;
 
 using static StreamMaster.Domain.Common.GetStreamGroupEPGHandler;
 namespace StreamMaster.Application.StreamGroups;
 
-public class StreamGroupService(ILogger<StreamGroupService> _logger, ILogoService logoService, ICacheManager CacheManager, IMapper _mapper, IRepositoryWrapper repositoryWrapper, ISchedulesDirectDataService _schedulesDirectDataService, IIconHelper _iconHelper, IOptionsMonitor<CommandProfileDict> _commandProfileSettings, IOptionsMonitor<Setting> _settings, IMemoryCache _memoryCache, IProfileService _profileService)
+public class StreamGroupService(ILogger<StreamGroupService> _logger, ILogoService logoService, ICacheManager CacheManager, IMapper _mapper, IRepositoryWrapper repositoryWrapper, ISchedulesDirectDataService _schedulesDirectDataService, IOptionsMonitor<CommandProfileDict> _commandProfileSettings, IOptionsMonitor<Setting> _settings, IMemoryCache _memoryCache, IProfileService _profileService)
     : IStreamGroupService
 {
     private const string DefaultStreamGroupName = "all";
@@ -240,43 +239,6 @@ public class StreamGroupService(ILogger<StreamGroupService> _logger, ILogoServic
         string jsonString = JsonSerializer.Serialize(new LineupStatus(), BuildInfo.JsonIndentOptions);
 
         return jsonString;
-    }
-    private static string GetApiUrl(SMFileTypes path, string source, HttpRequest httpRequest)
-    {
-        string url = httpRequest.GetUrl();
-        return $"{url}/api/files/{(int)path}/{WebUtility.UrlEncode(source)}";
-    }
-
-    private string GetIconUrl(string iconOriginalSource, HttpRequest httpRequest)
-    {
-        string url = httpRequest.GetUrl();
-
-        if (string.IsNullOrEmpty(iconOriginalSource))
-        {
-            return $"{url}{_settings.CurrentValue.DefaultLogo}";
-        }
-
-        string originalUrl = iconOriginalSource;
-
-        if (iconOriginalSource.StartsWith('/'))
-        {
-            iconOriginalSource = iconOriginalSource[1..];
-        }
-
-        if (iconOriginalSource.StartsWith("images/"))
-        {
-            return $"{url}/{iconOriginalSource}";
-        }
-        else if (!iconOriginalSource.StartsWith("http"))
-        {
-            return GetApiUrl(SMFileTypes.TvLogo, originalUrl, httpRequest);
-        }
-        else if (_settings.CurrentValue.LogoCache.Equals("cache", StringComparison.CurrentCultureIgnoreCase))
-        {
-            return GetApiUrl(SMFileTypes.Logo, originalUrl, httpRequest);
-        }
-
-        return iconOriginalSource;
     }
 
     public async Task<string> GetStreamGroupLineup(int StreamGroupProfileId, HttpRequest httpRequest, bool isShort)

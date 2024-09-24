@@ -1,13 +1,15 @@
 using Microsoft.AspNetCore.SignalR;
 
-using StreamMaster.Application.Hubs;
 using StreamMaster.Application.Interfaces;
+using StreamMaster.Application.Hubs;
+using StreamMaster.Application.Services;
 using StreamMaster.Domain.Configuration;
 
 namespace StreamMaster.Infrastructure.Services;
 
 public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMasterHub> hub) : IDataRefreshService, IDataRefreshServicePartial
 {
+
     public async Task RefreshAll()
     {
 
@@ -102,7 +104,7 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
             return;
         }
 
-        await hub.Clients.All.DataRefresh("GetIcons");
+        await hub.Clients.All.DataRefresh("GetLogos");
     }
 
     public async Task RefreshM3UFiles(bool alwaysRun = false)

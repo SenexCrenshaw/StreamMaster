@@ -8,7 +8,7 @@ namespace StreamMaster.Application.SMChannels.Queries;
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record GetPagedSMChannelsRequest(QueryStringParameters Parameters) : IRequest<PagedResponse<SMChannelDto>>;
 
-internal class GetPagedSMChannelsRequestHandler(IRepositoryWrapper Repository, IStreamGroupService streamGroupService, IHttpContextAccessor httpContextAccessor)
+internal class GetPagedSMChannelsRequestHandler(IRepositoryWrapper Repository, ILogoService logoSerice, IStreamGroupService streamGroupService, IHttpContextAccessor httpContextAccessor)
     : IRequestHandler<GetPagedSMChannelsRequest, PagedResponse<SMChannelDto>>
 {
     public async Task<PagedResponse<SMChannelDto>> Handle(GetPagedSMChannelsRequest request, CancellationToken cancellationToken)
@@ -28,10 +28,8 @@ internal class GetPagedSMChannelsRequestHandler(IRepositoryWrapper Repository, I
         PagedResponse<SMChannelDto> res = await Repository.SMChannel.GetPagedSMChannels(request.Parameters).ConfigureAwait(false);
 
         string Url = httpContextAccessor.GetUrl();
-        string requestPath = httpContextAccessor.GetUrlWithPathValue();
 
         int sgId = await streamGroupService.GetDefaultSGIdAsync().ConfigureAwait(false);
-
 
         StreamGroupProfile streamGroupProfile = await streamGroupService.GetDefaultStreamGroupProfileAsync();
 
@@ -50,6 +48,7 @@ internal class GetPagedSMChannelsRequestHandler(IRepositoryWrapper Repository, I
                 }
             }
 
+            channel.Logo = logoSerice.GetLogoUrl(channel.Logo, Url);
             channel.SMStreams = [.. channel.SMStreams.OrderBy(a => a.Rank)];
             channel.StreamGroupIds = channel.StreamGroups.Select(a => a.StreamGroupId).ToList();
 

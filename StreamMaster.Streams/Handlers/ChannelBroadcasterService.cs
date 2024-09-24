@@ -6,7 +6,7 @@ using System.Collections.Concurrent;
 namespace StreamMaster.Streams.Handlers
 {
     /// <summary>
-    /// Service for managing the status of channels, including creation, monitoring, and disposal.
+    /// Service for managing the status of Channels, including creation, monitoring, and disposal.
     /// </summary>
     /// <remarks>
     /// Initializes a new instance of the <see cref="ChannelStatusService"/> class.

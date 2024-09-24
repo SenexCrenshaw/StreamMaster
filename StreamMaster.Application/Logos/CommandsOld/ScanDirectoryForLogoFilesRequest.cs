@@ -1,21 +1,15 @@
 ﻿using MediatR;
 
-namespace StreamMaster.Application.Icons.CommandsOld;
+namespace StreamMaster.Application.Logos.CommandsOld;
 
-public class ScanDirectoryForIconFilesRequest : IRequest<bool>
+public class ScanDirectoryForLogoFilesRequest : IRequest<bool>
 {
 }
 
-public class ScanDirectoryForIconFilesRequestHandler : IRequestHandler<ScanDirectoryForIconFilesRequest, bool>
+public class ScanDirectoryForLogoFilesRequestHandler : IRequestHandler<ScanDirectoryForLogoFilesRequest, bool>
 {
 
-
-    public ScanDirectoryForIconFilesRequestHandler()
-    {
-
-    }
-
-    public Task<bool> Handle(ScanDirectoryForIconFilesRequest command, CancellationToken cancellationToken)
+    public Task<bool> Handle(ScanDirectoryForLogoFilesRequest command, CancellationToken cancellationToken)
     {
         return Task.FromResult(false);
         //FileDefinition fd = FileDefinitions.M3ULogo;

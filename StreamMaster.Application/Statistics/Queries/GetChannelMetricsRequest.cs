@@ -8,7 +8,7 @@ namespace StreamMaster.Application.Statistics.Queries;
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record GetChannelMetricsRequest() : IRequest<DataResponse<List<ChannelMetric>>>;
 
-internal class GetChannelMetricsRequestHandler(IRepositoryWrapper repositoryWrapper, IVideoInfoService videoInfoService, IHttpContextAccessor httpContextAccessor, IIconHelper iconHelper, IChannelService channelService, ICustomPlayListBuilder customPlayListBuilder, IChannelBroadcasterService channelBroadcasterService, ISourceBroadcasterService sourceBroadcasterService)
+internal class GetChannelMetricsRequestHandler(IRepositoryWrapper repositoryWrapper, IVideoInfoService videoInfoService, IHttpContextAccessor httpContextAccessor, ILogoService logoService, IChannelService channelService, ICustomPlayListBuilder customPlayListBuilder, IChannelBroadcasterService channelBroadcasterService, ISourceBroadcasterService sourceBroadcasterService)
     : IRequestHandler<GetChannelMetricsRequest, DataResponse<List<ChannelMetric>>>
 {
     public async Task<DataResponse<List<ChannelMetric>>> Handle(GetChannelMetricsRequest request, CancellationToken cancellationToken)
@@ -43,7 +43,7 @@ internal class GetChannelMetricsRequestHandler(IRepositoryWrapper repositoryWrap
             string? logo = null;
             if (test?.Logo != null)
             {
-                logo = iconHelper.GetIconUrl(EPGHelper.CustomPlayListId, test.Logo, _baseUrl);
+                logo = logoService.GetLogoUrl(test.Logo, _baseUrl);// EPGHelper.CustomPlayListId, test.Logo, _baseUrl);
             }
             //channelDtos.Add(new ClientChannelDto()
             //{
@@ -96,7 +96,7 @@ internal class GetChannelMetricsRequestHandler(IRepositoryWrapper repositoryWrap
             logo = null;
             if (test?.Logo != null)
             {
-                logo = iconHelper.GetIconUrl(EPGHelper.CustomPlayListId, test.Logo, _baseUrl);
+                logo = logoService.GetLogoUrl(test.Logo, _baseUrl);
             }
 
             ChannelMetric dto = new()
@@ -132,7 +132,7 @@ internal class GetChannelMetricsRequestHandler(IRepositoryWrapper repositoryWrap
                 SMChannel? test = smChannels.Find(a => a.Id.ToString() == channel.Key);
                 if (test?.Logo != null)
                 {
-                    logo = iconHelper.GetIconUrl(EPGHelper.CustomPlayListId, test.Logo, _baseUrl);
+                    logo = logoService.GetLogoUrl(test.Logo, _baseUrl);
                 }
 
                 channelDtos.Add(new ClientChannelDto()
@@ -170,7 +170,7 @@ internal class GetChannelMetricsRequestHandler(IRepositoryWrapper repositoryWrap
             if (!sourceBroadcaster.Id.Contains("://"))
             {
                 metricLogo = customPlayListBuilder.GetCustomPlayListLogoFromFileName(sourceBroadcaster.Id);
-                metricLogo = iconHelper.GetIconUrl(EPGHelper.CustomPlayListId, metricLogo, _baseUrl);
+                metricLogo = logoService.GetLogoUrl(metricLogo, _baseUrl);
             }
             else
             {

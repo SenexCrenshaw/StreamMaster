@@ -15,10 +15,10 @@ import GetEPGFilesReducer from '@lib/smAPI/EPGFiles/GetEPGFilesSlice';
 import GetEPGNextEPGNumberReducer from '@lib/smAPI/EPGFiles/GetEPGNextEPGNumberSlice';
 import GetHeadendsByCountryPostalReducer from '@lib/smAPI/SchedulesDirect/GetHeadendsByCountryPostalSlice';
 import GetHeadendsToViewReducer from '@lib/smAPI/SchedulesDirect/GetHeadendsToViewSlice';
-import GetIconsReducer from '@lib/smAPI/Icons/GetIconsSlice';
 import GetIntroPlayListsReducer from '@lib/smAPI/Custom/GetIntroPlayListsSlice';
 import GetIsSystemReadyReducer from '@lib/smAPI/General/GetIsSystemReadySlice';
 import GetLineupPreviewChannelReducer from '@lib/smAPI/SchedulesDirect/GetLineupPreviewChannelSlice';
+import GetLogosReducer from '@lib/smAPI/Logos/GetLogosSlice';
 import GetM3UFileNamesReducer from '@lib/smAPI/M3UFiles/GetM3UFileNamesSlice';
 import GetM3UFilesReducer from '@lib/smAPI/M3UFiles/GetM3UFilesSlice';
 import GetOutputProfileReducer from '@lib/smAPI/Profiles/GetOutputProfileSlice';
@@ -156,10 +156,10 @@ export const rootReducer = combineReducers({
   GetEPGNextEPGNumber: GetEPGNextEPGNumberReducer,
   GetHeadendsByCountryPostal: GetHeadendsByCountryPostalReducer,
   GetHeadendsToView: GetHeadendsToViewReducer,
-  GetIcons: GetIconsReducer,
   GetIntroPlayLists: GetIntroPlayListsReducer,
   GetIsSystemReady: GetIsSystemReadyReducer,
   GetLineupPreviewChannel: GetLineupPreviewChannelReducer,
+  GetLogos: GetLogosReducer,
   GetM3UFileNames: GetM3UFileNamesReducer,
   GetM3UFiles: GetM3UFilesReducer,
   GetOutputProfile: GetOutputProfileReducer,

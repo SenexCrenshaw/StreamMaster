@@ -1,7 +1,7 @@
 ﻿namespace StreamMaster.Streams.Domain.Interfaces
 {
     /// <summary>
-    /// Provides methods for managing channels in StreamMaster, including operations for creating, retrieving, and modifying channel statuses.
+    /// Provides methods for managing Channels in StreamMaster, including operations for creating, retrieving, and modifying channel statuses.
     /// </summary>
     public interface IChannelService : IDisposable
     {

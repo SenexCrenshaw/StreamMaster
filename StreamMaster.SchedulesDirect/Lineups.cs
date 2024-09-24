@@ -149,7 +149,7 @@ public class Lineups(ILogger<Lineups> logger, IOptionsMonitor<SDSettings> intSDS
                                 await using FileStream stream = File.OpenRead(logoPath);
                                 using Image image = await Image.LoadAsync(stream, cancellationToken);
 
-                                mxfService.extras.Add("logo", new StationImage
+                                mxfService.extras.TryAdd("logo", new StationImage
                                 {
                                     Url = urlLogoPath,
                                     Height = image.Height,
@@ -158,7 +158,7 @@ public class Lineups(ILogger<Lineups> logger, IOptionsMonitor<SDSettings> intSDS
                             }
                             else if (stationLogo != null)
                             {
-                                mxfService.extras.Add("logo", new StationImage
+                                mxfService.extras.TryAdd("logo", new StationImage
                                 {
                                     Url = urlLogoPath
                                 });
@@ -217,7 +217,7 @@ public class Lineups(ILogger<Lineups> logger, IOptionsMonitor<SDSettings> intSDS
                     const string channelNumber = "1";// $"{number}{(subnumber > 0 ? $".{subnumber}" : "")}";
                     if (channelNumbers.Add($"{channelNumber}:{station.StationId}"))
                     {
-                        mxfLineup.channels.Add(new MxfChannel(mxfLineup, mxfService)
+                        mxfLineup.Channels.Add(new MxfChannel(mxfLineup, mxfService)
                         {
                             MatchName = ""
                         });

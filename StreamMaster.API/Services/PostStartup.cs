@@ -35,7 +35,7 @@ public class PostStartup(ILogger<PostStartup> logger, IServiceProvider servicePr
 
         //await taskQueue.UpdateChannelGroupCounts(cancellationToken).ConfigureAwait(false);
 
-        await taskQueue.BuildIconCaches(cancellationToken).ConfigureAwait(false);
+        await taskQueue.BuildLogoCaches(cancellationToken).ConfigureAwait(false);
 
         while (taskQueue.HasJobs())
         {
