@@ -23,7 +23,7 @@ import {
 } from 'primereact/datatable';
 import { MultiSelect, MultiSelectChangeEvent } from 'primereact/multiselect';
 import { Tooltip } from 'primereact/tooltip';
-import { forwardRef, memo, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
+import { forwardRef, lazy, memo, Suspense, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import TableHeader from './helpers/TableHeader';
 import { arraysEqualByKey } from './helpers/arraysEqual';
 import bodyTemplate from './helpers/bodyTemplate';
@@ -37,6 +37,8 @@ import useSMDataSelectorValuesState from './hooks/useSMDataTableState';
 import { useSetQueryFilter } from './hooks/useSetQueryFilter';
 import { ColumnMeta } from './types/ColumnMeta';
 import { SMDataTableProps, SMDataTableRef } from './types/smDataTableInterfaces';
+
+const LazyDataTable = lazy(() => import('primereact/datatable').then((module) => ({ default: module.DataTable })));
 
 const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>, ref: React.Ref<SMDataTableRef<T>>) => {
   const { state, setters } = useSMDataSelectorValuesState<T>(props.id, props.selectedItemsKey);
@@ -210,7 +212,8 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>, ref: 
     [onSetSelection, props, state.selectAll]
   );
 
-  const onRowReorder = (changed: T[]) => {
+  //T[]
+  const onRowReorder = (changed: any) => {
     props.onRowReorder?.(changed);
   };
 
@@ -381,7 +384,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>, ref: 
               }}
               showSelectAll={false}
               pt={{
-                checkbox: { style: { display: 'none' } },
+                // checkbox: { style: { display: 'none' } },
                 header: { style: { display: 'none' } }
               }}
               useOptionAsValue
@@ -791,151 +794,152 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>, ref: 
             <div className="layout-padding-bottom"></div>
           </div>
         )}
+        <Suspense fallback={<div>Loading DataTable...</div>}>
+          <LazyDataTable
+            cellSelection={false}
+            currentPageReportTemplate="{first} to {last} of {totalRecords}"
+            dataKey={props.dataKey || 'Id'}
+            editMode="cell"
+            expandedRows={state.expandedRows}
+            filterDisplay="row"
+            filters={isEmptyObject(state.filters) ? getEmptyFilter(props.columns, state.showHidden) : state.filters}
+            first={state.pagedInformation ? state.pagedInformation.First : state.first}
+            loading={props.noIsLoading !== true ? props.isLoading === true || isLoading === true : false}
+            lazy={isLazy}
+            onRowCollapse={(e) => {
+              setIsExpanded(false);
+              props.onRowCollapse?.(e);
+            }}
+            onRowExpand={(e) => {
+              setIsExpanded(true);
+              props.onRowExpand?.(e);
+            }}
+            onRowReorder={(e) => {
+              onRowReorder(e.value);
+            }}
+            onRowToggle={(e: any) => {
+              if (props.singleExpand === true) {
+                const expandedRows = findMissingKeys(state.expandedRows, e.data);
+                setters.setExpandedRows(expandedRows);
+              } else {
+                setters.setExpandedRows(e.data as DataTableExpandedRows);
+              }
+            }}
+            onSelectionChange={(e: DataTableSelectionMultipleChangeEvent<T[]>) => {
+              onSelectionChange(e);
+            }}
+            onFilter={onFilter}
+            onPage={onPage}
+            onRowClick={props.selectRow === true ? props.onRowClick : undefined}
+            paginator={showPageination}
+            paginatorClassName="text-xs p-0 m-0"
+            paginatorTemplate={getPageTemplate}
+            // pt={{
+            //   wrapper: { className: getWrapperDiv }
+            // }}
+            ref={tableReference}
+            rowClassName={props.rowClass ? props.rowClass : rowClass}
+            rowExpansionTemplate={props.rowExpansionTemplate}
+            rows={props.rows || state.rows}
+            rowsPerPageOptions={[5, 10, 25, 50, 100, 250]}
+            scrollHeight="flex"
+            scrollable
+            showGridlines
+            size="small"
+            sortField={props.reorderable ? 'rank' : state.sortField}
+            sortMode="single"
+            sortOrder={props.reorderable ? 0 : state.sortOrder}
+            stripedRows
+            style={props.style}
+            reorderableRows={props.reorderable}
+            totalRecords={state.pagedInformation ? state.pagedInformation.TotalItemCount : undefined}
+            value={dataSource} //props.dataSource !== undefined ? filteredValues : getDataFromQ} //{state.dataSource}
+          >
+            <Column
+              body={props.addOrRemoveTemplate}
+              field="addOrRemove"
+              filter
+              filterElement={props.addOrRemoveHeaderTemplate}
+              hidden={!props.addOrRemoveTemplate}
+              showFilterMenu={false}
+              showFilterOperator={false}
+              resizeable={false}
+              style={getColumnStyles({ width: 24 } as ColumnMeta)}
+            />
 
-        <DataTable
-          cellSelection={false}
-          currentPageReportTemplate="{first} to {last} of {totalRecords}"
-          dataKey={props.dataKey || 'Id'}
-          editMode="cell"
-          expandedRows={state.expandedRows}
-          filterDisplay="row"
-          filters={isEmptyObject(state.filters) ? getEmptyFilter(props.columns, state.showHidden) : state.filters}
-          first={state.pagedInformation ? state.pagedInformation.First : state.first}
-          loading={props.noIsLoading !== true ? props.isLoading === true || isLoading === true : false}
-          lazy={isLazy}
-          onRowCollapse={(e) => {
-            setIsExpanded(false);
-            props.onRowCollapse?.(e);
-          }}
-          onRowExpand={(e) => {
-            setIsExpanded(true);
-            props.onRowExpand?.(e);
-          }}
-          onRowReorder={(e) => {
-            onRowReorder(e.value);
-          }}
-          onRowToggle={(e: any) => {
-            if (props.singleExpand === true) {
-              const expandedRows = findMissingKeys(state.expandedRows, e.data);
-              setters.setExpandedRows(expandedRows);
-            } else {
-              setters.setExpandedRows(e.data as DataTableExpandedRows);
-            }
-          }}
-          onSelectionChange={(e: DataTableSelectionMultipleChangeEvent<T[]> | DataTableSelectionSingleChangeEvent<T[]>) => {
-            onSelectionChange(e);
-          }}
-          onFilter={onFilter}
-          onPage={onPage}
-          onRowClick={props.selectRow === true ? props.onRowClick : undefined}
-          paginator={showPageination}
-          paginatorClassName="text-xs p-0 m-0"
-          paginatorTemplate={getPageTemplate}
-          // pt={{
-          //   wrapper: { className: getWrapperDiv }
-          // }}
-          ref={tableReference}
-          rowClassName={props.rowClass ? props.rowClass : rowClass}
-          rowExpansionTemplate={props.rowExpansionTemplate}
-          rows={props.rows || state.rows}
-          rowsPerPageOptions={[5, 10, 25, 50, 100, 250]}
-          scrollHeight="flex"
-          scrollable
-          showGridlines
-          size="small"
-          sortField={props.reorderable ? 'rank' : state.sortField}
-          sortMode="single"
-          sortOrder={props.reorderable ? 0 : state.sortOrder}
-          stripedRows
-          style={props.style}
-          reorderableRows={props.reorderable}
-          totalRecords={state.pagedInformation ? state.pagedInformation.TotalItemCount : undefined}
-          value={dataSource} //props.dataSource !== undefined ? filteredValues : getDataFromQ} //{state.dataSource}
-        >
-          <Column
-            body={props.addOrRemoveTemplate}
-            field="addOrRemove"
-            filter
-            filterElement={props.addOrRemoveHeaderTemplate}
-            hidden={!props.addOrRemoveTemplate}
-            showFilterMenu={false}
-            showFilterOperator={false}
-            resizeable={false}
-            style={getColumnStyles({ width: 24 } as ColumnMeta)}
-          />
-
-          <Column
-            // className="sm-w-2rem"
-            filterElement={getExpanderHeader}
-            filter={props.expanderHeader !== undefined}
-            hidden={!props.showExpand || props.rowExpansionTemplate === undefined}
-            showFilterMenu={false}
-            showFilterOperator={false}
-            resizeable={false}
-            expander
-            style={getColumnStyles({ width: 20 } as ColumnMeta)}
-          />
-          <Column
-            body={showSelection ? selectionTemplate : undefined}
-            field="multiSelect"
-            filter
-            filterElement={selectionHeaderTemplate}
-            showClearButton={false}
-            showFilterMatchModes={false}
-            showFilterMenu={false}
-            showFilterOperator={false}
-            sortable
-            hidden={!showSelection}
-            style={getColumnStyles({
-              maxWidth: props.showHiddenInSelection ? 42 : 20,
-              minWidth: props.showHiddenInSelection ? 42 : 20,
-              width: props.showHiddenInSelection ? 42 : 20
-            } as ColumnMeta)}
-          />
-          <Column
-            filter
-            filterElement={getRowExpanderHeader}
-            hidden={!props.reorderable}
-            rowReorderIcon="font-bold pi pi-equals"
-            rowReorder
-            showClearButton={false}
-            showFilterMatchModes={false}
-            showFilterMenu={false}
-            showFilterOperator={false}
-            className={'sm-rowreorder'}
-            // style={getColumnStyles({ width: '2rem' } as ColumnMeta)}
-          />
-          {props.columns &&
-            props.columns
-              .filter((col) => col.removed !== true)
-              .map((col) => (
-                <Column
-                  align={getAlign(col.align, col.fieldType)}
-                  className={getColClassName(col)}
-                  filter
-                  filterElement={col.headerTemplate ? col.headerTemplate : colFilterTemplate}
-                  filterPlaceholder={col.filter === true ? (col.fieldType === 'epg' ? 'EPG' : col.header ? col.header : camel2title(col.field)) : undefined}
-                  // header={col.headerTemplate ? col.headerTemplate : getHeader(col.field, col.header, col.fieldType)}
-                  body={(e) =>
-                    col.bodyTemplate ? col.bodyTemplate(e) : bodyTemplate(e, col.field, col.fieldType, settings.DefaultIcon, col.camelize, props.dataKey)
-                  }
-                  editor={col.editor}
-                  field={col.field}
-                  hidden={col.isHidden === true || col.fieldType === 'filterOnly'}
-                  key={col.fieldType ? col.field + col.fieldType : col.field}
-                  // style={getStyle(col, col.noAutoStyle !== true || col.bodyTemplate !== undefined)}
-                  showAddButton
-                  showApplyButton
-                  showClearButton={false}
-                  showFilterMatchModes
-                  showFilterMenu={false}
-                  showFilterMenuOptions
-                  showFilterOperator
-                  sortable={props.reorderable ? false : col.sortable}
-                  style={getColumnStyles(col)}
-                />
-              ))}
-        </DataTable>
+            <Column
+              // className="sm-w-2rem"
+              filterElement={getExpanderHeader}
+              filter={props.expanderHeader !== undefined}
+              hidden={!props.showExpand || props.rowExpansionTemplate === undefined}
+              showFilterMenu={false}
+              showFilterOperator={false}
+              resizeable={false}
+              expander
+              style={getColumnStyles({ width: 20 } as ColumnMeta)}
+            />
+            <Column
+              body={showSelection ? selectionTemplate : undefined}
+              field="multiSelect"
+              filter
+              filterElement={selectionHeaderTemplate}
+              showClearButton={false}
+              showFilterMatchModes={false}
+              showFilterMenu={false}
+              showFilterOperator={false}
+              sortable
+              hidden={!showSelection}
+              style={getColumnStyles({
+                maxWidth: props.showHiddenInSelection ? 42 : 20,
+                minWidth: props.showHiddenInSelection ? 42 : 20,
+                width: props.showHiddenInSelection ? 42 : 20
+              } as ColumnMeta)}
+            />
+            <Column
+              filter
+              filterElement={getRowExpanderHeader}
+              hidden={!props.reorderable}
+              rowReorderIcon="font-bold pi pi-equals"
+              rowReorder
+              showClearButton={false}
+              showFilterMatchModes={false}
+              showFilterMenu={false}
+              showFilterOperator={false}
+              className={'sm-rowreorder'}
+              // style={getColumnStyles({ width: '2rem' } as ColumnMeta)}
+            />
+            {props.columns &&
+              props.columns
+                .filter((col) => col.removed !== true)
+                .map((col) => (
+                  <Column
+                    align={getAlign(col.align, col.fieldType)}
+                    className={getColClassName(col)}
+                    filter
+                    filterElement={col.headerTemplate ? col.headerTemplate : colFilterTemplate}
+                    filterPlaceholder={col.filter === true ? (col.fieldType === 'epg' ? 'EPG' : col.header ? col.header : camel2title(col.field)) : undefined}
+                    // header={col.headerTemplate ? col.headerTemplate : getHeader(col.field, col.header, col.fieldType)}
+                    body={(e) =>
+                      col.bodyTemplate ? col.bodyTemplate(e) : bodyTemplate(e, col.field, col.fieldType, settings.DefaultLogo, col.camelize, props.dataKey)
+                    }
+                    editor={col.editor}
+                    field={col.field}
+                    hidden={col.isHidden === true || col.fieldType === 'filterOnly'}
+                    key={col.fieldType ? col.field + col.fieldType : col.field}
+                    // style={getStyle(col, col.noAutoStyle !== true || col.bodyTemplate !== undefined)}
+                    showAddButton
+                    showApplyButton
+                    showClearButton={false}
+                    showFilterMatchModes
+                    showFilterMenu={false}
+                    showFilterMenuOptions
+                    showFilterOperator
+                    sortable={props.reorderable ? false : col.sortable}
+                    style={getColumnStyles(col)}
+                  />
+                ))}
+          </LazyDataTable>
+        </Suspense>
       </div>
     </div>
   );

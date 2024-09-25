@@ -6,6 +6,7 @@ using Microsoft.Extensions.Caching.Memory;
 using StreamMaster.API.Interfaces;
 using StreamMaster.Domain.Enums;
 
+using System.Text;
 using System.Web;
 
 namespace StreamMaster.API.Controllers;

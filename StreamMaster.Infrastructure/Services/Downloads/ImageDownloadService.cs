@@ -68,8 +68,23 @@ namespace StreamMaster.Infrastructure.Services.Downloads
 
         private async Task ProcessQueuesAsync(CancellationToken cancellationToken)
         {
-            await ProcessProgramMetadataQueue(cancellationToken);
-            await ProcessNameLogoQueue(cancellationToken);
+            //bool proccessed = await ProcessProgramMetadataQueue(cancellationToken);
+            //bool proccessed2 = await ProcessNameLogoQueue(cancellationToken);
+
+            //if (!proccessed && !proccessed2)
+            //{
+            //    return;
+            //}
+
+            bool[] results = await Task.WhenAll(
+    ProcessProgramMetadataQueue(cancellationToken),
+    ProcessNameLogoQueue(cancellationToken)
+).ConfigureAwait(false);
+
+            if (!results[0] && !results[1])
+            {
+                return;
+            }
 
             // Throttle the call to RefreshDownloadServiceStatus to once per second
             bool shouldRefresh = false;
@@ -88,34 +103,36 @@ namespace StreamMaster.Infrastructure.Services.Downloads
             }
         }
 
-        private async Task ProcessProgramMetadataQueue(CancellationToken cancellationToken)
+        private async Task<bool> ProcessProgramMetadataQueue(CancellationToken cancellationToken)
         {
             ProgramMetadata? metadata = imageDownloadQueue.GetNextProgramMetadata();
             imageDownloadServiceStatus.TotalProgramMetadata = imageDownloadQueue.ProgramMetadataCount();
-            if (metadata != null)
+            if (metadata == null)
             {
-                logger.LogDebug("Processing ProgramMetadata: {ProgramId}", metadata.ProgramId);
-                imageDownloadServiceStatus.TotalProgramMetadataDownloadAttempts++;
-
-                // Skip if ImageLockOut is active for Schedules Direct downloads
-                if (ImageLockOut)
-                {
-                    logger.LogDebug("Skipping download due to lockout for ProgramId: {ProgramId}", metadata.ProgramId);
-                    return;
-                }
-
-                // Get and process artwork
-                List<ProgramArtwork> artwork = GetArtwork(metadata);
-                if (artwork.Count == 0)
-                {
-                    logger.LogDebug("No artwork to download for ProgramId: {ProgramId}", metadata.ProgramId);
-                    imageDownloadServiceStatus.TotalNoArt++;
-                    imageDownloadQueue.TryDequeueProgramMetadata(metadata.ProgramId);
-                    return;
-                }
-
-                await DownloadArtworkAsync(artwork, metadata.ProgramId, cancellationToken);
+                return false;
             }
+
+            logger.LogDebug("Processing ProgramMetadata: {ProgramId}", metadata.ProgramId);
+            imageDownloadServiceStatus.TotalProgramMetadataDownloadAttempts++;
+
+            // Skip if ImageLockOut is active for Schedules Direct downloads
+            if (ImageLockOut)
+            {
+                logger.LogDebug("Skipping download due to lockout for ProgramId: {ProgramId}", metadata.ProgramId);
+                return false;
+            }
+
+            // Get and process artwork
+            List<ProgramArtwork> artwork = GetArtwork(metadata);
+            if (artwork.Count == 0)
+            {
+                logger.LogDebug("No artwork to download for ProgramId: {ProgramId}", metadata.ProgramId);
+                imageDownloadServiceStatus.TotalNoArt++;
+                imageDownloadQueue.TryDequeueProgramMetadata(metadata.ProgramId);
+                return false;
+            }
+
+            return await DownloadArtworkAsync(artwork, metadata.ProgramId, cancellationToken);
         }
 
         private List<ProgramArtwork> GetArtwork(ProgramMetadata metadata)
@@ -137,7 +154,7 @@ namespace StreamMaster.Infrastructure.Services.Downloads
             return artwork;
         }
 
-        private async Task DownloadArtworkAsync(List<ProgramArtwork> artwork, string programId, CancellationToken cancellationToken)
+        private async Task<bool> DownloadArtworkAsync(List<ProgramArtwork> artwork, string programId, CancellationToken cancellationToken)
         {
             bool deq = true;
             foreach (ProgramArtwork art in artwork)
@@ -170,21 +187,23 @@ namespace StreamMaster.Infrastructure.Services.Downloads
                 logger.LogDebug("All artwork for ProgramId: {ProgramId} downloaded", programId);
                 imageDownloadQueue.TryDequeueProgramMetadata(programId);
             }
+
+            return deq;
         }
 
-        private async Task ProcessNameLogoQueue(CancellationToken cancellationToken)
+        private async Task<bool> ProcessNameLogoQueue(CancellationToken cancellationToken)
         {
             NameLogo? nameLogo = imageDownloadQueue.GetNextNameLogo();
             imageDownloadServiceStatus.TotalNameLogo = imageDownloadQueue.NameLogoCount();
             if (nameLogo == null)
             {
-                return;
+                return false;
             }
 
             if (nameLogo.Logo.StartsWith("http") != true)
             {
                 imageDownloadQueue.TryDequeueNameLogo(nameLogo.Name);
-                return;
+                return false;
             }
 
 
@@ -196,7 +215,7 @@ namespace StreamMaster.Infrastructure.Services.Downloads
             {
                 imageDownloadServiceStatus.TotalNameLogoAlreadyExists++;
                 imageDownloadQueue.TryDequeueNameLogo(nameLogo.Name);
-                return;
+                return false;
             }
 
             // Do not enforce ImageLockOut for NameLogo
@@ -204,11 +223,12 @@ namespace StreamMaster.Infrastructure.Services.Downloads
             {
                 imageDownloadServiceStatus.TotalNameLogoSuccessful++;
                 imageDownloadQueue.TryDequeueNameLogo(nameLogo.Name);
+                return true;
             }
-            else
-            {
-                imageDownloadServiceStatus.TotalNameLogoErrors++;
-            }
+
+            imageDownloadServiceStatus.TotalNameLogoErrors++;
+            return false;
+
         }
 
         // Set ImageLockOut when hitting rate limits and downloading images
