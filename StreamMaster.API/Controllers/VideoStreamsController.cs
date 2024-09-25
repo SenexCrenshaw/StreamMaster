@@ -13,9 +13,7 @@ public class VideoStreamsController(ILogger<VideoStreamsController> logger, IVid
     [Route("stream/{encodedIds}.mp4")]
     [Route("stream/{encodedIds}.ts")]
     [Route("stream/{encodedIds}/{name?}")]
-#pragma warning disable RCS1163 // Unused parameter
     public async Task<ActionResult> GetVideoStreamStream(string encodedIds, string? name, CancellationToken cancellationToken)
-#pragma warning restore RCS1163 // Unused parameter
     {
         (int? streamGroupId, int? streamGroupProfileId, int? smChannelId) = await streamGroupService.DecodeProfileIdSMChannelIdFromEncodedAsync(encodedIds);
 
@@ -23,13 +21,13 @@ public class VideoStreamsController(ILogger<VideoStreamsController> logger, IVid
 
         if (!string.IsNullOrEmpty(RedirectUrl))
         {
-            logger.LogInformation("Channel with ChannelId {channelId} {name} redirecting", smChannelId, clientConfiguration?.SMChannel.Name ?? "");
+            logger.LogInformation("Channel with ChannelId {channelId} {name} redirecting", smChannelId, clientConfiguration?.SMChannel.Name ?? name);
             return Redirect(RedirectUrl);
         }
 
         if (stream == null || clientConfiguration == null)
         {
-            logger.LogInformation("Channel with ChannelId {channelId} {name} failed", smChannelId, clientConfiguration?.SMChannel.Name ?? "");
+            logger.LogInformation("Channel with ChannelId {channelId} {name} failed", smChannelId, clientConfiguration?.SMChannel.Name ?? name);
             return StatusCode(StatusCodes.Status404NotFound);
         }
 

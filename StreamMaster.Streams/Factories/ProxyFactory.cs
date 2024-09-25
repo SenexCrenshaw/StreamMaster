@@ -40,6 +40,7 @@ public sealed class ProxyFactory(ILogger<ProxyFactory> logger, IHTTPStream HTTPS
                 return await CustomPlayListStream.HandleStream(smStreamInfo, clientUserAgent, cancellationToken).ConfigureAwait(false);
             }
 
+
             if (smStreamInfo.Url.EndsWith(".m3u8"))
             {
                 logger.LogInformation("Stream URL has m3u8 extension, using ffmpeg for streaming: {streamName}", smStreamInfo.Name);
@@ -47,8 +48,14 @@ public sealed class ProxyFactory(ILogger<ProxyFactory> logger, IHTTPStream HTTPS
                 return commandExecutor.ExecuteCommand(commandProfileDto, smStreamInfo.Url, clientUserAgent, null, cancellationToken);
             }
 
-            //FIX ME : Handler for just commands and not stream master proxy
-            return await HTTPStream.HandleStream(smStreamInfo, clientUserAgent, cancellationToken).ConfigureAwait(false);
+            if (smStreamInfo.CommandProfile.Command.ToLower().Equals("STREAMMASTER", StringComparison.Ordinal))
+            {
+                logger.LogInformation("Using Stream Master Proxy for streaming: {streamName}", smStreamInfo.Name);
+                return await HTTPStream.HandleStream(smStreamInfo, clientUserAgent, cancellationToken).ConfigureAwait(false);
+            }
+
+            logger.LogInformation("Using Command Profile {ProfileName} for streaming: {streamName}", smStreamInfo.CommandProfile.ProfileName, smStreamInfo.Name);
+            return commandExecutor.ExecuteCommand(smStreamInfo.CommandProfile, smStreamInfo.Url, clientUserAgent, null, cancellationToken);
         }
         catch (Exception ex) when (ex is HttpRequestException or Exception)
         {

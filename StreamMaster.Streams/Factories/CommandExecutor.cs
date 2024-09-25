@@ -16,7 +16,6 @@ public class CommandExecutor(ILogger<CommandExecutor> logger) : ICommandExecutor
                 return (null, -1, new ProxyStreamError { ErrorCode = ProxyStreamErrorCode.FileNotFound, Message = $"{commandProfile.Command} not found" });
             }
 
-
             string prefix = "-hide_banner -loglevel error";
             if (secondsIn.HasValue && secondsIn.Value != 0)
             {
