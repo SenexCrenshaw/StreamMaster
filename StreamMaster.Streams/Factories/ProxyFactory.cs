@@ -48,7 +48,7 @@ public sealed class ProxyFactory(ILogger<ProxyFactory> logger, IHTTPStream HTTPS
                 return commandExecutor.ExecuteCommand(commandProfileDto, smStreamInfo.Url, clientUserAgent, null, cancellationToken);
             }
 
-            if (smStreamInfo.CommandProfile.Command.ToLower().Equals("STREAMMASTER", StringComparison.Ordinal))
+            if (smStreamInfo.CommandProfile.Command.ToLower().Equals("streammaster", StringComparison.Ordinal))
             {
                 logger.LogInformation("Using Stream Master Proxy for streaming: {streamName}", smStreamInfo.Name);
                 return await HTTPStream.HandleStream(smStreamInfo, clientUserAgent, cancellationToken).ConfigureAwait(false);
