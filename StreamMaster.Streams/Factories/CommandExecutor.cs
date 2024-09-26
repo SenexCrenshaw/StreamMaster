@@ -23,7 +23,7 @@ public class CommandExecutor(ILogger<CommandExecutor> logger) : ICommandExecutor
             }
 
             string options = streamUrl.Contains("://")
-            ? $"{prefix} -user_agent \"{clientUserAgent}\" -fflags +genpts+discardcorrupt -thread_queue_size 1024 -i \"{streamUrl}\" -reconnect 1 {commandProfile.Parameters} -f mpegts -muxdelay 0.001 -max_interleave_delta 0 -copyts pipe:1"
+            ? $"{prefix} -user_agent \"{clientUserAgent}\" -fflags +genpts+discardcorrupt -thread_queue_size 1024 -reconnect_on_network_error 1 -reconnect_on_http_error 5xx,4xx -reconnect_streamed 1 -reconnect_delay_max 2 -reconnect 1 -i \"{streamUrl}\"  {commandProfile.Parameters} -f mpegts -muxdelay 0.001 -max_interleave_delta 0 -copyts pipe:1"
             : $"{prefix} -i \"{streamUrl}\" {commandProfile.Parameters} -f mpegts pipe:1";
 
             using Process process = new();
