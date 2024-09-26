@@ -132,7 +132,7 @@ const StreamGroupOutputProfileDataSelector = () => {
       emptyMessage="No Profiles"
       enableClick
       enableExport={false}
-      headerName="M3U/EPG Profiles"
+      headerName="File Output Profiles"
       id={id}
       dataKey="ProfileName"
       onRowClick={(e: DataTableRowClickEvent) => {}}

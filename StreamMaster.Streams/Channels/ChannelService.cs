@@ -217,8 +217,6 @@ namespace StreamMaster.Streams.Channels
 
         public async Task<bool> SwitchChannelToNextStreamAsync(IChannelBroadcaster channelBroadcaster, IClientConfiguration? clientConfiguration, string? overrideSMStreamId = null)
         {
-
-
             if (channelBroadcaster.FailoverInProgress)
             {
                 return false;
@@ -233,7 +231,6 @@ namespace StreamMaster.Streams.Channels
                 if (channelBroadcaster.SMChannel.SMChannelType == SMChannelTypeEnum.Quad)
                 {
                     sourceChannelBroadcaster = await _videoCombinerService.GetOrCreateVideoCombinerAsync(clientConfiguration, _mapper, this, 1767, 1769, 1771, 1772, channelBroadcaster.StreamGroupProfileId, CancellationToken.None).ConfigureAwait(false);
-
                 }
                 else
                 {
@@ -246,7 +243,6 @@ namespace StreamMaster.Streams.Channels
                     }
 
                     sourceChannelBroadcaster = await _sourceBroadcasterService.GetOrCreateStreamBroadcasterAsync(channelBroadcaster.SMStreamInfo, CancellationToken.None).ConfigureAwait(false);
-
                 }
 
                 if (sourceChannelBroadcaster != null)

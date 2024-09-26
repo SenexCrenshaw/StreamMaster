@@ -15,7 +15,7 @@ public static class ConfigureServices
     {
         services.AddSingleton<IChannelManager, ChannelManager>();
         services.AddSingleton<IChannelService, ChannelService>();
-        services.AddSingleton<IProxyFactory, ProxyFactory>();
+        services.AddSingleton<IStreamFactory, StreamFactory>();
         services.AddTransient<ICommandExecutor, CommandExecutor>();
         services.AddTransient<ICustomPlayListStream, CustomPlayListStream>();
         services.AddTransient<IHTTPStream, HTTPStream>();

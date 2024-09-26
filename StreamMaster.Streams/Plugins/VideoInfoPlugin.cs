@@ -236,6 +236,7 @@ namespace StreamMaster.Streams.Plugins
         {
             Stop();
             cancellationTokenSource.Dispose();
+            GC.SuppressFinalize(this);
         }
     }
 }

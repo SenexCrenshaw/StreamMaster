@@ -125,7 +125,6 @@ public abstract class BroadcasterBase(ILogger<IBroadcasterBase> logger, IOptions
 
     private Task MonitorTasksCompletionAsync(Task readerTask, Task writerTask, Stream? sourceStream, CancellationToken token)
     {
-
         return Task.Run(async () =>
         {
             try

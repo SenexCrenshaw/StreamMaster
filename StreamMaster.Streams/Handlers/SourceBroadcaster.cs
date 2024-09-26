@@ -9,7 +9,6 @@ public class SourceBroadcaster : BroadcasterBase, ISourceBroadcaster
 
     public SourceBroadcaster() : base(null, null)
     {
-
     }
 
     public SourceBroadcaster(ILogger<ISourceBroadcaster> logger, SMStreamInfo smStreamInfo, IOptionsMonitor<Setting> _settings) : base(logger, _settings)
@@ -31,8 +30,6 @@ public class SourceBroadcaster : BroadcasterBase, ISourceBroadcaster
     public override string Name => SMStreamInfo.Name;
 
     public SMStreamInfo SMStreamInfo { get; }
-
-
 
     /// <inheritdoc/>
     public override void Stop()

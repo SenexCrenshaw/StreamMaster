@@ -34,7 +34,6 @@ namespace StreamMaster.Streams.Services
                 return existingVal;
             });
 
-
             return result;
         }
 

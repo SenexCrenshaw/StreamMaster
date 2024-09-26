@@ -95,7 +95,6 @@ public sealed class SwitchToNextStreamService(ILogger<SwitchToNextStreamService>
                     break;
                 }
             }
-
         }
 
         if (smStream == null)

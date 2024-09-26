@@ -50,7 +50,6 @@ public class StreamLimitsService(ILogger<StreamLimitsService> logger, ICacheMana
         int currentStreamCount = M3UStreamCount.GetValueOrDefault(M3UFileId, 0);
         int maxStreamCount = CacheManager.M3UMaxStreamCounts.GetValueOrDefault(M3UFileId, 0);
 
-
         return (currentStreamCount, maxStreamCount);
     }
 
@@ -68,6 +67,4 @@ public class StreamLimitsService(ILogger<StreamLimitsService> logger, ICacheMana
         logger.LogInformation("Check stream limits for {name} : currentStreamCount: {currentStreamCount}, maxStreamCount: {maxStreamCount}", smStreamDto.Name, currentStreamCount, maxStreamCount);
         return currentStreamCount >= maxStreamCount;
     }
-
-
 }

@@ -5,7 +5,7 @@ using System.Collections.Concurrent;
 
 namespace StreamMaster.Streams.Handlers
 {
-    public class SourceBroadcasterService(ILogger<SourceBroadcasterService> logger, IVideoInfoService _videoInfoService, ILogger<ISourceBroadcaster> sourceBroadcasterLogger, IOptionsMonitor<Setting> _settings, IProxyFactory proxyFactory)
+    public class SourceBroadcasterService(ILogger<SourceBroadcasterService> logger, IVideoInfoService _videoInfoService, ILogger<ISourceBroadcaster> sourceBroadcasterLogger, IOptionsMonitor<Setting> _settings, IStreamFactory proxyFactory)
         : ISourceBroadcasterService
     {
         public event AsyncEventHandler<StreamBroadcasterStopped>? OnStreamBroadcasterStoppedEvent;
@@ -46,7 +46,7 @@ namespace StreamMaster.Streams.Handlers
 
                 logger.LogInformation("Created new source stream for: {Id} {name}", smStreamInfo.Id, smStreamInfo.Name);
 
-                (Stream? stream, int? processId, ProxyStreamError? error) = await proxyFactory.GetProxy(smStreamInfo, cancellationToken).ConfigureAwait(false);
+                (Stream? stream, int? processId, ProxyStreamError? error) = await proxyFactory.GetStream(smStreamInfo, cancellationToken).ConfigureAwait(false);
                 if (stream == null || processId == null || error != null)
                 {
                     logger.LogError("Could not create source stream for channel distributor: {Id} {name} {error}", smStreamInfo.Id, smStreamInfo.Name, error?.Message);
@@ -133,9 +133,7 @@ namespace StreamMaster.Streams.Handlers
                     //StopAndUnRegisterSourceBroadcaster(sourceBroadcaster.Id);
 
                 }
-
             }
-
         }
 
         public async Task UnRegisterChannelBroadcasterAsync(int channelBroadcasterId)

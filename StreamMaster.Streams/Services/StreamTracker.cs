@@ -19,5 +19,4 @@ public class StreamTracker : IStreamTracker
     {
         return streamTracker.ContainsKey(smStreamId);
     }
-
 }

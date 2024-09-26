@@ -17,23 +17,23 @@ public class VsController(ILogger<VsController> logger, IVideoService videoServi
     {
         int streamGroupId = await streamGroupService.GetStreamGroupIdFromSGProfileIdAsync(streamGroupProfileId).ConfigureAwait(false);
 
-        (Stream? stream, IClientConfiguration? clientConfiguration, string? RedirectUrl) = await videoService.GetStreamAsync(streamGroupId, streamGroupProfileId, smChannelId, cancellationToken);
+        StreamResult streamResult = await videoService.GetStreamAsync(streamGroupId, streamGroupProfileId, smChannelId, cancellationToken);
 
-        if (!string.IsNullOrEmpty(RedirectUrl))
+        if (!string.IsNullOrEmpty(streamResult.RedirectUrl))
         {
             logger.LogInformation("Channel with ChannelId {channelId} redirecting", smChannelId);
-            return Redirect(RedirectUrl);
+            return Redirect(streamResult.RedirectUrl);
         }
 
-        if (stream == null || clientConfiguration == null)
+        if (streamResult.Stream == null || streamResult.ClientConfiguration == null)
         {
             logger.LogInformation("Channel with ChannelId {channelId} failed", smChannelId);
             return StatusCode(StatusCodes.Status404NotFound);
         }
 
-        HttpContext.Response.RegisterForDispose(new UnregisterClientOnDispose(channelManager, clientConfiguration));
+        HttpContext.Response.RegisterForDispose(new UnregisterClientOnDispose(channelManager, streamResult.ClientConfiguration));
 
-        return stream != null ? new FileStreamResult(stream, "video/mp4") { EnableRangeProcessing = false } : StatusCode(StatusCodes.Status404NotFound);
+        return streamResult.Stream != null ? new FileStreamResult(streamResult.Stream, "video/mp4") { EnableRangeProcessing = false } : StatusCode(StatusCodes.Status404NotFound);
     }
 
     private class UnregisterClientOnDispose(IChannelManager channelManager, IClientConfiguration config) : IDisposable

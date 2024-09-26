@@ -68,7 +68,6 @@ public sealed class ChannelBroadcaster(ILogger<IChannelBroadcaster> logger, SMCh
         IsGlobal = true;
     }
 
-
     public void SetSourceChannelBroadcaster(IBroadcasterBase SourceChannelBroadcaster)
     {
         if (remux)
@@ -83,7 +82,6 @@ public sealed class ChannelBroadcaster(ILogger<IChannelBroadcaster> logger, SMCh
             SourceChannelBroadcaster.AddChannelStreamer(SMChannel.Id, channel.Writer);
             SetSourceChannel(channel.Reader, SourceChannelBroadcaster.Name, CancellationToken.None);
         }
-
     }
 
     public void Dispose()

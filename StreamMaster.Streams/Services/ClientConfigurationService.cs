@@ -48,7 +48,6 @@ namespace StreamMaster.Streams.Services
                 clientConfiguration.Response,
                 clientConfiguration.LoggerFactory,
                 clientConfiguration.ClientCancellationToken);
-
         }
     }
 }

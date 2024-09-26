@@ -17,23 +17,23 @@ public class VideoStreamsController(ILogger<VideoStreamsController> logger, IVid
     {
         (int? streamGroupId, int? streamGroupProfileId, int? smChannelId) = await streamGroupService.DecodeProfileIdSMChannelIdFromEncodedAsync(encodedIds);
 
-        (Stream? stream, IClientConfiguration? clientConfiguration, string? RedirectUrl) = await videoService.GetStreamAsync(streamGroupId, streamGroupProfileId, smChannelId, cancellationToken);
+        StreamResult streamResult = await videoService.GetStreamAsync(streamGroupId, streamGroupProfileId, smChannelId, cancellationToken);
 
-        if (!string.IsNullOrEmpty(RedirectUrl))
+        if (!string.IsNullOrEmpty(streamResult.RedirectUrl))
         {
-            logger.LogInformation("Channel with ChannelId {channelId} {name} redirecting", smChannelId, clientConfiguration?.SMChannel.Name ?? name);
-            return Redirect(RedirectUrl);
+            logger.LogInformation("Channel with ChannelId {channelId} {name} redirecting", smChannelId, streamResult.ClientConfiguration?.SMChannel.Name ?? name);
+            return Redirect(streamResult.RedirectUrl);
         }
 
-        if (stream == null || clientConfiguration == null)
+        if (streamResult.Stream == null || streamResult.ClientConfiguration == null)
         {
-            logger.LogInformation("Channel with ChannelId {channelId} {name} failed", smChannelId, clientConfiguration?.SMChannel.Name ?? name);
+            logger.LogInformation("Channel with ChannelId {channelId} {name} failed", smChannelId, streamResult.ClientConfiguration?.SMChannel.Name ?? name);
             return StatusCode(StatusCodes.Status404NotFound);
         }
 
-        HttpContext.Response.RegisterForDispose(new UnregisterClientOnDispose(channelManager, clientConfiguration, logger));
+        HttpContext.Response.RegisterForDispose(new UnregisterClientOnDispose(channelManager, streamResult.ClientConfiguration, logger));
 
-        return stream != null ? new FileStreamResult(stream, "video/mp4") { EnableRangeProcessing = false } : StatusCode(StatusCodes.Status404NotFound);
+        return streamResult.Stream != null ? new FileStreamResult(streamResult.Stream, "video/mp4") { EnableRangeProcessing = false } : StatusCode(StatusCodes.Status404NotFound);
     }
     private class UnregisterClientOnDispose(IChannelManager channelManager, IClientConfiguration config, ILogger logger) : IDisposable
     {

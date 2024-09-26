@@ -8,7 +8,6 @@ public class CommandExecutor(ILogger<CommandExecutor> logger) : ICommandExecutor
         Stopwatch stopwatch = Stopwatch.StartNew();
         try
         {
-
             string? exec = FileUtil.GetExec(commandProfile.Command);
             if (exec == null)
             {
@@ -22,8 +21,10 @@ public class CommandExecutor(ILogger<CommandExecutor> logger) : ICommandExecutor
                 prefix = $"{prefix} -ss {secondsIn}";
             }
 
+            string cmd = BuildCommand(commandProfile.Parameters, clientUserAgent, streamUrl);
+
             string options = streamUrl.Contains("://")
-            ? $"{prefix} -user_agent \"{clientUserAgent}\" -fflags +genpts+discardcorrupt -thread_queue_size 1024 -reconnect_on_network_error 1 -reconnect_on_http_error 5xx,4xx -reconnect_streamed 1 -reconnect_delay_max 2 -reconnect 1 -i \"{streamUrl}\"  {commandProfile.Parameters} -f mpegts -muxdelay 0.001 -max_interleave_delta 0 -copyts pipe:1"
+            ? cmd
             : $"{prefix} -i \"{streamUrl}\" {commandProfile.Parameters} -f mpegts pipe:1";
 
             using Process process = new();
@@ -60,6 +61,14 @@ public class CommandExecutor(ILogger<CommandExecutor> logger) : ICommandExecutor
             stopwatch.Stop();
         }
     }
+
+    private static string BuildCommand(string command, string clientUserAgent, string streamUrl)
+    {
+        // Replace placeholders with the provided values, properly quoted
+        return command.Replace("{clientUserAgent}", '"' + clientUserAgent + '"')
+                      .Replace("{streamUrl}", '"' + streamUrl + '"');
+    }
+
     private static void ConfigureProcess(Process process, string commandExec, string formattedArgs)
     {
         process.StartInfo.FileName = commandExec;
