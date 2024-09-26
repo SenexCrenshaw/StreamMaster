@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+
 using StreamMaster.Application.EPGFiles.Commands;
 
 namespace StreamMaster.Application.EPGFiles;
@@ -48,6 +49,7 @@ public interface IEPGFileHub
 
 public interface IEPGFileTasks
 {
+    ValueTask EPGSync(CancellationToken cancellationToken = default);
     ValueTask ProcessEPGFile(int EPGFileId, CancellationToken cancellationToken = default);
 
     ValueTask ScanDirectoryForEPGFiles(CancellationToken cancellationToken = default);

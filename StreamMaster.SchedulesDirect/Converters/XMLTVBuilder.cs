@@ -122,7 +122,6 @@ public class XMLTVBuilder : IXMLTVBuilder
             url = "https" + url[3..];
         }
         return url;
-
     }
     private void ProcessServices(List<MxfService> services, XMLTV xmlTv, OutputProfileDto outputProfile, List<VideoStreamConfig>? videoStreamConfigs = null)
     {
@@ -144,17 +143,30 @@ public class XMLTVBuilder : IXMLTVBuilder
 
             _dataPreparationService.AdjustServiceSchedules(service);
 
-            List<MxfScheduleEntry> scheduleEntries = service.MxfScheduleEntries.ScheduleEntry;
-            int timeShift = _dataPreparationService.GetTimeShift(videoStreamConfig, epgFiles);
-
-            List<XmltvProgramme> xmltvProgrammes = scheduleEntries.AsParallel().Select(scheduleEntry =>
-                _programBuilder.BuildXmltvProgram(scheduleEntry, channel.Id, timeShift, baseUrl)).ToList();
+            List<XmltvProgramme> xmltvProgrammes = GetPrograms(service, videoStreamConfigs, baseUrl, channel.Id, epgFiles);
 
             lock (xmlTv.Programs)
             {
                 xmlTv.Programs.AddRange(xmltvProgrammes);
             }
         });
+    }
+
+    private List<XmltvProgramme> GetPrograms(MxfService mxfService, List<VideoStreamConfig> videoStreamConfigs, string baseUrl, string ChannelId, List<EPGFile> epgFiles)
+    {
+        VideoStreamConfig? videoStreamConfig = videoStreamConfigs.Find(a => mxfService.StationId == a.EPGId);
+        return videoStreamConfig == null ? ([]) : GetPrograms(mxfService, baseUrl, ChannelId, videoStreamConfig, epgFiles);
+    }
+
+    public List<XmltvProgramme> GetPrograms(MxfService mxfService, string baseUrl, string ChannelId, VideoStreamConfig? videoStreamConfig, List<EPGFile>? epgFiles)
+    {
+        List<MxfScheduleEntry> scheduleEntries = mxfService.MxfScheduleEntries.ScheduleEntry;
+        int timeShift = (epgFiles == null || videoStreamConfig == null) ? 0 : _dataPreparationService.GetTimeShift(videoStreamConfig, epgFiles);
+
+        List<XmltvProgramme> xmltvProgrammes = scheduleEntries.AsParallel().Select(scheduleEntry =>
+            _programBuilder.BuildXmltvProgram(scheduleEntry, ChannelId, timeShift, baseUrl)).ToList();
+
+        return xmltvProgrammes;
     }
 
     private static void SortXmlTvEntries(XMLTV xmlTv)

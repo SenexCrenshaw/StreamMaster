@@ -60,7 +60,6 @@ public partial class StreamGroupsController
 
         string json = await StreamGroupService.GetStreamGroupDiscover(streamGroupProfileId.Value, HttpContext.Request).ConfigureAwait(false);
 
-        //string json = await Sender.Send(new GetStreamGroupDiscover(streamGroupProfileId.Value, false)).ConfigureAwait(false);
         return new ContentResult
         {
             Content = json,

@@ -2,7 +2,6 @@
 using StreamMaster.Application.EPGFiles;
 using StreamMaster.Application.Logos;
 using StreamMaster.Application.M3UFiles;
-using StreamMaster.Application.Programmes;
 using StreamMaster.Application.Settings;
 
 namespace StreamMaster.Application.Interfaces;
@@ -13,7 +12,6 @@ public interface ISharedTasks :
     IM3UFileTasks,
     ILogoTasks,
     ICustomPlayListsTasks,
-    IProgrammeChannelTasks,
     ISettingTasks
 {
 }

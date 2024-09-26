@@ -3,6 +3,7 @@ import SMPopUp from '@components/sm/SMPopUp';
 import { SMStreamInfo } from '@lib/smAPI/smapiTypes';
 
 import { ScrollPanel } from 'primereact/scrollpanel';
+import { Tooltip } from 'primereact/tooltip';
 import { useMemo } from 'react';
 
 type StreamInfoDisplayProps = {
@@ -21,6 +22,7 @@ export const StreamInfoDisplay: React.FC<StreamInfoDisplayProps> = ({ streamInfo
 
     return (
       <SMCard darkBackGround>
+        <Tooltip target=".custom-target-icon" />
         <div className="flex flex-column">
           <div className="flex sm-start-stuff">
             <div className="text-container sm-w-3">Command Profile:</div>
@@ -32,7 +34,15 @@ export const StreamInfoDisplay: React.FC<StreamInfoDisplayProps> = ({ streamInfo
           </div>
           <div className="flex sm-start-stuff">
             <div className="text-container sm-w-3">Parameters:</div>
-            <div className="text-container">{streamInfo.CommandProfile.Parameters}</div>
+            <div
+              className="text-container custom-target-icon"
+              data-pr-tooltip={streamInfo.CommandProfile.Parameters}
+              data-pr-position="right"
+              data-pr-at="right+5 top"
+              data-pr-my="left center-2"
+            >
+              {streamInfo.CommandProfile.Parameters}
+            </div>
           </div>
         </div>
       </SMCard>

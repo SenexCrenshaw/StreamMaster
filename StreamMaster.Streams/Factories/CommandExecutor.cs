@@ -41,7 +41,7 @@ public class CommandExecutor(ILogger<CommandExecutor> logger) : ICommandExecutor
             }
             stopwatch.Stop();
 
-            logger.LogInformation("Opened command with args \"{options}\" in {ElapsedMilliseconds} ms", options, stopwatch.ElapsedMilliseconds);
+            logger.LogInformation("Opened command with args \"{options}\" in {ElapsedMilliseconds} ms", commandProfile.Command + ' ' + commandProfile.Parameters, stopwatch.ElapsedMilliseconds);
             return (process.StandardOutput.BaseStream, process.Id, null);
         }
         catch (OperationCanceledException ex)

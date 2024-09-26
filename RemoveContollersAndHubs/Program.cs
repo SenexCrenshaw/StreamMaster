@@ -8,11 +8,19 @@
             FileInfo[] files = di.GetFiles("ControllerAndHub.cs", SearchOption.AllDirectories);
             foreach (FileInfo file in files)
             {
+                if (file.FullName.Contains("StreamGroupsController"))
+                {
+                    continue;
+                }
                 File.Delete(file.FullName);
             }
             files = di.GetFiles("IControllerAndHub.cs", SearchOption.AllDirectories);
             foreach (FileInfo file in files)
             {
+                if (file.FullName.Contains("StreamGroupsController"))
+                {
+                    continue;
+                }
                 File.Delete(file.FullName);
             }
         }

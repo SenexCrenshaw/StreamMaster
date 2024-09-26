@@ -15,4 +15,9 @@ public partial class BackgroundTaskQueue : IEPGFileTasks
     {
         await QueueAsync(SMQueCommand.ScanDirectoryForEPGFiles, cancellationToken).ConfigureAwait(false);
     }
+
+    public async ValueTask EPGSync(CancellationToken cancellationToken = default)
+    {
+        await QueueAsync(SMQueCommand.EPGSync, cancellationToken).ConfigureAwait(false);
+    }
 }
