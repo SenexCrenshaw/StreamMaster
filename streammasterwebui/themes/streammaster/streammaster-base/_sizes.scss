@@ -33,6 +33,13 @@
     align-items: center;
 }
 
+.sm-end-stuff-col {
+    display: flex;
+    flex-direction: column;
+    justify-content: end;
+    align-items: end;
+}
+
 .sm-w-1-5rem {
     flex: 0 0 1.5rem;
     min-width: 1.5rem !important;

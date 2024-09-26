@@ -59,10 +59,17 @@ const CreateCommandProfileDialog = () => {
       zIndex={12}
     >
       <>
-        <div className="sm-between-stuff gap-1">
+        <div className="sm-end-stuff-col pr-2">
+          <div>
+            <div>Substitutions:</div>
+            <div>{'{clientUserAgent} - User Agent'}</div>
+            <div>{'{streamUrl} - Stream URL'}</div>
+          </div>
+        </div>
+        <div className="sm-center-stuff gap-1">
           <div className="layout-padding-bottom-lg" />
-          <div className="w-6 sm-between-stuff">
-            <div className="w-6">
+          <div className="w-4 sm-between-stuff">
+            <div className="w-12">
               <StringEditor
                 autoFocus
                 label="Name"
@@ -80,8 +87,6 @@ const CreateCommandProfileDialog = () => {
                 }}
                 value={AddCommandProfileRequest.ProfileName}
               />
-            </div>
-            <div className="w-6">
               <StringEditor
                 label="Command"
                 placeholder="Command"
@@ -100,7 +105,7 @@ const CreateCommandProfileDialog = () => {
               />
             </div>
           </div>
-          <div className="sm-w-6">
+          <div className="sm-w-8">
             <StringEditor
               isLarge
               label="Parameters"
@@ -120,7 +125,6 @@ const CreateCommandProfileDialog = () => {
             />
           </div>
         </div>
-
         <div className="layout-padding-bottom-lg sm-headerBg border-radius-bottom" />
       </>
     </SMPopUp>
