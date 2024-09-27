@@ -19,6 +19,7 @@ public class RepositoryWrapper(
     ILogger<SMChannelsRepository> SMChannelLogger,
     ILogger<StreamGroupProfileRepository> StreamGroupProfileRepositoryLogger,
     ILogger<SMStreamRepository> SMStreamLogger,
+    ILogger<SMChannelChannelLinksRepository> SMChannelChannelLinkLogger,
     ILogger<SMChannelStreamLinksRepository> SMChannelStreamLinkLogger,
     ILogger<StreamGroupSMChannelLinkRepository> StreamGroupSMChannelLinkRepositoryLogger,
     ISchedulesDirectDataService schedulesDirectDataService,
@@ -56,8 +57,17 @@ public class RepositoryWrapper(
         }
     }
 
-    private ISMChannelStreamLinksRepository _smChannelStreamLink;
+    private ISMChannelChannelLinksRepository _smChannelChannelLink;
+    public ISMChannelChannelLinksRepository SMChannelChannelLink
+    {
+        get
+        {
+            _smChannelChannelLink ??= new SMChannelChannelLinksRepository(SMChannelChannelLinkLogger, repositoryContext);
+            return _smChannelChannelLink;
+        }
+    }
 
+    private ISMChannelStreamLinksRepository _smChannelStreamLink;
     public ISMChannelStreamLinksRepository SMChannelStreamLink
     {
         get

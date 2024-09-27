@@ -39,7 +39,7 @@ public class StreamLimitsService(ILogger<StreamLimitsService> logger, ICacheMana
 
         foreach (IChannelBroadcaster channelStatus in channelStatuses)
         {
-            SMStreamDto? smStream = channelStatus.SMChannel.SMStreams.Find(a => a.Id == channelStatus.SMStreamInfo!.Id);
+            SMStreamDto? smStream = channelStatus.SMChannel.SMStreamDtos.Find(a => a.Id == channelStatus.SMStreamInfo!.Id);
 
             if (smStream != null)
             {

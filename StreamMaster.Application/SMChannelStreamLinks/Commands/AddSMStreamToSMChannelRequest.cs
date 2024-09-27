@@ -9,36 +9,32 @@ internal class AddSMStreamToSMChannelRequestHandler(IRepositoryWrapper Repositor
 {
     public async Task<APIResponse> Handle(AddSMStreamToSMChannelRequest request, CancellationToken cancellationToken)
     {
-        APIResponse res = await Repository.SMChannel.AddSMStreamToSMChannel(request.SMChannelId, request.SMStreamId, request.Rank).ConfigureAwait(false);
-        if (res.IsError)
-        {
-            return APIResponse.ErrorWithMessage(res.ErrorMessage);
-        }
 
         SMChannel? smChannel = Repository.SMChannel.GetSMChannel(request.SMChannelId);
-        if (smChannel != null)
+        if (smChannel == null)
         {
-            //SMChannel.SMStreams.Add
-            await Repository.SMChannelStreamLink.CreateSMChannelStreamLink(smChannel.Id, request.SMStreamId, null);
-            await Repository.SaveAsync();
-            //DataResponse<List<SMStreamDto>> streams = await Sender.Send(new UpdateStreamRanksRequest(SMChannel.Id, SMChannel.SMStreams.Select(a => a.SMStream.Id).ToList()), cancellationToken);
-
-            //GetSMChannelStreamsRequest re = new(request.Id);
-
-            //List<SMStreamDto> dtos = Mapper.Map<List<SMStreamDto>>(SMChannel.SMStreams.Select(a => a.SMStream));
-
-            //List<FieldData> ret =
-            //[
-            //    new("GetSMChannelStreams", re, streams.Data),
-            //    new(SMChannel.APIName, SMChannel.Id, "SMStreams",streams.Data)
-            //];
-            await dataRefreshService.RefreshSMChannelStreamLinks();
-            await dataRefreshService.RefreshSMChannels();
-            await dataRefreshService.RefreshSMStreams();
-            //await dataRefreshService.SetField(ret).ConfigureAwait(false);
-
+            return APIResponse.ErrorWithMessage($"Channel with Id {request.SMChannelId} or stream with Id {request.SMStreamId} not found");
         }
 
-        return res;
+
+        await Repository.SMChannelStreamLink.CreateSMChannelStreamLink(smChannel.Id, request.SMStreamId, request.Rank);
+        await Repository.SaveAsync();
+        //DataResponse<List<SMStreamDto>> streams = await Sender.Send(new UpdateStreamRanksRequest(SMChannel.Id, SMChannel.SMStreams.Select(a => a.SMStream.Id).ToList()), cancellationToken);
+
+        //GetSMChannelStreamsRequest re = new(request.Id);
+
+        //List<SMStreamDto> dtos = Mapper.Map<List<SMStreamDto>>(SMChannel.SMStreams.Select(a => a.SMStream));
+
+        //List<FieldData> ret =
+        //[
+        //    new("GetSMChannelStreams", re, streams.Data),
+        //    new(SMChannel.APIName, SMChannel.Id, "SMStreams",streams.Data)
+        //];
+        await dataRefreshService.RefreshSMChannelStreamLinks();
+        await dataRefreshService.RefreshSMChannels();
+        await dataRefreshService.RefreshSMStreams();
+        //await dataRefreshService.SetField(ret).ConfigureAwait(false);
+
+        return APIResponse.Success;
     }
 }

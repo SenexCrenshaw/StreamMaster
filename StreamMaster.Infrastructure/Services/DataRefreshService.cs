@@ -23,6 +23,7 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
         await RefreshProfiles(true);
         await RefreshSchedulesDirect(true);
         await RefreshSettings(true);
+        await RefreshSMChannelChannelLinks(true);
         await RefreshSMChannels(true);
         await RefreshSMChannelStreamLinks(true);
         await RefreshSMStreams(true);
@@ -158,6 +159,17 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
         }
 
         await hub.Clients.All.DataRefresh("GetSettings");
+    }
+
+    public async Task RefreshSMChannelChannelLinks(bool alwaysRun = false)
+    {
+
+        if (!alwaysRun && !BuildInfo.IsSystemReady)
+        {
+            return;
+        }
+
+        await hub.Clients.All.DataRefresh("GetSMChannelChannels");
     }
 
     public async Task RefreshSMChannels(bool alwaysRun = false)

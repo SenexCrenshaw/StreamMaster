@@ -7,7 +7,6 @@ using Microsoft.Extensions.DependencyInjection;
 using StreamMaster.Application.Interfaces;
 using StreamMaster.Domain.API;
 using StreamMaster.Domain.Configuration;
-using StreamMaster.Domain.Exceptions;
 using StreamMaster.Domain.Filtering;
 using StreamMaster.Domain.Helpers;
 using StreamMaster.Infrastructure.EF.Helpers;
@@ -31,12 +30,23 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IImag
 
     public List<SMChannelDto> GetSMChannels()
     {
-        return [.. GetQuery().Include(a => a.SMStreams).ThenInclude(a => a.SMStream).ProjectTo<SMChannelDto>(mapper.ConfigurationProvider)];
+        return [.. GetQuery()
+            .Include(a => a.SMStreams)
+            .ThenInclude(a => a.SMStream)
+             .Include(a => a.SMChannels)
+            .ThenInclude(a => a.SMChannel)
+             .Include(a => a.StreamGroups)
+            .ProjectTo<SMChannelDto>(mapper.ConfigurationProvider)];
     }
 
     public async Task<APIResponse> SetSMChannelsCommandProfileName(List<int> sMChannelIds, string CommandProfileName)
     {
-        IQueryable<SMChannel> toUpdate = GetQuery(tracking: true).Where(a => sMChannelIds.Contains(a.Id));
+        IQueryable<SMChannel> toUpdate = GetQuery(tracking: true).Include(a => a.SMStreams)
+            .ThenInclude(a => a.SMStream)
+             .Include(a => a.SMChannels)
+            .ThenInclude(a => a.SMChannel)
+             .Include(a => a.StreamGroups)
+             .Where(a => sMChannelIds.Contains(a.Id));
         return await SetSMChannelsCommandProfileName(toUpdate, CommandProfileName);
     }
 
@@ -194,7 +204,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IImag
 
     public SMChannel? GetSMChannel(int smchannelId)
     {
-        return FirstOrDefault(a => a.Id == smchannelId, tracking: false);
+        return GetQuery().FirstOrDefault(a => a.Id == smchannelId);
     }
 
     private SMChannel? CreateSMChannelFromStreamNoLink(SMStream smStream, int? M3UFileId = null)
@@ -335,37 +345,6 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IImag
         return currentChannelNumber;
     }
 
-    public async Task<APIResponse> AddSMStreamToSMChannel(int SMChannelId, string SMStreamId, int? Rank)
-    {
-        SMChannel? smChannel = GetSMChannel(SMChannelId);
-        if (smChannel == null || repository.SMStream.GetSMStream(SMStreamId) == null)
-        {
-            throw new APIException($"Channel with Id {SMChannelId} or stream with Id {SMStreamId} not found");
-        }
-
-        await repository.SMChannelStreamLink.CreateSMChannelStreamLink(smChannel.Id, SMStreamId, Rank);
-        _ = await SaveChangesAsync();
-
-        return APIResponse.Success;
-    }
-
-    public async Task<APIResponse> RemoveSMStreamFromSMChannel(int SMChannelId, string SMStreamId)
-    {
-        IQueryable<SMChannelStreamLink> toDelete = repository.SMChannelStreamLink.GetQuery(true).Where(a => a.SMChannelId == SMChannelId && a.SMStreamId == SMStreamId);
-        if (!toDelete.Any())
-        {
-            throw new APIException($"Channel with id {SMChannelId} does not contain stream with Id {SMStreamId}");
-        }
-        await repository.SMChannelStreamLink.DeleteSMChannelStreamLinks(toDelete);
-
-        return APIResponse.Success;
-    }
-
-    public async Task<APIResponse> SetSMStreamRanks(List<SMChannelRankRequest> request)
-    {
-        return await repository.SMChannelStreamLink.SetSMStreamRank(request);
-    }
-
     public async Task<APIResponse> SetSMChannelLogo(int SMChannelId, string logo)
     {
         SMChannel? channel = GetSMChannel(SMChannelId);
@@ -384,13 +363,13 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IImag
     public override IQueryable<SMChannel> GetQuery(bool tracking = false)
     {
         return tracking
-            ? base.GetQuery(tracking).Include(a => a.SMStreams).ThenInclude(a => a.SMStream).Include(a => a.StreamGroups)
-            : base.GetQuery(tracking).Include(a => a.SMStreams).ThenInclude(a => a.SMStream).Include(a => a.StreamGroups).AsNoTracking();
+            ? base.GetQuery(tracking).Include(a => a.SMChannels).ThenInclude(a => a.SMChannel).Include(a => a.SMStreams).ThenInclude(a => a.SMStream).Include(a => a.StreamGroups)
+            : base.GetQuery(tracking).Include(a => a.SMChannels).ThenInclude(a => a.SMChannel).Include(a => a.SMStreams).ThenInclude(a => a.SMStream).Include(a => a.StreamGroups).AsNoTracking();
     }
 
     public override IQueryable<SMChannel> GetQuery(Expression<Func<SMChannel, bool>> expression, bool tracking = false)
     {
-        return base.GetQuery(expression, tracking).Include(a => a.SMStreams).ThenInclude(a => a.SMStream);
+        return base.GetQuery(expression, tracking).Include(a => a.SMChannels).ThenInclude(a => a.SMChannel).Include(a => a.SMStreams).ThenInclude(a => a.SMStream).Include(a => a.StreamGroups);
     }
 
     public async Task<APIResponse> SetSMChannelChannelNumber(int sMChannelId, int channelNumber)
@@ -901,16 +880,16 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IImag
 
         return await channels.ToListAsync();
     }
-    public SMChannel? GetSMChannelFromStreamGroup(int smChannelId, int streamGroupId)
+    public async Task<SMChannel?> GetSMChannelFromStreamGroupAsync(int smChannelId, int streamGroupId)
     {
-        IQueryable<SMChannel> channels = RepositoryContext.StreamGroupSMChannelLinks
-            .Where(a => a.StreamGroupId == streamGroupId && a.SMChannelId == smChannelId)
-            .Include(a => a.SMChannel)
-            .ThenInclude(a => a.SMStreams)
-            .ThenInclude(a => a.SMStream)
-            .Select(a => a.SMChannel);
-        SMChannel? ret = channels.FirstOrDefault();
-        return channels.FirstOrDefault();
+        StreamGroupSMChannelLink? link = await RepositoryContext.StreamGroupSMChannelLinks.FirstOrDefaultAsync(a => a.StreamGroupId == streamGroupId && a.SMChannelId == smChannelId);
+        if (link == null)
+        {
+            return null;
+        }
+        SMChannel? smChannel = GetQuery().FirstOrDefault(a => a.Id == smChannelId);
+
+        return smChannel;
     }
 
     public async Task<APIResponse> SetSMChannelsGroup(List<int> sMChannelIds, string GroupName)

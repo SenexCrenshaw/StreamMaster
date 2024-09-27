@@ -1,6 +1,6 @@
 import { isSkipToken } from '@lib/common/isSkipToken';
 import SignalRService from '@lib/signalr/SignalRService';
-import { APIResponse,AutoSetEPGFromParametersRequest,AutoSetEPGRequest,AutoSetSMChannelNumbersFromParametersRequest,AutoSetSMChannelNumbersRequest,CopySMChannelRequest,CreateSMChannelRequest,CreateSMChannelsFromStreamParametersRequest,CreateSMChannelsFromStreamsRequest,DeleteSMChannelRequest,DeleteSMChannelsFromParametersRequest,DeleteSMChannelsRequest,SetSMChannelEPGIdRequest,SetSMChannelGroupRequest,SetSMChannelLogoRequest,SetSMChannelNameRequest,SetSMChannelNumberRequest,SetSMChannelsGroupFromParametersRequest,SetSMChannelsGroupRequest,SetSMChannelsLogoFromEPGFromParametersRequest,SetSMChannelsLogoFromEPGRequest,SetSMChannelsCommandProfileNameFromParametersRequest,SetSMChannelsCommandProfileNameRequest,SetSMChannelCommandProfileNameRequest,ToggleSMChannelsVisibleByIdRequest,ToggleSMChannelVisibleByIdRequest,ToggleSMChannelVisibleByParametersRequest,UpdateSMChannelRequest,SMChannelDto,NameLogo,IdNameUrl,PagedResponse,QueryStringParameters } from '@lib/smAPI/smapiTypes';
+import { APIResponse,AutoSetEPGFromParametersRequest,AutoSetEPGRequest,AutoSetSMChannelNumbersFromParametersRequest,AutoSetSMChannelNumbersRequest,CopySMChannelRequest,CreateMultiViewChannelRequest,CreateSMChannelRequest,CreateSMChannelsFromStreamParametersRequest,CreateSMChannelsFromStreamsRequest,DeleteSMChannelRequest,DeleteSMChannelsFromParametersRequest,DeleteSMChannelsRequest,SetSMChannelEPGIdRequest,SetSMChannelGroupRequest,SetSMChannelLogoRequest,SetSMChannelNameRequest,SetSMChannelNumberRequest,SetSMChannelsGroupFromParametersRequest,SetSMChannelsGroupRequest,SetSMChannelsLogoFromEPGFromParametersRequest,SetSMChannelsLogoFromEPGRequest,SetSMChannelsCommandProfileNameFromParametersRequest,SetSMChannelsCommandProfileNameRequest,SetSMChannelCommandProfileNameRequest,ToggleSMChannelsVisibleByIdRequest,ToggleSMChannelVisibleByIdRequest,ToggleSMChannelVisibleByParametersRequest,UpdateMultiViewChannelRequest,UpdateSMChannelRequest,SMChannelDto,NameLogo,IdNameUrl,PagedResponse,QueryStringParameters } from '@lib/smAPI/smapiTypes';
 
 export const GetPagedSMChannels = async (parameters: QueryStringParameters): Promise<PagedResponse<SMChannelDto> | undefined> => {
   if (isSkipToken(parameters) || parameters === undefined) {
@@ -48,6 +48,11 @@ export const AutoSetSMChannelNumbers = async (request: AutoSetSMChannelNumbersRe
 export const CopySMChannel = async (request: CopySMChannelRequest): Promise<APIResponse | undefined> => {
   const signalRService = SignalRService.getInstance();
   return await signalRService.invokeHubCommand<APIResponse>('CopySMChannel', request);
+};
+
+export const CreateMultiViewChannel = async (request: CreateMultiViewChannelRequest): Promise<APIResponse | undefined> => {
+  const signalRService = SignalRService.getInstance();
+  return await signalRService.invokeHubCommand<APIResponse>('CreateMultiViewChannel', request);
 };
 
 export const CreateSMChannel = async (request: CreateSMChannelRequest): Promise<APIResponse | undefined> => {
@@ -153,6 +158,11 @@ export const ToggleSMChannelVisibleById = async (request: ToggleSMChannelVisible
 export const ToggleSMChannelVisibleByParameters = async (request: ToggleSMChannelVisibleByParametersRequest): Promise<APIResponse | undefined> => {
   const signalRService = SignalRService.getInstance();
   return await signalRService.invokeHubCommand<APIResponse>('ToggleSMChannelVisibleByParameters', request);
+};
+
+export const UpdateMultiViewChannel = async (request: UpdateMultiViewChannelRequest): Promise<APIResponse | undefined> => {
+  const signalRService = SignalRService.getInstance();
+  return await signalRService.invokeHubCommand<APIResponse>('UpdateMultiViewChannel', request);
 };
 
 export const UpdateSMChannel = async (request: UpdateSMChannelRequest): Promise<APIResponse | undefined> => {

@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
 using StreamMaster.Domain.Events;
@@ -9,7 +10,7 @@ using System.Collections.Concurrent;
 
 namespace StreamMaster.Streams.Handlers
 {
-    public class VideoCombinerService(ILogger<IBroadcasterBase> logger, IClientConfigurationService clientConfigurationService, IOptionsMonitor<Setting> _settings, IServiceProvider serviceProvider)
+    public class VideoCombinerService(ILogger<IBroadcasterBase> logger, IMapper Mapper, IClientConfigurationService clientConfigurationService, IOptionsMonitor<Setting> _settings, IServiceProvider serviceProvider)
         : IVideoCombinerService
     {
         public event AsyncEventHandler<VideoCombinerStopped>? OnVideoCombinerStoppedEvent;
@@ -43,33 +44,27 @@ namespace StreamMaster.Streams.Handlers
                 using IServiceScope scope = serviceProvider.CreateScope();
                 IRepositoryWrapper repositoryWrapper = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
 
-                IChannelBroadcaster? smChannelBroadcaster1 = await GetBroadcaster(repositoryWrapper, channelService, SMChannelId1, streamGroupProfileId, config, cancellationToken);
-                if (smChannelBroadcaster1 == null)
+                int[] smChannelIds = [SMChannelId1, SMChannelId2, SMChannelId3, SMChannelId4];
+                Dictionary<int, SMChannel> smChannels = await repositoryWrapper.SMChannel.GetQuery()
+                    .Where(a => smChannelIds.Contains(a.Id))
+                    .ToDictionaryAsync(a => a.Id, cancellationToken: cancellationToken);
+
+                // Check if all required channels are present
+                List<int> missingIds = smChannelIds.Except(smChannels.Keys).ToList();
+
+                if (missingIds.Any())
                 {
+                    foreach (int missingId in missingIds)
+                    {
+                        logger.LogError("{SMChannelId} not found", missingId);
+                    }
                     return null;
                 }
 
-                IChannelBroadcaster? smChannelBroadcaster2 = await GetBroadcaster(repositoryWrapper, channelService, SMChannelId2, streamGroupProfileId, config, cancellationToken);
-                if (smChannelBroadcaster2 == null)
-                {
-                    return null;
-                }
-
-                IChannelBroadcaster? smChannelBroadcaster3 = await GetBroadcaster(repositoryWrapper, channelService, SMChannelId3, streamGroupProfileId, config, cancellationToken);
-                if (smChannelBroadcaster3 == null)
-                {
-                    return null;
-                }
-
-                IChannelBroadcaster? smChannelBroadcaster4 = await GetBroadcaster(repositoryWrapper, channelService, SMChannelId4, streamGroupProfileId, config, cancellationToken);
-                if (smChannelBroadcaster4 == null)
-                {
-                    return null;
-                }
 
                 videoCombiner = new VideoCombiner(logger, config.SMChannel.Id, config.SMChannel.Name, _settings);
 
-                await videoCombiner.CombineVideosAsync(smChannelBroadcaster1, smChannelBroadcaster2, smChannelBroadcaster3, smChannelBroadcaster4, cancellationToken);
+                await videoCombiner.CombineVideosAsync(SMChannelId1, SMChannelId2, SMChannelId3, SMChannelId4, cancellationToken);
 
                 videoCombiners.TryAdd(config.SMChannel.Id, videoCombiner);
 
@@ -89,8 +84,9 @@ namespace StreamMaster.Streams.Handlers
                 logger.LogError("GetBroadcaster {smChannelId} not found", smChannelId);
                 return null;
             }
-            IClientConfiguration newConfig = clientConfigurationService.Copy(config);
 
+            IClientConfiguration newConfig = clientConfigurationService.Copy(config);
+            newConfig.SMChannel = Mapper.Map<SMChannelDto>(smChannel);
             IChannelBroadcaster? smChannel1Broadcaster = await channelService.GetOrCreateChannelBroadcasterAsync(newConfig, streamGroupProfileId);
             if (smChannel1Broadcaster == null)
             {

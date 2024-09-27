@@ -4,14 +4,14 @@ namespace StreamMaster.Application.SMChannelStreamLinks.Commands;
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record SetSMStreamRanksRequest(List<SMChannelRankRequest> Requests) : IRequest<APIResponse>;
+public record SetSMStreamRanksRequest(List<SMChannelStreamRankRequest> Requests) : IRequest<APIResponse>;
 
 internal class SetSMStreamRanksRequestHandler(IRepositoryWrapper Repository, ISender Sender, IDataRefreshService dataRefreshService)
     : IRequestHandler<SetSMStreamRanksRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(SetSMStreamRanksRequest request, CancellationToken cancellationToken)
     {
-        APIResponse ret = await Repository.SMChannel.SetSMStreamRanks(request.Requests).ConfigureAwait(false);
+        APIResponse ret = await Repository.SMChannelStreamLink.SetSMStreamRank(request.Requests);
         if (!ret.IsError)
         {
             List<FieldData> fieldDatas = [];

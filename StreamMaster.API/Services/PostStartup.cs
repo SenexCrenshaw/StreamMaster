@@ -20,7 +20,9 @@ public class PostStartup(ILogger<PostStartup> logger, IServiceProvider servicePr
         PGSQLRepositoryContext repositoryContext = scope.ServiceProvider.GetRequiredService<PGSQLRepositoryContext>();
         IDataRefreshService dataRefreshService = scope.ServiceProvider.GetRequiredService<IDataRefreshService>();
 
-        //ISchedulesDirectDataService schedulesDirectService = scope.ServiceProvider.GetRequiredService<ISchedulesDirectDataService>();
+        IStreamGroupService StreamGroupService = scope.ServiceProvider.GetRequiredService<IStreamGroupService>();
+        await StreamGroupService.GetDefaultSGIdAsync();
+
         repositoryContext.MigrateData();
 
         await taskQueue.EPGSync(cancellationToken).ConfigureAwait(false);

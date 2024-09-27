@@ -13,7 +13,7 @@
             try
             {
                 logger.LogInformation("Client {UniqueRequestId} requesting channel {Name}.", config.UniqueRequestId, config.SMChannel.Name);
-                await _registerSemaphore.WaitAsync(cancellationToken);
+                //await _registerSemaphore.WaitAsync(cancellationToken);
                 logger.LogInformation("Client {UniqueRequestId} requesting channel {Name} next.", config.UniqueRequestId, config.SMChannel.Name);
 
                 if (cancellationToken.IsCancellationRequested)
@@ -22,8 +22,7 @@
                     return null;
                 }
 
-                IChannelBroadcaster? channelStatus = await channelService.GetOrCreateChannelBroadcasterAsync(config, streamGroupProfileId);
-                if (channelStatus == null)
+                if (await channelService.GetOrCreateChannelBroadcasterAsync(config, streamGroupProfileId) == null)
                 {
                     await RemoveClientAsync(config);
                     logger.LogInformation("Exiting GetChannelStreamAsync:  {UniqueRequestId} channel {Name} status is null.", config.UniqueRequestId, config.SMChannel.Name);
@@ -37,7 +36,7 @@
             {
                 logger.LogInformation("Client {UniqueRequestId} requesting channel {Name} release.", config.UniqueRequestId, config.SMChannel.Name);
 
-                _ = _registerSemaphore.Release();
+                //_ = _registerSemaphore.Release();
             }
         }
 

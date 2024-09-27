@@ -31,6 +31,7 @@ import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import SMChannelMenu from './SMChannelMenu';
 import SMStreamDataSelectorValue from './SMStreamDataSelectorValue';
 import useSelectedSMItems from './useSelectedSMItems';
+import SMChannelDataSelectorValue from './SMChannelDataSelectorValue';
 
 interface SMChannelDataSelectorProperties {
   readonly enableEdit?: boolean;
@@ -64,6 +65,14 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id }: SMChannelDat
 
     if (channel.IsSystem === true) {
       return <div className="ml-3 m-1">Custom Stream</div>;
+    }
+
+    if (channel.SMChannelType.toString() === 'MultiView') {
+      return (
+        <div className="ml-3 m-1">
+          <SMChannelDataSelectorValue smChannel={channel} id={channel.Id + '-channels'} />
+        </div>
+      );
     }
 
     return (
@@ -230,6 +239,7 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id }: SMChannelDat
       <div className="flex flex-row justify-content-end align-items-center gap-1">
         <EPGFilesButton />
         <DeleteSMChannelsDialog selectedItemsKey="selectSelectedSMChannelDtoItems" id={dataKey} />
+        {/* <CreateMultiViewSMChannelDialog /> */}
         <CreateSMChannelDialog />
         <SMChannelMenu />
       </div>

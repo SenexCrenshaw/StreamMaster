@@ -34,9 +34,9 @@ public class VideoService(
         }
 
         // Ensure channel has streams
-        if (!ChannelHasStreams(smChannel))
+        if (!ChannelHasStreamsOrChannels(smChannel))
         {
-            logger.LogInformation("Channel with ChannelId {smChannelId} has no streams, exiting", smChannelId);
+            logger.LogInformation("Channel with ChannelId {smChannelId} has no streams or channels, exiting", smChannelId);
             return new StreamResult();
         }
 
@@ -73,12 +73,14 @@ public class VideoService(
         int defaultSGId = await streamGroupService.GetDefaultSGIdAsync();
         return streamGroupId == defaultSGId
             ? repositoryWrapper.SMChannel.GetSMChannel(smChannelId)
-            : repositoryWrapper.SMChannel.GetSMChannelFromStreamGroup(smChannelId, streamGroupId);
+            : await repositoryWrapper.SMChannel.GetSMChannelFromStreamGroupAsync(smChannelId, streamGroupId);
     }
 
-    private static bool ChannelHasStreams(SMChannel smChannel)
+    private static bool ChannelHasStreamsOrChannels(SMChannel smChannel)
     {
-        return smChannel.SMStreams.Count > 0 && !string.IsNullOrEmpty(smChannel.SMStreams.First().SMStream.Url);
+        return smChannel.SMChannelType == StreamMaster.Domain.Enums.SMChannelTypeEnum.MultiView
+            ? smChannel.SMChannels.Count > 0
+            : smChannel.SMStreams.Count > 0 && !string.IsNullOrEmpty(smChannel.SMStreams.First().SMStream.Url);
     }
 
     private IClientConfiguration CreateClientConfiguration(SMChannel smChannel, CancellationToken cancellationToken)

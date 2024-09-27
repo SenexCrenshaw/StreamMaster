@@ -12,11 +12,11 @@ using System.Xml.Serialization;
 using static StreamMaster.Domain.Common.GetStreamGroupEPGHandler;
 namespace StreamMaster.Application.StreamGroups;
 
-public class StreamGroupService(ILogger<StreamGroupService> _logger, ILogoService logoService, ICacheManager CacheManager, IMapper _mapper, IRepositoryWrapper repositoryWrapper, ISchedulesDirectDataService _schedulesDirectDataService, IOptionsMonitor<CommandProfileDict> _commandProfileSettings, IOptionsMonitor<Setting> _settings, IMemoryCache _memoryCache, IProfileService _profileService)
+public class StreamGroupService(ILogger<StreamGroupService> _logger, ILogoService logoService, ICacheManager CacheManager, IMapper _mapper, IRepositoryWrapper repositoryWrapper, ISchedulesDirectDataService _schedulesDirectDataService, IOptionsMonitor<CommandProfileDict> _commandProfileSettings, IOptionsMonitor<Setting> _settings, ICacheManager cacheManager, IProfileService _profileService)
     : IStreamGroupService
 {
     private const string DefaultStreamGroupName = "all";
-    private const string CacheKey = "DefaultStreamGroup";
+    //private const string CacheKey = "DefaultStreamGroup";
 
     #region CRYPTO
 
@@ -573,23 +573,15 @@ public class StreamGroupService(ILogger<StreamGroupService> _logger, ILogoServic
 
     public async Task<StreamGroup> GetDefaultSGAsync()
     {
-        if (_memoryCache.TryGetValue(CacheKey, out StreamGroup? streamGroup))
+        if (cacheManager.DefaultSG != null)
         {
-            if (streamGroup != null)
-            {
-                return streamGroup;
-            }
+            return cacheManager.DefaultSG;
         }
 
-        StreamGroup sg = await GetStreamGroupFromNameAsync(DefaultStreamGroupName).ConfigureAwait(false)
+        cacheManager.DefaultSG = await GetStreamGroupFromNameAsync(DefaultStreamGroupName).ConfigureAwait(false)
             ?? throw new Exception("StreamGroup 'All' not found");
 
-        _memoryCache.Set(CacheKey, sg, new MemoryCacheEntryOptions
-        {
-            Priority = CacheItemPriority.NeverRemove
-        });
-
-        return sg;
+        return cacheManager.DefaultSG;
     }
 
     public async Task<int> GetStreamGroupIdFromSGProfileIdAsync(int? streamGroupProfileId)

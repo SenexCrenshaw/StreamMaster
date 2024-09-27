@@ -169,7 +169,13 @@ internal class GetChannelMetricsRequestHandler(IRepositoryWrapper repositoryWrap
             string? metricLogo = null;
             if (!sourceBroadcaster.Id.Contains("://"))
             {
+              
                 metricLogo = customPlayListBuilder.GetCustomPlayListLogoFromFileName(sourceBroadcaster.Id);
+                if (string.IsNullOrEmpty(metricLogo))
+                {
+                    SMChannel? test = smChannels.Find(a => a.Id.ToString() == sourceBroadcaster.Id);
+                    metricLogo = test?.Logo ?? "";
+                }
                 metricLogo = logoService.GetLogoUrl(metricLogo, _baseUrl);
             }
             else

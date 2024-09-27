@@ -66,7 +66,11 @@ namespace StreamMaster.PlayList
         public string GetCustomPlayListLogoFromFileName(string FileName)
         {
             string dir = Path.GetDirectoryName(FileName);
-            string logoName = Path.GetFileNameWithoutExtension(FileName);
+            //string logoName = Path.GetFileNameWithoutExtension(FileName);
+            if (string.IsNullOrEmpty(dir) || !Directory.Exists(dir))
+            {
+                return string.Empty;
+            }
             string[] files = Directory.GetFiles(dir);
             string logo = files.FirstOrDefault(file => file.EndsWith("poster.png") || file.EndsWith($"poster.jpg")) ?? string.Empty;
             return logo;

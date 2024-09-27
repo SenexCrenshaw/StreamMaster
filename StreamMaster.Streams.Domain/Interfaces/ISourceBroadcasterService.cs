@@ -1,5 +1,4 @@
 ﻿using StreamMaster.Domain.Events;
-using StreamMaster.Domain.Models;
 
 using StreamMaster.Streams.Domain.Events;
 
@@ -31,10 +30,10 @@ namespace StreamMaster.Streams.Domain.Interfaces
         /// <summary>
         /// Gets or creates a channel distributor asynchronously.
         /// </summary>
-        /// <param name="smStreamInfo">The stream information for the channel.</param>
+        /// <param name="channelBroadcaster">The IChannelBroadcaster interface.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>The channel distributor if created; otherwise, <c>null</c>.</returns>
-        Task<ISourceBroadcaster?> GetOrCreateStreamBroadcasterAsync(SMStreamInfo smStreamInfo, CancellationToken cancellationToken);
+        Task<ISourceBroadcaster?> GetOrCreateStreamBroadcasterAsync(IChannelBroadcaster channelBroadcaster, CancellationToken cancellationToken);
 
         /// <summary>
         /// Stops and unregisters a channel distributor by its string key.

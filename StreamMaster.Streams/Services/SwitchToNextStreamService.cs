@@ -68,20 +68,27 @@ public sealed class SwitchToNextStreamService(ILogger<SwitchToNextStreamService>
 
         if (smStream == null || streamLimitsService.IsLimited(smStream))
         {
-            if (ChannelStatus.SMChannel.SMStreams.Count == 0)
+            //if (ChannelStatus.SMChannel.SMStreams.Count == 0)
+            //{
+            //    logger.LogError("Set Next for Channel {SourceName}, {Id} {Name} starting has no streams", ChannelStatus.SourceName, ChannelStatus.SMChannel.Id, ChannelStatus.SMChannel.Name);
+            //    ChannelStatus.SetSMStreamInfo(null);
+            //    return false;
+            //}
+
+            if (!ChannelHasStreamsOrChannels(ChannelStatus.SMChannel))
             {
                 logger.LogError("Set Next for Channel {SourceName}, {Id} {Name} starting has no streams", ChannelStatus.SourceName, ChannelStatus.SMChannel.Id, ChannelStatus.SMChannel.Name);
                 ChannelStatus.SetSMStreamInfo(null);
                 return false;
             }
 
-            List<SMStreamDto> smStreams = [.. ChannelStatus.SMChannel.SMStreams.OrderBy(a => a.Rank)];
+            List<SMStreamDto> smStreams = [.. ChannelStatus.SMChannel.SMStreamDtos.OrderBy(a => a.Rank)];
 
             bool isChannelLimited = true;
 
             while (isChannelLimited)
             {
-                if (ChannelStatus.SMChannel.CurrentRank + 1 >= ChannelStatus.SMChannel.SMStreams.Count)
+                if (ChannelStatus.SMChannel.CurrentRank + 1 >= ChannelStatus.SMChannel.SMStreamDtos.Count)
                 {
                     logger.LogInformation("Set Next for Channel {SourceName}, {Id} {Name} at end of stream list", ChannelStatus.SourceName, ChannelStatus.SMChannel.Id, ChannelStatus.SMChannel.Name);
                     break;
@@ -171,5 +178,12 @@ public sealed class SwitchToNextStreamService(ILogger<SwitchToNextStreamService>
         logger.LogDebug("Set Next for Channel {SourceName}, switched to {Id} {Name}", ChannelStatus.SourceName, smStreamInfo.Id, smStreamInfo.Name);
 
         return true;
+    }
+
+    private static bool ChannelHasStreamsOrChannels(SMChannelDto smChannel)
+    {
+        return smChannel.SMChannelType == SMChannelTypeEnum.MultiView
+            ? smChannel.SMChannelDtos.Count > 0
+            : smChannel.SMStreamDtos.Count > 0 && !string.IsNullOrEmpty(smChannel.SMStreamDtos.First().Url);
     }
 }

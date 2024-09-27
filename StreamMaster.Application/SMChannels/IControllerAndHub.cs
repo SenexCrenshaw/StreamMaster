@@ -15,6 +15,7 @@ namespace StreamMaster.Application.SMChannels
         Task<ActionResult<APIResponse>> AutoSetSMChannelNumbersFromParameters(AutoSetSMChannelNumbersFromParametersRequest request);
         Task<ActionResult<APIResponse>> AutoSetSMChannelNumbers(AutoSetSMChannelNumbersRequest request);
         Task<ActionResult<APIResponse>> CopySMChannel(CopySMChannelRequest request);
+        Task<ActionResult<APIResponse>> CreateMultiViewChannel(CreateMultiViewChannelRequest request);
         Task<ActionResult<APIResponse>> CreateSMChannel(CreateSMChannelRequest request);
         Task<ActionResult<APIResponse>> CreateSMChannelsFromStreamParameters(CreateSMChannelsFromStreamParametersRequest request);
         Task<ActionResult<APIResponse>> CreateSMChannelsFromStreams(CreateSMChannelsFromStreamsRequest request);
@@ -36,6 +37,7 @@ namespace StreamMaster.Application.SMChannels
         Task<ActionResult<APIResponse>> ToggleSMChannelsVisibleById(ToggleSMChannelsVisibleByIdRequest request);
         Task<ActionResult<APIResponse>> ToggleSMChannelVisibleById(ToggleSMChannelVisibleByIdRequest request);
         Task<ActionResult<APIResponse>> ToggleSMChannelVisibleByParameters(ToggleSMChannelVisibleByParametersRequest request);
+        Task<ActionResult<APIResponse>> UpdateMultiViewChannel(UpdateMultiViewChannelRequest request);
         Task<ActionResult<APIResponse>> UpdateSMChannel(UpdateSMChannelRequest request);
     }
 }
@@ -53,6 +55,7 @@ namespace StreamMaster.Application.Hubs
         Task<APIResponse> AutoSetSMChannelNumbersFromParameters(AutoSetSMChannelNumbersFromParametersRequest request);
         Task<APIResponse> AutoSetSMChannelNumbers(AutoSetSMChannelNumbersRequest request);
         Task<APIResponse> CopySMChannel(CopySMChannelRequest request);
+        Task<APIResponse> CreateMultiViewChannel(CreateMultiViewChannelRequest request);
         Task<APIResponse> CreateSMChannel(CreateSMChannelRequest request);
         Task<APIResponse> CreateSMChannelsFromStreamParameters(CreateSMChannelsFromStreamParametersRequest request);
         Task<APIResponse> CreateSMChannelsFromStreams(CreateSMChannelsFromStreamsRequest request);
@@ -74,6 +77,7 @@ namespace StreamMaster.Application.Hubs
         Task<APIResponse> ToggleSMChannelsVisibleById(ToggleSMChannelsVisibleByIdRequest request);
         Task<APIResponse> ToggleSMChannelVisibleById(ToggleSMChannelVisibleByIdRequest request);
         Task<APIResponse> ToggleSMChannelVisibleByParameters(ToggleSMChannelVisibleByParametersRequest request);
+        Task<APIResponse> UpdateMultiViewChannel(UpdateMultiViewChannelRequest request);
         Task<APIResponse> UpdateSMChannel(UpdateSMChannelRequest request);
     }
 }

@@ -6,6 +6,6 @@ namespace StreamMaster.Streams.Domain.Interfaces
     {
         int Id { get; }
         event EventHandler<VideoCombinerStopped>? OnVideoCombinerStoppedEvent;
-        Task CombineVideosAsync(IChannelBroadcaster channelBroadcaster1, IChannelBroadcaster channelBroadcaster2, IChannelBroadcaster channelBroadcaster3, IChannelBroadcaster channelBroadcaster4, CancellationToken cancellationToken);
+        Task CombineVideosAsync(int SMChannelId1, int SMChannelId2, int SMChannelId3, int SMChannelId4, CancellationToken cancellationToken);
     }
 }

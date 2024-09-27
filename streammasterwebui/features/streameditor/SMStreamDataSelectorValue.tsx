@@ -6,7 +6,7 @@ import { GetMessage } from '@lib/common/intl';
 import { Logger } from '@lib/common/logger';
 import { RemoveSMStreamFromSMChannel, SetSMStreamRanks } from '@lib/smAPI/SMChannelStreamLinks/SMChannelStreamLinksCommands';
 
-import { RemoveSMStreamFromSMChannelRequest, SMChannelDto, SMChannelRankRequest, SMStreamDto, SetSMStreamRanksRequest } from '@lib/smAPI/smapiTypes';
+import { RemoveSMStreamFromSMChannelRequest, SMChannelDto, SMChannelStreamRankRequest, SMStreamDto, SetSMStreamRanksRequest } from '@lib/smAPI/smapiTypes';
 import { DataTableValue } from 'primereact/datatable';
 import { memo, useCallback, useMemo } from 'react';
 interface SMStreamDataSelectorValueProperties {
@@ -88,8 +88,8 @@ const SMStreamDataSelectorValue = ({ id, smChannel }: SMStreamDataSelectorValueP
             return;
           }
 
-          const tosend: SMChannelRankRequest[] = channels.map((item, index) => {
-            return { Rank: index, SMChannelId: smChannel.Id, SMStreamId: item.Id } as SMChannelRankRequest;
+          const tosend: SMChannelStreamRankRequest[] = channels.map((item, index) => {
+            return { Rank: index, SMChannelId: smChannel.Id, SMStreamId: item.Id } as SMChannelStreamRankRequest;
           });
 
           SetSMStreamRanks({ Requests: tosend } as SetSMStreamRanksRequest)

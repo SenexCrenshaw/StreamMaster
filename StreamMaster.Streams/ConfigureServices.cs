@@ -18,9 +18,12 @@ public static class ConfigureServices
         services.AddSingleton<IStreamFactory, StreamFactory>();
         services.AddTransient<ICommandExecutor, CommandExecutor>();
         services.AddTransient<ICustomPlayListStream, CustomPlayListStream>();
+        services.AddTransient<IMultiViewPlayListStream, MultiViewPlayListStream>();
         services.AddTransient<IHTTPStream, HTTPStream>();
         services.AddTransient<ICommandStream, CommandStream>();
         services.AddSingleton<ISourceBroadcasterService, SourceBroadcasterService>();
+        services.AddSingleton<IChannelLockService, ChannelLockService>();
+
         //services.AddSingleton<IHLSManager, HLSManager>();
         services.AddSingleton<IStreamTracker, StreamTracker>();
         services.AddSingleton<IAccessTracker, AccessTracker>();

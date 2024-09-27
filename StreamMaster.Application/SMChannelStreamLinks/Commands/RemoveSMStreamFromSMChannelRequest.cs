@@ -9,32 +9,24 @@ internal class RemoveSMStreamFromSMChannelRequestHandler(IRepositoryWrapper Repo
 {
     public async Task<APIResponse> Handle(RemoveSMStreamFromSMChannelRequest request, CancellationToken cancellationToken)
     {
-        APIResponse res = await Repository.SMChannel.RemoveSMStreamFromSMChannel(request.SMChannelId, request.SMStreamId).ConfigureAwait(false);
-        if (res.IsError)
-        {
-            return APIResponse.ErrorWithMessage(res.ErrorMessage);
-        }
-
         SMChannel? smChannel = Repository.SMChannel.GetSMChannel(request.SMChannelId);
-        if (smChannel != null)
+        if (smChannel == null)
         {
-            //DataResponse<List<SMStreamDto>> streams = await Sender.Send(new UpdateStreamRanksRequest(SMChannel.Id, SMChannel.SMStreams.Select(a => a.SMStream.Id).ToList()), cancellationToken);
+            return APIResponse.ErrorWithMessage($"Channel with Id {request.SMChannelId} not found");
+        }
+        IQueryable<SMChannelStreamLink> toDelete = Repository.SMChannelStreamLink.GetQuery(true).Where(a => a.SMChannelId == request.SMChannelId && a.SMStreamId == request.SMStreamId);
 
-            //GetSMChannelStreamsRequest re = new(request.Id);
-            //List<FieldData> ret = new()
-            //{                
-            //    new(SMStream.APIName, request.SMStreamId, "ChannelMembership", streams.Data)
-            //};
-
-            ////await dataRefreshService.RefreshSMChannelStreamLinks();
-            //await dataRefreshService.SetField(ret).ConfigureAwait(false);
-            //await dataRefreshService.RefreshSMChannelStreamLinks();
-
-            await dataRefreshService.RefreshSMChannelStreamLinks();
-            await dataRefreshService.RefreshSMChannels();
-            await dataRefreshService.RefreshSMStreams();
+        if (!toDelete.Any())
+        {
+            return APIResponse.Ok;
         }
 
-        return res;
+        await Repository.SMChannelStreamLink.DeleteSMChannelStreamLinks(toDelete);
+
+        await dataRefreshService.RefreshSMChannelStreamLinks();
+        await dataRefreshService.RefreshSMChannels();
+        await dataRefreshService.RefreshSMStreams();
+
+        return APIResponse.Success;
     }
 }

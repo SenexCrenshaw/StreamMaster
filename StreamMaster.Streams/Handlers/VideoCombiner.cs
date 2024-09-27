@@ -45,7 +45,7 @@ public class VideoCombiner : BroadcasterBase, IVideoCombiner
             OnVideoCombinerStoppedEvent?.Invoke(this, new VideoCombinerStopped(Id, Name));
         }
     }
-    public async Task CombineVideosAsync(IChannelBroadcaster channelBroadcaster1, IChannelBroadcaster channelBroadcaster2, IChannelBroadcaster channelBroadcaster3, IChannelBroadcaster channelBroadcaster4, CancellationToken cancellationToken)
+    public async Task CombineVideosAsync(int SMChannelId1, int SMChannelId2, int SMChannelId3, int SMChannelId4, CancellationToken cancellationToken)
     {
         _ = Task.Run(async () =>
         {
@@ -53,19 +53,12 @@ public class VideoCombiner : BroadcasterBase, IVideoCombiner
             Stream ffmpegInputStream = ffmpegProcess.StandardInput.BaseStream;
             Stream ffmpegOutputStream = ffmpegProcess.StandardOutput.BaseStream;
 
-            Task[] readTasks =
-            [
-                ReadFromStreamAsync(channelBroadcaster1, ffmpegInputStream, cancellationToken),
-            ReadFromStreamAsync(channelBroadcaster2, ffmpegInputStream, cancellationToken),
-            ReadFromStreamAsync(channelBroadcaster3, ffmpegInputStream, cancellationToken),
-            ReadFromStreamAsync(channelBroadcaster4, ffmpegInputStream, cancellationToken)
-            ];
 
             SetSourceStream(ffmpegOutputStream, Name, cancellationToken);
 
             //Task writeTask = WriteToChannelAsync(ffmpegOutputStream, writer, cancellationToken);
 
-            await Task.WhenAll(readTasks);
+            //await Task.WhenAll(readTasks);
             ffmpegProcess.StandardInput.Close(); // Signal FFmpeg that no more input is coming
                                                  //await writeTask;
 

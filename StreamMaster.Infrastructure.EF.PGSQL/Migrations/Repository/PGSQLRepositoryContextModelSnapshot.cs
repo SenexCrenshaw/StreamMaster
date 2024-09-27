@@ -262,6 +262,9 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
                     b.Property<int>("ChannelNumber")
                         .HasColumnType("integer");
 
+                    b.Property<string>("ClientUserAgent")
+                        .HasColumnType("citext");
+
                     b.Property<string>("CommandProfileName")
                         .IsRequired()
                         .HasColumnType("citext");
@@ -328,15 +331,15 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
                     b.Property<int>("ParentSMChannelId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("ChildSMChannelId")
+                    b.Property<int>("SMChannelId")
                         .HasColumnType("integer");
 
                     b.Property<int>("Rank")
                         .HasColumnType("integer");
 
-                    b.HasKey("ParentSMChannelId", "ChildSMChannelId");
+                    b.HasKey("ParentSMChannelId", "SMChannelId");
 
-                    b.HasIndex("ChildSMChannelId");
+                    b.HasIndex("SMChannelId");
 
                     b.ToTable("SMChannelChannelLinks");
                 });
@@ -570,21 +573,21 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
 
             modelBuilder.Entity("StreamMaster.Domain.Models.SMChannelChannelLink", b =>
                 {
-                    b.HasOne("StreamMaster.Domain.Models.SMChannel", "ChildSMChannel")
-                        .WithMany()
-                        .HasForeignKey("ChildSMChannelId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("StreamMaster.Domain.Models.SMChannel", "ParentSMChannel")
                         .WithMany("SMChannels")
                         .HasForeignKey("ParentSMChannelId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("ChildSMChannel");
+                    b.HasOne("StreamMaster.Domain.Models.SMChannel", "SMChannel")
+                        .WithMany()
+                        .HasForeignKey("SMChannelId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("ParentSMChannel");
+
+                    b.Navigation("SMChannel");
                 });
 
             modelBuilder.Entity("StreamMaster.Domain.Models.SMChannelStreamLink", b =>

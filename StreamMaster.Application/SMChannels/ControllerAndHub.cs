@@ -105,6 +105,14 @@ namespace StreamMaster.Application.SMChannels.Controllers
 
         [HttpPost]
         [Route("[action]")]
+        public async Task<ActionResult<APIResponse>> CreateMultiViewChannel(CreateMultiViewChannelRequest request)
+        {
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            return ret == null ? NotFound(ret) : Ok(ret);
+        }
+
+        [HttpPost]
+        [Route("[action]")]
         public async Task<ActionResult<APIResponse>> CreateSMChannel(CreateSMChannelRequest request)
         {
             APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
@@ -273,6 +281,14 @@ namespace StreamMaster.Application.SMChannels.Controllers
 
         [HttpPatch]
         [Route("[action]")]
+        public async Task<ActionResult<APIResponse>> UpdateMultiViewChannel(UpdateMultiViewChannelRequest request)
+        {
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            return ret == null ? NotFound(ret) : Ok(ret);
+        }
+
+        [HttpPatch]
+        [Route("[action]")]
         public async Task<ActionResult<APIResponse>> UpdateSMChannel(UpdateSMChannelRequest request)
         {
             APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
@@ -335,6 +351,12 @@ namespace StreamMaster.Application.Hubs
         }
 
         public async Task<APIResponse> CopySMChannel(CopySMChannelRequest request)
+        {
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            return ret;
+        }
+
+        public async Task<APIResponse> CreateMultiViewChannel(CreateMultiViewChannelRequest request)
         {
             APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;
@@ -461,6 +483,12 @@ namespace StreamMaster.Application.Hubs
         }
 
         public async Task<APIResponse> ToggleSMChannelVisibleByParameters(ToggleSMChannelVisibleByParametersRequest request)
+        {
+            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            return ret;
+        }
+
+        public async Task<APIResponse> UpdateMultiViewChannel(UpdateMultiViewChannelRequest request)
         {
             APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;

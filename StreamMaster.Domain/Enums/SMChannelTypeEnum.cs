@@ -3,7 +3,7 @@
 public enum SMChannelTypeEnum
 {
     Regular = 0,
-    Quad = 1
+    MultiView = 1
 }
 
 [TsEnum]

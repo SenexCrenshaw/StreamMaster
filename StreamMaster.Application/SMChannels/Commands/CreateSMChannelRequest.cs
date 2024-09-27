@@ -1,6 +1,4 @@
-﻿using StreamMaster.Application.SMChannelStreamLinks.Commands;
-
-namespace StreamMaster.Application.SMChannels.Commands;
+﻿namespace StreamMaster.Application.SMChannels.Commands;
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
@@ -18,7 +16,7 @@ public record CreateSMChannelRequest(
     ) : IRequest<APIResponse>;
 
 [LogExecutionTimeAspect]
-public class CreateSMChannelRequestHandler(ILogger<CreateSMChannelRequest> Logger, IImageDownloadQueue imageDownloadQueue, ILogoService logoService, ISender Sender, IMessageService messageService, IDataRefreshService dataRefreshService, IRepositoryWrapper Repository)
+public class CreateSMChannelRequestHandler(ILogger<CreateSMChannelRequest> Logger, IImageDownloadQueue imageDownloadQueue, ISender Sender, IMessageService messageService, IDataRefreshService dataRefreshService, IRepositoryWrapper Repository)
     : IRequestHandler<CreateSMChannelRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(CreateSMChannelRequest request, CancellationToken cancellationToken)
@@ -51,16 +49,15 @@ public class CreateSMChannelRequestHandler(ILogger<CreateSMChannelRequest> Logge
                 int count = 0;
                 foreach (string streamId in request.SMStreamsIds)
                 {
-                    APIResponse res = await Repository.SMChannel.AddSMStreamToSMChannel(smChannel.Id, streamId, count++).ConfigureAwait(false);
+                    await Repository.SMChannelStreamLink.CreateSMChannelStreamLink(smChannel.Id, streamId, count++).ConfigureAwait(false);
                 }
                 _ = await Repository.SaveAsync();
 
-                DataResponse<List<SMStreamDto>> streams = await Sender.Send(new UpdateStreamRanksRequest(smChannel.Id, request.SMStreamsIds), cancellationToken);
+                //DataResponse<List<SMStreamDto>> streams = await Sender.Send(new UpdateStreamRanksRequest(smChannel.Id, request.SMStreamsIds), cancellationToken);
             }
 
             NameLogo NameLogo = new(smChannel, SMFileTypes.Logo);
             imageDownloadQueue.EnqueueNameLogo(NameLogo);
-            //logoService.DownloadAndAdd(NameLogo);
 
             await dataRefreshService.RefreshAllSMChannels();
             await messageService.SendSuccess("Channel Added", $"Channel '{request.Name}' added successfully");

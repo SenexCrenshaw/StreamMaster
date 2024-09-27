@@ -25,8 +25,10 @@ namespace StreamMaster.Streams.Handlers
             return [.. sourceBroadcasters.Values];
         }
 
-        public async Task<ISourceBroadcaster?> GetOrCreateStreamBroadcasterAsync(SMStreamInfo smStreamInfo, CancellationToken cancellationToken)
+        public async Task<ISourceBroadcaster?> GetOrCreateStreamBroadcasterAsync(IChannelBroadcaster channelBroadcaster, CancellationToken cancellationToken)
         {
+            SMStreamInfo smStreamInfo = channelBroadcaster.SMStreamInfo;
+
             await GetOrCreateStreamDistributorSlim.WaitAsync(cancellationToken).ConfigureAwait(false);
             try
             {
@@ -46,7 +48,7 @@ namespace StreamMaster.Streams.Handlers
 
                 logger.LogInformation("Created new source stream for: {Id} {name}", smStreamInfo.Id, smStreamInfo.Name);
 
-                (Stream? stream, int? processId, ProxyStreamError? error) = await proxyFactory.GetStream(smStreamInfo, cancellationToken).ConfigureAwait(false);
+                (Stream? stream, int? processId, ProxyStreamError? error) = await proxyFactory.GetStream(channelBroadcaster, cancellationToken).ConfigureAwait(false);
                 if (stream == null || processId == null || error != null)
                 {
                     logger.LogError("Could not create source stream for channel distributor: {Id} {name} {error}", smStreamInfo.Id, smStreamInfo.Name, error?.Message);

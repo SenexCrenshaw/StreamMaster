@@ -4,25 +4,27 @@ using System.Diagnostics;
 
 namespace StreamMaster.Streams.Factories;
 
-public sealed class StreamFactory(ILogger<StreamFactory> logger, IHTTPStream HTTPStream, ICommandExecutor commandExecutor, IProfileService profileService, ICustomPlayListStream CustomPlayListStream, IOptionsMonitor<Setting> settings)
+public sealed class StreamFactory(ILogger<StreamFactory> logger, IHTTPStream HTTPStream, ICommandExecutor commandExecutor, IProfileService profileService, ICustomPlayListStream CustomPlayListStream, IMultiViewPlayListStream MultiViewPlayListStream, IOptionsMonitor<Setting> settings)
     : IStreamFactory
 {
-    public async Task<(Stream? stream, int processId, ProxyStreamError? error)> GetStream(SMStreamInfo smStreamInfo, CancellationToken cancellationToken)
+    public async Task<(Stream? stream, int processId, ProxyStreamError? error)> GetStream(IChannelBroadcaster channelBroadcaster, CancellationToken cancellationToken)
     {
-        (Stream? stream, int processId, ProxyStreamError? error) = await InternalGetStream(smStreamInfo, cancellationToken).ConfigureAwait(false);
+        (Stream? stream, int processId, ProxyStreamError? error) = await InternalGetStream(channelBroadcaster, cancellationToken).ConfigureAwait(false);
         if (stream == null || error != null)
         {
-            logger.LogError("Error getting stream for {streamName}: {ErrorMessage}", smStreamInfo.Name, error?.Message);
+            logger.LogError("Error getting stream for {streamName}: {ErrorMessage}", channelBroadcaster.SMStreamInfo.Name, error?.Message);
         }
         return (stream, processId, error);
     }
 
-    private async Task<(Stream? stream, int processId, ProxyStreamError? error)> InternalGetStream(SMStreamInfo smStreamInfo, CancellationToken cancellationToken)
+    private async Task<(Stream? stream, int processId, ProxyStreamError? error)> InternalGetStream(IChannelBroadcaster channelBroadcaster, CancellationToken cancellationToken)
     {
         Stopwatch stopwatch = Stopwatch.StartNew();
 
         try
         {
+            SMStreamInfo? smStreamInfo = channelBroadcaster.SMStreamInfo;
+
             string clientUserAgent = !string.IsNullOrEmpty(smStreamInfo.ClientUserAgent) ? smStreamInfo.ClientUserAgent : settings.CurrentValue.ClientUserAgent;
 
             if (smStreamInfo.SMStreamType == SMStreamTypeEnum.CustomPlayList)
@@ -38,6 +40,12 @@ public sealed class StreamFactory(ILogger<StreamFactory> logger, IHTTPStream HTT
             if (smStreamInfo.SMStreamType == SMStreamTypeEnum.Message)
             {
                 return await CustomPlayListStream.HandleStream(smStreamInfo, clientUserAgent, cancellationToken).ConfigureAwait(false);
+            }
+
+            if (channelBroadcaster.SMChannel.SMChannelType == SMChannelTypeEnum.MultiView)
+            {
+
+                return await MultiViewPlayListStream.HandleStream(channelBroadcaster, cancellationToken).ConfigureAwait(false);
             }
 
             if (smStreamInfo.Url.EndsWith(".m3u8"))

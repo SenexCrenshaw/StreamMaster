@@ -14,6 +14,7 @@ namespace StreamMaster.Domain.Services
         Task RefreshSMStreams(bool alwaysRun = false);
         Task RefreshSMChannels(bool alwaysRun = false);
         Task RefreshSMChannelStreamLinks(bool alwaysRun = false);
+        Task RefreshSMChannelChannelLinks(bool alwaysRun = false);
         Task RefreshSettings(bool alwaysRun = false);
         Task RefreshSchedulesDirect(bool alwaysRun = false);
         Task RefreshProfiles(bool alwaysRun = false);

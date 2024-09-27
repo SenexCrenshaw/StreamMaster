@@ -7,7 +7,7 @@ public class SMChannelChannelLinkConfiguration : IEntityTypeConfiguration<SMChan
 {
     public void Configure(EntityTypeBuilder<SMChannelChannelLink> modelBuilder)
     {
-        modelBuilder.HasKey(vsl => new { vsl.ParentSMChannelId, vsl.ChildSMChannelId });
+        modelBuilder.HasKey(vsl => new { vsl.ParentSMChannelId, vsl.SMChannelId });
 
         modelBuilder.HasOne(vsl => vsl.ParentSMChannel)
             .WithMany(vs => vs.SMChannels)

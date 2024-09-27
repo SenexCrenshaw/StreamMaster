@@ -66,7 +66,7 @@ public class StreamGroupSMChannelLinkRepository(ILogger<StreamGroupSMChannelLink
         await using Microsoft.EntityFrameworkCore.Storage.IDbContextTransaction transaction = await RepositoryContext.BeginTransactionAsync();
         try
         {
-            await RepositoryContext.ExecuteSqlRawAsync(sqlBuilder.ToString(), parameters.ToArray());
+            await RepositoryContext.ExecuteSqlRawAsync(sqlBuilder.ToString(), [.. parameters]);
             await transaction.CommitAsync();
         }
         catch

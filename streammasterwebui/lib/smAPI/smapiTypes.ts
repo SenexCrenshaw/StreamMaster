@@ -6,11 +6,17 @@ export interface QueryStringParameters
 	PageNumber: number;
 	PageSize: number;
 }
-export interface SMChannelRankRequest
+export interface SMChannelStreamRankRequest
 {
 	Rank: number;
 	SMChannelId: number;
 	SMStreamId: string;
+}
+export interface SMChannelChannelRankRequest
+{
+	ChildSMChannelId: number;
+	ParentSMChannelId: number;
+	Rank: number;
 }
 export interface FieldData
 {
@@ -266,6 +272,7 @@ export interface SMChannelDto
 	APIName: string;
 	BaseStreamID: string;
 	ChannelNumber: number;
+	ClientUserAgent?: string;
 	CommandProfileName: string;
 	CurrentRank: number;
 	EPGId: string;
@@ -277,9 +284,12 @@ export interface SMChannelDto
 	Logo: string;
 	M3UFileId: number;
 	Name: string;
+	Rank: number;
+	SMChannelDtos: SMChannelDto[];
 	SMChannels: any[];
 	SMChannelType: SMChannelTypeEnum;
-	SMStreams: SMStreamDto[];
+	SMStreamDtos: SMStreamDto[];
+	SMStreams: any[];
 	StationId: string;
 	StreamGroupIds: number[];
 	StreamGroups: StreamGroupSMChannelLink[];
@@ -890,6 +900,16 @@ export interface CopySMChannelRequest
 	NewName: string;
 	SMChannelId: number;
 }
+export interface CreateMultiViewChannelRequest
+{
+	ChannelNumber?: number;
+	EPGId?: string;
+	Group?: string;
+	Logo?: string;
+	Name: string;
+	SMSChannelIds?: number[];
+	StreamGroup?: string;
+}
 export interface CreateSMChannelRequest
 {
 	ChannelNumber?: number;
@@ -997,6 +1017,16 @@ export interface ToggleSMChannelVisibleByParametersRequest
 {
 	Parameters: QueryStringParameters;
 }
+export interface UpdateMultiViewChannelRequest
+{
+	ChannelNumber?: number;
+	EPGId?: string;
+	Group?: string;
+	Id: number;
+	Logo?: string;
+	Name?: string;
+	SMChannelIds?: number[];
+}
 export interface UpdateSMChannelRequest
 {
 	ChannelNumber?: number;
@@ -1029,7 +1059,26 @@ export interface RemoveSMStreamFromSMChannelRequest
 }
 export interface SetSMStreamRanksRequest
 {
-	Requests: SMChannelRankRequest[];
+	Requests: SMChannelStreamRankRequest[];
+}
+export interface GetSMChannelChannelsRequest
+{
+	SMChannelId: number;
+}
+export interface AddSMChannelToSMChannelRequest
+{
+	ChildSMChannelId: number;
+	ParentSMChannelId: number;
+	Rank?: number;
+}
+export interface RemoveSMChannelFromSMChannelRequest
+{
+	ChildSMChannelId: number;
+	ParentSMChannelId: number;
+}
+export interface SetSMChannelRanksRequest
+{
+	Requests: SMChannelChannelRankRequest[];
 }
 export interface GetSettingsRequest
 {
@@ -1624,7 +1673,7 @@ export enum M3UFileStreamURLPrefix {
 }
 export enum SMChannelTypeEnum {
 	Regular = 0,
-	Quad = 1
+	MultiView = 1
 }
 export enum SMStreamTypeEnum {
 	Regular = 0,

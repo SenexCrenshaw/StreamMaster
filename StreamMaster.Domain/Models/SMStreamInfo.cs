@@ -47,6 +47,5 @@ namespace StreamMaster.Domain.Models
 
         /// <inheritdoc/>
         public required SMStreamTypeEnum SMStreamType { get; set; }
-
     }
 }
