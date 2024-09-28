@@ -60,7 +60,7 @@ const SMStreamDataSelectorValue = ({ id, smChannel }: SMStreamDataSelectorValueP
     [actionTemplate]
   );
 
-  if (!smChannel?.SMStreams) {
+  if (!smChannel?.SMStreamDtos) {
     return null;
   }
 
@@ -73,7 +73,7 @@ const SMStreamDataSelectorValue = ({ id, smChannel }: SMStreamDataSelectorValueP
     >
       <SMDataTable
         columns={columns}
-        dataSource={smChannel.SMStreams}
+        dataSource={smChannel.SMStreamDtos}
         defaultSortField="Rank"
         defaultSortOrder={1}
         emptyMessage="No Streams"

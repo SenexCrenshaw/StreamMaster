@@ -60,9 +60,9 @@ const SMChannelDataSelectorValue = ({ id, smChannel }: SMChannelDataSelectorValu
     [actionTemplate]
   );
 
-  Logger.debug('SMChannelDataSelectorValue', smChannel.SMChannels);
+  Logger.debug('SMChannelDataSelectorValue', smChannel.SMChannelDtos);
 
-  if (!smChannel?.SMChannels) {
+  if (!smChannel?.SMChannelDtos) {
     return null;
   }
 
@@ -75,7 +75,7 @@ const SMChannelDataSelectorValue = ({ id, smChannel }: SMChannelDataSelectorValu
     >
       <SMDataTable
         columns={columns}
-        dataSource={smChannel.SMChannels}
+        dataSource={smChannel.SMChannelDtos}
         defaultSortField="Rank"
         defaultSortOrder={1}
         emptyMessage="No Channels"

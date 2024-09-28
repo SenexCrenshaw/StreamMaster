@@ -96,7 +96,7 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
       if (smStream.SMStreamType.toString() === 'CustomPlayList') {
         return <div className="flex align-content-center justify-content-center" />;
       }
-      const found = selectedSMChannel?.SMStreams?.some((item) => item.Id === smStream.Id) ?? false;
+      const found = selectedSMChannel?.SMStreamDtos?.some((item) => item.Id === smStream.Id) ?? false;
 
       let toolTip = 'Add Channel';
       if (selectedSMChannel !== undefined) {
@@ -226,21 +226,21 @@ const SMStreamDataSelector = ({ enableEdit: propsEnableEdit, height, id, simple 
         return 'bg-red-900';
       }
 
-      if (data && selectedSMChannel?.SMStreams !== undefined && selectedSMChannel.SMStreams.length > 0) {
+      if (data && selectedSMChannel?.SMStreamDtos !== undefined && selectedSMChannel.SMStreamDtos.length > 0) {
         const id = getRecord({ data, fieldName: 'Id' });
         if (id === undefined) {
           // Logger.debug('SMStreamDataSelector', 'rowClass', 'Id is undefined');
           return '';
         }
 
-        selectedSMChannel.SMStreams.forEach((element) => {
+        selectedSMChannel.SMStreamDtos.forEach((element) => {
           if (element?.Id === undefined) {
             // Logger.debug('SMStreamDataSelector', 'element', element);
             return true;
           }
         });
 
-        if (selectedSMChannel.SMStreams.some((stream) => stream.Id === id)) {
+        if (selectedSMChannel.SMStreamDtos.some((stream) => stream.Id === id)) {
           return 'channel-row-selected';
         }
       }

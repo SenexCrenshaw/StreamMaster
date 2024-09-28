@@ -47,7 +47,6 @@ public sealed class ChannelService : IChannelService, IDisposable
             }
         }
     }
-
     private async Task StreamBroadcasterService_OnStreamBroadcasterStoppedEventAsync(object? sender, StreamBroadcasterStopped e)
     {
         if (sender is ISourceBroadcaster sourceBroadcaster)
@@ -74,7 +73,6 @@ public sealed class ChannelService : IChannelService, IDisposable
             }
         }
     }
-
     public async Task StopChannel(int channelId)
     {
         await _channelBroadcasterService.StopChannelAsync(channelId);

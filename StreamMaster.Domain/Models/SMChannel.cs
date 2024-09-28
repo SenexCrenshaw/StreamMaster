@@ -112,10 +112,10 @@ namespace StreamMaster.Domain.Models
         public SMChannelTypeEnum SMChannelType { get; set; } = SMChannelTypeEnum.Regular;
 
         // Ignore properties in serialization and mapping
-        [Ignore, JsonIgnore, IgnoreMember, IgnoreMap, XmlIgnore]
+        [Ignore, JsonIgnore, IgnoreMember, IgnoreMap, XmlIgnore, TsIgnore]
         public ICollection<SMChannelStreamLink> SMStreams { get; set; } = [];
 
-        [Ignore, JsonIgnore, IgnoreMember, IgnoreMap, XmlIgnore]
+        [Ignore, JsonIgnore, IgnoreMember, IgnoreMap, XmlIgnore, TsIgnore]
         public ICollection<SMChannelChannelLink> SMChannels { get; set; } = [];
 
         [Ignore, JsonIgnore, IgnoreMember, IgnoreMap, XmlIgnore]

@@ -71,11 +71,11 @@ const SMChannelSMStreamDataSelector = ({ selectionKey, height, smChannel }: SMCh
   }, [actionTemplate, addOrRemoveHeaderTemplate]);
 
   const dataSource = useMemo(() => {
-    if (!smChannel || !smChannel.SMStreams) {
+    if (!smChannel || !smChannel.SMStreamDtos) {
       return [];
     }
     try {
-      const toRet = [...smChannel.SMStreams];
+      const toRet = [...smChannel.SMStreamDtos];
       const smChannelData = toRet.sort((a, b) => a.Rank - b.Rank);
       if (showHidden === true) {
         return smChannelData.filter((a: SMStreamDto) => a.IsHidden !== true);
@@ -89,15 +89,15 @@ const SMChannelSMStreamDataSelector = ({ selectionKey, height, smChannel }: SMCh
     }
   }, [showHidden, smChannel]);
 
-  if (!smChannel?.SMStreams) {
+  if (!smChannel?.SMStreamDtos) {
     return null;
   }
 
-  if (!smChannel.SMStreams || !Array.isArray(smChannel.SMStreams)) {
+  if (!smChannel.SMStreamDtos || !Array.isArray(smChannel.SMStreamDtos)) {
     return null;
   }
 
-  Logger.debug('SMChannelSMStreamDataSelector', selectionKey, smChannel.Name, { data: smChannel.SMStreams });
+  Logger.debug('SMChannelSMStreamDataSelector', selectionKey, smChannel.Name, { data: smChannel.SMStreamDtos });
   return (
     <SMDataTable
       columns={columns}
