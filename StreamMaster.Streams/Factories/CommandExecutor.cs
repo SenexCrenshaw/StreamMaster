@@ -15,17 +15,17 @@ public class CommandExecutor(ILogger<CommandExecutor> logger) : ICommandExecutor
                 return (null, -1, new ProxyStreamError { ErrorCode = ProxyStreamErrorCode.FileNotFound, Message = $"{commandProfile.Command} not found" });
             }
 
-            string prefix = "-hide_banner -loglevel error";
+            //string prefix = "";// "-hide_banner -loglevel error";
             if (secondsIn.HasValue && secondsIn.Value != 0)
             {
-                prefix = $"{prefix} -ss {secondsIn}";
+                streamUrl = $"-ss {secondsIn} {streamUrl}";
             }
 
             string cmd = BuildCommand(commandProfile.Parameters, clientUserAgent, streamUrl);
 
             string options = streamUrl.Contains("://")
             ? cmd
-            : $"{prefix} -i \"{streamUrl}\" {commandProfile.Parameters} -f mpegts pipe:1";
+            : $"-hide_banner -loglevel error  -i \"{streamUrl}\" {commandProfile.Parameters} -f mpegts pipe:1";
 
             using Process process = new();
             ConfigureProcess(process, exec, options);
@@ -64,7 +64,6 @@ public class CommandExecutor(ILogger<CommandExecutor> logger) : ICommandExecutor
 
     private static string BuildCommand(string command, string clientUserAgent, string streamUrl)
     {
-        // Replace placeholders with the provided values, properly quoted
         return command.Replace("{clientUserAgent}", '"' + clientUserAgent + '"')
                       .Replace("{streamUrl}", '"' + streamUrl + '"');
     }
