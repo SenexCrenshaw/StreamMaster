@@ -23,7 +23,7 @@ public class MultiViewPlayListStream(ILogger<MultiViewPlayListStream> logger, IC
 
         args.Append($"-filter_complex \"{filter_complex}\" ");
 
-        args.Append("-map \"[out]\" -c:v libx264 -preset veryfast -crf 23 -maxrate 3000k -bufsize 6000k -f mpegts pipe:1");
+        args.Append("-map \"[out]\" -c:v libx264 -preset fast -crf 23 -maxrate 3000k -bufsize 6000k -f mpegts pipe:1");
 
         string command = "ffmpeg";
         string? exec = FileUtil.GetExec(command);
