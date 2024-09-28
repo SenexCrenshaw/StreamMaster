@@ -15,5 +15,6 @@ namespace StreamMaster.Domain.Services
         Task DeleteSMChannelStreamLinksFromParentId(int smchannelId);
         List<SMChannelStreamLink> GetSMChannelStreamLinks();
         Task<APIResponse> SetSMStreamRank(List<SMChannelStreamRankRequest> request);
+        Task UpdateSMChannelDtoRanks(SMChannelDto smChannel);
     }
 }

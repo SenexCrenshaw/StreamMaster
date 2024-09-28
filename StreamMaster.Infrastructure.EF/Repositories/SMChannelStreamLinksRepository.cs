@@ -12,7 +12,20 @@ public class SMChannelStreamLinksRepository(ILogger<SMChannelStreamLinksReposito
         return [.. GetQuery()];
     }
 
+    public async Task UpdateSMChannelDtoRanks(SMChannelDto smChannel)
+    {
+        List<SMChannelStreamLink> links = await GetQuery(true).Where(a => a.SMChannelId == smChannel.Id).ToListAsync();
 
+        foreach (SMStreamDto stream in smChannel.SMStreamDtos)
+        {
+            SMChannelStreamLink? link = links.Find(a => a.SMStreamId == stream.Id);
+
+            if (link != null)
+            {
+                stream.Rank = link.Rank;
+            }
+        }
+    }
     public async Task CreateSMChannelStreamLink(int SMChannelId, string SMStreamId, int? Rank)
     {
         if (Any(a => a.SMStreamId == SMStreamId && a.SMChannelId == SMChannelId))

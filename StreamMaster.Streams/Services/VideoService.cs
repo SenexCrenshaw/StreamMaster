@@ -40,19 +40,24 @@ public class VideoService(
             return new StreamResult();
         }
 
+        SMChannelDto smChannelDto = mapper.Map<SMChannelDto>(smChannel);
+
+        await repositoryWrapper.SMChannelStreamLink.UpdateSMChannelDtoRanks(smChannelDto);
+        await repositoryWrapper.SMChannelChannelLink.UpdateSMChannelDtoRanks(smChannelDto);
+
         // Fetch stream profile
         StreamGroupProfile streamGroupProfile = await streamGroupService.GetStreamGroupProfileAsync(null, streamGroupProfileId);
-        CommandProfileDto commandProfileDto = await streamGroupService.GetProfileFromSGIdsCommandProfileNameAsync(null, streamGroupProfile.Id, smChannel.CommandProfileName);
+        CommandProfileDto commandProfileDto = await streamGroupService.GetProfileFromSGIdsCommandProfileNameAsync(null, streamGroupProfile.Id, smChannelDto.CommandProfileName);
 
         // Handle redirects
         if (commandProfileDto.ProfileName.Equals("Redirect", StringComparison.InvariantCultureIgnoreCase))
         {
             logger.LogInformation("Channel with ChannelId {channelId} redirecting", smChannelId);
-            return new StreamResult { RedirectUrl = smChannel.SMStreams.First().SMStream.Url };
+            return new StreamResult { RedirectUrl = smChannelDto.SMStreamDtos.First().Url };
         }
 
         // Create client configuration
-        IClientConfiguration clientConfiguration = CreateClientConfiguration(smChannel, cancellationToken);
+        IClientConfiguration clientConfiguration = CreateClientConfiguration(smChannelDto, cancellationToken);
 
         // Get stream
         Stream? stream = await channelManager.GetChannelStreamAsync(clientConfiguration, streamGroupProfile.Id, CancellationToken.None);
@@ -83,10 +88,9 @@ public class VideoService(
             : smChannel.SMStreams.Count > 0 && !string.IsNullOrEmpty(smChannel.SMStreams.First().SMStream.Url);
     }
 
-    private IClientConfiguration CreateClientConfiguration(SMChannel smChannel, CancellationToken cancellationToken)
+    private IClientConfiguration CreateClientConfiguration(SMChannelDto smChannelDto, CancellationToken cancellationToken)
     {
         string? ipAddress = httpContextAccessor.HttpContext!.Connection.RemoteIpAddress?.ToString();
-        SMChannelDto smChannelDto = mapper.Map<SMChannelDto>(smChannel);
 
         HttpRequest request = httpContextAccessor.HttpContext.Request;
         smChannelDto.StreamUrl = $"{request.Scheme}://{request.Host}{request.PathBase}{request.Path}{request.QueryString}";

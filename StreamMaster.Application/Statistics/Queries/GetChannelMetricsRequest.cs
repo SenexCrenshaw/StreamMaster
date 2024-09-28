@@ -21,14 +21,6 @@ internal class GetChannelMetricsRequestHandler(IRepositoryWrapper repositoryWrap
         List<int> smChannelIds = channelBroadcasters.ConvertAll(a => a.Id);
         List<string> smStreamIds = sourceBroadcasters.ConvertAll(a => a.SMStreamInfo.Id).ToList();
 
-        //List<string> smChannelIds2 = channelBroadcasters.SelectMany(a => a.ClientChannelWriters.Keys).ToList();
-        //List<string> smStreamIds2 = channelBroadcasters.SelectMany(a => a.ClientStreams.Keys).ToList();
-        //List<string> smStreamIds3 = channelBroadcasters.Where(a => a.SMStreamInfo?.Id != null).Select(a => a.SMStreamInfo!.Id).ToList();
-
-        //smChannelIds.AddRange(smChannelIds2);
-        //smStreamIds.AddRange(smStreamIds2);
-        //smStreamIds.AddRange(smStreamIds3);
-
         List<SMChannel> smChannels = await repositoryWrapper.SMChannel.GetQuery(a => smChannelIds.Contains(a.Id)).ToListAsync(cancellationToken);
         List<SMStream> smStreams = await repositoryWrapper.SMStream.GetQuery(a => smStreamIds.Contains(a.Id)).ToListAsync(cancellationToken);
         string _baseUrl = httpContextAccessor.GetUrl();
@@ -36,25 +28,25 @@ internal class GetChannelMetricsRequestHandler(IRepositoryWrapper repositoryWrap
 
         foreach (IChannelBroadcaster channelBroadcaster in channelBroadcasters)
         {
+            if (channelBroadcaster == null)
+            {
+                continue;
+            }
             List<ClientChannelDto> channelDtos = [];
 
-            int channelCount = 0;
-            SMChannel? test = smChannels.Find(a => a.Id == channelBroadcaster.Id);
-            string? logo = null;
-            if (test?.Logo != null)
+            IClientConfiguration? baseConfig = clientConfigurations.Find(a => a.SMChannel.Id == channelBroadcaster.SMChannel.Id);
+            if (baseConfig == null)
             {
-                logo = logoService.GetLogoUrl(test.Logo, _baseUrl);// EPGHelper.CustomPlayListId, test.Logo, _baseUrl);
+                continue;
             }
-            //channelDtos.Add(new ClientChannelDto()
-            //{
-            //    SMChannelId = test?.Id ?? channelCount++,
-            //    Name = channelBroadcaster.Name,
-            //    Logo = logo
-            //});
+            SMChannelStreamLink bastCurrentStream = baseConfig.SMChannel.SMStreams.ToList()[baseConfig.SMChannel.CurrentRank];
+            string currentStreamLogo = logoService.GetLogoUrl(bastCurrentStream.SMStream.Logo, _baseUrl);
+            string currentChannelLogo = logoService.GetLogoUrl(baseConfig.SMChannel.Logo, _baseUrl);
 
             foreach (KeyValuePair<string, ChannelWriter<byte[]>> channel in channelBroadcaster.ClientChannelWriters)
             {
                 IClientConfiguration? config = clientConfigurations.Find(a => a.UniqueRequestId == channel.Key);
+
                 StreamHandlerMetrics? metric = null;
                 if (config?.ClientStream != null)
                 {
@@ -66,128 +58,106 @@ internal class GetChannelMetricsRequestHandler(IRepositoryWrapper repositoryWrap
                     Metrics = metric,
                     ClientIPAddress = config?.ClientIPAddress,
                     ClientUserAgent = config?.ClientUserAgent,
-                    SMChannelId = test?.Id ?? channelCount++,
+                    SMChannelId = channelBroadcaster.Id, //?? channelCount++,
                     Name = channel.Key,
-                    Logo = logo
+                    Logo = currentChannelLogo
                 });
             }
 
             List<ClientStreamsDto> streamDtos = [];
 
-            //foreach (KeyValuePair<string, ChannelWriter<byte[]>> stream in channelBroadcaster.ClientChannelWriters)
-            //{
-            //    SMStream? test2 = smStreams.Find(a => a.Id == stream.Key);
-            //    logo = null;
-            //    if (test2?.Logo != null)
-            //    {
-            //        logo = iconHelper.GetIconUrl(EPGHelper.CustomPlayListId, test2.Logo, _baseUrl);
-            //    }
-            //    IClientConfiguration? config = clientConfigurations.Find(a => a.UniqueRequestId == stream.Key);
-            //    streamDtos.Add(new ClientStreamsDto()
-            //    {
-            //        ClientIPAddress = config?.ClientIPAddress,
-            //        ClientUserAgent = config?.ClientUserAgent,
-            //        SMStreamId = stream.Key,
-            //        Name = stream.Key,
-            //        Logo = logo
-            //    });
-            //}
-
-            logo = null;
-            if (test?.Logo != null)
-            {
-                logo = logoService.GetLogoUrl(test.Logo, _baseUrl);
-            }
 
             ChannelMetric dto = new()
             {
                 Name = channelBroadcaster.Name,
                 SourceName = channelBroadcaster.SourceName,
-                //SMStreamInfo = d,
                 ClientChannels = channelDtos,
                 ClientStreams = streamDtos,
                 ChannelItemBackLog = channelBroadcaster.ChannelItemBackLog,
                 Metrics = channelBroadcaster.Metrics,
                 IsFailed = channelBroadcaster.IsFailed,
                 Id = channelBroadcaster.Id.ToString(),
-                Logo = logo
+                Logo = currentStreamLogo
             };
-
-            //foreach (string channel in channelBroadcaster.ClientChannels.Keys)
-            //{
-
-            //}
 
             dtos.Add(dto);
         }
 
         foreach (ISourceBroadcaster sourceBroadcaster in sourceBroadcasters)
         {
+            if (sourceBroadcaster.SMStreamInfo == null)
+            {
+                continue;
+            }
+
+
+
+            SMStreamInfo cuurentStreamInfo = sourceBroadcaster.SMStreamInfo.DeepCopy();
             List<ClientChannelDto> channelDtos = [];
 
-            int channelCount = 0;
+            //IClientConfiguration? baseConfig = clientConfigurations.Find(a => a.SMChannel.Id == sourceBroadcaster.);
+            //if (baseConfig == null)
+            //{
+            //    continue;
+            //}
+
+            //SMChannelStreamLink bastCurrentStream = baseConfig.SMChannel.SMStreams.ToList()[baseConfig.SMChannel.CurrentRank];
+            //string currentStreamLogo = logoService.GetLogoUrl(bastCurrentStream.SMStream.Logo, _baseUrl);
+
+
+            //int channelCount = 0;
+
+            string currentChannelLogo = "";
+
             foreach (KeyValuePair<string, ChannelWriter<byte[]>> channel in sourceBroadcaster.ClientChannelWriters)
             {
-                string? logo = null;
-                SMChannel? test = smChannels.Find(a => a.Id.ToString() == channel.Key);
-                if (test?.Logo != null)
+                SMChannel? smChannel = smChannels.Find(a => a.Id.ToString() == channel.Key);
+                if (smChannel == null)
                 {
-                    logo = logoService.GetLogoUrl(test.Logo, _baseUrl);
+                    continue;
                 }
+
+                currentChannelLogo = logoService.GetLogoUrl(smChannel.Logo, _baseUrl);
+
 
                 channelDtos.Add(new ClientChannelDto()
                 {
-                    SMChannelId = test?.Id ?? channelCount++,
+                    SMChannelId = smChannel.Id,
                     Name = channel.Key,
-                    Logo = logo
+                    Logo = currentChannelLogo
                 });
+
+
             }
 
             List<ClientStreamsDto> streamDtos = [];
 
-            //foreach (KeyValuePair<string, ChannelWriter<byte[]>> stream in channelBroadcaster.ClientChannelWriters)
-            //{
-            //    string? logo = null;
-            //    SMStream? test = smStreams.Find(a => a.Id == stream.Key);
-            //    if (test?.Logo != null)
-            //    {
-            //        logo = iconHelper.GetIconUrl(EPGHelper.CustomPlayListId, test.Logo, _baseUrl);
-            //    }
 
-            //    streamDtos.Add(new ClientStreamsDto()
-            //    {
-            //        SMStreamId = stream.Key,
-            //        Name = stream.Key,
-            //        Logo = logo
-            //    });
-            //}
+            cuurentStreamInfo.Url = "Hidden";
+            string id = cuurentStreamInfo.Id;
 
-            SMStreamInfo? d = sourceBroadcaster.SMStreamInfo?.DeepCopy() ?? null;
-            d.Url = "Hidden";
-            string id = d.Id;
 
-            string? metricLogo = null;
             if (!sourceBroadcaster.Id.Contains("://"))
             {
-              
-                metricLogo = customPlayListBuilder.GetCustomPlayListLogoFromFileName(sourceBroadcaster.Id);
-                if (string.IsNullOrEmpty(metricLogo))
-                {
-                    SMChannel? test = smChannels.Find(a => a.Id.ToString() == sourceBroadcaster.Id);
-                    metricLogo = test?.Logo ?? "";
-                }
-                metricLogo = logoService.GetLogoUrl(metricLogo, _baseUrl);
-            }
-            else
-            {
-                SMStream? smStream = smStreams.Find(a => a.Id == d.Id);
-                if (smStream != null)
-                {
 
-                    metricLogo = smStream.Logo;
-                    //id = smStream.Id;
-                }
+                currentChannelLogo = customPlayListBuilder.GetCustomPlayListLogoFromFileName(sourceBroadcaster.Id);
+                //if (string.IsNullOrEmpty(metricLogo))
+                //{
+                //    SMChannel? test = smChannels.Find(a => a.Id.ToString() == sourceBroadcaster.Id);
+                //    metricLogo = test?.Logo ?? "";
+                //}
+                currentChannelLogo = logoService.GetLogoUrl(currentChannelLogo, _baseUrl);
             }
+            //else
+            //{
+            //    SMStream? smStream = smStreams.Find(a => a.Id == cuurentStreamInfo.Id);
+            //    if (smStream != null)
+            //    {
+
+            //        metricLogo = smStream.Logo;
+            //        //id = smStream.Id;
+            //    }
+            //}
 
             VideoInfo? info = videoInfoService.GetVideoInfo(id);
             VideoInfoDto? videoInfoDto = null;
@@ -202,14 +172,14 @@ internal class GetChannelMetricsRequestHandler(IRepositoryWrapper repositoryWrap
             {
                 Name = sourceBroadcaster.Name,
                 SourceName = sourceBroadcaster.SourceName,
-                SMStreamInfo = d,
+                SMStreamInfo = cuurentStreamInfo,
                 ClientChannels = channelDtos,
                 ClientStreams = streamDtos,
                 ChannelItemBackLog = sourceBroadcaster.ChannelItemBackLog,
                 Metrics = sourceBroadcaster.Metrics,
                 IsFailed = sourceBroadcaster.IsFailed,
                 Id = id,
-                Logo = metricLogo,
+                Logo = currentChannelLogo,
                 VideoInfo = videoInfoDto?.JsonOutput
             };
 

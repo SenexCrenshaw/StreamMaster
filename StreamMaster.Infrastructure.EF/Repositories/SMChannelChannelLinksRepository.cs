@@ -12,6 +12,21 @@ public class SMChannelChannelLinksRepository(ILogger<SMChannelChannelLinksReposi
         return [.. GetQuery()];
     }
 
+    public async Task UpdateSMChannelDtoRanks(SMChannelDto smChannel)
+    {
+        List<SMChannelChannelLink> channelLinks = await GetQuery(true).Where(a => a.ParentSMChannelId == smChannel.Id).ToListAsync();
+
+        foreach (SMChannelDto parentChannel in smChannel.SMChannelDtos)
+        {
+            SMChannelChannelLink? link = channelLinks.Find(a => a.ParentSMChannelId == smChannel.Id && a.SMChannelId == parentChannel.Id);
+
+            if (link != null)
+            {
+                parentChannel.Rank = link.Rank;
+            }
+        }
+    }
+
     public async Task CreateSMChannelChannelLink(int ParentSMChannelId, int ChildSMChannelId, int? Rank)
     {
         if (Any(a => a.ParentSMChannelId == ParentSMChannelId && a.SMChannelId == ChildSMChannelId))

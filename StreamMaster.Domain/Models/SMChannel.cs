@@ -118,7 +118,7 @@ namespace StreamMaster.Domain.Models
         [Ignore, JsonIgnore, IgnoreMember, IgnoreMap, XmlIgnore, TsIgnore]
         public ICollection<SMChannelChannelLink> SMChannels { get; set; } = [];
 
-        [Ignore, JsonIgnore, IgnoreMember, IgnoreMap, XmlIgnore]
+        [Ignore, JsonIgnore, IgnoreMember, IgnoreMap, XmlIgnore, TsIgnore]
         public ICollection<StreamGroupSMChannelLink> StreamGroups { get; set; } = [];
     }
 }

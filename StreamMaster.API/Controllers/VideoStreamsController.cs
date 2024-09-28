@@ -33,7 +33,7 @@ public class VideoStreamsController(ILogger<VideoStreamsController> logger, IVid
 
         HttpContext.Response.RegisterForDispose(new UnregisterClientOnDispose(channelManager, streamResult.ClientConfiguration, logger));
 
-        return streamResult.Stream != null ? new FileStreamResult(streamResult.Stream, "video/mp2t") { EnableRangeProcessing = false } : StatusCode(StatusCodes.Status404NotFound);
+        return streamResult.Stream != null ? new FileStreamResult(streamResult.Stream, "video/mp2t") { EnableRangeProcessing = false, FileDownloadName = $"{encodedIds}.ts" } : StatusCode(StatusCodes.Status404NotFound);
     }
     private class UnregisterClientOnDispose(IChannelManager channelManager, IClientConfiguration config, ILogger logger) : IDisposable
     {
