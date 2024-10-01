@@ -32,7 +32,6 @@ import SMChannelMenu from './SMChannelMenu';
 import SMStreamDataSelectorValue from './SMStreamDataSelectorValue';
 import useSelectedSMItems from './useSelectedSMItems';
 import SMChannelDataSelectorValue from './SMChannelDataSelectorValue';
-import CreateMultiViewSMChannelDialog from '@components/smchannels/CreateMultiViewSMChannelDialog';
 
 interface SMChannelDataSelectorProperties {
   readonly enableEdit?: boolean;
@@ -240,7 +239,7 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id }: SMChannelDat
       <div className="flex flex-row justify-content-end align-items-center gap-1">
         <EPGFilesButton />
         <DeleteSMChannelsDialog selectedItemsKey="selectSelectedSMChannelDtoItems" id={dataKey} />
-        <CreateMultiViewSMChannelDialog />
+
         <CreateSMChannelDialog />
         <SMChannelMenu />
       </div>
