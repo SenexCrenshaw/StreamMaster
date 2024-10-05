@@ -46,7 +46,6 @@ public partial class StreamGroupsController
     [Route("{encodedId}/discover.json")]
     public async Task<IActionResult> GetStreamGroupDiscover(string encodedId)
     {
-        HttpRequest a = HttpContext.Request;
         int? streamGroupProfileId = CryptoService.DecodeInt(encodedId);
         if (!streamGroupProfileId.HasValue)
         {
