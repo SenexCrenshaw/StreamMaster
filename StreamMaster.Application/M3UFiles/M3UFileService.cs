@@ -7,6 +7,12 @@ namespace StreamMaster.Application.M3UFiles;
 public class M3UFileService(ILogger<M3UFileService> logger, ILogoService logoService, IM3UToSMStreamsService m3UtoSMStreamsService, IJobStatusService jobStatusService, IOptionsMonitor<Setting> _settings, IMessageService messageService, IRepositoryWrapper repositoryWrapper, IRepositoryContext repositoryContext)
     : IM3UFileService
 {
+    public async Task<DataResponse<List<M3UFileDto>>> GetM3UFilesNeedUpdatingAsync()
+    {
+        List<M3UFileDto> M3UFilesToUpdated = await repositoryWrapper.M3UFile.GetM3UFilesNeedUpdatingAsync();
+        return DataResponse<List<M3UFileDto>>.Success(M3UFilesToUpdated);
+    }
+
     public async Task<M3UFile?> ProcessM3UFile(int M3UFileId, bool ForceRun = false)
     {
         JobStatusManager jobManager = jobStatusService.GetJobManagerProcessM3U(M3UFileId);

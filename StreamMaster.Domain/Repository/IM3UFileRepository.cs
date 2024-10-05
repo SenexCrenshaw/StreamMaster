@@ -30,7 +30,7 @@ public interface IM3UFileRepository : IRepositoryBase<M3UFile>
     /// <returns>An M3UFile object if found, or null if not found.</returns>
     Task<M3UFile?> GetM3UFileBySourceAsync(string source);
 
-    Task<List<M3UFileDto>> GetM3UFilesNeedUpdating();
+    Task<List<M3UFileDto>> GetM3UFilesNeedUpdatingAsync();
 
     /// <summary>
     /// Gets the maximum stream count associated with M3U files.

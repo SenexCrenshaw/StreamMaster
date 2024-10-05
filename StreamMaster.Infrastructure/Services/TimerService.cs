@@ -5,9 +5,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 using StreamMaster.Application.EPGFiles.Commands;
-using StreamMaster.Application.EPGFiles.Queries;
+using StreamMaster.Application.Interfaces;
 using StreamMaster.Application.M3UFiles.Commands;
-using StreamMaster.Application.M3UFiles.Queries;
 using StreamMaster.Application.Services;
 using StreamMaster.Domain.API;
 using StreamMaster.Domain.Common;
@@ -16,179 +15,163 @@ using StreamMaster.Domain.Dto;
 using StreamMaster.Domain.Enums;
 using StreamMaster.Domain.Helpers;
 
-namespace StreamMaster.Infrastructure.Services;
-
-public class TimerService(IServiceProvider serviceProvider, IOptionsMonitor<Setting> intSettings, IOptionsMonitor<SDSettings> intsdsettings, IJobStatusService jobStatusService, ILogger<TimerService> logger) : IHostedService, IDisposable
+namespace StreamMaster.Infrastructure.Services
 {
-    private readonly object Lock = new();
-    private readonly Setting settings = intSettings.CurrentValue;
-    private readonly SDSettings sdsettings = intsdsettings.CurrentValue;
-    private Timer? _timer;
-    private bool isActive = false;
-    private static DateTime LastBackupTime = DateTime.UtcNow;
-    public void Dispose()
+    public class TimerService : BackgroundService
     {
-        GC.SuppressFinalize(this);
-    }
+        private readonly IServiceProvider serviceProvider;
+        private readonly IJobStatusService jobStatusService;
+        private readonly ILogger<TimerService> logger;
+        private readonly IOptionsMonitor<Setting> intSettings;
+        private readonly IOptionsMonitor<SDSettings> intsdsettings;
 
-    public Task StartAsync(CancellationToken cancellationToken)
-    {
-        _timer = new Timer(async state => await DoWorkAsync(state, cancellationToken), null, TimeSpan.Zero, TimeSpan.FromSeconds(60));
+        // Static fields to maintain application-wide state
+        private static DateTime LastBackupTime = DateTime.UtcNow;
 
-        return Task.CompletedTask;
-    }
-
-    public Task StopAsync(CancellationToken cancellationToken)
-    {
-        _ = (_timer?.Change(Timeout.Infinite, 0));
-
-        return Task.CompletedTask;
-    }
-
-    private async Task DoWorkAsync(object? _, CancellationToken cancellationToken)
-    {
-        if (isActive)
+        public TimerService(
+            IServiceProvider serviceProvider,
+            IOptionsMonitor<Setting> intSettings,
+            IOptionsMonitor<SDSettings> intsdsettings,
+            IJobStatusService jobStatusService,
+            ILogger<TimerService> logger)
         {
-            return;
+            this.serviceProvider = serviceProvider;
+            this.intSettings = intSettings;
+            this.intsdsettings = intsdsettings;
+            this.jobStatusService = jobStatusService;
+            this.logger = logger;
         }
 
-        lock (Lock)
+        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            if (isActive)
+            while (!stoppingToken.IsCancellationRequested)
             {
-                return;
+                await DoWorkAsync(stoppingToken);
+                await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
             }
-            isActive = true;
         }
 
-        SDSystemStatus status = new() { IsSystemReady = BuildInfo.IsSystemReady };
-
-        lock (Lock)
+        private async Task DoWorkAsync(CancellationToken cancellationToken)
         {
-            if (!status.IsSystemReady)
-            {
-                isActive = false;
-                return;
-            }
-            isActive = true;
-        }
+            using IServiceScope scope = serviceProvider.CreateScope();
+            IMediator mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+            IBackgroundTaskQueue backgroundTask = scope.ServiceProvider.GetRequiredService<IBackgroundTaskQueue>();
+            IEPGFileService epgFileService = scope.ServiceProvider.GetRequiredService<IEPGFileService>();
+            IM3UFileService m3uFileService = scope.ServiceProvider.GetRequiredService<IM3UFileService>();
 
-        using IServiceScope scope = serviceProvider.CreateScope();
-        IMediator mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-        //IHubContext<StreamMasterHub, IStreamMasterHub> hubContext = scope.ServiceProvider.GetRequiredService<IHubContext<StreamMasterHub, IStreamMasterHub>>();
-        IBackgroundTaskQueue backgroundTask = scope.ServiceProvider.GetRequiredService<IBackgroundTaskQueue>();
+            DateTime now = DateTime.UtcNow;
 
-        //IRepositoryWrapper repository = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
-        //ISchedulesDirect schedulesDirect = scope.ServiceProvider.GetRequiredService<ISchedulesDirect>();
-
-        DateTime now = DateTime.Now;
-
-        JobStatusManager jobManager = jobStatusService.GetJobManager(JobType.SDSync, EPGHelper.SchedulesDirectId);
-        if (!jobManager.IsRunning)
-        {
-            try
-            {
-                jobManager.Start();
-
-                if (jobManager.ForceNextRun || (now - jobManager.LastRun).TotalMinutes > 15 || (now - jobManager.LastSuccessful).TotalMinutes > 60)
+            // Manage SDSync Job
+            await ExecuteJobAsync(
+                jobStatusService.GetJobManager(JobType.SDSync, EPGHelper.SchedulesDirectId),
+                async () =>
                 {
-                    if (jobManager.ForceNextRun)
+                    if (intsdsettings.CurrentValue.SDEnabled)
                     {
-                        jobManager.ClearForce();
-                    }
+                        logger.LogInformation("SDSync started.");
 
-                    if (sdsettings.SDEnabled)
-                    {
-                        logger.LogInformation("SDSync started. {status}", jobManager.Status);
-
-                        //_ = await mediator.Send(new EPGSync(), cancellationToken).ConfigureAwait(false);
                         await backgroundTask.EPGSync(cancellationToken).ConfigureAwait(false);
-                        //await hubContext.Clients.All.EPGFilesRefresh().ConfigureAwait(false);
 
-                        logger.LogInformation("SDSync completed. {status}", jobManager.Status);
+                        logger.LogInformation("SDSync completed.");
                     }
-                }
-                jobManager.SetSuccessful();
-            }
-            catch
-            {
-                jobManager.SetError();
-            }
-        }
+                },
+                runInterval: TimeSpan.FromMinutes(15),
+                successInterval: TimeSpan.FromMinutes(60),
+                cancellationToken: cancellationToken);
 
-        jobManager = jobStatusService.GetJobManager(JobType.TimerEPG, 0);
-        if (!jobManager.IsRunning)
-        {
-            try
-            {
-                jobManager.Start();
-                DataResponse<List<EPGFileDto>> epgFilesToUpdated = await mediator.Send(new GetEPGFilesNeedUpdatingRequest(), cancellationToken).ConfigureAwait(false);
-                if (epgFilesToUpdated.Data.Count != 0)
+            // Manage TimerEPG Job
+            await ExecuteJobAsync(
+                jobStatusService.GetJobManager(JobType.TimerEPG, 0),
+                async () =>
                 {
-                    logger.LogInformation("EPG Files to update count: {epgFiles.Count()}", epgFilesToUpdated.Count);
-
-                    foreach (EPGFileDto epg in epgFilesToUpdated.Data)
+                    DataResponse<List<EPGFileDto>> epgFilesToUpdated = await epgFileService.GetEPGFilesNeedUpdatingAsync().ConfigureAwait(false);
+                    if (epgFilesToUpdated.Data.Any())
                     {
-                        _ = await mediator.Send(new RefreshEPGFileRequest(epg.Id), cancellationToken).ConfigureAwait(false);
-                    }
-                }
-                jobManager.SetSuccessful();
-            }
-            catch
-            {
-                jobManager.SetError();
-            }
-        }
+                        logger.LogInformation("EPG Files to update count: {count}", epgFilesToUpdated.Data.Count);
 
-        jobManager = jobStatusService.GetJobManager(JobType.TimerM3U, 0);
-        if (!jobManager.IsRunning)
-        {
-            try
-            {
-                jobManager.Start();
-                DataResponse<List<M3UFileDto>> m3uFilesToUpdated = await mediator.Send(new GetM3UFilesNeedUpdating(), cancellationToken).ConfigureAwait(false);
-                if (m3uFilesToUpdated.Data.Count != 0)
+                        foreach (EPGFileDto epg in epgFilesToUpdated.Data)
+                        {
+                            await mediator.Send(new RefreshEPGFileRequest(epg.Id), cancellationToken).ConfigureAwait(false);
+                        }
+                    }
+                },
+                cancellationToken: cancellationToken);
+
+            // Manage TimerM3U Job
+            await ExecuteJobAsync(
+                jobStatusService.GetJobManager(JobType.TimerM3U, 0),
+                async () =>
                 {
-                    logger.LogInformation("M3U Files to update count: {m3uFiles.Count()}", m3uFilesToUpdated.Count);
-
-                    foreach (M3UFileDto? m3uFile in m3uFilesToUpdated.Data)
+                    DataResponse<List<M3UFileDto>> m3uFilesToUpdated = await m3uFileService.GetM3UFilesNeedUpdatingAsync().ConfigureAwait(false);
+                    if (m3uFilesToUpdated.Data.Any())
                     {
-                        await mediator.Send(new RefreshM3UFileRequest(m3uFile.Id), cancellationToken).ConfigureAwait(false);
+                        logger.LogInformation("M3U Files to update count: {count}", m3uFilesToUpdated.Data.Count);
+
+                        foreach (M3UFileDto m3uFile in m3uFilesToUpdated.Data)
+                        {
+                            await mediator.Send(new RefreshM3UFileRequest(m3uFile.Id), cancellationToken).ConfigureAwait(false);
+                        }
                     }
-                }
-                jobManager.SetSuccessful();
-            }
-            catch
-            {
-                jobManager.SetError();
-            }
+                },
+                cancellationToken: cancellationToken);
+
+            // Manage Backup Job
+            await ExecuteJobAsync(
+                jobStatusService.GetJobManager(JobType.TimerBackup, 0),
+                async () =>
+                {
+                    logger.LogInformation("Backup started.");
+
+                    await FileUtil.Backup().ConfigureAwait(false);
+
+                    logger.LogInformation("Backup completed.");
+                    LastBackupTime = DateTime.UtcNow;
+                },
+                executeIf: () => intSettings.CurrentValue.BackupEnabled && LastBackupTime.AddHours(intSettings.CurrentValue.BackupInterval) <= now,
+                cancellationToken: cancellationToken);
         }
 
-        jobManager = jobStatusService.GetJobManager(JobType.TimerBackup, 0);
-        if (settings.BackupEnabled && !jobManager.IsRunning && LastBackupTime.AddHours(settings.BackupInterval) <= DateTime.UtcNow)
+        private async Task ExecuteJobAsync(
+            JobStatusManager jobManager,
+            Func<Task> jobFunc,
+            TimeSpan? runInterval = null,
+            TimeSpan? successInterval = null,
+            Func<bool>? executeIf = null,
+            Action? onSuccessful = null,
+            CancellationToken cancellationToken = default)
         {
+            if (jobManager.IsRunning)
+            {
+                return;
+            }
+
+            if (executeIf != null && !executeIf())
+            {
+                return;
+            }
+
+            if (runInterval.HasValue && (DateTime.UtcNow - jobManager.LastRun) < runInterval.Value)
+            {
+                return;
+            }
+
+            if (successInterval.HasValue && (DateTime.UtcNow - jobManager.LastSuccessful) < successInterval.Value)
+            {
+                return;
+            }
+
             try
             {
                 jobManager.Start();
-
-                logger.LogInformation("Backup started. {status}", jobManager.Status);
-
-                await FileUtil.Backup().ConfigureAwait(false);
-
-                logger.LogInformation("Backup completed. {status}", jobManager.Status);
-                LastBackupTime = DateTime.UtcNow;
-
+                await jobFunc();
                 jobManager.SetSuccessful();
+                onSuccessful?.Invoke();
             }
-            catch
+            catch (Exception ex)
             {
+                logger.LogError(ex, "An error occurred during the job {JobType}", jobManager.JobType);
                 jobManager.SetError();
             }
-        }
-
-        lock (Lock)
-        {
-            isActive = false;
         }
     }
 }

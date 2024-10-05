@@ -2,6 +2,7 @@
 
 using StreamMaster.Application.ChannelGroups;
 using StreamMaster.Application.Crypto;
+using StreamMaster.Application.EPGFiles;
 using StreamMaster.Application.M3UFiles;
 using StreamMaster.Application.Profiles;
 using StreamMaster.Application.SMChannels;
@@ -27,6 +28,7 @@ public static class ConfigureServices
         services.AddScoped(typeof(CachedConcurrentDictionary<,>));
         services.AddScoped<ISMChannelService, SMChannelService>();
         services.AddScoped<ISMStreamService, SMStreamService>();
+        services.AddScoped<IEPGFileService, EPGFileService>();
 
         return services;
     }

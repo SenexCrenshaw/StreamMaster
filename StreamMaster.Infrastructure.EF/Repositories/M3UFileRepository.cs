@@ -131,10 +131,10 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, IRepository
                      .ConfigureAwait(false);
     }
 
-    public async Task<List<M3UFileDto>> GetM3UFilesNeedUpdating()
+    public async Task<List<M3UFileDto>> GetM3UFilesNeedUpdatingAsync()
     {
         List<M3UFileDto> ret = [];
-        List<M3UFileDto> m3uFilesToUpdated = await GetQuery(a => a.AutoUpdate && !string.IsNullOrEmpty(a.Url) && a.HoursToUpdate > 0 && a.LastDownloaded.AddHours(a.HoursToUpdate) < DateTime.Now).ProjectTo<M3UFileDto>(mapper.ConfigurationProvider).ToListAsync().ConfigureAwait(false);
+        List<M3UFileDto> m3uFilesToUpdated = await GetQuery(a => a.AutoUpdate && !string.IsNullOrEmpty(a.Url) && a.HoursToUpdate > 0 && a.LastDownloaded.AddHours(a.HoursToUpdate) < SMDT.UtcNow).ProjectTo<M3UFileDto>(mapper.ConfigurationProvider).ToListAsync().ConfigureAwait(false);
         ret.AddRange(m3uFilesToUpdated);
         foreach (M3UFile? m3uFile in GetQuery(a => string.IsNullOrEmpty(a.Url)))
         {

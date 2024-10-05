@@ -176,10 +176,10 @@ public class EPGFileRepository(ILogger<EPGFileRepository> intLogger, IFileUtilSe
     {
         return PagedExtensions.CreateEmptyPagedResponse<EPGFileDto>(Count());
     }
-    public async Task<List<EPGFileDto>> GetEPGFilesNeedUpdating()
+    public async Task<List<EPGFileDto>> GetEPGFilesNeedUpdatingAsync()
     {
         List<EPGFileDto> ret = [];
-        List<EPGFileDto> epgFilesToUpdated = await GetQuery(a => a.AutoUpdate && !string.IsNullOrEmpty(a.Url) && a.HoursToUpdate > 0 && a.LastDownloaded.AddHours(a.HoursToUpdate) < DateTime.Now).ProjectTo<EPGFileDto>(mapper.ConfigurationProvider).ToListAsync().ConfigureAwait(false);
+        List<EPGFileDto> epgFilesToUpdated = await GetQuery(a => a.AutoUpdate && !string.IsNullOrEmpty(a.Url) && a.HoursToUpdate > 0 && a.LastDownloaded.AddHours(a.HoursToUpdate) < SMDT.UtcNow).ProjectTo<EPGFileDto>(mapper.ConfigurationProvider).ToListAsync().ConfigureAwait(false);
         ret.AddRange(epgFilesToUpdated);
         foreach (EPGFile? epgFile in GetQuery(a => string.IsNullOrEmpty(a.Url)))
         {
