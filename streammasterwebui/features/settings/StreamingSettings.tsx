@@ -66,7 +66,7 @@ export function StreamingSettings(): React.ReactElement {
 
   return (
     <BaseSettings title="STREAMING">
-      {GetInputNumberLine({ field: 'ClientReadTimeOutSeconds', max: 5 })}
+      {GetInputNumberLine({ field: 'ClientReadTimeOutSeconds' })}
       {GetInputNumberLine({ field: 'GlobalStreamLimit' })}
       {GetInputTextLine({ field: 'ClientUserAgent' })}
       {GetCheckBoxLine({ field: 'ShowClientHostNames' })}
