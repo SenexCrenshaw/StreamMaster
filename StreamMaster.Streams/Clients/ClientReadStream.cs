@@ -15,7 +15,7 @@ public class ClientReadStream : Stream, IClientReadStream
     private readonly ILogger<ClientReadStream> logger;
     private readonly MetricsService MetricsService = new();
 
-    public event EventHandler<StreamTimedOut> StreamTimedOut;
+    public event EventHandler<StreamTimedOut> ClientStreamTimedOut;
 
     public StreamHandlerMetrics Metrics => MetricsService.Metrics;
 
@@ -36,7 +36,7 @@ public class ClientReadStream : Stream, IClientReadStream
 
     private DateTime _lastReadTime;
     private readonly CancellationTokenSource? _monitorCts = null;
-    private readonly Task? _monitorTask = null;
+
     public ClientReadStream(ILoggerFactory loggerFactory, string UniqueRequestId)
     {
         uniqueRequestId = UniqueRequestId;
@@ -51,7 +51,7 @@ public class ClientReadStream : Stream, IClientReadStream
         if (ClientReadTimeOutSeconds > 0)
         {
             _monitorCts = new CancellationTokenSource();
-            _monitorTask = Task.Run(async () =>
+            Task _monitorTask = Task.Run(async () =>
             {
                 while (!_monitorCts.Token.IsCancellationRequested)
                 {
@@ -66,7 +66,7 @@ public class ClientReadStream : Stream, IClientReadStream
                     {
                         // No read in last specified seconds
                         logger.LogWarning("No read in last {ClientReadTimeOutSeconds} seconds for UniqueRequestId: {UniqueRequestId}", ClientReadTimeOutSeconds, UniqueRequestId);
-                        OnStreamTimedOut(new StreamTimedOut(uniqueRequestId, DateTime.UtcNow));
+                        OnClientStreamTimedOut(new StreamTimedOut(uniqueRequestId, DateTime.UtcNow));
 
                         Cancel();
                         break;
@@ -150,9 +150,9 @@ public class ClientReadStream : Stream, IClientReadStream
     private bool _disposed = false;
 
 
-    protected virtual void OnStreamTimedOut(StreamTimedOut e)
+    protected virtual void OnClientStreamTimedOut(StreamTimedOut e)
     {
-        StreamTimedOut?.Invoke(this, e);
+        ClientStreamTimedOut?.Invoke(this, e);
     }
 
     protected override void Dispose(bool disposing)
@@ -198,10 +198,10 @@ public class ClientReadStream : Stream, IClientReadStream
 
         try
         {
-            CancellationTokenSource timedToken = new(TimeSpan.FromSeconds(5));
-            using CancellationTokenSource linkedCts = CancellationTokenSource.CreateLinkedTokenSource(timedToken.Token, cancellationToken);
+            //CancellationTokenSource timedToken = new(TimeSpan.FromSeconds(30));
+            //using CancellationTokenSource linkedCts = CancellationTokenSource.CreateLinkedTokenSource(timedToken.Token, cancellationToken);
 
-            byte[] read = await Channel.ReadAsync(linkedCts.Token);
+            byte[] read = await Channel.ReadAsync(cancellationToken);
             bytesRead = read.Length;
 
             if (bytesRead == 0)
@@ -210,7 +210,7 @@ public class ClientReadStream : Stream, IClientReadStream
             }
             read[..bytesRead].CopyTo(buffer);
 
-            if (timedToken.IsCancellationRequested)
+            if (cancellationToken.IsCancellationRequested)
             {
                 logger.LogWarning("ReadAsync timedToken cancelled for UniqueRequestId: {UniqueRequestId}", uniqueRequestId);
                 return bytesRead;

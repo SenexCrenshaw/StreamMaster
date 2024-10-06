@@ -7,7 +7,7 @@ namespace StreamMaster.Streams.Domain.Interfaces;
 /// </summary>
 public interface IClientReadStream : IDisposable, IStreamStats
 {
-    event EventHandler<StreamTimedOut> StreamTimedOut;
+    event EventHandler<StreamTimedOut> ClientStreamTimedOut;
     //IByteTrackingChannel Channel { get; }
     TrackedChannel Channel { get; }
 

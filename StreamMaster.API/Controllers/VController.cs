@@ -35,6 +35,8 @@ public class VsController(ILogger<VsController> logger, IVideoService videoServi
 
         streamResult.ClientConfiguration.ClientStopped += (sender, args) =>
         {
+            logger.LogInformation("Client {UniqueRequestId} {name} disposing", streamResult.ClientConfiguration.UniqueRequestId, streamResult.ClientConfiguration.SMChannel.Name);
+
             _ = channelManager.RemoveClientAsync(streamResult.ClientConfiguration);
         };
 
