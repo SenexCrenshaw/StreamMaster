@@ -1,8 +1,8 @@
 ﻿using StreamMaster.Domain.Extensions;
+using StreamMaster.Streams.Domain;
 
 using System.Diagnostics;
 using System.Text.Json;
-using System.Threading.Channels;
 
 namespace StreamMaster.Streams.Plugins
 {
@@ -16,14 +16,14 @@ namespace StreamMaster.Streams.Plugins
     {
         private readonly ILogger<VideoInfoPlugin> _logger;
         private readonly IOptionsMonitor<Setting> _settingsMonitor;
-        private readonly ChannelReader<byte[]> _channelReader;
+        private readonly TrackedChannel _channelReader;
         private readonly string name;
         private readonly string id;
         private readonly CancellationTokenSource cancellationTokenSource = new();
         private readonly Task? videoInfoTask;
         public event EventHandler<VideoInfoEventArgs>? VideoInfoUpdated;
 
-        public VideoInfoPlugin(ILogger<VideoInfoPlugin> logger, IOptionsMonitor<Setting> settingsMonitor, ChannelReader<byte[]> channelReader, string id, string name)
+        public VideoInfoPlugin(ILogger<VideoInfoPlugin> logger, IOptionsMonitor<Setting> settingsMonitor, TrackedChannel channelReader, string id, string name)
         {
             this.id = id;
             this.name = name;
@@ -79,7 +79,7 @@ namespace StreamMaster.Streams.Plugins
             }
         }
 
-        private async Task<VideoInfo?> GetVideoInfoAsync(ChannelReader<byte[]> channelReader, CancellationToken cancellationToken)
+        private async Task<VideoInfo?> GetVideoInfoAsync(TrackedChannel channelReader, CancellationToken cancellationToken)
         {
             try
             {
@@ -166,7 +166,7 @@ namespace StreamMaster.Streams.Plugins
             }
         }
 
-        private static async Task<byte[]> ReadChannelDataAsync(ChannelReader<byte[]> channelReader, int maxSize, CancellationToken cancellationToken)
+        private static async Task<byte[]> ReadChannelDataAsync(TrackedChannel channelReader, int maxSize, CancellationToken cancellationToken)
         {
             try
             {

@@ -15,7 +15,7 @@ public class AutoSetEPGFromParametersRequestHandler(IRepositoryWrapper Repositor
         {
 
             //await dataRefreshService.RefreshSMChannels().ConfigureAwait(false);
-            //await hubContext.Clients.All.SetField(ret).ConfigureAwait(false);
+            //await hubContext.ClientChannels.All.SetField(ret).ConfigureAwait(false);
             //}
             await dataRefreshService.SetField(results);
             await messageService.SendSuccess($"Auto Set EPG For Channels");

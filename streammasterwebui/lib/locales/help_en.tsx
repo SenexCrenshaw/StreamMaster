@@ -4,6 +4,7 @@ interface help_enType {
 }
 
 const help_en: help_enType = {
+  ClientReadTimeOutSeconds: 'Client Read Timeout in seconds',
   'sdSettings.alternateSEFormat': 'True: "S{0}:E{1} "  False: "s{0:D2}e{1:D2} ";',
   'SDSettings.MaxSubscribedLineups': 'Max Allowed Subscribed Lineups',
   ApiKey: 'API Key',

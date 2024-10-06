@@ -1,4 +1,6 @@
-﻿using System.Collections.Concurrent;
+﻿using StreamMaster.Streams.Domain.Helpers;
+
+using System.Collections.Concurrent;
 using System.Threading.Channels;
 
 namespace StreamMaster.Streams.Plugins
@@ -34,19 +36,21 @@ namespace StreamMaster.Streams.Plugins
 
         public void SetSourceChannel(ISourceBroadcaster sourceBroadcaster, string Id, string Name)
         {
-            Channel<byte[]> channelVideoInfo = Channel.CreateBounded<byte[]>(new BoundedChannelOptions(200)
-            {
-                SingleReader = true,
-                SingleWriter = true,
-                FullMode = BoundedChannelFullMode.DropOldest
-            });
+            //Channel<byte[]> channelVideoInfo = Channel.CreateBounded<byte[]>(new BoundedChannelOptions(200)
+            //{
+            //    SingleReader = true,
+            //    SingleWriter = true,
+            //    FullMode = BoundedChannelFullMode.DropOldest
+            //});
 
-            sourceBroadcaster.AddChannelStreamer("VideoInfo", channelVideoInfo.Writer);
+            Domain.TrackedChannel channel = ChannelHelper.GetChannel(200, BoundedChannelFullMode.DropOldest);
+
+            sourceBroadcaster.AddChannelStreamer("VideoInfo", channel);
 
             if (!VideoInfoPlugins.TryGetValue(Id, out VideoInfoPlugin? videoInfoPlugin))
             {
                 logger.LogInformation("Video info service started for {Name}", Name);
-                videoInfoPlugin = new VideoInfoPlugin(pluginLogger, intSettings, channelVideoInfo.Reader, Id, Name);
+                videoInfoPlugin = new VideoInfoPlugin(pluginLogger, intSettings, channel, Id, Name);
                 videoInfoPlugin.VideoInfoUpdated += OnVideoInfoUpdated;
                 VideoInfoPlugins.TryAdd(Id, videoInfoPlugin);
             }

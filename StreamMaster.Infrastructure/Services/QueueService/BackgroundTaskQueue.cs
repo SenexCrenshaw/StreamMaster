@@ -84,7 +84,7 @@ public partial class BackgroundTaskQueue : IBackgroundTaskQueue
     //    {
     //        status.QueueTS = SMDT.UtcNow;
     //        status.IsRunning = true;
-    //        //await _hubContext.Clients.All.TaskQueueStatusUpdate(await GetQueueStatus()).ConfigureAwait(false);
+    //        //await _hubContext.ClientChannels.All.TaskQueueStatusUpdate(await GetQueueStatus()).ConfigureAwait(false);
     //        await SendSMTasks();
     //    }
     //}
@@ -96,7 +96,7 @@ public partial class BackgroundTaskQueue : IBackgroundTaskQueue
             status.StartTS = status.Command == "SetIsSystemReady" ? BuildInfo.StartTime : SMDT.UtcNow;
 
             status.IsRunning = true;
-            //await _hubContext.Clients.All.TaskQueueStatusUpdate(await GetQueueStatus()).ConfigureAwait(false);
+            //await _hubContext.ClientChannels.All.TaskQueueStatusUpdate(await GetQueueStatus()).ConfigureAwait(false);
             await SendSMTasks();
         }
 
@@ -108,7 +108,7 @@ public partial class BackgroundTaskQueue : IBackgroundTaskQueue
         {
             status.StopTS = SMDT.UtcNow;
             status.IsRunning = false;
-            //await _hubContext.Clients.All.TaskQueueStatusUpdate(await GetQueueStatus()).ConfigureAwait(false);
+            //await _hubContext.ClientChannels.All.TaskQueueStatusUpdate(await GetQueueStatus()).ConfigureAwait(false);
             await SendSMTasks();
         }
     }
@@ -154,7 +154,7 @@ public partial class BackgroundTaskQueue : IBackgroundTaskQueue
         });
         await SendSMTasks();
 
-        //await _hubContext.Clients.All.TaskQueueStatusUpdate(await GetQueueStatus()).ConfigureAwait(false);
+        //await _hubContext.ClientChannels.All.TaskQueueStatusUpdate(await GetQueueStatus()).ConfigureAwait(false);
         await _queue.Writer.WriteAsync(workItem).ConfigureAwait(false);
         _logger.LogInformation("Added {workItem.command} to Queue", workItem.Command);
 

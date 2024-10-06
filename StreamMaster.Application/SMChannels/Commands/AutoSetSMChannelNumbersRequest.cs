@@ -31,9 +31,9 @@ internal class AutoSetSMChannelNumbersRequestHandler(IRepositoryWrapper Reposito
             await messageService.SendSuccess($"Auto Set #s For Channels");
         }
 
-        //await hubContext.Clients.All.DataRefresh("StreamGroups").ConfigureAwait(false);
+        //await hubContext.ClientChannels.All.DataRefresh("StreamGroups").ConfigureAwait(false);
 
-        // await hubContext.Clients.All.DataRefresh("StreamGroupSMChannelLinks").ConfigureAwait(false);
+        // await hubContext.ClientChannels.All.DataRefresh("StreamGroupSMChannelLinks").ConfigureAwait(false);
 
         return APIResponse.Success;
     }

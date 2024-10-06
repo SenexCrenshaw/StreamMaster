@@ -15,10 +15,10 @@ public class UpdateChannelGroupsEventHandler(IChannelGroupService channelGroupSe
         //IEnumerable<StreamGroupDto> sgs = await Sender.Send(new GetStreamGroupsFromChannelGroupsQuery(ids), cancellationToken).ConfigureAwait(false);
 
         //ChannelGroupDto[] dtos = mapper.Map<ChannelGroupDto[]>(notification.ChannelGroups);
-        //await HubContext.Clients.All.ChannelGroupsRefresh(dtos).ConfigureAwait(false);
+        //await HubContext.ClientChannels.All.ChannelGroupsRefresh(dtos).ConfigureAwait(false);
         //if (sgs.Any())
         //{
-        //    await HubContext.Clients.All.StreamGroupsRefresh(sgs.ToArray()).ConfigureAwait(false);
+        //    await HubContext.ClientChannels.All.StreamGroupsRefresh(sgs.ToArray()).ConfigureAwait(false);
         //}
 
 

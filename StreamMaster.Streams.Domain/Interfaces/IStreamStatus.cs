@@ -11,6 +11,5 @@ public interface IStreamStatus : IIntroStatus, ISourceName
     bool FailoverInProgress { get; set; }
     void SetSMStreamInfo(SMStreamInfo? idNameUrl);
     SMStreamInfo? SMStreamInfo { get; }
-
     int StreamGroupProfileId { get; }
 }

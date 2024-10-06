@@ -87,6 +87,7 @@ const MessagesEn: messages_enType = {
   nameregexSettings: 'Name Blacklist',
   Numbers: '#s',
   ok: 'OK',
+  ClientReadTimeOutSeconds: 'Client Read Timeout',
   overWriteM3UChannels: 'Overwrite M3U Channels #s',
   password: 'Password',
   playlist: 'Playlist',

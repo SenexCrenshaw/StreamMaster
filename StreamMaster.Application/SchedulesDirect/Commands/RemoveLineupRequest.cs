@@ -25,12 +25,12 @@ public class RemoveLineupRequestHandler(ISchedulesDirect schedulesDirect, IDataR
             //APIResponse response = await schedulesDirect.SDSync(cancellationToken);
             //if (!response.IsErrored)
             //{
-            //    await HubContext.Clients.All.SchedulesDirectsRefresh();
+            //    await HubContext.ClientChannels.All.SchedulesDirectsRefresh();
 
             //}
             //schedulesDirect.ResetCache(SDCommands.Status);
             //schedulesDirect.ResetCache(SDCommands.LineUps);
-            //await hubContext.Clients.All.SchedulesDirectsRefresh();
+            //await hubContext.ClientChannels.All.SchedulesDirectsRefresh();
             schedulesDirect.ResetCache("SubscribedLineups");
 
 

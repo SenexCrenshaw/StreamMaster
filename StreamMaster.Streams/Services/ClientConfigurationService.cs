@@ -35,6 +35,10 @@ namespace StreamMaster.Streams.Services
                 cancellationToken);
 
             config.ClientStream ??= new ClientReadStream(loggerFactory, config.UniqueRequestId);
+            config.ClientStream.StreamTimedOut += (sender, e) =>
+            {
+                config.Stop();
+            };
             return config;
         }
 

@@ -13,8 +13,6 @@
             try
             {
                 logger.LogInformation("Client {UniqueRequestId} requesting channel {Name}.", config.UniqueRequestId, config.SMChannel.Name);
-                //await _registerSemaphore.WaitAsync(cancellationToken);
-                logger.LogInformation("Client {UniqueRequestId} requesting channel {Name} next.", config.UniqueRequestId, config.SMChannel.Name);
 
                 if (cancellationToken.IsCancellationRequested)
                 {
@@ -34,7 +32,7 @@
             }
             finally
             {
-                logger.LogInformation("Client {UniqueRequestId} requesting channel {Name} release.", config.UniqueRequestId, config.SMChannel.Name);
+                //logger.LogInformation("Client {UniqueRequestId} requesting channel {Name} release.", config.UniqueRequestId, config.SMChannel.Name);
 
                 //_ = _registerSemaphore.Release();
             }

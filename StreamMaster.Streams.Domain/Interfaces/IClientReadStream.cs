@@ -1,4 +1,4 @@
-﻿using System.Threading.Channels;
+﻿using StreamMaster.Streams.Domain.Events;
 
 namespace StreamMaster.Streams.Domain.Interfaces;
 
@@ -7,8 +7,9 @@ namespace StreamMaster.Streams.Domain.Interfaces;
 /// </summary>
 public interface IClientReadStream : IDisposable, IStreamStats
 {
+    event EventHandler<StreamTimedOut> StreamTimedOut;
     //IByteTrackingChannel Channel { get; }
-    Channel<byte[]> Channel { get; }
+    TrackedChannel Channel { get; }
 
     /// <summary>
     /// Gets a value indicating whether the stream supports reading.

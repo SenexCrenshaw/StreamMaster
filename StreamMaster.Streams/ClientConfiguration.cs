@@ -19,7 +19,7 @@ namespace StreamMaster.Streams;
 /// <param name="response">The HTTP response associated with the client.</param>
 /// <param name="loggerFactory">The logger factory for creating loggers.</param>
 /// <param name="cancellationToken">The cancellation token associated with the client.</param>
-public sealed class ClientConfiguration(
+public class ClientConfiguration(
     string uniqueRequestId,
     SMChannelDto smChannel,
     string clientUserAgent,
@@ -28,6 +28,8 @@ public sealed class ClientConfiguration(
     ILoggerFactory loggerFactory,
     CancellationToken cancellationToken) : IClientConfiguration
 {
+
+    public event EventHandler ClientStopped;
     /// <summary>
     /// Initializes a new instance of the <see cref="ClientConfiguration"/> class for serialization purposes.
     /// </summary>
@@ -43,6 +45,11 @@ public sealed class ClientConfiguration(
         UniqueRequestId = uniqueRequestId;
     }
 
+    protected virtual void OnClientStopped(EventArgs e)
+    {
+        ClientStopped?.Invoke(this, e);
+    }
+
     public void Stop()
     {
         ClientStream?.Write([0], 0, 1);
@@ -50,7 +57,7 @@ public sealed class ClientConfiguration(
         ClientStream?.Flush();
         ClientStream?.Dispose();
         //  Response.CompleteAsync().Wait();
-
+        OnClientStopped(EventArgs.Empty);
     }
 
     public ILoggerFactory LoggerFactory { get; set; } = loggerFactory;

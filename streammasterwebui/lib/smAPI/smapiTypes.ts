@@ -231,6 +231,7 @@ export interface SettingDto
 	BackupInterval: number;
 	BackupVersionsToKeep: number;
 	CleanURLs: boolean;
+	ClientReadTimeOutSeconds: number;
 	ClientUserAgent: string;
 	DefaultCommandProfileName: string;
 	DefaultCompression: string;
@@ -1089,6 +1090,7 @@ export interface UpdateSettingParameters
 	BackupInterval?: number;
 	BackupVersionsToKeep?: number;
 	CleanURLs?: boolean;
+	ClientReadTimeOutSeconds?: number;
 	ClientUserAgent?: string;
 	DefaultCommandProfileName?: string;
 	DefaultCompression?: string;
@@ -1522,6 +1524,7 @@ export interface ChannelMetric
 	Name: string;
 	SMStreamInfo?: SMStreamInfo;
 	SourceName: string;
+	TotalBytesInBuffer: number;
 	VideoInfo?: string;
 }
 export interface ClientChannelDto
@@ -1532,6 +1535,7 @@ export interface ClientChannelDto
 	Metrics?: StreamHandlerMetrics;
 	Name: string;
 	SMChannelId: number;
+	TotalBytesInBuffer: number;
 }
 export interface ClientStreamsDto
 {

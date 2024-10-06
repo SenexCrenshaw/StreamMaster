@@ -26,5 +26,6 @@ namespace StreamMaster.Streams.Domain.Models
         public string SourceName { get; set; }
         public string? Logo { get; set; }
         public string? VideoInfo { get; set; }
+        public long TotalBytesInBuffer { get; set; }
     }
 }

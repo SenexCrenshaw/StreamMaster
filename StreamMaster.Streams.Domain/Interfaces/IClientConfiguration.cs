@@ -12,6 +12,7 @@ namespace StreamMaster.Streams.Domain.Interfaces
     /// </summary>
     public interface IClientConfiguration
     {
+        event EventHandler ClientStopped;
         /// <summary>
         /// Gets the unique identifier for the current HTTP context.
         /// </summary>

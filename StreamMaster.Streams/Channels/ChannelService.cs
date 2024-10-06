@@ -191,6 +191,7 @@ public sealed class ChannelService : IChannelService, IDisposable
             {
                 // Log and reuse the existing channel broadcaster.
                 _logger.LogInformation("Reuse existing stream handler for {ChannelVideoStreamId} {name}", clientConfiguration.SMChannel.Id, clientConfiguration.SMChannel.Name);
+                clientConfiguration.SMChannel.CurrentRank = channelBroadcaster.SMChannel.CurrentRank;
             }
 
             //// Handle stream validation for regular channels.
@@ -387,12 +388,6 @@ public sealed class ChannelService : IChannelService, IDisposable
         {
             _logger.LogDebug("Starting SwitchToNextStream with channelBroadcaster: {channelBroadcaster} and overrideNextVideoStreamId: {overrideNextVideoStreamId}", channelBroadcaster, overrideSMStreamId);
 
-            //if (channelBroadcaster.SMChannel.SMChannelType == SMChannelTypeEnum.MultiView)
-            //{
-            //    sourceChannelBroadcaster = await _videoCombinerService.GetOrCreateVideoCombinerAsync(clientConfiguration, _mapper, this, 16240, 16241, 16242, 16243, channelBroadcaster.StreamGroupProfileId, CancellationToken.None).ConfigureAwait(false);
-            //}
-            //else
-            //{
             bool didChange = await _switchToNextStreamService.SetNextStreamAsync(channelBroadcaster, overrideSMStreamId).ConfigureAwait(false);
             if (channelBroadcaster.SMStreamInfo == null || !didChange)
             {
@@ -402,7 +397,6 @@ public sealed class ChannelService : IChannelService, IDisposable
             }
 
             sourceChannelBroadcaster = await _sourceBroadcasterService.GetOrCreateStreamBroadcasterAsync(channelBroadcaster, CancellationToken.None).ConfigureAwait(false);
-            //}
 
             if (sourceChannelBroadcaster != null)
             {

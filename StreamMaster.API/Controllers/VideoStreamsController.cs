@@ -31,6 +31,15 @@ public class VideoStreamsController(ILogger<VideoStreamsController> logger, IVid
             return StatusCode(StatusCodes.Status404NotFound);
         }
 
+        streamResult.ClientConfiguration.ClientStopped += (sender, args) =>
+        {
+            //logger.LogInformation("Client {UniqueRequestId} {name} disposing", streamResult.ClientConfiguration.UniqueRequestId, streamResult.ClientConfiguration.SMChannel.Name);
+            streamResult.ClientConfiguration.Response.CompleteAsync().Wait();
+            //logger.LogInformation("Client {UniqueRequestId} {name} disposing next", streamResult.ClientConfiguration.UniqueRequestId, streamResult.ClientConfiguration.SMChannel.Name);
+            _ = channelManager.RemoveClientAsync(streamResult.ClientConfiguration);
+        };
+
+
         HttpContext.Response.RegisterForDispose(new UnregisterClientOnDispose(channelManager, streamResult.ClientConfiguration, logger));
 
         return streamResult.Stream != null ? new FileStreamResult(streamResult.Stream, "video/mp2t") { EnableRangeProcessing = false, FileDownloadName = $"{encodedIds}.ts" } : StatusCode(StatusCodes.Status404NotFound);

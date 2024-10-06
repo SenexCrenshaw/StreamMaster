@@ -29,10 +29,10 @@ public partial class UpdateSettingRequestHandler(
         SettingsHelper.UpdateSetting(currentSetting);
 
         SettingDto ret = Mapper.Map<SettingDto>(currentSetting);
-        //await HubContext.Clients.All.SettingsUpdate(ret).ConfigureAwait(false);
+        //await HubContext.ClientChannels.All.SettingsUpdate(ret).ConfigureAwait(false);
         //if (request.Parameters.SDSettings?.SDStationIds != null)
         //{
-        //    await HubContext.Clients.All.SchedulesDirectsRefresh().ConfigureAwait(false);
+        //    await HubContext.ClientChannels.All.SchedulesDirectsRefresh().ConfigureAwait(false);
         //}
 
         return new UpdateSettingResponse { Settings = ret, NeedsLogOut = needsLogOut };
@@ -264,6 +264,11 @@ public partial class UpdateSettingRequestHandler(
         if (request.Parameters.MaxLogFiles.HasValue)
         {
             currentSetting.MaxLogFiles = request.Parameters.MaxLogFiles.Value;
+        }
+
+        if (request.Parameters.ClientReadTimeOutSeconds.HasValue)
+        {
+            currentSetting.ClientReadTimeOutSeconds = request.Parameters.ClientReadTimeOutSeconds.Value;
         }
         //if (request.Parameters.M3UUseChnoForId != null)
         //{

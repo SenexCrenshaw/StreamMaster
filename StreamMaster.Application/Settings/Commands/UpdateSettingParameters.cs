@@ -16,6 +16,8 @@ public class UpdateSettingParameters
     public string? AdminPassword { get; set; }
     public string? AdminUserName { get; set; }
     //public string? ApiKey { get; set; }
+
+    public int? ClientReadTimeOutSeconds { get; set; }
     public string? AuthenticationMethod { get; set; }
     public string? LogoCache { get; set; }
     public bool? CleanURLs { get; set; }

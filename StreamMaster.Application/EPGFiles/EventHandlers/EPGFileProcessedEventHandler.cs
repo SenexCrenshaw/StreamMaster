@@ -19,8 +19,8 @@
 //    public async Task Handle(EPGFileProcessedEvent notification, CancellationToken cancellationToken)
 //    {
 //        //await _taskQueue.BuildProgIconsCacheFromEPGs(cancellationToken).ConfigureAwait(false);
-//        //await _hubContext.Clients.All.EPGFilesRefresh().ConfigureAwait(false);
-//        //await _hubContext.Clients.All.ChannelGroupsRefresh().ConfigureAwait(false);
-//        //await _hubContext.Clients.All.CacheHandler("epgSelector").ConfigureAwait(false);
+//        //await _hubContext.ClientChannels.All.EPGFilesRefresh().ConfigureAwait(false);
+//        //await _hubContext.ClientChannels.All.ChannelGroupsRefresh().ConfigureAwait(false);
+//        //await _hubContext.ClientChannels.All.CacheHandler("epgSelector").ConfigureAwait(false);
 //    }
 //}

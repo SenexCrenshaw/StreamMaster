@@ -80,7 +80,7 @@ namespace StreamMaster.Streams.Handlers
         {
             foreach (IChannelBroadcaster? channelBroadcaster in cacheManager.ChannelBroadcasters.Values.Where(a => a.SMStreamInfo != null))
             {
-                if (channelBroadcaster.ClientChannelWriters.IsEmpty)
+                if (channelBroadcaster.ClientChannels.IsEmpty)
                 {
                     await StopChannelAsync(channelBroadcaster).ConfigureAwait(false);
                 }

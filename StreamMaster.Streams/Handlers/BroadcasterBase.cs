@@ -1,4 +1,5 @@
 ﻿
+using StreamMaster.Streams.Domain;
 using StreamMaster.Streams.Domain.Helpers;
 using StreamMaster.Streams.Domain.Statistics;
 using StreamMaster.Streams.Services;
@@ -20,7 +21,7 @@ public abstract class BroadcasterBase(ILogger<IBroadcasterBase> logger, IOptions
     public ConcurrentDictionary<string, IClientConfiguration> ClientStreamerConfigurations { get; set; } = new();
 
     [XmlIgnore]
-    public ConcurrentDictionary<string, ChannelWriter<byte[]>> ClientChannelWriters { get; } = new();
+    public ConcurrentDictionary<string, TrackedChannel> ClientChannels { get; } = new();
 
     public int ClientCount => ClientStreamerConfigurations.Keys.Count;
     public bool IsFailed { get; set; } = false;
@@ -38,9 +39,9 @@ public abstract class BroadcasterBase(ILogger<IBroadcasterBase> logger, IOptions
             _cancellationTokenSource.Cancel();
         }
 
-        if (!ClientChannelWriters.IsEmpty)
+        if (!ClientChannels.IsEmpty)
         {
-            foreach (KeyValuePair<string, ChannelWriter<byte[]>> client in ClientChannelWriters)
+            foreach (KeyValuePair<string, TrackedChannel> client in ClientChannels)
             {
                 RemoveChannelStreamer(client.Key);
             }
@@ -53,28 +54,24 @@ public abstract class BroadcasterBase(ILogger<IBroadcasterBase> logger, IOptions
     }
 
     public StreamHandlerMetrics Metrics => metricsService.Metrics;
+    public TrackedChannel Channel { get; } = ChannelHelper.GetChannel();
 
-    public void SetSourceChannel(ChannelReader<byte[]> sourceChannelReader, string sourceChannelName, CancellationToken cancellationToken)
+    public void SetSourceChannel(TrackedChannel sourceChannelReader, string sourceChannelName, CancellationToken cancellationToken)
     {
         logger.LogInformation("Setting source channel for {Name} to {sourceChannelName}", Name, sourceChannelName);
         SourceName = sourceChannelName;
-        Channel<byte[]> newChannel = ChannelHelper.GetChannel();
-        StartProcessingSource(sourceChannelReader, null, newChannel, cancellationToken);
+        StartProcessingSource(sourceChannelReader, null, Channel, cancellationToken);
     }
 
     public void SetSourceStream(Stream sourceStream, string streamName, CancellationToken cancellationToken)
     {
         logger.LogInformation("Setting source stream {Name} to {streamName}", Name, streamName);
         SourceName = streamName;
-        Channel<byte[]> newChannel = ChannelHelper.GetChannel();
-
-        StartProcessingSource(null, sourceStream, newChannel, cancellationToken);
+        StartProcessingSource(null, sourceStream, Channel, cancellationToken);
     }
 
-    protected void StartProcessingSource(ChannelReader<byte[]>? sourceChannelReader, Stream? sourceStream, Channel<byte[]> newChannel, CancellationToken cancellationToken)
+    protected void StartProcessingSource(TrackedChannel? sourceChannelReader, Stream? sourceStream, TrackedChannel newChannel, CancellationToken cancellationToken)
     {
-        //using CancellationTokenSource linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(_cancellationTokenSource.Token, cancellationToken);
-        //CancellationToken token = linkedTokenSource.Token;
 
         Task readerTask = sourceChannelReader != null
        ? sourceProcessingService.ProcessSourceChannelReaderAsync(sourceChannelReader, newChannel, metricsService, _cancellationTokenSource.Token)
@@ -86,7 +83,7 @@ public abstract class BroadcasterBase(ILogger<IBroadcasterBase> logger, IOptions
         _ = MonitorTasksCompletionAsync(readerTask, writerTask, sourceStream, _cancellationTokenSource.Token);
     }
 
-    private Task DistributeToClientsAsync(Channel<byte[]> newChannel, CancellationToken token)
+    private Task DistributeToClientsAsync(TrackedChannel newChannel, CancellationToken token)
     {
         List<Task> writeTasks = [];
 
@@ -94,10 +91,10 @@ public abstract class BroadcasterBase(ILogger<IBroadcasterBase> logger, IOptions
         {
             try
             {
-                await foreach (byte[] item in newChannel.Reader.ReadAllAsync(token))
+                await foreach (byte[] item in newChannel.ReadAllAsync(token))
                 {
                     writeTasks.Clear();
-                    foreach (ChannelWriter<byte[]> clientChannel in ClientChannelWriters.Values)
+                    foreach (TrackedChannel clientChannel in ClientChannels.Values)
                     {
                         writeTasks.Add(clientChannel.WriteAsync(item, token).AsTask());
                     }
@@ -152,7 +149,7 @@ public abstract class BroadcasterBase(ILogger<IBroadcasterBase> logger, IOptions
         return ChannelItemBackLog == 0;
     }
 
-    public void AddChannelStreamer(int smChannelId, ChannelWriter<byte[]> channel)
+    public void AddChannelStreamer(int smChannelId, TrackedChannel channel)
     {
         AddChannelStreamer(smChannelId.ToString(), channel);
     }
@@ -162,15 +159,15 @@ public abstract class BroadcasterBase(ILogger<IBroadcasterBase> logger, IOptions
         return RemoveChannelStreamer(smChannelId.ToString());
     }
 
-    public void AddChannelStreamer(string uniqueRequestId, ChannelWriter<byte[]> channel)
+    public void AddChannelStreamer(string uniqueRequestId, TrackedChannel channel)
     {
         logger.LogInformation("Add channel streamer: {UniqueRequestId} to {Name}", uniqueRequestId, Name);
-        ClientChannelWriters.TryAdd(uniqueRequestId, channel);
+        ClientChannels.TryAdd(uniqueRequestId, channel);
     }
 
     public bool RemoveChannelStreamer(string uniqueRequestId)
     {
-        if (ClientChannelWriters.TryRemove(uniqueRequestId, out _))
+        if (ClientChannels.TryRemove(uniqueRequestId, out _))
         {
             logger.LogInformation("Remove channel streamer: {UniqueRequestId} {Name}", uniqueRequestId, Name);
             return true;
@@ -183,13 +180,13 @@ public abstract class BroadcasterBase(ILogger<IBroadcasterBase> logger, IOptions
         if (ClientStreamerConfigurations.TryAdd(uniqueRequestId, config))
         {
             logger.LogInformation("Add client streamer: {UniqueRequestId} to {Name}", uniqueRequestId, Name);
-            ClientChannelWriters.TryAdd(uniqueRequestId, config.ClientStream!.Channel);
+            ClientChannels.TryAdd(uniqueRequestId, config.ClientStream!.Channel);
         }
     }
 
     public bool RemoveClientStreamer(string uniqueRequestId)
     {
-        if (ClientStreamerConfigurations.TryRemove(uniqueRequestId, out IClientConfiguration? clientConfiguration) && ClientChannelWriters.TryRemove(uniqueRequestId, out _))
+        if (ClientStreamerConfigurations.TryRemove(uniqueRequestId, out IClientConfiguration? clientConfiguration) && ClientChannels.TryRemove(uniqueRequestId, out _))
         {
             logger.LogInformation("Removed client streamer: {UniqueRequestId} {Name}", uniqueRequestId, Name);
             clientConfiguration.Stop();

@@ -17,5 +17,6 @@ namespace StreamMaster.Streams.Domain.Models
         public string? ClientIPAddress { get; set; }
         public string? ClientUserAgent { get; set; }
         public StreamHandlerMetrics? Metrics { get; set; }
+        public long TotalBytesInBuffer { get; set; }
     }
 }

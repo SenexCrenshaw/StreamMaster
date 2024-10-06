@@ -1,5 +1,4 @@
 ﻿using System.Collections.Concurrent;
-using System.Threading.Channels;
 using System.Xml.Serialization;
 
 namespace StreamMaster.Streams.Domain.Interfaces;
@@ -10,14 +9,14 @@ namespace StreamMaster.Streams.Domain.Interfaces;
 public interface IBroadcasterBase : IStreamStats, ISourceName
 {
     //Channels
-    void AddChannelStreamer(int key, ChannelWriter<byte[]> channel);
+    void AddChannelStreamer(int key, TrackedChannel channel);
     bool RemoveChannelStreamer(int key);
 
     //Plugins
-    void AddChannelStreamer(string UniqueRequestId, ChannelWriter<byte[]> channel);
+    void AddChannelStreamer(string UniqueRequestId, TrackedChannel channel);
     bool RemoveChannelStreamer(string UniqueRequestId);
 
-    //Clients
+    //ClientChannels
     void AddClientStreamer(string UniqueRequestId, IClientConfiguration config);
     bool RemoveClientStreamer(string UniqueRequestId);
 
@@ -29,6 +28,7 @@ public interface IBroadcasterBase : IStreamStats, ISourceName
     /// </summary>
     string Name { get; }
 
+    TrackedChannel Channel { get; }
     /// <summary>
     /// Gets the count of items in the channel.
     /// </summary>
@@ -44,7 +44,7 @@ public interface IBroadcasterBase : IStreamStats, ISourceName
     /// Gets the client Channels.
     /// </summary>
     [XmlIgnore]
-    ConcurrentDictionary<string, ChannelWriter<byte[]>> ClientChannelWriters { get; }
+    ConcurrentDictionary<string, TrackedChannel> ClientChannels { get; }
 
     ///// <summary>
     ///// Gets the client streams.
@@ -58,7 +58,7 @@ public interface IBroadcasterBase : IStreamStats, ISourceName
     /// <param name="sourceChannelReader">The source channel reader.</param>
     /// <param name="sourceChannelName">The name of the source channel.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    void SetSourceChannel(ChannelReader<byte[]> sourceChannelReader, string sourceChannelName, CancellationToken cancellationToken);
+    void SetSourceChannel(TrackedChannel sourceChannelReader, string sourceChannelName, CancellationToken cancellationToken);
 
     //void SetSourceChannel(Channel<byte[]> sourceChannel, string sourceChannelName, CancellationToken cancellationToken);
 

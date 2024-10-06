@@ -27,6 +27,11 @@ namespace StreamMaster.Streams.Handlers
 
         public async Task<ISourceBroadcaster?> GetOrCreateStreamBroadcasterAsync(IChannelBroadcaster channelBroadcaster, CancellationToken cancellationToken)
         {
+            if (channelBroadcaster.SMStreamInfo == null)
+            {
+                return null;
+            }
+
             SMStreamInfo smStreamInfo = channelBroadcaster.SMStreamInfo;
 
             await GetOrCreateStreamDistributorSlim.WaitAsync(cancellationToken).ConfigureAwait(false);
@@ -117,7 +122,7 @@ namespace StreamMaster.Streams.Handlers
         {
             foreach (ISourceBroadcaster? sourceBroadcaster in sourceBroadcasters.Values)
             {
-                int count = sourceBroadcaster.ClientChannelWriters.Count(a => a.Key != "VideoInfo");
+                int count = sourceBroadcaster.ClientChannels.Count(a => a.Key != "VideoInfo");
                 if (count == 0)
                 {
                     int delay = _settings.CurrentValue.ShutDownDelay;
@@ -125,28 +130,27 @@ namespace StreamMaster.Streams.Handlers
                     {
                         await Task.Delay(delay, cancellationToken).ConfigureAwait(false);
                     }
-                    count = sourceBroadcaster.ClientChannelWriters.Count(a => a.Key != "VideoInfo");
+                    count = sourceBroadcaster.ClientChannels.Count(a => a.Key != "VideoInfo");
                     if (count != 0)
                     {
                         return;
                     }
 
                     sourceBroadcaster.Stop();
-                    //StopAndUnRegisterSourceBroadcaster(sourceBroadcaster.Id);
-
+                    // StopAndUnRegisterSourceBroadcaster(sourceBroadcaster.Id);
                 }
             }
         }
 
         public async Task UnRegisterChannelBroadcasterAsync(int channelBroadcasterId)
         {
-            ISourceBroadcaster? sourceBroadcaster = sourceBroadcasters.Values.FirstOrDefault(broadcaster => broadcaster.ClientChannelWriters.ContainsKey(channelBroadcasterId.ToString()));
+            ISourceBroadcaster? sourceBroadcaster = sourceBroadcasters.Values.FirstOrDefault(broadcaster => broadcaster.ClientChannels.ContainsKey(channelBroadcasterId.ToString()));
             if (sourceBroadcaster == null)
             {
                 return;
             }
 
-            if (sourceBroadcaster.ClientChannelWriters.TryRemove(channelBroadcasterId.ToString(), out _))
+            if (sourceBroadcaster.ClientChannels.TryRemove(channelBroadcasterId.ToString(), out _))
             {
                 await CheckForEmptyBroadcastersAsync();
             }

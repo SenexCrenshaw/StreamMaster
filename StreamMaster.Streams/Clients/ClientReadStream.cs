@@ -1,4 +1,6 @@
-﻿using StreamMaster.Streams.Domain.Helpers;
+﻿using StreamMaster.Streams.Domain;
+using StreamMaster.Streams.Domain.Events;
+using StreamMaster.Streams.Domain.Helpers;
 using StreamMaster.Streams.Domain.Statistics;
 using StreamMaster.Streams.Services;
 
@@ -7,14 +9,17 @@ using System.Threading.Channels;
 
 namespace StreamMaster.Streams.Clients;
 
-public sealed class ClientReadStream(ILoggerFactory loggerFactory, string UniqueRequestId) : Stream, IClientReadStream
+
+public class ClientReadStream : Stream, IClientReadStream
 {
-    private readonly ILogger<ClientReadStream> logger = loggerFactory.CreateLogger<ClientReadStream>();
+    private readonly ILogger<ClientReadStream> logger;
     private readonly MetricsService MetricsService = new();
+
+    public event EventHandler<StreamTimedOut> StreamTimedOut;
 
     public StreamHandlerMetrics Metrics => MetricsService.Metrics;
 
-    public Channel<byte[]> Channel { get; } = ChannelHelper.GetChannel();
+    public TrackedChannel Channel { get; } = ChannelHelper.GetChannel(0);
 
     private bool IsCancelled { get; set; }
     public Guid Id { get; } = Guid.NewGuid();
@@ -23,8 +28,48 @@ public sealed class ClientReadStream(ILoggerFactory loggerFactory, string Unique
     public override bool CanWrite => false;
     public override long Length => throw new NotSupportedException();
     public override long Position { get => throw new NotSupportedException(); set => throw new NotSupportedException(); }
-
     public override void Flush() { }
+
+
+    private readonly string uniqueRequestId;
+
+
+    private DateTime _lastReadTime;
+    private readonly CancellationTokenSource _monitorCts;
+    private readonly Task _monitorTask;
+    public ClientReadStream(ILoggerFactory loggerFactory, string UniqueRequestId)
+    {
+        uniqueRequestId = UniqueRequestId;
+        logger = loggerFactory.CreateLogger<ClientReadStream>();
+
+        Setting? setting = SettingsHelper.GetSetting<Setting>(BuildInfo.SettingsFile);
+        double ClientReadTimeOutSeconds = setting?.ClientReadTimeOutSeconds ?? 5;
+
+        _lastReadTime = DateTime.UtcNow;
+        _monitorCts = new CancellationTokenSource();
+        _monitorTask = Task.Run(async () =>
+        {
+            while (!_monitorCts.Token.IsCancellationRequested)
+            {
+                await Task.Delay(1000, _monitorCts.Token); // Check every second
+                if (IsCancelled)
+                {
+                    break;
+                }
+
+                TimeSpan timeSinceLastRead = DateTime.UtcNow - _lastReadTime;
+                if (timeSinceLastRead > TimeSpan.FromSeconds(ClientReadTimeOutSeconds))
+                {
+                    // No read in last 5 seconds
+                    logger.LogWarning("No read in last 5 seconds for UniqueRequestId: {UniqueRequestId}", UniqueRequestId);
+                    OnStreamTimedOut(new StreamTimedOut(uniqueRequestId, DateTime.UtcNow));
+
+                    Cancel();
+                    break;
+                }
+            }
+        }, _monitorCts.Token);
+    }
 
     public override async Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
     {
@@ -40,11 +85,11 @@ public sealed class ClientReadStream(ILoggerFactory loggerFactory, string Unique
         }
         catch (TaskCanceledException ex)
         {
-            logger.LogInformation(ex, "Read Task ended for UniqueRequestId: {UniqueRequestId}", UniqueRequestId);
+            logger.LogInformation(ex, "Read Task ended for UniqueRequestId: {UniqueRequestId}", uniqueRequestId);
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error reading buffer for UniqueRequestId: {UniqueRequestId}", UniqueRequestId);
+            logger.LogError(ex, "Error reading buffer for UniqueRequestId: {UniqueRequestId}", uniqueRequestId);
         }
 
         return bytesRead;
@@ -84,11 +129,11 @@ public sealed class ClientReadStream(ILoggerFactory loggerFactory, string Unique
         try
         {
             // Writing the data to the channel
-            Channel.Writer.TryWrite(dataToWrite);
+            Channel.Write(dataToWrite);
         }
         catch (ChannelClosedException ex)
         {
-            logger.LogError(ex, "Attempted to write to a closed channel for UniqueRequestId: {UniqueRequestId}", UniqueRequestId);
+            logger.LogError(ex, "Attempted to write to a closed channel for UniqueRequestId: {UniqueRequestId}", uniqueRequestId);
             throw new InvalidOperationException("The channel is closed and cannot accept writes.", ex);
         }
     }
@@ -99,12 +144,20 @@ public sealed class ClientReadStream(ILoggerFactory loggerFactory, string Unique
 
     private bool _disposed = false;
 
+
+    protected virtual void OnStreamTimedOut(StreamTimedOut e)
+    {
+        StreamTimedOut?.Invoke(this, e);
+    }
+
     protected override void Dispose(bool disposing)
     {
         if (!_disposed)
         {
             if (disposing)
             {
+                _monitorCts.Cancel();
+                _monitorCts.Dispose();
             }
 
             _disposed = true;
@@ -127,6 +180,8 @@ public sealed class ClientReadStream(ILoggerFactory loggerFactory, string Unique
     }
     public override async ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken)
     {
+        _lastReadTime = DateTime.UtcNow;
+
         if (IsCancelled)
         {
             return 0;
@@ -138,10 +193,10 @@ public sealed class ClientReadStream(ILoggerFactory loggerFactory, string Unique
 
         try
         {
-            CancellationTokenSource timedToken = new(TimeSpan.FromSeconds(30));
+            CancellationTokenSource timedToken = new(TimeSpan.FromSeconds(5));
             using CancellationTokenSource linkedCts = CancellationTokenSource.CreateLinkedTokenSource(timedToken.Token, cancellationToken);
 
-            byte[] read = await Channel.Reader.ReadAsync(linkedCts.Token);
+            byte[] read = await Channel.ReadAsync(linkedCts.Token);
             bytesRead = read.Length;
 
             if (bytesRead == 0)
@@ -152,17 +207,17 @@ public sealed class ClientReadStream(ILoggerFactory loggerFactory, string Unique
 
             if (timedToken.IsCancellationRequested)
             {
-                logger.LogWarning("ReadAsync timedToken cancelled for UniqueRequestId: {UniqueRequestId}", UniqueRequestId);
+                logger.LogWarning("ReadAsync timedToken cancelled for UniqueRequestId: {UniqueRequestId}", uniqueRequestId);
                 return bytesRead;
             }
         }
         catch (ChannelClosedException ex)
         {
-            logger.LogInformation(ex, "ReadAsync closed for UniqueRequestId: {UniqueRequestId}", UniqueRequestId);
+            logger.LogInformation(ex, "ReadAsync closed for UniqueRequestId: {UniqueRequestId}", uniqueRequestId);
         }
         catch (TaskCanceledException ex)
         {
-            logger.LogInformation(ex, "ReadAsync cancelled ended for UniqueRequestId: {UniqueRequestId}", UniqueRequestId);
+            logger.LogInformation(ex, "ReadAsync cancelled ended for UniqueRequestId: {UniqueRequestId}", uniqueRequestId);
             logger.LogInformation("ReadAsync {cancellationToken}", cancellationToken.IsCancellationRequested);
             bytesRead = 0;
         }
@@ -177,7 +232,7 @@ public sealed class ClientReadStream(ILoggerFactory loggerFactory, string Unique
             MetricsService.RecordMetrics(bytesRead, stopWatch.Elapsed.TotalMilliseconds);
             if (bytesRead == 0)
             {
-                logger.LogDebug("Read 0 bytes for UniqueRequestId: {UniqueRequestId}", UniqueRequestId);
+                logger.LogDebug("Read 0 bytes for UniqueRequestId: {UniqueRequestId}", uniqueRequestId);
             }
         }
 

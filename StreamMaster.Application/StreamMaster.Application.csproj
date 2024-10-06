@@ -29,7 +29,7 @@
     <Compile Remove="Common\Attributes\**" />
     <Compile Remove="Common\Logging\**" />
     <Compile Remove="Common\Repository\**" />
-    <Compile Remove="Programmes\Commands\**" />
+    <Compile Remove="Programmes\**" />
     <Compile Remove="SchedulesDirect\NewFolder\**" />
     <Compile Remove="StreamGroupChannelGroupLinks\**" />
     <Compile Remove="Streaming\Queries\**" />
@@ -39,7 +39,7 @@
     <EmbeddedResource Remove="Common\Attributes\**" />
     <EmbeddedResource Remove="Common\Logging\**" />
     <EmbeddedResource Remove="Common\Repository\**" />
-    <EmbeddedResource Remove="Programmes\Commands\**" />
+    <EmbeddedResource Remove="Programmes\**" />
     <EmbeddedResource Remove="SchedulesDirect\NewFolder\**" />
     <EmbeddedResource Remove="StreamGroupChannelGroupLinks\**" />
     <EmbeddedResource Remove="Streaming\Queries\**" />
@@ -49,7 +49,7 @@
     <None Remove="Common\Attributes\**" />
     <None Remove="Common\Logging\**" />
     <None Remove="Common\Repository\**" />
-    <None Remove="Programmes\Commands\**" />
+    <None Remove="Programmes\**" />
     <None Remove="SchedulesDirect\NewFolder\**" />
     <None Remove="StreamGroupChannelGroupLinks\**" />
     <None Remove="Streaming\Queries\**" />
@@ -78,8 +78,5 @@
     <ProjectReference Include="..\StreamMaster.PlayList\StreamMaster.PlayList.csproj" />
     <ProjectReference Include="..\StreamMaster.SchedulesDirect\StreamMaster.SchedulesDirect.csproj" />
     <ProjectReference Include="..\StreamMaster.Streams.Domain\StreamMaster.Streams.Domain.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Programmes\Queries\" />
   </ItemGroup>
 </Project>

@@ -7,6 +7,6 @@ public class M3UFileChangedEventHandler(IDataRefreshService dataRefreshService) 
     public async Task Handle(M3UFileChangedEvent notification, CancellationToken cancellationToken)
     {
         await dataRefreshService.RefreshAllM3U();
-        //await _hubContext.Clients.All.M3UFilesRefresh().ConfigureAwait(false);
+        //await _hubContext.ClientChannels.All.M3UFilesRefresh().ConfigureAwait(false);
     }
 }

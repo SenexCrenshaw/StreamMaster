@@ -74,14 +74,14 @@ public class BroadcastService(
             //if (statisticsResults.Any())
             //{
             //    dataRefreshService.RefreshStatistics();
-            //    //_ = hub.Clients.All.ClientStreamingStatisticsUpdate(statisticsResults).ConfigureAwait(false);
+            //    //_ = hub.ClientChannels.All.ClientStreamingStatisticsUpdate(statisticsResults).ConfigureAwait(false);
 
             //}
             //else
             //{
             //    //if (!sentEmpty)
             //    //{
-            //    //_ = hub.Clients.All.ClientStreamingStatisticsUpdate(statisticsResults).ConfigureAwait(false);
+            //    //_ = hub.ClientChannels.All.ClientStreamingStatisticsUpdate(statisticsResults).ConfigureAwait(false);
             //    //}
             //    //sentEmpty = true;
             //}

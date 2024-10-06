@@ -34,7 +34,7 @@ public partial class StreamMasterHub(ISender Sender, IOptionsMonitor<Setting> in
             _connections.Add(Context.ConnectionId);
         }
 
-        //Clients.Caller.SystemStatusUpdate(Sender.Send(new GetSystemStatusRequest()).Result.Data);
+        //ClientChannels.Caller.SystemStatusUpdate(Sender.Send(new GetSystemStatusRequest()).Result.Data);
 
         return base.OnConnectedAsync();
     }
