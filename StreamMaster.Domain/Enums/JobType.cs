@@ -1,5 +1,7 @@
 ﻿namespace StreamMaster.Domain.Enums;
 
+[TsEnum]
+
 public enum JobType
 {
     ProcessM3U,

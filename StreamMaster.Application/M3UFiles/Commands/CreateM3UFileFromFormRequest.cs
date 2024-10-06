@@ -3,7 +3,7 @@ namespace StreamMaster.Application.M3UFiles.Commands;
 
 [SMAPI(JustController = true, JustHub = true)]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record CreateM3UFileFromFormRequest(string Name, int? MaxStreamCount, int? StartingChannelNumber, bool? AutoSetChannelNumbers, string? DefaultStreamGroupName, int? HoursToUpdate, bool? SyncChannels, IFormFile? FormFile, List<string>? VODTags) : IRequest<APIResponse>;
+public record CreateM3UFileFromFormRequest(string Name, int? MaxStreamCount, M3UKey? M3UKey, int? StartingChannelNumber, bool? AutoSetChannelNumbers, string? DefaultStreamGroupName, int? HoursToUpdate, bool? SyncChannels, IFormFile? FormFile, List<string>? VODTags) : IRequest<APIResponse>;
 
 [LogExecutionTimeAspect]
 public class CreateM3UFileFromFormRequestHandler(ILogger<CreateM3UFileFromFormRequest> Logger, IFileUtilService fileUtilService, ICacheManager CacheManager, IMessageService messageService, IDataRefreshService dataRefreshService, IRepositoryWrapper Repository, IPublisher Publisher)
@@ -34,7 +34,8 @@ public class CreateM3UFileFromFormRequestHandler(ILogger<CreateM3UFileFromFormRe
                 SyncChannels = request.SyncChannels ?? false,
                 DefaultStreamGroupName = request.DefaultStreamGroupName,
                 AutoSetChannelNumbers = request.AutoSetChannelNumbers ?? false,
-                StartingChannelNumber = request.StartingChannelNumber ?? 1
+                StartingChannelNumber = request.StartingChannelNumber ?? 1,
+                M3UKey = request.M3UKey ?? M3UKey.URL
             };
 
             await messageService.SendInfo($"Adding M3U '{request.Name}'");

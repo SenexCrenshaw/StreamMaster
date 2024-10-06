@@ -57,7 +57,7 @@ public class StreamSettings : BaseSettings
     public string FFProbeExecutable { get; set; } = "ffprobe";
     public string DefaultCommandProfileName { get; set; } = "Default";
     public string DefaultOutputProfileName { get; set; } = "Default";
-    public double ClientReadTimeOutSeconds { get; set; } = 5;
+    public double ClientReadTimeOutSeconds { get; set; } = 10;
 }
 
 public class Setting : StreamSettings

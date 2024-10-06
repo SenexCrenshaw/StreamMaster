@@ -1,6 +1,5 @@
 import SMDropDown from '@components/sm/SMDropDown';
 import { getIconUrl } from '@lib/common/common';
-import { Logger } from '@lib/common/logger';
 import useGetLogos from '@lib/smAPI/Logos/useGetLogos';
 
 import { LogoFileDto, SMFileTypes } from '@lib/smAPI/smapiTypes';
@@ -71,7 +70,7 @@ const IconSelector = ({
     }
   }, [iconSource, origValue, query.data, value]);
 
-  Logger.debug('IconSelector', 'IconSelector', value);
+  // Logger.debug('IconSelector', 'IconSelector', value);
 
   const buttonTemplate = useMemo(() => {
     const iconUrl = iconSource

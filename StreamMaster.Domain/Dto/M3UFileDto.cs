@@ -7,6 +7,7 @@ namespace StreamMaster.Domain.Dto;
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public class M3UFileDto : BaseFileDto, IMapFrom<M3UFile>
 {
+    public M3UKey M3UKey { get; set; } = M3UKey.URL;
     public bool SyncChannels { get; set; }
     public List<string> VODTags { get; set; } = [];
     public string? DefaultStreamGroupName { get; set; }

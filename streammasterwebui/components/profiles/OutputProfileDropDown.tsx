@@ -42,7 +42,7 @@ const OutputProfileDropDown = ({ buttonDarkBackground = false, onChange, value }
       info=""
       isOverLayLoading={isLoading}
       itemTemplate={itemTemplate}
-      label={buttonDarkBackground ? 'File Profile' : undefined}
+      label={buttonDarkBackground ? 'Output Profile' : undefined}
       onChange={onChange}
       propertyToMatch="ProfileName"
       scrollHeight="20vh"

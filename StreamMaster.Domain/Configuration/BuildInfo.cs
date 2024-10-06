@@ -118,6 +118,7 @@ namespace StreamMaster.Domain.Configuration
         public static readonly string PlayListFolder = Path.Combine(AppDataFolder, "PlayLists");
         public static readonly string TVLogoFolder = Path.Combine(AppDataFolder, "tv-logos");
         public static readonly string LogoFolder = Path.Combine(CacheFolder, "Logos");
+        public static readonly string DupDataFolder = Path.Combine(CacheFolder, "DuplicateStreamLists");
 
         //public static readonly string ProgrammeIconDataFolder = Path.Combine(CacheFolder, "ProgrammeIcons");
         public static readonly string SDJSONFolder = Path.Combine(CacheFolder, "SDJson");

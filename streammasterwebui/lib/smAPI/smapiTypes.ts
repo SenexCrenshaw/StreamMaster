@@ -200,6 +200,7 @@ export interface M3UFileDto
 	Id: number;
 	LastDownloadAttempt: any;
 	LastDownloaded: any;
+	M3UKey: M3UKey;
 	MaxStreamCount: number;
 	Name: string;
 	NeedsUpdate: boolean;
@@ -272,6 +273,8 @@ export interface SMChannelDto
 {
 	APIName: string;
 	BaseStreamID: string;
+	ChannelId: string;
+	ChannelName: string;
 	ChannelNumber: number;
 	ClientUserAgent?: string;
 	CommandProfileName: string;
@@ -297,7 +300,9 @@ export interface SMChannelDto
 export interface SMStreamDto
 {
 	APIName: string;
+	ChannelId: string;
 	ChannelMembership: NameLogo[];
+	ChannelName: string;
 	ChannelNumber: number;
 	ClientUserAgent?: string;
 	CUID: string;
@@ -1250,6 +1255,7 @@ export interface CreateM3UFileFromFormRequest
 	DefaultStreamGroupName?: string;
 	FormFile?: any;
 	HoursToUpdate?: number;
+	M3UKey?: M3UKey;
 	MaxStreamCount?: number;
 	Name: string;
 	StartingChannelNumber?: number;
@@ -1261,6 +1267,7 @@ export interface CreateM3UFileRequest
 	AutoSetChannelNumbers?: boolean;
 	DefaultStreamGroupName?: string;
 	HoursToUpdate?: number;
+	M3UKey?: M3UKey;
 	MaxStreamCount: number;
 	Name: string;
 	StartingChannelNumber?: number;
@@ -1667,10 +1674,31 @@ export enum AuthenticationType {
 	None = 0,
 	Forms = 2
 }
+export enum JobType {
+	ProcessM3U = 0,
+	RefreshM3U = 1,
+	TimerM3U = 2,
+	ProcessEPG = 3,
+	RefreshEPG = 4,
+	UpdateEPG = 5,
+	UpdateM3U = 6,
+	TimerEPG = 7,
+	SDSync = 8,
+	Backup = 9,
+	TimerBackup = 10
+}
 export enum M3UFileStreamURLPrefix {
 	SystemDefault = 0,
 	TS = 1,
 	M3U8 = 2
+}
+export enum M3UKey {
+	URL = 0,
+	CUID = 1,
+	ChannelId = 2,
+	TvgID = 3,
+	TvgName = 4,
+	TvgName_TvgID = 5
 }
 export enum SMChannelTypeEnum {
 	Regular = 0,
@@ -1702,7 +1730,8 @@ export enum ValidM3USetting {
 	NotMapped = 0,
 	Name = 2,
 	Group = 3,
-	ChannelNumber = 4
+	ChannelNumber = 4,
+	ChannelName = 5
 }
 export enum VideoStreamHandlers {
 	SystemDefault = 0,

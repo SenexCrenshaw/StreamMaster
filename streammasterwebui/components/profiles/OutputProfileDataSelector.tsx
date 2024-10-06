@@ -11,16 +11,15 @@ import { memo, useCallback, useMemo } from 'react';
 import CreateOutputProfileDialog from './CreateOutputProfileDialog';
 import RemoveOutputProfileDialog from './RemoveOutputProfileDialog';
 import { useOutputProfileChannelNumberColumnConfig } from './columns/useOutputProfileChannelNumberColumnConfig';
-// import { useOutputProfileEPGIdColumnConfig } from './columns/useOutputProfileEPGIdColumnConfig';
+
 import { useOutputProfileGroupColumnConfig } from './columns/useOutputProfileGroupColumnConfig';
 import { useOutputProfileGroupTitleColumnConfig } from './columns/useOutputProfileGroupTitleColumnConfig';
 import { useOutputProfileIconColumnConfig } from './columns/useOutputProfileIconColumnConfig';
 import { useOutputProfileIdColumnConfig } from './columns/useOutputProfileIdColumnConfig';
 import { useOutputProfileNameColumnConfig } from './columns/useOutputProfileNameColumnConfig';
-// import { useOutputProfileUseChannelNumberForGuideNameColumnConfig } from './columns/useOutputProfileUseChannelNumberForGuideNameColumnConfig';
 
-const StreamGroupOutputProfileDataSelector = () => {
-  const id = 'StreamGroupOutputProfileDataSelector';
+const OutputProfileDataSelector = () => {
+  const id = 'OutputProfileDataSelector';
 
   const { data } = useGetOutputProfiles();
 
@@ -36,18 +35,12 @@ const StreamGroupOutputProfileDataSelector = () => {
   const iDColumnConfig = useOutputProfileIdColumnConfig({ width: 40 });
   const groupTitleColumnConfig = useOutputProfileGroupTitleColumnConfig({ width: 40 });
   const channelNumberColumnConfig = useOutputProfileChannelNumberColumnConfig({ width: 40 });
-  // const epgIdColumnConfig = useOutputProfileEPGIdColumnConfig({ width: 40 });
   const iconColumnConfig = useOutputProfileIconColumnConfig({ width: 40 });
-  // const outputProfileUseChannelNumberForGuideNameColumnConfig = useOutputProfileUseChannelNumberForGuideNameColumnConfig({ width: 40 });
 
   const actionTemplate = useCallback((rowData: OutputProfileDto) => {
     return (
       <div className="flex justify-content-center align-items-center">
         <RemoveOutputProfileDialog outputProfileDto={rowData} />
-        {/* <StreamGroupDeleteDialog streamGroup={rowData} /> */}
-        {/* <M3UFileRefreshDialog selectedFile={rowData} />
-         <M3UFileRemoveDialog selectedFile={rowData} /> */}
-        {/* <EPGFileEditDialog selectedFile={rowData} /> */}
       </div>
     );
   }, []);
@@ -95,7 +88,6 @@ const StreamGroupOutputProfileDataSelector = () => {
       },
       iDColumnConfig,
       nameColumnConfig,
-      // epgIdColumnConfig,
       groupColumnConfig,
       channelNumberColumnConfig,
       groupTitleColumnConfig,
@@ -109,17 +101,7 @@ const StreamGroupOutputProfileDataSelector = () => {
         width: 20
       }
     ],
-    [
-      nameTemplate,
-      nameColumnConfig,
-      // epgIdColumnConfig,
-      groupColumnConfig,
-      iDColumnConfig,
-      channelNumberColumnConfig,
-      groupTitleColumnConfig,
-      iconColumnConfig,
-      actionTemplate
-    ]
+    [nameTemplate, nameColumnConfig, groupColumnConfig, iDColumnConfig, channelNumberColumnConfig, groupTitleColumnConfig, iconColumnConfig, actionTemplate]
   );
 
   return (
@@ -141,6 +123,6 @@ const StreamGroupOutputProfileDataSelector = () => {
   );
 };
 
-StreamGroupOutputProfileDataSelector.displayName = 'StreamGroupOutputProfileDataSelector';
+OutputProfileDataSelector.displayName = 'OutputProfileDataSelector';
 
-export default memo(StreamGroupOutputProfileDataSelector);
+export default memo(OutputProfileDataSelector);

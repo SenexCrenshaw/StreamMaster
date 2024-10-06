@@ -11,8 +11,8 @@ import { useCommandProfileParametersColumnConfig } from './columns/useCommandPro
 import CreateCommandProfileDialog from './CreateCommandProfileDialog';
 import RemoveCommandProfileDialog from './RemoveCommandProfileDialog';
 
-const StreamGroupCommandProfileDataSelector = () => {
-  const id = 'StreamGroupCommandProfileDataSelector';
+const CommandProfileDataSelector = () => {
+  const id = 'CommandProfileDataSelector';
   const { data } = useGetCommandProfiles();
   const CommandProfileCommandColumnConfig = useCommandProfileCommandColumnConfig({ width: 40 });
   const CommandProfileParametersColumnConfig = useCommandProfileParametersColumnConfig({ width: 200 });
@@ -118,6 +118,6 @@ const StreamGroupCommandProfileDataSelector = () => {
   );
 };
 
-StreamGroupCommandProfileDataSelector.displayName = 'StreamGroupCommandProfileDataSelector';
+CommandProfileDataSelector.displayName = 'CommandProfileDataSelector';
 
-export default memo(StreamGroupCommandProfileDataSelector);
+export default memo(CommandProfileDataSelector);

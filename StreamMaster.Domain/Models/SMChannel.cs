@@ -54,6 +54,10 @@ namespace StreamMaster.Domain.Models
         /// </summary>
         public int ChannelNumber { get; set; } = 0;
 
+        public string ChannelId { get; set; } = string.Empty;
+
+        public string ChannelName { get; set; } = string.Empty;
+
         /// <summary>
         /// Gets or sets the time shift value for the channel.
         /// </summary>

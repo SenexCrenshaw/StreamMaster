@@ -38,10 +38,16 @@ public class SMStream
     public bool IsSystem { get; set; }
     public bool NeedsDelete { get; set; }
 
+    [Column(TypeName = "citext")]
+    public string ChannelName { get; set; } = string.Empty;
 
     [Column(TypeName = "citext")]
 
     public string CUID { get; set; } = string.Empty;
+
+    [Column(TypeName = "citext")]
+
+    public string ChannelId { get; set; } = string.Empty;
 
     public SMStreamTypeEnum SMStreamType { get; set; } = SMStreamTypeEnum.Regular;
 }

@@ -5,7 +5,7 @@ namespace StreamMaster.Application.M3UFiles;
 
 public partial class M3UToSMStreamsService(ILogger<M3UToSMStreamsService> logger, IFileUtilService fileUtilService) : IM3UToSMStreamsService
 {
-    public async IAsyncEnumerable<SMStream> GetSMStreamsFromM3U(M3UFile m3UFile)
+    public async IAsyncEnumerable<SMStream?> GetSMStreamsFromM3U(M3UFile m3UFile)
     {
         if (m3UFile.VODTags.Count != 0)
         {
@@ -18,10 +18,15 @@ public partial class M3UToSMStreamsService(ILogger<M3UToSMStreamsService> logger
 
         await using Stream? dataStream = fileUtilService.GetFileDataStream(Path.Combine(FileDefinitions.M3U.DirectoryLocation, m3UFile.Source));
 
+        if (dataStream == null)
+        {
+            yield return null;
+        }
+
         int segmentNumber = 0;
         StringBuilder segmentBuilder = new();
 
-        using StreamReader reader = new(dataStream);
+        using StreamReader reader = new(dataStream!);
         string? clientUserAgent = null;
 
         while (!reader.EndOfStream)
@@ -98,6 +103,13 @@ public partial class M3UToSMStreamsService(ILogger<M3UToSMStreamsService> logger
             return null;
         }
 
+        string? id = GenerateM3UKeyValue(m3UFile.M3UKey, smStream);
+        if (string.IsNullOrEmpty(id))
+        {
+            return null;
+        }
+        smStream.Id = id;
+
         if (m3UFile.VODTags.Count > 0 && CheckExcluded(smStream.Url, m3UFile.VODTags))
         {
             return null;
@@ -106,6 +118,24 @@ public partial class M3UToSMStreamsService(ILogger<M3UToSMStreamsService> logger
         UpdateSMStreamProperties(smStream, m3UFile);
 
         return smStream;
+    }
+
+    private static string? GenerateM3UKeyValue(M3UKey m3uKey, SMStream smStream)
+    {
+        string? key = m3uKey switch
+        {
+            M3UKey.URL => smStream.Url,
+            M3UKey.CUID => smStream.CUID,
+            M3UKey.ChannelId => smStream.ChannelId,
+            M3UKey.TvgID => smStream?.EPGID,
+            M3UKey.TvgName => smStream.Name,
+            M3UKey.TvgName_TvgID =>
+            (!string.IsNullOrEmpty(smStream?.Name) && !string.IsNullOrEmpty(smStream?.EPGID))
+                ? $"{smStream.Name}_{smStream.EPGID}"
+                : null,
+            _ => throw new ArgumentOutOfRangeException(nameof(m3uKey), m3uKey, null),
+        };
+        return string.IsNullOrEmpty(key) ? null : FileUtil.EncodeToMD5(key);
     }
 
     public static SMStream? StringToSMStream(string bodyline, int? channelNumber)
@@ -165,12 +195,27 @@ public partial class M3UToSMStreamsService(ILogger<M3UToSMStreamsService> logger
                             }
                             break;
 
+                        case "channel-name":
+                            if (!string.IsNullOrEmpty(parameter[1].Trim()))
+                            {
+                                SMStream.ChannelName = parameter[1].Trim();
+                            }
+                            break;
+
                         case "cuid":
                             if (!string.IsNullOrEmpty(parameter[1].Trim()))
                             {
                                 SMStream.CUID = parameter[1].Trim();
                             }
                             break;
+
+                        case "channel-id":
+                            if (!string.IsNullOrEmpty(parameter[1].Trim()))
+                            {
+                                SMStream.ChannelId = parameter[1].Trim();
+                            }
+                            break;
+
 
                         case "tvg-chno":
                             if (!string.IsNullOrEmpty(parameter[1].Trim()))
@@ -186,13 +231,6 @@ public partial class M3UToSMStreamsService(ILogger<M3UToSMStreamsService> logger
                                 SMStream.ClientUserAgent = parameter[1].Trim();
                             }
                             break;
-
-                        //case "channel-id":
-                        //    if (!string.IsNullOrEmpty(parameter[1].Trim()))
-                        //    {
-                        //        SMStream.Id = parameter[1].Trim();
-                        //    }
-                        //    break;
 
                         case "channel-number":
                             if (!string.IsNullOrEmpty(parameter[1].Trim()))
@@ -277,15 +315,6 @@ public partial class M3UToSMStreamsService(ILogger<M3UToSMStreamsService> logger
             {
                 return null;
             }
-        }
-
-        if (string.IsNullOrEmpty(SMStream.Id))
-        {
-            if (string.IsNullOrEmpty(SMStream.Url))
-            {
-                return null;
-            }
-            SMStream.Id = FileUtil.EncodeToMD5(SMStream.Url);
         }
 
         if (channelNumber.HasValue)

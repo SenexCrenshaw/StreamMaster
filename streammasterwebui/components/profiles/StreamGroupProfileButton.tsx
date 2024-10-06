@@ -1,7 +1,7 @@
-import StreamGroupOutputProfileDataSelector from '@components/profiles/StreamGroupOutputProfileDataSelector';
+import OutputProfileDataSelector from '@components/profiles/OutputProfileDataSelector';
 import SMPopUp from '@components/sm/SMPopUp';
 import React from 'react';
-import StreamGroupCommandProfileDataSelector from './StreamGroupCommandProfileDataSelector';
+import CommandProfileDataSelector from './CommandProfileDataSelector';
 
 export const StreamGroupProfileButton = () => {
   return (
@@ -20,9 +20,9 @@ export const StreamGroupProfileButton = () => {
       title="PROFILES"
       zIndex={11}
     >
-      <StreamGroupOutputProfileDataSelector />
+      <OutputProfileDataSelector />
       <div className="layout-padding-bottom-lg" />
-      <StreamGroupCommandProfileDataSelector />
+      <CommandProfileDataSelector />
     </SMPopUp>
   );
 };

@@ -8,4 +8,5 @@ public enum ValidM3USetting
     Group = 3,
     //EPGId = 4,
     ChannelNumber = 4,
+    ChannelName = 5
 }

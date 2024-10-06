@@ -1,3 +1,5 @@
+import { SelectItem } from 'primereact/selectitem';
+
 export const getEnumKeyByValue = <T>(enumObj: T, value: number): string | null => {
   const entries = Object.entries(enumObj as unknown as Record<string, number>);
   for (const [key, val] of entries) {
@@ -19,3 +21,14 @@ export function getEnumValueByName<T extends Record<string, any>>(enumType: T, e
   }
   return undefined;
 }
+
+export const getHandlersOptions = (Field: any): SelectItem[] => {
+  const options = Object.keys(Field)
+    .filter((key) => isNaN(Number(key)))
+    .map((key) => ({
+      label: key,
+      value: Field[key as keyof typeof Field]
+    }));
+
+  return options;
+};

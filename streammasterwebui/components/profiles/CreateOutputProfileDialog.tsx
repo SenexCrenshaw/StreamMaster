@@ -14,9 +14,8 @@ const CreateOutputProfileDialog = () => {
     EnableChannelNumber: true,
     EnableGroupTitle: true,
     EnableIcon: true,
-    EnableId: true,
-    EPGId: getEnumKeyByValue(ValidM3USetting, ValidM3USetting.EPGId),
     Group: getEnumKeyByValue(ValidM3USetting, ValidM3USetting.Group),
+    Id: getEnumKeyByValue(ValidM3USetting, ValidM3USetting.ChannelNumber),
     IsReadOnly: false,
     Name: getEnumKeyByValue(ValidM3USetting, ValidM3USetting.Name)
     // AppendChannelNumberToId: false
@@ -97,8 +96,20 @@ const CreateOutputProfileDialog = () => {
             <div className={dropdownClass}>
               <OutputProfileValueDropDown
                 darkBackGround
-                header="Name Map"
-                label="Name Map"
+                header="Id"
+                label="Id"
+                name={name}
+                value={fileProfile.Id}
+                onChange={(e) => {
+                  updateOutputProfileStateAndRequest({ Id: e.label });
+                }}
+              />
+            </div>
+            <div className={dropdownClass}>
+              <OutputProfileValueDropDown
+                darkBackGround
+                header="Name"
+                label="Name"
                 name={name}
                 value={fileProfile.Name}
                 onChange={(e) => {
@@ -106,18 +117,7 @@ const CreateOutputProfileDialog = () => {
                 }}
               />
             </div>
-            <div className={dropdownClass}>
-              <OutputProfileValueDropDown
-                darkBackGround
-                header="EPG Id"
-                label="EPG Id"
-                name={name}
-                value={fileProfile.EPGId}
-                onChange={(e) => {
-                  updateOutputProfileStateAndRequest({ EPGId: e.label });
-                }}
-              />
-            </div>
+
             <div className={dropdownClass}>
               <OutputProfileValueDropDown
                 darkBackGround
@@ -131,7 +131,7 @@ const CreateOutputProfileDialog = () => {
               />
             </div>
 
-            <div className="sm-w-2rem pl-2">
+            {/* <div className="sm-w-2rem pl-2">
               <BooleanEditor
                 label="Id"
                 checked={fileProfile.EnableId}
@@ -139,7 +139,7 @@ const CreateOutputProfileDialog = () => {
                   updateOutputProfileStateAndRequest({ EnableId: e });
                 }}
               />
-            </div>
+            </div> */}
             <div className={boolClass}>
               <BooleanEditor
                 label="Enable Channel #"

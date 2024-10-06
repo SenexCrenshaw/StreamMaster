@@ -2,6 +2,6 @@
 {
     public interface IM3UToSMStreamsService
     {
-        IAsyncEnumerable<SMStream> GetSMStreamsFromM3U(M3UFile m3UFile);
+        IAsyncEnumerable<SMStream?> GetSMStreamsFromM3U(M3UFile m3UFile);
     }
 }

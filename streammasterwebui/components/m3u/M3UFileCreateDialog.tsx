@@ -26,9 +26,11 @@ export const M3UFileCreateDialog = ({ onHide, onUploadComplete, showButton }: M3
     () =>
       ({
         HoursToUpdate: 72,
+        M3UKey: 'URL',
         MaxStreamCount: 1,
         Name: '',
-        Url: ''
+        Url: '',
+        VODTags: []
       } as M3UFileDto),
     []
   );
@@ -59,7 +61,7 @@ export const M3UFileCreateDialog = ({ onHide, onUploadComplete, showButton }: M3
   return (
     <SMPopUp
       buttonClassName="icon-green"
-      contentWidthSize="4"
+      contentWidthSize="5"
       icon="pi-plus"
       zIndex={11}
       onCloseClick={() => {

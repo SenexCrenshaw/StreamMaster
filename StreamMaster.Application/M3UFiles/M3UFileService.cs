@@ -1,5 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 
 namespace StreamMaster.Application.M3UFiles;
@@ -33,14 +34,6 @@ public class M3UFileService(ILogger<M3UFileService> logger, ILogoService logoSer
                 jobManager.SetError();
                 return null;
             }
-
-            //(List<SMStream>? streams, _) = await ProcessStreams(m3uFile).ConfigureAwait(false);
-            //if (streams == null)
-            //{
-            //    logger.LogCritical("Error while processing M3U file {m3uFile.Name}, bad format", m3uFile.Name);
-            //    jobManager.SetError();
-            //    return null;
-            //}
 
             if (!ForceRun && !ShouldUpdate(m3uFile, m3uFile.VODTags))
             {
@@ -109,17 +102,27 @@ public class M3UFileService(ILogger<M3UFileService> logger, ILogoService logoSer
     [LogExecutionTimeAspect]
     private async Task ProcessAndUpdateStreams(M3UFile m3uFile)
     {
-        IAsyncEnumerable<SMStream> streams = m3UtoSMStreamsService.GetSMStreamsFromM3U(m3uFile);
+        IAsyncEnumerable<SMStream?> streams = m3UtoSMStreamsService.GetSMStreamsFromM3U(m3uFile);
+        if (streams == null)
+        {
+            logger.LogError("Could not get streams from M3U file {m3uFile.Name}", m3uFile.Name);
+            return;
+        }
 
-        (List<string> cgs, int count, int dupStreamCount, int removedCount) = await ProcessStreamsConcurrently(streams, m3uFile);
+        (List<string> cgs, int count, List<DupInfo>? dupInfos, int removedCount) = await ProcessStreamsConcurrently(streams!, m3uFile);
 
-        //int removedCount = await RemoveMissingStreams(streamIds, m3uFile.Id);
 
         m3uFile.LastUpdated = SMDT.UtcNow;
         m3uFile.StreamCount = count;
 
-        logger.LogInformation("Processed {m3uFile.Name} : {streams.Count} total streams in file, removed {streamIds.Count} missing steams and ignored {dupStreamCount} duplicate streams", m3uFile.Name, count, removedCount, dupStreamCount);
-        await messageService.SendSuccess($"{count} total streams in file \r\nremoved {removedCount} missing steams and ignored {dupStreamCount} duplicate streams", $"Processed M3U {m3uFile.Name}");
+        if (dupInfos.Count > 0)
+        {
+            string jsonText = JsonSerializer.Serialize(dupInfos, BuildInfo.JsonIndentOptions);
+            FileUtil.WriteJSON(m3uFile.Name + "_duplicates.json", jsonText, BuildInfo.DupDataFolder);
+        }
+
+        logger.LogInformation("Processed {m3uFile.Name} : {streams.Count} total streams in file, removed {streamIds.Count} missing steams and ignored {dupStreamCount} duplicate streams", m3uFile.Name, count, removedCount, dupInfos.Count);
+        await messageService.SendSuccess($"{count} total streams in file \r\nremoved {removedCount} missing steams and ignored {dupInfos.Count} duplicate streams", $"Processed M3U {m3uFile.Name}");
 
         await UpdateM3UFile(m3uFile);
         _ = await repositoryWrapper.SaveAsync();
@@ -127,9 +130,12 @@ public class M3UFileService(ILogger<M3UFileService> logger, ILogoService logoSer
         await UpdateChannelGroups(cgs);
     }
 
-    private async Task<(List<string> cgs, int count, int dupStreamCount, int removedCount)> ProcessStreamsConcurrently(IAsyncEnumerable<SMStream> streams, M3UFile m3uFile)
+
+
+    private async Task<(List<string> cgs, int count, List<DupInfo> dupInfos, int removedCount)> ProcessStreamsConcurrently(IAsyncEnumerable<SMStream> streams, M3UFile m3uFile)
     {
-        int dupTotalCount = 0;
+        List<DupInfo> dupInfos = [];
+
         int processedCount = 0;
 
         Dictionary<string, bool> groupLookup = await repositoryWrapper.ChannelGroup.GetQuery().ToDictionaryAsync(g => g.Name, g => g.IsHidden);
@@ -159,6 +165,7 @@ public class M3UFileService(ILogger<M3UFileService> logger, ILogoService logoSer
         Stopwatch mainStopwatch = Stopwatch.StartNew();
         await foreach (SMStream stream in streams)
         {
+            Interlocked.Increment(ref processedCount);
             if (_settings.CurrentValue.NameRegex.Count > 0)
             {
                 foreach (string regex in _settings.CurrentValue.NameRegex)
@@ -199,10 +206,16 @@ public class M3UFileService(ILogger<M3UFileService> logger, ILogoService logoSer
             }
             else
             {
-                Interlocked.Increment(ref dupTotalCount);
+                dupInfos.Add(new DupInfo
+                {
+                    Id = stream.Id,
+                    Name = stream.Name,
+                    M3UFileName = m3uFile.Name,
+                    FilePosition = stream.FilePosition
+                });
             }
 
-            Interlocked.Increment(ref processedCount);
+
             if (processedCount % 10000 == 0)
             {
                 int streamPerSecond = (int)(10000 / stopwatch.Elapsed.TotalSeconds);
@@ -231,7 +244,7 @@ public class M3UFileService(ILogger<M3UFileService> logger, ILogoService logoSer
         }
         mainStopwatch.Stop();
         logger.LogInformation("Processed {processedCount} streams in {elapsed}ms", processedCount, mainStopwatch.ElapsedMilliseconds);
-        return (Cgs.ToList(), processedCount, dupTotalCount, toDelete.Count());
+        return (Cgs.ToList(), processedCount, dupInfos, toDelete.Count());
     }
 
     private async Task<List<int>> ExecuteCreateSmStreamsAndChannelsAsync(List<SMStream> streams, int m3uFileId, string m3uFileName, int streamGroupId, bool createChannels)
@@ -264,6 +277,8 @@ public class M3UFileService(ILogger<M3UFileService> logger, ILogoService logoSer
         string[] names = streams.Select(s => $"'{EscapeString(s.Name)}'").ToArray();
         string[] urls = streams.Select(s => $"'{EscapeString(s.Url)}'").ToArray();
         string[] stationIds = streams.Select(s => $"'{EscapeString(s.StationId)}'").ToArray();
+        string[] ChannelIds = streams.Select(s => $"'{EscapeString(s.ChannelId)}'").ToArray();
+        string[] ChannelNames = streams.Select(s => $"'{EscapeString(s.ChannelName)}'").ToArray();
 
         // Construct the SQL command to call the function
         string sqlCommand = $@"
@@ -277,6 +292,8 @@ public class M3UFileService(ILogger<M3UFileService> logger, ILogoService logoSer
             ARRAY[{string.Join(", ", names)}]::CITEXT[],
             ARRAY[{string.Join(", ", urls)}]::CITEXT[],
             ARRAY[{string.Join(", ", stationIds)}]::CITEXT[],
+            ARRAY[{string.Join(", ", ChannelIds)}]::CITEXT[],
+            ARRAY[{string.Join(", ", ChannelNames)}]::CITEXT[],
             {m3uFileId}, -- p_m3u_file_id as INTEGER
             '{EscapeString(m3uFileName)}'::CITEXT,
             {streamGroupId},

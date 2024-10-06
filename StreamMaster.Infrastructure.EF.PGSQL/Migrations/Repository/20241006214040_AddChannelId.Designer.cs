@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using StreamMaster.Infrastructure.EF.PGSQL;
@@ -12,9 +13,11 @@ using StreamMaster.Infrastructure.EF.PGSQL;
 namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
 {
     [DbContext(typeof(PGSQLRepositoryContext))]
-    partial class PGSQLRepositoryContextModelSnapshot : ModelSnapshot
+    [Migration("20241006214040_AddChannelId")]
+    partial class AddChannelId
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -259,14 +262,6 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
                     NpgsqlPropertyBuilderExtensions.UseIdentityAlwaysColumn(b.Property<int>("Id"));
 
                     b.Property<string>("BaseStreamID")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("ChannelId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("ChannelName")
                         .IsRequired()
                         .HasColumnType("text");
 

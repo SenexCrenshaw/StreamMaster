@@ -19,6 +19,8 @@ public class M3UFile : AutoUpdateEntity
         SMFileType = FileDefinitions.M3U.SMFileType;
     }
 
+
+    public M3UKey M3UKey { get; set; } = M3UKey.URL;
     public List<string> VODTags { get; set; } = [];
     public int MaxStreamCount { get; set; }
     public int StreamCount { get; set; }

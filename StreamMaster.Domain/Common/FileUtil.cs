@@ -50,6 +50,12 @@ public sealed class FileUtil
         return null;
     }
 
+    public static void WriteJSON(string fileName, string jsonText, string? directory = null)
+    {
+        string jsonPath = Path.Combine(directory ?? BuildInfo.AppDataFolder, fileName);
+        File.WriteAllText(jsonPath, jsonText);
+    }
+
     public static string EncodeToMD5(string url)
     {
         if (string.IsNullOrEmpty(url))

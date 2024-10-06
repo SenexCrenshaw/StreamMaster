@@ -226,6 +226,8 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IImag
             BaseStreamID = smStream.Id,
             IsSystem = smStream.IsSystem,
             CommandProfileName = "Default",
+            ChannelId = smStream.ChannelId,
+            ChannelName = smStream.ChannelName,
         };
         Create(smChannel);
 

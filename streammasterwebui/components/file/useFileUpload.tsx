@@ -41,18 +41,19 @@ export function useFileUpload() {
       setIsUploading(true);
       try {
         await uploadService({
-          name: params.name,
-          maxStreamCount: params.m3uFileDto?.MaxStreamCount,
-          epgNumber: params.epgFileDto?.EPGNumber,
-          timeShift: params.epgFileDto?.TimeShift,
+          autoSetChannelNumbers: params.m3uFileDto?.AutoSetChannelNumbers,
           color: params.epgFileDto?.Color,
           defaultStreamGroupName: params.m3uFileDto?.DefaultStreamGroupName,
-          syncChannels: params.m3uFileDto?.SyncChannels,
-          vodTags: params.m3uFileDto?.VODTags,
+          epgNumber: params.epgFileDto?.EPGNumber,
           file: params.file,
-          autoSetChannelNumbers: params.m3uFileDto?.AutoSetChannelNumbers,
-          startingChannelNumber: params.m3uFileDto?.StartingChannelNumber,
           fileType: params.m3uFileDto === undefined ? 'epg' : 'm3u',
+          m3uKey: params.m3uFileDto?.M3UKey,
+          maxStreamCount: params.m3uFileDto?.MaxStreamCount,
+          name: params.name,
+          startingChannelNumber: params.m3uFileDto?.StartingChannelNumber,
+          syncChannels: params.m3uFileDto?.SyncChannels,
+          timeShift: params.epgFileDto?.TimeShift,
+          vodTags: params.m3uFileDto?.VODTags,
           onUploadProgress: (event: axios.AxiosProgressEvent) => {
             setUploadedBytes(event.loaded);
             const total = event.total === undefined ? 1 : event.total;
