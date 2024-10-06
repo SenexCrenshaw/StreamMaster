@@ -35,8 +35,8 @@ public class ClientReadStream : Stream, IClientReadStream
 
 
     private DateTime _lastReadTime;
-    private readonly CancellationTokenSource _monitorCts;
-    private readonly Task _monitorTask;
+    private readonly CancellationTokenSource? _monitorCts = null;
+    private readonly Task? _monitorTask = null;
     public ClientReadStream(ILoggerFactory loggerFactory, string UniqueRequestId)
     {
         uniqueRequestId = UniqueRequestId;
@@ -46,29 +46,34 @@ public class ClientReadStream : Stream, IClientReadStream
         double ClientReadTimeOutSeconds = setting?.ClientReadTimeOutSeconds ?? 5;
 
         _lastReadTime = DateTime.UtcNow;
-        _monitorCts = new CancellationTokenSource();
-        _monitorTask = Task.Run(async () =>
+
+        // Only initialize monitoring if timeout is not zero
+        if (ClientReadTimeOutSeconds > 0)
         {
-            while (!_monitorCts.Token.IsCancellationRequested)
+            _monitorCts = new CancellationTokenSource();
+            _monitorTask = Task.Run(async () =>
             {
-                await Task.Delay(1000, _monitorCts.Token); // Check every second
-                if (IsCancelled)
+                while (!_monitorCts.Token.IsCancellationRequested)
                 {
-                    break;
-                }
+                    await Task.Delay(1000, _monitorCts.Token); // Check every second
+                    if (IsCancelled)
+                    {
+                        break;
+                    }
 
-                TimeSpan timeSinceLastRead = DateTime.UtcNow - _lastReadTime;
-                if (timeSinceLastRead > TimeSpan.FromSeconds(ClientReadTimeOutSeconds))
-                {
-                    // No read in last 5 seconds
-                    logger.LogWarning("No read in last 5 seconds for UniqueRequestId: {UniqueRequestId}", UniqueRequestId);
-                    OnStreamTimedOut(new StreamTimedOut(uniqueRequestId, DateTime.UtcNow));
+                    TimeSpan timeSinceLastRead = DateTime.UtcNow - _lastReadTime;
+                    if (timeSinceLastRead > TimeSpan.FromSeconds(ClientReadTimeOutSeconds))
+                    {
+                        // No read in last specified seconds
+                        logger.LogWarning("No read in last {ClientReadTimeOutSeconds} seconds for UniqueRequestId: {UniqueRequestId}", ClientReadTimeOutSeconds, UniqueRequestId);
+                        OnStreamTimedOut(new StreamTimedOut(uniqueRequestId, DateTime.UtcNow));
 
-                    Cancel();
-                    break;
+                        Cancel();
+                        break;
+                    }
                 }
-            }
-        }, _monitorCts.Token);
+            }, _monitorCts.Token);
+        }
     }
 
     public override async Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
@@ -156,8 +161,8 @@ public class ClientReadStream : Stream, IClientReadStream
         {
             if (disposing)
             {
-                _monitorCts.Cancel();
-                _monitorCts.Dispose();
+                _monitorCts?.Cancel();
+                _monitorCts?.Dispose();
             }
 
             _disposed = true;
