@@ -1,9 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using StreamMaster.Application.SMStreams.Commands;
 using StreamMaster.Application.SMStreams.Queries;
 
 namespace StreamMaster.Application.SMStreams.Controllers
 {
+    [Authorize]
     public partial class SMStreamsController() : ApiControllerBase, ISMStreamsController
     {        
 

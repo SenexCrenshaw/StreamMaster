@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using StreamMaster.Application.Custom.Commands;
 using StreamMaster.Application.Custom.Queries;
 

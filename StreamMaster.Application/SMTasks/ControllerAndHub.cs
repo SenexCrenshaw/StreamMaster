@@ -1,9 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using StreamMaster.Application.SMTasks.Commands;
 using StreamMaster.Application.SMTasks.Queries;
 
 namespace StreamMaster.Application.SMTasks.Controllers
 {
+    [Authorize]
     public partial class SMTasksController(ILogger<SMTasksController> _logger) : ApiControllerBase, ISMTasksController
     {        
 

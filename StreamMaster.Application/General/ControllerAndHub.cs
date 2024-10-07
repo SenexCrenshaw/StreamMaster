@@ -1,9 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using StreamMaster.Application.General.Commands;
 using StreamMaster.Application.General.Queries;
 
 namespace StreamMaster.Application.General.Controllers
 {
+    [Authorize]
     public partial class GeneralController(ILogger<GeneralController> _logger) : ApiControllerBase, IGeneralController
     {        
 

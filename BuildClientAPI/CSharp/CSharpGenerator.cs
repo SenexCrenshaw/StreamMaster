@@ -209,6 +209,7 @@ public static class CSharpGenerator
     private static void WriteIControllerAndHub(string IFilePath, string namespaceName, StringBuilder IControllerContent, StringBuilder IHubContent, bool NeedsQueryInclude, bool NeedsCommandInclude)
     {
         string fileContent = "using Microsoft.AspNetCore.Mvc;\n";
+        fileContent += "using Microsoft.AspNetCore.Authorization;\n";
         if (NeedsCommandInclude)
         {
             fileContent += $"using StreamMaster.Application.{namespaceName}.Commands;\n";
@@ -245,6 +246,7 @@ namespace StreamMaster.Application.Hubs
     private static void WriteControllerAndHub(string filePath, string namespaceName, StringBuilder controllerContent, StringBuilder hubContent, bool NeedsQueryInclude, bool NeedsCommandInclude, bool needsLogger)
     {
         string fileContent = "using Microsoft.AspNetCore.Mvc;\n";
+        fileContent += "using Microsoft.AspNetCore.Authorization;\n";
         if (NeedsCommandInclude)
         {
             fileContent += $"using StreamMaster.Application.{namespaceName}.Commands;\n";
@@ -261,6 +263,7 @@ namespace StreamMaster.Application.Hubs
         fileContent += $@"
 namespace StreamMaster.Application.{ns}
 {{
+    [Authorize]
     public partial class {namespaceName}Controller({logger}) : ApiControllerBase, I{namespaceName}Controller
     {{        
 

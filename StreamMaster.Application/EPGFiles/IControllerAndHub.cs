@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using StreamMaster.Application.EPGFiles.Commands;
 using StreamMaster.Application.EPGFiles.Queries;
 

@@ -1,9 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using StreamMaster.Application.StreamGroups.Commands;
 using StreamMaster.Application.StreamGroups.Queries;
 
 namespace StreamMaster.Application.StreamGroups.Controllers
 {
+    [Authorize]
     public partial class StreamGroupsController(ILogger<StreamGroupsController> _logger) : ApiControllerBase, IStreamGroupsController
     {        
 

@@ -1,9 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using StreamMaster.Application.EPG.Commands;
 using StreamMaster.Application.EPG.Queries;
 
 namespace StreamMaster.Application.EPG.Controllers
 {
+    [Authorize]
     public partial class EPGController(ILogger<EPGController> _logger) : ApiControllerBase, IEPGController
     {        
 

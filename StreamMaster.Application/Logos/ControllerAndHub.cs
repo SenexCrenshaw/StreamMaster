@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using StreamMaster.Application.Logos.Queries;
 
 namespace StreamMaster.Application.Logos.Controllers
 {
+    [Authorize]
     public partial class LogosController(ILogger<LogosController> _logger) : ApiControllerBase, ILogosController
     {        
 

@@ -1,9 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using StreamMaster.Application.Settings.Commands;
 using StreamMaster.Application.Settings.Queries;
 
 namespace StreamMaster.Application.Settings.Controllers
 {
+    [Authorize]
     public partial class SettingsController(ILogger<SettingsController> _logger) : ApiControllerBase, ISettingsController
     {        
 

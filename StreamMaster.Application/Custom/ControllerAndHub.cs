@@ -1,9 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using StreamMaster.Application.Custom.Commands;
 using StreamMaster.Application.Custom.Queries;
 
 namespace StreamMaster.Application.Custom.Controllers
 {
+    [Authorize]
     public partial class CustomController(ILogger<CustomController> _logger) : ApiControllerBase, ICustomController
     {        
 

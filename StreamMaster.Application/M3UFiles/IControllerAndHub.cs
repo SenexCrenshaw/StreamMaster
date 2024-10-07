@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using StreamMaster.Application.M3UFiles.Commands;
 using StreamMaster.Application.M3UFiles.Queries;
 

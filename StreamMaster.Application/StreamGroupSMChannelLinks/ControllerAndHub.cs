@@ -1,9 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using StreamMaster.Application.StreamGroupSMChannelLinks.Commands;
 using StreamMaster.Application.StreamGroupSMChannelLinks.Queries;
 
 namespace StreamMaster.Application.StreamGroupSMChannelLinks.Controllers
 {
+    [Authorize]
     public partial class StreamGroupSMChannelLinksController(ILogger<StreamGroupSMChannelLinksController> _logger) : ApiControllerBase, IStreamGroupSMChannelLinksController
     {        
 

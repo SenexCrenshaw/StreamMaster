@@ -58,15 +58,10 @@ public static class ConfigureServices
                 return category != null && classesToLog.Any(c => category.Contains(c, StringComparison.OrdinalIgnoreCase));
             });
 
-            // Consider not manually adding ILoggerProvider here, it's already added above
             ServiceProvider serviceProvider = loggingBuilder.Services.BuildServiceProvider();
-            // ILoggerProvider loggerProvider = serviceProvider.GetRequiredService<ILoggerProvider>();
-            // loggingBuilder.AddProvider(loggerProvider);
             ILoggerFactory loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
             GlobalLoggerProvider.Configure(loggerFactory);
         });
-
-        //services.AddHttpLogging(o => o = new HttpLoggingOptions());
 
         services.AddSingleton<IContentTypeProvider, FileExtensionContentTypeProvider>();
         services.AddRouting(options => options.LowercaseUrls = true);

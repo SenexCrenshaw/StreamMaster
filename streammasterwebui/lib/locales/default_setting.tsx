@@ -10,7 +10,7 @@ const defaultSetting: DefaultSettingType = {
   BackupInterval: '4',
   BackupVersionsToKeep: '18',
   CleanURLs: 'true',
-  ClientReadTimeOutSeconds: '5',
+  ClientReadTimeOutSeconds: '10',
   ClientUserAgent: 'VLC/3.0.20-git LibVLC/3.0.20-git',
   DeviceID: 'device1',
   EnablePrometheus: 'false',

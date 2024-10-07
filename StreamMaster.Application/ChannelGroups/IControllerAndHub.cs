@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using StreamMaster.Application.ChannelGroups.Commands;
 using StreamMaster.Application.ChannelGroups.Queries;
 

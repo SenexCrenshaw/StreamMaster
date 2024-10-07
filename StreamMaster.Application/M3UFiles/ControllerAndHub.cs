@@ -1,9 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using StreamMaster.Application.M3UFiles.Commands;
 using StreamMaster.Application.M3UFiles.Queries;
 
 namespace StreamMaster.Application.M3UFiles.Controllers
 {
+    [Authorize]
     public partial class M3UFilesController(ILogger<M3UFilesController> _logger) : ApiControllerBase, IM3UFilesController
     {        
 

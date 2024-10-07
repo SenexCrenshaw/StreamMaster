@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using StreamMaster.Application.Vs.Queries;
 
 namespace StreamMaster.Application.Vs.Controllers
 {
+    [Authorize]
     public partial class VsController(ILogger<VsController> _logger) : ApiControllerBase, IVsController
     {        
 

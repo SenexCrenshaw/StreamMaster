@@ -1,9 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using StreamMaster.Application.Profiles.Commands;
 using StreamMaster.Application.Profiles.Queries;
 
 namespace StreamMaster.Application.Profiles.Controllers
 {
+    [Authorize]
     public partial class ProfilesController(ILogger<ProfilesController> _logger) : ApiControllerBase, IProfilesController
     {        
 

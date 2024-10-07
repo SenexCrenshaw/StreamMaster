@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using StreamMaster.Application.SMMessages.Commands;
 
 namespace StreamMaster.Application.SMMessages.Controllers
 {
+    [Authorize]
     public partial class SMMessagesController() : ApiControllerBase, ISMMessagesController
     {        
 

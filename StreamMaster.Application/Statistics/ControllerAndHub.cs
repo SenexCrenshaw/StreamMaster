@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using StreamMaster.Application.Statistics.Queries;
 
 namespace StreamMaster.Application.Statistics.Controllers
 {
+    [Authorize]
     public partial class StatisticsController(ILogger<StatisticsController> _logger) : ApiControllerBase, IStatisticsController
     {        
 

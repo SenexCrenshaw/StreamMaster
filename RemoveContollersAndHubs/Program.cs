@@ -8,7 +8,7 @@
             FileInfo[] files = di.GetFiles("ControllerAndHub.cs", SearchOption.AllDirectories);
             foreach (FileInfo file in files)
             {
-                if (file.FullName.Contains("StreamGroupsController"))
+                if (file.FullName.Contains("StreamGroups"))
                 {
                     continue;
                 }
@@ -17,7 +17,7 @@
             files = di.GetFiles("IControllerAndHub.cs", SearchOption.AllDirectories);
             foreach (FileInfo file in files)
             {
-                if (file.FullName.Contains("StreamGroupsController"))
+                if (file.FullName.Contains("StreamGroups"))
                 {
                     continue;
                 }

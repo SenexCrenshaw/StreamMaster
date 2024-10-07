@@ -1,9 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using StreamMaster.Application.SchedulesDirect.Commands;
 using StreamMaster.Application.SchedulesDirect.Queries;
 
 namespace StreamMaster.Application.SchedulesDirect.Controllers
 {
+    [Authorize]
     public partial class SchedulesDirectController(ILogger<SchedulesDirectController> _logger) : ApiControllerBase, ISchedulesDirectController
     {        
 
