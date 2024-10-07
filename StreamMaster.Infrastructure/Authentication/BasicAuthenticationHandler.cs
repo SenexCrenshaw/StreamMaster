@@ -39,7 +39,7 @@ namespace StreamMaster.Infrastructure.Authentication
             string authUsername = authSplit[0];
             string authPassword = authSplit.Length > 1 ? authSplit[1] : throw new Exception("Unable to get password");
 
-            User user = await authService.Login(Request, authUsername, authPassword);
+            User? user = authService.Login(Request, authUsername, authPassword);
 
             if (user == null)
             {

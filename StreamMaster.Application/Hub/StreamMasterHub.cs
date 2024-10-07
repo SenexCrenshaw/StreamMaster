@@ -1,5 +1,9 @@
-﻿namespace StreamMaster.Application.Hubs;
+﻿using Microsoft.AspNetCore.Authorization;
 
+namespace StreamMaster.Application.Hubs;
+
+
+[Authorize(Policy = "SignalR")]
 public partial class StreamMasterHub(ISender Sender, IOptionsMonitor<Setting> intSettings)
     : Hub<IStreamMasterHub>
 {

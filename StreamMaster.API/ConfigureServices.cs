@@ -15,7 +15,6 @@ using NSwag.Generation.Processors.Security;
 using StreamMaster.API.SchemaHelpers;
 using StreamMaster.API.Services;
 using StreamMaster.Application.Services;
-using StreamMaster.Domain.Enums;
 using StreamMaster.Domain.Logging;
 using StreamMaster.Infrastructure.Authentication;
 using StreamMaster.Infrastructure.EF.PGSQL;
@@ -155,29 +154,7 @@ public static class ConfigureServices
         services.AddHostedService<PostStartup>();
         services.AddSingleton<PostStartup>();
 
-        services.AddAuthorization(options =>
-        {
-
-            AuthorizationPolicy signalRPolicy = new AuthorizationPolicyBuilder()
-                .AddAuthenticationSchemes("SignalR")
-                .RequireAuthenticatedUser()
-                .Build();
-
-            AuthorizationPolicy sgLinksPolicy = new AuthorizationPolicyBuilder()
-                .AddAuthenticationSchemes("SGLinks")
-                .RequireAuthenticatedUser()
-                .Build();
-
-            AuthorizationPolicy fallbackPolicy = new AuthorizationPolicyBuilder(nameof(AuthenticationType.Forms), "API")
-                .RequireAuthenticatedUser()
-                .Build();
-
-            options.AddPolicy("SignalR", signalRPolicy);
-            options.AddPolicy("SGLinks", sgLinksPolicy);
-            options.FallbackPolicy = fallbackPolicy;
-
-        });
-
+        services.AddAppAuthenticationAndAuthorization();
 
         services.AddSignalR().AddMessagePackProtocol();
 
@@ -185,7 +162,7 @@ public static class ConfigureServices
 
         services.AddSingleton<IAuthorizationPolicyProvider, UiAuthorizationPolicyProvider>();
 
-        services.AddAppAuthentication();
+
 
         return services;
     }

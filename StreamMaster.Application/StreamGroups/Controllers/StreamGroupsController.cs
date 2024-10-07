@@ -10,6 +10,7 @@ using System.Text;
 
 namespace StreamMaster.Application.StreamGroups.Controllers;
 
+[Authorize]
 public partial class StreamGroupsController
 {
 

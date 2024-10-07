@@ -24,6 +24,7 @@ using System.Diagnostics;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Builder;
 
 
 [assembly: TsGlobal(CamelCaseForProperties = false, CamelCaseForMethods = false, UseModules = true, DiscardNamespacesWhenUsingModules = true, AutoOptionalProperties = true, WriteWarningComment = false, ReorderMembers = true)]
@@ -268,7 +269,7 @@ app.MapGet("/routes", async context =>
     }
 });
 
-app.MapHub<StreamMasterHub>("/streammasterhub");//.RequireAuthorization(AuthenticationType.Forms.ToString());
+app.MapHub<StreamMasterHub>("/streammasterhub");//.RequireAuthorization("SignalR");
 
 app.Run();
 

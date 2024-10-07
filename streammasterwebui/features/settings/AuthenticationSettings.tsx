@@ -54,10 +54,10 @@ export function AuthenticationSettings(): React.ReactElement {
         {GetInputTextLine({ field: 'AdminUserName', warning: adminUserNameError })}
         {GetPasswordLine({ field: 'AdminPassword', warning: adminPasswordError, labelInline: true })}
         <div className="flex w-12 settings-line justify-content-end align-items-center">
-          <div className="w-3">
+          <div className="w-6">
             <SMButton
               buttonDisabled={!settings.AuthenticationMethod || settings.AuthenticationMethod === 'None'}
-              icon="pi-check"
+              icon="pi-sign-out"
               label={GetMessage('signout')}
               onClick={() => (window.location.href = '/logout')}
               rounded

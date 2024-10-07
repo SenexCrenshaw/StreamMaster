@@ -20,13 +20,13 @@ namespace StreamMaster.API.Controllers
 
         [AllowAnonymous]
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromForm] LoginResource resource, [FromQuery] string? returnUrl = null)
+        public async Task<IActionResult> Login([FromForm] LoginResource resource, [FromQuery] string? ReturnUrl = null)
         {
-            User user = await authService.Login(HttpContext.Request, resource.Username, resource.Password);
+            User? user = authService.Login(HttpContext.Request, resource.Username, resource.Password);
 
             if (user == null)
             {
-                return Redirect($"~/login?returnUrl={returnUrl}&loginFailed=true");
+                return Redirect($"~/login?returnUrl={ReturnUrl}&loginFailed=true");
             }
 
             List<Claim> claims =
@@ -43,13 +43,13 @@ namespace StreamMaster.API.Controllers
 
             await HttpContext.SignInAsync(nameof(AuthenticationType.Forms), new ClaimsPrincipal(new ClaimsIdentity(claims, "Cookies", "user", "identifier")), authProperties);
 
-            return Redirect(settings.UrlBase + "/");
+            return Redirect(settings.UrlBase + ReturnUrl);
         }
 
         [HttpGet("logout")]
         public async Task<IActionResult> Logout()
         {
-            await authService.Logout(HttpContext);
+            authService.Logout(HttpContext);
             await HttpContext.SignOutAsync(nameof(AuthenticationType.Forms));
             return Redirect(settings.UrlBase + "/");
         }
