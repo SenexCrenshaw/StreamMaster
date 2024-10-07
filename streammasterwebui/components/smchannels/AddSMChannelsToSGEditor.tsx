@@ -88,12 +88,12 @@ const AddSMChannelsToSGEditor = () => {
       icon="pi-book"
       iconFilled
       info=""
-      label={`Add (${selectAll ? 'All' : getTotalCount}) To SG`}
+      label={`Add (${selectAll ? 'All' : getTotalCount}) To SG : ` + selectedStreamGroup.Name}
       menu
       modal
       onOkClick={async () => addSMChannelsToStreamGroup()}
       placement={smTableIsSimple ? 'bottom-end' : 'bottom'}
-      title="Add to SG"
+      title={'Add to SG : ' + selectedStreamGroup.Name}
       tooltip={'Add to SG : ' + selectedStreamGroup.Name}
     >
       <div className="text-container sm-center-stuff">

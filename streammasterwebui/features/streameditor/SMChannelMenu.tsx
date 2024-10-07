@@ -5,8 +5,6 @@ import AutoSetEPGSMChannelDialog from '@components/smchannels/AutoSetEPGSMChanne
 import AutoSetSMChannelNumbersDialog from '@components/smchannels/AutoSetSMChannelNumbersDialog';
 import SetSMChannelsCommandProfileNameDialog from '@components/smchannels/SetSMChannelsCommandProfileNameDialog';
 
-import SMChannelMultiVisibleDialog from '@components/smchannels/SMChannelMultiVisibleDialog';
-
 import { useIsTrue } from '@lib/redux/hooks/isTrue';
 import { memo } from 'react';
 
@@ -48,7 +46,7 @@ const SMChannelMenu = () => {
           <SetSMChannelsCommandProfileNameDialog selectedItemsKey={selectedItemsKey} />
           <AddSMChannelsToSGEditor />
           <AddSMChannelsToGroupEditor />
-          <SMChannelMultiVisibleDialog selectedItemsKey={selectedItemsKey} menu />
+          {/* <SMChannelMultiVisibleDialog selectedItemsKey={selectedItemsKey} menu /> */}
         </div>
       </SMOverlay>
       {/* <SMSpeedMenu items={smItems} mainItem={mainSM} backgroundWidth="300px" /> */}

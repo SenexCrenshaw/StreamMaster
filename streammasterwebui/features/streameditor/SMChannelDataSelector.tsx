@@ -1,5 +1,5 @@
 import EPGFilesButton from '@components/epgFiles/EPGFilesButton';
-import { SMTriSelectShowHidden } from '@components/sm/SMTriSelectShowHidden';
+import StreamGroupProfileButton from '@components/profiles/StreamGroupProfileButton';
 import SMDataTable from '@components/smDataTable/SMDataTable';
 import getRecord from '@components/smDataTable/helpers/getRecord';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
@@ -17,7 +17,6 @@ import { useSMChannelLogoColumnConfig } from '@components/smchannels/columns/use
 import { useSMChannelNameColumnConfig } from '@components/smchannels/columns/useSMChannelNameColumnConfig';
 import { useSMChannelNumberColumnConfig } from '@components/smchannels/columns/useSMChannelNumberColumnConfig';
 import { useSMChannelSGColumnConfig } from '@components/smchannels/columns/useSMChannelSGColumnConfig';
-import StreamGroupProfileButton from '@components/profiles/StreamGroupProfileButton';
 import { useSMCommandProfileNameColumnConfig } from '@components/smchannels/columns/useSMVideoOutputProfileNameColumnConfig';
 import StreamCopyLinkDialog from '@components/smstreams/StreamCopyLinkDialog';
 import StreamGroupButton from '@components/streamGroup/StreamGroupButton';
@@ -28,10 +27,10 @@ import useGetPagedSMChannels from '@lib/smAPI/SMChannels/useGetPagedSMChannels';
 import { SMChannelDto } from '@lib/smAPI/smapiTypes';
 import { DataTableRowData, DataTableRowExpansionTemplate, DataTableValue } from 'primereact/datatable';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import SMChannelDataSelectorValue from './SMChannelDataSelectorValue';
 import SMChannelMenu from './SMChannelMenu';
 import SMStreamDataSelectorValue from './SMStreamDataSelectorValue';
 import useSelectedSMItems from './useSelectedSMItems';
-import SMChannelDataSelectorValue from './SMChannelDataSelectorValue';
 
 interface SMChannelDataSelectorProperties {
   readonly enableEdit?: boolean;
@@ -149,13 +148,13 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id }: SMChannelDat
 
   const simpleColumns = useMemo(
     (): ColumnMeta[] => [
+      sgColumnConfig,
       channelNumberColumnConfig,
       channelLogoColumnConfig,
       channelNameColumnConfig,
       epgColumnConfig,
       groupColumnConfig,
       proxyColumnConfig,
-      sgColumnConfig,
       {
         align: 'right',
         bodyTemplate: simpleActionTemplate,
@@ -263,11 +262,11 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id }: SMChannelDat
       enablePaginator
       selectRow
       showExpand
-      expanderHeader={() => (
-        <div className="flex align-content-center justify-content-center">
-          <SMTriSelectShowHidden dataKey={dataKey} />
-        </div>
-      )}
+      // expanderHeader={() => (
+      //   <div className="flex align-content-center justify-content-center">
+      //     <SMTriSelectShowHidden dataKey={dataKey} />
+      //   </div>
+      // )}
       headerCenterTemplate={headerCenterTemplate}
       headerRightTemplate={headerRightTemplate}
       headerName={headerTitle()}

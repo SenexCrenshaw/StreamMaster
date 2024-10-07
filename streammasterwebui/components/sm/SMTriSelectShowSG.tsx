@@ -57,14 +57,14 @@ export const SMTriSelectShowSG = ({ dataKey, onChange }: SMTriSelectShowSGProper
 
   const getIcon = useMemo(() => {
     if (showHidden === null) {
-      return 'pi pi-list-check';
+      return 'pi-eye';
     }
 
     if (showHidden === true) {
-      return 'pi pi-list-check';
+      return 'pi-eye';
     }
 
-    return 'pi pi-list-check';
+    return 'pi-eye-slash';
   }, [showHidden]);
 
   const getColor = useMemo(() => {

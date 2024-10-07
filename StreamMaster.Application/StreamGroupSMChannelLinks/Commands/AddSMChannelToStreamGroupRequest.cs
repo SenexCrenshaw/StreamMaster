@@ -28,6 +28,7 @@ internal class AddSMChannelToStreamGroupRequestHandler(IRepositoryWrapper Reposi
         await dataRefreshService.ClearByTag(SMChannel.APIName, "notInSG").ConfigureAwait(false);
         await dataRefreshService.ClearByTag(SMChannel.APIName, "inSG").ConfigureAwait(false);
         await dataRefreshService.RefreshStreamGroups();
+        await dataRefreshService.RefreshSMChannels();
         return res;
     }
 }
