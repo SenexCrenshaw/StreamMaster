@@ -51,8 +51,9 @@ export function AuthenticationSettings(): React.ReactElement {
       <>
         {/* {getInputTextLine({  field: 'ApiKey', onChange })} */}
         {GetDropDownLine({ field: 'AuthenticationMethod', options: getAuthTypeOptions() })}
+        {/* {GetCheckBoxLine({ field: 'AuthenticationMethod', label: 'Require HTTPS' })} */}
         {GetInputTextLine({ field: 'AdminUserName', warning: adminUserNameError })}
-        {GetPasswordLine({ field: 'AdminPassword', warning: adminPasswordError, labelInline: true })}
+        {GetPasswordLine({ field: 'AdminPassword', labelInline: true, warning: adminPasswordError })}
         <div className="flex w-12 settings-line justify-content-end align-items-center">
           <div className="w-6">
             <SMButton

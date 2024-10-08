@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-
 using StreamMaster.Application.StreamGroups.Queries;
 using StreamMaster.Domain.Crypto;
 
@@ -13,7 +12,6 @@ namespace StreamMaster.Application.StreamGroups.Controllers;
 [Authorize]
 public partial class StreamGroupsController
 {
-
     [HttpGet]
     [AllowAnonymous]
     [Route("{encodedId}")]
@@ -91,7 +89,6 @@ public partial class StreamGroupsController
             FileDownloadName = $"epg-{sg.Name.ToCleanFileString()}.xml"
         };
     }
-
 
     [HttpGet]
     [Authorize(Policy = "SGLinks")]
@@ -186,7 +183,7 @@ public partial class StreamGroupsController
         {
             return new NotFoundResult();
         }
-        VideoStreamConfig? videoStreamConfig = videoStreamConfigs.FirstOrDefault(a => a.ChannelNumber.ToString() == channelNumber);
+        VideoStreamConfig? videoStreamConfig = videoStreamConfigs.Find(a => a.ChannelNumber.ToString() == channelNumber);
 
         if (videoStreamConfig == null)
         {
@@ -200,6 +197,4 @@ public partial class StreamGroupsController
 
         return Redirect(videoUrl);
     }
-
-
 }

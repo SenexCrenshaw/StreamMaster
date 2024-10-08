@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 namespace StreamMaster.API.Controllers;
 
-
 [V1ApiController("v")]
 public class VsController(ILogger<VsController> logger, IVideoService videoService, IStreamGroupService streamGroupService, IChannelManager channelManager) : Controller
 {

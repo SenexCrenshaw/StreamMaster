@@ -26,7 +26,6 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Builder;
 
-
 [assembly: TsGlobal(CamelCaseForProperties = false, CamelCaseForMethods = false, UseModules = true, DiscardNamespacesWhenUsingModules = true, AutoOptionalProperties = true, WriteWarningComment = false, ReorderMembers = true)]
 
 DirectoryHelper.CreateApplicationDirectories();
@@ -47,12 +46,11 @@ static void Log(string format, params object[] args)
     Debug.WriteLine(message);
 }
 
-builder.WebHost.ConfigureKestrel((context, serverOptions) =>
+builder.WebHost.ConfigureKestrel((_, serverOptions) =>
 {
     serverOptions.AllowSynchronousIO = true;
     serverOptions.Limits.MaxRequestBodySize = null;
 });
-
 
 var settingsFiles = BuildInfo.GetSettingFiles();
 
@@ -100,7 +98,6 @@ void ConfigureSettings<T>(WebApplicationBuilder builder) where T : class
     builder.Services.Configure<T>(builder.Configuration);
 }
 
-
 bool enableSsl = false;
 
 string? sslCertPath = builder.Configuration["SSLCertPath"];
@@ -146,8 +143,6 @@ var setting = SettingsHelper.GetSetting<Setting>(BuildInfo.SettingsFile);
 
     builder.Services.AddWebUIServices(builder, setting?.EnableDBDebug?? false);
 
-
-
 builder.Services.Configure<RouteOptions>(options => options.LowercaseUrls = true);
 
 builder.Services.AddControllers(options =>
@@ -162,7 +157,6 @@ builder.Services.AddControllers(options =>
 });
 
 WebApplication app = builder.Build();
-
 
 app.UseForwardedHeaders();
 
@@ -272,7 +266,6 @@ app.MapGet("/routes", async context =>
 app.MapHub<StreamMasterHub>("/streammasterhub");//.RequireAuthorization("SignalR");
 
 app.Run();
-
 
 static string GetRoutePattern(Endpoint endpoint)
 {

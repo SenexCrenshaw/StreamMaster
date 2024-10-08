@@ -59,6 +59,7 @@ export function GetDropDownLine({ ...props }: DropDownLineProps): React.ReactEle
           onChange={(e) => {
             updateStateAndRequest({ [props.field]: e.label });
           }}
+          scrollHeight="20vh"
           title={label}
           value={getValue}
         />

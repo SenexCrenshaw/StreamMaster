@@ -37,7 +37,6 @@ public class VideoStreamsController(ILogger<VideoStreamsController> logger, IVid
             _ = channelManager.RemoveClientAsync(streamResult.ClientConfiguration);
         };
 
-
         HttpContext.Response.RegisterForDispose(new UnregisterClientOnDispose(channelManager, streamResult.ClientConfiguration, logger));
 
         return streamResult.Stream != null ? new FileStreamResult(streamResult.Stream, "video/mp2t") { EnableRangeProcessing = false, FileDownloadName = $"{encodedIds}.ts" } : StatusCode(StatusCodes.Status404NotFound);

@@ -48,9 +48,8 @@ public static class ConfigureServices
             loggingBuilder.AddConfiguration(builder.Configuration.GetSection("Logging"));
             loggingBuilder.AddProvider(new StatsLoggerProvider());
 
-
             // GetOrAdd specific filters for StatsLoggerProvider
-            loggingBuilder.AddFilter<StatsLoggerProvider>((category, logLevel) =>
+            loggingBuilder.AddFilter<StatsLoggerProvider>((category, _) =>
             {
                 // List of classes to use with CustomLogger
                 List<string> classesToLog = ["BroadcastService"];
@@ -108,8 +107,6 @@ public static class ConfigureServices
              .AddApplicationPart(assembly)
             .AddControllersAsServices();
 
-
-
         services.AddScoped<IAuthenticationService, AuthenticationService>();
 
         services.AddHttpContextAccessor();
@@ -128,7 +125,7 @@ public static class ConfigureServices
 
         services.AddSingleton<IBackgroundTaskQueue>(x =>
        {
-           int queueCapacity = 100;
+           const int queueCapacity = 100;
            ILogger<BackgroundTaskQueue> logger = x.GetRequiredService<ILogger<BackgroundTaskQueue>>();
            ISender sender = x.GetRequiredService<ISender>();
            IDataRefreshService dataRefreshService = x.GetRequiredService<IDataRefreshService>();
@@ -161,8 +158,6 @@ public static class ConfigureServices
         services.AddDataProtection().PersistKeysToDbContext<PGSQLRepositoryContext>();
 
         services.AddSingleton<IAuthorizationPolicyProvider, UiAuthorizationPolicyProvider>();
-
-
 
         return services;
     }

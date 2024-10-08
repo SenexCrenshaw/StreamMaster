@@ -16,12 +16,12 @@ public class ApiKeyAuthenticationOptions : AuthenticationSchemeOptions
     public string AuthenticationType = DefaultScheme;
     public string? HeaderName { get; set; }
     public string? QueryName { get; set; }
-    public string Scheme => DefaultScheme;
+    public static string Scheme => DefaultScheme;
 }
 
 public class ApiKeyAuthenticationHandler(
     IOptionsMonitor<ApiKeyAuthenticationOptions> options,
-    IOptionsMonitor<Setting> intSettings,
+    IOptionsMonitor<Setting> settings,
     ILoggerFactory logger,
     UrlEncoder encoder) : AuthenticationHandler<ApiKeyAuthenticationOptions>(options, logger, encoder)
 {
@@ -36,52 +36,67 @@ public class ApiKeyAuthenticationHandler(
 
     protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
     {
-        Setting settings = intSettings.CurrentValue;
-        bool needsAuth = settings.AuthenticationMethod != "None";
+        bool needsAuth = settings.CurrentValue.AuthenticationMethod != "None";
 
         if (!needsAuth)
         {
             List<Claim> claims =
-            [
-                new Claim("ApiKey", "true")
-            ];
+        [
+            new Claim("ApiKey", "true")
+        ];
 
             ClaimsIdentity identity = new(claims, Options.AuthenticationType);
-            ClaimsPrincipal principal = new([identity]);
-            AuthenticationTicket ticket = new(principal, Options.Scheme);
+            ClaimsPrincipal principal = new(identity);
+            AuthenticationTicket ticket = new(principal, ApiKeyAuthenticationOptions.Scheme);
             _logger.LogDebug("Authentication is off");
             return AuthenticateResult.Success(ticket);
         }
 
-
-        string? providedApiKey = await ParseApiKeyAsync(settings.ServerKey);
-
-        if (string.IsNullOrWhiteSpace(providedApiKey))
+        // Try to authenticate with an API key first
+        string? providedApiKey = await ParseApiKeyAsync(settings.CurrentValue.ServerKey);
+        if (!string.IsNullOrWhiteSpace(providedApiKey))
         {
-            _logger.LogDebug("No Authentication: providedApiKey is blank");
-            return AuthenticateResult.Fail("No Authentication: providedApiKey is blank");
-        }
-
-        if (settings.ServerKey == providedApiKey)
-        {
-            List<Claim> claims =
+            if (settings.CurrentValue.ServerKey == providedApiKey)
+            {
+                List<Claim> claims =
             [
                 new Claim("ApiKey", "true")
             ];
 
-            ClaimsIdentity identity = new(claims, Options.AuthenticationType);
-            ClaimsPrincipal principal = new([identity]);
-            AuthenticationTicket ticket = new(principal, Options.Scheme);
-            _logger.LogDebug("ApiKey Authentication success");
-            return AuthenticateResult.Success(ticket);
+                ClaimsIdentity identity = new(claims, Options.AuthenticationType);
+                ClaimsPrincipal principal = new(identity);
+                AuthenticationTicket ticket = new(principal, ApiKeyAuthenticationOptions.Scheme);
+                _logger.LogDebug("ApiKey Authentication success");
+                return AuthenticateResult.Success(ticket);
+            }
         }
 
-        return AuthenticateResult.NoResult();
+        // If API key authentication fails, try Forms authentication (cookie-based)
+        AuthenticateResult cookieAuthResult = await Context.AuthenticateAsync(nameof(AuthenticationType.Forms));
+        if (cookieAuthResult.Succeeded && cookieAuthResult.Principal != null)
+        {
+            _logger.LogDebug("Authentication success using Forms cookie for {requestPath}", Context.Request.Path);
+            return AuthenticateResult.Success(cookieAuthResult.Ticket);
+        }
+
+        // Both API key and Forms authentication failed
+        _logger.LogDebug("No valid API key or cookie found for authentication");
+        return AuthenticateResult.Fail("No valid API key or cookie found for authentication");
     }
 
     protected override Task HandleChallengeAsync(AuthenticationProperties properties)
     {
-        Response.StatusCode = 401;
+        // If authentication fails, redirect to the login page
+        if (Context.Request.Path.StartsWithSegments("/streammasterhub"))
+        {
+            _logger.LogDebug("SignalR authentication failed. Redirecting to login.");
+            Response.Redirect("/login?loginFailed=true");
+        }
+        else
+        {
+            Response.StatusCode = 401; // Set unauthorized status for non-SignalR requests
+        }
+
         return Task.CompletedTask;
     }
 
@@ -147,7 +162,6 @@ public class ApiKeyAuthenticationHandler(
                 return serverKey;
             }
             return null;
-
         }
 
         if (Options != null)
@@ -170,7 +184,7 @@ public class ApiKeyAuthenticationHandler(
 
             // Try Authorization header
             _logger.LogDebug("Authentication used bearer : {value}", Request.Headers.Authorization.FirstOrDefault()?.Replace("Bearer ", ""));
-            return Request.Headers["Authorization"].FirstOrDefault()?.Replace("Bearer ", "");
+            return Request.Headers.Authorization.FirstOrDefault()?.Replace("Bearer ", "");
         }
 
         return null;
