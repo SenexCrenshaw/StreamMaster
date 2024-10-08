@@ -75,10 +75,18 @@ export const uploadToAPI = async ({
     }
   }
 
-  return await http.post(url, formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data'
-    },
-    onUploadProgress
-  });
+  return await http
+    .post(url, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      },
+      onUploadProgress
+    })
+    .then((response) => {
+      return response.data;
+    })
+    .catch((error) => {
+      console.error('Error uploading file', error);
+      throw error;
+    });
 };

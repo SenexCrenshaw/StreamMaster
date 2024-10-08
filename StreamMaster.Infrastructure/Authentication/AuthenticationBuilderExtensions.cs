@@ -13,8 +13,8 @@ public static class AuthenticationBuilderExtensions
         // Authentication setup
         services.AddAuthentication(options =>
         {
-            options.DefaultAuthenticateScheme = nameof(AuthenticationType.Forms); // Default to using the "Forms" (cookie) scheme
-            options.DefaultChallengeScheme = nameof(AuthenticationType.Forms);
+            options.DefaultAuthenticateScheme = "SGLinks";// nameof(AuthenticationType.Forms); 
+            options.DefaultChallengeScheme = "SGLinks";//nameof(AuthenticationType.Forms);
         })
         .AddNone(nameof(AuthenticationType.None))
         .AddCookie(nameof(AuthenticationType.Forms), options =>
@@ -38,7 +38,7 @@ public static class AuthenticationBuilderExtensions
         {
             // SignalR policy using the default cookie authentication scheme
             AuthorizationPolicy signalRPolicy = new AuthorizationPolicyBuilder()
-                 .AddAuthenticationSchemes("SignalR", nameof(AuthenticationType.Forms))
+                 .AddAuthenticationSchemes("SignalR")
                 .RequireAuthenticatedUser()
                 .Build();
 
@@ -50,7 +50,7 @@ public static class AuthenticationBuilderExtensions
 
             // Fallback policy for default authentication using Cookies
             AuthorizationPolicy fallbackPolicy = new AuthorizationPolicyBuilder()
-                .AddAuthenticationSchemes(nameof(AuthenticationType.Forms))
+                .AddAuthenticationSchemes("SGLinks")//.AddAuthenticationSchemes(nameof(AuthenticationType.Forms))
                 .RequireAuthenticatedUser()
                 .Build();
 
