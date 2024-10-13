@@ -91,7 +91,7 @@ const DeleteSMChannelsDialog = ({ id, onClose, selectedItemsKey }: DeleteSMChann
       icon="pi-times"
       buttonClassName="icon-red"
     >
-      <div className="text-base">Delete ({selectAll ? 'All' : getTotalCount}) channles?</div>
+      <div className="text-base">Delete ({selectAll ? 'All' : getTotalCount}) channels?</div>
     </SMPopUp>
   );
 };
