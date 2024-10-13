@@ -52,9 +52,9 @@ const CommandProfileNameSelector: React.FC<CommandProfileNameSelectorProperties>
 
       try {
         await SetSMChannelCommandProfileName(request).finally(() => setIsCellLoading(false));
-        // Logger.info('Streaming proxy type saved successfully', { request });
+        // Logger.info('Streaming command profile type saved successfully', { request });
       } catch (error) {
-        Logger.error('Error saving streaming proxy type', { error, request });
+        Logger.error('Error saving streaming command profile type', { error, request });
       }
     },
     [data, setIsCellLoading]
@@ -63,7 +63,7 @@ const CommandProfileNameSelector: React.FC<CommandProfileNameSelectorProperties>
     async (option: string) => {
       if (option === null || option === undefined) return;
       onSave(option);
-      // // setSelectedStreamProxyType(option);
+      // // setSelectedStreamCommand profileType(option);
       // if (!data) await onSave(option);
       if (onChange) {
         onChange(option);
@@ -110,7 +110,7 @@ const CommandProfileNameSelector: React.FC<CommandProfileNameSelectorProperties>
   // Logger.debug('CommandProfileNameSelector', 'CommandProfileName', data?.CommandProfileName, data?.CommandProfileName ?? 'SystemDefault');
   return (
     <SMDropDown
-      buttonLabel="PROXY"
+      buttonLabel="COMMAND PROFILE"
       buttonDarkBackground={darkBackGround}
       buttonTemplate={buttonTemplate}
       data={getHandlersOptions}
@@ -123,7 +123,7 @@ const CommandProfileNameSelector: React.FC<CommandProfileNameSelectorProperties>
       onChange={async (e: any) => {
         await onIChange(e.value);
       }}
-      title="PROXY"
+      title="COMMAND PROFILE"
       propertyToMatch="label"
       value={data?.CommandProfileName ?? value}
       contentWidthSize="2"
@@ -131,6 +131,6 @@ const CommandProfileNameSelector: React.FC<CommandProfileNameSelectorProperties>
   );
 };
 
-CommandProfileNameSelector.displayName = 'Stream Proxy Type Dropdown';
+CommandProfileNameSelector.displayName = 'Stream Command profile Type Dropdown';
 
 export default React.memo(CommandProfileNameSelector);

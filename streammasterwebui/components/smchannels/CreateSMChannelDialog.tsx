@@ -1,4 +1,3 @@
-import OKButton from '@components/buttons/OKButton';
 import SMPopUp, { SMPopUpRef } from '@components/sm/SMPopUp';
 import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
 import { CreateSMChannel } from '@lib/smAPI/SMChannels/SMChannelsCommands';
@@ -30,35 +29,38 @@ const CreateSMChannelDialog = () => {
           console.error(e);
         })
         .finally(() => {
+          setSelectedItems([]);
           ReturnToParent();
         });
     },
-    [ReturnToParent, selectedItems]
+    [ReturnToParent, selectedItems, setSelectedItems]
   );
 
   return (
     <SMPopUp
-      ref={popUpRef}
       buttonClassName="icon-green"
-      onCloseClick={ReturnToParent}
       contentWidthSize="5"
       icon="pi-plus"
       iconFilled
       modal
       modalCentered
       noBorderChildren
+      okButtonDisabled={!saveEnabled}
+      onCloseClick={ReturnToParent}
+      onOkClick={() => smDialogRef.current?.save()}
+      ref={popUpRef}
       title="CREATE CHANNEL"
       tooltip="Create Channel"
-      header={
-        <div className="flex w-12 gap-1 justify-content-end align-content-center">
-          <OKButton
-            buttonDisabled={!saveEnabled}
-            onClick={(request) => {
-              smDialogRef.current?.save();
-            }}
-          />
-        </div>
-      }
+      // header={
+      //   <div className="flex w-12 gap-1 justify-content-end align-content-center">
+      //     <OKButton
+      //       buttonDisabled={!saveEnabled}
+      //       onClick={(request) => {
+      //         smDialogRef.current?.save();
+      //       }}
+      //     />
+      //   </div>
+      // }
     >
       <SMChannelDialog dataKey={dataKey} ref={smDialogRef} onSave={onSave} onSaveEnabled={setSaveEnabled} />
     </SMPopUp>

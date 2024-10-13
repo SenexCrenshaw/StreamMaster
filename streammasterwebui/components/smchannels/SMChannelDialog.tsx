@@ -7,7 +7,7 @@ import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
 import useGetStationChannelNames from '@lib/smAPI/SchedulesDirect/useGetStationChannelNames';
 import { SMChannelDto, SMStreamDto, StationChannelName, UpdateSMChannelRequest } from '@lib/smAPI/smapiTypes';
 import React, { forwardRef, Suspense, useCallback, useEffect, useImperativeHandle, useMemo, useState } from 'react';
-import StreamingProxyTypeSelector from './CommandProfileNameSelector';
+import CommandProfileNameSelector from './CommandProfileNameSelector';
 
 const SMChannelSMStreamDialog = React.lazy(() => import('./SMChannelSMStreamDialog'));
 const SMChannelSMStreamFromDataKeyDialog = React.lazy(() => import('./SMChannelSMStreamFromDataKeyDialog'));
@@ -31,9 +31,15 @@ const SMChannelDialog = forwardRef<SMChannelDialogRef, SMChannelDialogProperties
   const [stationChannelName, setStationChannelName] = useState<StationChannelName | undefined>(undefined);
 
   useEffect(() => {
-    if (smChannel && smChannel.Id !== request.Id) {
-      setTempSMChannel(smChannel);
-      setRequest({ ...smChannel });
+    if (smChannel) {
+      if (smChannel.Id !== request.Id) {
+        setTempSMChannel(smChannel);
+        setRequest({ ...smChannel });
+      }
+    } else {
+      if (request.CommandProfileName === undefined) {
+        setRequest({ StationId: '11', CommandProfileName: 'Default' } as UpdateSMChannelRequest);
+      }
     }
   }, [smChannel, request]);
 
@@ -202,7 +208,13 @@ const SMChannelDialog = forwardRef<SMChannelDialogRef, SMChannelDialogProperties
                 <SMChannelGroupDropDown label="GROUP" darkBackGround value={request.Group} onChange={(e) => e !== undefined && setGroup(e)} />
               </div>
               <div className="w-6">
-                <StreamingProxyTypeSelector darkBackGround label="Proxy" data={tempSMChannel} onChange={(e) => setCommandProfileName(e)} />
+                <CommandProfileNameSelector
+                  darkBackGround
+                  label="Command Profile"
+                  data={tempSMChannel}
+                  onChange={(e) => setCommandProfileName(e)}
+                  value="Default"
+                />
               </div>
             </div>
             <div className="flex w-12 gap-1">
