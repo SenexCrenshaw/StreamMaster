@@ -693,6 +693,17 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>, ref: 
         {props.showSelectAll === true && (
           <SMTriSelectShowSelect selectedItemsKey={props.selectedItemsKey} id={props.id} onToggle={() => toggleAllSelection()} />
         )}
+        {props.showSelectAll !== true && props.showClearAll === true && (
+          <SMButton
+            buttonDisabled={state.selectedItems.length === 0}
+            icon="pi-filter-slash"
+            onClick={() => {
+              setters.setSelectAll(false);
+              setters.setSelectedItems([]);
+            }}
+            tooltip="Clear All"
+          />
+        )}
         {props.showSelected === true && <SMTriSelectShowSelected dataKey={props.id} />}
         {props.showSortSelected === true && sortButton({ field: 'isSelected' })}
       </div>

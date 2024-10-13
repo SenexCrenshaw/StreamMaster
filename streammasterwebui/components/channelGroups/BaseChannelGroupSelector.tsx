@@ -155,6 +155,7 @@ const BaseChannelGroupSelector = memo(
           }}
           rowClass={rowClass}
           selectionMode="multiple"
+          showClearAll
           showHiddenInSelection
           style={{ height: '50vh' }}
           useSelectedItemsFilter={useSelectedItemsFilter}

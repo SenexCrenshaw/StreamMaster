@@ -153,6 +153,7 @@ const BaseChannelGroupPagedSelector = memo(
           queryFilter={useGetPagedChannelGroups}
           rowClass={rowClass}
           selectionMode="multiple"
+          showClearAll
           showHiddenInSelection
           style={{ height: '50vh' }}
         />

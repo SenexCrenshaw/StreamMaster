@@ -39,6 +39,7 @@ interface BaseDataSelectorProperties<T> extends DataTableHeaderProperties {
   selectedItemsKey?: string;
   selectRow?: boolean;
   setSelectedSMChannel?: boolean;
+  showClearAll?: boolean;
   showExpand?: boolean;
   showHiddenInSelection?: boolean;
   showSelectAll?: boolean;
