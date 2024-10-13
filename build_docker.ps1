@@ -53,7 +53,7 @@ function Main {
         Write-StringToFile -Path "buildver" -Content $processedAssemblyInfo.BranchNameRevision 
     }
     
-    if ($BuildSM -or $BuildBuild -or $BuildAll) {
+    if ($BuildSM -or $BuildAll) {
         $dockerFile = "Dockerfile.sm"
         $global:tags = @("$("${buildName}:"+$processedAssemblyInfo.BranchNameRevision)-sm")
         

@@ -15,7 +15,7 @@ const MessagesEn: messages_enType = {
   'SDSettings.PrefixEpisodeDescription': 'Prefix Episode Description',
   'SDSettings.PrefixEpisodeTitle': 'Prefix Episode Title',
   'SDSettings.SDEnabled': 'Enabled',
-  'SDSettings.SDepgDays': 'EPG Days to download',
+  'SDSettings.SDEPGDays': 'EPG Days to download',
   'SDSettings.SDPassword': 'Password',
   'SDSettings.SDUserName': 'Username',
   'SDSettings.SeasonEventImages': 'Season Event Images',
