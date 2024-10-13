@@ -82,7 +82,7 @@ export function SDSettings(): React.ReactElement {
         {GetCheckBoxLine({ field: 'SDSettings.PrefixEpisodeDescription' })}
         {GetCheckBoxLine({ field: 'SDSettings.PrefixEpisodeTitle' })}
         {GetCheckBoxLine({ field: 'SDSettings.AppendEpisodeDesc' })}
-        {GetInputNumberLine({ field: 'SDSettings.SDepgDays' })}
+        {GetInputNumberLine({ field: 'SDSettings.SDEPGDays' })}
         {GetInputNumberLine({ field: 'SDSettings.XmltvFillerProgramLength' })}
         {GetCheckBoxLine({ field: 'SDSettings.SeasonEventImages' })}
         {GetCheckBoxLine({ field: 'SDSettings.XmltvAddFillerData' })}

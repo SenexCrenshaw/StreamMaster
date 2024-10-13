@@ -266,6 +266,8 @@ public partial class UpdateSettingRequestHandler(
             currentSetting.MaxLogFiles = request.Parameters.MaxLogFiles.Value;
         }
 
+
+
         if (request.Parameters.ClientReadTimeOutSeconds.HasValue)
         {
             currentSetting.ClientReadTimeOutSeconds = request.Parameters.ClientReadTimeOutSeconds.Value;
