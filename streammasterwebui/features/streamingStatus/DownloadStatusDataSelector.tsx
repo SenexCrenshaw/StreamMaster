@@ -1,23 +1,11 @@
+import React, { useMemo } from 'react';
+
+import useGetDownloadServiceStatus from '@lib/smAPI/General/useGetDownloadServiceStatus';
 import SMDataTable from '@components/smDataTable/SMDataTable';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 
-import useGetDownloadServiceStatus from '@lib/smAPI/General/useGetDownloadServiceStatus';
-import { ImageDownloadServiceStatus } from '@lib/smAPI/smapiTypes';
-
-import React, { useMemo, useState, useEffect } from 'react';
-
 const DownloadStatusDataSelector = () => {
-  const downloadStatus = useGetDownloadServiceStatus();
-
-  // State to store a copy of downloadStatus.data
-  const [savedData, setSavedData] = useState<ImageDownloadServiceStatus>({} as ImageDownloadServiceStatus);
-
-  // Update savedData whenever downloadStatus.data changes and is not empty
-  useEffect(() => {
-    if (downloadStatus.data && Object.keys(downloadStatus.data).length > 0) {
-      setSavedData(downloadStatus.data);
-    }
-  }, [downloadStatus.data]);
+  const { data } = useGetDownloadServiceStatus();
 
   const downloadColumns = useMemo(
     (): ColumnMeta[] => [
@@ -28,7 +16,7 @@ const DownloadStatusDataSelector = () => {
       {
         align: 'center',
         field: 'TotalNameLogo',
-        width: '10rem'
+        width: '4rem'
       },
       {
         align: 'center',
@@ -83,27 +71,15 @@ const DownloadStatusDataSelector = () => {
     []
   );
 
-  // Determine the data source using savedData when downloadStatus.data is empty
-  const dataSource = useMemo(() => {
-    if (downloadStatus.data && Object.keys(downloadStatus.data).length > 0) {
-      return [downloadStatus.data];
-    } else if (savedData && Object.keys(savedData).length > 0) {
-      return [savedData];
-    } else {
-      return [];
-    }
-  }, [downloadStatus.data, savedData]);
-
   return (
     <SMDataTable
+      arrayKey="TotalProgramMetadata"
       columns={downloadColumns}
-      dataSource={downloadStatus.data ? dataSource : dataSource}
-      defaultSortField="startTS"
+      dataSource={data ? [data] : undefined}
+      defaultSortField="TotalProgramMetadata"
       enablePaginator={false}
       headerName="Image Download Status"
       id="queustatus"
-      // isLoading={downloadStatus.isLoading}
-      lazy
       selectedItemsKey="queustatus"
     />
   );

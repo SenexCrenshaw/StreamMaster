@@ -43,7 +43,6 @@ const getSMTasksSlice = createSlice({
     setIsForced: (state, action: PayloadAction<{ force: boolean }>) => {
       const { force } = action.payload;
       state.isForced = force;
-      state.data = undefined;
       Logger.debug('GetSMTasks  setIsForced ', force);
     },
     setIsLoading: (state, action: PayloadAction<{isLoading: boolean }>) => {

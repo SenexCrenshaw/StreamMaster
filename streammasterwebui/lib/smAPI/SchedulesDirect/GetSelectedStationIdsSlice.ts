@@ -43,7 +43,6 @@ const getSelectedStationIdsSlice = createSlice({
     setIsForced: (state, action: PayloadAction<{ force: boolean }>) => {
       const { force } = action.payload;
       state.isForced = force;
-      state.data = undefined;
       Logger.debug('GetSelectedStationIds  setIsForced ', force);
     },
     setIsLoading: (state, action: PayloadAction<{isLoading: boolean }>) => {

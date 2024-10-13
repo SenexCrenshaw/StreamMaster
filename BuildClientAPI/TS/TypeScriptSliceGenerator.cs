@@ -293,7 +293,7 @@ const initialState: QueryState = {{
         content.AppendLine("    setIsForced: (state, action: PayloadAction<{ force: boolean }>) => {");
         content.AppendLine("      const { force } = action.payload;");
         content.AppendLine("      state.isForced = force;");
-        content.AppendLine("      state.data = undefined;");
+        //content.AppendLine("      state.data = undefined;");
         content.AppendLine($"      Logger.debug('{method.Name}  setIsForced ', force);");
         content.AppendLine("    },");
 
