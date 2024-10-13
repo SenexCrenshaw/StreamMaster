@@ -54,14 +54,16 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>, ref: 
 
   // Logger.debug('SMDataTable', state.sortField, state.sortInfo);
   useEffect(() => {
-    if (!props.defaultSortField || state.sortInfo === undefined || state.sortInfo.sortField !== undefined) {
+    if (!props.defaultSortField) {
       return;
     }
 
-    if (state.sortInfo.sortField !== props.defaultSortField) {
-      setters.setSortField(props.defaultSortField);
+    if (state.sortField) {
+      return;
     }
-  }, [props.defaultSortField, state.sortInfo]);
+
+    setters.setSortField(props.defaultSortField);
+  }, [props.defaultSortField, setters, state.sortField, state.sortInfo]);
 
   useImperativeHandle(ref, () => ({
     clearExpanded() {
@@ -445,145 +447,6 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>, ref: 
   if (props.id === 'EditSMChannelDialog') {
     Logger.debug('SMDataTable', { dataSource: props.dataSource, id: props.id });
   }
-
-  // useEffect(() => {
-  //   if (props.queryFilter) {
-  //     // Logger.debug('DataTable queryFilter', { queryFilter });
-  //     if (data) {
-  //       if (Array.isArray(data)) {
-  //         setters.setPagedInformation(undefined);
-  //         if (state.selectAll) {
-  //           setters.setSelectedItems(data);
-  //         }
-  //         setDataSource(data);
-  //         return;
-  //       }
-
-  //       if (isPagedResponse<T>(data)) {
-  //         if (state.selectAll) {
-  //           setters.setSelectedItems((data as PagedResponse<T>).Data as T[]);
-  //         }
-
-  //         if (data.PageNumber > 1 && data.TotalPageCount === 0) {
-  //           const newData = { ...data };
-  //           newData.PageNumber -= 1;
-  //           newData.First = (newData.PageNumber - 1) * newData.PageSize;
-  //           setters.setPage(newData.PageNumber);
-  //           setters.setFirst(newData.First);
-  //           setters.setPagedInformation(newData);
-  //         } else {
-  //           setters.setPagedInformation(data);
-  //         }
-
-  //         setDataSource((data as PagedResponse<T>).Data);
-  //       }
-  //     }
-  //     return;
-  //   }
-
-  //   if (!props.dataSource) {
-  //     return;
-  //   }
-
-  //   let filteredData = [...props.dataSource];
-
-  //   if (state.filters) {
-  //     Object.keys(state.filters).forEach((key) => {
-  //       const filter = state.filters[key];
-  //       if (filter.value) {
-  //         filteredData = filteredData.filter((item: any) => {
-  //           const itemValue = item[key as keyof typeof item];
-  //           if (Array.isArray(filter.value)) {
-  //             return typeof itemValue === 'string' && filter.value.some((val) => typeof val === 'string' && val.toLowerCase() === itemValue.toLowerCase());
-  //           }
-  //           return typeof itemValue === 'string' && itemValue.toLowerCase().includes(filter.value.toLowerCase());
-  //         });
-  //       }
-  //     });
-  //   }
-
-  //   if (state.showSelected !== undefined && state.showSelected !== null) {
-  //     filteredData = filteredData.filter((item: any) => {
-  //       return state.showSelected
-  //         ? state.selectedItems.some((selected) => selected.Id === item.Id)
-  //         : !state.selectedItems.some((selected) => selected.Id === item.Id);
-  //     });
-  //   }
-
-  //   if (state.sortOrder && state.sortField && state.sortField !== '') {
-  //     if (state.sortField === 'isSelected') {
-  //       const selectedItems = state.selectedItems.map((item) => item.Id);
-  //       filteredData = filteredData.sort((a: any, b: any) => {
-  //         const aSelected = selectedItems.includes(a.Id);
-  //         const bSelected = selectedItems.includes(b.Id);
-  //         if (aSelected && !bSelected) return -1 * state.sortOrder;
-  //         if (!aSelected && bSelected) return 1 * state.sortOrder;
-  //         return 0;
-  //       });
-  //     } else if (state.sortField === 'ChannelNumber') {
-  //       filteredData = filteredData.sort((a: any, b: any) => {
-  //         const sortField = state.sortField as keyof typeof a;
-  //         const aValue = a[sortField];
-  //         const bValue = b[sortField];
-
-  //         // Ensure the values are compared as numbers
-  //         const aNumber = typeof aValue === 'number' ? aValue : parseFloat(aValue);
-  //         const bNumber = typeof bValue === 'number' ? bValue : parseFloat(bValue);
-
-  //         if (aNumber < bNumber) return -1 * state.sortOrder;
-  //         if (aNumber > bNumber) return 1 * state.sortOrder;
-  //         return 0;
-  //       });
-  //     } else {
-  //       filteredData = filteredData.sort((a: any, b: any) => {
-  //         const sortField = state.sortField as keyof typeof a;
-  //         if (a[sortField] < b[sortField]) return -1 * state.sortOrder;
-  //         if (a[sortField] > b[sortField]) return 1 * state.sortOrder;
-  //         return 0;
-  //       });
-  //     }
-  //   }
-
-  //   if (
-  //     !state.pagedInformation ||
-  //     state.pagedInformation.First !== state.first ||
-  //     state.pagedInformation.PageNumber !== state.page ||
-  //     state.pagedInformation.PageSize !== state.rows ||
-  //     state.pagedInformation.TotalItemCount !== filteredData.length
-  //   ) {
-  //     const pagedInformation: PagedResponse<T> = {
-  //       First: state.first,
-  //       PageNumber: state.page,
-  //       PageSize: state.rows,
-  //       TotalItemCount: filteredData.length
-  //     };
-  //     setters.setPagedInformation(pagedInformation);
-  //   }
-  //   const pagedData = filteredData.slice(state.first, state.first + state.rows);
-  //   if (!arraysEqualByKey(pagedData, dataSource, props.arrayKey ?? 'Id')) {
-  //     setDataSource(pagedData);
-  //   }
-
-  //   // setDataSource(pagedData);
-  // }, [
-  //   data,
-  //   dataSource,
-  //   props.arrayKey,
-  //   props.dataSource,
-  //   props.queryFilter,
-  //   setters,
-  //   state.filters,
-  //   state.first,
-  //   state.page,
-  //   state.pagedInformation,
-  //   state.rows,
-  //   state.selectAll,
-  //   state.selectedItems,
-  //   state.showSelected,
-  //   state.sortField,
-  //   state.sortOrder
-  // ]);
-
   // Helper function for handling paged responses
   const handlePagedResponse = useCallback(
     (pagedData: PagedResponse<T>) => {
@@ -661,11 +524,14 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>, ref: 
   // Helper function to apply sorting
   const applySorting = useCallback(
     (data: T[]) => {
-      if (!state.sortOrder || !state.sortField) return data;
+      if (!state.sortOrder || !state.sortField || !data) return data;
 
       const sortField = state.sortField as keyof T;
 
-      return data.sort((a: any, b: any) => {
+      // Create a shallow copy of the array to avoid mutating the original one
+      const dataCopy = [...data];
+
+      return dataCopy.sort((a, b) => {
         if (state.sortField === 'isSelected') {
           const selectedItems = state.selectedItems.map((item) => item.Id);
           const aSelected = selectedItems.includes(a.Id);

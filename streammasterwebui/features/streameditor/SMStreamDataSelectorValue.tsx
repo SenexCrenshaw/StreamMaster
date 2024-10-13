@@ -64,6 +64,8 @@ const SMStreamDataSelectorValue = ({ id, smChannel }: SMStreamDataSelectorValueP
     return null;
   }
 
+  Logger.debug('SMStreamDataSelectorValue', smChannel.SMStreamDtos);
+
   return (
     <div
       onClick={() => {
