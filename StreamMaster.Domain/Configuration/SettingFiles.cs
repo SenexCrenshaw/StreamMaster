@@ -38,7 +38,8 @@ public static class SettingFiles
                 Command="STREAMMASTER",
                 IsReadOnly = true
             }
-        },{
+        },
+            {
          "SMFFMPEG",
             new CommandProfile
             {
@@ -47,14 +48,15 @@ public static class SettingFiles
                 Parameters = "-hide_banner -loglevel error -user_agent {clientUserAgent} -fflags +genpts+discardcorrupt -thread_queue_size 1024 -reconnect_on_network_error 1 -reconnect_on_http_error 5xx,4xx -reconnect_streamed 1 -reconnect_delay_max 2 -reconnect 1 -i {streamUrl} -map 0:v -map 0:a? -map 0:s? -c copy -f mpegts -muxdelay 0.001 -max_interleave_delta 0 -copyts pipe:1"
             }
             },
-        //{
-        // "mkvToTs",
-        //    new CommandProfile{
-        //        IsReadOnly = true,
-        //        Command = "ffmpeg",
-        //        Parameters = "-map 0:v -map 0:a -map 0:a? -map 0:s? -c:v copy -c:a:0 copy -c:a:1 ac3 -c:s copy"
-        //    }
-        //    },
+            {
+         "YT",
+            new CommandProfile
+            {
+                IsReadOnly = true,
+                Command = "yt.sh",
+                Parameters = "{streamUrl}"
+            }
+            },
 
         {
             "Redirect",
