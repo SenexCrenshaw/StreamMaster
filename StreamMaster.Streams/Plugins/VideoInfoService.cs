@@ -43,7 +43,7 @@ namespace StreamMaster.Streams.Plugins
             //    FullMode = BoundedChannelFullMode.DropOldest
             //});
 
-            Domain.TrackedChannel channel = ChannelHelper.GetChannel(200, BoundedChannelFullMode.DropOldest);
+            TrackedChannel channel = ChannelHelper.GetChannel(200, BoundedChannelFullMode.DropOldest);
 
             sourceBroadcaster.AddChannelStreamer("VideoInfo", channel);
 

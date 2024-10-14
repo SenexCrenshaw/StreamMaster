@@ -10,14 +10,14 @@ namespace StreamMaster.Infrastructure.Middleware
         {
             if (context.Request.Method != "OPTIONS")
             {
-                if (cacheableSpecification.IsCacheable(context.Request))
-                {
-                    context.Response.Headers.EnableCache();
-                }
-                else
-                {
-                    context.Response.Headers.DisableCache();
-                }
+                //if (cacheableSpecification.IsCacheable(context.Request))
+                //{
+                //    context.Response.Headers.EnableCache();
+                //}
+                //else
+                //{
+                context.Response.Headers.DisableCache();
+                //}
             }
 
             await next(context);

@@ -4,6 +4,7 @@ using StreamMaster.Streams.Domain.Helpers;
 using StreamMaster.Streams.Domain.Statistics;
 using StreamMaster.Streams.Services;
 
+using System.Buffers;
 using System.Diagnostics;
 using System.Threading.Channels;
 
@@ -19,7 +20,7 @@ public class ClientReadStream : Stream, IClientReadStream
 
     public StreamHandlerMetrics Metrics => MetricsService.Metrics;
 
-    public TrackedChannel Channel { get; } = ChannelHelper.GetChannel(0);
+    public TrackedChannel Channel { get; } = ChannelHelper.GetChannel(200, BoundedChannelFullMode.DropOldest);
 
     private bool IsCancelled { get; set; }
     public Guid Id { get; } = Guid.NewGuid();
@@ -114,6 +115,35 @@ public class ClientReadStream : Stream, IClientReadStream
         return 0;
     }
 
+    //public override void Write(byte[] buffer, int offset, int count)
+    //{
+    //    ArgumentNullException.ThrowIfNull(buffer);
+
+    //    if (offset < 0 || offset >= buffer.Length)
+    //    {
+    //        throw new ArgumentOutOfRangeException(nameof(offset), "Offset is out of range.");
+    //    }
+
+    //    if (count < 0 || offset + count > buffer.Length)
+    //    {
+    //        throw new ArgumentOutOfRangeException(nameof(count), "Count is out of range.");
+    //    }
+
+    //    byte[] dataToWrite = new byte[count];
+    //    Array.Copy(buffer, offset, dataToWrite, 0, count);
+
+    //    try
+    //    {
+    //        // Writing the data to the channel
+    //        Channel.Write(dataToWrite);
+    //    }
+    //    catch (ChannelClosedException ex)
+    //    {
+    //        logger.LogError(ex, "Attempted to write to a closed channel for UniqueRequestId: {UniqueRequestId}", uniqueRequestId);
+    //        throw new InvalidOperationException("The channel is closed and cannot accept writes.", ex);
+    //    }
+    //}
+
     public override void Write(byte[] buffer, int offset, int count)
     {
         ArgumentNullException.ThrowIfNull(buffer);
@@ -128,20 +158,32 @@ public class ClientReadStream : Stream, IClientReadStream
             throw new ArgumentOutOfRangeException(nameof(count), "Count is out of range.");
         }
 
-        byte[] dataToWrite = new byte[count];
-        Array.Copy(buffer, offset, dataToWrite, 0, count);
-
+        // Rent a buffer from the ArrayPool for the specific count
+        byte[] dataToWrite = ArrayPool<byte>.Shared.Rent(count);
         try
         {
-            // Writing the data to the channel
-            Channel.Write(dataToWrite);
+            // Copy the data into the rented buffer
+            Array.Copy(buffer, offset, dataToWrite, 0, count);
+
+            // Write the data to the Channel<byte[]>
+            if (!Channel.Write(dataToWrite))
+            {
+                logger.LogError("Failed to write to channel for UniqueRequestId: {UniqueRequestId}", uniqueRequestId);
+                throw new InvalidOperationException("The channel is closed or full and cannot accept writes.");
+            }
         }
         catch (ChannelClosedException ex)
         {
             logger.LogError(ex, "Attempted to write to a closed channel for UniqueRequestId: {UniqueRequestId}", uniqueRequestId);
             throw new InvalidOperationException("The channel is closed and cannot accept writes.", ex);
         }
+        finally
+        {
+            // Return the buffer to the pool once it's been used
+            ArrayPool<byte>.Shared.Return(dataToWrite);
+        }
     }
+
     public void Cancel()
     {
         IsCancelled = true;
@@ -198,17 +240,23 @@ public class ClientReadStream : Stream, IClientReadStream
 
         try
         {
-            //CancellationTokenSource timedToken = new(TimeSpan.FromSeconds(30));
-            //using CancellationTokenSource linkedCts = CancellationTokenSource.CreateLinkedTokenSource(timedToken.Token, cancellationToken);
-
-            byte[] read = await Channel.ReadAsync(cancellationToken);
-            bytesRead = read.Length;
+            // Read a byte[] from the channel
+            byte[] readBuffer = await Channel.ReadAsync(cancellationToken);
+            bytesRead = readBuffer.Length;
 
             if (bytesRead == 0)
             {
                 return 0;
             }
-            read[..bytesRead].CopyTo(buffer);
+
+            // Ensure the read data fits in the provided buffer
+            if (bytesRead > buffer.Length)
+            {
+                throw new ArgumentException("The buffer provided is too small for the data.");
+            }
+
+            // Copy the data into the provided buffer
+            readBuffer.AsMemory(0, bytesRead).CopyTo(buffer);
 
             if (cancellationToken.IsCancellationRequested)
             {
@@ -223,18 +271,18 @@ public class ClientReadStream : Stream, IClientReadStream
         catch (TaskCanceledException ex)
         {
             logger.LogInformation(ex, "ReadAsync cancelled ended for UniqueRequestId: {UniqueRequestId}", uniqueRequestId);
-            logger.LogInformation("ReadAsync {cancellationToken}", cancellationToken.IsCancellationRequested);
             bytesRead = 0;
         }
         catch (Exception ex)
         {
-            //logger.LogInformation(ex, "ReadAsync {cancellationToken}", cancellationToken.IsCancellationRequested);
+            logger.LogError(ex, "Error reading data for UniqueRequestId: {UniqueRequestId}", uniqueRequestId);
             bytesRead = 0;
         }
         finally
         {
             stopWatch.Stop();
             MetricsService.RecordMetrics(bytesRead, stopWatch.Elapsed.TotalMilliseconds);
+
             if (bytesRead == 0)
             {
                 logger.LogDebug("Read 0 bytes for UniqueRequestId: {UniqueRequestId}", uniqueRequestId);
@@ -243,4 +291,5 @@ public class ClientReadStream : Stream, IClientReadStream
 
         return bytesRead;
     }
+
 }

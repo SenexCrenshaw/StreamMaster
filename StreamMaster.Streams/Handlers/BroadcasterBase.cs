@@ -94,10 +94,14 @@ public abstract class BroadcasterBase(ILogger<IBroadcasterBase> logger, IOptions
                 await foreach (byte[] item in newChannel.ReadAllAsync(token))
                 {
                     writeTasks.Clear();
+
+                    // Use the same item (byte[]) to distribute to clients without creating new arrays
                     foreach (TrackedChannel clientChannel in ClientChannels.Values)
                     {
                         writeTasks.Add(clientChannel.WriteAsync(item, token).AsTask());
                     }
+
+                    // Await the tasks and return buffers to the pool if necessary
                     await Task.WhenAll(writeTasks).ConfigureAwait(false);
                     Interlocked.Decrement(ref _channelItemCount);
                 }
@@ -127,6 +131,10 @@ public abstract class BroadcasterBase(ILogger<IBroadcasterBase> logger, IOptions
             try
             {
                 await Task.WhenAny(readerTask, writerTask).ConfigureAwait(false);
+            }
+            catch (OperationCanceledException)
+            {
+                // Handle cancellation
             }
             finally
             {
@@ -167,9 +175,10 @@ public abstract class BroadcasterBase(ILogger<IBroadcasterBase> logger, IOptions
 
     public bool RemoveChannelStreamer(string uniqueRequestId)
     {
-        if (ClientChannels.TryRemove(uniqueRequestId, out _))
+        if (ClientChannels.TryRemove(uniqueRequestId, out TrackedChannel? trackedChannel))
         {
-            logger.LogInformation("Remove channel streamer: {UniqueRequestId} {Name}", uniqueRequestId, Name);
+            trackedChannel.Dispose(); // Ensure proper disposal of the channel
+            logger.LogInformation("Removed channel streamer: {UniqueRequestId} {Name}", uniqueRequestId, Name);
             return true;
         }
         return false;
