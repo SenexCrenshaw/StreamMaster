@@ -56,11 +56,11 @@ public static class SettingsHelper
             dir = Path.GetDirectoryName(fileName);
         }
 
-        if (typeof(HLSSettings).IsAssignableFrom(setting.GetType()))
-        {
-            fileName = BuildInfo.HLSSettingsFile;
-            dir = Path.GetDirectoryName(fileName);
-        }
+        //if (typeof(HLSSettings).IsAssignableFrom(setting.GetType()))
+        //{
+        //    fileName = BuildInfo.HLSSettingsFile;
+        //    dir = Path.GetDirectoryName(fileName);
+        //}
 
         if (typeof(SDSettings).IsAssignableFrom(setting.GetType()))
         {

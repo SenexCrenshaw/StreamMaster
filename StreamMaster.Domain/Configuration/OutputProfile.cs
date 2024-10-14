@@ -54,15 +54,19 @@ public class OutputProfileDto : OutputProfile
     public string ProfileName { get; set; } = "";
 }
 
-public class OutputProfileDict
+public class OutputProfileDict : IProfileDict<OutputProfile>
 {
-    public Dictionary<string, OutputProfile> OutputProfiles { get; set; } = [];
+    //[JsonPropertyName("OutputProfiles")]
+    //public Dictionary<string, OutputProfile> OutputProfiles { get; set; } = [];
     public OutputProfile? GetProfile(string OutputProfileName)
     {
-        return OutputProfiles.TryGetValue(OutputProfileName, out OutputProfile? existingProfile)
+        return Profiles.TryGetValue(OutputProfileName, out OutputProfile? existingProfile)
             ? existingProfile
             : null;
     }
+
+    [JsonPropertyName("OutputProfiles")]
+    public Dictionary<string, OutputProfile> Profiles { get; set; } = [];
 
     public OutputProfileDto GetDefaultProfileDto(string defaultName = "Default")
     {
@@ -100,9 +104,9 @@ public class OutputProfileDict
     {
         List<OutputProfileDto> ret = [];
 
-        foreach (string key in OutputProfiles.Keys)
+        foreach (string key in Profiles.Keys)
         {
-            if (OutputProfiles.TryGetValue(key, out OutputProfile? profile))
+            if (Profiles.TryGetValue(key, out OutputProfile? profile))
             {
                 ret.Add(GetProfileDtoFromProfile(profile, key));
             }
@@ -114,9 +118,9 @@ public class OutputProfileDict
     {
         List<OutputProfile> ret = [];
 
-        foreach (string key in OutputProfiles.Keys)
+        foreach (string key in Profiles.Keys)
         {
-            if (OutputProfiles.TryGetValue(key, out OutputProfile? profile))
+            if (Profiles.TryGetValue(key, out OutputProfile? profile))
             {
                 ret.Add(profile);
             }

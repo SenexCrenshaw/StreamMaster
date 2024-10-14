@@ -13,7 +13,7 @@ public class AddCommandProfileRequestHandler(ILogger<AddCommandProfileRequest> L
     {
         CommandProfileDict profileSettings = intProfileSettings.CurrentValue;
 
-        List<string> badNames = profileSettings.CommandProfiles
+        List<string> badNames = profileSettings.Profiles
             .Where(kvp => kvp.Value.IsReadOnly)
             .Select(kvp => kvp.Key)
             .ToList();
@@ -29,13 +29,13 @@ public class AddCommandProfileRequestHandler(ILogger<AddCommandProfileRequest> L
             Parameters = request.Parameters,
 
         };
-        if (profileSettings.CommandProfiles.TryGetValue(request.ProfileName, out _))
+        if (profileSettings.Profiles.TryGetValue(request.ProfileName, out _))
         {
             return APIResponse.ErrorWithMessage("Profile already exists");
         }
         else
         {
-            profileSettings.CommandProfiles.Add(request.ProfileName, profile);
+            profileSettings.Profiles.Add(request.ProfileName, profile);
         }
 
 

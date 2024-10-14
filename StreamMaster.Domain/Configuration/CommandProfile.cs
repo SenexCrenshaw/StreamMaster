@@ -16,20 +16,24 @@ public class CommandProfileDto : CommandProfile
     public string ProfileName { get; set; } = "";
 }
 
-public class CommandProfileDict
+public class CommandProfileDict : IProfileDict<CommandProfile>
 {
-    [JsonPropertyName("CommandProfiles")]
-    public Dictionary<string, CommandProfile> CommandProfiles { get; set; } = [];
+    //[JsonPropertyName("CommandProfiles")]
+    //public Dictionary<string, CommandProfile> CommandProfiles { get; set; } = [];
     public CommandProfile? GetProfile(string CommandProfileName)
     {
-        return CommandProfiles.TryGetValue(CommandProfileName, out CommandProfile? existingProfile)
+        return Profiles.TryGetValue(CommandProfileName, out CommandProfile? existingProfile)
             ? existingProfile
             : null;
     }
 
+    [JsonPropertyName("CommandProfiles")]
+    public Dictionary<string, CommandProfile> Profiles { get; set; } = [];
+
+
     public bool HasProfile(string CommandProfileName)
     {
-        return CommandProfiles.TryGetValue(CommandProfileName, out _);
+        return Profiles.TryGetValue(CommandProfileName, out _);
     }
 
     public CommandProfileDto GetProfileDto(string CommandProfileName)
@@ -61,9 +65,9 @@ public class CommandProfileDict
     {
         List<CommandProfileDto> ret = [];
 
-        foreach (string key in CommandProfiles.Keys)
+        foreach (string key in Profiles.Keys)
         {
-            if (CommandProfiles.TryGetValue(key, out CommandProfile? profile))
+            if (Profiles.TryGetValue(key, out CommandProfile? profile))
             {
                 ret.Add(GetProfileDtoFromProfile(profile, key));
             }
@@ -75,9 +79,9 @@ public class CommandProfileDict
     {
         List<CommandProfile> ret = [];
 
-        foreach (string key in CommandProfiles.Keys)
+        foreach (string key in Profiles.Keys)
         {
-            if (CommandProfiles.TryGetValue(key, out CommandProfile? profile))
+            if (Profiles.TryGetValue(key, out CommandProfile? profile))
             {
                 ret.Add(profile);
             }

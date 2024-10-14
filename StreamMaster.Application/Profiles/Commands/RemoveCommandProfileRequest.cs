@@ -11,7 +11,7 @@ public class RemoveCommandProfileRequestHandler(IOptionsMonitor<CommandProfileDi
     {
         CommandProfileDict profileSettings = intProfileSettings.CurrentValue;
 
-        List<string> badNames = profileSettings.CommandProfiles
+        List<string> badNames = profileSettings.Profiles
             .Where(kvp => kvp.Value.IsReadOnly)
             .Select(kvp => kvp.Key)
             .ToList();
@@ -21,9 +21,9 @@ public class RemoveCommandProfileRequestHandler(IOptionsMonitor<CommandProfileDi
             return APIResponse.ErrorWithMessage($"Cannot use name {request.ProfileName}");
         }
 
-        if (profileSettings.CommandProfiles.TryGetValue(request.ProfileName, out CommandProfile? profile))
+        if (profileSettings.Profiles.TryGetValue(request.ProfileName, out CommandProfile? profile))
         {
-            _ = profileSettings.CommandProfiles.Remove(request.ProfileName);
+            _ = profileSettings.Profiles.Remove(request.ProfileName);
 
             SettingsHelper.UpdateSetting(profileSettings);
         }

@@ -16,7 +16,7 @@ public class UpdateFileProfileRequestHandler(
 
     public async Task<APIResponse> Handle(UpdateOutputProfileRequest request, CancellationToken cancellationToken)
     {
-        if (!profilesettings.OutputProfiles.ContainsKey(request.ProfileName))
+        if (!profilesettings.Profiles.ContainsKey(request.ProfileName))
         {
             return APIResponse.Ok;
         }
@@ -36,7 +36,7 @@ public class UpdateFileProfileRequestHandler(
 
         List<FieldData> fields = [];
 
-        if (!profilesettings.OutputProfiles.TryGetValue(request.ProfileName, out OutputProfile? existingProfile))
+        if (!profilesettings.Profiles.TryGetValue(request.ProfileName, out OutputProfile? existingProfile))
         {
             existingProfile = new OutputProfile();
         }
@@ -99,8 +99,8 @@ public class UpdateFileProfileRequestHandler(
         if (!string.IsNullOrEmpty(request.NewName) && request.ProfileName != request.NewName)
         {
             nameChanged = true;
-            _ = profilesettings.OutputProfiles.Remove(request.ProfileName);
-            profilesettings.OutputProfiles.Add(request.NewName, existingProfile);
+            _ = profilesettings.Profiles.Remove(request.ProfileName);
+            profilesettings.Profiles.Add(request.NewName, existingProfile);
         }
 
         SettingsHelper.UpdateSetting(profilesettings);

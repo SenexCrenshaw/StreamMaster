@@ -59,9 +59,9 @@ var configPath = Directory.Exists(BuildInfo.SettingsFolder) ? BuildInfo.AppDataF
 builder.Configuration.SetBasePath(configPath).AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
 
 // Load and validate settings
-LoadAndValidateSettings<CommandProfileDict>(BuildInfo.CommandProfileSettingsFile, SettingFiles.DefaultCommandProfileSetting);
-LoadAndValidateSettings<OutputProfileDict>(BuildInfo.OutputProfileSettingsFile, SettingFiles.DefaultOutputProfileSetting);
-LoadAndValidateSettings<HLSSettings>(BuildInfo.HLSSettingsFile, new HLSSettings());
+LoadAndSetSettings<CommandProfileDict, CommandProfile>(BuildInfo.CommandProfileSettingsFile, SettingFiles.DefaultCommandProfileSetting);
+LoadAndSetSettings<OutputProfileDict, OutputProfile>(BuildInfo.OutputProfileSettingsFile, SettingFiles.DefaultOutputProfileSetting);
+//LoadAndValidateSettings<HLSSettings>(BuildInfo.HLSSettingsFile, new HLSSettings());
 LoadAndValidateSettings<Setting>(BuildInfo.SettingsFile, new Setting());
 LoadAndValidateSettings<SDSettings>(BuildInfo.SDSettingsFile, new SDSettings());
 
@@ -78,9 +78,56 @@ foreach (var file in settingsFiles)
 // Configure services with settings
 ConfigureSettings<Setting>(builder);
 ConfigureSettings<SDSettings>(builder);
-ConfigureSettings<HLSSettings>(builder);
+//ConfigureSettings<HLSSettings>(builder);
 ConfigureSettings<CommandProfileDict>(builder);
 ConfigureSettings<OutputProfileDict>(builder);
+
+
+void LoadAndSetSettings<TDict, TProfile>(string settingsFile, TDict defaultSetting)
+    where TDict : IProfileDict<TProfile>
+{
+    // Load the settings
+    var setting = SettingsHelper.GetSetting<TDict>(settingsFile);
+    if (setting == null)
+    {
+        // If the setting is null, apply the entire default setting
+        SettingsHelper.UpdateSetting(defaultSetting);
+        return;
+    }
+    else
+    {
+        // If the setting is not null, apply the default setting for any missing profiles
+        foreach (var defaultProfile in defaultSetting.Profiles)
+        {
+            if (!setting.Profiles.ContainsKey(defaultProfile.Key))
+            {
+                // Add missing entries
+                setting.Profiles[defaultProfile.Key] = defaultProfile.Value;
+            }
+        }
+    }
+    //// If the setting is null or default, apply the entire default setting
+    //if (EqualityComparer<TDict>.Default.Equals(setting, default(TDict)))
+    //{
+    //    SettingsHelper.UpdateSetting(defaultSetting);
+    //    return;
+    //}
+
+    //// Ensure all entries from the default setting exist in the loaded setting
+    //foreach (var defaultProfile in defaultSetting.Profiles)
+    //{
+    //    if (!setting.Profiles.ContainsKey(defaultProfile.Key))
+    //    {
+    //        // Add missing entries
+    //        setting.Profiles[defaultProfile.Key] = defaultProfile.Value;
+    //    }
+    //}
+
+    // Save the updated settings if changes were made
+    SettingsHelper.UpdateSetting(setting);
+}
+
+
 
 // Helper method to load and validate settings
 void LoadAndValidateSettings<T>(string settingsFile, object defaultSetting)
