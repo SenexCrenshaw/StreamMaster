@@ -102,7 +102,7 @@ void LoadAndSetSettings<TDict, TProfile>(string settingsFile, TDict defaultSetti
             if (!setting.Profiles.ContainsKey(defaultProfile.Key))
             {
                 // Add missing entries
-                setting.Profiles[defaultProfile.Key] = defaultProfile.Value;
+                setting.AddProfile(defaultProfile.Key,defaultProfile.Value);
             }
         }
     }

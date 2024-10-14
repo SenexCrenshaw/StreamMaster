@@ -34,7 +34,7 @@ public class AddOutputProfileRequestHandler(ILogger<AddOutputProfileRequest> Log
         }
         else
         {
-            profileSettings.Profiles.Add(request.OutputProfileDto.Name, request.OutputProfileDto);
+            profileSettings.AddProfile(request.OutputProfileDto.Name, request.OutputProfileDto);
         }
 
 

@@ -22,7 +22,7 @@ public class RemoveOutputProfileRequestHandler(IOptionsMonitor<OutputProfileDict
         }
         if (profileSettings.Profiles.TryGetValue(request.Name, out OutputProfile? profile))
         {
-            _ = profileSettings.Profiles.Remove(request.Name);
+            profileSettings.RemoveProfile(request.Name);
 
             Logger.LogInformation("RemoveFileProfileRequest");
 

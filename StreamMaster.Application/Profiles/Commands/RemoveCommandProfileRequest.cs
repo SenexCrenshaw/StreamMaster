@@ -23,7 +23,7 @@ public class RemoveCommandProfileRequestHandler(IOptionsMonitor<CommandProfileDi
 
         if (profileSettings.Profiles.TryGetValue(request.ProfileName, out CommandProfile? profile))
         {
-            _ = profileSettings.Profiles.Remove(request.ProfileName);
+            profileSettings.RemoveProfile(request.ProfileName);
 
             SettingsHelper.UpdateSetting(profileSettings);
         }

@@ -99,8 +99,8 @@ public class UpdateFileProfileRequestHandler(
         if (!string.IsNullOrEmpty(request.NewName) && request.ProfileName != request.NewName)
         {
             nameChanged = true;
-            _ = profilesettings.Profiles.Remove(request.ProfileName);
-            profilesettings.Profiles.Add(request.NewName, existingProfile);
+             profilesettings.RemoveProfile(request.ProfileName);
+            profilesettings.AddProfile(request.NewName, existingProfile);
         }
 
         SettingsHelper.UpdateSetting(profilesettings);

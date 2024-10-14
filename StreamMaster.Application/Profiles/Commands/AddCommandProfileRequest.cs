@@ -35,7 +35,7 @@ public class AddCommandProfileRequestHandler(ILogger<AddCommandProfileRequest> L
         }
         else
         {
-            profileSettings.Profiles.Add(request.ProfileName, profile);
+            profileSettings.AddProfile(request.ProfileName, profile);
         }
 
 

@@ -18,8 +18,8 @@ public class CommandProfileDto : CommandProfile
 
 public class CommandProfileDict : IProfileDict<CommandProfile>
 {
-    //[JsonPropertyName("CommandProfiles")]
-    //public Dictionary<string, CommandProfile> CommandProfiles { get; set; } = [];
+    [JsonPropertyName("CommandProfiles")]
+    public Dictionary<string, CommandProfile> CommandProfiles { get; set; } = [];
     public CommandProfile? GetProfile(string CommandProfileName)
     {
         return Profiles.TryGetValue(CommandProfileName, out CommandProfile? existingProfile)
@@ -27,9 +27,8 @@ public class CommandProfileDict : IProfileDict<CommandProfile>
             : null;
     }
 
-    [JsonPropertyName("CommandProfiles")]
-    public Dictionary<string, CommandProfile> Profiles { get; set; } = [];
-
+    [JsonIgnore]
+    public Dictionary<string, CommandProfile> Profiles => CommandProfiles;
 
     public bool HasProfile(string CommandProfileName)
     {
@@ -89,4 +88,21 @@ public class CommandProfileDict : IProfileDict<CommandProfile>
         return ret;
     }
 
+    public void AddProfile(string ProfileName, CommandProfile Profile)
+    {
+        CommandProfiles.Add(ProfileName, Profile);
+    }
+
+    public void AddProfiles(Dictionary<string, dynamic> profiles)
+    {
+        CommandProfiles = profiles.ToDictionary(
+            kvp => kvp.Key,
+            kvp => (CommandProfile)kvp.Value
+        );
+    }
+
+    public void RemoveProfile(string ProfileName)
+    {
+        CommandProfiles.Remove(ProfileName);
+    }
 }

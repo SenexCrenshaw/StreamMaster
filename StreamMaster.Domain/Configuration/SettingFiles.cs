@@ -1,16 +1,11 @@
 ﻿namespace StreamMaster.Domain.Configuration;
 
-public interface IProfileDict<TProfile>
-{
-    Dictionary<string, TProfile> Profiles { get; }
-}
-
 public static class SettingFiles
 {
     public static readonly OutputProfileDict DefaultOutputProfileSetting = new()
     {
 
-        Profiles = new Dictionary<string, OutputProfile>
+        OutputProfiles = new Dictionary<string, OutputProfile>
     {
         {
             "Default",
@@ -33,7 +28,7 @@ public static class SettingFiles
 
     public static readonly CommandProfileDict DefaultCommandProfileSetting = new()
     {
-        Profiles = new Dictionary<string, CommandProfile>
+        CommandProfiles = new Dictionary<string, CommandProfile>
     {
 
         {
