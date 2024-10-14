@@ -398,7 +398,7 @@ export function getIconUrl(iconOriginalSource: string | null | undefined, defaul
   }
 
   if (iconOriginalSource.startsWith('images/')) {
-    iconOriginalSource = `${isDevelopment ? `${baseHostURL}/` : ''}${iconOriginalSource}`;
+    iconOriginalSource = `${isDevelopment ? `${baseHostURL}/` : '/'}${iconOriginalSource}`;
   } else if (!iconOriginalSource.startsWith('http')) {
     iconOriginalSource = getApiUrl(SMFileTypes.TvLogo, originalUrl);
   } else if (cacheIcon) {
