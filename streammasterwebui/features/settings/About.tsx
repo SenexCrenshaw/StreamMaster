@@ -31,7 +31,7 @@ const About = () => {
   // const mainSM = {
   //   animateOn: 'hover' as 'hover',
   //   direction: 'top' as Direction,
-  //   icon: '/images/sm_logo.png',
+  //   icon: '/images/streammaster_logo.png',
   //   modal: true,
   //   shape: 'circle' as Shape
   // };
@@ -66,7 +66,7 @@ const About = () => {
   //   {
   //     animateOn: 'hover' as 'hover',
   //     command: () => alert('Icon 1 clicked'),
-  //     icon: '/images/sm_logo.png'
+  //     icon: '/images/streammaster_logo.png'
   //   },
   //   {
   //     animateOn: 'hover' as 'hover',
@@ -96,7 +96,7 @@ const About = () => {
     >
       <div className="flex flex-column sm-center-stuff">
         <div className="layout-padding-bottom" />
-        <Image src="/images/sm_logo.png" alt="Stream Master" width="64" />
+        <Image src="/images/streammaster_logo.png" alt="Stream Master" width="64" />
         Stream Master
         <div className="col-6 m-0 p-0 justify-content-center align-content-start text-xs text-center">
           <div className="sm-text-xs sm-center-stuff w-full">

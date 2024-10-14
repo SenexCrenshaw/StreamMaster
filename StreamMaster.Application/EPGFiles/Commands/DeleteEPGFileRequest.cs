@@ -52,7 +52,7 @@ public class DeleteEPGFileRequestHandler(ILogger<DeleteEPGFileRequest> logger, I
         catch (Exception ex)
         {
             logger.LogError(ex, "DeleteM3UFileRequest {request}", request);
-            await messageService.SendError("Exception deleting M3U", ex.Message);
+            await messageService.SendError("Exception deleting EPG", ex.Message);
             return APIResponse.NotFound;
         }
     }

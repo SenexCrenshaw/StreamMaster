@@ -9,6 +9,7 @@ public record UpdateSMStreamRequest(
     string? Group,
     string? Logo,
        string? EPGID,
+        string? CommandProfileName,
     string Url
     ) : IRequest<APIResponse>;
 
@@ -59,6 +60,13 @@ public class UpdateSMStreamHandler(ILogger<UpdateSMStreamRequest> Logger, IMessa
             {
                 smStream.Logo = request.Logo;
                 ret.Add(new FieldData(() => smStream.Logo));
+            }
+
+
+            if (!string.IsNullOrEmpty(request.CommandProfileName) && smStream.CommandProfileName != request.CommandProfileName)
+            {
+                smStream.CommandProfileName = request.CommandProfileName;
+                ret.Add(new FieldData(() => smStream.CommandProfileName));
             }
 
             if (!string.IsNullOrEmpty(request.Url) && smStream.Url != request.Url)

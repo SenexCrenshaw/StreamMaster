@@ -11,6 +11,10 @@ public class SMStream
 
     [Column(TypeName = "citext")]
     public string? ClientUserAgent { get; set; }
+
+    [Column(TypeName = "citext")]
+    public string? CommandProfileName { get; set; }
+
     public int FilePosition { get; set; }
     public bool IsHidden { get; set; } = false;
     public bool IsUserCreated { get; set; } = false;

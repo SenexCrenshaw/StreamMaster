@@ -3,6 +3,7 @@ import IconSelector from '@components/icons/IconSelector';
 import NumberEditor from '@components/inputs/NumberEditor';
 import SMChannelGroupDropDown from '@components/inputs/SMChannelGroupDropDown';
 import StringEditor from '@components/inputs/StringEditor';
+import CommandProfileDropDown from '@components/profiles/CommandProfileDropDown';
 import { CreateSMChannelRequest, CreateSMStreamRequest, SMStreamDto } from '@lib/smAPI/smapiTypes';
 import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useState } from 'react';
 
@@ -87,6 +88,10 @@ const SMStreamDialog = forwardRef<SMStreamDialogRef, SMStreamDialogProperties>((
       return true;
     }
 
+    if (request.CommandProfileName !== orig.CommandProfileName) {
+      return true;
+    }
+
     if (request.Group !== orig.Group) {
       return true;
     }
@@ -159,6 +164,13 @@ const SMStreamDialog = forwardRef<SMStreamDialogRef, SMStreamDialogProperties>((
                   value={request.Url}
                 />
               </div>
+            </div>
+            <div className="sm-w-3">
+              <CommandProfileDropDown
+                buttonDarkBackground
+                value={request.CommandProfileName ?? ''}
+                onChange={(e) => e !== undefined && updateStateAndRequest({ CommandProfileName: e.ProfileName })}
+              />
             </div>
           </div>
           <div className="w-3 flex flex-column justify-content-start align-items-center ">

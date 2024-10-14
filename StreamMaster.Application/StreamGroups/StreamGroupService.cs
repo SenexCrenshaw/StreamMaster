@@ -448,6 +448,18 @@ public class StreamGroupService(ILogger<StreamGroupService> _logger, ILogoServic
         return textWriter.ToString();
     }
 
+    //public CommandProfileDto? GetProfileFromName(string commandProfileName)
+    //{
+    //    CommandProfileDto? commandProfileDto = null;
+    //    if (!commandProfileName.Equals("Default", StringComparison.InvariantCultureIgnoreCase))
+    //    {
+    //        commandProfileDto = _commandProfileSettings.CurrentValue.GetProfileDto(commandProfileName);
+    //    }
+
+
+    //}
+
+
     public async Task<CommandProfileDto> GetProfileFromSGIdsCommandProfileNameAsync(int? streamGroupId, int streamGroupProfileId, string commandProfileName)
     {
         CommandProfileDto? commandProfileDto = null;

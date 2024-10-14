@@ -350,13 +350,6 @@ public class LogoService(IMapper mapper, ICustomPlayListBuilder customPlayListBu
 
     public async Task<bool> ReadDirectoryTVLogos(CancellationToken cancellationToken = default)
     {
-        FileDefinition fd = FileDefinitions.TVLogo;
-        if (!Directory.Exists(fd.DirectoryLocation))
-        {
-            return false;
-        }
-
-        DirectoryInfo dirInfo = new(BuildInfo.TVLogoFolder);
 
         TvLogos = new ConcurrentDictionary<string, TvLogoFile>(
     [
@@ -375,12 +368,21 @@ public class LogoService(IMapper mapper, ICustomPlayListBuilder customPlayListBu
             new TvLogoFile
             {
                 Id = 1,
-                Source = "images/sm_logo.png",
+                Source = "/images/streammaster_logo.png",
                 FileExists = true,
                 Name = "Stream Master"
             }
         )
     ]);
+
+        FileDefinition fd = FileDefinitions.TVLogo;
+        if (!Directory.Exists(fd.DirectoryLocation))
+        {
+            return false;
+        }
+
+        DirectoryInfo dirInfo = new(BuildInfo.TVLogoFolder);
+
 
         List<TvLogoFile> tvLogoFiles = await FileUtil.GetTVLogosFromDirectory(dirInfo, dirInfo.FullName, TvLogos.Count, cancellationToken).ConfigureAwait(false);
 

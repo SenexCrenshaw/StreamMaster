@@ -305,6 +305,7 @@ export interface SMStreamDto
 	ChannelName: string;
 	ChannelNumber: number;
 	ClientUserAgent?: string;
+	CommandProfileName?: string;
 	CUID: string;
 	EPGID: string;
 	FilePosition: number;
@@ -791,6 +792,7 @@ export interface GetPagedSMStreamsRequest
 export interface CreateSMStreamRequest
 {
 	ChannelNumber?: number;
+	CommandProfileName?: string;
 	EPGID?: string;
 	Group?: string;
 	Logo?: string;
@@ -826,6 +828,7 @@ export interface ToggleSMStreamVisibleByParametersRequest
 export interface UpdateSMStreamRequest
 {
 	ChannelNumber?: number;
+	CommandProfileName?: string;
 	EPGID?: string;
 	Group?: string;
 	Logo?: string;

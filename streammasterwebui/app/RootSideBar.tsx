@@ -124,7 +124,7 @@ export const RootSideBar = () => {
       </Sidebar>
       <div className="flex flex-column pb-1 sidebar-sm-icon " style={{ width: '40px' }}>
         <div className="flex justify-content-center align-content-center">
-          <img alt="Stream Master Logo" src="/images/sm_logo.png" style={{ width: '40px' }} />
+          <img alt="Stream Master Logo" src="/images/streammaster_logo.png" style={{ width: '40px' }} />
         </div>
 
         <Tooltip target=".custom-target-icon" />

@@ -32,7 +32,7 @@ const SpeedMenuTest = () => {
   const mainItemCircle = {
     animateOn: 'hover' as 'hover',
     command: () => console.log('Main Icon clicked'),
-    icon: '/images/sm_logo.png',
+    icon: '/images/streammaster_logo.png',
     modal: true,
     shape: 'circle' as Shape
   };
@@ -40,7 +40,7 @@ const SpeedMenuTest = () => {
     animateOn: 'hover' as 'hover',
     command: () => console.log('Main Icon clicked'),
     direction: 'top' as Direction,
-    icon: '/images/sm_logo.png',
+    icon: '/images/streammaster_logo.png',
     modal: true,
     shape: 'line' as Shape
   };
@@ -49,7 +49,7 @@ const SpeedMenuTest = () => {
     animateOn: 'hover' as 'hover',
     command: () => console.log('Main Icon clicked'),
     direction: 'right' as Direction,
-    icon: '/images/sm_logo.png',
+    icon: '/images/streammaster_logo.png',
     modal: true,
     shape: 'line' as Shape
   };
@@ -58,7 +58,7 @@ const SpeedMenuTest = () => {
     animateOn: 'hover' as 'hover',
     command: () => console.log('Main Icon clicked'),
     direction: 'bottom' as Direction,
-    icon: '/images/sm_logo.png',
+    icon: '/images/streammaster_logo.png',
     modal: true,
     shape: 'line' as Shape
   };
@@ -67,7 +67,7 @@ const SpeedMenuTest = () => {
     animateOn: 'hover' as 'hover',
     command: () => console.log('Main Icon clicked'),
     direction: 'left' as Direction,
-    icon: '/images/sm_logo.png',
+    icon: '/images/streammaster_logo.png',
     modal: true,
     shape: 'line' as Shape
   };
@@ -76,7 +76,7 @@ const SpeedMenuTest = () => {
     animateOn: 'hover' as 'hover',
     command: () => console.log('Main Icon clicked'),
     direction: 'top' as Direction,
-    icon: '/images/sm_logo.png',
+    icon: '/images/streammaster_logo.png',
     modal: true,
     shape: 'semicircle' as Shape
   };
@@ -85,7 +85,7 @@ const SpeedMenuTest = () => {
     animateOn: 'hover' as 'hover',
     command: () => console.log('Main Icon clicked'),
     direction: 'right' as Direction,
-    icon: '/images/sm_logo.png',
+    icon: '/images/streammaster_logo.png',
     modal: true,
     shape: 'semicircle' as Shape
   };
@@ -94,7 +94,7 @@ const SpeedMenuTest = () => {
     animateOn: 'hover' as 'hover',
     command: () => console.log('Main Icon clicked'),
     direction: 'bottom' as Direction,
-    icon: '/images/sm_logo.png',
+    icon: '/images/streammaster_logo.png',
     modal: true,
     shape: 'semicircle' as Shape
   };
@@ -103,7 +103,7 @@ const SpeedMenuTest = () => {
     animateOn: 'hover' as 'hover',
     command: () => console.log('Main Icon clicked'),
     direction: 'left' as Direction,
-    icon: '/images/sm_logo.png',
+    icon: '/images/streammaster_logo.png',
     modal: true,
     shape: 'semicircle' as Shape
   };
@@ -112,7 +112,7 @@ const SpeedMenuTest = () => {
     animateOn: 'hover' as 'hover',
     command: () => console.log('Main Icon clicked'),
     direction: 'top' as Direction,
-    icon: '/images/sm_logo.png',
+    icon: '/images/streammaster_logo.png',
     modal: true,
     shape: 'quarter-circle' as Shape
   };
@@ -121,7 +121,7 @@ const SpeedMenuTest = () => {
     animateOn: 'hover' as 'hover',
     command: () => console.log('Main Icon clicked'),
     direction: 'right' as Direction,
-    icon: '/images/sm_logo.png',
+    icon: '/images/streammaster_logo.png',
     modal: true,
     shape: 'quarter-circle' as Shape
   };
@@ -130,7 +130,7 @@ const SpeedMenuTest = () => {
     animateOn: 'hover' as 'hover',
     command: () => console.log('Main Icon clicked'),
     direction: 'bottom' as Direction,
-    icon: '/images/sm_logo.png',
+    icon: '/images/streammaster_logo.png',
     modal: true,
     shape: 'quarter-circle' as Shape
   };
@@ -139,7 +139,7 @@ const SpeedMenuTest = () => {
     animateOn: 'hover' as 'hover',
     command: () => console.log('Main Icon clicked'),
     direction: 'left' as Direction,
-    icon: '/images/sm_logo.png',
+    icon: '/images/streammaster_logo.png',
     modal: true,
     shape: 'quarter-circle' as Shape
   };
@@ -148,7 +148,7 @@ const SpeedMenuTest = () => {
     animateOn: 'hover' as 'hover',
     command: () => console.log('Main Icon clicked'),
     direction: 'top-left' as Direction,
-    icon: '/images/sm_logo.png',
+    icon: '/images/streammaster_logo.png',
     modal: true,
     shape: 'quarter-circle' as Shape
   };
@@ -157,7 +157,7 @@ const SpeedMenuTest = () => {
     animateOn: 'hover' as 'hover',
     command: () => console.log('Main Icon clicked'),
     direction: 'top-right' as Direction,
-    icon: '/images/sm_logo.png',
+    icon: '/images/streammaster_logo.png',
     modal: true,
     shape: 'quarter-circle' as Shape
   };
@@ -166,7 +166,7 @@ const SpeedMenuTest = () => {
     animateOn: 'hover' as 'hover',
     command: () => console.log('Main Icon clicked'),
     direction: 'bottom-left' as Direction,
-    icon: '/images/sm_logo.png',
+    icon: '/images/streammaster_logo.png',
     modal: true,
     shape: 'quarter-circle' as Shape
   };
@@ -175,7 +175,7 @@ const SpeedMenuTest = () => {
     animateOn: 'hover' as 'hover',
     command: () => console.log('Main Icon clicked'),
     direction: 'bottom-right' as Direction,
-    icon: '/images/sm_logo.png',
+    icon: '/images/streammaster_logo.png',
     modal: true,
     shape: 'quarter-circle' as Shape
   };
@@ -184,7 +184,7 @@ const SpeedMenuTest = () => {
     {
       animateOn: 'hover' as 'hover',
       command: () => alert('Icon 1 clicked'),
-      icon: '/images/sm_logo.png'
+      icon: '/images/streammaster_logo.png'
     },
     {
       animateOn: 'hover' as 'hover',
@@ -216,7 +216,7 @@ const SpeedMenuTest = () => {
         <motion.img
           className="sm-w-4"
           alt="Stream Master Logo"
-          src="/images/sm_logo.png"
+          src="/images/streammaster_logo.png"
           initial={{ borderRadius: '0%', rotate: 0, scale: 1 }}
           animate={{ borderRadius: '0%', rotate: 0, scale: 1 }}
           whileHover={{

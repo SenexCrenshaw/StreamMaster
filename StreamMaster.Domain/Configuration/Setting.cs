@@ -23,7 +23,7 @@ public class BaseSettings
     public bool ShowMessageVideos { get; set; } = false;
     public string ClientUserAgent { get; set; } = "VLC/3.0.20-git LibVLC/3.0.20-git";
 
-    public string DefaultLogo { get; set; } = "images/default.png";
+    public string DefaultLogo { get; set; } = "/images/default.png";
     public string DefaultCompression { get; set; } = "gz";
     public string DeviceID { get; set; } = "device1";
     public string DummyRegex { get; set; } = "(no tvg-id)";

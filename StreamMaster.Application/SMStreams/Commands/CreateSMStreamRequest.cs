@@ -8,6 +8,7 @@ public record CreateSMStreamRequest(
     string? Group,
     string? Logo,
       string? EPGID,
+      string? CommandProfileName,
     string Url
     ) : IRequest<APIResponse>;
 
@@ -35,7 +36,8 @@ public class CreateSMStreamRequestHandler(ILogger<CreateSMStreamRequest> Logger,
                 Logo = request.Logo ?? string.Empty,
                 Url = request.Url,
                 M3UFileId = -1,
-                M3UFileName = "CUSTOM"
+                M3UFileName = "CUSTOM",
+                CommandProfileName = request.CommandProfileName
             };
 
             Repository.SMStream.Create(smStream);

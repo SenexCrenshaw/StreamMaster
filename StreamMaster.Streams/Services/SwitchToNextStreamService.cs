@@ -162,7 +162,9 @@ public sealed class SwitchToNextStreamService(ILogger<SwitchToNextStreamService>
             return await Task.FromResult(true);
         }
 
-        CommandProfileDto commandProfileDto = await streamGroupService.GetProfileFromSGIdsCommandProfileNameAsync(null, ChannelStatus.StreamGroupProfileId, ChannelStatus.SMChannel.CommandProfileName);
+        CommandProfileDto commandProfileDto = string.IsNullOrEmpty(smStream.CommandProfileName)
+            ? await streamGroupService.GetProfileFromSGIdsCommandProfileNameAsync(null, ChannelStatus.StreamGroupProfileId, ChannelStatus.SMChannel.CommandProfileName)
+            : await streamGroupService.GetProfileFromSGIdsCommandProfileNameAsync(null, ChannelStatus.StreamGroupProfileId, smStream.CommandProfileName);
 
         SMStreamInfo smStreamInfo = new()
         {

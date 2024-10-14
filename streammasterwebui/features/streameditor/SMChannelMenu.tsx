@@ -17,7 +17,7 @@ const SMChannelMenu = () => {
   // const mainSM = {
   //   animateOn: 'hover' as 'hover',
   //   direction: 'bottom' as Direction,
-  //   icon: '/images/sm_logo.png',
+  //   icon: '/images/streammaster_logo.png',
   //   modal: true,
   //   shape: 'line' as Shape
   // };
