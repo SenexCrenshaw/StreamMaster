@@ -67,7 +67,7 @@ export function MiscSettings(): React.ReactElement {
     <BaseSettings title="MISC">
       <>
         {GetCheckBoxLine({ field: 'PrettyEPG' })}
-        {/* {getCheckBoxLine({  field: 'AutoSetEPG' })} */}
+        {GetCheckBoxLine({ field: 'AutoSetEPG' })}
         {GetDropDownLine({ field: 'LogoCache', options: getLogoCacheOptions() })}
         {/* {getCheckBoxLine({  field: 'VideoStreamAlwaysUseEPGLogo' })} */}
         {GetInputTextLine({ field: 'DummyRegex' })}
