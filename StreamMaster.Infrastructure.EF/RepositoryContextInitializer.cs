@@ -57,13 +57,13 @@ public class RepositoryContextInitializer(ILogger<RepositoryContextInitializer> 
                 _ = await context.SaveChangesAsync().ConfigureAwait(false);
             }
 
-            if (!context.SMStreams.Any(a => a.Name == "Stream Master How To"))
-            {
-                string url = "https://www.youtube.com/watch?v=5bh2E7CxcDk";
-                string id = url.ConvertStringToId();
-                _ = context.Add(new SMStream { Id = id, Name = "Stream Master How To", IsSystem = false, Logo = "/images/streammaster_logo.png", Group = "CustomPlayList", EPGID = "Dummy", M3UFileName = "CUSTOM", ChannelNumber = 999, M3UFileId = -1, IsUserCreated = true, CommandProfileName = "YT", Url = url });
-                _ = await context.SaveChangesAsync().ConfigureAwait(false);
-            }
+            //if (!context.SMStreams.Any(a => a.Name == "Stream Master How To"))
+            //{
+            //    string url = "https://www.youtube.com/watch?v=5bh2E7CxcDk";
+            //    string id = url.ConvertStringToId();
+            //    _ = context.Add(new SMStream { Id = id, Name = "Stream Master How To", IsSystem = false, Logo = "/images/streammaster_logo.png", Group = "CustomPlayList", EPGID = "Dummy", M3UFileName = "CUSTOM", ChannelNumber = 999, M3UFileId = -1, IsUserCreated = true, CommandProfileName = "YT", Url = url });
+            //    _ = await context.SaveChangesAsync().ConfigureAwait(false);
+            //}
         }
         catch (Exception ex)
         {

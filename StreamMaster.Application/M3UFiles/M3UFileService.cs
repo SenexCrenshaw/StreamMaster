@@ -181,10 +181,7 @@ public class M3UFileService(ILogger<M3UFileService> logger, ILogoService logoSer
 
             if (processed.TryAdd(stream.Id, true))
             {
-                if (stream.Name.Contains("Channel Bix"))
-                {
-                    int aa = 1;
-                }
+
                 Cgs.Add(stream.Group);
                 groupLookup.TryGetValue(stream.Group, out bool hidden);
 

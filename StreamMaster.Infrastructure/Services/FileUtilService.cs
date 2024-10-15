@@ -69,7 +69,7 @@ namespace StreamMaster.Infrastructure.Services
                 );
         }
 
-        public async Task<(bool success, Exception? ex)> DownloadUrlAsync(string url, string fullName, bool? ignoreCompression = false)
+        public async Task<(bool success, Exception? ex)> DownloadUrlAsync(string url, string fileName, bool? ignoreCompression = false)
         {
             if (string.IsNullOrWhiteSpace(url) || !url.Contains("://"))
             {
@@ -78,26 +78,30 @@ namespace StreamMaster.Infrastructure.Services
 
             try
             {
+                string compression = _settings.CurrentValue.DefaultCompression?.ToLower() ?? "none";
+
                 HttpClientHandler handler = new() { AllowAutoRedirect = true, MaxAutomaticRedirections = 10 };
                 using HttpClient httpClient = new(handler);
 
                 httpClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0");
 
-                Directory.CreateDirectory(Path.GetDirectoryName(fullName) ?? string.Empty); // Ensure directory exists
+                Directory.CreateDirectory(Path.GetDirectoryName(fileName) ?? string.Empty); // Ensure directory exists
 
                 using HttpResponseMessage response = await httpClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
                 response.EnsureSuccessStatusCode(); // Ensure success
 
+
                 await using Stream stream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
 
                 // Check if the file is already compressed
-                if (ignoreCompression == true || string.Equals(_settings.CurrentValue.DefaultCompression, "none", StringComparison.OrdinalIgnoreCase) || IsFileGzipped(fullName) || IsFileZipped(fullName))
+                //if (ignoreCompression == true || string.Equals(_settings.CurrentValue.DefaultCompression, "none", StringComparison.OrdinalIgnoreCase) || IsFileGzipped(fullName) || IsFileZipped(fullName))
+                if (IsFileGzipped(fileName) || IsFileZipped(fileName))
                 {
-                    await SaveStreamToFile(stream, fullName, "none");
+                    await SaveStreamToFile(stream, fileName, "none"); // No additional compression
                 }
                 else
                 {
-                    await SaveStreamToFile(stream, fullName, _settings.CurrentValue.DefaultCompression);
+                    await SaveStreamToFile(stream, fileName, compression);
                 }
 
                 return (true, null);
