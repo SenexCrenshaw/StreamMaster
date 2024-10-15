@@ -228,6 +228,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IImag
             CommandProfileName = "Default",
             ChannelId = smStream.ChannelId,
             ChannelName = smStream.ChannelName,
+            TVGName = smStream.TVGName
         };
         Create(smChannel);
 

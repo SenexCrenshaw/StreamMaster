@@ -283,6 +283,7 @@ public class M3UFileService(ILogger<M3UFileService> logger, ILogoService logoSer
         string[] channelIds = streams.Select(s => $"'{EscapeString(s.ChannelId)}'").ToArray();
         string[] channelNames = streams.Select(s => $"'{EscapeString(s.ChannelName)}'").ToArray();
         string[] isHidden = streams.Select(s => s.IsHidden.ToString().ToUpper()).ToArray(); // Add IsHidden as a boolean array
+        string[] tvgNames = streams.Select(s => $"'{EscapeString(s.TVGName)}'").ToArray(); // Add TVGName array
 
         // Construct the SQL command to call the function
         string sqlCommand = $@"
@@ -299,6 +300,7 @@ public class M3UFileService(ILogger<M3UFileService> logger, ILogoService logoSer
         ARRAY[{string.Join(", ", channelIds)}]::CITEXT[],
         ARRAY[{string.Join(", ", channelNames)}]::CITEXT[],
         ARRAY[{string.Join(", ", isHidden)}]::BOOLEAN[], -- Include the IsHidden array
+        ARRAY[{string.Join(", ", tvgNames)}]::CITEXT[], -- Include the TVGName array
         {m3uFileId}, -- p_m3u_file_id as INTEGER
         '{EscapeString(m3uFileName)}'::CITEXT,
         {streamGroupId},

@@ -191,7 +191,7 @@ public partial class M3UToSMStreamsService(ILogger<M3UToSMStreamsService> logger
                         case "tvg-name":
                             if (!string.IsNullOrEmpty(parameter[1].Trim()))
                             {
-                                SMStream.Name = parameter[1].Trim();
+                                SMStream.TVGName = parameter[1].Trim();
                             }
                             break;
 

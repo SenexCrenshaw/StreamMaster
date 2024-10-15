@@ -3,7 +3,7 @@
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public class UpdateSettingParameters
 {
-    //public bool? AutoSetEPG { get; set; }
+    public bool? AutoSetEPG { get; set; }
     public bool? BackupEnabled { get; set; }
     public int? BackupVersionsToKeep { get; set; }
     public int? BackupInterval { get; set; }

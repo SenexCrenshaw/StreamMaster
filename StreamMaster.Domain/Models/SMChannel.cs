@@ -56,6 +56,10 @@ namespace StreamMaster.Domain.Models
 
         public string ChannelId { get; set; } = string.Empty;
 
+        [Column(TypeName = "citext")]
+        public string TVGName { get; set; } = string.Empty;
+
+        [Column(TypeName = "citext")]
         public string ChannelName { get; set; } = string.Empty;
 
         /// <summary>

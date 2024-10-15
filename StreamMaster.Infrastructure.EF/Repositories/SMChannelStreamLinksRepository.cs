@@ -63,6 +63,7 @@ public class SMChannelStreamLinksRepository(ILogger<SMChannelStreamLinksReposito
 
         if (smChannel != null && smStreamId != null)
         {
+            SMStream? smStream = RepositoryContext.SMStreams.FirstOrDefault(a => a.Id == smStreamId);
             int nextRank = Rank ?? GetMaxRank(smChannel.Id);
 
             SMChannelStreamLink link = new()

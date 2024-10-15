@@ -287,10 +287,10 @@ public partial class UpdateSettingRequestHandler(
             currentSetting.ShutDownDelay = request.Parameters.ShutDownDelay.Value;
         }
 
-        //if (request.Parameters.AutoSetEPG.HasValue)
-        //{
-        //    currentSetting.AutoSetEPG = request.Parameters.AutoSetEPG.Value;
-        //}
+        if (request.Parameters.AutoSetEPG.HasValue)
+        {
+            currentSetting.AutoSetEPG = request.Parameters.AutoSetEPG.Value;
+        }
 
         if (request.Parameters.BackupVersionsToKeep.HasValue)
         {

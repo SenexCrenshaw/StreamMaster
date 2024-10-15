@@ -296,6 +296,7 @@ export interface SMChannelDto
 	StreamGroupIds: number[];
 	StreamUrl: string;
 	TimeShift: number;
+	TVGName: string;
 }
 export interface SMStreamDto
 {
@@ -323,6 +324,7 @@ export interface SMStreamDto
 	RealUrl: string;
 	SMStreamType: SMStreamTypeEnum;
 	StationId: string;
+	TVGName: string;
 	Url: string;
 }
 export interface StreamGroupDto
@@ -1094,6 +1096,7 @@ export interface UpdateSettingParameters
 	AdminPassword?: string;
 	AdminUserName?: string;
 	AuthenticationMethod?: string;
+	AutoSetEPG?: boolean;
 	BackupEnabled?: boolean;
 	BackupInterval?: number;
 	BackupVersionsToKeep?: number;
