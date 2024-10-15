@@ -128,11 +128,16 @@ public partial class M3UToSMStreamsService(ILogger<M3UToSMStreamsService> logger
             M3UKey.CUID => smStream.CUID,
             M3UKey.ChannelId => smStream.ChannelId,
             M3UKey.TvgID => smStream?.EPGID,
-            M3UKey.TvgName => smStream.Name,
+            M3UKey.TvgName => smStream.TVGName,
+            M3UKey.Name => smStream.Name,
             M3UKey.TvgName_TvgID =>
-            (!string.IsNullOrEmpty(smStream?.Name) && !string.IsNullOrEmpty(smStream?.EPGID))
-                ? $"{smStream.Name}_{smStream.EPGID}"
+            (!string.IsNullOrEmpty(smStream?.TVGName) && !string.IsNullOrEmpty(smStream?.EPGID))
+                ? $"{smStream.TVGName}_{smStream.EPGID}"
                 : null,
+            M3UKey.Name_TvgID =>
+        (!string.IsNullOrEmpty(smStream?.Name) && !string.IsNullOrEmpty(smStream?.EPGID))
+            ? $"{smStream.Name}_{smStream.EPGID}"
+            : null,
             _ => throw new ArgumentOutOfRangeException(nameof(m3uKey), m3uKey, null),
         };
         return string.IsNullOrEmpty(key) ? null : FileUtil.EncodeToMD5(key);

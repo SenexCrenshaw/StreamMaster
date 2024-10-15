@@ -21,7 +21,7 @@ using System.Linq.Expressions;
 using System.Text.Json;
 namespace StreamMaster.Infrastructure.EF.Repositories;
 
-public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IImageDownloadQueue imageDownloadQueue, IServiceProvider serviceProvider, IRepositoryWrapper repository, IRepositoryContext repositoryContext, IMapper mapper, IOptionsMonitor<Setting> intSettings, IOptionsMonitor<CommandProfileDict> intProfileSettings, ISchedulesDirectDataService schedulesDirectDataService)
+public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IImageDownloadQueue imageDownloadQueue, IServiceProvider serviceProvider, IRepositoryWrapper repository, IRepositoryContext repositoryContext, IMapper mapper, IOptionsMonitor<Setting> settings, IOptionsMonitor<CommandProfileDict> intProfileSettings, ISchedulesDirectDataService schedulesDirectDataService)
     : RepositoryBase<SMChannel>(repositoryContext, intLogger), ISMChannelsRepository
 {
     private ConcurrentHashSet<int> existingNumbers = [];
@@ -218,7 +218,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IImag
         {
             ChannelNumber = smStream.ChannelNumber,
             Group = smStream.Group,
-            Name = smStream.Name,
+            Name = (settings.CurrentValue.PreferTVGname && !string.IsNullOrEmpty(smStream.TVGName)) ? smStream.TVGName : smStream.Name,
             Logo = smStream.Logo,
             EPGId = smStream.EPGID,
             StationId = smStream.StationId,
@@ -482,8 +482,6 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IImag
             List<SMChannel> addedSMChannels = [];
             //List<SMChannel> bulkSMChannels = [];
 
-            Setting settings = intSettings.CurrentValue;
-
             for (int i = 0; i < streamIds.Count; i += BuildInfo.DBBatchSize)
             {
                 Stopwatch batchStopwatch = Stopwatch.StartNew(); // Timer for each batch
@@ -550,14 +548,13 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IImag
 
     private async Task BulkUpdate(List<SMChannel> addedSMChannels, int? defaultSGId)
     {
-        Setting settings = intSettings.CurrentValue;
 
         for (int i = 0; i < addedSMChannels.Count; i += BuildInfo.DBBatchSize)
         {
             Stopwatch batchStopwatch = Stopwatch.StartNew(); // Timer for each batch
             List<SMChannel> batch = addedSMChannels.Skip(i).Take(BuildInfo.DBBatchSize).ToList();
 
-            if (settings.AutoSetEPG)
+            if (settings.CurrentValue.AutoSetEPG)
             {
                 Stopwatch AutoSetEPGStopwatch = Stopwatch.StartNew();
                 _ = await AutoSetEPGs(batch, true, CancellationToken.None).ConfigureAwait(false);
@@ -649,7 +646,6 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IImag
 
         ConcurrentBag<FieldData> fds = []; // Use ConcurrentBag for thread-safe operations
 
-        Setting settings = intSettings.CurrentValue;
 
         List<StationChannelName> stationChannelList = [.. stationChannelNames];
 
@@ -782,7 +778,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IImag
 
                             fds.Add(new FieldData(SMChannel.APIName, smChannel.Id, "EPGId", smChannel.EPGId));
 
-                            if (settings.VideoStreamAlwaysUseEPGLogo)
+                            if (settings.CurrentValue.VideoStreamAlwaysUseEPGLogo)
                             {
                                 if (SetVideoStreamLogoFromEPG(smChannel))
                                 {

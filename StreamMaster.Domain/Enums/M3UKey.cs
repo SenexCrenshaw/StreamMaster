@@ -10,4 +10,6 @@ public enum M3UKey
     TvgID = 3,
     TvgName = 4,
     TvgName_TvgID = 5,
+    Name = 6,
+    Name_TvgID = 7,
 }

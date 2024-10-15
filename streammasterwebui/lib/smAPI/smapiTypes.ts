@@ -1273,6 +1273,7 @@ export interface CreateM3UFileRequest
 	AutoSetChannelNumbers?: boolean;
 	DefaultStreamGroupName?: string;
 	HoursToUpdate?: number;
+	M3UField?: M3UField;
 	M3UKey?: M3UKey;
 	MaxStreamCount: number;
 	Name: string;
@@ -1693,6 +1694,17 @@ export enum JobType {
 	Backup = 9,
 	TimerBackup = 10
 }
+export enum M3UField {
+	ChannelId = 0,
+	ChannelName = 1,
+	ChannelNumber = 2,
+	CUID = 3,
+	Group = 4,
+	Name = 5,
+	TvgID = 6,
+	TvgName = 7,
+	URL = 8
+}
 export enum M3UFileStreamURLPrefix {
 	SystemDefault = 0,
 	TS = 1,
@@ -1704,7 +1716,9 @@ export enum M3UKey {
 	ChannelId = 2,
 	TvgID = 3,
 	TvgName = 4,
-	TvgName_TvgID = 5
+	TvgName_TvgID = 5,
+	Name = 6,
+	Name_TvgID = 7
 }
 export enum SMChannelTypeEnum {
 	Regular = 0,

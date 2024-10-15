@@ -12,6 +12,7 @@ public class BaseSettings
     public string AdminUserName { get; set; } = string.Empty;
     public string AuthenticationMethod { get; set; }
     public bool AutoSetEPG { get; set; } = true;
+    public bool PreferTVGname { get; set; } = true;
     public bool BackupEnabled { get; set; } = true;
     public int BackupInterval { get; set; } = 4;
     public int BackupVersionsToKeep { get; set; } = 18;
