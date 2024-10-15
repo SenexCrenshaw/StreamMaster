@@ -139,6 +139,8 @@ public class M3UFileService(ILogger<M3UFileService> logger, ILogoService logoSer
         int processedCount = 0;
 
         Dictionary<string, bool> groupLookup = await repositoryWrapper.ChannelGroup.GetQuery().ToDictionaryAsync(g => g.Name, g => g.IsHidden);
+        //HashSet<string> existingStreamIds = (await repositoryWrapper.SMStream.GetQuery(a => a.M3UFileId == m3uFile.Id).Select(a => a.Id).ToListAsync().ConfigureAwait(false)).ToHashSet();
+
         ConcurrentDictionary<string, bool> processed = new();
 
         HashSet<string> Cgs = [];
@@ -159,7 +161,7 @@ public class M3UFileService(ILogger<M3UFileService> logger, ILogoService logoSer
         int batchSize = _settings.CurrentValue.DBBatchSize;// BuildInfo.DBBatchSize;
         List<SMStream> batch = [];
 
-        repositoryContext.ExecuteSqlRaw($"UPDATE public.\"SMStreams\"\r\n  SET \"NeedsDelete\" = true\r\n    WHERE \"M3UFileId\" = {m3uFile.Id}");
+        repositoryContext.ExecuteSqlRaw($"UPDATE public.\"SMStreams\" SET \"NeedsDelete\" = true WHERE \"M3UFileId\" = {m3uFile.Id}");
 
         Stopwatch stopwatch = Stopwatch.StartNew();
         Stopwatch mainStopwatch = Stopwatch.StartNew();
@@ -179,6 +181,10 @@ public class M3UFileService(ILogger<M3UFileService> logger, ILogoService logoSer
 
             if (processed.TryAdd(stream.Id, true))
             {
+                if (stream.Name.Contains("Channel Bix"))
+                {
+                    int aa = 1;
+                }
                 Cgs.Add(stream.Group);
                 groupLookup.TryGetValue(stream.Group, out bool hidden);
 
@@ -277,32 +283,35 @@ public class M3UFileService(ILogger<M3UFileService> logger, ILogoService logoSer
         string[] names = streams.Select(s => $"'{EscapeString(s.Name)}'").ToArray();
         string[] urls = streams.Select(s => $"'{EscapeString(s.Url)}'").ToArray();
         string[] stationIds = streams.Select(s => $"'{EscapeString(s.StationId)}'").ToArray();
-        string[] ChannelIds = streams.Select(s => $"'{EscapeString(s.ChannelId)}'").ToArray();
-        string[] ChannelNames = streams.Select(s => $"'{EscapeString(s.ChannelName)}'").ToArray();
+        string[] channelIds = streams.Select(s => $"'{EscapeString(s.ChannelId)}'").ToArray();
+        string[] channelNames = streams.Select(s => $"'{EscapeString(s.ChannelName)}'").ToArray();
+        string[] isHidden = streams.Select(s => s.IsHidden.ToString().ToUpper()).ToArray(); // Add IsHidden as a boolean array
 
         // Construct the SQL command to call the function
         string sqlCommand = $@"
-        SELECT * FROM public.create_or_update_smstreams_and_channels(
-            ARRAY[{string.Join(", ", ids)}]::TEXT[],
-            ARRAY[{string.Join(", ", filePositions)}]::INTEGER[],
-            ARRAY[{string.Join(", ", channelNumbers)}]::INTEGER[],
-            ARRAY[{string.Join(", ", groups)}]::CITEXT[],
-            ARRAY[{string.Join(", ", epgIds)}]::CITEXT[],
-            ARRAY[{string.Join(", ", logos)}]::CITEXT[],
-            ARRAY[{string.Join(", ", names)}]::CITEXT[],
-            ARRAY[{string.Join(", ", urls)}]::CITEXT[],
-            ARRAY[{string.Join(", ", stationIds)}]::CITEXT[],
-            ARRAY[{string.Join(", ", ChannelIds)}]::CITEXT[],
-            ARRAY[{string.Join(", ", ChannelNames)}]::CITEXT[],
-            {m3uFileId}, -- p_m3u_file_id as INTEGER
-            '{EscapeString(m3uFileName)}'::CITEXT,
-            {streamGroupId},
-            {createChannels.ToString().ToUpper()}
-        );
+    SELECT * FROM public.create_or_update_smstreams_and_channels(
+        ARRAY[{string.Join(", ", ids)}]::TEXT[],
+        ARRAY[{string.Join(", ", filePositions)}]::INTEGER[],
+        ARRAY[{string.Join(", ", channelNumbers)}]::INTEGER[],
+        ARRAY[{string.Join(", ", groups)}]::CITEXT[],
+        ARRAY[{string.Join(", ", epgIds)}]::CITEXT[],
+        ARRAY[{string.Join(", ", logos)}]::CITEXT[],
+        ARRAY[{string.Join(", ", names)}]::CITEXT[],
+        ARRAY[{string.Join(", ", urls)}]::CITEXT[],
+        ARRAY[{string.Join(", ", stationIds)}]::CITEXT[],
+        ARRAY[{string.Join(", ", channelIds)}]::CITEXT[],
+        ARRAY[{string.Join(", ", channelNames)}]::CITEXT[],
+        ARRAY[{string.Join(", ", isHidden)}]::BOOLEAN[], -- Include the IsHidden array
+        {m3uFileId}, -- p_m3u_file_id as INTEGER
+        '{EscapeString(m3uFileName)}'::CITEXT,
+        {streamGroupId},
+        {createChannels.ToString().ToUpper()}
+    );
     ";
 
         return sqlCommand;
     }
+
 
     private static string EscapeString(string input)
     {
