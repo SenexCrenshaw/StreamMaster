@@ -48,6 +48,7 @@ export function useFileUpload() {
           file: params.file,
           fileType: params.m3uFileDto === undefined ? 'epg' : 'm3u',
           m3uKey: params.m3uFileDto?.M3UKey,
+          m3uField: params.m3uFileDto?.M3UField,
           maxStreamCount: params.m3uFileDto?.MaxStreamCount,
           name: params.name,
           startingChannelNumber: params.m3uFileDto?.StartingChannelNumber,

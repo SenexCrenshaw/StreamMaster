@@ -10,5 +10,6 @@
         Task<(bool success, Exception? ex)> SaveFormFileAsync(dynamic data, string fileName);
         string CheckNeedsCompression(string fullName);
         string? GetExistingFilePath(string source);
+        void CleanUpFile(string fullName);
     }
 }

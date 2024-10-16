@@ -4,7 +4,7 @@
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record DeleteEPGFileRequest(bool DeleteFile, int Id) : IRequest<APIResponse>;
 
-public class DeleteEPGFileRequestHandler(ILogger<DeleteEPGFileRequest> logger, IFileUtilService fileUtilService, IDataRefreshService dataRefreshService, ISchedulesDirectDataService schedulesDirectDataService, IMessageService messageService, IRepositoryWrapper Repository, IPublisher Publisher)
+public class DeleteEPGFileRequestHandler(ILogger<DeleteEPGFileRequest> logger, IEPGFileService ePGFileService, IFileUtilService fileUtilService, IDataRefreshService dataRefreshService, ISchedulesDirectDataService schedulesDirectDataService, IMessageService messageService, IRepositoryWrapper Repository, IPublisher Publisher)
     : IRequestHandler<DeleteEPGFileRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(DeleteEPGFileRequest request, CancellationToken cancellationToken = default)
@@ -21,23 +21,10 @@ public class DeleteEPGFileRequestHandler(ILogger<DeleteEPGFileRequest> logger, I
 
             if (request.DeleteFile)
             {
-                string path = Path.Combine(FileDefinitions.EPG.DirectoryLocation, epgFile.Source);
-                string? fullName = fileUtilService.GetExistingFilePath(path);
-                if (fullName != null && File.Exists(fullName))
-                {
-                    File.Delete(fullName);
-                    string txtName = Path.Combine(FileDefinitions.EPG.DirectoryLocation, Path.GetFileNameWithoutExtension(epgFile.Source) + ".json");
-                    if (File.Exists(txtName))
-                    {
-                        File.Delete(txtName);
-                    }
-                }
-                else
-
-                {
-                    //_logger.LogError("DeleteEPGFile File {fulleName} does not exist", fulleName);
-                }
+                string? fullName = ePGFileService.GetFileName(epgFile.Name).fullName;
+                fileUtilService.CleanUpFile(fullName);
             }
+
             schedulesDirectDataService.Reset(epgFile.Id);
 
 

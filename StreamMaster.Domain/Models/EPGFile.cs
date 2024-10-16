@@ -30,7 +30,7 @@ public class EPGFile : AutoUpdateEntity
 
     public void WriteJSON()
     {
-        string jsonPath = Path.Combine(FileDefinitions.EPG.DirectoryLocation, Path.GetFileNameWithoutExtension(Source) + ".json");
+        string jsonPath = Path.Combine(FileDefinitions.EPG.DirectoryLocation, Source + ".json");
         string jsonString = JsonSerializer.Serialize(this, jsonSerializerOptions);
         File.WriteAllText(jsonPath, jsonString);
     }

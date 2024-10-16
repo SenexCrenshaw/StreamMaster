@@ -22,20 +22,18 @@ namespace StreamMaster.Infrastructure.Services
 
             if (IsFileGzipped(fileStream))
             {
-                fileStream.Seek(0, SeekOrigin.Begin);
                 return new GZipStream(fileStream, CompressionMode.Decompress);
             }
             else if (IsFileZipped(fileStream))
             {
-                fileStream.Seek(0, SeekOrigin.Begin);
                 ZipArchive zipArchive = new(fileStream, ZipArchiveMode.Read, leaveOpen: true);
                 ZipArchiveEntry zipEntry = zipArchive.Entries[0]; // Read the first entry
                 return zipEntry.Open(); // Stream remains open even after ZipArchive is disposed
             }
 
-            fileStream.Seek(0, SeekOrigin.Begin);
             return fileStream;
         }
+
         public string? GetExistingFilePath(string source)
         {
             if (File.Exists(source))
@@ -80,9 +78,8 @@ namespace StreamMaster.Infrastructure.Services
             {
                 string compression = _settings.CurrentValue.DefaultCompression?.ToLower() ?? "none";
 
-                HttpClientHandler handler = new() { AllowAutoRedirect = true, MaxAutomaticRedirections = 10 };
+                using HttpClientHandler handler = new() { AllowAutoRedirect = true, MaxAutomaticRedirections = 10 };
                 using HttpClient httpClient = new(handler);
-
                 httpClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0");
 
                 Directory.CreateDirectory(Path.GetDirectoryName(fileName) ?? string.Empty); // Ensure directory exists
@@ -90,18 +87,30 @@ namespace StreamMaster.Infrastructure.Services
                 using HttpResponseMessage response = await httpClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
                 response.EnsureSuccessStatusCode(); // Ensure success
 
-
                 await using Stream stream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
+                await SaveStreamToFileAsync(stream, fileName + "_temp", "none");
+                await using Stream? dataStream = GetFileDataStream(fileName + "_temp");
 
-                // Check if the file is already compressed
-                //if (ignoreCompression == true || string.Equals(_settings.CurrentValue.DefaultCompression, "none", StringComparison.OrdinalIgnoreCase) || IsFileGzipped(fullName) || IsFileZipped(fullName))
-                if (IsFileGzipped(fileName) || IsFileZipped(fileName))
+                if (IsFileGzipped(fileName + "_temp"))
                 {
-                    await SaveStreamToFile(stream, fileName, "none"); // No additional compression
+                    if (!fileName.EndsWith(".gz", StringComparison.OrdinalIgnoreCase))
+                    {
+                        fileName += ".gz";
+                    }
+
+                    await SaveStreamToFileAsync(dataStream, fileName, "none"); // No additional compression
+                }
+                else if (IsFileZipped(fileName + "_temp"))
+                {
+                    if (!fileName.EndsWith(".zip", StringComparison.OrdinalIgnoreCase))
+                    {
+                        fileName += ".zip";
+                    }
+                    await SaveStreamToFileAsync(dataStream, fileName, "none"); // No additional compression
                 }
                 else
                 {
-                    await SaveStreamToFile(stream, fileName, compression);
+                    await SaveStreamToFileAsync(dataStream, fileName, compression);
                 }
 
                 return (true, null);
@@ -111,6 +120,13 @@ namespace StreamMaster.Infrastructure.Services
                 logger.LogError("Download failed for {Url} : {message}", url, ex.Message);
                 return (false, ex);
             }
+            finally
+            {
+                if (File.Exists(fileName + "_temp"))
+                {
+                    File.Delete(fileName + "_temp");
+                }
+            }
         }
 
         public async Task<(bool success, Exception? ex)> SaveFormFileAsync(dynamic data, string fileName)
@@ -118,15 +134,16 @@ namespace StreamMaster.Infrastructure.Services
             try
             {
                 string compression = _settings.CurrentValue.DefaultCompression?.ToLower() ?? "none";
+                using Stream stream = data.OpenReadStream();
 
                 // Check if the uploaded file is already compressed
-                if (IsFileGzipped(fileName) || IsFileZipped(fileName))
+                if (IsFileGzipped(stream) || IsFileZipped(stream))
                 {
-                    await SaveStreamToFile(data.OpenReadStream(), fileName, "none"); // No additional compression
+                    await SaveStreamToFileAsync(stream, fileName, "none"); // No additional compression
                 }
                 else
                 {
-                    await SaveStreamToFile(data.OpenReadStream(), fileName, compression);
+                    await SaveStreamToFileAsync(stream, fileName, compression);
                 }
 
                 return (true, null);
@@ -138,7 +155,7 @@ namespace StreamMaster.Infrastructure.Services
             }
         }
 
-        private static async Task SaveStreamToFile(Stream inputStream, string fileName, string compression)
+        private static async Task SaveStreamToFileAsync(Stream inputStream, string fileName, string compression)
         {
             string compressedFileName = fileName;
 
@@ -147,18 +164,18 @@ namespace StreamMaster.Infrastructure.Services
             if (compression == "gz")
             {
                 await using GZipStream gzipStream = new(fileStream, CompressionMode.Compress);
-                await inputStream.CopyToAsync(gzipStream).ConfigureAwait(false);
+                await inputStream.CopyToAsync(gzipStream, 81920).ConfigureAwait(false); // Using a buffer size of 80 KB
             }
             else if (compression == "zip")
             {
                 using ZipArchive zipArchive = new(fileStream, ZipArchiveMode.Create);
                 ZipArchiveEntry zipEntry = zipArchive.CreateEntry(Path.GetFileName(fileName));
                 await using Stream zipStream = zipEntry.Open();
-                await inputStream.CopyToAsync(zipStream).ConfigureAwait(false);
+                await inputStream.CopyToAsync(zipStream, 81920).ConfigureAwait(false); // Using a buffer size of 80 KB
             }
             else // No compression
             {
-                await inputStream.CopyToAsync(fileStream).ConfigureAwait(false);
+                await inputStream.CopyToAsync(fileStream, 81920).ConfigureAwait(false); // Using a buffer size of 80 KB
             }
         }
 
@@ -168,6 +185,7 @@ namespace StreamMaster.Infrastructure.Services
             {
                 byte[] signature = new byte[4];
                 fileStream.Read(signature, 0, 4);
+                fileStream.Seek(0, SeekOrigin.Begin);
                 return signature[0] == 0x50 && signature[1] == 0x4B && signature[2] == 0x03 && signature[3] == 0x04;
             }
             catch
@@ -183,11 +201,11 @@ namespace StreamMaster.Infrastructure.Services
             {
                 byte[] signature = new byte[3];
                 fileStream.Read(signature, 0, 3);
+                fileStream.Seek(0, SeekOrigin.Begin);
                 return signature[0] == 0x1F && signature[1] == 0x8B && signature[2] == 0x08;
             }
             catch
             {
-                // logger.LogError(ex, "Error checking if file stream is gzipped.");
                 return false;
             }
         }
@@ -205,7 +223,6 @@ namespace StreamMaster.Infrastructure.Services
             }
             catch
             {
-                // logger.LogError(ex, "Er                ror checking if file { FilePath} is zipped.", filePath);
                 return false;
             }
         }
@@ -236,6 +253,56 @@ namespace StreamMaster.Infrastructure.Services
                 "zip" => fullName + ".zip",
                 _ => fullName,
             };
+        }
+
+        public void CleanUpFile(string fullName)
+        {
+            if (string.IsNullOrWhiteSpace(fullName))
+            {
+                throw new ArgumentException("File name cannot be null or empty", nameof(fullName));
+            }
+
+            // Delete the original file if it exists
+            if (File.Exists(fullName))
+            {
+                File.Delete(fullName);
+            }
+
+            // Get the directory of the original file
+            string directoryPath = Path.GetDirectoryName(fullName) ?? string.Empty;
+
+            // Determine the base file name without any compression extension (like .gz or .zip)
+            string fileNameWithoutCompression;
+            string originalExtension;
+
+            if (fullName.EndsWith(".gz", StringComparison.OrdinalIgnoreCase) || fullName.EndsWith(".zip", StringComparison.OrdinalIgnoreCase))
+            {
+                // Remove both the compression extension and the main file extension
+                fileNameWithoutCompression = Path.GetFileNameWithoutExtension(Path.GetFileNameWithoutExtension(fullName));
+                originalExtension = Path.GetExtension(Path.GetFileNameWithoutExtension(fullName)); // Retain the base file's extension (e.g., .m3u)
+            }
+            else
+            {
+                // Just remove the main file extension
+                fileNameWithoutCompression = Path.GetFileNameWithoutExtension(fullName);
+                originalExtension = Path.GetExtension(fullName); // Keep the original file's extension (e.g., .m3u)
+            }
+
+            // Combine the directory with the base name + original extension to form the .url and .json paths
+            string urlPath = Path.Combine(directoryPath, fileNameWithoutCompression + originalExtension + ".url");
+            string jsonPath = Path.Combine(directoryPath, fileNameWithoutCompression + originalExtension + ".json");
+
+            // Delete the .url file if it exists
+            if (File.Exists(urlPath))
+            {
+                File.Delete(urlPath);
+            }
+
+            // Delete the .json file if it exists
+            if (File.Exists(jsonPath))
+            {
+                File.Delete(jsonPath);
+            }
         }
     }
 }

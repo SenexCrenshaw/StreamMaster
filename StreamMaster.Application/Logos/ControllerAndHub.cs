@@ -2,11 +2,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using StreamMaster.Application.Logos.Queries;
 
-namespace StreamMaster.Application.Logos.Controllers
+namespace StreamMaster.Application.Logos
 {
     [Authorize]
     public partial class LogosController(ILogger<LogosController> _logger) : ApiControllerBase, ILogosController
-    {        
+    {
 
         [HttpGet]
         [Route("[action]")]
@@ -14,8 +14,8 @@ namespace StreamMaster.Application.Logos.Controllers
         {
             try
             {
-            DataResponse<List<LogoFileDto>> ret = await Sender.Send(new GetLogosRequest()).ConfigureAwait(false);
-             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetLogos.", statusCode: 500) : Ok(ret.Data);
+                DataResponse<List<LogoFileDto>> ret = await Sender.Send(new GetLogosRequest()).ConfigureAwait(false);
+                return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetLogos.", statusCode: 500) : Ok(ret.Data);
             }
             catch (Exception ex)
             {
@@ -33,7 +33,7 @@ namespace StreamMaster.Application.Hubs
     {
         public async Task<List<LogoFileDto>> GetLogos()
         {
-             DataResponse<List<LogoFileDto>> ret = await Sender.Send(new GetLogosRequest()).ConfigureAwait(false);
+            DataResponse<List<LogoFileDto>> ret = await Sender.Send(new GetLogosRequest()).ConfigureAwait(false);
             return ret.Data;
         }
 

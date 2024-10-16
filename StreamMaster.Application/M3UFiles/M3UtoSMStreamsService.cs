@@ -21,12 +21,13 @@ public partial class M3UToSMStreamsService(ILogger<M3UToSMStreamsService> logger
         if (dataStream == null)
         {
             yield return null;
+            yield break;  // Early exit if stream is null
         }
 
         int segmentNumber = 0;
         StringBuilder segmentBuilder = new();
 
-        using StreamReader reader = new(dataStream!);
+        using StreamReader reader = new(dataStream);
         string? clientUserAgent = null;
 
         while (!reader.EndOfStream)
@@ -40,6 +41,7 @@ public partial class M3UToSMStreamsService(ILogger<M3UToSMStreamsService> logger
 
             if (line.StartsWith("#EXTINF"))
             {
+                // Process the previous segment
                 if (segmentBuilder.Length > 0)
                 {
                     if (clientUserAgent != null)
@@ -66,14 +68,8 @@ public partial class M3UToSMStreamsService(ILogger<M3UToSMStreamsService> logger
                     continue;
                 }
             }
-            else
-            {
-                if (segmentBuilder.Length == 0)
-                {
-                    continue;
-                }
-            }
 
+            // Add the current line to the segment being built
             segmentBuilder.AppendLine(line);
         }
 
@@ -99,7 +95,9 @@ public partial class M3UToSMStreamsService(ILogger<M3UToSMStreamsService> logger
         SMStream? smStream = StringToSMStream(segment, chNo);
         if (smStream == null)
         {
-            logger.LogWarning("Could not create stream from m3u line # {segmentNum} {segment}", segmentNum, segment);
+            string truncatedSegment = segment.Length > 40 ? segment[..40] + "..." : segment;
+
+            logger.LogWarning("Could not create stream from m3u line # {segmentNum} {segment}", segmentNum, truncatedSegment);
             return null;
         }
 
@@ -220,7 +218,6 @@ public partial class M3UToSMStreamsService(ILogger<M3UToSMStreamsService> logger
                                 SMStream.ChannelId = parameter[1].Trim();
                             }
                             break;
-
 
                         case "tvg-chno":
                             if (!string.IsNullOrEmpty(parameter[1].Trim()))

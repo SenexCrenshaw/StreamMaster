@@ -10,6 +10,7 @@ import { CreateM3UFileRequest, M3UFileDto, StreamGroupDto, UpdateM3UFileRequest 
 import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import M3UFileTags from './M3UFileTags';
 import M3UKeyDialog from './M3UKeyDialog';
+import M3UFieldDialog from './M3UFieldNameDialog';
 
 export interface M3UFileDialogProperties {
   readonly onHide?: (didUpload: boolean) => void;
@@ -70,6 +71,7 @@ const M3UFileDialog = forwardRef<M3UFileDialogRef, M3UFileDialogProperties>(
           DefaultStreamGroupName: null,
           HoursToUpdate: 72,
           M3UKey: null,
+          M3UName: null,
           MaxStreamCount: 1,
           Name: '',
           StartingChannelNumber: 1,
@@ -112,7 +114,8 @@ const M3UFileDialog = forwardRef<M3UFileDialogRef, M3UFileDialogProperties>(
         createM3UFileRequest.HoursToUpdate = m3uFileDto.HoursToUpdate;
         createM3UFileRequest.SyncChannels = m3uFileDto.SyncChannels;
         createM3UFileRequest.DefaultStreamGroupName = selectedStreamGroup?.Name;
-        createM3UFileRequest.M3UKey = m3uFileDto.M3UKey.toString(); //getEnumValueByName(M3UKey, m3uFileDto.M3UKey.toString());
+        createM3UFileRequest.M3UKey = m3uFileDto.M3UKey.toString();
+        createM3UFileRequest.M3UName = m3uFileDto.M3UName.toString();
         createM3UFileRequest.AutoSetChannelNumbers = m3uFileDto.AutoSetChannelNumbers;
         createM3UFileRequest.StartingChannelNumber = m3uFileDto.StartingChannelNumber;
 
@@ -133,7 +136,7 @@ const M3UFileDialog = forwardRef<M3UFileDialogRef, M3UFileDialogProperties>(
         if (m3uFileDto === undefined) {
           return;
         }
-        Logger.debug('M3UFileDialog Id', m3uFileDto.Id);
+
         const updatedM3UFileDto = { ...m3uFileDto, ...updatedFields };
         const updatedRequest = { ...request, Id: updatedM3UFileDto.Id, ...updatedFields };
 
@@ -252,6 +255,7 @@ const M3UFileDialog = forwardRef<M3UFileDialogRef, M3UFileDialogProperties>(
               <M3UFileTags m3uFileDto={m3uFileDto} onChange={(e) => updateStateAndRequest({ VODTags: e })} />
             </div>
           </div>
+          <div className="layout-padding-bottom" />
           <div className="flex gap-1">
             <div className="pr-1 w-7 flex flex-row gap-1">
               <div className="w-5">
@@ -270,9 +274,13 @@ const M3UFileDialog = forwardRef<M3UFileDialogRef, M3UFileDialogProperties>(
                 />
               </div>
             </div>
-
-            <div className={'w-5 ' + (showUrlEditor !== true ? '' : 'p-disabled')}>
-              <M3UKeyDialog m3uFileDto={m3uFileDto} onChange={(e) => updateStateAndRequest({ M3UKey: e })} />
+            <div className="w-5 sm-between-stuff">
+              <div className={'w-5 ' + (showUrlEditor !== true ? '' : 'p-disabled')}>
+                <M3UKeyDialog m3uFileDto={m3uFileDto} onChange={(e) => updateStateAndRequest({ M3UKey: e })} />
+              </div>
+              <div className={'w-5'}>
+                <M3UFieldDialog m3uFileDto={m3uFileDto} onChange={(e) => updateStateAndRequest({ M3UName: e })} />
+              </div>
             </div>
           </div>
           <div className="layout-padding-bottom-lg" />

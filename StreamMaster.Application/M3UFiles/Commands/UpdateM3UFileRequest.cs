@@ -5,7 +5,7 @@ namespace StreamMaster.Application.M3UFiles.Commands;
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record UpdateM3UFileRequest(int? MaxStreamCount, int? StartingChannelNumber, string? DefaultStreamGroupName, bool? SyncChannels, List<string>? VODTags, bool? AutoSetChannelNumbers, bool? AutoUpdate, int? HoursToUpdate, int Id, string? Name, string? Url)
+public record UpdateM3UFileRequest(int? MaxStreamCount, int? StartingChannelNumber, string? DefaultStreamGroupName, bool? SyncChannels, List<string>? VODTags, bool? AutoSetChannelNumbers, bool? AutoUpdate, int? HoursToUpdate, int Id, string? Name, string? Url, M3UField? M3UName)
     : IRequest<APIResponse>;
 
 [LogExecutionTimeAspect]
@@ -47,6 +47,12 @@ public class UpdateM3UFileRequestHandler(IRepositoryWrapper Repository, IReposit
             {
                 m3uFile.AutoSetChannelNumbers = request.AutoSetChannelNumbers.Value;
                 ret.Add(new FieldData(() => m3uFile.AutoSetChannelNumbers));
+            }
+
+            if (request.M3UName.HasValue)
+            {
+                m3uFile.M3UName = request.M3UName.Value;
+                ret.Add(new FieldData(() => m3uFile.M3UName));
             }
 
             if (request.AutoSetChannelNumbers.HasValue)

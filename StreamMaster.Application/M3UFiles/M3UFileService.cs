@@ -1,11 +1,13 @@
-﻿using System.Collections.Concurrent;
+﻿using StreamMaster.Application.M3UFiles.Commands;
+
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 
 namespace StreamMaster.Application.M3UFiles;
 
-public class M3UFileService(ILogger<M3UFileService> logger, ILogoService logoService, IM3UToSMStreamsService m3UtoSMStreamsService, IJobStatusService jobStatusService, IOptionsMonitor<Setting> _settings, IMessageService messageService, IRepositoryWrapper repositoryWrapper, IRepositoryContext repositoryContext)
+public class M3UFileService(ILogger<M3UFileService> logger, IFileUtilService fileUtilService, IM3UToSMStreamsService m3UtoSMStreamsService, IJobStatusService jobStatusService, IOptionsMonitor<Setting> _settings, IMessageService messageService, IRepositoryWrapper repositoryWrapper, IRepositoryContext repositoryContext)
     : IM3UFileService
 {
     public async Task<DataResponse<List<M3UFileDto>>> GetM3UFilesNeedUpdatingAsync()
@@ -67,6 +69,7 @@ public class M3UFileService(ILogger<M3UFileService> logger, ILogoService logoSer
             //}
         }
     }
+
     public async Task UpdateM3UFile(M3UFile m3uFile)
     {
         if (m3uFile == null)
@@ -79,6 +82,7 @@ public class M3UFileService(ILogger<M3UFileService> logger, ILogoService logoSer
         await repositoryWrapper.SaveAsync();
         logger.LogInformation("Updated M3UFile with ID: {m3uFile.Id}.", m3uFile.Id);
     }
+
     private async Task UpdateChannelGroups(List<string> newGroups)
     {
         Stopwatch sw = Stopwatch.StartNew();
@@ -99,6 +103,84 @@ public class M3UFileService(ILogger<M3UFileService> logger, ILogoService logoSer
         return repositoryWrapper.ChannelGroup.CreateChannelGroups(toCreate, true);
     }
 
+    public (string fullName, string fullNameWithExtension) GetFileName(string name)
+    {
+        FileDefinition fd = FileDefinitions.M3U;
+
+        string fullNameWithExtension = name + fd.DefaultExtension;
+        string compressedFileName = fileUtilService.CheckNeedsCompression(fullNameWithExtension);
+        string fullName = Path.Combine(fd.DirectoryLocation, compressedFileName);
+        return (fullName, fullNameWithExtension);
+    }
+
+    public (M3UFile m3uFile, string fullName) CreateM3UFileBase(
+    string name,
+    int maxStreamCount,
+    string? urlSource,
+    List<string>? vodTags,
+    int? hoursToUpdate,
+    bool? syncChannels,
+    string? defaultStreamGroupName,
+    bool? autoSetChannelNumbers,
+    int? startingChannelNumber,
+    M3UKey? m3uKey,
+    M3UField? m3uField)
+    {
+        (string fullName, string fullNameWithExtension) = GetFileName(name);
+
+        M3UFile m3uFile = new()
+        {
+            Name = name,
+            Url = urlSource,
+            MaxStreamCount = maxStreamCount,
+            Source = fullNameWithExtension,
+            VODTags = vodTags ?? [],
+            HoursToUpdate = hoursToUpdate ?? 72,
+            SyncChannels = syncChannels ?? false,
+            DefaultStreamGroupName = defaultStreamGroupName,
+            AutoSetChannelNumbers = autoSetChannelNumbers ?? false,
+            StartingChannelNumber = startingChannelNumber ?? 1,
+            M3UKey = m3uKey ?? M3UKey.URL,
+            M3UName = m3uField ?? M3UField.Name,
+        };
+
+        return (m3uFile, fullName);
+    }
+
+    public (M3UFile m3uFile, string fullName) CreateM3UFile(CreateM3UFileRequest request)
+    {
+        return CreateM3UFileBase(
+            request.Name,
+            request.MaxStreamCount,
+            request.UrlSource,
+            request.VODTags,
+            request.HoursToUpdate,
+            request.SyncChannels,
+            request.DefaultStreamGroupName,
+            request.AutoSetChannelNumbers,
+            request.StartingChannelNumber,
+            request.M3UKey,
+            request.M3UName
+        );
+    }
+
+    public (M3UFile m3uFile, string fullName) CreateM3UFile(CreateM3UFileFromFormRequest request)
+    {
+        return CreateM3UFileBase(
+            request.Name,
+            request.MaxStreamCount ?? 0,
+            null, // URL source is not provided in the form request
+            request.VODTags,
+            request.HoursToUpdate,
+            request.SyncChannels,
+            request.DefaultStreamGroupName,
+            request.AutoSetChannelNumbers,
+            request.StartingChannelNumber,
+            request.M3UKey,
+            request.M3UName
+        );
+    }
+
     [LogExecutionTimeAspect]
     private async Task ProcessAndUpdateStreams(M3UFile m3uFile)
     {
@@ -110,7 +192,6 @@ public class M3UFileService(ILogger<M3UFileService> logger, ILogoService logoSer
         }
 
         (List<string> cgs, int count, List<DupInfo>? dupInfos, int removedCount) = await ProcessStreamsConcurrently(streams!, m3uFile);
-
 
         m3uFile.LastUpdated = SMDT.UtcNow;
         m3uFile.StreamCount = count;
@@ -129,8 +210,6 @@ public class M3UFileService(ILogger<M3UFileService> logger, ILogoService logoSer
 
         await UpdateChannelGroups(cgs);
     }
-
-
 
     private async Task<(List<string> cgs, int count, List<DupInfo> dupInfos, int removedCount)> ProcessStreamsConcurrently(IAsyncEnumerable<SMStream> streams, M3UFile m3uFile)
     {
@@ -181,7 +260,6 @@ public class M3UFileService(ILogger<M3UFileService> logger, ILogoService logoSer
 
             if (processed.TryAdd(stream.Id, true))
             {
-
                 Cgs.Add(stream.Group);
                 groupLookup.TryGetValue(stream.Group, out bool hidden);
 
@@ -217,7 +295,6 @@ public class M3UFileService(ILogger<M3UFileService> logger, ILogoService logoSer
                     FilePosition = stream.FilePosition
                 });
             }
-
 
             if (processedCount % 10000 == 0)
             {
@@ -311,7 +388,6 @@ public class M3UFileService(ILogger<M3UFileService> logger, ILogoService logoSer
         return sqlCommand;
     }
 
-
     private static string EscapeString(string input)
     {
         return input.Replace("'", "''")
@@ -329,6 +405,7 @@ public class M3UFileService(ILogger<M3UFileService> logger, ILogoService logoSer
         M3UFile? json = m3uFile.ReadJSON();
         return json is null || m3uFile.LastWrite() >= m3uFile.LastUpdated;
     }
+
     public async Task<M3UFile?> GetM3UFileAsync(int Id)
     {
         return await repositoryWrapper.M3UFile.FirstOrDefaultAsync(c => c.Id == Id, false).ConfigureAwait(false);
@@ -338,5 +415,4 @@ public class M3UFileService(ILogger<M3UFileService> logger, ILogoService logoSer
     {
         return await repositoryWrapper.M3UFile.GetQuery().ToListAsync();
     }
-
 }

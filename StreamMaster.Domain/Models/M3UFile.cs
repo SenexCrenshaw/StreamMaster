@@ -13,6 +13,7 @@ public class M3UFile : AutoUpdateEntity
         string jsonString = JsonSerializer.Serialize(this, jsonSerializerOptions);
         File.WriteAllText(jsonPath, jsonString);
     }
+
     public M3UFile()
     {
         FileExtension = FileDefinitions.M3U.DefaultExtension;

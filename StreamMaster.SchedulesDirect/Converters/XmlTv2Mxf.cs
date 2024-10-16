@@ -8,7 +8,8 @@ using System.Xml.Serialization;
 
 namespace StreamMaster.SchedulesDirect.Converters;
 
-public partial class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, ISchedulesDirectDataService schedulesDirectDataService, IFileUtilService fileUtilService) : IXmltv2Mxf
+public partial class XmlTvToXMLTV(ILogger<XmlTvToXMLTV> logger, ISchedulesDirectDataService schedulesDirectDataService, IFileUtilService fileUtilService)
+    : IXmltv2Mxf
 {
     private class SeriesEpisodeInfo
     {
@@ -23,17 +24,17 @@ public partial class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, ISchedulesDirectDataSe
     }
 
     [LogExecutionTimeAspect]
-    public XMLTV? ConvertToMxf(string filePath, int EPGNumber)
+    public async Task<XMLTV?> ConvertToXMLTVAsync(string filePath, int EPGNumber)
     {
-        XMLTV? xmlTv = ReadXmlFile(filePath);
+        XMLTV? xmlTv = await ReadXmlFileAsync(filePath);
         return xmlTv == null ? null : ConvertToMxf(xmlTv, EPGNumber);
     }
 
-    private XMLTV? ReadXmlFile(string filepath)
+    private async Task<XMLTV?> ReadXmlFileAsync(string filepath)
     {
         if (!File.Exists(filepath))
         {
-            //Logger.WriteInformation($"File \"{filepath}\" does not exist.");
+            // Logger.WriteInformation($"File \"{filepath}\" does not exist.");
             return null;
         }
 
@@ -41,26 +42,31 @@ public partial class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, ISchedulesDirectDataSe
         {
             XmlReaderSettings settings = new()
             {
-                DtdProcessing = DtdProcessing.Ignore,
-                ValidationType = ValidationType.DTD,
-                MaxCharactersFromEntities = 1024
+                Async = true, // Allow async operations
+                DtdProcessing = DtdProcessing.Ignore, // Ignore DTD processing
+                ValidationType = ValidationType.DTD, // Validation type set to DTD
+                MaxCharactersFromEntities = 1024 // Limit the number of characters parsed from entities
             };
 
             XmlSerializer serializer = new(typeof(XMLTV));
-            using Stream? fileStream = fileUtilService.GetFileDataStream(filepath);
+            await using Stream? fileStream = fileUtilService.GetFileDataStream(filepath);
             if (fileStream == null)
             {
-                return null;
+                return null; // Return null if no valid stream is retrieved
             }
+
+            // Now create the async XML reader and deserialize
             using XmlReader reader = XmlReader.Create(fileStream, settings);
-            object? result = serializer.Deserialize(reader);
+            object? result = await Task.Run(() => serializer.Deserialize(reader)).ConfigureAwait(false);
+
+            // Return the deserialized object, cast to the expected type
             return (XMLTV?)result;
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Failed to read file \"{filepath}\". Exception:{FileUtil.ReportExceptionMessages(ex)}");
+            Console.WriteLine($"Failed to read file \"{filepath}\". Exception: {FileUtil.ReportExceptionMessages(ex)}");
+            return null; // Return null if an error occurs
         }
-        return null;
     }
 
     private XMLTV? ConvertToMxf(XMLTV xmlTv, int EPGNumber)
@@ -336,7 +342,6 @@ public partial class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, ISchedulesDirectDataSe
                 //TvRating = DetermineTvRatings(program),
                 ////IsClassroom = NOT PART OF XMLTV
                 //IsRepeat = !mxfProgram.IsMovie && program.PreviouslyShown != null,
-
             };
             mxfService.MxfScheduleEntries.ScheduleEntry.Add(scheduleEntry);
             //mxfService.MxfScheduleEntries.ScheduleEntry.Add(new MxfScheduleEntry
@@ -374,6 +379,7 @@ public partial class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, ISchedulesDirectDataSe
         }
         return true;
     }
+
     private bool BuildKeywords(SchedulesDirectData schedulesDirectData)
     {
         logger.LogInformation("Building keyword categories.");
@@ -424,6 +430,7 @@ public partial class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, ISchedulesDirectDataSe
                         ret.ProductionNumber = int.Parse(ret.TmsId.Substring(11, 4));
                     }
                     break;
+
                 case "xmltv_ns":
                     string[] se1 = epNum.Text.Split('.');
                     _ = int.TryParse(se1[0].Split('/')[0], out ret.SeasonNumber);
@@ -437,6 +444,7 @@ public partial class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, ISchedulesDirectDataSe
                         ret.NumberOfParts = 1;
                     }
                     break;
+
                 case "sxxexx":
                 case "onscreen":
                 case "common":
@@ -502,30 +510,39 @@ public partial class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, ISchedulesDirectDataSe
                 case "adult situations":
                     mxfProgram.HasAdult = true;
                     break;
+
                 case "brief nudity":
                     mxfProgram.HasBriefNudity = true;
                     break;
+
                 case "graphic language":
                     mxfProgram.HasGraphicLanguage = true;
                     break;
+
                 case "graphic violence":
                     mxfProgram.HasGraphicViolence = true;
                     break;
+
                 case "adult language":
                     mxfProgram.HasLanguage = true;
                     break;
+
                 case "mild violence":
                     mxfProgram.HasMildViolence = true;
                     break;
+
                 case "nudity":
                     mxfProgram.HasNudity = true;
                     break;
+
                 case "rape":
                     mxfProgram.HasRape = true;
                     break;
+
                 case "strong sexual content":
                     mxfProgram.HasStrongSexualContent = true;
                     break;
+
                 case "violence":
                     mxfProgram.HasViolence = true;
                     break;
@@ -845,7 +862,6 @@ public partial class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, ISchedulesDirectDataSe
                     case "movie":
                     case "feature film":
                         continue;
-
                 }
                 mxfProgram.mxfKeywords.Add(mxfKeyGroup.FindOrCreateKeyword(genre));
             }
@@ -862,6 +878,7 @@ public partial class XmlTv2Mxf(ILogger<XmlTv2Mxf> logger, ISchedulesDirectDataSe
 
     [GeneratedRegex("^\\d*\\.?\\d+$")]
     private static partial Regex NumericRegex();
+
     [GeneratedRegex("(MV|SH|EP|SP)[0-9]{8}.[0-9]{4}")]
     private static partial Regex ProgramIDMatcherRegex();
 }

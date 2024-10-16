@@ -2,7 +2,6 @@ import ResetButton from '@components/buttons/ResetButton';
 import SMPopUp, { SMPopUpRef } from '@components/sm/SMPopUp';
 import { useStringValue } from '@lib/redux/hooks/stringValue';
 import { M3UFileDto } from '@lib/smAPI/smapiTypes';
-import { FileUpload } from 'primereact/fileupload';
 import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import M3UFileDialog, { M3UFileDialogRef } from './M3UFileDialog';
 
@@ -16,7 +15,7 @@ export interface M3UFileDialogProperties {
 
 export const M3UFileCreateDialog = ({ onHide, onUploadComplete, showButton }: M3UFileDialogProperties) => {
   const { stringValue } = useStringValue('m3uName');
-  const fileUploadReference = useRef<FileUpload>(null);
+  // const fileUploadReference = useRef<FileUpload>(null);
 
   const dialogRef = useRef<SMPopUpRef>(null);
   const fileDialogRef = useRef<M3UFileDialogRef>(null);
@@ -27,6 +26,7 @@ export const M3UFileCreateDialog = ({ onHide, onUploadComplete, showButton }: M3
       ({
         HoursToUpdate: 72,
         M3UKey: 'URL',
+        M3UName: 'Name',
         MaxStreamCount: 1,
         Name: '',
         Url: '',
@@ -39,7 +39,7 @@ export const M3UFileCreateDialog = ({ onHide, onUploadComplete, showButton }: M3
 
   const ReturnToParent = useCallback(
     (didUpload?: boolean) => {
-      fileUploadReference.current?.clear();
+      // fileUploadReference.current?.clear();
       fileDialogRef.current?.hide();
       fileDialogRef.current?.reset();
       dialogRef.current?.hide();
@@ -76,9 +76,6 @@ export const M3UFileCreateDialog = ({ onHide, onUploadComplete, showButton }: M3
         <div className="flex w-12 gap-1 justify-content-end align-content-center">
           <ResetButton
             onClick={() => {
-              // if (smFileUploadRef.current) {
-              //   smFileUploadRef.current.reset();
-              // }
               if (fileDialogRef.current) {
                 fileDialogRef.current.reset();
               }

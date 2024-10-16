@@ -1,6 +1,6 @@
 import { type AxiosProgressEvent } from 'axios';
 import http from './axios';
-import { M3UKey } from './smAPI/smapiTypes';
+import { M3UField, M3UKey } from './smAPI/smapiTypes';
 
 export interface UploadProperties {
   autoSetChannelNumbers?: boolean;
@@ -11,6 +11,7 @@ export interface UploadProperties {
   fileType: 'epg' | 'm3u';
   maxStreamCount?: number;
   m3uKey?: M3UKey;
+  m3uField?: M3UField;
   name: string;
   overWriteChannels?: boolean;
   startingChannelNumber?: number;
@@ -29,6 +30,7 @@ export const uploadToAPI = async ({
   fileType,
   maxStreamCount,
   m3uKey,
+  m3uField,
   name,
   overWriteChannels,
   onUploadProgress,
@@ -49,9 +51,15 @@ export const uploadToAPI = async ({
   if (overWriteChannels) formData.append('overWriteChannels', overWriteChannels?.toString() ?? 'true');
   if (maxStreamCount) formData.append('maxStreamCount', maxStreamCount?.toString() ?? '1');
   if (startingChannelNumber) formData.append('startingChannelNumber', startingChannelNumber?.toString() ?? '1');
+
   if (m3uKey) {
     //  const ret = getEnumValueByKey(M3UKey, m3uKey);
     formData.append('m3uKey', m3uKey.toString());
+  }
+
+  if (m3uField) {
+    //  const ret = getEnumValueByKey(M3UKey, m3uKey);
+    formData.append('m3uField', m3uField.toString());
   }
 
   if (autoSetChannelNumbers) formData.append('autoSetChannelNumbers', autoSetChannelNumbers?.toString() ?? 'false');

@@ -13,7 +13,7 @@ public static class ConfigureServices
     {
         services.AddEPGCache();
 
-        _ = services.AddSingleton<IXmltv2Mxf, XmlTv2Mxf>();
+        _ = services.AddSingleton<IXmltv2Mxf, XmlTvToXMLTV>();
         _ = services.AddSingleton<ISchedulesDirectAPIService, SchedulesDirectAPIService>();
         _ = services.AddSingleton<ISchedulesDirectDataService, SchedulesDirectDataService>();
         _ = services.AddSingleton<ISchedulesDirect, SchedulesDirect>();

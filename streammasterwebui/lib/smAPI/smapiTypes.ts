@@ -201,6 +201,7 @@ export interface M3UFileDto
 	LastDownloadAttempt: any;
 	LastDownloaded: any;
 	M3UKey: M3UKey;
+	M3UName: M3UField;
 	MaxStreamCount: number;
 	Name: string;
 	NeedsUpdate: boolean;
@@ -1262,6 +1263,7 @@ export interface CreateM3UFileFromFormRequest
 	FormFile?: any;
 	HoursToUpdate?: number;
 	M3UKey?: M3UKey;
+	M3UName?: M3UField;
 	MaxStreamCount?: number;
 	Name: string;
 	StartingChannelNumber?: number;
@@ -1273,8 +1275,8 @@ export interface CreateM3UFileRequest
 	AutoSetChannelNumbers?: boolean;
 	DefaultStreamGroupName?: string;
 	HoursToUpdate?: number;
-	M3UField?: M3UField;
 	M3UKey?: M3UKey;
+	M3UName?: M3UField;
 	MaxStreamCount: number;
 	Name: string;
 	StartingChannelNumber?: number;
@@ -1309,6 +1311,7 @@ export interface UpdateM3UFileRequest
 	DefaultStreamGroupName?: string;
 	HoursToUpdate?: number;
 	Id: number;
+	M3UName?: M3UField;
 	MaxStreamCount?: number;
 	Name?: string;
 	StartingChannelNumber?: number;
@@ -1698,12 +1701,10 @@ export enum M3UField {
 	ChannelId = 0,
 	ChannelName = 1,
 	ChannelNumber = 2,
-	CUID = 3,
-	Group = 4,
-	Name = 5,
-	TvgID = 6,
-	TvgName = 7,
-	URL = 8
+	Group = 3,
+	Name = 4,
+	TvgID = 5,
+	TvgName = 6
 }
 export enum M3UFileStreamURLPrefix {
 	SystemDefault = 0,

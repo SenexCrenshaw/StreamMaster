@@ -1,11 +1,12 @@
 ﻿using FluentValidation;
+
 namespace StreamMaster.Application.M3UFiles.Commands;
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record DeleteM3UFileRequest(bool DeleteFile, int Id) : IRequest<APIResponse>;
 
-public class DeleteM3UFileRequestHandler(ILogger<DeleteM3UFileRequest> logger, IFileUtilService fileUtilService, ICacheManager CacheManager, IMessageService messageService, IDataRefreshService dataRefreshService, ILogoService logoService, IRepositoryWrapper Repository)
+public class DeleteM3UFileRequestHandler(ILogger<DeleteM3UFileRequest> logger, IFileUtilService fileUtilService, IM3UFileService m3UFileService, ICacheManager CacheManager, IMessageService messageService, IDataRefreshService dataRefreshService, ILogoService logoService, IRepositoryWrapper Repository)
     : IRequestHandler<DeleteM3UFileRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(DeleteM3UFileRequest request, CancellationToken cancellationToken = default)
@@ -23,28 +24,8 @@ public class DeleteM3UFileRequestHandler(ILogger<DeleteM3UFileRequest> logger, I
 
             if (request.DeleteFile)
             {
-
-                string path = Path.Combine(FileDefinitions.M3U.DirectoryLocation, m3UFile.Source);
-                string? fullName = fileUtilService.GetExistingFilePath(path);
-                if (fullName != null && File.Exists(fullName))
-                {
-                    FileAttributes attributes = File.GetAttributes(fullName);
-
-                    if ((attributes & (FileAttributes.ReadOnly | FileAttributes.System)) == 0)
-                    {
-                        File.Delete(fullName);
-                    }
-
-                    string txtName = Path.Combine(FileDefinitions.M3U.DirectoryLocation, Path.GetFileNameWithoutExtension(m3UFile.Source) + ".json");
-                    if (File.Exists(txtName))
-                    {
-                        attributes = File.GetAttributes(txtName);
-                        if ((attributes & (FileAttributes.ReadOnly | FileAttributes.System)) == 0)
-                        {
-                            File.Delete(txtName);
-                        }
-                    }
-                }
+                string? fullName = m3UFileService.GetFileName(m3UFile.Name).fullName;
+                fileUtilService.CleanUpFile(fullName);
             }
 
             IQueryable<SMStream> smStreams = Repository.SMStream.GetQuery();
