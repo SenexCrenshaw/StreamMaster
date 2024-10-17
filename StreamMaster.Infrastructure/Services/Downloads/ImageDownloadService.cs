@@ -326,7 +326,7 @@ namespace StreamMaster.Infrastructure.Services.Downloads
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Failed to download image from {Url}", url);
+                logger.LogError(ex.InnerException?.Message, "Failed to download image from {Url}", url);
             }
             return false;
         }
