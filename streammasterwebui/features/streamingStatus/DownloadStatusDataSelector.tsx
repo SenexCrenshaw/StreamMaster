@@ -9,7 +9,7 @@ const DownloadStatusDataSelector = () => {
   const { data } = useGetDownloadServiceStatus();
 
   const headerTemplate = useMemo(() => {
-    return <div className="sm-center-stuff">Queued/Processed/Downloaded/AlreadyExists/Errors</div>;
+    return <div className="sm-center-stuff">Queued/Processed/Downloaded/Exists/Errors</div>;
   }, []);
 
   const programmeHeaderTemplate = useMemo(() => {

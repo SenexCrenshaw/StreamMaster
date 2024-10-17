@@ -35,7 +35,7 @@ public class SeriesImages(ILogger<SeriesImages> logger, IEPGCache<SeriesImages> 
         {
             string seriesId;
 
-            //MxfProgram? prog = schedulesDirectData.Programs.FirstOrDefault(a => a.ProgramId == series.ProtoTypicalProgram);
+            //MxfProgram? prog = schedulesDirectData.ProgramService.FirstOrDefault(a => a.ProgramId == series.ProtoTypicalProgram);
             if (string.IsNullOrEmpty(series.ProtoTypicalProgram) || !schedulesDirectData.Programs.TryGetValue(series.ProtoTypicalProgram, out MxfProgram? program))
             {
                 continue;

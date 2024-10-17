@@ -5,6 +5,7 @@ using StreamMaster.Domain.Models;
 using System.Text.Json;
 
 namespace StreamMaster.SchedulesDirect;
+
 public partial class SchedulesDirect(
     ILogger<SchedulesDirect> logger,
     ILogoService logoService,
@@ -16,8 +17,8 @@ public partial class SchedulesDirect(
     IDescriptions descriptions,
     IKeywords keywords,
     ILineupService lineups,
-    IPrograms programs,
-    ISchedules schedules,
+    IProgramService programs,
+    IScheduleService schedules,
     ISportsImages sportsImages,
     ISeasonImages seasonImages,
     ISeriesImages seriesImages,
@@ -84,7 +85,7 @@ public partial class SchedulesDirect(
             await lineups.BuildLineupServices(cancellationToken) &&
                     await schedules.GetAllScheduleEntryMd5S(cancellationToken) &&
                     await programs.BuildAllProgramEntries(cancellationToken) &&
-                    await descriptions.BuildAllGenericSeriesInfoDescriptions() &&
+                    await descriptions.BuildAllGenericSeriesInfoDescriptions(cancellationToken) &&
                     keywords.BuildKeywords()
                 )
             {
@@ -113,11 +114,9 @@ public partial class SchedulesDirect(
                 jobManager.SetSuccessful();
                 return APIResponse.Ok;
             }
-
         }
         catch (OperationCanceledException)
         {
-
         }
         finally
         {
@@ -177,9 +176,7 @@ public partial class SchedulesDirect(
         }
 
         return ret;
-
     }
-
 
     public void ResetCache(string command)
     {
@@ -255,7 +252,6 @@ public partial class SchedulesDirect(
         lineups.ResetCache();
         schedules.ResetCache();
         programs.ResetCache();
-
 
         movieImages.ResetCache();
         seriesImages.ResetCache();

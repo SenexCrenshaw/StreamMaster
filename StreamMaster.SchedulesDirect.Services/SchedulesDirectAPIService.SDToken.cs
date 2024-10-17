@@ -10,7 +10,7 @@ public partial class SchedulesDirectAPIService
     private readonly SemaphoreSlim _tokenSemaphore = new(1, 1);
 
     /// <summary>
-    /// Retrieves a session token from Schedules Direct
+    /// Retrieves a session token from ScheduleService Direct
     /// </summary>
     /// <returns>true if successful</returns>
     public async Task<bool> GetToken()

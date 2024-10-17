@@ -7,13 +7,13 @@ public class CustomStreamData(int EPGNumber) : ICustomStreamData
 {
     public int EPGNumber { get; set; } = EPGNumber;
 
-    //public ConcurrentDictionary<string, MxfProgram> Programs { get; set; } = [];
+    //public ConcurrentDictionary<string, MxfProgram> ProgramService { get; set; } = [];
     public ConcurrentDictionary<string, MxfService> Services { get; set; } = [];
     [XmlIgnore] public List<MxfProgram> ProgramsToProcess { get; set; } = [];
 
     //public MxfProgram FindOrCreateProgram(string programId)
     //{
-    //    (MxfProgram program, bool created) = Programs.FindOrCreateWithStatus(programId, key => new MxfProgram(Programs.Count + 1, programId));
+    //    (MxfProgram program, bool created) = ProgramService.FindOrCreateWithStatus(programId, key => new MxfProgram(ProgramService.Count + 1, programId));
     //    if (created)
     //    {
     //        return program;
@@ -39,7 +39,7 @@ public class CustomStreamData(int EPGNumber) : ICustomStreamData
 
     //public void RemoveProgram(string programId)
     //{
-    //    _ = Programs.TryRemove(programId, out _);
+    //    _ = ProgramService.TryRemove(programId, out _);
     //}
 
     public void RemoveService(string stationId)
@@ -49,7 +49,7 @@ public class CustomStreamData(int EPGNumber) : ICustomStreamData
 
     public void ResetLists()
     {
-        //Programs.Clear();
+        //ProgramService.Clear();
         ProgramsToProcess.Clear();
         Services.Clear();
 

@@ -3,6 +3,7 @@
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace StreamMaster.Domain.Configuration
 {
@@ -12,6 +13,8 @@ namespace StreamMaster.Domain.Configuration
     public static class BuildInfo
     {
         public static JsonSerializerOptions JsonIndentOptions = new() { WriteIndented = true };
+        public static JsonSerializerOptions JsonIndentOptionsWhenWritingNull = new() { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull, WriteIndented = false };
+
         static BuildInfo()
         {
             Assembly? assembly = Assembly.GetEntryAssembly() ?? throw new InvalidOperationException("Failed to get entry assembly.");
@@ -30,6 +33,7 @@ namespace StreamMaster.Domain.Configuration
             }
             _ = GetSettingFiles();
         }
+
         public static bool IsLinux => RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
         public static bool IsWindows => RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
         public static bool IsOSX => RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
@@ -58,7 +62,7 @@ namespace StreamMaster.Domain.Configuration
         /// </summary>
         public static string DBPassword => GetEnvironmentVariableOrDefault("POSTGRES_PASSWORD", "sm123");
 
-        #endregion
+        #endregion Database Configuration Properties
 
         #region Application Information Properties
 
@@ -68,6 +72,7 @@ namespace StreamMaster.Domain.Configuration
         public static Version Version { get; }
         public static string Branch { get; }
         public static string Release { get; }
+
         /// <summary>
         /// Gets the build date and time by reading the last write time of the assembly.
         /// </summary>
@@ -91,7 +96,7 @@ namespace StreamMaster.Domain.Configuration
             }
         }
 
-        #endregion
+        #endregion Application Information Properties
 
         #region Build Configuration Property
 
@@ -101,11 +106,12 @@ namespace StreamMaster.Domain.Configuration
         public static bool IsDebug =>
 #if DEBUG
             true;
+
 #else
             false;
 #endif
 
-        #endregion
+        #endregion Build Configuration Property
 
         #region File and Directory Path Fields
 
@@ -122,14 +128,17 @@ namespace StreamMaster.Domain.Configuration
 
         //public static readonly string ProgrammeIconDataFolder = Path.Combine(CacheFolder, "ProgrammeIcons");
         public static readonly string SDJSONFolder = Path.Combine(CacheFolder, "SDJson");
+
         public static readonly string SDStationLogosFolder = Path.Combine(CacheFolder, "SDStationLogos");
         public static readonly string SDStationLogosCacheFolder = Path.Combine(CacheFolder, "SDStationLogosCache");
 
         public static readonly string SDImagesFolder = Path.Combine(CacheFolder, "SDImages");
         public static readonly string EPGFolder = Path.Combine(PlayListFolder, "EPG");
         public static readonly string M3UFolder = Path.Combine(PlayListFolder, "M3U");
+
         //public static readonly string HLSOutputFolder = Path.Combine(AppDataFolder, "HLS");
         public static readonly string BackupFolder = Path.Combine(AppDataFolder, "Backups");
+
         public static readonly string SettingsFolder = Path.Combine(AppDataFolder, "Settings");
         public static readonly string RestoreFolder = Path.Combine(AppDataFolder, "Restore");
 
@@ -163,7 +172,7 @@ namespace StreamMaster.Domain.Configuration
         public static readonly string OutputProfileFileName = "outputprofiles.json";
         public static readonly string OutputProfileSettingsFile = GetSettingFilePath(OutputProfileFileName);
 
-        #endregion
+        #endregion File and Directory Path Fields
 
         public static List<string> GetSettingFiles()
         {
@@ -226,6 +235,6 @@ namespace StreamMaster.Domain.Configuration
             return !string.IsNullOrEmpty(envVar) ? envVar : defaultValue;
         }
 
-        #endregion
+        #endregion Helper Methods
     }
 }

@@ -23,7 +23,7 @@ public class MovieImages(ILogger<MovieImages> logger, IEPGCache<MovieImages> epg
 
         logger.LogInformation("Entering GetAllMoviePosters() for {totalObjects} movies.", moviePrograms.Count);
 
-        // query all movies from Schedules Direct
+        // query all movies from ScheduleService Direct
         foreach (MxfProgram? mxfProgram in moviePrograms)
         {
             if (mxfProgram.extras.ContainsKey("md5") && epgCache.JsonFiles.ContainsKey(mxfProgram.extras["md5"]) && epgCache.JsonFiles[mxfProgram.extras["md5"]].Images != null)
@@ -119,7 +119,7 @@ public class MovieImages(ILogger<MovieImages> logger, IEPGCache<MovieImages> epg
             // determine which program this belongs to
             MxfProgram mxfProgram = schedulesDirectData.FindOrCreateProgram(response.ProgramId);
 
-            // first choice is return from Schedules Direct
+            // first choice is return from ScheduleService Direct
             List<ProgramArtwork> artwork;
             artwork = SDHelpers.GetTieredImages(response.Data, ["episode"], artworkSize).Where(arg => arg.Aspect.Equals("2x3")).ToList();
             if (artwork.Any())

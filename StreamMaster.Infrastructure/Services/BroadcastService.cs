@@ -26,7 +26,7 @@ public class BroadcastService(
         //    printDebug("SchedulesDirectDatas: {0}", schedulesDirectDataService.SchedulesDirectDatas.Count);
         //    foreach (KeyValuePair<int, ISchedulesDirectData> sd in schedulesDirectDataService.SchedulesDirectDatas)
         //    {
-        //        printDebug("SchedulesDirectData: {0} {1} {2}", sd.Key, sd.Value.Services.Count, sd.Value.Programs.Count);
+        //        printDebug("SchedulesDirectData: {0} {1} {2}", sd.Key, sd.Value.Services.Count, sd.Value.ProgramService.Count);
         //    }
         //}
 
