@@ -5,76 +5,33 @@ namespace StreamMaster.SchedulesDirect.Domain.JsonClasses
 {
     internal class SingleOrListConverter<T> : JsonConverter<List<T>>
     {
-        public override bool CanConvert(Type typeToConvert)
-        {
-            return typeToConvert == typeof(List<T>);
-        }
-
         public override List<T> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            string rootString = "";
             try
             {
-                using JsonDocument doc = JsonDocument.ParseValue(ref reader);
-                JsonElement root = doc.RootElement;
-                rootString = root.GetRawText();
-
-                if (typeof(ProgramDescriptions).IsAssignableFrom(typeof(T)))
+                // Directly inspect the JSON value type
+                if (reader.TokenType == JsonTokenType.StartArray)
                 {
-                    List<T>? item2 = JsonSerializer.Deserialize<List<T>>(root.GetRawText(), options);
-                    return JsonSerializer.Deserialize<List<T>>(root.GetRawText(), options);
-                }
-
-                if (root.ValueKind == JsonValueKind.Array)
-                {
-                    List<T>? item2 = JsonSerializer.Deserialize<List<T>>(root.GetRawText(), options);
-                    return JsonSerializer.Deserialize<List<T>>(root.GetRawText(), options);
+                    return JsonSerializer.Deserialize<List<T>>(ref reader, options) ?? [];
                 }
                 else
                 {
-                    T item = JsonSerializer.Deserialize<T>(root.GetRawText(), options);
+                    // Deserialize single object into a list with one item
+                    T? item = JsonSerializer.Deserialize<T>(ref reader, options);
                     return [item];
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                // You can improve logging with a logging framework if needed
+                Console.WriteLine($"Error deserializing: {ex.Message}");
                 return [];
             }
         }
 
         public override void Write(Utf8JsonWriter writer, List<T> value, JsonSerializerOptions options)
         {
+            JsonSerializer.Serialize(writer, value, options);
         }
     }
-
-    //internal class SingleOrArrayConverter<T> : JsonConverter<T[]>
-    //{
-    //    public override bool CanConvert(Type typeToConvert)
-    //    {
-    //        return typeToConvert == typeof(T[]);
-    //    }
-
-    //    public override T[] Read(ref Utf8JsonReader reader, Type typeToConvert, JsonIndentOptions options)
-    //    {
-    //        using (JsonDocument doc = JsonDocument.ParseValue(ref reader))
-    //        {
-    //            JsonElement root = doc.RootElement;
-    //            if (root.ValueKind == JsonValueKind.Array)
-    //            {
-    //                return JsonSerializer.Deserialize<T[]>(root.GetRawText(), options);
-    //            }
-    //            else
-    //            {
-    //                T singleValue = JsonSerializer.Deserialize<T>(root.GetRawText(), options);
-    //                return new T[] { singleValue };
-    //            }
-    //        }
-    //    }
-
-    //    public override void Write(Utf8JsonWriter writer, T[] value, JsonIndentOptions options)
-    //    {
-
-    //    }
-    //}
 }

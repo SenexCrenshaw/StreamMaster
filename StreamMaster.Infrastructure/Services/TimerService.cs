@@ -44,10 +44,10 @@ namespace StreamMaster.Infrastructure.Services
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            while (!stoppingToken.IsCancellationRequested)
+            using PeriodicTimer timer = new(TimeSpan.FromMinutes(1));
+            while (await timer.WaitForNextTickAsync(stoppingToken))
             {
                 await DoWorkAsync(stoppingToken);
-                await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
             }
         }
 
