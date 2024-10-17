@@ -190,6 +190,7 @@ namespace StreamMaster.Infrastructure.Services.Downloads
                 }
                 else
                 {
+                    successfullyDownloaded.Add(nameLogo.Name);
                     imageDownloadServiceStatus.TotalNameLogoErrors++;
                 }
             }

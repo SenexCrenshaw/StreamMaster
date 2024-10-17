@@ -20,6 +20,7 @@ public class CommandProfileDict : IProfileDict<CommandProfile>
 {
     [JsonPropertyName("CommandProfiles")]
     public Dictionary<string, CommandProfile> CommandProfiles { get; set; } = [];
+
     public CommandProfile? GetProfile(string CommandProfileName)
     {
         return Profiles.TryGetValue(CommandProfileName, out CommandProfile? existingProfile)
@@ -42,7 +43,6 @@ public class CommandProfileDict : IProfileDict<CommandProfile>
 
     public CommandProfileDto GetDefaultProfileDto(string defaultName = "Default")
     {
-
         CommandProfile? defaultProfile = GetProfile(defaultName);
         return defaultProfile == null
             ? throw new Exception($"Command Profile {defaultName} not found")
@@ -104,5 +104,10 @@ public class CommandProfileDict : IProfileDict<CommandProfile>
     public void RemoveProfile(string ProfileName)
     {
         CommandProfiles.Remove(ProfileName);
+    }
+
+    public bool IsReadOnly(string ProfileName)
+    {
+        return GetProfile(ProfileName)?.IsReadOnly ?? false;
     }
 }

@@ -27,7 +27,6 @@ using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Builder;
 
 [assembly: TsGlobal(CamelCaseForProperties = false, CamelCaseForMethods = false, UseModules = true, DiscardNamespacesWhenUsingModules = true, AutoOptionalProperties = true, WriteWarningComment = false, ReorderMembers = true)]
-
 DirectoryHelper.CreateApplicationDirectories();
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -82,7 +81,6 @@ ConfigureSettings<SDSettings>(builder);
 ConfigureSettings<CommandProfileDict>(builder);
 ConfigureSettings<OutputProfileDict>(builder);
 
-
 void LoadAndSetSettings<TDict, TProfile>(string settingsFile, TDict defaultSetting)
     where TDict : IProfileDict<TProfile>
 {
@@ -102,32 +100,21 @@ void LoadAndSetSettings<TDict, TProfile>(string settingsFile, TDict defaultSetti
             if (!setting.Profiles.ContainsKey(defaultProfile.Key))
             {
                 // Add missing entries
-                setting.AddProfile(defaultProfile.Key,defaultProfile.Value);
+                setting.AddProfile(defaultProfile.Key, defaultProfile.Value);
+            }
+            else
+            {
+                if (defaultSetting.IsReadOnly(defaultProfile.Key))
+                {
+                    setting.Profiles[defaultProfile.Key] = defaultProfile.Value;
+                }
             }
         }
     }
-    //// If the setting is null or default, apply the entire default setting
-    //if (EqualityComparer<TDict>.Default.Equals(setting, default(TDict)))
-    //{
-    //    SettingsHelper.UpdateSetting(defaultSetting);
-    //    return;
-    //}
-
-    //// Ensure all entries from the default setting exist in the loaded setting
-    //foreach (var defaultProfile in defaultSetting.Profiles)
-    //{
-    //    if (!setting.Profiles.ContainsKey(defaultProfile.Key))
-    //    {
-    //        // Add missing entries
-    //        setting.Profiles[defaultProfile.Key] = defaultProfile.Value;
-    //    }
-    //}
 
     // Save the updated settings if changes were made
     SettingsHelper.UpdateSetting(setting);
 }
-
-
 
 // Helper method to load and validate settings
 void LoadAndValidateSettings<T>(string settingsFile, object defaultSetting)
@@ -188,7 +175,7 @@ builder.Services.AddCustomPlayListServices();
 
 var setting = SettingsHelper.GetSetting<Setting>(BuildInfo.SettingsFile);
 
-    builder.Services.AddWebUIServices(builder, setting?.EnableDBDebug?? false);
+builder.Services.AddWebUIServices(builder, setting?.EnableDBDebug ?? false);
 
 builder.Services.Configure<RouteOptions>(options => options.LowercaseUrls = true);
 
@@ -249,7 +236,7 @@ app.UseSession();
 
 using (IServiceScope scope = app.Services.CreateScope())
 {
-       RepositoryContextInitializer initialiser = scope.ServiceProvider.GetRequiredService<RepositoryContextInitializer>();
+    RepositoryContextInitializer initialiser = scope.ServiceProvider.GetRequiredService<RepositoryContextInitializer>();
     await initialiser.InitializeAsync().ConfigureAwait(false);
     if (app.Environment.IsDevelopment())
     {
@@ -257,7 +244,7 @@ using (IServiceScope scope = app.Services.CreateScope())
     }
 
     IImageDownloadService imageDownloadService = scope.ServiceProvider.GetRequiredService<IImageDownloadService>();
-     imageDownloadService.Start();
+    imageDownloadService.Start();
 }
 
 app.UseDefaultFiles();
@@ -283,7 +270,7 @@ app.UseMiddleware<CacheHeaderMiddleware>();
 
 //if (app.Environment.IsDevelopment())
 //{
-//    //RecurringJob.AddOrUpdate("Hello World", () => Console.WriteLine("hello world"), Cron.Minutely);    
+//    //RecurringJob.AddOrUpdate("Hello World", () => Console.WriteLine("hello world"), Cron.Minutely);
 //}
 //else
 //{

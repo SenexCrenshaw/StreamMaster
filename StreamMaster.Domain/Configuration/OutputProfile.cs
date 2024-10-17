@@ -12,11 +12,11 @@ public class OutputProfile
     [Ignore]
     [JsonIgnore]
     [IgnoreMember]
-
     public static string APIName => "GetOutputProfiles";
 
     public bool IsReadOnly { get; set; } = false;
     public bool EnableIcon { get; set; } = true;
+
     //public bool EnableId { get; set; } = true;
     public bool EnableGroupTitle { get; set; } = true;
 
@@ -26,10 +26,11 @@ public class OutputProfile
 
     public string Id { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
+
     //public string EPGId { get; set; } = string.Empty;
     public string Group { get; set; } = string.Empty;
-    //public string ChannelNumber { get; set; } = string.Empty;
 
+    //public string ChannelNumber { get; set; } = string.Empty;
 }
 
 //[TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
@@ -45,7 +46,6 @@ public record OutputProfileRequest
     //public string? EPGId { get; set; }
     public string? Group { get; set; }
     //public string? ChannelNumber { get; set; }
-
 }
 
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
@@ -58,6 +58,7 @@ public class OutputProfileDict : IProfileDict<OutputProfile>
 {
     [JsonPropertyName("OutputProfiles")]
     public Dictionary<string, OutputProfile> OutputProfiles { get; set; } = [];
+
     public OutputProfile? GetProfile(string OutputProfileName)
     {
         return Profiles.TryGetValue(OutputProfileName, out OutputProfile? existingProfile)
@@ -70,7 +71,6 @@ public class OutputProfileDict : IProfileDict<OutputProfile>
 
     public OutputProfileDto GetDefaultProfileDto(string defaultName = "Default")
     {
-
         OutputProfile? defaultProfile = GetProfile(defaultName);
         return defaultProfile == null
             ? throw new Exception($"Command Profile {defaultName} not found")
@@ -98,8 +98,8 @@ public class OutputProfileDict : IProfileDict<OutputProfile>
     public OutputProfileDto GetProfileDto(string OutputProfileName)
     {
         return GetDefaultProfileDto(OutputProfileName);
-
     }
+
     public List<OutputProfileDto> GetProfilesDto()
     {
         List<OutputProfileDto> ret = [];
@@ -128,12 +128,11 @@ public class OutputProfileDict : IProfileDict<OutputProfile>
         return ret;
     }
 
-
     public void AddProfile(string ProfileName, OutputProfile Profile)
     {
         OutputProfiles.Add(ProfileName, Profile);
-
     }
+
     public void AddProfiles(Dictionary<string, dynamic> profiles)
     {
         OutputProfiles = profiles.ToDictionary(
@@ -145,5 +144,10 @@ public class OutputProfileDict : IProfileDict<OutputProfile>
     public void RemoveProfile(string ProfileName)
     {
         OutputProfiles.Remove(ProfileName);
+    }
+
+    public bool IsReadOnly(string ProfileName)
+    {
+        return GetProfile(ProfileName)?.IsReadOnly ?? false;
     }
 }
