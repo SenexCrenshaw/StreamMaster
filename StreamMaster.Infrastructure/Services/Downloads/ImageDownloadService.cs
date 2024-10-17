@@ -106,7 +106,7 @@ namespace StreamMaster.Infrastructure.Services.Downloads
             }
 
             // Only refresh if items were processed and the throttle time has passed
-            if (shouldRefresh || areQueuesEmpty || imageDownloadQueue.ProgramMetadataCount <= BatchSize)
+            if (shouldRefresh || areQueuesEmpty || imageDownloadQueue.ProgramMetadataCount <= BatchSize || imageDownloadQueue.NameLogoCount <= BatchSize)
             {
                 await dataRefreshService.RefreshDownloadServiceStatus();
             }
@@ -148,6 +148,7 @@ namespace StreamMaster.Infrastructure.Services.Downloads
             }
 
             imageDownloadQueue.TryDequeueProgramMetadataBatch(successfullyDownloaded);
+            imageDownloadServiceStatus.TotalProgramMetadata = imageDownloadQueue.ProgramMetadataCount;
             return successfullyDownloaded.Count != 0;
         }
 
@@ -194,6 +195,7 @@ namespace StreamMaster.Infrastructure.Services.Downloads
             }
 
             imageDownloadQueue.TryDequeueNameLogoBatch(successfullyDownloaded);
+            imageDownloadServiceStatus.TotalNameLogo = imageDownloadQueue.NameLogoCount;
             return successfullyDownloaded.Count != 0;
         }
 
