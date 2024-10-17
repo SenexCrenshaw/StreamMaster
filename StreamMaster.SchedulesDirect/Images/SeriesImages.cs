@@ -3,9 +3,15 @@ using System.Collections.Specialized;
 using System.Text.Json;
 
 namespace StreamMaster.SchedulesDirect.Images;
-public class SeriesImages(ILogger<SeriesImages> logger, IEPGCache<SeriesImages> epgCache, IImageDownloadQueue imageDownloadQueue, IOptionsMonitor<SDSettings> intSettings, ISchedulesDirectAPIService schedulesDirectAPI, ISchedulesDirectDataService schedulesDirectDataService) : ISeriesImages
+
+public class SeriesImages : ISeriesImages, IDisposable
 {
-    private readonly SDSettings sdsettings = intSettings.CurrentValue;
+    private readonly ILogger<SeriesImages> logger;
+    private readonly IEPGCache<SeriesImages> epgCache;
+    private readonly IImageDownloadQueue imageDownloadQueue;
+    private readonly ISchedulesDirectAPIService schedulesDirectAPI;
+    private readonly ISchedulesDirectDataService schedulesDirectDataService;
+    private readonly IOptionsMonitor<SDSettings> sdsettings;
 
     private List<string> seriesImageQueue = [];
     private ConcurrentBag<ProgramMetadata> seriesImageResponses = [];
@@ -13,14 +19,31 @@ public class SeriesImages(ILogger<SeriesImages> logger, IEPGCache<SeriesImages> 
 
     private int processedObjects;
     private int totalObjects;
+    private readonly SemaphoreSlim semaphore;
 
+    public SeriesImages(
+        ILogger<SeriesImages> logger,
+        IEPGCache<SeriesImages> epgCache,
+        IImageDownloadQueue imageDownloadQueue,
+        IOptionsMonitor<SDSettings> intSettings,
+        ISchedulesDirectAPIService schedulesDirectAPI,
+        ISchedulesDirectDataService schedulesDirectDataService)
+    {
+        this.logger = logger;
+        this.epgCache = epgCache;
+        this.imageDownloadQueue = imageDownloadQueue;
+        this.schedulesDirectAPI = schedulesDirectAPI;
+        this.schedulesDirectDataService = schedulesDirectDataService;
+        sdsettings = intSettings;
+        semaphore = new SemaphoreSlim(SchedulesDirect.MaxParallelDownloads);
+    }
 
     public async Task<bool> GetAllSeriesImages()
     {
-        //epgCache.LoadCache();
-        // reset counters
+        // Reset state
         seriesImageQueue = [];
         seriesImageResponses = [];
+        processedObjects = 0;
 
         ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
         List<SeriesInfo> toProcess = schedulesDirectData.SeriesInfosToProcess;
@@ -28,62 +51,22 @@ public class SeriesImages(ILogger<SeriesImages> logger, IEPGCache<SeriesImages> 
         logger.LogInformation("Entering GetAllSeriesImages() for {totalObjects} series.", toProcess.Count);
         int refreshing = 0;
 
-
-
-        // scan through each series in the mxf
         foreach (SeriesInfo series in toProcess)
         {
-            string seriesId;
-
-            //MxfProgram? prog = schedulesDirectData.ProgramService.FirstOrDefault(a => a.ProgramId == series.ProtoTypicalProgram);
-            if (string.IsNullOrEmpty(series.ProtoTypicalProgram) || !schedulesDirectData.Programs.TryGetValue(series.ProtoTypicalProgram, out MxfProgram? program))
+            if (string.IsNullOrEmpty(series.ProtoTypicalProgram) ||
+                !schedulesDirectData.Programs.TryGetValue(series.ProtoTypicalProgram, out MxfProgram? program))
             {
                 continue;
             }
 
-            // if image for series already exists in archive file, use it
-            // cycle images for a refresh based on day of month and seriesid
-            bool refresh = false;
-            if (int.TryParse(series.SeriesId, out int digits))
-            {
-                refresh = (digits * sdsettings.SDStationIds.Count % DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month)) + 1 == DateTime.Now.Day;
-                seriesId = $"SH{series.SeriesId}0000";
-            }
-            else
-            {
-                seriesId = series.SeriesId;
-            }
+            bool refresh = ShouldRefreshSeries(series.SeriesId, out string seriesId);
 
             if (!refresh && epgCache.JsonFiles.TryGetValue(seriesId, out EPGJsonCache? value) && !string.IsNullOrEmpty(value.Images))
             {
-                //IncrementProgress();
-                if (value.Images == string.Empty)
-                {
-                    continue;
-                }
-
-                List<ProgramArtwork>? artwork;
-                using (StringReader reader = new(value.Images))
-                {
-                    artwork = JsonSerializer.Deserialize<List<ProgramArtwork>>(reader.ReadToEnd());
-                }
-
-                // Add artwork to series.extras
-                if (artwork != null)
-                {
-                    series.Extras.AddOrUpdate("artwork", artwork);
-                }
-
-                MxfGuideImage? res = epgCache.GetGuideImageAndUpdateCache(artwork, ImageType.Series);
-                if (res != null)
-                {
-                    series.MxfGuideImage = res;
-                }
-
+                ProcessCachedImages(series, value);
             }
-            else if (int.TryParse(series.SeriesId, out int dummy))
+            else if (int.TryParse(series.SeriesId, out _))
             {
-                // only increment the refresh count if something exists already
                 if (refresh && epgCache.JsonFiles.TryGetValue(seriesId, out EPGJsonCache? cache) && cache.Images != null)
                 {
                     ++refreshing;
@@ -92,14 +75,16 @@ public class SeriesImages(ILogger<SeriesImages> logger, IEPGCache<SeriesImages> 
             }
             else
             {
-                string[]? s = SportsSeries.GetValues(series.SeriesId);
-                if (s != null)
+                string[]? sport = SportsSeries.GetValues(series.SeriesId);
+                if (sport != null)
                 {
-                    seriesImageQueue.AddRange(s);
+                    seriesImageQueue.AddRange(sport);
                 }
             }
         }
+
         logger.LogDebug("Found {processedObjects} cached/unavailable series image links.", processedObjects);
+
         if (refreshing > 0)
         {
             logger.LogDebug("Refreshing {refreshing} series image links.", refreshing);
@@ -107,100 +92,97 @@ public class SeriesImages(ILogger<SeriesImages> logger, IEPGCache<SeriesImages> 
 
         if (seriesImageQueue.Count > 0)
         {
-            SemaphoreSlim semaphore = new(SchedulesDirect.MaxParallelDownloads, SchedulesDirect.MaxParallelDownloads);
-            List<Task> tasks = [];
-            int processedCount = 0;
-
-            for (int i = 0; i <= seriesImageQueue.Count / SchedulesDirect.MaxImgQueries; i++)
-            {
-                int startIndex = i * SchedulesDirect.MaxImgQueries;
-                tasks.Add(Task.Run(async () =>
-                {
-                    await semaphore.WaitAsync();
-                    try
-                    {
-                        int itemCount = Math.Min(seriesImageQueue.Count - startIndex, SchedulesDirect.MaxImgQueries);
-                        await schedulesDirectAPI.DownloadImageResponsesAsync(seriesImageQueue, seriesImageResponses, startIndex).ConfigureAwait(false);
-                        Interlocked.Add(ref processedCount, itemCount);
-                        logger.LogInformation("Downloaded series image information {ProcessedCount} of {TotalCount}", processedCount, seriesImageQueue.Count);
-                    }
-                    catch (Exception ex)
-                    {
-                        logger.LogError(ex, "Error downloading series images at {StartIndex}", startIndex);
-                    }
-                    finally
-                    {
-                        semaphore.Release();
-                    }
-                }));
-            }
-
-            await Task.WhenAll(tasks).ConfigureAwait(false);
-
-            // Continue with the rest of your processing
-            ProcessSeriesImageResponses();
-            imageDownloadQueue.EnqueueProgramMetadataCollection(seriesImageResponses);
-
-            if (processedObjects != totalObjects)
-            {
-                logger.LogWarning("Failed to download and process {FailedCount} series image links.", toProcess.Count - processedObjects);
-            }
+            await DownloadAndProcessImagesAsync().ConfigureAwait(false);
         }
 
-
-        //UpdateIcons(toProcess);
-
         logger.LogInformation("Exiting GetAllSeriesImages(). SUCCESS.");
-        seriesImageQueue = []; SportsSeries = []; seriesImageResponses = [];
+        ResetCache();
         epgCache.SaveCache();
         return true;
     }
 
+    private bool ShouldRefreshSeries(string seriesId, out string finalSeriesId)
+    {
+        bool refresh = false;
+        if (int.TryParse(seriesId, out int digits))
+        {
+            refresh = (digits * sdsettings.CurrentValue.SDStationIds.Count % DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month)) + 1 == DateTime.Now.Day;
+            finalSeriesId = $"SH{seriesId}0000";
+        }
+        else
+        {
+            finalSeriesId = seriesId;
+        }
+        return refresh;
+    }
+
+    private void ProcessCachedImages(SeriesInfo series, EPGJsonCache value)
+    {
+        if (string.IsNullOrEmpty(value.Images))
+        {
+            return;
+        }
+
+        List<ProgramArtwork>? artwork = JsonSerializer.Deserialize<List<ProgramArtwork>>(value.Images);
+        if (artwork != null)
+        {
+            series.Extras.AddOrUpdate("artwork", artwork);
+            MxfGuideImage? guideImage = epgCache.GetGuideImageAndUpdateCache(artwork, ImageType.Series);
+            if (guideImage != null)
+            {
+                series.MxfGuideImage = guideImage;
+            }
+        }
+    }
+
+    private async Task DownloadAndProcessImagesAsync()
+    {
+        List<Task> tasks = [];
+        int processedCount = 0;
+
+        for (int i = 0; i <= seriesImageQueue.Count / SchedulesDirect.MaxImgQueries; i++)
+        {
+            int startIndex = i * SchedulesDirect.MaxImgQueries;
+            tasks.Add(Task.Run(async () =>
+            {
+                await semaphore.WaitAsync();
+                try
+                {
+                    int itemCount = Math.Min(seriesImageQueue.Count - startIndex, SchedulesDirect.MaxImgQueries);
+                    await schedulesDirectAPI.DownloadImageResponsesAsync(seriesImageQueue, seriesImageResponses, startIndex).ConfigureAwait(false);
+                    Interlocked.Add(ref processedCount, itemCount);
+                    logger.LogInformation("Downloaded series image information {ProcessedCount} of {TotalCount}", processedCount, seriesImageQueue.Count);
+                }
+                finally
+                {
+                    semaphore.Release();
+                }
+            }));
+        }
+
+        await Task.WhenAll(tasks).ConfigureAwait(false);
+        ProcessSeriesImageResponses();
+        imageDownloadQueue.EnqueueProgramMetadataCollection(seriesImageResponses);
+    }
+
     private void ProcessSeriesImageResponses()
     {
-
-        string artworkSize = string.IsNullOrEmpty(sdsettings.ArtworkSize) ? "Md" : sdsettings.ArtworkSize;
-        // process request response
+        string artworkSize = string.IsNullOrEmpty(sdsettings.CurrentValue.ArtworkSize) ? "Md" : sdsettings.CurrentValue.ArtworkSize;
         IEnumerable<ProgramMetadata> toProcess = seriesImageResponses.Where(a => !string.IsNullOrEmpty(a.ProgramId) && a.Data != null && a.Code == 0);
+
         logger.LogInformation("Processing {count} series image responses.", toProcess.Count());
-        foreach (ProgramMetadata response in seriesImageResponses)
+
+        foreach (ProgramMetadata response in toProcess)
         {
             ++processedObjects;
-            //IncrementProgress();
-            string programId = response.ProgramId!;
-            string uid = response.ProgramId!;
-
             ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
-            SeriesInfo? series = null;
-            if (programId.StartsWith("SP"))
-            {
-                foreach (string? key in SportsSeries.AllKeys)
-                {
-                    if (key is null)
-                    {
-                        continue;
-                    }
-                    string? sport = SportsSeries.Get(key);
+            SeriesInfo? series = response.ProgramId.StartsWith("SP") ? GetSportsSeries(response) : schedulesDirectData.FindOrCreateSeriesInfo(response.ProgramId.Substring(2, 8));
 
-                    if (sport is not null && !sport.Contains(response.ProgramId))
-                    {
-                        continue;
-                    }
-
-                    series = schedulesDirectData.FindOrCreateSeriesInfo(key);
-                    uid = key;
-                }
-            }
-            else
-            {
-                series = schedulesDirectData.FindOrCreateSeriesInfo(response.ProgramId.Substring(2, 8));
-            }
             if (series == null || !string.IsNullOrEmpty(series.GuideImage) || series.Extras.ContainsKey("artwork"))
             {
                 continue;
             }
 
-            // get series images
             List<ProgramArtwork> artwork = SDHelpers.GetTieredImages(response.Data, ["series", "sport", "episode"], artworkSize);
             if (response.ProgramId.StartsWith("SP") && artwork.Count <= 0)
             {
@@ -208,14 +190,31 @@ public class SeriesImages(ILogger<SeriesImages> logger, IEPGCache<SeriesImages> 
             }
 
             series.Extras.Add("artwork", artwork);
-
-            MxfGuideImage? res = epgCache.GetGuideImageAndUpdateCache(artwork, ImageType.Series, uid);
+            MxfGuideImage? res = epgCache.GetGuideImageAndUpdateCache(artwork, ImageType.Series, response.ProgramId);
             if (res != null)
             {
-
                 series.MxfGuideImage = res;
             }
         }
+    }
+
+    private SeriesInfo? GetSportsSeries(ProgramMetadata response)
+    {
+        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
+        foreach (string? key in SportsSeries.AllKeys)
+        {
+            if (key is null)
+            {
+                continue;
+            }
+
+            string? sport = SportsSeries.Get(key);
+            if (sport != null && sport.Contains(response.ProgramId))
+            {
+                return schedulesDirectData.FindOrCreateSeriesInfo(key);
+            }
+        }
+        return null;
     }
 
     public void ResetCache()
@@ -231,5 +230,11 @@ public class SeriesImages(ILogger<SeriesImages> logger, IEPGCache<SeriesImages> 
     public void ClearCache()
     {
         epgCache.ResetCache();
+    }
+
+    public void Dispose()
+    {
+        semaphore.Dispose();
+        GC.SuppressFinalize(this);
     }
 }

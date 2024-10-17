@@ -2,44 +2,59 @@
 using System.Text.Json;
 
 namespace StreamMaster.SchedulesDirect.Images;
-public class SportsImages(ILogger<SportsImages> logger, IEPGCache<SportsImages> epgCache, IImageDownloadQueue imageDownloadQueue, IOptionsMonitor<SDSettings> intSettings, ISchedulesDirectAPIService schedulesDirectAPI)
-    : ISportsImages
-{
-    public List<MxfProgram> SportEvents { get; set; } = [];
-    private List<string> sportsImageQueue = [];
-    private ConcurrentBag<ProgramMetadata> sportsImageResponses = [];
-    private readonly SDSettings sdsettings = intSettings.CurrentValue;
 
+public class SportsImages : ISportsImages, IDisposable
+{
+    private readonly ILogger<SportsImages> logger;
+    private readonly IEPGCache<SportsImages> epgCache;
+    private readonly IImageDownloadQueue imageDownloadQueue;
+    private readonly ISchedulesDirectAPIService schedulesDirectAPI;
+    private readonly SDSettings sdsettings;
+    private readonly SemaphoreSlim semaphore;
+
+    public List<MxfProgram> SportEvents { get; set; } = [];
+    private readonly List<string> sportsImageQueue = [];
+    private readonly ConcurrentBag<ProgramMetadata> sportsImageResponses = [];
     private int processedObjects;
     private int totalObjects;
 
+    public SportsImages(
+        ILogger<SportsImages> logger,
+        IEPGCache<SportsImages> epgCache,
+        IImageDownloadQueue imageDownloadQueue,
+        IOptionsMonitor<SDSettings> intSettings,
+        ISchedulesDirectAPIService schedulesDirectAPI)
+    {
+        this.logger = logger;
+        this.epgCache = epgCache;
+        this.imageDownloadQueue = imageDownloadQueue;
+        this.schedulesDirectAPI = schedulesDirectAPI;
+        sdsettings = intSettings.CurrentValue;
+        semaphore = new SemaphoreSlim(SchedulesDirect.MaxParallelDownloads);
+    }
+
     public async Task<bool> GetAllSportsImages()
     {
+        // Reset counters
+        ResetCache();
 
-        // reset counters
-        sportsImageQueue = [];
-        sportsImageResponses = [];
-        //IncrementNextStage(SportEvents.Count);
         if (!sdsettings.SeasonEventImages)
         {
             return true;
         }
 
-        // scan through each series in the mxf
         logger.LogInformation("Entering GetAllSportsImages() for {totalObjects} sports events.", SportEvents.Count);
+
         foreach (MxfProgram sportEvent in SportEvents)
         {
-            string md5 = sportEvent.extras["md5"];
-            if (epgCache.JsonFiles.ContainsKey(md5) && !string.IsNullOrEmpty(epgCache.JsonFiles[md5].Images))
+            if (sportEvent.extras.TryGetValue("md5", out dynamic? md5))
             {
-                //IncrementProgress();              
-                using StringReader reader = new(epgCache.JsonFiles[md5].Images);
-
-                List<ProgramArtwork>? artwork = JsonSerializer.Deserialize<List<ProgramArtwork>>(reader.ReadToEnd());
-                if (artwork != null)
+                if (epgCache.JsonFiles.TryGetValue(md5, out EPGJsonCache? cachedFile))
                 {
-                    //sportEvent.extras.AddOrUpdate("artwork", artwork);
-                    //sportEvent.mxfGuideImage = epgCache.GetGuideImageAndUpdateCache(artwork, ImageType.Program);
+                    if (cachedFile != null && !string.IsNullOrEmpty(cachedFile.Images))
+                    {
+                        ProcessCachedImages(sportEvent, cachedFile);
+                    }
                 }
             }
             else
@@ -47,93 +62,67 @@ public class SportsImages(ILogger<SportsImages> logger, IEPGCache<SportsImages> 
                 sportsImageQueue.Add(sportEvent.ProgramId);
             }
         }
-        logger.LogDebug($"Found {processedObjects} cached/unavailable sport event image links.");
 
-        // maximum 500 queries at a time
+        logger.LogDebug("Found {processedObjects} cached/unavailable sport event image links.", processedObjects);
+
         if (sportsImageQueue.Count > 0)
         {
-            SemaphoreSlim semaphore = new(SchedulesDirect.MaxParallelDownloads, SchedulesDirect.MaxParallelDownloads);
-            List<Task> tasks = [];
-            int processedCount = 0;
-
-            for (int i = 0; i <= sportsImageQueue.Count / SchedulesDirect.MaxImgQueries; i++)
-            {
-                int startIndex = i * SchedulesDirect.MaxImgQueries;
-                tasks.Add(Task.Run(async () =>
-                {
-                    await semaphore.WaitAsync();
-                    try
-                    {
-                        int itemCount = Math.Min(sportsImageQueue.Count - startIndex, SchedulesDirect.MaxImgQueries);
-                        await schedulesDirectAPI.DownloadImageResponsesAsync(sportsImageQueue, sportsImageResponses, startIndex).ConfigureAwait(false);
-                        Interlocked.Add(ref processedCount, itemCount);
-                        logger.LogInformation("Downloaded sport event images {ProcessedCount} of {TotalCount}", processedCount, sportsImageQueue.Count);
-                    }
-                    catch (Exception ex)
-                    {
-                        logger.LogError(ex, "Error downloading sport event images at {StartIndex}", startIndex);
-                    }
-                    finally
-                    {
-                        semaphore.Release();
-                    }
-                }));
-            }
-
-            await Task.WhenAll(tasks).ConfigureAwait(false);
-
-            // Continue with the rest of your processing
-            ProcessSportsImageResponses();
-            imageDownloadQueue.EnqueueProgramMetadataCollection(sportsImageResponses);
-
-            if (processedObjects != totalObjects)
-            {
-                logger.LogWarning("Failed to download and process {FailedCount} sport event image links.", SportEvents.Count - processedObjects);
-            }
+            await DownloadAndProcessImagesAsync().ConfigureAwait(false);
         }
 
-        //if (sportsImageQueue.Count > 0)
-        //{
-        //    _ = Parallel.For(0, (sportsImageQueue.Count / SchedulesDirect.MaxImgQueries) + 1, new ParallelOptions { MaxDegreeOfParallelism = SchedulesDirect.MaxParallelDownloads }, i =>
-        //    {
-        //        DownloadImageResponses(sportsImageQueue, sportsImageResponses, i * SchedulesDirect.MaxImgQueries);
-        //    });
-
-        //    ProcessSportsImageResponses();
-        //    imageDownloadQueue.EnqueueProgramMetadataCollection(sportsImageResponses);
-        //    //await DownloadImages(sportsImageResponses, cancellationToken);
-        //    if (processedObjects != totalObjects)
-        //    {
-        //        logger.LogWarning($"Failed to download and process {SportEvents.Count - processedObjects} sport event image links.");
-        //    }
-        //}
-
-        //UpdateIcons(SportEvents);
-
         logger.LogInformation("Exiting GetAllSportsImages(). SUCCESS.");
-
-        sportsImageQueue = []; sportsImageResponses = []; SportEvents.Clear();
+        ResetCache();
         epgCache.SaveCache();
         return true;
     }
 
+    private void ProcessCachedImages(MxfProgram sportEvent, EPGJsonCache cachedFile)
+    {
+        List<ProgramArtwork>? artwork = JsonSerializer.Deserialize<List<ProgramArtwork>>(cachedFile.Images);
+        if (artwork != null)
+        {
+            // Add artwork to the program
+            sportEvent.extras.AddOrUpdate("artwork", artwork);
+            sportEvent.mxfGuideImage = epgCache.GetGuideImageAndUpdateCache(artwork, ImageType.Program);
+        }
+    }
 
+    private async Task DownloadAndProcessImagesAsync()
+    {
+        List<Task> tasks = [];
+        int processedCount = 0;
+
+        for (int i = 0; i <= sportsImageQueue.Count / SchedulesDirect.MaxImgQueries; i++)
+        {
+            int startIndex = i * SchedulesDirect.MaxImgQueries;
+            tasks.Add(Task.Run(async () =>
+            {
+                await semaphore.WaitAsync();
+                try
+                {
+                    int itemCount = Math.Min(sportsImageQueue.Count - startIndex, SchedulesDirect.MaxImgQueries);
+                    await schedulesDirectAPI.DownloadImageResponsesAsync(sportsImageQueue, sportsImageResponses, startIndex).ConfigureAwait(false);
+                    Interlocked.Add(ref processedCount, itemCount);
+                    logger.LogInformation("Downloaded sport event images {ProcessedCount} of {TotalCount}", processedCount, sportsImageQueue.Count);
+                }
+                finally
+                {
+                    semaphore.Release();
+                }
+            }));
+        }
+
+        await Task.WhenAll(tasks).ConfigureAwait(false);
+        ProcessSportsImageResponses();
+        imageDownloadQueue.EnqueueProgramMetadataCollection(sportsImageResponses);
+    }
 
     private void ProcessSportsImageResponses()
     {
-        // process request response
-        if (sportsImageResponses == null)
-        {
-            return;
-        }
-
-
         string artworkSize = string.IsNullOrEmpty(sdsettings.ArtworkSize) ? "Md" : sdsettings.ArtworkSize;
 
         foreach (ProgramMetadata response in sportsImageResponses)
         {
-            ++processedObjects;
-            //IncrementProgress();
             if (response.Data == null)
             {
                 continue;
@@ -145,11 +134,10 @@ public class SportsImages(ILogger<SportsImages> logger, IEPGCache<SportsImages> 
                 continue;
             }
 
-            // get sports event images      
             List<ProgramArtwork> artwork = SDHelpers.GetTieredImages(response.Data, ["team event", "sport event"], artworkSize);
-            //mxfProgram.extras.AddOrUpdate("artwork", artwork);
 
-            //mxfProgram.mxfGuideImage = epgCache.GetGuideImageAndUpdateCache(artwork, ImageType.Program, mxfProgram.extras["md5"]);
+            program.extras.AddOrUpdate("artwork", artwork);
+            program.mxfGuideImage = epgCache.GetGuideImageAndUpdateCache(artwork, ImageType.Program, program.extras["md5"]);
         }
     }
 
@@ -158,7 +146,6 @@ public class SportsImages(ILogger<SportsImages> logger, IEPGCache<SportsImages> 
         SportEvents.Clear();
         sportsImageQueue.Clear();
         sportsImageResponses.Clear();
-
         processedObjects = 0;
         totalObjects = 0;
     }
@@ -167,5 +154,10 @@ public class SportsImages(ILogger<SportsImages> logger, IEPGCache<SportsImages> 
     {
         epgCache.ResetCache();
     }
-}
 
+    public void Dispose()
+    {
+        semaphore.Dispose();
+        GC.SuppressFinalize(this);
+    }
+}

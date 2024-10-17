@@ -2,11 +2,10 @@
 using StreamMaster.Domain.Helpers;
 using StreamMaster.Domain.Models;
 
-
 namespace StreamMaster.SchedulesDirect;
+
 public partial class SchedulesDirect
 {
-
     public async Task<List<CountryData>?> GetAvailableCountries(CancellationToken cancellationToken)
     {
         if (!_sdSettings.CurrentValue.SDEnabled)
@@ -108,7 +107,6 @@ public partial class SchedulesDirect
         AddRemoveLineupResponse? ret = await schedulesDirectAPI.GetApiResponse<AddRemoveLineupResponse>(APIMethod.PUT, $"lineups/{lineup}", cancellationToken: cancellationToken).ConfigureAwait(false);
         if (ret != null)
         {
-
             logger.LogDebug($"Successfully added lineup {lineup} to account. serverID: {ret.ServerId} , message: {ret.Message} , changesRemaining: {ret.ChangesRemaining}");
             return ret.ChangesRemaining;
         }
@@ -145,7 +143,6 @@ public partial class SchedulesDirect
         else
         {
             logger.LogError("Failed to get a response from Schedules Direct when trying to remove lineup {lineup}.", lineup);
-
         }
         return -1;
     }
