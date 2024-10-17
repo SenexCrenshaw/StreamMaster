@@ -10,6 +10,8 @@ namespace StreamMaster.Infrastructure.Services.Downloads
     {
         private readonly ConcurrentDictionary<string, ProgramMetadata> programMetadataQueue = new();
         private readonly ConcurrentDictionary<string, NameLogo> nameLogoQueue = new();
+        private readonly object programMetadataLock = new();
+        private readonly object nameLogoLock = new();
 
         public void EnqueueProgramMetadata(ProgramMetadata metadata)
         {
@@ -20,6 +22,7 @@ namespace StreamMaster.Infrastructure.Services.Downloads
         {
             nameLogoQueue.TryAdd(nameLogo.Name, nameLogo);
         }
+
         public void EnqueueProgramMetadataCollection(IEnumerable<ProgramMetadata> metadataCollection)
         {
             foreach (ProgramMetadata metadata in metadataCollection)
@@ -28,35 +31,40 @@ namespace StreamMaster.Infrastructure.Services.Downloads
             }
         }
 
-        public ProgramMetadata? GetNextProgramMetadata()
+        public List<ProgramMetadata> GetNextProgramMetadataBatch(int batchSize)
         {
-            return programMetadataQueue.IsEmpty ? null : programMetadataQueue.First().Value;
+            lock (programMetadataLock)
+            {
+                return programMetadataQueue.Take(batchSize).Select(x => x.Value).ToList();
+            }
         }
 
-        public NameLogo? GetNextNameLogo()
+        public List<NameLogo> GetNextNameLogoBatch(int batchSize)
         {
-            return nameLogoQueue.IsEmpty ? null : nameLogoQueue.First().Value;
+            lock (nameLogoLock)
+            {
+                return nameLogoQueue.Take(batchSize).Select(x => x.Value).ToList();
+            }
         }
 
-        public void TryDequeueProgramMetadata(string id)
+        public void TryDequeueProgramMetadataBatch(IEnumerable<string> ids)
         {
-            programMetadataQueue.TryRemove(id, out _);
+            foreach (string id in ids)
+            {
+                programMetadataQueue.TryRemove(id, out _);
+            }
         }
 
-        public void TryDequeueNameLogo(string id)
+        public void TryDequeueNameLogoBatch(IEnumerable<string> names)
         {
-            nameLogoQueue.TryRemove(id, out _);
+            foreach (string name in names)
+            {
+                nameLogoQueue.TryRemove(name, out _);
+            }
         }
 
-        public int ProgramMetadataCount()
-        {
-            return programMetadataQueue.Count;
-        }
-
-        public int NameLogoCount()
-        {
-            return nameLogoQueue.Count;
-        }
+        public int ProgramMetadataCount => programMetadataQueue.Count;
+        public int NameLogoCount => nameLogoQueue.Count;
 
         public bool IsProgramMetadataQueueEmpty()
         {

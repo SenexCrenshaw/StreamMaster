@@ -19,7 +19,7 @@ public static class ConfigureServices
         _ = services.AddSingleton<ISchedulesDirect, SchedulesDirect>();
         _ = services.AddSingleton<IXMLTVBuilder, XMLTVBuilder>();
         _ = services.AddSingleton<IDescriptions, Descriptions>();
-        _ = services.AddSingleton<ILineups, Lineups>();
+        _ = services.AddSingleton<ILineupService, LineupService>();
         _ = services.AddSingleton<ISchedules, Schedules>();
         _ = services.AddSingleton<IPrograms, Programs>();
         _ = services.AddSingleton<IKeywords, Keywords>();

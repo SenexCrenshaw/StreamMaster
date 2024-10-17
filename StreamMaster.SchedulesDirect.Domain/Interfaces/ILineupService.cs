@@ -2,7 +2,7 @@
 
 namespace StreamMaster.SchedulesDirect.Domain.Interfaces
 {
-    public interface ILineups : IEPGCached
+    public interface ILineupService : IEPGCached
     {
         Task<bool> BuildLineupServices(CancellationToken cancellationToken = default);
         Task<List<SubscribedLineup>> GetLineups(CancellationToken cancellationToken);

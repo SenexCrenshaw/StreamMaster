@@ -28,18 +28,17 @@ export interface FieldData
 export interface ImageDownloadServiceStatus
 {
 	Id: number;
-	TotalAlreadyExists: number;
 	TotalNameLogo: number;
 	TotalNameLogoAlreadyExists: number;
 	TotalNameLogoDownloadAttempts: number;
 	TotalNameLogoErrors: number;
 	TotalNameLogoSuccessful: number;
-	TotalNoArt: number;
 	TotalProgramMetadata: number;
 	TotalProgramMetadataAlreadyExists: number;
 	TotalProgramMetadataDownloadAttempts: number;
+	TotalProgramMetadataDownloaded: number;
 	TotalProgramMetadataErrors: number;
-	TotalProgramMetadataSuccessful: number;
+	TotalProgramMetadataNoArt: number;
 }
 export interface SMMessage
 {

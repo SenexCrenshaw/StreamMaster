@@ -1,11 +1,13 @@
 ﻿using StreamMaster.Domain.Extensions;
 
 namespace StreamMaster.SchedulesDirect;
+
 public partial class SchedulesDirectAPIService
 {
-    public static string Token { get; private set; }
-    public static DateTime TokenTimestamp = DateTime.MinValue;
-    public static bool GoodToken;
+    public string? Token { get; private set; }
+    public DateTime TokenTimestamp = DateTime.MinValue;
+    public bool GoodToken;
+    private readonly SemaphoreSlim _tokenSemaphore = new(1, 1);
 
     /// <summary>
     /// Retrieves a session token from Schedules Direct
@@ -13,7 +15,6 @@ public partial class SchedulesDirectAPIService
     /// <returns>true if successful</returns>
     public async Task<bool> GetToken()
     {
-
         return sdsettings.SDEnabled && await GetToken(sdsettings.SDUserName, sdsettings.SDPassword);
     }
 
@@ -24,10 +25,18 @@ public partial class SchedulesDirectAPIService
         //_ = _httpClient.DefaultRequestHeaders.Remove("token");
     }
 
-    public async Task ResetToken()
+    public async Task ResetToken(CancellationToken cancellationToken = default)
     {
-        ClearToken();
-        await GetToken();
+        await _tokenSemaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
+        try
+        {
+            ClearToken();
+            await GetToken(cancellationToken: cancellationToken).ConfigureAwait(false);
+        }
+        finally
+        {
+            _tokenSemaphore.Release();
+        }
     }
 
     public void SetToken(TokenResponse tokenResponse)
@@ -40,7 +49,7 @@ public partial class SchedulesDirectAPIService
             GoodToken = true;
             TokenTimestamp = tokenResponse.Datetime;
             //_ = _timer.Change(60000, 60000); // timer event every 60 seconds
-            logger.LogInformation($"Refreshed Schedules Direct API token. Token={Token[..5]}...");
+            logger.LogInformation("Refreshed Schedules Direct API token. Token={Token[..5]}...", Token[..5]);
         }
         else
         {
@@ -73,7 +82,5 @@ public partial class SchedulesDirectAPIService
         TokenResponse? ret = await GetHttpResponse<TokenResponse>(HttpMethod.Post, "token", new TokenRequest { Username = username, PasswordHash = password }, cancellationToken: cancellationToken);
 
         return (ret?.Code ?? -1) == 0;
-
     }
-
 }

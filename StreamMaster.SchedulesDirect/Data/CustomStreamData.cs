@@ -61,7 +61,7 @@ public class CustomStreamData(int EPGNumber) : ICustomStreamData
 
         //KeywordGroups.Clear();
 
-        //Lineups.Clear();
+        //LineupService.Clear();
 
         //People.Clear();
 

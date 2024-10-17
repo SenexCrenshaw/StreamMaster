@@ -4,11 +4,14 @@ using SixLabors.ImageSharp.PixelFormats;
 using StreamMaster.Domain.Helpers;
 
 using System.Text.RegularExpressions;
+
 namespace StreamMaster.SchedulesDirect;
-public class Lineups(ILogger<Lineups> logger, IOptionsMonitor<SDSettings> intSDSettings, ILogoService logoService, ISchedulesDirectAPIService schedulesDirectAPI, IEPGCache<LineupResult> epgCache, ISchedulesDirectDataService schedulesDirectDataService)
-    : ILineups
+
+public class LineupService(ILogger<LineupService> logger, IOptionsMonitor<SDSettings> intSDSettings, ILogoService logoService, ISchedulesDirectAPIService schedulesDirectAPI, IEPGCache<LineupResult> epgCache, ISchedulesDirectDataService schedulesDirectDataService)
+    : ILineupService
 {
     private List<KeyValuePair<MxfService, string[]>> StationLogosToDownload = [];
+    private readonly HttpClient httpClient = new();
 
     public void ResetCache()
     {
@@ -141,7 +144,7 @@ public class Lineups(ILogger<Lineups> logger, IOptionsMonitor<SDSettings> intSDS
                         //{
                         //    mxfService.extras.Add("logo", stationLogo);
                         //}
-                        //else 
+                        //else
                         if (stationLogo != null)
                         {
                             if (!string.IsNullOrEmpty(logoPath) && File.Exists(logoPath))
@@ -402,7 +405,6 @@ public class Lineups(ILogger<Lineups> logger, IOptionsMonitor<SDSettings> intSDS
                 //}
                 //else
                 //{
-
                 //}
 
                 if (!existingIds.Contains(station.StationId))
@@ -415,6 +417,7 @@ public class Lineups(ILogger<Lineups> logger, IOptionsMonitor<SDSettings> intSDS
 
         return ret;
     }
+
     private async Task<LineupResult?> GetLineup(string lineup, CancellationToken cancellationToken)
     {
         LineupResult? cache = await epgCache.GetValidCachedDataAsync("Lineup-" + lineup, cancellationToken).ConfigureAwait(false);
@@ -491,7 +494,6 @@ public class Lineups(ILogger<Lineups> logger, IOptionsMonitor<SDSettings> intSDS
     {
         try
         {
-            using HttpClient httpClient = new();
             HttpResponseMessage response = await httpClient.GetAsync(uri, cancellationToken);
 
             if (response.IsSuccessStatusCode)

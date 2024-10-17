@@ -191,91 +191,25 @@ public sealed class FileUtil
         return ret;
     }
 
-    //public static async Task<(bool success, Exception? ex)> DownloadUrlAsync(string url, string fullName, CancellationToken cancellationToken)
+    //public static async Task<string> GetContentType(string Url)
     //{
-    //    if (url?.Contains("://") != true)
-    //    {
-    //        return (false, null);
-    //    }
-
     //    try
     //    {
-    //        HttpClientHandler handler = new()
+    //        using HttpClient httpClient = new();
+    //        HttpResponseMessage response = await httpClient.GetAsync(Url, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
+    //        if (!response.IsSuccessStatusCode)
     //        {
-    //            AllowAutoRedirect = true,
-    //            MaxAutomaticRedirections = 10
-    //        };
-
-    //        using HttpClient httpClient = new(handler);
-
-    //        const string userAgentString = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36 Edg/110.0.1587.57";
-    //        httpClient.DefaultRequestHeaders.Add("User-Agent", userAgentString);
-
-    //        try
-    //        {
-    //            string? path = Path.GetDirectoryName(fullName);
-    //            if (string.IsNullOrEmpty(path))
-    //            {
-    //                return (false, null);
-    //            }
-
-    //            await using FileStream fileStream = new(fullName, FileMode.Create);
-    //            using HttpResponseMessage response = await httpClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
-
-    //            if (response.StatusCode is HttpStatusCode.Forbidden or HttpStatusCode.NotFound)
-    //            {
-    //                return (false, null);
-    //            }
-
-    //            _ = response.EnsureSuccessStatusCode();
-
-    //            Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
-    //            if (stream != null)
-    //            {
-    //                await stream.CopyToAsync(fileStream, cancellationToken).ConfigureAwait(false);
-    //                stream.Close();
-    //            }
-
-    //            fileStream.Close();
-    //            return (true, null);
+    //            return "";
     //        }
-    //        catch (HttpRequestException ex)
-    //        {
-    //            Console.WriteLine(ex.ToString());
-    //            return (false, ex);
-    //        }
-    //        catch (Exception ex)
-    //        {
-    //            Console.WriteLine(ex.ToString());
-    //            return (false, ex);
-    //        }
+
+    //        string sContentType = response.Content.Headers.ContentType?.MediaType ?? "";
+    //        return sContentType;
     //    }
-    //    catch (Exception ex)
+    //    catch (Exception)
     //    {
-    //        Console.WriteLine(ex.ToString());
-    //        return (false, ex);
+    //        return "";
     //    }
     //}
-
-    public static async Task<string> GetContentType(string Url)
-    {
-        try
-        {
-            using HttpClient httpClient = new();
-            HttpResponseMessage response = await httpClient.GetAsync(Url, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
-            if (!response.IsSuccessStatusCode)
-            {
-                return "";
-            }
-
-            string sContentType = response.Content.Headers.ContentType?.MediaType ?? "";
-            return sContentType;
-        }
-        catch (Exception)
-        {
-            return "";
-        }
-    }
 
     public static async Task Backup(int? versionsToKeep = null)
     {
@@ -327,6 +261,7 @@ public sealed class FileUtil
             Console.WriteLine($"Backup Exception occurred: {ex.Message}");
         }
     }
+
     public static async Task<List<TvLogoFile>> GetTVLogosFromDirectory(DirectoryInfo dirInfo, string tvLogosLocation, int startingId, CancellationToken cancellationToken = default)
     {
         List<TvLogoFile> ret = [];

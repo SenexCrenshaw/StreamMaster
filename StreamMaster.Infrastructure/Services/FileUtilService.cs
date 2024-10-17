@@ -4,12 +4,23 @@ using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Enums;
 
 using System.IO.Compression;
+using System.Net;
 
 namespace StreamMaster.Infrastructure.Services
 {
-    public class FileUtilService(ILogger<FileUtilService> logger, IOptionsMonitor<Setting> _settings)
-        : IFileUtilService
+    public class FileUtilService : IFileUtilService
     {
+        public HttpClient _httpClient = null!;
+        private readonly ILogger<FileUtilService> logger;
+        private readonly IOptionsMonitor<Setting> settings;
+
+        public FileUtilService(ILogger<FileUtilService> logger, IOptionsMonitor<Setting> _settings)
+        {
+            this.logger = logger;
+            settings = _settings;
+            CreateHttpClient();
+        }
+
         public Stream? GetFileDataStream(string source)
         {
             string? filePath = GetExistingFilePath(source);
@@ -76,20 +87,24 @@ namespace StreamMaster.Infrastructure.Services
 
             try
             {
-                string compression = _settings.CurrentValue.DefaultCompression?.ToLower() ?? "none";
+                string compression = settings.CurrentValue.DefaultCompression?.ToLower() ?? "none";
 
-                using HttpClientHandler handler = new() { AllowAutoRedirect = true, MaxAutomaticRedirections = 10 };
-                using HttpClient httpClient = new(handler);
-                httpClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0");
+                //using HttpClientHandler handler = new() { AllowAutoRedirect = true, MaxAutomaticRedirections = 10 };
+                //using HttpClient httpClient = new(handler);
+                //_httpClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0");
 
                 Directory.CreateDirectory(Path.GetDirectoryName(fileName) ?? string.Empty); // Ensure directory exists
 
-                using HttpResponseMessage response = await httpClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
+                using HttpResponseMessage response = await _httpClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
                 response.EnsureSuccessStatusCode(); // Ensure success
 
                 await using Stream stream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
                 await SaveStreamToFileAsync(stream, fileName + "_temp", "none");
                 await using Stream? dataStream = GetFileDataStream(fileName + "_temp");
+                if (dataStream == null)
+                {
+                    return (false, null);
+                }
 
                 if (IsFileGzipped(fileName + "_temp"))
                 {
@@ -133,7 +148,7 @@ namespace StreamMaster.Infrastructure.Services
         {
             try
             {
-                string compression = _settings.CurrentValue.DefaultCompression?.ToLower() ?? "none";
+                string compression = settings.CurrentValue.DefaultCompression?.ToLower() ?? "none";
                 using Stream stream = data.OpenReadStream();
 
                 // Check if the uploaded file is already compressed
@@ -247,7 +262,7 @@ namespace StreamMaster.Infrastructure.Services
 
         public string CheckNeedsCompression(string fullName)
         {
-            return (_settings.CurrentValue.DefaultCompression?.ToLower()) switch
+            return (settings.CurrentValue.DefaultCompression?.ToLower()) switch
             {
                 "gz" => fullName + ".gz",
                 "zip" => fullName + ".zip",
@@ -303,6 +318,20 @@ namespace StreamMaster.Infrastructure.Services
             {
                 File.Delete(jsonPath);
             }
+        }
+
+        private void CreateHttpClient()
+        {
+            _httpClient = new(new HttpClientHandler()
+            {
+                AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate,
+                AllowAutoRedirect = true,
+            })
+            {
+                Timeout = TimeSpan.FromSeconds(30)
+            };
+            _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(settings.CurrentValue.ClientUserAgent);
+            _httpClient.DefaultRequestHeaders.ExpectContinue = true;
         }
     }
 }

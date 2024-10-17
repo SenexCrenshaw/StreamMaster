@@ -15,7 +15,7 @@ public partial class SchedulesDirect(
     IOptionsMonitor<SDSettings> _sdSettings,
     IDescriptions descriptions,
     IKeywords keywords,
-    ILineups lineups,
+    ILineupService lineups,
     IPrograms programs,
     ISchedules schedules,
     ISportsImages sportsImages,

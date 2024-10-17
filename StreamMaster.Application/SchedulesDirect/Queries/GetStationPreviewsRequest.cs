@@ -5,7 +5,7 @@
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record GetStationPreviewsRequest : IRequest<DataResponse<List<StationPreview>>>;
 
-internal class GetStationPreviewsRequestHandler(ILineups lineups, IOptionsMonitor<SDSettings> intSettings)
+internal class GetStationPreviewsRequestHandler(ILineupService lineups, IOptionsMonitor<SDSettings> intSettings)
     : IRequestHandler<GetStationPreviewsRequest, DataResponse<List<StationPreview>>>
 {
     private readonly SDSettings settings = intSettings.CurrentValue;

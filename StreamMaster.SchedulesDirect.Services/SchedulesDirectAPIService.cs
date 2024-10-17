@@ -25,7 +25,6 @@ public partial class SchedulesDirectAPIService : ISchedulesDirectAPIService
         sdsettings = intsdsettings.CurrentValue;
         settings = intSettings.CurrentValue;
         CreateHttpClient();
-
     }
 
     private async Task<List<ProgramMetadata>?> GetArtworkAsync(string[] request)
@@ -65,13 +64,12 @@ public partial class SchedulesDirectAPIService : ISchedulesDirectAPIService
         {
             foreach (ProgramMetadata response in responses)
             {
-
                 metadata.Add(response);
             }
         }
         else
         {
-            logger.LogInformation("Did not receive a response from Schedules Direct for artwork info of {count} programs, first entry {entry}.", series.Length, series.Any() ? series[0] : "");
+            logger.LogInformation("Did not receive a response from Schedules Direct for artwork info of {count} programs, first entry {entry}.", series.Length, series.Length != 0 ? series[0] : "");
         }
     }
 
@@ -94,14 +92,14 @@ public partial class SchedulesDirectAPIService : ISchedulesDirectAPIService
         }
         catch (HttpRequestException ex)
         {
-            logger.LogError($"{uri} GetSdImage() Exception: {ex?.InnerException.Message ?? ex.Message}");
+            logger.LogError("{uri} GetSdImage() Exception: {Message}", uri, ex?.InnerException?.Message ?? ex?.Message);
         }
         return null;
     }
 
     private async Task<HttpResponseMessage> HandleHttpResponseError(HttpResponseMessage response, string? content)
     {
-        string? tokenUsed = response.RequestMessage.Headers.GetValues("token")?.FirstOrDefault();
+        string? tokenUsed = response.RequestMessage?.Headers.GetValues("token")?.FirstOrDefault();
 
         if (!string.IsNullOrEmpty(content))
         {
@@ -119,26 +117,31 @@ public partial class SchedulesDirectAPIService : ISchedulesDirectAPIService
                         response.StatusCode = HttpStatusCode.ServiceUnavailable; // 503
                         response.ReasonPhrase = "Service Unavailable";
                         break;
+
                     case SDHttpResponseCode.ACCOUNT_DISABLED: // ACCOUNT_EXPIRED
                     case SDHttpResponseCode.ACCOUNT_EXPIRED: // ACCOUNT_DISABLED
                     case SDHttpResponseCode.APPLICATION_DISABLED: // APPLICATION_DISABLED
                         response.StatusCode = HttpStatusCode.Forbidden; // 403
                         response.ReasonPhrase = "Forbidden";
                         break;
+
                     case SDHttpResponseCode.ACCOUNT_LOCKOUT: // ACCOUNT_LOCKOUT
                         response.StatusCode = HttpStatusCode.Locked; // 423
                         response.ReasonPhrase = "Locked";
                         break;
+
                     case SDHttpResponseCode.IMAGE_NOT_FOUND: // IMAGE_NOT_FOUND
                     case SDHttpResponseCode.IMAGE_QUEUED: // IMAGE_QUEUED
                         response.StatusCode = HttpStatusCode.NotFound; // 404
                         response.ReasonPhrase = "Not Found";
                         break;
+
                     case SDHttpResponseCode.MAX_IMAGE_DOWNLOADS: // MAX_IMAGE_DOWNLOADS
                     case SDHttpResponseCode.MAX_IMAGE_DOWNLOADS_TRIAL: // MAX_IMAGE_DOWNLOADS_TRIAL
                         response.StatusCode = HttpStatusCode.TooManyRequests; // 429
                         response.ReasonPhrase = "Too Many Requests";
                         break;
+
                     case SDHttpResponseCode.TOKEN_MISSING: // TOKEN_MISSING - special case when token is getting refreshed due to below responses from a separate request
                     case SDHttpResponseCode.INVALID_USER: // INVALID_USER
                     case SDHttpResponseCode.TOKEN_INVALID:
@@ -168,7 +171,7 @@ public partial class SchedulesDirectAPIService : ISchedulesDirectAPIService
     }
 
     /// <summary>
-    /// 
+    /// GetApiResponse
     /// </summary>
     /// <typeparam name="T">Object type to return.</typeparam>
     /// <param name="method">The http method to use.</param>
@@ -194,10 +197,13 @@ public partial class SchedulesDirectAPIService : ISchedulesDirectAPIService
             {
                 case APIMethod.GET:
                     return await GetHttpResponse<T>(HttpMethod.Get, uri, cancellationToken: cancellationToken);
+
                 case APIMethod.POST:
                     return await GetHttpResponse<T>(HttpMethod.Post, uri, classObject, cancellationToken: cancellationToken);
+
                 case APIMethod.PUT:
                     return await GetHttpResponse<T>(HttpMethod.Put, uri, cancellationToken: cancellationToken);
+
                 case APIMethod.DELETE:
                     return await GetHttpResponse<T>(HttpMethod.Delete, uri, cancellationToken: cancellationToken);
             }
@@ -219,7 +225,6 @@ public partial class SchedulesDirectAPIService : ISchedulesDirectAPIService
 
         try
         {
-
             using HttpRequestMessage request = new(method, uri)
             {
                 Content = (content != null)
@@ -240,7 +245,7 @@ public partial class SchedulesDirectAPIService : ISchedulesDirectAPIService
                 DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
             };
 
-            using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken);
+            await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken);
             using StreamReader sr = new(stream);
             json = await sr.ReadToEndAsync(cancellationToken);
 
@@ -304,14 +309,12 @@ public partial class SchedulesDirectAPIService : ISchedulesDirectAPIService
                 string line = json.Substring(start, 200);
                 if (line.Contains("INVALID_PROGRAMID"))
                 {
-
                 }
                 else
                 {
                     Debug.Assert(true);
                 }
             }
-
         }
         catch (Exception)
         {
@@ -322,7 +325,6 @@ public partial class SchedulesDirectAPIService : ISchedulesDirectAPIService
 
     private void CreateHttpClient()
     {
-
         _httpClient = new(new HttpClientHandler()
         {
             AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate,
@@ -337,5 +339,4 @@ public partial class SchedulesDirectAPIService : ISchedulesDirectAPIService
         _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(settings.ClientUserAgent);
         _httpClient.DefaultRequestHeaders.ExpectContinue = true;
     }
-
 }
