@@ -13,7 +13,7 @@ const DownloadStatusDataSelector = () => {
   }, []);
 
   const programmeHeaderTemplate = useMemo(() => {
-    return <div className="sm-center-stuff">Program Queued/Program Processed/Art Downloaded/Art AlreadyExists/Errors</div>;
+    return <div className="sm-center-stuff">Program Queued/Program Processed/Art Downloaded/Art Exists/Errors</div>;
   }, []);
 
   const programMetadataTemplate = useCallback((rowData: ImageDownloadServiceStatus) => {
