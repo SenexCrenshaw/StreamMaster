@@ -1,5 +1,4 @@
-﻿using StreamMaster.Streams.Domain;
-using StreamMaster.Streams.Domain.Events;
+﻿using StreamMaster.Streams.Domain.Events;
 using StreamMaster.Streams.Domain.Helpers;
 using StreamMaster.Streams.Domain.Statistics;
 using StreamMaster.Streams.Services;
@@ -10,7 +9,6 @@ using System.Threading.Channels;
 
 namespace StreamMaster.Streams.Clients;
 
-
 public class ClientReadStream : Stream, IClientReadStream
 {
     private readonly ILogger<ClientReadStream> logger;
@@ -20,7 +18,7 @@ public class ClientReadStream : Stream, IClientReadStream
 
     public StreamHandlerMetrics Metrics => MetricsService.Metrics;
 
-    public TrackedChannel Channel { get; } = ChannelHelper.GetChannel(200, BoundedChannelFullMode.DropOldest);
+    public Channel<byte[]> Channel { get; } = ChannelHelper.GetChannel(200, BoundedChannelFullMode.DropOldest);
 
     private bool IsCancelled { get; set; }
     public Guid Id { get; } = Guid.NewGuid();
@@ -29,11 +27,11 @@ public class ClientReadStream : Stream, IClientReadStream
     public override bool CanWrite => false;
     public override long Length => throw new NotSupportedException();
     public override long Position { get => throw new NotSupportedException(); set => throw new NotSupportedException(); }
-    public override void Flush() { }
 
+    public override void Flush()
+    { }
 
     private readonly string uniqueRequestId;
-
 
     private DateTime _lastReadTime;
     private readonly CancellationTokenSource? _monitorCts = null;
@@ -110,6 +108,7 @@ public class ClientReadStream : Stream, IClientReadStream
     {
         throw new NotSupportedException();
     }
+
     public override int Read(byte[] buffer, int offset, int count)
     {
         return 0;
@@ -166,7 +165,8 @@ public class ClientReadStream : Stream, IClientReadStream
             Array.Copy(buffer, offset, dataToWrite, 0, count);
 
             // Write the data to the Channel<byte[]>
-            if (!Channel.Write(dataToWrite))
+
+            if (!Channel.Writer.TryWrite(dataToWrite))
             {
                 logger.LogError("Failed to write to channel for UniqueRequestId: {UniqueRequestId}", uniqueRequestId);
                 throw new InvalidOperationException("The channel is closed or full and cannot accept writes.");
@@ -190,7 +190,6 @@ public class ClientReadStream : Stream, IClientReadStream
     }
 
     private bool _disposed = false;
-
 
     protected virtual void OnClientStreamTimedOut(StreamTimedOut e)
     {
@@ -225,6 +224,7 @@ public class ClientReadStream : Stream, IClientReadStream
     {
         Dispose(false);
     }
+
     public override async ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken)
     {
         _lastReadTime = DateTime.UtcNow;
@@ -241,7 +241,7 @@ public class ClientReadStream : Stream, IClientReadStream
         try
         {
             // Read a byte[] from the channel
-            byte[] readBuffer = await Channel.ReadAsync(cancellationToken);
+            byte[] readBuffer = await Channel.Reader.ReadAsync(cancellationToken);
             bytesRead = readBuffer.Length;
 
             if (bytesRead == 0)
@@ -291,5 +291,4 @@ public class ClientReadStream : Stream, IClientReadStream
 
         return bytesRead;
     }
-
 }

@@ -1,8 +1,9 @@
 ﻿using StreamMaster.PlayList.Models;
-using StreamMaster.Streams.Domain;
 using StreamMaster.Streams.Domain.Events;
 using StreamMaster.Streams.Domain.Helpers;
 using StreamMaster.Streams.Services;
+
+using System.Threading.Channels;
 
 namespace StreamMaster.Streams.Handlers;
 
@@ -13,6 +14,7 @@ public sealed class ChannelBroadcaster(ILogger<IChannelBroadcaster> logger, SMCh
 
     /// <inheritdoc/>
     public int Id => smChannelDto.Id;
+
     public override string StringId()
     {
         return Id.ToString();
@@ -72,14 +74,14 @@ public sealed class ChannelBroadcaster(ILogger<IChannelBroadcaster> logger, SMCh
         if (remux)
         {
             Dubcer ??= new(logger);
-            SourceChannelBroadcaster.AddChannelStreamer(SMChannel.Id, Dubcer.DubcerChannel);
-            SetSourceChannel(Dubcer.DubcerChannel, SourceChannelBroadcaster.Name, CancellationToken.None);
+            SourceChannelBroadcaster.AddChannelStreamer(SMChannel.Id, Dubcer.DubcerChannel.Writer);
+            SetSourceChannel(Dubcer.DubcerChannel.Reader, SourceChannelBroadcaster.Name, CancellationToken.None);
         }
         else
         {
-            TrackedChannel channel = ChannelHelper.GetChannel();
-            SourceChannelBroadcaster.AddChannelStreamer(SMChannel.Id, channel);
-            SetSourceChannel(channel, SourceChannelBroadcaster.Name, CancellationToken.None);
+            Channel<byte[]> channel = ChannelHelper.GetChannel();
+            SourceChannelBroadcaster.AddChannelStreamer(SMChannel.Id, channel.Writer);
+            SetSourceChannel(channel.Reader, SourceChannelBroadcaster.Name, CancellationToken.None);
         }
     }
 

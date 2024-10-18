@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 
-using StreamMaster.Streams.Domain;
+using System.Threading.Channels;
 
 namespace StreamMaster.Application.Statistics.Queries;
 
@@ -44,7 +44,8 @@ internal class GetChannelMetricsRequestHandler(IRepositoryWrapper repositoryWrap
             string currentStreamLogo = logoService.GetLogoUrl(bastCurrentStream.SMStream.Logo, _baseUrl);
             string currentChannelLogo = logoService.GetLogoUrl(baseConfig.SMChannel.Logo, _baseUrl);
 
-            foreach (KeyValuePair<string, TrackedChannel> clientChannel in channelBroadcaster.ClientChannels)
+            //
+            foreach (KeyValuePair<string, ChannelWriter<byte[]>> clientChannel in channelBroadcaster.ClientChannelWriters)
             {
                 IClientConfiguration? config = clientConfigurations.Find(a => a.UniqueRequestId == clientChannel.Key);
 
@@ -62,12 +63,10 @@ internal class GetChannelMetricsRequestHandler(IRepositoryWrapper repositoryWrap
                     SMChannelId = channelBroadcaster.Id,
                     Name = clientChannel.Key,
                     Logo = currentChannelLogo,
-                    TotalBytesInBuffer = clientChannel.Value.TotalBytesInBuffer
                 });
             }
 
             List<ClientStreamsDto> streamDtos = [];
-
 
             ChannelMetric dto = new()
             {
@@ -80,7 +79,6 @@ internal class GetChannelMetricsRequestHandler(IRepositoryWrapper repositoryWrap
                 IsFailed = channelBroadcaster.IsFailed,
                 Id = channelBroadcaster.Id.ToString(),
                 Logo = currentStreamLogo,
-                TotalBytesInBuffer = channelBroadcaster.Channel.TotalBytesInBuffer
             };
 
             dtos.Add(dto);
@@ -92,8 +90,6 @@ internal class GetChannelMetricsRequestHandler(IRepositoryWrapper repositoryWrap
             {
                 continue;
             }
-
-
 
             SMStreamInfo cuurentStreamInfo = sourceBroadcaster.SMStreamInfo.DeepCopy();
             List<ClientChannelDto> channelDtos = [];
@@ -107,12 +103,11 @@ internal class GetChannelMetricsRequestHandler(IRepositoryWrapper repositoryWrap
             //SMChannelStreamLink bastCurrentStream = baseConfig.SMChannel.SMStreams.ToList()[baseConfig.SMChannel.CurrentRank];
             //string currentStreamLogo = logoService.GetLogoUrl(bastCurrentStream.SMStream.Logo, _baseUrl);
 
-
             //int channelCount = 0;
 
             string currentChannelLogo = "";
 
-            foreach (KeyValuePair<string, TrackedChannel> channel in sourceBroadcaster.ClientChannels)
+            foreach (KeyValuePair<string, ChannelWriter<byte[]>> channel in sourceBroadcaster.ClientChannelWriters)
             {
                 SMChannel? smChannel = smChannels.Find(a => a.Id.ToString() == channel.Key);
                 if (smChannel == null)
@@ -122,27 +117,21 @@ internal class GetChannelMetricsRequestHandler(IRepositoryWrapper repositoryWrap
 
                 currentChannelLogo = logoService.GetLogoUrl(smChannel.Logo, _baseUrl);
 
-
                 channelDtos.Add(new ClientChannelDto()
                 {
                     SMChannelId = smChannel.Id,
                     Name = channel.Key,
                     Logo = currentChannelLogo
                 });
-
-
             }
 
             List<ClientStreamsDto> streamDtos = [];
 
-
             cuurentStreamInfo.Url = "Hidden";
             string id = cuurentStreamInfo.Id;
 
-
             if (!sourceBroadcaster.Id.Contains("://"))
             {
-
                 currentChannelLogo = customPlayListBuilder.GetCustomPlayListLogoFromFileName(sourceBroadcaster.Id);
                 //if (string.IsNullOrEmpty(metricLogo))
                 //{
@@ -156,7 +145,6 @@ internal class GetChannelMetricsRequestHandler(IRepositoryWrapper repositoryWrap
             //    SMStream? smStream = smStreams.Find(a => a.Id == cuurentStreamInfo.Id);
             //    if (smStream != null)
             //    {
-
             //        metricLogo = smStream.Logo;
             //        //id = smStream.Id;
             //    }
@@ -167,9 +155,7 @@ internal class GetChannelMetricsRequestHandler(IRepositoryWrapper repositoryWrap
             if (info != null)
             {
                 videoInfoDto = new(info);
-
             }
-
 
             ChannelMetric dto = new()
             {
@@ -183,9 +169,7 @@ internal class GetChannelMetricsRequestHandler(IRepositoryWrapper repositoryWrap
                 IsFailed = sourceBroadcaster.IsFailed,
                 Id = id,
                 Logo = currentChannelLogo,
-                VideoInfo = videoInfoDto?.JsonOutput,
-                TotalBytesInBuffer = sourceBroadcaster.Channel.TotalBytesInBuffer
-
+                VideoInfo = videoInfoDto?.JsonOutput
             };
 
             dtos.Add(dto);

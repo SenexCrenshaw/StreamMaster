@@ -1,20 +1,20 @@
-﻿using StreamMaster.Streams.Domain;
-using StreamMaster.Streams.Domain.Helpers;
+﻿using StreamMaster.Streams.Domain.Helpers;
 
 using System.Diagnostics;
+using System.Threading.Channels;
 
 namespace StreamMaster.Streams.Services
 {
     public class Dubcer
-    {
+    {//
         public string SourceName { get; set; } = string.Empty;
         private readonly ILogger<IBroadcasterBase> logger;
-        private readonly TrackedChannel inputChannel = ChannelHelper.GetChannel();
+        private readonly Channel<byte[]> inputChannel = ChannelHelper.GetChannel();
         private Process? ffmpegProcess;
 
         private readonly CancellationTokenSource cancellationTokenSource = new();
 
-        public TrackedChannel DubcerChannel { get; } = ChannelHelper.GetChannel();
+        public Channel<byte[]> DubcerChannel { get; } = ChannelHelper.GetChannel();
 
         public Dubcer(ILogger<IBroadcasterBase> logger)
         {
@@ -23,7 +23,7 @@ namespace StreamMaster.Streams.Services
             StartFeedingFFmpeg(inputChannel);
         }
 
-        private void StartFeedingFFmpeg(TrackedChannel channelReader)
+        private void StartFeedingFFmpeg(ChannelReader<byte[]> channelReader)
         {
             _ = Task.Run(async () =>
             {
@@ -33,9 +33,9 @@ namespace StreamMaster.Streams.Services
                     {
                         if (DubcerChannel != null)
                         {
-                            await foreach (byte[] data in DubcerChannel.ReadAllAsync(cancellationTokenSource.Token))
+                            await foreach (byte[] data in DubcerChannel.Reader.ReadAllAsync(cancellationTokenSource.Token))
                             {
-                                await inputChannel.WriteAsync(data, cancellationTokenSource.Token);
+                                await inputChannel.Writer.WriteAsync(data, cancellationTokenSource.Token);
                             }
                         }
                         else
@@ -85,7 +85,7 @@ namespace StreamMaster.Streams.Services
                     {
                         byte[] data = new byte[bytesRead];
                         Array.Copy(buffer, data, bytesRead);
-                        await DubcerChannel.WriteAsync(data, cancellationTokenSource.Token).ConfigureAwait(false);
+                        await DubcerChannel.Writer.WriteAsync(data, cancellationTokenSource.Token).ConfigureAwait(false);
                     }
                 }
                 catch (Exception ex)
@@ -97,7 +97,7 @@ namespace StreamMaster.Streams.Services
                 }
                 finally
                 {
-                    DubcerChannel.TryComplete();
+                    DubcerChannel.Writer.TryComplete();
                 }
             });
         }
@@ -114,7 +114,7 @@ namespace StreamMaster.Streams.Services
                 }
 
                 // Complete the input channel
-                inputChannel.TryComplete();
+                inputChannel.Writer.TryComplete();
 
                 // Wait for ffmpeg process to exit quietly
                 if (ffmpegProcess != null && !ffmpegProcess.HasExited)
@@ -130,7 +130,7 @@ namespace StreamMaster.Streams.Services
                     }
                 }
 
-                DubcerChannel.TryComplete();
+                DubcerChannel.Writer.TryComplete();
             }
             catch (Exception ex)
             {

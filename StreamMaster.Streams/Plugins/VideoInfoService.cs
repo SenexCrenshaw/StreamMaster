@@ -36,14 +36,7 @@ namespace StreamMaster.Streams.Plugins
 
         public void SetSourceChannel(ISourceBroadcaster sourceBroadcaster, string Id, string Name)
         {
-            //Channel<byte[]> channelVideoInfo = Channel.CreateBounded<byte[]>(new BoundedChannelOptions(200)
-            //{
-            //    SingleReader = true,
-            //    SingleWriter = true,
-            //    FullMode = BoundedChannelFullMode.DropOldest
-            //});
-
-            TrackedChannel channel = ChannelHelper.GetChannel(200, BoundedChannelFullMode.DropOldest);
+            Channel<byte[]> channel = ChannelHelper.GetChannel(200, BoundedChannelFullMode.DropOldest);
 
             sourceBroadcaster.AddChannelStreamer("VideoInfo", channel);
 

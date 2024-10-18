@@ -1,8 +1,11 @@
-﻿namespace StreamMaster.Streams.Domain.Interfaces
+﻿using System.Threading.Channels;
+
+namespace StreamMaster.Streams.Domain.Interfaces
 {
     public interface ISourceProcessingService
     {
-        Task ProcessSourceChannelReaderAsync(TrackedChannel sourceChannelReader, TrackedChannel newChannel, IMetricsService metricsService, CancellationToken token);
-        Task ProcessSourceStreamAsync(Stream sourceStream, TrackedChannel newChannel, IMetricsService metricsService, CancellationToken token);
+        Task ProcessSourceChannelReaderAsync(ChannelReader<byte[]> sourceChannelReader, Channel<byte[]> newChannel, IMetricsService metricsService, CancellationToken token);
+
+        Task ProcessSourceStreamAsync(Stream sourceStream, Channel<byte[]> newChannel, IMetricsService metricsService, CancellationToken token);
     }
 }

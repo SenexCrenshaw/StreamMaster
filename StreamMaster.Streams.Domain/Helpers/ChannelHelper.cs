@@ -21,9 +21,13 @@ namespace StreamMaster.Streams.Domain.Helpers
         /// - If <paramref name="boundCapacity"/> is greater than 0, a bounded tracked channel is created with the specified capacity.
         /// - If <paramref name="boundCapacity"/> is 0 or less, an unbounded tracked channel is created.
         /// </remarks>
-        public static TrackedChannel GetChannel(int boundCapacity = DefaultChannelCapacity, BoundedChannelFullMode? fullMode = BoundedChannelFullMode.Wait)
+        public static Channel<byte[]> GetChannel(int boundCapacity = DefaultChannelCapacity, BoundedChannelFullMode? fullMode = BoundedChannelFullMode.Wait)
         {
-            return new TrackedChannel(boundCapacity, fullMode);
+            Channel<byte[]> channel = boundCapacity > 0
+           ? Channel.CreateBounded<byte[]>(new BoundedChannelOptions(boundCapacity) { SingleReader = true, SingleWriter = true, FullMode = fullMode ?? BoundedChannelFullMode.Wait })
+            : Channel.CreateUnbounded<byte[]>(new UnboundedChannelOptions { SingleReader = true, SingleWriter = true });
+
+            return channel;
         }
     }
 }

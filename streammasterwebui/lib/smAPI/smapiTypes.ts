@@ -1564,7 +1564,6 @@ export interface ClientChannelDto
 	Metrics?: StreamHandlerMetrics;
 	Name: string;
 	SMChannelId: number;
-	TotalBytesInBuffer: number;
 }
 export interface ClientStreamsDto
 {

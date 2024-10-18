@@ -1,5 +1,7 @@
 ﻿using StreamMaster.Streams.Domain.Events;
 
+using System.Threading.Channels;
+
 namespace StreamMaster.Streams.Domain.Interfaces;
 
 /// <summary>
@@ -8,8 +10,8 @@ namespace StreamMaster.Streams.Domain.Interfaces;
 public interface IClientReadStream : IDisposable, IStreamStats
 {
     event EventHandler<StreamTimedOut> ClientStreamTimedOut;
-    //IByteTrackingChannel Channel { get; }
-    TrackedChannel Channel { get; }
+
+    Channel<byte[]> Channel { get; }
 
     /// <summary>
     /// Gets a value indicating whether the stream supports reading.

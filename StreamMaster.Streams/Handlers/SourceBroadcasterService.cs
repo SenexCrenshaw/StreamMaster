@@ -118,11 +118,12 @@ namespace StreamMaster.Streams.Handlers
             }
         }
 
+        //
         private async Task CheckForEmptyBroadcastersAsync(CancellationToken cancellationToken = default)
         {
             foreach (ISourceBroadcaster? sourceBroadcaster in sourceBroadcasters.Values)
             {
-                int count = sourceBroadcaster.ClientChannels.Count(a => a.Key != "VideoInfo");
+                int count = sourceBroadcaster.ClientChannelWriters.Count(a => a.Key != "VideoInfo");
                 if (count == 0)
                 {
                     int delay = _settings.CurrentValue.ShutDownDelay;
@@ -130,7 +131,7 @@ namespace StreamMaster.Streams.Handlers
                     {
                         await Task.Delay(delay, cancellationToken).ConfigureAwait(false);
                     }
-                    count = sourceBroadcaster.ClientChannels.Count(a => a.Key != "VideoInfo");
+                    count = sourceBroadcaster.ClientChannelWriters.Count(a => a.Key != "VideoInfo");
                     if (count != 0)
                     {
                         return;
@@ -144,13 +145,13 @@ namespace StreamMaster.Streams.Handlers
 
         public async Task UnRegisterChannelBroadcasterAsync(int channelBroadcasterId)
         {
-            ISourceBroadcaster? sourceBroadcaster = sourceBroadcasters.Values.FirstOrDefault(broadcaster => broadcaster.ClientChannels.ContainsKey(channelBroadcasterId.ToString()));
+            ISourceBroadcaster? sourceBroadcaster = sourceBroadcasters.Values.FirstOrDefault(broadcaster => broadcaster.ClientChannelWriters.ContainsKey(channelBroadcasterId.ToString()));
             if (sourceBroadcaster == null)
             {
                 return;
             }
 
-            if (sourceBroadcaster.ClientChannels.TryRemove(channelBroadcasterId.ToString(), out _))
+            if (sourceBroadcaster.ClientChannelWriters.TryRemove(channelBroadcasterId.ToString(), out _))
             {
                 await CheckForEmptyBroadcastersAsync();
             }
