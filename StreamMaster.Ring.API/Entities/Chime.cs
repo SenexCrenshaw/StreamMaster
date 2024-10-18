@@ -2,7 +2,7 @@
 
 namespace StreamMaster.Ring.API.Entities
 {
-    public class Doorbot
+    public class Chime
     {
         [JsonPropertyName("id")]
         public int Id { get; set; }
@@ -16,20 +16,6 @@ namespace StreamMaster.Ring.API.Entities
         [JsonPropertyName("time_zone")]
         public string TimeZone { get; set; }
 
-        [JsonPropertyName("subscribed")]
-        public bool? Subscribed { get; set; }
-
-        [JsonPropertyName("subscribed_motions")]
-        public bool? SubscribedMotions { get; set; }
-
-        [JsonPropertyName("battery_life")]
-        [JsonNumberHandling(JsonNumberHandling.AllowReadingFromString)]
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public int? BatteryLife { get; set; }
-
-        [JsonPropertyName("external_connection")]
-        public bool? ExternalConnection { get; set; }
-
         [JsonPropertyName("firmware_version")]
         public string FirmwareVersion { get; set; }
 
@@ -37,28 +23,31 @@ namespace StreamMaster.Ring.API.Entities
         public string Kind { get; set; }
 
         [JsonPropertyName("latitude")]
-        public double? Latitude { get; set; }
+        public double Latitude { get; set; }
 
         [JsonPropertyName("longitude")]
-        public double? Longitude { get; set; }
+        public double Longitude { get; set; }
 
         [JsonPropertyName("address")]
         public string Address { get; set; }
 
+        [JsonPropertyName("settings")]
+        public ChimeSettings Settings { get; set; }
+
         [JsonPropertyName("features")]
-        public DoorbotFeatures Features { get; set; }
+        public ChimeFeatures Features { get; set; }
 
         [JsonPropertyName("owned")]
-        public bool? Owned { get; set; }
+        public bool Owned { get; set; }
 
         [JsonPropertyName("alerts")]
-        public DoorbotAlerts Alerts { get; set; }
+        public ChimeAlerts Alerts { get; set; }
 
-        [JsonPropertyName("motion_snooze")]
-        public object MotionSnooze { get; set; }
+        [JsonPropertyName("do_not_disturb")]
+        public DoNotDisturb DoNotDisturb { get; set; }
 
         [JsonPropertyName("stolen")]
-        public bool? Stolen { get; set; }
+        public bool Stolen { get; set; }
 
         [JsonPropertyName("owner")]
         public Owner Owner { get; set; }

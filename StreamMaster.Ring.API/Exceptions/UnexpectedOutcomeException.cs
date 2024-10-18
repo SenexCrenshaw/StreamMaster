@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 
 namespace StreamMaster.Ring.API.Exceptions
 {
@@ -32,22 +33,6 @@ namespace StreamMaster.Ring.API.Exceptions
         {
             ReturnedStatusCode = returnedStatusCode;
             ExpectedStatusCode = expectedStatusCode;
-        }
-
-        public UnexpectedOutcomeException() : base()
-        {
-        }
-
-        protected UnexpectedOutcomeException(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) : base(info, context)
-        {
-        }
-
-        public UnexpectedOutcomeException(string? message) : base(message)
-        {
-        }
-
-        public UnexpectedOutcomeException(string? message, Exception? innerException) : base(message, innerException)
-        {
         }
     }
 }

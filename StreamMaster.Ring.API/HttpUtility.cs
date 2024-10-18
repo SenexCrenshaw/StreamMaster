@@ -1,7 +1,12 @@
-﻿using System.Collections.Specialized;
+﻿using System.Collections.Generic;
+using System.IO;
 using System.Net;
-using System.Net.Http.Headers;
 using System.Text;
+using System.Collections.Specialized;
+using System;
+using System.Threading.Tasks;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text.Json;
 
 namespace StreamMaster.Ring.API
@@ -41,10 +46,8 @@ namespace StreamMaster.Ring.API
             _cookieContainer = new CookieContainer();
             _httpClientHandler = new HttpClientHandler { CookieContainer = _cookieContainer };
 
-            _httpClient = new(_httpClientHandler)
-            {
-                Timeout = TimeSpan.FromMilliseconds(timeout)
-            };
+            _httpClient = new(_httpClientHandler);
+            _httpClient.Timeout = TimeSpan.FromMilliseconds(timeout);
         }
 
         #endregion
@@ -69,10 +72,10 @@ namespace StreamMaster.Ring.API
         /// <param name="bearerToken">Bearer token to authenticate the request with. Leave out to not authenticate the session.</param>
         /// <returns>Contents of the result returned by the webserver</returns>
         /// <exception cref="Exceptions.ThrottledException">Thrown when the web server indicates too many requests have been made (HTTP 429).</exception>
-        public async Task<string> GetContents(Uri url, string? bearerToken = null)
+        public async Task<string> GetContents(Uri url, string bearerToken = null)
         {
             // Construct the request
-            HttpRequestMessage request = new()
+            var request = new HttpRequestMessage
             {
                 Method = HttpMethod.Get,
                 RequestUri = url
@@ -81,11 +84,11 @@ namespace StreamMaster.Ring.API
             // Check if the OAuth Bearer Authorization token should be added to the request
             if (!string.IsNullOrEmpty(bearerToken))
             {
-                request.Headers.Add(nameof(HttpRequestHeader.Authorization), $"Bearer {bearerToken}");
+                request.Headers.Add(HttpRequestHeader.Authorization.ToString(), $"Bearer {bearerToken}");
             }
 
             // Send the request to the webserver
-            HttpResponseMessage response = await _httpClient.SendAsync(request);
+            var response = await _httpClient.SendAsync(request);
 
             switch (response.StatusCode)
             {
@@ -97,7 +100,7 @@ namespace StreamMaster.Ring.API
             }
 
             // Return the response from the server
-            string responseFromServer = await response.Content.ReadAsStringAsync();
+            var responseFromServer = await response.Content.ReadAsStringAsync();
             return responseFromServer;
         }
 
@@ -111,10 +114,10 @@ namespace StreamMaster.Ring.API
         /// <exception cref="Exceptions.ThrottledException">Thrown when the web server indicates too many requests have been made (HTTP 429).</exception>
         /// <exception cref="Exceptions.TwoFactorAuthenticationIncorrectException">Thrown when the web server indicates the two-factor code was incorrect (HTTP 400).</exception>
         /// <exception cref="Exceptions.TwoFactorAuthenticationRequiredException">Thrown when the web server indicates two-factor authentication is required (HTTP 412).</exception>
-        public async Task<string?> FormPost(Uri url, Dictionary<string, string> formFields, NameValueCollection headerFields)
+        public async Task<string> FormPost(Uri url, Dictionary<string, string> formFields, NameValueCollection headerFields)
         {
             // Construct the POST request which performs the login
-            HttpRequestMessage request = new()
+            var request = new HttpRequestMessage
             {
                 Method = HttpMethod.Post,
                 RequestUri = url
@@ -128,20 +131,20 @@ namespace StreamMaster.Ring.API
                 }
             }
 
+            // Always add the User-Agent header
+            request.Headers.UserAgent.TryParseAdd("android:com.ringapp");
+
             // Set the content for the HTTP request
             request.Content = new FormUrlEncodedContent(formFields);
 
             // Receive the response from the webserver
-            HttpResponseMessage response = await _httpClient.SendAsync(request);
+            var response = await _httpClient.SendAsync(request);
 
             // Make sure the webserver has sent a response
-            if (response == null)
-            {
-                return null;
-            }
+            if (response == null) return null;
 
             // Get the response body
-            string responseText = await response.Content.ReadAsStringAsync();
+            var responseText = await response.Content.ReadAsStringAsync();
 
             switch (response.StatusCode)
             {
@@ -168,7 +171,8 @@ namespace StreamMaster.Ring.API
             }
 
             // Make sure the response content is available
-            return responseText == null ? null : responseText;
+            if (responseText == null) return null;
+            return responseText;
         }
 
         /// <summary>
@@ -177,10 +181,10 @@ namespace StreamMaster.Ring.API
         /// <param name="url">Url to download the file from</param>
         /// <param name="bearerToken">Bearer token to authenticate the request with. Leave out to not authenticate the session.</param>
         /// <returns>Stream with the file download</returns>
-        public async Task<Stream> DownloadFile(Uri url, string? bearerToken = null)
+        public async Task<Stream> DownloadFile(Uri url, string bearerToken = null)
         {
             // Construct the request
-            HttpRequestMessage request = new()
+            var request = new HttpRequestMessage
             {
                 Method = HttpMethod.Get,
                 RequestUri = url,
@@ -200,7 +204,7 @@ namespace StreamMaster.Ring.API
             }
 
             // Receive the response from the webserver
-            HttpResponseMessage response = await _httpClient.SendAsync(request);
+            var response = await _httpClient.SendAsync(request);
             return await response.Content.ReadAsStreamAsync();
         }
 
@@ -213,9 +217,9 @@ namespace StreamMaster.Ring.API
         /// <param name="bodyContent">Content to send along with the request in the body. Leave NULL to not send along any content.</param>
         /// <param name="bearerToken">Bearer token to authenticate the request with. Leave out to not authenticate the session.</param>
         /// <exception cref="Exceptions.UnexpectedOutcomeException">Thrown if the actual HTTP response is different from what was expected</exception>
-        public async Task SendRequestWithExpectedStatusOutcome(Uri url, HttpMethod httpMethod, HttpStatusCode? expectedStatusCode, string? bodyContent = null, string? bearerToken = null)
+        public async Task SendRequestWithExpectedStatusOutcome(Uri url, HttpMethod httpMethod, HttpStatusCode? expectedStatusCode, string bodyContent = null, string bearerToken = null)
         {
-            using HttpRequestMessage request = new(httpMethod, url);
+            using var request = new HttpRequestMessage(httpMethod, url);
 
             // Check if the OAuth Bearer Authorization token should be added to the request
             if (!string.IsNullOrEmpty(bearerToken))
@@ -229,7 +233,7 @@ namespace StreamMaster.Ring.API
             }
 
             // Send the HTTP request
-            HttpResponseMessage response = await _httpClient.SendAsync(request);
+            var response = await _httpClient.SendAsync(request);
 
             // Validate the resulting HTTP status against the expected status
             if (expectedStatusCode.HasValue && response.StatusCode != expectedStatusCode.Value)
@@ -247,13 +251,13 @@ namespace StreamMaster.Ring.API
         /// <param name="bodyContent">Content to send along with the request in the body. Leave NULL to not send along any content.</param>
         /// <param name="bearerToken">Bearer token to authenticate the request with. Leave out to not authenticate the session.</param>
         /// <returns>Contents of the result returned by the Ring API parsed in the type T provided</returns>
-        public async Task<T> SendRequest<T>(Uri url, HttpMethod httpMethod, string bodyContent, string? bearerToken = null)
+        public async Task<T> SendRequest<T>(Uri url, HttpMethod httpMethod, string bodyContent, string bearerToken = null)
         {
             // Make the request and get the body contents of the response
-            string response = await SendRequest(url, httpMethod, bodyContent, bearerToken);
+            var response = await SendRequest(url, httpMethod, bodyContent, bearerToken);
 
             // Try parsing the response to the type provided with this method
-            T? responseEntity = JsonSerializer.Deserialize<T>(response);
+            T responseEntity = JsonSerializer.Deserialize<T>(response);
             return responseEntity;
         }
 
@@ -265,9 +269,9 @@ namespace StreamMaster.Ring.API
         /// <param name="bodyContent">Content to send along with the request in the body. Leave NULL to not send along any content.</param>
         /// <param name="bearerToken">Bearer token to authenticate the request with. Leave out to not authenticate the session.</param>
         /// <returns>Contents of the result returned by the Ring API</returns>
-        public async Task<string> SendRequest(Uri url, HttpMethod httpMethod, string bodyContent, string? bearerToken = null)
+        public async Task<string> SendRequest(Uri url, HttpMethod httpMethod, string bodyContent, string bearerToken = null)
         {
-            using HttpRequestMessage request = new(httpMethod, url);
+            using var request = new HttpRequestMessage(httpMethod, url);
 
             // Check if the OAuth Bearer Authorization token should be added to the request
             if (!string.IsNullOrEmpty(bearerToken))
@@ -281,10 +285,10 @@ namespace StreamMaster.Ring.API
             }
 
             // Send the HTTP request
-            HttpResponseMessage response = await _httpClient.SendAsync(request);
+            var response = await _httpClient.SendAsync(request);
 
             // Get the response body and return it
-            string responseBody = await response.Content.ReadAsStringAsync();
+            var responseBody = await response.Content.ReadAsStringAsync();
             return responseBody;
         }
     }

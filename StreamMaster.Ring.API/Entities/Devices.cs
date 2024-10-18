@@ -21,6 +21,12 @@ namespace StreamMaster.Ring.API.Entities
         public List<Doorbot> AuthorizedDoorbots { get; set; }
 
         /// <summary>
+        /// All Ring chimes
+        /// </summary>
+        [JsonPropertyName("chimes")]
+        public List<Chime> Chimes { get; set; }
+
+        /// <summary>
         /// All Ring stickup cameras
         /// </summary>
         [JsonPropertyName("stickup_cams")]

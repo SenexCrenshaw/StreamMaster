@@ -1,4 +1,6 @@
-﻿namespace StreamMaster.Ring.API.Exceptions
+﻿using System;
+
+namespace StreamMaster.Ring.API.Exceptions
 {
     /// <summary>
     /// Exception thrown when trying to retrieve information regarding a specific Ring device which could not be found
@@ -19,14 +21,6 @@
         }
 
         public DeviceUnknownException(int? ringDeviceId, System.Net.WebException innerException) : base(string.Format(errorMessage, ringDeviceId.HasValue ? ringDeviceId.Value.ToString() : "unknown"), innerException)
-        {
-        }
-
-        public DeviceUnknownException(string? message) : base(message)
-        {
-        }
-
-        public DeviceUnknownException(string? message, Exception? innerException) : base(message, innerException)
         {
         }
     }

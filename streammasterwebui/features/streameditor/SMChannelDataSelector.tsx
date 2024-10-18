@@ -95,13 +95,6 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id }: SMChannelDat
 
   const actionTemplate = useCallback(
     (smChannel: SMChannelDto) => {
-      // if (smChannel.IsCustomStream === true) {
-      //   return (
-      //     <div className="flex justify-content-end align-items-center" style={{ paddingRight: '0.1rem' }}>
-      //       <StreamCopyLinkDialog realUrl={smChannel?.StreamUrl} />
-      //     </div>
-      //   );
-      // }
       return (
         <div className="flex justify-content-end align-items-center" style={{ paddingRight: '0.1rem' }}>
           <StreamCopyLinkDialog realUrl={smChannel.StreamUrl} />
@@ -120,13 +113,6 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id }: SMChannelDat
 
   const simpleActionTemplate = useCallback(
     (smChannel: SMChannelDto) => {
-      // if (smChannel.IsCustomStream === true) {
-      //   return (
-      //     <div className="flex justify-content-end align-items-center" style={{ paddingRight: '0.1rem' }}>
-      //       <StreamCopyLinkDialog realUrl={smChannel?.StreamUrl} />
-      //     </div>
-      //   );
-      // }
       return (
         <div className="flex justify-content-end align-items-center" style={{ paddingRight: '0.1rem' }}>
           <StreamCopyLinkDialog realUrl={smChannel?.StreamUrl} />
@@ -178,12 +164,13 @@ const SMChannelDataSelector = ({ enableEdit: propsEnableEdit, id }: SMChannelDat
 
   const columns = useMemo(
     (): ColumnMeta[] => [
+      sgColumnConfig,
       channelNumberColumnConfig,
       channelLogoColumnConfig,
       channelNameColumnConfig,
       epgColumnConfig,
       groupColumnConfig,
-      sgColumnConfig,
+
       { align: 'right', bodyTemplate: actionTemplate, field: 'IsHidden', fieldType: 'actions', header: 'Actions', width: 52 }
     ],
     [actionTemplate, channelLogoColumnConfig, channelNameColumnConfig, channelNumberColumnConfig, epgColumnConfig, groupColumnConfig, sgColumnConfig]

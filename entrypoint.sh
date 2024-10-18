@@ -8,13 +8,24 @@ group_name="nonRootGroup"
 # Function to check if a specific MigrationId exists in the __EFMigrationsHistory table
 check_migration_exists() {
     local migration_id=$1
-    local exists=$(psql -U $POSTGRES_USER -d $POSTGRES_DB -h $POSTGRES_HOST -tAc "SELECT 1 FROM public.\"__EFMigrationsHistory\" WHERE \"MigrationId\" = '$migration_id';")
-    if [ "$exists" = "1" ]; then
-        return 0  # MigrationId exists
+
+    # Check if the __EFMigrationsHistory table exists
+    local table_exists=$(psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -h "$POSTGRES_HOST" -tAc "SELECT to_regclass('public.\"__EFMigrationsHistory\"');")
+
+    if [ "$table_exists" = "public.__EFMigrationsHistory" ]; then
+        # Table exists, check if the migration_id exists
+        local exists=$(psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -h "$POSTGRES_HOST" -tAc "SELECT 1 FROM public.\"__EFMigrationsHistory\" WHERE \"MigrationId\" = '$migration_id';")
+        if [ "$exists" = "1" ]; then
+            return 0  # MigrationId exists
+        else
+            return 1  # MigrationId does not exist
+        fi
     else
-        return 1  # MigrationId does not exist
+        # Table does not exist
+        return 1
     fi
 }
+
 
 # Perform the database migration check and update
 perform_migration_update() {
