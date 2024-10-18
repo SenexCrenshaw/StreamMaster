@@ -13,8 +13,8 @@ using StreamMaster.Infrastructure.EF.PGSQL;
 namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
 {
     [DbContext(typeof(PGSQLRepositoryContext))]
-    [Migration("20241015192306_AddedM3UFields")]
-    partial class AddedM3UFields
+    [Migration("20241018224015_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -211,6 +211,9 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
 
                     b.Property<DateTime>("LastUpdated")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("M3U8OutPutProfile")
+                        .HasColumnType("text");
 
                     b.Property<int>("M3UKey")
                         .HasColumnType("integer");

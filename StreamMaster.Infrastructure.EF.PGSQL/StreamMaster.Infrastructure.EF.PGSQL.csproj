@@ -34,4 +34,7 @@
     <ProjectReference Include="..\StreamMaster.Domain\StreamMaster.Domain.csproj" />
     <ProjectReference Include="..\StreamMaster.Infrastructure.EF.Base\StreamMaster.Infrastructure.EF.Base.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Migrations\" />
+  </ItemGroup>
 </Project>

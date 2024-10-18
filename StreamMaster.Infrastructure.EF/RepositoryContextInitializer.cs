@@ -12,6 +12,16 @@ public class RepositoryContextInitializer(ILogger<RepositoryContextInitializer> 
     {
         try
         {
+            string? currentMigration = context.Database.GetAppliedMigrations().LastOrDefault();
+            if (currentMigration is not null and "20241017230528_M3U8OutPutProfile")
+            {
+                context.Database.ExecuteSqlRaw("DELETE FROM public.\"__EFMigrationsHistory\";");
+                context.Database.ExecuteSqlRaw(
+       "INSERT INTO public.\"__EFMigrationsHistory\" (\"MigrationId\", \"ProductVersion\") " +
+       "VALUES ('20241018224015_Initial', '8.0.10');"
+   );
+            }
+
             await context.Database.MigrateAsync().ConfigureAwait(false);
 
             Setting settings = intSettings.CurrentValue;
