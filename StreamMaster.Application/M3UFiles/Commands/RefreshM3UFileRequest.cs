@@ -1,41 +1,34 @@
-﻿using FluentValidation;
+﻿namespace StreamMaster.Application.M3UFiles.Commands;
 
-namespace StreamMaster.Application.M3UFiles.Commands;
-
-public record RefreshM3UFileRequest(int Id, bool forceRun = false) : IRequest<M3UFile?> { }
-
-public class RefreshM3UFileRequestValidator : AbstractValidator<RefreshM3UFileRequest>
-{
-    public RefreshM3UFileRequestValidator()
-    {
-        _ = RuleFor(v => v.Id).NotNull().GreaterThanOrEqualTo(0);
-    }
-}
+[SMAPI]
+[TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
+public record RefreshM3UFileRequest(int Id, bool ForceRun = false) : IRequest<APIResponse>;
 
 [LogExecutionTimeAspect]
-public class RefreshM3UFileRequestHandler(ILogger<RefreshM3UFileRequest> Logger, IJobStatusService jobStatusService, IRepositoryWrapper Repository, IMapper Mapper, IPublisher Publisher) : IRequestHandler<RefreshM3UFileRequest, M3UFile?>
+public class RefreshM3UFileRequestHandler(ILogger<RefreshM3UFileRequest> Logger, IFileUtilService fileUtilService, IMessageService messageService, IJobStatusService jobStatusService, IRepositoryWrapper Repository, IMapper Mapper, IPublisher Publisher)
+    : IRequestHandler<RefreshM3UFileRequest, APIResponse>
 {
 
-    public async Task<M3UFile?> Handle(RefreshM3UFileRequest request, CancellationToken cancellationToken)
+    public async Task<APIResponse> Handle(RefreshM3UFileRequest request, CancellationToken cancellationToken)
     {
-        JobStatusManager jobManager = jobStatusService.GetJobManager(JobType.RefreshM3U, request.Id);
+        JobStatusManager jobManager = jobStatusService.GetJobManagerRefreshM3U(request.Id);
         try
         {
             if (jobManager.IsRunning)
             {
-                return null;
+                return APIResponse.NotFound;
             }
             jobManager.Start();
 
 
-            M3UFile? m3uFile = await Repository.M3UFile.GetM3UFileById(request.Id).ConfigureAwait(false);
+            M3UFile? m3uFile = await Repository.M3UFile.GetM3UFileAsync(request.Id).ConfigureAwait(false);
             if (m3uFile == null)
             {
                 jobManager.SetError();
-                return null;
+                return APIResponse.NotFound;
             }
 
-            if (request.forceRun || m3uFile.LastDownloadAttempt.AddMinutes(m3uFile.MinimumMinutesBetweenDownloads) < SMDT.UtcNow)
+            if (request.ForceRun || m3uFile.LastDownloadAttempt.AddMinutes(m3uFile.MinimumMinutesBetweenDownloads) < SMDT.UtcNow)
             {
                 FileDefinition fd = FileDefinitions.M3U;
                 string fullName = Path.Combine(fd.DirectoryLocation, m3uFile.Source);
@@ -46,7 +39,7 @@ public class RefreshM3UFileRequestHandler(ILogger<RefreshM3UFileRequest> Logger,
 
                     m3uFile.LastDownloadAttempt = SMDT.UtcNow;
 
-                    (bool success, Exception? ex) = await FileUtil.DownloadUrlAsync(m3uFile.Url, fullName, cancellationToken).ConfigureAwait(false);
+                    (bool success, Exception? ex) = await fileUtilService.DownloadUrlAsync(m3uFile.Url, fullName).ConfigureAwait(false);
                     if (success)
                     {
                         m3uFile.DownloadErrors = 0;
@@ -56,22 +49,24 @@ public class RefreshM3UFileRequestHandler(ILogger<RefreshM3UFileRequest> Logger,
                     else
                     {
                         ++m3uFile.DownloadErrors;
+                        await messageService.SendError("Exception M3U From URL ", ex?.Message);
                         Logger.LogCritical("Exception M3U From URL {ex}", ex);
                     }
                 }
 
-                List<VideoStream>? streams = await m3uFile.GetM3U(Logger, cancellationToken);
-                if (streams == null)
-                {
-                    Logger.LogCritical("Exception M3U {fullName} format is not supported", fullName);
-                    //Bad M3U
-                    if (File.Exists(fullName))
-                    {
-                        File.Delete(fullName);
-                    }
-                    jobManager.SetError();
-                    return null;
-                }
+                //List<SMStream>? streams = await m3uFile.GetSMStreamsFromM3U(Logger);
+                //if (streams == null)
+                //{
+                //    Logger.LogCritical("Exception M3U {fullName} format is not supported", fullName);
+                //    await messageService.SendError($"Exception M3U {fullName} format is not supported");
+                //    //Bad M3U
+                //    if (File.Exists(fullName))
+                //    {
+                //        File.Delete(fullName);
+                //    }
+                //    jobManager.SetError();
+                //    return APIResponse.NotFound;
+                //}
             }
 
             //m3uFile.LastUpdated = SMDT.UtcNow;
@@ -81,15 +76,16 @@ public class RefreshM3UFileRequestHandler(ILogger<RefreshM3UFileRequest> Logger,
             M3UFileDto ret = Mapper.Map<M3UFileDto>(m3uFile);
             //if (publish)
             //{
-            await Publisher.Publish(new M3UFileAddedEvent(ret.Id, request.forceRun), cancellationToken).ConfigureAwait(false);
+            await Publisher.Publish(new M3UFileProcessEvent(ret.Id, request.ForceRun), cancellationToken).ConfigureAwait(false);
             //}
             jobManager.SetSuccessful();
-            return m3uFile;
+
+            return APIResponse.Success;
         }
         catch
         {
             jobManager.SetError();
-            return null;
+            return APIResponse.NotFound;
         }
 
     }

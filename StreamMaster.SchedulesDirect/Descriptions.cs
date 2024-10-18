@@ -1,208 +1,118 @@
-﻿using StreamMaster.SchedulesDirect.Domain.Enums;
-
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Text.Json;
 
 namespace StreamMaster.SchedulesDirect;
-public class Descriptions(ILogger<Descriptions> logger, ISchedulesDirectAPIService schedulesDirectAPI, IEPGCache<Descriptions> epgCache, ISchedulesDirectDataService schedulesDirectDataService) : IDescriptions
+
+public class Descriptions(ILogger<Descriptions> logger, ISchedulesDirectAPIService schedulesDirectAPI, IEPGCache<Descriptions> epgCache, ISchedulesDirectDataService schedulesDirectDataService)
+    : IDescriptions
 {
     private readonly int processedObjects;
     private readonly int totalObjects;
     private List<string> seriesDescriptionQueue = [];
     private ConcurrentDictionary<string, GenericDescription> seriesDescriptionResponses = [];
+    private readonly SemaphoreSlim semaphore = new(SchedulesDirect.MaxParallelDownloads, SchedulesDirect.MaxParallelDownloads);
 
-    public void ResetCache()
-    {
-        seriesDescriptionQueue = [];
-        seriesDescriptionResponses = [];
-    }
+    private bool disposedValue = false;
 
-    public async Task<bool> BuildAllGenericSeriesInfoDescriptions()
+    public async Task<bool> BuildAllGenericSeriesInfoDescriptions(CancellationToken cancellationToken)
     {
+        ResetCache();
+
         ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
-        // reset counters
-        seriesDescriptionQueue = [];
-        seriesDescriptionResponses = [];
-
-        List<MxfSeriesInfo> a = schedulesDirectData.SeriesInfosToProcess;
-        ConcurrentDictionary<string, MxfProgram> b = schedulesDirectData.Programs;
-        ConcurrentBag<MxfProvider> c = schedulesDirectData.Providers;
-        List<MxfSeriesInfo> toProcess = schedulesDirectData.SeriesInfosToProcess;
-
+        List<SeriesInfo> toProcess = schedulesDirectData.SeriesInfosToProcess;
         logger.LogInformation($"Entering BuildAllGenericSeriesInfoDescriptions() for {toProcess.Count} series.");
 
-        // fill mxf programs with cached values and queue the rest
-        foreach (MxfSeriesInfo series in toProcess)
+        foreach (SeriesInfo series in toProcess)
         {
-            // sports events will not have a generic description
             if (series.SeriesId.StartsWith("SP") || string.IsNullOrEmpty(series.ProtoTypicalProgram))
             {
-                //IncrementProgress();
                 continue;
             }
 
-            // import the cached description if exists, otherwise queue it up
             string seriesId = $"SH{series.SeriesId}0000";
             if (epgCache.JsonFiles.ContainsKey(seriesId) && epgCache.JsonFiles[seriesId].JsonEntry != null)
             {
-                try
-                {
-                    using StringReader reader = new(epgCache.GetAsset(seriesId));
-                    GenericDescription? cached = JsonSerializer.Deserialize<GenericDescription>(reader.ReadToEnd());
-
-                    if (cached is not null && cached.Code == 0)
-                    {
-                        series.ShortDescription = cached.Description100;
-                        series.Description = cached.Description1000;
-                        if (!string.IsNullOrEmpty(cached.StartAirdate))
-                        {
-                            series.StartAirdate = cached.StartAirdate;
-                        }
-                    }
-
-
-                    //IncrementProgress();
-                }
-                catch
-                {
-                    if (int.TryParse(series.SeriesId, out int dummy))
-                    {
-                        // must use EP to query generic series description
-                        seriesDescriptionQueue.Add($"{series.ProtoTypicalProgram}");
-                    }
-                    else
-                    {
-                        //IncrementProgress();
-                    }
-                }
-            }
-            else if (!int.TryParse(series.SeriesId, out int dummy) || (series.ProtoTypicalProgram is not null && series.ProtoTypicalProgram.StartsWith("SH")))
-            {
-                //IncrementProgress();
+                TryLoadFromCache(seriesId, series);
             }
             else
             {
-                // must use EP to query generic series description
-                seriesDescriptionQueue.Add($"{series.ProtoTypicalProgram}");
+                seriesDescriptionQueue.Add(series.ProtoTypicalProgram);
             }
         }
-        logger.LogInformation($"Found {processedObjects} cached/unavailable series descriptions.");
 
-        // maximum 500 queries at a time
-        //if (seriesDescriptionQueue.Count > 0)
-        //{
-        //    Parallel.For(0, (seriesDescriptionQueue.Count / SchedulesDirect.MaxDescriptionQueries) + 1, new ParallelOptions { MaxDegreeOfParallelism = SchedulesDirect.MaxParallelDownloads }, i =>
-        //    {
-        //        DownloadGenericSeriesDescriptions(i * SchedulesDirect.MaxDescriptionQueries);
-        //    });
-
-        //    ProcessSeriesDescriptionsResponses();
-        //    if (processedObjects != totalObjects)
-        //    {
-        //        logger.LogWarning($"Failed to download and process {schedulesDirectData.SeriesInfosToProcess.Count - processedObjects} series descriptions.");
-        //    }
-        //}
-        int processedCount = 0;
         if (seriesDescriptionQueue.Count > 0)
         {
-            SemaphoreSlim semaphore = new(SchedulesDirect.MaxParallelDownloads, SchedulesDirect.MaxParallelDownloads);
-            List<Task> tasks = [];
-
-            for (int i = 0; i <= (seriesDescriptionQueue.Count / SchedulesDirect.MaxDescriptionQueries); i++)
-            {
-                int startIndex = i * SchedulesDirect.MaxDescriptionQueries;
-                tasks.Add(Task.Run(async () =>
-                {
-                    await semaphore.WaitAsync();
-                    try
-                    {
-                        int itemCount = Math.Min(seriesDescriptionQueue.Count - startIndex, SchedulesDirect.MaxDescriptionQueries);
-                        await DownloadGenericSeriesDescriptionsAsync(startIndex).ConfigureAwait(false);
-                        Interlocked.Add(ref processedCount, itemCount);
-                        logger.LogInformation("Downloaded series descriptions {ProcessedCount} of {TotalCount}", processedCount, seriesDescriptionQueue.Count);
-                    }
-                    catch (Exception ex)
-                    {
-                        logger.LogError(ex, "Error downloading series descriptions at {StartIndex}", startIndex);
-                    }
-                    finally
-                    {
-                        semaphore.Release();
-                    }
-                }));
-            }
-
-            await Task.WhenAll(tasks).ConfigureAwait(false);
-
-            // Continue with the rest of your processing
-            ProcessSeriesDescriptionsResponses();
-
-            if (processedObjects != totalObjects)
-            {
-                logger.LogWarning("Failed to download and process {FailedCount} series descriptions.", schedulesDirectData.SeriesInfosToProcess.Count - processedObjects);
-            }
+            await ProcessDescriptionsAsync(cancellationToken).ConfigureAwait(false);
         }
 
-
         logger.LogInformation("Exiting BuildAllGenericSeriesInfoDescriptions(). SUCCESS.");
-        seriesDescriptionQueue = []; seriesDescriptionResponses = [];
         epgCache.SaveCache();
         return true;
     }
 
-    private async Task DownloadGenericSeriesDescriptionsAsync(int start = 0)
+    private void TryLoadFromCache(string seriesId, SeriesInfo series)
     {
-        // Reject 0 requests
-        if (seriesDescriptionQueue.Count - start < 1)
+        try
         {
-            return;
-        }
-
-        // Build the array of series to request descriptions for
-        string[] series = new string[Math.Min(seriesDescriptionQueue.Count - start, SchedulesDirect.MaxImgQueries)];
-        for (int i = 0; i < series.Length; ++i)
-        {
-            series[i] = seriesDescriptionQueue[start + i];
-        }
-
-        // Request descriptions from Schedules Direct
-        Dictionary<string, GenericDescription>? responses = await schedulesDirectAPI.GetApiResponse<Dictionary<string, GenericDescription>?>(APIMethod.POST, "metadata/description/", series).ConfigureAwait(false);
-
-        if (responses != null)
-        {
-            // Process responses in parallel
-            Parallel.ForEach(responses, (response) =>
+            GenericDescription? cached = JsonSerializer.Deserialize<GenericDescription>(epgCache.GetAsset(seriesId));
+            if (cached?.Code == 0)
             {
-                seriesDescriptionResponses.TryAdd(response.Key, response.Value);
-            });
+                series.ShortDescription = cached.Description100;
+                series.Description = cached.Description1000;
+                if (!string.IsNullOrEmpty(cached.StartAirdate))
+                {
+                    series.StartAirdate = cached.StartAirdate;
+                }
+            }
+        }
+        catch
+        {
+            seriesDescriptionQueue.Add($"{series.ProtoTypicalProgram}");
         }
     }
 
-
-
-    private void DownloadGenericSeriesDescriptions(int start = 0)
+    private async Task ProcessDescriptionsAsync(CancellationToken cancellationToken)
     {
-        // reject 0 requests
+        List<Task> tasks = [];
+
+        for (int i = 0; i <= (seriesDescriptionQueue.Count / SchedulesDirect.MaxDescriptionQueries); i++)
+        {
+            int startIndex = i * SchedulesDirect.MaxDescriptionQueries;
+            tasks.Add(Task.Run(async () =>
+            {
+                await semaphore.WaitAsync(cancellationToken);
+                try
+                {
+                    await DownloadGenericSeriesDescriptionsAsync(startIndex, cancellationToken).ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, "Error downloading series descriptions at {StartIndex}", startIndex);
+                }
+                finally
+                {
+                    semaphore.Release();
+                }
+            }, cancellationToken));
+        }
+
+        await Task.WhenAll(tasks).ConfigureAwait(false);
+        ProcessSeriesDescriptionsResponses();
+    }
+
+    private async Task DownloadGenericSeriesDescriptionsAsync(int start, CancellationToken cancellationToken)
+    {
         if (seriesDescriptionQueue.Count - start < 1)
         {
             return;
         }
 
-        // build the array of series to request descriptions for
-        string[] series = new string[Math.Min(seriesDescriptionQueue.Count - start, SchedulesDirect.MaxDescriptionQueries)];
-        for (int i = 0; i < series.Length; ++i)
-        {
-            series[i] = seriesDescriptionQueue[start + i];
-        }
+        string[] series = seriesDescriptionQueue.Skip(start).Take(SchedulesDirect.MaxDescriptionQueries).ToArray();
 
-        IEnumerable<string> test = series.Where(string.IsNullOrEmpty);
-        //if (test.Any())
-        //{
-        //    int aaa = 1;
-        //}
-        // request descriptions from Schedules Direct
-        //Dictionary<string, GenericDescription>? responses = GetGenericDescriptionsAsync(series, CancellationToken.None).Result;
-        Dictionary<string, GenericDescription>? responses = schedulesDirectAPI.GetApiResponse<Dictionary<string, GenericDescription>?>(APIMethod.POST, "metadata/description/", series).Result;
+        Dictionary<string, GenericDescription>? responses = await schedulesDirectAPI
+            .GetApiResponse<Dictionary<string, GenericDescription>?>(APIMethod.POST, "metadata/description/", series, cancellationToken)
+            .ConfigureAwait(false);
+
         if (responses != null)
         {
             Parallel.ForEach(responses, (response) =>
@@ -224,7 +134,7 @@ public class Descriptions(ILogger<Descriptions> logger, ISchedulesDirectAPIServi
             GenericDescription description = response.Value;
 
             // determine which seriesInfo this belongs to
-            MxfSeriesInfo mxfSeriesInfo = schedulesDirectData.FindOrCreateSeriesInfo(seriesId.Substring(2, 8));
+            SeriesInfo mxfSeriesInfo = schedulesDirectData.FindOrCreateSeriesInfo(seriesId.Substring(2, 8));
 
             // populate descriptions
             mxfSeriesInfo.ShortDescription = description.Description100;
@@ -248,6 +158,7 @@ public class Descriptions(ILogger<Descriptions> logger, ISchedulesDirectAPIServi
     {
         UpdateSeriesAirdate(seriesId, DateTime.Parse(originalAirdate));
     }
+
     private void UpdateSeriesAirdate(string seriesId, DateTime airdate)
     {
         ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
@@ -272,7 +183,6 @@ public class Descriptions(ILogger<Descriptions> logger, ISchedulesDirectAPIServi
             using StringWriter writer = new();
             string jsonString = JsonSerializer.Serialize(cached, options);
             epgCache.UpdateAssetJsonEntry(seriesId, jsonString);
-
         }
         catch
         {
@@ -295,10 +205,36 @@ public class Descriptions(ILogger<Descriptions> logger, ISchedulesDirectAPIServi
 
         return ret;
     }
+
+    public void ResetCache()
+    {
+        seriesDescriptionQueue = [];
+        seriesDescriptionResponses = [];
+    }
+
     public void ClearCache()
     {
         epgCache.ResetCache();
     }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!disposedValue)
+        {
+            if (disposing)
+            {
+                // Dispose managed resources
+                semaphore.Dispose();
+            }
+            // Free unmanaged resources (if any) here
+
+            disposedValue = true;
+        }
+    }
+
+    public void Dispose()
+    {
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
+    }
 }
-
-

@@ -1,33 +1,62 @@
-import { GetMessage } from '@lib/common/common';
-import React from 'react';
-// Import the getLine function
-import { StreamingProxyTypes } from '@lib/common/streammaster_enums';
+import { GetMessage } from '@lib/common/intl';
 import { Fieldset } from 'primereact/fieldset';
+import React, { useMemo } from 'react';
+import { GetInputNumberLine } from './components/GetInputNumberLine';
+
+import { useSettingsContext } from '@lib/context/SettingsProvider';
+import useGetCommandProfiles from '@lib/smAPI/Profiles/useGetCommandProfiles';
+import useGetOutputProfiles from '@lib/smAPI/Profiles/useGetOutputProfiles';
 import { SelectItem } from 'primereact/selectitem';
-import { getCheckBoxLine } from './getCheckBoxLine';
-import { getDropDownLine } from './getDropDownLine';
-import { getInputNumberLine } from './getInputNumberLine';
-import { getInputTextLine } from './getInputTextLine';
-import { useSettingChangeHandler } from './useSettingChangeHandler';
+import { BaseSettings } from './BaseSettings';
+import { GetCheckBoxLine } from './components/GetCheckBoxLine';
+import { GetDropDownLine } from './components/GetDropDownLine';
+import { GetInputTextLine } from './components/GetInputTextLine';
 
 export function StreamingSettings(): React.ReactElement {
-  const { onChange, selectedCurrentSettingDto } = useSettingChangeHandler();
+  const { currentSetting } = useSettingsContext();
+  const { data: commandProfiles } = useGetCommandProfiles();
+  const { data: outputProfiles } = useGetOutputProfiles();
 
-  const getHandlersOptions = (): SelectItem[] => {
-    const test = Object.entries(StreamingProxyTypes)
-      .splice(0, Object.keys(StreamingProxyTypes).length / 2)
-      .map(
-        ([number, word]) =>
-          ({
-            label: word,
-            value: number
-          } as SelectItem)
-      );
-
-    return test;
+  const getIntroOptions = (): SelectItem[] => {
+    var options = [
+      { label: 'None', value: 0 },
+      { label: 'Once', value: 1 },
+      { label: 'Always', value: 2 }
+    ] as SelectItem[];
+    return options;
   };
 
-  if (selectedCurrentSettingDto === null || selectedCurrentSettingDto === undefined) {
+  const DefaultCommandProfileNameOptions = useMemo((): SelectItem[] => {
+    if (!commandProfiles) {
+      return [];
+    }
+
+    const ret = commandProfiles.map(
+      (x) =>
+        ({
+          label: x.ProfileName,
+          value: x.ProfileName
+        } as SelectItem)
+    );
+    return ret;
+  }, [commandProfiles]);
+
+  const DefaultOutputProfileNameOptions = useMemo((): SelectItem[] => {
+    if (!outputProfiles) {
+      return [];
+    }
+
+    const ret = outputProfiles.map(
+      (x) =>
+        ({
+          label: x.ProfileName,
+          value: x.ProfileName
+        } as SelectItem)
+    );
+    return ret;
+  }, [outputProfiles]);
+
+  if (!currentSetting) {
     return (
       <Fieldset className="mt-4 pt-10" legend={GetMessage('SD')}>
         <div className="text-center">{GetMessage('loading')}</div>
@@ -36,13 +65,17 @@ export function StreamingSettings(): React.ReactElement {
   }
 
   return (
-    <Fieldset className="mt-4 pt-10" legend={GetMessage('streaming')} toggleable>
-      {getDropDownLine({ field: 'streamingProxyType', options: getHandlersOptions(), selectedCurrentSettingDto, onChange })}
-      {getInputNumberLine({ field: 'globalStreamLimit', selectedCurrentSettingDto, onChange })}
-      {getInputTextLine({ field: 'clientUserAgent', selectedCurrentSettingDto, onChange })}
-      {getInputTextLine({ field: 'streamingClientUserAgent', selectedCurrentSettingDto, onChange })}
-      {getInputTextLine({ field: 'ffMpegOptions', selectedCurrentSettingDto, onChange })}
-      {getCheckBoxLine({ field: 'showClientHostNames', selectedCurrentSettingDto, onChange })}
-    </Fieldset>
+    <BaseSettings title="STREAMING">
+      {GetInputNumberLine({ field: 'ClientReadTimeOutSeconds' })}
+      {GetInputNumberLine({ field: 'GlobalStreamLimit' })}
+      {GetInputTextLine({ field: 'ClientUserAgent' })}
+      {GetCheckBoxLine({ field: 'ShowClientHostNames' })}
+      {GetDropDownLine({ field: 'ShowIntros', options: getIntroOptions() })}
+      {GetCheckBoxLine({ field: 'ShowMessageVideos' })}
+      {GetDropDownLine({ field: 'DefaultCommandProfileName', options: DefaultCommandProfileNameOptions })}
+      {GetDropDownLine({ field: 'DefaultOutputProfileName', options: DefaultOutputProfileNameOptions })}
+      {/* {GetDropDownLine({ field: 'M3U8OutPutProfile', options: DefaultCommandProfileNameOptions })} */}
+      {GetInputNumberLine({ field: 'ShutDownDelay', max: 999999 })}
+    </BaseSettings>
   );
 }

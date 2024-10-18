@@ -10,8 +10,81 @@ param (
     [switch]$SkipMainBuild = $false
 )
 
-
 $global:tags
+function Main {
+    Set-EnvironmentVariables
+
+    if (  $SkipMainBuild) {
+        $Prod = $false
+    }
+
+    if (-not $SkipRelease -and -not $PrintCommands) {
+
+        if ( $Prod ) {
+            #} -and -not $SkipMainBuild) {
+            Copy-File -sourcePath "release.config.release.cjs" -destinationPath "release.config.cjs"
+        }
+        else {
+            Copy-File -sourcePath "release.config.norelease.cjs" -destinationPath "release.config.cjs"
+        }
+
+        npx semantic-release
+    }
+
+    # DownloadFiles
+
+    $imageName = "docker.io/senexcrenshaw/streammaster"
+    $buildName = "streammaster-builds"
+
+    $result = Get-AssemblyInfo -assemblyInfoPath "./StreamMaster.API/AssemblyInfo.cs"
+    $processedAssemblyInfo = ProcessAssemblyInfo $result
+
+    if ($BuildBase -or $BuildAll) {
+        $dockerFile = "Dockerfile.base"
+        $global:tags = @("$("${buildName}:"+$processedAssemblyInfo.BranchNameRevision)-base")
+        BuildImage -result $processedAssemblyInfo -imageName $buildName -dockerFile $dockerFile -pull $true
+        Write-StringToFile -Path "basever" -Content $processedAssemblyInfo.BranchNameRevision 
+    }
+
+    if ($BuildBuild -or $BuildAll) {
+        $dockerFile = "Dockerfile.build"
+        $global:tags = @("$("${buildName}:"+$processedAssemblyInfo.BranchNameRevision)-build")
+        BuildImage -result $processedAssemblyInfo -imageName $buildName -dockerFile $dockerFile -pull $true
+        Write-StringToFile -Path "buildver" -Content $processedAssemblyInfo.BranchNameRevision 
+    }
+    
+    if ($BuildSM -or $BuildAll) {
+        $dockerFile = "Dockerfile.sm"
+        $global:tags = @("$("${buildName}:"+$processedAssemblyInfo.BranchNameRevision)-sm")
+        
+        $buildver = Read-StringFromFile -Path "buildver";      
+        $contentArray = @('FROM --platform=$BUILDPLATFORM ' + "${buildName}:$($buildver)-build" + ' AS build');
+        Add-ContentAtTop -filePath  $dockerFile -contentArray $contentArray
+
+        $smver = $processedAssemblyInfo.BranchNameRevision ;
+
+        BuildImage -result $processedAssemblyInfo -imageName $buildName -dockerFile $dockerFile
+        Write-StringToFile -Path "smver" -Content $smver
+    }
+
+    if ( -not $SkipMainBuild -or $BuildAll) {
+        $dockerFile = "Dockerfile"
+
+        $contentArray = @();
+
+        $basever = Read-StringFromFile -Path "basever";
+        $smver = Read-StringFromFile -Path "smver";
+
+        $contentArray += 'FROM ' + "${buildName}:$($smver)-sm" + ' AS sm'      
+        $contentArray += 'FROM ' + "${buildName}:$($basever)-base" + ' AS base'  
+
+        Add-ContentAtTop -filePath  $dockerFile -contentArray $contentArray
+
+        $global:tags = DetermineTags -result $processedAssemblyInfo -imageName $imageName
+        BuildImage -result $processedAssemblyInfo -imageName $imageName -dockerFile $dockerFile -push $true
+    }
+}
+
 
 function Write-StringToFile {
     param (
@@ -67,81 +140,6 @@ function Copy-File {
     }
 }
 
-function Main {
-    Set-EnvironmentVariables
-
-   
-
-    if (  $SkipMainBuild) {
-        $Prod = $false
-    }
-
-    if (-not $SkipRelease -and -not $PrintCommands) {
-
-        if ( $Prod ) {
-            #} -and -not $SkipMainBuild) {
-            Copy-File -sourcePath "release.config.release.cjs" -destinationPath "release.config.cjs"
-        }
-        else {
-            Copy-File -sourcePath "release.config.norelease.cjs" -destinationPath "release.config.cjs"
-        }
-
-        npx semantic-release
-    }
-
-    # DownloadFiles
-
-    $imageName = "docker.io/senexcrenshaw/streammaster"
-    $buildName = "streammaster-builds"
-
-    $result = Get-AssemblyInfo -assemblyInfoPath "./StreamMaster.API/AssemblyInfo.cs"
-    $processedAssemblyInfo = ProcessAssemblyInfo $result
-
-    if ($BuildBase -or $BuildAll) {
-        $dockerFile = "Dockerfile.base"
-        $global:tags = @("$("${buildName}:"+$processedAssemblyInfo.BranchNameRevision)-base")
-        BuildImage -result $processedAssemblyInfo -imageName $buildName -dockerFile $dockerFile -pull $true
-        Write-StringToFile -Path "basever" -Content $processedAssemblyInfo.BranchNameRevision 
-    }
-
-    if ($BuildBuild -or $BuildAll) {
-        $dockerFile = "Dockerfile.build"
-        $global:tags = @("$("${buildName}:"+$processedAssemblyInfo.BranchNameRevision)-build")
-        BuildImage -result $processedAssemblyInfo -imageName $buildName -dockerFile $dockerFile -pull $true
-        Write-StringToFile -Path "buildver" -Content $processedAssemblyInfo.BranchNameRevision 
-    }
-    
-    if ($BuildSM -or $BuildBuild -or $BuildAll) {
-        $dockerFile = "Dockerfile.sm"
-        $global:tags = @("$("${buildName}:"+$processedAssemblyInfo.BranchNameRevision)-sm")
-        
-        $buildver = Read-StringFromFile -Path "buildver";      
-        $contentArray = @('FROM --platform=$BUILDPLATFORM ' + "${buildName}:$($buildver)-build" + ' AS build');
-        Add-ContentAtTop -filePath  $dockerFile -contentArray $contentArray
-
-        $smver = $processedAssemblyInfo.BranchNameRevision ;
-
-        BuildImage -result $processedAssemblyInfo -imageName $buildName -dockerFile $dockerFile
-        Write-StringToFile -Path "smver" -Content $smver
-    }
-
-    if ( -not $SkipMainBuild -or $BuildAll) {
-        $dockerFile = "Dockerfile"
-
-        $contentArray = @();
-
-        $basever = Read-StringFromFile -Path "basever";
-        $smver = Read-StringFromFile -Path "smver";
-
-        $contentArray += 'FROM ' + "${buildName}:$($smver)-sm" + ' AS sm'      
-        $contentArray += 'FROM ' + "${buildName}:$($basever)-base" + ' AS base'  
-
-        Add-ContentAtTop -filePath  $dockerFile -contentArray $contentArray
-
-        $global:tags = DetermineTags -result $processedAssemblyInfo -imageName $imageName
-        BuildImage -result $processedAssemblyInfo -imageName $imageName -dockerFile $dockerFile -push $true
-    }
-}
 Function Add-ContentAtTop {
     param(
         [string]$filePath,
@@ -186,7 +184,7 @@ function Set-EnvironmentVariables {
     $env:COMPOSE_DOCKER_CLI_BUILD = 1
 
     # Read GitHub token and set it as an environment variable
-    $ghtoken = Get-Content ghtoken -Raw
+    $ghtoken = Get-Content ../secrets/ghtoken -Raw
     Write-Output "GitHub Token: $ghtoken"
     $env:GH_TOKEN = $ghtoken
 }
@@ -327,6 +325,8 @@ function Invoke-Build($buildCommand) {
 
     $endTime = Get-Date
     $overallTime = $endTime - $startTime
+     
+    Write-Host "Build completed on: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')"
     Write-Host "`nOverall time taken: $($overallTime.TotalSeconds) seconds"
 }
 
@@ -337,3 +337,4 @@ Main
 
 Write-Host "Tags to be used:"
 $global:tags | ForEach-Object { Write-Host $_ }
+

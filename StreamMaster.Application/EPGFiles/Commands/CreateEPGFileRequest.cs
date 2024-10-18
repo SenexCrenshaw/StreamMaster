@@ -1,128 +1,80 @@
-﻿using FluentValidation;
+﻿using System.Web;
 
-using Microsoft.AspNetCore.Http;
-
-using StreamMaster.Domain.Color;
-
-using System.Web;
 namespace StreamMaster.Application.EPGFiles.Commands;
 
-public record CreateEPGFileRequest(IFormFile? FormFile, string Name, string FileName, int EPGNumber, int? TimeShift, string? UrlSource, string? Color) : IRequest<EPGFileDto?> { }
-public class CreateEPGFileRequestValidator : AbstractValidator<CreateEPGFileRequest>
-{
-    public CreateEPGFileRequestValidator()
-    {
-        _ = RuleFor(v => v.Name)
-            .MaximumLength(32)
-            .NotEmpty();
+[SMAPI]
+[TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
+public record CreateEPGFileRequest(string Name, string FileName, int EPGNumber, int? TimeShift, int? HoursToUpdate, string? UrlSource, string? Color)
+    : IRequest<APIResponse>;
 
-        _ = RuleFor(v => v.UrlSource).NotEmpty().When(v => v.FormFile == null);
-        _ = RuleFor(v => v.FormFile).NotNull().When(v => string.IsNullOrEmpty(v.UrlSource));
-    }
-}
-
-public class CreateEPGFileRequestHandler(ILogger<CreateEPGFileRequest> Logger, IXmltv2Mxf xmltv2Mxf, IRepositoryWrapper Repository, IMapper Mapper, IPublisher Publisher) : IRequestHandler<CreateEPGFileRequest, EPGFileDto?>
+public class CreateEPGFileRequestHandler(ILogger<CreateEPGFileRequest> Logger, IEPGFileService ePGFileService, IFileUtilService fileUtilService, IDataRefreshService dataRefreshService, IMessageService messageService, IXmltv2Mxf xmltv2Mxf, IRepositoryWrapper Repository, IMapper Mapper, IPublisher Publisher)
+    : IRequestHandler<CreateEPGFileRequest, APIResponse>
 {
-    public async Task<EPGFileDto?> Handle(CreateEPGFileRequest command, CancellationToken cancellationToken)
+    public async Task<APIResponse> Handle(CreateEPGFileRequest request, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrEmpty(command.UrlSource) && command.FormFile != null && command.FormFile.Length <= 0)
+        if (string.IsNullOrEmpty(request.UrlSource))
         {
-            return null;
+            return APIResponse.NotFound;
         }
+
+        string fullName = "";
 
         try
         {
-            FileDefinition fd = FileDefinitions.EPG;
+            (EPGFile epgFile, fullName) = await ePGFileService.CreateEPGFileAsync(request);
 
-            string fullName = Path.Combine(fd.DirectoryLocation, command.Name + ".xmltv");
+            await messageService.SendInfo($"Adding EPG '{request.Name}'");
+            Logger.LogInformation("Adding EPG '{name}'", request.Name);
 
-            int num = command.EPGNumber;
+            string source = HttpUtility.UrlDecode(request.UrlSource);
+            epgFile.LastDownloadAttempt = SMDT.UtcNow;
 
-            if (num == 0 || await Repository.EPGFile.GetEPGFileByNumber(command.EPGNumber).ConfigureAwait(false) != null)
+            (bool success, Exception? ex) = await fileUtilService.DownloadUrlAsync(source, fullName).ConfigureAwait(false);
+
+            if (!success)
             {
-                num = await Repository.EPGFile.GetNextAvailableEPGNumberAsync(cancellationToken).ConfigureAwait(false);
+                fileUtilService.CleanUpFile(fullName);
+                Logger.LogCritical("Exception M3U From URL '{ex}'", ex);
+                await messageService.SendError("Exception M3U", ex?.Message);
+                return APIResponse.ErrorWithMessage($"Exception M3U From URL '{ex}'");
             }
 
-            EPGFile epgFile = new()
-            {
-
-                Name = command.Name,
-                Source = command.Name + ".xmltv",
-                Color = command.Color ?? ColorHelper.GetColor(command.Name),
-                EPGNumber = num,
-            };
-
-            if (command.FormFile != null)
-            {
-                fullName = Path.Combine(fd.DirectoryLocation, command.FileName);
-                epgFile.Source = command.FileName;
-
-                Logger.LogInformation("Adding EPG From Form: {fullName}", fullName);
-                (bool success, Exception? ex) = await FormHelper.SaveFormFileAsync(command.FormFile!, fullName).ConfigureAwait(false);
-                if (success)
-                {
-                    epgFile.LastDownloaded = File.GetLastWriteTime(fullName);
-                    epgFile.FileExists = true;
-                }
-                else
-                {
-                    Logger.LogCritical("Exception EPG From Form {ex}", ex);
-                    return null;
-                }
-            }
-            else if (!string.IsNullOrEmpty(command.UrlSource))
-            {
-                string source = HttpUtility.UrlDecode(command.UrlSource);
-                epgFile.Url = source;
-                epgFile.LastDownloadAttempt = SMDT.UtcNow;
-
-                Logger.LogInformation("Add EPG From URL {command.UrlSource}", command.UrlSource);
-                (bool success, Exception? ex) = await FileUtil.DownloadUrlAsync(source, fullName, cancellationToken).ConfigureAwait(false);
-                if (success)
-                {
-                    epgFile.LastDownloaded = File.GetLastWriteTime(fullName);
-                    epgFile.FileExists = true;
-                }
-                else
-                {
-                    ++epgFile.DownloadErrors;
-                    Logger.LogCritical("Exception EPG From URL {ex}", ex);
-                }
-            }
-
-            XMLTV? tv = xmltv2Mxf.ConvertToMxf(Path.Combine(FileDefinitions.EPG.DirectoryLocation, epgFile.Source), epgFile.EPGNumber);
+            XMLTV? tv = await xmltv2Mxf.ConvertToXMLTVAsync(fullName, epgFile.EPGNumber);
             if (tv == null)
             {
-                Logger.LogCritical("Exception EPG {fullName} format is not supported", fullName);
-                //Bad EPG
-                if (File.Exists(fullName))
-                {
-                    File.Delete(fullName);
-                }
-                return null;
+                fileUtilService.CleanUpFile(fullName);
+                Logger.LogCritical("Exception EPG '{name}' format is not supported", request.Name);
+                await messageService.SendError($"Exception EPG '{request.Name}' format is not supported");
+                return APIResponse.ErrorWithMessage($"Could not get streams from M3U file {epgFile.Name}");
             }
 
-            epgFile.ChannelCount = tv.Channels != null ? tv.Channels.Count : 0;
-            epgFile.ProgrammeCount = tv.Programs != null ? tv.Programs.Count : 0;
-            if (command.TimeShift.HasValue)
-            {
-                epgFile.TimeShift = command.TimeShift.Value;
-            }
+            epgFile.LastDownloaded = File.GetLastWriteTime(fullName);
+            epgFile.FileExists = true;
+            epgFile.ChannelCount = (tv.Channels?.Count) ?? 0;
+            epgFile.ProgrammeCount = (tv.Programs?.Count) ?? 0;
 
             Repository.EPGFile.CreateEPGFile(epgFile);
             _ = await Repository.SaveAsync().ConfigureAwait(false);
-            epgFile.WriteJSON(Logger);
+            epgFile.WriteJSON();
 
             EPGFileDto ret = Mapper.Map<EPGFileDto>(epgFile);
             await Publisher.Publish(new EPGFileAddedEvent(ret), cancellationToken).ConfigureAwait(false);
 
-            return ret;
+            await dataRefreshService.RefreshAllEPG();
+
+            await messageService.SendSuccess("EPG '" + epgFile.Name + "' added successfully");
+            return APIResponse.Success;
         }
         catch (Exception exception)
         {
-            Logger.LogCritical("Exception EPG From Form {exception}", exception);
-        }
+            if (!string.IsNullOrEmpty(fullName))
+            {
+                fileUtilService.CleanUpFile(fullName);
+            }
 
-        return null;
+            await messageService.SendError("Exception adding M3U", exception.Message);
+            Logger.LogCritical("Exception M3U From Form '{exception}'", exception);
+        }
+        return APIResponse.Error;
     }
 }

@@ -1,11 +1,10 @@
-import { type ChannelGroupDto, type UpdateChannelGroupRequest, type UpdateChannelGroupsRequest } from '@lib/iptvApi';
+import { SMDialogRef } from '@components/sm/SMDialog';
+import SMPopUp from '@components/sm/SMPopUp';
+import { useSelectAll } from '@lib/redux/hooks/selectAll';
+import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
+import { UpdateChannelGroup, UpdateChannelGroups } from '@lib/smAPI/ChannelGroups/ChannelGroupsCommands';
+import { ChannelGroupDto, UpdateChannelGroupRequest, UpdateChannelGroupsRequest } from '@lib/smAPI/smapiTypes';
 import React, { useMemo } from 'react';
-
-import { UpdateChannelGroup, UpdateChannelGroups } from '@lib/smAPI/ChannelGroups/ChannelGroupsMutateAPI';
-
-import { useSelectAll } from '@lib/redux/slices/useSelectAll';
-import { useSelectedItems } from '@lib/redux/slices/useSelectedItemsSlice';
-import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
 import VisibleButton from '../buttons/VisibleButton';
 
 interface ChannelGroupVisibleDialogProperties {
@@ -16,113 +15,83 @@ interface ChannelGroupVisibleDialogProperties {
 }
 
 const ChannelGroupVisibleDialog = ({ id, onClose, skipOverLayer = false, value }: ChannelGroupVisibleDialogProperties) => {
-  const [showOverlay, setShowOverlay] = React.useState<boolean>(false);
-  const [block, setBlock] = React.useState<boolean>(false);
-  const [infoMessage, setInfoMessage] = React.useState('');
-  const { selectSelectedItems } = useSelectedItems<ChannelGroupDto>('selectSelectedChannelGroupDtoItems');
+  const { selectedItems } = useSelectedItems<ChannelGroupDto>(id);
   const { selectAll } = useSelectAll(id);
+  const dialogRef = React.useRef<SMDialogRef>(null);
 
   const ReturnToParent = React.useCallback(() => {
-    setShowOverlay(false);
-    setInfoMessage('');
-    setBlock(false);
     onClose?.();
   }, [onClose]);
 
   const onVisibleClick = React.useCallback(async () => {
-    setBlock(true);
-
-    if (!value && selectSelectedItems.length === 0) {
+    if (!value && selectedItems.length === 0) {
       ReturnToParent();
       return;
     }
 
     if (value) {
       const toSend = {} as UpdateChannelGroupRequest;
-      toSend.channelGroupId = value.id;
-      toSend.toggleVisibility = true;
+      toSend.ChannelGroupId = value.Id;
+      toSend.ToggleVisibility = true;
       UpdateChannelGroup(toSend)
-        .then(() => {
-          setInfoMessage('Channel Group Toggle Visibility Successfully');
-        })
+        .then(() => {})
         .catch((error) => {
-          setInfoMessage(`Channel Group Toggle Visibility Error: ${error.message}`);
+          console.error(error);
+        })
+        .finally(() => {
+          dialogRef.current?.hide();
         });
-    } else if (selectSelectedItems) {
+    } else if (selectedItems) {
       const toSend = {} as UpdateChannelGroupsRequest;
-      toSend.channelGroupRequests = selectSelectedItems.map(
+      toSend.UpdateChannelGroupRequests = selectedItems.map(
         (item) =>
           ({
-            channelGroupId: item.id,
-            toggleVisibility: true
+            ChannelGroupId: item.Id,
+            ToggleVisibility: true
           } as UpdateChannelGroupRequest)
       );
       UpdateChannelGroups(toSend)
-        .then(() => {
-          setInfoMessage('Channel Group Toggle Visibility Successfully');
-        })
+        .then(() => {})
         .catch((error) => {
-          setInfoMessage(`Channel Group Toggle Visibility Error: ${error.message}`);
+          console.error(error);
+        })
+        .finally(() => {
+          dialogRef.current?.hide();
         });
     }
-  }, [ReturnToParent, selectSelectedItems, value]);
+  }, [ReturnToParent, selectedItems, value]);
 
-  const isFirstDisabled = useMemo(() => {
+  const message = useMemo(() => {
     if (value) {
-      return value.isReadOnly;
+      return `Toggle Visibility for '${value.Name}'?`;
     }
 
-    if (!selectSelectedItems || selectSelectedItems?.length === 0) {
-      return true;
-    }
-
-    return selectSelectedItems[0].isReadOnly;
-  }, [value, selectSelectedItems]);
-
-  const getTotalCount = useMemo(() => {
     if (selectAll) {
-      return 100;
+      return `Toggle Visibility for Groups?`;
     }
 
-    const count = selectSelectedItems?.length ?? 0;
-    if (count === 1 && isFirstDisabled) {
-      return 0;
-    }
+    return `Toggle Visibility for Groups (${selectedItems.length})?`;
+  }, [selectAll, selectedItems.length, value]);
 
-    return count;
-  }, [isFirstDisabled, selectAll, selectSelectedItems]);
-
-  if (skipOverLayer === true) {
+  if (value) {
     return <VisibleButton iconFilled={false} onClick={async () => await onVisibleClick()} />;
   }
 
   return (
-    <>
-      <InfoMessageOverLayDialog
-        blocked={block}
-        closable
-        header="Toggle Visibility?"
-        infoMessage={infoMessage}
-        onClose={() => {
-          ReturnToParent();
-        }}
-        show={showOverlay}
-      >
-        <div className="flex justify-content-center w-full mb-2">
-          <VisibleButton label="Toggle Visibility" onClick={async () => await onVisibleClick()} />
-        </div>
-      </InfoMessageOverLayDialog>
-      <VisibleButton
-        disabled={getTotalCount === 0}
-        onClick={async () => {
-          if (selectSelectedItems.length > 1) {
-            setShowOverlay(true);
-          } else {
-            await onVisibleClick();
-          }
-        }}
-      />
-    </>
+    <SMPopUp
+      buttonClassName="icon-blue"
+      buttonDisabled={selectedItems.length === 0 && !selectAll}
+      icon="pi-eye-slash"
+      iconFilled
+      modal
+      onOkClick={async () => await onVisibleClick()}
+      placement="bottom-end"
+      title="TOGGLE VISIBILITY"
+      tooltip="Toggle Visibility"
+      zIndex={12}
+    >
+      {message}
+    </SMPopUp>
   );
 };
 

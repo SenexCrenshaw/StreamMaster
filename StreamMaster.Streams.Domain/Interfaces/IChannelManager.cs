@@ -1,51 +1,57 @@
-﻿using StreamMaster.Domain.Models;
-
-namespace StreamMaster.Streams.Domain.Interfaces;
-
-/// <summary>
-/// Provides methods for managing video streams and clients in a channel.
-/// This interface also implements IDisposable to free resources.
-/// </summary>
-public interface IChannelManager : IDisposable
+﻿namespace StreamMaster.Streams.Domain.Interfaces
 {
-
-    VideoInfo GetVideoInfo(string channelVideoStreamId);
     /// <summary>
-    /// Asynchronously changes the video stream of a channel.
+    /// Provides methods for managing video streams and clients in a channel.
+    /// This interface also implements IDisposable to free resources.
     /// </summary>
-    /// <param name="playingVideoStreamId">The ID of the currently playing video stream.</param>
-    /// <param name="newVideoStreamId">The ID of the new video stream to switch to.</param>
-    /// <returns>A Task representing the asynchronous operation.</returns>
-    Task ChangeVideoStreamChannel(string playingVideoStreamId, string newVideoStreamId);
+    public interface IChannelManager : IDisposable
+    {
+        /// <summary>
+        /// Cancels all active Channels.
+        /// </summary>
+        void CancelAllChannels();
 
-    /// <summary>
-    /// Fails a client by its unique identifier.
-    /// </summary>
-    /// <param name="clientId">The unique identifier of the client to fail.</param>
-    void FailClient(Guid clientId);
+        /// <summary>
+        /// Stops a specific channel by its ID.
+        /// </summary>
+        /// <param name="smChannelId">The ID of the channel to stop.</param>
+        void StopChannel(int smChannelId);
 
-    /// <summary>
-    /// Asynchronously gets a stream based on the given client streamer configuration.
-    /// </summary>
-    /// <param name="config">The configuration settings for the client streamer.</param>
-    /// <returns>A Task returning the stream. Returns null if the stream could not be obtained.</returns>
-    Task<Stream?> GetChannel(IClientStreamerConfiguration config);
+        /// <summary>
+        /// Fails a client by its unique identifier.
+        /// </summary>
+        /// <param name="uniqueRequestId">The unique identifier of the client to fail.</param>
+        Task CancelClientAsync(string uniqueRequestId);
 
-    /// <summary>
-    /// Asynchronously removes a client based on the given client streamer configuration.
-    /// </summary>
-    /// <param name="config">The configuration settings for the client to be removed.</param>
-    /// <returns>A Task representing the asynchronous operation.</returns>
-    Task RemoveClient(IClientStreamerConfiguration config);
+        /// <summary>
+        /// Asynchronously changes the video stream of a channel.
+        /// </summary>
+        /// <param name="playingSMStreamId">The ID of the currently playing video stream.</param>
+        /// <param name="newSMStreamId">The ID of the new video stream to switch to.</param>
+        /// <param name="cancellationToken">A cancellation token to observe while waiting for the task to complete.</param>
+        /// <returns>A Task representing the asynchronous operation.</returns>
+        Task ChangeVideoStreamChannelAsync(string playingSMStreamId, string newSMStreamId, CancellationToken cancellationToken = default);
 
-    /// <summary>
-    /// Simulates a stream failure for testing purposes.
-    /// </summary>
-    /// <param name="streamUrl">The URL of the stream to fail.</param>
-    Task SimulateStreamFailure(string streamUrl);
+        /// <summary>
+        /// Asynchronously gets a stream based on the given client streamer configuration.
+        /// </summary>
+        /// <param name="config">The configuration settings for the client streamer.</param>
+        /// <param name="streamGroupProfileId">The ID of the stream group profile.</param>
+        /// <param name="cancellationToken">A cancellation token to observe while waiting for the task to complete.</param>
+        /// <returns>A Task returning the stream. Returns null if the stream could not be obtained.</returns>
+        Task<Stream?> GetChannelStreamAsync(IClientConfiguration config, int streamGroupProfileId, CancellationToken cancellationToken = default);
 
-    /// <summary>
-    /// Simulates a stream failure for all streams for testing purposes.
-    /// </summary>
-    Task SimulateStreamFailureForAll();
+        /// <summary>
+        /// Asynchronously removes a client based on the given client streamer configuration.
+        /// </summary>
+        /// <param name="config">The configuration settings for the client to be removed.</param>
+        /// <returns>A Task representing the asynchronous operation.</returns>
+        Task RemoveClientAsync(IClientConfiguration config);
+
+        /// <summary>
+        /// Moves to the next video stream in the channel by its ID.
+        /// </summary>
+        /// <param name="SMChannelId">The ID of the channel.</param>
+        void MoveToNextStream(int SMChannelId);
+    }
 }

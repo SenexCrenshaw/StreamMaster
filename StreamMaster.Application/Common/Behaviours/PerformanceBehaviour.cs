@@ -2,17 +2,9 @@
 
 namespace StreamMaster.Application.Common.Behaviours;
 
-public class PerformanceBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : IRequest<TResponse>
+public class PerformanceBehaviour<TRequest, TResponse>() : IPipelineBehavior<TRequest, TResponse> where TRequest : IRequest<TResponse>
 {
-    private readonly ILogger<TRequest> _logger;
-    private readonly Stopwatch _timer;
-
-    public PerformanceBehaviour(ILogger<TRequest> logger)
-    {
-
-        _timer = new Stopwatch();
-        _logger = logger;
-    }
+    private readonly Stopwatch _timer = new();
 
     public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
     {
@@ -22,8 +14,6 @@ public class PerformanceBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequ
         //}
 
         //_timer.Start();
-
-
 
         //_timer.Stop();
 

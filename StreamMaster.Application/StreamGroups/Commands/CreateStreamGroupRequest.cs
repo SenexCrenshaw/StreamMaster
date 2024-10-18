@@ -1,36 +1,54 @@
-﻿using FluentValidation;
-
-using StreamMaster.Application.StreamGroups.Events;
-using StreamMaster.Domain.Requests;
+﻿using System.Collections.Concurrent;
+using StreamMaster.Domain.Crypto;
 
 namespace StreamMaster.Application.StreamGroups.Commands;
 
-public class CreateStreamGroupRequestValidator : AbstractValidator<CreateStreamGroupRequest>
-{
-    public CreateStreamGroupRequestValidator()
-    {
-
-        _ = RuleFor(v => v.Name)
-           .MaximumLength(32)
-           .NotEmpty();
-    }
-}
+[SMAPI]
+[TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
+public record CreateStreamGroupRequest(string Name, string? OutputProfileName, string? CommandProfileName, string? GroupKey) : IRequest<APIResponse>;
 
 [LogExecutionTimeAspect]
-public class CreateStreamGroupRequestHandler(ILogger<CreateStreamGroupRequest> logger, IRepositoryWrapper Repository, IPublisher Publisher, IMapper Mapper)
-    : IRequestHandler<CreateStreamGroupRequest>
+public class CreateStreamGroupRequestHandler(IRepositoryWrapper Repository, IMessageService messageService, IOptionsMonitor<Setting> intSettings, IDataRefreshService dataRefreshService)
+    : IRequestHandler<CreateStreamGroupRequest, APIResponse>
 {
-    public async Task Handle(CreateStreamGroupRequest request, CancellationToken cancellationToken)
+    public async Task<APIResponse> Handle(CreateStreamGroupRequest request, CancellationToken cancellationToken)
     {
+        if (string.IsNullOrEmpty(request.Name))
+        {
+            return APIResponse.NotFound;
+        }
+
+        if (request.Name.Equals("all", StringComparison.CurrentCultureIgnoreCase))
+        {
+            return APIResponse.ErrorWithMessage($"The name '{request.Name}' is reserved");
+        }
+
+        ConcurrentDictionary<string, byte> generatedIdsDict = new();
+        foreach (StreamGroup sg in Repository.StreamGroup.GetQuery())
+        {
+            _ = generatedIdsDict.TryAdd(sg.DeviceID, 0);
+        }
 
         StreamGroup streamGroup = new()
         {
             Name = request.Name,
+            DeviceID = UniqueHexGenerator.GenerateUniqueHex(generatedIdsDict),
+            GroupKey = request.GroupKey ?? KeyGenerator.GenerateKey()
         };
 
+        streamGroup.StreamGroupProfiles.Add(new StreamGroupProfile
+        {
+            ProfileName = "Default",
+            OutputProfileName = request.OutputProfileName ?? intSettings.CurrentValue.DefaultOutputProfileName,
+            CommandProfileName = request.CommandProfileName ?? intSettings.CurrentValue.DefaultCommandProfileName
+        });
+
         Repository.StreamGroup.CreateStreamGroup(streamGroup);
-        await Repository.SaveAsync();
-        StreamGroupDto dto = Mapper.Map<StreamGroupDto>(streamGroup);
-        await Publisher.Publish(new StreamGroupCreateEvent(dto), cancellationToken);
+        _ = await Repository.SaveAsync();
+
+        await dataRefreshService.RefreshStreamGroups();
+
+        await messageService.SendSuccess("Stream Group '" + request.Name + "' added successfully");
+        return APIResponse.Ok;
     }
 }

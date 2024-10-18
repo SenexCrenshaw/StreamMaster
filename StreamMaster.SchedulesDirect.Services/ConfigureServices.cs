@@ -1,6 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
 
-using StreamMaster.Domain.Services;
 using StreamMaster.SchedulesDirect.Converters;
 using StreamMaster.SchedulesDirect.Data;
 using StreamMaster.SchedulesDirect.Images;
@@ -14,15 +13,15 @@ public static class ConfigureServices
     {
         services.AddEPGCache();
 
-        _ = services.AddSingleton<IXmltv2Mxf, XmlTv2Mxf>();
+        _ = services.AddSingleton<IXmltv2Mxf, XmlTvToXMLTV>();
         _ = services.AddSingleton<ISchedulesDirectAPIService, SchedulesDirectAPIService>();
         _ = services.AddSingleton<ISchedulesDirectDataService, SchedulesDirectDataService>();
         _ = services.AddSingleton<ISchedulesDirect, SchedulesDirect>();
         _ = services.AddSingleton<IXMLTVBuilder, XMLTVBuilder>();
         _ = services.AddSingleton<IDescriptions, Descriptions>();
-        _ = services.AddSingleton<ILineups, Lineups>();
-        _ = services.AddSingleton<ISchedules, Schedules>();
-        _ = services.AddSingleton<IPrograms, Programs>();
+        _ = services.AddSingleton<ILineupService, LineupService>();
+        _ = services.AddSingleton<IScheduleService, ScheduleService>();
+        _ = services.AddSingleton<IProgramService, ProgramService>();
         _ = services.AddSingleton<IKeywords, Keywords>();
 
         _ = services.AddSingleton<IMovieImages, MovieImages>();

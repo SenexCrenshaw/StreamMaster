@@ -5,6 +5,46 @@ group_name="nonRootGroup"
 
 . /env.sh
 
+# Function to check if a specific MigrationId exists in the __EFMigrationsHistory table
+check_migration_exists() {
+    local migration_id=$1
+
+    # Check if the __EFMigrationsHistory table exists
+    local table_exists=$(psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -h "$POSTGRES_HOST" -tAc "SELECT to_regclass('public.\"__EFMigrationsHistory\"');")
+
+    if [ "$table_exists" = "public.__EFMigrationsHistory" ]; then
+        # Table exists, check if the migration_id exists
+        local exists=$(psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -h "$POSTGRES_HOST" -tAc "SELECT 1 FROM public.\"__EFMigrationsHistory\" WHERE \"MigrationId\" = '$migration_id';")
+        if [ "$exists" = "1" ]; then
+            return 0  # MigrationId exists
+        else
+            return 1  # MigrationId does not exist
+        fi
+    else
+        # Table does not exist
+        return 1
+    fi
+}
+
+
+# Perform the database migration check and update
+perform_migration_update() {
+    local migration_id_to_check="20240804181253_Custom_Setup"
+    local new_migration_id="20240815125224_Initital"
+    local product_version="8.0.8"
+
+    if check_migration_exists "$migration_id_to_check"; then
+        echo "MigrationId $migration_id_to_check exists. Performing DELETE and INSERT operations."
+        
+        psql -U $POSTGRES_USER -d $POSTGRES_DB -h $POSTGRES_HOST -c 'DELETE FROM public."__EFMigrationsHistory";'
+        psql -U $POSTGRES_USER -d $POSTGRES_DB -h $POSTGRES_HOST -c "INSERT INTO public.\"__EFMigrationsHistory\"(\"MigrationId\", \"ProductVersion\") VALUES ('$new_migration_id', '$product_version');"
+        
+        echo "MigrationId updated to $new_migration_id with ProductVersion $product_version."
+    else
+        echo "MigrationId $migration_id_to_check does not exist. No changes made."
+    fi
+}
+
 moveFilesAndDeleteDir() {
     local source_dir=$1
     local destination_dir=$2
@@ -165,6 +205,7 @@ if [ "$PUID" -ne 0 ] || [ "$PGID" -ne 0 ]; then
 fi
 
 chown ${PUID:-0}:${PGID:-0} '/config/tv-logos' 2> /dev/null
+#chmod -R 775 '/config' 2> /dev/null
 
 # Pretty printing the configuration
 echo "Configuration:"
@@ -215,6 +256,10 @@ fi
 if [ $? -eq 0 ]; then
     # PostgreSQL is ready, you can proceed with your tasks
     echo "Postgres is up"
+
+    # Perform migration update
+    perform_migration_update
+    
 else
     # PostgreSQL is not ready after max_attempts, handle the error
     echo "Error: PostgreSQL is not ready."

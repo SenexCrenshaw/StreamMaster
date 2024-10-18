@@ -1,15 +1,6 @@
-import React from 'react';
-
-import '@lib/styles/dataSelector.css';
-import '@lib/styles/index.css';
-import '@lib/styles/theme.css'; // theme
-
 import store, { persistor } from '@lib/redux/store';
-import 'primeflex/primeflex.css'; // css utility
-import 'primeicons/primeicons.css'; // icons
 import { PrimeReactProvider } from 'primereact/api';
-import 'primereact/resources/primereact.css'; // core css
-import 'primereact/resources/themes/viva-dark/theme.css'; // theme
+import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
@@ -20,10 +11,11 @@ const root = ReactDOM.createRoot(document.querySelector('#root') as HTMLElement)
 root.render(
   <React.StrictMode>
     <Provider store={store}>
-      <PersistGate persistor={persistor} />
-      <PrimeReactProvider value={{ ripple: true }}>
-        <App />
-      </PrimeReactProvider>
+      <PersistGate persistor={persistor}>
+        <PrimeReactProvider value={{ inputStyle: 'outlined', ripple: false }}>
+          <App />
+        </PrimeReactProvider>
+      </PersistGate>
     </Provider>
   </React.StrictMode>
 );

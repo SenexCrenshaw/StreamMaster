@@ -1,5 +1,7 @@
 ﻿namespace StreamMaster.Domain.Enums;
 
+[TsEnum]
+
 public enum JobType
 {
     ProcessM3U,
@@ -7,6 +9,8 @@ public enum JobType
     TimerM3U,
     ProcessEPG,
     RefreshEPG,
+    UpdateEPG,
+    UpdateM3U,
     TimerEPG,
     SDSync,
     Backup,

@@ -1,5 +1,6 @@
 ﻿using StreamMaster.Ring.API.Entities;
 
+using System.Collections.Specialized;
 using System.Text.Json;
 
 namespace StreamMaster.Ring.API
@@ -21,12 +22,12 @@ namespace StreamMaster.Ring.API
         /// <summary>
         /// Uri on which OAuth tokens can be requested from Ring
         /// </summary>
-        public Uri RingApiOAuthUrl => new Uri("https://oauth.ring.com/oauth/token");
+        public Uri RingApiOAuthUrl => new("https://oauth.ring.com/oauth/token");
 
         /// <summary>
         /// Base Uri with which all Ring API requests start
         /// </summary>
-        public Uri RingApiBaseUrl => new Uri("https://api.ring.com/clients_api/");
+        public Uri RingApiBaseUrl => new("https://api.ring.com/clients_api/");
 
         /// <summary>
         /// Boolean indicating if the current session is authenticated
@@ -36,17 +37,14 @@ namespace StreamMaster.Ring.API
         /// <summary>
         /// Authentication Token that will be used to communicate with the Ring API
         /// </summary>
-        public string AuthenticationToken
-        {
-            get { return OAuthToken?.AccessToken; }
-        }
+        public string AuthenticationToken => OAuthToken?.AccessToken;
 
         /// <summary>
         /// OAuth Token for communicating with the Ring API
         /// </summary>
         public OAutToken OAuthToken { get; private set; }
 
-        #endregion
+        #endregion Properties
 
         #region Fields
 
@@ -55,7 +53,7 @@ namespace StreamMaster.Ring.API
         /// </summary>
         private static readonly HttpUtility _httpUtility = new();
 
-        #endregion
+        #endregion Fields
 
         #region Constructors
 
@@ -75,7 +73,7 @@ namespace StreamMaster.Ring.API
         {
         }
 
-        #endregion
+        #endregion Constructors
 
         #region Static methods
 
@@ -90,12 +88,12 @@ namespace StreamMaster.Ring.API
         /// <exception cref="Exceptions.TwoFactorAuthenticationRequiredException">Thrown when the web server indicates two-factor authentication is required (HTTP 412).</exception>
         public static async Task<Session> GetSessionByRefreshToken(string refreshToken)
         {
-            var session = new Session();
+            Session session = new();
             await session.RefreshSession(refreshToken);
             return session;
         }
 
-        #endregion
+        #endregion Static methods
 
         #region Methods
 
@@ -119,7 +117,7 @@ namespace StreamMaster.Ring.API
         /// <exception cref="Exceptions.ThrottledException">Thrown when the web server indicates too many requests have been made (HTTP 429).</exception>
         /// <exception cref="Exceptions.TwoFactorAuthenticationIncorrectException">Thrown when the web server indicates the two-factor code was incorrect (HTTP 400).</exception>
         /// <exception cref="Exceptions.TwoFactorAuthenticationRequiredException">Thrown when the web server indicates two-factor authentication is required (HTTP 412).</exception>
-        public async Task Authenticate(string operatingSystem = "windows",
+        public async Task<Entities.Session> Authenticate(string operatingSystem = "windows",
                                                             string hardwareId = "unspecified",
                                                             string appBrand = "ring",
                                                             string deviceModel = "unspecified",
@@ -145,7 +143,7 @@ namespace StreamMaster.Ring.API
             }
 
             // Construct the Form POST fields to send along with the authentication request
-            var oAuthformFields = new Dictionary<string, string>
+            Dictionary<string, string> oAuthformFields = new()
             {
                 { "grant_type", "password" },
                 { "username", Username },
@@ -155,7 +153,10 @@ namespace StreamMaster.Ring.API
             };
 
             // If a two factor auth code has been provided, add the code through the HTTP POST header
-            var headerFields = new System.Collections.Specialized.NameValueCollection();
+            NameValueCollection headerFields = new(capacity: 3)
+            {
+                { "hardware_id", hardwareId }
+            };
             if (twoFactorAuthCode != null)
             {
                 headerFields.Add("2fa-support", "true");
@@ -163,43 +164,85 @@ namespace StreamMaster.Ring.API
             }
 
             // Make the Form POST request to request an OAuth Token
-            var oAuthResponse = await _httpUtility.FormPost(RingApiOAuthUrl,
+            string oAuthResponse = await _httpUtility.FormPost(RingApiOAuthUrl,
                                                             oAuthformFields,
                                                             headerFields);
-
 
             // Deserialize the JSON result into a typed object
             OAuthToken = JsonSerializer.Deserialize<OAutToken>(oAuthResponse);
 
             // Construct the Form POST fields to send along with the session request
-            var sessionFormFields = new Dictionary<string, string>
+            Dictionary<string, string> sessionFormFields = new()
             {
                 { "device[os]", System.Net.WebUtility.UrlEncode(operatingSystem) },
                 { "device[hardware_id]", System.Net.WebUtility.UrlEncode(hardwareId) }
             };
 
             // Add optional fields if they have been provided
-            if (!string.IsNullOrEmpty(appBrand)) sessionFormFields.Add("device[app_brand]", System.Net.WebUtility.UrlEncode(appBrand));
-            if (!string.IsNullOrEmpty(deviceModel)) sessionFormFields.Add("device[metadata][device_model]", System.Net.WebUtility.UrlEncode(deviceModel));
-            if (!string.IsNullOrEmpty(deviceName)) sessionFormFields.Add("device[metadata][device_name]", System.Net.WebUtility.UrlEncode(deviceName));
-            if (!string.IsNullOrEmpty(resolution)) sessionFormFields.Add("device[metadata][resolution]", System.Net.WebUtility.UrlEncode(resolution));
-            if (!string.IsNullOrEmpty(appVersion)) sessionFormFields.Add("device[metadata][app_version]", System.Net.WebUtility.UrlEncode(appVersion));
-            if (appInstallationDate.HasValue) sessionFormFields.Add("device[metadata][app_instalation_date]", string.Format("{0:yyyy-MM-dd}+{0:HH}%3A{0:mm}%3A{0:ss}Z", appInstallationDate.Value));
-            if (!string.IsNullOrEmpty(manufacturer)) sessionFormFields.Add("device[metadata][manufacturer]", System.Net.WebUtility.UrlEncode(manufacturer));
-            if (!string.IsNullOrEmpty(deviceType)) sessionFormFields.Add("device[metadata][device_type]", System.Net.WebUtility.UrlEncode(deviceType));
-            if (!string.IsNullOrEmpty(architecture)) sessionFormFields.Add("device[metadata][architecture]", System.Net.WebUtility.UrlEncode(architecture));
-            if (!string.IsNullOrEmpty(language)) sessionFormFields.Add("device[metadata][language]", System.Net.WebUtility.UrlEncode(language));
+            if (!string.IsNullOrEmpty(appBrand))
+            {
+                sessionFormFields.Add("device[app_brand]", System.Net.WebUtility.UrlEncode(appBrand));
+            }
+
+            if (!string.IsNullOrEmpty(deviceModel))
+            {
+                sessionFormFields.Add("device[metadata][device_model]", System.Net.WebUtility.UrlEncode(deviceModel));
+            }
+
+            if (!string.IsNullOrEmpty(deviceName))
+            {
+                sessionFormFields.Add("device[metadata][device_name]", System.Net.WebUtility.UrlEncode(deviceName));
+            }
+
+            if (!string.IsNullOrEmpty(resolution))
+            {
+                sessionFormFields.Add("device[metadata][resolution]", System.Net.WebUtility.UrlEncode(resolution));
+            }
+
+            if (!string.IsNullOrEmpty(appVersion))
+            {
+                sessionFormFields.Add("device[metadata][app_version]", System.Net.WebUtility.UrlEncode(appVersion));
+            }
+
+            if (appInstallationDate.HasValue)
+            {
+                sessionFormFields.Add("device[metadata][app_instalation_date]", string.Format("{0:yyyy-MM-dd}+{0:HH}%3A{0:mm}%3A{0:ss}Z", appInstallationDate.Value));
+            }
+
+            if (!string.IsNullOrEmpty(manufacturer))
+            {
+                sessionFormFields.Add("device[metadata][manufacturer]", System.Net.WebUtility.UrlEncode(manufacturer));
+            }
+
+            if (!string.IsNullOrEmpty(deviceType))
+            {
+                sessionFormFields.Add("device[metadata][device_type]", System.Net.WebUtility.UrlEncode(deviceType));
+            }
+
+            if (!string.IsNullOrEmpty(architecture))
+            {
+                sessionFormFields.Add("device[metadata][architecture]", System.Net.WebUtility.UrlEncode(architecture));
+            }
+
+            if (!string.IsNullOrEmpty(language))
+            {
+                sessionFormFields.Add("device[metadata][language]", System.Net.WebUtility.UrlEncode(language));
+            }
 
             // Make the Form POST request to authenticate
-            var sessionResponse = await _httpUtility.FormPost(new Uri(RingApiBaseUrl, "session"),
+            string sessionResponse = await _httpUtility.FormPost(new Uri(RingApiBaseUrl, "session"),
                                                                 sessionFormFields,
-                                                                new System.Collections.Specialized.NameValueCollection
+                                                                new NameValueCollection
                                                                 {
                                                                     { "Accept-Encoding", "gzip, deflate" },
                                                                     { "X-API-LANG", "en" },
                                                                     { "Authorization", $"Bearer {OAuthToken.AccessToken}" }
                                                                 });
 
+            // Deserialize the JSON result into a typed object
+            Entities.Session? session = JsonSerializer.Deserialize<Entities.Session>(sessionResponse);
+
+            return session;
         }
 
         /// <summary>
@@ -209,7 +252,10 @@ namespace StreamMaster.Ring.API
         /// <exception cref="Exceptions.ThrottledException">Thrown when the web server indicates too many requests have been made (HTTP 429).</exception>
         /// <exception cref="Exceptions.TwoFactorAuthenticationIncorrectException">Thrown when the web server indicates the two-factor code was incorrect (HTTP 400).</exception>
         /// <exception cref="Exceptions.TwoFactorAuthenticationRequiredException">Thrown when the web server indicates two-factor authentication is required (HTTP 412).</exception>
-        public async Task RefreshSession() => await RefreshSession(OAuthToken.RefreshToken);
+        public async Task RefreshSession()
+        {
+            await RefreshSession(OAuthToken.RefreshToken);
+        }
 
         /// <summary>
         /// Authenticates to the Ring API using the provided refresh token
@@ -228,19 +274,22 @@ namespace StreamMaster.Ring.API
             }
 
             // Construct the Form POST fields to send along with the authentication request
-            var oAuthformFields = new Dictionary<string, string>
+            Dictionary<string, string> oAuthformFields = new()
             {
                 { "grant_type", "refresh_token" },
                 { "refresh_token", refreshToken }
             };
 
+            NameValueCollection headerFields = new()
+            {
+                { "hardware_id", "unspecified" }
+            };
             // Make the Form POST request to request an OAuth Token
             try
             {
-                var oAuthResponse = await _httpUtility.FormPost(RingApiOAuthUrl,
+                string oAuthResponse = await _httpUtility.FormPost(RingApiOAuthUrl,
                                                                 oAuthformFields,
-                                                                null);
-
+                                                                headerFields);
 
                 // Deserialize the JSON result into a typed object
                 OAuthToken = JsonSerializer.Deserialize<OAutToken>(oAuthResponse);
@@ -266,7 +315,7 @@ namespace StreamMaster.Ring.API
         /// <exception cref="Exceptions.ThrottledException">Thrown when the web server indicates too many requests have been made (HTTP 429).</exception>
         /// <exception cref="Exceptions.TwoFactorAuthenticationIncorrectException">Thrown when the web server indicates the two-factor code was incorrect (HTTP 400).</exception>
         /// <exception cref="Exceptions.TwoFactorAuthenticationRequiredException">Thrown when the web server indicates two-factor authentication is required (HTTP 412).</exception>
-        /// 
+        ///
         public async Task EnsureSessionValid()
         {
             // Ensure the session is authenticated
@@ -306,10 +355,82 @@ namespace StreamMaster.Ring.API
         {
             await EnsureSessionValid();
 
-            var response = await _httpUtility.GetContents(new Uri(RingApiBaseUrl, $"ring_devices"), AuthenticationToken);
+            string response = await _httpUtility.GetContents(new Uri(RingApiBaseUrl, $"ring_devices"), AuthenticationToken);
 
-            var devices = JsonSerializer.Deserialize<Devices>(response);
+            Devices? devices = JsonSerializer.Deserialize<Devices>(response);
             return devices;
+        }
+
+        /// <summary>
+        /// Returns all events registered for the doorbots
+        /// </summary>
+        /// <param name="doorbotId">Id of the doorbot to retrieve the history for. Provide NULL to retrieve the history for all available doorbots.</param>
+        /// <param name="limit">Amount of history items to retrieve. If you don't provide this value, Ring will default to returning only the most recent 20 items.</param>
+        /// <returns>All events triggered by registered doorbots under the current account</returns>
+        /// <exception cref="Exceptions.AuthenticationFailedException">Thrown when the refresh token is invalid.</exception>
+        /// <exception cref="Exceptions.SessionNotAuthenticatedException">Thrown when there's no OAuth token, or the OAuth token has expired and there is no valid refresh token.</exception>
+        /// <exception cref="Exceptions.ThrottledException">Thrown when the web server indicates too many requests have been made (HTTP 429).</exception>
+        /// <exception cref="Exceptions.TwoFactorAuthenticationIncorrectException">Thrown when the web server indicates the two-factor code was incorrect (HTTP 400).</exception>
+        /// <exception cref="Exceptions.TwoFactorAuthenticationRequiredException">Thrown when the web server indicates two-factor authentication is required (HTTP 412).</exception>
+        /// <exception cref="Exceptions.DeviceUnknownException">Thrown when the web server indicates the requested Ring device was not found (HTTP 404).</exception>
+        public async Task<List<DoorbotHistoryEvent>> GetDoorbotsHistory(int? doorbotId, int? limit = null)
+        {
+            await EnsureSessionValid();
+
+            // Receive the first batch
+            string response = await _httpUtility.GetContents(new Uri(RingApiBaseUrl, $"doorbots/{(doorbotId.HasValue ? $"{doorbotId.Value}/" : "")}history{(limit.HasValue ? $"?limit={limit}" : "")}"), AuthenticationToken);
+
+            // Parse the result
+            List<DoorbotHistoryEvent>? doorbotHistory = JsonSerializer.Deserialize<List<DoorbotHistoryEvent>>(response);
+
+            // If no limit has been specified or the amount of items requested have been returned already, just return whatever has been returned by the API
+            if (!limit.HasValue || doorbotHistory.Count >= limit.Value)
+            {
+                return doorbotHistory;
+            }
+
+            // Calculate how many items we still need to retrieve after this first batch
+            int remainingItems = limit.Value - doorbotHistory.Count;
+
+            // Create a list to hold all the results
+            List<DoorbotHistoryEvent> allHistory = new();
+
+            // Add the first batch to the list with all the results
+            allHistory.AddRange(doorbotHistory);
+
+            do
+            {
+                // Retrieve the next batch
+                response = await _httpUtility.GetContents(new Uri(RingApiBaseUrl, $"doorbots/{(doorbotId.HasValue ? $"{doorbotId.Value}/" : "")}history?limit={remainingItems}&older_than={allHistory.Last().Id}"), AuthenticationToken);
+
+                // Parse the result
+                doorbotHistory = JsonSerializer.Deserialize<List<DoorbotHistoryEvent>>(response);
+
+                // Add this next batch to the list with all the results
+                allHistory.AddRange(doorbotHistory);
+
+                // Calculate how many items we still need to retrieve after this next batch
+                remainingItems = limit.Value - allHistory.Count;
+            }
+            // Keep retrieving next batches until nothing is being returned anymore or we have retrieved the amount of items that were requested through the limit
+            while (doorbotHistory.Count > 0 && remainingItems > 0);
+
+            return allHistory;
+        }
+
+        /// <summary>
+        /// Returns all events registered for all the available doorbots
+        /// </summary>
+        /// <param name="limit">Amount of history items to retrieve. If you don't provide this value, Ring will default to returning only the most recent 20 items.</param>
+        /// <returns>All events triggered by registered doorbots under the current account</returns>
+        /// <exception cref="Exceptions.AuthenticationFailedException">Thrown when the refresh token is invalid.</exception>
+        /// <exception cref="Exceptions.SessionNotAuthenticatedException">Thrown when there's no OAuth token, or the OAuth token has expired and there is no valid refresh token.</exception>
+        /// <exception cref="Exceptions.ThrottledException">Thrown when the web server indicates too many requests have been made (HTTP 429).</exception>
+        /// <exception cref="Exceptions.TwoFactorAuthenticationIncorrectException">Thrown when the web server indicates the two-factor code was incorrect (HTTP 400).</exception>
+        /// <exception cref="Exceptions.TwoFactorAuthenticationRequiredException">Thrown when the web server indicates two-factor authentication is required (HTTP 412).</exception>
+        public async Task<List<DoorbotHistoryEvent>> GetDoorbotsHistory(int? limit = null)
+        {
+            return await GetDoorbotsHistory(null, limit);
         }
 
         /// <summary>
@@ -325,7 +446,7 @@ namespace StreamMaster.Ring.API
         /// <exception cref="Exceptions.TwoFactorAuthenticationIncorrectException">Thrown when the web server indicates the two-factor code was incorrect (HTTP 400).</exception>
         /// <exception cref="Exceptions.TwoFactorAuthenticationRequiredException">Thrown when the web server indicates two-factor authentication is required (HTTP 412).</exception>
         /// <exception cref="Exceptions.DeviceUnknownException">Thrown when the web server indicates the requested Ring device was not found (HTTP 404).</exception>
-        public async Task<List<Entities.DoorbotHistoryEvent>> GetDoorbotsHistory(DateTime startDate, DateTime? endDate, int? doorbotId = null)
+        public async Task<List<DoorbotHistoryEvent>> GetDoorbotsHistory(DateTime startDate, DateTime? endDate, int? doorbotId = null)
         {
             await EnsureSessionValid();
 
@@ -333,14 +454,14 @@ namespace StreamMaster.Ring.API
             const short batchWithItems = 200;
 
             // Create a list to hold all the results
-            var allHistory = new List<DoorbotHistoryEvent>();
-            var doorbotHistory = new List<DoorbotHistoryEvent>();
+            List<DoorbotHistoryEvent> allHistory = new();
+            List<DoorbotHistoryEvent>? doorbotHistory = new();
             DateTime? lastItemDateTime = null;
 
             do
             {
                 // Retrieve a batch with historical items
-                var response = await _httpUtility.GetContents(new Uri(RingApiBaseUrl, $"doorbots/{(doorbotId.HasValue ? $"{doorbotId.Value}/" : "")}history?limit={batchWithItems}{(doorbotHistory.Count == 0 ? "" : "&older_than=" + doorbotHistory.Last().Id)}"), AuthenticationToken);
+                string response = await _httpUtility.GetContents(new Uri(RingApiBaseUrl, $"doorbots/{(doorbotId.HasValue ? $"{doorbotId.Value}/" : "")}history?limit={batchWithItems}{(doorbotHistory.Count == 0 ? "" : "&older_than=" + doorbotHistory.Last().Id)}"), AuthenticationToken);
 
                 // Parse the result
                 doorbotHistory = JsonSerializer.Deserialize<List<DoorbotHistoryEvent>>(response);
@@ -350,13 +471,32 @@ namespace StreamMaster.Ring.API
 
                 if (doorbotHistory.Count > 0)
                 {
-                    lastItemDateTime = doorbotHistory[doorbotHistory.Count - 1]?.CreatedAtDateTime ?? DateTime.MinValue;
+                    lastItemDateTime = doorbotHistory[^1]?.CreatedAtDateTime ?? DateTime.MinValue;
                 }
             }
             // Keep retrieving next batches until the last item in the retrieved batch does not fit within the request date span anymore
             while (doorbotHistory.Count > 0 && lastItemDateTime.HasValue && lastItemDateTime.Value > startDate);
 
             return allHistory;
+        }
+
+        /// <summary>
+        /// Returns a stream with the recording of the provided Ding Id of a doorbot
+        /// </summary>
+        /// <param name="doorbotHistoryEvent">The doorbot history event to retrieve the recording for</param>
+        /// <returns>Stream containing contents of the recording</returns>
+        /// <exception cref="Exceptions.AuthenticationFailedException">Thrown when the refresh token is invalid.</exception>
+        /// <exception cref="Exceptions.DownloadFailedException">Thrown when a download URL could not be created.</exception>
+        /// <exception cref="Exceptions.SessionNotAuthenticatedException">Thrown when there's no OAuth token, or the OAuth token has expired and there is no valid refresh token.</exception>
+        /// <exception cref="Exceptions.ThrottledException">Thrown when the web server indicates too many requests have been made (HTTP 429).</exception>
+        /// <exception cref="Exceptions.TwoFactorAuthenticationIncorrectException">Thrown when the web server indicates the two-factor code was incorrect (HTTP 400).</exception>
+        /// <exception cref="Exceptions.TwoFactorAuthenticationRequiredException">Thrown when the web server indicates two-factor authentication is required (HTTP 412).</exception>
+        /// <exception cref="ArgumentNullException">Thrown when no historyEvent provided or one provided without an Id</exception>
+        public async Task<Stream> GetDoorbotHistoryRecording(DoorbotHistoryEvent doorbotHistoryEvent)
+        {
+            return doorbotHistoryEvent == null || !doorbotHistoryEvent.Id.HasValue
+                ? throw new ArgumentNullException(nameof(doorbotHistoryEvent))
+                : await GetDoorbotHistoryRecording(doorbotHistoryEvent.Id.Value.ToString());
         }
 
         /// <summary>
@@ -375,13 +515,13 @@ namespace StreamMaster.Ring.API
             await EnsureSessionValid();
 
             // Construct the URL where to request downloading of a recording
-            var downloadRequestUri = new Uri(RingApiBaseUrl, $"dings/{dingId}/share/download?disable_redirect=true");
+            Uri downloadRequestUri = new(RingApiBaseUrl, $"dings/{dingId}/share/download?disable_redirect=true");
 
-            Entities.DownloadRecording downloadResult = null;
-            for (var downloadAttempt = 1; downloadAttempt < 60; downloadAttempt++)
+            DownloadRecording downloadResult = null;
+            for (int downloadAttempt = 1; downloadAttempt < 60; downloadAttempt++)
             {
                 // Request to download the recording
-                var response = await _httpUtility.GetContents(downloadRequestUri, AuthenticationToken);
+                string response = await _httpUtility.GetContents(downloadRequestUri, AuthenticationToken);
 
                 // Parse the result
                 downloadResult = JsonSerializer.Deserialize<DownloadRecording>(response);
@@ -404,10 +544,9 @@ namespace StreamMaster.Ring.API
             }
 
             // Request the file download from the returned URI
-            var stream = await _httpUtility.DownloadFile(downloadUri);
+            Stream stream = await _httpUtility.DownloadFile(downloadUri);
             return stream;
         }
-
 
         /// <summary>
         /// Saves the recording of the provided Ding Id of a doorbot to the provided location
@@ -446,10 +585,30 @@ namespace StreamMaster.Ring.API
         {
             await EnsureSessionValid();
 
-            using var stream = await GetDoorbotHistoryRecording(dingId);
-            using var fileStream = File.Create(saveAs);
+            using Stream stream = await GetDoorbotHistoryRecording(dingId);
+            using FileStream fileStream = File.Create(saveAs);
 
             await stream.CopyToAsync(fileStream);
+        }
+
+        /// <summary>
+        /// Shares the Ring recording with the provided identifier and returns the shared URL to it
+        /// </summary>
+        /// <param name="historyEvent">The doorbot history event to share the recording of</param>
+        /// <returns>Uri to the shared recording</returns>
+        /// <exception cref="Exceptions.AuthenticationFailedException">Thrown when the refresh token is invalid.</exception>
+        /// <exception cref="Exceptions.DownloadFailedException">Thrown when a download URL could not be created.</exception>
+        /// <exception cref="Exceptions.SessionNotAuthenticatedException">Thrown when there's no OAuth token, or the OAuth token has expired and there is no valid refresh token.</exception>
+        /// <exception cref="Exceptions.SharingFailedException">Thrown when a share URL could not be created.</exception>
+        /// <exception cref="Exceptions.ThrottledException">Thrown when the web server indicates too many requests have been made (HTTP 429).</exception>
+        /// <exception cref="Exceptions.TwoFactorAuthenticationIncorrectException">Thrown when the web server indicates the two-factor code was incorrect (HTTP 400).</exception>
+        /// <exception cref="Exceptions.TwoFactorAuthenticationRequiredException">Thrown when the web server indicates two-factor authentication is required (HTTP 412).</exception>
+        /// <exception cref="ArgumentNullException">Thrown when no historyEvent provided or one provided without an Id</exception>
+        public async Task<Uri> ShareRecording(DoorbotHistoryEvent historyEvent)
+        {
+            return historyEvent == null || !historyEvent.Id.HasValue
+                ? throw new ArgumentNullException(nameof(historyEvent))
+                : await ShareRecording(historyEvent.Id.Value.ToString());
         }
 
         /// <summary>
@@ -468,13 +627,13 @@ namespace StreamMaster.Ring.API
             await EnsureSessionValid();
 
             // Construct the URL where to request sharing of a recording
-            var downloadRequestUri = new Uri(RingApiBaseUrl, $"dings/{recordingId}/share/share?disable_redirect=true");
+            Uri downloadRequestUri = new(RingApiBaseUrl, $"dings/{recordingId}/share/share?disable_redirect=true");
 
-            Entities.SharedRecording shareResult = null;
-            for (var downloadAttempt = 1; downloadAttempt < 60; downloadAttempt++)
+            SharedRecording shareResult = null;
+            for (int downloadAttempt = 1; downloadAttempt < 60; downloadAttempt++)
             {
                 // Request to share the recording
-                var response = await _httpUtility.GetContents(downloadRequestUri, AuthenticationToken);
+                string response = await _httpUtility.GetContents(downloadRequestUri, AuthenticationToken);
 
                 // Parse the result
                 shareResult = JsonSerializer.Deserialize<SharedRecording>(response);
@@ -491,12 +650,25 @@ namespace StreamMaster.Ring.API
             }
 
             // Ensure we ended with a valid URL to the shared recording
-            if (shareResult == null || string.IsNullOrWhiteSpace(shareResult.WrapperUrl) || !Uri.TryCreate(shareResult.WrapperUrl, UriKind.Absolute, out Uri shareUri))
-            {
-                throw new Exceptions.SharingFailedException(recordingId);
-            }
+            return shareResult == null || string.IsNullOrWhiteSpace(shareResult.WrapperUrl) || !Uri.TryCreate(shareResult.WrapperUrl, UriKind.Absolute, out Uri shareUri)
+                ? throw new Exceptions.SharingFailedException(recordingId)
+                : shareUri;
+        }
 
-            return shareUri;
+        /// <summary>
+        /// Saves the latest available snapshot from the provided doorbot to the provided location
+        /// </summary>
+        /// <param name="doorbot">The doorbot to retrieve the latest available snapshot from</param>
+        /// <param name="saveAs">Full path including the filename where to save the snapshot</param>
+        /// <exception cref="Exceptions.AuthenticationFailedException">Thrown when the refresh token is invalid.</exception>
+        /// <exception cref="Exceptions.DownloadFailedException">Thrown when a download URL could not be created.</exception>
+        /// <exception cref="Exceptions.SessionNotAuthenticatedException">Thrown when there's no OAuth token, or the OAuth token has expired and there is no valid refresh token.</exception>
+        /// <exception cref="Exceptions.ThrottledException">Thrown when the web server indicates too many requests have been made (HTTP 429).</exception>
+        /// <exception cref="Exceptions.TwoFactorAuthenticationIncorrectException">Thrown when the web server indicates the two-factor code was incorrect (HTTP 400).</exception>
+        /// <exception cref="Exceptions.TwoFactorAuthenticationRequiredException">Thrown when the web server indicates two-factor authentication is required (HTTP 412).</exception>
+        public async Task GetLatestSnapshot(Doorbot doorbot, string saveAs)
+        {
+            await GetLatestSnapshot(doorbot.Id, saveAs);
         }
 
         /// <summary>
@@ -512,11 +684,27 @@ namespace StreamMaster.Ring.API
         /// <exception cref="Exceptions.TwoFactorAuthenticationRequiredException">Thrown when the web server indicates two-factor authentication is required (HTTP 412).</exception>
         public async Task GetLatestSnapshot(int doorbotId, string saveAs)
         {
-            using var stream = await GetLatestSnapshot(doorbotId);
-            using var fileStream = File.Create(saveAs);
+            using Stream stream = await GetLatestSnapshot(doorbotId);
+            using FileStream fileStream = File.Create(saveAs);
 
             stream.Seek(0, SeekOrigin.Begin);
             await stream.CopyToAsync(fileStream);
+        }
+
+        /// <summary>
+        /// Returns the latest available snapshot from the provided doorbot
+        /// </summary>
+        /// <param name="doorbot">The doorbot to retrieve the latest available snapshot from</param>
+        /// <returns>Stream with the latest snapshot from the doorbot</returns>
+        /// <exception cref="Exceptions.AuthenticationFailedException">Thrown when the refresh token is invalid.</exception>
+        /// <exception cref="Exceptions.DownloadFailedException">Thrown when a download URL could not be created.</exception>
+        /// <exception cref="Exceptions.SessionNotAuthenticatedException">Thrown when there's no OAuth token, or the OAuth token has expired and there is no valid refresh token.</exception>
+        /// <exception cref="Exceptions.ThrottledException">Thrown when the web server indicates too many requests have been made (HTTP 429).</exception>
+        /// <exception cref="Exceptions.TwoFactorAuthenticationIncorrectException">Thrown when the web server indicates the two-factor code was incorrect (HTTP 400).</exception>
+        /// <exception cref="Exceptions.TwoFactorAuthenticationRequiredException">Thrown when the web server indicates two-factor authentication is required (HTTP 412).</exception>
+        public async Task<Stream> GetLatestSnapshot(Doorbot doorbot)
+        {
+            return await GetLatestSnapshot(doorbot.Id);
         }
 
         /// <summary>
@@ -535,11 +723,27 @@ namespace StreamMaster.Ring.API
             await EnsureSessionValid();
 
             // Construct the URL where to download the latest doorbot snapshot from
-            var downloadSnapshotUri = new Uri(RingApiBaseUrl, $"snapshots/image/{doorbotId}");
+            Uri downloadSnapshotUri = new(RingApiBaseUrl, $"snapshots/image/{doorbotId}");
 
             // Request the snapshot
-            var stream = await _httpUtility.DownloadFile(downloadSnapshotUri, AuthenticationToken);
+            Stream stream = await _httpUtility.DownloadFile(downloadSnapshotUri, AuthenticationToken);
             return stream;
+        }
+
+        /// <summary>
+        /// Requests the Ring API to get a fresh snapshot from the provided doorbot
+        /// </summary>
+        /// <param name="doorbot">The doorbot to request a fresh snapshot from</param>
+        /// <exception cref="Exceptions.AuthenticationFailedException">Thrown when the refresh token is invalid.</exception>
+        /// <exception cref="Exceptions.DownloadFailedException">Thrown when a download URL could not be created.</exception>
+        /// <exception cref="Exceptions.SessionNotAuthenticatedException">Thrown when there's no OAuth token, or the OAuth token has expired and there is no valid refresh token.</exception>
+        /// <exception cref="Exceptions.ThrottledException">Thrown when the web server indicates too many requests have been made (HTTP 429).</exception>
+        /// <exception cref="Exceptions.TwoFactorAuthenticationIncorrectException">Thrown when the web server indicates the two-factor code was incorrect (HTTP 400).</exception>
+        /// <exception cref="Exceptions.TwoFactorAuthenticationRequiredException">Thrown when the web server indicates two-factor authentication is required (HTTP 412).</exception>
+        /// <exception cref="Exceptions.UnexpectedOutcomeException">Thrown if the actual HTTP response is different from what was expected</exception>
+        public async Task UpdateSnapshot(Doorbot doorbot)
+        {
+            await UpdateSnapshot(doorbot.Id);
         }
 
         /// <summary>
@@ -558,15 +762,54 @@ namespace StreamMaster.Ring.API
             await EnsureSessionValid();
 
             // Construct the URL which will trigger the Ring API to refresh the snapshots
-            var updateSnapshotUri = new Uri(RingApiBaseUrl, "snapshots/update_all");
+            Uri updateSnapshotUri = new(RingApiBaseUrl, "snapshots/update_all");
 
             // Construct the body of the message
-            var bodyContent = string.Concat(@"{ ""doorbot_ids"": [", doorbotId, @"], ""refresh"": true }");
+            string bodyContent = string.Concat(@"{ ""doorbot_ids"": [", doorbotId, @"], ""refresh"": true }");
 
             // Send the request
             await _httpUtility.SendRequestWithExpectedStatusOutcome(updateSnapshotUri, HttpMethod.Put, System.Net.HttpStatusCode.NoContent, bodyContent, AuthenticationToken);
         }
 
-        #endregion
+        /// <summary>
+        /// Request the date and time when the last snapshot was taken from the provided doorbot
+        /// </summary>
+        /// <param name="doorbot">The doorbot to request when the last snapshot was taken from</param>
+        /// <returns>Entity with information regarding the last taken snapshot</returns>
+        /// <exception cref="Exceptions.SessionNotAuthenticatedException">Thrown when there's no OAuth token, or the OAuth token has expired and there is no valid refresh token.</exception>
+        /// <exception cref="Exceptions.ThrottledException">Thrown when the web server indicates too many requests have been made (HTTP 429).</exception>
+        /// <exception cref="Exceptions.TwoFactorAuthenticationIncorrectException">Thrown when the web server indicates the two-factor code was incorrect (HTTP 400).</exception>
+        /// <exception cref="Exceptions.TwoFactorAuthenticationRequiredException">Thrown when the web server indicates two-factor authentication is required (HTTP 412).</exception>
+        public async Task<DoorbotTimestamps> GetDoorbotSnapshotTimestamp(Doorbot doorbot)
+        {
+            return await GetDoorbotSnapshotTimestamp(doorbot.Id);
+        }
+
+        /// <summary>
+        /// Request the date and time when the last snapshot was taken from the provided doorbot
+        /// </summary>
+        /// <param name="doorbotId">ID of the doorbot to request when the last snapshot was taken from</param>
+        /// <returns>Entity with information regarding the last taken snapshot</returns>
+        /// <exception cref="Exceptions.AuthenticationFailedException">Thrown when the refresh token is invalid.</exception>
+        /// <exception cref="Exceptions.SessionNotAuthenticatedException">Thrown when there's no OAuth token, or the OAuth token has expired and there is no valid refresh token.</exception>
+        /// <exception cref="Exceptions.ThrottledException">Thrown when the web server indicates too many requests have been made (HTTP 429).</exception>
+        /// <exception cref="Exceptions.TwoFactorAuthenticationIncorrectException">Thrown when the web server indicates the two-factor code was incorrect (HTTP 400).</exception>
+        /// <exception cref="Exceptions.TwoFactorAuthenticationRequiredException">Thrown when the web server indicates two-factor authentication is required (HTTP 412).</exception>
+        public async Task<DoorbotTimestamps> GetDoorbotSnapshotTimestamp(int doorbotId)
+        {
+            await EnsureSessionValid();
+
+            // Construct the URL which will request the timestamps of the latest snapshots
+            Uri updateSnapshotUri = new(RingApiBaseUrl, "snapshots/timestamps");
+
+            // Construct the body of the message
+            string bodyContent = string.Concat(@"{ ""doorbot_ids"": [", doorbotId, @"]}");
+
+            // Send the request
+            DoorbotTimestamps doorbotTimestamps = await _httpUtility.SendRequest<DoorbotTimestamps>(updateSnapshotUri, HttpMethod.Post, bodyContent, AuthenticationToken);
+            return doorbotTimestamps;
+        }
+
+        #endregion Methods
     }
 }

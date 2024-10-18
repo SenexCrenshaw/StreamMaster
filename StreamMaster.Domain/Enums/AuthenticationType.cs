@@ -1,5 +1,8 @@
-﻿namespace StreamMaster.Domain.Enums;
+﻿using Reinforced.Typings.Attributes;
 
+namespace StreamMaster.Domain.Enums;
+
+[TsEnum]
 public enum AuthenticationType
 {
     None = 0,

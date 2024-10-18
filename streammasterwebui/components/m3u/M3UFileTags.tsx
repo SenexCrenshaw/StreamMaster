@@ -1,23 +1,20 @@
-import { M3UFileDto } from '@lib/iptvApi';
-import { Button } from 'primereact/button';
+import SMPopUp from '@components/sm/SMPopUp';
+import { M3UFileDto } from '@lib/smAPI/smapiTypes';
 import { Chips } from 'primereact/chips';
-import { OverlayPanel } from 'primereact/overlaypanel';
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useMemo } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 
 export interface M3UFileTagsProperties {
   m3uFileDto?: M3UFileDto;
-  vodTags?: string[];
   onChange: (vodTags: string[]) => void;
+  vodTags?: string[];
 }
 
 const M3UFileTags = ({ m3uFileDto, onChange, vodTags }: M3UFileTagsProperties) => {
-  const op = useRef<OverlayPanel>(null);
-  const anchorReference = useRef(null);
-
-  const [isOpen, setIsOpen] = useState(false);
+  const uuid = uuidv4();
 
   const intTags = useMemo((): string[] => {
-    const tags = m3uFileDto ? m3uFileDto.vodTags : vodTags ?? [];
+    const tags = m3uFileDto ? m3uFileDto.VODTags : vodTags ?? [];
 
     return tags;
   }, [m3uFileDto, vodTags]);
@@ -28,36 +25,47 @@ const M3UFileTags = ({ m3uFileDto, onChange, vodTags }: M3UFileTagsProperties) =
     return intTags.length + ' Tags';
   }, [intTags]);
 
+  const buttonTemplate = useMemo(() => {
+    return (
+      <div className="flex w-full justify-content-center align-items-center">
+        <div className="text-container pl-1" style={{ color: '#d3d88e' }}>
+          {buttonTags}
+        </div>
+      </div>
+    );
+  }, [buttonTags]);
+
   return (
-    <div className="w-full bordered-text tag-editor p-0 m-0" ref={anchorReference}>
-      <Button
-        className="text-sm tag-editor"
-        icon="pi pi-chevron-down"
-        label={buttonTags}
-        text={true}
-        onClick={(e) => {
-          if (isOpen) {
-            op.current?.hide();
-          } else {
-            op.current?.show(null, anchorReference.current);
-          }
-          setIsOpen(!isOpen);
-        }}
-      />
-      <OverlayPanel ref={op} onHide={() => setIsOpen(false)} style={{ width: '20rem' }}>
-        <Chips
-          autoFocus
-          id="chips"
-          value={intTags}
-          onChange={(e) => {
-            onChange(e.value ?? []);
-          }}
-        />
-      </OverlayPanel>
+    <div className="sm-w-12">
+      <label className="flex text-xs text-default-color w-full justify-content-start align-items-center pl-2 w-full" htmlFor={uuid}>
+        URL REGEX
+      </label>
+      <div id={uuid} className="stringeditor">
+        <SMPopUp
+          className="w-full"
+          buttonDarkBackground
+          buttonTemplate={buttonTemplate}
+          title="URL Regex Tags"
+          contentWidthSize="3"
+          icon="pi-chevron-down"
+          zIndex={13}
+        >
+          <div className="p-fluid h-3rem w-full">
+            <Chips
+              autoFocus
+              value={intTags}
+              onChange={(e) => {
+                onChange(e.value ?? []);
+              }}
+              variant="filled"
+            />
+          </div>
+        </SMPopUp>
+      </div>
     </div>
   );
 };
 
-M3UFileTags.displayName = 'M3UFileDialog';
+M3UFileTags.displayName = 'M3UFileTags';
 
 export default React.memo(M3UFileTags);

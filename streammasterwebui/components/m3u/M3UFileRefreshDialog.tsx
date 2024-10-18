@@ -1,38 +1,41 @@
-import { memo, useCallback, useState } from 'react';
-
-import { M3UFileDto, RefreshM3UFileRequest, useM3UFilesRefreshM3UFileMutation } from '@lib/iptvApi';
-import FileRefreshDialog from '../sharedEPGM3U/FileRefreshDialog';
+import SMPopUp from '@components/sm/SMPopUp';
+import { RefreshM3UFile } from '@lib/smAPI/M3UFiles/M3UFilesCommands';
+import { M3UFileDto, RefreshM3UFileRequest } from '@lib/smAPI/smapiTypes';
+import { memo } from 'react';
 
 interface M3UFileRefreshDialogProperties {
   readonly selectedFile: M3UFileDto;
 }
 
 const M3UFileRefreshDialog = ({ selectedFile }: M3UFileRefreshDialogProperties) => {
-  const [infoMessage, setInfoMessage] = useState('');
-  const [m3uFilesRefreshM3UFileMutation] = useM3UFilesRefreshM3UFileMutation();
-
-  const OnClose = useCallback(() => {
-    setInfoMessage('');
-  }, []);
-
-  const refreshFile = async () => {
-    if (!selectedFile?.id) {
-      return;
-    }
-
+  const accept = () => {
     const toSend = {} as RefreshM3UFileRequest;
-    toSend.id = selectedFile.id;
+    toSend.Id = selectedFile.Id;
+    toSend.ForceRun = true;
 
-    m3uFilesRefreshM3UFileMutation(toSend)
-      .then(() => {
-        setInfoMessage('M3U Refresh Successfully');
-      })
+    RefreshM3UFile(toSend)
+      .then(() => {})
       .catch((error) => {
-        setInfoMessage(`M3U Refresh Error: ${error.message}`);
+        console.error('Error refreshing M3U file', error);
       });
   };
 
-  return <FileRefreshDialog fileType="m3u" inputInfoMessage={infoMessage} onRefreshFile={refreshFile} OnClose={OnClose} />;
+  return (
+    <SMPopUp
+      placement="bottom-end"
+      title="Refresh M3U"
+      onOkClick={() => accept()}
+      icon="pi-sync"
+      buttonClassName="icon-orange"
+      tooltip="Refresh M3U"
+      modal
+      zIndex={11}
+    >
+      <div className="sm-center-stuff">
+        <div className="text-container">{selectedFile.Name}</div>
+      </div>
+    </SMPopUp>
+  );
 };
 
 M3UFileRefreshDialog.displayName = 'M3UFileRefreshDialog';

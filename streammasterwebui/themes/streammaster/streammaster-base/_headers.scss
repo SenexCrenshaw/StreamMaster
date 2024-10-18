@@ -1,0 +1,54 @@
+.header-text {
+    @extend .sm-text-xlg;
+    @extend .header-text-color;
+    display: flex;
+    align-items: center;
+    padding: 0 !important;
+    font-weight: bold;
+    height: $input-height-with-no-borders !important;
+}
+
+.header-text-sub {
+    @extend .sm-text-lg;
+    @extend .header-text-color;
+    display: flex;
+    align-items: center;
+    padding: 0 !important;
+    padding-top: 1rem !important;
+    padding-bottom: 1rem !important;
+    padding-left: $headerTextLeft !important;
+    font-weight: bold;
+    height: $input-height-with-no-borders !important;
+}
+
+.header-text-channels {
+    @extend .header-text-color;
+    display: flex;
+    align-items: center;
+    padding: 0 !important;
+    padding-left: $headerTextLeft !important;
+    font-weight: bold;
+    height: $input-height-with-no-borders !important;
+}
+
+.header-text-color {
+    color: $headerTextColor;
+}
+
+.info-header-text {
+    @extend .sm-text-lg;
+    @extend .text-color;
+    font-weight: bold;
+}
+
+.sm-tableHeaderBg {
+    background-color: $tableHeaderBg !important;
+}
+
+.sm-headerBg {
+    background-color: $headerBg !important;
+}
+
+.sm-bgColor {
+    background-color: $bgColor !important;
+}

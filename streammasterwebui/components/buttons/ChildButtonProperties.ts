@@ -1,11 +1,13 @@
 import { SyntheticEvent } from 'react';
 
 export interface ChildButtonProperties {
-  className?: string;
-  disabled?: boolean | undefined;
+  buttonClassName?: string;
+  buttonDisabled?: boolean;
   iconFilled?: boolean;
-  label?: string | undefined | null;
-  onClick: (e: SyntheticEvent) => void;
-  style?: React.CSSProperties | undefined;
+  isLeft?: boolean;
+  label?: string;
+  onClick?: (e: SyntheticEvent) => void;
+  style?: React.CSSProperties;
   tooltip?: string;
+  outlined?: boolean;
 }

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import EventManager from './eventManager';
 
 type EventType = 'scroll' | 'keyUp' | 'keyDown' | 'mouseWheel' | 'wheel';
 type Direction = 'up' | 'down';
@@ -8,10 +9,12 @@ interface UseScrollAndKeyEventsResult {
   type: EventType | null;
   direction: Direction | null;
   state?: ScrollState;
+  code?: string | null;
 }
 
 function useScrollAndKeyEvents(): UseScrollAndKeyEventsResult {
-  const [eventData, setEventData] = useState<UseScrollAndKeyEventsResult>({ direction: null, type: null });
+  const [eventData, setEventData] = useState<UseScrollAndKeyEventsResult>({ direction: null, type: null, code: null });
+  const eventManager = EventManager.getInstance();
 
   const determineScrollState = (direction: Direction) => {
     const atTop = window.scrollY <= 0;
@@ -27,48 +30,51 @@ function useScrollAndKeyEvents(): UseScrollAndKeyEventsResult {
   };
 
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.keyCode === 38) {
-        // Up arrow key code
-        const state = determineScrollState('up');
-        setEventData({ direction: 'up', state, type: 'keyUp' });
-      } else if (e.keyCode === 40) {
-        // Down arrow key code
-        console.log('down');
+    const handleKeyDown = (e: Event) => {
+      const keyboardEvent = e as KeyboardEvent;
+      if (keyboardEvent.code === 'Enter' || keyboardEvent.code === 'NumpadEnter') {
         const state = determineScrollState('down');
-        setEventData({ direction: 'down', state, type: 'keyDown' });
+        setEventData({ code: keyboardEvent.code, direction: 'down', state, type: 'keyDown' });
       }
     };
 
-    const handleMouseWheelEvent = (e: any) => {
-      // Use `any` to handle both WheelEvent and MouseWheelEvent
-      const direction = e.deltaY > 0 ? 'down' : 'up';
-      const state = determineScrollState(direction);
-      setEventData({ direction, state, type: 'mouseWheel' });
+    const handleKeyUp = (e: Event) => {
+      const keyboardEvent = e as KeyboardEvent;
+      if (keyboardEvent.code === 'Enter' || keyboardEvent.code === 'NumpadEnter') {
+        setEventData((prevData) => ({
+          ...prevData,
+          code: null,
+          type: 'keyUp'
+        }));
+      }
     };
 
-    const handleWheelEvent = (e: WheelEvent) => {
-      const direction = e.deltaY > 0 ? 'down' : 'up';
+    const handleMouseWheelEvent = (e: Event) => {
+      const wheelEvent = e as WheelEvent;
+      const direction = wheelEvent.deltaY > 0 ? 'down' : 'up';
       const state = determineScrollState(direction);
-      setEventData({ direction, state, type: 'wheel' }); // Updated the type to 'wheel'
+      setEventData({ direction, state, type: 'mouseWheel', code: null });
     };
 
-    // const handleMouseWheelEvent = (e: WheelEvent) => {
-    //   const direction = e.deltaY > 0 ? 'down' : 'up';
-    //   const state = determineScrollState(direction);
-    //   setEventData({ type: 'mousewheel', direction, state }); // Updated the type to 'mousewheel'
-    // };
+    const handleWheelEvent = (e: Event) => {
+      const wheelEvent = e as WheelEvent;
+      const direction = wheelEvent.deltaY > 0 ? 'down' : 'up';
+      const state = determineScrollState(direction);
+      setEventData({ direction, state, type: 'wheel', code: null });
+    };
 
-    window.addEventListener('keydown', handleKeyDown);
-    window.addEventListener('wheel', handleWheelEvent);
-    window.addEventListener('mousewheel', handleMouseWheelEvent); // Listening for the mousewheel event
+    eventManager.addEventListener('keydown', handleKeyDown);
+    eventManager.addEventListener('keyup', handleKeyUp);
+    eventManager.addEventListener('wheel', handleWheelEvent);
+    eventManager.addEventListener('mousewheel', handleMouseWheelEvent);
 
     return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-      window.removeEventListener('wheel', handleWheelEvent);
-      window.removeEventListener('mousewheel', handleMouseWheelEvent);
+      eventManager.removeEventListener('keydown', handleKeyDown);
+      eventManager.removeEventListener('keyup', handleKeyUp);
+      eventManager.removeEventListener('wheel', handleWheelEvent);
+      eventManager.removeEventListener('mousewheel', handleMouseWheelEvent);
     };
-  }, []);
+  }, [eventManager]);
 
   return eventData;
 }

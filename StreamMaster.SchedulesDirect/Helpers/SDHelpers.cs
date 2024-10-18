@@ -106,8 +106,6 @@ public static partial class SDHelpers
         }
     }
 
-
-
     public static List<ProgramArtwork> GetArtWork(this MxfProgram program)
     {
         List<ProgramArtwork> artwork = [];
@@ -124,9 +122,9 @@ public static partial class SDHelpers
         }
 
         // get the series info class from the program if it is a series
-        if (artwork.Count == 0 && (program.mxfSeriesInfo?.extras.ContainsKey("artwork") ?? false))
+        if (artwork.Count == 0 && (program.mxfSeriesInfo?.Extras.ContainsKey("artwork") ?? false))
         {
-            artwork = program.mxfSeriesInfo.extras["artwork"];
+            artwork = program.mxfSeriesInfo.Extras["artwork"];
         }
         return artwork;
     }
@@ -143,7 +141,7 @@ public static partial class SDHelpers
             !string.IsNullOrEmpty(arg.Size) && arg.Size.Equals(artWorkSize, StringComparison.InvariantCultureIgnoreCase));
 
         // get the aspect ratios available and fix the URI
-        ConcurrentHashSet<string> aspects = new();
+        ConcurrentHashSet<string> aspects = [];
         foreach (ProgramArtwork? image in images)
         {
             _ = aspects.Add(image.Aspect);
@@ -260,7 +258,7 @@ public static partial class SDHelpers
 
         if (ret.Count > 1)
         {
-            ret = ret.OrderBy(arg => arg.Width).ToList();
+            ret = [.. ret.OrderBy(arg => arg.Width)];
         }
         return ret;
     }
@@ -279,12 +277,12 @@ public static partial class SDHelpers
                 continue;
             }
 
-            if (!exactMatch && str.ToLower().Contains(text.ToLower()))
+            if (!exactMatch && str.Contains(text, StringComparison.CurrentCultureIgnoreCase))
             {
                 return true;
             }
 
-            if (str.ToLower().Equals(text.ToLower()))
+            if (str.Equals(text, StringComparison.OrdinalIgnoreCase))
             {
                 return true;
             }
@@ -295,9 +293,8 @@ public static partial class SDHelpers
 
     public static bool StringContains(this string str, string text)
     {
-        return str != null && str.ToLower().Contains(text.ToLower());
+        return str?.ToLower().Contains(text, StringComparison.CurrentCultureIgnoreCase) == true;
     }
-
 
     public static string GenerateHashFromStringContent(StringContent content)
     {
@@ -331,5 +328,4 @@ public static partial class SDHelpers
         ret.SystemStatus.Add(new SystemStatus { Status = "Offline" });
         return ret;
     }
-
 }

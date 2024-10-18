@@ -1,10 +1,9 @@
 import { CSSProperties, memo, useCallback } from 'react';
 
 import { getTopToolOptions } from '@lib/common/common';
-import { UpdateVideoStreamRequest, VideoStreamDto } from '@lib/iptvApi';
+
 import { isDev } from '@lib/settings';
-import { UpdateVideoStream } from '@lib/smAPI/VideoStreams/VideoStreamsMutateAPI';
-import NumberEditorBodyTemplate from './inputs/NumberEditorBodyTemplate';
+import NumberEditor from './inputs/NumberEditor';
 
 interface ChannelNumberEditorProperties {
   readonly data: VideoStreamDto;
@@ -23,19 +22,19 @@ const ChannelNumberEditor = ({ data, style }: ChannelNumberEditorProperties) => 
       toSend.id = data.id;
       toSend.tvg_chno = channelNumber;
 
-      await UpdateVideoStream(toSend)
-        .then(() => {})
-        .catch((error) => {
-          console.log(error);
-        });
+      // await UpdateVideoStream(toSend)
+      //   .then(() => {})
+      //   .catch((error) => {
+      //     console.log(error);
+      //   });
     },
     [data.id, data.user_Tvg_chno]
   );
 
   return (
-    <NumberEditorBodyTemplate
-      onChange={async (e) => {
-        await onUpdateVideoStream(e);
+    <NumberEditor
+      onSave={async (e) => {
+        e !== undefined && (await onUpdateVideoStream(e));
       }}
       resetValue={data.tvg_chno}
       style={style}

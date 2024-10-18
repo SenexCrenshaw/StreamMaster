@@ -1,4 +1,4 @@
-﻿namespace StreamMasterAPI.Exceptions
+﻿namespace StreamMaster.API.Exceptions
 {
     public class InvalidApiKeyException : Exception
     {

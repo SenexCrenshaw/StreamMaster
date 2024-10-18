@@ -1,6 +1,9 @@
-﻿using System.Diagnostics;
+﻿using StreamMaster.Domain.Extensions;
+
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace StreamMaster.Domain.Configuration
 {
@@ -9,12 +12,15 @@ namespace StreamMaster.Domain.Configuration
     /// </summary>
     public static class BuildInfo
     {
+        public static JsonSerializerOptions JsonIndentOptions = new() { WriteIndented = true };
+        public static JsonSerializerOptions JsonIndentOptionsWhenWritingNull = new() { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull, WriteIndented = false };
+
         static BuildInfo()
         {
             Assembly? assembly = Assembly.GetEntryAssembly() ?? throw new InvalidOperationException("Failed to get entry assembly.");
             Version = assembly.GetName().Version ?? new Version(0, 0, 0, 0);
             object[] attributes = assembly.GetCustomAttributes(true);
-
+            StartTime = SMDT.UtcNow;
             Branch = "unknown";
             Release = Version.ToString();
 
@@ -25,7 +31,7 @@ namespace StreamMaster.Domain.Configuration
                     ? informationalVersion.InformationalVersion[..(informationalVersion.InformationalVersion.IndexOf("Sha", StringComparison.Ordinal) - 1)]
                     : informationalVersion.InformationalVersion;
             }
-            GetSettingFiles();
+            _ = GetSettingFiles();
         }
 
         public static bool IsLinux => RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
@@ -34,20 +40,8 @@ namespace StreamMaster.Domain.Configuration
         public static bool IsFreeBSD => RuntimeInformation.IsOSPlatform(OSPlatform.FreeBSD);
         public static string StartUpPath = new FileInfo(Assembly.GetExecutingAssembly().Location).Directory.FullName;
 
-        private static DateTime _startTime;
-
-        public static DateTime StartTime
-        {
-            get
-            {
-                if (_startTime == DateTime.MinValue)
-                {
-                    _startTime = DateTime.Now;
-                }
-
-                return _startTime;
-            }
-        }
+        public const int DBBatchSize = 500;
+        public static DateTime StartTime { get; set; }
 
         #region Database Configuration Properties
 
@@ -57,7 +51,6 @@ namespace StreamMaster.Domain.Configuration
         public static string DBName => GetEnvironmentVariableOrDefault("POSTGRES_DB", "StreamMaster");
 
         public static string DBHost => GetEnvironmentVariableOrDefault("POSTGRES_HOST", "127.0.0.1");
-
 
         /// <summary>
         /// Database user, fetched from environment variable or default if not set.
@@ -69,15 +62,17 @@ namespace StreamMaster.Domain.Configuration
         /// </summary>
         public static string DBPassword => GetEnvironmentVariableOrDefault("POSTGRES_PASSWORD", "sm123");
 
-        #endregion
+        #endregion Database Configuration Properties
 
         #region Application Information Properties
 
         public static string AppName { get; } = "StreamMaster";
-        public static bool SetIsSystemReady { get; set; } = false;
+        public static bool IsSystemReady { get; set; } = false;
+        public static bool IsTaskRunning { get; set; } = false;
         public static Version Version { get; }
         public static string Branch { get; }
         public static string Release { get; }
+
         /// <summary>
         /// Gets the build date and time by reading the last write time of the assembly.
         /// </summary>
@@ -92,7 +87,7 @@ namespace StreamMaster.Domain.Configuration
                         ? throw new FileNotFoundException("Failed to locate the executing assembly.")
                         : new FileInfo(assemblyLocation).LastWriteTimeUtc;
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     // Log the exception or handle it as deemed appropriate for your use case.
                     // Log.Warning(ex, "Unable to determine BuildDateTime.");
@@ -101,7 +96,7 @@ namespace StreamMaster.Domain.Configuration
             }
         }
 
-        #endregion
+        #endregion Application Information Properties
 
         #region Build Configuration Property
 
@@ -111,38 +106,54 @@ namespace StreamMaster.Domain.Configuration
         public static bool IsDebug =>
 #if DEBUG
             true;
+
 #else
             false;
 #endif
 
-        #endregion
+        #endregion Build Configuration Property
 
         #region File and Directory Path Fields
 
-        public static string AppDataFolder { get; private set; } = IsWindows ? $"c:{Path.DirectorySeparatorChar}config{Path.DirectorySeparatorChar}" : $"{Path.DirectorySeparatorChar}config{Path.DirectorySeparatorChar}";
+        public static string AppDataFolder { get; } = IsWindows ? $"c:{Path.DirectorySeparatorChar}config{Path.DirectorySeparatorChar}" : $"{Path.DirectorySeparatorChar}config{Path.DirectorySeparatorChar}";
+        public static readonly int BufferSize = 4096;
+
         public static readonly string DataFolder = Path.Combine(AppDataFolder, "DB");
         public static readonly string CacheFolder = Path.Combine(AppDataFolder, "Cache");
         public static readonly string LogFolder = Path.Combine(AppDataFolder, "Logs");
         public static readonly string PlayListFolder = Path.Combine(AppDataFolder, "PlayLists");
-        public static readonly string TVLogoDataFolder = Path.Combine(AppDataFolder, "tv-logos");
-        public static readonly string IconDataFolder = Path.Combine(CacheFolder, "Icons");
-        public static readonly string ChannelIconDataFolder = Path.Combine(CacheFolder, "ChannelIcons");
-        public static readonly string ProgrammeIconDataFolder = Path.Combine(CacheFolder, "ProgrammeIcons");
+        public static readonly string TVLogoFolder = Path.Combine(AppDataFolder, "tv-logos");
+        public static readonly string LogoFolder = Path.Combine(CacheFolder, "Logos");
+        public static readonly string DupDataFolder = Path.Combine(CacheFolder, "DuplicateStreamLists");
+
+        //public static readonly string ProgrammeIconDataFolder = Path.Combine(CacheFolder, "ProgrammeIcons");
         public static readonly string SDJSONFolder = Path.Combine(CacheFolder, "SDJson");
+
         public static readonly string SDStationLogosFolder = Path.Combine(CacheFolder, "SDStationLogos");
         public static readonly string SDStationLogosCacheFolder = Path.Combine(CacheFolder, "SDStationLogosCache");
+
         public static readonly string SDImagesFolder = Path.Combine(CacheFolder, "SDImages");
         public static readonly string EPGFolder = Path.Combine(PlayListFolder, "EPG");
         public static readonly string M3UFolder = Path.Combine(PlayListFolder, "M3U");
-        public static readonly string HLSOutputFolder = Path.Combine(AppDataFolder, "HLS");
+
+        //public static readonly string HLSOutputFolder = Path.Combine(AppDataFolder, "HLS");
         public static readonly string BackupFolder = Path.Combine(AppDataFolder, "Backups");
+
         public static readonly string SettingsFolder = Path.Combine(AppDataFolder, "Settings");
         public static readonly string RestoreFolder = Path.Combine(AppDataFolder, "Restore");
 
+        public static readonly string CustomPlayListFolder = Path.Combine(AppDataFolder, "CustomPlayList");
+
+        public static readonly string IntrosFolder = Path.Combine(AppDataFolder, "Intros");
+        public static readonly string MessagesFolder = Path.Combine(AppDataFolder, "Messages");
+        public static readonly string MessageNoStreamsLeft = Path.Combine(MessagesFolder, "NoStreamsLeft.mp4");
+
         public static readonly string SDEPGCacheFile = Path.Combine(SDJSONFolder, "epgCache.json");
-        public static readonly string IconDefault = Path.Combine("images", "default.png");
-        public static readonly string FFMPEGDefaultOptions = "-hide_banner -loglevel error -i {streamUrl} -c copy -f mpegts pipe:1";
-        public static readonly string LogFilePath = Path.Combine(LogFolder, "StreamMasterAPI.log");
+        public static readonly string LogoDefault = Path.Combine("images", "default.png");
+
+        public static readonly string LogFileName = "StreamMasterAPI";
+        public static readonly string LogFilePath = Path.Combine(LogFolder, LogFileName + ".log");
+        public static readonly string LogFileLoggerPath = Path.Combine(LogFolder, "StreamMasterAPIFile.log");
 
         public static readonly string LoggingFileName = "logsettings.json";
         public static readonly string LoggingSettingsFile = GetSettingFilePath(LoggingFileName, AppDataFolder);
@@ -153,43 +164,46 @@ namespace StreamMaster.Domain.Configuration
         public static readonly string SDSettingFileName = "sdsettings.json";
         public static readonly string SDSettingsFile = GetSettingFilePath(SDSettingFileName);
 
-        public static readonly string HLSSettingFileName = "hlssettings.json";
-        public static readonly string HLSSettingsFile = GetSettingFilePath(HLSSettingFileName);
+        //public static readonly string HLSSettingFileName = "hlssettings.json";
+        //public static readonly string HLSSettingsFile = GetSettingFilePath(HLSSettingFileName);
+        //public static readonly string HLSLogFolder = Path.Combine(LogFolder, "HLS");
 
-        public static readonly string ProfileFileName = "profiles.json";
-        public static readonly string ProfileSettingsFile = GetSettingFilePath(ProfileFileName);
+        public static readonly string CommandProfileFileName = "commandprofiles.json";
+        public static readonly string CommandProfileSettingsFile = GetSettingFilePath(CommandProfileFileName);
 
-        #endregion
+        public static readonly string OutputProfileFileName = "outputprofiles.json";
+        public static readonly string OutputProfileSettingsFile = GetSettingFilePath(OutputProfileFileName);
+
+        #endregion File and Directory Path Fields
 
         public static List<string> GetSettingFiles()
         {
-
             Type targetType = typeof(BuildInfo);
 
             // Get fields marked with [CreateDir] or named "*Folder"
             IEnumerable<string?> fieldPaths = targetType.GetFields(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
                             .Where(f => f.Name.EndsWith("SettingsFile") && f.FieldType == typeof(string))
-                            .Select(f => (string)f.GetValue(null));
+                            .Select(f => (string?)f.GetValue(null));
 
             // Get properties marked with [CreateDir] or named "*Folder"
             IEnumerable<string?> propertyPaths = targetType.GetProperties(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
                                 .Where(p => p.Name.EndsWith("SettingsFile") && p.PropertyType == typeof(string))
-                                .Select(p => (string)p.GetValue(null));
+                                .Select(p => (string?)p.GetValue(null));
 
             // Combine paths from fields and properties
-            List<string> paths = fieldPaths.Concat(propertyPaths).Where(a => !string.IsNullOrEmpty(a)).Order().ToList();
+            List<string> paths = [.. fieldPaths.Concat(propertyPaths).Where(a => !string.IsNullOrEmpty(a)).Order()];
 
             return paths;
         }
 
         #region Helper Methods
 
-        private static void Log(string format, params object[] args)
-        {
-            string message = string.Format(format, args);
-            Console.WriteLine(message);
-            Debug.WriteLine(message);
-        }
+        //private static void Log(string format, params object[] args)
+        //{
+        //    string message = string.Format(format, args);
+        //    Console.WriteLine(message);
+        //    Debug.WriteLine(message);
+        //}
 
         private static string GetSettingFilePath(string settingFileName, string? folder = null)
         {
@@ -198,7 +212,6 @@ namespace StreamMaster.Domain.Configuration
                 folder = SettingsFolder;
             }
             return Path.Combine(folder, settingFileName);
-
 
             //return File.Exists(Path.Combine(folder, settingFileName)) ? Path.Combine(folder, settingFileName) : settingFileName;
         }
@@ -224,6 +237,6 @@ namespace StreamMaster.Domain.Configuration
             return !string.IsNullOrEmpty(envVar) ? envVar : defaultValue;
         }
 
-        #endregion
+        #endregion Helper Methods
     }
 }

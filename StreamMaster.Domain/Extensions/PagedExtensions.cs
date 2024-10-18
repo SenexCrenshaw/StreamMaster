@@ -2,8 +2,10 @@
 
 using Microsoft.EntityFrameworkCore;
 
+using StreamMaster.Domain.API;
 using StreamMaster.Domain.Filtering;
-using StreamMaster.Domain.Pagination;
+
+using X.Extensions.PagedList.EF;
 namespace StreamMaster.Domain.Extensions;
 
 public static class PagedExtensions

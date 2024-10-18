@@ -371,3 +371,8 @@ basever
 buildver
 smver
 release.config.cjs
+StreamMaster.Docs/.venv/
+StreamMaster.Docs/venv/
+StreamMaster.Docs/.chatgpt-md-translator
+StreamMaster.Docs/.venv/
+streammasterwebui/stats.html

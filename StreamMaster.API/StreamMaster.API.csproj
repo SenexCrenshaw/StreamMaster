@@ -3,7 +3,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-	  <NoWarn>ASP0023</NoWarn>
+    <NoWarn>ASP0023</NoWarn>
     <UserSecretsId>5c3e6cc7-c8af-4b3f-9ce2-65a1356eaa25</UserSecretsId>
     <Platforms>AnyCPU;ARM64</Platforms>
     <AssemblyVersion>
@@ -17,10 +17,11 @@
     <Copyright>Copyright 2023-$([System.DateTime]::Now.ToString('yyyy')) streammaster (MIT license)</Copyright>
     <NeutralLanguage>en</NeutralLanguage>
     <Title>Stream Master</Title>
-   
-    <EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>	 
+
+    <EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
   </PropertyGroup>
-	
+
+	<Target Name="CompileTypeScript" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
     <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
@@ -44,34 +45,40 @@
     <Optimize>False</Optimize>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Remove="Common\**" />
-    <Compile Remove="Models\**" />
-    <Content Remove="Common\**" />
-    <Content Remove="Models\**" />
-    <EmbeddedResource Remove="Common\**" />
-    <EmbeddedResource Remove="Models\**" />
-    <None Remove="Common\**" />
-    <None Remove="Models\**" />
-  </ItemGroup>
-  <ItemGroup>
     <Content Remove="sd_token.json" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
+    <PackageReference Include="MessagePack" Version="2.5.187" />
     <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="6.0.0" />
-    <PackageReference Include="NSwag.AspNetCore" Version="14.0.3" />
-    <PackageReference Include="prometheus-net.AspNetCore" Version="8.2.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="8.0.3" />
-    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.3" />
-    <PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.MessagePack" Version="8.0.3" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.1" />
-    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" Version="8.0.3" />
+    <PackageReference Include="NSwag.AspNetCore" Version="14.1.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="8.0.10" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.10" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.MessagePack" Version="8.0.10" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.2" />
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" Version="8.0.10" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="8.0.2" />
-    <PackageReference Include="System.Security.Cryptography.Xml" Version="8.0.0" />
+    <PackageReference Include="Reinforced.Typings" Version="1.6.3" />
+    <PackageReference Include="System.Formats.Asn1" Version="8.0.1" />
+    <PackageReference Include="System.Runtime.Caching" Version="8.0.1" />
+    <PackageReference Include="System.Security.Cryptography.Xml" Version="8.0.2" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\StreamMaster.Infrastructure\StreamMaster.Infrastructure.csproj" />
+    <ProjectReference Include="..\StreamMaster.PlayList\StreamMaster.PlayList.csproj" />
     <ProjectReference Include="..\StreamMaster.SchedulesDirect.Services\StreamMaster.SchedulesDirect.Services.csproj" />
     <ProjectReference Include="..\StreamMaster.Streams\StreamMaster.Streams.csproj" />
   </ItemGroup>
+	<ItemGroup>
+		<RtAdditionalAssembly Include="StreamMaster.Domain" />
+		<RtAdditionalAssembly Include="StreamMaster.SchedulesDirect.Domain" />
+		<RtAdditionalAssembly Include="StreamMaster.Application" />
+		<RtAdditionalAssembly Include="StreamMaster.Streams.Domain" />
+		<RtAdditionalAssembly Include="StreamMaster.PlayList" />
+	</ItemGroup>
+	<ItemGroup>
+	  <None Update="Fonts\Roboto-Regular.ttf">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	</ItemGroup>
 </Project>

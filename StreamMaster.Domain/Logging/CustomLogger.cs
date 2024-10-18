@@ -1,18 +1,20 @@
 ﻿
 
-using System.Text.RegularExpressions;
 using StreamMaster.Domain.Configuration;
 
+using System.Text.RegularExpressions;
+
 namespace StreamMaster.Domain.Logging;
-public class CustomLogger<T>(ILoggerFactory loggerFactory, ILoggingUtils loggingUtils, IOptionsMonitor<Setting> intsettings) : ILogger<T>
+public class CustomLogger<T>(ILoggerFactory loggerFactory, ILoggingUtils loggingUtils, IOptionsMonitor<Setting> intSettings) : ILogger<T>
 {
     private readonly ILogger _innerLogger = loggerFactory.CreateLogger<T>();
     private readonly ILoggingUtils _loggingUtils = loggingUtils ?? throw new ArgumentNullException(nameof(loggingUtils));
-    private readonly Setting settings = intsettings.CurrentValue;
 
-    public IDisposable BeginScope<TState>(TState state)
+    public IDisposable? BeginScope<TState>(TState state) where TState : notnull
     {
-        return _innerLogger.BeginScope(state);
+        return _innerLogger == null
+            ? throw new InvalidOperationException("Inner logger is not initialized.")
+            : _innerLogger.BeginScope(state);
     }
 
     public bool IsEnabled(LogLevel logLevel)
@@ -20,8 +22,9 @@ public class CustomLogger<T>(ILoggerFactory loggerFactory, ILoggingUtils logging
         return _innerLogger.IsEnabled(logLevel);
     }
 
-    public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
+    public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception?, string> formatter)
     {
+        Setting settings = intSettings.CurrentValue;
         if (!settings.CleanURLs)
         {
             _innerLogger.Log(logLevel, eventId, state, exception, formatter);

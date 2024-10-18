@@ -1,198 +1,133 @@
-import {
-  useChannelGroupsDeleteAllChannelGroupsFromParametersMutation,
-  useChannelGroupsDeleteChannelGroupMutation,
-  type ChannelGroupDto,
-  type ChannelGroupsDeleteAllChannelGroupsFromParametersApiArg,
-  type DeleteChannelGroupRequest
-} from '@lib/iptvApi';
-import { memo, useCallback, useMemo, useState } from 'react';
-
-import { isFetchBaseQueryError } from '@lib/common/common';
-import { useQueryFilter } from '@lib/redux/slices/useQueryFilter';
-import { useSelectAll } from '@lib/redux/slices/useSelectAll';
-import { useSelectedItems } from '@lib/redux/slices/useSelectedItemsSlice';
-import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
-import XButton from '../buttons/XButton';
+import SMPopUp from '@components/sm/SMPopUp';
+import { useQueryFilter } from '@lib/redux/hooks/queryFilter';
+import { useSelectAll } from '@lib/redux/hooks/selectAll';
+import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
+import { DeleteAllChannelGroupsFromParameters, DeleteChannelGroup, DeleteChannelGroups } from '@lib/smAPI/ChannelGroups/ChannelGroupsCommands';
+import { ChannelGroupDto, DeleteAllChannelGroupsFromParametersRequest, DeleteChannelGroupRequest, DeleteChannelGroupsRequest } from '@lib/smAPI/smapiTypes';
+import React, { useMemo } from 'react';
 
 interface ChannelGroupDeleteDialogProperties {
-  readonly iconFilled?: boolean | undefined;
   readonly id: string;
-  readonly onDelete?: (results: number[] | undefined) => void;
-  readonly onHide?: () => void;
+  readonly onClose?: () => void;
   readonly value?: ChannelGroupDto | undefined;
 }
 
-const ChannelGroupDeleteDialog = ({ iconFilled, id, onDelete, onHide, value }: ChannelGroupDeleteDialogProperties) => {
-  const [showOverlay, setShowOverlay] = useState<boolean>(false);
-  const [block, setBlock] = useState<boolean>(false);
-
-  const [infoMessage, setInfoMessage] = useState('');
-
+const ChannelGroupDeleteDialog = ({ id, onClose, value }: ChannelGroupDeleteDialogProperties) => {
+  const { selectedItems, setSelectedItems } = useSelectedItems<ChannelGroupDto>(id);
   const { selectAll, setSelectAll } = useSelectAll(id);
   const { queryFilter } = useQueryFilter(id);
 
-  const { selectSelectedItems, setSelectSelectedItems } = useSelectedItems<ChannelGroupDto>('selectSelectedChannelGroupDtoItems');
+  const ReturnToParent = React.useCallback(() => {
+    onClose?.();
+  }, [onClose]);
 
-  const [channelGroupsDeleteChannelGroupMutation] = useChannelGroupsDeleteChannelGroupMutation();
-  const [channelGroupsDeleteAllChannelGroupsFromParametersMutation] = useChannelGroupsDeleteAllChannelGroupsFromParametersMutation();
-
-  const ReturnToParent = useCallback(() => {
-    setShowOverlay(false);
-    setInfoMessage('');
-    setBlock(false);
-    onHide?.();
-  }, [onHide]);
-
-  const deleteGroup = useCallback(async () => {
-    setBlock(true);
-
-    if (value?.id) {
-      const toSend = {} as DeleteChannelGroupRequest;
-
-      toSend.channelGroupId = value.id;
-
-      await channelGroupsDeleteChannelGroupMutation(toSend)
-        .then(() => {
-          setInfoMessage('Deleted Successfully');
-        })
-        .catch((error) => {
-          if (isFetchBaseQueryError(error)) {
-            setInfoMessage(`Delete Error: ${error.status}`);
-          }
-        });
-
+  const onDeleteClick = React.useCallback(async () => {
+    if (!value && selectedItems.length === 0) {
+      ReturnToParent();
       return;
     }
 
-    if (selectAll === true) {
+    if (value) {
+      const toSend = {} as DeleteChannelGroupRequest;
+      toSend.ChannelGroupId = value.Id;
+
+      DeleteChannelGroup(toSend)
+        .then(() => {})
+        .catch((error) => {
+          console.error(error);
+        });
+      return;
+    }
+
+    if (selectAll) {
       if (!queryFilter) {
         ReturnToParent();
-
         return;
       }
 
-      const toSendAll = {} as ChannelGroupsDeleteAllChannelGroupsFromParametersApiArg;
+      const request = {} as DeleteAllChannelGroupsFromParametersRequest;
+      request.Parameters = queryFilter;
 
-      toSendAll.parameters = queryFilter;
-
-      await channelGroupsDeleteAllChannelGroupsFromParametersMutation(toSendAll)
+      await DeleteAllChannelGroupsFromParameters(request)
         .then(() => {
-          setInfoMessage('Deleted Successfully');
-          setSelectSelectedItems([]);
+          setSelectedItems([]);
           setSelectAll(false);
         })
         .catch((error) => {
-          setInfoMessage(`Delete Error: ${error.message}`);
-          setSelectSelectedItems([]);
-          setSelectAll(false);
+          console.error(error);
+          throw error;
+        })
+        .finally(() => {
+          // dialogRef.current?.close();
         });
 
       return;
     }
 
-    if ((selectSelectedItems || []).length === 0) {
-      ReturnToParent();
-
-      return;
+    if (selectedItems) {
+      const toSend = {} as DeleteChannelGroupsRequest;
+      toSend.ChannelGroupIds = selectedItems.map((item) => item.Id);
+      DeleteChannelGroups(toSend)
+        .then(() => {
+          setSelectedItems([]);
+          setSelectAll(false);
+        })
+        .catch((error) => {
+          console.error(error);
+        });
     }
+  }, [ReturnToParent, queryFilter, selectAll, selectedItems, setSelectAll, setSelectedItems, value]);
 
-    const promises = [];
-    const groupIds = [] as number[];
-
-    for (const group of selectSelectedItems.filter((a) => a.id !== undefined && !a.isReadOnly)) {
-      if (group.id === undefined || group.id === undefined) {
-        continue;
-      }
-
-      const data = {} as DeleteChannelGroupRequest;
-
-      data.channelGroupId = group.id;
-      groupIds.push(group.id);
-      promises.push(
-        channelGroupsDeleteChannelGroupMutation(data)
-          .then(() => {})
-          .catch(() => {})
+  const message = useMemo(() => {
+    if (value) {
+      return (
+        <div>
+          Delete <div className="text-container">{value.Name}</div> Channel Group?
+        </div>
       );
     }
 
-    const p = Promise.all(promises);
-
-    await p
-      .then(() => {
-        setInfoMessage('Channel Group Delete Successful');
-        onDelete?.(groupIds);
-      })
-      .catch((error) => {
-        setInfoMessage(`Channel Group Delete Error: ${error.message}`);
-        onDelete?.(undefined);
-      });
-
-    setSelectSelectedItems(selectSelectedItems.filter((a) => !groupIds.includes(a.id ?? 0)));
-    setSelectAll(false);
-  }, [
-    value,
-    selectAll,
-    selectSelectedItems,
-    setSelectAll,
-    channelGroupsDeleteChannelGroupMutation,
-    queryFilter,
-    channelGroupsDeleteAllChannelGroupsFromParametersMutation,
-    ReturnToParent,
-    setSelectSelectedItems,
-    onDelete
-  ]);
-
-  const isFirstDisabled = useMemo(() => {
-    if (value) {
-      return value.isReadOnly;
+    if (selectAll) {
+      return `Delete All Selected Channel Groups?`;
     }
 
-    if (!selectSelectedItems || selectSelectedItems?.length === 0) {
+    return `Delete Selected Channel Groups (${selectedItems.length})?`;
+  }, [selectAll, selectedItems.length, value]);
+
+  const isDisabled = useMemo(() => {
+    if (value) {
+      return value.IsReadOnly;
+    }
+
+    if (selectAll === true) {
+      return false;
+    }
+
+    if (selectedItems.length === 0) {
       return true;
     }
 
-    return selectSelectedItems[0].isReadOnly;
-  }, [value, selectSelectedItems]);
-
-  const getTotalCount = () => {
-    if (selectAll || !value?.isReadOnly) {
-      return 1;
+    if (selectedItems.every((predicate) => predicate.IsReadOnly)) {
+      return true;
     }
 
-    const count = selectSelectedItems?.length ?? 0;
-    if (count === 1 && isFirstDisabled) {
-      return 0;
-    }
-
-    return count;
-  };
+    return false;
+  }, [selectAll, selectedItems, value]);
 
   return (
-    <>
-      <InfoMessageOverLayDialog
-        blocked={block}
-        closable
-        header="Delete Group?"
-        infoMessage={infoMessage}
-        onClose={() => {
-          ReturnToParent();
-        }}
-        show={showOverlay}
-      >
-        <div className="flex justify-content-center w-full mb-2">
-          <XButton
-            disabled={getTotalCount() === 0 && !selectAll}
-            label="Delete Groups"
-            onClick={async () => await deleteGroup()}
-            tooltip="Delete User Created Groups"
-          />
-        </div>
-      </InfoMessageOverLayDialog>
-
-      <XButton disabled={getTotalCount() === 0} iconFilled={iconFilled} onClick={() => setShowOverlay(true)} tooltip="Delete User Created Group" />
-    </>
+    <SMPopUp
+      buttonDisabled={isDisabled}
+      iconFilled={value === undefined}
+      // rememberKey={'DeleteChannelGroupDialog'}
+      title="Delete"
+      onOkClick={() => onDeleteClick()}
+      icon="pi-times"
+    >
+      {message}
+    </SMPopUp>
   );
 };
 
 ChannelGroupDeleteDialog.displayName = 'ChannelGroupDeleteDialog';
-export default memo(ChannelGroupDeleteDialog);
+
+export default React.memo(ChannelGroupDeleteDialog);

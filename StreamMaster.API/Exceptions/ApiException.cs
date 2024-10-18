@@ -1,6 +1,6 @@
 using System.Net;
 
-namespace StreamMasterAPI.Exceptions
+namespace StreamMaster.API.Exceptions
 {
     public abstract class NzbDroneException : ApplicationException
     {
@@ -31,9 +31,9 @@ namespace StreamMasterAPI.Exceptions
 
     public abstract class ApiException : Exception
     {
-        public object? Content { get; private set; }
+        public object? Content { get; }
 
-        public HttpStatusCode StatusCode { get; private set; }
+        public HttpStatusCode StatusCode { get; }
 
         protected ApiException(HttpStatusCode statusCode, object? content = null)
             : base(GetMessage(statusCode, content))

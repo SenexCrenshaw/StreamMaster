@@ -5,20 +5,16 @@ using System.Xml.Serialization;
 namespace StreamMaster.Domain.Dto;
 
 
-public class SettingDto : BaseSettings, IMapFrom<Setting>
+[TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
+public class SettingDto : StreamSettings, IMapFrom<Setting>
 {
-    //[XmlIgnore]
-    //public FFMPEGProfileDtos FFMPEGProfiles { get; set; } = [];
     [XmlIgnore]
     public SDSettings SDSettings { get; set; } = new();
-    [XmlIgnore]
-    public HLSSettings HLS { get; set; } = new();
 
     public string Release { get; set; } = BuildInfo.Release.ToString();
 
     public string Version { get; set; } = BuildInfo.Version.ToString();
 
-    public string FFMPEGDefaultOptions { get; set; } = BuildInfo.FFMPEGDefaultOptions;
 
     public bool IsDebug { get; set; } = BuildInfo.IsDebug;
 }

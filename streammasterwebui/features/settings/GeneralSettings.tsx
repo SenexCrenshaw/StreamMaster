@@ -1,39 +1,35 @@
-import { GetMessage } from '@lib/common/common';
+import { GetMessage } from '@lib/common/intl';
+import { useSettingsContext } from '@lib/context/SettingsProvider';
 import React from 'react';
-// Import the getLine function
-import { Fieldset } from 'primereact/fieldset';
-import { getCheckBoxLine } from './getCheckBoxLine';
-import { getInputNumberLine } from './getInputNumberLine';
-import { getInputTextLine } from './getInputTextLine';
-import { getPasswordLine } from './getPasswordLine';
-import { useSettingChangeHandler } from './useSettingChangeHandler';
+import { BaseSettings } from './BaseSettings';
+import { GetCheckBoxLine } from './components/GetCheckBoxLine';
+import { GetInputNumberLine } from './components/GetInputNumberLine';
+import { GetInputTextLine } from './components/GetInputTextLine';
+import { GetPasswordLine } from './components/GetPasswordLine';
 
 export function GeneralSettings(): React.ReactElement {
-  const { onChange, selectedCurrentSettingDto } = useSettingChangeHandler();
-
-  if (selectedCurrentSettingDto === null || selectedCurrentSettingDto === undefined) {
-    return (
-      <Fieldset className="mt-4 pt-10" legend={GetMessage('SD')}>
-        <div className="text-center">{GetMessage('loading')}</div>
-      </Fieldset>
-    );
-  }
-
+  const { currentSetting } = useSettingsContext();
   return (
-    <Fieldset className="mt-4 pt-10" legend={GetMessage('general')} toggleable>
-      {getInputTextLine({ field: 'deviceID', selectedCurrentSettingDto, onChange })}
-      {getCheckBoxLine({ field: 'cleanURLs', selectedCurrentSettingDto, onChange })}
-      {getInputTextLine({ field: 'ffmPegExecutable', selectedCurrentSettingDto, onChange })}
-      {getCheckBoxLine({ field: 'enableSSL', selectedCurrentSettingDto, onChange })}
-      {selectedCurrentSettingDto?.enableSSL === true && (
-        <>
-          {getInputTextLine({ field: 'sslCertPath', warning: GetMessage('changesServiceRestart'), selectedCurrentSettingDto, onChange })}
-          {getPasswordLine({ field: 'sslCertPassword', warning: GetMessage('changesServiceRestart'), selectedCurrentSettingDto, onChange })}
-        </>
-      )}
-      {getCheckBoxLine({ field: 'enablePrometheus', selectedCurrentSettingDto, onChange })}
-      {getInputNumberLine({ field: 'maxLogFiles', selectedCurrentSettingDto, onChange })}
-      {getInputNumberLine({ field: 'maxLogFileSizeMB', selectedCurrentSettingDto, onChange })}
-    </Fieldset>
+    <BaseSettings title="GENERAL">
+      <>
+        {GetInputTextLine({ field: 'DeviceID' })}
+        {GetCheckBoxLine({ field: 'CleanURLs' })}
+        {GetInputTextLine({ field: 'FFMPegExecutable' })}
+        {GetInputTextLine({ field: 'FFProbeExecutable' })}
+        {GetCheckBoxLine({ field: 'EnableSSL' })}
+        {currentSetting?.EnableSSL === true && (
+          <>
+            {GetInputTextLine({ field: 'SSLCertPath', warning: GetMessage('changesServiceRestart') })}
+            {GetPasswordLine({
+              field: 'SSLCertPassword',
+              warning: GetMessage('changesServiceRestart')
+            })}
+          </>
+        )}
+        {/* {getCheckBoxLine({ currentSetting, field: 'EnablePrometheus', onChange })} */}
+        {GetInputNumberLine({ field: 'MaxLogFiles' })}
+        {GetInputNumberLine({ field: 'MaxLogFileSizeMB' })}
+      </>
+    </BaseSettings>
   );
 }

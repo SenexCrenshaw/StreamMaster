@@ -1,6 +1,4 @@
-﻿using StreamMaster.Domain.Extensions;
-
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Xml.Serialization;
 
 namespace StreamMaster.SchedulesDirect.Data;
@@ -8,14 +6,14 @@ namespace StreamMaster.SchedulesDirect.Data;
 public partial class SchedulesDirectData
 {
     [XmlArrayItem("Season")]
-    public ConcurrentDictionary<string, MxfSeason> Seasons { get; set; } = new();
+    public ConcurrentDictionary<string, Season> Seasons { get; set; } = new();
 
     [XmlIgnore]
-    public List<MxfSeason> SeasonsToProcess { get; set; } = [];
+    public List<Season> SeasonsToProcess { get; set; } = [];
 
-    public MxfSeason FindOrCreateSeason(string seriesId, int seasonNumber, string protoTypicalProgram)
+    public Season FindOrCreateSeason(string seriesId, int seasonNumber, string protoTypicalProgram)
     {
-        (MxfSeason season, bool created) = Seasons.FindOrCreateWithStatus($"{seriesId}_{seasonNumber}", key => new MxfSeason(Seasons.Count + 1, FindOrCreateSeriesInfo(seriesId), seasonNumber, protoTypicalProgram));
+        (Season season, bool created) = Seasons.FindOrCreateWithStatus($"{seriesId}_{seasonNumber}", key => new Season(Seasons.Count + 1, FindOrCreateSeriesInfo(seriesId), seasonNumber, protoTypicalProgram));
 
         if (created)
         {
@@ -25,4 +23,5 @@ public partial class SchedulesDirectData
         SeasonsToProcess.Add(season);
         return season;
     }
+
 }

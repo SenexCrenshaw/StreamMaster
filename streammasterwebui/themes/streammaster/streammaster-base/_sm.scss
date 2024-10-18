@@ -1,0 +1,165 @@
+.listTemplate-gridItem-name {
+    max-width: $gridItem-width;
+}
+
+.sm-col-header-center {
+    text-align: center;
+}
+
+.sm-col-header-left {
+    text-align: left;
+}
+
+.sm-col-header-right {
+    text-align: right;
+}
+
+$wid: 1rem;
+
+.sm-rowreorder[data-pc-section="headercell"] {
+    max-width: $wid !important;
+    min-width: $wid !important;
+    width: $wid !important;
+
+}
+
+.sm-rowreorder[data-pc-section="bodycell"] {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+
+.sm-col-header-wrap {
+    @extend .sm-col-header;
+    @include text-wrap();
+    white-space: normal;
+}
+
+.p-password {
+    .p-icon-field {
+        width: 100%;
+
+        .p-input-icon {
+            position: absolute;
+            top: 50%;
+            margin-top: -0.5rem;
+            right: 0.75rem;
+        }
+    }
+}
+
+.sm-col-header-left-wrap {
+    @include text-wrap();
+    @extend .sm-col-header-left;
+    white-space: normal;
+}
+
+.sm-col-header-right-wrap {
+    @include text-wrap();
+    @extend .sm-col-header-right;
+    white-space: normal;
+}
+
+.sm-upload-button {
+    background-color: $uploadButtonBg !important;
+    border-color: $uploadButtonBg !important;
+    color: $inputBg !important;
+}
+
+.sm-visible-button {
+    background-color: $iconRed !important;
+    border-color: $iconRed !important;
+    color: $inputBg !important;
+}
+
+.main-outlet {
+    padding-left: $layoutPadding;
+}
+
+
+.p-listbox-item {
+    @include datatable-text-style();
+}
+
+
+.sm-standard-header {
+    @extend .sm-border;
+    background-color: $headerBg !important;
+}
+
+
+.sm-M3UFileTags {
+    .sm-button {
+        border-radius: $borderRadius !important;
+        height: $input-height - ($input-padding * 2) !important;
+    }
+}
+
+
+
+.p-overlaypanel-content {
+    padding: $layoutPadding;
+}
+
+.p-multiselect-label-container {
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    flex: 1 1 auto;
+    cursor: pointer;
+}
+
+
+.surface-overlay {
+    background-color: var(--surface-ground) !important;
+}
+
+// .p-progress-spinner {
+//     height: 1.2rem;
+//     max-height: 1.2rem;
+// }
+
+.p-dropdown-trigger {
+    width: 1.5rem;
+}
+
+
+
+.sm-streamgroupselector {
+    @include datatable-text-style();
+    @extend .sm-input-border;
+    color: $textColor;
+    min-width: 12rem;
+    max-height: $input-height-with-no-borders;
+    display: flex;
+    align-items: center;
+    border-color: $inputBorderColor;
+
+    .p-dropdown-label {
+        color: $textColor;
+    }
+}
+
+
+.sm-channel-menu {
+    @include datatable-text-style();
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    height: 100%;
+    padding: .1 !important;
+}
+
+.sm-menu-item {
+    padding: 0.25rem;
+
+    &:hover {
+        // border-color: $inputHoverBorderColor;
+        // background: $inputOverlayBg;
+
+        background: $carouselIndicatorHoverBg !important;
+        // border: $inputBorder-size solid $inputHoverBorderColor;
+        border-radius: $borderRadius;
+    }
+}

@@ -1,6 +1,4 @@
-﻿using StreamMaster.SchedulesDirect.Domain.Models;
-
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 
 namespace StreamMaster.SchedulesDirect.Domain.Interfaces;
 
@@ -10,14 +8,13 @@ namespace StreamMaster.SchedulesDirect.Domain.Interfaces;
 /// </summary>
 public interface ISchedulesDirectDataService
 {
-
     void Set(int EPGNumber, ISchedulesDirectData schedulesDirectData);
 
     /// <summary>
     /// Gets a list of station channel names.
     /// </summary>
     /// <returns>List of <see cref="StationChannelName"/>.</returns>
-    List<StationChannelName> GetStationChannelNames();
+    IEnumerable<StationChannelName> GetStationChannelNames();
 
     /// <summary>
     /// Gets a concurrent dictionary containing SchedulesDirect data, keyed by EPG ID.
@@ -43,7 +40,7 @@ public interface ISchedulesDirectDataService
     /// <summary>
     /// Gets all series information.
     /// </summary>
-    List<MxfSeriesInfo> AllSeriesInfos { get; }
+    List<SeriesInfo> AllSeriesInfos { get; }
 
     /// <summary>
     /// Gets all services.
@@ -68,7 +65,7 @@ public interface ISchedulesDirectDataService
     /// <param name="stationId">The station ID for which to retrieve service information.</param>
     /// <returns>The <see cref="MxfService"/> associated with the specified station ID, or null if not found.</returns>
     MxfService? GetService(string stationId);
-
+    ICustomStreamData CustomStreamData();
     ISchedulesDirectData SchedulesDirectData();
     ISchedulesDirectData DummyData();
     void ChangeServiceEPGNumber(int oldEPGNumber, int newEPGNumber);

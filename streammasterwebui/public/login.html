@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" style="background-color: #0e1315">
-  <head>
+
+<head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="mobile-web-app-capable" content="yes" />
@@ -23,198 +24,174 @@
 
     <link rel="stylesheet" type="text/css" href="/Content/styles.css" />
     <link rel="stylesheet" type="text/css" href="/Content/Fonts/fonts.css" />
-
+    <link rel="stylesheet" href="https://unpkg.com/primeflex@latest/primeflex.css">
     <title>Login - Stream Master</title>
 
     <style>
-      body {
-        background-color: #f5f7fa;
-        color: #656565;
-        font-family: 'Roboto', 'open sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-      }
-
-      .center {
-        display: flex;
-        justify-content: center;
-      }
-
-      .content {
-        flex: 0 0 325px;
-      }
-
-      .logo {
-        width: 32px;
-        height: 32px;
-      }
-
-      .panel {
-        margin-top: 50px;
-        border-radius: 4px;
-      }
-
-      .panel-header {
-        display: flex;
-        justify-content: center;
-        padding: 10px;
-        border-top-left-radius: 4px;
-        border-top-right-radius: 4px;
-        background-color: #464b51;
-      }
-
-      .panel-body {
-        padding: 20px;
-        border-bottom-right-radius: 4px;
-        border-bottom-left-radius: 4px;
-        background-color: #fff;
-      }
-
-      .sign-in {
-        padding: 10px 0;
-        text-align: center;
-      }
-
-      .form-group {
-        margin: 20px 0;
-      }
-
-      .form-input {
-        box-sizing: border-box;
-        padding: 6px 16px;
-        width: 100%;
-        height: 35px;
-        border: 1px solid #dde6e9;
-        border-radius: 4px;
-        box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
-      }
-
-      .form-input:focus {
-        outline: 0;
-        border-color: #66afe9;
-        box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(102, 175, 233, 0.6);
-      }
-
-      .button {
-        overflow: hidden;
-        margin-top: 20px;
-        padding: 10px 0;
-        width: 100%;
-        border: 1px solid;
-        border-color: #5899eb;
-        border-radius: 4px;
-        background-color: #5d9cec;
-        color: #fff;
-        vertical-align: middle;
-        text-align: center;
-        white-space: nowrap;
-        line-height: normal;
-      }
-
-      .button:hover {
-        border-color: #3483e7;
-        background-color: #4b91ea;
-        color: #fff;
-        text-decoration: none;
-      }
-
-      .copy {
-        margin-top: 15px;
-        text-align: center;
-        font-size: 14px;
-      }
-
-      .remember-me-container {
-        display: flex;
-        justify-content: space-between;
-        line-height: 25px;
-      }
-
-      .remember-me {
-        font-size: 14px;
-      }
-
-      .forgot-password {
-        margin-left: auto;
-        color: #909fa7;
-        text-decoration: none;
-        font-size: 13px;
-      }
-
-      .forgot-password:focus,
-      .forgot-password:hover {
-        color: #748690;
-        text-decoration: underline;
-      }
-
-      .forgot-password:visited {
-        color: #748690;
-      }
-
-      .login-failed {
-        margin-top: 20px;
-        color: #f05050;
-        font-size: 14px;
-      }
-
-      .hidden {
-        display: none;
-      }
-
-      @media only screen and (min-device-width: 375px) and (max-device-width: 812px) {
-        .form-input {
-          font-size: 16px;
+        body {
+            background-color: #0e1315;
+            color: #656565;
+            font-family: 'Roboto', 'open sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
         }
-      }
+
+        .center {
+            display: flex;
+            justify-content: center;
+        }
+
+        .content {
+            flex: 0 0 325px;
+        }
+
+        .logo {
+            width: 32px;
+            height: 32px;
+        }
+
+        .panel {
+            margin-top: 50px;
+            border-radius: 4px;
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: center;
+            padding: 10px;
+            border-top-left-radius: 4px;
+            border-top-right-radius: 4px;
+            background-color: #464b51;
+        }
+
+        .panel-body {
+            padding: 20px;
+            border-bottom-right-radius: 4px;
+            border-bottom-left-radius: 4px;
+            background-color: #fff;
+        }
+
+        .sign-in {
+            padding: 10px 0;
+            text-align: center;
+        }
+
+        .form-group {
+            margin: 20px 0;
+        }
+
+        .form-input {
+            box-sizing: border-box;
+            padding: 6px 16px;
+            width: 100%;
+            height: 35px;
+            border: 1px solid #dde6e9;
+            border-radius: 4px;
+            box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+        }
+
+        .form-input:focus {
+            outline: 0;
+            border-color: #66afe9;
+            box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(102, 175, 233, 0.6);
+        }
+
+        .button {
+            overflow: hidden;
+            margin-top: 20px;
+            padding: 10px 0;
+            width: 100%;
+            border: 1px solid;
+            border-color: #5899eb;
+            border-radius: 4px;
+            background-color: #5d9cec;
+            color: #fff;
+            vertical-align: middle;
+            text-align: center;
+            white-space: nowrap;
+            line-height: normal;
+        }
+
+        .button:hover {
+            border-color: #3483e7;
+            background-color: #4b91ea;
+            color: #fff;
+            text-decoration: none;
+        }
+
+        .copy {
+            margin-top: 15px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .remember-me-container {
+            display: flex;
+            justify-content: space-between;
+            line-height: 25px;
+        }
+
+        .remember-me {
+            font-size: 14px;
+        }
+
+        .login-failed {
+            margin-top: 20px;
+            color: #f05050;
+            font-size: 14px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media only screen and (min-device-width: 375px) and (max-device-width: 812px) {
+            .form-input {
+                font-size: 16px;
+            }
+        }
     </style>
-  </head>
+</head>
 
-  <body>
-    <div class="center" style="background-color: #0e1315">
-      <div class="content">
-        <div class="panel">
-          <div class="panel-header" style="background-color: #cb5e01">
-            <img src="/images/StreamMasterx32.png" alt="Image" class="logo" />
-          </div>
+<body>
+    <div class="center">
+        <div class="content">
+            <div class="panel">
+                <div class="panel-header" style="background-color: #263238
+">
+                    <img src="/images/streammaster_logo.png" alt="Image" class="logo" />
+                </div>
 
-          <div class="panel-body">
-            <div class="sign-in">SIGN IN TO CONTINUE</div>
+                <div class="panel-body" style="background-color: #21282c;">
+                    <div class="sign-in">Log In</div>
 
-            <form role="form" data-parsley-validate="" novalidate="" class="mb-lg" method="POST">
-              <div class="form-group">
-                <input
-                  type="email"
-                  name="username"
-                  class="form-input"
-                  placeholder="Username"
-                  autocomplete="off"
-                  pattern=".{1,}"
-                  required
-                  title="User name is required"
-                  autofocus="true"
-                  autocapitalize="false"
-                />
-              </div>
+                    <form role="form" data-parsley-validate="" novalidate="" class="mb-lg" method="POST">
+                        <div class="form-group">
+                            <input type="email" name="username" class="form-input" placeholder="Username"
+                                autocomplete="off" pattern=".{1,}" required title="User name is required"
+                                autofocus="true" autocapitalize="false" />
+                        </div>
 
-              <div class="form-group">
-                <input type="password" name="password" class="form-input" placeholder="Password" required />
-              </div>
-              <button type="submit" class="button" style="background-color: #6dc831ee; color: white">Login</button>
+                        <div class="form-group">
+                            <input type="password" name="password" class="form-input" placeholder="Password" required />
+                        </div>
+                        <button type="submit" class="button" style="background-color: #6dc831ee; color: white">Log
+                            In</button>
 
-              <div id="login-failed" class="login-failed hidden">Incorrect Username or Password</div>
-            </form>
-          </div>
+                        <div id="login-failed" class="login-failed hidden">Incorrect Username or Password</div>
+                    </form>
+                </div>
+            </div>
+
+            <div id="copy" class="copy hidden">
+                <span>&copy;</span>
+                <span id="year"></span>
+                <span>-</span>
+                <span>Stream Master</span>
+            </div>
         </div>
-
-        <div id="copy" class="copy hidden">
-          <span>&copy;</span>
-          <span id="year"></span>
-          <span>-</span>
-          <span>Stream Master</span>
-        </div>
-      </div>
     </div>
-  </body>
+</body>
 
-  <script type="text/javascript">
+<script type="text/javascript">
     var yearSpan = document.getElementById('year');
     yearSpan.innerHTML = new Date().getFullYear();
 
@@ -222,9 +199,10 @@
     copyDiv.classList.remove('hidden');
 
     if (window.location.search.indexOf('loginFailed=true') > -1) {
-      var loginFailedDiv = document.getElementById('login-failed');
+        var loginFailedDiv = document.getElementById('login-failed');
 
-      loginFailedDiv.classList.remove('hidden');
+        loginFailedDiv.classList.remove('hidden');
     }
-  </script>
+</script>
+
 </html>

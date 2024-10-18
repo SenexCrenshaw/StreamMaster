@@ -20,9 +20,10 @@ RUN ln -sT docker-ensure-initdb.sh /usr/local/bin/docker-enforce-initdb.sh
 
 COPY backup.sh /usr/local/bin/backup.sh
 COPY restore.sh /usr/local/bin/restore.sh
+COPY yt.sh /usr/local/bin/yt.sh
 COPY entrypoint.sh /entrypoint.sh
 COPY env.sh /env.sh
-RUN chmod +x /entrypoint.sh /env.sh /usr/local/bin/backup.sh /usr/local/bin/restore.sh
+RUN chmod +x /entrypoint.sh /env.sh /usr/local/bin/backup.sh /usr/local/bin/restore.sh /usr/local/bin/yt.sh
 
 EXPOSE 7095
 EXPOSE 5432

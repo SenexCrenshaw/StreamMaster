@@ -1,21 +1,39 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using AutoMapper.Configuration.Annotations;
+
+using MessagePack;
+
+using StreamMaster.Domain.Attributes;
+
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
+using System.Xml.Serialization;
 
 namespace StreamMaster.Domain.Models;
 
-public class StreamGroup : BaseEntity
+public class StreamGroupBase : BaseEntity
 {
-    public StreamGroup()
-    {
-        ChildVideoStreams = [];
-        ChannelGroups = [];
-    }
+    public string DeviceID { get; set; } = string.Empty;
 
-    public string FFMPEGProfileId { get; set; } = string.Empty;
-    public ICollection<StreamGroupChannelGroup> ChannelGroups { get; set; }
-    public ICollection<StreamGroupVideoStream> ChildVideoStreams { get; set; }
+
+    [Ignore]
+    [JsonIgnore]
+    [IgnoreMember]
+    [IgnoreMap]
+    [XmlIgnore]
+    public ICollection<StreamGroupSMChannelLink> SMChannels { get; set; } = [];
+
     public bool IsReadOnly { get; set; } = false;
-    public bool AutoSetChannelNumbers { get; set; } = false;
+    public int ShowIntros { get; set; } = 0; // 0: None 1: First Time 2: Always
+    public bool IsSystem { get; set; } = false;
+
     [Column(TypeName = "citext")]
     public string Name { get; set; } = string.Empty;
 
+    public string GroupKey { get; set; } = string.Empty;
+}
+public class StreamGroup : StreamGroupBase
+{
+    public static string APIName => "StreamGroups";
+    public List<StreamGroupChannelGroup> ChannelGroups { get; set; } = [];
+    public List<StreamGroupProfile> StreamGroupProfiles { get; set; } = [];
 }

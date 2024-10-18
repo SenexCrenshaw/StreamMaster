@@ -1,17 +1,9 @@
 ﻿using MediatR.Pipeline;
 
-using Microsoft.Extensions.Logging;
-
 namespace StreamMaster.Application.Common.Behaviours;
 
-public class LoggingBehaviour<TRequest> : IRequestPreProcessor<TRequest> where TRequest : notnull
+public class LoggingBehaviour<TRequest>(ILogger<TRequest> logger) : IRequestPreProcessor<TRequest> where TRequest : notnull
 {
-    private readonly ILogger _logger;
-
-    public LoggingBehaviour(ILogger<TRequest> logger)
-    {
-        _logger = logger;
-    }
 
     public Task Process(TRequest request, CancellationToken cancellationToken)
     {
@@ -19,11 +11,11 @@ public class LoggingBehaviour<TRequest> : IRequestPreProcessor<TRequest> where T
 
         if (requestName.Equals("GetM3UFileIdMaxStreamFromUrl"))
         {
-            _logger.LogInformation("Request: {Name} ", requestName);
+            logger.LogInformation("Request: {Name} ", requestName);
         }
         else
         {
-            _logger.LogInformation("Request: {Name}  {@Request}", requestName, request);
+            logger.LogInformation("Request: {Name}  {@Request}", requestName, request);
         }
 
 

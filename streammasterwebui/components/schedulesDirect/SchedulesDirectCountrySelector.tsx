@@ -1,26 +1,29 @@
 import SearchButton from '@components/buttons/SearchButton';
-import TextInput from '@components/inputs/TextInput';
-import { CountryData, SchedulesDirectGetAvailableCountriesApiResponse, UpdateSettingRequest, useSchedulesDirectGetAvailableCountriesQuery } from '@lib/iptvApi';
-import { useSelectedCountry } from '@lib/redux/slices/selectedCountrySlice';
-import { useSelectedPostalCode } from '@lib/redux/slices/selectedPostalCodeSlice';
-import { UpdateSetting } from '@lib/smAPI/Settings/SettingsMutateAPI';
-import useSettings from '@lib/useSettings';
-import { Dropdown } from 'primereact/dropdown';
-import React from 'react';
+import StringEditor from '@components/inputs/StringEditor';
+import SMDropDown from '@components/sm/SMDropDown';
+import { useSMContext } from '@lib/context/SMProvider';
+import { useSelectedCountry } from '@lib/redux/hooks/selectedCountry';
+import { useSelectedPostalCode } from '@lib/redux/hooks/selectedPostalCode';
+
+import useGetAvailableCountries from '@lib/smAPI/SchedulesDirect/useGetAvailableCountries';
+import { UpdateSetting } from '@lib/smAPI/Settings/SettingsCommands';
+import { Country, CountryData, UpdateSettingRequest } from '@lib/smAPI/smapiTypes';
+
+import React, { useMemo } from 'react';
 
 interface SchedulesDirectCountrySelectorProperties {
   readonly onChange?: (value: string) => void;
 }
 
 const SchedulesDirectCountrySelector = (props: SchedulesDirectCountrySelectorProperties) => {
-  const setting = useSettings();
+  const { settings } = useSMContext();
   const { selectedCountry, setSelectedCountry } = useSelectedCountry('Country');
   const { selectedPostalCode, setSelectedPostalCode } = useSelectedPostalCode('PostalCode');
 
   // const [countryValue, setCountryValue] = useState<string | undefined>();
   // const [postalCodeValue, setPostalCodeValue] = useState<string | undefined>();
 
-  const getCountriesQuery = useSchedulesDirectGetAvailableCountriesQuery();
+  const getCountriesQuery = useGetAvailableCountries();
 
   React.useEffect(() => {
     // console.log('sdCountry', setting.data?.sdSettings?.sdCountry, selectedCountry);
@@ -33,27 +36,20 @@ const SchedulesDirectCountrySelector = (props: SchedulesDirectCountrySelectorPro
     //   }
     // }
 
-    if ((selectedCountry === undefined || selectedCountry === '') && setting.data?.sdSettings?.sdCountry !== undefined) {
-      setSelectedCountry(setting.data?.sdSettings?.sdCountry);
+    if ((selectedCountry === undefined || selectedCountry === '') && settings.SDSettings?.SDCountry !== undefined) {
+      setSelectedCountry(settings.SDSettings?.SDCountry);
     }
 
     //console.log('sdPostalCode', setting.data?.sdSettings?.sdPostalCode, selectedPostalCode);
-    if ((selectedPostalCode === undefined || selectedPostalCode === '') && setting.data?.sdSettings?.sdPostalCode !== undefined) {
-      setSelectedPostalCode(setting.data?.sdSettings?.sdPostalCode);
+    if ((selectedPostalCode === undefined || selectedPostalCode === '') && settings.SDSettings?.SDPostalCode !== undefined) {
+      setSelectedPostalCode(settings.SDSettings?.SDPostalCode);
     }
-  }, [
-    selectedCountry,
-    selectedPostalCode,
-    setSelectedCountry,
-    setSelectedPostalCode,
-    setting.data?.sdSettings?.sdCountry,
-    setting.data?.sdSettings?.sdPostalCode
-  ]);
+  }, [settings.SDSettings?.SDCountry, settings.SDSettings?.SDPostalCode, selectedCountry, selectedPostalCode, setSelectedCountry, setSelectedPostalCode]);
 
-  interface Country {
-    shortName: string;
-    fullName?: string;
-  }
+  // interface Country {
+  //   ShortName: string;
+  //   FullName?: string;
+  // }
 
   interface CountryOption {
     label: string;
@@ -65,54 +61,63 @@ const SchedulesDirectCountrySelector = (props: SchedulesDirectCountrySelectorPro
 
     const countries: CountryOption[] = [];
 
-    Object.values(getCountriesQuery.data as SchedulesDirectGetAvailableCountriesApiResponse).forEach((continentCountry: CountryData) => {
-      if (continentCountry.countries === undefined) return;
+    Object.values(getCountriesQuery.data as CountryData[]).forEach((continentCountry: CountryData) => {
+      if (continentCountry.Countries === undefined) return;
 
-      continentCountry.countries
-        .filter((c): c is Country => c.shortName !== undefined && c.shortName.trim() !== '')
-        ?.forEach((country: Country) => {
-          countries.push({
-            label: country.fullName || 'Unknown Country',
-            value: country.shortName ?? ''
-          });
+      continentCountry.Countries.filter((c): c is Country => c.ShortName !== undefined && c.ShortName.trim() !== '')?.forEach((country: Country) => {
+        countries.push({
+          label: country.FullName || 'Unknown Country',
+          value: country.ShortName ?? ''
         });
+      });
     });
 
     return countries.sort((a, b) => a.label.localeCompare(b.label));
   }, [getCountriesQuery.data]);
 
+  const buttonTemplate = useMemo(() => {
+    const found = options.find((o) => o.value === selectedCountry);
+    if (found) {
+      return <div>{found.label}</div>;
+    }
+    return <div>{selectedCountry}</div>;
+  }, [options, selectedCountry]);
+
   return (
-    <div className="flex grid col-12 pl-1 justify-content-start align-items-center p-0 m-0">
-      <div className="flex col-6 p-0 pr-2">
-        <Dropdown
-          className="bordered-text w-full"
+    <div className="flex w-full justify-content-between align-items-center p-0 m-0 ">
+      <div className="sm-w-8">
+        <SMDropDown
+          buttonDarkBackground
+          buttonTemplate={buttonTemplate}
+          contentWidthSize="2"
+          data={options}
+          dataKey="value"
           filter
+          filterBy="label"
+          itemTemplate={(option: CountryOption) => <div className="text-content">{option.label}</div>}
+          placement="bottom"
+          value={selectedCountry}
           onChange={(e) => {
             setSelectedCountry(e.value);
             props.onChange?.(e.value);
           }}
-          options={options}
-          placeholder="Country"
-          style={{
-            backgroundColor: 'var(--mask-bg)',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap'
-          }}
-          value={selectedCountry}
         />
       </div>
-      <div className="flex col-6 p-0">
-        <div className="flex col-6 p-0">
-          <TextInput
-            placeHolder="Postal Code"
+      <div className="flex sm-w-4 justify-content-between align-items-center p-0 m-0 ">
+        <div className="w-10">
+          <StringEditor
+            darkBackGround
+            disableDebounce
+            placeholder="Postal Code"
             onChange={(e) => {
-              setSelectedPostalCode(e);
+              if (e !== undefined) {
+                setSelectedPostalCode(e);
+              }
             }}
-            value={selectedPostalCode}
+            value={selectedPostalCode ?? ''}
           />
         </div>
-        <div className="flex col-2 pt-2 p-0 pr-3">
+        <div className="w-2">
           <SearchButton
             tooltip="Go"
             onClick={() => {
@@ -132,7 +137,7 @@ const SchedulesDirectCountrySelector = (props: SchedulesDirectCountrySelectorPro
               // setSelectedCountry(countryValue);
               // setSelectedPostalCode(postalCodeValue);
 
-              const newData: UpdateSettingRequest = { sdSettings: { sdPostalCode: selectedPostalCode, sdCountry: selectedCountry } };
+              const newData: UpdateSettingRequest = { parameters: { SDSettings: { SDCountry: selectedCountry, SDPostalCode: selectedPostalCode } } };
 
               UpdateSetting(newData)
                 .then(() => {})

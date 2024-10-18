@@ -1,178 +1,125 @@
 interface messages_enType {
   [key: string]: string;
 
-  ffMpegOptions: string;
+  FFMpegOptions: string;
 }
 
 const MessagesEn: messages_enType = {
+  'SDSettings.AlternateLogoStyle': 'Alternate Logo Style',
+  'SDSettings.AlternateSEFormat': 'Alternate Season/Episode Format',
+  'SDSettings.AppendEpisodeDesc': 'Append Season & Episode #s to the Program Description',
+  'SDSettings.ArtworkSize': 'Artwork Size Md',
+  'SDSettings.ExcludeCastAndCrew': 'Exclude Cast & Crew',
+  'SDSettings.PreferredLogoStyle': 'Preferred Logo Style',
+  'SDSettings.MaxSubscribedLineups': 'Max Subscribed Lineups',
+  'SDSettings.PrefixEpisodeDescription': 'Prefix Episode Description',
+  'SDSettings.PrefixEpisodeTitle': 'Prefix Episode Title',
+  'SDSettings.SDEnabled': 'Enabled',
+  'SDSettings.SDEPGDays': 'EPG Days to download',
+  'SDSettings.SDPassword': 'Password',
+  'SDSettings.SDUserName': 'Username',
+  'SDSettings.SeasonEventImages': 'Season Event Images',
+  'SDSettings.SeriesPosterArt': 'Enable Series Poster Art',
+  'SDSettings.SeriesPosterAspect': 'Series Poster Aspect Ratio',
+  'SDSettings.SeriesWsArt': 'Enable Series Wide Sceen Art',
+  'SDSettings.XmltvAddFillerData': 'Add Filler Data to EPG',
+  'SDSettings.XmltvExtendedInfoInTitleDescriptions': 'Include Extended Info in Title Descriptions',
+  'SDSettings.XmltvFillerProgramLength': 'Dummy Program Length (hrs)',
+  'SDSettings.XmltvIncludeChannelNumbers': 'Include Channel #s in EPG',
+  'SDSettings.XmltvSingleImage': 'Use Single Image for EPG',
   add: 'Add',
-
   added: 'Added',
-
-  adminPassword: 'Admin Password',
-
-  adminUserName: 'Admin Username',
-
+  AdminPassword: 'Admin Password',
+  AdminUserName: 'Admin Username',
+  ShowIntros: 'Show Intros',
   all: 'All',
-
-  apiKey: 'API Key',
-
+  ApiKey: 'API Key',
   authentication: 'Authentication',
-
-  authenticationMethod: 'Authentication Method',
-
+  AuthenticationMethod: 'Method',
   auto: 'Auto',
-
+  AutoSetEPG: 'Auto Set EPG',
   backup: 'Backup',
-
-  cacheIcons: 'Cache Icons',
-
-  changesServiceRestart: 'Changes require a service restart',
-
-  channel: 'Channel',
-
-  cleanURLs: 'Clean URLs from Logs',
-
-  clientUserAgent: 'Client User Agent',
-
-  delete: 'Delete',
-
-  development: 'Development',
-
-  deviceID: 'HDHR Device ID',
-
-  dummyRegex: 'Dummy Regex',
-
-  edit: 'Edit',
-
-  enableSSL: 'Enable SSL',
-
-  ffMpegOptions: 'FFMPeg Options',
-
-  ffmPegExecutable: 'FFMPeg Executable',
-
-  SD: 'Schedules Direct',
-
-  filesEPGM3U: 'Files / EPG / M3U',
-
-  formsAuthRequiresAdminUserName: 'Forms Authentication requires an Admin Username',
-
-  general: 'General',
-
-  globalStreamLimit: 'Global Stream Limit',
-
-  group: 'Group',
-
-  hidden: 'Hidden',
-
-  keywordSearch: 'Keyword Search',
-
-  logPerformance: 'Log API Performance',
-
-  m3UFieldCUID: 'Enable M3U CUID',
-  prettyEPG: 'Format EPG output',
-
-  m3UFieldGroupTitle: 'Enable M3U Group Title',
-
-  m3UIgnoreEmptyEPGID: 'Ignore Empty EPG ID',
-
-  m3uSettings: 'M3U Settings',
-
-  matches: 'Matches',
-
-  maxConnectRetry: 'Connection Retry Limit',
-
-  maxConnectRetryTimeMS: 'Retry Timeout in MS',
-
-  nameregexSettings: 'Name Blacklist',
-
-  numbers: 'Numbers',
-
-  ok: 'OK',
-
-  overWriteM3UChannels: 'Overwrite M3U Channels Numbers',
-
-  password: 'Password',
-
-  playlist: 'Playlist',
-
-  regex: 'Regex',
-
-  rememberme: 'Remember Me',
-  profiles: 'Profiles',
-  'sdSettings.sdEnabled': 'ScheduleDirect Enabled',
-
-  'sdSettings.sdPassword': 'ScheduleDirect Password',
-
-  'sdSettings.sdUserName': 'ScheduleDirect Username',
-  'sdSettings.seriesWsArt': 'Enable Series Wide Sceen Art',
-  'sdSettings.seriesPosterAspect': 'Series Poster Aspect Ratio',
-  'sdSettings.artworkSize': 'Artwork Size Md',
-  'sdSettings.seriesPosterArt': 'Enable Series Poster Art',
-  'sdSettings.excludeCastAndCrew': 'Exclude Cast and Crew',
-  'sdSettings.alternateSEFormat': 'Alternate Season/Episode Format',
-  'sdSettings.prefixEpisodeDescription': 'Prefix Episode Description',
-  'sdSettings.prefixEpisodeTitle': 'Prefix Episode Title',
-  'sdSettings.appendEpisodeDesc': 'Append Season and Episode Numbers to the Program Description',
-  'sdSettings.seasonEventImages': 'Season Event Images',
-  'sdSettings.xmltvAddFillerData': 'Add Filler Data to EPG',
-  'sdSettings.xmltvIncludeChannelNumbers': 'Include Channel Numbers in EPG',
-  'sdSettings.xmltvExtendedInfoInTitleDescriptions': 'Include Extended Info in Title Descriptions',
-  'sdSettings.xmltvSingleImage': 'Use Single Image for EPG',
-  'sdSettings.sdepgDays': 'EPG Days to download',
-  'sdSettings.preferredLogoStyle': 'Preferred Logo Style',
-  'sdSettings.alternateLogoStyle': 'Alternate Logo Style',
-  'sdSettings.xmltvFillerProgramLength': 'Dummy Program Length (hrs)',
-  m3UStationId: 'Enable tvc-guide-stationid',
-  m3UUseChnoForId: 'Use Channel Number for channel id',
-  maxLogFiles: 'Max Log Files',
-  maxLogFileSizeMB: 'Max Log File Size (MB)',
-  enablePrometheus: 'Enable Prometheus Metrics',
-  loading: 'Loading',
-  set: 'Set',
-  m3UUseCUIDForChannelID: 'Use CUID for channel id',
-  settings: 'Settings',
+  BackupEnabled: 'Enable',
+  BackupInterval: 'Interval',
   backups: 'Backups',
+  BackupVersionsToKeep: 'Versions',
+  LogoCache: 'Cache Logos',
+  changesServiceRestart: 'Changes require a service restart',
+  channel: 'Channel',
+  channels: 'Channels',
+  CleanURLs: 'No URLs in Logs',
+  ClientUserAgent: 'Client User Agent',
+  delete: 'Delete',
+  development: 'Development',
+  DefaultCompression: 'Default Compression',
+  DeviceID: 'ALL HDHR ID',
+  DummyRegex: 'Dummy Regex',
+  edit: 'Edit',
+  EnablePrometheus: 'Prometheus',
+  EnableSSL: 'Enable SSL',
+  FFProbeExecutable: 'FFProbe Executable',
+  FFMPegExecutable: 'FFMPeg Executable',
+  FFMpegOptions: 'FFMPeg Options',
+  filesEPGM3U: 'Files / EPG / M3U',
+  formsAuthRequiresAdminUserName: 'Forms Authentication requires an Admin Username',
+  general: 'General',
+  DefaultCommandProfileName: 'Default Command Profile',
+  DefaultOutputProfileName: 'Default Output Profile',
+  M3U8OutPutProfile: 'Default M3U8 Output Profile',
+  GlobalStreamLimit: 'Global Stream Limit',
+  group: 'Group',
+  hidden: 'Hidden',
+  keywordSearch: 'Keyword Search',
+  loading: 'Loading',
+  // logPerformance: 'Log API Performance',
+  m3UFieldCUID: 'Enable M3U CUID',
+  m3UFieldGroupTitle: 'Enable M3U Group Title',
+  M3UIgnoreEmptyEPGID: 'Ignore Empty EPG ID',
+  m3uSettings: 'M3U Settings',
+  m3UStationId: 'Enable tvc-guide-stationid',
+  m3ustreams: 'Streams',
+  m3UUseChnoForId: 'Use Channel # for channel id',
+  m3UUseCUIDForChannelID: 'Use CUID for channel id',
+  matches: 'Matches',
+  maxConnectRetry: 'Connection Retry Limit',
+  maxConnectRetryTimeMS: 'Retry Timeout in MS',
+  MaxLogFiles: 'Max Log Files',
+  MaxLogFileSizeMB: 'Max Log Size',
+  nameregexSettings: 'Name Blacklist',
+  Numbers: '#s',
+  ok: 'OK',
+  ClientReadTimeOutSeconds: 'Client Read Timeout',
+  overWriteM3UChannels: 'Overwrite M3U Channels #s',
+  password: 'Password',
+  playlist: 'Playlist',
+  PrettyEPG: 'Format EPG output',
+  ShowMessageVideos: 'Show Message Videos',
+  profiles: 'Profiles',
+  regex: 'Regex',
+  rememberme: 'Remember Me',
+  SD: 'Schedules Direct',
+  set: 'Set',
+  settings: 'Settings',
   show: 'Show',
-  backupEnabled: 'Backup Enabled',
-  backupVersionsToKeep: 'Backup Versions to Keep',
-  backupInterval: 'Backup Interval (hours)',
-
-  showClientHostNames: 'Show Client Hostnames',
-
-  signInSuccessful: 'Sign In Successful',
-
-  signInUnSuccessful: 'Sign In Unsuccessful',
-
+  ShowClientHostNames: 'Show Client Hostnames',
   signin: 'Sign In',
-
+  signInSuccessful: 'Sign In Successful',
+  signInUnSuccessful: 'Sign In Unsuccessful',
   signout: 'Sign Out',
-
   sslCertPassword: 'SSL Certificate Password',
-
   sslCertPath: 'SSL Certificate Path',
-
   stream: 'Stream',
-
   streaming: 'Streaming',
-
-  streamingClientUserAgent: 'Streaming Client User Agent',
-
-  streamingProxyType: 'Enable Stream Buffer',
-
+  StreamingClientUserAgent: 'Streaming Agent',
+  StreamingProxyType: 'Proxy',
   streams: 'Streams',
-
   successful: 'Successful',
-
   successfully: 'Successfully',
-
   useDummyEPGForBlanks: 'Use Dummy EPG',
-
   user: 'User',
-
-  videoStreamAlwaysUseEPGLogo: 'Always use EPG Logo',
-
-  visible: 'Visible'
+  VideoStreamAlwaysUseEPGLogo: 'Always use EPG Logo',
+  visible: 'Visible',
+  ShutDownDelay: 'Shutdown Delay (ms)'
 };
 
 export default MessagesEn;

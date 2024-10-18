@@ -1,39 +1,40 @@
-import DataSelector from '@components/dataSelector/DataSelector';
-import { ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
-import { LineupPreviewChannel } from '@lib/iptvApi';
-import { GetLineupPreviewChannel } from '@lib/smAPI/SchedulesDirect/SchedulesDirectGetAPI';
-import { Dialog } from 'primereact/dialog';
+import SMPopUp from '@components/sm/SMPopUp';
+import SMDataTable from '@components/smDataTable/SMDataTable';
+import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
+import { GetLineupPreviewChannel } from '@lib/smAPI/SchedulesDirect/SchedulesDirectCommands';
+import { LineupPreviewChannel } from '@lib/smAPI/smapiTypes';
 import { memo, useEffect, useMemo, useState } from 'react';
 
 type SchedulesDirectLineupPreviewChannelProps = {
   lineup: string | undefined;
-  readonly children?: React.ReactNode;
-  onHide(): void;
 };
 
-const SchedulesDirectLineupPreviewChannel = ({ children, lineup, onHide }: SchedulesDirectLineupPreviewChannelProps) => {
+const SchedulesDirectLineupPreviewChannel = ({ lineup }: SchedulesDirectLineupPreviewChannelProps) => {
+  const dataKey = 'LineupPreviewChannel';
+  const [isOpen, setIsOpen] = useState(false);
   const [dataSource, setDataSource] = useState<LineupPreviewChannel[]>([]);
 
   useEffect(() => {
-    if (!lineup) {
+    if (!lineup || isOpen !== true) {
       return;
     }
 
-    GetLineupPreviewChannel({ lineup: lineup })
+    GetLineupPreviewChannel({ Lineup: lineup })
       .then((data) => {
         setDataSource(data ?? []);
       })
       .catch((error) => {
         setDataSource([]);
-      });
-  }, [lineup]);
+      })
+      .finally(() => {});
+  }, [lineup, isOpen]);
 
   const columns = useMemo(
     (): ColumnMeta[] => [
-      { field: 'channel', filter: true, sortable: true },
-      { field: 'name', filter: true, sortable: true },
-      { field: 'callsign', filter: true, sortable: true },
-      { field: 'affiliate', filter: true, sortable: true }
+      { field: 'Channel', filter: true, sortable: true },
+      { field: 'Name', filter: true, sortable: true },
+      { field: 'Callsign', filter: true, sortable: true },
+      { field: 'Affiliate', filter: true, sortable: true }
     ],
     []
   );
@@ -43,33 +44,37 @@ const SchedulesDirectLineupPreviewChannel = ({ children, lineup, onHide }: Sched
   }
 
   return (
-    <div>
-      <Dialog
-        header={lineup ? lineup : ''}
-        visible={lineup !== undefined}
-        style={{ width: '50vw' }}
-        onHide={() => {
-          onHide();
-        }}
-      >
-        <div className="flex grid flex-col">
-          <DataSelector
-            // isLoading={getPreviewQuery.isLoading}
-            columns={columns}
-            dataSource={dataSource}
-            defaultSortField="name"
-            disableSelectAll
-            emptyMessage="No Line Ups"
-            enableState={false}
-            headerName="Line Up Preview"
-            id="queustatus"
-            selectedItemsKey="queustatus"
-            style={{ height: 'calc(50vh)' }}
-          />
+    <SMPopUp
+      title={
+        <div className="flex flex-row align-items-center">
+          Line Up Preview: <div className="pl-3 text-sm text-color">{lineup}</div>
         </div>
-      </Dialog>
-      {children}
-    </div>
+      }
+      contentWidthSize="5"
+      icon="pi-id-card"
+      modal
+      modalCentered
+      onCloseClick={() => console.log('close')}
+      onOpen={setIsOpen}
+    >
+      <SMDataTable
+        enablePaginator
+        columns={columns}
+        dataSource={dataSource}
+        defaultSortField="name"
+        emptyMessage="No Line Ups"
+        noSourceHeader
+        // headerName={
+        //   <div className="flex flex-row align-items-center">
+        //     Line Up Preview: <div className="pl-3 text-sm text-color">{lineup}</div>
+        //   </div>
+        // }
+        id={dataKey}
+        isLoading={!dataSource}
+        style={{ height: 'calc(40vh)' }}
+      />
+      {/* )} */}
+    </SMPopUp>
   );
 };
 

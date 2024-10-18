@@ -15,8 +15,8 @@ public class MxfProgram
     private DateTime _originalAirDate = DateTime.MinValue;
 
     [XmlIgnore] public string UidOverride;
-    [XmlIgnore] public MxfSeriesInfo mxfSeriesInfo;
-    [XmlIgnore] public MxfSeason mxfSeason;
+    [XmlIgnore] public SeriesInfo mxfSeriesInfo;
+    [XmlIgnore] public Season mxfSeason;
     [XmlIgnore] public MxfGuideImage? mxfGuideImage;
     [XmlIgnore] public List<MxfKeyword> mxfKeywords = [];
     [XmlIgnore] public bool IsAdultOnly;
@@ -51,7 +51,7 @@ public class MxfProgram
     }
 
     /// <summary>
-    /// The title of the program (for example, Lost). 
+    /// The title of the program (for example, Lost).
     /// The maximum length is 512 characters.
     /// </summary>
     [XmlAttribute("title")]
@@ -105,7 +105,7 @@ public class MxfProgram
     public int Year { get; set; }
 
     /// <summary>
-    /// The season number of the program (for example, 1). 
+    /// The season number of the program (for example, 1).\
     /// If unknown, this value is 0.
     /// </summary>
     [XmlAttribute("seasonNumber")]
@@ -168,7 +168,7 @@ public class MxfProgram
     }
 
     /// <summary>
-    /// The star rating of the program. 
+    /// The star rating of the program.
     /// Each star equals two points. For example, a value of "3" is equal to 1.5 stars.
     /// </summary>
     [XmlAttribute("halfStars")]
@@ -504,21 +504,21 @@ public class MxfProgram
     }
 
     [XmlElement("ActorRole")]
-    public List<MxfPersonRank> ActorRole { get; set; }
+    public List<MxfPersonRank>? ActorRole { get; set; }
 
     [XmlElement("WriterRole")]
-    public List<MxfPersonRank> WriterRole { get; set; }
+    public List<MxfPersonRank>? WriterRole { get; set; }
 
     [XmlElement("GuestActorRole")]
-    public List<MxfPersonRank> GuestActorRole { get; set; }
+    public List<MxfPersonRank>? GuestActorRole { get; set; }
 
     [XmlElement("HostRole")]
-    public List<MxfPersonRank> HostRole { get; set; }
+    public List<MxfPersonRank>? HostRole { get; set; }
 
     [XmlElement("ProducerRole"), XmlIgnore]
-    public List<MxfPersonRank> ProducerRole { get; set; }
+    public List<MxfPersonRank>? ProducerRole { get; set; }
 
     [XmlElement("DirectorRole")]
-    public List<MxfPersonRank> DirectorRole { get; set; }
+    public List<MxfPersonRank>? DirectorRole { get; set; }
     public int EPGNumber { get; set; }
 }

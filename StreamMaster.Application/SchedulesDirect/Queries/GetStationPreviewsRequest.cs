@@ -1,22 +1,24 @@
-﻿using StreamMaster.Domain.Configuration;
+﻿namespace StreamMaster.Application.SchedulesDirect.Queries;
 
-namespace StreamMaster.Application.SchedulesDirect.Queries;
 
-public record GetStationPreviews : IRequest<List<StationPreview>>;
+[SMAPI]
+[TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
+public record GetStationPreviewsRequest : IRequest<DataResponse<List<StationPreview>>>;
 
-internal class GetStationPreviewsHandler(ILineups lineups, IOptionsMonitor<SDSettings> intsettings, ISender sender) : IRequestHandler<GetStationPreviews, List<StationPreview>>
+internal class GetStationPreviewsRequestHandler(ILineupService lineups, IOptionsMonitor<SDSettings> intSettings)
+    : IRequestHandler<GetStationPreviewsRequest, DataResponse<List<StationPreview>>>
 {
-    private readonly SDSettings settings = intsettings.CurrentValue;
+    private readonly SDSettings settings = intSettings.CurrentValue;
 
-    public async Task<List<StationPreview>> Handle(GetStationPreviews request, CancellationToken cancellationToken)
+    public async Task<DataResponse<List<StationPreview>>> Handle(GetStationPreviewsRequest request, CancellationToken cancellationToken)
     {
         if (!settings.SDEnabled)
         {
-            return [];
+            return DataResponse<List<StationPreview>>.ErrorWithMessage("SD is not enabled");
         }
 
         List<StationPreview> ret = await lineups.GetStationPreviews(cancellationToken).ConfigureAwait(false);
 
-        return ret;
+        return DataResponse<List<StationPreview>>.Success(ret);
     }
 }

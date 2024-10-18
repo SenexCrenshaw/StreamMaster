@@ -1,6 +1,4 @@
-﻿using StreamMaster.SchedulesDirect.Domain.Enums;
-
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
 namespace StreamMaster.Domain.Models;
 
@@ -36,7 +34,7 @@ public class CacheEntity : BaseEntity
     {
         if (string.IsNullOrEmpty(FileExtension))
         {
-            FileExtension = fd.FileExtension;
+            FileExtension = fd.DefaultExtension;
         }
 
         SMFileType = fd.SMFileType;

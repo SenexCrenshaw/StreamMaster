@@ -4,19 +4,18 @@ ARG BUILDPLATFORM
 ENV TARGETPLATFORM=${TARGETPLATFORM:-linux/amd64}
 WORKDIR /src
 
+# Copy all files into the image
 COPY . .
-RUN dotnet restore "StreamMaster.API/StreamMaster.API.csproj" -a $TARGETARCH
 
-WORKDIR "/src/StreamMaster.API"
-RUN dotnet build "StreamMaster.API.csproj" -c Debug -o /app/build -a $TARGETARCH
+# Run dotnet restore and npm install in parallel
+RUN (dotnet restore "StreamMaster.API/StreamMaster.API.csproj" -a $TARGETARCH && \
+    dotnet build "StreamMaster.API.csproj" -c Debug -o /app/build -a $TARGETARCH) & \
+    (cd /src/streammasterwebui && npm install && npm run build && \
+    cp -r dist/* /src/StreamMaster.API/wwwroot/) && wait
 
-WORKDIR /src/streammasterwebui
-COPY ["streammasterwebui/", "."]
-RUN npm install \
-    && npm run build \
-    && cp -r dist/* /src/StreamMaster.API/wwwroot/
-
+# Publish the .NET application
 WORKDIR "/src/StreamMaster.API"
 RUN dotnet publish --no-restore "StreamMaster.API.csproj" -c Debug -o /app/publish /p:UseAppHost=false -a $TARGETARCH
 
+# Clean up source files
 RUN rm -rf /src

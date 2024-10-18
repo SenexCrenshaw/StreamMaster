@@ -1,93 +1,22 @@
-import { getChannelGroupMenuItem, getTopToolOptions } from '@lib/common/common';
-import { ResetLogoIcon } from '@lib/common/icons';
-import { useChannelGroupsGetChannelGroupIdNamesQuery, type ChannelGroupIdName } from '@lib/iptvApi';
-import { Button } from 'primereact/button';
-import { Dropdown } from 'primereact/dropdown';
-import React, { useCallback, useEffect, useState } from 'react';
-import ChannelGroupAddDialog from './ChannelGroupAddDialog';
+import useGetChannelGroups from '@lib/smAPI/ChannelGroups/useGetChannelGroups';
+import { ChannelGroupDto } from '@lib/smAPI/smapiTypes';
+import { memo } from 'react';
+import BaseChannelGroupPagedSelector from './BaseChannelGroupPagedSelector';
 
-interface ChannelGroupSelectorProperties {
-  readonly className?: string;
-  readonly onChange: (value: string) => void;
-  readonly resetValue?: string;
+type ChannelGroupSelectorProperties = {
+  readonly dataKey: string;
+  readonly autoPlacement?: boolean;
+  readonly enableEditMode?: boolean;
+  readonly useSelectedItemsFilter?: boolean;
+  readonly label?: string;
   readonly value?: string;
-}
-
-const ChannelGroupSelector: React.FC<ChannelGroupSelectorProperties> = ({ className, onChange, resetValue, value }) => {
-  const channelGroupNamesQuery = useChannelGroupsGetChannelGroupIdNamesQuery();
-  const [channelGroup, setChannelGroup] = useState<ChannelGroupIdName | undefined>();
-
-  const setChannelGroupByName = useCallback(
-    (channelGroupName: string) => {
-      if (channelGroupName && channelGroupNamesQuery.data) {
-        const foundChannelGroup = channelGroupNamesQuery.data.find((cg) => cg.name === channelGroupName);
-        if (foundChannelGroup) {
-          setChannelGroup(foundChannelGroup);
-        }
-      }
-    },
-    [channelGroupNamesQuery.data]
-  );
-
-  // Update channel group when prop value changes
-  useEffect(() => {
-    if (value) {
-      setChannelGroupByName(value);
-    }
-  }, [setChannelGroupByName, value]);
-
-  const handleResetClick = () => {
-    if (resetValue && channelGroup?.name !== resetValue) {
-      setChannelGroupByName(resetValue);
-      onChange(resetValue);
-    }
-  };
-
-  const footerTemplate = () => (
-    <div className="p-1 align-items-center justify-content-center">
-      <hr />
-      <div className="flex gap-2 align-items-center justify-content-end">
-        {value !== resetValue && resetValue && (
-          <Button
-            icon={<ResetLogoIcon sx={{ fontSize: 18 }} />}
-            onClick={handleResetClick}
-            rounded
-            severity="warning"
-            size="small"
-            tooltip="Reset Group"
-            tooltipOptions={getTopToolOptions}
-          />
-        )}
-        <ChannelGroupAddDialog />
-      </div>
-    </div>
-  );
-
-  const selectedTemplate = useCallback((option: any) => {
-    if (!option) return;
-
-    return <div className="">{option.name}</div>;
-  }, []);
-
-  return (
-    <div className="flex w-full">
-      <Dropdown
-        className={`w-full ${className}`}
-        filter
-        filterInputAutoFocus
-        itemTemplate={(option) => getChannelGroupMenuItem(option.name, `${option.name}  |  ${option.totalCount}`)} // getChannelGroupMenuItem(option.id, option.name)}
-        onChange={(e) => onChange(e.value.name)}
-        optionLabel="name"
-        options={channelGroupNamesQuery.data}
-        panelFooterTemplate={footerTemplate}
-        placeholder="No Group"
-        value={channelGroup}
-        valueTemplate={selectedTemplate}
-      />
-    </div>
-  );
+  readonly width?: string;
+  readonly onChange?: (value: ChannelGroupDto[]) => void;
 };
 
-ChannelGroupSelector.displayName = 'Channel Group Dropdown';
+const ChannelGroupSelector = (props: ChannelGroupSelectorProperties) => {
+  return <BaseChannelGroupPagedSelector {...props} getNamesQuery={useGetChannelGroups} />;
+};
 
-export default React.memo(ChannelGroupSelector);
+ChannelGroupSelector.displayName = 'ChannelGroupSelector';
+export default memo(ChannelGroupSelector);

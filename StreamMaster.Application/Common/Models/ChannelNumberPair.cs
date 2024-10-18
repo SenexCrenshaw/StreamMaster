@@ -1,10 +1,8 @@
-﻿using StreamMaster.Domain.Attributes;
-
-namespace StreamMaster.Application.Common.Models;
+﻿namespace StreamMaster.Application.Common.Models;
 
 [RequireAll]
 public class ChannelNumberPair
 {
     public int ChannelNumber { get; set; }
-    public string Id { get; set; }
+    public string Id { get; set; } = string.Empty;
 }

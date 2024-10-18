@@ -1,70 +1,62 @@
 ﻿using StreamMaster.Application.Services;
-using StreamMaster.Domain.Configuration;
-using StreamMaster.Domain.Helpers;
 using StreamMaster.SchedulesDirect;
 
 namespace StreamMaster.Application.Settings.Commands;
 
-public class UpdateSettingRequest : IRequest<UpdateSettingResponse>
-{
-    public bool? BackupEnabled { get; set; }
-    public int? BackupVersionsToKeep { get; set; }
-    public int? BackupInterval { get; set; }
-    public SDSettingsRequest? SDSettings { get; set; }
-    public bool? ShowClientHostNames { get; set; }
-    public string? AdminPassword { get; set; }
-    public string? AdminUserName { get; set; }
-    public string? ApiKey { get; set; }
-    public AuthenticationType? AuthenticationMethod { get; set; }
-    public bool? CacheIcons { get; set; }
-    public bool? CleanURLs { get; set; }
-    public string? ClientUserAgent { get; set; }
-    public string? DeviceID { get; set; }
-    public string? DummyRegex { get; set; }
-    public bool? EnableSSL { get; set; }
-    public string? FFMPegExecutable { get; set; }
-    public string? FFMpegOptions { get; set; }
-    public int? GlobalStreamLimit { get; set; }
-    public bool? M3UFieldGroupTitle { get; set; }
-    public bool? M3UStationId { get; set; }
-    public bool? M3UUseChnoForId { get; set; }
-    public bool? M3UIgnoreEmptyEPGID { get; set; }
-    public bool? M3UUseCUIDForChannelID { get; set; }
-    public bool? PrettyEPG { get; set; }
-    public int? MaxConnectRetry { get; set; }
-    public int? MaxConnectRetryTimeMS { get; set; }
-    public string? SSLCertPassword { get; set; }
-    public string? SSLCertPath { get; set; }
-    public string? StreamingClientUserAgent { get; set; }
-    public StreamingProxyTypes? StreamingProxyType { get; set; }
-    public bool? VideoStreamAlwaysUseEPGLogo { get; set; }
-    public bool? EnablePrometheus { get; set; }
-    public int? MaxLogFiles { get; set; }
-    public int? MaxLogFileSizeMB { get; set; }
-    public List<string>? NameRegex { get; set; } = [];
-}
+[SMAPI]
+[TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
+public record UpdateSettingRequest(UpdateSettingParameters Parameters) : IRequest<UpdateSettingResponse>;
 
-public partial class UpdateSettingRequestHandler(IBackgroundTaskQueue taskQueue, IOptionsMonitor<SDSettings> intsdsettings, ILogger<UpdateSettingRequest> Logger, IMapper Mapper, IHubContext<StreamMasterHub, IStreamMasterHub> HubContext, IOptionsMonitor<Setting> intsettings)
-: IRequestHandler<UpdateSettingRequest, UpdateSettingResponse>
+public partial class UpdateSettingRequestHandler(
+    IOptionsMonitor<SDSettings> intsdsettings,
+    ILogoService logoService,
+    ILogger<UpdateSettingRequest> Logger,
+    IMapper Mapper,
+    IBackgroundTaskQueue backgroundTaskQueue,
+    IOptionsMonitor<Setting> intSettings
+) : IRequestHandler<UpdateSettingRequest, UpdateSettingResponse>
 {
-    private readonly Setting settings = intsettings.CurrentValue;
-    private readonly SDSettings sdsettings = intsdsettings.CurrentValue;
+    private readonly Setting settings = intSettings.CurrentValue;
+    private readonly SDSettings sdSettings = intsdsettings.CurrentValue;
 
-    public static void CopyNonNullFields(SDSettingsRequest source, SDSettings destination)
+    public async Task<UpdateSettingResponse> Handle(UpdateSettingRequest request, CancellationToken cancellationToken)
+    {
+        Setting currentSetting = settings;
+        bool needsLogOut = await UpdateSetting(currentSetting, sdSettings, request);
+
+        Logger.LogInformation("UpdateSettingRequest");
+        SettingsHelper.UpdateSetting(currentSetting);
+
+        SettingDto ret = Mapper.Map<SettingDto>(currentSetting);
+
+        return new UpdateSettingResponse { Settings = ret, NeedsLogOut = needsLogOut };
+    }
+
+    private static void CopySDNonNullFields(SDSettingsRequest source, SDSettings destination)
     {
         if (source == null || destination == null)
         {
             return;
         }
 
-        if (source.SeriesPosterArt != null)
+        if (source.PreferredLogoStyle != null)
         {
-            destination.SeriesPosterArt = (bool)source.SeriesPosterArt;
+            destination.PreferredLogoStyle = source.PreferredLogoStyle;
         }
 
-        if (source.SeriesWsArt != null)
+        if (source.AlternateLogoStyle != null)
         {
-            destination.SeriesWsArt = (bool)source.SeriesWsArt;
+            destination.AlternateLogoStyle = source.AlternateLogoStyle;
+        }
+
+        if (source.SeriesPosterArt.HasValue)
+        {
+            destination.SeriesPosterArt = source.SeriesPosterArt.Value;
+        }
+
+        if (source.SeriesWsArt.HasValue)
+        {
+            destination.SeriesWsArt = source.SeriesWsArt.Value;
         }
 
         if (source.SeriesPosterAspect != null)
@@ -77,49 +69,39 @@ public partial class UpdateSettingRequestHandler(IBackgroundTaskQueue taskQueue,
             destination.ArtworkSize = source.ArtworkSize;
         }
 
-        if (source.ExcludeCastAndCrew != null)
+        if (source.ExcludeCastAndCrew.HasValue)
         {
-            destination.ExcludeCastAndCrew = (bool)source.ExcludeCastAndCrew;
+            destination.ExcludeCastAndCrew = source.ExcludeCastAndCrew.Value;
         }
 
-        if (source.AlternateSEFormat != null)
+        if (source.AlternateSEFormat.HasValue)
         {
-            destination.AlternateSEFormat = (bool)source.AlternateSEFormat;
+            destination.AlternateSEFormat = source.AlternateSEFormat.Value;
         }
 
-        if (source.PrefixEpisodeDescription != null)
+        if (source.PrefixEpisodeDescription.HasValue)
         {
-            destination.PrefixEpisodeDescription = (bool)source.PrefixEpisodeDescription;
+            destination.PrefixEpisodeDescription = source.PrefixEpisodeDescription.Value;
         }
 
-        if (source.PrefixEpisodeTitle != null)
+        if (source.PrefixEpisodeTitle.HasValue)
         {
-            destination.PrefixEpisodeTitle = (bool)source.PrefixEpisodeTitle;
+            destination.PrefixEpisodeTitle = source.PrefixEpisodeTitle.Value;
         }
 
-        if (source.AlternateLogoStyle != null)
+        if (source.AppendEpisodeDesc.HasValue)
         {
-            destination.AlternateLogoStyle = source.AlternateLogoStyle;
+            destination.AppendEpisodeDesc = source.AppendEpisodeDesc.Value;
         }
 
-        if (source.PrefixEpisodeTitle != null)
+        if (source.SDEPGDays.HasValue)
         {
-            destination.PrefixEpisodeTitle = (bool)source.PrefixEpisodeTitle;
+            destination.SDEPGDays = source.SDEPGDays.Value;
         }
 
-        if (source.AppendEpisodeDesc != null)
+        if (source.SDEnabled.HasValue)
         {
-            destination.AppendEpisodeDesc = (bool)source.AppendEpisodeDesc;
-        }
-
-        if (source.SDEPGDays != null)
-        {
-            destination.SDEPGDays = (int)source.SDEPGDays;
-        }
-
-        if (source.SDEnabled != null)
-        {
-            destination.SDEnabled = (bool)source.SDEnabled;
+            destination.SDEnabled = source.SDEnabled.Value;
         }
 
         if (source.SDUserName != null)
@@ -134,266 +116,255 @@ public partial class UpdateSettingRequestHandler(IBackgroundTaskQueue taskQueue,
 
         if (source.SDPassword != null)
         {
-            destination.SDPassword = HashHelper.GetSHA1Hash(source.SDPassword);
+            destination.SDPassword = source.SDPassword.GetSHA1Hash();
         }
 
-        if (!string.IsNullOrEmpty(source.SDPostalCode))
+        if (source.SDPostalCode != null)
         {
             destination.SDPostalCode = source.SDPostalCode;
         }
 
+        if (source.HeadendsToView != null)
+        {
+            destination.HeadendsToView = new List<HeadendToView>(source.HeadendsToView);
+        }
+
         if (source.SDStationIds != null)
         {
-            destination.SDStationIds = source.SDStationIds;
+            destination.SDStationIds = new List<StationIdLineup>(source.SDStationIds);
         }
 
-        if (source.SeasonEventImages != null)
+        if (source.SeasonEventImages.HasValue)
         {
-            destination.SeasonEventImages = (bool)source.SeasonEventImages;
+            destination.SeasonEventImages = source.SeasonEventImages.Value;
         }
 
-        if (source.XmltvAddFillerData != null)
+        if (source.XmltvAddFillerData.HasValue)
         {
-            destination.XmltvAddFillerData = (bool)source.XmltvAddFillerData;
+            destination.XmltvAddFillerData = source.XmltvAddFillerData.Value;
         }
 
-        if (source.XmltvFillerProgramLength != null)
+        if (source.XmltvFillerProgramLength.HasValue)
         {
-            destination.XmltvFillerProgramLength = (int)source.XmltvFillerProgramLength;
+            destination.XmltvFillerProgramLength = source.XmltvFillerProgramLength.Value;
         }
 
-        if (source.XmltvIncludeChannelNumbers != null)
+        if (source.MaxSubscribedLineups.HasValue)
         {
-            destination.XmltvIncludeChannelNumbers = (bool)source.XmltvIncludeChannelNumbers;
+            destination.MaxSubscribedLineups = source.MaxSubscribedLineups.Value;
         }
 
-        if (source.XmltvExtendedInfoInTitleDescriptions != null)
+        if (source.XmltvIncludeChannelNumbers.HasValue)
         {
-            destination.XmltvExtendedInfoInTitleDescriptions = (bool)source.XmltvExtendedInfoInTitleDescriptions;
+            destination.XmltvIncludeChannelNumbers = source.XmltvIncludeChannelNumbers.Value;
         }
 
-        if (source.XmltvSingleImage != null)
+        if (source.XmltvExtendedInfoInTitleDescriptions.HasValue)
         {
-            destination.XmltvSingleImage = (bool)source.XmltvSingleImage;
+            destination.XmltvExtendedInfoInTitleDescriptions = source.XmltvExtendedInfoInTitleDescriptions.Value;
+        }
+
+        if (source.XmltvSingleImage.HasValue)
+        {
+            destination.XmltvSingleImage = source.XmltvSingleImage.Value;
         }
     }
 
-    public async Task<UpdateSettingResponse> Handle(UpdateSettingRequest request, CancellationToken cancellationToken)
-    {
-        Setting currentSetting = settings;
-
-        bool needsLogOut = await UpdateSetting(currentSetting, sdsettings, request, cancellationToken);
-
-        Logger.LogInformation("UpdateSettingRequest");
-        SettingsHelper.UpdateSetting(currentSetting);
-
-        SettingDto ret = Mapper.Map<SettingDto>(currentSetting);
-        await HubContext.Clients.All.SettingsUpdate(ret).ConfigureAwait(false);
-        if (request.SDSettings?.SDStationIds != null)
-        {
-            await HubContext.Clients.All.SchedulesDirectsRefresh().ConfigureAwait(false);
-        }
-
-        return new UpdateSettingResponse { Settings = ret, NeedsLogOut = needsLogOut };
-    }
-
-    /// <summary>
-    /// Updates the current setting based on the provided request.
-    /// </summary>
-    /// <param name="currentSetting">The current setting.</param>
-    /// <param name="request">The update setting request.</param>
-    /// <returns>The updated setting as a SettingDto object.</returns>
-    private async Task<bool> UpdateSetting(Setting currentSetting, SDSettings sdsettings, UpdateSettingRequest request, CancellationToken cancellationToken)
+    private async Task<bool> UpdateSetting(Setting currentSetting, SDSettings sdsettings, UpdateSettingRequest request)
     {
         bool needsLogOut = false;
-        bool needsSetProgrammes = false;
-        if (request.CacheIcons != null && request.CacheIcons != currentSetting.CacheIcons)
+
+        if (request.Parameters.LogoCache != null)
         {
-            currentSetting.CacheIcons = (bool)request.CacheIcons;
+            currentSetting.LogoCache = request.Parameters.LogoCache.ToLowerInvariant() switch
+            {
+                "redirect" => "Redirect",
+                "cache" => "Cache",
+                _ => "None",
+            };
+            await logoService.BuildLogosCacheFromSMStreamsAsync(CancellationToken.None);
         }
 
-        if (request.CleanURLs != null && request.CleanURLs != currentSetting.CleanURLs)
+        if (request.Parameters.CleanURLs.HasValue)
         {
-            currentSetting.CleanURLs = (bool)request.CleanURLs;
+            currentSetting.CleanURLs = request.Parameters.CleanURLs.Value;
         }
 
-        if (request.SDSettings != null)
+        if (request.Parameters.SDSettings != null)
         {
-            CopyNonNullFields(request.SDSettings, sdsettings);
+            CopySDNonNullFields(request.Parameters.SDSettings, sdsettings);
             SettingsHelper.UpdateSetting(sdsettings);
         }
 
-        if (request.EnableSSL != null && request.EnableSSL != currentSetting.EnableSSL)
+        if (request.Parameters.EnableSSL.HasValue)
         {
-            currentSetting.EnableSSL = (bool)request.EnableSSL;
+            currentSetting.EnableSSL = request.Parameters.EnableSSL.Value;
         }
 
-        if (request.VideoStreamAlwaysUseEPGLogo != null && request.VideoStreamAlwaysUseEPGLogo != currentSetting.VideoStreamAlwaysUseEPGLogo)
+        if (request.Parameters.ShowMessageVideos.HasValue)
         {
-            currentSetting.VideoStreamAlwaysUseEPGLogo = (bool)request.VideoStreamAlwaysUseEPGLogo;
+            currentSetting.ShowMessageVideos = request.Parameters.ShowMessageVideos.Value;
         }
 
-        if (request.PrettyEPG.HasValue)
+        if (!string.IsNullOrEmpty(request.Parameters.DefaultCompression))
         {
-            currentSetting.PrettyEPG = request.PrettyEPG.Value;
+            string[] validCompressions = ["none", "gz", "zip"];
+            currentSetting.DefaultCompression = validCompressions.Contains(request.Parameters.DefaultCompression.ToLower())
+                ? request.Parameters.DefaultCompression
+                : "gz";
         }
 
-        if (request.M3UIgnoreEmptyEPGID != null)
+        if (!string.IsNullOrEmpty(request.Parameters.M3U8OutPutProfile))
         {
-            currentSetting.M3UIgnoreEmptyEPGID = (bool)request.M3UIgnoreEmptyEPGID;
+            currentSetting.M3U8OutPutProfile = request.Parameters.M3U8OutPutProfile;
         }
 
-        if (request.M3UUseCUIDForChannelID != null)
+        if (request.Parameters.PrettyEPG.HasValue)
         {
-            currentSetting.M3UUseCUIDForChannelID = (bool)request.M3UUseCUIDForChannelID;
+            currentSetting.PrettyEPG = request.Parameters.PrettyEPG.Value;
         }
 
-        if (request.MaxLogFiles != null)
+        if (!string.IsNullOrEmpty(request.Parameters.ShowIntros))
         {
-            currentSetting.MaxLogFiles = (int)request.MaxLogFiles;
+            currentSetting.ShowIntros = request.Parameters.ShowIntros;
         }
 
-        if (request.MaxLogFileSizeMB != null)
+        if (request.Parameters.MaxLogFiles.HasValue)
         {
-            currentSetting.MaxLogFileSizeMB = (int)request.MaxLogFileSizeMB;
+            currentSetting.MaxLogFiles = request.Parameters.MaxLogFiles.Value;
         }
 
-        if (request.EnablePrometheus != null)
+        if (request.Parameters.MaxLogFileSizeMB.HasValue)
         {
-            currentSetting.EnablePrometheus = (bool)request.EnablePrometheus;
+            currentSetting.MaxLogFileSizeMB = request.Parameters.MaxLogFileSizeMB.Value;
         }
 
-        if (request.MaxLogFiles != null)
+        if (request.Parameters.ClientReadTimeOutSeconds.HasValue)
         {
-            currentSetting.MaxLogFiles = (int)request.MaxLogFiles;
-        }
-        if (request.M3UUseChnoForId != null)
-        {
-            currentSetting.M3UUseChnoForId = (bool)request.M3UUseChnoForId;
+            currentSetting.ClientReadTimeOutSeconds = request.Parameters.ClientReadTimeOutSeconds.Value;
         }
 
-        if (request.BackupEnabled != null)
+        if (request.Parameters.BackupEnabled.HasValue)
         {
-            currentSetting.BackupEnabled = (bool)request.BackupEnabled;
+            currentSetting.BackupEnabled = request.Parameters.BackupEnabled.Value;
         }
 
-        if (request.BackupVersionsToKeep.HasValue)
+        if (request.Parameters.ShutDownDelay.HasValue)
         {
-            currentSetting.BackupVersionsToKeep = request.BackupVersionsToKeep.Value;
+            currentSetting.ShutDownDelay = request.Parameters.ShutDownDelay.Value;
         }
 
-        if (request.BackupInterval.HasValue)
+        if (request.Parameters.AutoSetEPG.HasValue)
         {
-            currentSetting.BackupInterval = request.BackupInterval.Value;
+            currentSetting.AutoSetEPG = request.Parameters.AutoSetEPG.Value;
         }
 
-        if (request.ShowClientHostNames != null)
+        if (request.Parameters.BackupVersionsToKeep.HasValue)
         {
-            currentSetting.ShowClientHostNames = (bool)request.ShowClientHostNames;
+            currentSetting.BackupVersionsToKeep = request.Parameters.BackupVersionsToKeep.Value;
         }
 
-        if (request.DummyRegex != null)
+        if (request.Parameters.BackupInterval.HasValue)
         {
-            currentSetting.DummyRegex = request.DummyRegex;
+            currentSetting.BackupInterval = request.Parameters.BackupInterval.Value;
         }
 
-        if (request.M3UStationId != null)
+        if (request.Parameters.IconCacheExpirationDays.HasValue)
         {
-            currentSetting.M3UStationId = (bool)request.M3UStationId;
+            currentSetting.IconCacheExpirationDays = request.Parameters.IconCacheExpirationDays.Value;
         }
 
-        if (request.M3UFieldGroupTitle != null)
+        if (request.Parameters.ShowClientHostNames.HasValue)
         {
-            currentSetting.M3UFieldGroupTitle = (bool)request.M3UFieldGroupTitle;
+            currentSetting.ShowClientHostNames = request.Parameters.ShowClientHostNames.Value;
         }
 
-        if (request.SSLCertPath != null && request.SSLCertPath != currentSetting.SSLCertPath)
+        if (request.Parameters.DummyRegex != null)
         {
-            currentSetting.SSLCertPath = request.SSLCertPath;
+            currentSetting.DummyRegex = request.Parameters.DummyRegex;
         }
 
-        if (request.SSLCertPassword != null && request.SSLCertPassword != currentSetting.SSLCertPassword)
+        if (request.Parameters.SSLCertPath != null && request.Parameters.SSLCertPath != currentSetting.SSLCertPath)
         {
-            currentSetting.SSLCertPassword = request.SSLCertPassword;
+            currentSetting.SSLCertPath = request.Parameters.SSLCertPath;
         }
 
-        if (request.ClientUserAgent != null && request.ClientUserAgent != currentSetting.ClientUserAgent)
+        if (!string.IsNullOrEmpty(request.Parameters.DefaultCommandProfileName) && request.Parameters.DefaultCommandProfileName != currentSetting.DefaultCommandProfileName)
         {
-            currentSetting.ClientUserAgent = request.ClientUserAgent;
+            currentSetting.DefaultCommandProfileName = request.Parameters.DefaultCommandProfileName;
         }
 
-        if (request.StreamingClientUserAgent != null && request.StreamingClientUserAgent != currentSetting.StreamingClientUserAgent)
+        if (!string.IsNullOrEmpty(request.Parameters.DefaultOutputProfileName) && request.Parameters.DefaultOutputProfileName != currentSetting.DefaultOutputProfileName)
         {
-            currentSetting.StreamingClientUserAgent = request.StreamingClientUserAgent;
+            currentSetting.DefaultOutputProfileName = request.Parameters.DefaultOutputProfileName;
         }
 
-        if (!string.IsNullOrEmpty(request.ApiKey) && request.ApiKey != currentSetting.ApiKey)
+        if (request.Parameters.SSLCertPassword != null && request.Parameters.SSLCertPassword != currentSetting.SSLCertPassword)
         {
-            currentSetting.ApiKey = request.ApiKey;
+            currentSetting.SSLCertPassword = request.Parameters.SSLCertPassword;
         }
 
-        if (request.AdminPassword != null && request.AdminPassword != currentSetting.AdminPassword)
+        if (request.Parameters.ClientUserAgent != null && request.Parameters.ClientUserAgent != currentSetting.ClientUserAgent)
         {
-            currentSetting.AdminPassword = request.AdminPassword;
+            currentSetting.ClientUserAgent = request.Parameters.ClientUserAgent;
+        }
+
+        if (request.Parameters.AdminPassword != null && request.Parameters.AdminPassword != currentSetting.AdminPassword)
+        {
+            currentSetting.AdminPassword = request.Parameters.AdminPassword;
             needsLogOut = true;
         }
 
-        if (request.AdminUserName != null && request.AdminUserName != currentSetting.AdminUserName)
+        if (request.Parameters.AdminUserName != null && request.Parameters.AdminUserName != currentSetting.AdminUserName)
         {
-            currentSetting.AdminUserName = request.AdminUserName;
+            currentSetting.AdminUserName = request.Parameters.AdminUserName;
             needsLogOut = true;
         }
 
-        if (!string.IsNullOrEmpty(request.DeviceID) && request.DeviceID != currentSetting.DeviceID)
+        if (!string.IsNullOrEmpty(request.Parameters.DeviceID) && request.Parameters.DeviceID != currentSetting.DeviceID)
         {
-            currentSetting.DeviceID = request.DeviceID;
+            currentSetting.DeviceID = request.Parameters.DeviceID;
         }
 
-        if (!string.IsNullOrEmpty(request.FFMPegExecutable) && request.FFMPegExecutable != currentSetting.FFMPegExecutable)
+        if (!string.IsNullOrEmpty(request.Parameters.FFMPegExecutable) && request.Parameters.FFMPegExecutable != currentSetting.FFMPegExecutable)
         {
-            currentSetting.FFMPegExecutable = request.FFMPegExecutable;
+            currentSetting.FFMPegExecutable = request.Parameters.FFMPegExecutable;
         }
 
-        if (!string.IsNullOrEmpty(request.FFMpegOptions) && request.FFMpegOptions != currentSetting.FFMpegOptions)
+        if (!string.IsNullOrEmpty(request.Parameters.FFProbeExecutable) && request.Parameters.FFProbeExecutable != currentSetting.FFProbeExecutable)
         {
-            currentSetting.FFMpegOptions = request.FFMpegOptions;
+            currentSetting.FFProbeExecutable = request.Parameters.FFProbeExecutable;
         }
 
-
-        if (request.MaxConnectRetry != null && request.MaxConnectRetry >= 0 && request.MaxConnectRetry != currentSetting.MaxConnectRetry)
+        if (request.Parameters.MaxConnectRetry.HasValue && request.Parameters.MaxConnectRetry >= 0)
         {
-            currentSetting.MaxConnectRetry = (int)request.MaxConnectRetry;
+            currentSetting.MaxConnectRetry = request.Parameters.MaxConnectRetry.Value;
         }
 
-        if (request.MaxConnectRetryTimeMS != null && request.MaxConnectRetryTimeMS >= 0 && request.MaxConnectRetryTimeMS != currentSetting.MaxConnectRetryTimeMS)
+        if (request.Parameters.MaxConnectRetryTimeMS.HasValue && request.Parameters.MaxConnectRetryTimeMS >= 0)
         {
-            currentSetting.MaxConnectRetryTimeMS = (int)request.MaxConnectRetryTimeMS;
+            currentSetting.MaxConnectRetryTimeMS = request.Parameters.MaxConnectRetryTimeMS.Value;
         }
 
-        if (request.GlobalStreamLimit != null && request.GlobalStreamLimit >= 0 && request.GlobalStreamLimit != currentSetting.GlobalStreamLimit)
+        if (request.Parameters.GlobalStreamLimit.HasValue && request.Parameters.GlobalStreamLimit >= 0)
         {
-            currentSetting.GlobalStreamLimit = (int)request.GlobalStreamLimit;
+            currentSetting.GlobalStreamLimit = request.Parameters.GlobalStreamLimit.Value;
         }
 
-        if (request.NameRegex != null)
+        if (request.Parameters.NameRegex != null)
         {
-            currentSetting.NameRegex = request.NameRegex;
+            currentSetting.NameRegex = request.Parameters.NameRegex;
         }
 
-        if (request.StreamingProxyType != null && request.StreamingProxyType != currentSetting.StreamingProxyType)
-        {
-            currentSetting.StreamingProxyType = (StreamingProxyTypes)request.StreamingProxyType;
-        }
-
-        if (request.AuthenticationMethod != null && request.AuthenticationMethod != currentSetting.AuthenticationMethod)
+        if (request.Parameters.AuthenticationMethod != null && request.Parameters.AuthenticationMethod != currentSetting.AuthenticationMethod)
         {
             needsLogOut = true;
-            currentSetting.AuthenticationMethod = (AuthenticationType)request.AuthenticationMethod;
+            currentSetting.AuthenticationMethod = request.Parameters.AuthenticationMethod;
         }
 
-        if (needsSetProgrammes)
+        if (request.Parameters.SDSettings?.SDEnabled.HasValue == true)
         {
-            await taskQueue.EPGSync(cancellationToken).ConfigureAwait(false);
+            await backgroundTaskQueue.EPGSync().ConfigureAwait(false);
         }
 
         return needsLogOut;

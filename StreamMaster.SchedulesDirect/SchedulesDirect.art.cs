@@ -1,7 +1,7 @@
 ﻿using SixLabors.ImageSharp;
 
 using StreamMaster.Domain.Dto;
-using StreamMaster.SchedulesDirect.Domain.Enums;
+using StreamMaster.Domain.Enums;
 
 namespace StreamMaster.SchedulesDirect;
 public partial class SchedulesDirect
@@ -29,19 +29,19 @@ public partial class SchedulesDirect
         }
     }
 
-    private void UpdateSeasonIcons(List<MxfSeason> mxfSeasons)
+    private void UpdateSeasonIcons(List<Season> mxfSeasons)
     {
-        foreach (MxfSeason? prog in mxfSeasons.Where(a => a.extras.ContainsKey("artwork")))
+        foreach (Season? prog in mxfSeasons.Where(a => a.extras.ContainsKey("artwork")))
         {
             List<ProgramArtwork> artwork = prog.extras["artwork"];
             UpdateIcons(artwork.Select(a => a.Uri), prog.Title);
         }
     }
-    private void UpdateIcons(List<MxfSeriesInfo> mxfSeriesInfos)
+    private void UpdateIcons(List<SeriesInfo> mxfSeriesInfos)
     {
-        foreach (MxfSeriesInfo? prog in mxfSeriesInfos.Where(a => a.extras.ContainsKey("artwork")))
+        foreach (SeriesInfo? prog in mxfSeriesInfos.Where(a => a.Extras.ContainsKey("artwork")))
         {
-            List<ProgramArtwork> artwork = prog.extras["artwork"];
+            List<ProgramArtwork> artwork = prog.Extras["artwork"];
             UpdateIcons(artwork.Select(a => a.Uri), prog.Title);
         }
     }
@@ -52,14 +52,14 @@ public partial class SchedulesDirect
             return;
         }
 
-        List<IconFileDto> icons = iconService.GetIcons();
+        List<LogoFileDto> icons = logoService.GetLogos();
 
         if (icons.Any(a => a.SMFileType == SMFileTypes.SDImage && a.Source == artworkUri))
         {
             return;
         }
 
-        iconService.AddIcon(new IconFileDto { Source = artworkUri, SMFileType = SMFileTypes.SDImage, Name = title });
+        logoService.AddLogo(new LogoFileDto { Source = artworkUri, SMFileType = SMFileTypes.SDImage, Name = title });
 
     }
 
@@ -70,7 +70,7 @@ public partial class SchedulesDirect
             return;
         }
 
-        List<IconFileDto> icons = iconService.GetIcons(SMFileTypes.SDImage);
+        List<LogoFileDto> icons = logoService.GetLogos(SMFileTypes.SDImage);
 
         foreach (string artworkUri in artworkUris)
         {
@@ -80,6 +80,6 @@ public partial class SchedulesDirect
             }
             AddIcon(artworkUri, title);
         }
-        //iconService.SetIndexes();
+        //logoService.SetIndexes();
     }
 }

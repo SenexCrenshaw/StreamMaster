@@ -1,0 +1,184 @@
+.sm-overlay {
+    font-size: $common-font-size;
+    background-color: var(--surface-ground);
+    transition: none;
+
+    .p-float-label {
+        font-size: $common-font-size;
+    }
+}
+
+.sm-overlay-transition {
+    transition: all 0.3s ease !important;
+}
+
+.sm-dialog {
+    @extend .sm-overlay;
+    padding: $layoutPadding*2;
+}
+
+.sm-card {
+    background-color: var(--surface-ground);
+    padding: 0rem;
+
+    .sm-card-header {
+        @extend .sm-border;
+        background-color: $tableHeaderBg !important;
+    }
+
+    .sm-card-info {
+        @extend .sm-border;
+        background-color: $headerBg !important;
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+    }
+
+    .sm-card-children {
+        @extend .sm-border;
+        background-color: $headerBg !important;
+    }
+
+
+    .sm-card-children-info {
+        background-color: $headerBg !important;
+        display: flex;
+        align-items: center;
+        padding-bottom: 0.75rem;
+        padding-top: 0.75rem;
+        padding-left: $headerTextLeft !important;
+        height: $input-height-with-no-borders !important;
+        border-top-left-radius: $borderRadius;
+        border-top-right-radius: $borderRadius;
+        border-top-style: solid;
+        border-top-width: 1px;
+    }
+
+    .sm-card-children-content {
+        // @extend .sm-padding-xlg;
+        // background-color: $headerBg !important;
+        padding: 0.4rem;
+
+        .p-datatable-wrapper {
+            border: unset !important;
+        }
+
+        .p-datatable-table {
+            border: unset !important;
+        }
+
+        // .p-dropdown {
+        //     height: 0;
+        //     max-width: 0;
+        // }
+    }
+
+
+}
+
+.sm-card-simple {
+    @extend .sm-card;
+
+    // .sm-card-children {
+    //     // border: unset !important;
+    //     // background-color: unset !important;
+    //     background-color: $headerBg !important;
+    // }
+
+    .sm-card-children-info {
+        // background-color: $headerBg !important;
+        // display: flex;
+        // align-items: center;
+        // padding-bottom: 0.75rem;
+        // padding-top: 0.75rem;
+        // padding-left: $headerTextLeft !important;
+        // height: $input-height-with-no-borders !important;
+        @extend .sm-border;
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+    }
+
+    .sm-card-children-info-noborder {
+        background-color: $headerBg !important;
+        display: flex;
+        align-items: center;
+        padding-bottom: 0.75rem;
+        padding-top: 0.75rem;
+        padding-left: $headerTextLeft !important;
+        height: $input-height-with-no-borders !important;
+        border-top-left-radius: $borderRadius;
+        border-top-right-radius: $borderRadius;
+        border-top-style: solid;
+        border-top-width: 1px;
+    }
+
+    .sm-card-children-content {
+        // @extend .sm-padding-xlg;
+        // background-color: $headerBg !important;
+        padding: 0;
+
+        .p-datatable-wrapper {
+            border: unset !important;
+        }
+
+        .p-datatable-table {
+            border: unset !important;
+        }
+
+        // .p-dropdown {
+        //     height: 0;
+        //     max-width: 0;
+        // }
+    }
+}
+
+.sm-card-dark {
+    @extend .sm-card;
+
+    .dialog-padding {
+        @extend .sm-padding-xlg;
+    }
+
+    .sm-card-header {
+        // background-color: unset !important;
+    }
+
+    .sm-card-info {
+        // // background-color: unset !important;
+        // border-style: none !important;
+        // border-bottom-left-radius: $borderRadius !important;
+        // border-bottom-right-radius: $borderRadius !important;
+    }
+
+    .sm-card-children-info {
+        background-color: $headerBg !important;
+        display: flex;
+        align-items: center;
+        padding-bottom: 0.75rem;
+        padding-top: 0.75rem;
+        padding-left: $headerTextLeft !important;
+        height: $input-height-with-no-borders !important;
+    }
+
+    .sm-card-children {
+        border: unset !important;
+        background-color: unset !important;
+    }
+
+    .sm-card-children-content {
+
+        background-color: unset !important;
+        padding: 0;
+    }
+}
+
+.sm-card-children-noborder {
+    .p-datatable {
+        @extend .sm-border;
+    }
+
+    .sm-card-children-info {
+        @extend .sm-border;
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+    }
+}

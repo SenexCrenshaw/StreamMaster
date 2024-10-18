@@ -1,7 +1,4 @@
-﻿using StreamMaster.Domain.Configuration;
-using StreamMaster.Domain.Models;
-using StreamMaster.SchedulesDirect.Domain.Enums;
-using StreamMaster.SchedulesDirect.Helpers;
+﻿using StreamMaster.Domain.Models;
 
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -22,12 +19,15 @@ public class EPGCache<T> : IEPGCache<T>
 
     public EPGCache(ILogger<EPGCache<T>> logger,
                     ISchedulesDirectDataService schedulesDirectDataService,
-                    IOptionsMonitor<SDSettings> intsettings)
+                    IOptionsMonitor<SDSettings> intSettings)
     {
-        sdsettings = intsettings.CurrentValue;
+        sdsettings = intSettings.CurrentValue;
         this.logger = logger;
         this.schedulesDirectDataService = schedulesDirectDataService;
-        LoadCache();
+        if (intSettings.CurrentValue.SDEnabled)
+        {
+            LoadCache();
+        }
     }
 
     private string GetFilename()
@@ -50,7 +50,7 @@ public class EPGCache<T> : IEPGCache<T>
 
             JsonSerializerOptions jsonSerializerOptions = new()
             {
-                // Add any desired JsonSerializerOptions here
+                // Add any desired JsonIndentOptions here
                 // For example, to ignore null values during serialization:
                 DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
             };
@@ -236,7 +236,7 @@ public class EPGCache<T> : IEPGCache<T>
         isDirty = false;
     }
 
-    public async Task<T?> GetValidCachedDataAsync<T>(string name, CancellationToken cancellationToken = default)
+    public async Task<T?> GetValidCachedDataAsync(string name, CancellationToken cancellationToken = default)
     {
         //return default;
         await _cacheSemaphore.WaitAsync(cancellationToken);
@@ -254,7 +254,7 @@ public class EPGCache<T> : IEPGCache<T>
 
             return cacheEntry != null && (DateTime.Now - cacheEntry.Timestamp) <= CacheDuration ? cacheEntry.Data : default;
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             return default;
         }
@@ -264,7 +264,7 @@ public class EPGCache<T> : IEPGCache<T>
         }
     }
 
-    public async Task WriteToCacheAsync<T>(string name, T data, CancellationToken cancellationToken = default)
+    public async Task WriteToCacheAsync(string name, T data, CancellationToken cancellationToken = default)
     {
         await _cacheSemaphore.WaitAsync(cancellationToken);
         try
@@ -314,15 +314,14 @@ public class EPGCache<T> : IEPGCache<T>
         else
         {
             string aspect = sdsettings.SeriesPosterArt ? "2x3" : sdsettings.SeriesWsArt ? "16x9" : sdsettings.SeriesPosterAspect;
-            image = artwork.SingleOrDefault(arg => arg.Aspect.ToLower().Equals(aspect));
+            image = artwork.FirstOrDefault(arg => arg.Aspect.ToLower().Equals(aspect));
         }
 
         if (image == null && type == ImageType.Series)
         {
-            image = artwork.SingleOrDefault(arg => arg.Aspect.ToLower().Equals("4x3"));
+            image = artwork.FirstOrDefault(arg => arg.Aspect.Equals("4x3", StringComparison.OrdinalIgnoreCase));
         }
         ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
         return image != null ? schedulesDirectData.FindOrCreateGuideImage(image.Uri) : null;
     }
 }
-

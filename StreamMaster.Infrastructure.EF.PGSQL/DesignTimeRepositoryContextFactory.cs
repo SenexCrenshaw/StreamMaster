@@ -6,7 +6,6 @@ namespace StreamMaster.Infrastructure.EF.PGSQL;
 
 public class DesignTimeRepositoryContextFactory : IDesignTimeDbContextFactory<PGSQLRepositoryContext>
 {
-
     public PGSQLRepositoryContext CreateDbContext(string[] args)
     {
         IServiceCollection services = new ServiceCollection();
@@ -14,6 +13,6 @@ public class DesignTimeRepositoryContextFactory : IDesignTimeDbContextFactory<PG
         _ = services.AddDbContext<PGSQLRepositoryContext>(options => options.UseNpgsql(PGSQLRepositoryContext.DbConnectionString, o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)));
 
         PGSQLRepositoryContext? context = services.BuildServiceProvider().GetService<PGSQLRepositoryContext>();
-        return context == null ? throw new ApplicationException("Couldnt create context") : context;
+        return context ?? throw new ApplicationException("Couldnt create context");
     }
 }

@@ -10,8 +10,6 @@ public class AutoUpdateEntity : CacheEntity
     }
 
     public bool AutoUpdate { get; set; }
-    [Column(TypeName = "citext")]
-    public string Description { get; set; } = string.Empty;
     public int HoursToUpdate { get; set; }
     [Column(TypeName = "citext")]
     public string? Url { get; set; }

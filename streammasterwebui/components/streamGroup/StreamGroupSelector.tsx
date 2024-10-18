@@ -1,67 +1,76 @@
-import { StreamGroupDto, StreamGroupsGetPagedStreamGroupsApiArg, useStreamGroupsGetPagedStreamGroupsQuery } from '@lib/iptvApi';
-import { Dropdown } from 'primereact/dropdown';
-import { type SelectItem } from 'primereact/selectitem';
-import { useMemo, useRef, useState } from 'react';
+import SMDropDown from '@components/sm/SMDropDown';
+import useGetStreamGroups from '@lib/smAPI/StreamGroups/useGetStreamGroups';
+import { StreamGroupDto } from '@lib/smAPI/smapiTypes';
+import { useEffect, useMemo, useState } from 'react';
+import StreamGroupCreateDialog from './StreamGroupCreateDialog';
 
-export const StreamGroupSelector = (props: StreamGroupSelectorProperties) => {
-  const elementReference = useRef(null);
+interface StreamGroupSelectorProperties {
+  readonly buttonDisabled?: boolean;
+  readonly label?: string;
+  readonly selectedStreamGroup?: StreamGroupDto;
+  readonly value?: string;
+  readonly zIndex: number;
+  readonly onChange: (value: StreamGroupDto) => void;
+}
 
-  const [selectedStreamGroup, setSelectedStreamGroup] = useState<StreamGroupDto>({} as StreamGroupDto);
+export const StreamGroupSelector = ({ buttonDisabled, label, onChange, selectedStreamGroup, value, zIndex }: StreamGroupSelectorProperties) => {
+  const { data, isLoading } = useGetStreamGroups();
+  const [intSelectedStreamGroup, setIntSelectedStreamGroup] = useState<StreamGroupDto>();
 
-  const streamGroups = useStreamGroupsGetPagedStreamGroupsQuery({} as StreamGroupsGetPagedStreamGroupsApiArg);
-
-  const isDisabled = useMemo((): boolean => {
-    if (streamGroups.isLoading) {
-      return true;
+  useEffect(() => {
+    if (value !== undefined && value !== '' && data && data.length > 0) {
+      var found = data.find((x) => x.Name === value);
+      if (found) {
+        setIntSelectedStreamGroup(found);
+      }
+      return;
     }
-
-    return false;
-  }, [streamGroups.isLoading]);
+    if (selectedStreamGroup) {
+      setIntSelectedStreamGroup(selectedStreamGroup);
+    }
+  }, [data, selectedStreamGroup, value]);
 
   const onDropdownChange = (sg: StreamGroupDto) => {
     if (!sg) return;
-
-    setSelectedStreamGroup(sg);
-    props?.onChange?.(sg);
+    if (intSelectedStreamGroup && sg.Id === intSelectedStreamGroup.Id) return;
+    onChange?.(sg);
   };
 
-  const getOptions = useMemo((): SelectItem[] => {
-    if (!streamGroups.data) {
-      return [
-        {
-          label: 'Loading...',
-          value: {} as StreamGroupDto
-        } as SelectItem
-      ];
-    }
+  const buttonTemplate = useMemo(() => {
+    return <div className="text-container ">{intSelectedStreamGroup?.Name ?? 'Select Stream Group'}</div>;
+  }, [intSelectedStreamGroup?.Name]);
 
-    const returnValue = streamGroups.data?.data?.map((a) => ({ label: a.name, value: a } as SelectItem));
-
-    returnValue.unshift({
-      label: 'All',
-      value: {} as StreamGroupDto
-    } as SelectItem);
-
-    return returnValue;
-  }, [streamGroups.data]);
+  const headerRightTemplate = useMemo(() => <StreamGroupCreateDialog modal zIndex={12} />, []);
 
   return (
-    <div>
-      <Dropdown
-        className="streamgroupselector"
-        disabled={isDisabled}
-        onChange={(e) => onDropdownChange(e.value)}
-        options={getOptions}
-        placeholder="Stream Group"
-        ref={elementReference}
-        value={selectedStreamGroup}
-      />
-    </div>
+    <SMDropDown
+      buttonDarkBackground
+      buttonDisabled={buttonDisabled}
+      buttonIsLoading={isLoading}
+      buttonLarge
+      buttonTemplate={buttonTemplate}
+      contentWidthSize="2"
+      data={data}
+      dataKey="Id"
+      filter
+      filterBy="Name"
+      header={headerRightTemplate}
+      info=""
+      itemTemplate={(option: StreamGroupDto) => (
+        <div className="sm-epg-selector2">
+          <div className="text-container pl-1 sm-w-15rem">{option?.Name}</div>
+        </div>
+      )}
+      label={label}
+      modal
+      onChange={(e) => {
+        onDropdownChange(e);
+      }}
+      title="Stream Group"
+      value={intSelectedStreamGroup}
+      zIndex={zIndex}
+    />
   );
 };
 
 StreamGroupSelector.displayName = 'StreamGroupSelector';
-
-interface StreamGroupSelectorProperties {
-  readonly onChange: (value: StreamGroupDto) => void;
-}

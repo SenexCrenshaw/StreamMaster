@@ -131,6 +131,9 @@ namespace StreamMaster.Ring.API
                 }
             }
 
+            // Always add the User-Agent header
+            request.Headers.UserAgent.TryParseAdd("android:com.ringapp");
+
             // Set the content for the HTTP request
             request.Content = new FormUrlEncodedContent(formFields);
 

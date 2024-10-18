@@ -1,30 +1,22 @@
-﻿using FluentValidation;
+﻿namespace StreamMaster.Application.EPGFiles.Commands;
 
-namespace StreamMaster.Application.EPGFiles.Commands;
+[SMAPI]
+[TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
+public record RefreshEPGFileRequest(int Id) : IRequest<APIResponse>;
 
-[RequireAll]
-public record RefreshEPGFileRequest(int Id) : IRequest<EPGFileDto?> { }
-
-public class RefreshEPGFileRequestValidator : AbstractValidator<RefreshEPGFileRequest>
-{
-    public RefreshEPGFileRequestValidator()
-    {
-        _ = RuleFor(v => v.Id).NotNull().GreaterThanOrEqualTo(0);
-    }
-}
-
-public class RefreshEPGFileRequestHandler(ILogger<RefreshEPGFileRequest> Logger, IMapper Mapper, IJobStatusService jobStatusService, IRepositoryWrapper Repository, IPublisher Publisher) : IRequestHandler<RefreshEPGFileRequest, EPGFileDto?>
+public class RefreshEPGFileRequestHandler(ILogger<RefreshEPGFileRequest> Logger, IFileUtilService fileUtilService, IMessageService messageService, IMapper Mapper, IJobStatusService jobStatusService, IRepositoryWrapper Repository, IPublisher Publisher)
+    : IRequestHandler<RefreshEPGFileRequest, APIResponse>
 {
 
-    public async Task<EPGFileDto?> Handle(RefreshEPGFileRequest request, CancellationToken cancellationToken)
+    public async Task<APIResponse> Handle(RefreshEPGFileRequest request, CancellationToken cancellationToken)
     {
-        JobStatusManager jobManager = jobStatusService.GetJobManager(JobType.RefreshEPG, request.Id);
+        JobStatusManager jobManager = jobStatusService.GetJobManagerRefreshEPG(request.Id);
         try
         {
 
             if (jobManager.IsRunning)
             {
-                return null;
+                return APIResponse.NotFound;
             }
             jobManager.Start();
 
@@ -33,7 +25,8 @@ public class RefreshEPGFileRequestHandler(ILogger<RefreshEPGFileRequest> Logger,
             if (epgFile == null)
             {
                 jobManager.SetError();
-                return null;
+                await messageService.SendError($"EPG with ID {request.Id} not found");
+                return APIResponse.NotFound;
             }
 
 
@@ -50,7 +43,7 @@ public class RefreshEPGFileRequestHandler(ILogger<RefreshEPGFileRequest> Logger,
 
                     epgFile.LastDownloadAttempt = SMDT.UtcNow;
 
-                    (bool success, Exception? ex) = await FileUtil.DownloadUrlAsync(epgFile.Url, fullName, cancellationToken).ConfigureAwait(false);
+                    (bool success, Exception? ex) = await fileUtilService.DownloadUrlAsync(epgFile.Url, fullName).ConfigureAwait(false);
                     if (success)
                     {
                         epgFile.DownloadErrors = 0;
@@ -61,6 +54,7 @@ public class RefreshEPGFileRequestHandler(ILogger<RefreshEPGFileRequest> Logger,
                     {
                         ++epgFile.DownloadErrors;
                         Logger.LogCritical("Exception EPG From URL {ex}", ex);
+                        await messageService.SendError("Exception EPG From URL {ex}", ex);
                     }
                 }
             }
@@ -75,13 +69,14 @@ public class RefreshEPGFileRequestHandler(ILogger<RefreshEPGFileRequest> Logger,
             await Publisher.Publish(new EPGFileAddedEvent(toPublish), cancellationToken).ConfigureAwait(false);
 
             jobManager.SetSuccessful();
-            return toPublish;
+            await messageService.SendSuccess($"Refreshed EPG {epgFile.Name}");
+            return APIResponse.Success;
 
         }
-        catch
+        catch (Exception ex)
         {
             jobManager.SetError();
-            return null;
+            return APIResponse.ErrorWithMessage(ex, "Refresh EPG failed");
         }
 
     }

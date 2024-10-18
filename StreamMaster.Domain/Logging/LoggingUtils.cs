@@ -2,9 +2,9 @@
 
 namespace StreamMaster.Domain.Logging;
 
-public class LoggingUtils(IOptionsMonitor<Setting> intsettings) : ILoggingUtils
+public class LoggingUtils(IOptionsMonitor<Setting> intSettings) : ILoggingUtils
 {
-    private readonly Setting settings = intsettings.CurrentValue;
+    private readonly Setting settings = intSettings.CurrentValue;
     private bool? _cleanUrlsCache;
 
     public string GetLoggableURL(string sourceUrl)
@@ -12,23 +12,20 @@ public class LoggingUtils(IOptionsMonitor<Setting> intsettings) : ILoggingUtils
         if (!_cleanUrlsCache.HasValue)
         {
             // This will block the calling thread. Be cautious using this in a main thread or UI thread.
-            _cleanUrlsCache = LoadCleanUrlsSettingAsync().Result;
+            _cleanUrlsCache = LoadCleanUrlsSetting;
         }
 
         return _cleanUrlsCache.Value ? "url removed" : sourceUrl;
     }
 
 
-    private async Task<bool> LoadCleanUrlsSettingAsync()
-    {
-        return settings.CleanURLs;
-    }
+    private bool LoadCleanUrlsSetting => settings.CleanURLs;
 
     public async Task<string> GetLoggableURLAsync(string sourceUrl)
     {
         if (!_cleanUrlsCache.HasValue)
         {
-            _cleanUrlsCache = await LoadCleanUrlsSettingAsync();
+            _cleanUrlsCache = LoadCleanUrlsSetting;
         }
 
         return _cleanUrlsCache.Value ? "\'URL Removed\'" : sourceUrl;

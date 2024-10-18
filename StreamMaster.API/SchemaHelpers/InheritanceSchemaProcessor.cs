@@ -2,7 +2,7 @@
 
 using StreamMaster.Domain.Attributes;
 
-namespace StreamMasterAPI.SchemaHelpers;
+namespace StreamMaster.API.SchemaHelpers;
 
 public class InheritanceSchemaProcessor : ISchemaProcessor
 {

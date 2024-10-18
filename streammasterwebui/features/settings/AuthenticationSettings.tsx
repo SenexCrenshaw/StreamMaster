@@ -1,48 +1,44 @@
-import { GetMessage } from '@lib/common/common';
-import { AuthenticationType } from '@lib/common/streammaster_enums';
-import useSettings from '@lib/useSettings';
-import { Button } from 'primereact/button';
+import SMButton from '@components/sm/SMButton';
+import { GetMessage } from '@lib/common/intl';
+import { useSettingsContext } from '@lib/context/SettingsProvider';
+import { useSMContext } from '@lib/context/SMProvider';
+import { AuthenticationType } from '@lib/smAPI/smapiTypes';
 import { Fieldset } from 'primereact/fieldset';
 import { SelectItem } from 'primereact/selectitem';
 import React, { useMemo } from 'react';
-import { getDropDownLine } from './getDropDownLine';
-import { getInputTextLine } from './getInputTextLine';
-import { getPasswordLine } from './getPasswordLine';
-import { useSettingChangeHandler } from './useSettingChangeHandler';
+import { BaseSettings } from './BaseSettings';
+import { GetDropDownLine } from './components/GetDropDownLine';
+import { GetInputTextLine } from './components/GetInputTextLine';
+import { GetPasswordLine } from './components/GetPasswordLine';
 
 export function AuthenticationSettings(): React.ReactElement {
-  const setting = useSettings();
-  const { onChange, selectedCurrentSettingDto } = useSettingChangeHandler();
+  const { settings } = useSMContext();
+  const { currentSetting } = useSettingsContext();
 
   const adminUserNameError = useMemo((): string | undefined => {
-    if (selectedCurrentSettingDto?.authenticationMethod === AuthenticationType.Forms && selectedCurrentSettingDto?.adminUserName === '')
-      return GetMessage('formsAuthRequiresAdminUserName');
+    if (currentSetting?.AuthenticationMethod !== 'None' && currentSetting?.AdminUserName === '') return GetMessage('formsAuthRequiresAdminUserName');
 
     return undefined;
-  }, [selectedCurrentSettingDto?.adminUserName, selectedCurrentSettingDto?.authenticationMethod]);
+  }, [currentSetting]);
 
   const adminPasswordError = useMemo((): string | undefined => {
-    if (selectedCurrentSettingDto?.authenticationMethod === AuthenticationType.Forms && selectedCurrentSettingDto?.adminPassword === '')
-      return GetMessage('formsAuthRequiresAdminPassword');
+    if (currentSetting?.AuthenticationMethod !== 'None' && currentSetting?.AdminPassword === '') return GetMessage('formsAuthRequiresAdminPassword');
 
     return undefined;
-  }, [selectedCurrentSettingDto?.adminPassword, selectedCurrentSettingDto?.authenticationMethod]);
+  }, [currentSetting]);
 
   const getAuthTypeOptions = (): SelectItem[] => {
-    const test = Object.entries(AuthenticationType)
-      .splice(0, Object.keys(AuthenticationType).length / 2)
-      .map(
-        ([number, word]) =>
-          ({
-            label: word,
-            value: number
-          } as SelectItem)
-      );
+    const options = Object.keys(AuthenticationType)
+      .filter((key) => isNaN(Number(key)))
+      .map((key) => ({
+        label: key,
+        value: AuthenticationType[key as keyof typeof AuthenticationType]
+      }));
 
-    return test;
+    return options;
   };
 
-  if (selectedCurrentSettingDto === null || selectedCurrentSettingDto === undefined) {
+  if (currentSetting === null || currentSetting === undefined) {
     return (
       <Fieldset className="mt-4 pt-10" legend={GetMessage('SD')}>
         <div className="text-center">{GetMessage('loading')}</div>
@@ -51,27 +47,27 @@ export function AuthenticationSettings(): React.ReactElement {
   }
 
   return (
-    <Fieldset className="mt-4 pt-10" legend={GetMessage('authentication')} toggleable>
-      {getInputTextLine({ field: 'apiKey', selectedCurrentSettingDto, onChange })}
-      {getDropDownLine({ field: 'authenticationMethod', options: getAuthTypeOptions(), selectedCurrentSettingDto, onChange })}
-      {getInputTextLine({ field: 'adminUserName', warning: adminUserNameError, selectedCurrentSettingDto, onChange })}
-      {getPasswordLine({ field: 'adminPassword', warning: adminPasswordError, selectedCurrentSettingDto, onChange })}
-      <div className="flex col-12">
-        <div className="flex col-2 col-offset-1">
-          <span>{GetMessage('signout')}</span>
+    <BaseSettings title="AUTHENTICATION">
+      <>
+        {/* {getInputTextLine({  field: 'ApiKey', onChange })} */}
+        {GetDropDownLine({ field: 'AuthenticationMethod', options: getAuthTypeOptions() })}
+        {/* {GetCheckBoxLine({ field: 'AuthenticationMethod', label: 'Require HTTPS' })} */}
+        {GetInputTextLine({ field: 'AdminUserName', warning: adminUserNameError })}
+        {GetPasswordLine({ field: 'AdminPassword', labelInline: true, warning: adminPasswordError })}
+        <div className="flex w-12 settings-line justify-content-end align-items-center">
+          <div className="w-6">
+            <SMButton
+              buttonDisabled={!settings.AuthenticationMethod || settings.AuthenticationMethod === 'None'}
+              icon="pi-sign-out"
+              label={GetMessage('signout')}
+              onClick={() => (window.location.href = '/logout')}
+              rounded
+              iconFilled
+              buttonClassName="icon-green"
+            />
+          </div>
         </div>
-        <div className="flex col-3 m-0 p-0 debug">
-          <Button
-            disabled={!setting.authenticationType || (setting.authenticationType as number) === 0}
-            icon="pi pi-check"
-            label={GetMessage('signout')}
-            onClick={() => (window.location.href = '/logout')}
-            rounded
-            severity="success"
-            size="small"
-          />
-        </div>
-      </div>
-    </Fieldset>
+      </>
+    </BaseSettings>
   );
 }

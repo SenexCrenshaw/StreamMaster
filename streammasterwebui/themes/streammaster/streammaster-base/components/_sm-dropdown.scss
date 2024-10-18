@@ -1,0 +1,14 @@
+.sm-dropdown {
+    @extend .sm-hover;
+    align-items: center;
+    border-color: transparent;
+    border-style: solid;
+    border-width: $inputBorder-size;
+    display: flex;
+    height: $input-height-with-no-borders !important;
+    justify-content: start;
+    max-height: $input-height-with-no-borders !important;
+    min-height: $input-height-with-no-borders !important;
+
+
+}

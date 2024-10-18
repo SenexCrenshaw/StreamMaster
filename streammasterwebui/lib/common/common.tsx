@@ -1,15 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { type ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
-import ExportButton from '@components/export/ExportButton';
-import GlobalSearch from '@components/search/GlobalSearch';
-import { SMFileTypes } from '@lib/common/streammaster_enums';
-import { StationIdLineup, StationPreview, type IconFileDto, type VideoStreamDto } from '@lib/iptvApi';
+// import ExportButton from '@components/export/ExportButton';
+
+import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
+import { SMFileTypes, StationIdLineup, StationPreview } from '@lib/smAPI/smapiTypes';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { Checkbox } from 'primereact/checkbox';
 import { type DataTableFilterMeta, type DataTableFilterMetaData } from 'primereact/datatable';
 import { type TooltipOptions } from 'primereact/tooltip/tooltipoptions';
 import * as React from 'react';
-import { FormattedMessage, useIntl } from 'react-intl';
+import { FormattedMessage } from 'react-intl';
 import { baseHostURL, isDev as isDevelopment } from '../settings';
 import { getColor } from './colors';
 
@@ -48,6 +47,12 @@ export const getLeftToolOptions = {
   position: 'left',
   showDelay: 400
 } as TooltipOptions;
+export const getRightToolOptions = {
+  autoHide: true,
+  hideDelay: 100,
+  position: 'right',
+  showDelay: 400
+} as TooltipOptions;
 <FormattedMessage defaultMessage="Stream Master" id="app.title" />;
 
 export function compareStationPreviews(source: StationPreview[], changes: StationPreview[]): { added: StationPreview[]; removed: StationPreview[] } {
@@ -56,14 +61,14 @@ export function compareStationPreviews(source: StationPreview[], changes: Statio
 
   // Find added items by comparing the id property
   for (const change of changes) {
-    if (!source.some((src) => src.id === change.id)) {
+    if (!source.some((src) => src.Id === change.Id)) {
       added.push(change);
     }
   }
 
   // Find removed items by comparing the id property
   for (const src of source) {
-    if (!changes.some((change) => change.id === src.id)) {
+    if (!changes.some((change) => change.Id === src.Id)) {
       removed.push(src);
     }
   }
@@ -75,7 +80,7 @@ export const hasValidAdditionalProps = (additionalFilterProperties: AdditionalFi
 
 export function getChannelGroupMenuItem(colorIndex: string | undefined, toDisplay: string): React.ReactNode {
   return (
-    <div className="gap-2">
+    <div className="gap-1">
       <div>
         <i className="pi pi-circle-fill pr-2" style={{ color: getColor(colorIndex ?? '') }} />
         {toDisplay}
@@ -83,6 +88,7 @@ export function getChannelGroupMenuItem(colorIndex: string | undefined, toDispla
     </div>
   );
 }
+
 export type MatchMode =
   | 'between'
   | 'contains'
@@ -101,6 +107,8 @@ export type MatchMode =
   | 'notContains'
   | 'notEquals'
   | 'startsWith'
+  | 'inSG'
+  | 'notInSG'
   | undefined;
 
 export function areFilterMetaEqual(a: DataTableFilterMeta, b: DataTableFilterMeta): boolean {
@@ -149,27 +157,10 @@ export function toCamelCase(string_: string): string {
 //   return message;
 // }
 
-export function GetMessage(...arguments_: string[]): string {
-  const intl = useIntl();
-
-  if (arguments_ === undefined || arguments_.length === 0 || arguments_[0] === '') {
-    return '';
-  }
-  const ids: string[] = arguments_.flatMap((argument) => argument.split(' '));
-
-  const message = ids.map((x) => intl.formatMessage({ id: x })).join(' ');
-
-  if (message === toCamelCase(message)) {
-    return arguments_.join('');
-  }
-
-  return message;
-}
-
 export interface AdditionalFilterProperties {
   field: string;
   matchMode: MatchMode;
-  values: string[] | undefined;
+  values: any | undefined;
 }
 
 export function areAdditionalFilterPropsEqual(a: AdditionalFilterProperties | undefined, b: AdditionalFilterProperties | undefined): boolean {
@@ -269,88 +260,14 @@ export interface SimpleQueryApiArgument {
   pageSize?: number;
 }
 
-export interface GetApiArgument {
-  count?: number;
-  first?: number;
-  jsonArgumentString?: string | null;
-  jsonFiltersString?: string | null;
-  last?: number;
-  name?: string;
-  orderBy?: string;
-  pageNumber?: number;
-  pageSize?: number;
-  streamGroupId?: number | undefined;
-}
-
 export interface IDIsHidden {
   id: string;
   isHidden: boolean;
 }
 
-const compareProperties = (propertyName: keyof GetApiArgument, object1: GetApiArgument, object2: GetApiArgument) => {
-  const value1 = object1[propertyName];
-  const value2 = object2[propertyName];
-
-  const result = value1 === value2 || (value1 === undefined && value2 === undefined);
-
-  return result;
-};
-
-export function areGetApiArgsEqual(object1?: GetApiArgument, object2?: GetApiArgument): boolean {
-  // Handle cases where one or both arguments are undefined
-  if (!object1 && !object2) return true;
-  if (!object1 || !object2) return false;
-
-  return (
-    compareProperties('count', object1, object2) &&
-    compareProperties('first', object1, object2) &&
-    compareProperties('jsonArgumentString', object1, object2) &&
-    compareProperties('jsonFiltersString', object1, object2) &&
-    compareProperties('last', object1, object2) &&
-    compareProperties('name', object1, object2) &&
-    compareProperties('orderBy', object1, object2) &&
-    compareProperties('pageNumber', object1, object2) &&
-    compareProperties('pageSize', object1, object2) &&
-    compareProperties('streamGroupId', object1, object2)
-  );
-}
-
-interface QueryHookResult<T> {
-  data?: T;
-  isError: boolean;
-  isFetching: boolean;
-  isLoading: boolean;
-}
-
-export interface QueryHook<T> {
-  (): QueryHookResult<T>;
-}
-
 export interface HasId {
   [key: string]: any;
   id: number | string;
-}
-
-export function compareIconFileDto(a: IconFileDto, b: IconFileDto): number {
-  // Compare by id
-  if (a.id !== undefined && b.id !== undefined) {
-    if (a.id < b.id) return -1;
-    if (a.id > b.id) return 1;
-  }
-
-  // Compare by source
-  if (a.source !== undefined && b.source !== undefined) {
-    const sourceComparison = a.source.localeCompare(b.source);
-
-    if (sourceComparison !== 0) return sourceComparison;
-  }
-
-  // Compare by name
-  if (a.name !== undefined && b.name !== undefined) {
-    return a.name.localeCompare(b.name);
-  }
-
-  return 0;
 }
 
 export function arraysContainSameStrings(array1: string[] | undefined, array2: string[] | undefined): boolean {
@@ -372,20 +289,6 @@ export function arraysContainSameStrings(array1: string[] | undefined, array2: s
   return true;
 }
 
-export function areIconFileDtosEqual(array1: IconFileDto[], array2: IconFileDto[]): boolean {
-  if (array1.length !== array2.length) {
-    return false;
-  }
-
-  for (const [index, element] of array1.entries()) {
-    if (compareIconFileDto(element, array2[index]) !== 0) {
-      return false;
-    }
-  }
-
-  return true;
-}
-
 export type SMDataTableFilterMetaData = DataTableFilterMetaData & {
   fieldName: string;
   matchMode: MatchMode;
@@ -400,46 +303,6 @@ export const doSetsContainSameIds = (set1: Set<number | string>, set2: Set<numbe
 
   return true;
 };
-
-export function isVideoStreamDto(value: unknown): value is VideoStreamDto {
-  // Perform the necessary type checks to determine if 'value' is of type 'VideoStreamDto'
-  if (typeof value === 'object' && value !== null) {
-    const dto = value as VideoStreamDto;
-
-    return dto.rank !== undefined;
-  }
-
-  return false;
-}
-
-export const GetMessageDiv = (id: string, upperCase?: boolean | null): React.ReactNode => {
-  const intl = useIntl();
-  const message = intl.formatMessage({ id });
-
-  if (upperCase) {
-    return <div>{message.toUpperCase()}</div>;
-  }
-
-  return <div>{message}</div>;
-};
-
-export function areVideoStreamsEqual(streams1: VideoStreamDto[] | VideoStreamDto[], streams2: VideoStreamDto[] | VideoStreamDto[]): boolean {
-  if (streams1.length !== streams2.length) {
-    return false;
-  }
-
-  for (const [index, element] of streams1.entries()) {
-    if (element.id !== streams2[index].id) {
-      return false;
-    }
-
-    if (isVideoStreamDto(element) && isVideoStreamDto(streams2[index]) && (element as VideoStreamDto).rank !== (streams2[index] as VideoStreamDto).rank) {
-      return false;
-    }
-  }
-
-  return true;
-}
 
 export function isValidUrl(string: string): boolean {
   try {
@@ -471,21 +334,6 @@ export const camel2title = (camelCase: string): string =>
     .replace(/^./, (match) => match.toUpperCase())
     .trim();
 
-export function formatJSONDateString(jsonDate: string | undefined): string {
-  if (!jsonDate) return '';
-  const date = new Date(jsonDate);
-  const returnValue = date.toLocaleDateString('en-US', {
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    month: '2-digit',
-    second: '2-digit',
-    year: 'numeric'
-  });
-
-  return returnValue;
-}
-
 export const FormatDuration = ({ duration }: { duration: string | undefined }) => {
   console.log('duration', duration);
   if (!duration) return <div />;
@@ -508,31 +356,31 @@ function getApiUrl(path: SMFileTypes, originalUrl: string): string {
 }
 
 export function findDifferenceStationIdLineUps(firstArray: StationIdLineup[], secondArray: StationIdLineup[]): StationIdLineup[] {
-  const missingFromFirst = secondArray.filter((item2) => !firstArray.some((item1) => item2.lineup === item1.lineup && item2.stationId === item1.stationId));
-  const missingFromSecond = firstArray.filter((item1) => !secondArray.some((item2) => item1.lineup === item2.lineup && item1.stationId === item2.stationId));
+  const missingFromFirst = secondArray.filter((item2) => !firstArray.some((item1) => item2.Lineup === item1.Lineup && item2.StationId === item1.StationId));
+  const missingFromSecond = firstArray.filter((item1) => !secondArray.some((item2) => item1.Lineup === item2.Lineup && item1.StationId === item2.StationId));
 
   return [...missingFromFirst, ...missingFromSecond];
 }
-export const arraysMatch = (array1: string[], array2: string[]): boolean => {
-  if (array1.length !== array2.length) {
-    return false;
-  }
+// export const arraysMatch = (array1: string[], array2: string[]): boolean => {
+//   if (array1.length !== array2.length) {
+//     return false;
+//   }
 
-  // Sort both arrays using localeCompare for proper string comparison
-  const sortedArray1 = [...array1].sort((a, b) => a.localeCompare(b));
-  const sortedArray2 = [...array2].sort((a, b) => a.localeCompare(b));
+//   // Sort both arrays using localeCompare for proper string comparison
+//   const sortedArray1 = [...array1].sort((a, b) => a.localeCompare(b));
+//   const sortedArray2 = [...array2].sort((a, b) => a.localeCompare(b));
 
-  // Compare the sorted arrays element by element
-  for (const [index, element] of sortedArray1.entries()) {
-    if (element !== sortedArray2[index]) {
-      return false;
-    }
-  }
+//   // Compare the sorted arrays element by element
+//   for (const [index, element] of sortedArray1.entries()) {
+//     if (element !== sortedArray2[index]) {
+//       return false;
+//     }
+//   }
 
-  return true;
-};
+//   return true;
+// };
 
-export function getIconUrl(iconOriginalSource: string | null | undefined, defaultIcon: string, cacheIcon: boolean): string {
+export function getIconUrl(iconOriginalSource: string | null | undefined, defaultIcon: string, cacheIcon: boolean, fileType: SMFileTypes | null): string {
   if (!iconOriginalSource || iconOriginalSource === '') {
     iconOriginalSource = `${isDevelopment ? `${baseHostURL}/` : '/'}${defaultIcon}`;
   }
@@ -543,16 +391,26 @@ export function getIconUrl(iconOriginalSource: string | null | undefined, defaul
     iconOriginalSource = iconOriginalSource.slice(1);
   }
 
+  const customPlayListString = SMFileTypes[SMFileTypes.CustomPlayList];
+  if (fileType !== null && (fileType === SMFileTypes.CustomPlayList || fileType.toString() === customPlayListString)) {
+    iconOriginalSource = getApiUrl(SMFileTypes.CustomPlayList, originalUrl);
+    return iconOriginalSource;
+  }
+
   if (iconOriginalSource.startsWith('images/')) {
-    iconOriginalSource = `${isDevelopment ? `${baseHostURL}/` : ''}${iconOriginalSource}`;
+    iconOriginalSource = `${isDevelopment ? `${baseHostURL}/` : '/'}${iconOriginalSource}`;
   } else if (!iconOriginalSource.startsWith('http')) {
     iconOriginalSource = getApiUrl(SMFileTypes.TvLogo, originalUrl);
   } else if (cacheIcon) {
-    iconOriginalSource = getApiUrl(SMFileTypes.Icon, originalUrl);
+    iconOriginalSource = getApiUrl(SMFileTypes.Logo, originalUrl);
   }
 
   return iconOriginalSource;
 }
+
+export const isNumber = (value: any): value is number => {
+  return typeof value === 'number' && !isNaN(value);
+};
 
 export const removeQuotes = (string_: string) => (string_.startsWith('"') && string_.endsWith('"') ? string_.slice(1, -1) : string_);
 export const hasColumns = (columns?: ColumnMeta[]) => columns && columns.length > 0;
@@ -623,34 +481,12 @@ export const getColumnClass = (size?: number, secondSize?: number) => {
 export const HeaderLeft: React.FC<{ readonly props: any }> = ({ props }) => (
   <div
     className={`flex debug flex-nowrap justify-content-end header p-0 m-0 align-items-center ${
-      props?.headerLeftTemplate ? getColumnClass(props.leftColSize, 4) : 'col-1'
+      props?.headerLeftTemplate ? getColumnClass(props.leftColSize, 4) : ''
     }`}
-  >
-    {props.headerLeftTemplate}
-  </div>
+  ></div>
 );
 
-export const GlobalSearchComponent: React.FC<{
-  readonly clearSourceFilter: any;
-  readonly globalSearchName: string;
-  readonly globalSourceFilterValue: string;
-  readonly onGlobalSourceFilterChange: any;
-  readonly props: any;
-}> = ({ clearSourceFilter, props, globalSearchName, globalSourceFilterValue, onGlobalSourceFilterChange }) =>
-  // eslint-disable-next-line react/prop-types
-  props.globalSearchEnabled && (
-    <GlobalSearch
-      clearSourceFilter={clearSourceFilter}
-      // eslint-disable-next-line react/prop-types
-      columns={props.columns}
-      globalSearchName={globalSearchName}
-      globalSourceFilterValue={globalSourceFilterValue}
-      onGlobalSourceFilterChange={onGlobalSourceFilterChange}
-    />
-  );
-
-export const ExportComponent: React.FC<{ readonly exportCSV: any }> = ({ exportCSV }) => <ExportButton exportCSV={exportCSV} />;
-
+// export const ExportComponent: React.FC<{ readonly exportCSV: any }> = ({ exportCSV }) => <ExportButton exportCSV={exportCSV} />;
 export interface UserInformation {
   IsAuthenticated: boolean;
   TokenAge: Date;

@@ -1,15 +1,21 @@
-import BaseButton from './BaseButton';
+import SMButton from '@components/sm/SMButton';
 import { ChildButtonProperties } from './ChildButtonProperties';
 
-const SaveButton: React.FC<ChildButtonProperties> = ({ className = '', disabled = false, iconFilled, label, onClick, tooltip = 'Add' }) => (
-  <BaseButton
-    className={className}
-    disabled={disabled}
+const SaveButton: React.FC<ChildButtonProperties> = ({
+  buttonClassName = 'icon-green-filled',
+  buttonDisabled = false,
+  iconFilled,
+  label,
+  onClick,
+  tooltip = 'Add'
+}) => (
+  <SMButton
+    buttonClassName={buttonClassName}
+    buttonDisabled={buttonDisabled}
     icon="pi-save"
     iconFilled={iconFilled}
     label={label}
     onClick={onClick}
-    severity="success"
     tooltip={tooltip}
   />
 );

@@ -1,26 +1,32 @@
-﻿using StreamMaster.Domain.Configuration;
+﻿namespace StreamMaster.Application.SchedulesDirect.Commands;
 
-namespace StreamMaster.Application.SchedulesDirect.Commands;
 
-public record EPGSync() : IRequest<bool>;
+public record EPGSync() : IRequest<APIResponse>;
 
-public class SDSyncHandler(ISchedulesDirect schedulesDirect, ILogger<EPGSync> logger, IHubContext<StreamMasterHub, IStreamMasterHub> HubContext, IOptionsMonitor<SDSettings> intsettings)
-: IRequestHandler<EPGSync, bool>
+public class EPGSyncHandler(ISchedulesDirect schedulesDirect, ILogger<EPGSync> logger, IDataRefreshService dataRefreshService, IOptionsMonitor<SDSettings> intSettings)
+: IRequestHandler<EPGSync, APIResponse>
 {
-    private readonly SDSettings settings = intsettings.CurrentValue;
+    private readonly SDSettings settings = intSettings.CurrentValue;
 
-    public async Task<bool> Handle(EPGSync request, CancellationToken cancellationToken)
+    public async Task<APIResponse> Handle(EPGSync request, CancellationToken cancellationToken)
     {
 
         if (settings.SDEnabled)
         {
-            if (await schedulesDirect.SDSync(cancellationToken).ConfigureAwait(false))
+            APIResponse response = await schedulesDirect.SDSync(cancellationToken).ConfigureAwait(false);
+            if (!response.IsError)
             {
                 logger.LogInformation("Updated Schedules Direct");
-                await HubContext.Clients.All.SchedulesDirectsRefresh();
+                await dataRefreshService.RefreshSchedulesDirect();
             }
         }
+        else
+        {
+            await dataRefreshService.RefreshStationPreviews();
+        }
+        //await HubContext.ClientChannels.All.DataRefresh("GetEPGFiles");
 
-        return true;
+
+        return APIResponse.Ok;
     }
 }

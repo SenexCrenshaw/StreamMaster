@@ -1,12 +1,10 @@
 ﻿using MediatR;
 
-using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 
-using StreamMaster.Application.Common.Interfaces;
 using StreamMaster.Application.Common.Models;
-using StreamMaster.Application.Hubs;
 using StreamMaster.Application.Services;
+using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Enums;
 using StreamMaster.Domain.Extensions;
 
@@ -15,26 +13,23 @@ using System.Threading.Channels;
 
 namespace StreamMaster.Infrastructure.Services.QueueService;
 
-
 public partial class BackgroundTaskQueue : IBackgroundTaskQueue
 {
-    //private static readonly object lockObject = new();
-    private readonly IHubContext<StreamMasterHub, IStreamMasterHub> _hubContext;
     private readonly ILogger<BackgroundTaskQueue> _logger;
     private readonly Channel<BackgroundTaskQueueConfig> _queue;
     private readonly ISender _sender;
-    private readonly ConcurrentDictionary<Guid, TaskQueueStatus> taskQueueStatuses = new();
-
-    public BackgroundTaskQueue(int capacity, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, ILogger<BackgroundTaskQueue> logger, ISender sender)
+    private readonly ConcurrentDictionary<Guid, SMTask> taskQueueStatuses = new();
+    private readonly IDataRefreshService dataRefreshService;
+    public BackgroundTaskQueue(int capacity, ILogger<BackgroundTaskQueue> logger, ISender sender, IDataRefreshService dataRefreshService)
     {
         BoundedChannelOptions options = new(capacity)
         {
             FullMode = BoundedChannelFullMode.Wait
         };
         _sender = sender;
-        _hubContext = hubContext;
         _queue = Channel.CreateBounded<BackgroundTaskQueueConfig>(options);
         _logger = logger;
+        this.dataRefreshService = dataRefreshService;
     }
 
     public async ValueTask<BackgroundTaskQueueConfig> DeQueueAsync(CancellationToken cancellationToken)
@@ -43,8 +38,9 @@ public partial class BackgroundTaskQueue : IBackgroundTaskQueue
         _logger.LogInformation("Got {workItem.command} from Queue", workItem.Command);
         return workItem;
     }
+    public bool IsRunning => taskQueueStatuses.Values.Any(a => a.IsRunning || a.StopTS == DateTime.MinValue);
 
-    public Task<List<TaskQueueStatus>> GetQueueStatus()
+    public Task<List<SMTask>> GetQueueStatus()
     {
 
         return Task.FromResult(taskQueueStatuses.Values.OrderBy(a => a.StartTS).ToList());
@@ -61,34 +57,59 @@ public partial class BackgroundTaskQueue : IBackgroundTaskQueue
         await QueueAsync(SMQueCommand.SetIsSystemReady, isSystemReady, cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task SetQueueTS(Guid Id)
+    public async ValueTask SetTestTask(int DelayInSeconds, CancellationToken cancellationToken = default)
     {
-        if (taskQueueStatuses.TryGetValue(Id, out TaskQueueStatus? status))
-        {
-            status.QueueTS = SMDT.UtcNow;
-            status.IsRunning = true;
-            await _hubContext.Clients.All.TaskQueueStatusUpdate(await GetQueueStatus()).ConfigureAwait(false);
-        }
+        await QueueAsync(SMQueCommand.SetTestTask, DelayInSeconds, cancellationToken).ConfigureAwait(false);
     }
+    public List<SMTask> GetSMTasks()
+    {
+        return taskQueueStatuses.Values.OrderByDescending(a => a.Id).ToList();
+    }
+
+    private async ValueTask SendSMTasks()
+    {
+        List<SMTask> toSend = GetSMTasks();
+        await dataRefreshService.RefreshSMTasks(true);
+
+        BuildInfo.IsTaskRunning = IsRunning;
+        //Debug.WriteLine($"IsTaskRunning: {IsRunning}");
+        await dataRefreshService.TaskIsRunning();
+    }
+
+
+
+    //public async Task SetQueueTS(Guid Id)
+    //{
+    //    if (taskQueueStatuses.TryGetValue(Id, out SMTask? status))
+    //    {
+    //        status.QueueTS = SMDT.UtcNow;
+    //        status.IsRunning = true;
+    //        //await _hubContext.ClientChannels.All.TaskQueueStatusUpdate(await GetQueueStatus()).ConfigureAwait(false);
+    //        await SendSMTasks();
+    //    }
+    //}
 
     public async Task SetStart(Guid Id)
     {
-        if (taskQueueStatuses.TryGetValue(Id, out TaskQueueStatus? status))
+        if (taskQueueStatuses.TryGetValue(Id, out SMTask? status))
         {
-            status.StartTS = DateTime.Now;
+            status.StartTS = status.Command == "SetIsSystemReady" ? BuildInfo.StartTime : SMDT.UtcNow;
+
             status.IsRunning = true;
-            await _hubContext.Clients.All.TaskQueueStatusUpdate(await GetQueueStatus()).ConfigureAwait(false);
+            //await _hubContext.ClientChannels.All.TaskQueueStatusUpdate(await GetQueueStatus()).ConfigureAwait(false);
+            await SendSMTasks();
         }
 
     }
 
     public async Task SetStop(Guid Id)
     {
-        if (taskQueueStatuses.TryGetValue(Id, out TaskQueueStatus? status))
+        if (taskQueueStatuses.TryGetValue(Id, out SMTask? status))
         {
-            status.StopTS = DateTime.Now;
+            status.StopTS = SMDT.UtcNow;
             status.IsRunning = false;
-            await _hubContext.Clients.All.TaskQueueStatusUpdate(await GetQueueStatus()).ConfigureAwait(false);
+            //await _hubContext.ClientChannels.All.TaskQueueStatusUpdate(await GetQueueStatus()).ConfigureAwait(false);
+            await SendSMTasks();
         }
     }
 
@@ -107,12 +128,13 @@ public partial class BackgroundTaskQueue : IBackgroundTaskQueue
     }
 
     private SMQueCommand lastSMQueCommand = new();
+
     private async ValueTask QueueAsync(BackgroundTaskQueueConfig workItem)
     {
         //No need to stack up the same task
         //if (lastSMQueCommand == workItem.Command)
         //{
-        //    if (taskQueueStatuses.TryGetValue(workItem.Id, out TaskQueueStatus? status))
+        //    if (taskQueueStatuses.TryGetValue(workItem.Id, out TaskStatus? status))
         //    {
         //        if (!status.IsRunning)
         //        {
@@ -124,13 +146,15 @@ public partial class BackgroundTaskQueue : IBackgroundTaskQueue
 
         lastSMQueCommand = workItem.Command;
 
-        _ = taskQueueStatuses.TryAdd(workItem.Id, new TaskQueueStatus
+        _ = taskQueueStatuses.TryAdd(workItem.Id, new SMTask(default)
         {
             Id = taskQueueStatuses.Count,
             Command = workItem.Command.ToString(),
+            IsRunning = false
         });
+        await SendSMTasks();
 
-        await _hubContext.Clients.All.TaskQueueStatusUpdate(await GetQueueStatus()).ConfigureAwait(false);
+        //await _hubContext.ClientChannels.All.TaskQueueStatusUpdate(await GetQueueStatus()).ConfigureAwait(false);
         await _queue.Writer.WriteAsync(workItem).ConfigureAwait(false);
         _logger.LogInformation("Added {workItem.command} to Queue", workItem.Command);
 

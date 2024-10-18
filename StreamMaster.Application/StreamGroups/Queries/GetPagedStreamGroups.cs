@@ -1,17 +1,32 @@
-﻿using StreamMaster.Domain.Pagination;
+﻿namespace StreamMaster.Application.StreamGroups.Queries;
 
-namespace StreamMaster.Application.StreamGroups.Queries;
-
-public record GetPagedStreamGroups(StreamGroupParameters Parameters) : IRequest<PagedResponse<StreamGroupDto>>;
+[SMAPI]
+[TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
+public record GetPagedStreamGroupsRequest(QueryStringParameters Parameters) : IRequest<PagedResponse<StreamGroupDto>>;
 
 [LogExecutionTimeAspect]
-internal class GetPagedStreamGroupsHandler(ILogger<GetPagedStreamGroups> logger, IRepositoryWrapper Repository)
-    : IRequestHandler<GetPagedStreamGroups, PagedResponse<StreamGroupDto>>
+internal class GetPagedStreamGroupsRequestHandler(IRepositoryWrapper Repository, IStreamGroupService streamGroupService)
+    : IRequestHandler<GetPagedStreamGroupsRequest, PagedResponse<StreamGroupDto>>
 {
-    public async Task<PagedResponse<StreamGroupDto>> Handle(GetPagedStreamGroups request, CancellationToken cancellationToken = default)
+    public async Task<PagedResponse<StreamGroupDto>> Handle(GetPagedStreamGroupsRequest request, CancellationToken cancellationToken = default)
     {
-        return request.Parameters.PageSize == 0
+        PagedResponse<StreamGroupDto> ret = request.Parameters.PageSize == 0
             ? Repository.StreamGroup.CreateEmptyPagedResponse()
             : await Repository.StreamGroup.GetPagedStreamGroups(request.Parameters).ConfigureAwait(false);
+
+        int defaultSGId = await streamGroupService.GetDefaultSGIdAsync();
+
+        foreach (StreamGroupDto streamGroupDto in ret.Data)
+        {
+            if (streamGroupDto.Id == defaultSGId)
+            {
+                streamGroupDto.ChannelCount = Repository.SMChannel.Count();
+                continue;
+            }
+
+            streamGroupDto.ChannelCount = Repository.StreamGroupSMChannelLink.GetQuery().Count(a => a.StreamGroupId == streamGroupDto.Id);
+        }
+
+        return ret;
     }
 }

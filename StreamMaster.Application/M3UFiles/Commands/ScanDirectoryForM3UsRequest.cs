@@ -1,34 +1,25 @@
 ﻿namespace StreamMaster.Application.M3UFiles.Commands;
 
-public record ScanDirectoryForM3UFilesRequest : IRequest<bool> { }
-
+public record ScanDirectoryForM3UFilesRequest : IRequest<DataResponse<bool>>;
 
 [LogExecutionTimeAspect]
-public class ScanDirectoryForM3UFilesRequestHandler(ILogger<ScanDirectoryForM3UFilesRequest> Logger, IRepositoryWrapper Repository, IMapper Mapper, IPublisher Publisher) : IRequestHandler<ScanDirectoryForM3UFilesRequest, bool>
+public class ScanDirectoryForM3UFilesRequestHandler(IPublisher Publisher, ICacheManager CacheManager, IFileUtilService fileUtilService, IRepositoryWrapper Repository, IMapper Mapper)
+    : IRequestHandler<ScanDirectoryForM3UFilesRequest, DataResponse<bool>>
 {
-    public async Task<bool> Handle(ScanDirectoryForM3UFilesRequest command, CancellationToken cancellationToken)
+    public async Task<DataResponse<bool>> Handle(ScanDirectoryForM3UFilesRequest command, CancellationToken cancellationToken)
     {
-        IEnumerable<FileInfo> m3uFiles = GetM3UFilesFromDirectory();
+        IEnumerable<FileInfo> m3uFiles = fileUtilService.GetFilesFromDirectory(FileDefinitions.M3U);
         foreach (FileInfo m3uFileInfo in m3uFiles)
         {
             if (cancellationToken.IsCancellationRequested)
             {
-                return false;
+                return DataResponse.False;
             }
 
             await ProcessM3UFile(m3uFileInfo, cancellationToken);
         }
 
-        return true;
-    }
-
-    private static IEnumerable<FileInfo> GetM3UFilesFromDirectory()
-    {
-        FileDefinition fd = FileDefinitions.M3U;
-        DirectoryInfo m3uDirInfo = new(fd.DirectoryLocation);
-        EnumerationOptions er = new() { MatchCasing = MatchCasing.CaseInsensitive };
-
-        return m3uDirInfo.GetFiles($"*{fd.FileExtension}", er);
+        return DataResponse.True;
     }
 
     private async Task ProcessM3UFile(FileInfo m3uFileInfo, CancellationToken cancellationToken)
@@ -38,18 +29,19 @@ public class ScanDirectoryForM3UFilesRequestHandler(ILogger<ScanDirectoryForM3UF
             return;
         }
 
-        M3UFile? m3uFile = await Repository.M3UFile.GetM3UFileBySource(m3uFileInfo.Name).ConfigureAwait(false);
+        M3UFile? m3uFile = await Repository.M3UFile.GetM3UFileBySourceAsync(m3uFileInfo.Name).ConfigureAwait(false);
         if (m3uFile == null)
         {
             m3uFile = CreateOrUpdateM3UFile(m3uFileInfo);
-            await SaveM3UFile(m3uFile, cancellationToken);
+            await SaveM3UFile(m3uFile);
         }
 
         if (m3uFile != null)
         {
+            CacheManager.M3UMaxStreamCounts.AddOrUpdate(m3uFile.Id, m3uFile.MaxStreamCount, (_, _) => m3uFile.MaxStreamCount);
 
             M3UFileDto ret = Mapper.Map<M3UFileDto>(m3uFile);
-            await Publisher.Publish(new M3UFileAddedEvent(ret.Id, false), cancellationToken).ConfigureAwait(false);
+            await Publisher.Publish(new M3UFileProcessEvent(ret.Id, false), cancellationToken).ConfigureAwait(false);
         }
     }
 
@@ -59,12 +51,10 @@ public class ScanDirectoryForM3UFilesRequestHandler(ILogger<ScanDirectoryForM3UF
         {
             Name = Path.GetFileNameWithoutExtension(m3uFileInfo.Name),
             Source = m3uFileInfo.Name,
-            Description = $"Imported from {m3uFileInfo.Name}",
             LastDownloaded = m3uFileInfo.LastWriteTime,
             LastDownloadAttempt = SMDT.UtcNow,
             FileExists = true,
             MaxStreamCount = 1,
-            StartingChannelNumber = 1,
             Url = ""
         };
 
@@ -74,20 +64,19 @@ public class ScanDirectoryForM3UFilesRequestHandler(ILogger<ScanDirectoryForM3UF
         return m3uFile;
     }
 
-    private async Task SaveM3UFile(M3UFile m3uFile, CancellationToken cancellationToken)
+    private async Task SaveM3UFile(M3UFile m3uFile)
     {
         Repository.M3UFile.CreateM3UFile(m3uFile);
 
         _ = await Repository.SaveAsync().ConfigureAwait(false);
-        m3uFile.WriteJSON(Logger);
+
+        m3uFile.WriteJSON();
 
         if (string.IsNullOrEmpty(m3uFile.Url))
         {
             m3uFile.LastDownloaded = SMDT.UtcNow;
             _ = await Repository.SaveAsync().ConfigureAwait(false);
-            m3uFile.WriteJSON(Logger);
+            m3uFile.WriteJSON();
         }
-
-
     }
 }

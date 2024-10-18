@@ -2,21 +2,21 @@
 using AutoMapper.QueryableExtensions;
 
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
+
+using StreamMaster.Domain.API;
 
 namespace StreamMaster.Infrastructure.EF.Repositories;
 
 /// <summary>
 /// Provides methods for performing CRUD operations on M3UFile entities.
 /// </summary>
-public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, IRepositoryContext repositoryContext, IMapper mapper) : RepositoryBase<M3UFile>(repositoryContext, intLogger), IM3UFileRepository
+public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, IRepositoryContext repositoryContext, IMapper mapper)
+    : RepositoryBase<M3UFile>(repositoryContext, intLogger), IM3UFileRepository
 {
-
     public PagedResponse<M3UFileDto> CreateEmptyPagedResponse()
     {
         return PagedExtensions.CreateEmptyPagedResponse<M3UFileDto>(Count());
     }
-    /// <inheritdoc/>
     public void CreateM3UFile(M3UFile m3uFile)
     {
         if (m3uFile == null)
@@ -25,9 +25,8 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, IRepository
             throw new ArgumentNullException(nameof(m3uFile));
         }
         Create(m3uFile);
-        logger.LogInformation($"Created M3UFile with ID: {m3uFile.Id}.");
-    }
 
+    }
 
     /// <inheritdoc/>
     public async Task<M3UFileDto?> DeleteM3UFile(int M3UFileId)
@@ -37,53 +36,59 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, IRepository
             throw new ArgumentNullException(nameof(M3UFileId));
         }
 
-        M3UFile? m3uFile = await FindByCondition(a => a.Id == M3UFileId).FirstOrDefaultAsync().ConfigureAwait(false);
+        M3UFile? m3uFile = await FirstOrDefaultAsync(a => a.Id == M3UFileId).ConfigureAwait(false);
         if (m3uFile == null)
         {
             return null;
         }
 
         Delete(m3uFile);
-        logger.LogInformation($"M3UFile with Name {m3uFile.Name} was deleted.");
+        logger.LogInformation("M3UFile with Name {m3uFile.Name} was deleted.", m3uFile.Name);
         return mapper.Map<M3UFileDto>(m3uFile);
     }
 
     /// <inheritdoc/>
     public async Task<List<M3UFileDto>> GetM3UFiles()
     {
-        return await FindAll()
-                     .ProjectTo<M3UFileDto>(mapper.ConfigurationProvider)
-                     .ToListAsync()
-                     .ConfigureAwait(false);
+        return await GetQuery().ProjectTo<M3UFileDto>(mapper.ConfigurationProvider).ToListAsync().ConfigureAwait(false);
     }
 
-    /// <inheritdoc/>
-    public async Task<M3UFile?> GetM3UFileById(int Id)
+    public async Task<M3UFile?> GetM3UFileAsync(int Id)
     {
-        M3UFile? m3uFile = await FindByCondition(c => c.Id == Id)
-                            .AsNoTracking()
-                            .FirstOrDefaultAsync()
-                            .ConfigureAwait(false);
-
-        return m3uFile;
+        return await FirstOrDefaultAsync(c => c.Id == Id, false).ConfigureAwait(false);
     }
 
-    public async Task<M3UFile?> GetM3UFileByTrackedId(int Id)
+    /// <summary>
+    /// Asynchronously retrieves an M3UFile by its source name, accounting for possible .gz or .zip extensions in both the input and the database.
+    /// </summary>
+    /// <param name="source">The source name of the M3U file, which might include .gz or .zip extensions.</param>
+    /// <returns>The M3UFile if found, or null if no match is found.</returns>
+    public async Task<M3UFile?> GetM3UFileBySourceAsync(string source)
     {
-        M3UFile? m3uFile = await FindByConditionTracked(c => c.Id == Id)
-                            .FirstOrDefaultAsync()
-                            .ConfigureAwait(false);
+        if (string.IsNullOrWhiteSpace(source))
+        {
+            return null;
+        }
 
-        return m3uFile;
-    }
+        // Normalize source by removing .gz or .zip extensions if present
+        string normalizedSource = source.EndsWith(".gz", StringComparison.OrdinalIgnoreCase) || source.EndsWith(".zip", StringComparison.OrdinalIgnoreCase)
+            ? Path.GetFileNameWithoutExtension(source)
+            : source;
 
-    /// <inheritdoc/>
-    public async Task<M3UFile?> GetM3UFileBySource(string Source)
-    {
-        M3UFile? m3uFile = await FindByCondition(c => c.Source == Source)
-                            .AsNoTracking()
-                            .FirstOrDefaultAsync()
-                            .ConfigureAwait(false);
+        // Define possible variations of the source
+        List<string> possibleSources =
+        [
+        normalizedSource,             // The base source (without extensions)
+        $"{normalizedSource}.gz",     // The source with .gz extension
+        $"{normalizedSource}.zip",    // The source with .zip extension
+        $"{normalizedSource}.m3u",    // The base file as .m3u
+        $"{normalizedSource}.m3u.gz", // The .m3u file with .gz extension
+        $"{normalizedSource}.m3u.zip" // The .m3u file with .zip extension
+    ];
+
+        // Query for a match with any of the possible source variations
+        M3UFile? m3uFile = await FirstOrDefaultAsync(c => possibleSources.Contains(c.Source))
+            .ConfigureAwait(false);
 
         return m3uFile;
     }
@@ -91,13 +96,13 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, IRepository
     /// <inheritdoc/>
     public async Task<int> GetM3UMaxStreamCount()
     {
-        return await FindAll().SumAsync(a => a.MaxStreamCount).ConfigureAwait(false);
+        return await GetQuery().SumAsync(a => a.MaxStreamCount).ConfigureAwait(false);
     }
 
     /// <inheritdoc/>
-    public async Task<PagedResponse<M3UFileDto>> GetPagedM3UFiles(M3UFileParameters parameters)
+    public async Task<PagedResponse<M3UFileDto>> GetPagedM3UFiles(QueryStringParameters parameters)
     {
-        IQueryable<M3UFile> query = GetIQueryableForEntity(parameters);
+        IQueryable<M3UFile> query = GetQuery(parameters);
         return await query.GetPagedResponseAsync<M3UFile, M3UFileDto>(parameters.PageNumber, parameters.PageSize, mapper)
                           .ConfigureAwait(false);
     }
@@ -111,26 +116,27 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, IRepository
             throw new ArgumentNullException(nameof(m3uFile));
         }
         Update(m3uFile);
-        m3uFile.WriteJSON(logger);
-        logger.LogInformation($"Updated M3UFile with ID: {m3uFile.Id}.");
+        m3uFile.WriteJSON();
+
+        //logger.LogInformation("Updated M3UFile with ID: {m3uFile.Id}.", m3uFile.Id);
     }
 
     /// <inheritdoc/>
     public async Task<List<string>> GetM3UFileNames()
     {
-        return await FindAll()
+        return await GetQuery()
                      .OrderBy(a => a.Name)
                      .Select(a => a.Name)
                      .ToListAsync()
                      .ConfigureAwait(false);
     }
 
-    public async Task<List<M3UFileDto>> GetM3UFilesNeedUpdating()
+    public async Task<List<M3UFileDto>> GetM3UFilesNeedUpdatingAsync()
     {
         List<M3UFileDto> ret = [];
-        List<M3UFileDto> m3uFilesToUpdated = await FindByCondition(a => a.AutoUpdate && !string.IsNullOrEmpty(a.Url) && a.HoursToUpdate > 0 && a.LastDownloaded.AddHours(a.HoursToUpdate) < DateTime.Now).ProjectTo<M3UFileDto>(mapper.ConfigurationProvider).ToListAsync().ConfigureAwait(false);
+        List<M3UFileDto> m3uFilesToUpdated = await GetQuery(a => a.AutoUpdate && !string.IsNullOrEmpty(a.Url) && a.HoursToUpdate > 0 && a.LastDownloaded.AddHours(a.HoursToUpdate) < SMDT.UtcNow).ProjectTo<M3UFileDto>(mapper.ConfigurationProvider).ToListAsync().ConfigureAwait(false);
         ret.AddRange(m3uFilesToUpdated);
-        foreach (M3UFile? m3uFile in FindByCondition(a => string.IsNullOrEmpty(a.Url)))
+        foreach (M3UFile? m3uFile in GetQuery(a => string.IsNullOrEmpty(a.Url)))
         {
             if (m3uFile.LastWrite() >= m3uFile.LastUpdated)
             {
@@ -140,22 +146,84 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, IRepository
         return ret;
     }
 
-
-    public async Task<M3UFileDto?> ChangeM3UFileName(int M3UFileId, string newName)
-    {
-        M3UFile? m3UFile = await FindByCondition(a => a.Id == M3UFileId).FirstOrDefaultAsync().ConfigureAwait(false);
-        if (m3UFile == null)
-        {
-            return null;
-        }
-        m3UFile.Name = newName;
-        Update(m3UFile);
-        await RepositoryContext.SaveChangesAsync().ConfigureAwait(false);
-        return mapper.Map<M3UFileDto>(m3UFile);
-    }
-
     public IQueryable<M3UFile> GetM3UFileQuery()
     {
-        return FindAll();
+        return GetQuery();
     }
+    //private static bool ProcessExistingStream(SMStream stream, SMStream existingStream, M3UFile m3uFile, int index)
+    //{
+    //    bool changed = false;
+
+    //    if (existingStream.M3UFileId != m3uFile.Id)
+    //    {
+    //        changed = true;
+    //        existingStream.M3UFileId = m3uFile.Id;
+    //    }
+
+    //    if (existingStream.ClientUserAgent != stream.ClientUserAgent)
+    //    {
+    //        changed = true;
+    //        existingStream.ClientUserAgent = stream.ClientUserAgent;
+    //    }
+
+    //    if (string.IsNullOrEmpty(existingStream.M3UFileName) || existingStream.M3UFileName != m3uFile.Name)
+    //    {
+    //        changed = true;
+    //        existingStream.M3UFileName = m3uFile.Name;
+    //    }
+
+    //    if (m3uFile.AutoSetChannelNumbers)
+    //    {
+    //        stream.ChannelNumber = index + m3uFile.StartingChannelNumber;
+    //    }
+
+    //    if (existingStream.ChannelNumber != stream.ChannelNumber)
+    //    {
+    //        changed = true;
+    //        existingStream.ChannelNumber = stream.ChannelNumber;
+    //    }
+
+    //    if (existingStream.Group != stream.Group)
+    //    {
+    //        changed = true;
+    //        existingStream.Group = stream.Group;
+    //    }
+
+    //    if (existingStream.EPGID != stream.EPGID)
+    //    {
+    //        changed = true;
+    //        existingStream.EPGID = stream.EPGID;
+    //    }
+
+    //    if (existingStream.Logo != stream.Logo)
+    //    {
+    //        changed = true;
+
+    //        existingStream.Logo = stream.Logo;
+    //    }
+
+    //    if (existingStream.Url != stream.Url)
+    //    {
+    //        changed = true;
+
+    //        existingStream.Url = stream.Url;
+    //    }
+
+    //    if (existingStream.Name != stream.Name)
+    //    {
+    //        changed = true;
+
+    //        existingStream.Name = stream.Name;
+    //    }
+
+    //    if (existingStream.FilePosition != index)
+    //    {
+    //        changed = true;
+
+    //        existingStream.FilePosition = index;
+    //    }
+
+    //    return changed;
+    //}
+
 }

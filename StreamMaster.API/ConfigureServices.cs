@@ -4,71 +4,71 @@ using MediatR;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
-using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.StaticFiles;
+using Microsoft.EntityFrameworkCore;
 
 using NSwag;
 using NSwag.Generation.Processors.Security;
 
-using Prometheus;
-
+using StreamMaster.API.SchemaHelpers;
 using StreamMaster.API.Services;
-using StreamMaster.Application.Common.Interfaces;
-using StreamMaster.Application.Hubs;
 using StreamMaster.Application.Services;
-using StreamMaster.Domain.Enums;
 using StreamMaster.Domain.Logging;
-using StreamMaster.Infrastructure;
 using StreamMaster.Infrastructure.Authentication;
 using StreamMaster.Infrastructure.EF.PGSQL;
-using StreamMaster.Infrastructure.Logger;
 using StreamMaster.Infrastructure.Services.Frontend;
 using StreamMaster.Infrastructure.Services.QueueService;
 
-using StreamMasterAPI.SchemaHelpers;
+using System.Reflection;
 
 namespace StreamMaster.API;
 
 public static class ConfigureServices
 {
-    public static IServiceCollection AddWebUIServices(this IServiceCollection services, WebApplicationBuilder builder)
+    public static IServiceCollection AddWebUIServices(this IServiceCollection services, WebApplicationBuilder builder, bool DBDebug)
     {
         // Register SMLoggerProvider with DI
-        services.AddSingleton<ILoggerProvider, SMLoggerProvider>(provider =>
-            new SMLoggerProvider(provider.GetRequiredService<IFileLoggingServiceFactory>()));
+        //services.AddSingleton<ILoggerProvider, SMLoggerProvider>(provider =>
+        //    new SMLoggerProvider(provider.GetRequiredService<IFileLoggingServiceFactory>()));
 
+        //_ = services.AddSingleton(provider =>
+        //{
+        //    IFileLoggingServiceFactory factory = provider.GetRequiredService<IFileLoggingServiceFactory>();
+        //    return factory.Create("SMLogger");
+        //});
+        //services.AddSingleton<ILoggerFactory, LoggerFactory>();
         services.AddLogging(loggingBuilder =>
         {
+            string test = DbLoggerCategory.Database.Command.Name;
+
             loggingBuilder.AddFilter("StreamMaster.Domain.Logging.CustomLogger", LogLevel.Information);
+            if (DBDebug)
+            {
+                loggingBuilder.AddFilter(DbLoggerCategory.Database.Command.Name, LogLevel.Information);
+            }
             loggingBuilder.AddConsole();
             loggingBuilder.AddDebug();
             loggingBuilder.AddConfiguration(builder.Configuration.GetSection("Logging"));
-            loggingBuilder.AddProvider(new StatsLoggerProvider());
+            //loggingBuilder.AddProvider(new SMLoggerProvider(new FileLoggingServiceFactory(builder.Configuration)));
+            //loggingBuilder.AddProvider(new StatsLoggerProvider());
 
             // GetOrAdd specific filters for StatsLoggerProvider
-            loggingBuilder.AddFilter<StatsLoggerProvider>((category, logLevel) =>
-            {
-                // List of classes to use with CustomLogger
-                List<string> classesToLog = ["BroadcastService"];
-                return category != null && classesToLog.Any(c => category.Contains(c, StringComparison.OrdinalIgnoreCase));
-            });
+            //loggingBuilder.AddFilter<StatsLoggerProvider>((category, _) =>
+            //{
+            //    // List of classes to use with CustomLogger
+            //    List<string> classesToLog = ["BroadcastService"];
+            //    return category != null && classesToLog.Any(c => category.Contains(c, StringComparison.OrdinalIgnoreCase));
+            //});
 
-            // Consider not manually adding ILoggerProvider here, it's already added above
             ServiceProvider serviceProvider = loggingBuilder.Services.BuildServiceProvider();
-            // ILoggerProvider loggerProvider = serviceProvider.GetRequiredService<ILoggerProvider>();
-            // loggingBuilder.AddProvider(loggerProvider);
             ILoggerFactory loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
             GlobalLoggerProvider.Configure(loggerFactory);
         });
 
-        services.AddHttpLogging(o => o = new HttpLoggingOptions());
-        services.UseHttpClientMetrics();
-
         services.AddSingleton<IContentTypeProvider, FileExtensionContentTypeProvider>();
         services.AddRouting(options => options.LowercaseUrls = true);
-
         services.AddResponseCompression(options => options.EnableForHttps = true);
 
         services.AddCors(options =>
@@ -102,13 +102,15 @@ public static class ConfigureServices
 
         services.AddDatabaseDeveloperPageExceptionFilter();
 
-        services
-            .AddControllers(options =>
+        Assembly assembly = Assembly.Load("StreamMaster.Application");
+
+        services.AddControllers(options =>
             {
                 options.RespectBrowserAcceptHeader = true;
                 options.ReturnHttpNotAcceptable = true;
             })
             .AddApplicationPart(typeof(StaticResourceController).Assembly)
+             .AddApplicationPart(assembly)
             .AddControllersAsServices();
 
         services.AddScoped<IAuthenticationService, AuthenticationService>();
@@ -129,8 +131,11 @@ public static class ConfigureServices
 
         services.AddSingleton<IBackgroundTaskQueue>(x =>
        {
-           int queueCapacity = 100;
-           return new BackgroundTaskQueue(queueCapacity, x.GetRequiredService<IHubContext<StreamMasterHub, IStreamMasterHub>>(), x.GetRequiredService<ILogger<BackgroundTaskQueue>>(), x.GetRequiredService<ISender>());
+           const int queueCapacity = 100;
+           ILogger<BackgroundTaskQueue> logger = x.GetRequiredService<ILogger<BackgroundTaskQueue>>();
+           ISender sender = x.GetRequiredService<ISender>();
+           IDataRefreshService dataRefreshService = x.GetRequiredService<IDataRefreshService>();
+           return new BackgroundTaskQueue(queueCapacity, logger, sender, dataRefreshService);
        });
 
         services.AddOpenApiDocument(configure =>
@@ -152,37 +157,13 @@ public static class ConfigureServices
         services.AddHostedService<PostStartup>();
         services.AddSingleton<PostStartup>();
 
-        services.AddAuthorization(options =>
-        {
+        services.AddAppAuthenticationAndAuthorization();
 
-            AuthorizationPolicy signalRPolicy = new AuthorizationPolicyBuilder()
-                .AddAuthenticationSchemes("SignalR")
-                .RequireAuthenticatedUser()
-                .Build();
-
-            AuthorizationPolicy sgLinksPolicy = new AuthorizationPolicyBuilder()
-                .AddAuthenticationSchemes("SGLinks")
-                .RequireAuthenticatedUser()
-                .Build();
-
-            AuthorizationPolicy fallbackPolicy = new AuthorizationPolicyBuilder(AuthenticationType.Forms.ToString(), "API")
-                .RequireAuthenticatedUser()
-                .Build();
-
-            options.AddPolicy("SignalR", signalRPolicy);
-            options.AddPolicy("SGLinks", sgLinksPolicy);
-            options.FallbackPolicy = fallbackPolicy;
-
-        });
-
-
-        services.AddSignalR();//.AddMessagePackProtocol();
+        services.AddSignalR().AddMessagePackProtocol();
 
         services.AddDataProtection().PersistKeysToDbContext<PGSQLRepositoryContext>();
 
         services.AddSingleton<IAuthorizationPolicyProvider, UiAuthorizationPolicyProvider>();
-
-        services.AddAppAuthentication();
 
         return services;
     }

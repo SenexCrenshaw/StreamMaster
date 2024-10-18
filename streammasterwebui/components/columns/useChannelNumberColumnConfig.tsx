@@ -1,5 +1,5 @@
 import ChannelNumberEditor from '../ChannelNumberEditor';
-import createMultiSelectColumnConfigHook from './createMultiSelectColumnConfigHook';
+import createMultiSelectColumnConfigHook from './createVideoStreamMultiSelectColumnConfigHook';
 
 export const useChannelNumberColumnConfig = createMultiSelectColumnConfigHook({
   EditorComponent: ChannelNumberEditor,

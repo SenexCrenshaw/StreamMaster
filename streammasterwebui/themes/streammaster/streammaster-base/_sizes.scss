@@ -1,0 +1,112 @@
+.input-height-with-no-borders {
+    height: $input-height-with-no-borders !important;
+    max-height: $input-height-with-no-borders !important;
+}
+
+.width-200 {
+    width: 200px;
+}
+
+.width-50 {
+    width: calc(50% - ($inputBorder-size*4));
+}
+
+.width-100 {
+    width: calc(100% - ($inputBorder-size*4));
+}
+
+.sm-between-stuff {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.sm-center-stuff {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.sm-end-stuff {
+    display: flex;
+    justify-content: end;
+    align-items: center;
+}
+
+.sm-end-stuff-col {
+    display: flex;
+    flex-direction: column;
+    justify-content: end;
+    align-items: end;
+}
+
+.sm-w-1-5rem {
+    flex: 0 0 1.5rem;
+    min-width: 1.5rem !important;
+    width: 1.5rem !important;
+    max-width: 1.5rem !important;
+}
+
+.sm-w-1-2-5rem {
+    flex: 0 0 1.25rem;
+    min-width: 1.25rem !important;
+    width: 1.25rem !important;
+    max-width: 1.25rem !important;
+}
+
+.sm-w-2-5rem {
+    flex: 0 0 2.5rem;
+    min-width: 2.5rem !important;
+    width: 2.5rem !important;
+    max-width: 2.5rem !important;
+}
+
+@for $i from 1 through 12 {
+    .sm-w-#{$i} {
+        $percent: (
+            100 / 12) * $i + 0%;
+        flex: 0 0 $percent;
+        min-width: $percent !important;
+        width: $percent !important;
+        max-width: $percent !important;
+    }
+}
+
+@for $i from 1 through 12 {
+    .sm-w-min-#{$i} {
+        $percent: (
+            100 / 12) * $i + 0%;
+        min-width: $percent !important;
+    }
+}
+
+@for $i from 1 through 12 {
+    .sm-w-max-#{$i} {
+        $percent: (
+            100 / 12) * $i + 0%;
+        max-width: $percent !important;
+    }
+}
+
+@for $i from 1 through 30 {
+    .sm-w-#{$i}rem {
+        flex: 0 0 #{$i}rem;
+        min-width: #{$i}rem !important;
+        width: #{$i}rem !important;
+        max-width: #{$i}rem !important;
+    }
+}
+
+@for $i from 1 through 30 {
+    .sm-w-min-#{$i}rem {
+        flex: 0 0 #{$i}rem;
+        min-width: #{$i}rem !important;
+    }
+}
+
+@for $i from 1 through 30 {
+    .sm-w-max-#{$i}rem {
+        flex: 0 0 #{$i}rem;
+        max-width: #{$i}rem !important;
+    }
+}

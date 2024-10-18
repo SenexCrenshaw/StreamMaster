@@ -43,17 +43,24 @@ public static class SettingsHelper
             dir = Path.GetDirectoryName(fileName);
         }
 
-        if (typeof(FFMPEGProfiles).IsAssignableFrom(setting.GetType()))
+        if (typeof(CommandProfileDict).IsAssignableFrom(setting.GetType()))
         {
-            fileName = BuildInfo.ProfileSettingsFile;
+            fileName = BuildInfo.CommandProfileSettingsFile;
             dir = Path.GetDirectoryName(fileName);
         }
 
-        if (typeof(HLSSettings).IsAssignableFrom(setting.GetType()))
+
+        if (typeof(OutputProfileDict).IsAssignableFrom(setting.GetType()))
         {
-            fileName = BuildInfo.HLSSettingsFile;
+            fileName = BuildInfo.OutputProfileSettingsFile;
             dir = Path.GetDirectoryName(fileName);
         }
+
+        //if (typeof(HLSSettings).IsAssignableFrom(setting.GetType()))
+        //{
+        //    fileName = BuildInfo.HLSSettingsFile;
+        //    dir = Path.GetDirectoryName(fileName);
+        //}
 
         if (typeof(SDSettings).IsAssignableFrom(setting.GetType()))
         {
@@ -68,11 +75,10 @@ public static class SettingsHelper
 
         if (!Directory.Exists(dir))
         {
-            Directory.CreateDirectory(dir);
+            _ = Directory.CreateDirectory(dir);
         }
 
         string jsonString = JsonSerializer.Serialize(setting, new JsonSerializerOptions { WriteIndented = true });
         File.WriteAllText(fileName, jsonString);
     }
-
 }

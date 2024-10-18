@@ -1,16 +1,15 @@
-import { GetMessage } from '@lib/common/common';
-import React from 'react';
 
 import { Fieldset } from 'primereact/fieldset';
-import { getCheckBoxLine } from './getCheckBoxLine';
-import { getInputNumberLine } from './getInputNumberLine';
-
-import { useSettingChangeHandler } from './useSettingChangeHandler';
+import React from 'react';
+import { BaseSettings } from './BaseSettings';
+import { GetMessage } from '@lib/common/intl';
+import { useSettingsContext } from '@lib/context/SettingsProvider';
+import { GetCheckBoxLine } from './components/GetCheckBoxLine';
+import { GetInputNumberLine } from './components/GetInputNumberLine';
 
 export function BackupSettings(): React.ReactElement {
-  const { onChange, selectedCurrentSettingDto } = useSettingChangeHandler();
-
-  if (selectedCurrentSettingDto === null || selectedCurrentSettingDto === undefined) {
+  const { currentSetting } = useSettingsContext();
+  if (currentSetting === null || currentSetting === undefined) {
     return (
       <Fieldset className="mt-4 pt-10" legend={GetMessage('SD')}>
         <div className="text-center">{GetMessage('loading')}</div>
@@ -19,10 +18,12 @@ export function BackupSettings(): React.ReactElement {
   }
 
   return (
-    <Fieldset className="mt-4 pt-10" legend={GetMessage('backups')} toggleable>
-      {getCheckBoxLine({ field: 'backupEnabled', selectedCurrentSettingDto, onChange })}
-      {getInputNumberLine({ field: 'backupVersionsToKeep', selectedCurrentSettingDto, onChange })}
-      {getInputNumberLine({ field: 'backupInterval', selectedCurrentSettingDto, onChange })}
-    </Fieldset>
+    <BaseSettings title="BACKUPS">
+      <>
+        {GetCheckBoxLine({ field: 'BackupEnabled' })}
+        {GetInputNumberLine({ field: 'BackupVersionsToKeep' })}
+        {GetInputNumberLine({ field: 'BackupInterval' })}
+      </>
+    </BaseSettings>
   );
 }

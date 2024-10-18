@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 
 using StreamMaster.Domain.Enums;
-using StreamMaster.Domain.Services;
 
 using System.Collections.Concurrent;
 
@@ -11,6 +10,15 @@ public partial class JobStatusService(ILogger<JobStatusService> logger) : IJobSt
 {
     public readonly ConcurrentDictionary<string, JobStatus> _jobs = [];
     public readonly ConcurrentDictionary<string, object> _locks = [];
+    public JobStatusManager GetJobManagerProcessM3U(int id)
+    {
+        return new JobStatusManager(this, JobType.ProcessM3U, id);
+    }
+
+    public JobStatusManager GetJobManagerProcessEPG(int id)
+    {
+        return new JobStatusManager(this, JobType.ProcessEPG, id);
+    }
 
     public JobStatusManager GetJobManager(JobType jobType, int id)
     {
@@ -99,6 +107,11 @@ public partial class JobStatusService(ILogger<JobStatusService> logger) : IJobSt
         return GetStatus(key).IsRunning;
     }
 
+    public bool IsErrored(string key)
+    {
+        return GetStatus(key).IsErrored;
+    }
+
     public bool ForceNextRun(string key)
     {
         return GetStatus(key).ForceNextRun;
@@ -112,5 +125,30 @@ public partial class JobStatusService(ILogger<JobStatusService> logger) : IJobSt
     public DateTime LastSuccessful(string key)
     {
         return GetStatus(key).LastSuccessful;
+    }
+
+    public JobStatusManager GetJobManagerRefreshEPG(int id)
+    {
+        return new JobStatusManager(this, JobType.RefreshEPG, id);
+    }
+
+    public JobStatusManager GetJobManagerUpdateEPG(int id)
+    {
+        return new JobStatusManager(this, JobType.UpdateEPG, id);
+    }
+
+    public JobStatusManager GetJobManagerUpdateM3U(int id)
+    {
+        return new JobStatusManager(this, JobType.UpdateM3U, id);
+    }
+
+    public JobStatusManager GetJobManagerRefreshM3U(int id)
+    {
+        return new JobStatusManager(this, JobType.RefreshM3U, id);
+    }
+
+    public JobStatusManager GetJobManageSDSync(int id)
+    {
+        return new JobStatusManager(this, JobType.SDSync, id);
     }
 }

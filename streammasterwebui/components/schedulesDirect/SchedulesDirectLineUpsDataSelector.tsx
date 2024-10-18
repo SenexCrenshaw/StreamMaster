@@ -1,14 +1,14 @@
-import { HeadendDto, useSchedulesDirectGetLineupsQuery } from '@lib/iptvApi';
+import SMDataTable from '@components/smDataTable/SMDataTable';
+import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
+import useGetSubscribedLineups from '@lib/smAPI/SchedulesDirect/useGetSubscribedLineups';
+import { HeadendDto } from '@lib/smAPI/smapiTypes';
 import { memo, useCallback, useMemo } from 'react';
-import { type ColumnMeta } from '../dataSelector/DataSelectorTypes';
-
-import DataSelector from '../dataSelector/DataSelector';
 import SchedulesDirectRemoveHeadendDialog from './SchedulesDirectRemoveHeadendDialog';
 interface SchedulesDirectLineUpsDataSelectorProperties {
   id: string;
 }
 const SchedulesDirectLineUpsDataSelector = ({ id }: SchedulesDirectLineUpsDataSelectorProperties) => {
-  const getLineUpsQuery = useSchedulesDirectGetLineupsQuery();
+  const { data, isLoading } = useGetSubscribedLineups();
 
   const actionBodyTemplate = useCallback((data: HeadendDto) => {
     return (
@@ -20,38 +20,45 @@ const SchedulesDirectLineUpsDataSelector = ({ id }: SchedulesDirectLineUpsDataSe
 
   const columns = useMemo(
     (): ColumnMeta[] => [
-      { field: 'lineup', sortable: true },
-      { field: 'location', sortable: true },
-      { field: 'name', sortable: true },
-      { field: 'transport', sortable: true, width: '6rem' },
+      { field: 'Lineup', sortable: true, width: 80 },
+      { field: 'Location', sortable: true, width: 80 },
+      { field: 'Name', sortable: true, width: 100 },
+      { field: 'Transport', sortable: true, width: 80 },
       {
         align: 'center',
         bodyTemplate: actionBodyTemplate,
         field: 'Remove',
+        fieldType: 'actions',
         header: '',
         resizeable: false,
         sortable: false,
-        width: '3rem'
+        width: 20
       }
     ],
     [actionBodyTemplate]
   );
 
+  if (data === undefined) {
+    return <div />;
+  }
+
   return (
-    <div className="flex flex-column">
-      <DataSelector
-        columns={columns}
-        defaultSortField="name"
-        dataSource={getLineUpsQuery.data}
-        emptyMessage="No Streams"
-        id={id}
-        isLoading={getLineUpsQuery.isLoading}
-        selectionMode="single"
-        selectedItemsKey="sdEditorSelectSelectedItems"
-        style={{ height: 'calc(100vh - 120px)' }}
-      />
-      {/* <SchedulesDirectLineUpPreviewDataSelector lineUps={getLineUpsQuery.data?.lineups} /> */}
-    </div>
+    <SMDataTable
+      arrayKey="Lineup"
+      key="Lineup"
+      columns={columns}
+      dataKey="Lineup"
+      defaultSortField="Lineup"
+      defaultSortOrder={-1}
+      dataSource={data}
+      emptyMessage="No Streams"
+      enablePaginator
+      headerName="Subscribed Line Ups"
+      id={id}
+      isLoading={isLoading}
+      lazy
+      style={{ height: 'calc(25vh)' }}
+    />
   );
 };
 

@@ -1,9 +1,6 @@
-﻿using StreamMaster.Domain.Common;
-using StreamMaster.Domain.Dto;
+﻿namespace StreamMaster.Application.ChannelGroups.Events;
 
-namespace StreamMaster.Application.ChannelGroups.Events;
-
-public class UpdateChannelGroupsEvent(List<ChannelGroupDto> channelGroups) : BaseEvent
+public class UpdateChannelGroupsEvent(List<ChannelGroup> channelGroups) : BaseEvent
 {
-    public List<ChannelGroupDto> ChannelGroups { get; } = channelGroups;
+    public List<ChannelGroup> ChannelGroups { get; } = channelGroups;
 }

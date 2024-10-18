@@ -1,8 +1,18 @@
-import BaseButton from './BaseButton';
+import SMButton from '@components/sm/SMButton';
 import { ChildButtonProperties } from './ChildButtonProperties';
 
-const XButton: React.FC<ChildButtonProperties> = ({ disabled = false, onClick, tooltip = 'Remove', iconFilled, label }) => (
-  <BaseButton disabled={disabled} icon="pi-times" iconFilled={iconFilled} label={label} onClick={onClick} severity="danger" tooltip={tooltip} />
-);
+const XButton: React.FC<ChildButtonProperties> = ({ buttonDisabled, iconFilled, label, onClick, tooltip }) => {
+  return (
+    <SMButton
+      buttonClassName="icon-red"
+      buttonDisabled={buttonDisabled}
+      icon="pi-times"
+      iconFilled={iconFilled}
+      label={iconFilled === true ? undefined : label ?? undefined}
+      onClick={onClick}
+      tooltip={tooltip}
+    />
+  );
+};
 
 export default XButton;

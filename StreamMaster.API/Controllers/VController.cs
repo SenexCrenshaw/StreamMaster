@@ -1,124 +1,55 @@
-﻿using MediatR;
-
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-
-using StreamMaster.Application.Common.Extensions;
-using StreamMaster.Application.StreamGroups.Queries;
-using StreamMaster.Domain.Authentication;
-using StreamMaster.Domain.Configuration;
-using StreamMaster.Domain.Repository;
-using StreamMaster.Domain.Requests;
-
-using System.Text;
-using System.Web;
-
 namespace StreamMaster.API.Controllers;
 
-
-public class VController(IRepositoryWrapper Repository, ISender sender, IOptionsMonitor<HLSSettings> inthlssettings, IOptionsMonitor<Setting> intsettings, IHttpContextAccessor httpContextAccessor) : Controller
+[V1ApiController("v")]
+public class VsController(ILogger<VsController> logger, IVideoService videoService, IStreamGroupService streamGroupService, IChannelManager channelManager) : Controller
 {
-    private readonly Setting settings = intsettings.CurrentValue;
-    private readonly HLSSettings hlssettings = inthlssettings.CurrentValue;
-
     [Authorize(Policy = "SGLinks")]
     [HttpGet]
     [HttpHead]
-    [Route("v/v/{shortId}")]
-    [Route("v/v/{shortId}.ts")]
-    public IActionResult GetVideoStreamStream(string shortId)
+    [Route("{smChannelId}")]
+    [Route("{smChannelId}.ts")]
+    [Route("{streamGroupProfileId}/{smChannelId}")]
+    [Route("{streamGroupProfileId}/{smChannelId}.ts")]
+    public async Task<ActionResult> GetVideoStreamStream(int smChannelId, int? streamGroupProfileId, CancellationToken cancellationToken)
     {
-        VideoStream? videoStream = Repository.VideoStream.FindByCondition(a => a.ShortId == shortId).FirstOrDefault();
+        int streamGroupId = await streamGroupService.GetStreamGroupIdFromSGProfileIdAsync(streamGroupProfileId).ConfigureAwait(false);
 
-        if (videoStream == null)
+        StreamResult streamResult = await videoService.GetStreamAsync(streamGroupId, streamGroupProfileId, smChannelId, cancellationToken);
+
+        if (!string.IsNullOrEmpty(streamResult.RedirectUrl))
         {
-            return new NotFoundResult();
+            logger.LogInformation("Channel with ChannelId {channelId} redirecting", smChannelId);
+            return Redirect(streamResult.RedirectUrl);
         }
 
-
-        string videoUrl;
-        string url = httpContextAccessor.GetUrl();
-        if (hlssettings.HLSM3U8Enable)
+        if (streamResult.Stream == null || streamResult.ClientConfiguration == null)
         {
-            videoUrl = $"{url}/api/stream/{videoStream.Id}.m3u8";
-            return Redirect(videoUrl);
+            logger.LogInformation("Channel with ChannelId {channelId} failed", smChannelId);
+            return StatusCode(StatusCodes.Status404NotFound);
         }
 
-        string encodedName = HttpUtility.HtmlEncode(videoStream.User_Tvg_name).Trim()
-        .Replace("/", "")
-        .Replace(" ", "_");
+        HttpContext.Response.RegisterForDispose(new UnregisterClientOnDispose(channelManager, streamResult.ClientConfiguration));
 
-        string encodedNumbers = 0.EncodeValues128(videoStream.Id, settings.ServerKey);
-        videoUrl = $"{url}/api/videostreams/stream/{encodedNumbers}/{encodedName}";
-
-        return Redirect(videoUrl);
-    }
-
-    [Authorize(Policy = "SGLinks")]
-    [HttpGet]
-    [Route("v/s/{streamGroupName}.m3u")]
-
-    public async Task<IActionResult> GetStreamGroupM3U(string streamGroupName)
-    {
-
-        StreamGroupDto? sg = await GetStreamGroupDto(streamGroupName);
-
-        if (sg == null)
+        streamResult.ClientConfiguration.ClientStopped += (sender, args) =>
         {
-            return new NotFoundResult();
-        }
+            logger.LogInformation("Client {UniqueRequestId} {name} disposing", streamResult.ClientConfiguration.UniqueRequestId, streamResult.ClientConfiguration.SMChannel.Name);
 
-        string encodedName = GetEncodedName(streamGroupName);
-        string data = await sender.Send(new GetStreamGroupM3U(sg.Id, true)).ConfigureAwait(false);
-
-        return new FileContentResult(Encoding.UTF8.GetBytes(data), "application/x-mpegURL")
-        {
-            FileDownloadName = $"m3u-{encodedName}.m3u"
+            _ = channelManager.RemoveClientAsync(streamResult.ClientConfiguration);
         };
+
+        return streamResult.Stream != null ? new FileStreamResult(streamResult.Stream, "video/mp2t") { EnableRangeProcessing = false, FileDownloadName = $"{smChannelId}.ts" } : StatusCode(StatusCodes.Status404NotFound);
     }
 
-    [Authorize(Policy = "SGLinks")]
-    [HttpGet]
-    [Route("v/s/{streamGroupName}.xml")]
-    public async Task<IActionResult> GetStreamGroupEPG(string streamGroupName)
+    private class UnregisterClientOnDispose(IChannelManager channelManager, IClientConfiguration config) : IDisposable
     {
-        StreamGroupDto? sg = await GetStreamGroupDto(streamGroupName);
+        private readonly IChannelManager _channelManager = channelManager;
+        private readonly IClientConfiguration _config = config;
 
-        if (sg == null)
+        public void Dispose()
         {
-            return new NotFoundResult();
+            _ = _channelManager.RemoveClientAsync(_config);
         }
-
-        string encodedName = GetEncodedName(streamGroupName);
-        string xml = await sender.Send(new GetStreamGroupEPG(sg.Id)).ConfigureAwait(false);
-        return new FileContentResult(Encoding.UTF8.GetBytes(xml), "application/xml")
-        {
-            FileDownloadName = $"epg-{encodedName}.xml"
-        };
-    }
-
-    private static string GetEncodedName(string name)
-    {
-        return HttpUtility.HtmlEncode(name).Trim()
-                            .Replace("/", "")
-                            .Replace(" ", "_");
-    }
-
-    private async Task<StreamGroupDto?> GetStreamGroupDto(string streamGroupName)
-    {
-        List<StreamGroupDto> sgs = await Repository.StreamGroup.GetStreamGroups(CancellationToken.None);
-
-        foreach (StreamGroupDto testSG in sgs)
-        {
-            string encodedName = GetEncodedName(testSG.Name);
-
-            if (encodedName.Equals(streamGroupName.Trim(), StringComparison.CurrentCultureIgnoreCase))
-            {
-                return testSG;
-            }
-        }
-
-        return null;
-
     }
 }

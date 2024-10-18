@@ -1,101 +1,260 @@
-﻿using EFCore.BulkExtensions;
-
-using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
-using Microsoft.Data.Sqlite;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 
 using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Helpers;
-using StreamMaster.SchedulesDirect.Domain.Models;
+using StreamMaster.Infrastructure.EF.Base;
 
-using System.Text.RegularExpressions;
+using System.Text;
 
 namespace StreamMaster.Infrastructure.EF.PGSQL
 {
-    public partial class PGSQLRepositoryContext(DbContextOptions<PGSQLRepositoryContext> options) : DbContext(options), IDataProtectionKeyContext, IRepositoryContext
+    public partial class PGSQLRepositoryContext(DbContextOptions<PGSQLRepositoryContext> options) : BaseRepositoryContext(options)
     {
-
         public static string DbConnectionString => $"Host={BuildInfo.DBHost};Database={BuildInfo.DBName};Username={BuildInfo.DBUser};Password={BuildInfo.DBPassword}";
 
-        public bool IsEntityTracked<TEntity>(TEntity entity) where TEntity : class
+        public new bool IsEntityTracked<TEntity>(TEntity entity) where TEntity : class
         {
             return ChangeTracker.Entries<TEntity>().Any(e => e.Entity == entity);
         }
 
-        public async Task MigrateData(List<MxfService>? allServices = null)
+        public new void MigrateData()
         {
+            CheckFunctions();
+
             string? currentMigration = Database.GetAppliedMigrations().LastOrDefault();
             if (currentMigration == null)
             {
                 return;
             }
 
-            //if (!SystemKeyValues.Any(a => a.Key == "ChangeIDAlways"))
+            //if (currentMigration == "20240229201207_ConvertToSMChannels")
             //{
-            //    await FixIDs().ConfigureAwait(false);
-            //    SystemKeyValues.Add(new SystemKeyValue { Key = "ChangeIDAlways", Value = "1" });
+            //if (!SystemKeyValues.Any(a => a.Key == "MigrateData_20240229201207_ConvertToSMChannels"))
+            //{
+            //    MigrateData_20240229201207_ConvertToSMChannels();
+            //    SystemKeyValues.Add(new SystemKeyValue { Key = "MigrateData_20240229201207_ConvertToSMChannels", Value = "1" });
             //    await SaveChangesAsync().ConfigureAwait(false);
             //}
+
+            //}
+            return;
         }
 
-
-        public DbSet<SystemKeyValue> SystemKeyValues { get; set; }
-
-        public DbSet<EPGFile> EPGFiles { get; set; }
-        public DbSet<M3UFile> M3UFiles { get; set; }
-        public DbSet<VideoStreamLink> VideoStreamLinks { get; set; }
-        public DbSet<ChannelGroup> ChannelGroups { get; set; }
-        public DbSet<VideoStream> VideoStreams { get; set; }
-
-        public DbSet<StreamGroupChannelGroup> StreamGroupChannelGroups { get; set; }
-        public DbSet<StreamGroup> StreamGroups { get; set; }
-        public DbSet<StreamGroupVideoStream> StreamGroupVideoStreams { get; set; }
-
-        public DbSet<DataProtectionKey> DataProtectionKeys { get; set; }
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        private void CheckFunctions()
         {
-            modelBuilder.UseIdentityAlwaysColumns();
-            modelBuilder.ApplyConfigurationsFromAssembly(typeof(PGSQLRepositoryContext).Assembly);
+            StringBuilder sqlBuilder = new();
 
-            _ = modelBuilder.Entity<VideoStream>()
-             .HasIndex(e => e.User_Tvg_group)
-             .HasDatabaseName("idx_User_Tvg_group");
+            AppendFunctionHeader(sqlBuilder);
+            AppendUpdateStatement(sqlBuilder);
+            AppendInsertStatement(sqlBuilder);
+            AppendSMChannelsLogic(sqlBuilder);
+            AppendFunctionFooter(sqlBuilder);
 
-            // Composite index on User_Tvg_group and IsHidden
-            _ = modelBuilder.Entity<VideoStream>()
-                .HasIndex(e => new { e.User_Tvg_group, e.IsHidden })
-                .HasDatabaseName("idx_User_Tvg_group_IsHidden");
-
-            _ = modelBuilder.Entity<ChannelGroup>()
-               .HasIndex(e => e.Name)
-               .HasDatabaseName("idx_Name");
-
-            // Composite index on User_Tvg_group and IsHidden
-            _ = modelBuilder.Entity<ChannelGroup>()
-                .HasIndex(e => new { e.Name, e.IsHidden })
-                .HasDatabaseName("idx_Name_IsHidden");
-
-            _ = modelBuilder.Entity<VideoStream>()
-              .HasIndex(e => e.User_Tvg_name)
-              .HasDatabaseName("IX_VideoStream_User_Tvg_name");
-
-            modelBuilder.Entity<VideoStream>()
-                .HasIndex(p => p.User_Tvg_chno)
-                .HasDatabaseName("IX_VideoStream_User_Tvg_chno");
-
-
-            modelBuilder.Entity<VideoStream>()
-                .HasIndex(p => p.ShortId)
-                .HasDatabaseName("IX_VideoStream_ShortId");
-
-            //modelBuilder.OnHangfireModelCreating();
-
-            modelBuilder.ApplyUtcDateTimeConverter();
-
-            base.OnModelCreating(modelBuilder);
-
+            string sql = sqlBuilder.ToString();
+            Database.ExecuteSqlRaw(sql);
         }
+
+        private static void AppendFunctionHeader(StringBuilder sqlBuilder)
+        {
+            sqlBuilder.AppendLine("CREATE OR REPLACE FUNCTION public.create_or_update_smstreams_and_channels(");
+            sqlBuilder.AppendLine("    p_ids TEXT[],");
+            sqlBuilder.AppendLine("    p_file_positions INTEGER[],");
+            sqlBuilder.AppendLine("    p_channel_numbers INTEGER[],");
+            sqlBuilder.AppendLine("    p_groups CITEXT[],");
+            sqlBuilder.AppendLine("    p_epgids CITEXT[],");
+            sqlBuilder.AppendLine("    p_logos CITEXT[],");
+            sqlBuilder.AppendLine("    p_names CITEXT[],");
+            sqlBuilder.AppendLine("    p_urls CITEXT[],");
+            sqlBuilder.AppendLine("    p_station_ids CITEXT[],");
+            sqlBuilder.AppendLine("    p_channel_ids CITEXT[],");
+            sqlBuilder.AppendLine("    p_channel_names CITEXT[],");
+            sqlBuilder.AppendLine("    p_is_hidden BOOLEAN[],");
+            sqlBuilder.AppendLine("    p_tvg_names CITEXT[],");  // New parameter for TVGName column
+            sqlBuilder.AppendLine("    p_m3u_file_id INTEGER,");
+            sqlBuilder.AppendLine("    p_m3u_file_name CITEXT,");
+            sqlBuilder.AppendLine("    p_stream_group_id INTEGER,");
+            sqlBuilder.AppendLine("    p_create_channels BOOLEAN");
+            sqlBuilder.AppendLine(")");
+            sqlBuilder.AppendLine("RETURNS TABLE(channel_id INTEGER)");
+            sqlBuilder.AppendLine("LANGUAGE plpgsql");
+            sqlBuilder.AppendLine("AS $$");
+            sqlBuilder.AppendLine("DECLARE");
+            sqlBuilder.AppendLine("    channel_exists BOOLEAN;");
+            sqlBuilder.AppendLine("BEGIN");
+        }
+
+        private static void AppendUpdateStatement(StringBuilder sqlBuilder)
+        {
+            sqlBuilder.AppendLine("    FOR i IN array_lower(p_ids, 1)..array_upper(p_ids, 1)");
+            sqlBuilder.AppendLine("    LOOP");
+            sqlBuilder.AppendLine("        -- Attempt to update an existing stream");
+            sqlBuilder.AppendLine("        UPDATE \"SMStreams\"");
+            sqlBuilder.AppendLine("        SET");
+            sqlBuilder.AppendLine("            \"FilePosition\" = p_file_positions[i],");
+            sqlBuilder.AppendLine("            \"IsHidden\" = p_is_hidden[i],");
+            sqlBuilder.AppendLine("            \"IsUserCreated\" = false,");
+            sqlBuilder.AppendLine("            \"M3UFileId\" = p_m3u_file_id,");
+            sqlBuilder.AppendLine("            \"ChannelNumber\" = p_channel_numbers[i],");
+            sqlBuilder.AppendLine("            \"M3UFileName\" = p_m3u_file_name,");
+            sqlBuilder.AppendLine("            \"Group\" = p_groups[i],");
+            sqlBuilder.AppendLine("            \"EPGID\" = p_epgids[i],");
+            sqlBuilder.AppendLine("            \"Logo\" = p_logos[i],");
+            sqlBuilder.AppendLine("            \"Name\" = p_names[i],");
+            sqlBuilder.AppendLine("            \"Url\" = p_urls[i],");
+            sqlBuilder.AppendLine("            \"StationId\" = p_station_ids[i],");
+            sqlBuilder.AppendLine("            \"ChannelId\" = p_channel_ids[i],");
+            sqlBuilder.AppendLine("            \"ChannelName\" = p_channel_names[i],");
+            sqlBuilder.AppendLine("            \"TVGName\" = p_tvg_names[i],");
+            sqlBuilder.AppendLine("            \"IsSystem\" = false,");
+            sqlBuilder.AppendLine("            \"CUID\" = '',");
+            sqlBuilder.AppendLine("            \"SMStreamType\" = 0,");
+            sqlBuilder.AppendLine("            \"NeedsDelete\" = false -- Unmark this stream");
+            sqlBuilder.AppendLine("        WHERE \"Id\" = p_ids[i];");
+        }
+
+        private static void AppendInsertStatement(StringBuilder sqlBuilder)
+        {
+            sqlBuilder.AppendLine();
+            sqlBuilder.AppendLine("        -- If no rows were updated, perform an insert");
+            sqlBuilder.AppendLine("        IF NOT FOUND THEN");
+            sqlBuilder.AppendLine("            INSERT INTO \"SMStreams\" (");
+            sqlBuilder.AppendLine("                \"Id\",");
+            sqlBuilder.AppendLine("                \"FilePosition\",");
+            sqlBuilder.AppendLine("                \"IsHidden\",");
+            sqlBuilder.AppendLine("                \"IsUserCreated\",");
+            sqlBuilder.AppendLine("                \"M3UFileId\",");
+            sqlBuilder.AppendLine("                \"ChannelNumber\",");
+            sqlBuilder.AppendLine("                \"M3UFileName\",");
+            sqlBuilder.AppendLine("                \"Group\",");
+            sqlBuilder.AppendLine("                \"EPGID\",");
+            sqlBuilder.AppendLine("                \"Logo\",");
+            sqlBuilder.AppendLine("                \"Name\",");
+            sqlBuilder.AppendLine("                \"Url\",");
+            sqlBuilder.AppendLine("                \"StationId\",");
+            sqlBuilder.AppendLine("                \"ChannelId\",");
+            sqlBuilder.AppendLine("                \"ChannelName\",");
+            sqlBuilder.AppendLine("                \"TVGName\",");
+            sqlBuilder.AppendLine("                \"IsSystem\",");
+            sqlBuilder.AppendLine("                \"CUID\",");
+            sqlBuilder.AppendLine("                \"SMStreamType\",");
+            sqlBuilder.AppendLine("                \"NeedsDelete\"");
+            sqlBuilder.AppendLine("            ) VALUES (");
+            sqlBuilder.AppendLine("                p_ids[i],");
+            sqlBuilder.AppendLine("                p_file_positions[i],");
+            sqlBuilder.AppendLine("                p_is_hidden[i],");
+            sqlBuilder.AppendLine("                false,  -- IsUserCreated (constant value)");
+            sqlBuilder.AppendLine("                p_m3u_file_id,");
+            sqlBuilder.AppendLine("                p_channel_numbers[i],");
+            sqlBuilder.AppendLine("                p_m3u_file_name,");
+            sqlBuilder.AppendLine("                p_groups[i],");
+            sqlBuilder.AppendLine("                p_epgids[i],");
+            sqlBuilder.AppendLine("                p_logos[i],");
+            sqlBuilder.AppendLine("                p_names[i],");
+            sqlBuilder.AppendLine("                p_urls[i],");
+            sqlBuilder.AppendLine("                p_station_ids[i],");
+            sqlBuilder.AppendLine("                p_channel_ids[i],");
+            sqlBuilder.AppendLine("                p_channel_names[i],");
+            sqlBuilder.AppendLine("                p_tvg_names[i],");
+            sqlBuilder.AppendLine("                false,  -- IsSystem");
+            sqlBuilder.AppendLine("                '',  -- CUID");
+            sqlBuilder.AppendLine("                0,  -- SMStreamType");
+            sqlBuilder.AppendLine("                false  -- NeedsDelete (new stream, not marked for deletion)");
+            sqlBuilder.AppendLine("            );");
+            sqlBuilder.AppendLine("        END IF;");
+        }
+
+        private static void AppendSMChannelsLogic(StringBuilder sqlBuilder)
+        {
+            sqlBuilder.AppendLine();
+            sqlBuilder.AppendLine("        -- Optional: Create a channel if p_create_channels is true and the channel does not already exist");
+            sqlBuilder.AppendLine("        IF p_create_channels THEN");
+            sqlBuilder.AppendLine("            SELECT EXISTS (");
+            sqlBuilder.AppendLine("                SELECT 1 FROM \"SMChannels\" WHERE \"BaseStreamID\" = p_ids[i]");
+            sqlBuilder.AppendLine("            ) INTO channel_exists;");
+            sqlBuilder.AppendLine();
+            sqlBuilder.AppendLine("            IF NOT channel_exists THEN");
+            sqlBuilder.AppendLine("                INSERT INTO \"SMChannels\" (");
+            sqlBuilder.AppendLine("                    \"CommandProfileName\",");
+            sqlBuilder.AppendLine("                    \"BaseStreamID\",");
+            sqlBuilder.AppendLine("                    \"M3UFileId\",");
+            sqlBuilder.AppendLine("                    \"ChannelNumber\",");
+            sqlBuilder.AppendLine("                    \"TimeShift\",");
+            sqlBuilder.AppendLine("                    \"Group\",");
+            sqlBuilder.AppendLine("                    \"EPGId\",");
+            sqlBuilder.AppendLine("                    \"Logo\",");
+            sqlBuilder.AppendLine("                    \"Name\",");
+            sqlBuilder.AppendLine("                    \"StationId\",");
+            sqlBuilder.AppendLine("                    \"ChannelId\",");
+            sqlBuilder.AppendLine("                    \"ChannelName\",");
+            sqlBuilder.AppendLine("                    \"TVGName\",");
+            sqlBuilder.AppendLine("                    \"IsHidden\",");
+            sqlBuilder.AppendLine("                    \"GroupTitle\",");
+            sqlBuilder.AppendLine("                    \"IsSystem\",");
+            sqlBuilder.AppendLine("                    \"SMChannelType\"");
+            sqlBuilder.AppendLine("                ) VALUES (");
+            sqlBuilder.AppendLine("                    'Default',");
+            sqlBuilder.AppendLine("                    p_ids[i],");
+            sqlBuilder.AppendLine("                    p_m3u_file_id,");
+            sqlBuilder.AppendLine("                    p_channel_numbers[i],");
+            sqlBuilder.AppendLine("                    0,");
+            sqlBuilder.AppendLine("                    p_groups[i],");
+            sqlBuilder.AppendLine("                    p_epgids[i],");
+            sqlBuilder.AppendLine("                    p_logos[i],");
+            sqlBuilder.AppendLine("                    p_names[i],");
+            sqlBuilder.AppendLine("                    p_station_ids[i],");
+            sqlBuilder.AppendLine("                    p_channel_ids[i],");
+            sqlBuilder.AppendLine("                    p_channel_names[i],");
+            sqlBuilder.AppendLine("                    p_tvg_names[i],");
+            sqlBuilder.AppendLine("                    p_is_hidden[i],");
+            sqlBuilder.AppendLine("                    '',  -- GroupTitle");
+            sqlBuilder.AppendLine("                    false,  -- IsSystem");
+            sqlBuilder.AppendLine("                    0  -- SMChannelType");
+            sqlBuilder.AppendLine("                ) RETURNING \"Id\" INTO channel_id;");
+            sqlBuilder.AppendLine();
+            sqlBuilder.AppendLine("                INSERT INTO \"SMChannelStreamLinks\" (");
+            sqlBuilder.AppendLine("                    \"SMChannelId\",");
+            sqlBuilder.AppendLine("                    \"SMStreamId\",");
+            sqlBuilder.AppendLine("                    \"Rank\"");
+            sqlBuilder.AppendLine("                ) VALUES (");
+            sqlBuilder.AppendLine("                    channel_id,");
+            sqlBuilder.AppendLine("                    p_ids[i],");
+            sqlBuilder.AppendLine("                    0");
+            sqlBuilder.AppendLine("                ) ON CONFLICT (\"SMChannelId\", \"SMStreamId\") DO NOTHING;");
+            sqlBuilder.AppendLine();
+            sqlBuilder.AppendLine("                IF p_stream_group_id != 0 THEN");
+            sqlBuilder.AppendLine("                    INSERT INTO \"StreamGroupSMChannelLink\" (");
+            sqlBuilder.AppendLine("                        \"SMChannelId\",");
+            sqlBuilder.AppendLine("                        \"StreamGroupId\",");
+            sqlBuilder.AppendLine("                        \"IsReadOnly\",");
+            sqlBuilder.AppendLine("                        \"Rank\"");
+            sqlBuilder.AppendLine("                    ) VALUES (");
+            sqlBuilder.AppendLine("                        channel_id,");
+            sqlBuilder.AppendLine("                        p_stream_group_id,");
+            sqlBuilder.AppendLine("                        false,");
+            sqlBuilder.AppendLine("                        0");
+            sqlBuilder.AppendLine("                    ) ON CONFLICT (\"SMChannelId\", \"StreamGroupId\") DO NOTHING;");
+            sqlBuilder.AppendLine("                END IF;");
+            sqlBuilder.AppendLine();
+            sqlBuilder.AppendLine("                RETURN NEXT;");
+            sqlBuilder.AppendLine("            END IF;");
+            sqlBuilder.AppendLine("        END IF;");
+            sqlBuilder.AppendLine("    END LOOP;");
+        }
+
+        private static void AppendFunctionFooter(StringBuilder sqlBuilder)
+        {
+            sqlBuilder.AppendLine("END $$;");
+        }
+
+        //public static readonly ILoggerFactory MyLoggerFactory = LoggerFactory.Create(builder =>
+        //{
+        //    builder
+        //        .AddConsole()
+        //        .AddFilter((category, level) =>
+        //            category == DbLoggerCategory.Database.Command.Name &&
+        //            level == LogLevel.Information)
+        //        .AddDebug();
+        //});
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
@@ -107,68 +266,15 @@ namespace StreamMaster.Infrastructure.EF.PGSQL
                     o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
                 }
                 );
-
+            Setting? setting = SettingsHelper.GetSetting<Setting>(BuildInfo.SettingsFile);
+            if (setting?.EnableDBDebug == true)
+            {
+                options.EnableSensitiveDataLogging(true);
+            }
         }
 
         protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
         {
-            //configurationBuilder.Properties<string>().UseCollation("sm_collation");
-        }
-
-        private bool _disposed = false;
-
-        public override void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-
-        }
-
-
-        protected void Dispose(bool disposing)
-        {
-            if (!_disposed)
-            {
-
-
-                if (disposing)
-                {
-#if DEBUG
-                    SqliteConnection.ClearAllPools();
-#endif
-                    base.Dispose();
-
-                }
-            }
-            _disposed = true;
-        }
-
-        [GeneratedRegex(@"^\d+-")]
-        private static partial Regex UserTVGIDRegex();
-
-        public int ExecuteSqlRaw(string sql, params object[] parameters)
-        {
-            return Database.ExecuteSqlRaw(sql, parameters);
-        }
-
-        public Task<int> ExecuteSqlRawAsyncEntities(string sql, CancellationToken cancellationToken = default)
-        {
-            return Database.ExecuteSqlRawAsync(sql, cancellationToken);
-        }
-
-        public void BulkUpdateEntities<TEntity>(IEnumerable<TEntity> entities) where TEntity : class
-        {
-            this.BulkUpdate(entities);
-        }
-
-        public void BulkInsertEntities<TEntity>(IEnumerable<TEntity> entities) where TEntity : class
-        {
-            this.BulkInsert(entities);
-        }
-
-        public Task BulkDeleteAsyncEntities<TEntity>(IQueryable<TEntity> entities, CancellationToken cancellationToken = default) where TEntity : class
-        {
-            return entities.ExecuteDeleteAsync(cancellationToken);
         }
     }
 }

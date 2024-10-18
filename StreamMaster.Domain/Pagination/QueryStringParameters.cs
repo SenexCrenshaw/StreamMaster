@@ -1,10 +1,13 @@
 ﻿namespace StreamMaster.Domain.Pagination
 {
-    public abstract class QueryStringParameters
+    [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
+    public class QueryStringParameters
     {
+        public QueryStringParameters() { }
+
         public int PageNumber { get; set; } = 1;
         private int _pageSize = 25;
-        private string orderBy;
+        private string orderBy = "Id";
 
         public int PageSize
         {
@@ -16,12 +19,13 @@
                 }
                 return _pageSize;
             }
-            set => _pageSize = value;// > maxPageSize ? maxPageSize : value;
+            set => _pageSize = value;
         }
 
         public string OrderBy
         {
-            get => orderBy; set
+            get => orderBy;
+            set
             {
                 if (!string.IsNullOrEmpty(value))
                 {

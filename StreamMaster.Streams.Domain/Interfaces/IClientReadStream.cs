@@ -1,13 +1,16 @@
-﻿using System.Threading.Channels;
+﻿using StreamMaster.Streams.Domain.Events;
+
+using System.Threading.Channels;
 
 namespace StreamMaster.Streams.Domain.Interfaces;
 
 /// <summary>
 /// Provides an interface for reading from a ring buffer stream.
 /// </summary>
-public interface IClientReadStream : IDisposable
+public interface IClientReadStream : IDisposable, IStreamStats
 {
-    string VideoStreamName { get; set; }
+    event EventHandler<StreamTimedOut> ClientStreamTimedOut;
+
     Channel<byte[]> Channel { get; }
 
     /// <summary>

@@ -1,117 +1,131 @@
 import StandardHeader from '@components/StandardHeader';
 import ResetButton from '@components/buttons/ResetButton';
 import SaveButton from '@components/buttons/SaveButton';
-import { GetMessage, isEmptyObject } from '@lib/common/common';
+import { isEmptyObject } from '@lib/common/common';
 import { SettingsEditorIcon } from '@lib/common/icons';
-import { AuthenticationType } from '@lib/common/streammaster_enums';
-import { SettingDto, UpdateSettingRequest, useSettingsGetSettingQuery } from '@lib/iptvApi';
-import { useSelectCurrentSettingDto } from '@lib/redux/slices/selectedCurrentSettingDto';
-import { useSelectUpdateSettingRequest } from '@lib/redux/slices/selectedUpdateSettingRequestSlice';
-import { UpdateSetting } from '@lib/smAPI/Settings/SettingsMutateAPI';
+import { GetMessage } from '@lib/common/intl';
+import { Logger } from '@lib/common/logger';
+import { useSMContext } from '@lib/context/SMProvider';
+import { useSettingsContext } from '@lib/context/SettingsProvider';
+import { UpdateSetting } from '@lib/smAPI/Settings/SettingsCommands';
+import useGetSettings from '@lib/smAPI/Settings/useGetSettings';
+import { UpdateSettingRequest } from '@lib/smAPI/smapiTypes';
 import { ScrollPanel } from 'primereact/scrollpanel';
-import { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { memo, useCallback, useMemo } from 'react';
 import { AuthenticationSettings } from './AuthenticationSettings';
 import { BackupSettings } from './BackupSettings';
 import { DevelopmentSettings } from './DevelopmentSettings';
-import { FilesEPGM3USettings } from './FilesEPGM3USettings';
 import { GeneralSettings } from './GeneralSettings';
-// import { ProfileSettings } from './ProfileSettings';
-import { ProfileSettings } from './ProfileSettings';
+import { MiscSettings } from './MiscSettings';
 import { SDSettings } from './SDSettings';
 import { StreamingSettings } from './StreamingSettings';
+import LogsDialog from './LogsDialog';
 
-export const SettingsEditor = () => {
-  const { selectedCurrentSettingDto, setSelectedCurrentSettingDto } = useSelectCurrentSettingDto('CurrentSettingDto');
-  const { selectUpdateSettingRequest, setSelectedUpdateSettingRequest } = useSelectUpdateSettingRequest('UpdateSettingRequest');
+const SettingsEditor = () => {
+  const { currentSetting, setCurrentSetting, updateSettingRequest, setUpdateSettingRequest } = useSettingsContext();
+  const { isSystemReady, settings } = useSMContext();
+  const getSettings = useGetSettings();
 
-  const [originalData, setOriginalData] = useState<SettingDto>({} as SettingDto);
-
-  const settingsQuery = useSettingsGetSettingQuery();
-
-  useEffect(() => {
-    if (settingsQuery.isLoading || !settingsQuery.data) return;
-
-    setSelectedCurrentSettingDto({ ...settingsQuery.data });
-    setSelectedUpdateSettingRequest({} as UpdateSettingRequest);
-    setOriginalData({ ...settingsQuery.data });
-  }, [setSelectedCurrentSettingDto, setSelectedUpdateSettingRequest, settingsQuery]);
-
+  Logger.debug('SettingsEditor', 'currentSetting', currentSetting);
   const adminUserNameError = useMemo((): string | undefined => {
-    if (selectedCurrentSettingDto?.authenticationMethod === AuthenticationType.Forms && selectedCurrentSettingDto?.adminUserName === '')
-      return GetMessage('formsAuthRequiresAdminUserName');
+    if (currentSetting?.AuthenticationMethod !== 'None' && currentSetting?.AdminUserName === '') return GetMessage('formsAuthRequiresAdminUserName');
 
     return undefined;
-  }, [selectedCurrentSettingDto?.adminUserName, selectedCurrentSettingDto?.authenticationMethod]);
+  }, [currentSetting?.AdminUserName, currentSetting?.AuthenticationMethod]);
 
   const adminPasswordError = useMemo((): string | undefined => {
-    if (selectedCurrentSettingDto?.authenticationMethod === AuthenticationType.Forms && selectedCurrentSettingDto?.adminPassword === '')
-      return GetMessage('formsAuthRequiresAdminPassword');
+    if (currentSetting?.AuthenticationMethod !== 'None' && currentSetting?.AdminPassword === '') return GetMessage('formsAuthRequiresAdminPassword');
 
     return undefined;
-  }, [selectedCurrentSettingDto?.adminPassword, selectedCurrentSettingDto?.authenticationMethod]);
+  }, [currentSetting?.AdminPassword, currentSetting?.AuthenticationMethod]);
 
   const isSaveEnabled = useMemo((): boolean => {
-    if (selectedCurrentSettingDto?.enableSSL === true && selectedCurrentSettingDto?.sslCertPath === '') {
-      console.log('enableSSL');
+    if (currentSetting?.EnableSSL === true && currentSetting?.SSLCertPath === '') {
       return false;
     }
 
     if (adminUserNameError !== undefined || adminPasswordError !== undefined) {
-      console.log('adminUserNameError');
       return false;
     }
 
-    if (isEmptyObject(selectUpdateSettingRequest)) {
+    if (isEmptyObject(updateSettingRequest)) {
       return false;
     }
 
     return true;
-  }, [adminPasswordError, adminUserNameError, selectUpdateSettingRequest, selectedCurrentSettingDto?.enableSSL, selectedCurrentSettingDto?.sslCertPath]);
+  }, [currentSetting, updateSettingRequest, adminUserNameError, adminPasswordError]);
 
   const onSave = useCallback(() => {
-    if (!isSaveEnabled || !selectUpdateSettingRequest) {
+    if (!isSaveEnabled || !updateSettingRequest) {
       return;
     }
 
-    UpdateSetting(selectUpdateSettingRequest)
+    UpdateSetting(updateSettingRequest)
       .then(() => {
-        const reset: UpdateSettingRequest = {};
-        setSelectedUpdateSettingRequest(reset);
+        //
       })
       .catch((error) => {
         console.error(error);
       })
-      .finally(() => {});
-  }, [isSaveEnabled, selectUpdateSettingRequest, setSelectedUpdateSettingRequest]);
+      .finally(() => {
+        var t = {
+          ...currentSetting,
+          ...updateSettingRequest.Parameters
+        };
+
+        var sdSettings = {
+          ...currentSetting.SDSettings,
+          ...updateSettingRequest.Parameters.SDSettings
+        };
+
+        t.SDSettings = sdSettings;
+
+        Logger.debug('SettingsEditor', 'Updating settings', t);
+        setCurrentSetting(t);
+        setUpdateSettingRequest({} as UpdateSettingRequest);
+        getSettings.SetIsForced(true);
+      });
+  }, [isSaveEnabled, updateSettingRequest, setCurrentSetting, currentSetting, setUpdateSettingRequest, getSettings]);
 
   const resetData = useCallback(() => {
-    setSelectedCurrentSettingDto({ ...originalData });
-  }, [originalData, setSelectedCurrentSettingDto]);
+    Logger.debug('SettingsEditor', 'Resetting data', settings.DeviceID);
+    setUpdateSettingRequest({} as UpdateSettingRequest);
+    // setCurrentSetting({ ...settings });
+    getSettings.SetIsForced(true);
+  }, [getSettings, setUpdateSettingRequest, settings.DeviceID]);
+
+  if (!isSystemReady) {
+    //|| settings === undefined || !propertyExists(currentSetting, 'DeviceID')) {
+    return <div>Loading</div>;
+  }
 
   return (
     <StandardHeader displayName={GetMessage('settings')} icon={<SettingsEditorIcon />}>
-      <div className="flex flex-column">
-        <ScrollPanel style={{ height: 'calc(100vh - 100px)', width: '100%' }}>
-          <GeneralSettings />
-
-          <BackupSettings />
-
-          <AuthenticationSettings />
-
-          <StreamingSettings />
-
-          {settingsQuery.data?.hls?.hlsM3U8Enable && <ProfileSettings />}
-
-          <SDSettings />
-
-          <FilesEPGM3USettings />
-
-          <DevelopmentSettings />
+      <div className="flex flex-column w-full">
+        <ScrollPanel className="w-full" style={{ height: 'calc(100vh - 80px)' }}>
+          <div className="flex flex-row justify-content-start align-items-start">
+            <div className="w-4 pr-1 flex flex-column gap-3">
+              <GeneralSettings />
+              <AuthenticationSettings />
+              <DevelopmentSettings />
+              <LogsDialog />
+            </div>
+            <div className="w-4 pl-1 flex flex-column gap-3">
+              <SDSettings />
+            </div>
+            <div className="w-4 pl-1 flex flex-column gap-3">
+              <StreamingSettings />
+              <BackupSettings />
+              <MiscSettings />
+            </div>
+          </div>
         </ScrollPanel>
         <div className="flex mt-2 justify-content-center align-items-end">
-          <div className="flex justify-content-center align-items-center gap-2">
-            <SaveButton disabled={!isSaveEnabled} onClick={() => onSave()} iconFilled label="Save Settings" />
-            <ResetButton disabled={!isSaveEnabled} onClick={() => resetData()} iconFilled label="Reset Settings" />
+          <div className="sm-w-5rem">
+            <SaveButton buttonDisabled={!isSaveEnabled} onClick={onSave} iconFilled label="Save" />
+          </div>
+          <div className="sm-w-5rem">
+            <ResetButton buttonDisabled={!isSaveEnabled} onClick={resetData} iconFilled label="Reset" />
           </div>
         </div>
       </div>

@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-using StreamMaster.SchedulesDirect.Domain.Enums;
+using StreamMaster.Domain.Enums;
 
-namespace StreamMasterAPI.Interfaces;
+namespace StreamMaster.API.Interfaces;
 
 public interface IFileController
 {

@@ -4,9 +4,9 @@ using StreamMaster.Domain.Configuration;
 
 namespace StreamMaster.Infrastructure.Services.Frontend.Mappers
 {
-    public class StaticResourceMapper(IOptionsMonitor<Setting> intsettings, ILogger<NextStaticResourceMapper> logger) : StaticResourceMapperBase(logger)
+    public class StaticResourceMapper(IOptionsMonitor<Setting> intSettings, ILogger<NextStaticResourceMapper> logger) : StaticResourceMapperBase(logger)
     {
-        private readonly Setting settings = intsettings.CurrentValue;
+        private readonly Setting settings = intSettings.CurrentValue;
 
         public override bool CanHandle(string resourceUrl)
         {

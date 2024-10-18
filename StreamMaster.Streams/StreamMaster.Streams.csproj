@@ -6,12 +6,23 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+	<ItemGroup>
+	<PackageReference Include="System.Formats.Asn1" Version="8.0.1" />
+	</ItemGroup>
+	
   <ItemGroup>
-    <PackageReference Include="prometheus-net" Version="8.2.1" />
+    <PackageReference Include="SixLabors.Fonts" Version="2.0.4" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="3.1.5" />
+    <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="2.1.4" />
   </ItemGroup>
+	
+	<ItemGroup>
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
+	</ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\StreamMaster.Logging\StreamMaster.Logging.csproj" />
+    <ProjectReference Include="..\StreamMaster.Application\StreamMaster.Application.csproj" />
+    <ProjectReference Include="..\StreamMaster.PlayList\StreamMaster.PlayList.csproj" />
     <ProjectReference Include="..\StreamMaster.Streams.Domain\StreamMaster.Streams.Domain.csproj" />
   </ItemGroup>
 

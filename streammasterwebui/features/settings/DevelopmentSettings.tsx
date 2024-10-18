@@ -1,22 +1,37 @@
-import { GetMessage, getTopToolOptions } from '@lib/common/common';
+import SyncCustomListsButton from '@components/customPlayList/SyncCustomListsButton';
+import SMButton from '@components/sm/SMButton';
 import { baseHostURL } from '@lib/settings';
-import { Button } from 'primereact/button';
-import { Fieldset } from 'primereact/fieldset';
 import React from 'react';
+import { BaseSettings } from './BaseSettings';
+import { useSMContext } from '@lib/context/SMProvider';
+import BooleanEditor from '@components/inputs/BooleanEditor';
 
 export function DevelopmentSettings(): React.ReactElement {
+  const { enableFetchDebug, fetchDebug } = useSMContext();
+
   return (
-    <Fieldset className="mt-4 pt-10" legend={GetMessage('development')}>
-      <Button
-        icon="pi pi-bookmark-fill"
-        label="Swagger"
-        onClick={() => {
-          const link = `${baseHostURL}/swagger`;
-          window.open(link);
-        }}
-        tooltip="Swagger Link"
-        tooltipOptions={getTopToolOptions}
-      />
-    </Fieldset>
+    <BaseSettings title="DEVELOPMENT">
+      <div className="sm-center-stuff">
+        <div className="sm-w-7rem">
+          <SMButton
+            icon="pi-bookmark-fill"
+            iconFilled
+            buttonClassName="icon-blue"
+            label="Swagger"
+            onClick={() => {
+              const link = `${baseHostURL}/swagger`;
+              window.open(link);
+            }}
+            tooltip="Swagger Link"
+          />
+        </div>
+        <div className="sm-w-9rem">
+          <SyncCustomListsButton />
+        </div>
+        <div className="sm-w-9rem">
+          <BooleanEditor labelInline checked={fetchDebug} onChange={enableFetchDebug} label="Fetch Debug" />
+        </div>
+      </div>
+    </BaseSettings>
   );
 }

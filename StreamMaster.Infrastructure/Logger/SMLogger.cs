@@ -1,16 +1,16 @@
 ﻿using Microsoft.Extensions.Logging;
 
 using StreamMaster.Domain.Extensions;
-using StreamMaster.Domain.Services;
 
 namespace StreamMaster.Infrastructure.Logger;
 
 public class SMLogger : ILogger
 {
     private readonly IFileLoggingService _logging;
+
     public SMLogger(IFileLoggingServiceFactory factory)
     {
-        _logging = factory.Create("FileLogger");
+        _logging = factory.Create("SMLogger");
     }
 
     public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
@@ -23,7 +23,6 @@ public class SMLogger : ILogger
         string logEntry = FormatLogEntry(logLevel, eventId, state, exception, formatter);
         _logging.EnqueueLogEntry(logEntry);
     }
-
 
     public IDisposable BeginScope<TState>(TState state)
     {
@@ -52,7 +51,7 @@ public class SMLogger : ILogger
     //    db.LogEntries.GetOrAdd(new LogEntry
     //    {
     //        LogLevel = logLevel,
-    //        Message = message,
+    //        MessageId = message,
     //        TimeStamp = DateTime.Now
     //    });
 
@@ -62,15 +61,13 @@ public class SMLogger : ILogger
     //        db.LogEntries.GetOrAdd(new LogEntry
     //        {
     //            LogLevel = LogLevel.Error,
-    //            Message = exception.ToString(),
+    //            MessageId = exception.ToString(),
     //            TimeStamp = DateTime.Now
     //        });
     //    }
 
     //    db.SaveChanges();
     //}
-
-
 
     //public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
     //{
@@ -85,7 +82,6 @@ public class SMLogger : ILogger
 
     private static string FormatLogEntry<TState>(LogLevel logLevel, EventId eventId, TState? state, Exception exception, Func<TState, Exception, string> formatter)
     {
-
         string message = formatter(state, exception);
 
         // Format the log entry as CSV, including the EventId
@@ -102,7 +98,6 @@ public class SMLogger : ILogger
         return csvFormattedEntry;
     }
 
-
     //private async Task WriteLogEntryAsync(string logEntry)
     //{
     //    await _writeLock.WaitAsync();
@@ -115,5 +110,4 @@ public class SMLogger : ILogger
     //        _writeLock.Release();
     //    }
     //}
-
 }

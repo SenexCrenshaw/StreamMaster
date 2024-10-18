@@ -9,6 +9,15 @@ function stringToHash(string_: string): number {
   return Math.abs(hash);
 }
 
+export function getRandomColorHex(): string {
+  const hue = Math.floor(Math.random() * 360);
+  const saturation = Math.floor(Math.random() * 31 + 70); // Saturation between 70% and 100%
+  const lightness = Math.floor(Math.random() * 16 + 50); // Lightness between 50% and 65%
+
+  const [r, g, b] = hslToRgb(hue, saturation, lightness);
+  return rgbToHex(r, g, b);
+}
+
 export function getColor(text: string): string {
   const hash = stringToHash(text);
   const hue = hash % 360;

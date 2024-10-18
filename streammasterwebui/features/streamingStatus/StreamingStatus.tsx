@@ -1,17 +1,29 @@
 import StandardHeader from '@components/StandardHeader';
 import { StreamingStatusIcon } from '@lib/common/icons';
-import React from 'react';
-import StreamingClientsPanel from './StreamingClientsPanel';
-import StreamingServerStatusPanel from './StreamingServerStatusPanel';
+import React, { lazy, Suspense } from 'react';
 
-// const StandardHeader = React.lazy(() => import('@components/StandardHeader'));
+const DownloadStatusDataSelector = lazy(() => import('./DownloadStatusDataSelector'));
 
-export const StreamingStatus = (): JSX.Element => (
-  <StandardHeader className="flex-column" displayName="Streaming Status" icon={<StreamingStatusIcon />}>
-    <StreamingServerStatusPanel style={{ height: 'calc(50vh - 140px)' }} />
-    <StreamingClientsPanel style={{ height: 'calc(50vh + 50px)' }} />
-  </StandardHeader>
-);
+const SMStreamingStatus = lazy(() => import('./SMStreamingStatus'));
+const SMTasksDataSelector = lazy(() => import('@components/smtasks/SMTasksDataSelector'));
+
+export const StreamingStatus = (): JSX.Element => {
+  return (
+    <StandardHeader displayName="Streaming Status" icon={<StreamingStatusIcon />}>
+      <Suspense>
+        <div className="layout-padding-bottom" />
+        <SMStreamingStatus />
+        <div className="layout-padding-bottom-lg" />
+        <div className="absolute" style={{ bottom: '0%', width: '97%' }}>
+          <DownloadStatusDataSelector />
+          <div className="layout-padding-bottom-lg" />
+          <SMTasksDataSelector width="100%" height="30vh" />
+          <div className="layout-padding-bottom" />
+        </div>
+      </Suspense>
+    </StandardHeader>
+  );
+};
 
 StreamingStatus.displayName = 'Streaming Status';
 

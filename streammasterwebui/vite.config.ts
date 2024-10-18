@@ -1,51 +1,44 @@
 import react from '@vitejs/plugin-react';
+import { visualizer } from 'rollup-plugin-visualizer';
 import path from 'node:path';
+import viteCompression from 'vite-plugin-compression';
 
 import { builtinModules } from 'module';
 import { defineConfig } from 'vite';
 
 export default defineConfig({
-  clearScreen: true,
   appType: 'spa',
+
   build: {
+    emptyOutDir: true,
     rollupOptions: {
-      external: builtinModules
-    },
-    emptyOutDir: true
-    // outDir: '../StreamMasterAPI/bin/Debug/net7.0/wwwroot/'
-    //   rollupOptions: {
-    //     output: {
-    //       manualChunks: (id): 'vendor_aws' | 'vendor_mui' | 'vendor' | 'smAPI' | 'smLib' | 'smComponents/' | 'smFeatures/' | undefined => {
-    //         console.log(id);
-    //         if (id.includes('node_modules')) {
-    //           if (id.includes('@aws-amplify')) {
-    //             return 'vendor_aws';
-    //           }
-    //           if (id.includes('@mui')) {
-    //             return 'vendor_mui';
-    //           }
+      external: builtinModules,
+      output: {
+        manualChunks: (id): any => {
+          console.log(id);
+          if (id.includes('node_modules')) {
+            return id.toString().split('node_modules/')[1].split('/')[0].toString();
+          }
 
-    //           return 'vendor'; // all other package goes here
-    //         }
-    //         if (id.includes('/streammasterwebui2/lib/smAPI/')) {
-    //           return 'smAPI';
-    //         }
-    //         if (id.includes('/streammasterwebui/lib/')) {
-    //           return 'smLib';
-    //         }
-    //         if (id.includes('/streammasterwebui/components//')) {
-    //           return 'smComponents/';
-    //         }
-    //         if (id.includes('/streammasterwebui/features//')) {
-    //           return 'smFeatures/';
-    //         }
-    //         return undefined;
-    //       }
-    //     }
-    //   }
+          if (id.includes('/streammasterwebui/lib/smAPI/')) {
+            return 'smAPI';
+          }
+          if (id.includes('/streammasterwebui/lib/')) {
+            return 'smLib';
+          }
+          if (id.includes('/streammasterwebui/components//')) {
+            return 'smComponents';
+          }
+          if (id.includes('/streammasterwebui/features//')) {
+            return 'smFeatures';
+          }
+          return undefined;
+        }
+      }
+    }
   },
-  plugins: [react()],
-
+  clearScreen: true,
+  plugins: [react(), visualizer(), viteCompression()],
   resolve: {
     alias: {
       '@': path.resolve('./'),

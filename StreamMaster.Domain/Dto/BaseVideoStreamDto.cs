@@ -21,7 +21,7 @@ public class BaseVideoStreamDto /*: IMapFrom<VideoStream>*/
     [Required]
     public string Id { get; set; }
 
-    public string ShortId { get; set; }
+    public string SMChannelId { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether the video stream is currently active.
@@ -68,7 +68,7 @@ public class BaseVideoStreamDto /*: IMapFrom<VideoStream>*/
     /// Gets or sets the type of streaming proxy to use.
     /// </summary>
     /// <value>The type of streaming proxy to use.</value>
-    public StreamingProxyTypes StreamingProxyType { get; set; } = StreamingProxyTypes.SystemDefault;
+    public string StreamingProxyType { get; set; } = "SystemDefault";
     public string GroupTitle { get; set; } = string.Empty;
     /// <summary>
     /// Gets or sets the channel number for the video stream.
@@ -93,7 +93,7 @@ public class BaseVideoStreamDto /*: IMapFrom<VideoStream>*/
     /// <summary>
     /// Gets or sets the URL for the channel logo for the video stream.
     /// </summary>
-    public string Tvg_logo { get; set; } = BuildInfo.IconDefault;
+    public string Tvg_logo { get; set; } = BuildInfo.LogoDefault;
 
     /// <summary>
     /// Gets or sets the callsign for the video stream.
@@ -114,7 +114,7 @@ public class BaseVideoStreamDto /*: IMapFrom<VideoStream>*/
     public string User_Tvg_group { get; set; } = "All";
     public string User_Tvg_ID { get; set; } = string.Empty;
     public string User_Tvg_ID_DisplayName { get; set; } = string.Empty;
-    public string User_Tvg_logo { get; set; } = BuildInfo.IconDefault;
+    public string User_Tvg_logo { get; set; } = BuildInfo.LogoDefault;
 
     public string User_Tvg_name { get; set; } = string.Empty;
     public string User_Url { get; set; } = string.Empty;

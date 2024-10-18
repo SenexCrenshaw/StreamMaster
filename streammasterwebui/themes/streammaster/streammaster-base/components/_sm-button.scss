@@ -1,0 +1,123 @@
+.sm-button {
+    height: $input-height-with-no-borders;
+    padding: 0;
+    transition: filter 0.3s ease;
+
+    &.p-button-outlined {
+        background-color: transparent;
+        border-width: 1px;
+        border-color: $iconBlue;
+        border-style: solid;
+
+        &:not(:disabled):hover {
+            background: rgba($buttonBg, $textButtonHoverBgOpacity);
+            border-width: 1px;
+            border-color: $iconBlue;
+            border-style: solid;
+        }
+
+        &:not(:disabled):active {
+            background: rgba($buttonBg, $textButtonActiveBgOpacity);
+            // color: $buttonBg;
+            border-width: 1px;
+            border-color: $iconBlue;
+            border-style: solid;
+        }
+
+        &.p-button-plain {
+            color: $plainButtonTextColor;
+            border-color: $plainButtonTextColor;
+
+            &:not(:disabled):hover {
+                background: $plainButtonHoverBgColor;
+                color: $plainButtonTextColor;
+            }
+
+            &:not(:disabled):active {
+                background: $plainButtonActiveBgColor;
+                color: $plainButtonTextColor;
+            }
+        }
+    }
+}
+
+.sm-button-icon-only {
+    padding-left: $input-padding;
+    padding-right: $input-padding;
+
+    &:not(.p-disabled):hover {
+        filter: brightness(120%);
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+}
+
+.sm-button-icon-filled {
+    padding-left: $input-padding;
+    padding-right: $input-padding;
+
+    &:not(.p-disabled):hover {
+        filter: brightness(120%);
+        border-color: rgba(255, 255, 255, 0.5);
+    }
+}
+
+.sm-button-with-label {
+    padding-left: $input-padding*2;
+    padding-right: $input-padding*2;
+
+    &:not(.p-disabled):hover {
+        filter: brightness(120%);
+        border-color: rgba(255, 255, 255, 0.5);
+    }
+}
+
+.p-inputnumber-button-group {
+    height: $input-height-with-no-borders-md;
+
+    >button {
+        border: unset;
+        border-style: solid;
+        color: $bgColor !important;
+        background-color: $iconOrange;
+    }
+
+    >button:first-child {
+        border-width: 0.025rem;
+        border-top-color: $bgColor !important;
+        border-right-color: $iconOrange;
+        border-left-color: $iconOrange;
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+    }
+
+    >button:last-child {
+        border-width: 0.025rem;
+        border-bottom-color: $bgColor !important;
+        border-right-color: $iconOrange;
+        border-left-color: $iconOrange;
+    }
+
+    .p-button.p-button-icon-only {
+        padding: 0 !important;
+        min-width: $input-height-with-no-borders;
+        max-width: $input-height-with-no-borders;
+        // background-color: $iconOrange;
+    }
+}
+
+
+.p-button.p-button-icon-only {
+    padding: 0;
+    max-width: $input-height-with-no-borders;
+    min-width: $input-height-with-no-borders;
+}
+
+.p-button-icon-only {
+    padding: 0;
+    max-width: $input-height-with-no-borders;
+    min-width: $input-height-with-no-borders;
+}
+
+.p-button-label {
+    font-size: $common-font-size;
+}

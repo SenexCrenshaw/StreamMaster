@@ -12,12 +12,12 @@ public partial class SchedulesDirectData
 
     public MxfProgram FindOrCreateProgram(string programId)
     {
-        if (!Programs.ContainsKey(programId))
-        {
-            WriteToCSV(programsCSV, $"{Programs.Count + 1},{programId}");
+        //if (!ProgramService.ContainsKey(programId))
+        //{
+        //    WriteToCSV(programsCSV, $"{ProgramService.Count + 1},{programId}");
 
-        }
-        (MxfProgram program, bool created) = Programs.FindOrCreateWithStatus(programId, key => new MxfProgram(Programs.Count + 1, programId));
+        //}
+        (MxfProgram program, bool created) = Programs.FindOrCreateWithStatus(programId, _ => new MxfProgram(Programs.Count + 1, programId));
         if (created)
         {
             return program;
@@ -29,7 +29,7 @@ public partial class SchedulesDirectData
 
     public void RemoveProgram(string programId)
     {
-        Programs.TryRemove(programId, out _);
+        _ = Programs.TryRemove(programId, out _);
     }
 }
 

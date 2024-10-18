@@ -1,5 +1,4 @@
 ﻿using StreamMaster.Domain.Services;
-using StreamMaster.SchedulesDirect.Domain.Helpers;
 
 using System.Text.RegularExpressions;
 
@@ -9,6 +8,10 @@ public class EPGHelper() : IEPGHelper
 {
     public const int SchedulesDirectId = -1;
     public const int DummyId = -2;
+    public const int CustomPlayListId = -3;
+    public const int IntroPlayListId = -4;
+    public const int MessageId = -5;
+
     public const string EPGMatch = @"(^\-?\d+)-(.*)";
 
     public (int epgNumber, string stationId) ExtractEPGNumberAndStationId(string epgId)
@@ -57,7 +60,12 @@ public class EPGHelper() : IEPGHelper
 
     public static bool IsValidEPGId(string epgId)
     {
-        return EPGChecks.IsValidEPGId(epgId);
+        MatchCollection matches = Regex.Matches(epgId, EPGMatch);
+        return matches.Count > 0;
     }
 
+    public bool IsCustom(int epgNumber)
+    {
+        return epgNumber == CustomPlayListId;
+    }
 }

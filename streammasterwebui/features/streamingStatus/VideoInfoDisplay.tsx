@@ -1,50 +1,34 @@
-import { VideoInfo } from '@lib/iptvApi';
+import SMPopUp from '@components/sm/SMPopUp';
+import { JsonEditor } from 'json-edit-react';
+import { ScrollPanel } from 'primereact/scrollpanel';
+import { useMemo } from 'react';
 
 type VideoInfoProps = {
-  videoInfo: VideoInfo;
+  name: string;
+  videoInfo?: string;
 };
 
-const DisplayTable: React.FC<{ data: any; title?: string }> = ({ data, title }) => {
-  return (
-    <div>
-      {title && <h4>{title}</h4>}
-      <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-        <tbody>
-          {Object.entries(data).map(([key, value]) => (
-            <tr key={key}>
-              <td style={{ border: '1px solid black', padding: '5px' }}>{key}</td>
-              <td style={{ border: '1px solid black', padding: '5px' }}>
-                {value !== null && typeof value === 'object' ? <DisplayTable data={value} /> : value !== null && value !== undefined ? value.toString() : 'N/A'}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-};
+export const VideoInfoDisplay: React.FC<VideoInfoProps> = ({ name, videoInfo }) => {
+  const getContent = useMemo(() => {
+    if (!videoInfo) return <div>Loading...</div>;
+    let jsonObject = JSON.parse(videoInfo);
+    return <JsonEditor data={jsonObject} restrictEdit restrictDelete restrictAdd theme="githubDark" />;
+  }, [videoInfo]);
 
-export const VideoInfoDisplay: React.FC<VideoInfoProps> = ({ videoInfo }) => {
   return (
-    <div>
-      {videoInfo.format && (
-        <div>
-          <h2>Format</h2>
-          <DisplayTable data={videoInfo.format} />
-        </div>
-      )}
-
-      {videoInfo.streams && videoInfo.streams.length > 0 && (
-        <div>
-          <h2>Video Streams</h2>
-          {videoInfo.streams.map((stream, index) => (
-            <div key={index}>
-              <h3 className="orange-color">Stream {index + 1}</h3>
-              <DisplayTable data={stream} />
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
+    <SMPopUp
+      buttonClassName="icon-blue"
+      buttonDisabled={videoInfo === null}
+      info=""
+      noBorderChildren
+      contentWidthSize="4"
+      placement="bottom-end"
+      icon="pi-video"
+      title={'Video Info : ' + name}
+      tooltip="Video Info"
+      isLeft
+    >
+      <ScrollPanel style={{ height: '50vh', width: '100%' }}>{getContent}</ScrollPanel>
+    </SMPopUp>
   );
 };

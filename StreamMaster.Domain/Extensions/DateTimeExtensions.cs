@@ -35,7 +35,7 @@ public static class UtcDateAnnotation
         if (property != null && property.PropertyInfo != null)
         {
             IsUtcAttribute? attribute = property.PropertyInfo.GetCustomAttribute<IsUtcAttribute>();
-            return attribute is not null && attribute.IsUtc || (((bool?)property.FindAnnotation(IsUtcAnnotation)?.Value) ?? true);
+            return (attribute is not null && attribute.IsUtc) || (((bool?)property.FindAnnotation(IsUtcAnnotation)?.Value) ?? true);
         }
         return true;
     }
@@ -63,12 +63,7 @@ public static class UtcDateAnnotation
         }
     }
 }
-public class IsUtcAttribute : Attribute
+public class IsUtcAttribute(bool isUtc = true) : Attribute
 {
-    public IsUtcAttribute(bool isUtc = true)
-    {
-        IsUtc = isUtc;
-    }
-
-    public bool IsUtc { get; }
+    public bool IsUtc { get; } = isUtc;
 }

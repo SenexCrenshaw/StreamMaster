@@ -1,28 +1,55 @@
+# Set the base image for the ASP.NET Core application
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
-ARG TARGETPLATFORM
-ARG TARGETOS
+
+# Define build-time arguments for platform and architecture
 ARG TARGETARCH
 ARG TARGETVARIANT
+ARG FFMPEG_URL_ARM64="https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-linuxarm64-lgpl.tar.xz"
+ARG FFMPEG_URL_X64="https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-linux64-gpl.tar.xz"
 ARG DEBIAN_FRONTEND=noninteractive
 
+# Set working directory
 WORKDIR /app
 
+# Preserve downloaded APT packages and remove docker-clean configuration
 RUN rm -f /etc/apt/apt.conf.d/docker-clean; echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache
 
-RUN \
-    --mount=type=cache,id=apt-$TARGETARCH$TARGETVARIANT,sharing=locked,target=/var/cache/apt \
-    apt-get update -yq \
-    && apt-get upgrade -yq \
-    && apt-get install -yq --no-install-recommends xz-utils gosu postgresql postgresql-common curl gnupg lsb-release \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/* \
-    && mkdir /docker-entrypoint-initdb.d
-
-RUN if [ "$TARGETARCH" = "arm64" ]; then curl -L -o /tmp/ffmpeg.tar.xz https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-linuxarm64-gpl.tar.xz; else curl -L -o /tmp/ffmpeg.tar.xz https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-linux64-gpl.tar.xz; fi
-
-RUN mkdir /tmp/ffmpeg/ \
+# Conditional FFmpeg URL based on architecture
+RUN if [ "$TARGETARCH" = "arm64" ]; then \
+    export FFMPEG_URL=$FFMPEG_URL_ARM64; \
+    else \
+    export FFMPEG_URL=$FFMPEG_URL_X64; \
+    fi \
+    && curl -L -o /tmp/ffmpeg.tar.xz $FFMPEG_URL \
+    && mkdir /tmp/ffmpeg/ \
     && tar -Jxvvf /tmp/ffmpeg.tar.xz --strip-components=1 -C /tmp/ffmpeg/ \
     && cp /tmp/ffmpeg/bin/ffmpeg /usr/local/bin/ \
     && cp /tmp/ffmpeg/bin/ffprobe /usr/local/bin/ \
     && chmod +x /usr/local/bin/ffmpeg /usr/local/bin/ffprobe \
-    && rm -rf /tmp/ffmpeg.tar.xz /tmp/ffmpeg/ 
+    && rm -rf /tmp/ffmpeg.tar.xz /tmp/ffmpeg/
+
+# Install dependencies with apt
+RUN --mount=type=cache,id=apt-$TARGETARCH$TARGETVARIANT,sharing=locked,target=/var/cache/apt \
+    apt-get update -yq \
+    && apt-get upgrade -yq \
+    && apt-get install -yq --no-install-recommends \
+    xz-utils \
+    vlc-bin \
+    gosu \
+    postgresql \
+    postgresql-common \
+    curl \
+    gnupg \
+    lsb-release \
+    iputils-ping \
+    pipx \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* \
+    && mkdir /docker-entrypoint-initdb.d
+
+# Pipx utilities
+RUN pipx install streamlink \
+    && ln -s /root/.local/bin/streamlink /usr/local/bin/streamlink
+
+RUN pipx install yt-dlp \
+    && ln -s /root/.local/bin/yt-dlp /usr/local/bin/yt-dlp

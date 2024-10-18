@@ -1,67 +1,71 @@
 ﻿using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Extensions;
-using StreamMaster.Domain.Services;
 
-using System.Collections.Concurrent;
 using System.Text;
-
-namespace StreamMaster.Infrastructure.Services;
+using System.Threading.Channels;
 
 public class FileLoggingService : IFileLoggingService, IDisposable
 {
-    private readonly ConcurrentQueue<string> _logQueue = new();
+    private readonly Channel<string> _logChannel = Channel.CreateUnbounded<string>();
     private static readonly SemaphoreSlim _writeLock = new(1, 1);
     private readonly CancellationTokenSource _cts = new();
     private readonly Task _loggingTask;
     private readonly string _logFilePath;
-    private readonly IOptionsMonitor<Setting> intsettings;
+    private readonly IOptionsMonitor<Setting> _settings;
 
-    public FileLoggingService(string logFilePath, IOptionsMonitor<Setting> intsettings)
+    public FileLoggingService(string logFilePath, IOptionsMonitor<Setting> intSettings)
     {
-        this.intsettings = intsettings;
+        _settings = intSettings;
         _logFilePath = logFilePath;
-        _loggingTask = Task.Run(ProcessLogQueue);
+
+        // Rotate the log file on startup
+        RotateLogOnStartup();
+
+        // Start the logging task
+        _loggingTask = Task.Run(ProcessLogChannel);
     }
 
     public void EnqueueLogEntry(string format, params object[] args)
     {
         string formattedMessage = $"{SMDT.UtcNow:yyyy-MM-dd HH:mm:ss}" + string.Format(format, args);
-        _logQueue.Enqueue(formattedMessage);
+        _logChannel.Writer.TryWrite(formattedMessage);
     }
-
 
     public void EnqueueLogEntry(string logEntry)
     {
-        _logQueue.Enqueue(logEntry);
+        _logChannel.Writer.TryWrite(logEntry);
     }
 
-    private async Task ProcessLogQueue()
+    private async Task ProcessLogChannel()
     {
-        while (!_cts.Token.IsCancellationRequested)
+        int delay = 100;
+        while (await _logChannel.Reader.WaitToReadAsync(_cts.Token).ConfigureAwait(false))
         {
             StringBuilder combinedLogEntries = new();
-            await _writeLock.WaitAsync();
-            try
+            while (_logChannel.Reader.TryRead(out string? logEntry))
             {
-                while (_logQueue.TryDequeue(out string? logEntry))
+                if (logEntry != null)
                 {
-                    if (logEntry != null)
-                    {
-                        combinedLogEntries.AppendLine(logEntry);
-                    }
-                }
-
-                if (combinedLogEntries.Length > 0)
-                {
-                    await WriteLogEntryAsync(combinedLogEntries.ToString());
+                    combinedLogEntries.AppendLine(logEntry);
                 }
             }
-            finally
+
+            if (combinedLogEntries.Length > 0)
             {
-                _writeLock.Release();
+                await WriteLogEntryAsync(combinedLogEntries.ToString()).ConfigureAwait(false);
             }
 
-            await Task.Delay(100); // Adjust as necessary
+            // Exponential backoff delay with a maximum of 1000ms
+            if (_logChannel.Reader.Count == 0)
+            {
+                delay = Math.Min(delay * 2, 1000);
+            }
+            else
+            {
+                delay = 100; // Reset delay when new entries are available
+            }
+
+            await Task.Delay(delay, _cts.Token).ConfigureAwait(false);
         }
     }
 
@@ -70,63 +74,79 @@ public class FileLoggingService : IFileLoggingService, IDisposable
         try
         {
             RotateLogIfNeeded();
-
-            using FileStream stream = new(_logFilePath, FileMode.Append, FileAccess.Write, FileShare.Read);
-            using StreamWriter writer = new(stream);
-            await writer.WriteLineAsync(logEntry);
+            await _writeLock.WaitAsync(_cts.Token).ConfigureAwait(false);
+            try
+            {
+                await using FileStream stream = new(_logFilePath, FileMode.Append, FileAccess.Write, FileShare.Read);
+                await using StreamWriter writer = new(stream);
+                await writer.WriteLineAsync(logEntry).ConfigureAwait(false);
+            }
+            finally
+            {
+                _writeLock.Release();
+            }
         }
         catch (Exception ex)
         {
-            //Exception a = ex;
+            // Log error to console to avoid infinite logging loop
+            Console.Error.WriteLine($"Error writing log entry: {ex.Message}");
         }
-
     }
 
     private void RotateLogIfNeeded()
     {
-
         FileInfo logFileInfo = new(_logFilePath);
-        long maxFileSizeInBytes = Math.Max(1 * 1024 * 1024, Math.Min(intsettings.CurrentValue.MaxLogFileSizeMB * 1024 * 1024, 100 * 1024 * 1024)); // Convert MB to Bytes
+        long maxFileSizeInBytes = Math.Max(1 * 1024 * 1024, Math.Min(_settings.CurrentValue.MaxLogFileSizeMB * 1024 * 1024, 100 * 1024 * 1024)); // Convert MB to Bytes
 
-        if (logFileInfo.Exists && logFileInfo.Length > maxFileSizeInBytes)
+        if (logFileInfo.Exists && logFileInfo.Length > maxFileSizeInBytes && !string.IsNullOrEmpty(logFileInfo.DirectoryName))
         {
-            string directory = logFileInfo.DirectoryName;
-            string baseFileName = Path.GetFileNameWithoutExtension(logFileInfo.FullName);
-            string extension = logFileInfo.Extension;
-
-            // Bump log files, renaming log.N.log to log.(N+1).log
-            for (int i = intsettings.CurrentValue.MaxLogFiles - 1; i >= 1; i--)
-            {
-                string oldFileName = Path.Combine(directory, $"{baseFileName}.{i}{extension}");
-                string newFileName = Path.Combine(directory, $"{baseFileName}.{i + 1}{extension}");
-
-                if (File.Exists(newFileName))
-                {
-                    File.Delete(newFileName);
-                }
-
-                if (File.Exists(oldFileName))
-                {
-                    File.Move(oldFileName, newFileName);
-                }
-            }
-
-            // Rename the current log to .1.log
-            string rotatedFileName = Path.Combine(directory, $"{baseFileName}.1{extension}");
-            File.Move(_logFilePath, rotatedFileName);
-
-            // Create a new log file
-            using (FileStream fs = File.Create(_logFilePath)) { }
-
-            // Optionally, limit the number of historical log files
-            CleanUpOldLogFiles(logFileInfo);
+            RotateLogFiles(logFileInfo);
         }
     }
 
+    private void RotateLogOnStartup()
+    {
+        FileInfo logFileInfo = new(_logFilePath);
+        if (logFileInfo.Exists && !string.IsNullOrEmpty(logFileInfo.DirectoryName))
+        {
+            RotateLogFiles(logFileInfo);
+        }
+    }
+
+    private void RotateLogFiles(FileInfo logFileInfo)
+    {
+        string directory = logFileInfo.DirectoryName;
+        string baseFileName = Path.GetFileNameWithoutExtension(logFileInfo.FullName);
+        string extension = logFileInfo.Extension;
+
+        for (int i = _settings.CurrentValue.MaxLogFiles - 1; i >= 1; i--)
+        {
+            string oldFileName = Path.Combine(directory, $"{baseFileName}.{i}{extension}");
+            string newFileName = Path.Combine(directory, $"{baseFileName}.{i + 1}{extension}");
+
+            if (File.Exists(newFileName))
+            {
+                File.Delete(newFileName);
+            }
+
+            if (File.Exists(oldFileName))
+            {
+                File.Move(oldFileName, newFileName);
+            }
+        }
+
+        string rotatedFileName = Path.Combine(directory, $"{baseFileName}.1{extension}");
+        File.Move(_logFilePath, rotatedFileName);
+
+        // Create a new, empty log file
+        using (FileStream fs = File.Create(_logFilePath)) { }
+
+        // Clean up old logs asynchronously
+        _ = Task.Run(() => CleanUpOldLogFiles(logFileInfo));
+    }
 
     private void CleanUpOldLogFiles(FileInfo logFileInfo)
     {
-
         string? directory = logFileInfo.DirectoryName;
         string baseFileName = Path.GetFileNameWithoutExtension(logFileInfo.FullName);
         string extension = logFileInfo.Extension;
@@ -138,9 +158,9 @@ public class FileLoggingService : IFileLoggingService, IDisposable
                                     .OrderByDescending(f => f.Name)
                                     .ToArray();
 
-            if (logFiles.Length > intsettings.CurrentValue.MaxLogFiles)
+            if (logFiles.Length > _settings.CurrentValue.MaxLogFiles)
             {
-                foreach (FileInfo file in logFiles.Skip(intsettings.CurrentValue.MaxLogFiles))
+                foreach (FileInfo file in logFiles.Skip(_settings.CurrentValue.MaxLogFiles))
                 {
                     file.Delete();
                 }
@@ -148,16 +168,27 @@ public class FileLoggingService : IFileLoggingService, IDisposable
         }
     }
 
-
     public async Task StopLoggingAsync()
     {
         _cts.Cancel();
-        await _loggingTask;
+        try
+        {
+            await _loggingTask.ConfigureAwait(false);
+        }
+        finally
+        {
+            // Flush remaining logs
+            while (_logChannel.Reader.TryRead(out string? logEntry))
+            {
+                await WriteLogEntryAsync(logEntry).ConfigureAwait(false);
+            }
+        }
     }
 
     public void Dispose()
     {
         _cts.Dispose();
         _writeLock.Dispose();
+        GC.SuppressFinalize(this);
     }
 }

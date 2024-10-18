@@ -1,8 +1,23 @@
-import BaseButton from './BaseButton';
+import SMButton from '@components/sm/SMButton';
 import { ChildButtonProperties } from './ChildButtonProperties';
 
-const ResetButton: React.FC<ChildButtonProperties> = ({ disabled = false, iconFilled = false, label, onClick, tooltip = '' }) => (
-  <BaseButton disabled={disabled} icon="pi-history" iconFilled={iconFilled} label={label} onClick={onClick} tooltip={tooltip} />
+const ResetButton: React.FC<ChildButtonProperties> = ({
+  buttonClassName = 'icon-yellow-filled',
+  buttonDisabled = false,
+  iconFilled,
+  label,
+  onClick,
+  tooltip = 'Reset'
+}) => (
+  <SMButton
+    buttonClassName={buttonClassName}
+    buttonDisabled={buttonDisabled}
+    icon="pi-history"
+    iconFilled={iconFilled}
+    label={label}
+    onClick={onClick}
+    tooltip={tooltip}
+  />
 );
 
 export default ResetButton;

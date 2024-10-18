@@ -13,20 +13,104 @@ namespace StreamMaster.Infrastructure.EF.Repositories;
 /// Provides base functionalities for repositories.
 /// </summary>
 /// <typeparam name="T">Type of the entity managed by this repository.</typeparam>
-public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
+public abstract class RepositoryBase<T>(IRepositoryContext RepositoryContext, ILogger intLogger) : IRepositoryBase<T> where T : class
 {
-    protected readonly IRepositoryContext RepositoryContext;
-    protected readonly ILogger logger;
+    internal readonly IRepositoryContext RepositoryContext = RepositoryContext;
+    internal readonly ILogger logger = intLogger;
 
-    public RepositoryBase(IRepositoryContext repositoryContext, ILogger logger)
+    #region Get 
+    public virtual IQueryable<T> GetQuery(bool tracking = false)
     {
-        RepositoryContext = repositoryContext ?? throw new ArgumentNullException(nameof(repositoryContext));
-        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        return tracking ? RepositoryContext.Set<T>() : RepositoryContext.Set<T>().AsNoTracking();
     }
 
-    public async Task SaveChangesAsync()
+    public virtual IQueryable<T> GetQuery(QueryStringParameters parameters, bool tracking = false)
     {
-        await RepositoryContext.SaveChangesAsync();
+        // If there are no filters or order specified, just return all entities.
+        if (string.IsNullOrEmpty(parameters.JSONFiltersString) && string.IsNullOrEmpty(parameters.OrderBy))
+        {
+            return GetQuery(tracking);
+        }
+
+        List<DataTableFilterMetaData> filters = Utils.GetFiltersFromJSON(parameters.JSONFiltersString);
+        return GetQuery(filters, parameters.OrderBy, tracking: tracking);
+    }
+
+    public IQueryable<T> GetQuery(List<DataTableFilterMetaData>? filters, string orderBy, IQueryable<T>? entities = null, bool tracking = false)
+    {
+        entities ??= GetQuery(tracking);
+        return FilterHelper<T>.ApplyFiltersAndSort(entities, filters, orderBy);
+    }
+
+    public virtual IQueryable<T> GetQuery(Expression<Func<T, bool>> expression, bool tracking = false)
+    {
+        return GetQuery(tracking).Where(expression);
+    }
+
+    public IQueryable<T> GetQuery(Expression<Func<T, bool>> expression, string orderBy)
+    {
+        if (expression == null)
+        {
+            logger.LogWarning("The filtering expression provided to GetQuery is null.");
+            throw new ArgumentNullException(nameof(expression));
+        }
+
+        if (string.IsNullOrWhiteSpace(orderBy))
+        {
+            logger.LogWarning("The orderBy parameter provided to GetQuery is null or empty.");
+            throw new ArgumentException("Ordering parameter must not be null or empty.", nameof(orderBy));
+        }
+
+        try
+        {
+            IQueryable<T> test = RepositoryContext.Set<T>().Where(expression).AsNoTracking();
+            if (!orderBy.Contains(','))
+            {
+                return test.OrderBy(orderBy);
+            }
+            string[] orderByParts = orderBy.Trim().Split(',');
+            foreach (string orderByPart in orderByParts)
+            {
+                test = test.OrderBy(orderByPart);
+            }
+
+            return test;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error occurred while trying to fetch and order entities based on condition and order '{orderBy}'.", orderBy);
+            throw;
+        }
+    }
+
+    public bool Any(Expression<Func<T, bool>> expression)
+    {
+        return RepositoryContext.Set<T>().Any(expression);
+    }
+
+    public async Task<T?> FirstOrDefaultAsync(Expression<Func<T, bool>> expression, bool tracking = false, CancellationToken cancellationToken = default)
+    {
+        return await GetQuery(tracking).FirstOrDefaultAsync(expression, cancellationToken);
+    }
+
+    public T? FirstOrDefault(Expression<Func<T, bool>> expression, bool tracking = false)
+    {
+        return FirstOrDefaultAsync(expression, tracking: tracking).Result;
+    }
+
+    #endregion
+
+    #region Util
+    public async Task<int> SaveChangesAsync()
+    {
+        try
+        {
+            return await RepositoryContext.SaveChangesAsync().ConfigureAwait(false);
+        }
+        catch (Exception)
+        {
+            return 0;
+        }
     }
 
     /// <summary>
@@ -46,67 +130,16 @@ public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
         }
     }
 
-    /// <summary>
-    /// Retrieve all entities.
-    /// </summary>
-    /// <returns>IQueryable of all entities.</returns>
-    internal IQueryable<T> FindAll()
-    {
-        return RepositoryContext.Set<T>().AsNoTracking();
-    }
+    #endregion
 
-    /// <summary>
-    /// Retrieve entities based on given parameters.
-    /// </summary>
-    /// <param name="parameters">Query parameters.</param>
-    /// <returns>IQueryable of entities that satisfy conditions from parameters.</returns>
-    public IQueryable<T> GetIQueryableForEntity(QueryStringParameters parameters)
-    {
-        // If there are no filters or order specified, just return all entities.
-        if (string.IsNullOrEmpty(parameters.JSONFiltersString) && string.IsNullOrEmpty(parameters.OrderBy))
-        {
-            return FindAll();
-        }
-
-        List<DataTableFilterMetaData> filters = Utils.GetFiltersFromJSON(parameters.JSONFiltersString);
-        return FindByCondition(filters, parameters.OrderBy);
-    }
-
-    /// <summary>
-    /// Filters and sorts entities based on conditions.
-    /// </summary>
-    /// <param name="filters">List of filters.</param>
-    /// <param name="orderBy">Ordering condition.</param>
-    /// <param name="entities">Optional: IQueryable of entities to start with.</param>
-    /// <returns>IQueryable of filtered and sorted entities.</returns>
-    public IQueryable<T> FindByCondition(List<DataTableFilterMetaData>? filters, string orderBy, IQueryable<T>? entities = null)
-    {
-        entities ??= RepositoryContext.Set<T>().AsNoTracking();
-        return FilterHelper<T>.ApplyFiltersAndSort(entities, filters, orderBy);
-    }
-
-    /// <summary>
-    /// Retrieves entities that satisfy the given condition.
-    /// </summary>
-    /// <param name="expression">Condition to be checked.</param>
-    /// <returns>IQueryable of entities that satisfy the condition.</returns>
-    public IQueryable<T> FindByCondition(Expression<Func<T, bool>> expression)
-    {
-        return RepositoryContext.Set<T>().Where(expression).AsNoTracking();
-    }
-
-    public IQueryable<T> FindByConditionTracked(Expression<Func<T, bool>> expression)
-    {
-        return RepositoryContext.Set<T>().Where(expression);
-    }
-
+    #region CRUD
     // ... [Other methods, following similar patterns]
 
     /// <summary>
     /// Creates a new entity.
     /// </summary>
     /// <param name="entity">Entity to be created.</param>
-    public void Create(T entity)
+    public void Create(T entity, bool? track = true)
     {
         if (entity == null)
         {
@@ -114,7 +147,11 @@ public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
             throw new ArgumentNullException(nameof(entity));
         }
 
-        RepositoryContext.Set<T>().Add(entity);
+        Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry<T> entry = RepositoryContext.Set<T>().Add(entity);
+        if (track == false)
+        {
+            entry.State = EntityState.Detached;
+        }
     }
 
     /// <summary>
@@ -138,7 +175,7 @@ public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
     /// <param name="entities">Entities to be updated.</param>
     public void UpdateRange(T[] entities)
     {
-        if (entities == null || !entities.Any())
+        if (entities == null || entities.Length == 0)
         {
             logger.LogWarning("Attempted to update a null or empty array of entities.");
             throw new ArgumentNullException(nameof(entities));
@@ -183,7 +220,7 @@ public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
     /// <param name="entities">Entities to be inserted.</param>
     public void BulkInsert(T[] entities)
     {
-        if (entities == null || !entities.Any())
+        if (entities == null || entities.Length == 0)
         {
             logger.LogWarning("Attempted to perform a bulk insert with null or empty entities.");
             throw new ArgumentNullException(nameof(entities));
@@ -198,29 +235,41 @@ public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
     /// <param name="query">The IQueryable to select entities to be deleted.</param>
     public void BulkDelete(IQueryable<T> query)
     {
-        if (query == null || !query.Any())
+        if (query?.Any() != true)
         {
             logger.LogWarning("Attempted to perform a bulk delete with a null or empty query.");
             throw new ArgumentNullException(nameof(query));
         }
-        DbContext context = RepositoryContext as DbContext;
+        DbContext? context = RepositoryContext as DbContext;
 
-        context.BulkDelete(query);
+        context!.BulkDelete(query);
+    }
+
+    public void BulkDelete(List<T> items)
+    {
+        if (items == null || items.Count == 0)
+        {
+            logger.LogWarning("Attempted to perform a bulk delete with a null or empty query.");
+            throw new ArgumentNullException(nameof(items));
+        }
+        DbContext? context = RepositoryContext as DbContext;
+
+        context!.BulkDelete(items);
     }
 
     /// <summary>
     /// Deletes a group of entities based on a query.
     /// </summary>
     /// <param name="query">The IQueryable to select entities to be deleted.</param>
-    public async Task BulkDeleteAsync(IQueryable<T> query, CancellationToken cancellationToken = default)
+    public async Task BulkDeleteAsync(IQueryable<T> query)
     {
-        if (query == null || !query.Any())
+        if (query?.Any() != true)
         {
             logger.LogWarning("Attempted to perform a bulk delete with a null or empty query.");
             throw new ArgumentNullException(nameof(query));
         }
 
-        await RepositoryContext.BulkDeleteAsyncEntities(query, cancellationToken: cancellationToken);
+        await RepositoryContext.BulkDeleteAsyncEntities(query);
     }
 
     /// <summary>
@@ -229,7 +278,7 @@ public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
     /// <param name="entities">Entities to be updated.</param>
     public void BulkUpdate(T[] entities)
     {
-        if (entities == null || !entities.Any())
+        if (entities == null || entities.Length == 0)
         {
             logger.LogWarning("Attempted to perform a bulk update with null or empty entities.");
             throw new ArgumentNullException(nameof(entities));
@@ -240,7 +289,7 @@ public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
 
     public void BulkUpdate(List<T> entities)
     {
-        if (entities == null || !entities.Any())
+        if (entities == null || entities.Count == 0)
         {
             logger.LogWarning("Attempted to perform a bulk update with null or empty entities.");
             throw new ArgumentNullException(nameof(entities));
@@ -255,7 +304,7 @@ public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
     /// <param name="entities">Entities to be inserted.</param>
     public void CreateRange(T[] entities)
     {
-        if (entities == null || !entities.Any())
+        if (entities == null || entities.Length == 0)
         {
             logger.LogWarning("Attempted to insert a null or empty array of entities.");
             throw new ArgumentNullException(nameof(entities));
@@ -264,45 +313,25 @@ public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
         RepositoryContext.Set<T>().AddRange(entities);
     }
 
-    /// <summary>
-    /// Retrieves entities that match the provided condition and orders them based on the provided string.
-    /// </summary>
-    /// <param name="expression">The filtering condition.</param>
-    /// <param name="orderBy">The property by which to order the entities.</param>
-    /// <returns>An IQueryable of entities.</returns>
-    public IQueryable<T> FindByCondition(Expression<Func<T, bool>> expression, string orderBy)
+    public void CreateRange(List<T> entities)
     {
-        if (expression == null)
+        if (entities == null || entities.Count == 0)
         {
-            logger.LogWarning("The filtering expression provided to FindByCondition is null.");
-            throw new ArgumentNullException(nameof(expression));
+            logger.LogWarning("Attempted to insert a null or empty array of entities.");
+            throw new ArgumentNullException(nameof(entities));
         }
-
-        if (string.IsNullOrWhiteSpace(orderBy))
-        {
-            logger.LogWarning("The orderBy parameter provided to FindByCondition is null or empty.");
-            throw new ArgumentException("Ordering parameter must not be null or empty.", nameof(orderBy));
-        }
-
-        try
-        {
-            IQueryable<T> test = RepositoryContext.Set<T>().Where(expression).AsNoTracking();
-            if (!orderBy.Contains(','))
-            {
-                return test.OrderBy(orderBy);
-            }
-            string[] orderByParts = orderBy.Trim().Split(',');
-            foreach (string orderByPart in orderByParts)
-            {
-                test = test.OrderBy(orderByPart);
-            }
-
-            return test;
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, $"Error occurred while trying to fetch and order entities based on condition and order '{orderBy}'.");
-            throw;
-        }
+        RepositoryContext.Set<T>().AddRange(entities);
     }
+
+    public async Task BulkInsertEntitiesAsync<TEntity>(IEnumerable<TEntity> entities) where TEntity : class
+    {
+        await RepositoryContext.BulkInsertEntitiesAsync(entities);
+    }
+
+    public async Task BulkUpdateAsync<TEntity>(IEnumerable<TEntity> entities) where TEntity : class
+    {
+        await RepositoryContext.BulkUpdateAsync(entities);
+    }
+
+    #endregion
 }

@@ -1,8 +1,7 @@
-﻿namespace StreamMaster.Domain.Attributes
+﻿namespace StreamMaster.Domain.Attributes;
+
+[AttributeUsage(AttributeTargets.Property)]
+public class IndexBy(string value) : Attribute
 {
-    [AttributeUsage(AttributeTargets.Property)]
-    public class IndexBy(string value) : Attribute
-    {
-        public virtual string Value => value;
-    }
+    public virtual string Value => value;
 }

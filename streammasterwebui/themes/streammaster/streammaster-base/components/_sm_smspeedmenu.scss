@@ -1,0 +1,37 @@
+.smspeed-menu-container {
+    position: relative;
+    display: inline-block;
+}
+
+.smspeed-menu-background {
+    background: rgba(0, 0, 0, 0.5);
+    transition: width 0.3s ease-in-out, height 0.3s ease-in-out;
+    /* Add transition for smooth effect */
+    z-index: 0;
+    /* Lower than the items */
+}
+
+.smspeed-main-item {
+    position: relative;
+    z-index: 10;
+    /* Higher than the background */
+}
+
+.smspeed-menu-item-wrapper {
+    position: absolute;
+    z-index: 2;
+    /* Higher than the background */
+}
+
+.smspeed-menu-item {
+    margin: 10px;
+    cursor: pointer;
+}
+
+.smspeed-menu-icon {
+    font-size: 50px;
+    width: 50px;
+    height: 50px;
+    display: block;
+    margin: auto;
+}

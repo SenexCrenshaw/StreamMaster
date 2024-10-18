@@ -1,126 +1,150 @@
 ﻿using AutoMapper;
 
-using MediatR;
-
 using Microsoft.AspNetCore.Http;
+
+using StreamMaster.Application.Interfaces;
 using StreamMaster.Domain.Configuration;
 using StreamMaster.Infrastructure.EF.PGSQL;
 using StreamMaster.Infrastructure.EF.Repositories;
 using StreamMaster.SchedulesDirect.Domain.Interfaces;
+using StreamMaster.Streams.Domain.Interfaces;
 
-namespace StreamMaster.Infrastructure.EF
+namespace StreamMaster.Infrastructure.EF;
+
+public class RepositoryWrapper(
+     ILogger<ChannelGroupRepository> ChannelGroupRepositoryLogger,
+    ILogger<StreamGroupRepository> StreamGroupRepositoryLogger,
+    ILogger<M3UFileRepository> M3UFileRepositoryLogger,
+    ILogger<EPGFileRepository> EPGFileRepositoryLogger,
+    ILogger<SMChannelsRepository> SMChannelLogger,
+    ILogger<StreamGroupProfileRepository> StreamGroupProfileRepositoryLogger,
+    ILogger<SMStreamRepository> SMStreamLogger,
+    ILogger<SMChannelChannelLinksRepository> SMChannelChannelLinkLogger,
+    ILogger<SMChannelStreamLinksRepository> SMChannelStreamLinkLogger,
+    ILogger<StreamGroupSMChannelLinkRepository> StreamGroupSMChannelLinkRepositoryLogger,
+    ISchedulesDirectDataService schedulesDirectDataService,
+    PGSQLRepositoryContext repositoryContext,
+    IMapper mapper,
+    ICacheManager cacheManager,
+    IXmltv2Mxf xmltv2Mxf,
+    IServiceProvider serviceProvider,
+    ICryptoService cryptoService,
+    IOptionsMonitor<Setting> intSettings,
+    IOptionsMonitor<CommandProfileDict> intProfileSettings,
+    IJobStatusService jobStatusService,
+    IFileUtilService fileUtilService,
+    IDataRefreshService dataRefreshService,
+   IImageDownloadQueue imageDownloadQueue,
+    IHttpContextAccessor httpContextAccessor) : IRepositoryWrapper
 {
-    public class RepositoryWrapper(
-        ILogger<ChannelGroupRepository> ChannelGroupRepositoryLogger,
-        ILogger<StreamGroupRepository> StreamGroupRepositoryLogger,
-        ILogger<M3UFileRepository> M3UFileRepositoryLogger,
-        ILogger<VideoStreamLinkRepository> VideoStreamLinkRepositoryLogger,
-        ILogger<EPGFileRepository> EPGFileRepositoryLogger,
-        ILogger<VideoStreamRepository> VideoStreamRepositoryLogger,
-        ILogger<StreamGroupVideoStreamRepository> StreamGroupVideoStreamRepositoryLogger,
-        ILogger<StreamGroupChannelGroupRepository> StreamGroupChannelGroupRepositoryLogger,
-        ISchedulesDirectDataService schedulesDirectDataService,
-
-        PGSQLRepositoryContext repositoryContext,
-        //ISortHelper<StreamGroup> streamGroupSortHelper,
-        IMapper mapper,
-        IIconService iconService,
-        IOptionsMonitor<Setting> intsettings,
-        ISender sender,
-        IHttpContextAccessor httpContextAccessor) : IRepositoryWrapper
+    private IStreamGroupProfileRepository _streamGroupProfileRepository;
+    public IStreamGroupProfileRepository StreamGroupProfile
     {
-        private IStreamGroupRepository _streamGroup;
-
-        public IStreamGroupRepository StreamGroup
+        get
         {
-            get
-            {
-                _streamGroup ??= new StreamGroupRepository(StreamGroupRepositoryLogger, repositoryContext, mapper, intsettings, httpContextAccessor);
-                return _streamGroup;
-            }
+            _streamGroupProfileRepository ??= new StreamGroupProfileRepository(StreamGroupProfileRepositoryLogger, repositoryContext);
+            return _streamGroupProfileRepository;
         }
+    }
 
-        private IChannelGroupRepository _channelGroup;
-
-        public IChannelGroupRepository ChannelGroup
+    private IStreamGroupSMChannelLinkRepository _streamGroupSMChannelLinkRepository;
+    public IStreamGroupSMChannelLinkRepository StreamGroupSMChannelLink
+    {
+        get
         {
-            get
-            {
-                _channelGroup ??= new ChannelGroupRepository(ChannelGroupRepositoryLogger, repositoryContext, this, sender);
-                return _channelGroup;
-            }
+            _streamGroupSMChannelLinkRepository ??= new StreamGroupSMChannelLinkRepository(StreamGroupSMChannelLinkRepositoryLogger, repositoryContext, this);
+            return _streamGroupSMChannelLinkRepository;
         }
+    }
 
-        private IM3UFileRepository _m3uFile;
-
-        public IM3UFileRepository M3UFile
+    private ISMChannelChannelLinksRepository _smChannelChannelLink;
+    public ISMChannelChannelLinksRepository SMChannelChannelLink
+    {
+        get
         {
-            get
-            {
-                _m3uFile ??= new M3UFileRepository(M3UFileRepositoryLogger, repositoryContext, mapper);
-                return _m3uFile;
-            }
+            _smChannelChannelLink ??= new SMChannelChannelLinksRepository(SMChannelChannelLinkLogger, repositoryContext);
+            return _smChannelChannelLink;
         }
+    }
 
-        private IVideoStreamLinkRepository _videoStreamLink;
-
-        public IVideoStreamLinkRepository VideoStreamLink
+    private ISMChannelStreamLinksRepository _smChannelStreamLink;
+    public ISMChannelStreamLinksRepository SMChannelStreamLink
+    {
+        get
         {
-            get
-            {
-                _videoStreamLink ??= new VideoStreamLinkRepository(VideoStreamLinkRepositoryLogger, repositoryContext, mapper);
-                return _videoStreamLink;
-            }
+            _smChannelStreamLink ??= new SMChannelStreamLinksRepository(SMChannelStreamLinkLogger, repositoryContext);
+            return _smChannelStreamLink;
         }
+    }
 
-        private IEPGFileRepository _epgFile;
+    private ISMChannelsRepository _smChannel;
 
-        public IEPGFileRepository EPGFile
+    public ISMChannelsRepository SMChannel
+    {
+        get
         {
-            get
-            {
-                _epgFile ??= new EPGFileRepository(EPGFileRepositoryLogger, repositoryContext, this, schedulesDirectDataService, mapper);
-                return _epgFile;
-            }
+            _smChannel ??= new SMChannelsRepository(SMChannelLogger, imageDownloadQueue, serviceProvider, this, repositoryContext, mapper, intSettings, intProfileSettings, schedulesDirectDataService);
+            return _smChannel;
         }
+    }
 
-        private IVideoStreamRepository _videoStream;
+    private ISMStreamRepository _smStream;
 
-        public IVideoStreamRepository VideoStream
+    public ISMStreamRepository SMStream
+    {
+        get
         {
-            get
-            {
-                _videoStream ??= new VideoStreamRepository(VideoStreamRepositoryLogger, this, schedulesDirectDataService, iconService, repositoryContext, mapper, intsettings, sender);
-                return _videoStream;
-            }
+            _smStream ??= new SMStreamRepository(SMStreamLogger, this, repositoryContext, mapper);
+            return _smStream;
         }
+    }
 
+    private IStreamGroupRepository _streamGroup;
 
-        private IStreamGroupVideoStreamRepository _streamGroupVideoStream;
-        public IStreamGroupVideoStreamRepository StreamGroupVideoStream
+    public IStreamGroupRepository StreamGroup
+    {
+        get
         {
-            get
-            {
-                _streamGroupVideoStream ??= new StreamGroupVideoStreamRepository(StreamGroupVideoStreamRepositoryLogger, repositoryContext, this, mapper, sender);
-                return _streamGroupVideoStream;
-            }
+            _streamGroup ??= new StreamGroupRepository(StreamGroupRepositoryLogger, this, repositoryContext, mapper, intSettings, cryptoService, httpContextAccessor);
+            return _streamGroup;
         }
+    }
 
-        private IStreamGroupChannelGroupRepository _streamGroupChannelGroup;
-        public IStreamGroupChannelGroupRepository StreamGroupChannelGroup
+    private IChannelGroupRepository _channelGroup;
+
+    public IChannelGroupRepository ChannelGroup
+    {
+        get
         {
-            get
-            {
-                _streamGroupChannelGroup ??= new StreamGroupChannelGroupRepository(StreamGroupChannelGroupRepositoryLogger, repositoryContext, this, mapper, sender);
-                return _streamGroupChannelGroup;
-            }
+            _channelGroup ??= new ChannelGroupRepository(ChannelGroupRepositoryLogger, repositoryContext, this, dataRefreshService);
+            return _channelGroup;
         }
+    }
 
+    private IM3UFileRepository _m3uFile;
 
-
-        public async Task<int> SaveAsync()
+    public IM3UFileRepository M3UFile
+    {
+        get
         {
-            return await repositoryContext.SaveChangesAsync();
+            _m3uFile ??= new M3UFileRepository(M3UFileRepositoryLogger, repositoryContext, mapper);
+            return _m3uFile;
         }
+    }
+
+    private IEPGFileRepository _epgFile;
+
+    public IEPGFileRepository EPGFile
+    {
+        get
+        {
+            _epgFile ??= new EPGFileRepository(EPGFileRepositoryLogger, fileUtilService, cacheManager, xmltv2Mxf, jobStatusService, repositoryContext, schedulesDirectDataService, mapper);
+            return _epgFile;
+        }
+    }
+
+    public async Task<int> SaveAsync()
+    {
+        return await repositoryContext.SaveChangesAsync();
     }
 }

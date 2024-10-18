@@ -1,62 +1,70 @@
 import { type AxiosProgressEvent } from 'axios';
 import http from './axios';
+import { M3UField, M3UKey } from './smAPI/smapiTypes';
 
 export interface UploadProperties {
-  name: string;
-  source: string;
-  fileName: string;
-  maxStreams: number;
-  epgNumber: number | undefined;
-  timeShift: number | undefined;
-  color: string;
-  startingChannelNumber: number;
-  overwriteChannelNumbers: boolean;
-  vodTags: string[];
-  file: File | undefined;
+  autoSetChannelNumbers?: boolean;
+  color?: string;
+  defaultStreamGroupName?: string;
+  epgNumber?: number;
+  file: File;
   fileType: 'epg' | 'm3u';
+  maxStreamCount?: number;
+  m3uKey?: M3UKey;
+  m3uName?: M3UField;
+  m3U8OutPutProfile?: string;
+  name: string;
+  overWriteChannels?: boolean;
+  startingChannelNumber?: number;
+  syncChannels?: boolean;
+  timeShift?: number;
+  vodTags?: string[];
   onUploadProgress: (progressEvent: AxiosProgressEvent) => void;
 }
 
-export const upload = async ({
-  name,
-  source,
-  fileName,
-  maxStreams,
-  epgNumber,
-  timeShift,
+export const uploadToAPI = async ({
+  autoSetChannelNumbers,
   color,
-  startingChannelNumber,
-  overwriteChannelNumbers,
-  vodTags,
+  defaultStreamGroupName,
+  epgNumber,
   file,
   fileType,
-  onUploadProgress
+  maxStreamCount,
+  m3uKey,
+  m3uName,
+  m3U8OutPutProfile,
+  name,
+  overWriteChannels,
+  onUploadProgress,
+  startingChannelNumber,
+  syncChannels,
+  timeShift,
+  vodTags
 }: UploadProperties) => {
   const formData = new FormData();
 
-  if (file) {
-    formData.append('FormFile', file);
-  }
-
+  formData.append('FormFile', file);
   formData.append('name', name);
 
-  if (source) {
-    formData.append('fileSource', source);
-  } else if (file) formData.append('fileSource', file.name);
+  if (defaultStreamGroupName) formData.append('defaultStreamGroupName', defaultStreamGroupName.toString());
+  if (syncChannels) formData.append('syncChannels', syncChannels?.toString() ?? 'false');
 
-  formData.append('timeShift', timeShift?.toString() ?? '0');
+  if (color) formData.append('color', color);
+  if (overWriteChannels) formData.append('overWriteChannels', overWriteChannels?.toString() ?? 'true');
+  if (maxStreamCount) formData.append('maxStreamCount', maxStreamCount?.toString() ?? '1');
+  if (startingChannelNumber) formData.append('startingChannelNumber', startingChannelNumber?.toString() ?? '1');
 
-  formData.append('fileName', fileName);
-  formData.append('color', color);
+  if (m3uKey) formData.append('m3uKey', m3uKey.toString());
+  if (m3uName) formData.append('m3uName', m3uName.toString());
+  if (m3U8OutPutProfile) formData.append('m3U8OutPutProfile', m3U8OutPutProfile);
 
-  formData.append('color', color);
-  formData.append('overWriteChannels', overwriteChannelNumbers?.toString() ?? 'true');
-  formData.append('maxStreamCount', maxStreams?.toString() ?? '1');
-  formData.append('startingChannelNumber', startingChannelNumber?.toString() ?? '1');
-  formData.append('epgNumber', epgNumber?.toString() ?? '1');
-  vodTags.forEach((tag) => {
-    formData.append('vodTags[]', tag);
-  });
+  if (autoSetChannelNumbers) formData.append('autoSetChannelNumbers', autoSetChannelNumbers?.toString() ?? 'false');
+  if (epgNumber) formData.append('epgNumber', epgNumber?.toString() ?? '1');
+  if (timeShift) formData.append('timeShift', timeShift?.toString() ?? '0');
+  if (vodTags)
+    vodTags.forEach((tag) => {
+      formData.append('vodTags[]', tag);
+    });
 
   let url = '';
 
@@ -71,10 +79,18 @@ export const upload = async ({
     }
   }
 
-  return await http.post(url, formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data'
-    },
-    onUploadProgress
-  });
+  return await http
+    .post(url, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      },
+      onUploadProgress
+    })
+    .then((response) => {
+      return response.data;
+    })
+    .catch((error) => {
+      console.error('Error uploading file', error);
+      throw error;
+    });
 };

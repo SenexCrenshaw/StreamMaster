@@ -1,38 +1,44 @@
-﻿using FluentValidation;
-
-using StreamMaster.Application.StreamGroups.Events;
+﻿using StreamMaster.Application.StreamGroups.Events;
 
 namespace StreamMaster.Application.StreamGroups.Commands;
 
-public record DeleteStreamGroupRequest(int Id) : IRequest<int?> { }
+[SMAPI]
+[TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
+public record DeleteStreamGroupRequest(int StreamGroupId) : IRequest<APIResponse>;
 
-public class DeleteStreamGroupRequestValidator : AbstractValidator<DeleteStreamGroupRequest>
+public class DeleteStreamGroupRequestHandler(IRepositoryWrapper Repository, IDataRefreshService dataRefreshService, IMessageService messageService, IPublisher Publisher)
+    : IRequestHandler<DeleteStreamGroupRequest, APIResponse>
 {
-    public DeleteStreamGroupRequestValidator()
+    public async Task<APIResponse> Handle(DeleteStreamGroupRequest request, CancellationToken cancellationToken = default)
     {
-        _ = RuleFor(v => v.Id)
-            .NotNull()
-            .GreaterThanOrEqualTo(0);
-    }
-}
 
-public class DeleteStreamGroupRequestHandler(ILogger<DeleteStreamGroupRequest> logger, IRepositoryWrapper Repository, IPublisher Publisher)
-    : IRequestHandler<DeleteStreamGroupRequest, int?>
-{
-    public async Task<int?> Handle(DeleteStreamGroupRequest request, CancellationToken cancellationToken = default)
-    {
-        if (request.Id < 1)
+        if (request.StreamGroupId < 2)
         {
-            return null;
+            await messageService.SendError("Stream Group not found");
+            return APIResponse.NotFound;
         }
 
-        if (await Repository.StreamGroup.DeleteStreamGroup(request.Id) != null)
+        StreamGroup? streamGroup = await Repository.StreamGroup.FirstOrDefaultAsync(a => a.Id == request.StreamGroupId);
+        if (streamGroup == null)
         {
-            await Repository.SaveAsync();
+            await messageService.SendError("Stream Group not found");
+            return APIResponse.NotFound;
+        }
+
+        if (streamGroup.Name.Equals("all", StringComparison.CurrentCultureIgnoreCase))
+        {
+            return APIResponse.ErrorWithMessage($"Cannot delete reserved '{streamGroup.Name}' streamgroup");
+        }
+
+        if (await Repository.StreamGroup.DeleteStreamGroup(request.StreamGroupId) != null)
+        {
+            _ = await Repository.SaveAsync();
             await Publisher.Publish(new StreamGroupDeleteEvent(), cancellationToken);
-            return request.Id;
+            await dataRefreshService.RefreshStreamGroups();
+            await messageService.SendSuccess("Stream Group deleted successfully");
+            return APIResponse.Ok;
         }
 
-        return null;
+        return APIResponse.NotFound;
     }
 }

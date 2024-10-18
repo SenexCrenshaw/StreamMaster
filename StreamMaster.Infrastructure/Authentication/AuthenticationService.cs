@@ -3,52 +3,49 @@ using Microsoft.Extensions.Logging;
 
 using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Enums;
-
 using StreamMaster.Infrastructure.Extensions;
 
 namespace StreamMaster.Infrastructure.Authentication;
 
 public interface IAuthenticationService
 {
-    Task<User> Login(HttpRequest request, string username, string password);
-
-    Task Logout(HttpContext context);
-
+    User? Login(HttpRequest request, string username, string password);
+    void Logout(HttpContext context);
     void LogUnauthorized(HttpRequest context);
 }
 
-public class AuthenticationService(ILogger<AuthenticationService> logger, IOptionsMonitor<Setting> intsettings) : IAuthenticationService
+public class AuthenticationService(ILogger<AuthenticationService> logger, IOptionsMonitor<Setting> settings) : IAuthenticationService
 {
-    private readonly Setting settings = intsettings.CurrentValue;
+    private readonly ILogger<AuthenticationService> _logger = logger;
 
-    private async Task<AuthenticationType> GetAuthMethod()
+    private AuthenticationType GetAuthMethod()
     {
-
-        string AdminPassword = settings.AdminPassword;
-        string AdminUserName = settings.AdminUserName;
+        string adminPassword = settings.CurrentValue.AdminPassword;
+        string adminUserName = settings.CurrentValue.AdminUserName;
         AuthenticationType authMethod = AuthenticationType.None;
-        if (
-            settings.AuthenticationMethod != AuthenticationType.None &&
-            !string.IsNullOrEmpty(AdminPassword) && !string.IsNullOrEmpty(AdminUserName)
-            )
+
+        if (settings.CurrentValue.AuthenticationMethod != "None" &&
+            !string.IsNullOrEmpty(adminPassword) &&
+            !string.IsNullOrEmpty(adminUserName))
         {
             authMethod = AuthenticationType.Forms;
         }
+
         return authMethod;
     }
-    public async Task<User> Login(HttpRequest request, string username, string password)
-    {
 
-        string AdminPassword = settings.AdminPassword;
-        string AdminUserName = settings.AdminUserName;
-        AuthenticationType authMethod = await GetAuthMethod();
+    public User? Login(HttpRequest request, string username, string password)
+    {
+        string adminPassword = settings.CurrentValue.AdminPassword;
+        string adminUserName = settings.CurrentValue.AdminUserName;
+        AuthenticationType authMethod = GetAuthMethod();
 
         if (authMethod == AuthenticationType.None)
         {
             return null;
         }
 
-        if (username == AdminUserName && password == AdminPassword)
+        if (username == adminUserName && password == adminPassword)
         {
             LogSuccess(request, username);
 
@@ -61,46 +58,45 @@ public class AuthenticationService(ILogger<AuthenticationService> logger, IOptio
         }
 
         LogFailure(request, username);
-
         return null;
     }
 
-    public async Task Logout(HttpContext context)
+    public void Logout(HttpContext context)
     {
-        AuthenticationType authMethod = await GetAuthMethod();
+        AuthenticationType authMethod = GetAuthMethod();
         if (authMethod == AuthenticationType.None)
         {
             return;
         }
 
-        if (context.User != null)
+        if (context.User?.Identity?.IsAuthenticated == true)
         {
-            LogLogout(context.Request, context.User.Identity.Name);
+            LogLogout(context.Request, context.User.Identity.Name ?? "Unknown");
         }
     }
 
     public void LogUnauthorized(HttpRequest context)
     {
-        logger.LogInformation("Auth-Unauthorized ip {0} url '{1}'", context.GetRemoteIP(), context.Path);
+        _logger.LogInformation("Auth-Unauthorized ip {RemoteIP} url '{Path}'", context.GetRemoteIP(), context.Path);
     }
 
     private void LogFailure(HttpRequest context, string username)
     {
-        logger.LogWarning("Auth-Failure ip {0} username '{1}'", context.GetRemoteIP(), username);
+        _logger.LogWarning("Auth-Failure ip {RemoteIP} username '{Username}'", context.GetRemoteIP(), username);
     }
 
     private void LogInvalidated(HttpRequest context)
     {
-        logger.LogInformation("Auth-Invalidated ip {0}", context.GetRemoteIP());
+        _logger.LogInformation("Auth-Invalidated ip {RemoteIP}", context.GetRemoteIP());
     }
 
-    private void LogLogout(HttpRequest context, string username)
+    private void LogLogout(HttpRequest context, string? username)
     {
-        logger.LogInformation("Auth-Logout ip {0} username '{1}'", context.GetRemoteIP(), username);
+        _logger.LogInformation("Auth-Logout ip {RemoteIP} username '{Username}'", context.GetRemoteIP(), username ?? "Unknown");
     }
 
     private void LogSuccess(HttpRequest context, string username)
     {
-        logger.LogInformation("Auth-Success ip {0} username '{1}'", context.GetRemoteIP(), username);
+        _logger.LogInformation("Auth-Success ip {RemoteIP} username '{Username}'", context.GetRemoteIP(), username);
     }
 }

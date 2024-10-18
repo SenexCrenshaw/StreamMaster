@@ -1,0 +1,410 @@
+@mixin sm-border() {
+    border-radius: $borderRadius;
+    border-color: $inputBorderColor;
+    border-width: $inputBorder-size ;
+    border-style: solid;
+}
+
+@mixin sm-border-noradius() {
+    border-radius: 0;
+    border-color: $inputBorderColor;
+    border-width: 1px;
+    border-style: solid;
+}
+
+@mixin sm-border-y() {
+    border-color: $inputBorderColor;
+    border-top-style: solid;
+    border-bottom-style: solid;
+    border-left-style: none;
+    border-radius: 0;
+    border-right-style: none;
+    border-width: 1px;
+}
+
+@mixin sm-border-x() {
+    border-color: $inputBorderColor;
+    border-top-style: none;
+    border-bottom-style: none;
+    border-left-style: solid;
+    border-radius: 0;
+    border-right-style: solid;
+    border-width: 1px;
+}
+
+@mixin sm-border-right() {
+
+    border-top-style: none;
+    border-bottom-style: none;
+    border-left-style: none;
+    border-right-style: solid;
+
+    border-color: $inputBorderColor;
+    border-radius: 0;
+    border-width: 1px;
+}
+
+.sm-border-right {
+    @include sm-border-right();
+}
+
+@mixin sm-border-top() {
+
+    border-top-style: solid;
+    border-bottom-style: none;
+    border-left-style: none;
+    border-right-style: none;
+
+    border-color: $inputBorderColor;
+    border-radius: 0;
+    border-width: 1px;
+}
+
+.sm-border-top {
+    @include sm-border-top();
+}
+
+.sm-border-square-top {
+    @extend .sm-border;
+    border-top-color: transparent !important;
+    border-top-left-radius: 0 !important;
+    border-top-right-radius: 0 !important;
+}
+
+@mixin sm-border-bottom() {
+
+    border-top-style: none !important;
+    border-bottom-style: solid !important;
+    border-left-style: none !important;
+    border-right-style: none !important;
+
+    border-color: $inputBorderColor !important;
+    border-radius: 0 !important;
+    border-top-left-radius: $borderRadius !important;
+    border-top-right-radius: $borderRadius !important;
+    border-width: 1px !important;
+}
+
+.sm-border-bottom {
+    @include sm-border-bottom();
+}
+
+@mixin sm-border-left() {
+
+    border-top-style: none;
+    border-bottom-style: none;
+    border-left-style: solid;
+    border-right-style: none;
+
+    border-color: $inputBorderColor;
+    border-radius: 0;
+    border-width: 1px;
+}
+
+.sm-border-left {
+    @include sm-border-left();
+}
+
+@mixin sm-border-roundtop() {
+    border-top-style: solid;
+    border-bottom-style: solid;
+    border-left-style: none;
+    border-right-style: none;
+
+    border-top-left-radius: $borderRadius;
+    border-top-right-radius: $borderRadius;
+
+    border-color: $inputBorderColor;
+    border-width: 1px;
+}
+
+.sm-border-roundtop {
+    @include sm-border-roundtop();
+}
+
+@mixin sm-border-transparent() {
+    transition: border-color 0.15s;
+    border-radius: $borderRadius;
+    border-color: transparent;
+    border-width: $inputBorder-size;
+    border-style: solid;
+
+}
+
+
+.sm-border-transparent {
+    @include sm-border-transparent();
+}
+
+.sm-border-noradius {
+    @include sm-border-noradius();
+}
+
+
+$shadow-offset: 4px;
+$shadow-blur: 8px;
+$shadow-opacity: 0.4;
+
+$shadow-offset-black: 6px;
+$shadow-blur-black: 12px;
+$shadow-opacity-black: 0.3;
+
+$shadow-color-black: rgba(0, 0, 0, $shadow-opacity-black); // Define the shadow color with opacity
+
+$shadow-offset-white: 3px;
+$shadow-blur-white: 6px;
+$shadow-opacity-white: 0.2;
+$shadow-color-white: rgba(255, 255, 255, $shadow-opacity-white); // Define the shadow color with opacity
+
+$shadow-color-sg: rgba($iconSG, $shadow-opacity); // Define the shadow color with opacity
+
+.sm-box-shadow {
+    box-shadow: // Bottom shadow
+    0px #{$shadow-offset-black} #{$shadow-blur-black} #{$shadow-color-black},
+    // Top shadow
+    0px -#{$shadow-offset-black} #{$shadow-blur-black} #{$shadow-color-black},
+    // Right shadow
+    #{$shadow-offset-black} 0px #{$shadow-blur-black} #{$shadow-color-black},
+    // Left shadow
+    -#{$shadow-offset-black} 0px #{$shadow-blur-black} #{$shadow-color-black}; // Left shadow
+}
+
+.sm-box-shadow-modal {
+    box-shadow: // Bottom shadow
+    0px #{$shadow-offset-black} #{$shadow-blur-black} #{$shadow-color-black},
+    // Top shadow
+    0px -#{$shadow-offset-black} #{$shadow-blur-black} #{$shadow-color-black},
+    // Right shadow
+    #{$shadow-offset-black} 0px #{$shadow-blur-black} #{$shadow-color-black},
+    // Left shadow
+    -#{$shadow-offset-black} 0px #{$shadow-blur-black} #{$shadow-color-black}; // Left shadow
+}
+
+.sm-box-shadow-menu {
+    box-shadow: // Bottom shadow
+    0px #{$shadow-offset-black} #{$shadow-blur-black} #{$shadow-color-black},
+    // Top shadow
+    0px 2px 4px #{$shadow-color-black},
+    // Right shadow
+    #{$shadow-offset-black} 0px #{$shadow-blur-black} #{$shadow-color-black},
+    // Left shadow
+    -#{$shadow-offset-black} 0px #{$shadow-blur-black} #{$shadow-color-black}; // Left shadow
+}
+
+.sm-box-shadow-sg {
+    box-shadow: // Bottom shadow
+    0px #{$shadow-offset} #{$shadow-blur} #{$shadow-color-sg},
+    // Bottom shadow
+    // Top shadow
+    0px -#{$shadow-offset} #{$shadow-blur} #{$shadow-color-sg},
+    // Right shadow
+    #{$shadow-offset} 0px #{$shadow-blur} #{$shadow-color-sg},
+    // Left shadow
+    -#{$shadow-offset} 0px #{$shadow-blur} #{$shadow-color-sg}; // Left shadow
+}
+
+.sm-box-shadow-white {
+    box-shadow: // Bottom shadow
+    0px #{$shadow-offset-white} #{$shadow-blur-white} #{$shadow-color-white},
+    // Bottom shadow
+    // Top shadow
+    0px -#{$shadow-offset-white} #{$shadow-blur-white} #{$shadow-color-white},
+    // Right shadow
+    #{$shadow-offset-white} 0px #{$shadow-blur-white} #{$shadow-color-white},
+    // Left shadow
+    -#{$shadow-offset-white} 0px #{$shadow-blur-white} #{$shadow-color-white}; // Left shadow
+}
+
+.sm-box-modal {
+    @extend .sm-box-shadow-modal;
+}
+
+.sm-box-modal-shadow-white {
+    @extend .sm-box-shadow-white;
+}
+
+.sm-border-y {
+    @include sm-border-y();
+}
+
+.sm-border-x {
+    @include sm-border-x();
+}
+
+.sm-border {
+    @include sm-border();
+}
+
+.sm-border-divider {
+    border-top-color: $inputBorderColor;
+    border-top-width: 1px;
+    border-top-style: solid;
+}
+
+@mixin input-hover() {
+    transition: border-color 0.15s;
+
+    &:not(.p-disabled):hover:not(:focus) {
+        border-color: $inputHoverBorderColor;
+        border-radius: $borderRadius;
+        border-style: solid;
+        border-width: $inputBorder-size;
+        color: $highlightTextColor;
+        // background-color: $inputBg;
+    }
+}
+
+@mixin input-hover-transparent() {
+    transition: border-color 0.15s;
+
+    &:not(.p-disabled):hover:not(:focus) {
+        border-color: transparent;
+        border-radius: $borderRadius;
+        border-style: solid;
+        border-width: $inputBorder-size;
+    }
+}
+
+@mixin input-hover-dark() {
+    transition: border-color 0.15s;
+
+    &:not(.p-disabled):hover:not(:focus) {
+        border-color: $inputHoverBorderColor;
+        border-radius: $borderRadius;
+        border-style: solid;
+        border-width: $inputBorder-size;
+        color: $highlightTextColor;
+        // background-color: $inputBg;
+    }
+}
+
+@mixin input-hover-y() {
+    transition: border-color 0.15s;
+
+    &:not(.p-disabled):hover {
+        border-bottom-style: solid;
+        border-color: $inputHoverBorderColor;
+        border-left-color: transparent;
+        border-radius: 0;
+        border-right-color: transparent;
+        border-top-style: solid;
+        border-width: $inputBorder-size;
+        color: $highlightTextColor;
+    }
+}
+
+.sm-hover {
+    @include input-hover();
+}
+
+.sm-hover-transparent {
+    @include input-hover-transparent();
+}
+
+.sm-menuitem {
+    align-items: center;
+    // border-bottom-left-radius: $borderRadius* 2;
+    // border-bottom-right-radius: $borderRadius;
+    // border-style: solid;
+    // border-top-left-radius: $borderRadius * 2;
+    // border-top-right-radius: $borderRadius;
+    // border-width: 1px;
+    display: flex;
+    height: $input-height-with-no-borders;
+    justify-content: center;
+    max-height: $input-height-with-no-borders;
+    min-height: $input-height-with-no-borders;
+    padding-right: .24rem;
+    transition: color 0.3s ease;
+    transition: filter 0.3s ease;
+
+    &:hover {
+        color: white;
+        filter: brightness(130%);
+        border-color: rgba(255, 255, 255, 0.5);
+    }
+}
+
+.sm-hover-dark {
+    @include input-hover-dark();
+}
+
+.sm-hover-y {
+    @include input-hover-y();
+}
+
+.sm-input-border {
+    @include sm-border();
+    @include input-hover();
+}
+
+
+.sm-input-border-dark {
+    @include sm-border();
+    @include input-hover();
+}
+
+.border-radius-right {
+    border-top-right-radius: $borderRadius;
+    border-bottom-right-radius: $borderRadius;
+    border-color: $headerBg;
+    border-width: 1px;
+    border-style: solid;
+}
+
+.border-radius-left {
+    border-color: $headerBg;
+    border-width: 1px;
+    border-top-left-radius: $borderRadius;
+    border-bottom-left-radius: $borderRadius;
+    border-style: solid;
+}
+
+.border-radius-bottom {
+    border-top-style: none;
+    border-color: $inputBorderColor;
+    border-width: 1px;
+    border-bottom-left-radius: $borderRadius;
+    border-bottom-right-radius: $borderRadius;
+    border-style: solid;
+}
+
+.border-sides {
+    border-top-style: none;
+    border-bottom-style: none;
+    border-left: 1px solid $inputBorderColor;
+    border-right: 1px solid $inputBorderColor;
+}
+
+.info-header-text-bottom-border {
+    @extend .info-header-text;
+    border-width: 1px;
+    border-top-right-radius: $borderRadius;
+    border-top-left-radius: $borderRadius;
+    border-bottom: 1px solid $inputBorderColor;
+    border-style: solid;
+    border-color: $inputBorderColor;
+}
+
+.last_radius {
+    border-top-width: 0;
+    border-right-width: 0;
+
+    .p-datatable-wrapper {
+        border-top-right-radius: $borderRadius;
+    }
+}
+
+.no-top-border {
+    .p-datatable-wrapper {
+        border-top-width: 0;
+    }
+}
+
+.border-highlight {
+    border-color: $iconOrange !important;
+
+    &:not(.p-disabled):hover:not(:focus) {
+        border-color: $iconOrange !important;
+    }
+}

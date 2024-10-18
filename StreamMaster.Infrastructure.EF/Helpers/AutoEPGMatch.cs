@@ -195,8 +195,8 @@ namespace StreamMaster.Infrastructure.EF.Helpers
 
         private static int CalculateIntersectionScore(string name1, string name2)
         {
-            List<string> name1Words = name1.Split(' ').ToList();
-            List<string> name2Words = name2.Split(' ').ToList();
+            List<string> name1Words = [.. name1.Split(' ')];
+            List<string> name2Words = [.. name2.Split(' ')];
             int intersectionCount = name1Words.Intersect(name2Words).Count();
             return intersectionCount * 10;
         }

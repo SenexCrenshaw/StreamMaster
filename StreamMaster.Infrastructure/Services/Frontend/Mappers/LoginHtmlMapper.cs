@@ -4,9 +4,9 @@ using StreamMaster.Domain.Configuration;
 
 namespace StreamMaster.Infrastructure.Services.Frontend.Mappers
 {
-    public class LoginHtmlMapper(IOptionsMonitor<Setting> intsettings, ILogger<LoginHtmlMapper> logger) : HtmlMapperBase(logger)
+    public class LoginHtmlMapper(IOptionsMonitor<Setting> intSettings, ILogger<LoginHtmlMapper> logger) : HtmlMapperBase(logger)
     {
-        private readonly Setting settings = intsettings.CurrentValue;
+        private readonly Setting settings = intSettings.CurrentValue;
 
         public override bool CanHandle(string resourceUrl)
         {
@@ -15,7 +15,6 @@ namespace StreamMaster.Infrastructure.Services.Frontend.Mappers
 
         public override async Task<string> Map(string resourceUrl)
         {
-
             HtmlPath = Path.Combine(BuildInfo.StartUpPath, settings.UiFolder, "login.html");
             return HtmlPath;
         }

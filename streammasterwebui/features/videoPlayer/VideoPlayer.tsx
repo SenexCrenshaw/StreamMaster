@@ -1,10 +1,14 @@
 import StandardHeader from '@components/StandardHeader';
 import { VideoPlayerIcon } from '@lib/common/icons';
-import { IdNameUrl, useVideoStreamsGetVideoStreamNamesAndUrlsQuery } from '@lib/iptvApi';
+import { IdNameUrl } from '@lib/smAPI/smapiTypes';
+import useGetVideoStreamNamesAndUrls from '@lib/smAPI/SMChannels/useGetVideoStreamNamesAndUrls';
+
 import { MediaPlayer, MediaProvider } from '@vidstack/react';
-import { DefaultVideoLayout, defaultLayoutIcons } from '@vidstack/react/player/layouts/default';
+
 import '@vidstack/react/player/styles/default/layouts/video.css';
 import '@vidstack/react/player/styles/default/theme.css';
+
+import { defaultLayoutIcons, DefaultVideoLayout } from '@vidstack/react/player/layouts/default';
 import { Dropdown, DropdownChangeEvent } from 'primereact/dropdown';
 import React, { useMemo } from 'react';
 
@@ -16,10 +20,10 @@ const VideoPlayer = () => {
   const [showDropdown, setShowDropdown] = React.useState<boolean>(true);
   const hideDropdownTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
 
-  const namesAndUrlsQuery = useVideoStreamsGetVideoStreamNamesAndUrlsQuery();
+  const namesAndUrlsQuery = useGetVideoStreamNamesAndUrls();
 
   const namesAndUrls = useMemo(() => {
-    return namesAndUrlsQuery.data?.map((item) => ({ name: item.name, value: item })) || [];
+    return namesAndUrlsQuery.data?.map((item) => ({ name: item.Name, value: item })) || [];
   }, [namesAndUrlsQuery.data]);
 
   const handleMouseMove = (show: boolean) => {
@@ -43,7 +47,7 @@ const VideoPlayer = () => {
     <StandardHeader className="videoPlayer flex flex-column h-full" displayName="Video" icon={<VideoPlayerIcon />}>
       <MediaPlayer
         title={title}
-        src={src}
+        src={{ src: src, type: 'video/mp4' }}
         autoPlay
         onControlsChange={(e) => {
           handleMouseMove(e as boolean);
@@ -65,8 +69,8 @@ const VideoPlayer = () => {
               optionLabel="name"
               value={selectedID}
               onChange={(e: DropdownChangeEvent) => {
-                setTitle(e.value.name);
-                setSrc(e.value.url);
+                setTitle(e.value.Name);
+                setSrc(e.value.Url);
                 setSelectedID(e.value);
               }}
               options={namesAndUrls}

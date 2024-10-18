@@ -1,35 +1,73 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 
+using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Helpers;
 using StreamMaster.Infrastructure.EF.PGSQL;
 
 namespace StreamMaster.Infrastructure.EF;
 
-public class RepositoryContextInitializer(ILogger<RepositoryContextInitializer> logger, PGSQLRepositoryContext context)
+public class RepositoryContextInitializer(ILogger<RepositoryContextInitializer> logger, PGSQLRepositoryContext context, IOptionsMonitor<Setting> intSettings)
 {
-    public async Task InitialiseAsync()
+    public async Task InitializeAsync()
     {
         try
         {
             await context.Database.MigrateAsync().ConfigureAwait(false);
 
+            Setting settings = intSettings.CurrentValue;
+
             if (!context.StreamGroups.Any(a => a.Name == "ALL"))
             {
-                context.Add(new StreamGroup { Name = "ALL", IsReadOnly = true });
-                await context.SaveChangesAsync().ConfigureAwait(false);
+                StreamGroup sg = new() { Name = "ALL", IsReadOnly = true, IsSystem = true, DeviceID = settings.DeviceID, GroupKey = Guid.NewGuid().ToString().Replace("-", "") };
+                _ = context.Add(sg);
+                StreamGroupProfile profile = new()
+                {
+                    ProfileName = "Default",
+                    OutputProfileName = "Default",
+                    CommandProfileName = settings.DefaultCommandProfileName
+                };
+
+                _ = context.StreamGroupProfiles.Add(profile);
+                sg.StreamGroupProfiles.Add(profile);
+
+                _ = await context.SaveChangesAsync().ConfigureAwait(false);
             }
 
-            if (!context.ChannelGroups.Any(a => a.Name == "(None)"))
+            if (!context.ChannelGroups.Any(a => a.Name == "Dummy"))
             {
-                context.Add(new ChannelGroup { Name = "(None)", IsReadOnly = true });
-                await context.SaveChangesAsync().ConfigureAwait(false);
+                _ = context.Add(new ChannelGroup { Name = "Dummy", IsReadOnly = true, IsSystem = true });
+                _ = await context.SaveChangesAsync().ConfigureAwait(false);
             }
 
+            if (!context.ChannelGroups.Any(a => a.Name == "CustomPlayList"))
+            {
+                _ = context.Add(new ChannelGroup { Name = "CustomPlayList", IsReadOnly = true, IsSystem = true });
+                _ = await context.SaveChangesAsync().ConfigureAwait(false);
+            }
+
+            if (!context.ChannelGroups.Any(a => a.Name == "SystemMessages"))
+            {
+                _ = context.Add(new ChannelGroup { Name = "SystemMessages", IsReadOnly = true, IsSystem = true });
+                _ = await context.SaveChangesAsync().ConfigureAwait(false);
+            }
+
+            if (!context.ChannelGroups.Any(a => a.Name == "Intros"))
+            {
+                _ = context.Add(new ChannelGroup { Name = "Intros", IsReadOnly = true, IsSystem = true });
+                _ = await context.SaveChangesAsync().ConfigureAwait(false);
+            }
+
+            //if (!context.SMStreams.Any(a => a.Name == "Stream Master How To"))
+            //{
+            //    string url = "https://www.youtube.com/watch?v=5bh2E7CxcDk";
+            //    string id = url.ConvertStringToId();
+            //    _ = context.Add(new SMStream { Id = id, Name = "Stream Master How To", IsSystem = false, Logo = "/images/streammaster_logo.png", Group = "CustomPlayList", EPGID = "Dummy", M3UFileName = "CUSTOM", ChannelNumber = 999, M3UFileId = -1, IsUserCreated = true, CommandProfileName = "YT", Url = url });
+            //    _ = await context.SaveChangesAsync().ConfigureAwait(false);
+            //}
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "An error occurred while initialising the database.");
+            logger.LogError(ex, "An error occurred while initializing the database.");
             throw;
         }
     }
@@ -38,32 +76,4 @@ public class RepositoryContextInitializer(ILogger<RepositoryContextInitializer> 
     {
         DirectoryHelper.CreateApplicationDirectories();
     }
-
-    public void MigrateData()
-    {
-        CheckShortIDs();
-    }
-
-    private void CheckShortIDs()
-    {
-        List<VideoStream> videos = [.. context.VideoStreams.Where(a => a.ShortId == UniqueHexGenerator.ShortIdEmpty)];
-        if (videos.Count == 0)
-        {
-            Console.WriteLine("No shortids need fixing", videos.Count);
-            return;
-        }
-
-        Console.WriteLine($"Fixing {videos.Count} empty shortids");
-
-        HashSet<string> ids = [.. context.VideoStreams.Select(a => a.ShortId)];
-
-        foreach (VideoStream? video in videos)
-        {
-            video.ShortId = UniqueHexGenerator.GenerateUniqueHex(ids);
-        }
-
-        context.SaveChanges();
-        Console.WriteLine($"Done fixing empty shortids");
-    }
 }
-

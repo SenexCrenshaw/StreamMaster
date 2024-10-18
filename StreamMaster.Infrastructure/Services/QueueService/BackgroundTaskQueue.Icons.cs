@@ -1,24 +1,29 @@
-﻿using StreamMaster.Application.Icons;
+﻿using StreamMaster.Application.Logos;
 using StreamMaster.Domain.Enums;
 
 namespace StreamMaster.Infrastructure.Services.QueueService;
 
 
-public partial class BackgroundTaskQueue : IIconTasks
+public partial class BackgroundTaskQueue : ILogoTasks
 {
-    public async ValueTask BuildIconCaches(CancellationToken cancellationToken = default)
+    public async ValueTask BuildLogoCaches(CancellationToken cancellationToken = default)
     {
-        await QueueAsync(SMQueCommand.BuildIconCaches, cancellationToken).ConfigureAwait(false);
+        await QueueAsync(SMQueCommand.BuildLogoCaches, cancellationToken).ConfigureAwait(false);
     }
 
-    public async ValueTask BuildIconsCacheFromVideoStreams(CancellationToken cancellationToken = default)
+    public async ValueTask BuildLogosCacheFromStreams(CancellationToken cancellationToken = default)
     {
-        await QueueAsync(SMQueCommand.BuildIconsCacheFromVideoStreams, cancellationToken).ConfigureAwait(false);
+        await QueueAsync(SMQueCommand.BuildLogosCacheFromStreams, cancellationToken).ConfigureAwait(false);
     }
 
-    public async ValueTask BuildProgIconsCacheFromEPGs(CancellationToken cancellationToken = default)
+    public async ValueTask BuildLogosCacheFromVideoStreams(CancellationToken cancellationToken = default)
     {
-        await QueueAsync(SMQueCommand.BuildProgIconsCacheFromEPGs, cancellationToken).ConfigureAwait(false);
+        await QueueAsync(SMQueCommand.BuildLogosCacheFromVideoStreams, cancellationToken).ConfigureAwait(false);
+    }
+
+    public async ValueTask BuildProgLogosCacheFromEPGs(CancellationToken cancellationToken = default)
+    {
+        await QueueAsync(SMQueCommand.BuildProgLogosCacheFromEPGs, cancellationToken).ConfigureAwait(false);
     }
 
     public async Task ReadDirectoryLogos(CancellationToken cancellationToken = default)
@@ -26,8 +31,8 @@ public partial class BackgroundTaskQueue : IIconTasks
         await QueueAsync(SMQueCommand.ReadDirectoryLogosRequest, cancellationToken).ConfigureAwait(false);
     }
 
-    public async ValueTask ScanDirectoryForIconFiles(CancellationToken cancellationToken = default)
+    public async ValueTask ScanDirectoryForLogoFiles(CancellationToken cancellationToken = default)
     {
-        await QueueAsync(SMQueCommand.ScanDirectoryForIconFiles, cancellationToken).ConfigureAwait(false);
+        await QueueAsync(SMQueCommand.ScanDirectoryForLogoFiles, cancellationToken).ConfigureAwait(false);
     }
 }

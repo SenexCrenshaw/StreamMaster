@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 using System.Security.Claims;
 using System.Text;
@@ -10,22 +9,14 @@ using System.Text.RegularExpressions;
 
 namespace StreamMaster.Infrastructure.Authentication
 {
-    public class BasicAuthenticationHandler : AuthenticationHandler<AuthenticationSchemeOptions>
+    public class BasicAuthenticationHandler(IAuthenticationService authService,
+
+        IOptionsMonitor<AuthenticationSchemeOptions> options,
+        ILoggerFactory logger,
+        UrlEncoder encoder,
+        ISystemClock clock) : AuthenticationHandler<AuthenticationSchemeOptions>(options, logger, encoder, clock)
     {
-        private readonly string _appName;
-        private readonly IAuthenticationService _authService;
-
-        public BasicAuthenticationHandler(IAuthenticationService authService,
-
-            IOptionsMonitor<AuthenticationSchemeOptions> options,
-            ILoggerFactory logger,
-            UrlEncoder encoder,
-            ISystemClock clock)
-            : base(options, logger, encoder, clock)
-        {
-            _appName = "StreamMaster";
-            _authService = authService;
-        }
+        private readonly string _appName = "StreamMaster";
 
         protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
         {
@@ -48,7 +39,7 @@ namespace StreamMaster.Infrastructure.Authentication
             string authUsername = authSplit[0];
             string authPassword = authSplit.Length > 1 ? authSplit[1] : throw new Exception("Unable to get password");
 
-            User user = await _authService.Login(Request, authUsername, authPassword);
+            User? user = authService.Login(Request, authUsername, authPassword);
 
             if (user == null)
             {

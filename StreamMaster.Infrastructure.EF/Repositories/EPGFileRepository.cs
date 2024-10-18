@@ -2,22 +2,29 @@
 using AutoMapper.QueryableExtensions;
 
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 
+using StreamMaster.Domain.API;
 using StreamMaster.Domain.Helpers;
 using StreamMaster.SchedulesDirect.Domain.Interfaces;
 using StreamMaster.SchedulesDirect.Domain.Models;
+using StreamMaster.SchedulesDirect.Domain.XmltvXml;
+using StreamMaster.Streams.Domain.Interfaces;
+
+using System.Diagnostics;
 
 namespace StreamMaster.Infrastructure.EF.Repositories;
 
 /// <summary>
-/// Repository to manage EPGFile entities in the database.
+/// Repositorywrapper to manage EPGFile entities in the database.
 /// </summary>
-public class EPGFileRepository(ILogger<EPGFileRepository> logger, IRepositoryContext repositoryContext, IRepositoryWrapper repository, ISchedulesDirectDataService schedulesDirectDataService, IMapper mapper) : RepositoryBase<EPGFile>(repositoryContext, logger), IEPGFileRepository
+public class EPGFileRepository(ILogger<EPGFileRepository> intLogger, IFileUtilService fileUtilService, ICacheManager cacheManager, IXmltv2Mxf xmltv2Mxf, IJobStatusService jobStatusService, IRepositoryContext repositoryContext, ISchedulesDirectDataService schedulesDirectDataService, IMapper mapper)
+    : RepositoryBase<EPGFile>(repositoryContext, intLogger), IEPGFileRepository
 {
+    public IXmltv2Mxf Xmltv2Mxf { get; } = xmltv2Mxf;
+
     public async Task<int> GetNextAvailableEPGNumberAsync(CancellationToken cancellationToken)
     {
-        List<int> epgNumbers = await FindAll()
+        List<int> epgNumbers = await GetQuery()
                                         .Select(x => x.EPGNumber)
                                         .OrderBy(x => x)
                                         .ToListAsync(cancellationToken)
@@ -35,6 +42,12 @@ public class EPGFileRepository(ILogger<EPGFileRepository> logger, IRepositoryCon
 
         return nextAvailableNumber;
     }
+
+    public async Task<EPGFile?> GetEPGFile(int Id)
+    {
+        return await FirstOrDefaultAsync(c => c.Id == Id, false).ConfigureAwait(false);
+    }
+
     public async Task<List<EPGFilePreviewDto>> GetEPGFilePreviewById(int Id, CancellationToken cancellationToken)
     {
         if (Id < 0)
@@ -42,7 +55,7 @@ public class EPGFileRepository(ILogger<EPGFileRepository> logger, IRepositoryCon
             return [];
         }
 
-        EPGFile? epgFile = await FindByCondition(a => a.Id == Id).FirstOrDefaultAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
+        EPGFile? epgFile = await FirstOrDefaultAsync(a => a.Id == Id, cancellationToken: cancellationToken).ConfigureAwait(false);
         if (epgFile == null)
         {
             return [];
@@ -59,15 +72,19 @@ public class EPGFileRepository(ILogger<EPGFileRepository> logger, IRepositoryCon
                 continue;
             }
 
-            (int EPGNumber, string stationId) = service.StationId.ExtractEPGNumberAndStationId();
+            string stationId = service.StationId;
+            if (EPGHelper.IsValidEPGId(service.StationId))
+            {
+                (int EPGNumber, stationId) = service.StationId.ExtractEPGNumberAndStationId();
+            }
 
             ret.Add(new EPGFilePreviewDto
             {
+                Id = service.Id,
                 ChannelName = service.Name,
                 ChannelNumber = stationId,
                 ChannelLogo = service?.mxfGuideImage?.ImageUrl ?? "",
             });
-
         }
         return ret;
     }
@@ -77,13 +94,10 @@ public class EPGFileRepository(ILogger<EPGFileRepository> logger, IRepositoryCon
     /// </summary>
     public void CreateEPGFile(EPGFile EPGFile)
     {
-        if (EPGFile == null)
-        {
-            throw new ArgumentNullException(nameof(EPGFile));
-        }
+        ArgumentNullException.ThrowIfNull(EPGFile);
 
         Create(EPGFile);
-        logger.LogInformation($"EPGFile with number {EPGFile.EPGNumber} was created.");
+        logger.LogInformation("EPGFile with number {EPGFile.EPGNumber} was created.", EPGFile.EPGNumber);
     }
 
     /// <summary>
@@ -96,14 +110,14 @@ public class EPGFileRepository(ILogger<EPGFileRepository> logger, IRepositoryCon
             throw new ArgumentNullException(nameof(EPGFileId));
         }
 
-        EPGFile? epgFile = await FindByCondition(a => a.Id == EPGFileId).FirstOrDefaultAsync().ConfigureAwait(false);
+        EPGFile? epgFile = await FirstOrDefaultAsync(a => a.Id == EPGFileId).ConfigureAwait(false);
         if (epgFile == null)
         {
             return null;
         }
 
         Delete(epgFile);
-        logger.LogInformation($"EPGFile with Name {epgFile.Name} was deleted.");
+        logger.LogInformation("EPGFile with Name {epgFile.Name} was deleted.", epgFile.Name);
         return mapper.Map<EPGFileDto>(epgFile);
     }
 
@@ -112,7 +126,7 @@ public class EPGFileRepository(ILogger<EPGFileRepository> logger, IRepositoryCon
     /// </summary>
     public async Task<List<EPGFileDto>> GetEPGFiles()
     {
-        return await FindAll().ProjectTo<EPGFileDto>(mapper.ConfigurationProvider)
+        return await GetQuery().ProjectTo<EPGFileDto>(mapper.ConfigurationProvider)
                               .ToListAsync()
                               .ConfigureAwait(false);
     }
@@ -122,33 +136,52 @@ public class EPGFileRepository(ILogger<EPGFileRepository> logger, IRepositoryCon
     /// </summary>
     public async Task<EPGFile?> GetEPGFileById(int Id)
     {
-        return await FindByCondition(c => c.Id == Id)
-                           .AsNoTracking()
-                           .FirstOrDefaultAsync()
-                           .ConfigureAwait(false);
+        return await FirstOrDefaultAsync(c => c.Id == Id).ConfigureAwait(false);
     }
 
     /// <summary>
     /// Retrieves a specific EPGFile by its source.
     /// </summary>
-    public async Task<EPGFile?> GetEPGFileBySource(string Source)
+    public async Task<EPGFile?> GetEPGFileBySourceAsync(string source)
     {
-        return await FindByCondition(c => c.Source == Source)
-                          .AsNoTracking()
-                          .FirstOrDefaultAsync()
-                          .ConfigureAwait(false);
+        if (string.IsNullOrWhiteSpace(source))
+        {
+            return null;
+        }
+
+        // Normalize source by removing .gz or .zip extensions if present
+        string normalizedSource = source.EndsWith(".gz", StringComparison.OrdinalIgnoreCase) || source.EndsWith(".zip", StringComparison.OrdinalIgnoreCase)
+            ? Path.GetFileNameWithoutExtension(source)
+            : source;
+
+        // Define possible variations of the source
+        List<string> possibleSources =
+        [
+        normalizedSource,             // The base source (without extensions)
+        $"{normalizedSource}.gz",     // The source with .gz extension
+        $"{normalizedSource}.zip",    // The source with .zip extension
+        $"{normalizedSource}.xml",    // The base file as .xml
+        $"{normalizedSource}.xml.gz", // The .xml file with .gz extension
+        $"{normalizedSource}.xml.zip" // The .xml file with .zip extension
+    ];
+
+        // Query for a match with any of the possible source variations
+        EPGFile? epgFile = await FirstOrDefaultAsync(c => possibleSources.Contains(c.Source)).ConfigureAwait(false);
+
+        return epgFile;
     }
 
     public PagedResponse<EPGFileDto> CreateEmptyPagedResponse()
     {
         return PagedExtensions.CreateEmptyPagedResponse<EPGFileDto>(Count());
     }
-    public async Task<List<EPGFileDto>> GetEPGFilesNeedUpdating()
+
+    public async Task<List<EPGFileDto>> GetEPGFilesNeedUpdatingAsync()
     {
         List<EPGFileDto> ret = [];
-        List<EPGFileDto> epgFilesToUpdated = await FindByCondition(a => a.AutoUpdate && !string.IsNullOrEmpty(a.Url) && a.HoursToUpdate > 0 && a.LastDownloaded.AddHours(a.HoursToUpdate) < DateTime.Now).ProjectTo<EPGFileDto>(mapper.ConfigurationProvider).ToListAsync().ConfigureAwait(false);
+        List<EPGFileDto> epgFilesToUpdated = await GetQuery(a => a.AutoUpdate && !string.IsNullOrEmpty(a.Url) && a.HoursToUpdate > 0 && a.LastDownloaded.AddHours(a.HoursToUpdate) < SMDT.UtcNow).ProjectTo<EPGFileDto>(mapper.ConfigurationProvider).ToListAsync().ConfigureAwait(false);
         ret.AddRange(epgFilesToUpdated);
-        foreach (EPGFile? epgFile in FindByCondition(a => string.IsNullOrEmpty(a.Url)))
+        foreach (EPGFile? epgFile in GetQuery(a => string.IsNullOrEmpty(a.Url)))
         {
             if (epgFile.LastWrite() >= epgFile.LastUpdated)
             {
@@ -161,16 +194,13 @@ public class EPGFileRepository(ILogger<EPGFileRepository> logger, IRepositoryCon
     /// <summary>
     /// Retrieves paged EPGFiles based on specific parameters.
     /// </summary>
-    public async Task<PagedResponse<EPGFileDto>> GetPagedEPGFiles(EPGFileParameters Parameters)
+    public async Task<PagedResponse<EPGFileDto>> GetPagedEPGFiles(QueryStringParameters Parameters)
     {
-        if (Parameters == null)
-        {
-            throw new ArgumentNullException(nameof(Parameters));
-        }
+        ArgumentNullException.ThrowIfNull(Parameters);
 
         try
         {
-            IQueryable<EPGFile> query = GetIQueryableForEntity(Parameters);
+            IQueryable<EPGFile> query = GetQuery(Parameters);
             return await query.GetPagedResponseAsync<EPGFile, EPGFileDto>(Parameters.PageNumber, Parameters.PageSize, mapper)
                               .ConfigureAwait(false);
         }
@@ -186,23 +216,94 @@ public class EPGFileRepository(ILogger<EPGFileRepository> logger, IRepositoryCon
     /// </summary>
     public void UpdateEPGFile(EPGFile EPGFile)
     {
-        if (EPGFile == null)
-        {
-            throw new ArgumentNullException(nameof(EPGFile));
-        }
+        ArgumentNullException.ThrowIfNull(EPGFile);
 
         Update(EPGFile);
-        logger.LogInformation($"EPGFile with number {EPGFile.EPGNumber} was updated.");
+        //logger.LogInformation("EPGFile with number {EPGFile.EPGNumber} was updated.", EPGFile.EPGNumber);
     }
 
     public List<EPGColorDto> GetEPGColors()
     {
-        return [.. FindAll().ProjectTo<EPGColorDto>(mapper.ConfigurationProvider)];
-
+        return [.. GetQuery().ProjectTo<EPGColorDto>(mapper.ConfigurationProvider)];
     }
 
     public async Task<EPGFile?> GetEPGFileByNumber(int EPGNumber)
     {
-        return await FindByCondition(a => a.EPGNumber == EPGNumber).FirstOrDefaultAsync();
+        return await FirstOrDefaultAsync(a => a.EPGNumber == EPGNumber);
+    }
+
+    public async Task<EPGFile?> ProcessEPGFile(int EPGFileId)
+    {
+        JobStatusManager jobManager = jobStatusService.GetJobManagerProcessEPG(EPGFileId);
+        if (jobManager.IsRunning)
+        {
+            return null;
+        }
+
+        jobManager.Start();
+        EPGFile? epgFile = null;
+        try
+        {
+            epgFile = await GetEPGFile(EPGFileId);
+            if (epgFile == null)
+            {
+                logger.LogCritical("Could not find EPG file");
+                jobManager.SetError();
+                return null;
+            }
+
+            Stopwatch timer = Stopwatch.StartNew();
+
+            //XmlSerializer serializer = new(typeof(XMLTV));
+            //string filePath = Path.Combine(FileDefinitions.EPG.DirectoryLocation, epgFile.Source);
+            //Stream? fileStream = fileUtilService.GetFileDataStream(filePath);
+
+            //if (fileStream == null)
+            //{
+            //    logger.LogCritical("Could not find EPG file");
+            //    jobManager.SetError();
+            //    return null;
+            //}
+
+            //await using FileStream fileStream = new(filePath, FileMode.Create);
+            //Tv? tv = (Tv?)serializer.Deserialize(fileStream);
+            //timer.Stop();
+            //logger.LogInformation("Deserialized EPG file in {timer.ElapsedMilliseconds}ms", timer.ElapsedMilliseconds);
+            //List<Channel>? channnels = tv?.Channels;
+            //cacheManager.Channels[epgFile.EPGNumber] = tv?.Channels ?? [];
+            //cacheManager.Programmes[epgFile.EPGNumber] = tv?.Programmes ?? [];
+            //if (tv2 != null)
+            //{
+            //    int aaa = 1;
+            //}
+            XMLTV? tv = await Xmltv2Mxf.ConvertToXMLTVAsync(Path.Combine(FileDefinitions.EPG.DirectoryLocation, epgFile.Source), epgFile.EPGNumber);
+
+            if (tv != null)
+            {
+                epgFile.ChannelCount = (tv.Channels?.Count) ?? 0;
+                epgFile.ProgrammeCount = (tv.Programs?.Count) ?? 0;
+            }
+
+            epgFile.LastUpdated = SMDT.UtcNow;
+            UpdateEPGFile(epgFile);
+            await SaveChangesAsync();
+            jobManager.SetSuccessful();
+            return epgFile;
+        }
+        catch (Exception ex)
+        {
+            jobManager.SetError();
+            logger.LogCritical(ex, "Error while processing M3U file");
+            return null;
+        }
+        finally
+        {
+            if (epgFile != null)
+            {
+                epgFile.LastUpdated = SMDT.UtcNow;
+                UpdateEPGFile(epgFile);
+                await SaveChangesAsync();
+            }
+        }
     }
 }

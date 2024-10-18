@@ -1,41 +1,17 @@
-﻿using Microsoft.AspNetCore.SignalR;
-using Microsoft.Extensions.Logging;
-
-using StreamMaster.Application.Common.Interfaces;
-using StreamMaster.Application.Hubs;
-using StreamMaster.Domain.Services;
-using StreamMaster.SchedulesDirect.Domain.Interfaces;
-using StreamMaster.Streams.Domain.Interfaces;
+﻿using Microsoft.Extensions.Logging;
 
 using System.Diagnostics;
 
 namespace StreamMaster.Infrastructure.Services;
 
-public class BroadcastService : IBroadcastService, IDisposable
-{
-    private readonly IFileLoggingService debugLogger;
-    private readonly IHubContext<StreamMasterHub, IStreamMasterHub> hub;
-    private readonly IStatisticsManager statisticsManager;
-    private readonly IClientStreamerManager clientStreamer;
-    private readonly IStreamManager streamManager;
-    private readonly IChannelService channelService;
-    private readonly IStreamStatisticService streamStatisticService;
-    private readonly ILogger<BroadcastService> logger;
-    private readonly ISchedulesDirectDataService schedulesDirectDataService;
-    private Timer? _broadcastTimer;
+public class BroadcastService(
 
-    public BroadcastService(IHubContext<StreamMasterHub, IStreamMasterHub> hub, IFileLoggingServiceFactory factory, ISchedulesDirectDataService schedulesDirectDataService, IStatisticsManager statisticsManager, IClientStreamerManager clientStreamer, IStreamManager streamManager, IChannelService channelService, IStreamStatisticService streamStatisticService, ILogger<BroadcastService> logger)
-    {
-        this.hub = hub;
-        this.statisticsManager = statisticsManager;
-        this.clientStreamer = clientStreamer;
-        this.streamManager = streamManager;
-        this.channelService = channelService;
-        this.streamStatisticService = streamStatisticService;
-        this.logger = logger;
-        this.schedulesDirectDataService = schedulesDirectDataService;
-        debugLogger = factory.Create("FileLoggerDebug");
-    }
+    IFileLoggingServiceFactory factory,
+
+    ILogger<BroadcastService> logger) : IBroadcastService, IDisposable
+{
+    private readonly IFileLoggingService debugLogger = factory.Create("FileLoggerDebug");
+    private Timer? _broadcastTimer;
 
     private void printDebug(string format, params object[] args)
     {
@@ -45,39 +21,39 @@ public class BroadcastService : IBroadcastService, IDisposable
     }
     public void LogDebug()
     {
-        if (schedulesDirectDataService.SchedulesDirectDatas.Any())
-        {
-            printDebug("SchedulesDirectDatas: {0}", schedulesDirectDataService.SchedulesDirectDatas.Count);
-            foreach (KeyValuePair<int, ISchedulesDirectData> sd in schedulesDirectDataService.SchedulesDirectDatas)
-            {
-                printDebug("SchedulesDirectData: {0} {1} {2}", sd.Key, sd.Value.Services.Count, sd.Value.Programs.Count);
-            }
-        }
+        //if (schedulesDirectDataService.SchedulesDirectDatas.Any())
+        //{
+        //    printDebug("SchedulesDirectDatas: {0}", schedulesDirectDataService.SchedulesDirectDatas.Count);
+        //    foreach (KeyValuePair<int, ISchedulesDirectData> sd in schedulesDirectDataService.SchedulesDirectDatas)
+        //    {
+        //        printDebug("SchedulesDirectData: {0} {1} {2}", sd.Key, sd.Value.Services.Count, sd.Value.ProgramService.Count);
+        //    }
+        //}
 
-        if (statisticsManager.GetAllClientIds().Any())
-        {
-            printDebug("Stat ClientIds: {0}", statisticsManager.GetAllClientIds().Count);
-        }
-        if (channelService.GetGlobalStreamsCount() != 0)
-        {
-            printDebug("Global: {0}", channelService.GetGlobalStreamsCount());
-        }
+        //if (statisticsManager.GetAllClientIds().Any())
+        //{
+        //    printDebug("Stat ClientIds: {0}", statisticsManager.GetAllClientIds().Count);
+        //}
+        //if (channelService.GetGlobalStreamsCount() != 0)
+        //{
+        //    printDebug("Global: {0}", channelService.GetGlobalStreamsCount());
+        //}
 
-        if (channelService.GetChannelStatuses().Any())
-        {
-            printDebug("GetChannelStatuses: {0}", channelService.GetChannelStatuses().Count);
-        }
+        //if (channelService.GetChannelBroadcasters().Any())
+        //{
+        //    printDebug("GetChannelBroadcasters: {0}", channelService.GetChannelBroadcasters().Count);
+        //}
 
         //logger.LogInformation("GetStreamHandlers: {GetStreamHandlers}", streamManager.GetStreamHandlers().Count);
-        foreach (IClientStreamerConfiguration clientStreamerConfiguration in clientStreamer.GetAllClientStreamerConfigurations)
-        {
-            printDebug("Client: {0} {1}", clientStreamerConfiguration.ChannelName, clientStreamerConfiguration.Stream?.Id ?? Guid.Empty);
-        }
+        //foreach (IClientConfiguration clientStreamerConfiguration in clientStreamer.GetAllClientStreamerConfigurations)
+        //{
+        //    printDebug("Client: {0} {1}", clientStreamerConfiguration.SMChannel.ProfileName, clientStreamerConfiguration.ClientStream?.Id ?? Guid.Empty);
+        //}
 
-        foreach (IStreamHandler handler in streamManager.GetStreamHandlers())
-        {
-            printDebug("Stream: {0} {2} {3}", handler.ClientCount, handler.VideoStreamName, handler.StreamUrl);
-        }
+        //foreach (IStreamHandler handler in streamManager.GetStreamHandlers())
+        //{
+        //    printDebug("Stream: {0} {2} {3}", handler.ChannelCount, handler.StreamName, handler.StreamUrl);
+        //}
     }
 
     public void StartBroadcasting()
@@ -94,21 +70,21 @@ public class BroadcastService : IBroadcastService, IDisposable
     {
         try
         {
-            //LogDebug();
-            List<Streams.Domain.Models.ClientStreamingStatistics> statisticsResults = streamStatisticService.GetClientStatistics().Result;
-            if (statisticsResults.Any())
-            {
-                _ = hub.Clients.All.ClientStreamingStatisticsUpdate(statisticsResults).ConfigureAwait(false);
+            //var statisticsResults = streamStatisticService.GetInputStatistics();
+            //if (statisticsResults.Any())
+            //{
+            //    dataRefreshService.RefreshStatistics();
+            //    //_ = hub.ClientChannels.All.ClientStreamingStatisticsUpdate(statisticsResults).ConfigureAwait(false);
 
-            }
-            else
-            {
-                //if (!sentEmpty)
-                //{
-                _ = hub.Clients.All.ClientStreamingStatisticsUpdate(statisticsResults).ConfigureAwait(false);
-                //}
-                //sentEmpty = true;
-            }
+            //}
+            //else
+            //{
+            //    //if (!sentEmpty)
+            //    //{
+            //    //_ = hub.ClientChannels.All.ClientStreamingStatisticsUpdate(statisticsResults).ConfigureAwait(false);
+            //    //}
+            //    //sentEmpty = true;
+            //}
         }
         catch (Exception ex)
         {

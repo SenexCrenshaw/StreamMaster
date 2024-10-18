@@ -1,32 +1,14 @@
-﻿using StreamMaster.Application.General.Queries;
-using StreamMaster.Application.Services;
-using StreamMaster.Domain.Configuration;
+﻿using Microsoft.AspNetCore.Authorization;
 
 namespace StreamMaster.Application.Hubs;
 
-public enum ModelAction
-{
-    Unknown = 0,
-    Created = 1,
-    Updated = 2,
-    Deleted = 3,
-    Sync = 4
-}
 
-public class SignalRMessage
-{
-    public object Body { get; set; }
-    public string Name { get; set; }
-
-    [System.Text.Json.Serialization.JsonIgnore]
-    public ModelAction Action { get; set; }
-}
-
-public partial class StreamMasterHub(ISender mediator, IBackgroundTaskQueue taskQueue, IOptionsMonitor<Setting> intsettings) : Hub<IStreamMasterHub>, ISharedHub
+[Authorize(Policy = "SignalR")]
+public partial class StreamMasterHub(ISender Sender, IOptionsMonitor<Setting> intSettings)
+    : Hub<IStreamMasterHub>
 {
     private static readonly ConcurrentHashSet<string> _connections = [];
-    private readonly Setting settings = intsettings.CurrentValue;
-
+    private readonly Setting settings = intSettings.CurrentValue;
     public static bool IsConnected
     {
         get
@@ -39,7 +21,7 @@ public partial class StreamMasterHub(ISender mediator, IBackgroundTaskQueue task
     }
 
     [BuilderIgnore]
-    public override async Task OnDisconnectedAsync(Exception exception)
+    public override async Task OnDisconnectedAsync(Exception? exception)
     {
         lock (_connections)
         {
@@ -49,13 +31,6 @@ public partial class StreamMasterHub(ISender mediator, IBackgroundTaskQueue task
         await base.OnDisconnectedAsync(exception);
     }
 
-
-
-    public Task<bool> GetIsSystemReady(object waste)
-    {
-        return mediator.Send(new GetIsSystemReadyRequest());
-    }
-
     public override Task OnConnectedAsync()
     {
         lock (_connections)
@@ -63,7 +38,7 @@ public partial class StreamMasterHub(ISender mediator, IBackgroundTaskQueue task
             _connections.Add(Context.ConnectionId);
         }
 
-        Clients.Caller.SystemStatusUpdate(mediator.Send(new GetSystemStatus()).Result);
+        //ClientChannels.Caller.SystemStatusUpdate(Sender.Send(new GetSystemStatusRequest()).Result.Data);
 
         return base.OnConnectedAsync();
     }

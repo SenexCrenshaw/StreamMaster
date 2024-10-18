@@ -1,12 +1,5 @@
-﻿using FluentValidation;
+﻿using Microsoft.AspNetCore.Http;
 
-using Microsoft.AspNetCore.Http;
-
-using StreamMaster.Application.Common.Extensions;
-using StreamMaster.Domain.Requests;
-using StreamMaster.SchedulesDirect.Domain.Enums;
-
-using System.Net;
 using System.Xml;
 using System.Xml.Serialization;
 
@@ -14,94 +7,51 @@ using static StreamMaster.Domain.Common.GetStreamGroupEPGHandler;
 
 namespace StreamMaster.Application.StreamGroups.Queries;
 
-public class GetStreamGroupEPGValidator : AbstractValidator<GetStreamGroupEPG>
-{
-    public GetStreamGroupEPGValidator()
-    {
-        _ = RuleFor(v => v.StreamGroupId)
-            .NotNull().GreaterThanOrEqualTo(0);
-    }
-}
-
-public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, IEPGHelper epgHelper, IXMLTVBuilder xMLTVBuilder, ILogger<GetStreamGroupEPG> logger, ISchedulesDirectDataService schedulesDirectDataService, IRepositoryWrapper Repository, IOptionsMonitor<Setting> intsettings)
+[RequireAll]
+public record GetStreamGroupEPG(int StreamGroupProfileId) : IRequest<string>;
+public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, IProfileService profileService, IStreamGroupService streamGroupService, IEPGHelper epgHelper, IXMLTVBuilder xMLTVBuilder, ISchedulesDirectDataService schedulesDirectDataService, IOptionsMonitor<Setting> intSettings)
     : IRequestHandler<GetStreamGroupEPG, string>
 {
-    private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
-    private readonly Setting settings = intsettings.CurrentValue;
-
-
-    //private readonly ParallelOptions parallelOptions = new()
-    //{
-    //    MaxDegreeOfParallelism = Environment.ProcessorCount
-    //};
-
     [LogExecutionTimeAspect]
     public async Task<string> Handle(GetStreamGroupEPG request, CancellationToken cancellationToken)
     {
+        (List<VideoStreamConfig> videoStreamConfigs, StreamGroupProfile streamGroupProfile) = await streamGroupService.GetStreamGroupVideoConfigs(request.StreamGroupProfileId);
 
-        List<VideoStreamDto> videoStreams = [];
-
-        videoStreams = request.StreamGroupId == 0
-            ? await Repository.VideoStream.GetVideoStreams()
-            : await Repository.StreamGroupVideoStream.GetStreamGroupVideoStreams(request.StreamGroupId, cancellationToken);
-
-        List<VideoStreamConfig> videoStreamConfigs = [];
-
-        logger.LogInformation("GetStreamGroupEPGHandler: Handling {Count} videoStreams", videoStreams.Count);
-
-        foreach (VideoStreamDto? videoStream in videoStreams.Where(a => !a.IsHidden))
+        if (videoStreamConfigs is null || streamGroupProfile is null)
         {
-            videoStreamConfigs.Add(new VideoStreamConfig
-            {
-                Id = videoStream.Id,
-                M3UFileId = videoStream.M3UFileId,
-                User_Tvg_name = videoStream.User_Tvg_name,
-                Tvg_ID = videoStream.Tvg_ID,
-                User_Tvg_ID = videoStream.User_Tvg_ID,
-                User_Tvg_Logo = videoStream.User_Tvg_logo,
-                User_Tvg_chno = videoStream.User_Tvg_chno,
-                TimeShift = videoStream.TimeShift,
-                IsDuplicate = false,
-                IsDummy = false
-            });
+            return string.Empty;
         }
-
 
         ConcurrentHashSet<string> epgids = [];
 
         ISchedulesDirectData dummyData = schedulesDirectDataService.DummyData();
 
-        List<MxfService> allservices = schedulesDirectDataService.AllServices;
-
         foreach (VideoStreamConfig videoStreamConfig in videoStreamConfigs)
         {
-
-            videoStreamConfig.IsDummy = epgHelper.IsDummy(videoStreamConfig.User_Tvg_ID);
+            videoStreamConfig.IsDummy = epgHelper.IsDummy(videoStreamConfig.EPGId);
 
             if (videoStreamConfig.IsDummy)
             {
-                videoStreamConfig.User_Tvg_ID = $"{EPGHelper.DummyId}-{videoStreamConfig.Id}";
+                videoStreamConfig.EPGId = $"{EPGHelper.DummyId}-{videoStreamConfig.Id}";
 
-                dummyData.FindOrCreateDummyService(videoStreamConfig.User_Tvg_ID, videoStreamConfig);
+                _ = dummyData.FindOrCreateDummyService(videoStreamConfig.EPGId, videoStreamConfig);
             }
 
-            if (epgids.Contains(videoStreamConfig.User_Tvg_ID))
+            if (!epgids.Add(videoStreamConfig.EPGId))
             {
                 videoStreamConfig.IsDuplicate = true;
             }
-            else
-            {
-                epgids.Add(videoStreamConfig.User_Tvg_ID);
-            }
         }
+        OutputProfileDto outputProfile = profileService.GetOutputProfile(streamGroupProfile.OutputProfileName);
 
-        XMLTV epgData = xMLTVBuilder.CreateXmlTv(_httpContextAccessor.GetUrl(), videoStreamConfigs) ?? new XMLTV();
+        XMLTV epgData = xMLTVBuilder.CreateXmlTv(httpContextAccessor.GetUrl(), videoStreamConfigs, outputProfile) ?? new XMLTV();
 
         return SerializeXMLTVData(epgData);
     }
 
     private string SerializeXMLTVData(XMLTV xmltv)
     {
+        Setting settings = intSettings.CurrentValue;
 
         XmlSerializerNamespaces ns = new();
         ns.Add("", "");
@@ -112,7 +62,7 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
         XmlWriterSettings xmlSettings = new()
         {
             Indent = settings.PrettyEPG,
-            OmitXmlDeclaration = true,
+            //OmitXmlDeclaration = true,
             NewLineHandling = NewLineHandling.None,
             //NewLineChars = "\n"
         };
@@ -129,10 +79,5 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
         string xmlText = textWriter.ToString();
 
         return xmlText;
-    }
-    private string GetApiUrl(SMFileTypes path, string source)
-    {
-        string url = _httpContextAccessor.GetUrl();
-        return $"{url}/api/files/{(int)path}/{WebUtility.UrlEncode(source)}";
     }
 }

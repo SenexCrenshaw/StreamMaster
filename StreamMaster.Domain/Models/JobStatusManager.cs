@@ -7,45 +7,37 @@ public class JobStatusManager(IJobStatusService jobStatusService, JobType jobTyp
 
     public void Start()
     {
-        jobStatusService.SetIsRunning(GenerateKey(), true);
+        jobStatusService.SetIsRunning(Key, true);
     }
-
-    //public void Stop()
-    //{
-    //    jobStatusService.SetIsRunning(GenerateKey(), false);
-    //}
 
     public void SetSuccessful()
     {
-        jobStatusService.SetSuccessful(GenerateKey());
+        jobStatusService.SetSuccessful(Key);
     }
 
     public void SetError()
     {
-        jobStatusService.SetError(GenerateKey());
+        jobStatusService.SetError(Key);
     }
 
-    public bool IsRunning => jobStatusService.IsRunning(GenerateKey());
-    public bool ForceNextRun => jobStatusService.ForceNextRun(GenerateKey());
-    public DateTime LastRun => jobStatusService.LastRun(GenerateKey());
-    public DateTime LastSuccessful => jobStatusService.LastSuccessful(GenerateKey());
+    public bool IsRunning => jobStatusService.IsRunning(Key);
+    public bool IsErrored => jobStatusService.IsErrored(Key);
+    public bool ForceNextRun => jobStatusService.ForceNextRun(Key);
+    public DateTime LastRun => jobStatusService.LastRun(Key);
+    public DateTime LastSuccessful => jobStatusService.LastSuccessful(Key);
 
-
+        public string JobType=> jobType.ToString();
     public void SetForceNextRun(bool extra = false)
     {
-        jobStatusService.SetForceNextRun(GenerateKey(), extra);
+        jobStatusService.SetForceNextRun(Key, extra);
     }
 
     public void ClearForce()
     {
-        jobStatusService.ClearForce(GenerateKey());
+        jobStatusService.ClearForce(Key);
     }
 
-    public JobStatus Status => jobStatusService.GetStatus(GenerateKey());
+    public JobStatus Status => jobStatusService.GetStatus(Key);
 
-    private string GenerateKey()
-    {
-        return $"{jobType}:{id}";
-
-    }
+    private string Key => $"{jobType}:{id}";
 }

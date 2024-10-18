@@ -2,35 +2,25 @@
 
 namespace StreamMaster.Application.EPGFiles.Commands;
 
-public record ScanDirectoryForEPGFilesRequest : IRequest<bool> { }
+public record ScanDirectoryForEPGFilesRequest : IRequest<APIResponse>;
 
-public class ScanDirectoryForEPGFilesRequestHandler(ILogger<ScanDirectoryForEPGFilesRequest> Logger, IRepositoryWrapper Repository, IMapper Mapper, IPublisher Publisher) : IRequestHandler<ScanDirectoryForEPGFilesRequest, bool>
+public class ScanDirectoryForEPGFilesRequestHandler(ILogger<ScanDirectoryForEPGFilesRequest> Logger, IFileUtilService fileUtilService, IRepositoryWrapper Repository, IMapper Mapper, IPublisher Publisher)
+    : IRequestHandler<ScanDirectoryForEPGFilesRequest, APIResponse>
 {
-    public async Task<bool> Handle(ScanDirectoryForEPGFilesRequest command, CancellationToken cancellationToken)
+    public async Task<APIResponse> Handle(ScanDirectoryForEPGFilesRequest command, CancellationToken cancellationToken)
     {
-        IEnumerable<FileInfo> epgFiles = GetEPGFilesFromDirectory();
+        IEnumerable<FileInfo> epgFiles = fileUtilService.GetFilesFromDirectory(FileDefinitions.EPG);
         foreach (FileInfo epgFileInfo in epgFiles)
         {
             if (cancellationToken.IsCancellationRequested)
             {
-                return false;
+                return DataResponse.False;
             }
 
             await ProcessEPGFile(epgFileInfo, cancellationToken);
         }
 
-        return true;
-    }
-
-    private IEnumerable<FileInfo> GetEPGFilesFromDirectory()
-    {
-        FileDefinition fd = FileDefinitions.EPG;
-        DirectoryInfo epgDirInfo = new(fd.DirectoryLocation);
-        EnumerationOptions er = new() { MatchCasing = MatchCasing.CaseInsensitive };
-        string[] extensions = fd.FileExtension.Split('|');
-
-        return epgDirInfo.GetFiles("*.*", SearchOption.AllDirectories)
-            .Where(s => extensions.Contains(s.Extension.ToLower()) || extensions.Contains(s.Extension.ToLower() + ".gz"));
+        return APIResponse.Success;
     }
 
     private async Task ProcessEPGFile(FileInfo epgFileInfo, CancellationToken cancellationToken)
@@ -40,11 +30,11 @@ public class ScanDirectoryForEPGFilesRequestHandler(ILogger<ScanDirectoryForEPGF
             return;
         }
 
-        EPGFile? epgFile = await Repository.EPGFile.GetEPGFileBySource(epgFileInfo.Name);
+        EPGFile? epgFile = await Repository.EPGFile.GetEPGFileBySourceAsync(epgFileInfo.Name);
         if (epgFile == null)
         {
             epgFile = await CreateOrUpdateEPGFile(epgFileInfo);
-            await SaveAndPublishEPGFile(epgFile, cancellationToken);
+            await SaveAndPublishEPGFile(epgFile);
         }
 
         EPGFileDto ret = Mapper.Map<EPGFileDto>(epgFile);
@@ -57,7 +47,6 @@ public class ScanDirectoryForEPGFilesRequestHandler(ILogger<ScanDirectoryForEPGF
         {
             Name = Path.GetFileNameWithoutExtension(epgFileInfo.Name),
             Source = epgFileInfo.Name,
-            Description = $"Imported from {epgFileInfo.Name}",
             FileExists = true,
             LastDownloaded = epgFileInfo.LastWriteTime,
             LastDownloadAttempt = epgFileInfo.LastWriteTime,
@@ -90,19 +79,18 @@ public class ScanDirectoryForEPGFilesRequestHandler(ILogger<ScanDirectoryForEPGF
         return epgFile;
     }
 
-    private async Task SaveAndPublishEPGFile(EPGFile epgFile, CancellationToken cancellationToken)
+    private async Task SaveAndPublishEPGFile(EPGFile epgFile)
     {
         Repository.EPGFile.CreateEPGFile(epgFile);
         _ = await Repository.SaveAsync().ConfigureAwait(false);
-        epgFile.WriteJSON(Logger);
+        epgFile.WriteJSON();
 
         if (string.IsNullOrEmpty(epgFile.Url))
         {
             epgFile.LastDownloaded = SMDT.UtcNow;
             Repository.EPGFile.UpdateEPGFile(epgFile);
             _ = await Repository.SaveAsync().ConfigureAwait(false);
-            epgFile.WriteJSON(Logger);
+            epgFile.WriteJSON();
         }
-
     }
 }

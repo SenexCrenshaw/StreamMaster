@@ -13,12 +13,28 @@
     "sourceType": "module",
     "project": "./tsconfig.json"
   },
-  "plugins": ["unused-imports"],
+  "plugins": ["unused-imports", "html","sort-keys-fix","typescript-sort-keys","react-hooks-addons"],
+  "ignorePatterns": [ "*.css", "node_modules/", "dist/"],
   "rules": {
+     "react-hooks-addons/no-unused-deps": "warn",
+     "typescript-sort-keys/interface": "off",
     "no-lone-blocks": "off",
+    "unused-imports/no-unused-imports": "error",
     "unused-imports/no-unused-imports-ts": "error",
     "@next/next/no-img-element": "off",
-    "@typescript-eslint/no-unused-vars": "error"
+     "@typescript-eslint/member-ordering": "error",
+    "@typescript-eslint/no-unused-vars": "error",
+     "sort-vars":"warn",
+     "sort-keys": ["warn", "asc",{
+        "caseSensitive": false
+    }],
+     "sort-imports": ["warn", {
+        "ignoreCase": true,
+        "ignoreDeclarationSort": true,
+        "ignoreMemberSort": true,
+        "memberSyntaxSortOrder": ["none", "all", "multiple", "single"],
+        "allowSeparatedGroups": false
+    }]
   },
 
   "settings": {

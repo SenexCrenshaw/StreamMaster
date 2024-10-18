@@ -1,38 +1,36 @@
+import ResetButton from '@components/buttons/ResetButton';
 import { useLineUpColumnConfig } from '@components/columns/useLineUpColumnConfig';
-import { compareStationPreviews, findDifferenceStationIdLineUps } from '@lib/common/common';
-import {
-  SchedulesDirectAddStationApiArg,
-  SchedulesDirectRemoveStationApiArg,
-  StationIdLineup,
-  StationRequest,
-  useSchedulesDirectGetSelectedStationIdsQuery,
-  useSchedulesDirectGetStationPreviewsQuery,
-  type StationPreview
-} from '@lib/iptvApi';
-import { useSelectedItems } from '@lib/redux/slices/useSelectedItemsSlice';
+import SMButton from '@components/sm/SMButton';
+import SMDataTable from '@components/smDataTable/SMDataTable';
+import { arraysEqualByKey } from '@components/smDataTable/helpers/arraysEqual';
 
-import { AddStation, RemoveStation } from '@lib/smAPI/SchedulesDirect/SchedulesDirectMutateAPI';
-import { Toast } from 'primereact/toast';
+import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
+import { Logger } from '@lib/common/logger';
+import { useSelectedItems } from '@lib/redux/hooks/selectedItems';
+import { SetStations } from '@lib/smAPI/SchedulesDirect/SchedulesDirectCommands';
+import useGetSelectedStationIds from '@lib/smAPI/SchedulesDirect/useGetSelectedStationIds';
+import useGetStationPreviews from '@lib/smAPI/SchedulesDirect/useGetStationPreviews';
+import { SetStationsRequest, StationPreview, StationRequest } from '@lib/smAPI/smapiTypes';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import DataSelector from '../dataSelector/DataSelector';
-import { type ColumnMeta } from '../dataSelector/DataSelectorTypes';
 
 const SchedulesDirectStationDataSelector = () => {
-  const toast = useRef<Toast>(null);
-
-  const { selectSelectedItems, setSelectSelectedItems } = useSelectedItems<StationPreview>('SchedulesDirectSchedulesDataSelector');
-
-  const schedulesDirectGetSelectedStationIdsQuery = useSchedulesDirectGetSelectedStationIdsQuery();
-  const stationPreviews = useSchedulesDirectGetStationPreviewsQuery();
-  const [isLoading, setIsLoading] = useState(false);
-
+  const dataKey = 'SchedulesDirectSchedulesDataSelector';
+  const schedulesDirectGetSelectedStationIdsQuery = useGetSelectedStationIds();
+  const stationPreviews = useGetStationPreviews();
   const { columnConfig: lineUpColumnConfig } = useLineUpColumnConfig();
+  const { selectedItems, setSelectedItems } = useSelectedItems<StationPreview>(dataKey);
+  const [originalSelectedItems, setOriginalSelectedItems] = useState<StationPreview[] | undefined>(undefined);
+  const isInitialLoad = useRef(true);
 
   useEffect(() => {
     if (
+      (originalSelectedItems !== undefined && originalSelectedItems.length > 0) ||
       schedulesDirectGetSelectedStationIdsQuery.isLoading ||
       schedulesDirectGetSelectedStationIdsQuery.data === undefined ||
-      stationPreviews.data === undefined
+      schedulesDirectGetSelectedStationIdsQuery.data.length === 0 ||
+      stationPreviews.isLoading ||
+      stationPreviews.data === undefined ||
+      stationPreviews.data.length === 0
     ) {
       return;
     }
@@ -40,162 +38,154 @@ const SchedulesDirectStationDataSelector = () => {
     const sp = schedulesDirectGetSelectedStationIdsQuery.data
       .map((stationIdLineUp) =>
         stationPreviews.data?.find(
-          (stationPreview) => stationPreview.stationId === stationIdLineUp.stationId && stationPreview.lineup === stationIdLineUp.lineup
+          (stationPreview) => stationPreview.StationId === stationIdLineUp.StationId && stationPreview.Lineup === stationIdLineUp.Lineup
         )
       )
       .filter((station) => station !== undefined) as StationPreview[];
 
-    if (findDifferenceStationIdLineUps(sp, selectSelectedItems).length > 0) {
-      setSelectSelectedItems(sp as StationPreview[]);
+    if (isInitialLoad.current) {
+      if (originalSelectedItems === undefined || originalSelectedItems.length === 0) {
+        setOriginalSelectedItems(sp);
+        setSelectedItems(sp);
+      }
+      isInitialLoad.current = false;
     }
   }, [
-    schedulesDirectGetSelectedStationIdsQuery.data,
+    originalSelectedItems,
     schedulesDirectGetSelectedStationIdsQuery.isLoading,
-    selectSelectedItems,
-    setSelectSelectedItems,
-    stationPreviews.data
+    schedulesDirectGetSelectedStationIdsQuery.data,
+    stationPreviews.data,
+    setOriginalSelectedItems,
+    setSelectedItems,
+    stationPreviews.isLoading
   ]);
 
+  const isSaveEnabled = useMemo(() => {
+    if (originalSelectedItems === undefined) {
+      if (selectedItems === undefined) {
+        return false;
+      }
+      if (selectedItems.length > 0) {
+        return true;
+      }
+
+      return false;
+    }
+
+    if (originalSelectedItems) {
+      const test = arraysEqualByKey(originalSelectedItems, selectedItems, 'StationId');
+      return !test;
+    }
+
+    return false;
+  }, [originalSelectedItems, selectedItems]);
+
+  const dataSource = useMemo(() => {
+    if (stationPreviews.data === undefined) {
+      return [];
+    }
+    return stationPreviews.data;
+  }, [stationPreviews.data]);
+
   const onSave = useCallback(
-    (stationIdLineUps: StationIdLineup[]) => {
-      if (stationIdLineUps === undefined || schedulesDirectGetSelectedStationIdsQuery.data === undefined) {
+    (stationIdLineUps: StationPreview[]) => {
+      if (stationIdLineUps === undefined) {
         return;
       }
 
-      const { added, removed } = compareStationPreviews(schedulesDirectGetSelectedStationIdsQuery.data, stationIdLineUps);
-
-      if (added.length === 0 && removed.length === 0) {
-        return;
+      if (originalSelectedItems !== undefined) {
+        if (arraysEqualByKey(originalSelectedItems, selectedItems, 'StationId')) {
+          return;
+        }
       }
-      setIsLoading(true);
 
-      if (added !== undefined && added.length > 0) {
-        const toSend: SchedulesDirectAddStationApiArg = {};
+      const request = {} as SetStationsRequest;
 
-        toSend.requests = added.map((station) => {
-          const request: StationRequest = {};
-          request.stationId = station.stationId;
-          request.lineUp = station.lineup;
-          return request;
+      request.Requests = selectedItems.map((station) => {
+        const request: StationRequest = { Lineup: station.Lineup, StationId: station.StationId };
+        return request;
+      });
+
+      SetStations(request)
+        .then(() => {})
+        .catch(() => {
+          Logger.error('error');
+        })
+        .finally(() => {
+          setOriginalSelectedItems(selectedItems);
         });
-
-        AddStation(toSend)
-          .then(() => {
-            if (toast.current) {
-              toast.current.show({
-                detail: 'Update Station Ids Successful',
-                life: 3000,
-                severity: 'success',
-                summary: 'Successful'
-              });
-            }
-          })
-          .catch(() => {
-            if (toast.current) {
-              toast.current.show({
-                detail: 'Update Station Ids Failed',
-                life: 3000,
-                severity: 'error',
-                summary: 'Error'
-              });
-            }
-          })
-          .finally(() => {
-            setSelectSelectedItems([] as StationPreview[]);
-            setIsLoading(false);
-          });
-      }
-
-      if (removed !== undefined && removed.length > 0) {
-        const toSend: SchedulesDirectRemoveStationApiArg = {};
-
-        toSend.requests = removed.map((station) => {
-          const request: StationRequest = {};
-          request.stationId = station.stationId;
-          request.lineUp = station.lineup;
-          return request;
-        });
-
-        RemoveStation(toSend)
-          .then(() => {
-            if (toast.current) {
-              toast.current.show({
-                detail: 'Update Station Ids Successful',
-                life: 3000,
-                severity: 'success',
-                summary: 'Successful'
-              });
-            }
-          })
-          .catch(() => {
-            if (toast.current) {
-              toast.current.show({
-                detail: 'Update Station Ids Failed',
-                life: 3000,
-                severity: 'error',
-                summary: 'Error'
-              });
-            }
-          })
-          .finally(() => {
-            setSelectSelectedItems([] as StationPreview[]);
-            setIsLoading(false);
-          });
-      }
     },
-    [schedulesDirectGetSelectedStationIdsQuery.data, setSelectSelectedItems]
+    [originalSelectedItems, selectedItems]
   );
 
   function imageBodyTemplate(data: StationPreview) {
-    if (!data?.logo || data.logo.URL === '') {
+    if (!data?.Logo || data.Logo.URL === '') {
       return <div />;
     }
 
     return (
       <div className="flex flex-nowrap justify-content-center align-items-center p-0">
-        <img loading="lazy" alt={data.logo.URL ?? 'Logo'} className="max-h-1rem max-w-full p-0" src={`${encodeURI(data.logo.URL ?? '')}`} />
+        <img loading="lazy" alt={data.Logo.URL ?? 'Logo'} className="max-h-1rem max-w-full p-0" src={`${encodeURI(data.Logo.URL ?? '')}`} />
       </div>
     );
   }
 
   const columns = useMemo((): ColumnMeta[] => {
     const columnConfigs: ColumnMeta[] = [
-      { field: 'stationId', filter: true, header: 'Station Id', sortable: true, width: '10rem' },
-      { bodyTemplate: imageBodyTemplate, field: 'logo', fieldType: 'image' }
+      { field: 'StationId', filter: true, header: 'Station Id', sortable: true, width: 40 },
+      { bodyTemplate: imageBodyTemplate, field: 'image', fieldType: 'image', width: 24 }
     ];
     // // columnConfigs.push(channelGroupConfig);
     columnConfigs.push(lineUpColumnConfig);
-    columnConfigs.push({ field: 'name', filter: true, header: 'Name', sortable: true });
-    columnConfigs.push({ field: 'callsign', filter: true, header: 'Call Sign', sortable: true });
-    columnConfigs.push({ field: 'affiliate', filter: true, header: 'Affiliate', sortable: true });
+    columnConfigs.push({ field: 'Name', filter: true, sortable: true, width: 100 });
+    columnConfigs.push({ field: 'Callsign', filter: true, header: 'Call Sign', sortable: true, width: 50 });
+    columnConfigs.push({ field: 'Affiliate', filter: true, sortable: true, width: 80 });
 
     return columnConfigs;
   }, [lineUpColumnConfig]);
 
-  return (
-    <>
-      <Toast position="bottom-right" ref={toast} />
-      <div className="m3uFilesEditor flex flex-column border-2 border-round surface-border w-full p-0">
-        <DataSelector
-          columns={columns}
-          dataSource={stationPreviews.data}
-          defaultSortField="name"
-          disableSelectAll
-          emptyMessage="No Line Ups"
-          enableState={false}
-          headerName="Line Up Preview"
-          id="SchedulesDirectStationDataSelector"
-          isLoading={stationPreviews.isLoading || isLoading}
-          onSelectionChange={(e) => {
-            onSave(e);
+  const headerRight = useMemo((): React.ReactNode => {
+    return (
+      <div className="flex w-12 gap-1 justify-content-end align-content-center">
+        <ResetButton
+          buttonDisabled={!isSaveEnabled}
+          onClick={() => {
+            setSelectedItems(originalSelectedItems);
           }}
-          selectedItemsKey="SchedulesDirectSchedulesDataSelector"
-          selectionMode="multiple"
-          showSelections
-          style={{ height: 'calc(100vh - 60px)' }}
+        />
+        <SMButton
+          buttonDisabled={!isSaveEnabled}
+          icon="pi-save"
+          buttonClassName="pr-3 icon-green"
+          iconFilled
+          label="Save"
+          onClick={() => onSave(selectedItems)}
         />
       </div>
-    </>
+    );
+  }, [isSaveEnabled, onSave, originalSelectedItems, selectedItems, setSelectedItems]);
+
+  return (
+    <div className="w-full">
+      <SMDataTable
+        arrayKey="StationId"
+        columns={columns}
+        dataSource={dataSource}
+        defaultSortField="name"
+        emptyMessage="No Line Ups"
+        enablePaginator
+        headerName="SD Channels"
+        headerRightTemplate={headerRight}
+        id="SchedulesDirectStationDataSelector"
+        lazy
+        noIsLoading={true}
+        selectedItemsKey={dataKey}
+        selectionMode="multiple"
+        showSortSelected
+        showSelectAll={false}
+        style={{ height: 'calc(100vh - 100px)' }}
+      />
+    </div>
   );
 };
 

@@ -1,0 +1,9 @@
+.settings-lines {
+    @include sm-border();
+
+    .settings-line:nth-child(odd) {
+        background: $tableBodyRowEvenBg;
+        padding-top: 0.25rem;
+        padding-bottom: 0.25rem;
+    }
+}

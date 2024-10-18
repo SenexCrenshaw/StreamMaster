@@ -8,7 +8,7 @@
     <FileVersion>0.1.0.0</FileVersion>
     <InformationalVersion>0.1.0-alpha.582+Branch.develop.Sha.95b3b4eac9a11372a0e6e5d32be2790dfac1813b</InformationalVersion>
     <Version>0.1.0-alpha0582</Version>
-   
+
     <EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -24,21 +24,36 @@
     <Optimize>False</Optimize>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="ChannelGroups\Hub\**" />
     <Compile Remove="Common\Aspects\**" />
     <Compile Remove="Common\Attributes\**" />
+    <Compile Remove="Common\Logging\**" />
     <Compile Remove="Common\Repository\**" />
-    <Compile Remove="Programmes\Commands\**" />
+    <Compile Remove="Programmes\**" />
     <Compile Remove="SchedulesDirect\NewFolder\**" />
+    <Compile Remove="StreamGroupChannelGroupLinks\**" />
+    <Compile Remove="Streaming\Queries\**" />
+    <Compile Remove="VideoStreamLinks\**" />
+    <EmbeddedResource Remove="ChannelGroups\Hub\**" />
     <EmbeddedResource Remove="Common\Aspects\**" />
     <EmbeddedResource Remove="Common\Attributes\**" />
+    <EmbeddedResource Remove="Common\Logging\**" />
     <EmbeddedResource Remove="Common\Repository\**" />
-    <EmbeddedResource Remove="Programmes\Commands\**" />
+    <EmbeddedResource Remove="Programmes\**" />
     <EmbeddedResource Remove="SchedulesDirect\NewFolder\**" />
+    <EmbeddedResource Remove="StreamGroupChannelGroupLinks\**" />
+    <EmbeddedResource Remove="Streaming\Queries\**" />
+    <EmbeddedResource Remove="VideoStreamLinks\**" />
+    <None Remove="ChannelGroups\Hub\**" />
     <None Remove="Common\Aspects\**" />
     <None Remove="Common\Attributes\**" />
+    <None Remove="Common\Logging\**" />
     <None Remove="Common\Repository\**" />
-    <None Remove="Programmes\Commands\**" />
+    <None Remove="Programmes\**" />
     <None Remove="SchedulesDirect\NewFolder\**" />
+    <None Remove="StreamGroupChannelGroupLinks\**" />
+    <None Remove="Streaming\Queries\**" />
+    <None Remove="VideoStreamLinks\**" />
   </ItemGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
@@ -51,23 +66,18 @@
   <ItemGroup>
     <PackageReference Include="AspectInjector" Version="2.8.2" />
     <PackageReference Include="AutoMapper" Version="13.0.1" />
-    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.9.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.3" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="8.0.3" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0" />
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.10.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.10" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="8.0.10" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.1" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\StreamMaster.Domain\StreamMaster.Domain.csproj" />
+    <ProjectReference Include="..\StreamMaster.PlayList\StreamMaster.PlayList.csproj" />
+    <ProjectReference Include="..\StreamMaster.Ring.API\StreamMaster.Ring.API.csproj" />
     <ProjectReference Include="..\StreamMaster.SchedulesDirect\StreamMaster.SchedulesDirect.csproj" />
     <ProjectReference Include="..\StreamMaster.Streams.Domain\StreamMaster.Streams.Domain.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Common\Logging\" />
-    <Folder Include="StreamGroupVideoStreams\EventHandlers\" />
-    <Folder Include="StreamGroupVideoStreams\Events\" />
-    <Folder Include="VideoStreamLinks\EventHandlers\" />
-    <Folder Include="VideoStreamLinks\Events\" />
   </ItemGroup>
 </Project>

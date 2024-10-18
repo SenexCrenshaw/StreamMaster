@@ -7,31 +7,34 @@ namespace StreamMaster.SchedulesDirect.Data;
 public class SchedulesDirectDataService : ISchedulesDirectDataService
 {
     private readonly ILogger<SchedulesDirectData> logger;
+    private readonly IOptionsMonitor<SDSettings> _sdSettings;
 
-    public SchedulesDirectDataService(ILogger<SchedulesDirectData> logger)
+    public SchedulesDirectDataService(ILogger<SchedulesDirectData> logger, IOptionsMonitor<SDSettings> sdSettings)
     {
         this.logger = logger;
-
-        DummyData();
+        _sdSettings = sdSettings;
+        _ = DummyData();
     }
 
-    public ConcurrentDictionary<int, ISchedulesDirectData> SchedulesDirectDatas { get; private set; } = new();
+    public ConcurrentDictionary<int, ISchedulesDirectData> SchedulesDirectDatas { get; } = new();
+
+    public ConcurrentDictionary<int, ICustomStreamData> CustomStreamDatas { get; } = new();
+
     public void Reset(int? EPGNumber = null)
     {
         if (EPGNumber.HasValue)
         {
-            SchedulesDirectDatas.TryRemove(EPGNumber.Value, out _);
+            _ = SchedulesDirectDatas.TryRemove(EPGNumber.Value, out _);
         }
         else
         {
             SchedulesDirectDatas.Clear();
         }
-
     }
 
     public void Set(int EPGNumber, ISchedulesDirectData schedulesDirectData)
     {
-        SchedulesDirectDatas.AddOrUpdate(EPGNumber, schedulesDirectData, (key, oldValue) => schedulesDirectData);
+        _ = SchedulesDirectDatas.AddOrUpdate(EPGNumber, schedulesDirectData, (_, _) => schedulesDirectData);
     }
 
     public List<MxfService> AllServices
@@ -39,7 +42,7 @@ public class SchedulesDirectDataService : ISchedulesDirectDataService
         get
         {
             List<MxfService> services = SchedulesDirectDatas.Values.SelectMany(d => d.Services.Values).ToList();
-            return services;
+            return [.. services, .. CustomStreamDatas.Values.SelectMany(d => d.Services.Values)];
         }
     }
 
@@ -70,29 +73,29 @@ public class SchedulesDirectDataService : ISchedulesDirectDataService
         }
     }
 
-    public List<MxfSeriesInfo> AllSeriesInfos
+    public List<SeriesInfo> AllSeriesInfos
     {
         get
         {
-            List<MxfSeriesInfo> seriesInfo = SchedulesDirectDatas.Values.SelectMany(d => d.SeriesInfos.Values).ToList();
+            List<SeriesInfo> seriesInfo = SchedulesDirectDatas.Values.SelectMany(d => d.SeriesInfos.Values).ToList();
             return seriesInfo;
         }
     }
 
     public ISchedulesDirectData GetEPGData(int EPGNumber)
     {
-        return SchedulesDirectDatas.GetOrAdd(EPGNumber, (epgId) =>
+        return SchedulesDirectDatas.GetOrAdd(EPGNumber, (_) =>
         {
-            SchedulesDirectData data = new(logger, EPGNumber);
+            SchedulesDirectData data = new(EPGNumber);
             return data;
         });
     }
 
     public ISchedulesDirectData SchedulesDirectData()
     {
-        return SchedulesDirectDatas.GetOrAdd(EPGHelper.SchedulesDirectId, (epgId) =>
+        return SchedulesDirectDatas.GetOrAdd(EPGHelper.SchedulesDirectId, (_) =>
         {
-            SchedulesDirectData data = new(logger, EPGHelper.SchedulesDirectId)
+            SchedulesDirectData data = new(EPGHelper.SchedulesDirectId)
             {
                 EPGNumber = EPGHelper.SchedulesDirectId
             };
@@ -104,17 +107,16 @@ public class SchedulesDirectDataService : ISchedulesDirectDataService
     {
         List<KeyValuePair<int, ISchedulesDirectData>> test = SchedulesDirectDatas.Where(a => a.Key == EPGHelper.DummyId).ToList();
 
-
-        return SchedulesDirectDatas.GetOrAdd(EPGHelper.DummyId, (epgId) =>
+        return SchedulesDirectDatas.GetOrAdd(EPGHelper.DummyId, (_) =>
         {
-            SchedulesDirectData data = new(logger, EPGHelper.DummyId)
+            SchedulesDirectData data = new(EPGHelper.DummyId)
             {
                 EPGNumber = EPGHelper.DummyId
             };
 
             MxfService mxfService = data.FindOrCreateService($"{EPGHelper.DummyId}-DUMMY");
-            mxfService.CallSign = "DUMMY";
-            mxfService.Name = "DUMMY EPG";
+            mxfService.CallSign = "Dummy";
+            mxfService.Name = "Dummy EPG";
 
             return data;
         });
@@ -122,14 +124,17 @@ public class SchedulesDirectDataService : ISchedulesDirectDataService
 
     public MxfService? GetService(string stationId)
     {
-        MxfService? ret = AllServices.FirstOrDefault(s => s.StationId == stationId);
+        MxfService? ret = AllServices.Find(s => s.StationId == stationId);
         return ret;
     }
 
-    public List<StationChannelName> GetStationChannelNames()
+    public IEnumerable<StationChannelName> GetStationChannelNames()
     {
-
         List<StationChannelName> ret = [];
+        //if (!_sdSettings.CurrentValue.SDEnabled)
+        //{
+        //    return ret;
+        //}
 
         foreach (MxfService station in AllServices.Where(a => !a.StationId.StartsWith("DUMMY-")))
         {
@@ -144,7 +149,7 @@ public class SchedulesDirectDataService : ISchedulesDirectDataService
             ret.Add(stationChannelName);
         }
 
-        return [.. ret.OrderBy(a => a.DisplayName, StringComparer.OrdinalIgnoreCase)];
+        return ret.OrderBy(a => a.DisplayName, StringComparer.OrdinalIgnoreCase);
     }
 
     public void ChangeServiceEPGNumber(int oldEPGNumber, int newEPGNumber)
@@ -153,6 +158,23 @@ public class SchedulesDirectDataService : ISchedulesDirectDataService
         {
             service.EPGNumber = newEPGNumber;
         }
+    }
+
+    public ICustomStreamData CustomStreamData()
+    {
+        return CustomStreamDatas.GetOrAdd(EPGHelper.CustomPlayListId, (_) =>
+        {
+            CustomStreamData data = new(EPGHelper.CustomPlayListId)
+            {
+                EPGNumber = EPGHelper.CustomPlayListId
+            };
+            return data;
+        });
+    }
+
+    public void ClearCustom()
+    {
+        CustomStreamDatas.Clear();
     }
 
     public List<MxfProgram> GetAllSDPrograms
@@ -173,4 +195,3 @@ public class SchedulesDirectDataService : ISchedulesDirectDataService
         }
     }
 }
-
