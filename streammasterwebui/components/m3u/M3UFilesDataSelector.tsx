@@ -9,17 +9,19 @@ import SMDataTable from '../smDataTable/SMDataTable';
 import M3UFileDeleteDialog from './M3UFileDeleteDialog';
 import M3UFileEditDialog from './M3UFileEditDialog';
 import M3UFileRefreshDialog from './M3UFileRefreshDialog';
+import { Logger } from '@lib/common/logger';
+import useGetM3UFileNames from '@lib/smAPI/M3UFiles/useGetM3UFileNames';
 interface M3UUpdateProperties {
   auto?: boolean | null;
   hours?: number | null;
   id: number;
   maxStreams?: number | null;
   name?: string | null;
-
   url?: string | null;
 }
 
 const M3UFilesDataSelector = () => {
+  const { data } = useGetM3UFileNames();
   const onM3UUpdateClick = useCallback(async (props: M3UUpdateProperties) => {
     if (props.id < 1) {
       return;
@@ -150,6 +152,8 @@ const M3UFilesDataSelector = () => {
     [nameEditorTemplate, lastDownloadedTemplate, streamCountTemplate, actionTemplate]
   );
 
+  Logger.debug('M3UFilesDataSelector', 'data', data?.length ?? 0, (data?.length ?? 0) < 4 ? false : true);
+
   return (
     <SMDataTable
       columns={columns}
@@ -157,6 +161,7 @@ const M3UFilesDataSelector = () => {
       defaultSortOrder={1}
       emptyMessage="No M3U Files"
       enableExport={false}
+      enablePaginator={(data?.length ?? 0) > 4}
       id="m3ufilesdataselector"
       noSourceHeader
       queryFilter={useGetPagedM3UFiles}

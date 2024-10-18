@@ -4,7 +4,7 @@ namespace BuildClientAPI.TS;
 
 public static class TypeScriptHookGenerator
 {
-    private static readonly string[] IgnoreSystemUp = ["GetSettings", "GetTaskIsRunning"];
+    private static readonly string[] IgnoreSystemUp = ["GetSettings", "GetTaskIsRunning", "GetSMTasks"];
 
     public static void GenerateFile(List<MethodDetails> methods, string path)
     {

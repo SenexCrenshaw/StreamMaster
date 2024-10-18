@@ -2,25 +2,21 @@ using StreamMaster.Application.SMStreams.Commands;
 using StreamMaster.Domain.Configuration;
 
 namespace StreamMaster.Infrastructure.Services;
+
 public partial class DataRefreshService : IDataRefreshServicePartial
 {
     public async Task IsSystemReady()
     {
-
         await hub.Clients.All.IsSystemReady(BuildInfo.IsSystemReady);
-
     }
 
     public async Task TaskIsRunning()
     {
-
         await hub.Clients.All.TaskIsRunning(BuildInfo.IsTaskRunning);
-
     }
 
     public async Task RefreshVideoInfos()
     {
-
         if (!BuildInfo.IsSystemReady)
         {
             return;
@@ -36,7 +32,6 @@ public partial class DataRefreshService : IDataRefreshServicePartial
             return;
         }
         await hub.Clients.All.DataRefresh("GetOutputProfiles");
-
     }
 
     public async Task RefreshCommandProfiles()
@@ -64,8 +59,8 @@ public partial class DataRefreshService : IDataRefreshServicePartial
             return;
         }
         await hub.Clients.All.DataRefresh("GetStationPreviews");
-
     }
+
     public async Task RefreshSelectedStationIds()
     {
         if (!BuildInfo.IsSystemReady)
@@ -83,7 +78,6 @@ public partial class DataRefreshService : IDataRefreshServicePartial
         }
 
         await hub.Clients.All.DataRefresh(command);
-
     }
 
     public async Task RefreshAllEPG()
@@ -95,7 +89,6 @@ public partial class DataRefreshService : IDataRefreshServicePartial
         await RefreshEPGFiles();
         await RefreshEPG();
         await hub.Clients.All.DataRefresh("GetChannelNames");
-
     }
 
     public async Task RefreshAllM3U()
@@ -121,7 +114,6 @@ public partial class DataRefreshService : IDataRefreshServicePartial
         await RefreshSMChannelStreamLinks();
         await RefreshStreamGroupSMChannelLinks();
         await RefreshChannelGroups();
-
     }
 
     public async Task ClearByTag(string Entity, string Tag)
@@ -172,5 +164,4 @@ public partial class DataRefreshService : IDataRefreshServicePartial
 
         await hub.Clients.All.SendMessage(smMessage);
     }
-
 }

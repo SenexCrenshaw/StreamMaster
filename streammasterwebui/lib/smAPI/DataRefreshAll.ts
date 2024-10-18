@@ -7,6 +7,7 @@ import { setIsForced as GetCommandProfilesSetIsForced } from '@lib/smAPI/Profile
 import { setIsForced as GetCustomPlayListsSetIsForced } from '@lib/smAPI/Custom/GetCustomPlayListsSlice';
 import { setIsForced as GetDownloadServiceStatusSetIsForced } from '@lib/smAPI/General/GetDownloadServiceStatusSlice';
 import { setIsForced as GetEPGColorsSetIsForced } from '@lib/smAPI/EPG/GetEPGColorsSlice';
+import { setIsForced as GetEPGFileNamesSetIsForced } from '@lib/smAPI/EPGFiles/GetEPGFileNamesSlice';
 import { setIsForced as GetEPGFilesSetIsForced } from '@lib/smAPI/EPGFiles/GetEPGFilesSlice';
 import { setIsForced as GetEPGNextEPGNumberSetIsForced } from '@lib/smAPI/EPGFiles/GetEPGNextEPGNumberSlice';
 import { setIsForced as GetHeadendsToViewSetIsForced } from '@lib/smAPI/SchedulesDirect/GetHeadendsToViewSlice';
@@ -42,6 +43,7 @@ export const DataRefreshAll = () => {
   store.dispatch(GetCustomPlayListsSetIsForced({ force: true }));
   store.dispatch(GetDownloadServiceStatusSetIsForced({ force: true }));
   store.dispatch(GetEPGColorsSetIsForced({ force: true }));
+  store.dispatch(GetEPGFileNamesSetIsForced({ force: true }));
   store.dispatch(GetEPGFilesSetIsForced({ force: true }));
   store.dispatch(GetEPGNextEPGNumberSetIsForced({ force: true }));
   store.dispatch(GetHeadendsToViewSetIsForced({ force: true }));

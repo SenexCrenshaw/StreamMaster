@@ -11,6 +11,22 @@ namespace StreamMaster.Application.EPGFiles.Controllers
 
         [HttpGet]
         [Route("[action]")]
+        public async Task<ActionResult<List<string>>> GetEPGFileNames()
+        {
+            try
+            {
+            DataResponse<List<string>> ret = await Sender.Send(new GetEPGFileNamesRequest()).ConfigureAwait(false);
+             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetEPGFileNames.", statusCode: 500) : Ok(ret.Data);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An unexpected error occurred while processing the request to get GetEPGFileNames.");
+                return Problem(detail: "An unexpected error occurred. Please try again later.", statusCode: 500);
+            }
+        }
+
+        [HttpGet]
+        [Route("[action]")]
         public async Task<ActionResult<List<EPGFilePreviewDto>>> GetEPGFilePreviewById([FromQuery] GetEPGFilePreviewByIdRequest request)
         {
             try
@@ -112,6 +128,12 @@ namespace StreamMaster.Application.Hubs
 {
     public partial class StreamMasterHub : IEPGFilesHub
     {
+        public async Task<List<string>> GetEPGFileNames()
+        {
+             DataResponse<List<string>> ret = await Sender.Send(new GetEPGFileNamesRequest()).ConfigureAwait(false);
+            return ret.Data;
+        }
+
         public async Task<List<EPGFilePreviewDto>> GetEPGFilePreviewById(GetEPGFilePreviewByIdRequest request)
         {
              DataResponse<List<EPGFilePreviewDto>> ret = await Sender.Send(request).ConfigureAwait(false);

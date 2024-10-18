@@ -12,10 +12,12 @@ import StringEditor from '../inputs/StringEditor';
 import EPGFileDeleteDialog from './EPGFileDeleteDialog';
 import EPGFileEditDialog from './EPGFileEditDialog';
 import EPGFileRefreshDialog from './EPGFileRefreshDialog';
+import useGetEPGFileNames from '@lib/smAPI/EPGFiles/useGetEPGFileNames';
 
 const EPGPreviewDialog = lazy(() => import('./EPGPreviewDialog'));
 
 const EPGFilesDataSelector = () => {
+  const { data } = useGetEPGFileNames();
   interface EPGUpdateProperties {
     auto?: boolean | null;
     color?: string | null;
@@ -203,6 +205,7 @@ const EPGFilesDataSelector = () => {
       defaultSortOrder={1}
       emptyMessage="No EPG Files"
       enableExport={false}
+      enablePaginator={(data?.length ?? 0) > 4}
       id="epgfilesdataselector"
       queryFilter={useGetPagedEPGFiles}
     />

@@ -10,6 +10,7 @@ import GetCustomPlayListReducer from '@lib/smAPI/Custom/GetCustomPlayListSlice';
 import GetCustomPlayListsReducer from '@lib/smAPI/Custom/GetCustomPlayListsSlice';
 import GetDownloadServiceStatusReducer from '@lib/smAPI/General/GetDownloadServiceStatusSlice';
 import GetEPGColorsReducer from '@lib/smAPI/EPG/GetEPGColorsSlice';
+import GetEPGFileNamesReducer from '@lib/smAPI/EPGFiles/GetEPGFileNamesSlice';
 import GetEPGFilePreviewByIdReducer from '@lib/smAPI/EPGFiles/GetEPGFilePreviewByIdSlice';
 import GetEPGFilesReducer from '@lib/smAPI/EPGFiles/GetEPGFilesSlice';
 import GetEPGNextEPGNumberReducer from '@lib/smAPI/EPGFiles/GetEPGNextEPGNumberSlice';
@@ -154,6 +155,7 @@ export const rootReducer = combineReducers({
   GetCustomPlayLists: GetCustomPlayListsReducer,
   GetDownloadServiceStatus: GetDownloadServiceStatusReducer,
   GetEPGColors: GetEPGColorsReducer,
+  GetEPGFileNames: GetEPGFileNamesReducer,
   GetEPGFilePreviewById: GetEPGFilePreviewByIdReducer,
   GetEPGFiles: GetEPGFilesReducer,
   GetEPGNextEPGNumber: GetEPGNextEPGNumberReducer,

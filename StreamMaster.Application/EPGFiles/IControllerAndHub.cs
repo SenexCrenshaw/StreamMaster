@@ -7,6 +7,7 @@ namespace StreamMaster.Application.EPGFiles
 {
     public interface IEPGFilesController
     {        
+        Task<ActionResult<List<string>>> GetEPGFileNames();
         Task<ActionResult<List<EPGFilePreviewDto>>> GetEPGFilePreviewById(GetEPGFilePreviewByIdRequest request);
         Task<ActionResult<List<EPGFileDto>>> GetEPGFiles();
         Task<ActionResult<int>> GetEPGNextEPGNumber();
@@ -23,6 +24,7 @@ namespace StreamMaster.Application.Hubs
 {
     public interface IEPGFilesHub
     {
+        Task<List<string>> GetEPGFileNames();
         Task<List<EPGFilePreviewDto>> GetEPGFilePreviewById(GetEPGFilePreviewByIdRequest request);
         Task<List<EPGFileDto>> GetEPGFiles();
         Task<int> GetEPGNextEPGNumber();

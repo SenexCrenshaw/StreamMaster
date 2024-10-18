@@ -37,6 +37,8 @@ namespace RingTester
 
             Devices devices = await session.GetRingDevices();
 
+            List<DoorbotHistoryEvent> doorbotHistory = await session.GetDoorbotsHistory();
+
             Console.WriteLine("Fetched Ring devices.");
         }
 

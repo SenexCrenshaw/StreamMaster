@@ -1363,6 +1363,9 @@ export interface GetEPGColorsRequest
 export interface EPGSyncRequest
 {
 }
+export interface GetEPGFileNamesRequest
+{
+}
 export interface GetEPGFilePreviewByIdRequest
 {
 	Id: number;

@@ -2,6 +2,11 @@ import { isSkipToken } from '@lib/common/isSkipToken';
 import SignalRService from '@lib/signalr/SignalRService';
 import { APIResponse,CreateEPGFileFromFormRequest,CreateEPGFileRequest,DeleteEPGFileRequest,ProcessEPGFileRequest,RefreshEPGFileRequest,UpdateEPGFileRequest,EPGFilePreviewDto,EPGFileDto,GetEPGFilePreviewByIdRequest,PagedResponse,QueryStringParameters } from '@lib/smAPI/smapiTypes';
 
+export const GetEPGFileNames = async (): Promise<string[] | undefined> => {
+  const signalRService = SignalRService.getInstance();
+  return await signalRService.invokeHubCommand<string[]>('GetEPGFileNames');
+};
+
 export const GetEPGFilePreviewById = async (request: GetEPGFilePreviewByIdRequest): Promise<EPGFilePreviewDto[] | undefined> => {
   if ( request === undefined ) {
     return undefined;

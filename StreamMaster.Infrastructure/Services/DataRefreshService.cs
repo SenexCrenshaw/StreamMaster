@@ -79,6 +79,7 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
             return;
         }
 
+        await hub.Clients.All.DataRefresh("GetEPGFileNames");
         await hub.Clients.All.DataRefresh("GetEPGFiles");
         await hub.Clients.All.DataRefresh("GetEPGNextEPGNumber");
         await hub.Clients.All.DataRefresh("GetPagedEPGFiles");
