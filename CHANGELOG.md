@@ -1,3 +1,10 @@
+## [0.14.6](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.14.5...v0.14.6) (2024-05-07)
+
+
+### Bug Fixes
+
+* FFMPEG on ARM64 ([4c8d9f5](https://github.com/SenexCrenshaw/StreamMaster/commit/4c8d9f58d94582792ae466041e4c852fd58494f2))
+
 ## [0.14.4](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.14.3...v0.14.4) (2024-03-14)
 
 
