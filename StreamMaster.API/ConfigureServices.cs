@@ -18,7 +18,6 @@ using StreamMaster.Application.Services;
 using StreamMaster.Domain.Logging;
 using StreamMaster.Infrastructure.Authentication;
 using StreamMaster.Infrastructure.EF.PGSQL;
-using StreamMaster.Infrastructure.Logger;
 using StreamMaster.Infrastructure.Services.Frontend;
 using StreamMaster.Infrastructure.Services.QueueService;
 
@@ -31,9 +30,15 @@ public static class ConfigureServices
     public static IServiceCollection AddWebUIServices(this IServiceCollection services, WebApplicationBuilder builder, bool DBDebug)
     {
         // Register SMLoggerProvider with DI
-        services.AddSingleton<ILoggerProvider, SMLoggerProvider>(provider =>
-            new SMLoggerProvider(provider.GetRequiredService<IFileLoggingServiceFactory>()));
+        //services.AddSingleton<ILoggerProvider, SMLoggerProvider>(provider =>
+        //    new SMLoggerProvider(provider.GetRequiredService<IFileLoggingServiceFactory>()));
 
+        //_ = services.AddSingleton(provider =>
+        //{
+        //    IFileLoggingServiceFactory factory = provider.GetRequiredService<IFileLoggingServiceFactory>();
+        //    return factory.Create("SMLogger");
+        //});
+        //services.AddSingleton<ILoggerFactory, LoggerFactory>();
         services.AddLogging(loggingBuilder =>
         {
             string test = DbLoggerCategory.Database.Command.Name;
@@ -46,15 +51,16 @@ public static class ConfigureServices
             loggingBuilder.AddConsole();
             loggingBuilder.AddDebug();
             loggingBuilder.AddConfiguration(builder.Configuration.GetSection("Logging"));
-            loggingBuilder.AddProvider(new StatsLoggerProvider());
+            //loggingBuilder.AddProvider(new SMLoggerProvider(new FileLoggingServiceFactory(builder.Configuration)));
+            //loggingBuilder.AddProvider(new StatsLoggerProvider());
 
             // GetOrAdd specific filters for StatsLoggerProvider
-            loggingBuilder.AddFilter<StatsLoggerProvider>((category, _) =>
-            {
-                // List of classes to use with CustomLogger
-                List<string> classesToLog = ["BroadcastService"];
-                return category != null && classesToLog.Any(c => category.Contains(c, StringComparison.OrdinalIgnoreCase));
-            });
+            //loggingBuilder.AddFilter<StatsLoggerProvider>((category, _) =>
+            //{
+            //    // List of classes to use with CustomLogger
+            //    List<string> classesToLog = ["BroadcastService"];
+            //    return category != null && classesToLog.Any(c => category.Contains(c, StringComparison.OrdinalIgnoreCase));
+            //});
 
             ServiceProvider serviceProvider = loggingBuilder.Services.BuildServiceProvider();
             ILoggerFactory loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();

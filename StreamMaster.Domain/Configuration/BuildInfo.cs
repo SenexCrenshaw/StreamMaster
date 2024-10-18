@@ -152,6 +152,7 @@ namespace StreamMaster.Domain.Configuration
         public static readonly string LogoDefault = Path.Combine("images", "default.png");
 
         public static readonly string LogFilePath = Path.Combine(LogFolder, "StreamMasterAPI.log");
+        public static readonly string LogFileLoggerPath = Path.Combine(LogFolder, "StreamMasterAPIFile.log");
 
         public static readonly string LoggingFileName = "logsettings.json";
         public static readonly string LoggingSettingsFile = GetSettingFilePath(LoggingFileName, AppDataFolder);

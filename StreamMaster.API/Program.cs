@@ -25,6 +25,8 @@ using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Builder;
+using StreamMaster.Infrastructure.Logger;
+using Microsoft.Extensions.Logging;
 
 [assembly: TsGlobal(CamelCaseForProperties = false, CamelCaseForMethods = false, UseModules = true, DiscardNamespacesWhenUsingModules = true, AutoOptionalProperties = true, WriteWarningComment = false, ReorderMembers = true)]
 DirectoryHelper.CreateApplicationDirectories();
@@ -189,6 +191,10 @@ builder.Services.AddControllers(options =>
     options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
     options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
 });
+
+
+
+builder.Services.AddSingleton<ILoggerProvider, SMLoggerProvider>();
 
 WebApplication app = builder.Build();
 

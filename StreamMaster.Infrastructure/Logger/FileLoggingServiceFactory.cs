@@ -1,8 +1,5 @@
 ﻿using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Extensions;
-using StreamMaster.Domain.Services;
-
-using StreamMaster.Infrastructure.Services;
 
 namespace StreamMaster.Infrastructure.Logger;
 
@@ -15,8 +12,9 @@ public class FileLoggingServiceFactory(IOptionsMonitor<Setting> intSettings) : I
 
         string logFilePath = key switch
         {
-            "FileLogger" => BuildInfo.LogFilePath,
-            "FileLoggerDebug" => Path.Combine(debugLogPath),
+            "SMLogger" => BuildInfo.LogFilePath,
+            "FileLogger" => BuildInfo.LogFileLoggerPath,
+            "FileLoggerDebug" => debugLogPath,
             _ => throw new ArgumentException("Invalid key for file logging service", nameof(key)),
         };
 

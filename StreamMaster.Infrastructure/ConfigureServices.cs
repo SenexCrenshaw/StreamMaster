@@ -32,17 +32,17 @@ public static class ConfigureServices
         _ = services.AddSingleton<IFileUtilService, FileUtilService>();
 
         // If needed, you can also pre-register specific instances
-        _ = services.AddSingleton(provider =>
-        {
-            IFileLoggingServiceFactory factory = provider.GetRequiredService<IFileLoggingServiceFactory>();
-            return factory.Create("FileLogger");
-        });
+        //_ = services.AddSingleton(provider =>
+        //{
+        //    IFileLoggingServiceFactory factory = provider.GetRequiredService<IFileLoggingServiceFactory>();
+        //    return factory.Create("FileLogger");
+        //});
 
-        _ = services.AddSingleton(provider =>
-        {
-            IFileLoggingServiceFactory factory = provider.GetRequiredService<IFileLoggingServiceFactory>();
-            return factory.Create("FileLoggerDebug");
-        });
+        //_ = services.AddSingleton(provider =>
+        //{
+        //    IFileLoggingServiceFactory factory = provider.GetRequiredService<IFileLoggingServiceFactory>();
+        //    return factory.Create("FileLoggerDebug");
+        //});
 
         services.AddSingleton<IAccessTracker, AccessTracker>();
         //services.AddHostedService<InactiveStreamMonitor>();

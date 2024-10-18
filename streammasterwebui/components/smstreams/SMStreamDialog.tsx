@@ -17,7 +17,10 @@ export interface SMStreamDialogRef {
 }
 
 const SMStreamDialog = forwardRef<SMStreamDialogRef, SMStreamDialogProperties>(({ onSave, onSaveEnabled, smStreamDto }, ref) => {
-  const [request, setRequest] = useState<CreateSMStreamRequest>({} as CreateSMStreamRequest);
+  const [request, setRequest] = useState<CreateSMStreamRequest>({
+    CommandProfileName: 'Default',
+    Logo: '/images/streammaster_logo.png'
+  } as CreateSMStreamRequest);
   const [orig, setOrig] = useState<SMStreamDto | null>(null);
 
   const doSave = useCallback(() => {
@@ -35,7 +38,8 @@ const SMStreamDialog = forwardRef<SMStreamDialogRef, SMStreamDialogProperties>((
         Group: smStreamDto.Group,
         Logo: smStreamDto.Logo,
         Name: smStreamDto.Name,
-        Url: smStreamDto.Url
+        Url: smStreamDto.Url,
+        CommandProfileName: smStreamDto.CommandProfileName
       });
     }
   }, [orig, smStreamDto]);
