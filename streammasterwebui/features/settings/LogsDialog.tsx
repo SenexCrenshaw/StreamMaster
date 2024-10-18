@@ -4,6 +4,7 @@ import { BaseSettings } from './BaseSettings';
 import { Logger } from '@lib/common/logger';
 import SMPopUp from '@components/sm/SMPopUp';
 import LogDisplay from './LogDisplay';
+import { ScrollPanel } from 'primereact/scrollpanel';
 
 const LogsDialog = () => {
   const query = useGetLogNames();
@@ -18,17 +19,19 @@ const LogsDialog = () => {
 
   return (
     <BaseSettings title="LOGS">
-      <div className="sm-begin-stuff">
-        {query.data?.map((logName) => (
-          <div key={logName}>
-            <div className="sm-w-10rem">
-              <SMPopUp contentWidthSize="10" modal modalCentered title={logName} buttonLabel={logName}>
-                <LogDisplay logName={logName} />
-              </SMPopUp>
+      <ScrollPanel style={{ height: '15vh', width: '100%' }}>
+        <div className="sm-begin-stuff">
+          {query.data?.map((logName) => (
+            <div key={logName}>
+              <div className="sm-w-10rem">
+                <SMPopUp contentWidthSize="10" modal modalCentered title={logName} buttonLabel={logName}>
+                  <LogDisplay logName={logName} />
+                </SMPopUp>
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      </ScrollPanel>
     </BaseSettings>
   );
 };
