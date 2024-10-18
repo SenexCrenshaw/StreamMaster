@@ -26,18 +26,6 @@ public class CreateEPGFileRequestHandler(ILogger<CreateEPGFileRequest> Logger, I
             await messageService.SendInfo($"Adding EPG '{request.Name}'");
             Logger.LogInformation("Adding EPG '{name}'", request.Name);
 
-            //epgFile.EPGNumber = num;
-            //EPGFile epgFile = new()
-            //{
-            //    Name = request.Name,
-            //    Url = request.UrlSource,
-            //    Source = name,
-            //    Color = request.Color ?? ColorHelper.GetColor(request.Name),
-            //    EPGNumber = num,
-            //    HoursToUpdate = request.HoursToUpdate ?? 72,
-            //    TimeShift = request.TimeShift ?? 0
-            //};
-
             string source = HttpUtility.UrlDecode(request.UrlSource);
             epgFile.LastDownloadAttempt = SMDT.UtcNow;
 

@@ -22,16 +22,7 @@ public class CreateEPGFileFromFormRequestHandler(ILogger<CreateEPGFileFromFormRe
         try
         {
             (EPGFile epgFile, fullName) = await ePGFileService.CreateEPGFileAsync(request);
-
-            //EPGFile epgFile = new()
-            //{
-            //    Name = request.Name,
-            //    Source = name,
-            //    Color = request.Color ?? ColorHelper.GetColor(request.Name),
-            //    EPGNumber = num,
-            //    HoursToUpdate = request.HoursToUpdate ?? 72,
-            //    TimeShift = request.TimeShift ?? 0
-            //};
+            epgFile.LastDownloaded = File.GetLastWriteTime(fullName);
 
             await messageService.SendInfo($"Adding EPG '{request.Name}'");
             Logger.LogInformation("Adding EPG '{name}'", request.Name);
