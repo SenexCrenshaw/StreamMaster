@@ -1,5 +1,5 @@
 <p align="center" width="100%">
-    <img  src="https://github.com/senexcrenshaw/StreamMaster/raw/main/WikiImages/StreamMasterx240.png" alt="StreamMaster Logo"/>
+    <img  src="https://raw.githubusercontent.com/SenexCrenshaw/StreamMaster/refs/heads/main/streammasterwebui/public/images/streammaster_logo.png" alt="StreamMaster Logo"/>
     <H1 align="center" width="100%">Welcome to StreamMaster</H1>
 </p>
 
