@@ -13,8 +13,8 @@ public partial class UpdateSettingRequestHandler(
     ILogger<UpdateSettingRequest> Logger,
     IMapper Mapper,
     IBackgroundTaskQueue backgroundTaskQueue,
-    IOptionsMonitor<Setting> intSettings)
-: IRequestHandler<UpdateSettingRequest, UpdateSettingResponse>
+    IOptionsMonitor<Setting> intSettings
+) : IRequestHandler<UpdateSettingRequest, UpdateSettingResponse>
 {
     private readonly Setting settings = intSettings.CurrentValue;
     private readonly SDSettings sdSettings = intsdsettings.CurrentValue;
@@ -22,18 +22,12 @@ public partial class UpdateSettingRequestHandler(
     public async Task<UpdateSettingResponse> Handle(UpdateSettingRequest request, CancellationToken cancellationToken)
     {
         Setting currentSetting = settings;
-
         bool needsLogOut = await UpdateSetting(currentSetting, sdSettings, request);
 
         Logger.LogInformation("UpdateSettingRequest");
         SettingsHelper.UpdateSetting(currentSetting);
 
         SettingDto ret = Mapper.Map<SettingDto>(currentSetting);
-        //await HubContext.ClientChannels.All.SettingsUpdate(ret).ConfigureAwait(false);
-        //if (request.Parameters.SDSettings?.SDStationIds != null)
-        //{
-        //    await HubContext.ClientChannels.All.SchedulesDirectsRefresh().ConfigureAwait(false);
-        //}
 
         return new UpdateSettingResponse { Settings = ret, NeedsLogOut = needsLogOut };
     }
@@ -176,16 +170,10 @@ public partial class UpdateSettingRequestHandler(
         }
     }
 
-    /// <summary>
-    /// Updates the current setting based on the provided request.Parameters.
-    /// </summary>
-    /// <param name="currentSetting">The current setting.</param>
-    /// <param name="request">The update setting request.Parameters.</param>
-    /// <returns>The updated setting as a SettingDto object.</returns>
     private async Task<bool> UpdateSetting(Setting currentSetting, SDSettings sdsettings, UpdateSettingRequest request)
     {
         bool needsLogOut = false;
-        //bool needsSetProgrammes = false;
+
         if (request.Parameters.LogoCache != null)
         {
             currentSetting.LogoCache = request.Parameters.LogoCache.ToLowerInvariant() switch
@@ -241,16 +229,6 @@ public partial class UpdateSettingRequestHandler(
             currentSetting.ShowIntros = request.Parameters.ShowIntros;
         }
 
-        //if (request.Parameters.M3UIgnoreEmptyEPGID != null)
-        //{
-        //    currentSetting.M3UIgnoreEmptyEPGID = (bool)request.Parameters.M3UIgnoreEmptyEPGID;
-        //}
-
-        //if (request.Parameters.M3UUseCUIDForChannelID != null)
-        //{
-        //    currentSetting.M3UUseCUIDForChannelID = (bool)request.Parameters.M3UUseCUIDForChannelID;
-        //}
-
         if (request.Parameters.MaxLogFiles.HasValue)
         {
             currentSetting.MaxLogFiles = request.Parameters.MaxLogFiles.Value;
@@ -261,24 +239,10 @@ public partial class UpdateSettingRequestHandler(
             currentSetting.MaxLogFileSizeMB = request.Parameters.MaxLogFileSizeMB.Value;
         }
 
-        //if (request.Parameters.EnablePrometheus.HasValue)
-        //{
-        //    currentSetting.EnablePrometheus = request.Parameters.EnablePrometheus.Value;
-        //}
-
-        if (request.Parameters.MaxLogFiles.HasValue)
-        {
-            currentSetting.MaxLogFiles = request.Parameters.MaxLogFiles.Value;
-        }
-
         if (request.Parameters.ClientReadTimeOutSeconds.HasValue)
         {
             currentSetting.ClientReadTimeOutSeconds = request.Parameters.ClientReadTimeOutSeconds.Value;
         }
-        //if (request.Parameters.M3UUseChnoForId != null)
-        //{
-        //    currentSetting.M3UUseChnoForId = (bool)request.Parameters.M3UUseChnoForId;
-        //}
 
         if (request.Parameters.BackupEnabled.HasValue)
         {
@@ -320,16 +284,6 @@ public partial class UpdateSettingRequestHandler(
             currentSetting.DummyRegex = request.Parameters.DummyRegex;
         }
 
-        //if (request.Parameters.M3UStationId != null)
-        //{
-        //    currentSetting.M3UStationId = (bool)request.Parameters.M3UStationId;
-        //}
-
-        //if (request.Parameters.M3UFieldGroupTitle != null)
-        //{
-        //    currentSetting.M3UFieldGroupTitle = (bool)request.Parameters.M3UFieldGroupTitle;
-        //}
-
         if (request.Parameters.SSLCertPath != null && request.Parameters.SSLCertPath != currentSetting.SSLCertPath)
         {
             currentSetting.SSLCertPath = request.Parameters.SSLCertPath;
@@ -354,16 +308,6 @@ public partial class UpdateSettingRequestHandler(
         {
             currentSetting.ClientUserAgent = request.Parameters.ClientUserAgent;
         }
-
-        //if (request.Parameters.StreamingClientUserAgent != null && request.Parameters.StreamingClientUserAgent != currentSetting.SourceClientUserAgent)
-        //{
-        //    currentSetting.SourceClientUserAgent = request.Parameters.StreamingClientUserAgent;
-        //}
-
-        //if (!string.IsNullOrEmpty(request.Parameters.ApiKey) && request.Parameters.ApiKey != currentSetting.ApiKey)
-        //{
-        //    currentSetting.ApiKey = request.Parameters.ApiKey;
-        //}
 
         if (request.Parameters.AdminPassword != null && request.Parameters.AdminPassword != currentSetting.AdminPassword)
         {
@@ -412,11 +356,6 @@ public partial class UpdateSettingRequestHandler(
             currentSetting.NameRegex = request.Parameters.NameRegex;
         }
 
-        //if (request.Parameters.CommandProfileName != null && request.Parameters.CommandProfileName != currentSetting.CommandProfileName)
-        //{
-        //    currentSetting.CommandProfileName = request.Parameters.CommandProfileName;
-        //}
-
         if (request.Parameters.AuthenticationMethod != null && request.Parameters.AuthenticationMethod != currentSetting.AuthenticationMethod)
         {
             needsLogOut = true;
@@ -427,11 +366,6 @@ public partial class UpdateSettingRequestHandler(
         {
             await backgroundTaskQueue.EPGSync().ConfigureAwait(false);
         }
-
-        //if (needsSetProgrammes)
-        //{
-        //    await taskQueue.EPGSync(cancellationToken).ConfigureAwait(false);
-        //}
 
         return needsLogOut;
     }

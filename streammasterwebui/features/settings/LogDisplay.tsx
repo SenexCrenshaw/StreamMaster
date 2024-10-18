@@ -1,12 +1,13 @@
-import { memo } from 'react';
+import { memo, useEffect } from 'react';
 import useGetLogContents from '@lib/smAPI/Logs/useGetLogContents';
 import { ScrollPanel } from 'primereact/scrollpanel';
 
 interface LogDisplayProperties {
   readonly logName: string;
+  onDataChange?: (logContent: string) => void;
 }
 
-const LogDisplay = ({ logName }: LogDisplayProperties) => {
+const LogDisplay = ({ logName, onDataChange }: LogDisplayProperties) => {
   const query = useGetLogContents({ logName });
 
   const parsedJsonString = query.data
@@ -15,6 +16,12 @@ const LogDisplay = ({ logName }: LogDisplayProperties) => {
         .replace(/\\r\\n/g, '\r\n') // Replace escaped newlines
         .replace(/\\\\/g, '\\')
     : ''; // Replace escaped backslashes
+
+  useEffect(() => {
+    if (parsedJsonString) {
+      onDataChange?.(parsedJsonString);
+    }
+  }, [onDataChange, parsedJsonString]);
 
   if (query?.data === undefined || query.isLoading) {
     return <div>Loading...</div>;
