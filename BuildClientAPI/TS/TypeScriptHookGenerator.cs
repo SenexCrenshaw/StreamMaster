@@ -4,7 +4,7 @@ namespace BuildClientAPI.TS;
 
 public static class TypeScriptHookGenerator
 {
-    private static readonly string[] IgnoreSystemUp = ["GetSettings", "GetTaskIsRunning", "GetSMTasks"];
+    private static readonly string[] IgnoreSystemUp = ["GetSettings", "GetTaskIsRunning"];
 
     public static void GenerateFile(List<MethodDetails> methods, string path)
     {
@@ -126,31 +126,31 @@ public static class TypeScriptHookGenerator
     private static string GeneratePagedSelectors(MethodDetails method)
     {
         StringBuilder content = new();
-        content.AppendLine("const selectData = (state: RootState) => {{");
+        content.AppendLine("const selectData = (state: RootState) => {");
         content.AppendLine("    if (query === undefined) return undefined;");
         content.AppendLine($"    return state.{method.Name}.data[query] || undefined;");
-        content.AppendLine("  }};");
+        content.AppendLine("  };");
         content.AppendLine("const data = useAppSelector(selectData);");
         content.AppendLine();
 
-        content.AppendLine("const selectError = (state: RootState) => {{");
+        content.AppendLine("const selectError = (state: RootState) => {");
         content.AppendLine("    if (query === undefined) return undefined;");
         content.AppendLine($"    return state.{method.Name}.error[query] || undefined;");
-        content.AppendLine("  }};");
+        content.AppendLine("  };");
         content.AppendLine("const error = useAppSelector(selectError);");
         content.AppendLine();
 
-        content.AppendLine("const selectIsError = (state: RootState) => {{");
+        content.AppendLine("const selectIsError = (state: RootState) => {");
         content.AppendLine("    if (query === undefined) return false;");
         content.AppendLine($"    return state.{method.Name}.isError[query] || false;");
-        content.AppendLine("  }};");
+        content.AppendLine("  };");
         content.AppendLine("const isError = useAppSelector(selectIsError);");
         content.AppendLine();
 
-        content.AppendLine("const selectIsLoading = (state: RootState) => {{");
+        content.AppendLine("const selectIsLoading = (state: RootState) => {");
         content.AppendLine("    if (query === undefined) return false;");
         content.AppendLine($"    return state.{method.Name}.isLoading[query] || false;");
-        content.AppendLine("  }};");
+        content.AppendLine("  };");
         content.AppendLine("const isLoading = useAppSelector(selectIsLoading);");
 
         return content.ToString();
@@ -159,31 +159,31 @@ public static class TypeScriptHookGenerator
     private static string GenerateCachedSelectors(MethodDetails method)
     {
         StringBuilder content = new();
-        content.AppendLine("const selectData = (state: RootState) => {{");
+        content.AppendLine("const selectData = (state: RootState) => {");
         content.AppendLine("    if (param === undefined) return undefined;");
         content.AppendLine($"    return state.{method.Name}.data[param] || undefined;");
-        content.AppendLine("  }};");
+        content.AppendLine("  };");
         content.AppendLine("const data = useAppSelector(selectData);");
         content.AppendLine();
 
-        content.AppendLine("const selectError = (state: RootState) => {{");
+        content.AppendLine("const selectError = (state: RootState) => {");
         content.AppendLine("    if (param === undefined) return undefined;");
         content.AppendLine($"    return state.{method.Name}.error[param] || undefined;");
-        content.AppendLine("  }};");
+        content.AppendLine("  };");
         content.AppendLine("const error = useAppSelector(selectError);");
         content.AppendLine();
 
-        content.AppendLine("const selectIsError = (state: RootState) => {{");
+        content.AppendLine("const selectIsError = (state: RootState) => {");
         content.AppendLine("    if (param === undefined) return false;");
         content.AppendLine($"    return state.{method.Name}.isError[param] || false;");
-        content.AppendLine("  }};");
+        content.AppendLine("  };");
         content.AppendLine("const isError = useAppSelector(selectIsError);");
         content.AppendLine();
 
-        content.AppendLine("const selectIsLoading = (state: RootState) => {{");
+        content.AppendLine("const selectIsLoading = (state: RootState) => {");
         content.AppendLine("    if (param === undefined) return false;");
         content.AppendLine($"    return state.{method.Name}.isLoading[param] || false;");
-        content.AppendLine("  }};");
+        content.AppendLine("  };");
         content.AppendLine("const isLoading = useAppSelector(selectIsLoading);");
 
         return content.ToString();
@@ -192,27 +192,27 @@ public static class TypeScriptHookGenerator
     private static string GenerateSelectors(MethodDetails method)
     {
         StringBuilder content = new();
-        content.AppendLine("const selectData = (state: RootState) => {{");
+        content.AppendLine("const selectData = (state: RootState) => {");
         content.AppendLine($"    return state.{method.Name}.data;");
-        content.AppendLine("  }};");
+        content.AppendLine("  };");
         content.AppendLine("const data = useAppSelector(selectData);");
         content.AppendLine();
 
-        content.AppendLine("const selectError = (state: RootState) => {{");
+        content.AppendLine("const selectError = (state: RootState) => {");
         content.AppendLine($"    return state.{method.Name}.error;");
-        content.AppendLine("  }};");
+        content.AppendLine("  };");
         content.AppendLine("const error = useAppSelector(selectError);");
         content.AppendLine();
 
-        content.AppendLine("const selectIsError = (state: RootState) => {{");
+        content.AppendLine("const selectIsError = (state: RootState) => {");
         content.AppendLine($"    return state.{method.Name}.isError;");
-        content.AppendLine("  }};");
+        content.AppendLine("  };");
         content.AppendLine("const isError = useAppSelector(selectIsError);");
         content.AppendLine();
 
-        content.AppendLine("const selectIsLoading = (state: RootState) => {{");
+        content.AppendLine("const selectIsLoading = (state: RootState) => {");
         content.AppendLine($"    return state.{method.Name}.isLoading;");
-        content.AppendLine("  }};");
+        content.AppendLine("  };");
         content.AppendLine("const isLoading = useAppSelector(selectIsLoading);");
 
         return content.ToString();
@@ -236,9 +236,9 @@ public static class TypeScriptHookGenerator
         content.AppendLine("    [dispatch]");
         content.AppendLine("  );");
         content.AppendLine("  const ClearByTag = useCallback(");
-        content.AppendLine("    (tag: string): void => {{");
-        content.AppendLine("      dispatch(clearByTag({{tag: tag }}));");
-        content.AppendLine("    }},");
+        content.AppendLine("    (tag: string): void => {");
+        content.AppendLine("      dispatch(clearByTag({tag: tag }));");
+        content.AppendLine("    },");
         content.AppendLine("    [dispatch]");
         content.AppendLine("  );");
         content.AppendLine("");
@@ -262,10 +262,10 @@ public static class TypeScriptHookGenerator
         content.AppendLine("  );");
 
         content.AppendLine("  const ClearByTag = useCallback(");
-        content.AppendLine("    (tag: string): void => {{");
+        content.AppendLine("    (tag: string): void => {");
 
-        content.AppendLine("      dispatch(clearByTag({{tag: tag }}));");
-        content.AppendLine("    }},");
+        content.AppendLine("      dispatch(clearByTag({tag: tag }));");
+        content.AppendLine("    },");
 
         content.AppendLine("    [dispatch]");
 
@@ -324,7 +324,7 @@ public static class TypeScriptHookGenerator
 
         content.AppendLine();
 
-        content.AppendLine("  useEffect(() => {{");
+        content.AppendLine("  useEffect(() => {");
         content.AppendLine($"    const state = store.getState().{method.Name};");
         content.AppendLine("    if (data === undefined && state.isLoading !== true && state.isForced !== true) {");
         content.AppendLine("      SetIsForced(true);");

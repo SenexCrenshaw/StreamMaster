@@ -11,15 +11,15 @@ public record GetVsRequest(int? StreamGroupId, int? StreamGroupProfileId) : IReq
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public class V
 {
-    public required string BaseUrl { get; set; } = string.Empty;
-    public required string Name { get; set; } = string.Empty;
-    public required int Id { get; set; }
-    public required int StreamGroupId { get; set; }
-    public required string StreamGroupName { get; set; }
-    public required int StreamGroupProfileId { get; set; }
-    public required string StreamGroupProfileName { get; set; }
-    public required string DefaultRealUrl { get; set; }
-    public required string RealUrl { get; set; }
+    public string BaseUrl { get; set; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
+    public int Id { get; set; }
+    public int StreamGroupId { get; set; }
+    public string StreamGroupName { get; set; }
+    public int StreamGroupProfileId { get; set; }
+    public string StreamGroupProfileName { get; set; }
+    public string DefaultRealUrl { get; set; }
+    public string RealUrl { get; set; }
 }
 
 internal class GetVsRequestHandler(ILogger<GetVsRequest> logger, IStreamGroupService streamGroupService, IHttpContextAccessor httpContextAccessor, ISender sender, IRepositoryWrapper repositoryWrapper)

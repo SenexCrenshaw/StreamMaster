@@ -199,6 +199,7 @@ export interface M3UFileDto
 	Id: number;
 	LastDownloadAttempt: any;
 	LastDownloaded: any;
+	M3U8OutPutProfile: string;
 	M3UKey: M3UKey;
 	M3UName: M3UField;
 	MaxStreamCount: number;
@@ -248,6 +249,7 @@ export interface SettingDto
 	IconCacheExpirationDays: number;
 	IsDebug: boolean;
 	LogoCache: string;
+	M3U8OutPutProfile: string;
 	MaxConcurrentDownloads: number;
 	MaxConnectRetry: number;
 	MaxConnectRetryTimeMS: number;
@@ -1114,6 +1116,7 @@ export interface UpdateSettingParameters
 	GlobalStreamLimit?: number;
 	IconCacheExpirationDays?: number;
 	LogoCache?: string;
+	M3U8OutPutProfile?: string;
 	MaxConnectRetry?: number;
 	MaxConnectRetryTimeMS?: number;
 	MaxLogFiles?: number;
@@ -1261,6 +1264,7 @@ export interface CreateM3UFileFromFormRequest
 	DefaultStreamGroupName?: string;
 	FormFile?: any;
 	HoursToUpdate?: number;
+	M3U8OutPutProfile?: string;
 	M3UKey?: M3UKey;
 	M3UName?: M3UField;
 	MaxStreamCount?: number;
@@ -1274,6 +1278,7 @@ export interface CreateM3UFileRequest
 	AutoSetChannelNumbers?: boolean;
 	DefaultStreamGroupName?: string;
 	HoursToUpdate?: number;
+	M3U8OutPutProfile?: string;
 	M3UKey?: M3UKey;
 	M3UName?: M3UField;
 	MaxStreamCount: number;
@@ -1310,6 +1315,7 @@ export interface UpdateM3UFileRequest
 	DefaultStreamGroupName?: string;
 	HoursToUpdate?: number;
 	Id: number;
+	M3U8OutPutProfile?: string;
 	M3UName?: M3UField;
 	MaxStreamCount?: number;
 	Name?: string;
@@ -1317,6 +1323,13 @@ export interface UpdateM3UFileRequest
 	SyncChannels?: boolean;
 	Url?: string;
 	VODTags?: string[];
+}
+export interface GetLogContentsRequest
+{
+	logName: string;
+}
+export interface GetLogNamesRequest
+{
 }
 export interface GetLogosRequest
 {

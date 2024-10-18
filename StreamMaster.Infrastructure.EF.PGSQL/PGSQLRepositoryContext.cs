@@ -39,6 +39,7 @@ namespace StreamMaster.Infrastructure.EF.PGSQL
             //}
             return;
         }
+
         private void CheckFunctions()
         {
             StringBuilder sqlBuilder = new();
@@ -161,6 +162,7 @@ namespace StreamMaster.Infrastructure.EF.PGSQL
             sqlBuilder.AppendLine("            );");
             sqlBuilder.AppendLine("        END IF;");
         }
+
         private static void AppendSMChannelsLogic(StringBuilder sqlBuilder)
         {
             sqlBuilder.AppendLine();
@@ -185,6 +187,7 @@ namespace StreamMaster.Infrastructure.EF.PGSQL
             sqlBuilder.AppendLine("                    \"ChannelId\",");
             sqlBuilder.AppendLine("                    \"ChannelName\",");
             sqlBuilder.AppendLine("                    \"TVGName\",");
+            sqlBuilder.AppendLine("                    \"IsHidden\",");
             sqlBuilder.AppendLine("                    \"GroupTitle\",");
             sqlBuilder.AppendLine("                    \"IsSystem\",");
             sqlBuilder.AppendLine("                    \"SMChannelType\"");
@@ -202,6 +205,7 @@ namespace StreamMaster.Infrastructure.EF.PGSQL
             sqlBuilder.AppendLine("                    p_channel_ids[i],");
             sqlBuilder.AppendLine("                    p_channel_names[i],");
             sqlBuilder.AppendLine("                    p_tvg_names[i],");
+            sqlBuilder.AppendLine("                    p_is_hidden[i],");
             sqlBuilder.AppendLine("                    '',  -- GroupTitle");
             sqlBuilder.AppendLine("                    false,  -- IsSystem");
             sqlBuilder.AppendLine("                    0  -- SMChannelType");
@@ -241,8 +245,6 @@ namespace StreamMaster.Infrastructure.EF.PGSQL
         {
             sqlBuilder.AppendLine("END $$;");
         }
-
-
 
         //public static readonly ILoggerFactory MyLoggerFactory = LoggerFactory.Create(builder =>
         //{

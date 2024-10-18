@@ -1,6 +1,8 @@
-﻿namespace StreamMaster.Application.Profiles;
+﻿using Microsoft.Extensions.DependencyInjection;
 
-public class ProfileService(IOptionsMonitor<Setting> intSettings, IOptionsMonitor<OutputProfileDict> intOutProfileSettings, IOptionsMonitor<CommandProfileDict> intCommandProfileSettings
+namespace StreamMaster.Application.Profiles;
+
+public class ProfileService(IOptionsMonitor<Setting> intSettings, IServiceProvider serviceProvider, IOptionsMonitor<OutputProfileDict> intOutProfileSettings, IOptionsMonitor<CommandProfileDict> intCommandProfileSettings
     ) : IProfileService
 {
     public List<CommandProfileDto> GetCommandProfiles()
@@ -27,5 +29,29 @@ public class ProfileService(IOptionsMonitor<Setting> intSettings, IOptionsMonito
         ;
     }
 
+    public CommandProfileDto GetM3U8OutputProfile(string id)
+    {
+        Setting settings = intSettings.CurrentValue;
+        using IServiceScope scope = serviceProvider.CreateScope();
+        IRepositoryWrapper repositoryWrapper = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
+        SMStream? smStream = repositoryWrapper.SMStream.GetSMStreamById(id);
+        if (smStream?.M3UFileId > 0)
+        {
+            M3UFile? m3uFile = repositoryWrapper.M3UFile.GetQuery().FirstOrDefault(m => m.Id == smStream.M3UFileId);
+            if (m3uFile != null && !string.IsNullOrEmpty(m3uFile.M3U8OutPutProfile) && intCommandProfileSettings.CurrentValue.HasProfile(m3uFile.M3U8OutPutProfile))
+            {
+                return intCommandProfileSettings.CurrentValue.GetProfileDto(m3uFile.M3U8OutPutProfile);
+            }
+        }
 
+        if (!string.IsNullOrEmpty(settings.M3U8OutPutProfile))
+        {
+            if (intCommandProfileSettings.CurrentValue.HasProfile(settings.M3U8OutPutProfile))
+            {
+                CommandProfileDto ret = intCommandProfileSettings.CurrentValue.GetProfileDto(settings.M3U8OutPutProfile);
+                return ret;
+            }
+        }
+        return intCommandProfileSettings.CurrentValue.GetProfileDto("SMFFMPEG");
+    }
 }

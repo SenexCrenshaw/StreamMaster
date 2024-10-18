@@ -44,14 +44,13 @@ public sealed class StreamFactory(ILogger<StreamFactory> logger, IHTTPStream HTT
 
             if (channelBroadcaster.SMChannel.SMChannelType == SMChannelTypeEnum.MultiView)
             {
-
                 return await MultiViewPlayListStream.HandleStream(channelBroadcaster, cancellationToken).ConfigureAwait(false);
             }
 
             if (smStreamInfo.Url.EndsWith(".m3u8"))
             {
-                logger.LogInformation("Stream URL has m3u8 extension, using SMFFMPEG for streaming: {streamName}", smStreamInfo.Name);
-                CommandProfileDto commandProfileDto = profileService.GetCommandProfile("SMFFMPEG");
+                CommandProfileDto commandProfileDto = profileService.GetM3U8OutputProfile(smStreamInfo.Id);
+                logger.LogInformation("Stream URL has m3u8 extension, using {name} for streaming: {streamName}", commandProfileDto.ProfileName, smStreamInfo.Name);
                 return commandExecutor.ExecuteCommand(commandProfileDto, smStreamInfo.Url, clientUserAgent, null, cancellationToken);
             }
 

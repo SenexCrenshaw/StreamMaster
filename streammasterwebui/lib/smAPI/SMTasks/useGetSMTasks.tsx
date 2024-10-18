@@ -2,9 +2,10 @@ import { QueryHookResult } from '@lib/apiDefs';
 import store, { RootState } from '@lib/redux/store';
 import { useAppDispatch, useAppSelector } from '@lib/redux/hooks';
 import { clear, clearByTag, setField, setIsForced, setIsLoading } from './GetSMTasksSlice';
-import { useCallback, useEffect } from 'react';
+import { useCallback,useEffect } from 'react';
+import { useSMContext } from '@lib/context/SMProvider';
 import { fetchGetSMTasks } from './GetSMTasksFetch';
-import { FieldData, SMTask } from '@lib/smAPI/smapiTypes';
+import {FieldData, SMTask } from '@lib/smAPI/smapiTypes';
 
 interface ExtendedQueryHookResult extends QueryHookResult<SMTask[] | undefined> {}
 interface Result extends ExtendedQueryHookResult {
@@ -15,6 +16,7 @@ interface Result extends ExtendedQueryHookResult {
   SetIsLoading: (isLoading: boolean, query: string) => void;
 }
 const useGetSMTasks = (): Result => {
+  const { isSystemReady } = useSMContext();
   const dispatch = useAppDispatch();
   const isForced = useAppSelector((state) => state.GetSMTasks.isForced ?? false);
 
@@ -26,36 +28,39 @@ const useGetSMTasks = (): Result => {
   );
   const ClearByTag = useCallback(
     (tag: string): void => {
-      dispatch(clearByTag({ tag: tag }));
+      dispatch(clearByTag({tag: tag }));
     },
     [dispatch]
   );
 
-  const SetIsLoading = useCallback(
-    (isLoading: boolean): void => {
-      dispatch(setIsLoading({ isLoading: isLoading }));
-    },
-    [dispatch]
-  );
-  const selectData = (state: RootState) => {
+
+
+const SetIsLoading = useCallback(
+  (isLoading: boolean): void => {
+    dispatch(setIsLoading({ isLoading: isLoading }));
+  },
+  [dispatch]
+);
+const selectData = (state: RootState) => {
     return state.GetSMTasks.data;
   };
-  const data = useAppSelector(selectData);
+const data = useAppSelector(selectData);
 
-  const selectError = (state: RootState) => {
+const selectError = (state: RootState) => {
     return state.GetSMTasks.error;
   };
-  const error = useAppSelector(selectError);
+const error = useAppSelector(selectError);
 
-  const selectIsError = (state: RootState) => {
+const selectIsError = (state: RootState) => {
     return state.GetSMTasks.isError;
   };
-  const isError = useAppSelector(selectIsError);
+const isError = useAppSelector(selectIsError);
 
-  const selectIsLoading = (state: RootState) => {
+const selectIsLoading = (state: RootState) => {
     return state.GetSMTasks.isLoading;
   };
-  const isLoading = useAppSelector(selectIsLoading);
+const isLoading = useAppSelector(selectIsLoading);
+
 
   useEffect(() => {
     const state = store.getState().GetSMTasks;
@@ -64,35 +69,35 @@ const useGetSMTasks = (): Result => {
     }
   }, [SetIsForced, data]);
 
-  useEffect(() => {
-    // if (!isSystemReady) return;
-    const state = store.getState().GetSMTasks;
-    if (state.isLoading) return;
-    if (data !== undefined && !isForced) return;
+useEffect(() => {
+    if (!isSystemReady) return;
+  const state = store.getState().GetSMTasks;
+  if (state.isLoading) return;
+  if (data !== undefined && !isForced) return;
 
-    SetIsLoading(true);
-    dispatch(fetchGetSMTasks());
-  }, [SetIsLoading, data, dispatch, isForced]);
+  SetIsLoading(true);
+  dispatch(fetchGetSMTasks());
+}, [SetIsLoading, data, dispatch, isForced, isSystemReady]);
 
-  const SetField = (fieldData: FieldData): void => {
-    dispatch(setField({ fieldData: fieldData }));
-  };
+const SetField = (fieldData: FieldData): void => {
+  dispatch(setField({ fieldData: fieldData }));
+};
 
-  const Clear = (): void => {
-    dispatch(clear());
-  };
+const Clear = (): void => {
+  dispatch(clear());
+};
 
-  return {
-    Clear,
-    ClearByTag,
-    data,
-    error,
-    isError,
-    isLoading,
-    SetField,
-    SetIsForced,
-    SetIsLoading
-  };
+return {
+  Clear,
+  ClearByTag,
+  data,
+  error,
+  isError,
+  isLoading,
+  SetField,
+  SetIsForced,
+  SetIsLoading
+};
 };
 
 export default useGetSMTasks;

@@ -5,7 +5,7 @@ namespace StreamMaster.Application.M3UFiles.Commands;
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record UpdateM3UFileRequest(int? MaxStreamCount, int? StartingChannelNumber, string? DefaultStreamGroupName, bool? SyncChannels, List<string>? VODTags, bool? AutoSetChannelNumbers, bool? AutoUpdate, int? HoursToUpdate, int Id, string? Name, string? Url, M3UField? M3UName)
+public record UpdateM3UFileRequest(int? MaxStreamCount, int? StartingChannelNumber, string? DefaultStreamGroupName, bool? SyncChannels, List<string>? VODTags, bool? AutoSetChannelNumbers, bool? AutoUpdate, int? HoursToUpdate, int Id, string? Name, string? Url, string? M3U8OutPutProfile, M3UField? M3UName)
     : IRequest<APIResponse>;
 
 [LogExecutionTimeAspect]
@@ -88,6 +88,12 @@ public class UpdateM3UFileRequestHandler(IRepositoryWrapper Repository, IReposit
                 nameChange = true;
                 m3uFile.Name = request.Name;
                 ret.Add(new FieldData(() => m3uFile.Name));
+            }
+
+            if (!string.IsNullOrEmpty(request.M3U8OutPutProfile) && request.M3U8OutPutProfile != m3uFile.M3U8OutPutProfile)
+            {
+                m3uFile.M3U8OutPutProfile = request.M3U8OutPutProfile;
+                ret.Add(new FieldData(() => m3uFile.M3U8OutPutProfile));
             }
 
             if (!string.IsNullOrEmpty(request.DefaultStreamGroupName) && request.DefaultStreamGroupName != m3uFile.DefaultStreamGroupName)

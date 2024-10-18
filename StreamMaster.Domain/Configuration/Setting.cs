@@ -8,16 +8,23 @@ public class BaseSettings
     {
         AuthenticationMethod = "None";
     }
+
     public string AdminPassword { get; set; } = string.Empty;
     public string AdminUserName { get; set; } = string.Empty;
     public string AuthenticationMethod { get; set; }
+
+    public string M3U8OutPutProfile { get; set; } = "SMFFMPEG";
     public bool AutoSetEPG { get; set; } = true;
+
     //public bool PreferTVGName { get; set; } = true;
     public bool BackupEnabled { get; set; } = true;
+
     public int BackupInterval { get; set; } = 4;
     public int BackupVersionsToKeep { get; set; } = 18;
+
     //public bool CacheIcons { get; set; } = true;
     public string LogoCache { get; set; } = "None";
+
     public int IconCacheExpirationDays { get; set; } = 7;
     public bool CleanURLs { get; set; } = true;
     public int ShutDownDelay { get; set; } = 1000;
@@ -41,13 +48,16 @@ public class BaseSettings
 
     [TsProperty(ForceNullable = true)]
     public List<string> NameRegex { get; set; } = [];
+
     public bool PrettyEPG { get; set; } = false;
     public bool ShowClientHostNames { get; set; }
     public string ShowIntros { get; set; } = "None";
     public string SSLCertPassword { get; set; } = string.Empty;
     public string SSLCertPath { get; set; } = string.Empty;
+
     //public string SourceClientUserAgent { get; set; } = "VLC/3.0.20-git LibVLC/3.0.20-git";
     public string UiFolder { get; set; } = "wwwroot";
+
     public string UrlBase { get; set; } = string.Empty;
     public bool VideoStreamAlwaysUseEPGLogo { get; set; } = true;
 }
@@ -65,8 +75,8 @@ public class Setting : StreamSettings
 {
     [IgnoreMap]
     public string ServerKey { get; set; } = Guid.NewGuid().ToString().Replace("-", "");
+
     public int ReadTimeOutMs { get; set; } = 0;
     public int DBBatchSize { get; set; } = 100;
     public int StreamStartTimeoutMs { get; set; } = 0;
-
 }

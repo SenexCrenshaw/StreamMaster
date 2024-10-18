@@ -6,6 +6,7 @@ namespace StreamMaster.Domain.Dto;
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public class M3UFileDto : BaseFileDto, IMapFrom<M3UFile>
 {
+    public string M3U8OutPutProfile { get; set; } = "SMFFMPEG";
     public M3UField M3UName { get; set; } = M3UField.Name;
     public M3UKey M3UKey { get; set; } = M3UKey.URL;
     public bool SyncChannels { get; set; }

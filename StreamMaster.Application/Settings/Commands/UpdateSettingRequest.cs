@@ -226,6 +226,11 @@ public partial class UpdateSettingRequestHandler(
                 : "gz";
         }
 
+        if (!string.IsNullOrEmpty(request.Parameters.M3U8OutPutProfile))
+        {
+            currentSetting.M3U8OutPutProfile = request.Parameters.M3U8OutPutProfile;
+        }
+
         if (request.Parameters.PrettyEPG.HasValue)
         {
             currentSetting.PrettyEPG = request.Parameters.PrettyEPG.Value;
@@ -265,8 +270,6 @@ public partial class UpdateSettingRequestHandler(
         {
             currentSetting.MaxLogFiles = request.Parameters.MaxLogFiles.Value;
         }
-
-
 
         if (request.Parameters.ClientReadTimeOutSeconds.HasValue)
         {

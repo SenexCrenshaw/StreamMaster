@@ -19,6 +19,7 @@ import { GeneralSettings } from './GeneralSettings';
 import { MiscSettings } from './MiscSettings';
 import { SDSettings } from './SDSettings';
 import { StreamingSettings } from './StreamingSettings';
+import LogsDialog from './LogsDialog';
 
 const SettingsEditor = () => {
   const { currentSetting, setCurrentSetting, updateSettingRequest, setUpdateSettingRequest } = useSettingsContext();
@@ -107,6 +108,7 @@ const SettingsEditor = () => {
               <GeneralSettings />
               <AuthenticationSettings />
               <DevelopmentSettings />
+              <LogsDialog />
             </div>
             <div className="w-4 pl-1 flex flex-column gap-3">
               <SDSettings />

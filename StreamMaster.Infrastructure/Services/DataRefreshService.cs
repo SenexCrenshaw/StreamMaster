@@ -19,6 +19,7 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
         await RefreshEPGFiles(true);
         await RefreshGeneral(true);
         await RefreshLogos(true);
+        await RefreshLogs(true);
         await RefreshM3UFiles(true);
         await RefreshProfiles(true);
         await RefreshSchedulesDirect(true);
@@ -106,6 +107,17 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
         }
 
         await hub.Clients.All.DataRefresh("GetLogos");
+    }
+
+    public async Task RefreshLogs(bool alwaysRun = false)
+    {
+
+        if (!alwaysRun && !BuildInfo.IsSystemReady)
+        {
+            return;
+        }
+
+        await hub.Clients.All.DataRefresh("GetLogNames");
     }
 
     public async Task RefreshM3UFiles(bool alwaysRun = false)

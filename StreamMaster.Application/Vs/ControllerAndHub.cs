@@ -2,11 +2,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using StreamMaster.Application.Vs.Queries;
 
-namespace StreamMaster.Application.Vs
+namespace StreamMaster.Application.Vs.Controllers
 {
     [Authorize]
     public partial class VsController(ILogger<VsController> _logger) : ApiControllerBase, IVsController
-    {
+    {        
 
         [HttpGet]
         [Route("[action]")]
@@ -14,8 +14,8 @@ namespace StreamMaster.Application.Vs
         {
             try
             {
-                DataResponse<List<V>> ret = await Sender.Send(request).ConfigureAwait(false);
-                return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetVs.", statusCode: 500) : Ok(ret.Data);
+            DataResponse<List<V>> ret = await Sender.Send(request).ConfigureAwait(false);
+             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetVs.", statusCode: 500) : Ok(ret.Data);
             }
             catch (Exception ex)
             {
@@ -33,7 +33,7 @@ namespace StreamMaster.Application.Hubs
     {
         public async Task<List<V>> GetVs(GetVsRequest request)
         {
-            DataResponse<List<V>> ret = await Sender.Send(request).ConfigureAwait(false);
+             DataResponse<List<V>> ret = await Sender.Send(request).ConfigureAwait(false);
             return ret.Data;
         }
 

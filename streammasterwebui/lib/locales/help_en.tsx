@@ -13,6 +13,7 @@ const help_en: help_enType = {
   backup: 'Backup',
   BackupEnabled: 'Enable Backups',
   BackupVersionsToKeep: 'Number of Backup Versions to keep',
+  M3U8OutPutProfile: 'The profile to use when source is m3u8',
   BackupInterval: 'Backup Interval (hours)',
   LogoCache: 'Cache Logos to the local disk to speed things up',
   CleanURLs: 'Remove URLs from being logged',

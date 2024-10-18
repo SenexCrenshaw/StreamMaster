@@ -12,6 +12,7 @@ import { setIsForced as GetEPGNextEPGNumberSetIsForced } from '@lib/smAPI/EPGFil
 import { setIsForced as GetHeadendsToViewSetIsForced } from '@lib/smAPI/SchedulesDirect/GetHeadendsToViewSlice';
 import { setIsForced as GetIntroPlayListsSetIsForced } from '@lib/smAPI/Custom/GetIntroPlayListsSlice';
 import { setIsForced as GetIsSystemReadySetIsForced } from '@lib/smAPI/General/GetIsSystemReadySlice';
+import { setIsForced as GetLogNamesSetIsForced } from '@lib/smAPI/Logs/GetLogNamesSlice';
 import { setIsForced as GetLogosSetIsForced } from '@lib/smAPI/Logos/GetLogosSlice';
 import { setIsForced as GetM3UFileNamesSetIsForced } from '@lib/smAPI/M3UFiles/GetM3UFileNamesSlice';
 import { setIsForced as GetM3UFilesSetIsForced } from '@lib/smAPI/M3UFiles/GetM3UFilesSlice';
@@ -46,6 +47,7 @@ export const DataRefreshAll = () => {
   store.dispatch(GetHeadendsToViewSetIsForced({ force: true }));
   store.dispatch(GetIntroPlayListsSetIsForced({ force: true }));
   store.dispatch(GetIsSystemReadySetIsForced({ force: true }));
+  store.dispatch(GetLogNamesSetIsForced({ force: true }));
   store.dispatch(GetLogosSetIsForced({ force: true }));
   store.dispatch(GetM3UFileNamesSetIsForced({ force: true }));
   store.dispatch(GetM3UFilesSetIsForced({ force: true }));

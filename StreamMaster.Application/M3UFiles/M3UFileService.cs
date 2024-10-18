@@ -124,7 +124,8 @@ public class M3UFileService(ILogger<M3UFileService> logger, IFileUtilService fil
     bool? autoSetChannelNumbers,
     int? startingChannelNumber,
     M3UKey? m3uKey,
-    M3UField? m3uField)
+    M3UField? m3uField,
+    string? M3U8OutPutProfile)
     {
         (string fullName, string fullNameWithExtension) = GetFileName(name);
 
@@ -142,6 +143,7 @@ public class M3UFileService(ILogger<M3UFileService> logger, IFileUtilService fil
             StartingChannelNumber = startingChannelNumber ?? 1,
             M3UKey = m3uKey ?? M3UKey.URL,
             M3UName = m3uField ?? M3UField.Name,
+            M3U8OutPutProfile = M3U8OutPutProfile
         };
 
         return (m3uFile, fullName);
@@ -160,7 +162,8 @@ public class M3UFileService(ILogger<M3UFileService> logger, IFileUtilService fil
             request.AutoSetChannelNumbers,
             request.StartingChannelNumber,
             request.M3UKey,
-            request.M3UName
+            request.M3UName,
+            request.M3U8OutPutProfile
         );
     }
 
@@ -177,7 +180,8 @@ public class M3UFileService(ILogger<M3UFileService> logger, IFileUtilService fil
             request.AutoSetChannelNumbers,
             request.StartingChannelNumber,
             request.M3UKey,
-            request.M3UName
+            request.M3UName,
+            request.M3U8OutPutProfile
         );
     }
 

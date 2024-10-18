@@ -74,6 +74,7 @@ export function StreamingSettings(): React.ReactElement {
       {GetCheckBoxLine({ field: 'ShowMessageVideos' })}
       {GetDropDownLine({ field: 'DefaultCommandProfileName', options: DefaultCommandProfileNameOptions })}
       {GetDropDownLine({ field: 'DefaultOutputProfileName', options: DefaultOutputProfileNameOptions })}
+      {/* {GetDropDownLine({ field: 'M3U8OutPutProfile', options: DefaultCommandProfileNameOptions })} */}
       {GetInputNumberLine({ field: 'ShutDownDelay', max: 999999 })}
     </BaseSettings>
   );

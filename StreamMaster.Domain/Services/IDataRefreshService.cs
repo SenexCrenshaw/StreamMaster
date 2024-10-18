@@ -19,6 +19,7 @@ namespace StreamMaster.Domain.Services
         Task RefreshSchedulesDirect(bool alwaysRun = false);
         Task RefreshProfiles(bool alwaysRun = false);
         Task RefreshM3UFiles(bool alwaysRun = false);
+        Task RefreshLogs(bool alwaysRun = false);
         Task RefreshLogos(bool alwaysRun = false);
         Task RefreshGeneral(bool alwaysRun = false);
         Task RefreshEPG(bool alwaysRun = false);

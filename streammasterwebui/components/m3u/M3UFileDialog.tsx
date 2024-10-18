@@ -11,6 +11,7 @@ import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo
 import M3UFileTags from './M3UFileTags';
 import M3UKeyDialog from './M3UKeyDialog';
 import M3UFieldDialog from './M3UFieldNameDialog';
+import CommandProfileDropDown from '@components/profiles/CommandProfileDropDown';
 
 export interface M3UFileDialogProperties {
   readonly onHide?: (didUpload: boolean) => void;
@@ -72,6 +73,7 @@ const M3UFileDialog = forwardRef<M3UFileDialogRef, M3UFileDialogProperties>(
           HoursToUpdate: 72,
           M3UKey: null,
           M3UName: null,
+          M3U8OutPutProfile: 'SMFFMPEG',
           MaxStreamCount: 1,
           Name: '',
           StartingChannelNumber: 1,
@@ -116,6 +118,7 @@ const M3UFileDialog = forwardRef<M3UFileDialogRef, M3UFileDialogProperties>(
         createM3UFileRequest.DefaultStreamGroupName = selectedStreamGroup?.Name;
         createM3UFileRequest.M3UKey = m3uFileDto.M3UKey.toString();
         createM3UFileRequest.M3UName = m3uFileDto.M3UName.toString();
+        createM3UFileRequest.M3U8OutPutProfile = m3uFileDto.M3U8OutPutProfile;
         createM3UFileRequest.AutoSetChannelNumbers = m3uFileDto.AutoSetChannelNumbers;
         createM3UFileRequest.StartingChannelNumber = m3uFileDto.StartingChannelNumber;
 
@@ -274,13 +277,26 @@ const M3UFileDialog = forwardRef<M3UFileDialogRef, M3UFileDialogProperties>(
                 />
               </div>
             </div>
-            <div className="w-5 sm-between-stuff">
-              <div className={'w-5 ' + (showUrlEditor !== true ? '' : 'p-disabled')}>
-                <M3UKeyDialog m3uFileDto={m3uFileDto} onChange={(e) => updateStateAndRequest({ M3UKey: e })} />
-              </div>
-              <div className={'w-5'}>
+          </div>
+          <div className="layout-padding-bottom" />
+          <div className="w-full sm-between-stuff gap-2">
+            <div className={'sm-w-3 ' + (showUrlEditor !== true ? '' : 'p-disabled')}>
+              <M3UKeyDialog m3uFileDto={m3uFileDto} onChange={(e) => updateStateAndRequest({ M3UKey: e })} />
+            </div>
+            <div className="sm-w-3">
+              <div className="w-full">
                 <M3UFieldDialog m3uFileDto={m3uFileDto} onChange={(e) => updateStateAndRequest({ M3UName: e })} />
               </div>
+            </div>
+            <div className="sm-w-3">
+              <CommandProfileDropDown
+                buttonDarkBackground
+                label="M3U8 Command Profile"
+                value={m3uFileDto.M3U8OutPutProfile}
+                onChange={(e) => {
+                  updateStateAndRequest({ M3U8OutPutProfile: e.ProfileName });
+                }}
+              />
             </div>
           </div>
           <div className="layout-padding-bottom-lg" />

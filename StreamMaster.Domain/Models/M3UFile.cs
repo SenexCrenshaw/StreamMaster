@@ -7,6 +7,7 @@ public class M3UFile : AutoUpdateEntity
     public static string APIName => "M3UFiles";
 
     private readonly JsonSerializerOptions jsonSerializerOptions = new() { WriteIndented = true };
+
     public void WriteJSON()
     {
         string jsonPath = Path.Combine(FileDefinitions.M3U.DirectoryLocation, Source + ".json");
@@ -23,6 +24,7 @@ public class M3UFile : AutoUpdateEntity
     public M3UKey M3UKey { get; set; } = M3UKey.URL;
     public M3UField M3UName { get; set; } = M3UField.Name;
     public List<string> VODTags { get; set; } = [];
+    public string? M3U8OutPutProfile { get; set; }
     public int MaxStreamCount { get; set; }
     public int StreamCount { get; set; }
     public bool SyncChannels { get; set; }

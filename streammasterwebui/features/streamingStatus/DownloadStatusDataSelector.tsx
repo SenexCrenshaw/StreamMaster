@@ -1,9 +1,9 @@
 import React, { useCallback, useMemo } from 'react';
 
-import useGetDownloadServiceStatus from '@lib/smAPI/General/useGetDownloadServiceStatus';
 import SMDataTable from '@components/smDataTable/SMDataTable';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 import { ImageDownloadServiceStatus } from '@lib/smAPI/smapiTypes';
+import useGetDownloadServiceStatus from '@lib/smAPI/General/useGetDownloadServiceStatus';
 
 const DownloadStatusDataSelector = () => {
   const { data } = useGetDownloadServiceStatus();

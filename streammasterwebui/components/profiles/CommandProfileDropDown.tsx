@@ -6,11 +6,12 @@ import { ReactNode, useCallback, useMemo } from 'react';
 
 interface CommandProfileDropDownProps {
   readonly buttonDarkBackground?: boolean;
+  readonly label?: string;
   readonly value: string;
   readonly onChange: (value: any) => void;
 }
 
-const CommandProfileDropDown = ({ buttonDarkBackground = false, onChange, value }: CommandProfileDropDownProps) => {
+const CommandProfileDropDown = ({ buttonDarkBackground = false, onChange, label = 'Command Profile', value }: CommandProfileDropDownProps) => {
   const { data, isLoading } = useGetCommandProfiles();
 
   const dataSource = useMemo((): CommandProfileDto[] => {
@@ -57,7 +58,7 @@ const CommandProfileDropDown = ({ buttonDarkBackground = false, onChange, value 
       info=""
       isOverLayLoading={isLoading}
       itemTemplate={itemTemplate}
-      label={buttonDarkBackground ? 'Command Profile' : undefined}
+      label={buttonDarkBackground ? label : undefined}
       onChange={onChange}
       propertyToMatch="ProfileName"
       scrollHeight="20vh"

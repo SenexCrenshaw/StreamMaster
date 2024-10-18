@@ -65,6 +65,7 @@ const MessagesEn: messages_enType = {
   general: 'General',
   DefaultCommandProfileName: 'Default Command Profile',
   DefaultOutputProfileName: 'Default Output Profile',
+  M3U8OutPutProfile: 'Default M3U8 Output Profile',
   GlobalStreamLimit: 'Global Stream Limit',
   group: 'Group',
   hidden: 'Hidden',

@@ -11,7 +11,8 @@ export interface UploadProperties {
   fileType: 'epg' | 'm3u';
   maxStreamCount?: number;
   m3uKey?: M3UKey;
-  m3uField?: M3UField;
+  m3uName?: M3UField;
+  m3U8OutPutProfile?: string;
   name: string;
   overWriteChannels?: boolean;
   startingChannelNumber?: number;
@@ -30,7 +31,8 @@ export const uploadToAPI = async ({
   fileType,
   maxStreamCount,
   m3uKey,
-  m3uField,
+  m3uName,
+  m3U8OutPutProfile,
   name,
   overWriteChannels,
   onUploadProgress,
@@ -52,15 +54,9 @@ export const uploadToAPI = async ({
   if (maxStreamCount) formData.append('maxStreamCount', maxStreamCount?.toString() ?? '1');
   if (startingChannelNumber) formData.append('startingChannelNumber', startingChannelNumber?.toString() ?? '1');
 
-  if (m3uKey) {
-    //  const ret = getEnumValueByKey(M3UKey, m3uKey);
-    formData.append('m3uKey', m3uKey.toString());
-  }
-
-  if (m3uField) {
-    //  const ret = getEnumValueByKey(M3UKey, m3uKey);
-    formData.append('m3uField', m3uField.toString());
-  }
+  if (m3uKey) formData.append('m3uKey', m3uKey.toString());
+  if (m3uName) formData.append('m3uName', m3uName.toString());
+  if (m3U8OutPutProfile) formData.append('m3U8OutPutProfile', m3U8OutPutProfile);
 
   if (autoSetChannelNumbers) formData.append('autoSetChannelNumbers', autoSetChannelNumbers?.toString() ?? 'false');
   if (epgNumber) formData.append('epgNumber', epgNumber?.toString() ?? '1');

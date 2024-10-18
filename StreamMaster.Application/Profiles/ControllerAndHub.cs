@@ -3,11 +3,11 @@ using Microsoft.AspNetCore.Authorization;
 using StreamMaster.Application.Profiles.Commands;
 using StreamMaster.Application.Profiles.Queries;
 
-namespace StreamMaster.Application.Profiles
+namespace StreamMaster.Application.Profiles.Controllers
 {
     [Authorize]
     public partial class ProfilesController(ILogger<ProfilesController> _logger) : ApiControllerBase, IProfilesController
-    {
+    {        
 
         [HttpGet]
         [Route("[action]")]
@@ -15,8 +15,8 @@ namespace StreamMaster.Application.Profiles
         {
             try
             {
-                DataResponse<List<CommandProfileDto>> ret = await Sender.Send(new GetCommandProfilesRequest()).ConfigureAwait(false);
-                return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetCommandProfiles.", statusCode: 500) : Ok(ret.Data);
+            DataResponse<List<CommandProfileDto>> ret = await Sender.Send(new GetCommandProfilesRequest()).ConfigureAwait(false);
+             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetCommandProfiles.", statusCode: 500) : Ok(ret.Data);
             }
             catch (Exception ex)
             {
@@ -31,8 +31,8 @@ namespace StreamMaster.Application.Profiles
         {
             try
             {
-                DataResponse<OutputProfileDto> ret = await Sender.Send(request).ConfigureAwait(false);
-                return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetOutputProfile.", statusCode: 500) : Ok(ret.Data);
+            DataResponse<OutputProfileDto> ret = await Sender.Send(request).ConfigureAwait(false);
+             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetOutputProfile.", statusCode: 500) : Ok(ret.Data);
             }
             catch (Exception ex)
             {
@@ -47,8 +47,8 @@ namespace StreamMaster.Application.Profiles
         {
             try
             {
-                DataResponse<List<OutputProfileDto>> ret = await Sender.Send(new GetOutputProfilesRequest()).ConfigureAwait(false);
-                return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetOutputProfiles.", statusCode: 500) : Ok(ret.Data);
+            DataResponse<List<OutputProfileDto>> ret = await Sender.Send(new GetOutputProfilesRequest()).ConfigureAwait(false);
+             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetOutputProfiles.", statusCode: 500) : Ok(ret.Data);
             }
             catch (Exception ex)
             {
@@ -114,19 +114,19 @@ namespace StreamMaster.Application.Hubs
     {
         public async Task<List<CommandProfileDto>> GetCommandProfiles()
         {
-            DataResponse<List<CommandProfileDto>> ret = await Sender.Send(new GetCommandProfilesRequest()).ConfigureAwait(false);
+             DataResponse<List<CommandProfileDto>> ret = await Sender.Send(new GetCommandProfilesRequest()).ConfigureAwait(false);
             return ret.Data;
         }
 
         public async Task<OutputProfileDto> GetOutputProfile(GetOutputProfileRequest request)
         {
-            DataResponse<OutputProfileDto> ret = await Sender.Send(request).ConfigureAwait(false);
+             DataResponse<OutputProfileDto> ret = await Sender.Send(request).ConfigureAwait(false);
             return ret.Data;
         }
 
         public async Task<List<OutputProfileDto>> GetOutputProfiles()
         {
-            DataResponse<List<OutputProfileDto>> ret = await Sender.Send(new GetOutputProfilesRequest()).ConfigureAwait(false);
+             DataResponse<List<OutputProfileDto>> ret = await Sender.Send(new GetOutputProfilesRequest()).ConfigureAwait(false);
             return ret.Data;
         }
 

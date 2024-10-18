@@ -10,9 +10,11 @@ public class UpdateSettingParameters
 
     [TsProperty(ForceNullable = true)]
     public SDSettingsRequest? SDSettings { get; set; }
+
     public bool? ShowClientHostNames { get; set; }
     public int? IconCacheExpirationDays { get; set; }
     public string? DefaultCompression { get; set; }
+    public string? M3U8OutPutProfile { get; set; }
     public string? AdminPassword { get; set; }
     public string? AdminUserName { get; set; }
     //public string? ApiKey { get; set; }
@@ -41,11 +43,13 @@ public class UpdateSettingParameters
 
     public string? DefaultOutputProfileName { get; set; }
     public string? DefaultCommandProfileName { get; set; }
+
     //public string? StreamingClientUserAgent { get; set; }
     //public string? CommandProfileName { get; set; }
     //public bool? VideoStreamAlwaysUseEPGLogo { get; set; }
     //public bool? EnablePrometheus { get; set; }
     public int? MaxLogFiles { get; set; }
+
     public int? MaxLogFileSizeMB { get; set; }
 
     [TsProperty(ForceNullable = true)]

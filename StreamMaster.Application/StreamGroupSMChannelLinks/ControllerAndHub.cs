@@ -3,11 +3,11 @@ using Microsoft.AspNetCore.Authorization;
 using StreamMaster.Application.StreamGroupSMChannelLinks.Commands;
 using StreamMaster.Application.StreamGroupSMChannelLinks.Queries;
 
-namespace StreamMaster.Application.StreamGroupSMChannelLinks
+namespace StreamMaster.Application.StreamGroupSMChannelLinks.Controllers
 {
     [Authorize]
     public partial class StreamGroupSMChannelLinksController(ILogger<StreamGroupSMChannelLinksController> _logger) : ApiControllerBase, IStreamGroupSMChannelLinksController
-    {
+    {        
 
         [HttpGet]
         [Route("[action]")]
@@ -15,8 +15,8 @@ namespace StreamMaster.Application.StreamGroupSMChannelLinks
         {
             try
             {
-                DataResponse<List<SMChannelDto>> ret = await Sender.Send(request).ConfigureAwait(false);
-                return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetStreamGroupSMChannels.", statusCode: 500) : Ok(ret.Data);
+            DataResponse<List<SMChannelDto>> ret = await Sender.Send(request).ConfigureAwait(false);
+             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetStreamGroupSMChannels.", statusCode: 500) : Ok(ret.Data);
             }
             catch (Exception ex)
             {
@@ -66,7 +66,7 @@ namespace StreamMaster.Application.Hubs
     {
         public async Task<List<SMChannelDto>> GetStreamGroupSMChannels(GetStreamGroupSMChannelsRequest request)
         {
-            DataResponse<List<SMChannelDto>> ret = await Sender.Send(request).ConfigureAwait(false);
+             DataResponse<List<SMChannelDto>> ret = await Sender.Send(request).ConfigureAwait(false);
             return ret.Data;
         }
 
