@@ -14,7 +14,7 @@ $global:tags
 function Main {
     Set-EnvironmentVariables
 
-    if (  $SkipMainBuild) {
+    if (  $SkipMainBuild ) {
         $Prod = $false
     }
 
@@ -317,17 +317,28 @@ function ConstructBuildCommand() {
     return $buildCommand
 }
 
-function Invoke-Build($buildCommand) {
+function Invoke-Build {
+    param (
+        [string]$buildCommand
+    )
+    
     $startTime = Get-Date
     Write-Host -NoNewline "Building Image "
 
-    Invoke-Expression $buildCommand
+    try {
+        # Use Invoke-Expression with ErrorAction Stop to stop execution on failure
+        Invoke-Expression $buildCommand -ErrorAction Stop
 
-    $endTime = Get-Date
-    $overallTime = $endTime - $startTime
-     
-    Write-Host "Build completed on: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')"
-    Write-Host "`nOverall time taken: $($overallTime.TotalSeconds) seconds"
+        $endTime = Get-Date
+        $overallTime = $endTime - $startTime
+        Write-Host "Build completed on: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')"
+        Write-Host "`nOverall time taken: $($overallTime.TotalSeconds) seconds"
+    }
+    catch {
+        # Catch the error and stop the script execution
+        Write-Host "An error occurred during the build process: $_" -ForegroundColor Red
+        exit 1  # Exit the script with a non-zero status code to indicate failure
+    }
 }
 
 . ".\Get-AssemblyInfo.ps1"

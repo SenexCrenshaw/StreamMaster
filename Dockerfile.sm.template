@@ -8,10 +8,34 @@ WORKDIR /src
 COPY . .
 
 # Run dotnet restore and npm install in parallel
-RUN (dotnet restore "StreamMaster.API/StreamMaster.API.csproj" -a $TARGETARCH && \
-    dotnet build "StreamMaster.API.csproj" -c Debug -o /app/build -a $TARGETARCH) & \
-    (cd /src/streammasterwebui && npm install && npm run build && \
-    cp -r dist/* /src/StreamMaster.API/wwwroot/) && wait
+# RUN (dotnet restore "StreamMaster.API/StreamMaster.API.csproj" -a $TARGETARCH && \
+#     dotnet build "StreamMaster.API.csproj" -c Debug -o /app/build -a $TARGETARCH) & \
+#     (cd /src/streammasterwebui && npm install && npm run build && \
+#     cp -r dist/* /src/StreamMaster.API/wwwroot/) && wait
+
+# Step 1: Restore and build the .NET project
+RUN echo "Starting .NET restore..." && \
+    dotnet restore "StreamMaster.API/StreamMaster.API.csproj" -a $TARGETARCH && \
+    echo ".NET restore completed successfully." || echo "Error during .NET restore!" && \
+    \
+    echo "Starting .NET build..." && \
+    dotnet build "StreamMaster.API.csproj" -c Debug -o /app/build -a $TARGETARCH && \
+    echo ".NET build completed successfully." || echo "Error during .NET build!"
+
+# Step 2: Install npm packages, build the frontend, and copy to wwwroot
+RUN echo "Navigating to frontend directory: /src/streammasterwebui" && \
+    cd /src/streammasterwebui && \
+    echo "Installing npm dependencies..." && \
+    npm install && \
+    echo "npm install completed successfully." || echo "Error during npm install!" && \
+    \
+    echo "Building frontend with npm run build..." && \
+    npm run build && \
+    echo "Frontend build completed successfully." || echo "Error during frontend build!" && \
+    \
+    echo "Copying frontend build files to /src/StreamMaster.API/wwwroot/..." && \
+    cp -r dist/* /src/StreamMaster.API/wwwroot/ && \
+    echo "Files copied to wwwroot successfully." || echo "Error copying files to wwwroot!"
 
 # Publish the .NET application
 WORKDIR "/src/StreamMaster.API"

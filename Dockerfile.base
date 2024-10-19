@@ -14,20 +14,6 @@ WORKDIR /app
 # Preserve downloaded APT packages and remove docker-clean configuration
 RUN rm -f /etc/apt/apt.conf.d/docker-clean; echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache
 
-# Conditional FFmpeg URL based on architecture
-RUN if [ "$TARGETARCH" = "arm64" ]; then \
-    export FFMPEG_URL=$FFMPEG_URL_ARM64; \
-    else \
-    export FFMPEG_URL=$FFMPEG_URL_X64; \
-    fi \
-    && curl -L -o /tmp/ffmpeg.tar.xz $FFMPEG_URL \
-    && mkdir /tmp/ffmpeg/ \
-    && tar -Jxvvf /tmp/ffmpeg.tar.xz --strip-components=1 -C /tmp/ffmpeg/ \
-    && cp /tmp/ffmpeg/bin/ffmpeg /usr/local/bin/ \
-    && cp /tmp/ffmpeg/bin/ffprobe /usr/local/bin/ \
-    && chmod +x /usr/local/bin/ffmpeg /usr/local/bin/ffprobe \
-    && rm -rf /tmp/ffmpeg.tar.xz /tmp/ffmpeg/
-
 # Install dependencies with apt
 RUN --mount=type=cache,id=apt-$TARGETARCH$TARGETVARIANT,sharing=locked,target=/var/cache/apt \
     apt-get update -yq \
@@ -46,6 +32,30 @@ RUN --mount=type=cache,id=apt-$TARGETARCH$TARGETVARIANT,sharing=locked,target=/v
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
     && mkdir /docker-entrypoint-initdb.d
+
+# Conditional FFmpeg URL based on architecture
+RUN if [ "$TARGETARCH" = "arm64" ]; then \
+    echo "Setting FFMPEG_URL to ARM64"; \
+    export FFMPEG_URL=$FFMPEG_URL_ARM64; \
+    else \
+    echo "Setting FFMPEG_URL to X64"; \
+    export FFMPEG_URL=$FFMPEG_URL_X64; \
+    fi \
+    && echo "Downloading FFmpeg from $FFMPEG_URL" \
+    && curl -L -o /tmp/ffmpeg.tar.xz $FFMPEG_URL \
+    && echo "FFmpeg downloaded to /tmp/ffmpeg.tar.xz" \
+    && mkdir -p /tmp/ffmpeg/ \
+    && echo "Extracting FFmpeg..." \
+    && tar -Jxvvf /tmp/ffmpeg.tar.xz --strip-components=1 -C /tmp/ffmpeg/ \
+    && echo "Copying FFmpeg binaries..." \
+    && cp /tmp/ffmpeg/bin/ffmpeg /usr/local/bin/ \
+    && cp /tmp/ffmpeg/bin/ffprobe /usr/local/bin/ \
+    && echo "Setting execute permissions on FFmpeg binaries..." \
+    && chmod +x /usr/local/bin/ffmpeg /usr/local/bin/ffprobe \
+    && echo "Cleaning up..." \
+    && rm -rf /tmp/ffmpeg.tar.xz /tmp/ffmpeg/ \
+    && echo "FFmpeg installation completed."
+
 
 # Pipx utilities
 RUN pipx install streamlink \
