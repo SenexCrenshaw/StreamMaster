@@ -16,13 +16,13 @@ public static class XmltvProgrammeConverter
             Start = FormatDateTime(movie.Premiered),
             Stop = FormatDateTime(movie.Premiered, movie.Runtime),
             Channel = movie.Studio,
-            Categories = movie.Genre?.ConvertAll(g => new XmltvText { Text = g }),
+            Categories = movie.Genres?.ConvertAll(g => new XmltvText { Text = g }),
             Countries = [new() { Text = movie.Country }],
             Rating = movie.Ratings?.Rating?.ConvertAll(r => new XmltvRating { Value = r.Value, System = r.Name }),
             StarRating = movie.Ratings?.Rating?.ConvertAll(r => new XmltvRating { Value = r.Value, System = r.Name }),
             Credits = new XmltvCredit
             {
-                Actors = movie.Actor?.ConvertAll(a => new XmltvActor { Role = a.Role, Actor = a.Name })
+                Actors = movie.Actors?.ConvertAll(a => new XmltvActor { Role = a.Role, Actor = a.Name })
             },
             EpisodeNums =
             [

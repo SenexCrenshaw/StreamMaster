@@ -97,7 +97,12 @@ public partial class SchedulesDirectAPIService : ISchedulesDirectAPIService
 
     private async Task<HttpResponseMessage> HandleHttpResponseError(HttpResponseMessage response, string? content)
     {
-        string? tokenUsed = response.RequestMessage?.Headers.GetValues("token")?.FirstOrDefault();
+        string? tokenUsed = null;
+
+        if (response.RequestMessage?.Headers.Contains("token") == true)
+        {
+            tokenUsed = response.RequestMessage.Headers.GetValues("token")?.FirstOrDefault();
+        }
 
         if (!string.IsNullOrEmpty(content))
         {

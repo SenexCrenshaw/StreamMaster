@@ -1619,12 +1619,15 @@ export interface Fileinfo
 }
 export interface Movie
 {
-	Actor: Actor[];
+	Actors: Actor[];
+	Artworks: string[];
 	Country: string;
+	Credits: string[];
 	Criticrating: string;
+	Directors: string[];
 	Fanart: Fanart;
 	Fileinfo: Fileinfo;
-	Genre: string[];
+	Genres: string[];
 	Id: string;
 	Lastplayed: string;
 	Mpaa: string;
@@ -1644,8 +1647,8 @@ export interface Movie
 	Thumb: Thumb;
 	Title: string;
 	Top250: string;
-	Trailer: string;
-	Uniqueid: Uniqueid[];
+	Trailers: string[];
+	Uniqueids: Uniqueid[];
 	Userrating: string;
 	Watched: string;
 	Year: string;
