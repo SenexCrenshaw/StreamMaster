@@ -54,4 +54,4 @@ plugins:
           name: Icelandic
           build: true
 
-site_url: ""
+site_url: "https://senexcrenshaw.github.io/StreamMaster/"
