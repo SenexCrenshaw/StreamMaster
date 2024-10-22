@@ -1,17 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
     <url>
-        <loc>None./</loc>
-        <lastmod>2024-08-13</lastmod>
+        <loc>https://senexcrenshaw.github.io/StreamMaster/</loc>
+        <lastmod>2024-10-22</lastmod>
         <changefreq>daily</changefreq>
-        <xhtml:link rel="alternate" hreflang="en" href="None"/>
-        <xhtml:link rel="alternate" hreflang="es" href="Nonees/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://senexcrenshaw.github.io/StreamMaster/"/>
+        <xhtml:link rel="alternate" hreflang="es" href="https://senexcrenshaw.github.io/StreamMaster/es/"/>
     </url>
     <url>
-        <loc>Nonees/</loc>
-        <lastmod>2024-08-13</lastmod>
+        <loc>https://senexcrenshaw.github.io/StreamMaster/Plex/</loc>
+        <lastmod>2024-10-22</lastmod>
         <changefreq>daily</changefreq>
-        <xhtml:link rel="alternate" hreflang="es" href="Nonees/"/>
-        <xhtml:link rel="alternate" hreflang="en" href="None"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://senexcrenshaw.github.io/StreamMaster/Plex/"/>
+        <xhtml:link rel="alternate" hreflang="es" href="https://senexcrenshaw.github.io/StreamMaster/es/Plex/"/>
+    </url>
+    <url>
+        <loc>https://senexcrenshaw.github.io/StreamMaster/es/</loc>
+        <lastmod>2024-10-22</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="es" href="https://senexcrenshaw.github.io/StreamMaster/es/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://senexcrenshaw.github.io/StreamMaster/"/>
+    </url>
+    <url>
+        <loc>https://senexcrenshaw.github.io/StreamMaster/es/Plex/</loc>
+        <lastmod>2024-10-22</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="es" href="https://senexcrenshaw.github.io/StreamMaster/es/Plex/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://senexcrenshaw.github.io/StreamMaster/Plex/"/>
     </url>
 </urlset>
