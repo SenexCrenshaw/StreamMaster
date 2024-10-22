@@ -46,6 +46,17 @@ public static class SettingFiles
                 Parameters = "-hide_banner -loglevel error -user_agent {clientUserAgent} -fflags +genpts+discardcorrupt -i {streamUrl} -map 0:v -map 0:a? -map 0:s? -c copy -f mpegts -copyts -reconnect 1 -reconnect_streamed 1 -reconnect_on_network_error 1 -reconnect_delay_max 10 -fflags +nobuffer pipe:1"
             }
             },
+
+            {
+         "SMFFMPEGLocal",
+            new CommandProfile
+            {
+                IsReadOnly = true,
+                Command = "ffmpeg",
+                Parameters = "-hide_banner -loglevel error -re -i {streamUrl} -map 0:v -map 0:a? -map 0:s? -c copy -f mpegts pipe:1"
+            }
+            },
+
             {
          "YT",
             new CommandProfile

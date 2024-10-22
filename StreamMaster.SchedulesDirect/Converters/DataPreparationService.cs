@@ -192,6 +192,10 @@ namespace StreamMaster.SchedulesDirect.Converters
 
                     foreach ((Movie movie, DateTime startTime, DateTime endTime) in moviesForPeriod)
                     {
+                        if (movie.Id == null)
+                        {
+                            continue;
+                        }
                         int duration = (int)(endTime - startTime).TotalMinutes;
                         if (duration <= 0)
                         {

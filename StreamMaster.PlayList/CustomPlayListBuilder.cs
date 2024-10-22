@@ -8,10 +8,11 @@ using StreamMaster.PlayList.Models;
 using StreamMaster.SchedulesDirect.Domain.XmltvXml;
 
 using System.Xml.Serialization;
+
 public class CustomPlayListBuilder : ICustomPlayListBuilder
 {
-    private readonly bool _generateMissingNfoFiles = true;
-    private readonly bool _alwaysCreateFirstFolderNfo = true; // New setting to always create the first folder .nfo
+    private readonly bool _generateMissingNfoFiles = false;
+    private readonly bool _alwaysCreateFirstFolderNfo = false; // New setting to always create the first folder .nfo
 
     private static readonly DateTime SequenceStartTime = new(2024, 7, 18, 0, 0, 0);
     private readonly ILogger<CustomPlayListBuilder> _logger;
@@ -74,18 +75,7 @@ public class CustomPlayListBuilder : ICustomPlayListBuilder
 
     public List<CustomPlayList> GetCustomPlayLists()
     {
-        if (!_memoryCache.TryGetValue(CustomPlayListCacheKey, out List<CustomPlayList> cachedPlaylists))
-        {
-            cachedPlaylists = LoadCustomPlayLists();
-            MemoryCacheEntryOptions cacheEntryOptions = new()
-            {
-                SlidingExpiration = TimeSpan.FromMinutes(1),
-                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10)
-            };
-            _memoryCache.Set(CustomPlayListCacheKey, cachedPlaylists, cacheEntryOptions);
-        }
-
-        return cachedPlaylists;
+        return LoadCustomPlayLists();
     }
 
     private List<CustomPlayList> LoadCustomPlayLists()
@@ -166,7 +156,7 @@ public class CustomPlayListBuilder : ICustomPlayListBuilder
 
                     if (fileNfo != null)
                     {
-                        // Add actors to the list, avoiding duplicates
+                        // Add actors to the list, avoiding any duplicates
                         if (fileNfo.Actors != null)
                         {
                             foreach (Actor actor in fileNfo.Actors)
@@ -221,7 +211,7 @@ public class CustomPlayListBuilder : ICustomPlayListBuilder
                             allArtwork.Add(poster);
                         }
 
-                        // Add trailers to the list, avoiding duplicates                        
+                        // Add trailers to the list, avoiding duplicates
                         if (fileNfo.Trailers != null)
                         {
                             foreach (string trailer in fileNfo.Trailers)
@@ -359,6 +349,7 @@ public class CustomPlayListBuilder : ICustomPlayListBuilder
             throw new IOException("An error occurred while writing the NFO file.", ex);
         }
     }
+
     public List<(Movie Movie, DateTime StartTime, DateTime EndTime)> GetMoviesForPeriod(string customPlayListName, DateTime startDate, int days)
     {
         CustomPlayList customPlayList = GetCustomPlayList(customPlayListName) ?? throw new ArgumentException($"Custom playlist with name {customPlayListName} not found.");

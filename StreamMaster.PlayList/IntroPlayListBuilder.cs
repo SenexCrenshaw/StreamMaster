@@ -64,18 +64,7 @@ namespace StreamMaster.PlayList
 
         public List<CustomPlayList> GetIntroPlayLists()
         {
-            if (!_memoryCache.TryGetValue(IntroPlayListCacheKey, out List<CustomPlayList> cachedPlaylists))
-            {
-                cachedPlaylists = LoadIntroPlayLists();
-                MemoryCacheEntryOptions cacheEntryOptions = new()
-                {
-                    SlidingExpiration = TimeSpan.FromMinutes(10),
-                    AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1)
-                };
-                _memoryCache.Set(IntroPlayListCacheKey, cachedPlaylists, cacheEntryOptions);
-            }
-
-            return cachedPlaylists;
+            return LoadIntroPlayLists();
         }
 
         private List<CustomPlayList> LoadIntroPlayLists()

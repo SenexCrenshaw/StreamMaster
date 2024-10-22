@@ -3,9 +3,10 @@
 using StreamMaster.Domain.Enums;
 
 using StreamMaster.PlayList.Models;
+
 namespace StreamMaster.Streams.Services;
 
-public sealed class SwitchToNextStreamService(ILogger<SwitchToNextStreamService> logger, ICacheManager cacheManager, IStreamLimitsService streamLimitsService, IProfileService profileService, IServiceProvider _serviceProvider, IOptionsMonitor<CommandProfileDict> optionsOutputProfiles, IIntroPlayListBuilder introPlayListBuilder, ICustomPlayListBuilder customPlayListBuilder, IOptionsMonitor<Setting> intSettings)
+public sealed class SwitchToNextStreamService(ILogger<SwitchToNextStreamService> logger, ICacheManager cacheManager, IStreamLimitsService streamLimitsService, IProfileService profileService, IServiceProvider _serviceProvider, IIntroPlayListBuilder introPlayListBuilder, ICustomPlayListBuilder customPlayListBuilder, IOptionsMonitor<Setting> intSettings)
     : ISwitchToNextStreamService
 {
     private static string GetClientUserAgent(SMChannelDto smChannel, SMStreamDto? smStream, Setting setting)
@@ -32,7 +33,7 @@ public sealed class SwitchToNextStreamService(ILogger<SwitchToNextStreamService>
                 )
             {
                 CustomStreamNfo? intro = introPlayListBuilder.GetRandomIntro(ChannelStatus.IsFirst ? null : ChannelStatus.IntroIndex);
-                CommandProfileDto introCommandProfileDto = optionsOutputProfiles.CurrentValue.GetProfileDto("SMFFMPEG");
+                CommandProfileDto introCommandProfileDto = profileService.GetCommandProfile("SMFFMPEGLocal");
                 ChannelStatus.IsFirst = false;
                 ChannelStatus.PlayedIntro = true;
 
@@ -68,13 +69,6 @@ public sealed class SwitchToNextStreamService(ILogger<SwitchToNextStreamService>
 
         if (smStream == null || streamLimitsService.IsLimited(smStream))
         {
-            //if (ChannelStatus.SMChannel.SMStreams.Count == 0)
-            //{
-            //    logger.LogError("Set Next for Channel {SourceName}, {Id} {Name} starting has no streams", ChannelStatus.SourceName, ChannelStatus.SMChannel.Id, ChannelStatus.SMChannel.Name);
-            //    ChannelStatus.SetSMStreamInfo(null);
-            //    return false;
-            //}
-
             if (!ChannelHasStreamsOrChannels(ChannelStatus.SMChannel))
             {
                 logger.LogError("Set Next for Channel {SourceName}, {Id} {Name} starting has no streams", ChannelStatus.SourceName, ChannelStatus.SMChannel.Id, ChannelStatus.SMChannel.Name);
@@ -139,12 +133,7 @@ public sealed class SwitchToNextStreamService(ILogger<SwitchToNextStreamService>
 
             (CustomStreamNfo StreamNfo, int SecondsIn) = customPlayListBuilder.GetCurrentVideoAndElapsedSeconds(ChannelStatus.CustomPlayList.Name);
 
-            CommandProfileDto customPlayListProfileDto = await streamGroupService.GetProfileFromSGIdsCommandProfileNameAsync(null, ChannelStatus.StreamGroupProfileId, ChannelStatus.SMChannel.CommandProfileName);
-
-            if (customPlayListProfileDto.Command.Equals("STREAMMASTER"))
-            {
-                customPlayListProfileDto = profileService.GetCommandProfile("SMFFMPEG");
-            }
+            CommandProfileDto customPlayListProfileDto = profileService.GetCommandProfile("SMFFMPEGLocal");
 
             SMStreamInfo customSMStreamInfo = new()
             {
@@ -159,6 +148,35 @@ public sealed class SwitchToNextStreamService(ILogger<SwitchToNextStreamService>
 
             ChannelStatus.SetSMStreamInfo(customSMStreamInfo);
             logger.LogDebug("Set Next for Channel {SourceName}, switched to {Id} {Name} starting at {SecondsIn} seconds in", ChannelStatus.SourceName, customSMStreamInfo.Id, customSMStreamInfo.Name, SecondsIn);
+            return await Task.FromResult(true);
+        }
+
+        if (smStream.SMStreamType is SMStreamTypeEnum.Intro)
+        {
+            CustomPlayList? customPlayList = introPlayListBuilder.GetIntroPlayList(smStream.Name);
+
+            if (customPlayList == null)
+            {
+                return false;
+            }
+
+            ChannelStatus.CustomPlayList = customPlayList;
+
+            CommandProfileDto customPlayListProfileDto = profileService.GetCommandProfile("SMFFMPEGLocal");
+
+            SMStreamInfo customSMStreamInfo = new()
+            {
+                Id = customPlayList.Name,
+                Name = customPlayList.Name,
+                Url = customPlayList.CustomStreamNfos[0].VideoFileName,
+                SMStreamType = SMStreamTypeEnum.CustomPlayList,
+                SecondsIn = 0,
+                ClientUserAgent = clientUserAgent,
+                CommandProfile = customPlayListProfileDto
+            };
+
+            ChannelStatus.SetSMStreamInfo(customSMStreamInfo);
+            logger.LogDebug("Set Next for Channel {SourceName}, switched to {Id} {Name}", ChannelStatus.SourceName, customSMStreamInfo.Id, customSMStreamInfo.Name);
             return await Task.FromResult(true);
         }
 

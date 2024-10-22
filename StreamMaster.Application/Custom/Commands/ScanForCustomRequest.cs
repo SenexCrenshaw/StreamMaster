@@ -54,7 +54,7 @@ public class ScanForCustomPlayListsRequestHandler(IOptionsMonitor<CommandProfile
                     continue;
                 }
 
-                string? c = await streamGroupService.EncodeStreamGroupIdStreamIdAsync(EPGHelper.CustomPlayListId, streamId);
+                //string? c = await streamGroupService.EncodeStreamGroupIdStreamIdAsync(EPGHelper.CustomPlayListId, streamId);
 
                 SMStream newStream = new()
                 {
@@ -78,13 +78,20 @@ public class ScanForCustomPlayListsRequestHandler(IOptionsMonitor<CommandProfile
         List<CustomPlayList> introPlayLists = introPlayListBuilder.GetIntroPlayLists();
         foreach (CustomPlayList customPlayList in introPlayLists)
         {
+            AddIcon(customPlayList);
+
             foreach (CustomStreamNfo nfo in customPlayList.CustomStreamNfos)
             {
                 string streamId = $"{IntroPlayListBuilder.IntroIDPrefix}{nfo.Movie.Title}";
+
                 SMStream? nfoStream = await Repository.SMStream.FirstOrDefaultAsync(s => s.Id == streamId, tracking: true, cancellationToken: cancellationToken);
 
                 if (nfoStream != null)
                 {
+                    if (nfoStream.Logo != customPlayList.Logo)
+                    {
+                        nfoStream.Logo = customPlayList.Logo;
+                    }
                     continue;
                 }
 

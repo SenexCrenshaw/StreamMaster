@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Text;
+
 namespace StreamMaster.Streams.Factories;
 
 public class CommandExecutor(ILogger<CommandExecutor> logger) : ICommandExecutor
@@ -17,15 +18,16 @@ public class CommandExecutor(ILogger<CommandExecutor> logger) : ICommandExecutor
                 return (null, -1, new ProxyStreamError { ErrorCode = ProxyStreamErrorCode.FileNotFound, Message = $"{commandProfile.Command} not found" });
             }
 
-            if (secondsIn.HasValue && secondsIn.Value != 0)
-            {
-                streamUrl = $"-ss {secondsIn} {streamUrl}";
-            }
+            //if (secondsIn.HasValue && secondsIn.Value != 0)
+            //{
+            //    streamUrl = streamUrl.Replace("{streamUrl}", $"-ss {secondsIn} {{streamUrl}}");
+            //    streamUrl = $"-ss {secondsIn} {streamUrl}";
+            //}
 
-            string cmd = BuildCommand(commandProfile.Parameters, clientUserAgent, streamUrl);
-            string options = streamUrl.Contains("://")
-            ? cmd
-            : $"-hide_banner -loglevel error  -i \"{streamUrl}\" {commandProfile.Parameters} -f mpegts pipe:1";
+            string options = BuildCommand(commandProfile.Parameters, clientUserAgent, streamUrl, secondsIn);
+            //string options = cmd;// streamUrl.Contains("://")
+            //? cmd
+            //: $"-hide_banner -loglevel error  -i \"{streamUrl}\" {commandProfile.Parameters} -f mpegts pipe:1";
 
             using Process process = new();
             ConfigureProcess(process, exec, options);
@@ -73,10 +75,27 @@ public class CommandExecutor(ILogger<CommandExecutor> logger) : ICommandExecutor
         }
     }
 
-    private static string BuildCommand(string command, string clientUserAgent, string streamUrl)
+    private static string BuildCommand(string command, string clientUserAgent, string streamUrl, int? secondsIn)
     {
-        return command.Replace("{clientUserAgent}", '"' + clientUserAgent + '"')
-                      .Replace("{streamUrl}", '"' + streamUrl + '"');
+        // Create the secondsIn string if it's provided
+        string s = secondsIn.HasValue ? $"-ss {secondsIn} " : "";
+
+        // Replace placeholders for clientUserAgent and streamUrl
+        command = command.Replace("{clientUserAgent}", '"' + clientUserAgent + '"')
+                         .Replace("{streamUrl}", '"' + streamUrl + '"');
+
+        // If secondsIn is provided, insert it right before the "-i" option
+        if (secondsIn.HasValue)
+        {
+            // Insert the secondsIn string just before the first occurrence of "-i"
+            int index = command.IndexOf("-i ");
+            if (index >= 0)
+            {
+                command = command.Insert(index, s);
+            }
+        }
+
+        return command;
     }
 
     private static void ConfigureProcess(Process process, string commandExec, string formattedArgs)

@@ -138,7 +138,7 @@ internal class GetChannelMetricsRequestHandler(IRepositoryWrapper repositoryWrap
                 //    SMChannel? test = smChannels.Find(a => a.Id.ToString() == sourceBroadcaster.Id);
                 //    metricLogo = test?.Logo ?? "";
                 //}
-                currentChannelLogo = logoService.GetLogoUrl(currentChannelLogo, _baseUrl);
+                logoService.AddLogo(id, currentChannelLogo);
             }
             //else
             //{

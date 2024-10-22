@@ -364,7 +364,7 @@ public class LogoService(IMapper mapper, ICustomPlayListBuilder customPlayListBu
             }
         ),
         new (
-            "images/StreamMaster.png",
+            "/images/StreamMaster.png",
             new TvLogoFile
             {
                 Id = 1,
