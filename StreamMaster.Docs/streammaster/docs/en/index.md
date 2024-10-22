@@ -53,7 +53,6 @@ Join the **StreamMaster** community and connect with other streamers and content
 
 We hope you enjoy using **StreamMaster** and find this wiki helpful. Happy streaming! 📺✨
 
-
 ## Version Tags
 
 | Tag    | Description           |
