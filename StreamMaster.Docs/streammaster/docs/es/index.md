@@ -1,64 +1,64 @@
-# Bienvenido a Stream Master
+# Bienvenido a Streammaster
 
 ---
 
-Esta wiki está dedicada a proporcionar información y recursos para StreamMaster, la plataforma de streaming proxy de video de primera clase.
+Este wiki se dedica a proporcionar información y recursos para ** StreamMaster **, la principal plataforma de transmisión de proxy de video.
 
-[![Patrocina este proyecto](https://img.shields.io/badge/Sponsor-%E2%9D%A4-pink)](https://www.patreon.com/user?u=52683080)
-
-- [Características](#características)
-- [Inicio Rápido](#inicio-rápido)
-- [Etiquetas de Versión](#etiquetas-de-versión)
-- [Soporte](#soporte)
-- [Comunidad](#comunidad)
+/
 
 ---
 
 ## Características
 
-- **Importa cualquier número de archivos M3U y EPG:** Con StreamMaster, puedes importar fácilmente cualquier cantidad de archivos M3U y EPG mediante URL o archivo con actualización automática, lo que te brinda acceso a una amplia variedad de contenido de streaming.
+- ✨ ** Importe cualquier número de archivos M3U y EPG **: Importe fácilmente cualquier número de archivos M3U y EPG a través de URL o archivo con Auto-Refresh para el acceso continuo al contenido de transmisión.
 
-- **Logotipos personalizables:** StreamMaster te permite personalizar tus logotipos con logotipos en caché para un acceso rápido y soporte de tv-logos desde directorios locales, para que puedas crear una experiencia de streaming única y profesional.
+- 🖼️ ** Logotipos personalizables **: Personalizar logotipos con logotipos en caché para acceso rápido y soporte de Logos de TV locales, creando una experiencia de transmisión única.
 
-- **Analíticas y estadísticas de transmisión:** Con las poderosas herramientas de analíticas y estadísticas de StreamMaster, puedes rastrear el rendimiento de tus transmisiones y obtener información valiosa.
+- 📊 ** Análisis y estadísticas de transmisión **: rastrear su rendimiento de transmisión y obtener información valiosa con análisis robusto.
 
-- **HDHomeRuns virtuales:** StreamMaster te permite crear tantos HDHomeRuns virtuales como desees, cada uno con su propia configuración de transmisión, para que puedas administrar y organizar fácilmente tu contenido de streaming.
+- 🖥️ ** hdhomeruns virtuales **: Crear múltiples hdhomeruns virtuales, cada uno con su propia configuración para una mejor gestión.
 
-- **Integración con herramientas y plataformas de streaming populares:** StreamMaster se integra perfectamente con herramientas y plataformas de streaming populares como Plex, Emby, Channels o tu reproductor de IPTV favorito.
+- 🔗 ** Integración con plataformas populares **: Se integra perfectamente con Plex, Emby, canales o su reproductor IPTV favorito.
 
-- **Construido con las últimas tecnologías de React y C# core:** StreamMaster está construido con las últimas tecnologías de React y C# core, lo que garantiza una experiencia de streaming rápida y confiable en una multitud de sistemas operativos y plataformas.
+- ⚙️ ** construido con la última tecnología **: StreamMaster utiliza tecnologías React y C# Core de C# para una experiencia rápida y confiable en todas las plataformas.
 
-- **Proxying robusto:** El proxy incorporado en StreamMaster permite un registro y fiabilidad robustos. Se pueden agregar transmisiones adicionales a cada canal, lo que permite una transición sin interrupciones en caso de una interrupción del canal. Todo se maneja en RAM utilizando las últimas técnicas de manejo de memoria.
+- 🚀 ** Proxying robusto **: Habilita el registro robusto, las transiciones sin problemas y el manejo en RAM para una alta confiabilidad.
 
-- **Múltiples clientes para la misma conexión de backend:** StreamMaster no iniciará un nuevo stream de backend si ya está proxyando el mismo. Múltiples clientes pueden ver el mismo canal con solo un stream de backend activo.
+- 👥 ** Múltiples clientes **: StreamMaster admite múltiples clientes en la misma conexión de backend sin comenzar una nueva transmisión.
 
-- **¡Y mucho más!** Con nuevas características y actualizaciones que se agregan todo el tiempo, StreamMaster está en constante evolución para satisfacer las necesidades de los streamers y creadores de contenido de hoy en día.
-
----
-
-## Inicio Rápido
-
-1. Sigue la [Guía de Instalación](Installation)
-2. Importa un archivo M3U [Archivos M3U](M3UFiles)
-3. Desde aquí, edita tus transmisiones. Cualquier transmisión visible aparecerá en el grupo de transmisiones predeterminado (HDHR).
+- 🎉 ** ¡y mucho más! ** StreamMaster evoluciona constantemente con nuevas características y actualizaciones.
 
 ---
 
-## Etiquetas de Versión
+## Inicio rápido
 
-| Etiqueta | Descripción            |
-| -------- | ---------------------- |
-| latest   | Última versión estable |
-| x.x.x    | Versiones lanzadas     |
+1. Siga la [Guía de instalación] (instalación)
+2. Importe un archivo m3u [archivos m3u] (m3ufiles)
+3. Edite sus transmisiones.Cualquier flujo visible aparecerá en el grupo de transmisión predeterminado (HDHR).
 
-## Soporte
+---
 
-Si necesitas ayuda con StreamMaster, únete a nuestro servidor de Discord. Para nuevas características/errores, dirígete a nuestro [Github Issues](https://github.com/SenexCrenshaw/StreamMaster/issues)
+## Apoyo
+
+¿Necesita ayuda con ** StreamMaster **?Aquí hay algunas maneras de obtener ayuda:
+
+- Únase a la conversación en nuestro [Servidor Discord] (https://discord.gg/gfz7ethhg2) 📞
+- Informe errores o características de solicitud en nuestros [problemas de Github] (https://github.com/senexcrenshaw/streammaster/issues) 🛠️
 
 ---
 
 ## Comunidad
 
-Únete a la comunidad de StreamMaster y conéctate con otros streamers y creadores de contenido en nuestro [servidor de Discord](https://discord.gg/zACbUp6XvW).
+Únase a la comunidad ** StreamMaster ** y conéctese con otros transmisores y creadores de contenido en nuestro [Servidor Discord] (https://discord.gg/gfz7ethhg2).
 
-Esperamos que disfrutes usando StreamMaster y que encuentres útil esta wiki. ¡Felices transmisiones!
+Esperamos que disfrute usando ** StreamMaster ** y encuentre útil este wiki.¡Feliz transmisión!📺✨
+
+
+## Etiquetas de versión
+
+|Etiqueta |Descripción |
+|------ |--------------------- |
+|`Último` |Última versión estable |
+|`x.x.x` |Versiones lanzadas |
+
+---

@@ -1,38 +1,32 @@
-# Welcome to Stream Master
+# Welcome to StreamMaster
 
 ---
 
-This wiki is dedicated to providing information and resources for StreamMaster, the premier video proxy streaming platform.
+This wiki is dedicated to providing information and resources for **StreamMaster**, the premier video proxy streaming platform.
 
 [![Sponsor this project](https://img.shields.io/badge/Sponsor-%E2%9D%A4-pink)](https://www.patreon.com/user?u=52683080)
-
-- [Features](#features)
-- [Quick Start](#quick-start)
-- [Version Tags](#version-tags)
-- [Support](#support)
-- [Community](#community)
 
 ---
 
 ## Features
 
-- **Import any number of M3U and EPG files:** With StreamMaster, you can easily import any number of M3U and EPG files by URL or file with auto refresh, giving you access to a vast array of streaming content.
+- ✨ **Import any number of M3U and EPG files**: Easily import any number of M3U and EPG files via URL or file with auto-refresh for continuous access to streaming content.
+  
+- 🖼️ **Customizable logos**: Customize logos with cached logos for quick access and local tv-logos support, creating a unique streaming experience.
 
-- **Customizable logos:** StreamMaster allows you to customize your logos with cached logos for quick access and tv-logos support from local directories, so you can create a unique and professional-looking streaming experience.
+- 📊 **Stream analytics and statistics**: Track your streaming performance and gain valuable insights with robust analytics.
 
-- **Stream analytics and statistics:** With StreamMaster's powerful analytics and statistics tools, you can track your streaming performance and gain valuable insights.
+- 🖥️ **Virtual HDHomeRuns**: Create multiple virtual HDHomeRuns, each with its own configuration for better management.
 
-- **Virtual HDHomeRuns:** StreamMaster lets you create as many virtual HDHomeRuns as you like, each with its own streaming setup, so you can easily manage and organize your streaming content.
+- 🔗 **Integration with popular platforms**: Seamlessly integrates with Plex, Emby, Channels, or your favorite IPTV Player.
 
-- **Integration with popular streaming tools and platforms:** StreamMaster seamlessly integrates with popular streaming tools and platforms like Plex, Emby, Channels or your favorite IPTV Player
+- ⚙️ **Built with the latest tech**: StreamMaster uses cutting-edge React and C# core technologies for a fast, reliable experience across platforms.
 
-- **Built with the latest React and C# core:** StreamMaster is built with the latest React and C# core technologies, ensuring a fast and reliable streaming experience across a multitude of operating systems and platforms.
+- 🚀 **Robust proxying**: Enables robust logging, seamless transitions, and in-RAM handling for high reliability.
 
-- **Robust proxying:** Using the StreamMaster built in proxy enables robust logging and reliability. Additional Streams can be added to each channel, allowing for seamless transition in the event of a channel outage. Everything is done in RAM using the latest memory handling techniques.
+- 👥 **Multiple clients**: StreamMaster supports multiple clients on the same backend connection without starting a new stream.
 
-- **Multiple clients for the same backend connection:** StreamMaster will not start a new backend stream if it is already proxing the same one. Multiple clients can watch the same channel with just one backend active stream.
-
-- **And much more!** With new features and updates being added all the time, StreamMaster is constantly evolving to meet the needs of today's streamers and content creators.
+- 🎉 **And much more!** StreamMaster is constantly evolving with new features and updates.
 
 ---
 
@@ -40,25 +34,31 @@ This wiki is dedicated to providing information and resources for StreamMaster, 
 
 1. Follow the [Installation Guide](Installation)
 2. Import a M3U File [M3U Files](M3UFiles)
-3. From here edit your streams. Any visible stream will show up in the default stream group (HDHR).
+3. Edit your streams. Any visible stream will show up in the default stream group (HDHR).
 
 ---
 
-## Version Tags
-
-| Tag    | Description           |
-| ------ | --------------------- |
-| latest | Latest stable version |
-| x.x.x  | Released versions     |
-
 ## Support
 
-If you need help with StreamMaster, join our discord serve. For new features/bugs got to our [Github Issues](https://github.com/SenexCrenshaw/StreamMaster/issues)
+Need help with **StreamMaster**? Here are a few ways to get assistance:
+
+- Join the conversation on our [Discord server](https://discord.gg/gFz7EtHhG2) 📞
+- Report bugs or request features on our [GitHub Issues](https://github.com/SenexCrenshaw/StreamMaster/issues) 🛠️
 
 ---
 
 ## Community
 
-Join the StreamMaster community and connect with other streamers and content creators on our [Discord server](https://discord.gg/zACbUp6XvW).
+Join the **StreamMaster** community and connect with other streamers and content creators on our [Discord server](https://discord.gg/gFz7EtHhG2).
 
-Hope you enjoy using StreamMaster and find this wiki helpful. Happy streaming!
+We hope you enjoy using **StreamMaster** and find this wiki helpful. Happy streaming! 📺✨
+
+
+## Version Tags
+
+| Tag    | Description           |
+| ------ | --------------------- |
+| `latest` | Latest stable version |
+| `x.x.x`  | Released versions     |
+
+---
