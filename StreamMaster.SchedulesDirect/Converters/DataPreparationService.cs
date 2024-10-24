@@ -122,6 +122,7 @@ namespace StreamMaster.SchedulesDirect.Converters
         private static MxfService? FindOriginalService(VideoStreamConfig videoStreamConfig, List<MxfService> allServices)
         {
             MxfService? origService = allServices.Find(s => s.StationId == videoStreamConfig.EPGId);
+            origService ??= allServices.Find(s => s.StationId.EndsWith("-" + videoStreamConfig.EPGId));
             return origService;
         }
 
