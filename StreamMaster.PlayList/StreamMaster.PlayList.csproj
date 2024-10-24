@@ -7,6 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="System.Text.Json" Version="8.0.5" />
+    <PackageReference Include="X.PagedList" Version="10.5.3" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\StreamMaster.Domain\StreamMaster.Domain.csproj" />
     <ProjectReference Include="..\StreamMaster.SchedulesDirect.Domain\StreamMaster.SchedulesDirect.Domain.csproj" />
   </ItemGroup>

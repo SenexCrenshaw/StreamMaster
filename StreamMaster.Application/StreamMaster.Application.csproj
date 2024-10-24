@@ -72,6 +72,7 @@
     <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.1" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.1" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.1" />
+    <PackageReference Include="X.PagedList" Version="10.5.3" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\StreamMaster.Domain\StreamMaster.Domain.csproj" />

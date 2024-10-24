@@ -62,6 +62,7 @@
     <PackageReference Include="System.Formats.Asn1" Version="8.0.1" />
     <PackageReference Include="System.Runtime.Caching" Version="8.0.1" />
     <PackageReference Include="System.Security.Cryptography.Xml" Version="8.0.2" />
+    <PackageReference Include="X.PagedList" Version="10.5.3" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\StreamMaster.Infrastructure\StreamMaster.Infrastructure.csproj" />

@@ -9,6 +9,9 @@
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="X.PagedList" Version="10.5.3" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\StreamMaster.SchedulesDirect\StreamMaster.SchedulesDirect.csproj" />
   </ItemGroup>
 </Project>

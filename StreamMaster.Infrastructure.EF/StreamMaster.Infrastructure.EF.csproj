@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="X.PagedList" Version="10.5.3" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\StreamMaster.Infrastructure.EF.PGSQL\StreamMaster.Infrastructure.EF.PGSQL.csproj" />
   </ItemGroup>
 

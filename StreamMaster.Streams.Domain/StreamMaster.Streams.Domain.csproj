@@ -19,6 +19,8 @@
 
   <ItemGroup>
     <PackageReference Include="Reinforced.Typings" Version="1.6.3" />
+    <PackageReference Include="System.Text.Json" Version="8.0.5" />
+    <PackageReference Include="X.PagedList" Version="10.5.3" />
   </ItemGroup>
 
   <ItemGroup>

@@ -34,6 +34,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
+    <PackageReference Include="X.PagedList" Version="10.5.3" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\StreamMaster.Application\StreamMaster.Application.csproj" />

@@ -39,6 +39,8 @@
     <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Features" Version="8.0.10" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.2" />
+    <PackageReference Include="System.Text.Json" Version="8.0.5" />
     <PackageReference Include="X.Extensions.PagedList.EF" Version="10.1.2" />
+    <PackageReference Include="X.PagedList" Version="10.5.3" />
   </ItemGroup>
 </Project>

@@ -8,6 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="X.PagedList" Version="10.5.3" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\StreamMaster.API\StreamMaster.API.csproj" />
     <ProjectReference Include="..\StreamMaster.Application\StreamMaster.Application.csproj" />
     <ProjectReference Include="..\StreamMaster.Domain\StreamMaster.Domain.csproj" />
