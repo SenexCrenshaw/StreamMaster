@@ -328,7 +328,7 @@ namespace StreamMaster.Infrastructure.Services
                 AllowAutoRedirect = true,
             })
             {
-                Timeout = TimeSpan.FromSeconds(30)
+                Timeout = TimeSpan.FromSeconds(240)
             };
             _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(settings.CurrentValue.ClientUserAgent);
             _httpClient.DefaultRequestHeaders.ExpectContinue = true;
