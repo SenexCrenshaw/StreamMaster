@@ -13,9 +13,10 @@
     "sourceType": "module",
     "project": "./tsconfig.json"
   },
-  "plugins": ["unused-imports", "html","sort-keys-fix","typescript-sort-keys","react-hooks-addons"],
+  "plugins": ["import","unused-imports", "html","sort-keys-fix","typescript-sort-keys","react-hooks-addons"],
   "ignorePatterns": [ "*.css", "node_modules/", "dist/"],
   "rules": {
+    "import/no-unresolved": ["error", { "caseSensitive": true }],
      "react-hooks-addons/no-unused-deps": "warn",
      "typescript-sort-keys/interface": "off",
     "no-lone-blocks": "off",
