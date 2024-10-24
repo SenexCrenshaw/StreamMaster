@@ -1,7 +1,7 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
 
-namespace StreamMaster.Infrastructure.Authentication;
+namespace StreamMaster.Domain.Crypto;
 
 public static class Hashing
 {

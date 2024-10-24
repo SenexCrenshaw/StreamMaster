@@ -1,4 +1,0 @@
-- job_name: "stream_master"
-  scrape_interval: 10s # Adjust this based on your needs
-  static_configs:
-    - targets: ["SMIP:7095"]
