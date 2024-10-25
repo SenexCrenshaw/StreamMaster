@@ -56,5 +56,22 @@ namespace StreamMaster.API.Controllers
             await dataRefreshService.AuthLogOut();
             return Redirect(settings.CurrentValue.UrlBase + "/");
         }
+
+        [HttpGet("needAuth")]
+        public IActionResult NeedAuth()
+        {
+            if (settings.CurrentValue.AuthenticationMethod == "None")
+            {
+                return Ok(false);
+            }
+            bool a = HttpContext.User?.Identity?.IsAuthenticated == true;
+            if (a == true)
+            {
+                //hey now
+                return Ok(false);
+            }
+
+            return Ok(true);
+        }
     }
 }

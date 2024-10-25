@@ -22,6 +22,7 @@ public class ApiKeyAuthenticationOptions : AuthenticationSchemeOptions
 public class ApiKeyAuthenticationHandler(
     IOptionsMonitor<ApiKeyAuthenticationOptions> options,
     IOptionsMonitor<Setting> settings,
+    IDataRefreshService dataRefreshService,
     ILoggerFactory logger,
     UrlEncoder encoder) : AuthenticationHandler<ApiKeyAuthenticationOptions>(options, logger, encoder)
 {
@@ -81,6 +82,7 @@ public class ApiKeyAuthenticationHandler(
 
         // Both API key and Forms authentication failed
         _logger.LogDebug("No valid API key or cookie found for authentication");
+        //await dataRefreshService.AuthLogOut();
         return AuthenticateResult.Fail("No valid API key or cookie found for authentication");
     }
 
@@ -107,8 +109,9 @@ public class ApiKeyAuthenticationHandler(
         {
             _logger.LogDebug("Authentication failed. Redirecting to login page for {requestPath}", Context.Request.Path);
 
+            dataRefreshService.AuthLogOut();
             // Redirecting to login path
-            Response.Redirect("/login?loginFailed=true");
+            Response.Redirect("/login");
         }
         else
         {
