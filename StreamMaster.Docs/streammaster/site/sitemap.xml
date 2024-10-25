@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
     <url>
         <loc>https://senexcrenshaw.github.io/StreamMaster/</loc>
-        <lastmod>2024-10-22</lastmod>
+        <lastmod>2024-10-25</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://senexcrenshaw.github.io/StreamMaster/"/>
         <xhtml:link rel="alternate" hreflang="da" href="https://senexcrenshaw.github.io/StreamMaster/da/"/>
@@ -16,8 +16,38 @@
         <xhtml:link rel="alternate" hreflang="sv" href="https://senexcrenshaw.github.io/StreamMaster/sv/"/>
     </url>
     <url>
+        <loc>https://senexcrenshaw.github.io/StreamMaster/API/</loc>
+        <lastmod>2024-10-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://senexcrenshaw.github.io/StreamMaster/API/"/>
+        <xhtml:link rel="alternate" hreflang="da" href="https://senexcrenshaw.github.io/StreamMaster/da/API/"/>
+        <xhtml:link rel="alternate" hreflang="de" href="https://senexcrenshaw.github.io/StreamMaster/de/API/"/>
+        <xhtml:link rel="alternate" hreflang="es" href="https://senexcrenshaw.github.io/StreamMaster/es/API/"/>
+        <xhtml:link rel="alternate" hreflang="fi" href="https://senexcrenshaw.github.io/StreamMaster/fi/API/"/>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://senexcrenshaw.github.io/StreamMaster/fr/API/"/>
+        <xhtml:link rel="alternate" hreflang="is" href="https://senexcrenshaw.github.io/StreamMaster/is/API/"/>
+        <xhtml:link rel="alternate" hreflang="nb" href="https://senexcrenshaw.github.io/StreamMaster/nb/API/"/>
+        <xhtml:link rel="alternate" hreflang="pt" href="https://senexcrenshaw.github.io/StreamMaster/pt/API/"/>
+        <xhtml:link rel="alternate" hreflang="sv" href="https://senexcrenshaw.github.io/StreamMaster/sv/API/"/>
+    </url>
+    <url>
+        <loc>https://senexcrenshaw.github.io/StreamMaster/Auth/</loc>
+        <lastmod>2024-10-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://senexcrenshaw.github.io/StreamMaster/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="da" href="https://senexcrenshaw.github.io/StreamMaster/da/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="de" href="https://senexcrenshaw.github.io/StreamMaster/de/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="es" href="https://senexcrenshaw.github.io/StreamMaster/es/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="fi" href="https://senexcrenshaw.github.io/StreamMaster/fi/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://senexcrenshaw.github.io/StreamMaster/fr/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="is" href="https://senexcrenshaw.github.io/StreamMaster/is/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="nb" href="https://senexcrenshaw.github.io/StreamMaster/nb/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="pt" href="https://senexcrenshaw.github.io/StreamMaster/pt/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="sv" href="https://senexcrenshaw.github.io/StreamMaster/sv/Auth/"/>
+    </url>
+    <url>
         <loc>https://senexcrenshaw.github.io/StreamMaster/Contributors/</loc>
-        <lastmod>2024-10-22</lastmod>
+        <lastmod>2024-10-25</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://senexcrenshaw.github.io/StreamMaster/Contributors/"/>
         <xhtml:link rel="alternate" hreflang="da" href="https://senexcrenshaw.github.io/StreamMaster/da/Contributors/"/>
@@ -32,7 +62,7 @@
     </url>
     <url>
         <loc>https://senexcrenshaw.github.io/StreamMaster/Docs/</loc>
-        <lastmod>2024-10-22</lastmod>
+        <lastmod>2024-10-25</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://senexcrenshaw.github.io/StreamMaster/Docs/"/>
         <xhtml:link rel="alternate" hreflang="da" href="https://senexcrenshaw.github.io/StreamMaster/da/Docs/"/>
@@ -47,7 +77,7 @@
     </url>
     <url>
         <loc>https://senexcrenshaw.github.io/StreamMaster/es/</loc>
-        <lastmod>2024-10-22</lastmod>
+        <lastmod>2024-10-25</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="es" href="https://senexcrenshaw.github.io/StreamMaster/es/"/>
         <xhtml:link rel="alternate" hreflang="da" href="https://senexcrenshaw.github.io/StreamMaster/da/"/>
@@ -61,8 +91,38 @@
         <xhtml:link rel="alternate" hreflang="sv" href="https://senexcrenshaw.github.io/StreamMaster/sv/"/>
     </url>
     <url>
+        <loc>https://senexcrenshaw.github.io/StreamMaster/es/API/</loc>
+        <lastmod>2024-10-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="es" href="https://senexcrenshaw.github.io/StreamMaster/es/API/"/>
+        <xhtml:link rel="alternate" hreflang="da" href="https://senexcrenshaw.github.io/StreamMaster/da/API/"/>
+        <xhtml:link rel="alternate" hreflang="de" href="https://senexcrenshaw.github.io/StreamMaster/de/API/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://senexcrenshaw.github.io/StreamMaster/API/"/>
+        <xhtml:link rel="alternate" hreflang="fi" href="https://senexcrenshaw.github.io/StreamMaster/fi/API/"/>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://senexcrenshaw.github.io/StreamMaster/fr/API/"/>
+        <xhtml:link rel="alternate" hreflang="is" href="https://senexcrenshaw.github.io/StreamMaster/is/API/"/>
+        <xhtml:link rel="alternate" hreflang="nb" href="https://senexcrenshaw.github.io/StreamMaster/nb/API/"/>
+        <xhtml:link rel="alternate" hreflang="pt" href="https://senexcrenshaw.github.io/StreamMaster/pt/API/"/>
+        <xhtml:link rel="alternate" hreflang="sv" href="https://senexcrenshaw.github.io/StreamMaster/sv/API/"/>
+    </url>
+    <url>
+        <loc>https://senexcrenshaw.github.io/StreamMaster/es/Auth/</loc>
+        <lastmod>2024-10-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="es" href="https://senexcrenshaw.github.io/StreamMaster/es/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="da" href="https://senexcrenshaw.github.io/StreamMaster/da/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="de" href="https://senexcrenshaw.github.io/StreamMaster/de/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://senexcrenshaw.github.io/StreamMaster/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="fi" href="https://senexcrenshaw.github.io/StreamMaster/fi/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://senexcrenshaw.github.io/StreamMaster/fr/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="is" href="https://senexcrenshaw.github.io/StreamMaster/is/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="nb" href="https://senexcrenshaw.github.io/StreamMaster/nb/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="pt" href="https://senexcrenshaw.github.io/StreamMaster/pt/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="sv" href="https://senexcrenshaw.github.io/StreamMaster/sv/Auth/"/>
+    </url>
+    <url>
         <loc>https://senexcrenshaw.github.io/StreamMaster/es/Contributors/</loc>
-        <lastmod>2024-10-22</lastmod>
+        <lastmod>2024-10-25</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="es" href="https://senexcrenshaw.github.io/StreamMaster/es/Contributors/"/>
         <xhtml:link rel="alternate" hreflang="da" href="https://senexcrenshaw.github.io/StreamMaster/da/Contributors/"/>
@@ -77,7 +137,7 @@
     </url>
     <url>
         <loc>https://senexcrenshaw.github.io/StreamMaster/es/Docs/</loc>
-        <lastmod>2024-10-22</lastmod>
+        <lastmod>2024-10-25</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="es" href="https://senexcrenshaw.github.io/StreamMaster/es/Docs/"/>
         <xhtml:link rel="alternate" hreflang="da" href="https://senexcrenshaw.github.io/StreamMaster/da/Docs/"/>
@@ -92,7 +152,7 @@
     </url>
     <url>
         <loc>https://senexcrenshaw.github.io/StreamMaster/fr/</loc>
-        <lastmod>2024-10-22</lastmod>
+        <lastmod>2024-10-25</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="fr" href="https://senexcrenshaw.github.io/StreamMaster/fr/"/>
         <xhtml:link rel="alternate" hreflang="da" href="https://senexcrenshaw.github.io/StreamMaster/da/"/>
@@ -106,8 +166,38 @@
         <xhtml:link rel="alternate" hreflang="sv" href="https://senexcrenshaw.github.io/StreamMaster/sv/"/>
     </url>
     <url>
+        <loc>https://senexcrenshaw.github.io/StreamMaster/fr/API/</loc>
+        <lastmod>2024-10-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://senexcrenshaw.github.io/StreamMaster/fr/API/"/>
+        <xhtml:link rel="alternate" hreflang="da" href="https://senexcrenshaw.github.io/StreamMaster/da/API/"/>
+        <xhtml:link rel="alternate" hreflang="de" href="https://senexcrenshaw.github.io/StreamMaster/de/API/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://senexcrenshaw.github.io/StreamMaster/API/"/>
+        <xhtml:link rel="alternate" hreflang="es" href="https://senexcrenshaw.github.io/StreamMaster/es/API/"/>
+        <xhtml:link rel="alternate" hreflang="fi" href="https://senexcrenshaw.github.io/StreamMaster/fi/API/"/>
+        <xhtml:link rel="alternate" hreflang="is" href="https://senexcrenshaw.github.io/StreamMaster/is/API/"/>
+        <xhtml:link rel="alternate" hreflang="nb" href="https://senexcrenshaw.github.io/StreamMaster/nb/API/"/>
+        <xhtml:link rel="alternate" hreflang="pt" href="https://senexcrenshaw.github.io/StreamMaster/pt/API/"/>
+        <xhtml:link rel="alternate" hreflang="sv" href="https://senexcrenshaw.github.io/StreamMaster/sv/API/"/>
+    </url>
+    <url>
+        <loc>https://senexcrenshaw.github.io/StreamMaster/fr/Auth/</loc>
+        <lastmod>2024-10-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://senexcrenshaw.github.io/StreamMaster/fr/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="da" href="https://senexcrenshaw.github.io/StreamMaster/da/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="de" href="https://senexcrenshaw.github.io/StreamMaster/de/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://senexcrenshaw.github.io/StreamMaster/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="es" href="https://senexcrenshaw.github.io/StreamMaster/es/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="fi" href="https://senexcrenshaw.github.io/StreamMaster/fi/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="is" href="https://senexcrenshaw.github.io/StreamMaster/is/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="nb" href="https://senexcrenshaw.github.io/StreamMaster/nb/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="pt" href="https://senexcrenshaw.github.io/StreamMaster/pt/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="sv" href="https://senexcrenshaw.github.io/StreamMaster/sv/Auth/"/>
+    </url>
+    <url>
         <loc>https://senexcrenshaw.github.io/StreamMaster/fr/Contributors/</loc>
-        <lastmod>2024-10-22</lastmod>
+        <lastmod>2024-10-25</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="fr" href="https://senexcrenshaw.github.io/StreamMaster/fr/Contributors/"/>
         <xhtml:link rel="alternate" hreflang="da" href="https://senexcrenshaw.github.io/StreamMaster/da/Contributors/"/>
@@ -122,7 +212,7 @@
     </url>
     <url>
         <loc>https://senexcrenshaw.github.io/StreamMaster/fr/Docs/</loc>
-        <lastmod>2024-10-22</lastmod>
+        <lastmod>2024-10-25</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="fr" href="https://senexcrenshaw.github.io/StreamMaster/fr/Docs/"/>
         <xhtml:link rel="alternate" hreflang="da" href="https://senexcrenshaw.github.io/StreamMaster/da/Docs/"/>
@@ -137,7 +227,7 @@
     </url>
     <url>
         <loc>https://senexcrenshaw.github.io/StreamMaster/de/</loc>
-        <lastmod>2024-10-22</lastmod>
+        <lastmod>2024-10-25</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="de" href="https://senexcrenshaw.github.io/StreamMaster/de/"/>
         <xhtml:link rel="alternate" hreflang="da" href="https://senexcrenshaw.github.io/StreamMaster/da/"/>
@@ -152,7 +242,7 @@
     </url>
     <url>
         <loc>https://senexcrenshaw.github.io/StreamMaster/de/Contributors/</loc>
-        <lastmod>2024-10-22</lastmod>
+        <lastmod>2024-10-25</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="de" href="https://senexcrenshaw.github.io/StreamMaster/de/Contributors/"/>
         <xhtml:link rel="alternate" hreflang="da" href="https://senexcrenshaw.github.io/StreamMaster/da/Contributors/"/>
@@ -167,7 +257,7 @@
     </url>
     <url>
         <loc>https://senexcrenshaw.github.io/StreamMaster/de/Docs/</loc>
-        <lastmod>2024-10-22</lastmod>
+        <lastmod>2024-10-25</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="de" href="https://senexcrenshaw.github.io/StreamMaster/de/Docs/"/>
         <xhtml:link rel="alternate" hreflang="da" href="https://senexcrenshaw.github.io/StreamMaster/da/Docs/"/>
@@ -181,8 +271,38 @@
         <xhtml:link rel="alternate" hreflang="sv" href="https://senexcrenshaw.github.io/StreamMaster/sv/Docs/"/>
     </url>
     <url>
+        <loc>https://senexcrenshaw.github.io/StreamMaster/de/API/</loc>
+        <lastmod>2024-10-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="de" href="https://senexcrenshaw.github.io/StreamMaster/de/API/"/>
+        <xhtml:link rel="alternate" hreflang="da" href="https://senexcrenshaw.github.io/StreamMaster/da/API/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://senexcrenshaw.github.io/StreamMaster/API/"/>
+        <xhtml:link rel="alternate" hreflang="es" href="https://senexcrenshaw.github.io/StreamMaster/es/API/"/>
+        <xhtml:link rel="alternate" hreflang="fi" href="https://senexcrenshaw.github.io/StreamMaster/fi/API/"/>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://senexcrenshaw.github.io/StreamMaster/fr/API/"/>
+        <xhtml:link rel="alternate" hreflang="is" href="https://senexcrenshaw.github.io/StreamMaster/is/API/"/>
+        <xhtml:link rel="alternate" hreflang="nb" href="https://senexcrenshaw.github.io/StreamMaster/nb/API/"/>
+        <xhtml:link rel="alternate" hreflang="pt" href="https://senexcrenshaw.github.io/StreamMaster/pt/API/"/>
+        <xhtml:link rel="alternate" hreflang="sv" href="https://senexcrenshaw.github.io/StreamMaster/sv/API/"/>
+    </url>
+    <url>
+        <loc>https://senexcrenshaw.github.io/StreamMaster/de/Auth/</loc>
+        <lastmod>2024-10-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="de" href="https://senexcrenshaw.github.io/StreamMaster/de/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="da" href="https://senexcrenshaw.github.io/StreamMaster/da/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://senexcrenshaw.github.io/StreamMaster/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="es" href="https://senexcrenshaw.github.io/StreamMaster/es/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="fi" href="https://senexcrenshaw.github.io/StreamMaster/fi/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://senexcrenshaw.github.io/StreamMaster/fr/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="is" href="https://senexcrenshaw.github.io/StreamMaster/is/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="nb" href="https://senexcrenshaw.github.io/StreamMaster/nb/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="pt" href="https://senexcrenshaw.github.io/StreamMaster/pt/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="sv" href="https://senexcrenshaw.github.io/StreamMaster/sv/Auth/"/>
+    </url>
+    <url>
         <loc>https://senexcrenshaw.github.io/StreamMaster/pt/</loc>
-        <lastmod>2024-10-22</lastmod>
+        <lastmod>2024-10-25</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="pt" href="https://senexcrenshaw.github.io/StreamMaster/pt/"/>
         <xhtml:link rel="alternate" hreflang="da" href="https://senexcrenshaw.github.io/StreamMaster/da/"/>
@@ -196,8 +316,38 @@
         <xhtml:link rel="alternate" hreflang="sv" href="https://senexcrenshaw.github.io/StreamMaster/sv/"/>
     </url>
     <url>
+        <loc>https://senexcrenshaw.github.io/StreamMaster/pt/API/</loc>
+        <lastmod>2024-10-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="pt" href="https://senexcrenshaw.github.io/StreamMaster/pt/API/"/>
+        <xhtml:link rel="alternate" hreflang="da" href="https://senexcrenshaw.github.io/StreamMaster/da/API/"/>
+        <xhtml:link rel="alternate" hreflang="de" href="https://senexcrenshaw.github.io/StreamMaster/de/API/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://senexcrenshaw.github.io/StreamMaster/API/"/>
+        <xhtml:link rel="alternate" hreflang="es" href="https://senexcrenshaw.github.io/StreamMaster/es/API/"/>
+        <xhtml:link rel="alternate" hreflang="fi" href="https://senexcrenshaw.github.io/StreamMaster/fi/API/"/>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://senexcrenshaw.github.io/StreamMaster/fr/API/"/>
+        <xhtml:link rel="alternate" hreflang="is" href="https://senexcrenshaw.github.io/StreamMaster/is/API/"/>
+        <xhtml:link rel="alternate" hreflang="nb" href="https://senexcrenshaw.github.io/StreamMaster/nb/API/"/>
+        <xhtml:link rel="alternate" hreflang="sv" href="https://senexcrenshaw.github.io/StreamMaster/sv/API/"/>
+    </url>
+    <url>
+        <loc>https://senexcrenshaw.github.io/StreamMaster/pt/Auth/</loc>
+        <lastmod>2024-10-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="pt" href="https://senexcrenshaw.github.io/StreamMaster/pt/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="da" href="https://senexcrenshaw.github.io/StreamMaster/da/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="de" href="https://senexcrenshaw.github.io/StreamMaster/de/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://senexcrenshaw.github.io/StreamMaster/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="es" href="https://senexcrenshaw.github.io/StreamMaster/es/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="fi" href="https://senexcrenshaw.github.io/StreamMaster/fi/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://senexcrenshaw.github.io/StreamMaster/fr/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="is" href="https://senexcrenshaw.github.io/StreamMaster/is/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="nb" href="https://senexcrenshaw.github.io/StreamMaster/nb/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="sv" href="https://senexcrenshaw.github.io/StreamMaster/sv/Auth/"/>
+    </url>
+    <url>
         <loc>https://senexcrenshaw.github.io/StreamMaster/pt/Contributors/</loc>
-        <lastmod>2024-10-22</lastmod>
+        <lastmod>2024-10-25</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="pt" href="https://senexcrenshaw.github.io/StreamMaster/pt/Contributors/"/>
         <xhtml:link rel="alternate" hreflang="da" href="https://senexcrenshaw.github.io/StreamMaster/da/Contributors/"/>
@@ -212,7 +362,7 @@
     </url>
     <url>
         <loc>https://senexcrenshaw.github.io/StreamMaster/pt/Docs/</loc>
-        <lastmod>2024-10-22</lastmod>
+        <lastmod>2024-10-25</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="pt" href="https://senexcrenshaw.github.io/StreamMaster/pt/Docs/"/>
         <xhtml:link rel="alternate" hreflang="da" href="https://senexcrenshaw.github.io/StreamMaster/da/Docs/"/>
@@ -227,7 +377,7 @@
     </url>
     <url>
         <loc>https://senexcrenshaw.github.io/StreamMaster/da/</loc>
-        <lastmod>2024-10-22</lastmod>
+        <lastmod>2024-10-25</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="da" href="https://senexcrenshaw.github.io/StreamMaster/da/"/>
         <xhtml:link rel="alternate" hreflang="de" href="https://senexcrenshaw.github.io/StreamMaster/de/"/>
@@ -242,7 +392,7 @@
     </url>
     <url>
         <loc>https://senexcrenshaw.github.io/StreamMaster/da/Contributors/</loc>
-        <lastmod>2024-10-22</lastmod>
+        <lastmod>2024-10-25</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="da" href="https://senexcrenshaw.github.io/StreamMaster/da/Contributors/"/>
         <xhtml:link rel="alternate" hreflang="de" href="https://senexcrenshaw.github.io/StreamMaster/de/Contributors/"/>
@@ -257,7 +407,7 @@
     </url>
     <url>
         <loc>https://senexcrenshaw.github.io/StreamMaster/da/Docs/</loc>
-        <lastmod>2024-10-22</lastmod>
+        <lastmod>2024-10-25</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="da" href="https://senexcrenshaw.github.io/StreamMaster/da/Docs/"/>
         <xhtml:link rel="alternate" hreflang="de" href="https://senexcrenshaw.github.io/StreamMaster/de/Docs/"/>
@@ -271,8 +421,38 @@
         <xhtml:link rel="alternate" hreflang="sv" href="https://senexcrenshaw.github.io/StreamMaster/sv/Docs/"/>
     </url>
     <url>
+        <loc>https://senexcrenshaw.github.io/StreamMaster/da/API/</loc>
+        <lastmod>2024-10-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="da" href="https://senexcrenshaw.github.io/StreamMaster/da/API/"/>
+        <xhtml:link rel="alternate" hreflang="de" href="https://senexcrenshaw.github.io/StreamMaster/de/API/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://senexcrenshaw.github.io/StreamMaster/API/"/>
+        <xhtml:link rel="alternate" hreflang="es" href="https://senexcrenshaw.github.io/StreamMaster/es/API/"/>
+        <xhtml:link rel="alternate" hreflang="fi" href="https://senexcrenshaw.github.io/StreamMaster/fi/API/"/>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://senexcrenshaw.github.io/StreamMaster/fr/API/"/>
+        <xhtml:link rel="alternate" hreflang="is" href="https://senexcrenshaw.github.io/StreamMaster/is/API/"/>
+        <xhtml:link rel="alternate" hreflang="nb" href="https://senexcrenshaw.github.io/StreamMaster/nb/API/"/>
+        <xhtml:link rel="alternate" hreflang="pt" href="https://senexcrenshaw.github.io/StreamMaster/pt/API/"/>
+        <xhtml:link rel="alternate" hreflang="sv" href="https://senexcrenshaw.github.io/StreamMaster/sv/API/"/>
+    </url>
+    <url>
+        <loc>https://senexcrenshaw.github.io/StreamMaster/da/Auth/</loc>
+        <lastmod>2024-10-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="da" href="https://senexcrenshaw.github.io/StreamMaster/da/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="de" href="https://senexcrenshaw.github.io/StreamMaster/de/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://senexcrenshaw.github.io/StreamMaster/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="es" href="https://senexcrenshaw.github.io/StreamMaster/es/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="fi" href="https://senexcrenshaw.github.io/StreamMaster/fi/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://senexcrenshaw.github.io/StreamMaster/fr/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="is" href="https://senexcrenshaw.github.io/StreamMaster/is/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="nb" href="https://senexcrenshaw.github.io/StreamMaster/nb/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="pt" href="https://senexcrenshaw.github.io/StreamMaster/pt/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="sv" href="https://senexcrenshaw.github.io/StreamMaster/sv/Auth/"/>
+    </url>
+    <url>
         <loc>https://senexcrenshaw.github.io/StreamMaster/sv/</loc>
-        <lastmod>2024-10-22</lastmod>
+        <lastmod>2024-10-25</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="sv" href="https://senexcrenshaw.github.io/StreamMaster/sv/"/>
         <xhtml:link rel="alternate" hreflang="da" href="https://senexcrenshaw.github.io/StreamMaster/da/"/>
@@ -286,8 +466,38 @@
         <xhtml:link rel="alternate" hreflang="pt" href="https://senexcrenshaw.github.io/StreamMaster/pt/"/>
     </url>
     <url>
+        <loc>https://senexcrenshaw.github.io/StreamMaster/sv/API/</loc>
+        <lastmod>2024-10-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="sv" href="https://senexcrenshaw.github.io/StreamMaster/sv/API/"/>
+        <xhtml:link rel="alternate" hreflang="da" href="https://senexcrenshaw.github.io/StreamMaster/da/API/"/>
+        <xhtml:link rel="alternate" hreflang="de" href="https://senexcrenshaw.github.io/StreamMaster/de/API/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://senexcrenshaw.github.io/StreamMaster/API/"/>
+        <xhtml:link rel="alternate" hreflang="es" href="https://senexcrenshaw.github.io/StreamMaster/es/API/"/>
+        <xhtml:link rel="alternate" hreflang="fi" href="https://senexcrenshaw.github.io/StreamMaster/fi/API/"/>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://senexcrenshaw.github.io/StreamMaster/fr/API/"/>
+        <xhtml:link rel="alternate" hreflang="is" href="https://senexcrenshaw.github.io/StreamMaster/is/API/"/>
+        <xhtml:link rel="alternate" hreflang="nb" href="https://senexcrenshaw.github.io/StreamMaster/nb/API/"/>
+        <xhtml:link rel="alternate" hreflang="pt" href="https://senexcrenshaw.github.io/StreamMaster/pt/API/"/>
+    </url>
+    <url>
+        <loc>https://senexcrenshaw.github.io/StreamMaster/sv/Auth/</loc>
+        <lastmod>2024-10-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="sv" href="https://senexcrenshaw.github.io/StreamMaster/sv/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="da" href="https://senexcrenshaw.github.io/StreamMaster/da/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="de" href="https://senexcrenshaw.github.io/StreamMaster/de/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://senexcrenshaw.github.io/StreamMaster/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="es" href="https://senexcrenshaw.github.io/StreamMaster/es/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="fi" href="https://senexcrenshaw.github.io/StreamMaster/fi/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://senexcrenshaw.github.io/StreamMaster/fr/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="is" href="https://senexcrenshaw.github.io/StreamMaster/is/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="nb" href="https://senexcrenshaw.github.io/StreamMaster/nb/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="pt" href="https://senexcrenshaw.github.io/StreamMaster/pt/Auth/"/>
+    </url>
+    <url>
         <loc>https://senexcrenshaw.github.io/StreamMaster/sv/Contributors/</loc>
-        <lastmod>2024-10-22</lastmod>
+        <lastmod>2024-10-25</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="sv" href="https://senexcrenshaw.github.io/StreamMaster/sv/Contributors/"/>
         <xhtml:link rel="alternate" hreflang="da" href="https://senexcrenshaw.github.io/StreamMaster/da/Contributors/"/>
@@ -302,7 +512,7 @@
     </url>
     <url>
         <loc>https://senexcrenshaw.github.io/StreamMaster/sv/Docs/</loc>
-        <lastmod>2024-10-22</lastmod>
+        <lastmod>2024-10-25</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="sv" href="https://senexcrenshaw.github.io/StreamMaster/sv/Docs/"/>
         <xhtml:link rel="alternate" hreflang="da" href="https://senexcrenshaw.github.io/StreamMaster/da/Docs/"/>
@@ -317,7 +527,7 @@
     </url>
     <url>
         <loc>https://senexcrenshaw.github.io/StreamMaster/nb/</loc>
-        <lastmod>2024-10-22</lastmod>
+        <lastmod>2024-10-25</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="nb" href="https://senexcrenshaw.github.io/StreamMaster/nb/"/>
         <xhtml:link rel="alternate" hreflang="da" href="https://senexcrenshaw.github.io/StreamMaster/da/"/>
@@ -331,8 +541,38 @@
         <xhtml:link rel="alternate" hreflang="sv" href="https://senexcrenshaw.github.io/StreamMaster/sv/"/>
     </url>
     <url>
+        <loc>https://senexcrenshaw.github.io/StreamMaster/nb/API/</loc>
+        <lastmod>2024-10-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="nb" href="https://senexcrenshaw.github.io/StreamMaster/nb/API/"/>
+        <xhtml:link rel="alternate" hreflang="da" href="https://senexcrenshaw.github.io/StreamMaster/da/API/"/>
+        <xhtml:link rel="alternate" hreflang="de" href="https://senexcrenshaw.github.io/StreamMaster/de/API/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://senexcrenshaw.github.io/StreamMaster/API/"/>
+        <xhtml:link rel="alternate" hreflang="es" href="https://senexcrenshaw.github.io/StreamMaster/es/API/"/>
+        <xhtml:link rel="alternate" hreflang="fi" href="https://senexcrenshaw.github.io/StreamMaster/fi/API/"/>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://senexcrenshaw.github.io/StreamMaster/fr/API/"/>
+        <xhtml:link rel="alternate" hreflang="is" href="https://senexcrenshaw.github.io/StreamMaster/is/API/"/>
+        <xhtml:link rel="alternate" hreflang="pt" href="https://senexcrenshaw.github.io/StreamMaster/pt/API/"/>
+        <xhtml:link rel="alternate" hreflang="sv" href="https://senexcrenshaw.github.io/StreamMaster/sv/API/"/>
+    </url>
+    <url>
+        <loc>https://senexcrenshaw.github.io/StreamMaster/nb/Auth/</loc>
+        <lastmod>2024-10-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="nb" href="https://senexcrenshaw.github.io/StreamMaster/nb/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="da" href="https://senexcrenshaw.github.io/StreamMaster/da/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="de" href="https://senexcrenshaw.github.io/StreamMaster/de/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://senexcrenshaw.github.io/StreamMaster/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="es" href="https://senexcrenshaw.github.io/StreamMaster/es/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="fi" href="https://senexcrenshaw.github.io/StreamMaster/fi/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://senexcrenshaw.github.io/StreamMaster/fr/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="is" href="https://senexcrenshaw.github.io/StreamMaster/is/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="pt" href="https://senexcrenshaw.github.io/StreamMaster/pt/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="sv" href="https://senexcrenshaw.github.io/StreamMaster/sv/Auth/"/>
+    </url>
+    <url>
         <loc>https://senexcrenshaw.github.io/StreamMaster/nb/Contributors/</loc>
-        <lastmod>2024-10-22</lastmod>
+        <lastmod>2024-10-25</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="nb" href="https://senexcrenshaw.github.io/StreamMaster/nb/Contributors/"/>
         <xhtml:link rel="alternate" hreflang="da" href="https://senexcrenshaw.github.io/StreamMaster/da/Contributors/"/>
@@ -347,7 +587,7 @@
     </url>
     <url>
         <loc>https://senexcrenshaw.github.io/StreamMaster/nb/Docs/</loc>
-        <lastmod>2024-10-22</lastmod>
+        <lastmod>2024-10-25</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="nb" href="https://senexcrenshaw.github.io/StreamMaster/nb/Docs/"/>
         <xhtml:link rel="alternate" hreflang="da" href="https://senexcrenshaw.github.io/StreamMaster/da/Docs/"/>
@@ -362,7 +602,7 @@
     </url>
     <url>
         <loc>https://senexcrenshaw.github.io/StreamMaster/fi/</loc>
-        <lastmod>2024-10-22</lastmod>
+        <lastmod>2024-10-25</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="fi" href="https://senexcrenshaw.github.io/StreamMaster/fi/"/>
         <xhtml:link rel="alternate" hreflang="da" href="https://senexcrenshaw.github.io/StreamMaster/da/"/>
@@ -376,8 +616,38 @@
         <xhtml:link rel="alternate" hreflang="sv" href="https://senexcrenshaw.github.io/StreamMaster/sv/"/>
     </url>
     <url>
+        <loc>https://senexcrenshaw.github.io/StreamMaster/fi/API/</loc>
+        <lastmod>2024-10-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="fi" href="https://senexcrenshaw.github.io/StreamMaster/fi/API/"/>
+        <xhtml:link rel="alternate" hreflang="da" href="https://senexcrenshaw.github.io/StreamMaster/da/API/"/>
+        <xhtml:link rel="alternate" hreflang="de" href="https://senexcrenshaw.github.io/StreamMaster/de/API/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://senexcrenshaw.github.io/StreamMaster/API/"/>
+        <xhtml:link rel="alternate" hreflang="es" href="https://senexcrenshaw.github.io/StreamMaster/es/API/"/>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://senexcrenshaw.github.io/StreamMaster/fr/API/"/>
+        <xhtml:link rel="alternate" hreflang="is" href="https://senexcrenshaw.github.io/StreamMaster/is/API/"/>
+        <xhtml:link rel="alternate" hreflang="nb" href="https://senexcrenshaw.github.io/StreamMaster/nb/API/"/>
+        <xhtml:link rel="alternate" hreflang="pt" href="https://senexcrenshaw.github.io/StreamMaster/pt/API/"/>
+        <xhtml:link rel="alternate" hreflang="sv" href="https://senexcrenshaw.github.io/StreamMaster/sv/API/"/>
+    </url>
+    <url>
+        <loc>https://senexcrenshaw.github.io/StreamMaster/fi/Auth/</loc>
+        <lastmod>2024-10-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="fi" href="https://senexcrenshaw.github.io/StreamMaster/fi/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="da" href="https://senexcrenshaw.github.io/StreamMaster/da/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="de" href="https://senexcrenshaw.github.io/StreamMaster/de/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://senexcrenshaw.github.io/StreamMaster/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="es" href="https://senexcrenshaw.github.io/StreamMaster/es/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://senexcrenshaw.github.io/StreamMaster/fr/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="is" href="https://senexcrenshaw.github.io/StreamMaster/is/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="nb" href="https://senexcrenshaw.github.io/StreamMaster/nb/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="pt" href="https://senexcrenshaw.github.io/StreamMaster/pt/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="sv" href="https://senexcrenshaw.github.io/StreamMaster/sv/Auth/"/>
+    </url>
+    <url>
         <loc>https://senexcrenshaw.github.io/StreamMaster/fi/Contributors/</loc>
-        <lastmod>2024-10-22</lastmod>
+        <lastmod>2024-10-25</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="fi" href="https://senexcrenshaw.github.io/StreamMaster/fi/Contributors/"/>
         <xhtml:link rel="alternate" hreflang="da" href="https://senexcrenshaw.github.io/StreamMaster/da/Contributors/"/>
@@ -392,7 +662,7 @@
     </url>
     <url>
         <loc>https://senexcrenshaw.github.io/StreamMaster/fi/Docs/</loc>
-        <lastmod>2024-10-22</lastmod>
+        <lastmod>2024-10-25</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="fi" href="https://senexcrenshaw.github.io/StreamMaster/fi/Docs/"/>
         <xhtml:link rel="alternate" hreflang="da" href="https://senexcrenshaw.github.io/StreamMaster/da/Docs/"/>
@@ -407,7 +677,7 @@
     </url>
     <url>
         <loc>https://senexcrenshaw.github.io/StreamMaster/is/</loc>
-        <lastmod>2024-10-22</lastmod>
+        <lastmod>2024-10-25</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="is" href="https://senexcrenshaw.github.io/StreamMaster/is/"/>
         <xhtml:link rel="alternate" hreflang="da" href="https://senexcrenshaw.github.io/StreamMaster/da/"/>
@@ -421,8 +691,38 @@
         <xhtml:link rel="alternate" hreflang="sv" href="https://senexcrenshaw.github.io/StreamMaster/sv/"/>
     </url>
     <url>
+        <loc>https://senexcrenshaw.github.io/StreamMaster/is/API/</loc>
+        <lastmod>2024-10-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="is" href="https://senexcrenshaw.github.io/StreamMaster/is/API/"/>
+        <xhtml:link rel="alternate" hreflang="da" href="https://senexcrenshaw.github.io/StreamMaster/da/API/"/>
+        <xhtml:link rel="alternate" hreflang="de" href="https://senexcrenshaw.github.io/StreamMaster/de/API/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://senexcrenshaw.github.io/StreamMaster/API/"/>
+        <xhtml:link rel="alternate" hreflang="es" href="https://senexcrenshaw.github.io/StreamMaster/es/API/"/>
+        <xhtml:link rel="alternate" hreflang="fi" href="https://senexcrenshaw.github.io/StreamMaster/fi/API/"/>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://senexcrenshaw.github.io/StreamMaster/fr/API/"/>
+        <xhtml:link rel="alternate" hreflang="nb" href="https://senexcrenshaw.github.io/StreamMaster/nb/API/"/>
+        <xhtml:link rel="alternate" hreflang="pt" href="https://senexcrenshaw.github.io/StreamMaster/pt/API/"/>
+        <xhtml:link rel="alternate" hreflang="sv" href="https://senexcrenshaw.github.io/StreamMaster/sv/API/"/>
+    </url>
+    <url>
+        <loc>https://senexcrenshaw.github.io/StreamMaster/is/Auth/</loc>
+        <lastmod>2024-10-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="is" href="https://senexcrenshaw.github.io/StreamMaster/is/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="da" href="https://senexcrenshaw.github.io/StreamMaster/da/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="de" href="https://senexcrenshaw.github.io/StreamMaster/de/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://senexcrenshaw.github.io/StreamMaster/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="es" href="https://senexcrenshaw.github.io/StreamMaster/es/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="fi" href="https://senexcrenshaw.github.io/StreamMaster/fi/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://senexcrenshaw.github.io/StreamMaster/fr/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="nb" href="https://senexcrenshaw.github.io/StreamMaster/nb/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="pt" href="https://senexcrenshaw.github.io/StreamMaster/pt/Auth/"/>
+        <xhtml:link rel="alternate" hreflang="sv" href="https://senexcrenshaw.github.io/StreamMaster/sv/Auth/"/>
+    </url>
+    <url>
         <loc>https://senexcrenshaw.github.io/StreamMaster/is/Contributors/</loc>
-        <lastmod>2024-10-22</lastmod>
+        <lastmod>2024-10-25</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="is" href="https://senexcrenshaw.github.io/StreamMaster/is/Contributors/"/>
         <xhtml:link rel="alternate" hreflang="da" href="https://senexcrenshaw.github.io/StreamMaster/da/Contributors/"/>
@@ -437,7 +737,7 @@
     </url>
     <url>
         <loc>https://senexcrenshaw.github.io/StreamMaster/is/Docs/</loc>
-        <lastmod>2024-10-22</lastmod>
+        <lastmod>2024-10-25</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="is" href="https://senexcrenshaw.github.io/StreamMaster/is/Docs/"/>
         <xhtml:link rel="alternate" hreflang="da" href="https://senexcrenshaw.github.io/StreamMaster/da/Docs/"/>

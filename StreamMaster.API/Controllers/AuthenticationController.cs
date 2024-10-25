@@ -14,9 +14,8 @@ namespace StreamMaster.API.Controllers
     [ApiExplorerSettings(IgnoreApi = true)]
     [AllowAnonymous]
     [ApiController]
-    public class AuthenticationController(IAuthenticationService authService, IOptionsMonitor<Setting> intSettings) : Controller
+    public class AuthenticationController(IAuthenticationService authService, IDataRefreshService dataRefreshService, IOptionsMonitor<Setting> settings) : Controller
     {
-        private readonly Setting settings = intSettings.CurrentValue;
 
         [AllowAnonymous]
         [HttpPost("login")]
@@ -42,8 +41,11 @@ namespace StreamMaster.API.Controllers
             };
 
             await HttpContext.SignInAsync(nameof(AuthenticationType.Forms), new ClaimsPrincipal(new ClaimsIdentity(claims, "Cookies", "user", "identifier")), authProperties);
-
-            return Redirect(settings.UrlBase + ReturnUrl);
+            if (string.IsNullOrEmpty(ReturnUrl))
+            {
+                ReturnUrl = "/";
+            }
+            return Redirect(settings.CurrentValue.UrlBase + ReturnUrl);
         }
 
         [HttpGet("logout")]
@@ -51,7 +53,8 @@ namespace StreamMaster.API.Controllers
         {
             authService.Logout(HttpContext);
             await HttpContext.SignOutAsync(nameof(AuthenticationType.Forms));
-            return Redirect(settings.UrlBase + "/");
+            await dataRefreshService.AuthLogOut();
+            return Redirect(settings.CurrentValue.UrlBase + "/");
         }
     }
 }

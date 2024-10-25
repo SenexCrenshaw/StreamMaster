@@ -84,17 +84,36 @@ public class ApiKeyAuthenticationHandler(
         return AuthenticateResult.Fail("No valid API key or cookie found for authentication");
     }
 
+    //protected override Task HandleChallengeAsync(AuthenticationProperties properties)
+    //{
+    //    // If authentication fails, redirect to the login page
+    //    if (Context.Request.Path.StartsWithSegments("/streammasterhub"))
+    //    {
+    //        _logger.LogDebug("SignalR authentication failed. Redirecting to login.");
+    //        Response.Redirect("/login");
+    //    }
+    //    else
+    //    {
+    //        Response.StatusCode = 401; // Set unauthorized status for non-SignalR requests
+    //    }
+
+    //    return Task.CompletedTask;
+    //}
+
     protected override Task HandleChallengeAsync(AuthenticationProperties properties)
     {
         // If authentication fails, redirect to the login page
-        if (Context.Request.Path.StartsWithSegments("/streammasterhub"))
+        if (!Context.User.Identity.IsAuthenticated)
         {
-            _logger.LogDebug("SignalR authentication failed. Redirecting to login.");
+            _logger.LogDebug("Authentication failed. Redirecting to login page for {requestPath}", Context.Request.Path);
+
+            // Redirecting to login path
             Response.Redirect("/login?loginFailed=true");
         }
         else
         {
-            Response.StatusCode = 401; // Set unauthorized status for non-SignalR requests
+            // If already authenticated, but insufficient permissions (403 forbidden)
+            Response.StatusCode = 403;
         }
 
         return Task.CompletedTask;
