@@ -211,15 +211,27 @@ public class LineupService : ILineupService
 
     private async Task SetLogoAsync(MxfService mxfService, string logoPath, StationImage stationLogo, CancellationToken cancellationToken)
     {
-        await using FileStream stream = File.OpenRead(logoPath);
-        using Image image = await Image.LoadAsync(stream, cancellationToken);
 
-        mxfService.extras.TryAdd("logo", new StationImage
+        if (File.Exists(logoPath))
         {
-            Url = stationLogo.Url,
-            Height = image.Height,
-            Width = image.Width
-        });
+            await using FileStream stream = File.OpenRead(logoPath);
+            using Image image = await Image.LoadAsync(stream, cancellationToken);
+
+            mxfService.extras.TryAdd("logo", new StationImage
+            {
+                Url = stationLogo.Url,
+                Height = image.Height,
+                Width = image.Width
+            });
+        }
+        else
+        {
+            mxfService.extras.TryAdd("logo", new StationImage
+            {
+                Url = stationLogo.Url
+            });
+        }
+
 
         mxfService.mxfGuideImage = schedulesDirectDataService.SchedulesDirectData().FindOrCreateGuideImage(stationLogo.Url);
     }
