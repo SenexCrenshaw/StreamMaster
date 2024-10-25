@@ -159,13 +159,14 @@ public partial class XmlTvToXMLTV(ILogger<XmlTvToXMLTV> logger, ISchedulesDirect
             SeriesEpisodeInfo info = GetSeriesEpisodeInfo(program);
 
             string serviceName = $"{epgNumber}-{program.Channel}";
+
             MxfService mxfService = schedulesDirectData.FindOrCreateService(serviceName);
             MxfProgram mxfProgram = schedulesDirectData.FindOrCreateProgram(DetermineProgramUid(program));
 
             if (mxfProgram.Title == null)
             {
                 mxfProgram.EPGNumber = mxfService.EPGNumber;
-                if (program.Categories != null)
+                if (program.Categories != null && program.Categories.Count > 0)
                 {
                     mxfProgram.IsAction = program.Categories.Any(arg => arg?.Text != null && arg.Text.Contains("action", StringComparison.OrdinalIgnoreCase)) ||
                                           program.Categories.Any(arg => arg?.Text != null && arg.Text.Contains("adventure", StringComparison.OrdinalIgnoreCase));

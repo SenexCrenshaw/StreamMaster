@@ -14,9 +14,9 @@ $global:tags
 function Main {
     Set-EnvironmentVariables
 
-    if (  $SkipMainBuild ) {
-        $Prod = $false
-    }
+    # if ( $SkipMainBuild ) {
+    #     $Prod = $false
+    # }
 
     if (-not $SkipRelease -and -not $PrintCommands) {
 

@@ -12,7 +12,7 @@ public class BaseSettings
     public string AdminPassword { get; set; } = string.Empty;
     public string AdminUserName { get; set; } = string.Empty;
     public string AuthenticationMethod { get; set; }
-    public bool AutoSetEPG { get; set; } = true;
+    public bool AutoSetEPG { get; set; } = false;
     public bool BackupEnabled { get; set; } = true;
     public int BackupInterval { get; set; } = 4;
     public int BackupVersionsToKeep { get; set; } = 18;
