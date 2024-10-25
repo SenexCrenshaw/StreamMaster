@@ -1202,13 +1202,6 @@ export interface SetStationsRequest
 {
 	Requests: StationRequest[];
 }
-export interface RingAuthenticate
-{
-}
-export interface RingAuthenticateMFA
-{
-	MFACode: string;
-}
 export interface GetCommandProfilesRequest
 {
 }
