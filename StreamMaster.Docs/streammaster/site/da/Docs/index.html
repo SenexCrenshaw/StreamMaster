@@ -1,892 +1,960 @@
-
 <!doctype html>
 <html lang="da" class="no-js">
-  <head>
-    
-      <meta charset="utf-8">
-      <meta name="viewport" content="width=device-width,initial-scale=1">
-      
-      
-      
-        <link rel="canonical" href="https://senexcrenshaw.github.io/StreamMaster/da/Docs/">
-      
-      
-        <link rel="prev" href="../Contributors/">
-      
-      
-        <link rel="next" href="../API/">
-      
-      
-      <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.42">
-    
-    
-      
-        <title>📘 Streammaster -dokumentation - Stream Master</title>
-      
-    
-    
-      <link rel="stylesheet" href="../../assets/stylesheets/main.0253249f.min.css">
-      
-        
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
-      
-      
+
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
 
 
-    
-    
-      
-    
-    
-      
-        
-        
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
-        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
-      
-    
-    
-    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
-    
-      
 
-    
-    
-    
-  </head>
-  
-  
-    
-    
-      
-    
-    
-    
-    
-    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="deep-orange" data-md-color-accent="indigo">
-  
-    
-    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
-    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
-    <label class="md-overlay" for="__drawer"></label>
-    <div data-md-component="skip">
-      
-        
-        <a href="#streammaster-dokumentation" class="md-skip">
-          Gå til indholdet
-        </a>
-      
-    </div>
-    <div data-md-component="announce">
-      
-    </div>
-    
-    
-      
+  <link rel="canonical" href="https://senexcrenshaw.github.io/StreamMaster/da/Docs/">
 
-  
 
-<header class="md-header md-header--shadow" data-md-component="header">
-  <nav class="md-header__inner md-grid" aria-label="Sidehoved">
-    <a href="../" title="Stream Master" class="md-header__button md-logo" aria-label="Stream Master" data-md-component="logo">
-      
-  <img src="../../assets/sm_logo.png" alt="logo">
+  <link rel="prev" href="../Contributors/">
 
+
+  <link rel="next" href="../API/">
+
+
+  <link rel="icon" href="../../assets/images/favicon.png">
+  <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.42">
+
+
+
+  <title>📘 Streammaster -dokumentation - Stream Master</title>
+
+
+
+  <link rel="stylesheet" href="../../assets/stylesheets/main.0253249f.min.css">
+
+
+  <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+
+
+
+
+
+
+
+
+
+
+
+
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+  <style>
+    :root {
+      --md-text-font: "Roboto";
+      --md-code-font: "Roboto Mono"
+    }
+  </style>
+
+
+
+  <script>__md_scope = new URL("../..", location), __md_hash = e => [...e].reduce(((e, _) => (e << 5) - e + _.charCodeAt(0)), 0), __md_get = (e, _ = localStorage, t = __md_scope) => JSON.parse(_.getItem(t.pathname + "." + e)), __md_set = (e, _, t = localStorage, a = __md_scope) => { try { t.setItem(a.pathname + "." + e, JSON.stringify(_)) } catch (e) { } }</script>
+
+
+
+
+
+
+</head>
+
+
+
+
+
+
+
+
+
+<body dir="ltr" data-md-color-scheme="default" data-md-color-primary="deep-orange" data-md-color-accent="indigo">
+
+
+  <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+  <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+  <label class="md-overlay" for="__drawer"></label>
+  <div data-md-component="skip">
+
+
+    <a href="#streammaster-dokumentation" class="md-skip">
+      Gå til indholdet
     </a>
-    <label class="md-header__button md-icon" for="__drawer">
-      
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
-    </label>
-    <div class="md-header__title" data-md-component="header-title">
-      <div class="md-header__ellipsis">
-        <div class="md-header__topic">
-          <span class="md-ellipsis">
-            Stream Master
-          </span>
-        </div>
-        <div class="md-header__topic" data-md-component="header-topic">
-          <span class="md-ellipsis">
-            
+
+  </div>
+  <div data-md-component="announce">
+
+  </div>
+
+
+
+
+
+
+  <header class="md-header md-header--shadow" data-md-component="header">
+    <nav class="md-header__inner md-grid" aria-label="Sidehoved">
+      <a href="../" title="Stream Master" class="md-header__button md-logo" aria-label="Stream Master"
+        data-md-component="logo">
+
+        <img src="../../assets/sm_logo.png" alt="logo">
+
+      </a>
+      <label class="md-header__button md-icon" for="__drawer">
+
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z" />
+        </svg>
+      </label>
+      <div class="md-header__title" data-md-component="header-title">
+        <div class="md-header__ellipsis">
+          <div class="md-header__topic">
+            <span class="md-ellipsis">
+              Stream Master
+            </span>
+          </div>
+          <div class="md-header__topic" data-md-component="header-topic">
+            <span class="md-ellipsis">
+
               📘 Streammaster -dokumentation
-            
-          </span>
+
+            </span>
+          </div>
         </div>
       </div>
-    </div>
-    
-      
-        <form class="md-header__option" data-md-component="palette">
-  
-    
-    
-    
-    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="deep-orange" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
-    
-      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
-      </label>
-    
-  
-</form>
-      
-    
-    
-      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
-    
-    
+
+
+      <form class="md-header__option" data-md-component="palette">
+
+
+
+
+        <input class="md-option" data-md-color-media="" data-md-color-scheme="default"
+          data-md-color-primary="deep-orange" data-md-color-accent="indigo" aria-label="Switch to light mode"
+          type="radio" name="__palette" id="__palette_0">
+
+        <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path
+              d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z" />
+          </svg>
+        </label>
+
+
+      </form>
+
+
+
+      <script>var palette = __md_get("__palette"); if (palette && palette.color) { if ("(prefers-color-scheme)" === palette.color.media) { var media = matchMedia("(prefers-color-scheme: light)"), input = document.querySelector(media.matches ? "[data-md-color-media='(prefers-color-scheme: light)']" : "[data-md-color-media='(prefers-color-scheme: dark)']"); palette.color.media = input.getAttribute("data-md-color-media"), palette.color.scheme = input.getAttribute("data-md-color-scheme"), palette.color.primary = input.getAttribute("data-md-color-primary"), palette.color.accent = input.getAttribute("data-md-color-accent") } for (var [key, value] of Object.entries(palette.color)) document.body.setAttribute("data-md-color-" + key, value) }</script>
+
+
       <div class="md-header__option">
-  <div class="md-select">
-    
-    <button class="md-header__button md-icon" aria-label="Vælg sprog">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12.87 15.07-2.54-2.51.03-.03A17.5 17.5 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2zm-2.62 7 1.62-4.33L19.12 17z"/></svg>
-    </button>
-    <div class="md-select__inner">
-      <ul class="md-select__list">
-        
-          <li class="md-select__item">
-            <a href="../../Docs/" hreflang="en" class="md-select__link">
-              English
-            </a>
-          </li>
-        
-          <li class="md-select__item">
-            <a href="../../es/Docs/" hreflang="es" class="md-select__link">
-              Spanish
-            </a>
-          </li>
-        
-          <li class="md-select__item">
-            <a href="../../fr/Docs/" hreflang="fr" class="md-select__link">
-              French
-            </a>
-          </li>
-        
-          <li class="md-select__item">
-            <a href="../../de/Docs/" hreflang="de" class="md-select__link">
-              German
-            </a>
-          </li>
-        
-          <li class="md-select__item">
-            <a href="../../pt/Docs/" hreflang="pt" class="md-select__link">
-              Portuguese
-            </a>
-          </li>
-        
-          <li class="md-select__item">
-            <a href="./" hreflang="da" class="md-select__link">
-              Danish
-            </a>
-          </li>
-        
-          <li class="md-select__item">
-            <a href="../../sv/Docs/" hreflang="sv" class="md-select__link">
-              Swedish
-            </a>
-          </li>
-        
-          <li class="md-select__item">
-            <a href="../../nb/Docs/" hreflang="nb" class="md-select__link">
-              Norwegian Bokmål
-            </a>
-          </li>
-        
-          <li class="md-select__item">
-            <a href="../../fi/Docs/" hreflang="fi" class="md-select__link">
-              Finnish
-            </a>
-          </li>
-        
-          <li class="md-select__item">
-            <a href="../../is/Docs/" hreflang="is" class="md-select__link">
-              Icelandic
-            </a>
-          </li>
-        
-      </ul>
-    </div>
-  </div>
-</div>
-    
-    
+        <div class="md-select">
+
+          <button class="md-header__button md-icon" aria-label="Vælg sprog">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+              <path
+                d="m12.87 15.07-2.54-2.51.03-.03A17.5 17.5 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2zm-2.62 7 1.62-4.33L19.12 17z" />
+            </svg>
+          </button>
+          <div class="md-select__inner">
+            <ul class="md-select__list">
+
+              <li class="md-select__item">
+                <a href="../../Docs/" hreflang="en" class="md-select__link">
+                  English
+                </a>
+              </li>
+
+              <li class="md-select__item">
+                <a href="../../es/Docs/" hreflang="es" class="md-select__link">
+                  Spanish
+                </a>
+              </li>
+
+              <li class="md-select__item">
+                <a href="../../fr/Docs/" hreflang="fr" class="md-select__link">
+                  French
+                </a>
+              </li>
+
+              <li class="md-select__item">
+                <a href="../../de/Docs/" hreflang="de" class="md-select__link">
+                  German
+                </a>
+              </li>
+
+              <li class="md-select__item">
+                <a href="../../pt/Docs/" hreflang="pt" class="md-select__link">
+                  Portuguese
+                </a>
+              </li>
+
+              <li class="md-select__item">
+                <a href="./" hreflang="da" class="md-select__link">
+                  Danish
+                </a>
+              </li>
+
+              <li class="md-select__item">
+                <a href="../../sv/Docs/" hreflang="sv" class="md-select__link">
+                  Swedish
+                </a>
+              </li>
+
+              <li class="md-select__item">
+                <a href="../../nb/Docs/" hreflang="nb" class="md-select__link">
+                  Norwegian Bokmål
+                </a>
+              </li>
+
+              <li class="md-select__item">
+                <a href="../../fi/Docs/" hreflang="fi" class="md-select__link">
+                  Finnish
+                </a>
+              </li>
+
+              <li class="md-select__item">
+                <a href="../../is/Docs/" hreflang="is" class="md-select__link">
+                  Icelandic
+                </a>
+              </li>
+
+            </ul>
+          </div>
+        </div>
+      </div>
+
+
       <label class="md-header__button md-icon" for="__search">
-        
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path
+            d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5" />
+        </svg>
       </label>
       <div class="md-search" data-md-component="search" role="dialog">
-  <label class="md-search__overlay" for="__search"></label>
-  <div class="md-search__inner" role="search">
-    <form class="md-search__form" name="search">
-      <input type="text" class="md-search__input" name="query" aria-label="Søg" placeholder="Søg" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
-      <label class="md-search__icon md-icon" for="__search">
-        
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
-        
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
-      </label>
-      <nav class="md-search__options" aria-label="Søg">
-        
-        <button type="reset" class="md-search__icon md-icon" title="Nulstil søgning" aria-label="Nulstil søgning" tabindex="-1">
-          
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
-        </button>
-      </nav>
-      
-    </form>
-    <div class="md-search__output">
-      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
-        <div class="md-search-result" data-md-component="search-result">
-          <div class="md-search-result__meta">
-            Start søgning
-          </div>
-          <ol class="md-search-result__list" role="presentation"></ol>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-    
-    
-      <div class="md-header__source">
-        <a href="https://github.com/SenexCrenshaw/StreamMaster" title="Åbn arkiv" class="md-source" data-md-component="source">
-  <div class="md-source__icon md-icon">
-    
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
-  </div>
-  <div class="md-source__repository">
-    GitHub
-  </div>
-</a>
-      </div>
-    
-  </nav>
-  
-</header>
-    
-    <div class="md-container" data-md-component="container">
-      
-      
-        
-          
-        
-      
-      <main class="md-main" data-md-component="main">
-        <div class="md-main__inner md-grid">
-          
-            
-              
-              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
-                <div class="md-sidebar__scrollwrap">
-                  <div class="md-sidebar__inner">
-                    
+        <label class="md-search__overlay" for="__search"></label>
+        <div class="md-search__inner" role="search">
+          <form class="md-search__form" name="search">
+            <input type="text" class="md-search__input" name="query" aria-label="Søg" placeholder="Søg"
+              autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false"
+              data-md-component="search-query" required>
+            <label class="md-search__icon md-icon" for="__search">
 
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path
+                  d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5" />
+              </svg>
 
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z" />
+              </svg>
+            </label>
+            <nav class="md-search__options" aria-label="Søg">
 
-<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
-  <label class="md-nav__title" for="__drawer">
-    <a href="../" title="Stream Master" class="md-nav__button md-logo" aria-label="Stream Master" data-md-component="logo">
-      
-  <img src="../../assets/sm_logo.png" alt="logo">
+              <button type="reset" class="md-search__icon md-icon" title="Nulstil søgning" aria-label="Nulstil søgning"
+                tabindex="-1">
 
-    </a>
-    Stream Master
-  </label>
-  
-    <div class="md-nav__source">
-      <a href="https://github.com/SenexCrenshaw/StreamMaster" title="Åbn arkiv" class="md-source" data-md-component="source">
-  <div class="md-source__icon md-icon">
-    
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
-  </div>
-  <div class="md-source__repository">
-    GitHub
-  </div>
-</a>
-    </div>
-  
-  <ul class="md-nav__list" data-md-scrollfix>
-    
-      
-      
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Velkommen til streammaster
-  </span>
-  
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                  <path
+                    d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+                </svg>
+              </button>
+            </nav>
 
-      </a>
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../Contributors/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Contributors
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-    
-      
-      
-  
-  
-    
-  
-  
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  <span class="md-ellipsis">
-    📘 Streammaster -dokumentation
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
-        
-  
-  <span class="md-ellipsis">
-    📘 Streammaster -dokumentation
-  </span>
-  
-
-      </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Indholdsfortegnelse">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Indholdsfortegnelse
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#hvorfor-bidrage-til-dokumentationen" class="md-nav__link">
-    <span class="md-ellipsis">
-      Hvorfor bidrage til dokumentationen?
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#forudstninger" class="md-nav__link">
-    <span class="md-ellipsis">
-      🛠 Forudsætninger
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="🛠 Forudsætninger">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#installation-af-mkdocer-og-plugins" class="md-nav__link">
-    <span class="md-ellipsis">
-      Installation af MKDOC'er og plugins
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#lokal-udvikling" class="md-nav__link">
-    <span class="md-ellipsis">
-      Lokal udvikling
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Lokal udvikling">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#bygger-dokumenterne" class="md-nav__link">
-    <span class="md-ellipsis">
-      bygger dokumenterne
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#serverer-dokumenterne-lokalt" class="md-nav__link">
-    <span class="md-ellipsis">
-      Serverer dokumenterne lokalt
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#produktionsopbygning" class="md-nav__link">
-    <span class="md-ellipsis">
-      Produktionsopbygning
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#bidrager-til-dokumentationen" class="md-nav__link">
-    <span class="md-ellipsis">
-      📝 bidrager til dokumentationen
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="📝 bidrager til dokumentationen">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#kom-godt-i-gang-i-3-lette-trin" class="md-nav__link">
-    <span class="md-ellipsis">
-      Kom godt i gang i 3 lette trin!
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#tips-til-at-skrive-god-dokumentation" class="md-nav__link">
-    <span class="md-ellipsis">
-      Tips til at skrive god dokumentation
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#bidragsgenkendelsesgenkendelse" class="md-nav__link">
-    <span class="md-ellipsis">
-      Bidragsgenkendelsesgenkendelse 🌟
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#vi-har-brug-for-din-hjlp" class="md-nav__link">
-    <span class="md-ellipsis">
-      Vi har brug for din hjælp!🤝
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#har-brug-for-hjlp-eller-har-sprgsmaldeltag-i-uenighed" class="md-nav__link">
-    <span class="md-ellipsis">
-      har brug for hjælp eller har spørgsmål?Deltag i uenighed!🎮
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../API/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    API Reference
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../Auth/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    🔐 Authentication
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-    
-  </ul>
-</nav>
-                  </div>
+          </form>
+          <div class="md-search__output">
+            <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+              <div class="md-search-result" data-md-component="search-result">
+                <div class="md-search-result__meta">
+                  Start søgning
                 </div>
+                <ol class="md-search-result__list" role="presentation"></ol>
               </div>
-            
-            
-              
-              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
-                <div class="md-sidebar__scrollwrap">
-                  <div class="md-sidebar__inner">
-                    
-
-<nav class="md-nav md-nav--secondary" aria-label="Indholdsfortegnelse">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Indholdsfortegnelse
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#hvorfor-bidrage-til-dokumentationen" class="md-nav__link">
-    <span class="md-ellipsis">
-      Hvorfor bidrage til dokumentationen?
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#forudstninger" class="md-nav__link">
-    <span class="md-ellipsis">
-      🛠 Forudsætninger
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="🛠 Forudsætninger">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#installation-af-mkdocer-og-plugins" class="md-nav__link">
-    <span class="md-ellipsis">
-      Installation af MKDOC'er og plugins
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#lokal-udvikling" class="md-nav__link">
-    <span class="md-ellipsis">
-      Lokal udvikling
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Lokal udvikling">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#bygger-dokumenterne" class="md-nav__link">
-    <span class="md-ellipsis">
-      bygger dokumenterne
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#serverer-dokumenterne-lokalt" class="md-nav__link">
-    <span class="md-ellipsis">
-      Serverer dokumenterne lokalt
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#produktionsopbygning" class="md-nav__link">
-    <span class="md-ellipsis">
-      Produktionsopbygning
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#bidrager-til-dokumentationen" class="md-nav__link">
-    <span class="md-ellipsis">
-      📝 bidrager til dokumentationen
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="📝 bidrager til dokumentationen">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#kom-godt-i-gang-i-3-lette-trin" class="md-nav__link">
-    <span class="md-ellipsis">
-      Kom godt i gang i 3 lette trin!
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#tips-til-at-skrive-god-dokumentation" class="md-nav__link">
-    <span class="md-ellipsis">
-      Tips til at skrive god dokumentation
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#bidragsgenkendelsesgenkendelse" class="md-nav__link">
-    <span class="md-ellipsis">
-      Bidragsgenkendelsesgenkendelse 🌟
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#vi-har-brug-for-din-hjlp" class="md-nav__link">
-    <span class="md-ellipsis">
-      Vi har brug for din hjælp!🤝
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#har-brug-for-hjlp-eller-har-sprgsmaldeltag-i-uenighed" class="md-nav__link">
-    <span class="md-ellipsis">
-      har brug for hjælp eller har spørgsmål?Deltag i uenighed!🎮
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-                  </div>
-                </div>
-              </div>
-            
-          
-          
-            <div class="md-content" data-md-component="content">
-              <article class="md-content__inner md-typeset">
-                
-                  
-
-  
-  
-
-
-<h1 id="streammaster-dokumentation">📘 Streammaster -dokumentation</h1>
-<p>Dette dokument skitserer trinnene til at konfigurere og administrere dokumentation til [streammaster] (https://github.com/senexcrenshaw/streammaster) -projektet ved hjælp af MKDOCS.Opsætningen inkluderer support til internationalisering (I18N) og brugen af ​​MKDOCS -materialetema til et moderne look og fornemmelse.</p>
-<h2 id="hvorfor-bidrage-til-dokumentationen">Hvorfor bidrage til dokumentationen?</h2>
-<p>Dokumentationen er den første ting, som brugere og udviklere henviser til, når de bruger eller bidrager til Streammaster.Ved at hjælpe med at forbedre og vedligeholde dokumentationen sikrer du, at Streammaster forbliver tilgængelig og let at bruge til samfundet.</p>
-<p>Dine bidrag til dokumentationen:
-- Hjælp andre med at lære og bruge streammaster mere effektivt.
-- Forbedre klarhed for ikke-indfødte engelsktalende gennem bedre I18N-support.
-- Aktiver udviklere til lettere at bidrage til projektet.</p>
-<p>Selv små opdateringer som at korrigere skrivefejl eller afklarende instruktioner gør en stor forskel!</p>
-<h2 id="forudstninger">🛠 Forudsætninger</h2>
-<p>For at generere og betjene dokumentation lokalt har du brug for Python installeret.Sørg for, at Pythons pakkehåndtering ", Pythons pakkechef, også er tilgængelig.</p>
-<h3 id="installation-af-mkdocer-og-plugins">Installation af MKDOC'er og plugins</h3>
-<p>For at installere MKDOC'er og de krævede plugins til I18N og tema, kør følgende kommando:</p>
-<p><code>`bash
-Python -m pip install MKDOCS MKDOCS-I18N MKDOCS-Material MKDOCS-Static-I18N</code> `</p>
-<p>Dette installerer følgende:</p>
-<ul>
-<li><code>mkdocs</code>: Den statiske webstedsgenerator.</li>
-<li><code>mkdocs-i18n</code>: til håndtering af internationalisering.</li>
-<li><code>mkdocs-materiale ': et populært tema med et moderne design.
--</code>MKDOCS-Static-I18N`: tilføjer statisk internationaliseringsstøtte.</li>
-</ul>
-<h2 id="lokal-udvikling">Lokal udvikling</h2>
-<p>For at opbygge og betjene dokumentationen lokalt under udvikling, skal du følge disse trin.</p>
-<h3 id="bygger-dokumenterne">bygger dokumenterne</h3>
-<p>For at generere den statiske dokumentation:</p>
-<p><code>`bash
-MKDOCS Build</code> `</p>
-<h3 id="serverer-dokumenterne-lokalt">Serverer dokumenterne lokalt</h3>
-<p>At køre en udviklingsserver, der holder øje med ændringer og automatisk genindlæser:</p>
-<p><code>`bash
-MKDOC'er tjener</code> `</p>
-<p>Dette vil være vært for dokumentationen lokalt på <code>http: // localhost: 8000</code>.</p>
-<h2 id="produktionsopbygning">Produktionsopbygning</h2>
-<p>Når du er klar til at implementere dokumentationen til produktionen, skal du sikre dig, at du renser den forrige build og indstiller Webstedets URL korrekt.Kør følgende kommando:</p>
-<p><code>`bash
-MKDOCS Build--Rene-Site-url https://senexcrenshaw.github.io/streammaster/</code> `</p>
-<p>Dette bygger en ren version af dokumentationen og indstiller den korrekte URL til produktionsstedet.</p>
-<h2 id="bidrager-til-dokumentationen">📝 bidrager til dokumentationen</h2>
-<p>Dokumentationsfiler lever under mappen <code>streammaster.docs \ streammaster</code> i [streammaster depot] (https://github.com/senexcrenshaw/streammaster).</p>
-<p>At bidrage til dokumentationen:</p>
-<ul>
-<li>** Opret en ny gren ** til dine ændringer.</li>
-<li>** Sørg for, at engelsk (<code>en</code>) altid opdateres **.Engelsk fungerer som det primære sprog, og alt indhold skal opdateres på engelsk.</li>
-<li>** Giv de bedst mulige oversættelser ** til andre understøttede sprog, såsom spansk (<code>es '), fransk (</code> fr<code>), tysk (</code>de`) og alle andre understøttede sprog.Selvom disse oversættelser ikke behøver at være perfekte, skal de sigte mod nøjagtigt at afspejle det engelske indhold.</li>
-<li>Engelsk filer lever under <code>Docs/En</code>.</li>
-<li>Oversættelser lever under deres respektive mapper (f.eks. 'Dokumenter/ES' til spansk, 'Dokumenter/FR' til fransk osv.).</li>
-<li>** Test ** Alle ændringer ved at køre `mkdocs serveres 'lokalt til både den engelske version og eventuelle opdaterede oversættelser.</li>
-<li>** Indsend en PULL -anmodning (PR) ** til gennemgang.</li>
-</ul>
-<h3 id="kom-godt-i-gang-i-3-lette-trin">Kom godt i gang i 3 lette trin!</h3>
-<ol>
-<li>gaffel depotet og klon den til din lokale maskine.</li>
-<li>Opret en ny gren til dine ændringer.</li>
-<li>Sørg for, at engelsk (<code>da</code>) opdateres og giver de bedst mulige oversættelser til andre understøttede sprog, og derefter indsende en PR.</li>
-</ol>
-<p>Det er det!🎉 Du har bidraget til Streammaster!</p>
-<h2 id="tips-til-at-skrive-god-dokumentation">Tips til at skrive god dokumentation</h2>
-<ul>
-<li>** Vær klar og kortfattet: ** Fokuser på hovedpunkterne, og undgå alt for teknisk sprog, hvor det er muligt.</li>
-<li>** Brug eksempler: ** Kodestykker eller visuelle hjælpemidler hjælper med at afklare komplekse koncepter.</li>
-<li>** Vær konsekvent: ** Hold tone og terminologi konsistent på tværs af alle sektioner.</li>
-<li>** Test alt: ** Sørg for, at alle kodeeksempler, kommandoer og instruktioner fungerer som forventet.</li>
-</ul>
-<h2 id="bidragsgenkendelsesgenkendelse">Bidragsgenkendelsesgenkendelse 🌟</h2>
-<p>Vi værdsætter ethvert bidrag, uanset hvor lille!Alle bidragydere tilføjes til Streammaster Documentation Hall of Fame, der er vist nedenfor:</p>
-<p>[Se alle bidragydere] (bidragydere.md)</p>
-<h2 id="vi-har-brug-for-din-hjlp">Vi har brug for din hjælp!🤝</h2>
-<p>Streammaster vokser konstant, og vi har brug for samfundets hjælp til at holde dokumentationen top-notch.Intet bidrag er for lille, hvad enten det er at fikse skrivefejl, tilføje eksempler eller oversætte indhold.</p>
-<p>Spring ind, og lad os gøre Streammaster bedre sammen!✨</p>
-<h2 id="har-brug-for-hjlp-eller-har-sprgsmaldeltag-i-uenighed">har brug for hjælp eller har spørgsmål?Deltag i uenighed!🎮</h2>
-<p>For spørgsmål, support eller diskussioner, kan du deltage i den officielle ** streammaster Discord Server **.</p>
-<p>👉 [Deltag i Streammaster Discord] (https://discord.gg/gfz7ethhg2) 👈</p>
-<p>Vi er her for at hjælpe, og du finder et aktivt samfund af udviklere og brugere.Du er velkommen til at stille spørgsmål, rapportere spørgsmål eller diskutere nye ideer til forbedring af Streammaster!</p>
-
-
-
-
-
-
-
-
-
-
-
-
-                
-              </article>
             </div>
-          
-          
-<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+          </div>
         </div>
-        
-      </main>
-      
-        <footer class="md-footer">
-  
-  <div class="md-footer-meta md-typeset">
-    <div class="md-footer-meta__inner md-grid">
-      <div class="md-copyright">
-  
-  
-    Made with
-    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
-      Material for MkDocs
-    </a>
-  
-</div>
-      
-    </div>
+      </div>
+
+
+      <div class="md-header__source">
+        <a href="https://github.com/SenexCrenshaw/StreamMaster" title="Åbn arkiv" class="md-source"
+          data-md-component="source">
+          <div class="md-source__icon md-icon">
+
+            <svg xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 448 512"><!--! Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.-->
+              <path
+                d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81" />
+            </svg>
+          </div>
+          <div class="md-source__repository">
+            GitHub
+          </div>
+        </a>
+      </div>
+
+    </nav>
+
+  </header>
+
+  <div class="md-container" data-md-component="container">
+
+
+
+
+
+
+    <main class="md-main" data-md-component="main">
+      <div class="md-main__inner md-grid">
+
+
+
+        <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+          <div class="md-sidebar__scrollwrap">
+            <div class="md-sidebar__inner">
+
+
+
+
+              <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+                <label class="md-nav__title" for="__drawer">
+                  <a href="../" title="Stream Master" class="md-nav__button md-logo" aria-label="Stream Master"
+                    data-md-component="logo">
+
+                    <img src="../../assets/sm_logo.png" alt="logo">
+
+                  </a>
+                  Stream Master
+                </label>
+
+                <div class="md-nav__source">
+                  <a href="https://github.com/SenexCrenshaw/StreamMaster" title="Åbn arkiv" class="md-source"
+                    data-md-component="source">
+                    <div class="md-source__icon md-icon">
+
+                      <svg xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 448 512"><!--! Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.-->
+                        <path
+                          d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81" />
+                      </svg>
+                    </div>
+                    <div class="md-source__repository">
+                      GitHub
+                    </div>
+                  </a>
+                </div>
+
+                <ul class="md-nav__list" data-md-scrollfix>
+
+
+
+
+
+
+
+                  <li class="md-nav__item">
+                    <a href="../" class="md-nav__link">
+
+
+                      <span class="md-ellipsis">
+                        Velkommen til streammaster
+                      </span>
+
+
+                    </a>
+                  </li>
+
+
+
+
+
+
+
+
+
+                  <li class="md-nav__item">
+                    <a href="../Contributors/" class="md-nav__link">
+
+
+                      <span class="md-ellipsis">
+                        Contributors
+                      </span>
+
+
+                    </a>
+                  </li>
+
+
+
+
+
+
+
+
+
+
+
+                  <li class="md-nav__item md-nav__item--active">
+
+                    <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+
+
+
+
+
+                    <label class="md-nav__link md-nav__link--active" for="__toc">
+
+
+                      <span class="md-ellipsis">
+                        📘 Streammaster -dokumentation
+                      </span>
+
+
+                      <span class="md-nav__icon md-icon"></span>
+                    </label>
+
+                    <a href="./" class="md-nav__link md-nav__link--active">
+
+
+                      <span class="md-ellipsis">
+                        📘 Streammaster -dokumentation
+                      </span>
+
+
+                    </a>
+
+
+
+                    <nav class="md-nav md-nav--secondary" aria-label="Indholdsfortegnelse">
+
+
+
+
+
+
+                      <label class="md-nav__title" for="__toc">
+                        <span class="md-nav__icon md-icon"></span>
+                        Indholdsfortegnelse
+                      </label>
+                      <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+
+                        <li class="md-nav__item">
+                          <a href="#hvorfor-bidrage-til-dokumentationen" class="md-nav__link">
+                            <span class="md-ellipsis">
+                              Hvorfor bidrage til dokumentationen?
+                            </span>
+                          </a>
+
+                        </li>
+
+                        <li class="md-nav__item">
+                          <a href="#forudstninger" class="md-nav__link">
+                            <span class="md-ellipsis">
+                              🛠 Forudsætninger
+                            </span>
+                          </a>
+
+                          <nav class="md-nav" aria-label="🛠 Forudsætninger">
+                            <ul class="md-nav__list">
+
+                              <li class="md-nav__item">
+                                <a href="#installation-af-mkdocer-og-plugins" class="md-nav__link">
+                                  <span class="md-ellipsis">
+                                    Installation af MKDOC'er og plugins
+                                  </span>
+                                </a>
+
+                              </li>
+
+                            </ul>
+                          </nav>
+
+                        </li>
+
+                        <li class="md-nav__item">
+                          <a href="#lokal-udvikling" class="md-nav__link">
+                            <span class="md-ellipsis">
+                              Lokal udvikling
+                            </span>
+                          </a>
+
+                          <nav class="md-nav" aria-label="Lokal udvikling">
+                            <ul class="md-nav__list">
+
+                              <li class="md-nav__item">
+                                <a href="#bygger-dokumenterne" class="md-nav__link">
+                                  <span class="md-ellipsis">
+                                    bygger dokumenterne
+                                  </span>
+                                </a>
+
+                              </li>
+
+                              <li class="md-nav__item">
+                                <a href="#serverer-dokumenterne-lokalt" class="md-nav__link">
+                                  <span class="md-ellipsis">
+                                    Serverer dokumenterne lokalt
+                                  </span>
+                                </a>
+
+                              </li>
+
+                            </ul>
+                          </nav>
+
+                        </li>
+
+                        <li class="md-nav__item">
+                          <a href="#produktionsopbygning" class="md-nav__link">
+                            <span class="md-ellipsis">
+                              Produktionsopbygning
+                            </span>
+                          </a>
+
+                        </li>
+
+                        <li class="md-nav__item">
+                          <a href="#bidrager-til-dokumentationen" class="md-nav__link">
+                            <span class="md-ellipsis">
+                              📝 bidrager til dokumentationen
+                            </span>
+                          </a>
+
+                          <nav class="md-nav" aria-label="📝 bidrager til dokumentationen">
+                            <ul class="md-nav__list">
+
+                              <li class="md-nav__item">
+                                <a href="#kom-godt-i-gang-i-3-lette-trin" class="md-nav__link">
+                                  <span class="md-ellipsis">
+                                    Kom godt i gang i 3 lette trin!
+                                  </span>
+                                </a>
+
+                              </li>
+
+                            </ul>
+                          </nav>
+
+                        </li>
+
+                        <li class="md-nav__item">
+                          <a href="#tips-til-at-skrive-god-dokumentation" class="md-nav__link">
+                            <span class="md-ellipsis">
+                              Tips til at skrive god dokumentation
+                            </span>
+                          </a>
+
+                        </li>
+
+                        <li class="md-nav__item">
+                          <a href="#bidragsgenkendelsesgenkendelse" class="md-nav__link">
+                            <span class="md-ellipsis">
+                              Bidragsgenkendelsesgenkendelse 🌟
+                            </span>
+                          </a>
+
+                        </li>
+
+                        <li class="md-nav__item">
+                          <a href="#vi-har-brug-for-din-hjlp" class="md-nav__link">
+                            <span class="md-ellipsis">
+                              Vi har brug for din hjælp!🤝
+                            </span>
+                          </a>
+
+                        </li>
+
+                        <li class="md-nav__item">
+                          <a href="#har-brug-for-hjlp-eller-har-sprgsmaldeltag-i-uenighed" class="md-nav__link">
+                            <span class="md-ellipsis">
+                              har brug for hjælp eller har spørgsmål?Deltag i uenighed!🎮
+                            </span>
+                          </a>
+
+                        </li>
+
+                      </ul>
+
+                    </nav>
+
+                  </li>
+
+
+
+
+
+
+
+
+
+                  <li class="md-nav__item">
+                    <a href="../API/" class="md-nav__link">
+
+
+                      <span class="md-ellipsis">
+                        API Reference
+                      </span>
+
+
+                    </a>
+                  </li>
+
+
+
+
+
+
+
+
+
+                  <li class="md-nav__item">
+                    <a href="../Auth/" class="md-nav__link">
+
+
+                      <span class="md-ellipsis">
+                        🔐 Authentication
+                      </span>
+
+
+                    </a>
+                  </li>
+
+
+
+                </ul>
+              </nav>
+            </div>
+          </div>
+        </div>
+
+
+
+        <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+          <div class="md-sidebar__scrollwrap">
+            <div class="md-sidebar__inner">
+
+
+              <nav class="md-nav md-nav--secondary" aria-label="Indholdsfortegnelse">
+
+
+
+
+
+
+                <label class="md-nav__title" for="__toc">
+                  <span class="md-nav__icon md-icon"></span>
+                  Indholdsfortegnelse
+                </label>
+                <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+
+                  <li class="md-nav__item">
+                    <a href="#hvorfor-bidrage-til-dokumentationen" class="md-nav__link">
+                      <span class="md-ellipsis">
+                        Hvorfor bidrage til dokumentationen?
+                      </span>
+                    </a>
+
+                  </li>
+
+                  <li class="md-nav__item">
+                    <a href="#forudstninger" class="md-nav__link">
+                      <span class="md-ellipsis">
+                        🛠 Forudsætninger
+                      </span>
+                    </a>
+
+                    <nav class="md-nav" aria-label="🛠 Forudsætninger">
+                      <ul class="md-nav__list">
+
+                        <li class="md-nav__item">
+                          <a href="#installation-af-mkdocer-og-plugins" class="md-nav__link">
+                            <span class="md-ellipsis">
+                              Installation af MKDOC'er og plugins
+                            </span>
+                          </a>
+
+                        </li>
+
+                      </ul>
+                    </nav>
+
+                  </li>
+
+                  <li class="md-nav__item">
+                    <a href="#lokal-udvikling" class="md-nav__link">
+                      <span class="md-ellipsis">
+                        Lokal udvikling
+                      </span>
+                    </a>
+
+                    <nav class="md-nav" aria-label="Lokal udvikling">
+                      <ul class="md-nav__list">
+
+                        <li class="md-nav__item">
+                          <a href="#bygger-dokumenterne" class="md-nav__link">
+                            <span class="md-ellipsis">
+                              bygger dokumenterne
+                            </span>
+                          </a>
+
+                        </li>
+
+                        <li class="md-nav__item">
+                          <a href="#serverer-dokumenterne-lokalt" class="md-nav__link">
+                            <span class="md-ellipsis">
+                              Serverer dokumenterne lokalt
+                            </span>
+                          </a>
+
+                        </li>
+
+                      </ul>
+                    </nav>
+
+                  </li>
+
+                  <li class="md-nav__item">
+                    <a href="#produktionsopbygning" class="md-nav__link">
+                      <span class="md-ellipsis">
+                        Produktionsopbygning
+                      </span>
+                    </a>
+
+                  </li>
+
+                  <li class="md-nav__item">
+                    <a href="#bidrager-til-dokumentationen" class="md-nav__link">
+                      <span class="md-ellipsis">
+                        📝 bidrager til dokumentationen
+                      </span>
+                    </a>
+
+                    <nav class="md-nav" aria-label="📝 bidrager til dokumentationen">
+                      <ul class="md-nav__list">
+
+                        <li class="md-nav__item">
+                          <a href="#kom-godt-i-gang-i-3-lette-trin" class="md-nav__link">
+                            <span class="md-ellipsis">
+                              Kom godt i gang i 3 lette trin!
+                            </span>
+                          </a>
+
+                        </li>
+
+                      </ul>
+                    </nav>
+
+                  </li>
+
+                  <li class="md-nav__item">
+                    <a href="#tips-til-at-skrive-god-dokumentation" class="md-nav__link">
+                      <span class="md-ellipsis">
+                        Tips til at skrive god dokumentation
+                      </span>
+                    </a>
+
+                  </li>
+
+                  <li class="md-nav__item">
+                    <a href="#bidragsgenkendelsesgenkendelse" class="md-nav__link">
+                      <span class="md-ellipsis">
+                        Bidragsgenkendelsesgenkendelse 🌟
+                      </span>
+                    </a>
+
+                  </li>
+
+                  <li class="md-nav__item">
+                    <a href="#vi-har-brug-for-din-hjlp" class="md-nav__link">
+                      <span class="md-ellipsis">
+                        Vi har brug for din hjælp!🤝
+                      </span>
+                    </a>
+
+                  </li>
+
+                  <li class="md-nav__item">
+                    <a href="#har-brug-for-hjlp-eller-har-sprgsmaldeltag-i-uenighed" class="md-nav__link">
+                      <span class="md-ellipsis">
+                        har brug for hjælp eller har spørgsmål?Deltag i uenighed!🎮
+                      </span>
+                    </a>
+
+                  </li>
+
+                </ul>
+
+              </nav>
+            </div>
+          </div>
+        </div>
+
+
+
+        <div class="md-content" data-md-component="content">
+          <article class="md-content__inner md-typeset">
+
+
+
+
+
+
+
+            <h1 id="streammaster-dokumentation">📘 Streammaster -dokumentation</h1>
+            <p>Dette dokument skitserer trinnene til at konfigurere og administrere dokumentation til [streammaster]
+              (https://github.com/senexcrenshaw/streammaster) -projektet ved hjælp af MKDOCS.Opsætningen inkluderer
+              support til internationalisering (I18N) og brugen af ​​MKDOCS -materialetema til et moderne look og
+              fornemmelse.</p>
+            <h2 id="hvorfor-bidrage-til-dokumentationen">Hvorfor bidrage til dokumentationen?</h2>
+            <p>Dokumentationen er den første ting, som brugere og udviklere henviser til, når de bruger eller bidrager
+              til Streammaster.Ved at hjælpe med at forbedre og vedligeholde dokumentationen sikrer du, at Streammaster
+              forbliver tilgængelig og let at bruge til samfundet.</p>
+            <p>Dine bidrag til dokumentationen:
+              - Hjælp andre med at lære og bruge streammaster mere effektivt.
+              - Forbedre klarhed for ikke-indfødte engelsktalende gennem bedre I18N-support.
+              - Aktiver udviklere til lettere at bidrage til projektet.</p>
+            <p>Selv små opdateringer som at korrigere skrivefejl eller afklarende instruktioner gør en stor forskel!</p>
+            <h2 id="forudstninger">🛠 Forudsætninger</h2>
+            <p>For at generere og betjene dokumentation lokalt har du brug for Python installeret.Sørg for, at Pythons
+              pakkehåndtering ", Pythons pakkechef, også er tilgængelig.</p>
+            <h3 id="installation-af-mkdocer-og-plugins">Installation af MKDOC'er og plugins</h3>
+            <p>For at installere MKDOC'er og de krævede plugins til I18N og tema, kør følgende kommando:</p>
+            <p><code>`bash
+Python -m pip install MKDOCS MKDOCS-I18N MKDOCS-Material MKDOCS-Static-I18N</code> `</p>
+            <p>Dette installerer følgende:</p>
+            <ul>
+              <li><code>mkdocs</code>: Den statiske webstedsgenerator.</li>
+              <li><code>mkdocs-i18n</code>: til håndtering af internationalisering.</li>
+              <li><code>mkdocs-materiale ': et populært tema med et moderne design.
+-</code>MKDOCS-Static-I18N`: tilføjer statisk internationaliseringsstøtte.</li>
+            </ul>
+            <h2 id="lokal-udvikling">Lokal udvikling</h2>
+            <p>For at opbygge og betjene dokumentationen lokalt under udvikling, skal du følge disse trin.</p>
+            <h3 id="bygger-dokumenterne">bygger dokumenterne</h3>
+            <p>For at generere den statiske dokumentation:</p>
+            <p><code>`bash
+MKDOCS Build</code> `</p>
+            <h3 id="serverer-dokumenterne-lokalt">Serverer dokumenterne lokalt</h3>
+            <p>At køre en udviklingsserver, der holder øje med ændringer og automatisk genindlæser:</p>
+            <p><code>`bash
+MKDOC'er tjener</code> `</p>
+            <p>Dette vil være vært for dokumentationen lokalt på <code>http: // localhost: 8000</code>.</p>
+            <h2 id="produktionsopbygning">Produktionsopbygning</h2>
+            <p>Når du er klar til at implementere dokumentationen til produktionen, skal du sikre dig, at du renser den
+              forrige build og indstiller Webstedets URL korrekt.Kør følgende kommando:</p>
+            <p><code>`bash
+MKDOCS Build--Rene-Site-url https://senexcrenshaw.github.io/streammaster/</code> `</p>
+            <p>Dette bygger en ren version af dokumentationen og indstiller den korrekte URL til produktionsstedet.</p>
+            <h2 id="bidrager-til-dokumentationen">📝 bidrager til dokumentationen</h2>
+            <p>Dokumentationsfiler lever under mappen <code>streammaster.docs \ streammaster</code> i [streammaster
+              depot] (https://github.com/senexcrenshaw/streammaster).</p>
+            <p>At bidrage til dokumentationen:</p>
+            <ul>
+              <li>** Opret en ny gren ** til dine ændringer.</li>
+              <li>** Sørg for, at engelsk (<code>en</code>) altid opdateres **.Engelsk fungerer som det primære sprog,
+                og alt indhold skal opdateres på engelsk.</li>
+              <li>** Giv de bedst mulige oversættelser ** til andre understøttede sprog, såsom spansk
+                (<code>es '), fransk (</code> fr<code>), tysk (</code>de`) og alle andre understøttede sprog.Selvom
+                disse oversættelser ikke behøver at være perfekte, skal de sigte mod nøjagtigt at afspejle det engelske
+                indhold.</li>
+              <li>Engelsk filer lever under <code>Docs/En</code>.</li>
+              <li>Oversættelser lever under deres respektive mapper (f.eks. 'Dokumenter/ES' til spansk, 'Dokumenter/FR'
+                til fransk osv.).</li>
+              <li>** Test ** Alle ændringer ved at køre `mkdocs serveres 'lokalt til både den engelske version og
+                eventuelle opdaterede oversættelser.</li>
+              <li>** Indsend en PULL -anmodning (PR) ** til gennemgang.</li>
+            </ul>
+            <h3 id="kom-godt-i-gang-i-3-lette-trin">Kom godt i gang i 3 lette trin!</h3>
+            <ol>
+              <li>gaffel depotet og klon den til din lokale maskine.</li>
+              <li>Opret en ny gren til dine ændringer.</li>
+              <li>Sørg for, at engelsk (<code>da</code>) opdateres og giver de bedst mulige oversættelser til andre
+                understøttede sprog, og derefter indsende en PR.</li>
+            </ol>
+            <p>Det er det!🎉 Du har bidraget til Streammaster!</p>
+            <h2 id="tips-til-at-skrive-god-dokumentation">Tips til at skrive god dokumentation</h2>
+            <ul>
+              <li>** Vær klar og kortfattet: ** Fokuser på hovedpunkterne, og undgå alt for teknisk sprog, hvor det er
+                muligt.</li>
+              <li>** Brug eksempler: ** Kodestykker eller visuelle hjælpemidler hjælper med at afklare komplekse
+                koncepter.</li>
+              <li>** Vær konsekvent: ** Hold tone og terminologi konsistent på tværs af alle sektioner.</li>
+              <li>** Test alt: ** Sørg for, at alle kodeeksempler, kommandoer og instruktioner fungerer som forventet.
+              </li>
+            </ul>
+            <h2 id="bidragsgenkendelsesgenkendelse">Bidragsgenkendelsesgenkendelse 🌟</h2>
+            <p>Vi værdsætter ethvert bidrag, uanset hvor lille!Alle bidragydere tilføjes til Streammaster Documentation
+              Hall of Fame, der er vist nedenfor:</p>
+            <p>[Se alle bidragydere] (bidragydere.md)</p>
+            <h2 id="vi-har-brug-for-din-hjlp">Vi har brug for din hjælp!🤝</h2>
+            <p>Streammaster vokser konstant, og vi har brug for samfundets hjælp til at holde dokumentationen
+              top-notch.Intet bidrag er for lille, hvad enten det er at fikse skrivefejl, tilføje eksempler eller
+              oversætte indhold.</p>
+            <p>Spring ind, og lad os gøre Streammaster bedre sammen!✨</p>
+            <h2 id="har-brug-for-hjlp-eller-har-sprgsmaldeltag-i-uenighed">har brug for hjælp eller har spørgsmål?Deltag
+              i uenighed!🎮</h2>
+            <p>For spørgsmål, support eller diskussioner, kan du deltage i den officielle ** streammaster Discord Server
+              **.</p>
+            <p>👉 [Deltag i Streammaster Discord] (https://discord.gg/gfz7ethhg2) 👈</p>
+            <p>Vi er her for at hjælpe, og du finder et aktivt samfund af udviklere og brugere.Du er velkommen til at
+              stille spørgsmål, rapportere spørgsmål eller diskutere nye ideer til forbedring af Streammaster!</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+          </article>
+        </div>
+
+
+        <script>var target = document.getElementById(location.hash.slice(1)); target && target.name && (target.checked = target.name.startsWith("__tabbed_"))</script>
+      </div>
+
+    </main>
+
+    <footer class="md-footer">
+
+      <div class="md-footer-meta md-typeset">
+        <div class="md-footer-meta__inner md-grid">
+          <div class="md-copyright">
+
+
+            Made with
+            <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+              Material for MkDocs
+            </a>
+
+          </div>
+
+        </div>
+      </div>
+    </footer>
+
   </div>
-</footer>
-      
-    </div>
-    <div class="md-dialog" data-md-component="dialog">
-      <div class="md-dialog__inner md-typeset"></div>
-    </div>
-    
-    
-    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "Kopieret til udklipsholderen", "clipboard.copy": "Kopi\u00e9r til udklipsholderen", "search.result.more.one": "1 resultat mere p\u00e5 denne side", "search.result.more.other": "# resultater mere p\u00e5 denne side", "search.result.none": "Ingen resultater fundet", "search.result.one": "1 resultat", "search.result.other": "# resultater", "search.result.placeholder": "Indtast s\u00f8geord", "search.result.term.missing": "Mangler", "select.version": "V\u00e6lg version"}}</script>
-    
-    
-      <script src="../../assets/javascripts/bundle.83f73b43.min.js"></script>
-      
-    
-  </body>
+  <div class="md-dialog" data-md-component="dialog">
+    <div class="md-dialog__inner md-typeset"></div>
+  </div>
+
+
+  <script id="__config"
+    type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "Kopieret til udklipsholderen", "clipboard.copy": "Kopi\u00e9r til udklipsholderen", "search.result.more.one": "1 resultat mere p\u00e5 denne side", "search.result.more.other": "# resultater mere p\u00e5 denne side", "search.result.none": "Ingen resultater fundet", "search.result.one": "1 resultat", "search.result.other": "# resultater", "search.result.placeholder": "Indtast s\u00f8geord", "search.result.term.missing": "Mangler", "select.version": "V\u00e6lg version"}}</script>
+
+
+  <script src="../../assets/javascripts/bundle.83f73b43.min.js"></script>
+
+
+</body>
+
 </html>
