@@ -37,7 +37,7 @@ public class ApiKeyAuthenticationHandler(
 
     protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
     {
-        bool needsAuth = settings.CurrentValue.AuthenticationMethod != "None";
+        bool needsAuth = string.IsNullOrEmpty(settings.CurrentValue.AuthenticationMethod) || !settings.CurrentValue.AuthenticationMethod.Equals("none", StringComparison.CurrentCultureIgnoreCase);
 
         if (!needsAuth)
         {
