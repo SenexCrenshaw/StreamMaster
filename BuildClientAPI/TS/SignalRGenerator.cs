@@ -82,6 +82,7 @@ public static class SignalRGenerator
         content.AppendLine("    signalRService.removeListener('ClearByTag', clearByTag);");
         content.AppendLine("    signalRService.removeListener('SendMessage', addMessage);");
         content.AppendLine("    signalRService.removeListener('DataRefresh', dataRefresh);");
+        content.AppendLine("    signalRService.removeListener('AuthLogOut', authLogOut);");
         content.AppendLine("    signalRService.removeListener('SetField', setField);");
         content.AppendLine("  }, [addMessage, clearByTag, dataRefresh, setField, signalRService]);");
         content.AppendLine();
@@ -90,6 +91,7 @@ public static class SignalRGenerator
         content.AppendLine("    signalRService.addListener('ClearByTag', clearByTag);");
         content.AppendLine("    signalRService.addListener('SendMessage', addMessage);");
         content.AppendLine("    signalRService.addListener('DataRefresh', dataRefresh);");
+        content.AppendLine("    signalRService.addListener('AuthLogOut', authLogOut);");
         content.AppendLine("    signalRService.addListener('SetField', setField);");
         content.AppendLine("  }, [addMessage, clearByTag, dataRefresh, setField, signalRService]);");
 
@@ -238,6 +240,7 @@ public static class SignalRGenerator
     {
         StringBuilder content = new();
         content.AppendLine("import React, { ReactNode, createContext, useCallback, useContext, useEffect } from 'react';");
+        content.AppendLine("import { authLogOut } from './SignalRAuthLogOut';");
         content.AppendLine("import SignalRService from './SignalRService';");
 
         foreach (MethodDetails method in methods.Where(a => a.IsGet))

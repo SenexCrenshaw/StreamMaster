@@ -4,6 +4,7 @@ namespace StreamMaster.Application.Interfaces;
 
 public interface IStreamMasterHub
 {
+    Task AuthLogOut();
     Task IsSystemReady(bool isSystemReady);
     Task TaskIsRunning(bool isSystemReady);
     Task SetField(List<FieldData> fieldData);

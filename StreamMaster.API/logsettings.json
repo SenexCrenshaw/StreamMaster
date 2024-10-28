@@ -6,7 +6,8 @@
       "Microsoft.AspNetCore.SignalR": "Warning",
       "Microsoft.AspNetCore.Http.Connections": "Warning",
       "Microsoft.EntityFrameworkCore.Query": "Warning",
-      "System.Net.Http.HttpClient": "Warning"
+      "System.Net.Http.HttpClient": "Warning",
+      "StreamMaster.Infrastructure.Authentication.ApiKeyAuthenticationHandler": "Warning"
     }
   }
 }

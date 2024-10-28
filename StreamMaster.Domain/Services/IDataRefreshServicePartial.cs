@@ -2,6 +2,7 @@ namespace StreamMaster.Domain.Services
 {
     public interface IDataRefreshServicePartial
     {
+        Task AuthLogOut();
         Task RefreshDownloadServiceStatus();
         Task RefreshEPGColors();
         Task RefreshSelectedStationIds();

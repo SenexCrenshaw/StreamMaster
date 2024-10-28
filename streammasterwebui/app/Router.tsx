@@ -13,6 +13,7 @@ import SMLoader from '@components/loader/SMLoader';
 
 import { SettingsProvider } from '@lib/context/SettingsProvider';
 import { Suspense, lazy } from 'react';
+import RequireAuth from './RequireAuth';
 
 const Router = (): JSX.Element => {
   const store = useStore();
@@ -38,12 +39,21 @@ const Router = (): JSX.Element => {
 
   const router = createBrowserRouter(
     createRoutesFromElements(
-      <Route element={<RootLayout />} path="/">
+      <Route
+        element={
+          <RequireAuth>
+            <RootLayout />
+          </RequireAuth>
+        }
+        path="/"
+      >
         <Route
           element={
-            <Suspense>
-              <Navigate to="/editor/streams" />
-            </Suspense>
+            <RequireAuth>
+              <Suspense>
+                <Navigate to="/editor/streams" />
+              </Suspense>
+            </RequireAuth>
           }
           index
         />
