@@ -57,3 +57,9 @@ Each **Stream Group (SG)** in Stream Master has a **group key** used to encrypt 
 ## 🔄 Changing Authentication and Link Settings
 
 To update authentication or link encryption settings, use the Stream Master web UI in the relevant sections. Changes are applied immediately without needing manual configuration file edits.
+
+---
+
+{%
+    include-markdown "../includes/_footer.md"
+%}
