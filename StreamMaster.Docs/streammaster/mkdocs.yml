@@ -19,6 +19,7 @@ theme:
 
 plugins:
   - search
+  - include-markdown
   - i18n:
       docs_structure: folder
       languages:

@@ -1,8 +1,9 @@
 import os
-from googletrans import Translator
 
-# Initialize the translator
-translator = Translator()
+from google.cloud import translate_v2 as translate
+
+# Initialize the Google Cloud Translator
+translate_client = translate.Client()
 
 # Define source directory for English
 source_dir = 'docs/en'
@@ -20,10 +21,10 @@ languages = {
     'is': 'Icelandic'
 }
 
-# Function to translate markdown content
+# Function to translate markdown content using Google Cloud
 def translate_content(file_content, target_lang):
-    translated = translator.translate(file_content, src='en', dest=target_lang)
-    return translated.text
+    translated = translate_client.translate(file_content, target_language=target_lang, source_language='en')
+    return translated['translatedText']
 
 # Iterate through all files in the source directory
 for lang_code, lang_name in languages.items():
