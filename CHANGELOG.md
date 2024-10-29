@@ -1,3 +1,10 @@
+## [0.16.1](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.16.0...v0.16.1) (2024-10-29)
+
+
+### Bug Fixes
+
+* version bump ([40edd2f](https://github.com/SenexCrenshaw/StreamMaster/commit/40edd2f2725d9f268e8cabf1e2142f580984c3de))
+
 # [0.16.0](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.15.0...v0.16.0) (2024-10-29)
 
 # [0.15.0](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.14.7...v0.15.0) (2024-10-29)
