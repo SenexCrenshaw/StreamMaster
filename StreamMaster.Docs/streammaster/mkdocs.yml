@@ -1,8 +1,11 @@
 site_name: Stream Master
 repo_url: https://github.com/SenexCrenshaw/StreamMaster
 theme:
-  name: material
+  name: 'material'
+  locale: en
   logo: "assets/sm_logo.png"
+  features:
+    - content.code.copy
   palette:
     # Palette toggle for light mode
     - scheme: default
