@@ -86,7 +86,6 @@ services:
   - `PGDATA`: Directory where PostgreSQL data is stored (default: `/config/DB`).
   - `POSTGRES_HOST`: The host address for the PostgreSQL server (default: `127.0.0.1`).
   - `POSTGRES_DB`: Name of the PostgreSQL database (default: `StreamMaster`).
-  - `POSTGRES_SET_PERMS`: Controls permission setting (default: `1`).
   - `BACKUP_VERSIONS_TO_KEEP`: Number of backup versions to retain (default: `5`).
 - **Volumes**:
   - `~/.streammaster:/config`: Stores configuration data.
