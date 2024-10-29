@@ -43,7 +43,7 @@ public class RefreshM3UFileRequestHandler(ILogger<RefreshM3UFileRequest> Logger,
                     if (success)
                     {
                         m3uFile.DownloadErrors = 0;
-                        m3uFile.LastDownloaded = File.GetLastWriteTime(fullName).ToUniversalTime();
+                        m3uFile.LastDownloaded = SMDT.UtcNow;
                         m3uFile.FileExists = true;
                     }
                     else

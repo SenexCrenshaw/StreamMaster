@@ -47,7 +47,7 @@ public class RefreshEPGFileRequestHandler(ILogger<RefreshEPGFileRequest> Logger,
                     if (success)
                     {
                         epgFile.DownloadErrors = 0;
-                        epgFile.LastDownloaded = File.GetLastWriteTime(fullName).ToUniversalTime();
+                        epgFile.LastDownloaded = SMDT.UtcNow;
                         epgFile.FileExists = true;
                     }
                     else
