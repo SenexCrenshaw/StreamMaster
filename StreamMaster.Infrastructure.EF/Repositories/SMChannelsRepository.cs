@@ -242,10 +242,10 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IImag
             List<SMChannel> addedSMChannels = [];
             //List<SMChannel> bulkSMChannels = [];
 
-            for (int i = 0; i < streamIds.Count; i += BuildInfo.DBBatchSize)
+            for (int i = 0; i < streamIds.Count; i += settings.CurrentValue.DBBatchSize)
             {
                 Stopwatch batchStopwatch = Stopwatch.StartNew(); // Timer for each batch
-                List<string> batch = streamIds.Skip(i).Take(BuildInfo.DBBatchSize).ToList();
+                List<string> batch = streamIds.Skip(i).Take(settings.CurrentValue.DBBatchSize).ToList();
 
                 foreach (string streamId in batch)
                 {
@@ -677,10 +677,10 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IImag
 
     private async Task BulkUpdate(List<SMChannel> addedSMChannels, int? defaultSGId)
     {
-        for (int i = 0; i < addedSMChannels.Count; i += BuildInfo.DBBatchSize)
+        for (int i = 0; i < addedSMChannels.Count; i += settings.CurrentValue.DBBatchSize)
         {
             Stopwatch batchStopwatch = Stopwatch.StartNew(); // Timer for each batch
-            List<SMChannel> batch = addedSMChannels.Skip(i).Take(BuildInfo.DBBatchSize).ToList();
+            List<SMChannel> batch = addedSMChannels.Skip(i).Take(settings.CurrentValue.DBBatchSize).ToList();
 
             if (settings.CurrentValue.AutoSetEPG)
             {

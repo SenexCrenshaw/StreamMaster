@@ -29,7 +29,14 @@ const SchedulesDirectAddHeadendDialog = ({ buttonDisabled, value }: SchedulesDir
   };
 
   return (
-    <SMPopUp buttonDisabled={buttonDisabled} title="Subscribe Lineup" icon="pi-plus" buttonClassName="icon-green" onOkClick={addHeadEnd}>
+    <SMPopUp
+      buttonDisabled={buttonDisabled}
+      title="Subscribe to Lineup"
+      icon="pi-plus"
+      buttonClassName="icon-green"
+      onOkClick={addHeadEnd}
+      tooltip="Subscribe to Lineup"
+    >
       <div className="flex flex-column align-content-center justify-content-center align-items-center">
         <div>Are you sure?</div>
         <div>You can only do this 6 times per day</div>
