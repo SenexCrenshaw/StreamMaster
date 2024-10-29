@@ -178,18 +178,32 @@ public class EPGFileRepository(ILogger<EPGFileRepository> intLogger, IFileUtilSe
 
     public async Task<List<EPGFileDto>> GetEPGFilesNeedUpdatingAsync()
     {
-        List<EPGFileDto> ret = [];
-        List<EPGFileDto> epgFilesToUpdated = await GetQuery(a => a.AutoUpdate && !string.IsNullOrEmpty(a.Url) && a.HoursToUpdate > 0 && a.LastDownloaded.AddHours(a.HoursToUpdate) < SMDT.UtcNow).ProjectTo<EPGFileDto>(mapper.ConfigurationProvider).ToListAsync().ConfigureAwait(false);
-        ret.AddRange(epgFilesToUpdated);
-        foreach (EPGFile? epgFile in GetQuery(a => string.IsNullOrEmpty(a.Url)))
-        {
-            if (epgFile.LastWrite() >= epgFile.LastUpdated)
-            {
-                ret.Add(mapper.Map<EPGFileDto>(epgFile));
-            }
-        }
+        // Fetch files that need updating based on AutoUpdate, Url, and HoursToUpdate criteria
+        List<EPGFileDto> ret = await GetQuery(a =>
+            a.AutoUpdate &&
+            (
+                (!string.IsNullOrEmpty(a.Url) && a.HoursToUpdate > 0 && a.LastDownloaded.AddHours(a.HoursToUpdate) < SMDT.UtcNow) ||
+                (string.IsNullOrEmpty(a.Url) && a.HoursToUpdate > 0 && a.LastUpdated.AddHours(a.HoursToUpdate) < SMDT.UtcNow)
+            ))
+            .ProjectTo<EPGFileDto>(mapper.ConfigurationProvider)
+            .ToListAsync()
+            .ConfigureAwait(false);
+
+        // Fetch files without Urls and check if LastWrite is newer than LastUpdated
+        List<EPGFile> filesWithoutUrl = await GetQuery(a => string.IsNullOrEmpty(a.Url))
+            .ToListAsync()
+            .ConfigureAwait(false);
+
+        // Add files with recent LastWrite activity to the result list
+        ret.AddRange(
+            filesWithoutUrl
+                .Where(epgFile => epgFile.LastWrite() >= epgFile.LastUpdated)
+                .Select(mapper.Map<EPGFileDto>)
+        );
+
         return ret;
     }
+
 
     /// <summary>
     /// Retrieves paged EPGFiles based on specific parameters.
