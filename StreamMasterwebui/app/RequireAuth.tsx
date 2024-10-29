@@ -7,6 +7,11 @@ const RequireAuth = ({ children }: { children: JSX.Element }): JSX.Element => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const location = useLocation();
 
+  function getQueryParam(param) {
+    const params = new URLSearchParams(window.location.search);
+    return params.get(param);
+  }
+
   useEffect(() => {
     Logger.error('Check Auth Started');
     const checkAuth = async () => {
@@ -35,10 +40,18 @@ const RequireAuth = ({ children }: { children: JSX.Element }): JSX.Element => {
     return <div>Loading...</div>;
   }
 
+  let returnUrl = getQueryParam('ReturnUrl');
+  if (returnUrl === null || returnUrl === '' || returnUrl === '/') {
+    returnUrl = '/editor/streams';
+  }
   if (!isAuthenticated) {
+    // const a = encodeURIComponent(location.pathname + location.search);
+
     // // If not authenticated, redirect to login with the current path as ReturnUrl
     // return <Navigate to={`/login?ReturnUrl=${encodeURIComponent(location.pathname + location.search)}`} />;
-    window.location.href = `/login?ReturnUrl=${encodeURIComponent(location.pathname + location.search)}`;
+    if (!location.pathname.startsWith('/login')) {
+      window.location.href = `/login?ReturnUrl=${encodeURIComponent(returnUrl)}`;
+    }
     return <div />; // return null to avoid rendering further
   }
 
