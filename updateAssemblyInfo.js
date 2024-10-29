@@ -4,7 +4,7 @@ function normalizeVersion(version) {
     return version;
   }
 
-  // Replace any non-numeric or non-dot characters with a dot, then remove any consecutive dots
+  // Replace  any non-numeric or non-dot characters with a dot, then remove any consecutive dots
   let normalizedVersion = version
     .replace(/[^0-9.]+/g, ".")
     .replace(/\.{2,}/g, ".");
