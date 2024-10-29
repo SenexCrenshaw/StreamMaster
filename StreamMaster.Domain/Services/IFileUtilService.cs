@@ -2,6 +2,7 @@
 {
     public interface IFileUtilService
     {
+        string? GetFilePath(string filepath);
         IEnumerable<FileInfo> GetFilesFromDirectory(FileDefinition fileDefinition);
         Stream? GetFileDataStream(string source);
         bool IsFileGzipped(string filePath);

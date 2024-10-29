@@ -32,9 +32,10 @@ public partial class XmlTvToXMLTV(ILogger<XmlTvToXMLTV> logger, ISchedulesDirect
 
     private async Task<XMLTV?> ReadXmlFileAsync(string filepath)
     {
-        if (!File.Exists(filepath))
+        filepath = fileUtilService.GetFilePath(filepath);
+
+        if (filepath == null)
         {
-            // Logger.WriteInformation($"File \"{filepath}\" does not exist.");
             return null;
         }
 

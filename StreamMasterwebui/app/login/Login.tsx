@@ -10,13 +10,13 @@ const Login: React.FC = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
-  // Get `ReturnUrl` from query params
-  const getQueryParam = (param: string) => {
-    const params = new URLSearchParams(location.search);
-    return params.get(param);
-  };
-
   useEffect(() => {
+    // Get `ReturnUrl` from query params
+    const getQueryParam = (param: string) => {
+      const params = new URLSearchParams(location.search);
+      return params.get(param);
+    };
+
     const checkAuth = async () => {
       try {
         const response = await fetch(baseHostURL + '/needAuth', {

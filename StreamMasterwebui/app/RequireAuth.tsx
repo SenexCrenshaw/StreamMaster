@@ -13,7 +13,6 @@ const RequireAuth = ({ children }: { children: JSX.Element }): JSX.Element => {
   }
 
   useEffect(() => {
-    Logger.error('Check Auth Started');
     const checkAuth = async () => {
       try {
         const response = await fetch(baseHostURL + '/needAuth', {
@@ -25,15 +24,18 @@ const RequireAuth = ({ children }: { children: JSX.Element }): JSX.Element => {
         });
         const needAuth = await response.json();
         setIsAuthenticated(needAuth === false);
-      } catch (error) {
-        Logger.error('Error checking authentication status:', error);
-        setIsAuthenticated(false);
+      } catch (error: any) {
+        if (error?.message === 'Failed to fetch') {
+          Logger.error('Failed to fetch, check if the server is running');
+          setIsAuthenticated(null);
+        } else {
+          Logger.error('Error checking authentication status:', error);
+          setIsAuthenticated(false);
+        }
       }
     };
     checkAuth();
   }, []);
-
-  Logger.error('RequireAuth', 'isAuthenticated', isAuthenticated);
 
   if (isAuthenticated === null) {
     // Still loading, optionally show a loading indicator here

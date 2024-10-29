@@ -8,7 +8,7 @@ module.exports = {
     {
       channel: "main",
       name: "main",
-      prerelease: false
+      prerelease: true
     },
     {
       name: "!main",
