@@ -1,18 +1,17 @@
 import { Logger } from '@lib/common/logger';
+import { baseHostURL } from '@lib/settings';
 import { useEffect, useState } from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 
 const RequireAuth = ({ children }: { children: JSX.Element }): JSX.Element => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const location = useLocation();
 
-  console.log('RequireAuth Mounted');
-
   useEffect(() => {
     Logger.error('Check Auth Started');
     const checkAuth = async () => {
       try {
-        const response = await fetch('/needAuth', {
+        const response = await fetch(baseHostURL + '/needAuth', {
           credentials: 'include',
           headers: {
             'Content-Type': 'application/json'
@@ -37,8 +36,10 @@ const RequireAuth = ({ children }: { children: JSX.Element }): JSX.Element => {
   }
 
   if (!isAuthenticated) {
-    // If not authenticated, redirect to login with the current path as ReturnUrl
-    return <Navigate to={`/login?ReturnUrl=${encodeURIComponent(location.pathname + location.search)}`} />;
+    // // If not authenticated, redirect to login with the current path as ReturnUrl
+    // return <Navigate to={`/login?ReturnUrl=${encodeURIComponent(location.pathname + location.search)}`} />;
+    window.location.href = `/login?ReturnUrl=${encodeURIComponent(location.pathname + location.search)}`;
+    return <div />; // return null to avoid rendering further
   }
 
   // User is authenticated, render the child component

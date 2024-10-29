@@ -49,11 +49,15 @@
     return params.get(param);
   }
 
+  const isClient = typeof window !== 'undefined';
+  const isDev = process.env.NODE_ENV === 'development';
+  const baseHostURL = isClient && !isDev ? `${window.location.protocol}//${window.location.host}` : 'http://127.0.0.1:7095';
+
   // Check if user is authenticated
   (async () => {
     try {
       console.log('window.location.search:', window.location.search)
-      const response = await fetch('/needAuth', {
+      const response = await fetch(baseHostURL + '/needAuth', {
         method: 'GET',
         credentials: 'include', // Send cookies with the request if applicable
         headers: {

@@ -191,16 +191,21 @@
 </body>
 
 <script type="text/javascript">
+    console.log("data", data);
     // Function to get query parameters from the URL
     function getQueryParam(param) {
         const params = new URLSearchParams(window.location.search);
         return params.get(param);
     }
 
+    const isClient = typeof window !== 'undefined';
+    const isDev = process.env.NODE_ENV === 'development';
+    const baseHostURL = isClient && !isDev ? `${window.location.protocol}//${window.location.host}` : 'http://127.0.0.1:7095';
+
     // Check if user is authenticated
     (async () => {
         try {
-            const response = await fetch('/needAuth', {
+            const response = await fetch(baseHostURL + '/needAuth', {
                 method: 'GET',
                 credentials: 'include', // Send cookies with the request if applicable
                 headers: {
@@ -209,7 +214,7 @@
             });
 
             const data = await response.json();
-
+            console.log("data", data);
             if (data === false) {
                 // If `needAuth` is false, user is already authenticated - redirect
                 const returnUrl = getQueryParam('ReturnUrl');

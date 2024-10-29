@@ -14,6 +14,7 @@ import SMLoader from '@components/loader/SMLoader';
 import { SettingsProvider } from '@lib/context/SettingsProvider';
 import { Suspense, lazy } from 'react';
 import RequireAuth from './RequireAuth';
+import Login from './login/Login';
 
 const Router = (): JSX.Element => {
   const store = useStore();
@@ -57,7 +58,7 @@ const Router = (): JSX.Element => {
           }
           index
         />
-
+        <Route element={<Login />} path="/login" />
         <Route
           element={
             <Suspense>
