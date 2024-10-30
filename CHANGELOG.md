@@ -1,3 +1,10 @@
+## [0.16.2](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.16.1...v0.16.2) (2024-10-30)
+
+
+### Bug Fixes
+
+* Add Response Compression ([698da5d](https://github.com/SenexCrenshaw/StreamMaster/commit/698da5d5fc696a98a1d3594942eaf9a1d06bbaaf))
+
 ## [0.16.1](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.16.0...v0.16.1) (2024-10-29)
 
 
