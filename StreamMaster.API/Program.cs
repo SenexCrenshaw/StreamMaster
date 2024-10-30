@@ -192,12 +192,15 @@ builder.Services.AddControllers(options =>
     options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
 });
 
-
+builder.Services.AddResponseCompression(options =>
+{
+    options.EnableForHttps = true;
+});
 
 builder.Services.AddSingleton<ILoggerProvider, SMLoggerProvider>();
 
 WebApplication app = builder.Build();
-
+app.UseResponseCompression();
 app.UseForwardedHeaders();
 
 var lifetime = app.Services.GetService<IHostApplicationLifetime>();
