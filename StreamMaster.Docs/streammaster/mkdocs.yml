@@ -1,8 +1,11 @@
 site_name: Stream Master
 repo_url: https://github.com/SenexCrenshaw/StreamMaster
 theme:
-  name: material
+  name: 'material'
+  locale: en
   logo: "assets/sm_logo.png"
+  features:
+    - content.code.copy
   palette:
     # Palette toggle for light mode
     - scheme: default
@@ -16,9 +19,20 @@ theme:
       toggle:
         icon: material/brightness-4
         name: Switch to light mode
-
+nav:
+  - Home: index.md
+  - Getting Started 🚀: GettingStarted.md
+  - Auth 🔑: Auth.md
+  - EPG/XML Files 📅: EPG.md
+  - M3U Files 📜: M3U.md
+  - StreamGroup 📺: StreamGroup.md
+  - Profiles 🧑‍💻: Profiles.md
+  - Docs 📘: Docs.md
+  - Contributors 🌟: Contributors.md
+        
 plugins:
   - search
+  - include-markdown
   - i18n:
       docs_structure: folder
       languages:
@@ -53,5 +67,4 @@ plugins:
         - locale: is
           name: Icelandic
           build: true
-
 site_url: "https://senexcrenshaw.github.io/StreamMaster/"

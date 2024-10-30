@@ -133,18 +133,38 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, IRepository
 
     public async Task<List<M3UFileDto>> GetM3UFilesNeedUpdatingAsync()
     {
+        // Initialize the result list
         List<M3UFileDto> ret = [];
-        List<M3UFileDto> m3uFilesToUpdated = await GetQuery(a => a.AutoUpdate && !string.IsNullOrEmpty(a.Url) && a.HoursToUpdate > 0 && a.LastDownloaded.AddHours(a.HoursToUpdate) < SMDT.UtcNow).ProjectTo<M3UFileDto>(mapper.ConfigurationProvider).ToListAsync().ConfigureAwait(false);
-        ret.AddRange(m3uFilesToUpdated);
-        foreach (M3UFile? m3uFile in GetQuery(a => string.IsNullOrEmpty(a.Url)))
-        {
-            if (m3uFile.LastWrite() >= m3uFile.LastUpdated)
-            {
-                ret.Add(mapper.Map<M3UFileDto>(m3uFile));
-            }
-        }
+
+        // Fetch M3U files that need updating based on AutoUpdate, Url, and HoursToUpdate criteria
+        List<M3UFileDto> m3uFilesToUpdate = await GetQuery(a =>
+            a.AutoUpdate &&
+            (
+                (!string.IsNullOrEmpty(a.Url) && a.HoursToUpdate > 0 && a.LastDownloaded.AddHours(a.HoursToUpdate) < SMDT.UtcNow) ||
+                (string.IsNullOrEmpty(a.Url) && a.HoursToUpdate > 0 && a.LastUpdated.AddHours(a.HoursToUpdate) < SMDT.UtcNow)
+            ))
+            .ProjectTo<M3UFileDto>(mapper.ConfigurationProvider)
+            .ToListAsync()
+            .ConfigureAwait(false);
+
+        // Add files that met the above conditions to the result list
+        ret.AddRange(m3uFilesToUpdate);
+
+        // Fetch files without a URL and filter based on LastWrite vs. LastUpdated
+        List<M3UFile> filesWithoutUrl = await GetQuery(a => string.IsNullOrEmpty(a.Url))
+            .ToListAsync()
+            .ConfigureAwait(false);
+
+        // Add files with recent LastWrite activity to the result list
+        ret.AddRange(
+            filesWithoutUrl
+                .Where(m3uFile => m3uFile.LastWrite() >= m3uFile.LastUpdated)
+                .Select(mapper.Map<M3UFileDto>)
+        );
+
         return ret;
     }
+
 
     public IQueryable<M3UFile> GetM3UFileQuery()
     {

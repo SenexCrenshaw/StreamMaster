@@ -10,13 +10,7 @@
       "StreamMaster.Infrastructure.VideoStreamManager.Buffers.CircularRingBuffer": "Information",
       "StreamMaster.Infrastructure.VideoStreamManager.Buffers": "Information",
       "StreamMaster.Infrastructure.Services.Downloads": "Information",
-      "StreamMaster.Logging": "Information",
-      "StreamMaster.Logging.ReadsLogger": "Information",
-      "StreamMaster.Logging.WriteLogger": "Information",
-      "StreamMaster.Logging.StatsLogger": "Information",
-      "StreamMaster.Logging.CircularBufferLogger": "Information",
-      "StreamMaster.Logging.WaitsLogger": "Information",
-      "StreamMaster.Logging.Dist_Logger": "Information"
+      "StreamMaster.Logging": "Information"
     }
   }
 }

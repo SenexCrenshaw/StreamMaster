@@ -173,6 +173,10 @@ public partial class UpdateSettingRequestHandler(
     private async Task<bool> UpdateSetting(Setting currentSetting, SDSettings sdsettings, UpdateSettingRequest request)
     {
         bool needsLogOut = false;
+        if (request.Parameters == null)
+        {
+            return false;
+        }
 
         if (request.Parameters.LogoCache != null)
         {

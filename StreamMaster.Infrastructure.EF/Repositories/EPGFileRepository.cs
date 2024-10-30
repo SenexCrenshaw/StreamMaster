@@ -178,18 +178,51 @@ public class EPGFileRepository(ILogger<EPGFileRepository> intLogger, IFileUtilSe
 
     public async Task<List<EPGFileDto>> GetEPGFilesNeedUpdatingAsync()
     {
-        List<EPGFileDto> ret = [];
-        List<EPGFileDto> epgFilesToUpdated = await GetQuery(a => a.AutoUpdate && !string.IsNullOrEmpty(a.Url) && a.HoursToUpdate > 0 && a.LastDownloaded.AddHours(a.HoursToUpdate) < SMDT.UtcNow).ProjectTo<EPGFileDto>(mapper.ConfigurationProvider).ToListAsync().ConfigureAwait(false);
-        ret.AddRange(epgFilesToUpdated);
-        foreach (EPGFile? epgFile in GetQuery(a => string.IsNullOrEmpty(a.Url)))
+        List<EPGFile> filesWithoutUrl = await GetQuery(a => string.IsNullOrEmpty(a.Url))
+            .ToListAsync()
+            .ConfigureAwait(false);
+
+
+        HashSet<EPGFileDto> toUpdate = filesWithoutUrl.Where(epgFile => epgFile.LastWrite() >= epgFile.LastUpdated).Select(mapper.Map<EPGFileDto>).ToHashSet();
+
+        if (toUpdate.Count > 0)
         {
-            if (epgFile.LastWrite() >= epgFile.LastUpdated)
+            logger.LogInformation("Found {toUpdate.Count} EPG files that need updating based on LastWrite and LastUpdated criteria.");
+        }
+
+        List<EPGFileDto> ret = await GetQuery(a =>
+            a.AutoUpdate && !string.IsNullOrEmpty(a.Url) && a.HoursToUpdate > 0 && a.LastDownloaded.AddHours(a.HoursToUpdate) < SMDT.UtcNow)
+            .ProjectTo<EPGFileDto>(mapper.ConfigurationProvider)
+            .ToListAsync()
+            .ConfigureAwait(false);
+
+        if (ret.Count > 0)
+        {
+            logger.LogInformation("Found {ret.Count} EPG files that need updating based on LastDownloaded criteria.");
+            foreach (EPGFileDto r in ret)
             {
-                ret.Add(mapper.Map<EPGFileDto>(epgFile));
+                toUpdate.Add(r);
             }
         }
-        return ret;
+
+        ret = await GetQuery(a =>
+            a.AutoUpdate && string.IsNullOrEmpty(a.Url) && a.HoursToUpdate > 0 && a.LastUpdated.AddHours(a.HoursToUpdate) < SMDT.UtcNow)
+            .ProjectTo<EPGFileDto>(mapper.ConfigurationProvider)
+            .ToListAsync()
+            .ConfigureAwait(false);
+
+        if (ret.Count > 0)
+        {
+            logger.LogInformation("Found {ret.Count} EPG files that need updating based on LastUpdated criteria.");
+            foreach (EPGFileDto r in ret)
+            {
+                toUpdate.Add(r);
+            }
+        }
+
+        return toUpdate.ToList();
     }
+
 
     /// <summary>
     /// Retrieves paged EPGFiles based on specific parameters.

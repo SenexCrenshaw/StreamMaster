@@ -21,6 +21,33 @@ namespace StreamMaster.Infrastructure.Services
             CreateHttpClient();
         }
 
+        public string? GetFilePath(string filepath)
+        {
+            // Check if the file exists at the original filepath
+            if (File.Exists(filepath))
+            {
+                return filepath;
+            }
+
+            // Check if a .gz compressed file exists
+            string gzFilePath = filepath + ".gz";
+            if (File.Exists(gzFilePath))
+            {
+                return gzFilePath;
+            }
+
+            // Check if a .zip compressed file exists
+            string zipFilePath = filepath + ".zip";
+            if (File.Exists(zipFilePath))
+            {
+                return zipFilePath;
+            }
+
+            // Log the information if none of the files exist
+            // Logger.WriteInformation($"File \"{filepath}\" does not exist in any checked format.");
+            return null;
+        }
+
         public Stream? GetFileDataStream(string source)
         {
             string? filePath = GetExistingFilePath(source);

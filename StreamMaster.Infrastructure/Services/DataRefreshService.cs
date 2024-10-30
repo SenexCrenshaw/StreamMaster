@@ -1,8 +1,7 @@
 using Microsoft.AspNetCore.SignalR;
 
-using StreamMaster.Application.Interfaces;
 using StreamMaster.Application.Hubs;
-using StreamMaster.Application.Services;
+using StreamMaster.Application.Interfaces;
 using StreamMaster.Domain.Configuration;
 
 namespace StreamMaster.Infrastructure.Services;
@@ -161,6 +160,7 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
         await hub.Clients.All.DataRefresh("GetStationPreviews");
         await hub.Clients.All.DataRefresh("GetSubScribedHeadends");
         await hub.Clients.All.DataRefresh("GetSubscribedLineups");
+        await hub.Clients.All.DataRefresh("GetHeadendsByCountryPostal");
     }
 
     public async Task RefreshSettings(bool alwaysRun = false)

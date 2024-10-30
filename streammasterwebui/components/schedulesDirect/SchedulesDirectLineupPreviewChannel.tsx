@@ -56,6 +56,7 @@ const SchedulesDirectLineupPreviewChannel = ({ lineup }: SchedulesDirectLineupPr
       modalCentered
       onCloseClick={() => console.log('close')}
       onOpen={setIsOpen}
+      tooltip="Line Up Preview"
     >
       <SMDataTable
         enablePaginator

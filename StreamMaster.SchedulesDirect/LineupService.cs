@@ -3,6 +3,7 @@
 using StreamMaster.Domain.Dto;
 using StreamMaster.Domain.Enums;
 using StreamMaster.Domain.Helpers;
+using StreamMaster.Domain.Models;
 
 using System.Collections.Concurrent;
 using System.Text.RegularExpressions;
@@ -61,6 +62,19 @@ public class LineupService : ILineupService
         StationLogosToDownload.Clear();
     }
 
+    private void CheckHeadendView(SubscribedLineup subscribedLineup)
+    {
+        if (!intSDSettings.CurrentValue.HeadendsToView.Any(a => a.Id == subscribedLineup.Id))
+        {
+            intSDSettings.CurrentValue.HeadendsToView.Add(new HeadendToView
+            {
+                Id = subscribedLineup.Id,
+            });
+            SettingsHelper.UpdateSetting(intSDSettings.CurrentValue);
+        }
+        //string HeadendId, string Country, string Postal
+    }
+
     public async Task<bool> BuildLineupServices(CancellationToken cancellationToken = default)
     {
         SDSettings sdSettings = intSDSettings.CurrentValue;
@@ -68,7 +82,7 @@ public class LineupService : ILineupService
 
         if (clientLineups == null || clientLineups.Lineups.Count < 1)
         {
-            return false;
+            return true;
         }
 
         string preferredLogoStyle = string.IsNullOrEmpty(sdSettings.PreferredLogoStyle) ? "DARK" : sdSettings.PreferredLogoStyle;
@@ -77,10 +91,22 @@ public class LineupService : ILineupService
 
         foreach (SubscribedLineup clientLineup in clientLineups.Lineups)
         {
-            if (sdSettings.SDStationIds.Find(a => a.Lineup == clientLineup.Lineup) == null || clientLineup.IsDeleted)
+            if (clientLineup.IsDeleted)
             {
-                continue;
+                if (sdSettings.SDStationIds.Any(a => a.Lineup == clientLineup.Lineup))
+                {
+                    sdSettings.SDStationIds.RemoveAll(a => a.Lineup == clientLineup.Lineup);
+                    SettingsHelper.UpdateSetting(sdSettings);
+                }
             }
+
+            //CheckHeadendView(clientLineup);
+
+            if (sdSettings.SDStationIds.Find(a => a.Lineup == clientLineup.Lineup) == null)
+            {
+                return true;
+            }
+
 
             MxfLineup mxfLineup = schedulesDirectData.FindOrCreateLineup(clientLineup.Lineup, $"SM {clientLineup.Name} ({clientLineup.Location})");
             StationChannelMap? lineupMap = await GetStationChannelMap(clientLineup.Lineup);
@@ -211,15 +237,27 @@ public class LineupService : ILineupService
 
     private async Task SetLogoAsync(MxfService mxfService, string logoPath, StationImage stationLogo, CancellationToken cancellationToken)
     {
-        await using FileStream stream = File.OpenRead(logoPath);
-        using Image image = await Image.LoadAsync(stream, cancellationToken);
 
-        mxfService.extras.TryAdd("logo", new StationImage
+        if (File.Exists(logoPath))
         {
-            Url = stationLogo.Url,
-            Height = image.Height,
-            Width = image.Width
-        });
+            await using FileStream stream = File.OpenRead(logoPath);
+            using Image image = await Image.LoadAsync(stream, cancellationToken);
+
+            mxfService.extras.TryAdd("logo", new StationImage
+            {
+                Url = stationLogo.Url,
+                Height = image.Height,
+                Width = image.Width
+            });
+        }
+        else
+        {
+            mxfService.extras.TryAdd("logo", new StationImage
+            {
+                Url = stationLogo.Url
+            });
+        }
+
 
         mxfService.mxfGuideImage = schedulesDirectDataService.SchedulesDirectData().FindOrCreateGuideImage(stationLogo.Url);
     }

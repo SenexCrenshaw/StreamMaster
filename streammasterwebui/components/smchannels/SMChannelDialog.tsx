@@ -38,7 +38,7 @@ const SMChannelDialog = forwardRef<SMChannelDialogRef, SMChannelDialogProperties
       }
     } else {
       if (request.CommandProfileName === undefined) {
-        setRequest({ StationId: '11', CommandProfileName: 'Default' } as UpdateSMChannelRequest);
+        setRequest({ CommandProfileName: 'Default', StationId: '11' } as UpdateSMChannelRequest);
       }
     }
   }, [smChannel, request]);
@@ -213,7 +213,7 @@ const SMChannelDialog = forwardRef<SMChannelDialogRef, SMChannelDialogProperties
                   label="Command Profile"
                   data={tempSMChannel}
                   onChange={(e) => setCommandProfileName(e)}
-                  value="Default"
+                  value={request.CommandProfileName}
                 />
               </div>
             </div>

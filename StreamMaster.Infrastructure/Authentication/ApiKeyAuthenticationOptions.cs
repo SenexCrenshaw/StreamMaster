@@ -22,6 +22,7 @@ public class ApiKeyAuthenticationOptions : AuthenticationSchemeOptions
 public class ApiKeyAuthenticationHandler(
     IOptionsMonitor<ApiKeyAuthenticationOptions> options,
     IOptionsMonitor<Setting> settings,
+    IDataRefreshService dataRefreshService,
     ILoggerFactory logger,
     UrlEncoder encoder) : AuthenticationHandler<ApiKeyAuthenticationOptions>(options, logger, encoder)
 {
@@ -36,7 +37,7 @@ public class ApiKeyAuthenticationHandler(
 
     protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
     {
-        bool needsAuth = settings.CurrentValue.AuthenticationMethod != "None";
+        bool needsAuth = string.IsNullOrEmpty(settings.CurrentValue.AuthenticationMethod) || !settings.CurrentValue.AuthenticationMethod.Equals("none", StringComparison.CurrentCultureIgnoreCase);
 
         if (!needsAuth)
         {
@@ -81,20 +82,41 @@ public class ApiKeyAuthenticationHandler(
 
         // Both API key and Forms authentication failed
         _logger.LogDebug("No valid API key or cookie found for authentication");
+        //await dataRefreshService.AuthLogOut();
         return AuthenticateResult.Fail("No valid API key or cookie found for authentication");
     }
+
+    //protected override Task HandleChallengeAsync(AuthenticationProperties properties)
+    //{
+    //    // If authentication fails, redirect to the login page
+    //    if (Context.Request.Path.StartsWithSegments("/streammasterhub"))
+    //    {
+    //        _logger.LogDebug("SignalR authentication failed. Redirecting to login.");
+    //        Response.Redirect("/login");
+    //    }
+    //    else
+    //    {
+    //        Response.StatusCode = 401; // Set unauthorized status for non-SignalR requests
+    //    }
+
+    //    return Task.CompletedTask;
+    //}
 
     protected override Task HandleChallengeAsync(AuthenticationProperties properties)
     {
         // If authentication fails, redirect to the login page
-        if (Context.Request.Path.StartsWithSegments("/streammasterhub"))
+        if (!Context.User.Identity.IsAuthenticated)
         {
-            _logger.LogDebug("SignalR authentication failed. Redirecting to login.");
-            Response.Redirect("/login?loginFailed=true");
+            _logger.LogDebug("Authentication failed. Redirecting to login page for {requestPath}", Context.Request.Path);
+
+            dataRefreshService.AuthLogOut();
+            // Redirecting to login path
+            Response.Redirect("/login");
         }
         else
         {
-            Response.StatusCode = 401; // Set unauthorized status for non-SignalR requests
+            // If already authenticated, but insufficient permissions (403 forbidden)
+            Response.StatusCode = 403;
         }
 
         return Task.CompletedTask;

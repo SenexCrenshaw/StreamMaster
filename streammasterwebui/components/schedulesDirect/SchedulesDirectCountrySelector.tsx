@@ -137,7 +137,7 @@ const SchedulesDirectCountrySelector = (props: SchedulesDirectCountrySelectorPro
               // setSelectedCountry(countryValue);
               // setSelectedPostalCode(postalCodeValue);
 
-              const newData: UpdateSettingRequest = { parameters: { SDSettings: { SDCountry: selectedCountry, SDPostalCode: selectedPostalCode } } };
+              const newData: UpdateSettingRequest = { Parameters: { SDSettings: { SDCountry: selectedCountry, SDPostalCode: selectedPostalCode } } };
 
               UpdateSetting(newData)
                 .then(() => {})

@@ -6,7 +6,7 @@ namespace StreamMaster.Application.SchedulesDirect.Queries;
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record GetSubScribedHeadendsRequest() : IRequest<DataResponse<List<HeadendDto>>>;
 
-internal class GetHeadendsRequestHandler(ISender Sender, IOptionsMonitor<SDSettings> intSDSettings)
+internal class GetSubScribedHeadendsRequestHandler(ISender Sender, IOptionsMonitor<SDSettings> intSDSettings)
     : IRequestHandler<GetSubScribedHeadendsRequest, DataResponse<List<HeadendDto>>>
 {
     private static readonly Regex FileNamePattern = new(@"Headends-(?<country>[A-Z]{3})-(?<postalCode>\d{5})\.json", RegexOptions.IgnoreCase | RegexOptions.Compiled);

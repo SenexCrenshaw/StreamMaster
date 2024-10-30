@@ -1,2 +1,0 @@
-#check if docker can see gpus
-docker run --rm  --gpus all ubuntu nvidia-smi

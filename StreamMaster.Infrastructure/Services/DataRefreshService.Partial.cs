@@ -5,6 +5,11 @@ namespace StreamMaster.Infrastructure.Services;
 
 public partial class DataRefreshService : IDataRefreshServicePartial
 {
+    public async Task AuthLogOut()
+    {
+        await hub.Clients.All.AuthLogOut();
+    }
+
     public async Task IsSystemReady()
     {
         await hub.Clients.All.IsSystemReady(BuildInfo.IsSystemReady);

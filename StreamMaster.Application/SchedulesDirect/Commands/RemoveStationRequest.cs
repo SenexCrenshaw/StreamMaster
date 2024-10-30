@@ -1,4 +1,5 @@
-﻿using StreamMaster.Application.Settings.Commands;
+﻿using StreamMaster.Application.Services;
+using StreamMaster.Application.Settings.Commands;
 
 namespace StreamMaster.Application.SchedulesDirect.Commands;
 
@@ -6,7 +7,7 @@ namespace StreamMaster.Application.SchedulesDirect.Commands;
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record RemoveStationRequest(List<StationRequest> Requests) : IRequest<APIResponse>;
 
-public class RemoveStationRequestHandler(ILogger<RemoveStationRequest> logger, IDataRefreshService dataRefreshService, IJobStatusService jobStatusService, ISchedulesDirect schedulesDirect, ISender Sender, IOptionsMonitor<SDSettings> intSettings)
+public class RemoveStationRequestHandler(ILogger<RemoveStationRequest> logger, IBackgroundTaskQueue backgroundTaskQueue, IDataRefreshService dataRefreshService, IJobStatusService jobStatusService, ISchedulesDirect schedulesDirect, ISender Sender, IOptionsMonitor<SDSettings> intSettings)
 : IRequestHandler<RemoveStationRequest, APIResponse>
 {
     private readonly SDSettings sdsettings = intSettings.CurrentValue;
@@ -50,6 +51,7 @@ public class RemoveStationRequestHandler(ILogger<RemoveStationRequest> logger, I
             schedulesDirect.ResetEPGCache();
             JobStatusManager jobManager = jobStatusService.GetJobManageSDSync(EPGHelper.SchedulesDirectId);
             jobManager.SetForceNextRun();
+            await backgroundTaskQueue.EPGSync(cancellationToken).ConfigureAwait(false);
             await dataRefreshService.RefreshSchedulesDirect();
 
 

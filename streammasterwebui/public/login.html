@@ -155,8 +155,7 @@
     <div class="center">
         <div class="content">
             <div class="panel">
-                <div class="panel-header" style="background-color: #263238
-">
+                <div class="panel-header" style="background-color: #263238">
                     <img src="/images/streammaster_logo.png" alt="Image" class="logo" />
                 </div>
 
@@ -192,17 +191,52 @@
 </body>
 
 <script type="text/javascript">
-    var yearSpan = document.getElementById('year');
-    yearSpan.innerHTML = new Date().getFullYear();
-
-    var copyDiv = document.getElementById('copy');
-    copyDiv.classList.remove('hidden');
-
-    if (window.location.search.indexOf('loginFailed=true') > -1) {
-        var loginFailedDiv = document.getElementById('login-failed');
-
-        loginFailedDiv.classList.remove('hidden');
+    console.log("data", data);
+    // Function to get query parameters from the URL
+    function getQueryParam(param) {
+        const params = new URLSearchParams(window.location.search);
+        return params.get(param);
     }
+
+    const isClient = typeof window !== 'undefined';
+    const isDev = process.env.NODE_ENV === 'development';
+    const baseHostURL = isClient && !isDev ? `${window.location.protocol}//${window.location.host}` : 'http://127.0.0.1:7095';
+
+    // Check if user is authenticated
+    (async () => {
+        try {
+            const response = await fetch(baseHostURL + '/needAuth', {
+                method: 'GET',
+                credentials: 'include', // Send cookies with the request if applicable
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            const data = await response.json();
+            console.log("data", data);
+            if (data === false) {
+                // If `needAuth` is false, user is already authenticated - redirect
+                const returnUrl = getQueryParam('ReturnUrl');
+                window.location.href = returnUrl ? decodeURIComponent(returnUrl) : '/editor/streams'; // Replace '/home' with your default landing page
+                return;
+            }
+        } catch (error) {
+            console.error('Error checking authentication status:', error);
+        }
+
+        // Set up the rest of the login page only if authentication is needed
+        var yearSpan = document.getElementById('year');
+        yearSpan.innerHTML = new Date().getFullYear();
+
+        var copyDiv = document.getElementById('copy');
+        copyDiv.classList.remove('hidden');
+
+        if (window.location.search.indexOf('loginFailed=true') > -1) {
+            var loginFailedDiv = document.getElementById('login-failed');
+            loginFailedDiv.classList.remove('hidden');
+        }
+    })();
 </script>
 
 </html>

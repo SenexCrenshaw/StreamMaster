@@ -1,4 +1,5 @@
-﻿using StreamMaster.Application.Settings.Commands;
+﻿using StreamMaster.Application.Services;
+using StreamMaster.Application.Settings.Commands;
 
 namespace StreamMaster.Application.SchedulesDirect.Commands;
 
@@ -9,7 +10,7 @@ public record StationRequest(string StationId, string Lineup);
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record AddStationRequest(List<StationRequest> Requests) : IRequest<APIResponse>;
 
-public class AddStationHandler(ILogger<AddStationRequest> logger, IDataRefreshService dataRefreshService, IJobStatusService jobStatusService, ISchedulesDirect schedulesDirect, ISender Sender, IOptionsMonitor<SDSettings> intSettings)
+public class AddStationHandler(ILogger<AddStationRequest> logger, IBackgroundTaskQueue backgroundTaskQueue, IDataRefreshService dataRefreshService, IJobStatusService jobStatusService, ISchedulesDirect schedulesDirect, ISender Sender, IOptionsMonitor<SDSettings> intSettings)
 : IRequestHandler<AddStationRequest, APIResponse>
 {
     private readonly SDSettings sdsettings = intSettings.CurrentValue;
@@ -59,8 +60,9 @@ public class AddStationHandler(ILogger<AddStationRequest> logger, IDataRefreshSe
             schedulesDirect.ResetCache("SubscribedLineups");
 
             JobStatusManager jobManager = jobStatusService.GetJobManageSDSync(EPGHelper.SchedulesDirectId);
-
             jobManager.SetForceNextRun();
+            await backgroundTaskQueue.EPGSync(cancellationToken).ConfigureAwait(false);
+
             await dataRefreshService.RefreshSchedulesDirect();
         }
         return APIResponse.Ok;

@@ -16,7 +16,15 @@ public partial class M3UToSMStreamsService(ILogger<M3UToSMStreamsService> logger
             logger.LogInformation("Reading m3uFile {Name}", m3UFile.Name);
         }
 
-        await using Stream? dataStream = fileUtilService.GetFileDataStream(Path.Combine(FileDefinitions.M3U.DirectoryLocation, m3UFile.Source));
+        string? filepath = fileUtilService.GetFilePath(Path.Combine(FileDefinitions.M3U.DirectoryLocation, m3UFile.Source));
+
+        if (filepath == null)
+        {
+            yield return null;
+            yield break;  // Early exit if stream is null
+        }
+
+        await using Stream? dataStream = fileUtilService.GetFileDataStream(filepath);
 
         if (dataStream == null)
         {

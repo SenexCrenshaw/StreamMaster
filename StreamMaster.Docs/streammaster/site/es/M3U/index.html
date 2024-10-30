@@ -1,0 +1,897 @@
+
+<!doctype html>
+<html lang="es" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://senexcrenshaw.github.io/StreamMaster/es/M3U/">
+      
+      
+        <link rel="prev" href="../EPG/">
+      
+      
+        <link rel="next" href="../StreamGroup/">
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.42">
+    
+    
+      
+        <title>M3U Files 📜 - Stream Master</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.0253249f.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="deep-orange" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#m3u-files" class="md-skip">
+          Saltar a contenido
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabecera">
+    <a href="../" title="Stream Master" class="md-header__button md-logo" aria-label="Stream Master" data-md-component="logo">
+      
+  <img src="../../assets/sm_logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Stream Master
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              M3U Files 📜
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="deep-orange" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+      <div class="md-header__option">
+  <div class="md-select">
+    
+    <button class="md-header__button md-icon" aria-label="Seleccionar idioma">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12.87 15.07-2.54-2.51.03-.03A17.5 17.5 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2zm-2.62 7 1.62-4.33L19.12 17z"/></svg>
+    </button>
+    <div class="md-select__inner">
+      <ul class="md-select__list">
+        
+          <li class="md-select__item">
+            <a href="../../M3U/" hreflang="en" class="md-select__link">
+              English
+            </a>
+          </li>
+        
+          <li class="md-select__item">
+            <a href="./" hreflang="es" class="md-select__link">
+              Spanish
+            </a>
+          </li>
+        
+          <li class="md-select__item">
+            <a href="../../fr/M3U/" hreflang="fr" class="md-select__link">
+              French
+            </a>
+          </li>
+        
+          <li class="md-select__item">
+            <a href="../../de/M3U/" hreflang="de" class="md-select__link">
+              German
+            </a>
+          </li>
+        
+          <li class="md-select__item">
+            <a href="../../pt/M3U/" hreflang="pt" class="md-select__link">
+              Portuguese
+            </a>
+          </li>
+        
+          <li class="md-select__item">
+            <a href="../../da/M3U/" hreflang="da" class="md-select__link">
+              Danish
+            </a>
+          </li>
+        
+          <li class="md-select__item">
+            <a href="../../sv/M3U/" hreflang="sv" class="md-select__link">
+              Swedish
+            </a>
+          </li>
+        
+          <li class="md-select__item">
+            <a href="../../nb/M3U/" hreflang="nb" class="md-select__link">
+              Norwegian Bokmål
+            </a>
+          </li>
+        
+          <li class="md-select__item">
+            <a href="../../fi/M3U/" hreflang="fi" class="md-select__link">
+              Finnish
+            </a>
+          </li>
+        
+          <li class="md-select__item">
+            <a href="../../is/M3U/" hreflang="is" class="md-select__link">
+              Icelandic
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</div>
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Búsqueda" placeholder="Búsqueda" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Buscar">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Limpiar" aria-label="Limpiar" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicializando búsqueda
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/SenexCrenshaw/StreamMaster" title="Ir al repositorio" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navegación" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../" title="Stream Master" class="md-nav__button md-logo" aria-label="Stream Master" data-md-component="logo">
+      
+  <img src="../../assets/sm_logo.png" alt="logo">
+
+    </a>
+    Stream Master
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/SenexCrenshaw/StreamMaster" title="Ir al repositorio" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Home
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../GettingStarted/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Getting Started 🚀
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Auth/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Auth 🔑
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../EPG/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    EPG/XML Files 📅
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    M3U Files 📜
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    M3U Files 📜
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Tabla de contenidos">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Tabla de contenidos
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#what-is-an-m3u-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      What is an M3U File? 📘
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#importing-m3u-files-in-streammaster" class="md-nav__link">
+    <span class="md-ellipsis">
+      Importing M3U Files in StreamMaster 🛠
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Importing M3U Files in StreamMaster 🛠">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#m3u-import-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      M3U Import Options
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#import-process-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      Import Process Overview
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#error-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      Error Handling 🔄
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#troubleshooting-import-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      Troubleshooting Import Issues
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#automating-m3u-file-refresh" class="md-nav__link">
+    <span class="md-ellipsis">
+      Automating M3U File Refresh 🚀
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#need-help-or-have-questions-join-us-on-discord" class="md-nav__link">
+    <span class="md-ellipsis">
+      Need Help or Have Questions? Join Us on Discord! 🎮
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#join-streammaster-discord" class="md-nav__link">
+    <span class="md-ellipsis">
+      👉 Join StreamMaster Discord 👈
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../StreamGroup/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    StreamGroup 📺
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Profiles/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Profiles 🧑‍💻
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Docs/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Docs 📘
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Contributors/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Contributors 🌟
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Tabla de contenidos">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Tabla de contenidos
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#what-is-an-m3u-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      What is an M3U File? 📘
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#importing-m3u-files-in-streammaster" class="md-nav__link">
+    <span class="md-ellipsis">
+      Importing M3U Files in StreamMaster 🛠
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Importing M3U Files in StreamMaster 🛠">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#m3u-import-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      M3U Import Options
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#import-process-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      Import Process Overview
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#error-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      Error Handling 🔄
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#troubleshooting-import-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      Troubleshooting Import Issues
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#automating-m3u-file-refresh" class="md-nav__link">
+    <span class="md-ellipsis">
+      Automating M3U File Refresh 🚀
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#need-help-or-have-questions-join-us-on-discord" class="md-nav__link">
+    <span class="md-ellipsis">
+      Need Help or Have Questions? Join Us on Discord! 🎮
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#join-streammaster-discord" class="md-nav__link">
+    <span class="md-ellipsis">
+      👉 Join StreamMaster Discord 👈
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+<h1 id="m3u-files">M3U Files</h1>
+<h2 id="what-is-an-m3u-file">What is an M3U File? 📘</h2>
+<p>An <strong>M3U file</strong> is a text-based playlist file used widely for streaming and multimedia purposes. It contains a list of media files, typically pointing to streaming sources such as TV channels or radio stations, and is often formatted in <code>.m3u</code> or <code>.m3u8</code> extensions. M3U files are commonly used for IPTV (Internet Protocol Television) services, allowing users to load and manage channel streams seamlessly.</p>
+<p>In <strong>StreamMaster (SM)</strong>, M3U files enable users to import IPTV channel listings, offering flexible options for managing and customizing their channel streams.</p>
+<h2 id="importing-m3u-files-in-streammaster">Importing M3U Files in StreamMaster 🛠</h2>
+<p>To add M3U files to StreamMaster, use the <strong>Import M3U</strong> option within the StreamMaster UI. StreamMaster provides several customizable options during import, which allows for fine-tuning how the imported streams function and display. Below are the primary options available when importing an M3U file.</p>
+<h3 id="m3u-import-options">M3U Import Options</h3>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Name</strong></td>
+<td>The name you want to assign to the imported M3U file.</td>
+</tr>
+<tr>
+<td><strong>Max Stream Count</strong></td>
+<td>Sets a maximum limit on the number of streams to be pulled from the M3U file.</td>
+</tr>
+<tr>
+<td><strong>M3U8 OutPut Profile</strong></td>
+<td>Specifies the output profile if using M3U8 format for adaptive streaming options.</td>
+</tr>
+<tr>
+<td><strong>M3U Key</strong></td>
+<td>A key parameter for uniquely idenitfying a stream</td>
+</tr>
+<tr>
+<td><strong>M3U Name</strong></td>
+<td>Which field to set the name of the channel created from a stream</td>
+</tr>
+<tr>
+<td><strong>Default Stream Group Name</strong></td>
+<td>Sets a default group when sync is on.</td>
+</tr>
+<tr>
+<td><strong>Url/File Source</strong></td>
+<td>The URL/Local File of the M3U file to be imported.</td>
+</tr>
+<tr>
+<td><strong>Sync Channels</strong></td>
+<td>Boolean flag to enable/disable automatic synchronization of channels from the M3U source.</td>
+</tr>
+<tr>
+<td><strong>Hours To Update</strong></td>
+<td>Interval (in hours) to check and refresh the M3U file.</td>
+</tr>
+<tr>
+<td><strong>Starting Channel Number</strong></td>
+<td>Sets a starting number for channels, useful for custom numbering sequences.</td>
+</tr>
+<tr>
+<td><strong>Auto Set Channel Numbers</strong></td>
+<td>Boolean flag to automatically assign channel numbers to each entry from the M3U.</td>
+</tr>
+<tr>
+<td><strong>VOD Tags</strong></td>
+<td>A list of tags used for categorizing VOD (Video on Demand) content within the M3U file.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="import-process-overview">Import Process Overview</h3>
+<p>Once an M3U file is added using these options, StreamMaster:</p>
+<ol>
+<li><strong>Validates</strong> - Ensures the provided URL/Local source is accessible.</li>
+<li><strong>Fetches and Parses Content</strong> - Downloads and reads the M3U content to generate stream entries.</li>
+<li><strong>Syncs and Organizes Channels</strong> - Based on the selected options, channels are organized, and metadata is applied.</li>
+<li><strong>Saves and Updates</strong> - The file is saved within StreamMaster’s repository and refreshed periodically based on the specified interval.</li>
+</ol>
+<h3 id="error-handling">Error Handling 🔄</h3>
+<p>During the import, StreamMaster performs several checks to verify the M3U file:</p>
+<ul>
+<li>If the <strong>URL source</strong> is invalid or inaccessible, an error will be displayed, and the file is not added.</li>
+<li>When <strong>no streams</strong> are detected in the M3U, StreamMaster alerts the user and stops further processing.</li>
+<li><strong>Automatic cleanup</strong> is conducted on failure to ensure no incomplete files are left in the system.</li>
+</ul>
+<h3 id="troubleshooting-import-issues">Troubleshooting Import Issues</h3>
+<p>If an import fails, check the following:</p>
+<ul>
+<li>Verify the <strong>URL source</strong> is correct and accessible.</li>
+<li>Ensure the <strong>MaxStreamCount</strong> is set within the range of available channels in the M3U.</li>
+<li>Confirm that <strong>required fields</strong> (like Name and UrlSource) are filled out.</li>
+</ul>
+<h3 id="automating-m3u-file-refresh">Automating M3U File Refresh 🚀</h3>
+<p>StreamMaster can automatically update and refresh M3U files. Set the <code>HoursToUpdate</code> option to specify the refresh frequency, keeping your streams up-to-date without manual intervention.</p>
+<hr />
+<h2 id="need-help-or-have-questions-join-us-on-discord">Need Help or Have Questions? Join Us on Discord! 🎮</h2>
+<p>For any questions, support, or discussions, you can join the official <strong>StreamMaster Discord server</strong>.</p>
+<h2 id="join-streammaster-discord">👉 <a href="https://discord.gg/gFz7EtHhG2">Join StreamMaster Discord</a> 👈</h2>
+<hr />
+<p>No contribution is too small! If you’d like to improve this documentation, we’d love to hear from you! Your contributions are recognized in the <strong>StreamMaster Documentation Hall of Fame</strong> 🎉.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": ["content.code.copy"], "search": "../../assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "Copiado al portapapeles", "clipboard.copy": "Copiar al portapapeles", "search.result.more.one": "1 m\u00e1s en esta p\u00e1gina", "search.result.more.other": "# m\u00e1s en esta p\u00e1gina", "search.result.none": "No se encontraron documentos", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Teclee para comenzar b\u00fasqueda", "search.result.term.missing": "Falta", "select.version": "Seleccionar versi\u00f3n"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.83f73b43.min.js"></script>
+      
+    
+  </body>
+</html>
