@@ -24,7 +24,7 @@ module.exports = {
       {
         preset: "angular",
         releaseRules: [
-          { type: "docs", scope: "README", release: "patch" },
+          { type: "docs", scope: "README", release: "minor" },
           { type: "versionminor", release: "minor" },
           { type: "style", release: "patch" },
           { type: "minor", release: "minor" },
