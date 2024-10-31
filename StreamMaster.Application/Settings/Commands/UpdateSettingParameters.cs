@@ -25,7 +25,6 @@ public class UpdateSettingParameters
     public bool? CleanURLs { get; set; }
     public string? ClientUserAgent { get; set; }
     public string? DeviceID { get; set; }
-    public string? DummyRegex { get; set; }
     public bool? EnableSSL { get; set; }
 
     public int? ShutDownDelay { get; set; }

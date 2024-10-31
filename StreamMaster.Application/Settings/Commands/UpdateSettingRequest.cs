@@ -283,11 +283,6 @@ public partial class UpdateSettingRequestHandler(
             currentSetting.ShowClientHostNames = request.Parameters.ShowClientHostNames.Value;
         }
 
-        if (request.Parameters.DummyRegex != null)
-        {
-            currentSetting.DummyRegex = request.Parameters.DummyRegex;
-        }
-
         if (request.Parameters.SSLCertPath != null && request.Parameters.SSLCertPath != currentSetting.SSLCertPath)
         {
             currentSetting.SSLCertPath = request.Parameters.SSLCertPath;

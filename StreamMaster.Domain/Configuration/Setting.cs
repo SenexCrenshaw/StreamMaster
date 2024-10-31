@@ -21,7 +21,6 @@ public class BaseSettings
     public string DefaultCompression { get; set; } = "gz";
     public string DefaultLogo { get; set; } = "/images/default.png";
     public string DeviceID { get; set; } = "device1";
-    public string DummyRegex { get; set; } = "(no tvg-id)";
     public bool EnableDBDebug { get; set; } = false;
     public bool EnableSSL { get; set; }
     public int GlobalStreamLimit { get; set; } = 1;

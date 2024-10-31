@@ -240,7 +240,6 @@ export interface SettingDto
 	DefaultLogo: string;
 	DefaultOutputProfileName: string;
 	DeviceID: string;
-	DummyRegex: string;
 	EnableDBDebug: boolean;
 	EnableSSL: boolean;
 	FFMPegExecutable: string;
@@ -1109,7 +1108,6 @@ export interface UpdateSettingParameters
 	DefaultCompression?: string;
 	DefaultOutputProfileName?: string;
 	DeviceID?: string;
-	DummyRegex?: string;
 	EnableSSL?: boolean;
 	FFMPegExecutable?: string;
 	FFProbeExecutable?: string;
