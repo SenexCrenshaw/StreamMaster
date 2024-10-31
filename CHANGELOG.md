@@ -1,3 +1,10 @@
+## [0.16.3](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.16.2...v0.16.3) (2024-10-31)
+
+
+### Bug Fixes
+
+* Added loggsettings to backups ([5453521](https://github.com/SenexCrenshaw/StreamMaster/commit/5453521163fdf4e76b8413dfafbcfc42f8a457e0))
+
 ## [0.16.2](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.16.1...v0.16.2) (2024-10-30)
 
 
