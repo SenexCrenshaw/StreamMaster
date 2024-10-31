@@ -8,17 +8,26 @@ default_host="127.0.0.1"
 default_set_perms=1
 default_backup_versions_to_keep=5
 
-# Read user and password from files if available
+# Handling POSTGRES_USER and POSTGRES_USER_FILE
 if [ -f "${POSTGRES_USER_FILE}" ]; then
+    export POSTGRES_USER_FILE
+    unset POSTGRES_USER
     POSTGRES_USER=$(cat "${POSTGRES_USER_FILE}")
+    export POSTGRES_USER
 else
-    POSTGRES_USER="${POSTGRES_USER:-$default_dbuser}"
+    unset POSTGRES_USER_FILE
+    export POSTGRES_USER="${POSTGRES_USER:-$default_dbuser}"
 fi
 
+# Handling POSTGRES_PASSWORD and POSTGRES_PASSWORD_FILE
 if [ -f "${POSTGRES_PASSWORD_FILE}" ]; then
+    export POSTGRES_PASSWORD_FILE
+    unset POSTGRES_PASSWORD
     POSTGRES_PASSWORD=$(cat "${POSTGRES_PASSWORD_FILE}")
+    export POSTGRES_PASSWORD
 else
-    POSTGRES_PASSWORD="${POSTGRES_PASSWORD:-$default_dbpassword}"
+    unset POSTGRES_PASSWORD_FILE
+    export POSTGRES_PASSWORD="${POSTGRES_PASSWORD:-$default_dbpassword}"
 fi
 
 # Set and export environment variables with defaults if they are not set
