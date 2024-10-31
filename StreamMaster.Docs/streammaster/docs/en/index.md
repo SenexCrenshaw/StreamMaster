@@ -33,8 +33,8 @@ This wiki is dedicated to providing information and resources for **StreamMaster
 
 ## Quick Start
 
-1. Follow the [Installation Guide](Installation)
-2. Import a M3U File [M3U Files](M3UFiles)
+1. Follow the [Getting Started Guide](GettingStarted)
+2. Import a M3U File [M3U Files](M3U)
 3. Edit your streams. Any visible stream will show up in the default stream group (HDHR).
 
 ---

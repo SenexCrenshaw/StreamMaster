@@ -21,6 +21,20 @@ The default Output Profile provided by StreamMaster includes the following confi
 
 ---
 
+## Mapping Options for `Id`, `Name`, and `Group` Settings
+
+The `Id`, `Name`, and `Group` settings within an Output Profile can be mapped to various metadata fields, allowing for greater flexibility in how channel information is displayed. Each setting can be mapped to one of the following:
+
+- **Not Mapped**: Leaves the field unmapped, meaning it won’t be included in the output.
+- **Name**: Maps to the name of the channel.
+- **Group**: Maps to the group name.
+- **Channel Number**: Maps to a specific channel number.
+- **Channel Name**: Maps to the original channel name.
+
+These mapping options allow you to tailor how each piece of metadata is represented in the M3U/XML output, enhancing the viewer’s experience.
+
+---
+
 [Understanding output attributes](M3U_Output_Attributes.md).
 
 ---

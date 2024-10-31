@@ -15,7 +15,7 @@ To add M3U files to StreamMaster, use the **Import M3U** option within the Strea
 | Option                        | Description                                                                               |
 | ----------------------------- | ----------------------------------------------------------------------------------------- |
 | **Name**                      | The name you want to assign to the imported M3U file.                                     |
-| **Max Stream Count**          | Sets a maximum limit on the number of streams to be pulled from the M3U file.             |
+| **Max Stream Count**          | Sets a maximum limit on the number of concurrent streams from each M3U file.              |
 | **M3U8 OutPut Profile**       | Specifies the output profile if using M3U8 format for adaptive streaming options.         |
 | **M3U Key**                   | A key parameter for uniquely idenitfying a stream                                         |
 | **M3U Name**                  | Which field to set the name of the channel created from a stream                          |
@@ -24,7 +24,7 @@ To add M3U files to StreamMaster, use the **Import M3U** option within the Strea
 | **Sync Channels**             | Boolean flag to enable/disable automatic synchronization of channels from the M3U source. |
 | **Hours To Update**           | Interval (in hours) to check and refresh the M3U file.                                    |
 | **Starting Channel Number**   | Sets a starting number for channels, useful for custom numbering sequences.               |
-| **Auto Set Channel Numbers**  | Boolean flag to automatically assign channel numbers to each entry from the M3U.          |
+| **Auto Set Channel Numbers**  | Automatically assign channel numbers to each entry from the M3U.                          |
 | **VOD Tags**                  | A list of tags used for categorizing VOD (Video on Demand) content within the M3U file.   |
 
 ### Import Process Overview
