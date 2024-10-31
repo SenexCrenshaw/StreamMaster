@@ -65,21 +65,21 @@ services:
       POSTGRES_HOST: 127.0.0.1 # Default
       POSTGRES_DB: StreamMaster # Default
       BACKUP_VERSIONS_TO_KEEP: 5 # Default
-      POSTGRES_USER_FILE: /run/secrets/postgres-u # Optional, see Secrets
-      POSTGRES_PASSWORD_FILE: /run/secrets/postgres-p # Optional, see Secrets
+      POSTGRES_USER_FILE: /var/run/secrets/postgres-user # Optional, see Secrets
+      POSTGRES_PASSWORD_FILE: /var/run/secrets/postgres-password # Optional, see Secrets
     restart: unless-stopped
     secrets: # Optional, see Secrets
-      - postgres-u
-      - postgres-p
+      - postgres-user
+      - postgres-password
     volumes:
       - ~/.streammaster:/config
       - ~/.streammaster/tv-logos:/config/tv-logos
 
   secrets: # Optional, see Secrets
-    postgres-u:
-      file: postgres-u.txt
-    postgres-p:
-      file: postgres-p.txt
+    postgres-user:
+      file: postgres-user.txt
+    postgres-password:
+      file: postgres-password.txt
 ```
 
 ---
