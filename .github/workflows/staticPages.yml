@@ -31,6 +31,21 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.x"
+        
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install mkdocs mkdocs-i18n mkdocs-material mkdocs-static-i18n mkdocs-include-markdown-plugin mkdocs-material mkdocs-material-extensions
+
+      - name: Build site with mkdocs
+        run: |
+          cd StreamMaster.Docs/streammaster
+          mkdocs build
+          
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Upload artifact
