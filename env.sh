@@ -10,10 +10,10 @@ default_backup_versions_to_keep=5
 
 # Handling POSTGRES_USER and POSTGRES_USER_FILE
 if [ -f "${POSTGRES_USER_FILE}" ]; then
-    export POSTGRES_USER_FILE
+    export POSTGRES_USER_FILE=${POSTGRES_USER_FILE}
     unset POSTGRES_USER
-    POSTGRES_USER=$(cat "${POSTGRES_USER_FILE}")
-    export POSTGRES_USER
+    # POSTGRES_USER=$(cat "${POSTGRES_USER_FILE}")
+    # export POSTGRES_USER
 else
     unset POSTGRES_USER_FILE
     export POSTGRES_USER="${POSTGRES_USER:-$default_dbuser}"
@@ -21,10 +21,10 @@ fi
 
 # Handling POSTGRES_PASSWORD and POSTGRES_PASSWORD_FILE
 if [ -f "${POSTGRES_PASSWORD_FILE}" ]; then
-    export POSTGRES_PASSWORD_FILE
+    export POSTGRES_PASSWORD_FILE=${POSTGRES_PASSWORD_FILE}
     unset POSTGRES_PASSWORD
-    POSTGRES_PASSWORD=$(cat "${POSTGRES_PASSWORD_FILE}")
-    export POSTGRES_PASSWORD
+    # POSTGRES_PASSWORD=$(cat "${POSTGRES_PASSWORD_FILE}")
+    # export POSTGRES_PASSWORD
 else
     unset POSTGRES_PASSWORD_FILE
     export POSTGRES_PASSWORD="${POSTGRES_PASSWORD:-$default_dbpassword}"
@@ -34,8 +34,8 @@ fi
 export PGADMIN_SETUP_EMAIL="${PGADMIN_SETUP_EMAIL:-$default_email}" 
 export PGADMIN_SETUP_PASSWORD="${PGADMIN_SETUP_PASSWORD:-$default_password}" 
 export PGADMIN_PLATFORM_TYPE=debian
-export POSTGRES_USER
-export POSTGRES_PASSWORD
+# export POSTGRES_USER
+# export POSTGRES_PASSWORD
 export PGDATA=/config/DB
 export POSTGRES_HOST="${POSTGRES_HOST:-$default_host}" 
 export POSTGRES_DB="${POSTGRES_DB:-$default_db}" 
