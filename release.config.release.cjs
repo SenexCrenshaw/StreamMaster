@@ -37,11 +37,26 @@ module.exports = {
       }
     ],
     "@semantic-release/release-notes-generator",
+    {
+      preset: "angular",
+      presetConfig: {
+        types: [
+          { type: "feat", section: "Features" },
+          { type: "fix", section: "Bug Fixes" },
+          { type: "docs", section: "Documentation" },
+          { type: "style", section: "Code Style" },
+          { type: "refactor", section: "Refactoring" },
+          { type: "perf", section: "Performance" },
+          { type: "test", section: "Tests" },
+          { type: "chore", section: "Maintenance" }
+        ]
+      }
+    },
     [
-      "@semantic-release/changelog",
+      ("@semantic-release/changelog",
       {
         changelogFile: "CHANGELOG.md"
-      }
+      })
     ],
     [
       "@semantic-release/exec",
