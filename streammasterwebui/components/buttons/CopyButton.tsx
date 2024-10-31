@@ -1,7 +1,7 @@
 import SMButton from '@components/sm/SMButton';
 import useCopyToClipboard from '@lib/hooks/useCopyToClipboard';
-import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import React, { useState } from 'react';
 
 export interface CopyButtonProperties {
   readonly buttonDisabled?: boolean | undefined;
@@ -38,15 +38,15 @@ const CopyButton: React.FC<CopyButtonProperties> = ({
         animate={{ opacity: copied ? 1 : 0, scale: copied ? 1 : 0.8 }} // Animate between these states
         transition={{ duration: 0.3, ease: 'easeInOut' }} // Animation duration and easing
         style={{
+          backgroundColor: 'rgba(0, 0, 0, 0.75)',
+          borderRadius: '4px',
+          color: 'white',
+          left: '10%',
+          padding: '4px 8px',
+          pointerEvents: 'none',
           position: 'absolute',
           top: '50%',
-          left: '10%',
           transform: 'translate(-50%, -50%)',
-          backgroundColor: 'rgba(0, 0, 0, 0.75)',
-          color: 'white',
-          padding: '4px 8px',
-          borderRadius: '4px',
-          pointerEvents: 'none',
           zIndex: 999
         }}
       >

@@ -5,7 +5,7 @@
 
 # Configuration
 backup_dirs="/config/PlayLists /config/Logs /config/Cache/SDJson /config/Settings" # Space-separated list of directories
-backup_files="/config/settings.json /config/logsettings.json" # Space-separated list of files
+backup_files="/config/settings.json /config/logsettings.json /app/logsettings.json" # Space-separated list of files
 versions_to_keep=5
 timestamp=$(date +"%Y-%m-%d_%H-%M-%S")
 db_backup_file="db_$timestamp.gz"

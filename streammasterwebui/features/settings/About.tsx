@@ -100,7 +100,7 @@ const About = () => {
         Stream Master
         <div className="col-6 m-0 p-0 justify-content-center align-content-start text-xs text-center">
           <div className="sm-text-xs sm-center-stuff w-full">
-            <LinkButton justText title={settings.Release ?? ''} link={settings.Release ?? ''} />
+            <LinkButton justText title={settings.Release ?? ''} link={'https://github.com/SenexCrenshaw/StreamMaster/releases/tag/v' + settings.Release} />
           </div>
         </div>
         <div className="flex sm-center-stuff">

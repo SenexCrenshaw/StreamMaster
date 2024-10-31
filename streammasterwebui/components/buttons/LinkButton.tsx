@@ -25,12 +25,14 @@ export const LinkButton = ({
       <a
         href={link}
         onClick={(e) => {
-          e.preventDefault();
+          if (!justText) {
+            e.preventDefault();
 
-          void copyToClipboard(link.replace(/"/g, '')).then((ifCopied) => {
-            setCopied(ifCopied);
-            setTimeout(() => setCopied(false), 750);
-          });
+            void copyToClipboard(link.replace(/"/g, '')).then((ifCopied) => {
+              setCopied(ifCopied);
+              setTimeout(() => setCopied(false), 750);
+            });
+          }
         }}
         rel="noopener noreferrer"
         target="_blank"

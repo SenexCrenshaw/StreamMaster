@@ -108,7 +108,7 @@ export const RootSideBar = () => {
             <MenuItemSM collapsed={collapsed} icon={<SDChannelIcon />} link="/editor/sdChannels" name="SD Channels" />
           ) : null} */}
           <MenuItemSM collapsed={collapsed} icon={<SettingsEditorIcon />} link="/settings" name="Settings" />
-          <MenuItemSM collapsed={collapsed} icon={<HelpIcon />} link="https://github.com/SenexCrenshaw/StreamMaster/wiki" name="Wiki" newWindow />
+          <MenuItemSM collapsed={collapsed} icon={<HelpIcon />} link="https://senexcrenshaw.github.io/StreamMaster/" name="Wiki" newWindow />
 
           {/* <MenuItem
             component={
