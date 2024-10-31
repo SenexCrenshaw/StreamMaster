@@ -55,20 +55,31 @@ services:
     container_name: streammaster
     ports:
       - 7095:7095
-      - 7096:7096
+      - 7096:7096 # Optional, for SM to host SSL
     environment:
-      - PUID=1000
-      - PGID=1000
-      - POSTGRES_USER=postgres # Default
-      - POSTGRES_PASSWORD=sm123 # Default
-      - PGDATA=/config/DB # Default
-      - POSTGRES_HOST=127.0.0.1 # Default
-      - POSTGRES_DB=StreamMaster # Default
-      - BACKUP_VERSIONS_TO_KEEP=5 # Default
+      PUID: 1000
+      PGID: 1000
+      POSTGRES_USER: postgres # Default
+      POSTGRES_PASSWORD: sm123 # Default
+      PGDATA: /config/DB # Default
+      POSTGRES_HOST: 127.0.0.1 # Default
+      POSTGRES_DB: StreamMaster # Default
+      BACKUP_VERSIONS_TO_KEEP: 5 # Default
+      POSTGRES_USER_FILE: /run/secrets/postgres-u # Optional, see Secrets
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres-p # Optional, see Secrets
     restart: unless-stopped
+    secrets: # Optional, see Secrets
+      - postgres-u
+      - postgres-p
     volumes:
       - ~/.streammaster:/config
       - ~/.streammaster/tv-logos:/config/tv-logos
+
+  secrets: # Optional, see Secrets
+    postgres-u:
+      file: postgres-u.txt
+    postgres-p:
+      file: postgres-p.txt
 ```
 
 ---
@@ -87,11 +98,29 @@ services:
   - `POSTGRES_HOST`: The host address for the PostgreSQL server (default: `127.0.0.1`).
   - `POSTGRES_DB`: Name of the PostgreSQL database (default: `StreamMaster`).
   - `BACKUP_VERSIONS_TO_KEEP`: Number of backup versions to retain (default: `5`).
+  - `POSTGRES_USER_FILE`: Path to a secret file containing the PostgreSQL user. If specified, this value will override `POSTGRES_USER`.
+  - `POSTGRES_PASSWORD_FILE`: Path to a secret file containing the PostgreSQL password. If specified, this value will override `POSTGRES_PASSWORD`.
 - **Volumes**:
   - `~/.streammaster:/config`: Stores configuration data.
   - `~/.streammaster/tv-logos:/config/tv-logos`: Stores custom TV logos.
 
 > **Tip**: Adjust the file paths if you prefer a different directory for your configuration files.
+
+---
+
+## Secrets 🔐
+
+You can enhance security by using Docker secrets to store sensitive data such as PostgreSQL credentials. Define secrets in `postgres-u.txt` and `postgres-p.txt` files, then use `POSTGRES_USER_FILE` and `POSTGRES_PASSWORD_FILE` in the `docker-compose.yml` to reference these files.
+
+Example:
+
+```yaml
+secrets:
+  postgres-u:
+    file: ./postgres-u.txt
+  postgres-p:
+    file: ./postgres-p.txt
+```
 
 ---
 
