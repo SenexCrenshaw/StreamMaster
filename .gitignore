@@ -376,3 +376,4 @@ StreamMaster.Docs/venv/
 StreamMaster.Docs/.chatgpt-md-translator
 StreamMaster.Docs/.venv/
 streammasterwebui/stats.html
+StreamMaster.Docs/streammaster/site/*
