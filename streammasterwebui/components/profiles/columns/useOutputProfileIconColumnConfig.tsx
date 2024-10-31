@@ -17,8 +17,9 @@ export const useOutputProfileIconColumnConfig = (props?: OutputProfileColumnConf
 
   const bodyTemplate = useCallback(
     (outputProfileDto: OutputProfileDto) => {
+      const disabled = outputProfileDto.IsReadOnly === true || outputProfileDto.ProfileName.toLowerCase() === 'default' ? 'p-disabled' : '';
       return (
-        <div className="flex w-full justify-content-center align-content-center">
+        <div className={'flex w-full justify-content-center align-content-center ' + disabled}>
           <Checkbox
             checked={outputProfileDto.EnableIcon}
             onChange={(e) => {

@@ -20,6 +20,9 @@ export const useOutputProfileColumnConfig = ({ field, header, width = 80 }: IntO
     (fileOutputProfile: OutputProfileDto) => {
       var key = field as keyof OutputProfileDto;
       let value = fileOutputProfile[key] as string;
+      if (fileOutputProfile.IsReadOnly === true || fileOutputProfile.ProfileName.toLowerCase() === 'default') {
+        return <div className="text-container pl-1">{value}</div>;
+      }
 
       return <OutputProfileValueDropDown header={header} value={value} field={field} name={fileOutputProfile.ProfileName} />;
     },

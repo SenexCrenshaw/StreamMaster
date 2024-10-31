@@ -14,7 +14,7 @@ public class ProfileService(IOptionsMonitor<Setting> intSettings, IServiceProvid
     {
         Setting settings = intSettings.CurrentValue;
 
-        return CommandProfileName is not null && CommandProfileName != settings.DefaultCommandProfileName
+        return !string.IsNullOrEmpty(CommandProfileName) && CommandProfileName != settings.DefaultCommandProfileName
             ? intCommandProfileSettings.CurrentValue.GetProfileDto(CommandProfileName)
             : intCommandProfileSettings.CurrentValue.GetDefaultProfileDto(settings.DefaultCommandProfileName);
     }
@@ -23,7 +23,7 @@ public class ProfileService(IOptionsMonitor<Setting> intSettings, IServiceProvid
     {
         Setting settings = intSettings.CurrentValue;
 
-        return OutputProfileName is not null && OutputProfileName != settings.DefaultOutputProfileName
+        return !string.IsNullOrEmpty(OutputProfileName) && OutputProfileName != settings.DefaultOutputProfileName
            ? intOutProfileSettings.CurrentValue.GetProfileDto(OutputProfileName)
            : intOutProfileSettings.CurrentValue.GetDefaultProfileDto(settings.DefaultOutputProfileName);
         ;
