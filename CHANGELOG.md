@@ -1,3 +1,10 @@
+## [0.16.5](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.16.4...v0.16.5) (2024-10-31)
+
+
+### Bug Fixes
+
+* M3U Needs update logging ([580d278](https://github.com/SenexCrenshaw/StreamMaster/commit/580d278fe142f4b57f87673742e4ce11b5dc127d))
+
 ## [0.16.4](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.16.3...v0.16.4) (2024-10-31)
 
 
