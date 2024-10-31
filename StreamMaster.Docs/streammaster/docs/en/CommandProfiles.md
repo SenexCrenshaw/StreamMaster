@@ -8,6 +8,8 @@ Command Profiles in StreamMaster specify the streaming commands used to retrieve
 
 StreamMaster includes several default Command Profiles, each optimized for common streaming scenarios. Below is a summary of each profile:
 
+> **⚠️ Defaults Notice:** _Cannot be edited._ To modify settings, **create a new profile** and navigate to `Settings` to change the system default.
+
 | **Profile Name**  | **Command**  | **Description**                                                                                                    |
 | ----------------- | ------------ | ------------------------------------------------------------------------------------------------------------------ |
 | **Default**       | STREAMMASTER | Internal binary mechanism that moves the bytes without processing.                                                 |

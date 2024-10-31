@@ -8,6 +8,8 @@ An **Output Profile** in StreamMaster determines how the **M3U/XML files** for a
 
 The default Output Profile provided by StreamMaster includes the following configuration settings:
 
+> **⚠️ Defaults Notice:** _Cannot be edited._ To modify settings, **create a new profile** and navigate to `Settings` to change the system default.
+
 | **Setting**               | **Description**                                          |
 | ------------------------- | -------------------------------------------------------- |
 | **Enable Icon**           | Enables `tvg-logo`.                                      |
