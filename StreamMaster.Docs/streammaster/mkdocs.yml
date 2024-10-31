@@ -1,8 +1,7 @@
 site_name: Stream Master
 repo_url: https://github.com/SenexCrenshaw/StreamMaster
 theme:
-  name: 'material'
-  locale: en
+  name: "material"
   logo: "assets/sm_logo.png"
   features:
     - content.code.copy
@@ -14,7 +13,8 @@ theme:
         icon: material/brightness-7
         name: Switch to dark mode
 
-    # Palette toggle for dark mode    - scheme: slate
+    # Palette toggle for dark mode
+    - scheme: slate
       primary: deep orange
       toggle:
         icon: material/brightness-4
@@ -27,15 +27,15 @@ nav:
   - M3U Files 📜: M3U.md
   - Schedules Direct 📅: SD.md
   - StreamGroup 📺: StreamGroup.md
-  - Profiles 🧑‍💻: 
-    - CommandProfiles.md
-    - OutputProfiles.md
+  - Profiles 🧑‍💻:
+      - CommandProfiles.md
+      - OutputProfiles.md
   - Settings ⚙️: Settings.md
   - Docs 📘: Docs.md
   - M3U Output Attributes🎬: M3U_Output_Attributes.md
     # - M3UGroupTitle.md
   - Contributors 🌟: Contributors.md
-        
+
 plugins:
   - search
   - include-markdown
