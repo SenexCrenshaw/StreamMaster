@@ -110,16 +110,16 @@ services:
 
 ## Secrets 🔐
 
-You can enhance security by using Docker secrets to store sensitive data such as PostgreSQL credentials. Define secrets in `postgres-u.txt` and `postgres-p.txt` files, then use `POSTGRES_USER_FILE` and `POSTGRES_PASSWORD_FILE` in the `docker-compose.yml` to reference these files.
+You can enhance security by using Docker secrets to store sensitive data such as PostgreSQL credentials. Define secrets in `postgres-user.txt` and `postgres-password.txt` files, then use `POSTGRES_USER_FILE` and `POSTGRES_PASSWORD_FILE` in the `docker-compose.yml` to reference these files.
 
 Example:
 
 ```yaml
 secrets:
   postgres-u:
-    file: ./postgres-u.txt
+    file: ./postgres-user.txt
   postgres-p:
-    file: ./postgres-p.txt
+    file: ./postgres-password.txt
 ```
 
 ---
