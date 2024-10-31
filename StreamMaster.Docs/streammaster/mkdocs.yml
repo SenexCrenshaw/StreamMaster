@@ -25,6 +25,7 @@ nav:
   - Auth 🔑: Auth.md
   - EPG/XML Files 📅: EPG.md
   - M3U Files 📜: M3U.md
+  - Schedules Direct 📅: SD.md
   - StreamGroup 📺: StreamGroup.md
   - Profiles 🧑‍💻: 
     - CommandProfiles.md
