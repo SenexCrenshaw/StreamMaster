@@ -1,6 +1,8 @@
 # Welcome to StreamMaster
 
----
+<p align="center">
+  <img src="assets/sm_logo.png" alt="Stream Master" />
+</p>
 
 This wiki is dedicated to providing information and resources for **StreamMaster**, the premier video proxy streaming platform.
 
@@ -11,7 +13,6 @@ This wiki is dedicated to providing information and resources for **StreamMaster
 ## Features
 
 - ✨ **Import any number of M3U and EPG files**: Easily import any number of M3U and EPG files via URL or file with auto-refresh for continuous access to streaming content.
-  
 - 🖼️ **Customizable logos**: Customize logos with cached logos for quick access and local tv-logos support, creating a unique streaming experience.
 
 - 📊 **Stream analytics and statistics**: Track your streaming performance and gain valuable insights with robust analytics.
@@ -55,8 +56,8 @@ We hope you enjoy using **StreamMaster** and find this wiki helpful. Happy strea
 
 ## Version Tags
 
-| Tag    | Description           |
-| ------ | --------------------- |
+| Tag      | Description           |
+| -------- | --------------------- |
 | `latest` | Latest stable version |
 | `x.x.x`  | Released versions     |
 
