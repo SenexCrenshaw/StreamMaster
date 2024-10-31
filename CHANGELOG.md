@@ -1,3 +1,10 @@
+## [0.16.4](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.16.3...v0.16.4) (2024-10-31)
+
+
+### Bug Fixes
+
+* Modifying default profiles ([b96e000](https://github.com/SenexCrenshaw/StreamMaster/commit/b96e000f5ad1368551bb35a4af8ccfaf4da9aa2c))
+
 ## [0.16.3](https://github.com/SenexCrenshaw/StreamMaster/compare/v0.16.2...v0.16.3) (2024-10-31)
 
 
