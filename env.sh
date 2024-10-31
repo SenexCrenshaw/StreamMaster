@@ -9,26 +9,22 @@ default_set_perms=1
 default_backup_versions_to_keep=5
 
 # Handling POSTGRES_USER and POSTGRES_USER_FILE
-if [ -f "${POSTGRES_USER_FILE}" ]; then
-    export POSTGRES_USER_FILE=${POSTGRES_USER_FILE}
-    unset POSTGRES_USER
-    # POSTGRES_USER=$(cat "${POSTGRES_USER_FILE}")
-    # export POSTGRES_USER
-else
-    unset POSTGRES_USER_FILE
+if [ -f "${POSTGRES_USER_FILE}" ]; then        
+    export POSTGRES_USER=$(cat "${POSTGRES_USER_FILE}")
+    
+else    
     export POSTGRES_USER="${POSTGRES_USER:-$default_dbuser}"
 fi
+unset POSTGRES_USER_FILE
 
 # Handling POSTGRES_PASSWORD and POSTGRES_PASSWORD_FILE
-if [ -f "${POSTGRES_PASSWORD_FILE}" ]; then
-    export POSTGRES_PASSWORD_FILE=${POSTGRES_PASSWORD_FILE}
-    unset POSTGRES_PASSWORD
-    # POSTGRES_PASSWORD=$(cat "${POSTGRES_PASSWORD_FILE}")
-    # export POSTGRES_PASSWORD
-else
-    unset POSTGRES_PASSWORD_FILE
-    export POSTGRES_PASSWORD="${POSTGRES_PASSWORD:-$default_dbpassword}"
+if [ -f "${POSTGRES_PASSWORD_FILE}" ]; then        
+    export POSTGRES_PASSWORD=$(cat "${POSTGRES_PASSWORD_FILE}")
+    
+else    
+    export POSTGRES_PASSWORD="${POSTGRES_USER:-$default_dbuser}"
 fi
+unset POSTGRES_PASSWORD_FILE
 
 # Set and export environment variables with defaults if they are not set
 export PGADMIN_SETUP_EMAIL="${PGADMIN_SETUP_EMAIL:-$default_email}" 

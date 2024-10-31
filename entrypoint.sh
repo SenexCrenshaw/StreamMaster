@@ -205,7 +205,6 @@ if [ "$PUID" -ne 0 ] || [ "$PGID" -ne 0 ]; then
 fi
 
 chown ${PUID:-0}:${PGID:-0} '/config/tv-logos' 2> /dev/null
-#chmod -R 775 '/config' 2> /dev/null
 
 # Pretty printing the configuration
 echo "Configuration:"
