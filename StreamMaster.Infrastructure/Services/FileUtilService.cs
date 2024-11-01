@@ -197,19 +197,27 @@ namespace StreamMaster.Infrastructure.Services
             }
         }
 
-        private static async Task SaveStreamToFileAsync(Stream inputStream, string fileName, string compression)
+        private async Task SaveStreamToFileAsync(Stream inputStream, string fileName, string compression)
         {
-            string compressedFileName = fileName;
+            string compressedFileName = !compression.Equals("none", StringComparison.CurrentCultureIgnoreCase) ? CheckNeedsCompression(fileName) : fileName;
 
             await using FileStream fileStream = File.Create(compressedFileName);
 
             if (compression == "gz")
             {
+                //if (!compressedFileName.EndsWith(".gz", StringComparison.OrdinalIgnoreCase))
+                //{
+                //    compressedFileName += ".gz";
+                //}
                 await using GZipStream gzipStream = new(fileStream, CompressionMode.Compress);
                 await inputStream.CopyToAsync(gzipStream, 81920).ConfigureAwait(false); // Using a buffer size of 80 KB
             }
             else if (compression == "zip")
             {
+                //if (!compressedFileName.EndsWith(".zip", StringComparison.OrdinalIgnoreCase))
+                //{
+                //    compressedFileName += ".zip";
+                //}
                 using ZipArchive zipArchive = new(fileStream, ZipArchiveMode.Create);
                 ZipArchiveEntry zipEntry = zipArchive.CreateEntry(Path.GetFileName(fileName));
                 await using Stream zipStream = zipEntry.Open();

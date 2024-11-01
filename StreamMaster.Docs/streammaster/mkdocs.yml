@@ -1,3 +1,4 @@
+# streammaster\mkdocs.yml
 site_name: Stream Master
 repo_url: https://github.com/SenexCrenshaw/StreamMaster
 theme:
@@ -46,31 +47,31 @@ plugins:
           default: true
           name: English
           build: true
-        # - locale: es
-        #   name: Spanish
-        #   build: true
-        # - locale: fr
-        #   name: French
-        #   build: true
-        # - locale: de
-        #   name: German
-        #   build: true
-        # - locale: pt
-        #   name: Portuguese
-        #   build: true
-        # - locale: da
-        #   name: Danish
-        #   build: true
-        # - locale: sv
-        #   name: Swedish
-        #   build: true
-        # - locale: nb
-        #   name: Norwegian Bokmål
-        #   build: true
-        # - locale: fi
-        #   name: Finnish
-        #   build: true
-        # - locale: is
-        #   name: Icelandic
-        #   build: true
+        - locale: es
+          name: Spanish
+          build: true
+        - locale: fr
+          name: French
+          build: true
+        - locale: de
+          name: German
+          build: true
+        - locale: pt
+          name: Portuguese
+          build: true
+        - locale: da
+          name: Danish
+          build: true
+        - locale: sv
+          name: Swedish
+          build: true
+        - locale: nb
+          name: Norwegian Bokmål
+          build: true
+        - locale: fi
+          name: Finnish
+          build: true
+        - locale: is
+          name: Icelandic
+          build: true
 site_url: "https://senexcrenshaw.github.io/StreamMaster/"
