@@ -22,7 +22,7 @@ public class CreateEPGFileFromFormRequestHandler(ILogger<CreateEPGFileFromFormRe
         try
         {
             (EPGFile epgFile, fullName) = await ePGFileService.CreateEPGFileAsync(request);
-            epgFile.LastDownloaded = File.GetLastWriteTime(fullName);
+            epgFile.LastDownloadAttempt = SMDT.UtcNow;
 
             await messageService.SendInfo($"Adding EPG '{request.Name}'");
             Logger.LogInformation("Adding EPG '{name}'", request.Name);
@@ -48,6 +48,7 @@ public class CreateEPGFileFromFormRequestHandler(ILogger<CreateEPGFileFromFormRe
 
             epgFile.ChannelCount = (tv.Channels?.Count) ?? 0;
             epgFile.ProgrammeCount = (tv.Programs?.Count) ?? 0;
+            epgFile.LastDownloaded = SMDT.UtcNow;
 
             Repository.EPGFile.CreateEPGFile(epgFile);
             _ = await Repository.SaveAsync().ConfigureAwait(false);

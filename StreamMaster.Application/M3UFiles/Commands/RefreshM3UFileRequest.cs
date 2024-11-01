@@ -5,7 +5,7 @@
 public record RefreshM3UFileRequest(int Id, bool ForceRun = false) : IRequest<APIResponse>;
 
 [LogExecutionTimeAspect]
-public class RefreshM3UFileRequestHandler(ILogger<RefreshM3UFileRequest> Logger, IFileUtilService fileUtilService, IMessageService messageService, IJobStatusService jobStatusService, IRepositoryWrapper Repository, IMapper Mapper, IPublisher Publisher)
+public class RefreshM3UFileRequestHandler(ILogger<RefreshM3UFileRequest> Logger, IM3UToSMStreamsService m3UToSMStreamsService, IFileUtilService fileUtilService, IMessageService messageService, IJobStatusService jobStatusService, IRepositoryWrapper Repository, IMapper Mapper, IPublisher Publisher)
     : IRequestHandler<RefreshM3UFileRequest, APIResponse>
 {
 
@@ -32,27 +32,34 @@ public class RefreshM3UFileRequestHandler(ILogger<RefreshM3UFileRequest> Logger,
             {
                 FileDefinition fd = FileDefinitions.M3U;
                 string fullName = Path.Combine(fd.DirectoryLocation, m3uFile.Source);
+                m3uFile.LastDownloadAttempt = SMDT.UtcNow;
 
                 if (m3uFile.Url != null && m3uFile.Url.Contains("://"))
                 {
                     Logger.LogInformation("Refresh M3U From URL {m3uFile.Url}", m3uFile.Url);
 
-                    m3uFile.LastDownloadAttempt = SMDT.UtcNow;
-
                     (bool success, Exception? ex) = await fileUtilService.DownloadUrlAsync(m3uFile.Url, fullName).ConfigureAwait(false);
-                    if (success)
+                    if (!success)
                     {
-                        m3uFile.DownloadErrors = 0;
-                        m3uFile.LastDownloaded = SMDT.UtcNow;
-                        m3uFile.FileExists = true;
+                        Logger.LogCritical("Exception M3U From URL '{ex}'", ex);
+                        await messageService.SendError("Exception M3U", ex?.Message);
+                        jobManager.SetError();
+                        return APIResponse.ErrorWithMessage($"Exception M3U From URL '{ex}'");
                     }
-                    else
+
+                    IAsyncEnumerable<SMStream?> streams = m3UToSMStreamsService.GetSMStreamsFromM3U(m3uFile);
+                    if (streams == null)
                     {
-                        ++m3uFile.DownloadErrors;
+                        jobManager.SetError();
+                        fileUtilService.CleanUpFile(fullName);
                         await messageService.SendError("Exception M3U From URL ", ex?.Message);
                         Logger.LogCritical("Exception M3U From URL {ex}", ex);
+                        return APIResponse.ErrorWithMessage($"M3U '{m3uFile.Name}' format is not supported");
                     }
+
                 }
+
+
 
                 //List<SMStream>? streams = await m3uFile.GetSMStreamsFromM3U(Logger);
                 //if (streams == null)
@@ -69,6 +76,9 @@ public class RefreshM3UFileRequestHandler(ILogger<RefreshM3UFileRequest> Logger,
                 //}
             }
 
+            m3uFile.DownloadErrors = 0;
+            m3uFile.FileExists = true;
+            m3uFile.LastDownloaded = SMDT.UtcNow;
             //m3uFile.LastUpdated = SMDT.UtcNow;
             Repository.M3UFile.UpdateM3UFile(m3uFile);
             _ = await Repository.SaveAsync().ConfigureAwait(false);

@@ -23,7 +23,7 @@ public class CreateM3UFileFromFormRequestHandler(ILogger<CreateM3UFileFromFormRe
         try
         {
             (M3UFile m3uFile, fullName) = m3UFileService.CreateM3UFile(request);
-            m3uFile.LastDownloaded = File.GetLastWriteTime(fullName);
+            m3uFile.LastDownloadAttempt = SMDT.UtcNow;
 
             await messageService.SendInfo($"Adding M3U '{request.Name}'");
             Logger.LogInformation("Adding M3U '{name}'", request.Name);
@@ -58,6 +58,7 @@ public class CreateM3UFileFromFormRequestHandler(ILogger<CreateM3UFileFromFormRe
                 }
             }
 
+            m3uFile.LastDownloaded = SMDT.UtcNow;
             m3uFile.MaxStreamCount = Math.Max(0, request.MaxStreamCount ?? 0);
 
             Repository.M3UFile.CreateM3UFile(m3uFile);

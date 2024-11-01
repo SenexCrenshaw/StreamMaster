@@ -299,8 +299,8 @@ namespace StreamMaster.Infrastructure.Services
         {
             return (settings.CurrentValue.DefaultCompression?.ToLower()) switch
             {
-                "gz" => fullName + ".gz",
-                "zip" => fullName + ".zip",
+                "gz" => fullName.EndsWith(".gz", StringComparison.OrdinalIgnoreCase) ? fullName : fullName + ".gz",
+                "zip" => fullName.EndsWith(".zip", StringComparison.OrdinalIgnoreCase) ? fullName : fullName + ".zip",
                 _ => fullName,
             };
         }
