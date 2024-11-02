@@ -87,7 +87,8 @@ export const RootSideBar = () => {
           {/* <MenuItemSM collapsed={collapsed} icon={<PlayListEditorIcon />} link="/testpanel" name='Test Panel' /> */}
           <MenuItemSM collapsed={collapsed} icon={<PlayListEditorIcon />} link="/editor/streams" name="Streams" />
           <MenuItemSM collapsed={collapsed} icon={<StreamingStatusIcon />} link="/streamingstatus" name="Status" />
-          {/* <MenuItemSM collapsed={collapsed} icon={<PlayListEditorIcon />} link="/editor/playlist" name="Playlist" />
+
+          {/* { <MenuItemSM collapsed={collapsed} icon={<PlayListEditorIcon />} link="/editor/playlist" name="Playlist" />
         <MenuItemSM collapsed={collapsed} icon={<StreamGroupEditorIcon />} link="/editor/streamgroup" name="Stream Group" />
         <MenuItemSM collapsed={collapsed} icon={<FilesEditorIcon />} link="/editor/files" name="Files" />
         {settings.data.hls?.hlsM3U8Enable === true ? <MenuItemSM collapsed={collapsed} icon={<VideoPlayerIcon />} link="/viewer/player" name="Player" /> : null}
@@ -109,7 +110,6 @@ export const RootSideBar = () => {
           ) : null} */}
           <MenuItemSM collapsed={collapsed} icon={<SettingsEditorIcon />} link="/settings" name="Settings" />
           <MenuItemSM collapsed={collapsed} icon={<HelpIcon />} link="https://senexcrenshaw.github.io/StreamMaster/" name="Wiki" newWindow />
-
           {/* <MenuItem
             component={
               <SunButton

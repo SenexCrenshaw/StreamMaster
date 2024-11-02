@@ -200,14 +200,7 @@ const Router = (): JSX.Element => {
           }
           path="/viewer/logviewer"
         />
-        <Route
-          element={
-            <Suspense>
-              <VideoPlayer />
-            </Suspense>
-          }
-          path="/viewer/player"
-        /> */}
+       */}
       </Route>
     )
   );
