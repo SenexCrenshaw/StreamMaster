@@ -165,11 +165,7 @@ public sealed class FileUtil
             ns.Add("", "");
             using StreamWriter writer = new(filepath, false, Encoding.UTF8);
             serializer.Serialize(writer, obj, ns);
-            //if (compress)
-            //{
-            //    GZipCompressFile(filepath);
-            //    DeflateCompressFile(filepath);
-            //}
+
             return true;
         }
         catch (Exception ex)
@@ -190,26 +186,6 @@ public sealed class FileUtil
         } while (innerException != null);
         return ret;
     }
-
-    //public static async Task<string> GetContentType(string Url)
-    //{
-    //    try
-    //    {
-    //        using HttpClient httpClient = new();
-    //        HttpResponseMessage response = await httpClient.GetAsync(Url, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
-    //        if (!response.IsSuccessStatusCode)
-    //        {
-    //            return "";
-    //        }
-
-    //        string sContentType = response.Content.Headers.ContentType?.MediaType ?? "";
-    //        return sContentType;
-    //    }
-    //    catch (Exception)
-    //    {
-    //        return "";
-    //    }
-    //}
 
     public static async Task Backup(int? versionsToKeep = null)
     {

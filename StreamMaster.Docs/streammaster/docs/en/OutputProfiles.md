@@ -1,4 +1,4 @@
-# 📘 Output Profiles
+# 📤 Output Profiles
 
 An **Output Profile** in StreamMaster determines how the **M3U/XML files** for a Stream Group are generated and configured. This profile customizes the output format and controls which metadata (such as icons, channel numbers, and group titles) is included, creating a tailored playlist experience for users.
 

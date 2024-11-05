@@ -4,9 +4,7 @@ The Schedules Direct integration enables enhanced EPG (Electronic Program Guide)
 
 ## How to Enable Schedules Direct
 
-1. **Navigate to Settings:**
-
-   - Go to the **Settings** page in StreamMaster.
+1. Go to the **Settings** page in StreamMaster.
 
    1. **Enable Schedules Direct:**
 

@@ -6,7 +6,6 @@ default_dbpassword="sm123"
 default_db="StreamMaster"
 default_host="127.0.0.1"
 default_set_perms=1
-default_backup_versions_to_keep=5
 
 # Handling POSTGRES_USER and POSTGRES_USER_FILE
 if [ -f "${POSTGRES_USER_FILE}" ]; then        
@@ -44,7 +43,6 @@ is_local() {
 export POSTGRES_ISLOCAL=$(is_local "$POSTGRES_HOST")
 
 # Backup and restore configurations
-export BACKUP_VERSIONS_TO_KEEP="${BACKUP_VERSIONS_TO_KEEP:-$default_backup_versions_to_keep}" 
 export PATH=$PATH:/usr/lib/postgresql/15/bin
 export BACKUP_DIR=/config/Backups
 export RESTORE_DIR=/config/Restore

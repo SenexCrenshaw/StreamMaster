@@ -21,7 +21,7 @@ theme:
         icon: material/brightness-4
         name: Switch to light mode
 nav:
-  - Home: index.md
+  - Home 🏠: index.md
   - Getting Started 🚀: GettingStarted.md
   - Auth 🔑: Auth.md
   - EPG/XML Files 📅: EPG.md
@@ -31,10 +31,11 @@ nav:
   - Profiles 🧑‍💻:
       - CommandProfiles.md
       - OutputProfiles.md
+  - Backup & Restore 🗄️: BackupRestore.md
   - Settings ⚙️: Settings.md
   - Docs 📘: Docs.md
-  - M3U Output Attributes🎬: M3U_Output_Attributes.md
-    # - M3UGroupTitle.md
+  - M3U Output Attributes 🎬: M3U_Output_Attributes.md
+
   - Contributors 🌟: Contributors.md
 
 plugins:
