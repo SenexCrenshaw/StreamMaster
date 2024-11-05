@@ -17,8 +17,6 @@ if [ ! -z "$1" ]; then
     versions_to_keep=$1
 elif [ ! -z "$BACKUP_VERSIONS_TO_KEEP" ]; then
     versions_to_keep=$BACKUP_VERSIONS_TO_KEEP
-else
-    versions_to_keep=5 
 fi
 
 # Check if backup directory exists, if not, create it
