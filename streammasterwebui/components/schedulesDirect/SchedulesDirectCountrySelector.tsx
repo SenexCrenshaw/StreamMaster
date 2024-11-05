@@ -12,7 +12,7 @@ import { Country, CountryData, UpdateSettingRequest } from '@lib/smAPI/smapiType
 import React, { useMemo } from 'react';
 
 interface SchedulesDirectCountrySelectorProperties {
-  readonly onChange?: (value: string) => void;
+  readonly onChange?: (data: { Country: string; PostalCode: string }) => void;
 }
 
 const SchedulesDirectCountrySelector = (props: SchedulesDirectCountrySelectorProperties) => {
@@ -20,22 +20,9 @@ const SchedulesDirectCountrySelector = (props: SchedulesDirectCountrySelectorPro
   const { selectedCountry, setSelectedCountry } = useSelectedCountry('Country');
   const { selectedPostalCode, setSelectedPostalCode } = useSelectedPostalCode('PostalCode');
 
-  // const [countryValue, setCountryValue] = useState<string | undefined>();
-  // const [postalCodeValue, setPostalCodeValue] = useState<string | undefined>();
-
   const getCountriesQuery = useGetAvailableCountries();
 
   React.useEffect(() => {
-    // console.log('sdCountry', setting.data?.sdSettings?.sdCountry, selectedCountry);
-    // if (setting.data?.sdSettings?.sdCountry !== undefined) {
-    //   if (setting.data?.sdSettings?.sdCountry !== selectedCountry) {
-    //     setSelectedCountry(setting.data?.sdSettings?.sdCountry);
-    //   }
-    //   if (setting.data?.sdSettings?.sdCountry !== countryValue) {
-    //     setCountryValue(setting.data?.sdSettings?.sdCountry);
-    //   }
-    // }
-
     if ((selectedCountry === undefined || selectedCountry === '') && settings.SDSettings?.SDCountry !== undefined) {
       setSelectedCountry(settings.SDSettings?.SDCountry);
     }
@@ -95,12 +82,11 @@ const SchedulesDirectCountrySelector = (props: SchedulesDirectCountrySelectorPro
           filter
           filterBy="label"
           itemTemplate={(option: CountryOption) => <div className="text-content">{option.label}</div>}
-          placement="bottom"
-          value={selectedCountry}
           onChange={(e) => {
             setSelectedCountry(e.value);
-            props.onChange?.(e.value);
           }}
+          placement="bottom"
+          value={selectedCountry}
         />
       </div>
       <div className="flex sm-w-4 justify-content-between align-items-center p-0 m-0 ">
@@ -110,9 +96,8 @@ const SchedulesDirectCountrySelector = (props: SchedulesDirectCountrySelectorPro
             disableDebounce
             placeholder="Postal Code"
             onChange={(e) => {
-              if (e !== undefined) {
-                setSelectedPostalCode(e);
-              }
+              if (e === null || e === undefined || e === '') return;
+              setSelectedPostalCode(e);
             }}
             value={selectedPostalCode ?? ''}
           />
@@ -121,27 +106,17 @@ const SchedulesDirectCountrySelector = (props: SchedulesDirectCountrySelectorPro
           <SearchButton
             tooltip="Go"
             onClick={() => {
-              // console.log('PostalCode', postalCodeValue);
-
-              if (!selectedPostalCode || !selectedCountry) {
-                return;
-              }
-
-              // console.log('UpdateSetting', postalCodeValue, countryValue);
-              // console.log('UpdateSetting', setting.data.sdSettings?.sdPostalCode, setting.data.sdSettings?.sdCountry);
-
-              // if (setting.data.sdSettings?.sdPostalCode === postalCodeValue && setting.data.sdSettings?.sdCountry === countryValue) {
-              //   return;
-              // }
-
-              // setSelectedCountry(countryValue);
-              // setSelectedPostalCode(postalCodeValue);
+              if (selectedCountry === null || selectedCountry === undefined || selectedCountry === '') return;
+              if (selectedPostalCode === null || selectedPostalCode === undefined || selectedPostalCode === '') return;
 
               const newData: UpdateSettingRequest = { Parameters: { SDSettings: { SDCountry: selectedCountry, SDPostalCode: selectedPostalCode } } };
 
               UpdateSetting(newData)
                 .then(() => {})
-                .catch(() => {});
+                .catch(() => {})
+                .finally(() => {
+                  props.onChange?.({ Country: selectedCountry, PostalCode: selectedPostalCode });
+                });
             }}
           />
         </div>

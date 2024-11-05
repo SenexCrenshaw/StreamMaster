@@ -415,6 +415,7 @@ export interface SDSettings
 	SDPassword: string;
 	SDPostalCode: string;
 	SDStationIds: StationIdLineup[];
+	SDTooManyRequestsSuspend: any;
 	SDUserName: string;
 	SeasonEventImages: boolean;
 	SeriesPosterArt: boolean;

@@ -6,15 +6,19 @@ using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Dto;
 using StreamMaster.Domain.Enums;
 using StreamMaster.Domain.Extensions;
+using StreamMaster.Domain.Helpers;
 using StreamMaster.SchedulesDirect.Domain.Interfaces;
 using StreamMaster.SchedulesDirect.Domain.JsonClasses;
 using StreamMaster.SchedulesDirect.Domain.Models;
 using StreamMaster.SchedulesDirect.Helpers;
 
+using System.Net;
+
 namespace StreamMaster.Infrastructure.Services.Downloads
 {
     public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadService
     {
+
         private readonly ILogger<ImageDownloadService> logger;
         private readonly IDataRefreshService dataRefreshService;
         private readonly IOptionsMonitor<Setting> _settings;
@@ -310,18 +314,39 @@ namespace StreamMaster.Infrastructure.Services.Downloads
 
         private async Task<bool> DownloadImageAsync(string url, string filePath, bool isSchedulesDirect, CancellationToken cancellationToken)
         {
+
+            DateTime _noDownloadUntil = _sdSettings.CurrentValue.SDTooManyRequestsSuspend;
+            // Check if we are currently in the no-download period
+            if (_noDownloadUntil > DateTime.UtcNow)
+            {
+                logger.LogWarning("Image downloads are temporarily suspended until {NoDownloadUntil}", _noDownloadUntil);
+                return false;
+            }
+
             try
             {
-                using HttpResponseMessage? response = isSchedulesDirect
+                HttpResponseMessage? response = isSchedulesDirect
                     ? await GetSdImage(url)
-                    : await httpClient.GetAsync(url, cancellationToken);
+                    : await httpClient.GetAsync(url, cancellationToken).ConfigureAwait(false);
 
-                if (response?.IsSuccessStatusCode == true)
+                if (response != null)
                 {
-                    await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken);
-                    await using FileStream fileStream = new(filePath, FileMode.Create);
-                    await stream.CopyToAsync(fileStream, cancellationToken);
-                    return true;
+                    if (response.StatusCode is HttpStatusCode.TooManyRequests)
+                    {
+                        _sdSettings.CurrentValue.SDTooManyRequestsSuspend = DateTime.UtcNow.AddHours(24);
+                        SettingsHelper.UpdateSetting(_sdSettings.CurrentValue);
+                        logger.LogWarning("Max image download limit reached. No more downloads allowed until {NoDownloadUntil}", _noDownloadUntil);
+                        return false;
+                    }
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
+                        await using FileStream fileStream = new(filePath, FileMode.Create);
+                        await stream.CopyToAsync(fileStream, cancellationToken).ConfigureAwait(false);
+                        return true;
+                    }
+                    logger.LogDebug("Failed to download image from {Url} with status code {StatusCode}", url, response.StatusCode);
                 }
             }
             catch (Exception ex)

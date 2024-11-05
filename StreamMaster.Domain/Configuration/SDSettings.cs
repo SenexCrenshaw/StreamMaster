@@ -30,5 +30,6 @@
         public bool XmltvExtendedInfoInTitleDescriptions { get; set; } = false;
         public bool XmltvIncludeChannelNumbers { get; set; } = false;
         public bool XmltvSingleImage { get; set; } = false;
+        public DateTime SDTooManyRequestsSuspend { get; set; } = DateTime.MinValue;
     }
 }

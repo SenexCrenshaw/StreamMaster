@@ -1,12 +1,10 @@
 import SMDataTable from '@components/smDataTable/SMDataTable';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 import { useSMContext } from '@lib/context/SMProvider';
-import { useSelectedCountry } from '@lib/redux/hooks/selectedCountry';
-import { useSelectedPostalCode } from '@lib/redux/hooks/selectedPostalCode';
 import useGetHeadendsByCountryPostal from '@lib/smAPI/SchedulesDirect/useGetHeadendsByCountryPostal';
 import useGetSubscribedLineups from '@lib/smAPI/SchedulesDirect/useGetSubscribedLineups';
 import { GetHeadendsByCountryPostalRequest, HeadendDto } from '@lib/smAPI/smapiTypes';
-import { memo, useCallback, useMemo } from 'react';
+import { memo, useCallback, useMemo, useState } from 'react';
 import SchedulesDirectAddHeadendDialog from './SchedulesDirectAddHeadendDialog';
 import SchedulesDirectCountrySelector from './SchedulesDirectCountrySelector';
 import SchedulesDirectLineupPreviewChannel from './SchedulesDirectLineupPreviewChannel';
@@ -14,12 +12,14 @@ import SchedulesDirectRemoveHeadendDialog from './SchedulesDirectRemoveHeadendDi
 
 const SchedulesDirectHeadendDataSelector = () => {
   const dataKey = 'SchedulesDirectHeadendDataSelector';
-  const { selectedCountry } = useSelectedCountry('Country');
-  const { selectedPostalCode } = useSelectedPostalCode('PostalCode');
+  const [country, setCountry] = useState<string | null>(null);
+  const [postalCode, setPostalCode] = useState<string | null>(null);
+
   const { data } = useGetHeadendsByCountryPostal({
-    Country: selectedCountry || 'USA',
-    PostalCode: selectedPostalCode || '00000'
+    Country: country || 'USA',
+    PostalCode: postalCode || '00000'
   } as GetHeadendsByCountryPostalRequest);
+
   const { data: subscribedLineups } = useGetSubscribedLineups();
   const { settings } = useSMContext();
 
@@ -44,34 +44,6 @@ const SchedulesDirectHeadendDataSelector = () => {
     [settings.SDSettings, subscribedLineups]
   );
 
-  // const checkBoxChanged = useCallback(
-  //   (headEndDto: HeadendDto, isChecked: boolean) => {
-  //     Logger.debug('checkBoxChanged', headEndDto, isChecked);
-  //     if (isChecked === true) {
-  //       AddHeadendToView({ Country: selectedCountry, HeadendId: headEndDto.HeadendId, Postal: selectedPostalCode } as AddHeadendToViewRequest);
-  //     } else {
-  //       RemoveHeadendToView({ Country: selectedCountry, HeadendId: headEndDto.HeadendId, Postal: selectedPostalCode } as RemoveHeadendToViewRequest);
-  //     }
-  //   },
-  //   [selectedCountry, selectedPostalCode]
-  // );
-
-  // const isViewedTemplate = useCallback(
-  //   (rowData: HeadendDto) => {
-  //     const found = headendsToView?.some((item) => item.Id === rowData.HeadendId && item.Lineup === rowData.Lineup) ?? false;
-
-  //     return (
-  //       <BooleanEditor
-  //         checked={found}
-  //         onChange={(e) => {
-  //           checkBoxChanged(rowData, e);
-  //         }}
-  //       />
-  //     );
-  //   },
-  //   [headendsToView]
-  // );
-
   const columns = useMemo(
     (): ColumnMeta[] => [
       // { bodyTemplate: isViewedTemplate, field: 'blah', header: 'In Lineups', width: 24 },
@@ -91,7 +63,17 @@ const SchedulesDirectHeadendDataSelector = () => {
     [actionBodyTemplate]
   );
 
-  const centerTemplate = useMemo(() => <SchedulesDirectCountrySelector />, []);
+  const centerTemplate = useMemo(
+    () => (
+      <SchedulesDirectCountrySelector
+        onChange={(e) => {
+          setCountry(e.Country);
+          setPostalCode(e.PostalCode);
+        }}
+      />
+    ),
+    []
+  );
 
   const rowClass = useCallback(
     (headEndDto: any): string => {
