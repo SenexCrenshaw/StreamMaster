@@ -21,7 +21,7 @@ if [ -f "${POSTGRES_PASSWORD_FILE}" ]; then
     export POSTGRES_PASSWORD=$(cat "${POSTGRES_PASSWORD_FILE}")
 
 else
-    export POSTGRES_PASSWORD="${POSTGRES_USER:-$default_dbpassword}"
+    export POSTGRES_PASSWORD="${POSTGRES_PASSWORD:-$default_dbpassword}"
 fi
 unset POSTGRES_PASSWORD_FILE
 
