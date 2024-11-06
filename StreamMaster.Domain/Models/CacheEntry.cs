@@ -15,6 +15,10 @@ public class CacheEntity : BaseEntity
     public int DownloadErrors { get; set; }
 
     public bool FileExists { get; set; }
+
+    [Column(TypeName = "citext")]
+    public string DirectoryLocation { get; set; } = string.Empty;
+
     [Column(TypeName = "citext")]
     public string FileExtension { get; set; } = string.Empty;
     public DateTime LastDownloadAttempt { get; set; }

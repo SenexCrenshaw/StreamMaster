@@ -401,6 +401,11 @@ public class M3UFileService(ILogger<M3UFileService> logger, IFileUtilService fil
 
     private static bool ShouldUpdate(M3UFile m3uFile, List<string> VODTags)
     {
+        if (string.IsNullOrEmpty(m3uFile.DirectoryLocation))
+        {
+            m3uFile.DirectoryLocation = FileDefinitions.M3U.DirectoryLocation;
+            return true;
+        }
         if (VODTags.Count > 0)
         {
             return true;

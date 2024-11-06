@@ -9,8 +9,21 @@ public class AutoUpdateEntity : CacheEntity
         AutoUpdate = true;
     }
 
+    public DateTime LastWrite()
+    {
+        string fileName = Path.Combine(DirectoryLocation, Source);
+        DateTime ret = File.Exists(fileName)
+            ? File.GetLastWriteTimeUtc(fileName)
+            : File.Exists(fileName + ".gz")
+            ? File.GetLastWriteTimeUtc(fileName + ".gz")
+            : File.Exists(fileName + ".zip") ? File.GetLastWriteTime(fileName + ".zip") : default;
+        return ret;
+    }
+
+
     public bool AutoUpdate { get; set; }
     public int HoursToUpdate { get; set; }
     [Column(TypeName = "citext")]
     public string? Url { get; set; }
+
 }
