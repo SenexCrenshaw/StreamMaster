@@ -1,5 +1,7 @@
 # streammaster\mkdocs.yml
 site_name: Stream Master
+extra:
+  generator: false
 repo_url: https://github.com/SenexCrenshaw/StreamMaster
 theme:
   name: "material"

@@ -56,10 +56,10 @@ RUN if [ "$TARGETARCH" = "arm64" ]; then \
     && rm -rf /tmp/ffmpeg.tar.xz /tmp/ffmpeg/ \
     && echo "FFmpeg installation completed."
 
+ENV PIPX_BIN_DIR=/usr/local/bin
+ENV PIPX_HOME=/opt/pipx
 
 # Pipx utilities
-RUN pipx install streamlink \
-    && ln -s /root/.local/bin/streamlink /usr/local/bin/streamlink
+RUN pipx install streamlink 
 
-RUN pipx install yt-dlp \
-    && ln -s /root/.local/bin/yt-dlp /usr/local/bin/yt-dlp
+RUN pipx install yt-dlp
