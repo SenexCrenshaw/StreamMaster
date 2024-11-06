@@ -35,6 +35,7 @@ namespace StreamMaster.Infrastructure.Services.Downloads
         private readonly object _lockObject = new();
         private static DateTime _lastRefreshTime = DateTime.MinValue;
         private static readonly object _refreshLock = new();
+        private bool logged429 = false;
 
         public ImageDownloadServiceStatus imageDownloadServiceStatus { get; } = new();
 
@@ -120,6 +121,11 @@ namespace StreamMaster.Infrastructure.Services.Downloads
 
         private async Task<bool> ProcessProgramMetadataQueue(CancellationToken cancellationToken)
         {
+            if (_sdSettings.CurrentValue.SDTooManyRequestsSuspend > DateTime.UtcNow)
+            {
+                return true;
+            }
+
             List<ProgramMetadata> metadataBatch = imageDownloadQueue.GetNextProgramMetadataBatch(BatchSize);
             imageDownloadServiceStatus.TotalProgramMetadata = imageDownloadQueue.ProgramMetadataCount;
 
@@ -135,6 +141,11 @@ namespace StreamMaster.Infrastructure.Services.Downloads
 
             foreach (ProgramMetadata metadata in metadataBatch)
             {
+                if (_sdSettings.CurrentValue.SDTooManyRequestsSuspend > DateTime.UtcNow)
+                {
+                    return true;
+                }
+
                 List<ProgramArtwork> artwork = GetArtwork(metadata);
                 if (artwork.Count == 0)
                 {
@@ -268,6 +279,7 @@ namespace StreamMaster.Infrastructure.Services.Downloads
             foreach (ProgramArtwork art in artwork)
             {
                 await downloadSemaphore.WaitAsync(cancellationToken);
+
                 try
                 {
                     string? logoPath = art.Uri.GetSDImageFullPath();
@@ -315,14 +327,18 @@ namespace StreamMaster.Infrastructure.Services.Downloads
         private async Task<bool> DownloadImageAsync(string url, string filePath, bool isSchedulesDirect, CancellationToken cancellationToken)
         {
 
-            DateTime _noDownloadUntil = _sdSettings.CurrentValue.SDTooManyRequestsSuspend;
             // Check if we are currently in the no-download period
-            if (_noDownloadUntil > DateTime.UtcNow)
+            if (_sdSettings.CurrentValue.SDTooManyRequestsSuspend > DateTime.UtcNow)
             {
-                logger.LogWarning("Image downloads are temporarily suspended until {NoDownloadUntil}", _noDownloadUntil);
+                if (!logged429)
+                {
+                    logger.LogWarning("Image downloads are temporarily suspended until {NoDownloadUntil}", _sdSettings.CurrentValue.SDTooManyRequestsSuspend);
+                }
+
+                logged429 = true;
                 return false;
             }
-
+            logged429 = false;
             try
             {
                 HttpResponseMessage? response = isSchedulesDirect
@@ -333,9 +349,12 @@ namespace StreamMaster.Infrastructure.Services.Downloads
                 {
                     if (response.StatusCode is HttpStatusCode.TooManyRequests)
                     {
-                        _sdSettings.CurrentValue.SDTooManyRequestsSuspend = DateTime.UtcNow.AddHours(24);
+                        _sdSettings.CurrentValue.SDTooManyRequestsSuspend = DateTime.UtcNow
+                            .Date.AddDays(1)
+                            .AddMinutes(10);
+
                         SettingsHelper.UpdateSetting(_sdSettings.CurrentValue);
-                        logger.LogWarning("Max image download limit reached. No more downloads allowed until {NoDownloadUntil}", _noDownloadUntil);
+                        logger.LogWarning("Max image download limit reached. No more downloads allowed until {NoDownloadUntil}", _sdSettings.CurrentValue.SDTooManyRequestsSuspend);
                         return false;
                     }
 
