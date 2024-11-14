@@ -1,7 +1,6 @@
 using MediatR;
 
 using Microsoft.AspNetCore.HttpOverrides;
-using Microsoft.Data.Sqlite;
 
 using Reinforced.Typings.Attributes;
 
@@ -210,8 +209,7 @@ void OnShutdown()
 {
     var sender = app.Services.GetRequiredService<ISender>();
     sender.Send(new SetIsSystemReadyRequest(false)).Wait();
-    ProcessHelper.KillProcessByName("ffmpeg");
-    SqliteConnection.ClearAllPools();
+    ProcessHelper.KillProcessByName("ffmpeg");    
     PGSQLRepositoryContext repositoryContext = app.Services.GetRequiredService<PGSQLRepositoryContext>();
     repositoryContext.Dispose();
     IImageDownloadService imageDownloadService = app.Services.GetRequiredService<IImageDownloadService>();
@@ -229,7 +227,7 @@ app.UseSwaggerUi();
 if (app.Environment.IsDevelopment())
 {
     _ = app.UseDeveloperExceptionPage();
-    _ = app.UseMigrationsEndPoint();
+    //_ = app.UseMigrationsEndPoint();
 }
 else
 {
@@ -238,7 +236,7 @@ else
 }
 
 //app.UseHttpLogging();
-app.UseMigrationsEndPoint();
+//app.UseMigrationsEndPoint();
 app.UseSession();
 
 //app.UseHangfireDashboard();
@@ -321,21 +319,20 @@ static string GetRoutePattern(Endpoint endpoint)
 
 static X509Certificate2 ValidateSslCertificate(string cert, string password)
 {
-    X509Certificate2 certificate;
-
     try
     {
-        certificate = new X509Certificate2(cert, password, X509KeyStorageFlags.DefaultKeySet);
+        // Load the certificate using the new X509CertificateLoader API
+        var certificate = X509CertificateLoader.LoadPkcs12FromFile(cert, password);
+
+        return certificate;
     }
     catch (CryptographicException ex)
     {
         if (ex.HResult is 0x2 or 0x2006D080)
         {
-            throw new Exception($"The SSL certificate file {cert} does not exist: {ex.Message}");
+            throw new FileNotFoundException($"The SSL certificate file {cert} does not exist: {ex.Message}", ex);
         }
 
         throw;
     }
-
-    return certificate;
 }

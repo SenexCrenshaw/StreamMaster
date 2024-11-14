@@ -68,19 +68,19 @@ public interface IRepositoryBase<T> where T : class
     /// Performs a bulk insert operation.
     /// </summary>
     /// <param name="entities">Entities to insert.</param>
-    void BulkInsert(T[] entities);
+    //void BulkInsert(T[] entities);
 
-    void BulkInsert(List<T> entities);
-    Task BulkInsertEntitiesAsync<TEntity>(IEnumerable<TEntity> entities) where TEntity : class;
+    //void BulkInsert(List<T> entities);
+    //Task BulkInsertEntitiesAsync<TEntity>(IEnumerable<TEntity> entities) where TEntity : class;
 
     /// <summary>
     /// Performs a bulk update operation.
     /// </summary>
     /// <param name="entities">Entities to update.</param>
-    void BulkUpdate(T[] entities);
+    //void BulkUpdate(T[] entities);
 
     void BulkUpdate(List<T> entities);
-    Task BulkUpdateAsync<TEntity>(IEnumerable<TEntity> entities) where TEntity : class;
+    //Task BulkUpdateAsync<TEntity>(IEnumerable<TEntity> entities) where TEntity : class;
     /// <summary>
     /// Performs a bulk delete operation based on the provided query.
     /// </summary>

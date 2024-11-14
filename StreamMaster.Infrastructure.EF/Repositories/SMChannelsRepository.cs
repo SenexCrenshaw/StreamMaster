@@ -45,7 +45,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IImag
     {
         List<StationChannelName> stationChannelNames = [.. schedulesDirectDataService.GetStationChannelNames().OrderBy(a => a.Channel)];
 
-        HashSet<string> toMatch = new(stationChannelNames.Select(a => a.DisplayName).Distinct());
+        HashSet<string> toMatch = [.. stationChannelNames.Select(a => a.DisplayName).Distinct()];
         string toMatchString = string.Join(',', toMatch);
 
         ConcurrentBag<FieldData> fds = []; // Use ConcurrentBag for thread-safe operations
@@ -276,7 +276,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IImag
                     repository.SMChannelStreamLink.CreateSMChannelStreamLink(addedSMChannel, addedSMChannel.BaseStreamID, null);
                 }
 
-                await BulkUpdate(addedSMChannels, addToStreamGroupId).ConfigureAwait(false);
+                await SMChannelBulkUpdate(addedSMChannels, addToStreamGroupId).ConfigureAwait(false);
 
                 //await SaveChangesAsync().ConfigureAwait(false);
                 logger.LogInformation("{count} channels have been added in {elapsed}ms.", i + batch.Count, batchStopwatch.ElapsedMilliseconds);
@@ -284,7 +284,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IImag
             }
             await SaveChangesAsync().ConfigureAwait(false);
             Stopwatch bulkStopwatch = Stopwatch.StartNew();
-            await BulkUpdate(addedSMChannels, addToStreamGroupId).ConfigureAwait(false);
+            await SMChannelBulkUpdate(addedSMChannels, addToStreamGroupId).ConfigureAwait(false);
             await SaveChangesAsync().ConfigureAwait(false);
             bulkStopwatch.Stop();
             logger.LogInformation("Bulk update {count} channels in {elapsed}ms.", addedSMChannels.Count, bulkStopwatch.ElapsedMilliseconds);
@@ -675,7 +675,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IImag
         return ret;
     }
 
-    private async Task BulkUpdate(List<SMChannel> addedSMChannels, int? defaultSGId)
+    private async Task SMChannelBulkUpdate(List<SMChannel> addedSMChannels, int? defaultSGId)
     {
         for (int i = 0; i < addedSMChannels.Count; i += settings.CurrentValue.DBBatchSize)
         {
@@ -752,7 +752,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IImag
             IQueryable<SMChannelStreamLink> linksToDelete = repository.SMChannelStreamLink.GetQuery(true).Where(a => ret.Contains(a.SMChannelId));
             await repository.SMChannelStreamLink.DeleteSMChannelStreamLinks(linksToDelete);
             _ = await SaveChangesAsync();
-            BulkDelete(a);
+            await BulkDeleteAsync(a);
             _ = await SaveChangesAsync();
             return ret;
         }

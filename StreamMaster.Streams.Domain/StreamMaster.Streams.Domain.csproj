@@ -1,31 +1,24 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
-
   <ItemGroup>
     <Compile Remove="Enums\**" />
     <EmbeddedResource Remove="Enums\**" />
     <None Remove="Enums\**" />
   </ItemGroup>
-
-
-	<ItemGroup>
-		<FrameworkReference Include="Microsoft.AspNetCore.App" />
-	</ItemGroup>
-
   <ItemGroup>
-    <PackageReference Include="Reinforced.Typings" Version="1.6.3" />
-    <PackageReference Include="System.Text.Json" Version="8.0.5" />
-    <PackageReference Include="X.PagedList" Version="10.5.3" />
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
-
+  <ItemGroup>
+    <PackageReference Include="Reinforced.Typings" Version="1.6.4" />
+    <PackageReference Include="System.Text.Json" Version="9.0.0" />
+    <PackageReference Include="X.PagedList" Version="10.5.7" />
+  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\StreamMaster.Domain\StreamMaster.Domain.csproj" />
     <ProjectReference Include="..\StreamMaster.PlayList\StreamMaster.PlayList.csproj" />
   </ItemGroup>
-
 </Project>

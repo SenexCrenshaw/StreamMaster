@@ -1,6 +1,4 @@
-﻿using EFCore.BulkExtensions;
-
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 
 using StreamMaster.Domain.Filtering;
 
@@ -203,58 +201,69 @@ public abstract class RepositoryBase<T>(IRepositoryContext RepositoryContext, IL
     /// Performs a bulk insert of entities.
     /// </summary>
     /// <param name="entities">Entities to be inserted.</param>
-    public void BulkInsert(List<T> entities)
-    {
-        if (entities == null || entities.Count == 0)
-        {
-            logger.LogWarning("Attempted to perform a bulk insert with null or empty entities.");
-            throw new ArgumentNullException(nameof(entities));
-        }
+    //public void BulkInsert(List<T> entities)
+    //{
+    //    if (entities == null || entities.Count == 0)
+    //    {
+    //        logger.LogWarning("Attempted to perform a bulk insert with null or empty entities.");
+    //        throw new ArgumentNullException(nameof(entities));
+    //    }
 
-        RepositoryContext.BulkInsertEntities(entities);
-    }
+    //    RepositoryContext.BulkInsertEntities(entities);
+    //}
 
     /// <summary>
     /// Performs a bulk insert of entities.
     /// </summary>
     /// <param name="entities">Entities to be inserted.</param>
-    public void BulkInsert(T[] entities)
-    {
-        if (entities == null || entities.Length == 0)
-        {
-            logger.LogWarning("Attempted to perform a bulk insert with null or empty entities.");
-            throw new ArgumentNullException(nameof(entities));
-        }
+    //public void BulkInsert(T[] entities)
+    //{
+    //    if (entities == null || entities.Length == 0)
+    //    {
+    //        logger.LogWarning("Attempted to perform a bulk insert with null or empty entities.");
+    //        throw new ArgumentNullException(nameof(entities));
+    //    }
 
-        RepositoryContext.BulkInsertEntities(entities);
-    }
+    //    RepositoryContext.BulkInsertEntities(entities);
+    //}
 
     /// <summary>
     /// Deletes a group of entities based on a query.
     /// </summary>
     /// <param name="query">The IQueryable to select entities to be deleted.</param>
-    public void BulkDelete(IQueryable<T> query)
-    {
-        if (query?.Any() != true)
-        {
-            logger.LogWarning("Attempted to perform a bulk delete with a null or empty query.");
-            throw new ArgumentNullException(nameof(query));
-        }
-        DbContext? context = RepositoryContext as DbContext;
+    //public void BulkDelete(IQueryable<T> query)
+    //{
+    //    if (query?.Any() != true)
+    //    {
+    //        logger.LogWarning("Attempted to perform a bulk delete with a null or empty query.");
+    //        throw new ArgumentNullException(nameof(query));
+    //    }
+    //    DbContext? context = RepositoryContext as DbContext;
 
-        context!.BulkDelete(query);
-    }
+    //    context!.BulkDelete(query);
+    //}
 
-    public void BulkDelete(List<T> items)
+    public async Task BulkDeleteAsync<TEntity>(List<TEntity> items, int batchSize = 100, CancellationToken cancellationToken = default) where TEntity : class
     {
         if (items == null || items.Count == 0)
         {
-            logger.LogWarning("Attempted to perform a bulk delete with a null or empty query.");
+            logger.LogWarning("Attempted to perform a bulk delete with a null or empty list of items.");
             throw new ArgumentNullException(nameof(items));
         }
-        DbContext? context = RepositoryContext as DbContext;
 
-        context!.BulkDelete(items);
+        for (int i = 0; i < items.Count; i += batchSize)
+        {
+            List<TEntity> batch = items.Skip(i).Take(batchSize).ToList();
+
+            // Attach each item and mark for removal
+            foreach (TEntity? item in batch)
+            {
+                RepositoryContext.Set<TEntity>().Attach(item);
+                RepositoryContext.Set<TEntity>().Remove(item);
+            }
+
+            await RepositoryContext.SaveChangesAsync(cancellationToken);
+        }
     }
 
     /// <summary>
@@ -272,20 +281,20 @@ public abstract class RepositoryBase<T>(IRepositoryContext RepositoryContext, IL
         await RepositoryContext.BulkDeleteAsyncEntities(query);
     }
 
-    /// <summary>
-    /// Performs a bulk update on a set of entities.
-    /// </summary>
-    /// <param name="entities">Entities to be updated.</param>
-    public void BulkUpdate(T[] entities)
-    {
-        if (entities == null || entities.Length == 0)
-        {
-            logger.LogWarning("Attempted to perform a bulk update with null or empty entities.");
-            throw new ArgumentNullException(nameof(entities));
-        }
+    ///// <summary>
+    ///// Performs a bulk update on a set of entities.
+    ///// </summary>
+    ///// <param name="entities">Entities to be updated.</param>
+    //public void BulkUpdate(T[] entities)
+    //{
+    //    if (entities == null || entities.Length == 0)
+    //    {
+    //        logger.LogWarning("Attempted to perform a bulk update with null or empty entities.");
+    //        throw new ArgumentNullException(nameof(entities));
+    //    }
 
-        RepositoryContext.BulkUpdateEntities(entities);
-    }
+    //    RepositoryContext.BulkUpdateEntities(entities);
+    //}
 
     public void BulkUpdate(List<T> entities)
     {
@@ -295,7 +304,7 @@ public abstract class RepositoryBase<T>(IRepositoryContext RepositoryContext, IL
             throw new ArgumentNullException(nameof(entities));
         }
 
-        RepositoryContext.BulkUpdateEntities(entities);
+        RepositoryContext.BulkUpdateEntitiesAsync(entities);
     }
 
     /// <summary>
@@ -323,10 +332,10 @@ public abstract class RepositoryBase<T>(IRepositoryContext RepositoryContext, IL
         RepositoryContext.Set<T>().AddRange(entities);
     }
 
-    public async Task BulkInsertEntitiesAsync<TEntity>(IEnumerable<TEntity> entities) where TEntity : class
-    {
-        await RepositoryContext.BulkInsertEntitiesAsync(entities);
-    }
+    //public async Task BulkInsertEntitiesAsync<TEntity>(IEnumerable<TEntity> entities) where TEntity : class
+    //{
+    //    await RepositoryContext.BulkInsertEntitiesAsync(entities);
+    //}
 
     public async Task BulkUpdateAsync<TEntity>(IEnumerable<TEntity> entities) where TEntity : class
     {

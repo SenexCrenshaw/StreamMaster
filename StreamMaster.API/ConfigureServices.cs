@@ -100,7 +100,7 @@ public static class ConfigureServices
 
         services.AddSession();
 
-        services.AddDatabaseDeveloperPageExceptionFilter();
+        //services.AddDatabaseDeveloperPageExceptionFilter();
 
         Assembly assembly = Assembly.Load("StreamMaster.Application");
 
