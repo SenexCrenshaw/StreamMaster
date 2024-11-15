@@ -10,8 +10,6 @@ namespace StreamMaster.Infrastructure.Services.Downloads
     {
         private readonly ConcurrentDictionary<string, ProgramMetadata> programMetadataQueue = new();
         private readonly ConcurrentDictionary<string, NameLogo> nameLogoQueue = new();
-        private readonly object programMetadataLock = new();
-        private readonly object nameLogoLock = new();
 
         public void EnqueueProgramMetadata(ProgramMetadata metadata)
         {
@@ -33,18 +31,12 @@ namespace StreamMaster.Infrastructure.Services.Downloads
 
         public List<ProgramMetadata> GetNextProgramMetadataBatch(int batchSize)
         {
-            lock (programMetadataLock)
-            {
-                return programMetadataQueue.Take(batchSize).Select(x => x.Value).ToList();
-            }
+            return programMetadataQueue.Take(batchSize).Select(x => x.Value).ToList();
         }
 
         public List<NameLogo> GetNextNameLogoBatch(int batchSize)
         {
-            lock (nameLogoLock)
-            {
-                return nameLogoQueue.Take(batchSize).Select(x => x.Value).ToList();
-            }
+            return nameLogoQueue.Take(batchSize).Select(x => x.Value).ToList();
         }
 
         public void TryDequeueProgramMetadataBatch(IEnumerable<string> ids)

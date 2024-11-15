@@ -36,7 +36,7 @@ public class SportsImages : ISportsImages, IDisposable
     public async Task<bool> GetAllSportsImages()
     {
         // Reset counters
-        ResetCache();
+        // ResetCache();
 
         if (!sdsettings.SeasonEventImages)
         {

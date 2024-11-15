@@ -58,7 +58,9 @@ namespace StreamMaster.SchedulesDirect
 
             // Download and process programs concurrently
             List<Task> tasks = [];
-            for (int i = 0; i < (programQueue.Count / SchedulesDirect.MaxQueries); i++)
+            int numberOfBatches = (int)Math.Ceiling((double)programQueue.Count / SchedulesDirect.MaxQueries);
+
+            for (int i = 0; i < numberOfBatches; i++)
             {
                 int startIndex = i * SchedulesDirect.MaxQueries;
                 tasks.Add(ProcessProgramBatchAsync(startIndex, cancellationToken));

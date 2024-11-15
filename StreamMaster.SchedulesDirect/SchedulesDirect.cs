@@ -85,7 +85,12 @@ public partial class SchedulesDirect(
                 await seasonImages.GetAllSeasonImages().ConfigureAwait(false);
                 await sportsImages.GetAllSportsImages().ConfigureAwait(false);
 
-                ClearAllCaches();
+                movieImages.ResetCache();
+                seriesImages.ResetCache();
+                seasonImages.ResetCache();
+                sportsImages.ResetCache();
+
+                //ClearAllCaches();
 
                 XMLTV? xml = xMLTVBuilder.CreateSDXmlTv("");
                 if (xml is not null)
