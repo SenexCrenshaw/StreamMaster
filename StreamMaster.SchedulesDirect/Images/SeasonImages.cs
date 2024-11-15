@@ -94,7 +94,11 @@ public class SeasonImages : ISeasonImages, IDisposable
         if (artwork != null)
         {
             season.extras.AddOrUpdate("artwork", artwork);
-            season.mxfGuideImage = epgCache.GetGuideImageAndUpdateCache(artwork, ImageType.Season);
+            MxfGuideImage? mx = epgCache.GetGuideImageAndUpdateCache(artwork, ImageType.Season);
+            if (mx != null)
+            {
+                season.mxfGuideImage = mx;
+            }
         }
     }
 
@@ -146,8 +150,11 @@ public class SeasonImages : ISeasonImages, IDisposable
             }
 
             List<ProgramArtwork> artwork = season.extras.ContainsKey("artwork")
-                ? season.extras["artwork"].Concat(SDHelpers.GetTieredImages(response.Data, ["season"], artworkSize)).ToList()
-                : SDHelpers.GetTieredImages(response.Data, ["season"], artworkSize);
+      ? season.extras["artwork"]
+          .Concat(SDHelpers.GetTieredImages(response.Data, ["season"], artworkSize))
+          .ToList()  // Ensure you convert the IEnumerable to List.
+      : SDHelpers.GetTieredImages(response.Data, ["season"], artworkSize);
+
 
             season.extras["artwork"] = artwork;
             string uid = $"{season.SeriesId}_{season.SeasonNumber}";
@@ -156,7 +163,11 @@ public class SeasonImages : ISeasonImages, IDisposable
                 epgCache.AddAsset(uid, null);
             }
 
-            season.mxfGuideImage = epgCache.GetGuideImageAndUpdateCache(artwork, ImageType.Season, uid);
+            MxfGuideImage? mx = epgCache.GetGuideImageAndUpdateCache(artwork, ImageType.Season, uid);
+            if (mx != null)
+            {
+                season.mxfGuideImage = mx;
+            }
         }
     }
 
