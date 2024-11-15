@@ -1,9 +1,9 @@
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 ARG TARGETPLATFORM
 ARG TARGETOS
 ARG TARGETARCH
 ARG TARGETVARIANT
-ARG NODE_VERSION=21.x
+ARG NODE_VERSION=23.x
 
 # Remove docker-clean config and keep APT cache
 RUN rm -f /etc/apt/apt.conf.d/docker-clean; \

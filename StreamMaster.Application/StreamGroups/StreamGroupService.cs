@@ -455,11 +455,7 @@ public class StreamGroupService(ILogger<StreamGroupService> _logger, ILogoServic
     //    {
     //        commandProfileDto = _commandProfileSettings.CurrentValue.GetProfileDto(commandProfileName);
     //    }
-
-
     //}
-
-
     public async Task<CommandProfileDto> GetProfileFromSGIdsCommandProfileNameAsync(int? streamGroupId, int streamGroupProfileId, string commandProfileName)
     {
         CommandProfileDto? commandProfileDto = null;
@@ -538,7 +534,7 @@ public class StreamGroupService(ILogger<StreamGroupService> _logger, ILogoServic
         StreamGroup defaultSg = await GetDefaultSGAsync();
 
         StreamGroupProfile defaultPolicy = await repositoryWrapper.StreamGroupProfile.GetQuery()
-            .FirstAsync(a => a.StreamGroupId == defaultSg.Id && a.ProfileName.ToLower() == "default");
+            .FirstAsync(a => a.StreamGroupId == defaultSg.Id && a.ProfileName.Equals("default", StringComparison.CurrentCultureIgnoreCase));
         return defaultPolicy;
     }
 

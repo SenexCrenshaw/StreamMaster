@@ -66,6 +66,9 @@
     <RtAdditionalAssembly Include="StreamMaster.Streams.Domain" />
     <RtAdditionalAssembly Include="StreamMaster.PlayList" />
   </ItemGroup>
+	<PropertyGroup>
+		<EnableStaticWebAssets>false</EnableStaticWebAssets>
+	</PropertyGroup>
   <ItemGroup>
     <None Update="Fonts\Roboto-Regular.ttf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

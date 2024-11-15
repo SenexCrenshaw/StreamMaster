@@ -6,8 +6,6 @@ public partial class StreamMasterHub
 {
     public async Task<bool> LogIn(LogInRequest logInRequest)
     {
-        return await Task.FromResult(settings.AdminUserName == logInRequest.UserName && settings.AdminPassword == logInRequest.Password);
+        return await Task.FromResult(settings.CurrentValue.AdminUserName == logInRequest.UserName && settings.CurrentValue.AdminPassword == logInRequest.Password);
     }
-
-
 }
