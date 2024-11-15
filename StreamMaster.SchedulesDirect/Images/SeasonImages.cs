@@ -149,11 +149,12 @@ public class SeasonImages : ISeasonImages, IDisposable
                 continue;
             }
 
-            List<ProgramArtwork> artwork = season.extras.ContainsKey("artwork")
-      ? season.extras["artwork"]
-          .Concat(SDHelpers.GetTieredImages(response.Data, ["season"], artworkSize))
-          .ToList()  // Ensure you convert the IEnumerable to List.
-      : SDHelpers.GetTieredImages(response.Data, ["season"], artworkSize);
+            List<ProgramArtwork> artwork = [];
+            season.extras.TryGetValue("artwork", out dynamic? value);
+
+            artwork = value == null
+                ? SDHelpers.GetTieredImages(response.Data, ["season"], artworkSize)
+                : (List<ProgramArtwork>)season.extras["artwork"].Concat(SDHelpers.GetTieredImages(response.Data, ["season"], artworkSize));
 
 
             season.extras["artwork"] = artwork;

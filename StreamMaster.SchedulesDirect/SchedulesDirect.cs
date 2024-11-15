@@ -85,12 +85,13 @@ public partial class SchedulesDirect(
                 await seasonImages.GetAllSeasonImages().ConfigureAwait(false);
                 await sportsImages.GetAllSportsImages().ConfigureAwait(false);
 
-                movieImages.ResetCache();
-                seriesImages.ResetCache();
-                seasonImages.ResetCache();
-                sportsImages.ResetCache();
+                //movieImages.ResetCache();
+                //seriesImages.ResetCache();
+                //seasonImages.ResetCache();
+                //sportsImages.ResetCache();
 
                 //ClearAllCaches();
+                ResetEPGCache();
 
                 XMLTV? xml = xMLTVBuilder.CreateSDXmlTv("");
                 if (xml is not null)
@@ -188,7 +189,7 @@ public partial class SchedulesDirect(
         return schedulesDirectAPI.CheckToken(forceReset);
     }
 
-    private void ClearAllCaches()
+    public void ClearAllCaches()
     {
         lineups.ClearCache();
         schedules.ClearCache();

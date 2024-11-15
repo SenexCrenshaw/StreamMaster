@@ -49,6 +49,7 @@ public class RemoveStationRequestHandler(ILogger<RemoveStationRequest> logger, I
             _ = await Sender.Send(new UpdateSettingRequest(updateSetting), cancellationToken).ConfigureAwait(false);
 
             schedulesDirect.ResetEPGCache();
+            //schedulesDirect.ClearAllCaches();
             JobStatusManager jobManager = jobStatusService.GetJobManageSDSync(EPGHelper.SchedulesDirectId);
             jobManager.SetForceNextRun();
             await backgroundTaskQueue.EPGSync(cancellationToken).ConfigureAwait(false);

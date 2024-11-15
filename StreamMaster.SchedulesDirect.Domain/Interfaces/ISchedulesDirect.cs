@@ -1,10 +1,10 @@
 ﻿using StreamMaster.Domain.API;
-using StreamMaster.SchedulesDirect.Domain.Models;
 
 namespace StreamMaster.SchedulesDirect.Domain.Interfaces;
 
 public interface ISchedulesDirect
 {
+    void ClearAllCaches();
     bool CheckToken(bool forceReset = false);
     Task<int> AddLineup(string lineup, CancellationToken cancellationToken);
     Task<List<CountryData>?> GetAvailableCountries(CancellationToken cancellationToken);
