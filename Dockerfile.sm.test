@@ -8,14 +8,14 @@ WORKDIR /src
 # Copy all files into the image
 COPY . .
 
-# # Step 1: Restore and build the .NET project with error-only output but keep echo messages
-# RUN echo "Starting .NET restore..." && \
-#     dotnet restore "StreamMaster.API/StreamMaster.API.csproj" -a $TARGETARCH --verbosity m && \
-#     echo ".NET restore completed successfully." || echo "Error during .NET restore!" && \
-#     \
-#     echo "Starting .NET build..." && \
-#     dotnet build "StreamMaster.API/StreamMaster.API.csproj" -c Debug -o /app/build -a $TARGETARCH --verbosity m && \
-#     echo ".NET build completed successfully." || echo "Error during .NET build!"
+# Step 1: Restore and build the .NET project with error-only output but keep echo messages
+RUN echo "Starting .NET restore..." && \
+    dotnet restore "StreamMaster.API/StreamMaster.API.csproj" -a $TARGETARCH --verbosity m && \
+    echo ".NET restore completed successfully." || echo "Error during .NET restore!" && \
+    \
+    echo "Starting .NET build..." && \
+    dotnet build "StreamMaster.API/StreamMaster.API.csproj" -c Debug -o /app/build -a $TARGETARCH --verbosity m && \
+    echo ".NET build completed successfully." || echo "Error during .NET build!"
 
 # # Step 2: Install npm packages, build the frontend, and copy to wwwroot with error-only output but keep echo messages
 # RUN echo "Navigating to frontend directory: /src/streammasterwebui" && \

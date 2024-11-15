@@ -529,12 +529,9 @@ public class StreamGroupService(ILogger<StreamGroupService> _logger, ILogoServic
 
     public async Task<StreamGroupProfile> GetDefaultStreamGroupProfileAsync()
     {
-        //using IServiceScope scope = _serviceProvider.CreateScope();
-        //IRepositoryWrapper repositoryWrapper = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
         StreamGroup defaultSg = await GetDefaultSGAsync();
-
         StreamGroupProfile defaultPolicy = await repositoryWrapper.StreamGroupProfile.GetQuery()
-            .FirstAsync(a => a.StreamGroupId == defaultSg.Id && a.ProfileName.Equals("default", StringComparison.CurrentCultureIgnoreCase));
+           .FirstAsync(a => a.StreamGroupId == defaultSg.Id && a.ProfileName.ToLower() == "default");
         return defaultPolicy;
     }
 

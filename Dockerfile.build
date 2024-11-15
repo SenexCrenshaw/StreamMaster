@@ -3,7 +3,7 @@ ARG TARGETPLATFORM
 ARG TARGETOS
 ARG TARGETARCH
 ARG TARGETVARIANT
-ARG NODE_VERSION=23.x
+ARG NODE_VERSION=21.x
 
 # Remove docker-clean config and keep APT cache
 RUN rm -f /etc/apt/apt.conf.d/docker-clean; \

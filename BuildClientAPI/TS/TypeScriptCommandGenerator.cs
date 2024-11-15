@@ -25,10 +25,7 @@ public static class TypeScriptCommandGenerator
 
     private static string AddMethod(MethodDetails method)
     {
-        if (method.Name.StartsWith("GetPagedSMChannels"))
-        {
-            int aaa = 1;
-        }
+
         StringBuilder content = new();
 
         if (method.IsGetPaged)
