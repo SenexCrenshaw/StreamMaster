@@ -4,8 +4,8 @@ namespace StreamMaster.Infrastructure.Services.Frontend.Mappers
 {
     public interface IMapHttpRequestsToDisk
     {
-        Task<string> Map(string resourceUrl);
+        Task<string> MapAsync(string resourceUrl);
         bool CanHandle(string resourceUrl);
-        Task<IActionResult> GetResponse(string resourceUrl);
+        Task<IActionResult?> GetResponseAsync(string resourceUrl);
     }
 }

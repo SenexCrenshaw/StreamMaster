@@ -8,9 +8,8 @@ public static partial class HashHelper
 {
     public static string GetSHA1Hash(this string input)
     {
-        using SHA1 sha1 = SHA1.Create();
         byte[] bytes = Encoding.UTF8.GetBytes(input);
-        byte[] hash = sha1.ComputeHash(bytes);
+        byte[] hash = SHA1.HashData(bytes);
         StringBuilder sb = new();
         foreach (byte b in hash)
         {

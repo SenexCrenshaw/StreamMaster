@@ -5,7 +5,9 @@ using Microsoft.AspNetCore.Mvc.Routing;
 namespace StreamMaster.Application.Common;
 
 [AttributeUsage(AttributeTargets.All, AllowMultiple = false)]
+#pragma warning disable CS9113 // Parameter is unread.
 public class VersionedApiControllerAttribute(int version, string resource = VersionedApiControllerAttribute.CONTROLLER_RESOURCE) : Attribute, IRouteTemplateProvider, IEnableCorsAttribute, IApiBehaviorMetadata
+#pragma warning restore CS9113 // Parameter is unread.
 {
     public const string API_CORS_POLICY = "ApiCorsPolicy";
     public const string CONTROLLER_RESOURCE = "[controller]";

@@ -5,8 +5,13 @@ namespace StreamMaster.Domain.Helpers
 {
     public static class ParseFlexibleDateHelper
     {
-        public static DateTime ParseFlexibleDate(string dateStr)
+        public static DateTime ParseFlexibleDate(string? dateStr)
         {
+            if (string.IsNullOrEmpty(dateStr))
+            {
+                return DateTime.MinValue;
+            }
+
             // Regex to capture parts of the date string with optional components
             Regex regex = new(@"(?<year>\d{4})(?<month>\d{2})(?<day>\d{2})(?<hour>\d{2})?(?<minute>\d{2})?(?<second>\d{2})?\s*(?<offset>[+-]\d{4})?");
             Match match = regex.Match(dateStr);

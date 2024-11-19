@@ -1,11 +1,10 @@
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-
-using StreamMaster.Domain.Enums;
-
 using System.Security.Claims;
 using System.Text.Encodings.Web;
+
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.Extensions.Logging;
+
+using StreamMaster.Domain.Enums;
 
 namespace StreamMaster.Infrastructure.Authentication
 {
@@ -13,9 +12,8 @@ namespace StreamMaster.Infrastructure.Authentication
     {
         public NoAuthenticationHandler(IOptionsMonitor<AuthenticationSchemeOptions> options,
             ILoggerFactory logger,
-            UrlEncoder encoder,
-            ISystemClock clock)
-            : base(options, logger, encoder, clock)
+            UrlEncoder encoder)
+            : base(options, logger, encoder)
         {
         }
 

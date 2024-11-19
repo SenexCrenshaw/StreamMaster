@@ -1,6 +1,6 @@
-﻿using StreamMaster.Domain.Services;
+﻿using System.Text.RegularExpressions;
 
-using System.Text.RegularExpressions;
+using StreamMaster.Domain.Services;
 
 namespace StreamMaster.Domain.Helpers;
 

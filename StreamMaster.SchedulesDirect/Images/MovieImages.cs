@@ -42,7 +42,11 @@ public class MovieImages(ILogger<MovieImages> logger, IEPGCache<MovieImages> epg
                         if (artwork != null)
                         {
                             mxfProgram.extras["artwork"] = artwork;
-                            mxfProgram.mxfGuideImage = epgCache.GetGuideImageAndUpdateCache(artwork, ImageType.Movie);
+                            MxfGuideImage? guideImage = epgCache.GetGuideImageAndUpdateCache(artwork, ImageType.Movie);
+                            if (guideImage is not null)
+                            {
+                                mxfProgram.mxfGuideImage = guideImage;
+                            }
                         }
                     }
                 }
@@ -114,7 +118,7 @@ public class MovieImages(ILogger<MovieImages> logger, IEPGCache<MovieImages> epg
                 .Where(a => a.Aspect == "2x3")
                 .ToList();
 
-            if (artwork.Any())
+            if (artwork.Count != 0)
             {
                 mxfProgram.extras["artwork"] = artwork;
                 mxfProgram.mxfGuideImage = epgCache.GetGuideImageAndUpdateCache(artwork, ImageType.Movie, mxfProgram.extras["md5"]);
@@ -122,7 +126,7 @@ public class MovieImages(ILogger<MovieImages> logger, IEPGCache<MovieImages> epg
         }
     }
 
-    public void ResetCache()
+    public void ClearCache()
     {
         movieImageQueue.Clear();
         movieImageResponses.Clear();
@@ -130,7 +134,7 @@ public class MovieImages(ILogger<MovieImages> logger, IEPGCache<MovieImages> epg
         totalObjects = 0;
     }
 
-    public void ClearCache()
+    public void ResetCache()
     {
         epgCache.ResetCache();
     }

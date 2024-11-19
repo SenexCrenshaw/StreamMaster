@@ -10,33 +10,33 @@ namespace StreamMaster.Application.Streaming.Controllers
 
         [HttpPatch]
         [Route("[action]")]
-        public async Task<ActionResult<APIResponse>> CancelAllChannels()
+        public async Task<ActionResult<APIResponse?>> CancelAllChannels()
         {
-            APIResponse ret = await Sender.Send(new CancelAllChannelsRequest()).ConfigureAwait(false);
+            var ret = await Sender.Send(new CancelAllChannelsRequest()).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
         }
 
         [HttpPatch]
         [Route("[action]")]
-        public async Task<ActionResult<APIResponse>> CancelChannel(CancelChannelRequest request)
+        public async Task<ActionResult<APIResponse?>> CancelChannel(CancelChannelRequest request)
         {
-            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            var ret = await Sender.Send(request).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
         }
 
         [HttpPatch]
         [Route("[action]")]
-        public async Task<ActionResult<APIResponse>> CancelClient(CancelClientRequest request)
+        public async Task<ActionResult<APIResponse?>> CancelClient(CancelClientRequest request)
         {
-            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            var ret = await Sender.Send(request).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
         }
 
         [HttpPatch]
         [Route("[action]")]
-        public async Task<ActionResult<APIResponse>> MoveToNextStream(MoveToNextStreamRequest request)
+        public async Task<ActionResult<APIResponse?>> MoveToNextStream(MoveToNextStreamRequest request)
         {
-            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            var ret = await Sender.Send(request).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
         }
 
@@ -47,27 +47,27 @@ namespace StreamMaster.Application.Hubs
 {
     public partial class StreamMasterHub : IStreamingHub
     {
-        public async Task<APIResponse> CancelAllChannels()
+        public async Task<APIResponse?> CancelAllChannels()
         {
-            APIResponse ret = await Sender.Send(new CancelAllChannelsRequest()).ConfigureAwait(false);
+            var ret = await Sender.Send(new CancelAllChannelsRequest()).ConfigureAwait(false);
             return ret;
         }
 
-        public async Task<APIResponse> CancelChannel(CancelChannelRequest request)
+        public async Task<APIResponse?> CancelChannel(CancelChannelRequest request)
         {
-            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            var ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;
         }
 
-        public async Task<APIResponse> CancelClient(CancelClientRequest request)
+        public async Task<APIResponse?> CancelClient(CancelClientRequest request)
         {
-            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            var ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;
         }
 
-        public async Task<APIResponse> MoveToNextStream(MoveToNextStreamRequest request)
+        public async Task<APIResponse?> MoveToNextStream(MoveToNextStreamRequest request)
         {
-            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            var ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;
         }
 

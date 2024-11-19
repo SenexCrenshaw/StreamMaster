@@ -5,11 +5,13 @@ using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace StreamMaster.Infrastructure.EF.Base;
-
+#pragma warning disable CS8618 
 public class BaseRepositoryContext(DbContextOptions options)
     : DbContext(options), IDataProtectionKeyContext, IRepositoryContext
 {
+
     public DbSet<SystemKeyValue> SystemKeyValues { get; set; }
+
     public DbSet<EPGFile> EPGFiles { get; set; }
     public DbSet<M3UFile> M3UFiles { get; set; }
     public DbSet<ChannelGroup> ChannelGroups { get; set; }
@@ -23,7 +25,7 @@ public class BaseRepositoryContext(DbContextOptions options)
     public DbSet<DataProtectionKey> DataProtectionKeys { get; set; }
     public DbSet<StreamGroupProfile> StreamGroupProfiles { get; set; }
     public DbSet<StreamGroupSMChannelLink> StreamGroupSMChannelLinks { get; set; }
-
+#pragma warning restore CS8618
     public int ExecuteSqlRaw(string sql, params object[] parameters)
     {
         return Database.ExecuteSqlRaw(sql, parameters);

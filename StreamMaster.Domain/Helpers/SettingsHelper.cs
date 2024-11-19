@@ -1,6 +1,6 @@
-﻿using StreamMaster.Domain.Configuration;
+﻿using System.Text.Json;
 
-using System.Text.Json;
+using StreamMaster.Domain.Configuration;
 
 namespace StreamMaster.Domain.Helpers;
 
@@ -25,7 +25,7 @@ public static class SettingsHelper
                 ret = JsonSerializer.Deserialize<T>(jsonString);
                 return ret != null ? ret : default;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return default;
             }

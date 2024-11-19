@@ -19,7 +19,7 @@ public class ClientStreamingStatistics : BPSStatistics
     public string ChannelName { get; set; } = string.Empty;
     public int ChannelId { get; set; }
 
-    public string UniqueRequestId { get; set; }
+    public string UniqueRequestId { get; set; } = string.Empty;
     public string ClientAgent { get; set; } = string.Empty;
     public string ClientIPAddress { get; set; } = string.Empty;
 

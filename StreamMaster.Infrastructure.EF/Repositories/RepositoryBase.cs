@@ -1,9 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Linq.Dynamic.Core;
+using System.Linq.Expressions;
+
+using Microsoft.EntityFrameworkCore;
 
 using StreamMaster.Domain.Filtering;
-
-using System.Linq.Dynamic.Core;
-using System.Linq.Expressions;
 
 namespace StreamMaster.Infrastructure.EF.Repositories;
 
@@ -197,51 +197,6 @@ public abstract class RepositoryBase<T>(IRepositoryContext RepositoryContext, IL
         RepositoryContext.Set<T>().Remove(entity);
     }
 
-    /// <summary>
-    /// Performs a bulk insert of entities.
-    /// </summary>
-    /// <param name="entities">Entities to be inserted.</param>
-    //public void BulkInsert(List<T> entities)
-    //{
-    //    if (entities == null || entities.Count == 0)
-    //    {
-    //        logger.LogWarning("Attempted to perform a bulk insert with null or empty entities.");
-    //        throw new ArgumentNullException(nameof(entities));
-    //    }
-
-    //    RepositoryContext.BulkInsertEntities(entities);
-    //}
-
-    /// <summary>
-    /// Performs a bulk insert of entities.
-    /// </summary>
-    /// <param name="entities">Entities to be inserted.</param>
-    //public void BulkInsert(T[] entities)
-    //{
-    //    if (entities == null || entities.Length == 0)
-    //    {
-    //        logger.LogWarning("Attempted to perform a bulk insert with null or empty entities.");
-    //        throw new ArgumentNullException(nameof(entities));
-    //    }
-
-    //    RepositoryContext.BulkInsertEntities(entities);
-    //}
-
-    /// <summary>
-    /// Deletes a group of entities based on a query.
-    /// </summary>
-    /// <param name="query">The IQueryable to select entities to be deleted.</param>
-    //public void BulkDelete(IQueryable<T> query)
-    //{
-    //    if (query?.Any() != true)
-    //    {
-    //        logger.LogWarning("Attempted to perform a bulk delete with a null or empty query.");
-    //        throw new ArgumentNullException(nameof(query));
-    //    }
-    //    DbContext? context = RepositoryContext as DbContext;
-
-    //    context!.BulkDelete(query);
-    //}
 
     public async Task BulkDeleteAsync<TEntity>(List<TEntity> items, int batchSize = 100, CancellationToken cancellationToken = default) where TEntity : class
     {

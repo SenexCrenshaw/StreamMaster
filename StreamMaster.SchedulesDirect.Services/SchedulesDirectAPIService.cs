@@ -1,10 +1,10 @@
-﻿using StreamMaster.Domain.Configuration;
-
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
+
+using StreamMaster.Domain.Configuration;
 
 namespace StreamMaster.SchedulesDirect;
 
@@ -167,7 +167,9 @@ public partial class SchedulesDirectAPIService : ISchedulesDirectAPIService
 
         if (response.StatusCode != HttpStatusCode.NotModified)
         {
-            logger.LogError($"{response.RequestMessage.RequestUri.AbsolutePath.Replace(BaseAddress, "/")}: {(int)response.StatusCode} {response.ReasonPhrase} : Token={tokenUsed[..5]}...{(!string.IsNullOrEmpty(content) ? $"\n{content}" : "")}");
+            string tokenUsedShort = tokenUsed?.Length >= 5 ? tokenUsed[..5] : tokenUsed ?? string.Empty;
+
+            logger.LogError($"{response.RequestMessage?.RequestUri?.AbsolutePath.Replace(BaseAddress, "/")}: {(int)response.StatusCode} {response.ReasonPhrase} : Token={tokenUsedShort}...{(!string.IsNullOrEmpty(content) ? $"\n{content}" : "")}");
         }
 
         return response;
@@ -284,7 +286,7 @@ public partial class SchedulesDirectAPIService : ISchedulesDirectAPIService
 
                 if (!line.Contains("INVALID_PROGRAMID"))
                 {
-                    logger.LogError("Invalid JSON near position: {line}");
+                    logger.LogError($"Invalid JSON near position: {line}");
                 }
             }
         }

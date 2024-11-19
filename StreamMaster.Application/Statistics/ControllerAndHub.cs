@@ -14,8 +14,8 @@ namespace StreamMaster.Application.Statistics.Controllers
         {
             try
             {
-            DataResponse<List<ChannelMetric>> ret = await Sender.Send(new GetChannelMetricsRequest()).ConfigureAwait(false);
-             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetChannelMetrics.", statusCode: 500) : Ok(ret.Data);
+            var ret = await Sender.Send(new GetChannelMetricsRequest()).ConfigureAwait(false);
+             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetChannelMetrics.", statusCode: 500) : Ok(ret.Data?? new());
             }
             catch (Exception ex)
             {
@@ -30,8 +30,8 @@ namespace StreamMaster.Application.Statistics.Controllers
         {
             try
             {
-            DataResponse<VideoInfo> ret = await Sender.Send(request).ConfigureAwait(false);
-             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetVideoInfo.", statusCode: 500) : Ok(ret.Data);
+            var ret = await Sender.Send(request).ConfigureAwait(false);
+             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetVideoInfo.", statusCode: 500) : Ok(ret.Data?? new());
             }
             catch (Exception ex)
             {
@@ -46,8 +46,8 @@ namespace StreamMaster.Application.Statistics.Controllers
         {
             try
             {
-            DataResponse<List<VideoInfoDto>> ret = await Sender.Send(new GetVideoInfosRequest()).ConfigureAwait(false);
-             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetVideoInfos.", statusCode: 500) : Ok(ret.Data);
+            var ret = await Sender.Send(new GetVideoInfosRequest()).ConfigureAwait(false);
+             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetVideoInfos.", statusCode: 500) : Ok(ret.Data?? new());
             }
             catch (Exception ex)
             {
@@ -65,20 +65,20 @@ namespace StreamMaster.Application.Hubs
     {
         public async Task<List<ChannelMetric>> GetChannelMetrics()
         {
-             DataResponse<List<ChannelMetric>> ret = await Sender.Send(new GetChannelMetricsRequest()).ConfigureAwait(false);
-            return ret.Data;
+             var ret = await Sender.Send(new GetChannelMetricsRequest()).ConfigureAwait(false);
+            return ret.Data?? new();
         }
 
         public async Task<VideoInfo> GetVideoInfo(GetVideoInfoRequest request)
         {
-             DataResponse<VideoInfo> ret = await Sender.Send(request).ConfigureAwait(false);
-            return ret.Data;
+             var ret = await Sender.Send(request).ConfigureAwait(false);
+            return ret.Data?? new();
         }
 
         public async Task<List<VideoInfoDto>> GetVideoInfos()
         {
-             DataResponse<List<VideoInfoDto>> ret = await Sender.Send(new GetVideoInfosRequest()).ConfigureAwait(false);
-            return ret.Data;
+             var ret = await Sender.Send(new GetVideoInfosRequest()).ConfigureAwait(false);
+            return ret.Data?? new();
         }
 
     }

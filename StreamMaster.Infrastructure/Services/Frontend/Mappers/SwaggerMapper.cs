@@ -17,7 +17,7 @@ namespace StreamMaster.Infrastructure.Services.Frontend.Mappers
             return resourceUrl.StartsWith("/swagger/");
         }
 
-        public override Task<string> Map(string resourceUrl)
+        public override Task<string> MapAsync(string resourceUrl)
         {
             //var path = resourceUrl.Replace("/images/", "");
 

@@ -1,7 +1,7 @@
-﻿using StreamMaster.Domain.Attributes;
-using StreamMaster.Domain.Configuration;
+﻿using System.ComponentModel.DataAnnotations;
 
-using System.ComponentModel.DataAnnotations;
+using StreamMaster.Domain.Attributes;
+using StreamMaster.Domain.Configuration;
 
 namespace StreamMaster.Domain.Dto;
 
@@ -19,9 +19,9 @@ public class BaseVideoStreamDto /*: IMapFrom<VideoStream>*/
     /// </summary>
     /// <value>The collection of video streams associated with the IPTV channel.</value>
     [Required]
-    public string Id { get; set; }
+    public required string Id { get; set; }
 
-    public string SMChannelId { get; set; }
+    public string SMChannelId { get; set; } = string.Empty;
 
     /// <summary>
     /// Gets or sets a value indicating whether the video stream is currently active.
@@ -62,7 +62,7 @@ public class BaseVideoStreamDto /*: IMapFrom<VideoStream>*/
     /// </summary>
     /// <value>The ID of the M3U file.</value>
     public int M3UFileId { get; set; }
-    public string M3UFileName { get; set; }
+    public string M3UFileName { get; set; } = string.Empty;
 
     /// <summary>
     /// Gets or sets the type of streaming proxy to use.

@@ -1,7 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
-
-using System.Xml;
+﻿using System.Xml;
 using System.Xml.Serialization;
+
+using Microsoft.AspNetCore.Http;
 
 using static StreamMaster.Domain.Common.GetStreamGroupEPGHandler;
 
@@ -15,7 +15,7 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
     [LogExecutionTimeAspect]
     public async Task<string> Handle(GetStreamGroupEPG request, CancellationToken cancellationToken)
     {
-        (List<VideoStreamConfig> videoStreamConfigs, StreamGroupProfile streamGroupProfile) = await streamGroupService.GetStreamGroupVideoConfigs(request.StreamGroupProfileId);
+        (List<VideoStreamConfig> videoStreamConfigs, StreamGroupProfile streamGroupProfile) = await streamGroupService.GetStreamGroupVideoConfigsAsync(request.StreamGroupProfileId);
 
         if (videoStreamConfigs is null || streamGroupProfile is null)
         {
@@ -34,7 +34,7 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
             {
                 videoStreamConfig.EPGId = $"{EPGHelper.DummyId}-{videoStreamConfig.Id}";
 
-                _ = dummyData.FindOrCreateDummyService(videoStreamConfig.EPGId, videoStreamConfig);
+                await dummyData.FindOrCreateDummyService(videoStreamConfig.EPGId, videoStreamConfig);
             }
 
             if (!epgids.Add(videoStreamConfig.EPGId))
@@ -44,7 +44,7 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
         }
         OutputProfileDto outputProfile = profileService.GetOutputProfile(streamGroupProfile.OutputProfileName);
 
-        XMLTV epgData = xMLTVBuilder.CreateXmlTv(httpContextAccessor.GetUrl(), videoStreamConfigs, outputProfile) ?? new XMLTV();
+        XMLTV epgData = await xMLTVBuilder.CreateXmlTv(httpContextAccessor.GetUrl(), videoStreamConfigs, outputProfile) ?? new XMLTV();
 
         return SerializeXMLTVData(epgData);
     }

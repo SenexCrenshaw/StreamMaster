@@ -4,9 +4,9 @@ namespace StreamMaster.SchedulesDirect.Domain.Models;
 
 public class MxfLineup
 {
-    public string LineupId { get; }
+    public string? LineupId { get; }
 
-    private string _uid;
+    private string? _uid;
     private int _index;
 
     public MxfLineup(int index, string lineupId, string lineupName)
@@ -44,14 +44,14 @@ public class MxfLineup
     /// The name of the lineup.
     /// </summary>
     [XmlAttribute("name")]
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     /// <summary>
     /// The primary provider.
     /// This value should always be set to "!MCLineup!MainLineup".
     /// </summary>
     [XmlAttribute("primaryProvider")]
-    public string PrimaryProvider
+    public string? PrimaryProvider
     {
         get => _index <= 1 ? "!MCLineup!MainLineup" : null;
         set { }

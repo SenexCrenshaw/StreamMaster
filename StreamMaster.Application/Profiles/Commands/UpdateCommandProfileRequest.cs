@@ -52,7 +52,7 @@ public class UpdateVideoProfileRequestHandler(
                 if (request.NewProfileName != null)
                 {
                     nameChanged = true;
-                     intProfileSettings.CurrentValue.RemoveProfile(request.ProfileName);
+                    intProfileSettings.CurrentValue.RemoveProfile(request.ProfileName);
                     intProfileSettings.CurrentValue.AddProfile(request.NewProfileName, existingProfile);
 
                 }

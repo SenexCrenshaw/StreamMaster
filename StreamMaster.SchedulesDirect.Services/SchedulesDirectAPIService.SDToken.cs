@@ -41,7 +41,7 @@ public partial class SchedulesDirectAPIService
 
     public void SetToken(TokenResponse tokenResponse)
     {
-        if (tokenResponse != null && !string.IsNullOrEmpty(tokenResponse.Token))
+        if (tokenResponse?.Datetime != null && !string.IsNullOrEmpty(tokenResponse.Token))
         {
             _httpClient.DefaultRequestHeaders.Remove("token");
             _httpClient.DefaultRequestHeaders.Add("token", tokenResponse.Token);

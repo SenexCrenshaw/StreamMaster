@@ -11,21 +11,9 @@ public class CustomStreamData(int EPGNumber) : ICustomStreamData
     public ConcurrentDictionary<string, MxfService> Services { get; set; } = [];
     [XmlIgnore] public List<MxfProgram> ProgramsToProcess { get; set; } = [];
 
-    //public MxfProgram FindOrCreateProgram(string programId)
-    //{
-    //    (MxfProgram program, bool created) = ProgramService.FindOrCreateWithStatus(programId, key => new MxfProgram(ProgramService.Count + 1, programId));
-    //    if (created)
-    //    {
-    //        return program;
-    //    }
-
-    //    ProgramsToProcess.Add(program);
-    //    return program;
-    //}
-
     public MxfService FindOrCreateService(string stationId)
     {
-        (MxfService service, bool created) = Services.FindOrCreateWithStatus(stationId, key => new MxfService(Services.Count + 1, stationId)
+        (MxfService service, bool created) = Services.FindOrCreateWithStatus(stationId, _ => new MxfService(Services.Count + 1, stationId)
         {
             EPGNumber = EPGNumber
         });
@@ -36,12 +24,6 @@ public class CustomStreamData(int EPGNumber) : ICustomStreamData
     {
         return Services.TryGetValue(stationId, out MxfService? service) ? service : null;
     }
-
-    //public void RemoveProgram(string programId)
-    //{
-    //    _ = ProgramService.TryRemove(programId, out _);
-    //}
-
     public void RemoveService(string stationId)
     {
         _ = Services.TryRemove(stationId, out _);

@@ -1,8 +1,8 @@
-﻿using AutoMapper;
+﻿using System.Diagnostics;
+
+using AutoMapper;
 
 using Microsoft.AspNetCore.Http;
-
-using System.Diagnostics;
 
 namespace StreamMaster.Streams.Services;
 
@@ -85,7 +85,7 @@ public class VideoService(
     {
         return smChannel.SMChannelType == StreamMaster.Domain.Enums.SMChannelTypeEnum.MultiView
             ? smChannel.SMChannels.Count > 0
-            : smChannel.SMStreams.Count > 0 && !string.IsNullOrEmpty(smChannel.SMStreams.First().SMStream.Url);
+            : smChannel.SMStreams.Count > 0 && !string.IsNullOrEmpty(smChannel.SMStreams.First().SMStream!.Url);
     }
 
     private IClientConfiguration CreateClientConfiguration(SMChannelDto smChannelDto, CancellationToken cancellationToken)

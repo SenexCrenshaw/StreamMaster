@@ -5,41 +5,30 @@ namespace StreamMaster.SchedulesDirect.Data;
 
 public partial class SchedulesDirectData
 {
-    [XmlIgnore] public List<MxfService> ServicesToProcess = [];
+    //[XmlIgnore] public List<MxfService> ServicesToProcess = [];
 
     [XmlArrayItem("Service")]
     public ConcurrentDictionary<string, MxfService> Services { get; set; } = [];
 
-    [XmlElement("ScheduleEntries")]
-    public List<MxfScheduleEntries> ScheduleEntries { get; set; } = [];
+    //[XmlElement("ScheduleEntries")]
+    //public List<MxfScheduleEntries> ScheduleEntries { get; set; } = [];
 
     public MxfService FindOrCreateService(string stationId)
     {
-        //if (!Services.ContainsKey(stationId))
-        //{
-        //    WriteToCSV(serviceCSV, $"{Services.Count + 1},{stationId}");
-        //}
 
-        (MxfService service, bool created) = Services.FindOrCreateWithStatus(stationId, key => new MxfService(Services.Count + 1, stationId)
+        (MxfService service, bool created) = Services.FindOrCreateWithStatus(stationId, _ => new MxfService(Services.Count + 1, stationId)
         {
             EPGNumber = EPGNumber
         });
-        if (created)
-        {
 
-            return service;
-        }
-
-        ScheduleEntries.Add(service.MxfScheduleEntries);
-        ServicesToProcess.Add(service);
         return service;
     }
 
-    public MxfService FindOrCreateDummyService(string stationId, VideoStreamConfig videoStreamConfig)
+    public async Task<MxfService> FindOrCreateDummyService(string stationId, VideoStreamConfig videoStreamConfig)
     {
         if (!Services.ContainsKey(stationId))
         {
-            WriteToCSV(serviceCSV, $"FindOrCreateService: {stationId}");
+            await WriteToCSVAsync(serviceCSV, $"FindOrCreateService: {stationId}");
         }
         (MxfService service, bool created) = Services.FindOrCreateWithStatus(stationId, key => new MxfService(Services.Count + 1, stationId)
         {

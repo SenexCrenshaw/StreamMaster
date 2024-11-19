@@ -5,7 +5,7 @@ namespace StreamMaster.Domain.Models;
 public class IdIntResult
 {
     public int Id { get; set; }
-    public dynamic Result { get; set; }
+    public required dynamic Result { get; set; }
 
 }
 

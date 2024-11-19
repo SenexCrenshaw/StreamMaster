@@ -6,11 +6,10 @@ public class BuildLogosCacheFromStreamsRequest : IRequest<DataResponse<bool>>;
 public class BuildIconsCacheFromVideoStreamRequestHandler(ILogoService logoService)
     : IRequestHandler<BuildLogosCacheFromStreamsRequest, DataResponse<bool>>
 {
-    public async Task<DataResponse<bool>> Handle(BuildLogosCacheFromStreamsRequest command, CancellationToken cancellationToken)
+    public Task<DataResponse<bool>> Handle(BuildLogosCacheFromStreamsRequest command, CancellationToken cancellationToken)
     {
-        //await logoService.BuildLogosCacheFromSMStreamsAsync(cancellationToken);
-        _ = Task.Run(() => logoService.BuildLogosCacheFromSMStreamsAsync(cancellationToken), cancellationToken);
+        logoService.BuildLogosCacheFromSMStreamsAsync(cancellationToken);
 
-        return DataResponse.True;
+        return Task.FromResult(DataResponse.True);
     }
 }

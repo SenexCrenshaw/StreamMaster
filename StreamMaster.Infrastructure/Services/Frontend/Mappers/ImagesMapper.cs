@@ -16,12 +16,12 @@ namespace StreamMaster.Infrastructure.Services.Frontend.Mappers
                    (resourceUrl.EndsWith(".jpg") || resourceUrl.EndsWith(".png") || resourceUrl.EndsWith(".gif"));
         }
 
-        public override async Task<string> Map(string resourceUrl)
+        public override Task<string> MapAsync(string resourceUrl)
         {
             string path = resourceUrl.Replace("/images/", "");
 
             string ret = Path.Combine(BuildInfo.StartUpPath, settings.UiFolder, "images", path);
-            return ret;
+            return Task.FromResult(ret);
         }
     }
 }

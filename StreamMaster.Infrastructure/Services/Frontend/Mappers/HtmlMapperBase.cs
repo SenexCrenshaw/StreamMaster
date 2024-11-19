@@ -1,50 +1,48 @@
-using Microsoft.Extensions.Logging;
-
 using System.Text.RegularExpressions;
+
+using Microsoft.Extensions.Logging;
 
 namespace StreamMaster.Infrastructure.Services.Frontend.Mappers
 {
-    public abstract class HtmlMapperBase : StaticResourceMapperBase
+    public abstract class HtmlMapperBase(ILogger logger) : StaticResourceMapperBase(logger)
     {
-        protected string HtmlPath;
-        protected string UrlBase;
+        protected string HtmlPath = string.Empty;
+        protected string UrlBase = string.Empty;
         private static readonly Regex ReplaceRegex = new(@"(?:(?<attribute>href|src)=\"")(?<path>.*?(?<extension>css|js|png|ico|ics|svg|json))(?:\"")(?:\s(?<nohash>data-no-hash))?", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
-        private string _generatedContent;
-
-        protected HtmlMapperBase(ILogger logger) : base(logger)
-        {
-        }
-
-        protected override Stream GetContentStream(string filePath)
+        protected override async Task<Stream> GetContentStreamAsync(string filePath)
         {
             HtmlPath = filePath;
-            string text = GetHtmlText();
-
-            MemoryStream stream = new();
-            StreamWriter writer = new(stream);
-            writer.Write(text);
-            writer.Flush();
-            stream.Position = 0;
-            return stream;
+            return await GetHtmlTextAsync(filePath).ConfigureAwait(false);
         }
 
-        protected string GetHtmlText()
+        protected async Task<Stream> GetHtmlTextAsync(string filePath)
         {
-            string text = File.ReadAllText(HtmlPath);
+            HtmlPath = filePath;
 
-            text = ReplaceRegex.Replace(text, match =>
+            // Open the file as a FileStream asynchronously
+            FileStream fileStream = new(filePath, FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize: 4096, useAsync: true);
+
+            // Create a memory stream to apply the regex modifications
+            MemoryStream modifiedStream = new();
+            using (StreamReader reader = new(fileStream))
             {
-                string url;
+                await using StreamWriter writer = new(modifiedStream, leaveOpen: true);
+                string text = await reader.ReadToEndAsync().ConfigureAwait(false);
+                text = ReplaceRegex.Replace(text, match =>
+                {
+                    string url = match.Groups["path"].Value;
+                    return string.Format("{0}=\"{1}{2}\"", match.Groups["attribute"].Value, UrlBase, url);
+                });
 
-                url = match.Groups["path"].Value;
+                await writer.WriteAsync(text).ConfigureAwait(false);
+                await writer.FlushAsync().ConfigureAwait(false);
+            }
 
-                return string.Format("{0}=\"{1}{2}\"", match.Groups["attribute"].Value, UrlBase, url);
-            });
-
-            _generatedContent = text;
-
-            return _generatedContent;
+            modifiedStream.Position = 0; // Reset position for reading from the beginning
+            return modifiedStream;
         }
+
+
     }
 }

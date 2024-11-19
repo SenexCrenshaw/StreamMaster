@@ -1,6 +1,6 @@
-﻿using MessagePack;
+﻿using System.Text.Json.Serialization;
 
-using System.Text.Json.Serialization;
+using MessagePack;
 
 namespace StreamMaster.SchedulesDirect.Domain.Models;
 
@@ -16,4 +16,3 @@ public class EPGJsonCache
     [IgnoreMember]
     public bool Current { get; set; }
 }
-

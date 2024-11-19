@@ -8,7 +8,7 @@ namespace StreamMaster.Application.SMTasks
     public interface ISMTasksController
     {        
         Task<ActionResult<List<SMTask>>> GetSMTasks();
-        Task<ActionResult<APIResponse>> SendSMTasks(SendSMTasksRequest request);
+        Task<ActionResult<APIResponse?>> SendSMTasks(SendSMTasksRequest request);
     }
 }
 
@@ -17,6 +17,6 @@ namespace StreamMaster.Application.Hubs
     public interface ISMTasksHub
     {
         Task<List<SMTask>> GetSMTasks();
-        Task<APIResponse> SendSMTasks(SendSMTasksRequest request);
+        Task<APIResponse?> SendSMTasks(SendSMTasksRequest request);
     }
 }

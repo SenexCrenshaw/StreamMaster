@@ -42,7 +42,7 @@ internal class SyncChannelsRequestHandler(ILogger<SyncChannelsRequest> logger, I
 
             // Get the stream IDs as strings
             List<string> streamIds = await streams.Select(s => s.Id).ToListAsync(cancellationToken).ConfigureAwait(false);
-            List<string?> existingChannelStreamIds = await existingSMChannels.Select(c => c.BaseStreamID).ToListAsync(cancellationToken).ConfigureAwait(false);
+            List<string> existingChannelStreamIds = await existingSMChannels.Select(c => c.BaseStreamID).ToListAsync(cancellationToken).ConfigureAwait(false);
 
             // Filter out null values and convert to List<string>
             List<string> existingChannelStreamIdsNonNull = existingChannelStreamIds.OfType<string>().ToList();

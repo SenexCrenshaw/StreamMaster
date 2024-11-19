@@ -15,7 +15,7 @@ public interface ISchedulesDirect
     Task<UserStatus> GetUserStatus(CancellationToken cancellationToken);
     Task<int> RemoveLineup(string lineup, CancellationToken cancellationToken);
     void ResetCache(string command);
-    void ResetEPGCache();
+    void ResetAllEPGCaches();
     Task<APIResponse> SDSync(CancellationToken cancellationToken);
     Task<bool> UpdateHeadEnd(string lineup, bool subScribed, CancellationToken cancellationToken);
 }

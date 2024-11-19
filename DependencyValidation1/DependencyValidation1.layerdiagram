@@ -1,0 +1,60 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<layerModel xmlns:dm0="http://schemas.microsoft.com/VisualStudio/2008/DslTools/Core" xmlns:dm1="http://schemas.microsoft.com/dsltools/SimpleShapesModel" dslVersion="1.0.0.0" Id="a0e60b5f-de38-46a8-bf52-a0b5d559e024" xmlns="http://schemas.microsoft.com/VisualStudio/TeamArchitect/LayerDesigner">
+  <layers>
+    <layer Id="82e56734-f84b-4664-a649-e38f74be0247" name="StreamMaster.API">
+      <dependencyToLayers>
+        <dependencyFromLayerToLayer Id="de620f8b-1467-4196-b53b-062c21b18a13" direction="Forward">
+          <layerMoniker Id="6f16c3a4-a7ec-45fc-8144-c2a54cf9772f" />
+        </dependencyFromLayerToLayer>
+      </dependencyToLayers>
+      <references>
+        <reference Id="31c88fcd-478c-45e6-885c-9c20efd0fdbe" name="StreamMaster.API">
+          <ArtifactNode Label="StreamMaster.API" Category="CodeSchema_Project" Id="(Assembly=../StreamMaster.API/StreamMaster.API.csproj)">
+            <Category Ref="File" />
+          </ArtifactNode>
+        </reference>
+      </references>
+    </layer>
+    <layer Id="6f16c3a4-a7ec-45fc-8144-c2a54cf9772f" name="MxfScheduleEntries.cs">
+      <references>
+        <reference Id="36ed3554-35ed-4a5b-89e9-02721ffda05f" name="MxfScheduleEntries.cs">
+          <ArtifactNode Label="MxfScheduleEntries.cs" Category="CodeSchema_ProjectItem" Id="(Assembly=../StreamMaster.SchedulesDirect.Domain/StreamMaster.SchedulesDirect.Domain.csproj File=../StreamMaster.SchedulesDirect.Domain/Models/MxfScheduleEntries.cs)">
+            <Category Ref="File" />
+          </ArtifactNode>
+          <ExpandedNode Id="(Assembly=StreamMaster.SchedulesDirect.Domain Namespace=StreamMaster.SchedulesDirect.Domain.Models Type=MxfScheduleEntry)" Label="MxfScheduleEntry" Category="CodeSchema_Class">
+            <LinkCategory Ref="Contains" />
+            <LinkCategory Ref="Represents" />
+          </ExpandedNode>
+          <ExpandedNode Id="(Assembly=StreamMaster.SchedulesDirect.Domain Namespace=StreamMaster.SchedulesDirect.Domain.Models Type=MxfScheduleEntries)" Label="MxfScheduleEntries" Category="CodeSchema_Class">
+            <LinkCategory Ref="Contains" />
+            <LinkCategory Ref="Represents" />
+          </ExpandedNode>
+          <ExpandedNode Id="(Assembly=StreamMaster.SchedulesDirect.Domain Namespace=StreamMaster.SchedulesDirect.Domain.Models Type=(Name=McepgTvRating ParentType=MxfScheduleEntry))" Label="McepgTvRating" Category="CodeSchema_Enum">
+            <LinkCategory Ref="Represents" />
+          </ExpandedNode>
+        </reference>
+      </references>
+    </layer>
+    <layer Id="0830f66f-fca8-41b5-9e43-e23c4c02eed3" name="MxfScheduleEntry">
+      <references>
+        <reference Id="d916f6a9-a3eb-4ee3-8178-15c2695b3162" name="MxfScheduleEntry">
+          <ArtifactNode Label="MxfScheduleEntry" Category="CodeSchema_Class" Id="(Assembly=StreamMaster.SchedulesDirect.Domain Namespace=StreamMaster.SchedulesDirect.Domain.Models Type=MxfScheduleEntry)" />
+          <ExpandedNode Id="(Assembly=StreamMaster.SchedulesDirect.Domain Namespace=StreamMaster.SchedulesDirect.Domain.Models Type=MxfScheduleEntry)" Label="MxfScheduleEntry" Category="CodeSchema_Class">
+            <LinkCategory Ref="Contains" />
+            <LinkCategory Ref="Represents" />
+          </ExpandedNode>
+        </reference>
+      </references>
+    </layer>
+    <layer Id="ea001af2-a98c-4ff4-bee4-9732be6cc937" name="McepgTvRating">
+      <references>
+        <reference Id="5f61f6c6-0dde-46ec-a111-96d4e867ce2f" name="McepgTvRating">
+          <ArtifactNode Label="McepgTvRating" Category="CodeSchema_Enum" Id="(Assembly=StreamMaster.SchedulesDirect.Domain Namespace=StreamMaster.SchedulesDirect.Domain.Models Type=(Name=McepgTvRating ParentType=MxfScheduleEntry))" />
+          <ExpandedNode Id="(Assembly=StreamMaster.SchedulesDirect.Domain Namespace=StreamMaster.SchedulesDirect.Domain.Models Type=(Name=McepgTvRating ParentType=MxfScheduleEntry))" Label="McepgTvRating" Category="CodeSchema_Enum">
+            <LinkCategory Ref="Represents" />
+          </ExpandedNode>
+        </reference>
+      </references>
+    </layer>
+  </layers>
+</layerModel>

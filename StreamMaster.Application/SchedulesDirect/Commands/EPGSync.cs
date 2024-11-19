@@ -24,7 +24,7 @@ public class EPGSyncHandler(ISchedulesDirect schedulesDirect, ILogger<EPGSync> l
         {
             await dataRefreshService.RefreshStationPreviews();
         }
-        //await HubContext.ClientChannels.All.DataRefresh("GetEPGFiles");
+        //await HubContext.ClientChannels.All.DataRefresh("GetEPGFilesAsync");
 
 
         return APIResponse.Ok;

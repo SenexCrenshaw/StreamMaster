@@ -1,6 +1,7 @@
-﻿using StreamMaster.Domain.Enums;
+﻿using System.Diagnostics;
 
-using System.Diagnostics;
+using StreamMaster.Domain.Enums;
+using StreamMaster.Domain.Extensions;
 
 namespace StreamMaster.Streams.Factories;
 
@@ -12,7 +13,7 @@ public sealed class StreamFactory(ILogger<StreamFactory> logger, IHTTPStream HTT
         (Stream? stream, int processId, ProxyStreamError? error) = await InternalGetStream(channelBroadcaster, cancellationToken).ConfigureAwait(false);
         if (stream == null || error != null)
         {
-            logger.LogError("Error getting stream for {streamName}: {ErrorMessage}", channelBroadcaster.SMStreamInfo.Name, error?.Message);
+            logger.LogError("Error getting stream for {streamName}: {ErrorMessage}", channelBroadcaster.SMStreamInfo?.Name, error?.Message);
         }
         return (stream, processId, error);
     }
@@ -24,7 +25,10 @@ public sealed class StreamFactory(ILogger<StreamFactory> logger, IHTTPStream HTT
         try
         {
             SMStreamInfo? smStreamInfo = channelBroadcaster.SMStreamInfo;
-
+            if (smStreamInfo == null)
+            {
+                return (null, -1, null);
+            }
             string clientUserAgent = !string.IsNullOrEmpty(smStreamInfo.ClientUserAgent) ? smStreamInfo.ClientUserAgent : settings.CurrentValue.ClientUserAgent;
 
             if (smStreamInfo.SMStreamType == SMStreamTypeEnum.CustomPlayList)
@@ -54,7 +58,7 @@ public sealed class StreamFactory(ILogger<StreamFactory> logger, IHTTPStream HTT
                 return commandExecutor.ExecuteCommand(commandProfileDto, smStreamInfo.Url, clientUserAgent, null, cancellationToken);
             }
 
-            if (smStreamInfo.CommandProfile.Command.ToLower().Equals("streammaster", StringComparison.Ordinal))
+            if (smStreamInfo.CommandProfile.Command.EqualsIgnoreCase("streammaster"))
             {
                 logger.LogInformation("Using Stream Master Proxy for streaming: {streamName}", smStreamInfo.Name);
                 return await HTTPStream.HandleStream(smStreamInfo, clientUserAgent, cancellationToken).ConfigureAwait(false);

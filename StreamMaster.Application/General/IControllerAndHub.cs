@@ -11,7 +11,7 @@ namespace StreamMaster.Application.General
         Task<ActionResult<bool>> GetIsSystemReady();
         Task<ActionResult<SDSystemStatus>> GetSystemStatus();
         Task<ActionResult<bool>> GetTaskIsRunning();
-        Task<ActionResult<APIResponse>> SetTestTask(SetTestTaskRequest request);
+        Task<ActionResult<APIResponse?>> SetTestTask(SetTestTaskRequest request);
     }
 }
 
@@ -23,6 +23,6 @@ namespace StreamMaster.Application.Hubs
         Task<bool> GetIsSystemReady();
         Task<SDSystemStatus> GetSystemStatus();
         Task<bool> GetTaskIsRunning();
-        Task<APIResponse> SetTestTask(SetTestTaskRequest request);
+        Task<APIResponse?> SetTestTask(SetTestTaskRequest request);
     }
 }

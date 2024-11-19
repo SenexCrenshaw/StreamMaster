@@ -85,7 +85,8 @@ namespace StreamMaster.Infrastructure.Services
                 async () =>
                 {
                     DataResponse<List<EPGFileDto>> epgFilesToUpdated = await epgFileService.GetEPGFilesNeedUpdatingAsync().ConfigureAwait(false);
-                    if (epgFilesToUpdated.Data.Any())
+
+                    if (epgFilesToUpdated.Data?.Count > 0)
                     {
                         logger.LogInformation("EPG Files to update count: {count}", epgFilesToUpdated.Data.Count);
 
@@ -103,7 +104,7 @@ namespace StreamMaster.Infrastructure.Services
                 async () =>
                 {
                     DataResponse<List<M3UFileDto>> m3uFilesToUpdated = await m3uFileService.GetM3UFilesNeedUpdatingAsync().ConfigureAwait(false);
-                    if (m3uFilesToUpdated.Data.Any())
+                    if (m3uFilesToUpdated.Data?.Count > 0)
                     {
                         logger.LogInformation("M3U Files to update count: {count}", m3uFilesToUpdated.Data.Count);
 

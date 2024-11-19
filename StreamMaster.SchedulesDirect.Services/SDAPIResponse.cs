@@ -8,14 +8,14 @@ internal class SDAPIResponse
     public int Code { get; set; }
 
     [JsonPropertyName("datetime")]
-    public DateTime Datetime { get; set; }
+    public DateTime? Datetime { get; set; }
 
     [JsonPropertyName("message")]
-    public string Message { get; set; }
+    public string? Message { get; set; }
 
     [JsonPropertyName("response")]
-    public string Response { get; set; }
+    public string? Response { get; set; }
 
     [JsonPropertyName("serverID")]
-    public string ServerID { get; set; }
+    public string? ServerID { get; set; }
 }

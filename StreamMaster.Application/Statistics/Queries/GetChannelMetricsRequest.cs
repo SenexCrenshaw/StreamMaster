@@ -1,6 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System.Threading.Channels;
 
-using System.Threading.Channels;
+using Microsoft.AspNetCore.Http;
 
 namespace StreamMaster.Application.Statistics.Queries;
 
@@ -41,7 +41,7 @@ internal class GetChannelMetricsRequestHandler(IRepositoryWrapper repositoryWrap
                 continue;
             }
             SMChannelStreamLink bastCurrentStream = baseConfig.SMChannel.SMStreams.ToList()[baseConfig.SMChannel.CurrentRank];
-            string currentStreamLogo = logoService.GetLogoUrl(bastCurrentStream.SMStream.Logo, _baseUrl);
+            string currentStreamLogo = logoService.GetLogoUrl(bastCurrentStream.SMStream!.Logo, _baseUrl);
             string currentChannelLogo = logoService.GetLogoUrl(baseConfig.SMChannel.Logo, _baseUrl);
 
             //
@@ -132,13 +132,16 @@ internal class GetChannelMetricsRequestHandler(IRepositoryWrapper repositoryWrap
 
             if (!sourceBroadcaster.Id.Contains("://"))
             {
-                currentChannelLogo = customPlayListBuilder.GetCustomPlayListLogoFromFileName(sourceBroadcaster.Id);
+                string? newCurrentChannelLogo = customPlayListBuilder.GetCustomPlayListLogoFromFileName(sourceBroadcaster.Id);
                 //if (string.IsNullOrEmpty(metricLogo))
                 //{
                 //    SMChannel? test = smChannels.Find(a => a.Id.ToString() == sourceBroadcaster.Id);
                 //    metricLogo = test?.Logo ?? "";
                 //}
-                logoService.AddLogo(id, currentChannelLogo);
+                if (!string.IsNullOrEmpty(newCurrentChannelLogo))
+                {
+                    logoService.AddLogo(id, currentChannelLogo);
+                }
             }
             //else
             //{

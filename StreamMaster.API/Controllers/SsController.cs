@@ -1,4 +1,6 @@
-﻿using MediatR;
+﻿using System.Text;
+
+using MediatR;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -6,8 +8,6 @@ using Microsoft.AspNetCore.Mvc;
 using StreamMaster.Application.Common.Extensions;
 using StreamMaster.Application.StreamGroups.Queries;
 using StreamMaster.SchedulesDirect.Domain.Models;
-
-using System.Text;
 
 namespace StreamMaster.API.Controllers;
 
@@ -26,7 +26,7 @@ public class SsController(ISender Sender, IStreamGroupService streamGroupService
             return NotFound();
         }
 
-        string xml = await streamGroupService.GetStreamGroupCapability(streamGroupProfileId, HttpContext.Request).ConfigureAwait(false);
+        string xml = await streamGroupService.GetStreamGroupCapabilityAsync(streamGroupProfileId, HttpContext.Request).ConfigureAwait(false);
         return new ContentResult
         {
             Content = xml,
@@ -46,7 +46,7 @@ public class SsController(ISender Sender, IStreamGroupService streamGroupService
             return NotFound();
         }
 
-        string json = await streamGroupService.GetStreamGroupDiscover(streamGroupProfileId, HttpContext.Request).ConfigureAwait(false);
+        string json = await streamGroupService.GetStreamGroupDiscoverAsync(streamGroupProfileId, HttpContext.Request).ConfigureAwait(false);
 
         return new ContentResult
         {
@@ -65,7 +65,7 @@ public class SsController(ISender Sender, IStreamGroupService streamGroupService
         {
             return NotFound();
         }
-        string json = await streamGroupService.GetStreamGroupLineup(streamGroupProfileId, HttpContext.Request, true).ConfigureAwait(false);
+        string json = await streamGroupService.GetStreamGroupLineupAsync(streamGroupProfileId, HttpContext.Request, true).ConfigureAwait(false);
         return new ContentResult
         {
             Content = json,
@@ -138,7 +138,7 @@ public class SsController(ISender Sender, IStreamGroupService streamGroupService
             return new NotFoundResult();
         }
 
-        (List<VideoStreamConfig> videoStreamConfigs, StreamGroupProfile streamGroupProfile) = await streamGroupService.GetStreamGroupVideoConfigs(streamGroupProfileId);
+        (List<VideoStreamConfig> videoStreamConfigs, StreamGroupProfile streamGroupProfile) = await streamGroupService.GetStreamGroupVideoConfigsAsync(streamGroupProfileId);
 
         if (videoStreamConfigs is null || streamGroupProfile is null)
         {

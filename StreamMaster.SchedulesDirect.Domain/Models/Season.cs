@@ -5,29 +5,29 @@ namespace StreamMaster.SchedulesDirect.Domain.Models;
 
 public class Season
 {
-    public string SeriesId => mxfSeriesInfo.SeriesId;
+    public string? SeriesId => mxfSeriesInfo?.SeriesId;
 
     private int _index;
-    private string _uid;
-    private string _guideImage;
-    private string _series;
-    private string _title;
+    private string? _uid;
+    private string? _guideImage;
+    private string? _series;
+    private string? _title;
 
-    [XmlIgnore] public string ProtoTypicalProgram;
-    [XmlIgnore] public MxfGuideImage mxfGuideImage;
-    [XmlIgnore] public SeriesInfo mxfSeriesInfo;
+    [XmlIgnore] public string? ProtoTypicalProgram;
+    [XmlIgnore] public MxfGuideImage? mxfGuideImage;
+    [XmlIgnore] public SeriesInfo? mxfSeriesInfo;
     [XmlIgnore] public bool HideSeasonTitle;
 
     [XmlIgnore] public Dictionary<string, dynamic> extras = [];
 
-    public Season(int index, SeriesInfo seriesInfo, int seasonNumber, string protoTypicalProgram)
+    public Season(int index, SeriesInfo seriesInfo, int seasonNumber, string? protoTypicalProgram)
     {
         _index = index;
         mxfSeriesInfo = seriesInfo;
         SeasonNumber = seasonNumber;
         ProtoTypicalProgram = protoTypicalProgram;
     }
-    private Season() { }
+    public Season() { }
 
     /// <summary>
     /// An ID that is unique to the document and defines this element.
@@ -47,7 +47,7 @@ public class Season
     [XmlAttribute("uid")]
     public string Uid
     {
-        get => _uid ?? $"!Season!{mxfSeriesInfo.SeriesId}_{SeasonNumber}";
+        get => _uid ?? $"!Season!{mxfSeriesInfo?.SeriesId}_{SeasonNumber}";
         set => _uid = value;
     }
 
@@ -55,7 +55,7 @@ public class Season
     /// Undocumented
     /// </summary>
     [XmlAttribute("endAirdate")]
-    public string EndAirdate { get; set; }
+    public string? EndAirdate { get; set; }
 
     /// <summary>
     /// An image to display for this season.
@@ -79,16 +79,16 @@ public class Season
     /// Undocumented
     /// </summary>
     [XmlAttribute("startAirdate")]
-    public string StartAirdate { get; set; }
+    public string? StartAirdate { get; set; }
 
     /// <summary>
     /// The series ID to which this season belongs.
     /// This value should be specified because it doesn't make sense for a season to not be part of a series.
     /// </summary>
     [XmlAttribute("series")]
-    public string Series
+    public string? Series
     {
-        get => _series ?? mxfSeriesInfo.Id;
+        get => _series ?? mxfSeriesInfo?.Id;
         set => _series = value;
     }
 
@@ -99,7 +99,7 @@ public class Season
     [XmlAttribute("title")]
     public string Title
     {
-        get => _title ?? (!HideSeasonTitle ? $"{mxfSeriesInfo.Title}, Season {SeasonNumber}" : "");
+        get => _title ?? (!HideSeasonTitle ? $"{mxfSeriesInfo?.Title}, Season {SeasonNumber}" : "");
         set => _title = value;
     }
 
@@ -108,11 +108,11 @@ public class Season
     /// The maximum length is 512 characters.
     /// </summary>
     [XmlAttribute("studio")]
-    public string Studio { get; set; }
+    public string? Studio { get; set; }
 
     /// <summary>
     /// The year this season was aired.
     /// </summary>
     [XmlAttribute("year")]
-    public string Year { get; set; }
+    public string? Year { get; set; }
 }

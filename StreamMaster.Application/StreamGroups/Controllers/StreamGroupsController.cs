@@ -1,11 +1,11 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Text;
+
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 using StreamMaster.Application.StreamGroups.Queries;
 using StreamMaster.Domain.Crypto;
-
-using System.Text;
 
 namespace StreamMaster.Application.StreamGroups.Controllers;
 
@@ -30,7 +30,7 @@ public partial class StreamGroupsController
             return NotFound();
         }
 
-        string xml = await StreamGroupService.GetStreamGroupCapability(streamGroupProfileId.Value, HttpContext.Request).ConfigureAwait(false);
+        string xml = await StreamGroupService.GetStreamGroupCapabilityAsync(streamGroupProfileId.Value, HttpContext.Request).ConfigureAwait(false);
 
         return new ContentResult
         {
@@ -56,7 +56,7 @@ public partial class StreamGroupsController
             return NotFound();
         }
 
-        string json = await StreamGroupService.GetStreamGroupDiscover(streamGroupProfileId.Value, HttpContext.Request).ConfigureAwait(false);
+        string json = await StreamGroupService.GetStreamGroupDiscoverAsync(streamGroupProfileId.Value, HttpContext.Request).ConfigureAwait(false);
 
         return new ContentResult
         {
@@ -106,7 +106,7 @@ public partial class StreamGroupsController
             return NotFound();
         }
 
-        string json = await StreamGroupService.GetStreamGroupLineup(streamGroupProfileId.Value, HttpContext.Request, true).ConfigureAwait(false);
+        string json = await StreamGroupService.GetStreamGroupLineupAsync(streamGroupProfileId.Value, HttpContext.Request, true).ConfigureAwait(false);
         return new ContentResult
         {
             Content = json,
@@ -177,7 +177,7 @@ public partial class StreamGroupsController
             return new NotFoundResult();
         }
 
-        (List<VideoStreamConfig> videoStreamConfigs, StreamGroupProfile streamGroupProfile) = await StreamGroupService.GetStreamGroupVideoConfigs(streamGroupProfileId.Value);
+        (List<VideoStreamConfig> videoStreamConfigs, StreamGroupProfile streamGroupProfile) = await StreamGroupService.GetStreamGroupVideoConfigsAsync(streamGroupProfileId.Value);
 
         if (videoStreamConfigs is null || streamGroupProfile is null)
         {

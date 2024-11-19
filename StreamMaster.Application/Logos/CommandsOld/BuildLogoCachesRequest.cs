@@ -6,16 +6,15 @@ public class BuildLogoCachesRequestHandler(ILogoService logoService, IOptionsMon
 {
     private readonly Setting settings = intSettings.CurrentValue;
 
-    public async Task Handle(BuildLogoCachesRequest request, CancellationToken cancellationToken)
+    public Task Handle(BuildLogoCachesRequest request, CancellationToken cancellationToken)
     {
-
-        if (!string.Equals(settings.LogoCache, "cache", StringComparison.OrdinalIgnoreCase))
+        if (!settings.LogoCache.EqualsIgnoreCase("cache"))
         {
-            return;
+            return Task.CompletedTask;
         }
 
-        //_ = await Sender.Send(new BuildLogosCacheFromStreamsRequest(), cancellationToken).ConfigureAwait(false);
-
         logoService.CacheSMChannelLogos();
+
+        return Task.CompletedTask;
     }
 }

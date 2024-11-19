@@ -2,9 +2,6 @@
 
 public interface IEPGCached
 {
-
     void ClearCache();
     void ResetCache();
 }
-
-

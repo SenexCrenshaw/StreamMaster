@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System.Globalization;
+
+using Microsoft.AspNetCore.Http;
 
 using StreamMaster.Domain.Comparer;
+using StreamMaster.Domain.Helpers;
 using StreamMaster.Domain.Models;
 using StreamMaster.PlayList;
-
-using System.Globalization;
+using StreamMaster.Streams.Domain.Interfaces;
 
 namespace StreamMaster.SchedulesDirect.Converters;
 
@@ -13,21 +15,33 @@ public class XMLTVBuilder : IXMLTVBuilder
     private readonly DataPreparationService _dataPreparationService;
     private readonly XmltvChannelBuilder _channelBuilder;
     private readonly XmltvProgramBuilder _programBuilder;
-    private readonly IHttpContextAccessor httpContextAccessor;
     private readonly ILogger<XMLTVBuilder> logger;
-
+    private readonly IHttpContextAccessor httpContextAccessor;
+    private readonly ICacheManager cacheManager;
+    private readonly IFileUtilService fileUtilService;
+    private readonly ICustomPlayListBuilder customPlayListBuilder;
+    private readonly IOptionsMonitor<SDSettings> sdSettingsMonitor;
+    private readonly ILogoService logoService;
     public XMLTVBuilder(
         IOptionsMonitor<SDSettings> sdSettingsMonitor,
         IOptionsMonitor<OutputProfileDict> outputProfileDictMonitor,
         IServiceProvider serviceProvider,
         ILogoService logoService,
+        IFileUtilService fileUtilService,
+        ICacheManager cacheManager,
         ICustomPlayListBuilder customPlayListBuilder,
         ISchedulesDirectDataService schedulesDirectDataService,
         IHttpContextAccessor httpContextAccessor,
+
         ILogger<XMLTVBuilder> logger)
     {
+        this.logoService = logoService;
+        this.customPlayListBuilder = customPlayListBuilder;
+        this.fileUtilService = fileUtilService;
+        this.cacheManager = cacheManager;
         this.logger = logger;
         this.httpContextAccessor = httpContextAccessor;
+        this.sdSettingsMonitor = sdSettingsMonitor;
 
         _dataPreparationService = new DataPreparationService(
             sdSettingsMonitor,
@@ -46,17 +60,17 @@ public class XMLTVBuilder : IXMLTVBuilder
             _dataPreparationService.SeriesDict,
             _dataPreparationService.KeywordDict);
     }
-    public XMLTV? CreateXmlTv(string baseUrl, List<VideoStreamConfig> videoStreamConfigs, OutputProfileDto outputProfile)
+    public async Task<XMLTV?> CreateXmlTv(string baseUrl, List<VideoStreamConfig> videoStreamConfigs, OutputProfileDto outputProfile)
     {
         try
         {
             _dataPreparationService.Initialize(baseUrl, videoStreamConfigs);
 
-            List<MxfService> servicesToProcess = _dataPreparationService.GetServicesToProcess(videoStreamConfigs);
+            //  List<MxfService> servicesToProcess = _dataPreparationService.GetServicesToProcess(videoStreamConfigs);
 
             XMLTV xmlTv = InitializeXmlTv();
 
-            ProcessServices(servicesToProcess, xmlTv, outputProfile, videoStreamConfigs);
+            await ProcessServices(xmlTv, outputProfile, videoStreamConfigs);
 
             SortXmlTvEntries(xmlTv);
 
@@ -74,17 +88,12 @@ public class XMLTVBuilder : IXMLTVBuilder
         try
         {
             _dataPreparationService.Initialize(baseUrl, null);
+            cacheManager.ClearEPGDataByEPGNumber(EPGHelper.SchedulesDirectId);
 
-            List<MxfService> services = _dataPreparationService.GetAllSdServices();
-
-            XMLTV xmlTv = InitializeXmlTv();
-
-            OutputProfileDto outputProfile = _dataPreparationService.GetDefaultOutputProfile();
-
-            ProcessServices(services, xmlTv, outputProfile);
+            XMLTV xmlTv = ProcessSDServices();
 
             SortXmlTvEntries(xmlTv);
-
+            fileUtilService.ProcessStationChannelNamesAsync(BuildInfo.SDXMLFile, EPGHelper.SchedulesDirectId);
             return xmlTv;
         }
         catch (Exception ex)
@@ -123,39 +132,256 @@ public class XMLTVBuilder : IXMLTVBuilder
         }
         return url;
     }
-    private void ProcessServices(List<MxfService> services, XMLTV xmlTv, OutputProfileDto outputProfile, List<VideoStreamConfig>? videoStreamConfigs = null)
+
+    private async Task ProcessServices(XMLTV xmlTv, OutputProfileDto outputProfile, List<VideoStreamConfig> videoStreamConfigs)
     {
         videoStreamConfigs ??= [];
 
+        //List<EPGFile> epgFiles = _dataPreparationService.GetEpgFiles(videoStreamConfigs);
+        string baseUrl = GetUrlWithPath();
+
+        //List<string> ids = videoStreamConfigs.Select(a => a.EPGId).ToList();
+        List<StationChannelName> stationChannelNames = [];
+
+        foreach (VideoStreamConfig videoStreamConfig in videoStreamConfigs)
+        {
+            StationChannelName? match = cacheManager.StationChannelNames
+            .SelectMany(kvp => kvp.Value)
+            .FirstOrDefault(stationchannel => stationchannel.Id == videoStreamConfig.EPGId);
+            if (match != null)
+            {
+                stationChannelNames.Add(match);
+            }
+            else
+            {
+                StationChannelName? newChannel = HandleMissing(videoStreamConfig);
+                if (newChannel != null)
+                {
+                    stationChannelNames.Add(newChannel);
+                }
+            }
+        }
+
+        if (stationChannelNames.Count == 0)
+        {
+            return;
+        }
+        Dictionary<string, VideoStreamConfig> videoStreamConfigDictionary = videoStreamConfigs.ToDictionary(a => a.EPGId);
+
+        List<StationChannelName> sdSns = stationChannelNames.Where(a => a.EPGNumber == EPGHelper.SchedulesDirectId).ToList();
+        if (sdSns.Count > 0)
+        {
+            if (File.Exists(BuildInfo.SDXMLFile))
+            {
+                XMLTV? xml = await fileUtilService.ReadXmlFileAsync(BuildInfo.SDXMLFile);
+                if (xml is not null)
+                {
+                    (List<XmltvChannel> newChannels, List<XmltvProgramme> newProgrammes) = ProcessXML(xml, sdSns, outputProfile, videoStreamConfigDictionary);
+
+                    // Add accumulated channels and programmes to the xmlTv in a batch operation.
+                    xmlTv.Channels.AddRange(newChannels);
+                    xmlTv.Programs.AddRange(newProgrammes);
+                }
+            }
+        }
+
+        List<StationChannelName> customSNs = stationChannelNames.Where(a => a.EPGNumber == EPGHelper.CustomPlayListId).ToList();
+        if (customSNs.Count > 0)
+        {
+            foreach (StationChannelName customsn in customSNs)
+            {
+                XmltvChannel channel = new()
+                {
+                    Id = customsn.Id,
+                    DisplayNames = [new XmltvText { Text = customsn.DisplayName }]
+                };
+
+                PlayList.Models.CustomPlayList? nfo = customPlayListBuilder.GetCustomPlayList(customsn.ChannelName);
+                string? logoFile = customPlayListBuilder.GetCustomPlayListLogoFromFileName(customsn.ChannelName);
+
+                if (!string.IsNullOrEmpty(logoFile))
+                {
+                    channel.Icons =
+                    [
+                        new XmltvIcon {
+                            Src=logoService.GetLogoUrl(logoFile, baseUrl),
+                        }
+                    ];
+                }
+                else if (nfo?.FolderNfo is not null && nfo.FolderNfo.Fanart != null && !string.IsNullOrEmpty(nfo.FolderNfo.Thumb?.Text))
+                {
+                    channel.Icons =
+                    [
+                        new XmltvIcon {
+                           Src=logoService.GetLogoUrl(nfo.FolderNfo.Thumb.Text, baseUrl),
+                        }
+                    ];
+                }
+
+                xmlTv.Channels.Add(channel);
+
+                List<XmltvProgramme> newProgrammes = logoService.GetXmltvProgrammeForPeriod(customsn, SMDT.UtcNow, sdSettingsMonitor.CurrentValue.SDEPGDays, baseUrl);
+                xmlTv.Programs.AddRange(newProgrammes);
+            }
+        }
+
         List<EPGFile> epgFiles = _dataPreparationService.GetEpgFiles(videoStreamConfigs);
+
+        foreach (EPGFile epgFile in epgFiles)
+        {
+            List<StationChannelName> sns = stationChannelNames.Where(a => a.EPGNumber == epgFile.EPGNumber).ToList();
+            if (sns.Count == 0)
+            {
+                continue;
+            }
+
+            // Read the XML file asynchronously
+            XMLTV? xml = await fileUtilService.ReadXmlFileAsync(epgFile);
+
+            if (xml is not null)
+            {
+                (List<XmltvChannel> newChannels, List<XmltvProgramme> newProgrammes) = ProcessXML(xml, sns, outputProfile, videoStreamConfigDictionary);
+
+                // Add accumulated channels and programmes to the xmlTv in a batch operation.
+                xmlTv.Channels.AddRange(newChannels);
+
+                xmlTv.Programs.AddRange(newProgrammes);
+            }
+        }
+
+        //foreach (StationChannelName service in matchingStationChannelNames)
+        //{
+        //    VideoStreamConfig? videoStreamConfig = videoStreamConfigs.Find(a => service.Id == a.EPGId);
+
+        //    XmltvChannel channel = _channelBuilder.BuildXmltvChannel(service, videoStreamConfig, outputProfile, _dataPreparationService.BaseUrl);
+
+        //    xmlTv.Channels.Add(channel);
+
+        //    _dataPreparationService.AdjustServiceSchedules(service);
+
+        //    List<XmltvProgramme> xmltvProgrammes = GetPrograms(service, videoStreamConfigs, baseUrl, channel.Id, epgFiles);
+
+        //    xmlTv.Programs.AddRange(xmltvProgrammes);
+        //}
+    }
+
+    private static StationChannelName? HandleMissing(VideoStreamConfig videoStreamConfig)
+    {
+        if (videoStreamConfig.EPGId.StartsWith(EPGHelper.CustomPlayListId.ToString()))
+        {
+            string epgId = videoStreamConfig.EPGId;
+            if (EPGHelper.IsValidEPGId(videoStreamConfig.EPGId))
+            {
+                (_, epgId) = videoStreamConfig.EPGId.ExtractEPGNumberAndStationId();
+            }
+            return new StationChannelName(epgId, videoStreamConfig.Name, videoStreamConfig.Name, EPGHelper.CustomPlayListId);
+            //{
+            //    Channel = epgId,
+            //    DisplayName = videoStreamConfig.Name,
+            //    ChannelName = videoStreamConfig.Name,
+            //    EPGNumber = EPGHelper.CustomPlayListId
+            //};
+        }
+        else if (!videoStreamConfig.EPGId.StartsWith(EPGHelper.DummyId.ToString()) && !videoStreamConfig.EPGId.StartsWith(EPGHelper.SchedulesDirectId.ToString()))
+        {
+            string epgId = videoStreamConfig.EPGId;
+            if (EPGHelper.IsValidEPGId(videoStreamConfig.EPGId))
+            {
+                (_, epgId) = videoStreamConfig.EPGId.ExtractEPGNumberAndStationId();
+            }
+            return new StationChannelName(epgId, videoStreamConfig.Name, videoStreamConfig.Name, EPGHelper.DummyId);
+            //{
+            //    Channel = epgId,
+            //    DisplayName = videoStreamConfig.Name,
+            //    ChannelName = videoStreamConfig.Name,
+            //    EPGNumber = EPGHelper.DummyId
+            //};
+        }
+
+        return null;
+    }
+
+    private (List<XmltvChannel> xmltvChannels, List<XmltvProgramme> programs) ProcessXML(XMLTV xml, List<StationChannelName> sns, OutputProfileDto outputProfile, Dictionary<string, VideoStreamConfig> videoStreamConfigDictionary)
+    {
+        string baseUrl = GetUrlWithPath();
+        // Use ToLookup to allow multiple channels with the same ID.
+        ILookup<string, XmltvChannel>? channelLookup = xml.Channels.ToLookup(a => a.Id);
+
+        // Using HashSet for quick membership testing for channel names.
+        HashSet<string> snsIds = sns.Select(a => a.Channel).ToHashSet();
+
+        // Initialize new lists for channels and programmes to be added.
+        List<XmltvChannel> newChannels = [];
+        List<XmltvProgramme> newProgrammes = [];
+
+        // Iterate over each StationChannelName
+        foreach (StationChannelName sn in sns)
+        {
+            // Retrieve videoStreamConfig using dictionary lookup
+            if (videoStreamConfigDictionary.TryGetValue(sn.Id, out VideoStreamConfig? videoStreamConfig)
+                && channelLookup?[sn.Channel] != null)
+            {
+                // Iterate over all channels associated with the current ID.
+                foreach (XmltvChannel channel in channelLookup[sn.Channel])
+                {
+                    // Build the XMLTV channel using the existing channel and video stream config.
+                    XmltvChannel channel2 = _channelBuilder.BuildXmltvChannel(channel, videoStreamConfig, outputProfile, _dataPreparationService.BaseUrl);
+                    newChannels.Add(channel2);
+                }
+
+                // Find all programmes associated with the current channel.
+                IEnumerable<XmltvProgramme> programmes = xml.Programs.Where(a => a.Channel == sn.Channel);
+                foreach (XmltvProgramme programme in programmes)
+                {
+                    // Perform a deep copy of the programme to ensure immutability of the original.
+                    XmltvProgramme prog = programme.DeepCopy();
+                    prog.Channel = XmltvChannelBuilder.GetChannelId(videoStreamConfig, outputProfile);
+                    if (prog.Icons?.Count > 0)
+                    {
+                        foreach (XmltvIcon icon in prog.Icons)
+                        {
+                            icon.Src = logoService.GetLogoUrl(icon.Src, baseUrl);
+                        }
+                    }
+                    newProgrammes.Add(prog);
+                }
+            }
+        }
+
+        // Add accumulated channels and programmes to the xmlTv in a batch operation.
+        return (newChannels, newProgrammes);
+    }
+
+    private XMLTV ProcessSDServices()
+    {
+        List<MxfService> services = _dataPreparationService.GetAllSdServices();
+
+        XMLTV xmlTv = InitializeXmlTv();
+
         string baseUrl = GetUrlWithPath();
 
         Parallel.ForEach(services, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, service =>
         {
-            VideoStreamConfig? videoStreamConfig = videoStreamConfigs.Find(a => service.StationId == a.EPGId);
-
-            XmltvChannel channel = _channelBuilder.BuildXmltvChannel(service, videoStreamConfig, outputProfile, _dataPreparationService.BaseUrl);
+            XmltvChannel channel = _channelBuilder.BuildXmltvChannel(service, _dataPreparationService.BaseUrl, true);
+            List<MxfScheduleEntry> scheduleEntries = service.MxfScheduleEntries.ScheduleEntry;
 
             lock (xmlTv.Channels)
             {
                 xmlTv.Channels.Add(channel);
             }
 
-            _dataPreparationService.AdjustServiceSchedules(service);
+            //_dataPreparationService.AdjustServiceSchedules(service);
 
-            List<XmltvProgramme> xmltvProgrammes = GetPrograms(service, videoStreamConfigs, baseUrl, channel.Id, epgFiles);
+            List<XmltvProgramme> xmltvProgrammes = scheduleEntries.AsParallel().Select(scheduleEntry =>
+                    _programBuilder.BuildXmltvProgram(scheduleEntry, channel.Id)).ToList();
 
             lock (xmlTv.Programs)
             {
                 xmlTv.Programs.AddRange(xmltvProgrammes);
             }
         });
-    }
 
-    private List<XmltvProgramme> GetPrograms(MxfService mxfService, List<VideoStreamConfig> videoStreamConfigs, string baseUrl, string ChannelId, List<EPGFile> epgFiles)
-    {
-        VideoStreamConfig? videoStreamConfig = videoStreamConfigs.Find(a => mxfService.StationId == a.EPGId);
-        return videoStreamConfig == null ? ([]) : GetPrograms(mxfService, baseUrl, ChannelId, videoStreamConfig, epgFiles);
+        return xmlTv;
     }
 
     public List<XmltvProgramme> GetPrograms(MxfService mxfService, string baseUrl, string ChannelId, VideoStreamConfig? videoStreamConfig, List<EPGFile>? epgFiles)

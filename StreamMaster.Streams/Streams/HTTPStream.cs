@@ -1,6 +1,6 @@
-﻿using StreamMaster.Domain.Extensions;
+﻿using System.Diagnostics;
 
-using System.Diagnostics;
+using StreamMaster.Domain.Extensions;
 
 namespace StreamMaster.Streams.Streams;
 
@@ -53,9 +53,9 @@ public class HTTPStream(ILogger<HTTPStream> logger, IOptionsMonitor<Setting> _se
             string? contentType = response.Content.Headers?.ContentType?.MediaType;
 
             if (!string.IsNullOrEmpty(contentType) &&
-                (contentType.Equals("application/vnd.apple.mpegurl", StringComparison.OrdinalIgnoreCase) ||
-                contentType.Equals("audio/mpegurl", StringComparison.OrdinalIgnoreCase) ||
-                contentType.Equals("application/x-mpegURL", StringComparison.OrdinalIgnoreCase)))
+                (contentType.EqualsIgnoreCase("application/vnd.apple.mpegurl") ||
+                contentType.EqualsIgnoreCase("audio/mpegurl") ||
+                contentType.EqualsIgnoreCase("application/x-mpegURL")))
             {
                 CommandProfileDto commandProfileDto = profileService.GetM3U8OutputProfile(smStreamInfo.Id);
                 logger.LogInformation("Stream contains HLS content, using {name} for streaming: {streamName}", commandProfileDto.ProfileName, smStreamInfo.Name);

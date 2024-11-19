@@ -26,8 +26,8 @@ internal class SetSMStreamRanksRequestHandler(IRepositoryWrapper Repository, ISe
                     {
                         GetSMChannelStreamsRequest re = new(smChannel.Id);
 
-                        fieldDatas.Add(new("GetSMChannelStreams", re, streams.Data));
-                        fieldDatas.Add(new(SMChannel.APIName, smChannel.Id, "SMStreamDtos", streams.Data));
+                        fieldDatas.Add(new("GetSMChannelStreams", re, streams.Data ?? []));
+                        fieldDatas.Add(new(SMChannel.APIName, smChannel.Id, "SMStreamDtos", streams.Data ?? []));
                     }
 
                 }

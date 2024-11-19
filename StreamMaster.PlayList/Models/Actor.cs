@@ -1,6 +1,6 @@
-﻿using Reinforced.Typings.Attributes;
+﻿using System.Xml.Serialization;
 
-using System.Xml.Serialization;
+using Reinforced.Typings.Attributes;
 
 namespace StreamMaster.PlayList.Models;
 
@@ -9,11 +9,11 @@ namespace StreamMaster.PlayList.Models;
 public class Actor
 {
     [XmlElement(ElementName = "name")]
-    public string Name { get; set; }
+    public string Name { get; set; } = string.Empty;
     [XmlElement(ElementName = "role")]
-    public string Role { get; set; }
+    public string? Role { get; set; }
     [XmlElement(ElementName = "order")]
-    public string Order { get; set; }
+    public string? Order { get; set; }
     [XmlElement(ElementName = "thumb")]
-    public string Thumb { get; set; }
+    public string? Thumb { get; set; }
 }

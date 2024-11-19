@@ -1,8 +1,8 @@
-﻿using MessagePack;
+﻿using System.Text.Json.Serialization;
+
+using MessagePack;
 
 using Microsoft.AspNetCore.Http;
-
-using System.Text.Json.Serialization;
 
 namespace StreamMaster.Streams;
 
@@ -29,7 +29,7 @@ public class ClientConfiguration(
     CancellationToken cancellationToken) : IClientConfiguration
 {
 
-    public event EventHandler ClientStopped;
+    public event EventHandler? ClientStopped;
     /// <summary>
     /// Initializes a new instance of the <see cref="ClientConfiguration"/> class for serialization purposes.
     /// </summary>

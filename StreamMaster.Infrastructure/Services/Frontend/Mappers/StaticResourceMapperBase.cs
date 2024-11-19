@@ -1,9 +1,9 @@
+using System.Text;
+
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
-
-using System.Text;
 
 namespace StreamMaster.Infrastructure.Services.Frontend.Mappers
 {
@@ -21,9 +21,9 @@ namespace StreamMaster.Infrastructure.Services.Frontend.Mappers
 
         public abstract bool CanHandle(string resourceUrl);
 
-        public async Task<IActionResult> GetResponse(string resourceUrl)
+        public async Task<IActionResult?> GetResponseAsync(string resourceUrl)
         {
-            string filePath = await Map(resourceUrl);
+            string filePath = await MapAsync(resourceUrl);
 
             if (File.Exists(filePath))
             {
@@ -32,7 +32,9 @@ namespace StreamMaster.Infrastructure.Services.Frontend.Mappers
                     contentType = "application/octet-stream";
                 }
 
-                return new FileStreamResult(GetContentStream(filePath), new MediaTypeHeaderValue(contentType)
+                Stream stream = await GetContentStreamAsync(filePath);
+
+                return new FileStreamResult(stream, new MediaTypeHeaderValue(contentType)
                 {
                     Encoding = contentType == "text/plain" ? Encoding.UTF8 : null
                 });
@@ -43,11 +45,13 @@ namespace StreamMaster.Infrastructure.Services.Frontend.Mappers
             return null;
         }
 
-        public abstract Task<string> Map(string resourceUrl);
+        public abstract Task<string> MapAsync(string resourceUrl);
 
-        protected virtual Stream GetContentStream(string filePath)
+
+        protected virtual Task<Stream> GetContentStreamAsync(string filePath)
         {
-            return File.OpenRead(filePath);
+            Stream contentStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize: 4096, useAsync: true);
+            return Task.FromResult(contentStream);
         }
     }
 }

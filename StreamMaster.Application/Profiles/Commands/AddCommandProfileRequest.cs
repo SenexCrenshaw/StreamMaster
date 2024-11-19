@@ -1,14 +1,12 @@
-﻿namespace StreamMaster.Application.Profiles.Commands;
+﻿
+namespace StreamMaster.Application.Profiles.Commands;
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record AddCommandProfileRequest(string ProfileName, string Command, string Parameters) : IRequest<APIResponse>;
-
 public class AddCommandProfileRequestHandler(ILogger<AddCommandProfileRequest> Logger, IDataRefreshService dataRefreshService, IOptionsMonitor<CommandProfileDict> intProfileSettings)
 : IRequestHandler<AddCommandProfileRequest, APIResponse>
 {
-
-
     public async Task<APIResponse> Handle(AddCommandProfileRequest request, CancellationToken cancellationToken)
     {
         CommandProfileDict profileSettings = intProfileSettings.CurrentValue;

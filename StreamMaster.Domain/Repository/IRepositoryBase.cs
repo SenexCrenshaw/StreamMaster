@@ -1,6 +1,6 @@
-﻿using StreamMaster.Domain.Pagination;
+﻿using System.Linq.Expressions;
 
-using System.Linq.Expressions;
+using StreamMaster.Domain.Pagination;
 
 namespace StreamMaster.Domain.Repository;
 
@@ -60,31 +60,9 @@ public interface IRepositoryBase<T> where T : class
     /// <param name="entity">Entity to remove.</param>
     void Delete(T entity);
 
-
     Task BulkDeleteAsync(IQueryable<T> query);
 
-
-    /// <summary>
-    /// Performs a bulk insert operation.
-    /// </summary>
-    /// <param name="entities">Entities to insert.</param>
-    //void BulkInsert(T[] entities);
-
-    //void BulkInsert(List<T> entities);
-    //Task BulkInsertEntitiesAsync<TEntity>(IEnumerable<TEntity> entities) where TEntity : class;
-
-    /// <summary>
-    /// Performs a bulk update operation.
-    /// </summary>
-    /// <param name="entities">Entities to update.</param>
-    //void BulkUpdate(T[] entities);
-
     void BulkUpdate(List<T> entities);
-    //Task BulkUpdateAsync<TEntity>(IEnumerable<TEntity> entities) where TEntity : class;
-    /// <summary>
-    /// Performs a bulk delete operation based on the provided query.
-    /// </summary>
-    /// <param name="query">The query determining which entities to delete.</param>
-    //void BulkDelete(IQueryable<T> query);
+
     Task<int> SaveChangesAsync();
 }

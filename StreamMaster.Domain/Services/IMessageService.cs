@@ -6,7 +6,7 @@
         Task SendError(string message, string? header = null);
         Task SendInfo(string message, string? header = null);
         Task SendMessage(SMMessage smMessage);
-        Task SendWarn(string message);
+        Task SendWarning(string message);
         Task SendSuccess(string message, string? header = null);
     }
 }

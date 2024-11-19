@@ -16,7 +16,7 @@ public class RemoveStreamGroupProfileRequestHandler(IRepositoryWrapper Repositor
         }
 
 
-        if (request.ProfileName.Equals("default", StringComparison.OrdinalIgnoreCase))
+        if (request.ProfileName.EqualsIgnoreCase("default"))
         {
             return APIResponse.ErrorWithMessage($"The Profile Name '{request.ProfileName}' is reserved");
         }

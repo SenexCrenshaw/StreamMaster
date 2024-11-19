@@ -1,13 +1,13 @@
-﻿using StreamMaster.PlayList.Models;
-using StreamMaster.SchedulesDirect.Domain.XmltvXml;
+﻿using System.Globalization;
 
-using System.Globalization;
+using StreamMaster.Domain.XmltvXml;
+using StreamMaster.PlayList.Models;
 
 namespace StreamMaster.PlayList;
 
 public static class XmltvProgrammeConverter
 {
-    public static XmltvProgramme ConvertMovieToXmltvProgramme(Movie movie)
+    public static XmltvProgramme ConvertMovieToXmltvProgramme(Movie movie, string channelId)
     {
         XmltvProgramme programme = new()
         {
@@ -15,7 +15,7 @@ public static class XmltvProgrammeConverter
             Descriptions = [new XmltvText { Text = movie.Plot }],
             Start = FormatDateTime(movie.Premiered),
             Stop = FormatDateTime(movie.Premiered, movie.Runtime),
-            Channel = movie.Studio,
+            Channel = channelId,
             Categories = movie.Genres?.ConvertAll(g => new XmltvText { Text = g }),
             Countries = [new() { Text = movie.Country }],
             Rating = movie.Ratings?.Rating?.ConvertAll(r => new XmltvRating { Value = r.Value, System = r.Name }),
@@ -32,10 +32,11 @@ public static class XmltvProgrammeConverter
             Length = new XmltvLength { Units = "minutes", Text = movie.Runtime.ToString() },
             Video = new XmltvVideo
             {
-                Aspect = movie.Fileinfo?.Streamdetails?.Video?.Aspect,
+                Aspect = movie.Fileinfo?.Streamdetails?.Video?.Aspect ?? "",
                 Quality = movie.Rating // Assuming video quality based on rating
             }
         };
+
 
         return programme;
     }

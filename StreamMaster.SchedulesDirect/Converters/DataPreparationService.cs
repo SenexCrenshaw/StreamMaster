@@ -1,12 +1,12 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using System.Collections.Concurrent;
+
+using Microsoft.Extensions.DependencyInjection;
 
 using StreamMaster.Domain.Helpers;
 using StreamMaster.Domain.Models;
 using StreamMaster.Domain.Repository;
 using StreamMaster.PlayList;
 using StreamMaster.PlayList.Models;
-
-using System.Collections.Concurrent;
 
 namespace StreamMaster.SchedulesDirect.Converters
 {
@@ -50,15 +50,15 @@ namespace StreamMaster.SchedulesDirect.Converters
 
             _keywordDict = new ConcurrentDictionary<string, string>(
                 schedulesDirectDataService.AllKeywords
-                    .Where(k => !string.Equals(k.Word, "Uncategorized", StringComparison.OrdinalIgnoreCase)
-                                && !k.Word.Contains("premiere", StringComparison.OrdinalIgnoreCase))
+                    .Where(k => !k.Word.EndsWithIgnoreCase("Uncategorized")
+                                && !k.Word.ContainsIgnoreCase("premiere"))
                     .GroupBy(k => k.Id)
                     .ToDictionary(
                         g => g.Key,
                         g =>
                         {
                             string word = g.First().Word;
-                            return string.Equals(word, "Movies", StringComparison.OrdinalIgnoreCase) ? "Movie" : word;
+                            return word.EqualsIgnoreCase("Movies") ? "Movie" : word;
                         }
                     )
             );

@@ -1,21 +1,33 @@
-﻿using StreamMaster.Domain.Models;
-
-using System.Text.Json;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json;
 using System.Text.RegularExpressions;
+
+using StreamMaster.Domain.Models;
 
 namespace StreamMaster.SchedulesDirect.Cache;
 
-public class EPGCache<T> : IEPGCache<T>
+public partial class EPGCache<T> : IEPGCache<T>
 {
     public Dictionary<string, EPGJsonCache> JsonFiles { get; set; } = [];
-    private bool isDirty;
     private readonly SemaphoreSlim _cacheSemaphore = new(1, 1);
     private readonly TimeSpan CacheDuration = TimeSpan.FromHours(4);
     private readonly ILogger<EPGCache<T>> logger;
     private readonly ISchedulesDirectDataService schedulesDirectDataService;
+    private readonly SDSettings sdsettings;
 
-    private readonly SDSettings sdsettings = new();
+    [GeneratedRegex("\"\\w+?\":null,?")]
+    private static partial Regex NullPropertyRegex();
+
+    [GeneratedRegex("\"\\w+?\":\"\",?")]
+    private static partial Regex EmptyStringPropertyRegex();
+
+    [GeneratedRegex("\"\\w+?\":false,?")]
+    private static partial Regex FalsePropertyRegex();
+
+    [GeneratedRegex(",}")]
+    private static partial Regex TrailingCommaObjectRegex();
+
+    [GeneratedRegex(",]")]
+    private static partial Regex TrailingCommaArrayRegex();
 
     public EPGCache(ILogger<EPGCache<T>> logger,
                     ISchedulesDirectDataService schedulesDirectDataService,
@@ -24,50 +36,43 @@ public class EPGCache<T> : IEPGCache<T>
         sdsettings = intSettings.CurrentValue;
         this.logger = logger;
         this.schedulesDirectDataService = schedulesDirectDataService;
-        if (intSettings.CurrentValue.SDEnabled)
+        if (sdsettings.SDEnabled)
         {
             LoadCache();
         }
     }
 
-    private string GetFilename()
+    private static string GetFilename()
     {
         string typeName = typeof(T).Name;
-        string ret = Path.Combine(BuildInfo.SDJSONFolder, $"{typeName}.json");
-        return ret;
+        return Path.Combine(BuildInfo.SDJSONFolder, $"{typeName}.json");
     }
+
     public dynamic? ReadJsonFile(Type type)
     {
-        if (!File.Exists(GetFilename()))
+        string filename = GetFilename();
+        if (!File.Exists(filename))
         {
-            // logger.LogInformation($"File \"{filepath}\" does not exist.");
             return null;
         }
 
         try
         {
-            byte[] jsonBytes = File.ReadAllBytes(GetFilename());
+            byte[] jsonBytes = File.ReadAllBytes(filename);
 
-            JsonSerializerOptions jsonSerializerOptions = new()
-            {
-                // Add any desired JsonIndentOptions here
-                // For example, to ignore null values during serialization:
-                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
-            };
-
-            return JsonSerializer.Deserialize(jsonBytes, type, jsonSerializerOptions);
+            return JsonSerializer.Deserialize(jsonBytes, type, BuildInfo.JsonIndentOptionsWhenWritingNull);
         }
         catch (Exception ex)
         {
-            logger.LogError($"Failed to read file \"{GetFilename()}\". Exception: {FileUtil.ReportExceptionMessages(ex)}");
+            logger.LogError(ex, "Failed to read file \"{Filename}\"", filename);
         }
         return null;
     }
 
     public void LoadCache()
     {
-        string fileName = GetFilename();
-        logger.LogInformation($"Loading cache file {GetFilename()}");
+        string filename = GetFilename();
+        logger.LogInformation("Loading cache file {Filename}", filename);
         dynamic? res = ReadJsonFile(typeof(Dictionary<string, EPGJsonCache>));
         if (res != null)
         {
@@ -75,10 +80,10 @@ public class EPGCache<T> : IEPGCache<T>
             return;
         }
         JsonFiles = [];
-        if (File.Exists(GetFilename()))
+        if (File.Exists(filename))
         {
             ResetCache();
-            logger.LogInformation("The cache file appears to be corrupted and will need to be rebuilt.");
+            logger.LogWarning("The cache file appears to be corrupted and will need to be rebuilt.");
         }
     }
 
@@ -86,58 +91,52 @@ public class EPGCache<T> : IEPGCache<T>
     {
         try
         {
-            JsonSerializerOptions jsonSerializerOptions = new()
-            {
-                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-                WriteIndented = false
-            };
-
             using FileStream stream = File.Create(GetFilename());
-            JsonSerializer.Serialize(stream, obj, jsonSerializerOptions);
+            JsonSerializer.Serialize(stream, obj, BuildInfo.JsonIndentOptionsWhenWritingNull);
 
             return true;
         }
         catch (Exception ex)
         {
-            logger.LogError($"Failed to write file \"{GetFilename()}\". Exception: {FileUtil.ReportExceptionMessages(ex)}");
+            logger.LogError(ex, "Failed to write file \"{Filename}\"", GetFilename());
         }
         return false;
     }
 
     public void SaveCache()
     {
-        if (JsonFiles.Count <= 0)
+        if (JsonFiles.Count == 0)
         {
-            logger.LogWarning($"Nothing to save for {GetFilename()}");
+            logger.LogWarning("Nothing to save for {Filename}", GetFilename());
             return;
         }
 
-        logger.LogInformation($"Saving cache file {GetFilename()}");
+        logger.LogInformation("Saving cache file {Filename}", GetFilename());
         CleanDictionary();
         if (!WriteJsonFile(JsonFiles))
         {
-            logger.LogInformation("Deleting cache file to be rebuilt on next update.");
+            logger.LogWarning("Deleting cache file to be rebuilt on next update.");
             DeleteFile();
         }
-        isDirty = false;
     }
 
     public bool DeleteFile()
     {
-        if (!File.Exists(GetFilename()))
+        string filename = GetFilename();
+        if (!File.Exists(filename))
         {
             return true;
         }
 
         try
         {
-            logger.LogInformation($"Deleting cache file {GetFilename()}");
-            File.Delete(GetFilename());
+            logger.LogInformation("Deleting cache file {Filename}", filename);
+            File.Delete(filename);
             return true;
         }
         catch (Exception ex)
         {
-            logger.LogInformation($"Failed to delete file \"{GetFilename()}\". Exception:{FileUtil.ReportExceptionMessages(ex)}");
+            logger.LogError(ex, "Failed to delete file \"{Filename}\"", filename);
         }
         return false;
     }
@@ -149,19 +148,23 @@ public class EPGCache<T> : IEPGCache<T>
 
     public string? GetAsset(string md5)
     {
-        JsonFiles[md5].Current = true;
-        return JsonFiles[md5].JsonEntry;
+        if (JsonFiles.TryGetValue(md5, out EPGJsonCache? cache))
+        {
+            cache.Current = true;
+            return cache.JsonEntry;
+        }
+        return null;
     }
 
     private static string? CleanJsonText(string? json)
     {
         if (!string.IsNullOrEmpty(json))
         {
-            json = Regex.Replace(json, "\"\\w+?\":null,?", string.Empty);
-            json = Regex.Replace(json, "\"\\w+?\":\"\",?", string.Empty);
-            json = Regex.Replace(json, "\"\\w+?\":false,?", string.Empty);
-            json = Regex.Replace(json, ",}", "}");
-            json = Regex.Replace(json, ",]", "]");
+            json = NullPropertyRegex().Replace(json, string.Empty);
+            json = EmptyStringPropertyRegex().Replace(json, string.Empty);
+            json = FalsePropertyRegex().Replace(json, string.Empty);
+            json = TrailingCommaObjectRegex().Replace(json, "}");
+            json = TrailingCommaArrayRegex().Replace(json, "]");
         }
         return json;
     }
@@ -173,17 +176,14 @@ public class EPGCache<T> : IEPGCache<T>
             return;
         }
 
-        // reduce the size of the string by removing nulls, empty strings, and false booleans
         json = CleanJsonText(json);
 
-        // store
         EPGJsonCache epgJson = new()
         {
             JsonEntry = json,
             Current = true
         };
         JsonFiles.Add(md5, epgJson);
-        isDirty = true;
     }
 
     public void UpdateAssetImages(string md5, string? json)
@@ -193,12 +193,8 @@ public class EPGCache<T> : IEPGCache<T>
             AddAsset(md5, null);
         }
 
-        // reduce the size of the string by removing nulls and empty strings
         json = CleanJsonText(json);
-
-        // store
         JsonFiles[md5].Images = json;
-        isDirty = true;
     }
 
     public void UpdateAssetJsonEntry(string md5, string? json)
@@ -208,38 +204,33 @@ public class EPGCache<T> : IEPGCache<T>
             AddAsset(md5, json);
         }
 
-        // reduce the size of the string by removing nulls and empty strings
         json = CleanJsonText(json);
-
-        // store
         JsonFiles[md5].JsonEntry = json;
-        isDirty = true;
     }
 
     public void CleanDictionary()
     {
-        List<string> keysToDelete = (from asset in JsonFiles where !asset.Value.Current select asset.Key).ToList();
-        foreach (string? key in keysToDelete)
+        List<string> keysToDelete = JsonFiles.Where(asset => !asset.Value.Current).Select(asset => asset.Key).ToList();
+        foreach (string key in keysToDelete)
         {
             JsonFiles.Remove(key);
         }
-        logger.LogInformation($"{keysToDelete.Count} entries deleted from the cache file during cleanup.");
+        logger.LogInformation("{Count} entries deleted from the cache file during cleanup.", keysToDelete.Count);
     }
 
     public void ResetCache()
     {
-        if (File.Exists(BuildInfo.SDEPGCacheFile))
+        string filename = BuildInfo.SDEPGCacheFile;
+        if (File.Exists(filename))
         {
-            File.Delete(BuildInfo.SDEPGCacheFile);
+            File.Delete(filename);
         }
-        JsonFiles = [];
-        isDirty = false;
+        JsonFiles.Clear();
     }
 
     public async Task<T?> GetValidCachedDataAsync(string name, CancellationToken cancellationToken = default)
     {
-        //return default;
-        await _cacheSemaphore.WaitAsync(cancellationToken);
+        await _cacheSemaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
         {
             string cacheKey = SDHelpers.GenerateCacheKey(name);
@@ -252,10 +243,11 @@ public class EPGCache<T> : IEPGCache<T>
             string cachedContent = await File.ReadAllTextAsync(cachePath, cancellationToken).ConfigureAwait(false);
             SDCacheEntry<T>? cacheEntry = JsonSerializer.Deserialize<SDCacheEntry<T>>(cachedContent);
 
-            return cacheEntry != null && (DateTime.Now - cacheEntry.Timestamp) <= CacheDuration ? cacheEntry.Data : default;
+            return cacheEntry != null && (DateTime.UtcNow - cacheEntry.Timestamp) <= CacheDuration ? cacheEntry.Data : default;
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            logger.LogError(ex, "Error while retrieving cached data for {Name}", name);
             return default;
         }
         finally
@@ -266,7 +258,7 @@ public class EPGCache<T> : IEPGCache<T>
 
     public async Task WriteToCacheAsync(string name, T data, CancellationToken cancellationToken = default)
     {
-        await _cacheSemaphore.WaitAsync(cancellationToken);
+        await _cacheSemaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
         {
             string cacheKey = SDHelpers.GenerateCacheKey(name);
@@ -275,12 +267,16 @@ public class EPGCache<T> : IEPGCache<T>
             {
                 Data = data,
                 Command = name,
-                Content = "",
-                Timestamp = SMDT.UtcNow
+                Content = string.Empty,
+                Timestamp = DateTime.UtcNow
             };
 
             string contentToCache = JsonSerializer.Serialize(cacheEntry);
             await File.WriteAllTextAsync(cachePath, contentToCache, cancellationToken).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error while writing data to cache for {Name}", name);
         }
         finally
         {
@@ -290,18 +286,17 @@ public class EPGCache<T> : IEPGCache<T>
 
     public MxfGuideImage? GetGuideImageAndUpdateCache(List<ProgramArtwork>? artwork, ImageType type, string? cacheKey = null)
     {
-        if (artwork is null || artwork.Count == 0)
+        if (artwork == null || artwork.Count == 0)
         {
             if (cacheKey != null)
             {
                 UpdateAssetImages(cacheKey, string.Empty);
             }
-
             return null;
         }
+
         if (cacheKey != null)
         {
-            using StringWriter writer = new();
             string artworkJson = JsonSerializer.Serialize(artwork);
             UpdateAssetImages(cacheKey, artworkJson);
         }
@@ -314,13 +309,14 @@ public class EPGCache<T> : IEPGCache<T>
         else
         {
             string aspect = sdsettings.SeriesPosterArt ? "2x3" : sdsettings.SeriesWsArt ? "16x9" : sdsettings.SeriesPosterAspect;
-            image = artwork.FirstOrDefault(arg => arg.Aspect.ToLower().Equals(aspect));
+            image = artwork.FirstOrDefault(arg => arg.Aspect.EndsWithIgnoreCase(aspect));
         }
 
         if (image == null && type == ImageType.Series)
         {
-            image = artwork.FirstOrDefault(arg => arg.Aspect.Equals("4x3", StringComparison.OrdinalIgnoreCase));
+            image = artwork.FirstOrDefault(arg => arg.Aspect.EndsWithIgnoreCase("4x3"));
         }
+
         ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
         return image != null ? schedulesDirectData.FindOrCreateGuideImage(image.Uri) : null;
     }

@@ -42,7 +42,7 @@ internal class GetSubScribedHeadendsRequestHandler(ISender Sender, IOptionsMonit
         foreach ((string Country, string PostalCode) sd in toView)
         {
             DataResponse<List<HeadendDto>> results = await Sender.Send(new GetHeadendsByCountryPostalRequest(sd.Country, sd.PostalCode));
-            if (!results.IsError)
+            if (!results.IsError && results.Data is not null)
             {
                 ret.AddRange(results.Data);
             }

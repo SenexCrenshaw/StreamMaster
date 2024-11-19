@@ -25,7 +25,7 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
         PagedResponse<StreamGroupDto> ret = await query.GetPagedResponseAsync<StreamGroup, StreamGroupDto>(Parameters.PageNumber, Parameters.PageSize, mapper)
                           .ConfigureAwait(false);
 
-        SetStreamGroupsLinks(ret.Data);
+        SetStreamGroupsLinks(ret.Data!);
         return ret;
     }
 
@@ -74,7 +74,7 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
 
             }
 
-            StreamGroupProfileDto defaultProfile = streamGroupDto.StreamGroupProfiles.First(a => a.ProfileName.Equals("default", StringComparison.CurrentCultureIgnoreCase));
+            StreamGroupProfileDto defaultProfile = streamGroupDto.StreamGroupProfiles.First(a => a.ProfileName.EqualsIgnoreCase("default"));
 
             streamGroupDto.ShortHDHRLink = $"{Url}/s/{defaultProfile.Id}";
             streamGroupDto.ShortM3ULink = $"{Url}/s/{defaultProfile.Id}.m3u";

@@ -1,10 +1,10 @@
-using StreamMaster.Domain.Configuration;
-using StreamMaster.Domain.Extensions;
-using StreamMaster.Domain.Helpers;
-
 using System.Diagnostics;
 using System.Text;
 using System.Xml.Serialization;
+
+using StreamMaster.Domain.Configuration;
+using StreamMaster.Domain.Extensions;
+using StreamMaster.Domain.Helpers;
 
 namespace StreamMaster.Domain.Common;
 

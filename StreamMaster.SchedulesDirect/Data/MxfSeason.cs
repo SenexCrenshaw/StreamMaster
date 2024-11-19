@@ -11,7 +11,7 @@ public partial class SchedulesDirectData
     [XmlIgnore]
     public List<Season> SeasonsToProcess { get; set; } = [];
 
-    public Season FindOrCreateSeason(string seriesId, int seasonNumber, string protoTypicalProgram)
+    public Season FindOrCreateSeason(string seriesId, int seasonNumber, string? protoTypicalProgram)
     {
         (Season season, bool created) = Seasons.FindOrCreateWithStatus($"{seriesId}_{seasonNumber}", key => new Season(Seasons.Count + 1, FindOrCreateSeriesInfo(seriesId), seasonNumber, protoTypicalProgram));
 

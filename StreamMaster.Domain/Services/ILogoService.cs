@@ -1,4 +1,5 @@
 ﻿using StreamMaster.Domain.API;
+using StreamMaster.Domain.XmltvXml;
 
 namespace StreamMaster.Domain.Services
 {
@@ -7,6 +8,7 @@ namespace StreamMaster.Domain.Services
     /// </summary>
     public interface ILogoService
     {
+        List<XmltvProgramme> GetXmltvProgrammeForPeriod(StationChannelName stationChannelName, DateTime startDate, int days, string baseUrl);
         /// <summary>
         /// Adds a new logo based on the specified artwork URI and title.
         /// </summary>

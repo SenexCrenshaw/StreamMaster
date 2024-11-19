@@ -3,41 +3,23 @@ using System.Text.Json;
 
 namespace StreamMaster.SchedulesDirect.Images;
 
-public class SportsImages : ISportsImages, IDisposable
+public class SportsImages(
+    ILogger<SportsImages> logger,
+    IEPGCache<SportsImages> epgCache,
+    IImageDownloadQueue imageDownloadQueue,
+    IOptionsMonitor<SDSettings> intSettings,
+    ISchedulesDirectAPIService schedulesDirectAPI) : ISportsImages, IDisposable
 {
-    private readonly ILogger<SportsImages> logger;
-    private readonly IEPGCache<SportsImages> epgCache;
-    private readonly IImageDownloadQueue imageDownloadQueue;
-    private readonly ISchedulesDirectAPIService schedulesDirectAPI;
-    private readonly SDSettings sdsettings;
-    private readonly SemaphoreSlim semaphore;
+    private readonly SDSettings sdsettings = intSettings.CurrentValue;
+    private readonly SemaphoreSlim semaphore = new(SchedulesDirect.MaxParallelDownloads);
 
     public List<MxfProgram> SportEvents { get; set; } = [];
     private readonly List<string> sportsImageQueue = [];
     private readonly ConcurrentBag<ProgramMetadata> sportsImageResponses = [];
     private int processedObjects;
-    private int totalObjects;
-
-    public SportsImages(
-        ILogger<SportsImages> logger,
-        IEPGCache<SportsImages> epgCache,
-        IImageDownloadQueue imageDownloadQueue,
-        IOptionsMonitor<SDSettings> intSettings,
-        ISchedulesDirectAPIService schedulesDirectAPI)
-    {
-        this.logger = logger;
-        this.epgCache = epgCache;
-        this.imageDownloadQueue = imageDownloadQueue;
-        this.schedulesDirectAPI = schedulesDirectAPI;
-        sdsettings = intSettings.CurrentValue;
-        semaphore = new SemaphoreSlim(SchedulesDirect.MaxParallelDownloads);
-    }
 
     public async Task<bool> GetAllSportsImages()
     {
-        // Reset counters
-        // ResetCache();
-
         if (!sdsettings.SeasonEventImages)
         {
             return true;
@@ -78,12 +60,21 @@ public class SportsImages : ISportsImages, IDisposable
 
     private void ProcessCachedImages(MxfProgram sportEvent, EPGJsonCache cachedFile)
     {
+        if (string.IsNullOrEmpty(cachedFile.Images))
+        {
+            return;
+        }
+
         List<ProgramArtwork>? artwork = JsonSerializer.Deserialize<List<ProgramArtwork>>(cachedFile.Images);
         if (artwork != null)
         {
             // Add artwork to the program
             sportEvent.extras.AddOrUpdate("artwork", artwork);
-            sportEvent.mxfGuideImage = epgCache.GetGuideImageAndUpdateCache(artwork, ImageType.Program);
+            MxfGuideImage? guideImages = epgCache.GetGuideImageAndUpdateCache(artwork, ImageType.Program);
+            if (guideImages is not null)
+            {
+                sportEvent.mxfGuideImage = guideImages;
+            }
         }
     }
 
@@ -141,16 +132,15 @@ public class SportsImages : ISportsImages, IDisposable
         }
     }
 
-    public void ResetCache()
+    public void ClearCache()
     {
         SportEvents.Clear();
         sportsImageQueue.Clear();
         sportsImageResponses.Clear();
         processedObjects = 0;
-        totalObjects = 0;
     }
 
-    public void ClearCache()
+    public void ResetCache()
     {
         epgCache.ResetCache();
     }

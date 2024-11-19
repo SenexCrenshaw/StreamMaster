@@ -2,8 +2,24 @@
 {
     public class NumericStringComparer : IComparer<string>
     {
-        public int Compare(string x, string y)
+        public int Compare(string? x, string? y)
         {
+            if (x is null && y is null)
+            {
+                // Both are null, they are equal
+                return 0;
+            }
+            else if (x is null)
+            {
+                // x is null, y is not, x should come before y
+                return -1;
+            }
+            else if (y is null)
+            {
+                // y is null, x is not, y should come before x
+                return 1;
+            }
+
             bool isXNumeric = int.TryParse(x, out int xNum);
             bool isYNumeric = int.TryParse(y, out int yNum);
 

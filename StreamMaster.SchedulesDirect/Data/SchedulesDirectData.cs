@@ -13,23 +13,31 @@ public partial class SchedulesDirectData(int EPGNumber) : ISchedulesDirectData
     [XmlAttribute("provider")]
     public string Provider { get; set; } = string.Empty;
 
-    private static readonly object csvLock = new();
+    private readonly SemaphoreSlim csvSemaphore = new(1, 1);
 
-    public static readonly string serviceCSV = "services.csv";
-    public static readonly string programsCSV = "programs.csv";
+    public readonly string serviceCSV = "services_" + EPGNumber + ".csv";
+    public readonly string programsCSV = "programs_" + EPGNumber + ".csv";
 
     public static bool WriteCSV { get; set; } = false;
-    private void WriteToCSV(string fileName, string line)
+    private async Task WriteToCSVAsync(string fileName, string line)
     {
         if (!WriteCSV)
         {
             return;
         }
-        lock (csvLock)
+
+        await csvSemaphore.WaitAsync().ConfigureAwait(false);
+        try
         {
-            File.AppendAllText(fileName, line + "\r\n");
+            // Asynchronous write to minimize contention.
+            await File.AppendAllTextAsync(fileName, line + "\r\n").ConfigureAwait(false);
+        }
+        finally
+        {
+            csvSemaphore.Release();
         }
     }
+
     public void ResetLists()
     {
         Affiliates.Clear();
@@ -54,9 +62,9 @@ public partial class SchedulesDirectData(int EPGNumber) : ISchedulesDirectData
 
         SeriesInfos.Clear();
         SeriesInfosToProcess.Clear();
-        ScheduleEntries.Clear();
+        //ScheduleEntries.Clear();
 
         Services.Clear();
-        ServicesToProcess.Clear();
+        //ServicesToProcess.Clear();
     }
 }

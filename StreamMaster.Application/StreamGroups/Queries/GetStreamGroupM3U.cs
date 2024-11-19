@@ -1,13 +1,13 @@
-﻿using FluentValidation;
+﻿using System.Collections.Concurrent;
+using System.Linq.Expressions;
+using System.Reflection;
+using System.Text;
+
+using FluentValidation;
 
 using Microsoft.AspNetCore.Http;
 
 using StreamMaster.Domain.Crypto;
-
-using System.Collections.Concurrent;
-using System.Linq.Expressions;
-using System.Reflection;
-using System.Text;
 
 namespace StreamMaster.Application.StreamGroups.Queries;
 
@@ -16,7 +16,7 @@ public record GetStreamGroupM3U(int StreamGroupProfileId, bool IsShort) : IReque
 
 public class EncodedData
 {
-    public SMChannel SMChannel { get; set; }
+    public SMChannel SMChannel { get; set; } = new();
     public string? EncodedString { get; set; }
     public string CleanName { get; set; } = string.Empty;
 }
@@ -59,7 +59,7 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
             return DefaultReturn;
         }
 
-        (List<VideoStreamConfig> videoStreamConfigs, StreamGroupProfile streamGroupProfile) = await streamGroupService.GetStreamGroupVideoConfigs(request.StreamGroupProfileId);
+        (List<VideoStreamConfig> videoStreamConfigs, StreamGroupProfile streamGroupProfile) = await streamGroupService.GetStreamGroupVideoConfigsAsync(request.StreamGroupProfileId);
 
         if (videoStreamConfigs is null || streamGroupProfile is null)
         {

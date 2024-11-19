@@ -19,6 +19,11 @@ internal class GetPagedSMStreamsRequestHandler(IRepositoryWrapper Repository)
             .GetPagedSMStreams(request.Parameters, cancellationToken)
             .ConfigureAwait(false);
 
+        if (res.Data is null)
+        {
+            return res;
+        }
+
         // Get all relevant SMStreamIds from the response data
         List<string> ids = res.Data.ConvertAll(a => a.Id);
 

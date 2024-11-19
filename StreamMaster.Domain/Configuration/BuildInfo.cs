@@ -1,6 +1,4 @@
-﻿using StreamMaster.Domain.Extensions;
-
-using System.Reflection;
+﻿using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -38,7 +36,11 @@ namespace StreamMaster.Domain.Configuration
         public static bool IsWindows => RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
         public static bool IsOSX => RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
         public static bool IsFreeBSD => RuntimeInformation.IsOSPlatform(OSPlatform.FreeBSD);
-        public static string StartUpPath = new FileInfo(Assembly.GetExecutingAssembly().Location).Directory.FullName;
+        public static string StartUpPath = new FileInfo(Assembly.GetExecutingAssembly().Location).Directory?.FullName ?? "";
+
+        public static string DefaultStreamGroupName = "ALL";
+
+        public static StringComparison StringComparison = StringComparison.OrdinalIgnoreCase;
 
         //public const int DBBatchSize = 500;
         public static DateTime StartTime { get; set; }
@@ -128,6 +130,7 @@ namespace StreamMaster.Domain.Configuration
 
         //public static readonly string ProgrammeIconDataFolder = Path.Combine(CacheFolder, "ProgrammeIcons");
         public static readonly string SDJSONFolder = Path.Combine(CacheFolder, "SDJson");
+        public static readonly string SDXMLFile = Path.Combine(SDJSONFolder, "streammaster.xmltv");
 
         public static readonly string SDStationLogosFolder = Path.Combine(CacheFolder, "SDStationLogos");
         public static readonly string SDStationLogosCacheFolder = Path.Combine(CacheFolder, "SDStationLogosCache");

@@ -67,10 +67,10 @@ public static class AuthenticationBuilderExtensions
         return authenticationBuilder.AddScheme<ApiKeyAuthenticationOptions, ApiKeyAuthenticationHandler>(name, options);
     }
 
-    public static AuthenticationBuilder AddBasic(this AuthenticationBuilder authenticationBuilder, string name)
-    {
-        return authenticationBuilder.AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>(name, options => { });
-    }
+    //public static AuthenticationBuilder AddBasic(this AuthenticationBuilder authenticationBuilder, string name)
+    //{
+    //    return authenticationBuilder.AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>(name, options => { });
+    //}
 
     public static AuthenticationBuilder AddNone(this AuthenticationBuilder authenticationBuilder, string name)
     {

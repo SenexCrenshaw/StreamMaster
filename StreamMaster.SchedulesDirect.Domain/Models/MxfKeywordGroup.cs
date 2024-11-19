@@ -10,10 +10,10 @@ public class MxfKeywordGroup
     [XmlIgnore]
     public int Index { get; private set; }
 
-    private string _uid;
-    private string _keywords;
-    private readonly string _alpha;
-    [XmlIgnore] public List<MxfKeyword> mxfKeywords;
+    private string? _uid;
+    private string? _keywords;
+    private readonly string? _alpha;
+    [XmlIgnore] public List<MxfKeyword> mxfKeywords = [];
 
     private readonly Dictionary<string, MxfKeyword> _Keywords = [];
     public MxfKeyword FindOrCreateKeyword(string word)
@@ -24,7 +24,8 @@ public class MxfKeywordGroup
             return keyword;
         }
 
-        mxfKeywords.Add(keyword = new MxfKeyword(Index, Index * 1000 + mxfKeywords.Count + 1, word));
+
+        mxfKeywords.Add(keyword = new MxfKeyword(Index, (Index * 1000) + mxfKeywords.Count + 1, word));
         _Keywords.Add(word, keyword);
         return keyword;
     }

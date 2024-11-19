@@ -1,6 +1,6 @@
-﻿using Reinforced.Typings.Attributes;
+﻿using System.Xml.Serialization;
 
-using System.Xml.Serialization;
+using Reinforced.Typings.Attributes;
 
 namespace StreamMaster.PlayList.Models;
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
@@ -8,5 +8,5 @@ namespace StreamMaster.PlayList.Models;
 public class Fileinfo
 {
     [XmlElement(ElementName = "streamdetails")]
-    public Streamdetails Streamdetails { get; set; }
+    public Streamdetails? Streamdetails { get; set; }
 }

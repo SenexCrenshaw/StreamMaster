@@ -18,7 +18,7 @@ public class UpdateStreamGroupRequestHandler(IDataRefreshService dataRefreshServ
             return APIResponse.NotFound;
         }
 
-        if (request.NewName != null && request.NewName.Equals("all", StringComparison.CurrentCultureIgnoreCase))
+        if (request.NewName != null && request.NewName.EqualsIgnoreCase("all"))
         {
             return APIResponse.ErrorWithMessage($"The name '{request.NewName}' is reserved");
         }

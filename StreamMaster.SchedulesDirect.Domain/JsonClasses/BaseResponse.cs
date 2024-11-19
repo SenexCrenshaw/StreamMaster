@@ -1,6 +1,4 @@
-﻿using Reinforced.Typings.Attributes;
-
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace StreamMaster.SchedulesDirect.Domain.JsonClasses;
 
@@ -8,21 +6,24 @@ namespace StreamMaster.SchedulesDirect.Domain.JsonClasses;
 public class BaseResponse
 {
     [JsonPropertyName("response")]
-    public string Response { get; set; }
+    public string Response { get; set; } = string.Empty;
 
     [JsonPropertyName("code")]
     public int Code { get; set; }
 
     [JsonPropertyName("serverID")]
-    public string ServerId { get; set; }
+    public string ServerId { get; set; } = string.Empty;
 
     [JsonPropertyName("message")]
-    public string Message { get; set; }
+    public string Message { get; set; } = string.Empty;
 
     [JsonPropertyName("datetime")]
-    public DateTime Datetime { get; set; }
-    public bool ShouldSerializeDatetime() => Datetime.Ticks > 0;
+    public DateTime Datetime { get; set; } = DateTime.MinValue;
+    public bool ShouldSerializeDatetime()
+    {
+        return Datetime.Ticks > 0;
+    }
 
     [JsonPropertyName("uuid")]
-    public string Uuid { get; set; }
+    public string Uuid { get; set; } = string.Empty;
 }

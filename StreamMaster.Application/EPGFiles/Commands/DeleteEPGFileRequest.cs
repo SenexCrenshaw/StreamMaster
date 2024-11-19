@@ -4,7 +4,7 @@
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record DeleteEPGFileRequest(bool DeleteFile, int Id) : IRequest<APIResponse>;
 
-public class DeleteEPGFileRequestHandler(ILogger<DeleteEPGFileRequest> logger, IEPGFileService ePGFileService, IFileUtilService fileUtilService, IDataRefreshService dataRefreshService, ISchedulesDirectDataService schedulesDirectDataService, IMessageService messageService, IRepositoryWrapper Repository, IPublisher Publisher)
+public class DeleteEPGFileRequestHandler(ILogger<DeleteEPGFileRequest> logger, ICacheManager cacheManager, IEPGFileService ePGFileService, IFileUtilService fileUtilService, IDataRefreshService dataRefreshService, ISchedulesDirectDataService schedulesDirectDataService, IMessageService messageService, IRepositoryWrapper Repository, IPublisher Publisher)
     : IRequestHandler<DeleteEPGFileRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(DeleteEPGFileRequest request, CancellationToken cancellationToken = default)
@@ -31,7 +31,7 @@ public class DeleteEPGFileRequestHandler(ILogger<DeleteEPGFileRequest> logger, I
             await Publisher.Publish(new EPGFileDeletedEvent(epgFile.Id), cancellationToken).ConfigureAwait(false);
 
             await Repository.SaveAsync().ConfigureAwait(false);
-
+            cacheManager.ClearEPGDataByEPGNumber(epgFile.EPGNumber);
             await messageService.SendSuccess($"Deleted EPG {epgFile.Name}");
             await dataRefreshService.RefreshAllEPG();
             return APIResponse.Success;

@@ -1,14 +1,12 @@
-﻿using Microsoft.Extensions.Caching.Memory;
+﻿using System.Xml.Serialization;
+
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
 using StreamMaster.Domain.Common;
 using StreamMaster.Domain.Configuration;
-using StreamMaster.PlayList;
 using StreamMaster.PlayList.Models;
-using StreamMaster.SchedulesDirect.Domain.XmltvXml;
-
-using System.Xml.Serialization;
-
+namespace StreamMaster.PlayList;
 public class CustomPlayListBuilder : ICustomPlayListBuilder
 {
     private readonly bool _generateMissingNfoFiles = false;
@@ -18,6 +16,7 @@ public class CustomPlayListBuilder : ICustomPlayListBuilder
     private readonly ILogger<CustomPlayListBuilder> _logger;
     private readonly INfoFileReader _nfoFileReader;
     private readonly IMemoryCache _memoryCache;
+
     private readonly FileSystemWatcher _fileSystemWatcher;
     private const string CustomPlayListCacheKey = "CustomPlayLists";
 
@@ -52,15 +51,19 @@ public class CustomPlayListBuilder : ICustomPlayListBuilder
         return customPlayLists.Find(x => x.Name == name) ?? customPlayLists.Find(x => FileUtil.EncodeToMD5(x.Name) == name);
     }
 
-    public string GetCustomPlayListLogoFromFileName(string FileName)
+    public string? GetCustomPlayListLogoFromFileName(string FileName)
     {
-        string dir = Path.GetDirectoryName(FileName);
+        string? dir = Path.GetDirectoryName(FileName);
+        if (string.IsNullOrEmpty(dir))
+        {
+            dir = Path.Combine(BuildInfo.CustomPlayListFolder, FileName);
+        }
         if (string.IsNullOrEmpty(dir) || !Directory.Exists(dir))
         {
-            return string.Empty;
+            return null;
         }
         string[] files = Directory.GetFiles(dir);
-        string logo = files.FirstOrDefault(file => file.EndsWith("poster.png") || file.EndsWith($"poster.jpg")) ?? string.Empty;
+        string? logo = files.FirstOrDefault(file => file.EndsWith("poster.png") || file.EndsWith($"poster.jpg"));
         return logo;
     }
 
@@ -209,6 +212,9 @@ public class CustomPlayListBuilder : ICustomPlayListBuilder
                         if (!string.IsNullOrEmpty(poster) && !allArtwork.Contains(poster))
                         {
                             allArtwork.Add(poster);
+                            fileNfo.Thumb ??= new();
+                            fileNfo.Thumb.Preview = poster;
+                            fileNfo.Thumb.Text = poster;
                         }
 
                         // Add trailers to the list, avoiding duplicates
@@ -447,12 +453,12 @@ public class CustomPlayListBuilder : ICustomPlayListBuilder
         return (firstVideo, (int)elapsedSeconds);
     }
 
-    public List<XmltvProgramme> GetXmltvProgrammeForPeriod(string customPlayListName, DateTime startDate, int days)
-    {
-        return [];
-        // var movies = GetMoviesForPeriod(customPlayListName, startDate, days);
-        // return movies.ConvertAll(XmltvProgrammeConverter.ConvertMovieToXmltvProgramme);
-    }
+    //public List<XmltvProgramme> GetXmltvProgrammeForPeriod(StationChannelName stationChannelName, DateTime startDate, int days)
+    //{
+    //    List<(Movie Movie, DateTime StartTime, DateTime EndTime)> movies = GetMoviesForPeriod(stationChannelName.ChannelName, startDate, days);
+    //    List<XmltvProgramme> ret = movies.Select(x => XmltvProgrammeConverter.ConvertMovieToXmltvProgramme(x.Movie, stationChannelName.Id)).ToList();
+    //    return ret;
+    //}
 
     public (CustomPlayList? customPlayList, CustomStreamNfo? customStreamNfo) GetCustomPlayListByMovieId(string movieId)
     {

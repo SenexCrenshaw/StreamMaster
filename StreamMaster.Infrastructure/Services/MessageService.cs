@@ -11,7 +11,7 @@ namespace StreamMaster.Infrastructure.Services
         public async Task SendError(string message, string? header = null)
         {
             Logger.LogError(message);
-            SendSMErrorRequest request = new(Detail: message, Summary: header);
+            SendSMErrorRequest request = header is null ? new(Detail: message) : new(Detail: message, Summary: header);
 
             await sender.Send(request);
         }
@@ -26,7 +26,7 @@ namespace StreamMaster.Infrastructure.Services
         public async Task SendInfo(string message, string? header = null)
         {
             Logger.LogInformation(message);
-            SendSMInfoRequest request = new(Detail: message, Summary: header);
+            SendSMInfoRequest request = header is null ? new(Detail: message) : new(Detail: message, Summary: header);
 
             await sender.Send(request);
         }
@@ -38,7 +38,7 @@ namespace StreamMaster.Infrastructure.Services
             await sender.Send(request);
         }
 
-        public async Task SendWarn(string message)
+        public async Task SendWarning(string message)
         {
             Logger.LogWarning(message);
             SendSMWarnRequest request = new(Detail: message);
@@ -49,7 +49,7 @@ namespace StreamMaster.Infrastructure.Services
         public async Task SendSuccess(string message, string? header = null)
         {
             Logger.LogInformation(message);
-            SendSuccessRequest request = new(Detail: message, Summary: header);
+            SendSuccessRequest request = header is null ? new(Detail: message) : new(Detail: message, Summary: header);
 
             await sender.Send(request);
         }

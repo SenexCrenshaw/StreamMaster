@@ -6,8 +6,8 @@ namespace StreamMaster.SchedulesDirect;
 public class Descriptions(ILogger<Descriptions> logger, ISchedulesDirectAPIService schedulesDirectAPI, IEPGCache<Descriptions> epgCache, ISchedulesDirectDataService schedulesDirectDataService)
     : IDescriptions
 {
-    private readonly int processedObjects;
-    private readonly int totalObjects;
+    //private readonly int processedObjects;
+    //private readonly int totalObjects;
     private List<string> seriesDescriptionQueue = [];
     private ConcurrentDictionary<string, GenericDescription> seriesDescriptionResponses = [];
     private readonly SemaphoreSlim semaphore = new(SchedulesDirect.MaxParallelDownloads, SchedulesDirect.MaxParallelDownloads);
@@ -54,7 +54,13 @@ public class Descriptions(ILogger<Descriptions> logger, ISchedulesDirectAPIServi
     {
         try
         {
-            GenericDescription? cached = JsonSerializer.Deserialize<GenericDescription>(epgCache.GetAsset(seriesId));
+            string? cache = epgCache.GetAsset(seriesId);
+            if (cache is null)
+            {
+                return;
+            }
+
+            GenericDescription? cached = JsonSerializer.Deserialize<GenericDescription>(cache);
             if (cached?.Code == 0)
             {
                 series.ShortDescription = cached.Description100;
@@ -168,12 +174,17 @@ public class Descriptions(ILogger<Descriptions> logger, ISchedulesDirectAPIServi
         // update cache if needed
         try
         {
-            using StringReader reader = new(epgCache.GetAsset(seriesId));
+            string? cache = epgCache.GetAsset(seriesId);
+            if (cache == null)
+            {
+                return;
+            }
+            using StringReader reader = new(cache);
             JsonSerializerOptions options = new();
 
             GenericDescription? cached = JsonSerializer.Deserialize<GenericDescription>(reader.ReadToEnd(), options);
 
-            if (!string.IsNullOrEmpty(cached.StartAirdate))
+            if (cached is null || !string.IsNullOrEmpty(cached.StartAirdate))
             {
                 return;
             }
@@ -206,13 +217,13 @@ public class Descriptions(ILogger<Descriptions> logger, ISchedulesDirectAPIServi
         return ret;
     }
 
-    public void ResetCache()
+    public void ClearCache()
     {
         seriesDescriptionQueue = [];
         seriesDescriptionResponses = [];
     }
 
-    public void ClearCache()
+    public void ResetCache()
     {
         epgCache.ResetCache();
     }

@@ -1,6 +1,6 @@
-﻿using StreamMaster.Domain.Attributes;
+﻿using System.Xml.Serialization;
 
-using System.Xml.Serialization;
+using StreamMaster.Domain.Attributes;
 
 namespace StreamMaster.Domain.API;
 
@@ -19,7 +19,7 @@ public class DataResponse<T> : APIResponse
 
     private int? _totalItemCount { get; set; }
     [XmlIgnore]
-    public T Data { get; set; }
+    public T? Data { get; set; }
     public int TotalItemCount
     {
         get

@@ -16,13 +16,13 @@ namespace StreamMaster.Application.SchedulesDirect
         Task<ActionResult<List<StationPreview>>> GetStationPreviews();
         Task<ActionResult<List<HeadendDto>>> GetSubScribedHeadends();
         Task<ActionResult<List<SubscribedLineup>>> GetSubscribedLineups();
-        Task<ActionResult<APIResponse>> AddHeadendToView(AddHeadendToViewRequest request);
-        Task<ActionResult<APIResponse>> AddLineup(AddLineupRequest request);
-        Task<ActionResult<APIResponse>> AddStation(AddStationRequest request);
-        Task<ActionResult<APIResponse>> RemoveHeadendToView(RemoveHeadendToViewRequest request);
-        Task<ActionResult<APIResponse>> RemoveLineup(RemoveLineupRequest request);
-        Task<ActionResult<APIResponse>> RemoveStation(RemoveStationRequest request);
-        Task<ActionResult<APIResponse>> SetStations(SetStationsRequest request);
+        Task<ActionResult<APIResponse?>> AddHeadendToView(AddHeadendToViewRequest request);
+        Task<ActionResult<APIResponse?>> AddLineup(AddLineupRequest request);
+        Task<ActionResult<APIResponse?>> AddStation(AddStationRequest request);
+        Task<ActionResult<APIResponse?>> RemoveHeadendToView(RemoveHeadendToViewRequest request);
+        Task<ActionResult<APIResponse?>> RemoveLineup(RemoveLineupRequest request);
+        Task<ActionResult<APIResponse?>> RemoveStation(RemoveStationRequest request);
+        Task<ActionResult<APIResponse?>> SetStations(SetStationsRequest request);
     }
 }
 
@@ -39,12 +39,12 @@ namespace StreamMaster.Application.Hubs
         Task<List<StationPreview>> GetStationPreviews();
         Task<List<HeadendDto>> GetSubScribedHeadends();
         Task<List<SubscribedLineup>> GetSubscribedLineups();
-        Task<APIResponse> AddHeadendToView(AddHeadendToViewRequest request);
-        Task<APIResponse> AddLineup(AddLineupRequest request);
-        Task<APIResponse> AddStation(AddStationRequest request);
-        Task<APIResponse> RemoveHeadendToView(RemoveHeadendToViewRequest request);
-        Task<APIResponse> RemoveLineup(RemoveLineupRequest request);
-        Task<APIResponse> RemoveStation(RemoveStationRequest request);
-        Task<APIResponse> SetStations(SetStationsRequest request);
+        Task<APIResponse?> AddHeadendToView(AddHeadendToViewRequest request);
+        Task<APIResponse?> AddLineup(AddLineupRequest request);
+        Task<APIResponse?> AddStation(AddStationRequest request);
+        Task<APIResponse?> RemoveHeadendToView(RemoveHeadendToViewRequest request);
+        Task<APIResponse?> RemoveLineup(RemoveLineupRequest request);
+        Task<APIResponse?> RemoveStation(RemoveStationRequest request);
+        Task<APIResponse?> SetStations(SetStationsRequest request);
     }
 }

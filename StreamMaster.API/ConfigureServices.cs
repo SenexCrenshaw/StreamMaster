@@ -1,3 +1,5 @@
+using System.Reflection;
+
 using FluentValidation.AspNetCore;
 
 using MediatR;
@@ -20,8 +22,6 @@ using StreamMaster.Infrastructure.Authentication;
 using StreamMaster.Infrastructure.EF.PGSQL;
 using StreamMaster.Infrastructure.Services.Frontend;
 using StreamMaster.Infrastructure.Services.QueueService;
-
-using System.Reflection;
 
 namespace StreamMaster.API;
 
@@ -155,7 +155,7 @@ public static class ConfigureServices
         });
 
         services.AddHostedService<PostStartup>();
-        services.AddSingleton<PostStartup>();
+        //services.AddSingleton<PostStartup>();
 
         services.AddAppAuthenticationAndAuthorization();
 

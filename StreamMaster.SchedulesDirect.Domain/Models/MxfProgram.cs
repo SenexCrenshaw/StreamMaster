@@ -5,19 +5,19 @@ namespace StreamMaster.SchedulesDirect.Domain.Models;
 
 public class MxfProgram
 {
-    public string ProgramId { get; }
+    public string ProgramId { get; } = string.Empty;
 
-    private string _uid;
-    private string _keywords;
-    private string _season;
-    private string _series;
-    private string _guideImage;
-    private DateTime _originalAirDate = DateTime.MinValue;
+    private string? _uid;
+    private string? _keywords;
+    private string? _season;
+    private string? _series;
+    private string? _guideImage;
+    private DateTime? _originalAirDate = null;
 
-    [XmlIgnore] public string UidOverride;
-    [XmlIgnore] public SeriesInfo mxfSeriesInfo;
-    [XmlIgnore] public Season mxfSeason;
-    [XmlIgnore] public MxfGuideImage? mxfGuideImage;
+    [XmlIgnore] public string? UidOverride;
+    [XmlIgnore] public SeriesInfo mxfSeriesInfo = new();
+    [XmlIgnore] public Season mxfSeason = new();
+    [XmlIgnore] public MxfGuideImage mxfGuideImage = new();
     [XmlIgnore] public List<MxfKeyword> mxfKeywords = [];
     [XmlIgnore] public bool IsAdultOnly;
 
@@ -55,46 +55,46 @@ public class MxfProgram
     /// The maximum length is 512 characters.
     /// </summary>
     [XmlAttribute("title")]
-    public string Title { get; set; }
+    public string Title { get; set; } = string.Empty;
 
     /// <summary>
     /// The episode title of the program (for example, The others attack).
     /// The maximum length is 512 characters.
     /// </summary>
     [XmlAttribute("episodeTitle")]
-    public string EpisodeTitle { get; set; }
+    public string? EpisodeTitle { get; set; }
 
     /// <summary>
     /// The description of this program.
     /// The maximum length is 2048 characters.
     /// </summary>
     [XmlAttribute("description")]
-    public string Description { get; set; }
+    public string? Description { get; set; }
 
     /// <summary>
     /// A shorter form of the description attribute, if available.
     /// The maximum length is 512 characters. If a short description is not available, do not specify a value.
     /// </summary>
     [XmlAttribute("shortDescription")]
-    public string ShortDescription { get; set; }
+    public string? ShortDescription { get; set; }
 
     /// <summary>
     /// Recording requests only
     /// </summary>
     [XmlAttribute("movieId")]
-    public string MovieId { get; set; }
+    public string? MovieId { get; set; }
 
     /// <summary>
     /// The language of the program.
     /// </summary>
     [XmlAttribute("language")]
-    public string Language { get; set; }
+    public string? Language { get; set; }
 
     /// <summary>
     /// Recording requests only
     /// </summary>
     [XmlAttribute("movieIdLookupHash")]
-    public string MovieIdLookupHash { get; set; }
+    public string? MovieIdLookupHash { get; set; }
 
     /// <summary>
     /// The year the program was created.
@@ -126,14 +126,37 @@ public class MxfProgram
     [XmlAttribute("originalAirdate")]
     public string? OriginalAirdate
     {
-        get => !IsGeneric && _originalAirDate != DateTime.MinValue && extras.ContainsKey("newAirDate")
-                ? (string)extras["newAirDate"].ToString("yyyy-MM-dd")
-                : _originalAirDate != DateTime.MinValue ? _originalAirDate.ToString("yyyy-MM-dd") : null;
-        set => _ = DateTime.TryParse(value, out _originalAirDate);
+
+        get => _originalAirDate is null
+                ? null
+                : !IsGeneric && extras.ContainsKey("newAirDate")
+                ? FormatNewAirDate()
+                : FormatOriginalAirDate();
+
+        set
+        {
+            if (value is null)
+            {
+                _originalAirDate = null;
+                return;
+            }
+            _originalAirDate = DateTime.TryParse(value, out DateTime parsedDate) ? parsedDate : null;
+        }
+    }
+    private string? FormatNewAirDate()
+    {
+        return extras.TryGetValue("newAirDate", out dynamic? newAirDate) && newAirDate is DateTime newAirDateValue
+            ? newAirDateValue.ToString("yyyy-MM-dd")
+            : null;
+    }
+    // Format the original air date if it is valid
+    private string? FormatOriginalAirDate()
+    {
+        return _originalAirDate?.ToString("yyyy-MM-dd");
     }
 
     [XmlAttribute("wdsTimestamp")]
-    public string WdsTimestamp { get; set; }
+    public string? WdsTimestamp { get; set; }
 
     /// <summary>
     /// A comma-delimited list of keyword IDs. This value specifies the Keyword attributes that this program has.
@@ -150,7 +173,7 @@ public class MxfProgram
     /// If this value is not known, do not specify a value.
     /// </summary>
     [XmlAttribute("season")]
-    public string Season
+    public string? Season
     {
         get => _season ?? mxfSeason?.Id;
         set => _season = value;
@@ -161,7 +184,7 @@ public class MxfProgram
     /// If this value is not known, do not specify a value.
     /// </summary>
     [XmlAttribute("series")]
-    public string Series
+    public string? Series
     {
         get => _series ?? mxfSeriesInfo?.Id;
         set => _series = value;

@@ -1,11 +1,11 @@
-﻿using StreamMaster.Streams.Domain.Events;
+﻿using System.Buffers;
+using System.Diagnostics;
+using System.Threading.Channels;
+
+using StreamMaster.Streams.Domain.Events;
 using StreamMaster.Streams.Domain.Helpers;
 using StreamMaster.Streams.Domain.Statistics;
 using StreamMaster.Streams.Services;
-
-using System.Buffers;
-using System.Diagnostics;
-using System.Threading.Channels;
 
 namespace StreamMaster.Streams.Clients;
 
@@ -14,7 +14,7 @@ public class ClientReadStream : Stream, IClientReadStream
     private readonly ILogger<ClientReadStream> logger;
     private readonly MetricsService MetricsService = new();
 
-    public event EventHandler<StreamTimedOut> ClientStreamTimedOut;
+    public event EventHandler<StreamTimedOut>? ClientStreamTimedOut;
 
     public StreamHandlerMetrics Metrics => MetricsService.Metrics;
 

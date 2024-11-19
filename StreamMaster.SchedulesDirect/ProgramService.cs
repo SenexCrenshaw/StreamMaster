@@ -22,7 +22,7 @@ namespace StreamMaster.SchedulesDirect
             ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
             ICollection<MxfProgram> toProcess = schedulesDirectData.Programs.Values;
 
-            logger.LogInformation($"Entering BuildAllProgramEntries() for {toProcess.Count} programs.");
+            logger.LogInformation("Entering BuildAllProgramEntries() for {Count} programs.", toProcess.Count);
 
             // Populate queue for programs that need to be downloaded
             foreach (MxfProgram mxfProgram in toProcess)
@@ -54,7 +54,7 @@ namespace StreamMaster.SchedulesDirect
                 }
             }
 
-            logger.LogDebug($"Found {processedObjects} cached program descriptions.");
+            logger.LogDebug("Found {processedObjects} cached program descriptions.", processedObjects);
 
             // Download and process programs concurrently
             List<Task> tasks = [];
@@ -81,7 +81,7 @@ namespace StreamMaster.SchedulesDirect
             await semaphore.WaitAsync(cancellationToken);
             try
             {
-                logger.LogInformation($"Downloading program information {startIndex} of {programQueue.Count}");
+                logger.LogInformation("Downloading program information {startIndex} of {Count}", startIndex, programQueue.Count);
                 await DownloadProgramResponsesAsync(startIndex, cancellationToken);
             }
             finally
@@ -112,13 +112,13 @@ namespace StreamMaster.SchedulesDirect
             {
                 DateTime dtStart = DateTime.Now;
                 List<Programme>? ret = await schedulesDirectAPI.GetApiResponse<List<Programme>?>(APIMethod.POST, "programs", programIds, cancellationToken).ConfigureAwait(false);
-
-                logger.LogDebug($"Successfully retrieved {ret?.Count}/{programIds.Length} program descriptions. ({DateTime.Now - dtStart:G})");
+                string duration = (DateTime.Now - dtStart).ToString("G");
+                logger.LogDebug("Successfully retrieved {Count}/{programIds} program descriptions. ({duration})", ret?.Count, programIds.Length, duration);
                 return ret;
             }
             catch (Exception ex)
             {
-                logger.LogError($"Failed to fetch program data. Error: {ex.Message}");
+                logger.LogError("Failed to fetch program data. Error: {Message}", ex.Message);
                 return null;
             }
         }
@@ -145,12 +145,12 @@ namespace StreamMaster.SchedulesDirect
                     }
                     catch (Exception ex)
                     {
-                        logger.LogError($"Failed to cache program {sdProgram.ProgramId}: {ex.Message}");
+                        logger.LogError("Failed to cache program {sdProgram.ProgramId}: {ex.Message}", sdProgram.ProgramId, ex.Message);
                     }
                 }
                 else
                 {
-                    logger.LogInformation($"Did not cache program {sdProgram.ProgramId} due to missing Md5 hash.");
+                    logger.LogInformation("Did not cache program {sdProgram.ProgramId} due to missing Md5 hash.", sdProgram.ProgramId);
                 }
             }
         }
@@ -181,9 +181,10 @@ namespace StreamMaster.SchedulesDirect
             DetermineCastAndCrew(mxfProgram, sdProgram);
 
             // Additional program data like genres and teams (for sports)
-            if (sdProgram.Genres != null && sdProgram.Genres.Length > 0)
+            if (sdProgram.Genres?.Length > 0)
             {
-                mxfProgram.extras.AddOrUpdate("genres", sdProgram.Genres.Clone());
+                //mxfProgram.extras.AddOrUpdate("genres", new List<string>(sdProgram.Genres));
+                mxfProgram.extras.AddOrUpdate("genres", sdProgram.Genres);
             }
 
             if (sdProgram.EventDetails?.Teams != null)
@@ -242,7 +243,7 @@ namespace StreamMaster.SchedulesDirect
                     break;
                 }
 
-                if (description.DescriptionLanguage[..2].Equals("en", StringComparison.CurrentCultureIgnoreCase) || description.DescriptionLanguage.Equals("und", StringComparison.CurrentCultureIgnoreCase))
+                if (description.DescriptionLanguage[..2].EqualsIgnoreCase("en") || description.DescriptionLanguage.EqualsIgnoreCase("und"))
                 {
                     language = description.DescriptionLanguage;
                     ret = description.Description;
@@ -329,7 +330,6 @@ namespace StreamMaster.SchedulesDirect
             }
 
             string[] advisoryTable = [.. advisories];
-
             // Set flags for advisories
             mxfProgram.HasAdult = SDHelpers.TableContains(advisoryTable, "Adult Situations") || SDHelpers.TableContains(advisoryTable, "Dialog");
             mxfProgram.HasBriefNudity = SDHelpers.TableContains(advisoryTable, "Brief Nudity");
@@ -428,6 +428,11 @@ namespace StreamMaster.SchedulesDirect
 
         private void SetProgramFlags(MxfProgram prg, Programme sd)
         {
+            if (sd.Genres is null)
+            {
+                return;
+            }
+
             string[] types = [sd.EntityType, sd.ShowType];
 
             prg.IsAction = SDHelpers.TableContains(sd.Genres, "Action") || SDHelpers.TableContains(sd.Genres, "Adventure");
@@ -558,12 +563,12 @@ namespace StreamMaster.SchedulesDirect
             prg.WriterRole = GetPersons(sd.Crew, ["Writer", "Story"]);
         }
 
-        public void ClearCache()
+        public void ResetCache()
         {
             epgCache.ResetCache();
         }
 
-        public void ResetCache()
+        public void ClearCache()
         {
             programQueue = [];
             programResponses = [];

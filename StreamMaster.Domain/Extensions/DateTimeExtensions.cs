@@ -3,8 +3,6 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
-using System.Reflection;
-
 namespace StreamMaster.Domain.Extensions;
 
 public static class SMDT
@@ -30,15 +28,12 @@ public static class UtcDateAnnotation
         return builder.HasAnnotation(IsUtcAnnotation, isUtc);
     }
 
-    public static bool IsUtc(this IMutableProperty property)
-    {
-        if (property != null && property.PropertyInfo != null)
-        {
-            IsUtcAttribute? attribute = property.PropertyInfo.GetCustomAttribute<IsUtcAttribute>();
-            return (attribute is not null && attribute.IsUtc) || (((bool?)property.FindAnnotation(IsUtcAnnotation)?.Value) ?? true);
-        }
-        return true;
-    }
+    //public static bool IsUtc(this IMutableProperty property)
+    //{
+
+    //    return ((bool?)property.FindAnnotation(IsUtcAnnotation)?.Value) ?? true);
+
+    //}
 
     /// <summary>
     /// Make sure this is called after configuring all your entities.
@@ -49,10 +44,10 @@ public static class UtcDateAnnotation
         {
             foreach (IMutableProperty property in entityType.GetProperties())
             {
-                if (!property.IsUtc())
-                {
-                    continue;
-                }
+                //if (!property.IsUtc())
+                //{
+                //    continue;
+                //}
 
                 if (property.ClrType == typeof(DateTime) ||
                     property.ClrType == typeof(DateTime?))
@@ -62,8 +57,4 @@ public static class UtcDateAnnotation
             }
         }
     }
-}
-public class IsUtcAttribute(bool isUtc = true) : Attribute
-{
-    public bool IsUtc { get; } = isUtc;
 }

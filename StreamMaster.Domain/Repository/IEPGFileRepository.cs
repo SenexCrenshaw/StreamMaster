@@ -8,7 +8,7 @@ public interface IEPGFileRepository : IRepositoryBase<EPGFile>
     Task<EPGFile?> GetEPGFile(int Id);
     Task<int> GetNextAvailableEPGNumberAsync(CancellationToken cancellationToken);
     Task<List<EPGFileDto>> GetEPGFilesNeedUpdatingAsync();
-    Task<List<EPGFileDto>> GetEPGFiles();
+    Task<List<EPGFileDto>> GetEPGFilesAsync();
 
     Task<PagedResponse<EPGFileDto>> GetPagedEPGFiles(QueryStringParameters Parameters);
 

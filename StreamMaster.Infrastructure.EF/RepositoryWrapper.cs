@@ -34,10 +34,10 @@ public class RepositoryWrapper(
     IJobStatusService jobStatusService,
     IFileUtilService fileUtilService,
     IDataRefreshService dataRefreshService,
-   IImageDownloadQueue imageDownloadQueue,
+    IImageDownloadQueue imageDownloadQueue,
     IHttpContextAccessor httpContextAccessor) : IRepositoryWrapper
 {
-    private IStreamGroupProfileRepository _streamGroupProfileRepository;
+    private IStreamGroupProfileRepository? _streamGroupProfileRepository;
     public IStreamGroupProfileRepository StreamGroupProfile
     {
         get
@@ -47,7 +47,7 @@ public class RepositoryWrapper(
         }
     }
 
-    private IStreamGroupSMChannelLinkRepository _streamGroupSMChannelLinkRepository;
+    private IStreamGroupSMChannelLinkRepository? _streamGroupSMChannelLinkRepository;
     public IStreamGroupSMChannelLinkRepository StreamGroupSMChannelLink
     {
         get
@@ -57,7 +57,7 @@ public class RepositoryWrapper(
         }
     }
 
-    private ISMChannelChannelLinksRepository _smChannelChannelLink;
+    private ISMChannelChannelLinksRepository? _smChannelChannelLink;
     public ISMChannelChannelLinksRepository SMChannelChannelLink
     {
         get
@@ -67,7 +67,7 @@ public class RepositoryWrapper(
         }
     }
 
-    private ISMChannelStreamLinksRepository _smChannelStreamLink;
+    private ISMChannelStreamLinksRepository? _smChannelStreamLink;
     public ISMChannelStreamLinksRepository SMChannelStreamLink
     {
         get
@@ -77,7 +77,7 @@ public class RepositoryWrapper(
         }
     }
 
-    private ISMChannelsRepository _smChannel;
+    private ISMChannelsRepository? _smChannel;
 
     public ISMChannelsRepository SMChannel
     {
@@ -88,7 +88,7 @@ public class RepositoryWrapper(
         }
     }
 
-    private ISMStreamRepository _smStream;
+    private ISMStreamRepository? _smStream;
 
     public ISMStreamRepository SMStream
     {
@@ -99,7 +99,7 @@ public class RepositoryWrapper(
         }
     }
 
-    private IStreamGroupRepository _streamGroup;
+    private IStreamGroupRepository? _streamGroup;
 
     public IStreamGroupRepository StreamGroup
     {
@@ -110,7 +110,7 @@ public class RepositoryWrapper(
         }
     }
 
-    private IChannelGroupRepository _channelGroup;
+    private IChannelGroupRepository? _channelGroup;
 
     public IChannelGroupRepository ChannelGroup
     {
@@ -121,7 +121,7 @@ public class RepositoryWrapper(
         }
     }
 
-    private IM3UFileRepository _m3uFile;
+    private IM3UFileRepository? _m3uFile;
 
     public IM3UFileRepository M3UFile
     {
@@ -132,7 +132,7 @@ public class RepositoryWrapper(
         }
     }
 
-    private IEPGFileRepository _epgFile;
+    private IEPGFileRepository? _epgFile;
 
     public IEPGFileRepository EPGFile
     {

@@ -10,7 +10,7 @@ public class Keywords(ILogger<Keywords> logger, ISchedulesDirectDataService sche
         foreach (MxfKeywordGroup? group in schedulesDirectData.KeywordGroups.Values)
         {
             // Sort keywords by word in the group
-            group.mxfKeywords = group.mxfKeywords.OrderBy(k => k.Word).ToList();
+            group.mxfKeywords = [.. group.mxfKeywords.OrderBy(k => k.Word)];
 
             // Add sorted keywords to the global collection
             schedulesDirectData.Keywords.AddRange(group.mxfKeywords);

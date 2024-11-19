@@ -23,12 +23,7 @@ public interface IVideoCombinerService
     /// <returns>A dictionary of aggregated metrics for all channel distributors.</returns>
     IDictionary<string, IStreamHandlerMetrics> GetMetrics();
 
-    /// <summary>
-    /// Gets or creates a channel distributor asynchronously.
-    /// </summary>
-    /// <param name="smStreamInfo">The stream information for the channel.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>The channel distributor if created; otherwise, <c>null</c>.</returns>
+
     Task<IVideoCombiner?> GetOrCreateVideoCombinerAsync(IClientConfiguration config, IMapper mapper, IChannelService channelService, int SMChannelId1, int SMChannelId2, int SMChannelId3, int SMChannelId4, int streamGroupProfileId, CancellationToken cancellationToken);
 
     /// <summary>

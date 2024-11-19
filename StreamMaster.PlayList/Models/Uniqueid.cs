@@ -1,6 +1,6 @@
-﻿using Reinforced.Typings.Attributes;
+﻿using System.Xml.Serialization;
 
-using System.Xml.Serialization;
+using Reinforced.Typings.Attributes;
 
 namespace StreamMaster.PlayList.Models;
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
@@ -8,9 +8,9 @@ namespace StreamMaster.PlayList.Models;
 public class Uniqueid
 {
     [XmlAttribute(AttributeName = "type")]
-    public string Type { get; set; }
+    public string? Type { get; set; }
     [XmlAttribute(AttributeName = "default")]
-    public string Default { get; set; }
+    public string? Default { get; set; }
     [XmlText]
-    public string Text { get; set; }
+    public string? Text { get; set; }
 }

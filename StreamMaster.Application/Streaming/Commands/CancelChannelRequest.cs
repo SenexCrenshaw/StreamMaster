@@ -12,7 +12,7 @@ public class CancelChannelRequestHandler(IChannelManager ChannelManager, IMessag
     {
         if (request.SMChannelId < 1)
         {
-            await messageService.SendWarn("Channel Cancelled failed");
+            await messageService.SendWarning("Channel Cancelled failed");
             return APIResponse.NotFound;
         }
         ChannelManager.StopChannel(request.SMChannelId);

@@ -112,7 +112,7 @@ const EPGSelector = ({ buttonDarkBackground = false, value, enableEditMode = tru
       const epgNumbers = selectedItems.map((x) => x.EPGNumber);
 
       const r = query.data.filter((x) => {
-        var test = extractEPGNumberAndStationId(x.Channel);
+        var test = extractEPGNumberAndStationId(x.Id);
         return epgNumbers.includes(test.epgNumber);
       });
 
@@ -182,7 +182,7 @@ const EPGSelector = ({ buttonDarkBackground = false, value, enableEditMode = tru
       let color = '#FFFFFF';
 
       if (colorsQuery?.data !== undefined) {
-        const entry = colorsQuery.data.find((x) => x.StationId === option.Channel);
+        const entry = colorsQuery.data.find((x) => x.EPGNumber === option.EPGNumber);
         if (entry?.Color) {
           color = entry.Color;
         }
@@ -268,7 +268,7 @@ const EPGSelector = ({ buttonDarkBackground = false, value, enableEditMode = tru
         );
       }
 
-      const stationChannelName = query.data?.find((x) => x.Channel === input);
+      const stationChannelName = query.data?.find((x) => x.Id === input);
       if (!stationChannelName) {
         return (
           <div className="sm-epg-selector">
@@ -286,6 +286,7 @@ const EPGSelector = ({ buttonDarkBackground = false, value, enableEditMode = tru
         );
       }
 
+      // Logger.debug('EPGSelector', { stationChannelName });
       let inputString = stationChannelName.DisplayName ?? '';
       const splitIndex = inputString.indexOf(']') + 1;
       const beforeCallSign = inputString.substring(0, splitIndex);
@@ -293,7 +294,7 @@ const EPGSelector = ({ buttonDarkBackground = false, value, enableEditMode = tru
       let color = '#FFFFFF';
 
       if (colorsQuery?.data !== undefined) {
-        const entry = colorsQuery.data.find((x) => x.StationId === stationChannelName.Channel);
+        const entry = colorsQuery.data.find((x) => x.EPGNumber === stationChannelName.EPGNumber);
         if (entry?.Color) {
           color = entry.Color;
         }
@@ -333,7 +334,7 @@ const EPGSelector = ({ buttonDarkBackground = false, value, enableEditMode = tru
         return;
       }
 
-      const entry = query.data?.find((x) => x.Channel === channel);
+      const entry = query.data?.find((x) => x.Id === channel);
       if (entry && entry.Channel !== stationChannelName?.Channel) {
         setStationChannelName(entry);
       } else {
@@ -471,7 +472,7 @@ const EPGSelector = ({ buttonDarkBackground = false, value, enableEditMode = tru
       buttonTemplate={buttonTemplate(stationChannelName)}
       contentWidthSize="3"
       data={options}
-      dataKey="Channel"
+      dataKey="Id"
       filter
       filterBy="DisplayName"
       header={footerTemplate}
@@ -479,7 +480,7 @@ const EPGSelector = ({ buttonDarkBackground = false, value, enableEditMode = tru
       itemTemplate={itemTemplate}
       label={label}
       onChange={(e) => {
-        handleOnChange(e.Channel);
+        handleOnChange(e.Id);
       }}
       ref={dropDownRef}
       title="EPG"

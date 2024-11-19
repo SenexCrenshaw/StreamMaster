@@ -67,7 +67,7 @@ namespace StreamMaster.Infrastructure.Services.Frontend
 
             if (mapper != null)
             {
-                IActionResult result = await mapper.GetResponse(path);
+                IActionResult? result = await mapper.GetResponseAsync(path);
 
                 if (result != null)
                 {

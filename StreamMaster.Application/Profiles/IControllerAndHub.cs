@@ -10,12 +10,12 @@ namespace StreamMaster.Application.Profiles
         Task<ActionResult<List<CommandProfileDto>>> GetCommandProfiles();
         Task<ActionResult<OutputProfileDto>> GetOutputProfile(GetOutputProfileRequest request);
         Task<ActionResult<List<OutputProfileDto>>> GetOutputProfiles();
-        Task<ActionResult<APIResponse>> AddCommandProfile(AddCommandProfileRequest request);
-        Task<ActionResult<APIResponse>> AddOutputProfile(AddOutputProfileRequest request);
-        Task<ActionResult<APIResponse>> RemoveCommandProfile(RemoveCommandProfileRequest request);
-        Task<ActionResult<APIResponse>> RemoveOutputProfile(RemoveOutputProfileRequest request);
-        Task<ActionResult<APIResponse>> UpdateCommandProfile(UpdateCommandProfileRequest request);
-        Task<ActionResult<APIResponse>> UpdateOutputProfile(UpdateOutputProfileRequest request);
+        Task<ActionResult<APIResponse?>> AddCommandProfile(AddCommandProfileRequest request);
+        Task<ActionResult<APIResponse?>> AddOutputProfile(AddOutputProfileRequest request);
+        Task<ActionResult<APIResponse?>> RemoveCommandProfile(RemoveCommandProfileRequest request);
+        Task<ActionResult<APIResponse?>> RemoveOutputProfile(RemoveOutputProfileRequest request);
+        Task<ActionResult<APIResponse?>> UpdateCommandProfile(UpdateCommandProfileRequest request);
+        Task<ActionResult<APIResponse?>> UpdateOutputProfile(UpdateOutputProfileRequest request);
     }
 }
 
@@ -26,11 +26,11 @@ namespace StreamMaster.Application.Hubs
         Task<List<CommandProfileDto>> GetCommandProfiles();
         Task<OutputProfileDto> GetOutputProfile(GetOutputProfileRequest request);
         Task<List<OutputProfileDto>> GetOutputProfiles();
-        Task<APIResponse> AddCommandProfile(AddCommandProfileRequest request);
-        Task<APIResponse> AddOutputProfile(AddOutputProfileRequest request);
-        Task<APIResponse> RemoveCommandProfile(RemoveCommandProfileRequest request);
-        Task<APIResponse> RemoveOutputProfile(RemoveOutputProfileRequest request);
-        Task<APIResponse> UpdateCommandProfile(UpdateCommandProfileRequest request);
-        Task<APIResponse> UpdateOutputProfile(UpdateOutputProfileRequest request);
+        Task<APIResponse?> AddCommandProfile(AddCommandProfileRequest request);
+        Task<APIResponse?> AddOutputProfile(AddOutputProfileRequest request);
+        Task<APIResponse?> RemoveCommandProfile(RemoveCommandProfileRequest request);
+        Task<APIResponse?> RemoveOutputProfile(RemoveOutputProfileRequest request);
+        Task<APIResponse?> UpdateCommandProfile(UpdateCommandProfileRequest request);
+        Task<APIResponse?> UpdateOutputProfile(UpdateOutputProfileRequest request);
     }
 }

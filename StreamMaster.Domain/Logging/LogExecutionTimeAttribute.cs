@@ -1,7 +1,7 @@
-﻿using AspectInjector.Broker;
-
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Reflection;
+
+using AspectInjector.Broker;
 
 namespace StreamMaster.Domain.Logging;
 
@@ -27,7 +27,7 @@ public class LogExecutionTimeAspect : Attribute
 
         List<string> whiteList = ["xmltvbuilder", "processm3ufile", "deletevideostreams", "processstreams"];
 
-        if (!whiteList.Any(a => nameToLog.Contains(a, StringComparison.OrdinalIgnoreCase))
+        if (!whiteList.Any(nameToLog.ContainsIgnoreCase)
             && !ShouldLog(fullName, ["*.Queries"]))
         {
             return target(args); // If the name doesn't match any string in the list, execute the method without any logging logic.

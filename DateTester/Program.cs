@@ -1,8 +1,7 @@
 ﻿using StreamMaster.Domain.Helpers;
 
-public class Program
+public static class Program
 {
-
     private static void Main(string[] args)
     {
         List<string> testDates = ["20240824240000 +0200", "202410270000", "20241032010000 +01:00", "20241102243000 +0200", "2024040830000 +0000"];

@@ -1,4 +1,7 @@
+using System.Reflection;
+
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 using StreamMaster.Domain.Helpers;
 using StreamMaster.Infrastructure.Logger;
@@ -9,8 +12,6 @@ using StreamMaster.Infrastructure.Services.Frontend.Mappers;
 using StreamMaster.SchedulesDirect.Domain.Interfaces;
 using StreamMaster.Streams.Domain.Interfaces;
 using StreamMaster.Streams.Services;
-
-using System.Reflection;
 
 namespace StreamMaster.Infrastructure;
 
@@ -94,7 +95,12 @@ public static class ConfigureServices
 
         //_ = services.AddHostedService<TimerService>();
 
-        _ = services.AddSingleton<IImageDownloadService, ImageDownloadService>();
+
+        // Registering as a BackgroundService
+        services.AddSingleton<IImageDownloadService, ImageDownloadService>();
+        services.AddSingleton<IHostedService>(provider => provider.GetRequiredService<IImageDownloadService>());
+
+
         return services;
     }
 }

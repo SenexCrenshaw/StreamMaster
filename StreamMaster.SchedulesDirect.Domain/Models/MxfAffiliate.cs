@@ -4,10 +4,10 @@ namespace StreamMaster.SchedulesDirect.Domain.Models;
 
 public class MxfAffiliate
 {
-    private string _uid;
-    private string _logoImage;
+    private string? _uid;
+    private string? _logoImage;
 
-    public MxfGuideImage mxfGuideImage;
+    public MxfGuideImage? mxfGuideImage;
 
     public MxfAffiliate(string name)
     {
@@ -19,7 +19,7 @@ public class MxfAffiliate
     /// The display name of the network.
     /// </summary>
     [XmlAttribute("name")]
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     /// <summary>
     /// An ID that uniquely identifies the affiliate.
@@ -29,7 +29,7 @@ public class MxfAffiliate
     public string Uid
     {
         get => _uid ?? $"!Affiliate!{Name}";
-        set { _uid = value; }
+        set => _uid = value;
     }
 
     /// <summary>
@@ -37,9 +37,9 @@ public class MxfAffiliate
     /// This value contains a GuideImage id attribute.
     /// </summary>
 
-    public string LogoImage
+    public string? LogoImage
     {
         get => _logoImage ?? mxfGuideImage?.Id;
-        set { _logoImage = value; }
+        set => _logoImage = value;
     }
 }

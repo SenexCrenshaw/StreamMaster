@@ -72,26 +72,8 @@
         /// <returns>The total count of global streams.</returns>
         int GetGlobalStreamsCount();
 
-        /// <summary>
-        /// Checks whether a channel exists by its SM channel ID.
-        /// </summary>
-        /// <param name="smChannelId">The SM channel ID.</param>
-        /// <returns><c>true</c> if the channel exists; otherwise, <c>false</c>.</returns>
         bool HasChannel(int smChannelId);
 
-        ///// <summary>
-        ///// Sets up a channel asynchronously based on the specified SM channel DTO.
-        ///// </summary>
-        ///// <param name="smChannel">The SM channel DTO.</param>
-        ///// <returns>The channel status if set up successfully; otherwise, <c>null</c>.</returns>
-        //Task<IChannelBroadcaster?> SetupChannelAsync(SMChannelDto smChannel);
-
-        /// <summary>
-        /// Switches the channel to the next video stream asynchronously.
-        /// </summary>
-        /// <param name="channelStatus">The status of the channel to switch.</param>
-        /// <param name="overrideNextVideoStreamId">The ID of the next video stream to switch to, if overridden.</param>
-        /// <returns><c>true</c> if the switch was successful; otherwise, <c>false</c>.</returns>
         Task<bool> SwitchChannelToNextStreamAsync(IChannelBroadcaster channelBroadcaster, IClientConfiguration? clientConfiguration, string? overrideSMStreamId = null);
 
         /// <summary>

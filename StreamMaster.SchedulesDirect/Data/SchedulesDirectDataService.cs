@@ -1,24 +1,14 @@
-﻿using StreamMaster.Domain.Helpers;
+﻿using System.Collections.Concurrent;
 
-using System.Collections.Concurrent;
+using StreamMaster.Domain.Helpers;
 
 namespace StreamMaster.SchedulesDirect.Data;
 
-public class SchedulesDirectDataService : ISchedulesDirectDataService
+public class SchedulesDirectDataService() : ISchedulesDirectDataService
 {
-    private readonly ILogger<SchedulesDirectData> logger;
-    private readonly IOptionsMonitor<SDSettings> _sdSettings;
-
-    public SchedulesDirectDataService(ILogger<SchedulesDirectData> logger, IOptionsMonitor<SDSettings> sdSettings)
-    {
-        this.logger = logger;
-        _sdSettings = sdSettings;
-        _ = DummyData();
-    }
-
     public ConcurrentDictionary<int, ISchedulesDirectData> SchedulesDirectDatas { get; } = new();
 
-    public ConcurrentDictionary<int, ICustomStreamData> CustomStreamDatas { get; } = new();
+    public ConcurrentDictionary<int, ICustomStreamData> CustomStreamDatas { get; set; } = new();
 
     public void Reset(int? EPGNumber = null)
     {
@@ -41,7 +31,7 @@ public class SchedulesDirectDataService : ISchedulesDirectDataService
     {
         get
         {
-            List<MxfService> services = SchedulesDirectDatas.Values.SelectMany(d => d.Services.Values).ToList();
+            IEnumerable<MxfService> services = SchedulesDirectDatas.Values.SelectMany(d => d.Services.Values);
             return [.. services, .. CustomStreamDatas.Values.SelectMany(d => d.Services.Values)];
         }
     }
@@ -140,12 +130,13 @@ public class SchedulesDirectDataService : ISchedulesDirectDataService
         {
             string channelNameSuffix = station.CallSign;
 
-            StationChannelName stationChannelName = new()
-            {
-                Channel = station.StationId,
-                DisplayName = $"[{station.CallSign}] {station.Name}",
-                ChannelName = station.CallSign
-            };
+            StationChannelName stationChannelName = new(station.StationId, $"[{station.CallSign}] {station.Name}", station.CallSign, EPGHelper.SchedulesDirectId);
+            //{
+            //    Channel = station.StationId,
+            //    DisplayName = $"[{station.CallSign}] {station.Name}",
+            //    ChannelName = station.CallSign,
+            //    EPGNumber = EPGHelper.SchedulesDirectId
+            //};
             ret.Add(stationChannelName);
         }
 

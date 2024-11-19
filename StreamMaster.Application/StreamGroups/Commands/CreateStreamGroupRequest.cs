@@ -1,5 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using StreamMaster.Domain.Crypto;
+using StreamMaster.Domain.Extensions;
 
 namespace StreamMaster.Application.StreamGroups.Commands;
 
@@ -18,7 +19,7 @@ public class CreateStreamGroupRequestHandler(IRepositoryWrapper Repository, IMes
             return APIResponse.NotFound;
         }
 
-        if (request.Name.Equals("all", StringComparison.CurrentCultureIgnoreCase))
+        if (request.Name.EqualsIgnoreCase("all"))
         {
             return APIResponse.ErrorWithMessage($"The name '{request.Name}' is reserved");
         }

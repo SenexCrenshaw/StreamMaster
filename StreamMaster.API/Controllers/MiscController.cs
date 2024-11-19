@@ -1,12 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
-
-using StreamMaster.SchedulesDirect.Domain.XmltvXml;
-using StreamMaster.Streams.Handlers;
-
-using System.Globalization;
+﻿using System.Globalization;
 using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
+
+using Microsoft.AspNetCore.Mvc;
+
+using StreamMaster.Domain.XmltvXml;
+using StreamMaster.Streams.Handlers;
 
 using static StreamMaster.Domain.Common.GetStreamGroupEPGHandler;
 
@@ -18,7 +18,7 @@ public class MiscController(IImageDownloadService imageDownloadService, ILogoSer
     [Route("[action]")]
     public ActionResult<ImageDownloadServiceStatus> GetDownloadServiceStatus()
     {
-        return Ok(imageDownloadService.imageDownloadServiceStatus);
+        return Ok(imageDownloadService.ImageDownloadServiceStatus);
     }
 
     [HttpGet]

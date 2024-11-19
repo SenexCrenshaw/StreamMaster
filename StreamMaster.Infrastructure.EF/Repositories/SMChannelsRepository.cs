@@ -9,6 +9,7 @@ using StreamMaster.Domain.API;
 using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Filtering;
 using StreamMaster.Domain.Helpers;
+using StreamMaster.Domain.XmltvXml;
 using StreamMaster.Infrastructure.EF.Helpers;
 using StreamMaster.Infrastructure.EF.PGSQL;
 using StreamMaster.SchedulesDirect.Domain.Interfaces;
@@ -198,7 +199,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IImag
             {
                 SMChannel = newChannel,
                 SMChannelId = newChannel.Id,
-                SMStream = link.SMStream,
+                SMStream = link.SMStream!,
                 SMStreamId = link.SMStreamId,
                 Rank = link.Rank,
             };

@@ -24,7 +24,7 @@ public partial class M3UToSMStreamsService(ILogger<M3UToSMStreamsService> logger
             yield break;  // Early exit if stream is null
         }
 
-        await using Stream? dataStream = fileUtilService.GetFileDataStream(filepath);
+        await using Stream? dataStream = await fileUtilService.GetFileDataStream(filepath);
 
         if (dataStream == null)
         {

@@ -10,6 +10,11 @@ public class EPGFileService(IRepositoryWrapper repositoryWrapper, IFileUtilServi
         return await CreateEPGFileBase(request.Name, request.UrlSource, request.Color, request.EPGNumber, request.HoursToUpdate, request.TimeShift);
     }
 
+    public async Task<List<EPGFile>> GetEPGFilesAsync()
+    {
+        return await repositoryWrapper.EPGFile.GetQuery().ToListAsync();
+    }
+
     public async Task<(EPGFile epgFile, string fullName)> CreateEPGFileAsync(CreateEPGFileFromFormRequest request)
     {
         return await CreateEPGFileBase(request.Name, null, request.Color, request.EPGNumber, request.HoursToUpdate, request.TimeShift);

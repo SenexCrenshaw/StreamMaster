@@ -1,19 +1,14 @@
 ﻿using Microsoft.Extensions.Logging;
 
 using StreamMaster.Domain.Extensions;
-using StreamMaster.Domain.Services;
 
 namespace StreamMaster.Infrastructure.Logger;
 
-public class FileLoggerDebug : ILogger
+public class FileLoggerDebug(IFileLoggingServiceFactory factory) : ILogger
 {
-    private readonly IFileLoggingService _logging;
-    public FileLoggerDebug(IFileLoggingServiceFactory factory)
-    {
-        _logging = factory.Create("FileLoggerDebug");
-    }
+    private readonly IFileLoggingService _logging = factory.Create("FileLoggerDebug");
 
-    public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
+    public void Log<TState>(LogLevel logLevel, EventId eventId, TState? state, Exception? exception, Func<TState, Exception?, string> formatter)
     {
         if (!IsEnabled(logLevel))
         {
@@ -25,7 +20,7 @@ public class FileLoggerDebug : ILogger
     }
 
 
-    public IDisposable? BeginScope<TState>(TState state)
+    public IDisposable? BeginScope<TState>(TState state) where TState : notnull
     {
         return null;
     }
@@ -36,9 +31,13 @@ public class FileLoggerDebug : ILogger
         // criteria here)
         return true;
     }
-    private static string FormatLogEntry<TState>(LogLevel logLevel, EventId eventId, TState? state, Exception exception, Func<TState, Exception, string> formatter)
+    private static string FormatLogEntry<TState>(LogLevel logLevel, EventId eventId, TState? state, Exception? exception, Func<TState, Exception?, string> formatter)
     {
+        if (state == null)
+        {
+            return string.Empty;
 
+        }
         string message = formatter(state, exception);
 
         // Format the log entry as CSV, including the EventId

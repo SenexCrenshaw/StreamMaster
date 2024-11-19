@@ -55,7 +55,7 @@
 //        }
 //        smtype ??= SMFileTypes.Logo;
 
-//        string icon = settings.LogoCache.Equals("cache", StringComparison.CurrentCultureIgnoreCase) ? GetApiUrl((SMFileTypes)smtype, originalUrl, _baseUrl) : iconOriginalSource;
+//        string icon = settings.LogoCache.Equals("cache", BuildInfo.StringComparison) ? GetApiUrl((SMFileTypes)smtype, originalUrl, _baseUrl) : iconOriginalSource;
 
 //        return icon;
 //    }

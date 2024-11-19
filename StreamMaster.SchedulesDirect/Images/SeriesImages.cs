@@ -4,39 +4,21 @@ using System.Text.Json;
 
 namespace StreamMaster.SchedulesDirect.Images;
 
-public class SeriesImages : ISeriesImages, IDisposable
+public class SeriesImages(
+    ILogger<SeriesImages> logger,
+    IEPGCache<SeriesImages> epgCache,
+    IImageDownloadQueue imageDownloadQueue,
+    IOptionsMonitor<SDSettings> intSettings,
+    ISchedulesDirectAPIService schedulesDirectAPI,
+    ISchedulesDirectDataService schedulesDirectDataService) : ISeriesImages, IDisposable
 {
-    private readonly ILogger<SeriesImages> logger;
-    private readonly IEPGCache<SeriesImages> epgCache;
-    private readonly IImageDownloadQueue imageDownloadQueue;
-    private readonly ISchedulesDirectAPIService schedulesDirectAPI;
-    private readonly ISchedulesDirectDataService schedulesDirectDataService;
-    private readonly IOptionsMonitor<SDSettings> sdsettings;
-
     private List<string> seriesImageQueue = [];
     private ConcurrentBag<ProgramMetadata> seriesImageResponses = [];
     public NameValueCollection SportsSeries { get; set; } = [];
 
     private int processedObjects;
-    private int totalObjects;
-    private readonly SemaphoreSlim semaphore;
 
-    public SeriesImages(
-        ILogger<SeriesImages> logger,
-        IEPGCache<SeriesImages> epgCache,
-        IImageDownloadQueue imageDownloadQueue,
-        IOptionsMonitor<SDSettings> intSettings,
-        ISchedulesDirectAPIService schedulesDirectAPI,
-        ISchedulesDirectDataService schedulesDirectDataService)
-    {
-        this.logger = logger;
-        this.epgCache = epgCache;
-        this.imageDownloadQueue = imageDownloadQueue;
-        this.schedulesDirectAPI = schedulesDirectAPI;
-        this.schedulesDirectDataService = schedulesDirectDataService;
-        sdsettings = intSettings;
-        semaphore = new SemaphoreSlim(SchedulesDirect.MaxParallelDownloads);
-    }
+    private readonly SemaphoreSlim semaphore = new(SchedulesDirect.MaxParallelDownloads);
 
     public async Task<bool> GetAllSeriesImages()
     {
@@ -106,7 +88,7 @@ public class SeriesImages : ISeriesImages, IDisposable
         bool refresh = false;
         if (int.TryParse(seriesId, out int digits))
         {
-            refresh = (digits * sdsettings.CurrentValue.SDStationIds.Count % DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month)) + 1 == DateTime.Now.Day;
+            refresh = (digits * intSettings.CurrentValue.SDStationIds.Count % DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month)) + 1 == DateTime.Now.Day;
             finalSeriesId = $"SH{seriesId}0000";
         }
         else
@@ -167,7 +149,7 @@ public class SeriesImages : ISeriesImages, IDisposable
 
     private void ProcessSeriesImageResponses()
     {
-        string artworkSize = string.IsNullOrEmpty(sdsettings.CurrentValue.ArtworkSize) ? "Md" : sdsettings.CurrentValue.ArtworkSize;
+        string artworkSize = string.IsNullOrEmpty(intSettings.CurrentValue.ArtworkSize) ? "Md" : intSettings.CurrentValue.ArtworkSize;
         IEnumerable<ProgramMetadata> toProcess = seriesImageResponses.Where(a => !string.IsNullOrEmpty(a.ProgramId) && a.Data != null && a.Code == 0);
 
         logger.LogInformation("Processing {count} series image responses.", toProcess.Count());
@@ -184,7 +166,7 @@ public class SeriesImages : ISeriesImages, IDisposable
             }
 
             List<ProgramArtwork> artwork = SDHelpers.GetTieredImages(response.Data, ["series", "sport", "episode"], artworkSize);
-            if (response.ProgramId.StartsWith("SP") && artwork.Count <= 0)
+            if (response.ProgramId.StartsWith("SP") && artwork.Count == 0)
             {
                 continue;
             }
@@ -209,7 +191,7 @@ public class SeriesImages : ISeriesImages, IDisposable
             }
 
             string? sport = SportsSeries.Get(key);
-            if (sport != null && sport.Contains(response.ProgramId))
+            if (sport?.Contains(response.ProgramId) == true)
             {
                 return schedulesDirectData.FindOrCreateSeriesInfo(key);
             }
@@ -217,17 +199,16 @@ public class SeriesImages : ISeriesImages, IDisposable
         return null;
     }
 
-    public void ResetCache()
+    public void ClearCache()
     {
         seriesImageQueue.Clear();
         seriesImageResponses.Clear();
         SportsSeries.Clear();
 
         processedObjects = 0;
-        totalObjects = 0;
     }
 
-    public void ClearCache()
+    public void ResetCache()
     {
         epgCache.ResetCache();
     }

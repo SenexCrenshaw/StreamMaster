@@ -13,8 +13,8 @@ namespace StreamMaster.Application.StreamGroups.Controllers
         [Route("[action]")]
         public async Task<ActionResult<PagedResponse<StreamGroupDto>>> GetPagedStreamGroups([FromQuery] QueryStringParameters Parameters)
         {
-            PagedResponse<StreamGroupDto> ret = await Sender.Send(new GetPagedStreamGroupsRequest(Parameters)).ConfigureAwait(false);
-            return ret;
+            var ret = await Sender.Send(new GetPagedStreamGroupsRequest(Parameters)).ConfigureAwait(false);
+            return ret?? new();
         }
 
         [HttpGet]
@@ -23,8 +23,8 @@ namespace StreamMaster.Application.StreamGroups.Controllers
         {
             try
             {
-            DataResponse<List<StreamGroupProfile>> ret = await Sender.Send(new GetStreamGroupProfilesRequest()).ConfigureAwait(false);
-             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetStreamGroupProfiles.", statusCode: 500) : Ok(ret.Data);
+            var ret = await Sender.Send(new GetStreamGroupProfilesRequest()).ConfigureAwait(false);
+             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetStreamGroupProfiles.", statusCode: 500) : Ok(ret.Data?? new());
             }
             catch (Exception ex)
             {
@@ -39,8 +39,8 @@ namespace StreamMaster.Application.StreamGroups.Controllers
         {
             try
             {
-            DataResponse<StreamGroupDto> ret = await Sender.Send(request).ConfigureAwait(false);
-             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetStreamGroup.", statusCode: 500) : Ok(ret.Data);
+            var ret = await Sender.Send(request).ConfigureAwait(false);
+             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetStreamGroup.", statusCode: 500) : Ok(ret.Data?? new());
             }
             catch (Exception ex)
             {
@@ -55,8 +55,8 @@ namespace StreamMaster.Application.StreamGroups.Controllers
         {
             try
             {
-            DataResponse<List<StreamGroupDto>> ret = await Sender.Send(new GetStreamGroupsRequest()).ConfigureAwait(false);
-             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetStreamGroups.", statusCode: 500) : Ok(ret.Data);
+            var ret = await Sender.Send(new GetStreamGroupsRequest()).ConfigureAwait(false);
+             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetStreamGroups.", statusCode: 500) : Ok(ret.Data?? new());
             }
             catch (Exception ex)
             {
@@ -67,49 +67,49 @@ namespace StreamMaster.Application.StreamGroups.Controllers
 
         [HttpPatch]
         [Route("[action]")]
-        public async Task<ActionResult<APIResponse>> AddProfileToStreamGroup(AddProfileToStreamGroupRequest request)
+        public async Task<ActionResult<APIResponse?>> AddProfileToStreamGroup(AddProfileToStreamGroupRequest request)
         {
-            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            var ret = await Sender.Send(request).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
         }
 
         [HttpPost]
         [Route("[action]")]
-        public async Task<ActionResult<APIResponse>> CreateStreamGroup(CreateStreamGroupRequest request)
+        public async Task<ActionResult<APIResponse?>> CreateStreamGroup(CreateStreamGroupRequest request)
         {
-            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            var ret = await Sender.Send(request).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
         }
 
         [HttpDelete]
         [Route("[action]")]
-        public async Task<ActionResult<APIResponse>> DeleteStreamGroup(DeleteStreamGroupRequest request)
+        public async Task<ActionResult<APIResponse?>> DeleteStreamGroup(DeleteStreamGroupRequest request)
         {
-            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            var ret = await Sender.Send(request).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
         }
 
         [HttpDelete]
         [Route("[action]")]
-        public async Task<ActionResult<APIResponse>> RemoveStreamGroupProfile(RemoveStreamGroupProfileRequest request)
+        public async Task<ActionResult<APIResponse?>> RemoveStreamGroupProfile(RemoveStreamGroupProfileRequest request)
         {
-            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            var ret = await Sender.Send(request).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
         }
 
         [HttpPatch]
         [Route("[action]")]
-        public async Task<ActionResult<APIResponse>> UpdateStreamGroupProfile(UpdateStreamGroupProfileRequest request)
+        public async Task<ActionResult<APIResponse?>> UpdateStreamGroupProfile(UpdateStreamGroupProfileRequest request)
         {
-            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            var ret = await Sender.Send(request).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
         }
 
         [HttpPatch]
         [Route("[action]")]
-        public async Task<ActionResult<APIResponse>> UpdateStreamGroup(UpdateStreamGroupRequest request)
+        public async Task<ActionResult<APIResponse?>> UpdateStreamGroup(UpdateStreamGroupRequest request)
         {
-            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            var ret = await Sender.Send(request).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
         }
 
@@ -122,61 +122,61 @@ namespace StreamMaster.Application.Hubs
     {
         public async Task<PagedResponse<StreamGroupDto>> GetPagedStreamGroups(QueryStringParameters Parameters)
         {
-            PagedResponse<StreamGroupDto> ret = await Sender.Send(new GetPagedStreamGroupsRequest(Parameters)).ConfigureAwait(false);
-            return ret;
+            var ret = await Sender.Send(new GetPagedStreamGroupsRequest(Parameters)).ConfigureAwait(false);
+            return ret?? new();
         }
 
         public async Task<List<StreamGroupProfile>> GetStreamGroupProfiles()
         {
-             DataResponse<List<StreamGroupProfile>> ret = await Sender.Send(new GetStreamGroupProfilesRequest()).ConfigureAwait(false);
-            return ret.Data;
+             var ret = await Sender.Send(new GetStreamGroupProfilesRequest()).ConfigureAwait(false);
+            return ret.Data?? new();
         }
 
         public async Task<StreamGroupDto> GetStreamGroup(GetStreamGroupRequest request)
         {
-             DataResponse<StreamGroupDto> ret = await Sender.Send(request).ConfigureAwait(false);
-            return ret.Data;
+             var ret = await Sender.Send(request).ConfigureAwait(false);
+            return ret.Data?? new();
         }
 
         public async Task<List<StreamGroupDto>> GetStreamGroups()
         {
-             DataResponse<List<StreamGroupDto>> ret = await Sender.Send(new GetStreamGroupsRequest()).ConfigureAwait(false);
-            return ret.Data;
+             var ret = await Sender.Send(new GetStreamGroupsRequest()).ConfigureAwait(false);
+            return ret.Data?? new();
         }
 
-        public async Task<APIResponse> AddProfileToStreamGroup(AddProfileToStreamGroupRequest request)
+        public async Task<APIResponse?> AddProfileToStreamGroup(AddProfileToStreamGroupRequest request)
         {
-            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            var ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;
         }
 
-        public async Task<APIResponse> CreateStreamGroup(CreateStreamGroupRequest request)
+        public async Task<APIResponse?> CreateStreamGroup(CreateStreamGroupRequest request)
         {
-            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            var ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;
         }
 
-        public async Task<APIResponse> DeleteStreamGroup(DeleteStreamGroupRequest request)
+        public async Task<APIResponse?> DeleteStreamGroup(DeleteStreamGroupRequest request)
         {
-            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            var ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;
         }
 
-        public async Task<APIResponse> RemoveStreamGroupProfile(RemoveStreamGroupProfileRequest request)
+        public async Task<APIResponse?> RemoveStreamGroupProfile(RemoveStreamGroupProfileRequest request)
         {
-            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            var ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;
         }
 
-        public async Task<APIResponse> UpdateStreamGroupProfile(UpdateStreamGroupProfileRequest request)
+        public async Task<APIResponse?> UpdateStreamGroupProfile(UpdateStreamGroupProfileRequest request)
         {
-            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            var ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;
         }
 
-        public async Task<APIResponse> UpdateStreamGroup(UpdateStreamGroupRequest request)
+        public async Task<APIResponse?> UpdateStreamGroup(UpdateStreamGroupRequest request)
         {
-            APIResponse ret = await Sender.Send(request).ConfigureAwait(false);
+            var ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;
         }
 

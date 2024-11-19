@@ -13,7 +13,7 @@ public class CreateChannelGroupRequestHandler(IMessageService messageService, ID
         {
             return APIResponse.ErrorWithMessage("Group Name is required");
         }
-        if (request.GroupName.Equals("dummy", StringComparison.OrdinalIgnoreCase))
+        if (request.GroupName.EqualsIgnoreCase("dummy"))
         {
             return APIResponse.ErrorWithMessage($"Group Name cannot be '{request.GroupName}'");
         }

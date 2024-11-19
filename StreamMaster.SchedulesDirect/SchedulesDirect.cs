@@ -1,8 +1,10 @@
-﻿using StreamMaster.Domain.API;
-using StreamMaster.Domain.Helpers;
-using StreamMaster.Domain.Models;
-
+﻿using System.Diagnostics;
 using System.Text.Json;
+
+using StreamMaster.Domain.API;
+using StreamMaster.Domain.Helpers;
+using StreamMaster.Domain.Logging;
+using StreamMaster.Domain.Models;
 
 namespace StreamMaster.SchedulesDirect;
 
@@ -35,8 +37,10 @@ public partial class SchedulesDirect(
     public static readonly int MaxImgQueries = 125;
     public static readonly int MaxParallelDownloads = 8;
 
+    [LogExecutionTimeAspect]
     public async Task<APIResponse> SDSync(CancellationToken cancellationToken)
     {
+        Stopwatch sw = Stopwatch.StartNew();
         JobStatusManager jobManager = jobStatusService.GetJobManageSDSync(EPGHelper.SchedulesDirectId);
         try
         {
@@ -68,7 +72,7 @@ public partial class SchedulesDirect(
                 return APIResponse.ErrorWithMessage("SD Check token errored");
             }
 
-            logger.LogInformation($"DaysToDownload: {_sdSettings.CurrentValue.SDEPGDays}");
+            logger.LogInformation("DaysToDownload: {_sdSettings.CurrentValue.SDEPGDays}", _sdSettings.CurrentValue.SDEPGDays);
 
             ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
 
@@ -90,14 +94,16 @@ public partial class SchedulesDirect(
                 //seasonImages.ResetCache();
                 //sportsImages.ResetCache();
 
-                //ClearAllCaches();
-                ResetEPGCache();
-
                 XMLTV? xml = xMLTVBuilder.CreateSDXmlTv("");
                 if (xml is not null)
                 {
                     WriteXmltv(xml);
                 }
+
+                ClearAllCaches();
+                schedulesDirectDataService.Reset(EPGHelper.SchedulesDirectId);
+
+                //ResetAllEPGCaches();
 
                 logger.LogInformation("Completed Schedules Direct update execution. SUCCESS.");
                 jobManager.SetSuccessful();
@@ -108,6 +114,9 @@ public partial class SchedulesDirect(
         finally
         {
             _ = _syncSemaphore.Release();
+            sw.Stop();
+
+            logger.LogInformation("SD Sync took {ms} ms", sw.ElapsedMilliseconds);
         }
 
         jobManager.SetError();
@@ -116,16 +125,15 @@ public partial class SchedulesDirect(
 
     private void WriteXmltv(XMLTV xmltv)
     {
-        string fileName = Path.Combine(BuildInfo.SDJSONFolder, "streammaster.xmltv");
-        if (!FileUtil.WriteXmlFile(xmltv, fileName))
+        if (!FileUtil.WriteXmlFile(xmltv, BuildInfo.SDXMLFile))
         {
             return;
         }
 
-        FileInfo fileInfo = new(fileName);
+        FileInfo fileInfo = new(BuildInfo.SDXMLFile);
         int imageCount = xmltv.Programs.SelectMany(p => p.Icons?.Select(icon => icon.Src) ?? []).Distinct().Count();
-        logger.LogInformation($"Completed save of XMLTV file to \"{fileName}\". Size: {FileUtil.BytesToString(fileInfo.Length)}");
-        logger.LogDebug($"Generated XMLTV contains {xmltv.Channels.Count} channels, {xmltv.Programs.Count} programs, and {imageCount} distinct image links.");
+        logger.LogInformation("Completed save of XMLTV file to \"{BuildInfo.SDXMLFile}\". Size: {FileUtil.BytesToString(fileInfo.Length)}", BuildInfo.SDXMLFile, FileUtil.BytesToString(fileInfo.Length));
+        logger.LogDebug("Generated XMLTV contains {xmltv.Channels.Count} channels, {xmltv.Programs.Count} programs, and {imageCount} distinct image links.", xmltv.Channels.Count, xmltv.Programs.Count, imageCount);
     }
 
     public async Task<UserStatus> GetUserStatus(CancellationToken cancellationToken)
@@ -133,12 +141,18 @@ public partial class SchedulesDirect(
         UserStatus? userStatus = await schedulesDirectAPI.GetApiResponse<UserStatus>(APIMethod.GET, "status", cancellationToken: cancellationToken);
         if (userStatus != null)
         {
-            logger.LogInformation($"Account expires: {userStatus.Account.Expires:s}Z , Lineups: {userStatus.Lineups.Count}/{userStatus.Account.MaxLineups} , Last update: {userStatus.LastDataUpdate:s}Z");
+            logger.LogInformation(
+                "Account expires: {userStatus.Account.Expires:s}Z , Lineups: {userStatus.Lineups.Count}/{userStatus.Account.MaxLineups} , Last update: {userStatus.LastDataUpdate:s}Z",
+                userStatus.Account.Expires.ToString("s"),
+                userStatus.Lineups.Count,
+                userStatus.Account.MaxLineups,
+                userStatus.LastDataUpdate.ToString("s")
+                );
             TimeSpan expires = userStatus.Account.Expires - SMDT.UtcNow;
 
             if (expires < TimeSpan.FromDays(7.0))
             {
-                logger.LogWarning($"Your Schedules Direct account expires in {expires.Days:D2} days.");
+                logger.LogWarning("Your Schedules Direct account expires in {expires.Days:D2} days.", expires.Days.ToString("D2"));
             }
 
             return userStatus;
@@ -212,8 +226,9 @@ public partial class SchedulesDirect(
         }
     }
 
-    public void ResetEPGCache()
+    public void ResetAllEPGCaches()
     {
+        ClearAllCaches();
         descriptions.ResetCache();
         lineups.ResetCache();
         schedules.ResetCache();

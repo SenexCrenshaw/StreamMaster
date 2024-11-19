@@ -7,11 +7,11 @@ public record GetLineupPreviewChannelRequest(string Lineup) : IRequest<DataRespo
 internal class GetLineupPreviewChannelRequestHandler(ISchedulesDirect schedulesDirect)
     : IRequestHandler<GetLineupPreviewChannelRequest, DataResponse<List<LineupPreviewChannel>>>
 {
-
     public async Task<DataResponse<List<LineupPreviewChannel>>> Handle(GetLineupPreviewChannelRequest request, CancellationToken cancellationToken)
     {
         List<LineupPreviewChannel>? result = await schedulesDirect.GetLineupPreviewChannel(request.Lineup, cancellationToken);
-
-        return DataResponse<List<LineupPreviewChannel>>.Success(result);
+        return result is null
+            ? DataResponse<List<LineupPreviewChannel>>.Success([])
+            : DataResponse<List<LineupPreviewChannel>>.Success(result);
     }
 }

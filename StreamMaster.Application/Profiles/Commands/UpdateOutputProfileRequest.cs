@@ -16,41 +16,46 @@ public class UpdateFileProfileRequestHandler(
 
     public async Task<APIResponse> Handle(UpdateOutputProfileRequest request, CancellationToken cancellationToken)
     {
-        if (!profilesettings.Profiles.ContainsKey(request.ProfileName))
+        if (string.IsNullOrEmpty(request.ProfileName) || !profilesettings.Profiles.ContainsKey(request.ProfileName))
         {
             return APIResponse.Ok;
         }
 
         if (request.NewName != null)
         {
-            if (request.NewName.Equals("default", StringComparison.OrdinalIgnoreCase))
+            if (request.NewName.EqualsIgnoreCase("default"))
             {
                 return APIResponse.ErrorWithMessage("Cannot use name default");
             }
-            if (request.ProfileName != null && request.ProfileName.Equals("default", StringComparison.OrdinalIgnoreCase))
+            if (request.ProfileName.EqualsIgnoreCase("default"))
             {
                 return APIResponse.ErrorWithMessage("Cannot use name default");
             }
+        }
 
+        OutputProfile? existingProfile = profilesettings.Profiles[request.ProfileName!];
+        if (existingProfile is null)
+        {
+            return APIResponse.Ok;
         }
 
         List<FieldData> fields = [];
 
-        if (!profilesettings.Profiles.TryGetValue(request.ProfileName, out OutputProfile? existingProfile))
-        {
-            existingProfile = new OutputProfile();
-        }
+        //if (!profilesettings.Profiles.TryGetValue(request.ProfileName!, out OutputProfile? existingProfile))
+        //{
+        //    existingProfile = new OutputProfile();
+        //}
 
         if (!string.IsNullOrEmpty(request.Name) && request.Name != existingProfile.Name)
         {
             existingProfile.Name = request.Name;
-            fields.Add(new FieldData(OutputProfile.APIName, request.ProfileName, "Name", request.Name));
+            fields.Add(new FieldData(OutputProfile.APIName, existingProfile.Name, "Name", request.Name));
         }
 
         if (!string.IsNullOrEmpty(request.Id) && request.Id != existingProfile.Id)
         {
             existingProfile.Id = request.Id;
-            fields.Add(new FieldData(OutputProfile.APIName, request.ProfileName, "Id", request.Id));
+            fields.Add(new FieldData(OutputProfile.APIName, existingProfile.Name, "Id", request.Id));
         }
 
         //if (!string.IsNullOrEmpty(request.EPGId) && request.EPGId != existingProfile.EPGId)
@@ -62,13 +67,13 @@ public class UpdateFileProfileRequestHandler(
         if (!string.IsNullOrEmpty(request.Group) && request.Group != existingProfile.Group)
         {
             existingProfile.Group = request.Group;
-            fields.Add(new FieldData(OutputProfile.APIName, request.ProfileName, "Group", request.Group));
+            fields.Add(new FieldData(OutputProfile.APIName, existingProfile.Name, "Group", request.Group));
         }
 
         if (request.EnableChannelNumber.HasValue)
         {
             existingProfile.EnableChannelNumber = request.EnableChannelNumber.Value;
-            fields.Add(new FieldData(OutputProfile.APIName, request.ProfileName, "EnableChannelNumber", request.EnableChannelNumber.Value));
+            fields.Add(new FieldData(OutputProfile.APIName, existingProfile.Name, "EnableChannelNumber", request.EnableChannelNumber.Value));
         }
 
         //if (request.AppendChannelNumberToId.HasValue)
@@ -80,7 +85,7 @@ public class UpdateFileProfileRequestHandler(
         if (request.EnableGroupTitle.HasValue)
         {
             existingProfile.EnableGroupTitle = request.EnableGroupTitle.Value;
-            fields.Add(new FieldData(OutputProfile.APIName, request.ProfileName, "EnableGroupTitle", request.EnableGroupTitle.Value));
+            fields.Add(new FieldData(OutputProfile.APIName, existingProfile.Name, "EnableGroupTitle", request.EnableGroupTitle.Value));
         }
 
         //if (request.EnableId.HasValue)
@@ -92,14 +97,14 @@ public class UpdateFileProfileRequestHandler(
         if (request.EnableIcon.HasValue)
         {
             existingProfile.EnableIcon = request.EnableIcon.Value;
-            fields.Add(new FieldData(OutputProfile.APIName, request.ProfileName, "EnableIcon", request.EnableIcon.Value));
+            fields.Add(new FieldData(OutputProfile.APIName, existingProfile.Name, "EnableIcon", request.EnableIcon.Value));
         }
 
         bool nameChanged = false;
         if (!string.IsNullOrEmpty(request.NewName) && request.ProfileName != request.NewName)
         {
             nameChanged = true;
-             profilesettings.RemoveProfile(request.ProfileName);
+            profilesettings.RemoveProfile(request.ProfileName!);
             profilesettings.AddProfile(request.NewName, existingProfile);
         }
 

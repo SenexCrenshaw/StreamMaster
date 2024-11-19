@@ -10,7 +10,7 @@ namespace StreamMaster.Application.Custom
         Task<ActionResult<CustomPlayList>> GetCustomPlayList(GetCustomPlayListRequest request);
         Task<ActionResult<List<CustomPlayList>>> GetCustomPlayLists();
         Task<ActionResult<List<CustomPlayList>>> GetIntroPlayLists();
-        Task<ActionResult<APIResponse>> ScanForCustom();
+        Task<ActionResult<APIResponse?>> ScanForCustom();
     }
 }
 
@@ -21,6 +21,6 @@ namespace StreamMaster.Application.Hubs
         Task<CustomPlayList> GetCustomPlayList(GetCustomPlayListRequest request);
         Task<List<CustomPlayList>> GetCustomPlayLists();
         Task<List<CustomPlayList>> GetIntroPlayLists();
-        Task<APIResponse> ScanForCustom();
+        Task<APIResponse?> ScanForCustom();
     }
 }

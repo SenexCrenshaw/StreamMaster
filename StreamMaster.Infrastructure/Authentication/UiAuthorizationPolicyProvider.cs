@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 
 using StreamMaster.Domain.Configuration;
+using StreamMaster.Domain.Extensions;
 
 namespace StreamMaster.Infrastructure.Authentication
 {
@@ -15,21 +16,21 @@ namespace StreamMaster.Infrastructure.Authentication
             return FallbackPolicyProvider.GetDefaultPolicyAsync();
         }
 
-        public Task<AuthorizationPolicy> GetFallbackPolicyAsync()
+        public Task<AuthorizationPolicy?> GetFallbackPolicyAsync()
         {
             return FallbackPolicyProvider.GetFallbackPolicyAsync();
         }
 
-        public async Task<AuthorizationPolicy> GetPolicyAsync(string policyName)
+        public async Task<AuthorizationPolicy?> GetPolicyAsync(string policyName)
         {
-            if (policyName.Equals(POLICY_NAME, StringComparison.OrdinalIgnoreCase))
+            if (policyName.EqualsIgnoreCase(POLICY_NAME))
             {
                 AuthorizationPolicyBuilder policy = new AuthorizationPolicyBuilder(settings.Value.AuthenticationMethod.ToString())
                     .RequireAuthenticatedUser();
                 return policy.Build();
             }
 
-            return FallbackPolicyProvider.GetPolicyAsync(policyName).Result;
+            return await FallbackPolicyProvider.GetPolicyAsync(policyName).ConfigureAwait(false);
         }
     }
 }

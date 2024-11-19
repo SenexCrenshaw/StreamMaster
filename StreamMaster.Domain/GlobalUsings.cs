@@ -6,6 +6,8 @@ global using Reinforced.Typings.Attributes;
 global using StreamMaster.Domain.Common;
 global using StreamMaster.Domain.Dto;
 global using StreamMaster.Domain.Enums;
+global using StreamMaster.Domain.Extensions;
+global using StreamMaster.Domain.Filtering;
 global using StreamMaster.Domain.Mappings;
 global using StreamMaster.Domain.Models;
 

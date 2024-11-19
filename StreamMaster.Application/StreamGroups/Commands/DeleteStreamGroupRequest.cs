@@ -1,4 +1,5 @@
 ﻿using StreamMaster.Application.StreamGroups.Events;
+using StreamMaster.Domain.Extensions;
 
 namespace StreamMaster.Application.StreamGroups.Commands;
 
@@ -25,7 +26,7 @@ public class DeleteStreamGroupRequestHandler(IRepositoryWrapper Repository, IDat
             return APIResponse.NotFound;
         }
 
-        if (streamGroup.Name.Equals("all", StringComparison.CurrentCultureIgnoreCase))
+        if (streamGroup.Name.EqualsIgnoreCase("all"))
         {
             return APIResponse.ErrorWithMessage($"Cannot delete reserved '{streamGroup.Name}' streamgroup");
         }

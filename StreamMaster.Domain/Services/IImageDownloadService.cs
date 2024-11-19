@@ -1,10 +1,9 @@
-﻿namespace StreamMaster.Domain.Services
+﻿using Microsoft.Extensions.Hosting;
+
+namespace StreamMaster.Domain.Services
 {
-    public interface IImageDownloadService
+    public interface IImageDownloadService : IHostedService, IDisposable
     {
-        void Start();
-        Task StopAsync(CancellationToken cancellationToken);
-        //Task StartAsync(CancellationToken cancellationToken);
-        ImageDownloadServiceStatus imageDownloadServiceStatus { get; }
+        ImageDownloadServiceStatus ImageDownloadServiceStatus { get; }
     }
 }

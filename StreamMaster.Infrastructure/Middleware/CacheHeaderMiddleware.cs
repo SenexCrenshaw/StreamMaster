@@ -4,7 +4,7 @@ using StreamMaster.Infrastructure.Extensions;
 
 namespace StreamMaster.Infrastructure.Middleware
 {
-    public class CacheHeaderMiddleware(RequestDelegate next, ICacheableSpecification cacheableSpecification)
+    public class CacheHeaderMiddleware(RequestDelegate next)
     {
         public async Task InvokeAsync(HttpContext context)
         {

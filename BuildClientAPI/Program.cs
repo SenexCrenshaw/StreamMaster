@@ -1,4 +1,6 @@
-﻿using AutoMapper.Internal;
+﻿using System.Reflection;
+
+using AutoMapper.Internal;
 
 using BuildClientAPI.CSharp;
 using BuildClientAPI.TS;
@@ -6,8 +8,6 @@ using BuildClientAPI.TS;
 using MediatR;
 
 using StreamMaster.Domain.Attributes;
-
-using System.Reflection;
 
 namespace BuildClientAPI
 {
@@ -92,7 +92,7 @@ namespace BuildClientAPI
 
                     List<string> smapiImport = [];
 
-                    string toCheck = "SendSMTaskRequest";
+                    string toCheck = "GetStreamGroupProfiles";
 
                     if (recordType.Name.StartsWith(toCheck))
                     {
@@ -128,7 +128,7 @@ namespace BuildClientAPI
                         NamespaceName = classNamespace,
                         SMAPIImport = smapiImport,
                         ReturnType = returnTypeString,
-                        IsReturnNull = Utils.IsTypeNullable(returnType),
+                        IsReturnNull = returnTypeString.Contains("?") || returnTypeString.Contains("DataResponse") || returnTypeString.Contains("PagedResponse"),// Utils.IsTypeNullable(returnType),
                         IsList = returnTypeString.StartsWith("List") || returnTypeString.EndsWith("[]") || returnType.IsArray || returnType.IsListType() || returnType.IsDataResponse(),
                         Parameter = ps,
                         ParameterNames = string.Join(", ", parameters.Select(p => p.Name)),
@@ -152,10 +152,10 @@ namespace BuildClientAPI
 
                     }
 
-
                     if (recordType.Name.StartsWith(toCheck))
                     {
                     }
+
                     methodDetailsList.Add(methodDetails);
 
                 }

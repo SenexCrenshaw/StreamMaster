@@ -8,5 +8,5 @@ namespace StreamMaster.PlayList.Models;
 public class Subtitle
 {
     [XmlElement(ElementName = "language")]
-    public string Language { get; set; }
+    public string? Language { get; set; }
 }

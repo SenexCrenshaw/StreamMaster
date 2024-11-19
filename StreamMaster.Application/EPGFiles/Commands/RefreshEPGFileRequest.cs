@@ -4,7 +4,7 @@
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record RefreshEPGFileRequest(int Id) : IRequest<APIResponse>;
 
-public class RefreshEPGFileRequestHandler(ILogger<RefreshEPGFileRequest> Logger, IXmltv2Mxf xmltv2Mxf, IFileUtilService fileUtilService, IMessageService messageService, IMapper Mapper, IJobStatusService jobStatusService, IRepositoryWrapper Repository, IPublisher Publisher)
+public class RefreshEPGFileRequestHandler(ILogger<RefreshEPGFileRequest> Logger, IFileUtilService fileUtilService, IMessageService messageService, IMapper Mapper, IJobStatusService jobStatusService, IRepositoryWrapper Repository, IPublisher Publisher)
     : IRequestHandler<RefreshEPGFileRequest, APIResponse>
 {
 
@@ -54,8 +54,8 @@ public class RefreshEPGFileRequestHandler(ILogger<RefreshEPGFileRequest> Logger,
                         return APIResponse.ErrorWithMessage($"Could not get streams from M3U file {epgFile.Name}");
                     }
 
-                    XMLTV? tv = await xmltv2Mxf.ConvertToXMLTVAsync(fullName, epgFile.EPGNumber);
-                    if (tv == null)
+                    (int channelCount, int programCount) = await fileUtilService.ReadXmlCountsFromFileAsync(fullName, epgFile.EPGNumber);
+                    if (channelCount == -1)
                     {
                         jobManager.SetError();
                         fileUtilService.CleanUpFile(fullName);
@@ -63,6 +63,8 @@ public class RefreshEPGFileRequestHandler(ILogger<RefreshEPGFileRequest> Logger,
                         await messageService.SendError($"Exception EPG '{epgFile.Name}' format is not supported");
                         return APIResponse.ErrorWithMessage($"Could not get streams from M3U file {epgFile.Name}");
                     }
+                    epgFile.ChannelCount = channelCount;
+                    epgFile.ProgrammeCount = programCount;
                 }
             }
 
@@ -70,6 +72,7 @@ public class RefreshEPGFileRequestHandler(ILogger<RefreshEPGFileRequest> Logger,
             epgFile.LastDownloaded = SMDT.UtcNow;
             epgFile.FileExists = true;
             epgFile.LastUpdated = SMDT.UtcNow;
+
             Repository.EPGFile.UpdateEPGFile(epgFile);
 
             _ = await Repository.SaveAsync().ConfigureAwait(false);

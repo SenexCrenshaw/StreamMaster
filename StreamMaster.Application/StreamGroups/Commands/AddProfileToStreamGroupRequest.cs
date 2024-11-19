@@ -15,7 +15,7 @@ public class AddProfileToStreamGroupRequestHandler(IRepositoryWrapper Repository
             return APIResponse.NotFound;
         }
 
-        if (request.ProfileName.Equals("default", StringComparison.OrdinalIgnoreCase))
+        if (request.ProfileName.EqualsIgnoreCase("default"))
         {
             return APIResponse.ErrorWithMessage($"The name '{request.ProfileName}' is reserved");
         }

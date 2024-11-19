@@ -14,10 +14,10 @@ public static class TypeScriptCommandGenerator
             content.Append(AddMethod(method));
         }
 
-        string directory = Directory.GetParent(filePath).ToString();
-        if (!Directory.Exists(directory))
+        DirectoryInfo? directoryInfo = Directory.GetParent(filePath) ?? throw new ApplicationException($"Could not get directory information from file path {filePath}");
+        if (!Directory.Exists(directoryInfo.FullName))
         {
-            Directory.CreateDirectory(directory);
+            Directory.CreateDirectory(directoryInfo.FullName);
         }
         File.WriteAllText(filePath, content.ToString());
 

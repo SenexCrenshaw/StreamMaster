@@ -4,32 +4,22 @@ namespace StreamMaster.Application.Interfaces;
 
 public interface IStreamGroupService
 {
-    #region CRYPTO
-    Task<(int? StreamGroupId, int? StreamGroupProfileId, int? SMChannelId)> DecodeProfileIdSMChannelIdFromEncodedAsync(string EncodedString);
-    string? EncodeStreamGroupIdStreamId(StreamGroup StreamGroup, string SMStreamId);
-    Task<(int? StreamGroupId, int? StreamGroupProfileId, int? SMChannelId)> DecodeStreamGroupIdProfileIdChannelId(string encodedString);
-    Task<(int? StreamGroupId, int? StreamGroupProfileId, string? SMStreamId)> DecodeStreamGroupIdProfileIdStreamId(string encodedString);
-    string EncodeStreamGroupIdProfileIdChannelId(StreamGroup streamGroup, int StreamGroupProfileId, int SMChannelId);
-    Task<string?> EncodeStreamGroupIdStreamIdAsync(int StreamGroupId, string SMStreamId);
-    Task<string?> EncodeStreamGroupIdProfileIdChannelIdAsync(int StreamGroupId, int StreamGroupProfileId, int SMChannelId);
-    Task<string?> EncodeStreamGroupIdProfileIdStreamId(int StreamGroupId, int StreamGroupProfileId, string SMStreamId);
-
-    Task<string?> EncodeStreamGroupProfileIdChannelId(int StreamGroupProfileId, int SMChannelId);
-    #endregion
-
     string GetStreamGroupLineupStatus();
-    Task<string> GetStreamGroupLineup(int StreamGroupProfileId, HttpRequest httpRequest, bool IsShort);
-    Task<string> GetStreamGroupDiscover(int StreamGroupProfileId, HttpRequest reques);
-    Task<string> GetStreamGroupCapability(int StreamGroupProfileId, HttpRequest request);
-    Task<(List<VideoStreamConfig> videoStreamConfigs, StreamGroupProfile streamGroupProfile)> GetStreamGroupVideoConfigs(int StreamGroupProfileId);
+    Task<int> GetDefaultSGIdAsync();
+    Task<StreamGroup> GetDefaultSGAsync();
+    Task<(int? StreamGroupId, int? StreamGroupProfileId, int? SMChannelId)> DecodeProfileIdSMChannelIdFromEncodedAsync(string encodedString);
+    Task<CommandProfileDto> GetProfileFromSGIdsCommandProfileNameAsync(int? streamGroupId, int streamGroupProfileId, string commandProfileName);
+    Task<int> GetStreamGroupIdFromSGProfileIdAsync(int? streamGroupProfileId);
+    string EncodeStreamGroupIdProfileIdChannelId(StreamGroup streamGroup, int streamGroupProfileId, int smChannelId);
+    Task<string?> EncodeStreamGroupIdProfileIdChannelIdAsync(int streamGroupId, int streamGroupProfileId, int smChannelId);
+    Task<StreamGroupProfile> GetDefaultStreamGroupProfileAsync();
+    Task<string> GetStreamGroupCapabilityAsync(int streamGroupProfileId, HttpRequest request);
+    Task<string> GetStreamGroupDiscoverAsync(int streamGroupProfileId, HttpRequest request);
     Task<StreamGroup?> GetStreamGroupFromIdAsync(int streamGroupId);
     Task<StreamGroup?> GetStreamGroupFromNameAsync(string streamGroupName);
-    Task<StreamGroup> GetDefaultSGAsync();
-    Task<int> GetDefaultSGIdAsync();
-    Task<StreamGroupProfile> GetDefaultStreamGroupProfileAsync();
-    Task<CommandProfileDto> GetProfileFromSGIdsCommandProfileNameAsync(int? streamGroupId, int streamGroupProfileId, string CommandProfileName);
-    Task<StreamGroupProfile> GetStreamGroupProfileAsync(int? StreamGroupId = null, int? StreamGroupProfileId = null);
-    Task<int> GetStreamGroupIdFromSGProfileIdAsync(int? streamGroupProfileId);
     Task<StreamGroup?> GetStreamGroupFromSGProfileIdAsync(int streamGroupProfileId);
-    Task<List<StreamGroupDto>> GetStreamGroups();
+    Task<string> GetStreamGroupLineupAsync(int streamGroupProfileId, HttpRequest httpRequest, bool isShort);
+    Task<StreamGroupProfile> GetStreamGroupProfileAsync(int? streamGroupId = null, int? streamGroupProfileId = null);
+    Task<(List<VideoStreamConfig> videoStreamConfigs, StreamGroupProfile streamGroupProfile)> GetStreamGroupVideoConfigsAsync(int streamGroupProfileId);
+
 }

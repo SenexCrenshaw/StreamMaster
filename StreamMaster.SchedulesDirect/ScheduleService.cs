@@ -1,10 +1,10 @@
-﻿using StreamMaster.Domain.Helpers;
+﻿using System.Text.Json;
 
-using System.Text.Json;
+using StreamMaster.Domain.Helpers;
 
 namespace StreamMaster.SchedulesDirect;
 
-public class ScheduleService(ILogger<ScheduleService> logger, IOptionsMonitor<SDSettings> intSettings, IEPGHelper ePGHelper, ISchedulesDirectAPIService schedulesDirectAPI, IEPGCache<ScheduleService> epgCache, ISchedulesDirectDataService schedulesDirectDataService) : IScheduleService
+public class ScheduleService(ILogger<ScheduleService> logger, IOptionsMonitor<SDSettings> intSettings,  ISchedulesDirectAPIService schedulesDirectAPI, IEPGCache<ScheduleService> epgCache, ISchedulesDirectDataService schedulesDirectDataService) : IScheduleService
 {
     private int cachedSchedules;
     private int downloadedSchedules;
@@ -103,7 +103,7 @@ public class ScheduleService(ILogger<ScheduleService> logger, IOptionsMonitor<SD
         foreach (ScheduleRequest request in requests)
         {
             Dictionary<int, string> requestErrors = [];
-            string serviceName = $"{EPGHelper.SchedulesDirectId}-{request.StationId}";
+            string serviceName = request.StationId;// $"{EPGHelper.SchedulesDirectId}-{request.StationId}";
             MxfService mxfService = schedulesDirectData.FindOrCreateService(serviceName);
 
             if (!stationResponses.TryGetValue(request.StationId, out Dictionary<string, ScheduleMd5Response>? stationResponse))
@@ -213,8 +213,8 @@ public class ScheduleService(ILogger<ScheduleService> logger, IOptionsMonitor<SD
     {
         return toProcess.Select(service =>
         {
-            (int epgNumber, string stationId) = ePGHelper.ExtractEPGNumberAndStationId(service.StationId);
-            return new ScheduleRequest { StationId = stationId, Date = dates };
+            //(int epgNumber, string stationId) = ePGHelper.ExtractEPGNumberAndStationId(service.StationId);
+            return new ScheduleRequest { StationId = service.StationId, Date = dates };
         }).ToArray();
     }
 
@@ -407,7 +407,8 @@ public class ScheduleService(ILogger<ScheduleService> logger, IOptionsMonitor<SD
             }
 
             // Add the populated schedule entry to the service
-            MxfService mxfService = schedulesDirectData.FindOrCreateService($"{EPGHelper.SchedulesDirectId}-{schedule.StationId}");
+            string serviceName = schedule.StationId;// $"{EPGHelper.SchedulesDirectId}-{request.StationId}";
+            MxfService mxfService = schedulesDirectData.FindOrCreateService(serviceName);
             mxfService.MxfScheduleEntries.ScheduleEntry.Add(scheduleEntry);
         }
     }
@@ -508,14 +509,14 @@ public class ScheduleService(ILogger<ScheduleService> logger, IOptionsMonitor<SD
         }
     }
 
-    public void ResetCache()
+    public void ClearCache()
     {
         cachedSchedules = 0;
         downloadedSchedules = 0;
         missingGuide = 0;
     }
 
-    public void ClearCache()
+    public void ResetCache()
     {
         epgCache.ResetCache();
     }

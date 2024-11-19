@@ -1,17 +1,17 @@
-﻿using StreamMaster.SchedulesDirect.Domain.XmltvXml;
-
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Xml.Serialization;
+
+using StreamMaster.Domain.XmltvXml;
 
 namespace StreamMaster.SchedulesDirect.Domain.Models
 {
     public class MxfScheduleEntries
     {
         [XmlAttribute("service")]
-        public string Service { get; set; }
+        public string Service { get; set; } = string.Empty;
 
         [XmlElement("ScheduleEntry")]
-        public List<MxfScheduleEntry> ScheduleEntry { get; set; }
+        public List<MxfScheduleEntry> ScheduleEntry { get; set; } = [];
         public bool ShouldSerializeScheduleEntry()
         {
             ScheduleEntry = ScheduleEntry.OrderBy(arg => arg.StartTime).ToList();
@@ -34,7 +34,7 @@ namespace StreamMaster.SchedulesDirect.Domain.Models
         private int _program;
         private int _tvRating;
 
-        [XmlIgnore] public MxfProgram mxfProgram;
+        [XmlIgnore] public MxfProgram mxfProgram = new();
         [XmlIgnore] public XmltvProgramme? XmltvProgramme { get; set; }
         [XmlIgnore] public bool IncludeStartTime;
         [XmlIgnore] public Dictionary<string, dynamic> extras = [];
@@ -399,16 +399,10 @@ namespace StreamMaster.SchedulesDirect.Domain.Models
             set => _tvRating = value;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         [XmlAttribute("isClassroom")]
         [DefaultValue(false)]
         public bool IsClassroom { get; set; }
 
-        /// <summary>
-        /// 
-        /// </summary>
         [XmlAttribute("isRepeat")]
         [DefaultValue(false)]
         public bool IsRepeat { get; set; }

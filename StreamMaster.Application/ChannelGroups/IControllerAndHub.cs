@@ -10,12 +10,12 @@ namespace StreamMaster.Application.ChannelGroups
         Task<ActionResult<List<ChannelGroupDto>>> GetChannelGroupsFromSMChannels();
         Task<ActionResult<List<ChannelGroupDto>>> GetChannelGroups();
         Task<ActionResult<PagedResponse<ChannelGroupDto>>> GetPagedChannelGroups(QueryStringParameters Parameters);
-        Task<ActionResult<APIResponse>> CreateChannelGroup(CreateChannelGroupRequest request);
-        Task<ActionResult<APIResponse>> DeleteAllChannelGroupsFromParameters(DeleteAllChannelGroupsFromParametersRequest request);
-        Task<ActionResult<APIResponse>> DeleteChannelGroup(DeleteChannelGroupRequest request);
-        Task<ActionResult<APIResponse>> DeleteChannelGroups(DeleteChannelGroupsRequest request);
-        Task<ActionResult<APIResponse>> UpdateChannelGroup(UpdateChannelGroupRequest request);
-        Task<ActionResult<APIResponse>> UpdateChannelGroups(UpdateChannelGroupsRequest request);
+        Task<ActionResult<APIResponse?>> CreateChannelGroup(CreateChannelGroupRequest request);
+        Task<ActionResult<APIResponse?>> DeleteAllChannelGroupsFromParameters(DeleteAllChannelGroupsFromParametersRequest request);
+        Task<ActionResult<APIResponse?>> DeleteChannelGroup(DeleteChannelGroupRequest request);
+        Task<ActionResult<APIResponse?>> DeleteChannelGroups(DeleteChannelGroupsRequest request);
+        Task<ActionResult<APIResponse?>> UpdateChannelGroup(UpdateChannelGroupRequest request);
+        Task<ActionResult<APIResponse?>> UpdateChannelGroups(UpdateChannelGroupsRequest request);
     }
 }
 
@@ -26,11 +26,11 @@ namespace StreamMaster.Application.Hubs
         Task<List<ChannelGroupDto>> GetChannelGroupsFromSMChannels();
         Task<List<ChannelGroupDto>> GetChannelGroups();
         Task<PagedResponse<ChannelGroupDto>> GetPagedChannelGroups(QueryStringParameters Parameters);
-        Task<APIResponse> CreateChannelGroup(CreateChannelGroupRequest request);
-        Task<APIResponse> DeleteAllChannelGroupsFromParameters(DeleteAllChannelGroupsFromParametersRequest request);
-        Task<APIResponse> DeleteChannelGroup(DeleteChannelGroupRequest request);
-        Task<APIResponse> DeleteChannelGroups(DeleteChannelGroupsRequest request);
-        Task<APIResponse> UpdateChannelGroup(UpdateChannelGroupRequest request);
-        Task<APIResponse> UpdateChannelGroups(UpdateChannelGroupsRequest request);
+        Task<APIResponse?> CreateChannelGroup(CreateChannelGroupRequest request);
+        Task<APIResponse?> DeleteAllChannelGroupsFromParameters(DeleteAllChannelGroupsFromParametersRequest request);
+        Task<APIResponse?> DeleteChannelGroup(DeleteChannelGroupRequest request);
+        Task<APIResponse?> DeleteChannelGroups(DeleteChannelGroupsRequest request);
+        Task<APIResponse?> UpdateChannelGroup(UpdateChannelGroupRequest request);
+        Task<APIResponse?> UpdateChannelGroups(UpdateChannelGroupsRequest request);
     }
 }

@@ -12,7 +12,7 @@ public class BuildProgLogoCacheFromEPGsRequestHandler()
 
         //int startId = MemoryCache.GetLogosRequest(Mapper).Count;
 
-        //List<EPGFileDto> epgFiles = await Repositorywrapper.EPGFile.GetEPGFiles();
+        //List<EPGFileDto> epgFiles = await Repositorywrapper.EPGFile.GetEPGFilesAsync();
         //foreach (EPGFileDto epg in epgFiles)
         //{
         //    Tv? tv = await GetTV(epg.Source);

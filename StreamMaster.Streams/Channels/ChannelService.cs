@@ -361,7 +361,7 @@ public sealed class ChannelService : IChannelService, IDisposable
     {
         return smChannel.SMChannelType == StreamMaster.Domain.Enums.SMChannelTypeEnum.MultiView
             ? smChannel.SMChannels.Count > 0
-            : smChannel.SMStreams.Count > 0 && !string.IsNullOrEmpty(smChannel.SMStreams.First().SMStream.Url);
+            : smChannel.SMStreams.Count > 0 && !string.IsNullOrEmpty(smChannel.SMStreams.First().SMStream!.Url);
     }
 
 

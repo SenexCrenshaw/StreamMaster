@@ -3,38 +3,21 @@ using System.Text.Json;
 
 namespace StreamMaster.SchedulesDirect.Images;
 
-public class SeasonImages : ISeasonImages, IDisposable
+public class SeasonImages(
+    ILogger<SeasonImages> logger,
+    IEPGCache<SeasonImages> epgCache,
+    IImageDownloadQueue imageDownloadQueue,
+    IOptionsMonitor<SDSettings> intSettings,
+    ISchedulesDirectAPIService schedulesDirectAPI,
+    ISchedulesDirectDataService schedulesDirectDataService) : ISeasonImages, IDisposable
 {
-    private readonly ILogger<SeasonImages> logger;
-    private readonly IEPGCache<SeasonImages> epgCache;
-    private readonly IImageDownloadQueue imageDownloadQueue;
-    private readonly ISchedulesDirectAPIService schedulesDirectAPI;
-    private readonly ISchedulesDirectDataService schedulesDirectDataService;
-    private readonly SDSettings sdsettings;
-    private readonly SemaphoreSlim semaphore;
+    private readonly SDSettings sdsettings = intSettings.CurrentValue;
+    private readonly SemaphoreSlim semaphore = new(SchedulesDirect.MaxParallelDownloads);
 
     private List<string> seasonImageQueue = [];
     private ConcurrentBag<ProgramMetadata> seasonImageResponses = [];
     private readonly List<Season> seasons = [];
     private int processedObjects;
-    private int totalObjects;
-
-    public SeasonImages(
-        ILogger<SeasonImages> logger,
-        IEPGCache<SeasonImages> epgCache,
-        IImageDownloadQueue imageDownloadQueue,
-        IOptionsMonitor<SDSettings> intSettings,
-        ISchedulesDirectAPIService schedulesDirectAPI,
-        ISchedulesDirectDataService schedulesDirectDataService)
-    {
-        this.logger = logger;
-        this.epgCache = epgCache;
-        this.imageDownloadQueue = imageDownloadQueue;
-        this.schedulesDirectAPI = schedulesDirectAPI;
-        this.schedulesDirectDataService = schedulesDirectDataService;
-        sdsettings = intSettings.CurrentValue;
-        semaphore = new SemaphoreSlim(SchedulesDirect.MaxParallelDownloads);
-    }
 
     public async Task<bool> GetAllSeasonImages()
     {
@@ -149,13 +132,21 @@ public class SeasonImages : ISeasonImages, IDisposable
                 continue;
             }
 
-            List<ProgramArtwork> artwork = [];
             season.extras.TryGetValue("artwork", out dynamic? value);
 
-            artwork = value == null
-                ? SDHelpers.GetTieredImages(response.Data, ["season"], artworkSize)
-                : (List<ProgramArtwork>)season.extras["artwork"].Concat(SDHelpers.GetTieredImages(response.Data, ["season"], artworkSize));
+            List<ProgramArtwork> existingArtwork = [];
 
+            if (season.extras.ContainsKey("artwork"))
+            {
+                if (season.extras["artwork"] is List<ProgramArtwork> artworkList)
+                {
+                    existingArtwork = artworkList;
+                }
+            }
+
+            List<ProgramArtwork> tieredImages = SDHelpers.GetTieredImages(response.Data, ["season"], artworkSize);
+
+            List<ProgramArtwork> artwork = value == null ? tieredImages : [.. existingArtwork, .. tieredImages];
 
             season.extras["artwork"] = artwork;
             string uid = $"{season.SeriesId}_{season.SeasonNumber}";
@@ -172,16 +163,16 @@ public class SeasonImages : ISeasonImages, IDisposable
         }
     }
 
-    public void ResetCache()
+    public void ClearCache()
     {
         seasons.Clear();
         seasonImageQueue.Clear();
         seasonImageResponses.Clear();
         processedObjects = 0;
-        totalObjects = 0;
+        //totalObjects = 0;
     }
 
-    public void ClearCache()
+    public void ResetCache()
     {
         epgCache.ResetCache();
     }

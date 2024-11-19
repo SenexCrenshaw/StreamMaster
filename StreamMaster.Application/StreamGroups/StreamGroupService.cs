@@ -1,68 +1,58 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System.Collections.Concurrent;
+using System.Text.Json;
+using System.Xml.Serialization;
+
+using Microsoft.AspNetCore.Http;
 
 using StreamMaster.Application.Common.Models;
 using StreamMaster.Application.StreamGroups.Queries;
 using StreamMaster.Domain.Crypto;
-using StreamMaster.SchedulesDirect.Domain.Extensions;
-
-using System.Collections.Concurrent;
-using System.Text.Json;
-using System.Xml.Serialization;
 
 using static StreamMaster.Domain.Common.GetStreamGroupEPGHandler;
+
 namespace StreamMaster.Application.StreamGroups;
 
-public class StreamGroupService(ILogger<StreamGroupService> _logger, ILogoService logoService, ICacheManager CacheManager, IMapper _mapper, IRepositoryWrapper repositoryWrapper, ISchedulesDirectDataService _schedulesDirectDataService, IOptionsMonitor<CommandProfileDict> _commandProfileSettings, IOptionsMonitor<Setting> _settings, ICacheManager cacheManager, IProfileService _profileService)
-    : IStreamGroupService
+public class StreamGroupService(IOptionsMonitor<Setting> _settings, IOptionsMonitor<CommandProfileDict> _commandProfileSettings, ILogoService logoService, ICacheManager cacheManager, IRepositoryWrapper repositoryWrapper, IOptionsMonitor<Setting> settings, IProfileService profileService) : IStreamGroupService
 {
-    private const string DefaultStreamGroupName = "all";
-    //private const string CacheKey = "DefaultStreamGroup";
 
     #region CRYPTO
 
-    private async Task<(int? streamGroupId, string? groupKey, string? valuesEncryptedString)> GetGroupKeyFromEncodeAsync(string EncodedString)
+    private async Task<(int? streamGroupId, string? groupKey, string? valuesEncryptedString)> GetGroupKeyFromEncodeAsync(string encodedString)
     {
-        Setting settings = _settings.CurrentValue;
-        (int? streamGroupId, string? valuesEncryptedString) = CryptoUtils.DecodeStreamGroupId(EncodedString, settings.ServerKey);
+        Setting settingsValue = settings.CurrentValue;
+        (int? streamGroupId, string? valuesEncryptedString) = CryptoUtils.DecodeStreamGroupId(encodedString, settingsValue.ServerKey);
         if (streamGroupId == null || string.IsNullOrEmpty(valuesEncryptedString))
         {
             return (null, null, null);
         }
 
-        StreamGroup? sg = await GetStreamGroupFromIdAsync(streamGroupId.Value);
-        return sg == null || string.IsNullOrEmpty(sg.GroupKey) ? (null, null, null) : (streamGroupId, sg.GroupKey, valuesEncryptedString);
+        StreamGroup? streamGroup = await GetStreamGroupFromIdAsync(streamGroupId.Value).ConfigureAwait(false);
+        return streamGroup == null || string.IsNullOrEmpty(streamGroup.GroupKey) ? (null, null, null) : (streamGroupId, streamGroup.GroupKey, valuesEncryptedString);
     }
 
-    private async Task<string?> GetStreamGroupKeyFromIdAsync(int StreamGroupId)
+    private async Task<string?> GetStreamGroupKeyFromIdAsync(int streamGroupId)
     {
-        //StreamGroup? StreamGroup = StreamGroupId < 0
-        //    ? await GetStreamGroupFromNameAsync(DefaultStreamGroupName)
-        //    : await GetStreamGroupFromIdAsync(StreamGroupId);
-        //return StreamGroup == null ? null : string.IsNullOrEmpty(StreamGroup.GroupKey) ? null : StreamGroup.GroupKey;
-        // Try to get the value from the cache first
-        if (CacheManager.StreamGroupKeyCache.TryGetValue(StreamGroupId, out string? cachedGroupKey))
+        if (cacheManager.StreamGroupKeyCache.TryGetValue(streamGroupId, out string? cachedGroupKey))
         {
             return cachedGroupKey;
         }
 
-        // Value is not in the cache, proceed to retrieve it
-        StreamGroup? streamGroup = StreamGroupId < 0
-            ? await GetStreamGroupFromNameAsync(DefaultStreamGroupName)
-            : await GetStreamGroupFromIdAsync(StreamGroupId);
+        StreamGroup? streamGroup = streamGroupId < 0
+            ? await GetStreamGroupFromNameAsync(BuildInfo.DefaultStreamGroupName).ConfigureAwait(false)
+            : await GetStreamGroupFromIdAsync(streamGroupId).ConfigureAwait(false);
 
-        string? groupKey = streamGroup == null || string.IsNullOrEmpty(streamGroup.GroupKey)
-            ? null
-            : streamGroup.GroupKey;
+        if (streamGroup == null || string.IsNullOrEmpty(streamGroup.GroupKey))
+        {
+            return null;
+        }
 
-        // Add the value to the cache
-        CacheManager.StreamGroupKeyCache.TryAdd(StreamGroupId, groupKey);
-
-        return groupKey;
+        cacheManager.StreamGroupKeyCache.TryAdd(streamGroupId, streamGroup.GroupKey);
+        return streamGroup.GroupKey;
     }
 
-    public async Task<(int? StreamGroupId, int? StreamGroupProfileId, int? SMChannelId)> DecodeProfileIdSMChannelIdFromEncodedAsync(string EncodedString)
+    public async Task<(int? StreamGroupId, int? StreamGroupProfileId, int? SMChannelId)> DecodeProfileIdSMChannelIdFromEncodedAsync(string encodedString)
     {
-        (int? streamGroupId, string? groupKey, string? valuesEncryptedString) = await GetGroupKeyFromEncodeAsync(EncodedString);
+        (int? streamGroupId, string? groupKey, string? valuesEncryptedString) = await GetGroupKeyFromEncodeAsync(encodedString).ConfigureAwait(false);
         if (streamGroupId == null || groupKey == null || string.IsNullOrEmpty(valuesEncryptedString))
         {
             return (null, null, null);
@@ -72,166 +62,47 @@ public class StreamGroupService(ILogger<StreamGroupService> _logger, ILogoServic
         string[] values = decryptedTextWithGroupKey.Split(',');
         if (values.Length == 3)
         {
-            int streamGroupProfileId = int.Parse(values[1]);
-            int smChannelId = int.Parse(values[2]);
-            return (streamGroupId, streamGroupProfileId, smChannelId);
+            if (int.TryParse(values[1], out int streamGroupProfileId) && int.TryParse(values[2], out int smChannelId))
+            {
+                return (streamGroupId, streamGroupProfileId, smChannelId);
+            }
         }
 
         return (null, null, null);
     }
-
-    public async Task<(int? StreamGroupId, int? StreamGroupProfileId, int? SMChannelId)> DecodeStreamGroupIdProfileIdChannelId(string encodedString)
+    public async Task<string?> EncodeStreamGroupIdProfileIdChannelIdAsync(int streamGroupId, int streamGroupProfileId, int smChannelId)
     {
-        (int? streamGroupId, string? groupKey, string? valuesEncryptedString) = await GetGroupKeyFromEncodeAsync(encodedString);
-        if (streamGroupId == null || groupKey == null || string.IsNullOrEmpty(valuesEncryptedString))
-        {
-            return (null, null, null);
-        }
-
-        string decryptedTextWithGroupKey = AesEncryption.Decrypt(valuesEncryptedString, groupKey);
-        string[] values = decryptedTextWithGroupKey.Split(',');
-        if (values.Length == 3)
-        {
-            int streamGroupProfileId = int.Parse(values[1]);
-            int smChannelId = int.Parse(values[2]);
-            return (streamGroupId, streamGroupProfileId, smChannelId);
-        }
-
-        return (null, null, null);
-    }
-
-    public async Task<(int? StreamGroupId, int? StreamGroupProfileId, string? SMStreamId)> DecodeStreamGroupIdProfileIdStreamId(string encodedString)
-    {
-        (int? streamGroupId, string? groupKey, string? valuesEncryptedString) = await GetGroupKeyFromEncodeAsync(encodedString);
-        if (streamGroupId == null || groupKey == null || string.IsNullOrEmpty(valuesEncryptedString))
-        {
-            return (null, null, null);
-        }
-
-        string decryptedTextWithGroupKey = AesEncryption.Decrypt(valuesEncryptedString, groupKey);
-        string[] values = decryptedTextWithGroupKey.Split(',');
-        if (values.Length == 3)
-        {
-            int streamGroupProfileId = int.Parse(values[1]);
-            string smStreamId = values[2];
-            return (streamGroupId, streamGroupProfileId, smStreamId);
-        }
-
-        return (null, null, null);
-    }
-
-    public string EncodeStreamGroupIdProfileIdChannelId(StreamGroup streamGroup, int StreamGroupProfileId, int SMChannelId)
-    {
-        Setting settings = _settings.CurrentValue;
-
-        string encryptedString = CryptoUtils.EncodeThreeValues(streamGroup.Id, StreamGroupProfileId, SMChannelId, settings.ServerKey, streamGroup.GroupKey);
-
-        return encryptedString;
-    }
-
-    public async Task<string?> EncodeStreamGroupIdProfileIdChannelIdAsync(int StreamGroupId, int StreamGroupProfileId, int SMChannelId)
-    {
-        string? groupKey = await GetStreamGroupKeyFromIdAsync(StreamGroupId);
+        string? groupKey = await GetStreamGroupKeyFromIdAsync(streamGroupId).ConfigureAwait(false);
         if (string.IsNullOrEmpty(groupKey))
         {
             return null;
         }
 
-        Setting settings = _settings.CurrentValue;
-
-        string encryptedString = CryptoUtils.EncodeThreeValues(StreamGroupId, StreamGroupProfileId, SMChannelId, settings.ServerKey, groupKey);
-
-        return encryptedString;
-    }
-
-    public async Task<string?> EncodeStreamGroupIdProfileIdStreamId(int StreamGroupId, int StreamGroupProfileId, string SMStreamId)
-    {
-        string? groupKey = await GetStreamGroupKeyFromIdAsync(StreamGroupId);
-        if (string.IsNullOrEmpty(groupKey))
-        {
-            return null;
-        }
-
-        Setting settings = _settings.CurrentValue;
-
-        string encryptedString = CryptoUtils.EncodeThreeValues(StreamGroupId, StreamGroupProfileId, SMStreamId, settings.ServerKey, groupKey);
-
-        return encryptedString;
-    }
-
-    public async Task<string?> EncodeStreamGroupProfileIdChannelId(int StreamGroupProfileId, int SMChannelId)
-    {
-        StreamGroup? sg = await GetStreamGroupFromSGProfileIdAsync(StreamGroupProfileId);
-        if (sg == null)
-        {
-            return null;
-        }
-
-        string? encryptedString = await EncodeStreamGroupIdProfileIdChannelIdAsync(sg.Id, StreamGroupProfileId, SMChannelId);
-
-        return encryptedString;
-    }
-
-    //public async Task<string?> EncodeStreamGroupProfileIdChannelId(StreamGroup streamGroup,int StreamGroupProfileId, int SMChannelId)
-    //{
-    //    string? encryptedString =  EncodeStreamGroupIdProfileIdChannelIdAsync(streamGroup, StreamGroupProfileId, SMChannelId);
-
-    //    return encryptedString;
-    //}
-
-    public async Task<(int? StreamGroupId, int? StreamGroupProfileId, int? SMChannelId)> DecodeStreamGroupdProfileIdChannelId(string encodedString)
-    {
-        (int? streamGroupId, string? groupKey, string? valuesEncryptedString) = await GetGroupKeyFromEncodeAsync(encodedString);
-        if (streamGroupId == null || groupKey == null || string.IsNullOrEmpty(valuesEncryptedString))
-        {
-            return (null, null, null);
-        }
-
-        string decryptedTextWithGroupKey = AesEncryption.Decrypt(valuesEncryptedString, groupKey);
-        string[] values = decryptedTextWithGroupKey.Split(',');
-        if (values.Length == 2)
-        {
-            int streamGroupProfileId = int.Parse(values[1]);
-            int SMChannelId = int.Parse(values[2]);
-            return (streamGroupId, streamGroupProfileId, SMChannelId);
-        }
-
-        return (null, null, null);
-    }
-    public string? EncodeStreamGroupIdStreamId(StreamGroup StreamGroup, string SMStreamId)
-    {
-        string encryptedString = CryptoUtils.EncodeTwoValues(StreamGroup.Id, SMStreamId, _settings.CurrentValue.ServerKey, StreamGroup.GroupKey);
-
-        return encryptedString;
-    }
-
-    public async Task<string?> EncodeStreamGroupIdStreamIdAsync(int StreamGroupId, string SMStreamId)
-    {
-        string? groupKey = await GetStreamGroupKeyFromIdAsync(StreamGroupId);
-        if (string.IsNullOrEmpty(groupKey))
-        {
-            return null;
-        }
-
-        string encryptedString = CryptoUtils.EncodeTwoValues(StreamGroupId, SMStreamId, _settings.CurrentValue.ServerKey, groupKey);
-
-        return encryptedString;
+        Setting settingsValue = settings.CurrentValue;
+        return CryptoUtils.EncodeThreeValues(streamGroupId, streamGroupProfileId, smChannelId, settingsValue.ServerKey, groupKey);
     }
 
     #endregion
-
-    public async Task<List<StreamGroupDto>> GetStreamGroups()
+    public async Task<StreamGroup> GetDefaultSGAsync()
     {
-        //using IServiceScope scope = _serviceProvider.CreateScope();
-        //IRepositoryWrapper repositoryWrapper = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
-        //return await repositoryWrapper.StreamGroup.ProjectTo<StreamGroupDto>(_mapper.ConfigurationProvider).ToListAsync();
-        return await repositoryWrapper.StreamGroup.GetQuery().ProjectTo<StreamGroupDto>(_mapper.ConfigurationProvider).ToListAsync();
+        if (cacheManager.DefaultSG != null)
+        {
+            return cacheManager.DefaultSG;
+        }
+
+        cacheManager.DefaultSG = await GetStreamGroupFromNameAsync(BuildInfo.DefaultStreamGroupName).ConfigureAwait(false)
+            ?? throw new Exception("StreamGroup '" + BuildInfo.DefaultStreamGroupName + "' not found");
+
+        return cacheManager.DefaultSG;
     }
-
-    public async Task<int> GetDefaultSGIdAsync()
+    public async Task<int> GetStreamGroupIdFromSGProfileIdAsync(int? streamGroupProfileId)
     {
-        StreamGroup sg = await GetDefaultSGAsync();
-        return sg.Id;
+        if (streamGroupProfileId.HasValue)
+        {
+            StreamGroup? sg = await GetStreamGroupFromSGProfileIdAsync(streamGroupProfileId.Value);
+            return sg?.Id ?? await GetDefaultSGIdAsync();
+        }
+        return await GetDefaultSGIdAsync();
     }
 
     public string GetStreamGroupLineupStatus()
@@ -241,205 +112,43 @@ public class StreamGroupService(ILogger<StreamGroupService> _logger, ILogoServic
         return jsonString;
     }
 
-    public async Task<string> GetStreamGroupLineup(int StreamGroupProfileId, HttpRequest httpRequest, bool isShort)
+    public async Task<CommandProfileDto> GetProfileFromSGIdsCommandProfileNameAsync(int? streamGroupId, int streamGroupProfileId, string commandProfileName)
     {
-        string requestPath = httpRequest.GetUrlWithPathValue();
-        string url = httpRequest.GetUrl();
-        List<SGLineup> ret = [];
+        // Check if the commandProfileName is not "Default" and get the corresponding profile DTO
+        CommandProfileDto? commandProfileDto = !string.Equals(commandProfileName, "Default", StringComparison.InvariantCultureIgnoreCase)
+            ? _commandProfileSettings.CurrentValue.GetProfileDto(commandProfileName)
+            : null;
 
-        StreamGroup? streamGroup = await GetStreamGroupFromSGProfileIdAsync(StreamGroupProfileId);
-        if (streamGroup == null)
+        // If commandProfileDto is null or "Default", proceed to fetch StreamGroupProfile and decide on profile DTO
+        if (commandProfileDto == null || string.Equals(commandProfileDto.ProfileName, "Default", StringComparison.InvariantCultureIgnoreCase))
         {
-            return JsonSerializer.Serialize(ret);
+            StreamGroupProfile streamGroupProfile = await GetStreamGroupProfileAsync(streamGroupId, streamGroupProfileId).ConfigureAwait(false);
+
+            string profileToFetch = !string.Equals(streamGroupProfile.CommandProfileName, "Default", StringComparison.InvariantCultureIgnoreCase)
+                ? streamGroupProfile.CommandProfileName
+                : _settings.CurrentValue.DefaultCommandProfileName;
+
+            commandProfileDto = _commandProfileSettings.CurrentValue.GetProfileDto(profileToFetch);
         }
 
-        List<SMChannel> smChannels = (await repositoryWrapper.SMChannel.GetSMChannelsFromStreamGroup(streamGroup.Id)).Where(a => !a.IsHidden).ToList();
-
-        if (smChannels.Count == 0)
-        {
-            return JsonSerializer.Serialize(ret);
-        }
-
-        (List<VideoStreamConfig> videoStreamConfigs, StreamGroupProfile streamGroupProfile) = await GetStreamGroupVideoConfigs(StreamGroupProfileId);
-
-        if (videoStreamConfigs is null || streamGroupProfile is null)
-        {
-            return string.Empty;
-        }
-
-        ConcurrentBag<EncodedData> encodedData = [];
-
-        Parallel.ForEach(smChannels, smChannel =>
-        {
-            string? encodedString = EncodeStreamGroupIdProfileIdChannelId(streamGroup, streamGroupProfile.Id, smChannel.Id);
-            if (string.IsNullOrEmpty(encodedString))
-            {
-                return;
-            }
-            string cleanName = smChannel.Name.ToCleanFileString();
-
-            EncodedData data = new()
-            {
-                SMChannel = smChannel,
-                EncodedString = encodedString,
-                CleanName = cleanName
-            };
-
-            encodedData.Add(data);
-        });
-
-        await Parallel.ForEachAsync(encodedData, (encodedData, _) =>
-        {
-            //if (string.IsNullOrEmpty(videoStreamConfig?.EPGId))
-            //{
-            //    return ValueTask.CompletedTask;
-            //}
-            VideoStreamConfig? videoStreamConfig = videoStreamConfigs.Find(a => a.Id == encodedData.SMChannel.Id);
-            if (videoStreamConfig == null)
-            {
-                return ValueTask.CompletedTask;
-            }
-
-            //bool isDummy = _epgHelper.IsDummy(videoStreamConfig.EPGId);
-
-            //if (isDummy)
-            //{
-            //    videoStreamConfig.EPGId = $"{EPGHelper.DummyId}-{videoStreamConfig.Id}";
-
-            //    videoStreamConfig = new()
-            //    {
-            //        Id = videoStreamConfig.Id,
-            //        Name = videoStreamConfig.Name,
-            //        EPGId = videoStreamConfig.EPGId,
-            //        Logo = videoStreamConfig.Logo,
-            //        ChannelNumber = videoStreamConfig.ChannelNumber,
-            //        IsDuplicate = false,
-            //        IsDummy = false
-            //    };
-            //    //_ = dummyData.FindOrCreateDummyService(videoStreamConfig2.EPGId, videoStreamConfig2);
-            //    //return ValueTask.CompletedTask;
-            //}
-
-            //int epgNumber = EPGHelper.DummyId;
-            string stationId;
-
-            if (string.IsNullOrEmpty(videoStreamConfig.EPGId))
-            {
-                stationId = videoStreamConfig.Group;
-            }
-            else
-            {
-                if (EPGHelper.IsValidEPGId(videoStreamConfig.EPGId))
-                {
-                    (int _, stationId) = videoStreamConfig.EPGId.ExtractEPGNumberAndStationId();
-                }
-                else
-                {
-                    stationId = videoStreamConfig.EPGId;
-                }
-            }
-
-            string? encodedString = EncodeStreamGroupIdProfileIdChannelId(streamGroup, StreamGroupProfileId, videoStreamConfig.Id);
-            string videoUrl = isShort
-                ? $"{url}/v/{StreamGroupProfileId}/{videoStreamConfig.Id}"
-                : $"{url}/api/videostreams/stream/{encodedString}/{videoStreamConfig.Name.ToCleanFileString()}";
-
-            MxfService? service = _schedulesDirectDataService.AllServices.GetMxfService(videoStreamConfig.EPGId);
-            if (service == null)
-            {
-                return ValueTask.CompletedTask;
-            }
-            string graceNote = service?.CallSign ?? stationId;
-
-            //string logo;
-            //if (service?.mxfGuideImage != null && !string.IsNullOrEmpty(service.mxfGuideImage.ImageUrl))
-            //{
-            //    //logo = service.mxfGuideImage.ImageUrl;
-            //    //string baseUrl = url;
-            //    //logo = _iconHelper.GetIconUrl(service.EPGNumber, service.extras["logo"].Url, baseUrl);
-            //    logo = logoService.GetLogoUrl(videoStreamConfig.Logo, url);
-            //}
-            //else
-            //{
-            //    logo = GetIconUrl(videoStreamConfig.Logo, httpRequest);
-            //    string logoUrl = logoService.GetLogoUrl(videoStreamConfig.Logo, url);
-            //}
-
-            string logo = logoService.GetLogoUrl(videoStreamConfig.Logo, url);
-
-            string id = videoStreamConfig.ChannelNumber.ToString();
-
-            if (videoStreamConfig.OutputProfile.Id != nameof(ValidM3USetting.NotMapped))
-            {
-                switch (videoStreamConfig.OutputProfile.Id)
-                {
-                    case nameof(ValidM3USetting.Group):
-                        if (videoStreamConfig.OutputProfile != null && !string.IsNullOrEmpty(videoStreamConfig.OutputProfile.Group))
-                        {
-                            id = videoStreamConfig.Group;
-                        }
-                        break;
-                    case nameof(ValidM3USetting.ChannelNumber):
-                        id = videoStreamConfig.ChannelNumber.ToString();
-                        break;
-
-                    case nameof(ValidM3USetting.Name):
-                        id = videoStreamConfig.Name.ToCleanFileString();
-                        break;
-                }
-            }
-
-            SGLineup lu = new()
-            {
-                GuideName = videoStreamConfig.Name,
-                GuideNumber = videoStreamConfig.ChannelNumber.ToString(),
-                Station = id,
-                Logo = logo,
-                URL = videoUrl
-            };
-
-            lock (ret)
-            {
-                ret.Add(lu);
-            }
-
-            return ValueTask.CompletedTask;
-        });
-
-        string jsonString = JsonSerializer.Serialize(ret.OrderBy(a => a.GuideNumber));
-        return jsonString;
+        return commandProfileDto;
     }
 
-    public async Task<string> GetStreamGroupDiscover(int StreamGroupProfileId, HttpRequest request)
+    public async Task<int> GetDefaultSGIdAsync()
     {
-        //using IServiceScope scope = _serviceProvider.CreateScope();
-        //IRepositoryWrapper repositoryWrapper = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
-
-        string url = request.GetUrlWithPath();
-        int maxTuners = await repositoryWrapper.M3UFile.GetM3UMaxStreamCount();
-
-        StreamGroup? streamGroup = await GetStreamGroupFromSGProfileIdAsync(StreamGroupProfileId);
-        if (streamGroup == null)
-        {
-            return "";
-        }
-
-        Discover discover = new(url, streamGroup.DeviceID + "-" + StreamGroupProfileId, maxTuners);
-
-        string jsonString = JsonSerializer.Serialize(discover, BuildInfo.JsonIndentOptions);
-        return jsonString;
+        StreamGroup sg = await GetDefaultSGAsync();
+        return sg.Id;
     }
-
-    public async Task<string> GetStreamGroupCapability(int StreamGroupProfileId, HttpRequest request)
+    public async Task<string> GetStreamGroupCapabilityAsync(int streamGroupProfileId, HttpRequest request)
     {
-        StreamGroup? streamGroup = await GetStreamGroupFromSGProfileIdAsync(StreamGroupProfileId).ConfigureAwait(false);
+        StreamGroup? streamGroup = await GetStreamGroupFromSGProfileIdAsync(streamGroupProfileId).ConfigureAwait(false);
         if (streamGroup == null)
         {
             return "";
         }
 
         string url = request.GetUrlWithPath();
-        Capability capability = new(url, $"{streamGroup.DeviceID}-{StreamGroupProfileId}");
+        Capability capability = new(url, $"{streamGroup.DeviceID}-{streamGroupProfileId}");
 
         await using Utf8StringWriter textWriter = new();
         XmlSerializer serializer = new(typeof(Capability));
@@ -448,63 +157,143 @@ public class StreamGroupService(ILogger<StreamGroupService> _logger, ILogoServic
         return textWriter.ToString();
     }
 
-    //public CommandProfileDto? GetProfileFromName(string commandProfileName)
-    //{
-    //    CommandProfileDto? commandProfileDto = null;
-    //    if (!commandProfileName.Equals("Default", StringComparison.InvariantCultureIgnoreCase))
-    //    {
-    //        commandProfileDto = _commandProfileSettings.CurrentValue.GetProfileDto(commandProfileName);
-    //    }
-    //}
-    public async Task<CommandProfileDto> GetProfileFromSGIdsCommandProfileNameAsync(int? streamGroupId, int streamGroupProfileId, string commandProfileName)
+    public async Task<string> GetStreamGroupDiscoverAsync(int streamGroupProfileId, HttpRequest request)
     {
-        CommandProfileDto? commandProfileDto = null;
-        if (!commandProfileName.Equals("Default", StringComparison.InvariantCultureIgnoreCase))
-        {
-            commandProfileDto = _commandProfileSettings.CurrentValue.GetProfileDto(commandProfileName);
-        }
+        string url = request.GetUrlWithPath();
+        int maxTuners = await repositoryWrapper.M3UFile.GetM3UMaxStreamCount();
 
-        if (commandProfileDto?.ProfileName.Equals("Default", StringComparison.InvariantCultureIgnoreCase) != false)
-        {
-            StreamGroupProfile streamGroupProfile = await GetStreamGroupProfileAsync(streamGroupId, streamGroupProfileId);
-            commandProfileDto = !streamGroupProfile.CommandProfileName.Equals("Default", StringComparison.InvariantCultureIgnoreCase)
-                ? _commandProfileSettings.CurrentValue.GetProfileDto(streamGroupProfile.CommandProfileName)
-                : _commandProfileSettings.CurrentValue.GetProfileDto(_settings.CurrentValue.DefaultCommandProfileName);
-        }
-        return commandProfileDto;
-    }
-
-    public async Task<(List<VideoStreamConfig> videoStreamConfigs, StreamGroupProfile streamGroupProfile)> GetStreamGroupVideoConfigs(int streamGroupProfileId)
-    {
-        StreamGroup? streamGroup = await GetStreamGroupFromSGProfileIdAsync(streamGroupProfileId);
+        StreamGroup? streamGroup = await GetStreamGroupFromSGProfileIdAsync(streamGroupProfileId).ConfigureAwait(false);
         if (streamGroup == null)
         {
-            StreamGroupProfile d = await GetDefaultStreamGroupProfileAsync();
-            return (new List<VideoStreamConfig>(), d);
+            return "";
+        }
+
+        Discover discover = new(url, streamGroup.DeviceID + "-" + streamGroupProfileId, maxTuners);
+
+        return JsonSerializer.Serialize(discover, BuildInfo.JsonIndentOptions);
+    }
+
+    public async Task<string> GetStreamGroupLineupAsync(int streamGroupProfileId, HttpRequest httpRequest, bool isShort)
+    {
+        string url = httpRequest.GetUrl();
+        StreamGroup? streamGroup = await GetStreamGroupFromSGProfileIdAsync(streamGroupProfileId).ConfigureAwait(false);
+        if (streamGroup == null)
+        {
+            return JsonSerializer.Serialize(new List<SGLineup>());
+        }
+
+        List<SMChannel> smChannels = (await repositoryWrapper.SMChannel.GetSMChannelsFromStreamGroup(streamGroup.Id).ConfigureAwait(false)).Where(a => !a.IsHidden).ToList();
+        if (!smChannels.Any())
+        {
+            return JsonSerializer.Serialize(new List<SGLineup>());
+        }
+
+        (List<VideoStreamConfig> videoStreamConfigs, StreamGroupProfile streamGroupProfile) = await GetStreamGroupVideoConfigsAsync(streamGroupProfileId).ConfigureAwait(false);
+        if (videoStreamConfigs == null || streamGroupProfile == null)
+        {
+            return string.Empty;
+        }
+
+        ConcurrentBag<EncodedData> encodedData = [];
+        Parallel.ForEach(smChannels, smChannel =>
+        {
+            string? encodedString = EncodeStreamGroupIdProfileIdChannelId(streamGroup, streamGroupProfile.Id, smChannel.Id);
+            if (!string.IsNullOrEmpty(encodedString))
+            {
+                encodedData.Add(new EncodedData
+                {
+                    SMChannel = smChannel,
+                    EncodedString = encodedString,
+                    CleanName = smChannel.Name.ToCleanFileString()
+                });
+            }
+        });
+
+        ConcurrentBag<SGLineup> ret = [];
+        Parallel.ForEach(encodedData, (data, _) =>
+        {
+            VideoStreamConfig? videoStreamConfig = videoStreamConfigs.Find(a => a.Id == data.SMChannel.Id);
+            if (videoStreamConfig != null)
+            {
+                string logo = logoService.GetLogoUrl(videoStreamConfig.Logo, url);
+                ret.Add(new SGLineup
+                {
+                    GuideName = videoStreamConfig.Name,
+                    GuideNumber = videoStreamConfig.ChannelNumber.ToString(),
+                    Station = videoStreamConfig.ChannelNumber.ToString(),
+                    Logo = logo,
+                    URL = isShort ? $"{url}/v/{streamGroupProfileId}/{videoStreamConfig.Id}" : $"{url}/api/videostreams/stream/{data.EncodedString}/{videoStreamConfig.Name.ToCleanFileString()}"
+                });
+            }
+        });
+
+        return JsonSerializer.Serialize(ret.OrderBy(a => a.GuideNumber));
+    }
+
+    public async Task<StreamGroupProfile> GetStreamGroupProfileAsync(int? streamGroupId = null, int? streamGroupProfileId = null)
+    {
+        if (!streamGroupId.HasValue && !streamGroupProfileId.HasValue)
+        {
+            return await GetDefaultStreamGroupProfileAsync().ConfigureAwait(false);
+        }
+
+        if (streamGroupProfileId.HasValue)
+        {
+            StreamGroupProfile? sgProfile = await repositoryWrapper.StreamGroupProfile.GetQuery()
+                .FirstOrDefaultAsync(a => a.Id == streamGroupProfileId).ConfigureAwait(false);
+            if (sgProfile != null)
+            {
+                return sgProfile;
+            }
+        }
+
+        if (streamGroupId.HasValue)
+        {
+            StreamGroupProfile? profile = await repositoryWrapper.StreamGroupProfile.GetQuery()
+                .FirstOrDefaultAsync(a => a.StreamGroupId == streamGroupId && a.ProfileName == "Default").ConfigureAwait(false);
+            if (profile != null)
+            {
+                return profile;
+            }
+        }
+
+        return await GetDefaultStreamGroupProfileAsync().ConfigureAwait(false);
+    }
+
+    public string EncodeStreamGroupIdProfileIdChannelId(StreamGroup streamGroup, int streamGroupProfileId, int smChannelId)
+    {
+        Setting settingsValue = settings.CurrentValue;
+        return CryptoUtils.EncodeThreeValues(streamGroup.Id, streamGroupProfileId, smChannelId, settingsValue.ServerKey, streamGroup.GroupKey);
+    }
+
+    public async Task<(List<VideoStreamConfig> videoStreamConfigs, StreamGroupProfile streamGroupProfile)> GetStreamGroupVideoConfigsAsync(int streamGroupProfileId)
+    {
+        StreamGroup? streamGroup = await GetStreamGroupFromSGProfileIdAsync(streamGroupProfileId).ConfigureAwait(false);
+        if (streamGroup == null)
+        {
+            StreamGroupProfile defaultProfile = await GetDefaultStreamGroupProfileAsync().ConfigureAwait(false);
+            return (new List<VideoStreamConfig>(), defaultProfile);
         }
 
         List<SMChannel> smChannels = (streamGroup.Id < 2
-            ? await repositoryWrapper.SMChannel.GetQuery().ToListAsync()
-            : await repositoryWrapper.SMChannel.GetSMChannelsFromStreamGroup(streamGroup.Id))
+            ? await repositoryWrapper.SMChannel.GetQuery().ToListAsync().ConfigureAwait(false)
+            : await repositoryWrapper.SMChannel.GetSMChannelsFromStreamGroup(streamGroup.Id).ConfigureAwait(false))
             .Where(a => !a.IsHidden).ToList();
 
-        if (smChannels.Count == 0)
+        if (!smChannels.Any())
         {
-            StreamGroupProfile d = await GetDefaultStreamGroupProfileAsync();
-            return (new List<VideoStreamConfig>(), d);
+            StreamGroupProfile defaultProfile = await GetDefaultStreamGroupProfileAsync().ConfigureAwait(false);
+            return (new List<VideoStreamConfig>(), defaultProfile);
         }
 
-        StreamGroupProfile streamGroupProfile = await GetStreamGroupProfileAsync(streamGroup.Id, streamGroupProfileId);
-        CommandProfileDto commandProfile = _profileService.GetCommandProfile(streamGroupProfile.CommandProfileName);
-        OutputProfileDto outputProfile = _profileService.GetOutputProfile(streamGroupProfile.OutputProfileName);
+        StreamGroupProfile streamGroupProfile = await GetStreamGroupProfileAsync(streamGroup.Id, streamGroupProfileId).ConfigureAwait(false);
+        CommandProfileDto commandProfile = profileService.GetCommandProfile(streamGroupProfile.CommandProfileName);
+        OutputProfileDto outputProfile = profileService.GetOutputProfile(streamGroupProfile.OutputProfileName);
 
         List<VideoStreamConfig> videoStreamConfigs = [];
-        _logger.LogInformation("GetStreamGroupVideoConfigsHandler: Handling {Count} channels", smChannels.Count);
-
-        foreach (SMChannel? smChannel in smChannels.Where(a => !a.IsHidden))
+        foreach (SMChannel? smChannel in smChannels)
         {
             SMStream? stream = smChannel.SMStreams.FirstOrDefault(a => a.Rank == 0)?.SMStream;
-
             videoStreamConfigs.Add(new VideoStreamConfig
             {
                 Id = smChannel.Id,
@@ -522,102 +311,31 @@ public class StreamGroupService(ILogger<StreamGroupService> _logger, ILogoServic
                 OutputProfile = outputProfile
             });
         }
-        videoStreamConfigs = [.. videoStreamConfigs.OrderBy(a => a.ChannelNumber)];
-
-        return (videoStreamConfigs, streamGroupProfile);
-    }
-
-    public async Task<StreamGroupProfile> GetDefaultStreamGroupProfileAsync()
-    {
-        StreamGroup defaultSg = await GetDefaultSGAsync();
-        StreamGroupProfile defaultPolicy = await repositoryWrapper.StreamGroupProfile.GetQuery()
-           .FirstAsync(a => a.StreamGroupId == defaultSg.Id && a.ProfileName.ToLower() == "default");
-        return defaultPolicy;
-    }
-
-    public async Task<StreamGroupProfile> GetStreamGroupProfileAsync(int? streamGroupId = null, int? streamGroupProfileId = null)
-    {
-        if (!streamGroupId.HasValue && !streamGroupProfileId.HasValue)
-        {
-            StreamGroupProfile defaultSG = await GetDefaultStreamGroupProfileAsync();
-            return defaultSG;
-        }
-
-        //using IServiceScope scope = _serviceProvider.CreateScope();
-        //IRepositoryWrapper repositoryWrapper = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
-        if (streamGroupProfileId.HasValue)
-        {
-            StreamGroupProfile? sgProfile = repositoryWrapper.StreamGroupProfile.GetQuery()
-                .FirstOrDefault(a => a.Id == streamGroupProfileId);
-            if (sgProfile != null)
-            {
-                return sgProfile;
-            }
-        }
-
-        if (streamGroupId.HasValue)
-        {
-            StreamGroupProfile? profile = repositoryWrapper.StreamGroupProfile.GetQuery()
-                .FirstOrDefault(a => a.StreamGroupId == streamGroupId && a.ProfileName == "Default");
-            if (profile != null)
-            {
-                return profile;
-            }
-        }
-
-        StreamGroupProfile def = await GetDefaultStreamGroupProfileAsync();
-        return def;
-    }
-
-    public async Task<StreamGroup?> GetStreamGroupFromNameAsync(string streamGroupName)
-    {
-        //using IServiceScope scope = _serviceProvider.CreateScope();
-        //IRepositoryWrapper repositoryWrapper = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
-        return await repositoryWrapper.StreamGroup.FirstOrDefaultAsync(a => a.Name == streamGroupName).ConfigureAwait(false);
-    }
-
-    public async Task<StreamGroup> GetDefaultSGAsync()
-    {
-        if (cacheManager.DefaultSG != null)
-        {
-            return cacheManager.DefaultSG;
-        }
-
-        cacheManager.DefaultSG = await GetStreamGroupFromNameAsync(DefaultStreamGroupName).ConfigureAwait(false)
-            ?? throw new Exception("StreamGroup 'All' not found");
-
-        return cacheManager.DefaultSG;
-    }
-
-    public async Task<int> GetStreamGroupIdFromSGProfileIdAsync(int? streamGroupProfileId)
-    {
-        if (streamGroupProfileId.HasValue)
-        {
-            StreamGroup? sg = await GetStreamGroupFromSGProfileIdAsync(streamGroupProfileId.Value);
-            return sg?.Id ?? await GetDefaultSGIdAsync();
-        }
-        return await GetDefaultSGIdAsync();
-    }
-
-    public async Task<StreamGroup?> GetStreamGroupFromSGProfileIdAsync(int streamGroupProfileId)
-    {
-        //IRepositoryWrapper repositoryWrapper = ResolveScopedService<IRepositoryWrapper>();
-        //using IServiceScope scope = _serviceProvider.CreateScope();
-        //IRepositoryWrapper repositoryWrapper = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
-        StreamGroupProfile? test = await repositoryWrapper.StreamGroupProfile.FirstOrDefaultAsync(a => a.Id == streamGroupProfileId);
-        if (test == null)
-        {
-            return null;
-        }
-        StreamGroup? sg = await GetStreamGroupFromIdAsync(test.StreamGroupId);
-        return sg;
+        return (videoStreamConfigs.OrderBy(a => a.ChannelNumber).ToList(), streamGroupProfile);
     }
 
     public async Task<StreamGroup?> GetStreamGroupFromIdAsync(int streamGroupId)
     {
-        //IRepositoryWrapper repositoryWrapper = ResolveScopedService<IRepositoryWrapper>();
-        //using IServiceScope scope = _serviceProvider.CreateScope();
-        //IRepositoryWrapper repositoryWrapper = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
         return await repositoryWrapper.StreamGroup.FirstOrDefaultAsync(a => a.Id == streamGroupId).ConfigureAwait(false);
+    }
+
+    public async Task<StreamGroup?> GetStreamGroupFromNameAsync(string streamGroupName)
+    {
+        return await repositoryWrapper.StreamGroup.FirstOrDefaultAsync(a => a.Name == streamGroupName).ConfigureAwait(false);
+    }
+
+    public async Task<StreamGroup?> GetStreamGroupFromSGProfileIdAsync(int streamGroupProfileId)
+    {
+        StreamGroupProfile? streamGroupProfile = await repositoryWrapper.StreamGroupProfile.FirstOrDefaultAsync(a => a.Id == streamGroupProfileId).ConfigureAwait(false);
+        return streamGroupProfile == null ? null : await GetStreamGroupFromIdAsync(streamGroupProfile.StreamGroupId).ConfigureAwait(false);
+    }
+
+    public async Task<StreamGroupProfile> GetDefaultStreamGroupProfileAsync()
+    {
+        StreamGroup? defaultStreamGroup = await GetStreamGroupFromNameAsync(BuildInfo.DefaultStreamGroupName).ConfigureAwait(false);
+        return defaultStreamGroup == null
+            ? throw new Exception("Default stream group not found.")
+            : await repositoryWrapper.StreamGroupProfile.GetQuery()
+            .FirstOrDefaultAsync(a => a.StreamGroupId == defaultStreamGroup.Id && a.ProfileName == "Default").ConfigureAwait(false) ?? throw new Exception("Default stream group not found.");
     }
 }

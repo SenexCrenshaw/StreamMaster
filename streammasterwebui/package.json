@@ -3,7 +3,7 @@
   "dependencies": {
     "@emotion/react": "^11.13.3",
     "@emotion/styled": "^11.13.0",
-    "@floating-ui/react": "^0.26.27",
+    "@floating-ui/react": "^0.26.28",
     "@microsoft/signalr": "^8.0.7",
     "@microsoft/signalr-protocol-msgpack": "^8.0.7",
     "@mui/material": "^6.1.7",

@@ -1,13 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
-
-using StreamMaster.Domain.Filtering;
-
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+
+using Microsoft.EntityFrameworkCore;
 
 namespace StreamMaster.Domain.Common;
 
@@ -60,7 +58,7 @@ public static class FilterHelper<T> where T : class
             (Type, string FieldName) propertyKey = (typeof(T), filter.FieldName);
             if (!PropertyCache.TryGetValue(propertyKey, out PropertyInfo? property))
             {
-                property = typeof(T).GetProperties().FirstOrDefault(p => string.Equals(p.Name, filter.FieldName, StringComparison.OrdinalIgnoreCase));
+                property = typeof(T).GetProperties().FirstOrDefault(p => p.Name.EqualsIgnoreCase(filter.FieldName));
                 PropertyCache[propertyKey] = property ?? throw new ArgumentException($"Property {filter.FieldName} not found on type {typeof(T).FullName}");
             }
 
@@ -105,7 +103,7 @@ public static class FilterHelper<T> where T : class
 
         }
         return type.GetMethods()
-                   .FirstOrDefault(m => string.Equals(m.Name, methodName, StringComparison.OrdinalIgnoreCase)
+                   .FirstOrDefault(m => m.Name.EqualsIgnoreCase(methodName)
                                         && m.GetParameters().Select(p => p.ParameterType).SequenceEqual(parameterTypes));
     }
 

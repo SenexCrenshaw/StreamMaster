@@ -71,7 +71,7 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, IRepository
         }
 
         // Normalize source by removing .gz or .zip extensions if present
-        string normalizedSource = source.EndsWith(".gz", StringComparison.OrdinalIgnoreCase) || source.EndsWith(".zip", StringComparison.OrdinalIgnoreCase)
+        string normalizedSource = source.EndsWithIgnoreCase(".gz") || source.EndsWithIgnoreCase(".zip")
             ? Path.GetFileNameWithoutExtension(source)
             : source;
 
@@ -142,7 +142,7 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, IRepository
 
         if (toUpdate.Count > 0)
         {
-            logger.LogInformation("Found {toUpdate.Count} M3U files that need updating based on LastWrite and LastUpdated criteria.");
+            logger.LogInformation("Found {toUpdate.Count} M3U files that need updating based on LastWrite and LastUpdated criteria.", toUpdate.Count);
         }
 
         List<M3UFileDto> ret = await GetQuery(a =>
@@ -153,7 +153,7 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, IRepository
 
         if (ret.Count > 0)
         {
-            logger.LogInformation("Found {ret.Count} M3U files that need updating based on LastDownloaded criteria.");
+            logger.LogInformation("Found {ret.Count} M3U files that need updating based on LastDownloaded criteria.", ret.Count);
             foreach (M3UFileDto r in ret)
             {
                 toUpdate.Add(r);
@@ -168,7 +168,7 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, IRepository
 
         if (ret.Count > 0)
         {
-            logger.LogInformation("Found {ret.Count} M3U files that need updating based on LastUpdated criteria.");
+            logger.LogInformation("Found {ret.Count} M3U files that need updating based on LastUpdated criteria.", ret.Count);
             foreach (M3UFileDto r in ret)
             {
                 toUpdate.Add(r);

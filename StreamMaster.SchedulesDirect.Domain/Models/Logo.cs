@@ -6,14 +6,14 @@ namespace StreamMaster.SchedulesDirect.Domain.Models;
 public class Logo
 {
     [JsonPropertyName("URL")]
-    public string URL { get; set; }
+    public string? URL { get; set; }
 
     [JsonPropertyName("height")]
-    public int Height { get; set; }
+    public int? Height { get; set; }
 
     [JsonPropertyName("width")]
-    public int Width { get; set; }
+    public int? Width { get; set; }
 
     [JsonPropertyName("md5")]
-    public string Md5 { get; set; }
+    public string? Md5 { get; set; }
 }

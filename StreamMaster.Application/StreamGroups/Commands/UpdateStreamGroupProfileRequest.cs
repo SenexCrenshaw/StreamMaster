@@ -15,11 +15,11 @@ public class UpdateStreamGroupProfileRequestHandler(IRepositoryWrapper Repositor
             return APIResponse.NotFound;
         }
 
-        if (request.NewProfileName?.Equals("all", StringComparison.CurrentCultureIgnoreCase) == true)
+        if (request.NewProfileName?.EqualsIgnoreCase("all") == true)
         {
             return APIResponse.ErrorWithMessage($"The New Profile Name '{request.NewProfileName}' is reserved");
         }
-        if (request.NewProfileName?.Equals("default", StringComparison.CurrentCultureIgnoreCase) == true)
+        if (request.NewProfileName?.EqualsIgnoreCase("default") == true)
         {
             return APIResponse.ErrorWithMessage($"The New Profile Name '{request.NewProfileName}' is reserved");
         }

@@ -115,6 +115,10 @@ public class FileLoggingService : IFileLoggingService, IDisposable
 
     private void RotateLogFiles(FileInfo logFileInfo)
     {
+        if (string.IsNullOrEmpty(logFileInfo.DirectoryName))
+        {
+            throw new Exception("RotateLogFiles DirectoryName is null");
+        }
         string directory = logFileInfo.DirectoryName;
         string baseFileName = Path.GetFileNameWithoutExtension(logFileInfo.FullName);
         string extension = logFileInfo.Extension;

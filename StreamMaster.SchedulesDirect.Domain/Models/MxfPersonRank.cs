@@ -5,11 +5,11 @@ namespace StreamMaster.SchedulesDirect.Domain.Models
 {
     public class MxfPersonRank
     {
-        private string _person;
+        private string? _person;
 
-        public string Name => _mxfPerson.Name;
+        public string? Name => _mxfPerson?.Name;
 
-        [XmlIgnore] private readonly MxfPerson _mxfPerson;
+        [XmlIgnore] private readonly MxfPerson? _mxfPerson;
 
         public MxfPersonRank(MxfPerson person)
         {
@@ -21,10 +21,10 @@ namespace StreamMaster.SchedulesDirect.Domain.Models
         /// A reference to the id value of the Person element.
         /// </summary>
         [XmlAttribute("person")]
-        public string Person
+        public string? Person
         {
-            get => _person ?? _mxfPerson.Id;
-            set { _person = value; }
+            get => _person ?? _mxfPerson?.Id;
+            set => _person = value;
         }
 
         /// <summary>
@@ -33,12 +33,12 @@ namespace StreamMaster.SchedulesDirect.Domain.Models
         /// </summary>
         [XmlAttribute("rank")]
         [DefaultValue(0)]
-        public int Rank { get; set; }
+        public int? Rank { get; set; }
 
         /// <summary>
         /// The role an actor plays
         /// </summary>
         [XmlAttribute("character")]
-        public string Character { get; set; }
+        public string? Character { get; set; }
     }
 }

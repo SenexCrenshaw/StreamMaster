@@ -18,7 +18,7 @@ public class ChannelStreamingStatistics : BPSStatistics
     public int CurrentRank { get; set; }
     public string CurrentStreamId { get; set; } = string.Empty;
     public string? ChannelLogo { get; set; }
-    public List<StreamStreamingStatistic> StreamStreamingStatistics { get; set; }
+    public List<StreamStreamingStatistic> StreamStreamingStatistics { get; set; } = [];
 
     public void SetStreamInfo(SMChannelDto smChannelDto, int currentRank, string currentStreamId)
     {

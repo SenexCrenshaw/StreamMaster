@@ -48,7 +48,7 @@ public class RemoveStationRequestHandler(ILogger<RemoveStationRequest> logger, I
         {
             _ = await Sender.Send(new UpdateSettingRequest(updateSetting), cancellationToken).ConfigureAwait(false);
 
-            schedulesDirect.ResetEPGCache();
+            schedulesDirect.ResetAllEPGCaches();
             //schedulesDirect.ClearAllCaches();
             JobStatusManager jobManager = jobStatusService.GetJobManageSDSync(EPGHelper.SchedulesDirectId);
             jobManager.SetForceNextRun();
@@ -56,7 +56,7 @@ public class RemoveStationRequestHandler(ILogger<RemoveStationRequest> logger, I
             await dataRefreshService.RefreshSchedulesDirect();
 
 
-            //foreach (EPGFileDto epg in await Repositorywrapper.EPGFile.GetEPGFiles())
+            //foreach (EPGFileDto epg in await Repositorywrapper.EPGFile.GetEPGFilesAsync())
             //{
             //    await Sender.Send(new RefreshEPGFileRequest(epg.Id), cancellationToken).ConfigureAwait(false);
             //}

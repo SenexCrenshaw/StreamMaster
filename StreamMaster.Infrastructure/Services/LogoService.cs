@@ -1,4 +1,9 @@
-﻿using AutoMapper;
+﻿using System.Collections.Concurrent;
+using System.Diagnostics;
+using System.Text;
+using System.Web;
+
+using AutoMapper;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -9,13 +14,10 @@ using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Dto;
 using StreamMaster.Domain.Enums;
 using StreamMaster.Domain.Extensions;
+using StreamMaster.Domain.XmltvXml;
 using StreamMaster.PlayList;
+using StreamMaster.PlayList.Models;
 using StreamMaster.SchedulesDirect.Domain.Interfaces;
-
-using System.Collections.Concurrent;
-using System.Diagnostics;
-using System.Text;
-using System.Web;
 
 namespace StreamMaster.Infrastructure.Services;
 public class LogoService(IMapper mapper, ICustomPlayListBuilder customPlayListBuilder, IImageDownloadQueue imageDownloadQueue, IServiceProvider serviceProvider, IDataRefreshService dataRefreshService, IOptionsMonitor<Setting> _settings, ILogger<LogoService> logger)
@@ -24,9 +26,26 @@ public class LogoService(IMapper mapper, ICustomPlayListBuilder customPlayListBu
     private ConcurrentDictionary<string, LogoFileDto> Logos { get; } = [];
     private ConcurrentDictionary<string, TvLogoFile> TvLogos { get; set; } = [];
 
+    public List<XmltvProgramme> GetXmltvProgrammeForPeriod(StationChannelName stationChannelName, DateTime startDate, int days, string baseUrl)
+    {
+        List<(Movie Movie, DateTime StartTime, DateTime EndTime)> movies = customPlayListBuilder.GetMoviesForPeriod(stationChannelName.ChannelName, startDate, days);
+        List<XmltvProgramme> ret = [];
+        foreach ((Movie Movie, DateTime StartTime, DateTime EndTime) x in movies)
+        {
+            XmltvProgramme programme = XmltvProgrammeConverter.ConvertMovieToXmltvProgramme(x.Movie, stationChannelName.Id);
+            if (x.Movie.Thumb is not null && !string.IsNullOrEmpty(x.Movie.Thumb.Text))
+            {
+                string src = GetLogoUrl(x.Movie.Thumb.Text, baseUrl);
+                programme.Icons = [new XmltvIcon { Src = src }];
+            }
+            ret.Add(programme);
+        }
+        return ret;
+    }
+
     public void CacheSMChannelLogos()
     {
-        if (!string.Equals(_settings.CurrentValue.LogoCache, "Cache", StringComparison.OrdinalIgnoreCase))
+        if (!_settings.CurrentValue.LogoCache.EqualsIgnoreCase("Cache"))
         {
             return;
         }
@@ -84,7 +103,7 @@ public class LogoService(IMapper mapper, ICustomPlayListBuilder customPlayListBu
         {
             return GetApiUrl(baseUrl, logoSource, SMFileTypes.TvLogo);
         }
-        else if (string.Equals(_settings.CurrentValue.LogoCache, "cache", StringComparison.OrdinalIgnoreCase))
+        else if (_settings.CurrentValue.LogoCache.EqualsIgnoreCase("cache"))
         {
             return GetApiUrl(baseUrl, logoSource, SMFileTypes.Logo);
         }
@@ -93,18 +112,10 @@ public class LogoService(IMapper mapper, ICustomPlayListBuilder customPlayListBu
     }
     private static string GetApiUrl(string url, string source, SMFileTypes path)
     {
-        if (source.Contains("ZjBhMjNhMDhkYjc"))
-        {
-            int aaa = 1;
-        }
+
 
         string encodedPath = Convert.ToBase64String(Encoding.UTF8.GetBytes(source));
 
-        if (encodedPath.Contains("ZjBhMjNhMDhkYjc"))
-        {
-            int aaa = 1;
-
-        }
         return $"{url}/api/files/{(int)path}/{encodedPath}";
     }
 

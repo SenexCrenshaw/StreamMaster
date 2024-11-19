@@ -5,14 +5,14 @@ namespace StreamMaster.SchedulesDirect.Domain.Models;
 public class Map
 {
     [JsonPropertyName("stationID")]
-    public string StationId { get; set; }
+    public string? StationId { get; set; }
 
     [JsonPropertyName("uhfVhf")]
-    public int UhfVhf { get; set; }
+    public int? UhfVhf { get; set; }
 
     [JsonPropertyName("atscMajor")]
-    public int AtscMajor { get; set; }
+    public int? AtscMajor { get; set; }
 
     [JsonPropertyName("atscMinor")]
-    public int AtscMinor { get; set; }
+    public int? AtscMinor { get; set; }
 }

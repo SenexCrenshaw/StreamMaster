@@ -1,12 +1,11 @@
-﻿using SixLabors.ImageSharp;
+﻿using System.Collections.Concurrent;
+using System.Text.RegularExpressions;
+
+using SixLabors.ImageSharp;
 
 using StreamMaster.Domain.Dto;
 using StreamMaster.Domain.Enums;
 using StreamMaster.Domain.Helpers;
-using StreamMaster.Domain.Models;
-
-using System.Collections.Concurrent;
-using System.Text.RegularExpressions;
 
 namespace StreamMaster.SchedulesDirect;
 
@@ -57,23 +56,27 @@ public class LineupService : ILineupService
         return client;
     }
 
-    public void ResetCache()
+    public void ClearCache()
     {
         StationLogosToDownload.Clear();
     }
-
-    private void CheckHeadendView(SubscribedLineup subscribedLineup)
+    public void ResetCache()
     {
-        if (!intSDSettings.CurrentValue.HeadendsToView.Any(a => a.Id == subscribedLineup.Id))
-        {
-            intSDSettings.CurrentValue.HeadendsToView.Add(new HeadendToView
-            {
-                Id = subscribedLineup.Id,
-            });
-            SettingsHelper.UpdateSetting(intSDSettings.CurrentValue);
-        }
-        //string HeadendId, string Country, string Postal
+        epgCache.ResetCache();
     }
+
+    //private void CheckHeadendView(SubscribedLineup subscribedLineup)
+    //{
+    //    if (!intSDSettings.CurrentValue.HeadendsToView.Any(a => a.Id == subscribedLineup.Id))
+    //    {
+    //        intSDSettings.CurrentValue.HeadendsToView.Add(new HeadendToView
+    //        {
+    //            Id = subscribedLineup.Id,
+    //        });
+    //        SettingsHelper.UpdateSetting(intSDSettings.CurrentValue);
+    //    }
+    //    //string HeadendId, string Country, string Postal
+    //}
 
     public async Task<bool> BuildLineupServices(CancellationToken cancellationToken = default)
     {
@@ -107,7 +110,6 @@ public class LineupService : ILineupService
                 return true;
             }
 
-
             MxfLineup mxfLineup = schedulesDirectData.FindOrCreateLineup(clientLineup.Lineup, $"SM {clientLineup.Name} ({clientLineup.Location})");
             StationChannelMap? lineupMap = await GetStationChannelMap(clientLineup.Lineup);
 
@@ -126,7 +128,7 @@ public class LineupService : ILineupService
                     continue;
                 }
 
-                string serviceName = $"{EPGHelper.SchedulesDirectId}-{station.StationId}";
+                string serviceName = station.StationId;// $"{EPGHelper.SchedulesDirectId}-{station.StationId}";
                 MxfService mxfService = schedulesDirectData.FindOrCreateService(serviceName);
 
                 if (string.IsNullOrEmpty(mxfService.CallSign))
@@ -214,8 +216,8 @@ public class LineupService : ILineupService
     private static StationImage? GetStationLogo(LineupStation station, string preferredLogoStyle, string alternateLogoStyle)
     {
         // Select the logo based on preferred or alternate styles, falling back to the default logo
-        return station.StationLogos?.FirstOrDefault(arg => arg.Category?.Equals(preferredLogoStyle, StringComparison.OrdinalIgnoreCase) == true)
-               ?? station.StationLogos?.FirstOrDefault(arg => arg.Category?.Equals(alternateLogoStyle, StringComparison.OrdinalIgnoreCase) == true)
+        return station.StationLogos?.FirstOrDefault(arg => arg.Category?.EqualsIgnoreCase(preferredLogoStyle) == true)
+               ?? station.StationLogos?.FirstOrDefault(arg => arg.Category?.EqualsIgnoreCase(alternateLogoStyle) == true)
                ?? station.Logo;
     }
 
@@ -237,7 +239,6 @@ public class LineupService : ILineupService
 
     private async Task SetLogoAsync(MxfService mxfService, string logoPath, StationImage stationLogo, CancellationToken cancellationToken)
     {
-
         if (File.Exists(logoPath))
         {
             await using FileStream stream = File.OpenRead(logoPath);
@@ -257,7 +258,6 @@ public class LineupService : ILineupService
                 Url = stationLogo.Url
             });
         }
-
 
         mxfService.mxfGuideImage = schedulesDirectDataService.SchedulesDirectData().FindOrCreateGuideImage(stationLogo.Url);
     }
@@ -436,11 +436,6 @@ public class LineupService : ILineupService
         }
 
         return lineupResult;
-    }
-
-    public void ClearCache()
-    {
-        epgCache.ResetCache();
     }
 
     public void Dispose()

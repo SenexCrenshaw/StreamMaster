@@ -34,6 +34,11 @@ public static class RequestExtensions
 
         System.Net.IPAddress? remoteIP = request.HttpContext.Connection.RemoteIpAddress;
 
+        if (remoteIP == null)
+        {
+            return string.Empty;
+        }
+
         if (remoteIP.IsIPv4MappedToIPv6)
         {
             remoteIP = remoteIP.MapToIPv4();

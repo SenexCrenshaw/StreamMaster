@@ -47,17 +47,13 @@ namespace StreamMaster.Infrastructure.Services.Frontend.Mappers
                    ));
         }
 
-        public override async Task<string> Map(string resourceUrl)
+        public override Task<string> MapAsync(string resourceUrl)
         {
             string path = resourceUrl.Replace('/', Path.DirectorySeparatorChar);
-            //if (path.StartsWith("\\_next\\"))
-            //{
-            //    path = path[7..];
-            //}
 
             path = path.Trim(Path.DirectorySeparatorChar);
 
-            return Path.Combine(BuildInfo.StartUpPath, settings.UiFolder, path);
+            return Task.FromResult(Path.Combine(BuildInfo.StartUpPath, settings.UiFolder, path));
         }
     }
 }

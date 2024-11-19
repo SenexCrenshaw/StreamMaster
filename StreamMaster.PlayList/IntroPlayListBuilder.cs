@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 
 using StreamMaster.Domain.Configuration;
+using StreamMaster.Domain.Extensions;
 using StreamMaster.Domain.Repository;
 using StreamMaster.PlayList.Models;
 
@@ -41,7 +42,7 @@ namespace StreamMaster.PlayList
         {
             List<CustomPlayList> playlists = GetIntroPlayLists();
 
-            if (name.StartsWith(IntroIDPrefix, StringComparison.CurrentCultureIgnoreCase))
+            if (name.StartsWithIgnoreCase(IntroIDPrefix))
             {
                 name = name[IntroIDPrefix.Length..];
             }

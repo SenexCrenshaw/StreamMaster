@@ -1,13 +1,29 @@
-﻿namespace StreamMaster.Domain.Extensions;
+﻿using StreamMaster.Domain.Configuration;
+
+namespace StreamMaster.Domain.Extensions;
 
 public static class StringExtensions
 {
-    public static bool IsNullOrWhiteSpace(this string text)
+    public static bool EqualsIgnoreCase(this string text, string Compare)
     {
-        return string.IsNullOrWhiteSpace(text);
+        return text.Equals(Compare, BuildInfo.StringComparison);
     }
-    public static bool ContainsIgnoreCase(this string text, string contains)
+
+    public static bool ContainsIgnoreCase(this string text, string Contains)
     {
-        return text.IndexOf(contains, StringComparison.InvariantCultureIgnoreCase) > -1;
+        return text.Contains(Contains, BuildInfo.StringComparison);
     }
+
+    public static bool StartsWithIgnoreCase(this string text, string StartsWith)
+    {
+        return text.StartsWith(StartsWith, BuildInfo.StringComparison);
+    }
+
+    public static bool EndsWithIgnoreCase(this string text, string EndsWith)
+    {
+        return text.EndsWith(EndsWith, BuildInfo.StringComparison);
+    }
+
+
+
 }

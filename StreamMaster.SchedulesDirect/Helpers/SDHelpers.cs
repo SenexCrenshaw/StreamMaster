@@ -1,10 +1,10 @@
 ﻿
+using System.Security.Cryptography;
+using System.Text;
+
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
-
-using System.Security.Cryptography;
-using System.Text;
 
 namespace StreamMaster.SchedulesDirect.Helpers;
 
@@ -277,12 +277,12 @@ public static partial class SDHelpers
                 continue;
             }
 
-            if (!exactMatch && str.Contains(text, StringComparison.CurrentCultureIgnoreCase))
+            if (!exactMatch && str.ContainsIgnoreCase(text))
             {
                 return true;
             }
 
-            if (str.Equals(text, StringComparison.OrdinalIgnoreCase))
+            if (text.EqualsIgnoreCase(text))
             {
                 return true;
             }
@@ -293,7 +293,7 @@ public static partial class SDHelpers
 
     public static bool StringContains(this string str, string text)
     {
-        return str?.ToLower().Contains(text, StringComparison.CurrentCultureIgnoreCase) == true;
+        return str?.ToLower().ContainsIgnoreCase(text) == true;
     }
 
     public static string GenerateHashFromStringContent(StringContent content)

@@ -10,13 +10,18 @@ internal class GetPagedStreamGroupsRequestHandler(IRepositoryWrapper Repository,
 {
     public async Task<PagedResponse<StreamGroupDto>> Handle(GetPagedStreamGroupsRequest request, CancellationToken cancellationToken = default)
     {
-        PagedResponse<StreamGroupDto> ret = request.Parameters.PageSize == 0
+        PagedResponse<StreamGroupDto> res = request.Parameters.PageSize == 0
             ? Repository.StreamGroup.CreateEmptyPagedResponse()
             : await Repository.StreamGroup.GetPagedStreamGroups(request.Parameters).ConfigureAwait(false);
 
         int defaultSGId = await streamGroupService.GetDefaultSGIdAsync();
 
-        foreach (StreamGroupDto streamGroupDto in ret.Data)
+        if (res.Data is null)
+        {
+            return res;
+        }
+
+        foreach (StreamGroupDto streamGroupDto in res.Data)
         {
             if (streamGroupDto.Id == defaultSGId)
             {
@@ -27,6 +32,6 @@ internal class GetPagedStreamGroupsRequestHandler(IRepositoryWrapper Repository,
             streamGroupDto.ChannelCount = Repository.StreamGroupSMChannelLink.GetQuery().Count(a => a.StreamGroupId == streamGroupDto.Id);
         }
 
-        return ret;
+        return res;
     }
 }

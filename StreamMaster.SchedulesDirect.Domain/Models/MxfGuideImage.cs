@@ -15,7 +15,7 @@ public class MxfGuideImage
         ImageUrl = pathName;
         //_encodedImage = encodedImage;
     }
-    private MxfGuideImage() { }
+    public MxfGuideImage() { }
 
     /// <summary>
     /// An ID that is unique to the document and defines this element.
@@ -32,20 +32,20 @@ public class MxfGuideImage
     /// Used for device group image only
     /// </summary>
 
-    public string Uid { get; set; }
+    public string? Uid { get; set; }
 
     /// <summary>
     /// The URL of the image.
     /// This value can be in the form of file://URL.
     /// </summary>
 
-    public string ImageUrl { get; set; }
+    public string? ImageUrl { get; set; }
 
     /// <summary>
     /// Undocumented
     /// </summary>
 
-    public string Format { get; set; }
+    public string? Format { get; set; }
 
     /// <summary>
     /// The string encoded image

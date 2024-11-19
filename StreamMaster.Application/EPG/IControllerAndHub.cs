@@ -8,7 +8,7 @@ namespace StreamMaster.Application.EPG
     public interface IEPGController
     {        
         Task<ActionResult<List<EPGColorDto>>> GetEPGColors();
-        Task<ActionResult<APIResponse>> EPGSync();
+        Task<ActionResult<APIResponse?>> EPGSync();
     }
 }
 
@@ -17,6 +17,6 @@ namespace StreamMaster.Application.Hubs
     public interface IEPGHub
     {
         Task<List<EPGColorDto>> GetEPGColors();
-        Task<APIResponse> EPGSync();
+        Task<APIResponse?> EPGSync();
     }
 }

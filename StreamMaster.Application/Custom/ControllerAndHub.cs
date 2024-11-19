@@ -15,8 +15,8 @@ namespace StreamMaster.Application.Custom.Controllers
         {
             try
             {
-            DataResponse<CustomPlayList> ret = await Sender.Send(request).ConfigureAwait(false);
-             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetCustomPlayList.", statusCode: 500) : Ok(ret.Data);
+            var ret = await Sender.Send(request).ConfigureAwait(false);
+             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetCustomPlayList.", statusCode: 500) : Ok(ret.Data?? new());
             }
             catch (Exception ex)
             {
@@ -31,8 +31,8 @@ namespace StreamMaster.Application.Custom.Controllers
         {
             try
             {
-            DataResponse<List<CustomPlayList>> ret = await Sender.Send(new GetCustomPlayListsRequest()).ConfigureAwait(false);
-             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetCustomPlayLists.", statusCode: 500) : Ok(ret.Data);
+            var ret = await Sender.Send(new GetCustomPlayListsRequest()).ConfigureAwait(false);
+             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetCustomPlayLists.", statusCode: 500) : Ok(ret.Data?? new());
             }
             catch (Exception ex)
             {
@@ -47,8 +47,8 @@ namespace StreamMaster.Application.Custom.Controllers
         {
             try
             {
-            DataResponse<List<CustomPlayList>> ret = await Sender.Send(new GetIntroPlayListsRequest()).ConfigureAwait(false);
-             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetIntroPlayLists.", statusCode: 500) : Ok(ret.Data);
+            var ret = await Sender.Send(new GetIntroPlayListsRequest()).ConfigureAwait(false);
+             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetIntroPlayLists.", statusCode: 500) : Ok(ret.Data?? new());
             }
             catch (Exception ex)
             {
@@ -59,9 +59,9 @@ namespace StreamMaster.Application.Custom.Controllers
 
         [HttpPatch]
         [Route("[action]")]
-        public async Task<ActionResult<APIResponse>> ScanForCustom()
+        public async Task<ActionResult<APIResponse?>> ScanForCustom()
         {
-            APIResponse ret = await Sender.Send(new ScanForCustomRequest()).ConfigureAwait(false);
+            var ret = await Sender.Send(new ScanForCustomRequest()).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
         }
 
@@ -74,25 +74,25 @@ namespace StreamMaster.Application.Hubs
     {
         public async Task<CustomPlayList> GetCustomPlayList(GetCustomPlayListRequest request)
         {
-             DataResponse<CustomPlayList> ret = await Sender.Send(request).ConfigureAwait(false);
-            return ret.Data;
+             var ret = await Sender.Send(request).ConfigureAwait(false);
+            return ret.Data?? new();
         }
 
         public async Task<List<CustomPlayList>> GetCustomPlayLists()
         {
-             DataResponse<List<CustomPlayList>> ret = await Sender.Send(new GetCustomPlayListsRequest()).ConfigureAwait(false);
-            return ret.Data;
+             var ret = await Sender.Send(new GetCustomPlayListsRequest()).ConfigureAwait(false);
+            return ret.Data?? new();
         }
 
         public async Task<List<CustomPlayList>> GetIntroPlayLists()
         {
-             DataResponse<List<CustomPlayList>> ret = await Sender.Send(new GetIntroPlayListsRequest()).ConfigureAwait(false);
-            return ret.Data;
+             var ret = await Sender.Send(new GetIntroPlayListsRequest()).ConfigureAwait(false);
+            return ret.Data?? new();
         }
 
-        public async Task<APIResponse> ScanForCustom()
+        public async Task<APIResponse?> ScanForCustom()
         {
-            APIResponse ret = await Sender.Send(new ScanForCustomRequest()).ConfigureAwait(false);
+            var ret = await Sender.Send(new ScanForCustomRequest()).ConfigureAwait(false);
             return ret;
         }
 
