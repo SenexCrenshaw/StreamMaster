@@ -11,10 +11,8 @@ public interface ISettingController
     Task<IActionResult> UpdateSetting(UpdateSettingRequest command);
 }
 
-
 public interface ISettingHub
 {
-
     Task<bool> LogIn(LogInRequest logInRequest);
 
     Task UpdateSetting(UpdateSettingRequest command);
@@ -24,5 +22,4 @@ public interface ISettingTasks
 {
     ValueTask SetIsSystemReady(bool isSystemReady, CancellationToken cancellationToken = default);
     ValueTask SetTestTask(int DelayInSeconds, CancellationToken cancellationToken = default);
-
 }

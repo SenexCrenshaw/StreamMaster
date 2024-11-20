@@ -31,11 +31,11 @@ public partial class SchedulesDirectAPIService : ISchedulesDirectAPIService
         List<ProgramMetadata>? ret = await GetApiResponse<List<ProgramMetadata>>(APIMethod.POST, "metadata/programs/", request);
         if (ret != null)
         {
-            logger.LogDebug($"Successfully retrieved artwork info for {ret.Count}/{request.Length} programs. ({DateTime.Now - dtStart:G})");
+            logger.LogDebug("Successfully retrieved artwork info for {ret.Count}/{request.Length} programs. ({duration})", ret.Count, request.Length, (DateTime.Now - dtStart).ToString("G"));
         }
         else
         {
-            logger.LogDebug($"Did not receive a response from Schedules Direct for artwork info of {request.Length} programs. ({DateTime.Now - dtStart:G})");
+            logger.LogDebug("Did not receive a response from Schedules Direct for artwork info of {request.Length} programs. ({duration})", request.Length, (DateTime.Now - dtStart).ToString("G"));
         }
 
         return ret;
@@ -145,7 +145,7 @@ public partial class SchedulesDirectAPIService : ISchedulesDirectAPIService
                         response.ReasonPhrase = "Too Many Requests";
                         break;
 
-                    case SDHttpResponseCode.TOKEN_MISSING: // TOKEN_MISSING - special case when token is getting refreshed due to below responses from a separate request
+                    case SDHttpResponseCode.TOKEN_MISSING: // TOKEN_MISSING - special case when Token is getting refreshed due to below responses from a separate request
                     case SDHttpResponseCode.INVALID_USER: // INVALID_USER
                     case SDHttpResponseCode.TOKEN_INVALID:
                     case SDHttpResponseCode.TOKEN_EXPIRED: // TOKEN_EXPIRED
@@ -168,8 +168,16 @@ public partial class SchedulesDirectAPIService : ISchedulesDirectAPIService
         if (response.StatusCode != HttpStatusCode.NotModified)
         {
             string tokenUsedShort = tokenUsed?.Length >= 5 ? tokenUsed[..5] : tokenUsed ?? string.Empty;
+            logger.LogError(
+    message: "{RequestPath}: {StatusCode} {ReasonPhrase} : Token={TokenUsed}...{Content}",
+    response.RequestMessage?.RequestUri?.AbsolutePath.Replace(BaseAddress, "/"),
+    (int)response.StatusCode,
+    response.ReasonPhrase,
+    tokenUsedShort,
+    !string.IsNullOrEmpty(content) ? $"\n{content}" : ""
+);
 
-            logger.LogError($"{response.RequestMessage?.RequestUri?.AbsolutePath.Replace(BaseAddress, "/")}: {(int)response.StatusCode} {response.ReasonPhrase} : Token={tokenUsedShort}...{(!string.IsNullOrEmpty(content) ? $"\n{content}" : "")}");
+            //logger.LogError($"{response.RequestMessage?.RequestUri?.AbsolutePath.Replace(BaseAddress, "/")}: {(int)response.StatusCode} {response.ReasonPhrase} : Token={tokenUsedShort}...{(!string.IsNullOrEmpty(content) ? $"\n{content}" : "")}");
         }
 
         return response;
@@ -181,7 +189,7 @@ public partial class SchedulesDirectAPIService : ISchedulesDirectAPIService
     /// <typeparam name="T">Object type to return.</typeparam>
     /// <param name="method">The http method to use.</param>
     /// <param name="uri">The relative uri from base address to form a complete url.</param>
-    /// <param name="classObject">Payload of message to be serialized into json.</param>
+    /// <param name="classObject">Payload of Message to be serialized into json.</param>
     /// <returns>Object requested.</returns>
     public virtual async Task<T?> GetApiResponse<T>(APIMethod method, string uri, object? classObject = null, CancellationToken cancellationToken = default)
     {
@@ -286,7 +294,7 @@ public partial class SchedulesDirectAPIService : ISchedulesDirectAPIService
 
                 if (!line.Contains("INVALID_PROGRAMID"))
                 {
-                    logger.LogError($"Invalid JSON near position: {line}");
+                    logger.LogError("Invalid JSON near position: {line}", line);
                 }
             }
         }

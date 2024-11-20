@@ -7,8 +7,7 @@ namespace StreamMaster.Application.EPGFiles.Controllers
 {
     [Authorize]
     public partial class EPGFilesController(ILogger<EPGFilesController> _logger) : ApiControllerBase, IEPGFilesController
-    {        
-
+    {
         [HttpGet]
         [Route("[action]")]
         public async Task<ActionResult<List<string>>> GetEPGFileNames()
@@ -16,7 +15,7 @@ namespace StreamMaster.Application.EPGFiles.Controllers
             try
             {
             var ret = await Sender.Send(new GetEPGFileNamesRequest()).ConfigureAwait(false);
-             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetEPGFileNames.", statusCode: 500) : Ok(ret.Data?? new());
+             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetEPGFileNames.", statusCode: 500) : Ok(ret.Data?? []);
             }
             catch (Exception ex)
             {
@@ -32,7 +31,7 @@ namespace StreamMaster.Application.EPGFiles.Controllers
             try
             {
             var ret = await Sender.Send(request).ConfigureAwait(false);
-             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetEPGFilePreviewById.", statusCode: 500) : Ok(ret.Data?? new());
+             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetEPGFilePreviewById.", statusCode: 500) : Ok(ret.Data?? []);
             }
             catch (Exception ex)
             {
@@ -48,7 +47,7 @@ namespace StreamMaster.Application.EPGFiles.Controllers
             try
             {
             var ret = await Sender.Send(new GetEPGFilesRequest()).ConfigureAwait(false);
-             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetEPGFiles.", statusCode: 500) : Ok(ret.Data?? new());
+             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetEPGFiles.", statusCode: 500) : Ok(ret.Data?? []);
             }
             catch (Exception ex)
             {
@@ -120,7 +119,6 @@ namespace StreamMaster.Application.EPGFiles.Controllers
             var ret = await Sender.Send(request).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
         }
-
     }
 }
 
@@ -131,19 +129,19 @@ namespace StreamMaster.Application.Hubs
         public async Task<List<string>> GetEPGFileNames()
         {
              var ret = await Sender.Send(new GetEPGFileNamesRequest()).ConfigureAwait(false);
-            return ret.Data?? new();
+            return ret.Data?? [];
         }
 
         public async Task<List<EPGFilePreviewDto>> GetEPGFilePreviewById(GetEPGFilePreviewByIdRequest request)
         {
              var ret = await Sender.Send(request).ConfigureAwait(false);
-            return ret.Data?? new();
+            return ret.Data?? [];
         }
 
         public async Task<List<EPGFileDto>> GetEPGFiles()
         {
              var ret = await Sender.Send(new GetEPGFilesRequest()).ConfigureAwait(false);
-            return ret.Data?? new();
+            return ret.Data?? [];
         }
 
         public async Task<int> GetEPGNextEPGNumber()
@@ -187,6 +185,5 @@ namespace StreamMaster.Application.Hubs
             var ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;
         }
-
     }
 }

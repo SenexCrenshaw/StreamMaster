@@ -2,7 +2,7 @@
 
 namespace StreamMaster.Domain.Helpers;
 
-public static class EPGNumberStationIdExtension
+public static partial class EPGNumberStationIdExtension
 {
     public static (int epgNumber, string stationId) ExtractEPGNumberAndStationId(this string user_tvg_id)
     {
@@ -11,8 +11,7 @@ public static class EPGNumberStationIdExtension
             throw new ArgumentException("Input string cannot be null or whitespace.");
         }
 
-
-        MatchCollection matches = Regex.Matches(user_tvg_id, EPGHelper.EPGMatch);
+        MatchCollection matches = MyRegex().Matches(user_tvg_id);
 
         return matches.Count == 0 || !matches[0].Success || matches[0].Groups.Count != 3
             ? throw new FormatException("Input string is not in the expected format.")
@@ -20,4 +19,7 @@ public static class EPGNumberStationIdExtension
             ? throw new FormatException("Input string is not in the expected format.")
             : ((int epgNumber, string stationId))(epgNumber, matches[0].Groups[2].Value);
     }
+
+    [GeneratedRegex(EPGHelper.EPGMatch)]
+    private static partial Regex MyRegex();
 }

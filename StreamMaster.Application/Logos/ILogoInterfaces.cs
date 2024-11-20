@@ -6,22 +6,17 @@ namespace StreamMaster.Application.Logos;
 
 public interface ILogoController
 {
-
     Task<ActionResult> AutoMatchLogoToStreams(AutoMatchLogoToStreamsRequest request);
-
 }
 
-public interface ILogoDB
-{
-}
+public interface ILogoDB;
 
 public interface ILogoHub
 {
     Task AutoMatchLogoToStreams(AutoMatchLogoToStreamsRequest request);
-
 }
 
-public interface ILogoScoped { }
+public interface ILogoScoped;
 
 public interface ILogoTasks
 {

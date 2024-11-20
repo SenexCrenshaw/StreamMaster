@@ -10,7 +10,7 @@ internal class GetStreamGroupProfilesRequestHandler(IRepositoryWrapper Repositor
 {
     public async Task<DataResponse<List<StreamGroupProfile>>> Handle(GetStreamGroupProfilesRequest request, CancellationToken cancellationToken = default)
     {
-        List<StreamGroupProfile> streamGroups = Repository.StreamGroup.GetQuery().SelectMany(a => a.StreamGroupProfiles).OrderBy(a => a.ProfileName).ToList();
+        List<StreamGroupProfile> streamGroups = [.. Repository.StreamGroup.GetQuery().SelectMany(a => a.StreamGroupProfiles).OrderBy(a => a.ProfileName)];
 
         return await Task.FromResult(DataResponse<List<StreamGroupProfile>>.Success(streamGroups));
     }

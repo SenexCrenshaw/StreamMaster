@@ -50,7 +50,6 @@ public class StationPreview
         {
             PostalCode = station.PostalCode;
         }
-
     }
 
     public Logo? Logo { get; set; }

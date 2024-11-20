@@ -11,17 +11,8 @@ namespace StreamMaster.Infrastructure.Services.Frontend
     [Authorize(Policy = "UI")]
     [ApiExplorerSettings(IgnoreApi = true)]
     [ApiController]
-    public class StaticResourceController : Controller
+    public class StaticResourceController(IEnumerable<IMapHttpRequestsToDisk> requestMappers, ILogger<StaticResourceController> logger) : Controller
     {
-        private readonly ILogger<StaticResourceController> _logger;
-        private readonly IEnumerable<IMapHttpRequestsToDisk> _requestMappers;
-
-        public StaticResourceController(IEnumerable<IMapHttpRequestsToDisk> requestMappers, ILogger<StaticResourceController> logger)
-        {
-            _requestMappers = requestMappers;
-            _logger = logger;
-        }
-
         [HttpGet("")]
         [HttpGet("/{**path:regex(^(?!(m|V|s|api|feed)/).*)}")]
         public async Task<IActionResult> Index([FromRoute] string path)
@@ -51,7 +42,6 @@ namespace StreamMaster.Infrastructure.Services.Frontend
             return await MapResource("images/" + path);
         }
 
-
         [AllowAnonymous]
         [HttpGet("login")]
         public async Task<IActionResult> LoginPage()
@@ -63,7 +53,7 @@ namespace StreamMaster.Infrastructure.Services.Frontend
         {
             path = "/" + (path ?? "");
 
-            IMapHttpRequestsToDisk? mapper = _requestMappers.SingleOrDefault(m => m.CanHandle(path));
+            IMapHttpRequestsToDisk? mapper = requestMappers.SingleOrDefault(m => m.CanHandle(path));
 
             if (mapper != null)
             {
@@ -71,7 +61,7 @@ namespace StreamMaster.Infrastructure.Services.Frontend
 
                 if (result != null)
                 {
-                    if ((result as FileResult)?.ContentType == "text/html")
+                    if (result is FileResult { ContentType: "text/html" })
                     {
                         Response.Headers.DisableCache();
                     }
@@ -82,7 +72,7 @@ namespace StreamMaster.Infrastructure.Services.Frontend
                 return NotFound();
             }
 
-            _logger.LogWarning("Couldn't find handler for {0}", path);
+            logger.LogWarning("Couldn't find handler for {path}", path);
 
             return NotFound();
         }

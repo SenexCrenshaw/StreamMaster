@@ -126,7 +126,6 @@ public class MxfProgram
     [XmlAttribute("originalAirdate")]
     public string? OriginalAirdate
     {
-
         get => _originalAirDate is null
                 ? null
                 : !IsGeneric && extras.ContainsKey("newAirDate")

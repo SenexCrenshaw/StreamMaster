@@ -63,26 +63,21 @@ public class FieldData
         if (propertyExpression.Body is MemberExpression member)
         {
             object? entity = ExtractEntityFromMemberExpression(member);
-            if ( entity == null)
-            {
-                throw new ArgumentException("Invalid property expression", nameof(propertyExpression));
-            }
-
-            return (
+            return entity == null
+                ? throw new ArgumentException("Invalid property expression", nameof(propertyExpression))
+                : ((string entity, string id, string propertyName, object value))(
                 ExtractAPIName(entity) ?? throw new InvalidOperationException($"Cannot extract api name for {entity}."),
                 ExtractId(entity),
-                member.Member.Name, 
+                member.Member.Name,
                 GetValue(propertyExpression)
                 );
         }
         else if (propertyExpression.Body is UnaryExpression unaryExp && unaryExp.Operand is MemberExpression memberExp)
         {
             object? entity = ExtractEntityFromMemberExpression(memberExp);
-            if (entity == null)
-            {
-                throw new ArgumentException("Invalid property expression", nameof(propertyExpression));
-            }
-            return (ExtractAPIName(entity) ?? throw new InvalidOperationException($"Cannot extract api name for {entity}."), ExtractId(entity), memberExp.Member.Name, GetValue(propertyExpression));
+            return entity == null
+                ? throw new ArgumentException("Invalid property expression", nameof(propertyExpression))
+                : ((string entity, string id, string propertyName, object value))(ExtractAPIName(entity) ?? throw new InvalidOperationException($"Cannot extract api name for {entity}."), ExtractId(entity), memberExp.Member.Name, GetValue(propertyExpression));
         }
 
         throw new ArgumentException("Invalid property expression", nameof(propertyExpression));
@@ -145,20 +140,20 @@ public class FieldData
         return expression.Compile().Invoke();
     }
 
-    private static string GetPropertyName(Expression<Func<object>> propertyExpression)
-    {
-        if (propertyExpression.Body is MemberExpression member)
-        {
-            return member.Member.Name;
-        }
-        else if (propertyExpression.Body is UnaryExpression unaryExp && unaryExp.Operand is MemberExpression memberExp)
-        {
-            // Handle cases where the property is boxed into an object, causing a Convert expression type.
-            return memberExp.Member.Name;
-        }
+    //private static string GetPropertyName(Expression<Func<object>> propertyExpression)
+    //{
+    //    if (propertyExpression.Body is MemberExpression member)
+    //    {
+    //        return member.Member.Name;
+    //    }
+    //    else if (propertyExpression.Body is UnaryExpression unaryExp && unaryExp.Operand is MemberExpression memberExp)
+    //    {
+    //        // Handle cases where the property is boxed into an object, causing a Convert expression type.
+    //        return memberExp.Member.Name;
+    //    }
 
-        throw new ArgumentException("Invalid property expression", nameof(propertyExpression));
-    }
+    //    throw new ArgumentException("Invalid property expression", nameof(propertyExpression));
+    //}
 
     public string Entity { get; set; }
     public string Id { get; set; }

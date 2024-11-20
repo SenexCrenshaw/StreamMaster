@@ -4,12 +4,12 @@ namespace cryptoTester
 {
     internal static class Program
     {
-        private static void Main(string[] args)
+        private static void Main()
         {
-            string key1 = "serverKey";
-            string key2 = "groupKey";
+            const string key1 = "serverKey";
+            const string key2 = "groupKey";
 
-            string originalText = "Hello, World!";
+            const string originalText = "Hello, World!";
             Console.WriteLine($"Original: {originalText}");
 
             // First encryption
@@ -31,7 +31,6 @@ namespace cryptoTester
             // Decrypt first encryption
             string decrypted2 = AesEncryption.Decrypt(decrypted1, key1);
             Console.WriteLine($"Decrypted twice: {decrypted2}");
-
         }
     }
 }

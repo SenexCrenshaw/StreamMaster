@@ -26,7 +26,6 @@ public class ProfileService(IOptionsMonitor<Setting> intSettings, IServiceProvid
         return !string.IsNullOrEmpty(OutputProfileName) && OutputProfileName != settings.DefaultOutputProfileName
            ? intOutProfileSettings.CurrentValue.GetProfileDto(OutputProfileName)
            : intOutProfileSettings.CurrentValue.GetDefaultProfileDto(settings.DefaultOutputProfileName);
-        ;
     }
 
     public CommandProfileDto GetM3U8OutputProfile(string id)

@@ -1,6 +1,5 @@
 ﻿namespace StreamMaster.Application.SchedulesDirect.Queries;
 
-
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record GetStationPreviewsRequest : IRequest<DataResponse<List<StationPreview>>>;

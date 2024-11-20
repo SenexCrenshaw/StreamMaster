@@ -15,7 +15,7 @@ namespace StreamMaster.Streams.Services
         /// <param name="clientUserAgent">The client's user agent string.</param>
         /// <param name="clientIPAddress">The client's IP address.</param>
         /// <param name="response">The HTTP response associated with the client.</param>
-        /// <param name="cancellationToken">The cancellation token for the client.</param>
+        /// <param name="cancellationToken">The cancellation Token for the client.</param>
         /// <returns>A new instance of <see cref="IClientConfiguration"/>.</returns>
         public IClientConfiguration NewClientConfiguration(
             string uniqueRequestId,
@@ -35,10 +35,7 @@ namespace StreamMaster.Streams.Services
                 cancellationToken);
 
             config.ClientStream ??= new ClientReadStream(loggerFactory, config.UniqueRequestId);
-            config.ClientStream.ClientStreamTimedOut += (sender, e) =>
-            {
-                config.Stop();
-            };
+            config.ClientStream.ClientStreamTimedOut += (sender, e) => config.Stop();
             return config;
         }
 

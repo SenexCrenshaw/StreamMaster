@@ -15,7 +15,7 @@ public class UpdateVideoProfileRequestHandler(
     {
         if (!intProfileSettings.CurrentValue.Profiles.ContainsKey(request.ProfileName))
         {
-            return APIResponse.ErrorWithMessage($"CommandProfile '" + request.ProfileName + "' doesnt exist"); ;
+            return APIResponse.ErrorWithMessage("CommandProfile '" + request.ProfileName + "' doesnt exist");
         }
 
         if (!string.IsNullOrEmpty(request.NewProfileName))
@@ -37,7 +37,6 @@ public class UpdateVideoProfileRequestHandler(
 
         if (intProfileSettings.CurrentValue.Profiles.TryGetValue(request.ProfileName, out CommandProfile? existingProfile))
         {
-
             if (request.Command != null && existingProfile.Command != request.Command)
             {
                 existingProfile.Command = request.Command;
@@ -54,7 +53,6 @@ public class UpdateVideoProfileRequestHandler(
                     nameChanged = true;
                     intProfileSettings.CurrentValue.RemoveProfile(request.ProfileName);
                     intProfileSettings.CurrentValue.AddProfile(request.NewProfileName, existingProfile);
-
                 }
                 Logger.LogInformation("UpdateVideoProfileRequest");
 

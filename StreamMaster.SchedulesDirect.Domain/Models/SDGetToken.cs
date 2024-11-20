@@ -2,9 +2,9 @@
 
 public class SDGetToken
 {
-    public int code { get; set; }
-    public DateTime datetime { get; set; }
-    public string? message { get; set; }
-    public string? serverID { get; set; }
-    public string? token { get; set; }
+    public int Code { get; set; }
+    public DateTime Datetime { get; set; }
+    public string? Message { get; set; }
+    public string? ServerID { get; set; }
+    public string? Token { get; set; }
 }

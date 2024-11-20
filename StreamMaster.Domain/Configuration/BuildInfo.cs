@@ -10,8 +10,8 @@ namespace StreamMaster.Domain.Configuration
     /// </summary>
     public static class BuildInfo
     {
-        public static JsonSerializerOptions JsonIndentOptions = new() { WriteIndented = true };
-        public static JsonSerializerOptions JsonIndentOptionsWhenWritingNull = new() { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull, WriteIndented = false };
+        public static readonly JsonSerializerOptions JsonIndentOptions = new() { WriteIndented = true };
+        public static readonly JsonSerializerOptions JsonIndentOptionsWhenWritingNull = new() { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull, WriteIndented = false };
 
         static BuildInfo()
         {
@@ -36,11 +36,11 @@ namespace StreamMaster.Domain.Configuration
         public static bool IsWindows => RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
         public static bool IsOSX => RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
         public static bool IsFreeBSD => RuntimeInformation.IsOSPlatform(OSPlatform.FreeBSD);
-        public static string StartUpPath = new FileInfo(Assembly.GetExecutingAssembly().Location).Directory?.FullName ?? "";
+        public static readonly string StartUpPath = new FileInfo(Assembly.GetExecutingAssembly().Location).Directory?.FullName ?? "";
 
-        public static string DefaultStreamGroupName = "ALL";
+        public static readonly string DefaultStreamGroupName = "ALL";
 
-        public static StringComparison StringComparison = StringComparison.OrdinalIgnoreCase;
+        public static readonly StringComparison StringComparison = StringComparison.OrdinalIgnoreCase;
 
         //public const int DBBatchSize = 500;
         public static DateTime StartTime { get; set; }

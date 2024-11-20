@@ -7,8 +7,7 @@ namespace StreamMaster.Application.M3UFiles.Controllers
 {
     [Authorize]
     public partial class M3UFilesController(ILogger<M3UFilesController> _logger) : ApiControllerBase, IM3UFilesController
-    {        
-
+    {
         [HttpGet]
         [Route("[action]")]
         public async Task<ActionResult<List<string>>> GetM3UFileNames()
@@ -16,7 +15,7 @@ namespace StreamMaster.Application.M3UFiles.Controllers
             try
             {
             var ret = await Sender.Send(new GetM3UFileNamesRequest()).ConfigureAwait(false);
-             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetM3UFileNames.", statusCode: 500) : Ok(ret.Data?? new());
+             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetM3UFileNames.", statusCode: 500) : Ok(ret.Data?? []);
             }
             catch (Exception ex)
             {
@@ -32,7 +31,7 @@ namespace StreamMaster.Application.M3UFiles.Controllers
             try
             {
             var ret = await Sender.Send(new GetM3UFilesRequest()).ConfigureAwait(false);
-             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetM3UFiles.", statusCode: 500) : Ok(ret.Data?? new());
+             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetM3UFiles.", statusCode: 500) : Ok(ret.Data?? []);
             }
             catch (Exception ex)
             {
@@ -96,7 +95,6 @@ namespace StreamMaster.Application.M3UFiles.Controllers
             var ret = await Sender.Send(request).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
         }
-
     }
 }
 
@@ -107,13 +105,13 @@ namespace StreamMaster.Application.Hubs
         public async Task<List<string>> GetM3UFileNames()
         {
              var ret = await Sender.Send(new GetM3UFileNamesRequest()).ConfigureAwait(false);
-            return ret.Data?? new();
+            return ret.Data?? [];
         }
 
         public async Task<List<M3UFileDto>> GetM3UFiles()
         {
              var ret = await Sender.Send(new GetM3UFilesRequest()).ConfigureAwait(false);
-            return ret.Data?? new();
+            return ret.Data?? [];
         }
 
         public async Task<PagedResponse<M3UFileDto>> GetPagedM3UFiles(QueryStringParameters Parameters)
@@ -157,6 +155,5 @@ namespace StreamMaster.Application.Hubs
             var ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;
         }
-
     }
 }

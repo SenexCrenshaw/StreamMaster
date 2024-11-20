@@ -1,6 +1,5 @@
 ﻿using StreamMaster.Application.ChannelGroups.Events;
 
-
 namespace StreamMaster.Application.ChannelGroups.EventHandlers;
 
 public class UpdateChannelGroupEventHandler(IDataRefreshService dataRefreshService, IChannelGroupService channelGroupService)
@@ -18,7 +17,6 @@ public class UpdateChannelGroupEventHandler(IDataRefreshService dataRefreshServi
                 new(ChannelGroup.APIName, notification.ChannelGroup.Id, "TotalCount", notification.ChannelGroup.TotalCount),
                 new(ChannelGroup.APIName, notification.ChannelGroup.Id, "HiddenCount", notification.ChannelGroup.HiddenCount),
             ]);
-
         }
 
         if (notification.ChannelGroupNameChanged)
@@ -29,7 +27,6 @@ public class UpdateChannelGroupEventHandler(IDataRefreshService dataRefreshServi
         if (fds.Count > 0)
         {
             await dataRefreshService.SetField(fds).ConfigureAwait(false);
-
         }
 
         if (notification.ChannelGroupToggelVisibility)
@@ -41,6 +38,5 @@ public class UpdateChannelGroupEventHandler(IDataRefreshService dataRefreshServi
         {
             await dataRefreshService.ClearByTag(ChannelGroup.APIName, "Name").ConfigureAwait(false);
         }
-
     }
 }

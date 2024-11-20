@@ -3,7 +3,6 @@ using StreamMaster.Domain.Enums;
 
 namespace StreamMaster.Infrastructure.Services.QueueService;
 
-
 public partial class BackgroundTaskQueue : ILogoTasks
 {
     public async ValueTask BuildLogoCaches(CancellationToken cancellationToken = default)

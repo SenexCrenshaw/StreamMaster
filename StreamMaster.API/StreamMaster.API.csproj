@@ -63,7 +63,6 @@
 		<PackageReference Include="System.text.regularexpressions" Version="4.3.1" />		
     </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\StreamMaster.EPG\StreamMaster.EPG.csproj" />
     <ProjectReference Include="..\StreamMaster.Infrastructure\StreamMaster.Infrastructure.csproj" />
     <ProjectReference Include="..\StreamMaster.PlayList\StreamMaster.PlayList.csproj" />
     <ProjectReference Include="..\StreamMaster.SchedulesDirect.Services\StreamMaster.SchedulesDirect.Services.csproj" />

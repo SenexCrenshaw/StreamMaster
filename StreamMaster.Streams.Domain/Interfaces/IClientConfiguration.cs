@@ -19,7 +19,7 @@ namespace StreamMaster.Streams.Domain.Interfaces
         string HttpContextId { get; }
 
         /// <summary>
-        /// Gets the cancellation token associated with the client.
+        /// Gets the cancellation Token associated with the client.
         /// </summary>
         /// [IgnoreMember]
         [JsonIgnore]

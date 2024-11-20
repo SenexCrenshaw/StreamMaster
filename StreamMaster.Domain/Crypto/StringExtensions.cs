@@ -9,5 +9,4 @@ public static class StringExtensions
             ? throw new ArgumentException("Input cannot be null or whitespace.", nameof(input))
             : HttpUtility.HtmlEncode(input).Trim().Replace('+', '-').Replace(' ', '_').Replace('/', '_');
     }
-
 }

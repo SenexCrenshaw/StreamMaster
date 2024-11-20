@@ -23,7 +23,4 @@ public static class StringExtensions
     {
         return text.EndsWith(EndsWith, BuildInfo.StringComparison);
     }
-
-
-
 }

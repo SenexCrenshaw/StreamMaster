@@ -7,8 +7,7 @@ namespace StreamMaster.Application.SMChannels.Controllers
 {
     [Authorize]
     public partial class SMChannelsController(ILogger<SMChannelsController> _logger) : ApiControllerBase, ISMChannelsController
-    {        
-
+    {
         [HttpGet]
         [Route("[action]")]
         public async Task<ActionResult<PagedResponse<SMChannelDto>>> GetPagedSMChannels([FromQuery] QueryStringParameters Parameters)
@@ -24,7 +23,7 @@ namespace StreamMaster.Application.SMChannels.Controllers
             try
             {
             var ret = await Sender.Send(new GetSMChannelNameLogosRequest()).ConfigureAwait(false);
-             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetSMChannelNameLogos.", statusCode: 500) : Ok(ret.Data?? new());
+             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetSMChannelNameLogos.", statusCode: 500) : Ok(ret.Data?? []);
             }
             catch (Exception ex)
             {
@@ -40,7 +39,7 @@ namespace StreamMaster.Application.SMChannels.Controllers
             try
             {
             var ret = await Sender.Send(new GetSMChannelNamesRequest()).ConfigureAwait(false);
-             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetSMChannelNames.", statusCode: 500) : Ok(ret.Data?? new());
+             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetSMChannelNames.", statusCode: 500) : Ok(ret.Data?? []);
             }
             catch (Exception ex)
             {
@@ -56,7 +55,7 @@ namespace StreamMaster.Application.SMChannels.Controllers
             try
             {
             var ret = await Sender.Send(new GetVideoStreamNamesAndUrlsRequest()).ConfigureAwait(false);
-             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetVideoStreamNamesAndUrls.", statusCode: 500) : Ok(ret.Data?? new());
+             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetVideoStreamNamesAndUrls.", statusCode: 500) : Ok(ret.Data?? []);
             }
             catch (Exception ex)
             {
@@ -296,7 +295,6 @@ namespace StreamMaster.Application.SMChannels.Controllers
             var ret = await Sender.Send(request).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
         }
-
     }
 }
 
@@ -313,19 +311,19 @@ namespace StreamMaster.Application.Hubs
         public async Task<List<NameLogo>> GetSMChannelNameLogos()
         {
              var ret = await Sender.Send(new GetSMChannelNameLogosRequest()).ConfigureAwait(false);
-            return ret.Data?? new();
+            return ret.Data?? [];
         }
 
         public async Task<List<string>> GetSMChannelNames()
         {
              var ret = await Sender.Send(new GetSMChannelNamesRequest()).ConfigureAwait(false);
-            return ret.Data?? new();
+            return ret.Data?? [];
         }
 
         public async Task<List<IdNameUrl>> GetVideoStreamNamesAndUrls()
         {
              var ret = await Sender.Send(new GetVideoStreamNamesAndUrlsRequest()).ConfigureAwait(false);
-            return ret.Data?? new();
+            return ret.Data?? [];
         }
 
         public async Task<APIResponse?> AutoSetEPGFromParameters(AutoSetEPGFromParametersRequest request)
@@ -501,6 +499,5 @@ namespace StreamMaster.Application.Hubs
             var ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;
         }
-
     }
 }

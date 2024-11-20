@@ -37,8 +37,6 @@ public class StreamStreamingStatistic : BPSStatistics
             BitsPerSecond = BitsPerSecond,
             StreamUrl = StreamUrl,
             StartTime = StartTime
-
         };
     }
-
 }

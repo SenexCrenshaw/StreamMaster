@@ -36,15 +36,15 @@ public class SMLogger(IFileLoggingServiceFactory factory) : ILogger
     //        return;
     //    }
 
-    //    // Format the log message
-    //    string message = formatter(state, exception);
+    //    // Format the log Message
+    //    string Message = formatter(state, exception);
 
     //    // Save the log entry to the SQLite database
     //    using LogDbContext db = new();
     //    db.LogEntries.GetOrAdd(new LogEntry
     //    {
     //        LogLevel = logLevel,
-    //        MessageId = message,
+    //        MessageId = Message,
     //        TimeStamp = DateTime.Now
     //    });
 

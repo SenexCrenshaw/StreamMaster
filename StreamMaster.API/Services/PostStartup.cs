@@ -47,6 +47,5 @@ public class PostStartup(ILogger<PostStartup> logger, IServiceProvider servicePr
         //await dataRefreshService.RefreshAll();
 
         await taskQueue.SetIsSystemReady(true, cancellationToken).ConfigureAwait(false);
-
     }
 }

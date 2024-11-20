@@ -6,7 +6,7 @@ namespace StreamMaster.Application.Common.Models
     public class Capability
     {
         [XmlElement(ElementName = "device")]
-        public Device Device = new Device
+        public Device Device = new()
         {
             DeviceType = "urn:schemas-upnp-org:device:MediaServer:1",
             FriendlyName = "",
@@ -34,7 +34,6 @@ namespace StreamMaster.Application.Common.Models
         public string Xmlns = "urn:schemas-upnp-org:device-1-0";
         public Capability()
         {
-
         }
         public Capability(string urlBase, string deviceID)
         {
@@ -50,6 +49,5 @@ namespace StreamMaster.Application.Common.Models
                 UDN = deviceID
             };
         }
-
     }
 }

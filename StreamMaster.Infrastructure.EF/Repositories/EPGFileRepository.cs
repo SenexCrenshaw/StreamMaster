@@ -181,7 +181,6 @@ public class EPGFileRepository(ILogger<EPGFileRepository> intLogger, IFileUtilSe
             .ToListAsync()
             .ConfigureAwait(false);
 
-
         HashSet<EPGFileDto> toUpdate = filesWithoutUrl.Where(epgFile => epgFile.LastWrite() >= epgFile.LastUpdated).Select(mapper.Map<EPGFileDto>).ToHashSet();
 
         if (toUpdate.Count > 0)
@@ -219,9 +218,8 @@ public class EPGFileRepository(ILogger<EPGFileRepository> intLogger, IFileUtilSe
             }
         }
 
-        return toUpdate.ToList();
+        return [.. toUpdate];
     }
-
 
     /// <summary>
     /// Retrieves paged EPGFiles based on specific parameters.
@@ -276,7 +274,6 @@ public class EPGFileRepository(ILogger<EPGFileRepository> intLogger, IFileUtilSe
         EPGFile? epgFile = null;
         try
         {
-
             epgFile = await GetEPGFile(EPGFileId);
             if (epgFile == null)
             {

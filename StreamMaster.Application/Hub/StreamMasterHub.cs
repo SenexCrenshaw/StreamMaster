@@ -2,7 +2,6 @@
 
 namespace StreamMaster.Application.Hubs;
 
-
 [Authorize(Policy = "SignalR")]
 public partial class StreamMasterHub(ISender Sender, IOptionsMonitor<Setting> settings)
     : Hub<IStreamMasterHub>

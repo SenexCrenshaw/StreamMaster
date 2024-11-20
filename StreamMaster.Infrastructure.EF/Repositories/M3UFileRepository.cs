@@ -25,7 +25,6 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, IRepository
             throw new ArgumentNullException(nameof(m3uFile));
         }
         Create(m3uFile);
-
     }
 
     /// <inheritdoc/>
@@ -137,7 +136,6 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, IRepository
             .ToListAsync()
             .ConfigureAwait(false);
 
-
         HashSet<M3UFileDto> toUpdate = filesWithoutUrl.Where(m3uFile => m3uFile.LastWrite() >= m3uFile.LastUpdated).Select(mapper.Map<M3UFileDto>).ToHashSet();
 
         if (toUpdate.Count > 0)
@@ -175,9 +173,8 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, IRepository
             }
         }
 
-        return toUpdate.ToList();
+        return [.. toUpdate];
     }
-
 
     public IQueryable<M3UFile> GetM3UFileQuery()
     {

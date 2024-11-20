@@ -1,6 +1,5 @@
 ﻿namespace StreamMaster.Application.Profiles.Commands;
 
-
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record UpdateOutputProfileRequest(string ProfileName, string? NewName) : OutputProfileRequest, IRequest<APIResponse>;
@@ -11,12 +10,11 @@ public class UpdateFileProfileRequestHandler(
     IDataRefreshService dataRefreshService
     ) : IRequestHandler<UpdateOutputProfileRequest, APIResponse>
 {
-
     private readonly OutputProfileDict profilesettings = intprofilesettings.CurrentValue;
 
     public async Task<APIResponse> Handle(UpdateOutputProfileRequest request, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrEmpty(request.ProfileName) || !profilesettings.Profiles.ContainsKey(request.ProfileName))
+        if (string.IsNullOrEmpty(request.ProfileName) || !profilesettings.Profiles.TryGetValue(request.ProfileName, out OutputProfile? existingProfile))
         {
             return APIResponse.Ok;
         }
@@ -33,7 +31,6 @@ public class UpdateFileProfileRequestHandler(
             }
         }
 
-        OutputProfile? existingProfile = profilesettings.Profiles[request.ProfileName!];
         if (existingProfile is null)
         {
             return APIResponse.Ok;
@@ -125,5 +122,4 @@ public class UpdateFileProfileRequestHandler(
         //await dataRefreshService.RefreshOutProfiles();
         return APIResponse.Ok;
     }
-
 }

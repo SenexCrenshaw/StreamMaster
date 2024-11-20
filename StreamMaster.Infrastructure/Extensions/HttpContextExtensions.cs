@@ -1,11 +1,10 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-
+namespace StreamMaster.Infrastructure.Extensions;
 public static class HttpContextExtensions
 {
     public static async Task LogRequestDetailsAsync(this HttpContext context, ILogger logger)
     {
-
         HttpRequest request = context.Request;
 
         // Log the request method and URL
@@ -37,5 +36,4 @@ public static class HttpContextExtensions
 
         logger.LogInformation("Request Body: {Body}", body);
     }
-
 }

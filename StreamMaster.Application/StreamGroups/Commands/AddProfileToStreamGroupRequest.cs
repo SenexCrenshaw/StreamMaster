@@ -26,7 +26,6 @@ public class AddProfileToStreamGroupRequestHandler(IRepositoryWrapper Repository
             return APIResponse.ErrorWithMessage("Stream Group not found");
         }
 
-
         if (streamGroup.StreamGroupProfiles.Any(x => x.ProfileName == request.ProfileName))
         {
             return APIResponse.ErrorWithMessage("Profile with this name already exists");
@@ -41,7 +40,6 @@ public class AddProfileToStreamGroupRequestHandler(IRepositoryWrapper Repository
 
         Repository.StreamGroup.Update(streamGroup);
         _ = await Repository.SaveAsync();
-
 
         await dataRefreshService.RefreshStreamGroups();
 

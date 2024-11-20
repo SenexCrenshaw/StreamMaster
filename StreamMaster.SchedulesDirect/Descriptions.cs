@@ -20,7 +20,7 @@ public class Descriptions(ILogger<Descriptions> logger, ISchedulesDirectAPIServi
 
         ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
         List<SeriesInfo> toProcess = schedulesDirectData.SeriesInfosToProcess;
-        logger.LogInformation($"Entering BuildAllGenericSeriesInfoDescriptions() for {toProcess.Count} series.");
+        logger.LogInformation("Entering BuildAllGenericSeriesInfoDescriptions() for {toProcess.Count} series.", toProcess.Count);
 
         foreach (SeriesInfo series in toProcess)
         {
@@ -30,7 +30,7 @@ public class Descriptions(ILogger<Descriptions> logger, ISchedulesDirectAPIServi
             }
 
             string seriesId = $"SH{series.SeriesId}0000";
-            if (epgCache.JsonFiles.ContainsKey(seriesId) && epgCache.JsonFiles[seriesId].JsonEntry != null)
+            if (epgCache.JsonFiles.TryGetValue(seriesId, out EPGJsonCache? value) && value.JsonEntry != null)
             {
                 TryLoadFromCache(seriesId, series);
             }
@@ -121,10 +121,7 @@ public class Descriptions(ILogger<Descriptions> logger, ISchedulesDirectAPIServi
 
         if (responses != null)
         {
-            Parallel.ForEach(responses, (response) =>
-            {
-                seriesDescriptionResponses.TryAdd(response.Key, response.Value);
-            });
+            Parallel.ForEach(responses, (response) => seriesDescriptionResponses.TryAdd(response.Key, response.Value));
         }
     }
 
@@ -160,62 +157,62 @@ public class Descriptions(ILogger<Descriptions> logger, ISchedulesDirectAPIServi
         }
     }
 
-    private void UpdateSeriesAirdate(string seriesId, string originalAirdate)
-    {
-        UpdateSeriesAirdate(seriesId, DateTime.Parse(originalAirdate));
-    }
+    //private void UpdateSeriesAirdate(string seriesId, string originalAirdate)
+    //{
+    //    UpdateSeriesAirdate(seriesId, DateTime.Parse(originalAirdate));
+    //}
 
-    private void UpdateSeriesAirdate(string seriesId, DateTime airdate)
-    {
-        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
-        // write the mxf entry
-        schedulesDirectData.FindOrCreateSeriesInfo(seriesId.Substring(2, 8)).StartAirdate = airdate.ToString("yyyy-MM-dd");
+    //private void UpdateSeriesAirdate(string seriesId, DateTime airdate)
+    //{
+    //    ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
+    //    // write the mxf entry
+    //    schedulesDirectData.FindOrCreateSeriesInfo(seriesId.Substring(2, 8)).StartAirdate = airdate.ToString("yyyy-MM-dd");
 
-        // update cache if needed
-        try
-        {
-            string? cache = epgCache.GetAsset(seriesId);
-            if (cache == null)
-            {
-                return;
-            }
-            using StringReader reader = new(cache);
-            JsonSerializerOptions options = new();
+    //    // update cache if needed
+    //    try
+    //    {
+    //        string? cache = epgCache.GetAsset(seriesId);
+    //        if (cache == null)
+    //        {
+    //            return;
+    //        }
+    //        using StringReader reader = new(cache);
+    //        JsonSerializerOptions options = new();
 
-            GenericDescription? cached = JsonSerializer.Deserialize<GenericDescription>(reader.ReadToEnd(), options);
+    //        GenericDescription? cached = JsonSerializer.Deserialize<GenericDescription>(reader.ReadToEnd(), options);
 
-            if (cached is null || !string.IsNullOrEmpty(cached.StartAirdate))
-            {
-                return;
-            }
+    //        if (cached is null || !string.IsNullOrEmpty(cached.StartAirdate))
+    //        {
+    //            return;
+    //        }
 
-            cached.StartAirdate = airdate.Equals(DateTime.MinValue) ? "" : airdate.ToString("yyyy-MM-dd");
+    //        cached.StartAirdate = airdate.Equals(DateTime.MinValue) ? "" : airdate.ToString("yyyy-MM-dd");
 
-            using StringWriter writer = new();
-            string jsonString = JsonSerializer.Serialize(cached, options);
-            epgCache.UpdateAssetJsonEntry(seriesId, jsonString);
-        }
-        catch
-        {
-            // ignored
-        }
-    }
+    //        using StringWriter writer = new();
+    //        string jsonString = JsonSerializer.Serialize(cached, options);
+    //        epgCache.UpdateAssetJsonEntry(seriesId, jsonString);
+    //    }
+    //    catch
+    //    {
+    //        // ignored
+    //    }
+    //}
 
-    private async Task<Dictionary<string, GenericDescription>?> GetGenericDescriptionsAsync(string[] request, CancellationToken cancellationToken)
-    {
-        DateTime dtStart = DateTime.Now;
-        Dictionary<string, GenericDescription>? ret = await schedulesDirectAPI.GetApiResponse<Dictionary<string, GenericDescription>?>(APIMethod.POST, "metadata/description/", request, cancellationToken);
-        if (ret != null)
-        {
-            logger.LogDebug($"Successfully retrieved {ret.Count}/{request.Length} generic program descriptions. ({DateTime.Now - dtStart:G})");
-        }
-        else
-        {
-            logger.LogError($"Did not receive a response from Schedules Direct for {request.Length} generic program descriptions. ({DateTime.Now - dtStart:G})");
-        }
+    //private async Task<Dictionary<string, GenericDescription>?> GetGenericDescriptionsAsync(string[] request, CancellationToken cancellationToken)
+    //{
+    //    DateTime dtStart = DateTime.Now;
+    //    Dictionary<string, GenericDescription>? ret = await schedulesDirectAPI.GetApiResponse<Dictionary<string, GenericDescription>?>(APIMethod.POST, "metadata/description/", request, cancellationToken);
+    //    if (ret != null)
+    //    {
+    //        logger.LogDebug($"Successfully retrieved {ret.Count}/{request.Length} generic program descriptions. ({DateTime.Now - dtStart:G})");
+    //    }
+    //    else
+    //    {
+    //        logger.LogError($"Did not receive a response from Schedules Direct for {request.Length} generic program descriptions. ({DateTime.Now - dtStart:G})");
+    //    }
 
-        return ret;
-    }
+    //    return ret;
+    //}
 
     public void ClearCache()
     {

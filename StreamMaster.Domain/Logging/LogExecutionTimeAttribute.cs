@@ -1,4 +1,6 @@
-﻿using System.Diagnostics;
+﻿using System.CodeDom.Compiler;
+
+using System.Diagnostics;
 using System.Reflection;
 
 using AspectInjector.Broker;
@@ -8,6 +10,7 @@ namespace StreamMaster.Domain.Logging;
 
 [Aspect(Scope.Global)]
 [Injection(typeof(LogExecutionTimeAspect))]
+[GeneratedCode("", "")]
 public class LogExecutionTimeAspect : Attribute
 {
     [Advice(Kind.Around, Targets = Target.Method)]

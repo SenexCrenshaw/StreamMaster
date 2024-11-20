@@ -9,7 +9,6 @@ internal class AutoSetSMChannelNumbersRequestHandler(IRepositoryWrapper Reposito
 {
     public async Task<APIResponse> Handle(AutoSetSMChannelNumbersRequest request, CancellationToken cancellationToken)
     {
-
         IdIntResultWithResponse res = await Repository.SMChannel.AutoSetSMChannelNumbersRequest(request.StreamGroupId, request.SMChannelIds, request.StartingNumber, request.OverwriteExisting);
         if (res.APIResponse.IsError)
         {
@@ -28,7 +27,7 @@ internal class AutoSetSMChannelNumbersRequestHandler(IRepositoryWrapper Reposito
         {
             await dataRefreshService.SetField(ret).ConfigureAwait(false);
             //await dataRefreshService.RefreshSMChannels().ConfigureAwait(false);
-            await messageService.SendSuccess($"Auto Set #s For Channels");
+            await messageService.SendSuccess("Auto Set #s For Channels");
         }
 
         //await hubContext.ClientChannels.All.DataRefresh("StreamGroups").ConfigureAwait(false);

@@ -1,6 +1,5 @@
 ﻿namespace StreamMaster.Application.ChannelGroups.Queries;
 
-
 public record GetChannelGroupByNameRequest(string Name) : IRequest<DataResponse<ChannelGroupDto?>>;
 
 internal class GetChannelGroupByNameHandler(IRepositoryWrapper Repository, IMapper Mapper)

@@ -9,6 +9,4 @@ public class CustomPlayList
     public string Logo { get; set; } = string.Empty;
     public Movie? FolderNfo { get; set; }
     public List<CustomStreamNfo> CustomStreamNfos { get; set; } = [];
-
-
 }

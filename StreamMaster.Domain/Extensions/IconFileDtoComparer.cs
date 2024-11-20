@@ -26,7 +26,7 @@ public class IconFileDtoComparer : IEqualityComparer<LogoFileDto>
         }
 
         // Assuming Source is the unique identifier for LogoFileDto
-        int hashProductName = obj.Source == null ? 0 : obj.Source.GetHashCode();
+        int hashProductName = (obj.Source?.GetHashCode()) ?? 0;
 
         return hashProductName;
     }

@@ -10,7 +10,7 @@ public partial class SchedulesDirectAPIService
     private readonly SemaphoreSlim _tokenSemaphore = new(1, 1);
 
     /// <summary>
-    /// Retrieves a session token from ScheduleService Direct
+    /// Retrieves a session Token from ScheduleService Direct
     /// </summary>
     /// <returns>true if successful</returns>
     public async Task<bool> GetToken()
@@ -22,7 +22,7 @@ public partial class SchedulesDirectAPIService
     {
         GoodToken = false;
         TokenTimestamp = DateTime.MinValue;
-        //_ = _httpClient.DefaultRequestHeaders.Remove("token");
+        //_ = _httpClient.DefaultRequestHeaders.Remove("Token");
     }
 
     public async Task ResetToken(CancellationToken cancellationToken = default)

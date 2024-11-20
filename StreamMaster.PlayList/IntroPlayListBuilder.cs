@@ -127,12 +127,12 @@ namespace StreamMaster.PlayList
 
             List<int> availableIndices = Enumerable.Range(0, introMovies.Length).ToList();
 
-            if (avoidIndex.HasValue && avoidIndex.Value >= 0 && avoidIndex.Value < introMovies.Length)
+            if (avoidIndex >= 0 && avoidIndex.Value < introMovies.Length)
             {
                 availableIndices.Remove(avoidIndex.Value);
             }
 
-            if (!availableIndices.Any())
+            if (availableIndices.Count == 0)
             {
                 return null; // In case all indices are avoided, though practically this should not happen
             }

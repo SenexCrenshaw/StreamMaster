@@ -1,6 +1,5 @@
 ﻿namespace StreamMaster.Application.SMChannelStreamLinks.Commands;
 
-
 public record UpdateStreamRanksRequest(int SMChannelId, List<string> Streams)
     : IRequest<DataResponse<List<SMStreamDto>>>;
 
@@ -24,7 +23,7 @@ internal class UpdateStreamRanksRequestHandler(IRepositoryWrapper Repository, IM
                 ret.Add(sm);
             }
         }
-        List<SMStreamDto> test = ret.OrderBy(a => a.Rank).ToList();
+        List<SMStreamDto> test = [.. ret.OrderBy(a => a.Rank)];
         return await Task.FromResult(DataResponse<List<SMStreamDto>>.Success(test));
     }
 }

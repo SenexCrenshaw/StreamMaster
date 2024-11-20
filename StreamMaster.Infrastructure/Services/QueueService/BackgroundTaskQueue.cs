@@ -60,7 +60,7 @@ public partial class BackgroundTaskQueue : IBackgroundTaskQueue
         await QueueAsync(SMQueCommand.SetTestTask, delayInSeconds, cancellationToken).ConfigureAwait(false);
     }
 
-    public List<SMTask> GetSMTasks() => taskQueueStatuses.Values.OrderByDescending(a => a.Id).ToList();
+    public List<SMTask> GetSMTasks() => [.. taskQueueStatuses.Values.OrderByDescending(a => a.Id)];
 
     private async ValueTask SendSMTasks()
     {

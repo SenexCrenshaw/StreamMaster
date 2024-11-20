@@ -314,7 +314,7 @@ public class LineupService : ILineupService
     //        }
     //        else
     //        {
-    //            logger.LogError("HTTP request failed with status code: {StatusCode}", response.StatusCode);
+    //            logger.LogError("HTTP request failed with status Code: {StatusCode}", response.StatusCode);
     //        }
     //    }
     //    catch (IOException ioEx)

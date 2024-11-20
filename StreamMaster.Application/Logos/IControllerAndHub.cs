@@ -5,7 +5,7 @@ using StreamMaster.Application.Logos.Queries;
 namespace StreamMaster.Application.Logos
 {
     public interface ILogosController
-    {        
+    {
         Task<ActionResult<List<LogoFileDto>>> GetLogos();
     }
 }

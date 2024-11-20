@@ -6,8 +6,7 @@ namespace StreamMaster.Application.Logos.Controllers
 {
     [Authorize]
     public partial class LogosController(ILogger<LogosController> _logger) : ApiControllerBase, ILogosController
-    {        
-
+    {
         [HttpGet]
         [Route("[action]")]
         public async Task<ActionResult<List<LogoFileDto>>> GetLogos()
@@ -15,7 +14,7 @@ namespace StreamMaster.Application.Logos.Controllers
             try
             {
             var ret = await Sender.Send(new GetLogosRequest()).ConfigureAwait(false);
-             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetLogos.", statusCode: 500) : Ok(ret.Data?? new());
+             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetLogos.", statusCode: 500) : Ok(ret.Data?? []);
             }
             catch (Exception ex)
             {
@@ -23,7 +22,6 @@ namespace StreamMaster.Application.Logos.Controllers
                 return Problem(detail: "An unexpected error occurred. Please try again later.", statusCode: 500);
             }
         }
-
     }
 }
 
@@ -34,8 +32,7 @@ namespace StreamMaster.Application.Hubs
         public async Task<List<LogoFileDto>> GetLogos()
         {
              var ret = await Sender.Send(new GetLogosRequest()).ConfigureAwait(false);
-            return ret.Data?? new();
+            return ret.Data?? [];
         }
-
     }
 }

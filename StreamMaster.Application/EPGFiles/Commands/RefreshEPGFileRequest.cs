@@ -7,19 +7,16 @@ public record RefreshEPGFileRequest(int Id) : IRequest<APIResponse>;
 public class RefreshEPGFileRequestHandler(ILogger<RefreshEPGFileRequest> Logger, IFileUtilService fileUtilService, IMessageService messageService, IMapper Mapper, IJobStatusService jobStatusService, IRepositoryWrapper Repository, IPublisher Publisher)
     : IRequestHandler<RefreshEPGFileRequest, APIResponse>
 {
-
     public async Task<APIResponse> Handle(RefreshEPGFileRequest request, CancellationToken cancellationToken)
     {
         JobStatusManager jobManager = jobStatusService.GetJobManagerRefreshEPG(request.Id);
         try
         {
-
             if (jobManager.IsRunning)
             {
                 return APIResponse.NotFound;
             }
             jobManager.Start();
-
 
             EPGFile? epgFile = await Repository.EPGFile.GetEPGFileById(request.Id).ConfigureAwait(false);
             if (epgFile == null)
@@ -29,19 +26,17 @@ public class RefreshEPGFileRequestHandler(ILogger<RefreshEPGFileRequest> Logger,
                 return APIResponse.NotFound;
             }
 
-
             if (epgFile.LastDownloadAttempt.AddMinutes(epgFile.MinimumMinutesBetweenDownloads) < SMDT.UtcNow)
             {
-
                 FileDefinition fd = FileDefinitions.EPG;
                 string fullName = Path.Combine(fd.DirectoryLocation, epgFile.Source);
 
-                if (epgFile.Url != null && epgFile.Url.Contains("://"))
+                if (epgFile.Url?.Contains("://") == true)
                 {
-
                     Logger.LogInformation("Refresh EPG From URL {epgFile.Url}", epgFile.Url);
 
                     epgFile.LastDownloadAttempt = SMDT.UtcNow;
+                    epgFile.LastUpdated = epgFile.LastDownloadAttempt;
 
                     (bool success, Exception? ex) = await fileUtilService.DownloadUrlAsync(epgFile.Url, fullName).ConfigureAwait(false);
                     if (!success)
@@ -84,13 +79,11 @@ public class RefreshEPGFileRequestHandler(ILogger<RefreshEPGFileRequest> Logger,
             jobManager.SetSuccessful();
             await messageService.SendSuccess($"Refreshed EPG {epgFile.Name}");
             return APIResponse.Success;
-
         }
         catch (Exception ex)
         {
             jobManager.SetError();
             return APIResponse.ErrorWithMessage(ex, "Refresh EPG failed");
         }
-
     }
 }

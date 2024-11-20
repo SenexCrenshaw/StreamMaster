@@ -20,10 +20,8 @@ public class AutoUpdateEntity : CacheEntity
         return ret;
     }
 
-
     public bool AutoUpdate { get; set; }
     public int HoursToUpdate { get; set; }
     [Column(TypeName = "citext")]
     public string? Url { get; set; }
-
 }

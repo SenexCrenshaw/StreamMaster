@@ -3,16 +3,13 @@
 using Microsoft.EntityFrameworkCore;
 
 using StreamMaster.Domain.API;
-using StreamMaster.Domain.Filtering;
 
 using X.Extensions.PagedList.EF;
 namespace StreamMaster.Domain.Extensions;
 
 public static class PagedExtensions
 {
-    public static async Task<PagedResponse<TDto>> GetPagedResponseAsync<T, TDto>(this IQueryable<T> query, int pageNumber, int pageSize, IMapper mapper)
-    where TDto : class
-        where T : class
+    public static async Task<PagedResponse<TDto>> GetPagedResponseAsync<T, TDto>(this IQueryable<T> query, int pageNumber, int pageSize, IMapper mapper) where T : class where TDto : class
     {
         IPagedList<T> pagedResult = await query.AsNoTracking().ToPagedListAsync(pageNumber, pageSize).ConfigureAwait(false);
         PagedResponse<TDto> childQDto = pagedResult.ToPagedResponseDto<T, TDto>(mapper);
@@ -51,5 +48,4 @@ public static class PagedExtensions
             Data = []
         };
     }
-
 }

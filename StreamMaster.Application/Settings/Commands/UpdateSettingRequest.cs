@@ -126,12 +126,12 @@ public partial class UpdateSettingRequestHandler(
 
         if (source.HeadendsToView != null)
         {
-            destination.HeadendsToView = new List<HeadendToView>(source.HeadendsToView);
+            destination.HeadendsToView = [.. source.HeadendsToView];
         }
 
         if (source.SDStationIds != null)
         {
-            destination.SDStationIds = new List<StationIdLineup>(source.SDStationIds);
+            destination.SDStationIds = [.. source.SDStationIds];
         }
 
         if (source.SeasonEventImages.HasValue)

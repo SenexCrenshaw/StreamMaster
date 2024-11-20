@@ -3,6 +3,7 @@
 using AutoMapper.Internal;
 
 using BuildClientAPI.CSharp;
+using BuildClientAPI.Models;
 using BuildClientAPI.TS;
 
 using MediatR;
@@ -22,7 +23,7 @@ namespace BuildClientAPI
         private const string DataRefreshAllFilePath = SMAPIFileNamePrefix + @"\DataRefreshAll.ts";
         private const string IDataRefreshFilePath = @"..\..\..\..\StreamMaster.Domain\Services\IDataRefreshService.cs";
 
-        private static void Main(string[] args)
+        private static void Main()
         {
             CleanSubDirectories(SMAPIFileNamePrefix);
             if (File.Exists(DataRefreshAllFilePath))
@@ -50,13 +51,13 @@ namespace BuildClientAPI
 
         private static void ScanForSMAPI()
         {
-            bool writeFiles = true;
+            const bool writeFiles = true;
             try
             {
                 Assembly assembly = Assembly.Load(AssemblyName);
                 Dictionary<string, List<MethodDetails>> methodsByNamespace = [];
                 List<Type> smapiAttributedTypes = assembly.GetTypes()
-                    .Where(t => t.GetCustomAttributes(typeof(SMAPIAttribute), false).Any())
+                    .Where(t => t.GetCustomAttributes(typeof(SMAPIAttribute), false).Length != 0)
                     .ToList();
 
                 foreach (Type recordType in smapiAttributedTypes)
@@ -71,7 +72,6 @@ namespace BuildClientAPI
                     {
                         methodDetailsList = [];
                         methodsByNamespace[classNamespace] = methodDetailsList;
-
                     }
 
                     string ps = CSharpUtils.ParamsToCSharp(recordType);
@@ -92,7 +92,7 @@ namespace BuildClientAPI
 
                     List<string> smapiImport = [];
 
-                    string toCheck = "GetStreamGroupProfiles";
+                    const string toCheck = "GetStreamGroupProfiles";
 
                     if (recordType.Name.StartsWith(toCheck))
                     {
@@ -104,9 +104,7 @@ namespace BuildClientAPI
                         string TsReturnType = GetCleanTSReturnType(returnType);
                         string genericArgs = string.Join(", ", recordType.GetGenericArguments().Select(FormatTypeName));
                         string genericArgs2 = string.Join(", ", returnType.GetGenericArguments().Select(FormatTypeName));
-
                     }
-
 
                     string name = recordType.Name;
                     string parameter = recordType.Name;
@@ -128,7 +126,7 @@ namespace BuildClientAPI
                         NamespaceName = classNamespace,
                         SMAPIImport = smapiImport,
                         ReturnType = returnTypeString,
-                        IsReturnNull = returnTypeString.Contains("?") || returnTypeString.Contains("DataResponse") || returnTypeString.Contains("PagedResponse"),// Utils.IsTypeNullable(returnType),
+                        IsReturnNull = returnTypeString.Contains('?') || returnTypeString.Contains("DataResponse") || returnTypeString.Contains("PagedResponse"),// Utils.IsTypeNullable(returnType),
                         IsList = returnTypeString.StartsWith("List") || returnTypeString.EndsWith("[]") || returnType.IsArray || returnType.IsListType() || returnType.IsDataResponse(),
                         Parameter = ps,
                         ParameterNames = string.Join(", ", parameters.Select(p => p.Name)),
@@ -140,7 +138,7 @@ namespace BuildClientAPI
                         Pertsist = smapiAttribute.Persist,
                         SingalRFunction = parameter,
                         TSName = name,
-                        TsParameter = ps == "" ? "" : parameter,
+                        TsParameter = ps?.Length == 0 ? "" : parameter,
                         TsReturnType = GetCleanTSReturnType(returnType),
                         ReturnEntityType = GetTSTypeReturnName(returnType),
                     };
@@ -149,7 +147,6 @@ namespace BuildClientAPI
                     if (returnEntity != null)
                     {
                         string aa = returnEntity;
-
                     }
 
                     if (recordType.Name.StartsWith(toCheck))
@@ -157,7 +154,6 @@ namespace BuildClientAPI
                     }
 
                     methodDetailsList.Add(methodDetails);
-
                 }
 
                 foreach (KeyValuePair<string, List<MethodDetails>> kvp in methodsByNamespace)
@@ -179,14 +175,12 @@ namespace BuildClientAPI
                         string tsFetchFilePath = Path.Combine(SMAPIFileNamePrefix, namespaceName);
                         TypeScriptFetchGenerator.GenerateFile(namespaceName, methods, tsFetchFilePath);
 
-
                         string tsSliceFilePath = Path.Combine(SMAPIFileNamePrefix, namespaceName);
                         TypeScriptSliceGenerator.GenerateFile(pagedMethods, tsSliceFilePath);
 
                         string tsHookFilePath = Path.Combine(SMAPIFileNamePrefix, namespaceName);
                         TypeScriptHookGenerator.GenerateFile(methods, tsHookFilePath);
                     }
-
                 }
 
                 string tsSignalRFilePath = Path.Combine(SignalRFilePathPrefix, "SignalRProvider.tsx");
@@ -218,18 +212,16 @@ namespace BuildClientAPI
             if (ret.StartsWith(AssemblyName))
             {
                 ret = ret.Remove(0, AssemblyName.Length + 1);
-                if (ret.Contains("."))
+                if (ret.Contains('.'))
                 {
-                    ret = ret.Remove(ret.IndexOf("."));
+                    ret = ret.Remove(ret.IndexOf('.'));
                 }
             }
             return ret;
-
         }
 
         private static string GetCleanReturnType(Type returnType)
         {
-
             if (returnType.Name.Contains("Nullable"))
             {
             }
@@ -287,7 +279,6 @@ namespace BuildClientAPI
         {
             if (type.IsGenericType)
             {
-
                 string genericArgs = FormatTSTypeName(type.GetGenericArguments()[0]);
                 return genericArgs;
             }
@@ -299,7 +290,6 @@ namespace BuildClientAPI
 
         private static string FormatTSTypeName(Type type)
         {
-
             if (type.IsGenericType)
             {
                 string typeName = type.GetGenericTypeDefinition().Name;
@@ -352,5 +342,4 @@ namespace BuildClientAPI
             return name += "?";
         }
     }
-
 }

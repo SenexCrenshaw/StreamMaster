@@ -16,7 +16,6 @@ namespace StreamMaster.API.Controllers
     [ApiController]
     public class AuthenticationController(IAuthenticationService authService, IDataRefreshService dataRefreshService, IOptionsMonitor<Setting> settings) : Controller
     {
-
         [AllowAnonymous]
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromForm] LoginResource resource, [FromQuery] string? ReturnUrl = null)
@@ -65,7 +64,7 @@ namespace StreamMaster.API.Controllers
                 return Ok(false);
             }
             bool a = HttpContext.User?.Identity?.IsAuthenticated == true;
-            if (a == true)
+            if (a)
             {
                 //hey now
                 return Ok(false);

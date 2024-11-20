@@ -9,7 +9,6 @@ internal static class IsSystemReadyConfig
     public static readonly object Lock = new();
 }
 
-
 internal static class ChannelLogosConfig
 {
     public static readonly MemoryCacheEntryOptions CacheEntryOptions = CacheManagerExtensions.NeverRemoveCacheEntryOptions;

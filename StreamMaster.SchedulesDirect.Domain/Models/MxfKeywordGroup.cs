@@ -24,7 +24,6 @@ public class MxfKeywordGroup
             return keyword;
         }
 
-
         mxfKeywords.Add(keyword = new MxfKeyword(Index, (Index * 1000) + mxfKeywords.Count + 1, word));
         _Keywords.Add(word, keyword);
         return keyword;

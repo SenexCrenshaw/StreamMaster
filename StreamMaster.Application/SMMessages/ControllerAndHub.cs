@@ -6,8 +6,7 @@ namespace StreamMaster.Application.SMMessages.Controllers
 {
     [Authorize]
     public partial class SMMessagesController() : ApiControllerBase, ISMMessagesController
-    {        
-
+    {
         [HttpPatch]
         [Route("[action]")]
         public async Task<ActionResult<APIResponse?>> SendSMError(SendSMErrorRequest request)
@@ -47,7 +46,6 @@ namespace StreamMaster.Application.SMMessages.Controllers
             var ret = await Sender.Send(request).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
         }
-
     }
 }
 
@@ -84,6 +82,5 @@ namespace StreamMaster.Application.Hubs
             var ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;
         }
-
     }
 }

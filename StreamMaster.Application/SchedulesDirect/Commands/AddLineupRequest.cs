@@ -15,7 +15,6 @@ public class AddLineupRequestHandler(ISchedulesDirect schedulesDirect, IBackgrou
     {
         JobStatusManager jobManager = jobStatusService.GetJobManager(JobType.SDSync, EPGHelper.SchedulesDirectId);
 
-
         if (!sdSettings.SDEnabled)
         {
             return APIResponse.ErrorWithMessage("SD is not enabled");

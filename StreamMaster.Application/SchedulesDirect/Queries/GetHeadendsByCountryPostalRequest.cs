@@ -7,12 +7,11 @@ public record GetHeadendsByCountryPostalRequest(string Country, string PostalCod
 internal class GetHeadendsByCountryPostalRequestHandler(ISchedulesDirect schedulesDirect)
     : IRequestHandler<GetHeadendsByCountryPostalRequest, DataResponse<List<HeadendDto>>>
 {
-
     private static List<HeadendDto> MapFrom(List<Headend> headends, string Country, string PostalCode)
     {
         //var result = await lineups.GetLineups(CancellationToken.None);
         //var subscribedLineups = result.Select(x => x.Lineup).ToList();
-        List<HeadendDto> ret = new();
+        List<HeadendDto> ret = [];
         foreach (Headend headend in headends)
         {
             foreach (HeadendLineup lineup in headend.Lineups)

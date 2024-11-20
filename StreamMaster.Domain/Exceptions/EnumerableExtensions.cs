@@ -4,20 +4,16 @@ public static class EnumerableExtensions
 {
     public static IEnumerable<IEnumerable<T>> Batch<T>(this IEnumerable<T> source, int size)
     {
-        if (source == null)
-        {
-            throw new ArgumentNullException(nameof(source));
-        }
+        ArgumentNullException.ThrowIfNull(source);
 
-        if (size <= 0)
+        return size <= 0 ? throw new ArgumentOutOfRangeException(nameof(size), "Batch size must be greater than 0.") : Batch2();
+        IEnumerable<IEnumerable<T>> Batch2()
         {
-            throw new ArgumentOutOfRangeException(nameof(size), "Batch size must be greater than 0.");
-        }
-
-        using IEnumerator<T> enumerator = source.GetEnumerator();
-        while (enumerator.MoveNext())
-        {
-            yield return YieldBatchElements(enumerator, size - 1);
+            using IEnumerator<T> enumerator = source.GetEnumerator();
+            while (enumerator.MoveNext())
+            {
+                yield return YieldBatchElements(enumerator, size - 1);
+            }
         }
     }
 

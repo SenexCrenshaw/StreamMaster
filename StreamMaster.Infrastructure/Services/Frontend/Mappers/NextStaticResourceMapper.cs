@@ -13,7 +13,7 @@ namespace StreamMaster.Infrastructure.Services.Frontend.Mappers
             resourceUrl = resourceUrl.ToLowerInvariant();
             if (resourceUrl.EndsWith("txt"))
             {
-                bool aa = resourceUrl.EndsWith(".txt") || (resourceUrl.StartsWith("/_next/static/") &&
+                _ = resourceUrl.EndsWith(".txt") || (resourceUrl.StartsWith("/_next/static/") &&
                 (
                    (resourceUrl.EndsWith(".js") && !resourceUrl.EndsWith("initialize.js ")) ||
                    resourceUrl.EndsWith(".map") ||
@@ -28,7 +28,6 @@ namespace StreamMaster.Infrastructure.Services.Frontend.Mappers
                    resourceUrl.EndsWith("oauth.html"
                    )
                    ));
-
             }
             return resourceUrl.EndsWith(".txt") || (resourceUrl.StartsWith("/_next/static/") &&
                 (

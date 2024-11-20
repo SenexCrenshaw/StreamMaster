@@ -27,8 +27,7 @@ public class ProcessEPGFileRequestHandler(ILogger<ProcessEPGFileRequest> logger,
         {
             logger.LogCritical(ex, "Process EPG Error");
             await messageService.SendError("Error Processing EPG", ex.Message);
-            return APIResponse.NotFound; ;
+            return APIResponse.NotFound;
         }
-
     }
 }

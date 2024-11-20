@@ -8,7 +8,6 @@ namespace StreamMaster.Domain.Models;
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true)]
 public class StreamGroupSMChannelLink
 {
-
     [Ignore]
     [JsonIgnore]
     [IgnoreMember]
@@ -20,7 +19,6 @@ public class StreamGroupSMChannelLink
     [IgnoreMember]
     public StreamGroup StreamGroup { get; set; }
     public int StreamGroupId { get; set; }
-
 
     public bool IsReadOnly { get; set; }
     public int Rank { get; set; }

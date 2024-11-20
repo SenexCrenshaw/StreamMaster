@@ -26,6 +26,7 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
 
         ISchedulesDirectData dummyData = schedulesDirectDataService.DummyData();
 
+        //MATCH
         foreach (VideoStreamConfig videoStreamConfig in videoStreamConfigs)
         {
             videoStreamConfig.IsDummy = epgHelper.IsDummy(videoStreamConfig.EPGId);
@@ -35,6 +36,16 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
                 videoStreamConfig.EPGId = $"{EPGHelper.DummyId}-{videoStreamConfig.Id}";
 
                 await dummyData.FindOrCreateDummyService(videoStreamConfig.EPGId, videoStreamConfig);
+            }
+
+            if (videoStreamConfig.IsCustom)
+            {
+                //  videoStreamConfig.EPGId = $"{EPGHelper.CustomPlayListId}-{videoStreamConfig.Id}";
+            }
+
+            if (videoStreamConfig.IsIntro)
+            {
+                // videoStreamConfig.EPGId = $"{EPGHelper.IntroPlayListId}-{videoStreamConfig.Id}";
             }
 
             if (!epgids.Add(videoStreamConfig.EPGId))

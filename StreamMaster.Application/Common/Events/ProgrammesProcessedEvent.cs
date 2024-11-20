@@ -2,6 +2,4 @@
 
 namespace StreamMaster.Application.Common.Events;
 
-public class ProgrammesProcessedEvent : BaseEvent
-{
-}
+public class ProgrammesProcessedEvent : BaseEvent;

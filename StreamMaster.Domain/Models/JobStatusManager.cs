@@ -4,7 +4,6 @@ namespace StreamMaster.Domain.Models;
 
 public class JobStatusManager(IJobStatusService jobStatusService, JobType jobType, int id)
 {
-
     public void Start()
     {
         jobStatusService.SetIsRunning(Key, true);

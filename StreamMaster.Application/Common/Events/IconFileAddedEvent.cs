@@ -3,12 +3,7 @@ using StreamMaster.Domain.Dto;
 
 namespace StreamMaster.Application.Common.Events;
 
-public class IconFileAddedEvent : BaseEvent
+public class IconFileAddedEvent(LogoFileDto item) : BaseEvent
 {
-    public IconFileAddedEvent(LogoFileDto item)
-    {
-        Item = item;
-    }
-
-    public LogoFileDto Item { get; }
+    public LogoFileDto Item { get; } = item;
 }

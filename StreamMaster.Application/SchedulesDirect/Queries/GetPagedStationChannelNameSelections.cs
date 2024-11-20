@@ -46,6 +46,4 @@ internal class GetPagedStationChannelNamesHandler(ISchedulesDirectDataService sc
         PagedResponse<StationChannelName> pagedResponse = pagedList.ToPagedResponse();
         return pagedResponse;
     }
-
-
 }

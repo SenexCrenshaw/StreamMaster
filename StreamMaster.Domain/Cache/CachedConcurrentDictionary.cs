@@ -4,24 +4,16 @@ using System.Collections.Concurrent;
 
 namespace StreamMaster.Domain.Cache;
 
-public class CachedConcurrentDictionary<TKey, TValue> where TKey : notnull
+public class CachedConcurrentDictionary<TKey, TValue>(IMemoryCache memoryCache, string cacheKey, TimeSpan? cacheExpiration = null) where TKey : notnull
 {
-    private readonly IMemoryCache _memoryCache;
-    private readonly string _cacheKey;
-    private readonly TimeSpan? _cacheExpiration;
-
-    public CachedConcurrentDictionary(IMemoryCache memoryCache, string cacheKey, TimeSpan? cacheExpiration = null)
-    {
-        _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
-        _cacheKey = cacheKey ?? throw new ArgumentNullException(nameof(cacheKey));
-        _cacheExpiration = cacheExpiration;
-    }
+    private readonly IMemoryCache _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
+    private readonly string _cacheKey = cacheKey ?? throw new ArgumentNullException(nameof(cacheKey));
 
     private ConcurrentDictionary<TKey, TValue> Dictionary => _memoryCache.GetOrCreate(_cacheKey, entry =>
     {
-        if (_cacheExpiration.HasValue)
+        if (cacheExpiration.HasValue)
         {
-            entry.SlidingExpiration = _cacheExpiration.Value;
+            entry.SlidingExpiration = cacheExpiration.Value;
         }
         return new ConcurrentDictionary<TKey, TValue>();
     })!;

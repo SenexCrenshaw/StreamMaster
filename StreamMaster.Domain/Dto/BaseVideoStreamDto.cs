@@ -88,7 +88,6 @@ public class BaseVideoStreamDto /*: IMapFrom<VideoStream>*/
     /// <value>The EPG ID for the video stream.</value>
     public string Tvg_ID { get; set; } = string.Empty;
 
-
     public string StationId { get; set; } = string.Empty;
     /// <summary>
     /// Gets or sets the URL for the channel logo for the video stream.

@@ -7,9 +7,8 @@ public static class Hashing
 {
     public static string SHA256Hash(this string input)
     {
-        using SHA256 hash = SHA256.Create();
         Encoding enc = Encoding.UTF8;
-        return GetHash(hash.ComputeHash(enc.GetBytes(input)));
+        return GetHash(SHA256.HashData(enc.GetBytes(input)));
     }
 
     public static string SHA256Hash(this Stream input)

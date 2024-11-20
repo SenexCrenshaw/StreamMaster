@@ -15,7 +15,6 @@ public partial class SchedulesDirectData
 
     public MxfService FindOrCreateService(string stationId)
     {
-
         (MxfService service, bool created) = Services.FindOrCreateWithStatus(stationId, _ => new MxfService(Services.Count + 1, stationId)
         {
             EPGNumber = EPGNumber
@@ -30,7 +29,7 @@ public partial class SchedulesDirectData
         {
             await WriteToCSVAsync(serviceCSV, $"FindOrCreateService: {stationId}");
         }
-        (MxfService service, bool created) = Services.FindOrCreateWithStatus(stationId, key => new MxfService(Services.Count + 1, stationId)
+        (MxfService service, bool created) = Services.FindOrCreateWithStatus(stationId, _ => new MxfService(Services.Count + 1, stationId)
         {
             EPGNumber = EPGNumber
         });
@@ -45,12 +44,10 @@ public partial class SchedulesDirectData
                 service.extras.TryAdd("logo", new StationImage
                 {
                     Url = videoStreamConfig.Logo
-
                 });
 
                 //service.mxfGuideImage = FindOrCreateGuideImage(videoStreamConfig.User_Tvg_Logo);
             }
-
         }
         return service;
     }
@@ -64,5 +61,4 @@ public partial class SchedulesDirectData
     {
         return Services.TryGetValue(stationId, out MxfService? service) ? service : null;
     }
-
 }

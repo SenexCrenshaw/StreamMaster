@@ -31,6 +31,5 @@ public class ChannelStreamingStatistics : BPSStatistics
         ChannelLogo = smChannelDto.Logo;
 
         CurrentStreamId = currentStreamId;
-
     }
 }

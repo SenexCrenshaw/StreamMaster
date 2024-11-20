@@ -28,7 +28,7 @@
         /// </summary>
         /// <param name="playingSMStreamId">The ID of the currently playing video stream.</param>
         /// <param name="newSMStreamId">The ID of the new video stream to switch to.</param>
-        /// <param name="cancellationToken">A cancellation token to observe while waiting for the task to complete.</param>
+        /// <param name="cancellationToken">A cancellation Token to observe while waiting for the task to complete.</param>
         /// <returns>A Task representing the asynchronous operation.</returns>
         Task ChangeVideoStreamChannelAsync(string playingSMStreamId, string newSMStreamId, CancellationToken cancellationToken = default);
 
@@ -37,7 +37,7 @@
         /// </summary>
         /// <param name="config">The configuration settings for the client streamer.</param>
         /// <param name="streamGroupProfileId">The ID of the stream group profile.</param>
-        /// <param name="cancellationToken">A cancellation token to observe while waiting for the task to complete.</param>
+        /// <param name="cancellationToken">A cancellation Token to observe while waiting for the task to complete.</param>
         /// <returns>A Task returning the stream. Returns null if the stream could not be obtained.</returns>
         Task<Stream?> GetChannelStreamAsync(IClientConfiguration config, int streamGroupProfileId, CancellationToken cancellationToken = default);
 

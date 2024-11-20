@@ -15,4 +15,3 @@ public enum SMStreamTypeEnum
     Intro = 3,
     Message = 4,
 }
-

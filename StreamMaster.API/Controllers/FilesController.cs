@@ -1,13 +1,13 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Text;
+using System.Web;
+
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Caching.Memory;
 
 using StreamMaster.API.Interfaces;
 using StreamMaster.Domain.Enums;
-
-using System.Text;
-using System.Web;
 
 namespace StreamMaster.API.Controllers;
 
@@ -88,7 +88,6 @@ public class FilesController(IMemoryCache memoryCache, ILogoService logoService,
         //string fileName = "";
         //string returnName = "";
 
-
         ImagePath? imagePath = logoService.GetValidImagePath(URL, fileType);
         if (imagePath == null)
         {
@@ -97,8 +96,15 @@ public class FilesController(IMemoryCache memoryCache, ILogoService logoService,
 
         if (System.IO.File.Exists(imagePath.FullPath))
         {
-            byte[] ret = await System.IO.File.ReadAllBytesAsync(imagePath.FullPath).ConfigureAwait(false);
-            return (ret, imagePath.ReturnName);
+            try
+            {
+                byte[] ret = await System.IO.File.ReadAllBytesAsync(imagePath.FullPath, cancellationToken).ConfigureAwait(false);
+                return (ret, imagePath.ReturnName);
+            }
+            catch
+            {
+                return (null, null);
+            }
         }
 
         return (null, null);
@@ -121,5 +127,4 @@ public class FilesController(IMemoryCache memoryCache, ILogoService logoService,
 
         return contentType ?? "application/octet-stream";
     }
-
 }

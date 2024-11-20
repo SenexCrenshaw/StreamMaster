@@ -21,5 +21,4 @@ public interface IStreamGroupService
     Task<string> GetStreamGroupLineupAsync(int streamGroupProfileId, HttpRequest httpRequest, bool isShort);
     Task<StreamGroupProfile> GetStreamGroupProfileAsync(int? streamGroupId = null, int? streamGroupProfileId = null);
     Task<(List<VideoStreamConfig> videoStreamConfigs, StreamGroupProfile streamGroupProfile)> GetStreamGroupVideoConfigsAsync(int streamGroupProfileId);
-
 }

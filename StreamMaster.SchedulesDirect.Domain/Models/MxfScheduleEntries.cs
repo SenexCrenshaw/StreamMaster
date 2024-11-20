@@ -1,8 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Xml.Serialization;
 
-using StreamMaster.Domain.XmltvXml;
-
 namespace StreamMaster.SchedulesDirect.Domain.Models
 {
     public class MxfScheduleEntries
@@ -14,7 +12,7 @@ namespace StreamMaster.SchedulesDirect.Domain.Models
         public List<MxfScheduleEntry> ScheduleEntry { get; set; } = [];
         public bool ShouldSerializeScheduleEntry()
         {
-            ScheduleEntry = ScheduleEntry.OrderBy(arg => arg.StartTime).ToList();
+            ScheduleEntry = [.. ScheduleEntry.OrderBy(arg => arg.StartTime)];
             DateTime endTime = DateTime.MinValue;
             foreach (MxfScheduleEntry entry in ScheduleEntry)
             {
@@ -269,9 +267,9 @@ namespace StreamMaster.SchedulesDirect.Domain.Models
                 }
 
                 Dictionary<string, string> ratings = [];
-                if (extras.ContainsKey("ratings"))
+                if (extras.TryGetValue("ratings", out dynamic? value))
                 {
-                    foreach (KeyValuePair<string, string> rating in extras["ratings"])
+                    foreach (KeyValuePair<string, string> rating in value)
                     {
                         if (!ratings.TryGetValue(rating.Key, out _))
                         {

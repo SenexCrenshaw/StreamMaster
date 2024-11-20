@@ -3,7 +3,6 @@ using StreamMaster.Domain.Enums;
 
 namespace StreamMaster.Infrastructure.Services.QueueService;
 
-
 public partial class BackgroundTaskQueue : IEPGFileTasks
 {
     public async ValueTask ProcessEPGFile(int EPGFileId, CancellationToken cancellationToken = default)

@@ -40,7 +40,6 @@ public class SsController(ISender Sender, IStreamGroupService streamGroupService
     [Route("{streamGroupProfileId}/discover.json")]
     public async Task<IActionResult> GetStreamGroupDiscover(int streamGroupProfileId)
     {
-
         if (HttpContext.Request == null)
         {
             return NotFound();
@@ -79,6 +78,7 @@ public class SsController(ISender Sender, IStreamGroupService streamGroupService
     [Route("{streamGroupProfileId}/lineup_status.json")]
     public Task<IActionResult> GetStreamGroupLineupStatus(int streamGroupProfileId)
     {
+        _ = streamGroupProfileId;
         string json = streamGroupService.GetStreamGroupLineupStatus();
         return Task.FromResult<IActionResult>(new ContentResult
         {
@@ -125,13 +125,11 @@ public class SsController(ISender Sender, IStreamGroupService streamGroupService
         };
     }
 
-
     [Authorize(Policy = "SGLinks")]
     [HttpGet]
     [Route("{streamGroupProfileId}/auto/v{channelNumber}")]
     public async Task<IActionResult> GetAutoStream(int streamGroupProfileId, string channelNumber)
     {
-
         StreamGroup? streamGroup = await streamGroupService.GetStreamGroupFromSGProfileIdAsync(streamGroupProfileId).ConfigureAwait(false);
         if (streamGroup == null)
         {
@@ -158,5 +156,4 @@ public class SsController(ISender Sender, IStreamGroupService streamGroupService
 
         return Redirect(videoUrl);
     }
-
 }

@@ -1,5 +1,4 @@
-﻿using StreamMaster.Application.StreamGroups.Events;
-
+﻿
 namespace StreamMaster.Application.StreamGroups.Commands;
 
 [SMAPI]
@@ -8,7 +7,7 @@ public record UpdateStreamGroupRequest(int StreamGroupId, string? GroupKey, stri
  : IRequest<APIResponse>;
 
 [LogExecutionTimeAspect]
-public class UpdateStreamGroupRequestHandler(IDataRefreshService dataRefreshService, IRepositoryWrapper Repository, IPublisher Publisher)
+public class UpdateStreamGroupRequestHandler(IDataRefreshService dataRefreshService, IRepositoryWrapper Repository)
     : IRequestHandler<UpdateStreamGroupRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(UpdateStreamGroupRequest request, CancellationToken cancellationToken)
@@ -18,7 +17,7 @@ public class UpdateStreamGroupRequestHandler(IDataRefreshService dataRefreshServ
             return APIResponse.NotFound;
         }
 
-        if (request.NewName != null && request.NewName.EqualsIgnoreCase("all"))
+        if (request.NewName?.EqualsIgnoreCase("all") == true)
         {
             return APIResponse.ErrorWithMessage($"The name '{request.NewName}' is reserved");
         }
@@ -27,7 +26,6 @@ public class UpdateStreamGroupRequestHandler(IDataRefreshService dataRefreshServ
         if (streamGroup is not null)
         {
             await dataRefreshService.RefreshStreamGroups();
-            await Publisher.Publish(new StreamGroupUpdateEvent(streamGroup), cancellationToken).ConfigureAwait(false);
         }
 
         return APIResponse.Ok;

@@ -2,6 +2,4 @@
 
 namespace StreamMaster.Domain.Common;
 
-public abstract class BaseEvent : INotification
-{
-}
+public abstract class BaseEvent : INotification;

@@ -31,7 +31,6 @@ namespace StreamMaster.Infrastructure.Services
             await sender.Send(request);
         }
 
-
         public async Task SendMessage(SMMessage smMessage)
         {
             SendSMMessageRequest request = new(smMessage);
@@ -53,6 +52,5 @@ namespace StreamMaster.Infrastructure.Services
 
             await sender.Send(request);
         }
-
     }
 }

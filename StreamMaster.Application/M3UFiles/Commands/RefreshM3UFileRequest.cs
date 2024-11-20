@@ -8,7 +8,6 @@ public record RefreshM3UFileRequest(int Id, bool ForceRun = false) : IRequest<AP
 public class RefreshM3UFileRequestHandler(ILogger<RefreshM3UFileRequest> Logger, IM3UToSMStreamsService m3UToSMStreamsService, IFileUtilService fileUtilService, IMessageService messageService, IJobStatusService jobStatusService, IRepositoryWrapper Repository, IMapper Mapper, IPublisher Publisher)
     : IRequestHandler<RefreshM3UFileRequest, APIResponse>
 {
-
     public async Task<APIResponse> Handle(RefreshM3UFileRequest request, CancellationToken cancellationToken)
     {
         JobStatusManager jobManager = jobStatusService.GetJobManagerRefreshM3U(request.Id);
@@ -19,7 +18,6 @@ public class RefreshM3UFileRequestHandler(ILogger<RefreshM3UFileRequest> Logger,
                 return APIResponse.NotFound;
             }
             jobManager.Start();
-
 
             M3UFile? m3uFile = await Repository.M3UFile.GetM3UFileAsync(request.Id).ConfigureAwait(false);
             if (m3uFile == null)
@@ -32,9 +30,11 @@ public class RefreshM3UFileRequestHandler(ILogger<RefreshM3UFileRequest> Logger,
             {
                 FileDefinition fd = FileDefinitions.M3U;
                 string fullName = Path.Combine(fd.DirectoryLocation, m3uFile.Source);
-                m3uFile.LastDownloadAttempt = SMDT.UtcNow;
 
-                if (m3uFile.Url != null && m3uFile.Url.Contains("://"))
+                m3uFile.LastDownloadAttempt = SMDT.UtcNow;
+                m3uFile.LastUpdated = m3uFile.LastDownloadAttempt;
+
+                if (m3uFile.Url?.Contains("://") == true)
                 {
                     Logger.LogInformation("Refresh M3U From URL {m3uFile.Url}", m3uFile.Url);
 
@@ -56,10 +56,7 @@ public class RefreshM3UFileRequestHandler(ILogger<RefreshM3UFileRequest> Logger,
                         Logger.LogCritical("Exception M3U From URL {ex}", ex);
                         return APIResponse.ErrorWithMessage($"M3U '{m3uFile.Name}' format is not supported");
                     }
-
                 }
-
-
 
                 //List<SMStream>? streams = await m3uFile.GetSMStreamsFromM3U(Logger);
                 //if (streams == null)
@@ -97,6 +94,5 @@ public class RefreshM3UFileRequestHandler(ILogger<RefreshM3UFileRequest> Logger,
             jobManager.SetError();
             return APIResponse.NotFound;
         }
-
     }
 }

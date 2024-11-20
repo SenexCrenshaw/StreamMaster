@@ -11,7 +11,7 @@ public class EPGSyncRequestHandler(IBackgroundTaskQueue backgroundTaskQueue)
 {
     public async Task<APIResponse> Handle(EPGSyncRequest command, CancellationToken cancellationToken)
     {
-        await backgroundTaskQueue.EPGSync();
+        await backgroundTaskQueue.EPGSync(cancellationToken);
         return APIResponse.Success;
     }
 }

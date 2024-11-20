@@ -300,7 +300,7 @@ public static partial class SDHelpers
     {
         byte[] contentBytes = Encoding.UTF8.GetBytes(content.ReadAsStringAsync().Result); // Extract string from StringContent and convert to bytes
         byte[] hashBytes = SHA256.HashData(contentBytes); // Compute SHA-256 hash
-        return BitConverter.ToString(hashBytes).Replace("-", "").ToLower(); // Convert byte array to hex string
+        return Convert.ToHexStringLower(hashBytes); // Convert byte array to hex string
     }
 
     public static string GenerateCacheKey(string command)

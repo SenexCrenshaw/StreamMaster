@@ -5,7 +5,6 @@ using StreamMaster.Domain.Enums;
 
 namespace StreamMaster.Infrastructure.Services.QueueService;
 
-
 public partial class BackgroundTaskQueue : IM3UFileTasks
 {
     public async ValueTask ProcessM3UFile(ProcessM3UFileRequest pr, bool immediate = false, CancellationToken cancellationToken = default)

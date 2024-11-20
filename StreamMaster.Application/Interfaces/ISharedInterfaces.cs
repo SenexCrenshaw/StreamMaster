@@ -12,6 +12,4 @@ public interface ISharedTasks :
     IM3UFileTasks,
     ILogoTasks,
     ICustomPlayListsTasks,
-    ISettingTasks
-{
-}
+    ISettingTasks;

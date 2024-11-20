@@ -18,7 +18,7 @@ namespace StreamMaster.Streams;
 /// <param name="clientIPAddress">The client's IP address.</param>
 /// <param name="response">The HTTP response associated with the client.</param>
 /// <param name="loggerFactory">The logger factory for creating loggers.</param>
-/// <param name="cancellationToken">The cancellation token associated with the client.</param>
+/// <param name="cancellationToken">The cancellation Token associated with the client.</param>
 public class ClientConfiguration(
     string uniqueRequestId,
     SMChannelDto smChannel,
@@ -28,7 +28,6 @@ public class ClientConfiguration(
     ILoggerFactory loggerFactory,
     CancellationToken cancellationToken) : IClientConfiguration
 {
-
     public event EventHandler? ClientStopped;
     /// <summary>
     /// Initializes a new instance of the <see cref="ClientConfiguration"/> class for serialization purposes.

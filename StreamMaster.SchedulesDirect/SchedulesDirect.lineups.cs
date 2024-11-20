@@ -45,7 +45,7 @@ public partial class SchedulesDirect
 
         if (string.IsNullOrEmpty(country) || string.IsNullOrEmpty(postalCode))
         {
-            logger.LogWarning($"Country {country} or postal code {postalCode} is empty");
+            logger.LogWarning("Country {country} or postal code {postalCode} is empty", country, postalCode);
             return null;
         }
 
@@ -59,11 +59,11 @@ public partial class SchedulesDirect
         if (cache != null)
         {
             await WriteToCacheAsync($"Headends-{country}-{postalCode}", cache, cancellationToken).ConfigureAwait(false);
-            logger.LogDebug($"Successfully retrieved the headends for {country} and postal code {postalCode}.");
+            logger.LogDebug("Successfully retrieved the headends for {country} and postal code {postalCode}.", country, postalCode);
         }
         else
         {
-            logger.LogError($"Failed to get a response from Schedules Direct for the headends of {country} and postal code {postalCode}.");
+            logger.LogError("Failed to get a response from Schedules Direct for the headends of {country} and postal code {postalCode}.", country, postalCode);
         }
 
         return cache;
@@ -92,11 +92,11 @@ public partial class SchedulesDirect
             }
 
             await WriteToCacheAsync("LineupPreviewChannel" + lineup, ret, cancellationToken).ConfigureAwait(false);
-            logger.LogDebug($"Successfully retrieved the channels in lineup {lineup} for preview.");
+            logger.LogDebug("Successfully retrieved the channels in lineup {lineup} for preview.", lineup);
         }
         else
         {
-            logger.LogError($"Did not receive a response from Schedules Direct for retrieval of lineup {lineup} for preview.");
+            logger.LogError("Did not receive a response from Schedules Direct for retrieval of lineup {lineup} for preview.", lineup);
         }
 
         return ret;
@@ -107,11 +107,11 @@ public partial class SchedulesDirect
         AddRemoveLineupResponse? ret = await schedulesDirectAPI.GetApiResponse<AddRemoveLineupResponse>(APIMethod.PUT, $"lineups/{lineup}", cancellationToken: cancellationToken).ConfigureAwait(false);
         if (ret != null)
         {
-            logger.LogDebug($"Successfully added lineup {lineup} to account. serverID: {ret.ServerId} , message: {ret.Message} , changesRemaining: {ret.ChangesRemaining}");
+            logger.LogDebug("Successfully added lineup {lineup} to account. serverID: {ret.ServerId} , message: {ret.Message} , changesRemaining: {ret.ChangesRemaining}", lineup, ret.ServerId, ret.Message, ret.ChangesRemaining);
             return ret.ChangesRemaining;
         }
 
-        logger.LogError($"Failed to get a response from Schedules Direct when trying to add lineup {lineup}.");
+        logger.LogError("Failed to get a response from Schedules Direct when trying to add lineup {lineup}.", lineup);
         return 0;
     }
 
@@ -120,11 +120,11 @@ public partial class SchedulesDirect
         AddRemoveLineupResponse? ret = await schedulesDirectAPI.GetApiResponse<AddRemoveLineupResponse>(APIMethod.PUT, $"lineups/{lineup}", cancellationToken: cancellationToken).ConfigureAwait(false);
         if (ret != null)
         {
-            logger.LogDebug($"Successfully added lineup {lineup} to account. serverID: {ret.ServerId} , message: {ret.Message} , changesRemaining: {ret.ChangesRemaining}");
+            logger.LogDebug("Successfully added lineup {lineup} to account. serverID: {ret.ServerId} , message: {ret.Message} , changesRemaining: {ret.ChangesRemaining}", lineup, ret.ServerId, ret.Message, ret.ChangesRemaining);
         }
         else
         {
-            logger.LogError($"Failed to get a response from Schedules Direct when trying to add lineup {lineup}.");
+            logger.LogError("Failed to get a response from Schedules Direct when trying to add lineup {lineup}.", lineup);
         }
         return ret != null;
     }
@@ -134,7 +134,7 @@ public partial class SchedulesDirect
         AddRemoveLineupResponse? ret = await schedulesDirectAPI.GetApiResponse<AddRemoveLineupResponse>(APIMethod.DELETE, $"lineups/{lineup}", cancellationToken: cancellationToken).ConfigureAwait(false);
         if (ret != null)
         {
-            logger.LogDebug($"Successfully removed lineup {lineup} from account. serverID: {ret.ServerId} , message: {ret.Message} , changesRemaining: {ret.ChangesRemaining}");
+            logger.LogDebug("Successfully removed lineup {lineup} from account. serverID: {ret.ServerId} , message: {ret.Message} , changesRemaining: {ret.ChangesRemaining}", lineup, ret.ServerId, ret.Message, ret.ChangesRemaining);
             JobStatusManager jobManager = jobStatusService.GetJobManager(JobType.SDSync, EPGHelper.SchedulesDirectId);
             jobManager.SetForceNextRun(true);
             schedulesDirectDataService.SchedulesDirectData().RemoveLineup(lineup);

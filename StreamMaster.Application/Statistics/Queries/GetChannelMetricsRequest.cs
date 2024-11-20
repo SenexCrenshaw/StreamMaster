@@ -19,7 +19,7 @@ internal class GetChannelMetricsRequestHandler(IRepositoryWrapper repositoryWrap
         List<ChannelMetric> dtos = [];
 
         List<int> smChannelIds = channelBroadcasters.ConvertAll(a => a.Id);
-        List<string> smStreamIds = sourceBroadcasters.ConvertAll(a => a.SMStreamInfo.Id).ToList();
+        List<string> smStreamIds = [.. sourceBroadcasters.ConvertAll(a => a.SMStreamInfo.Id)];
 
         List<SMChannel> smChannels = await repositoryWrapper.SMChannel.GetQuery(a => smChannelIds.Contains(a.Id)).ToListAsync(cancellationToken);
         List<SMStream> smStreams = await repositoryWrapper.SMStream.GetQuery(a => smStreamIds.Contains(a.Id)).ToListAsync(cancellationToken);

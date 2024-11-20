@@ -1,7 +1,6 @@
 ﻿namespace StreamMaster.Domain.Color;
 public static class ColorHelper
 {
-
     public static string GetColorHex(int index)
     {
         string hsl = GetColorByNumber(index);
@@ -26,7 +25,7 @@ public static class ColorHelper
     private static string GetColorByNumber(int index)
     {
         const int Step = 50; // This will determine the number of segments in the hue spectrum
-        int segments = 360 / Step;
+        const int segments = 360 / Step;
 
         // Calculate a hue value that jumps around the spectrum to ensure variation
         int hue = ((index * Step) + (index / segments * Step)) % 360;
@@ -45,7 +44,6 @@ public static class ColorHelper
 
         return Math.Abs(hash);
     }
-
 
     private static (int, int, int) HslToRgb(int h, int s, int l)
     {
@@ -101,6 +99,4 @@ public static class ColorHelper
     {
         return "#" + ((r << 16) + (g << 8) + b).ToString("X6").PadLeft(6, '0');
     }
-
-
 }

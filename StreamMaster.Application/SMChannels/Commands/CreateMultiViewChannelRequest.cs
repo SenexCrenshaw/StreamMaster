@@ -53,7 +53,6 @@ public class CreateMultiViewChannelRequestHandler(ILogger<CreateMultiViewChannel
                 //DataResponse<List<SMStreamDto>> streams = await Sender.Send(new UpdateStreamRanksRequest(smChannel.Id, request.SMStreamsIds), cancellationToken);
             }
 
-
             NameLogo NameLogo = new(smChannel, SMFileTypes.Logo);
             imageDownloadQueue.EnqueueNameLogo(NameLogo);
 

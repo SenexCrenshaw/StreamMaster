@@ -24,7 +24,7 @@ namespace StreamMaster.API.Exceptions
         {
         }
 
-        public NzbDroneException() : base()
+        protected NzbDroneException() : base()
         {
         }
     }
@@ -42,15 +42,15 @@ namespace StreamMaster.API.Exceptions
             Content = content;
         }
 
-        public ApiException() : base()
+        protected ApiException() : base()
         {
         }
 
-        public ApiException(string? message) : base(message)
+        protected ApiException(string? message) : base(message)
         {
         }
 
-        public ApiException(string? message, Exception? innerException) : base(message, innerException)
+        protected ApiException(string? message, Exception? innerException) : base(message, innerException)
         {
         }
 

@@ -14,7 +14,7 @@ public class SetSMChannelsLogoFromEPGFromParametersRequestHandler(IRepositoryWra
         if (results.Count != 0)
         {
             await dataRefreshService.SetField(results);
-            await messageService.SendSuccess($"Set Logo From EPG For Channels");
+            await messageService.SendSuccess("Set Logo From EPG For Channels");
         }
         return APIResponse.Ok;
     }

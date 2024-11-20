@@ -17,30 +17,15 @@ using StreamMaster.Domain.Helpers;
 
 namespace StreamMaster.Infrastructure.Services
 {
-    public class TimerService : BackgroundService
+    public class TimerService(
+        IServiceProvider serviceProvider,
+        IOptionsMonitor<Setting> intSettings,
+        IOptionsMonitor<SDSettings> intsdsettings,
+        IJobStatusService jobStatusService,
+        ILogger<TimerService> logger) : BackgroundService
     {
-        private readonly IServiceProvider serviceProvider;
-        private readonly IJobStatusService jobStatusService;
-        private readonly ILogger<TimerService> logger;
-        private readonly IOptionsMonitor<Setting> intSettings;
-        private readonly IOptionsMonitor<SDSettings> intsdsettings;
-
         // Static fields to maintain application-wide state
         private static DateTime LastBackupTime = DateTime.UtcNow;
-
-        public TimerService(
-            IServiceProvider serviceProvider,
-            IOptionsMonitor<Setting> intSettings,
-            IOptionsMonitor<SDSettings> intsdsettings,
-            IJobStatusService jobStatusService,
-            ILogger<TimerService> logger)
-        {
-            this.serviceProvider = serviceProvider;
-            this.intSettings = intSettings;
-            this.intsdsettings = intsdsettings;
-            this.jobStatusService = jobStatusService;
-            this.logger = logger;
-        }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
@@ -138,9 +123,10 @@ namespace StreamMaster.Infrastructure.Services
             TimeSpan? runInterval = null,
             TimeSpan? successInterval = null,
             Func<bool>? executeIf = null,
-            Action? onSuccessful = null,
-            CancellationToken cancellationToken = default)
+            Action? onSuccessful = null
+            , CancellationToken cancellationToken = default)
         {
+            _ = cancellationToken;
             if (jobManager.IsRunning)
             {
                 return;

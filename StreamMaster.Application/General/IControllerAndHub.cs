@@ -6,7 +6,7 @@ using StreamMaster.Application.General.Queries;
 namespace StreamMaster.Application.General
 {
     public interface IGeneralController
-    {        
+    {
         Task<ActionResult<ImageDownloadServiceStatus>> GetDownloadServiceStatus();
         Task<ActionResult<bool>> GetIsSystemReady();
         Task<ActionResult<SDSystemStatus>> GetSystemStatus();

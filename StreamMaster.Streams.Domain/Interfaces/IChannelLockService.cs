@@ -18,4 +18,3 @@ public interface IChannelLockService
     /// <param name="channelId">The channel ID for which to release the lock.</param>
     void ReleaseLock(int channelId);
 }
-

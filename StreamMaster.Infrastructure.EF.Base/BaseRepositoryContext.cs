@@ -9,7 +9,6 @@ namespace StreamMaster.Infrastructure.EF.Base;
 public class BaseRepositoryContext(DbContextOptions options)
     : DbContext(options), IDataProtectionKeyContext, IRepositoryContext
 {
-
     public DbSet<SystemKeyValue> SystemKeyValues { get; set; }
 
     public DbSet<EPGFile> EPGFiles { get; set; }
@@ -78,10 +77,7 @@ public class BaseRepositoryContext(DbContextOptions options)
         List<Task> updateTasks = [];
 
         // Execute updates in parallel
-        await Task.Run(() => Parallel.ForEach(batches, parallelOptions, batch =>
-        {
-            updateTasks.Add(UpdateBatchAsync(batch, cancellationToken));
-        }));
+        await Task.Run(() => Parallel.ForEach(batches, parallelOptions, batch => updateTasks.Add(UpdateBatchAsync(batch, cancellationToken))));
 
         // Wait for all updates to complete
         await Task.WhenAll(updateTasks);
@@ -89,7 +85,6 @@ public class BaseRepositoryContext(DbContextOptions options)
 
     private async Task UpdateBatchAsync<TEntity>(List<TEntity> batch, CancellationToken cancellationToken) where TEntity : class
     {
-
         foreach (TEntity entity in batch)
         {
             Set<TEntity>().Attach(entity);
@@ -148,7 +143,6 @@ public class BaseRepositoryContext(DbContextOptions options)
         {
             if (disposing)
             {
-
                 base.Dispose();
             }
         }

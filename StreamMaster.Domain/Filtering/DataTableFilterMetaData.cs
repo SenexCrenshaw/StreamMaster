@@ -10,7 +10,6 @@ public class DataTableFilterMetaData
     [JsonPropertyName("value")]
     public object Value { get; set; } = string.Empty;
 
-
     [JsonPropertyName("matchMode")]
     public string MatchMode { get; set; } = string.Empty;
 }

@@ -13,6 +13,6 @@ namespace StreamMaster.SchedulesDirect.Domain.JsonClasses
 
         [JsonPropertyName("qualityRating")]
         //[JsonConverter(typeof(SingleOrListConverter<ProgramQualityRating>))]
-        public List<ProgramQualityRating> QualityRating { get; set; } = new();
+        public List<ProgramQualityRating> QualityRating { get; set; } = [];
     }
 }

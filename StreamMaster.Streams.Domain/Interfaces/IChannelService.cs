@@ -80,7 +80,7 @@
         /// Unregisters a client asynchronously by its unique request ID.
         /// </summary>
         /// <param name="uniqueRequestId">The unique request ID of the client.</param>
-        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+        /// <param name="cancellationToken">A Token to monitor for cancellation requests.</param>
         /// <returns><c>true</c> if the client was unregistered successfully; otherwise, <c>false</c>.</returns>
         Task<bool> UnRegisterClientAsync(string uniqueRequestId, CancellationToken cancellationToken = default);
     }

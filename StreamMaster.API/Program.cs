@@ -26,7 +26,6 @@ using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Builder;
 using StreamMaster.Infrastructure.Logger;
 using Microsoft.Extensions.Logging;
-using StreamMaster.EPG;
 
 [assembly: TsGlobal(CamelCaseForProperties = false, CamelCaseForMethods = false, UseModules = true, DiscardNamespacesWhenUsingModules = true, AutoOptionalProperties = true, WriteWarningComment = false, ReorderMembers = true)]
 DirectoryHelper.CreateApplicationDirectories();
@@ -174,7 +173,6 @@ builder.Services.AddInfrastructureServices();
 builder.Services.AddInfrastructureServicesEx();
 builder.Services.AddStreamsServices();
 builder.Services.AddCustomPlayListServices();
-builder.Services.AddEPGServices();
 
 var setting = SettingsHelper.GetSetting<Setting>(BuildInfo.SettingsFile);
 
@@ -193,10 +191,7 @@ builder.Services.AddControllers(options =>
     options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
 });
 
-builder.Services.AddResponseCompression(options =>
-{
-    options.EnableForHttps = true;
-});
+builder.Services.AddResponseCompression(options => options.EnableForHttps = true);
 
 builder.Services.AddSingleton<ILoggerProvider, SMLoggerProvider>();
 
@@ -211,7 +206,7 @@ void OnShutdown()
 {
     var sender = app.Services.GetRequiredService<ISender>();
     sender.Send(new SetIsSystemReadyRequest(false)).Wait();
-    ProcessHelper.KillProcessByName("ffmpeg");    
+    ProcessHelper.KillProcessByName("ffmpeg");
     PGSQLRepositoryContext repositoryContext = app.Services.GetRequiredService<PGSQLRepositoryContext>();
     repositoryContext.Dispose();
     //IImageDownloadService imageDownloadService = app.Services.GetRequiredService<IImageDownloadService>();

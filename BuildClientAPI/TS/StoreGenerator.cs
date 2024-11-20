@@ -1,4 +1,6 @@
 ﻿using System.Text;
+
+using BuildClientAPI.Models;
 namespace BuildClientAPI.TS;
 public static class StoreGenerator
 {
@@ -55,13 +57,11 @@ public static class StoreGenerator
         {
             content.AppendLine($"const {persist}Config = {{");
             content.AppendLine($"  key: '{persist}',");
-            content.AppendLine($"  storage");
-            content.AppendLine($"}};");
+            content.AppendLine("  storage");
+            content.AppendLine("};");
         }
         return content.ToString();
     }
-
-
 
     private static string GenerateReducer(List<MethodDetails> methods)
     {
@@ -115,9 +115,7 @@ public static class StoreGenerator
         foreach (string additional in AdditionalReducers)
         {
             imports[additional] = $"import {additional} from '@lib/redux/hooks/{additional}';";
-
         }
-
 
         foreach (string? key in imports.Keys.Order())
         {
@@ -127,9 +125,7 @@ public static class StoreGenerator
         content.AppendLine("import { persistReducer } from 'redux-persist';");
         content.AppendLine("import storage from 'redux-persist/lib/storage';");
 
-
         content.AppendLine();
         return content.ToString();
     }
-
 }

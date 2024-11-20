@@ -17,17 +17,15 @@ public class AddStationHandler(ILogger<AddStationRequest> logger, IBackgroundTas
 
     public async Task<APIResponse> Handle(AddStationRequest request, CancellationToken cancellationToken)
     {
-        if (!request.Requests.Any())
+        if (request.Requests.Count == 0)
         {
             return APIResponse.Ok;
         }
-
 
         if (!sdsettings.SDEnabled)
         {
             return APIResponse.Ok;
         }
-
 
         UpdateSettingParameters updateSetting = new()
         {
@@ -41,7 +39,6 @@ public class AddStationHandler(ILogger<AddStationRequest> logger, IBackgroundTas
 
         foreach (StationRequest stationRequest in request.Requests)
         {
-
             if (updateSetting.SDSettings.SDStationIds.Any(x => x.Lineup == stationRequest.Lineup && x.StationId == stationRequest.StationId))
             {
                 logger.LogInformation("Add Station: Already exists {StationIdLineup}", stationRequest.StationId);

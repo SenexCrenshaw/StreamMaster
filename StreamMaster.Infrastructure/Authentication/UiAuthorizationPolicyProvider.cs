@@ -25,7 +25,7 @@ namespace StreamMaster.Infrastructure.Authentication
         {
             if (policyName.EqualsIgnoreCase(POLICY_NAME))
             {
-                AuthorizationPolicyBuilder policy = new AuthorizationPolicyBuilder(settings.Value.AuthenticationMethod.ToString())
+                AuthorizationPolicyBuilder policy = new AuthorizationPolicyBuilder(settings.Value.AuthenticationMethod)
                     .RequireAuthenticatedUser();
                 return policy.Build();
             }

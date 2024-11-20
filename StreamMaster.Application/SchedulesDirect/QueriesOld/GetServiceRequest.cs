@@ -5,7 +5,6 @@ public record GetServiceRequest(string stationId) : IRequest<DataResponse<MxfSer
 internal class GetServiceRequestHandler(ISchedulesDirectDataService schedulesDirectDataService)
     : IRequestHandler<GetServiceRequest, DataResponse<MxfService?>>
 {
-
     public Task<DataResponse<MxfService?>> Handle(GetServiceRequest request, CancellationToken cancellationToken)
     {
         MxfService? service = schedulesDirectDataService.GetService(request.stationId);

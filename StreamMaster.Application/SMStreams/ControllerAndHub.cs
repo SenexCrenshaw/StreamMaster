@@ -7,8 +7,7 @@ namespace StreamMaster.Application.SMStreams.Controllers
 {
     [Authorize]
     public partial class SMStreamsController() : ApiControllerBase, ISMStreamsController
-    {        
-
+    {
         [HttpGet]
         [Route("[action]")]
         public async Task<ActionResult<PagedResponse<SMStreamDto>>> GetPagedSMStreams([FromQuery] QueryStringParameters Parameters)
@@ -72,7 +71,6 @@ namespace StreamMaster.Application.SMStreams.Controllers
             var ret = await Sender.Send(request).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
         }
-
     }
 }
 
@@ -127,6 +125,5 @@ namespace StreamMaster.Application.Hubs
             var ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;
         }
-
     }
 }

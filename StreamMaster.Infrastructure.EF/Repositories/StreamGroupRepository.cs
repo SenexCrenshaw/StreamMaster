@@ -71,7 +71,6 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
                 streamGroupProfile.HDHRLink = $"{Url}/api/streamgroups/{EncodedString}";
                 streamGroupProfile.M3ULink = $"{Url}/api/streamgroups/{EncodedString}/m3u.m3u";
                 streamGroupProfile.XMLLink = $"{Url}/api/streamgroups/{EncodedString}/epg.xml";
-
             }
 
             StreamGroupProfileDto defaultProfile = streamGroupDto.StreamGroupProfiles.First(a => a.ProfileName.EqualsIgnoreCase("default"));
@@ -83,7 +82,6 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
             streamGroupDto.HDHRLink = defaultProfile.HDHRLink;
             streamGroupDto.M3ULink = defaultProfile.M3ULink;
             streamGroupDto.XMLLink = defaultProfile.XMLLink;
-
         }
     }
 

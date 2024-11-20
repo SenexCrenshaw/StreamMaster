@@ -6,7 +6,6 @@ public record GetAvailableCountriesRequest : IRequest<DataResponse<List<CountryD
 
 internal class GetAvailableCountriesRequestHandler(ISchedulesDirect schedulesDirect) : IRequestHandler<GetAvailableCountriesRequest, DataResponse<List<CountryData>?>>
 {
-
     public async Task<DataResponse<List<CountryData>?>> Handle(GetAvailableCountriesRequest request, CancellationToken cancellationToken)
     {
         List<CountryData>? countries = await schedulesDirect.GetAvailableCountries(cancellationToken);

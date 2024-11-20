@@ -63,7 +63,7 @@ public class CustomPlayListBuilder : ICustomPlayListBuilder
             return null;
         }
         string[] files = Directory.GetFiles(dir);
-        string? logo = files.FirstOrDefault(file => file.EndsWith("poster.png") || file.EndsWith($"poster.jpg"));
+        string? logo = files.FirstOrDefault(file => file.EndsWith("poster.png") || file.EndsWith("poster.jpg"));
         return logo;
     }
 
@@ -306,7 +306,7 @@ public class CustomPlayListBuilder : ICustomPlayListBuilder
         _logger.LogInformation("Updated folder NFO file at {folderNfoFile} with actors, genres, directors, credits, artwork, trailers, and total duration", folderNfoFile);
     }
 
-    private string GetFirstArtworkInDirectory(string dir)
+    private static string GetFirstArtworkInDirectory(string dir)
     {
         string[] files = Directory.GetFiles(dir);
         return files.FirstOrDefault(file => file.EndsWith("poster.png") || file.EndsWith("poster.jpg") || file.EndsWith("banner.jpg")) ?? string.Empty;
@@ -476,7 +476,7 @@ public class CustomPlayListBuilder : ICustomPlayListBuilder
         return (null, null);
     }
 
-    public CustomStreamNfo? GetRandomIntro(int? avoidIndex = null)
+    public static CustomStreamNfo? GetRandomIntro(int? avoidIndex = null)
     {
         string[] introMovies = Directory.GetFiles(BuildInfo.IntrosFolder, "*.mp4");
 
@@ -487,12 +487,12 @@ public class CustomPlayListBuilder : ICustomPlayListBuilder
 
         List<int> availableIndices = Enumerable.Range(0, introMovies.Length).ToList();
 
-        if (avoidIndex.HasValue && avoidIndex.Value >= 0 && avoidIndex.Value < introMovies.Length)
+        if (avoidIndex >= 0 && avoidIndex.Value < introMovies.Length)
         {
             availableIndices.Remove(avoidIndex.Value);
         }
 
-        if (!availableIndices.Any())
+        if (availableIndices.Count == 0)
         {
             return null; // In case all indices are avoided, though practically this should not happen
         }

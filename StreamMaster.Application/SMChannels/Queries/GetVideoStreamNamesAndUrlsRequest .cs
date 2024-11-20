@@ -44,7 +44,6 @@ internal class GetVideoStreamNamesAndUrlsHandler(IRepositoryWrapper Repository, 
         //ret.AddRange(await Task.WhenAll(tasks));
 
         return DataResponse<List<IdNameUrl>>.Success(ret);
-
     }
     private async Task<string> GetVideoStreamUrlAsync(string name, int smId, int sgId, int sgPId, string url)
     {

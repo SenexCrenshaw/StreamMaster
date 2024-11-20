@@ -74,6 +74,6 @@ public static class AuthenticationBuilderExtensions
 
     public static AuthenticationBuilder AddNone(this AuthenticationBuilder authenticationBuilder, string name)
     {
-        return authenticationBuilder.AddScheme<AuthenticationSchemeOptions, NoAuthenticationHandler>(name, options => { });
+        return authenticationBuilder.AddScheme<AuthenticationSchemeOptions, NoAuthenticationHandler>(name, _ => { });
     }
 }

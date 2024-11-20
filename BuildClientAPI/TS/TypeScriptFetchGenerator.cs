@@ -1,5 +1,6 @@
 ﻿using System.Text;
 
+using BuildClientAPI.Models;
 namespace BuildClientAPI.TS;
 public static class TypeScriptFetchGenerator
 {

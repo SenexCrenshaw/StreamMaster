@@ -26,4 +26,3 @@ public static class TaskCompletionSourceExtensions
         throw new TimeoutException($"{trackingName} timed out in {timeoutMilliseconds} ms");
     }
 }
-

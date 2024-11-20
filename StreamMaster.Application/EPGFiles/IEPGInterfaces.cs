@@ -6,7 +6,6 @@ namespace StreamMaster.Application.EPGFiles;
 
 public interface IEPGFileController
 {
-
     Task<ActionResult<int>> GetEPGNextEPGNumber();
     Task<ActionResult<List<EPGColorDto>>> GetEPGColors();
     Task<ActionResult<List<EPGFilePreviewDto>>> GetEPGFilePreviewById(int id);

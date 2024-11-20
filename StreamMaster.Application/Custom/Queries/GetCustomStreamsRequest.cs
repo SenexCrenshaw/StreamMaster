@@ -15,7 +15,6 @@ public class GetCustomPlayListsRequestHandler(IHttpContextAccessor httpContextAc
             return DataResponse<List<CustomPlayList>>.NotFound;
         }
 
-
         List<CustomPlayList> customPlayLists = customPlayListBuilder.GetCustomPlayLists();
 
         return await Task.FromResult(DataResponse<List<CustomPlayList>>.Success(customPlayLists));

@@ -33,7 +33,6 @@ public class RemoveLineupRequestHandler(ISchedulesDirect schedulesDirect, IDataR
             //await hubContext.ClientChannels.All.SchedulesDirectsRefresh();
             schedulesDirect.ResetCache("SubscribedLineups");
 
-
             jobManager.SetForceNextRun();
             //await dataRefreshService.Refresh("GetSubscribedLineup");
             //await dataRefreshService.Refresh("GetSelectedStationIds");

@@ -17,7 +17,7 @@ namespace StreamMaster.Streams.Handlers
         : IChannelBroadcasterService
     {
         /// <inheritdoc/>
-        public event AsyncEventHandler<ChannelBroascasterStopped>? _OnChannelBroadcasterStoppedEvent;
+        public event AsyncEventHandler<ChannelBroascasterStopped>? OnChannelBroadcasterStoppedEvent;
 
         private readonly ConcurrentDictionary<int, IChannelBroadcaster> _channelBroadcasters = new();
         private readonly SemaphoreSlim _getOrCreateSourceChannelBroadcasterSlim = new(1, 1);
@@ -179,7 +179,7 @@ namespace StreamMaster.Streams.Handlers
                 channelBroadcaster.Shutdown = true;
 
                 await StopChannelAsync(e.Id);
-                _OnChannelBroadcasterStoppedEvent?.Invoke(sender, e);
+                OnChannelBroadcasterStoppedEvent?.Invoke(sender, e);
             }
         }
     }

@@ -1,6 +1,5 @@
 ﻿namespace StreamMaster.Application.SchedulesDirect.QueriesOld;
 
-
 public record GetChannelNamesRequest : IRequest<DataResponse<IEnumerable<string>>>;
 
 internal class GetChannelNamesRequestHandler(ISchedulesDirectDataService schedulesDirectDataService)

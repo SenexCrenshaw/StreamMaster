@@ -20,4 +20,3 @@ internal class SetSMChannelsCommandProfileNameRequestHandler(IRepositoryWrapper 
         //return APIResponse.Success;
     }
 }
-

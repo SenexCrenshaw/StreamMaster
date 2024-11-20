@@ -24,7 +24,7 @@ public class MxfChannel
     private MxfChannel() { }
 
     /// <summary>
-    /// A unique ID that is consistent between loads. 
+    /// A unique ID that is consistent between loads.
     /// This value should take the form "!Channel!uniqueLineupName!number_subNumber", where uniqueLineupName is the Lineup element's uid, and number and subNumber are the values from the number and subNumber attribute.
     /// </summary>
     [XmlAttribute("uid")]
@@ -63,7 +63,7 @@ public class MxfChannel
     /// PAL/NTSC: The call sign
     /// DVB-T: The call sign, or a string of format "DVBT:onid:tsid:sid"
     /// DVB-S: A string of format "DVBS:sat:freq:onid:tsid:sid"
-    /// Where: 
+    /// Where:
     /// onid is the originating network ID.
     /// tsid is the transport stream ID.
     /// sid is the service ID.

@@ -1,6 +1,4 @@
-﻿using StreamMaster.Domain.Extensions;
-
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Xml.Serialization;
 
 namespace StreamMaster.SchedulesDirect.Data;
@@ -12,6 +10,6 @@ public partial class SchedulesDirectData
 
     public MxfAffiliate FindOrCreateAffiliate(string affiliateName)
     {
-        return Affiliates.FindOrCreate(affiliateName, key => new MxfAffiliate(affiliateName));
+        return Affiliates.FindOrCreate(affiliateName, _ => new MxfAffiliate(affiliateName));
     }
 }

@@ -12,7 +12,7 @@ internal class DeleteSMChannelRequestHandler(IRepositoryWrapper Repository, IMes
         APIResponse ret = await Repository.SMChannel.DeleteSMChannel(request.SMChannelId);
         if (ret.IsError)
         {
-            await messageService.SendError($"Could not delete channel", ret.ErrorMessage);
+            await messageService.SendError("Could not delete channel", ret.ErrorMessage);
         }
         else
         {

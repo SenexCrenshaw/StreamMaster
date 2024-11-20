@@ -13,7 +13,6 @@ internal class SyncChannelsRequestHandler(ILogger<SyncChannelsRequest> logger, I
     {
         try
         {
-
             M3UFile? m3uFile = await Repository.M3UFile.GetM3UFileAsync(request.M3UFileId).ConfigureAwait(false);
             if (m3uFile == null)
             {
@@ -27,7 +26,7 @@ internal class SyncChannelsRequestHandler(ILogger<SyncChannelsRequest> logger, I
                 return APIResponse.ErrorWithMessage("Sync Channels not set");
             }
 
-            int? sgId = null; ;
+            int? sgId = null;
             if (m3uFile.DefaultStreamGroupName != null)
             {
                 StreamGroupDto? sg = await Repository.StreamGroup.GetStreamGroupByName(m3uFile.DefaultStreamGroupName);
@@ -69,7 +68,7 @@ internal class SyncChannelsRequestHandler(ILogger<SyncChannelsRequest> logger, I
 
                 _ = await sender.Send(new DeleteSMChannelsRequest(smChannelIds), cancellationToken).ConfigureAwait(false);
             }
-            bool changed = false;
+            const bool changed = false;
 
             if (streamsToBeCreated.Count != 0 || streamsToBeDeleted.Count != 0 || changed)
             {

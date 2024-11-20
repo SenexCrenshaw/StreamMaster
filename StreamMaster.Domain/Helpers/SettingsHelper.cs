@@ -49,7 +49,6 @@ public static class SettingsHelper
             dir = Path.GetDirectoryName(fileName);
         }
 
-
         if (typeof(OutputProfileDict).IsAssignableFrom(setting.GetType()))
         {
             fileName = BuildInfo.OutputProfileSettingsFile;

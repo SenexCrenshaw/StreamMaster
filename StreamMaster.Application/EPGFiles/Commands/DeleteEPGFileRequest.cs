@@ -27,7 +27,6 @@ public class DeleteEPGFileRequestHandler(ILogger<DeleteEPGFileRequest> logger, I
 
             schedulesDirectDataService.Reset(epgFile.Id);
 
-
             await Publisher.Publish(new EPGFileDeletedEvent(epgFile.Id), cancellationToken).ConfigureAwait(false);
 
             await Repository.SaveAsync().ConfigureAwait(false);
@@ -35,7 +34,6 @@ public class DeleteEPGFileRequestHandler(ILogger<DeleteEPGFileRequest> logger, I
             await messageService.SendSuccess($"Deleted EPG {epgFile.Name}");
             await dataRefreshService.RefreshAllEPG();
             return APIResponse.Success;
-
         }
         catch (Exception ex)
         {

@@ -197,7 +197,6 @@ public abstract class RepositoryBase<T>(IRepositoryContext RepositoryContext, IL
         RepositoryContext.Set<T>().Remove(entity);
     }
 
-
     public async Task BulkDeleteAsync<TEntity>(List<TEntity> items, int batchSize = 100, CancellationToken cancellationToken = default) where TEntity : class
     {
         if (items == null || items.Count == 0)

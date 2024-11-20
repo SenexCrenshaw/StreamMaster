@@ -34,7 +34,6 @@ namespace StreamMaster.Domain.XmltvXml
         [XmlIgnore]
         public int EPGFileId { get; set; }
 
-
         [XmlAttribute(AttributeName = "stop")]
         public string? Stop
         {

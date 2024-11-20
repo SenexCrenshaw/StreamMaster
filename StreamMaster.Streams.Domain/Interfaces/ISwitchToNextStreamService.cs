@@ -1,5 +1,4 @@
 ﻿
-
 namespace StreamMaster.Streams.Domain.Interfaces
 {
     public interface ISwitchToNextStreamService

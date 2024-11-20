@@ -18,5 +18,4 @@ public class StationIdLineup
         //this.PostalCode = PostalCode;
         this.Id = Lineup + "|" + StationId;
     }
-
 }

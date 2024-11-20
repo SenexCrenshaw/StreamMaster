@@ -1,4 +1,6 @@
 ﻿using System.Text;
+
+using BuildClientAPI.Models;
 namespace BuildClientAPI.TS;
 public static class SignalRGeneratorDataRefreshAll
 {
@@ -23,7 +25,7 @@ public static class SignalRGeneratorDataRefreshAll
         List<string> deps = [];
         content.AppendLine("export const DataRefreshAll = () => {");
 
-        foreach (MethodDetails? method in methods.Where(a => a.IsGet && a.ParameterNames == ""))
+        foreach (MethodDetails? method in methods.Where(a => a.IsGet && a.ParameterNames?.Length == 0))
         {
             content.AppendLine($"  store.dispatch({method.Name}SetIsForced({{ force: true }}));");
         }
@@ -37,7 +39,7 @@ public static class SignalRGeneratorDataRefreshAll
         StringBuilder content = new();
         content.AppendLine("import store from '@lib/redux/store';");
 
-        foreach (MethodDetails method in methods.Where(a => a.IsGet & a.ParameterNames == ""))
+        foreach (MethodDetails method in methods.Where(a => a.IsGet && a.ParameterNames?.Length == 0))
         {
             content.AppendLine($"import {{ setIsForced as {method.Name}SetIsForced }} from '@lib/smAPI/{method.NamespaceName}/{method.Name}Slice';");
         }

@@ -1,14 +1,14 @@
 ﻿using System.Diagnostics;
 using System.Reflection;
 using System.Text.RegularExpressions;
-
+namespace BuildClientAPI;
 /// <summary>
 /// Provides utilities for converting C# parameter and type information into TypeScript equivalents.
 /// </summary>
-public static class Utils
+public static partial class Utils
 
 {
-    private static readonly char[] separator = new[] { ',', ' ' };
+    private static readonly char[] separator = [',', ' '];
     internal static List<string> AlreadyCreatedInterfaces = ["SMChannelRankRequest", "DefaultAPIResponse", "PagedResponse", "APIResponse"];
 
     /// <summary>
@@ -34,8 +34,6 @@ public static class Utils
         return tsParameters;
     }
 
-
-
     public static List<Type> GetConstructorAndParameterTypes(Type recordType)
     {
         List<Type> types = [];
@@ -46,7 +44,6 @@ public static class Utils
         {
             Type pType = p.ParameterType;
             types.Add(pType);
-
         }
         return types;
     }
@@ -78,8 +75,6 @@ public static class Utils
             {
                 stringBuilder.Add($"{name}: {tsType}");
             }
-
-
         }
         string ret = string.Join(", ", stringBuilder);
 
@@ -88,9 +83,8 @@ public static class Utils
 
     public static string FixUpTSType(string tsType)
     {
-        string pattern = @"\b\w*Parameters(?!\:)\b";
-        tsType = Regex.Replace(tsType, pattern, "QueryStringParameters");
-        return tsType;
+        //const string pattern = @"\b\w*Parameters(?!\:)\b";
+        return MyRegex().Replace(tsType, "QueryStringParameters");
     }
 
     public static string GetLastPartOfTypeName(string fullTypeName)
@@ -100,7 +94,7 @@ public static class Utils
     }
     public static string? IsTSGeneric(string csharpType)
     {
-        if (csharpType.Contains(":"))
+        if (csharpType.Contains(':'))
         {
             csharpType = csharpType[(csharpType.IndexOf(": ") + 2)..];
         }
@@ -144,7 +138,6 @@ public static class Utils
         // For reference types, check the Nullable attribute
         if (!type.IsValueType)
         {
-
             CustomAttributeData? nullableAttribute = type.CustomAttributes
                 .FirstOrDefault(a => a.AttributeType.FullName == "System.Runtime.CompilerServices.NullableAttribute");
             if (nullableAttribute != null)
@@ -162,7 +155,6 @@ public static class Utils
                     }
                 }
             }
-
         }
 
         // If no explicit information, conservative default for reference types is nullable,
@@ -186,7 +178,6 @@ public static class Utils
         // For reference types, check the Nullable attribute
         if (!parameter.ParameterType.IsValueType)
         {
-
             CustomAttributeData? nullableAttribute = parameter.CustomAttributes
                 .FirstOrDefault(a => a.AttributeType.FullName == "System.Runtime.CompilerServices.NullableAttribute");
             if (nullableAttribute != null)
@@ -259,7 +250,6 @@ public static class Utils
         //    csharpType = "Blob";
         //}
 
-
         // Default fallback for unmapped types
         return csharpType;
     }
@@ -267,10 +257,10 @@ public static class Utils
     public static string CleanupTypeName(string fullTypeName)
     {
         // Pattern matches generic types like "System.Collections.Generic.List<System.Int32>"
-        string genericTypePattern = @"System\.Collections\.Generic\.(?<type>[^\[\<]+)\<(?<innerType>.+)\>";
+        //const string genericTypePattern = @"System\.Collections\.Generic\.(?<type>[^\[\<]+)\<(?<innerType>.+)\>";
 
         // Use Regex to simplify generic type names
-        Match match = Regex.Match(fullTypeName, genericTypePattern);
+        Match match = MyRegex1().Match(fullTypeName);
         if (match.Success)
         {
             string type = match.Groups["type"].Value; // e.g., "List"
@@ -315,7 +305,6 @@ public static class Utils
         return genericTypeString;
     }
 
-
     public static string GetTypeFullNameForParameter(Type type)
     {
         if (type.IsGenericType)
@@ -329,24 +318,22 @@ public static class Utils
             }
         }
         string ret = type.FullName ?? type.Name;
-        if (ret.Contains("+"))
+        if (ret.Contains('+'))
         {
             ret = type.Name;
         }
 
         return ret;
-
     }
 
-    /// <summary>
-    /// Handles mapping of generic types to TypeScript.
-    /// </summary>
-    /// <param name="genericType">The generic type string.</param>
-    /// <returns>A TypeScript representation of the generic type.</returns>
-    /// <remarks>This method serves as a placeholder for future implementation of complex generic type handling.</remarks>
-    private static string HandleGenericTypes(string genericType)
-    {
-        // Placeholder for additional generic type handling logic
-        return genericType;
-    }
+    //private static string HandleGenericTypes(string genericType)
+    //{
+    //    // Placeholder for additional generic type handling logic
+    //    return genericType;
+    //}
+
+    [GeneratedRegex(@"\b\w*Parameters(?!\:)\b")]
+    private static partial Regex MyRegex();
+    [GeneratedRegex(@"System\.Collections\.Generic\.(?<type>[^\[\<]+)\<(?<innerType>.+)\>")]
+    private static partial Regex MyRegex1();
 }

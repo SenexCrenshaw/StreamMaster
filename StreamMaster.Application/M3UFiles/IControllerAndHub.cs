@@ -6,7 +6,7 @@ using StreamMaster.Application.M3UFiles.Queries;
 namespace StreamMaster.Application.M3UFiles
 {
     public interface IM3UFilesController
-    {        
+    {
         Task<ActionResult<List<string>>> GetM3UFileNames();
         Task<ActionResult<List<M3UFileDto>>> GetM3UFiles();
         Task<ActionResult<PagedResponse<M3UFileDto>>> GetPagedM3UFiles(QueryStringParameters Parameters);

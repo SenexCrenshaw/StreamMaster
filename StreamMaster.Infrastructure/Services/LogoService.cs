@@ -112,8 +112,6 @@ public class LogoService(IMapper mapper, ICustomPlayListBuilder customPlayListBu
     }
     private static string GetApiUrl(string url, string source, SMFileTypes path)
     {
-
-
         string encodedPath = Convert.ToBase64String(Encoding.UTF8.GetBytes(source));
 
         return $"{url}/api/files/{(int)path}/{encodedPath}";
@@ -361,7 +359,6 @@ public class LogoService(IMapper mapper, ICustomPlayListBuilder customPlayListBu
 
     public async Task<bool> ReadDirectoryTVLogos(CancellationToken cancellationToken = default)
     {
-
         TvLogos = new ConcurrentDictionary<string, TvLogoFile>(
     [
         new(
@@ -393,7 +390,6 @@ public class LogoService(IMapper mapper, ICustomPlayListBuilder customPlayListBu
         }
 
         DirectoryInfo dirInfo = new(BuildInfo.TVLogoFolder);
-
 
         List<TvLogoFile> tvLogoFiles = await FileUtil.GetTVLogosFromDirectory(dirInfo, dirInfo.FullName, TvLogos.Count, cancellationToken).ConfigureAwait(false);
 

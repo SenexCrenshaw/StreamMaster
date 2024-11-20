@@ -3,7 +3,6 @@
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record AutoSetEPGRequest(List<int> Ids) : IRequest<APIResponse>;
 
-
 public class AutoSetEPGRequestHandler(IRepositoryWrapper Repository, IMessageService messageService, IDataRefreshService dataRefreshService)
     : IRequestHandler<AutoSetEPGRequest, APIResponse>
 {
@@ -14,7 +13,7 @@ public class AutoSetEPGRequestHandler(IRepositoryWrapper Repository, IMessageSer
         {
             //await dataRefreshService.RefreshSMChannels().ConfigureAwait(false);
             await dataRefreshService.SetField(results);
-            await messageService.SendSuccess($"Auto Set EPG For Channels");
+            await messageService.SendSuccess("Auto Set EPG For Channels");
         }
         return APIResponse.Ok;
     }

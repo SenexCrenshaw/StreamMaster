@@ -34,7 +34,6 @@ public class SetStationsHandler(ILogger<SetStationsRequest> logger, IDataRefresh
 
         foreach (StationRequest stationRequest in request.Requests)
         {
-
             if (updateSetting.SDSettings.SDStationIds.Any(x => x.Lineup == stationRequest.Lineup && x.StationId == stationRequest.StationId))
             {
                 continue;

@@ -53,7 +53,7 @@ public class VideoService(
         if (commandProfileDto.ProfileName.Equals("Redirect", StringComparison.InvariantCultureIgnoreCase))
         {
             logger.LogInformation("Channel with ChannelId {channelId} redirecting", smChannelId);
-            return new StreamResult { RedirectUrl = smChannelDto.SMStreamDtos.First().Url };
+            return new StreamResult { RedirectUrl = smChannelDto.SMStreamDtos[0].Url };
         }
 
         // Create client configuration

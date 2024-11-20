@@ -13,8 +13,5 @@ public class SMChannelStreamLinkConfiguration : IEntityTypeConfiguration<SMChann
            .WithMany(vs => vs.SMStreams)
            .HasForeignKey(vsl => vsl.SMChannelId)
            .OnDelete(DeleteBehavior.Cascade);
-
     }
 }
-
-

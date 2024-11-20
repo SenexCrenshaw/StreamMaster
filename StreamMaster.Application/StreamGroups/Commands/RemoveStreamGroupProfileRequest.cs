@@ -15,7 +15,6 @@ public class RemoveStreamGroupProfileRequestHandler(IRepositoryWrapper Repositor
             return APIResponse.NotFound;
         }
 
-
         if (request.ProfileName.EqualsIgnoreCase("default"))
         {
             return APIResponse.ErrorWithMessage($"The Profile Name '{request.ProfileName}' is reserved");
@@ -34,8 +33,6 @@ public class RemoveStreamGroupProfileRequestHandler(IRepositoryWrapper Repositor
             _ = await Repository.SaveAsync();
             await dataRefreshService.RefreshStreamGroups();
         }
-
-
 
         await messageService.SendSuccess("Profile removed successfully");
         return APIResponse.Ok;

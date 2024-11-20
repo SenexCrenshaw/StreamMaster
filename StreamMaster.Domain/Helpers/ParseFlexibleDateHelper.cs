@@ -3,7 +3,7 @@ using System.Text.RegularExpressions;
 
 namespace StreamMaster.Domain.Helpers
 {
-    public static class ParseFlexibleDateHelper
+    public static partial class ParseFlexibleDateHelper
     {
         public static DateTime ParseFlexibleDate(string? dateStr)
         {
@@ -13,7 +13,7 @@ namespace StreamMaster.Domain.Helpers
             }
 
             // Regex to capture parts of the date string with optional components
-            Regex regex = new(@"(?<year>\d{4})(?<month>\d{2})(?<day>\d{2})(?<hour>\d{2})?(?<minute>\d{2})?(?<second>\d{2})?\s*(?<offset>[+-]\d{4})?");
+            Regex regex = MyRegex();
             Match match = regex.Match(dateStr);
 
             if (!match.Success)
@@ -33,21 +33,21 @@ namespace StreamMaster.Domain.Helpers
             while (hour >= 24)
             {
                 hour -= 24;
-                day += 1;
+                day++;
             }
 
             // Handle minute overflow (e.g., minute >= 60)
             while (minute >= 60)
             {
                 minute -= 60;
-                hour += 1;
+                hour++;
             }
 
             // Handle second overflow (e.g., second >= 60)
             while (second >= 60)
             {
                 second -= 60;
-                minute += 1;
+                minute++;
             }
 
             // Adjust day if it exceeds the maximum for the month
@@ -57,13 +57,13 @@ namespace StreamMaster.Domain.Helpers
                 if (day > maxDay)
                 {
                     day -= maxDay;
-                    month += 1;
+                    month++;
 
                     // If the month exceeds December, roll over to January of the next year
                     if (month > 12)
                     {
                         month = 1;
-                        year += 1;
+                        year++;
                     }
                 }
             }
@@ -83,7 +83,7 @@ namespace StreamMaster.Domain.Helpers
                 }
 
                 // Parse the offset, handling both positive and negative offsets
-                bool isNegative = offsetStr.StartsWith("-");
+                bool isNegative = offsetStr.StartsWith('-');
                 offsetStr = offsetStr.TrimStart('+', '-'); // Remove leading '+' or '-'
                 TimeSpan offset = TimeSpan.ParseExact(offsetStr, "hh\\:mm", CultureInfo.InvariantCulture);
 
@@ -108,5 +108,8 @@ namespace StreamMaster.Domain.Helpers
             int maxDay = DateTime.DaysInMonth(year, month);
             return day >= 1 && day <= maxDay;
         }
+
+        [GeneratedRegex(@"(?<year>\d{4})(?<month>\d{2})(?<day>\d{2})(?<hour>\d{2})?(?<minute>\d{2})?(?<second>\d{2})?\s*(?<offset>[+-]\d{4})?")]
+        private static partial Regex MyRegex();
     }
 }

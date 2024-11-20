@@ -1,4 +1,6 @@
 ﻿using System.Collections.Concurrent;
+using System.Linq.Expressions;
+using System.Reflection;
 using System.Text.Json;
 using System.Xml.Serialization;
 
@@ -14,7 +16,6 @@ namespace StreamMaster.Application.StreamGroups;
 
 public class StreamGroupService(IOptionsMonitor<Setting> _settings, IOptionsMonitor<CommandProfileDict> _commandProfileSettings, ILogoService logoService, ICacheManager cacheManager, IRepositoryWrapper repositoryWrapper, IOptionsMonitor<Setting> settings, IProfileService profileService) : IStreamGroupService
 {
-
     #region CRYPTO
 
     private async Task<(int? streamGroupId, string? groupKey, string? valuesEncryptedString)> GetGroupKeyFromEncodeAsync(string encodedString)
@@ -183,7 +184,7 @@ public class StreamGroupService(IOptionsMonitor<Setting> _settings, IOptionsMoni
         }
 
         List<SMChannel> smChannels = (await repositoryWrapper.SMChannel.GetSMChannelsFromStreamGroup(streamGroup.Id).ConfigureAwait(false)).Where(a => !a.IsHidden).ToList();
-        if (!smChannels.Any())
+        if (smChannels.Count == 0)
         {
             return JsonSerializer.Serialize(new List<SGLineup>());
         }
@@ -209,16 +210,22 @@ public class StreamGroupService(IOptionsMonitor<Setting> _settings, IOptionsMoni
             }
         });
 
+        OutputProfileDto outputProfile = profileService.GetOutputProfile(streamGroupProfile.OutputProfileName);
+
         ConcurrentBag<SGLineup> ret = [];
         Parallel.ForEach(encodedData, (data, _) =>
         {
             VideoStreamConfig? videoStreamConfig = videoStreamConfigs.Find(a => a.Id == data.SMChannel.Id);
             if (videoStreamConfig != null)
             {
+                UpdateProperty(outputProfile, data.SMChannel, p => p.Name);
+                UpdateProperty(outputProfile, data.SMChannel, p => p.Group);
+                UpdateProperty(outputProfile, data.SMChannel, p => p.Id);
+
                 string logo = logoService.GetLogoUrl(videoStreamConfig.Logo, url);
                 ret.Add(new SGLineup
                 {
-                    GuideName = videoStreamConfig.Name,
+                    GuideName = data.SMChannel.Name,
                     GuideNumber = videoStreamConfig.ChannelNumber.ToString(),
                     Station = videoStreamConfig.ChannelNumber.ToString(),
                     Logo = logo,
@@ -228,6 +235,31 @@ public class StreamGroupService(IOptionsMonitor<Setting> _settings, IOptionsMoni
         });
 
         return JsonSerializer.Serialize(ret.OrderBy(a => a.GuideNumber));
+    }
+
+    private static void UpdateProperty<T>(OutputProfile profile, SMChannel smChannel, Expression<Func<OutputProfile, T>> propertySelector)
+    {
+        if (propertySelector.Body is MemberExpression memberExpression)
+        {
+            T? profileValue = propertySelector.Compile()(profile);
+
+            if (Enum.TryParse<ValidM3USetting>(profileValue?.ToString(), out ValidM3USetting setting))
+            {
+                if (setting != ValidM3USetting.NotMapped)
+                {
+                    PropertyInfo? smChannelProperty = typeof(SMChannel).GetProperty(setting.ToString());
+                    if (smChannelProperty != null)
+                    {
+                        object? newValue = smChannelProperty.GetValue(smChannel);
+                        if (newValue != null)
+                        {
+                            PropertyInfo? profileProperty = typeof(OutputProfile).GetProperty(memberExpression.Member.Name);
+                            profileProperty?.SetValue(profile, newValue.ToString());
+                        }
+                    }
+                }
+            }
+        }
     }
 
     public async Task<StreamGroupProfile> GetStreamGroupProfileAsync(int? streamGroupId = null, int? streamGroupProfileId = null)
@@ -280,7 +312,7 @@ public class StreamGroupService(IOptionsMonitor<Setting> _settings, IOptionsMoni
             : await repositoryWrapper.SMChannel.GetSMChannelsFromStreamGroup(streamGroup.Id).ConfigureAwait(false))
             .Where(a => !a.IsHidden).ToList();
 
-        if (!smChannels.Any())
+        if (smChannels.Count == 0)
         {
             StreamGroupProfile defaultProfile = await GetDefaultStreamGroupProfileAsync().ConfigureAwait(false);
             return (new List<VideoStreamConfig>(), defaultProfile);
@@ -291,25 +323,72 @@ public class StreamGroupService(IOptionsMonitor<Setting> _settings, IOptionsMoni
         OutputProfileDto outputProfile = profileService.GetOutputProfile(streamGroupProfile.OutputProfileName);
 
         List<VideoStreamConfig> videoStreamConfigs = [];
-        foreach (SMChannel? smChannel in smChannels)
+        int customIndex = 1;
+        foreach (SMChannel smChannel in smChannels)
         {
-            SMStream? stream = smChannel.SMStreams.FirstOrDefault(a => a.Rank == 0)?.SMStream;
-            videoStreamConfigs.Add(new VideoStreamConfig
+            if (smChannel.M3UFileId == EPGHelper.CustomPlayListId)
             {
-                Id = smChannel.Id,
-                Name = smChannel.Name,
-                EPGId = smChannel.EPGId,
-                Logo = smChannel.Logo,
-                Group = smChannel.Group,
-                ChannelNumber = smChannel.ChannelNumber,
-                TimeShift = smChannel.TimeShift,
-                IsDuplicate = false,
-                IsDummy = false,
-                M3UFileId = stream?.M3UFileId ?? 0,
-                FilePosition = stream?.FilePosition ?? 0,
-                CommandProfile = commandProfile,
-                OutputProfile = outputProfile
-            });
+                videoStreamConfigs.Add(new VideoStreamConfig
+                {
+                    Id = smChannel.Id,
+                    Name = smChannel.Name,
+                    EPGId = smChannel.EPGId,
+                    Logo = smChannel.Logo,
+                    Group = smChannel.Group,
+                    ChannelNumber = smChannel.ChannelNumber,
+                    TimeShift = smChannel.TimeShift,
+                    IsDuplicate = false,
+                    IsDummy = false,
+                    M3UFileId = EPGHelper.CustomPlayListId,
+                    FilePosition = customIndex++,
+                    CommandProfile = commandProfile,
+                    OutputProfile = outputProfile
+                });
+
+            }
+            else if (smChannel.M3UFileId == EPGHelper.IntroPlayListId)
+            {
+                videoStreamConfigs.Add(new VideoStreamConfig
+                {
+                    Id = smChannel.Id,
+                    Name = smChannel.Name,
+                    EPGId = smChannel.EPGId,
+                    Logo = smChannel.Logo,
+                    Group = smChannel.Group,
+                    ChannelNumber = smChannel.ChannelNumber,
+                    TimeShift = smChannel.TimeShift,
+                    IsDuplicate = false,
+                    IsDummy = false,
+                    M3UFileId = EPGHelper.IntroPlayListId,
+                    FilePosition = customIndex++,
+                    CommandProfile = commandProfile,
+                    OutputProfile = outputProfile
+                });
+
+                continue;
+            }
+            else
+            {
+
+                SMStream? stream = smChannel.SMStreams.FirstOrDefault(a => a.Rank == 0)?.SMStream;
+
+                videoStreamConfigs.Add(new VideoStreamConfig
+                {
+                    Id = smChannel.Id,
+                    Name = smChannel.Name,
+                    EPGId = smChannel.EPGId,
+                    Logo = smChannel.Logo,
+                    Group = smChannel.Group,
+                    ChannelNumber = smChannel.ChannelNumber,
+                    TimeShift = smChannel.TimeShift,
+                    IsDuplicate = false,
+                    IsDummy = false,
+                    M3UFileId = stream?.M3UFileId ?? 0,
+                    FilePosition = stream?.FilePosition ?? 0,
+                    CommandProfile = commandProfile,
+                    OutputProfile = outputProfile
+                });
+            }
         }
         return (videoStreamConfigs.OrderBy(a => a.ChannelNumber).ToList(), streamGroupProfile);
     }

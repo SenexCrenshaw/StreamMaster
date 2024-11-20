@@ -19,7 +19,6 @@ public class FileLoggerDebug(IFileLoggingServiceFactory factory) : ILogger
         _logging.EnqueueLogEntry(logEntry);
     }
 
-
     public IDisposable? BeginScope<TState>(TState state) where TState : notnull
     {
         return null;
@@ -36,7 +35,6 @@ public class FileLoggerDebug(IFileLoggingServiceFactory factory) : ILogger
         if (state == null)
         {
             return string.Empty;
-
         }
         string message = formatter(state, exception);
 
@@ -53,6 +51,4 @@ public class FileLoggerDebug(IFileLoggingServiceFactory factory) : ILogger
 
         return csvFormattedEntry;
     }
-
-
 }

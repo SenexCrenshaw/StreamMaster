@@ -3,7 +3,7 @@ using System.Text.RegularExpressions;
 
 namespace StreamMaster.Infrastructure.EF.Helpers
 {
-    internal static class AutoEPGMatch
+    internal static partial class AutoEPGMatch
     {
         private static readonly string[] CommonSuffixes = ["us", "gb", "dt", "hd"];
 
@@ -21,7 +21,7 @@ namespace StreamMaster.Infrastructure.EF.Helpers
 
         private static (string code, string name) ExtractComponentsFromProgrammeName(string programmeName)
         {
-            Match match = Regex.Match(programmeName, @"\[(.*?)\]\s*([\w-]+)");
+            Match match = MyRegex().Match(programmeName);
             string code = match.Success ? match.Groups[1].Value : "";
             string name = match.Success ? match.Groups[2].Value.Split([' ', '-'])[0] : "";
 
@@ -67,10 +67,10 @@ namespace StreamMaster.Infrastructure.EF.Helpers
         }
 
         /// <summary>
-        /// Matches the exact name or base name of the user TVG name with the program code or name.
+        /// Matches the exact name or base name of the user TVG name with the program Code or name.
         /// </summary>
         /// <param name="userTvgName">Normalized user TVG name.</param>
-        /// <param name="programmeCode">Extracted program code from the program name.</param>
+        /// <param name="programmeCode">Extracted program Code from the program name.</param>
         /// <param name="programmeName">Extracted program name from the program name.</param>
         /// <returns>Score based on exact or base name match.</returns>
         private static int MatchExactOrBase(string userTvgName, string programmeCode, string programmeName)
@@ -92,10 +92,10 @@ namespace StreamMaster.Infrastructure.EF.Helpers
         }
 
         /// <summary>
-        /// Matches the call sign extracted from the user TVG name with the program name or code.
+        /// Matches the call sign extracted from the user TVG name with the program name or Code.
         /// </summary>
         /// <param name="userTvgName">Normalized user TVG name.</param>
-        /// <param name="programmeCode">Extracted program code from the program name.</param>
+        /// <param name="programmeCode">Extracted program Code from the program name.</param>
         /// <param name="programmeName">Extracted program name from the program name.</param>
         /// <returns>Score based on call sign match.</returns>
         private static int MatchCallSign(string userTvgName, string programmeCode, string programmeName)
@@ -105,7 +105,6 @@ namespace StreamMaster.Infrastructure.EF.Helpers
 
             if (!string.IsNullOrEmpty(callSign))
             {
-
                 if (callSign.Equals(programmeCode) || callSign.Equals(programmeName))
                 {
                     score += 40;
@@ -124,13 +123,13 @@ namespace StreamMaster.Infrastructure.EF.Helpers
 
         private static string ExtractCallSign(string userTvgName)
         {
-            Match match = Regex.Match(userTvgName, @"\((.*?)\)");
+            Match match = MyRegex1().Match(userTvgName);
             string extractedCallSign = match.Success ? match.Groups[1].Value : "";
 
             // If no match in parentheses, attempt to extract call sign directly from the name
             if (string.IsNullOrEmpty(extractedCallSign))
             {
-                string[] parts = userTvgName.Split(new[] { ' ', '-', '(', ')' }, StringSplitOptions.RemoveEmptyEntries);
+                string[] parts = userTvgName.Split([' ', '-', '(', ')'], StringSplitOptions.RemoveEmptyEntries);
                 foreach (string part in parts)
                 {
                     // Assuming call sign is the part that contains letters and possibly ends with -TV or -DT
@@ -158,10 +157,8 @@ namespace StreamMaster.Infrastructure.EF.Helpers
         //    return callSign;
         //}
 
-
         private static string RemoveSuffixesFromCallSign(string callSign)
         {
-
             // Check if the call sign has enough length before removing the last two characters
             if (callSign.Length > 2)
             {
@@ -170,11 +167,8 @@ namespace StreamMaster.Infrastructure.EF.Helpers
             }
 
             // Remove trailing hyphens if any
-            callSign = callSign.TrimEnd('-');
-
-            return callSign;
+            return callSign.TrimEnd('-');
         }
-
 
         /// <summary>
         /// Calculates a score based on the intersection of words in the user TVG name and the program name.
@@ -200,5 +194,10 @@ namespace StreamMaster.Infrastructure.EF.Helpers
             int intersectionCount = name1Words.Intersect(name2Words).Count();
             return intersectionCount * 10;
         }
+
+        [GeneratedRegex(@"\[(.*?)\]\s*([\w-]+)")]
+        private static partial Regex MyRegex();
+        [GeneratedRegex(@"\((.*?)\)")]
+        private static partial Regex MyRegex1();
     }
 }

@@ -6,7 +6,7 @@ using StreamMaster.Application.Custom.Queries;
 namespace StreamMaster.Application.Custom
 {
     public interface ICustomController
-    {        
+    {
         Task<ActionResult<CustomPlayList>> GetCustomPlayList(GetCustomPlayListRequest request);
         Task<ActionResult<List<CustomPlayList>>> GetCustomPlayLists();
         Task<ActionResult<List<CustomPlayList>>> GetIntroPlayLists();

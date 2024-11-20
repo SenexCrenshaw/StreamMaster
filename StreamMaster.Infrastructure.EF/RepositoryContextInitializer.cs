@@ -66,7 +66,6 @@ public class RepositoryContextInitializer(ILogger<RepositoryContextInitializer> 
                 _ = context.Add(new ChannelGroup { Name = "Intros", IsReadOnly = true, IsSystem = true });
                 _ = await context.SaveChangesAsync().ConfigureAwait(false);
             }
-
         }
         catch (Exception ex)
         {

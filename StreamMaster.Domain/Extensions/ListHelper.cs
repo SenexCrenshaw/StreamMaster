@@ -10,11 +10,7 @@ public static class ListHelper
         List<T> matchedObjects = [];
         Regex rgx = new(regex, RegexOptions.ECMAScript | RegexOptions.IgnoreCase);
 
-        PropertyInfo? property = typeof(T).GetProperty(propertyName);
-        if (property == null)
-        {
-            throw new ArgumentException("No such property found", nameof(propertyName));
-        }
+        PropertyInfo? property = typeof(T).GetProperty(propertyName) ?? throw new ArgumentException("No such property found", nameof(propertyName));
 
         foreach (T? obj in list)
         {

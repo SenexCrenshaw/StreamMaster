@@ -45,7 +45,6 @@ public class CryptoService(IOptionsMonitor<Setting> intSettings) : ICryptoServic
     //    return (null, null, null);
     //}
 
-
     //public async Task<(int? StreamGroupId, string? SMStreamId)> DecodeStreamGroupIdStreamIdAsync(string EncodedString)
     //{
     //    (int? streamGroupId, string? groupKey, string? valuesEncryptedString) = await GetGroupKeyFromEncodeAsync(EncodedString);
@@ -115,7 +114,6 @@ public class CryptoService(IOptionsMonitor<Setting> intSettings) : ICryptoServic
         return encryptedString;
     }
 
-
     public int? DecodeInt(string stringToDecode)
     {
         if (string.IsNullOrEmpty(stringToDecode))
@@ -133,9 +131,6 @@ public class CryptoService(IOptionsMonitor<Setting> intSettings) : ICryptoServic
         int ret = int.Parse(encryptedString);
         return ret;
     }
-
-
-
 
     //public async Task<string?> EncodeStreamGroupIdStreamIdAsync(int StreamGroupId, string SMStreamId)
     //{
@@ -271,7 +266,6 @@ public class CryptoService(IOptionsMonitor<Setting> intSettings) : ICryptoServic
 
     //    return encryptedString;
     //}
-
 
     //public async Task<string?> EncodeStreamGroupProfileIdChannelId(int StreamGroupProfileId, int SMChannelId)
     //{

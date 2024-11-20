@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-
 namespace BuildClientAPI.CSharp;
 
 internal static class CSharpUtils
@@ -31,7 +30,7 @@ internal static class CSharpUtils
         }
         catch (Exception ex)
         {
-            Console.WriteLine("An error occurred while trying to check if {TypeToCheck} is part of DataResponse.: {ex}", typeToCheck, ex);
+            Console.WriteLine($"An error occurred while trying to check if {typeToCheck} is part of DataResponse.: {ex.Message}");
             // Depending on requirements, you may want to handle this differently
             // For example, re-throwing the exception, returning false, or handling specific exceptions differently
         }
@@ -40,17 +39,14 @@ internal static class CSharpUtils
     }
     public static string ParamsToCSharp(Type recordType)
     {
-
         List<string> stringBuilder = [];
         ConstructorInfo[] constructors = recordType.GetConstructors();
 
         ParameterInfo[] parameters = constructors[0].GetParameters();
         foreach (ParameterInfo p in parameters)
         {
-
-
             string? name = p.Name;
-            Type pType = p.ParameterType;
+            _ = p.ParameterType;
             string csSharptsTypeFullName = Utils.GetTypeFullNameForParameter(p.ParameterType);
             string csSharptsType = Utils.CleanupTypeName(csSharptsTypeFullName);
             if (Utils.IsParameterNullable(p))

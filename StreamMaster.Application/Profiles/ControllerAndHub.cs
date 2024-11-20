@@ -7,8 +7,7 @@ namespace StreamMaster.Application.Profiles.Controllers
 {
     [Authorize]
     public partial class ProfilesController(ILogger<ProfilesController> _logger) : ApiControllerBase, IProfilesController
-    {        
-
+    {
         [HttpGet]
         [Route("[action]")]
         public async Task<ActionResult<List<CommandProfileDto>>> GetCommandProfiles()
@@ -16,7 +15,7 @@ namespace StreamMaster.Application.Profiles.Controllers
             try
             {
             var ret = await Sender.Send(new GetCommandProfilesRequest()).ConfigureAwait(false);
-             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetCommandProfiles.", statusCode: 500) : Ok(ret.Data?? new());
+             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetCommandProfiles.", statusCode: 500) : Ok(ret.Data?? []);
             }
             catch (Exception ex)
             {
@@ -48,7 +47,7 @@ namespace StreamMaster.Application.Profiles.Controllers
             try
             {
             var ret = await Sender.Send(new GetOutputProfilesRequest()).ConfigureAwait(false);
-             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetOutputProfiles.", statusCode: 500) : Ok(ret.Data?? new());
+             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetOutputProfiles.", statusCode: 500) : Ok(ret.Data?? []);
             }
             catch (Exception ex)
             {
@@ -104,7 +103,6 @@ namespace StreamMaster.Application.Profiles.Controllers
             var ret = await Sender.Send(request).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
         }
-
     }
 }
 
@@ -115,7 +113,7 @@ namespace StreamMaster.Application.Hubs
         public async Task<List<CommandProfileDto>> GetCommandProfiles()
         {
              var ret = await Sender.Send(new GetCommandProfilesRequest()).ConfigureAwait(false);
-            return ret.Data?? new();
+            return ret.Data?? [];
         }
 
         public async Task<OutputProfileDto> GetOutputProfile(GetOutputProfileRequest request)
@@ -127,7 +125,7 @@ namespace StreamMaster.Application.Hubs
         public async Task<List<OutputProfileDto>> GetOutputProfiles()
         {
              var ret = await Sender.Send(new GetOutputProfilesRequest()).ConfigureAwait(false);
-            return ret.Data?? new();
+            return ret.Data?? [];
         }
 
         public async Task<APIResponse?> AddCommandProfile(AddCommandProfileRequest request)
@@ -165,6 +163,5 @@ namespace StreamMaster.Application.Hubs
             var ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;
         }
-
     }
 }

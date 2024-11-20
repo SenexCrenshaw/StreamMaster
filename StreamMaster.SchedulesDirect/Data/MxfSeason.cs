@@ -13,7 +13,7 @@ public partial class SchedulesDirectData
 
     public Season FindOrCreateSeason(string seriesId, int seasonNumber, string? protoTypicalProgram)
     {
-        (Season season, bool created) = Seasons.FindOrCreateWithStatus($"{seriesId}_{seasonNumber}", key => new Season(Seasons.Count + 1, FindOrCreateSeriesInfo(seriesId), seasonNumber, protoTypicalProgram));
+        (Season season, bool created) = Seasons.FindOrCreateWithStatus($"{seriesId}_{seasonNumber}", _ => new Season(Seasons.Count + 1, FindOrCreateSeriesInfo(seriesId), seasonNumber, protoTypicalProgram));
 
         if (created)
         {
@@ -23,5 +23,4 @@ public partial class SchedulesDirectData
         SeasonsToProcess.Add(season);
         return season;
     }
-
 }

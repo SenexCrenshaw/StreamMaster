@@ -64,7 +64,7 @@ public class SMChannelChannelLinksRepository(ILogger<SMChannelChannelLinksReposi
         {
             int nextRank = Rank ?? GetMaxRank(smChannel.Id);
 
-            SMChannelChannelLink link = new SMChannelChannelLink()
+            SMChannelChannelLink link = new()
             {
                 ParentSMChannel = smChannel,
                 ParentSMChannelId = smChannel.Id,

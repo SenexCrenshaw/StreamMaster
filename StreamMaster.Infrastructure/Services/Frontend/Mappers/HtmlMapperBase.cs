@@ -4,11 +4,11 @@ using Microsoft.Extensions.Logging;
 
 namespace StreamMaster.Infrastructure.Services.Frontend.Mappers
 {
-    public abstract class HtmlMapperBase(ILogger logger) : StaticResourceMapperBase(logger)
+    public abstract partial class HtmlMapperBase(ILogger logger) : StaticResourceMapperBase(logger)
     {
         protected string HtmlPath = string.Empty;
         protected string UrlBase = string.Empty;
-        private static readonly Regex ReplaceRegex = new(@"(?:(?<attribute>href|src)=\"")(?<path>.*?(?<extension>css|js|png|ico|ics|svg|json))(?:\"")(?:\s(?<nohash>data-no-hash))?", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private static readonly Regex ReplaceRegex = MyRegex();
 
         protected override async Task<Stream> GetContentStreamAsync(string filePath)
         {
@@ -43,6 +43,7 @@ namespace StreamMaster.Infrastructure.Services.Frontend.Mappers
             return modifiedStream;
         }
 
-
+        [GeneratedRegex(@"(?:(?<attribute>href|src)=\"")(?<path>.*?(?<extension>css|js|png|ico|ics|svg|json))(?:\"")(?:\s(?<nohash>data-no-hash))?", RegexOptions.IgnoreCase | RegexOptions.Compiled, "en-US")]
+        private static partial Regex MyRegex();
     }
 }

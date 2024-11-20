@@ -1,7 +1,5 @@
 ﻿using MessagePack;
 
-using Reinforced.Typings.Attributes;
-
 namespace StreamMaster.Domain.API
 {
     [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
@@ -11,10 +9,14 @@ namespace StreamMaster.Domain.API
         public string? ErrorMessage { get; set; }
         public bool IsError { get; set; }
 
-        public static APIResponse ErrorWithMessage(Exception exception, string message, string? errorMessage)
-        {
-            return new APIResponse { ErrorMessage = errorMessage, IsError = true };
-        }
+        //public static APIResponse ErrorWithMessage(Exception exception, string message, string? errorMessage)
+        //{
+        //    return new APIResponse
+        //    {
+        //        ErrorMessage = errorMessage + " Ex: " + exception.Message,
+        //        IsError = true
+        //    };
+        //}
 
         public static APIResponse ErrorWithMessage(string? errorMessage)
         {
@@ -38,7 +40,6 @@ namespace StreamMaster.Domain.API
             };
             return ok;
         }
-
 
         public static APIResponse OkWithMessage(string message)
         {

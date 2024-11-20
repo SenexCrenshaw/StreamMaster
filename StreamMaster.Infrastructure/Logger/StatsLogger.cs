@@ -11,6 +11,7 @@ public class StatsLoggerProvider : ILoggerProvider
 
     public void Dispose()
     {
+        GC.SuppressFinalize(this);
     }
 }
 
@@ -36,7 +37,7 @@ public class StatsLogger : ILogger
         string message = formatter(state, exception);
 
         // Custom log formatting logic here
-        // Remove the namespace from the message or format as needed
+        // Remove the namespace from the Message or format as needed
 
         Console.WriteLine($"{logLevel}: {message}");
     }

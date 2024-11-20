@@ -1,5 +1,4 @@
 ﻿
-
 namespace StreamMaster.Domain.Models
 {
     public interface ISMChannel

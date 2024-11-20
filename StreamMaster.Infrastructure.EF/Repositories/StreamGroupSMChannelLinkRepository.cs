@@ -19,7 +19,7 @@ public class StreamGroupSMChannelLinkRepository(ILogger<StreamGroupSMChannelLink
             return;
         }
 
-        int batchSize = 50;
+        const int batchSize = 50;
         // Break the smChannelIds list into batches
         for (int i = 0; i < smChannelIds.Count; i += batchSize)
         {

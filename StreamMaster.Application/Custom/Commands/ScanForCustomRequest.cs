@@ -114,7 +114,7 @@ public class ScanForCustomPlayListsRequestHandler(IOptionsMonitor<CommandProfile
 
         if (File.Exists(BuildInfo.MessageNoStreamsLeft))
         {
-            SMStream? stream = await Repository.SMStream.FirstOrDefaultAsync(a => a.Id == "MessageNoStreamsLeft");
+            SMStream? stream = await Repository.SMStream.FirstOrDefaultAsync(a => a.Id == "MessageNoStreamsLeft", cancellationToken: cancellationToken);
             if (stream == null)
             {
                 stream = new()

@@ -4,7 +4,6 @@
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record AddSMChannelsToStreamGroupByParametersRequest(QueryStringParameters Parameters, int StreamGroupId) : IRequest<APIResponse>;
 
-
 internal class AddSMChannelsToStreamGroupByParametersRequestHandler(IRepositoryWrapper Repository, IDataRefreshService dataRefreshService) : IRequestHandler<AddSMChannelsToStreamGroupByParametersRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(AddSMChannelsToStreamGroupByParametersRequest request, CancellationToken cancellationToken)
@@ -26,7 +25,6 @@ internal class AddSMChannelsToStreamGroupByParametersRequestHandler(IRepositoryW
             }
             List<int> streamGroupIds = smChannel2.StreamGroups.Select(a => a.StreamGroupId).ToList();
             fieldDatas.Add(new(SMChannel.APIName, smChannel2.Id, "StreamGroupIds", streamGroupIds));
-
         }
 
         if (fieldDatas.Count > 0)

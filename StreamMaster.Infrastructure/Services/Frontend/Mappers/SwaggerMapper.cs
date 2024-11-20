@@ -2,14 +2,8 @@ using Microsoft.Extensions.Logging;
 
 namespace StreamMaster.Infrastructure.Services.Frontend.Mappers
 {
-    public class SwaggerMapper : StaticResourceMapperBase
+    public class SwaggerMapper(ILogger<SwaggerMapper> logger) : StaticResourceMapperBase(logger)
     {
-
-        public SwaggerMapper(ILogger<SwaggerMapper> logger) : base(logger)
-        {
-
-        }
-
         public override bool CanHandle(string resourceUrl)
         {
             resourceUrl = resourceUrl.ToLowerInvariant();

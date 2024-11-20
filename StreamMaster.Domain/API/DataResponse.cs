@@ -8,15 +8,12 @@ public static class DataResponse
 {
     public static DataResponse<bool> True => new() { Message = "OK", Data = true };
     public static DataResponse<bool> False => new() { Message = "OK", Data = false };
-
-
 }
 
 [RequireAll]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public class DataResponse<T> : APIResponse
 {
-
     private int? _totalItemCount { get; set; }
     [XmlIgnore]
     public T? Data { get; set; }
@@ -78,5 +75,4 @@ public class DataResponse<T> : APIResponse
     }
 
     public int Count => TotalItemCount;
-
 }

@@ -9,13 +9,11 @@ internal class AddSMStreamToSMChannelRequestHandler(IRepositoryWrapper Repositor
 {
     public async Task<APIResponse> Handle(AddSMStreamToSMChannelRequest request, CancellationToken cancellationToken)
     {
-
         SMChannel? smChannel = Repository.SMChannel.GetSMChannel(request.SMChannelId);
         if (smChannel == null)
         {
             return APIResponse.ErrorWithMessage($"Channel with Id {request.SMChannelId} or stream with Id {request.SMStreamId} not found");
         }
-
 
         await Repository.SMChannelStreamLink.CreateSMChannelStreamLink(smChannel.Id, request.SMStreamId, request.Rank);
         await Repository.SaveAsync();

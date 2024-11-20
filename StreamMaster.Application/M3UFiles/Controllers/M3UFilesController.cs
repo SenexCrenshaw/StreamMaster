@@ -6,7 +6,6 @@ namespace StreamMaster.Application.M3UFiles.Controllers;
 
 public partial class M3UFilesController : ApiControllerBase
 {
-
     [HttpPost]
     [Route("[action]")]
     public async Task<ActionResult<APIResponse>> CreateM3UFileFromForm([FromForm] CreateM3UFileFromFormRequest request)

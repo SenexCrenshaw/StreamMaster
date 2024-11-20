@@ -95,11 +95,9 @@ public static class ConfigureServices
 
         //_ = services.AddHostedService<TimerService>();
 
-
         // Registering as a BackgroundService
         services.AddSingleton<IImageDownloadService, ImageDownloadService>();
         services.AddSingleton<IHostedService>(provider => provider.GetRequiredService<IImageDownloadService>());
-
 
         return services;
     }

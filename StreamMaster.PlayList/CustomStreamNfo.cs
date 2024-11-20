@@ -11,7 +11,6 @@ public class CustomStreamNfo
     {
         this.VideoFileName = VideoFileName;
         this.Movie = Movie;
-
     }
     public string VideoFileName { get; set; } = string.Empty;
     public Movie Movie { get; set; } = new();

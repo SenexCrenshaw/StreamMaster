@@ -13,10 +13,8 @@ public static class MxfServiceExtensions
             if (!EPGHelper.IsValidEPGId(mxfServiceName))
             {
                 string toTest = $"-{mxfServiceName}";
-                origService = services.OrderBy(a => a.EPGNumber).FirstOrDefault(a => a.StationId != null && a.StationId.ContainsIgnoreCase(toTest));
-
+                origService = services.OrderBy(a => a.EPGNumber).FirstOrDefault(a => a.StationId?.ContainsIgnoreCase(toTest) == true);
             }
-
         }
 
         return origService;

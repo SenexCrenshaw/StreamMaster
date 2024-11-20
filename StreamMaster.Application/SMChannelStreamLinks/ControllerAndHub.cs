@@ -7,8 +7,7 @@ namespace StreamMaster.Application.SMChannelStreamLinks.Controllers
 {
     [Authorize]
     public partial class SMChannelStreamLinksController(ILogger<SMChannelStreamLinksController> _logger) : ApiControllerBase, ISMChannelStreamLinksController
-    {        
-
+    {
         [HttpGet]
         [Route("[action]")]
         public async Task<ActionResult<List<SMStreamDto>>> GetSMChannelStreams([FromQuery] GetSMChannelStreamsRequest request)
@@ -16,7 +15,7 @@ namespace StreamMaster.Application.SMChannelStreamLinks.Controllers
             try
             {
             var ret = await Sender.Send(request).ConfigureAwait(false);
-             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetSMChannelStreams.", statusCode: 500) : Ok(ret.Data?? new());
+             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetSMChannelStreams.", statusCode: 500) : Ok(ret.Data?? []);
             }
             catch (Exception ex)
             {
@@ -48,7 +47,6 @@ namespace StreamMaster.Application.SMChannelStreamLinks.Controllers
             var ret = await Sender.Send(request).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
         }
-
     }
 }
 
@@ -59,7 +57,7 @@ namespace StreamMaster.Application.Hubs
         public async Task<List<SMStreamDto>> GetSMChannelStreams(GetSMChannelStreamsRequest request)
         {
              var ret = await Sender.Send(request).ConfigureAwait(false);
-            return ret.Data?? new();
+            return ret.Data?? [];
         }
 
         public async Task<APIResponse?> AddSMStreamToSMChannel(AddSMStreamToSMChannelRequest request)
@@ -79,6 +77,5 @@ namespace StreamMaster.Application.Hubs
             var ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;
         }
-
     }
 }

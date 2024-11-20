@@ -2,12 +2,7 @@
 
 namespace StreamMaster.Application.Common.Events;
 
-public class EPGFileDeletedEvent : BaseEvent
+public class EPGFileDeletedEvent(int _epgFileId) : BaseEvent
 {
-    public EPGFileDeletedEvent(int _epgFileId)
-    {
-        EPGFileId = _epgFileId;
-    }
-
-    public int EPGFileId { get; }
+    public int EPGFileId { get; } = _epgFileId;
 }

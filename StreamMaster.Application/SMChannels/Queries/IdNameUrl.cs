@@ -9,13 +9,11 @@ public class IdNameUrl
     public string Url { get; set; } = string.Empty;
     public IdNameUrl()
     {
-
     }
     public IdNameUrl(int Id, string Name, string Url)
     {
         this.Id = Id;
         this.Name = Name;
         this.Url = Url;
-
     }
 }

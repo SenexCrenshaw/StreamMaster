@@ -1,10 +1,10 @@
-﻿using StreamMaster.Streams.Domain.Helpers;
-using StreamMaster.Streams.Domain.Statistics;
-using StreamMaster.Streams.Services;
-
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Threading.Channels;
 using System.Xml.Serialization;
+
+using StreamMaster.Streams.Domain.Helpers;
+using StreamMaster.Streams.Domain.Statistics;
+using StreamMaster.Streams.Services;
 
 namespace StreamMaster.Streams.Handlers;
 
@@ -74,8 +74,8 @@ public abstract class BroadcasterBase(ILogger<IBroadcasterBase> logger, IOptions
     protected void StartProcessingSource(ChannelReader<byte[]>? sourceChannelReader, Stream? sourceStream, Channel<byte[]> newChannel, CancellationToken cancellationToken)
     {
         //using CancellationTokenSource linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(_cancellationTokenSource.Token, cancellationToken);
-        //CancellationToken token = linkedTokenSource.Token;
-
+        //CancellationToken Token = linkedTokenSource.Token;
+        _ = cancellationToken;
         Task readerTask = sourceChannelReader != null
        ? sourceProcessingService.ProcessSourceChannelReaderAsync(sourceChannelReader, newChannel, metricsService, _cancellationTokenSource.Token)
        : sourceStream != null

@@ -5,7 +5,7 @@
     ) : IChannelManager
     {
         private readonly SemaphoreSlim _registerSemaphore = new(1, 1);
-        private readonly object _disposeLock = new();
+        private readonly Lock _disposeLock = new();
         private bool _disposed = false;
         /// <inheritdoc/>
         public async Task<Stream?> GetChannelStreamAsync(IClientConfiguration config, int streamGroupProfileId, CancellationToken cancellationToken = default)

@@ -21,6 +21,6 @@ public class SMLoggerProvider : ILoggerProvider
 
     public void Dispose()
     {
-        // Clean up resources if needed
+        GC.SuppressFinalize(this);
     }
 }

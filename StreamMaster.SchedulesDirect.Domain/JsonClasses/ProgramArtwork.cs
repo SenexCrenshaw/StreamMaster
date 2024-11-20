@@ -2,7 +2,6 @@
 
 namespace StreamMaster.SchedulesDirect.Domain.JsonClasses
 {
-
     public class ProgramArtwork : BaseResponse
     {
         private string _size = "Md";

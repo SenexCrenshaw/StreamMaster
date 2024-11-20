@@ -4,7 +4,6 @@ namespace StreamMaster.Application.Common.Behaviours;
 
 public class LoggingBehaviour<TRequest>(ILogger<TRequest> logger) : IRequestPreProcessor<TRequest> where TRequest : notnull
 {
-
     public Task Process(TRequest request, CancellationToken cancellationToken)
     {
         string requestName = typeof(TRequest).Name;
@@ -17,7 +16,6 @@ public class LoggingBehaviour<TRequest>(ILogger<TRequest> logger) : IRequestPreP
         {
             logger.LogInformation("Request: {Name}  {@Request}", requestName, request);
         }
-
 
         return Task.CompletedTask;
     }

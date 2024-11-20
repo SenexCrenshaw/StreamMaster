@@ -7,8 +7,7 @@ namespace StreamMaster.Application.Settings.Controllers
 {
     [Authorize]
     public partial class SettingsController(ILogger<SettingsController> _logger) : ApiControllerBase, ISettingsController
-    {        
-
+    {
         [HttpGet]
         [Route("[action]")]
         public async Task<ActionResult<SettingDto>> GetSettings()
@@ -32,7 +31,6 @@ namespace StreamMaster.Application.Settings.Controllers
             var ret = await Sender.Send(request).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
         }
-
     }
 }
 
@@ -51,6 +49,5 @@ namespace StreamMaster.Application.Hubs
             var ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;
         }
-
     }
 }

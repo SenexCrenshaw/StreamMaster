@@ -6,5 +6,4 @@ public class StreamGroupChannelGroup
     public int ChannelGroupId { get; set; }
     public required StreamGroup StreamGroup { get; set; }
     public int StreamGroupId { get; set; }
-
 }

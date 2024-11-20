@@ -3,6 +3,4 @@ using StreamMaster.Domain.Models;
 
 namespace StreamMaster.Domain.Dto;
 
-public class LogEntryDto : LogEntry, IMapFrom<LogEntry>
-{
-}
+public class LogEntryDto : LogEntry, IMapFrom<LogEntry>;

@@ -29,9 +29,9 @@ namespace StreamMaster.Infrastructure.Services.Downloads
         private readonly HttpClient httpClient; // Reused HttpClient via factory
 
         private const int BatchSize = 10;
-        private readonly object _lockObject = new();
+        //private readonly object _lockObject = new();
         private static DateTime _lastRefreshTime = DateTime.MinValue;
-        private static readonly object _refreshLock = new();
+        private static readonly Lock _refreshLock = new();
         private bool logged429 = false;
 
         public ImageDownloadServiceStatus ImageDownloadServiceStatus { get; } = new();
@@ -59,7 +59,7 @@ namespace StreamMaster.Infrastructure.Services.Downloads
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            //Task.Run(() => ExecuteAsync(cancellationToken), cancellationToken);
+            Task.Run(() => ExecuteAsync(cancellationToken), cancellationToken);
             return Task.CompletedTask;
         }
 
@@ -387,7 +387,7 @@ namespace StreamMaster.Infrastructure.Services.Downloads
             }
             catch (Exception ex)
             {
-                logger.LogError(ex.InnerException?.Message, "Failed to download image from {Url}", url);
+                logger.LogError("Failed to download image from {Url} {Message}", url, ex.InnerException?.Message);
             }
             return false;
         }
@@ -401,6 +401,7 @@ namespace StreamMaster.Infrastructure.Services.Downloads
         {
             downloadSemaphore.Dispose();
             httpClient.Dispose();
+            GC.SuppressFinalize(this);
         }
     }
 }

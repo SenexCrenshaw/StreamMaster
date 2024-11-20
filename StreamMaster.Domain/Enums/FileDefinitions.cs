@@ -15,7 +15,6 @@ public static class FileDefinitions
         };
     }
 
-
     //public static FileDefinition ChannelLogo { get; } = CreateDefinition(BuildInfo.ChannelLogoDataFolder, ".jpg|.png|.jpeg", SMFileTypes.ChannelLogo);
     public static FileDefinition EPG { get; } = CreateDefinition(BuildInfo.EPGFolder, ".xml|.xmltv", SMFileTypes.EPG);
     public static FileDefinition Logo { get; } = CreateDefinition(BuildInfo.LogoFolder, ".jpg|.png|.jpeg", SMFileTypes.Logo);

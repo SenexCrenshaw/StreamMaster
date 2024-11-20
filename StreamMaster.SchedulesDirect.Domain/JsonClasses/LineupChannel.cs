@@ -6,7 +6,7 @@ using MessagePack;
 namespace StreamMaster.SchedulesDirect.Domain.JsonClasses
 {
     [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-    public class LineupChannel
+    public partial class LineupChannel
     {
         public string ChannelNumber => $"{MyChannelNumber}{(myChannelSubnumber > 0 ? $".{myChannelSubnumber}" : "")}";
         public int MyChannelNumber
@@ -18,24 +18,24 @@ namespace StreamMaster.SchedulesDirect.Domain.JsonClasses
                     return ChannelMajor ?? AtscMajor ?? UhfVhf ?? -1;
                 }
 
-                if (Regex.Match(Channel, @"[A-Za-z]{1}[\d]{4}").Length > 0)
+                if (MyRegex().Match(Channel).Length > 0)
                 {
                     return int.Parse(Channel[2..]);
                 }
 
-                if (Regex.Match(Channel, @"[A-Za-z0-9.]\.[A-Za-z]{2}").Length > 0)
+                if (MyRegex1().Match(Channel).Length > 0)
                 {
                     return -1;
                 }
 
-                if (int.TryParse(Regex.Replace(Channel, "[^0-9.]", ""), out int number))
+                if (int.TryParse(MyRegex2().Replace(Channel, ""), out int number))
                 {
                     return number;
                 }
                 else
                 {
                     // if channel number is not a whole number, must be a decimal number
-                    string[] numbers = Regex.Replace(Channel, "[^0-9.]", "").Replace('_', '.').Replace('-', '.').Split('.');
+                    string[] numbers = MyRegex2().Replace(Channel, "").Replace('_', '.').Replace('-', '.').Split('.');
                     if (numbers.Length == 2)
                     {
                         return int.Parse(numbers[0]);
@@ -136,5 +136,12 @@ namespace StreamMaster.SchedulesDirect.Domain.JsonClasses
 
         [JsonPropertyName("matchType")]
         public string MatchType { get; set; } = string.Empty;
+
+        [GeneratedRegex(@"[A-Za-z]{1}[\d]{4}")]
+        private static partial Regex MyRegex();
+        [GeneratedRegex(@"[A-Za-z0-9.]\.[A-Za-z]{2}")]
+        private static partial Regex MyRegex1();
+        [GeneratedRegex("[^0-9.]")]
+        private static partial Regex MyRegex2();
     }
 }

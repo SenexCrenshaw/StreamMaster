@@ -15,6 +15,6 @@ namespace StreamMaster.SchedulesDirect.Domain.JsonClasses
 
         [JsonPropertyName("contentAdvisory")]
         ////[JsonConverter(typeof(SingleOrArrayConverter<string>))]
-        public List<string> ContentAdvisory { get; set; } = new();
+        public List<string> ContentAdvisory { get; set; } = [];
     }
 }

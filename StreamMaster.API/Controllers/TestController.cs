@@ -8,7 +8,6 @@ namespace StreamMaster.API.Controllers;
 
 public class TestController(IBackgroundTaskQueue backgroundTaskQueue, IChannelGroupService channelGroupService) : ApiControllerBase
 {
-
     [HttpPut]
     [Route("[action]")]
     public async Task<IActionResult> ScanDirectoryForM3UFiles()
@@ -25,8 +24,6 @@ public class TestController(IBackgroundTaskQueue backgroundTaskQueue, IChannelGr
         return Ok();
     }
 
-
-
     [HttpPut]
     [Route("[action]")]
     public async Task<IActionResult> SetSystemReady(SetIsSystemReadyRequest request)
@@ -42,7 +39,4 @@ public class TestController(IBackgroundTaskQueue backgroundTaskQueue, IChannelGr
         await channelGroupService.UpdateChannelGroupCountsRequestAsync().ConfigureAwait(false);
         return Ok();
     }
-
-
-
 }

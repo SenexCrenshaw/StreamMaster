@@ -99,7 +99,6 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
                     url,
                     request,
                     outputProfile,
-                    settings,
                     videoStreamConfigs,
                     data.EncodedString!,
                     data.CleanName);
@@ -184,7 +183,7 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
         }
     }
 
-    private (int ChNo, string m3uLine) BuildM3ULineForVideoStream(SMChannel smChannel, string baseUrl, GetStreamGroupM3U request, OutputProfile profile, Setting settings, List<VideoStreamConfig> videoStreamConfigs, string encodedString, string cleanName)
+    private (int ChNo, string m3uLine) BuildM3ULineForVideoStream(SMChannel smChannel, string baseUrl, GetStreamGroupM3U request, OutputProfile profile, List<VideoStreamConfig> videoStreamConfigs, string encodedString, string cleanName)
     {
         if (string.IsNullOrEmpty(encodedString) || string.IsNullOrEmpty(cleanName))
         {
@@ -255,5 +254,4 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
 
         return (smChannel.ChannelNumber, lines);
     }
-
 }

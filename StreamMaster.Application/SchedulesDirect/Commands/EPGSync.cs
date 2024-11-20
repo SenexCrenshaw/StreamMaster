@@ -1,6 +1,5 @@
 ﻿namespace StreamMaster.Application.SchedulesDirect.Commands;
 
-
 public record EPGSync() : IRequest<APIResponse>;
 
 public class EPGSyncHandler(ISchedulesDirect schedulesDirect, ILogger<EPGSync> logger, IDataRefreshService dataRefreshService, IOptionsMonitor<SDSettings> intSettings)
@@ -10,7 +9,6 @@ public class EPGSyncHandler(ISchedulesDirect schedulesDirect, ILogger<EPGSync> l
 
     public async Task<APIResponse> Handle(EPGSync request, CancellationToken cancellationToken)
     {
-
         if (settings.SDEnabled)
         {
             APIResponse response = await schedulesDirect.SDSync(cancellationToken).ConfigureAwait(false);
@@ -25,7 +23,6 @@ public class EPGSyncHandler(ISchedulesDirect schedulesDirect, ILogger<EPGSync> l
             await dataRefreshService.RefreshStationPreviews();
         }
         //await HubContext.ClientChannels.All.DataRefresh("GetEPGFilesAsync");
-
 
         return APIResponse.Ok;
     }

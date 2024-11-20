@@ -1,8 +1,9 @@
 ﻿using System.Text;
+
+using BuildClientAPI.Models;
 namespace BuildClientAPI.TS;
 public static class TypeScriptCommandGenerator
 {
-
     public static void GenerateFile(List<MethodDetails> methods, string filePath)
     {
         StringBuilder content = new();
@@ -20,12 +21,10 @@ public static class TypeScriptCommandGenerator
             Directory.CreateDirectory(directoryInfo.FullName);
         }
         File.WriteAllText(filePath, content.ToString());
-
     }
 
     private static string AddMethod(MethodDetails method)
     {
-
         StringBuilder content = new();
 
         if (method.IsGetPaged)
@@ -66,7 +65,6 @@ public static class TypeScriptCommandGenerator
                 content.AppendLine("  const signalRService = SignalRService.getInstance();");
                 content.AppendLine($"  return await signalRService.invokeHubCommand<{method.TsReturnType}>('{method.Name}', request);");
             }
-
         }
 
         content.AppendLine("};");

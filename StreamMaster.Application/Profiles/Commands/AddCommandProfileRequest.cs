@@ -25,7 +25,6 @@ public class AddCommandProfileRequestHandler(ILogger<AddCommandProfileRequest> L
         {
             Command = request.Command,
             Parameters = request.Parameters,
-
         };
         if (profileSettings.Profiles.TryGetValue(request.ProfileName, out _))
         {
@@ -36,12 +35,10 @@ public class AddCommandProfileRequestHandler(ILogger<AddCommandProfileRequest> L
             profileSettings.AddProfile(request.ProfileName, profile);
         }
 
-
         Logger.LogInformation("AddVideoProfileRequest");
 
         SettingsHelper.UpdateSetting(profileSettings);
         await dataRefreshService.RefreshCommandProfiles();
         return APIResponse.Ok;
     }
-
 }

@@ -15,7 +15,6 @@ namespace StreamMaster.Infrastructure.Services.Frontend.Mappers
 
         public override Task<string> MapAsync(string resourceUrl)
         {
-
             string path = resourceUrl.Replace('/', Path.DirectorySeparatorChar);
             path = path.Trim(Path.DirectorySeparatorChar);
 

@@ -4,7 +4,7 @@ using StreamMaster.Domain.Services;
 
 namespace StreamMaster.Domain.Helpers;
 
-public class EPGHelper() : IEPGHelper
+public partial class EPGHelper() : IEPGHelper
 {
     public const int SchedulesDirectId = -1;
     public const int DummyId = -2;
@@ -21,7 +21,7 @@ public class EPGHelper() : IEPGHelper
             throw new ArgumentException("Input string cannot be null or whitespace.");
         }
 
-        MatchCollection matches = Regex.Matches(epgId, EPGMatch);
+        MatchCollection matches = MyRegex().Matches(epgId);
 
         return matches.Count == 0 || !matches[0].Success || matches[0].Groups.Count != 3
             ? throw new FormatException("Input string is not in the expected format.")
@@ -60,7 +60,7 @@ public class EPGHelper() : IEPGHelper
 
     public static bool IsValidEPGId(string epgId)
     {
-        MatchCollection matches = Regex.Matches(epgId, EPGMatch);
+        MatchCollection matches = MyRegex().Matches(epgId);
         return matches.Count > 0;
     }
 
@@ -68,4 +68,7 @@ public class EPGHelper() : IEPGHelper
     {
         return epgNumber == CustomPlayListId;
     }
+
+    [GeneratedRegex(EPGMatch)]
+    private static partial Regex MyRegex();
 }

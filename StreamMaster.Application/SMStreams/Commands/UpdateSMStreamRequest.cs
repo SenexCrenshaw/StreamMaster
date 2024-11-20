@@ -62,7 +62,6 @@ public class UpdateSMStreamHandler(ILogger<UpdateSMStreamRequest> Logger, IMessa
                 ret.Add(new FieldData(() => smStream.Logo));
             }
 
-
             if (!string.IsNullOrEmpty(request.CommandProfileName) && smStream.CommandProfileName != request.CommandProfileName)
             {
                 smStream.CommandProfileName = request.CommandProfileName;

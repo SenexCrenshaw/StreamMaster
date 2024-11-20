@@ -82,7 +82,7 @@ public class OsInfo : IOsInfo
             }
             catch (Exception e)
             {
-                Console.WriteLine("Couldn't get OS Version info: ", e.Message);
+                Console.WriteLine($"Couldn't get OS Version info: {e.Message}");
             }
 
             if (osInfo != null)

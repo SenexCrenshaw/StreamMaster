@@ -1,4 +1,6 @@
 ﻿using System.Text;
+
+using BuildClientAPI.Models;
 namespace BuildClientAPI.TS;
 public static class SignalRGenerator
 {
@@ -24,7 +26,6 @@ public static class SignalRGenerator
 
     private static string GenerateProvider(List<MethodDetails> methods)
     {
-
         StringBuilder content = new();
         content.AppendLine("export const SignalRProvider: React.FC<SignalRProviderProps> = ({ children }) => {");
         content.AppendLine("  const smMessages = useSMMessages();");
@@ -119,8 +120,6 @@ public static class SignalRGenerator
         content.AppendLine($"    [{depString}]");
         content.AppendLine("  );");
 
-
-
         return content.ToString();
     }
 
@@ -141,16 +140,12 @@ public static class SignalRGenerator
         }
         Dictionary<string, List<MethodDetails>> keyValuePairs = methods.Where(a => a.IsGet).GroupBy(a => a.NamespaceName).ToDictionary(a => a.Key, a => a.ToList());
 
-
         foreach (KeyValuePair<string, List<MethodDetails>> namespaceName in keyValuePairs)
         {
             content.AppendLine($"      if ( fieldData.Entity === '{namespaceName.Key}') {{");
             foreach (MethodDetails method in namespaceName.Value)
             {
-
                 content.AppendLine($"        {method.Name.ToCamelCase()}.SetField(fieldData);");
-
-
             }
             content.AppendLine("        return;");
             content.AppendLine("      }");
@@ -159,14 +154,11 @@ public static class SignalRGenerator
         content.AppendLine("      });");
         content.AppendLine("    },");
 
-
-
         string depString = string.Join(",", deps);
         content.AppendLine($"    [{depString}]");
         content.AppendLine("  );");
         return content.ToString();
     }
-
 
     private static string DataRefresh(List<MethodDetails> methods)
     {
@@ -184,7 +176,6 @@ public static class SignalRGenerator
         }
 
         Dictionary<string, List<MethodDetails>> keyValuePairs = methods.Where(a => a.IsGet && (a.IsGetPaged || a.ParameterNames?.Length == 0)).GroupBy(a => a.NamespaceName).ToDictionary(a => a.Key, a => a.ToList());
-
 
         foreach (KeyValuePair<string, List<MethodDetails>> namespaceName in keyValuePairs)
         {
@@ -215,7 +206,6 @@ public static class SignalRGenerator
         content.AppendLine("  );");
         return content.ToString();
     }
-
 
     private static string GenerateContextAndInterfaces()
     {
@@ -254,5 +244,4 @@ public static class SignalRGenerator
         content.AppendLine();
         return content.ToString();
     }
-
 }

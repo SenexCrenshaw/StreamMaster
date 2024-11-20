@@ -31,7 +31,6 @@ public class UpdateStreamGroupProfileRequestHandler(IRepositoryWrapper Repositor
             return APIResponse.ErrorWithMessage("Stream Group not found");
         }
 
-
         StreamGroupProfile? streamGroupProfile = streamGroup.StreamGroupProfiles.Find(x => x.ProfileName == request.ProfileName);
         if (streamGroupProfile is null)
         {

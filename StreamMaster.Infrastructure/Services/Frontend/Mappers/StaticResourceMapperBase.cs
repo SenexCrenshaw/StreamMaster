@@ -7,17 +7,9 @@ using Microsoft.Net.Http.Headers;
 
 namespace StreamMaster.Infrastructure.Services.Frontend.Mappers
 {
-    public abstract class StaticResourceMapperBase : IMapHttpRequestsToDisk
+    public abstract class StaticResourceMapperBase(ILogger logger) : IMapHttpRequestsToDisk
     {
-
-        private readonly ILogger _logger;
-        private readonly IContentTypeProvider _mimeTypeProvider;
-
-        protected StaticResourceMapperBase(ILogger logger)
-        {
-            _logger = logger;
-            _mimeTypeProvider = new FileExtensionContentTypeProvider();
-        }
+        private readonly FileExtensionContentTypeProvider _mimeTypeProvider = new();
 
         public abstract bool CanHandle(string resourceUrl);
 
@@ -40,13 +32,12 @@ namespace StreamMaster.Infrastructure.Services.Frontend.Mappers
                 });
             }
 
-            _logger.LogWarning("File {0} not found", filePath);
+            logger.LogWarning("File {filePath} not found", filePath);
 
             return null;
         }
 
         public abstract Task<string> MapAsync(string resourceUrl);
-
 
         protected virtual Task<Stream> GetContentStreamAsync(string filePath)
         {

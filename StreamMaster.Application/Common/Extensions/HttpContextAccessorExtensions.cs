@@ -7,13 +7,11 @@ public static class HttpContextAccessorExtensions
     public static string GetUrl(this IHttpContextAccessor httpContextAccessor)
     {
         return httpContextAccessor.GetUrlWithPath(false);
-
     }
 
     public static string GetUrl(this HttpRequest httpRequest)
     {
         return httpRequest.GetUrlWithPath(false);
-
     }
 
     public static string GetUrlWithPath(this IHttpContextAccessor httpContextAccessor, bool includePath = true)
@@ -40,7 +38,6 @@ public static class HttpContextAccessorExtensions
 
     public static string GetUrlWithPath(this HttpRequest request, bool includePath = true)
     {
-
         string path = request.Path.ToString()
             .Replace("/capability", "")
             .Replace("/device.xml", "")
@@ -66,5 +63,4 @@ public static class HttpContextAccessorExtensions
         string? value = httpContextAccessor.HttpContext?.Request.Path.Value;
         return value ?? string.Empty;
     }
-
 }

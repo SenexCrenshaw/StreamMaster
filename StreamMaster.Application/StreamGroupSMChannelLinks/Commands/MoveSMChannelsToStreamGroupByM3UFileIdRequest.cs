@@ -22,7 +22,7 @@ internal class MoveSMChannelsToStreamGroupRequestHandler(IRepositoryWrapper Repo
             return APIResponse.ErrorWithMessage("SG not found");
         }
 
-        List<int> channelsIds = await Repository.SMChannel.GetQuery().Where(a => a.M3UFileId == request.M3UFile.Id).Select(a => a.Id).ToListAsync();
+        List<int> channelsIds = await Repository.SMChannel.GetQuery().Where(a => a.M3UFileId == request.M3UFile.Id).Select(a => a.Id).ToListAsync(cancellationToken: cancellationToken);
         if (channelsIds.Count == 0)
         {
             return APIResponse.Success;

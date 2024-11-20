@@ -1,6 +1,4 @@
-﻿using StreamMaster.Domain.Filtering;
-
-using System.Text;
+﻿using System.Text;
 using System.Text.Json;
 
 namespace StreamMaster.Domain.Common;
@@ -21,11 +19,7 @@ public static class Utils
 
     public static T DeepCopy<T>(this T value)
     {
-        string jsonString = JsonSerializer.Serialize(value);
-        if (jsonString == null)
-        {
-            throw new Exception("JsonSerializer.Serialize returned null");
-        }
+        string? jsonString = JsonSerializer.Serialize(value) ?? throw new Exception("JsonSerializer.Serialize returned null");
         T? ret = JsonSerializer.Deserialize<T>(jsonString);
         return ret == null ? throw new Exception("JsonSerializer.Serialize returned null") : ret;
     }

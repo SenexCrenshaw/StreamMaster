@@ -9,7 +9,6 @@ internal class GetStationChannelNamesHandler(ICacheManager cacheManager, IEPGFil
 {
     public async Task<DataResponse<List<StationChannelName>>> Handle(GetStationChannelNamesRequest request, CancellationToken cancellationToken)
     {
-
         List<StationChannelName> sdChannelNames = [];// schedulesDirectDataService.GetStationChannelNames().ToList();
 
         if (File.Exists(BuildInfo.SDXMLFile))

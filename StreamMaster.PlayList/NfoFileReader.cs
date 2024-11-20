@@ -31,5 +31,4 @@ public class NfoFileReader : INfoFileReader
             throw new IOException("An error occurred while reading the NFO file.", ex);
         }
     }
-
 }

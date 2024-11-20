@@ -51,9 +51,8 @@ public class MultiViewPlayListStream(ILogger<MultiViewPlayListStream> logger, IC
         }
         stopwatch.Stop();
 
-        logger.LogInformation("Opened command with args \"{options}\" in {ElapsedMilliseconds} ms", command + ' ' + args.ToString(), stopwatch.ElapsedMilliseconds);
+        logger.LogInformation("Opened command with args \"{options}\" in {ElapsedMilliseconds} ms", command + ' ' + args, stopwatch.ElapsedMilliseconds);
         return Task.FromResult<(Stream?, int, ProxyStreamError?)>((process.StandardOutput.BaseStream, process.Id, null));
-
     }
 
     private static void ConfigureProcess(Process process, string commandExec, string formattedArgs)

@@ -32,4 +32,3 @@ public partial class SchedulesDirectData
         _ = Programs.TryRemove(programId, out _);
     }
 }
-

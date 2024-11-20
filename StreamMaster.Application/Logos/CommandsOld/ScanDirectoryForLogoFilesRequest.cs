@@ -2,13 +2,10 @@
 
 namespace StreamMaster.Application.Logos.CommandsOld;
 
-public class ScanDirectoryForLogoFilesRequest : IRequest<bool>
-{
-}
+public class ScanDirectoryForLogoFilesRequest : IRequest<bool>;
 
 public class ScanDirectoryForLogoFilesRequestHandler : IRequestHandler<ScanDirectoryForLogoFilesRequest, bool>
 {
-
     public Task<bool> Handle(ScanDirectoryForLogoFilesRequest command, CancellationToken cancellationToken)
     {
         return Task.FromResult(false);

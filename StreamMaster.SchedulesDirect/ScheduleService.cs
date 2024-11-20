@@ -1,10 +1,8 @@
 ﻿using System.Text.Json;
 
-using StreamMaster.Domain.Helpers;
-
 namespace StreamMaster.SchedulesDirect;
 
-public class ScheduleService(ILogger<ScheduleService> logger, IOptionsMonitor<SDSettings> intSettings,  ISchedulesDirectAPIService schedulesDirectAPI, IEPGCache<ScheduleService> epgCache, ISchedulesDirectDataService schedulesDirectDataService) : IScheduleService
+public class ScheduleService(ILogger<ScheduleService> logger, IOptionsMonitor<SDSettings> intSettings, ISchedulesDirectAPIService schedulesDirectAPI, IEPGCache<ScheduleService> epgCache, ISchedulesDirectDataService schedulesDirectDataService) : IScheduleService
 {
     private int cachedSchedules;
     private int downloadedSchedules;
@@ -35,7 +33,7 @@ public class ScheduleService(ILogger<ScheduleService> logger, IOptionsMonitor<SD
         int batchSize = SchedulesDirect.MaxQueries / days;
         for (int i = 0; i < toProcess.Count; i += batchSize)
         {
-            logger.LogInformation($"Processing batch {i} of {toProcess.Count} schedules from SD.");
+            logger.LogInformation("Processing batch {i} of {toProcess.Count} schedules from SD.", i, toProcess.Count);
             bool success = await GetMd5ScheduleEntries(dates, i, tempScheduleEntries, cancellationToken).ConfigureAwait(false);
             if (!success)
             {
@@ -87,7 +85,7 @@ public class ScheduleService(ILogger<ScheduleService> logger, IOptionsMonitor<SD
         ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
         List<MxfService> toProcess = schedulesDirectData.Services.Values.Skip(start).Take(SchedulesDirect.MaxQueries / dates.Length).ToList();
 
-        if (!toProcess.Any())
+        if (toProcess.Count == 0)
         {
             return true;
         }
@@ -117,25 +115,25 @@ public class ScheduleService(ILogger<ScheduleService> logger, IOptionsMonitor<SD
             ProcessStationResponseDates(stationResponse, dates, tempScheduleEntries, mxfService, newDateRequests);
 
             // Create new requests for any missing dates
-            if (newDateRequests.Any())
+            if (newDateRequests.Count != 0)
             {
                 newRequests.Add(new ScheduleRequest
                 {
                     StationId = request.StationId,
-                    Date = newDateRequests.ToArray()
+                    Date = [.. newDateRequests]
                 });
             }
 
             // Log and handle request errors
             foreach (KeyValuePair<int, string> keyValuePair in requestErrors)
             {
-                logger.LogWarning($"Requests for MD5 schedule entries of station {request.StationId} returned error code {keyValuePair.Key}, message: {keyValuePair.Value}");
+                logger.LogWarning("Requests for MD5 schedule entries of station {request.StationId} returned error code {keyValuePair.Key}, message: {keyValuePair.Value}", request.StationId, keyValuePair.Key, keyValuePair.Value);
             }
         }
 
-        if (newRequests.Any())
+        if (newRequests.Count != 0)
         {
-            List<ScheduleResponse>? responses = await GetScheduleListingsAsync(newRequests.ToArray(), cancellationToken).ConfigureAwait(false);
+            List<ScheduleResponse>? responses = await GetScheduleListingsAsync([.. newRequests], cancellationToken).ConfigureAwait(false);
             if (responses == null)
             {
                 return false;
@@ -149,7 +147,7 @@ public class ScheduleService(ILogger<ScheduleService> logger, IOptionsMonitor<SD
 
     private void HandleMissingStation(ScheduleRequest request, int length)
     {
-        logger.LogWarning($"Requested stationId {request.StationId} was not present in schedule Md5 response.");
+        logger.LogWarning("Requested stationId {request.StationId} was not present in schedule Md5 response.", request.StationId);
         processedObjects += length;
     }
 
@@ -165,18 +163,18 @@ public class ScheduleService(ILogger<ScheduleService> logger, IOptionsMonitor<SD
 
             if (result != null)
             {
-                logger.LogDebug($"Successfully retrieved MD5s for {result.Count}/{requests.Length} stations' daily schedules. Time taken: {DateTime.Now - dtStart:G}");
+                logger.LogDebug("Successfully retrieved MD5s for {result.Count}/{requests.Length} stations' daily schedules. Time taken: {duration}", result.Count, requests.Length, (DateTime.Now - dtStart).ToString("G"));
             }
             else
             {
-                logger.LogError($"Did not receive a response from Schedules Direct for MD5s of {requests.Length} stations' daily schedules. Time taken: {DateTime.Now - dtStart:G}");
+                logger.LogError("Did not receive a response from Schedules Direct for MD5s of {requests.Length} stations' daily schedules. Time taken: {duration}", requests.Length, (DateTime.Now - dtStart).ToString("G"));
             }
 
             return result;
         }
         catch (Exception ex)
         {
-            logger.LogError($"Error occurred while fetching MD5 schedule entries: {ex.Message}");
+            logger.LogError("Error occurred while fetching MD5 schedule entries: {ex.Message}", ex.Message);
             return null;
         }
     }
@@ -193,23 +191,23 @@ public class ScheduleService(ILogger<ScheduleService> logger, IOptionsMonitor<SD
 
             if (result != null)
             {
-                logger.LogDebug($"Successfully retrieved {requests.Length} stations' daily schedules. Time taken: {DateTime.Now - dtStart:G}");
+                logger.LogDebug("Successfully retrieved {requests.Length} stations' daily schedules. Time taken: {duration}", requests.Length, (DateTime.Now - dtStart).ToString("G"));
             }
             else
             {
-                logger.LogError($"Did not receive a response from Schedules Direct for {requests.Length} stations' daily schedules. Time taken: {DateTime.Now - dtStart:G}");
+                logger.LogError("Did not receive a response from Schedules Direct for {requests.Length} stations' daily schedules. Time taken: {DateTime.Now - dtStart:G}", requests.Length, (DateTime.Now - dtStart).ToString("G"));
             }
 
             return result;
         }
         catch (Exception ex)
         {
-            logger.LogError($"Error occurred while fetching daily schedules: {ex.Message}");
+            logger.LogError("Error occurred while fetching daily schedules: {ex.Message}", ex.Message);
             return null;
         }
     }
 
-    private ScheduleRequest[] BuildScheduleRequests(List<MxfService> toProcess, string[] dates)
+    private static ScheduleRequest[] BuildScheduleRequests(List<MxfService> toProcess, string[] dates)
     {
         return toProcess.Select(service =>
         {
@@ -218,44 +216,44 @@ public class ScheduleService(ILogger<ScheduleService> logger, IOptionsMonitor<SD
         }).ToArray();
     }
 
-    private List<ScheduleRequest> ProcessStationResponses(Dictionary<string, Dictionary<string, ScheduleMd5Response>> stationResponses, ScheduleRequest[] requests, Dictionary<string, string[]> tempScheduleEntries, string[] dates)
-    {
-        List<ScheduleRequest> newRequests = [];
-        foreach (ScheduleRequest request in requests)
-        {
-            Dictionary<int, string> requestErrors = [];
-            string serviceName = $"{EPGHelper.SchedulesDirectId}-{request.StationId}";
-            MxfService mxfService = schedulesDirectDataService.SchedulesDirectData().FindOrCreateService(serviceName);
+    //private List<ScheduleRequest> ProcessStationResponses(Dictionary<string, Dictionary<string, ScheduleMd5Response>> stationResponses, ScheduleRequest[] requests, Dictionary<string, string[]> tempScheduleEntries, string[] dates)
+    //{
+    //    List<ScheduleRequest> newRequests = [];
+    //    foreach (ScheduleRequest request in requests)
+    //    {
+    //        Dictionary<int, string> requestErrors = [];
+    //        string serviceName = $"{EPGHelper.SchedulesDirectId}-{request.StationId}";
+    //        MxfService mxfService = schedulesDirectDataService.SchedulesDirectData().FindOrCreateService(serviceName);
 
-            if (!stationResponses.TryGetValue(request.StationId, out Dictionary<string, ScheduleMd5Response>? stationResponse) || stationResponse.Count == 0)
-            {
-                logger.LogWarning($"Failed to parse the schedule Md5 return for stationId {mxfService.StationId} on {dates[0]}.");
-                ++missingGuide;
-                processedObjects += dates.Length;
-                continue;
-            }
+    //        if (!stationResponses.TryGetValue(request.StationId, out Dictionary<string, ScheduleMd5Response>? stationResponse) || stationResponse.Count == 0)
+    //        {
+    //            logger.LogWarning($"Failed to parse the schedule Md5 return for stationId {mxfService.StationId} on {dates[0]}.");
+    //            ++missingGuide;
+    //            processedObjects += dates.Length;
+    //            continue;
+    //        }
 
-            List<string> newDateRequests = [];
-            HashSet<string> dupeMd5s = ProcessStationResponseDates(stationResponse, dates, tempScheduleEntries, mxfService, newDateRequests);
+    //        List<string> newDateRequests = [];
+    //        HashSet<string> dupeMd5s = ProcessStationResponseDates(stationResponse, dates, tempScheduleEntries, mxfService, newDateRequests);
 
-            foreach (string dupe in dupeMd5s)
-            {
-                tempScheduleEntries.Remove(dupe);
-            }
+    //        foreach (string dupe in dupeMd5s)
+    //        {
+    //            tempScheduleEntries.Remove(dupe);
+    //        }
 
-            if (newDateRequests.Count != 0)
-            {
-                newRequests.Add(new ScheduleRequest { StationId = request.StationId, Date = [.. newDateRequests] });
-            }
+    //        if (newDateRequests.Count != 0)
+    //        {
+    //            newRequests.Add(new ScheduleRequest { StationId = request.StationId, Date = [.. newDateRequests] });
+    //        }
 
-            foreach (KeyValuePair<int, string> keyValuePair in requestErrors)
-            {
-                logger.LogWarning($"Requests for MD5 schedule entries of station {request.StationId} returned error code {keyValuePair.Key}, message: {keyValuePair.Value}");
-            }
-        }
+    //        foreach (KeyValuePair<int, string> keyValuePair in requestErrors)
+    //        {
+    //            logger.LogWarning($"Requests for MD5 schedule entries of station {request.StationId} returned error Code {keyValuePair.Key}, Message: {keyValuePair.Value}");
+    //        }
+    //    }
 
-        return newRequests;
-    }
+    //    return newRequests;
+    //}
 
     private HashSet<string> ProcessStationResponseDates(Dictionary<string, ScheduleMd5Response> stationResponse, string[] dates, Dictionary<string, string[]> tempScheduleEntries, MxfService mxfService, List<string> newDateRequests)
     {
@@ -280,7 +278,7 @@ public class ScheduleService(ILogger<ScheduleService> logger, IOptionsMonitor<SD
                 }
                 else
                 {
-                    logger.LogWarning($"Duplicate schedule Md5 for stationId {mxfService.StationId} on {day} with {value[1]}.");
+                    logger.LogWarning("Duplicate schedule Md5 for stationId {mxfService.StationId} on {day} with {value[1]}.", mxfService.StationId, day, value[1]);
                     dupeMd5s.Add(dayResponse.Md5);
                 }
             }
@@ -310,7 +308,7 @@ public class ScheduleService(ILogger<ScheduleService> logger, IOptionsMonitor<SD
                 }
                 catch (Exception ex)
                 {
-                    logger.LogInformation($"Failed to write station daily schedule to cache. Station: {serviceDate[0]}, Date: {serviceDate[1]}. Exception: {FileUtil.ReportExceptionMessages(ex)}");
+                    logger.LogInformation("Failed to write station daily schedule to cache. Station: {serviceDate[0]}, Date: {serviceDate[1]}. Exception: {FileUtil.ReportExceptionMessages(ex)}", serviceDate[0], serviceDate[1], FileUtil.ReportExceptionMessages(ex));
                 }
             }
         }
@@ -351,7 +349,7 @@ public class ScheduleService(ILogger<ScheduleService> logger, IOptionsMonitor<SD
         }
         catch (Exception ex)
         {
-            logger.LogError($"Error occurred when trying to read Md5Schedule entry in cache file. Exception: {FileUtil.ReportExceptionMessages(ex)}");
+            logger.LogError("Error occurred when trying to read Md5Schedule entry in cache file. Exception: {FileUtilException}", FileUtil.ReportExceptionMessages(ex));
         }
     }
 
@@ -413,7 +411,7 @@ public class ScheduleService(ILogger<ScheduleService> logger, IOptionsMonitor<SD
         }
     }
 
-    private void PopulateProgramExtras(MxfProgram mxfProgram, ScheduleProgram scheduleProgram)
+    private static void PopulateProgramExtras(MxfProgram mxfProgram, ScheduleProgram scheduleProgram)
     {
         if (mxfProgram.extras.Count == 0)
         {

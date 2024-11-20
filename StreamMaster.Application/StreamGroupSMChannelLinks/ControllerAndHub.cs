@@ -7,8 +7,7 @@ namespace StreamMaster.Application.StreamGroupSMChannelLinks.Controllers
 {
     [Authorize]
     public partial class StreamGroupSMChannelLinksController(ILogger<StreamGroupSMChannelLinksController> _logger) : ApiControllerBase, IStreamGroupSMChannelLinksController
-    {        
-
+    {
         [HttpGet]
         [Route("[action]")]
         public async Task<ActionResult<List<SMChannelDto>>> GetStreamGroupSMChannels([FromQuery] GetStreamGroupSMChannelsRequest request)
@@ -16,7 +15,7 @@ namespace StreamMaster.Application.StreamGroupSMChannelLinks.Controllers
             try
             {
             var ret = await Sender.Send(request).ConfigureAwait(false);
-             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetStreamGroupSMChannels.", statusCode: 500) : Ok(ret.Data?? new());
+             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetStreamGroupSMChannels.", statusCode: 500) : Ok(ret.Data?? []);
             }
             catch (Exception ex)
             {
@@ -56,7 +55,6 @@ namespace StreamMaster.Application.StreamGroupSMChannelLinks.Controllers
             var ret = await Sender.Send(request).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
         }
-
     }
 }
 
@@ -67,7 +65,7 @@ namespace StreamMaster.Application.Hubs
         public async Task<List<SMChannelDto>> GetStreamGroupSMChannels(GetStreamGroupSMChannelsRequest request)
         {
              var ret = await Sender.Send(request).ConfigureAwait(false);
-            return ret.Data?? new();
+            return ret.Data?? [];
         }
 
         public async Task<APIResponse?> AddSMChannelsToStreamGroupByParameters(AddSMChannelsToStreamGroupByParametersRequest request)
@@ -93,6 +91,5 @@ namespace StreamMaster.Application.Hubs
             var ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;
         }
-
     }
 }

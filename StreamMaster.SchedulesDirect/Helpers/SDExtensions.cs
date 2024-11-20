@@ -14,7 +14,6 @@ public static class SDExtensions
             }
         }
 
-        return ret.Any() ? ret : null;
+        return ret.Count != 0 ? ret : null;
     }
-
 }

@@ -75,7 +75,6 @@ internal class GetPagedSMChannelsRequestHandler(IRepositoryWrapper Repository, I
             channel.StreamUrl = videoUrl;// JsonSerializer.Serialize(videoUrl);
         }
 
-
         //Debug.WriteLine($"GetPagedSMChannelsRequestHandler returning {res.Data.Count} items");
         return res;
     }

@@ -7,12 +7,12 @@ using System.Text.RegularExpressions;
 
 using Microsoft.EntityFrameworkCore;
 
-namespace StreamMaster.Domain.Common;
+namespace StreamMaster.Domain.Filtering;
 
-public static class FilterHelper<T> where T : class
+public static partial class FilterHelper<T> where T : class
 {
-    private static readonly ConcurrentDictionary<Type, ParameterExpression> ParameterCache = new();
-    private static readonly ConcurrentDictionary<(Type, string), PropertyInfo> PropertyCache = new();
+    private static readonly ConcurrentDictionary<Type, ParameterExpression> ParameterCache = [];
+    private static readonly ConcurrentDictionary<(Type, string), PropertyInfo> PropertyCache = [];
 
     public static readonly List<string> FiltersToIgnore = ["inSG", "notInSG"];
 
@@ -91,7 +91,6 @@ public static class FilterHelper<T> where T : class
 
         Expression<Func<T, bool>> finalLambda = Expression.Lambda<Func<T, bool>>(finalExpression, parameter);
 
-
         return query.Where(finalLambda);
     }
 
@@ -100,7 +99,6 @@ public static class FilterHelper<T> where T : class
         if (methodName == "notContains")
         {
             methodName = "contains";
-
         }
         return type.GetMethods()
                    .FirstOrDefault(m => m.Name.EqualsIgnoreCase(methodName)
@@ -109,9 +107,7 @@ public static class FilterHelper<T> where T : class
 
     public static MethodCallExpression StringExpression(string MatchMode, Expression stringExpression, Expression searchStringExpression)
     {
-
         MethodInfo? methodInfoString = GetMethodCaseInsensitive(typeof(string), MatchMode, [typeof(string)]);
-
 
         return methodInfoString == null
             ? throw new InvalidOperationException("No suitable Contains method found.")
@@ -162,19 +158,16 @@ public static class FilterHelper<T> where T : class
                     }
                     else
                     {
-
                         MethodCallExpression containsCall = StringExpression(filter.MatchMode, propertyAccess, Expression.Constant(value));
                         if (filter.MatchMode.Equals("notContains"))
                         {
-                            UnaryExpression notContainsCall = Expression.Not(containsCall);
+                            _ = Expression.Not(containsCall);
                             containsExpressions.Add(containsCall);
-
                         }
                         else
                         {
                             containsExpressions.Add(containsCall);
                         }
-
                     }
                 }
             }
@@ -195,7 +188,6 @@ public static class FilterHelper<T> where T : class
                                 containsExpressions.Add(equalExpression);
                             }
                         }
-
                     }
                     if (propertyAccess.Type == typeof(bool))
                     {
@@ -210,7 +202,7 @@ public static class FilterHelper<T> where T : class
                     {
                         if (forceToLower)
                         {
-                            MethodInfo? methodInfoString = GetMethodCaseInsensitive(typeof(string), filter.MatchMode, new[] { typeof(string) });
+                            MethodInfo? methodInfoString = GetMethodCaseInsensitive(typeof(string), filter.MatchMode, [typeof(string)]);
                             MethodInfo? method = typeof(string).GetMethod("ToLower", Type.EmptyTypes);
                             if (methodInfoString != null && method != null)
                             {
@@ -226,7 +218,6 @@ public static class FilterHelper<T> where T : class
                             {
                                 UnaryExpression notContainsCall = Expression.Not(containsCall);
                                 containsExpressions.Add(notContainsCall);
-
                             }
                             else
                             {
@@ -249,21 +240,17 @@ public static class FilterHelper<T> where T : class
 
     private static string[] ConvertToArray(string stringValue)
     {
-
-        if (Regex.IsMatch(stringValue, @"\[\s*(-?\d+)\s*(,\s*-?\d+\s*)*\]"))
+        if (MyRegex().IsMatch(stringValue))
         {
-
-            stringValue = Regex.Replace(stringValue, @"(-?\d+)", "\"$1\"");
+            stringValue = MyRegex1().Replace(stringValue, "\"$1\"");
         }
 
-
         string normalizedInput = stringValue.Replace("'", "\"");
-
 
         try
         {
             // Deserialize the string
-            string[] values = JsonSerializer.Deserialize<string[]>(normalizedInput) ?? Array.Empty<string>();
+            string[] values = JsonSerializer.Deserialize<string[]>(normalizedInput) ?? [];
             return values;
         }
         catch (JsonException ex)
@@ -272,36 +259,41 @@ public static class FilterHelper<T> where T : class
         }
     }
 
-    private static object? ConvertValue(object value, Type? targetType)
-    {
-        // Handle null values immediately
-        if (value == null || targetType == null)
-        {
-            return null;
-        }
+    //private static object? ConvertValue(object value, Type? targetType)
+    //{
+    //    // Handle null values immediately
+    //    if (value == null || targetType == null)
+    //    {
+    //        return null;
+    //    }
 
-        // If targetType is nullable, get the underlying type
-        if (targetType.IsGenericType && targetType.GetGenericTypeDefinition() == typeof(Nullable<>))
-        {
-            targetType = Nullable.GetUnderlyingType(targetType);
-        }
+    //    // If targetType is nullable, get the underlying type
+    //    if (targetType.IsGenericType && targetType.GetGenericTypeDefinition() == typeof(Nullable<>))
+    //    {
+    //        targetType = Nullable.GetUnderlyingType(targetType);
+    //    }
 
-        if (targetType == typeof(string))
-        {
-            return value.ToString();
-        }
+    //    if (targetType == typeof(string))
+    //    {
+    //        return value.ToString();
+    //    }
 
-        if (targetType == typeof(bool))
-        {
-            return bool.TryParse(value.ToString(), out bool parsedValue) && parsedValue;
-        }
+    //    if (targetType == typeof(bool))
+    //    {
+    //        return bool.TryParse(value.ToString(), out bool parsedValue) && parsedValue;
+    //    }
 
-        if (targetType!.IsEnum)
-        {
-            return Enum.Parse(targetType, value!.ToString() ?? "");
-        }
+    //    if (targetType!.IsEnum)
+    //    {
+    //        return Enum.Parse(targetType, value!.ToString() ?? "");
+    //    }
 
-        // For all other types, attempt to change the type
-        return Convert.ChangeType(value, targetType);
-    }
+    //    // For all other types, attempt to change the type
+    //    return Convert.ChangeType(value, targetType);
+    //}
+
+    [GeneratedRegex(@"\[\s*(-?\d+)\s*(,\s*-?\d+\s*)*\]")]
+    private static partial Regex MyRegex();
+    [GeneratedRegex(@"(-?\d+)")]
+    private static partial Regex MyRegex1();
 }

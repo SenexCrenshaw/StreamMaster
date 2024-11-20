@@ -29,9 +29,7 @@ internal class SetSMStreamRanksRequestHandler(IRepositoryWrapper Repository, ISe
                         fieldDatas.Add(new("GetSMChannelStreams", re, streams.Data ?? []));
                         fieldDatas.Add(new(SMChannel.APIName, smChannel.Id, "SMStreamDtos", streams.Data ?? []));
                     }
-
                 }
-
             }
             await dataRefreshService.RefreshSMChannelStreamLinks();
             await dataRefreshService.SetField(fieldDatas).ConfigureAwait(false);

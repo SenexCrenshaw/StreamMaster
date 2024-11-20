@@ -1,5 +1,6 @@
 ﻿using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Extensions;
+using StreamMaster.Infrastructure.Services;
 
 namespace StreamMaster.Infrastructure.Logger;
 

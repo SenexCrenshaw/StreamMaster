@@ -37,7 +37,6 @@ public static class XmltvProgrammeConverter
             }
         };
 
-
         return programme;
     }
 

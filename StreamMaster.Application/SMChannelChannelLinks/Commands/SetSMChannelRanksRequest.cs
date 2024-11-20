@@ -29,9 +29,7 @@ internal class SetSMChannelRanksRequestHandler(IRepositoryWrapper Repository, IS
                         fieldDatas.Add(new("GetSMChannelChannels", re, channels.Data ?? []));
                         fieldDatas.Add(new(SMChannel.APIName, smChannel.Id, "SMChannels", channels.Data ?? []));
                     }
-
                 }
-
             }
             await dataRefreshService.SetField(fieldDatas).ConfigureAwait(false);
         }
