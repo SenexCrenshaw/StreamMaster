@@ -14,7 +14,7 @@ using static StreamMaster.Domain.Common.GetStreamGroupEPGHandler;
 
 namespace StreamMaster.Application.StreamGroups;
 
-public class StreamGroupService(IOptionsMonitor<Setting> _settings, IOptionsMonitor<CommandProfileDict> _commandProfileSettings, ILogoService logoService, ICacheManager cacheManager, IRepositoryWrapper repositoryWrapper, IOptionsMonitor<Setting> settings, IProfileService profileService) : IStreamGroupService
+public class StreamGroupService(IHttpContextAccessor httpContextAccessor, IOptionsMonitor<Setting> _settings, IOptionsMonitor<CommandProfileDict> _commandProfileSettings, ILogoService logoService, ICacheManager cacheManager, IRepositoryWrapper repositoryWrapper, IOptionsMonitor<Setting> settings, IProfileService profileService) : IStreamGroupService
 {
     #region CRYPTO
 
@@ -322,73 +322,44 @@ public class StreamGroupService(IOptionsMonitor<Setting> _settings, IOptionsMoni
         CommandProfileDto commandProfile = profileService.GetCommandProfile(streamGroupProfile.CommandProfileName);
         OutputProfileDto outputProfile = profileService.GetOutputProfile(streamGroupProfile.OutputProfileName);
 
+
+        Setting settings = _settings.CurrentValue;
+        string baseUrl = httpContextAccessor.GetUrl();
+
         List<VideoStreamConfig> videoStreamConfigs = [];
         int customIndex = 1;
         foreach (SMChannel smChannel in smChannels)
         {
-            if (smChannel.M3UFileId == EPGHelper.CustomPlayListId)
+            SMStream? stream = smChannel.SMStreams.FirstOrDefault(a => a.Rank == 0)?.SMStream;
+            string? encodedString = EncodeStreamGroupIdProfileIdChannelId(streamGroup, streamGroupProfile.Id, smChannel.Id);
+            if (string.IsNullOrEmpty(encodedString))
             {
-                videoStreamConfigs.Add(new VideoStreamConfig
-                {
-                    Id = smChannel.Id,
-                    Name = smChannel.Name,
-                    EPGId = smChannel.EPGId,
-                    Logo = smChannel.Logo,
-                    Group = smChannel.Group,
-                    ChannelNumber = smChannel.ChannelNumber,
-                    TimeShift = smChannel.TimeShift,
-                    IsDuplicate = false,
-                    IsDummy = false,
-                    M3UFileId = EPGHelper.CustomPlayListId,
-                    FilePosition = customIndex++,
-                    CommandProfile = commandProfile,
-                    OutputProfile = outputProfile
-                });
-
-            }
-            else if (smChannel.M3UFileId == EPGHelper.IntroPlayListId)
-            {
-                videoStreamConfigs.Add(new VideoStreamConfig
-                {
-                    Id = smChannel.Id,
-                    Name = smChannel.Name,
-                    EPGId = smChannel.EPGId,
-                    Logo = smChannel.Logo,
-                    Group = smChannel.Group,
-                    ChannelNumber = smChannel.ChannelNumber,
-                    TimeShift = smChannel.TimeShift,
-                    IsDuplicate = false,
-                    IsDummy = false,
-                    M3UFileId = EPGHelper.IntroPlayListId,
-                    FilePosition = customIndex++,
-                    CommandProfile = commandProfile,
-                    OutputProfile = outputProfile
-                });
-
                 continue;
             }
-            else
+            string cleanName = smChannel.Name.ToCleanFileString();
+
+            videoStreamConfigs.Add(new VideoStreamConfig
             {
-
-                SMStream? stream = smChannel.SMStreams.FirstOrDefault(a => a.Rank == 0)?.SMStream;
-
-                videoStreamConfigs.Add(new VideoStreamConfig
-                {
-                    Id = smChannel.Id,
-                    Name = smChannel.Name,
-                    EPGId = smChannel.EPGId,
-                    Logo = smChannel.Logo,
-                    Group = smChannel.Group,
-                    ChannelNumber = smChannel.ChannelNumber,
-                    TimeShift = smChannel.TimeShift,
-                    IsDuplicate = false,
-                    IsDummy = false,
-                    M3UFileId = stream?.M3UFileId ?? 0,
-                    FilePosition = stream?.FilePosition ?? 0,
-                    CommandProfile = commandProfile,
-                    OutputProfile = outputProfile
-                });
-            }
+                Id = smChannel.Id,
+                BaseUrl = baseUrl,
+                Name = smChannel.Name,
+                CleanName = cleanName,
+                EncodedString = encodedString,
+                StreamGroupProfileId = streamGroupProfile.Id,
+                EPGId = smChannel.EPGId,
+                Logo = smChannel.Logo,
+                Group = smChannel.Group,
+                ChannelNumber = smChannel.ChannelNumber,
+                TimeShift = smChannel.TimeShift,
+                IsDuplicate = false,
+                IsDummy = false,
+                M3UFileId = stream?.M3UFileId ?? 0,
+                FilePosition = stream?.FilePosition ?? 0,
+                StationId = smChannel.StationId,
+                GroupTitle = smChannel.GroupTitle,
+                CommandProfile = commandProfile,
+                OutputProfile = outputProfile
+            });
         }
         return (videoStreamConfigs.OrderBy(a => a.ChannelNumber).ToList(), streamGroupProfile);
     }
