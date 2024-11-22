@@ -73,6 +73,10 @@ const IconSelector = ({
   // Logger.debug('IconSelector', 'IconSelector', value);
 
   const buttonTemplate = useMemo(() => {
+    if (iconSource === undefined) {
+      return '/images/default.png';
+    }
+
     const iconUrl = iconSource
       ? getIconUrl(iconSource, '/images/default.png', false, isCustomPlayList === true ? SMFileTypes.CustomPlayList : null)
       : '/images/default.png';

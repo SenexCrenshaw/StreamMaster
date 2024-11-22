@@ -1,19 +1,19 @@
 ﻿using System.Collections.Concurrent;
 using System.Collections.Specialized;
 using System.Text.Json;
-
 namespace StreamMaster.SchedulesDirect.Images;
 
 public class SeriesImages(
     ILogger<SeriesImages> logger,
     IEPGCache<SeriesImages> epgCache,
     IImageDownloadQueue imageDownloadQueue,
-    IOptionsMonitor<SDSettings> intSettings,
+    IOptionsMonitor<SDSettings> sdSettings,
     ISchedulesDirectAPIService schedulesDirectAPI,
     ISchedulesDirectDataService schedulesDirectDataService) : ISeriesImages, IDisposable
 {
     private List<string> seriesImageQueue = [];
     private ConcurrentBag<ProgramMetadata> seriesImageResponses = [];
+    private readonly ConcurrentHashSet<string> seriesImageProcessed = [];
     public NameValueCollection SportsSeries { get; set; } = [];
 
     private int processedObjects;
@@ -22,6 +22,11 @@ public class SeriesImages(
 
     public async Task<bool> GetAllSeriesImages()
     {
+        if (!sdSettings.CurrentValue.SeriesImages)
+        {
+            return true;
+        }
+
         // Reset state
         seriesImageQueue = [];
         seriesImageResponses = [];
@@ -78,24 +83,33 @@ public class SeriesImages(
         }
 
         logger.LogInformation("Exiting GetAllSeriesImages(). SUCCESS.");
-        ResetCache();
+        //ResetCache();
         epgCache.SaveCache();
+        ClearCache();
         return true;
     }
 
     private bool ShouldRefreshSeries(string seriesId, out string finalSeriesId)
     {
         bool refresh = false;
+
         if (int.TryParse(seriesId, out int digits))
         {
-            refresh = (digits * intSettings.CurrentValue.SDStationIds.Count % DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month)) + 1 == DateTime.Now.Day;
             finalSeriesId = $"SH{seriesId}0000";
+            if (!seriesImageProcessed.Contains(seriesId))
+            {
+                seriesImageProcessed.Add(seriesId);
+                return true;
+            }
+
+            refresh = (digits * sdSettings.CurrentValue.SDStationIds.Count % DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month)) + 1 == DateTime.Now.Day;
+
+            return refresh;
         }
-        else
-        {
-            finalSeriesId = seriesId;
-        }
-        return refresh;
+
+        finalSeriesId = seriesId;
+
+        return false;
     }
 
     private void ProcessCachedImages(SeriesInfo series, EPGJsonCache value)
@@ -132,24 +146,24 @@ public class SeriesImages(
                 {
                     int itemCount = Math.Min(seriesImageQueue.Count - startIndex, SchedulesDirect.MaxImgQueries);
                     await schedulesDirectAPI.DownloadImageResponsesAsync(seriesImageQueue, seriesImageResponses, startIndex).ConfigureAwait(false);
-                    Interlocked.Add(ref processedCount, itemCount);
+                    _ = Interlocked.Add(ref processedCount, itemCount);
                     logger.LogInformation("Downloaded series image information {ProcessedCount} of {TotalCount}", processedCount, seriesImageQueue.Count);
                 }
                 finally
                 {
-                    semaphore.Release();
+                    _ = semaphore.Release();
                 }
             }));
         }
 
         await Task.WhenAll(tasks).ConfigureAwait(false);
         ProcessSeriesImageResponses();
-        imageDownloadQueue.EnqueueProgramMetadataCollection(seriesImageResponses);
+
     }
 
     private void ProcessSeriesImageResponses()
     {
-        string artworkSize = string.IsNullOrEmpty(intSettings.CurrentValue.ArtworkSize) ? "Md" : intSettings.CurrentValue.ArtworkSize;
+        string artworkSize = string.IsNullOrEmpty(sdSettings.CurrentValue.ArtworkSize) ? "Md" : sdSettings.CurrentValue.ArtworkSize;
         IEnumerable<ProgramMetadata> toProcess = seriesImageResponses.Where(a => !string.IsNullOrEmpty(a.ProgramId) && a.Data != null && a.Code == 0);
 
         logger.LogInformation("Processing {count} series image responses.", toProcess.Count());
@@ -165,18 +179,30 @@ public class SeriesImages(
                 continue;
             }
 
-            List<ProgramArtwork> artwork = SDHelpers.GetTieredImages(response.Data, ["series", "sport", "episode"], artworkSize);
-            if (response.ProgramId.StartsWith("SP") && artwork.Count == 0)
+            if (response.ProgramId.StartsWith("SP"))
             {
                 continue;
             }
 
-            series.Extras.Add("artwork", artwork);
-            MxfGuideImage? res = epgCache.GetGuideImageAndUpdateCache(artwork, ImageType.Series, response.ProgramId);
-            if (res != null)
+            if (!series.Extras.TryGetValue("artwork", out dynamic? value))
             {
-                series.MxfGuideImage = res;
+                List<ProgramArtwork> artworks = SDHelpers.GetTieredImages(response.Data, ["series", "sport", "episode"], artworkSize, sdSettings.CurrentValue.SeriesPosterAspect);
+
+                series.Extras["artwork"] = artworks;
             }
+
+            if (series.Extras["artwork"].Count > 0)
+            {
+
+                MxfGuideImage? res = epgCache.GetGuideImageAndUpdateCache(series.Extras["artwork"], ImageType.Series, response.ProgramId);
+                if (res != null)
+                {
+                    series.MxfGuideImage = res;
+                }
+                imageDownloadQueue.EnqueueProgramArtworkCollection(series.Extras["artwork"]);
+            }
+
+
         }
     }
 
@@ -203,6 +229,7 @@ public class SeriesImages(
     {
         seriesImageQueue.Clear();
         seriesImageResponses.Clear();
+
         SportsSeries.Clear();
 
         processedObjects = 0;

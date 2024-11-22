@@ -41,8 +41,8 @@ internal class GetChannelMetricsRequestHandler(IRepositoryWrapper repositoryWrap
                 continue;
             }
             SMChannelStreamLink bastCurrentStream = baseConfig.SMChannel.SMStreams.ToList()[baseConfig.SMChannel.CurrentRank];
-            string currentStreamLogo = logoService.GetLogoUrl(bastCurrentStream.SMStream!.Logo, _baseUrl);
-            string currentChannelLogo = logoService.GetLogoUrl(baseConfig.SMChannel.Logo, _baseUrl);
+            string currentStreamLogo = logoService.GetLogoUrl(bastCurrentStream.SMStream!.Logo, _baseUrl, SMStreamTypeEnum.Regular);
+            string currentChannelLogo = logoService.GetLogoUrl(baseConfig.SMChannel.Logo, _baseUrl, SMStreamTypeEnum.Regular);
 
             //
             foreach (KeyValuePair<string, ChannelWriter<byte[]>> clientChannel in channelBroadcaster.ClientChannelWriters)
@@ -101,7 +101,7 @@ internal class GetChannelMetricsRequestHandler(IRepositoryWrapper repositoryWrap
             //}
 
             //SMChannelStreamLink bastCurrentStream = baseConfig.SMChannel.SMStreams.ToList()[baseConfig.SMChannel.CurrentRank];
-            //string currentStreamLogo = logoService.GetLogoUrl(bastCurrentStream.SMStream.Logo, _baseUrl);
+            //string currentStreamLogo = logoService.GetLogoUrl(bastCurrentStream.SMStream.SMLogoUrl, _baseUrl);
 
             //int channelCount = 0;
 
@@ -115,7 +115,7 @@ internal class GetChannelMetricsRequestHandler(IRepositoryWrapper repositoryWrap
                     continue;
                 }
 
-                currentChannelLogo = logoService.GetLogoUrl(smChannel.Logo, _baseUrl);
+                currentChannelLogo = logoService.GetLogoUrl(smChannel.Logo, _baseUrl, SMStreamTypeEnum.Regular);
 
                 channelDtos.Add(new ClientChannelDto()
                 {
@@ -136,7 +136,7 @@ internal class GetChannelMetricsRequestHandler(IRepositoryWrapper repositoryWrap
                 //if (string.IsNullOrEmpty(metricLogo))
                 //{
                 //    SMChannel? test = smChannels.Find(a => a.Id.ToString() == sourceBroadcaster.Id);
-                //    metricLogo = test?.Logo ?? "";
+                //    metricLogo = test?.SMLogoUrl ?? "";
                 //}
                 if (!string.IsNullOrEmpty(newCurrentChannelLogo))
                 {
@@ -148,7 +148,7 @@ internal class GetChannelMetricsRequestHandler(IRepositoryWrapper repositoryWrap
             //    SMStream? smStream = smStreams.Find(a => a.Id == cuurentStreamInfo.Id);
             //    if (smStream != null)
             //    {
-            //        metricLogo = smStream.Logo;
+            //        metricLogo = smStream.SMLogoUrl;
             //        //id = smStream.Id;
             //    }
             //}

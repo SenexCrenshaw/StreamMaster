@@ -63,7 +63,7 @@ public interface ISMChannelsRepository : IRepositoryBase<SMChannel>
     // Channel Cloning
     Task<APIResponse> CloneSMChannel(int SMChannelId, string newName);
 
-    // Channel Logo Management
+    // Channel SMLogoUrl Management
     Task<APIResponse> SetSMChannelLogo(int SMChannelId, string logo);
     Task<List<FieldData>> SetSMChannelsLogoFromEPGFromIds(List<int> ids, CancellationToken cancellationToken);
     Task<List<FieldData>> SetSMChannelsLogoFromEPGFromParameters(QueryStringParameters parameters, CancellationToken cancellationToken);

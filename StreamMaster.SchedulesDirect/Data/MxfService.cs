@@ -1,6 +1,8 @@
 ﻿using System.Collections.Concurrent;
 using System.Xml.Serialization;
 
+using StreamMaster.Domain.Models;
+
 namespace StreamMaster.SchedulesDirect.Data;
 
 public partial class SchedulesDirectData

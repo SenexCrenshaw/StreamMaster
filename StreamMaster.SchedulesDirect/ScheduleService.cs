@@ -369,7 +369,7 @@ public class ScheduleService(ILogger<ScheduleService> logger, IOptionsMonitor<SD
             // Find or create a program in the MXF service based on the ProgramId
             MxfProgram mxfProgram = schedulesDirectData.FindOrCreateProgram(scheduleProgram.ProgramId);
 
-            // Populate program extras and multipart details
+            // Populate program Extras and multipart details
             PopulateProgramExtras(mxfProgram, scheduleProgram);
 
             // Create the schedule entry and populate fields
@@ -399,7 +399,7 @@ public class ScheduleService(ILogger<ScheduleService> logger, IOptionsMonitor<SD
             };
 
             // Add the ratings to the schedule entry
-            if (mxfProgram.extras.TryGetValue("ratings", out dynamic? ratings))
+            if (mxfProgram.Extras.TryGetValue("ratings", out dynamic? ratings))
             {
                 scheduleEntry.extras.Add("ratings", ratings);
             }
@@ -413,13 +413,13 @@ public class ScheduleService(ILogger<ScheduleService> logger, IOptionsMonitor<SD
 
     private static void PopulateProgramExtras(MxfProgram mxfProgram, ScheduleProgram scheduleProgram)
     {
-        if (mxfProgram.extras.Count == 0)
+        if (mxfProgram.Extras.Count == 0)
         {
             mxfProgram.UidOverride = $"{scheduleProgram.ProgramId[..10]}_{scheduleProgram.ProgramId[10..]}";
-            mxfProgram.extras.Add("md5", scheduleProgram.Md5);
+            mxfProgram.Extras.Add("md5", scheduleProgram.Md5);
             if (scheduleProgram.Multipart?.PartNumber > 0)
             {
-                mxfProgram.extras.Add("multipart", $"{scheduleProgram.Multipart.PartNumber}/{scheduleProgram.Multipart.TotalParts}");
+                mxfProgram.Extras.Add("multipart", $"{scheduleProgram.Multipart.PartNumber}/{scheduleProgram.Multipart.TotalParts}");
             }
         }
 
@@ -465,14 +465,14 @@ public class ScheduleService(ILogger<ScheduleService> logger, IOptionsMonitor<SD
         mxfProgram.IsSeriesFinale |= scheduleProgram.IsPremiereOrFinale.StringContains("Series Finale");
         mxfProgram.IsSeriesPremiere |= scheduleProgram.IsPremiereOrFinale.StringContains("Series Premiere");
 
-        if (!mxfProgram.extras.ContainsKey("premiere"))
+        if (!mxfProgram.Extras.ContainsKey("premiere"))
         {
-            mxfProgram.extras.Add("premiere", false);
+            mxfProgram.Extras.Add("premiere", false);
         }
 
         if (scheduleProgram.Premiere)
         {
-            mxfProgram.extras.AddOrUpdate("premiere", true);
+            mxfProgram.Extras.AddOrUpdate("premiere", true);
         }
     }
 
@@ -488,9 +488,9 @@ public class ScheduleService(ILogger<ScheduleService> logger, IOptionsMonitor<SD
             }
         }
 
-        if (!mxfProgram.extras.TryGetValue("ratings", out dynamic? value))
+        if (!mxfProgram.Extras.TryGetValue("ratings", out dynamic? value))
         {
-            mxfProgram.extras.Add("ratings", scheduleTvRatings);
+            mxfProgram.Extras.Add("ratings", scheduleTvRatings);
         }
         else
         {
@@ -503,7 +503,7 @@ public class ScheduleService(ILogger<ScheduleService> logger, IOptionsMonitor<SD
                 }
             }
 
-            mxfProgram.extras["ratings"] = existingRatings;
+            mxfProgram.Extras["ratings"] = existingRatings;
         }
     }
 

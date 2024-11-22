@@ -11,14 +11,15 @@ using StreamMaster.Domain.Enums;
 
 namespace StreamMaster.API.Controllers;
 
-public class FilesController(IMemoryCache memoryCache, ILogoService logoService, IContentTypeProvider mimeTypeProvider) : ApiControllerBase, IFileController
+public class FilesController(IMemoryCache memoryCache, IHttpContextAccessor httpContextAccessor, IOptionsMonitor<Setting> settings, ILogoService logoService, IContentTypeProvider mimeTypeProvider) : ApiControllerBase, IFileController
 {
     [AllowAnonymous]
     [Route("{filetype}/{source}")]
 
     public async Task<IActionResult> GetFile(string source, SMFileTypes filetype, CancellationToken cancellationToken)
     {
-        string sourceDecoded;
+        string sourceDecoded = string.Empty;
+
         if (IsBase64String(source))
         {
             try
@@ -28,30 +29,52 @@ public class FilesController(IMemoryCache memoryCache, ILogoService logoService,
             catch (FormatException)
             {
                 // Handle cases where the base64 string might be improperly formatted
-                sourceDecoded = HttpUtility.UrlDecode(source);
+                //sourceDecoded = HttpUtility.UrlDecode(source);
             }
         }
         else
         {
-            sourceDecoded = HttpUtility.UrlDecode(source);
+            string? newSource = Path.GetFileNameWithoutExtension(source);
+            if (!string.IsNullOrWhiteSpace(newSource))
+            {
+                if (IsBase64String(newSource))
+                {
+                    try
+                    {
+                        sourceDecoded = Encoding.UTF8.GetString(Convert.FromBase64String(newSource));
+                    }
+                    catch (FormatException)
+                    {
+                        // Handle cases where the base64 string might be improperly formatted
+                        sourceDecoded = HttpUtility.UrlDecode(newSource);
+                    }
+                    string ext = Path.GetExtension(source);
+                    sourceDecoded += $"{ext}";
+                }
+
+            }
+
+            //sourceDecoded = HttpUtility.UrlDecode(source);
         }
 
-        if (sourceDecoded == "noimage.png")
+        if (sourceDecoded == "" || sourceDecoded == "noimage.png" || sourceDecoded.EndsWith(settings.CurrentValue.DefaultLogo))
         {
-            return Redirect("/images/default.png");
+            //string baseUrl = httpContextAccessor.GetUrl();
+
+            return Redirect("/" + settings.CurrentValue.DefaultLogo);
         }
 
         // string sourceDecoded = HttpUtility.UrlDecode(source);
         //string sourceDecoded = Encoding.UTF8.GetString(Convert.FromBase64String(source));
         if (source == "noimage.png")
         {
-            return Redirect("/images/default.png");
+            return Redirect("/" + settings.CurrentValue.DefaultLogo);
         }
 
         (byte[]? image, string? fileName) = await GetCacheEntryAsync(sourceDecoded, filetype, cancellationToken).ConfigureAwait(false);
         if (image == null || fileName == null)
         {
-            return Redirect(sourceDecoded);
+            return sourceDecoded.Contains("api/files") ? Redirect("/" + settings.CurrentValue.DefaultLogo) : (IActionResult)Redirect(sourceDecoded);
         }
 
         string contentType = GetContentType(sourceDecoded);
@@ -68,7 +91,7 @@ public class FilesController(IMemoryCache memoryCache, ILogoService logoService,
         try
         {
             // Attempt to convert; if it fails, it's not a valid base64 string
-            Convert.FromBase64String(base64);
+            _ = Convert.FromBase64String(base64);
             return true;
         }
         catch (FormatException)
@@ -122,7 +145,7 @@ public class FilesController(IMemoryCache memoryCache, ILogoService logoService,
             }
             contentType ??= "application/octet-stream";
 
-            memoryCache.Set(cacheKey, contentType, CacheManagerExtensions.NeverRemoveCacheEntryOptions);
+            _ = memoryCache.Set(cacheKey, contentType, CacheManagerExtensions.NeverRemoveCacheEntryOptions);
         }
 
         return contentType ?? "application/octet-stream";

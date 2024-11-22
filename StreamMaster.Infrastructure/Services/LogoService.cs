@@ -26,16 +26,16 @@ public class LogoService(IMapper mapper, ICustomPlayListBuilder customPlayListBu
     private ConcurrentDictionary<string, LogoFileDto> Logos { get; } = [];
     private ConcurrentDictionary<string, TvLogoFile> TvLogos { get; set; } = [];
 
-    public List<XmltvProgramme> GetXmltvProgrammeForPeriod(StationChannelName stationChannelName, DateTime startDate, int days, string baseUrl)
+    public List<XmltvProgramme> GetXmltvProgrammeForPeriod(VideoStreamConfig videoStreamConfig, DateTime startDate, int days, string baseUrl)
     {
-        List<(Movie Movie, DateTime StartTime, DateTime EndTime)> movies = customPlayListBuilder.GetMoviesForPeriod(stationChannelName.ChannelName, startDate, days);
+        List<(Movie Movie, DateTime StartTime, DateTime EndTime)> movies = customPlayListBuilder.GetMoviesForPeriod(videoStreamConfig.Name, startDate, days);
         List<XmltvProgramme> ret = [];
         foreach ((Movie Movie, DateTime StartTime, DateTime EndTime) x in movies)
         {
-            XmltvProgramme programme = XmltvProgrammeConverter.ConvertMovieToXmltvProgramme(x.Movie, stationChannelName.Id);
+            XmltvProgramme programme = XmltvProgrammeConverter.ConvertMovieToXmltvProgramme(x.Movie, videoStreamConfig.EPGId, x.StartTime, x.EndTime);
             if (x.Movie.Thumb is not null && !string.IsNullOrEmpty(x.Movie.Thumb.Text))
             {
-                string src = GetLogoUrl(x.Movie.Thumb.Text, baseUrl);
+                string src = GetLogoUrl(x.Movie.Thumb.Text, baseUrl, SMStreamTypeEnum.CustomPlayList);
                 programme.Icons = [new XmltvIcon { Src = src }];
             }
             ret.Add(programme);
@@ -69,20 +69,50 @@ public class LogoService(IMapper mapper, ICustomPlayListBuilder customPlayListBu
             return null;
         }
 
-        string ext = Path.GetExtension(source) ?? fd.DefaultExtension;
+        //string ext = Path.GetExtension(source) ?? fd.DefaultExtension;
 
-        string fileName = FileUtil.EncodeToMD5(source) + ext;
-        string subDir = char.ToLower(fileName[0]).ToString();
+        //   string fileName = source;
+        string subDir = char.ToLower(source[0]).ToString();
 
-        string fullPath = Path.Combine(fd.DirectoryLocation, subDir, fileName);
+        string fullPath = Path.Combine(fd.DirectoryLocation, subDir, source);
 
         return !File.Exists(fullPath) ? null : fullPath;
     }
-    public string GetLogoUrl(string logoSource, string baseUrl)
+
+    public string GetLogoUrl2(string logoSource, SMFileTypes logoType)
     {
+        string source = logoSource;
+        switch (logoType)
+        {
+            case SMFileTypes.Logo:
+                string newlogoSource = GetApiUrl(logoSource, logoType);
+                return newlogoSource;
+            case SMFileTypes.CustomPlayListLogo:
+                if (logoSource.StartsWith(BuildInfo.CustomPlayListFolder))
+                {
+                    source = logoSource.Remove(0, BuildInfo.CustomPlayListFolder.Length);
+                }
+                break;
+
+        }
+
+        return GetApiUrl(source, logoType);
+    }
+    private static string GetApiUrl(string source, SMFileTypes path)
+    {
+        string encodedPath = Convert.ToBase64String(Encoding.UTF8.GetBytes(source));
+
+        return $"/api/files/{(int)path}/{encodedPath}";
+    }
+
+
+    public string GetLogoUrl(string logoSource, string baseUrl, SMStreamTypeEnum smStream)
+    {
+        baseUrl ??= string.Empty;
+
         if (string.IsNullOrEmpty(logoSource))
         {
-            return $"{baseUrl}{_settings.CurrentValue.DefaultLogo}";
+            return $"{baseUrl}/{_settings.CurrentValue.DefaultLogo}";
         }
 
         if (logoSource.StartsWith('/'))
@@ -90,9 +120,10 @@ public class LogoService(IMapper mapper, ICustomPlayListBuilder customPlayListBu
             logoSource = logoSource[1..];
         }
 
-        if (logoSource.StartsWith(BuildInfo.CustomPlayListFolder))
+        if (smStream == SMStreamTypeEnum.Custom || smStream == SMStreamTypeEnum.CustomPlayList || logoSource.StartsWith(BuildInfo.CustomPlayListFolder))
         {
-            return GetApiUrl(baseUrl, logoSource, SMFileTypes.CustomLogo);
+            string a = logoSource.Remove(0, BuildInfo.CustomPlayListFolder.Length);
+            return GetApiUrl(baseUrl, a, SMFileTypes.CustomPlayListLogo);
         }
 
         if (logoSource.StartsWith("images/"))
@@ -110,11 +141,12 @@ public class LogoService(IMapper mapper, ICustomPlayListBuilder customPlayListBu
 
         return logoSource;
     }
-    private static string GetApiUrl(string url, string source, SMFileTypes path)
+
+    private static string GetApiUrl(string baseUrl, string source, SMFileTypes path)
     {
         string encodedPath = Convert.ToBase64String(Encoding.UTF8.GetBytes(source));
 
-        return $"{url}/api/files/{(int)path}/{encodedPath}";
+        return $"{baseUrl}/api/files/{(int)path}/{encodedPath}";
     }
 
     public async Task<DataResponse<bool>> BuildLogosCacheFromSMStreamsAsync(CancellationToken cancellationToken)
@@ -233,7 +265,7 @@ public class LogoService(IMapper mapper, ICustomPlayListBuilder customPlayListBu
         return Logos.TryGetValue(source, out LogoFileDto? logo) ? logo : null;
     }
 
-    public ImagePath? GetValidImagePath(string baseURL, SMFileTypes? fileType = null)
+    public ImagePath? GetValidImagePath(string baseURL, SMFileTypes fileType, bool? checkExists = true)
     {
         string url = HttpUtility.UrlDecode(baseURL);
 
@@ -241,59 +273,74 @@ public class LogoService(IMapper mapper, ICustomPlayListBuilder customPlayListBu
         {
             string LogoReturnName = Path.GetFileName(url);
             string? cachedFile = GetCachedFile(url, SMFileTypes.Logo);
-            if (cachedFile != null)
-            {
-                return new ImagePath
+            return cachedFile != null
+                ? new ImagePath
                 {
                     ReturnName = LogoReturnName,
                     FullPath = cachedFile,
                     SMFileType = SMFileTypes.Logo
-                };
-            }
+                }
+                : null;
         }
 
-        if (fileType == SMFileTypes.CustomPlayListLogo)
+        if (fileType is SMFileTypes.CustomPlayListLogo or SMFileTypes.CustomPlayList)
         {
             string fullPath = BuildInfo.CustomPlayListFolder + baseURL;
-            if (File.Exists(fullPath))
-            {
-                return new ImagePath
+            return File.Exists(fullPath)
+                ? new ImagePath
                 {
                     ReturnName = Path.GetFileName(fullPath),
                     FullPath = fullPath,
                     SMFileType = SMFileTypes.CustomPlayListLogo
-                };
-            }
+                }
+                : null;
         }
 
-        if (fileType == SMFileTypes.CustomPlayList)
-        {
-            string customPlayListfileName = Path.GetFileNameWithoutExtension(baseURL);
-            _ = customPlayListBuilder.GetCustomPlayList(customPlayListfileName);
-            string fullPath = Path.Combine(BuildInfo.CustomPlayListFolder, customPlayListfileName, baseURL);
-            if (File.Exists(fullPath))
-            {
-                return new ImagePath
-                {
-                    ReturnName = Path.GetFileName(fullPath),
-                    FullPath = fullPath,
-                    SMFileType = SMFileTypes.CustomPlayList
-                };
-            }
-        }
+        //if (fileType == SMFileTypes.CustomPlayList)
+        //{
+        //    string customPlayListfileName = Path.GetFileNameWithoutExtension(baseURL);
+        //    _ = customPlayListBuilder.GetCustomPlayList(customPlayListfileName);
+        //    string fullPath = Path.Combine(BuildInfo.CustomPlayListFolder, customPlayListfileName, baseURL);
+        //    return File.Exists(fullPath)
+        //        ? new ImagePath
+        //        {
+        //            ReturnName = Path.GetFileName(fullPath),
+        //            FullPath = fullPath,
+        //            SMFileType = SMFileTypes.CustomPlayList
+        //        }
+        //        : null;
+        //}
 
-        if (!url.StartsWith("http"))
+
+        if (fileType == SMFileTypes.SDImage)
         {
-            string? fullPath = url.GetSDImageFullPath();
-            if (fullPath != null && File.Exists(fullPath))
+            if (!url.StartsWith("http"))
             {
-                return new ImagePath
+                try
                 {
-                    ReturnName = Path.GetFileName(fullPath),
-                    FullPath = fullPath,
-                    SMFileType = SMFileTypes.SDImage
-                };
+
+                    string? fullPath = url.GetSDImageFullPath();
+                    if (fullPath is null || !FileUtil.IsValidFilePath(fullPath))
+                    {
+                        // test
+                        return null;
+                    }
+
+                    return checkExists == true && !File.Exists(fullPath)
+                        ? null
+                        : new ImagePath
+                        {
+                            ReturnName = Path.GetFileName(fullPath),
+                            FullPath = fullPath,
+                            SMFileType = SMFileTypes.SDImage
+                        };
+                }
+                catch
+                {
+
+                }
             }
+            return null;
         }
 
         string returnName;
@@ -311,7 +358,8 @@ public class LogoService(IMapper mapper, ICustomPlayListBuilder customPlayListBu
 
         Stopwatch sw = Stopwatch.StartNew();
         LogoFileDto? logo = GetLogoBySource(url);
-
+        //_ = GetValidImagePath(baseUrl, fileType);
+        //_ = GetValidImagePath(baseUrl, SMFileTypes.SDImage);
         if (logo is null)
         {
             sw.Stop();

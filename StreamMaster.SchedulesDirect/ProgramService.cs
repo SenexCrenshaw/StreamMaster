@@ -30,17 +30,17 @@ namespace StreamMaster.SchedulesDirect
                 processedObjects++;
                 cancellationToken.ThrowIfCancellationRequested();
 
-                if (!mxfProgram.extras.ContainsKey("md5"))
+                if (!mxfProgram.Extras.ContainsKey("md5"))
                 {
                     continue;
                 }
 
-                if (epgCache.JsonFiles.ContainsKey(mxfProgram.extras["md5"]))
+                if (epgCache.JsonFiles.ContainsKey(mxfProgram.Extras["md5"]))
                 {
                     // Try to load cached program
                     try
                     {
-                        Programme sdProgram = JsonSerializer.Deserialize<Programme>(epgCache.GetAsset(mxfProgram.extras["md5"])) ?? throw new Exception("Deserialization failed.");
+                        Programme sdProgram = JsonSerializer.Deserialize<Programme>(epgCache.GetAsset(mxfProgram.Extras["md5"])) ?? throw new Exception("Deserialization failed.");
                         BuildMxfProgram(mxfProgram, sdProgram);
                     }
                     catch (Exception)
@@ -137,7 +137,7 @@ namespace StreamMaster.SchedulesDirect
                 // Add program JSON to cache
                 if (sdProgram.Md5 != null)
                 {
-                    mxfProgram.extras.AddOrUpdate("md5", sdProgram.Md5);
+                    mxfProgram.Extras.AddOrUpdate("md5", sdProgram.Md5);
                     try
                     {
                         string jsonString = JsonSerializer.Serialize(sdProgram);
@@ -183,13 +183,13 @@ namespace StreamMaster.SchedulesDirect
             // Additional program data like genres and teams (for sports)
             if (sdProgram.Genres?.Length > 0)
             {
-                //mxfProgram.extras.AddOrUpdate("genres", new List<string>(sdProgram.Genres));
-                mxfProgram.extras.AddOrUpdate("genres", sdProgram.Genres);
+                //mxfProgram.Extras.AddOrUpdate("genres", new List<string>(sdProgram.Genres));
+                mxfProgram.Extras.AddOrUpdate("genres", sdProgram.Genres);
             }
 
             if (sdProgram.EventDetails?.Teams != null)
             {
-                mxfProgram.extras.AddOrUpdate("teams", sdProgram.EventDetails.Teams.ConvertAll(team => team.Name));
+                mxfProgram.Extras.AddOrUpdate("teams", sdProgram.EventDetails.Teams.ConvertAll(team => team.Name));
             }
         }
 
@@ -404,7 +404,7 @@ namespace StreamMaster.SchedulesDirect
                 mxfProgram.Description += $" \u000D\u000AProduction #{mxfProgram.EpisodeNumber}";
             }
 
-            if (mxfProgram.extras.TryGetValue("multipart", out dynamic? value))
+            if (mxfProgram.Extras.TryGetValue("multipart", out dynamic? value))
             {
                 mxfProgram.EpisodeTitle += $" ({value})";
             }

@@ -278,9 +278,9 @@ namespace StreamMaster.SchedulesDirect.Domain.Models
                     }
                 }
 
-                if (mxfProgram?.extras.ContainsKey("ratings") ?? false)
+                if (mxfProgram?.Extras.ContainsKey("ratings") ?? false)
                 {
-                    foreach (KeyValuePair<string, string> rating in mxfProgram.extras["ratings"])
+                    foreach (KeyValuePair<string, string> rating in mxfProgram.Extras["ratings"])
                     {
                         if (!ratings.TryGetValue(rating.Key, out _))
                         {

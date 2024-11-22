@@ -1,4 +1,6 @@
-﻿namespace StreamMaster.Application.Interfaces
+﻿using StreamMaster.Domain.Configuration;
+
+namespace StreamMaster.Domain.Services
 {
     public interface IProfileService
     {

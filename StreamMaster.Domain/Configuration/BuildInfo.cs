@@ -133,7 +133,7 @@ namespace StreamMaster.Domain.Configuration
         public static readonly string SDXMLFile = Path.Combine(SDJSONFolder, "streammaster.xmltv");
 
         public static readonly string SDStationLogosFolder = Path.Combine(CacheFolder, "SDStationLogos");
-        public static readonly string SDStationLogosCacheFolder = Path.Combine(CacheFolder, "SDStationLogosCache");
+        //public static readonly string SDStationLogosCacheFolder = Path.Combine(CacheFolder, "SDStationLogosCache");
 
         public static readonly string SDImagesFolder = Path.Combine(CacheFolder, "SDImages");
         public static readonly string EPGFolder = Path.Combine(PlayListFolder, "EPG");

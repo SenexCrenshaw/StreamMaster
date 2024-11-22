@@ -1,15 +1,83 @@
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Xml.Serialization;
 
 using StreamMaster.Domain.Configuration;
-using StreamMaster.Domain.Extensions;
 using StreamMaster.Domain.Helpers;
 
 namespace StreamMaster.Domain.Common;
 
 public sealed class FileUtil
 {
+    /// <summary>
+    /// Validates whether a file path is valid for the current operating system.
+    /// </summary>
+    /// <param name="filePath">The file path to validate.</param>
+    /// <returns>True if the file path is valid; otherwise, false.</returns>
+    public static bool IsValidFilePath(string filePath)
+    {
+        if (string.IsNullOrWhiteSpace(filePath))
+        {
+            return false; // Null, empty, or whitespace paths are invalid
+        }
+
+        try
+        {
+            // Check for invalid characters
+            char[] invalidChars = Path.GetInvalidPathChars();
+            if (filePath.Any(ch => invalidChars.Contains(ch)))
+            {
+                return false;
+            }
+
+            // Check for additional platform-specific constraints
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                // Windows-specific rules
+                if (filePath.Length > 260) // Max path length in many cases
+                {
+                    return false;
+                }
+
+                string directoryName = Path.GetDirectoryName(filePath) ?? string.Empty;
+                string fileName = Path.GetFileName(filePath);
+
+                if (directoryName.Any(ch => Path.GetInvalidPathChars().Contains(ch)) ||
+                    fileName.Any(ch => Path.GetInvalidFileNameChars().Contains(ch)))
+                {
+                    return false;
+                }
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) || RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                // Unix-like systems allow almost any characters except '\0' and '/'
+                if (filePath.Contains('\0') || filePath.Any(ch => ch == '/'))
+                {
+                    return false;
+                }
+            }
+
+            // Ensure it's a valid absolute or relative path
+            string fullPath = Path.GetFullPath(filePath);
+        }
+        catch
+        {
+            return false; // Any exception indicates an invalid path
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    /// Checks if the file path is valid and whether the file exists.
+    /// </summary>
+    /// <param name="filePath">The file path to validate and check for existence.</param>
+    /// <returns>True if the path is valid and the file exists; otherwise, false.</returns>
+    public static bool IsFilePathValidAndExists(string filePath)
+    {
+        return IsValidFilePath(filePath) && File.Exists(filePath);
+    }
     /// <summary>
     /// Searches for the specified executable name in predefined directories.
     /// </summary>

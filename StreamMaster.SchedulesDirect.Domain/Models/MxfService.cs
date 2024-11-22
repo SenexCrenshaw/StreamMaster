@@ -9,7 +9,7 @@ public class MxfService
     private int _index;
     private string? _affiliate;
     private string? _logoImage;
-    public string? UidOverride;
+    //public string? UidOverride;
     public MxfAffiliate? mxfAffiliate;
     public MxfGuideImage? mxfGuideImage;
     public MxfScheduleEntries MxfScheduleEntries;
@@ -37,11 +37,7 @@ public class MxfService
     /// An ID that uniquely identifies the service.
     /// Should be of the form "!Service!name", where name is the value of the name attribute.
     /// </summary>
-    public string Uid
-    {
-        get => UidOverride ?? $"!Service!{StationId}";
-        set => UidOverride = value;
-    }
+    public string Uid => $"!Service!{StationId}";
 
     /// <summary>
     /// The display name of the service.

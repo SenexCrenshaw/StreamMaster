@@ -73,11 +73,11 @@ public partial class XmlTvToXMLTV()
     //        }
 
     //        // add station logo if present
-    //        if (!mxfService.extras.ContainsKey("logo") && channel.Icons.Count > 0)
+    //        if (!mxfService.Extras.ContainsKey("logo") && channel.Icons.Count > 0)
     //        {
     //            mxfService.mxfGuideImage = schedulesDirectData.FindOrCreateGuideImage(channel.Icons[0].Src);
 
-    //            mxfService.extras.TryAdd("logo", new StationImage
+    //            mxfService.Extras.TryAdd("logo", new StationImage
     //            {
     //                Url = channel.Icons[0].Src,
     //            });
@@ -746,7 +746,7 @@ public partial class XmlTvToXMLTV()
             Height = arg.Height
         });
 
-        mxfProgram.extras.AddOrUpdate("artwork", artworks);
+        mxfProgram.Extras.AddOrUpdate("artwork", artworks);
 
         //mxfProgram.mxfGuideImage = schedulesDirectData.FindOrCreateGuideImage(xmltvProgramme.Icons[0].Src);
     }

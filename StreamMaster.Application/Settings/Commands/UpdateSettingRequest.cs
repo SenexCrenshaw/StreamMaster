@@ -49,15 +49,15 @@ public partial class UpdateSettingRequestHandler(
             destination.AlternateLogoStyle = source.AlternateLogoStyle;
         }
 
-        if (source.SeriesPosterArt.HasValue)
-        {
-            destination.SeriesPosterArt = source.SeriesPosterArt.Value;
-        }
+        //if (source.SeriesPosterArt.HasValue)
+        //{
+        //    destination.SeriesPosterArt = source.SeriesPosterArt.Value;
+        //}
 
-        if (source.SeriesWsArt.HasValue)
-        {
-            destination.SeriesWsArt = source.SeriesWsArt.Value;
-        }
+        //if (source.SeriesWsArt.HasValue)
+        //{
+        //    destination.SeriesWsArt = source.SeriesWsArt.Value;
+        //}
 
         if (source.SeriesPosterAspect != null)
         {
@@ -134,10 +134,21 @@ public partial class UpdateSettingRequestHandler(
             destination.SDStationIds = [.. source.SDStationIds];
         }
 
-        if (source.SeasonEventImages.HasValue)
+        if (source.SeasonImages.HasValue)
         {
-            destination.SeasonEventImages = source.SeasonEventImages.Value;
+            destination.SeasonImages = source.SeasonImages.Value;
         }
+
+        if (source.SeasonImages.HasValue)
+        {
+            destination.SeasonImages = source.SeasonImages.Value;
+        }
+
+        if (source.SportsImages.HasValue)
+        {
+            destination.SportsImages = source.SportsImages.Value;
+        }
+
 
         if (source.XmltvAddFillerData.HasValue)
         {
@@ -186,7 +197,7 @@ public partial class UpdateSettingRequestHandler(
                 "cache" => "Cache",
                 _ => "None",
             };
-            await logoService.BuildLogosCacheFromSMStreamsAsync(CancellationToken.None);
+            _ = await logoService.BuildLogosCacheFromSMStreamsAsync(CancellationToken.None);
         }
 
         if (request.Parameters.CleanURLs.HasValue)

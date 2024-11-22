@@ -11,27 +11,27 @@ public partial class SchedulesDirect
 
     //private void UpdateMovieIcons(List<MxfProgram> mxfPrograms)
     //{
-    //    foreach (MxfProgram? prog in mxfPrograms.Where(a => a.extras.ContainsKey("artwork")))
+    //    foreach (MxfProgram? prog in mxfPrograms.Where(a => a.Extras.ContainsKey("artwork")))
     //    {
-    //        List<ProgramArtwork> artwork = prog.extras["artwork"];
+    //        List<ProgramArtwork> artwork = prog.Extras["artwork"];
     //        UpdateIcons(artwork.Select(a => a.Uri), prog.Title);
     //    }
     //}
 
     //private void UpdateIcons(List<MxfProgram> mxfPrograms)
     //{
-    //    foreach (MxfProgram? prog in mxfPrograms.Where(a => a.extras.ContainsKey("artwork")))
+    //    foreach (MxfProgram? prog in mxfPrograms.Where(a => a.Extras.ContainsKey("artwork")))
     //    {
-    //        List<ProgramArtwork> artwork = prog.extras["artwork"];
+    //        List<ProgramArtwork> artwork = prog.Extras["artwork"];
     //        UpdateIcons(artwork.Select(a => a.Uri), prog.Title);
     //    }
     //}
 
     //private void UpdateSeasonIcons(List<Season> mxfSeasons)
     //{
-    //    foreach (Season? prog in mxfSeasons.Where(a => a.extras.ContainsKey("artwork")))
+    //    foreach (Season? prog in mxfSeasons.Where(a => a.Extras.ContainsKey("artwork")))
     //    {
-    //        List<ProgramArtwork> artwork = prog.extras["artwork"];
+    //        List<ProgramArtwork> artwork = prog.Extras["artwork"];
     //        UpdateIcons(artwork.Select(a => a.Uri), prog.Title);
     //    }
     //}

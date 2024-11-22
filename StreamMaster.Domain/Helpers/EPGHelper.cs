@@ -30,28 +30,28 @@ public partial class EPGHelper() : IEPGHelper
             : ((int epgNumber, string stationId))(epgNumber, matches[0].Groups[2].Value);
     }
 
-    public bool IsDummy(string? user_tvg_id)
-    {
-        if (string.IsNullOrEmpty(user_tvg_id))
-        {
-            return true;
-        }
+    //public bool IsDummy(string? user_tvg_id)
+    //{
+    //    if (string.IsNullOrEmpty(user_tvg_id))
+    //    {
+    //        return true;
+    //    }
 
-        if (user_tvg_id.StartsWith($"{DummyId}-"))
-        {
-            return true;
-        }
+    //    if (user_tvg_id.StartsWith($"{DummyId}-"))
+    //    {
+    //        return true;
+    //    }
 
-        //
-        //bool test = IsValidEPGId(user_tvg_id);
-        //return test || Regex.IsMatch(user_tvg_id, setting.DummyRegex, RegexOptions.IgnoreCase) || !string.IsNullOrEmpty(user_tvg_id);
-        return false;
-    }
+    //    //
+    //    //bool test = IsValidEPGId(user_tvg_id);
+    //    //return test || Regex.IsMatch(user_tvg_id, setting.DummyRegex, RegexOptions.IgnoreCase) || !string.IsNullOrEmpty(user_tvg_id);
+    //    return false;
+    //}
 
-    public bool IsDummy(int epgNumber)
-    {
-        return epgNumber == DummyId;
-    }
+    //public bool IsDummy(int epgNumber)
+    //{
+    //    return epgNumber == DummyId;
+    //}
 
     public bool IsSchedulesDirect(int epgNumber)
     {

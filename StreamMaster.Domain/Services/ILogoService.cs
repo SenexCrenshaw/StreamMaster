@@ -8,7 +8,8 @@ namespace StreamMaster.Domain.Services
     /// </summary>
     public interface ILogoService
     {
-        List<XmltvProgramme> GetXmltvProgrammeForPeriod(StationChannelName stationChannelName, DateTime startDate, int days, string baseUrl);
+        string GetLogoUrl2(string logoSource, SMFileTypes logoType);
+        List<XmltvProgramme> GetXmltvProgrammeForPeriod(VideoStreamConfig videoStreamConfig, DateTime startDate, int days, string baseUrl);
         /// <summary>
         /// Adds a new logo based on the specified artwork URI and title.
         /// </summary>
@@ -64,7 +65,7 @@ namespace StreamMaster.Domain.Services
         /// <param name="iconSource">The source of the icon.</param>
         /// <param name="baseUrl">The base URL to prepend to the icon source.</param>
         /// <returns>The full URL of the logo.</returns>
-        string GetLogoUrl(string iconSource, string baseUrl);
+        string GetLogoUrl(string logoSource, string baseUrl, SMStreamTypeEnum smStream);
 
         /// <summary>
         /// Retrieves a list of TV logos.
@@ -78,7 +79,7 @@ namespace StreamMaster.Domain.Services
         /// <param name="URL">The URL of the image.</param>
         /// <param name="fileType">The type of the file. If null, the file type is determined automatically.</param>
         /// <returns>The valid <see cref="ImagePath"/>, or null if not found.</returns>
-        ImagePath? GetValidImagePath(string URL, SMFileTypes? fileType = null);
+        ImagePath? GetValidImagePath(string baseURL, SMFileTypes fileType, bool? checkExists = true);
 
         /// <summary>
         /// Reads the directory containing TV logos asynchronously.

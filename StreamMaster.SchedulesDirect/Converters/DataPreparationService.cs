@@ -45,7 +45,7 @@ namespace StreamMaster.SchedulesDirect.Converters
 
             foreach (SeriesInfo seriesInfo in schedulesDirectDataService.AllSeriesInfos)
             {
-                _seriesDict.TryAdd(seriesInfo.Index, seriesInfo);
+                _ = _seriesDict.TryAdd(seriesInfo.Index, seriesInfo);
             }
 
             _keywordDict = new ConcurrentDictionary<string, string>(
@@ -279,7 +279,7 @@ namespace StreamMaster.SchedulesDirect.Converters
                     Description = title,
                     IsGeneric = true
                 };
-                _programsByTitle.TryAdd(programId, existingProgram);
+                _ = _programsByTitle.TryAdd(programId, existingProgram);
             }
 
             return existingProgram;

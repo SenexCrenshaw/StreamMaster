@@ -1,9 +1,4 @@
-﻿using System.Collections.Concurrent;
-using System.Linq.Expressions;
-using System.Reflection;
-using System.Text;
-
-using Microsoft.AspNetCore.Http;
+﻿using System.Text;
 
 namespace StreamMaster.Application.StreamGroups.Queries;
 
@@ -17,7 +12,7 @@ public class EncodedData
     public string CleanName { get; set; } = string.Empty;
 }
 
-public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
+public class GetStreamGroupM3UHandler(
     IProfileService profileService,
     IStreamGroupService streamGroupService,
     ILogoService logoService,
@@ -26,32 +21,18 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
     : IRequestHandler<GetStreamGroupM3U, string>
 {
     private const string DefaultReturn = "#EXTM3U\r\n";
-    private readonly ConcurrentDictionary<int, bool> chNos = new();
-
 
     [LogExecutionTimeAspect]
     public async Task<string> Handle(GetStreamGroupM3U request, CancellationToken cancellationToken)
     {
-        if (httpContextAccessor.HttpContext?.Request?.Path.Value == null)
-        {
-            return DefaultReturn;
-        }
 
         Setting settings = _settings.CurrentValue;
-        string url = httpContextAccessor.GetUrl();
 
         StreamGroup? streamGroup = await streamGroupService.GetStreamGroupFromSGProfileIdAsync(request.StreamGroupProfileId);
         if (streamGroup == null)
         {
             return "";
         }
-
-        //List<SMChannel> smChannels = (await Repository.SMChannel.GetSMChannelsFromStreamGroup(streamGroup.Id)).Where(a => !a.IsHidden).ToList();
-
-        //if (smChannels.Count == 0)
-        //{
-        //    return DefaultReturn;
-        //}
 
         (List<VideoStreamConfig> videoStreamConfigs, StreamGroupProfile streamGroupProfile) = await streamGroupService.GetStreamGroupVideoConfigsAsync(request.StreamGroupProfileId);
 
@@ -60,28 +41,7 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
             return string.Empty;
         }
 
-        OutputProfileDto outputProfile = profileService.GetOutputProfile(streamGroupProfile.OutputProfileName);
-
-        //ConcurrentBag<EncodedData> encodedData = [];
-
-        //Parallel.ForEach(smChannels, smChannel =>
-        //{
-        //    string? encodedString = streamGroupService.EncodeStreamGroupIdProfileIdChannelId(streamGroup, streamGroupProfile.Id, smChannel.Id);
-        //    if (string.IsNullOrEmpty(encodedString))
-        //    {
-        //        return;
-        //    }
-        //    string cleanName = smChannel.Name.ToCleanFileString();
-
-        //    EncodedData data = new()
-        //    {
-        //        SMChannel = smChannel,
-        //        EncodedString = encodedString,
-        //        CleanName = cleanName
-        //    };
-
-        //    encodedData.Add(data);
-        //});
+        //OutputProfileDto outputProfile = profileService.GetOutputProfile(streamGroupProfile.OutputProfileName);
 
         var videoStreamData = videoStreamConfigs
             .AsParallel()
@@ -108,77 +68,15 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
 
         return ret.ToString();
     }
-    private int GetNextChNo(int baseChNo)
-    {
-        int newChNo = baseChNo;
-
-        while (chNos.ContainsKey(newChNo))
-        {
-            newChNo++;
-        }
-
-        chNos[newChNo] = true;
-
-        return newChNo;
-    }
-
-    private OutputProfile UpdateProfile(VideoStreamConfig videoStreamConfig)
-    {
-        //semaphore.Wait();
-
-        try
-        {
-            OutputProfile outputProfile = videoStreamConfig.OutputProfile!.DeepCopy();
-
-            videoStreamConfig.ChannelNumber = GetNextChNo(videoStreamConfig.ChannelNumber);
-
-            UpdateProperty(videoStreamConfig, outputProfile, p => p.Name);
-            UpdateProperty(videoStreamConfig, outputProfile, p => p.Group);
-            UpdateProperty(videoStreamConfig, outputProfile, p => p.Id);
-
-            return outputProfile;
-        }
-        finally
-        {
-            //_ = semaphore.Release();
-        }
-    }
-
-    private static void UpdateProperty<T>(VideoStreamConfig videoStreamConfig, OutputProfile outputProfile, Expression<Func<OutputProfile, T>> propertySelector)
-    {
-        if (propertySelector.Body is MemberExpression memberExpression)
-        {
-            T? profileValue = propertySelector.Compile()(outputProfile);
-
-            if (Enum.TryParse<ValidM3USetting>(profileValue?.ToString(), out ValidM3USetting setting))
-            {
-                if (setting != ValidM3USetting.NotMapped)
-                {
-                    PropertyInfo? smChannelProperty = typeof(SMChannel).GetProperty(setting.ToString());
-                    if (smChannelProperty != null)
-                    {
-                        object? newValue = smChannelProperty.GetValue(outputProfile);
-                        if (newValue != null)
-                        {
-                            PropertyInfo? profileProperty = typeof(OutputProfile).GetProperty(memberExpression.Member.Name);
-                            profileProperty?.SetValue(outputProfile, newValue.ToString());
-                        }
-                    }
-                }
-            }
-        }
-    }
 
     private (int ChNo, string m3uLine) BuildM3ULineForVideoStream(VideoStreamConfig videoStreamConfig)
     {
-        if (string.IsNullOrEmpty(videoStreamConfig.EncodedString) || string.IsNullOrEmpty(videoStreamConfig.CleanName))
+        if (videoStreamConfig.OutputProfile is null || string.IsNullOrEmpty(videoStreamConfig.EncodedString) || string.IsNullOrEmpty(videoStreamConfig.CleanName))
         {
             return (0, "");
         }
 
-        OutputProfile outputProfile = UpdateProfile(videoStreamConfig);
-
-        string logo = logoService.GetLogoUrl(videoStreamConfig.Logo, videoStreamConfig.BaseUrl);
+        string logo = logoService.GetLogoUrl(videoStreamConfig.Logo, videoStreamConfig.BaseUrl, SMStreamTypeEnum.Regular);
         videoStreamConfig.Logo = logo;
 
         string videoUrl = videoStreamConfig.IsShort
@@ -187,16 +85,16 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
 
         List<string> fieldList = ["#EXTINF:-1"];
 
-        if (outputProfile.Id != nameof(ValidM3USetting.NotMapped))
+        if (videoStreamConfig.OutputProfile.Id != nameof(ValidM3USetting.NotMapped))
         {
-            fieldList.Add($"CUID=\"{outputProfile.Id}\"");
-            fieldList.Add($"channel-id=\"{outputProfile.Id}\"");
-            fieldList.Add($"tvg-id=\"{outputProfile.Id}\"");
+            fieldList.Add($"CUID=\"{videoStreamConfig.OutputProfile.Id}\"");
+            fieldList.Add($"channel-id=\"{videoStreamConfig.OutputProfile.Id}\"");
+            fieldList.Add($"tvg-id=\"{videoStreamConfig.OutputProfile.Id}\"");
         }
 
-        if (outputProfile.Name != nameof(ValidM3USetting.NotMapped))
+        if (videoStreamConfig.OutputProfile.Name != nameof(ValidM3USetting.NotMapped))
         {
-            fieldList.Add($"tvg-name=\"{outputProfile.Name}\"");
+            fieldList.Add($"tvg-name=\"{videoStreamConfig.OutputProfile.Name}\"");
         }
 
         if (!string.IsNullOrEmpty(videoStreamConfig.StationId))
@@ -204,18 +102,18 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
             fieldList.Add($"tvc-guide-stationid=\"{videoStreamConfig.StationId}\"");
         }
 
-        if (outputProfile.Group != nameof(ValidM3USetting.NotMapped))
+        if (videoStreamConfig.OutputProfile.Group != nameof(ValidM3USetting.NotMapped))
         {
             fieldList.Add($"tvg-group=\"{videoStreamConfig.Group}\"");
         }
 
-        if (outputProfile.EnableChannelNumber)
+        if (videoStreamConfig.OutputProfile.EnableChannelNumber)
         {
             fieldList.Add($"tvg-chno=\"{videoStreamConfig.ChannelNumber}\"");
             fieldList.Add($"channel-number=\"{videoStreamConfig.ChannelNumber}\"");
         }
 
-        if (outputProfile.EnableGroupTitle)
+        if (videoStreamConfig.OutputProfile.EnableGroupTitle)
         {
             if (!string.IsNullOrEmpty(videoStreamConfig.GroupTitle))
             {
@@ -223,11 +121,11 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,
             }
             else
             {
-                fieldList.Add($"group-title=\"{outputProfile.Group}\"");
+                fieldList.Add($"group-title=\"{videoStreamConfig.OutputProfile.Group}\"");
             }
         }
 
-        if (outputProfile.EnableIcon)
+        if (videoStreamConfig.OutputProfile.EnableIcon)
         {
             fieldList.Add($"tvg-logo=\"{videoStreamConfig.Logo}\"");
         }

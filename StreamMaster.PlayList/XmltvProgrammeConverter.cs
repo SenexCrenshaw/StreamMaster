@@ -7,14 +7,14 @@ namespace StreamMaster.PlayList;
 
 public static class XmltvProgrammeConverter
 {
-    public static XmltvProgramme ConvertMovieToXmltvProgramme(Movie movie, string channelId)
+    public static XmltvProgramme ConvertMovieToXmltvProgramme(Movie movie, string channelId, DateTime StartTime, DateTime EndTime)
     {
         XmltvProgramme programme = new()
         {
             Titles = [new XmltvText { Text = movie.Title }],
             Descriptions = [new XmltvText { Text = movie.Plot }],
-            Start = FormatDateTime(movie.Premiered),
-            Stop = FormatDateTime(movie.Premiered, movie.Runtime),
+            Start = FormatDateTime(StartTime),
+            Stop = FormatDateTime(EndTime),
             Channel = channelId,
             Categories = movie.Genres?.ConvertAll(g => new XmltvText { Text = g }),
             Countries = [new() { Text = movie.Country }],
@@ -40,16 +40,9 @@ public static class XmltvProgrammeConverter
         return programme;
     }
 
-    private static string FormatDateTime(string premiered, int? runtime = null)
+    private static string FormatDateTime(DateTime dateTime)
     {
-        if (DateTime.TryParse(premiered, out DateTime premiereDate))
-        {
-            if (runtime.HasValue)
-            {
-                premiereDate = premiereDate.AddMinutes(runtime.Value);
-            }
-            return premiereDate.ToString("yyyyMMddHHmmss K", CultureInfo.InvariantCulture);
-        }
-        return string.Empty;
+        return dateTime.ToString("yyyyMMddHHmmss +0000", CultureInfo.InvariantCulture);
     }
+
 }

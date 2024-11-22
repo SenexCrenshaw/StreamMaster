@@ -225,11 +225,11 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, IRepository
     //        existingStream.EPGID = stream.EPGID;
     //    }
 
-    //    if (existingStream.Logo != stream.Logo)
+    //    if (existingStream.SMLogoUrl != stream.SMLogoUrl)
     //    {
     //        changed = true;
 
-    //        existingStream.Logo = stream.Logo;
+    //        existingStream.SMLogoUrl = stream.SMLogoUrl;
     //    }
 
     //    if (existingStream.Url != stream.Url)

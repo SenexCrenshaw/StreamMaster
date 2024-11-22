@@ -1,4 +1,6 @@
-﻿global using AutoMapper;
+﻿global using System.Linq;
+
+global using AutoMapper;
 global using AutoMapper.QueryableExtensions;
 
 global using MediatR;
@@ -7,7 +9,7 @@ global using Microsoft.AspNetCore.SignalR;
 global using Microsoft.EntityFrameworkCore;
 global using Microsoft.Extensions.Logging;
 global using Microsoft.Extensions.Options;
-global using System.Linq;
+
 global using Reinforced.Typings.Attributes;
 
 global using StreamMaster.Application.Common;

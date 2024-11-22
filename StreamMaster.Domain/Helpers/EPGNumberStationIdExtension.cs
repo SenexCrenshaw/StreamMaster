@@ -4,20 +4,39 @@ namespace StreamMaster.Domain.Helpers;
 
 public static partial class EPGNumberStationIdExtension
 {
-    public static (int epgNumber, string stationId) ExtractEPGNumberAndStationId(this string user_tvg_id)
+    /// <summary>
+    /// Extracts the EPG number and station ID from a given string.
+    /// </summary>
+    /// <param name="userTvgId">The input string to parse.</param>
+    /// <returns>
+    /// A tuple containing the EPG number and station ID, or null if parsing fails.
+    /// </returns>
+    public static (int epgNumber, string stationId) ExtractEPGNumberAndStationId(this string userTvgId)
     {
-        if (string.IsNullOrWhiteSpace(user_tvg_id))
+        if (string.IsNullOrWhiteSpace(userTvgId))
         {
-            throw new ArgumentException("Input string cannot be null or whitespace.");
+            return (EPGHelper.DummyId, "Dummy");
         }
 
-        MatchCollection matches = MyRegex().Matches(user_tvg_id);
+        // Define or retrieve your regex here
+        Regex regex = MyRegex();
 
-        return matches.Count == 0 || !matches[0].Success || matches[0].Groups.Count != 3
-            ? throw new FormatException("Input string is not in the expected format.")
-            : !int.TryParse(matches[0].Groups[1].Value, out int epgNumber)
-            ? throw new FormatException("Input string is not in the expected format.")
-            : ((int epgNumber, string stationId))(epgNumber, matches[0].Groups[2].Value);
+        // Match the input string with the regex
+        Match match = regex.Match(userTvgId);
+
+        // Validate the match and parse the values
+        if (!match.Success || match.Groups.Count != 3)
+        {
+            return (EPGHelper.DummyId, userTvgId);
+        }
+
+        if (int.TryParse(match.Groups[1].Value, out int epgNumber))
+        {
+            string stationId = match.Groups[2].Value;
+            return (epgNumber, stationId);
+        }
+
+        return (EPGHelper.DummyId, "Dummy");
     }
 
     [GeneratedRegex(EPGHelper.EPGMatch)]

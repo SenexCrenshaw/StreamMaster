@@ -4,7 +4,7 @@
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record ScanForCustomRequest : IRequest<APIResponse>;
 
-public class ScanForCustomPlayListsRequestHandler(IOptionsMonitor<CommandProfileDict> optionsOutputProfiles, IOptionsMonitor<Setting> _settings, ICacheManager cacheManager,ILogoService logoService, IIntroPlayListBuilder introPlayListBuilder, ICustomPlayListBuilder CustomPlayListBuilder, IRepositoryWrapper Repository)
+public class ScanForCustomPlayListsRequestHandler(IOptionsMonitor<CommandProfileDict> optionsOutputProfiles, ILogoService logoService, IOptionsMonitor<Setting> _settings, ICacheManager cacheManager, IIntroPlayListBuilder introPlayListBuilder, ICustomPlayListBuilder CustomPlayListBuilder, IRepositoryWrapper Repository)
     : IRequestHandler<ScanForCustomRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(ScanForCustomRequest command, CancellationToken cancellationToken)
@@ -28,6 +28,9 @@ public class ScanForCustomPlayListsRequestHandler(IOptionsMonitor<CommandProfile
                 continue;
             }
 
+            string logo = logoService.GetLogoUrl2(customPlayList.Logo, SMFileTypes.CustomPlayListLogo);
+
+
             SMStream smStream = new()
             {
                 Id = id,
@@ -37,7 +40,7 @@ public class ScanForCustomPlayListsRequestHandler(IOptionsMonitor<CommandProfile
                 M3UFileId = EPGHelper.CustomPlayListId,
                 Group = "CustomPlayList",
                 SMStreamType = SMStreamTypeEnum.CustomPlayList,
-                Logo = customPlayList.Logo,
+                Logo = logo,
                 Url = "STREAMMASTER",
                 IsSystem = true,
             };
@@ -55,6 +58,12 @@ public class ScanForCustomPlayListsRequestHandler(IOptionsMonitor<CommandProfile
                 }
 
                 //string? c = await streamGroupService.EncodeStreamGroupIdStreamIdAsync(EPGHelper.CustomPlayListId, streamId);
+                string logo2 = nfo.Movie.Thumb?.Text ?? nfo.Movie.Fanart?.Thumb?.Text ?? customPlayList.Logo;
+
+                if (logo.StartsWith(BuildInfo.CustomPlayListFolder))
+                {
+                    logo = logo.Remove(0, BuildInfo.CustomPlayListFolder.Length);
+                }
 
                 SMStream newStream = new()
                 {
@@ -66,8 +75,12 @@ public class ScanForCustomPlayListsRequestHandler(IOptionsMonitor<CommandProfile
                     Group = "CustomPlayList",
                     SMStreamType = SMStreamTypeEnum.Custom,
                     Url = nfo.VideoFileName,
+                    Logo = logo,
                     IsSystem = true,
                 };
+
+
+
                 Repository.SMStream.Create(newStream);
             }
         }
@@ -153,15 +166,15 @@ public class ScanForCustomPlayListsRequestHandler(IOptionsMonitor<CommandProfile
 
     private void AddIcon(CustomPlayList customPlayList)
     {
-        if (!string.IsNullOrEmpty(customPlayList.Logo))
-        {
-            LogoFileDto iconFileDto = new()
-            {
-                Name = customPlayList.Name,
-                Source = customPlayList.Logo,
-                SMFileType = SMFileTypes.CustomPlayList
-            };
-            logoService.AddLogo(iconFileDto);
-        }
+        //if (!string.IsNullOrEmpty(customPlayList.SMLogoUrl))
+        //{
+        //    LogoFileDto iconFileDto = new()
+        //    {
+        //        Name = customPlayList.Name,
+        //        Source = customPlayList.SMLogoUrl,
+        //        SMFileType = SMFileTypes.CustomPlayList
+        //    };
+        //    logoService.AddLogo(iconFileDto);
+        //}
     }
 }

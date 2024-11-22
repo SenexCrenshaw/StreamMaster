@@ -21,7 +21,7 @@ public class MxfProgram
     [XmlIgnore] public List<MxfKeyword> mxfKeywords = [];
     [XmlIgnore] public bool IsAdultOnly;
 
-    [XmlIgnore] public Dictionary<string, dynamic> extras = [];
+    [XmlIgnore] public Dictionary<string, dynamic> Extras = [];
 
     public MxfProgram(int index, string programId)
     {
@@ -128,7 +128,7 @@ public class MxfProgram
     {
         get => _originalAirDate is null
                 ? null
-                : !IsGeneric && extras.ContainsKey("newAirDate")
+                : !IsGeneric && Extras.ContainsKey("newAirDate")
                 ? FormatNewAirDate()
                 : FormatOriginalAirDate();
 
@@ -144,7 +144,7 @@ public class MxfProgram
     }
     private string? FormatNewAirDate()
     {
-        return extras.TryGetValue("newAirDate", out dynamic? newAirDate) && newAirDate is DateTime newAirDateValue
+        return Extras.TryGetValue("newAirDate", out dynamic? newAirDate) && newAirDate is DateTime newAirDateValue
             ? newAirDateValue.ToString("yyyy-MM-dd")
             : null;
     }

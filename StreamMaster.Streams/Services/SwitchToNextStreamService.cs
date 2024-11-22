@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
 using StreamMaster.Domain.Enums;
-
 using StreamMaster.PlayList.Models;
 
 namespace StreamMaster.Streams.Services;

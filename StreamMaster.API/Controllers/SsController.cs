@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Mvc;
 
 using StreamMaster.Application.Common.Extensions;
 using StreamMaster.Application.StreamGroups.Queries;
-using StreamMaster.SchedulesDirect.Domain.Models;
 
 namespace StreamMaster.API.Controllers;
 

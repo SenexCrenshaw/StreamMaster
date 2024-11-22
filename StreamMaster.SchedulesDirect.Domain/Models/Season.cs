@@ -18,7 +18,7 @@ public class Season
     [XmlIgnore] public SeriesInfo? mxfSeriesInfo;
     [XmlIgnore] public bool HideSeasonTitle;
 
-    [XmlIgnore] public Dictionary<string, dynamic> extras = [];
+    [XmlIgnore] public Dictionary<string, dynamic> Extras = [];
 
     public Season(int index, SeriesInfo seriesInfo, int seasonNumber, string? protoTypicalProgram)
     {

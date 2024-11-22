@@ -1,37 +1,37 @@
-﻿using StreamMaster.Domain.Dto;
+﻿using System.Collections.Concurrent;
+
+using StreamMaster.Domain.Dto;
 using StreamMaster.SchedulesDirect.Domain.Interfaces;
 using StreamMaster.SchedulesDirect.Domain.JsonClasses;
-
-using System.Collections.Concurrent;
 
 namespace StreamMaster.Infrastructure.Services.Downloads
 {
     public class ImageDownloadQueue : IImageDownloadQueue
     {
-        private readonly ConcurrentDictionary<string, ProgramMetadata> programMetadataQueue = new();
+        private readonly ConcurrentDictionary<string, ProgramArtwork> ProgramArtworkQueue = new();
         private readonly ConcurrentDictionary<string, NameLogo> nameLogoQueue = new();
 
-        public void EnqueueProgramMetadata(ProgramMetadata metadata)
+        public void EnqueueProgramArtwork(ProgramArtwork metadata)
         {
-            programMetadataQueue.TryAdd(metadata.ProgramId, metadata);
+            _ = ProgramArtworkQueue.TryAdd(metadata.Uri, metadata);
         }
 
         public void EnqueueNameLogo(NameLogo nameLogo)
         {
-            nameLogoQueue.TryAdd(nameLogo.Name, nameLogo);
+            _ = nameLogoQueue.TryAdd(nameLogo.Name, nameLogo);
         }
 
-        public void EnqueueProgramMetadataCollection(IEnumerable<ProgramMetadata> metadataCollection)
+        public void EnqueueProgramArtworkCollection(IEnumerable<ProgramArtwork> metadataCollection)
         {
-            foreach (ProgramMetadata metadata in metadataCollection)
+            foreach (ProgramArtwork metadata in metadataCollection)
             {
-                programMetadataQueue.TryAdd(metadata.ProgramId, metadata);
+                _ = ProgramArtworkQueue.TryAdd(metadata.Uri, metadata);
             }
         }
 
-        public List<ProgramMetadata> GetNextProgramMetadataBatch(int batchSize)
+        public List<ProgramArtwork> GetNextProgramArtworkBatch(int batchSize)
         {
-            return programMetadataQueue.Take(batchSize).Select(x => x.Value).ToList();
+            return ProgramArtworkQueue.Take(batchSize).Select(x => x.Value).ToList();
         }
 
         public List<NameLogo> GetNextNameLogoBatch(int batchSize)
@@ -39,11 +39,11 @@ namespace StreamMaster.Infrastructure.Services.Downloads
             return nameLogoQueue.Take(batchSize).Select(x => x.Value).ToList();
         }
 
-        public void TryDequeueProgramMetadataBatch(IEnumerable<string> ids)
+        public void TryDequeueProgramArtworkBatch(IEnumerable<string> ids)
         {
             foreach (string id in ids)
             {
-                programMetadataQueue.TryRemove(id, out _);
+                _ = ProgramArtworkQueue.TryRemove(id, out _);
             }
         }
 
@@ -51,16 +51,16 @@ namespace StreamMaster.Infrastructure.Services.Downloads
         {
             foreach (string name in names)
             {
-                nameLogoQueue.TryRemove(name, out _);
+                _ = nameLogoQueue.TryRemove(name, out _);
             }
         }
 
-        public int ProgramMetadataCount => programMetadataQueue.Count;
+        public int ProgramArtworkCount => ProgramArtworkQueue.Count;
         public int NameLogoCount => nameLogoQueue.Count;
 
-        public bool IsProgramMetadataQueueEmpty()
+        public bool IsProgramArtworkQueueEmpty()
         {
-            return programMetadataQueue.IsEmpty;
+            return ProgramArtworkQueue.IsEmpty;
         }
 
         public bool IsNameLogoQueueEmpty()

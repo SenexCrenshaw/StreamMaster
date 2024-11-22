@@ -270,7 +270,7 @@ else
 
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseMiddleware<CacheHeaderMiddleware>();
+//app.UseMiddleware<CacheHeaderMiddleware>();
 
 //if (app.Environment.IsDevelopment())
 //{

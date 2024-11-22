@@ -23,7 +23,7 @@ public static partial class SDHelpers
             const int tgtWidth = 360;
             const int tgtHeight = 270;
 
-            // Set target aspect/image size
+            // Set target asp/image size
             const double tgtAspect = 3.0;
 
             // Find the min/max non-transparent pixels
@@ -73,7 +73,7 @@ public static partial class SDHelpers
             //var cropImg = new Image<Rgba32>(new Configuration(), cropRectangle.Width, cropRectangle.Height + (offsetY * 2));
             Image<Rgba32> cropImg = origImg.Clone(ctx =>
             {
-                ctx.Resize(new ResizeOptions
+                _ = ctx.Resize(new ResizeOptions
                 {
                     Size = new Size(tgtWidth, tgtHeight),//cropRectangle.Width, cropRectangle.Height),
                     Mode = ResizeMode.Crop
@@ -110,15 +110,15 @@ public static partial class SDHelpers
     {
         List<ProgramArtwork> artwork = [];
         // a movie or sport event will have a guide image from the program
-        if (program.extras.TryGetValue("artwork", out dynamic? value))
+        if (program.Extras.TryGetValue("artwork", out dynamic? value))
         {
             artwork = value;
         }
 
         // get the season class from the program if it has a season
-        if (artwork.Count == 0 && (program.mxfSeason?.extras.ContainsKey("artwork") ?? false))
+        if (artwork.Count == 0 && (program.mxfSeason?.Extras.ContainsKey("artwork") ?? false))
         {
-            artwork = program.mxfSeason.extras["artwork"];
+            artwork = program.mxfSeason.Extras["artwork"];
         }
 
         // get the series info class from the program if it is a series
@@ -129,7 +129,7 @@ public static partial class SDHelpers
         return artwork;
     }
 
-    public static List<ProgramArtwork> GetTieredImages(List<ProgramArtwork> sdImages, List<string> tiers, string artWorkSize)
+    public static List<ProgramArtwork> GetTieredImages(List<ProgramArtwork> sdImages, List<string> tiers, string artWorkSize, string aspect)
     {
         List<string> Tiers = sdImages.Select(a => a.Tier).Distinct().ToList();
         List<string> Sizes = sdImages.Select(a => a.Size).Distinct().ToList();
@@ -137,10 +137,10 @@ public static partial class SDHelpers
         List<ProgramArtwork> ret = [];
         IEnumerable<ProgramArtwork> images = sdImages.Where(arg =>
             !string.IsNullOrEmpty(arg.Category) && !string.IsNullOrEmpty(arg.Aspect) && !string.IsNullOrEmpty(arg.Uri) &&
-            (string.IsNullOrEmpty(arg.Tier) || tiers.Contains(arg.Tier.ToLower())) &&
-            !string.IsNullOrEmpty(arg.Size) && arg.Size.Equals(artWorkSize, StringComparison.InvariantCultureIgnoreCase));
+            (string.IsNullOrEmpty(arg.Tier) || tiers.Contains(arg.Tier.ToLower())) && aspect.EqualsIgnoreCase(arg.Aspect) &&
+            !string.IsNullOrEmpty(arg.Size) && arg.Size.Equals(artWorkSize, StringComparison.OrdinalIgnoreCase));
 
-        // get the aspect ratios available and fix the URI
+        // get the asp ratios available and fix the URI
         ConcurrentHashSet<string> aspects = [];
         foreach (ProgramArtwork? image in images)
         {
@@ -151,10 +151,10 @@ public static partial class SDHelpers
             //}
         }
 
-        // determine which image to return with each aspect
-        foreach (string aspect in aspects)
+        // determine which image to return with each asp
+        foreach (string asp in aspects)
         {
-            IEnumerable<ProgramArtwork> imgAspects = images.Where(arg => arg.Aspect.Equals(aspect));
+            IEnumerable<ProgramArtwork> imgAspects = images.Where(arg => arg.Aspect.Equals(asp));
 
             ProgramArtwork[] links = new ProgramArtwork[11];
             foreach (ProgramArtwork? image in imgAspects)
@@ -203,7 +203,7 @@ public static partial class SDHelpers
                         }
 
                         break;
-                    case "banner-lo":   // banner with Logo Only
+                    case "banner-lo":   // banner with SMLogoUrl Only
                         if (links[6] == null)
                         {
                             links[6] = image;
@@ -225,7 +225,7 @@ public static partial class SDHelpers
 
                         break;
                     case "iconic":      // representative series/season/episode image, no text
-                        if (tiers.Contains("series") && links[9] == null)
+                        if (links[9] == null)
                         {
                             links[9] = image;
                         }
@@ -239,7 +239,7 @@ public static partial class SDHelpers
 
                         break;
                     case "banner-l1t":
-                    case "banner-lot":  // banner with Logo Only + Text indicating season number
+                    case "banner-lot":  // banner with SMLogoUrl Only + Text indicating season number
                         break;
                 }
             }
@@ -282,7 +282,7 @@ public static partial class SDHelpers
                 return true;
             }
 
-            if (text.EqualsIgnoreCase(text))
+            if (str.EqualsIgnoreCase(text))
             {
                 return true;
             }

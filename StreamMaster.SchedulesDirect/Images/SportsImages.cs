@@ -1,16 +1,14 @@
 ﻿using System.Collections.Concurrent;
 using System.Text.Json;
-
 namespace StreamMaster.SchedulesDirect.Images;
 
 public class SportsImages(
     ILogger<SportsImages> logger,
     IEPGCache<SportsImages> epgCache,
     IImageDownloadQueue imageDownloadQueue,
-    IOptionsMonitor<SDSettings> intSettings,
+    IOptionsMonitor<SDSettings> sdSettings,
     ISchedulesDirectAPIService schedulesDirectAPI) : ISportsImages, IDisposable
 {
-    private readonly SDSettings sdsettings = intSettings.CurrentValue;
     private readonly SemaphoreSlim semaphore = new(SchedulesDirect.MaxParallelDownloads);
 
     public List<MxfProgram> SportEvents { get; set; } = [];
@@ -20,7 +18,7 @@ public class SportsImages(
 
     public async Task<bool> GetAllSportsImages()
     {
-        if (!sdsettings.SeasonEventImages)
+        if (!sdSettings.CurrentValue.SportsImages)
         {
             return true;
         }
@@ -29,7 +27,7 @@ public class SportsImages(
 
         foreach (MxfProgram sportEvent in SportEvents)
         {
-            if (sportEvent.extras.TryGetValue("md5", out dynamic? md5))
+            if (sportEvent.Extras.TryGetValue("md5", out dynamic? md5))
             {
                 if (epgCache.JsonFiles.TryGetValue(md5, out EPGJsonCache? cachedFile))
                 {
@@ -53,8 +51,9 @@ public class SportsImages(
         }
 
         logger.LogInformation("Exiting GetAllSportsImages(). SUCCESS.");
-        ResetCache();
+        //ResetCache();
         epgCache.SaveCache();
+        ClearCache();
         return true;
     }
 
@@ -69,7 +68,7 @@ public class SportsImages(
         if (artwork != null)
         {
             // Add artwork to the program
-            sportEvent.extras.AddOrUpdate("artwork", artwork);
+            sportEvent.Extras.AddOrUpdate("artwork", artwork);
             MxfGuideImage? guideImages = epgCache.GetGuideImageAndUpdateCache(artwork, ImageType.Program);
             if (guideImages is not null)
             {
@@ -93,24 +92,24 @@ public class SportsImages(
                 {
                     int itemCount = Math.Min(sportsImageQueue.Count - startIndex, SchedulesDirect.MaxImgQueries);
                     await schedulesDirectAPI.DownloadImageResponsesAsync(sportsImageQueue, sportsImageResponses, startIndex).ConfigureAwait(false);
-                    Interlocked.Add(ref processedCount, itemCount);
+                    _ = Interlocked.Add(ref processedCount, itemCount);
                     logger.LogInformation("Downloaded sport event images {ProcessedCount} of {TotalCount}", processedCount, sportsImageQueue.Count);
                 }
                 finally
                 {
-                    semaphore.Release();
+                    _ = semaphore.Release();
                 }
             }));
         }
 
         await Task.WhenAll(tasks).ConfigureAwait(false);
         ProcessSportsImageResponses();
-        imageDownloadQueue.EnqueueProgramMetadataCollection(sportsImageResponses);
+        //imageDownloadQueue.EnqueueProgramMetadataCollection(sportsImageResponses);
     }
 
     private void ProcessSportsImageResponses()
     {
-        string artworkSize = string.IsNullOrEmpty(sdsettings.ArtworkSize) ? "Md" : sdsettings.ArtworkSize;
+        string artworkSize = string.IsNullOrEmpty(sdSettings.CurrentValue.ArtworkSize) ? "Md" : sdSettings.CurrentValue.ArtworkSize;
 
         foreach (ProgramMetadata response in sportsImageResponses)
         {
@@ -119,16 +118,43 @@ public class SportsImages(
                 continue;
             }
 
-            MxfProgram? program = SportEvents.FirstOrDefault(arg => arg.ProgramId == response.ProgramId);
-            if (program == null)
+            MxfProgram? mxfProgram = SportEvents.FirstOrDefault(arg => arg.ProgramId == response.ProgramId);
+            if (mxfProgram == null)
             {
                 continue;
             }
+            //List<ProgramArtwork> artworks = SDHelpers.GetTieredImages(response.Data, ["team event", "sport event"], artworkSize, sdSettings.CurrentValue.SeriesPosterAspect);
 
-            List<ProgramArtwork> artwork = SDHelpers.GetTieredImages(response.Data, ["team event", "sport event"], artworkSize);
+            //if (!mxfProgram.Extras.ContainsKey("artwork"))
+            //{
+            //    mxfProgram.Extras["artwork"] = new List<ProgramArtwork>();
+            //}
 
-            program.extras.AddOrUpdate("artwork", artwork);
-            program.mxfGuideImage = epgCache.GetGuideImageAndUpdateCache(artwork, ImageType.Program, program.extras["md5"]);
+            //if (!mxfProgram.Extras.TryGetValue("artwork", out dynamic? value))
+            //{
+            //    mxfProgram.Extras["artwork"] = artworks;
+            //}
+            //else
+            //{
+            //    value.Add(artworks);
+            //}
+
+            if (!mxfProgram.Extras.TryGetValue("artwork", out dynamic? value))
+            {
+                List<ProgramArtwork> artworks = SDHelpers.GetTieredImages(response.Data, ["team event", "sport event"], artworkSize, sdSettings.CurrentValue.SeriesPosterAspect);
+
+                mxfProgram.Extras["artwork"] = artworks;
+            }
+
+
+            if (mxfProgram.Extras["artwork"].Count > 0)
+            {
+                mxfProgram.mxfGuideImage = epgCache.GetGuideImageAndUpdateCache(mxfProgram.Extras["artwork"], ImageType.Program, mxfProgram.Extras["md5"]);
+                imageDownloadQueue.EnqueueProgramArtworkCollection(mxfProgram.Extras["artwork"]);
+            }
+
+            //program.Extras.AddOrUpdate("artwork", artwork);
+
         }
     }
 

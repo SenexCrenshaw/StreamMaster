@@ -10,17 +10,19 @@ namespace StreamMaster.Infrastructure.Services
     {
         public async Task SendError(string message, string? header = null)
         {
+
             Logger.LogError(message);
+
             SendSMErrorRequest request = header is null ? new(Detail: message) : new(Detail: message, Summary: header);
 
-            await sender.Send(request);
+            _ = await sender.Send(request);
         }
         public async Task SendError(string message, Exception? ex)
         {
             Logger.LogError(message);
             SendSMErrorRequest request = new(Detail: message, Summary: ex?.Message ?? "");
 
-            await sender.Send(request);
+            _ = await sender.Send(request);
         }
 
         public async Task SendInfo(string message, string? header = null)
@@ -28,13 +30,13 @@ namespace StreamMaster.Infrastructure.Services
             Logger.LogInformation(message);
             SendSMInfoRequest request = header is null ? new(Detail: message) : new(Detail: message, Summary: header);
 
-            await sender.Send(request);
+            _ = await sender.Send(request);
         }
 
         public async Task SendMessage(SMMessage smMessage)
         {
             SendSMMessageRequest request = new(smMessage);
-            await sender.Send(request);
+            _ = await sender.Send(request);
         }
 
         public async Task SendWarning(string message)
@@ -42,7 +44,7 @@ namespace StreamMaster.Infrastructure.Services
             Logger.LogWarning(message);
             SendSMWarnRequest request = new(Detail: message);
 
-            await sender.Send(request);
+            _ = await sender.Send(request);
         }
 
         public async Task SendSuccess(string message, string? header = null)
@@ -50,7 +52,7 @@ namespace StreamMaster.Infrastructure.Services
             Logger.LogInformation(message);
             SendSuccessRequest request = header is null ? new(Detail: message) : new(Detail: message, Summary: header);
 
-            await sender.Send(request);
+            _ = await sender.Send(request);
         }
     }
 }

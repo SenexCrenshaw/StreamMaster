@@ -33,6 +33,7 @@ public class RepositoryWrapper(
     IOptionsMonitor<CommandProfileDict> intProfileSettings,
     IJobStatusService jobStatusService,
     IFileUtilService fileUtilService,
+     ILogoService logoService,
     IDataRefreshService dataRefreshService,
     IImageDownloadQueue imageDownloadQueue,
     IHttpContextAccessor httpContextAccessor) : IRepositoryWrapper
@@ -83,7 +84,7 @@ public class RepositoryWrapper(
     {
         get
         {
-            _smChannel ??= new SMChannelsRepository(SMChannelLogger, imageDownloadQueue, serviceProvider, this, repositoryContext, mapper, intSettings, intProfileSettings, schedulesDirectDataService);
+            _smChannel ??= new SMChannelsRepository(SMChannelLogger, imageDownloadQueue, logoService, serviceProvider, this, repositoryContext, mapper, intSettings, intProfileSettings, schedulesDirectDataService);
             return _smChannel;
         }
     }

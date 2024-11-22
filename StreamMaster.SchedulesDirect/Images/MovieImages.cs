@@ -1,12 +1,11 @@
 ﻿using System.Collections.Concurrent;
 using System.Text.Json;
-
 namespace StreamMaster.SchedulesDirect.Images;
 
-public class MovieImages(ILogger<MovieImages> logger, IEPGCache<MovieImages> epgCache, IImageDownloadQueue imageDownloadQueue, IOptionsMonitor<SDSettings> intSettings, ISchedulesDirectAPIService schedulesDirectAPI, ISchedulesDirectDataService schedulesDirectDataService)
+public class MovieImages(ILogger<MovieImages> logger, IEPGCache<MovieImages> epgCache, IImageDownloadQueue imageDownloadQueue, IOptionsMonitor<SDSettings> sdSettings, ISchedulesDirectAPIService schedulesDirectAPI, ISchedulesDirectDataService schedulesDirectDataService)
     : IMovieImages, IDisposable
 {
-    private readonly SDSettings sdsettings = intSettings.CurrentValue;
+
     private readonly List<string> movieImageQueue = [];
     private readonly ConcurrentBag<ProgramMetadata> movieImageResponses = [];
     private readonly SemaphoreSlim semaphore = new(SchedulesDirect.MaxParallelDownloads, SchedulesDirect.MaxParallelDownloads);
@@ -32,7 +31,7 @@ public class MovieImages(ILogger<MovieImages> logger, IEPGCache<MovieImages> epg
         // Check cache and queue missing movie posters
         foreach (MxfProgram mxfProgram in moviePrograms)
         {
-            if (mxfProgram.extras.TryGetValue("md5", out dynamic? md5))
+            if (mxfProgram.Extras.TryGetValue("md5", out dynamic? md5))
             {
                 if (epgCache.JsonFiles.TryGetValue(md5, out EPGJsonCache? cachedFile))
                 {
@@ -41,16 +40,21 @@ public class MovieImages(ILogger<MovieImages> logger, IEPGCache<MovieImages> epg
                         List<ProgramArtwork>? artwork = JsonSerializer.Deserialize<List<ProgramArtwork>>(cachedFile.Images);
                         if (artwork != null)
                         {
-                            mxfProgram.extras["artwork"] = artwork;
+                            mxfProgram.Extras["artwork"] = artwork;
                             MxfGuideImage? guideImage = epgCache.GetGuideImageAndUpdateCache(artwork, ImageType.Movie);
                             if (guideImage is not null)
                             {
                                 mxfProgram.mxfGuideImage = guideImage;
                             }
                         }
+
                     }
                 }
+
             }
+
+            movieImageQueue.Add(mxfProgram.ProgramId);
+
         }
 
         logger.LogDebug("Found {processedObjects} cached/unavailable movie poster links.", processedObjects);
@@ -62,6 +66,7 @@ public class MovieImages(ILogger<MovieImages> logger, IEPGCache<MovieImages> epg
 
         logger.LogInformation("Exiting GetAllMoviePosters(). SUCCESS.");
         epgCache.SaveCache();
+        ClearCache();
         return true;
     }
 
@@ -89,7 +94,7 @@ public class MovieImages(ILogger<MovieImages> logger, IEPGCache<MovieImages> epg
                 }
                 finally
                 {
-                    semaphore.Release();
+                    _ = semaphore.Release();
                 }
             }));
         }
@@ -97,12 +102,12 @@ public class MovieImages(ILogger<MovieImages> logger, IEPGCache<MovieImages> epg
         await Task.WhenAll(tasks).ConfigureAwait(false);
 
         ProcessMovieImageResponses();
-        imageDownloadQueue.EnqueueProgramMetadataCollection(movieImageResponses);
+
     }
 
     private void ProcessMovieImageResponses()
     {
-        string artworkSize = string.IsNullOrEmpty(sdsettings.ArtworkSize) ? "Md" : sdsettings.ArtworkSize;
+        string artworkSize = string.IsNullOrEmpty(sdSettings.CurrentValue.ArtworkSize) ? "Md" : sdSettings.CurrentValue.ArtworkSize;
 
         foreach (ProgramMetadata response in movieImageResponses)
         {
@@ -114,14 +119,38 @@ public class MovieImages(ILogger<MovieImages> logger, IEPGCache<MovieImages> epg
             ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
             MxfProgram mxfProgram = schedulesDirectData.FindOrCreateProgram(response.ProgramId);
 
-            List<ProgramArtwork> artwork = SDHelpers.GetTieredImages(response.Data, ["episode"], artworkSize)
-                .Where(a => a.Aspect == "2x3")
-                .ToList();
+            //List<string> test = response.Data.Select(a => a.Tier).Distinct().ToList();
+            //List<ProgramArtwork> staples = response.Data.Where(a => a.Category == "Staple").ToList();
+            //List<ProgramArtwork> staplesMd = response.Data.Where(a => a.Category == "Staple" && a.Size == "Md").ToList();
 
-            if (artwork.Count != 0)
+            //List<ProgramArtwork> staplesMd23 = response.Data.Where(a => a.Category == "Staple" && a.Size == "Md" && a.Aspect == "2x3").ToList();
+
+            //List<ProgramArtwork> testartwork = SDHelpers.GetTieredImages(response.Data, ["episode", "series"], artworkSize);
+
+
+            if (!mxfProgram.Extras.TryGetValue("artwork", out dynamic? value))
             {
-                mxfProgram.extras["artwork"] = artwork;
-                mxfProgram.mxfGuideImage = epgCache.GetGuideImageAndUpdateCache(artwork, ImageType.Movie, mxfProgram.extras["md5"]);
+                List<ProgramArtwork> artworks = SDHelpers.GetTieredImages(response.Data, ["episode", "series"], artworkSize, sdSettings.CurrentValue.MoviePosterAspect).ToList();
+
+                mxfProgram.Extras["artwork"] = artworks;
+            }
+            //else
+            //{
+            //    value.Add(artworks);
+            //}
+
+            if (mxfProgram.Extras["artwork"].Count > 0)
+            {
+                mxfProgram.mxfGuideImage = epgCache.GetGuideImageAndUpdateCache(mxfProgram.Extras["artwork"], ImageType.Movie, mxfProgram.Extras["md5"]);
+                imageDownloadQueue.EnqueueProgramArtworkCollection(mxfProgram.Extras["artwork"]);
+            }
+            else
+            {
+
+                if (response.Data.Count > 0)
+                {
+                    logger.LogError("No 2x3 artwork found for {ProgramId}", response.ProgramId);
+                }
             }
         }
     }

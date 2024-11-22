@@ -1,9 +1,11 @@
-﻿using StreamMaster.Domain.Helpers;
+﻿using StreamMaster.Domain.Configuration;
+using StreamMaster.Domain.Helpers;
 
-namespace StreamMaster.SchedulesDirect.Domain.Models;
+namespace StreamMaster.Domain.Models;
 
 public class VideoStreamConfig
 {
+    public int EPGNumber { get; set; }
     /// <summary>
     /// Gets or sets the unique identifier for the channel.
     /// </summary>
@@ -44,10 +46,6 @@ public class VideoStreamConfig
     /// </summary>
     public bool IsDuplicate { get; set; } = false;
 
-    /// <summary>
-    /// Indicates whether the channel is a dummy channel.
-    /// </summary>
-    public bool IsDummy { get; set; } = false;
 
     /// <summary>
     /// Gets or sets the M3U file identifier associated with the channel.
@@ -57,7 +55,7 @@ public class VideoStreamConfig
     /// <summary>
     /// Gets or sets the file position in the M3U file.
     /// </summary>
-    public int FilePosition { get; set; } = 0;
+    //public int FilePosition { get; set; } = 0;
 
     public string EncodedString { get; set; } = string.Empty;
     public string CleanName { get; set; } = string.Empty;
@@ -75,6 +73,7 @@ public class VideoStreamConfig
     /// </summary>
     public OutputProfileDto? OutputProfile { get; set; }
 
+    public bool IsDummy => M3UFileId == EPGHelper.DummyId;
     public bool IsCustom => M3UFileId == EPGHelper.CustomPlayListId;
     public bool IsIntro => M3UFileId == EPGHelper.IntroPlayListId;
 

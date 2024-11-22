@@ -1,6 +1,9 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
-namespace StreamMaster.Application.Profiles;
+using StreamMaster.Domain.Configuration;
+using StreamMaster.Domain.Repository;
+
+namespace StreamMaster.Domain.Services;
 
 public class ProfileService(IOptionsMonitor<Setting> intSettings, IServiceProvider serviceProvider, IOptionsMonitor<OutputProfileDict> intOutProfileSettings, IOptionsMonitor<CommandProfileDict> intCommandProfileSettings
     ) : IProfileService

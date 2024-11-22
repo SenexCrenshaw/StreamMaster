@@ -4,6 +4,7 @@ namespace StreamMaster.Application.Interfaces;
 
 public interface IStreamGroupService
 {
+    Task<bool> StreamGroupExistsAsync(int streamGroupProfileId);
     string GetStreamGroupLineupStatus();
     Task<int> GetDefaultSGIdAsync();
     Task<StreamGroup> GetDefaultSGAsync();

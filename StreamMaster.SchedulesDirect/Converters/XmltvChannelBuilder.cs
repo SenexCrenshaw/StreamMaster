@@ -1,18 +1,19 @@
 ﻿using StreamMaster.Domain.Enums;
+using StreamMaster.Domain.Models;
 
 namespace StreamMaster.SchedulesDirect.Converters;
 
 public class XmltvChannelBuilder(ILogoService logoService, ISchedulesDirectDataService schedulesDirectDataService, IOptionsMonitor<SDSettings> sdSettingsMonitor)
 {
-    public XmltvChannel BuildXmltvChannel(XmltvChannel xmltvChannel, VideoStreamConfig videoStreamConfig, OutputProfileDto outputProfile, string baseUrl)
+    public XmltvChannel BuildXmltvChannel(XmltvChannel xmltvChannel, VideoStreamConfig videoStreamConfig)
     {
         XmltvChannel channel = xmltvChannel.DeepCopy();
-        channel.Id = GetChannelId(videoStreamConfig, outputProfile);
+        channel.Id = videoStreamConfig.OutputProfile!.Id;
         if (channel.Icons?.Count > 0)
         {
             foreach (XmltvIcon icon in channel.Icons)
             {
-                icon.Src = logoService.GetLogoUrl(icon.Src, baseUrl);
+                icon.Src = logoService.GetLogoUrl(icon.Src, videoStreamConfig.BaseUrl, SMStreamTypeEnum.Regular);
             }
         }
 
@@ -52,7 +53,7 @@ public class XmltvChannelBuilder(ILogoService logoService, ISchedulesDirectDataS
         //}
 
         //// Add logo if available
-        //if (service.extras.TryGetValue("logo", out dynamic? logoObj))
+        //if (service.Extras.TryGetValue("logo", out dynamic? logoObj))
         //{
         //    if (logoObj is StationImage stationImage)
         //    {
@@ -101,7 +102,7 @@ public class XmltvChannelBuilder(ILogoService logoService, ISchedulesDirectDataS
                     new XmltvIcon
                     {
                     //{/service.EPGNumber
-                        Src = isOG ? stationImage.Url:  logoService.GetLogoUrl( stationImage.Url, baseUrl),
+                        Src = isOG ? stationImage.Url:  logoService.GetLogoUrl( stationImage.Url, baseUrl, SMStreamTypeEnum.Regular),
                         Height = stationImage.Height,
                         Width = stationImage.Width
                     }
@@ -136,74 +137,74 @@ public class XmltvChannelBuilder(ILogoService logoService, ISchedulesDirectDataS
 
         return channel;
     }
-    public XmltvChannel BuildXmltvChannel(MxfService service, VideoStreamConfig? videoStreamConfig, OutputProfileDto outputProfile, string baseUrl)
-    {
-        SDSettings sdSettings = sdSettingsMonitor.CurrentValue;
-        string id = GetChannelId(service, videoStreamConfig, outputProfile);
+    //public XmltvChannel BuildXmltvChannel(MxfService service, VideoStreamConfig videoStreamConfig, string baseUrl)
+    //{
+    //    SDSettings sdSettings = sdSettingsMonitor.CurrentValue;
+    //    string id = GetChannelId(videoStreamConfig);
 
-        XmltvChannel channel = new()
-        {
-            Id = id,
-            DisplayNames = []
-        };
+    //    XmltvChannel channel = new()
+    //    {
+    //        Id = id,
+    //        DisplayNames = []
+    //    };
 
-        string displayName = service.Name ?? service.CallSign;
-        channel.DisplayNames.Add(new XmltvText { Text = displayName });
+    //    string displayName = service.Name ?? service.CallSign;
+    //    channel.DisplayNames.Add(new XmltvText { Text = displayName });
 
-        // Add additional display names if necessary
-        if (!string.IsNullOrEmpty(service.CallSign) && !service.CallSign.Equals(displayName))
-        {
-            channel.DisplayNames.Add(new XmltvText { Text = service.CallSign });
-        }
+    //    // Add additional display names if necessary
+    //    if (!string.IsNullOrEmpty(service.CallSign) && !service.CallSign.Equals(displayName))
+    //    {
+    //        channel.DisplayNames.Add(new XmltvText { Text = service.CallSign });
+    //    }
 
-        // Add channel numbers if requested
-        if (sdSettings.XmltvIncludeChannelNumbers)
-        {
-            List<string> numbers = GetChannelNumbers(service);
-            foreach (string num in numbers)
-            {
-                if (!channel.DisplayNames.Any(dn => dn.Text == num))
-                {
-                    channel.DisplayNames.Add(new XmltvText { Text = num });
-                }
-            }
-        }
+    //    // Add channel numbers if requested
+    //    if (sdSettings.XmltvIncludeChannelNumbers)
+    //    {
+    //        List<string> numbers = GetChannelNumbers(service);
+    //        foreach (string num in numbers)
+    //        {
+    //            if (!channel.DisplayNames.Any(dn => dn.Text == num))
+    //            {
+    //                channel.DisplayNames.Add(new XmltvText { Text = num });
+    //            }
+    //        }
+    //    }
 
-        // Add affiliate if present
-        string? affiliate = service.mxfAffiliate?.Name;
-        if (!string.IsNullOrEmpty(affiliate) && !string.IsNullOrEmpty(service.Name) && !service.Name.Equals(affiliate))
-        {
-            channel.DisplayNames.Add(new XmltvText { Text = affiliate });
-        }
+    //    // Add affiliate if present
+    //    string? affiliate = service.mxfAffiliate?.Name;
+    //    if (!string.IsNullOrEmpty(affiliate) && !string.IsNullOrEmpty(service.Name) && !service.Name.Equals(affiliate))
+    //    {
+    //        channel.DisplayNames.Add(new XmltvText { Text = affiliate });
+    //    }
 
-        // Add logo if available
-        if (service.extras.TryGetValue("logo", out dynamic? logoObj))
-        {
-            if (logoObj is StationImage stationImage)
-            {
-                channel.Icons =
-                [
-                    new XmltvIcon
-                    {
-                    //{/service.EPGNumber
-                        Src = logoService.GetLogoUrl( stationImage.Url, baseUrl),
-                        Height = stationImage.Height,
-                        Width = stationImage.Width
-                    }
-                ];
-            }
-        }
+    //    // Add logo if available
+    //    if (service.Extras.TryGetValue("logo", out dynamic? logoObj))
+    //    {
+    //        if (logoObj is StationImage stationImage)
+    //        {
+    //            channel.Icons =
+    //            [
+    //                new XmltvIcon
+    //                {
+    //                //{/service.EPGNumber
+    //                    Src = logoService.GetLogoUrl( stationImage.Url, baseUrl),
+    //                    Height = stationImage.Height,
+    //                    Width = stationImage.Width
+    //                }
+    //            ];
+    //        }
+    //    }
 
-        return channel;
-    }
+    //    return channel;
+    //}
 
-    public static string GetChannelId(VideoStreamConfig videoStreamConfig, OutputProfileDto outputProfile)
+    public static string GetChannelId(VideoStreamConfig videoStreamConfig)
     {
         string id = videoStreamConfig.ChannelNumber.ToString();
 
-        if (outputProfile.Id != nameof(ValidM3USetting.NotMapped))
+        if (videoStreamConfig.OutputProfile.Id != nameof(ValidM3USetting.NotMapped))
         {
-            switch (outputProfile.Id)
+            switch (videoStreamConfig.OutputProfile.Id)
             {
                 case nameof(ValidM3USetting.Group):
                     if (videoStreamConfig != null && !string.IsNullOrEmpty(videoStreamConfig.Group))
@@ -223,31 +224,31 @@ public class XmltvChannelBuilder(ILogoService logoService, ISchedulesDirectDataS
         return id;
     }
 
-    private static string GetChannelId(MxfService service, VideoStreamConfig? videoStreamConfig, OutputProfileDto outputProfile)
-    {
-        string id = service.ChNo.ToString();
+    //private static string GetChannelId(MxfService service, VideoStreamConfig? videoStreamConfig, OutputProfileDto outputProfile)
+    //{
+    //    string id = service.ChNo.ToString();
 
-        if (outputProfile.Id != nameof(ValidM3USetting.NotMapped))
-        {
-            switch (outputProfile.Id)
-            {
-                case nameof(ValidM3USetting.Group):
-                    if (videoStreamConfig != null && !string.IsNullOrEmpty(videoStreamConfig.Group))
-                    {
-                        id = videoStreamConfig.Group;
-                    }
-                    break;
-                case nameof(ValidM3USetting.ChannelNumber):
-                    id = service.ChNo.ToString();
-                    break;
-                case nameof(ValidM3USetting.Name):
-                    id = service.Name;
-                    break;
-            }
-        }
+    //    if (outputProfile.Id != nameof(ValidM3USetting.NotMapped))
+    //    {
+    //        switch (outputProfile.Id)
+    //        {
+    //            case nameof(ValidM3USetting.Group):
+    //                if (videoStreamConfig != null && !string.IsNullOrEmpty(videoStreamConfig.Group))
+    //                {
+    //                    id = videoStreamConfig.Group;
+    //                }
+    //                break;
+    //            case nameof(ValidM3USetting.ChannelNumber):
+    //                id = service.ChNo.ToString();
+    //                break;
+    //            case nameof(ValidM3USetting.Name):
+    //                id = service.Name;
+    //                break;
+    //        }
+    //    }
 
-        return id;
-    }
+    //    return id;
+    //}
 
     private List<string> GetChannelNumbers(MxfService service)
     {

@@ -116,7 +116,7 @@ public partial class EPGCache<T> : IEPGCache<T>
         if (!WriteJsonFile(JsonFiles))
         {
             logger.LogWarning("Deleting cache file to be rebuilt on next update.");
-            DeleteFile();
+            _ = DeleteFile();
         }
     }
 
@@ -213,7 +213,7 @@ public partial class EPGCache<T> : IEPGCache<T>
         List<string> keysToDelete = JsonFiles.Where(asset => !asset.Value.Current).Select(asset => asset.Key).ToList();
         foreach (string key in keysToDelete)
         {
-            JsonFiles.Remove(key);
+            _ = JsonFiles.Remove(key);
         }
         logger.LogInformation("{Count} entries deleted from the cache file during cleanup.", keysToDelete.Count);
     }
@@ -301,20 +301,12 @@ public partial class EPGCache<T> : IEPGCache<T>
             UpdateAssetImages(cacheKey, artworkJson);
         }
 
-        ProgramArtwork? image = null;
-        if (type == ImageType.Movie)
-        {
-            image = artwork.FirstOrDefault();
-        }
-        else
-        {
-            string aspect = sdsettings.SeriesPosterArt ? "2x3" : sdsettings.SeriesWsArt ? "16x9" : sdsettings.SeriesPosterAspect;
-            image = artwork.FirstOrDefault(arg => arg.Aspect.EndsWithIgnoreCase(aspect));
-        }
-
+        ProgramArtwork? image = type == ImageType.Movie
+            ? artwork.FirstOrDefault()
+            : artwork.FirstOrDefault(arg => arg.Aspect.EndsWithIgnoreCase(sdsettings.SeriesPosterAspect));
         if (image == null && type == ImageType.Series)
         {
-            image = artwork.FirstOrDefault(arg => arg.Aspect.EndsWithIgnoreCase("4x3"));
+            image = artwork.FirstOrDefault(arg => arg.Aspect.EndsWithIgnoreCase(sdsettings.SeriesPosterAspect));
         }
 
         ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();

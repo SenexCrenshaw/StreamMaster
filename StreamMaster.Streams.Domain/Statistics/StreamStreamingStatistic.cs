@@ -1,7 +1,5 @@
 ﻿using Reinforced.Typings.Attributes;
 
-using StreamMaster.Domain.Extensions;
-
 namespace StreamMaster.Streams.Domain.Statistics;
 
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
@@ -13,15 +11,15 @@ public class StreamStreamingStatistic : BPSStatistics
     public string? StreamUrl { get; set; }
     public string Id { get; set; } = string.Empty;
 
-    public void SetStream(SMStreamDto smStream)
-    {
-        Rank = smStream.Rank;
-        StreamName = smStream.Name;
-        StreamLogo = smStream.Logo;
-        StartTime = SMDT.UtcNow;
-        StreamUrl = smStream.Url;
-        Id = smStream.Id;
-    }
+    //public void SetStream(SMStreamDto smStream)
+    //{
+    //    Rank = smStream.Rank;
+    //    StreamName = smStream.Name;
+    //    StreamLogo = smStream.SMLogoUrl;
+    //    StartTime = SMDT.UtcNow;
+    //    StreamUrl = smStream.Url;
+    //    Id = smStream.Id;
+    //}
 
     public new StreamStreamingStatistic Copy()
     {

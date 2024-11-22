@@ -34,7 +34,7 @@ internal class GetPagedSMStreamsRequestHandler(IRepositoryWrapper Repository)
             .Select(a => new
             {
                 a.SMStreamId,
-                NameLogo = new NameLogo(a.SMChannel, SMFileTypes.Logo)
+                NameLogo = new NameLogo(a.SMStream)
             })
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
@@ -51,7 +51,7 @@ internal class GetPagedSMStreamsRequestHandler(IRepositoryWrapper Repository)
             {
                 for (int i = 0; i < logos.Count; i++)
                 {
-                    logos[i].Id = i;
+                    logos[i].Id = i.ToString();
                 }
                 smStream.ChannelMembership = logos;
             }

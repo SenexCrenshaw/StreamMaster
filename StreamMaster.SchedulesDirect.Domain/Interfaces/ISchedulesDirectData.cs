@@ -1,6 +1,7 @@
 ﻿
 using System.Collections.Concurrent;
 
+using StreamMaster.Domain.Models;
 using StreamMaster.SchedulesDirect.Domain.Enums;
 
 namespace StreamMaster.SchedulesDirect.Domain.Interfaces;

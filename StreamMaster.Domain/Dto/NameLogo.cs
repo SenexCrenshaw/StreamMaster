@@ -3,15 +3,41 @@
 public class NameLogo
 {
     public NameLogo() { }
-    public NameLogo(SMChannel smChannel, SMFileTypes fileTypes)
+    public NameLogo(SMChannel smChannel, SMFileTypes fileType)
     {
-        Id = smChannel.Id;
+
+        //string logo = smChannel.Logo.ToBase64String();
+        Id = smChannel.Id.ToString();
         Name = smChannel.Name;
-        Logo = smChannel.Logo;
-        SMFileType = fileTypes;
+        //SMLogoUrl = logo;
+        //SMLogoUrl = $"/api/files/{(int)fileType}/{logo}";
+        Url = smChannel.Logo;
+        SMFileType = fileType;
     }
-    public int Id { get; set; }
+    public NameLogo(SMStream smStream)
+    {
+        SMFileTypes iconType = smStream.SMStreamType switch
+        {
+            //SMStreamTypeEnum.Regular => SMFileTypes.Logo,
+            SMStreamTypeEnum.CustomPlayList => SMFileTypes.CustomPlayListLogo,
+            // Add more cases here
+            _ => SMFileTypes.Logo // Default case
+        };
+
+        string ext = Path.GetExtension(smStream.Logo) ?? ".png";
+
+        //string logo = smStream.Logo.ToBase64String();
+        Id = smStream.Id;
+        Name = smStream.Name;
+        //SMLogoUrl = $"/api/files/{(int)fileType}/{logo}";
+        Url = smStream.Logo;
+        SMFileType = iconType;
+    }
+    public string Ext => Path.GetExtension(Url) ?? ".png";
+    public string Id { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
-    public string Logo { get; set; } = string.Empty;
+    public string FileName => $"{Id.ToBase64String()}{Ext}";
+    public string Url { get; set; } = string.Empty;
+    public string SMLogoUrl => $"/api/files/{(int)SMFileType}/{FileName}";
     public SMFileTypes SMFileType { get; set; }
 }

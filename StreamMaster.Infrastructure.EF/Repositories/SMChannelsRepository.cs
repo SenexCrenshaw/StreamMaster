@@ -1,4 +1,9 @@
-﻿using AutoMapper;
+﻿using System.Collections.Concurrent;
+using System.Diagnostics;
+using System.Linq.Expressions;
+using System.Text.Json;
+
+using AutoMapper;
 using AutoMapper.QueryableExtensions;
 
 using Microsoft.EntityFrameworkCore;
@@ -16,14 +21,9 @@ using StreamMaster.SchedulesDirect.Domain.Interfaces;
 using StreamMaster.SchedulesDirect.Domain.JsonClasses;
 using StreamMaster.SchedulesDirect.Domain.Models;
 
-using System.Collections.Concurrent;
-using System.Diagnostics;
-using System.Linq.Expressions;
-using System.Text.Json;
-
 namespace StreamMaster.Infrastructure.EF.Repositories;
 
-public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IImageDownloadQueue imageDownloadQueue, IServiceProvider serviceProvider, IRepositoryWrapper repository, IRepositoryContext repositoryContext, IMapper mapper, IOptionsMonitor<Setting> settings, IOptionsMonitor<CommandProfileDict> intProfileSettings, ISchedulesDirectDataService schedulesDirectDataService)
+public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IImageDownloadQueue imageDownloadQueue, ILogoService logoService, IServiceProvider serviceProvider, IRepositoryWrapper repository, IRepositoryContext repositoryContext, IMapper mapper, IOptionsMonitor<Setting> settings, IOptionsMonitor<CommandProfileDict> intProfileSettings, ISchedulesDirectDataService schedulesDirectDataService)
     : RepositoryBase<SMChannel>(repositoryContext, intLogger), ISMChannelsRepository
 {
     private int currentChannelNumber;
@@ -263,9 +263,15 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IImag
                         _ = await RepositoryContext.SaveChangesAsync().ConfigureAwait(false);
                         return APIResponse.ErrorWithMessage("Error creating SMChannel from streams");
                     }
+
+                    if (settings.CurrentValue.LogoCache.EqualsIgnoreCase("cache"))
+                    {
+                        NameLogo NameLogo = new(smStream);
+                        imageDownloadQueue.EnqueueNameLogo(NameLogo);
+                    }
+
                     addedSMChannels.Add(smChannel);
-                    NameLogo NameLogo = new(smChannel, SMFileTypes.Logo);
-                    imageDownloadQueue.EnqueueNameLogo(NameLogo);
+
                     //logoService.DownloadAndAdd(NameLogo);
                     //bulkSMChannels.Add(smChannel);
                 }
@@ -717,6 +723,10 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IImag
 
         string name = GetName(smStream);
 
+
+        NameLogo nl = new(smStream);
+
+        //string logo = logoService.GetLogoUrl2(smStream.Logo, ftype);
         SMChannel smChannel = new()
         {
             BaseStreamID = smStream.Id,
@@ -727,7 +737,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IImag
             EPGId = smStream.EPGID,
             Group = smStream.Group,
             IsSystem = smStream.IsSystem,
-            Logo = smStream.Logo,
+            Logo = nl.SMLogoUrl,
             M3UFileId = smStream.M3UFileId,
             Name = name,
             StationId = smStream.StationId,

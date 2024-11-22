@@ -8,7 +8,7 @@ namespace StreamMaster.SchedulesDirect.Domain.JsonClasses
     [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
     public partial class LineupChannel
     {
-        public string ChannelNumber => $"{MyChannelNumber}{(myChannelSubnumber > 0 ? $".{myChannelSubnumber}" : "")}";
+        public string ChannelNumber => $"{MyChannelNumber}{(MyChannelSubnumber > 0 ? $".{MyChannelSubnumber}" : "")}";
         public int MyChannelNumber
         {
             get
@@ -45,7 +45,7 @@ namespace StreamMaster.SchedulesDirect.Domain.JsonClasses
             }
         }
 
-        public int myChannelSubnumber
+        public int MyChannelSubnumber
         {
             get
             {
@@ -54,10 +54,10 @@ namespace StreamMaster.SchedulesDirect.Domain.JsonClasses
                     return ChannelMinor ?? AtscMinor ?? 0;
                 }
 
-                if (!int.TryParse(Regex.Replace(Channel, "[^0-9.]", ""), out _))
+                if (!int.TryParse(MyChannelSubnumberRegex1().Replace(Channel, ""), out _))
                 {
                     // if channel number is not a whole number, must be a decimal number
-                    string[] numbers = Regex.Replace(Channel, "[^0-9.]", "").Replace('_', '.').Replace('-', '.').Split('.');
+                    string[] numbers = MyChannelSubnumber2().Replace(Channel, "").Replace('_', '.').Replace('-', '.').Split('.');
                     if (numbers.Length == 2)
                     {
                         return int.Parse(numbers[1]);
@@ -143,5 +143,10 @@ namespace StreamMaster.SchedulesDirect.Domain.JsonClasses
         private static partial Regex MyRegex1();
         [GeneratedRegex("[^0-9.]")]
         private static partial Regex MyRegex2();
+        [GeneratedRegex("[^0-9.]")]
+        private static partial Regex MyChannelSubnumberRegex1();
+        [GeneratedRegex("[^0-9.]")]
+        private static partial Regex MyChannelSubnumber2
+            ();
     }
 }
