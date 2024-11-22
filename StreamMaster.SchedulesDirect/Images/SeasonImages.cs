@@ -111,7 +111,6 @@ public class SeasonImages(
 
         await Task.WhenAll(tasks).ConfigureAwait(false);
         ProcessSeasonImageResponses();
-
     }
 
     private void ProcessSeasonImageResponses()
@@ -143,7 +142,6 @@ public class SeasonImages(
             //    }
             //}
 
-
             //List<string> test = response.Data.Select(a => a.Tier).Distinct().ToList();
             //List<ProgramArtwork> staples = response.Data.Where(a => a.Tier.ToLower() == "season").ToList();
             //List<ProgramArtwork> staplesMd = staples.Where(a => a.Size == "Md").ToList();
@@ -152,7 +150,6 @@ public class SeasonImages(
 
             //List<ProgramArtwork> testartwork = SDHelpers.GetTieredImages(response.Data, ["episode", "series"], artworkSize);
             //List<ProgramArtwork> artworks = SDHelpers.GetTieredImages(response.Data, ["season"], artworkSize, sdSettings.CurrentValue.SeriesPosterAspect);
-
 
             if (!season.Extras.TryGetValue("artwork", out dynamic? value))
             {
@@ -163,7 +160,6 @@ public class SeasonImages(
 
             if (season.Extras["artwork"].Count > 0)
             {
-
                 string uid = $"{season.SeriesId}_{season.SeasonNumber}";
 
                 MxfGuideImage? mx = epgCache.GetGuideImageAndUpdateCache(season.Extras["artwork"], ImageType.Season, uid);
@@ -177,10 +173,6 @@ public class SeasonImages(
                 }
                 imageDownloadQueue.EnqueueProgramArtworkCollection(season.Extras["artwork"]);
             }
-
-
-
-
         }
     }
 

@@ -46,7 +46,6 @@ public class VideoStreamConfig
     /// </summary>
     public bool IsDuplicate { get; set; } = false;
 
-
     /// <summary>
     /// Gets or sets the M3U file identifier associated with the channel.
     /// </summary>

@@ -6,7 +6,7 @@ using StreamMaster.Application.SchedulesDirect.Queries;
 namespace StreamMaster.Application.SchedulesDirect
 {
     public interface ISchedulesDirectController
-    {
+    {        
         Task<ActionResult<List<CountryData>>> GetAvailableCountries();
         Task<ActionResult<List<HeadendDto>>> GetHeadendsByCountryPostal(GetHeadendsByCountryPostalRequest request);
         Task<ActionResult<List<HeadendToView>>> GetHeadendsToView();

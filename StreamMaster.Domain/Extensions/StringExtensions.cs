@@ -17,6 +17,24 @@ public static class StringExtensions
         return ret;
     }
 
+    public static bool IsBase64String(this string base64)
+    {
+        if (string.IsNullOrEmpty(base64) || base64.Length % 4 != 0)
+        {
+            return false;
+        }
+
+        try
+        {
+            _ = Convert.FromBase64String(base64);
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+    }
+
     public static bool ContainsIgnoreCase(this string text, string Contains)
     {
         return text.Contains(Contains, BuildInfo.StringComparison);

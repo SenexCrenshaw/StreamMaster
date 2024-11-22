@@ -146,7 +146,6 @@ public class SportsImages(
                 mxfProgram.Extras["artwork"] = artworks;
             }
 
-
             if (mxfProgram.Extras["artwork"].Count > 0)
             {
                 mxfProgram.mxfGuideImage = epgCache.GetGuideImageAndUpdateCache(mxfProgram.Extras["artwork"], ImageType.Program, mxfProgram.Extras["md5"]);

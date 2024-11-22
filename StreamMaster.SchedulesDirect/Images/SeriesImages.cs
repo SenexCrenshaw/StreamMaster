@@ -158,7 +158,6 @@ public class SeriesImages(
 
         await Task.WhenAll(tasks).ConfigureAwait(false);
         ProcessSeriesImageResponses();
-
     }
 
     private void ProcessSeriesImageResponses()
@@ -193,7 +192,6 @@ public class SeriesImages(
 
             if (series.Extras["artwork"].Count > 0)
             {
-
                 MxfGuideImage? res = epgCache.GetGuideImageAndUpdateCache(series.Extras["artwork"], ImageType.Series, response.ProgramId);
                 if (res != null)
                 {
@@ -201,7 +199,6 @@ public class SeriesImages(
                 }
                 imageDownloadQueue.EnqueueProgramArtworkCollection(series.Extras["artwork"]);
             }
-
 
         }
     }

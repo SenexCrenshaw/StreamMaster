@@ -23,7 +23,7 @@ using StreamMaster.SchedulesDirect.Domain.Models;
 
 namespace StreamMaster.Infrastructure.EF.Repositories;
 
-public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IImageDownloadQueue imageDownloadQueue, ILogoService logoService, IServiceProvider serviceProvider, IRepositoryWrapper repository, IRepositoryContext repositoryContext, IMapper mapper, IOptionsMonitor<Setting> settings, IOptionsMonitor<CommandProfileDict> intProfileSettings, ISchedulesDirectDataService schedulesDirectDataService)
+public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IImageDownloadQueue imageDownloadQueue,  IServiceProvider serviceProvider, IRepositoryWrapper repository, IRepositoryContext repositoryContext, IMapper mapper, IOptionsMonitor<Setting> settings, IOptionsMonitor<CommandProfileDict> intProfileSettings, ISchedulesDirectDataService schedulesDirectDataService)
     : RepositoryBase<SMChannel>(repositoryContext, intLogger), ISMChannelsRepository
 {
     private int currentChannelNumber;
@@ -723,7 +723,6 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IImag
 
         string name = GetName(smStream);
 
-
         NameLogo nl = new(smStream);
 
         //string logo = logoService.GetLogoUrl2(smStream.Logo, ftype);
@@ -737,6 +736,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IImag
             EPGId = smStream.EPGID,
             Group = smStream.Group,
             IsSystem = smStream.IsSystem,
+            OriginalLogo = smStream.Logo,
             Logo = nl.SMLogoUrl,
             M3UFileId = smStream.M3UFileId,
             Name = name,

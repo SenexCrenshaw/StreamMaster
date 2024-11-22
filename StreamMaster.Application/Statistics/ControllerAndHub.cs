@@ -6,7 +6,8 @@ namespace StreamMaster.Application.Statistics.Controllers
 {
     [Authorize]
     public partial class StatisticsController(ILogger<StatisticsController> _logger) : ApiControllerBase, IStatisticsController
-    {
+    {        
+
         [HttpGet]
         [Route("[action]")]
         public async Task<ActionResult<List<ChannelMetric>>> GetChannelMetrics()
@@ -14,7 +15,7 @@ namespace StreamMaster.Application.Statistics.Controllers
             try
             {
             var ret = await Sender.Send(new GetChannelMetricsRequest()).ConfigureAwait(false);
-             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetChannelMetrics.", statusCode: 500) : Ok(ret.Data?? []);
+             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetChannelMetrics.", statusCode: 500) : Ok(ret.Data?? new());
             }
             catch (Exception ex)
             {
@@ -46,7 +47,7 @@ namespace StreamMaster.Application.Statistics.Controllers
             try
             {
             var ret = await Sender.Send(new GetVideoInfosRequest()).ConfigureAwait(false);
-             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetVideoInfos.", statusCode: 500) : Ok(ret.Data?? []);
+             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetVideoInfos.", statusCode: 500) : Ok(ret.Data?? new());
             }
             catch (Exception ex)
             {
@@ -54,6 +55,7 @@ namespace StreamMaster.Application.Statistics.Controllers
                 return Problem(detail: "An unexpected error occurred. Please try again later.", statusCode: 500);
             }
         }
+
     }
 }
 
@@ -64,7 +66,7 @@ namespace StreamMaster.Application.Hubs
         public async Task<List<ChannelMetric>> GetChannelMetrics()
         {
              var ret = await Sender.Send(new GetChannelMetricsRequest()).ConfigureAwait(false);
-            return ret.Data?? [];
+            return ret.Data?? new();
         }
 
         public async Task<VideoInfo> GetVideoInfo(GetVideoInfoRequest request)
@@ -76,7 +78,8 @@ namespace StreamMaster.Application.Hubs
         public async Task<List<VideoInfoDto>> GetVideoInfos()
         {
              var ret = await Sender.Send(new GetVideoInfosRequest()).ConfigureAwait(false);
-            return ret.Data?? [];
+            return ret.Data?? new();
         }
+
     }
 }

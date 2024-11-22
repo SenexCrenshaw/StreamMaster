@@ -6,7 +6,8 @@ namespace StreamMaster.Application.Streaming.Controllers
 {
     [Authorize]
     public partial class StreamingController() : ApiControllerBase, IStreamingController
-    {
+    {        
+
         [HttpPatch]
         [Route("[action]")]
         public async Task<ActionResult<APIResponse?>> CancelAllChannels()
@@ -38,6 +39,7 @@ namespace StreamMaster.Application.Streaming.Controllers
             var ret = await Sender.Send(request).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
         }
+
     }
 }
 
@@ -68,5 +70,6 @@ namespace StreamMaster.Application.Hubs
             var ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;
         }
+
     }
 }

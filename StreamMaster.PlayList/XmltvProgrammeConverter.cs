@@ -44,5 +44,4 @@ public static class XmltvProgrammeConverter
     {
         return dateTime.ToString("yyyyMMddHHmmss +0000", CultureInfo.InvariantCulture);
     }
-
 }

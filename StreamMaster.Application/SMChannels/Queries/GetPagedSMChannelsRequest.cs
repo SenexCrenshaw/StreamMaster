@@ -8,7 +8,7 @@ namespace StreamMaster.Application.SMChannels.Queries;
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record GetPagedSMChannelsRequest(QueryStringParameters Parameters) : IRequest<PagedResponse<SMChannelDto>>;
 
-internal class GetPagedSMChannelsRequestHandler(IRepositoryWrapper Repository, ILogoService logoSerice, IStreamGroupService streamGroupService, IHttpContextAccessor httpContextAccessor)
+internal class GetPagedSMChannelsRequestHandler(IRepositoryWrapper Repository, IStreamGroupService streamGroupService, IHttpContextAccessor httpContextAccessor)
     : IRequestHandler<GetPagedSMChannelsRequest, PagedResponse<SMChannelDto>>
 {
     public async Task<PagedResponse<SMChannelDto>> Handle(GetPagedSMChannelsRequest request, CancellationToken cancellationToken)
@@ -42,10 +42,9 @@ internal class GetPagedSMChannelsRequestHandler(IRepositoryWrapper Repository, I
             await Repository.SMChannelStreamLink.UpdateSMChannelDtoRanks(channel);
             await Repository.SMChannelChannelLink.UpdateSMChannelDtoRanks(channel);
 
+            //SMStreamTypeEnum sType = channel.M3UFileId == EPGHelper.CustomPlayListId ? SMStreamTypeEnum.CustomPlayList : SMStreamTypeEnum.Regular;
 
-            SMStreamTypeEnum sType = channel.M3UFileId == EPGHelper.CustomPlayListId ? SMStreamTypeEnum.CustomPlayList : SMStreamTypeEnum.Regular;
-
-            //channel.Logo = channel.Logo;// logoSerice.GetLogoUrl(channel.Logo, "", sType);
+            ////channel.Logo = channel.Logo;// logoSerice.GetLogoUrl(channel.Logo, "", sType);
             channel.SMStreamDtos = [.. channel.SMStreamDtos.OrderBy(a => a.Rank)];
             channel.SMChannelDtos = [.. channel.SMChannelDtos.OrderBy(a => a.Rank)];
             channel.StreamGroupIds = channel.StreamGroups.Select(a => a.StreamGroupId).ToList();

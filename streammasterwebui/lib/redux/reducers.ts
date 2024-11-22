@@ -21,6 +21,7 @@ import GetIsSystemReadyReducer from '@lib/smAPI/General/GetIsSystemReadySlice';
 import GetLineupPreviewChannelReducer from '@lib/smAPI/SchedulesDirect/GetLineupPreviewChannelSlice';
 import GetLogContentsReducer from '@lib/smAPI/Logs/GetLogContentsSlice';
 import GetLogNamesReducer from '@lib/smAPI/Logs/GetLogNamesSlice';
+import GetLogoReducer from '@lib/smAPI/Logos/GetLogoSlice';
 import GetLogosReducer from '@lib/smAPI/Logos/GetLogosSlice';
 import GetM3UFileNamesReducer from '@lib/smAPI/M3UFiles/GetM3UFileNamesSlice';
 import GetM3UFilesReducer from '@lib/smAPI/M3UFiles/GetM3UFilesSlice';
@@ -166,6 +167,7 @@ export const rootReducer = combineReducers({
   GetLineupPreviewChannel: GetLineupPreviewChannelReducer,
   GetLogContents: GetLogContentsReducer,
   GetLogNames: GetLogNamesReducer,
+  GetLogo: GetLogoReducer,
   GetLogos: GetLogosReducer,
   GetM3UFileNames: GetM3UFileNamesReducer,
   GetM3UFiles: GetM3UFilesReducer,

@@ -5,7 +5,7 @@ using StreamMaster.Application.SMMessages.Commands;
 namespace StreamMaster.Application.SMMessages
 {
     public interface ISMMessagesController
-    {
+    {        
         Task<ActionResult<APIResponse?>> SendSMError(SendSMErrorRequest request);
         Task<ActionResult<APIResponse?>> SendSMInfo(SendSMInfoRequest request);
         Task<ActionResult<APIResponse?>> SendSMMessage(SendSMMessageRequest request);

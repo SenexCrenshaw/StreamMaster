@@ -379,7 +379,6 @@ namespace StreamMaster.SchedulesDirect.Converters
 
         public string GetIconUrl(int EPGNumber, string iconOriginalSource, string _baseUrl)//, SMFileTypes sMFileType)
         {
-
             if (EPGNumber == EPGHelper.CustomPlayListId)
             {
                 return GetApiUrl(SMFileTypes.CustomPlayList, iconOriginalSource, _baseUrl);
@@ -403,7 +402,6 @@ namespace StreamMaster.SchedulesDirect.Converters
                 return iconOriginalSource.StartsWith("http") ? iconOriginalSource : GetApiUrl(SMFileTypes.SDStationLogo, iconOriginalSource, _baseUrl);
             }
 
-
             if (string.IsNullOrEmpty(iconOriginalSource))
             {
                 return $"{_baseUrl}{settingsMonitor.CurrentValue.DefaultLogo}";
@@ -416,7 +414,6 @@ namespace StreamMaster.SchedulesDirect.Converters
                 iconOriginalSource = iconOriginalSource[1..];
             }
 
-
             SMFileTypes smtype = SMFileTypes.Logo;
             //ImagePath? imagePath = logoService.GetValidImagePath(iconOriginalSource);
 
@@ -424,8 +421,6 @@ namespace StreamMaster.SchedulesDirect.Converters
             //{
             //    smtype = imagePath.SMFileType;
             //}
-
-
 
             string icon = settingsMonitor.CurrentValue.LogoCache.Equals("cache", StringComparison.CurrentCultureIgnoreCase) ? GetApiUrl(smtype, originalUrl, _baseUrl) : iconOriginalSource;
 

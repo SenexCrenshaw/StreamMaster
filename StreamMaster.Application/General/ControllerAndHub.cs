@@ -7,7 +7,8 @@ namespace StreamMaster.Application.General.Controllers
 {
     [Authorize]
     public partial class GeneralController(ILogger<GeneralController> _logger) : ApiControllerBase, IGeneralController
-    {
+    {        
+
         [HttpGet]
         [Route("[action]")]
         public async Task<ActionResult<ImageDownloadServiceStatus>> GetDownloadServiceStatus()
@@ -79,6 +80,7 @@ namespace StreamMaster.Application.General.Controllers
             var ret = await Sender.Send(request).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
         }
+
     }
 }
 
@@ -115,5 +117,6 @@ namespace StreamMaster.Application.Hubs
             var ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;
         }
+
     }
 }

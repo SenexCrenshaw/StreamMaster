@@ -5,7 +5,7 @@ using StreamMaster.Application.Vs.Queries;
 namespace StreamMaster.Application.Vs
 {
     public interface IVsController
-    {
+    {        
         Task<ActionResult<List<V>>> GetVs(GetVsRequest request);
     }
 }

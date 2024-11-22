@@ -10,7 +10,6 @@ namespace StreamMaster.Infrastructure.Services
     {
         public async Task SendError(string message, string? header = null)
         {
-
             Logger.LogError(message);
 
             SendSMErrorRequest request = header is null ? new(Detail: message) : new(Detail: message, Summary: header);

@@ -57,8 +57,9 @@
 	    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.11.0" />
 	    <PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.MessagePack" Version="9.0.0" />
 	    
-	    <PackageReference Include="NJsonSchema" Version="11.0.2" />
-	    <PackageReference Include="NSwag.AspNetCore" Version="14.1.0" />
+	    <PackageReference Include="NJsonSchema" Version="11.1.0" />
+	    <PackageReference Include="NSwag.AspNetCore" Version="14.2.0" />
+	    <PackageReference Include="Reinforced.Typings" Version="1.6.5" />
 		<PackageReference Include="System.Net.Http" Version="4.3.4" />
 		<PackageReference Include="System.text.regularexpressions" Version="4.3.1" />		
     </ItemGroup>

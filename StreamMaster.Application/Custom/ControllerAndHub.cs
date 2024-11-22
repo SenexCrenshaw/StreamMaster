@@ -7,7 +7,8 @@ namespace StreamMaster.Application.Custom.Controllers
 {
     [Authorize]
     public partial class CustomController(ILogger<CustomController> _logger) : ApiControllerBase, ICustomController
-    {
+    {        
+
         [HttpGet]
         [Route("[action]")]
         public async Task<ActionResult<CustomPlayList>> GetCustomPlayList([FromQuery] GetCustomPlayListRequest request)
@@ -31,7 +32,7 @@ namespace StreamMaster.Application.Custom.Controllers
             try
             {
             var ret = await Sender.Send(new GetCustomPlayListsRequest()).ConfigureAwait(false);
-             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetCustomPlayLists.", statusCode: 500) : Ok(ret.Data?? []);
+             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetCustomPlayLists.", statusCode: 500) : Ok(ret.Data?? new());
             }
             catch (Exception ex)
             {
@@ -47,7 +48,7 @@ namespace StreamMaster.Application.Custom.Controllers
             try
             {
             var ret = await Sender.Send(new GetIntroPlayListsRequest()).ConfigureAwait(false);
-             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetIntroPlayLists.", statusCode: 500) : Ok(ret.Data?? []);
+             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetIntroPlayLists.", statusCode: 500) : Ok(ret.Data?? new());
             }
             catch (Exception ex)
             {
@@ -63,6 +64,7 @@ namespace StreamMaster.Application.Custom.Controllers
             var ret = await Sender.Send(new ScanForCustomRequest()).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
         }
+
     }
 }
 
@@ -79,13 +81,13 @@ namespace StreamMaster.Application.Hubs
         public async Task<List<CustomPlayList>> GetCustomPlayLists()
         {
              var ret = await Sender.Send(new GetCustomPlayListsRequest()).ConfigureAwait(false);
-            return ret.Data?? [];
+            return ret.Data?? new();
         }
 
         public async Task<List<CustomPlayList>> GetIntroPlayLists()
         {
              var ret = await Sender.Send(new GetIntroPlayListsRequest()).ConfigureAwait(false);
-            return ret.Data?? [];
+            return ret.Data?? new();
         }
 
         public async Task<APIResponse?> ScanForCustom()
@@ -93,5 +95,6 @@ namespace StreamMaster.Application.Hubs
             var ret = await Sender.Send(new ScanForCustomRequest()).ConfigureAwait(false);
             return ret;
         }
+
     }
 }

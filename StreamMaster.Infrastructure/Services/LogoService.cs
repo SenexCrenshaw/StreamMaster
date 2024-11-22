@@ -5,10 +5,13 @@ using System.Web;
 
 using AutoMapper;
 
+using Microsoft.AspNetCore.StaticFiles;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 using StreamMaster.Domain.API;
+using StreamMaster.Domain.Cache;
 using StreamMaster.Domain.Common;
 using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Dto;
@@ -20,7 +23,7 @@ using StreamMaster.PlayList.Models;
 using StreamMaster.SchedulesDirect.Domain.Interfaces;
 
 namespace StreamMaster.Infrastructure.Services;
-public class LogoService(IMapper mapper, ICustomPlayListBuilder customPlayListBuilder, IImageDownloadQueue imageDownloadQueue, IServiceProvider serviceProvider, IDataRefreshService dataRefreshService, IOptionsMonitor<Setting> _settings, ILogger<LogoService> logger)
+public class LogoService(IMapper mapper, ICustomPlayListBuilder customPlayListBuilder, IContentTypeProvider mimeTypeProvider, IMemoryCache memoryCache, IImageDownloadQueue imageDownloadQueue, IServiceProvider serviceProvider, IDataRefreshService dataRefreshService, IOptionsMonitor<Setting> _settings, ILogger<LogoService> logger)
     : ILogoService
 {
     private ConcurrentDictionary<string, LogoFileDto> Logos { get; } = [];
@@ -59,6 +62,108 @@ public class LogoService(IMapper mapper, ICustomPlayListBuilder customPlayListBu
         {
             imageDownloadQueue.EnqueueNameLogo(smChannelsLogo);
         }
+    }
+
+    public async Task<LogoDto?> GetLogoFromCacheAsync(string source, SMFileTypes fileType, CancellationToken cancellationToken)
+    {
+        string sourceDecoded = string.Empty;
+
+        if (source.IsBase64String())
+        {
+            try
+            {
+                sourceDecoded = Encoding.UTF8.GetString(Convert.FromBase64String(source));
+            }
+            catch (FormatException)
+            {
+                // Handle cases where the base64 string might be improperly formatted
+                //sourceDecoded = HttpUtility.UrlDecode(source);
+            }
+        }
+        else
+        {
+            string? newSource = Path.GetFileNameWithoutExtension(source);
+            if (!string.IsNullOrWhiteSpace(newSource))
+            {
+                if (newSource.IsBase64String())
+                {
+                    try
+                    {
+                        sourceDecoded = Encoding.UTF8.GetString(Convert.FromBase64String(newSource));
+                    }
+                    catch (FormatException)
+                    {
+                        // Handle cases where the base64 string might be improperly formatted
+                        sourceDecoded = HttpUtility.UrlDecode(newSource);
+                    }
+                    string ext = Path.GetExtension(source);
+                    sourceDecoded += $"{ext}";
+                }
+            }
+
+            //sourceDecoded = HttpUtility.UrlDecode(source);
+        }
+        if (sourceDecoded is null)
+        {
+            return null;
+        }
+
+        if (sourceDecoded.Length == 0 || sourceDecoded == "noimage.png" || sourceDecoded.EndsWith(_settings.CurrentValue.DefaultLogo))
+        {
+            return null;
+        }
+
+        // string sourceDecoded = HttpUtility.UrlDecode(source);
+        //string sourceDecoded = Encoding.UTF8.GetString(Convert.FromBase64String(source));
+        if (source == "noimage.png")
+        {
+            return null;
+        }
+
+        if (string.IsNullOrEmpty(sourceDecoded))
+        {
+            return null;
+        }
+
+        ImagePath? imagePath = GetValidImagePath(sourceDecoded, fileType);
+        if (imagePath == null)
+        {
+            return null;
+        }
+
+        if (File.Exists(imagePath.FullPath))
+        {
+            try
+            {
+                byte[] ret = await File.ReadAllBytesAsync(imagePath.FullPath, cancellationToken).ConfigureAwait(false);
+                string contentType = GetContentType(imagePath.FullPath);
+                return new LogoDto(sourceDecoded, contentType, imagePath.ReturnName, ret);
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        return null;
+    }
+
+    private string GetContentType(string fileName)
+    {
+        string cacheKey = $"ContentType-{fileName}";
+
+        if (!memoryCache.TryGetValue(cacheKey, out string? contentType))
+        {
+            if (!mimeTypeProvider.TryGetContentType(fileName, out contentType))
+            {
+                contentType = "application/octet-stream";
+            }
+            contentType ??= "application/octet-stream";
+
+            _ = memoryCache.Set(cacheKey, contentType, CacheManagerExtensions.NeverRemoveCacheEntryOptions);
+        }
+
+        return contentType ?? "application/octet-stream";
     }
 
     private static string? GetCachedFile(string source, SMFileTypes smFileType)
@@ -104,7 +209,6 @@ public class LogoService(IMapper mapper, ICustomPlayListBuilder customPlayListBu
 
         return $"/api/files/{(int)path}/{encodedPath}";
     }
-
 
     public string GetLogoUrl(string logoSource, string baseUrl, SMStreamTypeEnum smStream)
     {
@@ -311,14 +415,12 @@ public class LogoService(IMapper mapper, ICustomPlayListBuilder customPlayListBu
         //        : null;
         //}
 
-
         if (fileType == SMFileTypes.SDImage)
         {
             if (!url.StartsWith("http"))
             {
                 try
                 {
-
                     string? fullPath = url.GetSDImageFullPath();
                     if (fullPath is null || !FileUtil.IsValidFilePath(fullPath))
                     {
@@ -337,7 +439,6 @@ public class LogoService(IMapper mapper, ICustomPlayListBuilder customPlayListBu
                 }
                 catch
                 {
-
                 }
             }
             return null;

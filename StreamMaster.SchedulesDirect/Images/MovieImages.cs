@@ -5,7 +5,6 @@ namespace StreamMaster.SchedulesDirect.Images;
 public class MovieImages(ILogger<MovieImages> logger, IEPGCache<MovieImages> epgCache, IImageDownloadQueue imageDownloadQueue, IOptionsMonitor<SDSettings> sdSettings, ISchedulesDirectAPIService schedulesDirectAPI, ISchedulesDirectDataService schedulesDirectDataService)
     : IMovieImages, IDisposable
 {
-
     private readonly List<string> movieImageQueue = [];
     private readonly ConcurrentBag<ProgramMetadata> movieImageResponses = [];
     private readonly SemaphoreSlim semaphore = new(SchedulesDirect.MaxParallelDownloads, SchedulesDirect.MaxParallelDownloads);
@@ -47,14 +46,11 @@ public class MovieImages(ILogger<MovieImages> logger, IEPGCache<MovieImages> epg
                                 mxfProgram.mxfGuideImage = guideImage;
                             }
                         }
-
                     }
                 }
-
             }
 
             movieImageQueue.Add(mxfProgram.ProgramId);
-
         }
 
         logger.LogDebug("Found {processedObjects} cached/unavailable movie poster links.", processedObjects);
@@ -102,7 +98,6 @@ public class MovieImages(ILogger<MovieImages> logger, IEPGCache<MovieImages> epg
         await Task.WhenAll(tasks).ConfigureAwait(false);
 
         ProcessMovieImageResponses();
-
     }
 
     private void ProcessMovieImageResponses()
@@ -127,7 +122,6 @@ public class MovieImages(ILogger<MovieImages> logger, IEPGCache<MovieImages> epg
 
             //List<ProgramArtwork> testartwork = SDHelpers.GetTieredImages(response.Data, ["episode", "series"], artworkSize);
 
-
             if (!mxfProgram.Extras.TryGetValue("artwork", out dynamic? value))
             {
                 List<ProgramArtwork> artworks = SDHelpers.GetTieredImages(response.Data, ["episode", "series"], artworkSize, sdSettings.CurrentValue.MoviePosterAspect).ToList();
@@ -146,7 +140,6 @@ public class MovieImages(ILogger<MovieImages> logger, IEPGCache<MovieImages> epg
             }
             else
             {
-
                 if (response.Data.Count > 0)
                 {
                     logger.LogError("No 2x3 artwork found for {ProgramId}", response.ProgramId);

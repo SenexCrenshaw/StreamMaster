@@ -5,7 +5,6 @@ public class NameLogo
     public NameLogo() { }
     public NameLogo(SMChannel smChannel, SMFileTypes fileType)
     {
-
         //string logo = smChannel.Logo.ToBase64String();
         Id = smChannel.Id.ToString();
         Name = smChannel.Name;
@@ -24,7 +23,7 @@ public class NameLogo
             _ => SMFileTypes.Logo // Default case
         };
 
-        string ext = Path.GetExtension(smStream.Logo) ?? ".png";
+        //string ext = Path.GetExtension(smStream.Logo) ?? ".png";
 
         //string logo = smStream.Logo.ToBase64String();
         Id = smStream.Id;
@@ -36,8 +35,8 @@ public class NameLogo
     public string Ext => Path.GetExtension(Url) ?? ".png";
     public string Id { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
-    public string FileName => $"{Id.ToBase64String()}{Ext}";
+    public string FileName => $"{Id}{Ext}";
     public string Url { get; set; } = string.Empty;
-    public string SMLogoUrl => $"/api/files/{(int)SMFileType}/{FileName}";
+    public string SMLogoUrl => $"/api/files/{(int)SMFileType}/{Id.ToBase64String()}{Ext}";
     public SMFileTypes SMFileType { get; set; }
 }

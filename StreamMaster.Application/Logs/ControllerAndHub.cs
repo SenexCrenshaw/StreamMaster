@@ -6,7 +6,8 @@ namespace StreamMaster.Application.Logs.Controllers
 {
     [Authorize]
     public partial class LogsController(ILogger<LogsController> _logger) : ApiControllerBase, ILogsController
-    {
+    {        
+
         [HttpGet]
         [Route("[action]")]
         public async Task<ActionResult<string>> GetLogContents([FromQuery] GetLogContentsRequest request)
@@ -30,7 +31,7 @@ namespace StreamMaster.Application.Logs.Controllers
             try
             {
             var ret = await Sender.Send(new GetLogNamesRequest()).ConfigureAwait(false);
-             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetLogNames.", statusCode: 500) : Ok(ret.Data?? []);
+             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetLogNames.", statusCode: 500) : Ok(ret.Data?? new());
             }
             catch (Exception ex)
             {
@@ -38,6 +39,7 @@ namespace StreamMaster.Application.Logs.Controllers
                 return Problem(detail: "An unexpected error occurred. Please try again later.", statusCode: 500);
             }
         }
+
     }
 }
 
@@ -54,7 +56,8 @@ namespace StreamMaster.Application.Hubs
         public async Task<List<string>> GetLogNames()
         {
              var ret = await Sender.Send(new GetLogNamesRequest()).ConfigureAwait(false);
-            return ret.Data?? [];
+            return ret.Data?? new();
         }
+
     }
 }

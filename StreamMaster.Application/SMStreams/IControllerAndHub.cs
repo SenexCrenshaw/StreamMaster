@@ -6,7 +6,7 @@ using StreamMaster.Application.SMStreams.Queries;
 namespace StreamMaster.Application.SMStreams
 {
     public interface ISMStreamsController
-    {
+    {        
         Task<ActionResult<PagedResponse<SMStreamDto>>> GetPagedSMStreams(QueryStringParameters Parameters);
         Task<ActionResult<APIResponse?>> CreateSMStream(CreateSMStreamRequest request);
         Task<ActionResult<APIResponse?>> DeleteSMStream(DeleteSMStreamRequest request);

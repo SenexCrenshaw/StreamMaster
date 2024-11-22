@@ -7,7 +7,8 @@ namespace StreamMaster.Application.ChannelGroups.Controllers
 {
     [Authorize]
     public partial class ChannelGroupsController(ILogger<ChannelGroupsController> _logger) : ApiControllerBase, IChannelGroupsController
-    {
+    {        
+
         [HttpGet]
         [Route("[action]")]
         public async Task<ActionResult<List<ChannelGroupDto>>> GetChannelGroupsFromSMChannels()
@@ -15,7 +16,7 @@ namespace StreamMaster.Application.ChannelGroups.Controllers
             try
             {
             var ret = await Sender.Send(new GetChannelGroupsFromSMChannelsRequest()).ConfigureAwait(false);
-             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetChannelGroupsFromSMChannels.", statusCode: 500) : Ok(ret.Data?? []);
+             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetChannelGroupsFromSMChannels.", statusCode: 500) : Ok(ret.Data?? new());
             }
             catch (Exception ex)
             {
@@ -31,7 +32,7 @@ namespace StreamMaster.Application.ChannelGroups.Controllers
             try
             {
             var ret = await Sender.Send(new GetChannelGroupsRequest()).ConfigureAwait(false);
-             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetChannelGroups.", statusCode: 500) : Ok(ret.Data?? []);
+             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetChannelGroups.", statusCode: 500) : Ok(ret.Data?? new());
             }
             catch (Exception ex)
             {
@@ -95,6 +96,7 @@ namespace StreamMaster.Application.ChannelGroups.Controllers
             var ret = await Sender.Send(request).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
         }
+
     }
 }
 
@@ -105,13 +107,13 @@ namespace StreamMaster.Application.Hubs
         public async Task<List<ChannelGroupDto>> GetChannelGroupsFromSMChannels()
         {
              var ret = await Sender.Send(new GetChannelGroupsFromSMChannelsRequest()).ConfigureAwait(false);
-            return ret.Data?? [];
+            return ret.Data?? new();
         }
 
         public async Task<List<ChannelGroupDto>> GetChannelGroups()
         {
              var ret = await Sender.Send(new GetChannelGroupsRequest()).ConfigureAwait(false);
-            return ret.Data?? [];
+            return ret.Data?? new();
         }
 
         public async Task<PagedResponse<ChannelGroupDto>> GetPagedChannelGroups(QueryStringParameters Parameters)
@@ -155,5 +157,6 @@ namespace StreamMaster.Application.Hubs
             var ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;
         }
+
     }
 }

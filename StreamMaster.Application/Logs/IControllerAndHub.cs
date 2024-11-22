@@ -5,7 +5,7 @@ using StreamMaster.Application.Logs.Queries;
 namespace StreamMaster.Application.Logs
 {
     public interface ILogsController
-    {
+    {        
         Task<ActionResult<string>> GetLogContents(GetLogContentsRequest request);
         Task<ActionResult<List<string>>> GetLogNames();
     }

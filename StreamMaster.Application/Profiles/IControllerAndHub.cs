@@ -6,7 +6,7 @@ using StreamMaster.Application.Profiles.Queries;
 namespace StreamMaster.Application.Profiles
 {
     public interface IProfilesController
-    {
+    {        
         Task<ActionResult<List<CommandProfileDto>>> GetCommandProfiles();
         Task<ActionResult<OutputProfileDto>> GetOutputProfile(GetOutputProfileRequest request);
         Task<ActionResult<List<OutputProfileDto>>> GetOutputProfiles();

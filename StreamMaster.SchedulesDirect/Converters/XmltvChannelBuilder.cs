@@ -201,7 +201,10 @@ public class XmltvChannelBuilder(ILogoService logoService, ISchedulesDirectDataS
     public static string GetChannelId(VideoStreamConfig videoStreamConfig)
     {
         string id = videoStreamConfig.ChannelNumber.ToString();
-
+        if (videoStreamConfig.OutputProfile is null)
+        {
+            return id;
+        }
         if (videoStreamConfig.OutputProfile.Id != nameof(ValidM3USetting.NotMapped))
         {
             switch (videoStreamConfig.OutputProfile.Id)

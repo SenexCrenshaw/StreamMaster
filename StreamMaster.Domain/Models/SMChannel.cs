@@ -1,12 +1,12 @@
-﻿using AutoMapper.Configuration.Annotations;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
+using System.Xml.Serialization;
+
+using AutoMapper.Configuration.Annotations;
 
 using MessagePack;
 
 using StreamMaster.Domain.Attributes;
-
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Text.Json.Serialization;
-using System.Xml.Serialization;
 
 using KeyAttribute = System.ComponentModel.DataAnnotations.KeyAttribute;
 
@@ -90,6 +90,9 @@ namespace StreamMaster.Domain.Models
         /// </summary>
         [Column(TypeName = "citext")]
         public string Name { get; set; } = string.Empty;
+
+        [Column(TypeName = "citext")]
+        public string OriginalLogo { get; set; } = string.Empty;
 
         /// <summary>
         /// Gets or sets the client user agent string for the channel.

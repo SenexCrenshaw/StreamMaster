@@ -6,7 +6,7 @@ using StreamMaster.Application.EPGFiles.Queries;
 namespace StreamMaster.Application.EPGFiles
 {
     public interface IEPGFilesController
-    {
+    {        
         Task<ActionResult<List<string>>> GetEPGFileNames();
         Task<ActionResult<List<EPGFilePreviewDto>>> GetEPGFilePreviewById(GetEPGFilePreviewByIdRequest request);
         Task<ActionResult<List<EPGFileDto>>> GetEPGFiles();

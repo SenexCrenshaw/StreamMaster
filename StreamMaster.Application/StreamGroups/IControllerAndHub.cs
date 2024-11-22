@@ -6,7 +6,7 @@ using StreamMaster.Application.StreamGroups.Queries;
 namespace StreamMaster.Application.StreamGroups
 {
     public interface IStreamGroupsController
-    {
+    {        
         Task<ActionResult<PagedResponse<StreamGroupDto>>> GetPagedStreamGroups(QueryStringParameters Parameters);
         Task<ActionResult<List<StreamGroupProfile>>> GetStreamGroupProfiles();
         Task<ActionResult<StreamGroupDto>> GetStreamGroup(GetStreamGroupRequest request);

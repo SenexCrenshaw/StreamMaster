@@ -30,7 +30,6 @@ public class ScanForCustomPlayListsRequestHandler(IOptionsMonitor<CommandProfile
 
             string logo = logoService.GetLogoUrl2(customPlayList.Logo, SMFileTypes.CustomPlayListLogo);
 
-
             SMStream smStream = new()
             {
                 Id = id,
@@ -78,8 +77,6 @@ public class ScanForCustomPlayListsRequestHandler(IOptionsMonitor<CommandProfile
                     Logo = logo,
                     IsSystem = true,
                 };
-
-
 
                 Repository.SMStream.Create(newStream);
             }

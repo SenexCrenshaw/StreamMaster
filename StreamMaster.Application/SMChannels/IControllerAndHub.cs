@@ -6,7 +6,7 @@ using StreamMaster.Application.SMChannels.Queries;
 namespace StreamMaster.Application.SMChannels
 {
     public interface ISMChannelsController
-    {
+    {        
         Task<ActionResult<PagedResponse<SMChannelDto>>> GetPagedSMChannels(QueryStringParameters Parameters);
         Task<ActionResult<List<NameLogo>>> GetSMChannelNameLogos();
         Task<ActionResult<List<string>>> GetSMChannelNames();

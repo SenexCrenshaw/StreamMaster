@@ -7,7 +7,7 @@ namespace StreamMaster.Application.StreamGroups.Queries;
 
 [RequireAll]
 public record GetStreamGroupEPG(int StreamGroupProfileId) : IRequest<string>;
-public class GetStreamGroupEPGHandler(IStreamGroupService streamGroupService, IXMLTVBuilder xMLTVBuilder, ISchedulesDirectDataService schedulesDirectDataService, IOptionsMonitor<Setting> intSettings)
+public class GetStreamGroupEPGHandler(IStreamGroupService streamGroupService, IXMLTVBuilder xMLTVBuilder, IOptionsMonitor<Setting> intSettings)
     : IRequestHandler<GetStreamGroupEPG, string>
 {
     [LogExecutionTimeAspect]

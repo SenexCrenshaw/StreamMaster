@@ -157,7 +157,6 @@ public class XMLTVBuilder : IXMLTVBuilder
         if (sdVideoStreamConfigs.Count > 0)
         {
             await ProcessScheduleDirectConfigsAsync(xmlTv, sdVideoStreamConfigs);
-
         }
 
         // Process Dummy Configurations
@@ -197,7 +196,6 @@ public class XMLTVBuilder : IXMLTVBuilder
 
         xmlTv.Channels.AddRange(newChannels);
         xmlTv.Programs.AddRange(newProgrammes);
-
     }
 
     private void ProcessDummyConfigs(XMLTV xmlTv, List<VideoStreamConfig> dummyConfigs)
@@ -243,7 +241,6 @@ public class XMLTVBuilder : IXMLTVBuilder
         xmlTv.Programs.AddRange(programs);
     }
 
-
     private async Task ProcessEPGFileConfigsAsync(XMLTV xmlTv, List<VideoStreamConfig> configs, List<EPGFile> epgFiles)
     {
         // Process EPG files in parallel
@@ -286,8 +283,6 @@ public class XMLTVBuilder : IXMLTVBuilder
         // Await all tasks to complete
         await Task.WhenAll(tasks).ConfigureAwait(false);
     }
-
-
 
     private void ProcessCustomPlaylists(XMLTV xmlTv, List<VideoStreamConfig> customConfigs)
     {
@@ -335,7 +330,6 @@ public class XMLTVBuilder : IXMLTVBuilder
         xmlTv.Programs.AddRange(programs);
     }
 
-
     private (List<XmltvChannel> xmltvChannels, List<XmltvProgramme> programs) ProcessXML(XMLTV xml, List<VideoStreamConfig> videoStreamConfigs)
     {
         string baseUrl = GetUrlWithPath();
@@ -382,7 +376,6 @@ public class XMLTVBuilder : IXMLTVBuilder
                         {
                             icon.Src = logoService.GetLogoUrl(icon.Src, baseUrl, SMStreamTypeEnum.CustomPlayList);
                         }
-
                     }
                     newProgrammes.Add(prog);
                 }

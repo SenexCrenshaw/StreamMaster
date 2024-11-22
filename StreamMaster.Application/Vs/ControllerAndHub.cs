@@ -6,7 +6,8 @@ namespace StreamMaster.Application.Vs.Controllers
 {
     [Authorize]
     public partial class VsController(ILogger<VsController> _logger) : ApiControllerBase, IVsController
-    {
+    {        
+
         [HttpGet]
         [Route("[action]")]
         public async Task<ActionResult<List<V>>> GetVs([FromQuery] GetVsRequest request)
@@ -14,7 +15,7 @@ namespace StreamMaster.Application.Vs.Controllers
             try
             {
             var ret = await Sender.Send(request).ConfigureAwait(false);
-             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetVs.", statusCode: 500) : Ok(ret.Data?? []);
+             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetVs.", statusCode: 500) : Ok(ret.Data?? new());
             }
             catch (Exception ex)
             {
@@ -22,6 +23,7 @@ namespace StreamMaster.Application.Vs.Controllers
                 return Problem(detail: "An unexpected error occurred. Please try again later.", statusCode: 500);
             }
         }
+
     }
 }
 
@@ -32,7 +34,8 @@ namespace StreamMaster.Application.Hubs
         public async Task<List<V>> GetVs(GetVsRequest request)
         {
              var ret = await Sender.Send(request).ConfigureAwait(false);
-            return ret.Data?? [];
+            return ret.Data?? new();
         }
+
     }
 }

@@ -18,7 +18,7 @@ public class LineupService : ILineupService
     private readonly ISchedulesDirectDataService schedulesDirectDataService;
     private readonly HttpClient httpClient;
     private readonly ConcurrentDictionary<string, StationImage> StationLogosToDownload = [];
-    private readonly IImageDownloadQueue imageDownloadQueue; // Injected ImageDownloadQueue
+    //private readonly IImageDownloadQueue imageDownloadQueue; // Injected ImageDownloadQueue
 
     public LineupService(
         ILogger<LineupService> logger,
@@ -27,8 +27,9 @@ public class LineupService : ILineupService
         ILogoService logoService,
         ISchedulesDirectAPIService schedulesDirectAPI,
         IEPGCache<LineupResult> epgCache,
-        ISchedulesDirectDataService schedulesDirectDataService,
-         IImageDownloadQueue imageDownloadQueue)
+        ISchedulesDirectDataService schedulesDirectDataService
+        //IImageDownloadQueue imageDownloadQueue
+        )
     {
         settings = Settings;
         this.logger = logger;
@@ -37,7 +38,7 @@ public class LineupService : ILineupService
         this.schedulesDirectAPI = schedulesDirectAPI;
         this.epgCache = epgCache;
         this.schedulesDirectDataService = schedulesDirectDataService;
-        this.imageDownloadQueue = imageDownloadQueue;
+        //this.imageDownloadQueue = imageDownloadQueue;
         httpClient = CreateHttpClient();
     }
 
@@ -131,7 +132,7 @@ public class LineupService : ILineupService
 
                 if (string.IsNullOrEmpty(mxfService.CallSign))
                 {
-                    await SetStationDetailsAsync(station, mxfService, preferredLogoStyle, alternateLogoStyle, cancellationToken);
+                    SetStationDetails(station, mxfService, preferredLogoStyle, alternateLogoStyle);
                 }
 
                 foreach (LineupChannelStation map in lineupMap.Map.Where(a => a.StationId == station.StationId))
@@ -187,7 +188,7 @@ public class LineupService : ILineupService
         return false;
     }
 
-    private async Task SetStationDetailsAsync(LineupStation station, MxfService mxfService, string preferredLogoStyle, string alternateLogoStyle, CancellationToken cancellationToken)
+    private void SetStationDetails(LineupStation station, MxfService mxfService, string preferredLogoStyle, string alternateLogoStyle)
     {
         if (!string.IsNullOrEmpty(mxfService.CallSign))
         {
@@ -229,7 +230,8 @@ public class LineupService : ILineupService
             //{
             //    await SetLogoAsync(mxfService, logoPath, stationLogo, cancellationToken).ConfigureAwait(false);
             //}
-            await SetLogoAsync(mxfService, stationLogo, cancellationToken).ConfigureAwait(false);
+            //await SetLogoAsync(mxfService, stationLogo, cancellationToken).ConfigureAwait(false);
+            mxfService.mxfGuideImage = schedulesDirectDataService.SchedulesDirectData().FindOrCreateGuideImage(stationLogo.Url);
             //await HandleStationLogoAsync(mxfService, stationLogo, cancellationToken);
         }
     }
@@ -260,30 +262,30 @@ public class LineupService : ILineupService
     //    await SetLogoAsync(mxfService, stationLogo, cancellationToken).ConfigureAwait(false);
     //}
 
-    private async Task SetLogoAsync(MxfService mxfService, StationImage stationLogo, CancellationToken cancellationToken)
-    {
-        //if (File.Exists(logoPath))
-        //{
-        //    await using FileStream stream = File.OpenRead(logoPath);
-        //    using Image image = await Image.LoadAsync(stream, cancellationToken);
+    //private async Task SetLogoAsync(MxfService mxfService, StationImage stationLogo, CancellationToken cancellationToken)
+    //{
+    //    //if (File.Exists(logoPath))
+    //    //{
+    //    //    await using FileStream stream = File.OpenRead(logoPath);
+    //    //    using Image image = await Image.LoadAsync(stream, cancellationToken);
 
-        //    mxfService.extras.TryAdd("logo", new StationImage
-        //    {
-        //        Url = stationLogo.Url,
-        //        Height = image.Height,
-        //        Width = image.Width
-        //    });
-        //}
-        //else
-        //{
-        //    mxfService.extras.TryAdd("logo", new StationImage
-        //    {
-        //        Url = stationLogo.Url
-        //    });
-        //}
+    //    //    mxfService.extras.TryAdd("logo", new StationImage
+    //    //    {
+    //    //        Url = stationLogo.Url,
+    //    //        Height = image.Height,
+    //    //        Width = image.Width
+    //    //    });
+    //    //}
+    //    //else
+    //    //{
+    //    //    mxfService.extras.TryAdd("logo", new StationImage
+    //    //    {
+    //    //        Url = stationLogo.Url
+    //    //    });
+    //    //}
 
-        mxfService.mxfGuideImage = schedulesDirectDataService.SchedulesDirectData().FindOrCreateGuideImage(stationLogo.Url);
-    }
+    //    mxfService.mxfGuideImage = schedulesDirectDataService.SchedulesDirectData().FindOrCreateGuideImage(stationLogo.Url);
+    //}
 
     //private static async Task<bool> FileExistsAsync(string filePath)
     //{

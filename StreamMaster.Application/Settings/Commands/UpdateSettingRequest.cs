@@ -149,7 +149,6 @@ public partial class UpdateSettingRequestHandler(
             destination.SportsImages = source.SportsImages.Value;
         }
 
-
         if (source.XmltvAddFillerData.HasValue)
         {
             destination.XmltvAddFillerData = source.XmltvAddFillerData.Value;

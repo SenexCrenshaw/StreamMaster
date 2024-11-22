@@ -217,7 +217,6 @@ public class StreamGroupService(IHttpContextAccessor httpContextAccessor, IOptio
         ConcurrentBag<SGLineup> ret = [];
         _ = Parallel.ForEach(videoStreamConfigs, (videoStreamConfig, _) =>
         {
-
             if (videoStreamConfig != null)
             {
                 //UpdateProperty(videoStreamConfig, p => p.Name);

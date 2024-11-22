@@ -5,7 +5,7 @@ using StreamMaster.Application.Streaming.Commands;
 namespace StreamMaster.Application.Streaming
 {
     public interface IStreamingController
-    {
+    {        
         Task<ActionResult<APIResponse?>> CancelAllChannels();
         Task<ActionResult<APIResponse?>> CancelChannel(CancelChannelRequest request);
         Task<ActionResult<APIResponse?>> CancelClient(CancelClientRequest request);

@@ -21,7 +21,6 @@ namespace StreamMaster.Infrastructure.Services.Downloads
         private readonly IOptionsMonitor<SDSettings> sdSettings;
         private readonly ISchedulesDirectAPIService schedulesDirectAPI;
         private readonly IImageDownloadQueue imageDownloadQueue;
-        private readonly ISchedulesDirectDataService schedulesDirectDataService;
         private readonly SemaphoreSlim downloadSemaphore;
         private readonly HttpClient httpClient; // Reused HttpClient via factory
 
@@ -39,8 +38,7 @@ namespace StreamMaster.Infrastructure.Services.Downloads
             IOptionsMonitor<Setting> settings,
             IOptionsMonitor<SDSettings> sdSettings,
             ISchedulesDirectAPIService schedulesDirectAPI,
-            IImageDownloadQueue imageDownloadQueue,
-            ISchedulesDirectDataService schedulesDirectDataService)
+            IImageDownloadQueue imageDownloadQueue)
         {
             this.logger = logger;
             this.dataRefreshService = dataRefreshService;
@@ -48,7 +46,6 @@ namespace StreamMaster.Infrastructure.Services.Downloads
             this.sdSettings = sdSettings;
             this.schedulesDirectAPI = schedulesDirectAPI;
             this.imageDownloadQueue = imageDownloadQueue;
-            this.schedulesDirectDataService = schedulesDirectDataService;
             downloadSemaphore = new SemaphoreSlim(_settings.CurrentValue.MaxConcurrentDownloads);
             httpClient = httpClientFactory.CreateClient(); // Use HttpClientFactory here
         }

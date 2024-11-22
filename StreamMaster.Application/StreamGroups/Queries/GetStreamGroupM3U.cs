@@ -13,19 +13,17 @@ public class EncodedData
 }
 
 public class GetStreamGroupM3UHandler(
-    IProfileService profileService,
     IStreamGroupService streamGroupService,
     ILogoService logoService,
     IOptionsMonitor<Setting> _settings
     )
     : IRequestHandler<GetStreamGroupM3U, string>
 {
-    private const string DefaultReturn = "#EXTM3U\r\n";
+    //private const string DefaultReturn = "#EXTM3U\r\n";
 
     [LogExecutionTimeAspect]
     public async Task<string> Handle(GetStreamGroupM3U request, CancellationToken cancellationToken)
     {
-
         Setting settings = _settings.CurrentValue;
 
         StreamGroup? streamGroup = await streamGroupService.GetStreamGroupFromSGProfileIdAsync(request.StreamGroupProfileId);
