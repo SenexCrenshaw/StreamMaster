@@ -39,6 +39,8 @@ public class PostStartup(ILogger<PostStartup> logger, IServiceProvider servicePr
 
         await taskQueue.BuildLogoCaches(cancellationToken).ConfigureAwait(false);
 
+        await taskQueue.BuildLogosCacheFromStreams(cancellationToken).ConfigureAwait(false);
+
         while (taskQueue.HasJobs())
         {
             await Task.Delay(250, cancellationToken).ConfigureAwait(false);

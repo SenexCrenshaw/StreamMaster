@@ -57,7 +57,7 @@ public partial class SchedulesDirect
             return;
         }
 
-        logoService.AddLogo(new LogoFileDto { Source = artworkUri, SMFileType = SMFileTypes.SDImage, Name = title });
+        logoService.AddLogo(new LogoFileDto { Source = artworkUri, SMFileType = SMFileTypes.SDImage, Name = title }, true);
     }
 
     public void UpdateIcons(IEnumerable<string> artworkUris, string title)

@@ -1,4 +1,6 @@
-﻿using MediatR;
+﻿using System.Collections.Concurrent;
+
+using MediatR;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -14,8 +16,6 @@ using StreamMaster.Application.M3UFiles.Commands;
 using StreamMaster.Application.SchedulesDirect.Commands;
 using StreamMaster.Application.Services;
 using StreamMaster.Domain.Enums;
-
-using System.Collections.Concurrent;
 
 namespace StreamMaster.Infrastructure.Services.QueueService;
 
@@ -93,9 +93,9 @@ public sealed class QueuedHostedService(
                         await _sender.Send(new BuildProgLogosCacheFromEPGsRequest(), cancellationSource.Token).ConfigureAwait(false);
                         break;
 
-                    case SMQueCommand.BuildLogosCacheFromVideoStreams:
-                        await _sender.Send(new BuildLogosCacheFromStreamsRequest(), cancellationSource.Token).ConfigureAwait(false);
-                        break;
+                    //case SMQueCommand.BuildLogosCacheFromVideoStreams:
+                    //    await _sender.Send(new BuildLogosCacheFromStreamsRequest(), cancellationSource.Token).ConfigureAwait(false);
+                    //    break;
 
                     case SMQueCommand.ReadDirectoryLogosRequest:
                         await _sender.Send(new ReadDirectoryLogosRequest(), cancellationSource.Token).ConfigureAwait(false);

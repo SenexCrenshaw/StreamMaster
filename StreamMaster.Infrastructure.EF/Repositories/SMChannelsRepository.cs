@@ -23,7 +23,7 @@ using StreamMaster.SchedulesDirect.Domain.Models;
 
 namespace StreamMaster.Infrastructure.EF.Repositories;
 
-public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IImageDownloadQueue imageDownloadQueue,  IServiceProvider serviceProvider, IRepositoryWrapper repository, IRepositoryContext repositoryContext, IMapper mapper, IOptionsMonitor<Setting> settings, IOptionsMonitor<CommandProfileDict> intProfileSettings, ISchedulesDirectDataService schedulesDirectDataService)
+public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IImageDownloadService imageDownloadService, IImageDownloadQueue imageDownloadQueue, IServiceProvider serviceProvider, IRepositoryWrapper repository, IRepositoryContext repositoryContext, IMapper mapper, IOptionsMonitor<Setting> settings, IOptionsMonitor<CommandProfileDict> intProfileSettings, ISchedulesDirectDataService schedulesDirectDataService)
     : RepositoryBase<SMChannel>(repositoryContext, intLogger), ISMChannelsRepository
 {
     private int currentChannelNumber;
@@ -547,10 +547,26 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IImag
         }
 
         channel.Logo = logo;
+
+        if (!IsLocalLogo(logo))
+        {
+            NameLogo nl = new(logo);
+            await imageDownloadService.DownloadImageAsync(nl, CancellationToken.None);
+        }
+
         Update(channel);
         _ = await SaveChangesAsync();
 
         return APIResponse.Success;
+    }
+
+    private bool IsLocalLogo(string Logo)
+    {
+        return string.IsNullOrEmpty(Logo)
+          || Logo.EqualsIgnoreCase("noimage.png")
+          || Logo.EqualsIgnoreCase(settings.CurrentValue.DefaultLogo)
+          || (Logo.StartsWithIgnoreCase("images") && Logo.EndsWithIgnoreCase("default.png"))
+          || Logo.EqualsIgnoreCase("/images/streammaster_logo.png");
     }
 
     public async Task<APIResponse> SetSMChannelName(int sMChannelId, string name)
@@ -723,7 +739,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IImag
 
         string name = GetName(smStream);
 
-        NameLogo nl = new(smStream);
+        //NameLogo nl = new(smStream);
 
         //string logo = logoService.GetLogoUrl2(smStream.Logo, ftype);
         SMChannel smChannel = new()
@@ -736,8 +752,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IImag
             EPGId = smStream.EPGID,
             Group = smStream.Group,
             IsSystem = smStream.IsSystem,
-            OriginalLogo = smStream.Logo,
-            Logo = nl.SMLogoUrl,
+            Logo = smStream.Logo,// nl.SMLogoUrl,
             M3UFileId = smStream.M3UFileId,
             Name = name,
             StationId = smStream.StationId,
@@ -901,6 +916,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IImag
         {
             if (SetVideoStreamLogoFromEPG(smChannel))
             {
+
                 fds.Add(new FieldData(SMChannel.APIName, smChannel.Id, "Logo", smChannel.Logo));
                 RepositoryContext.SMChannels.Update(smChannel);
             }

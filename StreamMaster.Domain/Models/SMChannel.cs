@@ -91,8 +91,8 @@ namespace StreamMaster.Domain.Models
         [Column(TypeName = "citext")]
         public string Name { get; set; } = string.Empty;
 
-        [Column(TypeName = "citext")]
-        public string OriginalLogo { get; set; } = string.Empty;
+        //[Column(TypeName = "citext")]
+        //public string OriginalLogo { get; set; } = string.Empty;
 
         /// <summary>
         /// Gets or sets the client user agent string for the channel.

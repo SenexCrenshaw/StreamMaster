@@ -1,12 +1,12 @@
 import SMDropDown from '@components/sm/SMDropDown';
 import { getIconUrl } from '@lib/common/common';
+import { Logger } from '@lib/common/logger';
 import useGetLogos from '@lib/smAPI/Logos/useGetLogos';
-
 import { LogoFileDto, SMFileTypes } from '@lib/smAPI/smapiTypes';
 import { ProgressSpinner } from 'primereact/progressspinner';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
-type IconSelectorProperties = {
+type IconSelectorProps = {
   readonly className?: string;
   readonly darkBackGround?: boolean;
   readonly enableEditMode?: boolean;
@@ -19,67 +19,42 @@ type IconSelectorProperties = {
   readonly onChange?: (value: string) => void;
 };
 
-const IconSelector = ({
-  className,
+const IconSelector: React.FC<IconSelectorProps> = ({
+  className = '',
   darkBackGround = false,
   enableEditMode = true,
   autoPlacement = false,
   isLoading = false,
-  isCustomPlayList = false,
   label,
   large = false,
+  isCustomPlayList = false,
   value,
   onChange
-}: IconSelectorProperties) => {
-  const [origValue, setOrigValue] = useState<string | undefined>(undefined);
-  const [iconSource, setIconSource] = useState<string | undefined>(undefined);
+}) => {
+  const [iconSource, setIconSource] = useState<string | undefined>(value);
   const [iconDto, setIconDto] = useState<LogoFileDto | undefined>(undefined);
 
   const query = useGetLogos();
 
-  const handleOnChange = (source: LogoFileDto) => {
-    if (!source?.Source) {
-      return;
-    }
-
-    onChange && onChange(source.Source);
-  };
-
+  // Update icon source and details when value changes
   useEffect(() => {
-    if (value === undefined) return;
+    const selectedIcon = query.data?.find((icon) => icon.Source === value);
+    setIconSource(value);
+    setIconDto(selectedIcon);
+  }, [value, query.data]);
 
-    if (iconSource && iconSource === origValue) {
-      setIconSource(value);
-      setOrigValue(value);
-      const icon = query.data?.find((i) => i.Source === value);
-      setIconDto(icon);
-      return;
-    }
-    if (iconSource && iconSource !== value) {
-      setIconSource(iconSource);
-      setOrigValue(iconSource);
-      const icon = query.data?.find((i) => i.Source === iconSource);
-      setIconDto(icon);
-      return;
-    } else {
-      setIconSource(value);
-      setOrigValue(value);
-      const icon = query.data?.find((i) => i.Source === value);
-      setIconDto(icon);
-      return;
-    }
-  }, [iconSource, origValue, query.data, value]);
+  const loading = useMemo(() => query.isLoading || query.isError || !query.data, [query.isLoading, query.isError, query.data]);
+  Logger.debug('IconSelector', value, loading);
 
-  // Logger.debug('IconSelector', 'IconSelector', value);
+  const cacheBustedUrl = useCallback((iconUrl: string) => {
+    const uniqueTimestamp = Date.now(); // Generate a unique timestamp
+    return `${iconUrl}?_=${uniqueTimestamp}`;
+  }, []); // Regenerate only when iconUrl changes
 
-  const buttonTemplate = useMemo(() => {
-    if (iconSource === undefined) {
-      return '/images/default.png';
-    }
-
-    const iconUrl = iconSource
-      ? getIconUrl(iconSource, '/images/default.png', false, isCustomPlayList === true ? SMFileTypes.CustomPlayList : null)
-      : '/images/default.png';
+  const buttonTemplate = () => {
+    const fallbackUrl = '/images/default.png';
+    let iconUrl = iconSource ? getIconUrl(iconSource, fallbackUrl, false, isCustomPlayList ? SMFileTypes.CustomPlayList : null) : fallbackUrl;
+    iconUrl = cacheBustedUrl(iconUrl);
 
     if (large) {
       return (
@@ -94,27 +69,21 @@ const IconSelector = ({
         <img alt="Icon logo" src={iconUrl} />
       </div>
     );
-  }, [iconSource, isCustomPlayList, large]);
+  };
 
   const itemTemplate = (icon: LogoFileDto) => {
-    if (icon === null) return <div />;
-
-    const iconUrl = icon ? getIconUrl(icon.Source, '/images/default.png', false, icon.SMFileType) : '';
-
-    if (!iconUrl) {
-      return <div className="no-text"></div>;
-    }
+    const fallbackUrl = '/images/default.png';
+    const iconUrl = getIconUrl(icon.Source, fallbackUrl, false, icon.SMFileType);
+    Logger.debug('IconSelector', icon, iconUrl);
 
     return (
       <div className="w-full flex flex-row align-items-center justify-content-between p-row-odd">
-        <div className="flex flex-row align-items-center p-row-odd">
+        <div className="flex flex-row align-items-center">
           <img
             className="icon-template"
             src={iconUrl}
             alt={icon.Name}
-            onError={(e) => {
-              (e.currentTarget as HTMLImageElement).src = '/images/default.png';
-            }}
+            onError={(e) => ((e.currentTarget as HTMLImageElement).src = fallbackUrl)}
             loading="lazy"
           />
         </div>
@@ -125,60 +94,54 @@ const IconSelector = ({
     );
   };
 
-  const getDiv = useMemo(() => {
-    let div = 'w-full';
-    if (large) {
-      div += ' sm-iconselector-lg width-100 ';
-    }
+  const containerClass = useMemo(() => {
+    let baseClass = 'w-full';
+    if (large) baseClass += ' sm-iconselector-lg width-100';
+    if (label) baseClass += ' flex-column';
+    return baseClass;
+  }, [large, label]);
 
-    if (label) {
-      div += ' flex-column';
+  const handleIconChange = (selectedIcon: LogoFileDto) => {
+    if (selectedIcon?.Source) {
+      onChange?.(selectedIcon.Value);
     }
-
-    return div;
-  }, [label, large]);
+  };
 
   if (!enableEditMode) {
-    const iconUrl = getIconUrl(iconSource ?? '', '/images/default.png', false, isCustomPlayList === true ? SMFileTypes.CustomPlayList : null);
+    const iconUrl = getIconUrl(iconSource ?? '', '/images/default.png', false, isCustomPlayList ? SMFileTypes.CustomPlayList : null);
     return (
       <div className="w-full flex flex-row align-items-center justify-content-center p-row-odd">
         <img
           alt="Logo Icon"
           className="icon-template"
           src={iconUrl}
-          onError={(e) => {
-            (e.currentTarget as HTMLImageElement).src = '/images/default.png';
-          }}
+          onError={(e) => ((e.currentTarget as HTMLImageElement).src = '/images/default.png')}
           loading="lazy"
         />
       </div>
     );
   }
 
-  const loading = query.isError || query.isLoading || !query.data;
-
   if (loading) {
-    return (
-      <div className="iconselector m-0 p-0">
-        <ProgressSpinner />
-      </div>
-    );
+    return <div className="iconselector m-0 p-0">{query.isError ? <span>Error loading icons</span> : <ProgressSpinner />}</div>;
   }
 
   return (
     <div className={className}>
       {label && (
         <div className="flex flex-column align-items-start">
-          <label className="pl-15">{label.toUpperCase()}</label>
+          <label className="pl-15" htmlFor="icon-selector-dropdown">
+            {label.toUpperCase()}
+          </label>
           <div className="pt-small" />
         </div>
       )}
-      <div className={getDiv}>
+      <div className={containerClass}>
         <SMDropDown
           buttonLabel="LOGOS"
           buttonLargeImage={large}
           buttonDarkBackground={darkBackGround}
-          buttonTemplate={buttonTemplate}
+          buttonTemplate={buttonTemplate()}
           data={query.data}
           dataKey="Source"
           filter
@@ -187,9 +150,7 @@ const IconSelector = ({
           itemSize={32}
           itemTemplate={itemTemplate}
           buttonIsLoading={isLoading}
-          onChange={(e) => {
-            handleOnChange(e);
-          }}
+          onChange={handleIconChange}
           title="LOGOS"
           value={iconDto}
           contentWidthSize="3"
@@ -198,6 +159,7 @@ const IconSelector = ({
     </div>
   );
 };
+
 IconSelector.displayName = 'IconSelector';
 
 export default React.memo(IconSelector);

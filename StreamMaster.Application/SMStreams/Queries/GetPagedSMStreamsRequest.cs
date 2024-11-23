@@ -49,10 +49,10 @@ internal class GetPagedSMStreamsRequestHandler(IRepositoryWrapper Repository)
         {
             if (groupedChannelNameLogos.TryGetValue(smStream.Id, out List<NameLogo>? logos))
             {
-                for (int i = 0; i < logos.Count; i++)
-                {
-                    logos[i].Id = i.ToString();
-                }
+                //for (int i = 0; i < logos.Count; i++)
+                //{
+                //    logos[i].Id = i.ToString();
+                //}
                 smStream.ChannelMembership = logos;
             }
             else

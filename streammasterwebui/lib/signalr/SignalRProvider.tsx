@@ -22,6 +22,7 @@ import useGetLineupPreviewChannel from '@lib/smAPI/SchedulesDirect/useGetLineupP
 import useGetLogContents from '@lib/smAPI/Logs/useGetLogContents';
 import useGetLogNames from '@lib/smAPI/Logs/useGetLogNames';
 import useGetLogo from '@lib/smAPI/Logos/useGetLogo';
+import useGetLogoForChannel from '@lib/smAPI/Logos/useGetLogoForChannel';
 import useGetLogos from '@lib/smAPI/Logos/useGetLogos';
 import useGetM3UFileNames from '@lib/smAPI/M3UFiles/useGetM3UFileNames';
 import useGetM3UFiles from '@lib/smAPI/M3UFiles/useGetM3UFiles';
@@ -36,7 +37,6 @@ import useGetPagedStreamGroups from '@lib/smAPI/StreamGroups/useGetPagedStreamGr
 import useGetSelectedStationIds from '@lib/smAPI/SchedulesDirect/useGetSelectedStationIds';
 import useGetSettings from '@lib/smAPI/Settings/useGetSettings';
 import useGetSMChannelChannels from '@lib/smAPI/SMChannelChannelLinks/useGetSMChannelChannels';
-import useGetSMChannelNameLogos from '@lib/smAPI/SMChannels/useGetSMChannelNameLogos';
 import useGetSMChannelNames from '@lib/smAPI/SMChannels/useGetSMChannelNames';
 import useGetSMChannelStreams from '@lib/smAPI/SMChannelStreamLinks/useGetSMChannelStreams';
 import useGetSMTasks from '@lib/smAPI/SMTasks/useGetSMTasks';
@@ -94,6 +94,7 @@ export const SignalRProvider: React.FC<SignalRProviderProps> = ({ children }) =>
   const getLogContents = useGetLogContents();
   const getLogNames = useGetLogNames();
   const getLogo = useGetLogo();
+  const getLogoForChannel = useGetLogoForChannel();
   const getLogos = useGetLogos();
   const getM3UFileNames = useGetM3UFileNames();
   const getM3UFiles = useGetM3UFiles();
@@ -108,7 +109,6 @@ export const SignalRProvider: React.FC<SignalRProviderProps> = ({ children }) =>
   const getSelectedStationIds = useGetSelectedStationIds();
   const getSettings = useGetSettings();
   const getSMChannelChannels = useGetSMChannelChannels();
-  const getSMChannelNameLogos = useGetSMChannelNameLogos();
   const getSMChannelNames = useGetSMChannelNames();
   const getSMChannelStreams = useGetSMChannelStreams();
   const getSMTasks = useGetSMTasks();
@@ -220,6 +220,10 @@ export const SignalRProvider: React.FC<SignalRProviderProps> = ({ children }) =>
         getLogo.SetIsForced(true);
         return;
       }
+      if (entity === 'GetLogoForChannel') {
+        getLogoForChannel.SetIsForced(true);
+        return;
+      }
       if (entity === 'GetLogos') {
         getLogos.SetIsForced(true);
         return;
@@ -274,10 +278,6 @@ export const SignalRProvider: React.FC<SignalRProviderProps> = ({ children }) =>
       }
       if (entity === 'GetSMChannelChannels') {
         getSMChannelChannels.SetIsForced(true);
-        return;
-      }
-      if (entity === 'GetSMChannelNameLogos') {
-        getSMChannelNameLogos.SetIsForced(true);
         return;
       }
       if (entity === 'GetSMChannelNames') {
@@ -413,7 +413,6 @@ export const SignalRProvider: React.FC<SignalRProviderProps> = ({ children }) =>
       }
       if (entity === 'SMChannels') {
         getPagedSMChannels.SetIsForced(true);
-        getSMChannelNameLogos.SetIsForced(true);
         getSMChannelNames.SetIsForced(true);
         getVideoStreamNamesAndUrls.SetIsForced(true);
         return;
@@ -437,7 +436,7 @@ export const SignalRProvider: React.FC<SignalRProviderProps> = ({ children }) =>
         return;
       }
     },
-    [getAvailableCountries,getChannelGroups,getChannelGroupsFromSMChannels,getChannelMetrics,getCommandProfiles,getCustomPlayList,getCustomPlayLists,getDownloadServiceStatus,getEPGColors,getEPGFileNames,getEPGFilePreviewById,getEPGFiles,getEPGNextEPGNumber,getHeadendsByCountryPostal,getHeadendsToView,getIntroPlayLists,getIsSystemReady,getLineupPreviewChannel,getLogContents,getLogNames,getLogo,getLogos,getM3UFileNames,getM3UFiles,getOutputProfile,getOutputProfiles,getPagedChannelGroups,getPagedEPGFiles,getPagedM3UFiles,getPagedSMChannels,getPagedSMStreams,getPagedStreamGroups,getSelectedStationIds,getSettings,getSMChannelChannels,getSMChannelNameLogos,getSMChannelNames,getSMChannelStreams,getSMTasks,getStationChannelNames,getStationPreviews,getStreamGroup,getStreamGroupProfiles,getStreamGroups,getStreamGroupSMChannels,getSubScribedHeadends,getSubscribedLineups,getSystemStatus,getTaskIsRunning,getVideoInfo,getVideoInfos,getVideoStreamNamesAndUrls,getVs]
+    [getAvailableCountries,getChannelGroups,getChannelGroupsFromSMChannels,getChannelMetrics,getCommandProfiles,getCustomPlayList,getCustomPlayLists,getDownloadServiceStatus,getEPGColors,getEPGFileNames,getEPGFilePreviewById,getEPGFiles,getEPGNextEPGNumber,getHeadendsByCountryPostal,getHeadendsToView,getIntroPlayLists,getIsSystemReady,getLineupPreviewChannel,getLogContents,getLogNames,getLogo,getLogoForChannel,getLogos,getM3UFileNames,getM3UFiles,getOutputProfile,getOutputProfiles,getPagedChannelGroups,getPagedEPGFiles,getPagedM3UFiles,getPagedSMChannels,getPagedSMStreams,getPagedStreamGroups,getSelectedStationIds,getSettings,getSMChannelChannels,getSMChannelNames,getSMChannelStreams,getSMTasks,getStationChannelNames,getStationPreviews,getStreamGroup,getStreamGroupProfiles,getStreamGroups,getStreamGroupSMChannels,getSubScribedHeadends,getSubscribedLineups,getSystemStatus,getTaskIsRunning,getVideoInfo,getVideoInfos,getVideoStreamNamesAndUrls,getVs]
   );
 
   const setField = useCallback(
@@ -527,6 +526,10 @@ export const SignalRProvider: React.FC<SignalRProviderProps> = ({ children }) =>
           getLogo.SetField(fieldData)
           return;
         }
+        if (fieldData.Entity === 'GetLogoForChannel') {
+          getLogoForChannel.SetField(fieldData)
+          return;
+        }
         if (fieldData.Entity === 'GetLogos') {
           getLogos.SetField(fieldData)
           return;
@@ -581,10 +584,6 @@ export const SignalRProvider: React.FC<SignalRProviderProps> = ({ children }) =>
         }
         if (fieldData.Entity === 'GetSMChannelChannels') {
           getSMChannelChannels.SetField(fieldData)
-          return;
-        }
-        if (fieldData.Entity === 'GetSMChannelNameLogos') {
-          getSMChannelNameLogos.SetField(fieldData)
           return;
         }
         if (fieldData.Entity === 'GetSMChannelNames') {
@@ -717,6 +716,7 @@ export const SignalRProvider: React.FC<SignalRProviderProps> = ({ children }) =>
       }
       if ( fieldData.Entity === 'Logos') {
         getLogo.SetField(fieldData);
+        getLogoForChannel.SetField(fieldData);
         getLogos.SetField(fieldData);
         return;
       }
@@ -728,7 +728,6 @@ export const SignalRProvider: React.FC<SignalRProviderProps> = ({ children }) =>
       }
       if ( fieldData.Entity === 'SMChannels') {
         getPagedSMChannels.SetField(fieldData);
-        getSMChannelNameLogos.SetField(fieldData);
         getSMChannelNames.SetField(fieldData);
         getVideoStreamNamesAndUrls.SetField(fieldData);
         return;
@@ -770,7 +769,7 @@ export const SignalRProvider: React.FC<SignalRProviderProps> = ({ children }) =>
       }
       });
     },
-    [getAvailableCountries,getChannelGroups,getChannelGroupsFromSMChannels,getChannelMetrics,getCommandProfiles,getCustomPlayList,getCustomPlayLists,getDownloadServiceStatus,getEPGColors,getEPGFileNames,getEPGFilePreviewById,getEPGFiles,getEPGNextEPGNumber,getHeadendsByCountryPostal,getHeadendsToView,getIntroPlayLists,getIsSystemReady,getLineupPreviewChannel,getLogContents,getLogNames,getLogo,getLogos,getM3UFileNames,getM3UFiles,getOutputProfile,getOutputProfiles,getPagedChannelGroups,getPagedEPGFiles,getPagedM3UFiles,getPagedSMChannels,getPagedSMStreams,getPagedStreamGroups,getSelectedStationIds,getSettings,getSMChannelChannels,getSMChannelNameLogos,getSMChannelNames,getSMChannelStreams,getSMTasks,getStationChannelNames,getStationPreviews,getStreamGroup,getStreamGroupProfiles,getStreamGroups,getStreamGroupSMChannels,getSubScribedHeadends,getSubscribedLineups,getSystemStatus,getTaskIsRunning,getVideoInfo,getVideoInfos,getVideoStreamNamesAndUrls,getVs]
+    [getAvailableCountries,getChannelGroups,getChannelGroupsFromSMChannels,getChannelMetrics,getCommandProfiles,getCustomPlayList,getCustomPlayLists,getDownloadServiceStatus,getEPGColors,getEPGFileNames,getEPGFilePreviewById,getEPGFiles,getEPGNextEPGNumber,getHeadendsByCountryPostal,getHeadendsToView,getIntroPlayLists,getIsSystemReady,getLineupPreviewChannel,getLogContents,getLogNames,getLogo,getLogoForChannel,getLogos,getM3UFileNames,getM3UFiles,getOutputProfile,getOutputProfiles,getPagedChannelGroups,getPagedEPGFiles,getPagedM3UFiles,getPagedSMChannels,getPagedSMStreams,getPagedStreamGroups,getSelectedStationIds,getSettings,getSMChannelChannels,getSMChannelNames,getSMChannelStreams,getSMTasks,getStationChannelNames,getStationPreviews,getStreamGroup,getStreamGroupProfiles,getStreamGroups,getStreamGroupSMChannels,getSubScribedHeadends,getSubscribedLineups,getSystemStatus,getTaskIsRunning,getVideoInfo,getVideoInfos,getVideoStreamNamesAndUrls,getVs]
   );
 
   const clearByTag = useCallback((data: ClearByTag): void => {
@@ -859,6 +858,10 @@ export const SignalRProvider: React.FC<SignalRProviderProps> = ({ children }) =>
       getLogo.ClearByTag(Tag)
       return;
     }
+    if (Entity === 'GetLogoForChannel') {
+      getLogoForChannel.ClearByTag(Tag)
+      return;
+    }
     if (Entity === 'GetLogos') {
       getLogos.ClearByTag(Tag)
       return;
@@ -913,10 +916,6 @@ export const SignalRProvider: React.FC<SignalRProviderProps> = ({ children }) =>
     }
     if (Entity === 'GetSMChannelChannels') {
       getSMChannelChannels.ClearByTag(Tag)
-      return;
-    }
-    if (Entity === 'GetSMChannelNameLogos') {
-      getSMChannelNameLogos.ClearByTag(Tag)
       return;
     }
     if (Entity === 'GetSMChannelNames') {
@@ -989,7 +988,7 @@ export const SignalRProvider: React.FC<SignalRProviderProps> = ({ children }) =>
     }
   }
 ,
-    [getAvailableCountries,getChannelGroups,getChannelGroupsFromSMChannels,getChannelMetrics,getCommandProfiles,getCustomPlayList,getCustomPlayLists,getDownloadServiceStatus,getEPGColors,getEPGFileNames,getEPGFilePreviewById,getEPGFiles,getEPGNextEPGNumber,getHeadendsByCountryPostal,getHeadendsToView,getIntroPlayLists,getIsSystemReady,getLineupPreviewChannel,getLogContents,getLogNames,getLogo,getLogos,getM3UFileNames,getM3UFiles,getOutputProfile,getOutputProfiles,getPagedChannelGroups,getPagedEPGFiles,getPagedM3UFiles,getPagedSMChannels,getPagedSMStreams,getPagedStreamGroups,getSelectedStationIds,getSettings,getSMChannelChannels,getSMChannelNameLogos,getSMChannelNames,getSMChannelStreams,getSMTasks,getStationChannelNames,getStationPreviews,getStreamGroup,getStreamGroupProfiles,getStreamGroups,getStreamGroupSMChannels,getSubScribedHeadends,getSubscribedLineups,getSystemStatus,getTaskIsRunning,getVideoInfo,getVideoInfos,getVideoStreamNamesAndUrls,getVs]
+    [getAvailableCountries,getChannelGroups,getChannelGroupsFromSMChannels,getChannelMetrics,getCommandProfiles,getCustomPlayList,getCustomPlayLists,getDownloadServiceStatus,getEPGColors,getEPGFileNames,getEPGFilePreviewById,getEPGFiles,getEPGNextEPGNumber,getHeadendsByCountryPostal,getHeadendsToView,getIntroPlayLists,getIsSystemReady,getLineupPreviewChannel,getLogContents,getLogNames,getLogo,getLogoForChannel,getLogos,getM3UFileNames,getM3UFiles,getOutputProfile,getOutputProfiles,getPagedChannelGroups,getPagedEPGFiles,getPagedM3UFiles,getPagedSMChannels,getPagedSMStreams,getPagedStreamGroups,getSelectedStationIds,getSettings,getSMChannelChannels,getSMChannelNames,getSMChannelStreams,getSMTasks,getStationChannelNames,getStationPreviews,getStreamGroup,getStreamGroupProfiles,getStreamGroups,getStreamGroupSMChannels,getSubScribedHeadends,getSubscribedLineups,getSystemStatus,getTaskIsRunning,getVideoInfo,getVideoInfos,getVideoStreamNamesAndUrls,getVs]
   );
 
   const RemoveConnections = useCallback(() => {

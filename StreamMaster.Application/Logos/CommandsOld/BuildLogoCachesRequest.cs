@@ -6,15 +6,15 @@ public class BuildLogoCachesRequestHandler(ILogoService logoService, IOptionsMon
 {
     private readonly Setting settings = intSettings.CurrentValue;
 
-    public Task Handle(BuildLogoCachesRequest request, CancellationToken cancellationToken)
+    public async Task Handle(BuildLogoCachesRequest request, CancellationToken cancellationToken)
     {
         if (!settings.LogoCache.EqualsIgnoreCase("cache"))
         {
-            return Task.CompletedTask;
+            return;// Task.CompletedTask;
         }
 
-        logoService.CacheSMChannelLogos();
+        await logoService.CacheSMChannelLogos();
 
-        return Task.CompletedTask;
+        //return Task.CompletedTask;
     }
 }

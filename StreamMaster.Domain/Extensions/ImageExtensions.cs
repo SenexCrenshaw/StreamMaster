@@ -15,4 +15,16 @@ public static class ImageExtensions
 
         return logoPath;
     }
+
+    public static string? GetSDStaionImageFullPath(this string fileName)
+    {
+        if (string.IsNullOrEmpty(fileName))
+        {
+            return null;
+        }
+        string subdirectoryName = fileName[0].ToString().ToLower();
+        string logoPath = Path.Combine(BuildInfo.SDStationLogosFolder, subdirectoryName, fileName);
+
+        return logoPath;
+    }
 }

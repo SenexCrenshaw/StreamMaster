@@ -3,6 +3,8 @@ using System.Text.RegularExpressions;
 
 using SixLabors.ImageSharp;
 
+using StreamMaster.Domain.Dto;
+using StreamMaster.Domain.Enums;
 using StreamMaster.Domain.Helpers;
 
 namespace StreamMaster.SchedulesDirect;
@@ -18,7 +20,7 @@ public class LineupService : ILineupService
     private readonly ISchedulesDirectDataService schedulesDirectDataService;
     private readonly HttpClient httpClient;
     private readonly ConcurrentDictionary<string, StationImage> StationLogosToDownload = [];
-    //private readonly IImageDownloadQueue imageDownloadQueue; // Injected ImageDownloadQueue
+    private readonly IImageDownloadQueue imageDownloadQueue; // Injected ImageDownloadQueue
 
     public LineupService(
         ILogger<LineupService> logger,
@@ -27,8 +29,8 @@ public class LineupService : ILineupService
         ILogoService logoService,
         ISchedulesDirectAPIService schedulesDirectAPI,
         IEPGCache<LineupResult> epgCache,
-        ISchedulesDirectDataService schedulesDirectDataService
-        //IImageDownloadQueue imageDownloadQueue
+        ISchedulesDirectDataService schedulesDirectDataService,
+        IImageDownloadQueue imageDownloadQueue
         )
     {
         settings = Settings;
@@ -38,7 +40,7 @@ public class LineupService : ILineupService
         this.schedulesDirectAPI = schedulesDirectAPI;
         this.epgCache = epgCache;
         this.schedulesDirectDataService = schedulesDirectDataService;
-        //this.imageDownloadQueue = imageDownloadQueue;
+        this.imageDownloadQueue = imageDownloadQueue;
         httpClient = CreateHttpClient();
     }
 
@@ -150,29 +152,25 @@ public class LineupService : ILineupService
         }
 
         // Trigger ImageDownloadService by adding the images to the queue
-        //if (!StationLogosToDownload.IsEmpty)
-        //{
-        //    foreach (KeyValuePair<string, StationImage> serviceLogo in StationLogosToDownload)
-        //    {
-        //        string ext = Path.GetExtension(serviceLogo.Value.Url);
-        //        if (string.IsNullOrEmpty(ext))
-        //        {
-        //            ext = ".png";
-        //        }
+        if (!StationLogosToDownload.IsEmpty)
+        {
+            foreach (KeyValuePair<string, StationImage> serviceLogo in StationLogosToDownload)
+            {
+                //string ext = Path.GetExtension(serviceLogo.Value.Url);
+                //if (string.IsNullOrEmpty(ext))
+                //{
+                //    ext = ".png";
+                //}
 
-        //        NameLogo nameLogo = new()
-        //        {
-        //            Name = serviceLogo.Key,
-        //            SMLogoUrl = serviceLogo.Value.Md5 + ext,
-        //            Url = serviceLogo.Value.Url,
-        //            SMFileType = SMFileTypes.SDStationLogo
-        //        };
+                NameLogo nameLogo = new(serviceLogo.Key, serviceLogo.Value.Url, SMFileTypes.SDStationLogo, false);
 
-        //        imageDownloadQueue.EnqueueNameLogo(nameLogo);
-        //    }
+                //logoService.AddLogo();
 
-        //    logger.LogInformation("Enqueued {StationLogosToDownload.Count} station logos for download.", StationLogosToDownload.Count);
-        //}
+                imageDownloadQueue.EnqueueNameLogo(nameLogo);
+            }
+
+            logger.LogInformation("Enqueued {StationLogosToDownload.Count} station logos for download.", StationLogosToDownload.Count);
+        }
 
         StationLogosToDownload.Clear();
 
@@ -225,6 +223,11 @@ public class LineupService : ILineupService
 
             //new KeyValuePair<MxfService, string[]>(mxfService, [logoPath, stationLogo.Url])
             StationLogosToDownload.TryAdd(stationLogo.Md5, stationLogo);
+            string title = string.IsNullOrEmpty(station.Callsign) ? station.Name : $"{station.Callsign} {station.Name}";
+
+            NameLogo nl = new(title, stationLogo.Url, SMFileTypes.SDStationLogo, false);
+            LogoFileDto d = new() { Source = nl.FileName, Value = stationLogo.Url, SMFileType = SMFileTypes.SDStationLogo, Name = title };
+            logoService.AddLogo(d);
             //}
             //else
             //{
@@ -359,7 +362,7 @@ public class LineupService : ILineupService
         foreach (MxfService? service in Services.Where(a => a.extras.ContainsKey("logo")))
         {
             StationImage artwork = service.extras["logo"];
-            logoService.AddLogo(artwork.Url, service.CallSign);
+            //logoService.AddLogo(artwork.Url, service.CallSign);
         }
     }
 

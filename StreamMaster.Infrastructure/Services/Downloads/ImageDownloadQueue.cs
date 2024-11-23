@@ -1,12 +1,13 @@
 ﻿using System.Collections.Concurrent;
 
+using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Dto;
 using StreamMaster.SchedulesDirect.Domain.Interfaces;
 using StreamMaster.SchedulesDirect.Domain.JsonClasses;
 
 namespace StreamMaster.Infrastructure.Services.Downloads
 {
-    public class ImageDownloadQueue : IImageDownloadQueue
+    public class ImageDownloadQueue(IOptionsMonitor<Setting> settings) : IImageDownloadQueue
     {
         private readonly ConcurrentDictionary<string, ProgramArtwork> ProgramArtworkQueue = new();
         private readonly ConcurrentDictionary<string, NameLogo> nameLogoQueue = new();
@@ -23,10 +24,11 @@ namespace StreamMaster.Infrastructure.Services.Downloads
 
         public void EnqueueProgramArtworkCollection(IEnumerable<ProgramArtwork> metadataCollection)
         {
-            foreach (ProgramArtwork metadata in metadataCollection)
-            {
-                _ = ProgramArtworkQueue.TryAdd(metadata.Uri, metadata);
-            }
+            return;
+            //foreach (ProgramArtwork metadata in metadataCollection)
+            //{
+            //    _ = ProgramArtworkQueue.TryAdd(metadata.Uri, metadata);
+            //}
         }
 
         public List<ProgramArtwork> GetNextProgramArtworkBatch(int batchSize)

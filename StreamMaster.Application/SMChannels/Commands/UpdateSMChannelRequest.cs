@@ -6,7 +6,7 @@ public record UpdateSMChannelRequest(int Id, string? Name, string? ClientUserAge
     : IRequest<APIResponse>;
 
 [LogExecutionTimeAspect]
-public class UpdateSMChannelRequestHandler(IRepositoryWrapper Repository, IDataRefreshService dataRefreshService)
+public class UpdateSMChannelRequestHandler(IRepositoryWrapper Repository, IImageDownloadQueue imageDownloadQueue, IDataRefreshService dataRefreshService)
     : IRequestHandler<UpdateSMChannelRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(UpdateSMChannelRequest request, CancellationToken cancellationToken)
@@ -53,6 +53,9 @@ public class UpdateSMChannelRequestHandler(IRepositoryWrapper Repository, IDataR
             if (!string.IsNullOrEmpty(request.Logo) && request.Logo != smChannel.Logo)
             {
                 smChannel.Logo = request.Logo;
+                NameLogo nl = new(request.Logo);
+                imageDownloadQueue.EnqueueNameLogo(nl);
+
                 ret.Add(new FieldData(() => smChannel.Logo));
             }
 

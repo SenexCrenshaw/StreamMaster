@@ -202,6 +202,7 @@ export interface LogoFileDto
 	Name: string;
 	SMFileType: SMFileTypes;
 	Source: string;
+	Value: string;
 }
 export interface M3UFileDto
 {
@@ -231,10 +232,11 @@ export interface NameLogo
 {
 	Ext: string;
 	FileName: string;
+	FullPath: string;
 	Id: string;
+	IsSchedulesDirect: boolean;
 	Name: string;
 	SMFileType: SMFileTypes;
-	SMLogoUrl: string;
 	Url: string;
 }
 export interface SDSystemStatus
@@ -307,7 +309,6 @@ export interface SMChannelDto
 	Logo: string;
 	M3UFileId: number;
 	Name: string;
-	OriginalLogo: string;
 	Rank: number;
 	SMChannelDtos: SMChannelDto[];
 	SMChannelType: SMChannelTypeEnum;
@@ -881,9 +882,6 @@ export interface GetPagedSMChannelsRequest
 {
 	Parameters: QueryStringParameters;
 }
-export interface GetSMChannelNameLogosRequest
-{
-}
 export interface GetSMChannelNamesRequest
 {
 }
@@ -1342,6 +1340,10 @@ export interface GetLogContentsRequest
 }
 export interface GetLogNamesRequest
 {
+}
+export interface GetLogoForChannelRequest
+{
+	SMChannelId: number;
 }
 export interface GetLogoRequest
 {

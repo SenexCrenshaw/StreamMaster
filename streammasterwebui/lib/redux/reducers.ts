@@ -22,6 +22,7 @@ import GetLineupPreviewChannelReducer from '@lib/smAPI/SchedulesDirect/GetLineup
 import GetLogContentsReducer from '@lib/smAPI/Logs/GetLogContentsSlice';
 import GetLogNamesReducer from '@lib/smAPI/Logs/GetLogNamesSlice';
 import GetLogoReducer from '@lib/smAPI/Logos/GetLogoSlice';
+import GetLogoForChannelReducer from '@lib/smAPI/Logos/GetLogoForChannelSlice';
 import GetLogosReducer from '@lib/smAPI/Logos/GetLogosSlice';
 import GetM3UFileNamesReducer from '@lib/smAPI/M3UFiles/GetM3UFileNamesSlice';
 import GetM3UFilesReducer from '@lib/smAPI/M3UFiles/GetM3UFilesSlice';
@@ -36,7 +37,6 @@ import GetPagedStreamGroupsReducer from '@lib/smAPI/StreamGroups/GetPagedStreamG
 import GetSelectedStationIdsReducer from '@lib/smAPI/SchedulesDirect/GetSelectedStationIdsSlice';
 import GetSettingsReducer from '@lib/smAPI/Settings/GetSettingsSlice';
 import GetSMChannelChannelsReducer from '@lib/smAPI/SMChannelChannelLinks/GetSMChannelChannelsSlice';
-import GetSMChannelNameLogosReducer from '@lib/smAPI/SMChannels/GetSMChannelNameLogosSlice';
 import GetSMChannelNamesReducer from '@lib/smAPI/SMChannels/GetSMChannelNamesSlice';
 import GetSMChannelStreamsReducer from '@lib/smAPI/SMChannelStreamLinks/GetSMChannelStreamsSlice';
 import GetSMTasksReducer from '@lib/smAPI/SMTasks/GetSMTasksSlice';
@@ -168,6 +168,7 @@ export const rootReducer = combineReducers({
   GetLogContents: GetLogContentsReducer,
   GetLogNames: GetLogNamesReducer,
   GetLogo: GetLogoReducer,
+  GetLogoForChannel: GetLogoForChannelReducer,
   GetLogos: GetLogosReducer,
   GetM3UFileNames: GetM3UFileNamesReducer,
   GetM3UFiles: GetM3UFilesReducer,
@@ -182,7 +183,6 @@ export const rootReducer = combineReducers({
   GetSelectedStationIds: GetSelectedStationIdsReducer,
   GetSettings: GetSettingsReducer,
   GetSMChannelChannels: GetSMChannelChannelsReducer,
-  GetSMChannelNameLogos: GetSMChannelNameLogosReducer,
   GetSMChannelNames: GetSMChannelNamesReducer,
   GetSMChannelStreams: GetSMChannelStreamsReducer,
   GetSMTasks: GetSMTasksReducer,

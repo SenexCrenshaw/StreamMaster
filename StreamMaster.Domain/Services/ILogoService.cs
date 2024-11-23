@@ -8,21 +8,22 @@ namespace StreamMaster.Domain.Services
     /// </summary>
     public interface ILogoService
     {
+        Task<LogoDto?> GetLogoForChannelAsync(int SMChannelId, CancellationToken cancellationToken);
         Task<LogoDto?> GetLogoFromCacheAsync(string URL, SMFileTypes fileType, CancellationToken cancellationToken);
         string GetLogoUrl2(string logoSource, SMFileTypes logoType);
         List<XmltvProgramme> GetXmltvProgrammeForPeriod(VideoStreamConfig videoStreamConfig, DateTime startDate, int days, string baseUrl);
         /// <summary>
         /// Adds a new logo based on the specified artwork URI and title.
         /// </summary>
-        /// <param name="artworkUri">The URI of the artwork.</param>
+        /// <param name="URL">The URI of the artwork.</param>
         /// <param name="title">The title associated with the logo.</param>
-        void AddLogo(string artworkUri, string title);
+        void AddLogo(string URL, string title, bool noHash = false, SMFileTypes smFileType = SMFileTypes.Logo, bool noApi = false);
 
         /// <summary>
         /// Adds a new logo using the specified <see cref="LogoFileDto"/>.
         /// </summary>
         /// <param name="logoFile">The logo file DTO containing logo details.</param>
-        void AddLogo(LogoFileDto logoFile);
+        void AddLogo(LogoFileDto logoFile, bool noApi = false);
 
         /// <summary>
         /// Builds the logo cache using the current streams asynchronously.
@@ -34,7 +35,7 @@ namespace StreamMaster.Domain.Services
         /// <summary>
         /// Caches the logos for SM Channels.
         /// </summary>
-        void CacheSMChannelLogos();
+        Task CacheSMChannelLogos();
 
         /// <summary>
         /// Clears all logos from the cache.

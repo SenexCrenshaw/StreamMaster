@@ -5,7 +5,7 @@ public enum SMQueCommand
     BuildLogoCaches,
     BuildLogosCacheFromStreams,
     BuildProgLogosCacheFromEPGs,
-    BuildLogosCacheFromVideoStreams,
+    //BuildLogosCacheFromVideoStreams,
     ReadDirectoryLogosRequest,
 
     ProcessEPGFile,

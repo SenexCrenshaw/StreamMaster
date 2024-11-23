@@ -41,7 +41,8 @@ const SMChannelLogoEditor = ({ data }: StreamDataSelectorProperties) => {
         onSetLogo(e);
       }}
       isCustomPlayList={data.IsSystem}
-      value={data.Logo}
+      // value={data.Logo}
+      value={'/api/files/smChannelLogo/' + data.Id}
     />
   );
 };

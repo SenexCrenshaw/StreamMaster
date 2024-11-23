@@ -3,13 +3,13 @@
 public class BuildLogosCacheFromStreamsRequest : IRequest<DataResponse<bool>>;
 
 [LogExecutionTimeAspect]
-public class BuildIconsCacheFromVideoStreamRequestHandler(ILogoService logoService)
+public class BuildLogosCacheFromStreamsRequestHandler(ILogoService logoService)
     : IRequestHandler<BuildLogosCacheFromStreamsRequest, DataResponse<bool>>
 {
-    public Task<DataResponse<bool>> Handle(BuildLogosCacheFromStreamsRequest command, CancellationToken cancellationToken)
+    public async Task<DataResponse<bool>> Handle(BuildLogosCacheFromStreamsRequest command, CancellationToken cancellationToken)
     {
-        logoService.BuildLogosCacheFromSMStreamsAsync(cancellationToken);
+        await logoService.BuildLogosCacheFromSMStreamsAsync(cancellationToken);
 
-        return Task.FromResult(DataResponse.True);
+        return DataResponse.True;
     }
 }

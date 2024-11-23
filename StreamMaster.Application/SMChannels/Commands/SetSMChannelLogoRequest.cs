@@ -15,10 +15,11 @@ internal class SetSMChannelLogoRequestHandler(IRepositoryWrapper Repository, IMe
             return ret;
         }
 
-        //FieldData fd = new(SMChannel.APIName, request.Id, "SMLogoUrl", request.SMLogoUrl);
-        //await hubContext.ClientChannels.All.SetField([fd]).ConfigureAwait(false);
-        //await hubContext.ClientChannels.All.DataRefresh("GetSMChannel");
-        await dataRefreshService.RefreshSMChannels().ConfigureAwait(false);
+        //FieldData fd = new(SMChannel.APIName, request.SMChannelId, "Logo", request.Logo);
+        ////await hubContext.ClientChannels.All.SetField([fd]).ConfigureAwait(false);
+        ////await hubContext.ClientChannels.All.DataRefresh("GetSMChannel");
+        //await dataRefreshService.SetField([fd]).ConfigureAwait(false);
+        //await dataRefreshService.RefreshSMChannels().ConfigureAwait(false);
         return ret;
     }
 }

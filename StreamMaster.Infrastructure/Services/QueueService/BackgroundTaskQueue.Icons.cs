@@ -15,10 +15,10 @@ public partial class BackgroundTaskQueue : ILogoTasks
         await QueueAsync(SMQueCommand.BuildLogosCacheFromStreams, cancellationToken).ConfigureAwait(false);
     }
 
-    public async ValueTask BuildLogosCacheFromVideoStreams(CancellationToken cancellationToken = default)
-    {
-        await QueueAsync(SMQueCommand.BuildLogosCacheFromVideoStreams, cancellationToken).ConfigureAwait(false);
-    }
+    //public async ValueTask BuildLogosCacheFromVideoStreams(CancellationToken cancellationToken = default)
+    //{
+    //    await QueueAsync(SMQueCommand.BuildLogosCacheFromVideoStreams, cancellationToken).ConfigureAwait(false);
+    //}
 
     public async ValueTask BuildProgLogosCacheFromEPGs(CancellationToken cancellationToken = default)
     {

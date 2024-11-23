@@ -12,11 +12,15 @@ public class CacheEntity : BaseEntity
 
     [Column(TypeName = "citext")]
     public string ContentType { get; set; } = string.Empty;
+
+    [NotMapped]
+    public string Value { get; set; } = string.Empty;
     public int DownloadErrors { get; set; }
 
     public bool FileExists { get; set; }
 
-    [Column(TypeName = "citext")]
+    //[Column(TypeName = "citext")]
+    [NotMapped]
     public string DirectoryLocation { get; set; } = string.Empty;
 
     [Column(TypeName = "citext")]

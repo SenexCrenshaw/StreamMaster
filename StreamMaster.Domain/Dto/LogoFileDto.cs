@@ -1,10 +1,8 @@
-﻿using MessagePack;
+﻿using System.Text.Json.Serialization;
 
-using Reinforced.Typings.Attributes;
+using MessagePack;
 
 using StreamMaster.Domain.Attributes;
-
-using System.Text.Json.Serialization;
 
 namespace StreamMaster.Domain.Dto;
 
@@ -28,4 +26,6 @@ public class LogoFileDto : IMapFrom<IconFile>
     public SMFileTypes SMFileType { get; set; }
 
     public string Source { get; set; } = string.Empty;
+    public string Value { get; set; } = string.Empty;
+
 }

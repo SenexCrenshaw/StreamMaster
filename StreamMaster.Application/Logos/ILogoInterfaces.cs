@@ -22,7 +22,7 @@ public interface ILogoTasks
 {
     ValueTask BuildLogoCaches(CancellationToken cancellationToken = default);
 
-    ValueTask BuildLogosCacheFromVideoStreams(CancellationToken cancellationToken = default);
+    ValueTask BuildLogosCacheFromStreams(CancellationToken cancellationToken = default);
 
     ValueTask BuildProgLogosCacheFromEPGs(CancellationToken cancellationToken = default);
 

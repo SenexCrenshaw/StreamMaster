@@ -234,6 +234,8 @@ namespace StreamMaster.Infrastructure.Services.Downloads
 
                 try
                 {
+
+                    NameLogo nameLogo = new();
                     string? logoPath = art.Uri.GetSDImageFullPath();
                     if (string.IsNullOrEmpty(logoPath))
                     {
@@ -251,7 +253,8 @@ namespace StreamMaster.Infrastructure.Services.Downloads
 
                     string url = art.Uri.StartsWith("http") ? art.Uri : $"image/{art.Uri}";
 
-                    if (await DownloadImageAsync(url, logoPath, isSchedulesDirect: true, cancellationToken))
+                    nameLogo.IsSchedulesDirect = true;
+                    if (await DownloadImageAsync(nameLogo, cancellationToken))
                     {
                         ImageDownloadServiceStatus.TotalProgramMetadataDownloaded++;
                         successfullyDownloaded.Add(art.Uri);
@@ -292,21 +295,21 @@ namespace StreamMaster.Infrastructure.Services.Downloads
 
             foreach (NameLogo nameLogo in nameLogoBatch)
             {
-                if (!nameLogo.Url.StartsWith("http"))
+                if (!nameLogo.Url.StartsWith("http") || string.IsNullOrEmpty(nameLogo.FullPath))
                 {
                     successfullyDownloaded.Add(nameLogo.Name);
                     continue;
                 }
 
-                string? filePath = GetFilePath(nameLogo);
-                if (filePath == null || File.Exists(filePath))
+                //string? filePath = GetFilePath(nameLogo);
+                if (File.Exists(nameLogo.FullPath))
                 {
                     ImageDownloadServiceStatus.TotalNameLogoAlreadyExists++;
                     successfullyDownloaded.Add(nameLogo.Name);
                     continue;
                 }
 
-                if (await DownloadImageAsync(nameLogo.Url, filePath, isSchedulesDirect: false, cancellationToken))
+                if (await DownloadImageAsync(nameLogo, cancellationToken))
                 {
                     ImageDownloadServiceStatus.TotalNameLogoSuccessful++;
                     successfullyDownloaded.Add(nameLogo.Name);
@@ -373,18 +376,18 @@ namespace StreamMaster.Infrastructure.Services.Downloads
             return true;
         }
 
-        private async Task<bool> DownloadImageAsync(string url, string filePath, bool isSchedulesDirect, CancellationToken cancellationToken)
+        public async Task<bool> DownloadImageAsync(NameLogo nameLogo, CancellationToken cancellationToken)
         {
-            if (isSchedulesDirect && !CanProceedWithDownload())
+            if (nameLogo.IsSchedulesDirect && !CanProceedWithDownload())
             {
                 return false;
             }
 
             try
             {
-                HttpResponseMessage? response = isSchedulesDirect
-                    ? await GetSdImage(url)
-                    : await httpClient.GetAsync(url, cancellationToken).ConfigureAwait(false);
+                HttpResponseMessage? response = nameLogo.IsSchedulesDirect
+                    ? await GetSdImage(nameLogo.Url)
+                    : await httpClient.GetAsync(nameLogo.Url, cancellationToken).ConfigureAwait(false);
 
                 if (response != null)
                 {
@@ -403,16 +406,16 @@ namespace StreamMaster.Infrastructure.Services.Downloads
                     if (response.IsSuccessStatusCode)
                     {
                         await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
-                        await using FileStream fileStream = new(filePath, FileMode.Create);
+                        await using FileStream fileStream = new(nameLogo.FullPath, FileMode.Create);
                         await stream.CopyToAsync(fileStream, cancellationToken).ConfigureAwait(false);
                         return true;
                     }
-                    logger.LogDebug("Failed to download image from {Url} with status code {StatusCode}", url, response.StatusCode);
+                    logger.LogDebug("Failed to download image from {Url} with status code {StatusCode}", nameLogo.Url, response.StatusCode);
                 }
             }
             catch (Exception ex)
             {
-                logger.LogError("Failed to download image from {Url} {Message}", url, ex.InnerException?.Message);
+                logger.LogError("Failed to download image from {Url} {Message}", nameLogo.Url, ex.InnerException?.Message);
             }
             return false;
         }

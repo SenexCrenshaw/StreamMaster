@@ -6,6 +6,7 @@ namespace StreamMaster.Domain.Extensions;
 
 public static class StringExtensions
 {
+
     public static bool EqualsIgnoreCase(this string text, string Compare)
     {
         return text.Equals(Compare, BuildInfo.StringComparison);
