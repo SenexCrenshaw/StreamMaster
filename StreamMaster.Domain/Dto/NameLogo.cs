@@ -5,17 +5,7 @@ namespace StreamMaster.Domain.Dto;
 public class NameLogo
 {
     public NameLogo() { }
-    //public NameLogo(string Name, string Url, SMFileTypes iconType = SMFileTypes.Logo, bool IsSchedulesDirect = false, string Id = "")
-    //{
-    //    string _url = string.IsNullOrEmpty(Id) ? Url : Id;
-    //    Id = string.IsNullOrEmpty(Id) ? Url.GenerateFNV1a64Hash() : Path.GetFileNameWithoutExtension(Id);
-    //    this.Name = Name;
-    //    this.Url = _url;
-    //    SMFileType = iconType;
-    //    Ext = Path.GetExtension(_url) ?? ".png";
-    //    FullPath = GetFullPath(FileName, iconType);
-    //    this.IsSchedulesDirect = IsSchedulesDirect;
-    //}
+
     public NameLogo(string Url, SMFileTypes iconType = SMFileTypes.Logo)
     {
 

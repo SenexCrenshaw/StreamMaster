@@ -74,11 +74,11 @@ const IconSelector: React.FC<IconSelectorProps> = ({
   const itemTemplate = (icon: LogoFileDto) => {
     const fallbackUrl = '/images/default.png';
     const iconUrl = getIconUrl(icon.Source, fallbackUrl, false, icon.SMFileType);
-    Logger.debug('IconSelector', icon, iconUrl);
+    // Logger.debug('IconSelector', icon, iconUrl);
 
     return (
       <div className="w-full flex flex-row align-items-center justify-content-between p-row-odd">
-        <div className="flex flex-row align-items-center">
+        <div className="sm-w-6">
           <img
             className="icon-template"
             src={iconUrl}
@@ -87,7 +87,7 @@ const IconSelector: React.FC<IconSelectorProps> = ({
             loading="lazy"
           />
         </div>
-        <div className="w-6">
+        <div className="sm-w-6">
           <div className="text-xs pl-3">{icon.Name}</div>
         </div>
       </div>

@@ -333,7 +333,8 @@ public sealed class FileUtil
                 FileExists = true,
                 ContentType = "image/png",
                 LastDownloaded = SMDT.UtcNow,
-                Source = $"{basePath}{Path.DirectorySeparatorChar}{file.Name}"
+                Source = $"{basePath}{Path.DirectorySeparatorChar}{file.Name}",
+                Value= $"{basePath}{Path.DirectorySeparatorChar}{file.Name}"
             };
 
             tvLogo.SetFileDefinition(FileDefinitions.TVLogo);

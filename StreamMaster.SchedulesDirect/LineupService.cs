@@ -1,4 +1,5 @@
 ﻿using System.Collections.Concurrent;
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 
 using SixLabors.ImageSharp;
@@ -6,7 +7,6 @@ using SixLabors.ImageSharp;
 using StreamMaster.Domain.Dto;
 using StreamMaster.Domain.Enums;
 using StreamMaster.Domain.Helpers;
-
 namespace StreamMaster.SchedulesDirect;
 
 public class LineupService : ILineupService
@@ -186,6 +186,85 @@ public class LineupService : ILineupService
         return false;
     }
 
+    public async IAsyncEnumerable<LogoFileDto> GetLogos([EnumeratorCancellation] CancellationToken cancellationToken)
+    {
+        SDSettings sdSettings = intSDSettings.CurrentValue;
+
+        string preferredLogoStyle = string.IsNullOrEmpty(sdSettings.PreferredLogoStyle) ? "DARK" : sdSettings.PreferredLogoStyle;
+        string alternateLogoStyle = string.IsNullOrEmpty(sdSettings.AlternateLogoStyle) ? "WHITE" : sdSettings.AlternateLogoStyle;
+
+        LineupResponse? clientLineups = await GetSubscribedLineups(cancellationToken).ConfigureAwait(false);
+
+        if (clientLineups == null || clientLineups.Lineups.Count < 1)
+        {
+            yield break;
+        }
+
+        // Convert lists to HashSets for efficient lookup
+        HashSet<string> lineupSet = [.. sdSettings.SDStationIds.Select(a => a.Lineup)];
+        HashSet<string> stationIdSet = [.. sdSettings.SDStationIds.Select(a => a.StationId)];
+
+        foreach (SubscribedLineup clientLineup in clientLineups.Lineups)
+        {
+            if (cancellationToken.IsCancellationRequested)
+            {
+                yield break;
+            }
+
+            if (clientLineup.IsDeleted)
+            {
+                continue;
+            }
+
+            if (!lineupSet.Contains(clientLineup.Lineup))
+            {
+                continue;
+            }
+
+            StationChannelMap? lineupMap = await GetStationChannelMap(clientLineup.Lineup);
+
+            if (lineupMap == null || lineupMap.Stations == null || lineupMap.Stations.Count == 0)
+            {
+                logger.LogError("Subscribed lineup '{Lineup}' does not contain any stations.", clientLineup.Lineup);
+                continue;
+            }
+
+            foreach (LineupStation? station in lineupMap.Stations)
+            {
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    yield break;
+                }
+
+                if (station == null || !stationIdSet.Contains(station.StationId))
+                {
+                    continue;
+                }
+
+                StationImage? stationLogo = GetStationLogo(station, preferredLogoStyle, alternateLogoStyle);
+                if (stationLogo is null)
+                {
+                    logger.LogWarning("No logo found for station {StationId}", station.StationId);
+                    continue;
+                }
+
+                string title = string.IsNullOrEmpty(station.Callsign) ? station.Name : $"{station.Callsign} {station.Name}";
+
+                NameLogo nl = new(title, stationLogo.Url, SMFileTypes.SDStationLogo, false);
+                LogoFileDto d = new()
+                {
+                    Source = nl.FileName,
+                    Value = stationLogo.Url,
+                    SMFileType = SMFileTypes.SDStationLogo,
+                    Name = title
+                };
+
+                yield return d;
+            }
+        }
+    }
+
+
     private void SetStationDetails(LineupStation station, MxfService mxfService, string preferredLogoStyle, string alternateLogoStyle)
     {
         if (!string.IsNullOrEmpty(mxfService.CallSign))
@@ -238,6 +317,7 @@ public class LineupService : ILineupService
             //await HandleStationLogoAsync(mxfService, stationLogo, cancellationToken);
         }
     }
+
 
     private static StationImage? GetStationLogo(LineupStation station, string preferredLogoStyle, string alternateLogoStyle)
     {

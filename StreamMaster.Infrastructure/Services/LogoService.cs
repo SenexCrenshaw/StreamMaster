@@ -88,7 +88,9 @@ public class LogoService(IMapper mapper, ICustomPlayListBuilder customPlayListBu
             return l;
         }
 
-        LogoDto? ret = await GetLogoFromCacheAsync(channel.Logo.GenerateFNV1aHash(), cancellationToken).ConfigureAwait(false);
+        string fileName = channel.Logo.StartsWithIgnoreCase("http") ? channel.Logo.GenerateFNV1aHash() : channel.Logo;
+
+        LogoDto? ret = await GetLogoFromCacheAsync(fileName, cancellationToken).ConfigureAwait(false);
         if (ret is null)
         {
             NameLogo nameLogo = new(channel.Name, channel.Logo);
@@ -98,7 +100,7 @@ public class LogoService(IMapper mapper, ICustomPlayListBuilder customPlayListBu
                 //FIX dont know the type
                 if (await imageDownloadService.DownloadImageAsync(nameLogo, cancellationToken).ConfigureAwait(false))
                 {
-                    return await GetLogoFromCacheAsync(channel.Logo.GenerateFNV1aHash(), cancellationToken).ConfigureAwait(false);
+                    return await GetLogoFromCacheAsync(fileName, cancellationToken).ConfigureAwait(false);
                 }
             }
         }
@@ -108,6 +110,7 @@ public class LogoService(IMapper mapper, ICustomPlayListBuilder customPlayListBu
     public bool IsLocalLogo(string Logo)
     {
         return string.IsNullOrEmpty(Logo)
+          //|| !Logo.StartsWith("http")
           || Logo.EqualsIgnoreCase("noimage.png")
           || Logo.EqualsIgnoreCase(_settings.CurrentValue.DefaultLogo)
           || Logo.EqualsIgnoreCase("/images/streammaster_logo.png");
@@ -146,10 +149,7 @@ public class LogoService(IMapper mapper, ICustomPlayListBuilder customPlayListBu
 
     public async Task<LogoDto?> GetLogoFromCacheAsync(string fileName, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrEmpty(fileName) || fileName.HashEquals("noimage.png")
-            || fileName.HashEquals(_settings.CurrentValue.DefaultLogo)
-              || fileName.HashEquals("/images/streammaster_logo.png")
-            )
+        if (IsLocalLogo(fileName))
         {
             return null;
         }
@@ -430,7 +430,7 @@ public class LogoService(IMapper mapper, ICustomPlayListBuilder customPlayListBu
             string url = $"/api/files/{(int)LogoFile.SMFileType}/{LogoFile.Source}";// GetApiUrl(LogoFile.Source, LogoFile.SMFileType);
             LogoFile.Source = url;
         }
-        _ = Logos.TryAdd(LogoFile.Source, LogoFile);
+        //_ = Logos.TryAdd(LogoFile.Source, LogoFile);
     }
 
     public void AddLogo(string URL, string title, bool noHash = false, SMFileTypes smFileType = SMFileTypes.Logo, bool noApi = false)
@@ -490,6 +490,18 @@ public class LogoService(IMapper mapper, ICustomPlayListBuilder customPlayListBu
         }
 
         test = GetValidImagePath(URL, SMFileTypes.Logo);
+        if (test is not null)
+        {
+            return test;
+        }
+
+        test = GetValidImagePath(URL, SMFileTypes.TvLogo);
+        if (test is not null)
+        {
+            // A
+            return test;
+        }
+
         return test;
     }
 

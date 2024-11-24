@@ -563,6 +563,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IImag
     private bool IsLocalLogo(string Logo)
     {
         return string.IsNullOrEmpty(Logo)
+            || !Logo.StartsWith("http")
           || Logo.EqualsIgnoreCase("noimage.png")
           || Logo.EqualsIgnoreCase(settings.CurrentValue.DefaultLogo)
           || (Logo.StartsWithIgnoreCase("images") && Logo.EndsWithIgnoreCase("default.png"))

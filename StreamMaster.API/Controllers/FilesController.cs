@@ -51,6 +51,7 @@ public class FilesController(IOptionsMonitor<Setting> settings, ILogoService log
     public bool IsLocalLogo(string Logo)
     {
         return string.IsNullOrEmpty(Logo)
+             || !Logo.StartsWithIgnoreCase("http")
           || Logo.EqualsIgnoreCase("noimage.png")
           || Logo.EqualsIgnoreCase(settings.CurrentValue.DefaultLogo)
           || Logo.EqualsIgnoreCase("/images/streammaster_logo.png");
