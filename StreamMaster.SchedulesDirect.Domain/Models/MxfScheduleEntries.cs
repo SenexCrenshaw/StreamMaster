@@ -29,11 +29,10 @@ namespace StreamMaster.SchedulesDirect.Domain.Models
 
     public class MxfScheduleEntry
     {
-        private int _program;
         private int _tvRating;
 
         [XmlIgnore] public MxfProgram mxfProgram = new();
-        [XmlIgnore] public XmltvProgramme? XmltvProgramme { get; set; }
+        //[XmlIgnore] public XmltvProgramme? XmltvProgramme { get; set; }
         [XmlIgnore] public bool IncludeStartTime;
         [XmlIgnore] public Dictionary<string, dynamic> extras = [];
 
@@ -76,11 +75,7 @@ namespace StreamMaster.SchedulesDirect.Domain.Models
         /// </summary>
         [XmlAttribute("program")]
         [DefaultValue(0)]
-        public int Program
-        {
-            get => _program > 0 ? _program : mxfProgram?.Id ?? 0;
-            set => _program = value;
-        }
+        public int Program { get; set; }
 
         /// <summary>
         /// Specifies the start time of the broadcast.
@@ -278,16 +273,16 @@ namespace StreamMaster.SchedulesDirect.Domain.Models
                     }
                 }
 
-                if (mxfProgram?.Extras.ContainsKey("ratings") ?? false)
-                {
-                    foreach (KeyValuePair<string, string> rating in mxfProgram.Extras["ratings"])
-                    {
-                        if (!ratings.TryGetValue(rating.Key, out _))
-                        {
-                            ratings.Add(rating.Key, rating.Value);
-                        }
-                    }
-                }
+                //if (mxfProgram?.Extras.ContainsKey("ratings") ?? false)
+                //{
+                //    foreach (KeyValuePair<string, string> rating in mxfProgram.Extras["ratings"])
+                //    {
+                //        if (!ratings.TryGetValue(rating.Key, out _))
+                //        {
+                //            ratings.Add(rating.Key, rating.Value);
+                //        }
+                //    }
+                //}
 
                 int maxValue = 0;
                 foreach (KeyValuePair<string, string> keyValue in ratings)

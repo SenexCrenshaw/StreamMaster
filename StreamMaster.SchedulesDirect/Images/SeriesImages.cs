@@ -91,8 +91,6 @@ public class SeriesImages(
 
     private bool ShouldRefreshSeries(string seriesId, out string finalSeriesId)
     {
-        bool refresh = false;
-
         if (int.TryParse(seriesId, out int digits))
         {
             finalSeriesId = $"SH{seriesId}0000";
@@ -102,9 +100,7 @@ public class SeriesImages(
                 return true;
             }
 
-            refresh = (digits * sdSettings.CurrentValue.SDStationIds.Count % DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month)) + 1 == DateTime.Now.Day;
-
-            return refresh;
+            return (digits * sdSettings.CurrentValue.SDStationIds.Count % DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month)) + 1 == DateTime.Now.Day;
         }
 
         finalSeriesId = seriesId;
@@ -112,23 +108,27 @@ public class SeriesImages(
         return false;
     }
 
-    private void ProcessCachedImages(SeriesInfo series, EPGJsonCache value)
+    private static void ProcessCachedImages(SeriesInfo series, EPGJsonCache cachedFile)
     {
-        if (string.IsNullOrEmpty(value.Images))
-        {
-            return;
-        }
+        series.ArtWorks = string.IsNullOrEmpty(cachedFile.Images)
+             ? []
+             : JsonSerializer.Deserialize<List<ProgramArtwork>>(cachedFile.Images) ?? [];
 
-        List<ProgramArtwork>? artwork = JsonSerializer.Deserialize<List<ProgramArtwork>>(value.Images);
-        if (artwork != null)
-        {
-            series.Extras.AddOrUpdate("artwork", artwork);
-            MxfGuideImage? guideImage = epgCache.GetGuideImageAndUpdateCache(artwork, ImageType.Series);
-            if (guideImage != null)
-            {
-                series.MxfGuideImage = guideImage;
-            }
-        }
+        //if (string.IsNullOrEmpty(value.Images))
+        //{
+        //    return;
+        //}
+
+        //List<ProgramArtwork>? artwork = JsonSerializer.Deserialize<List<ProgramArtwork>>(value.Images);
+        //if (artwork != null)
+        //{
+        //    series.Extras.AddOrUpdate("artwork", artwork);
+        //    ProgramArtwork? guideImage = epgCache.GetGuideImageAndUpdateCache(artwork, ImageType.Series);
+        //    if (guideImage != null)
+        //    {
+        //        series.mxfGuideImage = guideImage;
+        //    }
+        //}
     }
 
     private async Task DownloadAndProcessImagesAsync()
@@ -162,7 +162,8 @@ public class SeriesImages(
 
     private void ProcessSeriesImageResponses()
     {
-        string artworkSize = string.IsNullOrEmpty(sdSettings.CurrentValue.ArtworkSize) ? "Md" : sdSettings.CurrentValue.ArtworkSize;
+        string artworkSize = string.IsNullOrEmpty(sdSettings.CurrentValue.ArtworkSize) ? BuildInfo.DefaultSDImageSize : sdSettings.CurrentValue.ArtworkSize;
+
         IEnumerable<ProgramMetadata> toProcess = seriesImageResponses.Where(a => !string.IsNullOrEmpty(a.ProgramId) && a.Data != null && a.Code == 0);
 
         logger.LogInformation("Processing {count} series image responses.", toProcess.Count());
@@ -170,36 +171,64 @@ public class SeriesImages(
         foreach (ProgramMetadata response in toProcess)
         {
             ++processedObjects;
-            ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
-            SeriesInfo? series = response.ProgramId.StartsWith("SP") ? GetSportsSeries(response) : schedulesDirectData.FindOrCreateSeriesInfo(response.ProgramId.Substring(2, 8));
-
-            if (series == null || !string.IsNullOrEmpty(series.GuideImage) || series.Extras.ContainsKey("artwork"))
-            {
-                continue;
-            }
 
             if (response.ProgramId.StartsWith("SP"))
             {
                 continue;
             }
 
-            if (!series.Extras.TryGetValue("artwork", out dynamic? value))
+            if (response.Data == null || response.Data.Count == 0)
             {
-                List<ProgramArtwork> artworks = SDHelpers.GetTieredImages(response.Data, ["series", "sport", "episode"], artworkSize, sdSettings.CurrentValue.SeriesPosterAspect);
-
-                series.Extras["artwork"] = artworks;
+                logger.LogWarning("No Series Image artwork found for {ProgramId}", response.ProgramId);
+                continue;
             }
 
-            if (series.Extras["artwork"].Count > 0)
+
+            ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
+            SeriesInfo? series = response.ProgramId.StartsWith("SP") ? GetSportsSeries(response) : schedulesDirectData.FindOrCreateSeriesInfo(response.ProgramId.Substring(2, 8));
+            if (series == null)
             {
-                MxfGuideImage? res = epgCache.GetGuideImageAndUpdateCache(series.Extras["artwork"], ImageType.Series, response.ProgramId);
-                if (res != null)
-                {
-                    series.MxfGuideImage = res;
-                }
-                imageDownloadQueue.EnqueueProgramArtworkCollection(series.Extras["artwork"]);
+                continue;
             }
 
+            //if (series == null || !string.IsNullOrEmpty(series.GuideImage) || series.Extras.ContainsKey("artwork"))
+            //{
+            //    continue;
+            //}
+
+            //if (response.ProgramId.StartsWith("SP"))
+            //{
+            //    continue;
+            //}
+            List<ProgramArtwork> artworks = SDHelpers.GetTieredImages(response.Data, artworkSize, ["series", "sport", "episode"], sdSettings.CurrentValue.SeriesPosterAspect);
+            series.AddArtwork(artworks);
+            epgCache.UpdateProgramArtworkCache(artworks, ImageType.Series, response.ProgramId);
+
+            if (artworks.Count > 0)
+            {
+                imageDownloadQueue.EnqueueProgramArtworkCollection(artworks);
+            }
+            else
+            {
+                logger.LogWarning("No artwork found for {ProgramId}", response.ProgramId);
+            }
+
+            //if (!series.Extras.TryGetValue("artwork", out dynamic? value))
+            //{
+            //    List<ProgramArtwork> artworks = SDHelpers.GetTieredImages(response.Data, ["series", "sport", "episode"], artworkSize, sdSettings.CurrentValue.SeriesPosterAspect);
+
+            //    series.Extras["artwork"] = artworks;
+            //}
+
+            //if (series.Extras["artwork"].Count > 0)
+            //{
+            //    ProgramArtwork? res = epgCache.GetGuideImageAndUpdateCache(series.Extras["artwork"], ImageType.Series, response.ProgramId);
+            //    if (res != null)
+            //    {
+            //        series.mxfGuideImage = res;
+            //    }
+            //    imageDownloadQueue.EnqueueProgramArtworkCollection(series.Extras["artwork"]);
+            //}
         }
     }
 

@@ -6,7 +6,7 @@ using StreamMaster.Application.ChannelGroups.Queries;
 namespace StreamMaster.Application.ChannelGroups
 {
     public interface IChannelGroupsController
-    {        
+    {
         Task<ActionResult<List<ChannelGroupDto>>> GetChannelGroupsFromSMChannels();
         Task<ActionResult<List<ChannelGroupDto>>> GetChannelGroups();
         Task<ActionResult<PagedResponse<ChannelGroupDto>>> GetPagedChannelGroups(QueryStringParameters Parameters);

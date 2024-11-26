@@ -84,7 +84,7 @@ public class RepositoryWrapper(
     {
         get
         {
-            _smChannel ??= new SMChannelsRepository(SMChannelLogger, imageDownloadService, imageDownloadQueue, serviceProvider, this, repositoryContext, mapper, intSettings, intProfileSettings, schedulesDirectDataService);
+            _smChannel ??= new SMChannelsRepository(SMChannelLogger, cacheManager, imageDownloadService, imageDownloadQueue, serviceProvider, this, repositoryContext, mapper, intSettings, intProfileSettings, schedulesDirectDataService);
             return _smChannel;
         }
     }

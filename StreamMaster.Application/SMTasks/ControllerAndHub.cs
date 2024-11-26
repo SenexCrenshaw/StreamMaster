@@ -7,8 +7,7 @@ namespace StreamMaster.Application.SMTasks.Controllers
 {
     [Authorize]
     public partial class SMTasksController(ILogger<SMTasksController> _logger) : ApiControllerBase, ISMTasksController
-    {        
-
+    {
         [HttpGet]
         [Route("[action]")]
         public async Task<ActionResult<List<SMTask>>> GetSMTasks()
@@ -16,7 +15,7 @@ namespace StreamMaster.Application.SMTasks.Controllers
             try
             {
             var ret = await Sender.Send(new GetSMTasksRequest()).ConfigureAwait(false);
-             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetSMTasks.", statusCode: 500) : Ok(ret.Data?? new());
+             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetSMTasks.", statusCode: 500) : Ok(ret.Data?? []);
             }
             catch (Exception ex)
             {
@@ -24,7 +23,6 @@ namespace StreamMaster.Application.SMTasks.Controllers
                 return Problem(detail: "An unexpected error occurred. Please try again later.", statusCode: 500);
             }
         }
-
         [HttpPatch]
         [Route("[action]")]
         public async Task<ActionResult<APIResponse?>> SendSMTasks(SendSMTasksRequest request)
@@ -32,7 +30,6 @@ namespace StreamMaster.Application.SMTasks.Controllers
             var ret = await Sender.Send(request).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
         }
-
     }
 }
 
@@ -43,14 +40,12 @@ namespace StreamMaster.Application.Hubs
         public async Task<List<SMTask>> GetSMTasks()
         {
              var ret = await Sender.Send(new GetSMTasksRequest()).ConfigureAwait(false);
-            return ret.Data?? new();
+            return ret.Data?? [];
         }
-
         public async Task<APIResponse?> SendSMTasks(SendSMTasksRequest request)
         {
             var ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;
         }
-
     }
 }

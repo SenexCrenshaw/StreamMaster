@@ -2,7 +2,7 @@
 
 namespace StreamMaster.SchedulesDirect.Domain.Models
 {
-    public class SeriesInfo
+    public class SeriesInfo : BaseArt
     {
         public string SeriesId { get; } = string.Empty;
 
@@ -13,13 +13,9 @@ namespace StreamMaster.SchedulesDirect.Domain.Models
         public int Index { get; private set; }
 
         private string? _uid;
-        private string? _guideImage;
 
         [XmlIgnore]
         public string? ProtoTypicalProgram { get; }
-
-        [XmlIgnore]
-        public MxfGuideImage? MxfGuideImage { get; set; }
 
         [XmlIgnore]
         public Dictionary<string, dynamic> Extras { get; } = [];
@@ -72,12 +68,6 @@ namespace StreamMaster.SchedulesDirect.Domain.Models
             set => _ = DateTime.TryParse(value, out _seriesEndDate);
         }
 
-        [XmlAttribute("guideImage")]
-        public string? GuideImage
-        {
-            get => _guideImage ?? MxfGuideImage?.Id;
-            set => _guideImage = value;
-        }
 
         [XmlAttribute("studio")]
         public string? Studio { get; set; }

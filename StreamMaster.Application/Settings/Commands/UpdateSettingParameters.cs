@@ -21,7 +21,7 @@ public class UpdateSettingParameters
 
     public int? ClientReadTimeOutSeconds { get; set; }
     public string? AuthenticationMethod { get; set; }
-    public string? LogoCache { get; set; }
+    public bool? LogoCache { get; set; }
     public bool? CleanURLs { get; set; }
     public string? ClientUserAgent { get; set; }
     public string? DeviceID { get; set; }

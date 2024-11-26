@@ -53,8 +53,8 @@ public class UpdateSMChannelRequestHandler(IRepositoryWrapper Repository, IImage
             if (!string.IsNullOrEmpty(request.Logo) && request.Logo != smChannel.Logo)
             {
                 smChannel.Logo = request.Logo;
-                NameLogo nl = new(request.Logo);
-                imageDownloadQueue.EnqueueNameLogo(nl);
+                LogoInfo  nl = new(request.Logo);
+                imageDownloadQueue.EnqueueLogoInfo(nl);
 
                 ret.Add(new FieldData(() => smChannel.Logo));
             }

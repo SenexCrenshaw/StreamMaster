@@ -25,7 +25,7 @@ public class BaseSettings
     public bool EnableSSL { get; set; }
     public int GlobalStreamLimit { get; set; } = 1;
     public int IconCacheExpirationDays { get; set; } = 7;
-    public string LogoCache { get; set; } = "None";
+    public bool LogoCache { get; set; } = true;
     public string M3U8OutPutProfile { get; set; } = "SMFFMPEG";
     public int MaxConcurrentDownloads { get; set; } = 8;
     public int MaxConnectRetry { get; set; } = 20;

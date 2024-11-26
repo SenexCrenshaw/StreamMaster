@@ -63,7 +63,7 @@ public class SsController(ISender Sender, IStreamGroupService streamGroupService
         {
             return NotFound();
         }
-        string json = await streamGroupService.GetStreamGroupLineupAsync(streamGroupProfileId, HttpContext.Request, true).ConfigureAwait(false);
+        string json = await streamGroupService.GetStreamGroupLineupAsync(streamGroupProfileId, true).ConfigureAwait(false);
         return new ContentResult
         {
             Content = json,

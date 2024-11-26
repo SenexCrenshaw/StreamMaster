@@ -81,12 +81,12 @@ public sealed class QueuedHostedService(
 
                 switch (command.Command)
                 {
-                    case SMQueCommand.BuildLogoCaches:
-                        await _sender.Send(new BuildLogoCachesRequest(), cancellationSource.Token).ConfigureAwait(false);
+                    case SMQueCommand.CacheChannelLogos:
+                        await _sender.Send(new AddSMChannelLogosRequest(), cancellationSource.Token).ConfigureAwait(false);
                         break;
 
-                    case SMQueCommand.BuildLogosCacheFromStreams:
-                        await _sender.Send(new BuildLogosCacheFromStreamsRequest(), cancellationSource.Token).ConfigureAwait(false);
+                    case SMQueCommand.CacheStreamLogos:
+                        await _sender.Send(new AddSMStreamLogosRequest(), cancellationSource.Token).ConfigureAwait(false);
                         break;
 
                     case SMQueCommand.BuildProgLogosCacheFromEPGs:
@@ -94,7 +94,7 @@ public sealed class QueuedHostedService(
                         break;
 
                     //case SMQueCommand.BuildLogosCacheFromVideoStreams:
-                    //    await _sender.Send(new BuildLogosCacheFromStreamsRequest(), cancellationSource.Token).ConfigureAwait(false);
+                    //    await _sender.Send(new AddStreamLogosRequest(), cancellationSource.Token).ConfigureAwait(false);
                     //    break;
 
                     case SMQueCommand.ReadDirectoryLogosRequest:

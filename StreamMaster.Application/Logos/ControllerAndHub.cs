@@ -6,8 +6,7 @@ namespace StreamMaster.Application.Logos.Controllers
 {
     [Authorize]
     public partial class LogosController(ILogger<LogosController> _logger) : ApiControllerBase, ILogosController
-    {        
-
+    {
         [HttpGet]
         [Route("[action]")]
         public async Task<ActionResult<LogoDto>> GetLogoForChannel([FromQuery] GetLogoForChannelRequest request)
@@ -23,7 +22,6 @@ namespace StreamMaster.Application.Logos.Controllers
                 return Problem(detail: "An unexpected error occurred. Please try again later.", statusCode: 500);
             }
         }
-
         [HttpGet]
         [Route("[action]")]
         public async Task<ActionResult<LogoDto>> GetLogo([FromQuery] GetLogoRequest request)
@@ -39,7 +37,6 @@ namespace StreamMaster.Application.Logos.Controllers
                 return Problem(detail: "An unexpected error occurred. Please try again later.", statusCode: 500);
             }
         }
-
         [HttpGet]
         [Route("[action]")]
         public async Task<ActionResult<List<LogoFileDto>>> GetLogos()
@@ -47,7 +44,7 @@ namespace StreamMaster.Application.Logos.Controllers
             try
             {
             var ret = await Sender.Send(new GetLogosRequest()).ConfigureAwait(false);
-             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetLogos.", statusCode: 500) : Ok(ret.Data?? new());
+             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetLogos.", statusCode: 500) : Ok(ret.Data?? []);
             }
             catch (Exception ex)
             {
@@ -55,7 +52,6 @@ namespace StreamMaster.Application.Logos.Controllers
                 return Problem(detail: "An unexpected error occurred. Please try again later.", statusCode: 500);
             }
         }
-
     }
 }
 
@@ -68,18 +64,15 @@ namespace StreamMaster.Application.Hubs
              var ret = await Sender.Send(request).ConfigureAwait(false);
             return ret.Data?? new();
         }
-
         public async Task<LogoDto> GetLogo(GetLogoRequest request)
         {
              var ret = await Sender.Send(request).ConfigureAwait(false);
             return ret.Data?? new();
         }
-
         public async Task<List<LogoFileDto>> GetLogos()
         {
              var ret = await Sender.Send(new GetLogosRequest()).ConfigureAwait(false);
-            return ret.Data?? new();
+            return ret.Data?? [];
         }
-
     }
 }

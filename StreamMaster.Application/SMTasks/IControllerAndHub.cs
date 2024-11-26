@@ -6,7 +6,7 @@ using StreamMaster.Application.SMTasks.Queries;
 namespace StreamMaster.Application.SMTasks
 {
     public interface ISMTasksController
-    {        
+    {
         Task<ActionResult<List<SMTask>>> GetSMTasks();
         Task<ActionResult<APIResponse?>> SendSMTasks(SendSMTasksRequest request);
     }

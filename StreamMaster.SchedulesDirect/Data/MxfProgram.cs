@@ -12,11 +12,7 @@ public partial class SchedulesDirectData
 
     public MxfProgram FindOrCreateProgram(string programId)
     {
-        //if (!ProgramService.ContainsKey(programId))
-        //{
-        //    WriteToCSV(programsCSV, $"{ProgramService.Count + 1},{programId}");
 
-        //}
         (MxfProgram program, bool created) = Programs.FindOrCreateWithStatus(programId, _ => new MxfProgram(Programs.Count + 1, programId));
         if (created)
         {

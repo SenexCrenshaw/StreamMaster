@@ -86,9 +86,11 @@ public static class DirectoryHelper
                 }
             }
         }
-        CreateSubDirs(BuildInfo.SDImagesFolder);
-        CreateSubDirs(BuildInfo.SDStationLogosFolder);
+        //CreateSubDirs(BuildInfo.SDImagesFolder);
+        //CreateSubDirs(BuildInfo.SDStationLogosFolder);
         CreateSubDirs(BuildInfo.LogoFolder);
+        CreateSubDirs(BuildInfo.ProgramLogoFolder);
+        CreateSubDirs(BuildInfo.CustomLogoFolder);
     }
 
     /// <summary>

@@ -5,14 +5,14 @@ namespace StreamMaster.Infrastructure.Services.QueueService;
 
 public partial class BackgroundTaskQueue : ILogoTasks
 {
-    public async ValueTask BuildLogoCaches(CancellationToken cancellationToken = default)
+    public async ValueTask CacheChannelLogos(CancellationToken cancellationToken = default)
     {
-        await QueueAsync(SMQueCommand.BuildLogoCaches, cancellationToken).ConfigureAwait(false);
+        await QueueAsync(SMQueCommand.CacheChannelLogos, cancellationToken).ConfigureAwait(false);
     }
 
-    public async ValueTask BuildLogosCacheFromStreams(CancellationToken cancellationToken = default)
+    public async ValueTask CacheStreamLogos(CancellationToken cancellationToken = default)
     {
-        await QueueAsync(SMQueCommand.BuildLogosCacheFromStreams, cancellationToken).ConfigureAwait(false);
+        await QueueAsync(SMQueCommand.CacheStreamLogos, cancellationToken).ConfigureAwait(false);
     }
 
     //public async ValueTask BuildLogosCacheFromVideoStreams(CancellationToken cancellationToken = default)

@@ -1,6 +1,4 @@
-﻿using System.Collections.Concurrent;
-using System.Runtime.CompilerServices;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
 using SixLabors.ImageSharp;
 
@@ -19,7 +17,7 @@ public class LineupService : ILineupService
     private readonly IEPGCache<LineupResult> epgCache;
     private readonly ISchedulesDirectDataService schedulesDirectDataService;
     private readonly HttpClient httpClient;
-    private readonly ConcurrentDictionary<string, StationImage> StationLogosToDownload = [];
+    //private readonly ConcurrentDictionary<string, StationImage> StationLogosToDownload = [];
     private readonly IImageDownloadQueue imageDownloadQueue; // Injected ImageDownloadQueue
 
     public LineupService(
@@ -59,25 +57,12 @@ public class LineupService : ILineupService
 
     public void ClearCache()
     {
-        StationLogosToDownload.Clear();
+        //StationLogosToDownload.Clear();
     }
     public void ResetCache()
     {
         epgCache.ResetCache();
     }
-
-    //private void CheckHeadendView(SubscribedLineup subscribedLineup)
-    //{
-    //    if (!intSDSettings.CurrentValue.HeadendsToView.Any(a => a.Id == subscribedLineup.Id))
-    //    {
-    //        intSDSettings.CurrentValue.HeadendsToView.Add(new HeadendToView
-    //        {
-    //            Id = subscribedLineup.Id,
-    //        });
-    //        SettingsHelper.UpdateSetting(intSDSettings.CurrentValue);
-    //    }
-    //    //string HeadendId, string Country, string Postal
-    //}
 
     public async Task<bool> BuildLineupServices(CancellationToken cancellationToken = default)
     {
@@ -111,7 +96,7 @@ public class LineupService : ILineupService
                 return true;
             }
 
-            MxfLineup mxfLineup = schedulesDirectData.FindOrCreateLineup(clientLineup.Lineup, $"SM {clientLineup.Name} ({clientLineup.Location})");
+            //MxfLineup mxfLineup = schedulesDirectData.FindOrCreateLineup(clientLineup.Lineup, $"SM {clientLineup.Name} ({clientLineup.Location})");
             StationChannelMap? lineupMap = await GetStationChannelMap(clientLineup.Lineup);
 
             if (lineupMap == null || lineupMap.Stations == null || lineupMap.Stations.Count == 0)
@@ -129,54 +114,18 @@ public class LineupService : ILineupService
                     continue;
                 }
 
-                string serviceName = station.StationId;// $"{EPGHelper.SchedulesDirectId}-{station.StationId}";
-                MxfService mxfService = schedulesDirectData.FindOrCreateService(serviceName);
+                MxfService mxfService = schedulesDirectData.FindOrCreateService(station.StationId);
 
                 if (string.IsNullOrEmpty(mxfService.CallSign))
                 {
                     SetStationDetails(station, mxfService, preferredLogoStyle, alternateLogoStyle);
                 }
-
-                foreach (LineupChannelStation map in lineupMap.Map.Where(a => a.StationId == station.StationId))
-                {
-                    const string channelNumber = "1"; // Adjust as necessary
-                    if (channelNumbers.Add($"{channelNumber}:{station.StationId}"))
-                    {
-                        mxfLineup.Channels.Add(new MxfChannel(mxfLineup, mxfService)
-                        {
-                            MatchName = ""
-                        });
-                    }
-                }
             }
         }
-
-        // Trigger ImageDownloadService by adding the images to the queue
-        if (!StationLogosToDownload.IsEmpty)
-        {
-            foreach (KeyValuePair<string, StationImage> serviceLogo in StationLogosToDownload)
-            {
-                //string ext = Path.GetExtension(serviceLogo.Value.Url);
-                //if (string.IsNullOrEmpty(ext))
-                //{
-                //    ext = ".png";
-                //}
-
-                NameLogo nameLogo = new(serviceLogo.Key, serviceLogo.Value.Url, SMFileTypes.SDStationLogo, false);
-
-                //logoService.AddLogo();
-
-                imageDownloadQueue.EnqueueNameLogo(nameLogo);
-            }
-
-            logger.LogInformation("Enqueued {StationLogosToDownload.Count} station logos for download.", StationLogosToDownload.Count);
-        }
-
-        StationLogosToDownload.Clear();
 
         if (!schedulesDirectData.Services.IsEmpty)
         {
-            UpdateIcons(schedulesDirectData.Services.Values);
+            //UpdateIcons(schedulesDirectData.Services.Values);
             logger.LogInformation("Exiting BuildLineupServices(). SUCCESS.");
             epgCache.SaveCache();
             return true;
@@ -186,84 +135,14 @@ public class LineupService : ILineupService
         return false;
     }
 
-    public async IAsyncEnumerable<LogoFileDto> GetLogos([EnumeratorCancellation] CancellationToken cancellationToken)
-    {
-        SDSettings sdSettings = intSDSettings.CurrentValue;
-
-        string preferredLogoStyle = string.IsNullOrEmpty(sdSettings.PreferredLogoStyle) ? "DARK" : sdSettings.PreferredLogoStyle;
-        string alternateLogoStyle = string.IsNullOrEmpty(sdSettings.AlternateLogoStyle) ? "WHITE" : sdSettings.AlternateLogoStyle;
-
-        LineupResponse? clientLineups = await GetSubscribedLineups(cancellationToken).ConfigureAwait(false);
-
-        if (clientLineups == null || clientLineups.Lineups.Count < 1)
-        {
-            yield break;
-        }
-
-        // Convert lists to HashSets for efficient lookup
-        HashSet<string> lineupSet = [.. sdSettings.SDStationIds.Select(a => a.Lineup)];
-        HashSet<string> stationIdSet = [.. sdSettings.SDStationIds.Select(a => a.StationId)];
-
-        foreach (SubscribedLineup clientLineup in clientLineups.Lineups)
-        {
-            if (cancellationToken.IsCancellationRequested)
-            {
-                yield break;
-            }
-
-            if (clientLineup.IsDeleted)
-            {
-                continue;
-            }
-
-            if (!lineupSet.Contains(clientLineup.Lineup))
-            {
-                continue;
-            }
-
-            StationChannelMap? lineupMap = await GetStationChannelMap(clientLineup.Lineup);
-
-            if (lineupMap == null || lineupMap.Stations == null || lineupMap.Stations.Count == 0)
-            {
-                logger.LogError("Subscribed lineup '{Lineup}' does not contain any stations.", clientLineup.Lineup);
-                continue;
-            }
-
-            foreach (LineupStation? station in lineupMap.Stations)
-            {
-                if (cancellationToken.IsCancellationRequested)
-                {
-                    yield break;
-                }
-
-                if (station == null || !stationIdSet.Contains(station.StationId))
-                {
-                    continue;
-                }
-
-                StationImage? stationLogo = GetStationLogo(station, preferredLogoStyle, alternateLogoStyle);
-                if (stationLogo is null)
-                {
-                    logger.LogWarning("No logo found for station {StationId}", station.StationId);
-                    continue;
-                }
-
-                string title = string.IsNullOrEmpty(station.Callsign) ? station.Name : $"{station.Callsign} {station.Name}";
-
-                NameLogo nl = new(title, stationLogo.Url, SMFileTypes.SDStationLogo, false);
-                LogoFileDto d = new()
-                {
-                    Source = nl.FileName,
-                    Value = stationLogo.Url,
-                    SMFileType = SMFileTypes.SDStationLogo,
-                    Name = title
-                };
-
-                yield return d;
-            }
-        }
-    }
-
+    //private void UpdateIcons(ICollection<MxfService> Services)
+    //{
+    //    foreach (MxfService? service in Services.Where(a => a.extras.ContainsKey("logo")))
+    //    {
+    //        StationImage artwork = service.extras["logo"];
+    //        //logoService.AddLogo(artwork.Url, service.CallSign);
+    //    }
+    //}
 
     private void SetStationDetails(LineupStation station, MxfService mxfService, string preferredLogoStyle, string alternateLogoStyle)
     {
@@ -294,156 +173,29 @@ public class LineupService : ILineupService
         StationImage? stationLogo = GetStationLogo(station, preferredLogoStyle, alternateLogoStyle);
         if (stationLogo != null)
         {
-            // string logoFilename = $"{stationLogo.Md5}.png";
-            //string logoPath = Path.Combine(BuildInfo.SDStationLogosCacheFolder, logoFilename);
+            mxfService.XmltvIcon = new XmltvIcon
+            {
+                Src = stationLogo.Url,
+                Width = stationLogo.Width,
+                Height = stationLogo.Height
+            };
 
-            //if (!await FileExistsAsync(logoPath).ConfigureAwait(false))
-            //{
-
-            //new KeyValuePair<MxfService, string[]>(mxfService, [logoPath, stationLogo.Url])
-            StationLogosToDownload.TryAdd(stationLogo.Md5, stationLogo);
+            //schedulesDirectDataService.SchedulesDirectData().FindOrCreateProgramArtwork(stationLogo.Url);
             string title = string.IsNullOrEmpty(station.Callsign) ? station.Name : $"{station.Callsign} {station.Name}";
 
-            NameLogo nl = new(title, stationLogo.Url, SMFileTypes.SDStationLogo, false);
-            LogoFileDto d = new() { Source = nl.FileName, Value = stationLogo.Url, SMFileType = SMFileTypes.SDStationLogo, Name = title };
+            LogoInfo  logoInfo = new(title, stationLogo.Url, SMFileTypes.Logo, false);
+
+            LogoFileDto d = new() { Source = logoInfo.FileName, Value = stationLogo.Url, SMFileType = SMFileTypes.Logo, Name = title };
             logoService.AddLogo(d);
-            //}
-            //else
-            //{
-            //    await SetLogoAsync(mxfService, logoPath, stationLogo, cancellationToken).ConfigureAwait(false);
-            //}
-            //await SetLogoAsync(mxfService, stationLogo, cancellationToken).ConfigureAwait(false);
-            mxfService.mxfGuideImage = schedulesDirectDataService.SchedulesDirectData().FindOrCreateGuideImage(stationLogo.Url);
-            //await HandleStationLogoAsync(mxfService, stationLogo, cancellationToken);
+            imageDownloadQueue.EnqueueLogoInfo(logoInfo);
         }
     }
-
-
     private static StationImage? GetStationLogo(LineupStation station, string preferredLogoStyle, string alternateLogoStyle)
     {
         // Select the logo based on preferred or alternate styles, falling back to the default logo
         return station.StationLogos?.FirstOrDefault(arg => arg.Category?.EqualsIgnoreCase(preferredLogoStyle) == true)
                ?? station.StationLogos?.FirstOrDefault(arg => arg.Category?.EqualsIgnoreCase(alternateLogoStyle) == true)
                ?? station.Logo;
-    }
-
-    //private async Task HandleStationLogoAsync(MxfService mxfService, StationImage stationLogo, CancellationToken cancellationToken)
-    //{
-    //    string logoFilename = $"{stationLogo.Md5}.png";
-    //    //string logoPath = Path.Combine(BuildInfo.SDStationLogosCacheFolder, logoFilename);
-
-    //    //if (!await FileExistsAsync(logoPath).ConfigureAwait(false))
-    //    //{
-
-    //    //new KeyValuePair<MxfService, string[]>(mxfService, [logoPath, stationLogo.Url])
-    //    StationLogosToDownload.TryAdd(mxfService.CallSign, stationLogo.Url);
-    //    //}
-    //    //else
-    //    //{
-    //    //    await SetLogoAsync(mxfService, logoPath, stationLogo, cancellationToken).ConfigureAwait(false);
-    //    //}
-    //    await SetLogoAsync(mxfService, stationLogo, cancellationToken).ConfigureAwait(false);
-    //}
-
-    //private async Task SetLogoAsync(MxfService mxfService, StationImage stationLogo, CancellationToken cancellationToken)
-    //{
-    //    //if (File.Exists(logoPath))
-    //    //{
-    //    //    await using FileStream stream = File.OpenRead(logoPath);
-    //    //    using Image image = await Image.LoadAsync(stream, cancellationToken);
-
-    //    //    mxfService.extras.TryAdd("logo", new StationImage
-    //    //    {
-    //    //        Url = stationLogo.Url,
-    //    //        Height = image.Height,
-    //    //        Width = image.Width
-    //    //    });
-    //    //}
-    //    //else
-    //    //{
-    //    //    mxfService.extras.TryAdd("logo", new StationImage
-    //    //    {
-    //    //        Url = stationLogo.Url
-    //    //    });
-    //    //}
-
-    //    mxfService.mxfGuideImage = schedulesDirectDataService.SchedulesDirectData().FindOrCreateGuideImage(stationLogo.Url);
-    //}
-
-    //private static async Task<bool> FileExistsAsync(string filePath)
-    //{
-    //    return await Task.Run(() => File.Exists(filePath)).ConfigureAwait(false);
-    //}
-
-    //MaxParallelDownloads
-
-    //private async Task<bool> DownloadStationLogos(CancellationToken cancellationToken)
-    //{
-    //    using SemaphoreSlim throttler = new(SchedulesDirect.MaxParallelDownloads);
-
-    //    IEnumerable<Task> tasks = StationLogosToDownload.Select(async serviceLogo =>
-    //    {
-    //        await throttler.WaitAsync(cancellationToken).ConfigureAwait(false);
-    //        try
-    //        {
-    //            await DownloadSdLogoAsync(serviceLogo.Value[1], serviceLogo.Value[0], cancellationToken).ConfigureAwait(false);
-    //        }
-    //        finally
-    //        {
-    //            throttler.Release();
-    //        }
-    //    });
-
-    //    await Task.WhenAll(tasks).ConfigureAwait(false);
-    //    StationLogosToDownload.Clear();
-    //    return true;
-    //}
-
-    //private async Task<(int width, int height)> DownloadSdLogoAsync(string uri, string filePath, CancellationToken cancellationToken)
-    //{
-    //    try
-    //    {
-    //        HttpResponseMessage response = await httpClient.GetAsync(uri, cancellationToken);
-
-    //        if (response.IsSuccessStatusCode)
-    //        {
-    //            await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken);
-    //            using Image<Rgba32> image = await Image.LoadAsync<Rgba32>(stream, cancellationToken);
-
-    //            if (image == null)
-    //            {
-    //                throw new InvalidOperationException("Failed to load image");
-    //            }
-
-    //            await using FileStream outputFileStream = File.Create(filePath);
-    //            image.Save(outputFileStream, image.Metadata.DecodedImageFormat);
-
-    //            return (image.Width, image.Height);
-    //        }
-    //        else
-    //        {
-    //            logger.LogError("HTTP request failed with status Code: {StatusCode}", response.StatusCode);
-    //        }
-    //    }
-    //    catch (IOException ioEx)
-    //    {
-    //        logger.LogError(ioEx, "File system error occurred while downloading the logo");
-    //    }
-    //    catch (Exception ex)
-    //    {
-    //        logger.LogError(ex, "An exception occurred during DownloadSdLogoAsync.");
-    //    }
-
-    //    return (0, 0);
-    //}
-
-    private void UpdateIcons(ICollection<MxfService> Services)
-    {
-        foreach (MxfService? service in Services.Where(a => a.extras.ContainsKey("logo")))
-        {
-            StationImage artwork = service.extras["logo"];
-            //logoService.AddLogo(artwork.Url, service.CallSign);
-        }
     }
 
     private async Task<LineupResponse?> GetSubscribedLineups(CancellationToken cancellationToken)

@@ -40,6 +40,7 @@ namespace StreamMaster.Domain.Configuration
 
         public static readonly string DefaultStreamGroupName = "ALL";
 
+        public static readonly string DefaultSDImageSize = "Lg";
         public static readonly StringComparison StringComparison = StringComparison.OrdinalIgnoreCase;
 
         //public const int DBBatchSize = 500;
@@ -124,18 +125,25 @@ namespace StreamMaster.Domain.Configuration
         public static readonly string CacheFolder = Path.Combine(AppDataFolder, "Cache");
         public static readonly string LogFolder = Path.Combine(AppDataFolder, "Logs");
         public static readonly string PlayListFolder = Path.Combine(AppDataFolder, "PlayLists");
-        public static readonly string TVLogoFolder = Path.Combine(AppDataFolder, "tv-logos");
-        public static readonly string LogoFolder = Path.Combine(CacheFolder, "Logos");
+
+
         public static readonly string DupDataFolder = Path.Combine(CacheFolder, "DuplicateStreamLists");
 
         //public static readonly string ProgrammeIconDataFolder = Path.Combine(CacheFolder, "ProgrammeIcons");
         public static readonly string SDJSONFolder = Path.Combine(CacheFolder, "SDJson");
         public static readonly string SDXMLFile = Path.Combine(SDJSONFolder, "streammaster.xmltv");
 
-        public static readonly string SDStationLogosFolder = Path.Combine(CacheFolder, "SDStationLogos");
+        //public static readonly string SDStationLogosFolder = Path.Combine(CacheFolder, "SDStationLogos");
         //public static readonly string SDStationLogosCacheFolder = Path.Combine(CacheFolder, "SDStationLogosCache");
 
-        public static readonly string SDImagesFolder = Path.Combine(CacheFolder, "SDImages");
+        public static readonly string TVLogoFolder = Path.Combine(AppDataFolder, "tv-logos");
+        public static readonly string LogoFolder = Path.Combine(CacheFolder, "Logos");
+        public static readonly string CustomLogoFolder = Path.Combine(CacheFolder, "CustomLogos");
+        public static readonly string ProgramLogoFolder = Path.Combine(CacheFolder, "ProgramLogos");
+
+        //public static readonly string SDProgramLogoFolder = Path.Combine(CacheFolder, "SDProgramLogos");
+
+        //public static readonly string SDImagesFolder = Path.Combine(CacheFolder, "SDImages");
         public static readonly string EPGFolder = Path.Combine(PlayListFolder, "EPG");
         public static readonly string M3UFolder = Path.Combine(PlayListFolder, "M3U");
 

@@ -10,10 +10,20 @@ namespace StreamMaster.Domain.XmltvXml
 
         [XmlAttribute("width")]
         [DefaultValue(0)]
-        public int Width { get; set; }
+        public int Width { get; set; } = 0;
 
         [XmlAttribute("height")]
         [DefaultValue(0)]
-        public int Height { get; set; }
+        public int Height { get; set; } = 0;
+
+        public bool ShouldSerializeWidth()
+        {
+            return Width != 0;
+        }
+
+        public bool ShouldSerializeHeight()
+        {
+            return Height != 0;
+        }
     }
 }

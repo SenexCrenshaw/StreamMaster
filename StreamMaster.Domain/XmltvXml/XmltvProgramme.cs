@@ -16,20 +16,15 @@ namespace StreamMaster.Domain.XmltvXml
             set
             {
                 start = value;
-                try
+                if (DateTime.TryParseExact(value, "yyyyMMddHHmmss K", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime dateValue))
                 {
-                    _ = DateTime.TryParseExact(value, "yyyyMMddHHmmss K", CultureInfo.InvariantCulture,
-                           DateTimeStyles.None, out DateTime dateValue);
                     StartDateTime = dateValue;
-                }
-                catch
-                {
                 }
             }
         }
 
         [XmlIgnore]
-        public DateTime StartDateTime { get; private set; }
+        public DateTime StartDateTime { get; set; }
 
         [XmlIgnore]
         public int EPGFileId { get; set; }
@@ -41,14 +36,9 @@ namespace StreamMaster.Domain.XmltvXml
             set
             {
                 stop = value;
-                try
+                if (DateTime.TryParseExact(value, "yyyyMMddHHmmss K", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime dateValue))
                 {
-                    _ = DateTime.TryParseExact(value, "yyyyMMddHHmmss K", CultureInfo.InvariantCulture,
-                           DateTimeStyles.None, out DateTime dateValue);
                     StopDateTime = dateValue;
-                }
-                catch
-                {
                 }
             }
         }

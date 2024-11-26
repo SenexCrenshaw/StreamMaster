@@ -18,12 +18,11 @@ using StreamMaster.Domain.XmltvXml;
 using StreamMaster.Infrastructure.EF.Helpers;
 using StreamMaster.Infrastructure.EF.PGSQL;
 using StreamMaster.SchedulesDirect.Domain.Interfaces;
-using StreamMaster.SchedulesDirect.Domain.JsonClasses;
-using StreamMaster.SchedulesDirect.Domain.Models;
+using StreamMaster.Streams.Domain.Interfaces;
 
 namespace StreamMaster.Infrastructure.EF.Repositories;
 
-public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IImageDownloadService imageDownloadService, IImageDownloadQueue imageDownloadQueue, IServiceProvider serviceProvider, IRepositoryWrapper repository, IRepositoryContext repositoryContext, IMapper mapper, IOptionsMonitor<Setting> settings, IOptionsMonitor<CommandProfileDict> intProfileSettings, ISchedulesDirectDataService schedulesDirectDataService)
+public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, ICacheManager cacheManager, IImageDownloadService imageDownloadService, IImageDownloadQueue imageDownloadQueue, IServiceProvider serviceProvider, IRepositoryWrapper repository, IRepositoryContext repositoryContext, IMapper mapper, IOptionsMonitor<Setting> settings, IOptionsMonitor<CommandProfileDict> intProfileSettings, ISchedulesDirectDataService schedulesDirectDataService)
     : RepositoryBase<SMChannel>(repositoryContext, intLogger), ISMChannelsRepository
 {
     private int currentChannelNumber;
@@ -38,8 +37,8 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IImag
 
     public async Task<List<FieldData>> AutoSetEPGFromParameters(QueryStringParameters parameters, CancellationToken cancellationToken)
     {
-        List<SMChannel> smChannels = await GetPagedSMChannelsQueryable(parameters).ToListAsync(cancellationToken: cancellationToken);
-        return await AutoSetEPGs(smChannels, false, cancellationToken).ConfigureAwait(false);
+        IQueryable<SMChannel> results = await GetPagedSMChannelsQueryableAsync(parameters);
+        return await AutoSetEPGs(await results.ToListAsync(), false, cancellationToken).ConfigureAwait(false);
     }
 
     public async Task<List<FieldData>> AutoSetEPGs(List<SMChannel> smChannels, bool skipSave, CancellationToken cancellationToken)
@@ -53,7 +52,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IImag
 
         List<StationChannelName> stationChannelList = [.. stationChannelNames];
 
-        List<SMChannel> entitiesToUpdate = [];
+        ConcurrentQueue<SMChannel> entitiesToUpdate = new();
 
         await Task.Run(() =>
         {
@@ -113,10 +112,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IImag
                         {
                             smChannel.EPGId = bestMatch.Channel.Channel;
 
-                            lock (entitiesToUpdate)
-                            {
-                                entitiesToUpdate.Add(smChannel);
-                            }
+                            entitiesToUpdate.Enqueue(smChannel);
 
                             fds.Add(new FieldData(SMChannel.APIName, smChannel.Id, "EPGId", smChannel.EPGId));
 
@@ -161,7 +157,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IImag
 
     public async Task<IdIntResultWithResponse> AutoSetSMChannelNumbersFromParameters(int streamGroupId, QueryStringParameters Parameters, int? StartingNumber, bool? OverwriteExisting)
     {
-        IQueryable<SMChannel> query = GetPagedSMChannelsQueryable(Parameters);
+        IQueryable<SMChannel> query = await GetPagedSMChannelsQueryableAsync(Parameters);
         return await AutoSetSMChannelNumbers(query, StartingNumber ?? 1, OverwriteExisting ?? true);
     }
 
@@ -264,15 +260,14 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IImag
                         return APIResponse.ErrorWithMessage("Error creating SMChannel from streams");
                     }
 
-                    if (settings.CurrentValue.LogoCache.EqualsIgnoreCase("cache"))
-                    {
-                        NameLogo NameLogo = new(smStream);
-                        imageDownloadQueue.EnqueueNameLogo(NameLogo);
-                    }
+
+                    LogoInfo  logoInfo = new(smStream);
+                    imageDownloadQueue.EnqueueLogoInfo(logoInfo);
+
 
                     addedSMChannels.Add(smChannel);
 
-                    //logoService.DownloadAndAdd(NameLogo);
+                    //logoService.DownloadAndAdd(LogoInfo );
                     //bulkSMChannels.Add(smChannel);
                 }
 
@@ -344,79 +339,76 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IImag
 
     public async Task<List<int>> DeleteSMChannelsFromParameters(QueryStringParameters parameters)
     {
-        IQueryable<SMChannel> toDelete = GetPagedSMChannelsQueryable(parameters).Where(a => a.SMChannelType == SMChannelTypeEnum.Regular && !a.IsSystem);
+        IQueryable<SMChannel> queryableChannels = await GetPagedSMChannelsQueryableAsync(parameters).ConfigureAwait(false);
+        IQueryable<SMChannel> toDelete = queryableChannels.Where(a => a.SMChannelType == SMChannelTypeEnum.Regular && !a.IsSystem);
         return await DeleteSMChannelsAsync(toDelete).ConfigureAwait(false);
     }
 
     public async Task<PagedResponse<SMChannelDto>> GetPagedSMChannels(QueryStringParameters parameters)
     {
-        IQueryable<SMChannel> query = GetPagedSMChannelsQueryable(parameters);
+        IQueryable<SMChannel> query = await GetPagedSMChannelsQueryableAsync(parameters);
 
         return await query.GetPagedResponseAsync<SMChannel, SMChannelDto>(parameters.PageNumber, parameters.PageSize, mapper)
                               .ConfigureAwait(false);
     }
 
-    public IQueryable<SMChannel> GetPagedSMChannelsQueryable(QueryStringParameters parameters, bool? tracking = false)
+    public async Task<IQueryable<SMChannel>> GetPagedSMChannelsQueryableAsync(QueryStringParameters parameters, bool? tracking = false)
     {
-        IQueryable<SMChannel> query = GetQuery(parameters, tracking == true).Include(a => a.SMStreams).ThenInclude(a => a.SMStream).Include(a => a.StreamGroups);
+        IQueryable<SMChannel> query = GetQuery(parameters, tracking == true)
+            .Include(a => a.SMStreams)
+            .ThenInclude(a => a.SMStream)
+            .Include(a => a.StreamGroups);
 
-        IServiceScope scope = serviceProvider.CreateScope();
-        IStreamGroupService streamGroupService = scope.ServiceProvider.GetRequiredService<IStreamGroupService>();
-
-        int defaultSGID = streamGroupService.GetDefaultSGIdAsync().Result;
+        int defaultSGID;
+        if (cacheManager.DefaultSG == null)
+        {
+            IServiceScope scope = serviceProvider.CreateScope();
+            IStreamGroupService streamGroupService = scope.ServiceProvider.GetRequiredService<IStreamGroupService>();
+            defaultSGID = await streamGroupService.GetDefaultSGIdAsync();
+        }
+        else
+        {
+            defaultSGID = cacheManager.DefaultSG.Id;
+        }
 
         if (!string.IsNullOrEmpty(parameters.JSONFiltersString))
         {
             List<DataTableFilterMetaData>? filters = JsonSerializer.Deserialize<List<DataTableFilterMetaData>>(parameters.JSONFiltersString);
-            if (filters?.Any(a => a.MatchMode == "inSG") == true)
+            if (filters?.Any() != true)
             {
-                DataTableFilterMetaData? inSGFilter = filters.Find(a => a.MatchMode == "inSG");
-                if (inSGFilter?.Value != null)
+                return query;
+            }
+
+            // Filter for "inSG"
+            DataTableFilterMetaData? inSGFilter = filters.FirstOrDefault(a => a.MatchMode == "inSG");
+            if (inSGFilter?.Value is string streamGroupIdString && int.TryParse(streamGroupIdString, out int inSGId))
+            {
+                if (inSGId != defaultSGID)
                 {
-                    try
-                    {
-                        string? streamGroupIdString = inSGFilter.Value.ToString();
-                        if (!string.IsNullOrWhiteSpace(streamGroupIdString))
-                        {
-                            int streamGroupId = Convert.ToInt32(streamGroupIdString);
-                            if (streamGroupId != defaultSGID)
-                            {
-                                List<int> linkIds = [.. repository.StreamGroupSMChannelLink.GetQuery().Where(a => a.StreamGroupId == streamGroupId).Select(a => a.SMChannelId)];
-                                query = query.Where(a => linkIds.Contains(a.Id));
-                            }
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        logger.LogError(ex, "Object value is outside the range of an Int32. Object: {Object}", inSGFilter.Value);
-                    }
+
+                    query = query.Where(a => repository.StreamGroupSMChannelLink
+                        .GetQueryNoTracking
+                        .Where(link => link.StreamGroupId == inSGId)
+                        .Select(link => link.SMChannelId)
+                        .Contains(a.Id));
                 }
             }
 
-            if (filters?.Any(a => a.MatchMode == "notInSG") == true)
+            // Filter for "notInSG"
+            DataTableFilterMetaData? notInSGFilter = filters.FirstOrDefault(a => a.MatchMode == "notInSG");
+            if (notInSGFilter?.Value is string notStreamGroupIdString && int.TryParse(notStreamGroupIdString, out int notInSGId))
             {
-                DataTableFilterMetaData? notInSGFilter = filters.Find(a => a.MatchMode == "notInSG");
-                if (notInSGFilter?.Value != null)
-                {
-                    try
-                    {
-                        string? streamGroupIdString = notInSGFilter.Value.ToString();
-                        if (!string.IsNullOrWhiteSpace(streamGroupIdString))
-                        {
-                            int streamGroupId = Convert.ToInt32(streamGroupIdString);
-                            List<int> linkIds = [.. repository.StreamGroupSMChannelLink.GetQuery().Where(a => a.StreamGroupId == streamGroupId).Select(a => a.SMChannelId)];
-                            query = query.Where(a => !linkIds.Contains(a.Id));
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        logger.LogError(ex, "Object value is outside the range of an Int32. Object: {Object}", notInSGFilter.Value);
-                    }
-                }
+                query = query.Where(a => !repository.StreamGroupSMChannelLink
+                    .GetQueryNoTracking
+                    .Where(link => link.StreamGroupId == notInSGId)
+                    .Select(link => link.SMChannelId)
+                    .Contains(a.Id));
             }
         }
         return query;
     }
+
+
 
     public override IQueryable<SMChannel> GetQuery(bool tracking = false)
     {
@@ -548,9 +540,9 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IImag
 
         channel.Logo = logo;
 
-        if (!IsLocalLogo(logo))
+        if (!logo.IsRedirect())
         {
-            NameLogo nl = new(logo);
+            LogoInfo  nl = new(logo);
             await imageDownloadService.DownloadImageAsync(nl, CancellationToken.None);
         }
 
@@ -560,15 +552,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IImag
         return APIResponse.Success;
     }
 
-    private bool IsLocalLogo(string Logo)
-    {
-        return string.IsNullOrEmpty(Logo)
-            || !Logo.StartsWith("http")
-          || Logo.EqualsIgnoreCase("noimage.png")
-          || Logo.EqualsIgnoreCase(settings.CurrentValue.DefaultLogo)
-          || (Logo.StartsWithIgnoreCase("images") && Logo.EndsWithIgnoreCase("default.png"))
-          || Logo.EqualsIgnoreCase("/images/streammaster_logo.png");
-    }
+
 
     public async Task<APIResponse> SetSMChannelName(int sMChannelId, string name)
     {
@@ -598,7 +582,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IImag
 
     public async Task<APIResponse> SetSMChannelsCommandProfileNameFromParameters(QueryStringParameters parameters, string CommandProfileName)
     {
-        IQueryable<SMChannel> toUpdate = GetPagedSMChannelsQueryable(parameters, tracking: true);
+        IQueryable<SMChannel> toUpdate = await GetPagedSMChannelsQueryableAsync(parameters, tracking: true);
         return await SetSMChannelsCommandProfileName(toUpdate, CommandProfileName);
     }
 
@@ -610,7 +594,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IImag
 
     public async Task<APIResponse> SetSMChannelsGroupFromParameters(QueryStringParameters parameters, string GroupName)
     {
-        IQueryable<SMChannel> toUpdate = GetPagedSMChannelsQueryable(parameters, tracking: true);
+        IQueryable<SMChannel> toUpdate = await GetPagedSMChannelsQueryableAsync(parameters, tracking: true);
         return await SetSMChannelsGroup(toUpdate, GroupName);
     }
 
@@ -622,7 +606,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IImag
 
     public async Task<List<FieldData>> SetSMChannelsLogoFromEPGFromParameters(QueryStringParameters parameters, CancellationToken cancellationToken)
     {
-        IQueryable<SMChannel> query = GetPagedSMChannelsQueryable(parameters);
+        IQueryable<SMChannel> query = await GetPagedSMChannelsQueryableAsync(parameters);
         return await SetSMChannelsLogoFromEPG(query, cancellationToken);
     }
 
@@ -740,7 +724,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IImag
 
         string name = GetName(smStream);
 
-        //NameLogo nl = new(smStream);
+        //LogoInfo  nl = new(smStream);
 
         //string logo = logoService.GetLogoUrl2(smStream.Logo, ftype);
         SMChannel smChannel = new()
@@ -917,7 +901,6 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IImag
         {
             if (SetVideoStreamLogoFromEPG(smChannel))
             {
-
                 fds.Add(new FieldData(SMChannel.APIName, smChannel.Id, "Logo", smChannel.Logo));
                 RepositoryContext.SMChannels.Update(smChannel);
             }
@@ -932,18 +915,16 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IImag
 
     private bool SetVideoStreamLogoFromEPG(SMChannel smChannel)
     {
-        MxfService? service = schedulesDirectDataService.GetService(smChannel.EPGId);
+        StationChannelName? match = cacheManager.StationChannelNames
+     .SelectMany(kvp => kvp.Value)
+     .FirstOrDefault(stationchannel => stationchannel.Id == smChannel.EPGId || stationchannel.Channel == smChannel.EPGId);
 
-        if (service is null || !service.extras.TryGetValue("logo", out dynamic? value))
+        if (match is not null && match.Logo != string.Empty && smChannel.Logo != match.Logo)
         {
-            return false;
+            smChannel.Logo = match.Logo;
+            return true;
         }
-        StationImage logo = value;
 
-        if (logo.Url != null)
-        {
-            smChannel.Logo = logo.Url;
-        }
-        return true;
+        return false;
     }
 }

@@ -30,17 +30,22 @@ namespace StreamMaster.SchedulesDirect
                 processedObjects++;
                 cancellationToken.ThrowIfCancellationRequested();
 
-                if (!mxfProgram.Extras.ContainsKey("md5"))
+                //if (!mxfProgram.Extras.ContainsKey("md5"))
+                //{
+                //    continue;
+                //}
+
+                if (string.IsNullOrEmpty(mxfProgram.MD5))
                 {
                     continue;
                 }
 
-                if (epgCache.JsonFiles.ContainsKey(mxfProgram.Extras["md5"]))
+                if (epgCache.JsonFiles.ContainsKey(mxfProgram.MD5))
                 {
                     // Try to load cached program
                     try
                     {
-                        Programme sdProgram = JsonSerializer.Deserialize<Programme>(epgCache.GetAsset(mxfProgram.Extras["md5"])) ?? throw new Exception("Deserialization failed.");
+                        Programme sdProgram = JsonSerializer.Deserialize<Programme>(epgCache.GetAsset(mxfProgram.MD5)) ?? throw new Exception("Deserialization failed.");
                         BuildMxfProgram(mxfProgram, sdProgram);
                     }
                     catch (Exception)
@@ -137,7 +142,7 @@ namespace StreamMaster.SchedulesDirect
                 // Add program JSON to cache
                 if (sdProgram.Md5 != null)
                 {
-                    mxfProgram.Extras.AddOrUpdate("md5", sdProgram.Md5);
+                    mxfProgram.MD5 = sdProgram.Md5;
                     try
                     {
                         string jsonString = JsonSerializer.Serialize(sdProgram);
@@ -518,7 +523,7 @@ namespace StreamMaster.SchedulesDirect
                                 {
                                     cached.StartAirdate = mxfProgram.OriginalAirdate ?? string.Empty;
                                     string jsonString = JsonSerializer.Serialize(cached);
-                                    epgCache.UpdateAssetJsonEntry(mxfProgram.ProgramId, jsonString);
+                                    epgCache.CreateOrUpdateAsset(mxfProgram.ProgramId, jsonString);
                                 }
                             }
                         }

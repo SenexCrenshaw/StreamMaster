@@ -30,22 +30,14 @@ public class MovieImages(ILogger<MovieImages> logger, IEPGCache<MovieImages> epg
         // Check cache and queue missing movie posters
         foreach (MxfProgram mxfProgram in moviePrograms)
         {
-            if (mxfProgram.Extras.TryGetValue("md5", out dynamic? md5))
+            if (!string.IsNullOrEmpty(mxfProgram.MD5))
             {
-                if (epgCache.JsonFiles.TryGetValue(md5, out EPGJsonCache? cachedFile))
+                if (epgCache.JsonFiles.TryGetValue(mxfProgram.MD5, out EPGJsonCache? cachedFile))
                 {
                     if (cachedFile != null && !string.IsNullOrEmpty(cachedFile.Images))
                     {
-                        List<ProgramArtwork>? artwork = JsonSerializer.Deserialize<List<ProgramArtwork>>(cachedFile.Images);
-                        if (artwork != null)
-                        {
-                            mxfProgram.Extras["artwork"] = artwork;
-                            MxfGuideImage? guideImage = epgCache.GetGuideImageAndUpdateCache(artwork, ImageType.Movie);
-                            if (guideImage is not null)
-                            {
-                                mxfProgram.mxfGuideImage = guideImage;
-                            }
-                        }
+                        List<ProgramArtwork>? artworks = JsonSerializer.Deserialize<List<ProgramArtwork>>(cachedFile.Images);
+                        mxfProgram.ArtWorks = artworks ?? ([]);
                     }
                 }
             }
@@ -102,48 +94,33 @@ public class MovieImages(ILogger<MovieImages> logger, IEPGCache<MovieImages> epg
 
     private void ProcessMovieImageResponses()
     {
-        string artworkSize = string.IsNullOrEmpty(sdSettings.CurrentValue.ArtworkSize) ? "Md" : sdSettings.CurrentValue.ArtworkSize;
+
+        string artworkSize = string.IsNullOrEmpty(sdSettings.CurrentValue.ArtworkSize) ? BuildInfo.DefaultSDImageSize : sdSettings.CurrentValue.ArtworkSize;
 
         foreach (ProgramMetadata response in movieImageResponses)
         {
-            if (response.Data == null)
+            ++processedObjects;
+
+            if (response.Data == null || response.Data.Count == 0)
             {
+                logger.LogWarning("No Movie Image artwork found for {ProgramId}", response.ProgramId);
                 continue;
             }
 
             ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
             MxfProgram mxfProgram = schedulesDirectData.FindOrCreateProgram(response.ProgramId);
 
-            //List<string> test = response.Data.Select(a => a.Tier).Distinct().ToList();
-            //List<ProgramArtwork> staples = response.Data.Where(a => a.Category == "Staple").ToList();
-            //List<ProgramArtwork> staplesMd = response.Data.Where(a => a.Category == "Staple" && a.Size == "Md").ToList();
+            List<ProgramArtwork> artworks = SDHelpers.GetTieredImages(response.Data, artworkSize, ["episode", "series"], sdSettings.CurrentValue.MoviePosterAspect);
+            mxfProgram.AddArtwork(artworks);
+            epgCache.UpdateProgramArtworkCache(artworks, ImageType.Movie, response.ProgramId);
 
-            //List<ProgramArtwork> staplesMd23 = response.Data.Where(a => a.Category == "Staple" && a.Size == "Md" && a.Aspect == "2x3").ToList();
-
-            //List<ProgramArtwork> testartwork = SDHelpers.GetTieredImages(response.Data, ["episode", "series"], artworkSize);
-
-            if (!mxfProgram.Extras.TryGetValue("artwork", out dynamic? value))
+            if (artworks.Count > 0)
             {
-                List<ProgramArtwork> artworks = SDHelpers.GetTieredImages(response.Data, ["episode", "series"], artworkSize, sdSettings.CurrentValue.MoviePosterAspect).ToList();
-
-                mxfProgram.Extras["artwork"] = artworks;
-            }
-            //else
-            //{
-            //    value.Add(artworks);
-            //}
-
-            if (mxfProgram.Extras["artwork"].Count > 0)
-            {
-                mxfProgram.mxfGuideImage = epgCache.GetGuideImageAndUpdateCache(mxfProgram.Extras["artwork"], ImageType.Movie, mxfProgram.Extras["md5"]);
-                imageDownloadQueue.EnqueueProgramArtworkCollection(mxfProgram.Extras["artwork"]);
+                imageDownloadQueue.EnqueueProgramArtworkCollection(artworks);
             }
             else
             {
-                if (response.Data.Count > 0)
-                {
-                    logger.LogError("No 2x3 artwork found for {ProgramId}", response.ProgramId);
-                }
+                logger.LogWarning("No artwork found for {ProgramId}", response.ProgramId);
             }
         }
     }

@@ -1,8 +1,8 @@
-﻿using StreamMaster.Domain.Extensions;
-
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Text.Json;
 using System.Threading.Channels;
+
+using StreamMaster.Domain.Extensions;
 
 namespace StreamMaster.Streams.Plugins
 {
@@ -75,6 +75,7 @@ namespace StreamMaster.Streams.Plugins
             {
                 // Handle the cancellation gracefully, no need to log TaskCanceledException
             }
+
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Unexpected error in video info loop for {name}", name);

@@ -6,8 +6,7 @@ namespace StreamMaster.Application.Streaming.Controllers
 {
     [Authorize]
     public partial class StreamingController() : ApiControllerBase, IStreamingController
-    {        
-
+    {
         [HttpPatch]
         [Route("[action]")]
         public async Task<ActionResult<APIResponse?>> CancelAllChannels()
@@ -15,7 +14,6 @@ namespace StreamMaster.Application.Streaming.Controllers
             var ret = await Sender.Send(new CancelAllChannelsRequest()).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
         }
-
         [HttpPatch]
         [Route("[action]")]
         public async Task<ActionResult<APIResponse?>> CancelChannel(CancelChannelRequest request)
@@ -23,7 +21,6 @@ namespace StreamMaster.Application.Streaming.Controllers
             var ret = await Sender.Send(request).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
         }
-
         [HttpPatch]
         [Route("[action]")]
         public async Task<ActionResult<APIResponse?>> CancelClient(CancelClientRequest request)
@@ -31,7 +28,6 @@ namespace StreamMaster.Application.Streaming.Controllers
             var ret = await Sender.Send(request).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
         }
-
         [HttpPatch]
         [Route("[action]")]
         public async Task<ActionResult<APIResponse?>> MoveToNextStream(MoveToNextStreamRequest request)
@@ -39,7 +35,6 @@ namespace StreamMaster.Application.Streaming.Controllers
             var ret = await Sender.Send(request).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
         }
-
     }
 }
 
@@ -52,24 +47,20 @@ namespace StreamMaster.Application.Hubs
             var ret = await Sender.Send(new CancelAllChannelsRequest()).ConfigureAwait(false);
             return ret;
         }
-
         public async Task<APIResponse?> CancelChannel(CancelChannelRequest request)
         {
             var ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;
         }
-
         public async Task<APIResponse?> CancelClient(CancelClientRequest request)
         {
             var ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;
         }
-
         public async Task<APIResponse?> MoveToNextStream(MoveToNextStreamRequest request)
         {
             var ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;
         }
-
     }
 }

@@ -4,17 +4,17 @@ namespace StreamMaster.Domain.XmltvXml;
 
 public class XmltvRating
 {
-    private string _value = string.Empty;
+    private string? _value;
 
     [XmlText]
-    public string Value
+    public string? Value
     {
         get => ElementValue ?? _value;
         set => _value = value;
     }
 
     [XmlElement("value")]
-    public string ElementValue { get; set; } = string.Empty;
+    public string? ElementValue { get; set; }
 
     [XmlElement("icon")]
     public List<XmltvIcon>? Icons { get; set; }

@@ -5,6 +5,7 @@ export interface StationChannelName
 	DisplayName: string;
 	EPGNumber: number;
 	Id: string;
+	Logo: string;
 }
 export interface QueryStringParameters
 {
@@ -36,11 +37,11 @@ export interface FieldData
 export interface ImageDownloadServiceStatus
 {
 	Id: number;
-	TotalNameLogo: number;
-	TotalNameLogoAlreadyExists: number;
-	TotalNameLogoDownloadAttempts: number;
-	TotalNameLogoErrors: number;
-	TotalNameLogoSuccessful: number;
+	TotallogoInfo: number;
+	TotallogoInfoAlreadyExists: number;
+	TotallogoInfoDownloadAttempts: number;
+	TotallogoInfoErrors: number;
+	TotallogoInfoSuccessful: number;
 	TotalProgramMetadata: number;
 	TotalProgramMetadataAlreadyExists: number;
 	TotalProgramMetadataDownloadAttempts: number;
@@ -196,13 +197,24 @@ export interface LogoDto
 }
 export interface LogoFileDto
 {
-	Extension: string;
 	FileId: number;
 	Id: string;
 	Name: string;
 	SMFileType: SMFileTypes;
 	Source: string;
 	Value: string;
+}
+export interface LogoInfo
+{
+	Ext: string;
+	FileName: string;
+	FullPath: string;
+	Id: string;
+	IsSchedulesDirect: boolean;
+	IsSVG: boolean;
+	Name: string;
+	SMFileType: SMFileTypes;
+	Url: string;
 }
 export interface M3UFileDto
 {
@@ -227,17 +239,6 @@ export interface M3UFileDto
 	SyncChannels: boolean;
 	Url: string;
 	VODTags: string[];
-}
-export interface NameLogo
-{
-	Ext: string;
-	FileName: string;
-	FullPath: string;
-	Id: string;
-	IsSchedulesDirect: boolean;
-	Name: string;
-	SMFileType: SMFileTypes;
-	Url: string;
 }
 export interface SDSystemStatus
 {
@@ -267,7 +268,7 @@ export interface SettingDto
 	GlobalStreamLimit: number;
 	IconCacheExpirationDays: number;
 	IsDebug: boolean;
-	LogoCache: string;
+	LogoCache: boolean;
 	M3U8OutPutProfile: string;
 	MaxConcurrentDownloads: number;
 	MaxConnectRetry: number;
@@ -323,7 +324,7 @@ export interface SMStreamDto
 {
 	APIName: string;
 	ChannelId: string;
-	ChannelMembership: NameLogo[];
+	ChannelMembership: LogoInfo[];
 	ChannelName: string;
 	ChannelNumber: number;
 	ClientUserAgent?: string;
@@ -1125,7 +1126,7 @@ export interface UpdateSettingParameters
 	FFProbeExecutable?: string;
 	GlobalStreamLimit?: number;
 	IconCacheExpirationDays?: number;
-	LogoCache?: string;
+	LogoCache?: boolean;
 	M3U8OutPutProfile?: string;
 	MaxConnectRetry?: number;
 	MaxConnectRetryTimeMS?: number;
@@ -1773,14 +1774,13 @@ export enum SMFileTypes {
 	HDHR = 2,
 	Channel = 3,
 	M3UStream = 4,
-	Logo = 5,
-	Image = 6,
-	TvLogo = 7,
-	CustomLogo = 9,
-	SDImage = 10,
-	SDStationLogo = 11,
-	CustomPlayList = 12,
-	CustomPlayListLogo = 13
+	Image = 5,
+	TvLogo = 6,
+	Logo = 7,
+	CustomLogo = 8,
+	CustomPlayList = 9,
+	CustomPlayListLogo = 10,
+	ProgramLogo = 11
 }
 export enum ValidM3USetting {
 	NotMapped = 0,

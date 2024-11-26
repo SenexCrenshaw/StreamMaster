@@ -1,13 +1,11 @@
 ﻿using System.Globalization;
-using System.Net;
 
-using StreamMaster.Domain.Enums;
 using StreamMaster.Domain.Helpers;
-using StreamMaster.Domain.Models;
 
 namespace StreamMaster.SchedulesDirect.Converters
 {
     public class XmltvProgramBuilder(IOptionsMonitor<Setting> settingsMonitor, IOptionsMonitor<SDSettings> sdSettingsMonitor, ILogoService logoService)
+        : IXmltvProgramBuilder
     {
         private static readonly string[] TvRatings =
         [
@@ -23,51 +21,6 @@ namespace StreamMaster.SchedulesDirect.Converters
             "", "G", "PG", "PG-13", "R", "NC-17", "X", "NR", "AO"
         ];
 
-        //public XmltvProgramme BuildXmltvProgram(MxfScheduleEntry scheduleEntry)
-        //{
-        //    MxfProgram mxfProgram = scheduleEntry.mxfProgram;
-        //    SDSettings sdSettings = sdSettingsMonitor.CurrentValue;
-
-        //    XmltvProgramme programme = new()
-        //    {
-        //        Start = FormatDateTime(scheduleEntry.StartTime),
-        //        Stop = FormatDateTime(scheduleEntry.StartTime.AddSeconds(scheduleEntry.Duration)),
-        //        //Channel = scheduleEntry.mxfProgram.Id,
-        //        Titles = ConvertToXmltvTextList(mxfProgram.Title),
-        //        SubTitles = ConvertToXmltvTextList(mxfProgram.EpisodeTitle),
-        //        Descriptions = ConvertToXmltvTextList(GetFullDescription(mxfProgram, scheduleEntry, sdSettings)),
-        //        Credits = BuildProgramCredits(mxfProgram),
-        //        Date = BuildProgramDate(mxfProgram),
-        //        Categories = BuildProgramCategories(mxfProgram),
-        //        Language = ConvertToXmltvText(mxfProgram.Language),
-        //        Icons = BuildProgramIcons(mxfProgram),
-        //        EpisodeNums = BuildEpisodeNumbers(scheduleEntry),
-        //        Video = BuildProgramVideo(scheduleEntry),
-        //        Audio = BuildProgramAudio(scheduleEntry),
-        //        PreviouslyShown = BuildProgramPreviouslyShown(scheduleEntry),
-        //        Premiere = BuildProgramPremiere(scheduleEntry),
-        //        Live = scheduleEntry.IsLive ? string.Empty : null,
-        //        New = !scheduleEntry.IsRepeat ? string.Empty : null,
-        //        SubTitles2 = BuildProgramSubtitles(scheduleEntry),
-        //        Rating = BuildProgramRatings(scheduleEntry),
-        //        StarRating = BuildProgramStarRatings(mxfProgram)
-        //    };
-
-        //    return programme;
-        //}
-
-        //public static XmltvProgramme BuildXmltvProgram(StationChannelName stationChannelName, DateTime StartDT, int Duration)
-        //{
-        //    XmltvProgramme programme = new()
-        //    {
-        //        Start = FormatDateTime(StartDT),
-        //        Stop = FormatDateTime(StartDT.AddSeconds(Duration)),
-        //        Channel = stationChannelName.Id,
-        //        Titles = ConvertToXmltvTextList(stationChannelName.ChannelName)
-        //    };
-
-        //    return programme;
-        //}
 
         public XmltvProgramme BuildXmltvProgram(MxfScheduleEntry scheduleEntry, string channelId, int timeShift, string baseUrl)
         {
@@ -88,7 +41,7 @@ namespace StreamMaster.SchedulesDirect.Converters
                 Date = BuildProgramDate(mxfProgram),
                 //Categories = BuildProgramCategories(mxfProgram),
                 Language = ConvertToXmltvText(mxfProgram.Language),
-                Icons = BuildProgramIcons(mxfProgram, baseUrl),
+                Icons = BuildProgramIcons(scheduleEntry, baseUrl),
                 EpisodeNums = BuildEpisodeNumbers(scheduleEntry),
                 Video = BuildProgramVideo(scheduleEntry),
                 Audio = BuildProgramAudio(scheduleEntry),
@@ -100,6 +53,11 @@ namespace StreamMaster.SchedulesDirect.Converters
                 Rating = BuildProgramRatings(scheduleEntry),
                 StarRating = BuildProgramStarRatings(mxfProgram)
             };
+
+            if (programme.Icons is not null)
+            {
+                int aa = 1;
+            }
 
             return programme;
         }
@@ -337,99 +295,52 @@ namespace StreamMaster.SchedulesDirect.Converters
         //    return categories.Count == 0 ? null : categories.ConvertAll(category => new XmltvText { Text = category });
         //}
 
-        private List<XmltvIcon>? BuildProgramIcons(MxfProgram mxfProgram, string baseUrl)
+        private List<XmltvIcon>? BuildProgramIcons(MxfScheduleEntry scheduleEntry, string baseUrl)
         {
             SDSettings sdSettings = sdSettingsMonitor.CurrentValue;
+            MxfProgram mxfProgram = scheduleEntry.mxfProgram;
 
-            if (sdSettings.XmltvSingleImage || !mxfProgram.Extras.ContainsKey("artwork"))
-            {
-                // Use the first available image URL
-                string? url = mxfProgram.mxfGuideImage?.ImageUrl ??
-                              mxfProgram.mxfSeason?.mxfGuideImage?.ImageUrl ??
-                              mxfProgram.mxfSeriesInfo?.MxfGuideImage?.ImageUrl;
+            // Get artwork from program or its related entities
+            List<ProgramArtwork>? artWorks = mxfProgram.ArtWorks
+                ?? mxfProgram.mxfSeason?.ArtWorks
+                ?? mxfProgram.mxfSeriesInfo?.ArtWorks;
 
-                return url != null ?
-                [
-                    new XmltvIcon
-                    {
-                        Src =GetIconUrl(EPGHelper.SchedulesDirectId, url, baseUrl),
-                        // Height and Width can be set if available
-                    }
-                ] : null;
-            }
-
-            // Retrieve artwork from the program, season, or series info
-            List<ProgramArtwork>? artwork = mxfProgram.Extras.GetValueOrDefault("artwork") as List<ProgramArtwork> ??
-                                            mxfProgram.mxfSeason?.Extras.GetValueOrDefault("artwork") as List<ProgramArtwork> ??
-                                            mxfProgram.mxfSeriesInfo?.Extras.GetValueOrDefault("artwork") as List<ProgramArtwork>;
-
-            if (artwork == null)
+            if (artWorks == null || artWorks.Count == 0)
             {
                 return null;
             }
 
-            // Convert artwork to XmltvIcon list
-            return artwork.ConvertAll(image => new XmltvIcon
-            {
-                Src = GetIconUrl(EPGHelper.SchedulesDirectId, image.Uri, baseUrl),
-                Height = image.Height,
-                Width = image.Width
-            });
-        }
+            // Ensure baseUrl ends with '/'
+            baseUrl = !string.IsNullOrEmpty(baseUrl) && !baseUrl.EndsWith('/')
+                ? $"{baseUrl}/"
+                : baseUrl;
 
-        public string GetIconUrl(int EPGNumber, string iconOriginalSource, string _baseUrl)//, SMFileTypes sMFileType)
-        {
-            if (EPGNumber == EPGHelper.CustomPlayListId)
+            // Handle single image setting
+            if (sdSettings.XmltvSingleImage)
             {
-                return GetApiUrl(SMFileTypes.CustomPlayList, iconOriginalSource, _baseUrl);
-            }
-
-            if (EPGNumber == EPGHelper.DummyId)
-            {
-                return iconOriginalSource;
-            }
-
-            if (EPGNumber == EPGHelper.SchedulesDirectId)
-            {
-                ImagePath? imagePath = logoService.GetValidImagePath(iconOriginalSource, SMFileTypes.SDImage, false);
-
-                if (imagePath != null)
+                ProgramArtwork? firstArtwork = artWorks.FirstOrDefault();
+                return firstArtwork is not null
+                    ?
+                    [
+                new XmltvIcon
                 {
-                    string retIcon = settingsMonitor.CurrentValue.LogoCache.EqualsIgnoreCase("cache") ? GetApiUrl(imagePath.SMFileType, iconOriginalSource, _baseUrl) : iconOriginalSource;
-                    return retIcon;
+                    Src = $"{baseUrl}{firstArtwork.Uri}",
+                    Width = firstArtwork.Width ?? 0,
+                    Height = firstArtwork.Height ?? 0
                 }
-
-                return iconOriginalSource.StartsWith("http") ? iconOriginalSource : GetApiUrl(SMFileTypes.SDStationLogo, iconOriginalSource, _baseUrl);
+                    ]
+                    : null;
             }
 
-            if (string.IsNullOrEmpty(iconOriginalSource))
-            {
-                return $"{_baseUrl}{settingsMonitor.CurrentValue.DefaultLogo}";
-            }
-
-            string originalUrl = iconOriginalSource;
-
-            if (iconOriginalSource.StartsWith('/'))
-            {
-                iconOriginalSource = iconOriginalSource[1..];
-            }
-
-            SMFileTypes smtype = SMFileTypes.Logo;
-            //ImagePath? imagePath = logoService.GetValidImagePath(iconOriginalSource);
-
-            //if (imagePath != null)
-            //{
-            //    smtype = imagePath.SMFileType;
-            //}
-
-            string icon = settingsMonitor.CurrentValue.LogoCache.Equals("cache", StringComparison.CurrentCultureIgnoreCase) ? GetApiUrl(smtype, originalUrl, _baseUrl) : iconOriginalSource;
-
-            return icon;
-        }
-
-        private static string GetApiUrl(SMFileTypes path, string source, string? _baseUrl)
-        {
-            return $"{_baseUrl}/api/files/{(int)path}/{WebUtility.UrlEncode(source)}";
+            // Map all artworks to XmltvIcons
+            return artWorks
+                .ConvertAll(art => new XmltvIcon
+                {
+                    Src = $"{baseUrl}{art.Uri}",
+                    Width = art.Width ?? 0,
+                    Height = art.Height ?? 0
+                })
+;
         }
 
         private List<XmltvEpisodeNum>? BuildEpisodeNumbers(MxfScheduleEntry scheduleEntry)

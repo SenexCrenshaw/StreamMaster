@@ -19,7 +19,7 @@ public interface IStreamGroupService
     Task<StreamGroup?> GetStreamGroupFromIdAsync(int streamGroupId);
     Task<StreamGroup?> GetStreamGroupFromNameAsync(string streamGroupName);
     Task<StreamGroup?> GetStreamGroupFromSGProfileIdAsync(int streamGroupProfileId);
-    Task<string> GetStreamGroupLineupAsync(int streamGroupProfileId, HttpRequest httpRequest, bool isShort);
+    Task<string> GetStreamGroupLineupAsync(int streamGroupProfileId, bool IsShort);
     Task<StreamGroupProfile> GetStreamGroupProfileAsync(int? streamGroupId = null, int? streamGroupProfileId = null);
     Task<(List<VideoStreamConfig> videoStreamConfigs, StreamGroupProfile streamGroupProfile)> GetStreamGroupVideoConfigsAsync(int streamGroupProfileId);
 }

@@ -1,20 +1,18 @@
 ﻿using System.Text.Json;
-
 namespace StreamMaster.SchedulesDirect;
 
-public class ScheduleService(ILogger<ScheduleService> logger, IOptionsMonitor<SDSettings> intSettings, ISchedulesDirectAPIService schedulesDirectAPI, IEPGCache<ScheduleService> epgCache, ISchedulesDirectDataService schedulesDirectDataService) : IScheduleService
+public class ScheduleService(ILogger<ScheduleService> logger, IXmltvProgramBuilder xmltvProgramBuilder, IOptionsMonitor<SDSettings> sdSettings, ISchedulesDirectAPIService schedulesDirectAPI, IEPGCache<ScheduleService> epgCache, ISchedulesDirectDataService schedulesDirectDataService) : IScheduleService
 {
     private int cachedSchedules;
     private int downloadedSchedules;
     private int missingGuide;
     private int totalObjects;
     private int processedObjects;
-    private readonly SDSettings sdsettings = intSettings.CurrentValue;
 
     public async Task<bool> GetAllScheduleEntryMd5S(CancellationToken cancellationToken)
     {
         Dictionary<string, string[]> tempScheduleEntries = new(SchedulesDirect.MaxQueries);
-        int days = Math.Clamp(sdsettings.SDEPGDays, 1, 14);
+        int days = Math.Clamp(sdSettings.CurrentValue.SDEPGDays, 1, 14);
         ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
         ICollection<MxfService> toProcess = schedulesDirectData.Services.Values;
 
@@ -215,46 +213,6 @@ public class ScheduleService(ILogger<ScheduleService> logger, IOptionsMonitor<SD
             return new ScheduleRequest { StationId = service.StationId, Date = dates };
         }).ToArray();
     }
-
-    //private List<ScheduleRequest> ProcessStationResponses(Dictionary<string, Dictionary<string, ScheduleMd5Response>> stationResponses, ScheduleRequest[] requests, Dictionary<string, string[]> tempScheduleEntries, string[] dates)
-    //{
-    //    List<ScheduleRequest> newRequests = [];
-    //    foreach (ScheduleRequest request in requests)
-    //    {
-    //        Dictionary<int, string> requestErrors = [];
-    //        string serviceName = $"{EPGHelper.SchedulesDirectId}-{request.StationId}";
-    //        MxfService mxfService = schedulesDirectDataService.SchedulesDirectData().FindOrCreateService(serviceName);
-
-    //        if (!stationResponses.TryGetValue(request.StationId, out Dictionary<string, ScheduleMd5Response>? stationResponse) || stationResponse.Count == 0)
-    //        {
-    //            logger.LogWarning($"Failed to parse the schedule Md5 return for stationId {mxfService.StationId} on {dates[0]}.");
-    //            ++missingGuide;
-    //            processedObjects += dates.Length;
-    //            continue;
-    //        }
-
-    //        List<string> newDateRequests = [];
-    //        HashSet<string> dupeMd5s = ProcessStationResponseDates(stationResponse, dates, tempScheduleEntries, mxfService, newDateRequests);
-
-    //        foreach (string dupe in dupeMd5s)
-    //        {
-    //            tempScheduleEntries.Remove(dupe);
-    //        }
-
-    //        if (newDateRequests.Count != 0)
-    //        {
-    //            newRequests.Add(new ScheduleRequest { StationId = request.StationId, Date = [.. newDateRequests] });
-    //        }
-
-    //        foreach (KeyValuePair<int, string> keyValuePair in requestErrors)
-    //        {
-    //            logger.LogWarning($"Requests for MD5 schedule entries of station {request.StationId} returned error Code {keyValuePair.Key}, Message: {keyValuePair.Value}");
-    //        }
-    //    }
-
-    //    return newRequests;
-    //}
-
     private HashSet<string> ProcessStationResponseDates(Dictionary<string, ScheduleMd5Response> stationResponse, string[] dates, Dictionary<string, string[]> tempScheduleEntries, MxfService mxfService, List<string> newDateRequests)
     {
         HashSet<string> dupeMd5s = [];
@@ -366,10 +324,10 @@ public class ScheduleService(ILogger<ScheduleService> logger, IOptionsMonitor<SD
                 continue;
             }
 
-            // Find or create a program in the MXF service based on the ProgramId
+            //// Find or create a program in the MXF service based on the ProgramId
             MxfProgram mxfProgram = schedulesDirectData.FindOrCreateProgram(scheduleProgram.ProgramId);
 
-            // Populate program Extras and multipart details
+            //// Populate program Extras and multipart details
             PopulateProgramExtras(mxfProgram, scheduleProgram);
 
             // Create the schedule entry and populate fields
@@ -399,24 +357,36 @@ public class ScheduleService(ILogger<ScheduleService> logger, IOptionsMonitor<SD
             };
 
             // Add the ratings to the schedule entry
+
             if (mxfProgram.Extras.TryGetValue("ratings", out dynamic? ratings))
             {
-                scheduleEntry.extras.Add("ratings", ratings);
+                if (ratings is List<XmltvRating>)
+                {
+                    scheduleEntry.extras.Add("ratings", ratings);
+                }
+                else
+                {
+                    int aa = 1;
+                }
             }
 
-            // Add the populated schedule entry to the service
-            string serviceName = schedule.StationId;// $"{EPGHelper.SchedulesDirectId}-{request.StationId}";
-            MxfService mxfService = schedulesDirectData.FindOrCreateService(serviceName);
+
+
+            MxfService mxfService = schedulesDirectData.FindOrCreateService(schedule.StationId);
+            XmltvProgramme prog = xmltvProgramBuilder.BuildXmltvProgram(scheduleEntry, schedule.StationId, 0, "");
+            //mxfService.Programmes.Add(prog);
             mxfService.MxfScheduleEntries.ScheduleEntry.Add(scheduleEntry);
         }
     }
+
 
     private static void PopulateProgramExtras(MxfProgram mxfProgram, ScheduleProgram scheduleProgram)
     {
         if (mxfProgram.Extras.Count == 0)
         {
-            mxfProgram.UidOverride = $"{scheduleProgram.ProgramId[..10]}_{scheduleProgram.ProgramId[10..]}";
-            mxfProgram.Extras.Add("md5", scheduleProgram.Md5);
+            //mxfProgram.UidOverride = $"{scheduleProgram.ProgramId[..10]}_{scheduleProgram.ProgramId[10..]}";
+            mxfProgram.MD5 = scheduleProgram.Md5;
+            //mxfProgram.Extras.Add("md5", scheduleProgram.Md5);
             if (scheduleProgram.Multipart?.PartNumber > 0)
             {
                 mxfProgram.Extras.Add("multipart", $"{scheduleProgram.Multipart.PartNumber}/{scheduleProgram.Multipart.TotalParts}");
@@ -492,7 +462,7 @@ public class ScheduleService(ILogger<ScheduleService> logger, IOptionsMonitor<SD
         {
             mxfProgram.Extras.Add("ratings", scheduleTvRatings);
         }
-        else
+        else if (scheduleTvRatings.Count > 0)
         {
             Dictionary<string, string> existingRatings = value;
             foreach (KeyValuePair<string, string> rating in scheduleTvRatings)

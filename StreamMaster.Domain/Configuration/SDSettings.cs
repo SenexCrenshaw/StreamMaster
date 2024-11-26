@@ -7,7 +7,7 @@
         public bool AlternateSEFormat { get; set; } = false;
         public string AlternateLogoStyle { get; set; } = "WHITE";
         public bool AppendEpisodeDesc { get; set; } = true;
-        public string ArtworkSize { get; set; } = "Md";
+        public string ArtworkSize { get; set; } = "Lg";
         public bool ExcludeCastAndCrew { get; set; } = false;
         public string PreferredLogoStyle { get; set; } = "DARK";
         public bool PrefixEpisodeDescription { get; set; } = true;

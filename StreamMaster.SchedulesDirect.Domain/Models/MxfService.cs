@@ -8,11 +8,10 @@ public class MxfService
 
     private int _index;
     private string? _affiliate;
-    private string? _logoImage;
-    //public string? UidOverride;
+
     public MxfAffiliate? mxfAffiliate;
-    public MxfGuideImage? mxfGuideImage;
-    public MxfScheduleEntries MxfScheduleEntries;
+    public XmltvIcon? XmltvIcon;
+    public MxfScheduleEntries MxfScheduleEntries = new();
 
     [XmlIgnore] public ConcurrentDictionary<string, dynamic> extras = [];
     [XmlIgnore] public int EPGNumber;
@@ -59,14 +58,5 @@ public class MxfService
         set => _affiliate = value;
     }
 
-    /// <summary>
-    /// Specifies a logo image to display.
-    /// This value contains a GuideImage id attribute. When searching for a logo to display, the service is searched first, and then its affiliate.
-    /// </summary>
-    public string LogoImage
-    {
-        get => _logoImage ?? mxfGuideImage?.Id ?? "";
-        set => _logoImage = value;
-    }
     public int ChNo { get; set; }
 }

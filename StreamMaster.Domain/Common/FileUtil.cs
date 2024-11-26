@@ -5,6 +5,7 @@ using System.Xml.Serialization;
 
 using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Helpers;
+using StreamMaster.Domain.XmltvXml;
 
 namespace StreamMaster.Domain.Common;
 
@@ -224,15 +225,17 @@ public sealed class FileUtil
         return "0 bytes";
     }
 
-    public static bool WriteXmlFile(object obj, string filepath)
+    public static bool WriteXmlFile(XMLTV xmltv, string filepath)
     {
         try
         {
-            XmlSerializer serializer = new(obj.GetType());
+
+            XmlSerializer serializer = new(typeof(XMLTV));
+
             XmlSerializerNamespaces ns = new();
             ns.Add("", "");
             using StreamWriter writer = new(filepath, false, Encoding.UTF8);
-            serializer.Serialize(writer, obj, ns);
+            serializer.Serialize(writer, xmltv, ns);
 
             return true;
         }
@@ -304,54 +307,5 @@ public sealed class FileUtil
         {
             Console.WriteLine($"Backup Exception occurred: {ex.Message}");
         }
-    }
-
-    public static async Task<List<TvLogoFile>> GetTVLogosFromDirectory(DirectoryInfo dirInfo, string tvLogosLocation, int startingId, CancellationToken cancellationToken = default)
-    {
-        List<TvLogoFile> ret = [];
-
-        foreach (FileInfo file in dirInfo.GetFiles("*png"))
-        {
-            if (cancellationToken.IsCancellationRequested)
-            {
-                break;
-            }
-
-            string basePath = dirInfo.FullName.Replace(tvLogosLocation, "");
-            if (basePath.StartsWith(Path.DirectorySeparatorChar))
-            {
-                basePath = basePath.Remove(0, 1);
-            }
-
-            string basename = basePath.Replace(Path.DirectorySeparatorChar, '-');
-            string name = $"{basename}-{file.Name}";
-
-            TvLogoFile tvLogo = new()
-            {
-                Id = startingId++,
-                Name = Path.GetFileNameWithoutExtension(file.Name),
-                FileExists = true,
-                ContentType = "image/png",
-                LastDownloaded = SMDT.UtcNow,
-                Source = $"{basePath}{Path.DirectorySeparatorChar}{file.Name}",
-                Value= $"{basePath}{Path.DirectorySeparatorChar}{file.Name}"
-            };
-
-            tvLogo.SetFileDefinition(FileDefinitions.TVLogo);
-            tvLogo.FileExtension = ".png";
-            ret.Add(tvLogo);
-        }
-
-        foreach (DirectoryInfo newDir in dirInfo.GetDirectories())
-        {
-            if (cancellationToken.IsCancellationRequested)
-            {
-                break;
-            }
-            List<TvLogoFile> files = await GetTVLogosFromDirectory(newDir, tvLogosLocation, startingId, cancellationToken).ConfigureAwait(false);
-            ret = [.. ret, .. files];
-        }
-
-        return ret;
     }
 }

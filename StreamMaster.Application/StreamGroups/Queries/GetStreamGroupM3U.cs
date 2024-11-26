@@ -12,11 +12,7 @@ public class EncodedData
     public string CleanName { get; set; } = string.Empty;
 }
 
-public class GetStreamGroupM3UHandler(
-    IStreamGroupService streamGroupService,
-    ILogoService logoService,
-    IOptionsMonitor<Setting> _settings
-    )
+public class GetStreamGroupM3UHandler(IStreamGroupService streamGroupService, IOptionsMonitor<Setting> _settings)
     : IRequestHandler<GetStreamGroupM3U, string>
 {
     //private const string DefaultReturn = "#EXTM3U\r\n";
@@ -46,7 +42,7 @@ public class GetStreamGroupM3UHandler(
             .WithDegreeOfParallelism(Environment.ProcessorCount)
             .Select(videoStreamConfig =>
             {
-                (int ChNo, string m3uLine) = BuildM3ULineForVideoStream(videoStreamConfig);
+                (int ChNo, string m3uLine) = BuildM3ULineForVideoStream(videoStreamConfig, request.IsShort);
                 return new
                 {
                     ChNo,
@@ -67,17 +63,17 @@ public class GetStreamGroupM3UHandler(
         return ret.ToString();
     }
 
-    private (int ChNo, string m3uLine) BuildM3ULineForVideoStream(VideoStreamConfig videoStreamConfig)
+    private (int ChNo, string m3uLine) BuildM3ULineForVideoStream(VideoStreamConfig videoStreamConfig, bool IsShort)
     {
         if (videoStreamConfig.OutputProfile is null || string.IsNullOrEmpty(videoStreamConfig.EncodedString) || string.IsNullOrEmpty(videoStreamConfig.CleanName))
         {
             return (0, "");
         }
 
-        string logo = logoService.GetLogoUrl(videoStreamConfig.Logo, videoStreamConfig.BaseUrl, SMStreamTypeEnum.Regular);
-        videoStreamConfig.Logo = logo;
+        //string logo = logoService.GetLogoUrl(videoStreamConfig.Logo, videoStreamConfig.BaseUrl, SMStreamTypeEnum.Regular);
+        //videoStreamConfig.Logo = logo;
 
-        string videoUrl = videoStreamConfig.IsShort
+        string videoUrl = IsShort
             ? $"{videoStreamConfig.BaseUrl}/v/{videoStreamConfig.StreamGroupProfileId}/{videoStreamConfig.Id}"
             : $"{videoStreamConfig.BaseUrl}/api/videostreams/stream/{videoStreamConfig.EncodedString}/{videoStreamConfig.CleanName}";
 

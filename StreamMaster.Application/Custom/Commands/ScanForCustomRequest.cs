@@ -28,7 +28,8 @@ public class ScanForCustomPlayListsRequestHandler(IOptionsMonitor<CommandProfile
                 continue;
             }
 
-            string logo = logoService.GetLogoUrl2(customPlayList.Logo, SMFileTypes.CustomPlayListLogo);
+            //string logo = logoService.GetLogoUrl2(customPlayList.Logo, SMFileTypes.CustomPlayListLogo);
+            string logo = customPlayList.Logo.Remove(0, BuildInfo.CustomPlayListFolder.Length);
 
             SMStream smStream = new()
             {

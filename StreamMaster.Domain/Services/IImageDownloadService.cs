@@ -5,6 +5,6 @@ namespace StreamMaster.Domain.Services
     public interface IImageDownloadService : IHostedService, IDisposable
     {
         ImageDownloadServiceStatus ImageDownloadServiceStatus { get; }
-        Task<bool> DownloadImageAsync(NameLogo nameLogo, CancellationToken cancellationToken);
+        Task<bool> DownloadImageAsync(LogoInfo  logoInfo, CancellationToken cancellationToken);
     }
 }

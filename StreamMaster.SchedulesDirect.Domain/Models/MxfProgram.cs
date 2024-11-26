@@ -3,21 +3,22 @@ using System.Xml.Serialization;
 
 namespace StreamMaster.SchedulesDirect.Domain.Models;
 
-public class MxfProgram
+public class MxfProgram : BaseArt
 {
     public string ProgramId { get; } = string.Empty;
 
-    private string? _uid;
+    //private string? _uid;
     private string? _keywords;
     private string? _season;
     private string? _series;
-    private string? _guideImage;
+
     private DateTime? _originalAirDate = null;
 
-    [XmlIgnore] public string? UidOverride;
+    //[XmlIgnore] public string? UidOverride;
     [XmlIgnore] public SeriesInfo mxfSeriesInfo = new();
     [XmlIgnore] public Season mxfSeason = new();
-    [XmlIgnore] public MxfGuideImage mxfGuideImage = new();
+
+
     [XmlIgnore] public List<MxfKeyword> mxfKeywords = [];
     [XmlIgnore] public bool IsAdultOnly;
 
@@ -39,16 +40,19 @@ public class MxfProgram
     [DefaultValue(0)]
     public int Id { get; set; }
 
-    /// <summary>
-    /// A unique ID that will remain consistent between multiple versions of this document.
-    /// This uid should start with "!Program!".
-    /// </summary>
-    [XmlAttribute("uid")]
-    public string Uid
-    {
-        get => _uid ?? (!string.IsNullOrEmpty(UidOverride) ? $"!Program!{UidOverride}" : $"!Program!{ProgramId}");
-        set => _uid = value;
-    }
+    ///// <summary>
+    ///// A unique ID that will remain consistent between multiple versions of this document.
+    ///// This uid should start with "!Program!".
+    ///// </summary>
+    //[XmlAttribute("uid")]
+    //public string Uid
+    //{
+    //    get => _uid ?? (!string.IsNullOrEmpty(UidOverride) ? $"!Program!{UidOverride}" : $"!Program!{ProgramId}");
+    //    set => _uid = value;
+    //}
+
+    [XmlAttribute("md5")]
+    public string MD5 { get; set; }
 
     /// <summary>
     /// The title of the program (for example, Lost).
@@ -514,16 +518,16 @@ public class MxfProgram
     [DefaultValue(false)]
     public bool HasOnDemand { get; set; }
 
-    /// <summary>
-    /// This value contains an image to display for the program.
-    /// Contains the value of a GuideImage id attribute. When a program is selected in the UI, the Guide searches for an image to display.The search order is first the program, its season, then its series.
-    /// </summary>
-    [XmlAttribute("guideImage")]
-    public string GuideImage
-    {
-        get => _guideImage ?? mxfGuideImage?.Id ?? "";
-        set => _guideImage = value;
-    }
+    ///// <summary>
+    ///// This value contains an image to display for the program.
+    ///// Contains the value of a GuideImage id attribute. When a program is selected in the UI, the Guide searches for an image to display.The search order is first the program, its season, then its series.
+    ///// </summary>
+    //[XmlAttribute("guideImage")]
+    //public string GuideImage
+    //{
+    //    get => _guideImage ?? ArtWorks.Count > 0 ? ArtWorks[0].Uri.GenerateFNV1aHash() : "";
+    //    set => _guideImage = value;
+    //}
 
     [XmlElement("ActorRole")]
     public List<MxfPersonRank>? ActorRole { get; set; }

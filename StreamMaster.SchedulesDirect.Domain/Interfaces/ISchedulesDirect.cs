@@ -8,7 +8,7 @@ public interface ISchedulesDirect
     bool CheckToken(bool forceReset = false);
     Task<int> AddLineup(string lineup, CancellationToken cancellationToken);
     Task<List<CountryData>?> GetAvailableCountries(CancellationToken cancellationToken);
-    Task<List<string>?> GetCustomLogosFromServerAsync(string server);
+    //Task<List<string>?> GetCustomLogosFromServerAsync(string server);
     Task<List<Headend>?> GetHeadendsByCountryPostal(string country, string postalCode, CancellationToken cancellationToken = default);
     Task<List<LineupPreviewChannel>?> GetLineupPreviewChannel(string lineup, CancellationToken cancellationToken);
     Task<StationChannelMap?> GetStationChannelMapAsync(string lineup);

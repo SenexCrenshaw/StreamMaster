@@ -1,59 +1,52 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-using StreamMaster.API.Interfaces;
-using StreamMaster.Domain.Enums;
 using StreamMaster.Domain.Extensions;
 
 namespace StreamMaster.API.Controllers;
 
-public class FilesController(IOptionsMonitor<Setting> settings, ILogoService logoService) : ApiControllerBase, IFileController
+[V1ApiController("api/[controller]")]
+public class FilesController(IOptionsMonitor<Setting> settings, ILogoService logoService) : ControllerBase
 {
     [AllowAnonymous]
-    [Route("{filetype}/{source}")]
-    public async Task<IActionResult> GetFile(string source, SMFileTypes filetype, CancellationToken cancellationToken)
+    [Route("{source}")]
+    public async Task<IActionResult> GetLogo(string source, CancellationToken cancellationToken)
     {
         if (string.IsNullOrEmpty(source) || source == "noimage.png" || source.EndsWithIgnoreCase("default.png"))
         {
             return Redirect("/" + settings.CurrentValue.DefaultLogo);
         }
 
-        LogoDto? logoDto = await logoService.GetLogoFromCacheAsync(source, filetype, cancellationToken).ConfigureAwait(false);
-        //return logoDto == null
-        //    ? source.Contains("api/files") ? Redirect("/" + settings.CurrentValue.DefaultLogo) : (IActionResult)Redirect(source)
-        //    : File(logoDto.Image!, logoDto.ContentType ?? "", logoDto.FileName);
+        (FileStream? fileStream, string? FileName, string? ContentType) = await logoService.GetLogoAsync(source, cancellationToken).ConfigureAwait(false);
 
-        return logoDto == null ? NotFound() : File(logoDto.Image!, logoDto.ContentType ?? "", logoDto.FileName);
+        return fileStream == null ? Redirect("/" + FileName ?? settings.CurrentValue.DefaultLogo) : File(fileStream, ContentType ?? "application/octet-stream", FileName);
     }
 
     [AllowAnonymous]
-    [Route("smChannelLogo/{smChannelId}")]
+    [Route("sm/{smChannelId}")]
     public async Task<IActionResult> GetSMChannelLogo(int smChannelId, CancellationToken cancellationToken)
     {
 
-        LogoDto? logoDto = await logoService.GetLogoForChannelAsync(smChannelId, cancellationToken).ConfigureAwait(false);
-
-        if (logoDto == null)
+        if (smChannelId < 0)
         {
             return Redirect("/" + settings.CurrentValue.DefaultLogo);
         }
 
-        if (logoDto.Image.Length == 0 && !string.IsNullOrEmpty(logoDto.Url))
+        (FileStream? fileStream, string? FileName, string? ContentType) = await logoService.GetLogoForChannelAsync(smChannelId, cancellationToken).ConfigureAwait(false);
+
+        return fileStream == null ? Redirect(FileName ?? "/" + settings.CurrentValue.DefaultLogo) : File(fileStream, ContentType ?? "application/octet-stream", FileName);
+    }
+    [AllowAnonymous]
+    [Route("pr/{source}")]
+    public async Task<IActionResult> GetProgramLogo(string source, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrEmpty(source) || source == "noimage.png" || source.EndsWithIgnoreCase("default.png"))
         {
-            return Redirect(logoDto?.Url ?? logoDto!.Url);
+            return Redirect("/" + settings.CurrentValue.DefaultLogo);
         }
 
-        // Next
+        (FileStream? fileStream, string? FileName, string? ContentType) = await logoService.GetProgramLogoAsync(source, cancellationToken).ConfigureAwait(false);
 
-        return File(logoDto.Image!, logoDto.ContentType ?? "", logoDto.FileName);
-    }
-
-    public bool IsLocalLogo(string Logo)
-    {
-        return string.IsNullOrEmpty(Logo)
-             || !Logo.StartsWithIgnoreCase("http")
-          || Logo.EqualsIgnoreCase("noimage.png")
-          || Logo.EqualsIgnoreCase(settings.CurrentValue.DefaultLogo)
-          || Logo.EqualsIgnoreCase("/images/streammaster_logo.png");
+        return fileStream == null ? Redirect(FileName ?? "/" + settings.CurrentValue.DefaultLogo) : File(fileStream, ContentType ?? "application/octet-stream", FileName);
     }
 }

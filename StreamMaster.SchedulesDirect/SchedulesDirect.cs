@@ -10,7 +10,6 @@ namespace StreamMaster.SchedulesDirect;
 
 public partial class SchedulesDirect(
     ILogger<SchedulesDirect> logger,
-    ILogoService logoService,
     IXMLTVBuilder xMLTVBuilder,
     IJobStatusService jobStatusService,
     ISchedulesDirectDataService schedulesDirectDataService,
@@ -94,10 +93,16 @@ public partial class SchedulesDirect(
                 //seasonImages.ResetCache();
                 //sportsImages.ResetCache();
 
-                XMLTV? xml = xMLTVBuilder.CreateSDXmlTv("");
-                if (xml is not null)
+                XMLTV? xmltv = xMLTVBuilder.CreateSDXmlTv("");
+
+                if (xmltv is not null)
                 {
-                    WriteXmltv(xml);
+
+                    //xmltv.Programs = [xmltv.Programs.First()];
+
+                    string jsonString = JsonSerializer.Serialize(xmltv);
+                    FileUtil.WriteJSON(Path.Combine(BuildInfo.AppDataFolder, "sdtv.json"), jsonString);
+                    WriteXmltv(xmltv);
                 }
 
                 ClearAllCaches();

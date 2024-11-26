@@ -176,7 +176,7 @@ public class StreamGroupService(IHttpContextAccessor httpContextAccessor, IOptio
         return JsonSerializer.Serialize(discover, BuildInfo.JsonIndentOptions);
     }
 
-    public async Task<string> GetStreamGroupLineupAsync(int streamGroupProfileId, HttpRequest httpRequest, bool isShort)
+    public async Task<string> GetStreamGroupLineupAsync(int streamGroupProfileId, bool IsShort)
     {
         //string url = httpRequest.GetUrl();
         StreamGroup? streamGroup = await GetStreamGroupFromSGProfileIdAsync(streamGroupProfileId).ConfigureAwait(false);
@@ -185,52 +185,24 @@ public class StreamGroupService(IHttpContextAccessor httpContextAccessor, IOptio
             return JsonSerializer.Serialize(new List<SGLineup>());
         }
 
-        //List<SMChannel> smChannels = (await repositoryWrapper.SMChannel.GetSMChannelsFromStreamGroup(streamGroup.Id).ConfigureAwait(false)).Where(a => !a.IsHidden).ToList();
-        //if (smChannels.Count == 0)
-        //{
-        //    return JsonSerializer.Serialize(new List<SGLineup>());
-        //}
-
         (List<VideoStreamConfig> videoStreamConfigs, StreamGroupProfile streamGroupProfile) = await GetStreamGroupVideoConfigsAsync(streamGroupProfileId).ConfigureAwait(false);
         if (videoStreamConfigs == null || streamGroupProfile == null)
         {
             return string.Empty;
         }
 
-        //ConcurrentBag<EncodedData> encodedData = [];
-        //_ = Parallel.ForEach(smChannels, smChannel =>
-        //{
-        //    string? encodedString = EncodeStreamGroupIdProfileIdChannelId(streamGroup, streamGroupProfile.Id, smChannel.Id);
-        //    if (!string.IsNullOrEmpty(encodedString))
-        //    {
-        //        encodedData.Add(new EncodedData
-        //        {
-        //            SMChannel = smChannel,
-        //            EncodedString = encodedString,
-        //            CleanName = smChannel.Name.ToCleanFileString()
-        //        });
-        //    }
-        //});
-
-        //OutputProfileDto outputProfile = profileService.GetOutputProfile(streamGroupProfile.OutputProfileName);
-
         ConcurrentBag<SGLineup> ret = [];
         _ = Parallel.ForEach(videoStreamConfigs, (videoStreamConfig, _) =>
         {
             if (videoStreamConfig != null)
             {
-                //UpdateProperty(videoStreamConfig, p => p.Name);
-                //UpdateProperty(outputProfile, data.SMChannel, p => p.Group);
-                //UpdateProperty(outputProfile, data.SMChannel, p => p.Id);
-
-                //string logo = logoService.GetLogoUrl(videoStreamConfig.SMLogoUrl, url);
                 ret.Add(new SGLineup
                 {
                     GuideName = videoStreamConfig.Name,
                     GuideNumber = videoStreamConfig.ChannelNumber.ToString(),
                     Station = videoStreamConfig.ChannelNumber.ToString(),
                     Logo = videoStreamConfig.Logo,
-                    URL = isShort ? $"{videoStreamConfig.BaseUrl}/v/{streamGroupProfileId}/{videoStreamConfig.Id}" : $"{videoStreamConfig.BaseUrl}/api/videostreams/stream/{videoStreamConfig.EncodedString}/{videoStreamConfig.Name.ToCleanFileString()}"
+                    URL = IsShort ? $"{videoStreamConfig.BaseUrl}/v/{streamGroupProfileId}/{videoStreamConfig.Id}" : $"{videoStreamConfig.BaseUrl}/api/videostreams/stream/{videoStreamConfig.EncodedString}/{videoStreamConfig.Name.ToCleanFileString()}"
                 });
             }
         });
@@ -347,7 +319,7 @@ public class StreamGroupService(IHttpContextAccessor httpContextAccessor, IOptio
             OutputProfileDto outputProfile = originalOutputProfile.DeepCopy();
 
             string cleanName = smChannel.Name.ToCleanFileString();
-            string logo = logoService.GetLogoUrl(smChannel.Logo, baseUrl, SMStreamTypeEnum.Regular);
+            string logo = $"{baseUrl}/api/files/sm/{smChannel.Id}";
             string epgId = string.IsNullOrEmpty(smChannel.EPGId) ? EPGHelper.DummyId + "-Dummy" : smChannel.EPGId;
 
             StationChannelName? match = cacheManager.StationChannelNames

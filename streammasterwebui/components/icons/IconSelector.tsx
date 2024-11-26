@@ -74,21 +74,20 @@ const IconSelector: React.FC<IconSelectorProps> = ({
   const itemTemplate = (icon: LogoFileDto) => {
     const fallbackUrl = '/images/default.png';
     const iconUrl = getIconUrl(icon.Source, fallbackUrl, false, icon.SMFileType);
-    // Logger.debug('IconSelector', icon, iconUrl);
 
     return (
       <div className="w-full flex flex-row align-items-center justify-content-between p-row-odd">
-        <div className="sm-w-6">
+        <div className="flex sm-w-4rem icon-selector-template">
           <img
-            className="icon-template"
+            // className="icon-template"
             src={iconUrl}
             alt={icon.Name}
             onError={(e) => ((e.currentTarget as HTMLImageElement).src = fallbackUrl)}
             loading="lazy"
           />
         </div>
-        <div className="sm-w-6">
-          <div className="text-xs pl-3">{icon.Name}</div>
+        <div className="w-9">
+          <div className={`${icon.Name.length > 30 ? 'sm-text-xs' : 'sm-text-lg'} sm-w-1rem`}>{icon.Name}</div>
         </div>
       </div>
     );
@@ -138,22 +137,22 @@ const IconSelector: React.FC<IconSelectorProps> = ({
       )}
       <div className={containerClass}>
         <SMDropDown
+          autoPlacement={autoPlacement}
+          buttonDarkBackground={darkBackGround}
+          buttonIsLoading={isLoading}
           buttonLabel="LOGOS"
           buttonLargeImage={large}
-          buttonDarkBackground={darkBackGround}
           buttonTemplate={buttonTemplate()}
+          contentWidthSize="3"
           data={query.data}
-          dataKey="Source"
+          // dataKey="Id"
           filter
-          filterBy="Source"
-          autoPlacement={autoPlacement}
+          filterBy="Name"
           itemSize={32}
           itemTemplate={itemTemplate}
-          buttonIsLoading={isLoading}
           onChange={handleIconChange}
           title="LOGOS"
           value={iconDto}
-          contentWidthSize="3"
         />
       </div>
     </div>

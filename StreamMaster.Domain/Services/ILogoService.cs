@@ -8,44 +8,47 @@ namespace StreamMaster.Domain.Services
     /// </summary>
     public interface ILogoService
     {
-        Task<LogoDto?> GetLogoForChannelAsync(int SMChannelId, CancellationToken cancellationToken);
-        Task<LogoDto?> GetLogoFromCacheAsync(string URL, SMFileTypes fileType, CancellationToken cancellationToken);
-        string GetLogoUrl2(string logoSource, SMFileTypes logoType);
+        Task<(FileStream? fileStream, string? FileName, string? ContentType)> GetProgramLogoAsync(string fileName, CancellationToken cancellationToken);
+        Task<(FileStream? fileStream, string? FileName, string? ContentType)> GetLogoAsync(string fileName, CancellationToken cancellationToken);
+        //Task<(FileStream? fileStream, string? FileName, string? ContentType)> GetLogoFromCacheAsync(string source, SMFileTypes fileType, CancellationToken cancellationToken);
+        Task<(FileStream? fileStream, string? FileName, string? ContentType)> GetLogoForChannelAsync(int SMChannelId, CancellationToken cancellationToken);
+
+        //string GetLogoUrl2(string logoSource, SMFileTypes logoType);
         List<XmltvProgramme> GetXmltvProgrammeForPeriod(VideoStreamConfig videoStreamConfig, DateTime startDate, int days, string baseUrl);
         /// <summary>
         /// Adds a new logo based on the specified artwork URI and title.
         /// </summary>
         /// <param name="URL">The URI of the artwork.</param>
         /// <param name="title">The title associated with the logo.</param>
-        void AddLogo(string URL, string title, bool noHash = false, SMFileTypes smFileType = SMFileTypes.Logo, bool noApi = false);
+        void AddLogo(string URL, string title, int FileId = -1, SMFileTypes smFileType = SMFileTypes.Logo, bool OG = false);
 
         /// <summary>
         /// Adds a new logo using the specified <see cref="LogoFileDto"/>.
         /// </summary>
         /// <param name="logoFile">The logo file DTO containing logo details.</param>
-        void AddLogo(LogoFileDto logoFile, bool noApi = false);
+        void AddLogo(LogoFileDto logoFile, bool OG = false);
 
         /// <summary>
         /// Builds the logo cache using the current streams asynchronously.
         /// </summary>
         /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
         /// <returns>A task that represents the asynchronous operation. The result contains a <see cref="DataResponse{Boolean}"/> indicating the success of the operation.</returns>
-        Task<DataResponse<bool>> BuildLogosCacheFromSMStreamsAsync(CancellationToken cancellationToken = default);
+        Task<DataResponse<bool>> AddSMStreamLogosAsync(CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Caches the logos for SM Channels.
         /// </summary>
-        Task CacheSMChannelLogos();
+        Task<DataResponse<bool>> AddSMChannelLogosAsync(CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Clears all logos from the cache.
         /// </summary>
         void ClearLogos();
 
-        /// <summary>
-        /// Clears all TV logos from the cache.
-        /// </summary>
-        void ClearTvLogos();
+        ///// <summary>
+        ///// Clears all TV logos from the cache.
+        ///// </summary>
+        //void ClearTvLogos();
 
         /// <summary>
         /// Retrieves the logo corresponding to the specified source.
@@ -61,19 +64,19 @@ namespace StreamMaster.Domain.Services
         /// <returns>A list of <see cref="LogoFileDto"/> objects.</returns>
         List<LogoFileDto> GetLogos(SMFileTypes? SMFileType = null);
 
-        /// <summary>
-        /// Generates a URL for a logo based on the specified icon source and base URL.
-        /// </summary>
-        /// <param name="logoSource">The source of the icon.</param>
-        /// <param name="baseUrl">The base URL to prepend to the icon source.</param>
-        /// <returns>The full URL of the logo.</returns>
+        ///// <summary>
+        ///// Generates a URL for a logo based on the specified icon source and base URL.
+        ///// </summary>
+        ///// <param name="logoSource">The source of the icon.</param>
+        ///// <param name="baseUrl">The base URL to prepend to the icon source.</param>
+        ///// <returns>The full URL of the logo.</returns>
         string GetLogoUrl(string logoSource, string baseUrl, SMStreamTypeEnum smStream);
 
-        /// <summary>
-        /// Retrieves a list of TV logos.
-        /// </summary>
-        /// <returns>A list of <see cref="TvLogoFile"/> objects.</returns>
-        List<TvLogoFile> GetTvLogos();
+        ///// <summary>
+        ///// Retrieves a list of TV logos.
+        ///// </summary>
+        ///// <returns>A list of <see cref="TvLogoFile"/> objects.</returns>
+        //List<TvLogoFile> GetTvLogos();
 
         /// <summary>
         /// Retrieves a valid image path for the specified URL and file type.

@@ -106,7 +106,7 @@ public partial class StreamGroupsController
             return NotFound();
         }
 
-        string json = await StreamGroupService.GetStreamGroupLineupAsync(streamGroupProfileId.Value, HttpContext.Request, true).ConfigureAwait(false);
+        string json = await StreamGroupService.GetStreamGroupLineupAsync(streamGroupProfileId.Value, false).ConfigureAwait(false);
         return new ContentResult
         {
             Content = json,

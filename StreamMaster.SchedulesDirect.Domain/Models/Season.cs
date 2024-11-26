@@ -3,18 +3,18 @@ using System.Xml.Serialization;
 
 namespace StreamMaster.SchedulesDirect.Domain.Models;
 
-public class Season
+public class Season : BaseArt
 {
     public string? SeriesId => mxfSeriesInfo?.SeriesId;
 
     private int _index;
     private string? _uid;
-    private string? _guideImage;
+    private readonly string? _guideImage;
     private string? _series;
     private string? _title;
 
     [XmlIgnore] public string? ProtoTypicalProgram;
-    [XmlIgnore] public MxfGuideImage? mxfGuideImage;
+
     [XmlIgnore] public SeriesInfo? mxfSeriesInfo;
     [XmlIgnore] public bool HideSeasonTitle;
 
@@ -57,16 +57,16 @@ public class Season
     [XmlAttribute("endAirdate")]
     public string? EndAirdate { get; set; }
 
-    /// <summary>
-    /// An image to display for this season.
-    /// This value contains the GuideImage id attribute.
-    /// </summary>
-    [XmlAttribute("guideImage")]
-    public string GuideImage
-    {
-        get => _guideImage ?? mxfGuideImage?.Id ?? "";
-        set => _guideImage = value;
-    }
+    ///// <summary>
+    ///// An image to display for this season.
+    ///// This value contains the GuideImage id attribute.
+    ///// </summary>
+    //[XmlAttribute("guideImage")]
+    //public string GuideImage
+    //{
+    //    get => _guideImage ?? mxfGuideImage?.Uri.GenerateFNV1aHash() ?? "";
+    //    set => _guideImage = value;
+    //}
 
     /// <summary>
     /// Undocumented

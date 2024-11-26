@@ -42,13 +42,13 @@ public partial class SchedulesDirectData
             service.ChNo = videoStreamConfig.ChannelNumber;
             if (!string.IsNullOrEmpty(videoStreamConfig.Logo) && videoStreamConfig.Logo.StartsWith("http"))
             {
-                service.LogoImage = videoStreamConfig.Logo;
+                //service.LogoImage = videoStreamConfig.Logo;
                 service.extras.TryAdd("logo", new StationImage
                 {
                     Url = videoStreamConfig.Logo
                 });
 
-                //service.mxfGuideImage = FindOrCreateGuideImage(videoStreamConfig.User_Tvg_Logo);
+                //service.mxfGuideImage = FindOrCreateProgramArtwork(videoStreamConfig.User_Tvg_Logo);
             }
         }
         return service;

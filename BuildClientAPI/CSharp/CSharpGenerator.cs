@@ -52,7 +52,7 @@ public static class CSharpGenerator
                 if (!method.IsReturnNull)
                 {
                 }
-                nullReturn = "?? new()";
+                nullReturn = toReturn.Contains("List<") ? "?? []" : "?? new()";
                 toReturn = method.ReturnType[..^1];
                 if (!method.IsList)
                 {
@@ -164,7 +164,7 @@ public static class CSharpGenerator
                 }
 
                 controllerContent.AppendLine("        }");
-                controllerContent.AppendLine();
+                //controllerContent.AppendLine();
             }
 
             // Hub method signature (if applicable)
@@ -217,11 +217,9 @@ public static class CSharpGenerator
                 }
 
                 hubContent.AppendLine("        }");
-                hubContent.AppendLine();
+                //hubContent.AppendLine();
             }
         }
-
-        string assssa = controllerContent.ToString();
 
         WriteControllerAndHub(filePath, namespaceName, controllerContent, hubContent, needsQueryInclude, needsCommandInclude, needsLogger);
         WriteIControllerAndHub(IFilePath, namespaceName, IcontrollerContent, IhubContent, needsQueryInclude, needsCommandInclude);
@@ -245,7 +243,7 @@ public static class CSharpGenerator
 namespace StreamMaster.Application.{namespaceName}
 {{
     public interface I{namespaceName}Controller
-    {{        
+    {{
 {IControllerContent}    }}
 }}
 
@@ -286,8 +284,7 @@ namespace StreamMaster.Application.{ns}
 {{
     [Authorize]
     public partial class {namespaceName}Controller({logger}) : ApiControllerBase, I{namespaceName}Controller
-    {{        
-
+    {{
 {controllerContent}    }}
 }}
 

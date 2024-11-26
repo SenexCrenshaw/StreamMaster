@@ -162,7 +162,7 @@ namespace StreamMaster.SchedulesDirect.Converters
                 Name = videoStreamConfig.Name,
                 Affiliate = origService.Affiliate,
                 CallSign = origService.CallSign,
-                LogoImage = videoStreamConfig.Logo,
+                //LogoImage = videoStreamConfig.Logo,
                 extras = new ConcurrentDictionary<string, dynamic>(origService.extras),
                 MxfScheduleEntries = origService.MxfScheduleEntries
             };
@@ -215,7 +215,7 @@ namespace StreamMaster.SchedulesDirect.Converters
                 }
                 else
                 {
-                    // Filler data for other services
+                    // Filler data for other services DUMMY
                     MxfProgram program = new(0, $"SM-{service.StationId}")
                     {
                         Title = service.Name,
@@ -235,6 +235,8 @@ namespace StreamMaster.SchedulesDirect.Converters
                             StartTime = startTime,
                             IsRepeat = true
                         });
+
+
                         startTime = startTime.AddHours(sdSettings.XmltvFillerProgramLength);
                     }
                 }

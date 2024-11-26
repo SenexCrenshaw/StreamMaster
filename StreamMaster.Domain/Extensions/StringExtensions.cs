@@ -6,7 +6,6 @@ namespace StreamMaster.Domain.Extensions;
 
 public static class StringExtensions
 {
-
     public static bool EqualsIgnoreCase(this string text, string Compare)
     {
         return text.Equals(Compare, BuildInfo.StringComparison);
@@ -34,6 +33,14 @@ public static class StringExtensions
         {
             return false;
         }
+    }
+
+    public static bool IsRedirect(this string Logo)
+    {
+        return string.IsNullOrEmpty(Logo)
+          || Logo.EqualsIgnoreCase("noimage.png")
+          || Logo.EndsWithIgnoreCase("images/default.png")
+          || Logo.EndsWithIgnoreCase("images/streammaster_logo.png");
     }
 
     public static bool ContainsIgnoreCase(this string text, string Contains)

@@ -2,8 +2,8 @@ import React, { useCallback, useMemo } from 'react';
 
 import SMDataTable from '@components/smDataTable/SMDataTable';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
-import { ImageDownloadServiceStatus } from '@lib/smAPI/smapiTypes';
 import useGetDownloadServiceStatus from '@lib/smAPI/General/useGetDownloadServiceStatus';
+import { ImageDownloadServiceStatus } from '@lib/smAPI/smapiTypes';
 
 const DownloadStatusDataSelector = () => {
   const { data } = useGetDownloadServiceStatus();
@@ -28,8 +28,8 @@ const DownloadStatusDataSelector = () => {
   const logoTemplate = useCallback((rowData: ImageDownloadServiceStatus) => {
     return (
       <div className="numeric-field">
-        {rowData.TotalNameLogo}/{rowData.TotalNameLogoDownloadAttempts}/{rowData.TotalNameLogoSuccessful}/{rowData.TotalNameLogoAlreadyExists}/
-        {rowData.TotalNameLogoErrors}
+        {rowData.TotallogoInfo}/{rowData.TotallogoInfoDownloadAttempts}/{rowData.TotallogoInfoSuccessful}/{rowData.TotallogoInfoAlreadyExists}/
+        {rowData.TotallogoInfoErrors}
       </div>
     );
   }, []);
@@ -46,7 +46,7 @@ const DownloadStatusDataSelector = () => {
       {
         align: 'center',
         bodyTemplate: logoTemplate,
-        field: 'TotalNameLogo',
+        field: 'TotallogoInfo',
         headerTemplate: headerTemplate,
         width: '10rem'
       },
@@ -56,7 +56,7 @@ const DownloadStatusDataSelector = () => {
       // },
       // {
       //   align: 'center',
-      //   field: 'TotalNameLogoDownloadAttempts',
+      //   field: 'TotallogoInfoDownloadAttempts',
       //   width: '10rem'
       // },
       // {
@@ -66,7 +66,7 @@ const DownloadStatusDataSelector = () => {
       // },
       // {
       //   align: 'center',
-      //   field: 'TotalNameLogoSuccessful',
+      //   field: 'TotallogoInfoSuccessful',
       //   width: '10rem'
       // },
       // {
@@ -76,7 +76,7 @@ const DownloadStatusDataSelector = () => {
       // },
       // {
       //   align: 'center',
-      //   field: 'TotalNameLogoAlreadyExists',
+      //   field: 'TotallogoInfoAlreadyExists',
       //   width: '10rem'
       // },
       // {
@@ -86,7 +86,7 @@ const DownloadStatusDataSelector = () => {
       // },
       // {
       //   align: 'center',
-      //   field: 'TotalNameLogoErrors',
+      //   field: 'TotallogoInfoErrors',
       //   width: '10rem'
       // },
       // {
@@ -100,7 +100,7 @@ const DownloadStatusDataSelector = () => {
         width: '10rem'
       }
     ],
-    [headerTemplate, logoTemplate, programMetadataTemplate]
+    [headerTemplate, logoTemplate, programMetadataTemplate, programmeHeaderTemplate]
   );
 
   return (

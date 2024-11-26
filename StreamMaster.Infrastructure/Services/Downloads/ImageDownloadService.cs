@@ -1,4 +1,6 @@
-﻿using System.Net;
+﻿using System.Drawing;
+using System.Drawing.Imaging;
+using System.Net;
 
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -6,10 +8,11 @@ using Microsoft.Extensions.Logging;
 using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Dto;
 using StreamMaster.Domain.Enums;
-using StreamMaster.Domain.Extensions;
 using StreamMaster.Domain.Helpers;
 using StreamMaster.SchedulesDirect.Domain.Interfaces;
 using StreamMaster.SchedulesDirect.Domain.JsonClasses;
+
+using Svg;
 
 namespace StreamMaster.Infrastructure.Services.Downloads
 {
@@ -84,7 +87,7 @@ namespace StreamMaster.Infrastructure.Services.Downloads
             // Run both processing tasks concurrently
             bool[] results = await Task.WhenAll(
                 ProcessProgramMetadataQueue(cancellationToken),
-                ProcessNameLogoQueue(cancellationToken)
+                ProcesslogoInfoQueue(cancellationToken)
             ).ConfigureAwait(false);
 
             // If no items were processed, exit early
@@ -109,11 +112,17 @@ namespace StreamMaster.Infrastructure.Services.Downloads
                 }
             }
 
+            if (shouldRefresh)
+            {
+                await dataRefreshService.RefreshDownloadServiceStatus();
+                return;
+            }
+
             // Check if both queues are empty
-            bool areQueuesEmpty = imageDownloadQueue.IsProgramArtworkQueueEmpty() && imageDownloadQueue.IsNameLogoQueueEmpty();
+            bool areQueuesEmpty = imageDownloadQueue.IsProgramArtworkQueueEmpty() && imageDownloadQueue.IslogoInfoQueueEmpty();
 
             // Only refresh if items were processed and the throttle time has passed
-            if (shouldRefresh || areQueuesEmpty || imageDownloadQueue.ProgramArtworkCount <= _settings.CurrentValue.MaxConcurrentDownloads || imageDownloadQueue.NameLogoCount <= _settings.CurrentValue.MaxConcurrentDownloads)
+            if (areQueuesEmpty || imageDownloadQueue.ProgramArtworkCount <= _settings.CurrentValue.MaxConcurrentDownloads || imageDownloadQueue.logoInfoCount <= _settings.CurrentValue.MaxConcurrentDownloads)
             {
                 await dataRefreshService.RefreshDownloadServiceStatus();
             }
@@ -137,87 +146,31 @@ namespace StreamMaster.Infrastructure.Services.Downloads
             logger.LogDebug("Processing batch of ProgramMetadata: {Count}", metadataBatch.Count);
             ImageDownloadServiceStatus.TotalProgramMetadataDownloadAttempts += metadataBatch.Count;
 
-            //List<string> successfullyDownloaded = [];
-
             bool success = await DownloadProgramMetadataArtworkAsync(metadataBatch, cancellationToken);
-            //if (success)
-            //{
-            //    successfullyDownloaded.Add(artWork.Uri);
-            //}
-            await RefreshDownloadServiceAsync();
 
-            //foreach (ProgramArtwork artWork in metadataBatch)
-            //{
-            //    if (!CanProceedWithDownload())
-            //    {
-            //        break;
-            //    }
+            //await RefreshDownloadServiceAsync();
 
-            //    //List<ProgramArtwork> artwork = GetArtwork(artWork);
-            //    //if (artWork.Count == 0)
-            //    //{
-            //    //    //logger.LogDebug("No artwork to download for ProgramId: {ProgramId}", artWork.ProgramId);
-            //    //    ImageDownloadServiceStatus.TotalProgramMetadataNoArt++;
-            //    //    successfullyDownloaded.Add(artWork.Uri);
-            //    //    await RefreshDownloadServiceAsync();
-            //    //    continue;
-            //    }
-
-            //    bool success = await DownloadProgramMetadataArtworkAsync(artWork, artWork.Uri, cancellationToken);
-            //    if (success)
-            //    {
-            //        successfullyDownloaded.Add(artWork.Uri);
-            //    }
-            //    await RefreshDownloadServiceAsync();
-            //}
-
-            //imageDownloadQueue.TryDequeueProgramArtworkBatch(successfullyDownloaded);
             ImageDownloadServiceStatus.TotalProgramMetadata = imageDownloadQueue.ProgramArtworkCount;
             return success;
         }
 
-        //private List<ProgramArtwork> GetArtwork(ProgramMetadata metadata)
-        //{
-        //    // Determine artwork size from settings, default to "Md"
-        //    string artworkSize = string.IsNullOrEmpty(sdSettings.CurrentValue.ArtworkSize) ? "Md" : sdSettings.CurrentValue.ArtworkSize;
-        //    List<ProgramArtwork> artwork = [];
-
-        //    // Find the corresponding program using the ProgramId from metadata
-        //    MxfProgram? program = schedulesDirectDataService.AllPrograms.Find(p => p.ProgramId == metadata.ProgramId);
-
-        //    // If Extras (artwork) exist in the program, fetch them
-        //    if (program?.Extras != null)
-        //    {
-        //        artwork = program.GetArtWork();
-        //    }
-
-        //    // If no artwork was found in the program, try fetching from metadata.Data
-        //    if (artwork.Count == 0 && metadata.Data?.Count > 0)
-        //    {
-        //        // Use SDHelpers to get tiered images (series, sport, episode) from metadata
-        //        artwork = SDHelpers.GetTieredImages(metadata.Data, ["series", "sport", "episode"], artworkSize, sdSettings.CurrentValue.SeriesPosterAspect);
-        //    }
-
-        //    return artwork;
-        //}
-
         private async Task<bool> DownloadProgramMetadataArtworkAsync(List<ProgramArtwork> artwork, CancellationToken cancellationToken)
         {
-            List<string> successfullyDownloaded = [];
-
+            //List<string> successfullyDownloaded = [];
+            bool needsRefresh = false;
             foreach (ProgramArtwork art in artwork)
             {
+
                 if (!CanProceedWithDownload())
                 {
-                    return true;
+                    return false;
                 }
-
+                needsRefresh = true;
                 using CancellationTokenSource timeoutCts = new(TimeSpan.FromSeconds(5)); // Set your desired timeout duration
                 using CancellationTokenSource linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutCts.Token);
 
                 try
                 {
-                    // Wait with timeout
                     await downloadSemaphore.WaitAsync(linkedCts.Token);
                 }
                 catch (OperationCanceledException)
@@ -227,136 +180,105 @@ namespace StreamMaster.Infrastructure.Services.Downloads
                     //    // Handle timeout specifically
                     //    ImageDownloadServiceStatus.TotalProgramMetadataErrors++;                        
                     //}
-                    ImageDownloadServiceStatus.TotalProgramMetadataErrors++;
-
+                    downloadSemaphore.Release();
                     return false;
+                }
+                finally
+                {
+                    //_ = downloadSemaphore.Release();
+
                 }
 
                 try
                 {
 
-                    NameLogo nameLogo = new();
-                    string? logoPath = art.Uri.GetSDImageFullPath();
-                    if (string.IsNullOrEmpty(logoPath))
+                    LogoInfo logoInfo = new(art.Uri, SMFileTypes.ProgramLogo, true);
+
+                    if (string.IsNullOrEmpty(logoInfo.FullPath))
                     {
+                        imageDownloadQueue.TryDequeueProgramArtwork(art.Uri);
                         ImageDownloadServiceStatus.TotalProgramMetadataNoArt++;
-                        successfullyDownloaded.Add(art.Uri);
+                        await RefreshDownloadServiceAsync();
                         continue;
                     }
 
-                    if (File.Exists(logoPath))
+                    if (File.Exists(logoInfo.FullPath))
                     {
                         ImageDownloadServiceStatus.TotalProgramMetadataAlreadyExists++;
-                        successfullyDownloaded.Add(art.Uri);
+                        imageDownloadQueue.TryDequeueProgramArtwork(art.Uri);
+                        await RefreshDownloadServiceAsync();
                         continue;
                     }
 
-                    string url = art.Uri.StartsWith("http") ? art.Uri : $"image/{art.Uri}";
-
-                    nameLogo.IsSchedulesDirect = true;
-                    if (await DownloadImageAsync(nameLogo, cancellationToken))
+                    if (await DownloadImageAsync(logoInfo, cancellationToken))
                     {
                         ImageDownloadServiceStatus.TotalProgramMetadataDownloaded++;
-                        successfullyDownloaded.Add(art.Uri);
+                        needsRefresh = true;
                     }
                     else
                     {
                         ImageDownloadServiceStatus.TotalProgramMetadataErrors++;
                     }
+                    imageDownloadQueue.TryDequeueProgramArtwork(art.Uri);
+                    await RefreshDownloadServiceAsync();
                 }
                 finally
                 {
                     _ = downloadSemaphore.Release();
+                    await RefreshDownloadServiceAsync();
                 }
             }
 
-            if (successfullyDownloaded.Count > 0)
-            {
-                imageDownloadQueue.TryDequeueProgramArtworkBatch(successfullyDownloaded);
-            }
-
-            return successfullyDownloaded.Count > 0;
+            return needsRefresh;
         }
 
-        private async Task<bool> ProcessNameLogoQueue(CancellationToken cancellationToken)
+        private async Task<bool> ProcesslogoInfoQueue(CancellationToken cancellationToken)
         {
-            List<NameLogo> nameLogoBatch = imageDownloadQueue.GetNextNameLogoBatch(_settings.CurrentValue.MaxConcurrentDownloads);
-            ImageDownloadServiceStatus.TotalNameLogo = imageDownloadQueue.NameLogoCount;
+            List<LogoInfo> logoInfoBatch = imageDownloadQueue.GetNextlogoInfoBatch(_settings.CurrentValue.MaxConcurrentDownloads);
+            ImageDownloadServiceStatus.TotallogoInfo = imageDownloadQueue.logoInfoCount;
 
-            if (nameLogoBatch.Count == 0)
+            if (logoInfoBatch.Count == 0)
             {
                 return false;
             }
 
-            logger.LogDebug("Processing batch of NameLogos: {Count}", nameLogoBatch.Count);
-            ImageDownloadServiceStatus.TotalNameLogoDownloadAttempts += nameLogoBatch.Count;
+            logger.LogDebug("Processing batch of logoInfos: {Count}", logoInfoBatch.Count);
 
-            List<string> successfullyDownloaded = [];
-
-            foreach (NameLogo nameLogo in nameLogoBatch)
+            foreach (LogoInfo logoInfo in logoInfoBatch)
             {
-                if (!nameLogo.Url.StartsWith("http") || string.IsNullOrEmpty(nameLogo.FullPath))
-                {
-                    successfullyDownloaded.Add(nameLogo.Name);
-                    continue;
-                }
+                ++ImageDownloadServiceStatus.TotallogoInfoDownloadAttempts;
 
-                //string? filePath = GetFilePath(nameLogo);
-                if (File.Exists(nameLogo.FullPath))
+                if (!logoInfo.Url.StartsWith("http") || string.IsNullOrEmpty(logoInfo.FullPath))
                 {
-                    ImageDownloadServiceStatus.TotalNameLogoAlreadyExists++;
-                    successfullyDownloaded.Add(nameLogo.Name);
-                    continue;
-                }
-
-                if (await DownloadImageAsync(nameLogo, cancellationToken))
-                {
-                    ImageDownloadServiceStatus.TotalNameLogoSuccessful++;
-                    successfullyDownloaded.Add(nameLogo.Name);
+                    ImageDownloadServiceStatus.TotallogoInfoAlreadyExists++;
+                    imageDownloadQueue.TryDequeuelogoInfo(logoInfo.Name);
                 }
                 else
                 {
-                    successfullyDownloaded.Add(nameLogo.Name);
-                    ImageDownloadServiceStatus.TotalNameLogoErrors++;
+                    if (File.Exists(logoInfo.FullPath))
+                    {
+                        ImageDownloadServiceStatus.TotallogoInfoAlreadyExists++;
+                        imageDownloadQueue.TryDequeuelogoInfo(logoInfo.Name);
+                    }
+                    else
+                    {
+                        if (await DownloadImageAsync(logoInfo, cancellationToken))
+                        {
+                            ImageDownloadServiceStatus.TotallogoInfoSuccessful++;
+                            imageDownloadQueue.TryDequeuelogoInfo(logoInfo.Name);
+                        }
+                        else
+                        {
+                            ImageDownloadServiceStatus.TotallogoInfoErrors++;
+                            imageDownloadQueue.TryDequeuelogoInfo(logoInfo.Name);
+                        }
+                    }
                 }
                 await RefreshDownloadServiceAsync();
             }
 
-            imageDownloadQueue.TryDequeueNameLogoBatch(successfullyDownloaded);
-            ImageDownloadServiceStatus.TotalNameLogo = imageDownloadQueue.NameLogoCount;
-            return successfullyDownloaded.Count != 0;
-        }
-
-        private static string? GetFilePath(NameLogo nameLogo)
-        {
-            // If the logo URL is empty or null, return null
-            if (string.IsNullOrEmpty(nameLogo.Url))
-            {
-                return null;
-            }
-
-            // Retrieve the file definition for the logo's file type
-            FileDefinition? fd = FileDefinitions.GetFileDefinition(nameLogo.SMFileType);
-            if (fd == null)
-            {
-                return null; // Return null if no file definition was found
-            }
-
-            // Get the file extension, default to the definition's extension if none is provided
-            //string ext = Path.GetExtension(nameLogo.SMLogoUrl);
-            //if (string.IsNullOrEmpty(ext))
-            //{
-            //    ext = fd.DefaultExtension;
-            //    nameLogo.SMLogoUrl += ext;
-            //}
-
-            //string fileName = FileUtil.EncodeToMD5(nameLogo;
-
-            // Determine a subdirectory based on the first character of the filename for better organization
-            string subDir = char.ToLowerInvariant(nameLogo.Id[0]).ToString();
-
-            // Build the full file path by combining the logo folder, directory location, subdirectory, and filename
-            return Path.Combine(fd.DirectoryLocation, subDir, nameLogo.FileName);
+            ImageDownloadServiceStatus.TotallogoInfo = imageDownloadQueue.logoInfoCount;
+            return true;
         }
 
         private DateTime Last429Dt = DateTime.MinValue;
@@ -376,18 +298,19 @@ namespace StreamMaster.Infrastructure.Services.Downloads
             return true;
         }
 
-        public async Task<bool> DownloadImageAsync(NameLogo nameLogo, CancellationToken cancellationToken)
+        public async Task<bool> DownloadImageAsync(LogoInfo logoInfo, CancellationToken cancellationToken)
         {
-            if (nameLogo.IsSchedulesDirect && !CanProceedWithDownload())
+            if (logoInfo.IsSchedulesDirect && !CanProceedWithDownload())
             {
                 return false;
             }
 
             try
             {
-                HttpResponseMessage? response = nameLogo.IsSchedulesDirect
-                    ? await GetSdImage(nameLogo.Url)
-                    : await httpClient.GetAsync(nameLogo.Url, cancellationToken).ConfigureAwait(false);
+
+                HttpResponseMessage? response = logoInfo.IsSchedulesDirect
+    ? await GetSdImage(logoInfo.Url)
+    : await httpClient.GetAsync(logoInfo.Url, cancellationToken).ConfigureAwait(false);
 
                 if (response != null)
                 {
@@ -406,16 +329,56 @@ namespace StreamMaster.Infrastructure.Services.Downloads
                     if (response.IsSuccessStatusCode)
                     {
                         await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
-                        await using FileStream fileStream = new(nameLogo.FullPath, FileMode.Create);
-                        await stream.CopyToAsync(fileStream, cancellationToken).ConfigureAwait(false);
-                        return true;
+
+                        if (logoInfo.IsSVG)
+                        {
+                            // Save original SVG bytes to a .svg file
+                            //string svgPath = Path.ChangeExtension(logoInfo.FullPath, ".svg");
+                            //await using (FileStream svgFileStream = new(svgPath, FileMode.Create, FileAccess.Write, FileShare.None, 4096, FileOptions.Asynchronous))
+                            //{
+                            //    await stream.CopyToAsync(svgFileStream, cancellationToken).ConfigureAwait(false);
+                            //}
+                            //stream.Position = 0;
+
+                            SvgDocument svgDocument = Svg.SvgDocument.Open<Svg.SvgDocument>(stream);
+                            int width = (int)svgDocument.Width.Value;
+                            int height = (int)svgDocument.Height.Value;
+
+                            if (svgDocument.ViewBox.Width != 0)
+                            {
+                                width = (int)svgDocument.ViewBox.Width;
+                            }
+
+                            if (svgDocument.ViewBox.Height != 0)
+                            {
+                                height = (int)svgDocument.ViewBox.Height;
+                            }
+
+                            using Bitmap bitmap = new(width, height);
+                            using (Graphics graphics = Graphics.FromImage(bitmap))
+                            {
+                                graphics.Clear(Color.Transparent);
+                                svgDocument.Draw(graphics);
+                            }
+
+
+                            bitmap.Save(logoInfo.FullPath, ImageFormat.Png);
+                            return true;
+                        }
+                        else
+                        {
+                            // Save the original response content to file
+                            await using FileStream fileStream = new(logoInfo.FullPath, FileMode.Create, FileAccess.Write, FileShare.None, 4096, FileOptions.Asynchronous);
+                            await stream.CopyToAsync(fileStream, cancellationToken).ConfigureAwait(false);
+                            return true;
+                        }
                     }
-                    logger.LogDebug("Failed to download image from {Url} with status code {StatusCode}", nameLogo.Url, response.StatusCode);
+                    logger.LogDebug("Failed to download image from {Url} with status code {StatusCode}", logoInfo.Url, response.StatusCode);
                 }
             }
             catch (Exception ex)
             {
-                logger.LogError("Failed to download image from {Url} {Message}", nameLogo.Url, ex.InnerException?.Message);
+                logger.LogError("Failed to download image from {Url} {Message}", logoInfo.Url, ex.InnerException?.Message);
             }
             return false;
         }

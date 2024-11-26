@@ -186,27 +186,29 @@ public partial class EPGCache<T> : IEPGCache<T>
         JsonFiles.Add(md5, epgJson);
     }
 
-    public void UpdateAssetImages(string md5, string? json)
+    public void CreateOrUpdateAsset(string md5, string? json)
     {
-        if (!JsonFiles.ContainsKey(md5))
-        {
-            AddAsset(md5, null);
-        }
-
         json = CleanJsonText(json);
-        JsonFiles[md5].Images = json;
-    }
-
-    public void UpdateAssetJsonEntry(string md5, string? json)
-    {
-        if (!JsonFiles.ContainsKey(md5))
+        if (!JsonFiles.TryGetValue(md5, out EPGJsonCache? value))
         {
             AddAsset(md5, json);
         }
-
-        json = CleanJsonText(json);
-        JsonFiles[md5].JsonEntry = json;
+        else
+        {
+            value.Images = json;
+        }
     }
+
+    //public void UpdateAssetJsonEntry(string md5, string? json)
+    //{
+    //    if (!JsonFiles.ContainsKey(md5))
+    //    {
+    //        AddAsset(md5, json);
+    //    }
+
+    //    json = CleanJsonText(json);
+    //    JsonFiles[md5].JsonEntry = json;
+    //}
 
     public void CleanDictionary()
     {
@@ -284,32 +286,17 @@ public partial class EPGCache<T> : IEPGCache<T>
         }
     }
 
-    public MxfGuideImage? GetGuideImageAndUpdateCache(List<ProgramArtwork>? artwork, ImageType type, string? cacheKey = null)
+    public void UpdateProgramArtworkCache(List<ProgramArtwork> artwork, ImageType type, string? cacheKey = null)
     {
-        if (artwork == null || artwork.Count == 0)
+        cacheKey ??= type.ToString();
+
+        if (artwork == null)
         {
-            if (cacheKey != null)
-            {
-                UpdateAssetImages(cacheKey, string.Empty);
-            }
-            return null;
+            CreateOrUpdateAsset(cacheKey, string.Empty);
+            return;
         }
 
-        if (cacheKey != null)
-        {
-            string artworkJson = JsonSerializer.Serialize(artwork);
-            UpdateAssetImages(cacheKey, artworkJson);
-        }
-
-        ProgramArtwork? image = type == ImageType.Movie
-            ? artwork.FirstOrDefault()
-            : artwork.FirstOrDefault(arg => arg.Aspect.EndsWithIgnoreCase(sdsettings.SeriesPosterAspect));
-        if (image == null && type == ImageType.Series)
-        {
-            image = artwork.FirstOrDefault(arg => arg.Aspect.EndsWithIgnoreCase(sdsettings.SeriesPosterAspect));
-        }
-
-        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
-        return image != null ? schedulesDirectData.FindOrCreateGuideImage(image.Uri) : null;
+        string artworkJson = JsonSerializer.Serialize(artwork);
+        CreateOrUpdateAsset(cacheKey, artworkJson);
     }
 }

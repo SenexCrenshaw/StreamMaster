@@ -20,9 +20,9 @@ public interface ILogoScoped;
 
 public interface ILogoTasks
 {
-    ValueTask BuildLogoCaches(CancellationToken cancellationToken = default);
+    ValueTask CacheChannelLogos(CancellationToken cancellationToken = default);
 
-    ValueTask BuildLogosCacheFromStreams(CancellationToken cancellationToken = default);
+    ValueTask CacheStreamLogos(CancellationToken cancellationToken = default);
 
     ValueTask BuildProgLogosCacheFromEPGs(CancellationToken cancellationToken = default);
 

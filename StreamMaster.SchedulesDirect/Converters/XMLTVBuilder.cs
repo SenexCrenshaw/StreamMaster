@@ -4,6 +4,7 @@ using System.Globalization;
 using Microsoft.AspNetCore.Http;
 
 using StreamMaster.Domain.Comparer;
+using StreamMaster.Domain.Crypto;
 using StreamMaster.Domain.Enums;
 using StreamMaster.Domain.Helpers;
 using StreamMaster.Domain.Models;
@@ -16,7 +17,7 @@ public class XMLTVBuilder : IXMLTVBuilder
 {
     private readonly DataPreparationService _dataPreparationService;
     private readonly XmltvChannelBuilder _channelBuilder;
-    private readonly XmltvProgramBuilder _programBuilder;
+    //private readonly XmltvProgramBuilder _programBuilder;
     private readonly ILogger<XMLTVBuilder> logger;
     private readonly IHttpContextAccessor httpContextAccessor;
     private readonly ICacheManager cacheManager;
@@ -26,12 +27,14 @@ public class XMLTVBuilder : IXMLTVBuilder
     private readonly IOptionsMonitor<SDSettings> sdSettingsMonitor;
     private readonly IOptionsMonitor<Setting> settings;
     private readonly ILogoService logoService;
+    private readonly IXmltvProgramBuilder xmltvProgramBuilder;
 
     private readonly ConcurrentDictionary<int, XMLTV> xmlDict = new();
 
     public XMLTVBuilder(
         IOptionsMonitor<SDSettings> sdSettingsMonitor,
              IOptionsMonitor<Setting> settings,
+             IXmltvProgramBuilder xmltvProgramBuilder,
         IOptionsMonitor<OutputProfileDict> outputProfileDictMonitor,
         IServiceProvider serviceProvider,
         ILogoService logoService,
@@ -44,6 +47,7 @@ public class XMLTVBuilder : IXMLTVBuilder
 
         ILogger<XMLTVBuilder> logger)
     {
+        this.xmltvProgramBuilder = xmltvProgramBuilder;
         this.logoService = logoService;
         this.customPlayListBuilder = customPlayListBuilder;
         this.fileUtilService = fileUtilService;
@@ -64,7 +68,7 @@ public class XMLTVBuilder : IXMLTVBuilder
         _channelBuilder = new XmltvChannelBuilder(logoService, schedulesDirectDataService, sdSettingsMonitor);
 
         // Pass the shared data (_seriesDict and _keywordDict) to XmltvProgramBuilder
-        _programBuilder = new XmltvProgramBuilder(settings, sdSettingsMonitor, logoService);
+        //_programBuilder = new XmltvProgramBuilder(settings, sdSettingsMonitor, logoService);
     }
     public async Task<XMLTV?> CreateXmlTv(List<VideoStreamConfig> videoStreamConfigs)
     {
@@ -214,7 +218,8 @@ public class XMLTVBuilder : IXMLTVBuilder
             XmltvChannel channel = new()
             {
                 Id = config.OutputProfile.Id,
-                DisplayNames = [new XmltvText { Text = config.Name }]
+                DisplayNames = [new XmltvText { Text = config.Name }],
+                Icons = [new XmltvIcon { Src = config.Logo }]
             };
             channels.Add(channel);
 
@@ -359,6 +364,13 @@ public class XMLTVBuilder : IXMLTVBuilder
                 foreach (XmltvChannel channel in channelsById[videoStreamConfig.EPGId])
                 {
                     channel.Id = videoStreamConfig.OutputProfile!.Id;
+                    if (channel.Icons?.Count > 0)
+                    {
+                        foreach (XmltvIcon icon in channel.Icons)
+                        {
+                            icon.Src = videoStreamConfig.Logo;// $"{baseUrl}/api/files/pr/{icon.Src.GenerateFNV1aHash()}";
+                        }
+                    }
                     newChannels.Add(channel);
                 }
 
@@ -369,12 +381,12 @@ public class XMLTVBuilder : IXMLTVBuilder
                     // Perform a deep copy of the programme to ensure immutability of the original.
                     XmltvProgramme prog = programme.DeepCopy();
                     prog.Channel = videoStreamConfig.OutputProfile!.Id;
-                    //prog.Channel = channel.Id;
+
                     if (prog.Icons?.Count > 0)
                     {
                         foreach (XmltvIcon icon in prog.Icons)
                         {
-                            icon.Src = logoService.GetLogoUrl(icon.Src, baseUrl, SMStreamTypeEnum.CustomPlayList);
+                            icon.Src = $"{baseUrl}/api/files/pr/{icon.Src.GenerateFNV1aHash()}";
                         }
                     }
                     newProgrammes.Add(prog);
@@ -407,7 +419,12 @@ public class XMLTVBuilder : IXMLTVBuilder
             _dataPreparationService.AdjustServiceSchedules(service);
 
             List<XmltvProgramme> xmltvProgrammes = scheduleEntries.AsParallel().Select(scheduleEntry =>
-                    _programBuilder.BuildXmltvProgram(scheduleEntry, channel.Id, 0, baseUrl)).ToList();
+                    xmltvProgramBuilder.BuildXmltvProgram(scheduleEntry, channel.Id, 0, baseUrl)).ToList();
+
+            //        List<XmltvProgramme> xmltvProgrammes = scheduleEntries.Select(scheduleEntry =>
+            //    xmltvProgramBuilder.BuildXmltvProgram(scheduleEntry, channel.Id, 0, baseUrl))
+            //.ToList();
+
 
             lock (xmlTv.Programs)
             {
@@ -418,16 +435,16 @@ public class XMLTVBuilder : IXMLTVBuilder
         return xmlTv;
     }
 
-    public List<XmltvProgramme> GetPrograms(MxfService mxfService, string baseUrl, string ChannelId, VideoStreamConfig? videoStreamConfig, List<EPGFile>? epgFiles)
-    {
-        List<MxfScheduleEntry> scheduleEntries = mxfService.MxfScheduleEntries.ScheduleEntry;
-        int timeShift = (epgFiles == null || videoStreamConfig == null) ? 0 : _dataPreparationService.GetTimeShift(videoStreamConfig, epgFiles);
+    //public List<XmltvProgramme> GetPrograms(MxfService mxfService, string baseUrl, string ChannelId, VideoStreamConfig? videoStreamConfig, List<EPGFile>? epgFiles)
+    //{
+    //    List<MxfScheduleEntry> scheduleEntries = mxfService.MxfScheduleEntries.ScheduleEntry;
+    //    int timeShift = (epgFiles == null || videoStreamConfig == null) ? 0 : _dataPreparationService.GetTimeShift(videoStreamConfig, epgFiles);
 
-        List<XmltvProgramme> xmltvProgrammes = scheduleEntries.AsParallel().Select(scheduleEntry =>
-            _programBuilder.BuildXmltvProgram(scheduleEntry, ChannelId, timeShift, baseUrl)).ToList();
+    //    List<XmltvProgramme> xmltvProgrammes = scheduleEntries.AsParallel().Select(scheduleEntry =>
+    //        xmltvProgramBuilder.BuildXmltvProgram(scheduleEntry, ChannelId, timeShift, baseUrl)).ToList();
 
-        return xmltvProgrammes;
-    }
+    //    return xmltvProgrammes;
+    //}
 
     private static void SortXmlTvEntries(XMLTV xmlTv)
     {

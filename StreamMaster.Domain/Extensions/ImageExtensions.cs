@@ -4,27 +4,60 @@ namespace StreamMaster.Domain.Extensions;
 
 public static class ImageExtensions
 {
-    public static string? GetSDImageFullPath(this string fileName)
+    public static async Task<byte[]> GetStreamBytes(this FileStream fileStream, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrEmpty(fileName))
+        using (fileStream)
         {
-            return null;
+            await using MemoryStream memoryStream = new();
+            await fileStream.CopyToAsync(memoryStream, cancellationToken).ConfigureAwait(false);
+            return memoryStream.ToArray();
         }
-        string subdirectoryName = fileName[0].ToString().ToLower();
-        string logoPath = Path.Combine(BuildInfo.SDImagesFolder, subdirectoryName, fileName);
-
-        return logoPath;
+    }
+    public static string? GetLogoImageFullPath(this string fileName)
+    {
+        return fileName.Contains('\\') ? GetProgramTvLogoImageFullPath(fileName) : GetImageFullPath(fileName, SMFileTypes.Logo);
     }
 
-    public static string? GetSDStaionImageFullPath(this string fileName)
+    public static string? GetProgramLogoFullPath(this string fileName)
     {
-        if (string.IsNullOrEmpty(fileName))
+        return GetImageFullPath(fileName, SMFileTypes.ProgramLogo);
+    }
+
+    public static string? GetCustomLogoImageFullPath(this string fileName)
+    {
+        return GetImageFullPath(fileName, SMFileTypes.CustomLogo);
+    }
+
+    public static string? GetProgramTvLogoImageFullPath(this string fileName)
+    {
+        return string.IsNullOrWhiteSpace(fileName) ? null : Path.Combine(BuildInfo.TVLogoFolder, fileName);
+    }
+
+    public static string GetPNGPath(this string fileName)
+    {
+        return Path.GetExtension(fileName).EqualsIgnoreCase(".svg")
+            ? Path.ChangeExtension(fileName, ".png")
+            : fileName;
+    }
+
+    public static string? GetImageFullPath(this string fileName, SMFileTypes smFileType)
+    {
+        if (string.IsNullOrWhiteSpace(fileName))
         {
             return null;
         }
-        string subdirectoryName = fileName[0].ToString().ToLower();
-        string logoPath = Path.Combine(BuildInfo.SDStationLogosFolder, subdirectoryName, fileName);
 
-        return logoPath;
+        // Determine the FileDefinition based on the file type
+        FileDefinition? fd = FileDefinitions.GetFileDefinition(smFileType);
+        if (fd is null)
+        {
+            return null;
+        }
+
+        // If the file has an .svg extension, replace it with .png
+        string updatedFileName = fileName.GetPNGPath();
+
+        string subDir = char.ToLower(updatedFileName[0]).ToString();
+        return Path.Combine(fd.DirectoryLocation, subDir, updatedFileName);
     }
 }

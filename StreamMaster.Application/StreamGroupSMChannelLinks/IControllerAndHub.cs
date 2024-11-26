@@ -6,7 +6,7 @@ using StreamMaster.Application.StreamGroupSMChannelLinks.Queries;
 namespace StreamMaster.Application.StreamGroupSMChannelLinks
 {
     public interface IStreamGroupSMChannelLinksController
-    {        
+    {
         Task<ActionResult<List<SMChannelDto>>> GetStreamGroupSMChannels(GetStreamGroupSMChannelsRequest request);
         Task<ActionResult<APIResponse?>> AddSMChannelsToStreamGroupByParameters(AddSMChannelsToStreamGroupByParametersRequest request);
         Task<ActionResult<APIResponse?>> AddSMChannelsToStreamGroup(AddSMChannelsToStreamGroupRequest request);

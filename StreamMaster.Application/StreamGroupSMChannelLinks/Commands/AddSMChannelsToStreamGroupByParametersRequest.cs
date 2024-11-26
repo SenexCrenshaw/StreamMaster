@@ -9,7 +9,7 @@ internal class AddSMChannelsToStreamGroupByParametersRequestHandler(IRepositoryW
     public async Task<APIResponse> Handle(AddSMChannelsToStreamGroupByParametersRequest request, CancellationToken cancellationToken)
     {
         List<FieldData> fieldDatas = [];
-        IQueryable<SMChannel> smChannels = Repository.SMChannel.GetPagedSMChannelsQueryable(request.Parameters);
+        IQueryable<SMChannel> smChannels = await Repository.SMChannel.GetPagedSMChannelsQueryableAsync(request.Parameters);
         foreach (SMChannel smChannel in smChannels)
         {
             APIResponse res = await Repository.StreamGroupSMChannelLink.AddSMChannelToStreamGroup(request.StreamGroupId, smChannel.Id).ConfigureAwait(false);

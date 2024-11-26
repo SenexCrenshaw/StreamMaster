@@ -75,7 +75,7 @@ public partial class XmlTvToXMLTV()
     //        // add station logo if present
     //        if (!mxfService.Extras.ContainsKey("logo") && channel.Icons.Count > 0)
     //        {
-    //            mxfService.mxfGuideImage = schedulesDirectData.FindOrCreateGuideImage(channel.Icons[0].Src);
+    //            mxfService.mxfGuideImage = schedulesDirectData.FindOrCreateProgramArtwork(channel.Icons[0].Src);
 
     //            mxfService.Extras.TryAdd("logo", new StationImage
     //            {
@@ -720,36 +720,37 @@ public partial class XmlTvToXMLTV()
     //    return 0;
     //}
 
-    private static void DetermineGuideImage(MxfProgram mxfProgram, XmltvProgramme xmltvProgramme, SchedulesDirectData schedulesDirectData)
-    {
-        if (xmltvProgramme.Icons == null || xmltvProgramme.Icons.Count == 0)
-        {
-            return;
-        }
+    //private static void DetermineGuideImage(MxfProgram mxfProgram, XmltvProgramme xmltvProgramme, SchedulesDirectData schedulesDirectData)
+    //{
+    //    if (xmltvProgramme.Icons == null || xmltvProgramme.Icons.Count == 0)
+    //    {
+    //        return;
+    //    }
 
-        if (xmltvProgramme.Icons.Count == 1)// || xmltvProgramme.Icons[0].Width == 0 || xmltvProgramme.Icons[0].Height == 0)
-        {
-            mxfProgram.mxfGuideImage = schedulesDirectData.FindOrCreateGuideImage(xmltvProgramme.Icons[0].Src);
+    //    if (xmltvProgramme.Icons.Count == 1)// || xmltvProgramme.Icons[0].Width == 0 || xmltvProgramme.Icons[0].Height == 0)
+    //    {
 
-            return;
-        }
+    //        mxfProgram.mxfGuideImage = schedulesDirectData.FindOrCreateProgramArtwork(xmltvProgramme.Icons[0].Src);
 
-        XmltvIcon? posters = xmltvProgramme.Icons.Find(arg => arg.Width / (double)arg.Height < 0.7);
-        mxfProgram.mxfGuideImage = posters != null
-            ? schedulesDirectData.FindOrCreateGuideImage(posters.Src)
-            : schedulesDirectData.FindOrCreateGuideImage(xmltvProgramme.Icons[0].Src);
+    //        return;
+    //    }
 
-        List<ProgramArtwork> artworks = xmltvProgramme.Icons.ConvertAll(arg => new ProgramArtwork
-        {
-            Uri = arg.Src,
-            Width = arg.Width,
-            Height = arg.Height
-        });
+    //    XmltvIcon? posters = xmltvProgramme.Icons.Find(arg => arg.Width / (double)arg.Height < 0.7);
+    //    mxfProgram.mxfGuideImage = posters != null
+    //        ? schedulesDirectData.FindOrCreateProgramArtwork(posters.Src)
+    //        : schedulesDirectData.FindOrCreateProgramArtwork(xmltvProgramme.Icons[0].Src);
 
-        mxfProgram.Extras.AddOrUpdate("artwork", artworks);
+    //    List<ProgramArtwork> artworks = xmltvProgramme.Icons.ConvertAll(arg => new ProgramArtwork
+    //    {
+    //        Uri = arg.Src,
+    //        Width = arg.Width,
+    //        Height = arg.Height
+    //    });
 
-        //mxfProgram.mxfGuideImage = schedulesDirectData.FindOrCreateGuideImage(xmltvProgramme.Icons[0].Src);
-    }
+    //    mxfProgram.Extras.AddOrUpdate("artwork", artworks);
+
+    //    //mxfProgram.mxfGuideImage = schedulesDirectData.FindOrCreateProgramArtwork(xmltvProgramme.Icons[0].Src);
+    //}
 
     private static void DetermineProgramKeywords(MxfProgram mxfProgram, IEnumerable<string> categories, SchedulesDirectData schedulesDirectData)
     {

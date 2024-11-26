@@ -82,7 +82,7 @@ public class EPGFileRepository(ILogger<EPGFileRepository> intLogger, IFileUtilSe
                 Id = service.Id,
                 ChannelName = service.Name,
                 ChannelNumber = stationId,
-                ChannelLogo = service?.mxfGuideImage?.ImageUrl ?? "",
+                //ChannelLogo = service?.mxfGuideImage?.ImageUrl ?? "",
             });
         }
         return ret;

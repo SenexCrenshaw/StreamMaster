@@ -76,7 +76,7 @@ public class VideoStreamConfig
     public bool IsCustom => M3UFileId == EPGHelper.CustomPlayListId;
     public bool IsIntro => M3UFileId == EPGHelper.IntroPlayListId;
 
-    public bool IsShort { get; set; } = false;
+    //public bool IsShort { get; set; } = false;
     public string BaseUrl { get; set; } = string.Empty;
     public int StreamGroupProfileId { get; set; }
 }

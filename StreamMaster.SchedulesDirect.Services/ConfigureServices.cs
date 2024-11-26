@@ -28,6 +28,9 @@ public static class ConfigureServices
         _ = services.AddSingleton<ISeriesImages, SeriesImages>();
         _ = services.AddSingleton<ISeasonImages, SeasonImages>();
         _ = services.AddSingleton<ISportsImages, SportsImages>();
+
+        _ = services.AddTransient<IXmltvProgramBuilder, XmltvProgramBuilder>();
+
         return services;
     }
 }

@@ -5,6 +5,38 @@ namespace StreamMaster.Domain.Extensions;
 
 public static class ListHelper
 {
+    public static async Task ForEachAsync<T>(
+    this IAsyncEnumerable<T> source,
+    int degreeOfParallelism,
+    Func<T, Task> body,
+    CancellationToken cancellationToken = default)
+    {
+        SemaphoreSlim semaphore = new(degreeOfParallelism);
+
+        List<Task> tasks = [];
+
+        await foreach (T? item in source.WithCancellation(cancellationToken).ConfigureAwait(false))
+        {
+            await semaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
+
+            Task task = Task.Run(async () =>
+            {
+                try
+                {
+                    await body(item).ConfigureAwait(false);
+                }
+                finally
+                {
+                    semaphore.Release();
+                }
+            }, cancellationToken);
+
+            tasks.Add(task);
+        }
+
+        await Task.WhenAll(tasks).ConfigureAwait(false);
+    }
+
     public static List<T> GetMatchingProperty<T>(List<T> list, string propertyName, string regex)
     {
         List<T> matchedObjects = [];

@@ -188,15 +188,9 @@ public partial class UpdateSettingRequestHandler(
             return false;
         }
 
-        if (request.Parameters.LogoCache != null)
+        if (request.Parameters.LogoCache.HasValue)
         {
-            currentSetting.LogoCache = request.Parameters.LogoCache.ToLowerInvariant() switch
-            {
-                "redirect" => "Redirect",
-                "cache" => "Cache",
-                _ => "None",
-            };
-            _ = await logoService.BuildLogosCacheFromSMStreamsAsync(CancellationToken.None);
+            currentSetting.LogoCache = request.Parameters.LogoCache.Value;
         }
 
         if (request.Parameters.CleanURLs.HasValue)

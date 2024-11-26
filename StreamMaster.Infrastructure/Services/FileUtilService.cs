@@ -48,25 +48,21 @@ namespace StreamMaster.Infrastructure.Services
                 return null;
             }
 
+            //List<XmltvProgramme> test = await GetProgrammesFromXmlAsync(epgPath).ConfigureAwait(false);
+
             value = [];
 
             foreach (XmltvChannel xmlChannel in channels)
             {
-                //string channelId = GetID(xmlChannel, epgNumber);
-
                 List<XmltvText> displayNames = xmlChannel.DisplayNames;
                 string callSign = displayNames.Count > 0 ? displayNames[0]?.Text ?? xmlChannel.Id : xmlChannel.Id;
                 string name = displayNames.Count > 1 ? displayNames[1]?.Text ?? callSign : callSign;
 
                 string displayName = $"[{callSign}] {name}";
-                string channel = xmlChannel.Id;// $"{epgNumber}-{xmlChannel.Id}";
-                StationChannelName stationChannelName = new(channel, displayName, name, epgNumber);
-                //{
-                //    Channel = channel,
-                //    DisplayName = displayName,
-                //    ChannelName = name,
-                //    EPGNumber = epgNumber
-                //};
+                string channel = xmlChannel.Id;
+                string? iconSrc = xmlChannel.Icons.FirstOrDefault()?.Src;
+
+                StationChannelName stationChannelName = new(channel, displayName, name, iconSrc ?? "", epgNumber);
 
                 value.Add(stationChannelName);
             }
@@ -104,6 +100,9 @@ namespace StreamMaster.Infrastructure.Services
 
                 XmltvChannel? currentChannel = null;
                 List<XmltvText>? displayNames = null;
+                List<XmltvText>? lcns = null;
+                List<XmltvIcon>? icons = null;
+                List<string>? urls = null;
 
                 while (await reader.ReadAsync().ConfigureAwait(false))
                 {
@@ -114,18 +113,56 @@ namespace StreamMaster.Infrastructure.Services
                             Id = reader.GetAttribute("id") ?? string.Empty
                         };
                         displayNames = [];
+                        lcns = [];
+                        icons = [];
+                        urls = [];
                     }
-                    else if (reader.NodeType == XmlNodeType.Element && reader.Name == "display-name" && currentChannel != null)
+                    else if (reader.NodeType == XmlNodeType.Element && currentChannel != null)
                     {
-                        string? displayNameText = await reader.ReadElementContentAsStringAsync().ConfigureAwait(false);
-                        displayNames?.Add(new XmltvText { Text = displayNameText });
+                        switch (reader.Name)
+                        {
+                            case "display-name":
+                                string? displayNameText = await reader.ReadElementContentAsStringAsync().ConfigureAwait(false);
+                                displayNames?.Add(new XmltvText { Text = displayNameText });
+                                break;
+
+                            case "lcn":
+                                string? lcnText = await reader.ReadElementContentAsStringAsync().ConfigureAwait(false);
+                                lcns?.Add(new XmltvText { Text = lcnText });
+                                break;
+
+                            case "icon":
+                                XmltvIcon icon = new()
+                                {
+                                    Src = reader.GetAttribute("src") ?? string.Empty,
+                                    Width = int.TryParse(reader.GetAttribute("width"), out int width) ? width : 0,
+                                    Height = int.TryParse(reader.GetAttribute("height"), out int height) ? height : 0
+                                };
+                                icons?.Add(icon);
+                                await reader.ReadAsync().ConfigureAwait(false); // Move past the icon element
+                                break;
+
+                            case "url":
+                                string? urlText = await reader.ReadElementContentAsStringAsync().ConfigureAwait(false);
+                                urls?.Add(urlText);
+                                break;
+                        }
                     }
                     else if (reader.NodeType == XmlNodeType.EndElement && reader.Name == "channel" && currentChannel != null)
                     {
                         currentChannel.DisplayNames = displayNames ?? [];
+                        currentChannel.Icons = icons ?? [];
+
+                        //currentChannel.Lcn = lcns ?? [];                   
+                        //currentChannel.Urls = urls ?? [];
+
                         channels.Add(currentChannel);
+
                         currentChannel = null;
                         displayNames = null;
+                        lcns = null;
+                        icons = null;
+                        urls = null;
                     }
                     else if (reader.NodeType == XmlNodeType.EndElement && reader.Name == "programme")
                     {
@@ -140,6 +177,214 @@ namespace StreamMaster.Infrastructure.Services
 
             return channels;
         }
+
+        //public async Task<List<XmltvProgramme>> GetProgrammesFromXmlAsync(string epgPath)
+        //{
+        //    List<XmltvProgramme> programmes = [];
+
+        //    try
+        //    {
+        //        string? filePath = GetFilePath(epgPath);
+        //        if (filePath == null)
+        //        {
+        //            return programmes;
+        //        }
+
+        //        XmlReaderSettings settings = new()
+        //        {
+        //            Async = true,
+        //            DtdProcessing = DtdProcessing.Ignore,
+        //            MaxCharactersFromEntities = 1024,
+        //            ConformanceLevel = ConformanceLevel.Document,
+        //        };
+
+        //        await using Stream? fileStream = await GetFileDataStream(filePath).ConfigureAwait(false);
+        //        if (fileStream == null)
+        //        {
+        //            return programmes;
+        //        }
+
+        //        using XmlReader reader = XmlReader.Create(fileStream, settings);
+
+        //        XmltvProgramme? currentProgramme = null;
+        //        List<XmltvText>? titles = null;
+        //        List<XmltvText>? descriptions = null;
+        //        List<XmltvText>? categories = null;
+        //        List<XmltvText>? subtitles = null;
+        //        List<XmltvText>? keywords = null;
+        //        List<XmltvIcon>? icons = null;
+        //        List<string>? urls = null;
+        //        List<XmltvText>? countries = null;
+        //        List<XmltvEpisodeNum>? episodeNums = null;
+        //        List<XmltvText>? teams = null;
+        //        List<XmltvRating>? ratings = null;
+        //        List<XmltvRating>? starRatings = null;
+        //        List<XmltvReview>? reviews = null;
+
+        //        while (await reader.ReadAsync().ConfigureAwait(false))
+        //        {
+        //            if (reader.NodeType == XmlNodeType.Element && reader.Name == "programme")
+        //            {
+        //                currentProgramme = new XmltvProgramme
+        //                {
+        //                    Channel = reader.GetAttribute("channel") ?? string.Empty,
+        //                    Start = reader.GetAttribute("start"),
+        //                    Stop = reader.GetAttribute("stop"),
+        //                    PdcStart = reader.GetAttribute("pdc-start"),
+        //                    VpsStart = reader.GetAttribute("vps-start"),
+        //                    ShowView = reader.GetAttribute("showview"),
+        //                    VideoPlus = reader.GetAttribute("videoplus"),
+        //                    ClumpIdx = reader.GetAttribute("clumpidx")
+        //                };
+        //                titles = [];
+        //                descriptions = [];
+        //                categories = [];
+        //                subtitles = [];
+        //                keywords = [];
+        //                icons = [];
+        //                urls = [];
+        //                countries = [];
+        //                episodeNums = [];
+        //                teams = [];
+        //                ratings = [];
+        //                starRatings = [];
+        //                reviews = [];
+        //            }
+        //            else if (reader.NodeType == XmlNodeType.Element && currentProgramme != null)
+        //            {
+        //                switch (reader.Name)
+        //                {
+        //                    case "title":
+        //                        string? titleText = await reader.ReadElementContentAsStringAsync().ConfigureAwait(false);
+        //                        titles?.Add(new XmltvText { Text = titleText });
+        //                        break;
+
+        //                    case "sub-title":
+        //                        string? subTitleText = await reader.ReadElementContentAsStringAsync().ConfigureAwait(false);
+        //                        subtitles?.Add(new XmltvText { Text = subTitleText });
+        //                        break;
+
+        //                    case "desc":
+        //                        string? descText = await reader.ReadElementContentAsStringAsync().ConfigureAwait(false);
+        //                        descriptions?.Add(new XmltvText { Text = descText });
+        //                        break;
+
+        //                    case "category":
+        //                        string? categoryText = await reader.ReadElementContentAsStringAsync().ConfigureAwait(false);
+        //                        categories?.Add(new XmltvText { Text = categoryText });
+        //                        break;
+
+        //                    case "keyword":
+        //                        string? keywordText = await reader.ReadElementContentAsStringAsync().ConfigureAwait(false);
+        //                        keywords?.Add(new XmltvText { Text = keywordText });
+        //                        break;
+
+        //                    case "icon":
+        //                        XmltvIcon icon = new()
+        //                        {
+        //                            Src = reader.GetAttribute("src") ?? string.Empty,
+        //                            Width = int.TryParse(reader.GetAttribute("width"), out int width) ? width : 0,
+        //                            Height = int.TryParse(reader.GetAttribute("height"), out int height) ? height : 0
+        //                        };
+        //                        icons?.Add(icon);
+        //                        await reader.ReadAsync().ConfigureAwait(false); // Move past the icon element
+        //                        break;
+
+        //                    case "url":
+        //                        string? urlText = await reader.ReadElementContentAsStringAsync().ConfigureAwait(false);
+        //                        urls?.Add(urlText);
+        //                        break;
+
+        //                    case "country":
+        //                        string? countryText = await reader.ReadElementContentAsStringAsync().ConfigureAwait(false);
+        //                        countries?.Add(new XmltvText { Text = countryText });
+        //                        break;
+
+        //                    case "episode-num":
+        //                        string? episodeNumText = await reader.ReadElementContentAsStringAsync().ConfigureAwait(false);
+        //                        episodeNums?.Add(new XmltvEpisodeNum { Text = episodeNumText });
+        //                        break;
+
+        //                    case "team":
+        //                        string? teamText = await reader.ReadElementContentAsStringAsync().ConfigureAwait(false);
+        //                        teams?.Add(new XmltvText { Text = teamText });
+        //                        break;
+
+        //                    case "rating":
+        //                        if (reader.IsEmptyElement)
+        //                        {
+        //                            await reader.ReadAsync().ConfigureAwait(false);
+        //                        }
+        //                        else
+        //                        {
+
+        //                            string a = await reader.ReadElementContentAsStringAsync().ConfigureAwait(false);
+        //                            string? ratingText = await reader.ReadElementContentAsStringAsync().ConfigureAwait(false);
+        //                            ratings?.Add(new XmltvRating { Value = ratingText });
+        //                        }
+        //                        break;
+
+        //                    case "star-rating":
+        //                        string? starRatingText = await reader.ReadElementContentAsStringAsync().ConfigureAwait(false);
+        //                        starRatings?.Add(new XmltvRating { Value = starRatingText });
+        //                        break;
+
+        //                    case "review":
+        //                        if (reader.IsEmptyElement)
+        //                        {
+        //                            await reader.ReadAsync().ConfigureAwait(false);
+        //                        }
+        //                        else
+        //                        {
+        //                            string? reviewText = await reader.ReadElementContentAsStringAsync().ConfigureAwait(false);
+        //                            reviews?.Add(new XmltvReview { Text = reviewText });
+        //                        }
+        //                        break;
+        //                }
+        //            }
+        //            else if (reader.NodeType == XmlNodeType.EndElement && reader.Name == "programme" && currentProgramme != null)
+        //            {
+        //                currentProgramme.Titles = titles ?? [];
+        //                currentProgramme.Descriptions = descriptions ?? [];
+        //                currentProgramme.Categories = categories ?? [];
+        //                currentProgramme.SubTitles = subtitles ?? [];
+        //                currentProgramme.Keywords = keywords ?? [];
+        //                currentProgramme.Icons = icons ?? [];
+        //                currentProgramme.Urls = urls ?? [];
+        //                currentProgramme.Countries = countries ?? [];
+        //                currentProgramme.EpisodeNums = episodeNums ?? [];
+        //                currentProgramme.Teams = teams ?? [];
+        //                currentProgramme.Rating = ratings ?? [];
+        //                currentProgramme.StarRating = starRatings ?? [];
+        //                currentProgramme.Review = reviews ?? [];
+        //                programmes.Add(currentProgramme);
+
+        //                // Cleanup
+        //                currentProgramme = null;
+        //                titles = null;
+        //                descriptions = null;
+        //                categories = null;
+        //                subtitles = null;
+        //                keywords = null;
+        //                icons = null;
+        //                urls = null;
+        //                countries = null;
+        //                episodeNums = null;
+        //                teams = null;
+        //                ratings = null;
+        //                starRatings = null;
+        //                reviews = null;
+        //            }
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        logger.LogError(ex, "Error reading programmes from file {EpgPath}", epgPath);
+        //    }
+
+        //    return programmes;
+        //}
+
 
         private string? GetEPGFilePath(EPGFile epgFile)
         {
@@ -255,11 +500,6 @@ namespace StreamMaster.Infrastructure.Services
                 }
                 XMLTV ret = (XMLTV)result;
 
-                //List<XmltvChannel>? test = ret!.Channels.Where(a => a.Id.Contains("ABCWABC.us")).ToList();
-
-                //List<XmltvProgramme> test2 = ret!.Programs.Where(a => a.Channel.Contains("ABCWABC.us")).ToList();
-
-                // Return the deserialized object, cast to the expected type
                 return (XMLTV)result;
             }
             catch (Exception ex)

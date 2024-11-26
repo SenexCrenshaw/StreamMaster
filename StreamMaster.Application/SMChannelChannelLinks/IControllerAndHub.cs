@@ -6,7 +6,7 @@ using StreamMaster.Application.SMChannelChannelLinks.Queries;
 namespace StreamMaster.Application.SMChannelChannelLinks
 {
     public interface ISMChannelChannelLinksController
-    {        
+    {
         Task<ActionResult<List<SMChannelDto>>> GetSMChannelChannels(GetSMChannelChannelsRequest request);
         Task<ActionResult<APIResponse?>> AddSMChannelToSMChannel(AddSMChannelToSMChannelRequest request);
         Task<ActionResult<APIResponse?>> RemoveSMChannelFromSMChannel(RemoveSMChannelFromSMChannelRequest request);

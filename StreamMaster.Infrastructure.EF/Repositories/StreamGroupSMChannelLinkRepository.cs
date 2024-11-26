@@ -1,11 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Text;
+
+using Microsoft.EntityFrameworkCore;
 
 using Npgsql;
 
 using StreamMaster.Domain.API;
 using StreamMaster.Domain.Exceptions;
-
-using System.Text;
 
 namespace StreamMaster.Infrastructure.EF.Repositories;
 
@@ -135,6 +135,9 @@ public class StreamGroupSMChannelLinkRepository(ILogger<StreamGroupSMChannelLink
 
         return APIResponse.Success;
     }
+
+    public IQueryable<StreamGroupSMChannelLink> GetQueryNoTracking => base.GetQuery(false).Include(a => a.SMChannel).AsNoTracking();
+
 
     public override IQueryable<StreamGroupSMChannelLink> GetQuery(bool tracking = false)
     {

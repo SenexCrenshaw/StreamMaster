@@ -20,6 +20,23 @@ public class EPGFileService(IRepositoryWrapper repositoryWrapper, IFileUtilServi
         return await CreateEPGFileBase(request.Name, null, request.Color, request.EPGNumber, request.HoursToUpdate, request.TimeShift);
     }
 
+    public async Task GetProgramsFromEPG()
+    {
+        List<EPGFile> epgFiles = await GetEPGFilesAsync();
+        List<StationChannelName> channelNames = [];// schedulesDirectDataService.GetStationChannelNames().ToList();
+
+        foreach (EPGFile epgFile in epgFiles)
+        {
+            string epgPath = Path.Combine(FileDefinitions.EPG.DirectoryLocation, epgFile.Source);
+
+            List<StationChannelName>? newNames = await fileUtilService.ProcessStationChannelNamesAsync(epgPath, epgFile.EPGNumber);
+            if (newNames is not null)
+            {
+                channelNames.AddRange(newNames);
+            }
+        }
+    }
+
     private async Task<(EPGFile epgFile, string fullName)> CreateEPGFileBase(string name, string? UrlSource, string? Color, int? EPGNumber, int? HoursToUpdate, int? TimeShift)
     {
         int num = EPGNumber ?? 0;

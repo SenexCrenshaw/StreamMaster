@@ -53,8 +53,8 @@ public class CreateMultiViewChannelRequestHandler(ILogger<CreateMultiViewChannel
                 //DataResponse<List<SMStreamDto>> streams = await Sender.Send(new UpdateStreamRanksRequest(smChannel.Id, request.SMStreamsIds), cancellationToken);
             }
 
-            //NameLogo NameLogo = new NameLogo(smChannel);
-            //imageDownloadQueue.EnqueueNameLogo(NameLogo);
+            //LogoInfo  LogoInfo  = new LogoInfo (smChannel);
+            //imageDownloadQueue.EnqueueLogoInfo(LogoInfo );
 
             await dataRefreshService.RefreshAllSMChannels();
             await messageService.SendSuccess("Channel Added", $"Channel '{request.Name}' added successfully");

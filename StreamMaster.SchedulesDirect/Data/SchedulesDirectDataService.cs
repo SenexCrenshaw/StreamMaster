@@ -130,13 +130,8 @@ public class SchedulesDirectDataService() : ISchedulesDirectDataService
         {
             string channelNameSuffix = station.CallSign;
 
-            StationChannelName stationChannelName = new(station.StationId, $"[{station.CallSign}] {station.Name}", station.CallSign, EPGHelper.SchedulesDirectId);
-            //{
-            //    Channel = station.StationId,
-            //    DisplayName = $"[{station.CallSign}] {station.Name}",
-            //    ChannelName = station.CallSign,
-            //    EPGNumber = EPGHelper.SchedulesDirectId
-            //};
+            StationChannelName stationChannelName = new(station.StationId, $"[{station.CallSign}] {station.Name}", station.CallSign, "", EPGHelper.SchedulesDirectId);
+
             ret.Add(stationChannelName);
         }
 

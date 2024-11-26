@@ -7,8 +7,6 @@ public class MxfGuideImage
     [XmlIgnore] public Dictionary<string, dynamic> extras = [];
     private int _index;
 
-    //private string _encodedImage;
-
     public MxfGuideImage(int index, string pathName)
     {
         _index = index;
@@ -42,13 +40,4 @@ public class MxfGuideImage
     /// Undocumented
     /// </summary>
     public string? Format { get; set; }
-
-    /// <summary>
-    /// The string encoded image
-    /// </summary>
-    //public string Image
-    //{
-    //    get => _encodedImage;
-    //    set { _encodedImage = value; }
-    //}
 }

@@ -7,8 +7,7 @@ namespace StreamMaster.Application.SMChannelChannelLinks.Controllers
 {
     [Authorize]
     public partial class SMChannelChannelLinksController(ILogger<SMChannelChannelLinksController> _logger) : ApiControllerBase, ISMChannelChannelLinksController
-    {        
-
+    {
         [HttpGet]
         [Route("[action]")]
         public async Task<ActionResult<List<SMChannelDto>>> GetSMChannelChannels([FromQuery] GetSMChannelChannelsRequest request)
@@ -16,7 +15,7 @@ namespace StreamMaster.Application.SMChannelChannelLinks.Controllers
             try
             {
             var ret = await Sender.Send(request).ConfigureAwait(false);
-             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetSMChannelChannels.", statusCode: 500) : Ok(ret.Data?? new());
+             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetSMChannelChannels.", statusCode: 500) : Ok(ret.Data?? []);
             }
             catch (Exception ex)
             {
@@ -24,7 +23,6 @@ namespace StreamMaster.Application.SMChannelChannelLinks.Controllers
                 return Problem(detail: "An unexpected error occurred. Please try again later.", statusCode: 500);
             }
         }
-
         [HttpPatch]
         [Route("[action]")]
         public async Task<ActionResult<APIResponse?>> AddSMChannelToSMChannel(AddSMChannelToSMChannelRequest request)
@@ -32,7 +30,6 @@ namespace StreamMaster.Application.SMChannelChannelLinks.Controllers
             var ret = await Sender.Send(request).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
         }
-
         [HttpDelete]
         [Route("[action]")]
         public async Task<ActionResult<APIResponse?>> RemoveSMChannelFromSMChannel(RemoveSMChannelFromSMChannelRequest request)
@@ -40,7 +37,6 @@ namespace StreamMaster.Application.SMChannelChannelLinks.Controllers
             var ret = await Sender.Send(request).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
         }
-
         [HttpPatch]
         [Route("[action]")]
         public async Task<ActionResult<APIResponse?>> SetSMChannelRanks(SetSMChannelRanksRequest request)
@@ -48,7 +44,6 @@ namespace StreamMaster.Application.SMChannelChannelLinks.Controllers
             var ret = await Sender.Send(request).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
         }
-
     }
 }
 
@@ -59,26 +54,22 @@ namespace StreamMaster.Application.Hubs
         public async Task<List<SMChannelDto>> GetSMChannelChannels(GetSMChannelChannelsRequest request)
         {
              var ret = await Sender.Send(request).ConfigureAwait(false);
-            return ret.Data?? new();
+            return ret.Data?? [];
         }
-
         public async Task<APIResponse?> AddSMChannelToSMChannel(AddSMChannelToSMChannelRequest request)
         {
             var ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;
         }
-
         public async Task<APIResponse?> RemoveSMChannelFromSMChannel(RemoveSMChannelFromSMChannelRequest request)
         {
             var ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;
         }
-
         public async Task<APIResponse?> SetSMChannelRanks(SetSMChannelRanksRequest request)
         {
             var ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;
         }
-
     }
 }

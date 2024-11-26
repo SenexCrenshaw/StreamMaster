@@ -1,13 +1,10 @@
-﻿using StreamMaster.Domain.Dto;
-using StreamMaster.Domain.Enums;
-
-namespace StreamMaster.SchedulesDirect;
+﻿namespace StreamMaster.SchedulesDirect;
 public partial class SchedulesDirect
 {
-    public async Task<List<string>?> GetCustomLogosFromServerAsync(string server)
-    {
-        return await schedulesDirectAPI.GetApiResponse<List<string>>(APIMethod.GET, server);
-    }
+    //public async Task<List<string>?> GetCustomLogosFromServerAsync(string server)
+    //{
+    //    return await schedulesDirectAPI.GetApiResponse<List<string>>(APIMethod.GET, server);
+    //}
 
     //private void UpdateMovieIcons(List<MxfProgram> mxfPrograms)
     //{
@@ -43,39 +40,39 @@ public partial class SchedulesDirect
     //        UpdateIcons(artwork.Select(a => a.Uri), prog.Title);
     //    }
     //}
-    private void AddIcon(string artworkUri, string title)
-    {
-        if (string.IsNullOrEmpty(artworkUri))
-        {
-            return;
-        }
+    //private void AddIcon(string artworkUri, string title)
+    //{
+    //    if (string.IsNullOrEmpty(artworkUri))
+    //    {
+    //        return;
+    //    }
 
-        List<LogoFileDto> icons = logoService.GetLogos();
+    //    List<LogoFileDto> icons = logoService.GetLogos();
 
-        if (icons.Any(a => a.SMFileType == SMFileTypes.SDImage && a.Source == artworkUri))
-        {
-            return;
-        }
+    //    if (icons.Any(a => a.SMFileType == SMFileTypes.SDImage && a.Source == artworkUri))
+    //    {
+    //        return;
+    //    }
 
-        logoService.AddLogo(new LogoFileDto { Source = artworkUri, SMFileType = SMFileTypes.SDImage, Name = title }, true);
-    }
+    //    logoService.AddLogo(new LogoFileDto { Source = artworkUri, SMFileType = SMFileTypes.SDImage, Name = title }, true);
+    //}
 
-    public void UpdateIcons(IEnumerable<string> artworkUris, string title)
-    {
-        if (!artworkUris.Any())
-        {
-            return;
-        }
+    //public void UpdateIcons(IEnumerable<string> artworkUris, string title)
+    //{
+    //    if (!artworkUris.Any())
+    //    {
+    //        return;
+    //    }
 
-        List<LogoFileDto> icons = logoService.GetLogos(SMFileTypes.SDImage);
+    //    List<LogoFileDto> icons = logoService.GetLogos(SMFileTypes.SDImage);
 
-        foreach (string artworkUri in artworkUris)
-        {
-            if (icons.Any(a => a.Source == artworkUri))
-            {
-                continue;
-            }
-            AddIcon(artworkUri, title);
-        }
-    }
+    //    foreach (string artworkUri in artworkUris)
+    //    {
+    //        if (icons.Any(a => a.Source == artworkUri))
+    //        {
+    //            continue;
+    //        }
+    //        AddIcon(artworkUri, title);
+    //    }
+    //}
 }

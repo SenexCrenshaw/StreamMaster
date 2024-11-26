@@ -98,5 +98,4 @@ public static class FNV1aHasher
 
         return use64Bit ? input.GenerateFNV1a64Hash() + ext : input.GenerateFNV1a32Hash() + ext;
     }
-
 }

@@ -17,59 +17,6 @@ public class XmltvChannelBuilder(ILogoService logoService, ISchedulesDirectDataS
             }
         }
 
-        //XmltvChannel channel = new()
-        // {
-        //     Id = id,
-        //     DisplayNames = []
-        // };
-
-        // string displayName = videoStreamConfig.Name;
-        // channel.DisplayNames.Add(new XmltvText { Text = displayName });
-
-        // Add additional display names if necessary
-        //if (!string.IsNullOrEmpty(service.CallSign) && !service.CallSign.Equals(displayName))
-        //{
-        //    channel.DisplayNames.Add(new XmltvText { Text = service.CallSign });
-        //}
-
-        // Add channel numbers if requested
-        //if (sdSettings.XmltvIncludeChannelNumbers)
-        //{
-        //    List<string> numbers = GetChannelNumbers(service);
-        //    foreach (string num in numbers)
-        //    {
-        //        if (!channel.DisplayNames.Any(dn => dn.Text == num))
-        //        {
-        //            channel.DisplayNames.Add(new XmltvText { Text = num });
-        //        }
-        //    }
-        //}
-
-        // Add affiliate if present
-        //string? affiliate = service.mxfAffiliate?.Name;
-        //if (!string.IsNullOrEmpty(affiliate) && !string.IsNullOrEmpty(service.Name) && !service.Name.Equals(affiliate))
-        //{
-        //    channel.DisplayNames.Add(new XmltvText { Text = affiliate });
-        //}
-
-        //// Add logo if available
-        //if (service.Extras.TryGetValue("logo", out dynamic? logoObj))
-        //{
-        //    if (logoObj is StationImage stationImage)
-        //    {
-        //        channel.Icons =
-        //        [
-        //            new XmltvIcon
-        //            {
-        //            //{/service.EPGNumber
-        //                Src = logoService.GetLogoUrl( stationImage.Url, baseUrl),
-        //                Height = stationImage.Height,
-        //                Width = stationImage.Width
-        //            }
-        //        ];
-        //    }
-        //}
-
         return channel;
     }
 
@@ -93,21 +40,9 @@ public class XmltvChannelBuilder(ILogoService logoService, ISchedulesDirectDataS
         }
 
         // Add logo if available
-        if (service.extras.TryGetValue("logo", out dynamic? logoObj))
+        if (service.XmltvIcon != null)
         {
-            if (logoObj is StationImage stationImage)
-            {
-                channel.Icons =
-                [
-                    new XmltvIcon
-                    {
-                    //{/service.EPGNumber
-                        Src = isOG ? stationImage.Url:  logoService.GetLogoUrl( stationImage.Url, baseUrl, SMStreamTypeEnum.Regular),
-                        Height = stationImage.Height,
-                        Width = stationImage.Width
-                    }
-                ];
-            }
+            channel.Icons = [service.XmltvIcon];
         }
 
         if (isOG)

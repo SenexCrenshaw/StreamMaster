@@ -7,6 +7,7 @@ namespace StreamMaster.Streams.Domain.Interfaces;
 
 public interface ICacheManager
 {
+    List<StationChannelName> GetStationChannelNames { get; }
     ConcurrentDictionary<int, (int channelCount, int programmeCount)> StationChannelCounts { get; }
     void ClearEPGDataByEPGNumber(int epgNumber);
     ConcurrentDictionary<int, List<StationChannelName>> StationChannelNames { get; }

@@ -4,13 +4,13 @@ namespace StreamMaster.SchedulesDirect.Domain.JsonClasses
 {
     public class ProgramArtwork : BaseResponse
     {
-        private string _size = "Md";
+        private string? _size;
 
         [JsonPropertyName("width")]
-        public int Width { get; set; }
+        public int? Width { get; set; }
 
         [JsonPropertyName("height")]
-        public int Height { get; set; }
+        public int? Height { get; set; }
 
         [JsonPropertyName("uri")]
         public string Uri { get; set; } = string.Empty;
@@ -19,19 +19,23 @@ namespace StreamMaster.SchedulesDirect.Domain.JsonClasses
         public string Size
         {
             get => !string.IsNullOrEmpty(_size)
-                    ? _size
-                    : (Width * Height) switch
-                    {
-                        // 2x3 (120 x 180)
-                        21600 or 24300 or 32400 => "Sm",
-                        // 2x3 (240 x 360)
-                        86400 or 97200 or 129600 => "Md",
-                        // 2x3 (480 x 720)
-                        345600 or 388800 or 518400 => "Lg",
-                        _ => _size,
-                    };
+                ? _size!
+                : PixelCount switch
+                {
+                    // Define ranges for "Sm"
+                    <= 32400 => "Sm",
+
+                    // Define ranges for "Md"
+                    > 32400 and <= 129600 => "Md",
+
+                    // Define ranges for "Lg"
+                    > 129600 => "Lg"
+                };
             set => _size = value;
         }
+
+
+        public int PixelCount => (Width * Height) ?? 0;
 
         [JsonPropertyName("aspect")]
         public string Aspect { get; set; } = string.Empty;

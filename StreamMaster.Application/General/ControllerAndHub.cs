@@ -7,8 +7,7 @@ namespace StreamMaster.Application.General.Controllers
 {
     [Authorize]
     public partial class GeneralController(ILogger<GeneralController> _logger) : ApiControllerBase, IGeneralController
-    {        
-
+    {
         [HttpGet]
         [Route("[action]")]
         public async Task<ActionResult<ImageDownloadServiceStatus>> GetDownloadServiceStatus()
@@ -24,7 +23,6 @@ namespace StreamMaster.Application.General.Controllers
                 return Problem(detail: "An unexpected error occurred. Please try again later.", statusCode: 500);
             }
         }
-
         [HttpGet]
         [Route("[action]")]
         public async Task<ActionResult<bool>> GetIsSystemReady()
@@ -40,7 +38,6 @@ namespace StreamMaster.Application.General.Controllers
                 return Problem(detail: "An unexpected error occurred. Please try again later.", statusCode: 500);
             }
         }
-
         [HttpGet]
         [Route("[action]")]
         public async Task<ActionResult<SDSystemStatus>> GetSystemStatus()
@@ -56,7 +53,6 @@ namespace StreamMaster.Application.General.Controllers
                 return Problem(detail: "An unexpected error occurred. Please try again later.", statusCode: 500);
             }
         }
-
         [HttpGet]
         [Route("[action]")]
         public async Task<ActionResult<bool>> GetTaskIsRunning()
@@ -72,7 +68,6 @@ namespace StreamMaster.Application.General.Controllers
                 return Problem(detail: "An unexpected error occurred. Please try again later.", statusCode: 500);
             }
         }
-
         [HttpPatch]
         [Route("[action]")]
         public async Task<ActionResult<APIResponse?>> SetTestTask(SetTestTaskRequest request)
@@ -80,7 +75,6 @@ namespace StreamMaster.Application.General.Controllers
             var ret = await Sender.Send(request).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
         }
-
     }
 }
 
@@ -93,30 +87,25 @@ namespace StreamMaster.Application.Hubs
              var ret = await Sender.Send(new GetDownloadServiceStatusRequest()).ConfigureAwait(false);
             return ret.Data?? new();
         }
-
         public async Task<bool> GetIsSystemReady()
         {
              var ret = await Sender.Send(new GetIsSystemReadyRequest()).ConfigureAwait(false);
             return ret.Data;
         }
-
         public async Task<SDSystemStatus> GetSystemStatus()
         {
              var ret = await Sender.Send(new GetSystemStatusRequest()).ConfigureAwait(false);
             return ret.Data?? new();
         }
-
         public async Task<bool> GetTaskIsRunning()
         {
              var ret = await Sender.Send(new GetTaskIsRunningRequest()).ConfigureAwait(false);
             return ret.Data;
         }
-
         public async Task<APIResponse?> SetTestTask(SetTestTaskRequest request)
         {
             var ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;
         }
-
     }
 }

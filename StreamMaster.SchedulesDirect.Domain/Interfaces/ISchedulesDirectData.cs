@@ -8,7 +8,7 @@ namespace StreamMaster.SchedulesDirect.Domain.Interfaces;
 public interface ISchedulesDirectData
 {
     ConcurrentDictionary<string, MxfAffiliate> Affiliates { get; set; }
-    ConcurrentDictionary<string, MxfGuideImage> GuideImages { get; set; }
+    ConcurrentDictionary<string, ProgramArtwork> GuideImages { get; set; }
     ConcurrentBag<MxfKeyword> Keywords { get; set; }
     ConcurrentDictionary<string, MxfKeywordGroup> KeywordGroups { get; set; }
     ConcurrentDictionary<string, MxfLineup> Lineups { get; set; }
@@ -33,7 +33,7 @@ public interface ISchedulesDirectData
     MxfKeywordGroup FindOrCreateKeywordGroup(KeywordGroupsEnum groupEnum, bool overflow = false);
     MxfProgram FindOrCreateProgram(string programId);
     MxfAffiliate FindOrCreateAffiliate(string affiliateName);
-    MxfGuideImage FindOrCreateGuideImage(string pathname);
+    ProgramArtwork? FindOrCreateProgramArtwork(ProgramArtwork artwork);
     MxfLineup FindOrCreateLineup(string lineupId, string lineupName);
     MxfService FindOrCreateService(string stationId);
     Task<MxfService> FindOrCreateDummyService(string stationId, VideoStreamConfig videoStreamConfig);

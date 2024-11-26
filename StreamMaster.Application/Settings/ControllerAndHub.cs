@@ -7,8 +7,7 @@ namespace StreamMaster.Application.Settings.Controllers
 {
     [Authorize]
     public partial class SettingsController(ILogger<SettingsController> _logger) : ApiControllerBase, ISettingsController
-    {        
-
+    {
         [HttpGet]
         [Route("[action]")]
         public async Task<ActionResult<SettingDto>> GetSettings()
@@ -24,7 +23,6 @@ namespace StreamMaster.Application.Settings.Controllers
                 return Problem(detail: "An unexpected error occurred. Please try again later.", statusCode: 500);
             }
         }
-
         [HttpPatch]
         [Route("[action]")]
         public async Task<ActionResult<UpdateSettingResponse?>> UpdateSetting(UpdateSettingRequest request)
@@ -32,7 +30,6 @@ namespace StreamMaster.Application.Settings.Controllers
             var ret = await Sender.Send(request).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
         }
-
     }
 }
 
@@ -45,12 +42,10 @@ namespace StreamMaster.Application.Hubs
              var ret = await Sender.Send(new GetSettingsRequest()).ConfigureAwait(false);
             return ret.Data?? new();
         }
-
         public async Task<UpdateSettingResponse?> UpdateSetting(UpdateSettingRequest request)
         {
             var ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;
         }
-
     }
 }

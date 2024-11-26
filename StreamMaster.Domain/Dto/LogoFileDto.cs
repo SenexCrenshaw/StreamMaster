@@ -10,13 +10,13 @@ namespace StreamMaster.Domain.Dto;
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public class LogoFileDto : IMapFrom<IconFile>
 {
-    [JsonIgnore]
-    [IgnoreMember]
-    public string Extension { get; set; } = string.Empty;
+    //[JsonIgnore]
+    //[IgnoreMember]
+    //public string Extension { get; set; } = string.Empty;
 
     [JsonIgnore]
     [IgnoreMember]
-    public int FileId { get; set; }
+    public int FileId { get; set; } = -1;
 
     public string Id => Source;
 
@@ -27,5 +27,4 @@ public class LogoFileDto : IMapFrom<IconFile>
 
     public string Source { get; set; } = string.Empty;
     public string Value { get; set; } = string.Empty;
-
 }

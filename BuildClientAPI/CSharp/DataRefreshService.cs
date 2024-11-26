@@ -52,10 +52,10 @@ public static class DataRefreshService
     private static string GenerateMethods(Dictionary<string, List<MethodDetails>> methodsByNamespace)
     {
         StringBuilder content = new();
-        content.AppendLine();
+        //content.AppendLine();
         content.AppendLine("    public async Task RefreshAll()");
         content.AppendLine("    {");
-        content.AppendLine();
+        //content.AppendLine();
 
         foreach (string? namespaceName in methodsByNamespace.Keys.Order())
         {
@@ -77,10 +77,10 @@ public static class DataRefreshService
                 continue;
             }
 
-            content.AppendLine("");
+            content.AppendLine();
             content.AppendLine($"    public async Task Refresh{namespaceName}(bool alwaysRun = false)");
             content.AppendLine("    {");
-            content.AppendLine();
+            //content.AppendLine();
             content.AppendLine("        if (!alwaysRun && !BuildInfo.IsSystemReady)");
             content.AppendLine("        {");
             content.AppendLine("            return;");

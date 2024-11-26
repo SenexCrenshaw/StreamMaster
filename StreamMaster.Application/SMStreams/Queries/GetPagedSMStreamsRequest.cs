@@ -27,27 +27,27 @@ internal class GetPagedSMStreamsRequestHandler(IRepositoryWrapper Repository)
         // Get all relevant SMStreamIds from the response data
         List<string> ids = res.Data.ConvertAll(a => a.Id);
 
-        // Fetch all the channelNameLogos in one go
-        var channelNameLogos = await Repository.SMChannelStreamLink.GetQuery()
+        // Fetch all the channellogoInfos in one go
+        var channellogoInfos = await Repository.SMChannelStreamLink.GetQuery()
             .Where(a => ids.Contains(a.SMStreamId))
             .Include(a => a.SMChannel)
             .Select(a => new
             {
                 a.SMStreamId,
-                NameLogo = new NameLogo(a.SMStream)
+                logoInfo = new LogoInfo (a.SMStream)
             })
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
 
         // Group by SMStreamId for efficient mapping
-        Dictionary<string, List<NameLogo>> groupedChannelNameLogos = channelNameLogos
+        Dictionary<string, List<LogoInfo >> groupedChannellogoInfos = channellogoInfos
             .GroupBy(a => a.SMStreamId)
-            .ToDictionary(g => g.Key, g => g.Select(x => x.NameLogo).OrderBy(nl => nl.Name).ToList());
+            .ToDictionary(g => g.Key, g => g.Select(x => x.logoInfo).OrderBy(nl => nl.Name).ToList());
 
         // Set Ids and assign the channel memberships to the corresponding streams
         foreach (SMStreamDto smStream in res.Data)
         {
-            if (groupedChannelNameLogos.TryGetValue(smStream.Id, out List<NameLogo>? logos))
+            if (groupedChannellogoInfos.TryGetValue(smStream.Id, out List<LogoInfo >? logos))
             {
                 //for (int i = 0; i < logos.Count; i++)
                 //{

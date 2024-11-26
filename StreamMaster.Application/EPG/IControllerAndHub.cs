@@ -6,7 +6,7 @@ using StreamMaster.Application.EPG.Queries;
 namespace StreamMaster.Application.EPG
 {
     public interface IEPGController
-    {        
+    {
         Task<ActionResult<List<EPGColorDto>>> GetEPGColors();
         Task<ActionResult<APIResponse?>> EPGSync();
     }

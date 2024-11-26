@@ -65,23 +65,11 @@ public class SeasonImages(
         return true;
     }
 
-    private void ProcessCachedImages(Season season, EPGJsonCache cache)
+    private static void ProcessCachedImages(Season season, EPGJsonCache cachedFile)
     {
-        if (string.IsNullOrEmpty(cache.Images))
-        {
-            return;
-        }
-
-        List<ProgramArtwork>? artwork = JsonSerializer.Deserialize<List<ProgramArtwork>>(cache.Images);
-        if (artwork != null)
-        {
-            season.Extras.AddOrUpdate("artwork", artwork);
-            MxfGuideImage? mx = epgCache.GetGuideImageAndUpdateCache(artwork, ImageType.Season);
-            if (mx != null)
-            {
-                season.mxfGuideImage = mx;
-            }
-        }
+        season.ArtWorks = string.IsNullOrEmpty(cachedFile.Images)
+                ? []
+                : JsonSerializer.Deserialize<List<ProgramArtwork>>(cachedFile.Images) ?? [];
     }
 
     private async Task DownloadAndProcessImagesAsync()
@@ -115,63 +103,36 @@ public class SeasonImages(
 
     private void ProcessSeasonImageResponses()
     {
-        string artworkSize = string.IsNullOrEmpty(sdSettings.CurrentValue.ArtworkSize) ? "Md" : sdSettings.CurrentValue.ArtworkSize;
+        string artworkSize = string.IsNullOrEmpty(sdSettings.CurrentValue.ArtworkSize) ? BuildInfo.DefaultSDImageSize : sdSettings.CurrentValue.ArtworkSize;
 
         foreach (ProgramMetadata response in seasonImageResponses)
         {
-            if (response.Data == null)
+            ++processedObjects;
+
+            if (response.Data == null || response.Data.Count == 0)
             {
+                logger.LogWarning("No Season Image artwork found for {ProgramId}", response.ProgramId);
                 continue;
             }
 
-            Season? season = seasons.SingleOrDefault(arg => arg.ProtoTypicalProgram == response.ProgramId);
+            Season? season = seasons.FirstOrDefault(arg => arg.ProtoTypicalProgram == response.ProgramId);
             if (season == null)
             {
                 continue;
             }
 
-            //_ = season.Extras.TryGetValue("artwork", out dynamic? value);
+            List<ProgramArtwork> artworks = SDHelpers.GetTieredImages(response.Data, artworkSize, ["season"], sdSettings.CurrentValue.SeriesPosterAspect);
+            season.AddArtwork(artworks);
 
-            List<ProgramArtwork> existingArtwork = [];
-
-            //if (season.Extras.ContainsKey("artwork"))
-            //{
-            //    if (season.Extras["artwork"] is List<ProgramArtwork> artworkList)
-            //    {
-            //        existingArtwork = artworkList;
-            //    }
-            //}
-
-            //List<string> test = response.Data.Select(a => a.Tier).Distinct().ToList();
-            //List<ProgramArtwork> staples = response.Data.Where(a => a.Tier.ToLower() == "season").ToList();
-            //List<ProgramArtwork> staplesMd = staples.Where(a => a.Size == "Md").ToList();
-            //List<ProgramArtwork> staplesaspect = staples.Where(a => a.Aspect == sdSettings.CurrentValue.SeriesPosterAspect).ToList();
-            //List<ProgramArtwork> staplesMd23 = response.Data.Where(a => a.Category == "Staple" && a.Size == "Md" && a.Aspect == "2x3").ToList();
-
-            //List<ProgramArtwork> testartwork = SDHelpers.GetTieredImages(response.Data, ["episode", "series"], artworkSize);
-            //List<ProgramArtwork> artworks = SDHelpers.GetTieredImages(response.Data, ["season"], artworkSize, sdSettings.CurrentValue.SeriesPosterAspect);
-
-            if (!season.Extras.TryGetValue("artwork", out dynamic? value))
-            {
-                List<ProgramArtwork> artworks = SDHelpers.GetTieredImages(response.Data, ["season"], artworkSize, sdSettings.CurrentValue.SeriesPosterAspect);
-
-                season.Extras["artwork"] = artworks;
-            }
-
-            if (season.Extras["artwork"].Count > 0)
+            if (artworks.Count > 0)
             {
                 string uid = $"{season.SeriesId}_{season.SeasonNumber}";
 
-                MxfGuideImage? mx = epgCache.GetGuideImageAndUpdateCache(season.Extras["artwork"], ImageType.Season, uid);
-                if (mx != null)
-                {
-                    season.mxfGuideImage = mx;
-                }
                 if (!epgCache.JsonFiles.ContainsKey(uid))
                 {
                     epgCache.AddAsset(uid, null);
                 }
-                imageDownloadQueue.EnqueueProgramArtworkCollection(season.Extras["artwork"]);
+                imageDownloadQueue.EnqueueProgramArtworkCollection(artworks);
             }
         }
     }

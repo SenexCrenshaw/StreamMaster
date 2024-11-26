@@ -9990,6 +9990,16 @@ div[aria-haspopup=dialog] {
   object-fit: contain;
 }
 
+.icon-selector-template {
+  justify-content: center;
+  align-items: center;
+}
+.icon-selector-template img {
+  height: 64px;
+  width: 64px;
+  object-fit: contain;
+}
+
 .icon-template-lg, .stringeditor .sm-input-dark-header-large {
   max-height: 4.6rem;
   height: 5rem;

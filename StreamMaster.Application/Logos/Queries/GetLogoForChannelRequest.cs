@@ -20,8 +20,15 @@ internal class GetLogoForChannelRequestHandler(ILogoService logoService, IReposi
             return DataResponse<LogoDto?>.NotFound;
         }
 
-        SMFileTypes filetype = id.GetSMFileTypEnumByValue();
-        LogoDto? ret = await logoService.GetLogoFromCacheAsync(channel.Logo, filetype, cancellationToken).ConfigureAwait(false);
+        (FileStream? fileStream, string? FileName, string? ContentType) = await logoService.GetLogoAsync(channel.Logo, cancellationToken).ConfigureAwait(false);
+
+        if (fileStream == null)
+        {
+            return DataResponse<LogoDto?>.NotFound;
+        }
+
+        byte[] allBytes = await fileStream.GetStreamBytes(cancellationToken);
+        LogoDto ret = new(channel.Logo, ContentType ?? "application/octet-stream", FileName ?? "", allBytes);
         return DataResponse<LogoDto?>.Success(ret);
     }
 }

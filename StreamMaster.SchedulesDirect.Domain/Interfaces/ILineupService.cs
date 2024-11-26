@@ -9,5 +9,6 @@
         Task<List<StationChannelMap>> GetStationChannelMaps(CancellationToken cancellationToken);
 
         Task<List<StationPreview>> GetStationPreviews(CancellationToken cancellationToken);
+        //IAsyncEnumerable<LogoFileDto> GetLogos([EnumeratorCancellation] CancellationToken cancellationToken);
     }
 }
