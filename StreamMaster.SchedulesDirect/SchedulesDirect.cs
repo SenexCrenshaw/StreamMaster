@@ -10,7 +10,7 @@ namespace StreamMaster.SchedulesDirect;
 
 public partial class SchedulesDirect(
     ILogger<SchedulesDirect> logger,
-    IXMLTVBuilder xMLTVBuilder,
+    ISDXMLTVBuilder xSDMLTVBuilder,
     IJobStatusService jobStatusService,
     ISchedulesDirectDataService schedulesDirectDataService,
     ISchedulesDirectAPIService schedulesDirectAPI,
@@ -23,7 +23,8 @@ public partial class SchedulesDirect(
     ISportsImages sportsImages,
     ISeasonImages seasonImages,
     ISeriesImages seriesImages,
-    IMovieImages movieImages) : ISchedulesDirect, IDisposable
+    IMovieImages movieImages
+    ) : ISchedulesDirect, IDisposable
 {
     private readonly SemaphoreSlim _cacheSemaphore = new(1, 1);
     private readonly SemaphoreSlim _syncSemaphore = new(1, 1);
@@ -35,6 +36,18 @@ public partial class SchedulesDirect(
     public static readonly int MaxDescriptionQueries = 500;
     public static readonly int MaxImgQueries = 125;
     public static readonly int MaxParallelDownloads = 8;
+
+    public void RemovedExpiredKeys()
+    {
+        movieImages.RemovedExpiredKeys();
+        seasonImages.RemovedExpiredKeys();
+        seriesImages.RemovedExpiredKeys();
+        sportsImages.RemovedExpiredKeys();
+        lineups.RemovedExpiredKeys();
+        programs.RemovedExpiredKeys();
+        schedules.RemovedExpiredKeys();
+        descriptions.RemovedExpiredKeys();
+    }
 
     [LogExecutionTimeAspect]
     public async Task<APIResponse> SDSync(CancellationToken cancellationToken)
@@ -93,11 +106,10 @@ public partial class SchedulesDirect(
                 //seasonImages.ResetCache();
                 //sportsImages.ResetCache();
 
-                XMLTV? xmltv = xMLTVBuilder.CreateSDXmlTv("");
+                XMLTV? xmltv = xSDMLTVBuilder.CreateSDXmlTv();
 
                 if (xmltv is not null)
                 {
-
                     //xmltv.Programs = [xmltv.Programs.First()];
 
                     string jsonString = JsonSerializer.Serialize(xmltv);

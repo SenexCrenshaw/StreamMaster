@@ -18,7 +18,6 @@ public class MxfProgram : BaseArt
     [XmlIgnore] public SeriesInfo mxfSeriesInfo = new();
     [XmlIgnore] public Season mxfSeason = new();
 
-
     [XmlIgnore] public List<MxfKeyword> mxfKeywords = [];
     [XmlIgnore] public bool IsAdultOnly;
 
@@ -52,7 +51,7 @@ public class MxfProgram : BaseArt
     //}
 
     [XmlAttribute("md5")]
-    public string MD5 { get; set; }
+    public string MD5 { get; set; } = string.Empty;
 
     /// <summary>
     /// The title of the program (for example, Lost).

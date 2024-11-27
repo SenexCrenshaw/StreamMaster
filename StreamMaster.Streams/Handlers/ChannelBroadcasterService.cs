@@ -1,7 +1,7 @@
-﻿using StreamMaster.Domain.Events;
-using StreamMaster.Streams.Domain.Events;
+﻿using System.Collections.Concurrent;
 
-using System.Collections.Concurrent;
+using StreamMaster.Domain.Events;
+using StreamMaster.Streams.Domain.Events;
 
 namespace StreamMaster.Streams.Handlers
 {
@@ -55,7 +55,7 @@ namespace StreamMaster.Streams.Handlers
                     }
                 }
 
-                channelBroadcaster = new ChannelBroadcaster(channelStatusLogger, config.SMChannel, streamGroupProfileId, false, _settings);
+                channelBroadcaster = new ChannelBroadcaster(channelStatusLogger, _settings, config.SMChannel, streamGroupProfileId, false);
 
                 logger.LogInformation("Created new channel for: {Id} {Name}", config.SMChannel.Id, config.SMChannel.Name);
 

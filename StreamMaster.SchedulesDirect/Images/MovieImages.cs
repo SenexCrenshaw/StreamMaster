@@ -30,19 +30,23 @@ public class MovieImages(ILogger<MovieImages> logger, IEPGCache<MovieImages> epg
         // Check cache and queue missing movie posters
         foreach (MxfProgram mxfProgram in moviePrograms)
         {
-            if (!string.IsNullOrEmpty(mxfProgram.MD5))
+            if (!string.IsNullOrEmpty(mxfProgram.ProgramId))
             {
-                if (epgCache.JsonFiles.TryGetValue(mxfProgram.MD5, out EPGJsonCache? cachedFile))
+                if (epgCache.JsonFiles.TryGetValue(mxfProgram.ProgramId, out EPGJsonCache? cachedFile))
                 {
-                    if (cachedFile != null && !string.IsNullOrEmpty(cachedFile.Images))
+                    if (cachedFile != null && !string.IsNullOrEmpty(cachedFile.JsonEntry))
                     {
-                        List<ProgramArtwork>? artworks = JsonSerializer.Deserialize<List<ProgramArtwork>>(cachedFile.Images);
+                        List<ProgramArtwork>? artworks = JsonSerializer.Deserialize<List<ProgramArtwork>>(cachedFile.JsonEntry);
                         mxfProgram.ArtWorks = artworks ?? ([]);
+                        imageDownloadQueue.EnqueueProgramArtworkCollection(mxfProgram.ArtWorks);
                     }
                 }
             }
 
-            movieImageQueue.Add(mxfProgram.ProgramId);
+            if (mxfProgram.ArtWorks.Count == 0)
+            {
+                movieImageQueue.Add(mxfProgram.ProgramId);
+            }
         }
 
         logger.LogDebug("Found {processedObjects} cached/unavailable movie poster links.", processedObjects);
@@ -52,7 +56,8 @@ public class MovieImages(ILogger<MovieImages> logger, IEPGCache<MovieImages> epg
             await ProcessMovieImageQueueAsync();
         }
 
-        logger.LogInformation("Exiting GetAllMoviePosters(). SUCCESS.");
+        logger.LogInformation("Exiting Movie Posters SUCCESS.");
+
         epgCache.SaveCache();
         ClearCache();
         return true;
@@ -94,7 +99,6 @@ public class MovieImages(ILogger<MovieImages> logger, IEPGCache<MovieImages> epg
 
     private void ProcessMovieImageResponses()
     {
-
         string artworkSize = string.IsNullOrEmpty(sdSettings.CurrentValue.ArtworkSize) ? BuildInfo.DefaultSDImageSize : sdSettings.CurrentValue.ArtworkSize;
 
         foreach (ProgramMetadata response in movieImageResponses)
@@ -160,5 +164,15 @@ public class MovieImages(ILogger<MovieImages> logger, IEPGCache<MovieImages> epg
         // Dispose of resources when the object is no longer needed
         Dispose(disposing: true);
         GC.SuppressFinalize(this);
+    }
+
+    public List<string> GetExpiredKeys()
+    {
+        return epgCache.GetExpiredKeys();
+    }
+
+    public void RemovedExpiredKeys(List<string>? keysToDelete = null)
+    {
+        epgCache.RemovedExpiredKeys(keysToDelete);
     }
 }

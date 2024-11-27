@@ -75,7 +75,6 @@ namespace StreamMaster.Streams.Plugins
             {
                 // Handle the cancellation gracefully, no need to log TaskCanceledException
             }
-
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Unexpected error in video info loop for {name}", name);

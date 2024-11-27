@@ -95,7 +95,6 @@ public static partial class SDHelpers
                          Size = new Size(tgtWidth, tgtHeight),//cropRectangle.Width, cropRectangle.Height),
                          Mode = ResizeMode.Crop
                      });
-
                  });
 
             return cropImg;
@@ -149,8 +148,8 @@ public static partial class SDHelpers
     /// Filters and selects tiered images from a list of program artwork based on specified criteria.
     /// </summary>
     /// <param name="sdImages">The list of program artwork to filter.</param>
-    /// <param name="tiers">The preferred tiers of artwork.</param>
     /// <param name="artWorkSize">The desired size of the artwork.</param>
+    /// <param name="tiers">The preferred tiers of artwork.</param>
     /// <param name="aspect">The desired aspect ratio.</param>
     /// <returns>A filtered and prioritized list of program artwork.</returns>
     public static List<ProgramArtwork> GetTieredImages(
@@ -201,7 +200,6 @@ public static partial class SDHelpers
 
             //List<ProgramArtwork> tests2 = tests.OrderBy(image => image.PixelCount).ToList();
 
-
             //ProgramArtwork? prioritizedImage = aspectImages
             //   .OrderBy(image => categoryPriority.ContainsKey(image.Category)
             //       ? categoryPriority[image.Category]
@@ -218,7 +216,6 @@ public static partial class SDHelpers
 
         return result;
     }
-
 
     public static bool TableContains(string[] table, string text, bool exactMatch = false)
     {

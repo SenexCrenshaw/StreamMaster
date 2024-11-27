@@ -13,7 +13,7 @@ public record CreateMultiViewChannelRequest(
     ) : IRequest<APIResponse>;
 
 [LogExecutionTimeAspect]
-public class CreateMultiViewChannelRequestHandler(ILogger<CreateMultiViewChannelRequest> Logger, IImageDownloadQueue imageDownloadQueue, IMessageService messageService, IDataRefreshService dataRefreshService, IRepositoryWrapper Repository)
+public class CreateMultiViewChannelRequestHandler(ILogger<CreateMultiViewChannelRequest> Logger, IMessageService messageService, IDataRefreshService dataRefreshService, IRepositoryWrapper Repository)
     : IRequestHandler<CreateMultiViewChannelRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(CreateMultiViewChannelRequest request, CancellationToken cancellationToken)

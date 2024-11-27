@@ -15,7 +15,7 @@ internal class GetLogoForChannelRequestHandler(ILogoService logoService, IReposi
             return DataResponse<LogoDto?>.NotFound;
         }
 
-        if (!channel.Logo.TryParseUrl(out int id, out string? _))
+        if (!channel.Logo.TryParseUrl(out int _, out string? _))
         {
             return DataResponse<LogoDto?>.NotFound;
         }

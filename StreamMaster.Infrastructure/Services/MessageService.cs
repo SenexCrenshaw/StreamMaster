@@ -8,6 +8,7 @@ namespace StreamMaster.Infrastructure.Services
 {
     public class MessageService(ILogger<MessageService> Logger, ISender sender) : IMessageService
     {
+#pragma warning disable CA2254 
         public async Task SendError(string message, string? header = null)
         {
             Logger.LogError(message);
@@ -27,6 +28,7 @@ namespace StreamMaster.Infrastructure.Services
         public async Task SendInfo(string message, string? header = null)
         {
             Logger.LogInformation(message);
+
             SendSMInfoRequest request = header is null ? new(Detail: message) : new(Detail: message, Summary: header);
 
             _ = await sender.Send(request);
@@ -53,5 +55,6 @@ namespace StreamMaster.Infrastructure.Services
 
             _ = await sender.Send(request);
         }
+#pragma warning restore CA2254
     }
 }

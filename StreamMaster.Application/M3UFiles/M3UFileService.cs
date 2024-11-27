@@ -1,9 +1,9 @@
-﻿using StreamMaster.Application.M3UFiles.Commands;
-
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+
+using StreamMaster.Application.M3UFiles.Commands;
 
 namespace StreamMaster.Application.M3UFiles;
 

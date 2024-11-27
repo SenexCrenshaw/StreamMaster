@@ -41,8 +41,8 @@ internal class GetChannelMetricsRequestHandler(IRepositoryWrapper repositoryWrap
                 continue;
             }
             SMChannelStreamLink bastCurrentStream = baseConfig.SMChannel.SMStreams.ToList()[baseConfig.SMChannel.CurrentRank];
-            string currentStreamLogo = logoService.GetLogoUrl(bastCurrentStream.SMStream!.Logo, _baseUrl, SMStreamTypeEnum.Regular);
-            string currentChannelLogo = logoService.GetLogoUrl(baseConfig.SMChannel.Logo, _baseUrl, SMStreamTypeEnum.Regular);
+            string currentStreamLogo = bastCurrentStream.SMStream!.Logo;// logoService.GetLogoUrl(bastCurrentStream.SMStream!.Logo, _baseUrl, SMStreamTypeEnum.Regular);
+            string currentChannelLogo = baseConfig.SMChannel.Logo;// logoService.GetLogoUrl(baseConfig.SMChannel.Logo, _baseUrl, SMStreamTypeEnum.Regular);
 
             //
             foreach (KeyValuePair<string, ChannelWriter<byte[]>> clientChannel in channelBroadcaster.ClientChannelWriters)
@@ -115,7 +115,7 @@ internal class GetChannelMetricsRequestHandler(IRepositoryWrapper repositoryWrap
                     continue;
                 }
 
-                currentChannelLogo = logoService.GetLogoUrl(smChannel.Logo, _baseUrl, SMStreamTypeEnum.Regular);
+                currentChannelLogo = smChannel.Logo;// logoService.GetLogoUrl(smChannel.Logo, _baseUrl, SMStreamTypeEnum.Regular);
 
                 channelDtos.Add(new ClientChannelDto()
                 {

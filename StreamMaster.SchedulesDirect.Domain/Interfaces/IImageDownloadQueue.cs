@@ -6,13 +6,13 @@ public interface IImageDownloadQueue
 {
     void TryDequeuelogoInfo(string name);
     void TryDequeueProgramArtwork(string id);
-    void EnqueueLogoInfo(LogoInfo  logoInfo);
+    void EnqueueLogoInfo(LogoInfo logoInfo);
 
     //void EnqueueProgramArtwork(ProgramArtwork metadata);
 
     void EnqueueProgramArtworkCollection(IEnumerable<ProgramArtwork> metadataCollection);
 
-    List<LogoInfo > GetNextlogoInfoBatch(int batchSize);
+    List<LogoInfo> GetNextlogoInfoBatch(int batchSize);
 
     List<ProgramArtwork> GetNextProgramArtworkBatch(int batchSize);
 
@@ -20,7 +20,7 @@ public interface IImageDownloadQueue
 
     bool IsProgramArtworkQueueEmpty();
 
-    int logoInfoCount { get; }
+    int LogoInfoCount { get; }
 
     int ProgramArtworkCount { get; }
 

@@ -1,6 +1,5 @@
 ﻿using System.Collections.Concurrent;
 using System.Diagnostics;
-using System.Text;
 using System.Web;
 
 using Microsoft.AspNetCore.StaticFiles;
@@ -23,7 +22,7 @@ using StreamMaster.PlayList.Models;
 using StreamMaster.SchedulesDirect.Domain.Interfaces;
 
 namespace StreamMaster.Infrastructure.Services;
-public class LogoService(ICustomPlayListBuilder customPlayListBuilder, IImageDownloadService imageDownloadService, IContentTypeProvider mimeTypeProvider, IMemoryCache memoryCache, IImageDownloadQueue imageDownloadQueue, IServiceProvider serviceProvider, IDataRefreshService dataRefreshService, IOptionsMonitor<Setting> _settings, ILogger<LogoService> logger)
+public class LogoService(ICustomPlayListBuilder customPlayListBuilder, IImageDownloadService imageDownloadService, IContentTypeProvider mimeTypeProvider, IMemoryCache memoryCache, IImageDownloadQueue imageDownloadQueue, IServiceProvider serviceProvider, IDataRefreshService dataRefreshService, ILogger<LogoService> logger)
     : ILogoService
 {
     private ConcurrentDictionary<string, LogoFileDto> Logos { get; } = [];
@@ -80,7 +79,6 @@ public class LogoService(ICustomPlayListBuilder customPlayListBuilder, IImageDow
         }
 
         return DataResponse.True;
-
     }
 
     public async Task<DataResponse<bool>> AddSMStreamLogosAsync(CancellationToken cancellationToken)
@@ -119,52 +117,36 @@ public class LogoService(ICustomPlayListBuilder customPlayListBuilder, IImageDow
         return DataResponse.True;
     }
 
-    /// <summary>
-    /// Extracts the ID and filename from a URL with a constant prefix "/api/files/".
-    /// </summary>
-    /// <param name="url">The input URL.</param>
-    /// <param name="id">The extracted ID as an integer.</param>
-    /// <param name="filename">The extracted filename.</param>
-    /// <returns>True if parsing was successful; otherwise, false.</returns>
-    public static bool TryParseUrl(string url, out int id, out string? filename)
-    {
-        const string prefix = "/api/files/";
-        id = 0;
-        filename = null;
+    ///// <summary>
+    ///// Extracts the ID and filename from a URL with a constant prefix "/api/files/".
+    ///// </summary>
+    ///// <param name="url">The input URL.</param>
+    ///// <param name="id">The extracted ID as an integer.</param>
+    ///// <param name="filename">The extracted filename.</param>
+    ///// <returns>True if parsing was successful; otherwise, false.</returns>
+    //public static bool TryParseUrl(string url, out int id, out string? filename)
+    //{
+    //    const string prefix = "/api/files/";
+    //    id = 0;
+    //    filename = null;
 
-        if (string.IsNullOrWhiteSpace(url) || !url.StartsWith(prefix))
-        {
-            return false;
-        }
+    //    if (string.IsNullOrWhiteSpace(url) || !url.StartsWith(prefix))
+    //    {
+    //        return false;
+    //    }
 
-        string remaining = url[prefix.Length..];
-        string[] parts = remaining.Split('/', 2); // Split into at most 2 parts
+    //    string remaining = url[prefix.Length..];
+    //    string[] parts = remaining.Split('/', 2); // Split into at most 2 parts
 
-        // Ensure we have both ID and filename
-        if (parts.Length == 2 && int.TryParse(parts[0], out id))
-        {
-            filename = parts[1];
-            return true;
-        }
+    //    // Ensure we have both ID and filename
+    //    if (parts.Length == 2 && int.TryParse(parts[0], out id))
+    //    {
+    //        filename = parts[1];
+    //        return true;
+    //    }
 
-        return false;
-    }
-
-    private static async Task<FileStream?> GetFileStreamAsync(string imagePath)
-    {
-
-        try
-        {
-            FileStream fileStream = new(imagePath, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, FileOptions.Asynchronous);
-            await Task.CompletedTask.ConfigureAwait(false);
-
-            return fileStream;
-        }
-        catch
-        {
-            return null;
-        }
-    }
+    //    return false;
+    //}
 
     public async Task<(FileStream? fileStream, string? FileName, string? ContentType)> GetLogoAsync(string fileName, CancellationToken cancellationToken)
     {
@@ -191,19 +173,6 @@ public class LogoService(ICustomPlayListBuilder customPlayListBuilder, IImageDow
         }
     }
 
-    private async Task<(FileStream? fileStream, string? FileName, string? ContentType)> GetLogoStreamAsync(string imagePath, string fileName, CancellationToken cancellationToken)
-    {
-
-        try
-        {
-            return fileName.IsRedirect() ? ((FileStream? fileStream, string? FileName, string? ContentType))(null, null, null) : await ThingAsync(fileName, imagePath, cancellationToken).ConfigureAwait(false);
-        }
-        catch
-        {
-            return (null, null, null);
-        }
-
-    }
     public async Task<(FileStream? fileStream, string? FileName, string? ContentType)> GetProgramLogoAsync(string fileName, CancellationToken cancellationToken)
     {
         try
@@ -224,67 +193,6 @@ public class LogoService(ICustomPlayListBuilder customPlayListBuilder, IImageDow
             return (null, null, null);
         }
     }
-
-
-    private async Task<(FileStream? fileStream, string? FileName, string? ContentType)> ThingAsync(string fileName, string imagePath, CancellationToken cancellationToken)
-    {
-        try
-        {
-            if (fileName.IsRedirect())
-            {
-                return (null, null, null);
-            }
-
-            imagePath = imagePath.GetPNGPath();
-            fileName = fileName.GetPNGPath();
-
-            if (imagePath == null || !File.Exists(imagePath))
-            {
-                return (null, null, null);
-            }
-
-
-            FileStream? fileStream = null;
-
-            if (File.Exists(imagePath))
-            {
-                fileStream = await GetFileStreamAsync(imagePath).ConfigureAwait(false);
-            }
-
-            if (fileStream == null)
-            {
-                LogoInfo logoInfo = new(fileName)
-                {
-                    IsSchedulesDirect = true
-                };
-                if (!string.IsNullOrEmpty(logoInfo.FullPath))
-                {
-                    if (await imageDownloadService.DownloadImageAsync(logoInfo, cancellationToken).ConfigureAwait(false))
-                    {
-                        fileStream = await GetFileStreamAsync(imagePath).ConfigureAwait(false);
-
-                    }
-                }
-                if (fileStream == null)
-                {
-                    return (null, null, null);
-                }
-            }
-
-
-            string contentType = GetContentType(fileName);
-
-            // Ensure the file is ready to be read asynchronously
-            await Task.CompletedTask.ConfigureAwait(false);
-
-            return (fileStream, fileName, contentType);
-        }
-        catch
-        {
-            return (null, null, null);
-        }
-    }
-
 
     public async Task<(FileStream? fileStream, string? FileName, string? ContentType)> GetLogoForChannelAsync(int SMChannelId, CancellationToken cancellationToken)
     {
@@ -308,6 +216,89 @@ public class LogoService(ICustomPlayListBuilder customPlayListBuilder, IImageDow
 
         return ret;
     }
+
+    private static async Task<FileStream?> GetFileStreamAsync(string imagePath)
+    {
+        try
+        {
+            FileStream fileStream = new(imagePath, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, FileOptions.Asynchronous);
+            await Task.CompletedTask.ConfigureAwait(false);
+
+            return fileStream;
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    private async Task<(FileStream? fileStream, string? FileName, string? ContentType)> GetLogoStreamAsync(string imagePath, string fileName, CancellationToken cancellationToken)
+    {
+        try
+        {
+            return fileName.IsRedirect() ? ((FileStream? fileStream, string? FileName, string? ContentType))(null, null, null) : await ThingAsync(fileName, imagePath, cancellationToken).ConfigureAwait(false);
+        }
+        catch
+        {
+            return (null, null, null);
+        }
+    }
+    private async Task<(FileStream? fileStream, string? FileName, string? ContentType)> ThingAsync(string fileName, string imagePath, CancellationToken cancellationToken)
+    {
+        try
+        {
+            if (fileName.IsRedirect())
+            {
+                return (null, null, null);
+            }
+
+            imagePath = imagePath.GetPNGPath();
+            fileName = fileName.GetPNGPath();
+
+            if (imagePath == null || !File.Exists(imagePath))
+            {
+                return (null, null, null);
+            }
+
+            FileStream? fileStream = null;
+
+            if (File.Exists(imagePath))
+            {
+                fileStream = await GetFileStreamAsync(imagePath).ConfigureAwait(false);
+            }
+
+            if (fileStream == null)
+            {
+                LogoInfo logoInfo = new(fileName)
+                {
+                    IsSchedulesDirect = true
+                };
+                if (!string.IsNullOrEmpty(logoInfo.FullPath))
+                {
+                    if (await imageDownloadService.DownloadImageAsync(logoInfo, cancellationToken).ConfigureAwait(false))
+                    {
+                        fileStream = await GetFileStreamAsync(imagePath).ConfigureAwait(false);
+                    }
+                }
+                if (fileStream == null)
+                {
+                    return (null, null, null);
+                }
+            }
+
+            string contentType = GetContentType(fileName);
+
+            // Ensure the file is ready to be read asynchronously
+            await Task.CompletedTask.ConfigureAwait(false);
+
+            return (fileStream, fileName, contentType);
+        }
+        catch
+        {
+            return (null, null, null);
+        }
+    }
+
     private string GetContentType(string fileName)
     {
         string cacheKey = $"ContentType-{fileName}";
@@ -331,49 +322,6 @@ public class LogoService(ICustomPlayListBuilder customPlayListBuilder, IImageDow
         string? fullPath = source.GetImageFullPath(smFileType);
 
         return string.IsNullOrEmpty(fullPath) ? null : !File.Exists(fullPath) ? null : fullPath;
-    }
-
-    public string GetLogoUrl(string logoSource, string baseUrl, SMStreamTypeEnum smStream)
-    {
-        baseUrl ??= string.Empty;
-
-        if (string.IsNullOrEmpty(logoSource))
-        {
-            return $"{baseUrl}/{_settings.CurrentValue.DefaultLogo}";
-        }
-
-        if (logoSource.StartsWith('/'))
-        {
-            logoSource = logoSource[1..];
-        }
-
-        if (smStream == SMStreamTypeEnum.Custom || smStream == SMStreamTypeEnum.CustomPlayList || logoSource.StartsWith(BuildInfo.CustomPlayListFolder))
-        {
-            string a = logoSource.Remove(0, BuildInfo.CustomPlayListFolder.Length);
-            return GetApiUrl(baseUrl, a, SMFileTypes.CustomPlayListLogo);
-        }
-
-        if (logoSource.StartsWith("images/"))
-        {
-            return $"{baseUrl}/{logoSource}";
-        }
-        else if (!logoSource.StartsWith("http"))
-        {
-            return GetApiUrl(baseUrl, logoSource, SMFileTypes.TvLogo);
-        }
-        else if (_settings.CurrentValue.LogoCache)
-        {
-            return GetApiUrl(baseUrl, logoSource, SMFileTypes.Logo);
-        }
-
-        return logoSource;
-    }
-
-    private static string GetApiUrl(string baseUrl, string source, SMFileTypes path)
-    {
-        string encodedPath = Convert.ToBase64String(Encoding.UTF8.GetBytes(source));
-
-        return $"{baseUrl}/api/files/{(int)path}/{encodedPath}";
     }
 
     public void AddLogo(LogoFileDto logoFile, bool OG = false)
@@ -413,39 +361,9 @@ public class LogoService(ICustomPlayListBuilder customPlayListBuilder, IImageDow
         Logos.Clear();
     }
 
-    //public void ClearTvLogos()
-    //{
-    //    TvLogos.Clear();
-    //}
-
     public LogoFileDto? GetLogoBySource(string source)
     {
         return Logos.TryGetValue(source.GenerateFNV1aHash(), out LogoFileDto? logo) ? logo : null;
-    }
-
-    public ImagePath? GetValidImagePath(string URL)
-    {
-        ImagePath? test = GetValidImagePath(URL, SMFileTypes.Logo);
-        if (test is not null)
-        {
-            return test;
-        }
-
-        test = GetValidImagePath(URL, SMFileTypes.ProgramLogo);
-        if (test is not null)
-        {
-            // A
-            return test;
-        }
-
-        test = GetValidImagePath(URL, SMFileTypes.TvLogo);
-        if (test is not null)
-        {
-            // A
-            return test;
-        }
-
-        return test;
     }
 
     public ImagePath? GetValidImagePath(string URL, SMFileTypes fileType, bool? checkExists = true)

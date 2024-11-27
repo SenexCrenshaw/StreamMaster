@@ -14,16 +14,18 @@ public static class DataResponse
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public class DataResponse<T> : APIResponse
 {
-    private int? _totalItemCount { get; set; }
+#pragma warning disable IDE1006 // Naming Styles
+    private int? totalItemCount { get; set; }
+#pragma warning restore IDE1006 // Naming Styles
     [XmlIgnore]
     public T? Data { get; set; }
     public int TotalItemCount
     {
         get
         {
-            if (_totalItemCount.HasValue)
+            if (totalItemCount.HasValue)
             {
-                return _totalItemCount.Value;
+                return totalItemCount.Value;
             }
 
             if (Data is null)
@@ -42,7 +44,7 @@ public class DataResponse<T> : APIResponse
             return lengthProperty != null && lengthProperty.PropertyType == typeof(int) ? (int)(lengthProperty.GetValue(Data) ?? 0) : 0;
         }
 
-        set => _totalItemCount = value;
+        set => totalItemCount = value;
     }
 
     public static new DataResponse<T> Ok => new() { Message = "OK" };

@@ -245,4 +245,14 @@ public class Descriptions(ILogger<Descriptions> logger, ISchedulesDirectAPIServi
         Dispose(disposing: true);
         GC.SuppressFinalize(this);
     }
+
+    public List<string> GetExpiredKeys()
+    {
+        return epgCache.GetExpiredKeys();
+    }
+
+    public void RemovedExpiredKeys(List<string>? keysToDelete = null)
+    {
+        epgCache.RemovedExpiredKeys(keysToDelete);
+    }
 }

@@ -29,6 +29,7 @@ global using StreamMaster.Domain.Logging;
 global using StreamMaster.Domain.Models;
 global using StreamMaster.Domain.Pagination;
 global using StreamMaster.Domain.Repository;
+global using StreamMaster.Domain.Requests;
 global using StreamMaster.Domain.Services;
 global using StreamMaster.Domain.XmltvXml;
 global using StreamMaster.PlayList;

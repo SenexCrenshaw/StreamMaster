@@ -18,4 +18,5 @@ public interface ISchedulesDirect
     void ResetAllEPGCaches();
     Task<APIResponse> SDSync(CancellationToken cancellationToken);
     Task<bool> UpdateHeadEnd(string lineup, bool subScribed, CancellationToken cancellationToken);
+    void RemovedExpiredKeys();
 }

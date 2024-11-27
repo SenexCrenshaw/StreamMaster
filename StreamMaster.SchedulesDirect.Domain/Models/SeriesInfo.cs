@@ -68,7 +68,6 @@ namespace StreamMaster.SchedulesDirect.Domain.Models
             set => _ = DateTime.TryParse(value, out _seriesEndDate);
         }
 
-
         [XmlAttribute("studio")]
         public string? Studio { get; set; }
     }

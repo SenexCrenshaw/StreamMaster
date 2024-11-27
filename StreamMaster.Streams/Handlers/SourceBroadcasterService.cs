@@ -1,7 +1,7 @@
-﻿using StreamMaster.Domain.Events;
-using StreamMaster.Streams.Domain.Events;
+﻿using System.Collections.Concurrent;
 
-using System.Collections.Concurrent;
+using StreamMaster.Domain.Events;
+using StreamMaster.Streams.Domain.Events;
 
 namespace StreamMaster.Streams.Handlers
 {
@@ -49,7 +49,10 @@ namespace StreamMaster.Streams.Handlers
                     return sourceBroadcaster;
                 }
 
-                sourceBroadcaster = new SourceBroadcaster(sourceBroadcasterLogger, smStreamInfo, _settings);
+                sourceBroadcaster = new SourceBroadcaster(sourceBroadcasterLogger, smStreamInfo, _settings)
+                {
+                    SMStreamInfo = smStreamInfo
+                };
 
                 logger.LogInformation("Created new source stream for: {Id} {name}", smStreamInfo.Id, smStreamInfo.Name);
 

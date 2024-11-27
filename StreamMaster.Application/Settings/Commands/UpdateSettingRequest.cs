@@ -9,7 +9,6 @@ public record UpdateSettingRequest(UpdateSettingParameters Parameters) : IReques
 
 public partial class UpdateSettingRequestHandler(
     IOptionsMonitor<SDSettings> intsdsettings,
-    ILogoService logoService,
     ILogger<UpdateSettingRequest> Logger,
     IMapper Mapper,
     IBackgroundTaskQueue backgroundTaskQueue,

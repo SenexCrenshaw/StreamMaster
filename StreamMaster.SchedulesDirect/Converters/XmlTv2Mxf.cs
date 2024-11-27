@@ -657,6 +657,11 @@ public partial class XmlTvToXMLTV()
 
         foreach (XmltvRating? rating in xmltvProgramme.StarRating.Where(arg => arg.Value != null))
         {
+            if ( rating?.Value is null)
+            {
+                continue;
+            }
+
             string[] numbers = rating.Value.Split('/');
             if (numbers.Length != 2)
             {

@@ -14,5 +14,6 @@ public enum JobType
     TimerEPG,
     SDSync,
     Backup,
-    TimerBackup
+    TimerBackup,
+    EPGRemovedExpiredKeys
 }

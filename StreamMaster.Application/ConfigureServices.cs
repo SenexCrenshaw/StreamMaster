@@ -2,9 +2,10 @@
 
 using StreamMaster.Application.ChannelGroups;
 using StreamMaster.Application.Crypto;
+using StreamMaster.Application.EPG;
+using StreamMaster.Application.EPG.Commands;
 using StreamMaster.Application.EPGFiles;
 using StreamMaster.Application.M3UFiles;
-using StreamMaster.Application.Profiles;
 using StreamMaster.Application.SMChannels;
 using StreamMaster.Application.SMStreams;
 using StreamMaster.Application.StreamGroups;
@@ -23,12 +24,15 @@ public static class ConfigureServices
         services.AddTransient<IProfileService, ProfileService>();
         services.AddScoped<IStreamGroupService, StreamGroupService>();
         services.AddScoped<IM3UFileService, M3UFileService>();
+        services.AddScoped<IEPGService, EPGService>();
         services.AddScoped<IM3UToSMStreamsService, M3UToSMStreamsService>();
         services.AddScoped<IChannelGroupService, ChannelGroupService>();
         services.AddScoped(typeof(CachedConcurrentDictionary<,>));
         services.AddScoped<ISMChannelService, SMChannelService>();
         services.AddScoped<ISMStreamService, SMStreamService>();
         services.AddScoped<IEPGFileService, EPGFileService>();
+
+        services.AddScoped<IXMLTVBuilder, XMLTVBuilder>();
 
         return services;
     }

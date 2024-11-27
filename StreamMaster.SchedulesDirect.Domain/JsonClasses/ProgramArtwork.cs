@@ -34,7 +34,6 @@ namespace StreamMaster.SchedulesDirect.Domain.JsonClasses
             set => _size = value;
         }
 
-
         public int PixelCount => (Width * Height) ?? 0;
 
         [JsonPropertyName("aspect")]

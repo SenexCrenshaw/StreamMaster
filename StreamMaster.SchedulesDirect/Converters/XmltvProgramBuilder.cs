@@ -4,7 +4,7 @@ using StreamMaster.Domain.Helpers;
 
 namespace StreamMaster.SchedulesDirect.Converters
 {
-    public class XmltvProgramBuilder(IOptionsMonitor<Setting> settingsMonitor, IOptionsMonitor<SDSettings> sdSettingsMonitor, ILogoService logoService)
+    public class XmltvProgramBuilder(IOptionsMonitor<SDSettings> sdSettingsMonitor)
         : IXmltvProgramBuilder
     {
         private static readonly string[] TvRatings =
@@ -20,7 +20,6 @@ namespace StreamMaster.SchedulesDirect.Converters
         [
             "", "G", "PG", "PG-13", "R", "NC-17", "X", "NR", "AO"
         ];
-
 
         public XmltvProgramme BuildXmltvProgram(MxfScheduleEntry scheduleEntry, string channelId, int timeShift, string baseUrl)
         {
@@ -343,7 +342,7 @@ namespace StreamMaster.SchedulesDirect.Converters
 ;
         }
 
-        private List<XmltvEpisodeNum>? BuildEpisodeNumbers(MxfScheduleEntry scheduleEntry)
+        private static List<XmltvEpisodeNum>? BuildEpisodeNumbers(MxfScheduleEntry scheduleEntry)
         {
             List<XmltvEpisodeNum> list = [];
             MxfProgram mxfProgram = scheduleEntry.mxfProgram;

@@ -38,7 +38,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, ICach
     public async Task<List<FieldData>> AutoSetEPGFromParameters(QueryStringParameters parameters, CancellationToken cancellationToken)
     {
         IQueryable<SMChannel> results = await GetPagedSMChannelsQueryableAsync(parameters);
-        return await AutoSetEPGs(await results.ToListAsync(), false, cancellationToken).ConfigureAwait(false);
+        return await AutoSetEPGs(await results.ToListAsync(cancellationToken: cancellationToken), false, cancellationToken).ConfigureAwait(false);
     }
 
     public async Task<List<FieldData>> AutoSetEPGs(List<SMChannel> smChannels, bool skipSave, CancellationToken cancellationToken)
@@ -260,10 +260,8 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, ICach
                         return APIResponse.ErrorWithMessage("Error creating SMChannel from streams");
                     }
 
-
-                    LogoInfo  logoInfo = new(smStream);
+                    LogoInfo logoInfo = new(smStream);
                     imageDownloadQueue.EnqueueLogoInfo(logoInfo);
-
 
                     addedSMChannels.Add(smChannel);
 
@@ -374,7 +372,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, ICach
         if (!string.IsNullOrEmpty(parameters.JSONFiltersString))
         {
             List<DataTableFilterMetaData>? filters = JsonSerializer.Deserialize<List<DataTableFilterMetaData>>(parameters.JSONFiltersString);
-            if (filters?.Any() != true)
+            if (filters is null || filters.Count == 0)
             {
                 return query;
             }
@@ -385,7 +383,6 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, ICach
             {
                 if (inSGId != defaultSGID)
                 {
-
                     query = query.Where(a => repository.StreamGroupSMChannelLink
                         .GetQueryNoTracking
                         .Where(link => link.StreamGroupId == inSGId)
@@ -407,8 +404,6 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, ICach
         }
         return query;
     }
-
-
 
     public override IQueryable<SMChannel> GetQuery(bool tracking = false)
     {
@@ -542,7 +537,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, ICach
 
         if (!logo.IsRedirect())
         {
-            LogoInfo  nl = new(logo);
+            LogoInfo nl = new(logo);
             await imageDownloadService.DownloadImageAsync(nl, CancellationToken.None);
         }
 
@@ -551,8 +546,6 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, ICach
 
         return APIResponse.Success;
     }
-
-
 
     public async Task<APIResponse> SetSMChannelName(int sMChannelId, string name)
     {

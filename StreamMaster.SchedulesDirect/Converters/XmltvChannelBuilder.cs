@@ -3,7 +3,7 @@ using StreamMaster.Domain.Models;
 
 namespace StreamMaster.SchedulesDirect.Converters;
 
-public class XmltvChannelBuilder(ILogoService logoService, ISchedulesDirectDataService schedulesDirectDataService, IOptionsMonitor<SDSettings> sdSettingsMonitor)
+public class XmltvChannelBuilder(ISchedulesDirectDataService schedulesDirectDataService, IOptionsMonitor<SDSettings> sdSettingsMonitor) : IXmltvChannelBuilder
 {
     public XmltvChannel BuildXmltvChannel(XmltvChannel xmltvChannel, VideoStreamConfig videoStreamConfig)
     {
@@ -13,14 +13,14 @@ public class XmltvChannelBuilder(ILogoService logoService, ISchedulesDirectDataS
         {
             foreach (XmltvIcon icon in channel.Icons)
             {
-                icon.Src = logoService.GetLogoUrl(icon.Src, videoStreamConfig.BaseUrl, SMStreamTypeEnum.Regular);
+                icon.Src = icon.Src;
             }
         }
 
         return channel;
     }
 
-    public XmltvChannel BuildXmltvChannel(MxfService service, string baseUrl, bool isOG)
+    public XmltvChannel BuildXmltvChannel(MxfService service, bool isOG)
     {
         SDSettings sdSettings = sdSettingsMonitor.CurrentValue;
 
@@ -72,67 +72,6 @@ public class XmltvChannelBuilder(ILogoService logoService, ISchedulesDirectDataS
 
         return channel;
     }
-    //public XmltvChannel BuildXmltvChannel(MxfService service, VideoStreamConfig videoStreamConfig, string baseUrl)
-    //{
-    //    SDSettings sdSettings = sdSettingsMonitor.CurrentValue;
-    //    string id = GetChannelId(videoStreamConfig);
-
-    //    XmltvChannel channel = new()
-    //    {
-    //        Id = id,
-    //        DisplayNames = []
-    //    };
-
-    //    string displayName = service.Name ?? service.CallSign;
-    //    channel.DisplayNames.Add(new XmltvText { Text = displayName });
-
-    //    // Add additional display names if necessary
-    //    if (!string.IsNullOrEmpty(service.CallSign) && !service.CallSign.Equals(displayName))
-    //    {
-    //        channel.DisplayNames.Add(new XmltvText { Text = service.CallSign });
-    //    }
-
-    //    // Add channel numbers if requested
-    //    if (sdSettings.XmltvIncludeChannelNumbers)
-    //    {
-    //        List<string> numbers = GetChannelNumbers(service);
-    //        foreach (string num in numbers)
-    //        {
-    //            if (!channel.DisplayNames.Any(dn => dn.Text == num))
-    //            {
-    //                channel.DisplayNames.Add(new XmltvText { Text = num });
-    //            }
-    //        }
-    //    }
-
-    //    // Add affiliate if present
-    //    string? affiliate = service.mxfAffiliate?.Name;
-    //    if (!string.IsNullOrEmpty(affiliate) && !string.IsNullOrEmpty(service.Name) && !service.Name.Equals(affiliate))
-    //    {
-    //        channel.DisplayNames.Add(new XmltvText { Text = affiliate });
-    //    }
-
-    //    // Add logo if available
-    //    if (service.Extras.TryGetValue("logo", out dynamic? logoObj))
-    //    {
-    //        if (logoObj is StationImage stationImage)
-    //        {
-    //            channel.Icons =
-    //            [
-    //                new XmltvIcon
-    //                {
-    //                //{/service.EPGNumber
-    //                    Src = logoService.GetLogoUrl( stationImage.Url, baseUrl),
-    //                    Height = stationImage.Height,
-    //                    Width = stationImage.Width
-    //                }
-    //            ];
-    //        }
-    //    }
-
-    //    return channel;
-    //}
-
     public static string GetChannelId(VideoStreamConfig videoStreamConfig)
     {
         string id = videoStreamConfig.ChannelNumber.ToString();
@@ -161,32 +100,6 @@ public class XmltvChannelBuilder(ILogoService logoService, ISchedulesDirectDataS
 
         return id;
     }
-
-    //private static string GetChannelId(MxfService service, VideoStreamConfig? videoStreamConfig, OutputProfileDto outputProfile)
-    //{
-    //    string id = service.ChNo.ToString();
-
-    //    if (outputProfile.Id != nameof(ValidM3USetting.NotMapped))
-    //    {
-    //        switch (outputProfile.Id)
-    //        {
-    //            case nameof(ValidM3USetting.Group):
-    //                if (videoStreamConfig != null && !string.IsNullOrEmpty(videoStreamConfig.Group))
-    //                {
-    //                    id = videoStreamConfig.Group;
-    //                }
-    //                break;
-    //            case nameof(ValidM3USetting.ChannelNumber):
-    //                id = service.ChNo.ToString();
-    //                break;
-    //            case nameof(ValidM3USetting.Name):
-    //                id = service.Name;
-    //                break;
-    //        }
-    //    }
-
-    //    return id;
-    //}
 
     private List<string> GetChannelNumbers(MxfService service)
     {

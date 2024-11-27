@@ -9,7 +9,7 @@ public class Season : BaseArt
 
     private int _index;
     private string? _uid;
-    private readonly string? _guideImage;
+
     private string? _series;
     private string? _title;
 

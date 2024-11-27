@@ -1,14 +1,14 @@
-﻿using StreamMaster.PlayList.Models;
+﻿using System.Threading.Channels;
+
+using StreamMaster.PlayList.Models;
 using StreamMaster.Streams.Domain.Events;
 using StreamMaster.Streams.Domain.Helpers;
 using StreamMaster.Streams.Services;
 
-using System.Threading.Channels;
-
 namespace StreamMaster.Streams.Handlers;
 
-public sealed class ChannelBroadcaster(ILogger<IChannelBroadcaster> logger, SMChannelDto smChannelDto, int streamGroupProfileId, bool remux, IOptionsMonitor<Setting> _settings)
-    : BroadcasterBase(logger, _settings), IChannelBroadcaster, IDisposable
+public sealed class ChannelBroadcaster(ILogger<IChannelBroadcaster> Logger, IOptionsMonitor<Setting> Settings, SMChannelDto smChannelDto, int streamGroupProfileId, bool remux)
+    : BroadcasterBase(Logger, Settings), IChannelBroadcaster, IDisposable
 {
     public event EventHandler<ChannelBroascasterStopped>? OnChannelBroadcasterStoppedEvent;
 

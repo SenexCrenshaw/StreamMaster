@@ -30,11 +30,6 @@ namespace StreamMaster.SchedulesDirect
                 processedObjects++;
                 cancellationToken.ThrowIfCancellationRequested();
 
-                //if (!mxfProgram.Extras.ContainsKey("md5"))
-                //{
-                //    continue;
-                //}
-
                 if (string.IsNullOrEmpty(mxfProgram.MD5))
                 {
                     continue;
@@ -45,8 +40,17 @@ namespace StreamMaster.SchedulesDirect
                     // Try to load cached program
                     try
                     {
-                        Programme sdProgram = JsonSerializer.Deserialize<Programme>(epgCache.GetAsset(mxfProgram.MD5)) ?? throw new Exception("Deserialization failed.");
-                        BuildMxfProgram(mxfProgram, sdProgram);
+                        string? json = epgCache.GetAsset(mxfProgram.MD5);
+                        if (string.IsNullOrEmpty(json))
+                        {
+                            programQueue.Add(mxfProgram.ProgramId);
+                        }
+                        else
+                        {
+                            Programme sdProgram = JsonSerializer.Deserialize<Programme>(json) ?? throw new Exception("Deserialization failed.");
+                            BuildMxfProgram(mxfProgram, sdProgram);
+                            continue;
+                        }
                     }
                     catch (Exception)
                     {
@@ -142,7 +146,6 @@ namespace StreamMaster.SchedulesDirect
                 // Add program JSON to cache
                 if (sdProgram.Md5 != null)
                 {
-                    mxfProgram.MD5 = sdProgram.Md5;
                     try
                     {
                         string jsonString = JsonSerializer.Serialize(sdProgram);
@@ -163,6 +166,11 @@ namespace StreamMaster.SchedulesDirect
         // Helper method: Build the full MxfProgram
         private void BuildMxfProgram(MxfProgram mxfProgram, Programme sdProgram)
         {
+            if (sdProgram.HasEpisodeArtwork || sdProgram.HasImageArtwork || sdProgram.HasMovieArtwork || sdProgram.HasSeasonArtwork || sdProgram.HasSeriesArtwork || sdProgram.HasSportsArtwork)
+            {
+                int aa = 1;
+            }
+
             // Set program flags
             SetProgramFlags(mxfProgram, sdProgram);
 
@@ -372,6 +380,7 @@ namespace StreamMaster.SchedulesDirect
             if (mxfProgram.SeasonNumber != 0)
             {
                 ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
+
                 mxfProgram.mxfSeason = schedulesDirectData.FindOrCreateSeason(mxfProgram.mxfSeriesInfo.SeriesId, mxfProgram.SeasonNumber, sdProgram.HasSeasonArtwork ? mxfProgram.ProgramId : null);
             }
         }
@@ -601,6 +610,15 @@ namespace StreamMaster.SchedulesDirect
         ~ProgramService()
         {
             Dispose(false);
+        }
+        public List<string> GetExpiredKeys()
+        {
+            return epgCache.GetExpiredKeys();
+        }
+
+        public void RemovedExpiredKeys(List<string>? keysToDelete = null)
+        {
+            epgCache.RemovedExpiredKeys(keysToDelete);
         }
     }
 }

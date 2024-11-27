@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using StreamMaster.Application.EPG.Commands;
 using StreamMaster.Application.EPG.Queries;
 
-namespace StreamMaster.Application.EPG.Controllers
+namespace StreamMaster.Application.EPG
 {
     [Authorize]
     public partial class EPGController(ILogger<EPGController> _logger) : ApiControllerBase, IEPGController
@@ -14,8 +14,8 @@ namespace StreamMaster.Application.EPG.Controllers
         {
             try
             {
-            var ret = await Sender.Send(new GetEPGColorsRequest()).ConfigureAwait(false);
-             return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetEPGColors.", statusCode: 500) : Ok(ret.Data?? []);
+                var ret = await Sender.Send(new GetEPGColorsRequest()).ConfigureAwait(false);
+                return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetEPGColors.", statusCode: 500) : Ok(ret.Data ?? []);
             }
             catch (Exception ex)
             {
@@ -39,8 +39,8 @@ namespace StreamMaster.Application.Hubs
     {
         public async Task<List<EPGColorDto>> GetEPGColors()
         {
-             var ret = await Sender.Send(new GetEPGColorsRequest()).ConfigureAwait(false);
-            return ret.Data?? [];
+            var ret = await Sender.Send(new GetEPGColorsRequest()).ConfigureAwait(false);
+            return ret.Data ?? [];
         }
         public async Task<APIResponse?> EPGSync()
         {

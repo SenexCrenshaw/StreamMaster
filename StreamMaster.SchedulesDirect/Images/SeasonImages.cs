@@ -14,7 +14,7 @@ public class SeasonImages(
 
     private List<string> seasonImageQueue = [];
     private ConcurrentBag<ProgramMetadata> seasonImageResponses = [];
-    private readonly List<Season> seasons = [];
+    private readonly ConcurrentDictionary<string, Season> seasons = new();
     private int processedObjects;
 
     public async Task<bool> GetAllSeasonImages()
@@ -39,16 +39,21 @@ public class SeasonImages(
         {
             string uid = $"{season.SeriesId}_{season.SeasonNumber}";
 
-            if (epgCache.JsonFiles.TryGetValue(uid, out EPGJsonCache? cache) && !string.IsNullOrEmpty(cache.Images))
+            if (epgCache.JsonFiles.TryGetValue(uid, out EPGJsonCache? cache) && !string.IsNullOrEmpty(cache.JsonEntry))
             {
                 cache.Current = true;
                 ProcessCachedImages(season, cache);
+                imageDownloadQueue.EnqueueProgramArtworkCollection(season.ArtWorks);
+                continue;
             }
-            else if (!string.IsNullOrEmpty(season.ProtoTypicalProgram) && !seasons.Contains(season))
+
+            if (string.IsNullOrEmpty(season.ProtoTypicalProgram))
             {
-                seasons.Add(season);
-                seasonImageQueue.Add(season.ProtoTypicalProgram);
+                continue;
             }
+
+            seasons.TryAdd(season.Id, season);
+            seasonImageQueue.Add(season.ProtoTypicalProgram);
         }
 
         logger.LogDebug("Found {processedObjects} cached/unavailable season image links.", processedObjects);
@@ -58,8 +63,8 @@ public class SeasonImages(
             await DownloadAndProcessImagesAsync().ConfigureAwait(false);
         }
 
-        logger.LogInformation("Exiting GetAllSeasonImages(). SUCCESS.");
-        //ResetCache();
+        logger.LogInformation("Exiting Season Images SUCCESS.");
+
         epgCache.SaveCache();
         ClearCache();
         return true;
@@ -67,9 +72,9 @@ public class SeasonImages(
 
     private static void ProcessCachedImages(Season season, EPGJsonCache cachedFile)
     {
-        season.ArtWorks = string.IsNullOrEmpty(cachedFile.Images)
+        season.ArtWorks = string.IsNullOrEmpty(cachedFile.JsonEntry)
                 ? []
-                : JsonSerializer.Deserialize<List<ProgramArtwork>>(cachedFile.Images) ?? [];
+                : JsonSerializer.Deserialize<List<ProgramArtwork>>(cachedFile.JsonEntry) ?? [];
     }
 
     private async Task DownloadAndProcessImagesAsync()
@@ -115,7 +120,12 @@ public class SeasonImages(
                 continue;
             }
 
-            Season? season = seasons.FirstOrDefault(arg => arg.ProtoTypicalProgram == response.ProgramId);
+            List<Season> test = seasons.Values.Where(arg => arg.ProtoTypicalProgram == response.ProgramId).ToList();
+            if (test.Count > 1)
+            {
+                int aaa = 1;
+            }
+            Season? season = seasons.Values.FirstOrDefault(arg => arg.ProtoTypicalProgram == response.ProgramId);
             if (season == null)
             {
                 continue;
@@ -130,7 +140,8 @@ public class SeasonImages(
 
                 if (!epgCache.JsonFiles.ContainsKey(uid))
                 {
-                    epgCache.AddAsset(uid, null);
+                    string artworkJson = JsonSerializer.Serialize(artworks);
+                    epgCache.AddAsset(uid, artworkJson);
                 }
                 imageDownloadQueue.EnqueueProgramArtworkCollection(artworks);
             }
@@ -155,5 +166,15 @@ public class SeasonImages(
     {
         semaphore.Dispose();
         GC.SuppressFinalize(this);
+    }
+
+    public List<string> GetExpiredKeys()
+    {
+        return epgCache.GetExpiredKeys();
+    }
+
+    public void RemovedExpiredKeys(List<string>? keysToDelete = null)
+    {
+        epgCache.RemovedExpiredKeys(keysToDelete);
     }
 }

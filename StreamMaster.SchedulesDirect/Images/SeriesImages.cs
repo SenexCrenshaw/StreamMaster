@@ -36,29 +36,24 @@ public class SeriesImages(
         List<SeriesInfo> toProcess = schedulesDirectData.SeriesInfosToProcess;
 
         logger.LogInformation("Entering GetAllSeriesImages() for {totalObjects} series.", toProcess.Count);
-        int refreshing = 0;
 
         foreach (SeriesInfo series in toProcess)
         {
             if (string.IsNullOrEmpty(series.ProtoTypicalProgram) ||
-                !schedulesDirectData.Programs.TryGetValue(series.ProtoTypicalProgram, out MxfProgram? program))
+                !schedulesDirectData.Programs.TryGetValue(series.ProtoTypicalProgram, out MxfProgram? _))
             {
                 continue;
             }
 
             bool refresh = ShouldRefreshSeries(series.SeriesId, out string seriesId);
 
-            if (!refresh && epgCache.JsonFiles.TryGetValue(seriesId, out EPGJsonCache? value) && !string.IsNullOrEmpty(value.Images))
+            if (
+                !refresh &&
+                epgCache.JsonFiles.TryGetValue(seriesId, out EPGJsonCache? value) && !string.IsNullOrEmpty(value.JsonEntry))
             {
                 ProcessCachedImages(series, value);
-            }
-            else if (int.TryParse(series.SeriesId, out _))
-            {
-                if (refresh && epgCache.JsonFiles.TryGetValue(seriesId, out EPGJsonCache? cache) && cache.Images != null)
-                {
-                    ++refreshing;
-                }
-                seriesImageQueue.Add($"SH{series.SeriesId}0000");
+                //seriesImageQueue.Add($"SH{series.SeriesId}0000");
+                imageDownloadQueue.EnqueueProgramArtworkCollection(series.ArtWorks);
             }
             else
             {
@@ -67,23 +62,22 @@ public class SeriesImages(
                 {
                     seriesImageQueue.AddRange(sport);
                 }
+                else
+                {
+                    seriesImageQueue.Add($"SH{series.SeriesId}0000");
+                }
             }
         }
 
         logger.LogDebug("Found {processedObjects} cached/unavailable series image links.", processedObjects);
-
-        if (refreshing > 0)
-        {
-            logger.LogDebug("Refreshing {refreshing} series image links.", refreshing);
-        }
 
         if (seriesImageQueue.Count > 0)
         {
             await DownloadAndProcessImagesAsync().ConfigureAwait(false);
         }
 
-        logger.LogInformation("Exiting GetAllSeriesImages(). SUCCESS.");
-        //ResetCache();
+        logger.LogInformation("Exiting Series Images SUCCESS.");
+
         epgCache.SaveCache();
         ClearCache();
         return true;
@@ -110,25 +104,9 @@ public class SeriesImages(
 
     private static void ProcessCachedImages(SeriesInfo series, EPGJsonCache cachedFile)
     {
-        series.ArtWorks = string.IsNullOrEmpty(cachedFile.Images)
+        series.ArtWorks = string.IsNullOrEmpty(cachedFile.JsonEntry)
              ? []
-             : JsonSerializer.Deserialize<List<ProgramArtwork>>(cachedFile.Images) ?? [];
-
-        //if (string.IsNullOrEmpty(value.Images))
-        //{
-        //    return;
-        //}
-
-        //List<ProgramArtwork>? artwork = JsonSerializer.Deserialize<List<ProgramArtwork>>(value.Images);
-        //if (artwork != null)
-        //{
-        //    series.Extras.AddOrUpdate("artwork", artwork);
-        //    ProgramArtwork? guideImage = epgCache.GetGuideImageAndUpdateCache(artwork, ImageType.Series);
-        //    if (guideImage != null)
-        //    {
-        //        series.mxfGuideImage = guideImage;
-        //    }
-        //}
+             : JsonSerializer.Deserialize<List<ProgramArtwork>>(cachedFile.JsonEntry) ?? [];
     }
 
     private async Task DownloadAndProcessImagesAsync()
@@ -183,7 +161,6 @@ public class SeriesImages(
                 continue;
             }
 
-
             ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
             SeriesInfo? series = response.ProgramId.StartsWith("SP") ? GetSportsSeries(response) : schedulesDirectData.FindOrCreateSeriesInfo(response.ProgramId.Substring(2, 8));
             if (series == null)
@@ -191,15 +168,6 @@ public class SeriesImages(
                 continue;
             }
 
-            //if (series == null || !string.IsNullOrEmpty(series.GuideImage) || series.Extras.ContainsKey("artwork"))
-            //{
-            //    continue;
-            //}
-
-            //if (response.ProgramId.StartsWith("SP"))
-            //{
-            //    continue;
-            //}
             List<ProgramArtwork> artworks = SDHelpers.GetTieredImages(response.Data, artworkSize, ["series", "sport", "episode"], sdSettings.CurrentValue.SeriesPosterAspect);
             series.AddArtwork(artworks);
             epgCache.UpdateProgramArtworkCache(artworks, ImageType.Series, response.ProgramId);
@@ -212,23 +180,6 @@ public class SeriesImages(
             {
                 logger.LogWarning("No artwork found for {ProgramId}", response.ProgramId);
             }
-
-            //if (!series.Extras.TryGetValue("artwork", out dynamic? value))
-            //{
-            //    List<ProgramArtwork> artworks = SDHelpers.GetTieredImages(response.Data, ["series", "sport", "episode"], artworkSize, sdSettings.CurrentValue.SeriesPosterAspect);
-
-            //    series.Extras["artwork"] = artworks;
-            //}
-
-            //if (series.Extras["artwork"].Count > 0)
-            //{
-            //    ProgramArtwork? res = epgCache.GetGuideImageAndUpdateCache(series.Extras["artwork"], ImageType.Series, response.ProgramId);
-            //    if (res != null)
-            //    {
-            //        series.mxfGuideImage = res;
-            //    }
-            //    imageDownloadQueue.EnqueueProgramArtworkCollection(series.Extras["artwork"]);
-            //}
         }
     }
 
@@ -270,5 +221,15 @@ public class SeriesImages(
     {
         semaphore.Dispose();
         GC.SuppressFinalize(this);
+    }
+
+    public List<string> GetExpiredKeys()
+    {
+        return epgCache.GetExpiredKeys();
+    }
+
+    public void RemovedExpiredKeys(List<string>? keysToDelete = null)
+    {
+        epgCache.RemovedExpiredKeys(keysToDelete);
     }
 }

@@ -64,20 +64,6 @@ namespace StreamMaster.Domain.Services
         /// <returns>A list of <see cref="LogoFileDto"/> objects.</returns>
         List<LogoFileDto> GetLogos(SMFileTypes? SMFileType = null);
 
-        ///// <summary>
-        ///// Generates a URL for a logo based on the specified icon source and base URL.
-        ///// </summary>
-        ///// <param name="logoSource">The source of the icon.</param>
-        ///// <param name="baseUrl">The base URL to prepend to the icon source.</param>
-        ///// <returns>The full URL of the logo.</returns>
-        string GetLogoUrl(string logoSource, string baseUrl, SMStreamTypeEnum smStream);
-
-        ///// <summary>
-        ///// Retrieves a list of TV logos.
-        ///// </summary>
-        ///// <returns>A list of <see cref="TvLogoFile"/> objects.</returns>
-        //List<TvLogoFile> GetTvLogos();
-
         /// <summary>
         /// Retrieves a valid image path for the specified URL and file type.
         /// </summary>

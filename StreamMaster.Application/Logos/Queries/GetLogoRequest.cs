@@ -14,7 +14,7 @@ internal class GetLogoRequestHandler(ILogoService logoService)
             return DataResponse<LogoDto?>.NotFound;
         }
 
-        if (!request.Url.TryParseUrl(out int id, out string? _))
+        if (!request.Url.TryParseUrl(out int _, out string? _))
         {
             return DataResponse<LogoDto?>.NotFound;
         }

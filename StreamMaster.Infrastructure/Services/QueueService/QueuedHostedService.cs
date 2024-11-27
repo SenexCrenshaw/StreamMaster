@@ -81,6 +81,10 @@ public sealed class QueuedHostedService(
 
                 switch (command.Command)
                 {
+
+                    case SMQueCommand.EPGRemovedExpiredKeys:
+                        await _sender.Send(new EPGRemovedExpiredKeysRequest(), cancellationSource.Token).ConfigureAwait(false);
+                        break;
                     case SMQueCommand.CacheChannelLogos:
                         await _sender.Send(new AddSMChannelLogosRequest(), cancellationSource.Token).ConfigureAwait(false);
                         break;

@@ -47,27 +47,25 @@ namespace StreamMaster.Infrastructure.Services
             {
                 return null;
             }
-
-            //List<XmltvProgramme> test = await GetProgrammesFromXmlAsync(epgPath).ConfigureAwait(false);
-
             value = [];
 
             foreach (XmltvChannel xmlChannel in channels)
             {
+                if (xmlChannel.DisplayNames == null) { continue; }
                 List<XmltvText> displayNames = xmlChannel.DisplayNames;
                 string callSign = displayNames.Count > 0 ? displayNames[0]?.Text ?? xmlChannel.Id : xmlChannel.Id;
                 string name = displayNames.Count > 1 ? displayNames[1]?.Text ?? callSign : callSign;
 
                 string displayName = $"[{callSign}] {name}";
                 string channel = xmlChannel.Id;
-                string? iconSrc = xmlChannel.Icons.FirstOrDefault()?.Src;
-
+                string? iconSrc = xmlChannel?.Icons?.FirstOrDefault()?.Src;
                 StationChannelName stationChannelName = new(channel, displayName, name, iconSrc ?? "", epgNumber);
 
                 value.Add(stationChannelName);
+                cacheManager.StationChannelNames[epgNumber] = value;
+                return value;
             }
-            cacheManager.StationChannelNames[epgNumber] = value;
-            return value;
+            return null;
         }
 
         public async Task<List<XmltvChannel>> GetChannelsFromXmlAsync(string epgPath)
@@ -384,7 +382,6 @@ namespace StreamMaster.Infrastructure.Services
 
         //    return programmes;
         //}
-
 
         private string? GetEPGFilePath(EPGFile epgFile)
         {

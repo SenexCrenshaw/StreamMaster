@@ -7,6 +7,36 @@ export interface StationChannelName
 	Id: string;
 	Logo: string;
 }
+export interface CreateM3UFileFromFormRequest
+{
+	AutoSetChannelNumbers?: boolean;
+	DefaultStreamGroupName?: string;
+	FormFile?: any;
+	HoursToUpdate?: number;
+	M3U8OutPutProfile?: string;
+	M3UKey?: M3UKey;
+	M3UName?: M3UField;
+	MaxStreamCount?: number;
+	Name: string;
+	StartingChannelNumber?: number;
+	SyncChannels?: boolean;
+	VODTags?: string[];
+}
+export interface CreateM3UFileRequest
+{
+	AutoSetChannelNumbers?: boolean;
+	DefaultStreamGroupName?: string;
+	HoursToUpdate?: number;
+	M3U8OutPutProfile?: string;
+	M3UKey?: M3UKey;
+	M3UName?: M3UField;
+	MaxStreamCount: number;
+	Name: string;
+	StartingChannelNumber?: number;
+	SyncChannels?: boolean;
+	UrlSource?: string;
+	VODTags?: string[];
+}
 export interface QueryStringParameters
 {
 	JSONArgumentString?: string;
@@ -492,7 +522,6 @@ export interface APIResponse
 }
 export interface DataResponse<T>
 {
-	_totalItemCount?: number;
 	Count: number;
 	Data?: T;
 	ErrorMessage?: string;
@@ -500,6 +529,7 @@ export interface DataResponse<T>
 	Message?: string;
 	NotFound: DataResponse<T>;
 	Ok: DataResponse<T>;
+	totalItemCount?: number;
 	TotalItemCount: number;
 }
 export interface NoClass
@@ -507,7 +537,6 @@ export interface NoClass
 }
 export interface PagedResponse<T>
 {
-	_totalItemCount?: number;
 	Count: number;
 	Data?: T[];
 	ErrorMessage?: string;
@@ -518,6 +547,7 @@ export interface PagedResponse<T>
 	Ok: DataResponse<T[]>;
 	PageNumber: number;
 	PageSize: number;
+	totalItemCount?: number;
 	TotalItemCount: number;
 	TotalPageCount: number;
 }
@@ -1269,36 +1299,6 @@ export interface GetPagedM3UFilesRequest
 {
 	Parameters: QueryStringParameters;
 }
-export interface CreateM3UFileFromFormRequest
-{
-	AutoSetChannelNumbers?: boolean;
-	DefaultStreamGroupName?: string;
-	FormFile?: any;
-	HoursToUpdate?: number;
-	M3U8OutPutProfile?: string;
-	M3UKey?: M3UKey;
-	M3UName?: M3UField;
-	MaxStreamCount?: number;
-	Name: string;
-	StartingChannelNumber?: number;
-	SyncChannels?: boolean;
-	VODTags?: string[];
-}
-export interface CreateM3UFileRequest
-{
-	AutoSetChannelNumbers?: boolean;
-	DefaultStreamGroupName?: string;
-	HoursToUpdate?: number;
-	M3U8OutPutProfile?: string;
-	M3UKey?: M3UKey;
-	M3UName?: M3UField;
-	MaxStreamCount: number;
-	Name: string;
-	StartingChannelNumber?: number;
-	SyncChannels?: boolean;
-	UrlSource?: string;
-	VODTags?: string[];
-}
 export interface DeleteM3UFileRequest
 {
 	DeleteFile: boolean;
@@ -1731,7 +1731,8 @@ export enum JobType {
 	TimerEPG = 7,
 	SDSync = 8,
 	Backup = 9,
-	TimerBackup = 10
+	TimerBackup = 10,
+	EPGRemovedExpiredKeys = 11
 }
 export enum M3UField {
 	ChannelId = 0,

@@ -229,7 +229,6 @@ public sealed class FileUtil
     {
         try
         {
-
             XmlSerializer serializer = new(typeof(XMLTV));
 
             XmlSerializerNamespaces ns = new();

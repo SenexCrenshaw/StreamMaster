@@ -35,6 +35,7 @@
     <PackageReference Include="MediatR" Version="12.4.1" />
     <PackageReference Include="MessagePack.Annotations" Version="2.5.192" />
     <PackageReference Include="Microsoft.AspNetCore.DataProtection.EntityFrameworkCore" Version="9.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="5.0.17" />
     
     <PackageReference Include="Reinforced.Typings" Version="1.6.5" />
     <PackageReference Include="System.Formats.Asn1" Version="9.0.0" />

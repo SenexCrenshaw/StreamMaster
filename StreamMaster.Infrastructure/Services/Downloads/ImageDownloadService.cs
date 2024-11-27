@@ -122,7 +122,7 @@ namespace StreamMaster.Infrastructure.Services.Downloads
             bool areQueuesEmpty = imageDownloadQueue.IsProgramArtworkQueueEmpty() && imageDownloadQueue.IslogoInfoQueueEmpty();
 
             // Only refresh if items were processed and the throttle time has passed
-            if (areQueuesEmpty || imageDownloadQueue.ProgramArtworkCount <= _settings.CurrentValue.MaxConcurrentDownloads || imageDownloadQueue.logoInfoCount <= _settings.CurrentValue.MaxConcurrentDownloads)
+            if (areQueuesEmpty || imageDownloadQueue.ProgramArtworkCount <= _settings.CurrentValue.MaxConcurrentDownloads || imageDownloadQueue.LogoInfoCount <= _settings.CurrentValue.MaxConcurrentDownloads)
             {
                 await dataRefreshService.RefreshDownloadServiceStatus();
             }
@@ -160,7 +160,6 @@ namespace StreamMaster.Infrastructure.Services.Downloads
             bool needsRefresh = false;
             foreach (ProgramArtwork art in artwork)
             {
-
                 if (!CanProceedWithDownload())
                 {
                     return false;
@@ -191,7 +190,6 @@ namespace StreamMaster.Infrastructure.Services.Downloads
 
                 try
                 {
-
                     LogoInfo logoInfo = new(art.Uri, SMFileTypes.ProgramLogo, true);
 
                     if (string.IsNullOrEmpty(logoInfo.FullPath))
@@ -235,7 +233,7 @@ namespace StreamMaster.Infrastructure.Services.Downloads
         private async Task<bool> ProcesslogoInfoQueue(CancellationToken cancellationToken)
         {
             List<LogoInfo> logoInfoBatch = imageDownloadQueue.GetNextlogoInfoBatch(_settings.CurrentValue.MaxConcurrentDownloads);
-            ImageDownloadServiceStatus.TotallogoInfo = imageDownloadQueue.logoInfoCount;
+            ImageDownloadServiceStatus.TotallogoInfo = imageDownloadQueue.LogoInfoCount;
 
             if (logoInfoBatch.Count == 0)
             {
@@ -277,7 +275,7 @@ namespace StreamMaster.Infrastructure.Services.Downloads
                 await RefreshDownloadServiceAsync();
             }
 
-            ImageDownloadServiceStatus.TotallogoInfo = imageDownloadQueue.logoInfoCount;
+            ImageDownloadServiceStatus.TotallogoInfo = imageDownloadQueue.LogoInfoCount;
             return true;
         }
 
@@ -307,7 +305,6 @@ namespace StreamMaster.Infrastructure.Services.Downloads
 
             try
             {
-
                 HttpResponseMessage? response = logoInfo.IsSchedulesDirect
     ? await GetSdImage(logoInfo.Url)
     : await httpClient.GetAsync(logoInfo.Url, cancellationToken).ConfigureAwait(false);
@@ -360,7 +357,6 @@ namespace StreamMaster.Infrastructure.Services.Downloads
                                 graphics.Clear(Color.Transparent);
                                 svgDocument.Draw(graphics);
                             }
-
 
                             bitmap.Save(logoInfo.FullPath, ImageFormat.Png);
                             return true;

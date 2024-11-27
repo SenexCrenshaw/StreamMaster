@@ -11,8 +11,7 @@ public partial class EPGCache<T> : IEPGCache<T>
     private readonly SemaphoreSlim _cacheSemaphore = new(1, 1);
     private readonly TimeSpan CacheDuration = TimeSpan.FromHours(4);
     private readonly ILogger<EPGCache<T>> logger;
-    private readonly ISchedulesDirectDataService schedulesDirectDataService;
-    private readonly SDSettings sdsettings;
+    private readonly IOptionsMonitor<SDSettings> sdsettings;
 
     [GeneratedRegex("\"\\w+?\":null,?")]
     private static partial Regex NullPropertyRegex();
@@ -29,14 +28,12 @@ public partial class EPGCache<T> : IEPGCache<T>
     [GeneratedRegex(",]")]
     private static partial Regex TrailingCommaArrayRegex();
 
-    public EPGCache(ILogger<EPGCache<T>> logger,
-                    ISchedulesDirectDataService schedulesDirectDataService,
-                    IOptionsMonitor<SDSettings> intSettings)
+    public EPGCache(ILogger<EPGCache<T>> logger, IOptionsMonitor<SDSettings> intSettings)
     {
-        sdsettings = intSettings.CurrentValue;
+        sdsettings = intSettings;
         this.logger = logger;
-        this.schedulesDirectDataService = schedulesDirectDataService;
-        if (sdsettings.SDEnabled)
+
+        if (sdsettings.CurrentValue.SDEnabled)
         {
             LoadCache();
         }
@@ -112,7 +109,7 @@ public partial class EPGCache<T> : IEPGCache<T>
         }
 
         logger.LogInformation("Saving cache file {Filename}", GetFilename());
-        CleanDictionary();
+        //RemovedExpiredKeys();
         if (!WriteJsonFile(JsonFiles))
         {
             logger.LogWarning("Deleting cache file to be rebuilt on next update.");
@@ -195,29 +192,24 @@ public partial class EPGCache<T> : IEPGCache<T>
         }
         else
         {
-            value.Images = json;
+            value.JsonEntry = json;
+            value.Current = true;
         }
     }
-
-    //public void UpdateAssetJsonEntry(string md5, string? json)
-    //{
-    //    if (!JsonFiles.ContainsKey(md5))
-    //    {
-    //        AddAsset(md5, json);
-    //    }
-
-    //    json = CleanJsonText(json);
-    //    JsonFiles[md5].JsonEntry = json;
-    //}
-
-    public void CleanDictionary()
+    public List<string> GetExpiredKeys()
     {
         List<string> keysToDelete = JsonFiles.Where(asset => !asset.Value.Current).Select(asset => asset.Key).ToList();
-        foreach (string key in keysToDelete)
-        {
-            _ = JsonFiles.Remove(key);
-        }
-        logger.LogInformation("{Count} entries deleted from the cache file during cleanup.", keysToDelete.Count);
+        return keysToDelete;
+    }
+
+    public void RemovedExpiredKeys(List<string>? keysToDelete = null)
+    {
+        //keysToDelete ??= GetExpiredKeys();
+        //foreach (string key in keysToDelete)
+        //{
+        //    _ = JsonFiles.Remove(key);
+        //}
+        //logger.LogInformation("{Count} entries deleted from the cache file during cleanup.", keysToDelete.Count);
     }
 
     public void ResetCache()

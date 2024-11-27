@@ -126,7 +126,6 @@ namespace StreamMaster.Domain.Configuration
         public static readonly string LogFolder = Path.Combine(AppDataFolder, "Logs");
         public static readonly string PlayListFolder = Path.Combine(AppDataFolder, "PlayLists");
 
-
         public static readonly string DupDataFolder = Path.Combine(CacheFolder, "DuplicateStreamLists");
 
         //public static readonly string ProgrammeIconDataFolder = Path.Combine(CacheFolder, "ProgrammeIcons");

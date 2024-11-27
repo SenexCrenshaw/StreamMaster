@@ -17,7 +17,7 @@ public static class ConfigureServices
         _ = services.AddSingleton<ISchedulesDirectAPIService, SchedulesDirectAPIService>();
         _ = services.AddSingleton<ISchedulesDirectDataService, SchedulesDirectDataService>();
         _ = services.AddSingleton<ISchedulesDirect, SchedulesDirect>();
-        _ = services.AddSingleton<IXMLTVBuilder, XMLTVBuilder>();
+        _ = services.AddSingleton<ISDXMLTVBuilder, SDXMLTVBuilder>();
         _ = services.AddSingleton<IDescriptions, Descriptions>();
         _ = services.AddSingleton<ILineupService, LineupService>();
         _ = services.AddSingleton<IScheduleService, ScheduleService>();
@@ -29,7 +29,9 @@ public static class ConfigureServices
         _ = services.AddSingleton<ISeasonImages, SeasonImages>();
         _ = services.AddSingleton<ISportsImages, SportsImages>();
 
+        _ = services.AddTransient<IXmltvChannelBuilder, XmltvChannelBuilder>();
         _ = services.AddTransient<IXmltvProgramBuilder, XmltvProgramBuilder>();
+        _ = services.AddTransient<IDataPreparationService, DataPreparationService>();
 
         return services;
     }

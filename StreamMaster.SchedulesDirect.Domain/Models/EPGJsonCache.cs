@@ -9,8 +9,8 @@ public class EPGJsonCache
     [JsonPropertyName("jsonEntry")]
     public string? JsonEntry { get; set; }
 
-    [JsonPropertyName("images")]
-    public string? Images { get; set; }
+    //[JsonPropertyName("images")]
+    //public string? Images { get; set; }
 
     [JsonIgnore]
     [IgnoreMember]

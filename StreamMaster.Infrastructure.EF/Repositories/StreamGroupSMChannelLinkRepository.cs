@@ -138,7 +138,6 @@ public class StreamGroupSMChannelLinkRepository(ILogger<StreamGroupSMChannelLink
 
     public IQueryable<StreamGroupSMChannelLink> GetQueryNoTracking => base.GetQuery(false).Include(a => a.SMChannel).AsNoTracking();
 
-
     public override IQueryable<StreamGroupSMChannelLink> GetQuery(bool tracking = false)
     {
         return tracking

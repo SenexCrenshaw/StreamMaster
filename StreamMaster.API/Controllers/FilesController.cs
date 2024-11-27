@@ -26,7 +26,6 @@ public class FilesController(IOptionsMonitor<Setting> settings, ILogoService log
     [Route("sm/{smChannelId}")]
     public async Task<IActionResult> GetSMChannelLogo(int smChannelId, CancellationToken cancellationToken)
     {
-
         if (smChannelId < 0)
         {
             return Redirect("/" + settings.CurrentValue.DefaultLogo);

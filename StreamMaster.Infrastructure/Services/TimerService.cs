@@ -64,6 +64,13 @@ namespace StreamMaster.Infrastructure.Services
                 successInterval: TimeSpan.FromMinutes(60),
                 cancellationToken: cancellationToken);
 
+            await ExecuteJobAsync(
+               jobStatusService.GetJobManager(JobType.EPGRemovedExpiredKeys, 0),
+               async () => await backgroundTask.EPGRemovedExpiredKeys(cancellationToken).ConfigureAwait(false),
+               runInterval: TimeSpan.FromMinutes(15),
+               successInterval: TimeSpan.FromMinutes(60),
+               cancellationToken: cancellationToken);
+
             // Manage TimerEPG Job
             await ExecuteJobAsync(
                 jobStatusService.GetJobManager(JobType.TimerEPG, 0),

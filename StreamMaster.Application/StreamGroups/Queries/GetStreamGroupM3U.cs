@@ -63,7 +63,7 @@ public class GetStreamGroupM3UHandler(IStreamGroupService streamGroupService, IO
         return ret.ToString();
     }
 
-    private (int ChNo, string m3uLine) BuildM3ULineForVideoStream(VideoStreamConfig videoStreamConfig, bool IsShort)
+    private static (int ChNo, string m3uLine) BuildM3ULineForVideoStream(VideoStreamConfig videoStreamConfig, bool IsShort)
     {
         if (videoStreamConfig.OutputProfile is null || string.IsNullOrEmpty(videoStreamConfig.EncodedString) || string.IsNullOrEmpty(videoStreamConfig.CleanName))
         {

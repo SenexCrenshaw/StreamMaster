@@ -1,7 +1,8 @@
 ﻿using System.Text.Json;
 namespace StreamMaster.SchedulesDirect;
 
-public class ScheduleService(ILogger<ScheduleService> logger, IXmltvProgramBuilder xmltvProgramBuilder, IOptionsMonitor<SDSettings> sdSettings, ISchedulesDirectAPIService schedulesDirectAPI, IEPGCache<ScheduleService> epgCache, ISchedulesDirectDataService schedulesDirectDataService) : IScheduleService
+public class ScheduleService(ILogger<ScheduleService> logger,  IOptionsMonitor<SDSettings> sdSettings, ISchedulesDirectAPIService schedulesDirectAPI, IEPGCache<ScheduleService> epgCache, ISchedulesDirectDataService schedulesDirectDataService)
+    : IScheduleService
 {
     private int cachedSchedules;
     private int downloadedSchedules;
@@ -370,15 +371,12 @@ public class ScheduleService(ILogger<ScheduleService> logger, IXmltvProgramBuild
                 }
             }
 
-
-
             MxfService mxfService = schedulesDirectData.FindOrCreateService(schedule.StationId);
-            XmltvProgramme prog = xmltvProgramBuilder.BuildXmltvProgram(scheduleEntry, schedule.StationId, 0, "");
+            //XmltvProgramme prog = xmltvProgramBuilder.BuildXmltvProgram(scheduleEntry, schedule.StationId, 0, "");
             //mxfService.Programmes.Add(prog);
             mxfService.MxfScheduleEntries.ScheduleEntry.Add(scheduleEntry);
         }
     }
-
 
     private static void PopulateProgramExtras(MxfProgram mxfProgram, ScheduleProgram scheduleProgram)
     {
@@ -487,5 +485,15 @@ public class ScheduleService(ILogger<ScheduleService> logger, IXmltvProgramBuild
     public void ResetCache()
     {
         epgCache.ResetCache();
+    }
+
+    public List<string> GetExpiredKeys()
+    {
+        return epgCache.GetExpiredKeys();
+    }
+
+    public void RemovedExpiredKeys(List<string>? keysToDelete = null)
+    {
+        epgCache.RemovedExpiredKeys(keysToDelete);
     }
 }

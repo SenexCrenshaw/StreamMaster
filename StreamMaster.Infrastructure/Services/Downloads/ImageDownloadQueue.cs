@@ -66,7 +66,7 @@ namespace StreamMaster.Infrastructure.Services.Downloads
         }
 
         public int ProgramArtworkCount => ProgramArtworkQueue.Count;
-        public int logoInfoCount => logoInfoQueue.Count;
+        public int LogoInfoCount => logoInfoQueue.Count;
 
         public bool IsProgramArtworkQueueEmpty()
         {

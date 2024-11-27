@@ -236,7 +236,6 @@ namespace StreamMaster.SchedulesDirect.Converters
                             IsRepeat = true
                         });
 
-
                         startTime = startTime.AddHours(sdSettings.XmltvFillerProgramLength);
                     }
                 }

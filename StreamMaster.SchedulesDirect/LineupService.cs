@@ -127,7 +127,7 @@ public class LineupService : ILineupService
         {
             //UpdateIcons(schedulesDirectData.Services.Values);
             logger.LogInformation("Exiting BuildLineupServices(). SUCCESS.");
-            epgCache.SaveCache();
+            //  epgCache.SaveCache();
             return true;
         }
 
@@ -183,7 +183,7 @@ public class LineupService : ILineupService
             //schedulesDirectDataService.SchedulesDirectData().FindOrCreateProgramArtwork(stationLogo.Url);
             string title = string.IsNullOrEmpty(station.Callsign) ? station.Name : $"{station.Callsign} {station.Name}";
 
-            LogoInfo  logoInfo = new(title, stationLogo.Url, SMFileTypes.Logo, false);
+            LogoInfo logoInfo = new(title, stationLogo.Url, SMFileTypes.Logo, false);
 
             LogoFileDto d = new() { Source = logoInfo.FileName, Value = stationLogo.Url, SMFileType = SMFileTypes.Logo, Name = title };
             logoService.AddLogo(d);
@@ -302,5 +302,15 @@ public class LineupService : ILineupService
     {
         httpClient.Dispose();
         GC.SuppressFinalize(this);
+    }
+
+    public List<string> GetExpiredKeys()
+    {
+        return epgCache.GetExpiredKeys();
+    }
+
+    public void RemovedExpiredKeys(List<string>? keysToDelete = null)
+    {
+        epgCache.RemovedExpiredKeys(keysToDelete);
     }
 }

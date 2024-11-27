@@ -1,6 +1,6 @@
-﻿using StreamMaster.Application.M3UFiles.Commands;
+﻿using StreamMaster.Domain.Requests;
 
-namespace StreamMaster.Application.Interfaces;
+namespace StreamMaster.Domain.Services;
 
 public interface IM3UFileService
 {

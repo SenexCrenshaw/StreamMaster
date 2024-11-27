@@ -31,7 +31,7 @@ public class SportsImages(
             {
                 if (epgCache.JsonFiles.TryGetValue(sportEvent.MD5, out EPGJsonCache? cachedFile))
                 {
-                    if (cachedFile != null && !string.IsNullOrEmpty(cachedFile.Images))
+                    if (cachedFile != null && !string.IsNullOrEmpty(cachedFile.JsonEntry))
                     {
                         ProcessCachedImages(sportEvent, cachedFile);
                     }
@@ -39,7 +39,6 @@ public class SportsImages(
             }
 
             sportsImageQueue.Add(sportEvent.ProgramId);
-
         }
 
         logger.LogDebug("Found {processedObjects} cached/unavailable sport event image links.", processedObjects);
@@ -58,9 +57,9 @@ public class SportsImages(
 
     private static void ProcessCachedImages(MxfProgram sportEvent, EPGJsonCache cachedFile)
     {
-        sportEvent.ArtWorks = string.IsNullOrEmpty(cachedFile.Images)
+        sportEvent.ArtWorks = string.IsNullOrEmpty(cachedFile.JsonEntry)
               ? []
-              : JsonSerializer.Deserialize<List<ProgramArtwork>>(cachedFile.Images) ?? [];
+              : JsonSerializer.Deserialize<List<ProgramArtwork>>(cachedFile.JsonEntry) ?? [];
     }
 
     private async Task DownloadAndProcessImagesAsync()
@@ -113,9 +112,9 @@ public class SportsImages(
                 continue;
             }
 
-            if (response.ProgramId.StartsWith("SP"))
+            if (!response.ProgramId.StartsWith("SP"))
             {
-                int aa = 1;
+                continue;
             }
 
             List<ProgramArtwork> artworks = SDHelpers.GetTieredImages(response.Data, artworkSize, ["team event", "episode", "series", "sport"], sdSettings.CurrentValue.MoviePosterAspect);
@@ -130,7 +129,6 @@ public class SportsImages(
             {
                 logger.LogWarning("No artwork found for {ProgramId}", response.ProgramId);
             }
-
         }
     }
 
@@ -151,5 +149,15 @@ public class SportsImages(
     {
         semaphore.Dispose();
         GC.SuppressFinalize(this);
+    }
+
+    public List<string> GetExpiredKeys()
+    {
+        return epgCache.GetExpiredKeys();
+    }
+
+    public void RemovedExpiredKeys(List<string>? keysToDelete = null)
+    {
+        epgCache.RemovedExpiredKeys(keysToDelete);
     }
 }
