@@ -2,7 +2,7 @@
 using System.Globalization;
 using System.Text.Json;
 
-namespace StreamMaster.SchedulesDirect
+namespace StreamMaster.SchedulesDirect.Services
 {
     public class ProgramService(ILogger<ProgramService> logger, IOptionsMonitor<SDSettings> intSettings, ISeriesImages seriesImages, ISportsImages sportsImages, ISchedulesDirectAPIService schedulesDirectAPI, IEPGCache<ProgramService> epgCache, ISchedulesDirectDataService schedulesDirectDataService)
         : IProgramService
@@ -29,6 +29,15 @@ namespace StreamMaster.SchedulesDirect
             {
                 processedObjects++;
                 cancellationToken.ThrowIfCancellationRequested();
+
+                //if (mxfProgram.ProgramId.ContainsIgnoreCase("EP053182960001"))
+                //{
+                //    int aa = 1;
+                //}
+                //else
+                //{
+                //    continue;
+                //}
 
                 if (string.IsNullOrEmpty(mxfProgram.MD5))
                 {
@@ -358,6 +367,12 @@ namespace StreamMaster.SchedulesDirect
 
         private void DetermineEpisodeInfo(MxfProgram mxfProgram, Programme sdProgram)
         {
+            //if (mxfProgram.ProgramId.ContainsIgnoreCase("EP053182960001"))
+            //{
+            //    int aa = 1;
+            //}
+
+
             if (sdProgram.EntityType != "Episode")
             {
                 return;

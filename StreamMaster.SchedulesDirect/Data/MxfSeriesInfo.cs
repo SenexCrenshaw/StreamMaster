@@ -7,7 +7,7 @@ namespace StreamMaster.SchedulesDirect.Data;
 
 public partial class SchedulesDirectData
 {
-    [XmlIgnore] public List<SeriesInfo> SeriesInfosToProcess { get; set; } = [];
+    [XmlIgnore] public ConcurrentDictionary<string, SeriesInfo> SeriesInfosToProcess { get; set; } = [];
 
     [XmlArrayItem("SeriesInfo")]
     public ConcurrentDictionary<string, SeriesInfo> SeriesInfos { get; set; } = [];
@@ -15,12 +15,9 @@ public partial class SchedulesDirectData
     public SeriesInfo FindOrCreateSeriesInfo(string seriesId, string? ProgramId = null)
     {
         (SeriesInfo seriesInfo, bool created) = SeriesInfos.FindOrCreateWithStatus(seriesId, _ => new SeriesInfo(SeriesInfos.Count + 1, seriesId, ProgramId));
-        if (created)
-        {
-            return seriesInfo;
-        }
 
-        SeriesInfosToProcess.Add(seriesInfo);
+
+        SeriesInfosToProcess.TryAdd(seriesId, seriesInfo);
         return seriesInfo;
     }
 }

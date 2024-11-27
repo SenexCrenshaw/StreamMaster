@@ -31,7 +31,7 @@ public class SeasonImages(
         }
 
         ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
-        List<Season> toProcess = schedulesDirectData.SeasonsToProcess;
+        ICollection<Season> toProcess = schedulesDirectData.SeasonsToProcess.Values;
 
         logger.LogInformation("Entering GetAllSeasonImages() for {totalObjects} seasons.", toProcess.Count);
 

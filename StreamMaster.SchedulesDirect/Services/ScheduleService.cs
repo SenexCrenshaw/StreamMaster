@@ -2,7 +2,7 @@
 using System.Text.Json;
 
 using X.PagedList.Extensions;
-namespace StreamMaster.SchedulesDirect;
+namespace StreamMaster.SchedulesDirect.Services;
 
 public class ScheduleService(ILogger<ScheduleService> logger, IImageDownloadService imageDownloadService, IImageDownloadQueue imageDownloadQueue, IOptionsMonitor<SDSettings> sdSettings, ISchedulesDirectAPIService schedulesDirectAPI, IEPGCache<ScheduleService> epgCache, ISchedulesDirectDataService schedulesDirectDataService)
     : IScheduleService

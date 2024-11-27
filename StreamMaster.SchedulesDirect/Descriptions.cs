@@ -19,7 +19,7 @@ public class Descriptions(ILogger<Descriptions> logger, ISchedulesDirectAPIServi
         ResetCache();
 
         ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
-        List<SeriesInfo> toProcess = schedulesDirectData.SeriesInfosToProcess;
+        ICollection<SeriesInfo> toProcess = schedulesDirectData.SeriesInfosToProcess.Values;
         logger.LogInformation("Entering BuildAllGenericSeriesInfoDescriptions() for {toProcess.Count} series.", toProcess.Count);
 
         foreach (SeriesInfo series in toProcess)

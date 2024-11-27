@@ -33,10 +33,11 @@ public class SeriesImages(
         processedObjects = 0;
 
         ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
-        List<SeriesInfo> toProcess = schedulesDirectData.SeriesInfosToProcess;
+        ICollection<SeriesInfo> toProcess = schedulesDirectData.SeriesInfosToProcess.Values;
 
         logger.LogInformation("Entering GetAllSeriesImages() for {totalObjects} series.", toProcess.Count);
 
+        //List<SeriesInfo> a = toProcess.Where(a => a.Id.ContainsIgnoreCase("5318")).ToList();
         foreach (SeriesInfo series in toProcess)
         {
             if (string.IsNullOrEmpty(series.ProtoTypicalProgram) ||

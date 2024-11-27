@@ -7,6 +7,7 @@ using StreamMaster.SchedulesDirect.Domain.Enums;
 namespace StreamMaster.SchedulesDirect.Domain.Interfaces;
 public interface ISchedulesDirectData
 {
+
     ConcurrentDictionary<string, MxfAffiliate> Affiliates { get; set; }
     ConcurrentDictionary<string, ProgramArtwork> GuideImages { get; set; }
     ConcurrentBag<MxfKeyword> Keywords { get; set; }
@@ -20,9 +21,10 @@ public interface ISchedulesDirectData
 
     ConcurrentDictionary<string, Season> Seasons { get; set; }
     ConcurrentDictionary<string, SeriesInfo> SeriesInfos { get; set; }
-    List<SeriesInfo> SeriesInfosToProcess { get; set; }
+
+    ConcurrentDictionary<string, SeriesInfo> SeriesInfosToProcess { get; set; }
     //List<MxfScheduleEntries> ScheduleEntries { get; set; }
-    List<Season> SeasonsToProcess { get; set; }
+    ConcurrentDictionary<string, Season> SeasonsToProcess { get; set; }
 
     ConcurrentDictionary<string, MxfService> Services { get; set; }
     void RemoveLineup(string lineup);

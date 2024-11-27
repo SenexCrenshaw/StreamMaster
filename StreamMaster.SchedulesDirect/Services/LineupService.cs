@@ -5,7 +5,7 @@ using SixLabors.ImageSharp;
 using StreamMaster.Domain.Dto;
 using StreamMaster.Domain.Enums;
 using StreamMaster.Domain.Helpers;
-namespace StreamMaster.SchedulesDirect;
+namespace StreamMaster.SchedulesDirect.Services;
 
 public class LineupService : ILineupService
 {

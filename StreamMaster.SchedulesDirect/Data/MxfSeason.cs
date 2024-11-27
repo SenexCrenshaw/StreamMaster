@@ -9,17 +9,14 @@ public partial class SchedulesDirectData
     public ConcurrentDictionary<string, Season> Seasons { get; set; } = new();
 
     [XmlIgnore]
-    public List<Season> SeasonsToProcess { get; set; } = [];
+    public ConcurrentDictionary<string, Season> SeasonsToProcess { get; set; } = [];
 
     public Season FindOrCreateSeason(string seriesId, int seasonNumber, string? protoTypicalProgram)
     {
-        (Season season, bool created) = Seasons.FindOrCreateWithStatus($"{seriesId}_{seasonNumber}", _ => new Season(Seasons.Count + 1, FindOrCreateSeriesInfo(seriesId), seasonNumber, protoTypicalProgram));
+        SeriesInfo seasonInfo = FindOrCreateSeriesInfo(seriesId, protoTypicalProgram);
+        (Season season, bool created) = Seasons.FindOrCreateWithStatus($"{seriesId}_{seasonNumber}", _ => new Season(Seasons.Count + 1, seasonInfo, seasonNumber, protoTypicalProgram));
 
-        if (!created)
-        {
-            SeasonsToProcess.Add(season);
-        }
-
+        SeasonsToProcess.TryAdd(season.Id, season);
         return season;
     }
 }
