@@ -23,7 +23,10 @@ public class SDXMLTVBuilder(
 
             XMLTV xmlTv = ProcessSDServices();
 
+
             xmlTv.SortXmlTv();
+
+
 
             _ = fileUtilService.ProcessStationChannelNamesAsync(BuildInfo.SDXMLFile, EPGHelper.SchedulesDirectId);
             return xmlTv;

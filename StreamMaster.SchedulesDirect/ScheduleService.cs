@@ -1,7 +1,10 @@
-﻿using System.Text.Json;
+﻿using System.Collections.Concurrent;
+using System.Text.Json;
+
+using X.PagedList.Extensions;
 namespace StreamMaster.SchedulesDirect;
 
-public class ScheduleService(ILogger<ScheduleService> logger,  IOptionsMonitor<SDSettings> sdSettings, ISchedulesDirectAPIService schedulesDirectAPI, IEPGCache<ScheduleService> epgCache, ISchedulesDirectDataService schedulesDirectDataService)
+public class ScheduleService(ILogger<ScheduleService> logger, IImageDownloadService imageDownloadService, IImageDownloadQueue imageDownloadQueue, IOptionsMonitor<SDSettings> sdSettings, ISchedulesDirectAPIService schedulesDirectAPI, IEPGCache<ScheduleService> epgCache, ISchedulesDirectDataService schedulesDirectDataService)
     : IScheduleService
 {
     private int cachedSchedules;
@@ -13,6 +16,7 @@ public class ScheduleService(ILogger<ScheduleService> logger,  IOptionsMonitor<S
     public async Task<bool> GetAllScheduleEntryMd5S(CancellationToken cancellationToken)
     {
         Dictionary<string, string[]> tempScheduleEntries = new(SchedulesDirect.MaxQueries);
+
         int days = Math.Clamp(sdSettings.CurrentValue.SDEPGDays, 1, 14);
         ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
         ICollection<MxfService> toProcess = schedulesDirectData.Services.Values;
@@ -114,7 +118,7 @@ public class ScheduleService(ILogger<ScheduleService> logger,  IOptionsMonitor<S
             ProcessStationResponseDates(stationResponse, dates, tempScheduleEntries, mxfService, newDateRequests);
 
             // Create new requests for any missing dates
-            if (newDateRequests.Count != 0)
+            if (newDateRequests.Count > 0)
             {
                 newRequests.Add(new ScheduleRequest
                 {
@@ -130,13 +134,22 @@ public class ScheduleService(ILogger<ScheduleService> logger,  IOptionsMonitor<S
             }
         }
 
-        if (newRequests.Count != 0)
+        if (newRequests.Count > 0)
         {
             List<ScheduleResponse>? responses = await GetScheduleListingsAsync([.. newRequests], cancellationToken).ConfigureAwait(false);
             if (responses == null)
             {
                 return false;
             }
+
+            //ScheduleProgram? test = responses.SelectMany(a => a.Programs.Where(a => a.New && a.Multipart.TotalParts > 0)).FirstOrDefault();
+            //if (test != null)
+            //{
+
+            //    LogoInfo nl = new("image/" + test.ProgramId);
+            //    bool a = await imageDownloadService.DownloadImageAsync(nl, cancellationToken);
+
+            //}
 
             ProcessScheduleResponses(responses, tempScheduleEntries);
         }
@@ -248,6 +261,7 @@ public class ScheduleService(ILogger<ScheduleService> logger,  IOptionsMonitor<S
 
     private void ProcessScheduleResponses(List<ScheduleResponse> responses, Dictionary<string, string[]> tempScheduleEntries)
     {
+
         foreach (ScheduleResponse response in responses)
         {
             ++processedObjects;
@@ -262,6 +276,7 @@ public class ScheduleService(ILogger<ScheduleService> logger,  IOptionsMonitor<S
             {
                 try
                 {
+
                     string jsonString = JsonSerializer.Serialize(response, BuildInfo.JsonIndentOptionsWhenWritingNull);
                     epgCache.AddAsset(response.Metadata.Md5, jsonString);
                 }
@@ -285,6 +300,7 @@ public class ScheduleService(ILogger<ScheduleService> logger,  IOptionsMonitor<S
 
     private void ProcessMd5ScheduleEntry(string md5)
     {
+
         if (!epgCache.JsonFiles.ContainsKey(md5))
         {
             return;
@@ -316,14 +332,27 @@ public class ScheduleService(ILogger<ScheduleService> logger,  IOptionsMonitor<S
     {
         ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
 
+        //List<ScheduleProgram> a = schedule.Programs.Where(a => a.Multipart != null).ToList();
+
+        //List<ScheduleProgram> b = a.Where(a => a.Multipart.TotalParts > 0).ToList();
+        if (schedule.Programs.Count > 0)
+        {
+            int aaa = 1;
+        }
+        else
+        {
+            return;
+        }
+
         // Process each program in the schedule
         foreach (ScheduleProgram scheduleProgram in schedule.Programs)
         {
             // Skip programs that have already aired
-            if (scheduleProgram.AirDateTime + TimeSpan.FromSeconds(scheduleProgram.Duration) < SMDT.UtcNow)
-            {
-                continue;
-            }
+            //if (scheduleProgram.AirDateTime + TimeSpan.FromSeconds(scheduleProgram.Duration) < SMDT.UtcNow)
+            //{
+            //    continue;
+            //}
+            ConcurrentBag<ProgramMetadata> metadata = [];
 
             //// Find or create a program in the MXF service based on the ProgramId
             MxfProgram mxfProgram = schedulesDirectData.FindOrCreateProgram(scheduleProgram.ProgramId);
@@ -371,12 +400,19 @@ public class ScheduleService(ILogger<ScheduleService> logger,  IOptionsMonitor<S
                 }
             }
 
+            //if (scheduleProgram.Multipart.TotalParts > 0)
+            //{
+            //    mxfProgram.mxfSeason = schedulesDirectData.FindOrCreateSeason(mxfProgram.mxfSeriesInfo.SeriesId, mxfProgram.SeasonNumber, mxfProgram.ProgramId);
+            //}
+
+
             MxfService mxfService = schedulesDirectData.FindOrCreateService(schedule.StationId);
             //XmltvProgramme prog = xmltvProgramBuilder.BuildXmltvProgram(scheduleEntry, schedule.StationId, 0, "");
             //mxfService.Programmes.Add(prog);
             mxfService.MxfScheduleEntries.ScheduleEntry.Add(scheduleEntry);
         }
     }
+
 
     private static void PopulateProgramExtras(MxfProgram mxfProgram, ScheduleProgram scheduleProgram)
     {

@@ -44,6 +44,13 @@ public class SeasonImages(
                 cache.Current = true;
                 ProcessCachedImages(season, cache);
                 imageDownloadQueue.EnqueueProgramArtworkCollection(season.ArtWorks);
+                if (!string.IsNullOrEmpty(season.ProtoTypicalProgram))
+                {
+                    MxfProgram mxfProgram = schedulesDirectData.FindOrCreateProgram(season.ProtoTypicalProgram);
+                    mxfProgram.AddArtwork(season.ArtWorks);
+                }
+
+
                 continue;
             }
 

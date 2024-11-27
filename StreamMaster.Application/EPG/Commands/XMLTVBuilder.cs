@@ -43,7 +43,6 @@ public class XMLTVBuilder(
         }
     }
 
-
     public string GetUrlWithPath()
     {
         HttpRequest? request = httpContextAccessor.HttpContext?.Request;
@@ -305,6 +304,4 @@ public class XMLTVBuilder(
         // Add accumulated channels and programmes to the xmlTv in a batch operation.
         return (newChannels, newProgrammes);
     }
-
-
 }

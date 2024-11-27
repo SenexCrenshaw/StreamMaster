@@ -31,7 +31,6 @@ namespace StreamMaster.SchedulesDirect.Converters
 
             InitializeDataDictionaries();
 
-            // Reset custom stream data if needed
             if (videoStreamConfigs != null)
             {
                 schedulesDirectDataService.CustomStreamData().ResetLists();
