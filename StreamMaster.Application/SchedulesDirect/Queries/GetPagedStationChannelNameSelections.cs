@@ -1,9 +1,6 @@
-﻿using StreamMaster.Domain.Filtering;
+﻿using System.Text.Json;
 
-using System.Text.Json;
-
-using X.Extensions.PagedList.EF;
-
+using StreamMaster.Domain.Filtering;
 namespace StreamMaster.Application.SchedulesDirect.Queries;
 
 public record GetPagedStationChannelNameSelections(QueryStringParameters Parameters) : IRequest<PagedResponse<StationChannelName>>;
@@ -39,11 +36,16 @@ internal class GetPagedStationChannelNamesHandler(ISchedulesDirectDataService sc
             }
         }
 
-        IPagedList<StationChannelName> pagedList = await programmes.OrderBy(a => a.DisplayName)
-            .ToPagedListAsync(request.Parameters.PageNumber, request.Parameters.PageSize)
-            .ConfigureAwait(false);
+        //IPagedList<StationChannelName> pagedList = await programmes.OrderBy(a => a.DisplayName)
+        //    .ToPagedListAsync(request.Parameters.PageNumber, request.Parameters.PageSize)
+        //    .ConfigureAwait(false);
 
-        PagedResponse<StationChannelName> pagedResponse = pagedList.ToPagedResponse();
-        return pagedResponse;
+        //PagedResponse<StationChannelName> pagedResponse = pagedList.ToPagedResponse();
+        PagedResponse<StationChannelName> pagedList = await programmes.OrderBy(a => a.DisplayName)
+        .GetPagedResponseAsync(request.Parameters.PageNumber, request.Parameters.PageSize)
+        .ConfigureAwait(false);
+
+        //PagedResponse<StationChannelName> pagedResponse = pagedList.ToPagedResponse();
+        return pagedList;
     }
 }

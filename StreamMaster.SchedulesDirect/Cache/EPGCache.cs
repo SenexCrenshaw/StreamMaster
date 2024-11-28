@@ -5,7 +5,7 @@ using StreamMaster.Domain.Models;
 
 namespace StreamMaster.SchedulesDirect.Cache;
 
-public partial class EPGCache<T> : IEPGCache<T>
+public partial class EPGCache<T> : IEPGCache<T>, IDisposable
 {
     public Dictionary<string, EPGJsonCache> JsonFiles { get; set; } = [];
     private readonly SemaphoreSlim _cacheSemaphore = new(1, 1);
@@ -145,12 +145,7 @@ public partial class EPGCache<T> : IEPGCache<T>
 
     public string? GetAsset(string md5)
     {
-        if (JsonFiles.TryGetValue(md5, out EPGJsonCache? cache))
-        {
-            cache.Current = true;
-            return cache.JsonEntry;
-        }
-        return null;
+        return JsonFiles.TryGetValue(md5, out EPGJsonCache? cache) ? cache.JsonEntry : null;
     }
 
     private static string? CleanJsonText(string? json)
@@ -177,13 +172,12 @@ public partial class EPGCache<T> : IEPGCache<T>
 
         EPGJsonCache epgJson = new()
         {
-            JsonEntry = json,
-            Current = true
+            JsonEntry = json
         };
         JsonFiles.Add(md5, epgJson);
     }
 
-    public void CreateOrUpdateAsset(string md5, string? json)
+    public void AddOrUpdateAsset(string md5, string? json)
     {
         json = CleanJsonText(json);
         if (!JsonFiles.TryGetValue(md5, out EPGJsonCache? value))
@@ -193,7 +187,6 @@ public partial class EPGCache<T> : IEPGCache<T>
         else
         {
             value.JsonEntry = json;
-            value.Current = true;
         }
     }
     public List<string> GetExpiredKeys()
@@ -204,7 +197,7 @@ public partial class EPGCache<T> : IEPGCache<T>
 
     public void RemovedExpiredKeys(List<string>? keysToDelete = null)
     {
-        //keysToDelete ??= GetExpiredKeys();
+        keysToDelete ??= GetExpiredKeys();
         //foreach (string key in keysToDelete)
         //{
         //    _ = JsonFiles.Remove(key);
@@ -214,7 +207,12 @@ public partial class EPGCache<T> : IEPGCache<T>
 
     public void ResetCache()
     {
-        string filename = BuildInfo.SDEPGCacheFile;
+        string filename = GetFilename();
+        if (!File.Exists(filename))
+        {
+            return;
+        }
+
         if (File.Exists(filename))
         {
             File.Delete(filename);
@@ -250,17 +248,17 @@ public partial class EPGCache<T> : IEPGCache<T>
         }
     }
 
-    public async Task WriteToCacheAsync(string name, T data, CancellationToken cancellationToken = default)
+    public async Task WriteToCacheAsync(string command, T data, CancellationToken cancellationToken = default)
     {
         await _cacheSemaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
         {
-            string cacheKey = SDHelpers.GenerateCacheKey(name);
+            string cacheKey = SDHelpers.GenerateCacheKey(command);
             string cachePath = Path.Combine(BuildInfo.SDJSONFolder, cacheKey);
             SDCacheEntry<T> cacheEntry = new()
             {
                 Data = data,
-                Command = name,
+                Command = command,
                 Content = string.Empty,
                 Timestamp = DateTime.UtcNow
             };
@@ -270,7 +268,7 @@ public partial class EPGCache<T> : IEPGCache<T>
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error while writing data to cache for {Name}", name);
+            logger.LogError(ex, "Error while writing data to cache for {Name}", command);
         }
         finally
         {
@@ -284,11 +282,18 @@ public partial class EPGCache<T> : IEPGCache<T>
 
         if (artwork == null)
         {
-            CreateOrUpdateAsset(cacheKey, string.Empty);
+            AddOrUpdateAsset(cacheKey, string.Empty);
             return;
         }
 
         string artworkJson = JsonSerializer.Serialize(artwork);
-        CreateOrUpdateAsset(cacheKey, artworkJson);
+        AddOrUpdateAsset(cacheKey, artworkJson);
+    }
+
+    public void Dispose()
+    {
+        SaveCache();
+        _cacheSemaphore.Dispose();
+
     }
 }

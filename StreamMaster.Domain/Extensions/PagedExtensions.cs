@@ -2,9 +2,7 @@
 
 using Microsoft.EntityFrameworkCore;
 
-using StreamMaster.Domain.API;
-
-using X.Extensions.PagedList.EF;
+using X.PagedList.EF;
 namespace StreamMaster.Domain.Extensions;
 
 public static class PagedExtensions

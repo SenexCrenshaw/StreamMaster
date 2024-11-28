@@ -41,7 +41,10 @@ public class SeasonImages(
 
             if (epgCache.JsonFiles.TryGetValue(uid, out EPGJsonCache? cache) && !string.IsNullOrEmpty(cache.JsonEntry))
             {
-                cache.Current = true;
+
+
+                cache.SetCurrent();
+
                 ProcessCachedImages(season, cache);
                 imageDownloadQueue.EnqueueProgramArtworkCollection(season.ArtWorks);
                 if (!string.IsNullOrEmpty(season.ProtoTypicalProgram))

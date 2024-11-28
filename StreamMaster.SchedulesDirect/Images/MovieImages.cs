@@ -36,6 +36,7 @@ public class MovieImages(ILogger<MovieImages> logger, IEPGCache<MovieImages> epg
                 {
                     if (cachedFile != null && !string.IsNullOrEmpty(cachedFile.JsonEntry))
                     {
+                        cachedFile.SetCurrent();
                         List<ProgramArtwork>? artworks = JsonSerializer.Deserialize<List<ProgramArtwork>>(cachedFile.JsonEntry);
                         mxfProgram.ArtWorks = artworks ?? ([]);
                         imageDownloadQueue.EnqueueProgramArtworkCollection(mxfProgram.ArtWorks);

@@ -12,6 +12,9 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <Optimize>False</Optimize>
   </PropertyGroup>
+	<ItemGroup>
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
+	</ItemGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
     <Optimize>False</Optimize>
   </PropertyGroup>
@@ -35,7 +38,6 @@
     <PackageReference Include="MediatR" Version="12.4.1" />
     <PackageReference Include="MessagePack.Annotations" Version="2.5.192" />
     <PackageReference Include="Microsoft.AspNetCore.DataProtection.EntityFrameworkCore" Version="9.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="5.0.17" />
     
     <PackageReference Include="Reinforced.Typings" Version="1.6.5" />
     <PackageReference Include="System.Formats.Asn1" Version="9.0.0" />
@@ -45,7 +47,7 @@
     <PackageReference Include="Microsoft.Extensions.Features" Version="9.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.0" />
     <PackageReference Include="System.Text.Json" Version="9.0.0" />
-    <PackageReference Include="X.Extensions.PagedList.EF" Version="10.1.2" />
     <PackageReference Include="X.PagedList" Version="10.5.7" />
+    <PackageReference Include="X.PagedList.EF" Version="10.5.7" />
   </ItemGroup>
 </Project>

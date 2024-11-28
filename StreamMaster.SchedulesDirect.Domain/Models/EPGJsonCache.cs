@@ -1,18 +1,30 @@
 ﻿using System.Text.Json.Serialization;
 
-using MessagePack;
+using StreamMaster.Domain.Extensions;
 
 namespace StreamMaster.SchedulesDirect.Domain.Models;
 
 public class EPGJsonCache
 {
+    private string? jsonEntry;
+
     [JsonPropertyName("jsonEntry")]
-    public string? JsonEntry { get; set; }
+    public string? JsonEntry
+    {
+        get => jsonEntry; set
+        {
+            if (value != null) { SetCurrent(); jsonEntry = value; }
+        }
+    }
 
-    //[JsonPropertyName("images")]
-    //public string? Images { get; set; }
+    //[JsonIgnore]
+    //[IgnoreMember]
+    public bool Current => LastUpdated.AddDays(BuildInfo.SDCacheDurationDays) > SMDT.UtcNow;
 
-    [JsonIgnore]
-    [IgnoreMember]
-    public bool Current { get; set; }
+    public DateTime LastUpdated { get; set; } = SMDT.UtcNow;
+
+    public void SetCurrent()
+    {
+        LastUpdated = SMDT.UtcNow;
+    }
 }

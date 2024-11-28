@@ -128,6 +128,8 @@ namespace StreamMaster.Domain.Configuration
 
         public static readonly string DupDataFolder = Path.Combine(CacheFolder, "DuplicateStreamLists");
 
+        public static readonly int SDCacheDurationDays = 14;
+
         //public static readonly string ProgrammeIconDataFolder = Path.Combine(CacheFolder, "ProgrammeIcons");
         public static readonly string SDJSONFolder = Path.Combine(CacheFolder, "SDJson");
         public static readonly string SDXMLFile = Path.Combine(SDJSONFolder, "streammaster.xmltv");
@@ -158,7 +160,7 @@ namespace StreamMaster.Domain.Configuration
         public static readonly string MessagesFolder = Path.Combine(AppDataFolder, "Messages");
         public static readonly string MessageNoStreamsLeft = Path.Combine(MessagesFolder, "NoStreamsLeft.mp4");
 
-        public static readonly string SDEPGCacheFile = Path.Combine(SDJSONFolder, "epgCache.json");
+        //public static readonly string SDEPGCacheFile = Path.Combine(SDJSONFolder, "epgCache.json");
         public static readonly string LogoDefault = Path.Combine("images", "default.png");
 
         public static readonly string LogFileName = "StreamMasterAPI";

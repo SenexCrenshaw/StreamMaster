@@ -44,7 +44,7 @@ namespace StreamMaster.SchedulesDirect.Services
                     continue;
                 }
 
-                if (epgCache.JsonFiles.ContainsKey(mxfProgram.MD5))
+                if (epgCache.JsonFiles.TryGetValue(mxfProgram.MD5, out EPGJsonCache? cacheFile))
                 {
                     // Try to load cached program
                     try
@@ -56,6 +56,7 @@ namespace StreamMaster.SchedulesDirect.Services
                         }
                         else
                         {
+                            cacheFile.SetCurrent();
                             Programme sdProgram = JsonSerializer.Deserialize<Programme>(json) ?? throw new Exception("Deserialization failed.");
                             BuildMxfProgram(mxfProgram, sdProgram);
                             continue;
@@ -547,7 +548,7 @@ namespace StreamMaster.SchedulesDirect.Services
                                 {
                                     cached.StartAirdate = mxfProgram.OriginalAirdate ?? string.Empty;
                                     string jsonString = JsonSerializer.Serialize(cached);
-                                    epgCache.CreateOrUpdateAsset(mxfProgram.ProgramId, jsonString);
+                                    epgCache.AddOrUpdateAsset(mxfProgram.ProgramId, jsonString);
                                 }
                             }
                         }

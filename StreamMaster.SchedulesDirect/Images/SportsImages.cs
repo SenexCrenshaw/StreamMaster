@@ -34,6 +34,7 @@ public class SportsImages(
                     if (cachedFile != null && !string.IsNullOrEmpty(cachedFile.JsonEntry))
                     {
                         ProcessCachedImages(sportEvent, cachedFile);
+                        cachedFile.SetCurrent();
                     }
                 }
             }

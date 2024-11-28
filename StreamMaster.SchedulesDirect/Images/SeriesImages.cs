@@ -52,7 +52,9 @@ public class SeriesImages(
                 !refresh &&
                 epgCache.JsonFiles.TryGetValue(seriesId, out EPGJsonCache? value) && !string.IsNullOrEmpty(value.JsonEntry))
             {
+                value.SetCurrent();
                 ProcessCachedImages(series, value);
+
                 //seriesImageQueue.Add($"SH{series.SeriesId}0000");
                 imageDownloadQueue.EnqueueProgramArtworkCollection(series.ArtWorks);
             }

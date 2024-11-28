@@ -135,14 +135,6 @@ public class LineupService : ILineupService
         return false;
     }
 
-    //private void UpdateIcons(ICollection<MxfService> Services)
-    //{
-    //    foreach (MxfService? service in Services.Where(a => a.extras.ContainsKey("logo")))
-    //    {
-    //        StationImage artwork = service.extras["logo"];
-    //        //logoService.AddLogo(artwork.Url, service.CallSign);
-    //    }
-    //}
 
     private void SetStationDetails(LineupStation station, MxfService mxfService, string preferredLogoStyle, string alternateLogoStyle)
     {

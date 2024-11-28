@@ -14,7 +14,7 @@ namespace StreamMaster.SchedulesDirect.Domain.Interfaces
         void AddAsset(string md5, string? json);
         string? GetAsset(string md5);
         void ResetCache();
-        void CreateOrUpdateAsset(string md5, string? json);
+        void AddOrUpdateAsset(string md5, string? json);
         //void UpdateAssetJsonEntry(string md5, string? json);
         void SaveCache();
         void ReleaseCache();

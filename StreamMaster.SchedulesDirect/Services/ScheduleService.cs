@@ -234,8 +234,9 @@ public class ScheduleService(ILogger<ScheduleService> logger, IImageDownloadServ
         {
             if (stationResponse.TryGetValue(day, out ScheduleMd5Response? dayResponse) && dayResponse.Code == 0 && !string.IsNullOrEmpty(dayResponse.Md5))
             {
-                if (epgCache.JsonFiles.ContainsKey(dayResponse.Md5))
+                if (epgCache.JsonFiles.TryGetValue(dayResponse.Md5, out EPGJsonCache? cacheFile))
                 {
+                    cacheFile.SetCurrent();
                     ++processedObjects;
                     ++cachedSchedules;
                 }
