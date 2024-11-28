@@ -276,6 +276,12 @@ public class StreamGroupService(IHttpContextAccessor httpContextAccessor, IOptio
         return CryptoUtils.EncodeThreeValues(streamGroup.Id, streamGroupProfileId, smChannelId, settingsValue.ServerKey, streamGroup.GroupKey);
     }
 
+    private string GetLogoUrl(string baseUrl, SMChannel smChannel)
+    {
+        return settings.CurrentValue.LogoCache || !smChannel.Logo.StartsWithIgnoreCase("http")
+            ? $"{baseUrl}/api/files/sm/{smChannel.Id}"
+            : smChannel.Logo;
+    }
     public async Task<(List<VideoStreamConfig> videoStreamConfigs, StreamGroupProfile streamGroupProfile)> GetStreamGroupVideoConfigsAsync(int streamGroupProfileId)
     {
         chNos.Clear();
@@ -319,7 +325,7 @@ public class StreamGroupService(IHttpContextAccessor httpContextAccessor, IOptio
             OutputProfileDto outputProfile = originalOutputProfile.DeepCopy();
 
             string cleanName = smChannel.Name.ToCleanFileString();
-            string logo = $"{baseUrl}/api/files/sm/{smChannel.Id}";
+            string logo = GetLogoUrl(baseUrl, smChannel);
             string epgId = string.IsNullOrEmpty(smChannel.EPGId) ? EPGHelper.DummyId + "-Dummy" : smChannel.EPGId;
 
             StationChannelName? match = cacheManager.StationChannelNames
