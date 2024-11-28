@@ -1,11 +1,11 @@
-import { memo, useState } from 'react';
-import useGetLogNames from '@lib/smAPI/Logs/useGetLogNames';
-import { BaseSettings } from './BaseSettings';
-import SMPopUp from '@components/sm/SMPopUp';
-import LogDisplay from './LogDisplay';
-import { ScrollPanel } from 'primereact/scrollpanel';
 import CopyButton from '@components/buttons/CopyButton';
 import SaveButton from '@components/buttons/SaveButton';
+import SMPopUp from '@components/sm/SMPopUp';
+import useGetLogNames from '@lib/smAPI/Logs/useGetLogNames';
+import { ScrollPanel } from 'primereact/scrollpanel';
+import { memo, useState } from 'react';
+import { BaseSettings } from './BaseSettings';
+import LogDisplay from './LogDisplay';
 
 const LogsDialog = () => {
   const query = useGetLogNames();
@@ -51,7 +51,7 @@ const LogsDialog = () => {
                     </div>
                   }
                 >
-                  <LogDisplay logName={logName} onDataChange={setLogContent} />
+                  <LogDisplay LogName={logName} onDataChange={setLogContent} />
                 </SMPopUp>
               </div>
             </div>

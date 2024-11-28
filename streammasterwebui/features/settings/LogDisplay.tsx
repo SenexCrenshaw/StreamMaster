@@ -1,14 +1,15 @@
-import { memo, useEffect } from 'react';
 import useGetLogContents from '@lib/smAPI/Logs/useGetLogContents';
+import { GetLogContentsRequest } from '@lib/smAPI/smapiTypes';
 import { ScrollPanel } from 'primereact/scrollpanel';
+import { memo, useEffect } from 'react';
 
 interface LogDisplayProperties {
-  readonly logName: string;
+  readonly LogName: string;
   onDataChange?: (logContent: string) => void;
 }
 
-const LogDisplay = ({ logName, onDataChange }: LogDisplayProperties) => {
-  const query = useGetLogContents({ logName });
+const LogDisplay = ({ LogName, onDataChange }: LogDisplayProperties) => {
+  const query = useGetLogContents({ LogName } as GetLogContentsRequest);
 
   const parsedJsonString = query.data
     ? query.data
