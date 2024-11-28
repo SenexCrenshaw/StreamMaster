@@ -52,6 +52,7 @@ namespace StreamMaster.Infrastructure.Services
             foreach (XmltvChannel xmlChannel in channels)
             {
                 if (xmlChannel.DisplayNames == null) { continue; }
+
                 List<XmltvText> displayNames = xmlChannel.DisplayNames;
                 string callSign = displayNames.Count > 0 ? displayNames[0]?.Text ?? xmlChannel.Id : xmlChannel.Id;
                 string name = displayNames.Count > 1 ? displayNames[1]?.Text ?? callSign : callSign;
@@ -62,10 +63,10 @@ namespace StreamMaster.Infrastructure.Services
                 StationChannelName stationChannelName = new(channel, displayName, name, iconSrc ?? "", epgNumber);
 
                 value.Add(stationChannelName);
-                cacheManager.StationChannelNames[epgNumber] = value;
-                return value;
+
             }
-            return null;
+            cacheManager.StationChannelNames[epgNumber] = value;
+            return value;
         }
 
         public async Task<List<XmltvChannel>> GetChannelsFromXmlAsync(string epgPath)
