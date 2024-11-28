@@ -262,7 +262,6 @@ public class ScheduleService(ILogger<ScheduleService> logger, IImageDownloadServ
 
     private void ProcessScheduleResponses(List<ScheduleResponse> responses, Dictionary<string, string[]> tempScheduleEntries)
     {
-
         foreach (ScheduleResponse response in responses)
         {
             ++processedObjects;
@@ -277,7 +276,6 @@ public class ScheduleService(ILogger<ScheduleService> logger, IImageDownloadServ
             {
                 try
                 {
-
                     string jsonString = JsonSerializer.Serialize(response, BuildInfo.JsonIndentOptionsWhenWritingNull);
                     epgCache.AddAsset(response.Metadata.Md5, jsonString);
                 }
@@ -301,7 +299,6 @@ public class ScheduleService(ILogger<ScheduleService> logger, IImageDownloadServ
 
     private void ProcessMd5ScheduleEntry(string md5)
     {
-
         if (!epgCache.JsonFiles.ContainsKey(md5))
         {
             return;
@@ -406,14 +403,12 @@ public class ScheduleService(ILogger<ScheduleService> logger, IImageDownloadServ
             //    mxfProgram.mxfSeason = schedulesDirectData.FindOrCreateSeason(mxfProgram.mxfSeriesInfo.SeriesId, mxfProgram.SeasonNumber, mxfProgram.ProgramId);
             //}
 
-
             MxfService mxfService = schedulesDirectData.FindOrCreateService(schedule.StationId);
             //XmltvProgramme prog = xmltvProgramBuilder.BuildXmltvProgram(scheduleEntry, schedule.StationId, 0, "");
             //mxfService.Programmes.Add(prog);
             mxfService.MxfScheduleEntries.ScheduleEntry.Add(scheduleEntry);
         }
     }
-
 
     private static void PopulateProgramExtras(MxfProgram mxfProgram, ScheduleProgram scheduleProgram)
     {

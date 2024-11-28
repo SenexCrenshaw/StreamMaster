@@ -294,6 +294,5 @@ public partial class EPGCache<T> : IEPGCache<T>, IDisposable
     {
         SaveCache();
         _cacheSemaphore.Dispose();
-
     }
 }

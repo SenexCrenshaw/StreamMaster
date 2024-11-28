@@ -373,7 +373,6 @@ namespace StreamMaster.SchedulesDirect.Services
             //    int aa = 1;
             //}
 
-
             if (sdProgram.EntityType != "Episode")
             {
                 return;

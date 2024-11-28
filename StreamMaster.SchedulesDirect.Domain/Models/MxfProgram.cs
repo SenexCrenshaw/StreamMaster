@@ -10,7 +10,7 @@ public class MxfProgram : BaseArt
     //private string? _uid;
     private string? _keywords;
     private string? _season;
-    private readonly string? _series;
+    //private readonly string? _series;
 
     private DateTime? _originalAirDate = null;
 

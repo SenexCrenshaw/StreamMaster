@@ -42,7 +42,6 @@ public class SeasonImages(
             if (epgCache.JsonFiles.TryGetValue(uid, out EPGJsonCache? cache) && !string.IsNullOrEmpty(cache.JsonEntry))
             {
 
-
                 cache.SetCurrent();
 
                 ProcessCachedImages(season, cache);
@@ -52,7 +51,6 @@ public class SeasonImages(
                     MxfProgram mxfProgram = schedulesDirectData.FindOrCreateProgram(season.ProtoTypicalProgram);
                     mxfProgram.AddArtwork(season.ArtWorks);
                 }
-
 
                 continue;
             }

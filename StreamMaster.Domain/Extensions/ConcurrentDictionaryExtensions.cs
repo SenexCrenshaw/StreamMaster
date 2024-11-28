@@ -23,7 +23,6 @@ public static class ConcurrentDictionaryExtensions
     {
         bool created = false;
 
-
         TValue value = dictionary.GetOrAdd(key, k =>
         {
             created = true;

@@ -10,7 +10,7 @@ public class Season : BaseArt
     private int _index;
     private string? _uid;
 
-    private readonly string? _series;
+    //private readonly string? _series;
     private string? _title;
 
     [XmlIgnore] public string? ProtoTypicalProgram;

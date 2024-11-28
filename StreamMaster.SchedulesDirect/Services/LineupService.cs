@@ -135,7 +135,6 @@ public class LineupService : ILineupService
         return false;
     }
 
-
     private void SetStationDetails(LineupStation station, MxfService mxfService, string preferredLogoStyle, string alternateLogoStyle)
     {
         if (!string.IsNullOrEmpty(mxfService.CallSign))

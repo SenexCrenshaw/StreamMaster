@@ -9,7 +9,6 @@ namespace StreamMaster.SchedulesDirect.Domain.Models
         private DateTime _seriesStartDate = DateTime.MinValue;
         private DateTime _seriesEndDate = DateTime.MinValue;
 
-
         private string? _uid;
 
         [XmlIgnore]
@@ -24,8 +23,6 @@ namespace StreamMaster.SchedulesDirect.Domain.Models
         }
 
         public SeriesInfo() { } // Parameterless constructor for serialization
-
-
 
         [XmlAttribute("uid")]
         public string Uid
