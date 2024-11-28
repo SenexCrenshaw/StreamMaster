@@ -4,8 +4,8 @@ namespace StreamMaster.SchedulesDirect.Domain.Interfaces
 {
     public interface IDataPreparationService
     {
-        string BaseUrl { get; }
-        IReadOnlyDictionary<int, SeriesInfo> SeriesDict { get; }
+        //string BaseUrl { get; }
+        //IReadOnlyDictionary<int, SeriesInfo> SeriesDict { get; }
         void AdjustServiceSchedules(MxfService service);
         List<MxfService> GetAllSdServices();
         OutputProfileDto GetDefaultOutputProfile();

@@ -15,7 +15,7 @@ public class MovieImages(ILogger<MovieImages> logger, IEPGCache<MovieImages> epg
     public async Task<bool> GetAllMoviePosters()
     {
         ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
-        List<MxfProgram> moviePrograms = schedulesDirectData.ProgramsToProcess
+        List<MxfProgram> moviePrograms = schedulesDirectData.ProgramsToProcess.Values
             .Where(p => p.IsMovie && !p.IsAdultOnly)
             .ToList();
 

@@ -15,18 +15,9 @@ public partial class SchedulesDirectData
 
     public void RemoveLineup(string lineupId)
     {
-        if (!Lineups.TryGetValue(lineupId, out MxfLineup? lineup))
+        if (!Lineups.TryRemove(lineupId, out MxfLineup? lineup) || lineup == null)
         {
-            Console.WriteLine($"Lineup not found {lineupId}");
-            return;
+            Console.WriteLine($"Lineup not found: {lineupId}");
         }
-
-        if (lineup == null)
-        {
-            Console.WriteLine($"Lineup not found {lineupId}");
-            return;
-        }
-
-        Lineups.TryRemove(lineupId, out _);
     }
 }

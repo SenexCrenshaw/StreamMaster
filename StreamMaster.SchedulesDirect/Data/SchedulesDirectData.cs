@@ -42,7 +42,7 @@ public partial class SchedulesDirectData(int EPGNumber) : ISchedulesDirectData
     {
         Affiliates.Clear();
 
-        GuideImages.Clear();
+        //ProgramArtworks.Clear();
 
         Keywords.Clear();
 

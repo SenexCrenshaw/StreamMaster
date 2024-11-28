@@ -7,7 +7,6 @@ public class CustomStreamData(int EPGNumber) : ICustomStreamData
 {
     public int EPGNumber { get; set; } = EPGNumber;
 
-    //public ConcurrentDictionary<string, MxfProgram> ProgramService { get; set; } = [];
     public ConcurrentDictionary<string, MxfService> Services { get; set; } = [];
     [XmlIgnore] public List<MxfProgram> ProgramsToProcess { get; set; } = [];
 
@@ -31,30 +30,7 @@ public class CustomStreamData(int EPGNumber) : ICustomStreamData
 
     public void ResetLists()
     {
-        //ProgramService.Clear();
         ProgramsToProcess.Clear();
         Services.Clear();
-
-        //Affiliates.Clear();
-
-        //GuideImages.Clear();
-
-        //Keywords.Clear();
-
-        //KeywordGroups.Clear();
-
-        //LineupService.Clear();
-
-        //People.Clear();
-
-        //Providers.Clear();
-
-        //Seasons.Clear();
-        //SeasonsToProcess.Clear();
-
-        //SeriesInfos.Clear();
-        //SeriesInfosToProcess.Clear();
-        //ScheduleEntries.Clear();
-        //ServicesToProcess.Clear();
     }
 }

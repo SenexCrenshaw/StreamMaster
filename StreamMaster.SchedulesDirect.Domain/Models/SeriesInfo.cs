@@ -9,8 +9,6 @@ namespace StreamMaster.SchedulesDirect.Domain.Models
         private DateTime _seriesStartDate = DateTime.MinValue;
         private DateTime _seriesEndDate = DateTime.MinValue;
 
-        [XmlIgnore]
-        public int Index { get; private set; }
 
         private string? _uid;
 
@@ -19,21 +17,15 @@ namespace StreamMaster.SchedulesDirect.Domain.Models
 
         [XmlIgnore]
         public Dictionary<string, dynamic> Extras { get; } = [];
-        public SeriesInfo(int index, string seriesId, string? protoTypicalProgram = null)
+        public SeriesInfo(string seriesId, string? protoTypicalProgram = null)
         {
-            Index = index;
             SeriesId = seriesId;
             ProtoTypicalProgram = protoTypicalProgram ?? string.Empty;
         }
 
         public SeriesInfo() { } // Parameterless constructor for serialization
 
-        [XmlAttribute("id")]
-        public string Id
-        {
-            get => $"si{Index}";
-            set => Index = int.Parse(value[2..]);
-        }
+
 
         [XmlAttribute("uid")]
         public string Uid

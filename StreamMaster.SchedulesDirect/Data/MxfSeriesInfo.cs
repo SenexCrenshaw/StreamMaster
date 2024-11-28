@@ -1,8 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using System.Xml.Serialization;
 
-using SeriesInfo = StreamMaster.SchedulesDirect.Domain.Models.SeriesInfo;
-
 namespace StreamMaster.SchedulesDirect.Data;
 
 public partial class SchedulesDirectData
@@ -14,10 +12,8 @@ public partial class SchedulesDirectData
 
     public SeriesInfo FindOrCreateSeriesInfo(string seriesId, string? ProgramId = null)
     {
-        (SeriesInfo seriesInfo, bool created) = SeriesInfos.FindOrCreateWithStatus(seriesId, _ => new SeriesInfo(SeriesInfos.Count + 1, seriesId, ProgramId));
-
-
-        SeriesInfosToProcess.TryAdd(seriesId, seriesInfo);
+        SeriesInfo seriesInfo = new(seriesId, ProgramId);
+        SeriesInfosToProcess.TryAdd(seriesId, new(seriesId, ProgramId));
         return seriesInfo;
     }
 }

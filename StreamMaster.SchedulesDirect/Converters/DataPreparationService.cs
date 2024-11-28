@@ -17,17 +17,17 @@ namespace StreamMaster.SchedulesDirect.Converters
         ICustomPlayListBuilder customPlayListBuilder,
         ISchedulesDirectDataService schedulesDirectDataService) : IDataPreparationService
     {
-        public string BaseUrl { get; private set; } = string.Empty;
+        //public string BaseUrl { get; private set; } = string.Empty;
 
         private readonly ConcurrentDictionary<string, MxfProgram> _programsByTitle = new();
-        private readonly ConcurrentDictionary<int, SeriesInfo> _seriesDict = new();
-        private ConcurrentDictionary<string, string> _keywordDict = new();
-        public IReadOnlyDictionary<string, string> KeywordDict => _keywordDict;
-        public IReadOnlyDictionary<int, SeriesInfo> SeriesDict => _seriesDict;
+        //private readonly ConcurrentDictionary<int, SeriesInfo> _seriesDict = new();
+        //private ConcurrentDictionary<string, string> _keywordDict = new();
+        //public IReadOnlyDictionary<string, string> KeywordDict => _keywordDict;
+        //public IReadOnlyDictionary<int, SeriesInfo> SeriesDict => _seriesDict;
 
         public void Initialize(string baseUrl, List<VideoStreamConfig>? videoStreamConfigs)
         {
-            BaseUrl = baseUrl;
+            //BaseUrl = baseUrl;
 
             InitializeDataDictionaries();
 
@@ -39,28 +39,28 @@ namespace StreamMaster.SchedulesDirect.Converters
 
         private void InitializeDataDictionaries()
         {
-            _seriesDict.Clear();
-            _keywordDict.Clear();
+            //_seriesDict.Clear();
+            //_keywordDict.Clear();
 
-            foreach (SeriesInfo seriesInfo in schedulesDirectDataService.AllSeriesInfos)
-            {
-                _ = _seriesDict.TryAdd(seriesInfo.Index, seriesInfo);
-            }
+            //foreach (SeriesInfo seriesInfo in schedulesDirectDataService.AllSeriesInfos)
+            //{
+            //    _ = _seriesDict.TryAdd(seriesInfo.Index, seriesInfo);
+            //}
 
-            _keywordDict = new ConcurrentDictionary<string, string>(
-                schedulesDirectDataService.AllKeywords
-                    .Where(k => !k.Word.EndsWithIgnoreCase("Uncategorized")
-                                && !k.Word.ContainsIgnoreCase("premiere"))
-                    .GroupBy(k => k.Id)
-                    .ToDictionary(
-                        g => g.Key,
-                        g =>
-                        {
-                            string word = g.First().Word;
-                            return word.EqualsIgnoreCase("Movies") ? "Movie" : word;
-                        }
-                    )
-            );
+            //_keywordDict = new ConcurrentDictionary<string, string>(
+            //    schedulesDirectDataService.AllKeywords
+            //        .Where(k => !k.Word.EndsWithIgnoreCase("Uncategorized")
+            //                    && !k.Word.ContainsIgnoreCase("premiere"))
+            //        .GroupBy(k => k.Id)
+            //        .ToDictionary(
+            //            g => g.Key,
+            //            g =>
+            //            {
+            //                string word = g.First().Word;
+            //                return word.EqualsIgnoreCase("Movies") ? "Movie" : word;
+            //            }
+            //        )
+            //);
         }
 
         public List<MxfService> GetServicesToProcess(List<VideoStreamConfig> videoStreamConfigs)

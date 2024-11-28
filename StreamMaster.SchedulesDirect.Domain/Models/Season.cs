@@ -10,7 +10,7 @@ public class Season : BaseArt
     private int _index;
     private string? _uid;
 
-    private string? _series;
+    private readonly string? _series;
     private string? _title;
 
     [XmlIgnore] public string? ProtoTypicalProgram;
@@ -86,11 +86,7 @@ public class Season : BaseArt
     /// This value should be specified because it doesn't make sense for a season to not be part of a series.
     /// </summary>
     [XmlAttribute("series")]
-    public string? Series
-    {
-        get => _series ?? mxfSeriesInfo?.Id;
-        set => _series = value;
-    }
+    public string? Series { get; set; }
 
     /// <summary>
     /// The name of this season.

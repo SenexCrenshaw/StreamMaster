@@ -1,33 +1,25 @@
 ﻿
 using System.Collections.Concurrent;
 
-using StreamMaster.Domain.Models;
 using StreamMaster.SchedulesDirect.Domain.Enums;
 
 namespace StreamMaster.SchedulesDirect.Domain.Interfaces;
 public interface ISchedulesDirectData
 {
+    ConcurrentDictionary<string, MxfProgram> ProgramsToProcess { get; set; }
+    ConcurrentDictionary<string, SeriesInfo> SeriesInfosToProcess { get; set; }
+    ConcurrentDictionary<string, Season> SeasonsToProcess { get; set; }
 
     ConcurrentDictionary<string, MxfAffiliate> Affiliates { get; set; }
-    ConcurrentDictionary<string, ProgramArtwork> GuideImages { get; set; }
     ConcurrentBag<MxfKeyword> Keywords { get; set; }
     ConcurrentDictionary<string, MxfKeywordGroup> KeywordGroups { get; set; }
     ConcurrentDictionary<string, MxfLineup> Lineups { get; set; }
     ConcurrentDictionary<string, MxfPerson> People { get; set; }
     ConcurrentDictionary<string, MxfProgram> Programs { get; set; }
-    List<MxfProgram> ProgramsToProcess { get; set; }
-
     ConcurrentBag<MxfProvider> Providers { get; set; }
-
     ConcurrentDictionary<string, Season> Seasons { get; set; }
     ConcurrentDictionary<string, SeriesInfo> SeriesInfos { get; set; }
-
-    ConcurrentDictionary<string, SeriesInfo> SeriesInfosToProcess { get; set; }
-    //List<MxfScheduleEntries> ScheduleEntries { get; set; }
-    ConcurrentDictionary<string, Season> SeasonsToProcess { get; set; }
-
     ConcurrentDictionary<string, MxfService> Services { get; set; }
-    void RemoveLineup(string lineup);
 
     MxfPerson FindOrCreatePerson(string name);
     Season FindOrCreateSeason(string seriesId, int seasonNumber, string? protoTypicalProgram);
@@ -35,11 +27,11 @@ public interface ISchedulesDirectData
     MxfKeywordGroup FindOrCreateKeywordGroup(KeywordGroupsEnum groupEnum, bool overflow = false);
     MxfProgram FindOrCreateProgram(string programId);
     MxfAffiliate FindOrCreateAffiliate(string affiliateName);
-    ProgramArtwork? FindOrCreateProgramArtwork(ProgramArtwork artwork);
     MxfLineup FindOrCreateLineup(string lineupId, string lineupName);
     MxfService FindOrCreateService(string stationId);
-    Task<MxfService> FindOrCreateDummyService(string stationId, VideoStreamConfig videoStreamConfig);
-    MxfService? GetService(string stationId);
+    MxfService? FindService(string stationId);
+
+    void RemoveLineup(string lineup);
     void RemoveProgram(string programId);
     void RemoveService(string stationId);
     void ResetLists();

@@ -10,7 +10,7 @@ public class MxfProgram : BaseArt
     //private string? _uid;
     private string? _keywords;
     private string? _season;
-    private string? _series;
+    private readonly string? _series;
 
     private DateTime? _originalAirDate = null;
 
@@ -186,12 +186,7 @@ public class MxfProgram : BaseArt
     /// If this value is not known, do not specify a value.
     /// </summary>
     [XmlAttribute("series")]
-    public string? Series
-    {
-        get => _series ?? mxfSeriesInfo?.Id;
-        set => _series = value;
-    }
-
+    public string? Series { get; set; }
     /// <summary>
     /// The star rating of the program.
     /// Each star equals two points. For example, a value of "3" is equal to 1.5 stars.
