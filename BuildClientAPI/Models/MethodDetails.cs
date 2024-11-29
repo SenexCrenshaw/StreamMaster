@@ -1,7 +1,4 @@
-﻿
-// Example structure for method details
-
-namespace BuildClientAPI.Models;
+﻿namespace BuildClientAPI.Models;
 public class MethodDetails
 {
     public string Name { get; set; } = string.Empty;

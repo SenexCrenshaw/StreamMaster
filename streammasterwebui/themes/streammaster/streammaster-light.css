@@ -71,6 +71,12 @@
   align-items: center;
 }
 
+.sm-start-stuff {
+  display: flex;
+  justify-content: start;
+  align-items: center;
+}
+
 .sm-end-stuff {
   display: flex;
   justify-content: end;

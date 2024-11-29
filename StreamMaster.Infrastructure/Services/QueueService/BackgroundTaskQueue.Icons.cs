@@ -15,23 +15,9 @@ public partial class BackgroundTaskQueue : ILogoTasks
         await QueueAsync(SMQueCommand.CacheStreamLogos, cancellationToken).ConfigureAwait(false);
     }
 
-    //public async ValueTask BuildLogosCacheFromVideoStreams(CancellationToken cancellationToken = default)
-    //{
-    //    await QueueAsync(SMQueCommand.BuildLogosCacheFromVideoStreams, cancellationToken).ConfigureAwait(false);
-    //}
-
-    public async ValueTask BuildProgLogosCacheFromEPGs(CancellationToken cancellationToken = default)
+    public async ValueTask ScanForTvLogos(CancellationToken cancellationToken = default)
     {
-        await QueueAsync(SMQueCommand.BuildProgLogosCacheFromEPGs, cancellationToken).ConfigureAwait(false);
+        await QueueAsync(SMQueCommand.ScanForTvLogos, cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task ReadDirectoryLogos(CancellationToken cancellationToken = default)
-    {
-        await QueueAsync(SMQueCommand.ReadDirectoryLogosRequest, cancellationToken).ConfigureAwait(false);
-    }
-
-    public async ValueTask ScanDirectoryForLogoFiles(CancellationToken cancellationToken = default)
-    {
-        await QueueAsync(SMQueCommand.ScanDirectoryForLogoFiles, cancellationToken).ConfigureAwait(false);
-    }
 }

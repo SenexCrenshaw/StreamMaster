@@ -54,7 +54,7 @@ public class UpdateSMChannelRequestHandler(IRepositoryWrapper Repository, IImage
             {
                 smChannel.Logo = request.Logo;
                 LogoInfo  nl = new(request.Logo);
-                imageDownloadQueue.EnqueueLogoInfo(nl);
+                imageDownloadQueue.EnqueueLogo(nl);
 
                 ret.Add(new FieldData(() => smChannel.Logo));
             }

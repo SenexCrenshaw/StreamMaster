@@ -1,7 +1,9 @@
 ﻿using System.Web;
 
 namespace StreamMaster.Application.M3UFiles.Commands;
-
+[SMAPI]
+[TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
+public record CreateM3UFileRequest(string Name, int? MaxStreamCount, string? M3U8OutPutProfile, M3UKey? M3UKey, M3UField? M3UName, string? DefaultStreamGroupName, string? UrlSource, bool? SyncChannels, int? HoursToUpdate, int? StartingChannelNumber, bool? AutoSetChannelNumbers, List<string>? VODTags) : IRequest<APIResponse>;
 [LogExecutionTimeAspect]
 public class CreateM3UFileRequestHandler(ILogger<CreateM3UFileRequest> Logger, IM3UFileService m3UFileService, IM3UToSMStreamsService m3UToSMStreamsService, IFileUtilService fileUtilService, ICacheManager CacheManager, IMessageService messageService, IDataRefreshService dataRefreshService, IRepositoryWrapper Repository, IPublisher Publisher)
     : IRequestHandler<CreateM3UFileRequest, APIResponse>
@@ -17,7 +19,7 @@ public class CreateM3UFileRequestHandler(ILogger<CreateM3UFileRequest> Logger, I
 
         try
         {
-            (M3UFile m3uFile, fullName) = m3UFileService.CreateM3UFile(request);
+            (M3UFile m3uFile, fullName) = m3UFileService.CreateM3UFile(request.Name, request.MaxStreamCount, request.M3U8OutPutProfile, request.M3UKey, request.M3UName, request.DefaultStreamGroupName, request.UrlSource, request.SyncChannels, request.HoursToUpdate, request.StartingChannelNumber, request.AutoSetChannelNumbers, request.VODTags);
 
             await messageService.SendInfo($"Adding M3U '{request.Name}'");
             Logger.LogInformation("Adding M3U '{name}'", request.Name);
@@ -58,7 +60,7 @@ public class CreateM3UFileRequestHandler(ILogger<CreateM3UFileRequest> Logger, I
             m3uFile.Url = source;
             m3uFile.LastDownloaded = File.GetLastWriteTime(fullName);
             m3uFile.FileExists = true;
-            m3uFile.MaxStreamCount = Math.Max(0, request.MaxStreamCount);
+            m3uFile.MaxStreamCount = Math.Max(0, request.MaxStreamCount ?? 0);
 
             Repository.M3UFile.CreateM3UFile(m3uFile);
             _ = await Repository.SaveAsync().ConfigureAwait(false);

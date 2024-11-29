@@ -6,6 +6,7 @@ import GetChannelGroupsReducer from '@lib/smAPI/ChannelGroups/GetChannelGroupsSl
 import GetChannelGroupsFromSMChannelsReducer from '@lib/smAPI/ChannelGroups/GetChannelGroupsFromSMChannelsSlice';
 import GetChannelMetricsReducer from '@lib/smAPI/Statistics/GetChannelMetricsSlice';
 import GetCommandProfilesReducer from '@lib/smAPI/Profiles/GetCommandProfilesSlice';
+import GetCustomLogosReducer from '@lib/smAPI/Logos/GetCustomLogosSlice';
 import GetCustomPlayListReducer from '@lib/smAPI/Custom/GetCustomPlayListSlice';
 import GetCustomPlayListsReducer from '@lib/smAPI/Custom/GetCustomPlayListsSlice';
 import GetDownloadServiceStatusReducer from '@lib/smAPI/General/GetDownloadServiceStatusSlice';
@@ -152,6 +153,7 @@ export const rootReducer = combineReducers({
   GetChannelGroupsFromSMChannels: GetChannelGroupsFromSMChannelsReducer,
   GetChannelMetrics: GetChannelMetricsReducer,
   GetCommandProfiles: GetCommandProfilesReducer,
+  GetCustomLogos: GetCustomLogosReducer,
   GetCustomPlayList: GetCustomPlayListReducer,
   GetCustomPlayLists: GetCustomPlayListsReducer,
   GetDownloadServiceStatus: GetDownloadServiceStatusReducer,

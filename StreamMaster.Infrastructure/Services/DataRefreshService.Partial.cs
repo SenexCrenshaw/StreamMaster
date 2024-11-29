@@ -57,6 +57,15 @@ public partial class DataRefreshService : IDataRefreshServicePartial
         await hub.Clients.All.DataRefresh("GetDownloadServiceStatus");
     }
 
+    public async Task SendStatus(ImageDownloadServiceStatus imageDownloadServiceStatus)
+    {
+        if (!BuildInfo.IsSystemReady)
+        {
+            return;
+        }
+        await hub.Clients.All.SendStatus(imageDownloadServiceStatus);
+    }
+
     public async Task RefreshStationPreviews()
     {
         if (!BuildInfo.IsSystemReady)

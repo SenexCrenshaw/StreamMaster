@@ -23,7 +23,7 @@ public static class FileDefinitions
     //public static FileDefinition SDImage { get; } = CreateDefinition(BuildInfo.SDImagesFolder, ".png", SMFileTypes.SDImage);
     //public static FileDefinition SDStationLogos { get; } = CreateDefinition(BuildInfo.SDStationLogosFolder, ".png", SMFileTypes.SDStationLogo);
     public static FileDefinition ProgramLogo { get; } = CreateDefinition(BuildInfo.ProgramLogoFolder, ".png", SMFileTypes.ProgramLogo);
-    public static FileDefinition CustomLogo { get; } = CreateDefinition(BuildInfo.ProgramLogoFolder, ".png", SMFileTypes.CustomLogo);
+    public static FileDefinition CustomLogo { get; } = CreateDefinition(BuildInfo.CustomLogoFolder, ".png", SMFileTypes.CustomLogo);
     //public static FileDefinition SDProgramLogo { get; } = CreateDefinition(BuildInfo.SDProgramLogoFolder, ".png", SMFileTypes.SDProgramLogo);
 
     public static FileDefinition? GetFileDefinition(SMFileTypes fileType)

@@ -64,7 +64,6 @@
     </AdditionalFiles>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="AspectInjector" Version="2.8.2" />
     <PackageReference Include="AutoMapper" Version="13.0.1" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.11.0" />
     
@@ -73,6 +72,7 @@
     <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="9.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.0" />
+    <PackageReference Include="Svg" Version="3.4.7" />
     <PackageReference Include="X.PagedList" Version="10.5.7" />
   </ItemGroup>
   <ItemGroup>

@@ -54,7 +54,7 @@ public class CreateMultiViewChannelRequestHandler(ILogger<CreateMultiViewChannel
             }
 
             //LogoInfo  LogoInfo  = new LogoInfo (smChannel);
-            //imageDownloadQueue.EnqueueLogoInfo(LogoInfo );
+            //imageDownloadQueue.EnqueueLogo(LogoInfo );
 
             await dataRefreshService.RefreshAllSMChannels();
             await messageService.SendSuccess("Channel Added", $"Channel '{request.Name}' added successfully");

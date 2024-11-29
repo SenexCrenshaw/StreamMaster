@@ -1,7 +1,10 @@
 ﻿using Microsoft.AspNetCore.Http;
 
 namespace StreamMaster.Application.M3UFiles.Commands;
-
+[SMAPI(JustController = true, JustHub = true)]
+[TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
+public record CreateM3UFileFromFormRequest(string Name, int? MaxStreamCount, string? M3U8OutPutProfile, M3UKey? M3UKey, M3UField? M3UName, int? StartingChannelNumber, bool? AutoSetChannelNumbers, string? DefaultStreamGroupName, int? HoursToUpdate, bool? SyncChannels, IFormFile? FormFile, List<string>? VODTags)
+    : IRequest<APIResponse>;
 [LogExecutionTimeAspect]
 public class CreateM3UFileFromFormRequestHandler(ILogger<CreateM3UFileFromFormRequest> Logger, IM3UToSMStreamsService m3UToSMStreamsService, IM3UFileService m3UFileService, IFileUtilService fileUtilService, ICacheManager CacheManager, IMessageService messageService, IDataRefreshService dataRefreshService, IRepositoryWrapper Repository, IPublisher Publisher)
     : IRequestHandler<CreateM3UFileFromFormRequest, APIResponse>
@@ -18,7 +21,7 @@ public class CreateM3UFileFromFormRequestHandler(ILogger<CreateM3UFileFromFormRe
 
         try
         {
-            (M3UFile m3uFile, fullName) = m3UFileService.CreateM3UFile(request);
+            (M3UFile m3uFile, fullName) = m3UFileService.CreateM3UFile(request.Name, request.MaxStreamCount, request.M3U8OutPutProfile, request.M3UKey, request.M3UName, request.StartingChannelNumber, request.AutoSetChannelNumbers, request.DefaultStreamGroupName, request.HoursToUpdate, request.SyncChannels, request.FormFile, request.VODTags);
             m3uFile.LastDownloadAttempt = SMDT.UtcNow;
 
             await messageService.SendInfo($"Adding M3U '{request.Name}'");

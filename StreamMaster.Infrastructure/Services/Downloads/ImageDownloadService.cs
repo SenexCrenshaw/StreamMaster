@@ -24,9 +24,10 @@ namespace StreamMaster.Infrastructure.Services.Downloads
         private readonly IOptionsMonitor<SDSettings> sdSettings;
         private readonly ISchedulesDirectAPIService schedulesDirectAPI;
         private readonly IImageDownloadQueue imageDownloadQueue;
+        private readonly SemaphoreSlim sdDownloadSemaphore;
         private readonly SemaphoreSlim downloadSemaphore;
         private readonly HttpClient httpClient; // Reused HttpClient via factory
-
+        private DateTime Last429Dt = DateTime.MinValue;
         //private readonly object _lockObject = new();
         private static DateTime _lastRefreshTime = DateTime.MinValue;
         private static readonly Lock _refreshLock = new();
@@ -50,6 +51,7 @@ namespace StreamMaster.Infrastructure.Services.Downloads
             this.schedulesDirectAPI = schedulesDirectAPI;
             this.imageDownloadQueue = imageDownloadQueue;
             downloadSemaphore = new SemaphoreSlim(_settings.CurrentValue.MaxConcurrentDownloads);
+            sdDownloadSemaphore = new SemaphoreSlim(_settings.CurrentValue.MaxConcurrentDownloads);
             httpClient = httpClientFactory.CreateClient(); // Use HttpClientFactory here
         }
 
@@ -72,7 +74,7 @@ namespace StreamMaster.Infrastructure.Services.Downloads
             {
                 try
                 {
-                    _ = await ProcessQueuesAsync(stoppingToken).ConfigureAwait(false);
+                    await ProcessQueuesAsync(stoppingToken).ConfigureAwait(false);
                     await Task.Delay(TimeSpan.FromSeconds(1), stoppingToken).ConfigureAwait(false);
                 }
                 catch (Exception ex)
@@ -82,26 +84,19 @@ namespace StreamMaster.Infrastructure.Services.Downloads
             }
         }
 
-        private async Task<bool> ProcessQueuesAsync(CancellationToken cancellationToken)
-        {
-            // Run both processing tasks concurrently
-            bool[] results = await Task.WhenAll(
-                ProcessProgramMetadataQueue(cancellationToken),
-                ProcesslogoInfoQueue(cancellationToken)
-            ).ConfigureAwait(false);
+        private readonly bool lastLog = true;
 
-            // If no items were processed, exit early
-            bool isProcessed = results.Any(processed => processed);
-            if (isProcessed)
-            {
-                await RefreshDownloadServiceAsync();
-            }
-            return isProcessed;
+        private async Task ProcessQueuesAsync(CancellationToken cancellationToken)
+        {
+            await Task.WhenAll(
+                ProcessLogoQueue(cancellationToken),
+               ProcessProgramLogoQueue(cancellationToken)
+           ).ConfigureAwait(false);
+
         }
 
         private async Task RefreshDownloadServiceAsync()
         {
-            // Throttle the refresh logic to run at most once per second
             bool shouldRefresh = false;
             lock (_refreshLock)
             {
@@ -117,18 +112,9 @@ namespace StreamMaster.Infrastructure.Services.Downloads
                 await dataRefreshService.RefreshDownloadServiceStatus();
                 return;
             }
-
-            // Check if both queues are empty
-            bool areQueuesEmpty = imageDownloadQueue.IsProgramArtworkQueueEmpty() && imageDownloadQueue.IslogoInfoQueueEmpty();
-
-            // Only refresh if items were processed and the throttle time has passed
-            if (areQueuesEmpty || imageDownloadQueue.ProgramArtworkCount <= _settings.CurrentValue.MaxConcurrentDownloads || imageDownloadQueue.LogoInfoCount <= _settings.CurrentValue.MaxConcurrentDownloads)
-            {
-                await dataRefreshService.RefreshDownloadServiceStatus();
-            }
         }
 
-        private async Task<bool> ProcessProgramMetadataQueue(CancellationToken cancellationToken)
+        private async Task<bool> ProcessProgramLogoQueue(CancellationToken cancellationToken)
         {
             if (!CanProceedWithDownload())
             {
@@ -136,7 +122,7 @@ namespace StreamMaster.Infrastructure.Services.Downloads
             }
 
             List<ProgramArtwork> metadataBatch = imageDownloadQueue.GetNextProgramArtworkBatch(_settings.CurrentValue.MaxConcurrentDownloads);
-            ImageDownloadServiceStatus.TotalProgramMetadata = imageDownloadQueue.ProgramArtworkCount;
+            ImageDownloadServiceStatus.ProgramLogos.Queue = imageDownloadQueue.ProgramLogoCount;
 
             if (metadataBatch.Count == 0)
             {
@@ -144,28 +130,83 @@ namespace StreamMaster.Infrastructure.Services.Downloads
             }
 
             logger.LogDebug("Processing batch of ProgramMetadata: {Count}", metadataBatch.Count);
-            ImageDownloadServiceStatus.TotalProgramMetadataDownloadAttempts += metadataBatch.Count;
 
-            bool success = await DownloadProgramMetadataArtworkAsync(metadataBatch, cancellationToken);
+            await DownloadProgramLogoArtworkAsync(metadataBatch, cancellationToken);
 
-            //await RefreshDownloadServiceAsync();
-
-            ImageDownloadServiceStatus.TotalProgramMetadata = imageDownloadQueue.ProgramArtworkCount;
-            return success;
+            return false;
         }
 
-        private async Task<bool> DownloadProgramMetadataArtworkAsync(List<ProgramArtwork> artwork, CancellationToken cancellationToken)
+        private async Task DownloadProgramLogoArtworkAsync(List<ProgramArtwork> artwork, CancellationToken cancellationToken)
         {
-            //List<string> successfullyDownloaded = [];
-            bool needsRefresh = false;
             foreach (ProgramArtwork art in artwork)
             {
                 if (!CanProceedWithDownload())
                 {
-                    return false;
+                    return;
                 }
-                needsRefresh = true;
+
                 using CancellationTokenSource timeoutCts = new(TimeSpan.FromSeconds(5)); // Set your desired timeout duration
+                using CancellationTokenSource linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutCts.Token);
+
+                try
+                {
+                    await sdDownloadSemaphore.WaitAsync(linkedCts.Token);
+                }
+                catch (OperationCanceledException)
+                {
+
+                    sdDownloadSemaphore.Release();
+                    return;
+                }
+
+                try
+                {
+                    LogoInfo logoInfo = new(art.Uri, SMFileTypes.ProgramLogo, true);
+
+
+
+                    if (!string.IsNullOrEmpty(logoInfo.FullPath))
+                    {
+                        if (!File.Exists(logoInfo.FullPath))
+                        {
+                            ImageDownloadServiceStatus.ProgramLogos.Attempts++;
+                            ImageDownloadServiceStatus.ProgramLogos.Success(await DownloadImageAsync(logoInfo, cancellationToken));
+                        }
+                        else
+                        {
+                            ImageDownloadServiceStatus.ProgramLogos.AlreadyExists++;
+                        }
+                    }
+
+                    imageDownloadQueue.TryDequeueProgramArtwork(art.Uri);
+                    ImageDownloadServiceStatus.ProgramLogos.Queue = imageDownloadQueue.ProgramLogoCount;
+                    await RefreshDownloadServiceAsync();
+                }
+                finally
+                {
+                    _ = sdDownloadSemaphore.Release();
+                    await RefreshDownloadServiceAsync();
+                }
+            }
+
+            return;
+        }
+
+        private async Task ProcessLogoQueue(CancellationToken cancellationToken)
+        {
+            List<LogoInfo> logoInfoBatch = imageDownloadQueue.GetNextLogoBatch(_settings.CurrentValue.MaxConcurrentDownloads);
+            ImageDownloadServiceStatus.Logos.Queue = imageDownloadQueue.LogoCount;
+
+            if (logoInfoBatch.Count == 0)
+            {
+                return;
+            }
+
+            logger.LogDebug("Processing batch of logoInfos: {Count}", logoInfoBatch.Count);
+
+            foreach (LogoInfo logoInfo in logoInfoBatch)
+            {
+                using CancellationTokenSource timeoutCts = new(TimeSpan.FromSeconds(5));
                 using CancellationTokenSource linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutCts.Token);
 
                 try
@@ -174,50 +215,29 @@ namespace StreamMaster.Infrastructure.Services.Downloads
                 }
                 catch (OperationCanceledException)
                 {
-                    //if (timeoutCts.IsCancellationRequested)
-                    //{
-                    //    // Handle timeout specifically
-                    //    ImageDownloadServiceStatus.TotalProgramMetadataErrors++;                        
-                    //}
-                    downloadSemaphore.Release();
-                    return false;
-                }
-                finally
-                {
-                    //_ = downloadSemaphore.Release();
 
+                    downloadSemaphore.Release();
+                    return;
                 }
 
                 try
                 {
-                    LogoInfo logoInfo = new(art.Uri, SMFileTypes.ProgramLogo, true);
 
-                    if (string.IsNullOrEmpty(logoInfo.FullPath))
+                    if (logoInfo.Url.StartsWith("http") && !string.IsNullOrEmpty(logoInfo.FullPath))
                     {
-                        imageDownloadQueue.TryDequeueProgramArtwork(art.Uri);
-                        ImageDownloadServiceStatus.TotalProgramMetadataNoArt++;
-                        await RefreshDownloadServiceAsync();
-                        continue;
-                    }
-
-                    if (File.Exists(logoInfo.FullPath))
-                    {
-                        ImageDownloadServiceStatus.TotalProgramMetadataAlreadyExists++;
-                        imageDownloadQueue.TryDequeueProgramArtwork(art.Uri);
-                        await RefreshDownloadServiceAsync();
-                        continue;
+                        if (!File.Exists(logoInfo.FullPath))
+                        {
+                            ImageDownloadServiceStatus.Logos.Attempts++;
+                            ImageDownloadServiceStatus.Logos.Success(await DownloadImageAsync(logoInfo, cancellationToken));
+                        }
+                        else
+                        {
+                            ImageDownloadServiceStatus.Logos.AlreadyExists++;
+                        }
                     }
 
-                    if (await DownloadImageAsync(logoInfo, cancellationToken))
-                    {
-                        ImageDownloadServiceStatus.TotalProgramMetadataDownloaded++;
-                        needsRefresh = true;
-                    }
-                    else
-                    {
-                        ImageDownloadServiceStatus.TotalProgramMetadataErrors++;
-                    }
-                    imageDownloadQueue.TryDequeueProgramArtwork(art.Uri);
+                    imageDownloadQueue.TryDequeueLogo(logoInfo.Name);
+                    ImageDownloadServiceStatus.Logos.Queue = imageDownloadQueue.LogoCount;
                     await RefreshDownloadServiceAsync();
                 }
                 finally
@@ -225,61 +245,12 @@ namespace StreamMaster.Infrastructure.Services.Downloads
                     _ = downloadSemaphore.Release();
                     await RefreshDownloadServiceAsync();
                 }
-            }
 
-            return needsRefresh;
+
+            }
         }
 
-        private async Task<bool> ProcesslogoInfoQueue(CancellationToken cancellationToken)
-        {
-            List<LogoInfo> logoInfoBatch = imageDownloadQueue.GetNextlogoInfoBatch(_settings.CurrentValue.MaxConcurrentDownloads);
-            ImageDownloadServiceStatus.TotallogoInfo = imageDownloadQueue.LogoInfoCount;
 
-            if (logoInfoBatch.Count == 0)
-            {
-                return false;
-            }
-
-            logger.LogDebug("Processing batch of logoInfos: {Count}", logoInfoBatch.Count);
-
-            foreach (LogoInfo logoInfo in logoInfoBatch)
-            {
-                ++ImageDownloadServiceStatus.TotallogoInfoDownloadAttempts;
-
-                if (!logoInfo.Url.StartsWith("http") || string.IsNullOrEmpty(logoInfo.FullPath))
-                {
-                    ImageDownloadServiceStatus.TotallogoInfoAlreadyExists++;
-                    imageDownloadQueue.TryDequeuelogoInfo(logoInfo.Name);
-                }
-                else
-                {
-                    if (File.Exists(logoInfo.FullPath))
-                    {
-                        ImageDownloadServiceStatus.TotallogoInfoAlreadyExists++;
-                        imageDownloadQueue.TryDequeuelogoInfo(logoInfo.Name);
-                    }
-                    else
-                    {
-                        if (await DownloadImageAsync(logoInfo, cancellationToken))
-                        {
-                            ImageDownloadServiceStatus.TotallogoInfoSuccessful++;
-                            imageDownloadQueue.TryDequeuelogoInfo(logoInfo.Name);
-                        }
-                        else
-                        {
-                            ImageDownloadServiceStatus.TotallogoInfoErrors++;
-                            imageDownloadQueue.TryDequeuelogoInfo(logoInfo.Name);
-                        }
-                    }
-                }
-                await RefreshDownloadServiceAsync();
-            }
-
-            ImageDownloadServiceStatus.TotallogoInfo = imageDownloadQueue.LogoInfoCount;
-            return true;
-        }
-
-        private DateTime Last429Dt = DateTime.MinValue;
         private bool CanProceedWithDownload()
         {
             if (Last429Dt > DateTime.UtcNow)

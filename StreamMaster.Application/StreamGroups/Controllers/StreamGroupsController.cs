@@ -160,41 +160,41 @@ public partial class StreamGroupsController
         };
     }
 
-    //[Authorize(Policy = "SGLinks")]
-    //[HttpGet]
-    //[Route("{encodedId}/auto/v{channelNumber}")]
-    //public async Task<IActionResult> GetAutoStream(string encodedId, string channelNumber)
-    //{
-    //    int? streamGroupProfileId = CryptoService.DecodeInt(encodedId);
-    //    if (!streamGroupProfileId.HasValue)
-    //    {
-    //        return new NotFoundResult();
-    //    }
+    [Authorize(Policy = "SGLinks")]
+    [HttpGet]
+    [Route("{encodedId}/auto/v{channelNumber}")]
+    public async Task<IActionResult> GetAutoStream(string encodedId, string channelNumber)
+    {
+        int? streamGroupProfileId = CryptoService.DecodeInt(encodedId);
+        if (!streamGroupProfileId.HasValue)
+        {
+            return new NotFoundResult();
+        }
 
-    //    StreamGroup? streamGroup = await StreamGroupService.GetStreamGroupFromSGProfileIdAsync(streamGroupProfileId.Value).ConfigureAwait(false);
-    //    if (streamGroup == null)
-    //    {
-    //        return new NotFoundResult();
-    //    }
+        StreamGroup? streamGroup = await StreamGroupService.GetStreamGroupFromSGProfileIdAsync(streamGroupProfileId.Value).ConfigureAwait(false);
+        if (streamGroup == null)
+        {
+            return new NotFoundResult();
+        }
 
-    //    (List<VideoStreamConfig> videoStreamConfigs, StreamGroupProfile streamGroupProfile) = await StreamGroupService.GetStreamGroupVideoConfigsAsync(streamGroupProfileId.Value);
+        (List<VideoStreamConfig> videoStreamConfigs, StreamGroupProfile streamGroupProfile) = await StreamGroupService.GetStreamGroupVideoConfigsAsync(streamGroupProfileId.Value);
 
-    //    if (videoStreamConfigs is null || streamGroupProfile is null)
-    //    {
-    //        return new NotFoundResult();
-    //    }
-    //    VideoStreamConfig? videoStreamConfig = videoStreamConfigs.Find(a => a.ChannelNumber.ToString() == channelNumber);
+        if (videoStreamConfigs is null || streamGroupProfile is null)
+        {
+            return new NotFoundResult();
+        }
+        VideoStreamConfig? videoStreamConfig = videoStreamConfigs.Find(a => a.ChannelNumber.ToString() == channelNumber);
 
-    //    if (videoStreamConfig == null)
-    //    {
-    //        return new NotFoundResult();
-    //    }
+        if (videoStreamConfig == null)
+        {
+            return new NotFoundResult();
+        }
 
-    //    string url = HttpContext.Request.GetUrl();
-    //    string? encodedString = StreamGroupService.EncodeStreamGroupIdProfileIdChannelId(streamGroup, streamGroupProfileId.Value, videoStreamConfig.Id);
-    //    string cleanName = videoStreamConfig.Name.ToCleanFileString();
-    //    string videoUrl = $"{url}/api/videostreams/stream/{encodedString}/{cleanName}";
+        string url = HttpContext.Request.GetUrl();
+        string? encodedString = StreamGroupService.EncodeStreamGroupIdProfileIdChannelId(streamGroup, streamGroupProfileId.Value, videoStreamConfig.Id);
+        string cleanName = videoStreamConfig.Name.ToCleanFileString();
+        string videoUrl = $"{url}/api/videostreams/stream/{encodedString}/{cleanName}";
 
-    //    return Redirect(videoUrl);
-    //}
+        return Redirect(videoUrl);
+    }
 }

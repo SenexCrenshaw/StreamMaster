@@ -65,6 +65,8 @@ LoadAndSetSettings<OutputProfileDict, OutputProfile>(BuildInfo.OutputProfileSett
 LoadAndValidateSettings<Setting>(BuildInfo.SettingsFile, new Setting());
 LoadAndValidateSettings<SDSettings>(BuildInfo.SDSettingsFile, new SDSettings());
 
+LoadAndSetSettings<CustomLogoDict, CustomLogo>(BuildInfo.CustomLogosSettingsFile, SettingFiles.DefaultCustomLogoSetting);
+
 // Add additional settings files if they exist
 foreach (var file in settingsFiles)
 {
@@ -81,6 +83,7 @@ ConfigureSettings<SDSettings>(builder);
 //ConfigureSettings<HLSSettings>(builder);
 ConfigureSettings<CommandProfileDict>(builder);
 ConfigureSettings<OutputProfileDict>(builder);
+ConfigureSettings<CustomLogoDict>(builder);
 
 void LoadAndSetSettings<TDict, TProfile>(string settingsFile, TDict defaultSetting)
     where TDict : IProfileDict<TProfile>

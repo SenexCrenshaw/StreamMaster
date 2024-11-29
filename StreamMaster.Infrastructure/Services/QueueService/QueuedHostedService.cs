@@ -11,7 +11,6 @@ using StreamMaster.Application.Custom.Commands;
 using StreamMaster.Application.EPGFiles.Commands;
 using StreamMaster.Application.General.Commands;
 using StreamMaster.Application.Logos.Commands;
-using StreamMaster.Application.Logos.CommandsOld;
 using StreamMaster.Application.M3UFiles.Commands;
 using StreamMaster.Application.SchedulesDirect.Commands;
 using StreamMaster.Application.Services;
@@ -23,6 +22,7 @@ public sealed class QueuedHostedService(
     IBackgroundTaskQueue taskQueue,
     IServiceProvider serviceProvider,
     IMessageService messageService,
+    ILogoService logoService,
     ILogger<QueuedHostedService> logger
 ) : BackgroundService
 {
@@ -86,23 +86,15 @@ public sealed class QueuedHostedService(
                         await _sender.Send(new EPGRemovedExpiredKeysRequest(), cancellationSource.Token).ConfigureAwait(false);
                         break;
                     case SMQueCommand.CacheChannelLogos:
-                        await _sender.Send(new AddSMChannelLogosRequest(), cancellationSource.Token).ConfigureAwait(false);
+                        await _sender.Send(new CacheSMChannelLogosRequest(), cancellationSource.Token).ConfigureAwait(false);
                         break;
 
                     case SMQueCommand.CacheStreamLogos:
-                        await _sender.Send(new AddSMStreamLogosRequest(), cancellationSource.Token).ConfigureAwait(false);
+                        await _sender.Send(new CacheSMStreamLogosRequest(), cancellationSource.Token).ConfigureAwait(false);
                         break;
 
-                    case SMQueCommand.BuildProgLogosCacheFromEPGs:
-                        await _sender.Send(new BuildProgLogosCacheFromEPGsRequest(), cancellationSource.Token).ConfigureAwait(false);
-                        break;
-
-                    //case SMQueCommand.BuildLogosCacheFromVideoStreams:
-                    //    await _sender.Send(new AddStreamLogosRequest(), cancellationSource.Token).ConfigureAwait(false);
-                    //    break;
-
-                    case SMQueCommand.ReadDirectoryLogosRequest:
-                        await _sender.Send(new ReadDirectoryLogosRequest(), cancellationSource.Token).ConfigureAwait(false);
+                    case SMQueCommand.ScanForTvLogos:
+                        await logoService.ScanForTvLogosAsync(cancellationSource.Token).ConfigureAwait(false);
                         break;
 
                     case SMQueCommand.ProcessEPGFile:
@@ -128,10 +120,6 @@ public sealed class QueuedHostedService(
 
                     case SMQueCommand.ProcessM3UFiles:
                         await _sender.Send(new ProcessM3UFilesRequest(), cancellationSource.Token).ConfigureAwait(false);
-                        break;
-
-                    case SMQueCommand.ScanDirectoryForLogoFiles:
-                        await _sender.Send(new ScanDirectoryForLogoFilesRequest(), cancellationSource.Token).ConfigureAwait(false);
                         break;
 
                     case SMQueCommand.ScanDirectoryForM3UFiles:

@@ -57,7 +57,7 @@ public class CreateSMChannelRequestHandler(ILogger<CreateSMChannelRequest> Logge
             }
 
             LogoInfo  logoInfo = new(smChannel.Name, smChannel.Logo);
-            imageDownloadQueue.EnqueueLogoInfo(logoInfo);
+            imageDownloadQueue.EnqueueLogo(logoInfo);
 
             await dataRefreshService.RefreshAllSMChannels();
             await messageService.SendSuccess("Channel Added", $"Channel '{request.Name}' added successfully");

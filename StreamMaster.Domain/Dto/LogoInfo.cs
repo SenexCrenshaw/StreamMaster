@@ -19,9 +19,9 @@ public class LogoInfo
     {
         string cleanedUrl = Cleanup(url);
         IsSVG = cleanedUrl.EndsWithIgnoreCase(".svg");
-
+        string ext = Path.GetExtension(cleanedUrl);
         // Use .png for filename and extension if SVG
-        Ext = IsSVG ? ".png" : Path.GetExtension(cleanedUrl) ?? ".png";
+        Ext = IsSVG ? ".png" : string.IsNullOrEmpty(ext) ? ".png" : ext;
         Id = cleanedUrl.GenerateFNV1aHash(withExtension: false);
 
         if (isSchedulesDirect && !url.StartsWithIgnoreCase("image/"))

@@ -27,7 +27,7 @@ public class PostStartup(ILogger<PostStartup> logger, IServiceProvider servicePr
 
         await taskQueue.EPGSync(cancellationToken).ConfigureAwait(false);
 
-        await taskQueue.ReadDirectoryLogos(cancellationToken).ConfigureAwait(false);
+        await taskQueue.ScanForTvLogos(cancellationToken).ConfigureAwait(false);
 
         await taskQueue.ScanDirectoryForEPGFiles(cancellationToken).ConfigureAwait(false);
 

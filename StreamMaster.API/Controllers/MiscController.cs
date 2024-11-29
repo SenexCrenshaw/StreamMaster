@@ -34,7 +34,7 @@ public class MiscController(IImageDownloadService imageDownloadService, ICacheMa
     [Route("[action]")]
     public async Task<IActionResult> CacheSIcons(CancellationToken cancellationToken)
     {
-        await logoService.AddSMChannelLogosAsync(cancellationToken);
+        await logoService.CacheSMChannelLogosAsync(cancellationToken);
         await logoService.AddSMStreamLogosAsync(cancellationToken);
 
         return Ok();

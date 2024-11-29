@@ -13,9 +13,9 @@ public static class ImageExtensions
             return memoryStream.ToArray();
         }
     }
-    public static string? GetLogoImageFullPath(this string fileName)
+    public static string? GetLogoImageFullPath(this string Source)
     {
-        return fileName.Contains('\\') ? GetProgramTvLogoImageFullPath(fileName) : GetImageFullPath(fileName, SMFileTypes.Logo);
+        return Source.Contains('\\') ? GetProgramTvLogoImageFullPath(Source) : GetImageFullPath(Source, SMFileTypes.Logo);
     }
 
     public static string? GetProgramLogoFullPath(this string fileName)

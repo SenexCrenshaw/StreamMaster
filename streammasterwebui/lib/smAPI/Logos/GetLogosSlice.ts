@@ -1,12 +1,12 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import { Logger } from '@lib/common/logger';
-import {FieldData, LogoFileDto } from '@lib/smAPI/smapiTypes';
+import {FieldData, CustomLogoDto } from '@lib/smAPI/smapiTypes';
 import { fetchGetLogos } from '@lib/smAPI/Logos/GetLogosFetch';
 import { updateFieldInData } from '@lib/redux/updateFieldInData';
 
 
 interface QueryState {
-  data: LogoFileDto[] | undefined;
+  data: CustomLogoDto[] | undefined;
   error: string | undefined;
   isError: boolean;
   isForced: boolean;

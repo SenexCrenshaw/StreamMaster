@@ -176,9 +176,9 @@ public class LineupService : ILineupService
 
             LogoInfo logoInfo = new(title, stationLogo.Url, SMFileTypes.Logo, false);
 
-            LogoFileDto d = new() { Source = logoInfo.FileName, Value = stationLogo.Url, SMFileType = SMFileTypes.Logo, Name = title };
-            logoService.AddLogo(d);
-            imageDownloadQueue.EnqueueLogoInfo(logoInfo);
+            CustomLogoDto d = new() { Source = logoInfo.FileName, Value = stationLogo.Url, Name = title };
+            logoService.CacheLogo(d);
+            imageDownloadQueue.EnqueueLogo(logoInfo);
         }
     }
     private static StationImage? GetStationLogo(LineupStation station, string preferredLogoStyle, string alternateLogoStyle)

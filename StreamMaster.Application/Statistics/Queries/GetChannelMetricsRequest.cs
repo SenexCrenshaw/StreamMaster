@@ -140,7 +140,7 @@ internal class GetChannelMetricsRequestHandler(IRepositoryWrapper repositoryWrap
                 //}
                 if (!string.IsNullOrEmpty(newCurrentChannelLogo))
                 {
-                    logoService.AddLogo(id, currentChannelLogo);
+                    logoService.AddLogoToCache(id, currentChannelLogo);
                 }
             }
             //else

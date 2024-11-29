@@ -161,7 +161,7 @@ namespace StreamMaster.Domain.Configuration
         public static readonly string MessageNoStreamsLeft = Path.Combine(MessagesFolder, "NoStreamsLeft.mp4");
 
         //public static readonly string SDEPGCacheFile = Path.Combine(SDJSONFolder, "epgCache.json");
-        public static readonly string LogoDefault = Path.Combine("images", "default.png");
+        //public static readonly string LogoDefault = Path.Combine("images", "default.png");
 
         public static readonly string LogFileName = "StreamMasterAPI";
         public static readonly string LogFilePath = Path.Combine(LogFolder, LogFileName + ".log");
@@ -175,6 +175,9 @@ namespace StreamMaster.Domain.Configuration
 
         public static readonly string SDSettingFileName = "sdsettings.json";
         public static readonly string SDSettingsFile = GetSettingFilePath(SDSettingFileName);
+
+        public static readonly string CustomLogosFileName = "customLogos.json";
+        public static readonly string CustomLogosSettingsFile = GetSettingFilePath(CustomLogosFileName);
 
         //public static readonly string HLSSettingFileName = "hlssettings.json";
         //public static readonly string HLSSettingsFile = GetSettingFilePath(HLSSettingFileName);

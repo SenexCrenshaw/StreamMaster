@@ -4,15 +4,15 @@ namespace StreamMaster.SchedulesDirect.Domain.Interfaces;
 
 public interface IImageDownloadQueue
 {
-    void TryDequeuelogoInfo(string name);
+    void TryDequeueLogo(string name);
     void TryDequeueProgramArtwork(string id);
-    void EnqueueLogoInfo(LogoInfo logoInfo);
+    void EnqueueLogo(LogoInfo logoInfo);
 
     //void EnqueueProgramArtwork(ProgramArtwork metadata);
 
     void EnqueueProgramArtworkCollection(IEnumerable<ProgramArtwork> metadataCollection);
 
-    List<LogoInfo> GetNextlogoInfoBatch(int batchSize);
+    List<LogoInfo> GetNextLogoBatch(int batchSize);
 
     List<ProgramArtwork> GetNextProgramArtworkBatch(int batchSize);
 
@@ -20,11 +20,11 @@ public interface IImageDownloadQueue
 
     bool IsProgramArtworkQueueEmpty();
 
-    int LogoInfoCount { get; }
+    int LogoCount { get; }
 
-    int ProgramArtworkCount { get; }
+    int ProgramLogoCount { get; }
 
-    void TryDequeuelogoInfoBatch(IEnumerable<string> names);
+    void TryDequeueLogoBatch(IEnumerable<string> names);
 
     void TryDequeueProgramArtworkBatch(IEnumerable<string> ids);
 }

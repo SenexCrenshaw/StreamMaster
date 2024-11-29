@@ -1,10 +1,11 @@
 import SMDropDown from '@components/sm/SMDropDown';
-import { getIconUrl } from '@lib/common/common';
-import { Logger } from '@lib/common/logger';
+
+import { baseHostURL, isDev } from '@lib/settings';
 import useGetLogos from '@lib/smAPI/Logos/useGetLogos';
-import { LogoFileDto, SMFileTypes } from '@lib/smAPI/smapiTypes';
+import { CustomLogoDto } from '@lib/smAPI/smapiTypes';
 import { ProgressSpinner } from 'primereact/progressspinner';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { getIconUrl, SMLogo } from './iconUtil';
 
 type IconSelectorProps = {
   readonly className?: string;
@@ -32,7 +33,7 @@ const IconSelector: React.FC<IconSelectorProps> = ({
   onChange
 }) => {
   const [iconSource, setIconSource] = useState<string | undefined>(value);
-  const [iconDto, setIconDto] = useState<LogoFileDto | undefined>(undefined);
+  const [iconDto, setIconDto] = useState<CustomLogoDto | undefined>(undefined);
 
   const query = useGetLogos();
 
@@ -44,17 +45,14 @@ const IconSelector: React.FC<IconSelectorProps> = ({
   }, [value, query.data]);
 
   const loading = useMemo(() => query.isLoading || query.isError || !query.data, [query.isLoading, query.isError, query.data]);
-  Logger.debug('IconSelector', value, loading);
 
-  const cacheBustedUrl = useCallback((iconUrl: string) => {
-    const uniqueTimestamp = Date.now(); // Generate a unique timestamp
-    return `${iconUrl}?_=${uniqueTimestamp}`;
-  }, []); // Regenerate only when iconUrl changes
+  // const cacheBustedUrl = useCallback((iconUrl: string) => {
+  //   const uniqueTimestamp = Date.now(); // Generate a unique timestamp
+  //   return `${iconUrl}?_=${uniqueTimestamp}`;
+  // }, []); // Regenerate only when iconUrl changes
 
   const buttonTemplate = () => {
-    const fallbackUrl = '/images/default.png';
-    let iconUrl = iconSource ? getIconUrl(iconSource, fallbackUrl, false, isCustomPlayList ? SMFileTypes.CustomPlayList : null) : fallbackUrl;
-    iconUrl = cacheBustedUrl(iconUrl);
+    let iconUrl = getIconUrl(iconSource);
 
     if (large) {
       return (
@@ -71,9 +69,11 @@ const IconSelector: React.FC<IconSelectorProps> = ({
     );
   };
 
-  const itemTemplate = (icon: LogoFileDto) => {
-    const fallbackUrl = '/images/default.png';
-    const iconUrl = getIconUrl(icon.Source, fallbackUrl, false, icon.SMFileType);
+  const itemTemplate = (icon: CustomLogoDto) => {
+    let iconUrl = icon.Source;
+    if (!iconUrl.startsWith('http')) {
+      iconUrl = `${isDev ? `${baseHostURL}` : '/'}${iconUrl}`;
+    }
 
     return (
       <div className="w-full flex flex-row align-items-center justify-content-between p-row-odd">
@@ -82,7 +82,7 @@ const IconSelector: React.FC<IconSelectorProps> = ({
             // className="icon-template"
             src={iconUrl}
             alt={icon.Name}
-            onError={(e) => ((e.currentTarget as HTMLImageElement).src = fallbackUrl)}
+            onError={(e) => ((e.currentTarget as HTMLImageElement).src = SMLogo)}
             loading="lazy"
           />
         </div>
@@ -100,14 +100,14 @@ const IconSelector: React.FC<IconSelectorProps> = ({
     return baseClass;
   }, [large, label]);
 
-  const handleIconChange = (selectedIcon: LogoFileDto) => {
+  const handleIconChange = (selectedIcon: CustomLogoDto) => {
     if (selectedIcon?.Source) {
       onChange?.(selectedIcon.Value);
     }
   };
 
   if (!enableEditMode) {
-    const iconUrl = getIconUrl(iconSource ?? '', '/images/default.png', false, isCustomPlayList ? SMFileTypes.CustomPlayList : null);
+    const iconUrl = getIconUrl(iconSource);
     return (
       <div className="w-full flex flex-row align-items-center justify-content-center p-row-odd">
         <img
@@ -145,7 +145,7 @@ const IconSelector: React.FC<IconSelectorProps> = ({
           buttonTemplate={buttonTemplate()}
           contentWidthSize="3"
           data={query.data}
-          // dataKey="Id"
+          dataKey="Source"
           filter
           filterBy="Name"
           itemSize={32}

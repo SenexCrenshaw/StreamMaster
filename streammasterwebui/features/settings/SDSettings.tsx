@@ -76,12 +76,12 @@ export function SDSettings(): React.ReactElement {
         {GetCheckBoxLine({ field: 'SDSettings.SeriesWsArt' })}
         {GetDropDownLine({ field: 'SDSettings.SeriesPosterAspect', options: getArtworkAspectOptions() })}
         {GetDropDownLine({ field: 'SDSettings.ArtworkSize', options: getArtworkSizeOptions() })}
-        {GetCheckBoxLine({ field: 'SDSettings.ExcludeCastAndCrew' })}
-        {GetCheckBoxLine({ field: 'SDSettings.XmltvIncludeChannelNumbers' })}
-        {GetCheckBoxLine({ field: 'SDSettings.AlternateSEFormat' })}
-        {GetCheckBoxLine({ field: 'SDSettings.PrefixEpisodeDescription' })}
-        {GetCheckBoxLine({ field: 'SDSettings.PrefixEpisodeTitle' })}
-        {GetCheckBoxLine({ field: 'SDSettings.AppendEpisodeDesc' })}
+        {/* {GetCheckBoxLine({ field: 'SDSettings.ExcludeCastAndCrew' })} */}
+        {/* {GetCheckBoxLine({ field: 'SDSettings.XmltvIncludeChannelNumbers' })} */}
+        {/* {GetCheckBoxLine({ field: 'SDSettings.AlternateSEFormat' })} */}
+        {/* {GetCheckBoxLine({ field: 'SDSettings.PrefixEpisodeDescription' })}
+        {GetCheckBoxLine({ field: 'SDSettings.PrefixEpisodeTitle' })} */}
+        {/* {GetCheckBoxLine({ field: 'SDSettings.AppendEpisodeDesc' })} */}
         {GetInputNumberLine({ field: 'SDSettings.SDEPGDays' })}
         {GetInputNumberLine({ field: 'SDSettings.XmltvFillerProgramLength' })}
         {GetCheckBoxLine({ field: 'SDSettings.SeasonEventImages' })}

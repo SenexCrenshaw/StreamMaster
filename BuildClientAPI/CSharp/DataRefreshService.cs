@@ -31,6 +31,7 @@ public static class DataRefreshService
         content.AppendLine("        Task ClearByTag(string Entity, string Tag);");
         content.AppendLine("        Task RefreshAll();");
         content.AppendLine("        Task Refresh(string command);");
+        content.AppendLine("        Task RefreshDownloadServiceStatus();");
 
         foreach (string namespaceName in methodsByNamespace.Keys)
         {

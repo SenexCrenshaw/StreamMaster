@@ -16,7 +16,7 @@ namespace StreamMaster.Infrastructure.Services.Downloads
         //    _ = ProgramArtworkQueue.TryAdd(metadata.Uri, metadata);
         //}
 
-        public void EnqueueLogoInfo(LogoInfo logoInfo)
+        public void EnqueueLogo(LogoInfo logoInfo)
         {
             _ = logoInfoQueue.TryAdd(logoInfo.Name, logoInfo);
         }
@@ -34,7 +34,7 @@ namespace StreamMaster.Infrastructure.Services.Downloads
             return ProgramArtworkQueue.Take(batchSize).Select(x => x.Value).ToList();
         }
 
-        public List<LogoInfo> GetNextlogoInfoBatch(int batchSize)
+        public List<LogoInfo> GetNextLogoBatch(int batchSize)
         {
             return logoInfoQueue.Take(batchSize).Select(x => x.Value).ToList();
         }
@@ -52,12 +52,12 @@ namespace StreamMaster.Infrastructure.Services.Downloads
             _ = ProgramArtworkQueue.TryRemove(id, out _);
         }
 
-        public void TryDequeuelogoInfo(string name)
+        public void TryDequeueLogo(string name)
         {
             _ = logoInfoQueue.TryRemove(name, out _);
         }
 
-        public void TryDequeuelogoInfoBatch(IEnumerable<string> names)
+        public void TryDequeueLogoBatch(IEnumerable<string> names)
         {
             foreach (string name in names)
             {
@@ -65,8 +65,8 @@ namespace StreamMaster.Infrastructure.Services.Downloads
             }
         }
 
-        public int ProgramArtworkCount => ProgramArtworkQueue.Count;
-        public int LogoInfoCount => logoInfoQueue.Count;
+        public int ProgramLogoCount => ProgramArtworkQueue.Count;
+        public int LogoCount => logoInfoQueue.Count;
 
         public bool IsProgramArtworkQueueEmpty()
         {

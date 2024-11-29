@@ -7,36 +7,6 @@ export interface StationChannelName
 	Id: string;
 	Logo: string;
 }
-export interface CreateM3UFileFromFormRequest
-{
-	AutoSetChannelNumbers?: boolean;
-	DefaultStreamGroupName?: string;
-	FormFile?: any;
-	HoursToUpdate?: number;
-	M3U8OutPutProfile?: string;
-	M3UKey?: M3UKey;
-	M3UName?: M3UField;
-	MaxStreamCount?: number;
-	Name: string;
-	StartingChannelNumber?: number;
-	SyncChannels?: boolean;
-	VODTags?: string[];
-}
-export interface CreateM3UFileRequest
-{
-	AutoSetChannelNumbers?: boolean;
-	DefaultStreamGroupName?: string;
-	HoursToUpdate?: number;
-	M3U8OutPutProfile?: string;
-	M3UKey?: M3UKey;
-	M3UName?: M3UField;
-	MaxStreamCount: number;
-	Name: string;
-	StartingChannelNumber?: number;
-	SyncChannels?: boolean;
-	UrlSource?: string;
-	VODTags?: string[];
-}
 export interface QueryStringParameters
 {
 	JSONArgumentString?: string;
@@ -67,17 +37,16 @@ export interface FieldData
 export interface ImageDownloadServiceStatus
 {
 	Id: number;
-	TotallogoInfo: number;
-	TotallogoInfoAlreadyExists: number;
-	TotallogoInfoDownloadAttempts: number;
-	TotallogoInfoErrors: number;
-	TotallogoInfoSuccessful: number;
-	TotalProgramMetadata: number;
-	TotalProgramMetadataAlreadyExists: number;
-	TotalProgramMetadataDownloadAttempts: number;
-	TotalProgramMetadataDownloaded: number;
-	TotalProgramMetadataErrors: number;
-	TotalProgramMetadataNoArt: number;
+	Logos: DownloadStats;
+	ProgramLogos: DownloadStats;
+}
+export interface DownloadStats
+{
+	AlreadyExists: number;
+	Attempts: number;
+	Errors: number;
+	Queue: number;
+	Successful: number;
 }
 export interface SMMessage
 {
@@ -224,15 +193,6 @@ export interface LogoDto
 	FileName: string;
 	Image: number[];
 	Url: string;
-}
-export interface LogoFileDto
-{
-	FileId: number;
-	Id: string;
-	Name: string;
-	SMFileType: SMFileTypes;
-	Source: string;
-	Value: string;
 }
 export interface LogoInfo
 {
@@ -413,6 +373,28 @@ export interface CommandProfileDto
 	IsReadOnly: boolean;
 	Parameters: string;
 	ProfileName: string;
+}
+export interface CustomLogo
+{
+	APIName: string;
+	FileId: number;
+	IsReadOnly: boolean;
+	Name: string;
+	Value: string;
+}
+export interface CustomLogoDto
+{
+	APIName: string;
+	FileId: number;
+	IsReadOnly: boolean;
+	Name: string;
+	Source: string;
+	Value: string;
+}
+export interface CustomLogoRequest
+{
+	Name: string;
+	Source: string;
 }
 export interface HLSSettings
 {
@@ -1299,6 +1281,36 @@ export interface GetPagedM3UFilesRequest
 {
 	Parameters: QueryStringParameters;
 }
+export interface CreateM3UFileFromFormRequest
+{
+	AutoSetChannelNumbers?: boolean;
+	DefaultStreamGroupName?: string;
+	FormFile?: any;
+	HoursToUpdate?: number;
+	M3U8OutPutProfile?: string;
+	M3UKey?: M3UKey;
+	M3UName?: M3UField;
+	MaxStreamCount?: number;
+	Name: string;
+	StartingChannelNumber?: number;
+	SyncChannels?: boolean;
+	VODTags?: string[];
+}
+export interface CreateM3UFileRequest
+{
+	AutoSetChannelNumbers?: boolean;
+	DefaultStreamGroupName?: string;
+	HoursToUpdate?: number;
+	M3U8OutPutProfile?: string;
+	M3UKey?: M3UKey;
+	M3UName?: M3UField;
+	MaxStreamCount?: number;
+	Name: string;
+	StartingChannelNumber?: number;
+	SyncChannels?: boolean;
+	UrlSource?: string;
+	VODTags?: string[];
+}
 export interface DeleteM3UFileRequest
 {
 	DeleteFile: boolean;
@@ -1342,6 +1354,9 @@ export interface GetLogContentsRequest
 export interface GetLogNamesRequest
 {
 }
+export interface GetCustomLogosRequest
+{
+}
 export interface GetLogoForChannelRequest
 {
 	SMChannelId: number;
@@ -1352,6 +1367,15 @@ export interface GetLogoRequest
 }
 export interface GetLogosRequest
 {
+}
+export interface AddCustomLogoRequest
+{
+	Name: string;
+	Source: string;
+}
+export interface RemoveCustomLogoRequest
+{
+	Source: string;
 }
 export interface GetDownloadServiceStatusRequest
 {

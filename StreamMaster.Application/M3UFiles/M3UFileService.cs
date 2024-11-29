@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 
-using StreamMaster.Application.M3UFiles.Commands;
+using Microsoft.AspNetCore.Http;
 
 namespace StreamMaster.Application.M3UFiles;
 
@@ -149,39 +149,39 @@ public class M3UFileService(ILogger<M3UFileService> logger, IFileUtilService fil
         return (m3uFile, fullName);
     }
 
-    public (M3UFile m3uFile, string fullName) CreateM3UFile(CreateM3UFileRequest request)
+    public (M3UFile m3uFile, string fullName) CreateM3UFile(string Name, int? MaxStreamCount, string? M3U8OutPutProfile, M3UKey? M3UKey, M3UField? M3UName, string? DefaultStreamGroupName, string? UrlSource, bool? SyncChannels, int? HoursToUpdate, int? StartingChannelNumber, bool? AutoSetChannelNumbers, List<string>? VODTags)
     {
         return CreateM3UFileBase(
-            request.Name,
-            request.MaxStreamCount,
-            request.UrlSource,
-            request.VODTags,
-            request.HoursToUpdate,
-            request.SyncChannels,
-            request.DefaultStreamGroupName,
-            request.AutoSetChannelNumbers,
-            request.StartingChannelNumber,
-            request.M3UKey,
-            request.M3UName,
-            request.M3U8OutPutProfile
+            Name,
+            MaxStreamCount ?? 0,
+            UrlSource,
+            VODTags,
+            HoursToUpdate,
+            SyncChannels,
+            DefaultStreamGroupName,
+            AutoSetChannelNumbers,
+            StartingChannelNumber,
+            M3UKey,
+            M3UName,
+            M3U8OutPutProfile
         );
     }
 
-    public (M3UFile m3uFile, string fullName) CreateM3UFile(CreateM3UFileFromFormRequest request)
+    public (M3UFile m3uFile, string fullName) CreateM3UFile(string Name, int? MaxStreamCount, string? M3U8OutPutProfile, M3UKey? M3UKey, M3UField? M3UName, int? StartingChannelNumber, bool? AutoSetChannelNumbers, string? DefaultStreamGroupName, int? HoursToUpdate, bool? SyncChannels, IFormFile? FormFile, List<string>? VODTags)
     {
         return CreateM3UFileBase(
-            request.Name,
-            request.MaxStreamCount ?? 0,
-            null, // URL source is not provided in the form request
-            request.VODTags,
-            request.HoursToUpdate,
-            request.SyncChannels,
-            request.DefaultStreamGroupName,
-            request.AutoSetChannelNumbers,
-            request.StartingChannelNumber,
-            request.M3UKey,
-            request.M3UName,
-            request.M3U8OutPutProfile
+            Name,
+            MaxStreamCount ?? 0,
+            null,
+            VODTags,
+            HoursToUpdate,
+            SyncChannels,
+            DefaultStreamGroupName,
+            AutoSetChannelNumbers,
+            StartingChannelNumber,
+            M3UKey,
+            M3UName,
+            M3U8OutPutProfile
         );
     }
 

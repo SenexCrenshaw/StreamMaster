@@ -261,7 +261,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, ICach
                     }
 
                     LogoInfo logoInfo = new(smStream);
-                    imageDownloadQueue.EnqueueLogoInfo(logoInfo);
+                    imageDownloadQueue.EnqueueLogo(logoInfo);
 
                     addedSMChannels.Add(smChannel);
 
@@ -535,7 +535,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, ICach
 
         channel.Logo = logo;
 
-        if (!logo.IsRedirect())
+        if (!logo.IsRedirect() && logo.StartsWithIgnoreCase("http"))
         {
             LogoInfo nl = new(logo);
             await imageDownloadService.DownloadImageAsync(nl, CancellationToken.None);

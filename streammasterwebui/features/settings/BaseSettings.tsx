@@ -14,6 +14,7 @@ export function BaseSettings({ children, title }: BaseSettingsProps): React.Reac
       darkBackGround={false}
       noBorderChildren
       title={title}
+      noFullScreen
       // header={<div className="justify-content-end align-items-center flex-row flex gap-1">{/* {header}                */}</div>}
     >
       <div className="sm-card-children-noborder sm-headerBg">

@@ -99,6 +99,7 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
             return;
         }
 
+        await hub.Clients.All.DataRefresh("GetCustomLogos");
         await hub.Clients.All.DataRefresh("GetLogos");
     }
 

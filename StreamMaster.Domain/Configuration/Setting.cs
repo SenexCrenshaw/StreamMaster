@@ -1,6 +1,4 @@
-﻿using StreamMaster.Domain.Attributes;
-
-namespace StreamMaster.Domain.Configuration;
+﻿namespace StreamMaster.Domain.Configuration;
 
 public class BaseSettings
 {
@@ -19,7 +17,7 @@ public class BaseSettings
     public bool CleanURLs { get; set; } = true;
     public string ClientUserAgent { get; set; } = "VLC/3.0.20-git LibVLC/3.0.20-git";
     public string DefaultCompression { get; set; } = "gz";
-    public string DefaultLogo { get; set; } = "/images/default.png";
+    public string DefaultLogo { get; set; } = "/images/streammaster_logo.png";
     public string DeviceID { get; set; } = "device1";
     public bool EnableDBDebug { get; set; } = false;
     public bool EnableSSL { get; set; }

@@ -5,6 +5,7 @@ export interface SMCardProperties {
   onFullScreenToggle?: () => void;
   readonly okButtonDisabled?: boolean;
   readonly closeButtonDisabled?: boolean;
+  readonly noFullScreen?: boolean;
   onCloseClick?: () => void;
   // readonly answer?: boolean;
   readonly center?: React.ReactNode;

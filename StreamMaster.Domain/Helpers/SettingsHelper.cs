@@ -67,8 +67,15 @@ public static class SettingsHelper
             dir = Path.GetDirectoryName(fileName);
         }
 
+        if (typeof(CustomLogoDict).IsAssignableFrom(setting.GetType()))
+        {
+            fileName = BuildInfo.CustomLogosSettingsFile;
+            dir = Path.GetDirectoryName(fileName);
+        }
+
         if (string.IsNullOrEmpty(dir))
         {
+            Console.Error.WriteLine("Unknown setting type {Name}", setting.GetType());
             return;
         }
 
