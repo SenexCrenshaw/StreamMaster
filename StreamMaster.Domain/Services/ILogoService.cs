@@ -84,7 +84,7 @@ namespace StreamMaster.Domain.Services
         /// </summary>
         /// <param name="id">The ID of the M3U file.</param>
         void RemoveLogosByM3UFileId(int id);
-        void AddCustomLogo(string Name, string Url);
+        string AddCustomLogo(string Name, string Url);
         void RemoveCustomLogo(string Url);
     }
 }

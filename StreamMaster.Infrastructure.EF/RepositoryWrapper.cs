@@ -29,6 +29,7 @@ public class RepositoryWrapper(
     IXmltv2Mxf xmltv2Mxf,
     IServiceProvider serviceProvider,
     ICryptoService cryptoService,
+    ILogoService logoService,
     IOptionsMonitor<Setting> intSettings,
     IOptionsMonitor<CommandProfileDict> intProfileSettings,
     IJobStatusService jobStatusService,
@@ -84,7 +85,7 @@ public class RepositoryWrapper(
     {
         get
         {
-            _smChannel ??= new SMChannelsRepository(SMChannelLogger, cacheManager, imageDownloadService, imageDownloadQueue, serviceProvider, this, repositoryContext, mapper, intSettings, intProfileSettings, schedulesDirectDataService);
+            _smChannel ??= new SMChannelsRepository(SMChannelLogger, logoService, cacheManager, imageDownloadService, imageDownloadQueue, serviceProvider, this, repositoryContext, mapper, intSettings, intProfileSettings, schedulesDirectDataService);
             return _smChannel;
         }
     }

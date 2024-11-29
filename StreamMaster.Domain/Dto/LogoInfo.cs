@@ -115,8 +115,14 @@ public class LogoInfo
     /// </summary>
     /// <param name="url">The URL to clean.</param>
     /// <returns>The cleaned URL.</returns>
-    private static string Cleanup(string url)
+    public static string Cleanup(string url)
     {
-        return url.StartsWithIgnoreCase("image/") ? url[6..] : url;
+        url = url.StartsWithIgnoreCase("image/") ? url[6..] : url;
+        if (url.Contains('?'))
+        {
+            url = url[..url.IndexOf('?')];
+        }
+
+        return url;
     }
 }

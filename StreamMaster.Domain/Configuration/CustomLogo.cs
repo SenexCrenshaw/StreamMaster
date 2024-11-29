@@ -96,6 +96,11 @@ public class CustomLogoDict : IProfileDict<CustomLogo>
 
     public void AddCustomLogo(string Url, string Name)
     {
+        if (CustomLogos.ContainsKey(Url))
+        {
+            return;
+        }
+
         CustomLogo customLogo = new()
         {
             Name = Name,

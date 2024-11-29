@@ -3,8 +3,8 @@ import SMDropDown from '@components/sm/SMDropDown';
 import { baseHostURL, isDev } from '@lib/settings';
 import useGetLogos from '@lib/smAPI/Logos/useGetLogos';
 import { CustomLogoDto } from '@lib/smAPI/smapiTypes';
-import { ProgressSpinner } from 'primereact/progressspinner';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { CustomLogosAddDialog } from './CustomLogosAddDialog';
 import { getIconUrl, SMLogo } from './iconUtil';
 
 type IconSelectorProps = {
@@ -46,13 +46,13 @@ const IconSelector: React.FC<IconSelectorProps> = ({
 
   const loading = useMemo(() => query.isLoading || query.isError || !query.data, [query.isLoading, query.isError, query.data]);
 
-  // const cacheBustedUrl = useCallback((iconUrl: string) => {
-  //   const uniqueTimestamp = Date.now(); // Generate a unique timestamp
-  //   return `${iconUrl}?_=${uniqueTimestamp}`;
-  // }, []); // Regenerate only when iconUrl changes
+  const cacheBustedUrl = useCallback((iconUrl: string) => {
+    const uniqueTimestamp = Date.now(); // Generate a unique timestamp
+    return `${iconUrl}?_=${uniqueTimestamp}`;
+  }, []); // Regenerate only when iconUrl changes
 
   const buttonTemplate = () => {
-    let iconUrl = getIconUrl(iconSource);
+    let iconUrl = cacheBustedUrl(getIconUrl(iconSource));
 
     if (large) {
       return (
@@ -106,6 +106,14 @@ const IconSelector: React.FC<IconSelectorProps> = ({
     }
   };
 
+  const headerRight = useMemo((): React.ReactNode => {
+    return (
+      <div className="flex w-12 gap-1 justify-content-end align-content-center">
+        <CustomLogosAddDialog />
+      </div>
+    );
+  }, []);
+
   if (!enableEditMode) {
     const iconUrl = getIconUrl(iconSource);
     return (
@@ -121,9 +129,9 @@ const IconSelector: React.FC<IconSelectorProps> = ({
     );
   }
 
-  if (loading) {
-    return <div className="iconselector m-0 p-0">{query.isError ? <span>Error loading icons</span> : <ProgressSpinner />}</div>;
-  }
+  // if (loading) {
+  //   return <div className="iconselector m-0 p-0">{query.isError ? <span>Error loading icons</span> : <ProgressSpinner />}</div>;
+  // }
 
   return (
     <div className={className}>
@@ -148,6 +156,7 @@ const IconSelector: React.FC<IconSelectorProps> = ({
           dataKey="Source"
           filter
           filterBy="Name"
+          header={headerRight}
           itemSize={32}
           itemTemplate={itemTemplate}
           onChange={handleIconChange}

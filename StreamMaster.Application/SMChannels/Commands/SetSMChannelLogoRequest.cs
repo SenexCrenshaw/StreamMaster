@@ -4,7 +4,7 @@
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record SetSMChannelLogoRequest(int SMChannelId, string Logo) : IRequest<APIResponse>;
 
-internal class SetSMChannelLogoRequestHandler(IRepositoryWrapper Repository, IMessageService messageService) : IRequestHandler<SetSMChannelLogoRequest, APIResponse>
+internal class SetSMChannelLogoRequestHandler(IRepositoryWrapper Repository, IDataRefreshService dataRefreshService, IMessageService messageService) : IRequestHandler<SetSMChannelLogoRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(SetSMChannelLogoRequest request, CancellationToken cancellationToken)
     {
@@ -12,14 +12,12 @@ internal class SetSMChannelLogoRequestHandler(IRepositoryWrapper Repository, IMe
         if (ret.IsError)
         {
             await messageService.SendError($"Set logo failed {ret.Message}");
-            return ret;
         }
-
-        //FieldData fd = new(SMChannel.APIName, request.SMChannelId, "Logo", request.Logo);
-        ////await hubContext.ClientChannels.All.SetField([fd]).ConfigureAwait(false);
-        ////await hubContext.ClientChannels.All.DataRefresh("GetSMChannel");
-        //await dataRefreshService.SetField([fd]).ConfigureAwait(false);
-        //await dataRefreshService.RefreshSMChannels().ConfigureAwait(false);
+        else
+        {
+            await dataRefreshService.RefreshLogos().ConfigureAwait(false);
+            //await dataRefreshService.RefreshSMChannels().ConfigureAwait(false);
+        }
         return ret;
     }
 }

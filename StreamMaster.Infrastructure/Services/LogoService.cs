@@ -46,54 +46,27 @@ public class LogoService(ICustomPlayListBuilder customPlayListBuilder, IOptionsM
         return ret;
     }
 
-    #region Custom Logo
-    public void AddCustomLogo(string Name, string Source)
-    {
-        if (IsSVGData(Source))
-        {
-            LogoInfo nl = new(Name, Source, iconType: SMFileTypes.CustomLogo);
-            if (!File.Exists(nl.FullPath))
-            {
-                ImageConverter.ConvertSvgBase64ToPng(Source, nl.FullPath);
-            }
-            Source = $"/api/files/cu/{nl.FileName}";
 
-        }
-        else if (IsData(Source))
-        {
-            LogoInfo nl = new(Name, Source, iconType: SMFileTypes.CustomLogo);
-            if (!File.Exists(nl.FullPath))
-            {
-                ImageConverter.ConvertBase64ToTransparentPng(Source, nl.FullPath);
-            }
-            Source = $"/api/files/cu/{nl.FileName}";
-        }
+
+    #region Custom Logo
+    public string AddCustomLogo(string Name, string Source)
+    {
+
+        Source = ImageConverter.ConvertDataToPNG(Name, Source);
 
         customLogos.CurrentValue.AddCustomLogo(Source.ToUrlSafeBase64String(), Name);
 
         AddLogoToCache(Source, Name, smFileType: SMFileTypes.CustomLogo);
 
         SettingsHelper.UpdateSetting(customLogos.CurrentValue);
+        return Source;
     }
 
-    private static bool IsSVGData(string Source)
-    {
-        return Source.StartsWithIgnoreCase("data:image/svg");
-    }
 
-    private static bool IsData(string Source)
-    {
-        return Source.StartsWithIgnoreCase("data:image");
-    }
-
-    private static bool IsCustom(string Source)
-    {
-        return Source.StartsWithIgnoreCase("/api/files/cu/");
-    }
 
     public void RemoveCustomLogo(string Source)
     {
-        if (!IsCustom(Source))
+        if (!ImageConverter.IsCustomSource(Source))
         {
             customLogos.CurrentValue.RemoveProfile(Source);
             SettingsHelper.UpdateSetting(customLogos.CurrentValue);
@@ -260,12 +233,13 @@ public class LogoService(ICustomPlayListBuilder customPlayListBuilder, IOptionsM
         string fileName;
         if (channel.Logo.StartsWithIgnoreCase("/api/files/cu/"))
         {
-            fileName = channel.Logo.Replace("/api/files/cu/", "");
+            fileName = channel.Logo.Remove(0, 14);
             return await GetCustomLogoAsync(fileName, cancellationToken);
         }
         else
         {
-            fileName = channel.Logo.StartsWithIgnoreCase("http") ? channel.Logo.GenerateFNV1aHash() : channel.Logo;
+            string test = LogoInfo.Cleanup(channel.Logo);
+            fileName = test.StartsWithIgnoreCase("http") ? test.GenerateFNV1aHash() : test;
         }
 
         (FileStream? fileStream, string? FileName, string? ContentType) ret = await GetLogoAsync(fileName, cancellationToken);

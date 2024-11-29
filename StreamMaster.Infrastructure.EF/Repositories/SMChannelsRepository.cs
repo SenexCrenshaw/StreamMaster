@@ -9,6 +9,7 @@ using AutoMapper.QueryableExtensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
+using StreamMaster.Application.Common;
 using StreamMaster.Application.Interfaces;
 using StreamMaster.Domain.API;
 using StreamMaster.Domain.Configuration;
@@ -22,7 +23,7 @@ using StreamMaster.Streams.Domain.Interfaces;
 
 namespace StreamMaster.Infrastructure.EF.Repositories;
 
-public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, ICacheManager cacheManager, IImageDownloadService imageDownloadService, IImageDownloadQueue imageDownloadQueue, IServiceProvider serviceProvider, IRepositoryWrapper repository, IRepositoryContext repositoryContext, IMapper mapper, IOptionsMonitor<Setting> settings, IOptionsMonitor<CommandProfileDict> intProfileSettings, ISchedulesDirectDataService schedulesDirectDataService)
+public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, ILogoService logoService, ICacheManager cacheManager, IImageDownloadService imageDownloadService, IImageDownloadQueue imageDownloadQueue, IServiceProvider serviceProvider, IRepositoryWrapper repository, IRepositoryContext repositoryContext, IMapper mapper, IOptionsMonitor<Setting> settings, IOptionsMonitor<CommandProfileDict> intProfileSettings, ISchedulesDirectDataService schedulesDirectDataService)
     : RepositoryBase<SMChannel>(repositoryContext, intLogger), ISMChannelsRepository
 {
     private int currentChannelNumber;
@@ -527,19 +528,44 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, ICach
 
     public async Task<APIResponse> SetSMChannelLogo(int SMChannelId, string logo)
     {
+
+        if (
+            string.IsNullOrWhiteSpace(logo) ||
+           !(
+           logo.StartsWithIgnoreCase("http") ||
+             logo.StartsWithIgnoreCase("data:") ||
+             logo.StartsWithIgnoreCase("/api/files/cu/")
+             )
+             )
+        {
+            return APIResponse.ErrorWithMessage("Invalid logo URL");
+        }
+
+
         SMChannel? channel = GetSMChannel(SMChannelId);
         if (channel == null)
         {
             return APIResponse.ErrorWithMessage($"Channel {SMChannelId} doesn't exist");
         }
 
-        channel.Logo = logo;
-
-        if (!logo.IsRedirect() && logo.StartsWithIgnoreCase("http"))
+        if (ImageConverter.IsData(logo))
         {
             LogoInfo nl = new(logo);
+            logo = logoService.AddCustomLogo(channel.Name, nl.FileName);
             await imageDownloadService.DownloadImageAsync(nl, CancellationToken.None);
+
         }
+        else
+        {
+            if (!logo.IsRedirect() && logo.StartsWithIgnoreCase("http"))
+            {
+                LogoInfo nl = new(logo);
+                await imageDownloadService.DownloadImageAsync(nl, CancellationToken.None);
+
+            }
+        }
+
+        channel.Logo = logo;
 
         Update(channel);
         _ = await SaveChangesAsync();

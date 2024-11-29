@@ -11,6 +11,50 @@ namespace StreamMaster.Application.Common
 {
     public static class ImageConverter
     {
+
+        public static string ConvertDataToPNG(string Name, string Source)
+        {
+
+            if (ImageConverter.IsData(Source))
+            {
+                LogoInfo nl = new(Name, Source, iconType: SMFileTypes.CustomLogo);
+                if (!File.Exists(nl.FullPath))
+                {
+                    ImageConverter.ConvertBase64ToTransparentPng(Source, nl.FullPath);
+                }
+                return $"/api/files/cu/{nl.FileName}";
+            }
+            else if (ImageConverter.IsSVGData(Source))
+            {
+                LogoInfo nl = new(Name, Source, iconType: SMFileTypes.CustomLogo);
+                if (!File.Exists(nl.FullPath))
+                {
+                    ImageConverter.ConvertSvgBase64ToPng(Source, nl.FullPath);
+                }
+                return $"/api/files/cu/{nl.FileName}";
+
+            }
+
+            return Source;
+        }
+
+        public static bool IsData(string Source)
+        {
+            return Source.StartsWithIgnoreCase("data:image");
+        }
+
+
+        public static bool IsSVGData(string Source)
+        {
+            return Source.StartsWithIgnoreCase("data:image/svg");
+        }
+
+
+        public static bool IsCustomSource(string Source)
+        {
+            return Source.StartsWithIgnoreCase("/api/files/cu/");
+        }
+
         /// <summary>
         /// Converts a Base64-encoded image string into a PNG with a transparent background.
         /// </summary>
