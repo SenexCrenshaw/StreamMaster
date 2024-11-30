@@ -16,11 +16,9 @@ namespace StreamMaster.Infrastructure.EF.Repositories;
 /// <summary>
 /// Repositorywrapper to manage EPGFile entities in the database.
 /// </summary>
-public class EPGFileRepository(ILogger<EPGFileRepository> intLogger, IFileUtilService fileUtilService, ICacheManager cacheManager, IXmltv2Mxf xmltv2Mxf, IJobStatusService jobStatusService, IRepositoryContext repositoryContext, ISchedulesDirectDataService schedulesDirectDataService, IMapper mapper)
+public class EPGFileRepository(ILogger<EPGFileRepository> intLogger, IFileUtilService fileUtilService, ICacheManager cacheManager, IJobStatusService jobStatusService, IRepositoryContext repositoryContext, ISchedulesDirectDataService schedulesDirectDataService, IMapper mapper)
     : RepositoryBase<EPGFile>(repositoryContext, intLogger), IEPGFileRepository
 {
-    public IXmltv2Mxf Xmltv2Mxf { get; } = xmltv2Mxf;
-
     public async Task<int> GetNextAvailableEPGNumberAsync(CancellationToken cancellationToken)
     {
         List<int> epgNumbers = await GetQuery()

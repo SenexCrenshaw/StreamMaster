@@ -2,7 +2,7 @@
 {
     public interface ILineupService : IEPGCached, IDisposable
     {
-        Task<bool> BuildLineupServices(CancellationToken cancellationToken = default);
+        Task<bool> BuildLineupServicesAsync(CancellationToken cancellationToken = default);
 
         Task<List<SubscribedLineup>> GetLineups(CancellationToken cancellationToken);
 

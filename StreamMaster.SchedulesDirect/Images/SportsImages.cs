@@ -1,69 +1,75 @@
 ﻿using System.Collections.Concurrent;
 using System.Text.Json;
+
+using StreamMaster.Domain.Cache;
+
 namespace StreamMaster.SchedulesDirect.Images;
 
 public class SportsImages(
     ILogger<SportsImages> logger,
-    IEPGCache<SportsImages> epgCache,
+    IHybridCache<SportsImages> hybridCache,
     IImageDownloadQueue imageDownloadQueue,
     IOptionsMonitor<SDSettings> sdSettings,
     ISchedulesDirectAPIService schedulesDirectAPI) : ISportsImages, IDisposable
 {
+    private static readonly SemaphoreSlim classSemaphore = new(1, 1);
     private readonly SemaphoreSlim semaphore = new(SchedulesDirect.MaxParallelDownloads);
 
     public List<MxfProgram> SportEvents { get; set; } = [];
-    private readonly List<string> sportsImageQueue = [];
-    private readonly ConcurrentBag<ProgramMetadata> sportsImageResponses = [];
-    private int processedObjects;
 
-    public async Task<bool> GetAllSportsImages()
+    public async Task<bool> ProcessArtAsync()
     {
-        if (!sdSettings.CurrentValue.SportsImages)
+        await classSemaphore.WaitAsync();
+        try
         {
-            return true;
-        }
-
-        logger.LogInformation("Entering GetAllSportsImages() for {totalObjects} sports events.", SportEvents.Count);
-
-        foreach (MxfProgram sportEvent in SportEvents)
-        {
-            if (!string.IsNullOrEmpty(sportEvent.MD5))
+            if (!sdSettings.CurrentValue.SportsImages)
             {
-                if (epgCache.JsonFiles.TryGetValue(sportEvent.MD5, out EPGJsonCache? cachedFile))
+                return true;
+            }
+
+            logger.LogInformation("Entering GetAllSportsImages() for {totalObjects} sports events.", SportEvents.Count);
+
+            List<string> sportsImageQueue = [];
+            foreach (MxfProgram sportEvent in SportEvents)
+            {
+                if (!string.IsNullOrEmpty(sportEvent.MD5) && await hybridCache.GetAsync(sportEvent.MD5) is string cachedJson && !string.IsNullOrEmpty(cachedJson))
                 {
-                    if (cachedFile != null && !string.IsNullOrEmpty(cachedFile.JsonEntry))
-                    {
-                        ProcessCachedImages(sportEvent, cachedFile);
-                        cachedFile.SetCurrent();
-                    }
+                    ProcessCachedImages(sportEvent, cachedJson);
+                    imageDownloadQueue.EnqueueProgramArtworkCollection(sportEvent.ArtWorks);
+                }
+                else
+                {
+                    sportsImageQueue.Add(sportEvent.ProgramId);
                 }
             }
 
-            sportsImageQueue.Add(sportEvent.ProgramId);
+            logger.LogDebug("Found {sportsImageQueueCount} cached/unavailable sport event image links.", sportsImageQueue.Count);
+
+            if (sportsImageQueue.Count > 0)
+            {
+                ConcurrentBag<ProgramMetadata> sportsImageResponses = [];
+                await DownloadAndProcessImagesAsync(sportsImageQueue, sportsImageResponses).ConfigureAwait(false);
+                await ProcessSportsImageResponsesAsync(sportsImageResponses);
+            }
+
+            logger.LogInformation("Exiting GetAllSportsImages(). SUCCESS.");
+            //await hybridCache.ClearAsync();
+            return true;
         }
-
-        logger.LogDebug("Found {processedObjects} cached/unavailable sport event image links.", processedObjects);
-
-        if (sportsImageQueue.Count > 0)
+        finally
         {
-            await DownloadAndProcessImagesAsync().ConfigureAwait(false);
+            classSemaphore.Release();
         }
-
-        logger.LogInformation("Exiting GetAllSportsImages(). SUCCESS.");
-        //ResetCache();
-        epgCache.SaveCache();
-        ClearCache();
-        return true;
     }
 
-    private static void ProcessCachedImages(MxfProgram sportEvent, EPGJsonCache cachedFile)
+    private static void ProcessCachedImages(MxfProgram sportEvent, string cachedJson)
     {
-        sportEvent.ArtWorks = string.IsNullOrEmpty(cachedFile.JsonEntry)
+        sportEvent.ArtWorks = string.IsNullOrEmpty(cachedJson)
               ? []
-              : JsonSerializer.Deserialize<List<ProgramArtwork>>(cachedFile.JsonEntry) ?? [];
+              : JsonSerializer.Deserialize<List<ProgramArtwork>>(cachedJson) ?? [];
     }
 
-    private async Task DownloadAndProcessImagesAsync()
+    private async Task DownloadAndProcessImagesAsync(List<string> sportsImageQueue, ConcurrentBag<ProgramMetadata> sportsImageResponses)
     {
         List<Task> tasks = [];
         int processedCount = 0;
@@ -78,29 +84,25 @@ public class SportsImages(
                 {
                     int itemCount = Math.Min(sportsImageQueue.Count - startIndex, SchedulesDirect.MaxImgQueries);
                     await schedulesDirectAPI.DownloadImageResponsesAsync(sportsImageQueue, sportsImageResponses, startIndex).ConfigureAwait(false);
-                    _ = Interlocked.Add(ref processedCount, itemCount);
+                    Interlocked.Add(ref processedCount, itemCount);
                     logger.LogInformation("Downloaded sport event images {ProcessedCount} of {TotalCount}", processedCount, sportsImageQueue.Count);
                 }
                 finally
                 {
-                    _ = semaphore.Release();
+                    semaphore.Release();
                 }
             }));
         }
 
         await Task.WhenAll(tasks).ConfigureAwait(false);
-        ProcessSportsImageResponses();
-        //imageDownloadQueue.EnqueueProgramMetadataCollection(sportsImageResponses);
     }
 
-    private void ProcessSportsImageResponses()
+    private async Task ProcessSportsImageResponsesAsync(ConcurrentBag<ProgramMetadata> sportsImageResponses)
     {
         string artworkSize = string.IsNullOrEmpty(sdSettings.CurrentValue.ArtworkSize) ? BuildInfo.DefaultSDImageSize : sdSettings.CurrentValue.ArtworkSize;
 
         foreach (ProgramMetadata response in sportsImageResponses)
         {
-            ++processedObjects;
-
             if (response.Data == null || response.Data.Count == 0 || response.Data[0].Response == "INVALID_PROGRAMID")
             {
                 logger.LogWarning("No Sport Image artwork found for {ProgramId}", response.ProgramId);
@@ -120,7 +122,7 @@ public class SportsImages(
 
             List<ProgramArtwork> artworks = SDHelpers.GetTieredImages(response.Data, artworkSize, ["team event", "episode", "series", "sport"], sdSettings.CurrentValue.MoviePosterAspect);
             mxfProgram.AddArtwork(artworks);
-            epgCache.UpdateProgramArtworkCache(artworks, ImageType.Movie, mxfProgram.MD5);
+            await hybridCache.SetAsync(mxfProgram.MD5, JsonSerializer.Serialize(artworks));
 
             if (artworks.Count > 0)
             {
@@ -133,32 +135,26 @@ public class SportsImages(
         }
     }
 
-    public void ClearCache()
-    {
-        SportEvents.Clear();
-        sportsImageQueue.Clear();
-        sportsImageResponses.Clear();
-        processedObjects = 0;
-    }
-
-    public void ResetCache()
-    {
-        epgCache.ResetCache();
-    }
-
     public void Dispose()
     {
-        semaphore.Dispose();
+        Dispose(disposing: true);
         GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            semaphore.Dispose();
+        }
     }
 
     public List<string> GetExpiredKeys()
     {
-        return epgCache.GetExpiredKeys();
+        return hybridCache.GetExpiredKeysAsync().Result;
     }
 
     public void RemovedExpiredKeys(List<string>? keysToDelete = null)
     {
-        epgCache.RemovedExpiredKeys(keysToDelete);
     }
 }

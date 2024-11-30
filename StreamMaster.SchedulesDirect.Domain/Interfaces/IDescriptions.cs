@@ -2,6 +2,6 @@
 {
     public interface IDescriptions : IEPGCached, IDisposable
     {
-        Task<bool> BuildAllGenericSeriesInfoDescriptions(CancellationToken cancellationToken);
+        Task<bool> BuildGenericSeriesInfoDescriptionsAsync(CancellationToken cancellationToken);
     }
 }

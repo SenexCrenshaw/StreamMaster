@@ -10,7 +10,6 @@ using Microsoft.Extensions.Logging;
 
 using StreamMaster.Application.Common;
 using StreamMaster.Domain.API;
-using StreamMaster.Domain.Cache;
 using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Crypto;
 using StreamMaster.Domain.Dto;
@@ -46,12 +45,9 @@ public class LogoService(ICustomPlayListBuilder customPlayListBuilder, IOptionsM
         return ret;
     }
 
-
-
     #region Custom Logo
     public string AddCustomLogo(string Name, string Source)
     {
-
         Source = ImageConverter.ConvertDataToPNG(Name, Source);
 
         customLogos.CurrentValue.AddCustomLogo(Source.ToUrlSafeBase64String(), Name);
@@ -61,8 +57,6 @@ public class LogoService(ICustomPlayListBuilder customPlayListBuilder, IOptionsM
         SettingsHelper.UpdateSetting(customLogos.CurrentValue);
         return Source;
     }
-
-
 
     public void RemoveCustomLogo(string Source)
     {
@@ -356,6 +350,7 @@ public class LogoService(ICustomPlayListBuilder customPlayListBuilder, IOptionsM
             return (null, null, null);
         }
     }
+    public static readonly MemoryCacheEntryOptions NeverRemoveCacheEntryOptions = new MemoryCacheEntryOptions().SetPriority(CacheItemPriority.NeverRemove);
 
     private string GetContentType(string fileName)
     {
@@ -369,7 +364,7 @@ public class LogoService(ICustomPlayListBuilder customPlayListBuilder, IOptionsM
             }
             contentType ??= "application/octet-stream";
 
-            _ = memoryCache.Set(cacheKey, contentType, CacheManagerExtensions.NeverRemoveCacheEntryOptions);
+            _ = memoryCache.Set(cacheKey, contentType, NeverRemoveCacheEntryOptions);
         }
 
         return contentType ?? "application/octet-stream";
@@ -532,7 +527,6 @@ public class LogoService(ICustomPlayListBuilder customPlayListBuilder, IOptionsM
 
     public async Task<bool> ScanForTvLogosAsync(CancellationToken cancellationToken = default)
     {
-
 
         FileDefinition fd = FileDefinitions.TVLogo;
         if (!Directory.Exists(fd.DirectoryLocation))

@@ -2,6 +2,6 @@
 {
     public interface ISeasonImages : IEPGCached
     {
-        Task<bool> GetAllSeasonImages();
+        Task<bool> ProcessArtAsync();
     }
 }

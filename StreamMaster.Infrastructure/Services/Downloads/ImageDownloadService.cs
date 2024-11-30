@@ -92,7 +92,6 @@ namespace StreamMaster.Infrastructure.Services.Downloads
                 ProcessLogoQueue(cancellationToken),
                ProcessProgramLogoQueue(cancellationToken)
            ).ConfigureAwait(false);
-
         }
 
         private async Task RefreshDownloadServiceAsync()
@@ -154,7 +153,6 @@ namespace StreamMaster.Infrastructure.Services.Downloads
                 }
                 catch (OperationCanceledException)
                 {
-
                     sdDownloadSemaphore.Release();
                     return;
                 }
@@ -162,8 +160,6 @@ namespace StreamMaster.Infrastructure.Services.Downloads
                 try
                 {
                     LogoInfo logoInfo = new(art.Uri, SMFileTypes.ProgramLogo, true);
-
-
 
                     if (!string.IsNullOrEmpty(logoInfo.FullPath))
                     {
@@ -215,14 +211,12 @@ namespace StreamMaster.Infrastructure.Services.Downloads
                 }
                 catch (OperationCanceledException)
                 {
-
                     downloadSemaphore.Release();
                     return;
                 }
 
                 try
                 {
-
                     if (logoInfo.Url.StartsWith("http") && !string.IsNullOrEmpty(logoInfo.FullPath))
                     {
                         if (!File.Exists(logoInfo.FullPath))
@@ -246,10 +240,8 @@ namespace StreamMaster.Infrastructure.Services.Downloads
                     await RefreshDownloadServiceAsync();
                 }
 
-
             }
         }
-
 
         private bool CanProceedWithDownload()
         {

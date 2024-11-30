@@ -1,72 +1,32 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Text.Json;
+using System.Text.RegularExpressions;
+
+using Microsoft.Extensions.Caching.Memory;
 
 using SixLabors.ImageSharp;
 
+using StreamMaster.Domain.Cache;
 using StreamMaster.Domain.Dto;
 using StreamMaster.Domain.Enums;
 using StreamMaster.Domain.Helpers;
 namespace StreamMaster.SchedulesDirect.Services;
 
-public class LineupService : ILineupService
+public class LineupService(
+    ILogger<LineupService> logger,
+    ILogger<HybridCacheManager<LineupResult>> cacheLogger,
+    IOptionsMonitor<SDSettings> sdSettings,
+    ILogoService logoService,
+    ISchedulesDirectAPIService schedulesDirectAPI,
+    IMemoryCache memoryCache,
+    ISchedulesDirectDataService schedulesDirectDataService,
+    IImageDownloadQueue imageDownloadQueue
+    ) : ILineupService
 {
-    private readonly ILogger<LineupService> logger;
-    private readonly IOptionsMonitor<SDSettings> intSDSettings;
-    private readonly IOptionsMonitor<Setting> settings;
-    private readonly ILogoService logoService;
-    private readonly ISchedulesDirectAPIService schedulesDirectAPI;
-    private readonly IEPGCache<LineupResult> epgCache;
-    private readonly ISchedulesDirectDataService schedulesDirectDataService;
-    private readonly HttpClient httpClient;
-    //private readonly ConcurrentDictionary<string, StationImage> StationLogosToDownload = [];
-    private readonly IImageDownloadQueue imageDownloadQueue; // Injected ImageDownloadQueue
+    private readonly HybridCacheManager<LineupResult> hybridCache = new(cacheLogger, memoryCache, useCompression: false, useKeyBasedFiles: true);
 
-    public LineupService(
-        ILogger<LineupService> logger,
-        IOptionsMonitor<SDSettings> intSDSettings,
-         IOptionsMonitor<Setting> Settings,
-        ILogoService logoService,
-        ISchedulesDirectAPIService schedulesDirectAPI,
-        IEPGCache<LineupResult> epgCache,
-        ISchedulesDirectDataService schedulesDirectDataService,
-        IImageDownloadQueue imageDownloadQueue
-        )
+    public async Task<bool> BuildLineupServicesAsync(CancellationToken cancellationToken = default)
     {
-        settings = Settings;
-        this.logger = logger;
-        this.intSDSettings = intSDSettings;
-        this.logoService = logoService;
-        this.schedulesDirectAPI = schedulesDirectAPI;
-        this.epgCache = epgCache;
-        this.schedulesDirectDataService = schedulesDirectDataService;
-        this.imageDownloadQueue = imageDownloadQueue;
-        httpClient = CreateHttpClient();
-    }
 
-    private HttpClient CreateHttpClient()
-    {
-        HttpClient client = new()
-        {
-            Timeout = TimeSpan.FromSeconds(30)
-        };
-
-        client.DefaultRequestHeaders.UserAgent.ParseAdd(settings.CurrentValue.ClientUserAgent);
-        client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
-
-        return client;
-    }
-
-    public void ClearCache()
-    {
-        //StationLogosToDownload.Clear();
-    }
-    public void ResetCache()
-    {
-        epgCache.ResetCache();
-    }
-
-    public async Task<bool> BuildLineupServices(CancellationToken cancellationToken = default)
-    {
-        SDSettings sdSettings = intSDSettings.CurrentValue;
         LineupResponse? clientLineups = await GetSubscribedLineups(cancellationToken).ConfigureAwait(false);
 
         if (clientLineups == null || clientLineups.Lineups.Count < 1)
@@ -74,24 +34,24 @@ public class LineupService : ILineupService
             return true;
         }
 
-        string preferredLogoStyle = string.IsNullOrEmpty(sdSettings.PreferredLogoStyle) ? "DARK" : sdSettings.PreferredLogoStyle;
-        string alternateLogoStyle = string.IsNullOrEmpty(sdSettings.AlternateLogoStyle) ? "WHITE" : sdSettings.AlternateLogoStyle;
+        string preferredLogoStyle = string.IsNullOrEmpty(sdSettings.CurrentValue.PreferredLogoStyle) ? "DARK" : sdSettings.CurrentValue.PreferredLogoStyle;
+        string alternateLogoStyle = string.IsNullOrEmpty(sdSettings.CurrentValue.AlternateLogoStyle) ? "WHITE" : sdSettings.CurrentValue.AlternateLogoStyle;
         ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
 
         foreach (SubscribedLineup clientLineup in clientLineups.Lineups)
         {
             if (clientLineup.IsDeleted)
             {
-                if (sdSettings.SDStationIds.Any(a => a.Lineup == clientLineup.Lineup))
+                if (sdSettings.CurrentValue.SDStationIds.Any(a => a.Lineup == clientLineup.Lineup))
                 {
-                    sdSettings.SDStationIds.RemoveAll(a => a.Lineup == clientLineup.Lineup);
+                    sdSettings.CurrentValue.SDStationIds.RemoveAll(a => a.Lineup == clientLineup.Lineup);
                     SettingsHelper.UpdateSetting(sdSettings);
                 }
             }
 
             //CheckHeadendView(clientLineup);
 
-            if (sdSettings.SDStationIds.Find(a => a.Lineup == clientLineup.Lineup) == null)
+            if (sdSettings.CurrentValue.SDStationIds.Find(a => a.Lineup == clientLineup.Lineup) == null)
             {
                 return true;
             }
@@ -109,7 +69,7 @@ public class LineupService : ILineupService
 
             foreach (LineupStation? station in lineupMap.Stations)
             {
-                if (station == null || sdSettings.SDStationIds.Find(a => a.StationId == station.StationId) == null)
+                if (station == null || sdSettings.CurrentValue.SDStationIds.Find(a => a.StationId == station.StationId) == null)
                 {
                     continue;
                 }
@@ -202,7 +162,7 @@ public class LineupService : ILineupService
 
     public async Task<List<SubscribedLineup>> GetLineups(CancellationToken cancellationToken = default)
     {
-        if (!intSDSettings.CurrentValue.SDEnabled)
+        if (!sdSettings.CurrentValue.SDEnabled)
         {
             return [];
         }
@@ -274,16 +234,42 @@ public class LineupService : ILineupService
 
     private async Task<LineupResult?> GetLineup(string lineup, CancellationToken cancellationToken)
     {
-        LineupResult? cachedLineup = await epgCache.GetValidCachedDataAsync("Lineup-" + lineup, cancellationToken).ConfigureAwait(false);
-        if (cachedLineup != null)
+        string? cachedData = await hybridCache.GetAsync(lineup);
+
+        if (!string.IsNullOrEmpty(cachedData))
         {
-            return cachedLineup;
+            try
+            {
+                // Deserialize the cached data to LineupResult
+                LineupResult? cachedLineup = JsonSerializer.Deserialize<LineupResult>(cachedData);
+                if (cachedLineup != null)
+                {
+                    return cachedLineup;
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error while deserializing cached lineup data for {LineupKey}", lineup);
+            }
         }
 
-        LineupResult? lineupResult = await schedulesDirectAPI.GetApiResponse<LineupResult>(APIMethod.GET, $"lineups/{lineup}", cancellationToken, cancellationToken).ConfigureAwait(false);
+        // Fetch lineup data if not found in cache
+        LineupResult? lineupResult = await schedulesDirectAPI
+            .GetApiResponse<LineupResult>(APIMethod.GET, $"lineups/{lineup}", cancellationToken, cancellationToken)
+            .ConfigureAwait(false);
+
         if (lineupResult != null)
         {
-            await epgCache.WriteToCacheAsync("Lineup-" + lineup, lineupResult, cancellationToken).ConfigureAwait(false);
+            try
+            {
+                // Serialize the lineup result to JSON and save it in the cache
+                string serializedData = JsonSerializer.Serialize(lineupResult);
+                await hybridCache.SetAsync(lineup, serializedData);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error while serializing and caching lineup data for {LineupKey}", lineup);
+            }
         }
 
         return lineupResult;
@@ -291,17 +277,13 @@ public class LineupService : ILineupService
 
     public void Dispose()
     {
-        httpClient.Dispose();
         GC.SuppressFinalize(this);
     }
 
     public List<string> GetExpiredKeys()
     {
-        return epgCache.GetExpiredKeys();
+        return hybridCache.GetExpiredKeysAsync().Result;
     }
 
-    public void RemovedExpiredKeys(List<string>? keysToDelete = null)
-    {
-        epgCache.RemovedExpiredKeys(keysToDelete);
-    }
+    public void RemovedExpiredKeys(List<string>? keysToDelete = null) { }
 }

@@ -6,7 +6,6 @@ public class ImageDownloadServiceStatus
     public int Id { get; set; } = 0;
     public DownloadStats ProgramLogos { get; set; } = new();
     public DownloadStats Logos { get; set; } = new();
-
 }
 
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]

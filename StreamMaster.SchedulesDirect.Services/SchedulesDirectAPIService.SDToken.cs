@@ -4,10 +4,6 @@ namespace StreamMaster.SchedulesDirect;
 
 public partial class SchedulesDirectAPIService
 {
-    public string? Token { get; private set; }
-    public DateTime TokenTimestamp = DateTime.MinValue;
-    public bool GoodToken;
-    private readonly SemaphoreSlim _tokenSemaphore = new(1, 1);
 
     /// <summary>
     /// Retrieves a session Token from ScheduleService Direct
@@ -15,14 +11,13 @@ public partial class SchedulesDirectAPIService
     /// <returns>true if successful</returns>
     public async Task<bool> GetToken()
     {
-        return sdsettings.SDEnabled && await GetToken(sdsettings.SDUserName, sdsettings.SDPassword);
+        return sdsettings.CurrentValue.SDEnabled && await GetToken(sdsettings.CurrentValue.SDUserName, sdsettings.CurrentValue.SDPassword);
     }
 
     public void ClearToken()
     {
         GoodToken = false;
         TokenTimestamp = DateTime.MinValue;
-        //_ = _httpClient.DefaultRequestHeaders.Remove("Token");
     }
 
     public async Task ResetToken(CancellationToken cancellationToken = default)

@@ -2,6 +2,6 @@
 {
     public interface IMovieImages : IEPGCached, IDisposable
     {
-        Task<bool> GetAllMoviePosters();
+        Task<bool> ProcessArtAsync();
     }
 }

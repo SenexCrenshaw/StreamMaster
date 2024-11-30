@@ -49,22 +49,6 @@ public class SDXMLTVBuilder(
         };
     }
 
-    //public string GetUrlWithPath()
-    //{
-    //    HttpRequest? request = httpContextAccessor.HttpContext?.Request;
-    //    if (request == null)
-    //    {
-    //        return string.Empty;
-    //    }
-
-    //    string url = $"{request.Scheme}://{request.Host}";
-    //    if (url.StartsWith("wss"))
-    //    {
-    //        url = "https" + url[3..];
-    //    }
-    //    return url;
-    //}
-
     private XMLTV ProcessSDServices()
     {
         List<MxfService> services = dataPreparationService.GetAllSdServices();

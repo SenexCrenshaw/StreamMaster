@@ -88,18 +88,18 @@ public partial class SchedulesDirect(
 
             ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
 
-            bool buildStatus = await lineups.BuildLineupServices(cancellationToken)
-                && await schedules.GetAllScheduleEntryMd5S(cancellationToken)
-                && await programs.BuildAllProgramEntries(cancellationToken)
-                && await descriptions.BuildAllGenericSeriesInfoDescriptions(cancellationToken)
-                && keywords.BuildKeywords();
+            bool buildStatus = await lineups.BuildLineupServicesAsync(cancellationToken).ConfigureAwait(false)
+                && await schedules.BuildScheduleEntriesAsync(cancellationToken).ConfigureAwait(false)
+                && await programs.BuildProgramEntriesAsync(cancellationToken).ConfigureAwait(false)
+                && await descriptions.BuildGenericSeriesInfoDescriptionsAsync(cancellationToken).ConfigureAwait(false);
+            //&& keywords.BuildKeywords();
 
             if (buildStatus)
             {
-                await movieImages.GetAllMoviePosters().ConfigureAwait(false);
-                await seriesImages.GetAllSeriesImages().ConfigureAwait(false);
-                await seasonImages.GetAllSeasonImages().ConfigureAwait(false);
-                await sportsImages.GetAllSportsImages().ConfigureAwait(false);
+                await movieImages.ProcessArtAsync().ConfigureAwait(false);
+                await seriesImages.ProcessArtAsync().ConfigureAwait(false);
+                await seasonImages.ProcessArtAsync().ConfigureAwait(false);
+                await sportsImages.ProcessArtAsync().ConfigureAwait(false);
 
                 //movieImages.ResetCache();
                 //seriesImages.ResetCache();
@@ -222,14 +222,14 @@ public partial class SchedulesDirect(
 
     public void ClearAllCaches()
     {
-        lineups.ClearCache();
-        schedules.ClearCache();
-        programs.ClearCache();
-        descriptions.ClearCache();
-        movieImages.ClearCache();
-        seriesImages.ClearCache();
-        seasonImages.ClearCache();
-        sportsImages.ClearCache();
+        //lineups.ClearCache();
+        //schedules.ClearCache();
+        //programs.ClearCache();
+        //descriptions.ClearCache();
+        //movieImages.ClearCache();
+        //seriesImages.ClearCache();
+        //seasonImages.ClearCache();
+        //sportsImages.ClearCache();
     }
 
     public void ResetCache(string command)
@@ -246,14 +246,14 @@ public partial class SchedulesDirect(
     public void ResetAllEPGCaches()
     {
         ClearAllCaches();
-        descriptions.ResetCache();
-        lineups.ResetCache();
-        schedules.ResetCache();
-        programs.ResetCache();
-        movieImages.ResetCache();
-        seriesImages.ResetCache();
-        seasonImages.ResetCache();
-        sportsImages.ResetCache();
+        //descriptions.ResetCache();
+        //lineups.ResetCache();
+        //schedules.ResetCache();
+        //programs.ResetCache();
+        //movieImages.ResetCache();
+        //seriesImages.ResetCache();
+        //seasonImages.ResetCache();
+        //sportsImages.ResetCache();
         schedulesDirectDataService.Reset(EPGHelper.SchedulesDirectId);
     }
 

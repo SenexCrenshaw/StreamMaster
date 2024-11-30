@@ -16,6 +16,9 @@ public static class ConfigureServices
 {
     public static IServiceCollection AddApplicationServices(this IServiceCollection services)
     {
+
+        services.AddSingleton(typeof(IHybridCache<>), typeof(HybridCacheManager<>));
+
         services.AddTransient<ILoggingUtils, LoggingUtils>();
         //_ = services.AddTransient(typeof(IPipelineBehavior<,>), typeof(UnhandledExceptionBehaviour<,>));
         //_ = services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>));
@@ -27,7 +30,6 @@ public static class ConfigureServices
         services.AddScoped<IEPGService, EPGService>();
         services.AddScoped<IM3UToSMStreamsService, M3UToSMStreamsService>();
         services.AddScoped<IChannelGroupService, ChannelGroupService>();
-        services.AddScoped(typeof(CachedConcurrentDictionary<,>));
         services.AddScoped<ISMChannelService, SMChannelService>();
         services.AddScoped<ISMStreamService, SMStreamService>();
         services.AddScoped<IEPGFileService, EPGFileService>();

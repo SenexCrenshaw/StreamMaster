@@ -5,7 +5,6 @@ namespace StreamMaster.SchedulesDirect.Domain.Interfaces
     public interface IEPGCache<T>
     {
         List<string> GetExpiredKeys();
-
         void RemovedExpiredKeys(List<string>? keysToDelete = null);
         void UpdateProgramArtworkCache(List<ProgramArtwork> artwork, ImageType type, string? cacheKey = null);
         Task WriteToCacheAsync(string name, T data, CancellationToken cancellationToken = default);
@@ -15,7 +14,6 @@ namespace StreamMaster.SchedulesDirect.Domain.Interfaces
         string? GetAsset(string md5);
         void ResetCache();
         void AddOrUpdateAsset(string md5, string? json);
-        //void UpdateAssetJsonEntry(string md5, string? json);
         void SaveCache();
         void ReleaseCache();
     }

@@ -27,7 +27,6 @@ public class RemoveCustomLogoRequestHandler(ILogoService logoService, IMessageSe
         }
         catch (Exception exception)
         {
-
         }
         return APIResponse.Error;
     }

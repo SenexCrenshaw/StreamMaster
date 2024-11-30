@@ -11,10 +11,8 @@ namespace StreamMaster.Application.Common
 {
     public static class ImageConverter
     {
-
         public static string ConvertDataToPNG(string Name, string Source)
         {
-
             if (ImageConverter.IsData(Source))
             {
                 LogoInfo nl = new(Name, Source, iconType: SMFileTypes.CustomLogo);
@@ -32,7 +30,6 @@ namespace StreamMaster.Application.Common
                     ImageConverter.ConvertSvgBase64ToPng(Source, nl.FullPath);
                 }
                 return $"/api/files/cu/{nl.FileName}";
-
             }
 
             return Source;
@@ -43,12 +40,10 @@ namespace StreamMaster.Application.Common
             return Source.StartsWithIgnoreCase("data:image");
         }
 
-
         public static bool IsSVGData(string Source)
         {
             return Source.StartsWithIgnoreCase("data:image/svg");
         }
-
 
         public static bool IsCustomSource(string Source)
         {
@@ -78,7 +73,7 @@ namespace StreamMaster.Application.Common
             string base64Data = parts[1];
 
             // Validate supported MIME types
-            string[] supportedFormats = new[] { "image/jpeg", "image/png", "image/gif", "image/webp", "image/bmp", "image/tiff" };
+            string[] supportedFormats = ["image/jpeg", "image/png", "image/gif", "image/webp", "image/bmp", "image/tiff"];
             if (!Array.Exists(supportedFormats, format => format.Equals(mimeType, StringComparison.OrdinalIgnoreCase)))
             {
                 throw new NotSupportedException($"The format '{mimeType}' is not supported for conversion.");
@@ -104,8 +99,8 @@ namespace StreamMaster.Application.Common
             }
 
             // Remove the data URI prefix if present
-            string base64Data = base64Svg.Contains(",")
-                ? base64Svg[(base64Svg.IndexOf(",") + 1)..]
+            string base64Data = base64Svg.Contains(',')
+                ? base64Svg[(base64Svg.IndexOf(',') + 1)..]
                 : base64Svg;
 
             // Decode Base64 to byte array

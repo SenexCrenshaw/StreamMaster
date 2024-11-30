@@ -63,7 +63,6 @@ namespace StreamMaster.Infrastructure.Services
                 StationChannelName stationChannelName = new(channel, displayName, name, iconSrc ?? "", epgNumber);
 
                 value.Add(stationChannelName);
-
             }
             cacheManager.StationChannelNames[epgNumber] = value;
             return value;

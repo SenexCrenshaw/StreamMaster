@@ -2,6 +2,6 @@
 {
     public interface IScheduleService : IEPGCached
     {
-        Task<bool> GetAllScheduleEntryMd5S(CancellationToken cancellationToken);
+        Task<bool> BuildScheduleEntriesAsync(CancellationToken cancellationToken);
     }
 }

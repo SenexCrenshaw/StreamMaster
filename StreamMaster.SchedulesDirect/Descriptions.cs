@@ -14,7 +14,7 @@ public class Descriptions(ILogger<Descriptions> logger, ISchedulesDirectAPIServi
 
     private bool disposedValue = false;
 
-    public async Task<bool> BuildAllGenericSeriesInfoDescriptions(CancellationToken cancellationToken)
+    public async Task<bool> BuildGenericSeriesInfoDescriptionsAsync(CancellationToken cancellationToken)
     {
         ResetCache();
 

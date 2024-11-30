@@ -528,7 +528,6 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, ILogo
 
     public async Task<APIResponse> SetSMChannelLogo(int SMChannelId, string logo)
     {
-
         if (
             string.IsNullOrWhiteSpace(logo) ||
            !(
@@ -541,7 +540,6 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, ILogo
             return APIResponse.ErrorWithMessage("Invalid logo URL");
         }
 
-
         SMChannel? channel = GetSMChannel(SMChannelId);
         if (channel == null)
         {
@@ -553,7 +551,6 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, ILogo
             LogoInfo nl = new(logo);
             logo = logoService.AddCustomLogo(channel.Name, nl.FileName);
             await imageDownloadService.DownloadImageAsync(nl, CancellationToken.None);
-
         }
         else
         {
@@ -561,7 +558,6 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, ILogo
             {
                 LogoInfo nl = new(logo);
                 await imageDownloadService.DownloadImageAsync(nl, CancellationToken.None);
-
             }
         }
 

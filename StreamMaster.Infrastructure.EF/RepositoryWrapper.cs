@@ -26,7 +26,7 @@ public class RepositoryWrapper(
     PGSQLRepositoryContext repositoryContext,
     IMapper mapper,
     ICacheManager cacheManager,
-    IXmltv2Mxf xmltv2Mxf,
+
     IServiceProvider serviceProvider,
     ICryptoService cryptoService,
     ILogoService logoService,
@@ -140,7 +140,7 @@ public class RepositoryWrapper(
     {
         get
         {
-            _epgFile ??= new EPGFileRepository(EPGFileRepositoryLogger, fileUtilService, cacheManager, xmltv2Mxf, jobStatusService, repositoryContext, schedulesDirectDataService, mapper);
+            _epgFile ??= new EPGFileRepository(EPGFileRepositoryLogger, fileUtilService, cacheManager,  jobStatusService, repositoryContext, schedulesDirectDataService, mapper);
             return _epgFile;
         }
     }

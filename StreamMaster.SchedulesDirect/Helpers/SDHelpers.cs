@@ -13,8 +13,8 @@ public static partial class SDHelpers
     // Priority categories in descending order
     private static readonly List<string> categories =
         [
+         "key art",
         "box art",
-            "key art",
             "vod art",
             "poster art",
             "banner",
@@ -148,74 +148,80 @@ public static partial class SDHelpers
     /// Filters and selects tiered images from a list of program artwork based on specified criteria.
     /// </summary>
     /// <param name="sdImages">The list of program artwork to filter.</param>
-    /// <param name="artWorkSize">The desired size of the artwork.</param>
+    /// <param name="artWorkSize">The desired size of the artwork. Options include Sm, Md, Lg.</param>
     /// <param name="tiers">The preferred tiers of artwork.</param>
     /// <param name="aspect">The desired aspect ratio.</param>
     /// <returns>A filtered and prioritized list of program artwork.</returns>
     public static List<ProgramArtwork> GetTieredImages(
         List<ProgramArtwork> sdImages,
         string artWorkSize,
-         List<string>? tiers = null,
+        List<string>? tiers = null,
         string? aspect = null)
     {
-        if (sdImages == null || tiers == null)
+        if (sdImages == null)
         {
             throw new ArgumentNullException(nameof(sdImages), "Input list cannot be null.");
         }
 
-        /// A filtered list of <see cref="ProgramArtwork"/> objects that meet the following criteria:
-        /// <list type="bullet">
-        ///     <item><see cref="ProgramArtwork.Category"/> is not null or empty.</item>
-        ///     <item><see cref="ProgramArtwork.Aspect"/> is not null or empty.</item>
-        ///     <item><see cref="ProgramArtwork.Uri"/> is not null or empty.</item>
-        ///     <item>If <see cref="ProgramArtwork.Tier"/> is not null or empty, it must match one of the values in <paramref name="tiers"/> (case-insensitive).</item>
-        ///     <item>The <see cref="ProgramArtwork.Aspect"/> must match the specified <paramref name="aspect"/> (case-insensitive).</item>
-        ///     <item>The <see cref="ProgramArtwork.Size"/> must match the specified <paramref name="artWorkSize"/> (case-insensitive).</item>
-        /// </list>
+        // Order of priority for artwork sizes
+        List<string> sizePriority = ["Lg", "Md", "Sm"];
+        int requestedSizeIndex = sizePriority.IndexOf(artWorkSize);
+        if (requestedSizeIndex == -1)
+        {
+            throw new ArgumentException("Invalid artWorkSize. Expected one of: Sm, Md, Lg.", nameof(artWorkSize));
+        }
+
+        // Adjust size priority based on requested artwork size
+        List<string> applicableSizes = sizePriority.Skip(requestedSizeIndex).ToList();
+
+        // Filter images based on provided criteria
         List<ProgramArtwork> filteredImages = sdImages
             .Where(image =>
                 !string.IsNullOrEmpty(image.Category) &&
                 !string.IsNullOrEmpty(image.Aspect) &&
                 !string.IsNullOrEmpty(image.Uri) &&
                 (string.IsNullOrEmpty(image.Tier) || tiers?.Contains(image.Tier.ToLower()) != false) &&
-                (string.IsNullOrEmpty(aspect) || image.Aspect.EqualsIgnoreCase(aspect)) &&
-                string.Equals(image.Size, artWorkSize, StringComparison.OrdinalIgnoreCase))
+                (string.IsNullOrEmpty(aspect) || image.Aspect.Equals(aspect, StringComparison.OrdinalIgnoreCase)))
             .ToList();
 
-        // Group images by aspect ratio
-        Dictionary<string, List<ProgramArtwork>> aspects = filteredImages
-            .GroupBy(image => image.Aspect)
-            .ToDictionary(group => group.Key, group => group.ToList());
-
-        List<ProgramArtwork> result = [];
-
-        // Process each aspect group to select the highest priority image
-        foreach (KeyValuePair<string, List<ProgramArtwork>> aspectGroup in aspects)
+        // Process each artwork size in priority order to gather images
+        List<ProgramArtwork> prioritizedImages = [];
+        foreach (string size in applicableSizes)
         {
-            List<ProgramArtwork> aspectImages = aspectGroup.Value;
+            List<ProgramArtwork> imagesOfSize = filteredImages
+                .Where(image => string.Equals(image.Size, size, StringComparison.OrdinalIgnoreCase))
+                .ToList();
 
-            List<ProgramArtwork> tests =
-                [.. aspectImages.OrderBy(image => categoryPriority.TryGetValue(image.Category, out int value)
-               ? value : int.MaxValue)];
+            if (imagesOfSize.Any())
+            {
+                // Group images by aspect ratio
+                Dictionary<string, List<ProgramArtwork>> aspects = imagesOfSize
+                    .GroupBy(image => image.Aspect)
+                    .ToDictionary(group => group.Key, group => group.ToList());
 
-            //List<ProgramArtwork> tests2 = tests.OrderBy(image => image.PixelCount).ToList();
+                // Process each aspect group to select the highest priority image based on category
+                foreach (KeyValuePair<string, List<ProgramArtwork>> aspectGroup in aspects)
+                {
+                    List<ProgramArtwork> aspectImages = aspectGroup.Value;
 
-            //ProgramArtwork? prioritizedImage = aspectImages
-            //   .OrderBy(image => categoryPriority.ContainsKey(image.Category)
-            //       ? categoryPriority[image.Category]
-            //       : int.MaxValue)
-            //   .FirstOrDefault();
-            IEnumerable<ProgramArtwork> prioritizedImages =
-                aspectImages.OrderBy(image => categoryPriority.TryGetValue(image.Category, out int value) ? value : int.MaxValue).Take(3);
+                    IEnumerable<ProgramArtwork> prioritizedCategoryImages = aspectImages
+                        .OrderBy(image => categoryPriority.TryGetValue(image.Category, out int value) ? value : int.MaxValue)
+                        .Take(3);
 
-            //if (prioritizedImages != null)
-            //{
-            result.AddRange(prioritizedImages);
-            //}
+                    prioritizedImages.AddRange(prioritizedCategoryImages);
+                }
+            }
+
+            // If we have found some images, break the loop since we have a satisfactory size
+            if (prioritizedImages.Any())
+            {
+                break;
+            }
         }
 
-        return result;
+        return prioritizedImages;
     }
+
 
     public static bool TableContains(string[] table, string text, bool exactMatch = false)
     {

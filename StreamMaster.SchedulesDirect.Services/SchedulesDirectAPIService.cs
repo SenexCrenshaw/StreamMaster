@@ -10,21 +10,60 @@ namespace StreamMaster.SchedulesDirect;
 
 public partial class SchedulesDirectAPIService : ISchedulesDirectAPIService
 {
+    public string? Token { get; private set; }
+    private DateTime _tokenTimestamp = DateTime.MinValue;
+    private bool _goodToken;
+
+    private readonly SemaphoreSlim _tokenSemaphore = new(1, 1);
     private readonly ILogger<SchedulesDirectAPIService> logger;
-    private readonly SDSettings sdsettings;
-    private readonly Setting settings;
+    private readonly IOptionsMonitor<SDSettings> sdsettings;
+    private readonly IOptionsMonitor<Setting> settings;
     public HttpClient _httpClient = null!;
 
     private const string BaseAddress = "https://json.schedulesdirect.org/20141201/";
 
-    public SchedulesDirectAPIService(ILogger<SchedulesDirectAPIService> logger, IOptionsMonitor<SDSettings> intsdsettings, IOptionsMonitor<Setting> intSettings)
+    public SchedulesDirectAPIService(ILogger<SchedulesDirectAPIService> logger, IOptionsMonitor<SDSettings> intSDSettings, IOptionsMonitor<Setting> intSettings)
     {
         this.logger = logger;
-        sdsettings = intsdsettings.CurrentValue;
-        settings = intSettings.CurrentValue;
+        sdsettings = intSDSettings;
+        settings = intSettings;
         CreateHttpClient();
     }
 
+    public DateTime TokenTimestamp
+    {
+        get
+        {
+            lock (_tokenSemaphore)
+            {
+                return _tokenTimestamp;
+            }
+        }
+        private set
+        {
+            lock (_tokenSemaphore)
+            {
+                _tokenTimestamp = value;
+            }
+        }
+    }
+    public bool GoodToken
+    {
+        get
+        {
+            lock (_tokenSemaphore)
+            {
+                return _goodToken;
+            }
+        }
+        private set
+        {
+            lock (_tokenSemaphore)
+            {
+                _goodToken = value;
+            }
+        }
+    }
     private async Task<List<ProgramMetadata>?> GetArtworkAsync(string[] request)
     {
         DateTime dtStart = DateTime.Now;
@@ -71,7 +110,7 @@ public partial class SchedulesDirectAPIService : ISchedulesDirectAPIService
         }
     }
 
-    public async Task<HttpResponseMessage?> GetSdImage(string uri)//, DateTimeOffset ifModifiedSince)
+    public async Task<HttpResponseMessage?> GetSdImage(string uri)
     {
         try
         {
@@ -319,7 +358,7 @@ public partial class SchedulesDirectAPIService : ISchedulesDirectAPIService
         };
         _httpClient.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("gzip"));
         _httpClient.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("deflate"));
-        _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(settings.ClientUserAgent);
+        _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(settings.CurrentValue.ClientUserAgent);
         _httpClient.DefaultRequestHeaders.ExpectContinue = true;
     }
 }

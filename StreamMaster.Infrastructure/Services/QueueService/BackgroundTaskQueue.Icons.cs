@@ -19,5 +19,4 @@ public partial class BackgroundTaskQueue : ILogoTasks
     {
         await QueueAsync(SMQueCommand.ScanForTvLogos, cancellationToken).ConfigureAwait(false);
     }
-
 }

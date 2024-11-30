@@ -47,8 +47,6 @@ public class CustomLogoDict : IProfileDict<CustomLogo>
             : null;
     }
 
-
-
     [JsonIgnore]
     public Dictionary<string, CustomLogo> Profiles => CustomLogos;
 

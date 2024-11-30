@@ -4,6 +4,6 @@
     {
         List<MxfProgram> SportEvents { get; set; }
 
-        Task<bool> GetAllSportsImages();
+        Task<bool> ProcessArtAsync();
     }
 }
