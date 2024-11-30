@@ -40,7 +40,7 @@ public partial class SchedulesDirect(
     private static readonly TimeSpan CacheDuration = TimeSpan.FromHours(23);
 
     private readonly HybridCacheManager<CountryData> CountryDataCache = new(countryDataCacheLogger, memoryCache, defaultKey: "Countries");
-    private readonly HybridCacheManager<Headend> HeadendCache = new(HeadendCacheLogger, memoryCache, defaultKey: "Headends");
+    private readonly HybridCacheManager<Headend> HeadendCache = new(HeadendCacheLogger, memoryCache, defaultKey: "Headends", useKeyBasedFiles: true);
     private readonly HybridCacheManager<LineupPreviewChannel> LineupPreviewChannelCache = new(lineupPreviewChannelCacheLogger, memoryCache, useKeyBasedFiles: true);
 
     public static readonly int MaxQueries = 1250;

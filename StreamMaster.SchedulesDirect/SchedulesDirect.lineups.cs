@@ -49,7 +49,9 @@ public partial class SchedulesDirect
             logger.LogWarning("Country {country} or postal code {postalCode} is empty", country, postalCode);
             return null;
         }
-        List<Headend>? headends = await HeadendCache.GetAsync<List<Headend>>();
+
+
+        List<Headend>? headends = await HeadendCache.GetAsync<List<Headend>>($"Headends-{country}-{postalCode}");
         if (headends is not null)
         {
             return headends;
@@ -58,7 +60,7 @@ public partial class SchedulesDirect
         headends = await schedulesDirectAPI.GetApiResponse<List<Headend>>(APIMethod.GET, $"headends?country={country}&postalcode={postalCode}", cancellationToken: cancellationToken).ConfigureAwait(false);
         if (headends != null)
         {
-            await HeadendCache.SetAsync<List<Headend>>(headends).ConfigureAwait(false);
+            await HeadendCache.SetAsync<List<Headend>>($"Headends-{country}-{postalCode}", headends).ConfigureAwait(false);
             //await WriteToCacheAsync($"Headends-{country}-{postalCode}", cache, cancellationToken).ConfigureAwait(false);
             logger.LogDebug("Successfully retrieved the headends for {country} and postal code {postalCode}.", country, postalCode);
         }
