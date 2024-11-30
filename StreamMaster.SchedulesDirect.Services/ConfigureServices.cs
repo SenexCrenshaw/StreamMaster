@@ -3,7 +3,6 @@ using Microsoft.Extensions.DependencyInjection;
 using StreamMaster.SchedulesDirect.Converters;
 using StreamMaster.SchedulesDirect.Data;
 using StreamMaster.SchedulesDirect.Images;
-using StreamMaster.SchedulesDirect.Services.Extensions;
 
 namespace StreamMaster.SchedulesDirect.Services;
 
@@ -11,18 +10,17 @@ public static class ConfigureServices
 {
     public static IServiceCollection AddSchedulesDirectAPIServices(this IServiceCollection services)
     {
-        services.AddEPGCache();
 
         _ = services.AddSingleton<ISchedulesDirectAPIService, SchedulesDirectAPIService>();
         _ = services.AddSingleton<ISchedulesDirectDataService, SchedulesDirectDataService>();
 
-        _ = services.AddSingleton<ISDXMLTVBuilder, SDXMLTVBuilder>();
-        _ = services.AddSingleton<IDescriptions, Descriptions>();
+        _ = services.AddScoped<ISDXMLTVBuilder, SDXMLTVBuilder>();
 
         _ = services.AddSingleton<IScheduleService, ScheduleService>();
 
-        _ = services.AddSingleton<IKeywords, Keywords>();
+        //_ = services.AddSingleton<IKeywords, Keywords>();
 
+        _ = services.AddScoped<IDescriptionService, DescriptionService>();
         _ = services.AddScoped<ILineupService, LineupService>();
         _ = services.AddScoped<IProgramService, ProgramService>();
         _ = services.AddScoped<ISchedulesDirect, SchedulesDirect>();

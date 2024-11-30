@@ -13,10 +13,11 @@ namespace StreamMaster.SchedulesDirect.Services;
 
 public class LineupService(
     ILogger<LineupService> logger,
-    ILogger<HybridCacheManager<LineupResult>> cacheLogger,
+
     IOptionsMonitor<SDSettings> sdSettings,
     ILogoService logoService,
     ISchedulesDirectAPIService schedulesDirectAPI,
+    ILogger<HybridCacheManager<LineupResult>> cacheLogger,
     IMemoryCache memoryCache,
     ISchedulesDirectDataService schedulesDirectDataService,
     IImageDownloadQueue imageDownloadQueue
@@ -56,7 +57,6 @@ public class LineupService(
                 return true;
             }
 
-            //MxfLineup mxfLineup = schedulesDirectData.FindOrCreateLineup(clientLineup.Lineup, $"SM {clientLineup.Name} ({clientLineup.Location})");
             StationChannelMap? lineupMap = await GetStationChannelMap(clientLineup.Lineup);
 
             if (lineupMap == null || lineupMap.Stations == null || lineupMap.Stations.Count == 0)
@@ -234,24 +234,24 @@ public class LineupService(
 
     private async Task<LineupResult?> GetLineup(string lineup, CancellationToken cancellationToken)
     {
-        string? cachedData = await hybridCache.GetAsync(lineup);
+        //string? cachedData = await hybridCache.GetAsync(lineup);
 
-        if (!string.IsNullOrEmpty(cachedData))
+        //if (!string.IsNullOrEmpty(cachedData))
+        //{
+        try
         {
-            try
+            // Deserialize the cached data to LineupResult
+            LineupResult? cachedLineup = await hybridCache.GetAsync<LineupResult>(lineup);// JsonSerializer.Deserialize<LineupResult>(cachedData);
+            if (cachedLineup != null)
             {
-                // Deserialize the cached data to LineupResult
-                LineupResult? cachedLineup = JsonSerializer.Deserialize<LineupResult>(cachedData);
-                if (cachedLineup != null)
-                {
-                    return cachedLineup;
-                }
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error while deserializing cached lineup data for {LineupKey}", lineup);
+                return cachedLineup;
             }
         }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error while deserializing cached lineup data for {LineupKey}", lineup);
+        }
+        //}
 
         // Fetch lineup data if not found in cache
         LineupResult? lineupResult = await schedulesDirectAPI

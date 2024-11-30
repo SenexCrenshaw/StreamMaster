@@ -530,11 +530,11 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, ILogo
     {
         if (
             string.IsNullOrWhiteSpace(logo) ||
-           !(
-           logo.StartsWithIgnoreCase("http") ||
-             logo.StartsWithIgnoreCase("data:") ||
-             logo.StartsWithIgnoreCase("/api/files/cu/")
-             )
+                !(
+                logo.StartsWithIgnoreCase("http") ||
+                logo.StartsWithIgnoreCase("data:") ||
+                logo.StartsWithIgnoreCase("/api/files/cu/")
+                )
              )
         {
             return APIResponse.ErrorWithMessage("Invalid logo URL");

@@ -1,13 +1,16 @@
 ﻿using System.Collections.Concurrent;
 using System.Text.Json;
 
+using Microsoft.Extensions.Caching.Memory;
+
 using StreamMaster.Domain.Cache;
 
 namespace StreamMaster.SchedulesDirect.Images;
 
 public class SeriesImages(
     ILogger<SeriesImages> logger,
-    IHybridCache<SeriesImages> hybridCache,
+        ILogger<HybridCacheManager<SeriesImages>> cacheLogger,
+    IMemoryCache memoryCache,
     IImageDownloadQueue imageDownloadQueue,
     IOptionsMonitor<SDSettings> sdSettings,
     ISchedulesDirectAPIService schedulesDirectAPI,
@@ -15,6 +18,8 @@ public class SeriesImages(
 {
     private static readonly SemaphoreSlim classSemaphore = new(1, 1);
     private readonly SemaphoreSlim semaphore = new(SchedulesDirect.MaxParallelDownloads);
+    private readonly HybridCacheManager<SeriesImages> hybridCache = new(cacheLogger, memoryCache);
+
 
     public async Task<bool> ProcessArtAsync()
     {
@@ -43,10 +48,18 @@ public class SeriesImages(
 
                 bool refresh = ShouldRefreshSeries(series.SeriesId, out string seriesId);
 
-                if (!refresh && await hybridCache.GetAsync(seriesId) is string cachedJson && !string.IsNullOrEmpty(cachedJson))
+                if (!refresh)
                 {
-                    ProcessCachedImages(series, cachedJson);
-                    imageDownloadQueue.EnqueueProgramArtworkCollection(series.ArtWorks);
+                    List<ProgramArtwork>? artWorks = await hybridCache.GetAsync<List<ProgramArtwork>>(seriesId);
+                    if (artWorks is not null)
+                    {
+                        series.ArtWorks = artWorks;
+                        imageDownloadQueue.EnqueueProgramArtworkCollection(artWorks);
+                    }
+                    else
+                    {
+                        seriesImageQueue.Add($"SH{series.SeriesId}0000");
+                    }
                 }
                 else
                 {
@@ -85,12 +98,12 @@ public class SeriesImages(
         return false;
     }
 
-    private static void ProcessCachedImages(SeriesInfo series, string cachedJson)
-    {
-        series.ArtWorks = string.IsNullOrEmpty(cachedJson)
-            ? []
-            : JsonSerializer.Deserialize<List<ProgramArtwork>>(cachedJson) ?? [];
-    }
+    //private static void ProcessCachedImages(SeriesInfo series, string cachedJson)
+    //{
+    //    series.ArtWorks = string.IsNullOrEmpty(cachedJson)
+    //        ? []
+    //        : JsonSerializer.Deserialize<List<ProgramArtwork>>(cachedJson) ?? [];
+    //}
 
     private async Task DownloadAndProcessImagesAsync(List<string> seriesImageQueue, ConcurrentBag<ProgramMetadata> seriesImageResponses)
     {

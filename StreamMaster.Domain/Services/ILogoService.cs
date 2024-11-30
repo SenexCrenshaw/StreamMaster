@@ -8,6 +8,7 @@ namespace StreamMaster.Domain.Services
     /// </summary>
     public interface ILogoService
     {
+        Task<(FileStream? fileStream, string? FileName, string? ContentType)> GetTVLogoAsync(string Source, CancellationToken cancellationToken);
         Task<(FileStream? fileStream, string? FileName, string? ContentType)> GetCustomLogoAsync(string Source, CancellationToken cancellationToken);
         Task<(FileStream? fileStream, string? FileName, string? ContentType)> GetProgramLogoAsync(string fileName, CancellationToken cancellationToken);
         Task<(FileStream? fileStream, string? FileName, string? ContentType)> GetLogoAsync(string fileName, CancellationToken cancellationToken);

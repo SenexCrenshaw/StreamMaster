@@ -1,7 +1,10 @@
 ﻿using System.Diagnostics;
 using System.Text.Json;
 
+using Microsoft.Extensions.Caching.Memory;
+
 using StreamMaster.Domain.API;
+using StreamMaster.Domain.Cache;
 using StreamMaster.Domain.Helpers;
 using StreamMaster.Domain.Logging;
 using StreamMaster.Domain.Models;
@@ -10,13 +13,17 @@ namespace StreamMaster.SchedulesDirect;
 
 public partial class SchedulesDirect(
     ILogger<SchedulesDirect> logger,
+    ILogger<HybridCacheManager<CountryData>> countryDataCacheLogger,
+    ILogger<HybridCacheManager<Headend>> HeadendCacheLogger,
+    ILogger<HybridCacheManager<LineupPreviewChannel>> lineupPreviewChannelCacheLogger,
     ISDXMLTVBuilder xSDMLTVBuilder,
     IJobStatusService jobStatusService,
     ISchedulesDirectDataService schedulesDirectDataService,
     ISchedulesDirectAPIService schedulesDirectAPI,
     IOptionsMonitor<SDSettings> _sdSettings,
-    IDescriptions descriptions,
-    IKeywords keywords,
+    IMemoryCache memoryCache,
+    IDescriptionService descriptions,
+
     ILineupService lineups,
     IProgramService programs,
     IScheduleService schedules,
@@ -31,6 +38,10 @@ public partial class SchedulesDirect(
 
     private const int MAX_RETRIES = 3;
     private static readonly TimeSpan CacheDuration = TimeSpan.FromHours(23);
+
+    private readonly HybridCacheManager<CountryData> CountryDataCache = new(countryDataCacheLogger, memoryCache, defaultKey: "Countries");
+    private readonly HybridCacheManager<Headend> HeadendCache = new(HeadendCacheLogger, memoryCache, defaultKey: "Headends");
+    private readonly HybridCacheManager<LineupPreviewChannel> LineupPreviewChannelCache = new(lineupPreviewChannelCacheLogger, memoryCache, useKeyBasedFiles: true);
 
     public static readonly int MaxQueries = 1250;
     public static readonly int MaxDescriptionQueries = 500;
@@ -179,41 +190,41 @@ public partial class SchedulesDirect(
         return null!;
     }
 
-    public async Task WriteToCacheAsync<T>(string name, T data, CancellationToken cancellationToken = default)
-    {
-        await _cacheSemaphore.WaitAsync(cancellationToken);
-        try
-        {
-            string cachePath = Path.Combine(BuildInfo.SDJSONFolder, SDHelpers.GenerateCacheKey(name));
-            SDCacheEntry<T> cacheEntry = new() { Data = data, Command = name, Content = "", Timestamp = SMDT.UtcNow };
-            await File.WriteAllTextAsync(cachePath, JsonSerializer.Serialize(cacheEntry), cancellationToken).ConfigureAwait(false);
-        }
-        finally
-        {
-            _ = _cacheSemaphore.Release();
-        }
-    }
+    //public async Task WriteToCacheAsync<T>(string name, T data, CancellationToken cancellationToken = default)
+    //{
+    //    await _cacheSemaphore.WaitAsync(cancellationToken);
+    //    try
+    //    {
+    //        string cachePath = Path.Combine(BuildInfo.SDJSONFolder, SDHelpers.GenerateCacheKey(name));
+    //        SDCacheEntry<T> cacheEntry = new() { Data = data, Command = name, Content = "", Timestamp = SMDT.UtcNow };
+    //        await File.WriteAllTextAsync(cachePath, JsonSerializer.Serialize(cacheEntry), cancellationToken).ConfigureAwait(false);
+    //    }
+    //    finally
+    //    {
+    //        _ = _cacheSemaphore.Release();
+    //    }
+    //}
 
-    public async Task<T?> GetValidCachedDataAsync<T>(string name, CancellationToken cancellationToken = default)
-    {
-        await _cacheSemaphore.WaitAsync(cancellationToken);
-        try
-        {
-            string cachePath = Path.Combine(BuildInfo.SDJSONFolder, SDHelpers.GenerateCacheKey(name));
-            if (!File.Exists(cachePath))
-            {
-                return default;
-            }
+    //public async Task<T?> GetValidCachedDataAsync<T>(string name, CancellationToken cancellationToken = default)
+    //{
+    //    await _cacheSemaphore.WaitAsync(cancellationToken);
+    //    try
+    //    {
+    //        string cachePath = Path.Combine(BuildInfo.SDJSONFolder, SDHelpers.GenerateCacheKey(name));
+    //        if (!File.Exists(cachePath))
+    //        {
+    //            return default;
+    //        }
 
-            string cachedContent = await File.ReadAllTextAsync(cachePath, cancellationToken).ConfigureAwait(false);
-            SDCacheEntry<T>? cacheEntry = JsonSerializer.Deserialize<SDCacheEntry<T>>(cachedContent);
-            return cacheEntry != null && (DateTime.Now - cacheEntry.Timestamp) <= CacheDuration ? cacheEntry.Data : default;
-        }
-        finally
-        {
-            _ = _cacheSemaphore.Release();
-        }
-    }
+    //        string cachedContent = await File.ReadAllTextAsync(cachePath, cancellationToken).ConfigureAwait(false);
+    //        SDCacheEntry<T>? cacheEntry = JsonSerializer.Deserialize<SDCacheEntry<T>>(cachedContent);
+    //        return cacheEntry != null && (DateTime.Now - cacheEntry.Timestamp) <= CacheDuration ? cacheEntry.Data : default;
+    //    }
+    //    finally
+    //    {
+    //        _ = _cacheSemaphore.Release();
+    //    }
+    //}
 
     public bool CheckToken(bool forceReset = false)
     {

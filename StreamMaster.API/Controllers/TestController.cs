@@ -6,13 +6,21 @@ using StreamMaster.Application.Services;
 
 namespace StreamMaster.API.Controllers;
 
-public class TestController(IBackgroundTaskQueue backgroundTaskQueue, IChannelGroupService channelGroupService) : ApiControllerBase
+public class TestController(IBackgroundTaskQueue backgroundTaskQueue, ILogoService logoService, IChannelGroupService channelGroupService) : ApiControllerBase
 {
     [HttpPut]
     [Route("[action]")]
     public async Task<IActionResult> ScanDirectoryForM3UFiles()
     {
         await Mediator.Send(new ScanDirectoryForM3UFilesRequest()).ConfigureAwait(false);
+        return Ok();
+    }
+
+    [HttpPut]
+    [Route("[action]")]
+    public async Task<IActionResult> ScanForTvLogos()
+    {
+        await logoService.ScanForTvLogosAsync();
         return Ok();
     }
 

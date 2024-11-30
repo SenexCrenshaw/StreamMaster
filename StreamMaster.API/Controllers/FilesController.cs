@@ -35,6 +35,8 @@ public class FilesController(IOptionsMonitor<Setting> settings, ILogoService log
 
         return fileStream == null ? Redirect(FileName ?? "/" + settings.CurrentValue.DefaultLogo) : File(fileStream, ContentType ?? "application/octet-stream", FileName);
     }
+
+    //Program Logo
     [AllowAnonymous]
     [Route("pr/{source}")]
     public async Task<IActionResult> GetProgramLogo(string source, CancellationToken cancellationToken)
@@ -49,6 +51,7 @@ public class FilesController(IOptionsMonitor<Setting> settings, ILogoService log
         return fileStream == null ? Redirect(FileName ?? "/" + settings.CurrentValue.DefaultLogo) : File(fileStream, ContentType ?? "application/octet-stream", FileName);
     }
 
+    //Custom Logo
     [AllowAnonymous]
     [Route("cu/{source}")]
     public async Task<IActionResult> GetCustomLogo(string source, CancellationToken cancellationToken)
@@ -59,6 +62,22 @@ public class FilesController(IOptionsMonitor<Setting> settings, ILogoService log
         }
 
         (FileStream? fileStream, string? FileName, string? ContentType) = await logoService.GetCustomLogoAsync(source, cancellationToken).ConfigureAwait(false);
+
+        return fileStream == null ? Redirect(FileName ?? "/" + settings.CurrentValue.DefaultLogo) : File(fileStream, ContentType ?? "application/octet-stream", FileName);
+    }
+
+
+    //TVLogo
+    [AllowAnonymous]
+    [Route("tv/{source}")]
+    public async Task<IActionResult> GetTvLogo(string source, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrEmpty(source) || source == "noimage.png" || source.EndsWithIgnoreCase("default.png"))
+        {
+            return Redirect("/" + settings.CurrentValue.DefaultLogo);
+        }
+
+        (FileStream? fileStream, string? FileName, string? ContentType) = await logoService.GetTVLogoAsync(source, cancellationToken).ConfigureAwait(false);
 
         return fileStream == null ? Redirect(FileName ?? "/" + settings.CurrentValue.DefaultLogo) : File(fileStream, ContentType ?? "application/octet-stream", FileName);
     }

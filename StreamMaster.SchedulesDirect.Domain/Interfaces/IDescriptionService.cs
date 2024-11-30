@@ -1,6 +1,6 @@
 ﻿namespace StreamMaster.SchedulesDirect.Domain.Interfaces
 {
-    public interface IDescriptions : IEPGCached, IDisposable
+    public interface IDescriptionService : IEPGCached, IDisposable
     {
         Task<bool> BuildGenericSeriesInfoDescriptionsAsync(CancellationToken cancellationToken);
     }

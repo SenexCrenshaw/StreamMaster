@@ -41,12 +41,11 @@ namespace StreamMaster.SchedulesDirect.Images
 
                 foreach (MxfProgram program in moviePrograms)
                 {
-                    string? cachedJson = await hybridCache.GetAsync(program.ProgramId);
-                    if (!string.IsNullOrEmpty(cachedJson))
+                    List<ProgramArtwork>? artWorks = await hybridCache.GetAsync<List<ProgramArtwork>>(program.ProgramId);
+                    if (artWorks is not null)
                     {
-                        List<ProgramArtwork> artworks = JsonSerializer.Deserialize<List<ProgramArtwork>>(cachedJson) ?? [];
-                        program.ArtWorks = artworks;
-                        imageDownloadQueue.EnqueueProgramArtworkCollection(artworks);
+                        program.ArtWorks = artWorks;
+                        imageDownloadQueue.EnqueueProgramArtworkCollection(artWorks);
                     }
                     else if (!string.IsNullOrEmpty(program.ProgramId))
                     {

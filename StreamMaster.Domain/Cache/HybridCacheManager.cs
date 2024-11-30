@@ -9,7 +9,7 @@ using StreamMaster.Domain.Configuration;
 
 namespace StreamMaster.Domain.Cache;
 
-public class HybridCacheManager<T>(ILogger<HybridCacheManager<T>> logger, IMemoryCache memoryCache, TimeSpan? defaultExpiration = null, bool useCompression = false, bool useKeyBasedFiles = false)
+public class HybridCacheManager<T>(ILogger<HybridCacheManager<T>> logger, IMemoryCache memoryCache, TimeSpan? defaultExpiration = null, bool useCompression = false, bool useKeyBasedFiles = false, string? defaultKey = null)
     : IHybridCache<T>, IDisposable
 {
     private readonly string cacheDirectory = BuildInfo.SDJSONFolder;
@@ -18,14 +18,53 @@ public class HybridCacheManager<T>(ILogger<HybridCacheManager<T>> logger, IMemor
     private readonly SemaphoreSlim cacheLock = new(1, 1);
     private readonly TimeSpan defaultExpiration = defaultExpiration ?? TimeSpan.FromMinutes(30);
     private readonly Dictionary<string, CacheEntry<string>> diskCache = [];
+    private readonly string memoryCachePartition = $"{typeof(T).Name}:"; // Partition memory cache by type
 
     private bool cacheLoaded;
     private bool disposed;
-
-    public async Task<string?> GetAsync(string key)
+    private string GetMemoryCacheKey(string key)
     {
-        if (memoryCache.TryGetValue(key, out string? value))
+        return $"{memoryCachePartition}{key}";
+    }
+
+    public async Task<TValue?> GetAsync<TValue>(string? key = null)
+    {
+        key ??= defaultKey;
+        if (string.IsNullOrEmpty(key))
         {
+            throw new ArgumentException("A key must be provided, or DefaultKey must be set.");
+        }
+
+        // Retrieve raw JSON string
+        string? json = await GetStringAsync(key).ConfigureAwait(false);
+        if (json is null)
+        {
+            return default;
+        }
+
+        try
+        {
+            return JsonSerializer.Deserialize<TValue>(json);
+        }
+        catch (JsonException ex)
+        {
+            //logger.LogError(ex, "Failed to deserialize cache value for key {CacheKey}.", key);
+            return default;
+        }
+    }
+
+    private async Task<string?> GetStringAsync(string key)
+    {
+        bool busyDebug = false;
+        if (busyDebug)
+        {
+            logger.LogDebug("Get string for file {file} key {CacheKey}.", cacheFilePath, key);
+        }
+
+        string memoryCacheKey = GetMemoryCacheKey(key);
+        if (memoryCache.TryGetValue(memoryCacheKey, out string? value))
+        {
+            //logger.LogDebug("From memory, Get string for key {CacheKey}", memoryCacheKey);
             return value;
         }
 
@@ -51,7 +90,11 @@ public class HybridCacheManager<T>(ILogger<HybridCacheManager<T>> logger, IMemor
 
                     if (!string.IsNullOrEmpty(value))
                     {
-                        memoryCache.Set(key, value, defaultExpiration);
+                        memoryCache.Set(memoryCacheKey, value, defaultExpiration);
+                    }
+                    if (busyDebug)
+                    {
+                        logger.LogDebug("From Keybased, Get string for key {CacheKey}'.", key);
                     }
 
                     return value;
@@ -76,8 +119,20 @@ public class HybridCacheManager<T>(ILogger<HybridCacheManager<T>> logger, IMemor
             {
                 if (diskCache.TryGetValue(key, out CacheEntry<string>? entry) && !entry.IsExpired)
                 {
-                    memoryCache.Set(key, entry.Value, entry.ExpirationTime - DateTime.UtcNow);
+                    memoryCache.Set(memoryCacheKey, entry.Value, entry.ExpirationTime - DateTime.UtcNow);
+                    if (busyDebug)
+                    {
+                        logger.LogDebug("From file, Get string for key {CacheKey}", key);
+                    }
+
                     return entry.Value;
+                }
+            }
+            catch (Exception ex)
+            {
+                if (busyDebug)
+                {
+                    logger.LogError(ex, "Failed to load cache for key {CacheKey}.", key);
                 }
             }
             finally
@@ -85,14 +140,54 @@ public class HybridCacheManager<T>(ILogger<HybridCacheManager<T>> logger, IMemor
                 cacheLock.Release();
             }
         }
-
+        logger.LogDebug("Not found {CacheKey} in {file}", key, cacheFilePath);
         return null;
     }
 
-    public async Task SetAsync(string key, string value, TimeSpan? slidingExpiration = null)
+    //public async Task SetAsync<TValue>(string? key, TValue value)
+    //{
+    //    key ??= defaultKey;
+    //    if (string.IsNullOrEmpty(key))
+    //    {
+    //        throw new ArgumentException("A key must be provided, or DefaultKey must be set.");
+    //    }
+    //    await SetAsync<TValue>(key, value).ConfigureAwait(false);
+    //}
+
+    public async Task SetAsync<TValue>(TValue value, TimeSpan? slidingExpiration = null)
+    {
+        if (string.IsNullOrEmpty(defaultKey))
+        {
+            throw new ArgumentException("A key must be provided, or DefaultKey must be set.");
+        }
+        await SetAsync(defaultKey, value, slidingExpiration).ConfigureAwait(false);
+    }
+    public async Task SetAsync<TValue>(string? key, TValue value, TimeSpan? slidingExpiration = null)
+    {
+        key ??= defaultKey;
+        if (string.IsNullOrEmpty(key))
+        {
+            throw new ArgumentException("A key must be provided, or DefaultKey must be set.");
+        }
+
+        string json;
+        try
+        {
+            json = JsonSerializer.Serialize(value);
+        }
+        catch (JsonException ex)
+        {
+            logger.LogError(ex, "Failed to serialize value for cache key {CacheKey}.", key);
+            return;
+        }
+
+        await SetStringAsync(key, json, slidingExpiration).ConfigureAwait(false);
+    }
+    private async Task SetStringAsync(string key, string value, TimeSpan? slidingExpiration = null)
     {
         DateTime expiration = DateTime.UtcNow + (slidingExpiration ?? defaultExpiration);
-        memoryCache.Set(key, value, slidingExpiration ?? defaultExpiration);
+        string memoryCacheKey = GetMemoryCacheKey(key);
+        memoryCache.Set(memoryCacheKey, value, expiration);
 
         if (useKeyBasedFiles)
         {
@@ -139,9 +234,72 @@ public class HybridCacheManager<T>(ILogger<HybridCacheManager<T>> logger, IMemor
         }
     }
 
-    public async Task RemoveAsync(string key)
+    public async Task SetAsync(string? key, string value, TimeSpan? slidingExpiration = null)
     {
-        memoryCache.Remove(key);
+        key ??= defaultKey;
+        if (string.IsNullOrEmpty(key))
+        {
+            throw new ArgumentException("A key must be provided, or DefaultKey must be set.");
+        }
+
+        DateTime expiration = DateTime.UtcNow + (slidingExpiration ?? defaultExpiration);
+        string memoryCacheKey = GetMemoryCacheKey(key);
+        memoryCache.Set(memoryCacheKey, value, slidingExpiration ?? defaultExpiration);
+
+        if (useKeyBasedFiles)
+        {
+            // Key-based file saving
+            await fileLock.WaitAsync();
+            try
+            {
+                string cachePath = GetCacheFilePath(key);
+                await using FileStream fileStream = new(cachePath, FileMode.Create, FileAccess.Write, FileShare.None);
+                if (useCompression)
+                {
+                    await using GZipStream compressionStream = new(fileStream, CompressionLevel.Optimal);
+                    await JsonSerializer.SerializeAsync(compressionStream, value);
+                }
+                else
+                {
+                    await JsonSerializer.SerializeAsync(fileStream, value);
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Failed to save cache for key {CacheKey}.", key);
+            }
+            finally
+            {
+                fileLock.Release();
+            }
+        }
+        else
+        {
+            // Single file saving
+            await LoadDiskCacheIfNeededAsync();
+
+            await cacheLock.WaitAsync();
+            try
+            {
+                diskCache[key] = new CacheEntry<string>(value, expiration);
+                await SaveDiskCacheAsync();
+            }
+            finally
+            {
+                cacheLock.Release();
+            }
+        }
+    }
+
+    public async Task RemoveAsync(string? key)
+    {
+        key ??= defaultKey;
+        if (string.IsNullOrEmpty(key))
+        {
+            throw new ArgumentException("A key must be provided, or DefaultKey must be set.");
+        }
+        string memoryCacheKey = GetMemoryCacheKey(key);
+        memoryCache.Remove(memoryCacheKey);
 
         if (useKeyBasedFiles)
         {
@@ -413,10 +571,16 @@ public class HybridCacheManager<T>(ILogger<HybridCacheManager<T>> logger, IMemor
     /// </summary>
     /// <param name="key">The key to check for existence.</param>
     /// <returns>True if the key exists; otherwise, false.</returns>
-    public async Task<bool> ExistsAsync(string key)
+    public async Task<bool> ExistsAsync(string? key)
     {
+        key ??= defaultKey;
+        if (string.IsNullOrEmpty(key))
+        {
+            throw new ArgumentException("A key must be provided, or DefaultKey must be set.");
+        }
+        string memoryCacheKey = GetMemoryCacheKey(key);
         // Check memory cache first
-        if (memoryCache.TryGetValue(key, out _))
+        if (memoryCache.TryGetValue(memoryCacheKey, out _))
         {
             return true;
         }

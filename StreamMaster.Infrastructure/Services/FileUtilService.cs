@@ -343,7 +343,7 @@ namespace StreamMaster.Infrastructure.Services
         //            else if (reader.NodeType == XmlNodeType.EndElement && reader.Name == "programme" && currentProgramme != null)
         //            {
         //                currentProgramme.Titles = titles ?? [];
-        //                currentProgramme.Descriptions = descriptions ?? [];
+        //                currentProgramme.DescriptionService = descriptions ?? [];
         //                currentProgramme.Categories = categories ?? [];
         //                currentProgramme.SubTitles = subtitles ?? [];
         //                currentProgramme.Keywords = keywords ?? [];

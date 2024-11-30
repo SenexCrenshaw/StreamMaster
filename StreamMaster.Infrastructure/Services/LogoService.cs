@@ -27,6 +27,7 @@ public class LogoService(ICustomPlayListBuilder customPlayListBuilder, IOptionsM
     : ILogoService
 {
     private ConcurrentDictionary<string, CustomLogoDto> Logos { get; } = [];
+    private static readonly SemaphoreSlim scantvLogoSemaphore = new(1, 1);
 
     public List<XmltvProgramme> GetXmltvProgrammeForPeriod(VideoStreamConfig videoStreamConfig, DateTime startDate, int days, string baseUrl)
     {
@@ -240,6 +241,8 @@ public class LogoService(ICustomPlayListBuilder customPlayListBuilder, IOptionsM
 
         return ret;
     }
+
+
 
     public async Task<(FileStream? fileStream, string? FileName, string? ContentType)> GetCustomLogoAsync(string Source, CancellationToken cancellationToken)
     {
@@ -476,6 +479,19 @@ public class LogoService(ICustomPlayListBuilder customPlayListBuilder, IOptionsM
                 : null;
         }
 
+        if (fileType is SMFileTypes.TvLogo)
+        {
+            string fullPath = BuildInfo.TVLogoFolder + "/" + URL;
+            return File.Exists(fullPath)
+                ? new ImagePath
+                {
+                    ReturnName = Path.GetFileName(fullPath),
+                    FullPath = fullPath,
+                    SMFileType = SMFileTypes.TvLogo
+                }
+                : null;
+        }
+
         string returnName;
         if (Logos.TryGetValue(url, out CustomLogoDto? cache))
         {
@@ -527,18 +543,56 @@ public class LogoService(ICustomPlayListBuilder customPlayListBuilder, IOptionsM
 
     public async Task<bool> ScanForTvLogosAsync(CancellationToken cancellationToken = default)
     {
-
-        FileDefinition fd = FileDefinitions.TVLogo;
-        if (!Directory.Exists(fd.DirectoryLocation))
+        await scantvLogoSemaphore.WaitAsync();
+        try
         {
-            return false;
+            FileDefinition fd = FileDefinitions.TVLogo;
+            if (!Directory.Exists(fd.DirectoryLocation))
+            {
+                return false;
+            }
+
+            DirectoryInfo dirInfo = new(BuildInfo.TVLogoFolder);
+
+            await UpdateTVLogosFromDirectoryAsync(dirInfo, dirInfo.FullName, cancellationToken).ConfigureAwait(false);
+
+            return true;
+        }
+        finally
+        {
+            scantvLogoSemaphore.Release();
+        }
+    }
+
+    public async Task<(FileStream? fileStream, string? FileName, string? ContentType)> GetTVLogoAsync(string Source, CancellationToken cancellationToken)
+    {
+        string ext = Path.GetExtension(Source);
+        string name = Path.GetFileNameWithoutExtension(Source);
+        string toTest = $"/api/files/tv/{Source}";
+        CustomLogoDto? test = Logos.Values.FirstOrDefault(a => a.Source == toTest);
+        if (test is null)
+        {
+            return (null, null, null);
         }
 
-        DirectoryInfo dirInfo = new(BuildInfo.TVLogoFolder);
+        string fileName = name.FromUrlSafeBase64String();
 
-        await UpdateTVLogosFromDirectoryAsync(dirInfo, dirInfo.FullName, cancellationToken).ConfigureAwait(false);
+        ImagePath? imagePath = GetValidImagePath(fileName, SMFileTypes.TvLogo);
 
-        return true;
+        if (imagePath == null || !File.Exists(imagePath.FullPath))
+        {
+            return (null, null, null);
+        }
+
+        try
+        {
+            (FileStream? fileStream, string? FileName, string? ContentType) result = await GetLogoStreamAsync(imagePath.FullPath, Source, cancellationToken);
+            return result;
+        }
+        catch
+        {
+            return (null, null, null);
+        }
     }
 
     public async Task UpdateTVLogosFromDirectoryAsync(DirectoryInfo dirInfo, string tvLogosLocation, CancellationToken cancellationToken = default)
@@ -564,12 +618,15 @@ public class LogoService(ICustomPlayListBuilder customPlayListBuilder, IOptionsM
             string basename = basePath.Replace(Path.DirectorySeparatorChar, ' ');
             string title = $"{basename}-{name}";
 
-            string url = Path.Combine(basePath, file.Name);
+            string url = Path.Combine(basePath, file.Name).ToUrlSafeBase64String();
+            url += Path.GetExtension(file.Name);
+
+            string realUrl = $"/api/files/tv/{url}";
 
             CustomLogoDto tvLogo = new()
             {
-                Source = url,
-                Value = url,
+                Source = realUrl,
+                Value = realUrl,
                 Name = title
             };
 

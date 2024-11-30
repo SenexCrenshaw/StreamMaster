@@ -1,5 +1,4 @@
-﻿using System.Collections.Concurrent;
-using System.Globalization;
+﻿using System.Globalization;
 using System.Text.Json;
 using System.Threading.Channels;
 
@@ -11,18 +10,31 @@ namespace StreamMaster.SchedulesDirect.Services;
 public class ProgramService(
     ILogger<ProgramService> logger,
     IMemoryCache memoryCache,
+    IOptionsMonitor<SDSettings> sdsettings,
     ILogger<HybridCacheManager<ProgramService>> cacheLogger,
     ISchedulesDirectAPIService schedulesDirectAPI,
     ISchedulesDirectDataService schedulesDirectDataService) : IProgramService, IDisposable
 {
     private readonly HybridCacheManager<ProgramService> hybridCache = new(cacheLogger, memoryCache, useCompression: false, useKeyBasedFiles: true);
     private readonly Channel<string> programChannel = Channel.CreateUnbounded<string>();
-    private readonly ConcurrentBag<Programme> programResponses = [];
     private readonly SemaphoreSlim semaphore = new(SchedulesDirect.MaxParallelDownloads);
+    private int totalPrograms;
+    private int processedPrograms;
 
     public async Task<bool> BuildProgramEntriesAsync(CancellationToken cancellationToken)
     {
         await FillChannelWithProgramsAsync(cancellationToken);
+
+        if (!programChannel.Reader.CanCount || programChannel.Reader.Count == 0)
+        {
+            logger.LogWarning("No programs to process. Exiting.");
+            return true;
+        }
+
+
+        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
+        totalPrograms = schedulesDirectData.Programs.Values.Count;
+        logger.LogInformation("Starting program processing. Total programs: {TotalPrograms}", totalPrograms);
 
         // Create parallel consumers that fetch and process data in real-time
         List<Task> consumerTasks = [];
@@ -33,7 +45,7 @@ public class ProgramService(
 
         await Task.WhenAll(consumerTasks).ConfigureAwait(false);
 
-        logger.LogInformation("Finished processing all programs.");
+        logger.LogInformation("Finished processing all programs. Total processed: {ProcessedPrograms}", processedPrograms);
         return true;
     }
 
@@ -50,7 +62,12 @@ public class ProgramService(
                 {
                     // Process each response immediately
                     await Task.WhenAll(responses.Select(response =>
-                        Task.Run(() => ProcessSingleProgramAsync(response, cancellationToken))));
+                        Task.Run(() => ProcessSingleProgramAsync(response))));
+                }
+                int processed = Interlocked.Increment(ref processedPrograms);
+                if (processed % 100 == 0 || processed == totalPrograms)
+                {
+                    logger.LogInformation("Processed {ProcessedPrograms}/{TotalPrograms} programs.", processed, totalPrograms);
                 }
             }
             catch (Exception ex)
@@ -69,29 +86,26 @@ public class ProgramService(
         {
             if (!string.IsNullOrEmpty(mxfProgram.MD5))
             {
-                string? cachedJson = await hybridCache.GetAsync(mxfProgram.MD5).ConfigureAwait(false);
-                if (!string.IsNullOrEmpty(cachedJson))
+                try
                 {
-                    try
+                    Programme? sdProgram = await hybridCache.GetAsync<Programme>(mxfProgram.MD5).ConfigureAwait(false); // JsonSerializer.Deserialize<Programme>(cachedJson);
+                    if (sdProgram != null)
                     {
-                        Programme? sdProgram = JsonSerializer.Deserialize<Programme>(cachedJson);
-                        if (sdProgram != null)
-                        {
-                            BuildMxfProgram(mxfProgram, sdProgram);
-                            return;
-                        }
+                        await UpdateProgramAsync(sdProgram);
                     }
-                    catch (Exception ex)
+                    else
                     {
-                        logger.LogWarning("Cache deserialization failed for Program ID {ProgramId}: {Error}", mxfProgram.ProgramId, ex.Message);
+                        await programChannel.Writer.WriteAsync(mxfProgram.ProgramId, ct).ConfigureAwait(false);
                     }
                 }
+                catch (Exception ex)
+                {
+                    logger.LogWarning("Cache deserialization failed for Program ID {ProgramId}: {Error}", mxfProgram.ProgramId, ex.Message);
+                }
             }
-
-            await programChannel.Writer.WriteAsync(mxfProgram.ProgramId, ct).ConfigureAwait(false);
         });
 
-
+        programChannel.Writer.Complete();
     }
 
     private async Task<List<Programme>?> GetProgramsAsync(string[] programIds, CancellationToken cancellationToken)
@@ -109,12 +123,9 @@ public class ProgramService(
         }
     }
 
-    private async Task ProcessSingleProgramAsync(Programme sdProgram, CancellationToken cancellationToken)
+    private async Task ProcessSingleProgramAsync(Programme sdProgram)
     {
-        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
-        MxfProgram mxfProgram = schedulesDirectData.FindOrCreateProgram(sdProgram.ProgramId);
-
-        BuildMxfProgram(mxfProgram, sdProgram);
+        await UpdateProgramAsync(sdProgram);
 
         if (!string.IsNullOrEmpty(sdProgram.Md5))
         {
@@ -134,14 +145,188 @@ public class ProgramService(
         }
     }
 
-    private void BuildMxfProgram(MxfProgram mxfProgram, Programme sdProgram)
+    private async Task UpdateProgramAsync(Programme sdProgram)
+    {
+        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
+        MxfProgram mxfProgram = schedulesDirectData.FindOrCreateProgram(sdProgram.ProgramId);
+
+        await BuildMxfProgramAsync(mxfProgram, sdProgram);
+    }
+
+    private async Task BuildMxfProgramAsync(MxfProgram mxfProgram, Programme sdProgram)
     {
         // Populate program properties from the sdProgram
         SetProgramFlags(mxfProgram, sdProgram);
         DetermineTitlesAndDescriptions(mxfProgram, sdProgram);
+
+        if (mxfProgram.IsMovie)
+        {
+            DetermineMovieInfo(mxfProgram, sdProgram);
+        }
+        else
+        {
+            await DetermineSeriesInfoAsync(mxfProgram);
+            DetermineEpisodeInfo(mxfProgram, sdProgram);
+            CompleteEpisodeTitle(mxfProgram);
+        }
+
+        // Set content advisory and cast/crew
+        DetermineContentAdvisory(mxfProgram, sdProgram);
+        DetermineCastAndCrew(mxfProgram, sdProgram);
+
+        // Additional program data like genres and teams (for sports)
+        if (sdProgram.Genres?.Length > 0)
+        {
+            //mxfProgram.Extras.AddOrUpdate("genres", new List<string>(sdProgram.Genres));
+            mxfProgram.Extras.AddOrUpdate("genres", sdProgram.Genres);
+        }
+
+        if (sdProgram.EventDetails?.Teams != null)
+        {
+            mxfProgram.Extras.AddOrUpdate("teams", sdProgram.EventDetails.Teams.ConvertAll(team => team.Name));
+        }
     }
 
-    private void SetProgramFlags(MxfProgram prg, Programme sd)
+    private static void DetermineContentAdvisory(MxfProgram mxfProgram, Programme sdProgram)
+    {
+        ConcurrentHashSet<string> advisories = [];
+
+        if (sdProgram.ContentAdvisory != null)
+        {
+            foreach (string reason in sdProgram.ContentAdvisory)
+            {
+                advisories.Add(reason);
+            }
+        }
+
+        if (advisories.Count == 0)
+        {
+            return;
+        }
+
+        string[] advisoryTable = [.. advisories];
+        // Set flags for advisories
+        mxfProgram.HasAdult = SDHelpers.TableContains(advisoryTable, "Adult Situations") || SDHelpers.TableContains(advisoryTable, "Dialog");
+        mxfProgram.HasBriefNudity = SDHelpers.TableContains(advisoryTable, "Brief Nudity");
+        mxfProgram.HasGraphicLanguage = SDHelpers.TableContains(advisoryTable, "Graphic Language");
+        mxfProgram.HasGraphicViolence = SDHelpers.TableContains(advisoryTable, "Graphic Violence");
+        mxfProgram.HasLanguage = SDHelpers.TableContains(advisoryTable, "Adult Language") || SDHelpers.TableContains(advisoryTable, "Language", true);
+        mxfProgram.HasMildViolence = SDHelpers.TableContains(advisoryTable, "Mild Violence");
+        mxfProgram.HasNudity = SDHelpers.TableContains(advisoryTable, "Nudity", true);
+        mxfProgram.HasRape = SDHelpers.TableContains(advisoryTable, "Rape");
+        mxfProgram.HasStrongSexualContent = SDHelpers.TableContains(advisoryTable, "Strong Sexual Content");
+        mxfProgram.HasViolence = SDHelpers.TableContains(advisoryTable, "Violence", true);
+    }
+
+    private static void DetermineMovieInfo(MxfProgram mxfProgram, Programme sdProgram)
+    {
+        // Fill MPAA rating
+        mxfProgram.MpaaRating = DecodeMpaaRating(sdProgram.ContentRating);
+
+        // Populate movie-specific attributes
+        if (sdProgram.Movie != null)
+        {
+            // Set the release year and star rating based on the quality rating
+            mxfProgram.Year = sdProgram.Movie.Year;
+            mxfProgram.HalfStars = DecodeStarRating(sdProgram.Movie.QualityRating);
+        }
+        else if (!string.IsNullOrEmpty(mxfProgram.OriginalAirdate))
+        {
+            // If there's no specific movie info but there's an original airdate, extract the year
+            mxfProgram.Year = int.Parse(mxfProgram.OriginalAirdate[..4]);
+        }
+    }
+
+    private void DetermineEpisodeInfo(MxfProgram mxfProgram, Programme sdProgram)
+    {
+        //if (mxfProgram.ProgramId.ContainsIgnoreCase("EP053182960001"))
+        //{
+        //    int aa = 1;
+        //}
+
+        if (sdProgram.EntityType != "Episode")
+        {
+            return;
+        }
+
+        mxfProgram.EpisodeNumber = int.Parse(mxfProgram.ProgramId[10..]);
+
+        if (sdProgram.Metadata != null)
+        {
+            foreach (Dictionary<string, ProgramMetadataProvider> providers in sdProgram.Metadata)
+            {
+                if (providers.TryGetValue("Gracenote", out ProgramMetadataProvider? provider))
+                {
+                    mxfProgram.SeasonNumber = provider.SeasonNumber;
+                    mxfProgram.EpisodeNumber = provider.EpisodeNumber;
+                }
+            }
+        }
+
+        if (mxfProgram.SeasonNumber != 0)
+        {
+            ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
+
+            mxfProgram.mxfSeason = schedulesDirectData.FindOrCreateSeason(mxfProgram.mxfSeriesInfo.SeriesId, mxfProgram.SeasonNumber, sdProgram.HasSeasonArtwork ? mxfProgram.ProgramId : null);
+        }
+    }
+
+    private void CompleteEpisodeTitle(MxfProgram mxfProgram)
+    {
+        if (string.IsNullOrEmpty(mxfProgram.EpisodeTitle) && mxfProgram.ProgramId.StartsWith("EP"))
+        {
+            mxfProgram.EpisodeTitle = mxfProgram.Title;
+        }
+
+        string se = sdsettings.CurrentValue.AlternateSEFormat ? "S{0}:E{1} " : "s{0:D2}e{1:D2} ";
+        se = mxfProgram.SeasonNumber != 0 ? string.Format(se, mxfProgram.SeasonNumber, mxfProgram.EpisodeNumber) : mxfProgram.EpisodeNumber != 0 ? $"#{mxfProgram.EpisodeNumber} " : string.Empty;
+
+        if (sdsettings.CurrentValue.PrefixEpisodeTitle)
+        {
+            mxfProgram.EpisodeTitle = se + mxfProgram.EpisodeTitle;
+        }
+
+        if (sdsettings.CurrentValue.PrefixEpisodeDescription)
+        {
+            mxfProgram.Description = se + mxfProgram.Description;
+            if (!string.IsNullOrEmpty(mxfProgram.ShortDescription))
+            {
+                mxfProgram.ShortDescription = se + mxfProgram.ShortDescription;
+            }
+        }
+
+        if (sdsettings.CurrentValue.AppendEpisodeDesc && mxfProgram.SeasonNumber != 0 && mxfProgram.EpisodeNumber != 0)
+        {
+            mxfProgram.Description += $" \u000D\u000ASeason {mxfProgram.SeasonNumber}, Episode {mxfProgram.EpisodeNumber}";
+        }
+        else if (sdsettings.CurrentValue.AppendEpisodeDesc && mxfProgram.EpisodeNumber != 0)
+        {
+            mxfProgram.Description += $" \u000D\u000AProduction #{mxfProgram.EpisodeNumber}";
+        }
+
+        if (mxfProgram.Extras.TryGetValue("multipart", out dynamic? value))
+        {
+            mxfProgram.EpisodeTitle += $" ({value})";
+        }
+    }
+
+    private static int DecodeStarRating(List<ProgramQualityRating> sdProgramQualityRatings)
+    {
+        if (sdProgramQualityRatings == null)
+        {
+            return 0;
+        }
+
+        double maxValue = (from rating in sdProgramQualityRatings
+                           where !string.IsNullOrEmpty(rating.MaxRating)
+                           let numerator = double.Parse(rating.Rating, CultureInfo.InvariantCulture)
+                           let denominator = double.Parse(rating.MaxRating, CultureInfo.InvariantCulture)
+                           select numerator / denominator).Concat([0.0]).Max();
+
+        return maxValue > 0.0 ? (int)((8.0 * maxValue) + 0.125) : 0;
+    }
+
+    private static void SetProgramFlags(MxfProgram prg, Programme sd)
     {
         if (sd.Genres is null)
         {
@@ -175,11 +360,147 @@ public class ProgramService(
         prg.IsSports = sd.ProgramId.StartsWith("SP") || SDHelpers.TableContains(types, "Event") || SDHelpers.TableContains(sd.Genres, "Sports talk");
 
         // Add the sports event to SportEvents for tracking
-        //if (prg.IsSports)
-        //{
-        //    sportsImages.SportEvents.Add(prg);
-        //}
+        if (prg.IsSports)
+        {
+            //sportsImages.SportEvents.Add(prg);
+        }
     }
+
+
+    // Helper methods for decoding movie information
+    private static int DecodeMpaaRating(List<ProgramContentRating> sdProgramContentRatings)
+    {
+        int maxValue = 0;
+        if (sdProgramContentRatings == null)
+        {
+            return maxValue;
+        }
+
+        foreach (ProgramContentRating rating in sdProgramContentRatings.Where(rating => rating.Body.StartsWith("Motion Picture Association")))
+        {
+            switch (rating.Code.ToLower().Replace("-", ""))
+            {
+                case "g":
+                    maxValue = Math.Max(maxValue, 1);
+                    break;
+
+                case "pg":
+                    maxValue = Math.Max(maxValue, 2);
+                    break;
+
+                case "pg13":
+                    maxValue = Math.Max(maxValue, 3);
+                    break;
+
+                case "r":
+                    maxValue = Math.Max(maxValue, 4);
+                    break;
+
+                case "nc17":
+                    maxValue = Math.Max(maxValue, 5);
+                    break;
+            }
+        }
+
+        return maxValue;
+    }
+
+
+    private async Task DetermineSeriesInfoAsync(MxfProgram mxfProgram)
+    {
+        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
+
+        // For sports programs (identified by ProgramId starting with "SP"), create a series entry based on the title
+        if (mxfProgram.ProgramId.StartsWith("SP"))
+        {
+            string name = mxfProgram.Title.Replace(' ', '_');
+            mxfProgram.mxfSeriesInfo = schedulesDirectData.FindOrCreateSeriesInfo(name);
+            //seriesImages.SportsSeries.Add(name, mxfProgram.ProgramId); // Track sports series for artwork
+        }
+        else
+        {
+            // Create or retrieve series information for regular programs
+            mxfProgram.mxfSeriesInfo = schedulesDirectData.FindOrCreateSeriesInfo(mxfProgram.ProgramId.Substring(2, 8), mxfProgram.ProgramId);
+
+            // If it's a generic series (e.g., starts with "SH"), cache or update series information
+            if (mxfProgram.ProgramId.StartsWith("SH"))
+            {
+                GenericDescription? cached = await hybridCache.GetAsync<GenericDescription>(mxfProgram.ProgramId);
+                //if (cachedJson != null)
+                //{
+                //    try
+                //    {
+                //        GenericDescription? cached = JsonSerializer.Deserialize<GenericDescription>(cachedJson);
+                if (cached != null && cached.StartAirdate == null)
+                {
+                    cached.StartAirdate = mxfProgram.OriginalAirdate ?? string.Empty;
+                    //string updatedJson = JsonSerializer.Serialize(cached);
+                    //await hybridCache.SetAsync(mxfProgram.ProgramId, updatedJson);
+                }
+                //}
+                //catch (Exception ex)
+                //{
+                //    logger.LogError(ex, "Failed to update cache for series {ProgramId}", mxfProgram.ProgramId);
+                //}
+            }
+            else
+            {
+                // Add new series entry to the cache if it doesn't already exist
+                GenericDescription newEntry = new()
+                {
+                    Code = 0,
+                    Description1000 = mxfProgram.IsGeneric ? mxfProgram.Description : null,
+                    Description100 = mxfProgram.IsGeneric ? mxfProgram.ShortDescription : null,
+                    StartAirdate = mxfProgram.OriginalAirdate ?? string.Empty
+                };
+
+                string newEntryJson = JsonSerializer.Serialize(newEntry);
+                await hybridCache.SetAsync(mxfProgram.ProgramId, newEntryJson);
+            }
+
+        }
+
+        // If the series info is not set, use the program title
+        mxfProgram.mxfSeriesInfo.Title ??= mxfProgram.Title;
+    }
+
+    private void DetermineCastAndCrew(MxfProgram prg, Programme sd)
+    {
+        if (sdsettings.CurrentValue.ExcludeCastAndCrew)
+        {
+            return;
+        }
+
+        prg.ActorRole = GetPersons(sd.Cast, ["Actor", "Voice", "Judge", "Self"]);
+        prg.DirectorRole = GetPersons(sd.Crew, ["Director"]);
+        prg.GuestActorRole = GetPersons(sd.Cast, ["Guest"]);
+        prg.HostRole = GetPersons(sd.Cast, ["Anchor", "Host", "Presenter", "Narrator", "Correspondent"]);
+        prg.ProducerRole = GetPersons(sd.Crew, ["Executive Producer"]);
+        prg.WriterRole = GetPersons(sd.Crew, ["Writer", "Story"]);
+    }
+
+    // Helper method to handle cast and crew population
+    private List<MxfPersonRank>? GetPersons(List<ProgramPerson> persons, string[] roles)
+    {
+        if (persons == null)
+        {
+            return null;
+        }
+
+        List<MxfPersonRank> ret = [];
+        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
+
+        foreach (ProgramPerson? person in persons.Where(p => roles.Any(role => p.Role.Contains(role))))
+        {
+            ret.Add(new MxfPersonRank(schedulesDirectData.FindOrCreatePerson(person.Name))
+            {
+                Rank = int.Parse(person.BillingOrder),
+                Character = person.CharacterName
+            });
+        }
+        return ret;
+    }
+
     // Helper method: Determine the titles and descriptions for a program
     private static void DetermineTitlesAndDescriptions(MxfProgram mxfProgram, Programme sdProgram)
     {

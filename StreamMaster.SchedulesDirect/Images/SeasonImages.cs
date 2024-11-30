@@ -37,15 +37,16 @@ public class SeasonImages(
             {
                 string uid = $"{season.SeriesId}_{season.SeasonNumber}";
 
-                string? cachedJson = await hybridCache.GetAsync(uid);
-                if (!string.IsNullOrEmpty(cachedJson))
+                List<ProgramArtwork>? artWorks = await hybridCache.GetAsync<List<ProgramArtwork>>(uid);
+
+                if (artWorks is not null)
                 {
-                    ProcessCachedImages(season, cachedJson);
-                    imageDownloadQueue.EnqueueProgramArtworkCollection(season.ArtWorks);
+                    season.ArtWorks = artWorks;
+                    imageDownloadQueue.EnqueueProgramArtworkCollection(artWorks);
                     if (!string.IsNullOrEmpty(season.ProtoTypicalProgram))
                     {
                         MxfProgram mxfProgram = schedulesDirectData.FindOrCreateProgram(season.ProtoTypicalProgram);
-                        mxfProgram.AddArtwork(season.ArtWorks);
+                        mxfProgram.AddArtwork(artWorks);
                     }
                 }
                 else if (!string.IsNullOrEmpty(season.ProtoTypicalProgram))
@@ -73,12 +74,12 @@ public class SeasonImages(
         }
     }
 
-    private static void ProcessCachedImages(Season season, string cachedJson)
-    {
-        season.ArtWorks = string.IsNullOrEmpty(cachedJson)
-            ? []
-            : JsonSerializer.Deserialize<List<ProgramArtwork>>(cachedJson) ?? [];
-    }
+    //private static void ProcessCachedImages(Season season, string cachedJson)
+    //{
+    //    season.ArtWorks = string.IsNullOrEmpty(cachedJson)
+    //        ? []
+    //        : JsonSerializer.Deserialize<List<ProgramArtwork>>(cachedJson) ?? [];
+    //}
 
     private async Task DownloadAndProcessImagesAsync(List<string> seasonImageQueue, ConcurrentBag<ProgramMetadata> seasonImageResponses)
     {

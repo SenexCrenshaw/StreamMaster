@@ -32,10 +32,15 @@ public class SportsImages(
             List<string> sportsImageQueue = [];
             foreach (MxfProgram sportEvent in SportEvents)
             {
-                if (!string.IsNullOrEmpty(sportEvent.MD5) && await hybridCache.GetAsync(sportEvent.MD5) is string cachedJson && !string.IsNullOrEmpty(cachedJson))
+                if (!string.IsNullOrEmpty(sportEvent.MD5))
                 {
-                    ProcessCachedImages(sportEvent, cachedJson);
-                    imageDownloadQueue.EnqueueProgramArtworkCollection(sportEvent.ArtWorks);
+                    List<ProgramArtwork>? artWorks = await hybridCache.GetAsync<List<ProgramArtwork>>(sportEvent.MD5);
+
+                    if (artWorks is not null)
+                    {
+                        sportEvent.ArtWorks = artWorks;
+                        imageDownloadQueue.EnqueueProgramArtworkCollection(artWorks);
+                    }
                 }
                 else
                 {
@@ -60,13 +65,6 @@ public class SportsImages(
         {
             classSemaphore.Release();
         }
-    }
-
-    private static void ProcessCachedImages(MxfProgram sportEvent, string cachedJson)
-    {
-        sportEvent.ArtWorks = string.IsNullOrEmpty(cachedJson)
-              ? []
-              : JsonSerializer.Deserialize<List<ProgramArtwork>>(cachedJson) ?? [];
     }
 
     private async Task DownloadAndProcessImagesAsync(List<string> sportsImageQueue, ConcurrentBag<ProgramMetadata> sportsImageResponses)
