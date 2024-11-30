@@ -51,7 +51,7 @@ public partial class SchedulesDirect
         }
 
 
-        List<Headend>? headends = await HeadendCache.GetAsync<List<Headend>>($"Headends-{country}-{postalCode}");
+        List<Headend>? headends = await HeadendCache.GetAsync<List<Headend>>($"{country}-{postalCode}");
         if (headends is not null)
         {
             return headends;
@@ -60,8 +60,7 @@ public partial class SchedulesDirect
         headends = await schedulesDirectAPI.GetApiResponse<List<Headend>>(APIMethod.GET, $"headends?country={country}&postalcode={postalCode}", cancellationToken: cancellationToken).ConfigureAwait(false);
         if (headends != null)
         {
-            await HeadendCache.SetAsync<List<Headend>>($"Headends-{country}-{postalCode}", headends).ConfigureAwait(false);
-            //await WriteToCacheAsync($"Headends-{country}-{postalCode}", cache, cancellationToken).ConfigureAwait(false);
+            await HeadendCache.SetAsync<List<Headend>>($"{country}-{postalCode}", headends).ConfigureAwait(false);
             logger.LogDebug("Successfully retrieved the headends for {country} and postal code {postalCode}.", country, postalCode);
         }
         else
