@@ -8,11 +8,11 @@ namespace StreamMaster.SchedulesDirect.Images;
 
 public class EpisodeImages(
     ILogger<EpisodeImages> logger,
-    HybridCacheManager<EpisodeImages> EpisodeCache,
+    SMCacheManager<EpisodeImages> EpisodeCache,
     IImageDownloadQueue imageDownloadQueue,
     IOptionsMonitor<SDSettings> sdSettings,
     ISchedulesDirectAPIService schedulesDirectAPI,
-    ISchedulesDirectDataService schedulesDirectDataService) : IEpisodeImages, IDisposable
+    IProgramRepository programRepository) : IEpisodeImages, IDisposable
 {
     private static readonly SemaphoreSlim classSemaphore = new(1, 1);
     private readonly SemaphoreSlim semaphore = new(SDAPIConfig.MaxParallelDownloads);
@@ -32,13 +32,12 @@ public class EpisodeImages(
         try
         {
 
-            ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData;
 
-            List<MxfProgram> episodePrograms = schedulesDirectData.Programs.Values
+            List<MxfProgram> episodePrograms = programRepository.Programs.Values
                 .Where(p => !p.IsMovie && p.ProgramId.StartsWith("EP"))
                 .ToList();
 
-            MxfProgram? a = schedulesDirectData.Programs.Values.FirstOrDefault(a => a.ProgramId == "EP039440321320");
+            MxfProgram? a = programRepository.Programs.Values.FirstOrDefault(a => a.ProgramId == "EP039440321320");
             if (a != null)
             {
                 int aa = 1;
@@ -68,7 +67,7 @@ public class EpisodeImages(
                 //    continue;
                 //}
                 if (string.IsNullOrEmpty(episode.ProgramId) ||
-                    !schedulesDirectData.Programs.TryGetValue(episode.ProgramId, out MxfProgram? mfxProgram))
+                    !programRepository.Programs.TryGetValue(episode.ProgramId, out MxfProgram? mfxProgram))
                 {
                     continue;
                 }
@@ -140,7 +139,6 @@ public class EpisodeImages(
     private async Task ProcessSeriesImageResponsesAsync(ConcurrentBag<ProgramMetadata> seriesImageResponses, CancellationToken cancellationToken)
     {
         string artworkSize = string.IsNullOrEmpty(sdSettings.CurrentValue.ArtworkSize) ? BuildInfo.DefaultSDImageSize : sdSettings.CurrentValue.ArtworkSize;
-        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData;
 
         foreach (ProgramMetadata response in seriesImageResponses)
         {
@@ -152,7 +150,7 @@ public class EpisodeImages(
                 continue;
             }
 
-            MxfProgram? mfxProgram = schedulesDirectData.FindProgram(response.ProgramId);
+            MxfProgram? mfxProgram = programRepository.FindProgram(response.ProgramId);
             if (mfxProgram is null)
             {
                 continue;

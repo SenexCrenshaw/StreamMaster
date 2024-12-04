@@ -6,7 +6,7 @@ public class BaseSettings
     {
         AuthenticationMethod = "None";
     }
-
+    public bool AppendChannelName { get; set; } = true;
     public string AdminPassword { get; set; } = string.Empty;
     public string AdminUserName { get; set; } = string.Empty;
     public string AuthenticationMethod { get; set; }

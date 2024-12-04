@@ -1,12 +1,13 @@
 ﻿using System.Collections.Concurrent;
-using System.Xml.Serialization;
 
-namespace StreamMaster.SchedulesDirect.Data;
+using StreamMaster.Domain.Cache;
+using StreamMaster.SchedulesDirect.Images;
 
-public partial class SchedulesDirectData
+namespace StreamMaster.SchedulesDirect.Services;
+
+public class ProgramRepository(SMCacheManager<MovieImages> movieCache, SMCacheManager<EpisodeImages> episodeCache) : IProgramRepository
 {
-    [XmlArrayItem("Program")]
-    public ConcurrentDictionary<string, MxfProgram> Programs { get; set; } = new();
+    public ConcurrentDictionary<string, MxfProgram> Programs { get; } = new();
 
     public async Task<MxfProgram> FindOrCreateProgram(string programId, string md5)
     {

@@ -8,9 +8,10 @@ namespace StreamMaster.SchedulesDirect.Services;
 
 public class ScheduleService(
     ILogger<ScheduleService> logger,
-    HybridCacheManager<ScheduleService> hybridCache,
+    SMCacheManager<ScheduleService> hybridCache,
     IOptionsMonitor<SDSettings> sdSettings,
     ISchedulesDirectAPIService schedulesDirectAPI,
+    IProgramRepository programRepository,
     ISchedulesDirectDataService schedulesDirectDataService) : IScheduleService, IDisposable
 {
     private readonly ConcurrentDictionary<string, string[]> schedulesToProcess = new();
@@ -224,7 +225,7 @@ public class ScheduleService(
         foreach (ScheduleProgram program in schedule.Programs)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            MxfProgram? mxfProgram = await schedulesDirectData.FindOrCreateProgram(program.ProgramId, program.Md5);
+            MxfProgram? mxfProgram = await programRepository.FindOrCreateProgram(program.ProgramId, program.Md5);
 
             if (mxfProgram == null)
             {

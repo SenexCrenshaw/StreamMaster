@@ -8,7 +8,7 @@ namespace StreamMaster.SchedulesDirect.Images;
 
 public class SportsImages(
     ILogger<SportsImages> logger,
-    HybridCacheManager<SportsImages> hybridCache,
+    SMCacheManager<SportsImages> hybridCache,
     IImageDownloadQueue imageDownloadQueue,
     IOptionsMonitor<SDSettings> sdSettings,
     ISchedulesDirectAPIService schedulesDirectAPI) : ISportsImages, IDisposable

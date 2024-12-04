@@ -8,10 +8,11 @@ namespace StreamMaster.SchedulesDirect.Images
 {
     public class MovieImages(
         ILogger<MovieImages> logger,
-        HybridCacheManager<MovieImages> hybridCache,
+        SMCacheManager<MovieImages> hybridCache,
         IImageDownloadQueue imageDownloadQueue,
         IOptionsMonitor<SDSettings> sdSettings,
         ISchedulesDirectAPIService schedulesDirectAPI,
+        IProgramRepository programRepository,
         ISchedulesDirectDataService schedulesDirectDataService
     ) : IMovieImages, IDisposable
     {
@@ -40,9 +41,8 @@ namespace StreamMaster.SchedulesDirect.Images
 
                 int totalObjects = 0;
 
-                ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData;
 
-                List<MxfProgram> moviePrograms = schedulesDirectData.Programs.Values.Where(p => p.IsMovie && !p.IsAdultOnly).ToList();
+                List<MxfProgram> moviePrograms = programRepository.Programs.Values.Where(p => p.IsMovie && !p.IsAdultOnly).ToList();
 
                 totalObjects = moviePrograms.Count;
 
@@ -135,9 +135,7 @@ namespace StreamMaster.SchedulesDirect.Images
                     logger.LogWarning("No Movie Image artwork found for {ProgramId}", response.ProgramId);
                     continue;
                 }
-
-                ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData;
-                MxfProgram? mxfProgram = schedulesDirectData.FindProgram(response.ProgramId);
+                MxfProgram? mxfProgram = programRepository.FindProgram(response.ProgramId);
 
                 if (mxfProgram == null)
                 {

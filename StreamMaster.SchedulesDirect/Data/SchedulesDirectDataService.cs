@@ -1,12 +1,10 @@
 ﻿using System.Collections.Concurrent;
 
-using StreamMaster.Domain.Cache;
 using StreamMaster.Domain.Helpers;
-using StreamMaster.SchedulesDirect.Images;
 
 namespace StreamMaster.SchedulesDirect.Data;
 
-public class SchedulesDirectDataService(HybridCacheManager<MovieImages> movieCache, HybridCacheManager<EpisodeImages> episodeCache)
+public class SchedulesDirectDataService()
     : ISchedulesDirectDataService
 {
     public ConcurrentDictionary<int, ISchedulesDirectData> SchedulesDirectDatas { get; } = new();
@@ -56,7 +54,7 @@ public class SchedulesDirectDataService(HybridCacheManager<MovieImages> movieCac
 
          SchedulesDirectDatas.GetOrAdd(EPGHelper.SchedulesDirectId, (_) =>
         {
-            SchedulesDirectData data = new(EPGHelper.SchedulesDirectId, movieCache, episodeCache)
+            SchedulesDirectData data = new(EPGHelper.SchedulesDirectId)
             {
                 EPGNumber = EPGHelper.SchedulesDirectId
             };

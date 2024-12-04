@@ -8,11 +8,13 @@ using StreamMaster.SchedulesDirect.Domain;
 namespace StreamMaster.SchedulesDirect.Services;
 public class ProgramService(
     ILogger<ProgramService> logger,
-    HybridCacheManager<ProgramService> ProgramCache,
+    SMCacheManager<ProgramService> ProgramCache,
     IOptionsMonitor<SDSettings> sdSettings,
-    HybridCacheManager<GenericDescription> descriptionCache,
+    SMCacheManager<GenericDescription> descriptionCache,
     ISchedulesDirectAPIService schedulesDirectAPI,
-    ISchedulesDirectDataService schedulesDirectDataService) : IProgramService, IDisposable
+    IProgramRepository programRepository,
+    ISchedulesDirectDataService schedulesDirectDataService)
+    : IProgramService, IDisposable
 {
 
     private readonly ConcurrentDictionary<string, string> programChannelsToProcess = new();
@@ -31,9 +33,7 @@ public class ProgramService(
             logger.LogWarning("No programs to process. Exiting.");
             return true;
         }
-
-        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData;
-        totalPrograms = schedulesDirectData.Programs.Values.Count;
+        totalPrograms = programRepository.Programs.Values.Count;
         logger.LogInformation("Starting program processing. Total programs: {TotalPrograms}", totalPrograms);
 
         // Create parallel consumers that fetch and process data in real-time
@@ -58,9 +58,8 @@ public class ProgramService(
 
     private async Task FillChannelWithProgramsAsync(CancellationToken cancellationToken)
     {
-        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData;
 
-        await Parallel.ForEachAsync(schedulesDirectData.Programs.Values, cancellationToken, async (mxfProgram, ct) =>
+        await Parallel.ForEachAsync(programRepository.Programs.Values, cancellationToken, async (mxfProgram, ct) =>
         {
             cancellationToken.ThrowIfCancellationRequested();
             if (!string.IsNullOrEmpty(mxfProgram.ProgramId))
@@ -193,13 +192,12 @@ public class ProgramService(
 
     private async Task UpdateProgramAsync(Programme sdProgram)
     {
-        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData;
 
         if (sdProgram.ProgramId == "EP019254150003")
         {
             int aa = 2;
         }
-        MxfProgram? mxfProgram = schedulesDirectData.FindProgram(sdProgram.ProgramId);
+        MxfProgram? mxfProgram = programRepository.FindProgram(sdProgram.ProgramId);
         //MxfProgram mxfProgram = schedulesDirectData.FindOrCreateProgram(sdProgram.ProgramId, sdProgram.Md5);
         if (mxfProgram == null)
         {
@@ -478,7 +476,6 @@ public class ProgramService(
             mxfProgram.mxfSeriesInfo.Title = mxfProgram.Title;
         }
 
-        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData;
 
         // For sports programs (identified by ProgramId starting with "SP"), create a series entry based on the title
         if (mxfProgram.ProgramId.StartsWith("SP"))

@@ -10,7 +10,7 @@ public class DescriptionService(
     ILogger<DescriptionService> logger,
     ISchedulesDirectAPIService schedulesDirectAPI,
     IOptionsMonitor<SDSettings> sdSettings,
-    HybridCacheManager<GenericDescription> hybridCache,
+    SMCacheManager<GenericDescription> hybridCache,
     ISchedulesDirectDataService schedulesDirectDataService) : IDescriptionService, IDisposable
 {
     private readonly ConcurrentDictionary<string, string> descriptionsToProcess = new();

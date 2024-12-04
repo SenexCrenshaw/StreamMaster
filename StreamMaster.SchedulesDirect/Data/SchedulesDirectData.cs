@@ -1,9 +1,6 @@
-﻿using StreamMaster.Domain.Cache;
-using StreamMaster.SchedulesDirect.Images;
+﻿namespace StreamMaster.SchedulesDirect.Data;
 
-namespace StreamMaster.SchedulesDirect.Data;
-
-public partial class SchedulesDirectData(int EPGNumber, HybridCacheManager<MovieImages> movieCache, HybridCacheManager<EpisodeImages> episodeCache) : ISchedulesDirectData
+public partial class SchedulesDirectData(int EPGNumber) : ISchedulesDirectData
 {
     public int EPGNumber { get; set; } = EPGNumber;
 
@@ -11,7 +8,6 @@ public partial class SchedulesDirectData(int EPGNumber, HybridCacheManager<Movie
     {
         Lineups.Clear();
         People.Clear();
-        Programs.Clear();
         Seasons.Clear();
         SeasonsToProcess.Clear();
         SeriesInfos.Clear();

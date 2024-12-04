@@ -238,6 +238,7 @@ export interface SettingDto
 {
 	AdminPassword: string;
 	AdminUserName: string;
+	AppendChannelName: boolean;
 	AuthenticationMethod: string;
 	AutoSetEPG: boolean;
 	BackupEnabled: boolean;
@@ -1122,6 +1123,7 @@ export interface UpdateSettingParameters
 {
 	AdminPassword?: string;
 	AdminUserName?: string;
+	AppendChannelName?: boolean;
 	AuthenticationMethod?: string;
 	AutoSetEPG?: boolean;
 	BackupEnabled?: boolean;

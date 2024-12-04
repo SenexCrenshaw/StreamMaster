@@ -12,7 +12,7 @@ public class EncodedData
     public string CleanName { get; set; } = string.Empty;
 }
 
-public class GetStreamGroupM3UHandler(IStreamGroupService streamGroupService, IOptionsMonitor<Setting> _settings)
+public class GetStreamGroupM3UHandler(IStreamGroupService streamGroupService, IOptionsMonitor<Setting> settings)
     : IRequestHandler<GetStreamGroupM3U, string>
 {
     //private const string DefaultReturn = "#EXTM3U\r\n";
@@ -20,8 +20,7 @@ public class GetStreamGroupM3UHandler(IStreamGroupService streamGroupService, IO
     [LogExecutionTimeAspect]
     public async Task<string> Handle(GetStreamGroupM3U request, CancellationToken cancellationToken)
     {
-        Setting settings = _settings.CurrentValue;
-
+ 
         StreamGroup? streamGroup = await streamGroupService.GetStreamGroupFromSGProfileIdAsync(request.StreamGroupProfileId);
         if (streamGroup == null)
         {
@@ -63,19 +62,26 @@ public class GetStreamGroupM3UHandler(IStreamGroupService streamGroupService, IO
         return ret.ToString();
     }
 
-    private static (int ChNo, string m3uLine) BuildM3ULineForVideoStream(VideoStreamConfig videoStreamConfig, bool IsShort)
+    private  (int ChNo, string m3uLine) BuildM3ULineForVideoStream(VideoStreamConfig videoStreamConfig, bool IsShort)
     {
         if (videoStreamConfig.OutputProfile is null || string.IsNullOrEmpty(videoStreamConfig.EncodedString) || string.IsNullOrEmpty(videoStreamConfig.CleanName))
         {
             return (0, "");
         }
 
-        //string logo = logoService.GetLogoUrl(videoStreamConfig.Logo, videoStreamConfig.BaseUrl, SMStreamTypeEnum.Regular);
-        //videoStreamConfig.Logo = logo;
-
-        string videoUrl = IsShort
-            ? $"{videoStreamConfig.BaseUrl}/v/{videoStreamConfig.StreamGroupProfileId}/{videoStreamConfig.Id}"
-            : $"{videoStreamConfig.BaseUrl}/api/videostreams/stream/{videoStreamConfig.EncodedString}/{videoStreamConfig.CleanName}";
+        string videoUrl;
+        if (IsShort)
+        {
+            videoUrl = $"{videoStreamConfig.BaseUrl}/v/{videoStreamConfig.StreamGroupProfileId}/{videoStreamConfig.Id}";
+        }
+        else
+        {
+            videoUrl = $"{videoStreamConfig.BaseUrl}/api/videostreams/stream/{videoStreamConfig.EncodedString}/{videoStreamConfig.CleanName}";
+            if (settings.CurrentValue.AppendChannelName)
+            {
+                videoUrl += $"/{videoStreamConfig.CleanName}";
+            }
+        }
 
         List<string> fieldList = ["#EXTINF:-1"];
 

@@ -13,98 +13,99 @@ public static class ConfigureServices
 {
     public static IServiceCollection AddSchedulesDirectServices(this IServiceCollection services)
     {
-        services.AddSingleton<HybridCacheManager<ScheduleService>>(provider =>
-                  new HybridCacheManager<ScheduleService>(
-                      provider.GetRequiredService<ILogger<HybridCacheManager<ScheduleService>>>(),
+        services.AddSingleton<SMCacheManager<ScheduleService>>(provider =>
+                  new SMCacheManager<ScheduleService>(
+                      provider.GetRequiredService<ILogger<ScheduleService>>(),
                       provider.GetRequiredService<IMemoryCache>()
                   )
               );
 
 
-        services.AddSingleton<HybridCacheManager<MovieImages>>(provider =>
-                  new HybridCacheManager<MovieImages>(
-                      provider.GetRequiredService<ILogger<HybridCacheManager<MovieImages>>>(),
+        services.AddSingleton<SMCacheManager<MovieImages>>(provider =>
+                  new SMCacheManager<MovieImages>(
+                      provider.GetRequiredService<ILogger<MovieImages>>(),
                       provider.GetRequiredService<IMemoryCache>()
                   )
               );
 
-        services.AddSingleton<HybridCacheManager<SportsImages>>(provider =>
-                    new HybridCacheManager<SportsImages>(
-                        provider.GetRequiredService<ILogger<HybridCacheManager<SportsImages>>>(),
+        services.AddSingleton<SMCacheManager<SportsImages>>(provider =>
+                    new SMCacheManager<SportsImages>(
+                        provider.GetRequiredService<ILogger<SportsImages>>(),
                         provider.GetRequiredService<IMemoryCache>()
                     )
                 );
 
-        services.AddSingleton<HybridCacheManager<SeriesImages>>(provider =>
-                    new HybridCacheManager<SeriesImages>(
-                        provider.GetRequiredService<ILogger<HybridCacheManager<SeriesImages>>>(),
+        services.AddSingleton<SMCacheManager<SeriesImages>>(provider =>
+                    new SMCacheManager<SeriesImages>(
+                        provider.GetRequiredService<ILogger<SeriesImages>>(),
                         provider.GetRequiredService<IMemoryCache>()
                     )
                 );
 
-        services.AddSingleton<HybridCacheManager<SeasonImages>>(provider =>
-            new HybridCacheManager<SeasonImages>(
-                provider.GetRequiredService<ILogger<HybridCacheManager<SeasonImages>>>(),
+        services.AddSingleton<SMCacheManager<SeasonImages>>(provider =>
+            new SMCacheManager<SeasonImages>(
+                provider.GetRequiredService<ILogger<SeasonImages>>(),
                 provider.GetRequiredService<IMemoryCache>()
             )
         );
 
-        services.AddSingleton<HybridCacheManager<EpisodeImages>>(provider =>
-          new HybridCacheManager<EpisodeImages>(
-              provider.GetRequiredService<ILogger<HybridCacheManager<EpisodeImages>>>(),
+        services.AddSingleton<SMCacheManager<EpisodeImages>>(provider =>
+          new SMCacheManager<EpisodeImages>(
+              provider.GetRequiredService<ILogger<EpisodeImages>>(),
               provider.GetRequiredService<IMemoryCache>()
           )
       );
 
-        services.AddSingleton<HybridCacheManager<GenericDescription>>(provider =>
-          new HybridCacheManager<GenericDescription>(
-              provider.GetRequiredService<ILogger<HybridCacheManager<GenericDescription>>>(),
+        services.AddSingleton<SMCacheManager<GenericDescription>>(provider =>
+          new SMCacheManager<GenericDescription>(
+              provider.GetRequiredService<ILogger<GenericDescription>>(),
               provider.GetRequiredService<IMemoryCache>()
           )
       );
 
-        services.AddSingleton<HybridCacheManager<ProgramService>>(provider =>
-          new HybridCacheManager<ProgramService>(
-              provider.GetRequiredService<ILogger<HybridCacheManager<ProgramService>>>(),
+        services.AddSingleton<SMCacheManager<ProgramService>>(provider =>
+          new SMCacheManager<ProgramService>(
+              provider.GetRequiredService<ILogger<ProgramService>>(),
               provider.GetRequiredService<IMemoryCache>(),
               useKeyBasedFiles: true
           ));
 
 
-        services.AddSingleton<HybridCacheManager<LineupResult>>(provider =>
-                    new HybridCacheManager<LineupResult>(
-                        provider.GetRequiredService<ILogger<HybridCacheManager<LineupResult>>>(),
+        services.AddSingleton<SMCacheManager<LineupResult>>(provider =>
+                    new SMCacheManager<LineupResult>(
+                        provider.GetRequiredService<ILogger<LineupResult>>(),
                         provider.GetRequiredService<IMemoryCache>(),
                         useKeyBasedFiles: true
                     )
                 );
 
-        services.AddSingleton<HybridCacheManager<CountryData>>(provider =>
-                new HybridCacheManager<CountryData>(
-                    provider.GetRequiredService<ILogger<HybridCacheManager<CountryData>>>(),
+        services.AddSingleton<SMCacheManager<CountryData>>(provider =>
+                new SMCacheManager<CountryData>(
+                    provider.GetRequiredService<ILogger<CountryData>>(),
                     provider.GetRequiredService<IMemoryCache>(),
                     defaultKey: "Countries"
                 )
             );
 
-        services.AddSingleton<HybridCacheManager<Headend>>(provider =>
-            new HybridCacheManager<Headend>(
-                provider.GetRequiredService<ILogger<HybridCacheManager<Headend>>>(),
+        services.AddSingleton<SMCacheManager<Headend>>(provider =>
+            new SMCacheManager<Headend>(
+                provider.GetRequiredService<ILogger<Headend>>(),
                 provider.GetRequiredService<IMemoryCache>(),
                 useKeyBasedFiles: true,
                 defaultKey: "Headends"
             )
         );
 
-        services.AddSingleton<HybridCacheManager<LineupPreviewChannel>>(provider =>
-            new HybridCacheManager<LineupPreviewChannel>(
-                provider.GetRequiredService<ILogger<HybridCacheManager<LineupPreviewChannel>>>(),
+        services.AddSingleton<SMCacheManager<LineupPreviewChannel>>(provider =>
+            new SMCacheManager<LineupPreviewChannel>(
+                provider.GetRequiredService<ILogger<LineupPreviewChannel>>(),
                 provider.GetRequiredService<IMemoryCache>(),
                 useKeyBasedFiles: true,
                 defaultKey: "LineupPreviewChannels"
         )
         );
 
+        services.AddSingleton<IProgramRepository, ProgramRepository>();
 
         _ = services.AddSingleton<ISchedulesDirectDataService, SchedulesDirectDataService>();
 

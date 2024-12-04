@@ -14,7 +14,7 @@ public class LineupService(
     IOptionsMonitor<SDSettings> sdSettings,
     ILogoService logoService,
     ISchedulesDirectAPIService schedulesDirectAPI,
-    HybridCacheManager<LineupResult> LineupResultCache,
+    SMCacheManager<LineupResult> LineupResultCache,
     ISchedulesDirectDataService schedulesDirectDataService,
     IImageDownloadQueue imageDownloadQueue
     ) : ILineupService

@@ -11,11 +11,6 @@ namespace StreamMaster.Infrastructure.Services.Downloads
         private readonly ConcurrentDictionary<string, ProgramArtwork> ProgramArtworkQueue = new();
         private readonly ConcurrentDictionary<string, LogoInfo> logoInfoQueue = new();
 
-        //public void EnqueueProgramArtwork(ProgramArtwork metadata)
-        //{
-        //    _ = ProgramArtworkQueue.TryAdd(metadata.Uri, metadata);
-        //}
-
         public void EnqueueLogo(LogoInfo logoInfo)
         {
             _ = logoInfoQueue.TryAdd(logoInfo.Name, logoInfo);
@@ -76,6 +71,11 @@ namespace StreamMaster.Infrastructure.Services.Downloads
         public bool IslogoInfoQueueEmpty()
         {
             return logoInfoQueue.IsEmpty;
+        }
+
+        public void EnqueueProgramArtwork(ProgramArtwork metadata)
+        {
+            _ = ProgramArtworkQueue.TryAdd(metadata.Uri, metadata);
         }
     }
 }

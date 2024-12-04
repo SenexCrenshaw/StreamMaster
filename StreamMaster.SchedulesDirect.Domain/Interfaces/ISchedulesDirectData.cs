@@ -14,7 +14,7 @@ public interface ISchedulesDirectData
     //ConcurrentDictionary<string, MxfKeywordGroup> KeywordGroups { get; set; }
     ConcurrentDictionary<string, MxfLineup> Lineups { get; set; }
     ConcurrentDictionary<string, MxfPerson> People { get; set; }
-    ConcurrentDictionary<string, MxfProgram> Programs { get; set; }
+
     //ConcurrentBag<MxfProvider> Providers { get; set; }
     ConcurrentDictionary<string, Season> Seasons { get; set; }
     ConcurrentDictionary<string, SeriesInfo> SeriesInfos { get; set; }
@@ -25,15 +25,14 @@ public interface ISchedulesDirectData
     SeriesInfo FindOrCreateSeriesInfo(string seriesId, string ProgramId);
     //MxfKeywordGroup FindOrCreateKeywordGroup(KeywordGroupsEnum groupEnum, bool overflow = false);
     //MxfProgram FindOrCreateProgram(string programId);
-    MxfProgram? FindProgram(string programId);
-    Task<MxfProgram> FindOrCreateProgram(string programId, string md5);
+
     //MxfAffiliate FindOrCreateAffiliate(string affiliateName);
     MxfLineup FindOrCreateLineup(string lineupId, string lineupName);
     MxfService FindOrCreateService(string stationId);
     MxfService? FindService(string stationId);
 
     void RemoveLineup(string lineup);
-    void RemoveProgram(string programId);
+
     void RemoveService(string stationId);
     //void ResetLists();
 }

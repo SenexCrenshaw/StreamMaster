@@ -8,8 +8,7 @@ public interface IImageDownloadQueue
     void TryDequeueProgramArtwork(string id);
     void EnqueueLogo(LogoInfo logoInfo);
 
-    //void EnqueueProgramArtwork(ProgramArtwork metadata);
-
+    void EnqueueProgramArtwork(ProgramArtwork metadata);
     void EnqueueProgramArtworkCollection(IEnumerable<ProgramArtwork> metadataCollection);
 
     List<LogoInfo> GetNextLogoBatch(int batchSize);

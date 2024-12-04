@@ -8,7 +8,7 @@ namespace StreamMaster.SchedulesDirect.Images;
 
 public class SeasonImages(
     ILogger<SeasonImages> logger,
-    HybridCacheManager<SeasonImages> hybridCache,
+    SMCacheManager<SeasonImages> hybridCache,
     IImageDownloadQueue imageDownloadQueue,
     IOptionsMonitor<SDSettings> sdSettings,
     ISchedulesDirectAPIService schedulesDirectAPI,

@@ -6,7 +6,7 @@ using StreamMaster.Domain.Helpers;
 
 namespace StreamMaster.SchedulesDirect.Converters
 {
-    public class XmltvProgramBuilder(IOptionsMonitor<SDSettings> sdSettingsMonitor, ISchedulesDirectDataService schedulesDirectDataService)
+    public class XmltvProgramBuilder(IOptionsMonitor<SDSettings> sdSettingsMonitor, IProgramRepository programRepository)
         : IXmltvProgramBuilder
     {
         private static readonly string[] TvRatings =
@@ -299,15 +299,13 @@ namespace StreamMaster.SchedulesDirect.Converters
         private List<XmltvIcon>? BuildProgramIcons(MxfScheduleEntry scheduleEntry, string baseUrl)
         {
             SDSettings sdSettings = sdSettingsMonitor.CurrentValue;
-            //MxfProgram mxfProgram = scheduleEntry.mxfProgram;
-            ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData;
 
             if (scheduleEntry.mxfProgram.ProgramId.Equals(value: "EP019254150003"))
             {
                 int aaa = 1;
             }
 
-            MxfProgram? mxfProgram = schedulesDirectData.FindProgram(scheduleEntry.mxfProgram.ProgramId);
+            MxfProgram? mxfProgram = programRepository.FindProgram(scheduleEntry.mxfProgram.ProgramId);
 
             if (mxfProgram == null)
             {

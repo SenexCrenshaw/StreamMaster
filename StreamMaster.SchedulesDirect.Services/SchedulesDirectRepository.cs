@@ -7,9 +7,9 @@ namespace StreamMaster.SchedulesDirect.Services;
 public class SchedulesDirectRepository(
         ILogger<SchedulesDirectRepository> logger,
         IHttpService httpService,
-        HybridCacheManager<CountryData> CountryCache,
-        HybridCacheManager<Headend> HeadendCache,
-        HybridCacheManager<LineupPreviewChannel> LineupPreviewChannelCache
+        SMCacheManager<CountryData> CountryCache,
+        SMCacheManager<Headend> HeadendCache,
+        SMCacheManager<LineupPreviewChannel> LineupPreviewChannelCache
     ) : ISchedulesDirectRepository
 {
     private static readonly TimeSpan CacheDuration = TimeSpan.FromHours(23);

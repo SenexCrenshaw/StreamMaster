@@ -11,8 +11,10 @@ public class SeriesImages(
     IImageDownloadQueue imageDownloadQueue,
     IOptionsMonitor<SDSettings> sdSettings,
     ISchedulesDirectAPIService schedulesDirectAPI,
-    HybridCacheManager<SeriesImages> hybridCache,
-    ISchedulesDirectDataService schedulesDirectDataService) : ISeriesImages, IDisposable
+    SMCacheManager<SeriesImages> hybridCache,
+    ISchedulesDirectDataService schedulesDirectDataService,
+    IProgramRepository programRepository
+    ) : ISeriesImages, IDisposable
 {
     private static readonly SemaphoreSlim classSemaphore = new(1, 1);
     private readonly SemaphoreSlim semaphore = new(SDAPIConfig.MaxParallelDownloads);
@@ -49,7 +51,7 @@ public class SeriesImages(
             foreach (SeriesInfo seriesInfo in toProcess)
             {
                 if (string.IsNullOrEmpty(seriesInfo.ProgramId) ||
-                    !schedulesDirectData.Programs.TryGetValue(seriesInfo.ProgramId, out MxfProgram? _))
+                    !programRepository.Programs.TryGetValue(seriesInfo.ProgramId, out MxfProgram? _))
                 {
                     continue;
                 }
@@ -146,7 +148,7 @@ public class SeriesImages(
                 continue;
             }
 
-            MxfProgram? mfxProgram = schedulesDirectData.FindProgram(response.ProgramId);
+            MxfProgram? mfxProgram = programRepository.FindProgram(response.ProgramId);
             if (mfxProgram is null)
             {
                 continue;

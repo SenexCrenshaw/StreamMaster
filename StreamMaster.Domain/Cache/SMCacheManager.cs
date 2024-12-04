@@ -9,8 +9,8 @@ using StreamMaster.Domain.Configuration;
 
 namespace StreamMaster.Domain.Cache;
 
-public class HybridCacheManager<T>(ILogger<HybridCacheManager<T>> logger, IMemoryCache memoryCache, TimeSpan? defaultExpiration = null, bool useCompression = false, bool useKeyBasedFiles = false, string? defaultKey = null)
-    : IHybridCache<T>, IDisposable
+public class SMCacheManager<T>(ILogger<T> logger, IMemoryCache memoryCache, TimeSpan? defaultExpiration = null, bool useCompression = false, bool useKeyBasedFiles = false, string? defaultKey = null)
+    : ISMCache<T>, IDisposable
 {
     private readonly string cacheDirectory = BuildInfo.SDJSONFolder;
     private readonly string cacheFilePath = Path.Combine(BuildInfo.SDJSONFolder, $"{typeof(T).Name}.json{(useCompression ? ".gz" : "")}");
@@ -120,7 +120,7 @@ public class HybridCacheManager<T>(ILogger<HybridCacheManager<T>> logger, IMemor
                 if (diskCache.TryGetValue(key, out CacheEntry<string>? entry))
                 {
                     bool a = entry.IsExpired;
-                   memoryCache.Set(memoryCacheKey, entry.Value, defaultExpiration);
+                    memoryCache.Set(memoryCacheKey, entry.Value, defaultExpiration);
                     if (busyDebug)
                     {
                         logger.LogDebug("From file, Get string for key {CacheKey}", key);
