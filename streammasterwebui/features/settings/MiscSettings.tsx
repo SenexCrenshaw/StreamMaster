@@ -69,6 +69,7 @@ export function MiscSettings(): React.ReactElement {
         {GetCheckBoxLine({ field: 'PrettyEPG' })}
         {GetCheckBoxLine({ field: 'AutoSetEPG' })}
         {GetCheckBoxLine({ field: 'LogoCache' })}
+        {GetCheckBoxLine({ field: 'AppendChannelName' })}
         {/* {getCheckBoxLine({  field: 'VideoStreamAlwaysUseEPGLogo' })} */}
         {GetInputTextLine({ field: 'DummyRegex' })}
         {/* {GetCheckBoxLine({ field: 'M3UIgnoreEmptyEPGID' })} */}
