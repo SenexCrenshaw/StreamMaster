@@ -261,13 +261,14 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, ILogo
                         return APIResponse.ErrorWithMessage("Error creating SMChannel from streams");
                     }
 
-                    LogoInfo logoInfo = new(smStream);
-                    imageDownloadQueue.EnqueueLogo(logoInfo);
+                    if (!string.IsNullOrEmpty(smStream.Logo))
+                    {
+                        LogoInfo logoInfo = new(smStream);
+                        imageDownloadQueue.EnqueueLogo(logoInfo);
+                    }
 
                     addedSMChannels.Add(smChannel);
 
-                    //logoService.DownloadAndAdd(LogoInfo );
-                    //bulkSMChannels.Add(smChannel);
                 }
 
                 await SaveChangesAsync().ConfigureAwait(false);

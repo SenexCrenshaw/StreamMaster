@@ -51,15 +51,12 @@ public class EpisodeImages(
             foreach (MxfProgram episode in episodePrograms)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                if (episode.ProgramId is "EP039440321320")
+                if (episode.ProgramId.StartsWith("EP0457"))
                 {
                     int aa = 1;
                 }
 
-                if (episode.ProgramId is "EP019254150004")
-                {
-                    int aa2 = 1;
-                }
+
 
                 //if (episode.IsSeries)
                 //{
@@ -75,7 +72,8 @@ public class EpisodeImages(
                 List<ProgramArtwork>? artWorks = await EpisodeCache.GetAsync<List<ProgramArtwork>>(episode.ProgramId);
                 if (artWorks is not null)
                 {
-                    mfxProgram.AddArtworks(artWorks);
+                    programRepository.SetProgramLogos(episode, artWorks);
+                    //mfxProgram.AddArtworks(artWorks);
                     imageDownloadQueue.EnqueueProgramArtworkCollection(artWorks);
                 }
                 else
@@ -142,6 +140,11 @@ public class EpisodeImages(
 
         foreach (ProgramMetadata response in seriesImageResponses)
         {
+            if (response.ProgramId.Contains("EP0457"))
+            {
+                int aa = 1;
+            }
+
             cancellationToken.ThrowIfCancellationRequested();
 
             if (response.Data == null || response.Data.Count == 0 || response.Data[0].Code != 0)
@@ -150,21 +153,31 @@ public class EpisodeImages(
                 continue;
             }
 
-            MxfProgram? mfxProgram = programRepository.FindProgram(response.ProgramId);
-            if (mfxProgram is null)
+            if (response.ProgramId.Contains("EP0457"))
             {
-                continue;
+                int aaa = 1;
             }
 
             List<ProgramArtwork> artworks = SDHelpers.GetTieredImages(response.Data, artworkSize, ["series", "sport", "episode", "season"], sdSettings.CurrentValue.SeriesPosterAspect);
 
             if (artworks.Count > 0)
             {
-                mfxProgram.AddArtworks(artworks);
+                //MxfProgram? mfxProgram = programRepository.FindProgram(response.ProgramId);
+                //if (mfxProgram != null)
+                //{
+                //    mfxProgram.AddArtworks(artworks);
+                //}
+                //else
+                //{
+                //    programRepository.SetProgramLogos(response.ProgramId, artworks);
+                //}
+                if (programRepository.SetProgramLogos(response.ProgramId, artworks))
+                {
+                    string artworkJson = JsonSerializer.Serialize(artworks);
+                    await EpisodeCache.SetAsync(response.ProgramId, artworkJson);
+                    imageDownloadQueue.EnqueueProgramArtworkCollection(artworks);
+                }
 
-                string artworkJson = JsonSerializer.Serialize(artworks);
-                await EpisodeCache.SetAsync(response.ProgramId, artworkJson);
-                imageDownloadQueue.EnqueueProgramArtworkCollection(artworks);
             }
             else
             {

@@ -4,6 +4,8 @@ namespace StreamMaster.SchedulesDirect.Domain.Interfaces
 {
     public interface IProgramRepository
     {
+        bool SetProgramLogos(MxfProgram Program, List<ProgramArtwork> artworks);
+        bool SetProgramLogos(string programId, List<ProgramArtwork> artworks);
         ConcurrentDictionary<string, MxfProgram> Programs { get; }
         ConcurrentDictionary<string, SeriesInfo> SeriesInfos { get; }
         ConcurrentDictionary<string, Season> Seasons { get; }

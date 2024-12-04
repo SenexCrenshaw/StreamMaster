@@ -13,8 +13,8 @@ public static partial class SDHelpers
     // Priority categories in descending order
     private static readonly List<string> categories =
         [
+         "box art",
          "key art",
-        "box art",
             "vod art",
             "poster art",
             "banner",
@@ -120,29 +120,6 @@ public static partial class SDHelpers
             return null;
         }
     }
-
-    //public static List<ProgramArtwork> GetArtWork(this MxfProgram program)
-    //{
-    //    List<ProgramArtwork> artwork = [];
-    //    // a movie or sport event will have a guide image from the program
-    //    if (program.Extras.TryGetValue("artwork", out dynamic? value))
-    //    {
-    //        artwork = value;
-    //    }
-
-    //    // get the season class from the program if it has a season
-    //    if (artwork.Count == 0 && (program.mxfSeason?.Extras.ContainsKey("artwork") ?? false))
-    //    {
-    //        artwork = program.mxfSeason.Extras["artwork"];
-    //    }
-
-    //    // get the series info class from the program if it is a series
-    //    if (artwork.Count == 0 && (program.mxfSeriesInfo?.Extras.ContainsKey("artwork") ?? false))
-    //    {
-    //        artwork = program.mxfSeriesInfo.Extras["artwork"];
-    //    }
-    //    return artwork;
-    //}
 
     /// <summary>
     /// Filters and selects tiered images from a list of program artwork based on specified criteria.

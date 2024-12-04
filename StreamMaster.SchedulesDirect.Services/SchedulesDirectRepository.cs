@@ -318,8 +318,12 @@ public class SchedulesDirectRepository(
         }
 
         const int maxIdLength = 10;
-        programIds = programIds.Select(id => id.Truncate(maxIdLength)).ToArray();
-
+        programIds = programIds.Select(id => id.StartsWith("MV") ? id : id.Truncate(maxIdLength)).ToArray();
+        //string? a = programIds.FirstOrDefault(a => a.StartsWith("MV00001843"));
+        //if (a is not null)
+        //{
+        //    int aaa = 1;
+        //}
         return await httpService.SendRequestAsync<List<ProgramMetadata>?>(
             APIMethod.POST,
             "metadata/programs/",
@@ -341,6 +345,13 @@ public class SchedulesDirectRepository(
         {
             series[i] = imageQueue[start + i];
         }
+
+        ProgramMetadata? a = metadata.FirstOrDefault(a => a.ProgramId.Contains("4571616"));
+        if (a is not null)
+        {
+            int aaa = 1;
+        }
+
 
         List<ProgramMetadata>? responses = await GetArtworkAsync(series, cancellationToken);
         if (responses != null)

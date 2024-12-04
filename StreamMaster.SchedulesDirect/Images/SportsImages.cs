@@ -11,6 +11,7 @@ public class SportsImages(
     SMCacheManager<SportsImages> hybridCache,
     IImageDownloadQueue imageDownloadQueue,
     IOptionsMonitor<SDSettings> sdSettings,
+    IProgramRepository programRepository,
     ISchedulesDirectAPIService schedulesDirectAPI) : ISportsImages, IDisposable
 {
     private static readonly SemaphoreSlim classSemaphore = new(1, 1);
@@ -48,7 +49,8 @@ public class SportsImages(
 
                     if (artWorks is not null)
                     {
-                        sportEvent.AddArtworks(artWorks);
+                        //sportEvent.AddArtworks(artWorks);
+                        programRepository.SetProgramLogos(sportEvent, artWorks);
                         imageDownloadQueue.EnqueueProgramArtworkCollection(artWorks);
                     }
                 }
@@ -129,12 +131,13 @@ public class SportsImages(
             }
 
             List<ProgramArtwork> artworks = SDHelpers.GetTieredImages(response.Data, artworkSize, ["team event", "episode", "series", "sport"], sdSettings.CurrentValue.MoviePosterAspect);
-            sportEvent.AddArtworks(artworks);
+            //sportEvent.AddArtworks(artworks);
 
             await hybridCache.SetAsync(sportEvent.MD5, JsonSerializer.Serialize(artworks));
 
             if (artworks.Count > 0)
             {
+                programRepository.SetProgramLogos(sportEvent, artworks);
                 imageDownloadQueue.EnqueueProgramArtworkCollection(artworks);
             }
             else

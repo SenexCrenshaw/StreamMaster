@@ -3,6 +3,7 @@ using System.Text.Json;
 
 using StreamMaster.Domain.Cache;
 using StreamMaster.SchedulesDirect.Domain;
+using StreamMaster.SchedulesDirect.Services;
 
 namespace StreamMaster.SchedulesDirect.Images
 {
@@ -12,8 +13,7 @@ namespace StreamMaster.SchedulesDirect.Images
         IImageDownloadQueue imageDownloadQueue,
         IOptionsMonitor<SDSettings> sdSettings,
         ISchedulesDirectAPIService schedulesDirectAPI,
-        IProgramRepository programRepository,
-        ISchedulesDirectDataService schedulesDirectDataService
+        IProgramRepository programRepository
     ) : IMovieImages, IDisposable
     {
         private static readonly SemaphoreSlim classSemaphore = new(1, 1);
@@ -43,18 +43,32 @@ namespace StreamMaster.SchedulesDirect.Images
 
 
                 List<MxfProgram> moviePrograms = programRepository.Programs.Values.Where(p => p.IsMovie && !p.IsAdultOnly).ToList();
-
+                MxfProgram? a = moviePrograms.FirstOrDefault(a => a.ProgramId.Contains("EP0457"));
+                MxfProgram? a2 = moviePrograms.FirstOrDefault(a => a.ProgramId.Contains("1843"));
+                if (a is not null)
+                {
+                    int aaa = 1;
+                }
+                if (a2 is not null)
+                {
+                    int aaa = 1;
+                }
                 totalObjects = moviePrograms.Count;
 
                 logger.LogInformation("Processing {TotalObjects} movie posters.", totalObjects);
 
                 foreach (MxfProgram program in moviePrograms)
                 {
+                    if (program.ProgramId == "MV02175103")
+                    {
+                        int aaa = 1;
+                    }
                     cancellationToken.ThrowIfCancellationRequested();
                     List<ProgramArtwork>? artWorks = await hybridCache.GetAsync<List<ProgramArtwork>>(program.ProgramId);
                     if (artWorks is not null)
                     {
-                        program.AddArtworks(artWorks);
+                        //program.AddArtworks(artWorks);
+                        programRepository.SetProgramLogos(program, artWorks);
                         imageDownloadQueue.EnqueueProgramArtworkCollection(artWorks);
                     }
                     else if (!string.IsNullOrEmpty(program.ProgramId))
@@ -135,6 +149,7 @@ namespace StreamMaster.SchedulesDirect.Images
                     logger.LogWarning("No Movie Image artwork found for {ProgramId}", response.ProgramId);
                     continue;
                 }
+
                 MxfProgram? mxfProgram = programRepository.FindProgram(response.ProgramId);
 
                 if (mxfProgram == null)
@@ -150,7 +165,8 @@ namespace StreamMaster.SchedulesDirect.Images
                     sdSettings.CurrentValue.MoviePosterAspect
                 );
 
-                mxfProgram.AddArtworks(artworks);
+                programRepository.SetProgramLogos(mxfProgram,artworks);
+                //mxfProgram.AddArtworks(artworks);
 
                 string artworkJson = JsonSerializer.Serialize(artworks);
                 await hybridCache.SetAsync(response.ProgramId, artworkJson);

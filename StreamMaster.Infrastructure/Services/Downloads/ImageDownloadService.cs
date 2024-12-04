@@ -139,7 +139,7 @@ namespace StreamMaster.Infrastructure.Services.Downloads
         {
             foreach (ProgramArtwork art in artwork)
             {
-                if (!CanProceedWithDownload())
+                if (!CanProceedWithDownload() || string.IsNullOrEmpty(art.Uri))
                 {
                     return;
                 }

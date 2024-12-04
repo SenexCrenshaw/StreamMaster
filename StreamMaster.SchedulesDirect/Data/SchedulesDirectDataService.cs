@@ -8,7 +8,6 @@ public class SchedulesDirectDataService()
     : ISchedulesDirectDataService
 {
     public ConcurrentDictionary<int, ISchedulesDirectData> SchedulesDirectDatas { get; } = new();
-
     public ConcurrentDictionary<int, ICustomStreamData> CustomStreamDatas { get; set; } = new();
 
     public void Reset(int? EPGNumber = null)
@@ -41,15 +40,6 @@ public class SchedulesDirectDataService()
         }
     }
 
-    //public ISchedulesDirectData GetEPGData(int EPGNumber)
-    //{
-    //    return SchedulesDirectDatas.GetOrAdd(EPGNumber, (_) =>
-    //    {
-    //        SchedulesDirectData data = new SchedulesDirectData(EPGNumber);
-    //        return data;
-    //    });
-    //}
-
     public ISchedulesDirectData SchedulesDirectData =>
 
          SchedulesDirectDatas.GetOrAdd(EPGHelper.SchedulesDirectId, (_) =>
@@ -60,26 +50,6 @@ public class SchedulesDirectDataService()
             };
             return data;
         });
-
-
-    //public ISchedulesDirectData DummyData()
-    //{
-    //    List<KeyValuePair<int, ISchedulesDirectData>> test = SchedulesDirectDatas.Where(a => a.Key == EPGHelper.DummyId).ToList();
-
-    //    return SchedulesDirectDatas.GetOrAdd(EPGHelper.DummyId, (_) =>
-    //    {
-    //        SchedulesDirectData data = new(EPGHelper.DummyId)
-    //        {
-    //            EPGNumber = EPGHelper.DummyId
-    //        };
-
-    //        MxfService mxfService = data.FindOrCreateService($"{EPGHelper.DummyId}-DUMMY");
-    //        mxfService.CallSign = "Dummy";
-    //        mxfService.Name = "Dummy EPG";
-
-    //        return data;
-    //    });
-    //}
 
     public IEnumerable<StationChannelName> GetStationChannelNames()
     {

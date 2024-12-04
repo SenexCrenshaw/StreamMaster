@@ -18,6 +18,7 @@ public class LogoInfo
     public LogoInfo(string url, SMFileTypes iconType = SMFileTypes.Logo, bool isSchedulesDirect = false)
     {
         string cleanedUrl = Cleanup(url);
+
         IsSVG = cleanedUrl.EndsWithIgnoreCase(".svg");
         string ext = Path.GetExtension(cleanedUrl);
         // Use .png for filename and extension if SVG

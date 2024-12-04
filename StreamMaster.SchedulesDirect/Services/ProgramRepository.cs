@@ -5,7 +5,8 @@ using StreamMaster.SchedulesDirect.Images;
 
 namespace StreamMaster.SchedulesDirect.Services;
 
-public class ProgramRepository(SMCacheManager<MovieImages> movieCache, SMCacheManager<EpisodeImages> episodeCache) : IProgramRepository
+public class ProgramRepository(SMCacheManager<MovieImages> movieCache, SMCacheManager<EpisodeImages> episodeCache)
+    : IProgramRepository
 {
     public ConcurrentDictionary<string, MxfPerson> People { get; } = [];
     public ConcurrentDictionary<string, MxfProgram> Programs { get; } = new();
@@ -17,6 +18,35 @@ public class ProgramRepository(SMCacheManager<MovieImages> movieCache, SMCacheMa
     {
         return People.FindOrCreate(name, key => new MxfPerson(People.Count + 1, key));
     }
+
+    public MxfProgram? FindProgram(string programId)
+    {
+        return Programs.Values.FirstOrDefault(p => p.ProgramId == programId);
+    }
+
+    public bool SetProgramLogos(MxfProgram Program, List<ProgramArtwork> artworks)
+    {
+        return SetProgramLogos(Program.ProgramId, artworks);
+    }
+
+    public bool SetProgramLogos(string ProgramId, List<ProgramArtwork> artworks)
+    {
+        MxfProgram? mfxProgram = FindProgram(ProgramId);
+        if (mfxProgram != null)
+        {
+            mfxProgram.AddArtworks(artworks);
+            return true;
+        }
+
+        List<MxfProgram> toUpdate = Programs.Values.Where(a => a.ProgramId.StartsWith(ProgramId)).ToList();
+        if (toUpdate.Count != 0)
+        {
+            toUpdate.ForEach(a => a.AddArtworks(artworks));
+            return true;
+        }
+        return false;
+    }
+
 
     public Season FindOrCreateSeason(string seriesId, int seasonNumber, string ProgramId)
     {
@@ -47,7 +77,8 @@ public class ProgramRepository(SMCacheManager<MovieImages> movieCache, SMCacheMa
             List<ProgramArtwork>? art = await movieCache.GetAsync<List<ProgramArtwork>>(program.ProgramId);
             if (art is not null)
             {
-                program.AddArtworks(art);
+                SetProgramLogos(program, art);
+                //program.AddArtworks(art);
             }
         }
         else if (programId.StartsWith("EP"))
@@ -55,18 +86,13 @@ public class ProgramRepository(SMCacheManager<MovieImages> movieCache, SMCacheMa
             List<ProgramArtwork>? art = await episodeCache.GetAsync<List<ProgramArtwork>>(program.ProgramId);
             if (art is not null)
             {
-                program.AddArtworks(art);
+                SetProgramLogos(program, art);
+                //program.AddArtworks(art);
             }
         }
 
         return program;
     }
-
-    public MxfProgram? FindProgram(string programId)
-    {
-        return Programs.Values.FirstOrDefault(p => p.ProgramId == programId);
-    }
-
     public void RemoveProgram(string programId)
     {
         Programs.TryRemove(programId, out _);

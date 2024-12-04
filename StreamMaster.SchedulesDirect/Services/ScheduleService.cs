@@ -12,7 +12,8 @@ public class ScheduleService(
     IOptionsMonitor<SDSettings> sdSettings,
     ISchedulesDirectAPIService schedulesDirectAPI,
     IProgramRepository programRepository,
-    ISchedulesDirectDataService schedulesDirectDataService) : IScheduleService, IDisposable
+    ISchedulesDirectDataService schedulesDirectDataService
+    ) : IScheduleService, IDisposable
 {
     private readonly ConcurrentDictionary<string, string[]> schedulesToProcess = new();
     private readonly SemaphoreSlim apiSemaphore = new(SDAPIConfig.MaxParallelDownloads);
@@ -219,11 +220,14 @@ public class ScheduleService(
 
     private async Task UpdateProgramAsync(ScheduleResponse schedule, CancellationToken cancellationToken)
     {
-        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData;
-
+        if (schedule.StationId.Contains("68827"))
+        {
+            int aaa = 1;
+        }
         // Process programs in the schedule
         foreach (ScheduleProgram program in schedule.Programs)
         {
+
             cancellationToken.ThrowIfCancellationRequested();
             MxfProgram? mxfProgram = await programRepository.FindOrCreateProgram(program.ProgramId, program.Md5);
 

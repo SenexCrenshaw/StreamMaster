@@ -42,12 +42,18 @@ public class SeasonImages(
             List<string> seasonImageQueue = [];
             foreach (Season season in toProcess)
             {
+                if (string.IsNullOrEmpty(season.ProgramId))
+                {
+                    continue;
+                }
+
                 string key = $"{season.SeriesId}_{season.SeasonNumber}";
                 List<ProgramArtwork>? artWorks = await hybridCache.GetAsync<List<ProgramArtwork>>(key);
 
                 if (artWorks is not null)
                 {
-                    season.AddArtworks(artWorks);
+                    //season.AddArtworks(artWorks);
+                    programRepository.SetProgramLogos(season.ProgramId, artWorks);
                     imageDownloadQueue.EnqueueProgramArtworkCollection(artWorks);
                     //if (season.ProgramId.Equals("EP019254150003"))
                     //{
@@ -148,18 +154,18 @@ public class SeasonImages(
             //}
 
             Season? season = programRepository.Seasons.Values.FirstOrDefault(arg => arg.ProgramId == response.ProgramId);
-            if (season == null)
+            if (season is null || season.ProgramId is null)
             {
                 continue;
             }
 
             List<ProgramArtwork> artworks = SDHelpers.GetTieredImages(response.Data, artworkSize, ["season"], sdSettings.CurrentValue.SeriesPosterAspect);
-            season.AddArtworks(artworks);
+            //season.AddArtworks(artworks);
 
             if (artworks.Count > 0)
             {
                 //mfxProgram.AddArtworks(artworks);
-
+                programRepository.SetProgramLogos(season.ProgramId, artworks);
                 string key = $"{season.SeriesId}_{season.SeasonNumber}";
 
                 string artworkJson = JsonSerializer.Serialize(artworks);

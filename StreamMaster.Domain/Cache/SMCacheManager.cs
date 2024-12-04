@@ -1,4 +1,5 @@
-﻿using System.IO.Compression;
+﻿using System.Collections.Concurrent;
+using System.IO.Compression;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -9,22 +10,74 @@ using StreamMaster.Domain.Configuration;
 
 namespace StreamMaster.Domain.Cache;
 
-public class SMCacheManager<T>(ILogger<T> logger, IMemoryCache memoryCache, TimeSpan? defaultExpiration = null, bool useCompression = false, bool useKeyBasedFiles = false, string? defaultKey = null)
+public class SMCacheManager<T>//(ILogger<T> logger, IMemoryCache memoryCache, TimeSpan? defaultExpiration = null, bool useCompression = false, bool useKeyBasedFiles = false, string? defaultKey = null)
     : ISMCache<T>, IDisposable
 {
     private readonly string cacheDirectory = BuildInfo.SDJSONFolder;
-    private readonly string cacheFilePath = Path.Combine(BuildInfo.SDJSONFolder, $"{typeof(T).Name}.json{(useCompression ? ".gz" : "")}");
+    private readonly string cacheFilePath;
     private readonly SemaphoreSlim fileLock = new(1, 1);
     private readonly SemaphoreSlim cacheLock = new(1, 1);
-    private readonly TimeSpan defaultExpiration = defaultExpiration ?? TimeSpan.FromMinutes(30);
+    private readonly TimeSpan defaultExpiration = TimeSpan.FromMinutes(30);
     private readonly Dictionary<string, CacheEntry<string>> diskCache = [];
-    private readonly string memoryCachePartition = $"{typeof(T).Name}:"; // Partition memory cache by type
+    private readonly string memoryCachePartition = $"{typeof(T).Name}:";
+    private readonly ConcurrentQueue<(string Key, string Value)> writeQueue = new();
+    private readonly CancellationTokenSource cts = new();
+    private readonly Task backgroundFlushTask;
+    private readonly TimeSpan flushInterval = TimeSpan.FromSeconds(10);
+    private readonly ILogger<T> logger;
+    private readonly IMemoryCache memoryCache;
+    private readonly bool useCompression;
+    private readonly bool useKeyBasedFiles;
+    private readonly string? defaultKey;
 
     private bool cacheLoaded;
     private bool disposed;
+
+    public SMCacheManager(
+        ILogger<T> logger,
+        IMemoryCache memoryCache,
+        TimeSpan? defaultExpiration = null,
+        bool useCompression = false,
+        bool useKeyBasedFiles = false,
+        string? defaultKey = null)
+    {
+        this.logger = logger;
+        this.memoryCache = memoryCache;
+        this.defaultExpiration = defaultExpiration ?? TimeSpan.FromMinutes(30);
+        this.useCompression = useCompression;
+        this.useKeyBasedFiles = useKeyBasedFiles;
+        this.defaultKey = defaultKey;
+
+        cacheFilePath = Path.Combine(cacheDirectory, $"{typeof(T).Name}.json{(useCompression ? ".gz" : "")}");
+        backgroundFlushTask = Task.Run(() => BackgroundFlushLoop(cts.Token));
+    }
     private string GetMemoryCacheKey(string key)
     {
         return $"{memoryCachePartition}{key}";
+    }
+
+    private async Task BackgroundFlushLoop(CancellationToken cancellationToken)
+    {
+        while (!cancellationToken.IsCancellationRequested)
+        {
+            try
+            {
+                await Task.Delay(flushInterval, cancellationToken);
+
+                if (!useKeyBasedFiles && !writeQueue.IsEmpty)
+                {
+                    await ProcessWriteQueueAsync();
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                // Expected during cancellation
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error in background flush loop.");
+            }
+        }
     }
 
     public async Task<TValue?> GetAsync<TValue>(string? key = null)
@@ -50,6 +103,40 @@ public class SMCacheManager<T>(ILogger<T> logger, IMemoryCache memoryCache, Time
         {
             //logger.LogError(ex, "Failed to deserialize cache value for key {CacheKey}.", key);
             return default;
+        }
+    }
+
+    private async Task ProcessWriteQueueAsync()
+    {
+        await fileLock.WaitAsync();
+        try
+        {
+            // Update the in-memory diskCache with queued items
+            while (writeQueue.TryDequeue(out (string Key, string Value) item))
+            {
+                diskCache[item.Key] = new CacheEntry<string>(item.Value, DateTime.UtcNow);
+            }
+
+            // Write the entire diskCache to disk
+            await using FileStream fileStream = new(cacheFilePath, FileMode.Create, FileAccess.Write, FileShare.None);
+
+            if (useCompression)
+            {
+                await using GZipStream compressionStream = new(fileStream, CompressionLevel.Optimal);
+                await JsonSerializer.SerializeAsync(compressionStream, diskCache);
+            }
+            else
+            {
+                await JsonSerializer.SerializeAsync(fileStream, diskCache);
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error processing write queue.");
+        }
+        finally
+        {
+            fileLock.Release();
         }
     }
 
@@ -221,17 +308,17 @@ public class SMCacheManager<T>(ILogger<T> logger, IMemoryCache memoryCache, Time
         {
             // Single file saving
             await LoadDiskCacheIfNeededAsync();
-
-            await cacheLock.WaitAsync();
-            try
-            {
-                diskCache[key] = new CacheEntry<string>(value, expiration);
-                await SaveDiskCacheAsync();
-            }
-            finally
-            {
-                cacheLock.Release();
-            }
+            EnqueueWrite(key, value, slidingExpiration ?? defaultExpiration);
+            //await cacheLock.WaitAsync();
+            //try
+            //{
+            //    diskCache[key] = new CacheEntry<string>(value, expiration);
+            //    await SaveDiskCacheAsync();
+            //}
+            //finally
+            //{
+            //    cacheLock.Release();
+            //}
         }
     }
 
@@ -261,52 +348,60 @@ public class SMCacheManager<T>(ILogger<T> logger, IMemoryCache memoryCache, Time
             }
             else if (!noSave)
             {
-                await SaveKeyBasedCacheAsync(key, value, slidingExpiration);
+                EnqueueWrite(key, value, slidingExpiration);
+                //await SaveKeyBasedCacheAsync(key, value, slidingExpiration);
             }
         }
 
-        if (!useKeyBasedFiles && !noSave)
-        {
-            await SaveDiskCacheAsync();
-        }
+        //if (!useKeyBasedFiles && !noSave)
+        //{
+        //    await SaveDiskCacheAsync();
+        //}
     }
+
+    private void EnqueueWrite(string key, string value, TimeSpan? slidingExpiration = null)
+    {
+        writeQueue.Enqueue((key, value));
+        memoryCache.Set(GetMemoryCacheKey(key), value, slidingExpiration ?? defaultExpiration);
+    }
+
     public async Task SaveAsync()
     {
-        if (useKeyBasedFiles)
-        {
-            // Key-based files are already saved during `SetAsync`.
-            return;
-        }
+        //if (useKeyBasedFiles)
+        //{
+        //    // Key-based files are already saved during `SetAsync`.
+        //    return;
+        //}
 
-        await SaveDiskCacheAsync();
+        //await SaveDiskCacheAsync();
     }
 
-    private async Task SaveKeyBasedCacheAsync(string key, string value, TimeSpan? slidingExpiration = null)
-    {
-        await fileLock.WaitAsync();
-        try
-        {
-            string cachePath = GetCacheFilePath(key);
-            await using FileStream fileStream = new(cachePath, FileMode.Create, FileAccess.Write, FileShare.None);
-            if (useCompression)
-            {
-                await using GZipStream compressionStream = new(fileStream, CompressionLevel.Optimal);
-                await JsonSerializer.SerializeAsync(compressionStream, value);
-            }
-            else
-            {
-                await JsonSerializer.SerializeAsync(fileStream, value);
-            }
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Failed to save key-based cache for key {CacheKey}.", key);
-        }
-        finally
-        {
-            fileLock.Release();
-        }
-    }
+    //private async Task SaveKeyBasedCacheAsync(string key, string value, TimeSpan? slidingExpiration = null)
+    //{
+    //    await fileLock.WaitAsync();
+    //    try
+    //    {
+    //        string cachePath = GetCacheFilePath(key);
+    //        await using FileStream fileStream = new(cachePath, FileMode.Create, FileAccess.Write, FileShare.None);
+    //        if (useCompression)
+    //        {
+    //            await using GZipStream compressionStream = new(fileStream, CompressionLevel.Optimal);
+    //            await JsonSerializer.SerializeAsync(compressionStream, value);
+    //        }
+    //        else
+    //        {
+    //            await JsonSerializer.SerializeAsync(fileStream, value);
+    //        }
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        logger.LogError(ex, "Failed to save key-based cache for key {CacheKey}.", key);
+    //    }
+    //    finally
+    //    {
+    //        fileLock.Release();
+    //    }
+    //}
 
     public async Task SetAsync(string? key, string value, TimeSpan? slidingExpiration = null)
     {
@@ -352,16 +447,18 @@ public class SMCacheManager<T>(ILogger<T> logger, IMemoryCache memoryCache, Time
             // Single file saving
             await LoadDiskCacheIfNeededAsync();
 
-            await cacheLock.WaitAsync();
-            try
-            {
-                diskCache[key] = new CacheEntry<string>(value, expiration);
-                await SaveDiskCacheAsync();
-            }
-            finally
-            {
-                cacheLock.Release();
-            }
+            EnqueueWrite(key, value, slidingExpiration);
+
+            //await cacheLock.WaitAsync();
+            //try
+            //{
+            //    diskCache[key] = new CacheEntry<string>(value, expiration);
+            //    await SaveDiskCacheAsync();
+            //}
+            //finally
+            //{
+            //    cacheLock.Release();
+            //}
         }
     }
 
@@ -404,7 +501,7 @@ public class SMCacheManager<T>(ILogger<T> logger, IMemoryCache memoryCache, Time
             {
                 if (diskCache.Remove(key))
                 {
-                    await SaveDiskCacheAsync();
+                    //await SaveDiskCacheAsync();
                 }
             }
             finally
@@ -482,7 +579,7 @@ public class SMCacheManager<T>(ILogger<T> logger, IMemoryCache memoryCache, Time
         }
     }
 
-    private async Task SaveDiskCacheAsync()
+    private async Task SaveDiskCacheAsync2()
     {
         if (useKeyBasedFiles)
         {
@@ -631,7 +728,7 @@ public class SMCacheManager<T>(ILogger<T> logger, IMemoryCache memoryCache, Time
             try
             {
                 diskCache.Clear();
-                await SaveDiskCacheAsync();
+                //await SaveDiskCacheAsync();
             }
             finally
             {

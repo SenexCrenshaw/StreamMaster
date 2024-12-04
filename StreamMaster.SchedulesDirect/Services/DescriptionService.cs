@@ -11,8 +11,7 @@ public class DescriptionService(
     ISchedulesDirectAPIService schedulesDirectAPI,
     IOptionsMonitor<SDSettings> sdSettings,
     SMCacheManager<GenericDescription> hybridCache,
-    IProgramRepository programRepository,
-    ISchedulesDirectDataService schedulesDirectDataService) : IDescriptionService, IDisposable
+    IProgramRepository programRepository) : IDescriptionService, IDisposable
 {
     private readonly ConcurrentDictionary<string, string> descriptionsToProcess = new();
     private readonly SemaphoreSlim semaphore = new(SDAPIConfig.MaxParallelDownloads, SDAPIConfig.MaxParallelDownloads);
@@ -160,7 +159,6 @@ public class DescriptionService(
 
     private async Task ProcessSeriesDescriptionsResponsesAsync(Dictionary<string, GenericDescription> seriesDescriptionResponses, CancellationToken cancellationToken)
     {
-        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData;
         Dictionary<string, string> bulkItems = [];
 
         foreach (KeyValuePair<string, GenericDescription> response in seriesDescriptionResponses)
@@ -172,7 +170,11 @@ public class DescriptionService(
             string seriesId = response.Key;
             GenericDescription description = response.Value;
 
-            SeriesInfo seriesInfo = programRepository.FindSeriesInfo(seriesId.Substring(2, 8));
+            SeriesInfo? seriesInfo = programRepository.FindSeriesInfo(seriesId.Substring(2, 8));
+            if (seriesInfo == null)
+            {
+                continue;
+            }
             seriesInfo.ShortDescription = description.Description100;
             seriesInfo.Description = description.Description1000;
             bulkItems[seriesId] = JsonSerializer.Serialize(description);
@@ -186,7 +188,7 @@ public class DescriptionService(
 
     public void ResetCache()
     {
-        hybridCache.ClearAsync().ConfigureAwait(false);
+        //hybridCache.ClearAsync().ConfigureAwait(false);
     }
 
     public List<string> GetExpiredKeys()

@@ -62,7 +62,8 @@ public class SeriesImages(
                     List<ProgramArtwork>? artWorks = await hybridCache.GetAsync<List<ProgramArtwork>>(seriesId);
                     if (artWorks is not null)
                     {
-                        seriesInfo.AddArtworks(artWorks);
+                        //seriesInfo.AddArtworks(artWorks);
+                        programRepository.SetProgramLogos(seriesInfo.ProgramId, artWorks);
                         imageDownloadQueue.EnqueueProgramArtworkCollection(artWorks);
                     }
                     else
@@ -165,8 +166,9 @@ public class SeriesImages(
 
             if (artworks.Count > 0)
             {
-                series.AddArtworks(artworks);
-                mfxProgram.AddArtworks(artworks);
+                //series.AddArtworks(artworks);
+                //mfxProgram.AddArtworks(artworks);
+                programRepository.SetProgramLogos(mfxProgram, artworks);
 
                 string artworkJson = JsonSerializer.Serialize(artworks);
                 await hybridCache.SetAsync(response.ProgramId, artworkJson);
