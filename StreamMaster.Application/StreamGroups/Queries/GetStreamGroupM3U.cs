@@ -20,7 +20,7 @@ public class GetStreamGroupM3UHandler(IStreamGroupService streamGroupService, IO
     [LogExecutionTimeAspect]
     public async Task<string> Handle(GetStreamGroupM3U request, CancellationToken cancellationToken)
     {
- 
+
         StreamGroup? streamGroup = await streamGroupService.GetStreamGroupFromSGProfileIdAsync(request.StreamGroupProfileId);
         if (streamGroup == null)
         {
@@ -62,7 +62,7 @@ public class GetStreamGroupM3UHandler(IStreamGroupService streamGroupService, IO
         return ret.ToString();
     }
 
-    private  (int ChNo, string m3uLine) BuildM3ULineForVideoStream(VideoStreamConfig videoStreamConfig, bool IsShort)
+    private (int ChNo, string m3uLine) BuildM3ULineForVideoStream(VideoStreamConfig videoStreamConfig, bool IsShort)
     {
         if (videoStreamConfig.OutputProfile is null || string.IsNullOrEmpty(videoStreamConfig.EncodedString) || string.IsNullOrEmpty(videoStreamConfig.CleanName))
         {
@@ -76,7 +76,7 @@ public class GetStreamGroupM3UHandler(IStreamGroupService streamGroupService, IO
         }
         else
         {
-            videoUrl = $"{videoStreamConfig.BaseUrl}/api/videostreams/stream/{videoStreamConfig.EncodedString}/{videoStreamConfig.CleanName}";
+            videoUrl = $"{videoStreamConfig.BaseUrl}/api/videostreams/stream/{videoStreamConfig.EncodedString}";
             if (settings.CurrentValue.AppendChannelName)
             {
                 videoUrl += $"/{videoStreamConfig.CleanName}";

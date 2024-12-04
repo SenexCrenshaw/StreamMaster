@@ -7,10 +7,11 @@ namespace StreamMaster.SchedulesDirect.Services;
 
 public class ProgramRepository(SMCacheManager<MovieImages> movieCache, SMCacheManager<EpisodeImages> episodeCache) : IProgramRepository
 {
-    public ConcurrentDictionary<string, MxfProgram> Programs { get; } = new();
-    public ConcurrentDictionary<string, SeriesInfo> SeriesInfos { get; } = [];
-    public ConcurrentDictionary<string, Season> Seasons { get; } = new();
     public ConcurrentDictionary<string, MxfPerson> People { get; } = [];
+    public ConcurrentDictionary<string, MxfProgram> Programs { get; } = new();
+    public ConcurrentDictionary<string, Season> Seasons { get; } = new();
+    public ConcurrentDictionary<string, SeriesInfo> SeriesInfos { get; } = [];
+
 
     public MxfPerson FindOrCreatePerson(string name)
     {
@@ -21,14 +22,12 @@ public class ProgramRepository(SMCacheManager<MovieImages> movieCache, SMCacheMa
     {
         SeriesInfo seasonInfo = FindOrCreateSeriesInfo(seriesId, ProgramId);
         Season season = Seasons.FindOrCreate($"{seriesId}_{seasonNumber}", _ => new Season(Seasons.Count + 1, seasonInfo, seasonNumber, ProgramId));
-
         return season;
     }
 
     public SeriesInfo FindOrCreateSeriesInfo(string seriesId, string ProgramId)
     {
         SeriesInfo seriesInfo = new(seriesId, ProgramId);
-
         SeriesInfos.TryAdd(ProgramId, seriesInfo);
         return seriesInfo;
     }
@@ -36,7 +35,6 @@ public class ProgramRepository(SMCacheManager<MovieImages> movieCache, SMCacheMa
     public SeriesInfo? FindSeriesInfo(string seriesId)
     {
         return SeriesInfos.TryGetValue(seriesId, out SeriesInfo? seriesInfo) ? seriesInfo : null;
-
     }
 
     public async Task<MxfProgram> FindOrCreateProgram(string programId, string md5)
