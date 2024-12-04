@@ -11,6 +11,7 @@ public class DescriptionService(
     ISchedulesDirectAPIService schedulesDirectAPI,
     IOptionsMonitor<SDSettings> sdSettings,
     SMCacheManager<GenericDescription> hybridCache,
+    IProgramRepository programRepository,
     ISchedulesDirectDataService schedulesDirectDataService) : IDescriptionService, IDisposable
 {
     private readonly ConcurrentDictionary<string, string> descriptionsToProcess = new();
@@ -24,8 +25,8 @@ public class DescriptionService(
             return true;
         }
 
-        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData;
-        ICollection<SeriesInfo> toProcess = schedulesDirectData.SeriesInfosToProcess.Values;
+
+        ICollection<SeriesInfo> toProcess = programRepository.SeriesInfos.Values;
 
         logger.LogInformation("Entering BuildGenericSeriesInfoDescriptionsAsync() for {toProcess.Count} series.", toProcess.Count);
 
@@ -61,8 +62,8 @@ public class DescriptionService(
 
     private async Task FillChannelWithDescriptionsFromSeriesInfoAsync(CancellationToken cancellationToken)
     {
-        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData;
-        ICollection<SeriesInfo> toProcess = schedulesDirectData.SeriesInfosToProcess.Values;
+
+        ICollection<SeriesInfo> toProcess = programRepository.SeriesInfos.Values;
 
         foreach (SeriesInfo series in toProcess)
         {
@@ -171,7 +172,7 @@ public class DescriptionService(
             string seriesId = response.Key;
             GenericDescription description = response.Value;
 
-            SeriesInfo seriesInfo = schedulesDirectData.FindSeriesInfo(seriesId.Substring(2, 8));
+            SeriesInfo seriesInfo = programRepository.FindSeriesInfo(seriesId.Substring(2, 8));
             seriesInfo.ShortDescription = description.Description100;
             seriesInfo.Description = description.Description1000;
             bulkItems[seriesId] = JsonSerializer.Serialize(description);

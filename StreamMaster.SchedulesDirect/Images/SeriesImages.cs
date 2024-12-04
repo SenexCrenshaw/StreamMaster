@@ -34,8 +34,7 @@ public class SeriesImages(
         try
         {
 
-            ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData;
-            ICollection<SeriesInfo> toProcess = schedulesDirectData.SeriesInfosToProcess.Values;
+            ICollection<SeriesInfo> toProcess = programRepository.SeriesInfos.Values;
             SeriesInfo? test = toProcess.FirstOrDefault(a => a.ProgramId == "EP031891810143");
 
             if (test is null)
@@ -154,7 +153,7 @@ public class SeriesImages(
                 continue;
             }
 
-            SeriesInfo? series = schedulesDirectData.FindSeriesInfo(response.ProgramId.Substring(2, 8));
+            SeriesInfo? series = programRepository.FindSeriesInfo(response.ProgramId.Substring(2, 8));
             if (series == null)
             {
                 continue;

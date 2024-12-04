@@ -12,8 +12,7 @@ public class ProgramService(
     IOptionsMonitor<SDSettings> sdSettings,
     SMCacheManager<GenericDescription> descriptionCache,
     ISchedulesDirectAPIService schedulesDirectAPI,
-    IProgramRepository programRepository,
-    ISchedulesDirectDataService schedulesDirectDataService)
+    IProgramRepository programRepository)
     : IProgramService, IDisposable
 {
 
@@ -324,10 +323,10 @@ public class ProgramService(
 
         if (sdProgram.HasSeasonArtwork && mxfProgram.SeasonNumber != 0)
         {
-            ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData;
+
             string seriesId = mxfProgram.ProgramId.Substring(2, 8);
 
-            mxfProgram.mxfSeason = schedulesDirectData.FindOrCreateSeason(seriesId, mxfProgram.SeasonNumber, mxfProgram.ProgramId);
+            mxfProgram.mxfSeason = programRepository.FindOrCreateSeason(seriesId, mxfProgram.SeasonNumber, mxfProgram.ProgramId);
         }
     }
 
@@ -582,11 +581,9 @@ public class ProgramService(
         }
 
         List<MxfPersonRank> ret = [];
-        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData;
-
         foreach (ProgramPerson? person in persons.Where(p => roles.Any(role => p.Role.Contains(role))))
         {
-            ret.Add(new MxfPersonRank(schedulesDirectData.FindOrCreatePerson(person.Name))
+            ret.Add(new MxfPersonRank(programRepository.FindOrCreatePerson(person.Name))
             {
                 Rank = int.Parse(person.BillingOrder),
                 Character = person.CharacterName

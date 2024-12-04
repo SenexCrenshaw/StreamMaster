@@ -12,6 +12,7 @@ public class SeasonImages(
     IImageDownloadQueue imageDownloadQueue,
     IOptionsMonitor<SDSettings> sdSettings,
     ISchedulesDirectAPIService schedulesDirectAPI,
+    IProgramRepository programRepository,
     ISchedulesDirectDataService schedulesDirectDataService) : ISeasonImages, IDisposable
 {
     private static readonly SemaphoreSlim classSemaphore = new(1, 1);
@@ -33,8 +34,7 @@ public class SeasonImages(
         {
 
 
-            ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData;
-            ICollection<Season> toProcess = schedulesDirectData.SeasonsToProcess.Values;
+            ICollection<Season> toProcess = programRepository.Seasons.Values;
 
             int totalObjects = toProcess.Count;
             logger.LogInformation("Entering GetAllSeasonImages() for {totalObjects} seasons.", totalObjects);
@@ -147,7 +147,7 @@ public class SeasonImages(
             //    continue;
             //}
 
-            Season? season = schedulesDirectData.Seasons.Values.FirstOrDefault(arg => arg.ProgramId == response.ProgramId);
+            Season? season = programRepository.Seasons.Values.FirstOrDefault(arg => arg.ProgramId == response.ProgramId);
             if (season == null)
             {
                 continue;
