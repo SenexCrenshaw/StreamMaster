@@ -2,31 +2,38 @@
 using System.Text.Json;
 
 using StreamMaster.Domain.Cache;
+using StreamMaster.SchedulesDirect.Domain;
 
 namespace StreamMaster.SchedulesDirect.Images;
 
 public class SeasonImages(
     ILogger<SeasonImages> logger,
-    IHybridCache<SeasonImages> hybridCache,
+    HybridCacheManager<SeasonImages> hybridCache,
     IImageDownloadQueue imageDownloadQueue,
     IOptionsMonitor<SDSettings> sdSettings,
     ISchedulesDirectAPIService schedulesDirectAPI,
     ISchedulesDirectDataService schedulesDirectDataService) : ISeasonImages, IDisposable
 {
     private static readonly SemaphoreSlim classSemaphore = new(1, 1);
-    private readonly SemaphoreSlim semaphore = new(SchedulesDirect.MaxParallelDownloads);
+    private readonly SemaphoreSlim semaphore = new(SDAPIConfig.MaxParallelDownloads);
 
-    public async Task<bool> ProcessArtAsync()
+    public async Task<bool> ProcessArtAsync(CancellationToken cancellationToken)
     {
-        await classSemaphore.WaitAsync();
+        if (!sdSettings.CurrentValue.SeasonImages)
+        {
+            return true;
+        }
+
+        await classSemaphore.WaitAsync(cancellationToken);
+        if (cancellationToken.IsCancellationRequested)
+        {
+            return false;
+        }
         try
         {
-            if (!sdSettings.CurrentValue.SeasonImages)
-            {
-                return true;
-            }
 
-            ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
+
+            ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData;
             ICollection<Season> toProcess = schedulesDirectData.SeasonsToProcess.Values;
 
             int totalObjects = toProcess.Count;
@@ -35,23 +42,34 @@ public class SeasonImages(
             List<string> seasonImageQueue = [];
             foreach (Season season in toProcess)
             {
-                string uid = $"{season.SeriesId}_{season.SeasonNumber}";
-
-                List<ProgramArtwork>? artWorks = await hybridCache.GetAsync<List<ProgramArtwork>>(uid);
+                string key = $"{season.SeriesId}_{season.SeasonNumber}";
+                List<ProgramArtwork>? artWorks = await hybridCache.GetAsync<List<ProgramArtwork>>(key);
 
                 if (artWorks is not null)
                 {
-                    season.ArtWorks = artWorks;
+                    season.AddArtworks(artWorks);
                     imageDownloadQueue.EnqueueProgramArtworkCollection(artWorks);
-                    if (!string.IsNullOrEmpty(season.ProtoTypicalProgram))
-                    {
-                        MxfProgram mxfProgram = schedulesDirectData.FindOrCreateProgram(season.ProtoTypicalProgram);
-                        mxfProgram.AddArtwork(artWorks);
-                    }
+                    //if (season.ProgramId.Equals("EP019254150003"))
+                    //{
+                    //    int aa = 1;
+                    //}
+                    //if (!string.IsNullOrEmpty(season.ProgramId))
+                    //{
+                    //    //MxfProgram mxfProgram = schedulesDirectData.FindOrCreateProgram(season.ProgramId);
+
+                    //    MxfProgram? mxfProgram = schedulesDirectData.FindProgram(season.ProgramId);
+
+                    //    if (mxfProgram == null)
+                    //    {
+                    //        logger.LogWarning("Program {ProgramId} not found in the data store.", season.ProgramId);
+                    //        continue;
+                    //    }
+                    //    mxfProgram.AddArtworks(artWorks);
+                    //}
                 }
-                else if (!string.IsNullOrEmpty(season.ProtoTypicalProgram))
+                else if (!string.IsNullOrEmpty(season.ProgramId))
                 {
-                    seasonImageQueue.Add(season.ProtoTypicalProgram);
+                    seasonImageQueue.Add(season.ProgramId);
                 }
             }
 
@@ -60,7 +78,7 @@ public class SeasonImages(
             if (seasonImageQueue.Count > 0)
             {
                 ConcurrentBag<ProgramMetadata> seasonImageResponses = [];
-                await DownloadAndProcessImagesAsync(seasonImageQueue, seasonImageResponses).ConfigureAwait(false);
+                await DownloadAndProcessImagesAsync(seasonImageQueue, seasonImageResponses, cancellationToken).ConfigureAwait(false);
                 await ProcessSeasonImageResponsesAsync(seasonImageResponses);
             }
 
@@ -74,28 +92,23 @@ public class SeasonImages(
         }
     }
 
-    //private static void ProcessCachedImages(Season season, string cachedJson)
-    //{
-    //    season.ArtWorks = string.IsNullOrEmpty(cachedJson)
-    //        ? []
-    //        : JsonSerializer.Deserialize<List<ProgramArtwork>>(cachedJson) ?? [];
-    //}
 
-    private async Task DownloadAndProcessImagesAsync(List<string> seasonImageQueue, ConcurrentBag<ProgramMetadata> seasonImageResponses)
+
+    private async Task DownloadAndProcessImagesAsync(List<string> seasonImageQueue, ConcurrentBag<ProgramMetadata> seasonImageResponses, CancellationToken cancellationToken)
     {
         List<Task> tasks = [];
         int processedCount = 0;
 
-        for (int i = 0; i <= seasonImageQueue.Count / SchedulesDirect.MaxImgQueries; i++)
+        for (int i = 0; i <= seasonImageQueue.Count / SDAPIConfig.MaxImgQueries; i++)
         {
-            int startIndex = i * SchedulesDirect.MaxImgQueries;
+            int startIndex = i * SDAPIConfig.MaxImgQueries;
             tasks.Add(Task.Run(async () =>
             {
                 await semaphore.WaitAsync();
                 try
                 {
-                    int itemCount = Math.Min(seasonImageQueue.Count - startIndex, SchedulesDirect.MaxImgQueries);
-                    await schedulesDirectAPI.DownloadImageResponsesAsync(seasonImageQueue, seasonImageResponses, startIndex).ConfigureAwait(false);
+                    int itemCount = Math.Min(seasonImageQueue.Count - startIndex, SDAPIConfig.MaxImgQueries);
+                    await schedulesDirectAPI.DownloadImageResponsesAsync(seasonImageQueue, seasonImageResponses, startIndex, cancellationToken).ConfigureAwait(false);
                     Interlocked.Add(ref processedCount, itemCount);
                     logger.LogInformation("Downloaded season images {ProcessedCount} of {TotalCount}", processedCount, seasonImageQueue.Count);
                 }
@@ -112,31 +125,45 @@ public class SeasonImages(
     private async Task ProcessSeasonImageResponsesAsync(ConcurrentBag<ProgramMetadata> seasonImageResponses)
     {
         string artworkSize = string.IsNullOrEmpty(sdSettings.CurrentValue.ArtworkSize) ? BuildInfo.DefaultSDImageSize : sdSettings.CurrentValue.ArtworkSize;
-        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
+        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData;
 
         foreach (ProgramMetadata response in seasonImageResponses)
         {
-            if (response.Data == null || response.Data.Count == 0)
+            if (response.ProgramId.Equals("EP019254150003"))
+            {
+                int aa = 1;
+
+            }
+
+            if (response.Data == null || response.Data.Count == 0 || response.Data[0].Code != 0)
             {
                 logger.LogWarning("No Season Image artwork found for {ProgramId}", response.ProgramId);
                 continue;
             }
 
-            Season? season = schedulesDirectData.Seasons.Values.FirstOrDefault(arg => arg.ProtoTypicalProgram == response.ProgramId);
+            //MxfProgram? mfxProgram = schedulesDirectData.FindProgram(response.ProgramId);
+            //if (mfxProgram is null)
+            //{
+            //    continue;
+            //}
+
+            Season? season = schedulesDirectData.Seasons.Values.FirstOrDefault(arg => arg.ProgramId == response.ProgramId);
             if (season == null)
             {
                 continue;
             }
 
             List<ProgramArtwork> artworks = SDHelpers.GetTieredImages(response.Data, artworkSize, ["season"], sdSettings.CurrentValue.SeriesPosterAspect);
-            season.AddArtwork(artworks);
+            season.AddArtworks(artworks);
 
             if (artworks.Count > 0)
             {
-                string uid = $"{season.SeriesId}_{season.SeasonNumber}";
+                //mfxProgram.AddArtworks(artworks);
+
+                string key = $"{season.SeriesId}_{season.SeasonNumber}";
 
                 string artworkJson = JsonSerializer.Serialize(artworks);
-                await hybridCache.SetAsync(uid, artworkJson);
+                await hybridCache.SetAsync(key, artworkJson);
 
                 imageDownloadQueue.EnqueueProgramArtworkCollection(artworks);
             }

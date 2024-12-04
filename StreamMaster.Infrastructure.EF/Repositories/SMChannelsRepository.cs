@@ -812,7 +812,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, ILogo
                 name = smStream.EPGID;
                 break;
 
-            //case M3UField.URL:
+            //case M3UField.Url:
             //    name = smStream.Url;
             //    break;
 

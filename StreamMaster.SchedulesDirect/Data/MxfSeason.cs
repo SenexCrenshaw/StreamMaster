@@ -11,10 +11,10 @@ public partial class SchedulesDirectData
     [XmlIgnore]
     public ConcurrentDictionary<string, Season> SeasonsToProcess { get; set; } = [];
 
-    public Season FindOrCreateSeason(string seriesId, int seasonNumber, string? protoTypicalProgram)
+    public Season FindOrCreateSeason(string seriesId, int seasonNumber, string ProgramId)
     {
-        SeriesInfo seasonInfo = FindOrCreateSeriesInfo(seriesId, protoTypicalProgram);
-        Season season = Seasons.FindOrCreate($"{seriesId}_{seasonNumber}", _ => new Season(Seasons.Count + 1, seasonInfo, seasonNumber, protoTypicalProgram));
+        SeriesInfo seasonInfo = FindOrCreateSeriesInfo(seriesId, ProgramId);
+        Season season = Seasons.FindOrCreate($"{seriesId}_{seasonNumber}", _ => new Season(Seasons.Count + 1, seasonInfo, seasonNumber, ProgramId));
 
         SeasonsToProcess.TryAdd(season.Id, season);
         return season;

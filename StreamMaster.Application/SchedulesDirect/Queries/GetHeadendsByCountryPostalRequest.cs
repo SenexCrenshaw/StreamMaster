@@ -4,7 +4,7 @@
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record GetHeadendsByCountryPostalRequest(string Country, string PostalCode) : IRequest<DataResponse<List<HeadendDto>>>;
 
-internal class GetHeadendsByCountryPostalRequestHandler(ISchedulesDirect schedulesDirect)
+internal class GetHeadendsByCountryPostalRequestHandler(ISchedulesDirectAPIService schedulesDirectAPIService)
     : IRequestHandler<GetHeadendsByCountryPostalRequest, DataResponse<List<HeadendDto>>>
 {
     private static List<HeadendDto> MapFrom(List<Headend> headends, string Country, string PostalCode)
@@ -38,7 +38,7 @@ internal class GetHeadendsByCountryPostalRequestHandler(ISchedulesDirect schedul
 
     public async Task<DataResponse<List<HeadendDto>>> Handle(GetHeadendsByCountryPostalRequest request, CancellationToken cancellationToken)
     {
-        List<Headend>? result = await schedulesDirect.GetHeadendsByCountryPostal(request.Country, request.PostalCode, cancellationToken);
+        List<Headend>? result = await schedulesDirectAPIService.GetHeadendsByCountryPostalAsync(request.Country, request.PostalCode, cancellationToken);
         if (result == null)
         {
             return DataResponse<List<HeadendDto>>.ErrorWithMessage("Request failed");

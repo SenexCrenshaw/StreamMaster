@@ -1,4 +1,4 @@
-﻿namespace StreamMaster.Application.SchedulesDirect.QueriesOld;
+﻿namespace StreamMaster.Application.SchedulesDirect.Queries;
 
 public record GetChannelNamesRequest : IRequest<DataResponse<IEnumerable<string>>>;
 

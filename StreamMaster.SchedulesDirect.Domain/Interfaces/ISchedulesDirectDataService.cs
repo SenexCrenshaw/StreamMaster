@@ -9,9 +9,8 @@ public interface ISchedulesDirectDataService
     void Reset(int? EPGNumber = null);
     List<MxfLineup> AllLineups { get; }
     List<MxfService> AllServices { get; }
-    ISchedulesDirectData GetEPGData(int EPGNumber);
+    //ISchedulesDirectData GetEPGData(int EPGNumber);
     ICustomStreamData CustomStreamData();
-    ISchedulesDirectData SchedulesDirectData();
-    ISchedulesDirectData DummyData();
+    ISchedulesDirectData SchedulesDirectData { get; }
     List<MxfService> GetAllSDServices { get; }
 }

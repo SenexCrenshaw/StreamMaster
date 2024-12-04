@@ -7,7 +7,7 @@ public static class HttpContextExtensions
     {
         HttpRequest request = context.Request;
 
-        // Log the request method and URL
+        // Log the request method and Url
         logger.LogInformation("Request Method: {Method}, Request URL: {Url}", request.Method, request.Path);
 
         // Log headers

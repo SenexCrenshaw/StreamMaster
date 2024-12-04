@@ -4,7 +4,7 @@
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record RemoveLineupRequest(string Lineup) : IRequest<APIResponse>;
 
-public class RemoveLineupRequestHandler(ISchedulesDirect schedulesDirect, IDataRefreshService dataRefreshService, IMessageService messageService, IJobStatusService jobStatusService, ILogger<RemoveLineupRequest> logger, IOptionsMonitor<SDSettings> intSettings)
+public class RemoveLineupRequestHandler(ISchedulesDirectAPIService schedulesDirectAPIService, IDataRefreshService dataRefreshService, IMessageService messageService, IJobStatusService jobStatusService, ILogger<RemoveLineupRequest> logger, IOptionsMonitor<SDSettings> intSettings)
 : IRequestHandler<RemoveLineupRequest, APIResponse>
 {
     private readonly SDSettings sdSettings = intSettings.CurrentValue;
@@ -18,7 +18,7 @@ public class RemoveLineupRequestHandler(ISchedulesDirect schedulesDirect, IDataR
             return APIResponse.ErrorWithMessage("Sd is not enabled");
         }
         logger.LogInformation("Remove line up {lineup}", request.Lineup);
-        int changesRemaining = await schedulesDirect.RemoveLineup(request.Lineup, cancellationToken).ConfigureAwait(false);
+        int changesRemaining = await schedulesDirectAPIService.RemoveLineupAsync(request.Lineup, cancellationToken).ConfigureAwait(false);
 
         if (changesRemaining > -1)
         {
@@ -31,7 +31,7 @@ public class RemoveLineupRequestHandler(ISchedulesDirect schedulesDirect, IDataR
             //schedulesDirect.ResetCache(SDCommands.Status);
             //schedulesDirect.ResetCache(SDCommands.LineUps);
             //await hubContext.ClientChannels.All.SchedulesDirectsRefresh();
-            schedulesDirect.ResetCache("SubscribedLineups");
+            //schedulesDirect.ResetCache("SubscribedLineups");
 
             jobManager.SetForceNextRun();
             //await dataRefreshService.Refresh("GetSubscribedLineup");

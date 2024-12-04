@@ -33,7 +33,7 @@ public class RefreshEPGFileRequestHandler(ILogger<RefreshEPGFileRequest> Logger,
 
                 if (epgFile.Url?.Contains("://") == true)
                 {
-                    Logger.LogInformation("Refresh EPG From URL {epgFile.Url}", epgFile.Url);
+                    Logger.LogInformation("Refresh EPG From URL {epgFile.Name}", epgFile.Name);
 
                     epgFile.LastDownloadAttempt = SMDT.UtcNow;
                     epgFile.LastUpdated = epgFile.LastDownloadAttempt;

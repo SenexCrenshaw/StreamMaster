@@ -2,6 +2,6 @@
 {
     public interface ISeasonImages : IEPGCached
     {
-        Task<bool> ProcessArtAsync();
+        Task<bool> ProcessArtAsync(CancellationToken cancellationToken);
     }
 }

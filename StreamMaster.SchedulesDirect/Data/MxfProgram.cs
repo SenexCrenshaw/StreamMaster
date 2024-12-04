@@ -5,22 +5,41 @@ namespace StreamMaster.SchedulesDirect.Data;
 
 public partial class SchedulesDirectData
 {
-    [XmlIgnore] public ConcurrentDictionary<string, MxfProgram> ProgramsToProcess { get; set; } = [];
-
     [XmlArrayItem("Program")]
     public ConcurrentDictionary<string, MxfProgram> Programs { get; set; } = new();
 
-    public MxfProgram FindOrCreateProgram(string programId)
+    public async Task<MxfProgram> FindOrCreateProgram(string programId, string md5)
     {
         MxfProgram program = Programs.FindOrCreate(programId, _ => new MxfProgram(Programs.Count + 1, programId));
+        program.MD5 = md5;
 
-        ProgramsToProcess.TryAdd(programId, program);
+        if (programId.StartsWith("MV"))
+        {
+            List<ProgramArtwork>? art = await movieCache.GetAsync<List<ProgramArtwork>>(program.ProgramId);
+            if (art is not null)
+            {
+                program.AddArtworks(art);
+            }
+        }
+        else if (programId.StartsWith("EP"))
+        {
+            List<ProgramArtwork>? art = await episodeCache.GetAsync<List<ProgramArtwork>>(program.ProgramId);
+            if (art is not null)
+            {
+                program.AddArtworks(art);
+            }
+        }
+
         return program;
+    }
+
+    public MxfProgram? FindProgram(string programId)
+    {
+        return Programs.Values.FirstOrDefault(p => p.ProgramId == programId);
     }
 
     public void RemoveProgram(string programId)
     {
         Programs.TryRemove(programId, out _);
-        ProgramsToProcess.TryRemove(programId, out _);
     }
 }

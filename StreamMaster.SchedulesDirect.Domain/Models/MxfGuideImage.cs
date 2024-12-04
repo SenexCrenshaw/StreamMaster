@@ -31,8 +31,8 @@ public class MxfGuideImage
     public string? Uid { get; set; }
 
     /// <summary>
-    /// The URL of the image.
-    /// This value can be in the form of file://URL.
+    /// The Url of the image.
+    /// This value can be in the form of file://Url.
     /// </summary>
     public string? ImageUrl { get; set; }
 

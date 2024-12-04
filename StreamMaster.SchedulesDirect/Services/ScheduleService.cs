@@ -1,31 +1,34 @@
-﻿using System.Text.Json;
-using System.Threading.Channels;
+﻿using System.Collections.Concurrent;
+using System.Text.Json;
 
 using StreamMaster.Domain.Cache;
+using StreamMaster.SchedulesDirect.Domain;
 
 namespace StreamMaster.SchedulesDirect.Services;
 
 public class ScheduleService(
     ILogger<ScheduleService> logger,
-    IHybridCache<ScheduleService> hybridCache,
+    HybridCacheManager<ScheduleService> hybridCache,
     IOptionsMonitor<SDSettings> sdSettings,
     ISchedulesDirectAPIService schedulesDirectAPI,
     ISchedulesDirectDataService schedulesDirectDataService) : IScheduleService, IDisposable
 {
-    private readonly Channel<(string Md5, string[] Metadata)> scheduleChannel = Channel.CreateUnbounded<(string Md5, string[] Metadata)>();
+    private readonly ConcurrentDictionary<string, string[]> schedulesToProcess = new();
+    private readonly SemaphoreSlim apiSemaphore = new(SDAPIConfig.MaxParallelDownloads);
+    private readonly SemaphoreSlim writeSema = new(1, 1);
 
-    private readonly SemaphoreSlim semaphore = new(SchedulesDirect.MaxParallelDownloads);
+
     private int cachedSchedules;
     private int downloadedSchedules;
     private readonly int missingGuide;
     private int totalObjects;
     private int processedObjects;
 
-    public async Task<bool> BuildScheduleEntriesAsync(CancellationToken cancellationToken)
+    public async Task<bool> BuildScheduleAndProgramEntriesAsync(CancellationToken cancellationToken)
     {
         //Dictionary<string, string[]> tempScheduleEntries = new(SchedulesDirect.MaxQueries);
         int days = Math.Clamp(sdSettings.CurrentValue.SDEPGDays, 1, 14);
-        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
+        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData;
         ICollection<MxfService> toProcess = schedulesDirectData.Services.Values;
 
         logger.LogInformation("Entering BuildScheduleEntriesAsync() for {days} days on {Count} stations.", days, toProcess.Count);
@@ -41,14 +44,16 @@ public class ScheduleService(
         string[] dates = BuildDateArray(days);
 
         await FillChannelWithScheduleRequestsAsync(toProcess, dates, cancellationToken);
-        if (!scheduleChannel.Reader.CanCount || scheduleChannel.Reader.Count == 0)
+        if (schedulesToProcess.IsEmpty)
         {
             logger.LogInformation("No schedules to download. Exiting.");
             return true;
         }
 
+        int threads = Math.Clamp(schedulesToProcess.Count, 1, SDAPIConfig.MaxParallelDownloads);
+
         List<Task> processingTasks = [];
-        for (int i = 0; i < SchedulesDirect.MaxParallelDownloads; i++)
+        for (int i = 0; i < threads; i++)
         {
             processingTasks.Add(Task.Run(() => FetchAndProcessSchedulesAsync(cancellationToken), cancellationToken));
         }
@@ -59,100 +64,181 @@ public class ScheduleService(
         return true;
     }
 
-    private async Task FillChannelWithScheduleRequestsAsync(
-        ICollection<MxfService> toProcess,
-        string[] dates,
-
-        CancellationToken cancellationToken)
+    private async Task FillChannelWithScheduleRequestsAsync(ICollection<MxfService> toProcess, string[] dates, CancellationToken cancellationToken)
     {
-        await Parallel.ForEachAsync(toProcess, cancellationToken, async (mxfService, ct) =>
+        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData;
+
+        await Parallel.ForEachAsync(toProcess, cancellationToken, async (mxfService, _) =>
         {
+            cancellationToken.ThrowIfCancellationRequested();
             foreach (string date in dates)
             {
-                string md5 = $"{mxfService.StationId}-{date}";
-                ScheduleResponse? schedule = await hybridCache.GetAsync<ScheduleResponse>(md5);
+                cancellationToken.ThrowIfCancellationRequested();
+                string key = $"{mxfService.StationId}-{date}";
+                ScheduleResponse? schedule = await hybridCache.GetAsync<ScheduleResponse>(key);
                 if (schedule != null)
                 {
                     cachedSchedules++;
-                    UpdateProgram(schedule);
+                    await UpdateProgramAsync(schedule, cancellationToken);
                 }
                 else
                 {
-                    await scheduleChannel.Writer.WriteAsync((md5, [mxfService.StationId, date]), ct).ConfigureAwait(false);
+                    schedulesToProcess.TryAdd(key, [mxfService.StationId, date]);
                 }
             }
         });
 
-        scheduleChannel.Writer.Complete();
     }
 
-    private async Task FetchAndProcessSchedulesAsync(
-
-        CancellationToken cancellationToken)
+    private async Task FetchAndProcessSchedulesAsync(CancellationToken cancellationToken)
     {
-        await foreach ((string md5, string[] metadata) in scheduleChannel.Reader.ReadAllAsync(cancellationToken).ConfigureAwait(false))
-        {
-            try
-            {
-                // Fetch schedule from the API
-                List<ScheduleResponse>? schedules = await GetScheduleListingsAsync([new ScheduleRequest
-                {
-                    StationId = metadata[0],
-                    Date = [metadata[1]]
-                }], cancellationToken).ConfigureAwait(false);
+        const int batchSize = 100; // Number of schedule requests per batch
 
-                if (schedules != null)
+        //while (!cancellationToken.IsCancellationRequested)
+        //{
+        List<KeyValuePair<string, string[]>> currentBatch = new(batchSize);
+        //string[] keys = schedulesToProcess.Keys.ToArray(); 
+
+        foreach (string md5 in schedulesToProcess.Keys)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            if (schedulesToProcess.TryRemove(md5, out string[]? metadata))
+            {
+                currentBatch.Add(new KeyValuePair<string, string[]>(md5, metadata));
+
+                // Process the batch if the size limit is reached
+                if (currentBatch.Count >= batchSize)
                 {
-                    foreach (ScheduleResponse schedule in schedules)
-                    {
-                        await ProcessSingleScheduleAsync(md5, schedule, cancellationToken).ConfigureAwait(false);
-                    }
+                    await ProcessAndClearBatchAsync(currentBatch, cancellationToken).ConfigureAwait(false);
                 }
             }
-            catch (Exception ex)
-            {
-                logger.LogError("Failed to process schedule for MD5 {md5}: {Error}", md5, ex.Message);
-            }
         }
+
+        // Process any remaining items in the last batch
+        if (currentBatch.Count > 0)
+        {
+            await ProcessAndClearBatchAsync(currentBatch, cancellationToken).ConfigureAwait(false);
+        }
+
+        await Task.Delay(10, cancellationToken).ConfigureAwait(false); // Pause to allow new additions to schedulesToProcess
+                                                                       // }
     }
 
-    private async Task ProcessSingleScheduleAsync(string md5, ScheduleResponse schedule, CancellationToken cancellationToken)
+    private async Task ProcessAndClearBatchAsync(List<KeyValuePair<string, string[]>> batch, CancellationToken cancellationToken)
     {
-
         try
         {
-            // Cache schedule
-
-            UpdateProgram(schedule);
-
-            string json = JsonSerializer.Serialize(schedule);
-            await hybridCache.SetAsync(md5, json).ConfigureAwait(false);
-
-            downloadedSchedules++;
+            await ProcessScheduleBatchAsync(batch, cancellationToken).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
-            logger.LogError("Failed to process single schedule entry for MD5 {md5}: {Error}", md5, ex.Message);
+            logger.LogError(ex, "Failed to process schedule batch. Retrying items...");
+        }
+        finally
+        {
+            batch.Clear(); // Clear the batch in any case
         }
     }
 
-    private void UpdateProgram(ScheduleResponse schedule)
+    private async Task ProcessScheduleBatchAsync(List<KeyValuePair<string, string[]>> batch, CancellationToken cancellationToken)
     {
-        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
+        await apiSemaphore.WaitAsync(cancellationToken); // Ensure the semaphore limits concurrent API calls
+        try
+        {
+            // Create batch requests
+            ScheduleRequest[] scheduleRequests = batch.Select(kv => new ScheduleRequest
+            {
+                StationId = kv.Value[0],
+                Date = [kv.Value[1]]
+            }).ToArray();
+
+            // Fetch scheduleResponses in a single API call
+            List<ScheduleResponse>? scheduleResponses = await schedulesDirectAPI
+                .GetScheduleListingsAsync(scheduleRequests, cancellationToken)
+                .ConfigureAwait(false);
+
+            if (scheduleResponses != null)
+            {
+                await ProcessSchedulesAsync(scheduleResponses, cancellationToken);
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error occurred while processing schedule batch of {BatchSize} requests.", batch.Count);
+            throw; // Rethrow to trigger retry in FetchAndProcessSchedulesAsync
+        }
+        finally
+        {
+            apiSemaphore.Release();
+        }
+    }
+
+    private async Task ProcessSchedulesAsync(List<ScheduleResponse> schedules, CancellationToken cancellationToken)
+    {
+        Dictionary<string, string> bulkItems = [];
+
+        foreach (ScheduleResponse schedule in schedules)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            string key = $"{schedule.StationId}-{schedule.Metadata.StartDate}";
+            try
+            {
+
+                await UpdateProgramAsync(schedule, cancellationToken);
+
+                //string json = JsonSerializer.Serialize(schedule);
+                bulkItems[key] = JsonSerializer.Serialize(schedule);
+                //await hybridCache.SetAsync(md5, json).ConfigureAwait(false);
+
+                Interlocked.Increment(ref downloadedSchedules);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Failed to process single schedule entry for MD5 {Md5}.", key);
+            }
+        }
+
+        if (bulkItems.Count > 0)
+        {
+            await writeSema.WaitAsync(cancellationToken);
+
+            try
+            {
+                await hybridCache.SetBulkAsync(bulkItems).ConfigureAwait(false);
+            }
+            finally
+            {
+                writeSema.Release();
+            }
+
+        }
+    }
+
+    private async Task UpdateProgramAsync(ScheduleResponse schedule, CancellationToken cancellationToken)
+    {
+        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData;
 
         // Process programs in the schedule
         foreach (ScheduleProgram program in schedule.Programs)
         {
-            MxfProgram mxfProgram = schedulesDirectData.FindOrCreateProgram(program.ProgramId);
+            cancellationToken.ThrowIfCancellationRequested();
+            MxfProgram? mxfProgram = await schedulesDirectData.FindOrCreateProgram(program.ProgramId, program.Md5);
 
+            if (mxfProgram == null)
+            {
+                logger.LogWarning("Program {ProgramId} not found in the data store.", program.ProgramId);
+                continue;
+            }
             BuildScheduleEntry(mxfProgram, program, schedule);
         }
     }
 
     private void BuildScheduleEntry(MxfProgram mxfProgram, ScheduleProgram program, ScheduleResponse schedule)
     {
-        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
-        mxfProgram.MD5 = program.Md5;
+        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData;
+
         MxfScheduleEntry scheduleEntry = new()
         {
             AudioFormat = EncodeAudioFormat(program.AudioProperties),
@@ -167,18 +253,7 @@ public class ScheduleService(
         schedulesDirectData.FindOrCreateService(schedule.StationId).MxfScheduleEntries.ScheduleEntry.Add(scheduleEntry);
     }
 
-    private async Task<List<ScheduleResponse>?> GetScheduleListingsAsync(ScheduleRequest[] requests, CancellationToken cancellationToken)
-    {
-        try
-        {
-            return await schedulesDirectAPI.GetApiResponse<List<ScheduleResponse>?>(APIMethod.POST, "schedules", requests, cancellationToken).ConfigureAwait(false);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError("Failed to fetch schedule listings: {Error}", ex.Message);
-            return null;
-        }
-    }
+
 
     private static int EncodeAudioFormat(string[] audioProperties)
     {
@@ -205,8 +280,8 @@ public class ScheduleService(
 
     public void Dispose()
     {
-        scheduleChannel.Writer.Complete();
-        semaphore.Dispose();
+        schedulesToProcess.Clear();
+        apiSemaphore.Dispose();
     }
     public List<string> GetExpiredKeys()
     {

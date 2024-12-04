@@ -12,14 +12,14 @@ namespace StreamMaster.SchedulesDirect.Domain.Models
         private string? _uid;
 
         [XmlIgnore]
-        public string? ProtoTypicalProgram { get; }
+        public string? ProgramId { get; }
 
         [XmlIgnore]
         public Dictionary<string, dynamic> Extras { get; } = [];
-        public SeriesInfo(string seriesId, string? protoTypicalProgram = null)
+        public SeriesInfo(string seriesId, string? programId = null)
         {
             SeriesId = seriesId;
-            ProtoTypicalProgram = protoTypicalProgram ?? string.Empty;
+            ProgramId = programId ?? string.Empty;
         }
 
         public SeriesInfo() { } // Parameterless constructor for serialization

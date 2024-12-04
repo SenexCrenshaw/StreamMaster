@@ -1,8 +1,6 @@
 ﻿using System.Text.Json;
 using System.Text.RegularExpressions;
 
-using Microsoft.Extensions.Caching.Memory;
-
 using SixLabors.ImageSharp;
 
 using StreamMaster.Domain.Cache;
@@ -13,36 +11,35 @@ namespace StreamMaster.SchedulesDirect.Services;
 
 public class LineupService(
     ILogger<LineupService> logger,
-
     IOptionsMonitor<SDSettings> sdSettings,
     ILogoService logoService,
     ISchedulesDirectAPIService schedulesDirectAPI,
-    ILogger<HybridCacheManager<LineupResult>> cacheLogger,
-    IMemoryCache memoryCache,
+    HybridCacheManager<LineupResult> LineupResultCache,
     ISchedulesDirectDataService schedulesDirectDataService,
     IImageDownloadQueue imageDownloadQueue
     ) : ILineupService
 {
-    private readonly HybridCacheManager<LineupResult> hybridCache = new(cacheLogger, memoryCache, useCompression: false, useKeyBasedFiles: true);
 
     public async Task<bool> BuildLineupServicesAsync(CancellationToken cancellationToken = default)
     {
 
-        LineupResponse? clientLineups = await GetSubscribedLineups(cancellationToken).ConfigureAwait(false);
+        LineupResponse? clientLineups = await schedulesDirectAPI.GetSubscribedLineupsAsync(cancellationToken).ConfigureAwait(false);
 
-        if (clientLineups == null || clientLineups.Lineups.Count < 1)
+        if (clientLineups == null || clientLineups.Lineups.Count == 0)
         {
             return true;
         }
 
         string preferredLogoStyle = string.IsNullOrEmpty(sdSettings.CurrentValue.PreferredLogoStyle) ? "DARK" : sdSettings.CurrentValue.PreferredLogoStyle;
         string alternateLogoStyle = string.IsNullOrEmpty(sdSettings.CurrentValue.AlternateLogoStyle) ? "WHITE" : sdSettings.CurrentValue.AlternateLogoStyle;
-        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
+        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData;
 
-        foreach (SubscribedLineup clientLineup in clientLineups.Lineups)
+        await Parallel.ForEachAsync(clientLineups.Lineups, cancellationToken, async (clientLineup, ct) =>
         {
+            cancellationToken.ThrowIfCancellationRequested();
             if (clientLineup.IsDeleted)
             {
+                // Remove deleted lineups from settings
                 if (sdSettings.CurrentValue.SDStationIds.Any(a => a.Lineup == clientLineup.Lineup))
                 {
                     sdSettings.CurrentValue.SDStationIds.RemoveAll(a => a.Lineup == clientLineup.Lineup);
@@ -50,38 +47,43 @@ public class LineupService(
                 }
             }
 
-            //CheckHeadendView(clientLineup);
-
+            // Skip processing if the lineup already exists
             if (sdSettings.CurrentValue.SDStationIds.Find(a => a.Lineup == clientLineup.Lineup) == null)
             {
-                return true;
+                return; // Equivalent of `continue` in this context
             }
 
-            StationChannelMap? lineupMap = await GetStationChannelMap(clientLineup.Lineup);
+            // Fetch lineup details asynchronously
+            LineupResult? lineupMap = await GetLineupAsync(clientLineup.Lineup, ct);
 
             if (lineupMap == null || lineupMap.Stations == null || lineupMap.Stations.Count == 0)
             {
                 logger.LogError("Subscribed lineup {clientLineup.Lineup} does not contain any stations.", clientLineup.Lineup);
-                continue;
+                return;
             }
 
+            // Use a thread-safe collection for channel numbers
             ConcurrentHashSet<string> channelNumbers = [];
 
-            foreach (LineupStation? station in lineupMap.Stations)
+            // Process stations in parallel
+            await Parallel.ForEachAsync(lineupMap.Stations, ct, async (station, stationCt) =>
             {
-                if (station == null || sdSettings.CurrentValue.SDStationIds.Find(a => a.StationId == station.StationId) == null)
+                cancellationToken.ThrowIfCancellationRequested();
+                if (station == null || station.StationId == null || sdSettings.CurrentValue.SDStationIds.Find(a => a.StationId == station.StationId) == null)
                 {
-                    continue;
+                    return;
                 }
 
+                // Find or create the MxfService for the station
                 MxfService mxfService = schedulesDirectData.FindOrCreateService(station.StationId);
 
+                // Populate station details if necessary
                 if (string.IsNullOrEmpty(mxfService.CallSign))
                 {
                     SetStationDetails(station, mxfService, preferredLogoStyle, alternateLogoStyle);
                 }
-            }
-        }
+            });
+        });
 
         if (!schedulesDirectData.Services.IsEmpty)
         {
@@ -95,7 +97,7 @@ public class LineupService(
         return false;
     }
 
-    private void SetStationDetails(LineupStation station, MxfService mxfService, string preferredLogoStyle, string alternateLogoStyle)
+    private void SetStationDetails(Station station, MxfService mxfService, string preferredLogoStyle, string alternateLogoStyle)
     {
         if (!string.IsNullOrEmpty(mxfService.CallSign))
         {
@@ -115,13 +117,13 @@ public class LineupService(
         }
 
         // Add the affiliate if it exists
-        if (!string.IsNullOrEmpty(station.Affiliate))
-        {
-            mxfService.mxfAffiliate = schedulesDirectDataService.SchedulesDirectData().FindOrCreateAffiliate(station.Affiliate);
-        }
+        //if (!string.IsNullOrEmpty(station.Affiliate))
+        //{
+        //    mxfService.mxfAffiliate = schedulesDirectDataService.SchedulesDirectData.FindOrCreateAffiliate(station.Affiliate);
+        //}
 
         // Handle station logo if available
-        StationImage? stationLogo = GetStationLogo(station, preferredLogoStyle, alternateLogoStyle);
+        Logo? stationLogo = GetStationLogo(station, preferredLogoStyle, alternateLogoStyle);
         if (stationLogo != null)
         {
             mxfService.XmltvIcon = new XmltvIcon
@@ -131,8 +133,8 @@ public class LineupService(
                 Height = stationLogo.Height
             };
 
-            //schedulesDirectDataService.SchedulesDirectData().FindOrCreateProgramArtwork(stationLogo.Url);
-            string title = string.IsNullOrEmpty(station.Callsign) ? station.Name : $"{station.Callsign} {station.Name}";
+            //schedulesDirectDataService.SchedulesDirectData.FindOrCreateProgramArtwork(stationLogo.Url);
+            string? title = string.IsNullOrEmpty(station.Callsign) ? station.Name : $"{station.Callsign} {station.Name}";
 
             LogoInfo logoInfo = new(title, stationLogo.Url, SMFileTypes.Logo, false);
 
@@ -141,7 +143,7 @@ public class LineupService(
             imageDownloadQueue.EnqueueLogo(logoInfo);
         }
     }
-    private static StationImage? GetStationLogo(LineupStation station, string preferredLogoStyle, string alternateLogoStyle)
+    private static Logo? GetStationLogo(Station station, string preferredLogoStyle, string alternateLogoStyle)
     {
         // Select the logo based on preferred or alternate styles, falling back to the default logo
         return station.StationLogos?.FirstOrDefault(arg => arg.Category?.EqualsIgnoreCase(preferredLogoStyle) == true)
@@ -149,44 +151,23 @@ public class LineupService(
                ?? station.Logo;
     }
 
-    private async Task<LineupResponse?> GetSubscribedLineups(CancellationToken cancellationToken)
-    {
-        LineupResponse? response = await schedulesDirectAPI.GetApiResponse<LineupResponse>(APIMethod.GET, "lineups", cancellationToken, cancellationToken).ConfigureAwait(false);
-        return response;
-    }
 
-    private async Task<StationChannelMap?> GetStationChannelMap(string lineup)
-    {
-        return await schedulesDirectAPI.GetApiResponse<StationChannelMap>(APIMethod.GET, $"lineups/{lineup}").ConfigureAwait(false);
-    }
+    //public async Task<List<LineupResult>> GetLineupResults(CancellationToken cancellationToken)
+    //{
+    //    List<LineupResult> result = [];
+    //    List<Station> stations = await GetStations(cancellationToken).ConfigureAwait(false);
 
-    public async Task<List<SubscribedLineup>> GetLineups(CancellationToken cancellationToken = default)
-    {
-        if (!sdSettings.CurrentValue.SDEnabled)
-        {
-            return [];
-        }
+    //    foreach (Station station in stations)
+    //    {
+    //        LineupResult? lineupResult = await schedulesDirectAPI.GetLineupResultAsync(station.Lineup, cancellationToken).ConfigureAwait(false);
+    //        if (lineupResult != null)
+    //        {
+    //            result.Add(lineupResult);
+    //        }
+    //    }
 
-        LineupResponse? lineups = await GetSubscribedLineups(cancellationToken).ConfigureAwait(false);
-        return lineups?.Lineups ?? [];
-    }
-
-    public async Task<List<StationChannelMap>> GetStationChannelMaps(CancellationToken cancellationToken)
-    {
-        List<StationChannelMap> result = [];
-        List<Station> stations = await GetStations(cancellationToken).ConfigureAwait(false);
-
-        foreach (Station station in stations)
-        {
-            StationChannelMap? stationChannelMap = await GetStationChannelMap(station.Lineup).ConfigureAwait(false);
-            if (stationChannelMap != null)
-            {
-                result.Add(stationChannelMap);
-            }
-        }
-
-        return result;
-    }
+    //    return result;
+    //}
 
     public async Task<List<StationPreview>> GetStationPreviews(CancellationToken cancellationToken)
     {
@@ -199,6 +180,7 @@ public class LineupService(
         List<StationPreview> previews = [];
         foreach (Station station in stations)
         {
+            cancellationToken.ThrowIfCancellationRequested();
             StationPreview preview = new(station)
             {
                 Affiliate = station.Affiliate ?? string.Empty
@@ -212,11 +194,16 @@ public class LineupService(
     private async Task<List<Station>> GetStations(CancellationToken cancellationToken)
     {
         List<Station> stations = [];
-        List<SubscribedLineup> lineups = await GetLineups(cancellationToken).ConfigureAwait(false);
-
-        foreach (SubscribedLineup lineup in lineups)
+        LineupResponse? lineups = await schedulesDirectAPI.GetSubscribedLineupsAsync(cancellationToken).ConfigureAwait(false);
+        if (lineups == null || lineups.Lineups.Count == 0)
         {
-            LineupResult? lineupResult = await GetLineup(lineup.Lineup, cancellationToken).ConfigureAwait(false);
+            return stations;
+        }
+
+        foreach (SubscribedLineup lineup in lineups.Lineups)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            LineupResult? lineupResult = await GetLineupAsync(lineup.Lineup, cancellationToken).ConfigureAwait(false);
             if (lineupResult == null)
             {
                 continue;
@@ -232,16 +219,12 @@ public class LineupService(
         return stations;
     }
 
-    private async Task<LineupResult?> GetLineup(string lineup, CancellationToken cancellationToken)
+    private async Task<LineupResult?> GetLineupAsync(string lineup, CancellationToken cancellationToken)
     {
-        //string? cachedData = await hybridCache.GetAsync(lineup);
 
-        //if (!string.IsNullOrEmpty(cachedData))
-        //{
         try
         {
-            // Deserialize the cached data to LineupResult
-            LineupResult? cachedLineup = await hybridCache.GetAsync<LineupResult>(lineup);// JsonSerializer.Deserialize<LineupResult>(cachedData);
+            LineupResult? cachedLineup = await LineupResultCache.GetAsync<LineupResult>(lineup);
             if (cachedLineup != null)
             {
                 return cachedLineup;
@@ -251,20 +234,15 @@ public class LineupService(
         {
             logger.LogError(ex, "Error while deserializing cached lineup data for {LineupKey}", lineup);
         }
-        //}
 
-        // Fetch lineup data if not found in cache
-        LineupResult? lineupResult = await schedulesDirectAPI
-            .GetApiResponse<LineupResult>(APIMethod.GET, $"lineups/{lineup}", cancellationToken, cancellationToken)
-            .ConfigureAwait(false);
+        LineupResult? lineupResult = await schedulesDirectAPI.GetLineupResultAsync(lineup, cancellationToken).ConfigureAwait(false);
 
         if (lineupResult != null)
         {
             try
             {
-                // Serialize the lineup result to JSON and save it in the cache
                 string serializedData = JsonSerializer.Serialize(lineupResult);
-                await hybridCache.SetAsync(lineup, serializedData);
+                await LineupResultCache.SetAsync(lineup, serializedData);
             }
             catch (Exception ex)
             {
@@ -282,7 +260,7 @@ public class LineupService(
 
     public List<string> GetExpiredKeys()
     {
-        return hybridCache.GetExpiredKeysAsync().Result;
+        return LineupResultCache.GetExpiredKeysAsync().Result;
     }
 
     public void RemovedExpiredKeys(List<string>? keysToDelete = null) { }

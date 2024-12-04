@@ -10,7 +10,7 @@ public record StationRequest(string StationId, string Lineup);
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record AddStationRequest(List<StationRequest> Requests) : IRequest<APIResponse>;
 
-public class AddStationHandler(ILogger<AddStationRequest> logger, IBackgroundTaskQueue backgroundTaskQueue, IDataRefreshService dataRefreshService, IJobStatusService jobStatusService, ISchedulesDirect schedulesDirect, ISender Sender, IOptionsMonitor<SDSettings> intSettings)
+public class AddStationHandler(ILogger<AddStationRequest> logger, IBackgroundTaskQueue backgroundTaskQueue, IDataRefreshService dataRefreshService, IJobStatusService jobStatusService, ISender Sender, IOptionsMonitor<SDSettings> intSettings)
 : IRequestHandler<AddStationRequest, APIResponse>
 {
     private readonly SDSettings sdsettings = intSettings.CurrentValue;
@@ -54,7 +54,7 @@ public class AddStationHandler(ILogger<AddStationRequest> logger, IBackgroundTas
         {
             _ = await Sender.Send(new UpdateSettingRequest(updateSetting), cancellationToken).ConfigureAwait(false);
 
-            schedulesDirect.ResetCache("SubscribedLineups");
+            //schedulesDirect.ResetCache("SubscribedLineups");
 
             JobStatusManager jobManager = jobStatusService.GetJobManageSDSync(EPGHelper.SchedulesDirectId);
             jobManager.SetForceNextRun();

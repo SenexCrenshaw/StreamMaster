@@ -1,8 +1,11 @@
 ﻿using System.Collections.Concurrent;
 
-namespace StreamMaster.SchedulesDirect.Domain.Interfaces;
-public interface ISchedulesDirectAPIService
+using StreamMaster.SchedulesDirect.Domain.Models;
+namespace StreamMaster.SchedulesDirect.Services;
+
+public interface ISchedulesDirectRepository
 {
+    Task<UserStatus> GetUserStatusAsync(CancellationToken cancellationToken);
     Task<List<CountryData>?> GetAvailableCountriesAsync(CancellationToken cancellationToken);
     Task<List<Headend>?> GetHeadendsByCountryPostalAsync(string country, string postalCode, CancellationToken cancellationToken);
     Task<List<LineupPreviewChannel>?> GetLineupPreviewChannelAsync(string lineup, CancellationToken cancellationToken);
@@ -17,7 +20,4 @@ public interface ISchedulesDirectAPIService
     Task<HttpResponseMessage?> GetSdImageAsync(string uri, CancellationToken cancellationToken);
     Task<List<ProgramMetadata>?> GetArtworkAsync(string[] programIds, CancellationToken cancellationToken);
     Task DownloadImageResponsesAsync(List<string> imageQueue, ConcurrentBag<ProgramMetadata> metadata, int start, CancellationToken cancellationToken);
-    Task<bool> ValidateTokenAsync(bool forceReset = false, CancellationToken cancellationToken = default);
-    Task RefreshTokenAsync(CancellationToken cancellationToken);
-    void ClearToken();
 }

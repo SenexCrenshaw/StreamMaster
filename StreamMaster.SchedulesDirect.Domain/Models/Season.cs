@@ -13,7 +13,7 @@ public class Season : BaseArt
     //private readonly string? _series;
     private string? _title;
 
-    [XmlIgnore] public string? ProtoTypicalProgram;
+    [XmlIgnore] public string? ProgramId;
 
     [XmlIgnore] public SeriesInfo? mxfSeriesInfo;
     [XmlIgnore] public bool HideSeasonTitle;
@@ -25,7 +25,7 @@ public class Season : BaseArt
         _index = index;
         mxfSeriesInfo = seriesInfo;
         SeasonNumber = seasonNumber;
-        ProtoTypicalProgram = protoTypicalProgram;
+        ProgramId = protoTypicalProgram;
     }
     public Season() { }
 

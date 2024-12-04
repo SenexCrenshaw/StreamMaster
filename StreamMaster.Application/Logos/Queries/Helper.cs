@@ -3,9 +3,9 @@
     internal static class Helper
     {
         /// <summary>
-        /// Extracts the ID and filename from a URL with a constant prefix "/api/files/".
+        /// Extracts the ID and filename from a Url with a constant prefix "/api/files/".
         /// </summary>
-        /// <param name="url">The input URL.</param>
+        /// <param name="url">The input Url.</param>
         /// <param name="id">The extracted ID as an integer.</param>
         /// <param name="filename">The extracted filename.</param>
         /// <returns>True if parsing was successful; otherwise, false.</returns>

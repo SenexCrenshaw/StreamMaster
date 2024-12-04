@@ -29,15 +29,15 @@ namespace StreamMaster.Infrastructure.Services
             CreateHttpClient();
         }
 
-        public async Task<List<StationChannelName>?> ProcessStationChannelNamesAsync(EPGFile epgFile)
+        public async Task<List<StationChannelName>?> ProcessStationChannelNamesAsync(EPGFile epgFile, bool? ignoreCache = false)
         {
             string? epgPath = GetEPGFilePath(epgFile);
-            return string.IsNullOrEmpty(epgPath) ? null : await ProcessStationChannelNamesAsync(epgPath, epgFile.EPGNumber);
+            return string.IsNullOrEmpty(epgPath) ? null : await ProcessStationChannelNamesAsync(epgPath, epgFile.EPGNumber, ignoreCache: ignoreCache);
         }
 
-        public async Task<List<StationChannelName>?> ProcessStationChannelNamesAsync(string epgPath, int epgNumber)
+        public async Task<List<StationChannelName>?> ProcessStationChannelNamesAsync(string epgPath, int epgNumber, bool? ignoreCache = false)
         {
-            if (cacheManager.StationChannelNames.TryGetValue(epgNumber, out List<StationChannelName>? value))
+            if (ignoreCache != true && cacheManager.StationChannelNames.TryGetValue(epgNumber, out List<StationChannelName>? value))
             {
                 return value;
             }
@@ -669,7 +669,7 @@ namespace StreamMaster.Infrastructure.Services
         {
             if (string.IsNullOrWhiteSpace(url) || !url.Contains("://"))
             {
-                return (false, null); // Invalid URL
+                return (false, null); // Invalid Url
             }
 
             try

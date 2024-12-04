@@ -5,8 +5,8 @@ namespace StreamMaster.Domain.Services
     public interface IFileUtilService
     {
         //Task<List<XmltvProgramme>> GetProgrammesFromXmlAsync(string epgPath);
-        Task<List<StationChannelName>?> ProcessStationChannelNamesAsync(EPGFile epgFile);
-        Task<List<StationChannelName>?> ProcessStationChannelNamesAsync(string epgPath, int epgNumber);
+        Task<List<StationChannelName>?> ProcessStationChannelNamesAsync(EPGFile epgFile, bool? ignoreCache = false);
+        Task<List<StationChannelName>?> ProcessStationChannelNamesAsync(string epgPath, int epgNumber, bool? ignoreCache = false);
         Task<(int channelCount, int programCount)> ReadXmlCountsFromFileAsync(string filepath, int epgNumber);
         Task<(int channelCount, int programCount)> ReadXmlCountsFromFileAsync(EPGFile epgFile);
         Task<bool> IsXmlFileValid(string filepath);

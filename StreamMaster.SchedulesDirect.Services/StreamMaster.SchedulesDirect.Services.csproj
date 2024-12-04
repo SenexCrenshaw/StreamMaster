@@ -17,6 +17,6 @@
     <PackageReference Include="X.PagedList" Version="10.5.7" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\StreamMaster.SchedulesDirect\StreamMaster.SchedulesDirect.csproj" />
+    <ProjectReference Include="..\StreamMaster.SchedulesDirect.Domain\StreamMaster.SchedulesDirect.Domain.csproj" />
   </ItemGroup>
 </Project>

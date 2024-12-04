@@ -1,7 +1,7 @@
 ﻿using System.Text.Json.Serialization;
 
 namespace StreamMaster.SchedulesDirect.Domain.Models;
-
+[TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public class Metadata
 {
     [JsonPropertyName("lineup")]
@@ -12,4 +12,7 @@ public class Metadata
 
     [JsonPropertyName("transport")]
     public string? Transport { get; set; }
+
+    [JsonPropertyName("modulation")]
+    public string Modulation { get; set; } = string.Empty;
 }

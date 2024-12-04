@@ -117,9 +117,10 @@ public class HybridCacheManager<T>(ILogger<HybridCacheManager<T>> logger, IMemor
             await cacheLock.WaitAsync();
             try
             {
-                if (diskCache.TryGetValue(key, out CacheEntry<string>? entry) && !entry.IsExpired)
+                if (diskCache.TryGetValue(key, out CacheEntry<string>? entry))
                 {
-                    memoryCache.Set(memoryCacheKey, entry.Value, entry.ExpirationTime - DateTime.UtcNow);
+                    bool a = entry.IsExpired;
+                   memoryCache.Set(memoryCacheKey, entry.Value, defaultExpiration);
                     if (busyDebug)
                     {
                         logger.LogDebug("From file, Get string for key {CacheKey}", key);
@@ -231,6 +232,79 @@ public class HybridCacheManager<T>(ILogger<HybridCacheManager<T>> logger, IMemor
             {
                 cacheLock.Release();
             }
+        }
+    }
+
+    public async Task SetBulkAsync(Dictionary<string, string> items, TimeSpan? slidingExpiration = null, bool noSave = false)
+    {
+        foreach (KeyValuePair<string, string> kvp in items)
+        {
+            string key = kvp.Key;
+            string value = kvp.Value;
+
+            string memoryCacheKey = GetMemoryCacheKey(key);
+            DateTime expiration = DateTime.UtcNow + (slidingExpiration ?? defaultExpiration);
+            memoryCache.Set(memoryCacheKey, value, expiration);
+
+            if (!useKeyBasedFiles)
+            {
+                await LoadDiskCacheIfNeededAsync();
+                await cacheLock.WaitAsync();
+                try
+                {
+                    diskCache[key] = new CacheEntry<string>(value, expiration);
+                }
+                finally
+                {
+                    cacheLock.Release();
+                }
+            }
+            else if (!noSave)
+            {
+                await SaveKeyBasedCacheAsync(key, value, slidingExpiration);
+            }
+        }
+
+        if (!useKeyBasedFiles && !noSave)
+        {
+            await SaveDiskCacheAsync();
+        }
+    }
+    public async Task SaveAsync()
+    {
+        if (useKeyBasedFiles)
+        {
+            // Key-based files are already saved during `SetAsync`.
+            return;
+        }
+
+        await SaveDiskCacheAsync();
+    }
+
+    private async Task SaveKeyBasedCacheAsync(string key, string value, TimeSpan? slidingExpiration = null)
+    {
+        await fileLock.WaitAsync();
+        try
+        {
+            string cachePath = GetCacheFilePath(key);
+            await using FileStream fileStream = new(cachePath, FileMode.Create, FileAccess.Write, FileShare.None);
+            if (useCompression)
+            {
+                await using GZipStream compressionStream = new(fileStream, CompressionLevel.Optimal);
+                await JsonSerializer.SerializeAsync(compressionStream, value);
+            }
+            else
+            {
+                await JsonSerializer.SerializeAsync(fileStream, value);
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to save key-based cache for key {CacheKey}.", key);
+        }
+        finally
+        {
+            fileLock.Release();
         }
     }
 
@@ -431,7 +505,7 @@ public class HybridCacheManager<T>(ILogger<HybridCacheManager<T>> logger, IMemor
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Failed to save disk cache.");
+            logger.LogError(ex, "Failed to save disk cache {file}", cacheFilePath);
         }
         finally
         {
@@ -637,9 +711,10 @@ public class HybridCacheManager<T>(ILogger<HybridCacheManager<T>> logger, IMemor
         disposed = true;
     }
 
-    private record CacheEntry<TValue>(TValue Value, DateTime ExpirationTime)
+    private record CacheEntry<TValue>(TValue Value, DateTime LastUpdatedDate, TimeSpan? DefaultExpiration = null)
     {
+
         [JsonIgnore]
-        public bool IsExpired => DateTime.UtcNow > ExpirationTime;
+        public bool IsExpired => DateTime.UtcNow > (LastUpdatedDate + (DefaultExpiration ?? TimeSpan.FromMinutes(30)));
     }
 }

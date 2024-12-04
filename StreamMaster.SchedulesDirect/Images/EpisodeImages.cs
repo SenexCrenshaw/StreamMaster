@@ -6,20 +6,20 @@ using StreamMaster.SchedulesDirect.Domain;
 
 namespace StreamMaster.SchedulesDirect.Images;
 
-public class SeriesImages(
-    ILogger<SeriesImages> logger,
+public class EpisodeImages(
+    ILogger<EpisodeImages> logger,
+    HybridCacheManager<EpisodeImages> EpisodeCache,
     IImageDownloadQueue imageDownloadQueue,
     IOptionsMonitor<SDSettings> sdSettings,
     ISchedulesDirectAPIService schedulesDirectAPI,
-    HybridCacheManager<SeriesImages> hybridCache,
-    ISchedulesDirectDataService schedulesDirectDataService) : ISeriesImages, IDisposable
+    ISchedulesDirectDataService schedulesDirectDataService) : IEpisodeImages, IDisposable
 {
     private static readonly SemaphoreSlim classSemaphore = new(1, 1);
     private readonly SemaphoreSlim semaphore = new(SDAPIConfig.MaxParallelDownloads);
 
     public async Task<bool> ProcessArtAsync(CancellationToken cancellationToken)
     {
-        if (!sdSettings.CurrentValue.SeriesImages)
+        if (!sdSettings.CurrentValue.EpisodeImages)
         {
             return true;
         }
@@ -33,46 +33,56 @@ public class SeriesImages(
         {
 
             ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData;
-            ICollection<SeriesInfo> toProcess = schedulesDirectData.SeriesInfosToProcess.Values;
-            SeriesInfo? test = toProcess.FirstOrDefault(a => a.ProgramId == "EP031891810143");
 
-            if (test is null)
+            List<MxfProgram> episodePrograms = schedulesDirectData.Programs.Values
+                .Where(p => !p.IsMovie && p.ProgramId.StartsWith("EP"))
+                .ToList();
+
+            MxfProgram? a = schedulesDirectData.Programs.Values.FirstOrDefault(a => a.ProgramId == "EP039440321320");
+            if (a != null)
             {
-                int aaa = 1;
+                int aa = 1;
             }
 
+            int totalObjects = episodePrograms.Count;
 
-            int totalObjects = toProcess.Count;
-            logger.LogInformation("Entering GetAllSeriesImages() for {totalObjects} series.", totalObjects);
+            logger.LogInformation("Entering GetAllEpisodeImages() for {totalObjects} series.", totalObjects);
 
             List<string> seriesImageQueue = [];
-            foreach (SeriesInfo seriesInfo in toProcess)
+            foreach (MxfProgram episode in episodePrograms)
             {
-                if (string.IsNullOrEmpty(seriesInfo.ProgramId) ||
-                    !schedulesDirectData.Programs.TryGetValue(seriesInfo.ProgramId, out MxfProgram? _))
+                cancellationToken.ThrowIfCancellationRequested();
+                if (episode.ProgramId is "EP039440321320")
+                {
+                    int aa = 1;
+                }
+
+                if (episode.ProgramId is "EP019254150004")
+                {
+                    int aa2 = 1;
+                }
+
+                //if (episode.IsSeries)
+                //{
+                //    SeriesInfo? series = schedulesDirectData.FindSeriesInfo(episode.ProgramId.Substring(2, 8));
+                //    continue;
+                //}
+                if (string.IsNullOrEmpty(episode.ProgramId) ||
+                    !schedulesDirectData.Programs.TryGetValue(episode.ProgramId, out MxfProgram? mfxProgram))
                 {
                     continue;
                 }
 
-                bool refresh = ShouldRefreshSeries(seriesInfo.SeriesId, out string seriesId);
-
-                if (!refresh)
+                List<ProgramArtwork>? artWorks = await EpisodeCache.GetAsync<List<ProgramArtwork>>(episode.ProgramId);
+                if (artWorks is not null)
                 {
-                    List<ProgramArtwork>? artWorks = await hybridCache.GetAsync<List<ProgramArtwork>>(seriesId);
-                    if (artWorks is not null)
-                    {
-                        seriesInfo.AddArtworks(artWorks);
-                        imageDownloadQueue.EnqueueProgramArtworkCollection(artWorks);
-                    }
-                    else
-                    {
-                        seriesImageQueue.Add($"SH{seriesInfo.SeriesId}0000");
-
-                    }
+                    mfxProgram.AddArtworks(artWorks);
+                    imageDownloadQueue.EnqueueProgramArtworkCollection(artWorks);
                 }
                 else
                 {
-                    seriesImageQueue.Add($"SH{seriesInfo.SeriesId}0000");
+
+                    seriesImageQueue.Add(episode.ProgramId);
                 }
             }
 
@@ -82,7 +92,7 @@ public class SeriesImages(
             {
                 ConcurrentBag<ProgramMetadata> seriesImageResponses = [];
                 await DownloadAndProcessImagesAsync(seriesImageQueue, seriesImageResponses, cancellationToken: cancellationToken).ConfigureAwait(false);
-                await ProcessSeriesImageResponsesAsync(seriesImageResponses);
+                await ProcessSeriesImageResponsesAsync(seriesImageResponses, cancellationToken);
             }
 
             logger.LogInformation("Exiting Series Images SUCCESS.");
@@ -95,17 +105,6 @@ public class SeriesImages(
         }
     }
 
-    private bool ShouldRefreshSeries(string seriesId, out string finalSeriesId)
-    {
-        if (int.TryParse(seriesId, out int digits))
-        {
-            finalSeriesId = $"SH{seriesId}0000";
-            return (digits * sdSettings.CurrentValue.SDStationIds.Count % DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month)) + 1 == DateTime.Now.Day;
-        }
-
-        finalSeriesId = seriesId;
-        return false;
-    }
     private async Task DownloadAndProcessImagesAsync(List<string> seriesImageQueue, ConcurrentBag<ProgramMetadata> seriesImageResponses, CancellationToken cancellationToken)
     {
         List<Task> tasks = [];
@@ -113,6 +112,10 @@ public class SeriesImages(
 
         for (int i = 0; i <= seriesImageQueue.Count / SDAPIConfig.MaxImgQueries; i++)
         {
+            if (cancellationToken.IsCancellationRequested)
+            {
+                break;
+            }
             int startIndex = i * SDAPIConfig.MaxImgQueries;
             tasks.Add(Task.Run(async () =>
             {
@@ -128,18 +131,21 @@ public class SeriesImages(
                 {
                     semaphore.Release();
                 }
-            }));
+            }, cancellationToken));
         }
 
         await Task.WhenAll(tasks).ConfigureAwait(false);
     }
-    private async Task ProcessSeriesImageResponsesAsync(ConcurrentBag<ProgramMetadata> seriesImageResponses)
+
+    private async Task ProcessSeriesImageResponsesAsync(ConcurrentBag<ProgramMetadata> seriesImageResponses, CancellationToken cancellationToken)
     {
         string artworkSize = string.IsNullOrEmpty(sdSettings.CurrentValue.ArtworkSize) ? BuildInfo.DefaultSDImageSize : sdSettings.CurrentValue.ArtworkSize;
         ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData;
 
         foreach (ProgramMetadata response in seriesImageResponses)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             if (response.Data == null || response.Data.Count == 0 || response.Data[0].Code != 0)
             {
                 logger.LogWarning("No Series Image artwork found for {ProgramId}", response.ProgramId);
@@ -152,23 +158,14 @@ public class SeriesImages(
                 continue;
             }
 
-            SeriesInfo? series = schedulesDirectData.FindSeriesInfo(response.ProgramId.Substring(2, 8));
-            if (series == null)
-            {
-                continue;
-            }
-
-
-            List<ProgramArtwork> artworks = SDHelpers.GetTieredImages(response.Data, artworkSize, ["series", "sport", "episode"], sdSettings.CurrentValue.SeriesPosterAspect);
-            //series.AddArtworks(artworks);
+            List<ProgramArtwork> artworks = SDHelpers.GetTieredImages(response.Data, artworkSize, ["series", "sport", "episode", "season"], sdSettings.CurrentValue.SeriesPosterAspect);
 
             if (artworks.Count > 0)
             {
-                series.AddArtworks(artworks);
                 mfxProgram.AddArtworks(artworks);
 
                 string artworkJson = JsonSerializer.Serialize(artworks);
-                await hybridCache.SetAsync(response.ProgramId, artworkJson);
+                await EpisodeCache.SetAsync(response.ProgramId, artworkJson);
                 imageDownloadQueue.EnqueueProgramArtworkCollection(artworks);
             }
             else
@@ -191,9 +188,10 @@ public class SeriesImages(
             semaphore.Dispose();
         }
     }
+
     public List<string> GetExpiredKeys()
     {
-        return hybridCache.GetExpiredKeysAsync().Result;
+        return EpisodeCache.GetExpiredKeysAsync().Result;
     }
 
     public void RemovedExpiredKeys(List<string>? keysToDelete = null)

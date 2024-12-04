@@ -2,24 +2,34 @@
 using System.Text.Json;
 
 using StreamMaster.Domain.Cache;
+using StreamMaster.SchedulesDirect.Domain;
 
 namespace StreamMaster.SchedulesDirect.Images;
 
 public class SportsImages(
     ILogger<SportsImages> logger,
-    IHybridCache<SportsImages> hybridCache,
+    HybridCacheManager<SportsImages> hybridCache,
     IImageDownloadQueue imageDownloadQueue,
     IOptionsMonitor<SDSettings> sdSettings,
     ISchedulesDirectAPIService schedulesDirectAPI) : ISportsImages, IDisposable
 {
     private static readonly SemaphoreSlim classSemaphore = new(1, 1);
-    private readonly SemaphoreSlim semaphore = new(SchedulesDirect.MaxParallelDownloads);
+    private readonly SemaphoreSlim semaphore = new(SDAPIConfig.MaxParallelDownloads);
 
     public List<MxfProgram> SportEvents { get; set; } = [];
 
-    public async Task<bool> ProcessArtAsync()
+    public async Task<bool> ProcessArtAsync(CancellationToken cancellationToken)
     {
-        await classSemaphore.WaitAsync();
+        if (!sdSettings.CurrentValue.SportsImages)
+        {
+            return true;
+        }
+
+        await classSemaphore.WaitAsync(cancellationToken);
+        if (cancellationToken.IsCancellationRequested)
+        {
+            return false;
+        }
         try
         {
             if (!sdSettings.CurrentValue.SportsImages)
@@ -38,7 +48,7 @@ public class SportsImages(
 
                     if (artWorks is not null)
                     {
-                        sportEvent.ArtWorks = artWorks;
+                        sportEvent.AddArtworks(artWorks);
                         imageDownloadQueue.EnqueueProgramArtworkCollection(artWorks);
                     }
                 }
@@ -53,7 +63,7 @@ public class SportsImages(
             if (sportsImageQueue.Count > 0)
             {
                 ConcurrentBag<ProgramMetadata> sportsImageResponses = [];
-                await DownloadAndProcessImagesAsync(sportsImageQueue, sportsImageResponses).ConfigureAwait(false);
+                await DownloadAndProcessImagesAsync(sportsImageQueue, sportsImageResponses, cancellationToken).ConfigureAwait(false);
                 await ProcessSportsImageResponsesAsync(sportsImageResponses);
             }
 
@@ -67,21 +77,21 @@ public class SportsImages(
         }
     }
 
-    private async Task DownloadAndProcessImagesAsync(List<string> sportsImageQueue, ConcurrentBag<ProgramMetadata> sportsImageResponses)
+    private async Task DownloadAndProcessImagesAsync(List<string> sportsImageQueue, ConcurrentBag<ProgramMetadata> sportsImageResponses, CancellationToken cancellationToken)
     {
         List<Task> tasks = [];
         int processedCount = 0;
 
-        for (int i = 0; i <= sportsImageQueue.Count / SchedulesDirect.MaxImgQueries; i++)
+        for (int i = 0; i <= sportsImageQueue.Count / SDAPIConfig.MaxImgQueries; i++)
         {
-            int startIndex = i * SchedulesDirect.MaxImgQueries;
+            int startIndex = i * SDAPIConfig.MaxImgQueries;
             tasks.Add(Task.Run(async () =>
             {
                 await semaphore.WaitAsync();
                 try
                 {
-                    int itemCount = Math.Min(sportsImageQueue.Count - startIndex, SchedulesDirect.MaxImgQueries);
-                    await schedulesDirectAPI.DownloadImageResponsesAsync(sportsImageQueue, sportsImageResponses, startIndex).ConfigureAwait(false);
+                    int itemCount = Math.Min(sportsImageQueue.Count - startIndex, SDAPIConfig.MaxImgQueries);
+                    await schedulesDirectAPI.DownloadImageResponsesAsync(sportsImageQueue, sportsImageResponses, startIndex, cancellationToken).ConfigureAwait(false);
                     Interlocked.Add(ref processedCount, itemCount);
                     logger.LogInformation("Downloaded sport event images {ProcessedCount} of {TotalCount}", processedCount, sportsImageQueue.Count);
                 }
@@ -101,14 +111,14 @@ public class SportsImages(
 
         foreach (ProgramMetadata response in sportsImageResponses)
         {
-            if (response.Data == null || response.Data.Count == 0 || response.Data[0].Response == "INVALID_PROGRAMID")
+            if (response.Data == null || response.Data.Count == 0 || response.Data[0].Code != 0)
             {
                 logger.LogWarning("No Sport Image artwork found for {ProgramId}", response.ProgramId);
                 continue;
             }
 
-            MxfProgram? mxfProgram = SportEvents.FirstOrDefault(arg => arg.ProgramId == response.ProgramId);
-            if (mxfProgram == null)
+            MxfProgram? sportEvent = SportEvents.FirstOrDefault(arg => arg.ProgramId == response.ProgramId);
+            if (sportEvent == null)
             {
                 continue;
             }
@@ -119,8 +129,9 @@ public class SportsImages(
             }
 
             List<ProgramArtwork> artworks = SDHelpers.GetTieredImages(response.Data, artworkSize, ["team event", "episode", "series", "sport"], sdSettings.CurrentValue.MoviePosterAspect);
-            mxfProgram.AddArtwork(artworks);
-            await hybridCache.SetAsync(mxfProgram.MD5, JsonSerializer.Serialize(artworks));
+            sportEvent.AddArtworks(artworks);
+
+            await hybridCache.SetAsync(sportEvent.MD5, JsonSerializer.Serialize(artworks));
 
             if (artworks.Count > 0)
             {

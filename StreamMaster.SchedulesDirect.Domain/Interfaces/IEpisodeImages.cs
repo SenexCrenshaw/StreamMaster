@@ -1,8 +1,7 @@
 ﻿namespace StreamMaster.SchedulesDirect.Domain.Interfaces
 {
-    public interface ISeriesImages : IEPGCached, IDisposable
+    public interface IEpisodeImages : IEPGCached, IDisposable
     {
-        //NameValueCollection SportsSeries { get; set; }
         Task<bool> ProcessArtAsync(CancellationToken cancellationToken);
     }
 }

@@ -68,16 +68,16 @@ namespace StreamMaster.Application.Logos.Controllers
                 return Problem(detail: "An unexpected error occurred. Please try again later.", statusCode: 500);
             }
         }
-        [HttpDelete]
+        [HttpPatch]
         [Route("[action]")]
-        public async Task<ActionResult<APIResponse?>> RemoveCustomLogo(RemoveCustomLogoRequest request)
+        public async Task<ActionResult<APIResponse?>> AddCustomLogo(AddCustomLogoRequest request)
         {
             var ret = await Sender.Send(request).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
         }
-        [HttpPatch]
+        [HttpDelete]
         [Route("[action]")]
-        public async Task<ActionResult<APIResponse?>> AddCustomLogo(AddCustomLogoRequest request)
+        public async Task<ActionResult<APIResponse?>> RemoveCustomLogo(RemoveCustomLogoRequest request)
         {
             var ret = await Sender.Send(request).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
@@ -109,12 +109,12 @@ namespace StreamMaster.Application.Hubs
              var ret = await Sender.Send(new GetLogosRequest()).ConfigureAwait(false);
             return ret.Data?? [];
         }
-        public async Task<APIResponse?> RemoveCustomLogo(RemoveCustomLogoRequest request)
+        public async Task<APIResponse?> AddCustomLogo(AddCustomLogoRequest request)
         {
             var ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;
         }
-        public async Task<APIResponse?> AddCustomLogo(AddCustomLogoRequest request)
+        public async Task<APIResponse?> RemoveCustomLogo(RemoveCustomLogoRequest request)
         {
             var ret = await Sender.Send(request).ConfigureAwait(false);
             return ret;

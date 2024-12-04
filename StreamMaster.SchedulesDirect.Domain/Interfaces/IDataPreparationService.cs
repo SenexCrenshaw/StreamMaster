@@ -11,7 +11,7 @@ namespace StreamMaster.SchedulesDirect.Domain.Interfaces
         OutputProfileDto GetDefaultOutputProfile();
         List<EPGFile> GetEpgFiles(List<VideoStreamConfig> videoStreamConfigs);
         SDSettings GetSdSettings();
-        List<MxfService> GetServicesToProcess(List<VideoStreamConfig> videoStreamConfigs);
+        //List<MxfService> GetServicesToProcess(List<VideoStreamConfig> videoStreamConfigs);
         int GetTimeShift(VideoStreamConfig? videoStreamConfig, List<EPGFile> epgFiles);
         void Initialize(string baseUrl, List<VideoStreamConfig>? videoStreamConfigs);
     }

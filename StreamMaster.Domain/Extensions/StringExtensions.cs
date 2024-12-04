@@ -6,6 +6,10 @@ namespace StreamMaster.Domain.Extensions;
 
 public static class StringExtensions
 {
+    public static string Truncate(this string input, int maxLength)
+    {
+        return string.IsNullOrEmpty(input) || maxLength < 1 ? input : input.Length > maxLength ? input[..maxLength] : input;
+    }
     public static bool EqualsIgnoreCase(this string text, string Compare)
     {
         return text.Equals(Compare, BuildInfo.StringComparison);

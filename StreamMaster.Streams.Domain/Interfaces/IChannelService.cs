@@ -40,10 +40,10 @@
         IChannelBroadcaster? GetChannelBroadcaster(int smChannelId);
 
         /// <summary>
-        /// Retrieves the channel statuses associated with a specific stream URL.
+        /// Retrieves the channel statuses associated with a specific stream Url.
         /// </summary>
-        /// <param name="videoUrl">The video stream URL.</param>
-        /// <returns>A list of channel statuses associated with the given URL.</returns>
+        /// <param name="videoUrl">The video stream Url.</param>
+        /// <returns>A list of channel statuses associated with the given Url.</returns>
         List<IChannelBroadcaster> GetChannelStatusFromStreamUrl(string videoUrl);
 
         /// <summary>

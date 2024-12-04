@@ -1,364 +1,107 @@
 ﻿using System.Collections.Concurrent;
-using System.Net;
-using System.Net.Http.Headers;
-using System.Text;
-using System.Text.Json;
 
-using StreamMaster.Domain.Configuration;
+using StreamMaster.SchedulesDirect.Domain.Models;
 
-namespace StreamMaster.SchedulesDirect;
 
-public partial class SchedulesDirectAPIService : ISchedulesDirectAPIService
+namespace StreamMaster.SchedulesDirect.Services;
+
+public class SchedulesDirectAPIService(ISchedulesDirectRepository schedulesDirectRepository, IHttpService httpService) : ISchedulesDirectAPIService
 {
-    public string? Token { get; private set; }
-    private DateTime _tokenTimestamp = DateTime.MinValue;
-    private bool _goodToken;
 
-    private readonly SemaphoreSlim _tokenSemaphore = new(1, 1);
-    private readonly ILogger<SchedulesDirectAPIService> logger;
-    private readonly IOptionsMonitor<SDSettings> sdsettings;
-    private readonly IOptionsMonitor<Setting> settings;
-    public HttpClient _httpClient = null!;
-
-    private const string BaseAddress = "https://json.schedulesdirect.org/20141201/";
-
-    public SchedulesDirectAPIService(ILogger<SchedulesDirectAPIService> logger, IOptionsMonitor<SDSettings> intSDSettings, IOptionsMonitor<Setting> intSettings)
+    // Metadata-related methods
+    public async Task<List<CountryData>?> GetAvailableCountriesAsync(CancellationToken cancellationToken)
     {
-        this.logger = logger;
-        sdsettings = intSDSettings;
-        settings = intSettings;
-        CreateHttpClient();
+        return !await httpService.ValidateTokenAsync(cancellationToken: cancellationToken)
+            ? null
+            : await schedulesDirectRepository.GetAvailableCountriesAsync(cancellationToken);
     }
 
-    public DateTime TokenTimestamp
+    public async Task<List<Headend>?> GetHeadendsByCountryPostalAsync(string country, string postalCode, CancellationToken cancellationToken)
     {
-        get
-        {
-            lock (_tokenSemaphore)
-            {
-                return _tokenTimestamp;
-            }
-        }
-        private set
-        {
-            lock (_tokenSemaphore)
-            {
-                _tokenTimestamp = value;
-            }
-        }
-    }
-    public bool GoodToken
-    {
-        get
-        {
-            lock (_tokenSemaphore)
-            {
-                return _goodToken;
-            }
-        }
-        private set
-        {
-            lock (_tokenSemaphore)
-            {
-                _goodToken = value;
-            }
-        }
-    }
-    private async Task<List<ProgramMetadata>?> GetArtworkAsync(string[] request)
-    {
-        DateTime dtStart = DateTime.Now;
-        List<ProgramMetadata>? ret = await GetApiResponse<List<ProgramMetadata>>(APIMethod.POST, "metadata/programs/", request);
-        if (ret != null)
-        {
-            logger.LogDebug("Successfully retrieved artwork info for {ret.Count}/{request.Length} programs. ({duration})", ret.Count, request.Length, (DateTime.Now - dtStart).ToString("G"));
-        }
-        else
-        {
-            logger.LogDebug("Did not receive a response from Schedules Direct for artwork info of {request.Length} programs. ({duration})", request.Length, (DateTime.Now - dtStart).ToString("G"));
-        }
-
-        return ret;
+        return !await ValidateTokenAsync(cancellationToken: cancellationToken)
+            ? null
+            : await schedulesDirectRepository.GetHeadendsByCountryPostalAsync(country, postalCode, cancellationToken);
     }
 
-    public async Task DownloadImageResponsesAsync(List<string> imageQueue, ConcurrentBag<ProgramMetadata> metadata, int start = 0)
+    public async Task<List<LineupPreviewChannel>?> GetLineupPreviewChannelAsync(string lineup, CancellationToken cancellationToken)
     {
-        // Reject 0 requests
-        if (imageQueue.Count - start < 1)
-        {
-            return;
-        }
-
-        // Build the array of series to request images for
-        string[] series = new string[Math.Min(imageQueue.Count - start, SchedulesDirect.MaxImgQueries)];
-        for (int i = 0; i < series.Length; ++i)
-        {
-            series[i] = imageQueue[start + i];
-        }
-
-        // Request images from ScheduleService Direct
-        List<ProgramMetadata>? responses = await GetArtworkAsync(series).ConfigureAwait(false);
-        if (responses != null)
-        {
-            foreach (ProgramMetadata response in responses)
-            {
-                metadata.Add(response);
-            }
-        }
-        else
-        {
-            logger.LogInformation("Did not receive a response from Schedules Direct for artwork info of {count} programs, first entry {entry}.", series.Length, series.Length != 0 ? series[0] : "");
-        }
+        return !await ValidateTokenAsync(cancellationToken: cancellationToken)
+            ? null
+            : await schedulesDirectRepository.GetLineupPreviewChannelAsync(lineup, cancellationToken);
     }
 
-    public async Task<HttpResponseMessage?> GetSdImage(string uri)
+    public async Task<int> AddLineupAsync(string lineup, CancellationToken cancellationToken)
     {
-        try
-        {
-            HttpRequestMessage message = new()
-            {
-                Method = HttpMethod.Get,
-                RequestUri = new Uri($"{BaseAddress}{uri}")
-            };
-            HttpResponseMessage response = await _httpClient.SendAsync(message, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
-
-            return !response.IsSuccessStatusCode || response.Content?.Headers?.ContentType?.MediaType == "application/json"
-                ? response.Content?.Headers?.ContentType?.MediaType == "application/json"
-                    ? await HandleHttpResponseError(response, await response.Content.ReadAsStringAsync())
-                    : await HandleHttpResponseError(response, null)
-                : response;
-        }
-        catch (HttpRequestException ex)
-        {
-            logger.LogError("{uri} GetSdImage() Exception: {Message}", uri, ex?.InnerException?.Message ?? ex?.Message);
-        }
-        return null;
+        return !await httpService.ValidateTokenAsync(cancellationToken: cancellationToken)
+            ? 0
+            : await schedulesDirectRepository.AddLineupAsync(lineup, cancellationToken);
     }
 
-    private async Task<HttpResponseMessage> HandleHttpResponseError(HttpResponseMessage response, string? content)
+    public async Task<int> RemoveLineupAsync(string lineup, CancellationToken cancellationToken)
     {
-        string? tokenUsed = null;
-
-        if (response.RequestMessage?.Headers.Contains("token") == true)
-        {
-            tokenUsed = response.RequestMessage.Headers.GetValues("token")?.FirstOrDefault();
-        }
-
-        if (!string.IsNullOrEmpty(content))
-        {
-            BaseResponse? err = JsonSerializer.Deserialize<BaseResponse>(content);
-            if (err != null)
-            {
-                SDHttpResponseCode sdCode = (SDHttpResponseCode)err.Code;
-                if (sdCode == SDHttpResponseCode.TOKEN_INVALID)
-                {
-                    logger.LogError("SDToken is invalid {token} {length}", tokenUsed, (tokenUsed?.Length) ?? 0);
-                }
-                switch (sdCode)
-                {
-                    case SDHttpResponseCode.SERVICE_OFFLINE: // SERVICE_OFFLINE
-                        response.StatusCode = HttpStatusCode.ServiceUnavailable; // 503
-                        response.ReasonPhrase = "Service Unavailable";
-                        break;
-
-                    case SDHttpResponseCode.ACCOUNT_DISABLED: // ACCOUNT_EXPIRED
-                    case SDHttpResponseCode.ACCOUNT_EXPIRED: // ACCOUNT_DISABLED
-                    case SDHttpResponseCode.APPLICATION_DISABLED: // APPLICATION_DISABLED
-                        response.StatusCode = HttpStatusCode.Forbidden; // 403
-                        response.ReasonPhrase = "Forbidden";
-                        break;
-
-                    case SDHttpResponseCode.ACCOUNT_LOCKOUT: // ACCOUNT_LOCKOUT
-                        response.StatusCode = HttpStatusCode.Locked; // 423
-                        response.ReasonPhrase = "Locked";
-                        break;
-
-                    case SDHttpResponseCode.IMAGE_NOT_FOUND: // IMAGE_NOT_FOUND
-                    case SDHttpResponseCode.IMAGE_QUEUED: // IMAGE_QUEUED
-                        response.StatusCode = HttpStatusCode.NotFound; // 404
-                        response.ReasonPhrase = "Not Found";
-                        break;
-
-                    case SDHttpResponseCode.MAX_IMAGE_DOWNLOADS: // MAX_IMAGE_DOWNLOADS
-                    case SDHttpResponseCode.MAX_IMAGE_DOWNLOADS_TRIAL: // MAX_IMAGE_DOWNLOADS_TRIAL
-                        response.StatusCode = HttpStatusCode.TooManyRequests; // 429
-                        response.ReasonPhrase = "Too Many Requests";
-                        break;
-
-                    case SDHttpResponseCode.TOKEN_MISSING: // TOKEN_MISSING - special case when Token is getting refreshed due to below responses from a separate request
-                    case SDHttpResponseCode.INVALID_USER: // INVALID_USER
-                    case SDHttpResponseCode.TOKEN_INVALID:
-                    case SDHttpResponseCode.TOKEN_EXPIRED: // TOKEN_EXPIRED
-                    case SDHttpResponseCode.TOKEN_DUPLICATED: // TOKEN_DUPLICATED
-                    case SDHttpResponseCode.UNKNOWN_USER: // UNKNOWN_USER
-                        response.StatusCode = HttpStatusCode.Unauthorized; // 401
-                        response.ReasonPhrase = "Unauthorized";
-                        await ResetToken();
-                        break;
-                }
-            }
-        }
-
-        if (response.StatusCode == HttpStatusCode.OK)
-        {
-            response.StatusCode = (HttpStatusCode)418;
-            response.ReasonPhrase = "I'm a teapot";
-        }
-
-        if (response.StatusCode != HttpStatusCode.NotModified)
-        {
-            string tokenUsedShort = tokenUsed?.Length >= 5 ? tokenUsed[..5] : tokenUsed ?? string.Empty;
-            logger.LogError(
-    message: "{RequestPath}: {StatusCode} {ReasonPhrase} : Token={TokenUsed}...{Content}",
-    response.RequestMessage?.RequestUri?.AbsolutePath.Replace(BaseAddress, "/"),
-    (int)response.StatusCode,
-    response.ReasonPhrase,
-    tokenUsedShort,
-    !string.IsNullOrEmpty(content) ? $"\n{content}" : ""
-);
-
-            //logger.LogError($"{response.RequestMessage?.RequestUri?.AbsolutePath.Replace(BaseAddress, "/")}: {(int)response.StatusCode} {response.ReasonPhrase} : Token={tokenUsedShort}...{(!string.IsNullOrEmpty(content) ? $"\n{content}" : "")}");
-        }
-
-        return response;
+        return !await httpService.ValidateTokenAsync(cancellationToken: cancellationToken)
+            ? -1
+            : await schedulesDirectRepository.RemoveLineupAsync(lineup, cancellationToken);
     }
 
-    /// <summary>
-    /// GetApiResponse
-    /// </summary>
-    /// <typeparam name="T">Object type to return.</typeparam>
-    /// <param name="method">The http method to use.</param>
-    /// <param name="uri">The relative uri from base address to form a complete url.</param>
-    /// <param name="classObject">Payload of Message to be serialized into json.</param>
-    /// <returns>Object requested.</returns>
-    public virtual async Task<T?> GetApiResponse<T>(APIMethod method, string uri, object? classObject = null, CancellationToken cancellationToken = default)
+    public async Task<bool> UpdateHeadEndAsync(string lineup, bool subscribed, CancellationToken cancellationToken)
     {
-        try
-        {
-            //await tokenSemaphore.WaitAsync(cancellationToken);
-
-            //if (!GoodToken)
-            //{
-            CheckToken();
-            //    if (!GoodToken)
-            //    {
-            //        return default;
-            //    }
-            //}
-
-            switch (method)
-            {
-                case APIMethod.GET:
-                    return await GetHttpResponse<T>(HttpMethod.Get, uri, cancellationToken: cancellationToken);
-
-                case APIMethod.POST:
-                    return await GetHttpResponse<T>(HttpMethod.Post, uri, classObject, cancellationToken: cancellationToken);
-
-                case APIMethod.PUT:
-                    return await GetHttpResponse<T>(HttpMethod.Put, uri, cancellationToken: cancellationToken);
-
-                case APIMethod.DELETE:
-                    return await GetHttpResponse<T>(HttpMethod.Delete, uri, cancellationToken: cancellationToken);
-            }
-        }
-        catch (Exception ex)
-        {
-            logger.LogDebug("HTTP request exception thrown. Message:{FileUtil.ReportExceptionMessages}", FileUtil.ReportExceptionMessages(ex));
-        }
-        finally
-        {
-            //tokenSemaphore.Release();
-        }
-        return default;
+        return await httpService.ValidateTokenAsync(cancellationToken: cancellationToken)
+&& await schedulesDirectRepository.UpdateHeadEndAsync(lineup, subscribed, cancellationToken);
+    }
+    public Task<Dictionary<string, GenericDescription>?> GetDescriptionsAsync(string[] seriesIds, CancellationToken cancellationToken)
+    {
+        return schedulesDirectRepository.GetDescriptionsAsync(seriesIds, cancellationToken);
     }
 
-    private async Task<T?> GetHttpResponse<T>(HttpMethod method, string uri, object? content = null, CancellationToken cancellationToken = default)
+    public Task<List<ScheduleResponse>?> GetScheduleListingsAsync(ScheduleRequest[] requests, CancellationToken cancellationToken)
     {
-        string? json = null;
-
-        try
-        {
-            using HttpRequestMessage request = new(method, uri)
-            {
-                Content = content != null
-                    ? new StringContent(JsonSerializer.Serialize(content), Encoding.UTF8, "application/json")
-                    : null
-            };
-
-            using HttpResponseMessage response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
-
-            if (!response.IsSuccessStatusCode)
-            {
-                string responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
-                await HandleHttpResponseError(response, responseContent);
-                return default;
-            }
-
-            await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken);
-            using StreamReader sr = new(stream);
-            json = await sr.ReadToEndAsync(cancellationToken);
-
-            // Deserialize only once, this will throw an exception if the JSON is invalid
-            T? data = JsonSerializer.Deserialize<T>(json, BuildInfo.JsonIndentOptionsWhenWritingNull);
-
-            // Handle specific cases after deserialization, if needed
-            if (typeof(T) == typeof(TokenResponse) && data is TokenResponse tokenResponse)
-            {
-                SetToken(tokenResponse);
-            }
-
-            // For special cases with replacement, handle JSON string manipulation
-            if (typeof(T) == typeof(List<LineupPreviewChannel>) || typeof(T) == typeof(StationChannelMap))
-            {
-                json = json.Replace("[],", "");
-                return JsonSerializer.Deserialize<T>(json);
-            }
-
-            if (typeof(T) == typeof(Dictionary<string, Dictionary<string, ScheduleMd5Response>>))
-            {
-                json = json.Replace("[]", "{}");
-                return JsonSerializer.Deserialize<T>(json);
-            }
-
-            return data;
-        }
-        catch (JsonException ex)
-        {
-            logger.LogError("JSON deserialization error: {Message}, at byte position {BytePositionInLine}", ex.Message, ex.BytePositionInLine);
-
-            if (json != null)
-            {
-                long bytePosition = ex.BytePositionInLine ?? 0;
-                int start = Math.Max((int)bytePosition - 40, 0);
-                string line = json.Substring(start, Math.Min(200, json.Length - start));
-
-                if (!line.Contains("INVALID_PROGRAMID"))
-                {
-                    logger.LogError("Invalid JSON near position: {line}", line);
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "An error occurred while fetching the HTTP response.");
-        }
-
-        return default;
+        return schedulesDirectRepository.GetScheduleListingsAsync(requests, cancellationToken);
     }
 
-    private void CreateHttpClient()
+    public Task<List<Programme>?> GetProgramsAsync(string[] programIds, CancellationToken cancellationToken)
     {
-        _httpClient = new(new HttpClientHandler()
-        {
-            AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate,
-            AllowAutoRedirect = true,
-        })
-        {
-            BaseAddress = new Uri(BaseAddress),
-            Timeout = TimeSpan.FromSeconds(30)
-        };
-        _httpClient.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("gzip"));
-        _httpClient.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("deflate"));
-        _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(settings.CurrentValue.ClientUserAgent);
-        _httpClient.DefaultRequestHeaders.ExpectContinue = true;
+        return schedulesDirectRepository.GetProgramsAsync(programIds, cancellationToken);
+    }
+
+    public Task<LineupResponse?> GetSubscribedLineupsAsync(CancellationToken cancellationToken)
+    {
+        return schedulesDirectRepository.GetSubscribedLineupsAsync(cancellationToken);
+    }
+
+    public Task<LineupResult?> GetLineupResultAsync(string lineup, CancellationToken cancellationToken)
+    {
+        return schedulesDirectRepository.GetLineupResultAsync(lineup, cancellationToken);
+    }
+
+    public Task<HttpResponseMessage?> GetSdImageAsync(string uri, CancellationToken cancellationToken)
+    {
+        return schedulesDirectRepository.GetSdImageAsync(uri, cancellationToken);
+    }
+
+    public Task<List<ProgramMetadata>?> GetArtworkAsync(string[] programIds, CancellationToken cancellationToken)
+    {
+        return schedulesDirectRepository.GetArtworkAsync(programIds, cancellationToken);
+    }
+
+    public Task DownloadImageResponsesAsync(List<string> imageQueue, ConcurrentBag<ProgramMetadata> metadata, int start, CancellationToken cancellationToken)
+    {
+        return schedulesDirectRepository.DownloadImageResponsesAsync(imageQueue, metadata, start, cancellationToken);
+    }
+
+    // Token-related methods
+    public Task RefreshTokenAsync(CancellationToken cancellationToken)
+    {
+        return httpService.RefreshTokenAsync(cancellationToken);
+    }
+
+    public Task<bool> ValidateTokenAsync(bool forceReset = false, CancellationToken cancellationToken = default)
+    {
+        return httpService.ValidateTokenAsync(forceReset, cancellationToken);
+    }
+
+    public void ClearToken()
+    {
+        httpService.ClearToken();
     }
 }

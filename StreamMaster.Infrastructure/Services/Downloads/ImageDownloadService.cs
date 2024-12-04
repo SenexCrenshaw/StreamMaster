@@ -269,7 +269,7 @@ namespace StreamMaster.Infrastructure.Services.Downloads
             try
             {
                 HttpResponseMessage? response = logoInfo.IsSchedulesDirect
-    ? await GetSdImage(logoInfo.Url)
+    ? await GetSdImageAsync(logoInfo.Url, cancellationToken)
     : await httpClient.GetAsync(logoInfo.Url, cancellationToken).ConfigureAwait(false);
 
                 if (response != null)
@@ -342,9 +342,9 @@ namespace StreamMaster.Infrastructure.Services.Downloads
             return false;
         }
 
-        private async Task<HttpResponseMessage?> GetSdImage(string uri)
+        private async Task<HttpResponseMessage?> GetSdImageAsync(string uri, CancellationToken cancellationToken)
         {
-            return await schedulesDirectAPI.GetSdImage(uri);
+            return await schedulesDirectAPI.GetSdImageAsync(uri, cancellationToken: cancellationToken);
         }
 
         public void Dispose()

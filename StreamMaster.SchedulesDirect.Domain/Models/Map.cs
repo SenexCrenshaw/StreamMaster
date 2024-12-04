@@ -2,8 +2,12 @@
 
 namespace StreamMaster.SchedulesDirect.Domain.Models;
 
+[TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public class Map
 {
+    [JsonPropertyName("channel")]
+    public string Channel { get; set; } = string.Empty;
+
     [JsonPropertyName("stationID")]
     public string? StationId { get; set; }
 

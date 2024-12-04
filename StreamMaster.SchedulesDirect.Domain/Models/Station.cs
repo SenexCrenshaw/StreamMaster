@@ -1,9 +1,11 @@
 ﻿using System.Text.Json.Serialization;
 
 namespace StreamMaster.SchedulesDirect.Domain.Models;
-
+[TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public class Station
 {
+
+
     [JsonPropertyName("affiliate")]
     public string? Affiliate { get; set; }
 
@@ -32,8 +34,13 @@ public class Station
 
     [JsonPropertyName("stationID")]
     public string? StationId { get; set; }
-    [JsonPropertyName("stationLogo")]
-    public List<StationLogo>? StationLogo { get; set; }
+
     public string? Country { get; set; }
     public string? PostalCode { get; set; }
+
+
+    [JsonPropertyName("stationLogo")]
+    //[JsonConverter(typeof(SingleOrListConverter<StationImage>))]
+    public List<Logo> StationLogos { get; set; } = [];
+
 }

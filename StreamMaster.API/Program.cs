@@ -26,6 +26,7 @@ using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Builder;
 using StreamMaster.Infrastructure.Logger;
 using Microsoft.Extensions.Logging;
+using StreamMaster.SchedulesDirect;
 
 [assembly: TsGlobal(CamelCaseForProperties = false, CamelCaseForMethods = false, UseModules = true, DiscardNamespacesWhenUsingModules = true, AutoOptionalProperties = true, WriteWarningComment = false, ReorderMembers = true)]
 DirectoryHelper.CreateApplicationDirectories();
@@ -169,6 +170,7 @@ if (!string.IsNullOrEmpty(sslCertPath))
 
 // GetOrAdd services to the container.
 builder.Services.AddSchedulesDirectAPIServices();
+builder.Services.AddSchedulesDirectServices();
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureEFPGSQLServices();
 builder.Services.AddInfrastructureEFServices();

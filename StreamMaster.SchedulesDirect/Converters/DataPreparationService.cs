@@ -63,31 +63,31 @@ namespace StreamMaster.SchedulesDirect.Converters
             //);
         }
 
-        public List<MxfService> GetServicesToProcess(List<VideoStreamConfig> videoStreamConfigs)
-        {
-            List<MxfService> servicesToProcess = [];
-            List<MxfService> allServices = [.. schedulesDirectDataService.AllServices.OrderBy(a => a.EPGNumber)];
-            int newServiceCount = 0;
+        //public List<MxfService> GetServicesToProcess(List<VideoStreamConfig> videoStreamConfigs)
+        //{
+        //    List<MxfService> servicesToProcess = [];
+        //    List<MxfService> allServices = [.. schedulesDirectDataService.AllServices.OrderBy(a => a.EPGNumber)];
+        //    int newServiceCount = 0;
 
-            foreach (VideoStreamConfig? videoStreamConfig in videoStreamConfigs.OrderBy(a => a.ChannelNumber))
-            {
-                MxfService? origService = FindOriginalService(videoStreamConfig, allServices);
+        //    foreach (VideoStreamConfig? videoStreamConfig in videoStreamConfigs.OrderBy(a => a.ChannelNumber))
+        //    {
+        //        MxfService? origService = FindOriginalService(videoStreamConfig, allServices);
 
-                if (origService == null)
-                {
-                    origService = HandleMissingOriginalService(videoStreamConfig);
-                    if (origService == null)
-                    {
-                        continue;
-                    }
-                }
+        //        if (origService == null)
+        //        {
+        //            origService = HandleMissingOriginalService(videoStreamConfig);
+        //            if (origService == null)
+        //            {
+        //                continue;
+        //            }
+        //        }
 
-                MxfService newService = CreateNewService(videoStreamConfig, origService, newServiceCount++);
-                servicesToProcess.Add(newService);
-            }
+        //        MxfService newService = CreateNewService(videoStreamConfig, origService, newServiceCount++);
+        //        servicesToProcess.Add(newService);
+        //    }
 
-            return servicesToProcess;
-        }
+        //    return servicesToProcess;
+        //}
 
         public List<MxfService> GetAllSdServices()
         {
@@ -125,59 +125,59 @@ namespace StreamMaster.SchedulesDirect.Converters
             return origService;
         }
 
-        private MxfService? HandleMissingOriginalService(VideoStreamConfig videoStreamConfig)
-        {
-            if (videoStreamConfig.EPGId.StartsWith(EPGHelper.CustomPlayListId.ToString()))
-            {
-                string callsign = videoStreamConfig.EPGId;
-                if (EPGHelper.IsValidEPGId(videoStreamConfig.EPGId))
-                {
-                    (_, callsign) = videoStreamConfig.EPGId.ExtractEPGNumberAndStationId();
-                }
-                MxfService origService = schedulesDirectDataService.CustomStreamData().FindOrCreateService(videoStreamConfig.EPGId);
-                origService.EPGNumber = EPGHelper.CustomPlayListId;
-                origService.CallSign = callsign;
-                return origService;
-            }
-            else if (!videoStreamConfig.EPGId.StartsWith(EPGHelper.DummyId.ToString()) && !videoStreamConfig.EPGId.StartsWith(EPGHelper.SchedulesDirectId.ToString()))
-            {
-                MxfService origService = schedulesDirectDataService.DummyData().FindOrCreateService(videoStreamConfig.EPGId);
-                origService.EPGNumber = EPGHelper.DummyId;
-                origService.CallSign = videoStreamConfig.EPGId;
-                return origService;
-            }
-            else
-            {
-                return null;
-            }
-        }
+        //private MxfService? HandleMissingOriginalService(VideoStreamConfig videoStreamConfig)
+        //{
+        //    if (videoStreamConfig.EPGId.StartsWith(EPGHelper.CustomPlayListId.ToString()))
+        //    {
+        //        string callsign = videoStreamConfig.EPGId;
+        //        if (EPGHelper.IsValidEPGId(videoStreamConfig.EPGId))
+        //        {
+        //            (_, callsign) = videoStreamConfig.EPGId.ExtractEPGNumberAndStationId();
+        //        }
+        //        MxfService origService = schedulesDirectDataService.CustomStreamData().FindOrCreateService(videoStreamConfig.EPGId);
+        //        origService.EPGNumber = EPGHelper.CustomPlayListId;
+        //        origService.CallSign = callsign;
+        //        return origService;
+        //    }
+        //    else if (!videoStreamConfig.EPGId.StartsWith(EPGHelper.DummyId.ToString()) && !videoStreamConfig.EPGId.StartsWith(EPGHelper.SchedulesDirectId.ToString()))
+        //    {
+        //        MxfService origService = schedulesDirectDataService.DummyData().FindOrCreateService(videoStreamConfig.EPGId);
+        //        origService.EPGNumber = EPGHelper.DummyId;
+        //        origService.CallSign = videoStreamConfig.EPGId;
+        //        return origService;
+        //    }
+        //    else
+        //    {
+        //        return null;
+        //    }
+        //}
 
-        private static MxfService CreateNewService(VideoStreamConfig videoStreamConfig, MxfService origService, int serviceId)
-        {
-            MxfService newService = new(serviceId, videoStreamConfig.EPGId)
-            {
-                EPGNumber = origService.EPGNumber,
-                ChNo = videoStreamConfig.ChannelNumber,
-                Name = videoStreamConfig.Name,
-                Affiliate = origService.Affiliate,
-                CallSign = origService.CallSign,
-                //LogoImage = videoStreamConfig.Logo,
-                extras = new ConcurrentDictionary<string, dynamic>(origService.extras),
-                MxfScheduleEntries = origService.MxfScheduleEntries
-            };
+        //private static MxfService CreateNewService(VideoStreamConfig videoStreamConfig, MxfService origService, int serviceId)
+        //{
+        //    MxfService newService = new(serviceId, videoStreamConfig.EPGId)
+        //    {
+        //        EPGNumber = origService.EPGNumber,
+        //        ChNo = videoStreamConfig.ChannelNumber,
+        //        Name = videoStreamConfig.Name,
+        //        Affiliate = origService.Affiliate,
+        //        CallSign = origService.CallSign,
+        //        //LogoImage = videoStreamConfig.Logo,
+        //        extras = new ConcurrentDictionary<string, dynamic>(origService.extras),
+        //        MxfScheduleEntries = origService.MxfScheduleEntries
+        //    };
 
-            newService.extras.AddOrUpdate("videoStreamConfig", videoStreamConfig, (_, _) => videoStreamConfig);
+        //    newService.extras.AddOrUpdate("videoStreamConfig", videoStreamConfig, (_, _) => videoStreamConfig);
 
-            if (!string.IsNullOrEmpty(videoStreamConfig.Logo))
-            {
-                newService.extras.AddOrUpdate("logo", new StationImage
-                {
-                    Url = videoStreamConfig.Logo
-                }, (_, _) => new StationImage { Url = videoStreamConfig.Logo });
-            }
+        //    if (!string.IsNullOrEmpty(videoStreamConfig.Logo))
+        //    {
+        //        newService.extras.AddOrUpdate("logo", new Logo
+        //        {
+        //            Url = videoStreamConfig.Logo
+        //        }, (_, _) => new { Url = videoStreamConfig.Logo });
+        //    }
 
-            return newService;
-        }
+        //    return newService;
+        //}
 
         public void AdjustServiceSchedules(MxfService service)
         {

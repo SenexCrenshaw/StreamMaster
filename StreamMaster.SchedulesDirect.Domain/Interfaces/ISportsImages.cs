@@ -4,6 +4,6 @@
     {
         List<MxfProgram> SportEvents { get; set; }
 
-        Task<bool> ProcessArtAsync();
+        Task<bool> ProcessArtAsync(CancellationToken cancellationToken);
     }
 }

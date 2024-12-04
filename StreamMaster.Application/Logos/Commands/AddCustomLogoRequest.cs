@@ -24,7 +24,7 @@ public class AddCustomLogoRequestHandler(ILogoService logoService, IMessageServi
 
             return APIResponse.Success;
         }
-        catch (Exception exception)
+        catch (Exception )
         {
         }
         return APIResponse.Error;

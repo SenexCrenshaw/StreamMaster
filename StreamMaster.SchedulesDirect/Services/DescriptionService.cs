@@ -1,57 +1,77 @@
 ﻿using System.Collections.Concurrent;
 using System.Text.Json;
-using System.Threading.Channels;
 
 using StreamMaster.Domain.Cache;
+using StreamMaster.SchedulesDirect.Domain;
 
 namespace StreamMaster.SchedulesDirect.Services;
 
 public class DescriptionService(
     ILogger<DescriptionService> logger,
     ISchedulesDirectAPIService schedulesDirectAPI,
-    IHybridCache<GenericDescription> hybridCache,
+    IOptionsMonitor<SDSettings> sdSettings,
+    HybridCacheManager<GenericDescription> hybridCache,
     ISchedulesDirectDataService schedulesDirectDataService) : IDescriptionService, IDisposable
 {
-    private readonly Channel<string> descriptionChannel = Channel.CreateUnbounded<string>();
-    private readonly ConcurrentDictionary<string, GenericDescription> seriesDescriptionResponses = new();
-    private readonly SemaphoreSlim semaphore = new(SchedulesDirect.MaxParallelDownloads, SchedulesDirect.MaxParallelDownloads);
+    private readonly ConcurrentDictionary<string, string> descriptionsToProcess = new();
+    private readonly SemaphoreSlim semaphore = new(SDAPIConfig.MaxParallelDownloads, SDAPIConfig.MaxParallelDownloads);
     private bool disposedValue;
 
     public async Task<bool> BuildGenericSeriesInfoDescriptionsAsync(CancellationToken cancellationToken)
     {
-        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
+        if (!sdSettings.CurrentValue.EpisodeAppendProgramDescription)
+        {
+            return true;
+        }
+
+        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData;
         ICollection<SeriesInfo> toProcess = schedulesDirectData.SeriesInfosToProcess.Values;
 
         logger.LogInformation("Entering BuildGenericSeriesInfoDescriptionsAsync() for {toProcess.Count} series.", toProcess.Count);
 
-        // Populate the channel with series descriptions to process
-        await FillChannelWithDescriptionsAsync(toProcess);
+        await FillChannelWithDescriptionsFromSeriesInfoAsync(cancellationToken);
 
-        if (!descriptionChannel.Reader.CanCount || descriptionChannel.Reader.Count == 0)
+        if (descriptionsToProcess.IsEmpty)
         {
             logger.LogInformation("No descriptions to download. Exiting.");
             return true;
         }
 
+        if (descriptionsToProcess.ContainsKey("1925415"))
+        {
+            int aa = 1;
+        }
+
         // Process descriptions in parallel
         List<Task> processingTasks = [];
-        for (int i = 0; i < SchedulesDirect.MaxParallelDownloads; i++)
+
+        int threads = Math.Clamp(descriptionsToProcess.Values.Count, 1, SDAPIConfig.MaxParallelDownloads);
+
+        for (int i = 0; i < threads; i++)
         {
             processingTasks.Add(Task.Run(() => FetchAndProcessDescriptionsAsync(cancellationToken), cancellationToken));
         }
 
         await Task.WhenAll(processingTasks).ConfigureAwait(false);
 
-        ProcessSeriesDescriptionsResponses();
+
         logger.LogInformation("Exiting BuildGenericSeriesInfoDescriptionsAsync(). SUCCESS.");
         return true;
     }
 
-    private async Task FillChannelWithDescriptionsAsync(ICollection<SeriesInfo> toProcess)
+    private async Task FillChannelWithDescriptionsFromSeriesInfoAsync(CancellationToken cancellationToken)
     {
+        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData;
+        ICollection<SeriesInfo> toProcess = schedulesDirectData.SeriesInfosToProcess.Values;
+
         foreach (SeriesInfo series in toProcess)
         {
-            if (series.SeriesId.StartsWith("SP") || string.IsNullOrEmpty(series.ProtoTypicalProgram))
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return;
+            }
+
+            if (series.SeriesId.StartsWith("SP") || string.IsNullOrEmpty(series.ProgramId))
             {
                 continue;
             }
@@ -73,50 +93,58 @@ public class DescriptionService(
             }
             else
             {
-                await descriptionChannel.Writer.WriteAsync(series.ProtoTypicalProgram).ConfigureAwait(false);
+                descriptionsToProcess.TryAdd(series.ProgramId, series.ProgramId);
             }
         }
-        descriptionChannel.Writer.Complete();
+
     }
 
     private async Task FetchAndProcessDescriptionsAsync(CancellationToken cancellationToken)
     {
         List<string> batch = [];
-        while (await descriptionChannel.Reader.WaitToReadAsync(cancellationToken).ConfigureAwait(false))
-        {
-            while (descriptionChannel.Reader.TryRead(out string seriesId))
-            {
-                batch.Add(seriesId);
 
-                if (batch.Count >= SchedulesDirect.MaxDescriptionQueries)
-                {
-                    await ProcessBatchAsync(batch, cancellationToken).ConfigureAwait(false);
-                    batch.Clear();
-                }
+        foreach (string seriesId in descriptionsToProcess.Values)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            if (seriesId is null)
+            {
+                continue;
+            }
+
+            if (seriesId == "EP024209050067")
+            {
+                Dictionary<string, GenericDescription>? responses = await schedulesDirectAPI.GetDescriptionsAsync(["EP024209050067"], cancellationToken).ConfigureAwait(false);
+
+                int aa = 1;
+            }
+
+
+            batch.Add(seriesId);
+
+            if (batch.Count >= SDAPIConfig.MaxDescriptionQueries)
+            {
+                await ProcessBatchAsync([.. batch], cancellationToken).ConfigureAwait(false);
+                batch.Clear();
             }
         }
 
         if (batch.Count > 0)
         {
-            await ProcessBatchAsync(batch, cancellationToken).ConfigureAwait(false);
+            await ProcessBatchAsync([.. batch], cancellationToken).ConfigureAwait(false);
         }
     }
 
-    private async Task ProcessBatchAsync(List<string> batch, CancellationToken cancellationToken)
+    private async Task ProcessBatchAsync(string[] batch, CancellationToken cancellationToken)
     {
         await semaphore.WaitAsync(cancellationToken);
         try
         {
-            Dictionary<string, GenericDescription>? responses = await schedulesDirectAPI
-                .GetApiResponse<Dictionary<string, GenericDescription>?>(APIMethod.POST, "metadata/description/", batch.ToArray(), cancellationToken)
-                .ConfigureAwait(false);
+
+            Dictionary<string, GenericDescription>? responses = await schedulesDirectAPI.GetDescriptionsAsync(batch, cancellationToken).ConfigureAwait(false);
 
             if (responses != null)
             {
-                foreach (KeyValuePair<string, GenericDescription> response in responses)
-                {
-                    seriesDescriptionResponses.TryAdd(response.Key, response.Value);
-                }
+                await ProcessSeriesDescriptionsResponsesAsync(responses, cancellationToken);
             }
         }
         catch (Exception ex)
@@ -129,28 +157,29 @@ public class DescriptionService(
         }
     }
 
-    private void ProcessSeriesDescriptionsResponses()
+    private async Task ProcessSeriesDescriptionsResponsesAsync(Dictionary<string, GenericDescription> seriesDescriptionResponses, CancellationToken cancellationToken)
     {
-        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
+        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData;
+        Dictionary<string, string> bulkItems = [];
 
         foreach (KeyValuePair<string, GenericDescription> response in seriesDescriptionResponses)
         {
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return;
+            }
             string seriesId = response.Key;
             GenericDescription description = response.Value;
 
-            SeriesInfo seriesInfo = schedulesDirectData.FindOrCreateSeriesInfo(seriesId.Substring(2, 8));
+            SeriesInfo seriesInfo = schedulesDirectData.FindSeriesInfo(seriesId.Substring(2, 8));
             seriesInfo.ShortDescription = description.Description100;
             seriesInfo.Description = description.Description1000;
+            bulkItems[seriesId] = JsonSerializer.Serialize(description);
+        }
 
-            try
-            {
-                string jsonString = JsonSerializer.Serialize(description);
-                hybridCache.SetAsync(seriesId, jsonString).ConfigureAwait(false);
-            }
-            catch (Exception ex)
-            {
-                logger.LogWarning("Failed to cache description for series {SeriesId}: {Error}", seriesId, ex.Message);
-            }
+        if (bulkItems.Count > 0)
+        {
+            await hybridCache.SetBulkAsync(bulkItems).ConfigureAwait(false);
         }
     }
 
@@ -176,7 +205,7 @@ public class DescriptionService(
             if (disposing)
             {
                 semaphore.Dispose();
-                descriptionChannel.Writer.Complete();
+                descriptionsToProcess.Clear();
             }
 
             disposedValue = true;

@@ -2,12 +2,13 @@
 using System.Text.Json;
 
 using StreamMaster.Domain.Cache;
+using StreamMaster.SchedulesDirect.Domain;
 
 namespace StreamMaster.SchedulesDirect.Images
 {
     public class MovieImages(
         ILogger<MovieImages> logger,
-        IHybridCache<MovieImages> hybridCache,
+        HybridCacheManager<MovieImages> hybridCache,
         IImageDownloadQueue imageDownloadQueue,
         IOptionsMonitor<SDSettings> sdSettings,
         ISchedulesDirectAPIService schedulesDirectAPI,
@@ -15,14 +16,23 @@ namespace StreamMaster.SchedulesDirect.Images
     ) : IMovieImages, IDisposable
     {
         private static readonly SemaphoreSlim classSemaphore = new(1, 1);
-        private readonly SemaphoreSlim semaphore = new(SchedulesDirect.MaxParallelDownloads, SchedulesDirect.MaxParallelDownloads);
-
+        private readonly SemaphoreSlim semaphore = new(SDAPIConfig.MaxParallelDownloads, SDAPIConfig.MaxParallelDownloads);
         private bool disposedValue;
         private int processedObjects = 0;
 
-        public async Task<bool> ProcessArtAsync()
+        public async Task<bool> ProcessArtAsync(CancellationToken cancellationToken)
         {
-            await classSemaphore.WaitAsync();
+            if (!sdSettings.CurrentValue.MovieImages)
+            {
+                return true;
+            }
+
+            await classSemaphore.WaitAsync(cancellationToken);
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return false;
+            }
+
             try
             {
                 List<string> movieImageQueue = [];
@@ -30,10 +40,9 @@ namespace StreamMaster.SchedulesDirect.Images
 
                 int totalObjects = 0;
 
-                ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
-                List<MxfProgram> moviePrograms = schedulesDirectData.ProgramsToProcess.Values
-                    .Where(p => p.IsMovie && !p.IsAdultOnly)
-                    .ToList();
+                ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData;
+
+                List<MxfProgram> moviePrograms = schedulesDirectData.Programs.Values.Where(p => p.IsMovie && !p.IsAdultOnly).ToList();
 
                 totalObjects = moviePrograms.Count;
 
@@ -41,10 +50,11 @@ namespace StreamMaster.SchedulesDirect.Images
 
                 foreach (MxfProgram program in moviePrograms)
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
                     List<ProgramArtwork>? artWorks = await hybridCache.GetAsync<List<ProgramArtwork>>(program.ProgramId);
                     if (artWorks is not null)
                     {
-                        program.ArtWorks = artWorks;
+                        program.AddArtworks(artWorks);
                         imageDownloadQueue.EnqueueProgramArtworkCollection(artWorks);
                     }
                     else if (!string.IsNullOrEmpty(program.ProgramId))
@@ -57,10 +67,10 @@ namespace StreamMaster.SchedulesDirect.Images
 
                 if (movieImageQueue.Count > 0)
                 {
-                    await DownloadAndProcessMovieImagesAsync(movieImageQueue, movieImageResponses).ConfigureAwait(false);
+                    await DownloadAndProcessMovieImagesAsync(movieImageQueue, movieImageResponses, cancellationToken).ConfigureAwait(false);
                 }
 
-                await ProcessMovieImageResponsesAsync(movieImageResponses);
+                await ProcessMovieImageResponsesAsync(movieImageResponses, cancellationToken);
 
                 logger.LogInformation("Successfully processed {ProcessedObjects} of {TotalObjects} movies.", processedObjects, totalObjects);
 
@@ -73,26 +83,24 @@ namespace StreamMaster.SchedulesDirect.Images
             }
         }
 
-        private async Task DownloadAndProcessMovieImagesAsync(
-            List<string> movieImageQueue,
-            ConcurrentBag<ProgramMetadata> movieImageResponses)
+        private async Task DownloadAndProcessMovieImagesAsync(List<string> movieImageQueue, ConcurrentBag<ProgramMetadata> movieImageResponses, CancellationToken cancellationToken)
         {
             List<Task> tasks = [];
             int processedCount = 0;
 
-            for (int i = 0; i <= movieImageQueue.Count / SchedulesDirect.MaxImgQueries; i++)
+            for (int i = 0; i <= movieImageQueue.Count / SDAPIConfig.MaxImgQueries; i++)
             {
-                int startIndex = i * SchedulesDirect.MaxImgQueries;
+                int startIndex = i * SDAPIConfig.MaxImgQueries;
                 tasks.Add(Task.Run(async () =>
                 {
                     await semaphore.WaitAsync();
                     try
                     {
-                        int itemCount = Math.Min(movieImageQueue.Count - startIndex, SchedulesDirect.MaxImgQueries);
+                        int itemCount = Math.Min(movieImageQueue.Count - startIndex, SDAPIConfig.MaxImgQueries);
                         await schedulesDirectAPI.DownloadImageResponsesAsync(
                             movieImageQueue,
                             movieImageResponses,
-                            startIndex
+                            startIndex, cancellationToken: cancellationToken
                         ).ConfigureAwait(false);
                         Interlocked.Add(ref processedCount, itemCount);
                         logger.LogInformation("Downloaded movie image information {ProcessedCount} of {TotalCount}", processedCount, movieImageQueue.Count);
@@ -105,13 +113,13 @@ namespace StreamMaster.SchedulesDirect.Images
                     {
                         _ = semaphore.Release();
                     }
-                }));
+                }, cancellationToken));
             }
 
             await Task.WhenAll(tasks).ConfigureAwait(false);
         }
 
-        private async Task ProcessMovieImageResponsesAsync(ConcurrentBag<ProgramMetadata> movieImageResponses)
+        private async Task ProcessMovieImageResponsesAsync(ConcurrentBag<ProgramMetadata> movieImageResponses, CancellationToken cancellationToken)
         {
             string artworkSize = string.IsNullOrEmpty(sdSettings.CurrentValue.ArtworkSize)
                 ? BuildInfo.DefaultSDImageSize
@@ -119,16 +127,23 @@ namespace StreamMaster.SchedulesDirect.Images
 
             foreach (ProgramMetadata response in movieImageResponses)
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 ++processedObjects;
 
-                if (response.Data == null || response.Data.Count == 0)
+                if (response.Data == null || response.Data.Count == 0 || response.Data[0].Code != 0)
                 {
                     logger.LogWarning("No Movie Image artwork found for {ProgramId}", response.ProgramId);
                     continue;
                 }
 
-                ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
-                MxfProgram mxfProgram = schedulesDirectData.FindOrCreateProgram(response.ProgramId);
+                ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData;
+                MxfProgram? mxfProgram = schedulesDirectData.FindProgram(response.ProgramId);
+
+                if (mxfProgram == null)
+                {
+                    logger.LogWarning("Program {ProgramId} not found in the data store.", response.ProgramId);
+                    continue;
+                }
 
                 List<ProgramArtwork> artworks = SDHelpers.GetTieredImages(
                     response.Data,
@@ -137,7 +152,7 @@ namespace StreamMaster.SchedulesDirect.Images
                     sdSettings.CurrentValue.MoviePosterAspect
                 );
 
-                mxfProgram.AddArtwork(artworks);
+                mxfProgram.AddArtworks(artworks);
 
                 string artworkJson = JsonSerializer.Serialize(artworks);
                 await hybridCache.SetAsync(response.ProgramId, artworkJson);

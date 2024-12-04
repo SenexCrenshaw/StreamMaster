@@ -121,28 +121,28 @@ public static partial class SDHelpers
         }
     }
 
-    public static List<ProgramArtwork> GetArtWork(this MxfProgram program)
-    {
-        List<ProgramArtwork> artwork = [];
-        // a movie or sport event will have a guide image from the program
-        if (program.Extras.TryGetValue("artwork", out dynamic? value))
-        {
-            artwork = value;
-        }
+    //public static List<ProgramArtwork> GetArtWork(this MxfProgram program)
+    //{
+    //    List<ProgramArtwork> artwork = [];
+    //    // a movie or sport event will have a guide image from the program
+    //    if (program.Extras.TryGetValue("artwork", out dynamic? value))
+    //    {
+    //        artwork = value;
+    //    }
 
-        // get the season class from the program if it has a season
-        if (artwork.Count == 0 && (program.mxfSeason?.Extras.ContainsKey("artwork") ?? false))
-        {
-            artwork = program.mxfSeason.Extras["artwork"];
-        }
+    //    // get the season class from the program if it has a season
+    //    if (artwork.Count == 0 && (program.mxfSeason?.Extras.ContainsKey("artwork") ?? false))
+    //    {
+    //        artwork = program.mxfSeason.Extras["artwork"];
+    //    }
 
-        // get the series info class from the program if it is a series
-        if (artwork.Count == 0 && (program.mxfSeriesInfo?.Extras.ContainsKey("artwork") ?? false))
-        {
-            artwork = program.mxfSeriesInfo.Extras["artwork"];
-        }
-        return artwork;
-    }
+    //    // get the series info class from the program if it is a series
+    //    if (artwork.Count == 0 && (program.mxfSeriesInfo?.Extras.ContainsKey("artwork") ?? false))
+    //    {
+    //        artwork = program.mxfSeriesInfo.Extras["artwork"];
+    //    }
+    //    return artwork;
+    //}
 
     /// <summary>
     /// Filters and selects tiered images from a list of program artwork based on specified criteria.
@@ -152,11 +152,7 @@ public static partial class SDHelpers
     /// <param name="tiers">The preferred tiers of artwork.</param>
     /// <param name="aspect">The desired aspect ratio.</param>
     /// <returns>A filtered and prioritized list of program artwork.</returns>
-    public static List<ProgramArtwork> GetTieredImages(
-        List<ProgramArtwork> sdImages,
-        string artWorkSize,
-        List<string>? tiers = null,
-        string? aspect = null)
+    public static List<ProgramArtwork> GetTieredImages(List<ProgramArtwork> sdImages, string artWorkSize, List<string>? tiers = null, string? aspect = null)
     {
         if (sdImages == null)
         {
@@ -192,7 +188,7 @@ public static partial class SDHelpers
                 .Where(image => string.Equals(image.Size, size, StringComparison.OrdinalIgnoreCase))
                 .ToList();
 
-            if (imagesOfSize.Any())
+            if (imagesOfSize.Count != 0)
             {
                 // Group images by aspect ratio
                 Dictionary<string, List<ProgramArtwork>> aspects = imagesOfSize
@@ -213,7 +209,7 @@ public static partial class SDHelpers
             }
 
             // If we have found some images, break the loop since we have a satisfactory size
-            if (prioritizedImages.Any())
+            if (prioritizedImages.Count != 0)
             {
                 break;
             }

@@ -11,8 +11,8 @@ namespace StreamMaster.Application.Logos
         Task<ActionResult<LogoDto>> GetLogoForChannel(GetLogoForChannelRequest request);
         Task<ActionResult<LogoDto>> GetLogo(GetLogoRequest request);
         Task<ActionResult<List<CustomLogoDto>>> GetLogos();
-        Task<ActionResult<APIResponse?>> RemoveCustomLogo(RemoveCustomLogoRequest request);
         Task<ActionResult<APIResponse?>> AddCustomLogo(AddCustomLogoRequest request);
+        Task<ActionResult<APIResponse?>> RemoveCustomLogo(RemoveCustomLogoRequest request);
     }
 }
 
@@ -24,7 +24,7 @@ namespace StreamMaster.Application.Hubs
         Task<LogoDto> GetLogoForChannel(GetLogoForChannelRequest request);
         Task<LogoDto> GetLogo(GetLogoRequest request);
         Task<List<CustomLogoDto>> GetLogos();
-        Task<APIResponse?> RemoveCustomLogo(RemoveCustomLogoRequest request);
         Task<APIResponse?> AddCustomLogo(AddCustomLogoRequest request);
+        Task<APIResponse?> RemoveCustomLogo(RemoveCustomLogoRequest request);
     }
 }

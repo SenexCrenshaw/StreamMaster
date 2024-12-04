@@ -16,7 +16,7 @@ public class BaseArt
         ArtWorks.Add(artwork);
     }
 
-    public void AddArtwork(IList<ProgramArtwork> artwork)
+    public void AddArtworks(IList<ProgramArtwork> artwork)
     {
         foreach (ProgramArtwork art in artwork)
         {

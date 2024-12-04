@@ -436,9 +436,12 @@ export interface SDSettings
 	AlternateSEFormat: boolean;
 	AppendEpisodeDesc: boolean;
 	ArtworkSize: string;
+	EpisodeAppendProgramDescription: boolean;
+	EpisodeImages: boolean;
 	ExcludeCastAndCrew: boolean;
 	HeadendsToView: any[];
 	MaxSubscribedLineups: number;
+	MovieImages: boolean;
 	MoviePosterAspect: string;
 	PreferredLogoStyle: string;
 	PrefixEpisodeDescription: boolean;
@@ -539,12 +542,51 @@ export interface CountryData
 	Id?: string;
 	Key?: string;
 }
+export interface LineupResult
+{
+	Map?: Map[];
+	Metadata?: Metadata;
+	Stations: Station[];
+}
 export interface Logo
 {
-	Height?: number;
+	Category: string;
+	Height: number;
 	Md5?: string;
-	URL?: string;
-	Width?: number;
+	Source: string;
+	Url: string;
+	Width: number;
+}
+export interface Map
+{
+	AtscMajor?: number;
+	AtscMinor?: number;
+	Channel: string;
+	StationId?: string;
+	UhfVhf?: number;
+}
+export interface Metadata
+{
+	Lineup?: string;
+	Modified?: any;
+	Modulation: string;
+	Transport?: string;
+}
+export interface Station
+{
+	Affiliate?: string;
+	Broadcaster?: any;
+	BroadcastLanguage?: string[];
+	Callsign?: string;
+	Country?: string;
+	DescriptionLanguage?: string[];
+	IsCommercialFree?: boolean;
+	Lineup: string;
+	Logo?: Logo;
+	Name?: string;
+	PostalCode?: string;
+	StationId?: string;
+	StationLogos: Logo[];
 }
 export interface StationPreview
 {
@@ -604,18 +646,6 @@ export interface LineupChannel
 	UhfVhf?: number;
 	VirtualChannel: string;
 }
-export interface LineupChannelStation
-{
-	Channel: string;
-	StationId: string;
-}
-export interface LineupMetadata
-{
-	Lineup: string;
-	Modified: string;
-	Modulation: string;
-	Transport: string;
-}
 export interface LineupPreviewChannel
 {
 	Affiliate: string;
@@ -634,41 +664,12 @@ export interface LineupResponse
 	ServerId: string;
 	Uuid: string;
 }
-export interface LineupStation
-{
-	Affiliate: string;
-	Broadcaster: StationBroadcaster;
-	BroadcastLanguage: string[];
-	Callsign: string;
-	DescriptionLanguage: string[];
-	IsCommercialFree: boolean;
-	Logo: StationImage;
-	Name: string;
-	StationId: string;
-	StationLogos: StationImage[];
-}
 export interface StationBroadcaster
 {
 	City: string;
 	Country: string;
 	Postalcode: string;
 	State: string;
-}
-export interface StationChannelMap
-{
-	Id: any;
-	Map: LineupChannelStation[];
-	Metadata: LineupMetadata;
-	Stations: LineupStation[];
-}
-export interface StationImage
-{
-	Category: string;
-	Height: number;
-	Md5: string;
-	Source: string;
-	Url: string;
-	Width: number;
 }
 export interface SubscribedLineup
 {

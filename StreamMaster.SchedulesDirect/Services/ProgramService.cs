@@ -1,44 +1,46 @@
-﻿using System.Globalization;
+﻿using System.Collections.Concurrent;
+using System.Globalization;
 using System.Text.Json;
-using System.Threading.Channels;
-
-using Microsoft.Extensions.Caching.Memory;
 
 using StreamMaster.Domain.Cache;
+using StreamMaster.SchedulesDirect.Domain;
 
 namespace StreamMaster.SchedulesDirect.Services;
 public class ProgramService(
     ILogger<ProgramService> logger,
-    IMemoryCache memoryCache,
-    IOptionsMonitor<SDSettings> sdsettings,
-    ILogger<HybridCacheManager<ProgramService>> cacheLogger,
+    HybridCacheManager<ProgramService> ProgramCache,
+    IOptionsMonitor<SDSettings> sdSettings,
+    HybridCacheManager<GenericDescription> descriptionCache,
     ISchedulesDirectAPIService schedulesDirectAPI,
     ISchedulesDirectDataService schedulesDirectDataService) : IProgramService, IDisposable
 {
-    private readonly HybridCacheManager<ProgramService> hybridCache = new(cacheLogger, memoryCache, useCompression: false, useKeyBasedFiles: true);
-    private readonly Channel<string> programChannel = Channel.CreateUnbounded<string>();
-    private readonly SemaphoreSlim semaphore = new(SchedulesDirect.MaxParallelDownloads);
+
+    private readonly ConcurrentDictionary<string, string> programChannelsToProcess = new();
+    private readonly SemaphoreSlim semaphore = new(SDAPIConfig.MaxParallelDownloads);
+
     private int totalPrograms;
     private int processedPrograms;
 
     public async Task<bool> BuildProgramEntriesAsync(CancellationToken cancellationToken)
     {
+
         await FillChannelWithProgramsAsync(cancellationToken);
 
-        if (!programChannel.Reader.CanCount || programChannel.Reader.Count == 0)
+        if (programChannelsToProcess.Count == 0)
         {
             logger.LogWarning("No programs to process. Exiting.");
             return true;
         }
 
-
-        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
+        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData;
         totalPrograms = schedulesDirectData.Programs.Values.Count;
         logger.LogInformation("Starting program processing. Total programs: {TotalPrograms}", totalPrograms);
 
         // Create parallel consumers that fetch and process data in real-time
         List<Task> consumerTasks = [];
-        for (int i = 0; i < SchedulesDirect.MaxParallelDownloads; i++)
+        int threads = Math.Clamp(programChannelsToProcess.Values.Count, 1, SDAPIConfig.MaxParallelDownloads);
+
+        for (int i = 0; i < SDAPIConfig.MaxParallelDownloads; i++)
         {
             consumerTasks.Add(Task.Run(() => FetchAndProcessProgramsAsync(cancellationToken), cancellationToken));
         }
@@ -49,53 +51,42 @@ public class ProgramService(
         return true;
     }
 
-    private async Task FetchAndProcessProgramsAsync(CancellationToken cancellationToken)
+    private bool HasArtWork(Programme sdProgram)
     {
-        await foreach (string programId in programChannel.Reader.ReadAllAsync(cancellationToken).ConfigureAwait(false))
-        {
-            try
-            {
-                // Fetch program data
-                List<Programme>? responses = await GetProgramsAsync(new[] { programId }, cancellationToken).ConfigureAwait(false);
-
-                if (responses != null)
-                {
-                    // Process each response immediately
-                    await Task.WhenAll(responses.Select(response =>
-                        Task.Run(() => ProcessSingleProgramAsync(response))));
-                }
-                int processed = Interlocked.Increment(ref processedPrograms);
-                if (processed % 100 == 0 || processed == totalPrograms)
-                {
-                    logger.LogInformation("Processed {ProcessedPrograms}/{TotalPrograms} programs.", processed, totalPrograms);
-                }
-            }
-            catch (Exception ex)
-            {
-                logger.LogWarning("Failed to process program ID {ProgramId}: {Error}", programId, ex.Message);
-            }
-        }
+        return sdProgram.HasEpisodeArtwork || sdProgram.HasSportsArtwork || sdProgram.HasSeasonArtwork || sdProgram.HasMovieArtwork || sdProgram.HasSeriesArtwork;
     }
-
 
     private async Task FillChannelWithProgramsAsync(CancellationToken cancellationToken)
     {
-        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
+        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData;
 
         await Parallel.ForEachAsync(schedulesDirectData.Programs.Values, cancellationToken, async (mxfProgram, ct) =>
         {
-            if (!string.IsNullOrEmpty(mxfProgram.MD5))
+            cancellationToken.ThrowIfCancellationRequested();
+            if (!string.IsNullOrEmpty(mxfProgram.ProgramId))
             {
                 try
                 {
-                    Programme? sdProgram = await hybridCache.GetAsync<Programme>(mxfProgram.MD5).ConfigureAwait(false); // JsonSerializer.Deserialize<Programme>(cachedJson);
-                    if (sdProgram != null)
+                    Programme? sdProgram = await ProgramCache.GetAsync<Programme>(mxfProgram.ProgramId).ConfigureAwait(false); // JsonSerializer.Deserialize<Programme>(cachedJson);
+                    if (mxfProgram.ProgramId.Equals("EP019254150003"))
                     {
-                        await UpdateProgramAsync(sdProgram);
+                        int aa = 1;
+                    }
+                    if (sdProgram != null && !(mxfProgram.ArtWorks.Count == 0 && HasArtWork(sdProgram)))
+                    {
+                        if (sdProgram.Md5 == mxfProgram.MD5)
+                        {
+                            await UpdateProgramAsync(sdProgram);
+                        }
+                        else
+                        {
+
+                            programChannelsToProcess.TryAdd(mxfProgram.ProgramId, mxfProgram.ProgramId);
+                        }
                     }
                     else
                     {
-                        await programChannel.Writer.WriteAsync(mxfProgram.ProgramId, ct).ConfigureAwait(false);
+                        programChannelsToProcess.TryAdd(mxfProgram.ProgramId, mxfProgram.ProgramId);
                     }
                 }
                 catch (Exception ex)
@@ -105,26 +96,81 @@ public class ProgramService(
             }
         });
 
-        programChannel.Writer.Complete();
     }
 
-    private async Task<List<Programme>?> GetProgramsAsync(string[] programIds, CancellationToken cancellationToken)
+    private async Task FetchAndProcessProgramsAsync(CancellationToken cancellationToken)
     {
+        const int batchSize = 100;
+
+        List<string> currentBatch = [];
+
+        foreach (string programId in programChannelsToProcess.Keys)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            if (programId == null || !programChannelsToProcess.TryRemove(programId, out _))
+            {
+                continue;
+            }
+            if (programId == "EP019254150003")
+            {
+                int aa = 1;
+            }
+
+            currentBatch.Add(programId);
+
+            if (currentBatch.Count >= batchSize)
+            {
+                await ProcessBatchAsync(currentBatch, cancellationToken).ConfigureAwait(false);
+                currentBatch.Clear();
+            }
+        }
+
+        if (currentBatch.Count > 0)
+        {
+            await ProcessBatchAsync(currentBatch, cancellationToken).ConfigureAwait(false);
+        }
+    }
+
+    private async Task ProcessBatchAsync(List<string> programIds, CancellationToken cancellationToken)
+    {
+        await semaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
         {
-            return await schedulesDirectAPI
-                .GetApiResponse<List<Programme>?>(APIMethod.POST, "programs", programIds, cancellationToken)
+            // Fetch program data for the programIds
+            List<Programme>? responses = await schedulesDirectAPI
+                .GetProgramsAsync([.. programIds], cancellationToken)
                 .ConfigureAwait(false);
+
+            if (responses != null)
+            {
+                // Process each response in parallel
+                await Task.WhenAll(responses.Select(response =>
+                    Task.Run(() => ProcessSingleProgramAsync(response), cancellationToken)));
+            }
+
+            int processed = Interlocked.Add(ref processedPrograms, programIds.Count);
+            if (processed % 100 == 0 || processed == totalPrograms)
+            {
+                logger.LogInformation("Processed {ProcessedPrograms}/{TotalPrograms} programs.", processed, totalPrograms);
+            }
         }
         catch (Exception ex)
         {
-            logger.LogError("API fetch failed for program IDs: {Error}", ex.Message);
-            return null;
+            logger.LogError(ex, "Failed to process batch of {BatchCount} program IDs.", programIds.Count);
+        }
+        finally
+        {
+            semaphore.Release();
         }
     }
 
     private async Task ProcessSingleProgramAsync(Programme sdProgram)
     {
+        if (sdProgram.ProgramId == "EP019254150003")
+        {
+            int aaa = 1;
+        }
         await UpdateProgramAsync(sdProgram);
 
         if (!string.IsNullOrEmpty(sdProgram.Md5))
@@ -132,7 +178,7 @@ public class ProgramService(
             try
             {
                 string jsonString = JsonSerializer.Serialize(sdProgram);
-                await hybridCache.SetAsync(sdProgram.Md5, jsonString).ConfigureAwait(false);
+                await ProgramCache.SetAsync(sdProgram.ProgramId, jsonString).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -147,14 +193,29 @@ public class ProgramService(
 
     private async Task UpdateProgramAsync(Programme sdProgram)
     {
-        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
-        MxfProgram mxfProgram = schedulesDirectData.FindOrCreateProgram(sdProgram.ProgramId);
+        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData;
 
+        if (sdProgram.ProgramId == "EP019254150003")
+        {
+            int aa = 2;
+        }
+        MxfProgram? mxfProgram = schedulesDirectData.FindProgram(sdProgram.ProgramId);
+        //MxfProgram mxfProgram = schedulesDirectData.FindOrCreateProgram(sdProgram.ProgramId, sdProgram.Md5);
+        if (mxfProgram == null)
+        {
+            logger.LogWarning("Program {ProgramId} not found in the data store.", sdProgram.ProgramId);
+            return;
+        }
         await BuildMxfProgramAsync(mxfProgram, sdProgram);
     }
 
     private async Task BuildMxfProgramAsync(MxfProgram mxfProgram, Programme sdProgram)
     {
+        if (sdProgram.ProgramId == "EP019254150003")
+        {
+            int aa = 2;
+        }
+        //mxfProgram.MD5 = sdProgram.Md5;
         // Populate program properties from the sdProgram
         SetProgramFlags(mxfProgram, sdProgram);
         DetermineTitlesAndDescriptions(mxfProgram, sdProgram);
@@ -239,10 +300,10 @@ public class ProgramService(
 
     private void DetermineEpisodeInfo(MxfProgram mxfProgram, Programme sdProgram)
     {
-        //if (mxfProgram.ProgramId.ContainsIgnoreCase("EP053182960001"))
-        //{
-        //    int aa = 1;
-        //}
+        if (sdProgram.ProgramId == "EP019254150003")
+        {
+            int aaa = 1;
+        }
 
         if (sdProgram.EntityType != "Episode")
         {
@@ -263,11 +324,12 @@ public class ProgramService(
             }
         }
 
-        if (mxfProgram.SeasonNumber != 0)
+        if (sdProgram.HasSeasonArtwork && mxfProgram.SeasonNumber != 0)
         {
-            ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
+            ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData;
+            string seriesId = mxfProgram.ProgramId.Substring(2, 8);
 
-            mxfProgram.mxfSeason = schedulesDirectData.FindOrCreateSeason(mxfProgram.mxfSeriesInfo.SeriesId, mxfProgram.SeasonNumber, sdProgram.HasSeasonArtwork ? mxfProgram.ProgramId : null);
+            mxfProgram.mxfSeason = schedulesDirectData.FindOrCreateSeason(seriesId, mxfProgram.SeasonNumber, mxfProgram.ProgramId);
         }
     }
 
@@ -278,15 +340,15 @@ public class ProgramService(
             mxfProgram.EpisodeTitle = mxfProgram.Title;
         }
 
-        string se = sdsettings.CurrentValue.AlternateSEFormat ? "S{0}:E{1} " : "s{0:D2}e{1:D2} ";
+        string se = sdSettings.CurrentValue.AlternateSEFormat ? "S{0}:E{1} " : "s{0:D2}e{1:D2} ";
         se = mxfProgram.SeasonNumber != 0 ? string.Format(se, mxfProgram.SeasonNumber, mxfProgram.EpisodeNumber) : mxfProgram.EpisodeNumber != 0 ? $"#{mxfProgram.EpisodeNumber} " : string.Empty;
 
-        if (sdsettings.CurrentValue.PrefixEpisodeTitle)
+        if (sdSettings.CurrentValue.PrefixEpisodeTitle)
         {
             mxfProgram.EpisodeTitle = se + mxfProgram.EpisodeTitle;
         }
 
-        if (sdsettings.CurrentValue.PrefixEpisodeDescription)
+        if (sdSettings.CurrentValue.PrefixEpisodeDescription)
         {
             mxfProgram.Description = se + mxfProgram.Description;
             if (!string.IsNullOrEmpty(mxfProgram.ShortDescription))
@@ -295,11 +357,11 @@ public class ProgramService(
             }
         }
 
-        if (sdsettings.CurrentValue.AppendEpisodeDesc && mxfProgram.SeasonNumber != 0 && mxfProgram.EpisodeNumber != 0)
+        if (sdSettings.CurrentValue.AppendEpisodeDesc && mxfProgram.SeasonNumber != 0 && mxfProgram.EpisodeNumber != 0)
         {
             mxfProgram.Description += $" \u000D\u000ASeason {mxfProgram.SeasonNumber}, Episode {mxfProgram.EpisodeNumber}";
         }
-        else if (sdsettings.CurrentValue.AppendEpisodeDesc && mxfProgram.EpisodeNumber != 0)
+        else if (sdSettings.CurrentValue.AppendEpisodeDesc && mxfProgram.EpisodeNumber != 0)
         {
             mxfProgram.Description += $" \u000D\u000AProduction #{mxfProgram.EpisodeNumber}";
         }
@@ -404,69 +466,104 @@ public class ProgramService(
 
         return maxValue;
     }
-
-
     private async Task DetermineSeriesInfoAsync(MxfProgram mxfProgram)
     {
-        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
+        if (mxfProgram.ProgramId == "EP019254150003")
+        {
+            int aaa = 1;
+        }
+
+        if (string.IsNullOrEmpty(mxfProgram.mxfSeriesInfo.Title))
+        {
+            mxfProgram.mxfSeriesInfo.Title = mxfProgram.Title;
+        }
+
+        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData;
 
         // For sports programs (identified by ProgramId starting with "SP"), create a series entry based on the title
         if (mxfProgram.ProgramId.StartsWith("SP"))
         {
-            string name = mxfProgram.Title.Replace(' ', '_');
-            mxfProgram.mxfSeriesInfo = schedulesDirectData.FindOrCreateSeriesInfo(name);
+            //string name = mxfProgram.Title.Replace(' ', '_');
+            //mxfProgram.mxfSeriesInfo = schedulesDirectData.FindOrCreateSeriesInfo(name);
             //seriesImages.SportsSeries.Add(name, mxfProgram.ProgramId); // Track sports series for artwork
         }
         else
         {
-            // Create or retrieve series information for regular programs
-            mxfProgram.mxfSeriesInfo = schedulesDirectData.FindOrCreateSeriesInfo(mxfProgram.ProgramId.Substring(2, 8), mxfProgram.ProgramId);
 
-            // If it's a generic series (e.g., starts with "SH"), cache or update series information
-            if (mxfProgram.ProgramId.StartsWith("SH"))
+            //mxfProgram.mxfSeriesInfo = schedulesDirectData.FindOrCreateSeriesInfo(mxfProgram.ProgramId.Substring(2, 8), mxfProgram.ProgramId);
+
+            if (mxfProgram.ProgramId.StartsWith("EP"))
             {
-                GenericDescription? cached = await hybridCache.GetAsync<GenericDescription>(mxfProgram.ProgramId);
-                //if (cachedJson != null)
-                //{
-                //    try
-                //    {
-                //        GenericDescription? cached = JsonSerializer.Deserialize<GenericDescription>(cachedJson);
-                if (cached != null && cached.StartAirdate == null)
+                if (sdSettings.CurrentValue.EpisodeAppendProgramDescription)
                 {
-                    cached.StartAirdate = mxfProgram.OriginalAirdate ?? string.Empty;
-                    //string updatedJson = JsonSerializer.Serialize(cached);
-                    //await hybridCache.SetAsync(mxfProgram.ProgramId, updatedJson);
+                    string seriesId = $"SH{mxfProgram.mxfSeriesInfo.SeriesId}0000";
+                    GenericDescription? cached = await descriptionCache.GetAsync<GenericDescription>(seriesId);
+
+                    if (cached != null)
+                    {
+                        if (!string.IsNullOrEmpty(cached.Description1000))
+                        {
+                            mxfProgram.Description += cached.Description1000;
+                        }
+                        if (!string.IsNullOrEmpty(cached.Description100))
+                        {
+                            mxfProgram.ShortDescription += cached.Description100;
+                        }
+                    }
                 }
-                //}
-                //catch (Exception ex)
-                //{
-                //    logger.LogError(ex, "Failed to update cache for series {ProgramId}", mxfProgram.ProgramId);
-                //}
             }
-            else
-            {
-                // Add new series entry to the cache if it doesn't already exist
-                GenericDescription newEntry = new()
-                {
-                    Code = 0,
-                    Description1000 = mxfProgram.IsGeneric ? mxfProgram.Description : null,
-                    Description100 = mxfProgram.IsGeneric ? mxfProgram.ShortDescription : null,
-                    StartAirdate = mxfProgram.OriginalAirdate ?? string.Empty
-                };
+            //else
+            //{
+            //    if (sdSettings.CurrentValue.EpisodeAppendProgramDescription)
+            //    {
+            //        if (mxfProgram.ProgramId.StartsWith("SH"))
+            //        {
+            //            GenericDescription? cached = await descriptionCache.GetAsync<GenericDescription>(mxfProgram.ProgramId);
 
-                string newEntryJson = JsonSerializer.Serialize(newEntry);
-                await hybridCache.SetAsync(mxfProgram.ProgramId, newEntryJson);
-            }
+            //            if (cached != null && cached.StartAirdate == null)
+            //            {
+            //                cached.StartAirdate = mxfProgram.OriginalAirdate ?? string.Empty;
+            //            }
+            //        }
+            //    }
+            //}
+
+
+            //else if (mxfProgram.ProgramId.StartsWith("EP"))
+            //{
+            //    string seriesId = $"SH{mxfProgram.ProgramId.Substring(2, 8)}0000";
+            //    GenericDescription? cached = await descriptionCache.GetAsync<GenericDescription>(seriesId);
+
+            //    if (cached != null && cached.StartAirdate == null)
+            //    {
+            //        mxfProgram.Description = cached.Description1000;
+            //        mxfProgram.ShortDescription = cached.Description100;
+            //    }
+
+
+            //    else
+            //    {
+            //        // Add new series entry to the cache if it doesn't already exist
+            //        //GenericDescription newEntry = new()
+            //        //{
+            //        //    Code = 0,
+            //        //    Description1000 = mxfProgram.IsGeneric ? mxfProgram.Description : null,
+            //        //    Description100 = mxfProgram.IsGeneric ? mxfProgram.ShortDescription : null,
+            //        //    StartAirdate = mxfProgram.OriginalAirdate ?? string.Empty
+            //        //};
+            //        //string newEntryJson = JsonSerializer.Serialize(newEntry);
+            //        //await hybridCache.SetAsync(mxfProgram.ProgramId, newEntryJson);
+            //    }
+
+            //}
 
         }
 
-        // If the series info is not set, use the program title
-        mxfProgram.mxfSeriesInfo.Title ??= mxfProgram.Title;
     }
 
     private void DetermineCastAndCrew(MxfProgram prg, Programme sd)
     {
-        if (sdsettings.CurrentValue.ExcludeCastAndCrew)
+        if (sdSettings.CurrentValue.ExcludeCastAndCrew)
         {
             return;
         }
@@ -488,7 +585,7 @@ public class ProgramService(
         }
 
         List<MxfPersonRank> ret = [];
-        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData();
+        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData;
 
         foreach (ProgramPerson? person in persons.Where(p => roles.Any(role => p.Role.Contains(role))))
         {
@@ -572,13 +669,13 @@ public class ProgramService(
         if (disposing)
         {
             semaphore.Dispose();
-            programChannel.Writer.Complete();
+            programChannelsToProcess.Clear();
         }
     }
 
     public List<string> GetExpiredKeys()
     {
-        return hybridCache.GetExpiredKeysAsync().Result;
+        return ProgramCache.GetExpiredKeysAsync().Result;
     }
 
     public void RemovedExpiredKeys(List<string>? keysToDelete = null) { }

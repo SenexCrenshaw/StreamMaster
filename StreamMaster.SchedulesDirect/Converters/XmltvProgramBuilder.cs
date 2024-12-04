@@ -1,10 +1,12 @@
 ﻿using System.Globalization;
 
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+
 using StreamMaster.Domain.Helpers;
 
 namespace StreamMaster.SchedulesDirect.Converters
 {
-    public class XmltvProgramBuilder(IOptionsMonitor<SDSettings> sdSettingsMonitor)
+    public class XmltvProgramBuilder(IOptionsMonitor<SDSettings> sdSettingsMonitor, ISchedulesDirectDataService schedulesDirectDataService)
         : IXmltvProgramBuilder
     {
         private static readonly string[] TvRatings =
@@ -297,14 +299,35 @@ namespace StreamMaster.SchedulesDirect.Converters
         private List<XmltvIcon>? BuildProgramIcons(MxfScheduleEntry scheduleEntry, string baseUrl)
         {
             SDSettings sdSettings = sdSettingsMonitor.CurrentValue;
-            MxfProgram mxfProgram = scheduleEntry.mxfProgram;
+            //MxfProgram mxfProgram = scheduleEntry.mxfProgram;
+            ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData;
 
+            if (scheduleEntry.mxfProgram.ProgramId.Equals(value: "EP019254150003"))
+            {
+                int aaa = 1;
+            }
+
+            MxfProgram? mxfProgram = schedulesDirectData.FindProgram(scheduleEntry.mxfProgram.ProgramId);
+
+            if (mxfProgram == null)
+            {
+                return null;
+            }
+
+            if (mxfProgram.mxfSeason?.ArtWorks.Count > 0)
+            {
+                int aa = 1;
+            }
+            if (mxfProgram.mxfSeriesInfo?.ArtWorks.Count > 0)
+            {
+                int aa = 1;
+            }
             // Get artwork from program or its related entities
-            List<ProgramArtwork>? artWorks = mxfProgram.ArtWorks
-                ?? mxfProgram.mxfSeason?.ArtWorks
-                ?? mxfProgram.mxfSeriesInfo?.ArtWorks;
+            //List<ProgramArtwork>? artWorks = mxfProgram.ArtWorks
+            //    ?? mxfProgram.mxfSeason?.ArtWorks
+            //    ?? mxfProgram.mxfSeriesInfo?.ArtWorks;
 
-            if (artWorks == null || artWorks.Count == 0)
+            if (mxfProgram.ArtWorks.Count == 0)
             {
                 return null;
             }
@@ -317,7 +340,7 @@ namespace StreamMaster.SchedulesDirect.Converters
             // Handle single image setting
             if (sdSettings.XmltvSingleImage)
             {
-                ProgramArtwork? firstArtwork = artWorks.FirstOrDefault();
+                ProgramArtwork? firstArtwork = mxfProgram.ArtWorks.FirstOrDefault();
                 return firstArtwork is not null
                     ?
                     [
@@ -332,7 +355,7 @@ namespace StreamMaster.SchedulesDirect.Converters
             }
 
             // Map all artworks to XmltvIcons
-            return artWorks
+            return mxfProgram.ArtWorks
                 .ConvertAll(art => new XmltvIcon
                 {
                     Src = $"{baseUrl}{art.Uri}",

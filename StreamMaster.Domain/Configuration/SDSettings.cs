@@ -6,12 +6,17 @@
         public int MaxSubscribedLineups { get; set; } = 4;
         public bool AlternateSEFormat { get; set; } = false;
         public string AlternateLogoStyle { get; set; } = "WHITE";
-        public bool AppendEpisodeDesc { get; set; } = true;
+
         public string ArtworkSize { get; set; } = "Lg";
         public bool ExcludeCastAndCrew { get; set; } = false;
         public string PreferredLogoStyle { get; set; } = "DARK";
-        public bool PrefixEpisodeDescription { get; set; } = true;
-        public bool PrefixEpisodeTitle { get; set; } = true;
+
+        public bool PrefixEpisodeTitle { get; set; } = true; // Not used
+        public bool AppendEpisodeDesc { get; set; } = true; // Append Session and Episode to Program Description
+        public bool PrefixEpisodeDescription { get; set; } = false; // Prefix Session and Episode to Program Description
+        public bool EpisodeAppendProgramDescription { get; set; } = false; // Append Program Description to Session Description
+
+
         public bool SDEnabled { get; set; } = false;
         public int SDEPGDays { get; set; } = 7;
         public string SDCountry { get; set; } = "USA";
@@ -20,9 +25,15 @@
         public List<StationIdLineup> SDStationIds { get; set; } = [];
         public List<HeadendToView> HeadendsToView { get; set; } = [];
         public string SDUserName { get; set; } = string.Empty;
-        public bool SeasonImages { get; set; } = true;
-        public bool SeriesImages { get; set; } = true;
-        public bool SportsImages { get; set; } = true;
+
+
+        public bool MovieImages { get; set; } = true;
+        public bool SeasonImages { get; set; } = false;
+        public bool SeriesImages { get; set; } = false;
+        public bool SportsImages { get; set; } = false;
+        public bool EpisodeImages { get; set; } = true;
+
+
         //public bool SeriesPosterArt { get; set; } = true;
         public string SeriesPosterAspect { get; set; } = "4x3";
         public string MoviePosterAspect { get; set; } = "2x3";

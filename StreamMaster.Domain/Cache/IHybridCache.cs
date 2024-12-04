@@ -2,6 +2,8 @@
 {
     public interface IHybridCache<T>
     {
+        Task SetBulkAsync(Dictionary<string, string> items, TimeSpan? slidingExpiration = null, bool noSave = false);
+        Task SaveAsync();
         Task<TValue?> GetAsync<TValue>(string? key = null);
         Task<bool> ExistsAsync(string? key);
 
