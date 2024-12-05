@@ -12,7 +12,7 @@ public class CancelClientStreamerRequestHandler(IChannelManager ChannelManager, 
     {
         if (string.IsNullOrEmpty(request.UniqueRequestId))
         {
-            await messageService.SendWarn("Client Cancelled Failed");
+            await messageService.SendWarning("Client Cancelled Failed");
             return APIResponse.NotFound;
         }
         await ChannelManager.CancelClientAsync(request.UniqueRequestId);

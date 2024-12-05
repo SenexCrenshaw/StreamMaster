@@ -8,9 +8,9 @@ namespace StreamMaster.PlayList.Models;
 public class Thumb
 {
     [XmlAttribute(AttributeName = "aspect")]
-    public string Aspect { get; set; }
+    public string? Aspect { get; set; }
     [XmlAttribute(AttributeName = "preview")]
-    public string Preview { get; set; }
+    public string? Preview { get; set; }
     [XmlText]
-    public string Text { get; set; }
+    public string? Text { get; set; }
 }

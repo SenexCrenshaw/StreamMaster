@@ -217,6 +217,8 @@ const EPGFileDialog = forwardRef<EPGFileDialogRef, EPGFileDialogProperties>(({ o
             disableDebounce
             darkBackGround
             label="TIME SHIFT"
+            min={-999}
+            max={999}
             onChange={(e) => updateStateAndRequest({ TimeShift: e })}
             value={epgFileDto.TimeShift}
           />

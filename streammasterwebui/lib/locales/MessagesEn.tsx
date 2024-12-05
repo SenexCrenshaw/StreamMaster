@@ -5,6 +5,7 @@ interface messages_enType {
 }
 
 const MessagesEn: messages_enType = {
+  AppendChannelName: 'Append Channel Name',
   'SDSettings.AlternateLogoStyle': 'Alternate Logo Style',
   'SDSettings.AlternateSEFormat': 'Alternate Season/Episode Format',
   'SDSettings.AppendEpisodeDesc': 'Append Season & Episode #s to the Program Description',

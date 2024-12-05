@@ -15,11 +15,11 @@ public class V
     public string Name { get; set; } = string.Empty;
     public int Id { get; set; }
     public int StreamGroupId { get; set; }
-    public string StreamGroupName { get; set; }
+    public string StreamGroupName { get; set; } = string.Empty;
     public int StreamGroupProfileId { get; set; }
-    public string StreamGroupProfileName { get; set; }
-    public string DefaultRealUrl { get; set; }
-    public string RealUrl { get; set; }
+    public string StreamGroupProfileName { get; set; } = string.Empty;
+    public string DefaultRealUrl { get; set; } = string.Empty;
+    public string RealUrl { get; set; } = string.Empty;
 }
 
 internal class GetVsRequestHandler(ILogger<GetVsRequest> logger, IStreamGroupService streamGroupService, IHttpContextAccessor httpContextAccessor, ISender sender, IRepositoryWrapper repositoryWrapper)
@@ -47,6 +47,11 @@ internal class GetVsRequestHandler(ILogger<GetVsRequest> logger, IStreamGroupSer
             List<V> sgRet = [];
             foreach (StreamGroupProfile sgStreamGroupProfile in profiles)
             {
+                if (sgSMChannels.Data is null)
+                {
+                    continue;
+                }
+
                 sgRet.AddRange(sgSMChannels.Data.ConvertAll(a => new V()
                 {
                     Id = a.Id,
@@ -82,7 +87,7 @@ internal class GetVsRequestHandler(ILogger<GetVsRequest> logger, IStreamGroupSer
         //    throw new ApplicationException("StreamGroup not found!");
         //}
 
-        if (sg.Name.Equals("ALL", StringComparison.CurrentCultureIgnoreCase))
+        if (sg.Name.EqualsIgnoreCase("ALL"))
         {
             List<SMChannel> allSMChannels = await repositoryWrapper.SMChannel.GetQuery().ToListAsync(cancellationToken: cancellationToken);
             List<V> allRet = allSMChannels.ConvertAll(a => new V()
@@ -106,6 +111,12 @@ internal class GetVsRequestHandler(ILogger<GetVsRequest> logger, IStreamGroupSer
             logger.LogError("GetVsRequest streamGroupSMChannelLinks not found!");
             throw new ApplicationException("StreamGroupSMChannelLinks not found!");
         }
+
+        if (smChannels.Data is null)
+        {
+            return DataResponse<List<V>>.ErrorWithMessage("channel Data not found");
+        }
+
         List<V> ret = smChannels.Data.ConvertAll(a => new V()
         {
             Id = a.Id,

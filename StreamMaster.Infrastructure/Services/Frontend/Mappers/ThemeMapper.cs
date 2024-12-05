@@ -16,11 +16,11 @@ public class ThemeMapper(ILogger<ThemeMapper> logger, IOptionsMonitor<Setting> i
                (resourceUrl.EndsWith(".css") || resourceUrl.EndsWith(".woff") || resourceUrl.EndsWith(".woff2"));
     }
 
-    public override async Task<string> Map(string resourceUrl)
+    public override Task<string> MapAsync(string resourceUrl)
     {
         string path = resourceUrl.Replace("/themes/", "");
 
         string ret = Path.Combine(BuildInfo.StartUpPath, settings.UiFolder, "themes", path);
-        return ret;
+        return Task.FromResult(ret);
     }
 }

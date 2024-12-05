@@ -2,9 +2,8 @@
 
 public interface IEPGCached
 {
-
-    void ClearCache();
-    void ResetCache();
+    List<string> GetExpiredKeys();
+    void RemovedExpiredKeys(List<string>? keysToDelete = null);
+    //void ClearCache();
+    //void ResetCache();
 }
-
-

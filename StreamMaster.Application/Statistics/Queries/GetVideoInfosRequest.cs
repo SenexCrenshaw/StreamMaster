@@ -9,7 +9,7 @@ public record GetVideoInfosRequest() : IRequest<DataResponse<List<VideoInfoDto>>
 internal class GetVideoInfosRequestHandler(IVideoInfoService videoInfoService)
     : IRequestHandler<GetVideoInfosRequest, DataResponse<List<VideoInfoDto>>>
 {
-    public async Task<DataResponse<List<VideoInfoDto>>> Handle(GetVideoInfosRequest request, CancellationToken cancellationToken)
+    public Task<DataResponse<List<VideoInfoDto>>> Handle(GetVideoInfosRequest request, CancellationToken cancellationToken)
     {
         ConcurrentDictionary<string, VideoInfo> infos = videoInfoService.VideoInfos;
         List<VideoInfoDto> ret = [];
@@ -18,6 +18,6 @@ internal class GetVideoInfosRequestHandler(IVideoInfoService videoInfoService)
             ret.Add(new VideoInfoDto(info));
         }
 
-        return DataResponse<List<VideoInfoDto>>.Success(ret);
+        return Task.FromResult(DataResponse<List<VideoInfoDto>>.Success(ret));
     }
 }

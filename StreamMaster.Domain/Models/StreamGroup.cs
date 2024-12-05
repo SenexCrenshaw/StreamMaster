@@ -14,7 +14,6 @@ public class StreamGroupBase : BaseEntity
 {
     public string DeviceID { get; set; } = string.Empty;
 
-
     [Ignore]
     [JsonIgnore]
     [IgnoreMember]

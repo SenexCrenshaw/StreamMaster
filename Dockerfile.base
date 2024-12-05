@@ -1,5 +1,5 @@
 # Set the base image for the ASP.NET Core application
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
 
 # Define build-time arguments for platform and architecture
 ARG TARGETARCH

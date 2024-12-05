@@ -1,8 +1,8 @@
 import CloseButton from '@components/buttons/CloseButton';
+import MaximizeButton from '@components/buttons/MaximizeButton';
 import OKButton from '@components/buttons/OKButton';
 import { useMemo } from 'react';
 import { SMCardProperties } from './Interfaces/SMCardProperties';
-import MaximizeButton from '@components/buttons/MaximizeButton';
 
 interface InternalSMCardProperties extends SMCardProperties {
   readonly children: React.ReactNode;
@@ -16,6 +16,7 @@ export const SMCard = ({
   info = 'General',
   noBorderChildren = false,
   noCloseButton = false,
+  noFullScreen = false,
   okButtonDisabled = false,
   onCloseClick,
   onFullScreenToggle,
@@ -64,11 +65,13 @@ export const SMCard = ({
                 tooltip={okToolTip}
               />
             )}
-            <MaximizeButton
-              onClick={() => {
-                onFullScreenToggle?.();
-              }}
-            />
+            {!noFullScreen && (
+              <MaximizeButton
+                onClick={() => {
+                  onFullScreenToggle?.();
+                }}
+              />
+            )}
           </div>
         </div>
         <div className="layout-padding-bottom" />
@@ -98,11 +101,13 @@ export const SMCard = ({
             />
           )}
           {(!noCloseButton || onCloseClick) && <CloseButton buttonDisabled={closeButtonDisabled} onClick={(e) => onCloseClick?.()} tooltip={closeToolTip} />}
-          <MaximizeButton
-            onClick={() => {
-              onFullScreenToggle?.();
-            }}
-          />
+          {!noFullScreen && (
+            <MaximizeButton
+              onClick={() => {
+                onFullScreenToggle?.();
+              }}
+            />
+          )}
         </div>
       </div>
 

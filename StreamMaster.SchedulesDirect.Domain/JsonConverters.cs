@@ -3,13 +3,17 @@ using System.Text.Json.Serialization;
 
 namespace StreamMaster.SchedulesDirect.Domain;
 
-
 public class IntConverter : JsonConverter<int>
 {
     public override int Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         try
         {
+            if (reader.TokenType == JsonTokenType.Null)
+            {
+                return 0;
+            }
+
             if (reader.TokenType == JsonTokenType.String)
             {
                 if (int.TryParse(reader.GetString(), out int intValue))
@@ -49,10 +53,10 @@ public class IntConverter : JsonConverter<int>
                 }
             }
         }
-        catch (JsonException ex)
+        catch (JsonException)
         {
             // Handle bad values by returning a default value or throwing a custom exception if needed
-            int a = 1;
+
         }
 
         // Return a default value for bad or unexpected data
@@ -67,7 +71,6 @@ public class IntConverter : JsonConverter<int>
         writer.WriteEndObject();
     }
 }
-
 
 //internal class IntConverter : JsonConverter
 //{

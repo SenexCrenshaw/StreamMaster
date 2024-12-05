@@ -12,7 +12,7 @@ public class MoveToNextStreamRequestHandler(IChannelManager ChannelManager, IMes
     {
         if (request.SMChannelId < 1)
         {
-            await messageService.SendWarn("SMChannelId < 1");
+            await messageService.SendWarning("SMChannelId < 1");
             return APIResponse.NotFound;
         }
         ChannelManager.MoveToNextStream(request.SMChannelId);

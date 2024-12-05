@@ -1,6 +1,4 @@
-﻿using StreamMaster.Domain.Extensions;
-
-using System.Reflection;
+﻿using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -12,8 +10,8 @@ namespace StreamMaster.Domain.Configuration
     /// </summary>
     public static class BuildInfo
     {
-        public static JsonSerializerOptions JsonIndentOptions = new() { WriteIndented = true };
-        public static JsonSerializerOptions JsonIndentOptionsWhenWritingNull = new() { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull, WriteIndented = false };
+        public static readonly JsonSerializerOptions JsonIndentOptions = new() { WriteIndented = true };
+        public static readonly JsonSerializerOptions JsonIndentOptionsWhenWritingNull = new() { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull, WriteIndented = false };
 
         static BuildInfo()
         {
@@ -38,7 +36,12 @@ namespace StreamMaster.Domain.Configuration
         public static bool IsWindows => RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
         public static bool IsOSX => RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
         public static bool IsFreeBSD => RuntimeInformation.IsOSPlatform(OSPlatform.FreeBSD);
-        public static string StartUpPath = new FileInfo(Assembly.GetExecutingAssembly().Location).Directory.FullName;
+        public static readonly string StartUpPath = new FileInfo(Assembly.GetExecutingAssembly().Location).Directory?.FullName ?? "";
+
+        public static readonly string DefaultStreamGroupName = "ALL";
+
+        public static readonly string DefaultSDImageSize = "Lg";
+        public static readonly StringComparison StringComparison = StringComparison.OrdinalIgnoreCase;
 
         //public const int DBBatchSize = 500;
         public static DateTime StartTime { get; set; }
@@ -122,17 +125,26 @@ namespace StreamMaster.Domain.Configuration
         public static readonly string CacheFolder = Path.Combine(AppDataFolder, "Cache");
         public static readonly string LogFolder = Path.Combine(AppDataFolder, "Logs");
         public static readonly string PlayListFolder = Path.Combine(AppDataFolder, "PlayLists");
-        public static readonly string TVLogoFolder = Path.Combine(AppDataFolder, "tv-logos");
-        public static readonly string LogoFolder = Path.Combine(CacheFolder, "Logos");
+
         public static readonly string DupDataFolder = Path.Combine(CacheFolder, "DuplicateStreamLists");
+
+        public static readonly int SDCacheDurationDays = 14;
 
         //public static readonly string ProgrammeIconDataFolder = Path.Combine(CacheFolder, "ProgrammeIcons");
         public static readonly string SDJSONFolder = Path.Combine(CacheFolder, "SDJson");
+        public static readonly string SDXMLFile = Path.Combine(SDJSONFolder, "streammaster.xmltv");
 
-        public static readonly string SDStationLogosFolder = Path.Combine(CacheFolder, "SDStationLogos");
-        public static readonly string SDStationLogosCacheFolder = Path.Combine(CacheFolder, "SDStationLogosCache");
+        //public static readonly string SDStationLogosFolder = Path.Combine(CacheFolder, "SDStationLogos");
+        //public static readonly string SDStationLogosCacheFolder = Path.Combine(CacheFolder, "SDStationLogosCache");
 
-        public static readonly string SDImagesFolder = Path.Combine(CacheFolder, "SDImages");
+        public static readonly string TVLogoFolder = Path.Combine(AppDataFolder, "tv-logos");
+        public static readonly string LogoFolder = Path.Combine(CacheFolder, "Logos");
+        public static readonly string CustomLogoFolder = Path.Combine(CacheFolder, "CustomLogos");
+        public static readonly string ProgramLogoFolder = Path.Combine(CacheFolder, "ProgramLogos");
+
+        //public static readonly string SDProgramLogoFolder = Path.Combine(CacheFolder, "SDProgramLogos");
+
+        //public static readonly string SDImagesFolder = Path.Combine(CacheFolder, "SDImages");
         public static readonly string EPGFolder = Path.Combine(PlayListFolder, "EPG");
         public static readonly string M3UFolder = Path.Combine(PlayListFolder, "M3U");
 
@@ -148,8 +160,8 @@ namespace StreamMaster.Domain.Configuration
         public static readonly string MessagesFolder = Path.Combine(AppDataFolder, "Messages");
         public static readonly string MessageNoStreamsLeft = Path.Combine(MessagesFolder, "NoStreamsLeft.mp4");
 
-        public static readonly string SDEPGCacheFile = Path.Combine(SDJSONFolder, "epgCache.json");
-        public static readonly string LogoDefault = Path.Combine("images", "default.png");
+        //public static readonly string SDEPGCacheFile = Path.Combine(SDJSONFolder, "epgCache.json");
+        //public static readonly string LogoDefault = Path.Combine("images", "default.png");
 
         public static readonly string LogFileName = "StreamMasterAPI";
         public static readonly string LogFilePath = Path.Combine(LogFolder, LogFileName + ".log");
@@ -163,6 +175,9 @@ namespace StreamMaster.Domain.Configuration
 
         public static readonly string SDSettingFileName = "sdsettings.json";
         public static readonly string SDSettingsFile = GetSettingFilePath(SDSettingFileName);
+
+        public static readonly string CustomLogosFileName = "customLogos.json";
+        public static readonly string CustomLogosSettingsFile = GetSettingFilePath(CustomLogosFileName);
 
         //public static readonly string HLSSettingFileName = "hlssettings.json";
         //public static readonly string HLSSettingsFile = GetSettingFilePath(HLSSettingFileName);

@@ -3,7 +3,7 @@ namespace StreamMaster.Domain.Services
     public interface IDataRefreshServicePartial
     {
         Task AuthLogOut();
-        Task RefreshDownloadServiceStatus();
+        Task SendStatus(ImageDownloadServiceStatus imageDownloadServiceStatus);
         Task RefreshEPGColors();
         Task RefreshSelectedStationIds();
         Task RefreshStationPreviews();

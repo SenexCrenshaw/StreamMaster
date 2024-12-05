@@ -9,7 +9,6 @@ public record UpdateSettingRequest(UpdateSettingParameters Parameters) : IReques
 
 public partial class UpdateSettingRequestHandler(
     IOptionsMonitor<SDSettings> intsdsettings,
-    ILogoService logoService,
     ILogger<UpdateSettingRequest> Logger,
     IMapper Mapper,
     IBackgroundTaskQueue backgroundTaskQueue,
@@ -49,15 +48,15 @@ public partial class UpdateSettingRequestHandler(
             destination.AlternateLogoStyle = source.AlternateLogoStyle;
         }
 
-        if (source.SeriesPosterArt.HasValue)
-        {
-            destination.SeriesPosterArt = source.SeriesPosterArt.Value;
-        }
+        //if (source.SeriesPosterArt.HasValue)
+        //{
+        //    destination.SeriesPosterArt = source.SeriesPosterArt.Value;
+        //}
 
-        if (source.SeriesWsArt.HasValue)
-        {
-            destination.SeriesWsArt = source.SeriesWsArt.Value;
-        }
+        //if (source.SeriesWsArt.HasValue)
+        //{
+        //    destination.SeriesWsArt = source.SeriesWsArt.Value;
+        //}
 
         if (source.SeriesPosterAspect != null)
         {
@@ -126,17 +125,27 @@ public partial class UpdateSettingRequestHandler(
 
         if (source.HeadendsToView != null)
         {
-            destination.HeadendsToView = new List<HeadendToView>(source.HeadendsToView);
+            destination.HeadendsToView = [.. source.HeadendsToView];
         }
 
         if (source.SDStationIds != null)
         {
-            destination.SDStationIds = new List<StationIdLineup>(source.SDStationIds);
+            destination.SDStationIds = [.. source.SDStationIds];
         }
 
-        if (source.SeasonEventImages.HasValue)
+        if (source.SeasonImages.HasValue)
         {
-            destination.SeasonEventImages = source.SeasonEventImages.Value;
+            destination.SeasonImages = source.SeasonImages.Value;
+        }
+
+        if (source.SeasonImages.HasValue)
+        {
+            destination.SeasonImages = source.SeasonImages.Value;
+        }
+
+        if (source.SportsImages.HasValue)
+        {
+            destination.SportsImages = source.SportsImages.Value;
         }
 
         if (source.XmltvAddFillerData.HasValue)
@@ -178,20 +187,19 @@ public partial class UpdateSettingRequestHandler(
             return false;
         }
 
-        if (request.Parameters.LogoCache != null)
+        if (request.Parameters.LogoCache.HasValue)
         {
-            currentSetting.LogoCache = request.Parameters.LogoCache.ToLowerInvariant() switch
-            {
-                "redirect" => "Redirect",
-                "cache" => "Cache",
-                _ => "None",
-            };
-            await logoService.BuildLogosCacheFromSMStreamsAsync(CancellationToken.None);
+            currentSetting.LogoCache = request.Parameters.LogoCache.Value;
         }
 
         if (request.Parameters.CleanURLs.HasValue)
         {
             currentSetting.CleanURLs = request.Parameters.CleanURLs.Value;
+        }
+
+        if (request.Parameters.AppendChannelName.HasValue)
+        {
+            currentSetting.AppendChannelName = request.Parameters.AppendChannelName.Value;
         }
 
         if (request.Parameters.SDSettings != null)

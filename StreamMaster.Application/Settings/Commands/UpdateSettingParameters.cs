@@ -11,6 +11,7 @@ public class UpdateSettingParameters
     [TsProperty(ForceNullable = true)]
     public SDSettingsRequest? SDSettings { get; set; }
 
+    public bool? AppendChannelName { get; set; }
     public bool? ShowClientHostNames { get; set; }
     public int? IconCacheExpirationDays { get; set; }
     public string? DefaultCompression { get; set; }
@@ -21,7 +22,7 @@ public class UpdateSettingParameters
 
     public int? ClientReadTimeOutSeconds { get; set; }
     public string? AuthenticationMethod { get; set; }
-    public string? LogoCache { get; set; }
+    public bool? LogoCache { get; set; }
     public bool? CleanURLs { get; set; }
     public string? ClientUserAgent { get; set; }
     public string? DeviceID { get; set; }

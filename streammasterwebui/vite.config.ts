@@ -1,7 +1,7 @@
 import react from '@vitejs/plugin-react';
-import { visualizer } from 'rollup-plugin-visualizer';
 import path from 'node:path';
-import viteCompression from 'vite-plugin-compression';
+import { visualizer } from 'rollup-plugin-visualizer';
+// import viteCompression from 'vite-plugin-compression';
 
 import { builtinModules } from 'module';
 import { defineConfig } from 'vite';
@@ -38,7 +38,7 @@ export default defineConfig({
     }
   },
   clearScreen: true,
-  plugins: [react(), visualizer(), viteCompression()],
+  plugins: [react(), visualizer()],
   resolve: {
     alias: {
       '@': path.resolve('./'),

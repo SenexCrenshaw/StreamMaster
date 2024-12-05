@@ -1,9 +1,7 @@
-﻿using Microsoft.Extensions.Logging;
-
-namespace StreamMaster.Domain.Logging;
+﻿namespace StreamMaster.Domain.Logging;
 public static class GlobalLoggerProvider
 {
-    private static ILoggerFactory _loggerFactory;
+    private static ILoggerFactory? _loggerFactory;
 
     public static void Configure(ILoggerFactory loggerFactory)
     {

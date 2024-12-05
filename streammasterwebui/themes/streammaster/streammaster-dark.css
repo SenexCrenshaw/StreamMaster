@@ -71,6 +71,12 @@
   align-items: center;
 }
 
+.sm-start-stuff {
+  display: flex;
+  justify-content: start;
+  align-items: center;
+}
+
 .sm-end-stuff {
   display: flex;
   justify-content: end;
@@ -9987,6 +9993,16 @@ div[aria-haspopup=dialog] {
   padding: 0.2rem;
   height: 1.4rem;
   width: 2rem;
+  object-fit: contain;
+}
+
+.icon-selector-template {
+  justify-content: center;
+  align-items: center;
+}
+.icon-selector-template img {
+  height: 64px;
+  width: 64px;
   object-fit: contain;
 }
 

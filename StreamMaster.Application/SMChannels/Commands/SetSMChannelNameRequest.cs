@@ -21,7 +21,6 @@ internal class SetSMChannelNameRequestHandler(IRepositoryWrapper Repository, IMe
         //await messageService.SendSuccess($"Set name to '{request.ProfileName}'");
         await dataRefreshService.RefreshSMChannels().ConfigureAwait(false);
 
-
         return ret;
     }
 }

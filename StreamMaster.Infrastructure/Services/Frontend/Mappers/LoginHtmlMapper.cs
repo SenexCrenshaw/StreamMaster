@@ -13,10 +13,10 @@ namespace StreamMaster.Infrastructure.Services.Frontend.Mappers
             return resourceUrl.StartsWith("/login");
         }
 
-        public override async Task<string> Map(string resourceUrl)
+        public override Task<string> MapAsync(string resourceUrl)
         {
             HtmlPath = Path.Combine(BuildInfo.StartUpPath, settings.UiFolder, "login.html");
-            return HtmlPath;
+            return Task.FromResult(HtmlPath);
         }
     }
 }

@@ -8,4 +8,3 @@ public class SMAPIAttribute(bool JustHub = false, bool JustController = false, b
     public bool JustController { get; set; } = JustController;
     public bool Persist { get; set; } = Persist;
 }
-

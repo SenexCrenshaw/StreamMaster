@@ -15,7 +15,6 @@ public class GetIntroPlayListsRequestHandler(IHttpContextAccessor httpContextAcc
             return DataResponse<List<CustomPlayList>>.NotFound;
         }
 
-
         List<CustomPlayList> customPlayLists = introPlayListBuilder.GetIntroPlayLists();
 
         return await Task.FromResult(DataResponse<List<CustomPlayList>>.Success(customPlayLists));

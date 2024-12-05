@@ -12,12 +12,12 @@ internal class CopySMChannelRequestHandler(IRepositoryWrapper Repository, IMessa
         APIResponse ret = await Repository.SMChannel.CloneSMChannel(request.SMChannelId, request.NewName);
         if (ret.IsError)
         {
-            await messageService.SendError($"Could not copy channel", ret.ErrorMessage);
+            await messageService.SendError("Could not copy channel", ret.ErrorMessage);
         }
         else
         {
             await dataRefreshService.RefreshAllSMChannels();
-            await messageService.SendSuccess($"Copied channel");
+            await messageService.SendSuccess("Copied channel");
         }
         return ret;
     }

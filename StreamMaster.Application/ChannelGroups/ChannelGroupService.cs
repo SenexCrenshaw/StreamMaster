@@ -5,7 +5,6 @@ public class ChannelGroupService(ILogger<ChannelGroupService> _logger, IReposito
 {
     public async Task UpdateChannelGroupCountsRequestAsync(List<ChannelGroup>? ChannelGroups = null)
     {
-
         try
         {
             List<ChannelGroup> cgs = ChannelGroups == null || ChannelGroups.Count == 0
@@ -69,5 +68,4 @@ public class ChannelGroupService(ILogger<ChannelGroupService> _logger, IReposito
             throw;
         }
     }
-
 }

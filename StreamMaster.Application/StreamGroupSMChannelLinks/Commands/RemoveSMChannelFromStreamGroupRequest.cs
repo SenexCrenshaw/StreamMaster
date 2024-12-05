@@ -15,6 +15,10 @@ internal class RemoveSMChannelFromStreamGroupRequestHandler(IRepositoryWrapper R
         }
 
         SMChannel? smChannel = Repository.SMChannel.GetSMChannel(request.SMChannelId);
+        if (smChannel is null)
+        {
+            return APIResponse.ErrorWithMessage($"Cannot find channel for {request.SMChannelId}");
+        }
         List<int> streamGroupIds = smChannel.StreamGroups.Select(a => a.StreamGroupId).ToList();
 
         FieldData fd = new(SMChannel.APIName, smChannel.Id, "StreamGroupIds", streamGroupIds);

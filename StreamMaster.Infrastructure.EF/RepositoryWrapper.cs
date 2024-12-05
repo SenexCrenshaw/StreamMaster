@@ -26,18 +26,20 @@ public class RepositoryWrapper(
     PGSQLRepositoryContext repositoryContext,
     IMapper mapper,
     ICacheManager cacheManager,
-    IXmltv2Mxf xmltv2Mxf,
+
     IServiceProvider serviceProvider,
     ICryptoService cryptoService,
+    ILogoService logoService,
     IOptionsMonitor<Setting> intSettings,
     IOptionsMonitor<CommandProfileDict> intProfileSettings,
     IJobStatusService jobStatusService,
     IFileUtilService fileUtilService,
+    IImageDownloadService imageDownloadService,
     IDataRefreshService dataRefreshService,
-   IImageDownloadQueue imageDownloadQueue,
+    IImageDownloadQueue imageDownloadQueue,
     IHttpContextAccessor httpContextAccessor) : IRepositoryWrapper
 {
-    private IStreamGroupProfileRepository _streamGroupProfileRepository;
+    private IStreamGroupProfileRepository? _streamGroupProfileRepository;
     public IStreamGroupProfileRepository StreamGroupProfile
     {
         get
@@ -47,7 +49,7 @@ public class RepositoryWrapper(
         }
     }
 
-    private IStreamGroupSMChannelLinkRepository _streamGroupSMChannelLinkRepository;
+    private IStreamGroupSMChannelLinkRepository? _streamGroupSMChannelLinkRepository;
     public IStreamGroupSMChannelLinkRepository StreamGroupSMChannelLink
     {
         get
@@ -57,7 +59,7 @@ public class RepositoryWrapper(
         }
     }
 
-    private ISMChannelChannelLinksRepository _smChannelChannelLink;
+    private ISMChannelChannelLinksRepository? _smChannelChannelLink;
     public ISMChannelChannelLinksRepository SMChannelChannelLink
     {
         get
@@ -67,7 +69,7 @@ public class RepositoryWrapper(
         }
     }
 
-    private ISMChannelStreamLinksRepository _smChannelStreamLink;
+    private ISMChannelStreamLinksRepository? _smChannelStreamLink;
     public ISMChannelStreamLinksRepository SMChannelStreamLink
     {
         get
@@ -77,18 +79,18 @@ public class RepositoryWrapper(
         }
     }
 
-    private ISMChannelsRepository _smChannel;
+    private ISMChannelsRepository? _smChannel;
 
     public ISMChannelsRepository SMChannel
     {
         get
         {
-            _smChannel ??= new SMChannelsRepository(SMChannelLogger, imageDownloadQueue, serviceProvider, this, repositoryContext, mapper, intSettings, intProfileSettings, schedulesDirectDataService);
+            _smChannel ??= new SMChannelsRepository(SMChannelLogger, logoService, cacheManager, imageDownloadService, imageDownloadQueue, serviceProvider, this, repositoryContext, mapper, intSettings, intProfileSettings, schedulesDirectDataService);
             return _smChannel;
         }
     }
 
-    private ISMStreamRepository _smStream;
+    private ISMStreamRepository? _smStream;
 
     public ISMStreamRepository SMStream
     {
@@ -99,7 +101,7 @@ public class RepositoryWrapper(
         }
     }
 
-    private IStreamGroupRepository _streamGroup;
+    private IStreamGroupRepository? _streamGroup;
 
     public IStreamGroupRepository StreamGroup
     {
@@ -110,7 +112,7 @@ public class RepositoryWrapper(
         }
     }
 
-    private IChannelGroupRepository _channelGroup;
+    private IChannelGroupRepository? _channelGroup;
 
     public IChannelGroupRepository ChannelGroup
     {
@@ -121,7 +123,7 @@ public class RepositoryWrapper(
         }
     }
 
-    private IM3UFileRepository _m3uFile;
+    private IM3UFileRepository? _m3uFile;
 
     public IM3UFileRepository M3UFile
     {
@@ -132,13 +134,13 @@ public class RepositoryWrapper(
         }
     }
 
-    private IEPGFileRepository _epgFile;
+    private IEPGFileRepository? _epgFile;
 
     public IEPGFileRepository EPGFile
     {
         get
         {
-            _epgFile ??= new EPGFileRepository(EPGFileRepositoryLogger, fileUtilService, cacheManager, xmltv2Mxf, jobStatusService, repositoryContext, schedulesDirectDataService, mapper);
+            _epgFile ??= new EPGFileRepository(EPGFileRepositoryLogger, fileUtilService, cacheManager,  jobStatusService, repositoryContext, schedulesDirectDataService, mapper);
             return _epgFile;
         }
     }

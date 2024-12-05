@@ -18,7 +18,7 @@ public static class HttpClientExtensions
         {
             httpClient.DefaultRequestHeaders.Range = null;
 
-            response = await httpClient.GetAsync(redirectUrl, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false); ;
+            response = await httpClient.GetAsync(redirectUrl, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
 
             if (response.StatusCode == HttpStatusCode.Redirect)
             {

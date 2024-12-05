@@ -6,6 +6,7 @@ import GetChannelGroupsReducer from '@lib/smAPI/ChannelGroups/GetChannelGroupsSl
 import GetChannelGroupsFromSMChannelsReducer from '@lib/smAPI/ChannelGroups/GetChannelGroupsFromSMChannelsSlice';
 import GetChannelMetricsReducer from '@lib/smAPI/Statistics/GetChannelMetricsSlice';
 import GetCommandProfilesReducer from '@lib/smAPI/Profiles/GetCommandProfilesSlice';
+import GetCustomLogosReducer from '@lib/smAPI/Logos/GetCustomLogosSlice';
 import GetCustomPlayListReducer from '@lib/smAPI/Custom/GetCustomPlayListSlice';
 import GetCustomPlayListsReducer from '@lib/smAPI/Custom/GetCustomPlayListsSlice';
 import GetDownloadServiceStatusReducer from '@lib/smAPI/General/GetDownloadServiceStatusSlice';
@@ -21,6 +22,8 @@ import GetIsSystemReadyReducer from '@lib/smAPI/General/GetIsSystemReadySlice';
 import GetLineupPreviewChannelReducer from '@lib/smAPI/SchedulesDirect/GetLineupPreviewChannelSlice';
 import GetLogContentsReducer from '@lib/smAPI/Logs/GetLogContentsSlice';
 import GetLogNamesReducer from '@lib/smAPI/Logs/GetLogNamesSlice';
+import GetLogoReducer from '@lib/smAPI/Logos/GetLogoSlice';
+import GetLogoForChannelReducer from '@lib/smAPI/Logos/GetLogoForChannelSlice';
 import GetLogosReducer from '@lib/smAPI/Logos/GetLogosSlice';
 import GetM3UFileNamesReducer from '@lib/smAPI/M3UFiles/GetM3UFileNamesSlice';
 import GetM3UFilesReducer from '@lib/smAPI/M3UFiles/GetM3UFilesSlice';
@@ -35,7 +38,6 @@ import GetPagedStreamGroupsReducer from '@lib/smAPI/StreamGroups/GetPagedStreamG
 import GetSelectedStationIdsReducer from '@lib/smAPI/SchedulesDirect/GetSelectedStationIdsSlice';
 import GetSettingsReducer from '@lib/smAPI/Settings/GetSettingsSlice';
 import GetSMChannelChannelsReducer from '@lib/smAPI/SMChannelChannelLinks/GetSMChannelChannelsSlice';
-import GetSMChannelNameLogosReducer from '@lib/smAPI/SMChannels/GetSMChannelNameLogosSlice';
 import GetSMChannelNamesReducer from '@lib/smAPI/SMChannels/GetSMChannelNamesSlice';
 import GetSMChannelStreamsReducer from '@lib/smAPI/SMChannelStreamLinks/GetSMChannelStreamsSlice';
 import GetSMTasksReducer from '@lib/smAPI/SMTasks/GetSMTasksSlice';
@@ -151,6 +153,7 @@ export const rootReducer = combineReducers({
   GetChannelGroupsFromSMChannels: GetChannelGroupsFromSMChannelsReducer,
   GetChannelMetrics: GetChannelMetricsReducer,
   GetCommandProfiles: GetCommandProfilesReducer,
+  GetCustomLogos: GetCustomLogosReducer,
   GetCustomPlayList: GetCustomPlayListReducer,
   GetCustomPlayLists: GetCustomPlayListsReducer,
   GetDownloadServiceStatus: GetDownloadServiceStatusReducer,
@@ -166,6 +169,8 @@ export const rootReducer = combineReducers({
   GetLineupPreviewChannel: GetLineupPreviewChannelReducer,
   GetLogContents: GetLogContentsReducer,
   GetLogNames: GetLogNamesReducer,
+  GetLogo: GetLogoReducer,
+  GetLogoForChannel: GetLogoForChannelReducer,
   GetLogos: GetLogosReducer,
   GetM3UFileNames: GetM3UFileNamesReducer,
   GetM3UFiles: GetM3UFilesReducer,
@@ -180,7 +185,6 @@ export const rootReducer = combineReducers({
   GetSelectedStationIds: GetSelectedStationIdsReducer,
   GetSettings: GetSettingsReducer,
   GetSMChannelChannels: GetSMChannelChannelsReducer,
-  GetSMChannelNameLogos: GetSMChannelNameLogosReducer,
   GetSMChannelNames: GetSMChannelNamesReducer,
   GetSMChannelStreams: GetSMChannelStreamsReducer,
   GetSMTasks: GetSMTasksReducer,

@@ -35,7 +35,7 @@ public class JobStatus
     public void SetForceNextRun(bool Extra = false)
     {
         ForceNextRun = true;
-        if (Extra == true)
+        if (Extra)
         {
             this.Extra = Extra;
         }

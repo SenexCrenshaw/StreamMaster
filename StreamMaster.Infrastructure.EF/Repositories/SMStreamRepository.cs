@@ -132,7 +132,6 @@ public class SMStreamRepository(ILogger<SMStreamRepository> intLogger, IReposito
         return stream ?? null;
     }
 
-
     public async Task DeleteSMStreamsByM3UFiledId(int id, CancellationToken cancellationToken)
     {
         IQueryable<SMStream> query = GetQuery(a => a.M3UFileId == id);

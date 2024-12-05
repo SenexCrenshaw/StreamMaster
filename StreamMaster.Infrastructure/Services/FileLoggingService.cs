@@ -1,9 +1,9 @@
-﻿using StreamMaster.Domain.Configuration;
-using StreamMaster.Domain.Extensions;
-
-using System.Text;
+﻿using System.Text;
 using System.Threading.Channels;
 
+using StreamMaster.Domain.Configuration;
+using StreamMaster.Domain.Extensions;
+namespace StreamMaster.Infrastructure.Services;
 public class FileLoggingService : IFileLoggingService, IDisposable
 {
     private readonly Channel<string> _logChannel = Channel.CreateUnbounded<string>();
@@ -115,6 +115,10 @@ public class FileLoggingService : IFileLoggingService, IDisposable
 
     private void RotateLogFiles(FileInfo logFileInfo)
     {
+        if (string.IsNullOrEmpty(logFileInfo.DirectoryName))
+        {
+            throw new Exception("RotateLogFiles DirectoryName is null");
+        }
         string directory = logFileInfo.DirectoryName;
         string baseFileName = Path.GetFileNameWithoutExtension(logFileInfo.FullName);
         string extension = logFileInfo.Extension;
@@ -154,9 +158,7 @@ public class FileLoggingService : IFileLoggingService, IDisposable
         if (directory != null)
         {
             DirectoryInfo di = new(directory);
-            FileInfo[] logFiles = di.GetFiles($"{baseFileName}.*{extension}")
-                                    .OrderByDescending(f => f.Name)
-                                    .ToArray();
+            FileInfo[] logFiles = [.. di.GetFiles($"{baseFileName}.*{extension}").OrderByDescending(f => f.Name)];
 
             if (logFiles.Length > _settings.CurrentValue.MaxLogFiles)
             {

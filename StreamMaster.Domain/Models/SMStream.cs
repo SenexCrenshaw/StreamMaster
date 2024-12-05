@@ -48,7 +48,6 @@ public class SMStream
     [Column(TypeName = "citext")]
     public string TVGName { get; set; } = string.Empty;
 
-
     [Column(TypeName = "citext")]
 
     public string CUID { get; set; } = string.Empty;

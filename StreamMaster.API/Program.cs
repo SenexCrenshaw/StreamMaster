@@ -1,7 +1,6 @@
 using MediatR;
 
 using Microsoft.AspNetCore.HttpOverrides;
-using Microsoft.Data.Sqlite;
 
 using Reinforced.Typings.Attributes;
 
@@ -27,6 +26,7 @@ using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Builder;
 using StreamMaster.Infrastructure.Logger;
 using Microsoft.Extensions.Logging;
+using StreamMaster.SchedulesDirect;
 
 [assembly: TsGlobal(CamelCaseForProperties = false, CamelCaseForMethods = false, UseModules = true, DiscardNamespacesWhenUsingModules = true, AutoOptionalProperties = true, WriteWarningComment = false, ReorderMembers = true)]
 DirectoryHelper.CreateApplicationDirectories();
@@ -66,6 +66,8 @@ LoadAndSetSettings<OutputProfileDict, OutputProfile>(BuildInfo.OutputProfileSett
 LoadAndValidateSettings<Setting>(BuildInfo.SettingsFile, new Setting());
 LoadAndValidateSettings<SDSettings>(BuildInfo.SDSettingsFile, new SDSettings());
 
+LoadAndSetSettings<CustomLogoDict, CustomLogo>(BuildInfo.CustomLogosSettingsFile, SettingFiles.DefaultCustomLogoSetting);
+
 // Add additional settings files if they exist
 foreach (var file in settingsFiles)
 {
@@ -82,6 +84,7 @@ ConfigureSettings<SDSettings>(builder);
 //ConfigureSettings<HLSSettings>(builder);
 ConfigureSettings<CommandProfileDict>(builder);
 ConfigureSettings<OutputProfileDict>(builder);
+ConfigureSettings<CustomLogoDict>(builder);
 
 void LoadAndSetSettings<TDict, TProfile>(string settingsFile, TDict defaultSetting)
     where TDict : IProfileDict<TProfile>
@@ -167,6 +170,7 @@ if (!string.IsNullOrEmpty(sslCertPath))
 
 // GetOrAdd services to the container.
 builder.Services.AddSchedulesDirectAPIServices();
+builder.Services.AddSchedulesDirectServices();
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureEFPGSQLServices();
 builder.Services.AddInfrastructureEFServices();
@@ -192,10 +196,7 @@ builder.Services.AddControllers(options =>
     options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
 });
 
-builder.Services.AddResponseCompression(options =>
-{
-    options.EnableForHttps = true;
-});
+builder.Services.AddResponseCompression(options => options.EnableForHttps = true);
 
 builder.Services.AddSingleton<ILoggerProvider, SMLoggerProvider>();
 
@@ -211,11 +212,10 @@ void OnShutdown()
     var sender = app.Services.GetRequiredService<ISender>();
     sender.Send(new SetIsSystemReadyRequest(false)).Wait();
     ProcessHelper.KillProcessByName("ffmpeg");
-    SqliteConnection.ClearAllPools();
     PGSQLRepositoryContext repositoryContext = app.Services.GetRequiredService<PGSQLRepositoryContext>();
     repositoryContext.Dispose();
-    IImageDownloadService imageDownloadService = app.Services.GetRequiredService<IImageDownloadService>();
-    imageDownloadService.StopAsync(CancellationToken.None).Wait();
+    //IImageDownloadService imageDownloadService = app.Services.GetRequiredService<IImageDownloadService>();
+    //imageDownloadService.StopAsync(CancellationToken.None).Wait();
 
     //DirectoryHelper.EmptyDirectory(BuildInfo.HLSOutputFolder);
 
@@ -229,7 +229,7 @@ app.UseSwaggerUi();
 if (app.Environment.IsDevelopment())
 {
     _ = app.UseDeveloperExceptionPage();
-    _ = app.UseMigrationsEndPoint();
+    //_ = app.UseMigrationsEndPoint();
 }
 else
 {
@@ -238,7 +238,7 @@ else
 }
 
 //app.UseHttpLogging();
-app.UseMigrationsEndPoint();
+//app.UseMigrationsEndPoint();
 app.UseSession();
 
 //app.UseHangfireDashboard();
@@ -252,8 +252,8 @@ using (IServiceScope scope = app.Services.CreateScope())
         initialiser.TrySeed();
     }
 
-    IImageDownloadService imageDownloadService = scope.ServiceProvider.GetRequiredService<IImageDownloadService>();
-    imageDownloadService.Start();
+    //IImageDownloadService imageDownloadService = scope.ServiceProvider.GetRequiredService<IImageDownloadService>();
+    //imageDownloadService.Start();
 }
 
 app.UseDefaultFiles();
@@ -275,7 +275,7 @@ else
 
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseMiddleware<CacheHeaderMiddleware>();
+//app.UseMiddleware<CacheHeaderMiddleware>();
 
 //if (app.Environment.IsDevelopment())
 //{
@@ -321,21 +321,20 @@ static string GetRoutePattern(Endpoint endpoint)
 
 static X509Certificate2 ValidateSslCertificate(string cert, string password)
 {
-    X509Certificate2 certificate;
-
     try
     {
-        certificate = new X509Certificate2(cert, password, X509KeyStorageFlags.DefaultKeySet);
+        // Load the certificate using the new X509CertificateLoader API
+        var certificate = X509CertificateLoader.LoadPkcs12FromFile(cert, password);
+
+        return certificate;
     }
     catch (CryptographicException ex)
     {
         if (ex.HResult is 0x2 or 0x2006D080)
         {
-            throw new Exception($"The SSL certificate file {cert} does not exist: {ex.Message}");
+            throw new FileNotFoundException($"The SSL certificate file {cert} does not exist: {ex.Message}", ex);
         }
 
         throw;
     }
-
-    return certificate;
 }

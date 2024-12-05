@@ -12,7 +12,6 @@ public interface ICryptoService
     //Task<string?> EncodeStreamGroupIdChannelIdAsync(int StreamGroupId, int SMChannelId);
     //Task<string?> EncodeStreamGroupIdStreamIdAsync(int StreamGroupId, string SMStreamId);
 
-
     //Task<(int? StreamGroupId, int? StreamGroupProfileId, int? SMChannelId)> DecodeStreamGroupIdProfileIdChannelId(string encodedString);
     //Task<(int? StreamGroupId, int? StreamGroupProfileId, string? SMStreamId)> DecodeStreamGroupIdProfileIdStreamId(string encodedString);
     //Task<(int? StreamGroupId, int? StreamGroupProfileId)> DecodeStreamGroupIdProfileIdAsync(string encodedString);

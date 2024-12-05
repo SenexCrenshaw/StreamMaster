@@ -52,7 +52,6 @@ public static class Base64Extensions
         return base64String.Replace('+', '-').Replace('/', '_').TrimEnd('=');
     }
 
-
     /// <summary>
     /// Converts the specified URL-safe Base64 string back to the original string.
     /// </summary>

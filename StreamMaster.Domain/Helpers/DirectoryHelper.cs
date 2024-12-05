@@ -1,8 +1,8 @@
-﻿using StreamMaster.Domain.Attributes;
-using StreamMaster.Domain.Configuration;
-
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Reflection;
+
+using StreamMaster.Domain.Attributes;
+using StreamMaster.Domain.Configuration;
 
 namespace StreamMaster.Domain.Helpers;
 
@@ -86,9 +86,11 @@ public static class DirectoryHelper
                 }
             }
         }
-
-        CreateSubDirs(BuildInfo.SDImagesFolder);
+        //CreateSubDirs(BuildInfo.SDImagesFolder);
+        //CreateSubDirs(BuildInfo.SDStationLogosFolder);
         CreateSubDirs(BuildInfo.LogoFolder);
+        CreateSubDirs(BuildInfo.ProgramLogoFolder);
+        CreateSubDirs(BuildInfo.CustomLogoFolder);
     }
 
     /// <summary>

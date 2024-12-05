@@ -1,21 +1,18 @@
 ﻿namespace StreamMaster.Application.SMChannels.Commands;
 
-
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record UpdateSMChannelRequest(int Id, string? Name, string? ClientUserAgent, List<string>? SMStreamsIds, string? CommandProfileName, int? ChannelNumber, int? TimeShift, string? Group, string? EPGId, string? Logo, string? StationId, VideoStreamHandlers? VideoStreamHandler)
     : IRequest<APIResponse>;
 
 [LogExecutionTimeAspect]
-public class UpdateSMChannelRequestHandler(IRepositoryWrapper Repository, IDataRefreshService dataRefreshService)
+public class UpdateSMChannelRequestHandler(IRepositoryWrapper Repository, IImageDownloadQueue imageDownloadQueue, IDataRefreshService dataRefreshService)
     : IRequestHandler<UpdateSMChannelRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(UpdateSMChannelRequest request, CancellationToken cancellationToken)
     {
-
         try
         {
-
             List<FieldData> ret = [];
 
             SMChannel? smChannel = Repository.SMChannel.GetSMChannel(request.Id);
@@ -32,7 +29,7 @@ public class UpdateSMChannelRequestHandler(IRepositoryWrapper Repository, IDataR
 
             if (request.ClientUserAgent != null)
             {
-                smChannel.ClientUserAgent = request.ClientUserAgent == "" ? null : request.ClientUserAgent;
+                smChannel.ClientUserAgent = request.ClientUserAgent?.Length == 0 ? null : request.ClientUserAgent;
             }
 
             if (!string.IsNullOrEmpty(request.Group) && request.Group != smChannel.Group)
@@ -56,6 +53,9 @@ public class UpdateSMChannelRequestHandler(IRepositoryWrapper Repository, IDataR
             if (!string.IsNullOrEmpty(request.Logo) && request.Logo != smChannel.Logo)
             {
                 smChannel.Logo = request.Logo;
+                LogoInfo  nl = new(request.Logo);
+                imageDownloadQueue.EnqueueLogo(nl);
+
                 ret.Add(new FieldData(() => smChannel.Logo));
             }
 
@@ -70,7 +70,6 @@ public class UpdateSMChannelRequestHandler(IRepositoryWrapper Repository, IDataR
                 smChannel.ChannelNumber = request.ChannelNumber.Value;
                 ret.Add(new FieldData(() => smChannel.ChannelNumber));
             }
-
 
             if (request.TimeShift.HasValue && request.TimeShift.Value != smChannel.TimeShift)
             {
@@ -94,12 +93,7 @@ public class UpdateSMChannelRequestHandler(IRepositoryWrapper Repository, IDataR
         }
         catch (Exception ex)
         {
-
-            return APIResponse.ErrorWithMessage(ex, $"Failed M3U update");
+            return APIResponse.ErrorWithMessage(ex, "Failed M3U update");
         }
-
     }
-
-
-
 }

@@ -9,8 +9,12 @@ public class InheritanceSchemaProcessor : ISchemaProcessor
     public void Process(SchemaProcessorContext context)
     {
         Type? typeToCheck = context.ContextualType;  // Note the nullable annotation here with `Type?`
+        if (typeToCheck == null)
+        {
+            return;
+        }
 
-        bool hasAttribute = typeToCheck.GetCustomAttributes(typeof(RequireAllAttribute), true).Any();
+        bool hasAttribute = typeToCheck.GetCustomAttributes(typeof(RequireAllAttribute), true).Length != 0;
 
         if (hasAttribute)
         {

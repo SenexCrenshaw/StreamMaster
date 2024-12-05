@@ -19,4 +19,3 @@ internal class SetSMChannelsGroupRequestHandler(IRepositoryWrapper Repository, I
         return ret;
     }
 }
-

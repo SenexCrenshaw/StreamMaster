@@ -1,6 +1,6 @@
-﻿using Reinforced.Typings.Attributes;
+﻿using System.Xml.Serialization;
 
-using System.Xml.Serialization;
+using Reinforced.Typings.Attributes;
 
 namespace StreamMaster.PlayList.Models;
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
@@ -8,21 +8,21 @@ namespace StreamMaster.PlayList.Models;
 public class Video
 {
     [XmlElement(ElementName = "aspect")]
-    public string Aspect { get; set; }
+    public string? Aspect { get; set; }
     [XmlElement(ElementName = "bitrate")]
-    public string Bitrate { get; set; }
+    public string? Bitrate { get; set; }
     [XmlElement(ElementName = "codec")]
-    public string Codec { get; set; }
+    public string? Codec { get; set; }
     [XmlElement(ElementName = "framerate")]
-    public string Framerate { get; set; }
+    public string? Framerate { get; set; }
     [XmlElement(ElementName = "height")]
-    public string Height { get; set; }
+    public string? Height { get; set; }
     [XmlElement(ElementName = "scantype")]
-    public string Scantype { get; set; }
+    public string? Scantype { get; set; }
     [XmlElement(ElementName = "width")]
-    public string Width { get; set; }
+    public string? Width { get; set; }
     [XmlElement(ElementName = "duration")]
-    public string Duration { get; set; }
+    public string? Duration { get; set; }
     [XmlElement(ElementName = "durationinseconds")]
-    public string Durationinseconds { get; set; }
+    public string? Durationinseconds { get; set; }
 }

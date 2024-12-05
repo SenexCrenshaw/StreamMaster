@@ -13,7 +13,7 @@ public record CreateMultiViewChannelRequest(
     ) : IRequest<APIResponse>;
 
 [LogExecutionTimeAspect]
-public class CreateMultiViewChannelRequestHandler(ILogger<CreateMultiViewChannelRequest> Logger, IImageDownloadQueue imageDownloadQueue, IMessageService messageService, IDataRefreshService dataRefreshService, IRepositoryWrapper Repository)
+public class CreateMultiViewChannelRequestHandler(ILogger<CreateMultiViewChannelRequest> Logger, IMessageService messageService, IDataRefreshService dataRefreshService, IRepositoryWrapper Repository)
     : IRequestHandler<CreateMultiViewChannelRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(CreateMultiViewChannelRequest request, CancellationToken cancellationToken)
@@ -53,9 +53,8 @@ public class CreateMultiViewChannelRequestHandler(ILogger<CreateMultiViewChannel
                 //DataResponse<List<SMStreamDto>> streams = await Sender.Send(new UpdateStreamRanksRequest(smChannel.Id, request.SMStreamsIds), cancellationToken);
             }
 
-
-            NameLogo NameLogo = new(smChannel, SMFileTypes.Logo);
-            imageDownloadQueue.EnqueueNameLogo(NameLogo);
+            //LogoInfo  LogoInfo  = new LogoInfo (smChannel);
+            //imageDownloadQueue.EnqueueLogo(LogoInfo );
 
             await dataRefreshService.RefreshAllSMChannels();
             await messageService.SendSuccess("Channel Added", $"Channel '{request.Name}' added successfully");

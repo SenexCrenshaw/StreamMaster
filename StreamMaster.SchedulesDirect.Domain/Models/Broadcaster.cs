@@ -5,14 +5,14 @@ namespace StreamMaster.SchedulesDirect.Domain.Models;
 public class Broadcaster
 {
     [JsonPropertyName("city")]
-    public string City { get; set; }
+    public string? City { get; set; }
 
     [JsonPropertyName("state")]
-    public string State { get; set; }
+    public string? State { get; set; }
 
     [JsonPropertyName("postalcode")]
-    public string Postalcode { get; set; }
+    public string? Postalcode { get; set; }
 
     [JsonPropertyName("country")]
-    public string Country { get; set; }
+    public string? Country { get; set; }
 }

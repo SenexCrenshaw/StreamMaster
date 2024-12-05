@@ -1,4 +1,5 @@
-﻿public class StreamResult
+﻿namespace StreamMaster.Streams.Domain.Interfaces;
+public class StreamResult
 {
     public Stream? Stream { get; set; }
     public IClientConfiguration? ClientConfiguration { get; set; }

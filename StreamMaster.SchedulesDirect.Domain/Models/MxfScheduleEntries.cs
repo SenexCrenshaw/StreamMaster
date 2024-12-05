@@ -1,6 +1,4 @@
-﻿using StreamMaster.SchedulesDirect.Domain.XmltvXml;
-
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Xml.Serialization;
 
 namespace StreamMaster.SchedulesDirect.Domain.Models
@@ -8,13 +6,13 @@ namespace StreamMaster.SchedulesDirect.Domain.Models
     public class MxfScheduleEntries
     {
         [XmlAttribute("service")]
-        public string Service { get; set; }
+        public string Service { get; set; } = string.Empty;
 
         [XmlElement("ScheduleEntry")]
-        public List<MxfScheduleEntry> ScheduleEntry { get; set; }
+        public List<MxfScheduleEntry> ScheduleEntry { get; set; } = [];
         public bool ShouldSerializeScheduleEntry()
         {
-            ScheduleEntry = ScheduleEntry.OrderBy(arg => arg.StartTime).ToList();
+            ScheduleEntry = [.. ScheduleEntry.OrderBy(arg => arg.StartTime)];
             DateTime endTime = DateTime.MinValue;
             foreach (MxfScheduleEntry entry in ScheduleEntry)
             {
@@ -31,11 +29,10 @@ namespace StreamMaster.SchedulesDirect.Domain.Models
 
     public class MxfScheduleEntry
     {
-        private int _program;
         private int _tvRating;
 
-        [XmlIgnore] public MxfProgram mxfProgram;
-        [XmlIgnore] public XmltvProgramme? XmltvProgramme { get; set; }
+        [XmlIgnore] public MxfProgram mxfProgram = new();
+        //[XmlIgnore] public XmltvProgramme? XmltvProgramme { get; set; }
         [XmlIgnore] public bool IncludeStartTime;
         [XmlIgnore] public Dictionary<string, dynamic> extras = [];
 
@@ -78,11 +75,7 @@ namespace StreamMaster.SchedulesDirect.Domain.Models
         /// </summary>
         [XmlAttribute("program")]
         [DefaultValue(0)]
-        public int Program
-        {
-            get => _program > 0 ? _program : mxfProgram?.Id ?? 0;
-            set => _program = value;
-        }
+        public int Program { get; set; }
 
         /// <summary>
         /// Specifies the start time of the broadcast.
@@ -269,9 +262,9 @@ namespace StreamMaster.SchedulesDirect.Domain.Models
                 }
 
                 Dictionary<string, string> ratings = [];
-                if (extras.ContainsKey("ratings"))
+                if (extras.TryGetValue("ratings", out dynamic? value))
                 {
-                    foreach (KeyValuePair<string, string> rating in extras["ratings"])
+                    foreach (KeyValuePair<string, string> rating in value)
                     {
                         if (!ratings.TryGetValue(rating.Key, out _))
                         {
@@ -280,16 +273,16 @@ namespace StreamMaster.SchedulesDirect.Domain.Models
                     }
                 }
 
-                if (mxfProgram?.extras.ContainsKey("ratings") ?? false)
-                {
-                    foreach (KeyValuePair<string, string> rating in mxfProgram.extras["ratings"])
-                    {
-                        if (!ratings.TryGetValue(rating.Key, out _))
-                        {
-                            ratings.Add(rating.Key, rating.Value);
-                        }
-                    }
-                }
+                //if (mxfProgram?.Extras.ContainsKey("ratings") ?? false)
+                //{
+                //    foreach (KeyValuePair<string, string> rating in mxfProgram.Extras["ratings"])
+                //    {
+                //        if (!ratings.TryGetValue(rating.Key, out _))
+                //        {
+                //            ratings.Add(rating.Key, rating.Value);
+                //        }
+                //    }
+                //}
 
                 int maxValue = 0;
                 foreach (KeyValuePair<string, string> keyValue in ratings)
@@ -399,16 +392,10 @@ namespace StreamMaster.SchedulesDirect.Domain.Models
             set => _tvRating = value;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         [XmlAttribute("isClassroom")]
         [DefaultValue(false)]
         public bool IsClassroom { get; set; }
 
-        /// <summary>
-        /// 
-        /// </summary>
         [XmlAttribute("isRepeat")]
         [DefaultValue(false)]
         public bool IsRepeat { get; set; }

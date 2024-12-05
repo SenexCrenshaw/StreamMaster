@@ -1,7 +1,7 @@
-﻿using StreamMaster.Streams.Domain.Helpers;
-
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Threading.Channels;
+
+using StreamMaster.Streams.Domain.Helpers;
 
 namespace StreamMaster.Streams.Services
 {
@@ -20,10 +20,10 @@ namespace StreamMaster.Streams.Services
         {
             this.logger = logger;
             StartFFmpegProcess();
-            StartFeedingFFmpeg(inputChannel);
+            StartFeedingFFmpeg();
         }
 
-        private void StartFeedingFFmpeg(ChannelReader<byte[]> channelReader)
+        private void StartFeedingFFmpeg()
         {
             _ = Task.Run(async () =>
             {
@@ -117,7 +117,7 @@ namespace StreamMaster.Streams.Services
                 inputChannel.Writer.TryComplete();
 
                 // Wait for ffmpeg process to exit quietly
-                if (ffmpegProcess != null && !ffmpegProcess.HasExited)
+                if (ffmpegProcess?.HasExited == false)
                 {
                     try
                     {

@@ -1,13 +1,7 @@
 ﻿namespace StreamMaster.Streams.Domain.Events;
 
-public class StreamTimedOut : EventArgs
+public class StreamTimedOut(string uniqueRequestId, DateTime timeOfTimeout) : EventArgs
 {
-    public string UniqueRequestId { get; }
-    public DateTime TimeOfTimeout { get; }
-
-    public StreamTimedOut(string uniqueRequestId, DateTime timeOfTimeout)
-    {
-        UniqueRequestId = uniqueRequestId;
-        TimeOfTimeout = timeOfTimeout;
-    }
+    public string UniqueRequestId { get; } = uniqueRequestId;
+    public DateTime TimeOfTimeout { get; } = timeOfTimeout;
 }

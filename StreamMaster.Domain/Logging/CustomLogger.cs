@@ -1,11 +1,10 @@
 ﻿
+using System.Text.RegularExpressions;
 
 using StreamMaster.Domain.Configuration;
 
-using System.Text.RegularExpressions;
-
 namespace StreamMaster.Domain.Logging;
-public class CustomLogger<T>(ILoggerFactory loggerFactory, ILoggingUtils loggingUtils, IOptionsMonitor<Setting> intSettings) : ILogger<T>
+public partial class CustomLogger<T>(ILoggerFactory loggerFactory, ILoggingUtils loggingUtils, IOptionsMonitor<Setting> intSettings) : ILogger<T>
 {
     private readonly ILogger _innerLogger = loggerFactory.CreateLogger<T>();
     private readonly ILoggingUtils _loggingUtils = loggingUtils ?? throw new ArgumentNullException(nameof(loggingUtils));
@@ -22,7 +21,7 @@ public class CustomLogger<T>(ILoggerFactory loggerFactory, ILoggingUtils logging
         return _innerLogger.IsEnabled(logLevel);
     }
 
-    public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception?, string> formatter)
+    public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
     {
         Setting settings = intSettings.CurrentValue;
         if (!settings.CleanURLs)
@@ -34,24 +33,23 @@ public class CustomLogger<T>(ILoggerFactory loggerFactory, ILoggingUtils logging
         string originalMessage = formatter(state, exception);
 
         // Modify the message as needed, for example replace the streamUrl with loggableUrl
-        string modifiedMessage = ReplaceStreamUrl(originalMessage).Result;
+        string modifiedMessage = ReplaceStreamUrl(originalMessage);
 
-        _innerLogger.Log(logLevel, eventId, state, exception, (s, e) => modifiedMessage);
+        _innerLogger.Log(logLevel, eventId, state, exception, (_, _) => modifiedMessage);
     }
 
-
-    private string ExtractStreamUrl(string originalMessage)
+    private static string ExtractStreamUrl(string originalMessage)
     {
         // Regular expression to match URLs
-        Regex regex = new(@"https?://\S+");
+        Regex regex = MyRegex();
         Match match = regex.Match(originalMessage);
 
         return match.Success ? match.Value : string.Empty;
     }
 
-    private async Task<string> ReplaceStreamUrl(string originalMessage)
+    private string ReplaceStreamUrl(string originalMessage)
     {
-        string streamUrl = ExtractStreamUrl(originalMessage);
+        string streamUrl = CustomLogger<T>.ExtractStreamUrl(originalMessage);
 
         if (string.IsNullOrEmpty(streamUrl))
         {
@@ -59,10 +57,11 @@ public class CustomLogger<T>(ILoggerFactory loggerFactory, ILoggingUtils logging
             return originalMessage;
         }
 
-        string loggableUrl = await _loggingUtils.GetLoggableURLAsync(streamUrl);
+        string loggableUrl = _loggingUtils.GetLoggableURL(streamUrl);
 
         return originalMessage.Replace(streamUrl, loggableUrl);
     }
 
-
+    [GeneratedRegex(@"https?://\S+")]
+    private static partial Regex MyRegex();
 }

@@ -1,4 +1,5 @@
-﻿using StreamMaster.Domain.API;
+﻿using StreamMaster.Domain.Configuration;
+using StreamMaster.Domain.XmltvXml;
 
 namespace StreamMaster.Domain.Services
 {
@@ -7,68 +8,62 @@ namespace StreamMaster.Domain.Services
     /// </summary>
     public interface ILogoService
     {
+        Task<(FileStream? fileStream, string? FileName, string? ContentType)> GetTVLogoAsync(string Source, CancellationToken cancellationToken);
+        Task<(FileStream? fileStream, string? FileName, string? ContentType)> GetCustomLogoAsync(string Source, CancellationToken cancellationToken);
+        Task<(FileStream? fileStream, string? FileName, string? ContentType)> GetProgramLogoAsync(string fileName, CancellationToken cancellationToken);
+        Task<(FileStream? fileStream, string? FileName, string? ContentType)> GetLogoAsync(string fileName, CancellationToken cancellationToken);
+        //Task<(FileStream? fileStream, string? FileName, string? ContentType)> GetLogoFromCacheAsync(string source, SMFileTypes fileType, CancellationToken cancellationToken);
+        Task<(FileStream? fileStream, string? FileName, string? ContentType)> GetLogoForChannelAsync(int SMChannelId, CancellationToken cancellationToken);
+
+        //string GetLogoUrl2(string logoSource, SMFileTypes logoType);
+        List<XmltvProgramme> GetXmltvProgrammeForPeriod(VideoStreamConfig videoStreamConfig, DateTime startDate, int days, string baseUrl);
         /// <summary>
         /// Adds a new logo based on the specified artwork URI and title.
         /// </summary>
-        /// <param name="artworkUri">The URI of the artwork.</param>
+        /// <param name="URL">The URI of the artwork.</param>
         /// <param name="title">The title associated with the logo.</param>
-        void AddLogo(string artworkUri, string title);
+        void AddLogoToCache(string URL, string title, int FileId = -1, SMFileTypes smFileType = SMFileTypes.Logo, bool OG = false);
 
         /// <summary>
         /// Adds a new logo using the specified <see cref="LogoFileDto"/>.
         /// </summary>
         /// <param name="logoFile">The logo file DTO containing logo details.</param>
-        void AddLogo(LogoFileDto logoFile);
+        void CacheLogo(CustomLogoDto logoFile, bool OG = false);
 
         /// <summary>
         /// Builds the logo cache using the current streams asynchronously.
         /// </summary>
         /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
         /// <returns>A task that represents the asynchronous operation. The result contains a <see cref="DataResponse{Boolean}"/> indicating the success of the operation.</returns>
-        Task<DataResponse<bool>> BuildLogosCacheFromSMStreamsAsync(CancellationToken cancellationToken = default);
+        Task<DataResponse<bool>> AddSMStreamLogosAsync(CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Caches the logos for SM Channels.
         /// </summary>
-        void CacheSMChannelLogos();
+        Task<DataResponse<bool>> CacheSMChannelLogosAsync(CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Clears all logos from the cache.
         /// </summary>
         void ClearLogos();
 
-        /// <summary>
-        /// Clears all TV logos from the cache.
-        /// </summary>
-        void ClearTvLogos();
+        ///// <summary>
+        ///// Clears all TV logos from the cache.
+        ///// </summary>
+        //void ClearTvLogos();
 
         /// <summary>
         /// Retrieves the logo corresponding to the specified source.
         /// </summary>
         /// <param name="source">The source URL of the logo.</param>
         /// <returns>The <see cref="LogoFileDto"/> if found; otherwise, null.</returns>
-        LogoFileDto? GetLogoBySource(string source);
+        CustomLogoDto? GetLogoBySource(string source);
 
         /// <summary>
         /// Retrieves a list of logos of the specified file type.
         /// </summary>
-        /// <param name="SMFileType">The type of the logos to retrieve.</param>
         /// <returns>A list of <see cref="LogoFileDto"/> objects.</returns>
-        List<LogoFileDto> GetLogos(SMFileTypes? SMFileType = null);
-
-        /// <summary>
-        /// Generates a URL for a logo based on the specified icon source and base URL.
-        /// </summary>
-        /// <param name="iconSource">The source of the icon.</param>
-        /// <param name="baseUrl">The base URL to prepend to the icon source.</param>
-        /// <returns>The full URL of the logo.</returns>
-        string GetLogoUrl(string iconSource, string baseUrl);
-
-        /// <summary>
-        /// Retrieves a list of TV logos.
-        /// </summary>
-        /// <returns>A list of <see cref="TvLogoFile"/> objects.</returns>
-        List<TvLogoFile> GetTvLogos();
+        List<CustomLogoDto> GetLogos();
 
         /// <summary>
         /// Retrieves a valid image path for the specified URL and file type.
@@ -76,19 +71,21 @@ namespace StreamMaster.Domain.Services
         /// <param name="URL">The URL of the image.</param>
         /// <param name="fileType">The type of the file. If null, the file type is determined automatically.</param>
         /// <returns>The valid <see cref="ImagePath"/>, or null if not found.</returns>
-        ImagePath? GetValidImagePath(string URL, SMFileTypes? fileType = null);
+        ImagePath? GetValidImagePath(string baseURL, SMFileTypes fileType, bool? checkExists = true);
 
         /// <summary>
         /// Reads the directory containing TV logos asynchronously.
         /// </summary>
         /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
         /// <returns>A task that represents the asynchronous operation. The result contains a boolean indicating the success of the operation.</returns>
-        Task<bool> ReadDirectoryTVLogos(CancellationToken cancellationToken = default);
+        Task<bool> ScanForTvLogosAsync(CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Removes logos associated with the specified M3U file ID.
         /// </summary>
         /// <param name="id">The ID of the M3U file.</param>
         void RemoveLogosByM3UFileId(int id);
+        string AddCustomLogo(string Name, string Url);
+        void RemoveCustomLogo(string Url);
     }
 }

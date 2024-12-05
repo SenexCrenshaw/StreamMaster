@@ -7,7 +7,7 @@ namespace StreamMaster.Application.EPGFiles.Commands;
 public record CreateEPGFileFromFormRequest(IFormFile? FormFile, string Name, int EPGNumber, int? HoursToUpdate, int? TimeShift, string? Color)
     : IRequest<APIResponse>;
 
-public class CreateEPGFileFromFormRequestHandler(ILogger<CreateEPGFileFromFormRequest> Logger, IEPGFileService ePGFileService, IFileUtilService fileUtilService, IDataRefreshService dataRefreshService, IMessageService messageService, IXmltv2Mxf xmltv2Mxf, IRepositoryWrapper Repository, IMapper Mapper, IPublisher Publisher)
+public class CreateEPGFileFromFormRequestHandler(ILogger<CreateEPGFileFromFormRequest> Logger, IEPGFileService ePGFileService, IFileUtilService fileUtilService, IDataRefreshService dataRefreshService, IMessageService messageService, IRepositoryWrapper Repository, IMapper Mapper, IPublisher Publisher)
     : IRequestHandler<CreateEPGFileFromFormRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(CreateEPGFileFromFormRequest request, CancellationToken cancellationToken)
@@ -37,8 +37,9 @@ public class CreateEPGFileFromFormRequestHandler(ILogger<CreateEPGFileFromFormRe
                 return APIResponse.ErrorWithMessage($"Exception M3U From URL '{ex}'");
             }
 
-            XMLTV? tv = await xmltv2Mxf.ConvertToXMLTVAsync(fullName, epgFile.EPGNumber);
-            if (tv == null)
+            (int channelCount, int programCount) = await fileUtilService.ReadXmlCountsFromFileAsync(fullName, epgFile.EPGNumber);
+
+            if (channelCount == -1)
             {
                 fileUtilService.CleanUpFile(fullName);
                 Logger.LogCritical("Exception EPG '{name}' format is not supported", request.Name);
@@ -46,8 +47,8 @@ public class CreateEPGFileFromFormRequestHandler(ILogger<CreateEPGFileFromFormRe
                 return APIResponse.ErrorWithMessage($"Could not get streams from M3U file {epgFile.Name}");
             }
 
-            epgFile.ChannelCount = (tv.Channels?.Count) ?? 0;
-            epgFile.ProgrammeCount = (tv.Programs?.Count) ?? 0;
+            epgFile.ChannelCount = channelCount;
+            epgFile.ProgrammeCount = programCount;
             epgFile.LastDownloaded = SMDT.UtcNow;
 
             Repository.EPGFile.CreateEPGFile(epgFile);

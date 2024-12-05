@@ -17,30 +17,15 @@ using StreamMaster.Domain.Helpers;
 
 namespace StreamMaster.Infrastructure.Services
 {
-    public class TimerService : BackgroundService
+    public class TimerService(
+        IServiceProvider serviceProvider,
+        IOptionsMonitor<Setting> intSettings,
+        IOptionsMonitor<SDSettings> intsdsettings,
+        IJobStatusService jobStatusService,
+        ILogger<TimerService> logger) : BackgroundService
     {
-        private readonly IServiceProvider serviceProvider;
-        private readonly IJobStatusService jobStatusService;
-        private readonly ILogger<TimerService> logger;
-        private readonly IOptionsMonitor<Setting> intSettings;
-        private readonly IOptionsMonitor<SDSettings> intsdsettings;
-
         // Static fields to maintain application-wide state
         private static DateTime LastBackupTime = DateTime.UtcNow;
-
-        public TimerService(
-            IServiceProvider serviceProvider,
-            IOptionsMonitor<Setting> intSettings,
-            IOptionsMonitor<SDSettings> intsdsettings,
-            IJobStatusService jobStatusService,
-            ILogger<TimerService> logger)
-        {
-            this.serviceProvider = serviceProvider;
-            this.intSettings = intSettings;
-            this.intsdsettings = intsdsettings;
-            this.jobStatusService = jobStatusService;
-            this.logger = logger;
-        }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
@@ -79,13 +64,21 @@ namespace StreamMaster.Infrastructure.Services
                 successInterval: TimeSpan.FromMinutes(60),
                 cancellationToken: cancellationToken);
 
+            await ExecuteJobAsync(
+               jobStatusService.GetJobManager(JobType.EPGRemovedExpiredKeys, 0),
+               async () => await backgroundTask.EPGRemovedExpiredKeys(cancellationToken).ConfigureAwait(false),
+               runInterval: TimeSpan.FromMinutes(15),
+               successInterval: TimeSpan.FromMinutes(60),
+               cancellationToken: cancellationToken);
+
             // Manage TimerEPG Job
             await ExecuteJobAsync(
                 jobStatusService.GetJobManager(JobType.TimerEPG, 0),
                 async () =>
                 {
                     DataResponse<List<EPGFileDto>> epgFilesToUpdated = await epgFileService.GetEPGFilesNeedUpdatingAsync().ConfigureAwait(false);
-                    if (epgFilesToUpdated.Data.Any())
+
+                    if (epgFilesToUpdated.Data?.Count > 0)
                     {
                         logger.LogInformation("EPG Files to update count: {count}", epgFilesToUpdated.Data.Count);
 
@@ -103,7 +96,7 @@ namespace StreamMaster.Infrastructure.Services
                 async () =>
                 {
                     DataResponse<List<M3UFileDto>> m3uFilesToUpdated = await m3uFileService.GetM3UFilesNeedUpdatingAsync().ConfigureAwait(false);
-                    if (m3uFilesToUpdated.Data.Any())
+                    if (m3uFilesToUpdated.Data?.Count > 0)
                     {
                         logger.LogInformation("M3U Files to update count: {count}", m3uFilesToUpdated.Data.Count);
 
@@ -137,9 +130,10 @@ namespace StreamMaster.Infrastructure.Services
             TimeSpan? runInterval = null,
             TimeSpan? successInterval = null,
             Func<bool>? executeIf = null,
-            Action? onSuccessful = null,
-            CancellationToken cancellationToken = default)
+            Action? onSuccessful = null
+            , CancellationToken cancellationToken = default)
         {
+            _ = cancellationToken;
             if (jobManager.IsRunning)
             {
                 return;

@@ -15,4 +15,3 @@ public class SMChannelChannelLinkConfiguration : IEntityTypeConfiguration<SMChan
             .OnDelete(DeleteBehavior.Cascade);
     }
 }
-

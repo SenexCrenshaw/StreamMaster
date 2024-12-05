@@ -1,15 +1,84 @@
-using StreamMaster.Domain.Configuration;
-using StreamMaster.Domain.Extensions;
-using StreamMaster.Domain.Helpers;
-
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Xml.Serialization;
+
+using StreamMaster.Domain.Configuration;
+using StreamMaster.Domain.Helpers;
+using StreamMaster.Domain.XmltvXml;
 
 namespace StreamMaster.Domain.Common;
 
 public sealed class FileUtil
 {
+    /// <summary>
+    /// Validates whether a file path is valid for the current operating system.
+    /// </summary>
+    /// <param name="filePath">The file path to validate.</param>
+    /// <returns>True if the file path is valid; otherwise, false.</returns>
+    public static bool IsValidFilePath(string filePath)
+    {
+        if (string.IsNullOrWhiteSpace(filePath))
+        {
+            return false; // Null, empty, or whitespace paths are invalid
+        }
+
+        try
+        {
+            // Check for invalid characters
+            char[] invalidChars = Path.GetInvalidPathChars();
+            if (filePath.Any(ch => invalidChars.Contains(ch)))
+            {
+                return false;
+            }
+
+            // Check for additional platform-specific constraints
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                // Windows-specific rules
+                if (filePath.Length > 260) // Max path length in many cases
+                {
+                    return false;
+                }
+
+                string directoryName = Path.GetDirectoryName(filePath) ?? string.Empty;
+                string fileName = Path.GetFileName(filePath);
+
+                if (directoryName.Any(ch => Path.GetInvalidPathChars().Contains(ch)) ||
+                    fileName.Any(ch => Path.GetInvalidFileNameChars().Contains(ch)))
+                {
+                    return false;
+                }
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) || RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                // Unix-like systems allow almost any characters except '\0' and '/'
+                if (filePath.Contains('\0') || filePath.Any(ch => ch == '/'))
+                {
+                    return false;
+                }
+            }
+
+            // Ensure it's a valid absolute or relative path
+            string fullPath = Path.GetFullPath(filePath);
+        }
+        catch
+        {
+            return false; // Any exception indicates an invalid path
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    /// Checks if the file path is valid and whether the file exists.
+    /// </summary>
+    /// <param name="filePath">The file path to validate and check for existence.</param>
+    /// <returns>True if the path is valid and the file exists; otherwise, false.</returns>
+    public static bool IsFilePathValidAndExists(string filePath)
+    {
+        return IsValidFilePath(filePath) && File.Exists(filePath);
+    }
     /// <summary>
     /// Searches for the specified executable name in predefined directories.
     /// </summary>
@@ -63,7 +132,7 @@ public sealed class FileUtil
             throw new ArgumentNullException(nameof(url), "URL cannot be null or empty.");
         }
         byte[] hashBytes = System.Security.Cryptography.MD5.HashData(Encoding.UTF8.GetBytes(url));
-        return BitConverter.ToString(hashBytes).Replace("-", "").ToLowerInvariant();
+        return Convert.ToHexStringLower(hashBytes);
     }
 
     public static async Task<bool> WaitForFileAsync(string filePath, int timeoutSeconds, int checkIntervalMilliseconds, CancellationToken cancellationToken)
@@ -156,15 +225,16 @@ public sealed class FileUtil
         return "0 bytes";
     }
 
-    public static bool WriteXmlFile(object obj, string filepath)
+    public static bool WriteXmlFile(XMLTV xmltv, string filepath)
     {
         try
         {
-            XmlSerializer serializer = new(obj.GetType());
+            XmlSerializer serializer = new(typeof(XMLTV));
+
             XmlSerializerNamespaces ns = new();
             ns.Add("", "");
             using StreamWriter writer = new(filepath, false, Encoding.UTF8);
-            serializer.Serialize(writer, obj, ns);
+            serializer.Serialize(writer, xmltv, ns);
 
             return true;
         }
@@ -236,53 +306,5 @@ public sealed class FileUtil
         {
             Console.WriteLine($"Backup Exception occurred: {ex.Message}");
         }
-    }
-
-    public static async Task<List<TvLogoFile>> GetTVLogosFromDirectory(DirectoryInfo dirInfo, string tvLogosLocation, int startingId, CancellationToken cancellationToken = default)
-    {
-        List<TvLogoFile> ret = [];
-
-        foreach (FileInfo file in dirInfo.GetFiles("*png"))
-        {
-            if (cancellationToken.IsCancellationRequested)
-            {
-                break;
-            }
-
-            string basePath = dirInfo.FullName.Replace(tvLogosLocation, "");
-            if (basePath.StartsWith(Path.DirectorySeparatorChar))
-            {
-                basePath = basePath.Remove(0, 1);
-            }
-
-            string basename = basePath.Replace(Path.DirectorySeparatorChar, '-');
-            string name = $"{basename}-{file.Name}";
-
-            TvLogoFile tvLogo = new()
-            {
-                Id = startingId++,
-                Name = Path.GetFileNameWithoutExtension(file.Name),
-                FileExists = true,
-                ContentType = "image/png",
-                LastDownloaded = SMDT.UtcNow,
-                Source = $"{basePath}{Path.DirectorySeparatorChar}{file.Name}"
-            };
-
-            tvLogo.SetFileDefinition(FileDefinitions.TVLogo);
-            tvLogo.FileExtension = ".png";
-            ret.Add(tvLogo);
-        }
-
-        foreach (DirectoryInfo newDir in dirInfo.GetDirectories())
-        {
-            if (cancellationToken.IsCancellationRequested)
-            {
-                break;
-            }
-            List<TvLogoFile> files = await GetTVLogosFromDirectory(newDir, tvLogosLocation, startingId, cancellationToken).ConfigureAwait(false);
-            ret = [.. ret, .. files];
-        }
-
-        return ret;
     }
 }

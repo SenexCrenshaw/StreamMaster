@@ -4,12 +4,11 @@
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record AddSMChannelsToStreamGroupRequest(int StreamGroupId, List<int> SMChannelIds) : IRequest<APIResponse>;
 
-
 internal class AddSMChannelsToStreamGroupRequestHandler(IRepositoryWrapper Repository, IDataRefreshService dataRefreshService) : IRequestHandler<AddSMChannelsToStreamGroupRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(AddSMChannelsToStreamGroupRequest request, CancellationToken cancellationToken)
     {
-        List<FieldData> fieldDatas = new();
+        List<FieldData> fieldDatas = [];
         foreach (int smChannelId in request.SMChannelIds)
         {
             APIResponse res = await Repository.StreamGroupSMChannelLink.AddSMChannelToStreamGroup(request.StreamGroupId, smChannelId).ConfigureAwait(false);

@@ -1,15 +1,34 @@
 ﻿
+using System.Security.Cryptography;
+using System.Text;
+
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
-
-using System.Security.Cryptography;
-using System.Text;
 
 namespace StreamMaster.SchedulesDirect.Helpers;
 
 public static partial class SDHelpers
 {
+    // Priority categories in descending order
+    private static readonly List<string> categories =
+        [
+         "box art",
+         "key art",
+            "vod art",
+            "poster art",
+            "banner",
+            "banner-l1",
+            "banner-l2",
+            "banner-lo",
+            "logo",
+            "banner-l3",
+            "iconic",
+            "staple"
+        ];
+    private static readonly Dictionary<string, int> categoryPriority = categories
+        .Select((category, index) => new { category, index })
+        .ToDictionary(item => item.category, item => item.index, StringComparer.OrdinalIgnoreCase);
     public static Image? CropAndResizeImage(Image<Rgba32> origImg)
     {
         try
@@ -23,7 +42,7 @@ public static partial class SDHelpers
             const int tgtWidth = 360;
             const int tgtHeight = 270;
 
-            // Set target aspect/image size
+            // Set target asp/image size
             const double tgtAspect = 3.0;
 
             // Find the min/max non-transparent pixels
@@ -69,18 +88,14 @@ public static partial class SDHelpers
             {
                 offsetY = (int)(((max.X - min.X + 1) / tgtAspect) - (max.Y - min.Y + 1) + 0.5) / 2;
             }
-
-            //var cropImg = new Image<Rgba32>(new Configuration(), cropRectangle.Width, cropRectangle.Height + (offsetY * 2));
             Image<Rgba32> cropImg = origImg.Clone(ctx =>
-            {
-                ctx.Resize(new ResizeOptions
-                {
-                    Size = new Size(tgtWidth, tgtHeight),//cropRectangle.Width, cropRectangle.Height),
-                    Mode = ResizeMode.Crop
-                });
-                //var destinationRectangle = new Rectangle(0, offsetY, cropRectangle.Width, cropRectangle.Height);
-                //_ = ctx.DrawImage(origImg, 1).Crop(destinationRectangle);
-            });
+                 {
+                     _ = ctx.Resize(new ResizeOptions
+                     {
+                         Size = new Size(tgtWidth, tgtHeight),//cropRectangle.Width, cropRectangle.Height),
+                         Mode = ResizeMode.Crop
+                     });
+                 });
 
             return cropImg;
             //if (tgtHeight >= cropImg.Height && tgtWidth >= cropImg.Width)
@@ -106,162 +121,80 @@ public static partial class SDHelpers
         }
     }
 
-    public static List<ProgramArtwork> GetArtWork(this MxfProgram program)
+    /// <summary>
+    /// Filters and selects tiered images from a list of program artwork based on specified criteria.
+    /// </summary>
+    /// <param name="sdImages">The list of program artwork to filter.</param>
+    /// <param name="artWorkSize">The desired size of the artwork. Options include Sm, Md, Lg.</param>
+    /// <param name="tiers">The preferred tiers of artwork.</param>
+    /// <param name="aspect">The desired aspect ratio.</param>
+    /// <returns>A filtered and prioritized list of program artwork.</returns>
+    public static List<ProgramArtwork> GetTieredImages(List<ProgramArtwork> sdImages, string artWorkSize, List<string>? tiers = null, string? aspect = null)
     {
-        List<ProgramArtwork> artwork = [];
-        // a movie or sport event will have a guide image from the program
-        if (program.extras.TryGetValue("artwork", out dynamic? value))
+        if (sdImages == null)
         {
-            artwork = value;
+            throw new ArgumentNullException(nameof(sdImages), "Input list cannot be null.");
         }
 
-        // get the season class from the program if it has a season
-        if (artwork.Count == 0 && (program.mxfSeason?.extras.ContainsKey("artwork") ?? false))
+        // Order of priority for artwork sizes
+        List<string> sizePriority = ["Lg", "Md", "Sm"];
+        int requestedSizeIndex = sizePriority.IndexOf(artWorkSize);
+        if (requestedSizeIndex == -1)
         {
-            artwork = program.mxfSeason.extras["artwork"];
+            throw new ArgumentException("Invalid artWorkSize. Expected one of: Sm, Md, Lg.", nameof(artWorkSize));
         }
 
-        // get the series info class from the program if it is a series
-        if (artwork.Count == 0 && (program.mxfSeriesInfo?.Extras.ContainsKey("artwork") ?? false))
+        // Adjust size priority based on requested artwork size
+        List<string> applicableSizes = sizePriority.Skip(requestedSizeIndex).ToList();
+
+        // Filter images based on provided criteria
+        List<ProgramArtwork> filteredImages = sdImages
+            .Where(image =>
+                !string.IsNullOrEmpty(image.Category) &&
+                !string.IsNullOrEmpty(image.Aspect) &&
+                !string.IsNullOrEmpty(image.Uri) &&
+                (string.IsNullOrEmpty(image.Tier) || tiers?.Contains(image.Tier.ToLower()) != false) &&
+                (string.IsNullOrEmpty(aspect) || image.Aspect.Equals(aspect, StringComparison.OrdinalIgnoreCase)))
+            .ToList();
+
+        // Process each artwork size in priority order to gather images
+        List<ProgramArtwork> prioritizedImages = [];
+        foreach (string size in applicableSizes)
         {
-            artwork = program.mxfSeriesInfo.Extras["artwork"];
-        }
-        return artwork;
-    }
+            List<ProgramArtwork> imagesOfSize = filteredImages
+                .Where(image => string.Equals(image.Size, size, StringComparison.OrdinalIgnoreCase))
+                .ToList();
 
-    public static List<ProgramArtwork> GetTieredImages(List<ProgramArtwork> sdImages, List<string> tiers, string artWorkSize)
-    {
-        List<string> Tiers = sdImages.Select(a => a.Tier).Distinct().ToList();
-        List<string> Sizes = sdImages.Select(a => a.Size).Distinct().ToList();
-        List<string> Categories = sdImages.Select(a => a.Size).Distinct().ToList();
-        List<ProgramArtwork> ret = [];
-        IEnumerable<ProgramArtwork> images = sdImages.Where(arg =>
-            !string.IsNullOrEmpty(arg.Category) && !string.IsNullOrEmpty(arg.Aspect) && !string.IsNullOrEmpty(arg.Uri) &&
-            (string.IsNullOrEmpty(arg.Tier) || tiers.Contains(arg.Tier.ToLower())) &&
-            !string.IsNullOrEmpty(arg.Size) && arg.Size.Equals(artWorkSize, StringComparison.InvariantCultureIgnoreCase));
-
-        // get the aspect ratios available and fix the URI
-        ConcurrentHashSet<string> aspects = [];
-        foreach (ProgramArtwork? image in images)
-        {
-            _ = aspects.Add(image.Aspect);
-            //if (!image.Uri.ToLower().StartsWith("http"))
-            //{
-            //    image.Uri = $"{api.BaseArtworkAddress}image/{image.Uri.ToLower()}";
-            //}
-        }
-
-        // determine which image to return with each aspect
-        foreach (string aspect in aspects)
-        {
-            IEnumerable<ProgramArtwork> imgAspects = images.Where(arg => arg.Aspect.Equals(aspect));
-
-            ProgramArtwork[] links = new ProgramArtwork[11];
-            foreach (ProgramArtwork? image in imgAspects)
+            if (imagesOfSize.Count != 0)
             {
-                switch (image.Category.ToLower())
+                // Group images by aspect ratio
+                Dictionary<string, List<ProgramArtwork>> aspects = imagesOfSize
+                    .GroupBy(image => image.Aspect)
+                    .ToDictionary(group => group.Key, group => group.ToList());
+
+                // Process each aspect group to select the highest priority image based on category
+                foreach (KeyValuePair<string, List<ProgramArtwork>> aspectGroup in aspects)
                 {
-                    case "box art":     // DVD box art, for movies only
-                        if (links[0] == null)
-                        {
-                            links[0] = image;
-                        }
+                    List<ProgramArtwork> aspectImages = aspectGroup.Value;
 
-                        break;
-                    case "vod art":
-                        if (links[1] == null)
-                        {
-                            links[1] = image;
-                        }
+                    IEnumerable<ProgramArtwork> prioritizedCategoryImages = aspectImages
+                        .OrderBy(image => categoryPriority.TryGetValue(image.Category, out int value) ? value : int.MaxValue)
+                        .Take(3);
 
-                        break;
-                    case "poster art":  // theatrical movie poster, standard sizes
-                        if (links[2] == null)
-                        {
-                            links[2] = image;
-                        }
-
-                        break;
-                    case "banner":      // source-provided image, usually shows cast ensemble with source-provided text
-                        if (links[3] == null)
-                        {
-                            links[3] = image;
-                        }
-
-                        break;
-                    case "banner-l1":   // same as Banner
-                        if (links[4] == null)
-                        {
-                            links[4] = image;
-                        }
-
-                        break;
-                    case "banner-l2":   // source-provided image with plain text
-                        if (links[5] == null)
-                        {
-                            links[5] = image;
-                        }
-
-                        break;
-                    case "banner-lo":   // banner with Logo Only
-                        if (links[6] == null)
-                        {
-                            links[6] = image;
-                        }
-
-                        break;
-                    case "logo":        // official logo for program, sports organization, sports conference, or TV station
-                        if (links[7] == null)
-                        {
-                            links[7] = image;
-                        }
-
-                        break;
-                    case "banner-l3":   // stock photo image with plain text
-                        if (links[8] == null)
-                        {
-                            links[8] = image;
-                        }
-
-                        break;
-                    case "iconic":      // representative series/season/episode image, no text
-                        if (tiers.Contains("series") && links[9] == null)
-                        {
-                            links[9] = image;
-                        }
-
-                        break;
-                    case "staple":      // the staple image is intended to cover programs which do not have a unique banner image
-                        if (links[10] == null)
-                        {
-                            links[10] = image;
-                        }
-
-                        break;
-                    case "banner-l1t":
-                    case "banner-lot":  // banner with Logo Only + Text indicating season number
-                        break;
+                    prioritizedImages.AddRange(prioritizedCategoryImages);
                 }
             }
 
-            foreach (ProgramArtwork link in links)
+            // If we have found some images, break the loop since we have a satisfactory size
+            if (prioritizedImages.Count != 0)
             {
-                if (link == null)
-                {
-                    continue;
-                }
-
-                ret.Add(link);
                 break;
             }
         }
 
-        if (ret.Count > 1)
-        {
-            ret = [.. ret.OrderBy(arg => arg.Width)];
-        }
-        return ret;
+        return prioritizedImages;
     }
+
 
     public static bool TableContains(string[] table, string text, bool exactMatch = false)
     {
@@ -277,12 +210,12 @@ public static partial class SDHelpers
                 continue;
             }
 
-            if (!exactMatch && str.Contains(text, StringComparison.CurrentCultureIgnoreCase))
+            if (!exactMatch && str.ContainsIgnoreCase(text))
             {
                 return true;
             }
 
-            if (str.Equals(text, StringComparison.OrdinalIgnoreCase))
+            if (str.EqualsIgnoreCase(text))
             {
                 return true;
             }
@@ -293,14 +226,14 @@ public static partial class SDHelpers
 
     public static bool StringContains(this string str, string text)
     {
-        return str?.ToLower().Contains(text, StringComparison.CurrentCultureIgnoreCase) == true;
+        return str?.ToLower().ContainsIgnoreCase(text) == true;
     }
 
     public static string GenerateHashFromStringContent(StringContent content)
     {
         byte[] contentBytes = Encoding.UTF8.GetBytes(content.ReadAsStringAsync().Result); // Extract string from StringContent and convert to bytes
         byte[] hashBytes = SHA256.HashData(contentBytes); // Compute SHA-256 hash
-        return BitConverter.ToString(hashBytes).Replace("-", "").ToLower(); // Convert byte array to hex string
+        return Convert.ToHexStringLower(hashBytes); // Convert byte array to hex string
     }
 
     public static string GenerateCacheKey(string command)

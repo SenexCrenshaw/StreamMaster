@@ -13,7 +13,7 @@ namespace StreamMaster.Infrastructure.Services.Frontend.Mappers
             resourceUrl = resourceUrl.ToLowerInvariant();
             if (resourceUrl.EndsWith("txt"))
             {
-                bool aa = resourceUrl.EndsWith(".txt") || (resourceUrl.StartsWith("/_next/static/") &&
+                _ = resourceUrl.EndsWith(".txt") || (resourceUrl.StartsWith("/_next/static/") &&
                 (
                    (resourceUrl.EndsWith(".js") && !resourceUrl.EndsWith("initialize.js ")) ||
                    resourceUrl.EndsWith(".map") ||
@@ -28,7 +28,6 @@ namespace StreamMaster.Infrastructure.Services.Frontend.Mappers
                    resourceUrl.EndsWith("oauth.html"
                    )
                    ));
-
             }
             return resourceUrl.EndsWith(".txt") || (resourceUrl.StartsWith("/_next/static/") &&
                 (
@@ -47,17 +46,13 @@ namespace StreamMaster.Infrastructure.Services.Frontend.Mappers
                    ));
         }
 
-        public override async Task<string> Map(string resourceUrl)
+        public override Task<string> MapAsync(string resourceUrl)
         {
             string path = resourceUrl.Replace('/', Path.DirectorySeparatorChar);
-            //if (path.StartsWith("\\_next\\"))
-            //{
-            //    path = path[7..];
-            //}
 
             path = path.Trim(Path.DirectorySeparatorChar);
 
-            return Path.Combine(BuildInfo.StartUpPath, settings.UiFolder, path);
+            return Task.FromResult(Path.Combine(BuildInfo.StartUpPath, settings.UiFolder, path));
         }
     }
 }

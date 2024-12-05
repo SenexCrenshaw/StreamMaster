@@ -1,14 +1,12 @@
-﻿namespace StreamMaster.Application.Profiles.Commands;
+﻿
+namespace StreamMaster.Application.Profiles.Commands;
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record AddCommandProfileRequest(string ProfileName, string Command, string Parameters) : IRequest<APIResponse>;
-
 public class AddCommandProfileRequestHandler(ILogger<AddCommandProfileRequest> Logger, IDataRefreshService dataRefreshService, IOptionsMonitor<CommandProfileDict> intProfileSettings)
 : IRequestHandler<AddCommandProfileRequest, APIResponse>
 {
-
-
     public async Task<APIResponse> Handle(AddCommandProfileRequest request, CancellationToken cancellationToken)
     {
         CommandProfileDict profileSettings = intProfileSettings.CurrentValue;
@@ -27,7 +25,6 @@ public class AddCommandProfileRequestHandler(ILogger<AddCommandProfileRequest> L
         {
             Command = request.Command,
             Parameters = request.Parameters,
-
         };
         if (profileSettings.Profiles.TryGetValue(request.ProfileName, out _))
         {
@@ -38,12 +35,10 @@ public class AddCommandProfileRequestHandler(ILogger<AddCommandProfileRequest> L
             profileSettings.AddProfile(request.ProfileName, profile);
         }
 
-
         Logger.LogInformation("AddVideoProfileRequest");
 
         SettingsHelper.UpdateSetting(profileSettings);
         await dataRefreshService.RefreshCommandProfiles();
         return APIResponse.Ok;
     }
-
 }

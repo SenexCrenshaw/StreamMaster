@@ -6,6 +6,6 @@ namespace StreamMaster.Domain.Services
     {
         Task DeleteStreamGroupProfile(StreamGroupProfile StreamGroupProfile);
         Task<List<StreamGroupProfile>> GetStreamGroupProfiles(int? StreamGroupId = null);
-        void Update(StreamGroupProfile streamGroupProfile);
+        //void Update(StreamGroupProfile streamGroupProfile);
     }
 }

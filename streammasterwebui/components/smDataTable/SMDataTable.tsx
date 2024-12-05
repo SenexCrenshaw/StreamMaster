@@ -844,6 +844,7 @@ const SMDataTable = <T extends DataTableValue>(props: SMDataTableProps<T>, ref: 
             currentPageReportTemplate="{first} to {last} of {totalRecords}"
             dataKey={props.dataKey || 'Id'}
             editMode="cell"
+            emptyMessage={props.emptyMessage}
             expandedRows={state.expandedRows}
             filterDisplay="row"
             filters={isEmptyObject(state.filters) ? getEmptyFilter(props.columns, state.showHidden) : state.filters}

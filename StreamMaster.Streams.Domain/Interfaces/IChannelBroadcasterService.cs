@@ -9,7 +9,7 @@ namespace StreamMaster.Streams.Domain.Interfaces
         /// Unregisters a client asynchronously by its unique request ID.
         /// </summary>
         /// <param name="uniqueRequestId">The unique request ID of the client.</param>
-        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+        /// <param name="cancellationToken">A Token to monitor for cancellation requests.</param>
         /// <returns><c>true</c> if the client was unregistered successfully; otherwise, <c>false</c>.</returns>
         Task<bool> UnRegisterClientAsync(string uniqueRequestId, CancellationToken cancellationToken = default);
 
@@ -22,7 +22,7 @@ namespace StreamMaster.Streams.Domain.Interfaces
         /// Gets or creates a channel status channel asynchronously.
         /// </summary>
         /// <param name="config">The client configuration.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <param name="cancellationToken">The cancellation Token.</param>
         /// <returns>The channel status channel if created; otherwise, <c>null</c>.</returns>
         Task<IChannelBroadcaster> GetOrCreateChannelBroadcasterAsync(IClientConfiguration config, int streamGroupProfileId, CancellationToken cancellationToken);
 
@@ -41,7 +41,6 @@ namespace StreamMaster.Streams.Domain.Interfaces
         /// <summary>
         /// Occurs when a channel status is stopped.
         /// </summary>
-        event AsyncEventHandler<ChannelBroascasterStopped>? _OnChannelBroadcasterStoppedEvent;
-
+        event AsyncEventHandler<ChannelBroascasterStopped>? OnChannelBroadcasterStoppedEvent;
     }
 }

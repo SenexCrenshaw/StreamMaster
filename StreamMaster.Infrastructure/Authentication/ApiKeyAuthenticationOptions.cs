@@ -1,12 +1,13 @@
-﻿using Microsoft.AspNetCore.Authentication;
+﻿using System.Diagnostics;
+using System.Security.Claims;
+using System.Text.Encodings.Web;
+
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Logging;
 
 using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Enums;
-
-using System.Diagnostics;
-using System.Security.Claims;
-using System.Text.Encodings.Web;
+using StreamMaster.Domain.Extensions;
 
 namespace StreamMaster.Infrastructure.Authentication;
 
@@ -37,7 +38,7 @@ public class ApiKeyAuthenticationHandler(
 
     protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
     {
-        bool needsAuth = string.IsNullOrEmpty(settings.CurrentValue.AuthenticationMethod) || !settings.CurrentValue.AuthenticationMethod.Equals("none", StringComparison.CurrentCultureIgnoreCase);
+        bool needsAuth = string.IsNullOrEmpty(settings.CurrentValue.AuthenticationMethod) || !settings.CurrentValue.AuthenticationMethod.EqualsIgnoreCase("none");
 
         if (!needsAuth)
         {
@@ -105,7 +106,7 @@ public class ApiKeyAuthenticationHandler(
     protected override Task HandleChallengeAsync(AuthenticationProperties properties)
     {
         // If authentication fails, redirect to the login page
-        if (!Context.User.Identity.IsAuthenticated)
+        if (Context.User.Identity?.IsAuthenticated == false)
         {
             _logger.LogDebug("Authentication failed. Redirecting to login page for {requestPath}", Context.Request.Path);
 
@@ -130,7 +131,7 @@ public class ApiKeyAuthenticationHandler(
 
     private static bool IsSafePath(string requestPath)
     {
-        return SafePaths.Any(path => requestPath.StartsWith(path, StringComparison.OrdinalIgnoreCase));
+        return SafePaths.Any(requestPath.StartsWithIgnoreCase);
     }
 
     private async Task<string?> ParseApiKeyAsync(string serverKey)

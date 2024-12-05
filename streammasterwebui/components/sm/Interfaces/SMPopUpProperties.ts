@@ -5,5 +5,5 @@ export interface SMPopUpProperties extends SMOverlayProperties {
   readonly disabled?: boolean;
   readonly isPopupLoading?: boolean;
   // readonly rememberKey?: string;
-  // readonly showRemember?: boolean;
+  // readonly noFullScreen?: boolean;
 }

@@ -1,6 +1,7 @@
+import { getIconUrl } from '@components/icons/iconUtil';
 import SMDropDown from '@components/sm/SMDropDown';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
-import { getIconUrl } from '@lib/common/common';
+
 import { SMStreamDto } from '@lib/smAPI/smapiTypes';
 import { ReactNode, useCallback, useMemo } from 'react';
 
@@ -14,7 +15,7 @@ export const useSMStreamMembershipColumnConfig = ({ dataKey }: SMStreamGroupMemb
       return null;
     }
 
-    const iconUrl = option.Logo ? getIconUrl(option.Logo, '/images/default.png', false, null) : '/images/default.png';
+    const iconUrl = getIconUrl(option.Logo);
 
     return (
       <div className="flex sm-start-stuff sm-w-10">

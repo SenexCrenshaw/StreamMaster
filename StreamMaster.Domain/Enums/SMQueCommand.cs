@@ -2,18 +2,17 @@
 
 public enum SMQueCommand
 {
-    BuildLogoCaches,
-    BuildLogosCacheFromStreams,
-    BuildProgLogosCacheFromEPGs,
-    BuildLogosCacheFromVideoStreams,
-    ReadDirectoryLogosRequest,
+    CacheChannelLogos,
+    CacheStreamLogos,
+
+    EPGRemovedExpiredKeys,
+    ScanForTvLogos,
 
     ProcessEPGFile,
     ProcessM3UFile,
     ProcessM3UFiles,
 
     ScanDirectoryForEPGFiles,
-    ScanDirectoryForLogoFiles,
     ScanDirectoryForM3UFiles,
     ScanForCustomPlayLists,
 

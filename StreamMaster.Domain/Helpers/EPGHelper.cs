@@ -1,10 +1,10 @@
-﻿using StreamMaster.Domain.Services;
+﻿using System.Text.RegularExpressions;
 
-using System.Text.RegularExpressions;
+using StreamMaster.Domain.Services;
 
 namespace StreamMaster.Domain.Helpers;
 
-public class EPGHelper() : IEPGHelper
+public partial class EPGHelper() : IEPGHelper
 {
     public const int SchedulesDirectId = -1;
     public const int DummyId = -2;
@@ -21,7 +21,7 @@ public class EPGHelper() : IEPGHelper
             throw new ArgumentException("Input string cannot be null or whitespace.");
         }
 
-        MatchCollection matches = Regex.Matches(epgId, EPGMatch);
+        MatchCollection matches = MyRegex().Matches(epgId);
 
         return matches.Count == 0 || !matches[0].Success || matches[0].Groups.Count != 3
             ? throw new FormatException("Input string is not in the expected format.")
@@ -30,28 +30,28 @@ public class EPGHelper() : IEPGHelper
             : ((int epgNumber, string stationId))(epgNumber, matches[0].Groups[2].Value);
     }
 
-    public bool IsDummy(string? user_tvg_id)
-    {
-        if (string.IsNullOrEmpty(user_tvg_id))
-        {
-            return true;
-        }
+    //public bool IsDummy(string? user_tvg_id)
+    //{
+    //    if (string.IsNullOrEmpty(user_tvg_id))
+    //    {
+    //        return true;
+    //    }
 
-        if (user_tvg_id.StartsWith($"{DummyId}-"))
-        {
-            return true;
-        }
+    //    if (user_tvg_id.StartsWith($"{DummyId}-"))
+    //    {
+    //        return true;
+    //    }
 
-        //
-        //bool test = IsValidEPGId(user_tvg_id);
-        //return test || Regex.IsMatch(user_tvg_id, setting.DummyRegex, RegexOptions.IgnoreCase) || !string.IsNullOrEmpty(user_tvg_id);
-        return false;
-    }
+    //    //
+    //    //bool test = IsValidEPGId(user_tvg_id);
+    //    //return test || Regex.IsMatch(user_tvg_id, setting.DummyRegex, RegexOptions.IgnoreCase) || !string.IsNullOrEmpty(user_tvg_id);
+    //    return false;
+    //}
 
-    public bool IsDummy(int epgNumber)
-    {
-        return epgNumber == DummyId;
-    }
+    //public bool IsDummy(int epgNumber)
+    //{
+    //    return epgNumber == DummyId;
+    //}
 
     public bool IsSchedulesDirect(int epgNumber)
     {
@@ -60,7 +60,7 @@ public class EPGHelper() : IEPGHelper
 
     public static bool IsValidEPGId(string epgId)
     {
-        MatchCollection matches = Regex.Matches(epgId, EPGMatch);
+        MatchCollection matches = MyRegex().Matches(epgId);
         return matches.Count > 0;
     }
 
@@ -68,4 +68,7 @@ public class EPGHelper() : IEPGHelper
     {
         return epgNumber == CustomPlayListId;
     }
+
+    [GeneratedRegex(EPGMatch)]
+    private static partial Regex MyRegex();
 }
