@@ -27,7 +27,7 @@ public class GetStreamGroupEPGHandler(IStreamGroupService streamGroupService, IX
             videoStreamConfig.IsDuplicate = !epgIds.Add(videoStreamConfig.EPGId);
         }
 
-        XMLTV epgData = await xMLTVBuilder.CreateXmlTv(videoStreamConfigs) ?? new XMLTV();
+        XMLTV epgData = await xMLTVBuilder.CreateXmlTv(videoStreamConfigs,cancellationToken) ?? new XMLTV();
 
         return SerializeXMLTVData(epgData);
     }
