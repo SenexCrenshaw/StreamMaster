@@ -20,9 +20,11 @@ namespace StreamMaster.Infrastructure.Services
         private readonly ILogger<FileUtilService> logger;
         private readonly ICacheManager cacheManager;
         private readonly IOptionsMonitor<Setting> settings;
+        private readonly IXmltvParser xmltvParser;
 
         public FileUtilService(ILogger<FileUtilService> logger, ICacheManager cacheManager, IOptionsMonitor<Setting> _settings)
         {
+            xmltvParser = xmltvParser;
             this.logger = logger;
             settings = _settings;
             this.cacheManager = cacheManager;
@@ -41,6 +43,18 @@ namespace StreamMaster.Infrastructure.Services
             {
                 return value;
             }
+
+            //string? filePath = GetFilePath(epgPath);
+            //if (filePath == null)
+            //{
+            //    return null;
+            //}
+
+            //await using Stream? fileStream = await GetFileDataStream(filePath).ConfigureAwait(false);
+            //if (fileStream == null)
+            //{
+            //    return null;
+            //}
 
             List<XmltvChannel> channels = await GetChannelsFromXmlAsync(epgPath).ConfigureAwait(false);
             if (channels.Count == 0)
@@ -68,7 +82,117 @@ namespace StreamMaster.Infrastructure.Services
             return value;
         }
 
-        public async Task<List<XmltvChannel>> GetChannelsFromXmlAsync(string epgPath)
+        public async Task<List<XmltvChannel>> GetChannelsFromXmlAsync(string epgPath, CancellationToken cancellationToken = default)
+        {
+            List<XmltvChannel> channels = new();
+
+            try
+            {
+                string? filePath = GetFilePath(epgPath);
+                if (filePath is null)
+                {
+                    return channels;
+                }
+
+                XmlReaderSettings settings = new()
+                {
+                    Async = true,
+                    DtdProcessing = DtdProcessing.Ignore,
+                    MaxCharactersFromEntities = 1024,
+                    ConformanceLevel = ConformanceLevel.Document
+                };
+
+                await using Stream? fileStream = await GetFileDataStream(filePath).ConfigureAwait(false);
+                if (fileStream is null)
+                {
+                    return channels;
+                }
+
+                using XmlReader reader = XmlReader.Create(fileStream, settings);
+
+                XmltvChannel? currentChannel = null;
+
+                while (await reader.ReadAsync().ConfigureAwait(false))
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    // Only handle start elements where relevant
+                    if (reader.NodeType == XmlNodeType.Element)
+                    {
+                        if (reader.Name == "programme")
+                        {
+                            // Before breaking, if we have a channel currently open, add it to the list
+                            if (currentChannel is not null)
+                            {
+                                channels.Add(currentChannel);
+                                currentChannel = null;
+                            }
+                            break; // Stop reading channels once programme elements start
+                        }
+
+                        if (reader.Name == "channel")
+                        {
+                            // If there was a previously open channel, add it now
+                            if (currentChannel is not null)
+                            {
+                                channels.Add(currentChannel);
+                            }
+
+                            string channelId = reader.GetAttribute("id") ?? string.Empty;
+                            currentChannel = new XmltvChannel(channelId);
+                            continue;
+                        }
+
+                        // If we don't have a current channel, skip
+                        if (currentChannel is null)
+                        {
+                            continue;
+                        }
+
+                        switch (reader.Name)
+                        {
+                            case "display-name":
+                                {
+                                    string displayNameText = await reader.ReadElementContentAsStringAsync().ConfigureAwait(false);
+                                    currentChannel.DisplayNames ??= [];
+                                    currentChannel.DisplayNames.Add(new XmltvText(displayNameText));
+                                    break;
+                                }
+
+                            case "icon":
+                                {
+                                    string src = reader.GetAttribute("src") ?? string.Empty;
+                                    int width = int.TryParse(reader.GetAttribute("width"), out int w) ? w : 0;
+                                    int height = int.TryParse(reader.GetAttribute("height"), out int h) ? h : 0;
+
+                                    currentChannel.Icons ??= [];
+                                    currentChannel.Icons.Add(new XmltvIcon(src, width, height));
+
+                                    // Move past this element's end
+                                    // We used ReadElementContentAsStringAsync for display-name because it's a text node
+                                    // For 'icon', we just move the reader on to next iteration by itself
+                                    break;
+                                }
+                        }
+                    }
+                }
+
+                // If the file ended without hitting a programme or another channel start,
+                // ensure the last read channel is added.
+                if (currentChannel is not null)
+                {
+                    channels.Add(currentChannel);
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error reading channels from file {EpgPath}", epgPath);
+            }
+
+            return channels;
+        }
+
+        public async Task<List<XmltvChannel>> GetChannelsFromXmlAsync2(string epgPath)
         {
             List<XmltvChannel> channels = [];
 
@@ -97,74 +221,54 @@ namespace StreamMaster.Infrastructure.Services
                 using XmlReader reader = XmlReader.Create(fileStream, settings);
 
                 XmltvChannel? currentChannel = null;
-                List<XmltvText>? displayNames = null;
-                List<XmltvText>? lcns = null;
-                List<XmltvIcon>? icons = null;
-                List<string>? urls = null;
 
                 while (await reader.ReadAsync().ConfigureAwait(false))
                 {
+                    if (reader.Name == "programme")
+                    {
+                        break;
+                    }
+
                     if (reader.NodeType == XmlNodeType.Element && reader.Name == "channel")
                     {
+                        if (currentChannel is not null)
+                        {
+                            channels.Add(currentChannel);
+                        }
                         currentChannel = new XmltvChannel
                         {
                             Id = reader.GetAttribute("id") ?? string.Empty
                         };
-                        displayNames = [];
-                        lcns = [];
-                        icons = [];
-                        urls = [];
+
+                        continue;
                     }
-                    else if (reader.NodeType == XmlNodeType.Element && currentChannel != null)
+
+                    if (currentChannel is null)
                     {
-                        switch (reader.Name)
-                        {
-                            case "display-name":
-                                string? displayNameText = await reader.ReadElementContentAsStringAsync().ConfigureAwait(false);
-                                displayNames?.Add(new XmltvText { Text = displayNameText });
-                                break;
-
-                            case "lcn":
-                                string? lcnText = await reader.ReadElementContentAsStringAsync().ConfigureAwait(false);
-                                lcns?.Add(new XmltvText { Text = lcnText });
-                                break;
-
-                            case "icon":
-                                XmltvIcon icon = new()
-                                {
-                                    Src = reader.GetAttribute("src") ?? string.Empty,
-                                    Width = int.TryParse(reader.GetAttribute("width"), out int width) ? width : 0,
-                                    Height = int.TryParse(reader.GetAttribute("height"), out int height) ? height : 0
-                                };
-                                icons?.Add(icon);
-                                await reader.ReadAsync().ConfigureAwait(false); // Move past the icon element
-                                break;
-
-                            case "url":
-                                string? urlText = await reader.ReadElementContentAsStringAsync().ConfigureAwait(false);
-                                urls?.Add(urlText);
-                                break;
-                        }
+                        continue;
                     }
-                    else if (reader.NodeType == XmlNodeType.EndElement && reader.Name == "channel" && currentChannel != null)
+
+                    switch (reader.Name)
                     {
-                        currentChannel.DisplayNames = displayNames ?? [];
-                        currentChannel.Icons = icons ?? [];
+                        case "display-name":
+                            string? displayNameText = await reader.ReadElementContentAsStringAsync().ConfigureAwait(false);
+                            currentChannel.DisplayNames ??= [];
+                            currentChannel.DisplayNames.Add(new XmltvText { Text = displayNameText });
+                            //await reader.ReadAsync().ConfigureAwait(false);
+                            break;
 
-                        //currentChannel.Lcn = lcns ?? [];                   
-                        //currentChannel.Urls = urls ?? [];
+                        case "icon":
+                            XmltvIcon icon = new()
+                            {
+                                Src = reader.GetAttribute("src") ?? string.Empty,
+                                Width = int.TryParse(reader.GetAttribute("width"), out int width) ? width : 0,
+                                Height = int.TryParse(reader.GetAttribute("height"), out int height) ? height : 0
+                            };
+                            currentChannel.Icons ??= [];
+                            currentChannel.Icons.Add(icon);
 
-                        channels.Add(currentChannel);
-
-                        currentChannel = null;
-                        displayNames = null;
-                        lcns = null;
-                        icons = null;
-                        urls = null;
-                    }
-                    else if (reader.NodeType == XmlNodeType.EndElement && reader.Name == "programme")
-                    {
-                        break;
+                            //await reader.ReadAsync().ConfigureAwait(false);
+                            break;
                     }
                 }
             }
@@ -315,7 +419,6 @@ namespace StreamMaster.Infrastructure.Services
         //                        }
         //                        else
         //                        {
-
         //                            string a = await reader.ReadElementContentAsStringAsync().ConfigureAwait(false);
         //                            string? ratingText = await reader.ReadElementContentAsStringAsync().ConfigureAwait(false);
         //                            ratings?.Add(new XmltvRating { Value = ratingText });
@@ -397,6 +500,7 @@ namespace StreamMaster.Infrastructure.Services
                 ? ((int channelCount, int programCount))(-1, -1)
                 : await ReadXmlCountsFromFileAsync(epgPath, epgFile.EPGNumber);
         }
+
         public async Task<(int channelCount, int programCount)> ReadXmlCountsFromFileAsync(string filepath, int epgNumber)
         {
             string? newFilePath = GetFilePath(filepath);
@@ -476,7 +580,7 @@ namespace StreamMaster.Infrastructure.Services
                 XmlReaderSettings settings = new()
                 {
                     Async = true, // Allow async operations
-                    DtdProcessing = DtdProcessing.Ignore, // Ignore DTD processing                    
+                    DtdProcessing = DtdProcessing.Ignore, // Ignore DTD processing
                     MaxCharactersFromEntities = 1024 // Limit the number of characters parsed from entities
                 };
 
@@ -551,6 +655,7 @@ namespace StreamMaster.Infrastructure.Services
                 return false;
             }
         }
+
         public string? GetFilePath(string filepath)
         {
             // Check if the file exists at the original filepath

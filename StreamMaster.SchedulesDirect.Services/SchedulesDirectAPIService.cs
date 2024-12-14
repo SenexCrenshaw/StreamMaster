@@ -2,12 +2,10 @@
 
 using StreamMaster.SchedulesDirect.Domain.Models;
 
-
 namespace StreamMaster.SchedulesDirect.Services;
 
 public class SchedulesDirectAPIService(ISchedulesDirectRepository schedulesDirectRepository, IHttpService httpService) : ISchedulesDirectAPIService
 {
-
     // Metadata-related methods
     public async Task<List<CountryData>?> GetAvailableCountriesAsync(CancellationToken cancellationToken)
     {
@@ -49,6 +47,7 @@ public class SchedulesDirectAPIService(ISchedulesDirectRepository schedulesDirec
         return await httpService.ValidateTokenAsync(cancellationToken: cancellationToken)
 && await schedulesDirectRepository.UpdateHeadEndAsync(lineup, subscribed, cancellationToken);
     }
+
     public Task<Dictionary<string, GenericDescription>?> GetDescriptionsAsync(string[] seriesIds, CancellationToken cancellationToken)
     {
         return schedulesDirectRepository.GetDescriptionsAsync(seriesIds, cancellationToken);

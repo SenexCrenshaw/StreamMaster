@@ -1,21 +1,30 @@
 ﻿using System.Collections.Concurrent;
 
 using StreamMaster.Domain.Cache;
+using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Extensions;
 using StreamMaster.SchedulesDirect.Domain.Models;
+
 namespace StreamMaster.SchedulesDirect.Services;
+
 public class SchedulesDirectRepository(
         ILogger<SchedulesDirectRepository> logger,
         IHttpService httpService,
         SMCacheManager<CountryData> CountryCache,
         SMCacheManager<Headend> HeadendCache,
-        SMCacheManager<LineupPreviewChannel> LineupPreviewChannelCache
+        SMCacheManager<LineupPreviewChannel> LineupPreviewChannelCache,
+        IOptionsMonitor<SDSettings> sdSettings
     ) : ISchedulesDirectRepository
 {
     private static readonly TimeSpan CacheDuration = TimeSpan.FromHours(23);
 
     public async Task<Dictionary<string, GenericDescription>?> GetDescriptionsAsync(string[] seriesIds, CancellationToken cancellationToken)
     {
+        if (!sdSettings.CurrentValue.SDEnabled)
+        {
+            return null;
+        }
+
         if (seriesIds == null || seriesIds.Length == 0)
         {
             logger.LogWarning("No series IDs provided.");
@@ -30,8 +39,12 @@ public class SchedulesDirectRepository(
         );
     }
 
-    public async Task<UserStatus> GetUserStatusAsync(CancellationToken cancellationToken)
+    public async Task<UserStatus?> GetUserStatusAsync(CancellationToken cancellationToken)
     {
+        if (!sdSettings.CurrentValue.SDEnabled)
+        {
+            return null;
+        }
         try
         {
             // Fetch user status from the API
@@ -77,6 +90,10 @@ public class SchedulesDirectRepository(
 
     public async Task<List<CountryData>?> GetAvailableCountriesAsync(CancellationToken cancellationToken)
     {
+        if (!sdSettings.CurrentValue.SDEnabled)
+        {
+            return null;
+        }
         List<CountryData>? cachedData = await CountryCache.GetAsync<List<CountryData>>().ConfigureAwait(false);
         if (cachedData != null)
         {
@@ -111,6 +128,10 @@ public class SchedulesDirectRepository(
 
     public async Task<List<Headend>?> GetHeadendsByCountryPostalAsync(string country, string postalCode, CancellationToken cancellationToken)
     {
+        if (!sdSettings.CurrentValue.SDEnabled)
+        {
+            return null;
+        }
         if (string.IsNullOrEmpty(country) || string.IsNullOrEmpty(postalCode))
         {
             logger.LogWarning("Country or postal code is empty.");
@@ -152,6 +173,10 @@ public class SchedulesDirectRepository(
 
     public async Task<List<LineupPreviewChannel>?> GetLineupPreviewChannelAsync(string lineup, CancellationToken cancellationToken)
     {
+        if (!sdSettings.CurrentValue.SDEnabled)
+        {
+            return null;
+        }
         if (string.IsNullOrEmpty(lineup))
         {
             logger.LogWarning("Lineup parameter is empty.");
@@ -229,8 +254,13 @@ public class SchedulesDirectRepository(
 
         return response != null;
     }
+
     public async Task<List<ScheduleResponse>?> GetScheduleListingsAsync(ScheduleRequest[] requests, CancellationToken cancellationToken)
     {
+        if (!sdSettings.CurrentValue.SDEnabled)
+        {
+            return null;
+        }
         if (requests == null || requests.Length == 0)
         {
             logger.LogWarning("No schedule requests provided.");
@@ -247,6 +277,10 @@ public class SchedulesDirectRepository(
 
     public async Task<List<Programme>?> GetProgramsAsync(string[] programIds, CancellationToken cancellationToken)
     {
+        if (!sdSettings.CurrentValue.SDEnabled)
+        {
+            return null;
+        }
         if (programIds == null || programIds.Length == 0)
         {
             logger.LogWarning("No program IDs provided.");
@@ -263,7 +297,9 @@ public class SchedulesDirectRepository(
 
     public async Task<LineupResponse?> GetSubscribedLineupsAsync(CancellationToken cancellationToken)
     {
-        return await httpService.SendRequestAsync<LineupResponse?>(
+        return !sdSettings.CurrentValue.SDEnabled
+            ? null
+            : await httpService.SendRequestAsync<LineupResponse?>(
             APIMethod.GET,
             "lineups",
             null,
@@ -273,6 +309,11 @@ public class SchedulesDirectRepository(
 
     public async Task<LineupResult?> GetLineupResultAsync(string lineup, CancellationToken cancellationToken)
     {
+        if (!sdSettings.CurrentValue.SDEnabled)
+        {
+            return null;
+        }
+
         if (string.IsNullOrEmpty(lineup))
         {
             logger.LogWarning("No lineup provided.");
@@ -289,6 +330,11 @@ public class SchedulesDirectRepository(
 
     public async Task<HttpResponseMessage?> GetSdImageAsync(string uri, CancellationToken cancellationToken)
     {
+        if (!sdSettings.CurrentValue.SDEnabled)
+        {
+            return null;
+        }
+
         try
         {
             HttpRequestMessage request = new(HttpMethod.Get, uri);
@@ -311,6 +357,11 @@ public class SchedulesDirectRepository(
 
     public async Task<List<ProgramMetadata>?> GetArtworkAsync(string[] programIds, CancellationToken cancellationToken)
     {
+        if (!sdSettings.CurrentValue.SDEnabled)
+        {
+            return null;
+        }
+
         if (programIds == null || programIds.Length == 0)
         {
             logger.LogWarning("No program IDs provided for artwork retrieval.");
@@ -347,11 +398,6 @@ public class SchedulesDirectRepository(
         }
 
         ProgramMetadata? a = metadata.FirstOrDefault(a => a.ProgramId.Contains("4571616"));
-        if (a is not null)
-        {
-            int aaa = 1;
-        }
-
 
         List<ProgramMetadata>? responses = await GetArtworkAsync(series, cancellationToken);
         if (responses != null)

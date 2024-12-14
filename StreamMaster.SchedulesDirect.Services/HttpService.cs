@@ -6,6 +6,7 @@ using System.Text.Json;
 
 using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Extensions;
+
 namespace StreamMaster.SchedulesDirect.Services;
 
 public class HttpService(ILogger<HttpService> logger, IOptionsMonitor<SDSettings> sdSettings, IOptionsMonitor<Setting> settings) : IHttpService
@@ -19,6 +20,11 @@ public class HttpService(ILogger<HttpService> logger, IOptionsMonitor<SDSettings
 
     public async Task<T?> SendRequestAsync<T>(APIMethod method, string endpoint, object? payload = null, CancellationToken cancellationToken = default)
     {
+        if (!sdSettings.CurrentValue.SDEnabled)
+        {
+            return default;
+        }
+
         if (!await ValidateTokenAsync(cancellationToken: cancellationToken))
         {
             throw new TokenValidationException("Token validation failed. Cannot proceed with the request.");
@@ -182,7 +188,6 @@ public class HttpService(ILogger<HttpService> logger, IOptionsMonitor<SDSettings
             }
             ClearToken();
 
-
             HttpResponseMessage response = await _httpClient.PostAsJsonAsync(
                 "token",
                 new { username, password },
@@ -219,10 +224,13 @@ public class HttpService(ILogger<HttpService> logger, IOptionsMonitor<SDSettings
         }
     }
 
-
-
     public async Task<bool> ValidateTokenAsync(bool forceReset = false, CancellationToken cancellationToken = default)
     {
+        if (!sdSettings.CurrentValue.SDEnabled)
+        {
+            return false;
+        }
+
         if (forceReset || SMDT.UtcNow - TokenTimestamp > TimeSpan.FromHours(23))
         {
             bool refreshed = await RefreshTokenAsync(cancellationToken);
@@ -235,7 +243,6 @@ public class HttpService(ILogger<HttpService> logger, IOptionsMonitor<SDSettings
 
         return GoodToken;
     }
-
 
     public void ClearToken()
     {
@@ -266,4 +273,3 @@ public class HttpService(ILogger<HttpService> logger, IOptionsMonitor<SDSettings
         return httpClient;
     }
 }
-

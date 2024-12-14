@@ -32,6 +32,7 @@ public static class ConfigureServices
         _ = services.AddSingleton<IDataRefreshService, DataRefreshService>();
         _ = services.AddSingleton<IFileUtilService, FileUtilService>();
 
+        //services.AddTransient<IXmltvParser, XmltvParser>();
         // If needed, you can also pre-register specific instances
         //_ = services.AddSingleton(provider =>
         //{

@@ -5,6 +5,21 @@ namespace StreamMaster.Domain.XmltvXml
     //
     public class XmltvChannel
     {
+        public XmltvChannel()
+        { }
+
+        public XmltvChannel(string id)
+        {
+            Id = id;
+        }
+
+        public XmltvChannel(string id, List<XmltvText> displayNames, List<XmltvIcon> icons)
+        {
+            Id = id;
+            DisplayNames = displayNames;
+            Icons = icons;
+        }
+
         [XmlAttribute("id")]
         public string Id { get; set; } = string.Empty;
 

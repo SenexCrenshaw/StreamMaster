@@ -5,6 +5,16 @@ namespace StreamMaster.Domain.XmltvXml
 {
     public class XmltvIcon
     {
+        public XmltvIcon()
+        { }
+
+        public XmltvIcon(string src, int width, int height)
+        {
+            Src = src;
+            Width = width;
+            Height = height;
+        }
+
         [XmlAttribute("src")]
         public string Src { get; set; } = string.Empty;
 
