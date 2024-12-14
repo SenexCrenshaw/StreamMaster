@@ -6,9 +6,8 @@ using AutoMapper.QueryableExtensions;
 using Microsoft.EntityFrameworkCore;
 
 using StreamMaster.Domain.API;
-using StreamMaster.Domain.Helpers;
+using StreamMaster.Domain.XmltvXml;
 using StreamMaster.SchedulesDirect.Domain.Interfaces;
-using StreamMaster.SchedulesDirect.Domain.Models;
 using StreamMaster.Streams.Domain.Interfaces;
 
 namespace StreamMaster.Infrastructure.EF.Repositories;
@@ -16,7 +15,7 @@ namespace StreamMaster.Infrastructure.EF.Repositories;
 /// <summary>
 /// Repositorywrapper to manage EPGFile entities in the database.
 /// </summary>
-public class EPGFileRepository(ILogger<EPGFileRepository> intLogger, IFileUtilService fileUtilService, ICacheManager cacheManager, IJobStatusService jobStatusService, IRepositoryContext repositoryContext, ISchedulesDirectDataService schedulesDirectDataService, IMapper mapper)
+public class EPGFileRepository(ILogger<EPGFileRepository> intLogger, ILogoService logoService, IFileUtilService fileUtilService, ICacheManager cacheManager, IJobStatusService jobStatusService, IRepositoryContext repositoryContext, ISchedulesDirectDataService schedulesDirectDataService, IMapper mapper)
     : RepositoryBase<EPGFile>(repositoryContext, intLogger), IEPGFileRepository
 {
     public async Task<int> GetNextAvailableEPGNumberAsync(CancellationToken cancellationToken)
@@ -45,42 +44,43 @@ public class EPGFileRepository(ILogger<EPGFileRepository> intLogger, IFileUtilSe
         return await FirstOrDefaultAsync(c => c.Id == Id, false).ConfigureAwait(false);
     }
 
-    public async Task<List<EPGFilePreviewDto>> GetEPGFilePreviewById(int Id, CancellationToken cancellationToken)
+    public async Task<List<EPGFilePreviewDto>> GetEPGFilePreviewById(int EPGId, CancellationToken cancellationToken)
     {
-        if (Id < 0)
+        if (EPGId < 0)
         {
             return [];
         }
 
-        EPGFile? epgFile = await FirstOrDefaultAsync(a => a.Id == Id, cancellationToken: cancellationToken).ConfigureAwait(false);
+        EPGFile? epgFile = await FirstOrDefaultAsync(a => a.Id == EPGId, cancellationToken: cancellationToken).ConfigureAwait(false);
         if (epgFile == null)
         {
             return [];
         }
 
-        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData;
-
-        ICollection<MxfService> services = schedulesDirectData.Services.Values;
-        List<EPGFilePreviewDto> ret = [];
-        foreach (MxfService? service in services)
+        List<XmltvChannel> channels = await fileUtilService.GetChannelsFromXmlAsync(epgFile);
+        if (channels == null)
         {
-            if (service is null || string.IsNullOrEmpty(service.Name) || string.IsNullOrEmpty(service.StationId))
+            return [];
+        }
+
+        List<EPGFilePreviewDto> ret = [];
+        foreach (XmltvChannel channel in channels)
+        {
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return ret;
+            }
+
+            if (channel.DisplayNames is null || channel.DisplayNames.Count == 0 || channel.DisplayNames[0]?.Text is null)
             {
                 continue;
             }
 
-            string stationId = service.StationId;
-            if (EPGHelper.IsValidEPGId(service.StationId))
-            {
-                (int EPGNumber, stationId) = service.StationId.ExtractEPGNumberAndStationId();
-            }
-
             ret.Add(new EPGFilePreviewDto
             {
-                Id = service.Id,
-                ChannelName = service.Name,
-                ChannelNumber = stationId,
-                //ChannelLogo = service?.mxfGuideImage?.ImageUrl ?? "",
+                Id = channel.Id,
+                ChannelName = channel.DisplayNames[0].Text,
+                ChannelLogo = channel.Icons?[0].Src ?? "",
             });
         }
         return ret;

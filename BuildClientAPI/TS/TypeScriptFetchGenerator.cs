@@ -1,7 +1,9 @@
 ﻿using System.Text;
 
 using BuildClientAPI.Models;
+
 namespace BuildClientAPI.TS;
+
 public static class TypeScriptFetchGenerator
 {
     public static void GenerateFile(string namespaceName, List<MethodDetails> methods, string path)
@@ -70,7 +72,7 @@ public static class TypeScriptFetchGenerator
         {
             content.AppendLine($"    if (isSkipToken({paramName}))");
             content.AppendLine("    {");
-            content.AppendLine("        Logger.error('Skipping GetEPGFilePreviewById');");
+            content.AppendLine($"        Logger.error('Skipping {method.Name}');");
             content.AppendLine("        return undefined;");
             content.AppendLine("    }");
         }

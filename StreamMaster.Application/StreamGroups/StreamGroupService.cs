@@ -13,7 +13,7 @@ using static StreamMaster.Domain.Common.GetStreamGroupEPGHandler;
 
 namespace StreamMaster.Application.StreamGroups;
 
-public class StreamGroupService(IHttpContextAccessor httpContextAccessor, IOptionsMonitor<Setting> _settings, IOptionsMonitor<CommandProfileDict> _commandProfileSettings, ICacheManager cacheManager, IRepositoryWrapper repositoryWrapper, IOptionsMonitor<Setting> settings, IProfileService profileService)
+public class StreamGroupService(IHttpContextAccessor httpContextAccessor, ILogoService logoService, IOptionsMonitor<Setting> _settings, IOptionsMonitor<CommandProfileDict> _commandProfileSettings, ICacheManager cacheManager, IRepositoryWrapper repositoryWrapper, IOptionsMonitor<Setting> settings, IProfileService profileService)
     : IStreamGroupService
 {
     private readonly ConcurrentDictionary<int, bool> chNos = new();
@@ -73,6 +73,7 @@ public class StreamGroupService(IHttpContextAccessor httpContextAccessor, IOptio
 
         return (null, null, null);
     }
+
     public async Task<string?> EncodeStreamGroupIdProfileIdChannelIdAsync(int streamGroupId, int streamGroupProfileId, int smChannelId)
     {
         string? groupKey = await GetStreamGroupKeyFromIdAsync(streamGroupId).ConfigureAwait(false);
@@ -85,7 +86,8 @@ public class StreamGroupService(IHttpContextAccessor httpContextAccessor, IOptio
         return CryptoUtils.EncodeThreeValues(streamGroupId, streamGroupProfileId, smChannelId, settingsValue.ServerKey, groupKey);
     }
 
-    #endregion
+    #endregion CRYPTO
+
     public async Task<StreamGroup> GetDefaultSGAsync()
     {
         if (cacheManager.DefaultSG != null)
@@ -98,6 +100,7 @@ public class StreamGroupService(IHttpContextAccessor httpContextAccessor, IOptio
 
         return cacheManager.DefaultSG;
     }
+
     public async Task<int> GetStreamGroupIdFromSGProfileIdAsync(int? streamGroupProfileId)
     {
         if (streamGroupProfileId.HasValue)
@@ -142,6 +145,7 @@ public class StreamGroupService(IHttpContextAccessor httpContextAccessor, IOptio
         StreamGroup sg = await GetDefaultSGAsync();
         return sg.Id;
     }
+
     public async Task<string> GetStreamGroupCapabilityAsync(int streamGroupProfileId, HttpRequest request)
     {
         StreamGroup? streamGroup = await GetStreamGroupFromSGProfileIdAsync(streamGroupProfileId).ConfigureAwait(false);
@@ -276,12 +280,13 @@ public class StreamGroupService(IHttpContextAccessor httpContextAccessor, IOptio
         return CryptoUtils.EncodeThreeValues(streamGroup.Id, streamGroupProfileId, smChannelId, settingsValue.ServerKey, streamGroup.GroupKey);
     }
 
-    private string GetLogoUrl(string baseUrl, SMChannel smChannel)
-    {
-        return settings.CurrentValue.LogoCache || !smChannel.Logo.StartsWithIgnoreCase("http")
-            ? $"{baseUrl}/api/files/sm/{smChannel.Id}"
-            : smChannel.Logo;
-    }
+    //private string GetLogoUrl(string baseUrl, SMChannel smChannel)
+    //{
+    //    return settings.CurrentValue.LogoCache || !smChannel.Logo.StartsWithIgnoreCase("http")
+    //        ? $"{baseUrl}/api/files/sm/{smChannel.Id}"
+    //        : smChannel.Logo;
+    //}
+
     public async Task<(List<VideoStreamConfig> videoStreamConfigs, StreamGroupProfile streamGroupProfile)> GetStreamGroupVideoConfigsAsync(int streamGroupProfileId)
     {
         chNos.Clear();
@@ -325,7 +330,7 @@ public class StreamGroupService(IHttpContextAccessor httpContextAccessor, IOptio
             OutputProfileDto outputProfile = originalOutputProfile.DeepCopy();
 
             string cleanName = smChannel.Name.ToCleanFileString();
-            string logo = GetLogoUrl(baseUrl, smChannel);
+            string logo = logoService.GetLogoUrl(smChannel, baseUrl);
             string epgId = string.IsNullOrEmpty(smChannel.EPGId) ? EPGHelper.DummyId + "-Dummy" : smChannel.EPGId;
 
             StationChannelName? match = cacheManager.StationChannelNames

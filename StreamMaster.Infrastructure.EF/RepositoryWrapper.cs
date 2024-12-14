@@ -40,6 +40,7 @@ public class RepositoryWrapper(
     IHttpContextAccessor httpContextAccessor) : IRepositoryWrapper
 {
     private IStreamGroupProfileRepository? _streamGroupProfileRepository;
+
     public IStreamGroupProfileRepository StreamGroupProfile
     {
         get
@@ -50,6 +51,7 @@ public class RepositoryWrapper(
     }
 
     private IStreamGroupSMChannelLinkRepository? _streamGroupSMChannelLinkRepository;
+
     public IStreamGroupSMChannelLinkRepository StreamGroupSMChannelLink
     {
         get
@@ -60,6 +62,7 @@ public class RepositoryWrapper(
     }
 
     private ISMChannelChannelLinksRepository? _smChannelChannelLink;
+
     public ISMChannelChannelLinksRepository SMChannelChannelLink
     {
         get
@@ -70,6 +73,7 @@ public class RepositoryWrapper(
     }
 
     private ISMChannelStreamLinksRepository? _smChannelStreamLink;
+
     public ISMChannelStreamLinksRepository SMChannelStreamLink
     {
         get
@@ -140,7 +144,7 @@ public class RepositoryWrapper(
     {
         get
         {
-            _epgFile ??= new EPGFileRepository(EPGFileRepositoryLogger, fileUtilService, cacheManager,  jobStatusService, repositoryContext, schedulesDirectDataService, mapper);
+            _epgFile ??= new EPGFileRepository(EPGFileRepositoryLogger, logoService, fileUtilService, cacheManager, jobStatusService, repositoryContext, schedulesDirectDataService, mapper);
             return _epgFile;
         }
     }

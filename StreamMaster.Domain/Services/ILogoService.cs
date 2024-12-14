@@ -8,15 +8,26 @@ namespace StreamMaster.Domain.Services
     /// </summary>
     public interface ILogoService
     {
+        string GetLogoUrl(SMChannel smChannel);
+
+        string GetLogoUrl(SMChannel smChannel, string baseUrl);
+
+        string GetLogoUrl(XmltvChannel xmltvChannel);
+
         Task<(FileStream? fileStream, string? FileName, string? ContentType)> GetTVLogoAsync(string Source, CancellationToken cancellationToken);
+
         Task<(FileStream? fileStream, string? FileName, string? ContentType)> GetCustomLogoAsync(string Source, CancellationToken cancellationToken);
+
         Task<(FileStream? fileStream, string? FileName, string? ContentType)> GetProgramLogoAsync(string fileName, CancellationToken cancellationToken);
+
         Task<(FileStream? fileStream, string? FileName, string? ContentType)> GetLogoAsync(string fileName, CancellationToken cancellationToken);
+
         //Task<(FileStream? fileStream, string? FileName, string? ContentType)> GetLogoFromCacheAsync(string source, SMFileTypes fileType, CancellationToken cancellationToken);
         Task<(FileStream? fileStream, string? FileName, string? ContentType)> GetLogoForChannelAsync(int SMChannelId, CancellationToken cancellationToken);
 
         //string GetLogoUrl2(string logoSource, SMFileTypes logoType);
         List<XmltvProgramme> GetXmltvProgrammeForPeriod(VideoStreamConfig videoStreamConfig, DateTime startDate, int days, string baseUrl);
+
         /// <summary>
         /// Adds a new logo based on the specified artwork URI and title.
         /// </summary>
@@ -85,7 +96,9 @@ namespace StreamMaster.Domain.Services
         /// </summary>
         /// <param name="id">The ID of the M3U file.</param>
         void RemoveLogosByM3UFileId(int id);
+
         string AddCustomLogo(string Name, string Url);
+
         void RemoveCustomLogo(string Url);
     }
 }

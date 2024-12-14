@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Web;
 
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
@@ -9,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 using StreamMaster.Application.Common;
+using StreamMaster.Application.Common.Extensions;
 using StreamMaster.Domain.API;
 using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Crypto;
@@ -23,7 +25,8 @@ using StreamMaster.PlayList.Models;
 using StreamMaster.SchedulesDirect.Domain.Interfaces;
 
 namespace StreamMaster.Infrastructure.Services;
-public class LogoService(ICustomPlayListBuilder customPlayListBuilder, IOptionsMonitor<CustomLogoDict> customLogos, IImageDownloadService imageDownloadService, IContentTypeProvider mimeTypeProvider, IMemoryCache memoryCache, IImageDownloadQueue imageDownloadQueue, IServiceProvider serviceProvider, IDataRefreshService dataRefreshService, ILogger<LogoService> logger)
+
+public class LogoService(ICustomPlayListBuilder customPlayListBuilder, IHttpContextAccessor httpContextAccessor, IOptionsMonitor<Setting> settings, IOptionsMonitor<CustomLogoDict> customLogos, IImageDownloadService imageDownloadService, IContentTypeProvider mimeTypeProvider, IMemoryCache memoryCache, IImageDownloadQueue imageDownloadQueue, IServiceProvider serviceProvider, IDataRefreshService dataRefreshService, ILogger<LogoService> logger)
     : ILogoService
 {
     private ConcurrentDictionary<string, CustomLogoDto> Logos { get; } = [];
@@ -47,6 +50,7 @@ public class LogoService(ICustomPlayListBuilder customPlayListBuilder, IOptionsM
     }
 
     #region Custom Logo
+
     public string AddCustomLogo(string Name, string Source)
     {
         Source = ImageConverter.ConvertDataToPNG(Name, Source);
@@ -89,7 +93,37 @@ public class LogoService(ICustomPlayListBuilder customPlayListBuilder, IOptionsM
             File.Delete(imagePath.FullPath);
         }
     }
-    #endregion
+
+    #endregion Custom Logo
+
+    public string GetLogoUrl(SMChannel smChannel, string baseUrl)
+    {
+        return settings.CurrentValue.LogoCache || !smChannel.Logo.StartsWithIgnoreCase("http")
+            ? $"{baseUrl}/api/files/sm/{smChannel.Id}"
+            : smChannel.Logo;
+    }
+
+    public string GetLogoUrl(SMChannel smChannel)
+    {
+        string baseUrl = httpContextAccessor.GetUrl();
+
+        return GetLogoUrl(smChannel, baseUrl);
+    }
+
+    public string GetLogoUrl(XmltvChannel xmltvChannel)
+    {
+        string baseUrl = httpContextAccessor.GetUrl();
+        return xmltvChannel.Icons is null || xmltvChannel.Icons.Count == 0
+            ? "/" + settings.CurrentValue.DefaultLogo
+            : GetLogoUrl(xmltvChannel.Id, xmltvChannel.Icons[0].Src, baseUrl);
+    }
+
+    private string GetLogoUrl(string Id, string Logo, string baseUrl)
+    {
+        return settings.CurrentValue.LogoCache || !Logo.StartsWithIgnoreCase("http")
+            ? $"{baseUrl}/api/files/sm/{Id}"
+            : Logo;
+    }
 
     public async Task<DataResponse<bool>> CacheSMChannelLogosAsync(CancellationToken cancellationToken)
     {
@@ -163,6 +197,7 @@ public class LogoService(ICustomPlayListBuilder customPlayListBuilder, IOptionsM
 
         return DataResponse.True;
     }
+
     public async Task<(FileStream? fileStream, string? FileName, string? ContentType)> GetLogoAsync(string fileName, CancellationToken cancellationToken)
     {
         if (fileName.IsRedirect())
@@ -242,8 +277,6 @@ public class LogoService(ICustomPlayListBuilder customPlayListBuilder, IOptionsM
         return ret;
     }
 
-
-
     public async Task<(FileStream? fileStream, string? FileName, string? ContentType)> GetCustomLogoAsync(string Source, CancellationToken cancellationToken)
     {
         string toTest = $"/api/files/cu/{Source}".ToUrlSafeBase64String();
@@ -298,6 +331,7 @@ public class LogoService(ICustomPlayListBuilder customPlayListBuilder, IOptionsM
             return (null, null, null);
         }
     }
+
     private async Task<(FileStream? fileStream, string? FileName, string? ContentType)> ThingAsync(string fileName, string imagePath, CancellationToken cancellationToken)
     {
         try
@@ -353,6 +387,7 @@ public class LogoService(ICustomPlayListBuilder customPlayListBuilder, IOptionsM
             return (null, null, null);
         }
     }
+
     public static readonly MemoryCacheEntryOptions NeverRemoveCacheEntryOptions = new MemoryCacheEntryOptions().SetPriority(CacheItemPriority.NeverRemove);
 
     private string GetContentType(string fileName)

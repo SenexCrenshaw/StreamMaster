@@ -184,7 +184,6 @@ export interface EPGFilePreviewDto
 {
 	ChannelLogo: string;
 	ChannelName: string;
-	ChannelNumber: string;
 	Id: string;
 }
 export interface LogoDto
