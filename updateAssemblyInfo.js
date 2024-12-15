@@ -1,16 +1,25 @@
 const fs = require("fs").promises;
 
 function normalizeVersion(version) {
-  // Extract numeric segments from the version string
-  const segments = version.match(/\d+/g) ?? [];
+  // Extract numeric segments from the version string (ignoring branch name)
+  const mainVersionMatch = version.match(/^([\d.]+)-[\w.]+/);
+  const additionalSegmentMatch = version.match(/(\d+)$/);
 
-  // If there are fewer than 4 segments, pad with zeros until there are 4
-  while (segments.length < 4) {
-    segments.push("0");
+  const mainSegments = mainVersionMatch ? mainVersionMatch[1].split(".") : [];
+  const additionalSegment = additionalSegmentMatch
+    ? additionalSegmentMatch[1]
+    : "0";
+
+  // Ensure we have at least 3 main segments, pad with zeros if necessary
+  while (mainSegments.length < 3) {
+    mainSegments.push("0");
   }
 
-  // If there are more than 4 segments, truncate the extras
-  const chosenSegments = segments.slice(0, 4);
+  // Append the additional segment as the revision
+  mainSegments.push(additionalSegment);
+
+  // Truncate extras if there are more than 4 segments
+  const chosenSegments = mainSegments.slice(0, 4);
 
   // Join into a major.minor.build.revision format
   return chosenSegments.join(".");
@@ -19,7 +28,6 @@ function normalizeVersion(version) {
 const version = process.argv[2];
 const sha = process.argv[3];
 const branch = process.argv[4];
-const commits = process.argv[5];
 
 const normalizedVersion = normalizeVersion(version);
 const filePath = "./StreamMaster.API/AssemblyInfo.cs";
