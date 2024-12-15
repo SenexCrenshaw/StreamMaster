@@ -77,9 +77,11 @@ namespace StreamMaster.Infrastructure.Services
         }
 
         /// <inheritdoc />
+        /// <inheritdoc />
         public async Task<List<XmltvChannel>> GetChannelsFromXmlAsync(string epgPath, CancellationToken cancellationToken = default)
         {
             List<XmltvChannel> channels = [];
+            HashSet<string> addedChannelIds = new(StringComparer.OrdinalIgnoreCase);
 
             try
             {
@@ -117,7 +119,12 @@ namespace StreamMaster.Infrastructure.Services
                         {
                             if (currentChannel is not null)
                             {
-                                channels.Add(currentChannel);
+                                // Only add if not a duplicate
+                                if (!addedChannelIds.Contains(currentChannel.Id))
+                                {
+                                    channels.Add(currentChannel);
+                                    addedChannelIds.Add(currentChannel.Id);
+                                }
                                 currentChannel = null;
                             }
                             break;
@@ -125,9 +132,14 @@ namespace StreamMaster.Infrastructure.Services
 
                         if (reader.Name == "channel")
                         {
+                            // If there was a previously open channel, add it if not duplicate
                             if (currentChannel is not null)
                             {
-                                channels.Add(currentChannel);
+                                if (!addedChannelIds.Contains(currentChannel.Id))
+                                {
+                                    channels.Add(currentChannel);
+                                    addedChannelIds.Add(currentChannel.Id);
+                                }
                             }
 
                             string channelId = reader.GetAttribute("id") ?? string.Empty;
@@ -144,9 +156,7 @@ namespace StreamMaster.Infrastructure.Services
                         {
                             case "display-name":
                                 {
-                                    // Manually read the text inside <display-name>
                                     string displayNameText = string.Empty;
-                                    // Move to the content inside the display-name element
                                     if (await reader.ReadAsync().ConfigureAwait(false) && reader.NodeType == XmlNodeType.Text)
                                     {
                                         displayNameText = reader.Value;
@@ -155,10 +165,10 @@ namespace StreamMaster.Infrastructure.Services
                                     currentChannel.DisplayNames ??= [];
                                     currentChannel.DisplayNames.Add(new XmltvText(displayNameText));
 
-                                    // After reading the text, the reader is on a text node. Move to the end element
+                                    // Move to the end element of display-name
                                     while (await reader.ReadAsync().ConfigureAwait(false) && reader.NodeType != XmlNodeType.EndElement)
                                     {
-                                        // Skip until we hit the end of the display-name element
+                                        // Skips intermediate nodes if any
                                     }
                                     break;
                                 }
@@ -172,14 +182,11 @@ namespace StreamMaster.Infrastructure.Services
                                     currentChannel.Icons ??= [];
                                     currentChannel.Icons.Add(new XmltvIcon(src, width, height));
 
-                                    // Move past this self-contained element (icon might not have text)
-                                    // If it's an empty element <icon .../> this read will be at the end automatically.
-                                    // If not empty, read until end element:
                                     if (!reader.IsEmptyElement)
                                     {
+                                        // Read until the end of the icon element
                                         while (await reader.ReadAsync().ConfigureAwait(false) && reader.NodeType != XmlNodeType.EndElement)
                                         {
-                                            // Skip inner content if any
                                         }
                                     }
                                     break;
@@ -188,9 +195,11 @@ namespace StreamMaster.Infrastructure.Services
                     }
                 }
 
-                if (currentChannel is not null)
+                // If the file ended without hitting a programme or another channel start, add the last read channel if not duplicate
+                if (currentChannel is not null && !addedChannelIds.Contains(currentChannel.Id))
                 {
                     channels.Add(currentChannel);
+                    addedChannelIds.Add(currentChannel.Id);
                 }
             }
             catch (Exception ex)
