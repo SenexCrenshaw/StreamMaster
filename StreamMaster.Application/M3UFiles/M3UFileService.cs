@@ -363,6 +363,7 @@ public class M3UFileService(ILogger<M3UFileService> logger, IFileUtilService fil
         string[] stationIds = streams.Select(s => $"'{EscapeString(s.StationId)}'").ToArray();
         string[] channelIds = streams.Select(s => $"'{EscapeString(s.ChannelId)}'").ToArray();
         string[] channelNames = streams.Select(s => $"'{EscapeString(s.ChannelName)}'").ToArray();
+        string[] extIfs = streams.Select(s => $"'{EscapeString(s.ExtInf ?? "-1")}'").ToArray();
         string[] isHidden = streams.Select(s => s.IsHidden.ToString().ToUpper()).ToArray(); // Add IsHidden as a boolean array
         string[] tvgNames = streams.Select(s => $"'{EscapeString(s.TVGName)}'").ToArray(); // Add TVGName array
 
@@ -380,6 +381,7 @@ public class M3UFileService(ILogger<M3UFileService> logger, IFileUtilService fil
         ARRAY[{string.Join(", ", stationIds)}]::CITEXT[],
         ARRAY[{string.Join(", ", channelIds)}]::CITEXT[],
         ARRAY[{string.Join(", ", channelNames)}]::CITEXT[],
+        ARRAY[{string.Join(", ", extIfs)}]::TEXT[],
         ARRAY[{string.Join(", ", isHidden)}]::BOOLEAN[], -- Include the IsHidden array
         ARRAY[{string.Join(", ", tvgNames)}]::CITEXT[], -- Include the TVGName array
         {m3uFileId}, -- p_m3u_file_id as INTEGER

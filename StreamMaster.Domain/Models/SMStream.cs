@@ -6,6 +6,7 @@ namespace StreamMaster.Domain.Models;
 public class SMStream
 {
     public static string APIName => "SMStreams";
+
     [Key]
     public string Id { get; set; } = string.Empty;
 
@@ -14,6 +15,8 @@ public class SMStream
 
     [Column(TypeName = "citext")]
     public string? CommandProfileName { get; set; }
+
+    public string? ExtInf { get; set; }
 
     public int FilePosition { get; set; }
     public bool IsHidden { get; set; } = false;
@@ -27,15 +30,19 @@ public class SMStream
     //public string ShortSMStreamId { get; set; } = UniqueHexGenerator.SMChannelIdEmpty;
     [Column(TypeName = "citext")]
     public string Group { get; set; } = "Dummy";
+
     [Column(TypeName = "citext")]
     public string EPGID { get; set; } = "Dummy";
-    [Column(TypeName = "citext")]
 
+    [Column(TypeName = "citext")]
     public string Logo { get; set; } = string.Empty;
+
     [Column(TypeName = "citext")]
     public string Name { get; set; } = string.Empty;
+
     [Column(TypeName = "citext")]
     public string Url { get; set; } = string.Empty;
+
     [Column(TypeName = "citext")]
     public string StationId { get; set; } = string.Empty;
 
@@ -49,11 +56,9 @@ public class SMStream
     public string TVGName { get; set; } = string.Empty;
 
     [Column(TypeName = "citext")]
-
     public string CUID { get; set; } = string.Empty;
 
     [Column(TypeName = "citext")]
-
     public string ChannelId { get; set; } = string.Empty;
 
     public SMStreamTypeEnum SMStreamType { get; set; } = SMStreamTypeEnum.Regular;

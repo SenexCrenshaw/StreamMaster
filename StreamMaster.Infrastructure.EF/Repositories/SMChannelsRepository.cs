@@ -16,14 +16,14 @@ using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Filtering;
 using StreamMaster.Domain.Helpers;
 using StreamMaster.Domain.XmltvXml;
-using StreamMaster.Infrastructure.EF.Helpers;
+using StreamMaster.EPG;
 using StreamMaster.Infrastructure.EF.PGSQL;
 using StreamMaster.SchedulesDirect.Domain.Interfaces;
 using StreamMaster.Streams.Domain.Interfaces;
 
 namespace StreamMaster.Infrastructure.EF.Repositories;
 
-public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, ILogoService logoService, ICacheManager cacheManager, IImageDownloadService imageDownloadService, IImageDownloadQueue imageDownloadQueue, IServiceProvider serviceProvider, IRepositoryWrapper repository, IRepositoryContext repositoryContext, IMapper mapper, IOptionsMonitor<Setting> settings, IOptionsMonitor<CommandProfileDict> intProfileSettings, ISchedulesDirectDataService schedulesDirectDataService)
+public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IEpgMatcher epgMatcher, ILogoService logoService, ICacheManager cacheManager, IImageDownloadService imageDownloadService, IImageDownloadQueue imageDownloadQueue, IServiceProvider serviceProvider, IRepositoryWrapper repository, IRepositoryContext repositoryContext, IMapper mapper, IOptionsMonitor<Setting> settings, IOptionsMonitor<CommandProfileDict> intProfileSettings, ISchedulesDirectDataService schedulesDirectDataService)
     : RepositoryBase<SMChannel>(repositoryContext, intLogger), ISMChannelsRepository
 {
     private int currentChannelNumber;
@@ -55,86 +55,47 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, ILogo
 
         ConcurrentQueue<SMChannel> entitiesToUpdate = new();
 
-        await Task.Run(() =>
+        await Parallel.ForEachAsync(smChannels, cancellationToken, async (smChannel, ct) =>
         {
-            Parallel.ForEach(smChannels, new ParallelOptions { CancellationToken = cancellationToken }, smChannel =>
+            if (ct.IsCancellationRequested || smChannel.EPGId == "Dummy")
             {
-                if (cancellationToken.IsCancellationRequested || smChannel.EPGId == "Dummy")
+                return;
+            }
+
+            string stationId = smChannel.EPGId;
+            int epgNumber = EPGHelper.DummyId;
+
+            if (EPGHelper.IsValidEPGId(smChannel.EPGId))
+            {
+                (epgNumber, stationId) = smChannel.EPGId.ExtractEPGNumberAndStationId();
+            }
+
+            if (epgNumber < EPGHelper.DummyId)
+            {
+                return;
+            }
+
+            StationChannelName? test = await epgMatcher.MatchAsync(smChannel, ct).ConfigureAwait(false);
+            if (test is not null)
+            {
+                smChannel.EPGId = test.Id;
+
+                entitiesToUpdate.Enqueue(smChannel);
+
+                fds.Add(new FieldData(SMChannel.APIName, smChannel.Id, "EPGId", smChannel.EPGId));
+                if (settings.CurrentValue.VideoStreamAlwaysUseEPGLogo && SetVideoStreamLogoFromEPG(smChannel))
                 {
-                    return;
+                    fds.Add(new FieldData(SMChannel.APIName, smChannel.Id, "Logo", smChannel.Logo));
                 }
+            }
+        }).ConfigureAwait(false);
 
-                string stationId = smChannel.EPGId;
-                int epgNumber = EPGHelper.DummyId;
+        if (entitiesToUpdate.IsEmpty)
+        {
+            return [];
+        }
 
-                if (EPGHelper.IsValidEPGId(smChannel.EPGId))
-                {
-                    (epgNumber, stationId) = smChannel.EPGId.ExtractEPGNumberAndStationId();
-                }
-
-                if (epgNumber < EPGHelper.DummyId)
-                {
-                    return;
-                }
-
-                try
-                {
-                    var scoredMatches = stationChannelNames
-                        .Select(p => new
-                        {
-                            Channel = p,
-                            Score = AutoEPGMatch.GetMatchingScore(smChannel.Name, p.Channel)
-                        })
-                        .Where(x => x.Score > 0)
-                        .OrderByDescending(x => x.Score)
-                        .ToList();
-
-                    if (scoredMatches.Count == 0)
-                    {
-                        scoredMatches = [.. stationChannelNames
-                            .Select(p => new
-                            {
-                                Channel = p,
-                                Score = AutoEPGMatch.GetMatchingScore(smChannel.Name, p.DisplayName)
-                            })
-                            .Where(x => x.Score > 0)
-                            .OrderByDescending(x => x.Score)];
-                    }
-
-                    if (scoredMatches.Count > 0)
-                    {
-                        var bestMatch = scoredMatches[0];
-                        if (!bestMatch.Channel.Channel.StartsWith(EPGHelper.SchedulesDirectId.ToString()) && scoredMatches.Count > 1 && scoredMatches[1].Channel.Channel.StartsWith(EPGHelper.SchedulesDirectId.ToString()))
-                        {
-                            bestMatch = scoredMatches[1];
-                        }
-
-                        if (smChannel.EPGId != bestMatch.Channel.Channel)
-                        {
-                            smChannel.EPGId = bestMatch.Channel.Channel;
-
-                            entitiesToUpdate.Enqueue(smChannel);
-
-                            fds.Add(new FieldData(SMChannel.APIName, smChannel.Id, "EPGId", smChannel.EPGId));
-
-                            if (settings.CurrentValue.VideoStreamAlwaysUseEPGLogo)
-                            {
-                                if (SetVideoStreamLogoFromEPG(smChannel))
-                                {
-                                    fds.Add(new FieldData(SMChannel.APIName, smChannel.Id, "Logo", smChannel.Logo));
-                                }
-                            }
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    logger.LogWarning("An error occurred while processing channel {ChannelName}: {ErrorMessage}", smChannel.Name, ex.Message);
-                }
-            });
-        }, cancellationToken).ConfigureAwait(false);
-
-        // Batch update the entities after the parallel processing
+        // After this line, all channels have been processed.
         using (IServiceScope scope = serviceProvider.CreateScope())
         {
             PGSQLRepositoryContext context = scope.ServiceProvider.GetRequiredService<PGSQLRepositoryContext>();
@@ -268,7 +229,6 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, ILogo
                     }
 
                     addedSMChannels.Add(smChannel);
-
                 }
 
                 await SaveChangesAsync().ConfigureAwait(false);
@@ -533,6 +493,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, ILogo
             string.IsNullOrWhiteSpace(logo) ||
                 !(
                 logo.StartsWithIgnoreCase("http") ||
+                 logo.StartsWithIgnoreCase("/images/") ||
                 logo.StartsWithIgnoreCase("data:") ||
                 logo.StartsWithIgnoreCase("/api/files/cu/")
                 )

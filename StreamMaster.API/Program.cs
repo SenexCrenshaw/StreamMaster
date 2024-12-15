@@ -1,3 +1,8 @@
+using System.Diagnostics;
+using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
+using System.Text.Json.Serialization;
+
 using MediatR;
 
 using Microsoft.AspNetCore.HttpOverrides;
@@ -8,25 +13,16 @@ using StreamMaster.API;
 using StreamMaster.Application;
 using StreamMaster.Application.General.Commands;
 using StreamMaster.Application.Hubs;
-
 using StreamMaster.Domain.Helpers;
-
+using StreamMaster.EPG;
 using StreamMaster.Infrastructure;
 using StreamMaster.Infrastructure.EF;
 using StreamMaster.Infrastructure.EF.PGSQL;
-
-using StreamMaster.Infrastructure.Middleware;
+using StreamMaster.Infrastructure.Logger;
+using StreamMaster.PlayList;
+using StreamMaster.SchedulesDirect;
 using StreamMaster.SchedulesDirect.Services;
 using StreamMaster.Streams;
-using StreamMaster.PlayList;
-using System.Diagnostics;
-using System.Security.Cryptography;
-using System.Security.Cryptography.X509Certificates;
-using System.Text.Json.Serialization;
-using Microsoft.AspNetCore.Builder;
-using StreamMaster.Infrastructure.Logger;
-using Microsoft.Extensions.Logging;
-using StreamMaster.SchedulesDirect;
 
 [assembly: TsGlobal(CamelCaseForProperties = false, CamelCaseForMethods = false, UseModules = true, DiscardNamespacesWhenUsingModules = true, AutoOptionalProperties = true, WriteWarningComment = false, ReorderMembers = true)]
 DirectoryHelper.CreateApplicationDirectories();
@@ -53,10 +49,10 @@ builder.WebHost.ConfigureKestrel((_, serverOptions) =>
     serverOptions.Limits.MaxRequestBodySize = null;
 });
 
-var settingsFiles = BuildInfo.GetSettingFiles();
+List<string> settingsFiles = BuildInfo.GetSettingFiles();
 
 // Set base configuration path
-var configPath = Directory.Exists(BuildInfo.SettingsFolder) ? BuildInfo.AppDataFolder : BuildInfo.StartUpPath;
+string configPath = Directory.Exists(BuildInfo.SettingsFolder) ? BuildInfo.AppDataFolder : BuildInfo.StartUpPath;
 builder.Configuration.SetBasePath(configPath).AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
 
 // Load and validate settings
@@ -69,7 +65,7 @@ LoadAndValidateSettings<SDSettings>(BuildInfo.SDSettingsFile, new SDSettings());
 LoadAndSetSettings<CustomLogoDict, CustomLogo>(BuildInfo.CustomLogosSettingsFile, SettingFiles.DefaultCustomLogoSetting);
 
 // Add additional settings files if they exist
-foreach (var file in settingsFiles)
+foreach (string file in settingsFiles)
 {
     if (File.Exists(file))
     {
@@ -90,7 +86,7 @@ void LoadAndSetSettings<TDict, TProfile>(string settingsFile, TDict defaultSetti
     where TDict : IProfileDict<TProfile>
 {
     // Load the settings
-    var setting = SettingsHelper.GetSetting<TDict>(settingsFile);
+    TDict? setting = SettingsHelper.GetSetting<TDict>(settingsFile);
     if (setting == null)
     {
         // If the setting is null, apply the entire default setting
@@ -100,7 +96,7 @@ void LoadAndSetSettings<TDict, TProfile>(string settingsFile, TDict defaultSetti
     else
     {
         // If the setting is not null, apply the default setting for any missing profiles
-        foreach (var defaultProfile in defaultSetting.Profiles)
+        foreach (global::System.Collections.Generic.KeyValuePair<string, TProfile> defaultProfile in defaultSetting.Profiles)
         {
             if (!setting.Profiles.ContainsKey(defaultProfile.Key))
             {
@@ -124,7 +120,7 @@ void LoadAndSetSettings<TDict, TProfile>(string settingsFile, TDict defaultSetti
 // Helper method to load and validate settings
 void LoadAndValidateSettings<T>(string settingsFile, object defaultSetting)
 {
-    var setting = SettingsHelper.GetSetting<T>(settingsFile);
+    T? setting = SettingsHelper.GetSetting<T>(settingsFile);
     if (EqualityComparer<T>.Default.Equals(setting, default(T)))
     {
         SettingsHelper.UpdateSetting(defaultSetting);
@@ -169,6 +165,7 @@ if (!string.IsNullOrEmpty(sslCertPath))
 }
 
 // GetOrAdd services to the container.
+builder.Services.AddEPGServices();
 builder.Services.AddSchedulesDirectAPIServices();
 builder.Services.AddSchedulesDirectServices();
 builder.Services.AddApplicationServices();
@@ -179,7 +176,7 @@ builder.Services.AddInfrastructureServicesEx();
 builder.Services.AddStreamsServices();
 builder.Services.AddCustomPlayListServices();
 
-var setting = SettingsHelper.GetSetting<Setting>(BuildInfo.SettingsFile);
+Setting? setting = SettingsHelper.GetSetting<Setting>(BuildInfo.SettingsFile);
 
 builder.Services.AddWebUIServices(builder, setting?.EnableDBDebug ?? false);
 
@@ -204,12 +201,12 @@ WebApplication app = builder.Build();
 app.UseResponseCompression();
 app.UseForwardedHeaders();
 
-var lifetime = app.Services.GetService<IHostApplicationLifetime>();
+IHostApplicationLifetime? lifetime = app.Services.GetService<IHostApplicationLifetime>();
 lifetime?.ApplicationStopping.Register(OnShutdown);
 
 void OnShutdown()
 {
-    var sender = app.Services.GetRequiredService<ISender>();
+    ISender sender = app.Services.GetRequiredService<ISender>();
     sender.Send(new SetIsSystemReadyRequest(false)).Wait();
     ProcessHelper.KillProcessByName("ffmpeg");
     PGSQLRepositoryContext repositoryContext = app.Services.GetRequiredService<PGSQLRepositoryContext>();
@@ -263,14 +260,7 @@ app.UseStaticFiles();
 app.UseRouting();
 app.UseWebSockets();
 
-if (app.Environment.IsDevelopment())
-{
-    _ = app.UseCors("DevPolicy");
-}
-else
-{
-    _ = app.UseCors();
-}
+_ = app.Environment.IsDevelopment() ? app.UseCors("DevPolicy") : app.UseCors();
 //_ = app.UseCors();
 
 app.UseAuthentication();
@@ -324,7 +314,7 @@ static X509Certificate2 ValidateSslCertificate(string cert, string password)
     try
     {
         // Load the certificate using the new X509CertificateLoader API
-        var certificate = X509CertificateLoader.LoadPkcs12FromFile(cert, password);
+        X509Certificate2 certificate = X509CertificateLoader.LoadPkcs12FromFile(cert, password);
 
         return certificate;
     }

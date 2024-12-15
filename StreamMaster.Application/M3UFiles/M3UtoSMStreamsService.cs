@@ -42,7 +42,7 @@ public partial class M3UToSMStreamsService(ILogger<M3UToSMStreamsService> logger
         {
             string? line = await reader.ReadLineAsync();
 
-            if (string.IsNullOrWhiteSpace(line))
+            if (string.IsNullOrWhiteSpace(line) || line.StartsWithIgnoreCase("#EXTM3U"))
             {
                 continue;
             }
@@ -59,13 +59,14 @@ public partial class M3UToSMStreamsService(ILogger<M3UToSMStreamsService> logger
                     }
 
                     SMStream? smStream = ProcessSegment(segmentNumber++, segmentBuilder.ToString(), m3UFile, logger);
+
+                    segmentBuilder.Clear();
+                    clientUserAgent = null;
+
                     if (smStream != null)
                     {
                         yield return smStream;
                     }
-
-                    segmentBuilder.Clear();
-                    clientUserAgent = null;
                 }
             }
             else if (line.StartsWith("#EXTVLCOPT"))
@@ -178,10 +179,19 @@ public partial class M3UToSMStreamsService(ILogger<M3UToSMStreamsService> logger
                 continue;
             }
 
-            if (line.StartsWith("#EXTGRP:"))
+            if (line.StartsWithIgnoreCase("#EXTGRP:"))
             {
                 SMStream.Group = line[8..].Trim(); // Extracting EXTGRP value
                 continue;
+            }
+
+            if (line.StartsWithIgnoreCase("#EXTINF:"))
+            {
+                Match match = Regex.Match(line, @"#EXTINF:(\d+)");
+                if (match.Success)
+                {
+                    SMStream.ExtInf = match.Groups[1].Value; // Extracting the numeric value
+                }
             }
 
             newline = line;

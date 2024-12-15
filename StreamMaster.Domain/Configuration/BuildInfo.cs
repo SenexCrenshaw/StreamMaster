@@ -126,12 +126,15 @@ namespace StreamMaster.Domain.Configuration
         public static readonly string LogFolder = Path.Combine(AppDataFolder, "Logs");
         public static readonly string PlayListFolder = Path.Combine(AppDataFolder, "PlayLists");
 
+        public static readonly string CommandErrorFolder = Path.Combine(AppDataFolder, "CommandLogs");
+
         public static readonly string DupDataFolder = Path.Combine(CacheFolder, "DuplicateStreamLists");
 
         public static readonly int SDCacheDurationDays = 14;
 
         //public static readonly string ProgrammeIconDataFolder = Path.Combine(CacheFolder, "ProgrammeIcons");
         public static readonly string SDJSONFolder = Path.Combine(CacheFolder, "SDJson");
+
         public static readonly string SDXMLFile = Path.Combine(SDJSONFolder, "streammaster.xmltv");
 
         //public static readonly string SDStationLogosFolder = Path.Combine(CacheFolder, "SDStationLogos");
@@ -146,6 +149,7 @@ namespace StreamMaster.Domain.Configuration
 
         //public static readonly string SDImagesFolder = Path.Combine(CacheFolder, "SDImages");
         public static readonly string EPGFolder = Path.Combine(PlayListFolder, "EPG");
+
         public static readonly string M3UFolder = Path.Combine(PlayListFolder, "M3U");
 
         //public static readonly string HLSOutputFolder = Path.Combine(AppDataFolder, "HLS");

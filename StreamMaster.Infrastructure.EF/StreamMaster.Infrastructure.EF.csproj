@@ -16,6 +16,7 @@
     <PackageReference Include="X.PagedList" Version="10.5.7" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\StreamMaster.EPG\StreamMaster.EPG.csproj" />
     <ProjectReference Include="..\StreamMaster.Infrastructure.EF.PGSQL\StreamMaster.Infrastructure.EF.PGSQL.csproj" />
   </ItemGroup>
 </Project>

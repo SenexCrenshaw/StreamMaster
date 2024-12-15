@@ -321,6 +321,7 @@ export interface SMStreamDto
 	CommandProfileName?: string;
 	CUID: string;
 	EPGID: string;
+	ExtInf?: string;
 	FilePosition: number;
 	Group: string;
 	Id: string;

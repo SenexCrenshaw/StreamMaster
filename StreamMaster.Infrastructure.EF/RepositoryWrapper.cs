@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 
 using StreamMaster.Application.Interfaces;
 using StreamMaster.Domain.Configuration;
+using StreamMaster.EPG;
 using StreamMaster.Infrastructure.EF.PGSQL;
 using StreamMaster.Infrastructure.EF.Repositories;
 using StreamMaster.SchedulesDirect.Domain.Interfaces;
@@ -26,7 +27,7 @@ public class RepositoryWrapper(
     PGSQLRepositoryContext repositoryContext,
     IMapper mapper,
     ICacheManager cacheManager,
-
+    IEpgMatcher epgMatcher,
     IServiceProvider serviceProvider,
     ICryptoService cryptoService,
     ILogoService logoService,
@@ -89,7 +90,7 @@ public class RepositoryWrapper(
     {
         get
         {
-            _smChannel ??= new SMChannelsRepository(SMChannelLogger, logoService, cacheManager, imageDownloadService, imageDownloadQueue, serviceProvider, this, repositoryContext, mapper, intSettings, intProfileSettings, schedulesDirectDataService);
+            _smChannel ??= new SMChannelsRepository(SMChannelLogger, epgMatcher, logoService, cacheManager, imageDownloadService, imageDownloadQueue, serviceProvider, this, repositoryContext, mapper, intSettings, intProfileSettings, schedulesDirectDataService);
             return _smChannel;
         }
     }
