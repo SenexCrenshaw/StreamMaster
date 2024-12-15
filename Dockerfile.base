@@ -14,12 +14,17 @@ WORKDIR /app
 # Preserve downloaded APT packages and remove docker-clean configuration
 RUN rm -f /etc/apt/apt.conf.d/docker-clean; echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache
 
+# Add non-free repository for specific drivers
+#RUN echo "deb http://deb.debian.org/debian $(lsb_release -cs) contrib non-free non-free-firmware" >> /etc/apt/sources.list
+RUN sed -i "s/Components: main/Components: main contrib non-free non-free-firmware/" /etc/apt/sources.list.d/debian.sources
+
 # Install dependencies with apt
 RUN --mount=type=cache,id=apt-$TARGETARCH$TARGETVARIANT,sharing=locked,target=/var/cache/apt \
     apt-get update -yq \
     && apt-get upgrade -yq \
     && apt-get install -yq --no-install-recommends \
     xz-utils \
+    fuse \
     vlc-bin \
     gosu \
     postgresql \
@@ -28,33 +33,35 @@ RUN --mount=type=cache,id=apt-$TARGETARCH$TARGETVARIANT,sharing=locked,target=/v
     gnupg \
     lsb-release \
     iputils-ping \
-    pipx \
-    && apt-get clean \
+    pipx
+
+RUN --mount=type=cache,id=apt-$TARGETARCH$TARGETVARIANT,sharing=locked,target=/var/cache/apt \
+    if [ "$TARGETARCH" = "amd64" ]; then \
+    apt-get update -yq \
+    && apt-get install -yq --no-install-recommends \
+    mesa-va-drivers \
+    intel-media-va-driver-non-free; \
+    else \
+    echo "Skipping mesa-va-drivers and intel-media-va-driver-non-free installation for $TARGETARCH"; \
+    fi
+
+RUN apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
     && mkdir /docker-entrypoint-initdb.d
 
 # Conditional FFmpeg URL based on architecture
 RUN if [ "$TARGETARCH" = "arm64" ]; then \
-    echo "Setting FFMPEG_URL to ARM64"; \
     export FFMPEG_URL=$FFMPEG_URL_ARM64; \
     else \
-    echo "Setting FFMPEG_URL to X64"; \
     export FFMPEG_URL=$FFMPEG_URL_X64; \
     fi \
-    && echo "Downloading FFmpeg from $FFMPEG_URL" \
     && curl -L -o /tmp/ffmpeg.tar.xz $FFMPEG_URL \
-    && echo "FFmpeg downloaded to /tmp/ffmpeg.tar.xz" \
     && mkdir -p /tmp/ffmpeg/ \
-    && echo "Extracting FFmpeg..." \
     && tar -Jxvvf /tmp/ffmpeg.tar.xz --strip-components=1 -C /tmp/ffmpeg/ \
-    && echo "Copying FFmpeg binaries..." \
     && cp /tmp/ffmpeg/bin/ffmpeg /usr/local/bin/ \
     && cp /tmp/ffmpeg/bin/ffprobe /usr/local/bin/ \
-    && echo "Setting execute permissions on FFmpeg binaries..." \
     && chmod +x /usr/local/bin/ffmpeg /usr/local/bin/ffprobe \
-    && echo "Cleaning up..." \
-    && rm -rf /tmp/ffmpeg.tar.xz /tmp/ffmpeg/ \
-    && echo "FFmpeg installation completed."
+    && rm -rf /tmp/ffmpeg.tar.xz /tmp/ffmpeg/
 
 ENV PIPX_BIN_DIR=/usr/local/bin
 ENV PIPX_HOME=/opt/pipx
