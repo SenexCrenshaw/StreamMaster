@@ -8,7 +8,9 @@ namespace StreamMaster.Domain.Dto;
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public class LogoInfo
 {
-    public LogoInfo() { }
+    public LogoInfo()
+    { }
+
     /// <summary>
     /// Initializes a new instance of <see cref="LogoInfo"/> with the specified URL and optional parameters.
     /// </summary>
@@ -17,7 +19,16 @@ public class LogoInfo
     /// <param name="isSchedulesDirect">Indicates if the logo comes from Schedules Direct.</param>
     public LogoInfo(string url, SMFileTypes iconType = SMFileTypes.Logo, bool isSchedulesDirect = false)
     {
+        if (string.IsNullOrEmpty(url))
+        {
+            throw new ArgumentNullException(nameof(url));
+        }
+
         string cleanedUrl = Cleanup(url);
+        if (string.IsNullOrEmpty(cleanedUrl))
+        {
+            throw new ArgumentNullException(nameof(url));
+        }
 
         IsSVG = cleanedUrl.EndsWithIgnoreCase(".svg");
         string ext = Path.GetExtension(cleanedUrl);
@@ -118,7 +129,8 @@ public class LogoInfo
     /// <returns>The cleaned URL.</returns>
     public static string Cleanup(string url)
     {
-        url = url.StartsWithIgnoreCase("image/") ? url[6..] : url;
+        url = url.StartsWithIgnoreCase("images/") ? url[7..] : url;
+        url = url.StartsWithIgnoreCase("/images/") ? url[8..] : url;
         if (url.Contains('?'))
         {
             url = url[..url.IndexOf('?')];
