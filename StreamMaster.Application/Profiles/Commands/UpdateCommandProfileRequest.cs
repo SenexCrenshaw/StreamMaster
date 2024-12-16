@@ -22,10 +22,9 @@ public class UpdateVideoProfileRequestHandler(
         {
             CommandProfileDict profileSettings = intProfileSettings.CurrentValue;
 
-            List<string> badNames = profileSettings.Profiles
+            List<string> badNames = [.. profileSettings.Profiles
                 .Where(kvp => kvp.Value.IsReadOnly)
-                .Select(kvp => kvp.Key)
-                .ToList();
+                .Select(kvp => kvp.Key)];
 
             if (badNames.Contains(request.NewProfileName, StringComparer.OrdinalIgnoreCase))
             {

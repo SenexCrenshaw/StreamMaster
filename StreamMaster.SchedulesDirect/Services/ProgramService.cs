@@ -6,6 +6,7 @@ using StreamMaster.Domain.Cache;
 using StreamMaster.SchedulesDirect.Domain;
 
 namespace StreamMaster.SchedulesDirect.Services;
+
 public class ProgramService(
     ILogger<ProgramService> logger,
     SMCacheManager<ProgramService> ProgramCache,
@@ -15,7 +16,6 @@ public class ProgramService(
     IProgramRepository programRepository)
     : IProgramService, IDisposable
 {
-
     private readonly ConcurrentDictionary<string, string> programChannelsToProcess = new();
     private readonly SemaphoreSlim semaphore = new(SDAPIConfig.MaxParallelDownloads);
 
@@ -24,10 +24,9 @@ public class ProgramService(
 
     public async Task<bool> BuildProgramEntriesAsync(CancellationToken cancellationToken)
     {
-
         await FillChannelWithProgramsAsync(cancellationToken);
 
-        if (programChannelsToProcess.Count == 0)
+        if (programChannelsToProcess.IsEmpty)
         {
             logger.LogWarning("No programs to process. Exiting.");
             return true;
@@ -50,15 +49,14 @@ public class ProgramService(
         return true;
     }
 
-    private bool HasArtWork(Programme sdProgram)
+    private static bool HasArtWork(Programme sdProgram)
     {
         return sdProgram.HasEpisodeArtwork || sdProgram.HasSportsArtwork || sdProgram.HasSeasonArtwork || sdProgram.HasMovieArtwork || sdProgram.HasSeriesArtwork;
     }
 
     private async Task FillChannelWithProgramsAsync(CancellationToken cancellationToken)
     {
-
-        await Parallel.ForEachAsync(programRepository.Programs.Values, cancellationToken, async (mxfProgram, ct) =>
+        await Parallel.ForEachAsync(programRepository.Programs.Values, cancellationToken, async (mxfProgram, _) =>
         {
             cancellationToken.ThrowIfCancellationRequested();
             if (!string.IsNullOrEmpty(mxfProgram.ProgramId))
@@ -66,10 +64,7 @@ public class ProgramService(
                 try
                 {
                     Programme? sdProgram = await ProgramCache.GetAsync<Programme>(mxfProgram.ProgramId).ConfigureAwait(false); // JsonSerializer.Deserialize<Programme>(cachedJson);
-                    if (mxfProgram.ProgramId.Equals("EP019254150003"))
-                    {
-                        int aa = 1;
-                    }
+
                     if (sdProgram != null && !(mxfProgram.ArtWorks.Count == 0 && HasArtWork(sdProgram)))
                     {
                         if (sdProgram.Md5 == mxfProgram.MD5)
@@ -78,7 +73,6 @@ public class ProgramService(
                         }
                         else
                         {
-
                             programChannelsToProcess.TryAdd(mxfProgram.ProgramId, mxfProgram.ProgramId);
                         }
                     }
@@ -93,7 +87,6 @@ public class ProgramService(
                 }
             }
         });
-
     }
 
     private async Task FetchAndProcessProgramsAsync(CancellationToken cancellationToken)
@@ -109,10 +102,6 @@ public class ProgramService(
             if (programId == null || !programChannelsToProcess.TryRemove(programId, out _))
             {
                 continue;
-            }
-            if (programId == "EP019254150003")
-            {
-                int aa = 1;
             }
 
             currentBatch.Add(programId);
@@ -165,10 +154,6 @@ public class ProgramService(
 
     private async Task ProcessSingleProgramAsync(Programme sdProgram)
     {
-        if (sdProgram.ProgramId == "EP019254150003")
-        {
-            int aaa = 1;
-        }
         await UpdateProgramAsync(sdProgram);
 
         if (!string.IsNullOrEmpty(sdProgram.Md5))
@@ -191,11 +176,6 @@ public class ProgramService(
 
     private async Task UpdateProgramAsync(Programme sdProgram)
     {
-
-        if (sdProgram.ProgramId == "EP019254150003")
-        {
-            int aa = 2;
-        }
         MxfProgram? mxfProgram = programRepository.FindProgram(sdProgram.ProgramId);
         //MxfProgram mxfProgram = schedulesDirectData.FindOrCreateProgram(sdProgram.ProgramId, sdProgram.Md5);
         if (mxfProgram == null)
@@ -208,12 +188,6 @@ public class ProgramService(
 
     private async Task BuildMxfProgramAsync(MxfProgram mxfProgram, Programme sdProgram)
     {
-        if (sdProgram.ProgramId == "EP019254150003")
-        {
-            int aa = 2;
-        }
-        //mxfProgram.MD5 = sdProgram.Md5;
-        // Populate program properties from the sdProgram
         SetProgramFlags(mxfProgram, sdProgram);
         DetermineTitlesAndDescriptions(mxfProgram, sdProgram);
 
@@ -297,11 +271,6 @@ public class ProgramService(
 
     private void DetermineEpisodeInfo(MxfProgram mxfProgram, Programme sdProgram)
     {
-        if (sdProgram.ProgramId == "EP019254150003")
-        {
-            int aaa = 1;
-        }
-
         if (sdProgram.EntityType != "Episode")
         {
             return;
@@ -323,7 +292,6 @@ public class ProgramService(
 
         if (sdProgram.HasSeasonArtwork && mxfProgram.SeasonNumber != 0)
         {
-
             string seriesId = mxfProgram.ProgramId.Substring(2, 8);
 
             mxfProgram.mxfSeason = programRepository.FindOrCreateSeason(seriesId, mxfProgram.SeasonNumber, mxfProgram.ProgramId);
@@ -425,7 +393,6 @@ public class ProgramService(
         }
     }
 
-
     // Helper methods for decoding movie information
     private static int DecodeMpaaRating(List<ProgramContentRating> sdProgramContentRatings)
     {
@@ -463,18 +430,13 @@ public class ProgramService(
 
         return maxValue;
     }
+
     private async Task DetermineSeriesInfoAsync(MxfProgram mxfProgram)
     {
-        if (mxfProgram.ProgramId == "EP019254150003")
-        {
-            int aaa = 1;
-        }
-
         if (string.IsNullOrEmpty(mxfProgram.mxfSeriesInfo.Title))
         {
             mxfProgram.mxfSeriesInfo.Title = mxfProgram.Title;
         }
-
 
         // For sports programs (identified by ProgramId starting with "SP"), create a series entry based on the title
         if (mxfProgram.ProgramId.StartsWith("SP"))
@@ -485,7 +447,6 @@ public class ProgramService(
         }
         else
         {
-
             //mxfProgram.mxfSeriesInfo = schedulesDirectData.FindOrCreateSeriesInfo(mxfProgram.ProgramId.Substring(2, 8), mxfProgram.ProgramId);
 
             if (mxfProgram.ProgramId.StartsWith("EP"))
@@ -524,7 +485,6 @@ public class ProgramService(
             //    }
             //}
 
-
             //else if (mxfProgram.ProgramId.StartsWith("EP"))
             //{
             //    string seriesId = $"SH{mxfProgram.ProgramId.Substring(2, 8)}0000";
@@ -535,7 +495,6 @@ public class ProgramService(
             //        mxfProgram.Description = cached.Description1000;
             //        mxfProgram.ShortDescription = cached.Description100;
             //    }
-
 
             //    else
             //    {
@@ -552,9 +511,7 @@ public class ProgramService(
             //    }
 
             //}
-
         }
-
     }
 
     private void DetermineCastAndCrew(MxfProgram prg, Programme sd)
@@ -651,7 +608,6 @@ public class ProgramService(
         return ret;
     }
 
-
     public void Dispose()
     {
         Dispose(true);
@@ -672,5 +628,6 @@ public class ProgramService(
         return ProgramCache.GetExpiredKeysAsync().Result;
     }
 
-    public void RemovedExpiredKeys(List<string>? keysToDelete = null) { }
+    public void RemovedExpiredKeys(List<string>? keysToDelete = null)
+    { }
 }

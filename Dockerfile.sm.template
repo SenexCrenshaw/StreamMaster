@@ -7,6 +7,8 @@ WORKDIR /src
 # Copy all files into the image
 COPY . .
 
+RUN cd fuse_middleman && make && make install && make clean
+
 # Step 1: Restore and build the .NET project with error-only output but keep echo messages
 RUN echo "Starting .NET restore..." && \
     dotnet restore "StreamMaster.API/StreamMaster.API.csproj" -a $TARGETARCH --verbosity m && \

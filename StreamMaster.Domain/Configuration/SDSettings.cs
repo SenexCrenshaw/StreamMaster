@@ -16,7 +16,6 @@
         public bool PrefixEpisodeDescription { get; set; } = false; // Prefix Session and Episode to Program Description
         public bool EpisodeAppendProgramDescription { get; set; } = false; // Append Program Description to Session Description
 
-
         public bool SDEnabled { get; set; } = false;
         public int SDEPGDays { get; set; } = 7;
         public string SDCountry { get; set; } = "USA";
@@ -26,13 +25,11 @@
         public List<HeadendToView> HeadendsToView { get; set; } = [];
         public string SDUserName { get; set; } = string.Empty;
 
-
         public bool MovieImages { get; set; } = true;
         public bool SeasonImages { get; set; } = false;
         public bool SeriesImages { get; set; } = false;
         public bool SportsImages { get; set; } = false;
         public bool EpisodeImages { get; set; } = true;
-
 
         //public bool SeriesPosterArt { get; set; } = true;
         public string SeriesPosterAspect { get; set; } = "4x3";

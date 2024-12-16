@@ -136,7 +136,7 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, IRepository
             .ToListAsync()
             .ConfigureAwait(false);
 
-        HashSet<M3UFileDto> toUpdate = filesWithoutUrl.Where(m3uFile => m3uFile.LastWrite() >= m3uFile.LastUpdated).Select(mapper.Map<M3UFileDto>).ToHashSet();
+        HashSet<M3UFileDto> toUpdate = [.. filesWithoutUrl.Where(m3uFile => m3uFile.LastWrite() >= m3uFile.LastUpdated).Select(mapper.Map<M3UFileDto>)];
 
         if (toUpdate.Count > 0)
         {

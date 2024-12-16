@@ -204,7 +204,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IEpgM
             for (int i = 0; i < streamIds.Count; i += settings.CurrentValue.DBBatchSize)
             {
                 Stopwatch batchStopwatch = Stopwatch.StartNew(); // Timer for each batch
-                List<string> batch = streamIds.Skip(i).Take(settings.CurrentValue.DBBatchSize).ToList();
+                List<string> batch = [.. streamIds.Skip(i).Take(settings.CurrentValue.DBBatchSize)];
 
                 foreach (string streamId in batch)
                 {
@@ -665,7 +665,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IEpgM
         for (int i = 0; i < addedSMChannels.Count; i += settings.CurrentValue.DBBatchSize)
         {
             Stopwatch batchStopwatch = Stopwatch.StartNew(); // Timer for each batch
-            List<SMChannel> batch = addedSMChannels.Skip(i).Take(settings.CurrentValue.DBBatchSize).ToList();
+            List<SMChannel> batch = [.. addedSMChannels.Skip(i).Take(settings.CurrentValue.DBBatchSize)];
 
             if (settings.CurrentValue.AutoSetEPG)
             {

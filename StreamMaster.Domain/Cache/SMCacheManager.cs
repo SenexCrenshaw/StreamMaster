@@ -51,6 +51,7 @@ public class SMCacheManager<T>//(ILogger<T> logger, IMemoryCache memoryCache, Ti
         cacheFilePath = Path.Combine(cacheDirectory, $"{typeof(T).Name}.json{(useCompression ? ".gz" : "")}");
         backgroundFlushTask = Task.Run(() => BackgroundFlushLoop(cts.Token));
     }
+
     private string GetMemoryCacheKey(string key)
     {
         return $"{memoryCachePartition}{key}";
@@ -101,7 +102,7 @@ public class SMCacheManager<T>//(ILogger<T> logger, IMemoryCache memoryCache, Ti
         }
         catch (JsonException ex)
         {
-            //logger.LogError(ex, "Failed to deserialize cache value for key {CacheKey}.", key);
+            logger.LogError(ex, "Failed to deserialize cache value for key {CacheKey}.", key);
             return default;
         }
     }
@@ -142,7 +143,10 @@ public class SMCacheManager<T>//(ILogger<T> logger, IMemoryCache memoryCache, Ti
 
     private async Task<string?> GetStringAsync(string key)
     {
+#pragma warning disable RCS1118 // Mark local variable as const
         bool busyDebug = false;
+#pragma warning restore RCS1118 // Mark local variable as const
+
         if (busyDebug)
         {
             logger.LogDebug("Get string for file {file} key {CacheKey}.", cacheFilePath, key);
@@ -250,6 +254,7 @@ public class SMCacheManager<T>//(ILogger<T> logger, IMemoryCache memoryCache, Ti
         }
         await SetAsync(defaultKey, value, slidingExpiration).ConfigureAwait(false);
     }
+
     public async Task SetAsync<TValue>(string? key, TValue value, TimeSpan? slidingExpiration = null)
     {
         key ??= defaultKey;
@@ -271,6 +276,7 @@ public class SMCacheManager<T>//(ILogger<T> logger, IMemoryCache memoryCache, Ti
 
         await SetStringAsync(key, json, slidingExpiration).ConfigureAwait(false);
     }
+
     private async Task SetStringAsync(string key, string value, TimeSpan? slidingExpiration = null)
     {
         DateTime expiration = DateTime.UtcNow + (slidingExpiration ?? defaultExpiration);
@@ -352,11 +358,6 @@ public class SMCacheManager<T>//(ILogger<T> logger, IMemoryCache memoryCache, Ti
                 //await SaveKeyBasedCacheAsync(key, value, slidingExpiration);
             }
         }
-
-        //if (!useKeyBasedFiles && !noSave)
-        //{
-        //    await SaveDiskCacheAsync();
-        //}
     }
 
     private void EnqueueWrite(string key, string value, TimeSpan? slidingExpiration = null)
@@ -364,44 +365,6 @@ public class SMCacheManager<T>//(ILogger<T> logger, IMemoryCache memoryCache, Ti
         writeQueue.Enqueue((key, value));
         memoryCache.Set(GetMemoryCacheKey(key), value, slidingExpiration ?? defaultExpiration);
     }
-
-    public async Task SaveAsync()
-    {
-        //if (useKeyBasedFiles)
-        //{
-        //    // Key-based files are already saved during `SetAsync`.
-        //    return;
-        //}
-
-        //await SaveDiskCacheAsync();
-    }
-
-    //private async Task SaveKeyBasedCacheAsync(string key, string value, TimeSpan? slidingExpiration = null)
-    //{
-    //    await fileLock.WaitAsync();
-    //    try
-    //    {
-    //        string cachePath = GetCacheFilePath(key);
-    //        await using FileStream fileStream = new(cachePath, FileMode.Create, FileAccess.Write, FileShare.None);
-    //        if (useCompression)
-    //        {
-    //            await using GZipStream compressionStream = new(fileStream, CompressionLevel.Optimal);
-    //            await JsonSerializer.SerializeAsync(compressionStream, value);
-    //        }
-    //        else
-    //        {
-    //            await JsonSerializer.SerializeAsync(fileStream, value);
-    //        }
-    //    }
-    //    catch (Exception ex)
-    //    {
-    //        logger.LogError(ex, "Failed to save key-based cache for key {CacheKey}.", key);
-    //    }
-    //    finally
-    //    {
-    //        fileLock.Release();
-    //    }
-    //}
 
     public async Task SetAsync(string? key, string value, TimeSpan? slidingExpiration = null)
     {
@@ -411,7 +374,6 @@ public class SMCacheManager<T>//(ILogger<T> logger, IMemoryCache memoryCache, Ti
             throw new ArgumentException("A key must be provided, or DefaultKey must be set.");
         }
 
-        DateTime expiration = DateTime.UtcNow + (slidingExpiration ?? defaultExpiration);
         string memoryCacheKey = GetMemoryCacheKey(key);
         memoryCache.Set(memoryCacheKey, value, slidingExpiration ?? defaultExpiration);
 
@@ -579,37 +541,6 @@ public class SMCacheManager<T>//(ILogger<T> logger, IMemoryCache memoryCache, Ti
         }
     }
 
-    private async Task SaveDiskCacheAsync2()
-    {
-        if (useKeyBasedFiles)
-        {
-            return; // No operation needed if using key-based files.
-        }
-
-        await fileLock.WaitAsync();
-        try
-        {
-            await using FileStream fileStream = new(cacheFilePath, FileMode.Create, FileAccess.Write, FileShare.None);
-            if (useCompression)
-            {
-                await using GZipStream compressionStream = new(fileStream, CompressionLevel.Optimal);
-                await JsonSerializer.SerializeAsync(compressionStream, diskCache);
-            }
-            else
-            {
-                await JsonSerializer.SerializeAsync(fileStream, diskCache);
-            }
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Failed to save disk cache {file}", cacheFilePath);
-        }
-        finally
-        {
-            fileLock.Release();
-        }
-    }
-
     private string GetCacheFilePath(string key)
     {
         string cacheKey = GenerateCacheKey(key);
@@ -686,7 +617,7 @@ public class SMCacheManager<T>//(ILogger<T> logger, IMemoryCache memoryCache, Ti
             await cacheLock.WaitAsync();
             try
             {
-                expiredKeys = diskCache.Where(kv => kv.Value.IsExpired).Select(kv => kv.Key).ToList();
+                expiredKeys = [.. diskCache.Where(kv => kv.Value.IsExpired).Select(kv => kv.Key)];
             }
             finally
             {
@@ -801,6 +732,7 @@ public class SMCacheManager<T>//(ILogger<T> logger, IMemoryCache memoryCache, Ti
 
         if (disposing)
         {
+            cts.Cancel();
             fileLock.Dispose();
             cacheLock.Dispose();
         }
@@ -810,7 +742,6 @@ public class SMCacheManager<T>//(ILogger<T> logger, IMemoryCache memoryCache, Ti
 
     private record CacheEntry<TValue>(TValue Value, DateTime LastUpdatedDate, TimeSpan? DefaultExpiration = null)
     {
-
         [JsonIgnore]
         public bool IsExpired => DateTime.UtcNow > (LastUpdatedDate + (DefaultExpiration ?? TimeSpan.FromMinutes(30)));
     }

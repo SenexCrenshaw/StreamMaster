@@ -11,10 +11,9 @@ public class RemoveCommandProfileRequestHandler(IOptionsMonitor<CommandProfileDi
     {
         CommandProfileDict profileSettings = intProfileSettings.CurrentValue;
 
-        List<string> badNames = profileSettings.Profiles
+        List<string> badNames = [.. profileSettings.Profiles
             .Where(kvp => kvp.Value.IsReadOnly)
-            .Select(kvp => kvp.Key)
-            .ToList();
+            .Select(kvp => kvp.Key)];
 
         if (badNames.Contains(request.ProfileName, StringComparer.OrdinalIgnoreCase))
         {

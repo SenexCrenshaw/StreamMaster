@@ -116,7 +116,6 @@ public partial class SchedulesDirect(
                     await sportsImages.ProcessArtAsync(cancellationToken).ConfigureAwait(false);
                 }
 
-
                 XMLTV? xmltv = xSDMLTVBuilder.CreateSDXmlTv();
 
                 if (xmltv is not null)

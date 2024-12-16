@@ -48,7 +48,7 @@ public static class ColorHelper
     /// <returns>HSL color string.</returns>
     private static string GetColorByNumber(int index)
     {
-        int segments = 360 / Step;
+        const int segments = 360 / Step;
         int hue = ((index * Step) + (index / segments * Step)) % 360;
 
         return $"hsl({hue}, 100%, 70%)";
@@ -120,7 +120,7 @@ public static class ColorHelper
     /// <returns>Parsed HSL values or null if invalid.</returns>
     private static (int h, int s, int l)? ParseHslValues(string hsl)
     {
-        if (hsl.StartsWith("hsl(", StringComparison.OrdinalIgnoreCase) && hsl.EndsWith(")"))
+        if (hsl.StartsWith("hsl(", StringComparison.OrdinalIgnoreCase) && hsl.EndsWith(')'))
         {
             ReadOnlySpan<char> hslContent = hsl.AsSpan(4, hsl.Length - 5);
             List<string> parts = [];

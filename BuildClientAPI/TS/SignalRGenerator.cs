@@ -7,7 +7,7 @@ public static class SignalRGenerator
     public static void GenerateFile(List<MethodDetails> methods, string filePath)
     {
         StringBuilder content = new();
-        methods = methods.Where(a => a.IsGet).ToList();//.ReturnEntityType.EndsWith("Dto")).ToList();
+        methods = [.. methods.Where(a => a.IsGet)];//.ReturnEntityType.EndsWith("Dto")).ToList();
 
         content.Append(AddImports(methods));
         content.Append(GenerateContextAndInterfaces());

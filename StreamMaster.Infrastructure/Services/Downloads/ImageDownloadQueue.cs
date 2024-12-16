@@ -26,12 +26,12 @@ namespace StreamMaster.Infrastructure.Services.Downloads
 
         public List<ProgramArtwork> GetNextProgramArtworkBatch(int batchSize)
         {
-            return ProgramArtworkQueue.Take(batchSize).Select(x => x.Value).ToList();
+            return [.. ProgramArtworkQueue.Take(batchSize).Select(x => x.Value)];
         }
 
         public List<LogoInfo> GetNextLogoBatch(int batchSize)
         {
-            return logoInfoQueue.Take(batchSize).Select(x => x.Value).ToList();
+            return [.. logoInfoQueue.Take(batchSize).Select(x => x.Value)];
         }
 
         public void TryDequeueProgramArtworkBatch(IEnumerable<string> ids)

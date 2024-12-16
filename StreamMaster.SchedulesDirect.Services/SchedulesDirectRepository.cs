@@ -16,8 +16,6 @@ public class SchedulesDirectRepository(
         IOptionsMonitor<SDSettings> sdSettings
     ) : ISchedulesDirectRepository
 {
-    private static readonly TimeSpan CacheDuration = TimeSpan.FromHours(23);
-
     public async Task<Dictionary<string, GenericDescription>?> GetDescriptionsAsync(string[] seriesIds, CancellationToken cancellationToken)
     {
         if (!sdSettings.CurrentValue.SDEnabled)
@@ -116,9 +114,7 @@ public class SchedulesDirectRepository(
         }
 
         // Transform and cache the data
-        List<CountryData> countryDataList = response
-            .Select(kv => new CountryData { Key = kv.Key, Countries = kv.Value })
-            .ToList();
+        List<CountryData> countryDataList = [.. response.Select(kv => new CountryData { Key = kv.Key, Countries = kv.Value })];
 
         await CountryCache.SetAsync<List<CountryData>>(countryDataList).ConfigureAwait(false);
         logger.LogDebug("Cached available countries.");
@@ -369,7 +365,7 @@ public class SchedulesDirectRepository(
         }
 
         const int maxIdLength = 10;
-        programIds = programIds.Select(id => id.StartsWith("MV") ? id : id.Truncate(maxIdLength)).ToArray();
+        programIds = [.. programIds.Select(id => id.StartsWith("MV") ? id : id.Truncate(maxIdLength))];
         //string? a = programIds.FirstOrDefault(a => a.StartsWith("MV00001843"));
         //if (a is not null)
         //{

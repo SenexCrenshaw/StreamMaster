@@ -66,7 +66,6 @@ public class FilesController(IOptionsMonitor<Setting> settings, ILogoService log
         return fileStream == null ? Redirect(FileName ?? "/" + settings.CurrentValue.DefaultLogo) : File(fileStream, ContentType ?? "application/octet-stream", FileName);
     }
 
-
     //TVLogo
     [AllowAnonymous]
     [Route("tv/{source}")]

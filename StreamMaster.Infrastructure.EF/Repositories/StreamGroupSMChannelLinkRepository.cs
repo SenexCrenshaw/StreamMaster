@@ -23,7 +23,7 @@ public class StreamGroupSMChannelLinkRepository(ILogger<StreamGroupSMChannelLink
         // Break the smChannelIds list into batches
         for (int i = 0; i < smChannelIds.Count; i += batchSize)
         {
-            List<int> batch = smChannelIds.Skip(i).Take(batchSize).ToList();
+            List<int> batch = [.. smChannelIds.Skip(i).Take(batchSize)];
             await InsertBatchAsync(streamGroupId, batch);
         }
 

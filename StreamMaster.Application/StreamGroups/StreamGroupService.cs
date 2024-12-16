@@ -299,10 +299,10 @@ public class StreamGroupService(IHttpContextAccessor httpContextAccessor, ILogoS
         }
 
         int defaultSGID = await GetDefaultSGIdAsync().ConfigureAwait(false);
-        List<SMChannel> smChannels = (streamGroup.Id == defaultSGID
+        List<SMChannel> smChannels = [.. (streamGroup.Id == defaultSGID
             ? await repositoryWrapper.SMChannel.GetQuery().ToListAsync().ConfigureAwait(false)
             : await repositoryWrapper.SMChannel.GetSMChannelsFromStreamGroup(streamGroup.Id).ConfigureAwait(false))
-            .Where(a => !a.IsHidden).ToList();
+            .Where(a => !a.IsHidden)];
 
         if (smChannels.Count == 0)
         {

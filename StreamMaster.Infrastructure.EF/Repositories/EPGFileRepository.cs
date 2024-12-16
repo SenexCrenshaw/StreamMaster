@@ -15,7 +15,7 @@ namespace StreamMaster.Infrastructure.EF.Repositories;
 /// <summary>
 /// Repositorywrapper to manage EPGFile entities in the database.
 /// </summary>
-public class EPGFileRepository(ILogger<EPGFileRepository> intLogger, ILogoService logoService, IFileUtilService fileUtilService, ICacheManager cacheManager, IJobStatusService jobStatusService, IRepositoryContext repositoryContext, ISchedulesDirectDataService schedulesDirectDataService, IMapper mapper)
+public class EPGFileRepository(ILogger<EPGFileRepository> intLogger, IFileUtilService fileUtilService, ICacheManager cacheManager, IJobStatusService jobStatusService, IRepositoryContext repositoryContext, IMapper mapper)
     : RepositoryBase<EPGFile>(repositoryContext, intLogger), IEPGFileRepository
 {
     public async Task<int> GetNextAvailableEPGNumberAsync(CancellationToken cancellationToken)
@@ -57,7 +57,7 @@ public class EPGFileRepository(ILogger<EPGFileRepository> intLogger, ILogoServic
             return [];
         }
 
-        List<XmltvChannel> channels = await fileUtilService.GetChannelsFromXmlAsync(epgFile);
+        List<XmltvChannel> channels = await fileUtilService.GetChannelsFromXmlAsync(epgFile, cancellationToken);
         if (channels == null)
         {
             return [];
@@ -79,7 +79,7 @@ public class EPGFileRepository(ILogger<EPGFileRepository> intLogger, ILogoServic
             ret.Add(new EPGFilePreviewDto
             {
                 Id = channel.Id,
-                ChannelName = channel.DisplayNames[0].Text,
+                ChannelName = channel.DisplayNames[0].Text ?? "",
                 ChannelLogo = channel.Icons?[0].Src ?? "",
             });
         }
@@ -179,7 +179,7 @@ public class EPGFileRepository(ILogger<EPGFileRepository> intLogger, ILogoServic
             .ToListAsync()
             .ConfigureAwait(false);
 
-        HashSet<EPGFileDto> toUpdate = filesWithoutUrl.Where(epgFile => epgFile.LastWrite() >= epgFile.LastUpdated).Select(mapper.Map<EPGFileDto>).ToHashSet();
+        HashSet<EPGFileDto> toUpdate = [.. filesWithoutUrl.Where(epgFile => epgFile.LastWrite() >= epgFile.LastUpdated).Select(mapper.Map<EPGFileDto>)];
 
         if (toUpdate.Count > 0)
         {

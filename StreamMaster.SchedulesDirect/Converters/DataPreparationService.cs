@@ -17,77 +17,15 @@ namespace StreamMaster.SchedulesDirect.Converters
         ICustomPlayListBuilder customPlayListBuilder,
         ISchedulesDirectDataService schedulesDirectDataService) : IDataPreparationService
     {
-        //public string BaseUrl { get; private set; } = string.Empty;
-
         private readonly ConcurrentDictionary<string, MxfProgram> _programsByTitle = new();
-        //private readonly ConcurrentDictionary<int, SeriesInfo> _seriesDict = new();
-        //private ConcurrentDictionary<string, string> _keywordDict = new();
-        //public IReadOnlyDictionary<string, string> KeywordDict => _keywordDict;
-        //public IReadOnlyDictionary<int, SeriesInfo> SeriesDict => _seriesDict;
 
         public void Initialize(string baseUrl, List<VideoStreamConfig>? videoStreamConfigs)
         {
-            //BaseUrl = baseUrl;
-
-            InitializeDataDictionaries();
-
             if (videoStreamConfigs != null)
             {
                 schedulesDirectDataService.CustomStreamData().ResetLists();
             }
         }
-
-        private void InitializeDataDictionaries()
-        {
-            //_seriesDict.Clear();
-            //_keywordDict.Clear();
-
-            //foreach (SeriesInfo seriesInfo in schedulesDirectDataService.AllSeriesInfos)
-            //{
-            //    _ = _seriesDict.TryAdd(seriesInfo.Index, seriesInfo);
-            //}
-
-            //_keywordDict = new ConcurrentDictionary<string, string>(
-            //    schedulesDirectDataService.AllKeywords
-            //        .Where(k => !k.Word.EndsWithIgnoreCase("Uncategorized")
-            //                    && !k.Word.ContainsIgnoreCase("premiere"))
-            //        .GroupBy(k => k.Id)
-            //        .ToDictionary(
-            //            g => g.Key,
-            //            g =>
-            //            {
-            //                string word = g.First().Word;
-            //                return word.EqualsIgnoreCase("Movies") ? "Movie" : word;
-            //            }
-            //        )
-            //);
-        }
-
-        //public List<MxfService> GetServicesToProcess(List<VideoStreamConfig> videoStreamConfigs)
-        //{
-        //    List<MxfService> servicesToProcess = [];
-        //    List<MxfService> allServices = [.. schedulesDirectDataService.AllServices.OrderBy(a => a.EPGNumber)];
-        //    int newServiceCount = 0;
-
-        //    foreach (VideoStreamConfig? videoStreamConfig in videoStreamConfigs.OrderBy(a => a.ChannelNumber))
-        //    {
-        //        MxfService? origService = FindOriginalService(videoStreamConfig, allServices);
-
-        //        if (origService == null)
-        //        {
-        //            origService = HandleMissingOriginalService(videoStreamConfig);
-        //            if (origService == null)
-        //            {
-        //                continue;
-        //            }
-        //        }
-
-        //        MxfService newService = CreateNewService(videoStreamConfig, origService, newServiceCount++);
-        //        servicesToProcess.Add(newService);
-        //    }
-
-        //    return servicesToProcess;
-        //}
 
         public List<MxfService> GetAllSdServices()
         {
@@ -117,67 +55,6 @@ namespace StreamMaster.SchedulesDirect.Converters
 
             return epgFiles;
         }
-
-        private static MxfService? FindOriginalService(VideoStreamConfig videoStreamConfig, List<MxfService> allServices)
-        {
-            MxfService? origService = allServices.Find(s => s.StationId == videoStreamConfig.EPGId);
-            origService ??= allServices.Find(s => s.StationId.EndsWith("-" + videoStreamConfig.EPGId));
-            return origService;
-        }
-
-        //private MxfService? HandleMissingOriginalService(VideoStreamConfig videoStreamConfig)
-        //{
-        //    if (videoStreamConfig.EPGId.StartsWith(EPGHelper.CustomPlayListId.ToString()))
-        //    {
-        //        string callsign = videoStreamConfig.EPGId;
-        //        if (EPGHelper.IsValidEPGId(videoStreamConfig.EPGId))
-        //        {
-        //            (_, callsign) = videoStreamConfig.EPGId.ExtractEPGNumberAndStationId();
-        //        }
-        //        MxfService origService = schedulesDirectDataService.CustomStreamData().FindOrCreateService(videoStreamConfig.EPGId);
-        //        origService.EPGNumber = EPGHelper.CustomPlayListId;
-        //        origService.CallSign = callsign;
-        //        return origService;
-        //    }
-        //    else if (!videoStreamConfig.EPGId.StartsWith(EPGHelper.DummyId.ToString()) && !videoStreamConfig.EPGId.StartsWith(EPGHelper.SchedulesDirectId.ToString()))
-        //    {
-        //        MxfService origService = schedulesDirectDataService.DummyData().FindOrCreateService(videoStreamConfig.EPGId);
-        //        origService.EPGNumber = EPGHelper.DummyId;
-        //        origService.CallSign = videoStreamConfig.EPGId;
-        //        return origService;
-        //    }
-        //    else
-        //    {
-        //        return null;
-        //    }
-        //}
-
-        //private static MxfService CreateNewService(VideoStreamConfig videoStreamConfig, MxfService origService, int serviceId)
-        //{
-        //    MxfService newService = new(serviceId, videoStreamConfig.EPGId)
-        //    {
-        //        EPGNumber = origService.EPGNumber,
-        //        ChNo = videoStreamConfig.ChannelNumber,
-        //        Name = videoStreamConfig.Name,
-        //        Affiliate = origService.Affiliate,
-        //        CallSign = origService.CallSign,
-        //        //LogoImage = videoStreamConfig.Logo,
-        //        extras = new ConcurrentDictionary<string, dynamic>(origService.extras),
-        //        MxfScheduleEntries = origService.MxfScheduleEntries
-        //    };
-
-        //    newService.extras.AddOrUpdate("videoStreamConfig", videoStreamConfig, (_, _) => videoStreamConfig);
-
-        //    if (!string.IsNullOrEmpty(videoStreamConfig.Logo))
-        //    {
-        //        newService.extras.AddOrUpdate("logo", new Logo
-        //        {
-        //            Url = videoStreamConfig.Logo
-        //        }, (_, _) => new { Url = videoStreamConfig.Logo });
-        //    }
-
-        //    return newService;
-        //}
 
         public void AdjustServiceSchedules(MxfService service)
         {

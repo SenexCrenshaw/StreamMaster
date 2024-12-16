@@ -13,7 +13,6 @@ public class ProgramRepository(SMCacheManager<MovieImages> movieCache, SMCacheMa
     public ConcurrentDictionary<string, Season> Seasons { get; } = new();
     public ConcurrentDictionary<string, SeriesInfo> SeriesInfos { get; } = [];
 
-
     public MxfPerson FindOrCreatePerson(string name)
     {
         return People.FindOrCreate(name, key => new MxfPerson(People.Count + 1, key));
@@ -38,7 +37,7 @@ public class ProgramRepository(SMCacheManager<MovieImages> movieCache, SMCacheMa
             return true;
         }
 
-        List<MxfProgram> toUpdate = Programs.Values.Where(a => a.ProgramId.StartsWith(ProgramId)).ToList();
+        List<MxfProgram> toUpdate = [.. Programs.Values.Where(a => a.ProgramId.StartsWith(ProgramId))];
         if (toUpdate.Count != 0)
         {
             toUpdate.ForEach(a => a.AddArtworks(artworks));
@@ -46,7 +45,6 @@ public class ProgramRepository(SMCacheManager<MovieImages> movieCache, SMCacheMa
         }
         return false;
     }
-
 
     public Season FindOrCreateSeason(string seriesId, int seasonNumber, string ProgramId)
     {

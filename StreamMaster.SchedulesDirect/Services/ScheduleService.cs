@@ -19,11 +19,7 @@ public class ScheduleService(
     private readonly SemaphoreSlim apiSemaphore = new(SDAPIConfig.MaxParallelDownloads);
     private readonly SemaphoreSlim writeSema = new(1, 1);
 
-
-    private int cachedSchedules;
     private int downloadedSchedules;
-    private readonly int missingGuide;
-    private int totalObjects;
     private int processedObjects;
 
     public async Task<bool> BuildScheduleAndProgramEntriesAsync(CancellationToken cancellationToken)
@@ -41,7 +37,6 @@ public class ScheduleService(
         }
 
         processedObjects = 0;
-        totalObjects = toProcess.Count * days;
 
         string[] dates = BuildDateArray(days);
 
@@ -80,7 +75,6 @@ public class ScheduleService(
                 ScheduleResponse? schedule = await hybridCache.GetAsync<ScheduleResponse>(key);
                 if (schedule != null)
                 {
-                    cachedSchedules++;
                     await UpdateProgramAsync(schedule, cancellationToken);
                 }
                 else
@@ -89,7 +83,6 @@ public class ScheduleService(
                 }
             }
         });
-
     }
 
     private async Task FetchAndProcessSchedulesAsync(CancellationToken cancellationToken)
@@ -99,7 +92,7 @@ public class ScheduleService(
         //while (!cancellationToken.IsCancellationRequested)
         //{
         List<KeyValuePair<string, string[]>> currentBatch = new(batchSize);
-        //string[] keys = schedulesToProcess.Keys.ToArray(); 
+        //string[] keys = schedulesToProcess.Keys.ToArray();
 
         foreach (string md5 in schedulesToProcess.Keys)
         {
@@ -149,11 +142,11 @@ public class ScheduleService(
         try
         {
             // Create batch requests
-            ScheduleRequest[] scheduleRequests = batch.Select(kv => new ScheduleRequest
+            ScheduleRequest[] scheduleRequests = [.. batch.Select(kv => new ScheduleRequest
             {
                 StationId = kv.Value[0],
                 Date = [kv.Value[1]]
-            }).ToArray();
+            })];
 
             // Fetch scheduleResponses in a single API call
             List<ScheduleResponse>? scheduleResponses = await schedulesDirectAPI
@@ -187,7 +180,6 @@ public class ScheduleService(
             string key = $"{schedule.StationId}-{schedule.Metadata.StartDate}";
             try
             {
-
                 await UpdateProgramAsync(schedule, cancellationToken);
 
                 //string json = JsonSerializer.Serialize(schedule);
@@ -214,20 +206,14 @@ public class ScheduleService(
             {
                 writeSema.Release();
             }
-
         }
     }
 
     private async Task UpdateProgramAsync(ScheduleResponse schedule, CancellationToken cancellationToken)
     {
-        if (schedule.StationId.Contains("68827"))
-        {
-            int aaa = 1;
-        }
         // Process programs in the schedule
         foreach (ScheduleProgram program in schedule.Programs)
         {
-
             cancellationToken.ThrowIfCancellationRequested();
             MxfProgram? mxfProgram = await programRepository.FindOrCreateProgram(program.ProgramId, program.Md5);
 
@@ -258,8 +244,6 @@ public class ScheduleService(
         schedulesDirectData.FindOrCreateService(schedule.StationId).MxfScheduleEntries.ScheduleEntry.Add(scheduleEntry);
     }
 
-
-
     private static int EncodeAudioFormat(string[] audioProperties)
     {
         return audioProperties == null
@@ -287,11 +271,14 @@ public class ScheduleService(
     {
         schedulesToProcess.Clear();
         apiSemaphore.Dispose();
+        GC.SuppressFinalize(this);
     }
+
     public List<string> GetExpiredKeys()
     {
         return hybridCache.GetExpiredKeysAsync().Result;
     }
 
-    public void RemovedExpiredKeys(List<string>? keysToDelete = null) { }
+    public void RemovedExpiredKeys(List<string>? keysToDelete = null)
+    { }
 }

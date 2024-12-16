@@ -6,7 +6,7 @@ namespace StreamMaster.Application.SchedulesDirect.Commands;
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record AddLineupRequest(string Lineup) : IRequest<APIResponse>;
 
-public class AddLineupRequestHandler(ISchedulesDirectAPIService schedulesDirectAPIService, IFileUtilService fileUtilService, IBackgroundTaskQueue backgroundTaskQueue, IMessageService messageService, IDataRefreshService dataRefreshService, IJobStatusService jobStatusService, ILogger<AddLineupRequest> logger, IOptionsMonitor<SDSettings> intSettings)
+public class AddLineupRequestHandler(ISchedulesDirectAPIService schedulesDirectAPIService, IBackgroundTaskQueue backgroundTaskQueue, IMessageService messageService, IDataRefreshService dataRefreshService, IJobStatusService jobStatusService, ILogger<AddLineupRequest> logger, IOptionsMonitor<SDSettings> intSettings)
 : IRequestHandler<AddLineupRequest, APIResponse>
 {
     private readonly SDSettings sdSettings = intSettings.CurrentValue;
@@ -23,7 +23,6 @@ public class AddLineupRequestHandler(ISchedulesDirectAPIService schedulesDirectA
         int changesRemaining = await schedulesDirectAPIService.AddLineupAsync(request.Lineup, cancellationToken).ConfigureAwait(false);
         if (changesRemaining > -1)
         {
-
             //await fileUtilService.ProcessStationChannelNamesAsync(BuildInfo.AppDataFolder.GetEPGPath(EPGHelper.SchedulesDirectId), EPGHelper.SchedulesDirectId);
 
             //schedulesDirect.ResetCache("SubscribedLineups");

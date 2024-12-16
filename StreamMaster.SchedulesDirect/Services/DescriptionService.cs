@@ -24,7 +24,6 @@ public class DescriptionService(
             return true;
         }
 
-
         ICollection<SeriesInfo> toProcess = programRepository.SeriesInfos.Values;
 
         logger.LogInformation("Entering BuildGenericSeriesInfoDescriptionsAsync() for {toProcess.Count} series.", toProcess.Count);
@@ -35,11 +34,6 @@ public class DescriptionService(
         {
             logger.LogInformation("No descriptions to download. Exiting.");
             return true;
-        }
-
-        if (descriptionsToProcess.ContainsKey("1925415"))
-        {
-            int aa = 1;
         }
 
         // Process descriptions in parallel
@@ -54,14 +48,12 @@ public class DescriptionService(
 
         await Task.WhenAll(processingTasks).ConfigureAwait(false);
 
-
         logger.LogInformation("Exiting BuildGenericSeriesInfoDescriptionsAsync(). SUCCESS.");
         return true;
     }
 
     private async Task FillChannelWithDescriptionsFromSeriesInfoAsync(CancellationToken cancellationToken)
     {
-
         ICollection<SeriesInfo> toProcess = programRepository.SeriesInfos.Values;
 
         foreach (SeriesInfo series in toProcess)
@@ -96,7 +88,6 @@ public class DescriptionService(
                 descriptionsToProcess.TryAdd(series.ProgramId, series.ProgramId);
             }
         }
-
     }
 
     private async Task FetchAndProcessDescriptionsAsync(CancellationToken cancellationToken)
@@ -110,14 +101,6 @@ public class DescriptionService(
             {
                 continue;
             }
-
-            if (seriesId == "EP024209050067")
-            {
-                Dictionary<string, GenericDescription>? responses = await schedulesDirectAPI.GetDescriptionsAsync(["EP024209050067"], cancellationToken).ConfigureAwait(false);
-
-                int aa = 1;
-            }
-
 
             batch.Add(seriesId);
 
@@ -139,7 +122,6 @@ public class DescriptionService(
         await semaphore.WaitAsync(cancellationToken);
         try
         {
-
             Dictionary<string, GenericDescription>? responses = await schedulesDirectAPI.GetDescriptionsAsync(batch, cancellationToken).ConfigureAwait(false);
 
             if (responses != null)
@@ -186,7 +168,7 @@ public class DescriptionService(
         }
     }
 
-    public void ResetCache()
+    public static void ResetCache()
     {
         //hybridCache.ClearAsync().ConfigureAwait(false);
     }

@@ -20,7 +20,6 @@ public static class ConfigureServices
                   )
               );
 
-
         services.AddSingleton<SMCacheManager<MovieImages>>(provider =>
                   new SMCacheManager<MovieImages>(
                       provider.GetRequiredService<ILogger<MovieImages>>(),
@@ -69,7 +68,6 @@ public static class ConfigureServices
               provider.GetRequiredService<IMemoryCache>(),
               useKeyBasedFiles: true
           ));
-
 
         services.AddSingleton<SMCacheManager<LineupResult>>(provider =>
                     new SMCacheManager<LineupResult>(

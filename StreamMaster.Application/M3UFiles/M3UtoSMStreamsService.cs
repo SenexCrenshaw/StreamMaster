@@ -187,7 +187,7 @@ public partial class M3UToSMStreamsService(ILogger<M3UToSMStreamsService> logger
 
             if (line.StartsWithIgnoreCase("#EXTINF:"))
             {
-                Match match = Regex.Match(line, @"#EXTINF:(\d+)");
+                Match match = MyRegex().Match(line);
                 if (match.Success)
                 {
                     SMStream.ExtInf = match.Groups[1].Value; // Extracting the numeric value
@@ -375,4 +375,7 @@ public partial class M3UToSMStreamsService(ILogger<M3UToSMStreamsService> logger
         smStream.M3UFileName = m3UFile.Name;
         smStream.IsHidden = false;
     }
+
+    [GeneratedRegex(@"#EXTINF:(\d+)")]
+    private static partial Regex MyRegex();
 }

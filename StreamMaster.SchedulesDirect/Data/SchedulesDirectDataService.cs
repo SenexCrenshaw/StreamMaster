@@ -35,7 +35,7 @@ public class SchedulesDirectDataService()
     {
         get
         {
-            List<MxfLineup> lineups = SchedulesDirectDatas.Values.SelectMany(d => d.Lineups.Values).ToList();
+            List<MxfLineup> lineups = [.. SchedulesDirectDatas.Values.SelectMany(d => d.Lineups.Values)];
             return lineups;
         }
     }
@@ -88,7 +88,7 @@ public class SchedulesDirectDataService()
     {
         get
         {
-            List<MxfService> services = SchedulesDirectData.Services.Select(a => a.Value).ToList();
+            List<MxfService> services = [.. SchedulesDirectData.Services.Select(a => a.Value)];
             return services;
         }
     }

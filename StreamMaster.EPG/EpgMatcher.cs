@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-
-using StreamMaster.Domain.Helpers;
+﻿using StreamMaster.Domain.Helpers;
 using StreamMaster.Domain.Models;
 
 using StreamMaster.Domain.XmltvXml;
@@ -68,7 +66,7 @@ public static class FuzzyMatcher
 /// <summary>
 /// An implementation of IEpgMatcher that attempts to find the best EPG station match.
 /// </summary>
-public sealed class EpgMatcher(ILogger<EpgMatcher> logger, ICacheManager cacheManager) : IEpgMatcher
+public sealed class EpgMatcher(ICacheManager cacheManager) : IEpgMatcher
 {
     /// <inheritdoc/>
     public async Task<StationChannelName?> MatchAsync(SMChannel channel, CancellationToken cancellationToken)
@@ -97,7 +95,7 @@ public sealed class EpgMatcher(ILogger<EpgMatcher> logger, ICacheManager cacheMa
         }
 
         // If we cannot find by EPGID (or it's dummy), try all channels in all EPGs
-        List<StationChannelName> allChannels = cacheManager.StationChannelNames.Values.SelectMany(v => v).ToList();
+        List<StationChannelName> allChannels = [.. cacheManager.StationChannelNames.Values.SelectMany(v => v)];
         StationChannelName? bestOverall = await FindBestFuzzyMatchAsync(channel, allChannels, cancellationToken).ConfigureAwait(false);
         return bestOverall;
     }
@@ -132,7 +130,7 @@ public sealed class EpgMatcher(ILogger<EpgMatcher> logger, ICacheManager cacheMa
             }
 
             // Compute fuzzy scores
-            List<(StationChannelName Channel, int Score)> scored = candidates
+            List<(StationChannelName Channel, int Score)> scored = [.. candidates
                 .Select(c =>
                 {
                     cancellationToken.ThrowIfCancellationRequested();
@@ -147,11 +145,10 @@ public sealed class EpgMatcher(ILogger<EpgMatcher> logger, ICacheManager cacheMa
                     return (Channel: c, Score: bestScore);
                 })
                 .Where(x => x.Score < int.MaxValue)
-                .OrderBy(x => x.Score) // Lower score = better match
-                .ToList();
+                .OrderBy(x => x.Score)];
 
             // Take best match if any
-            return scored.Count > 0 ? scored.First().Channel : null;
+            return scored.Count > 0 ? scored[0].Channel : null;
         }, cancellationToken);
     }
 }

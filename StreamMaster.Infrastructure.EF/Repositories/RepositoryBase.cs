@@ -207,7 +207,7 @@ public abstract class RepositoryBase<T>(IRepositoryContext RepositoryContext, IL
 
         for (int i = 0; i < items.Count; i += batchSize)
         {
-            List<TEntity> batch = items.Skip(i).Take(batchSize).ToList();
+            List<TEntity> batch = [.. items.Skip(i).Take(batchSize)];
 
             // Attach each item and mark for removal
             foreach (TEntity? item in batch)

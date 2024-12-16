@@ -55,11 +55,6 @@ namespace StreamMaster.SchedulesDirect.Converters
                 StarRating = BuildProgramStarRatings(mxfProgram)
             };
 
-            if (programme.Icons is not null)
-            {
-                int aa = 1;
-            }
-
             return programme;
         }
 
@@ -300,30 +295,12 @@ namespace StreamMaster.SchedulesDirect.Converters
         {
             SDSettings sdSettings = sdSettingsMonitor.CurrentValue;
 
-            if (scheduleEntry.mxfProgram.ProgramId.Equals(value: "EP019254150003"))
-            {
-                int aaa = 1;
-            }
-
             MxfProgram? mxfProgram = programRepository.FindProgram(scheduleEntry.mxfProgram.ProgramId);
 
             if (mxfProgram == null)
             {
                 return null;
             }
-
-            if (mxfProgram.mxfSeason?.ArtWorks.Count > 0)
-            {
-                int aa = 1;
-            }
-            if (mxfProgram.mxfSeriesInfo?.ArtWorks.Count > 0)
-            {
-                int aa = 1;
-            }
-            // Get artwork from program or its related entities
-            //List<ProgramArtwork>? artWorks = mxfProgram.ArtWorks
-            //    ?? mxfProgram.mxfSeason?.ArtWorks
-            //    ?? mxfProgram.mxfSeriesInfo?.ArtWorks;
 
             if (mxfProgram.ArtWorks.Count == 0)
             {

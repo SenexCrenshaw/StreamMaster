@@ -56,9 +56,7 @@ namespace BuildClientAPI
             {
                 Assembly assembly = Assembly.Load(AssemblyName);
                 Dictionary<string, List<MethodDetails>> methodsByNamespace = [];
-                List<Type> smapiAttributedTypes = assembly.GetTypes()
-                    .Where(t => t.GetCustomAttributes(typeof(SMAPIAttribute), false).Length != 0)
-                    .ToList();
+                List<Type> smapiAttributedTypes = [.. assembly.GetTypes().Where(t => t.GetCustomAttributes(typeof(SMAPIAttribute), false).Length != 0)];
 
                 foreach (Type recordType in smapiAttributedTypes)
                 {
@@ -162,7 +160,7 @@ namespace BuildClientAPI
                     {
                         string namespaceName = kvp.Key;
                         List<MethodDetails> methods = kvp.Value;
-                        List<MethodDetails> pagedMethods = methods.Where(a => a.Name.StartsWith("Get")).ToList();
+                        List<MethodDetails> pagedMethods = [.. methods.Where(a => a.Name.StartsWith("Get"))];
 
                         string fileName = Path.Combine(CSharpFileNamePrefix, namespaceName, "ControllerAndHub.cs");
                         string IFileName = Path.Combine(CSharpFileNamePrefix, namespaceName, "IControllerAndHub.cs");

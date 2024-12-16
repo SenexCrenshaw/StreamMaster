@@ -55,7 +55,7 @@ public class IPTVApplicationProfile : Profile
             return t.IsGenericType && t.GetGenericTypeDefinition() == mapFromType;
         }
 
-        List<Type> types = assembly.GetExportedTypes().Where(t => t.GetInterfaces().Any(HasInterface)).ToList();
+        List<Type> types = [.. assembly.GetExportedTypes().Where(t => t.GetInterfaces().Any(HasInterface))];
 
         Type[] argumentTypes = [typeof(Profile)];
 
@@ -72,7 +72,7 @@ public class IPTVApplicationProfile : Profile
             }
             else
             {
-                List<Type> interfaces = type.GetInterfaces().Where(HasInterface).ToList();
+                List<Type> interfaces = [.. type.GetInterfaces().Where(HasInterface)];
 
                 if (interfaces.Count > 0)
                 {

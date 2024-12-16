@@ -87,7 +87,7 @@ public static class DataRefreshService
             content.AppendLine("            return;");
             content.AppendLine("        }");
             content.AppendLine();
-            List<MethodDetails> gs = gets.Where(a => a.ParameterNames != "").ToList();
+            List<MethodDetails> gs = [.. gets.Where(a => a.ParameterNames != "")];
 
             //foreach (MethodDetails? get in gets.Where(a => a.ParameterNames == "" || a.IsGetPaged))
             foreach (MethodDetails? get in gets.Where(a => a.IsGet && (a.IsGetPaged || a.ParameterNames?.Length == 0 || gets.Count == 1)))

@@ -293,11 +293,11 @@ public class CustomPlayListBuilder : ICustomPlayListBuilder
             }
         }
 
-        folderNfo.Credits = credits.Distinct().ToList(); // Add unique credits
+        folderNfo.Credits = [.. credits.Distinct()]; // Add unique credits
 
-        folderNfo.Artworks = artworkPaths.Distinct().ToList(); // Add artwork paths without duplicates
+        folderNfo.Artworks = [.. artworkPaths.Distinct()]; // Add artwork paths without duplicates
 
-        folderNfo.Trailers = trailerPaths.Distinct().ToList(); // Add trailer paths without duplicates
+        folderNfo.Trailers = [.. trailerPaths.Distinct()]; // Add trailer paths without duplicates
 
         folderNfo.Runtime = totalDuration; // Set the total duration
 
@@ -485,7 +485,7 @@ public class CustomPlayListBuilder : ICustomPlayListBuilder
             return null;
         }
 
-        List<int> availableIndices = Enumerable.Range(0, introMovies.Length).ToList();
+        List<int> availableIndices = [.. Enumerable.Range(0, introMovies.Length)];
 
         if (avoidIndex >= 0 && avoidIndex.Value < introMovies.Length)
         {

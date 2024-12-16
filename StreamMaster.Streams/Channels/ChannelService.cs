@@ -47,15 +47,14 @@ public sealed class ChannelService : IChannelService, IDisposable
             }
         }
     }
+
     private async Task StreamBroadcasterService_OnStreamBroadcasterStoppedEventAsync(object? sender, StreamBroadcasterStopped e)
     {
         if (sender is ISourceBroadcaster sourceBroadcaster)
         {
             _logger.LogInformation("Streaming Stopped Event for stream Id: {StreamName}", e.Name);
 
-            List<IChannelBroadcaster> channelBroadcasters = _cacheManager.ChannelBroadcasters.Values
-                .Where(a => a.SMStreamInfo?.Url == e.Id)
-                .ToList();
+            List<IChannelBroadcaster> channelBroadcasters = [.. _cacheManager.ChannelBroadcasters.Values.Where(a => a.SMStreamInfo?.Url == e.Id)];
 
             foreach (IChannelBroadcaster? channelBroadcaster in channelBroadcasters)
             {
@@ -73,6 +72,7 @@ public sealed class ChannelService : IChannelService, IDisposable
             }
         }
     }
+
     public async Task StopChannel(int channelId)
     {
         await _channelBroadcasterService.StopChannelAsync(channelId);
@@ -96,9 +96,7 @@ public sealed class ChannelService : IChannelService, IDisposable
 
     public List<IClientConfiguration> GetClientStreamerConfigurations()
     {
-        return _cacheManager.ChannelBroadcasters.Values
-            .SelectMany(a => a.GetClientStreamerConfigurations())
-            .ToList();
+        return [.. _cacheManager.ChannelBroadcasters.Values.SelectMany(a => a.GetClientStreamerConfigurations())];
     }
 
     public async Task<IChannelBroadcaster?> GetOrCreateChannelBroadcasterAsync(IClientConfiguration clientConfiguration, int streamGroupProfileId)
@@ -326,9 +324,7 @@ public sealed class ChannelService : IChannelService, IDisposable
 
         try
         {
-            return _cacheManager.ChannelBroadcasters.Values
-                .Where(a => a?.SMStreamInfo?.Id == streamId)
-                .ToList();
+            return [.. _cacheManager.ChannelBroadcasters.Values.Where(a => a?.SMStreamInfo?.Id == streamId)];
         }
         catch (Exception ex)
         {
@@ -344,9 +340,7 @@ public sealed class ChannelService : IChannelService, IDisposable
 
     public List<IChannelBroadcaster> GetChannelStatusFromStreamUrl(string videoUrl)
     {
-        return _cacheManager.ChannelBroadcasters.Values
-            .Where(a => a?.SMStreamInfo?.Url == videoUrl)
-            .ToList();
+        return [.. _cacheManager.ChannelBroadcasters.Values.Where(a => a?.SMStreamInfo?.Url == videoUrl)];
     }
 
     public List<IChannelBroadcaster> GetChannelStatuses()
@@ -465,6 +459,7 @@ public sealed class ChannelService : IChannelService, IDisposable
         _logger.LogDebug("Client configuration for {UniqueRequestId} not found", uniqueRequestId);
         return false;
     }
+
     public void Dispose()
     {
         lock (_disposeLock)

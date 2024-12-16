@@ -35,8 +35,6 @@ public class PostStartup(ILogger<PostStartup> logger, IServiceProvider servicePr
 
         await taskQueue.ScanDirectoryForM3UFiles(cancellationToken).ConfigureAwait(false);
 
-
-
         await taskQueue.CacheChannelLogos(cancellationToken).ConfigureAwait(false);
 
         await taskQueue.CacheStreamLogos(cancellationToken).ConfigureAwait(false);

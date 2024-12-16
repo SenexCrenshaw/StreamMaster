@@ -47,7 +47,7 @@ internal class GetPagedSMChannelsRequestHandler(IRepositoryWrapper Repository, I
             ////channel.Logo = channel.Logo;// logoSerice.GetLogoUrl(channel.Logo, "", sType);
             channel.SMStreamDtos = [.. channel.SMStreamDtos.OrderBy(a => a.Rank)];
             channel.SMChannelDtos = [.. channel.SMChannelDtos.OrderBy(a => a.Rank)];
-            channel.StreamGroupIds = channel.StreamGroups.Select(a => a.StreamGroupId).ToList();
+            channel.StreamGroupIds = [.. channel.StreamGroups.Select(a => a.StreamGroupId)];
 
             string videoUrl = await GetVideoStreamUrlAsync(channel.Name, channel.Id, sgId, streamGroupProfile.Id, Url);// $"{Url}/api/videostreams/stream/{EncodedString}/{channel.Name.ToCleanFileString()}";
             channel.StreamUrl = videoUrl;// JsonSerializer.Serialize(videoUrl);

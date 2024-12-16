@@ -15,7 +15,6 @@ public class ScanForCustomPlayListsRequestHandler(IOptionsMonitor<CommandProfile
         foreach (CustomPlayList customPlayList in customPlayLists)
         {
             string id = customPlayList.Name;
-            AddIcon(customPlayList);
 
             SMStream? currentStream = await Repository.SMStream.FirstOrDefaultAsync(s => s.Id == id, tracking: true, cancellationToken: cancellationToken);
             if (currentStream != null)
@@ -89,8 +88,6 @@ public class ScanForCustomPlayListsRequestHandler(IOptionsMonitor<CommandProfile
         List<CustomPlayList> introPlayLists = introPlayListBuilder.GetIntroPlayLists();
         foreach (CustomPlayList customPlayList in introPlayLists)
         {
-            AddIcon(customPlayList);
-
             foreach (CustomStreamNfo nfo in customPlayList.CustomStreamNfos)
             {
                 string streamId = $"{IntroPlayListBuilder.IntroIDPrefix}{nfo.Movie.Title}";
@@ -160,19 +157,5 @@ public class ScanForCustomPlayListsRequestHandler(IOptionsMonitor<CommandProfile
         }
 
         return APIResponse.Success;
-    }
-
-    private void AddIcon(CustomPlayList customPlayList)
-    {
-        //if (!string.IsNullOrEmpty(customPlayList.SMLogoUrl))
-        //{
-        //    LogoFileDto iconFileDto = new()
-        //    {
-        //        Name = customPlayList.Name,
-        //        Source = customPlayList.SMLogoUrl,
-        //        SMFileType = SMFileTypes.CustomPlayList
-        //    };
-        //    logoService.AddLogo(iconFileDto);
-        //}
     }
 }

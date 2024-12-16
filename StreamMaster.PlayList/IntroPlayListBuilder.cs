@@ -125,7 +125,7 @@ namespace StreamMaster.PlayList
                 return null;
             }
 
-            List<int> availableIndices = Enumerable.Range(0, introMovies.Length).ToList();
+            List<int> availableIndices = [.. Enumerable.Range(0, introMovies.Length)];
 
             if (avoidIndex >= 0 && avoidIndex.Value < introMovies.Length)
             {

@@ -31,17 +31,9 @@ public class EpisodeImages(
         }
         try
         {
-
-
-            List<MxfProgram> episodePrograms = programRepository.Programs.Values
-                .Where(p => !p.IsMovie && p.ProgramId.StartsWith("EP"))
-                .ToList();
+            List<MxfProgram> episodePrograms = [.. programRepository.Programs.Values.Where(p => !p.IsMovie && p.ProgramId.StartsWith("EP"))];
 
             MxfProgram? a = programRepository.Programs.Values.FirstOrDefault(a => a.ProgramId == "EP039440321320");
-            if (a != null)
-            {
-                int aa = 1;
-            }
 
             int totalObjects = episodePrograms.Count;
 
@@ -51,18 +43,7 @@ public class EpisodeImages(
             foreach (MxfProgram episode in episodePrograms)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                if (episode.ProgramId.StartsWith("EP0457"))
-                {
-                    int aa = 1;
-                }
 
-
-
-                //if (episode.IsSeries)
-                //{
-                //    SeriesInfo? series = schedulesDirectData.FindSeriesInfo(episode.ProgramId.Substring(2, 8));
-                //    continue;
-                //}
                 if (string.IsNullOrEmpty(episode.ProgramId) ||
                     !programRepository.Programs.TryGetValue(episode.ProgramId, out MxfProgram? mfxProgram))
                 {
@@ -78,7 +59,6 @@ public class EpisodeImages(
                 }
                 else
                 {
-
                     seriesImageQueue.Add(episode.ProgramId);
                 }
             }
@@ -140,22 +120,12 @@ public class EpisodeImages(
 
         foreach (ProgramMetadata response in seriesImageResponses)
         {
-            if (response.ProgramId.Contains("EP0457"))
-            {
-                int aa = 1;
-            }
-
             cancellationToken.ThrowIfCancellationRequested();
 
             if (response.Data == null || response.Data.Count == 0 || response.Data[0].Code != 0)
             {
                 logger.LogWarning("No Series Image artwork found for {ProgramId}", response.ProgramId);
                 continue;
-            }
-
-            if (response.ProgramId.Contains("EP0457"))
-            {
-                int aaa = 1;
             }
 
             List<ProgramArtwork> artworks = SDHelpers.GetTieredImages(response.Data, artworkSize, ["series", "sport", "episode", "season"], sdSettings.CurrentValue.SeriesPosterAspect);
@@ -177,7 +147,6 @@ public class EpisodeImages(
                     await EpisodeCache.SetAsync(response.ProgramId, artworkJson);
                     imageDownloadQueue.EnqueueProgramArtworkCollection(artworks);
                 }
-
             }
             else
             {

@@ -12,7 +12,6 @@ public class SeriesImages(
     IOptionsMonitor<SDSettings> sdSettings,
     ISchedulesDirectAPIService schedulesDirectAPI,
     SMCacheManager<SeriesImages> hybridCache,
-    ISchedulesDirectDataService schedulesDirectDataService,
     IProgramRepository programRepository
     ) : ISeriesImages, IDisposable
 {
@@ -33,15 +32,8 @@ public class SeriesImages(
         }
         try
         {
-
             ICollection<SeriesInfo> toProcess = programRepository.SeriesInfos.Values;
             SeriesInfo? test = toProcess.FirstOrDefault(a => a.ProgramId == "EP031891810143");
-
-            if (test is null)
-            {
-                int aaa = 1;
-            }
-
 
             int totalObjects = toProcess.Count;
             logger.LogInformation("Entering GetAllSeriesImages() for {totalObjects} series.", totalObjects);
@@ -69,7 +61,6 @@ public class SeriesImages(
                     else
                     {
                         seriesImageQueue.Add($"SH{seriesInfo.SeriesId}0000");
-
                     }
                 }
                 else
@@ -108,6 +99,7 @@ public class SeriesImages(
         finalSeriesId = seriesId;
         return false;
     }
+
     private async Task DownloadAndProcessImagesAsync(List<string> seriesImageQueue, ConcurrentBag<ProgramMetadata> seriesImageResponses, CancellationToken cancellationToken)
     {
         List<Task> tasks = [];
@@ -130,15 +122,15 @@ public class SeriesImages(
                 {
                     semaphore.Release();
                 }
-            }));
+            }, cancellationToken));
         }
 
         await Task.WhenAll(tasks).ConfigureAwait(false);
     }
+
     private async Task ProcessSeriesImageResponsesAsync(ConcurrentBag<ProgramMetadata> seriesImageResponses)
     {
         string artworkSize = string.IsNullOrEmpty(sdSettings.CurrentValue.ArtworkSize) ? BuildInfo.DefaultSDImageSize : sdSettings.CurrentValue.ArtworkSize;
-        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.SchedulesDirectData;
 
         foreach (ProgramMetadata response in seriesImageResponses)
         {
@@ -159,7 +151,6 @@ public class SeriesImages(
             {
                 continue;
             }
-
 
             List<ProgramArtwork> artworks = SDHelpers.GetTieredImages(response.Data, artworkSize, ["series", "sport", "episode"], sdSettings.CurrentValue.SeriesPosterAspect);
             //series.AddArtworks(artworks);
@@ -194,6 +185,7 @@ public class SeriesImages(
             semaphore.Dispose();
         }
     }
+
     public List<string> GetExpiredKeys()
     {
         return hybridCache.GetExpiredKeysAsync().Result;

@@ -578,7 +578,7 @@ public class LogoService(ICustomPlayListBuilder customPlayListBuilder, IHttpCont
 
     public async Task<bool> ScanForTvLogosAsync(CancellationToken cancellationToken = default)
     {
-        await scantvLogoSemaphore.WaitAsync();
+        await scantvLogoSemaphore.WaitAsync(cancellationToken);
         try
         {
             FileDefinition fd = FileDefinitions.TVLogo;

@@ -28,8 +28,10 @@ namespace StreamMaster.Infrastructure.Services.Downloads
         private readonly SemaphoreSlim downloadSemaphore;
         private readonly HttpClient httpClient; // Reused HttpClient via factory
         private DateTime Last429Dt = DateTime.MinValue;
+
         //private readonly object _lockObject = new();
         private static DateTime _lastRefreshTime = DateTime.MinValue;
+
         private static readonly Lock _refreshLock = new();
         private bool logged429 = false;
 
@@ -83,8 +85,6 @@ namespace StreamMaster.Infrastructure.Services.Downloads
                 }
             }
         }
-
-        private readonly bool lastLog = true;
 
         private async Task ProcessQueuesAsync(CancellationToken cancellationToken)
         {
@@ -239,7 +239,6 @@ namespace StreamMaster.Infrastructure.Services.Downloads
                     _ = downloadSemaphore.Release();
                     await RefreshDownloadServiceAsync();
                 }
-
             }
         }
 

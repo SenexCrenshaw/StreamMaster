@@ -19,7 +19,7 @@ public class CacheManager() : ICacheManager
     }
 
     public SMStreamInfo? MessageNoStreamsLeft { get; set; }
-    public List<StationChannelName> GetStationChannelNames => StationChannelNames.SelectMany(x => x.Value).ToList();
+    public List<StationChannelName> GetStationChannelNames => [.. StationChannelNames.SelectMany(x => x.Value)];
     public ConcurrentDictionary<int, string?> StreamGroupKeyCache { get; } = new();
     public StreamGroup? DefaultSG { get; set; }
 }

@@ -61,11 +61,10 @@ public class BaseRepositoryContext(DbContextOptions options)
         }
 
         // Split entities into batches
-        List<List<TEntity>> batches = entities
+        List<List<TEntity>> batches = [.. entities
             .Select((entity, index) => new { entity, index })
             .GroupBy(x => x.index / batchSize)
-            .Select(g => g.Select(x => x.entity).ToList())
-            .ToList();
+            .Select(g => g.Select(x => x.entity).ToList())];
 
         // Limit the number of parallel tasks to avoid overwhelming the database
         ParallelOptions parallelOptions = new()

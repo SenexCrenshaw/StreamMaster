@@ -20,11 +20,9 @@ namespace StreamMaster.Infrastructure.Services
         private readonly ILogger<FileUtilService> logger;
         private readonly ICacheManager cacheManager;
         private readonly IOptionsMonitor<Setting> settings;
-        private readonly IXmltvParser xmltvParser;
 
         public FileUtilService(ILogger<FileUtilService> logger, ICacheManager cacheManager, IOptionsMonitor<Setting> _settings)
         {
-            xmltvParser = xmltvParser;
             this.logger = logger;
             settings = _settings;
             this.cacheManager = cacheManager;

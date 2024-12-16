@@ -32,8 +32,6 @@ public class SeasonImages(
         }
         try
         {
-
-
             ICollection<Season> toProcess = programRepository.Seasons.Values;
 
             int totalObjects = toProcess.Count;
@@ -98,8 +96,6 @@ public class SeasonImages(
         }
     }
 
-
-
     private async Task DownloadAndProcessImagesAsync(List<string> seasonImageQueue, ConcurrentBag<ProgramMetadata> seasonImageResponses, CancellationToken cancellationToken)
     {
         List<Task> tasks = [];
@@ -122,7 +118,7 @@ public class SeasonImages(
                 {
                     semaphore.Release();
                 }
-            }));
+            }, cancellationToken));
         }
 
         await Task.WhenAll(tasks).ConfigureAwait(false);
@@ -135,12 +131,6 @@ public class SeasonImages(
 
         foreach (ProgramMetadata response in seasonImageResponses)
         {
-            if (response.ProgramId.Equals("EP019254150003"))
-            {
-                int aa = 1;
-
-            }
-
             if (response.Data == null || response.Data.Count == 0 || response.Data[0].Code != 0)
             {
                 logger.LogWarning("No Season Image artwork found for {ProgramId}", response.ProgramId);
@@ -193,6 +183,7 @@ public class SeasonImages(
             semaphore.Dispose();
         }
     }
+
     public List<string> GetExpiredKeys()
     {
         return hybridCache.GetExpiredKeysAsync().Result;

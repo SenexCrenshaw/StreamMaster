@@ -145,25 +145,22 @@ public static partial class SDHelpers
         }
 
         // Adjust size priority based on requested artwork size
-        List<string> applicableSizes = sizePriority.Skip(requestedSizeIndex).ToList();
+        List<string> applicableSizes = [.. sizePriority.Skip(requestedSizeIndex)];
 
         // Filter images based on provided criteria
-        List<ProgramArtwork> filteredImages = sdImages
+        List<ProgramArtwork> filteredImages = [.. sdImages
             .Where(image =>
                 !string.IsNullOrEmpty(image.Category) &&
                 !string.IsNullOrEmpty(image.Aspect) &&
                 !string.IsNullOrEmpty(image.Uri) &&
                 (string.IsNullOrEmpty(image.Tier) || tiers?.Contains(image.Tier.ToLower()) != false) &&
-                (string.IsNullOrEmpty(aspect) || image.Aspect.Equals(aspect, StringComparison.OrdinalIgnoreCase)))
-            .ToList();
+                (string.IsNullOrEmpty(aspect) || image.Aspect.Equals(aspect, StringComparison.OrdinalIgnoreCase)))];
 
         // Process each artwork size in priority order to gather images
         List<ProgramArtwork> prioritizedImages = [];
         foreach (string size in applicableSizes)
         {
-            List<ProgramArtwork> imagesOfSize = filteredImages
-                .Where(image => string.Equals(image.Size, size, StringComparison.OrdinalIgnoreCase))
-                .ToList();
+            List<ProgramArtwork> imagesOfSize = [.. filteredImages.Where(image => string.Equals(image.Size, size, StringComparison.OrdinalIgnoreCase))];
 
             if (imagesOfSize.Count != 0)
             {
@@ -194,7 +191,6 @@ public static partial class SDHelpers
 
         return prioritizedImages;
     }
-
 
     public static bool TableContains(string[] table, string text, bool exactMatch = false)
     {

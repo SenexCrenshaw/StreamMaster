@@ -24,7 +24,7 @@ public class ChannelGroupService(ILogger<ChannelGroupService> _logger, IReposito
                         continue;
                     }
 
-                    List<SMStream> relevantStreams = smStreams.Where(vs => vs.Group == cg.Name).ToList();
+                    List<SMStream> relevantStreams = [.. smStreams.Where(vs => vs.Group == cg.Name)];
 
                     var counts = relevantStreams.GroupBy(vs => vs.IsHidden).Select(g => new { IsHidden = g.Key, Count = g.Count() }).ToList();
                     int totalCount = counts.Sum(c => c.Count);

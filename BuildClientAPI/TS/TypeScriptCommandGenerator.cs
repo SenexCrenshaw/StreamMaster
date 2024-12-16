@@ -76,12 +76,11 @@ public static class TypeScriptCommandGenerator
     {
         StringBuilder content = new();
 
-        HashSet<string> includes = methods
+        HashSet<string> includes = [.. methods
         .Where(a => !a.IsGet)
         .SelectMany(x => new[] { x.ReturnEntityType, x.SingalRFunction })
         .Union(methods.Where(a => a.IsGet).Select(x => x.ReturnEntityType))
-        .Union(methods.Where(a => a.IsGet && !a.IsGetPaged).Select(x => x.TsParameter))
-        .ToHashSet();
+        .Union(methods.Where(a => a.IsGet && !a.IsGetPaged).Select(x => x.TsParameter))];
 
         HashSet<string> imports = [];
         foreach (string inc in includes)

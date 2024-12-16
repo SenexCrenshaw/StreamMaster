@@ -71,21 +71,21 @@ public class XMLTVBuilder(
         Dictionary<string, VideoStreamConfig> videoStreamConfigDictionary = videoStreamConfigs.ToDictionary(a => a.EPGId);
 
         // Process Schedules Direct Configurations
-        List<VideoStreamConfig> sdVideoStreamConfigs = videoStreamConfigs.Where(a => a.EPGNumber == EPGHelper.SchedulesDirectId).ToList();
+        List<VideoStreamConfig> sdVideoStreamConfigs = [.. videoStreamConfigs.Where(a => a.EPGNumber == EPGHelper.SchedulesDirectId)];
         if (sdVideoStreamConfigs.Count > 0)
         {
             await ProcessScheduleDirectConfigsAsync(xmlTv, sdVideoStreamConfigs);
         }
         cancellation.ThrowIfCancellationRequested();
         // Process Dummy Configurations
-        List<VideoStreamConfig> dummyVideoStreamConfigs = videoStreamConfigs.Where(a => a.EPGNumber == EPGHelper.DummyId).ToList();
+        List<VideoStreamConfig> dummyVideoStreamConfigs = [.. videoStreamConfigs.Where(a => a.EPGNumber == EPGHelper.DummyId)];
         if (dummyVideoStreamConfigs.Count > 0)
         {
             ProcessDummyConfigs(xmlTv, dummyVideoStreamConfigs);
         }
         cancellation.ThrowIfCancellationRequested();
         // Process Custom PlayList Configurations
-        List<VideoStreamConfig> customVideoStreamConfigs = videoStreamConfigs.Where(a => a.EPGNumber == EPGHelper.CustomPlayListId).ToList();
+        List<VideoStreamConfig> customVideoStreamConfigs = [.. videoStreamConfigs.Where(a => a.EPGNumber == EPGHelper.CustomPlayListId)];
         if (customVideoStreamConfigs.Count > 0)
         {
             ProcessCustomPlaylists(xmlTv, customVideoStreamConfigs);
@@ -103,6 +103,7 @@ public class XMLTVBuilder(
         GC.WaitForPendingFinalizers();
         GC.Collect();
     }
+
     private async Task ProcessScheduleDirectConfigsAsync(XMLTV xmlTv, List<VideoStreamConfig> SDVideoStreamConfigs)
     {
         //if (!xmlDict.TryGetValue(EPGHelper.SchedulesDirectId, out XMLTV? xml))
@@ -171,57 +172,6 @@ public class XMLTVBuilder(
         xmlTv.Programs.AddRange(programs);
     }
 
-    private async Task ProcessEPGFileConfigsAsyncOld(XMLTV xmlTv, List<VideoStreamConfig> configs, List<EPGFile> epgFiles, CancellationToken cancellationToken)
-    {
-        using SemaphoreSlim semaphore = new(4); // Adjust the degree of parallelism as needed
-        // Process EPG files in parallel with throttling
-        List<Task> tasks = epgFiles.Select(async epgFile =>
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-            await semaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
-
-            try
-            {
-                // Find matching configs
-                List<VideoStreamConfig> matchingConfigs = configs.Where(a => a.EPGNumber == epgFile.EPGNumber).ToList();
-                if (matchingConfigs.Count == 0)
-                {
-                    return; // Skip processing if no matching configs
-                }
-                cancellationToken.ThrowIfCancellationRequested();
-                // Retrieve or read the XMLTV file
-                XMLTV? xml = await fileUtilService.ReadXmlFileAsync(epgFile).ConfigureAwait(false);
-                if (xml == null)
-                {
-                    return; // Skip processing if the XML file is null
-                }
-                cancellationToken.ThrowIfCancellationRequested();
-
-                // Process the XML to extract channels and programmes
-                (List<XmltvChannel> newChannels, List<XmltvProgramme> newProgrammes) = ProcessXML(xml, matchingConfigs);
-
-                // Synchronize additions to shared collections
-                lock (xmlTv.Channels)
-                {
-                    xmlTv.Channels.AddRange(newChannels);
-                }
-
-                lock (xmlTv.Programs)
-                {
-                    xmlTv.Programs.AddRange(newProgrammes);
-                }
-            }
-            finally
-            {
-                semaphore.Release();
-            }
-        }).ToList();
-
-        // Await all tasks to complete
-        await Task.WhenAll(tasks).ConfigureAwait(false);
-
-    }
-
     private async Task ProcessEPGFileConfigsAsync(XMLTV xmlTv, List<VideoStreamConfig> configs, List<EPGFile> epgFiles, CancellationToken cancellationToken)
     {
         foreach (EPGFile epgFile in epgFiles)
@@ -229,7 +179,7 @@ public class XMLTVBuilder(
             cancellationToken.ThrowIfCancellationRequested();
 
             // Find matching configs
-            List<VideoStreamConfig> matchingConfigs = configs.Where(a => a.EPGNumber == epgFile.EPGNumber).ToList();
+            List<VideoStreamConfig> matchingConfigs = [.. configs.Where(a => a.EPGNumber == epgFile.EPGNumber)];
             if (matchingConfigs.Count == 0)
             {
                 continue; // Skip processing if no matching configs
@@ -261,7 +211,6 @@ public class XMLTVBuilder(
             }
         }
     }
-
 
     private void ProcessCustomPlaylists(XMLTV xmlTv, List<VideoStreamConfig> customConfigs)
     {
@@ -339,7 +288,7 @@ public class XMLTVBuilder(
                     {
                         Id = videoStreamConfig.OutputProfile!.Id,
                         DisplayNames = channel.DisplayNames, // Reuse immutable properties
-                        Icons = channel.Icons?.Select(icon => new XmltvIcon
+                        Icons = channel.Icons?.Select(_ => new XmltvIcon
                         {
                             Src = videoStreamConfig.Logo // Update logo with the provided one
                         }).ToList()
@@ -373,5 +322,4 @@ public class XMLTVBuilder(
 
         return (newChannels, newProgrammes);
     }
-
 }

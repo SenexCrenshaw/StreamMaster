@@ -7,6 +7,7 @@ using StreamMaster.Domain.Cache;
 using StreamMaster.Domain.Dto;
 using StreamMaster.Domain.Enums;
 using StreamMaster.Domain.Helpers;
+
 namespace StreamMaster.SchedulesDirect.Services;
 
 public class LineupService(
@@ -19,10 +20,8 @@ public class LineupService(
     IImageDownloadQueue imageDownloadQueue
     ) : ILineupService
 {
-
     public async Task<bool> BuildLineupServicesAsync(CancellationToken cancellationToken = default)
     {
-
         LineupResponse? clientLineups = await schedulesDirectAPI.GetSubscribedLineupsAsync(cancellationToken).ConfigureAwait(false);
 
         if (clientLineups == null || clientLineups.Lineups.Count == 0)
@@ -66,7 +65,7 @@ public class LineupService(
             ConcurrentHashSet<string> channelNumbers = [];
 
             // Process stations in parallel
-            await Parallel.ForEachAsync(lineupMap.Stations, ct, async (station, stationCt) =>
+            await Parallel.ForEachAsync(lineupMap.Stations, ct, async (station, _) =>
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 if (station == null || station.StationId == null || sdSettings.CurrentValue.SDStationIds.Find(a => a.StationId == station.StationId) == null)
@@ -99,13 +98,11 @@ public class LineupService(
 
     private void SetStationDetails(Station station, MxfService mxfService, string preferredLogoStyle, string alternateLogoStyle)
     {
-        if (!string.IsNullOrEmpty(mxfService.CallSign))
+        if (!string.IsNullOrEmpty(mxfService.CallSign) || station.Name is null || station.Callsign is null)
         {
-            return; // If the callsign is already set, there's no need to continue
+            return;
         }
 
-        // Set the UID and CallSign for the service
-        //mxfService.UidOverride = $"!Service!STREAMMASTER_{station.StationId}";
         mxfService.CallSign = station.Callsign;
 
         // Set the service name based on the station name and callsign
@@ -115,12 +112,6 @@ public class LineupService(
                 ? !string.IsNullOrEmpty(station.Affiliate) ? $"{station.Name} ({station.Affiliate})" : station.Name
                 : station.Name;
         }
-
-        // Add the affiliate if it exists
-        //if (!string.IsNullOrEmpty(station.Affiliate))
-        //{
-        //    mxfService.mxfAffiliate = schedulesDirectDataService.SchedulesDirectData.FindOrCreateAffiliate(station.Affiliate);
-        //}
 
         // Handle station logo if available
         Logo? stationLogo = GetStationLogo(station, preferredLogoStyle, alternateLogoStyle);
@@ -143,6 +134,7 @@ public class LineupService(
             imageDownloadQueue.EnqueueLogo(logoInfo);
         }
     }
+
     private static Logo? GetStationLogo(Station station, string preferredLogoStyle, string alternateLogoStyle)
     {
         // Select the logo based on preferred or alternate styles, falling back to the default logo
@@ -150,24 +142,6 @@ public class LineupService(
                ?? station.StationLogos?.FirstOrDefault(arg => arg.Category?.EqualsIgnoreCase(alternateLogoStyle) == true)
                ?? station.Logo;
     }
-
-
-    //public async Task<List<LineupResult>> GetLineupResults(CancellationToken cancellationToken)
-    //{
-    //    List<LineupResult> result = [];
-    //    List<Station> stations = await GetStations(cancellationToken).ConfigureAwait(false);
-
-    //    foreach (Station station in stations)
-    //    {
-    //        LineupResult? lineupResult = await schedulesDirectAPI.GetLineupResultAsync(station.Lineup, cancellationToken).ConfigureAwait(false);
-    //        if (lineupResult != null)
-    //        {
-    //            result.Add(lineupResult);
-    //        }
-    //    }
-
-    //    return result;
-    //}
 
     public async Task<List<StationPreview>> GetStationPreviews(CancellationToken cancellationToken)
     {
@@ -221,7 +195,6 @@ public class LineupService(
 
     private async Task<LineupResult?> GetLineupAsync(string lineup, CancellationToken cancellationToken)
     {
-
         try
         {
             LineupResult? cachedLineup = await LineupResultCache.GetAsync<LineupResult>(lineup);
@@ -263,5 +236,6 @@ public class LineupService(
         return LineupResultCache.GetExpiredKeysAsync().Result;
     }
 
-    public void RemovedExpiredKeys(List<string>? keysToDelete = null) { }
+    public void RemovedExpiredKeys(List<string>? keysToDelete = null)
+    { }
 }

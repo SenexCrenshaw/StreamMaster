@@ -101,7 +101,7 @@ public class SportsImages(
                 {
                     semaphore.Release();
                 }
-            }));
+            }, cancellationToken));
         }
 
         await Task.WhenAll(tasks).ConfigureAwait(false);

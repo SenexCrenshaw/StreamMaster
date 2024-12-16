@@ -16,7 +16,6 @@ public static class ConfigureServices
 {
     public static IServiceCollection AddApplicationServices(this IServiceCollection services)
     {
-
         services.AddSingleton(typeof(ISMCache<>), typeof(SMCacheManager<>));
 
         services.AddTransient<ILoggingUtils, LoggingUtils>();

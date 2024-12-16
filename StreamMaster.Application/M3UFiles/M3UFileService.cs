@@ -98,7 +98,7 @@ public class M3UFileService(ILogger<M3UFileService> logger, IFileUtilService fil
     private APIResponse CreateNewChannelGroups(List<string> newGroups, List<ChannelGroup> existingGroups)
     {
         IEnumerable<string> existingNames = existingGroups.Select(a => a.Name);
-        List<string> toCreate = newGroups.Where(a => !existingNames.Contains(a)).ToList();
+        List<string> toCreate = [.. newGroups.Where(a => !existingNames.Contains(a))];
 
         return repositoryWrapper.ChannelGroup.CreateChannelGroups(toCreate, true);
     }
@@ -352,20 +352,20 @@ public class M3UFileService(ILogger<M3UFileService> logger, IFileUtilService fil
 
     private static string GenerateBatchSqlCommandForDebugging(List<SMStream> streams, int m3uFileId, string m3uFileName, int streamGroupId, bool createChannels)
     {
-        string[] ids = streams.Select(s => $"'{EscapeString(s.Id)}'").ToArray();
-        string[] filePositions = streams.Select(s => s.FilePosition.ToString()).ToArray();
-        string[] channelNumbers = streams.Select(s => s.ChannelNumber.ToString()).ToArray();
-        string[] groups = streams.Select(s => $"'{EscapeString(s.Group)}'").ToArray();
-        string[] epgIds = streams.Select(s => $"'{EscapeString(s.EPGID)}'").ToArray();
-        string[] logos = streams.Select(s => $"'{EscapeString(s.Logo)}'").ToArray();
-        string[] names = streams.Select(s => $"'{EscapeString(s.Name)}'").ToArray();
-        string[] urls = streams.Select(s => $"'{EscapeString(s.Url)}'").ToArray();
-        string[] stationIds = streams.Select(s => $"'{EscapeString(s.StationId)}'").ToArray();
-        string[] channelIds = streams.Select(s => $"'{EscapeString(s.ChannelId)}'").ToArray();
-        string[] channelNames = streams.Select(s => $"'{EscapeString(s.ChannelName)}'").ToArray();
-        string[] extIfs = streams.Select(s => $"'{EscapeString(s.ExtInf ?? "-1")}'").ToArray();
-        string[] isHidden = streams.Select(s => s.IsHidden.ToString().ToUpper()).ToArray(); // Add IsHidden as a boolean array
-        string[] tvgNames = streams.Select(s => $"'{EscapeString(s.TVGName)}'").ToArray(); // Add TVGName array
+        string[] ids = [.. streams.Select(s => $"'{EscapeString(s.Id)}'")];
+        string[] filePositions = [.. streams.Select(s => s.FilePosition.ToString())];
+        string[] channelNumbers = [.. streams.Select(s => s.ChannelNumber.ToString())];
+        string[] groups = [.. streams.Select(s => $"'{EscapeString(s.Group)}'")];
+        string[] epgIds = [.. streams.Select(s => $"'{EscapeString(s.EPGID)}'")];
+        string[] logos = [.. streams.Select(s => $"'{EscapeString(s.Logo)}'")];
+        string[] names = [.. streams.Select(s => $"'{EscapeString(s.Name)}'")];
+        string[] urls = [.. streams.Select(s => $"'{EscapeString(s.Url)}'")];
+        string[] stationIds = [.. streams.Select(s => $"'{EscapeString(s.StationId)}'")];
+        string[] channelIds = [.. streams.Select(s => $"'{EscapeString(s.ChannelId)}'")];
+        string[] channelNames = [.. streams.Select(s => $"'{EscapeString(s.ChannelName)}'")];
+        string[] extIfs = [.. streams.Select(s => $"'{EscapeString(s.ExtInf ?? "-1")}'")];
+        string[] isHidden = [.. streams.Select(s => s.IsHidden.ToString().ToUpper())]; // Add IsHidden as a boolean array
+        string[] tvgNames = [.. streams.Select(s => $"'{EscapeString(s.TVGName)}'")]; // Add TVGName array
 
         // Construct the SQL command to call the function
         string sqlCommand = $@"
