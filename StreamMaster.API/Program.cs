@@ -15,7 +15,6 @@ using StreamMaster.Application.General.Commands;
 using StreamMaster.Application.Hubs;
 using StreamMaster.Domain.Helpers;
 using StreamMaster.EPG;
-using StreamMaster.FUSE;
 using StreamMaster.Infrastructure;
 using StreamMaster.Infrastructure.EF;
 using StreamMaster.Infrastructure.EF.PGSQL;
@@ -166,7 +165,6 @@ if (!string.IsNullOrEmpty(sslCertPath))
 }
 
 // GetOrAdd services to the container.
-builder.Services.AddFUSEServices();
 builder.Services.AddEPGServices();
 builder.Services.AddSchedulesDirectAPIServices();
 builder.Services.AddSchedulesDirectServices();

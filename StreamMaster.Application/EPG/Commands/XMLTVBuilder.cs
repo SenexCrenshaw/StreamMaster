@@ -68,7 +68,7 @@ public class XMLTVBuilder(
         }
 
         // Dictionary for quick lookup by EPGId
-        Dictionary<string, VideoStreamConfig> videoStreamConfigDictionary = videoStreamConfigs.ToDictionary(a => a.EPGId);
+        //Dictionary<string, VideoStreamConfig> videoStreamConfigDictionary = videoStreamConfigs.ToDictionary(a => a.EPGId);
 
         // Process Schedules Direct Configurations
         List<VideoStreamConfig> sdVideoStreamConfigs = [.. videoStreamConfigs.Where(a => a.EPGNumber == EPGHelper.SchedulesDirectId)];
