@@ -21,4 +21,5 @@ public enum SMQueCommand
     SetTestTask,
 
     UpdateEntitiesFromIPTVChannels,
+    CreateSTRMFiles
 }

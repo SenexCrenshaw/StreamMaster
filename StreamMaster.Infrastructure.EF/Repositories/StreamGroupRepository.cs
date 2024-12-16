@@ -8,6 +8,7 @@ using StreamMaster.Application.Interfaces;
 using StreamMaster.Domain.API;
 using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Filtering;
+
 namespace StreamMaster.Infrastructure.EF.Repositories;
 
 public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepositoryWrapper Repository, IRepositoryContext repositoryContext, IMapper mapper, IOptionsMonitor<Setting> intSettings, ICryptoService cryptoService, IHttpContextAccessor httpContextAccessor)
@@ -106,6 +107,7 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
         SetStreamGroupsLink(ret);
         return ret;
     }
+
     public async Task<StreamGroupDto?> GetStreamGroupById(int streamGroupId)
     {
         if (streamGroupId == 0)
@@ -179,7 +181,7 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
         return streamGroup.Id;
     }
 
-    public async Task<StreamGroupDto?> UpdateStreamGroup(int StreamGroupId, string? NewName, string? DeviceID, string? GroupKey)//, bool? AutoSetChannelNumbers, bool? IgnoreExistingChannelNumbers, int? StartingChannelNumber)
+    public async Task<StreamGroupDto?> UpdateStreamGroup(int StreamGroupId, string? NewName, string? DeviceID, string? GroupKey, bool? CreateSTRM)
     {
         StreamGroup? streamGroup = await FirstOrDefaultAsync(c => c.Id == StreamGroupId);
         if (streamGroup == null)
@@ -202,20 +204,10 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
             streamGroup.DeviceID = DeviceID;
         }
 
-        //if (StartingChannelNumber.HasValue)
-        //{
-        //    streamGroup.StartingChannelNumber = StartingChannelNumber.Value;
-        //}
-
-        //if (IgnoreExistingChannelNumbers.HasValue)
-        //{
-        //    streamGroup.IgnoreExistingChannelNumbers = IgnoreExistingChannelNumbers.Value;
-        //}
-
-        //if (AutoSetChannelNumbers.HasValue)
-        //{
-        //    streamGroup.AutoSetChannelNumbers = AutoSetChannelNumbers.Value;
-        //}
+        if (CreateSTRM.HasValue)
+        {
+            streamGroup.CreateSTRM = CreateSTRM.Value;
+        }
 
         Update(streamGroup);
         _ = await RepositoryContext.SaveChangesAsync();

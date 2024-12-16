@@ -14,6 +14,7 @@ using StreamMaster.Application.Logos.Commands;
 using StreamMaster.Application.M3UFiles.Commands;
 using StreamMaster.Application.SchedulesDirect.Commands;
 using StreamMaster.Application.Services;
+using StreamMaster.Application.StreamGroups.Commands;
 using StreamMaster.Domain.Enums;
 
 namespace StreamMaster.Infrastructure.Services.QueueService;
@@ -81,10 +82,10 @@ public sealed class QueuedHostedService(
 
                 switch (command.Command)
                 {
-
                     case SMQueCommand.EPGRemovedExpiredKeys:
                         await _sender.Send(new EPGRemovedExpiredKeysRequest(), cancellationSource.Token).ConfigureAwait(false);
                         break;
+
                     case SMQueCommand.CacheChannelLogos:
                         await _sender.Send(new CacheSMChannelLogosRequest(), cancellationSource.Token).ConfigureAwait(false);
                         break;
@@ -97,12 +98,17 @@ public sealed class QueuedHostedService(
                         await logoService.ScanForTvLogosAsync(cancellationSource.Token).ConfigureAwait(false);
                         break;
 
+                    case SMQueCommand.CreateSTRMFiles:
+                        await _sender.Send(new CreateSTRMFilesRequest(), cancellationSource.Token).ConfigureAwait(false);
+                        break;
+
                     case SMQueCommand.ProcessEPGFile:
                         if (command.Entity is int entityId)
                         {
                             await _sender.Send(new ProcessEPGFileRequest(entityId), cancellationSource.Token).ConfigureAwait(false);
                         }
                         break;
+
                     case SMQueCommand.EPGSync:
                         await _sender.Send(new EPGSync(), cancellationSource.Token).ConfigureAwait(false);
                         break;
@@ -136,12 +142,14 @@ public sealed class QueuedHostedService(
                             await _sender.Send(new SetIsSystemReadyRequest(isSystemReady), cancellationSource.Token).ConfigureAwait(false);
                         }
                         break;
+
                     case SMQueCommand.SetTestTask:
                         if (command.Entity is int testTaskId)
                         {
                             await _sender.Send(new SetTestTaskRequest(testTaskId), cancellationSource.Token).ConfigureAwait(false);
                         }
                         break;
+
                     default:
                         logger.LogWarning("{command} not found", command.Command);
                         break;

@@ -1,11 +1,12 @@
-﻿
+﻿using StreamMaster.Application.Services;
+
 namespace StreamMaster.Application.StreamGroups.Commands;
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record DeleteStreamGroupRequest(int StreamGroupId) : IRequest<APIResponse>;
 
-public class DeleteStreamGroupRequestHandler(IRepositoryWrapper Repository, IDataRefreshService dataRefreshService, IMessageService messageService)
+public class DeleteStreamGroupRequestHandler(IRepositoryWrapper Repository, IBackgroundTaskQueue taskQueue, IDataRefreshService dataRefreshService, IMessageService messageService)
     : IRequestHandler<DeleteStreamGroupRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(DeleteStreamGroupRequest request, CancellationToken cancellationToken = default)
@@ -34,6 +35,11 @@ public class DeleteStreamGroupRequestHandler(IRepositoryWrapper Repository, IDat
 
             await dataRefreshService.RefreshStreamGroups();
             await messageService.SendSuccess("Stream Group deleted successfully");
+
+            if (streamGroup.CreateSTRM)
+            {
+                await taskQueue.CreateSTRMFiles(cancellationToken);
+            }
             return APIResponse.Ok;
         }
 

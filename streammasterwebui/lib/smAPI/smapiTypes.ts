@@ -344,6 +344,7 @@ export interface StreamGroupDto
 {
 	AutoSetChannelNumbers: boolean;
 	ChannelCount: number;
+	CreateSTRM: boolean;
 	DeviceID: string;
 	GroupKey: string;
 	HDHRLink: string;
@@ -749,6 +750,7 @@ export interface AddProfileToStreamGroupRequest
 export interface CreateStreamGroupRequest
 {
 	CommandProfileName?: string;
+	CreateSTRM?: boolean;
 	GroupKey?: string;
 	Name: string;
 	OutputProfileName?: string;
@@ -772,6 +774,7 @@ export interface UpdateStreamGroupProfileRequest
 }
 export interface UpdateStreamGroupRequest
 {
+	CreateSTRM?: boolean;
 	DeviceID?: string;
 	GroupKey?: string;
 	NewName?: string;

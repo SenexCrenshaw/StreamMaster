@@ -4,6 +4,11 @@ using StreamMaster.Application.StreamGroups.Commands;
 
 namespace StreamMaster.Application.StreamGroups;
 
+public interface IStreamGroupTasks
+{
+    ValueTask CreateSTRMFiles(CancellationToken cancellationToken = default);
+}
+
 public interface IStreamGroupController
 {
     //Task<ActionResult<string?>> GetStreamGroupVideoStreamUrl(string VideoStreamId);
@@ -16,5 +21,6 @@ public interface IStreamGroupController
     Task<IActionResult> GetStreamGroupEPG(string encodedId);
 
     Task<IActionResult> GetStreamGroupM3U(string encodedId);
+
     Task<ActionResult> UpdateStreamGroup(UpdateStreamGroupRequest request);
 }

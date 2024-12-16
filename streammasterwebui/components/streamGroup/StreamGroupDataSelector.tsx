@@ -13,6 +13,7 @@ import { DataTableRowClickEvent, DataTableRowData, DataTableRowExpansionTemplate
 import { memo, useCallback, useMemo } from 'react';
 import StreamGroupDataSelectorValue from './StreamGroupDataSelectorValue';
 import { useStreamGroupDeviceIDColumnConfig } from './columns/useStreamGroupDeviceIDColumnConfig';
+import BooleanEditor from '@components/inputs/BooleanEditor';
 
 export interface StreamGroupDataSelectorProperties {
   readonly id: string;
@@ -84,11 +85,9 @@ const StreamGroupDataSelector = ({ id }: StreamGroupDataSelectorProperties) => {
     },
     [update]
   );
+
   const groupKeyTemplate = useCallback(
     (rowData: StreamGroupDto) => {
-      // if (rowData.IsReadOnly === true || rowData.Name.toLowerCase() === 'default') {
-      //   return <div className="text-container pl-1">{rowData.GroupKey}</div>;
-      // }
       return (
         <StringEditor
           value={rowData.GroupKey}
@@ -99,6 +98,28 @@ const StreamGroupDataSelector = ({ id }: StreamGroupDataSelectorProperties) => {
             }
           }}
         />
+      );
+    },
+    [update]
+  );
+
+  const strmTemplate = useCallback(
+    (rowData: StreamGroupDto) => {
+      if (rowData.Name.toLocaleLowerCase() === 'all') {
+        return <></>;
+      }
+      return (
+        <div className="sm-center-stuff">
+          <BooleanEditor
+            checked={rowData.CreateSTRM}
+            onChange={(e) => {
+              if (e !== undefined) {
+                const ret = { CreateSTRM: e, StreamGroupId: rowData.Id } as UpdateStreamGroupRequest;
+                update(ret);
+              }
+            }}
+          />
+        </div>
       );
     },
     [update]
@@ -116,7 +137,15 @@ const StreamGroupDataSelector = ({ id }: StreamGroupDataSelectorProperties) => {
       {
         bodyTemplate: groupKeyTemplate,
         field: 'GroupKey',
-        width: 84
+        width: 76
+      },
+      {
+        align: 'center',
+        alignHeader: 'center',
+        bodyTemplate: strmTemplate,
+        field: 'CreateSTRM',
+        header: 'STRM',
+        width: 16
       },
       {
         align: 'right',

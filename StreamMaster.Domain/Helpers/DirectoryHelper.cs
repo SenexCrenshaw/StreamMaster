@@ -1,7 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Reflection;
 
-using StreamMaster.Domain.Attributes;
 using StreamMaster.Domain.Configuration;
 
 namespace StreamMaster.Domain.Helpers;
@@ -23,6 +22,35 @@ public static class DirectoryHelper
         string message = string.Format(format, args);
         Console.WriteLine(message);
         Debug.WriteLine(message);
+    }
+
+    /// <summary>
+    /// Ensures that the specified directory exists, creating it recursively if necessary.
+    /// </summary>
+    /// <param name="path">The directory path to create.</param>
+    /// <returns>True if the directory exists or was successfully created; otherwise, false.</returns>
+    public static bool EnsureDirectoryExists(string path)
+    {
+        if (string.IsNullOrWhiteSpace(path))
+        {
+            throw new ArgumentException("Path cannot be null or empty.", nameof(path));
+        }
+
+        try
+        {
+            if (!Directory.Exists(path))
+            {
+                Directory.CreateDirectory(path); // This handles recursive creation.
+            }
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            // Log the exception here if necessary, e.g., using a logging framework
+            Console.Error.WriteLine($"Failed to create directory {path}. Error: {ex.Message}");
+            return false;
+        }
     }
 
     /// <summary>

@@ -13,7 +13,7 @@ using static StreamMaster.Domain.Common.GetStreamGroupEPGHandler;
 
 namespace StreamMaster.Application.StreamGroups;
 
-public class StreamGroupService(IHttpContextAccessor httpContextAccessor, ILogoService logoService, IOptionsMonitor<Setting> _settings, IOptionsMonitor<CommandProfileDict> _commandProfileSettings, ICacheManager cacheManager, IRepositoryWrapper repositoryWrapper, IOptionsMonitor<Setting> settings, IProfileService profileService)
+public class StreamGroupService(IHttpContextAccessor httpContextAccessor, ILogoService logoService, IOptionsMonitor<Setting> settings, IOptionsMonitor<CommandProfileDict> _commandProfileSettings, ICacheManager cacheManager, IRepositoryWrapper repositoryWrapper, IProfileService profileService)
     : IStreamGroupService
 {
     private readonly ConcurrentDictionary<int, bool> chNos = new();
@@ -88,6 +88,145 @@ public class StreamGroupService(IHttpContextAccessor httpContextAccessor, ILogoS
 
     #endregion CRYPTO
 
+    public async Task SyncSTRMFilesAsync(CancellationToken cancellationToken)
+    {
+        foreach (StreamGroup? sg in repositoryWrapper.StreamGroup.GetQuery())//.Where(a => a.CreateSTRM))
+        {
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return;
+            }
+            await SyncSGSTRMFilesAsync(sg, cancellationToken);
+        }
+    }
+
+    public async Task SyncSGSTRMFilesAsync(StreamGroup streamGroup, CancellationToken cancellationToken)
+    {
+        if (streamGroup.Name.EqualsIgnoreCase("all"))
+        {
+            return;
+        }
+
+        ConcurrentDictionary<string, bool> strmFiles = new();
+
+        if (streamGroup.CreateSTRM)
+        {
+            (List<VideoStreamConfig> videoStreamConfigs, StreamGroupProfile streamGroupProfile) = await GetStreamGroupVideoConfigsAsync(streamGroup.Id);
+
+            ParallelOptions parallelOptions = new()
+            {
+                MaxDegreeOfParallelism = 8,
+                CancellationToken = cancellationToken
+            };
+
+            Parallel.ForEach(videoStreamConfigs, parallelOptions, videoStreamConfig =>
+            {
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    return;
+                }
+
+                if (strmFiles.TryGetValue(videoStreamConfig.Name, out _))
+                {
+                    return;
+                }
+
+                string directory = GetSTRMDirectory(streamGroup, videoStreamConfig);
+                if (!DirectoryHelper.EnsureDirectoryExists(directory))
+                {
+                    return;
+                }
+
+                WriteSTRMFile(streamGroup, videoStreamConfig);
+                strmFiles.TryAdd(directory, true);
+            });
+        }
+
+        DeleteExtraneousDirs(streamGroup.Name, strmFiles);
+    }
+
+    private static void DeleteExtraneousDirs(string StreamGroupName, ConcurrentDictionary<string, bool> validFiles)
+    {
+        string directory = Path.Combine(BuildInfo.OnDemandFolder, StreamGroupName);
+        if (string.IsNullOrWhiteSpace(directory) || !Directory.Exists(directory))
+        {
+            return;
+        }
+
+        if (validFiles.IsEmpty)
+        {
+            Directory.Delete(directory, true);
+            return;
+        }
+
+        foreach (string subDir in Directory.GetDirectories(directory))
+        {
+            if (!validFiles.ContainsKey(subDir))
+            {
+                if (!Directory.Exists(subDir))
+                {
+                    continue;
+                }
+                Directory.Delete(subDir, true);
+            }
+        }
+    }
+
+    private void WriteSTRMFile(StreamGroup streamGroup, VideoStreamConfig videoStreamConfig, bool IsShort = false)
+    {
+        string strmFullName = GetSTRMPath(streamGroup, videoStreamConfig);
+        string videoUrl;
+        if (IsShort)
+        {
+            videoUrl = $"{videoStreamConfig.BaseUrl}/v/{videoStreamConfig.StreamGroupProfileId}/{videoStreamConfig.Id}";
+        }
+        else
+        {
+            videoUrl = $"{videoStreamConfig.BaseUrl}/api/videostreams/stream/{videoStreamConfig.EncodedString}";
+            if (settings.CurrentValue.AppendChannelName)
+            {
+                videoUrl += $"/{videoStreamConfig.CleanName}";
+            }
+        }
+        File.WriteAllText(strmFullName, videoUrl);
+    }
+
+    private static string GetSTRMDirectory(StreamGroup streamGroup, VideoStreamConfig config)
+    {
+        string sanitizedStreamGroupName = SanitizeForPath(streamGroup.Name);
+        string sanitizedConfigName = SanitizeForPath(config.Name);
+        return Path.Combine(BuildInfo.OnDemandFolder, sanitizedStreamGroupName, sanitizedConfigName);
+    }
+
+    private static string GetSTRMPath(StreamGroup streamGroup, VideoStreamConfig config)
+    {
+        string sanitizedDirectory = GetSTRMDirectory(streamGroup, config);
+        string sanitizedConfigName = SanitizeForPath(config.Name);
+        return Path.Combine(sanitizedDirectory, sanitizedConfigName + ".strm");
+    }
+
+    /// <summary>
+    /// Removes invalid characters from a string to make it safe for use in file and directory paths.
+    /// </summary>
+    /// <param name="input">The input string to sanitize.</param>
+    /// <returns>A sanitized string safe for use in paths.</returns>
+    private static string SanitizeForPath(string input)
+    {
+        if (string.IsNullOrWhiteSpace(input))
+        {
+            throw new ArgumentException("Input cannot be null or whitespace.", nameof(input));
+        }
+
+        // Remove invalid path and file name characters.
+        char[] invalidChars = [.. Path.GetInvalidFileNameChars().Concat(Path.GetInvalidPathChars()).Distinct()];
+        foreach (char invalidChar in invalidChars)
+        {
+            input = input.Replace(invalidChar.ToString(), "_");
+        }
+
+        return input;
+    }
+
     public async Task<StreamGroup> GetDefaultSGAsync()
     {
         if (cacheManager.DefaultSG != null)
@@ -132,7 +271,7 @@ public class StreamGroupService(IHttpContextAccessor httpContextAccessor, ILogoS
 
             string profileToFetch = !string.Equals(streamGroupProfile.CommandProfileName, "Default", StringComparison.InvariantCultureIgnoreCase)
                 ? streamGroupProfile.CommandProfileName
-                : _settings.CurrentValue.DefaultCommandProfileName;
+                : settings.CurrentValue.DefaultCommandProfileName;
 
             commandProfileDto = _commandProfileSettings.CurrentValue.GetProfileDto(profileToFetch);
         }
@@ -314,7 +453,6 @@ public class StreamGroupService(IHttpContextAccessor httpContextAccessor, ILogoS
         CommandProfileDto commandProfile = profileService.GetCommandProfile(streamGroupProfile.CommandProfileName);
         OutputProfileDto originalOutputProfile = profileService.GetOutputProfile(streamGroupProfile.OutputProfileName);
 
-        Setting settings = _settings.CurrentValue;
         string baseUrl = httpContextAccessor.GetUrl();
 
         List<VideoStreamConfig> videoStreamConfigs = [];

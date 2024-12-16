@@ -63,8 +63,7 @@
 		<PackageReference Include="System.Net.Http" Version="4.3.4" />
 		<PackageReference Include="System.text.regularexpressions" Version="4.3.1" />		
     </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\StreamMaster.FUSE\StreamMaster.FUSE.csproj" />
+  <ItemGroup>    
     <ProjectReference Include="..\StreamMaster.Infrastructure\StreamMaster.Infrastructure.csproj" />
     <ProjectReference Include="..\StreamMaster.PlayList\StreamMaster.PlayList.csproj" />
     <ProjectReference Include="..\StreamMaster.SchedulesDirect.Services\StreamMaster.SchedulesDirect.Services.csproj" />
