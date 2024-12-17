@@ -241,6 +241,11 @@ public partial class UpdateSettingRequestHandler(
             currentSetting.ShowIntros = request.Parameters.ShowIntros;
         }
 
+        if (!string.IsNullOrEmpty(request.Parameters.STRMBaseURL))
+        {
+            currentSetting.STRMBaseURL = request.Parameters.STRMBaseURL;
+        }
+
         if (request.Parameters.MaxLogFiles.HasValue)
         {
             currentSetting.MaxLogFiles = request.Parameters.MaxLogFiles.Value;

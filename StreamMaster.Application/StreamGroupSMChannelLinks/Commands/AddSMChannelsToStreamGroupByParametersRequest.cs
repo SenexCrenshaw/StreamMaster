@@ -1,10 +1,12 @@
-﻿namespace StreamMaster.Application.StreamGroupSMChannelLinks.Commands;
+﻿using StreamMaster.Application.Services;
+
+namespace StreamMaster.Application.StreamGroupSMChannelLinks.Commands;
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record AddSMChannelsToStreamGroupByParametersRequest(QueryStringParameters Parameters, int StreamGroupId) : IRequest<APIResponse>;
 
-internal class AddSMChannelsToStreamGroupByParametersRequestHandler(IRepositoryWrapper Repository, IDataRefreshService dataRefreshService) : IRequestHandler<AddSMChannelsToStreamGroupByParametersRequest, APIResponse>
+internal class AddSMChannelsToStreamGroupByParametersRequestHandler(IBackgroundTaskQueue taskQueue, IRepositoryWrapper Repository, IDataRefreshService dataRefreshService) : IRequestHandler<AddSMChannelsToStreamGroupByParametersRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(AddSMChannelsToStreamGroupByParametersRequest request, CancellationToken cancellationToken)
     {
@@ -36,6 +38,7 @@ internal class AddSMChannelsToStreamGroupByParametersRequestHandler(IRepositoryW
         }
         await dataRefreshService.RefreshStreamGroups();
         await dataRefreshService.RefreshSMChannels();
+        await taskQueue.CreateSTRMFiles(cancellationToken);
         return APIResponse.Success;
     }
 }

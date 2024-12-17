@@ -1,10 +1,12 @@
-﻿namespace StreamMaster.Application.StreamGroupSMChannelLinks.Commands;
+﻿using StreamMaster.Application.Services;
+
+namespace StreamMaster.Application.StreamGroupSMChannelLinks.Commands;
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record AddSMChannelToStreamGroupRequest(int StreamGroupId, int SMChannelId) : IRequest<APIResponse>;
 
-internal class AddSMChannelToStreamGroupRequestHandler(IRepositoryWrapper Repository, IDataRefreshService dataRefreshService) : IRequestHandler<AddSMChannelToStreamGroupRequest, APIResponse>
+internal class AddSMChannelToStreamGroupRequestHandler(IBackgroundTaskQueue taskQueue, IRepositoryWrapper Repository, IDataRefreshService dataRefreshService) : IRequestHandler<AddSMChannelToStreamGroupRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(AddSMChannelToStreamGroupRequest request, CancellationToken cancellationToken)
     {
@@ -28,6 +30,7 @@ internal class AddSMChannelToStreamGroupRequestHandler(IRepositoryWrapper Reposi
         await dataRefreshService.ClearByTag(SMChannel.APIName, "inSG").ConfigureAwait(false);
         await dataRefreshService.RefreshStreamGroups();
         await dataRefreshService.RefreshSMChannels();
+        await taskQueue.CreateSTRMFiles(cancellationToken);
         return res;
     }
 }

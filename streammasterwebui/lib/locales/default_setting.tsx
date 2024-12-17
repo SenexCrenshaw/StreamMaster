@@ -22,6 +22,7 @@ const defaultSetting: DefaultSettingType = {
   FFProbeExecutable: 'ffprobe',
   GlobalStreamLimit: '1',
   MaxLogFiles: '10',
+  STRMBaseURL: 'http://localhost:7095',
   MaxLogFileSizeMB: '1',
   ShowClientHostNames: 'false',
   StreamingClientUserAgent: 'VLC/3.0.20-git LibVLC/3.0.20-git',

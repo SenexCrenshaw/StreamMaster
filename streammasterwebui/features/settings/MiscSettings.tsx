@@ -72,6 +72,7 @@ export function MiscSettings(): React.ReactElement {
         {GetCheckBoxLine({ field: 'AppendChannelName' })}
         {/* {getCheckBoxLine({  field: 'VideoStreamAlwaysUseEPGLogo' })} */}
         {GetInputTextLine({ field: 'DummyRegex' })}
+        {GetInputTextLine({ field: 'STRMBaseURL' })}
         {/* {GetCheckBoxLine({ field: 'M3UIgnoreEmptyEPGID' })} */}
         {GetDropDownLine({ field: 'DefaultCompression', options: getDefaultCompressionOptions() })}
         {/* {getCheckBoxLine({  field: 'm3UFieldGroupTitle' })} */}

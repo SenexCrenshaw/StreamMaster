@@ -172,17 +172,18 @@ public class StreamGroupService(IHttpContextAccessor httpContextAccessor, ILogoS
         }
     }
 
-    private void WriteSTRMFile(StreamGroup streamGroup, VideoStreamConfig videoStreamConfig, bool IsShort = false)
+    private void WriteSTRMFile(StreamGroup streamGroup, VideoStreamConfig videoStreamConfig, bool IsShort = true)
     {
+        object baseUrl = settings.CurrentValue.STRMBaseURL;
         string strmFullName = GetSTRMPath(streamGroup, videoStreamConfig);
         string videoUrl;
         if (IsShort)
         {
-            videoUrl = $"{videoStreamConfig.BaseUrl}/v/{videoStreamConfig.StreamGroupProfileId}/{videoStreamConfig.Id}";
+            videoUrl = $"{baseUrl}/v/{videoStreamConfig.StreamGroupProfileId}/{videoStreamConfig.Id}";
         }
         else
         {
-            videoUrl = $"{videoStreamConfig.BaseUrl}/api/videostreams/stream/{videoStreamConfig.EncodedString}";
+            videoUrl = $"{baseUrl}/api/videostreams/stream/{videoStreamConfig.EncodedString}";
             if (settings.CurrentValue.AppendChannelName)
             {
                 videoUrl += $"/{videoStreamConfig.CleanName}";
@@ -206,10 +207,10 @@ public class StreamGroupService(IHttpContextAccessor httpContextAccessor, ILogoS
     }
 
     /// <summary>
-    /// Removes invalid characters from a string to make it safe for use in file and directory paths.
+    /// Removes invalid characters and unwanted prefixes from a string, making it safe and formatted for use in file and directory paths.
     /// </summary>
     /// <param name="input">The input string to sanitize.</param>
-    /// <returns>A sanitized string safe for use in paths.</returns>
+    /// <returns>A sanitized and formatted string safe for use in paths.</returns>
     private static string SanitizeForPath(string input)
     {
         if (string.IsNullOrWhiteSpace(input))
@@ -217,7 +218,13 @@ public class StreamGroupService(IHttpContextAccessor httpContextAccessor, ILogoS
             throw new ArgumentException("Input cannot be null or whitespace.", nameof(input));
         }
 
-        // Remove invalid path and file name characters.
+        // Step 1: Remove prefixes ending with ":".
+        input = RemovePrefixes(input);
+
+        // Step 2: Capitalize the first letter of each word.
+        input = CapitalizeFirstLetter(input);
+
+        // Step 3: Remove invalid path and file name characters.
         char[] invalidChars = [.. Path.GetInvalidFileNameChars().Concat(Path.GetInvalidPathChars()).Distinct()];
         foreach (char invalidChar in invalidChars)
         {
@@ -225,6 +232,33 @@ public class StreamGroupService(IHttpContextAccessor httpContextAccessor, ILogoS
         }
 
         return input;
+    }
+
+    /// <summary>
+    /// Removes prefixes from a string if they end with ":" followed by a space.
+    /// </summary>
+    /// <param name="input">The input string.</param>
+    /// <returns>A string with the prefixes removed.</returns>
+    private static string RemovePrefixes(string input)
+    {
+        int colonIndex = input.IndexOf(':');
+        if (colonIndex > -1 && colonIndex < input.Length - 1 && input[colonIndex + 1] == ' ')
+        {
+            input = input[(colonIndex + 2)..].Trim();
+        }
+        return input;
+    }
+
+    /// <summary>
+    /// Capitalizes the first letter of each word in a string.
+    /// </summary>
+    /// <param name="input">The input string.</param>
+    /// <returns>A string with each word's first letter capitalized.</returns>
+    private static string CapitalizeFirstLetter(string input)
+    {
+        return string.Join(" ", input.Split(' ')
+            .Where(word => !string.IsNullOrWhiteSpace(word)) // Ignore empty words
+            .Select(word => char.ToUpper(word[0]) + word[1..]));
     }
 
     public async Task<StreamGroup> GetDefaultSGAsync()

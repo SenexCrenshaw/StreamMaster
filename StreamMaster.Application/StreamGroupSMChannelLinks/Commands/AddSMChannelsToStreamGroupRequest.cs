@@ -1,10 +1,12 @@
-﻿namespace StreamMaster.Application.StreamGroupSMChannelLinks.Commands;
+﻿using StreamMaster.Application.Services;
+
+namespace StreamMaster.Application.StreamGroupSMChannelLinks.Commands;
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record AddSMChannelsToStreamGroupRequest(int StreamGroupId, List<int> SMChannelIds) : IRequest<APIResponse>;
 
-internal class AddSMChannelsToStreamGroupRequestHandler(IRepositoryWrapper Repository, IDataRefreshService dataRefreshService) : IRequestHandler<AddSMChannelsToStreamGroupRequest, APIResponse>
+internal class AddSMChannelsToStreamGroupRequestHandler(IBackgroundTaskQueue taskQueue, IRepositoryWrapper Repository, IDataRefreshService dataRefreshService) : IRequestHandler<AddSMChannelsToStreamGroupRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(AddSMChannelsToStreamGroupRequest request, CancellationToken cancellationToken)
     {
@@ -28,20 +30,6 @@ internal class AddSMChannelsToStreamGroupRequestHandler(IRepositoryWrapper Repos
             fieldDatas.Add(new(SMChannel.APIName, smChannel.Id, "StreamGroupIds", streamGroupIds));
         }
 
-        //APIResponse res = await Repositorywrapper.StreamGroupSMChannelLink.AddSMChannelsToStreamGroupAsync(request.StreamGroupId, request.SMChannelIds).ConfigureAwait(false);
-        //if (res.IsErrored)
-        //{
-        //    return APIResponse.ErrorWithMessage(res.ErrorMessage);
-        //}
-
-        //SMChannel? SMChannel = Repositorywrapper.SMChannel.GetSMChannel(request.ShortSMChannelId);
-        //if (SMChannel is null)
-        //{
-        //    return APIResponse.ErrorWithMessage("Channel not found");
-        //}
-        //List<int> streamGroupIds = SMChannel.StreamGroups.Select(a => a.StreamGroupId).ToList();
-
-        //FieldData fd = new(SMChannel.APIName, SMChannel.Id, "StreamGroupIds", streamGroupIds);
         if (fieldDatas.Count > 0)
         {
             await dataRefreshService.SetField(fieldDatas).ConfigureAwait(false);
@@ -51,6 +39,9 @@ internal class AddSMChannelsToStreamGroupRequestHandler(IRepositoryWrapper Repos
         }
         await dataRefreshService.RefreshStreamGroups();
         await dataRefreshService.RefreshSMChannels();
+
+        await taskQueue.CreateSTRMFiles(cancellationToken);
+
         return APIResponse.Success;
     }
 }

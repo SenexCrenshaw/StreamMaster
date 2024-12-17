@@ -60,6 +60,7 @@ const MessagesEn: messages_enType = {
   EnableSSL: 'Enable SSL',
   FFProbeExecutable: 'FFProbe Executable',
   FFMPegExecutable: 'FFMPeg Executable',
+  STRMBaseURL: 'STRM Base URL',
   FFMpegOptions: 'FFMPeg Options',
   filesEPGM3U: 'Files / EPG / M3U',
   formsAuthRequiresAdminUserName: 'Forms Authentication requires an Admin Username',

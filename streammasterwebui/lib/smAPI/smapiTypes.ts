@@ -276,6 +276,7 @@ export interface SettingDto
 	ShutDownDelay: number;
 	SSLCertPassword: string;
 	SSLCertPath: string;
+	STRMBaseURL: string;
 	UiFolder: string;
 	UrlBase: string;
 	Version: string;
@@ -1159,6 +1160,7 @@ export interface UpdateSettingParameters
 	ShutDownDelay?: number;
 	SSLCertPassword?: string;
 	SSLCertPath?: string;
+	STRMBaseURL?: string;
 }
 export interface UpdateSettingRequest
 {
