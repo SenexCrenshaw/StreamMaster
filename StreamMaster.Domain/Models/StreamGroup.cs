@@ -1,19 +1,16 @@
-﻿using AutoMapper.Configuration.Annotations;
-
-using MessagePack;
-
-using StreamMaster.Domain.Attributes;
-
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 using System.Xml.Serialization;
+
+using AutoMapper.Configuration.Annotations;
+
+using MessagePack;
 
 namespace StreamMaster.Domain.Models;
 
 public class StreamGroupBase : BaseEntity
 {
     public string DeviceID { get; set; } = string.Empty;
-
 
     [Ignore]
     [JsonIgnore]
@@ -30,7 +27,9 @@ public class StreamGroupBase : BaseEntity
     public string Name { get; set; } = string.Empty;
 
     public string GroupKey { get; set; } = string.Empty;
+    public bool CreateSTRM { get; set; }
 }
+
 public class StreamGroup : StreamGroupBase
 {
     public static string APIName => "StreamGroups";

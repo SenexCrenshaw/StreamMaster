@@ -1,11 +1,13 @@
 ﻿using System.Text;
+
+using BuildClientAPI.Models;
 namespace BuildClientAPI.TS;
 public static class SignalRGenerator
 {
     public static void GenerateFile(List<MethodDetails> methods, string filePath)
     {
         StringBuilder content = new();
-        methods = methods.Where(a => a.IsGet).ToList();//.ReturnEntityType.EndsWith("Dto")).ToList();
+        methods = [.. methods.Where(a => a.IsGet)];//.ReturnEntityType.EndsWith("Dto")).ToList();
 
         content.Append(AddImports(methods));
         content.Append(GenerateContextAndInterfaces());
@@ -14,17 +16,16 @@ public static class SignalRGenerator
         content.AppendLine("  return <SignalRContext.Provider value={signalRService}>{children}</SignalRContext.Provider>;");
         content.AppendLine("}");
 
-        string directory = Directory.GetParent(filePath).ToString();
-        if (!Directory.Exists(directory))
+        DirectoryInfo? directoryInfo = Directory.GetParent(filePath) ?? throw new ApplicationException($"Could not get directory information from file path {filePath}");
+        if (!Directory.Exists(directoryInfo.FullName))
         {
-            Directory.CreateDirectory(directory);
+            Directory.CreateDirectory(directoryInfo.FullName);
         }
         File.WriteAllText(filePath, content.ToString());
     }
 
     private static string GenerateProvider(List<MethodDetails> methods)
     {
-
         StringBuilder content = new();
         content.AppendLine("export const SignalRProvider: React.FC<SignalRProviderProps> = ({ children }) => {");
         content.AppendLine("  const smMessages = useSMMessages();");
@@ -119,8 +120,6 @@ public static class SignalRGenerator
         content.AppendLine($"    [{depString}]");
         content.AppendLine("  );");
 
-
-
         return content.ToString();
     }
 
@@ -141,16 +140,12 @@ public static class SignalRGenerator
         }
         Dictionary<string, List<MethodDetails>> keyValuePairs = methods.Where(a => a.IsGet).GroupBy(a => a.NamespaceName).ToDictionary(a => a.Key, a => a.ToList());
 
-
         foreach (KeyValuePair<string, List<MethodDetails>> namespaceName in keyValuePairs)
         {
             content.AppendLine($"      if ( fieldData.Entity === '{namespaceName.Key}') {{");
             foreach (MethodDetails method in namespaceName.Value)
             {
-
                 content.AppendLine($"        {method.Name.ToCamelCase()}.SetField(fieldData);");
-
-
             }
             content.AppendLine("        return;");
             content.AppendLine("      }");
@@ -159,14 +154,11 @@ public static class SignalRGenerator
         content.AppendLine("      });");
         content.AppendLine("    },");
 
-
-
         string depString = string.Join(",", deps);
         content.AppendLine($"    [{depString}]");
         content.AppendLine("  );");
         return content.ToString();
     }
-
 
     private static string DataRefresh(List<MethodDetails> methods)
     {
@@ -184,7 +176,6 @@ public static class SignalRGenerator
         }
 
         Dictionary<string, List<MethodDetails>> keyValuePairs = methods.Where(a => a.IsGet && (a.IsGetPaged || a.ParameterNames?.Length == 0)).GroupBy(a => a.NamespaceName).ToDictionary(a => a.Key, a => a.ToList());
-
 
         foreach (KeyValuePair<string, List<MethodDetails>> namespaceName in keyValuePairs)
         {
@@ -215,7 +206,6 @@ public static class SignalRGenerator
         content.AppendLine("  );");
         return content.ToString();
     }
-
 
     private static string GenerateContextAndInterfaces()
     {
@@ -254,5 +244,4 @@ public static class SignalRGenerator
         content.AppendLine();
         return content.ToString();
     }
-
 }

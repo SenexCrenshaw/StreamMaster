@@ -1,7 +1,7 @@
-﻿using StreamMaster.Domain.API;
-using StreamMaster.Domain.Pagination;
+﻿using System.Linq.Expressions;
 
-using System.Linq.Expressions;
+using StreamMaster.Domain.API;
+using StreamMaster.Domain.Pagination;
 
 namespace StreamMaster.Domain.Repository;
 
@@ -22,7 +22,7 @@ public interface ISMChannelsRepository : IRepositoryBase<SMChannel>
     Task<List<SMChannel>> GetSMChannelsFromStreamGroup(int streamGroupId);
     PagedResponse<SMChannelDto> CreateEmptyPagedResponse();
     Task<PagedResponse<SMChannelDto>> GetPagedSMChannels(QueryStringParameters Parameters);
-    IQueryable<SMChannel> GetPagedSMChannelsQueryable(QueryStringParameters parameters, bool? tracking = false);
+    Task<IQueryable<SMChannel>> GetPagedSMChannelsQueryableAsync(QueryStringParameters parameters, bool? tracking = false);
 
     // Custom Queries
     new IQueryable<SMChannel> GetQuery(Expression<Func<SMChannel, bool>> expression, bool tracking = false);
@@ -63,7 +63,7 @@ public interface ISMChannelsRepository : IRepositoryBase<SMChannel>
     // Channel Cloning
     Task<APIResponse> CloneSMChannel(int SMChannelId, string newName);
 
-    // Channel Logo Management
+    // Channel SMLogoUrl Management
     Task<APIResponse> SetSMChannelLogo(int SMChannelId, string logo);
     Task<List<FieldData>> SetSMChannelsLogoFromEPGFromIds(List<int> ids, CancellationToken cancellationToken);
     Task<List<FieldData>> SetSMChannelsLogoFromEPGFromParameters(QueryStringParameters parameters, CancellationToken cancellationToken);

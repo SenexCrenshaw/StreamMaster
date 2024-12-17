@@ -4,7 +4,6 @@ using StreamMaster.Domain.Attributes;
 
 namespace StreamMaster.Streams.Domain.Models
 {
-
     [RequireAll]
     [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 

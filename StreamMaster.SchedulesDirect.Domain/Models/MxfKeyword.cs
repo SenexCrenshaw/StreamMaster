@@ -24,20 +24,20 @@ namespace StreamMaster.SchedulesDirect.Domain.Models
         public string Id
         {
             get => $"k{_index}";
-            set { _index = int.Parse(value[1..]); }
+            set => _index = int.Parse(value[1..]);
         }
 
         /// <summary>
         /// Used for recording requests
         /// </summary>
         [XmlAttribute("idref")]
-        public string IdRef { get; set; }
+        public string IdRef { get; set; } = string.Empty;
 
         /// <summary>
         /// The keyword name that is displayed.
         /// The maximum length is 64 characters.
         /// </summary>
         [XmlAttribute("word")]
-        public string Word { get; set; }
+        public string Word { get; set; } = string.Empty;
     }
 }

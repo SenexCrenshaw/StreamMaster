@@ -1,6 +1,6 @@
-﻿using Reinforced.Typings.Attributes;
+﻿using System.Xml.Serialization;
 
-using System.Xml.Serialization;
+using Reinforced.Typings.Attributes;
 
 namespace StreamMaster.PlayList.Models;
 
@@ -9,11 +9,11 @@ namespace StreamMaster.PlayList.Models;
 public class Audio
 {
     [XmlElement(ElementName = "bitrate")]
-    public string Bitrate { get; set; }
+    public string? Bitrate { get; set; }
     [XmlElement(ElementName = "channels")]
-    public string Channels { get; set; }
+    public string? Channels { get; set; }
     [XmlElement(ElementName = "codec")]
-    public string Codec { get; set; }
+    public string? Codec { get; set; }
     [XmlElement(ElementName = "language")]
-    public string Language { get; set; }
+    public string? Language { get; set; }
 }

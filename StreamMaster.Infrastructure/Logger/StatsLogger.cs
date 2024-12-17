@@ -11,12 +11,13 @@ public class StatsLoggerProvider : ILoggerProvider
 
     public void Dispose()
     {
+        GC.SuppressFinalize(this);
     }
 }
 
 public class StatsLogger : ILogger
 {
-    public IDisposable BeginScope<TState>(TState state)
+    public IDisposable? BeginScope<TState>(TState state) where TState : notnull
     {
         return null;
     }
@@ -26,7 +27,7 @@ public class StatsLogger : ILogger
         return true;
     }
 
-    public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
+    public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
     {
         if (!IsEnabled(logLevel))
         {
@@ -36,7 +37,7 @@ public class StatsLogger : ILogger
         string message = formatter(state, exception);
 
         // Custom log formatting logic here
-        // Remove the namespace from the message or format as needed
+        // Remove the namespace from the Message or format as needed
 
         Console.WriteLine($"{logLevel}: {message}");
     }

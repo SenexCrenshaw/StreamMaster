@@ -1,6 +1,6 @@
 ﻿namespace StreamMaster.Application.SMStreams;
 
-public class SMStreamService(ILogger<ISMStreamService> logger, IRepositoryWrapper repositoryWrapper)
+public class SMStreamService( IRepositoryWrapper repositoryWrapper)
     : ISMStreamService
 {
     public IQueryable<SMStream> GetSMStreamLogos(bool? justHttp = true)

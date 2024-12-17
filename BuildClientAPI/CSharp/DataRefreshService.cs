@@ -1,4 +1,6 @@
 ﻿using System.Text;
+
+using BuildClientAPI.Models;
 namespace BuildClientAPI.CSharp;
 public static class DataRefreshService
 {
@@ -29,6 +31,7 @@ public static class DataRefreshService
         content.AppendLine("        Task ClearByTag(string Entity, string Tag);");
         content.AppendLine("        Task RefreshAll();");
         content.AppendLine("        Task Refresh(string command);");
+        content.AppendLine("        Task RefreshDownloadServiceStatus();");
 
         foreach (string namespaceName in methodsByNamespace.Keys)
         {
@@ -50,10 +53,10 @@ public static class DataRefreshService
     private static string GenerateMethods(Dictionary<string, List<MethodDetails>> methodsByNamespace)
     {
         StringBuilder content = new();
-        content.AppendLine();
+        //content.AppendLine();
         content.AppendLine("    public async Task RefreshAll()");
         content.AppendLine("    {");
-        content.AppendLine();
+        //content.AppendLine();
 
         foreach (string? namespaceName in methodsByNamespace.Keys.Order())
         {
@@ -75,16 +78,16 @@ public static class DataRefreshService
                 continue;
             }
 
-            content.AppendLine("");
+            content.AppendLine();
             content.AppendLine($"    public async Task Refresh{namespaceName}(bool alwaysRun = false)");
             content.AppendLine("    {");
-            content.AppendLine();
+            //content.AppendLine();
             content.AppendLine("        if (!alwaysRun && !BuildInfo.IsSystemReady)");
             content.AppendLine("        {");
             content.AppendLine("            return;");
             content.AppendLine("        }");
             content.AppendLine();
-            List<MethodDetails> gs = gets.Where(a => a.ParameterNames != "").ToList();
+            List<MethodDetails> gs = [.. gets.Where(a => a.ParameterNames != "")];
 
             //foreach (MethodDetails? get in gets.Where(a => a.ParameterNames == "" || a.IsGetPaged))
             foreach (MethodDetails? get in gets.Where(a => a.IsGet && (a.IsGetPaged || a.ParameterNames?.Length == 0 || gets.Count == 1)))

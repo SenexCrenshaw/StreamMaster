@@ -77,7 +77,7 @@ public class OutputProfileDict : IProfileDict<OutputProfile>
             : GetProfileDtoFromProfile(defaultProfile, defaultName);
     }
 
-    public OutputProfileDto GetProfileDtoFromProfile(OutputProfile outputProfile, string ProfileName)
+    public static OutputProfileDto GetProfileDtoFromProfile(OutputProfile outputProfile, string ProfileName)
     {
         return new OutputProfileDto
         {

@@ -4,13 +4,11 @@ namespace StreamMaster.Streams.Domain.Metrics;
 
 public class PerformanceBpsMetrics
 {
-
     private Stopwatch Timer { get; }
     private long TotalBytesProcessed { get; set; }
 
     public PerformanceBpsMetrics()
     {
-
         Timer = new Stopwatch();
         Timer.Start();
         TotalBytesProcessed = 0;
@@ -32,7 +30,6 @@ public class PerformanceBpsMetrics
     public void RecordBytesProcessed(int bytesProcessed)
     {
         TotalBytesProcessed += bytesProcessed;
-
     }
     public double GetElapsedSeconds()
     {
@@ -45,7 +42,6 @@ public class PerformanceBpsMetrics
 
         if (elapsedMilliseconds >= 1000)
         {
-
             var bps = TotalBytesProcessed * 8 / (elapsedMilliseconds / 1000.0);
             return bps;
         }

@@ -50,6 +50,28 @@
   }
 }
 
+.icon-selector-template {
+  // height: $input-height-with-no-borders;
+  // max-height: $input-height-with-no-borders;
+  justify-content: center;
+  align-items: center;
+
+  img {
+    // @extend .sm-input-border;
+    // padding: 0.2rem;
+    height: 64px; // $input-height-with-no-borders;
+    width: 64px;
+    object-fit: contain;
+
+    // :hover {
+    //   border-style: none !important;
+    //   box-shadow: none !important;
+    //   transform: none !important;
+    //   opacity: 1 !important;
+    // }
+  }
+}
+
 .icon-template-lg {
   // padding: 0rem !important;
   // padding: 0.25rem !important;

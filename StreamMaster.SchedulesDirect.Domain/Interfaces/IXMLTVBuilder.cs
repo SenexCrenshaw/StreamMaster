@@ -1,7 +1,7 @@
-﻿namespace StreamMaster.SchedulesDirect.Domain.Interfaces;
+﻿using StreamMaster.Domain.Models;
+
+namespace StreamMaster.SchedulesDirect.Domain.Interfaces;
 public interface IXMLTVBuilder
 {
-    XMLTV? CreateSDXmlTv(string baseUrl);
-    XMLTV? CreateXmlTv(string baseUrl, List<VideoStreamConfig> videoStreamConfigs, OutputProfileDto outputProfile);
-
+    Task<XMLTV?> CreateXmlTv(List<VideoStreamConfig> videoStreamConfigs, CancellationToken cancellationToken);
 }

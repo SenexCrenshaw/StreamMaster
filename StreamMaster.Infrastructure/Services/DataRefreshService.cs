@@ -1,17 +1,16 @@
 using Microsoft.AspNetCore.SignalR;
 
-using StreamMaster.Application.Hubs;
 using StreamMaster.Application.Interfaces;
+using StreamMaster.Application.Hubs;
+using StreamMaster.Application.Services;
 using StreamMaster.Domain.Configuration;
 
 namespace StreamMaster.Infrastructure.Services;
 
 public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMasterHub> hub) : IDataRefreshService, IDataRefreshServicePartial
 {
-
     public async Task RefreshAll()
     {
-
         await RefreshChannelGroups(true);
         await RefreshCustom(true);
         await RefreshEPG(true);
@@ -36,7 +35,6 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
 
     public async Task RefreshChannelGroups(bool alwaysRun = false)
     {
-
         if (!alwaysRun && !BuildInfo.IsSystemReady)
         {
             return;
@@ -49,7 +47,6 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
 
     public async Task RefreshCustom(bool alwaysRun = false)
     {
-
         if (!alwaysRun && !BuildInfo.IsSystemReady)
         {
             return;
@@ -61,7 +58,6 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
 
     public async Task RefreshEPG(bool alwaysRun = false)
     {
-
         if (!alwaysRun && !BuildInfo.IsSystemReady)
         {
             return;
@@ -72,7 +68,6 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
 
     public async Task RefreshEPGFiles(bool alwaysRun = false)
     {
-
         if (!alwaysRun && !BuildInfo.IsSystemReady)
         {
             return;
@@ -86,7 +81,6 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
 
     public async Task RefreshGeneral(bool alwaysRun = false)
     {
-
         if (!alwaysRun && !BuildInfo.IsSystemReady)
         {
             return;
@@ -100,18 +94,17 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
 
     public async Task RefreshLogos(bool alwaysRun = false)
     {
-
         if (!alwaysRun && !BuildInfo.IsSystemReady)
         {
             return;
         }
 
+        await hub.Clients.All.DataRefresh("GetCustomLogos");
         await hub.Clients.All.DataRefresh("GetLogos");
     }
 
     public async Task RefreshLogs(bool alwaysRun = false)
     {
-
         if (!alwaysRun && !BuildInfo.IsSystemReady)
         {
             return;
@@ -122,7 +115,6 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
 
     public async Task RefreshM3UFiles(bool alwaysRun = false)
     {
-
         if (!alwaysRun && !BuildInfo.IsSystemReady)
         {
             return;
@@ -135,7 +127,6 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
 
     public async Task RefreshProfiles(bool alwaysRun = false)
     {
-
         if (!alwaysRun && !BuildInfo.IsSystemReady)
         {
             return;
@@ -147,7 +138,6 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
 
     public async Task RefreshSchedulesDirect(bool alwaysRun = false)
     {
-
         if (!alwaysRun && !BuildInfo.IsSystemReady)
         {
             return;
@@ -160,12 +150,10 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
         await hub.Clients.All.DataRefresh("GetStationPreviews");
         await hub.Clients.All.DataRefresh("GetSubScribedHeadends");
         await hub.Clients.All.DataRefresh("GetSubscribedLineups");
-        await hub.Clients.All.DataRefresh("GetHeadendsByCountryPostal");
     }
 
     public async Task RefreshSettings(bool alwaysRun = false)
     {
-
         if (!alwaysRun && !BuildInfo.IsSystemReady)
         {
             return;
@@ -176,7 +164,6 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
 
     public async Task RefreshSMChannelChannelLinks(bool alwaysRun = false)
     {
-
         if (!alwaysRun && !BuildInfo.IsSystemReady)
         {
             return;
@@ -187,21 +174,18 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
 
     public async Task RefreshSMChannels(bool alwaysRun = false)
     {
-
         if (!alwaysRun && !BuildInfo.IsSystemReady)
         {
             return;
         }
 
         await hub.Clients.All.DataRefresh("GetPagedSMChannels");
-        await hub.Clients.All.DataRefresh("GetSMChannelNameLogos");
         await hub.Clients.All.DataRefresh("GetSMChannelNames");
         await hub.Clients.All.DataRefresh("GetVideoStreamNamesAndUrls");
     }
 
     public async Task RefreshSMChannelStreamLinks(bool alwaysRun = false)
     {
-
         if (!alwaysRun && !BuildInfo.IsSystemReady)
         {
             return;
@@ -212,7 +196,6 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
 
     public async Task RefreshSMStreams(bool alwaysRun = false)
     {
-
         if (!alwaysRun && !BuildInfo.IsSystemReady)
         {
             return;
@@ -223,7 +206,6 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
 
     public async Task RefreshSMTasks(bool alwaysRun = false)
     {
-
         if (!alwaysRun && !BuildInfo.IsSystemReady)
         {
             return;
@@ -234,7 +216,6 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
 
     public async Task RefreshStatistics(bool alwaysRun = false)
     {
-
         if (!alwaysRun && !BuildInfo.IsSystemReady)
         {
             return;
@@ -246,7 +227,6 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
 
     public async Task RefreshStreamGroups(bool alwaysRun = false)
     {
-
         if (!alwaysRun && !BuildInfo.IsSystemReady)
         {
             return;
@@ -259,7 +239,6 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
 
     public async Task RefreshStreamGroupSMChannelLinks(bool alwaysRun = false)
     {
-
         if (!alwaysRun && !BuildInfo.IsSystemReady)
         {
             return;
@@ -270,7 +249,6 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
 
     public async Task RefreshVs(bool alwaysRun = false)
     {
-
         if (!alwaysRun && !BuildInfo.IsSystemReady)
         {
             return;

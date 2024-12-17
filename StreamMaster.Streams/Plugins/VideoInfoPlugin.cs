@@ -1,8 +1,8 @@
-﻿using StreamMaster.Domain.Extensions;
-
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Text.Json;
 using System.Threading.Channels;
+
+using StreamMaster.Domain.Extensions;
 
 namespace StreamMaster.Streams.Plugins
 {

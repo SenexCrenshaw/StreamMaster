@@ -33,16 +33,15 @@ public class CommandExecutor(ILogger<CommandExecutor> logger) : ICommandExecutor
             ConfigureProcess(process, exec, options);
             cancellationToken.ThrowIfCancellationRequested();
 
-            process.ErrorDataReceived += (sender, e) =>
-            {
-                if (!string.IsNullOrWhiteSpace(e.Data))
-                {
-                    logger.LogError("Process stderr: {Error}", e.Data);
-                }
-            };
+            //process.ErrorDataReceived += (sender, e) =>
+            //{
+            //    if (!string.IsNullOrWhiteSpace(e.Data))
+            //    {
+            //        logger.LogError("Process stderr: {Error}", e.Data);
+            //    }
+            //};
 
             bool processStarted = process.Start();
-            process.BeginErrorReadLine(); // Start reading stderr asynchronously
 
             if (!processStarted)
             {
@@ -50,6 +49,21 @@ public class CommandExecutor(ILogger<CommandExecutor> logger) : ICommandExecutor
                 logger.LogError("Error: {ErrorMessage}", error.Message);
                 return (null, -1, error);
             }
+
+            // Save stderr to a file named after the process's PID
+            string stderrFilePath = Path.Combine(BuildInfo.CommandErrorFolder, $"stderr_{process.Id}.log");
+            using StreamWriter errorWriter = new(stderrFilePath, append: true, Encoding.UTF8);
+            process.ErrorDataReceived += (sender, e) =>
+            {
+                if (!string.IsNullOrWhiteSpace(e.Data))
+                {
+                    errorWriter.WriteLine(e.Data);
+                    errorWriter.Flush(); // Ensure immediate write
+                    //logger.LogError("Process stderr: {Error}", e.Data);
+                }
+            };
+
+            process.BeginErrorReadLine(); // Start reading stderr asynchronously
 
             stopwatch.Stop();
 

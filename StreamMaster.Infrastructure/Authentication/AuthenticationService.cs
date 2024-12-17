@@ -85,10 +85,10 @@ public class AuthenticationService(ILogger<AuthenticationService> logger, IOptio
         _logger.LogWarning("Auth-Failure ip {RemoteIP} username '{Username}'", context.GetRemoteIP(), username);
     }
 
-    private void LogInvalidated(HttpRequest context)
-    {
-        _logger.LogInformation("Auth-Invalidated ip {RemoteIP}", context.GetRemoteIP());
-    }
+    //private void LogInvalidated(HttpRequest context)
+    //{
+    //    _logger.LogInformation("Auth-Invalidated ip {RemoteIP}", context.GetRemoteIP());
+    //}
 
     private void LogLogout(HttpRequest context, string? username)
     {

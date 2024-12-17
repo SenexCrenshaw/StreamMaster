@@ -5,15 +5,9 @@ namespace StreamMaster.SchedulesDirect.Domain.JsonClasses
     public class TokenRequest
     {
         [JsonPropertyName("username")]
-        public string Username { get; set; }
+        public string Username { get; set; } = string.Empty;
 
         [JsonPropertyName("password")]
-        public string PasswordHash { get; set; }
-    }
-
-    public class TokenResponse : BaseResponse
-    {
-        [JsonPropertyName("token")]
-        public string Token { get; set; }
+        public string PasswordHash { get; set; } = string.Empty;
     }
 }

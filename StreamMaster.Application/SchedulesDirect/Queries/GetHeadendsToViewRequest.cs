@@ -11,7 +11,6 @@ internal class GetHeadendsToViewRequestHandler(IOptionsMonitor<SDSettings> intSD
 
     public async Task<DataResponse<List<HeadendToView>>> Handle(GetHeadendsToViewRequest request, CancellationToken cancellationToken)
     {
-
         return await Task.FromResult(DataResponse<List<HeadendToView>>.Success(sdSettings.HeadendsToView));
     }
 }

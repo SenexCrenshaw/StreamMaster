@@ -15,7 +15,7 @@ namespace StreamMaster.Streams.Domain.Interfaces
         /// <param name="clientUserAgent">The client's user agent string.</param>
         /// <param name="clientIPAddress">The client's IP address.</param>
         /// <param name="response">The HTTP response associated with the client.</param>
-        /// <param name="cancellationToken">The cancellation token for the client.</param>
+        /// <param name="cancellationToken">The cancellation Token for the client.</param>
         /// <returns>A new instance of <see cref="IClientConfiguration"/>.</returns>
         IClientConfiguration NewClientConfiguration(string uniqueRequestId, SMChannelDto smChannel, string clientUserAgent, string clientIPAddress, HttpResponse response, CancellationToken cancellationToken);
 

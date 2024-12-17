@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
 using StreamMaster.Domain.Enums;
-
 using StreamMaster.PlayList.Models;
 
 namespace StreamMaster.Streams.Services;
@@ -204,6 +203,6 @@ public sealed class SwitchToNextStreamService(ILogger<SwitchToNextStreamService>
     {
         return smChannel.SMChannelType == SMChannelTypeEnum.MultiView
             ? smChannel.SMChannelDtos.Count > 0
-            : smChannel.SMStreamDtos.Count > 0 && !string.IsNullOrEmpty(smChannel.SMStreamDtos.First().Url);
+            : smChannel.SMStreamDtos.Count > 0 && !string.IsNullOrEmpty(smChannel.SMStreamDtos[0].Url);
     }
 }

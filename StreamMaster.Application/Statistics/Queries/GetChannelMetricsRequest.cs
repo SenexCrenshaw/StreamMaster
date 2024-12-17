@@ -1,6 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System.Threading.Channels;
 
-using System.Threading.Channels;
+using Microsoft.AspNetCore.Http;
 
 namespace StreamMaster.Application.Statistics.Queries;
 
@@ -19,7 +19,7 @@ internal class GetChannelMetricsRequestHandler(IRepositoryWrapper repositoryWrap
         List<ChannelMetric> dtos = [];
 
         List<int> smChannelIds = channelBroadcasters.ConvertAll(a => a.Id);
-        List<string> smStreamIds = sourceBroadcasters.ConvertAll(a => a.SMStreamInfo.Id).ToList();
+        List<string> smStreamIds = [.. sourceBroadcasters.ConvertAll(a => a.SMStreamInfo.Id)];
 
         List<SMChannel> smChannels = await repositoryWrapper.SMChannel.GetQuery(a => smChannelIds.Contains(a.Id)).ToListAsync(cancellationToken);
         List<SMStream> smStreams = await repositoryWrapper.SMStream.GetQuery(a => smStreamIds.Contains(a.Id)).ToListAsync(cancellationToken);
@@ -41,8 +41,8 @@ internal class GetChannelMetricsRequestHandler(IRepositoryWrapper repositoryWrap
                 continue;
             }
             SMChannelStreamLink bastCurrentStream = baseConfig.SMChannel.SMStreams.ToList()[baseConfig.SMChannel.CurrentRank];
-            string currentStreamLogo = logoService.GetLogoUrl(bastCurrentStream.SMStream.Logo, _baseUrl);
-            string currentChannelLogo = logoService.GetLogoUrl(baseConfig.SMChannel.Logo, _baseUrl);
+            string currentStreamLogo = bastCurrentStream.SMStream!.Logo;// logoService.GetLogoUrl(bastCurrentStream.SMStream!.Logo, _baseUrl, SMStreamTypeEnum.Regular);
+            string currentChannelLogo = baseConfig.SMChannel.Logo;// logoService.GetLogoUrl(baseConfig.SMChannel.Logo, _baseUrl, SMStreamTypeEnum.Regular);
 
             //
             foreach (KeyValuePair<string, ChannelWriter<byte[]>> clientChannel in channelBroadcaster.ClientChannelWriters)
@@ -101,7 +101,7 @@ internal class GetChannelMetricsRequestHandler(IRepositoryWrapper repositoryWrap
             //}
 
             //SMChannelStreamLink bastCurrentStream = baseConfig.SMChannel.SMStreams.ToList()[baseConfig.SMChannel.CurrentRank];
-            //string currentStreamLogo = logoService.GetLogoUrl(bastCurrentStream.SMStream.Logo, _baseUrl);
+            //string currentStreamLogo = logoService.GetLogoUrl(bastCurrentStream.SMStream.SMLogoUrl, _baseUrl);
 
             //int channelCount = 0;
 
@@ -115,7 +115,7 @@ internal class GetChannelMetricsRequestHandler(IRepositoryWrapper repositoryWrap
                     continue;
                 }
 
-                currentChannelLogo = logoService.GetLogoUrl(smChannel.Logo, _baseUrl);
+                currentChannelLogo = smChannel.Logo;// logoService.GetLogoUrl(smChannel.Logo, _baseUrl, SMStreamTypeEnum.Regular);
 
                 channelDtos.Add(new ClientChannelDto()
                 {
@@ -132,20 +132,23 @@ internal class GetChannelMetricsRequestHandler(IRepositoryWrapper repositoryWrap
 
             if (!sourceBroadcaster.Id.Contains("://"))
             {
-                currentChannelLogo = customPlayListBuilder.GetCustomPlayListLogoFromFileName(sourceBroadcaster.Id);
+                string? newCurrentChannelLogo = customPlayListBuilder.GetCustomPlayListLogoFromFileName(sourceBroadcaster.Id);
                 //if (string.IsNullOrEmpty(metricLogo))
                 //{
                 //    SMChannel? test = smChannels.Find(a => a.Id.ToString() == sourceBroadcaster.Id);
-                //    metricLogo = test?.Logo ?? "";
+                //    metricLogo = test?.SMLogoUrl ?? "";
                 //}
-                logoService.AddLogo(id, currentChannelLogo);
+                if (!string.IsNullOrEmpty(newCurrentChannelLogo))
+                {
+                    logoService.AddLogoToCache(id, currentChannelLogo);
+                }
             }
             //else
             //{
             //    SMStream? smStream = smStreams.Find(a => a.Id == cuurentStreamInfo.Id);
             //    if (smStream != null)
             //    {
-            //        metricLogo = smStream.Logo;
+            //        metricLogo = smStream.SMLogoUrl;
             //        //id = smStream.Id;
             //    }
             //}

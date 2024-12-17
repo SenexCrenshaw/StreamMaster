@@ -2,7 +2,6 @@
 
 namespace StreamMaster.Streams.Services;
 
-
 public class ChannelLockService : IChannelLockService
 {
     private readonly ConcurrentDictionary<int, SemaphoreSlim> _locks = new();

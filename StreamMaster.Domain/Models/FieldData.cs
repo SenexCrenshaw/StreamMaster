@@ -43,10 +43,10 @@ public class FieldData
 
     public FieldData(object entity, string propertyName)
     {
-        Entity = ExtractAPIName(entity);
-        Id = ExtractId(entity) ?? throw new InvalidOperationException("ID cannot be null.");
+        Entity = ExtractAPIName(entity) ?? throw new InvalidOperationException($"Cannot extract api name for {entity}.");
+        Id = ExtractId(entity) ?? throw new InvalidOperationException($"ID cannot be null for {entity}.");
         Field = propertyName;
-        Value = ExtractPropertyValue(entity, propertyName);
+        Value = ExtractPropertyValue(entity, propertyName) ?? throw new InvalidOperationException($"Cannot extract property value from api name for {entity} {propertyName}.");
     }
 
     public FieldData(Expression<Func<object>> propertyExpression)
@@ -62,13 +62,22 @@ public class FieldData
     {
         if (propertyExpression.Body is MemberExpression member)
         {
-            object entity = ExtractEntityFromMemberExpression(member);
-            return (ExtractAPIName(entity), ExtractId(entity), member.Member.Name, GetValue(propertyExpression));
+            object? entity = ExtractEntityFromMemberExpression(member);
+            return entity == null
+                ? throw new ArgumentException("Invalid property expression", nameof(propertyExpression))
+                : ((string entity, string id, string propertyName, object value))(
+                ExtractAPIName(entity) ?? throw new InvalidOperationException($"Cannot extract api name for {entity}."),
+                ExtractId(entity),
+                member.Member.Name,
+                GetValue(propertyExpression)
+                );
         }
         else if (propertyExpression.Body is UnaryExpression unaryExp && unaryExp.Operand is MemberExpression memberExp)
         {
-            object entity = ExtractEntityFromMemberExpression(memberExp);
-            return (ExtractAPIName(entity), ExtractId(entity), memberExp.Member.Name, GetValue(propertyExpression));
+            object? entity = ExtractEntityFromMemberExpression(memberExp);
+            return entity == null
+                ? throw new ArgumentException("Invalid property expression", nameof(propertyExpression))
+                : ((string entity, string id, string propertyName, object value))(ExtractAPIName(entity) ?? throw new InvalidOperationException($"Cannot extract api name for {entity}."), ExtractId(entity), memberExp.Member.Name, GetValue(propertyExpression));
         }
 
         throw new ArgumentException("Invalid property expression", nameof(propertyExpression));
@@ -131,20 +140,20 @@ public class FieldData
         return expression.Compile().Invoke();
     }
 
-    private static string GetPropertyName(Expression<Func<object>> propertyExpression)
-    {
-        if (propertyExpression.Body is MemberExpression member)
-        {
-            return member.Member.Name;
-        }
-        else if (propertyExpression.Body is UnaryExpression unaryExp && unaryExp.Operand is MemberExpression memberExp)
-        {
-            // Handle cases where the property is boxed into an object, causing a Convert expression type.
-            return memberExp.Member.Name;
-        }
+    //private static string GetPropertyName(Expression<Func<object>> propertyExpression)
+    //{
+    //    if (propertyExpression.Body is MemberExpression member)
+    //    {
+    //        return member.Member.Name;
+    //    }
+    //    else if (propertyExpression.Body is UnaryExpression unaryExp && unaryExp.Operand is MemberExpression memberExp)
+    //    {
+    //        // Handle cases where the property is boxed into an object, causing a Convert expression type.
+    //        return memberExp.Member.Name;
+    //    }
 
-        throw new ArgumentException("Invalid property expression", nameof(propertyExpression));
-    }
+    //    throw new ArgumentException("Invalid property expression", nameof(propertyExpression));
+    //}
 
     public string Entity { get; set; }
     public string Id { get; set; }

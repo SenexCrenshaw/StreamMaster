@@ -1,6 +1,5 @@
 ﻿namespace StreamMaster.Application.SMStreams.Commands;
 
-
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record SetSMStreamsVisibleByIdRequest(List<string> Ids, bool IsHidden) : IRequest<APIResponse>;

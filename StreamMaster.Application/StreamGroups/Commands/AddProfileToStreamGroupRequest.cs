@@ -15,7 +15,7 @@ public class AddProfileToStreamGroupRequestHandler(IRepositoryWrapper Repository
             return APIResponse.NotFound;
         }
 
-        if (request.ProfileName.Equals("default", StringComparison.OrdinalIgnoreCase))
+        if (request.ProfileName.EqualsIgnoreCase("default"))
         {
             return APIResponse.ErrorWithMessage($"The name '{request.ProfileName}' is reserved");
         }
@@ -25,7 +25,6 @@ public class AddProfileToStreamGroupRequestHandler(IRepositoryWrapper Repository
         {
             return APIResponse.ErrorWithMessage("Stream Group not found");
         }
-
 
         if (streamGroup.StreamGroupProfiles.Any(x => x.ProfileName == request.ProfileName))
         {
@@ -41,7 +40,6 @@ public class AddProfileToStreamGroupRequestHandler(IRepositoryWrapper Repository
 
         Repository.StreamGroup.Update(streamGroup);
         _ = await Repository.SaveAsync();
-
 
         await dataRefreshService.RefreshStreamGroups();
 

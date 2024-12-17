@@ -1,17 +1,16 @@
-﻿using EFCore.BulkExtensions;
-
-using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
-using Microsoft.Data.Sqlite;
+﻿using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace StreamMaster.Infrastructure.EF.Base;
-
-public class BaseRepositoryContext(DbContextOptions options) : DbContext(options), IDataProtectionKeyContext, IRepositoryContext
+#pragma warning disable CS8618 
+public class BaseRepositoryContext(DbContextOptions options)
+    : DbContext(options), IDataProtectionKeyContext, IRepositoryContext
 {
     public DbSet<SystemKeyValue> SystemKeyValues { get; set; }
+
     public DbSet<EPGFile> EPGFiles { get; set; }
     public DbSet<M3UFile> M3UFiles { get; set; }
     public DbSet<ChannelGroup> ChannelGroups { get; set; }
@@ -25,7 +24,7 @@ public class BaseRepositoryContext(DbContextOptions options) : DbContext(options
     public DbSet<DataProtectionKey> DataProtectionKeys { get; set; }
     public DbSet<StreamGroupProfile> StreamGroupProfiles { get; set; }
     public DbSet<StreamGroupSMChannelLink> StreamGroupSMChannelLinks { get; set; }
-
+#pragma warning restore CS8618
     public int ExecuteSqlRaw(string sql, params object[] parameters)
     {
         return Database.ExecuteSqlRaw(sql, parameters);
@@ -49,21 +48,65 @@ public class BaseRepositoryContext(DbContextOptions options) : DbContext(options
     {
         return Database.BeginTransactionAsync(cancellationToken);
     }
-
-    public void BulkUpdateEntities<TEntity>(IEnumerable<TEntity> entities) where TEntity : class
+    public async Task BulkUpdateEntitiesAsync<TEntity>(
+    List<TEntity> entities,
+    int batchSize = 100,
+    int maxDegreeOfParallelism = 4,
+    CancellationToken cancellationToken = default
+) where TEntity : class
     {
-        this.BulkUpdate(entities);
+        if (entities == null || entities.Count == 0)
+        {
+            throw new ArgumentNullException(nameof(entities));
+        }
+
+        // Split entities into batches
+        List<List<TEntity>> batches = [.. entities
+            .Select((entity, index) => new { entity, index })
+            .GroupBy(x => x.index / batchSize)
+            .Select(g => g.Select(x => x.entity).ToList())];
+
+        // Limit the number of parallel tasks to avoid overwhelming the database
+        ParallelOptions parallelOptions = new()
+        {
+            MaxDegreeOfParallelism = maxDegreeOfParallelism,
+            CancellationToken = cancellationToken
+        };
+
+        List<Task> updateTasks = [];
+
+        // Execute updates in parallel
+        await Task.Run(() => Parallel.ForEach(batches, parallelOptions, batch => updateTasks.Add(UpdateBatchAsync(batch, cancellationToken))));
+
+        // Wait for all updates to complete
+        await Task.WhenAll(updateTasks);
     }
 
-    public void BulkInsertEntities<TEntity>(IEnumerable<TEntity> entities) where TEntity : class
+    private async Task UpdateBatchAsync<TEntity>(List<TEntity> batch, CancellationToken cancellationToken) where TEntity : class
     {
-        this.BulkInsert(entities);
+        foreach (TEntity entity in batch)
+        {
+            Set<TEntity>().Attach(entity);
+            Entry(entity).State = EntityState.Modified;
+        }
+
+        await SaveChangesAsync(cancellationToken);
     }
 
-    public async Task BulkInsertEntitiesAsync<TEntity>(IEnumerable<TEntity> entities) where TEntity : class
-    {
-        await this.BulkInsertAsync(entities);
-    }
+    //public void BulkUpdateEntities<TEntity>(IEnumerable<TEntity> entities) where TEntity : class
+    //{
+    //    this.BulkUpdate(entities);
+    //}
+
+    //public void BulkInsertEntities<TEntity>(IEnumerable<TEntity> entities) where TEntity : class
+    //{
+    //    this.BulkInsert(entities);
+    //}
+
+    //public async Task BulkInsertEntitiesAsync<TEntity>(IEnumerable<TEntity> entities) where TEntity : class
+    //{
+    //    await this.BulkInsertAsync(entities);
+    //}
 
     public async Task BulkUpdateAsync<TEntity>(IEnumerable<TEntity> entities) where TEntity : class
     {
@@ -72,6 +115,7 @@ public class BaseRepositoryContext(DbContextOptions options) : DbContext(options
     public Task BulkDeleteAsyncEntities<TEntity>(IQueryable<TEntity> entities, CancellationToken cancellationToken = default) where TEntity : class
     {
         return entities.ExecuteDeleteAsync(cancellationToken);
+        //return Database.ExecuteDeleteAsync(entities, cancellationToken);
     }
 
     public bool IsEntityTracked<TEntity>(TEntity entity) where TEntity : class
@@ -98,9 +142,6 @@ public class BaseRepositoryContext(DbContextOptions options) : DbContext(options
         {
             if (disposing)
             {
-#if DEBUG
-                SqliteConnection.ClearAllPools();
-#endif
                 base.Dispose();
             }
         }

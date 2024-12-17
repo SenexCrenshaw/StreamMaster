@@ -58,139 +58,52 @@ public static class SDHttpResponseCodeExtensions
 {
     public static string GetMessage(this SDHttpResponseCode responseCode)
     {
-        switch (responseCode)
+        return responseCode switch
         {
-            case SDHttpResponseCode.OK:
-                return "OK";
-
-            case SDHttpResponseCode.INVALID_JSON:
-                return "Unable to decode JSON";
-
-            case SDHttpResponseCode.USERAGENT_REQUIRED:
-                return "USERAGENT missing from request";
-
-            case SDHttpResponseCode.DEFLATE_REQUIRED:
-                return "Did not receive Accept-Encoding: deflate in request.";
-
-            case SDHttpResponseCode.TOKEN_MISSING:
-                return "Token required but not provided in request header.";
-
-            case SDHttpResponseCode.UNSUPPORTED_COMMAND:
-                return "Unsupported command";
-
-            case SDHttpResponseCode.REQUIRED_ACTION_MISSING:
-                return "Request is missing an action to take.";
-
-            case SDHttpResponseCode.REQUIRED_REQUEST_MISSING:
-                return "Did not receive request.";
-
-            case SDHttpResponseCode.REQUIRED_PARAMETER_MISSING_COUNTRY:
-                return "In order to search for lineups, you must supply a 3-letter country parameter.";
-
-            case SDHttpResponseCode.REQUIRED_PARAMETER_MISSING_POSTALCODE:
-                return "In order to search for lineups, you must supply a postal code parameter.";
-
-            case SDHttpResponseCode.REQUIRED_PARAMETER_MISSING_MSGID:
-                return "In order to delete a message, you must supply the messageID.";
-
-            case SDHttpResponseCode.INVALID_PARAMETER_COUNTRY:
-                return "The COUNTRY parameter must be ISO-3166-1 alpha 3. See http://en.wikipedia.org/wiki/ISO_3166-1_alpha-3";
-
-            case SDHttpResponseCode.INVALID_PARAMETER_POSTALCODE:
-                return "The POSTALCODE parameter must be valid for the country you are searching. Post message to http://forums.schedulesdirect.org/viewforum.php?f=6 if you are having issues.";
-
-            case SDHttpResponseCode.INVALID_PARAMETER_FETCHTYPE:
-                return "You didn't provide a fetchtype I know how to handle.";
-
-            case SDHttpResponseCode.DUPLICATE_LINEUP:
-                return "Lineup already in account.";
-
-            case SDHttpResponseCode.LINEUP_NOT_FOUND:
-                return "Lineup not in account. Add lineup to account before requesting mapping.";
-
-            case SDHttpResponseCode.UNKNOWN_LINEUP:
-                return "Invalid lineup requested. Check your COUNTRY / POSTALCODE combination for validity.";
-
-            case SDHttpResponseCode.INVALID_LINEUP_DELETE:
-                return "Delete of lineup not in account.";
-
-            case SDHttpResponseCode.LINEUP_WRONG_FORMAT:
-                return "Lineup must be formatted COUNTRY-LINEUP-DEVICE or COUNTRY-OTA-POSTALCODE";
-
-            case SDHttpResponseCode.INVALID_LINEUP:
-                return "The lineup you submitted doesn't exist.";
-
-            case SDHttpResponseCode.LINEUP_DELETED:
-                return "The lineup you requested has been deleted from the server.";
-
-            case SDHttpResponseCode.LINEUP_QUEUED:
-                return "The lineup is being generated on the server. Please retry.";
-
-            case SDHttpResponseCode.INVALID_COUNTRY:
-                return "The country you requested is either mis-typed or does not have valid data.";
-
-            case SDHttpResponseCode.STATIONID_NOT_FOUND:
-                return "The stationID you requested is not in any of your lineups.";
-
-            case SDHttpResponseCode.SERVICE_OFFLINE:
-                return "Server offline for maintenance.";
-
-            case SDHttpResponseCode.ACCOUNT_EXPIRED:
-                return "Account expired.";
-
-            case SDHttpResponseCode.INVALID_HASH:
-                return "Password hash must be lowercase 40 character sha1_hex of password.";
-
-            case SDHttpResponseCode.INVALID_USER:
-                return "Invalid username or password.";
-
-            case SDHttpResponseCode.ACCOUNT_LOCKOUT:
-                return "Too many login failures. Locked for 15 minutes.";
-
-            case SDHttpResponseCode.ACCOUNT_DISABLED:
-                return "Account has been disabled. Please contact Schedules Direct support: admin@schedulesdirect.org for more information.";
-
-            case SDHttpResponseCode.TOKEN_EXPIRED:
-                return "Token has expired. Request new token.";
-
-            case SDHttpResponseCode.MAX_LINEUP_CHANGES_REACHED:
-                return "Exceeded maximum number of lineup changes for today.";
-
-            case SDHttpResponseCode.MAX_LINEUPS:
-                return "Exceeded number of lineups for this account.";
-
-            case SDHttpResponseCode.NO_LINEUPS:
-                return "No lineups have been added to this account.";
-
-            case SDHttpResponseCode.IMAGE_NOT_FOUND:
-                return "Could not find requested image. Post message to http://forums.schedulesdirect.org/viewforum.php?f=6 if you are having issues.";
-
-            case SDHttpResponseCode.INVALID_PROGRAMID:
-                return "Could not find requested programID. Permanent failure.";
-
-            case SDHttpResponseCode.PROGRAMID_QUEUED:
-                return "ProgramID should exist at the server, but doesn't. The server will regenerate the JSON for the program, so your application should retry.";
-
-            case SDHttpResponseCode.SCHEDULE_NOT_FOUND:
-                return "The schedule you requested should be available. Post message to http://forums.schedulesdirect.org/viewforum.php?f=6";
-
-            case SDHttpResponseCode.INVALID_SCHEDULE_REQUEST:
-                return "The server can't determine whether your schedule is valid or not. Open a support ticket.";
-
-            case SDHttpResponseCode.SCHEDULE_RANGE_EXCEEDED:
-                return "The date that you've requested is outside of the range of the data for that stationID.";
-
-            case SDHttpResponseCode.SCHEDULE_NOT_IN_LINEUP:
-                return "You have requested a schedule which is not in any of your configured lineups.";
-
-            case SDHttpResponseCode.SCHEDULE_QUEUED:
-                return "The schedule you requested has been queued for generation but is not yet ready for download. Retry.";
-
-            case SDHttpResponseCode.UNKNOWN_ERROR:
-                return "Unknown error. Open support ticket.";
-
-            default:
-                return "Unknown error.";
-        }
+            SDHttpResponseCode.OK => "OK",
+            SDHttpResponseCode.INVALID_JSON => "Unable to decode JSON",
+            SDHttpResponseCode.USERAGENT_REQUIRED => "USERAGENT missing from request",
+            SDHttpResponseCode.DEFLATE_REQUIRED => "Did not receive Accept-Encoding: deflate in request.",
+            SDHttpResponseCode.TOKEN_MISSING => "Token required but not provided in request header.",
+            SDHttpResponseCode.UNSUPPORTED_COMMAND => "Unsupported command",
+            SDHttpResponseCode.REQUIRED_ACTION_MISSING => "Request is missing an action to take.",
+            SDHttpResponseCode.REQUIRED_REQUEST_MISSING => "Did not receive request.",
+            SDHttpResponseCode.REQUIRED_PARAMETER_MISSING_COUNTRY => "In order to search for lineups, you must supply a 3-letter country parameter.",
+            SDHttpResponseCode.REQUIRED_PARAMETER_MISSING_POSTALCODE => "In order to search for lineups, you must supply a postal code parameter.",
+            SDHttpResponseCode.REQUIRED_PARAMETER_MISSING_MSGID => "In order to delete a message, you must supply the messageID.",
+            SDHttpResponseCode.INVALID_PARAMETER_COUNTRY => "The COUNTRY parameter must be ISO-3166-1 alpha 3. See http://en.wikipedia.org/wiki/ISO_3166-1_alpha-3",
+            SDHttpResponseCode.INVALID_PARAMETER_POSTALCODE => "The POSTALCODE parameter must be valid for the country you are searching. Post message to http://forums.schedulesdirect.org/viewforum.php?f=6 if you are having issues.",
+            SDHttpResponseCode.INVALID_PARAMETER_FETCHTYPE => "You didn't provide a fetchtype I know how to handle.",
+            SDHttpResponseCode.DUPLICATE_LINEUP => "Lineup already in account.",
+            SDHttpResponseCode.LINEUP_NOT_FOUND => "Lineup not in account. Add lineup to account before requesting mapping.",
+            SDHttpResponseCode.UNKNOWN_LINEUP => "Invalid lineup requested. Check your COUNTRY / POSTALCODE combination for validity.",
+            SDHttpResponseCode.INVALID_LINEUP_DELETE => "Delete of lineup not in account.",
+            SDHttpResponseCode.LINEUP_WRONG_FORMAT => "Lineup must be formatted COUNTRY-LINEUP-DEVICE or COUNTRY-OTA-POSTALCODE",
+            SDHttpResponseCode.INVALID_LINEUP => "The lineup you submitted doesn't exist.",
+            SDHttpResponseCode.LINEUP_DELETED => "The lineup you requested has been deleted from the server.",
+            SDHttpResponseCode.LINEUP_QUEUED => "The lineup is being generated on the server. Please retry.",
+            SDHttpResponseCode.INVALID_COUNTRY => "The country you requested is either mis-typed or does not have valid data.",
+            SDHttpResponseCode.STATIONID_NOT_FOUND => "The stationID you requested is not in any of your lineups.",
+            SDHttpResponseCode.SERVICE_OFFLINE => "Server offline for maintenance.",
+            SDHttpResponseCode.ACCOUNT_EXPIRED => "Account expired.",
+            SDHttpResponseCode.INVALID_HASH => "Password hash must be lowercase 40 character sha1_hex of password.",
+            SDHttpResponseCode.INVALID_USER => "Invalid username or password.",
+            SDHttpResponseCode.ACCOUNT_LOCKOUT => "Too many login failures. Locked for 15 minutes.",
+            SDHttpResponseCode.ACCOUNT_DISABLED => "Account has been disabled. Please contact Schedules Direct support: admin@schedulesdirect.org for more information.",
+            SDHttpResponseCode.TOKEN_EXPIRED => "Token has expired. Request new token.",
+            SDHttpResponseCode.MAX_LINEUP_CHANGES_REACHED => "Exceeded maximum number of lineup changes for today.",
+            SDHttpResponseCode.MAX_LINEUPS => "Exceeded number of lineups for this account.",
+            SDHttpResponseCode.NO_LINEUPS => "No lineups have been added to this account.",
+            SDHttpResponseCode.IMAGE_NOT_FOUND => "Could not find requested image. Post message to http://forums.schedulesdirect.org/viewforum.php?f=6 if you are having issues.",
+            SDHttpResponseCode.INVALID_PROGRAMID => "Could not find requested programID. Permanent failure.",
+            SDHttpResponseCode.PROGRAMID_QUEUED => "ProgramID should exist at the server, but doesn't. The server will regenerate the JSON for the program, so your application should retry.",
+            SDHttpResponseCode.SCHEDULE_NOT_FOUND => "The schedule you requested should be available. Post message to http://forums.schedulesdirect.org/viewforum.php?f=6",
+            SDHttpResponseCode.INVALID_SCHEDULE_REQUEST => "The server can't determine whether your schedule is valid or not. Open a support ticket.",
+            SDHttpResponseCode.SCHEDULE_RANGE_EXCEEDED => "The date that you've requested is outside of the range of the data for that stationID.",
+            SDHttpResponseCode.SCHEDULE_NOT_IN_LINEUP => "You have requested a schedule which is not in any of your configured lineups.",
+            SDHttpResponseCode.SCHEDULE_QUEUED => "The schedule you requested has been queued for generation but is not yet ready for download. Retry.",
+            SDHttpResponseCode.UNKNOWN_ERROR => "Unknown error. Open support ticket.",
+            _ => "Unknown error.",
+        };
     }
 }

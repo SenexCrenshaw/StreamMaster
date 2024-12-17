@@ -5,13 +5,13 @@ namespace StreamMaster.SchedulesDirect.Domain.Models;
 
 public class MxfChannel
 {
-    private readonly MxfLineup _mxfLineup;
-    private readonly MxfService _mxfService;
+    private readonly MxfLineup? _mxfLineup;
+    private readonly MxfService? _mxfService;
 
-    private string _uid;
-    private string _lineup;
-    private string _service;
-    private int _number;
+    private string? _uid;
+    private string? _lineup;
+    private string? _service;
+    private int? _number;
 
     public MxfChannel(MxfLineup lineup, MxfService service, int number = -1, int subnumber = 0)
     {
@@ -24,14 +24,14 @@ public class MxfChannel
     private MxfChannel() { }
 
     /// <summary>
-    /// A unique ID that is consistent between loads. 
+    /// A unique ID that is consistent between loads.
     /// This value should take the form "!Channel!uniqueLineupName!number_subNumber", where uniqueLineupName is the Lineup element's uid, and number and subNumber are the values from the number and subNumber attribute.
     /// </summary>
     [XmlAttribute("uid")]
-    public string Uid
+    public string? Uid
     {
-        get => _uid ?? $"!Channel!{_mxfLineup.LineupId}!{_mxfService.StationId}_{_number}_{SubNumber}";
-        set { _uid = value; }
+        get => _uid ?? $"!Channel!{_mxfLineup?.LineupId}!{_mxfService?.StationId}_{_number}_{SubNumber}";
+        set => _uid = value;
     }
 
     /// <summary>
@@ -39,10 +39,10 @@ public class MxfChannel
     /// This value should always be "l1".
     /// </summary>
     [XmlAttribute("lineup")]
-    public string Lineup
+    public string? Lineup
     {
-        get => _lineup ?? _mxfLineup.Id;
-        set { _lineup = value; }
+        get => _lineup ?? _mxfLineup?.Id;
+        set => _lineup = value;
     }
 
     /// <summary>
@@ -50,10 +50,10 @@ public class MxfChannel
     /// This value should be the Service id attribute.
     /// </summary>
     [XmlAttribute("service")]
-    public string Service
+    public string? Service
     {
-        get => _service ?? _mxfService.Id;
-        set { _service = value; }
+        get => _service ?? _mxfService?.Id;
+        set => _service = value;
     }
 
     /// <summary>
@@ -63,7 +63,7 @@ public class MxfChannel
     /// PAL/NTSC: The call sign
     /// DVB-T: The call sign, or a string of format "DVBT:onid:tsid:sid"
     /// DVB-S: A string of format "DVBS:sat:freq:onid:tsid:sid"
-    /// Where: 
+    /// Where:
     /// onid is the originating network ID.
     /// tsid is the transport stream ID.
     /// sid is the service ID.
@@ -72,7 +72,7 @@ public class MxfChannel
     /// Note All of these values are expressed as decimal integer numbers.
     /// </summary>
     [XmlAttribute("matchName")]
-    public string MatchName { get; set; }
+    public string? MatchName { get; set; }
 
     /// <summary>
     /// The number used to access the service.
@@ -80,10 +80,10 @@ public class MxfChannel
     /// </summary>
     [XmlAttribute("number")]
     [DefaultValue(0)]
-    public int Number
+    public int? Number
     {
         get => _number <= 0 ? -1 : _number;
-        set { _number = value; }
+        set => _number = value;
     }
 
     /// <summary>

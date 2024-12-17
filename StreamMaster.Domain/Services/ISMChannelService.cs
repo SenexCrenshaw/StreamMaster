@@ -1,7 +1,9 @@
-﻿namespace StreamMaster.Domain.Services
+﻿
+namespace StreamMaster.Domain.Services
 {
     public interface ISMChannelService
     {
-        IQueryable<NameLogo> GetNameLogos();
+        //IQueryable<LogoInfo > GetlogoInfos();
+        IQueryable<SMChannel> GetSMStreamLogos(bool? justHttp = true);
     }
 }

@@ -1,6 +1,4 @@
-﻿using StreamMaster.Domain.Attributes;
-
-namespace StreamMaster.Domain.Configuration;
+﻿namespace StreamMaster.Domain.Configuration;
 
 public class BaseSettings
 {
@@ -9,6 +7,8 @@ public class BaseSettings
         AuthenticationMethod = "None";
     }
 
+    public string STRMBaseURL { get; set; } = "http://localhost:7095";
+    public bool AppendChannelName { get; set; } = false;
     public string AdminPassword { get; set; } = string.Empty;
     public string AdminUserName { get; set; } = string.Empty;
     public string AuthenticationMethod { get; set; }
@@ -19,13 +19,13 @@ public class BaseSettings
     public bool CleanURLs { get; set; } = true;
     public string ClientUserAgent { get; set; } = "VLC/3.0.20-git LibVLC/3.0.20-git";
     public string DefaultCompression { get; set; } = "gz";
-    public string DefaultLogo { get; set; } = "/images/default.png";
+    public string DefaultLogo { get; set; } = "/images/streammaster_logo.png";
     public string DeviceID { get; set; } = "device1";
     public bool EnableDBDebug { get; set; } = false;
     public bool EnableSSL { get; set; }
     public int GlobalStreamLimit { get; set; } = 1;
     public int IconCacheExpirationDays { get; set; } = 7;
-    public string LogoCache { get; set; } = "None";
+    public bool LogoCache { get; set; } = true;
     public string M3U8OutPutProfile { get; set; } = "SMFFMPEG";
     public int MaxConcurrentDownloads { get; set; } = 8;
     public int MaxConnectRetry { get; set; } = 20;

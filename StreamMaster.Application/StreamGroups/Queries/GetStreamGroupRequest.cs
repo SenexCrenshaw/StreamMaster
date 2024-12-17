@@ -10,7 +10,7 @@ internal class GetStreamGroupRequestHandler(IRepositoryWrapper Repository, IMapp
 {
     public async Task<DataResponse<StreamGroupDto>> Handle(GetStreamGroupRequest request, CancellationToken cancellationToken = default)
     {
-        StreamGroup? streamGroup = await Repository.StreamGroup.FirstOrDefaultAsync(a => a.Name.Equals(request.SGName));
+        StreamGroup? streamGroup = await Repository.StreamGroup.FirstOrDefaultAsync(a => a.Name.Equals(request.SGName), cancellationToken: cancellationToken);
         if (streamGroup == null)
         {
             return DataResponse<StreamGroupDto>.ErrorWithMessage("Stream Group not found");

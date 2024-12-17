@@ -16,7 +16,6 @@ internal class CreateSMChannelsFromStreamsRequestHandler(IRepositoryWrapper Repo
 
         await dataRefreshService.RefreshAllSMChannels();
 
-
         return APIResponse.Success;
     }
 }

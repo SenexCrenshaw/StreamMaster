@@ -1,10 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Text;
+
+using Microsoft.EntityFrameworkCore;
 
 using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Helpers;
 using StreamMaster.Infrastructure.EF.Base;
-
-using System.Text;
 
 namespace StreamMaster.Infrastructure.EF.PGSQL
 {
@@ -68,6 +68,7 @@ namespace StreamMaster.Infrastructure.EF.PGSQL
             sqlBuilder.AppendLine("    p_station_ids CITEXT[],");
             sqlBuilder.AppendLine("    p_channel_ids CITEXT[],");
             sqlBuilder.AppendLine("    p_channel_names CITEXT[],");
+            sqlBuilder.AppendLine("    p_extifs TEXT[],");
             sqlBuilder.AppendLine("    p_is_hidden BOOLEAN[],");
             sqlBuilder.AppendLine("    p_tvg_names CITEXT[],");  // New parameter for TVGName column
             sqlBuilder.AppendLine("    p_m3u_file_id INTEGER,");
@@ -104,6 +105,7 @@ namespace StreamMaster.Infrastructure.EF.PGSQL
             sqlBuilder.AppendLine("            \"StationId\" = p_station_ids[i],");
             sqlBuilder.AppendLine("            \"ChannelId\" = p_channel_ids[i],");
             sqlBuilder.AppendLine("            \"ChannelName\" = p_channel_names[i],");
+            sqlBuilder.AppendLine("            \"ExtInf\" = p_extifs[i],");
             sqlBuilder.AppendLine("            \"TVGName\" = p_tvg_names[i],");
             sqlBuilder.AppendLine("            \"IsSystem\" = false,");
             sqlBuilder.AppendLine("            \"CUID\" = '',");
@@ -133,6 +135,7 @@ namespace StreamMaster.Infrastructure.EF.PGSQL
             sqlBuilder.AppendLine("                \"StationId\",");
             sqlBuilder.AppendLine("                \"ChannelId\",");
             sqlBuilder.AppendLine("                \"ChannelName\",");
+            sqlBuilder.AppendLine("                \"ExtInf\",");
             sqlBuilder.AppendLine("                \"TVGName\",");
             sqlBuilder.AppendLine("                \"IsSystem\",");
             sqlBuilder.AppendLine("                \"CUID\",");
@@ -154,6 +157,7 @@ namespace StreamMaster.Infrastructure.EF.PGSQL
             sqlBuilder.AppendLine("                p_station_ids[i],");
             sqlBuilder.AppendLine("                p_channel_ids[i],");
             sqlBuilder.AppendLine("                p_channel_names[i],");
+            sqlBuilder.AppendLine("                p_extifs[i],");
             sqlBuilder.AppendLine("                p_tvg_names[i],");
             sqlBuilder.AppendLine("                false,  -- IsSystem");
             sqlBuilder.AppendLine("                '',  -- CUID");

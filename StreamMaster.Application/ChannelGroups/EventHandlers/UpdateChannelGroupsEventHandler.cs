@@ -1,6 +1,5 @@
 ﻿using StreamMaster.Application.ChannelGroups.Events;
 
-
 namespace StreamMaster.Application.ChannelGroups.EventHandlers;
 
 public class UpdateChannelGroupsEventHandler(IChannelGroupService channelGroupService, IDataRefreshService dataRefreshService)
@@ -20,7 +19,6 @@ public class UpdateChannelGroupsEventHandler(IChannelGroupService channelGroupSe
         //{
         //    await HubContext.ClientChannels.All.StreamGroupsRefresh(sgs.ToArray()).ConfigureAwait(false);
         //}
-
 
     }
 }

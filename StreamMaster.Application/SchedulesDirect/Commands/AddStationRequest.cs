@@ -10,24 +10,22 @@ public record StationRequest(string StationId, string Lineup);
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record AddStationRequest(List<StationRequest> Requests) : IRequest<APIResponse>;
 
-public class AddStationHandler(ILogger<AddStationRequest> logger, IBackgroundTaskQueue backgroundTaskQueue, IDataRefreshService dataRefreshService, IJobStatusService jobStatusService, ISchedulesDirect schedulesDirect, ISender Sender, IOptionsMonitor<SDSettings> intSettings)
+public class AddStationHandler(ILogger<AddStationRequest> logger, IBackgroundTaskQueue backgroundTaskQueue, IDataRefreshService dataRefreshService, IJobStatusService jobStatusService, ISender Sender, IOptionsMonitor<SDSettings> intSettings)
 : IRequestHandler<AddStationRequest, APIResponse>
 {
     private readonly SDSettings sdsettings = intSettings.CurrentValue;
 
     public async Task<APIResponse> Handle(AddStationRequest request, CancellationToken cancellationToken)
     {
-        if (!request.Requests.Any())
+        if (request.Requests.Count == 0)
         {
             return APIResponse.Ok;
         }
-
 
         if (!sdsettings.SDEnabled)
         {
             return APIResponse.Ok;
         }
-
 
         UpdateSettingParameters updateSetting = new()
         {
@@ -41,7 +39,6 @@ public class AddStationHandler(ILogger<AddStationRequest> logger, IBackgroundTas
 
         foreach (StationRequest stationRequest in request.Requests)
         {
-
             if (updateSetting.SDSettings.SDStationIds.Any(x => x.Lineup == stationRequest.Lineup && x.StationId == stationRequest.StationId))
             {
                 logger.LogInformation("Add Station: Already exists {StationIdLineup}", stationRequest.StationId);
@@ -57,7 +54,7 @@ public class AddStationHandler(ILogger<AddStationRequest> logger, IBackgroundTas
         {
             _ = await Sender.Send(new UpdateSettingRequest(updateSetting), cancellationToken).ConfigureAwait(false);
 
-            schedulesDirect.ResetCache("SubscribedLineups");
+            //schedulesDirect.ResetCache("SubscribedLineups");
 
             JobStatusManager jobManager = jobStatusService.GetJobManageSDSync(EPGHelper.SchedulesDirectId);
             jobManager.SetForceNextRun();

@@ -9,13 +9,9 @@ public static class DictionaryExtensions
             return;
         }
 
-        if (dictionary.ContainsKey(key))
+        if (!dictionary.TryAdd(key, value))
         {
             dictionary[key] = value;
-        }
-        else
-        {
-            dictionary.Add(key, value);
         }
     }
 }

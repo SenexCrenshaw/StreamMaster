@@ -1,12 +1,11 @@
 import ResetButton from '@components/buttons/ResetButton';
 import SMPopUp, { SMPopUpRef } from '@components/sm/SMPopUp';
-import { Logger } from '@lib/common/logger';
+import { isNumber } from '@lib/common/common';
+import { getEnumValueByKey } from '@lib/common/enumTools';
 import { UpdateM3UFile } from '@lib/smAPI/M3UFiles/M3UFilesCommands';
 import { M3UField, M3UFileDto, UpdateM3UFileRequest } from '@lib/smAPI/smapiTypes';
 import { memo, useCallback, useRef, useState } from 'react';
 import M3UFileDialog, { M3UFileDialogRef } from './M3UFileDialog';
-import { isNumber } from '@lib/common/common';
-import { getEnumValueByKey } from '@lib/common/enumTools';
 
 interface M3UFileEditDialogProperties {
   readonly selectedFile: M3UFileDto;
@@ -27,7 +26,7 @@ const M3UFileEditDialog = ({ selectedFile }: M3UFileEditDialogProperties) => {
       return;
     }
 
-    Logger.debug('M3UFileDialog Id', selectedFile.Id);
+    // Logger.debug('M3UFileDialog Id', selectedFile.Id);
     request.Id = selectedFile.Id;
 
     if (isNumber(request.M3UName)) {

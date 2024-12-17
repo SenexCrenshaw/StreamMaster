@@ -4,7 +4,7 @@ namespace StreamMaster.Application.EPGFiles.Commands;
 
 public record ScanDirectoryForEPGFilesRequest : IRequest<APIResponse>;
 
-public class ScanDirectoryForEPGFilesRequestHandler(ILogger<ScanDirectoryForEPGFilesRequest> Logger, IFileUtilService fileUtilService, IRepositoryWrapper Repository, IMapper Mapper, IPublisher Publisher)
+public class ScanDirectoryForEPGFilesRequestHandler(IFileUtilService fileUtilService, IRepositoryWrapper Repository, IMapper Mapper, IPublisher Publisher)
     : IRequestHandler<ScanDirectoryForEPGFilesRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(ScanDirectoryForEPGFilesRequest command, CancellationToken cancellationToken)

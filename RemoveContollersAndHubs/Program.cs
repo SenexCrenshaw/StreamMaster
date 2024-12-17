@@ -2,7 +2,7 @@
 {
     internal static class Program
     {
-        private static void Main(string[] args)
+        private static void Main()
         {
             DirectoryInfo di = new("../../../../StreamMaster.Application/");
             FileInfo[] files = di.GetFiles("ControllerAndHub.cs", SearchOption.AllDirectories);

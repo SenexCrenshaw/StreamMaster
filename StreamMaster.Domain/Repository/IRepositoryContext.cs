@@ -8,6 +8,13 @@ namespace StreamMaster.Domain.Repository;
 
 public interface IRepositoryContext
 {
+    Task BulkUpdateEntitiesAsync<TEntity>(
+    List<TEntity> entities,
+    int batchSize = 100,
+    int maxDegreeOfParallelism = 4,
+    CancellationToken cancellationToken = default
+) where TEntity : class;
+
     IQueryable<TResult> SqlQueryRaw<TResult>([NotParameterized] string sql, params object[] parameters);
     Task<int> ExecuteSqlRawAsync(string sql, params object[] parameters);
     Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default);
@@ -15,11 +22,11 @@ public interface IRepositoryContext
     DbSet<TEntity> Set<TEntity>() where TEntity : class;
     int SaveChanges();
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
-    Task BulkInsertEntitiesAsync<TEntity>(IEnumerable<TEntity> entities) where TEntity : class;
+    //Task BulkInsertEntitiesAsync<TEntity>(IEnumerable<TEntity> entities) where TEntity : class;
     int ExecuteSqlRaw(string sql, params object[] parameters);
     Task<int> ExecuteSqlRawAsync(string sql, CancellationToken cancellationToken = default);
-    void BulkUpdateEntities<TEntity>(IEnumerable<TEntity> entities) where TEntity : class;
-    void BulkInsertEntities<TEntity>(IEnumerable<TEntity> entities) where TEntity : class;
+    //void BulkUpdateEntities<TEntity>(IEnumerable<TEntity> entities) where TEntity : class;
+    //void BulkInsertEntities<TEntity>(IEnumerable<TEntity> entities) where TEntity : class;
     Task BulkDeleteAsyncEntities<TEntity>(IQueryable<TEntity> entities, CancellationToken cancellationToken = default) where TEntity : class;
     DbSet<ChannelGroup> ChannelGroups
     { get; set; }

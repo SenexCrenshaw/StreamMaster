@@ -31,7 +31,7 @@ namespace StreamMaster.Streams.Domain.Interfaces
         /// Gets or creates a channel distributor asynchronously.
         /// </summary>
         /// <param name="channelBroadcaster">The IChannelBroadcaster interface.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <param name="cancellationToken">The cancellation Token.</param>
         /// <returns>The channel distributor if created; otherwise, <c>null</c>.</returns>
         Task<ISourceBroadcaster?> GetOrCreateStreamBroadcasterAsync(IChannelBroadcaster channelBroadcaster, CancellationToken cancellationToken);
 

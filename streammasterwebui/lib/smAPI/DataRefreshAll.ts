@@ -4,6 +4,7 @@ import { setIsForced as GetChannelGroupsSetIsForced } from '@lib/smAPI/ChannelGr
 import { setIsForced as GetChannelGroupsFromSMChannelsSetIsForced } from '@lib/smAPI/ChannelGroups/GetChannelGroupsFromSMChannelsSlice';
 import { setIsForced as GetChannelMetricsSetIsForced } from '@lib/smAPI/Statistics/GetChannelMetricsSlice';
 import { setIsForced as GetCommandProfilesSetIsForced } from '@lib/smAPI/Profiles/GetCommandProfilesSlice';
+import { setIsForced as GetCustomLogosSetIsForced } from '@lib/smAPI/Logos/GetCustomLogosSlice';
 import { setIsForced as GetCustomPlayListsSetIsForced } from '@lib/smAPI/Custom/GetCustomPlayListsSlice';
 import { setIsForced as GetDownloadServiceStatusSetIsForced } from '@lib/smAPI/General/GetDownloadServiceStatusSlice';
 import { setIsForced as GetEPGColorsSetIsForced } from '@lib/smAPI/EPG/GetEPGColorsSlice';
@@ -20,7 +21,6 @@ import { setIsForced as GetM3UFilesSetIsForced } from '@lib/smAPI/M3UFiles/GetM3
 import { setIsForced as GetOutputProfilesSetIsForced } from '@lib/smAPI/Profiles/GetOutputProfilesSlice';
 import { setIsForced as GetSelectedStationIdsSetIsForced } from '@lib/smAPI/SchedulesDirect/GetSelectedStationIdsSlice';
 import { setIsForced as GetSettingsSetIsForced } from '@lib/smAPI/Settings/GetSettingsSlice';
-import { setIsForced as GetSMChannelNameLogosSetIsForced } from '@lib/smAPI/SMChannels/GetSMChannelNameLogosSlice';
 import { setIsForced as GetSMChannelNamesSetIsForced } from '@lib/smAPI/SMChannels/GetSMChannelNamesSlice';
 import { setIsForced as GetSMTasksSetIsForced } from '@lib/smAPI/SMTasks/GetSMTasksSlice';
 import { setIsForced as GetStationChannelNamesSetIsForced } from '@lib/smAPI/SchedulesDirect/GetStationChannelNamesSlice';
@@ -40,6 +40,7 @@ export const DataRefreshAll = () => {
   store.dispatch(GetChannelGroupsFromSMChannelsSetIsForced({ force: true }));
   store.dispatch(GetChannelMetricsSetIsForced({ force: true }));
   store.dispatch(GetCommandProfilesSetIsForced({ force: true }));
+  store.dispatch(GetCustomLogosSetIsForced({ force: true }));
   store.dispatch(GetCustomPlayListsSetIsForced({ force: true }));
   store.dispatch(GetDownloadServiceStatusSetIsForced({ force: true }));
   store.dispatch(GetEPGColorsSetIsForced({ force: true }));
@@ -56,7 +57,6 @@ export const DataRefreshAll = () => {
   store.dispatch(GetOutputProfilesSetIsForced({ force: true }));
   store.dispatch(GetSelectedStationIdsSetIsForced({ force: true }));
   store.dispatch(GetSettingsSetIsForced({ force: true }));
-  store.dispatch(GetSMChannelNameLogosSetIsForced({ force: true }));
   store.dispatch(GetSMChannelNamesSetIsForced({ force: true }));
   store.dispatch(GetSMTasksSetIsForced({ force: true }));
   store.dispatch(GetStationChannelNamesSetIsForced({ force: true }));

@@ -1,9 +1,9 @@
-﻿using StreamMaster.Application.M3UFiles.Commands;
-
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+
+using Microsoft.AspNetCore.Http;
 
 namespace StreamMaster.Application.M3UFiles;
 
@@ -98,7 +98,7 @@ public class M3UFileService(ILogger<M3UFileService> logger, IFileUtilService fil
     private APIResponse CreateNewChannelGroups(List<string> newGroups, List<ChannelGroup> existingGroups)
     {
         IEnumerable<string> existingNames = existingGroups.Select(a => a.Name);
-        List<string> toCreate = newGroups.Where(a => !existingNames.Contains(a)).ToList();
+        List<string> toCreate = [.. newGroups.Where(a => !existingNames.Contains(a))];
 
         return repositoryWrapper.ChannelGroup.CreateChannelGroups(toCreate, true);
     }
@@ -149,39 +149,39 @@ public class M3UFileService(ILogger<M3UFileService> logger, IFileUtilService fil
         return (m3uFile, fullName);
     }
 
-    public (M3UFile m3uFile, string fullName) CreateM3UFile(CreateM3UFileRequest request)
+    public (M3UFile m3uFile, string fullName) CreateM3UFile(string Name, int? MaxStreamCount, string? M3U8OutPutProfile, M3UKey? M3UKey, M3UField? M3UName, string? DefaultStreamGroupName, string? UrlSource, bool? SyncChannels, int? HoursToUpdate, int? StartingChannelNumber, bool? AutoSetChannelNumbers, List<string>? VODTags)
     {
         return CreateM3UFileBase(
-            request.Name,
-            request.MaxStreamCount,
-            request.UrlSource,
-            request.VODTags,
-            request.HoursToUpdate,
-            request.SyncChannels,
-            request.DefaultStreamGroupName,
-            request.AutoSetChannelNumbers,
-            request.StartingChannelNumber,
-            request.M3UKey,
-            request.M3UName,
-            request.M3U8OutPutProfile
+            Name,
+            MaxStreamCount ?? 0,
+            UrlSource,
+            VODTags,
+            HoursToUpdate,
+            SyncChannels,
+            DefaultStreamGroupName,
+            AutoSetChannelNumbers,
+            StartingChannelNumber,
+            M3UKey,
+            M3UName,
+            M3U8OutPutProfile
         );
     }
 
-    public (M3UFile m3uFile, string fullName) CreateM3UFile(CreateM3UFileFromFormRequest request)
+    public (M3UFile m3uFile, string fullName) CreateM3UFile(string Name, int? MaxStreamCount, string? M3U8OutPutProfile, M3UKey? M3UKey, M3UField? M3UName, int? StartingChannelNumber, bool? AutoSetChannelNumbers, string? DefaultStreamGroupName, int? HoursToUpdate, bool? SyncChannels, IFormFile? FormFile, List<string>? VODTags)
     {
         return CreateM3UFileBase(
-            request.Name,
-            request.MaxStreamCount ?? 0,
-            null, // URL source is not provided in the form request
-            request.VODTags,
-            request.HoursToUpdate,
-            request.SyncChannels,
-            request.DefaultStreamGroupName,
-            request.AutoSetChannelNumbers,
-            request.StartingChannelNumber,
-            request.M3UKey,
-            request.M3UName,
-            request.M3U8OutPutProfile
+            Name,
+            MaxStreamCount ?? 0,
+            null,
+            VODTags,
+            HoursToUpdate,
+            SyncChannels,
+            DefaultStreamGroupName,
+            AutoSetChannelNumbers,
+            StartingChannelNumber,
+            M3UKey,
+            M3UName,
+            M3U8OutPutProfile
         );
     }
 
@@ -352,19 +352,20 @@ public class M3UFileService(ILogger<M3UFileService> logger, IFileUtilService fil
 
     private static string GenerateBatchSqlCommandForDebugging(List<SMStream> streams, int m3uFileId, string m3uFileName, int streamGroupId, bool createChannels)
     {
-        string[] ids = streams.Select(s => $"'{EscapeString(s.Id)}'").ToArray();
-        string[] filePositions = streams.Select(s => s.FilePosition.ToString()).ToArray();
-        string[] channelNumbers = streams.Select(s => s.ChannelNumber.ToString()).ToArray();
-        string[] groups = streams.Select(s => $"'{EscapeString(s.Group)}'").ToArray();
-        string[] epgIds = streams.Select(s => $"'{EscapeString(s.EPGID)}'").ToArray();
-        string[] logos = streams.Select(s => $"'{EscapeString(s.Logo)}'").ToArray();
-        string[] names = streams.Select(s => $"'{EscapeString(s.Name)}'").ToArray();
-        string[] urls = streams.Select(s => $"'{EscapeString(s.Url)}'").ToArray();
-        string[] stationIds = streams.Select(s => $"'{EscapeString(s.StationId)}'").ToArray();
-        string[] channelIds = streams.Select(s => $"'{EscapeString(s.ChannelId)}'").ToArray();
-        string[] channelNames = streams.Select(s => $"'{EscapeString(s.ChannelName)}'").ToArray();
-        string[] isHidden = streams.Select(s => s.IsHidden.ToString().ToUpper()).ToArray(); // Add IsHidden as a boolean array
-        string[] tvgNames = streams.Select(s => $"'{EscapeString(s.TVGName)}'").ToArray(); // Add TVGName array
+        string[] ids = [.. streams.Select(s => $"'{EscapeString(s.Id)}'")];
+        string[] filePositions = [.. streams.Select(s => s.FilePosition.ToString())];
+        string[] channelNumbers = [.. streams.Select(s => s.ChannelNumber.ToString())];
+        string[] groups = [.. streams.Select(s => $"'{EscapeString(s.Group)}'")];
+        string[] epgIds = [.. streams.Select(s => $"'{EscapeString(s.EPGID)}'")];
+        string[] logos = [.. streams.Select(s => $"'{EscapeString(s.Logo)}'")];
+        string[] names = [.. streams.Select(s => $"'{EscapeString(s.Name)}'")];
+        string[] urls = [.. streams.Select(s => $"'{EscapeString(s.Url)}'")];
+        string[] stationIds = [.. streams.Select(s => $"'{EscapeString(s.StationId)}'")];
+        string[] channelIds = [.. streams.Select(s => $"'{EscapeString(s.ChannelId)}'")];
+        string[] channelNames = [.. streams.Select(s => $"'{EscapeString(s.ChannelName)}'")];
+        string[] extIfs = [.. streams.Select(s => $"'{EscapeString(s.ExtInf ?? "-1")}'")];
+        string[] isHidden = [.. streams.Select(s => s.IsHidden.ToString().ToUpper())]; // Add IsHidden as a boolean array
+        string[] tvgNames = [.. streams.Select(s => $"'{EscapeString(s.TVGName)}'")]; // Add TVGName array
 
         // Construct the SQL command to call the function
         string sqlCommand = $@"
@@ -380,6 +381,7 @@ public class M3UFileService(ILogger<M3UFileService> logger, IFileUtilService fil
         ARRAY[{string.Join(", ", stationIds)}]::CITEXT[],
         ARRAY[{string.Join(", ", channelIds)}]::CITEXT[],
         ARRAY[{string.Join(", ", channelNames)}]::CITEXT[],
+        ARRAY[{string.Join(", ", extIfs)}]::TEXT[],
         ARRAY[{string.Join(", ", isHidden)}]::BOOLEAN[], -- Include the IsHidden array
         ARRAY[{string.Join(", ", tvgNames)}]::CITEXT[], -- Include the TVGName array
         {m3uFileId}, -- p_m3u_file_id as INTEGER

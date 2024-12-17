@@ -1,8 +1,6 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
 using StreamMaster.Domain.Attributes;
-
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace StreamMaster.Domain.Models;
 
@@ -14,6 +12,6 @@ public class LogEntry
     [Column(TypeName = "citext")]
     public string LogLevelName => LogLevel.ToString();
     [Column(TypeName = "citext")]
-    public string Message { get; set; }
+    public string Message { get; set; } = string.Empty;
     public DateTime TimeStamp { get; set; }
 }

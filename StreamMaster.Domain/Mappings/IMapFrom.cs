@@ -6,7 +6,6 @@ public interface IMapFrom<T>
 {
     void Mapping(Profile profile)
     {
-
         if (typeof(T) == typeof(SMChannel))
         {
             profile.CreateMap<SMChannel, SMChannelDto>(MemberList.None)
@@ -23,7 +22,6 @@ public interface IMapFrom<T>
                 .Select(ch => ch.SMChannel)));
 
             return;
-
         }
 
         if (typeof(T) == typeof(SMStream))

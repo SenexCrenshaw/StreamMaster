@@ -9,7 +9,6 @@ internal class RemoveSMChannelFromSMChannelRequestHandler(IRepositoryWrapper Rep
 {
     public async Task<APIResponse> Handle(RemoveSMChannelFromSMChannelRequest request, CancellationToken cancellationToken)
     {
-
         SMChannel? smChannel = Repository.SMChannel.GetSMChannel(request.ParentSMChannelId);
         if (smChannel == null)
         {

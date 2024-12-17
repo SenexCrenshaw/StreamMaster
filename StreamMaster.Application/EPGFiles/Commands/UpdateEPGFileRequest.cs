@@ -5,7 +5,7 @@
 public record UpdateEPGFileRequest(int? EPGNumber, string? Color, int? TimeShift, bool? AutoUpdate, int? HoursToUpdate, int Id, string? Name, string? Url)
     : IRequest<APIResponse>;
 
-public class UpdateEPGFileRequestHandler(ILogger<UpdateEPGFileRequest> logger, IDataRefreshService dataRefreshService, IJobStatusService jobStatusService, IRepositoryWrapper Repository)
+public class UpdateEPGFileRequestHandler(ICacheManager cacheManager, IDataRefreshService dataRefreshService, IJobStatusService jobStatusService, IRepositoryWrapper Repository)
     : IRequestHandler<UpdateEPGFileRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(UpdateEPGFileRequest request, CancellationToken cancellationToken)
@@ -35,6 +35,7 @@ public class UpdateEPGFileRequestHandler(ILogger<UpdateEPGFileRequest> logger, I
             {
                 if (!Repository.EPGFile.GetQuery(x => x.EPGNumber == request.EPGNumber.Value).Any())
                 {
+                    cacheManager.ClearEPGDataByEPGNumber(epgFile.EPGNumber);
                     oldEPGNumber = epgFile.EPGNumber;
                     epgFile.EPGNumber = request.EPGNumber.Value;
                     ret.Add(new FieldData(() => epgFile.EPGNumber));
@@ -44,7 +45,7 @@ public class UpdateEPGFileRequestHandler(ILogger<UpdateEPGFileRequest> logger, I
             if (request.Url != null && epgFile.Url != request.Url)
             {
                 epgFile.Url = request.Url?.Length == 0 ? null : request.Url;
-                ret.Add(new FieldData(() => epgFile.Url));
+                ret.Add(new FieldData(() => epgFile.Url ?? ""));
             }
 
             if (request.Color != null && epgFile.Color != request.Color)

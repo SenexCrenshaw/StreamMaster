@@ -1,7 +1,34 @@
-﻿namespace StreamMaster.Domain.Configuration;
+﻿using StreamMaster.Domain.Crypto;
+
+namespace StreamMaster.Domain.Configuration;
 
 public static class SettingFiles
 {
+    public static readonly CustomLogoDict DefaultCustomLogoSetting = new()
+    {
+        CustomLogos = new Dictionary<string, CustomLogo>
+        {
+             {
+                "/images/default.png".ToUrlSafeBase64String(),
+                    new CustomLogo
+                    {
+                        IsReadOnly = true,
+                        Name = "Default Logo",
+                        Value= "/images/default.png".ToUrlSafeBase64String()
+                    }
+            },
+              {
+                "/images/streammaster_logo.png".ToUrlSafeBase64String(),
+                    new CustomLogo
+                    {
+                        IsReadOnly = true,
+                        Name = "Stream Master",
+                        Value= "/images/streammaster_logo.png".ToUrlSafeBase64String()
+                    }
+            }
+        }
+    };
+
     public static readonly OutputProfileDict DefaultOutputProfileSetting = new()
     {
         OutputProfiles = new Dictionary<string, OutputProfile>
