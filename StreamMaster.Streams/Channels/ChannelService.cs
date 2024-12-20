@@ -499,5 +499,4 @@ public sealed class ChannelService : IChannelService
             }
         }
     }
-
 }

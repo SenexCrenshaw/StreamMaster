@@ -5,7 +5,7 @@ namespace StreamMaster.Streams.Services
     /// <summary>
     /// Provides a service for creating and managing client configurations.
     /// </summary>
-    public class ClientConfigurationService(ILoggerFactory loggerFactory) : IClientConfigurationService
+    public class ClientConfigurationService(ILoggerFactory loggerFactory, IOptionsMonitor<Setting> settings) : IClientConfigurationService
     {
         /// <summary>
         /// Creates a new instance of <see cref="IClientConfiguration"/> with the specified parameters.
@@ -32,6 +32,7 @@ namespace StreamMaster.Streams.Services
                 clientIPAddress,
                 response,
                 loggerFactory,
+                settings,
                 cancellationToken);
 
             //config.ClientStream ??= new ClientReadStream(loggerFactory, config.UniqueRequestId);

@@ -63,7 +63,7 @@ public class VsController(ILogger<VsController> logger, IVideoService videoServi
             streamResult.ClientConfiguration.ClientStopped += (sender, args) =>
             {
                 logger.LogInformation("Client {UniqueRequestId} stopped. Name: {name}", streamResult.ClientConfiguration.UniqueRequestId, streamResult.ClientConfiguration.SMChannel.Name);
-                _ = channelService.RemoveClientAsync(streamResult.ClientConfiguration);
+                _ = channelService.UnRegisterClientAsync(streamResult.ClientConfiguration.UniqueRequestId);
             };
 
             // Register for dispose to ensure cleanup

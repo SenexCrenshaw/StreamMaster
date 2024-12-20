@@ -76,7 +76,6 @@ public class GetStreamGroupM3UHandler(IStreamGroupService streamGroupService)
      ? $"{videoStreamConfig.BaseUrl}/v/{videoStreamConfig.StreamGroupProfileId}/{videoStreamConfig.Id}"
      : $"{videoStreamConfig.BaseUrl}/v/{videoStreamConfig.EncodedString}";
 
-
         List<string> fieldList = ["#EXTINF:-1"];
 
         if (videoStreamConfig.OutputProfile.Id != nameof(ValidM3USetting.NotMapped))

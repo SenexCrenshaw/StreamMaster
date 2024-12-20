@@ -179,21 +179,9 @@ public class StreamGroupService(IHttpContextAccessor httpContextAccessor, ILogoS
         string strmFullName = GetSTRMPath(streamGroup, videoStreamConfig);
 
         string videoUrl = IsShort
-     ? $"{baseUrl}/v/{videoStreamConfig.StreamGroupProfileId}/{videoStreamConfig.Id}"
-     : $"{baseUrll}/v/{videoStreamConfig.EncodedString}";
+                 ? $"{baseUrl}/v/{videoStreamConfig.StreamGroupProfileId}/{videoStreamConfig.Id}"
+                 : $"{baseUrl}/v/{videoStreamConfig.EncodedString}";
 
-        //if (IsShort)
-        //{
-        //    videoUrl = $"{baseUrl}/v/{videoStreamConfig.StreamGroupProfileId}/{videoStreamConfig.Id}";
-        //}
-        //else
-        //{
-        //    videoUrl = $"{baseUrl}/api/videostreams/stream/{videoStreamConfig.EncodedString}";
-        //    if (settings.CurrentValue.AppendChannelName)
-        //    {
-        //        videoUrl += $"/{videoStreamConfig.CleanName}";
-        //    }
-        //}
         File.WriteAllText(strmFullName, videoUrl);
     }
 

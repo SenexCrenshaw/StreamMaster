@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System.Buffers;
+using System.Diagnostics;
 using System.IO.Pipelines;
 using System.Text.Json.Serialization;
 
@@ -31,6 +32,7 @@ public class ClientConfiguration(
     string clientIPAddress,
     HttpResponse response,
     ILoggerFactory loggerFactory,
+    IOptionsMonitor<Setting> settings,
     CancellationToken cancellationToken) : IClientConfiguration
 {
     private readonly StreamMetricsTracker MetricsService = new();
@@ -97,14 +99,29 @@ public class ClientConfiguration(
     public async Task StreamFromPipeToResponseAsync()
     {
         Stopwatch stopwatch = new();
+        CancellationTokenSource inactivityCts = new();
+        Timer? inactivityTimer = null;
+
+        if (settings.CurrentValue.ClientReadTimeOutSeconds > 0)
+        {
+            inactivityTimer = new Timer(_ =>
+            {
+                inactivityCts.Cancel(); // Cancel the client if it has been inactive for too long
+            }, null, Timeout.Infinite, Timeout.Infinite);
+        }
+
         try
         {
             while (!ClientCancellationToken.IsCancellationRequested)
             {
                 stopwatch.Restart();
+
+                // Start the inactivity timer only if the timeout setting is greater than 0
+                inactivityTimer?.Change(settings.CurrentValue.ClientReadTimeOutSeconds * 1000, Timeout.Infinite);
+
                 // Read data from the Pipe
                 ReadResult result = await Pipe.Reader.ReadAsync(ClientCancellationToken).ConfigureAwait(false);
-                System.Buffers.ReadOnlySequence<byte> buffer = result.Buffer;
+                ReadOnlySequence<byte> buffer = result.Buffer;
 
                 foreach (ReadOnlyMemory<byte> segment in buffer)
                 {
@@ -114,6 +131,9 @@ public class ClientConfiguration(
                         double latency = stopwatch.Elapsed.TotalMilliseconds;
                         MetricsService.RecordMetrics(segment.Length, latency);
                         await Response.Body.WriteAsync(segment, ClientCancellationToken).ConfigureAwait(false);
+
+                        // Reset the inactivity timer if it exists
+                        inactivityTimer?.Change(settings.CurrentValue.ClientReadTimeOutSeconds * 1000, Timeout.Infinite);
                     }
                     catch (Exception ex)
                     {
@@ -132,10 +152,15 @@ public class ClientConfiguration(
                 }
             }
         }
-        catch (OperationCanceledException)
+        catch (OperationCanceledException) when (ClientCancellationToken.IsCancellationRequested)
         {
             // Graceful cancellation
             LoggerFactory.CreateLogger<ClientConfiguration>().LogInformation("Streaming task canceled for client {ClientId}", UniqueRequestId);
+        }
+        catch (OperationCanceledException) when (inactivityCts.IsCancellationRequested)
+        {
+            LoggerFactory.CreateLogger<ClientConfiguration>().LogWarning("Client {ClientId} was inactive for too long and has been canceled.", UniqueRequestId);
+            Stop(); // Stop the client due to inactivity
         }
         catch (Exception ex)
         {
@@ -143,6 +168,9 @@ public class ClientConfiguration(
         }
         finally
         {
+            // Dispose of the inactivity timer if it exists
+            inactivityTimer?.Dispose();
+
             // Complete the Pipe.Reader
             await Pipe.Reader.CompleteAsync().ConfigureAwait(false);
 

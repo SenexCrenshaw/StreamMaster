@@ -31,7 +31,6 @@ public class SourceBroadcaster(ILogger<ISourceBroadcaster> logger, IStreamFactor
 
     public void AddChannelBroadcaster(string Id, PipeWriter pipeWriter)
     {
-
         ChannelBroadcasters.TryAdd(Id, pipeWriter);
     }
 
@@ -114,7 +113,7 @@ public class SourceBroadcaster(ILogger<ISourceBroadcaster> logger, IStreamFactor
                         //logger.LogWarning("PipeWriter for {Key} is completed. Removing from broadcasters.", key);
                         ChannelBroadcasters.TryRemove(key, out _); // Remove completed writer
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
                         //logger.LogWarning(ex, "Failed to write to client {ClientId}. Removing client.", key);
                         ChannelBroadcasters.TryRemove(key, out _); // Remove problematic client

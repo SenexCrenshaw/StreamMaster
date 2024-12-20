@@ -53,7 +53,7 @@ public class StreamSettings : BaseSettings
 {
     public string DefaultCommandProfileName { get; set; } = "Default";
     public string DefaultOutputProfileName { get; set; } = "Default";
-    public double ClientReadTimeOutSeconds { get; set; } = 20;
+    public int ClientReadTimeOutSeconds { get; set; } = 20;
     public string FFMPegExecutable { get; set; } = "ffmpeg";
     public string FFProbeExecutable { get; set; } = "ffprobe";
 }

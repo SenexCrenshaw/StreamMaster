@@ -26,8 +26,6 @@ internal class GetChannelMetricsRequestHandler(IVideoInfoService videoInfoServic
       .GroupBy(smChannel => smChannel.Id)
       .ToDictionary(group => group.Key, group => group.First());
 
-
-
         Dictionary<string, ISourceBroadcaster> sourceBroadcasters = sourceBroadcasterService.GetStreamBroadcasters()
             .ToDictionary(sb => sb.SMStreamInfo.Url);
 
