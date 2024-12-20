@@ -91,20 +91,6 @@ namespace StreamMaster.Streams.Handlers
             return false;
         }
 
-        //public IDictionary<string, IStreamHandlerMetrics> GetMetrics()
-        //{
-        //    Dictionary<string, IStreamHandlerMetrics> metrics = [];
-
-        //    foreach (KeyValuePair<string, ISourceBroadcaster> kvp in sourceBroadcasters)
-        //    {
-        //        ISourceBroadcaster channelDistributor = kvp.Value;
-        //        //FIX
-        //        //metrics[kvp.Key] = channelDistributor.Metrics;
-        //    }
-
-        //    return metrics;
-        //}
-
         private void OnStoppedEvent(object? sender, StreamBroadcasterStopped e)
         {
             if (sender is ISourceBroadcaster channelBroadcaster)
@@ -141,7 +127,6 @@ namespace StreamMaster.Streams.Handlers
 
         public async Task UnRegisterChannelBroadcasterAsync(int channelBroadcasterId)
         {
-            // ISourceBroadcaster? sourceBroadcaster = GetStreamBroadcaster(channelBroadcasterId.ToString());
             ISourceBroadcaster? sourceBroadcaster = sourceBroadcasters.Values.FirstOrDefault(broadcaster => broadcaster.ChannelBroadcasters.ContainsKey(channelBroadcasterId.ToString()));
             if (sourceBroadcaster == null)
             {

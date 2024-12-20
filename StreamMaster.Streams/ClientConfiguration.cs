@@ -135,9 +135,9 @@ public class ClientConfiguration(
                         // Reset the inactivity timer if it exists
                         inactivityTimer?.Change(settings.CurrentValue.ClientReadTimeOutSeconds * 1000, Timeout.Infinite);
                     }
-                    catch (Exception ex)
+                    catch (Exception )
                     {
-                        LoggerFactory.CreateLogger<ClientConfiguration>().LogWarning(ex, "Failed to write to response for client {ClientId}", UniqueRequestId);
+                        //LoggerFactory.CreateLogger<ClientConfiguration>().LogWarning(ex, "Failed to write to response for client {ClientId}", UniqueRequestId);
                         Stop(); // Stop the client on failure
                         return;
                     }

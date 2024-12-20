@@ -128,10 +128,10 @@ public class SourceBroadcaster(ILogger<ISourceBroadcaster> logger, IStreamFactor
         finally
         {
             // Complete all writers
-            foreach (PipeWriter writer in ChannelBroadcasters.Values)
-            {
-                await writer.CompleteAsync().ConfigureAwait(false);
-            }
+            //foreach (PipeWriter writer in ChannelBroadcasters.Values)
+            //{
+            //    await writer.CompleteAsync().ConfigureAwait(false);
+            //}
             ChannelBroadcasters.Clear();
             // Dispose of the source stream
             await sourceStream.DisposeAsync().ConfigureAwait(false);
@@ -139,6 +139,14 @@ public class SourceBroadcaster(ILogger<ISourceBroadcaster> logger, IStreamFactor
             stopwatch.Stop();
             // Stop the broadcaster
             //await StopAsync();
+            if (Interlocked.CompareExchange(ref _isStopped, 1, 0) == 0)
+            {
+                // Derived-specific logic before stopping
+                logger.LogInformation("Source Broadcaster stopped: {Name}", Name);
+
+                // Additional cleanup or finalization
+                OnStreamBroadcasterStoppedEvent?.Invoke(this, new StreamBroadcasterStopped(Id, Name));
+            }
         }
     }
 
@@ -185,14 +193,14 @@ public class SourceBroadcaster(ILogger<ISourceBroadcaster> logger, IStreamFactor
         }
         finally
         {
-            if (Interlocked.CompareExchange(ref _isStopped, 1, 0) == 0)
-            {
-                // Derived-specific logic before stopping
-                logger.LogInformation("Source Broadcaster stopped: {Name}", Name);
+            //if (Interlocked.CompareExchange(ref _isStopped, 1, 0) == 0)
+            //{
+            //    // Derived-specific logic before stopping
+            //    logger.LogInformation("Source Broadcaster stopped: {Name}", Name);
 
-                // Additional cleanup or finalization
-                OnStreamBroadcasterStoppedEvent?.Invoke(this, new StreamBroadcasterStopped(Id, Name));
-            }
+            //    // Additional cleanup or finalization
+            //    OnStreamBroadcasterStoppedEvent?.Invoke(this, new StreamBroadcasterStopped(Id, Name));
+            //}
 
             _stopLock.Release();
         }
