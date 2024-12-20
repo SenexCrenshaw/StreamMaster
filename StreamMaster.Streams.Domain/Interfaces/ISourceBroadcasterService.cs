@@ -21,11 +21,11 @@ namespace StreamMaster.Streams.Domain.Interfaces
         /// <returns>The channel distributor if found; otherwise, <c>null</c>.</returns>
         ISourceBroadcaster? GetStreamBroadcaster(string? key);
 
-        /// <summary>
-        /// Gets aggregated metrics for all channel distributors.
-        /// </summary>
-        /// <returns>A dictionary of aggregated metrics for all channel distributors.</returns>
-        IDictionary<string, IStreamHandlerMetrics> GetMetrics();
+        ///// <summary>
+        ///// Gets aggregated metrics for all channel distributors.
+        ///// </summary>
+        ///// <returns>A dictionary of aggregated metrics for all channel distributors.</returns>
+        //IDictionary<string, IStreamHandlerMetrics> GetMetrics();
 
         /// <summary>
         /// Gets or creates a channel distributor asynchronously.

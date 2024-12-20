@@ -57,7 +57,6 @@ namespace StreamMaster.Streams.Domain.Interfaces
         /// </summary>
         HttpResponse Response { get; }
 
-
         Pipe Pipe { get; set; }
 
         /// <summary>

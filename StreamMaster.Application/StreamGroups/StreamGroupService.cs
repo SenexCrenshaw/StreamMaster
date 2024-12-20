@@ -176,19 +176,23 @@ public class StreamGroupService(IHttpContextAccessor httpContextAccessor, ILogoS
     {
         object baseUrl = settings.CurrentValue.STRMBaseURL;
         string strmFullName = GetSTRMPath(streamGroup, videoStreamConfig);
-        string videoUrl;
-        if (IsShort)
-        {
-            videoUrl = $"{baseUrl}/v/{videoStreamConfig.StreamGroupProfileId}/{videoStreamConfig.Id}";
-        }
-        else
-        {
-            videoUrl = $"{baseUrl}/api/videostreams/stream/{videoStreamConfig.EncodedString}";
-            if (settings.CurrentValue.AppendChannelName)
-            {
-                videoUrl += $"/{videoStreamConfig.CleanName}";
-            }
-        }
+
+        string videoUrl = IsShort
+     ? $"{videoStreamConfig.BaseUrl}/v/{videoStreamConfig.StreamGroupProfileId}/{videoStreamConfig.Id}"
+     : $"{videoStreamConfig.BaseUrl}/v/{videoStreamConfig.EncodedString}";
+
+        //if (IsShort)
+        //{
+        //    videoUrl = $"{baseUrl}/v/{videoStreamConfig.StreamGroupProfileId}/{videoStreamConfig.Id}";
+        //}
+        //else
+        //{
+        //    videoUrl = $"{baseUrl}/api/videostreams/stream/{videoStreamConfig.EncodedString}";
+        //    if (settings.CurrentValue.AppendChannelName)
+        //    {
+        //        videoUrl += $"/{videoStreamConfig.CleanName}";
+        //    }
+        //}
         File.WriteAllText(strmFullName, videoUrl);
     }
 
@@ -371,6 +375,10 @@ public class StreamGroupService(IHttpContextAccessor httpContextAccessor, ILogoS
         ConcurrentBag<SGLineup> ret = [];
         _ = Parallel.ForEach(videoStreamConfigs, (videoStreamConfig, _) =>
         {
+            string videoUrl = IsShort
+     ? $"{videoStreamConfig.BaseUrl}/v/{videoStreamConfig.StreamGroupProfileId}/{videoStreamConfig.Id}"
+     : $"{videoStreamConfig.BaseUrl}/v/{videoStreamConfig.EncodedString}";
+
             if (videoStreamConfig != null)
             {
                 ret.Add(new SGLineup
@@ -379,7 +387,7 @@ public class StreamGroupService(IHttpContextAccessor httpContextAccessor, ILogoS
                     GuideNumber = videoStreamConfig.ChannelNumber.ToString(),
                     Station = videoStreamConfig.ChannelNumber.ToString(),
                     Logo = videoStreamConfig.Logo,
-                    URL = IsShort ? $"{videoStreamConfig.BaseUrl}/v/{streamGroupProfileId}/{videoStreamConfig.Id}" : $"{videoStreamConfig.BaseUrl}/api/videostreams/stream/{videoStreamConfig.EncodedString}/{videoStreamConfig.Name.ToCleanFileString()}"
+                    URL = videoUrl
                 });
             }
         });

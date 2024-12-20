@@ -66,7 +66,6 @@ public class VideoService(
             if (result)
             {
                 logger.LogInformation("Streaming channel with ChannelId {channelId} took {elapsed}ms", smChannelId, sw.ElapsedMilliseconds);
-
             }
             else
             {
@@ -119,5 +118,4 @@ public class VideoService(
             cancellationToken
         );
     }
-
 }

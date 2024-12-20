@@ -12,7 +12,6 @@ public class UpdateSettingParameters
     [TsProperty(ForceNullable = true)]
     public SDSettingsRequest? SDSettings { get; set; }
 
-    public bool? AppendChannelName { get; set; }
     public bool? ShowClientHostNames { get; set; }
     public int? IconCacheExpirationDays { get; set; }
     public string? DefaultCompression { get; set; }

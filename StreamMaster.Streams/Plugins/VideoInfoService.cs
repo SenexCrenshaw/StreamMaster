@@ -33,7 +33,6 @@ namespace StreamMaster.Streams.Plugins
 
         public void SetSourceChannel(ISourceBroadcaster sourceBroadcaster, string Id, string Name)
         {
-
             if (!VideoInfoPlugins.TryGetValue(Id, out VideoInfoPlugin? videoInfoPlugin))
             {
                 logger.LogInformation("Video info service started for {Name}", Name);

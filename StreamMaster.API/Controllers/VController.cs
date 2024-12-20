@@ -45,7 +45,6 @@ public class VsController(ILogger<VsController> logger, IVideoService videoServi
             string fileName = $"{encodedIds ?? "stream"}.ts";
             HttpContext.Response.Headers.ContentDisposition = $"inline; filename=\"{fileName}\"";
 
-
             StreamResult streamResult = await videoService.AddClientToChannelAsync(HttpContext, streamGroupId, streamGroupProfileId, smChannelId, cancellationToken);
 
             if (streamResult.ClientConfiguration == null)
@@ -59,7 +58,6 @@ public class VsController(ILogger<VsController> logger, IVideoService videoServi
                 logger.LogInformation("Channel with ChannelId {channelId} is redirecting to {redirectUrl}", smChannelId, streamResult.RedirectUrl);
                 return Redirect(streamResult.RedirectUrl);
             }
-
 
             // Register client stopped event
             streamResult.ClientConfiguration.ClientStopped += (sender, args) =>

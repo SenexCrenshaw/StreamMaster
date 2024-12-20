@@ -16,6 +16,6 @@ namespace StreamMaster.Streams.Domain.Models
         public string? Logo { get; set; }
         public string? ClientIPAddress { get; set; }
         public string? ClientUserAgent { get; set; }
-        public string SMChannelId { get; set; }
+        public string SMChannelId { get; set; } = string.Empty;
     }
 }

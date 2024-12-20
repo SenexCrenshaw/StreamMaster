@@ -26,11 +26,11 @@ namespace StreamMaster.Streams.Domain.Interfaces
         /// <returns>The channel status channel if created; otherwise, <c>null</c>.</returns>
         Task<IChannelBroadcaster> GetOrCreateChannelBroadcasterAsync(IClientConfiguration config, int streamGroupProfileId, CancellationToken cancellationToken);
 
-        /// <summary>
-        /// Gets aggregated metrics for all channel distributors.
-        /// </summary>
-        /// <returns>A dictionary of aggregated metrics for all channel distributors.</returns>
-        IDictionary<int, IStreamHandlerMetrics> GetMetrics();
+        ///// <summary>
+        ///// Gets aggregated metrics for all channel distributors.
+        ///// </summary>
+        ///// <returns>A dictionary of aggregated metrics for all channel distributors.</returns>
+        //IDictionary<int, IStreamHandlerMetrics> GetMetrics();
 
         /// <summary>
         /// Gets all channel statuses.

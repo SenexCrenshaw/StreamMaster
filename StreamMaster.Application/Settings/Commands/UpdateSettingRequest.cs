@@ -197,11 +197,6 @@ public partial class UpdateSettingRequestHandler(
             currentSetting.CleanURLs = request.Parameters.CleanURLs.Value;
         }
 
-        if (request.Parameters.AppendChannelName.HasValue)
-        {
-            currentSetting.AppendChannelName = request.Parameters.AppendChannelName.Value;
-        }
-
         if (request.Parameters.SDSettings != null)
         {
             CopySDNonNullFields(request.Parameters.SDSettings, sdsettings);

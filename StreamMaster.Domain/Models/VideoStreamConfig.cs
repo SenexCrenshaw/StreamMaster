@@ -79,4 +79,5 @@ public class VideoStreamConfig
     //public bool IsShort { get; set; } = false;
     public string BaseUrl { get; set; } = string.Empty;
     public int StreamGroupProfileId { get; set; }
+
 }

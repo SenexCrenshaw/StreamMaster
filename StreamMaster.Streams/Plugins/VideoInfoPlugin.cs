@@ -191,7 +191,7 @@ public class VideoInfoPlugin : IDisposable
         {
             return null;
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             _logger.LogError("Error extracting video info for {name}", _name);
             return null;

@@ -5,7 +5,7 @@ using StreamMaster.Streams.Domain.Events;
 
 namespace StreamMaster.Streams.Handlers
 {
-    public class SourceBroadcasterService(ILogger<SourceBroadcasterService> logger, IMetricsService metricsService, IVideoInfoService _videoInfoService, ILogger<ISourceBroadcaster> sourceBroadcasterLogger, IOptionsMonitor<Setting> _settings, IStreamFactory streamFactory)
+    public class SourceBroadcasterService(ILogger<SourceBroadcasterService> logger, IVideoInfoService _videoInfoService, ILogger<ISourceBroadcaster> sourceBroadcasterLogger, IOptionsMonitor<Setting> _settings, IStreamFactory streamFactory)
         : ISourceBroadcasterService
     {
         public event AsyncEventHandler<StreamBroadcasterStopped>? OnStreamBroadcasterStoppedEvent;
@@ -49,7 +49,7 @@ namespace StreamMaster.Streams.Handlers
                     return sourceBroadcaster;
                 }
 
-                sourceBroadcaster = new SourceBroadcaster(sourceBroadcasterLogger, streamFactory, smStreamInfo, _settings);
+                sourceBroadcaster = new SourceBroadcaster(sourceBroadcasterLogger, streamFactory, smStreamInfo);
 
                 logger.LogInformation("Created new source stream for: {Id} {name}", smStreamInfo.Id, smStreamInfo.Name);
 
@@ -91,19 +91,19 @@ namespace StreamMaster.Streams.Handlers
             return false;
         }
 
-        public IDictionary<string, IStreamHandlerMetrics> GetMetrics()
-        {
-            Dictionary<string, IStreamHandlerMetrics> metrics = [];
+        //public IDictionary<string, IStreamHandlerMetrics> GetMetrics()
+        //{
+        //    Dictionary<string, IStreamHandlerMetrics> metrics = [];
 
-            foreach (KeyValuePair<string, ISourceBroadcaster> kvp in sourceBroadcasters)
-            {
-                ISourceBroadcaster channelDistributor = kvp.Value;
-                //FIX
-                //metrics[kvp.Key] = channelDistributor.Metrics;
-            }
+        //    foreach (KeyValuePair<string, ISourceBroadcaster> kvp in sourceBroadcasters)
+        //    {
+        //        ISourceBroadcaster channelDistributor = kvp.Value;
+        //        //FIX
+        //        //metrics[kvp.Key] = channelDistributor.Metrics;
+        //    }
 
-            return metrics;
-        }
+        //    return metrics;
+        //}
 
         private void OnStoppedEvent(object? sender, StreamBroadcasterStopped e)
         {

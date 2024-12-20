@@ -19,19 +19,19 @@ namespace StreamMaster.Streams.Handlers
         private readonly SemaphoreSlim _getOrCreateSourceChannelBroadcasterSlim = new(1, 1);
 
         /// <inheritdoc/>
-        public IDictionary<int, IStreamHandlerMetrics> GetMetrics()
-        {
-            Dictionary<int, IStreamHandlerMetrics> metrics = [];
+        //public IDictionary<int, IStreamHandlerMetrics> GetMetrics()
+        //{
+        //    Dictionary<int, IStreamHandlerMetrics> metrics = [];
 
-            foreach (KeyValuePair<int, IChannelBroadcaster> kvp in cacheManager.ChannelBroadcasters)
-            {
-                IChannelBroadcaster channelBroadcaster = kvp.Value;
-                //FIX
-                //metrics[kvp.Key] = channelBroadcaster.Metrics;
-            }
+        //    foreach (KeyValuePair<int, IChannelBroadcaster> kvp in cacheManager.ChannelBroadcasters)
+        //    {
+        //        IChannelBroadcaster channelBroadcaster = kvp.Value;
+        //        //FIX
+        //        //metrics[kvp.Key] = channelBroadcaster.Metrics;
+        //    }
 
-            return metrics;
-        }
+        //    return metrics;
+        //}
 
         /// <inheritdoc/>
         public async Task<IChannelBroadcaster> GetOrCreateChannelBroadcasterAsync(IClientConfiguration config, int streamGroupProfileId, CancellationToken cancellationToken)
@@ -154,7 +154,6 @@ namespace StreamMaster.Streams.Handlers
                 if (channelBroadcaster.RemoveClient(uniqueRequestId))
                 {
                     logger.LogDebug("Client configuration for {UniqueRequestId} removed", uniqueRequestId);
-
                 }
                 if (channelBroadcaster.ClientConfigurationsEmpty)
                 {

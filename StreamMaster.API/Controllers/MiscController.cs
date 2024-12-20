@@ -40,13 +40,13 @@ public class MiscController(IImageDownloadService imageDownloadService, ICacheMa
         return Ok();
     }
 
-    [HttpGet]
-    [Route("[action]")]
-    public ActionResult<IDictionary<string, IStreamHandlerMetrics>> GetAggregatedMetrics()
-    {
-        IDictionary<string, IStreamHandlerMetrics> metrics = channelDistributorService.GetMetrics();
-        return Ok(metrics);
-    }
+    //[HttpGet]
+    //[Route("[action]")]
+    //public ActionResult<IDictionary<string, IStreamHandlerMetrics>> GetAggregatedMetrics()
+    //{
+    //    IDictionary<string, IStreamHandlerMetrics> metrics = channelDistributorService.GetMetrics();
+    //    return Ok(metrics);
+    //}
 
     [HttpGet]
     [Route("[action]")]

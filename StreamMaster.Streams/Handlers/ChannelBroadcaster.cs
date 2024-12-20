@@ -39,7 +39,7 @@ public sealed class ChannelBroadcaster(ILogger<IChannelBroadcaster> logger, SMCh
         await _streamLock.WaitAsync().ConfigureAwait(false);
         try
         {
-            if (_streamingTask == null || _streamingTask.IsCompleted)
+            if (_streamingTask?.IsCompleted != false)
             {
                 _streamingTask = Task.Run(StreamToClientsAsync);
             }
@@ -99,7 +99,6 @@ public sealed class ChannelBroadcaster(ILogger<IChannelBroadcaster> logger, SMCh
 
     public bool RemoveClient(string clientId)
     {
-
         if (Clients.TryRemove(clientId, out IClientConfiguration? client))
         {
             client.Stop();
@@ -112,7 +111,6 @@ public sealed class ChannelBroadcaster(ILogger<IChannelBroadcaster> logger, SMCh
     {
         // Derived-specific logic before stopping
         logger.LogInformation("Channel Broadcaster stopped: {Name}", Name);
-
 
         Dubcer?.Stop();
 
@@ -134,7 +132,7 @@ public sealed class ChannelBroadcaster(ILogger<IChannelBroadcaster> logger, SMCh
 
     public string SourceName => SMStreamInfo?.Name ?? "";
 
-    public bool IsFailed { get; private set; } = false;
+    public bool IsFailed { get; } = false;
 
     private readonly Dubcer? Dubcer = null;
 

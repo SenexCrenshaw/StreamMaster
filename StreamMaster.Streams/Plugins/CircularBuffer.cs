@@ -1,17 +1,12 @@
 ﻿
 namespace StreamMaster.Streams.Plugins;
 
-public class CircularBuffer
+public class CircularBuffer(int size)
 {
-    private readonly byte[] _buffer;
+    private readonly byte[] _buffer = new byte[size];
     private int _start;
     private int _end;
     private readonly Lock _lock = new();
-
-    public CircularBuffer(int size)
-    {
-        _buffer = new byte[size];
-    }
 
     public void Write(ReadOnlySpan<byte> data)
     {

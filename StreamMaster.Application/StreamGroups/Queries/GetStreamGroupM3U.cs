@@ -68,19 +68,14 @@ public class GetStreamGroupM3UHandler(IStreamGroupService streamGroupService, IO
             return (0, "");
         }
 
-        string videoUrl;
-        if (IsShort)
-        {
-            videoUrl = $"{videoStreamConfig.BaseUrl}/v/{videoStreamConfig.StreamGroupProfileId}/{videoStreamConfig.Id}";
-        }
-        else
-        {
-            videoUrl = $"{videoStreamConfig.BaseUrl}/api/videostreams/stream/{videoStreamConfig.EncodedString}";
-            if (settings.CurrentValue.AppendChannelName)
-            {
-                videoUrl += $"/{videoStreamConfig.CleanName}";
-            }
-        }
+        //string videoUrl = IsShort
+        //    ? $"{videoStreamConfig.BaseUrl}/v/{videoStreamConfig.StreamGroupProfileId}/{videoStreamConfig.Id}"
+        //    : $"{videoStreamConfig.BaseUrl}/api/videostreams/stream/{videoStreamConfig.EncodedString}";
+
+        string videoUrl = IsShort
+     ? $"{videoStreamConfig.BaseUrl}/v/{videoStreamConfig.StreamGroupProfileId}/{videoStreamConfig.Id}"
+     : $"{videoStreamConfig.BaseUrl}/v/{videoStreamConfig.EncodedString}";
+
 
         List<string> fieldList = ["#EXTINF:-1"];
 

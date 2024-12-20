@@ -76,9 +76,7 @@ public class StreamMetricsTracker : IMetricsService, IDisposable
         {
             if (disposing)
             {
-
                 _meter.Dispose();
-
             }
 
             // TODO: free unmanaged resources (unmanaged objects) and override finalizer

@@ -99,7 +99,6 @@ public class ClientConfiguration(
         Stopwatch stopwatch = new();
         try
         {
-
             while (!ClientCancellationToken.IsCancellationRequested)
             {
                 stopwatch.Restart();
@@ -152,5 +151,4 @@ public class ClientConfiguration(
             Stop();
         }
     }
-
 }

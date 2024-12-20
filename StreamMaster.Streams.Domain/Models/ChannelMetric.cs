@@ -12,9 +12,9 @@ namespace StreamMaster.Streams.Domain.Models
     public class ChannelMetric
     {
         public SMStreamInfo? SMStreamInfo { get; set; }
-        public long ChannelItemBackLog { get; set; }
+        //public long ChannelItemBackLog { get; set; }
 
-        public List<ClientChannelDto> ClientChannels { get; set; } = [];
+        //public List<ClientChannelDto> ClientChannels { get; set; } = [];
 
         public List<ClientStreamsDto> ClientStreams { get; set; } = [];
 
@@ -26,6 +26,6 @@ namespace StreamMaster.Streams.Domain.Models
         public string SourceName { get; set; } = string.Empty;
         public string? Logo { get; set; }
         public string? VideoInfo { get; set; }
-        public long TotalBytesInBuffer { get; set; }
+        //public long TotalBytesInBuffer { get; set; }
     }
 }

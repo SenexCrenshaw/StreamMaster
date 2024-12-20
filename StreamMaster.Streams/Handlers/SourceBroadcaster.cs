@@ -8,7 +8,7 @@ using StreamMaster.Streams.Domain.Statistics;
 using StreamMaster.Streams.Services;
 namespace StreamMaster.Streams.Handlers;
 
-public class SourceBroadcaster(ILogger<ISourceBroadcaster> logger, IStreamFactory streamFactory, SMStreamInfo smStreamInfo, IOptionsMonitor<Setting> _settings)
+public class SourceBroadcaster(ILogger<ISourceBroadcaster> logger, IStreamFactory streamFactory, SMStreamInfo smStreamInfo)
     : ISourceBroadcaster
 {
     private int _isStopped;
@@ -31,11 +31,7 @@ public class SourceBroadcaster(ILogger<ISourceBroadcaster> logger, IStreamFactor
 
     public void AddChannelBroadcaster(string Id, PipeWriter pipeWriter)
     {
-        //if (ChannelBroadcasters.TryAdd(Id, pipeWriter))
-        //{
-        //    // Signal that a broadcaster has been added
-        //    _broadcasterAddedTcs.TrySetResult(true);
-        //}
+
         ChannelBroadcasters.TryAdd(Id, pipeWriter);
     }
 
@@ -44,7 +40,6 @@ public class SourceBroadcaster(ILogger<ISourceBroadcaster> logger, IStreamFactor
         return Id;
     }
     public bool IsFailed { get; set; } = false;
-
 
     public async Task SetSourceStreamAsync(IChannelBroadcaster channelBroadcaster, CancellationToken cancellationToken)
     {
@@ -116,12 +111,12 @@ public class SourceBroadcaster(ILogger<ISourceBroadcaster> logger, IStreamFactor
                     }
                     catch (InvalidOperationException)
                     {
-                        logger.LogWarning("PipeWriter for {Key} is completed. Removing from broadcasters.", key);
+                        //logger.LogWarning("PipeWriter for {Key} is completed. Removing from broadcasters.", key);
                         ChannelBroadcasters.TryRemove(key, out _); // Remove completed writer
                     }
                     catch (Exception ex)
                     {
-                        logger.LogWarning(ex, "Failed to write to client {ClientId}. Removing client.", key);
+                        //logger.LogWarning(ex, "Failed to write to client {ClientId}. Removing client.", key);
                         ChannelBroadcasters.TryRemove(key, out _); // Remove problematic client
                     }
                 }
@@ -149,7 +144,6 @@ public class SourceBroadcaster(ILogger<ISourceBroadcaster> logger, IStreamFactor
     }
 
     public StreamHandlerMetrics Metrics => MetricsService.Metrics;
-
 
     public async Task StopAsync()
     {
@@ -192,12 +186,10 @@ public class SourceBroadcaster(ILogger<ISourceBroadcaster> logger, IStreamFactor
         }
         finally
         {
-
             if (Interlocked.CompareExchange(ref _isStopped, 1, 0) == 0)
             {
                 // Derived-specific logic before stopping
                 logger.LogInformation("Source Broadcaster stopped: {Name}", Name);
-
 
                 // Additional cleanup or finalization
                 OnStreamBroadcasterStoppedEvent?.Invoke(this, new StreamBroadcasterStopped(Id, Name));

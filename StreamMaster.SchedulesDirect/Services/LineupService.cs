@@ -67,7 +67,8 @@ public class LineupService(
             // Process stations in parallel
             await Parallel.ForEachAsync(lineupMap.Stations, ct, async (station, _) =>
             {
-                cancellationToken.ThrowIfCancellationRequested();
+                ct.ThrowIfCancellationRequested();
+
                 if (station == null || station.StationId == null || sdSettings.CurrentValue.SDStationIds.Find(a => a.StationId == station.StationId) == null)
                 {
                     return;
@@ -79,7 +80,8 @@ public class LineupService(
                 // Populate station details if necessary
                 if (string.IsNullOrEmpty(mxfService.CallSign))
                 {
-                    SetStationDetails(station, mxfService, preferredLogoStyle, alternateLogoStyle);
+                    // Offload CPU-bound work to a thread pool thread
+                    await Task.Run(() => SetStationDetails(station, mxfService, preferredLogoStyle, alternateLogoStyle), ct);
                 }
             });
         });
