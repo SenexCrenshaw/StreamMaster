@@ -5,7 +5,7 @@
 public record MoveToNextStreamRequest(int SMChannelId) : IRequest<APIResponse>;
 
 [LogExecutionTimeAspect]
-public class MoveToNextStreamRequestHandler(IChannelManager ChannelManager, IMessageService messageService)
+public class MoveToNextStreamRequestHandler(IChannelService ChannelService, IMessageService messageService)
     : IRequestHandler<MoveToNextStreamRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(MoveToNextStreamRequest request, CancellationToken cancellationToken)
@@ -15,7 +15,7 @@ public class MoveToNextStreamRequestHandler(IChannelManager ChannelManager, IMes
             await messageService.SendWarning("SMChannelId < 1");
             return APIResponse.NotFound;
         }
-        await ChannelManager.MoveToNextStreamAsync(request.SMChannelId);
+        await ChannelService.MoveToNextStreamAsync(request.SMChannelId);
 
         await messageService.SendSuccess("Successful", "Move To Next Stream");
         return APIResponse.Ok;

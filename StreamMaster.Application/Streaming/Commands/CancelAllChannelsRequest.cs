@@ -5,12 +5,12 @@
 public record CancelAllChannelsRequest() : IRequest<APIResponse>;
 
 [LogExecutionTimeAspect]
-public class CancelAllChannelsRequestHandler(IChannelManager ChannelManager, IMessageService messageService)
+public class CancelAllChannelsRequestHandler(IChannelService ChannelService, IMessageService messageService)
     : IRequestHandler<CancelAllChannelsRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(CancelAllChannelsRequest request, CancellationToken cancellationToken)
     {
-        await ChannelManager.CancelAllChannelsAsync();
+        await ChannelService.CancelAllChannelsAsync();
         await messageService.SendSuccess("All Channels Cancelled Successfully", "Channel Cancel");
         return APIResponse.Ok;
     }

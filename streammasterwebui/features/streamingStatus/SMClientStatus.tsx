@@ -70,19 +70,6 @@ const SMClientStatus = () => {
     return <div>{roundedKbps.toLocaleString('en-US')}</div>;
   };
 
-  const totalBytesInBufferTemplate = (rowData: ChannelMetric) => {
-    if (rowData.TotalBytesInBuffer === undefined) return <div />;
-
-    const found = channelMetricsRef.current.find((predicate) => predicate.Name === rowData.Name);
-
-    if (found === undefined || found.Metrics === undefined) return <div />;
-
-    const kbps = found.Metrics.Kbps;
-    const roundedKbps = Math.ceil(kbps);
-
-    return <div>{roundedKbps.toLocaleString('en-US')}</div>;
-  };
-
   const averageLatencyTemplate = (rowData: ChannelMetric) => {
     if (rowData.Metrics.AverageLatency === undefined) return <div />;
 
@@ -124,7 +111,7 @@ const SMClientStatus = () => {
 
       { align: 'center', bodyTemplate: clientStartTimeTemplate, field: 'StartTime', header: 'StartTime', width: 140 },
       { align: 'right', bodyTemplate: clientBitsPerSecondTemplate, field: 'kbps', header: 'Kbps', width: 50 },
-      { align: 'right', bodyTemplate: totalBytesInBufferTemplate, field: 'TotalBytesInBuffer', header: 'TotalBytesInBuffer', width: 50 },
+
       { align: 'right', bodyTemplate: averageLatencyTemplate, field: 'AverageLatency', header: 'Read ms', width: 60 },
       { align: 'right', bodyTemplate: elapsedTSTemplate, field: 'ElapsedTime', header: '(d hh:mm:ss)', width: 95 },
 

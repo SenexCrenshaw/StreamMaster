@@ -5,11 +5,16 @@
     /// </summary>
     public interface IChannelService : IDisposable
     {
+        Task MoveToNextStreamAsync(int smChannelId);
+        Task CancelAllChannelsAsync();
+        //Task CancelClientAsync(string uniqueRequestId);
+        Task ChangeVideoStreamChannelAsync(string playingSMStreamId, string newSMStreamId, CancellationToken cancellationToken = default);
+        Task<bool> AddClientToChannelAsync(IClientConfiguration clientConfiguration, int streamGroupProfileId, CancellationToken cancellationToken = default);
         /// <summary>
         /// Closes the specified channel asynchronously.
         /// </summary>
         /// <param name="channelId">The channel Id.</param>
-        Task StopChannel(int channelId);
+        Task StopChannelAsync(int channelId);
 
         /// <summary>
         /// Gets or creates a channel status asynchronously based on the specified client configuration.

@@ -12,7 +12,7 @@ public class EncodedData
     public string CleanName { get; set; } = string.Empty;
 }
 
-public class GetStreamGroupM3UHandler(IStreamGroupService streamGroupService, IOptionsMonitor<Setting> settings)
+public class GetStreamGroupM3UHandler(IStreamGroupService streamGroupService)
     : IRequestHandler<GetStreamGroupM3U, string>
 {
     //private const string DefaultReturn = "#EXTM3U\r\n";
@@ -61,7 +61,7 @@ public class GetStreamGroupM3UHandler(IStreamGroupService streamGroupService, IO
         return ret.ToString();
     }
 
-    private (int ChNo, string m3uLine) BuildM3ULineForVideoStream(VideoStreamConfig videoStreamConfig, bool IsShort)
+    private static (int ChNo, string m3uLine) BuildM3ULineForVideoStream(VideoStreamConfig videoStreamConfig, bool IsShort)
     {
         if (videoStreamConfig.OutputProfile is null || string.IsNullOrEmpty(videoStreamConfig.EncodedString) || string.IsNullOrEmpty(videoStreamConfig.CleanName))
         {

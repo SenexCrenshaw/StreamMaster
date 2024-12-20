@@ -10,7 +10,7 @@ public class VideoService(
     ILogger<VideoService> logger,
     IMapper mapper,
     //IHttpContextAccessor httpContextAccessor,
-    IChannelManager channelManager,
+    IChannelService channelService,
     IClientConfigurationService clientConfigurationService,
     IRepositoryWrapper repositoryWrapper,
     IStreamGroupService streamGroupService) : IVideoService
@@ -61,7 +61,7 @@ public class VideoService(
             IClientConfiguration clientConfiguration = CreateClientConfiguration(HttpContext, smChannelDto, cancellationToken);
 
             // Get stream
-            bool result = await channelManager.AddClientToChannelAsync(clientConfiguration, streamGroupProfile.Id, CancellationToken.None);
+            bool result = await channelService.AddClientToChannelAsync(clientConfiguration, streamGroupProfile.Id, CancellationToken.None);
             sw.Stop();
             if (result)
             {

@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace StreamMaster.API.Controllers;
 
 [V1ApiController("v")]
-public class VsController(ILogger<VsController> logger, IVideoService videoService, IStreamGroupService streamGroupService, IChannelManager channelManager) : Controller
+public class VsController(ILogger<VsController> logger, IVideoService videoService, IStreamGroupService streamGroupService, IChannelService channelService) : Controller
 {
     [Authorize(Policy = "SGLinks")]
     [HttpGet]
@@ -63,11 +63,11 @@ public class VsController(ILogger<VsController> logger, IVideoService videoServi
             streamResult.ClientConfiguration.ClientStopped += (sender, args) =>
             {
                 logger.LogInformation("Client {UniqueRequestId} stopped. Name: {name}", streamResult.ClientConfiguration.UniqueRequestId, streamResult.ClientConfiguration.SMChannel.Name);
-                _ = channelManager.RemoveClientAsync(streamResult.ClientConfiguration);
+                _ = channelService.RemoveClientAsync(streamResult.ClientConfiguration);
             };
 
             // Register for dispose to ensure cleanup
-            HttpContext.Response.RegisterForDispose(new UnregisterClientOnDispose(channelManager, streamResult.ClientConfiguration, logger));
+            HttpContext.Response.RegisterForDispose(new UnregisterClientOnDispose(channelService, streamResult.ClientConfiguration, logger));
             await streamResult.ClientConfiguration.CompletionSource.Task.ConfigureAwait(false);
 
             return new EmptyResult();
@@ -78,9 +78,9 @@ public class VsController(ILogger<VsController> logger, IVideoService videoServi
             return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing the request.");
         }
     }
-    private class UnregisterClientOnDispose(IChannelManager channelManager, IClientConfiguration config, ILogger logger) : IDisposable
+    private class UnregisterClientOnDispose(IChannelService channelService, IClientConfiguration config, ILogger logger) : IDisposable
     {
-        private readonly IChannelManager _channelManager = channelManager;
+        private readonly IChannelService _channelService = channelService;
         private readonly IClientConfiguration _config = config;
 
         public void Dispose()
@@ -101,7 +101,7 @@ public class VsController(ILogger<VsController> logger, IVideoService videoServi
                 }
 
                 // Remove the client from the channel manager
-                await _channelManager.RemoveClientAsync(_config).ConfigureAwait(false);
+                await _channelService.UnRegisterClientAsync(_config.UniqueRequestId).ConfigureAwait(false);
 
                 logger.LogInformation("Client {UniqueRequestId} {name} successfully disposed", _config.UniqueRequestId, _config.SMChannel.Name);
             }

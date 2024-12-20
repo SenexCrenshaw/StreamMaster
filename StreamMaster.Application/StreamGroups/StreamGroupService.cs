@@ -174,12 +174,13 @@ public class StreamGroupService(IHttpContextAccessor httpContextAccessor, ILogoS
 
     private void WriteSTRMFile(StreamGroup streamGroup, VideoStreamConfig videoStreamConfig, bool IsShort = true)
     {
-        object baseUrl = settings.CurrentValue.STRMBaseURL;
+        //FIX
+        string baseUrl = settings.CurrentValue.STRMBaseURL;
         string strmFullName = GetSTRMPath(streamGroup, videoStreamConfig);
 
         string videoUrl = IsShort
-     ? $"{videoStreamConfig.BaseUrl}/v/{videoStreamConfig.StreamGroupProfileId}/{videoStreamConfig.Id}"
-     : $"{videoStreamConfig.BaseUrl}/v/{videoStreamConfig.EncodedString}";
+     ? $"{baseUrl}/v/{videoStreamConfig.StreamGroupProfileId}/{videoStreamConfig.Id}"
+     : $"{baseUrll}/v/{videoStreamConfig.EncodedString}";
 
         //if (IsShort)
         //{
