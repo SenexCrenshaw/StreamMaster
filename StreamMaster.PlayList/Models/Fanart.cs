@@ -1,6 +1,6 @@
-﻿using Reinforced.Typings.Attributes;
+﻿using System.Xml.Serialization;
 
-using System.Xml.Serialization;
+using Reinforced.Typings.Attributes;
 
 namespace StreamMaster.PlayList.Models;
 
@@ -9,5 +9,5 @@ namespace StreamMaster.PlayList.Models;
 public class Fanart
 {
     [XmlElement(ElementName = "thumb")]
-    public Thumb Thumb { get; set; }
+    public Thumb? Thumb { get; set; }
 }

@@ -5,23 +5,23 @@ namespace StreamMaster.SchedulesDirect.Domain.Models;
 public class Lineup
 {
     [JsonPropertyName("id")]
-    public string Id => LineupString;
+    public string? Id => LineupString;
 
     [JsonPropertyName("lineup")]
-    public string LineupString { get; set; }
+    public string? LineupString { get; set; }
 
     [JsonPropertyName("name")]
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     [JsonPropertyName("transport")]
-    public string Transport { get; set; }
+    public string? Transport { get; set; }
 
     [JsonPropertyName("location")]
-    public string Location { get; set; }
+    public string? Location { get; set; }
 
     [JsonPropertyName("uri")]
-    public string Uri { get; set; }
+    public string? Uri { get; set; }
 
     [JsonPropertyName("isDeleted")]
-    public bool IsDeleted { get; set; }
+    public bool? IsDeleted { get; set; }
 }

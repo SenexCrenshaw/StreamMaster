@@ -2,15 +2,15 @@
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record GetLogosRequest() : IRequest<DataResponse<List<LogoFileDto>>>;
+public record GetLogosRequest() : IRequest<DataResponse<List<CustomLogoDto>>>;
 
 internal class GetLogosRequestHandler(ILogoService logoService)
-    : IRequestHandler<GetLogosRequest, DataResponse<List<LogoFileDto>>>
+    : IRequestHandler<GetLogosRequest, DataResponse<List<CustomLogoDto>>>
 {
-    public Task<DataResponse<List<LogoFileDto>>> Handle(GetLogosRequest request, CancellationToken cancellationToken)
+    public Task<DataResponse<List<CustomLogoDto>>> Handle(GetLogosRequest request, CancellationToken cancellationToken)
     {
-        List<LogoFileDto> icons = logoService.GetLogos();
+        List<CustomLogoDto> icons = logoService.GetLogos();
 
-        return Task.FromResult(DataResponse<List<LogoFileDto>>.Success(icons));
+        return Task.FromResult(DataResponse<List<CustomLogoDto>>.Success(icons));
     }
 }

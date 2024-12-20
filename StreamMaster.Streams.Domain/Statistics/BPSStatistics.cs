@@ -47,7 +47,6 @@ public class BPSStatistics : ClientStatistics
         BytesRead = stat.BytesRead;
         BytesWritten = stat.BytesWritten;
         BitsPerSecond = stat.BitsPerSecond;
-
     }
 
     public BPSStatistics Copy()
@@ -60,7 +59,6 @@ public class BPSStatistics : ClientStatistics
             IsSet = IsSet
         };
     }
-
 
     public void AddBytesRead(long bytesRead)
     {

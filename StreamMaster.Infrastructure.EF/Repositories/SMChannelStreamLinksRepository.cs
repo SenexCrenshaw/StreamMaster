@@ -47,7 +47,6 @@ public class SMChannelStreamLinksRepository(ILogger<SMChannelStreamLinksReposito
                 Rank = nextRank,
             };
 
-
             RepositoryContext.SMChannelStreamLinks.Add(link);
             //SMChannel.SMStreams.Add(link);
             await SaveChangesAsync();
@@ -68,7 +67,6 @@ public class SMChannelStreamLinksRepository(ILogger<SMChannelStreamLinksReposito
 
             SMChannelStreamLink link = new()
             {
-                //SMStream = smStream,
                 SMChannel = smChannel,
                 SMChannelId = smChannel.Id,
                 SMStreamId = smStreamId,
@@ -76,7 +74,6 @@ public class SMChannelStreamLinksRepository(ILogger<SMChannelStreamLinksReposito
             };
 
             RepositoryContext.SMChannelStreamLinks.Add(link);
-
         }
     }
     public void CreateSMChannelStreamLink(SMChannel smChannel, SMStream smStream, int? Rank)
@@ -100,7 +97,6 @@ public class SMChannelStreamLinksRepository(ILogger<SMChannelStreamLinksReposito
             };
 
             RepositoryContext.SMChannelStreamLinks.Add(link);
-
         }
     }
 

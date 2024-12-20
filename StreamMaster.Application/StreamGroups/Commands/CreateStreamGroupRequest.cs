@@ -1,14 +1,16 @@
 ﻿using System.Collections.Concurrent;
+
+using StreamMaster.Application.Services;
 using StreamMaster.Domain.Crypto;
 
 namespace StreamMaster.Application.StreamGroups.Commands;
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record CreateStreamGroupRequest(string Name, string? OutputProfileName, string? CommandProfileName, string? GroupKey) : IRequest<APIResponse>;
+public record CreateStreamGroupRequest(string Name, string? OutputProfileName, string? CommandProfileName, string? GroupKey, bool? CreateSTRM) : IRequest<APIResponse>;
 
 [LogExecutionTimeAspect]
-public class CreateStreamGroupRequestHandler(IRepositoryWrapper Repository, IMessageService messageService, IOptionsMonitor<Setting> intSettings, IDataRefreshService dataRefreshService)
+public class CreateStreamGroupRequestHandler(IRepositoryWrapper Repository, IMessageService messageService, IOptionsMonitor<Setting> intSettings, IDataRefreshService dataRefreshService, IBackgroundTaskQueue taskQueue)
     : IRequestHandler<CreateStreamGroupRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(CreateStreamGroupRequest request, CancellationToken cancellationToken)
@@ -18,7 +20,7 @@ public class CreateStreamGroupRequestHandler(IRepositoryWrapper Repository, IMes
             return APIResponse.NotFound;
         }
 
-        if (request.Name.Equals("all", StringComparison.CurrentCultureIgnoreCase))
+        if (request.Name.EqualsIgnoreCase("all"))
         {
             return APIResponse.ErrorWithMessage($"The name '{request.Name}' is reserved");
         }
@@ -33,7 +35,8 @@ public class CreateStreamGroupRequestHandler(IRepositoryWrapper Repository, IMes
         {
             Name = request.Name,
             DeviceID = UniqueHexGenerator.GenerateUniqueHex(generatedIdsDict),
-            GroupKey = request.GroupKey ?? KeyGenerator.GenerateKey()
+            GroupKey = request.GroupKey ?? KeyGenerator.GenerateKey(),
+            CreateSTRM = request.CreateSTRM ?? false,
         };
 
         streamGroup.StreamGroupProfiles.Add(new StreamGroupProfile
@@ -49,6 +52,12 @@ public class CreateStreamGroupRequestHandler(IRepositoryWrapper Repository, IMes
         await dataRefreshService.RefreshStreamGroups();
 
         await messageService.SendSuccess("Stream Group '" + request.Name + "' added successfully");
+
+        if (streamGroup.CreateSTRM)
+        {
+            await taskQueue.CreateSTRMFiles(cancellationToken);
+        }
+
         return APIResponse.Ok;
     }
 }

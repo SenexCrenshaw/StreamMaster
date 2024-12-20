@@ -5,9 +5,9 @@ import { clear, clearByTag, setField, setIsForced, setIsLoading } from './GetLog
 import { useCallback,useEffect } from 'react';
 import { useSMContext } from '@lib/context/SMProvider';
 import { fetchGetLogos } from './GetLogosFetch';
-import {FieldData, LogoFileDto } from '@lib/smAPI/smapiTypes';
+import {FieldData, CustomLogoDto } from '@lib/smAPI/smapiTypes';
 
-interface ExtendedQueryHookResult extends QueryHookResult<LogoFileDto[] | undefined> {}
+interface ExtendedQueryHookResult extends QueryHookResult<CustomLogoDto[] | undefined> {}
 interface Result extends ExtendedQueryHookResult {
   Clear: () => void;
   ClearByTag: (tag: string) => void;

@@ -5,6 +5,7 @@ interface messages_enType {
 }
 
 const MessagesEn: messages_enType = {
+  AppendChannelName: 'Append Channel Name',
   'SDSettings.AlternateLogoStyle': 'Alternate Logo Style',
   'SDSettings.AlternateSEFormat': 'Alternate Season/Episode Format',
   'SDSettings.AppendEpisodeDesc': 'Append Season & Episode #s to the Program Description',
@@ -59,6 +60,7 @@ const MessagesEn: messages_enType = {
   EnableSSL: 'Enable SSL',
   FFProbeExecutable: 'FFProbe Executable',
   FFMPegExecutable: 'FFMPeg Executable',
+  STRMBaseURL: 'STRM Base URL',
   FFMpegOptions: 'FFMPeg Options',
   filesEPGM3U: 'Files / EPG / M3U',
   formsAuthRequiresAdminUserName: 'Forms Authentication requires an Admin Username',

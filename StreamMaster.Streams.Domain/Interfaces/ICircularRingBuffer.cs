@@ -20,5 +20,4 @@ public interface ICircularRingBuffer : IDisposable
     Task<int> ReadChunkMemory(long index, Memory<byte> target, CancellationToken cancellationToken);
 
     int WriteChunk(Memory<byte> data);
-
 }

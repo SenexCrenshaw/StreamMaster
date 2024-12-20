@@ -14,12 +14,14 @@ import { ScrollPanel } from 'primereact/scrollpanel';
 import { memo, useCallback, useMemo } from 'react';
 import { AuthenticationSettings } from './AuthenticationSettings';
 import { BackupSettings } from './BackupSettings';
+
+import { CustomLogosDialog } from '@components/icons/CustomLogosDialog';
 import { DevelopmentSettings } from './DevelopmentSettings';
 import { GeneralSettings } from './GeneralSettings';
+import LogsDialog from './LogsDialog';
 import { MiscSettings } from './MiscSettings';
 import { SDSettings } from './SDSettings';
 import { StreamingSettings } from './StreamingSettings';
-import LogsDialog from './LogsDialog';
 
 const SettingsEditor = () => {
   const { currentSetting, setCurrentSetting, updateSettingRequest, setUpdateSettingRequest } = useSettingsContext();
@@ -112,6 +114,7 @@ const SettingsEditor = () => {
             </div>
             <div className="w-4 pl-1 flex flex-column gap-3">
               <SDSettings />
+              <CustomLogosDialog />
             </div>
             <div className="w-4 pl-1 flex flex-column gap-3">
               <StreamingSettings />

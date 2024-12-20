@@ -1,14 +1,12 @@
-﻿using Microsoft.Extensions.Caching.Memory;
+﻿using System.Xml.Serialization;
+
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
 using StreamMaster.Domain.Common;
 using StreamMaster.Domain.Configuration;
-using StreamMaster.PlayList;
 using StreamMaster.PlayList.Models;
-using StreamMaster.SchedulesDirect.Domain.XmltvXml;
-
-using System.Xml.Serialization;
-
+namespace StreamMaster.PlayList;
 public class CustomPlayListBuilder : ICustomPlayListBuilder
 {
     private readonly bool _generateMissingNfoFiles = false;
@@ -18,6 +16,7 @@ public class CustomPlayListBuilder : ICustomPlayListBuilder
     private readonly ILogger<CustomPlayListBuilder> _logger;
     private readonly INfoFileReader _nfoFileReader;
     private readonly IMemoryCache _memoryCache;
+
     private readonly FileSystemWatcher _fileSystemWatcher;
     private const string CustomPlayListCacheKey = "CustomPlayLists";
 
@@ -52,15 +51,19 @@ public class CustomPlayListBuilder : ICustomPlayListBuilder
         return customPlayLists.Find(x => x.Name == name) ?? customPlayLists.Find(x => FileUtil.EncodeToMD5(x.Name) == name);
     }
 
-    public string GetCustomPlayListLogoFromFileName(string FileName)
+    public string? GetCustomPlayListLogoFromFileName(string FileName)
     {
-        string dir = Path.GetDirectoryName(FileName);
+        string? dir = Path.GetDirectoryName(FileName);
+        if (string.IsNullOrEmpty(dir))
+        {
+            dir = Path.Combine(BuildInfo.CustomPlayListFolder, FileName);
+        }
         if (string.IsNullOrEmpty(dir) || !Directory.Exists(dir))
         {
-            return string.Empty;
+            return null;
         }
         string[] files = Directory.GetFiles(dir);
-        string logo = files.FirstOrDefault(file => file.EndsWith("poster.png") || file.EndsWith($"poster.jpg")) ?? string.Empty;
+        string? logo = files.FirstOrDefault(file => file.EndsWith("poster.png") || file.EndsWith("poster.jpg"));
         return logo;
     }
 
@@ -209,6 +212,9 @@ public class CustomPlayListBuilder : ICustomPlayListBuilder
                         if (!string.IsNullOrEmpty(poster) && !allArtwork.Contains(poster))
                         {
                             allArtwork.Add(poster);
+                            fileNfo.Thumb ??= new();
+                            fileNfo.Thumb.Preview = poster;
+                            fileNfo.Thumb.Text = poster;
                         }
 
                         // Add trailers to the list, avoiding duplicates
@@ -287,11 +293,11 @@ public class CustomPlayListBuilder : ICustomPlayListBuilder
             }
         }
 
-        folderNfo.Credits = credits.Distinct().ToList(); // Add unique credits
+        folderNfo.Credits = [.. credits.Distinct()]; // Add unique credits
 
-        folderNfo.Artworks = artworkPaths.Distinct().ToList(); // Add artwork paths without duplicates
+        folderNfo.Artworks = [.. artworkPaths.Distinct()]; // Add artwork paths without duplicates
 
-        folderNfo.Trailers = trailerPaths.Distinct().ToList(); // Add trailer paths without duplicates
+        folderNfo.Trailers = [.. trailerPaths.Distinct()]; // Add trailer paths without duplicates
 
         folderNfo.Runtime = totalDuration; // Set the total duration
 
@@ -300,7 +306,7 @@ public class CustomPlayListBuilder : ICustomPlayListBuilder
         _logger.LogInformation("Updated folder NFO file at {folderNfoFile} with actors, genres, directors, credits, artwork, trailers, and total duration", folderNfoFile);
     }
 
-    private string GetFirstArtworkInDirectory(string dir)
+    private static string GetFirstArtworkInDirectory(string dir)
     {
         string[] files = Directory.GetFiles(dir);
         return files.FirstOrDefault(file => file.EndsWith("poster.png") || file.EndsWith("poster.jpg") || file.EndsWith("banner.jpg")) ?? string.Empty;
@@ -447,12 +453,12 @@ public class CustomPlayListBuilder : ICustomPlayListBuilder
         return (firstVideo, (int)elapsedSeconds);
     }
 
-    public List<XmltvProgramme> GetXmltvProgrammeForPeriod(string customPlayListName, DateTime startDate, int days)
-    {
-        return [];
-        // var movies = GetMoviesForPeriod(customPlayListName, startDate, days);
-        // return movies.ConvertAll(XmltvProgrammeConverter.ConvertMovieToXmltvProgramme);
-    }
+    //public List<XmltvProgramme> GetXmltvProgrammeForPeriod(StationChannelName stationChannelName, DateTime startDate, int days)
+    //{
+    //    List<(Movie Movie, DateTime StartTime, DateTime EndTime)> movies = GetMoviesForPeriod(stationChannelName.ChannelName, startDate, days);
+    //    List<XmltvProgramme> ret = movies.Select(x => XmltvProgrammeConverter.ConvertMovieToXmltvProgramme(x.Movie, stationChannelName.Id)).ToList();
+    //    return ret;
+    //}
 
     public (CustomPlayList? customPlayList, CustomStreamNfo? customStreamNfo) GetCustomPlayListByMovieId(string movieId)
     {
@@ -470,7 +476,7 @@ public class CustomPlayListBuilder : ICustomPlayListBuilder
         return (null, null);
     }
 
-    public CustomStreamNfo? GetRandomIntro(int? avoidIndex = null)
+    public static CustomStreamNfo? GetRandomIntro(int? avoidIndex = null)
     {
         string[] introMovies = Directory.GetFiles(BuildInfo.IntrosFolder, "*.mp4");
 
@@ -479,14 +485,14 @@ public class CustomPlayListBuilder : ICustomPlayListBuilder
             return null;
         }
 
-        List<int> availableIndices = Enumerable.Range(0, introMovies.Length).ToList();
+        List<int> availableIndices = [.. Enumerable.Range(0, introMovies.Length)];
 
-        if (avoidIndex.HasValue && avoidIndex.Value >= 0 && avoidIndex.Value < introMovies.Length)
+        if (avoidIndex >= 0 && avoidIndex.Value < introMovies.Length)
         {
             availableIndices.Remove(avoidIndex.Value);
         }
 
-        if (!availableIndices.Any())
+        if (availableIndices.Count == 0)
         {
             return null; // In case all indices are avoided, though practically this should not happen
         }

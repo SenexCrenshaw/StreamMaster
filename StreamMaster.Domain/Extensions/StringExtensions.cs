@@ -1,13 +1,64 @@
-﻿namespace StreamMaster.Domain.Extensions;
+﻿using System.Text;
+
+using StreamMaster.Domain.Configuration;
+
+namespace StreamMaster.Domain.Extensions;
 
 public static class StringExtensions
 {
-    public static bool IsNullOrWhiteSpace(this string text)
+    public static string Truncate(this string input, int maxLength)
     {
-        return string.IsNullOrWhiteSpace(text);
+        return string.IsNullOrEmpty(input) || maxLength < 1 ? input : input.Length > maxLength ? input[..maxLength] : input;
     }
-    public static bool ContainsIgnoreCase(this string text, string contains)
+    public static bool EqualsIgnoreCase(this string text, string Compare)
     {
-        return text.IndexOf(contains, StringComparison.InvariantCultureIgnoreCase) > -1;
+        return text.Equals(Compare, BuildInfo.StringComparison);
+    }
+
+    public static string ToBase64String(this string text)
+    {
+        string ret = Convert.ToBase64String(Encoding.UTF8.GetBytes(text));
+        return ret;
+    }
+
+    public static bool IsBase64String(this string base64)
+    {
+        if (string.IsNullOrEmpty(base64) || base64.Length % 4 != 0)
+        {
+            return false;
+        }
+
+        try
+        {
+            _ = Convert.FromBase64String(base64);
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+    }
+
+    public static bool IsRedirect(this string Logo)
+    {
+        return string.IsNullOrEmpty(Logo)
+          || Logo.EqualsIgnoreCase("noimage.png")
+          || Logo.EndsWithIgnoreCase("images/default.png")
+          || Logo.EndsWithIgnoreCase("images/streammaster_logo.png");
+    }
+
+    public static bool ContainsIgnoreCase(this string text, string Contains)
+    {
+        return text.Contains(Contains, BuildInfo.StringComparison);
+    }
+
+    public static bool StartsWithIgnoreCase(this string text, string StartsWith)
+    {
+        return text.StartsWith(StartsWith, BuildInfo.StringComparison);
+    }
+
+    public static bool EndsWithIgnoreCase(this string text, string EndsWith)
+    {
+        return text.EndsWith(EndsWith, BuildInfo.StringComparison);
     }
 }

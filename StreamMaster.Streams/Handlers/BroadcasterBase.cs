@@ -1,17 +1,28 @@
-﻿using StreamMaster.Streams.Domain.Helpers;
-using StreamMaster.Streams.Domain.Statistics;
-using StreamMaster.Streams.Services;
-
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Threading.Channels;
 using System.Xml.Serialization;
 
+using StreamMaster.Streams.Domain.Helpers;
+using StreamMaster.Streams.Domain.Statistics;
+using StreamMaster.Streams.Services;
+
 namespace StreamMaster.Streams.Handlers;
 
-public abstract class BroadcasterBase(ILogger<IBroadcasterBase> logger, IOptionsMonitor<Setting> _settings) : IBroadcasterBase
+public abstract class BroadcasterBase : IBroadcasterBase
 {
-    private readonly MetricsService metricsService = new();
-    private readonly SourceProcessingService sourceProcessingService = new(logger, _settings);
+    protected readonly ILogger<IBroadcasterBase> logger;
+    protected readonly IOptionsMonitor<Setting> settings;
+    private readonly SourceProcessingService sourceProcessingService;
+    private readonly StreamMetricsTracker metricsService = new();
+
+    protected BroadcasterBase(ILogger<IBroadcasterBase>? Logger, IOptionsMonitor<Setting>? Settings)
+    {
+        logger = Logger ?? throw new ArgumentNullException(nameof(Logger), "Logger cannot be null.");
+        settings = Settings ?? throw new ArgumentNullException(nameof(Settings), "Settings cannot be null.");
+
+        sourceProcessingService = new(logger, settings);
+    }
+
     private readonly CancellationTokenSource _cancellationTokenSource = new();
     private long _channelItemCount;
 
@@ -74,8 +85,8 @@ public abstract class BroadcasterBase(ILogger<IBroadcasterBase> logger, IOptions
     protected void StartProcessingSource(ChannelReader<byte[]>? sourceChannelReader, Stream? sourceStream, Channel<byte[]> newChannel, CancellationToken cancellationToken)
     {
         //using CancellationTokenSource linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(_cancellationTokenSource.Token, cancellationToken);
-        //CancellationToken token = linkedTokenSource.Token;
-
+        //CancellationToken Token = linkedTokenSource.Token;
+        _ = cancellationToken;
         Task readerTask = sourceChannelReader != null
        ? sourceProcessingService.ProcessSourceChannelReaderAsync(sourceChannelReader, newChannel, metricsService, _cancellationTokenSource.Token)
        : sourceStream != null
@@ -183,7 +194,7 @@ public abstract class BroadcasterBase(ILogger<IBroadcasterBase> logger, IOptions
         if (ClientStreamerConfigurations.TryAdd(uniqueRequestId, config))
         {
             logger.LogInformation("Add client streamer: {UniqueRequestId} to {Name}", uniqueRequestId, Name);
-            ClientChannelWriters.TryAdd(uniqueRequestId, config.ClientStream!.Channel);
+            //ClientChannelWriters.TryAdd(uniqueRequestId, config.ClientStream!.Channel);
         }
     }
 

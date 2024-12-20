@@ -18,7 +18,7 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.10")
+                .HasAnnotation("ProductVersion", "9.0.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.HasPostgresExtension(modelBuilder, "citext");
@@ -110,10 +110,6 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
                         .IsRequired()
                         .HasColumnType("citext");
 
-                    b.Property<string>("DirectoryLocation")
-                        .IsRequired()
-                        .HasColumnType("citext");
-
                     b.Property<int>("DownloadErrors")
                         .HasColumnType("integer");
 
@@ -191,10 +187,6 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
                     b.Property<string>("DefaultStreamGroupName")
                         .HasColumnType("text");
 
-                    b.Property<string>("DirectoryLocation")
-                        .IsRequired()
-                        .HasColumnType("citext");
-
                     b.Property<int>("DownloadErrors")
                         .HasColumnType("integer");
 
@@ -255,7 +247,7 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
                     b.Property<string>("Url")
                         .HasColumnType("citext");
 
-                    b.Property<List<string>>("VODTags")
+                    b.PrimitiveCollection<List<string>>("VODTags")
                         .IsRequired()
                         .HasColumnType("text[]");
 
@@ -428,6 +420,9 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
                         .IsRequired()
                         .HasColumnType("citext");
 
+                    b.Property<string>("ExtInf")
+                        .HasColumnType("text");
+
                     b.Property<int>("FilePosition")
                         .HasColumnType("integer");
 
@@ -496,6 +491,9 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityAlwaysColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("CreateSTRM")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("DeviceID")
                         .IsRequired()

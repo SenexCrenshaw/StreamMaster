@@ -7,7 +7,7 @@ namespace StreamMaster.Application.SchedulesDirect.Commands;
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record SetStationsRequest(List<StationRequest> Requests) : IRequest<APIResponse>;
 
-public class SetStationsHandler(ILogger<SetStationsRequest> logger, IDataRefreshService dataRefreshService, IBackgroundTaskQueue backgroundTaskQueue, IJobStatusService jobStatusService, ISchedulesDirect schedulesDirect, ISender Sender, IOptionsMonitor<SDSettings> _sdSettings)
+public class SetStationsHandler(ILogger<SetStationsRequest> logger, IDataRefreshService dataRefreshService, IBackgroundTaskQueue backgroundTaskQueue, IJobStatusService jobStatusService, ISender Sender, IOptionsMonitor<SDSettings> _sdSettings)
 : IRequestHandler<SetStationsRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(SetStationsRequest request, CancellationToken cancellationToken)
@@ -34,7 +34,6 @@ public class SetStationsHandler(ILogger<SetStationsRequest> logger, IDataRefresh
 
         foreach (StationRequest stationRequest in request.Requests)
         {
-
             if (updateSetting.SDSettings.SDStationIds.Any(x => x.Lineup == stationRequest.Lineup && x.StationId == stationRequest.StationId))
             {
                 continue;
@@ -62,7 +61,7 @@ public class SetStationsHandler(ILogger<SetStationsRequest> logger, IDataRefresh
         {
             _ = await Sender.Send(new UpdateSettingRequest(updateSetting), cancellationToken).ConfigureAwait(false);
 
-            schedulesDirect.ResetCache("SubscribedLineups");
+            //schedulesDirect.ResetCache("SubscribedLineups");
 
             JobStatusManager jobManager = jobStatusService.GetJobManageSDSync(EPGHelper.SchedulesDirectId);
             await backgroundTaskQueue.EPGSync(cancellationToken).ConfigureAwait(false);

@@ -1,11 +1,12 @@
-﻿namespace StreamMaster.Application.StreamGroupSMChannelLinks.Commands;
+﻿using StreamMaster.Application.Services;
+
+namespace StreamMaster.Application.StreamGroupSMChannelLinks.Commands;
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record AddSMChannelToStreamGroupRequest(int StreamGroupId, int SMChannelId) : IRequest<APIResponse>;
 
-
-internal class AddSMChannelToStreamGroupRequestHandler(IRepositoryWrapper Repository, IDataRefreshService dataRefreshService) : IRequestHandler<AddSMChannelToStreamGroupRequest, APIResponse>
+internal class AddSMChannelToStreamGroupRequestHandler(IBackgroundTaskQueue taskQueue, IRepositoryWrapper Repository, IDataRefreshService dataRefreshService) : IRequestHandler<AddSMChannelToStreamGroupRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(AddSMChannelToStreamGroupRequest request, CancellationToken cancellationToken)
     {
@@ -20,7 +21,7 @@ internal class AddSMChannelToStreamGroupRequestHandler(IRepositoryWrapper Reposi
         {
             return APIResponse.ErrorWithMessage("Channel not found");
         }
-        List<int> streamGroupIds = smChannel.StreamGroups.Select(a => a.StreamGroupId).ToList();
+        List<int> streamGroupIds = [.. smChannel.StreamGroups.Select(a => a.StreamGroupId)];
 
         FieldData fd = new(SMChannel.APIName, smChannel.Id, "StreamGroupIds", streamGroupIds);
         await dataRefreshService.SetField([fd]).ConfigureAwait(false);
@@ -29,6 +30,7 @@ internal class AddSMChannelToStreamGroupRequestHandler(IRepositoryWrapper Reposi
         await dataRefreshService.ClearByTag(SMChannel.APIName, "inSG").ConfigureAwait(false);
         await dataRefreshService.RefreshStreamGroups();
         await dataRefreshService.RefreshSMChannels();
+        await taskQueue.CreateSTRMFiles(cancellationToken);
         return res;
     }
 }

@@ -1,36 +1,35 @@
-function normalizeVersion(version) {
-  // Check if version is already in the desired format
-  if (/^\d+\.\d+\.\d+\.\d+$/.test(version)) {
-    return version;
-  }
-
-  // Replace  any non-numeric or non-dot characters with a dot, then remove any consecutive dots
-  let normalizedVersion = version
-    .replace(/[^0-9.]+/g, ".")
-    .replace(/\.{2,}/g, ".");
-
-  // Ensure the version ends with a digit, if not, append ".1"
-  if (!/\d$/.test(normalizedVersion)) {
-    normalizedVersion += "1";
-  }
-
-  // Ensure the version has three dots, if not, append the necessary number of ".0"
-  const dotCount = (normalizedVersion.match(/\./g) || []).length;
-  if (dotCount < 3) {
-    normalizedVersion += ".0".repeat(3 - dotCount);
-  }
-
-  return normalizedVersion;
-}
-
 const fs = require("fs").promises;
 
+function normalizeVersion(version) {
+  // Extract numeric segments from the version string (ignoring branch name)
+  const mainVersionMatch = version.match(/^([\d.]+)-[\w.]+/);
+  const additionalSegmentMatch = version.match(/(\d+)$/);
+
+  const mainSegments = mainVersionMatch ? mainVersionMatch[1].split(".") : [];
+  const additionalSegment = additionalSegmentMatch
+    ? additionalSegmentMatch[1]
+    : "0";
+
+  // Ensure we have at least 3 main segments, pad with zeros if necessary
+  while (mainSegments.length < 3) {
+    mainSegments.push("0");
+  }
+
+  // Append the additional segment as the revision
+  mainSegments.push(additionalSegment);
+
+  // Truncate extras if there are more than 4 segments
+  const chosenSegments = mainSegments.slice(0, 4);
+
+  // Join into a major.minor.build.revision format
+  return chosenSegments.join(".");
+}
+
 const version = process.argv[2];
-const normalizedVersion = normalizeVersion(version);
 const sha = process.argv[3];
 const branch = process.argv[4];
-const commits = process.argv[5];
 
+const normalizedVersion = normalizeVersion(version);
 const filePath = "./StreamMaster.API/AssemblyInfo.cs";
 
 const content = `
@@ -43,7 +42,6 @@ using System.Reflection;
 
 async function createOrUpdateAssemblyInfo() {
   try {
-    // Write the content to AssemblyInfo.cs
     await fs.writeFile(filePath, content.trim(), "utf8");
     console.log("AssemblyInfo.cs has been created/updated successfully.");
   } catch (error) {

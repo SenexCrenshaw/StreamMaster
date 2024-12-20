@@ -3,16 +3,17 @@ using StreamMaster.Streams.Domain.Events;
 
 namespace StreamMaster.Streams.Channels;
 
-public sealed class ChannelService : IChannelService, IDisposable
+public sealed class ChannelService : IChannelService
 {
-    private readonly ILogger<ChannelService> _logger;
+    private readonly ILogger<ChannelService> logger;
     private readonly ISwitchToNextStreamService _switchToNextStreamService;
     private readonly ISourceBroadcasterService _sourceBroadcasterService;
     private readonly IChannelBroadcasterService _channelBroadcasterService;
     private readonly IStreamLimitsService _streamLimitsService;
     private readonly IChannelLockService _channelLockService;
     private readonly ICacheManager _cacheManager;
-    private readonly object _disposeLock = new();
+    private readonly IMessageService messageService;
+    private readonly Lock _disposeLock = new();
     private bool _disposed = false;
     private readonly SemaphoreSlim _registerSemaphore = new(1, 1);
 
@@ -23,39 +24,97 @@ public sealed class ChannelService : IChannelService, IDisposable
         ISourceBroadcasterService sourceBroadcasterService,
         IChannelBroadcasterService channelBroadcasterService,
         ICacheManager cacheManager,
+        IMessageService messageService,
         ISwitchToNextStreamService switchToNextStreamService)
     {
+        this.messageService = messageService;
         _channelLockService = channelLockService;
         _streamLimitsService = streamLimitsService;
         _channelBroadcasterService = channelBroadcasterService;
         _cacheManager = cacheManager;
         _sourceBroadcasterService = sourceBroadcasterService;
         _switchToNextStreamService = switchToNextStreamService;
-        _logger = logger;
+        this.logger = logger;
         _sourceBroadcasterService.OnStreamBroadcasterStoppedEvent += StreamBroadcasterService_OnStreamBroadcasterStoppedEventAsync;
-        _channelBroadcasterService._OnChannelBroadcasterStoppedEvent += ChannelBroadscasterService_OnChannelBroadcasterStoppedEventAsync;
+        _channelBroadcasterService.OnChannelBroadcasterStoppedEvent += ChannelBroadscasterService_OnChannelBroadcasterStoppedEventAsync;
+    }
+
+    /// <inheritdoc/>
+    public async Task MoveToNextStreamAsync(int smChannelId)
+    {
+        IChannelBroadcaster? channelStatus = GetChannelBroadcaster(smChannelId);
+        if (channelStatus is null || channelStatus.SMStreamInfo is null)
+        {
+            logger.LogWarning("Channel not found: {smChannelId}", smChannelId);
+            return;
+        }
+
+        ISourceBroadcaster? sourceBroadcaster = _sourceBroadcasterService.GetStreamBroadcaster(channelStatus.SMStreamInfo.Url);
+
+        if (sourceBroadcaster is not null)
+        {
+            await sourceBroadcaster.StopAsync();
+            logger.LogInformation("Simulating stream failure for: {VideoStreamName}", channelStatus.SMStreamInfo.Name);
+        }
+        else
+        {
+            logger.LogWarning("Stream not found, cannot simulate stream failure: {smChannelId}", smChannelId);
+        }
+    }
+
+    /// <inheritdoc/>
+    public async Task CancelAllChannelsAsync()
+    {
+        foreach (ISourceBroadcaster sourceBroadcaster in _sourceBroadcasterService.GetStreamBroadcasters())
+        {
+            await sourceBroadcaster.StopAsync();
+        }
+    }
+
+    /// <inheritdoc/>
+    public async Task ChangeVideoStreamChannelAsync(string playingSMStreamId, string newSMStreamId, CancellationToken cancellationToken = default)
+    {
+        logger.LogDebug("Starting ChangeVideoStreamChannel with playingSMStreamId: {playingSMStreamId} and newSMStreamId: {newSMStreamId}", playingSMStreamId, newSMStreamId);
+
+        foreach (IChannelBroadcaster channelStatus in GetChannelStatusesFromSMStreamId(playingSMStreamId))
+        {
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return;
+            }
+
+            if (!await SwitchChannelToNextStreamAsync(channelStatus, clientConfiguration: null, newSMStreamId))
+            {
+                logger.LogWarning("Exiting ChangeVideoStreamChannel. Could not change channel to {newSMStreamId}", newSMStreamId);
+                return;
+            }
+
+            return;
+        }
+
+        logger.LogWarning("Channel not found: {playingSMStreamId}", playingSMStreamId);
+        logger.LogDebug("Exiting ChangeVideoStreamChannel due to channel not found.");
     }
 
     private async Task ChannelBroadscasterService_OnChannelBroadcasterStoppedEventAsync(object? sender, ChannelBroascasterStopped e)
     {
         if (sender is IChannelBroadcaster channelBroadcaster)
         {
-            _logger.LogInformation("Channel Stopped Event for channel Id: {StreamName}", e.Name);
+            logger.LogInformation("Channel Stopped Event for channel Id: {StreamName}", e.Name);
             if (channelBroadcaster.SMStreamInfo != null)
             {
                 await _sourceBroadcasterService.UnRegisterChannelBroadcasterAsync(channelBroadcaster.Id);
             }
         }
     }
+
     private async Task StreamBroadcasterService_OnStreamBroadcasterStoppedEventAsync(object? sender, StreamBroadcasterStopped e)
     {
         if (sender is ISourceBroadcaster sourceBroadcaster)
         {
-            _logger.LogInformation("Streaming Stopped Event for stream Id: {StreamName}", e.Name);
+            logger.LogInformation("Streaming Stopped Event for stream Id: {StreamName}", e.Name);
 
-            List<IChannelBroadcaster> channelBroadcasters = _cacheManager.ChannelBroadcasters.Values
-                .Where(a => a.SMStreamInfo?.Url == e.Id)
-                .ToList();
+            List<IChannelBroadcaster> channelBroadcasters = [.. _cacheManager.ChannelBroadcasters.Values.Where(a => a.SMStreamInfo?.Url == e.Id)];
 
             foreach (IChannelBroadcaster? channelBroadcaster in channelBroadcasters)
             {
@@ -67,13 +126,49 @@ public sealed class ChannelService : IChannelService, IDisposable
                 bool didSwitch = await SwitchChannelToNextStreamAsync(channelBroadcaster, clientConfiguration: null).ConfigureAwait(false);
                 if (!didSwitch)
                 {
-                    await StopChannel(channelBroadcaster.Id);
+                    await StopChannelAsync(channelBroadcaster.Id);
                     // clientConfiguration.Stop();
                 }
             }
         }
     }
-    public async Task StopChannel(int channelId)
+
+    /// <inheritdoc/>
+    public async Task<bool> AddClientToChannelAsync(IClientConfiguration clientConfiguration, int streamGroupProfileId, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            logger.LogInformation("Client {UniqueRequestId} requesting channel {Name}.", clientConfiguration.UniqueRequestId, clientConfiguration.SMChannel.Name);
+
+            if (cancellationToken.IsCancellationRequested)
+            {
+                logger.LogInformation("Exiting GetChannelStreamAsync {UniqueRequestId} {Name} due to cancellation.", clientConfiguration.UniqueRequestId, clientConfiguration.SMChannel.Name);
+                return false;
+            }
+
+            IChannelBroadcaster? channelBroadcaster = await GetOrCreateChannelBroadcasterAsync(clientConfiguration, streamGroupProfileId);
+
+            if (channelBroadcaster == null)
+            {
+                await UnRegisterClientAsync(clientConfiguration.UniqueRequestId, cancellationToken);
+                logger.LogInformation("Exiting GetChannelStreamAsync:  {UniqueRequestId} channel {Name} status is null.", clientConfiguration.UniqueRequestId, clientConfiguration.SMChannel.Name);
+                return false;
+            }
+
+            await channelBroadcaster.AddChannelStreamerAsync(clientConfiguration);
+
+            await messageService.SendInfo($"Client started streaming {clientConfiguration.SMChannel.Name}", "Client Start");
+            return true;
+        }
+        finally
+        {
+            //logger.LogInformation("Client {UniqueRequestId} requesting channel {Name} release.", clientConfiguration.UniqueRequestId, clientConfiguration.SMChannel.Name);
+
+            //_ = _registerSemaphore.Release();
+        }
+    }
+
+    public async Task StopChannelAsync(int channelId)
     {
         await _channelBroadcasterService.StopChannelAsync(channelId);
         await _sourceBroadcasterService.UnRegisterChannelBroadcasterAsync(channelId);
@@ -82,7 +177,7 @@ public sealed class ChannelService : IChannelService, IDisposable
     public IClientConfiguration? GetClientStreamerConfiguration(string uniqueRequestId)
     {
         IClientConfiguration? config = _cacheManager.ChannelBroadcasters.Values
-        .SelectMany(a => a.GetClientStreamerConfigurations())
+        .SelectMany(a => a.Clients.Values)
         .FirstOrDefault(a => a.UniqueRequestId == uniqueRequestId);
 
         if (config != null)
@@ -90,15 +185,13 @@ public sealed class ChannelService : IChannelService, IDisposable
             return config;
         }
 
-        _logger.LogDebug("Client configuration for {UniqueRequestId} not found", uniqueRequestId);
+        logger.LogDebug("Client configuration for {UniqueRequestId} not found", uniqueRequestId);
         return null;
     }
 
     public List<IClientConfiguration> GetClientStreamerConfigurations()
     {
-        return _cacheManager.ChannelBroadcasters.Values
-            .SelectMany(a => a.GetClientStreamerConfigurations())
-            .ToList();
+        return [.. _cacheManager.ChannelBroadcasters.Values.SelectMany(a => a.Clients.Values)];
     }
 
     public async Task<IChannelBroadcaster?> GetOrCreateChannelBroadcasterAsync(IClientConfiguration clientConfiguration, int streamGroupProfileId)
@@ -111,7 +204,7 @@ public sealed class ChannelService : IChannelService, IDisposable
             {
                 if (clientConfiguration.SMChannel.SMChannelDtos.Count == 0)
                 {
-                    _logger.LogInformation("MultiView Channel with ChannelId {smChannelId} has no channels, exiting", clientConfiguration.SMChannel.Id);
+                    logger.LogInformation("MultiView Channel with ChannelId {smChannelId} has no channels, exiting", clientConfiguration.SMChannel.Id);
                     return null;
                 }
             }
@@ -119,7 +212,7 @@ public sealed class ChannelService : IChannelService, IDisposable
             {
                 if (clientConfiguration.SMChannel.SMStreamDtos.Count == 0)
                 {
-                    _logger.LogInformation("Channel with ChannelId {smChannelId} has no streams, exiting", clientConfiguration.SMChannel.Id);
+                    logger.LogInformation("Channel with ChannelId {smChannelId} has no streams, exiting", clientConfiguration.SMChannel.Id);
                     return null;
                 }
             }
@@ -150,26 +243,22 @@ public sealed class ChannelService : IChannelService, IDisposable
                     lockAquired = true;
                 }
 
-
                 // Double-check after lock acquisition to avoid race conditions.
                 channelBroadcaster = GetChannelBroadcaster(clientConfiguration.SMChannel.Id);
                 if (channelBroadcaster == null)
                 {
-                    _logger.LogInformation("No existing channel for {ChannelVideoStreamId} {name}", clientConfiguration.SMChannel.Id, clientConfiguration.SMChannel.Name);
+                    logger.LogInformation("No existing channel for {ChannelVideoStreamId} {name}", clientConfiguration.SMChannel.Id, clientConfiguration.SMChannel.Name);
 
                     channelBroadcaster = await _channelBroadcasterService
                         .GetOrCreateChannelBroadcasterAsync(clientConfiguration, streamGroupProfileId, CancellationToken.None)
                         .ConfigureAwait(false);
-
-                    // Cache the new channel broadcaster.
-                    _cacheManager.ChannelBroadcasters.TryAdd(clientConfiguration.SMChannel.Id, channelBroadcaster);
 
                     // Handle MultiView specific setup.
                     if (clientConfiguration.SMChannel.SMChannelType == SMChannelTypeEnum.MultiView)
                     {
                         if (!await SetupMultiView(channelBroadcaster).ConfigureAwait(false))
                         {
-                            await StopChannel(channelBroadcaster.Id);
+                            await StopChannelAsync(channelBroadcaster.Id);
                             clientConfiguration.Stop();
                             return null;
                         }
@@ -179,18 +268,17 @@ public sealed class ChannelService : IChannelService, IDisposable
                     {
                         if (!await SwitchChannelToNextStreamAsync(channelBroadcaster, clientConfiguration).ConfigureAwait(false))
                         {
-                            await StopChannel(channelBroadcaster.Id);
+                            await StopChannelAsync(channelBroadcaster.Id);
                             clientConfiguration.Stop();
                             return null;
                         }
                     }
                 }
-
             }
             else
             {
                 // Log and reuse the existing channel broadcaster.
-                _logger.LogInformation("Reuse existing stream handler for {ChannelVideoStreamId} {name}", clientConfiguration.SMChannel.Id, clientConfiguration.SMChannel.Name);
+                logger.LogInformation("Reuse existing stream handler for {ChannelVideoStreamId} {name}", clientConfiguration.SMChannel.Id, clientConfiguration.SMChannel.Name);
                 clientConfiguration.SMChannel.CurrentRank = channelBroadcaster.SMChannel.CurrentRank;
             }
 
@@ -199,7 +287,7 @@ public sealed class ChannelService : IChannelService, IDisposable
             //{
             //    if (channelBroadcaster.SMStreamInfo == null)
             //    {
-            //        await StopChannel(channelBroadcaster.Id);
+            //        await StopChannelAsync(channelBroadcaster.Id);
             //        clientConfiguration.Stop();
             //        return null;
             //    }
@@ -211,9 +299,9 @@ public sealed class ChannelService : IChannelService, IDisposable
             //    {
             //        if (!await SwitchChannelToNextStreamAsync(channelBroadcaster, clientConfiguration).ConfigureAwait(false))
             //        {
-            //            _logger.LogError("SwitchChannelToNextStream failed for {UniqueRequestId} {ChannelVideoStreamId} {name}", clientConfiguration.UniqueRequestId, clientConfiguration.SMChannel.Id, clientConfiguration.SMChannel.Name);
+            //            logger.LogError("SwitchChannelToNextStream failed for {UniqueRequestId} {ChannelVideoStreamId} {name}", clientConfiguration.UniqueRequestId, clientConfiguration.SMChannel.Id, clientConfiguration.SMChannel.Name);
 
-            //            await StopChannel(channelBroadcaster.Id);
+            //            await StopChannelAsync(channelBroadcaster.Id);
             //            clientConfiguration.Stop();
             //            return null;
             //        }
@@ -221,7 +309,7 @@ public sealed class ChannelService : IChannelService, IDisposable
             //}
 
             // Add the client streamer to the channel broadcaster.
-            channelBroadcaster.AddClientStreamer(clientConfiguration.UniqueRequestId, clientConfiguration);
+            //await channelBroadcaster.AddChannelStreamerAsync(clientConfiguration);
 
             return channelBroadcaster;
         }
@@ -234,85 +322,6 @@ public sealed class ChannelService : IChannelService, IDisposable
             }
         }
     }
-
-
-    //public async Task<IChannelBroadcaster?> GetOrCreateChannelBroadcasterAsync(IClientConfiguration clientConfiguration, int streamGroupProfileId)
-    //{
-    //    bool released = false;
-    //    await _registerSemaphore.WaitAsync();
-    //    try
-    //    {
-    //        IChannelBroadcaster? channelBroadcaster = GetChannelBroadcaster(clientConfiguration.SMChannel.Id);
-
-    //        if (channelBroadcaster == null)
-    //        {
-    //            _logger.LogInformation("No existing channel for {ChannelVideoStreamId} {name}", clientConfiguration.SMChannel.Id, clientConfiguration.SMChannel.Name);
-
-    //            channelBroadcaster = await _channelBroadcasterService.GetOrCreateChannelBroadcasterAsync(clientConfiguration, streamGroupProfileId, CancellationToken.None).ConfigureAwait(false);
-    //            _cacheManager.ChannelBroadcasters.TryAdd(clientConfiguration.SMChannel.Id, channelBroadcaster);
-
-    //            if (clientConfiguration.SMChannel.SMChannelType == SMChannelTypeEnum.MultiView)
-    //            {
-    //                if (!await SetupMultiView(channelBroadcaster).ConfigureAwait(false))
-    //                {
-    //                    await StopChannel(channelBroadcaster.Id);
-    //                    clientConfiguration.Stop();
-    //                    return null;
-    //                }
-    //            }
-    //            else
-    //            {
-    //                if (!await SwitchChannelToNextStreamAsync(channelBroadcaster, clientConfiguration).ConfigureAwait(false))
-    //                {
-    //                    await StopChannel(channelBroadcaster.Id);
-    //                    clientConfiguration.Stop();
-    //                    return null;
-    //                }
-    //            }
-
-    //        }
-    //        else
-    //        {
-    //            released = true;
-    //            _registerSemaphore.Release();
-    //            _logger.LogInformation("Reuse existing stream handler for {ChannelVideoStreamId} {name}", clientConfiguration.SMChannel.Id, clientConfiguration.SMChannel.Name);
-    //        }
-
-    //        if (clientConfiguration.SMChannel.SMChannelType == SMChannelTypeEnum.Regular)
-    //        {
-    //            if (channelBroadcaster.SMStreamInfo == null)
-    //            {
-    //                await StopChannel(channelBroadcaster.Id);
-    //                clientConfiguration.Stop();
-    //                return null;
-    //            }
-
-    //            ISourceBroadcaster? streamBroadcaster = _sourceBroadcasterService.GetStreamBroadcaster(channelBroadcaster.SMStreamInfo.Url);
-    //            if (streamBroadcaster?.IsFailed != false)
-    //            {
-    //                if (!await SwitchChannelToNextStreamAsync(channelBroadcaster, clientConfiguration).ConfigureAwait(false))
-    //                {
-    //                    _logger.LogError("SwitchChannelToNextStream failed for {UniqueRequestId} {ChannelVideoStreamId} {name}", clientConfiguration.UniqueRequestId, clientConfiguration.SMChannel.Id, clientConfiguration.SMChannel.Name);
-
-    //                    await StopChannel(channelBroadcaster.Id);
-    //                    clientConfiguration.Stop();
-    //                    return null;
-    //                }
-    //            }
-    //        }
-
-    //        channelBroadcaster.AddClientStreamer(clientConfiguration.UniqueRequestId, clientConfiguration);
-
-    //        return channelBroadcaster;
-    //    }
-    //    finally
-    //    {
-    //        if (!released)
-    //        {
-    //            _registerSemaphore.Release();
-    //        }
-    //    }
-    //}
     public IChannelBroadcaster? GetChannelBroadcaster(int smChannelId)
     {
         _cacheManager.ChannelBroadcasters.TryGetValue(smChannelId, out IChannelBroadcaster? channelBroadcaster);
@@ -323,19 +332,17 @@ public sealed class ChannelService : IChannelService, IDisposable
     {
         if (string.IsNullOrEmpty(streamId))
         {
-            _logger.LogError("StreamId is null or empty");
+            logger.LogError("StreamId is null or empty");
             return [];
         }
 
         try
         {
-            return _cacheManager.ChannelBroadcasters.Values
-                .Where(a => a?.SMStreamInfo?.Id == streamId)
-                .ToList();
+            return [.. _cacheManager.ChannelBroadcasters.Values.Where(a => a?.SMStreamInfo?.Id == streamId)];
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "An error occurred while getting channel statuses from SMStream ID {StreamId}.", streamId);
+            logger.LogError(ex, "An error occurred while getting channel statuses from SMStream ID {StreamId}.", streamId);
             return [];
         }
     }
@@ -347,9 +354,7 @@ public sealed class ChannelService : IChannelService, IDisposable
 
     public List<IChannelBroadcaster> GetChannelStatusFromStreamUrl(string videoUrl)
     {
-        return _cacheManager.ChannelBroadcasters.Values
-            .Where(a => a?.SMStreamInfo?.Url == videoUrl)
-            .ToList();
+        return [.. _cacheManager.ChannelBroadcasters.Values.Where(a => a?.SMStreamInfo?.Url == videoUrl)];
     }
 
     public List<IChannelBroadcaster> GetChannelStatuses()
@@ -357,13 +362,12 @@ public sealed class ChannelService : IChannelService, IDisposable
         return [.. _cacheManager.ChannelBroadcasters.Values];
     }
 
-    private static bool ChannelHasStreamsOrChannels(SMChannel smChannel)
-    {
-        return smChannel.SMChannelType == StreamMaster.Domain.Enums.SMChannelTypeEnum.MultiView
-            ? smChannel.SMChannels.Count > 0
-            : smChannel.SMStreams.Count > 0 && !string.IsNullOrEmpty(smChannel.SMStreams.First().SMStream.Url);
-    }
-
+    //private static bool ChannelHasStreamsOrChannels(SMChannel smChannel)
+    //{
+    //    return smChannel.SMChannelType == StreamMaster.Domain.Enums.SMChannelTypeEnum.MultiView
+    //        ? smChannel.SMChannels.Count > 0
+    //        : smChannel.SMStreams.Count > 0 && !string.IsNullOrEmpty(smChannel.SMStreams.First().SMStream!.Url);
+    //}
 
     public bool HasChannel(int smChannelId)
     {
@@ -382,16 +386,16 @@ public sealed class ChannelService : IChannelService, IDisposable
             return false;
         }
 
-        IBroadcasterBase? sourceChannelBroadcaster = null;
+        ISourceBroadcaster? sourceChannelBroadcaster = null;
 
         while (sourceChannelBroadcaster == null)
         {
-            _logger.LogDebug("Starting SwitchToNextStream with channelBroadcaster: {channelBroadcaster} and overrideNextVideoStreamId: {overrideNextVideoStreamId}", channelBroadcaster, overrideSMStreamId);
+            logger.LogDebug("Starting SwitchToNextStream with channelBroadcaster: {channelBroadcaster} and overrideNextVideoStreamId: {overrideNextVideoStreamId}", channelBroadcaster, overrideSMStreamId);
 
             bool didChange = await _switchToNextStreamService.SetNextStreamAsync(channelBroadcaster, overrideSMStreamId).ConfigureAwait(false);
             if (channelBroadcaster.SMStreamInfo == null || !didChange)
             {
-                _logger.LogDebug("Exiting SwitchToNextStream with false due to smStream being null");
+                logger.LogDebug("Exiting SwitchToNextStream with false due to smStream being null");
                 channelBroadcaster.FailoverInProgress = false;
                 return false;
             }
@@ -406,7 +410,7 @@ public sealed class ChannelService : IChannelService, IDisposable
 
         if (sourceChannelBroadcaster == null)
         {
-            _logger.LogDebug("Exiting, Source Channel Distributor is null");
+            logger.LogDebug("Exiting, Source Channel Distributor is null");
             channelBroadcaster.FailoverInProgress = false;
             return false;
         }
@@ -415,7 +419,7 @@ public sealed class ChannelService : IChannelService, IDisposable
 
         channelBroadcaster.FailoverInProgress = false;
 
-        _logger.LogDebug("Finished SwitchToNextStream");
+        logger.LogDebug("Finished SwitchToNextStream");
         return true;
     }
 
@@ -426,8 +430,7 @@ public sealed class ChannelService : IChannelService, IDisposable
             return false;
         }
 
-
-        _logger.LogDebug("Starting SetupMultiView with channelBroadcaster: {channelBroadcaster}", channelBroadcaster);
+        logger.LogDebug("Starting SetupMultiView with channelBroadcaster: {channelBroadcaster}", channelBroadcaster);
 
         SMStreamInfo smStreamInfo = new()
         {
@@ -441,12 +444,11 @@ public sealed class ChannelService : IChannelService, IDisposable
 
         channelBroadcaster.SetSMStreamInfo(smStreamInfo);
 
-        IBroadcasterBase? sourceChannelBroadcaster = await _sourceBroadcasterService.GetOrCreateStreamBroadcasterAsync(channelBroadcaster, CancellationToken.None).ConfigureAwait(false);
-
+        ISourceBroadcaster? sourceChannelBroadcaster = await _sourceBroadcasterService.GetOrCreateStreamBroadcasterAsync(channelBroadcaster, CancellationToken.None).ConfigureAwait(false);
 
         if (sourceChannelBroadcaster == null)
         {
-            _logger.LogDebug("Exiting, Source Channel Distributor is null");
+            logger.LogDebug("Exiting, Source Channel Distributor is null");
             channelBroadcaster.FailoverInProgress = false;
             return false;
         }
@@ -455,22 +457,15 @@ public sealed class ChannelService : IChannelService, IDisposable
 
         channelBroadcaster.FailoverInProgress = false;
 
-        _logger.LogDebug("Finished SwitchToNextStream");
+        logger.LogDebug("Finished SwitchToNextStream");
         return true;
     }
 
-    public async Task<bool> UnRegisterClientAsync(string uniqueRequestId, CancellationToken cancellationToken = default)
+    public async Task UnRegisterClientAsync(string uniqueRequestId, CancellationToken cancellationToken = default)
     {
-        cancellationToken.ThrowIfCancellationRequested();
-        if (await _channelBroadcasterService.UnRegisterClientAsync(uniqueRequestId, cancellationToken))
-        {
-            _logger.LogDebug("Client configuration for {UniqueRequestId} removed", uniqueRequestId);
-            return true;
-        }
-
-        _logger.LogDebug("Client configuration for {UniqueRequestId} not found", uniqueRequestId);
-        return false;
+        await _channelBroadcasterService.UnRegisterClientAsync(uniqueRequestId, cancellationToken);
     }
+
     public void Dispose()
     {
         lock (_disposeLock)
@@ -483,15 +478,20 @@ public sealed class ChannelService : IChannelService, IDisposable
             try
             {
                 _registerSemaphore.Dispose();
-                foreach (IChannelBroadcaster channelBroascaster in _cacheManager.ChannelBroadcasters.Values)
+
+                foreach (IChannelBroadcaster channelBroadcaster in _cacheManager.ChannelBroadcasters.Values)
                 {
-                    channelBroascaster.Stop();
+                    channelBroadcaster.Stop();
                 }
                 _cacheManager.ChannelBroadcasters.Clear();
+
+                // Unsubscribe events
+                _sourceBroadcasterService.OnStreamBroadcasterStoppedEvent -= StreamBroadcasterService_OnStreamBroadcasterStoppedEventAsync;
+                _channelBroadcasterService.OnChannelBroadcasterStoppedEvent -= ChannelBroadscasterService_OnChannelBroadcasterStoppedEventAsync;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred while disposing the ChannelService.");
+                logger.LogError(ex, "An error occurred while disposing the ChannelService.");
             }
             finally
             {

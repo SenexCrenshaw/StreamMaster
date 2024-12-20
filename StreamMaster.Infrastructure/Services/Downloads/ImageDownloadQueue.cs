@@ -1,79 +1,81 @@
-﻿using StreamMaster.Domain.Dto;
+﻿using System.Collections.Concurrent;
+
+using StreamMaster.Domain.Dto;
 using StreamMaster.SchedulesDirect.Domain.Interfaces;
 using StreamMaster.SchedulesDirect.Domain.JsonClasses;
 
-using System.Collections.Concurrent;
-
 namespace StreamMaster.Infrastructure.Services.Downloads
 {
-    public class ImageDownloadQueue : IImageDownloadQueue
+    public class ImageDownloadQueue() : IImageDownloadQueue
     {
-        private readonly ConcurrentDictionary<string, ProgramMetadata> programMetadataQueue = new();
-        private readonly ConcurrentDictionary<string, NameLogo> nameLogoQueue = new();
-        private readonly object programMetadataLock = new();
-        private readonly object nameLogoLock = new();
+        private readonly ConcurrentDictionary<string, ProgramArtwork> ProgramArtworkQueue = new();
+        private readonly ConcurrentDictionary<string, LogoInfo> logoInfoQueue = new();
 
-        public void EnqueueProgramMetadata(ProgramMetadata metadata)
+        public void EnqueueLogo(LogoInfo logoInfo)
         {
-            programMetadataQueue.TryAdd(metadata.ProgramId, metadata);
+            _ = logoInfoQueue.TryAdd(logoInfo.Name, logoInfo);
         }
 
-        public void EnqueueNameLogo(NameLogo nameLogo)
+        public void EnqueueProgramArtworkCollection(IEnumerable<ProgramArtwork> metadataCollection)
         {
-            nameLogoQueue.TryAdd(nameLogo.Name, nameLogo);
-        }
-
-        public void EnqueueProgramMetadataCollection(IEnumerable<ProgramMetadata> metadataCollection)
-        {
-            foreach (ProgramMetadata metadata in metadataCollection)
+            foreach (ProgramArtwork metadata in metadataCollection)
             {
-                programMetadataQueue.TryAdd(metadata.ProgramId, metadata);
+                _ = ProgramArtworkQueue.TryAdd(metadata.Uri, metadata);
             }
         }
 
-        public List<ProgramMetadata> GetNextProgramMetadataBatch(int batchSize)
+        public List<ProgramArtwork> GetNextProgramArtworkBatch(int batchSize)
         {
-            lock (programMetadataLock)
-            {
-                return programMetadataQueue.Take(batchSize).Select(x => x.Value).ToList();
-            }
+            return [.. ProgramArtworkQueue.Take(batchSize).Select(x => x.Value)];
         }
 
-        public List<NameLogo> GetNextNameLogoBatch(int batchSize)
+        public List<LogoInfo> GetNextLogoBatch(int batchSize)
         {
-            lock (nameLogoLock)
-            {
-                return nameLogoQueue.Take(batchSize).Select(x => x.Value).ToList();
-            }
+            return [.. logoInfoQueue.Take(batchSize).Select(x => x.Value)];
         }
 
-        public void TryDequeueProgramMetadataBatch(IEnumerable<string> ids)
+        public void TryDequeueProgramArtworkBatch(IEnumerable<string> ids)
         {
             foreach (string id in ids)
             {
-                programMetadataQueue.TryRemove(id, out _);
+                _ = ProgramArtworkQueue.TryRemove(id, out _);
             }
         }
 
-        public void TryDequeueNameLogoBatch(IEnumerable<string> names)
+        public void TryDequeueProgramArtwork(string id)
+        {
+            _ = ProgramArtworkQueue.TryRemove(id, out _);
+        }
+
+        public void TryDequeueLogo(string name)
+        {
+            _ = logoInfoQueue.TryRemove(name, out _);
+        }
+
+        public void TryDequeueLogoBatch(IEnumerable<string> names)
         {
             foreach (string name in names)
             {
-                nameLogoQueue.TryRemove(name, out _);
+                _ = logoInfoQueue.TryRemove(name, out _);
             }
         }
 
-        public int ProgramMetadataCount => programMetadataQueue.Count;
-        public int NameLogoCount => nameLogoQueue.Count;
+        public int ProgramLogoCount => ProgramArtworkQueue.Count;
+        public int LogoCount => logoInfoQueue.Count;
 
-        public bool IsProgramMetadataQueueEmpty()
+        public bool IsProgramArtworkQueueEmpty()
         {
-            return programMetadataQueue.IsEmpty;
+            return ProgramArtworkQueue.IsEmpty;
         }
 
-        public bool IsNameLogoQueueEmpty()
+        public bool IslogoInfoQueueEmpty()
         {
-            return nameLogoQueue.IsEmpty;
+            return logoInfoQueue.IsEmpty;
+        }
+
+        public void EnqueueProgramArtwork(ProgramArtwork metadata)
+        {
+            _ = ProgramArtworkQueue.TryAdd(metadata.Uri, metadata);
         }
     }
 }

@@ -30,7 +30,6 @@ public class RemoveStationRequestHandler(ILogger<RemoveStationRequest> logger, I
         List<string> toDelete = [];
         foreach (StationRequest stationRequest in request.Requests)
         {
-
             StationIdLineup? existing = updateSetting.SDSettings.SDStationIds.FirstOrDefault(x => x.Lineup == stationRequest.Lineup && x.StationId == stationRequest.StationId);
             if (existing == null)
             {
@@ -42,20 +41,18 @@ public class RemoveStationRequestHandler(ILogger<RemoveStationRequest> logger, I
             toDelete.Add(stationRequest.StationId);
         }
 
-
-
         if (toDelete.Count > 0)
         {
             _ = await Sender.Send(new UpdateSettingRequest(updateSetting), cancellationToken).ConfigureAwait(false);
 
-            schedulesDirect.ResetEPGCache();
+            schedulesDirect.ResetAllEPGCaches();
+            //schedulesDirect.ClearAllCaches();
             JobStatusManager jobManager = jobStatusService.GetJobManageSDSync(EPGHelper.SchedulesDirectId);
             jobManager.SetForceNextRun();
             await backgroundTaskQueue.EPGSync(cancellationToken).ConfigureAwait(false);
             await dataRefreshService.RefreshSchedulesDirect();
 
-
-            //foreach (EPGFileDto epg in await Repositorywrapper.EPGFile.GetEPGFiles())
+            //foreach (EPGFileDto epg in await Repositorywrapper.EPGFile.GetEPGFilesAsync())
             //{
             //    await Sender.Send(new RefreshEPGFileRequest(epg.Id), cancellationToken).ConfigureAwait(false);
             //}

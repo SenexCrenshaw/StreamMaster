@@ -38,4 +38,4 @@ RUN echo "Publishing .NET application..." && \
     echo ".NET publish completed successfully." || echo "Error during .NET publish!"
 
 # Clean up source files
-#RUN rm -rf /src
+RUN rm -rf /src

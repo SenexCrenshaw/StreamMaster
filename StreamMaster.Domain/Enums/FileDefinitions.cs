@@ -15,14 +15,16 @@ public static class FileDefinitions
         };
     }
 
-
     //public static FileDefinition ChannelLogo { get; } = CreateDefinition(BuildInfo.ChannelLogoDataFolder, ".jpg|.png|.jpeg", SMFileTypes.ChannelLogo);
     public static FileDefinition EPG { get; } = CreateDefinition(BuildInfo.EPGFolder, ".xml|.xmltv", SMFileTypes.EPG);
     public static FileDefinition Logo { get; } = CreateDefinition(BuildInfo.LogoFolder, ".jpg|.png|.jpeg", SMFileTypes.Logo);
     public static FileDefinition M3U { get; } = CreateDefinition(BuildInfo.M3UFolder, ".m3u", SMFileTypes.M3U);
     public static FileDefinition TVLogo { get; } = CreateDefinition(BuildInfo.TVLogoFolder, ".jpg|.png|.jpeg", SMFileTypes.TvLogo);
-    public static FileDefinition SDImage { get; } = CreateDefinition(BuildInfo.SDImagesFolder, ".png", SMFileTypes.SDImage);
-    public static FileDefinition SDStationLogos { get; } = CreateDefinition(BuildInfo.SDStationLogosFolder, ".png", SMFileTypes.SDStationLogo);
+    //public static FileDefinition SDImage { get; } = CreateDefinition(BuildInfo.SDImagesFolder, ".png", SMFileTypes.SDImage);
+    //public static FileDefinition SDStationLogos { get; } = CreateDefinition(BuildInfo.SDStationLogosFolder, ".png", SMFileTypes.SDStationLogo);
+    public static FileDefinition ProgramLogo { get; } = CreateDefinition(BuildInfo.ProgramLogoFolder, ".png", SMFileTypes.ProgramLogo);
+    public static FileDefinition CustomLogo { get; } = CreateDefinition(BuildInfo.CustomLogoFolder, ".png", SMFileTypes.CustomLogo);
+    //public static FileDefinition SDProgramLogo { get; } = CreateDefinition(BuildInfo.SDProgramLogoFolder, ".png", SMFileTypes.SDProgramLogo);
 
     public static FileDefinition? GetFileDefinition(SMFileTypes fileType)
     {
@@ -32,8 +34,11 @@ public static class FileDefinitions
             SMFileTypes.Logo => Logo,
             SMFileTypes.M3U => M3U,
             SMFileTypes.TvLogo => TVLogo,
-            SMFileTypes.SDImage => SDImage,
-            SMFileTypes.SDStationLogo => SDStationLogos,
+            //SMFileTypes.SDImage => SDImage,
+            //SMFileTypes.SDStationLogo => SDStationLogos,
+            SMFileTypes.ProgramLogo => ProgramLogo,
+            SMFileTypes.CustomLogo => CustomLogo,
+            //SMFileTypes.SDProgramLogo => SDProgramLogo,
             _ => null
         };
     }

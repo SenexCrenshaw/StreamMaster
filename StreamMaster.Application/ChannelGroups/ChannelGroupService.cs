@@ -5,7 +5,6 @@ public class ChannelGroupService(ILogger<ChannelGroupService> _logger, IReposito
 {
     public async Task UpdateChannelGroupCountsRequestAsync(List<ChannelGroup>? ChannelGroups = null)
     {
-
         try
         {
             List<ChannelGroup> cgs = ChannelGroups == null || ChannelGroups.Count == 0
@@ -25,7 +24,7 @@ public class ChannelGroupService(ILogger<ChannelGroupService> _logger, IReposito
                         continue;
                     }
 
-                    List<SMStream> relevantStreams = smStreams.Where(vs => vs.Group == cg.Name).ToList();
+                    List<SMStream> relevantStreams = [.. smStreams.Where(vs => vs.Group == cg.Name)];
 
                     var counts = relevantStreams.GroupBy(vs => vs.IsHidden).Select(g => new { IsHidden = g.Key, Count = g.Count() }).ToList();
                     int totalCount = counts.Sum(c => c.Count);
@@ -69,5 +68,4 @@ public class ChannelGroupService(ILogger<ChannelGroupService> _logger, IReposito
             throw;
         }
     }
-
 }

@@ -4,6 +4,7 @@ interface help_enType {
 }
 
 const help_en: help_enType = {
+  AppendChannelName: 'Append the channel name to the M3U URL',
   ClientReadTimeOutSeconds: 'Client Read Timeout in seconds',
   'sdSettings.alternateSEFormat': 'True: "S{0}:E{1} "  False: "s{0:D2}e{1:D2} ";',
   'SDSettings.MaxSubscribedLineups': 'Max Allowed Subscribed Lineups',

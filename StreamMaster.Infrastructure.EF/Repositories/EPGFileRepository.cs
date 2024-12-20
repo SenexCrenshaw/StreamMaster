@@ -1,27 +1,23 @@
-﻿using AutoMapper;
+﻿using System.Diagnostics;
+
+using AutoMapper;
 using AutoMapper.QueryableExtensions;
 
 using Microsoft.EntityFrameworkCore;
 
 using StreamMaster.Domain.API;
-using StreamMaster.Domain.Helpers;
+using StreamMaster.Domain.XmltvXml;
 using StreamMaster.SchedulesDirect.Domain.Interfaces;
-using StreamMaster.SchedulesDirect.Domain.Models;
-using StreamMaster.SchedulesDirect.Domain.XmltvXml;
 using StreamMaster.Streams.Domain.Interfaces;
-
-using System.Diagnostics;
 
 namespace StreamMaster.Infrastructure.EF.Repositories;
 
 /// <summary>
 /// Repositorywrapper to manage EPGFile entities in the database.
 /// </summary>
-public class EPGFileRepository(ILogger<EPGFileRepository> intLogger, IFileUtilService fileUtilService, ICacheManager cacheManager, IXmltv2Mxf xmltv2Mxf, IJobStatusService jobStatusService, IRepositoryContext repositoryContext, ISchedulesDirectDataService schedulesDirectDataService, IMapper mapper)
+public class EPGFileRepository(ILogger<EPGFileRepository> intLogger, IFileUtilService fileUtilService, ICacheManager cacheManager, IJobStatusService jobStatusService, IRepositoryContext repositoryContext, IMapper mapper)
     : RepositoryBase<EPGFile>(repositoryContext, intLogger), IEPGFileRepository
 {
-    public IXmltv2Mxf Xmltv2Mxf { get; } = xmltv2Mxf;
-
     public async Task<int> GetNextAvailableEPGNumberAsync(CancellationToken cancellationToken)
     {
         List<int> epgNumbers = await GetQuery()
@@ -48,42 +44,43 @@ public class EPGFileRepository(ILogger<EPGFileRepository> intLogger, IFileUtilSe
         return await FirstOrDefaultAsync(c => c.Id == Id, false).ConfigureAwait(false);
     }
 
-    public async Task<List<EPGFilePreviewDto>> GetEPGFilePreviewById(int Id, CancellationToken cancellationToken)
+    public async Task<List<EPGFilePreviewDto>> GetEPGFilePreviewById(int EPGId, CancellationToken cancellationToken)
     {
-        if (Id < 0)
+        if (EPGId < 0)
         {
             return [];
         }
 
-        EPGFile? epgFile = await FirstOrDefaultAsync(a => a.Id == Id, cancellationToken: cancellationToken).ConfigureAwait(false);
+        EPGFile? epgFile = await FirstOrDefaultAsync(a => a.Id == EPGId, cancellationToken: cancellationToken).ConfigureAwait(false);
         if (epgFile == null)
         {
             return [];
         }
 
-        ISchedulesDirectData schedulesDirectData = schedulesDirectDataService.GetEPGData(epgFile.EPGNumber);
-
-        ICollection<MxfService> services = schedulesDirectData.Services.Values;
-        List<EPGFilePreviewDto> ret = [];
-        foreach (MxfService? service in services)
+        List<XmltvChannel> channels = await fileUtilService.GetChannelsFromXmlAsync(epgFile, cancellationToken);
+        if (channels == null)
         {
-            if (service is null || string.IsNullOrEmpty(service.Name) || string.IsNullOrEmpty(service.StationId))
+            return [];
+        }
+
+        List<EPGFilePreviewDto> ret = [];
+        foreach (XmltvChannel channel in channels)
+        {
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return ret;
+            }
+
+            if (channel.DisplayNames is null || channel.DisplayNames.Count == 0 || channel.DisplayNames[0]?.Text is null)
             {
                 continue;
             }
 
-            string stationId = service.StationId;
-            if (EPGHelper.IsValidEPGId(service.StationId))
-            {
-                (int EPGNumber, stationId) = service.StationId.ExtractEPGNumberAndStationId();
-            }
-
             ret.Add(new EPGFilePreviewDto
             {
-                Id = service.Id,
-                ChannelName = service.Name,
-                ChannelNumber = stationId,
-                ChannelLogo = service?.mxfGuideImage?.ImageUrl ?? "",
+                Id = channel.Id,
+                ChannelName = channel.DisplayNames[0].Text ?? "",
+                ChannelLogo = channel.Icons?[0].Src ?? "",
             });
         }
         return ret;
@@ -124,7 +121,7 @@ public class EPGFileRepository(ILogger<EPGFileRepository> intLogger, IFileUtilSe
     /// <summary>
     /// Retrieves all EPGFiles from the database.
     /// </summary>
-    public async Task<List<EPGFileDto>> GetEPGFiles()
+    public async Task<List<EPGFileDto>> GetEPGFilesAsync()
     {
         return await GetQuery().ProjectTo<EPGFileDto>(mapper.ConfigurationProvider)
                               .ToListAsync()
@@ -150,7 +147,7 @@ public class EPGFileRepository(ILogger<EPGFileRepository> intLogger, IFileUtilSe
         }
 
         // Normalize source by removing .gz or .zip extensions if present
-        string normalizedSource = source.EndsWith(".gz", StringComparison.OrdinalIgnoreCase) || source.EndsWith(".zip", StringComparison.OrdinalIgnoreCase)
+        string normalizedSource = source.EndsWithIgnoreCase(".gz") || source.EndsWithIgnoreCase(".zip")
             ? Path.GetFileNameWithoutExtension(source)
             : source;
 
@@ -182,12 +179,11 @@ public class EPGFileRepository(ILogger<EPGFileRepository> intLogger, IFileUtilSe
             .ToListAsync()
             .ConfigureAwait(false);
 
-
-        HashSet<EPGFileDto> toUpdate = filesWithoutUrl.Where(epgFile => epgFile.LastWrite() >= epgFile.LastUpdated).Select(mapper.Map<EPGFileDto>).ToHashSet();
+        HashSet<EPGFileDto> toUpdate = [.. filesWithoutUrl.Where(epgFile => epgFile.LastWrite() >= epgFile.LastUpdated).Select(mapper.Map<EPGFileDto>)];
 
         if (toUpdate.Count > 0)
         {
-            logger.LogInformation("Found {toUpdate.Count} EPG files that need updating based on LastWrite and LastUpdated criteria.");
+            logger.LogInformation("Found {toUpdate.Count} EPG files that need updating based on LastWrite and LastUpdated criteria.", toUpdate.Count);
         }
 
         List<EPGFileDto> ret = await GetQuery(a =>
@@ -198,7 +194,7 @@ public class EPGFileRepository(ILogger<EPGFileRepository> intLogger, IFileUtilSe
 
         if (ret.Count > 0)
         {
-            logger.LogInformation("Found {ret.Count} EPG files that need updating based on LastDownloaded criteria.");
+            logger.LogInformation("Found {ret.Count} EPG files that need updating based on LastDownloaded criteria.", ret.Count);
             foreach (EPGFileDto r in ret)
             {
                 toUpdate.Add(r);
@@ -213,16 +209,15 @@ public class EPGFileRepository(ILogger<EPGFileRepository> intLogger, IFileUtilSe
 
         if (ret.Count > 0)
         {
-            logger.LogInformation("Found {ret.Count} EPG files that need updating based on LastUpdated criteria.");
+            logger.LogInformation("Found {ret.Count} EPG files that need updating based on LastUpdated criteria.", ret.Count);
             foreach (EPGFileDto r in ret)
             {
                 toUpdate.Add(r);
             }
         }
 
-        return toUpdate.ToList();
+        return [.. toUpdate];
     }
-
 
     /// <summary>
     /// Retrieves paged EPGFiles based on specific parameters.
@@ -284,42 +279,22 @@ public class EPGFileRepository(ILogger<EPGFileRepository> intLogger, IFileUtilSe
                 jobManager.SetError();
                 return null;
             }
-
+            cacheManager.ClearEPGDataByEPGNumber(epgFile.EPGNumber);
             Stopwatch timer = Stopwatch.StartNew();
 
-            //XmlSerializer serializer = new(typeof(XMLTV));
-            //string filePath = Path.Combine(FileDefinitions.EPG.DirectoryLocation, epgFile.Source);
-            //Stream? fileStream = fileUtilService.GetFileDataStream(filePath);
+            (int channelCount, int programCount) = await fileUtilService.ReadXmlCountsFromFileAsync(epgFile);
 
-            //if (fileStream == null)
-            //{
-            //    logger.LogCritical("Could not find EPG file");
-            //    jobManager.SetError();
-            //    return null;
-            //}
-
-            //await using FileStream fileStream = new(filePath, FileMode.Create);
-            //Tv? tv = (Tv?)serializer.Deserialize(fileStream);
-            //timer.Stop();
-            //logger.LogInformation("Deserialized EPG file in {timer.ElapsedMilliseconds}ms", timer.ElapsedMilliseconds);
-            //List<Channel>? channnels = tv?.Channels;
-            //cacheManager.Channels[epgFile.EPGNumber] = tv?.Channels ?? [];
-            //cacheManager.Programmes[epgFile.EPGNumber] = tv?.Programmes ?? [];
-            //if (tv2 != null)
-            //{
-            //    int aaa = 1;
-            //}
-            XMLTV? tv = await Xmltv2Mxf.ConvertToXMLTVAsync(Path.Combine(FileDefinitions.EPG.DirectoryLocation, epgFile.Source), epgFile.EPGNumber);
-
-            if (tv != null)
+            if (channelCount != -1)
             {
-                epgFile.ChannelCount = (tv.Channels?.Count) ?? 0;
-                epgFile.ProgrammeCount = (tv.Programs?.Count) ?? 0;
+                epgFile.ChannelCount = channelCount;
+                epgFile.ProgrammeCount = programCount;
             }
 
             epgFile.LastUpdated = SMDT.UtcNow;
             UpdateEPGFile(epgFile);
             await SaveChangesAsync();
+            await fileUtilService.ProcessStationChannelNamesAsync(epgFile);
+
             jobManager.SetSuccessful();
             return epgFile;
         }

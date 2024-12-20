@@ -2,9 +2,17 @@
 
 public class SMChannelService(IRepositoryWrapper repositoryWrapper) : ISMChannelService
 {
-    public IQueryable<NameLogo> GetNameLogos()
+    //public IQueryable<LogoInfo > GetlogoInfos()
+    //{
+    //    IQueryable<LogoInfo > channelNames = repositoryWrapper.SMChannel.GetQuery()
+    //        .SelectMany(a => a.SMStreams.Select(smStream => new LogoInfo (smStream.SMStream)));
+    //    return channelNames;
+    //}
+
+    public IQueryable<SMChannel> GetSMStreamLogos(bool? justHttp = true)
     {
-        IQueryable<NameLogo> channelNames = repositoryWrapper.SMChannel.GetQuery().OrderBy(a => a.Name).Select(a => new NameLogo(a, SMFileTypes.Logo));
-        return channelNames;
+        return justHttp == true
+            ? repositoryWrapper.SMChannel.GetQuery().Where(a => a.Logo.Contains("://"))
+            : repositoryWrapper.SMChannel.GetQuery().Where(a => !string.IsNullOrEmpty(a.Logo));
     }
 }

@@ -1,9 +1,10 @@
-﻿using MessagePack;
+﻿using System.IO.Pipelines;
+using System.Text.Json.Serialization;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
-using System.Text.Json.Serialization;
+using StreamMaster.Streams.Domain.Statistics;
 
 namespace StreamMaster.Streams.Domain.Interfaces
 {
@@ -12,6 +13,8 @@ namespace StreamMaster.Streams.Domain.Interfaces
     /// </summary>
     public interface IClientConfiguration
     {
+        StreamHandlerMetrics Metrics { get; }
+        TaskCompletionSource<bool> CompletionSource { get; }
         event EventHandler ClientStopped;
         /// <summary>
         /// Gets the unique identifier for the current HTTP context.
@@ -19,7 +22,7 @@ namespace StreamMaster.Streams.Domain.Interfaces
         string HttpContextId { get; }
 
         /// <summary>
-        /// Gets the cancellation token associated with the client.
+        /// Gets the cancellation Token associated with the client.
         /// </summary>
         /// [IgnoreMember]
         [JsonIgnore]
@@ -45,14 +48,16 @@ namespace StreamMaster.Streams.Domain.Interfaces
         /// <summary>
         /// Gets or sets the stream that the client is reading from.
         /// </summary>
-        [IgnoreMember]
-        [JsonIgnore]
-        IClientReadStream? ClientStream { get; set; }
+        //[IgnoreMember]
+        //[JsonIgnore]
+        //IClientReadStream? ClientStream { get; set; }
 
         /// <summary>
         /// Gets the HTTP response associated with the client.
         /// </summary>
         HttpResponse Response { get; }
+
+        Pipe Pipe { get; set; }
 
         /// <summary>
         /// Gets the unique request identifier for the client.

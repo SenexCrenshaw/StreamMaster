@@ -1,6 +1,4 @@
-﻿using Reinforced.Typings.Attributes;
-
-using StreamMaster.Domain.Attributes;
+﻿using StreamMaster.Domain.Attributes;
 
 namespace StreamMaster.Domain.Dto;
 
@@ -10,7 +8,7 @@ public class EPGFileDto : BaseFileDto, IMapFrom<EPGFile>
 {
     public int TimeShift { get; set; }
     public int EPGNumber { get; set; }
-    public string Color { get; set; }
+    public string Color { get; set; } = "#FFFFFF";
     public int ChannelCount { get; set; }
     public DateTime EPGStartDate { get; set; }
     public DateTime EPGStopDate { get; set; }

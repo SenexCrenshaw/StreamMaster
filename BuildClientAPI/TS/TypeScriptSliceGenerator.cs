@@ -1,4 +1,6 @@
 ﻿using System.Text;
+
+using BuildClientAPI.Models;
 namespace BuildClientAPI.TS;
 public static class TypeScriptSliceGenerator
 {
@@ -20,7 +22,6 @@ public static class TypeScriptSliceGenerator
 
             content.AppendLine(GenerateExtraReducerForFetch(method));
             content.AppendLine("  }");
-
 
             content.AppendLine("});");
             content.AppendLine();
@@ -152,13 +153,11 @@ const initialState: QueryState = {{
     {
         StringBuilder content = new();
 
-        content.AppendLine($"    clear: (state) => {{");
+        content.AppendLine("    clear: (state) => {");
         content.AppendLine("      state = initialState;");
         content.AppendLine($"      Logger.debug('{method.Name} clear');");
         content.AppendLine("    },");
         content.AppendLine();
-
-
 
         if (method.IsGetPaged)
         {
@@ -173,7 +172,7 @@ const initialState: QueryState = {{
             content.AppendLine("    },");
             content.AppendLine();
 
-            content.AppendLine($"    setField: (state, action: PayloadAction<{{ query?: string | undefined; fieldData: FieldData }}>) => {{");
+            content.AppendLine("    setField: (state, action: PayloadAction<{ query?: string | undefined; fieldData: FieldData }>) => {");
             content.AppendLine("      const { query, fieldData } = action.payload;");
             content.AppendLine();
             content.AppendLine("      if (query !== undefined) {");
@@ -205,7 +204,7 @@ const initialState: QueryState = {{
             content.AppendLine($"      Logger.debug('{method.Name}  setIsForced ', force);");
             content.AppendLine("    },");
 
-            content.AppendLine($"    setIsLoading: (state, action: PayloadAction<{{ query: string; isLoading: boolean }}>) => {{");
+            content.AppendLine("    setIsLoading: (state, action: PayloadAction<{ query: string; isLoading: boolean }>) => {");
             content.AppendLine("      const { query, isLoading } = action.payload;");
             content.AppendLine("      if (query !== undefined) {");
             content.AppendLine("        state.isLoading[query] = isLoading;");
@@ -233,8 +232,7 @@ const initialState: QueryState = {{
             content.AppendLine("    },");
             content.AppendLine();
 
-
-            content.AppendLine($"    setField: (state, action: PayloadAction<{{ fieldData: FieldData }}>) => {{");
+            content.AppendLine("    setField: (state, action: PayloadAction<{ fieldData: FieldData }>) => {");
             content.AppendLine("      const { fieldData } = action.payload;");
             content.AppendLine();
 
@@ -260,7 +258,7 @@ const initialState: QueryState = {{
             content.AppendLine($"      Logger.debug('{method.Name}  setIsForced ', force);");
             content.AppendLine("    },");
 
-            content.AppendLine($"    setIsLoading: (state, action: PayloadAction<{{ param: string; isLoading: boolean }}>) => {{");
+            content.AppendLine("    setIsLoading: (state, action: PayloadAction<{ param: string; isLoading: boolean }>) => {");
             content.AppendLine("      const { param, isLoading } = action.payload;");
             content.AppendLine("      if (param !== undefined) {");
             content.AppendLine("        const paramString = JSON.stringify(param);");
@@ -283,8 +281,7 @@ const initialState: QueryState = {{
         content.AppendLine("    },");
         content.AppendLine();
 
-
-        content.AppendLine($"    setField: (state, action: PayloadAction<{{ fieldData: FieldData }}>) => {{");
+        content.AppendLine("    setField: (state, action: PayloadAction<{ fieldData: FieldData }>) => {");
         content.AppendLine("      const { fieldData } = action.payload;");
         content.AppendLine("      state.data = updateFieldInData(state.data, fieldData);");
         content.AppendLine($"      Logger.debug('{method.Name} setField');");
@@ -297,7 +294,7 @@ const initialState: QueryState = {{
         content.AppendLine($"      Logger.debug('{method.Name}  setIsForced ', force);");
         content.AppendLine("    },");
 
-        content.AppendLine($"    setIsLoading: (state, action: PayloadAction<{{isLoading: boolean }}>) => {{");
+        content.AppendLine("    setIsLoading: (state, action: PayloadAction<{isLoading: boolean }>) => {");
         content.AppendLine("      state.isLoading = action.payload.isLoading;");
         content.AppendLine($"      Logger.debug('{method.Name} setIsLoading ', action.payload.isLoading);");
         content.AppendLine("    }");
@@ -401,6 +398,4 @@ const initialState: QueryState = {{
         content.AppendLine("      });");
         return content.ToString();
     }
-
-
 }

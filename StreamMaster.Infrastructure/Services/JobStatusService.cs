@@ -34,7 +34,6 @@ public partial class JobStatusService(ILogger<JobStatusService> logger) : IJobSt
         }
 
         return status!;
-
     }
 
     public void SetStatus(string key, JobStatus status)

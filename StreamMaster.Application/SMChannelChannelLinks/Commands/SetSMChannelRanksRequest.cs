@@ -20,18 +20,16 @@ internal class SetSMChannelRanksRequestHandler(IRepositoryWrapper Repository, IS
                 SMChannel? smChannel = Repository.SMChannel.GetSMChannel(smChannelId);
                 if (smChannel != null)
                 {
-                    DataResponse<List<SMChannelDto>> channels = await Sender.Send(new UpdateSMChannelRanksRequest(smChannel.Id, smChannel.SMChannels.Select(a => a.SMChannelId).ToList()), cancellationToken);
+                    DataResponse<List<SMChannelDto>> channels = await Sender.Send(new UpdateSMChannelRanksRequest(smChannel.Id, [.. smChannel.SMChannels.Select(a => a.SMChannelId)]), cancellationToken);
 
                     if (!fieldDatas.Any(a => a.Entity == "GetSMChannelChannels"))
                     {
                         GetSMChannelStreamsRequest re = new(smChannel.Id);
 
-                        fieldDatas.Add(new("GetSMChannelChannels", re, channels.Data));
-                        fieldDatas.Add(new(SMChannel.APIName, smChannel.Id, "SMChannels", channels.Data));
+                        fieldDatas.Add(new("GetSMChannelChannels", re, channels.Data ?? []));
+                        fieldDatas.Add(new(SMChannel.APIName, smChannel.Id, "SMChannels", channels.Data ?? []));
                     }
-
                 }
-
             }
             await dataRefreshService.SetField(fieldDatas).ConfigureAwait(false);
         }

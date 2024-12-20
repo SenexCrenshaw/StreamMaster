@@ -17,7 +17,6 @@ internal class CreateSMChannelsFromStreamParametersRequestHandler(IRepositoryWra
 
         await dataRefreshService.RefreshAllSMChannels();
 
-
         return APIResponse.Success;
     }
 }

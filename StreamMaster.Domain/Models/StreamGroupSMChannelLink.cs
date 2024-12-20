@@ -1,10 +1,10 @@
-﻿using AutoMapper.Configuration.Annotations;
+﻿using System.Text.Json.Serialization;
+
+using AutoMapper.Configuration.Annotations;
 
 using MessagePack;
-
-using System.Text.Json.Serialization;
 namespace StreamMaster.Domain.Models;
-
+#pragma warning disable CS8618
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true)]
 public class StreamGroupSMChannelLink
 {
@@ -20,8 +20,7 @@ public class StreamGroupSMChannelLink
     public StreamGroup StreamGroup { get; set; }
     public int StreamGroupId { get; set; }
 
-
     public bool IsReadOnly { get; set; }
     public int Rank { get; set; }
 }
-
+#pragma warning restore CS8618 

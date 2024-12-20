@@ -5,7 +5,7 @@ public class Result
     internal Result(bool succeeded, IEnumerable<string> errors)
     {
         Succeeded = succeeded;
-        Errors = errors.ToArray();
+        Errors = [.. errors];
     }
 
     public string[] Errors { get; set; }
@@ -18,6 +18,6 @@ public class Result
 
     public static Result Success()
     {
-        return new Result(true, Array.Empty<string>());
+        return new Result(true, []);
     }
 }

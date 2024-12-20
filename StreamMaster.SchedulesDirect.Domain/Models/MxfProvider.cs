@@ -5,7 +5,7 @@ namespace StreamMaster.SchedulesDirect.Domain.Models
 {
     public class MxfProvider
     {
-        private string _id;
+        private string _id = string.Empty;
 
         [XmlIgnore] public int Index { get; set; }
 
@@ -24,21 +24,21 @@ namespace StreamMaster.SchedulesDirect.Domain.Models
         /// The maximum length is 255 characters.
         /// </summary>
         [XmlAttribute("name")]
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
         /// <summary>
         /// More information about the supplier of the listings.
         /// The maximum length is 255 characters.
         /// </summary>
         [XmlAttribute("displayName")]
-        public string DisplayName { get; set; }
+        public string? DisplayName { get; set; }
 
         /// <summary>
         /// The copyright notice from the supplier of the listings.
         /// The maximum length is 1024 characters.
         /// </summary>
         [XmlAttribute("copyright")]
-        public string Copyright { get; set; }
+        public string? Copyright { get; set; }
 
         /// <summary>
         /// The status of the Stream Master MXF file creation.

@@ -13,10 +13,9 @@ namespace StreamMaster.Infrastructure.Services.Frontend.Mappers
             return resourceUrl.Equals("/favicon.ico");
         }
 
-        public override async Task<string> Map(string resourceUrl)
+        public override Task<string> MapAsync(string resourceUrl)
         {
-
-            return Path.Combine(BuildInfo.StartUpPath, settings.UiFolder, "favicon.ico");
+            return Task.FromResult(Path.Combine(BuildInfo.StartUpPath, settings.UiFolder, "favicon.ico"));
         }
     }
 }

@@ -4,7 +4,7 @@
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record ScanForCustomRequest : IRequest<APIResponse>;
 
-public class ScanForCustomPlayListsRequestHandler(IOptionsMonitor<CommandProfileDict> optionsOutputProfiles, IOptionsMonitor<Setting> _settings, ICacheManager cacheManager, IStreamGroupService streamGroupService, ILogoService logoService, IIntroPlayListBuilder introPlayListBuilder, ICustomPlayListBuilder CustomPlayListBuilder, IRepositoryWrapper Repository)
+public class ScanForCustomPlayListsRequestHandler(IOptionsMonitor<CommandProfileDict> optionsOutputProfiles, IOptionsMonitor<Setting> _settings, ICacheManager cacheManager, IIntroPlayListBuilder introPlayListBuilder, ICustomPlayListBuilder CustomPlayListBuilder, IRepositoryWrapper Repository)
     : IRequestHandler<ScanForCustomRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(ScanForCustomRequest command, CancellationToken cancellationToken)
@@ -15,7 +15,6 @@ public class ScanForCustomPlayListsRequestHandler(IOptionsMonitor<CommandProfile
         foreach (CustomPlayList customPlayList in customPlayLists)
         {
             string id = customPlayList.Name;
-            AddIcon(customPlayList);
 
             SMStream? currentStream = await Repository.SMStream.FirstOrDefaultAsync(s => s.Id == id, tracking: true, cancellationToken: cancellationToken);
             if (currentStream != null)
@@ -28,6 +27,9 @@ public class ScanForCustomPlayListsRequestHandler(IOptionsMonitor<CommandProfile
                 continue;
             }
 
+            //string logo = logoService.GetLogoUrl2(customPlayList.Logo, SMFileTypes.CustomPlayListLogo);
+            string logo = customPlayList.Logo.Remove(0, BuildInfo.CustomPlayListFolder.Length);
+
             SMStream smStream = new()
             {
                 Id = id,
@@ -37,7 +39,7 @@ public class ScanForCustomPlayListsRequestHandler(IOptionsMonitor<CommandProfile
                 M3UFileId = EPGHelper.CustomPlayListId,
                 Group = "CustomPlayList",
                 SMStreamType = SMStreamTypeEnum.CustomPlayList,
-                Logo = customPlayList.Logo,
+                Logo = logo,
                 Url = "STREAMMASTER",
                 IsSystem = true,
             };
@@ -55,6 +57,12 @@ public class ScanForCustomPlayListsRequestHandler(IOptionsMonitor<CommandProfile
                 }
 
                 //string? c = await streamGroupService.EncodeStreamGroupIdStreamIdAsync(EPGHelper.CustomPlayListId, streamId);
+                string logo2 = nfo.Movie.Thumb?.Text ?? nfo.Movie.Fanart?.Thumb?.Text ?? customPlayList.Logo;
+
+                if (logo.StartsWith(BuildInfo.CustomPlayListFolder))
+                {
+                    logo = logo.Remove(0, BuildInfo.CustomPlayListFolder.Length);
+                }
 
                 SMStream newStream = new()
                 {
@@ -66,8 +74,10 @@ public class ScanForCustomPlayListsRequestHandler(IOptionsMonitor<CommandProfile
                     Group = "CustomPlayList",
                     SMStreamType = SMStreamTypeEnum.Custom,
                     Url = nfo.VideoFileName,
+                    Logo = logo,
                     IsSystem = true,
                 };
+
                 Repository.SMStream.Create(newStream);
             }
         }
@@ -78,8 +88,6 @@ public class ScanForCustomPlayListsRequestHandler(IOptionsMonitor<CommandProfile
         List<CustomPlayList> introPlayLists = introPlayListBuilder.GetIntroPlayLists();
         foreach (CustomPlayList customPlayList in introPlayLists)
         {
-            AddIcon(customPlayList);
-
             foreach (CustomStreamNfo nfo in customPlayList.CustomStreamNfos)
             {
                 string streamId = $"{IntroPlayListBuilder.IntroIDPrefix}{nfo.Movie.Title}";
@@ -114,7 +122,7 @@ public class ScanForCustomPlayListsRequestHandler(IOptionsMonitor<CommandProfile
 
         if (File.Exists(BuildInfo.MessageNoStreamsLeft))
         {
-            SMStream? stream = await Repository.SMStream.FirstOrDefaultAsync(a => a.Id == "MessageNoStreamsLeft");
+            SMStream? stream = await Repository.SMStream.FirstOrDefaultAsync(a => a.Id == "MessageNoStreamsLeft", cancellationToken: cancellationToken);
             if (stream == null)
             {
                 stream = new()
@@ -149,19 +157,5 @@ public class ScanForCustomPlayListsRequestHandler(IOptionsMonitor<CommandProfile
         }
 
         return APIResponse.Success;
-    }
-
-    private void AddIcon(CustomPlayList customPlayList)
-    {
-        if (!string.IsNullOrEmpty(customPlayList.Logo))
-        {
-            LogoFileDto iconFileDto = new()
-            {
-                Name = customPlayList.Name,
-                Source = customPlayList.Logo,
-                SMFileType = SMFileTypes.CustomPlayList
-            };
-            logoService.AddLogo(iconFileDto);
-        }
     }
 }

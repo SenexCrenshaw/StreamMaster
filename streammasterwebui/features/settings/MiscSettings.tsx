@@ -3,12 +3,12 @@ import { GetMessage } from '@lib/common/intl';
 import { useSettingsContext } from '@lib/context/SettingsProvider';
 import useGetSettings from '@lib/smAPI/Settings/useGetSettings';
 import { Fieldset } from 'primereact/fieldset';
+import { SelectItem } from 'primereact/selectitem';
 import React from 'react';
 import { BaseSettings } from './BaseSettings';
 import { GetCheckBoxLine } from './components/GetCheckBoxLine';
-import { GetInputTextLine } from './components/GetInputTextLine';
 import { GetDropDownLine } from './components/GetDropDownLine';
-import { SelectItem } from 'primereact/selectitem';
+import { GetInputTextLine } from './components/GetInputTextLine';
 
 export function MiscSettings(): React.ReactElement {
   const settingsQuery = useGetSettings();
@@ -49,28 +49,30 @@ export function MiscSettings(): React.ReactElement {
     return test;
   };
 
-  const getLogoCacheOptions = (): SelectItem[] => {
-    var options = ['None', 'Cache'];
+  // const getLogoCacheOptions = (): SelectItem[] => {
+  //   var options = ['None', 'Cache'];
 
-    const test = options.map(
-      (word) =>
-        ({
-          label: word,
-          value: word.toLocaleLowerCase()
-        } as SelectItem)
-    );
+  //   const test = options.map(
+  //     (word) =>
+  //       ({
+  //         label: word,
+  //         value: word.toLocaleLowerCase()
+  //       } as SelectItem)
+  //   );
 
-    return test;
-  };
+  //   return test;
+  // };
 
   return (
     <BaseSettings title="MISC">
       <>
         {GetCheckBoxLine({ field: 'PrettyEPG' })}
         {GetCheckBoxLine({ field: 'AutoSetEPG' })}
-        {GetDropDownLine({ field: 'LogoCache', options: getLogoCacheOptions() })}
+        {GetCheckBoxLine({ field: 'LogoCache' })}
+        {GetCheckBoxLine({ field: 'AppendChannelName' })}
         {/* {getCheckBoxLine({  field: 'VideoStreamAlwaysUseEPGLogo' })} */}
         {GetInputTextLine({ field: 'DummyRegex' })}
+        {GetInputTextLine({ field: 'STRMBaseURL' })}
         {/* {GetCheckBoxLine({ field: 'M3UIgnoreEmptyEPGID' })} */}
         {GetDropDownLine({ field: 'DefaultCompression', options: getDefaultCompressionOptions() })}
         {/* {getCheckBoxLine({  field: 'm3UFieldGroupTitle' })} */}

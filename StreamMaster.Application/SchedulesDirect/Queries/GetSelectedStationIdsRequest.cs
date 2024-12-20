@@ -10,7 +10,6 @@ internal class GetSelectedStationIdsRequestHandler(IOptionsMonitor<SDSettings> i
     private readonly SDSettings settings = intSettings.CurrentValue;
     public Task<DataResponse<List<StationIdLineup>>> Handle(GetSelectedStationIdsRequest request, CancellationToken cancellationToken)
     {
-
-        return Task.FromResult(DataResponse<List<StationIdLineup>>.Success(settings.SDStationIds.OrderBy(a => a.StationId, StringComparer.OrdinalIgnoreCase).ToList()));
+        return Task.FromResult(DataResponse<List<StationIdLineup>>.Success([.. settings.SDStationIds.OrderBy(a => a.StationId, StringComparer.OrdinalIgnoreCase)]));
     }
 }

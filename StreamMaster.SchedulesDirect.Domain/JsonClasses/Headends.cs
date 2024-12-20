@@ -7,28 +7,16 @@ namespace StreamMaster.SchedulesDirect.Domain.JsonClasses
         public string Id => HeadendId;
 
         [JsonPropertyName("headend")]
-        public string HeadendId { get; set; }
+        public string HeadendId { get; set; } = string.Empty;
 
         [JsonPropertyName("transport")]
-        public string Transport { get; set; }
+        public string Transport { get; set; } = string.Empty;
 
         [JsonPropertyName("location")]
-        public string Location { get; set; }
+        public string Location { get; set; } = string.Empty;
 
         [JsonPropertyName("lineups")]
         //[JsonConverter(typeof(SingleOrListConverter<HeadendLineup>))]
         public List<HeadendLineup> Lineups { get; set; } = [];
-    }
-
-    public class HeadendLineup
-    {
-        [JsonPropertyName("name")]
-        public string Name { get; set; }
-
-        [JsonPropertyName("lineup")]
-        public string Lineup { get; set; }
-
-        [JsonPropertyName("uri")]
-        public string Uri { get; set; }
     }
 }

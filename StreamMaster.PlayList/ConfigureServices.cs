@@ -9,7 +9,6 @@ public static class ConfigureServices
         _ = services.AddSingleton<IIntroPlayListBuilder, IntroPlayListBuilder>();
         _ = services.AddSingleton<INfoFileReader, NfoFileReader>();
 
-
         return services;
     }
 }

@@ -49,7 +49,7 @@ public class CommandProfileDict : IProfileDict<CommandProfile>
             : GetProfileDtoFromProfile(defaultProfile, defaultName);
     }
 
-    public CommandProfileDto GetProfileDtoFromProfile(CommandProfile commandProfile, string ProfileName)
+    public static CommandProfileDto GetProfileDtoFromProfile(CommandProfile commandProfile, string ProfileName)
     {
         return new CommandProfileDto
         {

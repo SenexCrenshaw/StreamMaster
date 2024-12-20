@@ -1,12 +1,13 @@
 import SMDataTable from '@components/smDataTable/SMDataTable';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
+import CancelClientDialog from '@components/streaming/CancelClientDialog';
 import { formatJSONDateString, getElapsedTimeString } from '@lib/common/dateTime';
-import { ChannelMetric, ClientChannelDto } from '@lib/smAPI/smapiTypes';
+import { ChannelMetric, ClientStreamsDto } from '@lib/smAPI/smapiTypes';
 
 import { GetChannelMetrics } from '@lib/smAPI/Statistics/StatisticsCommands';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-interface IntClientChannelDto extends ClientChannelDto {
+interface IntClientChannelDto extends ClientStreamsDto {
   readonly SourceName: string;
   readonly Logo?: string;
 }
@@ -18,11 +19,11 @@ const SMClientStatus = () => {
   const channelMetricsRef = useRef<IntClientChannelDto[]>([]);
 
   const setChannelMetricsWithRef = (metrics: ChannelMetric[]) => {
-    const sourceMetrics = metrics.filter((metric) => metric.SMStreamInfo === null);
+    const sourceMetrics = metrics.filter((metric) => metric.SMStreamInfo !== null);
     const intMetrics = [] as IntClientChannelDto[];
 
     for (const metric of sourceMetrics) {
-      for (const clientChannel of metric.ClientChannels) {
+      for (const clientChannel of metric.ClientStreams) {
         intMetrics.push({ ...clientChannel, Logo: metric.Logo, SourceName: metric.SourceName });
       }
     }
@@ -69,19 +70,6 @@ const SMClientStatus = () => {
     return <div>{roundedKbps.toLocaleString('en-US')}</div>;
   };
 
-  const totalBytesInBufferTemplate = (rowData: ChannelMetric) => {
-    if (rowData.TotalBytesInBuffer === undefined) return <div />;
-
-    const found = channelMetricsRef.current.find((predicate) => predicate.Name === rowData.Name);
-
-    if (found === undefined || found.Metrics === undefined) return <div />;
-
-    const kbps = found.Metrics.Kbps;
-    const roundedKbps = Math.ceil(kbps);
-
-    return <div>{roundedKbps.toLocaleString('en-US')}</div>;
-  };
-
   const averageLatencyTemplate = (rowData: ChannelMetric) => {
     if (rowData.Metrics.AverageLatency === undefined) return <div />;
 
@@ -101,7 +89,7 @@ const SMClientStatus = () => {
     return (
       <div className="sm-center-stuff">
         {/* <VideoInfoDisplay channelId={data.ChannelId} /> */}
-        {/* <CancelClientDialog clientId={data.ClientId} /> */}
+        <CancelClientDialog clientId={data.Name} />
       </div>
     );
   }, []);
@@ -123,7 +111,7 @@ const SMClientStatus = () => {
 
       { align: 'center', bodyTemplate: clientStartTimeTemplate, field: 'StartTime', header: 'StartTime', width: 140 },
       { align: 'right', bodyTemplate: clientBitsPerSecondTemplate, field: 'kbps', header: 'Kbps', width: 50 },
-      { align: 'right', bodyTemplate: totalBytesInBufferTemplate, field: 'TotalBytesInBuffer', header: 'TotalBytesInBuffer', width: 50 },
+
       { align: 'right', bodyTemplate: averageLatencyTemplate, field: 'AverageLatency', header: 'Read ms', width: 60 },
       { align: 'right', bodyTemplate: elapsedTSTemplate, field: 'ElapsedTime', header: '(d hh:mm:ss)', width: 95 },
 
