@@ -25,7 +25,7 @@ namespace StreamMaster.Streams.Services
             HttpResponse response,
             CancellationToken cancellationToken)
         {
-            ClientConfiguration config = new(
+            ClientConfiguration clientConfig = new(
                 uniqueRequestId,
                 smChannel,
                 clientUserAgent,
@@ -34,21 +34,24 @@ namespace StreamMaster.Streams.Services
                 loggerFactory,
                 cancellationToken);
 
-            config.ClientStream ??= new ClientReadStream(loggerFactory, config.UniqueRequestId);
-            config.ClientStream.ClientStreamTimedOut += (sender, e) => config.Stop();
-            return config;
+            //config.ClientStream ??= new ClientReadStream(loggerFactory, config.UniqueRequestId);
+            //config.ClientStream.ClientStreamTimedOut += (sender, e) => config.Stop();
+            // Start the task for this client
+            _ = Task.Run(clientConfig.StreamFromPipeToResponseAsync, cancellationToken);
+            return clientConfig;
         }
 
-        public IClientConfiguration Copy(IClientConfiguration clientConfiguration)
-        {
-            return new ClientConfiguration(
-                clientConfiguration.UniqueRequestId,
-                clientConfiguration.SMChannel,
-                clientConfiguration.ClientUserAgent,
-                clientConfiguration.ClientIPAddress,
-                clientConfiguration.Response,
-                clientConfiguration.LoggerFactory,
-                clientConfiguration.ClientCancellationToken);
-        }
+        //public IClientConfiguration Copy(IClientConfiguration clientConfiguration)
+        //{
+        //    return new ClientConfiguration(
+        //        clientConfiguration.UniqueRequestId,
+        //        clientConfiguration.SMChannel,
+        //        clientConfiguration.ClientUserAgent,
+        //        clientConfiguration.ClientIPAddress,
+        //        clientConfiguration.Response,
+        //           clientConfiguration.Pipe,
+        //        clientConfiguration.LoggerFactory,
+        //        clientConfiguration.ClientCancellationToken);
+        //}
     }
 }

@@ -12,7 +12,7 @@ namespace StreamMaster.Streams.Clients;
 public class ClientReadStream : Stream, IClientReadStream
 {
     private readonly ILogger<ClientReadStream> logger;
-    private readonly MetricsService MetricsService = new();
+    private readonly StreamMetricsTracker MetricsService = new();
 
     public event EventHandler<StreamTimedOut>? ClientStreamTimedOut;
 

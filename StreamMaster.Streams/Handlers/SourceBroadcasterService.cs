@@ -5,7 +5,7 @@ using StreamMaster.Streams.Domain.Events;
 
 namespace StreamMaster.Streams.Handlers
 {
-    public class SourceBroadcasterService(ILogger<SourceBroadcasterService> logger, IVideoInfoService _videoInfoService, ILogger<ISourceBroadcaster> sourceBroadcasterLogger, IOptionsMonitor<Setting> _settings, IStreamFactory proxyFactory)
+    public class SourceBroadcasterService(ILogger<SourceBroadcasterService> logger, IMetricsService metricsService, IVideoInfoService _videoInfoService, ILogger<ISourceBroadcaster> sourceBroadcasterLogger, IOptionsMonitor<Setting> _settings, IStreamFactory streamFactory)
         : ISourceBroadcasterService
     {
         public event AsyncEventHandler<StreamBroadcasterStopped>? OnStreamBroadcasterStoppedEvent;
@@ -41,7 +41,7 @@ namespace StreamMaster.Streams.Handlers
                 {
                     if (sourceBroadcaster.IsFailed)
                     {
-                        _ = StopAndUnRegisterSourceBroadcaster(smStreamInfo.Url);
+                        _ = await StopAndUnRegisterSourceBroadcasterAsync(smStreamInfo.Url);
                         _ = sourceBroadcasters.TryGetValue(smStreamInfo.Url, out sourceBroadcaster);
                     }
 
@@ -49,21 +49,12 @@ namespace StreamMaster.Streams.Handlers
                     return sourceBroadcaster;
                 }
 
-                sourceBroadcaster = new SourceBroadcaster(sourceBroadcasterLogger, smStreamInfo, _settings)
-                {
-                    SMStreamInfo = smStreamInfo
-                };
+                sourceBroadcaster = new SourceBroadcaster(sourceBroadcasterLogger, streamFactory, smStreamInfo, _settings);
 
                 logger.LogInformation("Created new source stream for: {Id} {name}", smStreamInfo.Id, smStreamInfo.Name);
 
-                (Stream? stream, int? processId, ProxyStreamError? error) = await proxyFactory.GetStream(channelBroadcaster, cancellationToken).ConfigureAwait(false);
-                if (stream == null || processId == null || error != null)
-                {
-                    logger.LogError("Could not create source stream for channel distributor: {Id} {name} {error}", smStreamInfo.Id, smStreamInfo.Name, error?.Message);
-                    return null;
-                }
+                await sourceBroadcaster.SetSourceStreamAsync(channelBroadcaster, cancellationToken);
 
-                sourceBroadcaster.SetSourceStream(stream, smStreamInfo.Name, cancellationToken);
                 sourceBroadcaster.OnStreamBroadcasterStoppedEvent += OnStoppedEvent;
 
                 if (sourceBroadcasters.TryAdd(smStreamInfo.Url, sourceBroadcaster))
@@ -82,7 +73,7 @@ namespace StreamMaster.Streams.Handlers
             }
         }
 
-        public bool StopAndUnRegisterSourceBroadcaster(string key)
+        public async Task<bool> StopAndUnRegisterSourceBroadcasterAsync(string key)
         {
             if (string.IsNullOrEmpty(key))
             {
@@ -91,7 +82,8 @@ namespace StreamMaster.Streams.Handlers
 
             if (sourceBroadcasters.TryRemove(key, out ISourceBroadcaster? sourceBroadcaster))
             {
-                sourceBroadcaster.Stop();
+                ICollection<System.IO.Pipelines.PipeWriter> a = sourceBroadcaster.ChannelBroadcasters.Values;
+                await sourceBroadcaster.StopAsync();
                 _videoInfoService.StopVideoPlugin(sourceBroadcaster.SMStreamInfo.Id);
                 return true;
             }
@@ -106,7 +98,8 @@ namespace StreamMaster.Streams.Handlers
             foreach (KeyValuePair<string, ISourceBroadcaster> kvp in sourceBroadcasters)
             {
                 ISourceBroadcaster channelDistributor = kvp.Value;
-                metrics[kvp.Key] = channelDistributor.Metrics;
+                //FIX
+                //metrics[kvp.Key] = channelDistributor.Metrics;
             }
 
             return metrics;
@@ -116,7 +109,7 @@ namespace StreamMaster.Streams.Handlers
         {
             if (sender is ISourceBroadcaster channelBroadcaster)
             {
-                StopAndUnRegisterSourceBroadcaster(e.Id);
+                StopAndUnRegisterSourceBroadcasterAsync(e.Id).Wait();
                 OnStreamBroadcasterStoppedEvent?.Invoke(sender!, e);
             }
         }
@@ -126,7 +119,7 @@ namespace StreamMaster.Streams.Handlers
         {
             foreach (ISourceBroadcaster? sourceBroadcaster in sourceBroadcasters.Values)
             {
-                int count = sourceBroadcaster.ClientChannelWriters.Count(a => a.Key != "VideoInfo");
+                int count = sourceBroadcaster.ChannelBroadcasters.Count(a => a.Key != "VideoInfo");
                 if (count == 0)
                 {
                     int delay = _settings.CurrentValue.ShutDownDelay;
@@ -134,27 +127,28 @@ namespace StreamMaster.Streams.Handlers
                     {
                         await Task.Delay(delay, cancellationToken).ConfigureAwait(false);
                     }
-                    count = sourceBroadcaster.ClientChannelWriters.Count(a => a.Key != "VideoInfo");
+                    count = sourceBroadcaster.ChannelBroadcasters.Count(a => a.Key != "VideoInfo");
                     if (count != 0)
                     {
                         return;
                     }
 
-                    sourceBroadcaster.Stop();
-                    // StopAndUnRegisterSourceBroadcaster(sourceBroadcaster.Id);
+                    //await sourceBroadcaster.StopAsync();
+                    await StopAndUnRegisterSourceBroadcasterAsync(sourceBroadcaster.Id);
                 }
             }
         }
 
         public async Task UnRegisterChannelBroadcasterAsync(int channelBroadcasterId)
         {
-            ISourceBroadcaster? sourceBroadcaster = sourceBroadcasters.Values.FirstOrDefault(broadcaster => broadcaster.ClientChannelWriters.ContainsKey(channelBroadcasterId.ToString()));
+            // ISourceBroadcaster? sourceBroadcaster = GetStreamBroadcaster(channelBroadcasterId.ToString());
+            ISourceBroadcaster? sourceBroadcaster = sourceBroadcasters.Values.FirstOrDefault(broadcaster => broadcaster.ChannelBroadcasters.ContainsKey(channelBroadcasterId.ToString()));
             if (sourceBroadcaster == null)
             {
                 return;
             }
 
-            if (sourceBroadcaster.ClientChannelWriters.TryRemove(channelBroadcasterId.ToString(), out _))
+            if (sourceBroadcaster.RemoveChannelBroadcaster(channelBroadcasterId))
             {
                 await CheckForEmptyBroadcastersAsync();
             }

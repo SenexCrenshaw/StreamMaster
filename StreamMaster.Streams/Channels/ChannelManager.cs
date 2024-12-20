@@ -8,31 +8,35 @@
         private readonly Lock _disposeLock = new();
         private bool _disposed = false;
         /// <inheritdoc/>
-        public async Task<Stream?> GetChannelStreamAsync(IClientConfiguration config, int streamGroupProfileId, CancellationToken cancellationToken = default)
+        public async Task<bool> AddClientToChannelAsync(IClientConfiguration clientConfiguration, int streamGroupProfileId, CancellationToken cancellationToken = default)
         {
             try
             {
-                logger.LogInformation("Client {UniqueRequestId} requesting channel {Name}.", config.UniqueRequestId, config.SMChannel.Name);
+                logger.LogInformation("Client {UniqueRequestId} requesting channel {Name}.", clientConfiguration.UniqueRequestId, clientConfiguration.SMChannel.Name);
 
                 if (cancellationToken.IsCancellationRequested)
                 {
-                    logger.LogInformation("Exiting GetChannelStreamAsync {UniqueRequestId} {Name} due to cancellation.", config.UniqueRequestId, config.SMChannel.Name);
-                    return null;
+                    logger.LogInformation("Exiting GetChannelStreamAsync {UniqueRequestId} {Name} due to cancellation.", clientConfiguration.UniqueRequestId, clientConfiguration.SMChannel.Name);
+                    return false;
                 }
 
-                if (await channelService.GetOrCreateChannelBroadcasterAsync(config, streamGroupProfileId) == null)
+                IChannelBroadcaster? channelBroadcaster = await channelService.GetOrCreateChannelBroadcasterAsync(clientConfiguration, streamGroupProfileId);
+
+                if (channelBroadcaster == null)
                 {
-                    await RemoveClientAsync(config);
-                    logger.LogInformation("Exiting GetChannelStreamAsync:  {UniqueRequestId} channel {Name} status is null.", config.UniqueRequestId, config.SMChannel.Name);
-                    return null;
+                    await RemoveClientAsync(clientConfiguration);
+                    logger.LogInformation("Exiting GetChannelStreamAsync:  {UniqueRequestId} channel {Name} status is null.", clientConfiguration.UniqueRequestId, clientConfiguration.SMChannel.Name);
+                    return false;
                 }
 
-                await messageService.SendInfo($"Client started streaming {config.SMChannel.Name}", "Client Start");
-                return config.ClientStream as Stream;
+                await channelBroadcaster.AddChannelStreamerAsync(clientConfiguration);
+
+                await messageService.SendInfo($"Client started streaming {clientConfiguration.SMChannel.Name}", "Client Start");
+                return true;
             }
             finally
             {
-                //logger.LogInformation("Client {UniqueRequestId} requesting channel {Name} release.", config.UniqueRequestId, config.SMChannel.Name);
+                //logger.LogInformation("Client {UniqueRequestId} requesting channel {Name} release.", clientConfiguration.UniqueRequestId, clientConfiguration.SMChannel.Name);
 
                 //_ = _registerSemaphore.Release();
             }
@@ -111,7 +115,7 @@
         }
 
         /// <inheritdoc/>
-        public void MoveToNextStream(int smChannelId)
+        public async Task MoveToNextStreamAsync(int smChannelId)
         {
             IChannelBroadcaster? channelStatus = channelService.GetChannelBroadcaster(smChannelId);
             if (channelStatus is null || channelStatus.SMStreamInfo is null)
@@ -124,7 +128,7 @@
 
             if (sourceBroadcaster is not null)
             {
-                sourceBroadcaster.Stop();
+                await sourceBroadcaster.StopAsync();
                 logger.LogInformation("Simulating stream failure for: {VideoStreamName}", channelStatus.SMStreamInfo.Name);
             }
             else
@@ -134,11 +138,11 @@
         }
 
         /// <inheritdoc/>
-        public void CancelAllChannels()
+        public async Task CancelAllChannelsAsync()
         {
             foreach (ISourceBroadcaster sourceBroadcaster in streamBroadcasterService.GetStreamBroadcasters())
             {
-                sourceBroadcaster.Stop();
+                await sourceBroadcaster.StopAsync();
             }
         }
     }

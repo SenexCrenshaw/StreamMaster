@@ -19,6 +19,6 @@ namespace StreamMaster.Streams.Domain.Interfaces
         /// <returns>A new instance of <see cref="IClientConfiguration"/>.</returns>
         IClientConfiguration NewClientConfiguration(string uniqueRequestId, SMChannelDto smChannel, string clientUserAgent, string clientIPAddress, HttpResponse response, CancellationToken cancellationToken);
 
-        IClientConfiguration Copy(IClientConfiguration clientConfiguration);
+        //IClientConfiguration Copy(IClientConfiguration clientConfiguration);
     }
 }

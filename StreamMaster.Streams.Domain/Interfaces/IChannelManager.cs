@@ -9,7 +9,7 @@
         /// <summary>
         /// Cancels all active Channels.
         /// </summary>
-        void CancelAllChannels();
+        Task CancelAllChannelsAsync();
 
         /// <summary>
         /// Stops a specific channel by its ID.
@@ -39,7 +39,7 @@
         /// <param name="streamGroupProfileId">The ID of the stream group profile.</param>
         /// <param name="cancellationToken">A cancellation Token to observe while waiting for the task to complete.</param>
         /// <returns>A Task returning the stream. Returns null if the stream could not be obtained.</returns>
-        Task<Stream?> GetChannelStreamAsync(IClientConfiguration config, int streamGroupProfileId, CancellationToken cancellationToken = default);
+        Task<bool> AddClientToChannelAsync(IClientConfiguration config, int streamGroupProfileId, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Asynchronously removes a client based on the given client streamer configuration.
@@ -52,6 +52,6 @@
         /// Moves to the next video stream in the channel by its ID.
         /// </summary>
         /// <param name="SMChannelId">The ID of the channel.</param>
-        void MoveToNextStream(int SMChannelId);
+        Task MoveToNextStreamAsync(int SMChannelId);
     }
 }

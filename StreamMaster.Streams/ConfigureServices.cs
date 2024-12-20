@@ -38,7 +38,7 @@ public static class ConfigureServices
         services.AddScoped<IVideoService, VideoService>();
         services.AddSingleton<ICacheManager, CacheManager>();
 
-        services.AddTransient<IMetricsService, MetricsService>();
+        services.AddTransient<IMetricsService, StreamMetricsTracker>();
         services.AddTransient<ISourceProcessingService, SourceProcessingService>();
         return services;
     }

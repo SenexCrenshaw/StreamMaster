@@ -60,16 +60,16 @@ const SMChannelStatus = () => {
     if (!found) {
       return <div />;
     }
-    const test = found?.ClientChannels.find((predicate) => predicate.Name !== 'VideoInfo');
-    if (test === undefined) {
-      return <div />;
-    }
+    // const test = found?.ClientStreams.find((predicate) => predicate.Name !== 'VideoInfo');
+    // if (test === undefined) {
+    //   return <div />;
+    // }
 
     return (
       <div className="sm-center-stuff">
         <VideoInfoDisplay name={found.Name} videoInfo={found.VideoInfo} />
         <StreamInfoDisplay streamInfo={found.SMStreamInfo!} />
-        <CancelChannelDialog channelId={test.SMChannelId} />
+        <CancelChannelDialog channelId={rowData.Id} />
         {/* <MoveToNextStreamDialog channelId={rowData.Id} /> */}
       </div>
     );

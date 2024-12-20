@@ -11,7 +11,7 @@ public class MultiViewPlayListStream(ILogger<MultiViewPlayListStream> logger, IC
         {
             return Task.FromResult<(Stream?, int, ProxyStreamError?)>((null, -1, null));
         }
-        logger.LogInformation("Getting MultiView stream for {streamName}", channelBroadcaster.Name);
+        logger.LogInformation("Getting MultiView stream for {streamName}", channelBroadcaster.SourceName);
         Stopwatch stopwatch = Stopwatch.StartNew();
 
         StringBuilder args = new();

@@ -15,7 +15,7 @@ public class MoveToNextStreamRequestHandler(IChannelManager ChannelManager, IMes
             await messageService.SendWarning("SMChannelId < 1");
             return APIResponse.NotFound;
         }
-        ChannelManager.MoveToNextStream(request.SMChannelId);
+        await ChannelManager.MoveToNextStreamAsync(request.SMChannelId);
 
         await messageService.SendSuccess("Successful", "Move To Next Stream");
         return APIResponse.Ok;

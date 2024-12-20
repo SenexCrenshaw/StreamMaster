@@ -10,7 +10,7 @@ public class CancelAllChannelsRequestHandler(IChannelManager ChannelManager, IMe
 {
     public async Task<APIResponse> Handle(CancelAllChannelsRequest request, CancellationToken cancellationToken)
     {
-        ChannelManager.CancelAllChannels();
+        //ChannelManager.CancelAllChannels();
         await messageService.SendSuccess("All Channels Cancelled Successfully", "Channel Cancel");
         return APIResponse.Ok;
     }

@@ -82,7 +82,7 @@ public sealed class ChannelService : IChannelService, IDisposable
     public IClientConfiguration? GetClientStreamerConfiguration(string uniqueRequestId)
     {
         IClientConfiguration? config = _cacheManager.ChannelBroadcasters.Values
-        .SelectMany(a => a.GetClientStreamerConfigurations())
+        .SelectMany(a => a.Clients.Values)
         .FirstOrDefault(a => a.UniqueRequestId == uniqueRequestId);
 
         if (config != null)
@@ -96,7 +96,7 @@ public sealed class ChannelService : IChannelService, IDisposable
 
     public List<IClientConfiguration> GetClientStreamerConfigurations()
     {
-        return [.. _cacheManager.ChannelBroadcasters.Values.SelectMany(a => a.GetClientStreamerConfigurations())];
+        return [.. _cacheManager.ChannelBroadcasters.Values.SelectMany(a => a.Clients.Values)];
     }
 
     public async Task<IChannelBroadcaster?> GetOrCreateChannelBroadcasterAsync(IClientConfiguration clientConfiguration, int streamGroupProfileId)
@@ -158,9 +158,6 @@ public sealed class ChannelService : IChannelService, IDisposable
                         .GetOrCreateChannelBroadcasterAsync(clientConfiguration, streamGroupProfileId, CancellationToken.None)
                         .ConfigureAwait(false);
 
-                    // Cache the new channel broadcaster.
-                    _cacheManager.ChannelBroadcasters.TryAdd(clientConfiguration.SMChannel.Id, channelBroadcaster);
-
                     // Handle MultiView specific setup.
                     if (clientConfiguration.SMChannel.SMChannelType == SMChannelTypeEnum.MultiView)
                     {
@@ -217,7 +214,7 @@ public sealed class ChannelService : IChannelService, IDisposable
             //}
 
             // Add the client streamer to the channel broadcaster.
-            channelBroadcaster.AddClientStreamer(clientConfiguration.UniqueRequestId, clientConfiguration);
+            //await channelBroadcaster.AddChannelStreamerAsync(clientConfiguration);
 
             return channelBroadcaster;
         }
@@ -230,84 +227,6 @@ public sealed class ChannelService : IChannelService, IDisposable
             }
         }
     }
-
-    //public async Task<IChannelBroadcaster?> GetOrCreateChannelBroadcasterAsync(IClientConfiguration clientConfiguration, int streamGroupProfileId)
-    //{
-    //    bool released = false;
-    //    await _registerSemaphore.WaitAsync();
-    //    try
-    //    {
-    //        IChannelBroadcaster? channelBroadcaster = GetChannelBroadcaster(clientConfiguration.SMChannel.Id);
-
-    //        if (channelBroadcaster == null)
-    //        {
-    //            _logger.LogInformation("No existing channel for {ChannelVideoStreamId} {name}", clientConfiguration.SMChannel.Id, clientConfiguration.SMChannel.Name);
-
-    //            channelBroadcaster = await _channelBroadcasterService.GetOrCreateChannelBroadcasterAsync(clientConfiguration, streamGroupProfileId, CancellationToken.None).ConfigureAwait(false);
-    //            _cacheManager.ChannelBroadcasters.TryAdd(clientConfiguration.SMChannel.Id, channelBroadcaster);
-
-    //            if (clientConfiguration.SMChannel.SMChannelType == SMChannelTypeEnum.MultiView)
-    //            {
-    //                if (!await SetupMultiView(channelBroadcaster).ConfigureAwait(false))
-    //                {
-    //                    await StopChannel(channelBroadcaster.Id);
-    //                    clientConfiguration.Stop();
-    //                    return null;
-    //                }
-    //            }
-    //            else
-    //            {
-    //                if (!await SwitchChannelToNextStreamAsync(channelBroadcaster, clientConfiguration).ConfigureAwait(false))
-    //                {
-    //                    await StopChannel(channelBroadcaster.Id);
-    //                    clientConfiguration.Stop();
-    //                    return null;
-    //                }
-    //            }
-
-    //        }
-    //        else
-    //        {
-    //            released = true;
-    //            _registerSemaphore.Release();
-    //            _logger.LogInformation("Reuse existing stream handler for {ChannelVideoStreamId} {name}", clientConfiguration.SMChannel.Id, clientConfiguration.SMChannel.Name);
-    //        }
-
-    //        if (clientConfiguration.SMChannel.SMChannelType == SMChannelTypeEnum.Regular)
-    //        {
-    //            if (channelBroadcaster.SMStreamInfo == null)
-    //            {
-    //                await StopChannel(channelBroadcaster.Id);
-    //                clientConfiguration.Stop();
-    //                return null;
-    //            }
-
-    //            ISourceBroadcaster? streamBroadcaster = _sourceBroadcasterService.GetStreamBroadcaster(channelBroadcaster.SMStreamInfo.Url);
-    //            if (streamBroadcaster?.IsFailed != false)
-    //            {
-    //                if (!await SwitchChannelToNextStreamAsync(channelBroadcaster, clientConfiguration).ConfigureAwait(false))
-    //                {
-    //                    _logger.LogError("SwitchChannelToNextStream failed for {UniqueRequestId} {ChannelVideoStreamId} {name}", clientConfiguration.UniqueRequestId, clientConfiguration.SMChannel.Id, clientConfiguration.SMChannel.Name);
-
-    //                    await StopChannel(channelBroadcaster.Id);
-    //                    clientConfiguration.Stop();
-    //                    return null;
-    //                }
-    //            }
-    //        }
-
-    //        channelBroadcaster.AddClientStreamer(clientConfiguration.UniqueRequestId, clientConfiguration);
-
-    //        return channelBroadcaster;
-    //    }
-    //    finally
-    //    {
-    //        if (!released)
-    //        {
-    //            _registerSemaphore.Release();
-    //        }
-    //    }
-    //}
     public IChannelBroadcaster? GetChannelBroadcaster(int smChannelId)
     {
         _cacheManager.ChannelBroadcasters.TryGetValue(smChannelId, out IChannelBroadcaster? channelBroadcaster);
@@ -372,7 +291,7 @@ public sealed class ChannelService : IChannelService, IDisposable
             return false;
         }
 
-        IBroadcasterBase? sourceChannelBroadcaster = null;
+        ISourceBroadcaster? sourceChannelBroadcaster = null;
 
         while (sourceChannelBroadcaster == null)
         {
@@ -430,7 +349,7 @@ public sealed class ChannelService : IChannelService, IDisposable
 
         channelBroadcaster.SetSMStreamInfo(smStreamInfo);
 
-        IBroadcasterBase? sourceChannelBroadcaster = await _sourceBroadcasterService.GetOrCreateStreamBroadcasterAsync(channelBroadcaster, CancellationToken.None).ConfigureAwait(false);
+        ISourceBroadcaster? sourceChannelBroadcaster = await _sourceBroadcasterService.GetOrCreateStreamBroadcasterAsync(channelBroadcaster, CancellationToken.None).ConfigureAwait(false);
 
         if (sourceChannelBroadcaster == null)
         {
@@ -447,17 +366,19 @@ public sealed class ChannelService : IChannelService, IDisposable
         return true;
     }
 
-    public async Task<bool> UnRegisterClientAsync(string uniqueRequestId, CancellationToken cancellationToken = default)
+    public async Task UnRegisterClientAsync(string uniqueRequestId, CancellationToken cancellationToken = default)
     {
-        cancellationToken.ThrowIfCancellationRequested();
-        if (await _channelBroadcasterService.UnRegisterClientAsync(uniqueRequestId, cancellationToken))
-        {
-            _logger.LogDebug("Client configuration for {UniqueRequestId} removed", uniqueRequestId);
-            return true;
-        }
+        //cancellationToken.ThrowIfCancellationRequested();
+        //if (await _channelBroadcasterService.UnRegisterClientAsync(uniqueRequestId, cancellationToken))
+        //{
+        //    _logger.LogDebug("Client configuration for {UniqueRequestId} removed", uniqueRequestId);
+        //    return true;
+        //}
 
-        _logger.LogDebug("Client configuration for {UniqueRequestId} not found", uniqueRequestId);
-        return false;
+        //_logger.LogDebug("Client configuration for {UniqueRequestId} not found", uniqueRequestId);
+        //return false;
+
+        await _channelBroadcasterService.UnRegisterClientAsync(uniqueRequestId, cancellationToken);
     }
 
     public void Dispose()

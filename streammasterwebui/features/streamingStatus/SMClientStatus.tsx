@@ -1,12 +1,13 @@
 import SMDataTable from '@components/smDataTable/SMDataTable';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
+import CancelClientDialog from '@components/streaming/CancelClientDialog';
 import { formatJSONDateString, getElapsedTimeString } from '@lib/common/dateTime';
-import { ChannelMetric, ClientChannelDto } from '@lib/smAPI/smapiTypes';
+import { ChannelMetric, ClientStreamsDto } from '@lib/smAPI/smapiTypes';
 
 import { GetChannelMetrics } from '@lib/smAPI/Statistics/StatisticsCommands';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-interface IntClientChannelDto extends ClientChannelDto {
+interface IntClientChannelDto extends ClientStreamsDto {
   readonly SourceName: string;
   readonly Logo?: string;
 }
@@ -18,11 +19,11 @@ const SMClientStatus = () => {
   const channelMetricsRef = useRef<IntClientChannelDto[]>([]);
 
   const setChannelMetricsWithRef = (metrics: ChannelMetric[]) => {
-    const sourceMetrics = metrics.filter((metric) => metric.SMStreamInfo === null);
+    const sourceMetrics = metrics.filter((metric) => metric.SMStreamInfo !== null);
     const intMetrics = [] as IntClientChannelDto[];
 
     for (const metric of sourceMetrics) {
-      for (const clientChannel of metric.ClientChannels) {
+      for (const clientChannel of metric.ClientStreams) {
         intMetrics.push({ ...clientChannel, Logo: metric.Logo, SourceName: metric.SourceName });
       }
     }
@@ -101,7 +102,7 @@ const SMClientStatus = () => {
     return (
       <div className="sm-center-stuff">
         {/* <VideoInfoDisplay channelId={data.ChannelId} /> */}
-        {/* <CancelClientDialog clientId={data.ClientId} /> */}
+        <CancelClientDialog clientId={data.Name} />
       </div>
     );
   }, []);

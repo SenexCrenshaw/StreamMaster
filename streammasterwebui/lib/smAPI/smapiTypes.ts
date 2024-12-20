@@ -1615,7 +1615,6 @@ export interface ClientChannelDto
 	ClientIPAddress?: string;
 	ClientUserAgent?: string;
 	Logo?: string;
-	Metrics?: StreamHandlerMetrics;
 	Name: string;
 	SMChannelId: number;
 }
@@ -1624,7 +1623,9 @@ export interface ClientStreamsDto
 	ClientIPAddress?: string;
 	ClientUserAgent?: string;
 	Logo?: string;
+	Metrics?: StreamHandlerMetrics;
 	Name: string;
+	SMChannelId: string;
 	SMStreamId: string;
 }
 export interface CustomStreamNfo

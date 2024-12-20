@@ -66,6 +66,7 @@ const SMPopUp = forwardRef<SMPopUpRef, SMPopUpProperties>(
     return (
       <SMOverlay
         ref={overlayRef}
+        buttonDisabled={disabled}
         noFullScreen={noFullScreen}
         noCloseButton={noCloseButton}
         isOverLayLoading={isPopupLoading}

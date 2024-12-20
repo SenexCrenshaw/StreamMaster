@@ -5,7 +5,7 @@ import { CancelClient } from '@lib/smAPI/Streaming/StreamingCommands';
 
 import { memo } from 'react';
 
-const CancelClientDialog = (props: { clientId: string }) => {
+const CancelClientDialog = (props: { clientId: string | undefined }) => {
   const cancelClient = () => {
     const request = { UniqueRequestId: props.clientId } as CancelClientRequest;
     CancelClient(request)
@@ -19,13 +19,12 @@ const CancelClientDialog = (props: { clientId: string }) => {
   return (
     <SMPopUp
       icon="pi-times"
+      disabled={props.clientId === undefined}
       buttonClassName="icon-red"
       onOkClick={cancelClient}
       title="Cancel Client?"
       info=""
       tooltip="Cancel Client"
-      // showRemember
-      // rememberKey="cancelClient"
     />
   );
 };

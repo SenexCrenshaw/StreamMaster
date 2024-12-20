@@ -13,7 +13,7 @@ public abstract class BroadcasterBase : IBroadcasterBase
     protected readonly ILogger<IBroadcasterBase> logger;
     protected readonly IOptionsMonitor<Setting> settings;
     private readonly SourceProcessingService sourceProcessingService;
-    private readonly MetricsService metricsService = new();
+    private readonly StreamMetricsTracker metricsService = new();
 
     protected BroadcasterBase(ILogger<IBroadcasterBase>? Logger, IOptionsMonitor<Setting>? Settings)
     {
@@ -194,7 +194,7 @@ public abstract class BroadcasterBase : IBroadcasterBase
         if (ClientStreamerConfigurations.TryAdd(uniqueRequestId, config))
         {
             logger.LogInformation("Add client streamer: {UniqueRequestId} to {Name}", uniqueRequestId, Name);
-            ClientChannelWriters.TryAdd(uniqueRequestId, config.ClientStream!.Channel);
+            //ClientChannelWriters.TryAdd(uniqueRequestId, config.ClientStream!.Channel);
         }
     }
 

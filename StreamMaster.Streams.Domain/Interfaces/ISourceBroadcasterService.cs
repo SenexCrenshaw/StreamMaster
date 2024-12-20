@@ -40,7 +40,7 @@ namespace StreamMaster.Streams.Domain.Interfaces
         /// </summary>
         /// <param name="key">The string key of the channel distributor.</param>
         /// <returns><c>true</c> if the channel distributor was stopped and unregistered; otherwise, <c>false</c>.</returns>
-        bool StopAndUnRegisterSourceBroadcaster(string key);
+        Task<bool> StopAndUnRegisterSourceBroadcasterAsync(string key);
 
         /// <summary>
         /// Gets all channel distributors.
