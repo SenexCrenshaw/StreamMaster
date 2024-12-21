@@ -13,7 +13,7 @@ using static StreamMaster.Domain.Common.GetStreamGroupEPGHandler;
 
 namespace StreamMaster.Application.StreamGroups;
 
-public class StreamGroupService(IHttpContextAccessor httpContextAccessor, ILogoService logoService, IOptionsMonitor<Setting> settings, IOptionsMonitor<CommandProfileDict> _commandProfileSettings, ICacheManager cacheManager, IRepositoryWrapper repositoryWrapper, IProfileService profileService)
+public partial class StreamGroupService(IHttpContextAccessor httpContextAccessor, ILogoService logoService, IOptionsMonitor<Setting> settings, IOptionsMonitor<CommandProfileDict> _commandProfileSettings, ICacheManager cacheManager, IRepositoryWrapper repositoryWrapper, IProfileService profileService)
     : IStreamGroupService
 {
     private readonly ConcurrentDictionary<int, bool> chNos = new();
@@ -74,6 +74,27 @@ public class StreamGroupService(IHttpContextAccessor httpContextAccessor, ILogoS
         return (null, null, null);
     }
 
+    public async Task<(int? StreamGroupId, int? StreamGroupProfileId)> DecodeStreamGroupIdProfileIdFromEncodedAsync(string encodedString)
+    {
+        (int? streamGroupId, string? groupKey, string? valuesEncryptedString) = await GetGroupKeyFromEncodeAsync(encodedString).ConfigureAwait(false);
+        if (streamGroupId == null || groupKey == null || string.IsNullOrEmpty(valuesEncryptedString))
+        {
+            return (null, null);
+        }
+
+        string decryptedTextWithGroupKey = AesEncryption.Decrypt(valuesEncryptedString, groupKey);
+        string[] values = decryptedTextWithGroupKey.Split(',');
+        if (values.Length == 2)
+        {
+            if (int.TryParse(values[1], out int streamGroupProfileId))
+            {
+                return (streamGroupId, streamGroupProfileId);
+            }
+        }
+
+        return (null, null);
+    }
+
     public async Task<string?> EncodeStreamGroupIdProfileIdChannelIdAsync(int streamGroupId, int streamGroupProfileId, int smChannelId)
     {
         string? groupKey = await GetStreamGroupKeyFromIdAsync(streamGroupId).ConfigureAwait(false);
@@ -86,7 +107,35 @@ public class StreamGroupService(IHttpContextAccessor httpContextAccessor, ILogoS
         return CryptoUtils.EncodeThreeValues(streamGroupId, streamGroupProfileId, smChannelId, settingsValue.ServerKey, groupKey);
     }
 
+    public async Task<string?> EncodeStreamGroupIdProfileIdAsync(int streamGroupId, int streamGroupProfileId)
+    {
+        string? groupKey = await GetStreamGroupKeyFromIdAsync(streamGroupId).ConfigureAwait(false);
+        return string.IsNullOrEmpty(groupKey)
+            ? null
+            : CryptoUtils.EncodeTwoValues(streamGroupId, streamGroupProfileId, settings.CurrentValue.ServerKey, groupKey);
+    }
+
+    public string EncodeProfileIds(List<int> streamGroupProfileIds)
+    {
+        string json = JsonSerializer.Serialize(streamGroupProfileIds);
+        string encryptedString = CryptoUtils.EncodeValue(json, settings.CurrentValue.ServerKey);
+        return encryptedString;
+    }
+
+    public List<int>? DecodeProfileIds(string encryptedString)
+    {
+        string? json = CryptoUtils.DecodeValue(encryptedString, settings.CurrentValue.ServerKey);
+        if (string.IsNullOrEmpty(json))
+        {
+            return [];
+        }
+        List<int>? ret = JsonSerializer.Deserialize<List<int>>(json);
+        return ret;
+    }
+
+
     #endregion CRYPTO
+
 
     public async Task SyncSTRMFilesAsync(CancellationToken cancellationToken)
     {
@@ -601,5 +650,85 @@ public class StreamGroupService(IHttpContextAccessor httpContextAccessor, ILogoS
             ? throw new Exception("Default stream group not found.")
             : await repositoryWrapper.StreamGroupProfile.GetQuery()
             .FirstOrDefaultAsync(a => a.StreamGroupId == defaultStreamGroup.Id && a.ProfileName == "Default").ConfigureAwait(false) ?? throw new Exception("Default stream group not found.");
+    }
+
+    public async Task<Dictionary<int, SGFS>> GetSMFS(List<int> sgProfileIds, bool isShort, CancellationToken cancellationToken)
+    {
+        ConcurrentDictionary<int, SGFS> sgFiles = [];
+
+        if (sgProfileIds.Contains(0))
+        {
+            int defaultSGId = await GetDefaultSGIdAsync();
+            sgProfileIds = await repositoryWrapper.StreamGroupProfile.GetQuery().Where(a => a.Id != defaultSGId).Select(a => a.Id).ToListAsync(cancellationToken: cancellationToken);
+        }
+
+        foreach (int sgProfileId in sgProfileIds)
+        {
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return sgFiles.ToDictionary();
+            }
+
+            (List<VideoStreamConfig> videoStreamConfigs, StreamGroupProfile streamGroupProfile) = await GetStreamGroupVideoConfigsAsync(sgProfileId);
+
+            StreamGroupDto? streamGroup = await repositoryWrapper.StreamGroup.GetStreamGroupByIdAsync(streamGroupProfile.StreamGroupId);
+            if (streamGroup is null)
+            {
+                continue;
+            }
+
+            foreach (VideoStreamConfig videoStreamConfig in videoStreamConfigs)
+            {
+
+                string videoUrl = isShort
+                    ? $"{videoStreamConfig.BaseUrl}/v/{videoStreamConfig.StreamGroupProfileId}/{videoStreamConfig.Id}"
+                    : $"{videoStreamConfig.BaseUrl}/v/{videoStreamConfig.EncodedString}";
+
+                if (sgFiles.TryGetValue(sgProfileId, out SGFS? sgFS))
+                {
+                    sgFS.SMFS.Add(new SMFile(CleanUpName(videoStreamConfig.Name), videoUrl));
+                }
+                else
+                {
+                    sgFiles.TryAdd(sgProfileId, new SGFS(CleanUpName(streamGroup.Name), isShort != true ? streamGroup.HDHRLink : streamGroup.ShortHDHRLink, [new SMFile(CleanUpName(videoStreamConfig.Name), videoUrl)]));
+
+                }
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    return sgFiles.ToDictionary();
+                }
+            }
+
+        }
+        return sgFiles.ToDictionary();
+    }
+    private static string CleanUpName(string name)
+    {
+        if (string.IsNullOrEmpty(name))
+        {
+            return name; // Return as-is if null or empty
+        }
+
+        // Remove everything up to and including the first colon if it exists
+        int colonIndex = name.IndexOf(':');
+        if (colonIndex >= 0)
+        {
+            name = name[(colonIndex + 1)..];
+        }
+
+        // Remove the "24x7" prefix if it exists (case-insensitive)
+        string[] prefixesToRemove = { "24x7", "24/7" };
+        // Remove any matching prefix
+        foreach (string prefix in prefixesToRemove)
+        {
+            if (name.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+            {
+                name = name[prefix.Length..].Trim();
+                break; // Exit loop after removing a prefix
+            }
+        }
+
+        // Return the cleaned-up name
+        return name;
     }
 }

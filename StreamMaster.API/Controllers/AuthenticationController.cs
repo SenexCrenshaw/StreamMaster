@@ -1,11 +1,11 @@
+using System.Security.Claims;
+
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 using StreamMaster.Domain.Enums;
 using StreamMaster.Infrastructure.Authentication;
-
-using System.Security.Claims;
 
 using IAuthenticationService = StreamMaster.Infrastructure.Authentication.IAuthenticationService;
 

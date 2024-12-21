@@ -13,7 +13,7 @@ namespace StreamMaster.Domain.Repository
 
         Task<StreamGroupDto?> GetStreamGroupByName(string Name);
 
-        Task<StreamGroupDto?> GetStreamGroupById(int id);
+        Task<StreamGroupDto?> GetStreamGroupByIdAsync(int id);
 
         Task<PagedResponse<StreamGroupDto>> GetPagedStreamGroups(QueryStringParameters Parameters);
 

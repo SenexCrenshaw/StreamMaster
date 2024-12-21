@@ -135,7 +135,7 @@ public class ClientConfiguration(
                         // Reset the inactivity timer if it exists
                         inactivityTimer?.Change(settings.CurrentValue.ClientReadTimeOutSeconds * 1000, Timeout.Infinite);
                     }
-                    catch (Exception )
+                    catch (Exception)
                     {
                         //LoggerFactory.CreateLogger<ClientConfiguration>().LogWarning(ex, "Failed to write to response for client {ClientId}", UniqueRequestId);
                         Stop(); // Stop the client on failure
@@ -152,7 +152,7 @@ public class ClientConfiguration(
                 }
             }
         }
-        catch (OperationCanceledException) when (ClientCancellationToken.IsCancellationRequested)
+        catch (OperationCanceledException ex) when (ClientCancellationToken.IsCancellationRequested)
         {
             // Graceful cancellation
             LoggerFactory.CreateLogger<ClientConfiguration>().LogInformation("Streaming task canceled for client {ClientId}", UniqueRequestId);

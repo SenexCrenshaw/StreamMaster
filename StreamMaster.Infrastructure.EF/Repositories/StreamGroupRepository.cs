@@ -108,7 +108,7 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
         return ret;
     }
 
-    public async Task<StreamGroupDto?> GetStreamGroupById(int streamGroupId)
+    public async Task<StreamGroupDto?> GetStreamGroupByIdAsync(int streamGroupId)
     {
         if (streamGroupId == 0)
         {

@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Reinforced.Typings.Attributes;
 
 using StreamMaster.API;
+using StreamMaster.API.Services;
 using StreamMaster.Application;
 using StreamMaster.Application.General.Commands;
 using StreamMaster.Application.Hubs;
@@ -258,7 +259,22 @@ app.UseDefaultFiles();
 app.UseStaticFiles();
 
 app.UseRouting();
+
+// Initialize SMWebSocketManager
+SMWebSocketManager smWebSocketManager = app.Services.GetRequiredService<SMWebSocketManager>();
+
 app.UseWebSockets();
+
+// WebSocket Endpoint
+app.Map("/ws", smWebSocketManager.HandleWebSocketAsync);
+
+// HTTP Endpoint to Trigger Reload
+app.MapPost("/trigger-reload", async () =>
+{
+    await smWebSocketManager.BroadcastReloadAsync();
+    return Results.Ok("Reload message sent to all clients.");
+});
+
 
 _ = app.Environment.IsDevelopment() ? app.UseCors("DevPolicy") : app.UseCors();
 //_ = app.UseCors();

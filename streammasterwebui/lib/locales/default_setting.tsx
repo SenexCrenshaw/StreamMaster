@@ -5,7 +5,7 @@ interface DefaultSettingType {
 const defaultSetting: DefaultSettingType = {
   AppendChannelName: 'true',
   'SDSettings.MaxSubscribedLineups': '4',
-  ApiKey: 'System Generated',
+  APIKey: 'System Generated',
   AuthenticationMethod: 'None',
   BackupEnabled: 'true',
   BackupInterval: '4',

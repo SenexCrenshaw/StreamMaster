@@ -237,6 +237,7 @@ export interface SettingDto
 {
 	AdminPassword: string;
 	AdminUserName: string;
+	APIKey: string;
 	AuthenticationMethod: string;
 	AutoSetEPG: boolean;
 	BackupEnabled: boolean;
@@ -725,6 +726,17 @@ export interface CancelClientRequest
 export interface MoveToNextStreamRequest
 {
 	SMChannelId: number;
+}
+export interface SGFS
+{
+	Name: string;
+	SMFS: SMFile[];
+	Url: string;
+}
+export interface SMFile
+{
+	Name: string;
+	Url: string;
 }
 export interface GetPagedStreamGroupsRequest
 {

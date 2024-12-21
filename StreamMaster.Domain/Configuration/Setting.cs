@@ -9,6 +9,7 @@ public class BaseSettings
 
     public string STRMBaseURL { get; set; } = "http://localhost:7095";
     //public bool AppendChannelName { get; set; } = false;
+    public string APIKey { get; set; } = Guid.NewGuid().ToString().Replace("-", "");
     public string AdminPassword { get; set; } = string.Empty;
     public string AdminUserName { get; set; } = string.Empty;
     public string AuthenticationMethod { get; set; }

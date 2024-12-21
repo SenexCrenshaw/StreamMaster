@@ -39,6 +39,9 @@ public static class ConfigureServices
         //    return factory.Create("SMLogger");
         //});
         //services.AddSingleton<ILoggerFactory, LoggerFactory>();
+
+        builder.Services.AddSingleton<SMWebSocketManager>();
+
         services.AddLogging(loggingBuilder =>
         {
             string test = DbLoggerCategory.Database.Command.Name;

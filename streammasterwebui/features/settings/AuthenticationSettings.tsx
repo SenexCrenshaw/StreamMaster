@@ -49,7 +49,7 @@ export function AuthenticationSettings(): React.ReactElement {
   return (
     <BaseSettings title="AUTHENTICATION">
       <>
-        {/* {getInputTextLine({  field: 'ApiKey', onChange })} */}
+        {GetInputTextLine({ field: 'APIKey' })}
         {GetDropDownLine({ field: 'AuthenticationMethod', options: getAuthTypeOptions() })}
         {/* {GetCheckBoxLine({ field: 'AuthenticationMethod', label: 'Require HTTPS' })} */}
         {GetInputTextLine({ field: 'AdminUserName', warning: adminUserNameError })}

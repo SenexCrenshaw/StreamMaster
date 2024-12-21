@@ -34,7 +34,7 @@ const MessagesEn: messages_enType = {
   AdminUserName: 'Admin Username',
   ShowIntros: 'Show Intros',
   all: 'All',
-  ApiKey: 'API Key',
+  APIKey: 'API Key',
   authentication: 'Authentication',
   AuthenticationMethod: 'Method',
   auto: 'Auto',
