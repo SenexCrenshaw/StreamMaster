@@ -43,9 +43,11 @@ namespace StreamMaster.Streams.Plugins
                 VideoInfoPlugins.TryAdd(Id, videoInfoPlugin);
 
                 // Add the PipeWriter to the broadcaster
-                sourceBroadcaster.AddChannelBroadcaster("VideoInfo", videoInfoPlugin.Pipe.Writer);
+                sourceBroadcaster.AddChannelBroadcaster("VideoInfo", videoInfoPlugin);
             }
         }
+
+
 
         public bool StopVideoPlugin(string Id)
         {

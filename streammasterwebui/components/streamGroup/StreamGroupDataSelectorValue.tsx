@@ -64,20 +64,6 @@ const StreamGroupDataSelectorValue = ({ id, streamGroupDto }: StreamGroupDataSel
 
   const idTemplate = useCallback((rowData: StreamGroupProfileDto) => {
     return <div className="text-container pl-1">{rowData.Id}</div>;
-    // if (rowData.OutputProfileName.toLowerCase() === 'default') {
-    //   return <div className="text-container pl-1">{rowData.Id}</div>;
-    // }
-    // return (
-    //   <StringEditor
-    //     value={rowData.ProfileName}
-    //     onSave={(e) => {
-    //       if (e !== undefined) {
-    //         const ret = { NewProfileName: e, ProfileName: rowData.ProfileName } as UpdateStreamGroupProfileRequest;
-    //         update(ret);
-    //       }
-    //     }}
-    //   />
-    // );
   }, []);
 
   const fileProfileTemplate = useCallback(
@@ -126,7 +112,7 @@ const StreamGroupDataSelectorValue = ({ id, streamGroupDto }: StreamGroupDataSel
   const columns = useMemo(
     (): ColumnMeta[] => [
       { bodyTemplate: idTemplate, field: 'Id', sortable: false, width: 8 },
-      { bodyTemplate: nameTemplate, header: 'Profile Name', field: 'Name', sortable: false, width: 80 },
+      { bodyTemplate: nameTemplate, field: 'Name', header: 'Profile Name', sortable: false, width: 80 },
       { bodyTemplate: fileProfileTemplate, field: 'OutputProfileName', header: 'Output Profile', sortable: false, width: 50 },
       { bodyTemplate: CommandProfileTemplate, field: 'CommandProfileName', header: 'Command Profile', sortable: false, width: 50 },
       {

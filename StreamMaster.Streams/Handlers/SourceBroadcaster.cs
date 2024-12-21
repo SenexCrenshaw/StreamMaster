@@ -1,7 +1,6 @@
 ﻿using System.Buffers;
 using System.Collections.Concurrent;
 using System.Diagnostics;
-using System.IO.Pipelines;
 
 using StreamMaster.Streams.Domain.Events;
 using StreamMaster.Streams.Domain.Statistics;
@@ -13,7 +12,7 @@ public class SourceBroadcaster(ILogger<ISourceBroadcaster> logger, IStreamFactor
 {
     private int _isStopped;
     private readonly StreamMetricsTracker MetricsService = new();
-    public ConcurrentDictionary<string, PipeWriter> ChannelBroadcasters { get; } = new();
+    public ConcurrentDictionary<string, IStreamDataToClients> ChannelBroadcasters { get; } = new();
 
     private Task? _streamingTask;
     private CancellationTokenSource? _cancellationTokenSource;
@@ -25,13 +24,13 @@ public class SourceBroadcaster(ILogger<ISourceBroadcaster> logger, IStreamFactor
 
     public void AddChannelBroadcaster(IChannelBroadcaster channelBroadcaster)
     {
-        AddChannelBroadcaster(channelBroadcaster.SMChannel.Id.ToString(), channelBroadcaster.Pipe.Writer);
+        AddChannelBroadcaster(channelBroadcaster.SMChannel.Id.ToString(), channelBroadcaster);
         _broadcasterAddedTcs.TrySetResult(true);
     }
 
-    public void AddChannelBroadcaster(string Id, PipeWriter pipeWriter)
+    public void AddChannelBroadcaster(string Id, IStreamDataToClients channelBroadcaster)
     {
-        ChannelBroadcasters.TryAdd(Id, pipeWriter);
+        ChannelBroadcasters.TryAdd(Id, channelBroadcaster);
     }
 
     public string StringId()
@@ -59,6 +58,7 @@ public class SourceBroadcaster(ILogger<ISourceBroadcaster> logger, IStreamFactor
     public async Task RunPipelineAsync(Stream sourceStream, int bufferSize = 8192, CancellationToken cancellationToken = default)
     {
         Stopwatch stopwatch = new();
+        byte[] buffer = ArrayPool<byte>.Shared.Rent(bufferSize);
 
         try
         {
@@ -69,16 +69,14 @@ public class SourceBroadcaster(ILogger<ISourceBroadcaster> logger, IStreamFactor
                 await _broadcasterAddedTcs.Task.ConfigureAwait(false);
             }
 
-            // Read from the source stream and write directly to all clients
             while (!cancellationToken.IsCancellationRequested)
             {
                 if (ChannelBroadcasters.IsEmpty)
                 {
                     logger.LogWarning("No clients connected. Stopping the pipeline.");
-                    break; // Stop if no clients are connected
+                    break;
                 }
 
-                byte[] buffer = new byte[bufferSize];
                 stopwatch.Restart();
                 int bytesRead = await sourceStream.ReadAsync(buffer, cancellationToken).ConfigureAwait(false);
                 stopwatch.Stop();
@@ -86,39 +84,26 @@ public class SourceBroadcaster(ILogger<ISourceBroadcaster> logger, IStreamFactor
                 if (bytesRead == 0)
                 {
                     logger.LogInformation("End of the source stream.");
-                    break; // End of the stream
+                    break;
                 }
 
                 double latency = stopwatch.Elapsed.TotalMilliseconds;
                 MetricsService.RecordMetrics(bytesRead, latency);
 
-                // Write data to all clients
-                foreach (KeyValuePair<string, PipeWriter> kvp in ChannelBroadcasters.ToArray()) // Safe copy for iteration
+                IEnumerable<Task> tasks = ChannelBroadcasters.Select(async channel =>
                 {
-                    if (_isStopped == 1 || cancellationToken.IsCancellationRequested)
-                    {
-                        return;
-                    }
-
-                    string key = kvp.Key;
-                    PipeWriter writer = kvp.Value;
-
                     try
                     {
-                        writer.Write(buffer.AsSpan(0, bytesRead)); // Write only the valid portion of the buffer
-                        await writer.FlushAsync(cancellationToken).ConfigureAwait(false); // Flush immediately
+                        await channel.Value.StreamDataToClientsAsync(new ReadOnlySequence<byte>(buffer, 0, bytesRead), cancellationToken).ConfigureAwait(false);
                     }
-                    catch (InvalidOperationException)
+                    catch (Exception ex)
                     {
-                        //logger.LogWarning("PipeWriter for {Key} is completed. Removing from broadcasters.", key);
-                        ChannelBroadcasters.TryRemove(key, out _); // Remove completed writer
+                        logger.LogError(ex, "Error occurred while streaming data to clients.");
+                        ChannelBroadcasters.TryRemove(channel.Key, out _);
                     }
-                    catch (Exception)
-                    {
-                        //logger.LogWarning(ex, "Failed to write to client {ClientId}. Removing client.", key);
-                        ChannelBroadcasters.TryRemove(key, out _); // Remove problematic client
-                    }
-                }
+                });
+
+                await Task.WhenAll(tasks).ConfigureAwait(false);
             }
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
@@ -127,28 +112,21 @@ public class SourceBroadcaster(ILogger<ISourceBroadcaster> logger, IStreamFactor
         }
         finally
         {
-            // Complete all writers
-            //foreach (PipeWriter writer in ChannelBroadcasters.Values)
-            //{
-            //    await writer.CompleteAsync().ConfigureAwait(false);
-            //}
+            ArrayPool<byte>.Shared.Return(buffer);
+
             ChannelBroadcasters.Clear();
-            // Dispose of the source stream
             await sourceStream.DisposeAsync().ConfigureAwait(false);
 
             stopwatch.Stop();
-            // Stop the broadcaster
-            //await StopAsync();
+
             if (Interlocked.CompareExchange(ref _isStopped, 1, 0) == 0)
             {
-                // Derived-specific logic before stopping
                 logger.LogInformation("Source Broadcaster stopped: {Name}", Name);
-
-                // Additional cleanup or finalization
                 OnStreamBroadcasterStoppedEvent?.Invoke(this, new StreamBroadcasterStopped(Id, Name));
             }
         }
     }
+
 
     public StreamHandlerMetrics Metrics => MetricsService.Metrics;
 

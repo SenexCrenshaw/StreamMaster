@@ -1,5 +1,4 @@
 ﻿using System.Collections.Concurrent;
-using System.IO.Pipelines;
 
 using StreamMaster.Domain.Models;
 using StreamMaster.Streams.Domain.Events;
@@ -10,9 +9,9 @@ namespace StreamMaster.Streams.Domain.Interfaces;
 public interface ISourceBroadcaster
 {
     StreamHandlerMetrics? Metrics { get; }
-    ConcurrentDictionary<string, PipeWriter> ChannelBroadcasters { get; }
+    ConcurrentDictionary<string, IStreamDataToClients> ChannelBroadcasters { get; }
     void AddChannelBroadcaster(IChannelBroadcaster channelBroadcaster);
-    void AddChannelBroadcaster(string Id, PipeWriter pipeWriter);
+    void AddChannelBroadcaster(string Id, IStreamDataToClients channelBroadcaster);
     bool RemoveChannelBroadcaster(int ChannelBroadcasterId);
     Task StopAsync();
     bool IsFailed { get; }

@@ -82,7 +82,7 @@ namespace StreamMaster.Streams.Handlers
 
             if (sourceBroadcasters.TryRemove(key, out ISourceBroadcaster? sourceBroadcaster))
             {
-                ICollection<System.IO.Pipelines.PipeWriter> a = sourceBroadcaster.ChannelBroadcasters.Values;
+                //var a = sourceBroadcaster.ChannelBroadcasters.Values;
                 await sourceBroadcaster.StopAsync();
                 _videoInfoService.StopVideoPlugin(sourceBroadcaster.SMStreamInfo.Id);
                 return true;

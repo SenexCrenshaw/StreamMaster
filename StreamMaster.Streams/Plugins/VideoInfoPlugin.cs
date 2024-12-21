@@ -12,7 +12,8 @@ public class VideoInfoEventArgs(VideoInfo videoInfo, string id) : EventArgs
     public string Id { get; } = id;
 }
 
-public class VideoInfoPlugin : IDisposable
+
+public class VideoInfoPlugin : IStreamDataToClients, IDisposable
 {
     private readonly ILogger<VideoInfoPlugin> _logger;
     private readonly IOptionsMonitor<Setting> _settingsMonitor;
@@ -40,8 +41,21 @@ public class VideoInfoPlugin : IDisposable
         _circularBuffer = new CircularBuffer(bufferSize);
 
         // Start the pipeline reader and video info processing tasks
-        _pipeReaderTask = ReadFromPipeAsync(_cancellationTokenSource.Token);
+        //_pipeReaderTask = ReadFromPipeAsync(_cancellationTokenSource.Token);
         _videoInfoTask = StartVideoInfoLoopAsync(_cancellationTokenSource.Token);
+    }
+
+    public async Task StreamDataToClientsAsync(System.Buffers.ReadOnlySequence<byte> buffer, CancellationToken cancellationToken)
+    {
+        foreach (ReadOnlyMemory<byte> segment in buffer)
+        {
+            if (cancellationToken.IsCancellationRequested)
+            {
+                break;
+            }
+            _circularBuffer.Write(segment.Span); // Write to the circular buffer
+
+        }
     }
 
     private async Task ReadFromPipeAsync(CancellationToken cancellationToken)
