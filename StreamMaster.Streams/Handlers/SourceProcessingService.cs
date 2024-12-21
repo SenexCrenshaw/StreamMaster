@@ -3,7 +3,7 @@ using System.Threading.Channels;
 
 namespace StreamMaster.Streams.Handlers;
 
-public class SourceProcessingService(ILogger<IBroadcasterBase> logger, IOptionsMonitor<Setting> _settings) : ISourceProcessingService
+public class SourceProcessingService(ILogger<SourceProcessingService> logger, IOptionsMonitor<Setting> _settings) : ISourceProcessingService
 {
     public Task ProcessSourceChannelReaderAsync(ChannelReader<byte[]> sourceChannelReader, Channel<byte[]> newChannel, IMetricsService metricsService, CancellationToken token)
     {

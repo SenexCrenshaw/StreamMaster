@@ -2,7 +2,7 @@
 
 namespace StreamMaster.Streams.Domain.Interfaces
 {
-    public interface IVideoCombiner : IBroadcasterBase
+    public interface IVideoCombiner
     {
         int Id { get; }
         event EventHandler<VideoCombinerStopped>? OnVideoCombinerStoppedEvent;

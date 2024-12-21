@@ -8,7 +8,7 @@ namespace StreamMaster.Streams.Services
     public class Dubcer
     {//
         public string SourceName { get; set; } = string.Empty;
-        private readonly ILogger<IBroadcasterBase> logger;
+        private readonly ILogger<Dubcer> logger;
         private readonly Channel<byte[]> inputChannel = ChannelHelper.GetChannel();
         private Process? ffmpegProcess;
 
@@ -16,7 +16,7 @@ namespace StreamMaster.Streams.Services
 
         public Channel<byte[]> DubcerChannel { get; } = ChannelHelper.GetChannel();
 
-        public Dubcer(ILogger<IBroadcasterBase> logger)
+        public Dubcer(ILogger<Dubcer> logger)
         {
             this.logger = logger;
             StartFFmpegProcess();

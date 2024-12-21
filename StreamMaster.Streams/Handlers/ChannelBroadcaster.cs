@@ -32,70 +32,10 @@ public sealed class ChannelBroadcaster(ILogger<IChannelBroadcaster> logger, SMCh
 
     public string Name => smChannelDto.Name;
 
-    public async Task AddChannelStreamerAsync(IClientConfiguration clientConfiguration)
+    public void AddChannelStreamer(IClientConfiguration clientConfiguration)
     {
         Clients.TryAdd(clientConfiguration.UniqueRequestId, clientConfiguration);
-
-        //await _streamLock.WaitAsync().ConfigureAwait(false);
-        //try
-        //{
-        //    if (_streamingTask?.IsCompleted != false)
-        //    {
-        //        _streamingTask = Task.Run(StreamToClientsAsync);
-        //    }
-        //}
-        //finally
-        //{
-        //    _streamLock.Release();
-        //}
     }
-
-    //private async Task StreamToClientsAsync()
-    //{
-    //    try
-    //    {
-    //        while (true)
-    //        {
-    //            // Read from the pipe
-    //            ReadResult result = await Pipe.Reader.ReadAsync().ConfigureAwait(false);
-    //            System.Buffers.ReadOnlySequence<byte> buffer = result.Buffer;
-
-    //            foreach (IClientConfiguration? client in Clients.Values.ToArray()) // Safe copy for iteration
-    //            {
-    //                try
-    //                {
-    //                    // Write the entire buffer to the client's PipeWriter
-    //                    foreach (ReadOnlyMemory<byte> segment in buffer)
-    //                    {
-    //                        await client.Pipe.Writer.WriteAsync(segment, CancellationToken.None).ConfigureAwait(false);
-    //                    }
-
-    //                    await client.Pipe.Writer.FlushAsync().ConfigureAwait(false); // Ensure data is sent
-    //                }
-    //                catch (Exception ex)
-    //                {
-    //                    logger.LogWarning(ex, "Error writing to client. Stopping client {ClientId}.", client.UniqueRequestId);
-
-    //                    // Stop the client and remove it from the list
-    //                    client.Stop();
-    //                    Clients.TryRemove(client.UniqueRequestId, out _);
-    //                }
-    //            }
-
-    //            // Mark the buffer as processed
-    //            Pipe.Reader.AdvanceTo(buffer.End);
-
-    //            if (result.IsCompleted)
-    //            {
-    //                break; // Stop if the pipe is completed
-    //            }
-    //        }
-    //    }
-    //    finally
-    //    {
-    //        await Pipe.Reader.CompleteAsync().ConfigureAwait(false);
-    //    }
-    //}
 
     public async Task StreamDataToClientsAsync(System.Buffers.ReadOnlySequence<byte> buffer, CancellationToken cancellationToken)
     {

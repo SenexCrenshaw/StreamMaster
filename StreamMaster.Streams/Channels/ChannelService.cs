@@ -155,7 +155,7 @@ public sealed class ChannelService : IChannelService
                 return false;
             }
 
-            await channelBroadcaster.AddChannelStreamerAsync(clientConfiguration);
+            channelBroadcaster.AddChannelStreamer(clientConfiguration);
 
             await messageService.SendInfo($"Client started streaming {clientConfiguration.SMChannel.Name}", "Client Start");
             return true;
@@ -309,7 +309,7 @@ public sealed class ChannelService : IChannelService
             //}
 
             // Add the client streamer to the channel broadcaster.
-            //await channelBroadcaster.AddChannelStreamerAsync(clientConfiguration);
+            //await channelBroadcaster.AddChannelStreamer(clientConfiguration);
 
             return channelBroadcaster;
         }

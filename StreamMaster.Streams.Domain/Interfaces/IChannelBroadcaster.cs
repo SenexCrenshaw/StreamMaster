@@ -18,7 +18,7 @@ public interface IChannelBroadcaster : IStreamStatus, IStreamDataToClients
     bool ClientConfigurationsEmpty { get; }
     bool RemoveClient(string clientId);
     ConcurrentDictionary<string, IClientConfiguration> Clients { get; }
-    Task AddChannelStreamerAsync(IClientConfiguration clientConfiguration);
+    void AddChannelStreamer(IClientConfiguration clientConfiguration);
     //Pipe Pipe { get; set; }
     /// <summary>
     /// Gets the unique identifier for the channel.
