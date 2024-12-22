@@ -1,9 +1,14 @@
 ﻿namespace StreamMaster.Streams.Streams;
 
-public class CommandStream(IHTTPStream HTTPStream) : ICommandStream
+/// <summary>
+/// Handles the creation and management of command-based streams.
+/// </summary>
+public class CommandStream(IHTTPStream httpStream) : ICommandStream
 {
-    public async Task<(Stream? stream, int processId, ProxyStreamError? error)> HandleStream(SMStreamInfo SMStreamInfo, string clientUserAgent, CancellationToken cancellationToken)
+    /// <inheritdoc/>
+    public async Task<GetStreamResult> HandleStream(SMStreamInfo smStreamInfo, string clientUserAgent, CancellationToken cancellationToken)
     {
-        return await HTTPStream.HandleStream(SMStreamInfo, clientUserAgent, cancellationToken).ConfigureAwait(false);
+        // Delegate the stream handling to the HTTP stream implementation
+        return await httpStream.HandleStream(smStreamInfo, clientUserAgent, cancellationToken).ConfigureAwait(false);
     }
 }

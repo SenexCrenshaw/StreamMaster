@@ -12,4 +12,3 @@ global using StreamMaster.PlayList;
 
 global using StreamMaster.Streams.Domain.Interfaces;
 global using StreamMaster.Streams.Domain.Models;
-global using StreamMaster.Streams.Handlers;

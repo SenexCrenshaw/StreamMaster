@@ -231,6 +231,11 @@ public partial class UpdateSettingRequestHandler(
             currentSetting.PrettyEPG = request.Parameters.PrettyEPG.Value;
         }
 
+        if (request.Parameters.DeleteOldSTRMFiles.HasValue)
+        {
+            currentSetting.DeleteOldSTRMFiles = request.Parameters.DeleteOldSTRMFiles.Value;
+        }
+
         if (!string.IsNullOrEmpty(request.Parameters.ShowIntros))
         {
             currentSetting.ShowIntros = request.Parameters.ShowIntros;

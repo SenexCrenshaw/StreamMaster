@@ -60,15 +60,15 @@ public class VsController(ILogger<VsController> logger, IVideoService videoServi
             }
 
             // Register client stopped event
-            streamResult.ClientConfiguration.ClientStopped += (sender, args) =>
+            streamResult.ClientConfiguration.OnClientStopped += (sender, args) =>
             {
-                logger.LogInformation("Client {UniqueRequestId} stopped. Name: {name}", streamResult.ClientConfiguration.UniqueRequestId, streamResult.ClientConfiguration.SMChannel.Name);
+                //logger.LogInformation("Client {UniqueRequestId} stopped. Name: {name}", streamResult.ClientConfiguration.UniqueRequestId, streamResult.ClientConfiguration.SMChannel.Name);
                 _ = channelService.UnRegisterClientAsync(streamResult.ClientConfiguration.UniqueRequestId);
             };
 
             // Register for dispose to ensure cleanup
             HttpContext.Response.RegisterForDispose(new UnregisterClientOnDispose(channelService, streamResult.ClientConfiguration, logger));
-            await streamResult.ClientConfiguration.CompletionSource.Task.ConfigureAwait(false);
+            await streamResult.ClientConfiguration.ClientCompletionSource.Task.ConfigureAwait(false);
 
             return new EmptyResult();
         }
@@ -92,7 +92,7 @@ public class VsController(ILogger<VsController> logger, IVideoService videoServi
         {
             try
             {
-                logger.LogInformation("Client {UniqueRequestId} {name} disposing", _config.UniqueRequestId, _config.SMChannel.Name);
+                logger.LogInformation("Client UnregisterClient {UniqueRequestId} {name} disposing", _config.UniqueRequestId, _config.SMChannel.Name);
 
                 // Complete the HTTP response
                 if (!_config.Response.HasStarted)
@@ -102,8 +102,6 @@ public class VsController(ILogger<VsController> logger, IVideoService videoServi
 
                 // Remove the client from the channel manager
                 await _channelService.UnRegisterClientAsync(_config.UniqueRequestId).ConfigureAwait(false);
-
-                logger.LogInformation("Client {UniqueRequestId} {name} successfully disposed", _config.UniqueRequestId, _config.SMChannel.Name);
             }
             catch (Exception ex)
             {

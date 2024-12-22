@@ -250,6 +250,7 @@ export interface SettingDto
 	DefaultCompression: string;
 	DefaultLogo: string;
 	DefaultOutputProfileName: string;
+	DeleteOldSTRMFiles: boolean;
 	DeviceID: string;
 	EnableDBDebug: boolean;
 	EnableSSL: boolean;
@@ -1149,6 +1150,7 @@ export interface UpdateSettingParameters
 	DefaultCommandProfileName?: string;
 	DefaultCompression?: string;
 	DefaultOutputProfileName?: string;
+	DeleteOldSTRMFiles?: boolean;
 	DeviceID?: string;
 	EnableSSL?: boolean;
 	FFMPegExecutable?: string;
@@ -1607,14 +1609,15 @@ export interface StreamStreamingStatistic
 }
 export interface ChannelMetric
 {
+	ChannelLogo?: string;
 	ClientStreams: ClientStreamsDto[];
 	Id: string;
 	IsFailed: boolean;
-	Logo?: string;
 	Metrics: StreamHandlerMetrics;
 	Name: string;
 	SMStreamInfo?: SMStreamInfo;
 	SourceName: string;
+	StreamLogo?: string;
 	VideoInfo?: string;
 }
 export interface ClientChannelDto
@@ -1627,13 +1630,14 @@ export interface ClientChannelDto
 }
 export interface ClientStreamsDto
 {
+	ChannelLogo?: string;
 	ClientIPAddress?: string;
 	ClientUserAgent?: string;
-	Logo?: string;
 	Metrics?: StreamHandlerMetrics;
 	Name: string;
 	SMChannelId: string;
 	SMStreamId: string;
+	StreamLogo?: string;
 }
 export interface CustomStreamNfo
 {

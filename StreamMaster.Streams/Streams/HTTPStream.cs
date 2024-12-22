@@ -4,8 +4,21 @@ using StreamMaster.Domain.Extensions;
 
 namespace StreamMaster.Streams.Streams;
 
-public class HTTPStream(ILogger<HTTPStream> logger, IOptionsMonitor<Setting> _settings, IHttpClientFactory httpClientFactory, IProfileService profileService, ICommandExecutor commandExecutor) : IHTTPStream
+/// <summary>
+/// Handles the creation and management of HTTP-based streams.
+/// </summary>
+public class HTTPStream(
+    ILogger<HTTPStream> logger,
+    IOptionsMonitor<Setting> settings,
+    IHttpClientFactory httpClientFactory,
+    IProfileService profileService,
+    ICommandExecutor commandExecutor) : IHTTPStream
 {
+    /// <summary>
+    /// Creates an `HttpClient` configured with the specified user agent.
+    /// </summary>
+    /// <param name="streamingClientUserAgent">The user agent to use for the client.</param>
+    /// <returns>A configured <see cref="HttpClient"/> instance.</returns>
     private HttpClient CreateHttpClient(string streamingClientUserAgent)
     {
         HttpClient client = httpClientFactory.CreateClient();
@@ -13,16 +26,19 @@ public class HTTPStream(ILogger<HTTPStream> logger, IOptionsMonitor<Setting> _se
         return client;
     }
 
-    public async Task<(Stream? stream, int processId, ProxyStreamError? error)> HandleStream(SMStreamInfo smStreamInfo, string clientUserAgent, CancellationToken cancellationToken)
+    /// <inheritdoc/>
+    public async Task<GetStreamResult> HandleStream(SMStreamInfo smStreamInfo, string clientUserAgent, CancellationToken cancellationToken)
     {
         Stopwatch stopwatch = Stopwatch.StartNew();
         CancellationTokenSource? timeoutCts = null;
-        logger.LogInformation("Getting stream for {streamName}", smStreamInfo.Name);
+
+        logger.LogInformation("Getting stream for {StreamName}", smStreamInfo.Name);
+
         try
         {
-            if (_settings.CurrentValue.StreamStartTimeoutMs > 0)
+            if (settings.CurrentValue.StreamStartTimeoutMs > 0)
             {
-                timeoutCts = new CancellationTokenSource(_settings.CurrentValue.StreamStartTimeoutMs);
+                timeoutCts = new CancellationTokenSource(settings.CurrentValue.StreamStartTimeoutMs);
             }
 
             using CancellationTokenSource linkedCts = timeoutCts != null
@@ -30,6 +46,7 @@ public class HTTPStream(ILogger<HTTPStream> logger, IOptionsMonitor<Setting> _se
                 : CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
 
             HttpClient client = CreateHttpClient(clientUserAgent);
+
             HttpResponseMessage? response;
 
             try
@@ -38,56 +55,94 @@ public class HTTPStream(ILogger<HTTPStream> logger, IOptionsMonitor<Setting> _se
             }
             catch (OperationCanceledException) when (timeoutCts?.IsCancellationRequested == true)
             {
-                ProxyStreamError timeoutError = new() { ErrorCode = ProxyStreamErrorCode.Timeout, Message = $"Request for {smStreamInfo.Name} timed out after {_settings.CurrentValue.StreamStartTimeoutMs} ms" };
-                logger.LogError("HandleStream Timeout: {message}", timeoutError.Message);
-                return (null, -1, timeoutError);
+                return CreateTimeoutResult(smStreamInfo, settings.CurrentValue.StreamStartTimeoutMs);
             }
 
             if (response?.IsSuccessStatusCode != true)
             {
-                ProxyStreamError error = new() { ErrorCode = ProxyStreamErrorCode.DownloadError, Message = $"Could not retrieve stream for {smStreamInfo.Name}. Response was: \"{response?.StatusCode}\"" };
-                logger.LogError("GetProxyStream Error: {message}", error.Message);
-                return (null, -1, error);
+                return CreateErrorResult(smStreamInfo, response?.StatusCode.ToString() ?? "Unknown response");
             }
 
             string? contentType = response.Content.Headers?.ContentType?.MediaType;
 
-            if (!string.IsNullOrEmpty(contentType) &&
-                (contentType.EqualsIgnoreCase("application/vnd.apple.mpegurl") ||
-                contentType.EqualsIgnoreCase("audio/mpegurl") ||
-                contentType.EqualsIgnoreCase("application/x-mpegURL")))
+            if (IsHLSContent(contentType))
             {
-                CommandProfileDto commandProfileDto = profileService.GetM3U8OutputProfile(smStreamInfo.Id);
-                logger.LogInformation("Stream contains HLS content, using {name} for streaming: {streamName}", commandProfileDto.ProfileName, smStreamInfo.Name);
-                //CommandProfileDto commandProfileDto = profileService.GetCommandProfile("SMFFMPEG");
-                stopwatch.Stop();
-                logger.LogInformation("Got stream for {streamName} in {ElapsedMilliseconds} ms", smStreamInfo.Name, stopwatch.ElapsedMilliseconds);
-
-                return commandExecutor.ExecuteCommand(commandProfileDto, smStreamInfo.Url, clientUserAgent, null, linkedCts.Token);
+                return HandleHLSContent(smStreamInfo, clientUserAgent, stopwatch, linkedCts.Token);
             }
 
             Stream stream = await response.Content.ReadAsStreamAsync(linkedCts.Token).ConfigureAwait(false);
             stopwatch.Stop();
-            logger.LogInformation("Got stream for {streamName} in {ElapsedMilliseconds} ms", smStreamInfo.Name, stopwatch.ElapsedMilliseconds);
+            logger.LogInformation("Got stream for {StreamName} in {ElapsedMilliseconds} ms", smStreamInfo.Name, stopwatch.ElapsedMilliseconds);
 
-            return (stream, -1, null);
+            return new GetStreamResult(stream, -1, null);
         }
         catch (OperationCanceledException) when (timeoutCts?.IsCancellationRequested == true)
         {
-            ProxyStreamError timeoutError = new() { ErrorCode = ProxyStreamErrorCode.Timeout, Message = $"Request for {smStreamInfo.Name} timed out after {_settings.CurrentValue.StreamStartTimeoutMs} ms" };
-            logger.LogError("HandleStream Timeout: {message}", timeoutError.Message);
-            return (null, -1, timeoutError);
+            return CreateTimeoutResult(smStreamInfo, settings.CurrentValue.StreamStartTimeoutMs);
         }
         catch (Exception ex)
         {
-            ProxyStreamError error = new() { ErrorCode = ProxyStreamErrorCode.DownloadError, Message = $"Unexpected error occurred while handling stream for {smStreamInfo.Name}: {ex.Message}" };
-            logger.LogError(ex, "HandleStream Error: {message}", error.Message);
-            return (null, -1, error);
+            return HandleUnexpectedError(smStreamInfo, ex);
         }
         finally
         {
             stopwatch.Stop();
             timeoutCts?.Dispose();
         }
+    }
+
+    private static bool IsHLSContent(string? contentType)
+    {
+        return !string.IsNullOrEmpty(contentType) &&
+               (contentType.EqualsIgnoreCase("application/vnd.apple.mpegurl") ||
+                contentType.EqualsIgnoreCase("audio/mpegurl") ||
+                contentType.EqualsIgnoreCase("application/x-mpegURL"));
+    }
+
+    private GetStreamResult HandleHLSContent(SMStreamInfo smStreamInfo, string clientUserAgent, Stopwatch stopwatch, CancellationToken cancellationToken)
+    {
+        CommandProfileDto commandProfileDto = profileService.GetM3U8OutputProfile(smStreamInfo.Id);
+
+        logger.LogInformation("Stream contains HLS content, using {ProfileName} for streaming: {StreamName}", commandProfileDto.ProfileName, smStreamInfo.Name);
+
+        stopwatch.Stop();
+        logger.LogInformation("Got HLS stream for {StreamName} in {ElapsedMilliseconds} ms", smStreamInfo.Name, stopwatch.ElapsedMilliseconds);
+
+        return commandExecutor.ExecuteCommand(commandProfileDto, smStreamInfo.Url, clientUserAgent, null, cancellationToken);
+    }
+
+    private static GetStreamResult CreateTimeoutResult(SMStreamInfo smStreamInfo, int timeoutMs)
+    {
+        ProxyStreamError timeoutError = new()
+        {
+            ErrorCode = ProxyStreamErrorCode.Timeout,
+            Message = $"Request for {smStreamInfo.Name} timed out after {timeoutMs} ms"
+        };
+
+        return new GetStreamResult(null, -1, timeoutError);
+    }
+
+    private static GetStreamResult CreateErrorResult(SMStreamInfo smStreamInfo, string responseDescription)
+    {
+        ProxyStreamError error = new()
+        {
+            ErrorCode = ProxyStreamErrorCode.DownloadError,
+            Message = $"Could not retrieve stream for {smStreamInfo.Name}. Response: \"{responseDescription}\""
+        };
+
+        return new GetStreamResult(null, -1, error);
+    }
+
+    private GetStreamResult HandleUnexpectedError(SMStreamInfo smStreamInfo, Exception ex)
+    {
+        ProxyStreamError error = new()
+        {
+            ErrorCode = ProxyStreamErrorCode.DownloadError,
+            Message = $"Unexpected error occurred while handling stream for {smStreamInfo.Name}: {ex.Message}"
+        };
+
+        logger.LogError(ex, "Unexpected error occurred for {StreamName}: {Message}", smStreamInfo.Name, error.Message);
+
+        return new GetStreamResult(null, -1, error);
     }
 }

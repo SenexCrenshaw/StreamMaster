@@ -5,204 +5,225 @@ using StreamMaster.PlayList.Models;
 
 namespace StreamMaster.Streams.Services;
 
-public sealed class SwitchToNextStreamService(ILogger<SwitchToNextStreamService> logger, ICacheManager cacheManager, IStreamLimitsService streamLimitsService, IProfileService profileService, IServiceProvider _serviceProvider, IIntroPlayListBuilder introPlayListBuilder, ICustomPlayListBuilder customPlayListBuilder, IOptionsMonitor<Setting> intSettings)
-    : ISwitchToNextStreamService
+/// <summary>
+/// Service to handle switching to the next stream for a given channel status.
+/// </summary>
+public sealed class SwitchToNextStreamService(
+    ILogger<SwitchToNextStreamService> logger,
+    ICacheManager cacheManager,
+    IStreamLimitsService streamLimitsService,
+    IProfileService profileService,
+    IServiceProvider serviceProvider,
+    IIntroPlayListBuilder introPlayListBuilder,
+    ICustomPlayListBuilder customPlayListBuilder,
+    IOptionsMonitor<Setting> settingsMonitor) : ISwitchToNextStreamService
 {
-    private static string GetClientUserAgent(SMChannelDto smChannel, SMStreamDto? smStream, Setting setting)
+    /// <inheritdoc/>
+    public async Task<bool> SetNextStreamAsync(IStreamStatus channelStatus, string? overrideSMStreamId = null)
     {
-        string clientUserAgent =
-            !string.IsNullOrEmpty(smStream?.ClientUserAgent) ? smStream.ClientUserAgent :
-            !string.IsNullOrEmpty(smChannel.ClientUserAgent) ? smChannel.ClientUserAgent :
-            setting.ClientUserAgent;
+        channelStatus.FailoverInProgress = true;
+        Setting settings = settingsMonitor.CurrentValue;
 
-        return clientUserAgent;
-    }
-
-    public async Task<bool> SetNextStreamAsync(IStreamStatus ChannelStatus, string? OverrideSMStreamId = null)
-    {
-        ChannelStatus.FailoverInProgress = true;
-
-        Setting _settings = intSettings.CurrentValue;
-
-        if (_settings.ShowIntros != "None")
+        if (HandleIntroLogic(channelStatus, settings))
         {
-            if (
-                (_settings.ShowIntros == "Once" && ChannelStatus.IsFirst) ||
-                (_settings.ShowIntros == "Always" && !ChannelStatus.PlayedIntro)
-                )
-            {
-                CustomStreamNfo? intro = introPlayListBuilder.GetRandomIntro(ChannelStatus.IsFirst ? null : ChannelStatus.IntroIndex);
-                CommandProfileDto introCommandProfileDto = profileService.GetCommandProfile("SMFFMPEGLocal");
-                ChannelStatus.IsFirst = false;
-                ChannelStatus.PlayedIntro = true;
-
-                if (intro != null)
-                {
-                    string streamId = $"{IntroPlayListBuilder.IntroIDPrefix}{intro.Movie.Title}";
-                    SMStreamInfo overRideSMStreamInfo = new()
-                    {
-                        Id = streamId,
-                        Name = intro.Movie.Title,
-                        Url = intro.VideoFileName,
-                        ClientUserAgent = intSettings.CurrentValue.ClientUserAgent,
-                        CommandProfile = introCommandProfileDto,
-                        SMStreamType = SMStreamTypeEnum.Intro
-                    };
-                    ChannelStatus.SetSMStreamInfo(overRideSMStreamInfo);
-                    logger.LogDebug("Set Next for Channel {SourceName}, switched to {Id} {Name}", ChannelStatus.SourceName, overRideSMStreamInfo.Id, overRideSMStreamInfo.Name);
-                    return true;
-                }
-            }
+            return true;
         }
 
-        using IServiceScope scope = _serviceProvider.CreateScope();
+        using IServiceScope scope = serviceProvider.CreateScope();
+        channelStatus.PlayedIntro = false;
 
-        ChannelStatus.PlayedIntro = false;
-
-        SMStreamDto? smStream = null;
-        if (!string.IsNullOrEmpty(OverrideSMStreamId))
-        {
-            IRepositoryWrapper repository = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
-            smStream = repository.SMStream.GetSMStream(OverrideSMStreamId);
-        }
-
-        if (smStream == null || streamLimitsService.IsLimited(smStream))
-        {
-            if (!ChannelHasStreamsOrChannels(ChannelStatus.SMChannel))
-            {
-                logger.LogError("Set Next for Channel {SourceName}, {Id} {Name} starting has no streams", ChannelStatus.SourceName, ChannelStatus.SMChannel.Id, ChannelStatus.SMChannel.Name);
-                ChannelStatus.SetSMStreamInfo(null);
-                return false;
-            }
-
-            List<SMStreamDto> smStreams = [.. ChannelStatus.SMChannel.SMStreamDtos.OrderBy(a => a.Rank)];
-
-            bool isChannelLimited = true;
-
-            while (isChannelLimited)
-            {
-                if (ChannelStatus.SMChannel.CurrentRank + 1 >= ChannelStatus.SMChannel.SMStreamDtos.Count)
-                {
-                    logger.LogInformation("Set Next for Channel {SourceName}, {Id} {Name} at end of stream list", ChannelStatus.SourceName, ChannelStatus.SMChannel.Id, ChannelStatus.SMChannel.Name);
-                    break;
-                }
-
-                ChannelStatus.SMChannel.CurrentRank = (ChannelStatus.SMChannel.CurrentRank + 1) % smStreams.Count;
-                smStream = smStreams[ChannelStatus.SMChannel.CurrentRank];
-                isChannelLimited = streamLimitsService.IsLimited(smStream);
-                if (!isChannelLimited)
-                {
-                    break;
-                }
-            }
-        }
-
+        SMStreamDto? smStream = await ResolveSMStreamAsync(scope, channelStatus, overrideSMStreamId).ConfigureAwait(false);
         if (smStream == null)
         {
-            logger.LogInformation("Set Next for Channel {SourceName}, {Id} {Name}, max Streams reached, trying next in list", ChannelStatus.SourceName, ChannelStatus.SMChannel.Id, ChannelStatus.SMChannel.Name);
+            HandleStreamNotFound(channelStatus);
             return false;
         }
-        bool isLimited = streamLimitsService.IsLimited(smStream);
-        if (isLimited)
-        {
-            if (_settings.ShowMessageVideos && cacheManager.MessageNoStreamsLeft != null)
+
+        return streamLimitsService.IsLimited(smStream)
+            ? HandleStreamLimits(channelStatus, settings)
+            : smStream.SMStreamType switch
             {
-                ChannelStatus.SetSMStreamInfo(cacheManager.MessageNoStreamsLeft);
-                logger.LogDebug("No more streams found, {SourceName} {Id} {Name} , sending message", ChannelStatus.SourceName, cacheManager.MessageNoStreamsLeft.Id, cacheManager.MessageNoStreamsLeft.Name);
+                SMStreamTypeEnum.CustomPlayList => HandleCustomPlayListStream(channelStatus, smStream, settings),
+                SMStreamTypeEnum.Intro => HandleIntroStream(channelStatus, smStream, settings),
+                _ => await HandleStandardStreamAsync(scope, channelStatus, smStream, settings).ConfigureAwait(false)
+            };
+    }
+
+    private static string GetClientUserAgent(SMChannelDto smChannel, SMStreamDto? smStream, Setting settings)
+    {
+        return !string.IsNullOrEmpty(smStream?.ClientUserAgent) ? smStream.ClientUserAgent
+            : !string.IsNullOrEmpty(smChannel.ClientUserAgent) ? smChannel.ClientUserAgent
+            : settings.ClientUserAgent;
+    }
+
+    private bool HandleIntroLogic(IStreamStatus channelStatus, Setting settings)
+    {
+        if (settings.ShowIntros != "None" &&
+            ((settings.ShowIntros == "Once" && channelStatus.IsFirst) ||
+             (settings.ShowIntros == "Always" && !channelStatus.PlayedIntro)))
+        {
+            CustomStreamNfo? intro = introPlayListBuilder.GetRandomIntro(channelStatus.IsFirst ? null : channelStatus.IntroIndex);
+            if (intro != null)
+            {
+                SMStreamInfo introStreamInfo = CreateIntroStreamInfo(intro, settings);
+                channelStatus.SetSMStreamInfo(introStreamInfo);
+
+                channelStatus.IsFirst = false;
+                channelStatus.PlayedIntro = true;
+
+                logger.LogDebug("Set Next for Channel {SourceName}, switched to Intro {Id} {Name}",
+                    channelStatus.SourceName, introStreamInfo.Id, introStreamInfo.Name);
+
                 return true;
             }
-            logger.LogInformation("Set Next for Channel {SourceName}, {Id} {Name}, max Streams reached", ChannelStatus.SourceName, ChannelStatus.SMChannel.Id, ChannelStatus.SMChannel.Name);
+        }
+
+        return false;
+    }
+
+    private bool HandleIntroStream(IStreamStatus channelStatus, SMStreamDto smStream, Setting settings)
+    {
+        CustomPlayList? introPlayList = introPlayListBuilder.GetIntroPlayList(smStream.Name);
+        if (introPlayList == null)
+        {
             return false;
         }
 
+        CommandProfileDto customPlayListProfile = profileService.GetCommandProfile("SMFFMPEGLocal");
+
+        SMStreamInfo streamInfo = new()
+        {
+            Id = introPlayList.Name,
+            Name = introPlayList.Name,
+            Url = introPlayList.CustomStreamNfos[0].VideoFileName,
+            SMStreamType = SMStreamTypeEnum.CustomPlayList,
+            ClientUserAgent = GetClientUserAgent(channelStatus.SMChannel, smStream, settings),
+            CommandProfile = customPlayListProfile
+        };
+
+        channelStatus.SetSMStreamInfo(streamInfo);
+
+        logger.LogDebug("Set Next for Channel {SourceName}, switched to Intro {Id} {Name}",
+            channelStatus.SourceName, streamInfo.Id, streamInfo.Name);
+
+        return true;
+    }
+
+    private SMStreamInfo CreateIntroStreamInfo(CustomStreamNfo intro, Setting settings)
+    {
+        CommandProfileDto introCommandProfile = profileService.GetCommandProfile("SMFFMPEGLocal");
+        return new SMStreamInfo
+        {
+            Id = $"{IntroPlayListBuilder.IntroIDPrefix}{intro.Movie.Title}",
+            Name = intro.Movie.Title,
+            Url = intro.VideoFileName,
+            ClientUserAgent = settings.ClientUserAgent,
+            CommandProfile = introCommandProfile,
+            SMStreamType = SMStreamTypeEnum.Intro
+        };
+    }
+
+    private async Task<SMStreamDto?> ResolveSMStreamAsync(IServiceScope scope, IStreamStatus channelStatus, string? overrideSMStreamId)
+    {
+        if (!string.IsNullOrEmpty(overrideSMStreamId))
+        {
+            IRepositoryWrapper repository = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
+            return await repository.SMStream.GetSMStreamAsync(overrideSMStreamId).ConfigureAwait(false);
+        }
+
+        List<SMStreamDto> smStreams = [.. channelStatus.SMChannel.SMStreamDtos.OrderBy(a => a.Rank)];
+        for (int i = 0; i < smStreams.Count; i++)
+        {
+            channelStatus.SMChannel.CurrentRank = (channelStatus.SMChannel.CurrentRank + 1) % smStreams.Count;
+            SMStreamDto smStream = smStreams[channelStatus.SMChannel.CurrentRank];
+
+            if (!streamLimitsService.IsLimited(smStream))
+            {
+                return smStream;
+            }
+        }
+
+        return null;
+    }
+
+    private void HandleStreamNotFound(IStreamStatus channelStatus)
+    {
+        logger.LogError("Set Next for Channel {SourceName}, no streams available.", channelStatus.SourceName);
+        channelStatus.SetSMStreamInfo(null);
+    }
+
+    private bool HandleStreamLimits(IStreamStatus channelStatus, Setting settings)
+    {
+        if (settings.ShowMessageVideos && cacheManager.MessageNoStreamsLeft != null)
+        {
+            channelStatus.SetSMStreamInfo(cacheManager.MessageNoStreamsLeft);
+
+            logger.LogDebug("No streams found for {SourceName}, sending message: {Id} {Name}",
+                channelStatus.SourceName, cacheManager.MessageNoStreamsLeft.Id, cacheManager.MessageNoStreamsLeft.Name);
+
+            return true;
+        }
+
+        logger.LogInformation("Set Next for Channel {SourceName}, no streams found within limits.", channelStatus.SourceName);
+        return false;
+    }
+
+    private bool HandleCustomPlayListStream(IStreamStatus channelStatus, SMStreamDto smStream, Setting settings)
+    {
+        CustomPlayList? customPlayList = customPlayListBuilder.GetCustomPlayList(smStream.Name);
+        if (customPlayList == null)
+        {
+            return false;
+        }
+
+        (CustomStreamNfo StreamNfo, int SecondsIn) streamNfo = customPlayListBuilder.GetCurrentVideoAndElapsedSeconds(customPlayList.Name);
+        SMStreamInfo customStreamInfo = CreateStreamInfoFromCustomPlayList(channelStatus, smStream, settings, streamNfo);
+
+        channelStatus.SetSMStreamInfo(customStreamInfo);
+
+        logger.LogDebug("Set Next for Channel {SourceName}, switched to Custom Playlist {Id} {Name}",
+            channelStatus.SourceName, customStreamInfo.Id, customStreamInfo.Name);
+
+        return true;
+    }
+
+    private SMStreamInfo CreateStreamInfoFromCustomPlayList(IStreamStatus channelStatus, SMStreamDto smStream, Setting settings, (CustomStreamNfo StreamNfo, int SecondsIn) streamNfo)
+    {
+        CommandProfileDto customPlayListProfile = profileService.GetCommandProfile("SMFFMPEGLocal");
+
+        return new SMStreamInfo
+        {
+            Id = streamNfo.StreamNfo.Movie.Title,
+            Name = streamNfo.StreamNfo.Movie.Title,
+            Url = streamNfo.StreamNfo.VideoFileName,
+            SMStreamType = SMStreamTypeEnum.CustomPlayList,
+            SecondsIn = streamNfo.SecondsIn,
+            ClientUserAgent = GetClientUserAgent(channelStatus.SMChannel, smStream, settings),
+            CommandProfile = customPlayListProfile
+        };
+    }
+
+    private async Task<bool> HandleStandardStreamAsync(IServiceScope scope, IStreamStatus channelStatus, SMStreamDto smStream, Setting settings)
+    {
         IStreamGroupService streamGroupService = scope.ServiceProvider.GetRequiredService<IStreamGroupService>();
+        CommandProfileDto commandProfile = await streamGroupService.GetProfileFromSGIdsCommandProfileNameAsync(
+            null, channelStatus.StreamGroupProfileId, smStream.CommandProfileName ?? channelStatus.SMChannel.CommandProfileName);
 
-        string clientUserAgent = GetClientUserAgent(ChannelStatus.SMChannel, smStream, intSettings.CurrentValue);
-
-        if (smStream.SMStreamType is SMStreamTypeEnum.CustomPlayList)
-        {
-            CustomPlayList? customPlayList = customPlayListBuilder.GetCustomPlayList(smStream.Name);
-
-            if (customPlayList == null)
-            {
-                return false;
-            }
-
-            ChannelStatus.CustomPlayList = customPlayList;
-
-            (CustomStreamNfo StreamNfo, int SecondsIn) = customPlayListBuilder.GetCurrentVideoAndElapsedSeconds(ChannelStatus.CustomPlayList.Name);
-
-            CommandProfileDto customPlayListProfileDto = profileService.GetCommandProfile("SMFFMPEGLocal");
-
-            SMStreamInfo customSMStreamInfo = new()
-            {
-                Id = StreamNfo.Movie.Title,
-                Name = StreamNfo.Movie.Title,
-                Url = StreamNfo.VideoFileName,
-                SMStreamType = SMStreamTypeEnum.CustomPlayList,
-                SecondsIn = SecondsIn,
-                ClientUserAgent = clientUserAgent,
-                CommandProfile = customPlayListProfileDto
-            };
-
-            ChannelStatus.SetSMStreamInfo(customSMStreamInfo);
-            logger.LogDebug("Set Next for Channel {SourceName}, switched to {Id} {Name} starting at {SecondsIn} seconds in", ChannelStatus.SourceName, customSMStreamInfo.Id, customSMStreamInfo.Name, SecondsIn);
-            return await Task.FromResult(true);
-        }
-
-        if (smStream.SMStreamType is SMStreamTypeEnum.Intro)
-        {
-            CustomPlayList? customPlayList = introPlayListBuilder.GetIntroPlayList(smStream.Name);
-
-            if (customPlayList == null)
-            {
-                return false;
-            }
-
-            ChannelStatus.CustomPlayList = customPlayList;
-
-            CommandProfileDto customPlayListProfileDto = profileService.GetCommandProfile("SMFFMPEGLocal");
-
-            SMStreamInfo customSMStreamInfo = new()
-            {
-                Id = customPlayList.Name,
-                Name = customPlayList.Name,
-                Url = customPlayList.CustomStreamNfos[0].VideoFileName,
-                SMStreamType = SMStreamTypeEnum.CustomPlayList,
-                SecondsIn = 0,
-                ClientUserAgent = clientUserAgent,
-                CommandProfile = customPlayListProfileDto
-            };
-
-            ChannelStatus.SetSMStreamInfo(customSMStreamInfo);
-            logger.LogDebug("Set Next for Channel {SourceName}, switched to {Id} {Name}", ChannelStatus.SourceName, customSMStreamInfo.Id, customSMStreamInfo.Name);
-            return await Task.FromResult(true);
-        }
-
-        CommandProfileDto commandProfileDto = string.IsNullOrEmpty(smStream.CommandProfileName)
-            ? await streamGroupService.GetProfileFromSGIdsCommandProfileNameAsync(null, ChannelStatus.StreamGroupProfileId, ChannelStatus.SMChannel.CommandProfileName)
-            : await streamGroupService.GetProfileFromSGIdsCommandProfileNameAsync(null, ChannelStatus.StreamGroupProfileId, smStream.CommandProfileName);
-
-        SMStreamInfo smStreamInfo = new()
+        SMStreamInfo standardStreamInfo = new()
         {
             Id = smStream.Id,
             Name = smStream.Name,
             Url = smStream.Url,
             SMStreamType = smStream.SMStreamType,
-            ClientUserAgent = clientUserAgent,
-            CommandProfile = commandProfileDto
+            ClientUserAgent = GetClientUserAgent(channelStatus.SMChannel, smStream, settings),
+            CommandProfile = commandProfile
         };
 
-        ChannelStatus.SetSMStreamInfo(smStreamInfo);
-        logger.LogDebug("Set Next for Channel {SourceName}, switched to {Id} {Name}", ChannelStatus.SourceName, smStreamInfo.Id, smStreamInfo.Name);
+        channelStatus.SetSMStreamInfo(standardStreamInfo);
+
+        logger.LogDebug("Set Next for Channel {SourceName}, switched to Standard {Id} {Name}",
+            channelStatus.SourceName, standardStreamInfo.Id, standardStreamInfo.Name);
 
         return true;
-    }
-
-    private static bool ChannelHasStreamsOrChannels(SMChannelDto smChannel)
-    {
-        return smChannel.SMChannelType == SMChannelTypeEnum.MultiView
-            ? smChannel.SMChannelDtos.Count > 0
-            : smChannel.SMStreamDtos.Count > 0 && !string.IsNullOrEmpty(smChannel.SMStreamDtos[0].Url);
     }
 }

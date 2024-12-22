@@ -6,99 +6,63 @@ using StreamMaster.Domain.Extensions;
 
 namespace StreamMaster.Streams.Plugins;
 
-public class VideoInfoEventArgs(VideoInfo videoInfo, string id) : EventArgs
+/// <summary>
+/// A plugin to extract and process video information from a data stream.
+/// </summary>
+/// <remarks>
+/// Initializes a new instance of the <see cref="VideoInfoPlugin"/> class.
+/// </remarks>
+/// <param name="logger">Logger instance for logging events.</param>
+/// <param name="settingsMonitor">Monitor for application settings.</param>
+/// <param name="id">Unique identifier for the plugin.</param>
+/// <param name="name">Name of the video source.</param>
+/// <param name="bufferSize">The buffer size for storing video data.</param>
+public class VideoInfoPlugin(
+    ILogger<VideoInfoPlugin> logger,
+    IOptionsMonitor<Setting> settingsMonitor,
+    string id,
+    string name,
+    int bufferSize = 128 * 1024) : IStreamDataToClients, IDisposable
 {
-    public VideoInfo VideoInfo { get; } = videoInfo;
-    public string Id { get; } = id;
-}
-
-
-public class VideoInfoPlugin : IStreamDataToClients, IDisposable
-{
-    private readonly ILogger<VideoInfoPlugin> _logger;
-    private readonly IOptionsMonitor<Setting> _settingsMonitor;
-    private readonly string _name;
-    private readonly string _id;
-    private readonly CircularBuffer _circularBuffer;
+    private readonly CircularBuffer _circularBuffer = new(bufferSize);
     private readonly CancellationTokenSource _cancellationTokenSource = new();
-    private readonly Task _pipeReaderTask;
-    private readonly Task _videoInfoTask;
 
+    /// <summary>
+    /// Starts the video information processing loop.
+    /// </summary>
+    public void Start()
+    {
+        _ = StartVideoInfoLoopAsync();
+    }
+
+    /// <summary>
+    /// Pipe for streaming data to clients.
+    /// </summary>
     public Pipe Pipe { get; } = new();
+
+    /// <summary>
+    /// Event triggered when video information is updated.
+    /// </summary>
     public event EventHandler<VideoInfoEventArgs>? VideoInfoUpdated;
 
-    public VideoInfoPlugin(
-        ILogger<VideoInfoPlugin> logger,
-        IOptionsMonitor<Setting> settingsMonitor,
-        string id,
-        string name,
-        int bufferSize = 128 * 1024) // 128 KB buffer
+    /// <summary>
+    /// Streams data to clients by writing it into the circular buffer.
+    /// </summary>
+    /// <param name="buffer">The data to stream.</param>
+    /// <param name="cancellationToken">Token to cancel the operation.</param>
+    public Task StreamDataToClientsAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken)
     {
-        _logger = logger;
-        _settingsMonitor = settingsMonitor;
-        _id = id;
-        _name = name;
-        _circularBuffer = new CircularBuffer(bufferSize);
-
-        // Start the pipeline reader and video info processing tasks
-        //_pipeReaderTask = ReadFromPipeAsync(_cancellationTokenSource.Token);
-        _videoInfoTask = StartVideoInfoLoopAsync(_cancellationTokenSource.Token);
+        _circularBuffer.Write(buffer.Span);
+        return Task.CompletedTask;
     }
 
-    public async Task StreamDataToClientsAsync(System.Buffers.ReadOnlySequence<byte> buffer, CancellationToken cancellationToken)
+    private async Task StartVideoInfoLoopAsync()
     {
-        foreach (ReadOnlyMemory<byte> segment in buffer)
-        {
-            if (cancellationToken.IsCancellationRequested)
-            {
-                break;
-            }
-            _circularBuffer.Write(segment.Span); // Write to the circular buffer
+        CancellationToken cancellationToken = _cancellationTokenSource.Token;
 
-        }
-    }
-
-    private async Task ReadFromPipeAsync(CancellationToken cancellationToken)
-    {
-        try
-        {
-            while (!cancellationToken.IsCancellationRequested)
-            {
-                ReadResult result = await Pipe.Reader.ReadAsync(cancellationToken).ConfigureAwait(false);
-                System.Buffers.ReadOnlySequence<byte> buffer = result.Buffer;
-
-                foreach (ReadOnlyMemory<byte> segment in buffer)
-                {
-                    _circularBuffer.Write(segment.Span); // Write to the circular buffer
-                }
-
-                Pipe.Reader.AdvanceTo(buffer.End);
-
-                if (result.IsCompleted)
-                {
-                    break; // Exit when the pipe is completed
-                }
-            }
-        }
-        catch (OperationCanceledException)
-        {
-            // Graceful cancellation
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error reading from pipe for {name}", _name);
-        }
-        finally
-        {
-            await Pipe.Reader.CompleteAsync().ConfigureAwait(false);
-        }
-    }
-
-    private async Task StartVideoInfoLoopAsync(CancellationToken cancellationToken)
-    {
         TimeSpan initialDelay = TimeSpan.FromSeconds(15);
         TimeSpan normalDelay = TimeSpan.FromMinutes(5);
-        TimeSpan errorDelay = TimeSpan.FromMinutes(1);
+        TimeSpan errorDelay = TimeSpan.FromMinutes(15);
 
         try
         {
@@ -106,20 +70,22 @@ public class VideoInfoPlugin : IStreamDataToClients, IDisposable
 
             while (!cancellationToken.IsCancellationRequested)
             {
-                VideoInfo? videoInfo = null;
                 try
                 {
-                    // Extract video info from the circular buffer
-                    if (_circularBuffer.Size >= _circularBuffer.Capacity)
+                    if (_circularBuffer.IsFull)
                     {
-                        byte[] latestData = _circularBuffer.ReadAll();
-                        videoInfo = await ExtractVideoInfoAsync(latestData, cancellationToken);
-                    }
+                        ReadOnlyMemory<byte> readableData = _circularBuffer.ReadAll();
+                        if (!readableData.IsEmpty)
+                        {
+                            VideoInfo? videoInfo = await ExtractVideoInfoAsync(readableData, cancellationToken);
+                            _circularBuffer.MarkRead(readableData.Length);
 
-                    if (videoInfo != null)
-                    {
-                        OnVideoInfoUpdated(videoInfo);
-                        await Task.Delay(normalDelay, cancellationToken);
+                            if (videoInfo != null)
+                            {
+                                OnVideoInfoUpdated(videoInfo);
+                                await Task.Delay(normalDelay, cancellationToken);
+                            }
+                        }
                     }
                     else
                     {
@@ -128,7 +94,7 @@ public class VideoInfoPlugin : IStreamDataToClients, IDisposable
                 }
                 catch (Exception ex) when (ex is not OperationCanceledException)
                 {
-                    _logger.LogError(ex, "Error processing video info for {name}", _name);
+                    logger.LogError(ex, "Error processing video info for {Name}", name);
                     await Task.Delay(errorDelay, cancellationToken);
                 }
             }
@@ -139,20 +105,20 @@ public class VideoInfoPlugin : IStreamDataToClients, IDisposable
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Unexpected error in video info loop for {name}", _name);
+            logger.LogError(ex, "Unexpected error in video info loop for {Name}", name);
         }
     }
 
-    private async Task<VideoInfo?> ExtractVideoInfoAsync(byte[] videoMemory, CancellationToken cancellationToken)
+    private async Task<VideoInfo?> ExtractVideoInfoAsync(ReadOnlyMemory<byte> videoMemory, CancellationToken cancellationToken)
     {
         try
         {
-            Setting settings = _settingsMonitor.CurrentValue;
+            Setting settings = settingsMonitor.CurrentValue;
             string? ffProbeExec = FileUtil.GetExec(settings.FFProbeExecutable);
 
             if (string.IsNullOrEmpty(ffProbeExec))
             {
-                _logger.LogError("FFProbe executable not found.");
+                logger.LogError("FFProbe executable not found.");
                 return null;
             }
 
@@ -171,7 +137,7 @@ public class VideoInfoPlugin : IStreamDataToClients, IDisposable
             using Process? ffprobeProcess = Process.Start(startInfo);
             if (ffprobeProcess == null)
             {
-                _logger.LogError("Failed to start FFProbe process.");
+                logger.LogError("Failed to start FFProbe process.");
                 return null;
             }
 
@@ -186,7 +152,7 @@ public class VideoInfoPlugin : IStreamDataToClients, IDisposable
 
             if (string.IsNullOrEmpty(output))
             {
-                _logger.LogError("No output received from FFProbe.");
+                logger.LogError("No output received from FFProbe.");
                 return null;
             }
 
@@ -196,8 +162,8 @@ public class VideoInfoPlugin : IStreamDataToClients, IDisposable
             return new VideoInfo
             {
                 JsonOutput = formattedJson,
-                StreamId = _id,
-                StreamName = _name,
+                StreamId = id,
+                StreamName = name,
                 Created = SMDT.UtcNow
             };
         }
@@ -205,18 +171,21 @@ public class VideoInfoPlugin : IStreamDataToClients, IDisposable
         {
             return null;
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            _logger.LogError("Error extracting video info for {name}", _name);
+            logger.LogError(ex, "Error extracting video info for {Name}", name);
             return null;
         }
     }
 
     protected virtual void OnVideoInfoUpdated(VideoInfo videoInfo)
     {
-        VideoInfoUpdated?.Invoke(this, new VideoInfoEventArgs(videoInfo, _id));
+        VideoInfoUpdated?.Invoke(this, new VideoInfoEventArgs(videoInfo, id));
     }
 
+    /// <summary>
+    /// Stops the video info loop and releases resources.
+    /// </summary>
     public void Stop()
     {
         _cancellationTokenSource.Cancel();
@@ -224,6 +193,9 @@ public class VideoInfoPlugin : IStreamDataToClients, IDisposable
         Pipe.Reader.Complete();
     }
 
+    /// <summary>
+    /// Disposes the plugin and releases resources.
+    /// </summary>
     public void Dispose()
     {
         Stop();

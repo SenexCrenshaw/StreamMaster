@@ -1,3 +1,4 @@
+import { getIconUrl } from '@components/icons/iconUtil';
 import SMDataTable from '@components/smDataTable/SMDataTable';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
 import CancelClientDialog from '@components/streaming/CancelClientDialog';
@@ -24,7 +25,7 @@ const SMClientStatus = () => {
 
     for (const metric of sourceMetrics) {
       for (const clientChannel of metric.ClientStreams) {
-        intMetrics.push({ ...clientChannel, Logo: metric.Logo, SourceName: metric.SourceName });
+        intMetrics.push({ ...clientChannel, Logo: metric.ChannelLogo, SourceName: metric.SourceName });
       }
     }
 
@@ -94,17 +95,39 @@ const SMClientStatus = () => {
     );
   }, []);
 
-  const logoTemplate = useCallback((rowData: IntClientChannelDto) => {
+  const logoTemplate = useCallback((rowData: ChannelMetric) => {
+    const found = channelMetricsRef.current.find((predicate) => predicate.Name === rowData.Name);
+    if (!found) {
+      return <div />;
+    }
+
+    const url = getIconUrl(found.ChannelLogo);
     return (
       <div className="flex icon-button-template justify-content-center align-items-center w-full">
-        <img alt="Icon logo" src={rowData.Logo} />
+        <img alt={rowData.Name + ' Logo'} src={url} />
+      </div>
+    );
+  }, []);
+
+  const streamingLogoTemplate = useCallback((rowData: ChannelMetric) => {
+    const found = channelMetricsRef.current.find((predicate) => predicate.Name === rowData.Name);
+    if (!found) {
+      return <div />;
+    }
+
+    const url = getIconUrl(found.StreamLogo);
+
+    return (
+      <div className="flex icon-button-template justify-content-center align-items-center w-full">
+        <img alt={rowData.Name + ' Logo'} src={url} />
       </div>
     );
   }, []);
 
   const columns = useMemo(
     (): ColumnMeta[] => [
-      { bodyTemplate: logoTemplate, field: 'Logo', fieldType: 'image', header: '' },
+      { bodyTemplate: logoTemplate, field: 'Logo', header: 'C' },
+      { bodyTemplate: streamingLogoTemplate, field: 'StreamingLogo', header: 'S' },
       { align: 'left', field: 'SourceName', filter: true, header: 'Source', sortable: true, width: 120 },
       { align: 'right', field: 'ClientIPAddress', filter: true, header: 'IPAddress', sortable: true, width: 100 },
       { align: 'right', field: 'ClientUserAgent', filter: true, header: 'Agent', sortable: true, width: 180 },
@@ -117,7 +140,7 @@ const SMClientStatus = () => {
 
       { align: 'center', bodyTemplate: actionTemplate, field: 'actions', fieldType: 'actions', header: '', width: 44 }
     ],
-    [actionTemplate, elapsedTSTemplate, logoTemplate]
+    [actionTemplate, elapsedTSTemplate, logoTemplate, streamingLogoTemplate]
   );
 
   return <SMDataTable headerName="CLIENTS" columns={columns} id="SMClientStatus" dataKey="Name" dataSource={clientChannelMetrics} />;

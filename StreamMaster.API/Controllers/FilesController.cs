@@ -80,7 +80,7 @@ public class FilesController(ILogger<FilesController> logger, IOptionsMonitor<Se
         return fileStream == null ? Redirect(FileName ?? "/" + settings.CurrentValue.DefaultLogo) : File(fileStream, ContentType ?? "application/octet-stream", FileName);
     }
 
-    //Program Logo
+    //Program ChannelLogo
     [AllowAnonymous]
     [Route("pr/{source}")]
     public async Task<IActionResult> GetProgramLogo(string source, CancellationToken cancellationToken)
@@ -95,7 +95,7 @@ public class FilesController(ILogger<FilesController> logger, IOptionsMonitor<Se
         return fileStream == null ? Redirect(FileName ?? "/" + settings.CurrentValue.DefaultLogo) : File(fileStream, ContentType ?? "application/octet-stream", FileName);
     }
 
-    //Custom Logo
+    //Custom ChannelLogo
     [AllowAnonymous]
     [Route("cu/{source}")]
     public async Task<IActionResult> GetCustomLogo(string source, CancellationToken cancellationToken)

@@ -126,6 +126,12 @@ public class SMStreamRepository(ILogger<SMStreamRepository> intLogger, IReposito
         return channel == null ? null : mapper.Map<SMStreamDto>(channel);
     }
 
+    public async Task<SMStreamDto?> GetSMStreamAsync(string streamId)
+    {
+        SMStream? channel = await FirstOrDefaultAsync(a => a.Id == streamId);
+        return channel == null ? null : mapper.Map<SMStreamDto>(channel);
+    }
+
     public SMStream? GetSMStreamById(string streamId)
     {
         SMStream? stream = FirstOrDefault(a => a.Id == streamId);

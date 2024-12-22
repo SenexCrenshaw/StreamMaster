@@ -1,8 +1,8 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using System.Collections.Concurrent;
+
+using Microsoft.Extensions.DependencyInjection;
 
 using StreamMaster.Domain.Enums;
-
-using System.Collections.Concurrent;
 
 namespace StreamMaster.Streams.Services;
 

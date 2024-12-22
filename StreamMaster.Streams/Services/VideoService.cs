@@ -6,77 +6,79 @@ using Microsoft.AspNetCore.Http;
 
 namespace StreamMaster.Streams.Services;
 
-public class VideoService(
+/// <summary>
+/// Service for managing video-related operations, including adding clients to channels.
+/// </summary>
+public sealed class VideoService(
     ILogger<VideoService> logger,
     IMapper mapper,
-    //IHttpContextAccessor httpContextAccessor,
     IChannelService channelService,
     IClientConfigurationService clientConfigurationService,
     IRepositoryWrapper repositoryWrapper,
-    IStreamGroupService streamGroupService) : IVideoService
+    IStreamGroupService streamGroupService) : IVideoService, IDisposable
 {
-    public async Task<StreamResult> AddClientToChannelAsync(HttpContext HttpContext, int? streamGroupId, int? streamGroupProfileId, int? smChannelId, CancellationToken cancellationToken)
+    /// <inheritdoc/>
+    public async Task<StreamResult> AddClientToChannelAsync(
+        HttpContext httpContext,
+        int? streamGroupId,
+        int? streamGroupProfileId,
+        int? smChannelId,
+        CancellationToken cancellationToken)
     {
-        Stopwatch sw = Stopwatch.StartNew();
+        Stopwatch stopwatch = Stopwatch.StartNew();
+
         try
         {
-            // Validate parameters
             if (!ValidateStreamParameters(streamGroupId, streamGroupProfileId, smChannelId))
             {
                 return new StreamResult();
             }
 
-            // Fetch channel
-            SMChannel? smChannel = await FetchSMChannelAsync(streamGroupId!.Value, smChannelId!.Value);
-            if (smChannel == null)
+            if (streamGroupId is null || smChannelId is null)
             {
-                logger.LogInformation("Channel with ChannelId {smChannelId} not found, exiting", smChannelId);
                 return new StreamResult();
             }
 
-            // Ensure channel has streams
+            SMChannel? smChannel = await FetchSMChannelAsync(streamGroupId.Value, smChannelId.Value);
+            if (smChannel == null)
+            {
+                logger.LogInformation("Channel with ChannelId {ChannelId} not found.", smChannelId);
+                return new StreamResult();
+            }
+
             if (!ChannelHasStreamsOrChannels(smChannel))
             {
-                logger.LogInformation("Channel with ChannelId {smChannelId} has no streams or channels, exiting", smChannelId);
+                logger.LogInformation("Channel with ChannelId {ChannelId} has no streams or channels.", smChannelId);
                 return new StreamResult();
             }
 
             SMChannelDto smChannelDto = mapper.Map<SMChannelDto>(smChannel);
+            await UpdateChannelRanksAsync(smChannelDto);
 
-            await repositoryWrapper.SMChannelStreamLink.UpdateSMChannelDtoRanks(smChannelDto);
-            await repositoryWrapper.SMChannelChannelLink.UpdateSMChannelDtoRanks(smChannelDto);
-
-            // Fetch stream profile
             StreamGroupProfile streamGroupProfile = await streamGroupService.GetStreamGroupProfileAsync(null, streamGroupProfileId);
-            CommandProfileDto commandProfileDto = await streamGroupService.GetProfileFromSGIdsCommandProfileNameAsync(null, streamGroupProfile.Id, smChannelDto.CommandProfileName);
+            CommandProfileDto commandProfileDto = await streamGroupService.GetProfileFromSGIdsCommandProfileNameAsync(
+                null, streamGroupProfile.Id, smChannelDto.CommandProfileName);
 
-            // Handle redirects
             if (commandProfileDto.ProfileName.Equals("Redirect", StringComparison.InvariantCultureIgnoreCase))
             {
-                logger.LogInformation("Channel with ChannelId {channelId} redirecting", smChannelId);
+                logger.LogInformation("Channel with ChannelId {ChannelId} is redirecting.", smChannelId);
                 return new StreamResult { RedirectUrl = smChannelDto.SMStreamDtos[0].Url };
             }
 
-            // Create client configuration
-            IClientConfiguration clientConfiguration = CreateClientConfiguration(HttpContext, smChannelDto, cancellationToken);
+            IClientConfiguration clientConfiguration = CreateClientConfiguration(httpContext, smChannelDto, cancellationToken);
 
-            // Get stream
             bool result = await channelService.AddClientToChannelAsync(clientConfiguration, streamGroupProfile.Id, CancellationToken.None);
-            sw.Stop();
-            if (result)
-            {
-                logger.LogInformation("Streaming channel with ChannelId {channelId} took {elapsed}ms", smChannelId, sw.ElapsedMilliseconds);
-            }
-            else
-            {
-                logger.LogInformation("Channel with ChannelId {channelId} failed in {elapsed}ms", smChannelId, sw.ElapsedMilliseconds);
-            }
+
+            stopwatch.Stop();
+            logger.LogInformation(
+                "Channel with ChannelId {ChannelId} {Status} in {ElapsedMilliseconds}ms.",
+                smChannelId, result ? "streaming" : "failed", stopwatch.ElapsedMilliseconds);
 
             return new StreamResult { ClientConfiguration = clientConfiguration };
         }
         finally
         {
-            sw.Stop();
+            stopwatch.Stop();
         }
     }
 
@@ -93,18 +95,27 @@ public class VideoService(
             : await repositoryWrapper.SMChannel.GetSMChannelFromStreamGroupAsync(smChannelId, streamGroupId);
     }
 
+    private async Task UpdateChannelRanksAsync(SMChannelDto smChannelDto)
+    {
+        await repositoryWrapper.SMChannelStreamLink.UpdateSMChannelDtoRanks(smChannelDto);
+        await repositoryWrapper.SMChannelChannelLink.UpdateSMChannelDtoRanks(smChannelDto);
+    }
+
     private static bool ChannelHasStreamsOrChannels(SMChannel smChannel)
     {
         return smChannel.SMChannelType == StreamMaster.Domain.Enums.SMChannelTypeEnum.MultiView
-            ? smChannel.SMChannels.Count > 0
-            : smChannel.SMStreams.Count > 0 && !string.IsNullOrEmpty(smChannel.SMStreams.First().SMStream!.Url);
+            ? smChannel.SMChannels.Count != 0
+            : smChannel.SMStreams.Any(s => !string.IsNullOrEmpty(s.SMStream?.Url));
     }
 
-    private IClientConfiguration CreateClientConfiguration(HttpContext HttpContext, SMChannelDto smChannelDto, CancellationToken cancellationToken)
+    private IClientConfiguration CreateClientConfiguration(
+        HttpContext httpContext,
+        SMChannelDto smChannelDto,
+        CancellationToken cancellationToken)
     {
-        string? ipAddress = HttpContext!.Connection.RemoteIpAddress?.ToString();
+        string ipAddress = httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
 
-        HttpRequest request = HttpContext.Request;
+        HttpRequest request = httpContext.Request;
         smChannelDto.StreamUrl = $"{request.Scheme}://{request.Host}{request.PathBase}{request.Path}{request.QueryString}";
 
         string uniqueRequestId = request.HttpContext.TraceIdentifier;
@@ -113,9 +124,16 @@ public class VideoService(
             uniqueRequestId,
             smChannelDto,
             request.Headers.UserAgent.ToString(),
-            ipAddress ?? "unknown",
-            HttpContext.Response,
-            cancellationToken
-        );
+            ipAddress,
+            httpContext.Response,
+            cancellationToken);
+    }
+
+    /// <summary>
+    /// Releases unmanaged and managed resources used by the service.
+    /// </summary>
+    public void Dispose()
+    {
+        GC.SuppressFinalize(this);
     }
 }

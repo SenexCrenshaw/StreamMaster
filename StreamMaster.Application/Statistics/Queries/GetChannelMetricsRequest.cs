@@ -6,7 +6,7 @@ namespace StreamMaster.Application.Statistics.Queries;
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record GetChannelMetricsRequest() : IRequest<DataResponse<List<ChannelMetric>>>;
 
-internal class GetChannelMetricsRequestHandler(IVideoInfoService videoInfoService, IHttpContextAccessor httpContextAccessor, IChannelService channelService, IChannelBroadcasterService channelBroadcasterService, ISourceBroadcasterService sourceBroadcasterService)
+internal class GetChannelMetricsRequestHandler(IRepositoryWrapper repositoryWrapper, IVideoInfoService videoInfoService, IHttpContextAccessor httpContextAccessor, IChannelService channelService, IChannelBroadcasterService channelBroadcasterService, ISourceBroadcasterService sourceBroadcasterService)
     : IRequestHandler<GetChannelMetricsRequest, DataResponse<List<ChannelMetric>>>
 {
     public Task<DataResponse<List<ChannelMetric>>> Handle(GetChannelMetricsRequest request, CancellationToken cancellationToken)
@@ -21,13 +21,18 @@ internal class GetChannelMetricsRequestHandler(IVideoInfoService videoInfoServic
         Dictionary<string, IClientConfiguration> clientConfigDict = channelService.GetClientStreamerConfigurations()
             .ToDictionary(a => a.UniqueRequestId);
 
+        //Dictionary<int, SMStreamInfo> streamSMStreamInfoDict = channelBroadcasters.Where(a => a?.SMStreamInfo is not null).ToDictionary(a => a.Id, a => a.SMStreamInfo!);
+
+        //List<string> streamIDs = [.. streamSMStreamInfoDict.Values.Select(a => a.Id)];
+        //Dictionary<string, string> streamLogos = repositoryWrapper.SMStream.GetQuery().Where(a => streamIDs.Contains(a.Id)).ToDictionary(a => a.Id, a => a.ChannelLogo);
+
         Dictionary<int, SMChannelDto> smChannelDict = clientConfigDict.Values
       .Select(a => a.SMChannel)
       .GroupBy(smChannel => smChannel.Id)
       .ToDictionary(group => group.Key, group => group.First());
 
         Dictionary<string, ISourceBroadcaster> sourceBroadcasters = sourceBroadcasterService.GetStreamBroadcasters()
-            .ToDictionary(sb => sb.SMStreamInfo.Url);
+            .ToDictionary(sb => sb.Id);
 
         List<ChannelMetric> channelMetrics = [];
 
@@ -49,6 +54,7 @@ internal class GetChannelMetricsRequestHandler(IVideoInfoService videoInfoServic
             {
                 if (clientConfigDict.TryGetValue(clientChannel.Key, out IClientConfiguration? clientConfig))
                 {
+
                     streamDtos.Add(new ClientStreamsDto
                     {
                         Metrics = clientConfig.Metrics,
@@ -56,7 +62,8 @@ internal class GetChannelMetricsRequestHandler(IVideoInfoService videoInfoServic
                         ClientUserAgent = clientConfig.ClientUserAgent,
                         SMChannelId = clientConfig.SMChannel.ChannelId,
                         Name = clientChannel.Key,
-                        Logo = smChannel.Logo,
+                        ChannelLogo = smChannel.Logo,
+                        StreamLogo = currentStream.SMStream.Logo
                     });
                 }
             }
@@ -68,19 +75,21 @@ internal class GetChannelMetricsRequestHandler(IVideoInfoService videoInfoServic
                 ClientStreams = streamDtos,
                 IsFailed = channelBroadcaster.IsFailed,
                 Id = channelBroadcaster.Id.ToString(),
-                Logo = currentStream.SMStream.Logo,
+                ChannelLogo = smChannel.Logo,
+                StreamLogo = currentStream.SMStream.Logo,
             };
 
             if (channelBroadcaster.SMStreamInfo is not null &&
                 sourceBroadcasters.TryGetValue(channelBroadcaster.SMStreamInfo.Url, out ISourceBroadcaster? sourceBroadcaster))
             {
-                channelMetric.SMStreamInfo = sourceBroadcaster.SMStreamInfo;
+                channelMetric.SMStreamInfo = channelBroadcaster.SMStreamInfo;
+
                 if (sourceBroadcaster.Metrics is not null)
                 {
                     channelMetric.Metrics = sourceBroadcaster.Metrics;
                 }
 
-                VideoInfo? videoInfo = videoInfoService.GetVideoInfo(sourceBroadcaster.SMStreamInfo.Id);
+                VideoInfo? videoInfo = videoInfoService.GetVideoInfo(sourceBroadcaster.Id);
                 if (videoInfo is not null)
                 {
                     channelMetric.VideoInfo = new VideoInfoDto(videoInfo).JsonOutput;

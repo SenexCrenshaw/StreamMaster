@@ -22,7 +22,7 @@ public class SMCacheManager<T>//(ILogger<T> logger, IMemoryCache memoryCache, Ti
     private readonly string memoryCachePartition = $"{typeof(T).Name}:";
     private readonly ConcurrentQueue<(string Key, string Value)> writeQueue = new();
     private readonly CancellationTokenSource cts = new();
-    private readonly Task backgroundFlushTask;
+
     private readonly TimeSpan flushInterval = TimeSpan.FromSeconds(10);
     private readonly ILogger<T> logger;
     private readonly IMemoryCache memoryCache;
@@ -49,7 +49,7 @@ public class SMCacheManager<T>//(ILogger<T> logger, IMemoryCache memoryCache, Ti
         this.defaultKey = defaultKey;
 
         cacheFilePath = Path.Combine(cacheDirectory, $"{typeof(T).Name}.json{(useCompression ? ".gz" : "")}");
-        backgroundFlushTask = Task.Run(() => BackgroundFlushLoop(cts.Token));
+        _ = BackgroundFlushLoopAsync(cts.Token);
     }
 
     private string GetMemoryCacheKey(string key)
@@ -57,7 +57,7 @@ public class SMCacheManager<T>//(ILogger<T> logger, IMemoryCache memoryCache, Ti
         return $"{memoryCachePartition}{key}";
     }
 
-    private async Task BackgroundFlushLoop(CancellationToken cancellationToken)
+    private async Task BackgroundFlushLoopAsync(CancellationToken cancellationToken)
     {
         while (!cancellationToken.IsCancellationRequested)
         {

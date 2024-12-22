@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 
+using StreamMaster.Streams.Broadcasters;
 using StreamMaster.Streams.Channels;
 using StreamMaster.Streams.Domain;
 using StreamMaster.Streams.Factories;
@@ -22,14 +23,8 @@ public static class ConfigureServices
         services.AddTransient<IHTTPStream, HTTPStream>();
         services.AddTransient<ICommandStream, CommandStream>();
         services.AddSingleton<ISourceBroadcasterService, SourceBroadcasterService>();
-        services.AddSingleton<IChannelLockService, ChannelLockService>();
 
-        //services.AddSingleton<IHLSManager, HLSManager>();
-        services.AddSingleton<IStreamTracker, StreamTracker>();
-        services.AddSingleton<IAccessTracker, AccessTracker>();
-        //services.AddHostedService<InActiveStreamMonitor>();
         services.AddSingleton<ISwitchToNextStreamService, SwitchToNextStreamService>();
-        //services.AddSingleton<IM3U8Generator, M3U8Generator>();
         services.AddSingleton<IChannelBroadcasterService, ChannelBroadcasterService>();
         services.AddSingleton<IClientConfigurationService, ClientConfigurationService>();
         services.AddSingleton<IVideoInfoService, VideoInfoService>();
@@ -38,8 +33,7 @@ public static class ConfigureServices
         services.AddScoped<IVideoService, VideoService>();
         services.AddSingleton<ICacheManager, CacheManager>();
 
-        services.AddTransient<IMetricsService, StreamMetricsTracker>();
-        services.AddTransient<ISourceProcessingService, SourceProcessingService>();
+        //services.AddTransient<IStreamMetricsRecorder, StreamMetricsRecorder>();
         return services;
     }
 }

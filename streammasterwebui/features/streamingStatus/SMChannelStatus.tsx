@@ -4,6 +4,7 @@ import { formatJSONDateString, getElapsedTimeString } from '@lib/common/dateTime
 import { ChannelMetric } from '@lib/smAPI/smapiTypes';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
+import { getIconUrl } from '@components/icons/iconUtil';
 import CancelChannelDialog from '@components/streaming/CancelChannelDialog';
 import { GetChannelMetrics } from '@lib/smAPI/Statistics/StatisticsCommands';
 import { StreamInfoDisplay } from './StreamInfoDisplay';
@@ -60,10 +61,6 @@ const SMChannelStatus = () => {
     if (!found) {
       return <div />;
     }
-    // const test = found?.ClientStreams.find((predicate) => predicate.Name !== 'VideoInfo');
-    // if (test === undefined) {
-    //   return <div />;
-    // }
 
     return (
       <div className="sm-center-stuff">
@@ -78,10 +75,32 @@ const SMChannelStatus = () => {
   const clientStartTimeTemplate = (rowData: ChannelMetric) => {
     return <div>{formatJSONDateString(rowData.Metrics.StartTime ?? '')}</div>;
   };
+
   const logoTemplate = useCallback((rowData: ChannelMetric) => {
+    const found = channelMetricsRef.current.find((predicate) => predicate.Id === rowData.Id);
+    if (!found) {
+      return <div />;
+    }
+
+    const url = getIconUrl(found.ChannelLogo);
     return (
       <div className="flex icon-button-template justify-content-center align-items-center w-full">
-        <img alt="Icon logo" src={rowData.Logo} />
+        <img alt={rowData.Name + ' Logo'} src={url} />
+      </div>
+    );
+  }, []);
+
+  const streamingLogoTemplate = useCallback((rowData: ChannelMetric) => {
+    const found = channelMetricsRef.current.find((predicate) => predicate.Id === rowData.Id);
+    if (!found) {
+      return <div />;
+    }
+
+    const url = getIconUrl(found.StreamLogo);
+
+    return (
+      <div className="flex icon-button-template justify-content-center align-items-center w-full">
+        <img alt={rowData.Name + ' Logo'} src={url} />
       </div>
     );
   }, []);
@@ -97,7 +116,8 @@ const SMChannelStatus = () => {
 
   const columns = useMemo(
     (): ColumnMeta[] => [
-      { bodyTemplate: logoTemplate, field: 'Logo', fieldType: 'image', header: '' },
+      { bodyTemplate: logoTemplate, field: 'Logo', header: 'C' },
+      { bodyTemplate: streamingLogoTemplate, field: 'StreamingLogo', header: 'S' },
       { field: 'Name', filter: true, sortable: true, width: 120 },
 
       { align: 'center', bodyTemplate: clientStartTimeTemplate, field: 'StartTime', header: 'Start', width: 140 },
@@ -106,7 +126,7 @@ const SMChannelStatus = () => {
       { align: 'right', bodyTemplate: elapsedTSTemplate, field: 'ElapsedTime', header: '(d hh:mm:ss)', width: 95 },
       { align: 'center', bodyTemplate: actionTemplate, field: 'actions', fieldType: 'actions', header: '', width: 62 }
     ],
-    [actionTemplate, elapsedTSTemplate, logoTemplate]
+    [actionTemplate, elapsedTSTemplate, logoTemplate, streamingLogoTemplate]
   );
 
   if (loading) return <div>Loading...</div>;

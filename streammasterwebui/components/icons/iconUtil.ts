@@ -11,8 +11,5 @@ export function getIconUrl(source?: string): string {
     return SMLogo;
   }
 
-  //   if (!source.startsWith('http')) {
-  //     source = devUrl(source);
-  //   }
-  return devUrl(source);
+  return source.startsWith('http') ? source : devUrl(source);
 }

@@ -1,54 +1,53 @@
 ﻿using StreamMaster.Domain.Events;
-
+using StreamMaster.Domain.Models;
 using StreamMaster.Streams.Domain.Events;
 
-namespace StreamMaster.Streams.Domain.Interfaces
+namespace StreamMaster.Streams.Domain.Interfaces;
+
+/// <summary>
+/// Defines the methods and events for managing source broadcasters in StreamMaster.
+/// </summary>
+public interface ISourceBroadcasterService
 {
     /// <summary>
-    /// Defines the methods and events for managing channel distributors in StreamMaster.
+    /// Occurs when a source broadcaster is stopped.
     /// </summary>
-    public interface ISourceBroadcasterService
-    {
-        /// <summary>
-        /// Occurs when a channel director is stopped.
-        /// </summary>
-        event AsyncEventHandler<StreamBroadcasterStopped>? OnStreamBroadcasterStoppedEvent;
+    event AsyncEventHandler<StreamBroadcasterStopped>? OnStreamBroadcasterStoppedEvent;
 
-        /// <summary>
-        /// Gets a channel distributor by its string key.
-        /// </summary>
-        /// <param name="key">The string key of the channel distributor.</param>
-        /// <returns>The channel distributor if found; otherwise, <c>null</c>.</returns>
-        ISourceBroadcaster? GetStreamBroadcaster(string? key);
+    /// <summary>
+    /// Gets a source broadcaster by its string key.
+    /// </summary>
+    /// <param name="key">The string key of the source broadcaster.</param>
+    /// <returns>The source broadcaster if found; otherwise, <c>null</c>.</returns>
+    ISourceBroadcaster? GetStreamBroadcaster(string? key);
 
-        ///// <summary>
-        ///// Gets aggregated metrics for all channel distributors.
-        ///// </summary>
-        ///// <returns>A dictionary of aggregated metrics for all channel distributors.</returns>
-        //IDictionary<string, IStreamHandlerMetrics> GetMetrics();
+    /// <summary>
+    /// Gets or creates a source broadcaster asynchronously.
+    /// </summary>
+    /// <param name="smStreamInfo">The channel broadcaster associated with the source broadcaster.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>The source broadcaster if created or found; otherwise, <c>null</c>.</returns>
+    Task<ISourceBroadcaster?> GetOrCreateStreamBroadcasterAsync(SMStreamInfo smStreamInfo, CancellationToken cancellationToken);
 
-        /// <summary>
-        /// Gets or creates a channel distributor asynchronously.
-        /// </summary>
-        /// <param name="channelBroadcaster">The IChannelBroadcaster interface.</param>
-        /// <param name="cancellationToken">The cancellation Token.</param>
-        /// <returns>The channel distributor if created; otherwise, <c>null</c>.</returns>
-        Task<ISourceBroadcaster?> GetOrCreateStreamBroadcasterAsync(IChannelBroadcaster channelBroadcaster, CancellationToken cancellationToken);
+    Task<ISourceBroadcaster?> GetOrCreateMultiViewStreamBroadcasterAsync(IChannelBroadcaster channelBroadcaster, CancellationToken cancellationToken);
 
-        /// <summary>
-        /// Stops and unregisters a channel distributor by its string key.
-        /// </summary>
-        /// <param name="key">The string key of the channel distributor.</param>
-        /// <returns><c>true</c> if the channel distributor was stopped and unregistered; otherwise, <c>false</c>.</returns>
-        Task<bool> StopAndUnRegisterSourceBroadcasterAsync(string key);
+    /// <summary>
+    /// Stops and unregisters a source broadcaster by its string key.
+    /// </summary>
+    /// <param name="key">The string key of the source broadcaster.</param>
+    /// <returns>A task representing the asynchronous operation. Returns <c>true</c> if the source broadcaster was stopped and unregistered; otherwise, <c>false</c>.</returns>
+    Task<bool> StopAndUnRegisterSourceBroadcasterAsync(string key);
 
-        /// <summary>
-        /// Gets all channel distributors.
-        /// </summary>
-        /// <returns>A list of all channel distributors.</returns>
-        List<ISourceBroadcaster> GetStreamBroadcasters();
-        //void Stop(string channelBroadcasterId);
+    /// <summary>
+    /// Gets all source broadcasters.
+    /// </summary>
+    /// <returns>A list of all source broadcasters.</returns>
+    List<ISourceBroadcaster> GetStreamBroadcasters();
 
-        Task UnRegisterChannelBroadcasterAsync(int channelBroadcasterId);
-    }
+    /// <summary>
+    /// Unregisters a channel broadcaster by its unique identifier.
+    /// </summary>
+    /// <param name="channelBroadcasterId">The unique identifier of the channel broadcaster to unregister.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    Task UnRegisterChannelBroadcasterAsync(int channelBroadcasterId);
 }

@@ -37,7 +37,7 @@ public class SMWebSocketManager
     public async Task BroadcastReloadAsync()
     {
         byte[] message = Encoding.UTF8.GetBytes("reload");
-        List<Task> tasks = new();
+        List<Task> tasks = [];
 
         foreach (WebSocket client in _clients.Values)
         {

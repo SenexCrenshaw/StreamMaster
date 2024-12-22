@@ -35,24 +35,9 @@ namespace StreamMaster.Streams.Services
                 settings,
                 cancellationToken);
 
-            //config.ClientStream ??= new ClientReadStream(loggerFactory, config.UniqueRequestId);
-            //config.ClientStream.ClientStreamTimedOut += (sender, e) => config.Stop();
             // Start the task for this client
             _ = Task.Run(clientConfig.StreamFromPipeToResponseAsync, cancellationToken);
             return clientConfig;
         }
-
-        //public IClientConfiguration Copy(IClientConfiguration clientConfiguration)
-        //{
-        //    return new ClientConfiguration(
-        //        clientConfiguration.UniqueRequestId,
-        //        clientConfiguration.SMChannel,
-        //        clientConfiguration.ClientUserAgent,
-        //        clientConfiguration.ClientIPAddress,
-        //        clientConfiguration.Response,
-        //           clientConfiguration.Pipe,
-        //        clientConfiguration.LoggerFactory,
-        //        clientConfiguration.ClientCancellationToken);
-        //}
     }
 }

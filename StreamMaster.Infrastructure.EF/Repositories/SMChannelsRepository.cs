@@ -703,7 +703,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IEpgM
 
         //LogoInfo  nl = new(smStream);
 
-        //string logo = logoService.GetLogoUrl2(smStream.Logo, ftype);
+        //string logo = logoService.GetLogoUrl2(smStream.ChannelLogo, ftype);
         SMChannel smChannel = new()
         {
             BaseStreamID = smStream.Id,

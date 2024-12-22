@@ -275,7 +275,6 @@ app.MapPost("/trigger-reload", async () =>
     return Results.Ok("Reload message sent to all clients.");
 });
 
-
 _ = app.Environment.IsDevelopment() ? app.UseCors("DevPolicy") : app.UseCors();
 //_ = app.UseCors();
 

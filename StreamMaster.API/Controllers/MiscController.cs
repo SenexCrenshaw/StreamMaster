@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 using StreamMaster.Domain.Extensions;
 using StreamMaster.Domain.XmltvXml;
-using StreamMaster.Streams.Handlers;
+using StreamMaster.Streams.Broadcasters;
 
 using static StreamMaster.Domain.Common.GetStreamGroupEPGHandler;
 

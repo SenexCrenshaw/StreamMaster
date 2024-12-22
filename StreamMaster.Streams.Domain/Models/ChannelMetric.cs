@@ -24,7 +24,8 @@ namespace StreamMaster.Streams.Domain.Models
         public string Name { get; set; } = string.Empty;
         public string Id { get; set; } = string.Empty;
         public string SourceName { get; set; } = string.Empty;
-        public string? Logo { get; set; }
+        public string? ChannelLogo { get; set; }
+        public string? StreamLogo { get; set; }
         public string? VideoInfo { get; set; }
         //public long TotalBytesInBuffer { get; set; }
     }

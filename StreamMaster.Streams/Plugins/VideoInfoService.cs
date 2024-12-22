@@ -8,8 +8,11 @@ namespace StreamMaster.Streams.Plugins
         public ConcurrentDictionary<string, VideoInfo> VideoInfos { get; } = new();
         private ConcurrentDictionary<string, VideoInfoPlugin> VideoInfoPlugins { get; } = new();
 
+        private ISourceBroadcaster? SourceBroadcaster = null;
+
         public void Stop()
         {
+            SourceBroadcaster?.RemoveChannelBroadcaster("VideoInfo");
             foreach (VideoInfoPlugin videoInfoPlugin in VideoInfoPlugins.Values)
             {
                 videoInfoPlugin.Stop();
@@ -33,6 +36,7 @@ namespace StreamMaster.Streams.Plugins
 
         public void SetSourceChannel(ISourceBroadcaster sourceBroadcaster, string Id, string Name)
         {
+            SourceBroadcaster = sourceBroadcaster;
             if (!VideoInfoPlugins.TryGetValue(Id, out VideoInfoPlugin? videoInfoPlugin))
             {
                 logger.LogInformation("Video info service started for {Name}", Name);
@@ -42,12 +46,11 @@ namespace StreamMaster.Streams.Plugins
                 videoInfoPlugin.VideoInfoUpdated += OnVideoInfoUpdated;
                 VideoInfoPlugins.TryAdd(Id, videoInfoPlugin);
 
+                videoInfoPlugin.Start();
                 // Add the PipeWriter to the broadcaster
                 sourceBroadcaster.AddChannelBroadcaster("VideoInfo", videoInfoPlugin);
             }
         }
-
-
 
         public bool StopVideoPlugin(string Id)
         {

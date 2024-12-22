@@ -139,7 +139,7 @@ public partial class StreamGroupService(IHttpContextAccessor httpContextAccessor
 
     public async Task SyncSTRMFilesAsync(CancellationToken cancellationToken)
     {
-        foreach (StreamGroup? sg in repositoryWrapper.StreamGroup.GetQuery())//.Where(a => a.CreateSTRM))
+        foreach (StreamGroup? sg in repositoryWrapper.StreamGroup.GetQuery())
         {
             if (cancellationToken.IsCancellationRequested)
             {
@@ -191,7 +191,10 @@ public partial class StreamGroupService(IHttpContextAccessor httpContextAccessor
             });
         }
 
-        DeleteExtraneousDirs(streamGroup.Name, strmFiles);
+        if (settings.CurrentValue.DeleteOldSTRMFiles)
+        {
+            DeleteExtraneousDirs(streamGroup.Name, strmFiles);
+        }
     }
 
     private static void DeleteExtraneousDirs(string StreamGroupName, ConcurrentDictionary<string, bool> validFiles)
@@ -501,9 +504,9 @@ public partial class StreamGroupService(IHttpContextAccessor httpContextAccessor
 
     //private string GetLogoUrl(string baseUrl, SMChannel smChannel)
     //{
-    //    return settings.CurrentValue.LogoCache || !smChannel.Logo.StartsWithIgnoreCase("http")
+    //    return settings.CurrentValue.LogoCache || !smChannel.ChannelLogo.StartsWithIgnoreCase("http")
     //        ? $"{baseUrl}/api/files/sm/{smChannel.Id}"
-    //        : smChannel.Logo;
+    //        : smChannel.ChannelLogo;
     //}
 
     public async Task<(List<VideoStreamConfig> videoStreamConfigs, StreamGroupProfile streamGroupProfile)> GetStreamGroupVideoConfigsAsync(int streamGroupProfileId)
