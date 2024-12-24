@@ -139,13 +139,24 @@ public partial class StreamGroupService(IHttpContextAccessor httpContextAccessor
 
     public async Task SyncSTRMFilesAsync(CancellationToken cancellationToken)
     {
-        foreach (StreamGroup? sg in repositoryWrapper.StreamGroup.GetQuery())
+        Dictionary<string, StreamGroup> sgs = await repositoryWrapper.StreamGroup.GetQuery().ToDictionaryAsync(a => a.Name, a => a);
+        foreach (StreamGroup? sg in sgs.Values)
         {
             if (cancellationToken.IsCancellationRequested)
             {
                 return;
             }
             await SyncSGSTRMFilesAsync(sg, cancellationToken);
+        }
+
+        DirectoryInfo dirInfo = new(BuildInfo.OnDemandFolder);
+        foreach (DirectoryInfo subDir in dirInfo.GetDirectories())
+        {
+            if (sgs.ContainsKey(subDir.Name))
+            {
+                continue;
+            }
+            Directory.Delete(subDir.FullName, true);
         }
     }
 
