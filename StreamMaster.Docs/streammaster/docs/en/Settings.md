@@ -1,7 +1,3 @@
-# StreamMaster Settings Reference
-
-This table outlines the StreamMaster settings, including the setting name, English display name, description, and default value for easy reference.
-
 | Setting Key                   | Display Name                | Description                                                                  | Default Value                      |
 | ----------------------------- | --------------------------- | ---------------------------------------------------------------------------- | ---------------------------------- |
 | `AdminPassword`               | Admin Password              | Password for the admin user.                                                 | (empty)                            |
@@ -37,16 +33,14 @@ This table outlines the StreamMaster settings, including the setting name, Engli
 | `MaxSubscribedLineups`        | Max Subscribed Lineups      | Maximum allowed subscribed lineups.                                          | `4`                                |
 | `NameRegex`                   | Name Blacklist              | Blacklist patterns using regex.                                              | (empty list)                       |
 | `PrettyEPG`                   | Format EPG output           | Formats the EPG for better readability.                                      | `false`                            |
-| `ReadTimeOutMs`               | Read Timeout (ms)           | Timeout in milliseconds for reading data.                                    | `0`                                |
+| `ReadTimeOutMs`               | Read Timeout (ms)           | Max timeout to read; `0` disables the timeout.                               | `0`                                |
 | `ShowClientHostNames`         | Show Client Hostnames       | Display client hostnames in the status panel.                                | `false`                            |
 | `ShowIntros`                  | Show Intros                 | Show intros never, once at the beginning, or always.                         | `None`                             |
 | `ShowMessageVideos`           | Show Message Videos         | Show videos with message content.                                            | `false`                            |
 | `SSLCertPassword`             | SSL Certificate Password    | Password for the SSL certificate.                                            | (empty)                            |
 | `SSLCertPath`                 | SSL Certificate Path        | File path for the SSL certificate.                                           | (empty)                            |
 | `ShutDownDelay`               | Shutdown Delay (ms)         | Delay in milliseconds for shutting down streams after clients stop watching. | `1000`                             |
-| `StreamStartTimeoutMs`        | Stream Start Timeout (ms)   | Timeout in milliseconds for starting streams.                                | `0`                                |
+| `StreamStartTimeoutMs`        | Stream Start Timeout (ms)   | Amount of time to connect/start a new stream; `0` disables the timeout.      | `0`                                |
 | `UrlBase`                     | URL Base                    | Base URL for the application.                                                | (empty)                            |
 | `UiFolder`                    | UI Folder                   | Directory path for UI resources.                                             | `wwwroot`                          |
 | `VideoStreamAlwaysUseEPGLogo` | Always use EPG Logo         | Always use the EPG logo for video streams.                                   | `true`                             |
-
-This table provides an organized view of each setting in StreamMaster, ordered alphabetically by `Setting Key`.
