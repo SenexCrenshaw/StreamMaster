@@ -5,18 +5,18 @@ using StreamMaster.Domain.Extensions;
 
 namespace StreamMaster.Infrastructure.Services.Frontend.Mappers
 {
-    public class FaviconMapper(ILogger<FaviconMapper> logger, IOptionsMonitor<Setting> intSettings) : StaticResourceMapperBase(logger)
+    public class ConfigMapper(ILogger<ConfigMapper> logger, IOptionsMonitor<Setting> intSettings) : StaticResourceMapperBase(logger)
     {
         private readonly Setting settings = intSettings.CurrentValue;
 
         public override bool CanHandle(string resourceUrl)
         {
-            return resourceUrl.EndsWithIgnoreCase("/favicon.ico");
+            return resourceUrl.EndsWithIgnoreCase("/config.json");
         }
 
         public override Task<string> MapAsync(string resourceUrl)
         {
-            return Task.FromResult(Path.Combine(BuildInfo.StartUpPath, settings.UiFolder, "favicon.ico"));
+            return Task.FromResult(Path.Combine(BuildInfo.StartUpPath, settings.UiFolder, "config.json"));
         }
     }
 }

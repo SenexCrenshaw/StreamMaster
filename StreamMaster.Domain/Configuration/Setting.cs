@@ -52,7 +52,6 @@ public class BaseSettings
     public string SSLCertPath { get; set; } = string.Empty;
     public int ShutDownDelay { get; set; } = 1000;
     public string UiFolder { get; set; } = "wwwroot";
-    public string UrlBase { get; set; } = string.Empty;
     public bool VideoStreamAlwaysUseEPGLogo { get; set; } = true;
 }
 

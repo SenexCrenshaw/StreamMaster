@@ -13,7 +13,8 @@ using static StreamMaster.Domain.Common.GetStreamGroupEPGHandler;
 
 namespace StreamMaster.API.Controllers;
 
-public class MiscController(IImageDownloadService imageDownloadService, ICacheManager cacheManager, ILogoService logoService, ISourceBroadcasterService channelDistributorService) : ApiControllerBase
+public class MiscController(IImageDownloadService imageDownloadService, ICacheManager cacheManager, ILogoService logoService, ISourceBroadcasterService channelDistributorService)
+    : ApiControllerBase
 {
     [HttpGet]
     [Route("[action]")]

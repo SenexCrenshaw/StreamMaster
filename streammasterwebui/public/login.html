@@ -139,28 +139,14 @@
         </div>
     </div>
 
-    <script>
-        const loadConfig = () => {
-            const request = new XMLHttpRequest();
-            request.open('GET', '/config.json', false); // Synchronous request
-            request.send(null);
-
-            if (request.status === 200) {
-                return JSON.parse(request.responseText);
-            } else {
-                throw new Error(`Failed to load config: ${request.status}`);
-            }
-        };
+    <script type="module">
+        import { baseHostURL, isClient, isDev, defaultPort } from './settings.js';
 
         const getQueryParam = (param) => new URLSearchParams(window.location.search).get(param);
 
-        const isClient = typeof window !== 'undefined';
-        const isDev = process.env.NODE_ENV === 'development';
-        const config = loadConfig();
-        const defaultPort = config.defaultPort;
-        const baseHostURL = isClient && !isDev
-            ? `${window.location.protocol}//${window.location.host}`
-            : `http://127.0.0.1:${defaultPort}`;
+        console.log('Base Host URL:', baseHostURL);
+        console.log('Is Client:', isClient);
+        console.log('Is Development:', isDev);
 
         (async () => {
             try {

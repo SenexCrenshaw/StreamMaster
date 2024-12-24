@@ -12,7 +12,7 @@ namespace StreamMaster.Infrastructure.Services.Frontend.Mappers
         {
             resourceUrl = resourceUrl.ToLowerInvariant();
 
-            return resourceUrl.StartsWith("/images/") &&
+            return resourceUrl.Contains("/images/") &&
                    (resourceUrl.EndsWith(".jpg") || resourceUrl.EndsWith(".png") || resourceUrl.EndsWith(".gif"));
         }
 

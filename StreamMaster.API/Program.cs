@@ -6,6 +6,8 @@ using System.Text.Json.Serialization;
 using MediatR;
 
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ApplicationModels;
 
 using Reinforced.Typings.Attributes;
 
@@ -198,6 +200,15 @@ builder.Services.AddResponseCompression(options => options.EnableForHttps = true
 
 builder.Services.AddSingleton<ILoggerProvider, SMLoggerProvider>();
 
+//builder.Services.AddControllers(options =>
+//{
+//    options.Conventions.Insert(0, new GlobalRoutePrefixConvention(BuildInfo.PATH_BASE));
+//});
+//builder.Services.AddControllers().AddMvcOptions(options =>
+//{
+//    options.Conventions.Add(new RoutePrefixConvention(BuildInfo.PATH_BASE));
+//});
+
 WebApplication app = builder.Build();
 app.UseResponseCompression();
 app.UseForwardedHeaders();
@@ -254,6 +265,11 @@ using (IServiceScope scope = app.Services.CreateScope())
     //imageDownloadService.Start();
 }
 
+if (!string.IsNullOrEmpty(BuildInfo.PATH_BASE))
+{
+    app.UsePathBase($"{BuildInfo.PATH_BASE}/");
+}
+
 app.UseDefaultFiles();
 
 app.UseStaticFiles();
@@ -281,15 +297,6 @@ _ = app.Environment.IsDevelopment() ? app.UseCors("DevPolicy") : app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
 //app.UseMiddleware<CacheHeaderMiddleware>();
-
-//if (app.Environment.IsDevelopment())
-//{
-//    //RecurringJob.AddOrUpdate("Hello World", () => Console.WriteLine("hello world"), Cron.Minutely);
-//}
-//else
-//{
-//    _ = app.UseResponseCompression();
-//}
 
 app.MapDefaultControllerRoute();
 
@@ -341,5 +348,64 @@ static X509Certificate2 ValidateSslCertificate(string cert, string password)
         }
 
         throw;
+    }
+}
+
+string basePath = Environment.GetEnvironmentVariable("PATH_BASE") ?? "sm/api";
+
+builder.Services.AddControllers().AddMvcOptions(options =>
+{
+    options.Conventions.Add(new RoutePrefixConvention(basePath));
+});
+
+public class RoutePrefixConvention : IApplicationModelConvention
+{
+    private readonly string _routePrefix;
+
+    public RoutePrefixConvention(string routePrefix)
+    {
+        _routePrefix = routePrefix;
+    }
+
+    public void Apply(ApplicationModel application)
+    {
+        foreach (ControllerModel controller in application.Controllers)
+        {
+            foreach (SelectorModel selector in controller.Selectors)
+            {
+                if (selector.AttributeRouteModel != null)
+                {
+                    selector.AttributeRouteModel.Template = $"{_routePrefix}/{selector.AttributeRouteModel.Template}";
+                }
+            }
+        }
+    }
+}
+
+
+public class GlobalRoutePrefixConvention : IApplicationModelConvention
+{
+    private readonly string _globalPrefix;
+
+    public GlobalRoutePrefixConvention(string prefix)
+    {
+        _globalPrefix = prefix;
+    }
+
+    public void Apply(ApplicationModel application)
+    {
+        foreach (ControllerModel controller in application.Controllers)
+        {
+            foreach (SelectorModel selector in controller.Selectors)
+            {
+                if (selector.AttributeRouteModel != null)
+                {
+                    // Prepend the prefix to existing routes
+                    selector.AttributeRouteModel = AttributeRouteModel.CombineAttributeRouteModel(
+                        new AttributeRouteModel(new RouteAttribute(_globalPrefix)),
+                        selector.AttributeRouteModel);
+                }
+            }
+        }
     }
 }

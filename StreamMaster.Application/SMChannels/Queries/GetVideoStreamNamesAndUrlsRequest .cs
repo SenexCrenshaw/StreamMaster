@@ -1,6 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System.Web;
 
-using System.Web;
+using Microsoft.AspNetCore.Http;
 
 namespace StreamMaster.Application.SMChannels.Queries;
 
@@ -51,7 +51,7 @@ internal class GetVideoStreamNamesAndUrlsHandler(IRepositoryWrapper Repository, 
 
         string? encodedString = await streamGroupService.EncodeStreamGroupIdProfileIdChannelIdAsync(sgId, sgPId, smId);
 
-        string videoUrl = $"{url}/api/videostreams/stream/{encodedString}/{cleanName}";
+        string videoUrl = $"{url}{BuildInfo.PATH_BASE}/api/videostreams/stream/{encodedString}/{cleanName}";
 
         return videoUrl;
     }

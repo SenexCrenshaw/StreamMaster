@@ -13,10 +13,10 @@ namespace StreamMaster.Infrastructure.Services.Frontend.Mappers
         {
             resourceUrl = resourceUrl.ToLowerInvariant();
 
-            return !resourceUrl.StartsWith("/content") &&
-                   !resourceUrl.StartsWith("/mediacover") &&
+            return !resourceUrl.Contains("/content") &&
+                   !resourceUrl.Contains("/mediacover") &&
                    !resourceUrl.Contains('.') &&
-                   !resourceUrl.StartsWith("/login");
+                   !resourceUrl.Contains("/login");
         }
 
         public override Task<string> MapAsync(string resourceUrl)

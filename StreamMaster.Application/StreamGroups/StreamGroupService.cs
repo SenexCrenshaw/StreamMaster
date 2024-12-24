@@ -422,6 +422,9 @@ public partial class StreamGroupService(IHttpContextAccessor httpContextAccessor
             return string.Empty;
         }
 
+        var baseUrl = string.IsNullOrEmpty(BuildInfo.PATH_BASE) 
+            ? httpContextAccessor.GetUrl()
+            : httpContextAccessor.GetUrl() + BuildInfo.PATH_BASE;
         ConcurrentBag<SGLineup> ret = [];
         _ = Parallel.ForEach(videoStreamConfigs, (videoStreamConfig, _) =>
         {

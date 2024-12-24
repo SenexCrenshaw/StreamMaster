@@ -99,7 +99,7 @@ public class LogoService(ICustomPlayListBuilder customPlayListBuilder, IHttpCont
     public string GetLogoUrl(SMChannel smChannel, string baseUrl)
     {
         return settings.CurrentValue.LogoCache || !smChannel.Logo.StartsWithIgnoreCase("http")
-            ? $"{baseUrl}/api/files/sm/{smChannel.Id}"
+            ? $"{baseUrl}{BuildInfo.PATH_BASE}/api/files/sm/{smChannel.Id}"
             : smChannel.Logo;
     }
 

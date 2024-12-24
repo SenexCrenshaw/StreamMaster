@@ -6,6 +6,23 @@ namespace StreamMaster.Domain.Extensions;
 
 public static class StringExtensions
 {
+    public static string ExtractPath(this string fullPath, string basePath)
+    {
+        if (string.IsNullOrEmpty(fullPath))
+        {
+            throw new ArgumentNullException(nameof(fullPath), "The full path cannot be null or empty.");
+        }
+
+        if (string.IsNullOrEmpty(basePath))
+        {
+            throw new ArgumentNullException(nameof(basePath), "The base path cannot be null or empty.");
+        }
+
+        int baseIndex = fullPath.IndexOf(basePath, StringComparison.OrdinalIgnoreCase);
+        return baseIndex == -1
+            ? throw new ArgumentException($"Base path \"{basePath}\" not found in \"{fullPath}\".")
+            : fullPath[(baseIndex + basePath.Length)..];
+    }
     public static string Truncate(this string input, int maxLength)
     {
         return string.IsNullOrEmpty(input) || maxLength < 1 ? input : input.Length > maxLength ? input[..maxLength] : input;

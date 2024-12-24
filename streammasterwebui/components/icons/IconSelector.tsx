@@ -42,10 +42,6 @@ const IconSelector: React.FC<IconSelectorProps> = ({
     const selectedIcon = query.data?.find((icon) => icon.Source === value);
     setIconSource(value);
     setIconDto(selectedIcon);
-    if (value === '') {
-      console.log('IconSelector: value is empty');
-    }
-    console.log(value);
   }, [value, query.data]);
 
   // const loading = useMemo(() => query.isLoading || query.isError || !query.data, [query.isLoading, query.isError, query.data]);

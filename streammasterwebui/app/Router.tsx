@@ -12,6 +12,7 @@ import 'primereact/resources/primereact.min.css'; //core css
 import SMLoader from '@components/loader/SMLoader';
 
 import { SettingsProvider } from '@lib/context/SettingsProvider';
+import { defaultBaseUrl } from '@lib/settings';
 import { Suspense, lazy } from 'react';
 import RequireAuth from './RequireAuth';
 import Login from './login/Login';
@@ -202,7 +203,10 @@ const Router = (): JSX.Element => {
         />
        */}
       </Route>
-    )
+    ),
+    {
+      basename: defaultBaseUrl + '/'
+    }
   );
 
   // useSchedulesDirectGetStationChannelNamesQuery();

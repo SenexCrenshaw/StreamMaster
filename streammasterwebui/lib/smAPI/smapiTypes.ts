@@ -281,7 +281,6 @@ export interface SettingDto
 	StreamStartTimeoutMs: number;
 	STRMBaseURL: string;
 	UiFolder: string;
-	UrlBase: string;
 	Version: string;
 	VideoStreamAlwaysUseEPGLogo: boolean;
 }

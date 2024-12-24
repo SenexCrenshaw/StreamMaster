@@ -48,6 +48,7 @@ namespace StreamMaster.Domain.Configuration
 
         #region Database Configuration Properties
 
+        public static string PATH_BASE => GetPathBaseVariableOrDefault();
         public static string DEFAULT_PORT => GetEnvironmentVariableOrDefault("DEFAULT_PORT", "7095");
         public static string DEFAULT_SSL_PORT => GetEnvironmentVariableOrDefault("DEFAULT_SSL_PORT", "7096");
 
@@ -256,6 +257,24 @@ namespace StreamMaster.Domain.Configuration
         {
             string? envVar = Environment.GetEnvironmentVariable(name);
             return !string.IsNullOrEmpty(envVar) ? envVar : defaultValue;
+        }
+
+        private static string GetPathBaseVariableOrDefault()
+        {
+            string? envVar = Environment.GetEnvironmentVariable("BASE_URL");
+            if (!string.IsNullOrEmpty(envVar))
+            {
+                if (!envVar.StartsWith('/'))
+                {
+                    envVar += '/';
+                }
+                if (envVar.EndsWith('/'))
+                {
+                    envVar = envVar[..^1];
+                }
+                return envVar;
+            }
+            return "";
         }
 
         #endregion Helper Methods

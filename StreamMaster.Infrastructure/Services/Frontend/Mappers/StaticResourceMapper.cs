@@ -12,30 +12,57 @@ namespace StreamMaster.Infrastructure.Services.Frontend.Mappers
         {
             resourceUrl = resourceUrl.ToLowerInvariant();
 
-            return !resourceUrl.StartsWith("/content/images/icons/manifest") &&
-!resourceUrl.StartsWith("/content/images/icons/browserconfig")
-&& (resourceUrl.StartsWith("/static/") || resourceUrl.StartsWith("/content/") || resourceUrl.StartsWith("/assets/")) &&
-                (
-                   (resourceUrl.EndsWith(".js") && !resourceUrl.EndsWith("initialize.js")) ||
-                   resourceUrl.EndsWith(".map") ||
-                   resourceUrl.EndsWith(".woff2") ||
-                   resourceUrl.EndsWith(".woff") ||
-                   resourceUrl.EndsWith(".ttf") ||
-                   resourceUrl.EndsWith(".css") ||
-                       resourceUrl.EndsWith(".eot") ||
-                   (resourceUrl.EndsWith(".ico") && !resourceUrl.Equals("/favicon.ico")) ||
-                   resourceUrl.EndsWith(".swf") ||
-                   resourceUrl.EndsWith("oauth.html"
-                   )
-                   );
+            bool test = !resourceUrl.Contains("/content/images/icons/manifest") &&
+              !resourceUrl.Contains("/content/images/icons/browserconfig")
+              && (resourceUrl.Contains("/static/")
+              || resourceUrl.Contains("/content/")
+              || resourceUrl.Contains("/assets/")) &&
+              (
+                 (resourceUrl.EndsWith(".js") && !resourceUrl.EndsWith("initialize.js")) ||
+                 resourceUrl.EndsWith(".map") ||
+                 resourceUrl.EndsWith(".woff2") ||
+                 resourceUrl.EndsWith(".woff") ||
+                 resourceUrl.EndsWith(".ttf") ||
+                 resourceUrl.EndsWith(".css") ||
+                     resourceUrl.EndsWith(".eot") ||
+                 (resourceUrl.EndsWith(".ico") && !resourceUrl.Equals("/favicon.ico")) ||
+                 resourceUrl.EndsWith(".swf") ||
+                 resourceUrl.EndsWith("oauth.html"
+                 )
+                 );
+
+
+            return test;
         }
 
         public override Task<string> MapAsync(string resourceUrl)
         {
-            string path = resourceUrl.Replace('/', Path.DirectorySeparatorChar);
-            path = path.Trim(Path.DirectorySeparatorChar);
-
-            return Task.FromResult(Path.Combine(BuildInfo.StartUpPath, settings.UiFolder, path));
+            string normalizedUrl = NormalizeUrl(resourceUrl);
+            string path = normalizedUrl.Replace('/', Path.DirectorySeparatorChar);
+            string baseDir = Path.Combine(BuildInfo.StartUpPath, settings.UiFolder);
+            return Task.FromResult(baseDir + path);
         }
+
+
+
+        public string NormalizeUrl(string resourceUrl)
+        {
+            // List of prefixes to look for
+            string[] validPrefixes = new[] { "/static/", "/content/", "/assets/" };
+
+            foreach (string? prefix in validPrefixes)
+            {
+                int index = resourceUrl.IndexOf(prefix, StringComparison.OrdinalIgnoreCase);
+                if (index >= 0)
+                {
+                    // Return the substring starting from the valid prefix
+                    return resourceUrl[index..];
+                }
+            }
+
+            // If no valid prefix is found, return the original URL
+            return resourceUrl;
+        }
+
     }
 }

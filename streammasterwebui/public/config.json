@@ -1,3 +1,4 @@
 {
-  "defaultPort": 7095
+  "defaultPort": 7095,
+  "defaultBaseUrl": ""
 }

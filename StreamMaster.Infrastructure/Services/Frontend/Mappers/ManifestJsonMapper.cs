@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 
 using StreamMaster.Domain.Configuration;
+using StreamMaster.Domain.Extensions;
 
 namespace StreamMaster.Infrastructure.Services.Frontend.Mappers
 {
@@ -10,7 +11,7 @@ namespace StreamMaster.Infrastructure.Services.Frontend.Mappers
 
         public override bool CanHandle(string resourceUrl)
         {
-            return resourceUrl.Equals("/manifest.json");
+            return resourceUrl.EndsWithIgnoreCase("/manifest.json");
         }
 
         public override Task<string> MapAsync(string resourceUrl)

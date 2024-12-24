@@ -16,12 +16,12 @@ public class FilesController(ILogger<FilesController> logger, IHttpContextAccess
     {
         if (string.IsNullOrEmpty(source) || source == "noimage.png" || source.EndsWithIgnoreCase("default.png"))
         {
-            return Redirect("/" + settings.CurrentValue.DefaultLogo);
+            return Redirect($"{BuildInfo.PATH_BASE}/" + settings.CurrentValue.DefaultLogo);
         }
 
         (FileStream? fileStream, string? FileName, string? ContentType) = await logoService.GetLogoAsync(source, cancellationToken).ConfigureAwait(false);
 
-        return fileStream == null ? Redirect("/" + FileName ?? settings.CurrentValue.DefaultLogo) : File(fileStream, ContentType ?? "application/octet-stream", FileName);
+        return fileStream == null ? Redirect($"{BuildInfo.PATH_BASE}/" + FileName ?? settings.CurrentValue.DefaultLogo) : File(fileStream, ContentType ?? "application/octet-stream", FileName);
     }
 
     [AllowAnonymous]
@@ -71,17 +71,16 @@ public class FilesController(ILogger<FilesController> logger, IHttpContextAccess
     [Route("sm/{smChannelId}")]
     public async Task<IActionResult> GetSMChannelLogo(int smChannelId, CancellationToken cancellationToken)
     {
-        string baseUrl = httpContextAccessor.GetUrl();
+        string baseUrl = string.IsNullOrEmpty(BuildInfo.PATH_BASE) ? httpContextAccessor.GetUrl() : $"{BuildInfo.PATH_BASE}";
 
         if (smChannelId < 0)
         {
-            return Redirect($"{baseUrl}/" + settings.CurrentValue.DefaultLogo);
+            return Redirect(baseUrl + settings.CurrentValue.DefaultLogo);
         }
-
 
         (FileStream? fileStream, string? FileName, string? ContentType) = await logoService.GetLogoForChannelAsync(smChannelId, cancellationToken).ConfigureAwait(false);
 
-        return fileStream == null ? Redirect(FileName ?? $"{baseUrl}/" + settings.CurrentValue.DefaultLogo) : File(fileStream, ContentType ?? "application/octet-stream", FileName);
+        return fileStream == null ? Redirect(FileName ?? baseUrl + settings.CurrentValue.DefaultLogo) : File(fileStream, ContentType ?? "application/octet-stream", FileName);
     }
 
     //Program ChannelLogo
@@ -89,16 +88,17 @@ public class FilesController(ILogger<FilesController> logger, IHttpContextAccess
     [Route("pr/{source}")]
     public async Task<IActionResult> GetProgramLogo(string source, CancellationToken cancellationToken)
     {
-        string baseUrl = httpContextAccessor.GetUrl();
+        //string baseUrl = httpContextAccessor.GetUrl();
+        string baseUrl = string.IsNullOrEmpty(BuildInfo.PATH_BASE) ? httpContextAccessor.GetUrl() : $"{BuildInfo.PATH_BASE}";
 
         if (string.IsNullOrEmpty(source) || source == "noimage.png" || source.EndsWithIgnoreCase("default.png"))
         {
-            return Redirect($"{baseUrl}/" + settings.CurrentValue.DefaultLogo);
+            return Redirect(baseUrl + settings.CurrentValue.DefaultLogo);
         }
 
         (FileStream? fileStream, string? FileName, string? ContentType) = await logoService.GetProgramLogoAsync(source, cancellationToken).ConfigureAwait(false);
 
-        return fileStream == null ? Redirect(FileName ?? $"{baseUrl}/" + settings.CurrentValue.DefaultLogo) : File(fileStream, ContentType ?? "application/octet-stream", FileName);
+        return fileStream == null ? Redirect(FileName ?? baseUrl + settings.CurrentValue.DefaultLogo) : File(fileStream, ContentType ?? "application/octet-stream", FileName);
     }
 
     //Custom ChannelLogo
@@ -106,15 +106,17 @@ public class FilesController(ILogger<FilesController> logger, IHttpContextAccess
     [Route("cu/{source}")]
     public async Task<IActionResult> GetCustomLogo(string source, CancellationToken cancellationToken)
     {
-        string baseUrl = httpContextAccessor.GetUrl();
+        //string baseUrl = httpContextAccessor.GetUrl();
+        string baseUrl = string.IsNullOrEmpty(BuildInfo.PATH_BASE) ? httpContextAccessor.GetUrl() : $"{BuildInfo.PATH_BASE}";
+
         if (string.IsNullOrEmpty(source) || source == "noimage.png" || source.EndsWithIgnoreCase("default.png"))
         {
-            return Redirect($"{baseUrl}/" + settings.CurrentValue.DefaultLogo);
+            return Redirect(baseUrl + settings.CurrentValue.DefaultLogo);
         }
 
         (FileStream? fileStream, string? FileName, string? ContentType) = await logoService.GetCustomLogoAsync(source, cancellationToken).ConfigureAwait(false);
 
-        return fileStream == null ? Redirect(FileName ?? $"{baseUrl}/" + settings.CurrentValue.DefaultLogo) : File(fileStream, ContentType ?? "application/octet-stream", FileName);
+        return fileStream == null ? Redirect(FileName ?? baseUrl + settings.CurrentValue.DefaultLogo) : File(fileStream, ContentType ?? "application/octet-stream", FileName);
     }
 
     //TVLogo
@@ -122,14 +124,16 @@ public class FilesController(ILogger<FilesController> logger, IHttpContextAccess
     [Route("tv/{source}")]
     public async Task<IActionResult> GetTvLogo(string source, CancellationToken cancellationToken)
     {
-        string baseUrl = httpContextAccessor.GetUrl();
+        //string baseUrl = httpContextAccessor.GetUrl();
+        string baseUrl = string.IsNullOrEmpty(BuildInfo.PATH_BASE) ? httpContextAccessor.GetUrl() : $"{BuildInfo.PATH_BASE}";
+
         if (string.IsNullOrEmpty(source) || source == "noimage.png" || source.EndsWithIgnoreCase("default.png"))
         {
-            return Redirect($"{baseUrl}/" + settings.CurrentValue.DefaultLogo);
+            return Redirect(baseUrl + settings.CurrentValue.DefaultLogo);
         }
 
         (FileStream? fileStream, string? FileName, string? ContentType) = await logoService.GetTVLogoAsync(source, cancellationToken).ConfigureAwait(false);
 
-        return fileStream == null ? Redirect(FileName ?? $"{baseUrl}/" + settings.CurrentValue.DefaultLogo) : File(fileStream, ContentType ?? "application/octet-stream", FileName);
+        return fileStream == null ? Redirect(FileName ?? baseUrl + settings.CurrentValue.DefaultLogo) : File(fileStream, ContentType ?? "application/octet-stream", FileName);
     }
 }

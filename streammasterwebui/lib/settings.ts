@@ -19,5 +19,6 @@ const loadConfig = () => {
 const config = loadConfig();
 
 export const defaultPort = config.defaultPort;
+export const defaultBaseUrl = config.defaultBaseUrl;
 
-export const baseHostURL = isClient && !isDev ? `${window.location.protocol}//${window.location.host}` : `http://127.0.0.1:${defaultPort}`;
+export const baseHostURL = isClient && !isDev ? `${window.location.protocol}//${window.location.host}` : `http://127.0.0.1:${defaultPort}${defaultBaseUrl}`;

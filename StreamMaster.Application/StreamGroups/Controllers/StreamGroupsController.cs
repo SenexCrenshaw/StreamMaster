@@ -193,7 +193,7 @@ public partial class StreamGroupsController
         string url = HttpContext.Request.GetUrl();
         string? encodedString = StreamGroupService.EncodeStreamGroupIdProfileIdChannelId(streamGroup, streamGroupProfileId.Value, videoStreamConfig.Id);
         string cleanName = videoStreamConfig.Name.ToCleanFileString();
-        string videoUrl = $"{url}/api/videostreams/stream/{encodedString}/{cleanName}";
+        string videoUrl = $"{url}{BuildInfo.PATH_BASE}/api/videostreams/stream/{encodedString}/{cleanName}";
 
         return Redirect(videoUrl);
     }

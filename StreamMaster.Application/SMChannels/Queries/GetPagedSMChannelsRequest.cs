@@ -63,7 +63,7 @@ internal class GetPagedSMChannelsRequestHandler(IRepositoryWrapper Repository, I
 
         string? encodedString = await streamGroupService.EncodeStreamGroupIdProfileIdChannelIdAsync(sgId, sgPId, smChannelId);
 
-        string videoUrl = $"{url}/api/videostreams/stream/{encodedString}/{cleanName}";
+        string videoUrl = $"{url}{BuildInfo.PATH_BASE}/api/videostreams/stream/{encodedString}/{cleanName}";
 
         return videoUrl;
     }

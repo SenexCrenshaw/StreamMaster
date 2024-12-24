@@ -42,9 +42,9 @@ namespace StreamMaster.API.Controllers
             await HttpContext.SignInAsync(nameof(AuthenticationType.Forms), new ClaimsPrincipal(new ClaimsIdentity(claims, "Cookies", "user", "identifier")), authProperties);
             if (string.IsNullOrEmpty(ReturnUrl))
             {
-                ReturnUrl = "/";
+                ReturnUrl = BuildInfo.PATH_BASE + "/";
             }
-            return Redirect(settings.CurrentValue.UrlBase + ReturnUrl);
+            return Redirect(BuildInfo.PATH_BASE + ReturnUrl);
         }
 
         [HttpGet("logout")]
@@ -53,7 +53,7 @@ namespace StreamMaster.API.Controllers
             authService.Logout(HttpContext);
             await HttpContext.SignOutAsync(nameof(AuthenticationType.Forms));
             await dataRefreshService.AuthLogOut();
-            return Redirect(settings.CurrentValue.UrlBase + "/");
+            return Redirect(BuildInfo.PATH_BASE + "/");
         }
 
         [HttpGet("needAuth")]
