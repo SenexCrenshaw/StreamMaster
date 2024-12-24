@@ -339,15 +339,17 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IEpgM
                 return query;
             }
 
-            // Filter for "inSG"
+            // Filter for "inSG" 
             DataTableFilterMetaData? inSGFilter = filters.FirstOrDefault(a => a.MatchMode == "inSG");
-            if (inSGFilter?.Value is string streamGroupIdString && int.TryParse(streamGroupIdString, out int inSGId))
+            if (inSGFilter?.Value is JsonElement inSGJsonElement)
             {
-                if (inSGId != defaultSGID)
+                string? test = GetElementValue(inSGJsonElement);
+
+                if (!string.IsNullOrEmpty(test) && int.TryParse(test, out int sgNum))
                 {
                     query = query.Where(a => repository.StreamGroupSMChannelLink
                         .GetQueryNoTracking
-                        .Where(link => link.StreamGroupId == inSGId)
+                        .Where(link => link.StreamGroupId == sgNum)
                         .Select(link => link.SMChannelId)
                         .Contains(a.Id));
                 }
@@ -355,16 +357,31 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IEpgM
 
             // Filter for "notInSG"
             DataTableFilterMetaData? notInSGFilter = filters.FirstOrDefault(a => a.MatchMode == "notInSG");
-            if (notInSGFilter?.Value is string notStreamGroupIdString && int.TryParse(notStreamGroupIdString, out int notInSGId))
+            if (notInSGFilter?.Value is JsonElement jsonElement)
             {
-                query = query.Where(a => !repository.StreamGroupSMChannelLink
-                    .GetQueryNoTracking
-                    .Where(link => link.StreamGroupId == notInSGId)
-                    .Select(link => link.SMChannelId)
-                    .Contains(a.Id));
+                string? test = GetElementValue(jsonElement);
+
+                if (!string.IsNullOrEmpty(test) && int.TryParse(test, out int sgNum))
+                {
+                    query = query.Where(a => !repository.StreamGroupSMChannelLink
+                        .GetQueryNoTracking
+                        .Where(link => link.StreamGroupId == sgNum)
+                        .Select(link => link.SMChannelId)
+                        .Contains(a.Id));
+                }
             }
         }
         return query;
+    }
+
+    private static string? GetElementValue(JsonElement jsonElement)
+    {
+        return jsonElement.ValueKind switch
+        {
+            JsonValueKind.String => jsonElement.GetString(),
+            JsonValueKind.Number => jsonElement.TryGetInt32(out int intValue) ? intValue.ToString() : jsonElement.GetDouble().ToString(),
+            _ => jsonElement.ToString(),
+        };
     }
 
     public override IQueryable<SMChannel> GetQuery(bool tracking = false)
