@@ -62,6 +62,8 @@ const MessagesEn: messages_enType = {
   FFMPegExecutable: 'FFMPeg Executable',
   STRMBaseURL: 'STRM Base URL',
   FFMpegOptions: 'FFMPeg Options',
+  ReadTimeOutMs: 'Read Timeout',
+  StreamStartTimeoutMs: 'Start Timeout',
   filesEPGM3U: 'Files / EPG / M3U',
   formsAuthRequiresAdminUserName: 'Forms Authentication requires an Admin Username',
   general: 'General',

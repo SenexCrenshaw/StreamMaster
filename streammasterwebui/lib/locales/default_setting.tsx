@@ -22,6 +22,8 @@ const defaultSetting: DefaultSettingType = {
   FFMPegExecutable: 'ffmpeg',
   FFMpegOptions: '-hide_banner -loglevel error -i {streamUrl} -c copy -f mpegts pipe:1',
   FFProbeExecutable: 'ffprobe',
+  ReadTimeOutMs: '0 - Disabled',
+  StreamStartTimeoutMs: '0 - Disabled',
   GlobalStreamLimit: '1',
   MaxLogFiles: '10',
   STRMBaseURL: 'http://localhost:7095',

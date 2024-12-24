@@ -32,6 +32,8 @@ const help_en: help_enType = {
   FFProbeExecutable: 'FFMProbe Executable. The name will be searched in /config and then use the containers path',
   FFMpegOptions: "'{streamUrl}' will be replaced with the stream URL.",
   filesEPG: 'Files / EPG',
+  ReadTimeOutMs: 'Stream Read Timeout in MS',
+  StreamStartTimeoutMs: 'Stream Start Timeout in MS',
   general: 'General',
   GlobalStreamLimit: 'Limit for Custom Streams that do not belong to a M3U playlist',
   keywordSearch: 'Keyword Search',
