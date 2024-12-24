@@ -77,7 +77,6 @@ public class CommandExecutor(ILogger<CommandExecutor> logger) : ICommandExecutor
         finally
         {
             stopwatch.Stop();
-
         }
     }
 

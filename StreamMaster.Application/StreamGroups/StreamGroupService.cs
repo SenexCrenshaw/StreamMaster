@@ -133,13 +133,11 @@ public partial class StreamGroupService(IHttpContextAccessor httpContextAccessor
         return ret;
     }
 
-
     #endregion CRYPTO
-
 
     public async Task SyncSTRMFilesAsync(CancellationToken cancellationToken)
     {
-        Dictionary<string, StreamGroup> sgs = await repositoryWrapper.StreamGroup.GetQuery().ToDictionaryAsync(a => a.Name, a => a);
+        Dictionary<string, StreamGroup> sgs = await repositoryWrapper.StreamGroup.GetQuery().ToDictionaryAsync(a => a.Name, a => a, cancellationToken: cancellationToken);
         foreach (StreamGroup? sg in sgs.Values)
         {
             if (cancellationToken.IsCancellationRequested)
@@ -693,7 +691,6 @@ public partial class StreamGroupService(IHttpContextAccessor httpContextAccessor
 
             foreach (VideoStreamConfig videoStreamConfig in videoStreamConfigs)
             {
-
                 string videoUrl = isShort
                     ? $"{videoStreamConfig.BaseUrl}/v/{videoStreamConfig.StreamGroupProfileId}/{videoStreamConfig.Id}"
                     : $"{videoStreamConfig.BaseUrl}/v/{videoStreamConfig.EncodedString}";
@@ -704,15 +701,13 @@ public partial class StreamGroupService(IHttpContextAccessor httpContextAccessor
                 }
                 else
                 {
-                    sgFiles.TryAdd(sgProfileId, new SGFS(CleanUpName(streamGroup.Name), isShort != true ? streamGroup.HDHRLink : streamGroup.ShortHDHRLink, [new SMFile(CleanUpName(videoStreamConfig.Name), videoUrl)]));
-
+                    sgFiles.TryAdd(sgProfileId, new SGFS(CleanUpName(streamGroup.Name), !isShort ? streamGroup.HDHRLink : streamGroup.ShortHDHRLink, [new SMFile(CleanUpName(videoStreamConfig.Name), videoUrl)]));
                 }
                 if (cancellationToken.IsCancellationRequested)
                 {
                     return sgFiles.ToDictionary();
                 }
             }
-
         }
         return sgFiles.ToDictionary();
     }
@@ -731,7 +726,7 @@ public partial class StreamGroupService(IHttpContextAccessor httpContextAccessor
         }
 
         // Remove the "24x7" prefix if it exists (case-insensitive)
-        string[] prefixesToRemove = { "24x7", "24/7" };
+        string[] prefixesToRemove = ["24x7", "24/7"];
         // Remove any matching prefix
         foreach (string prefix in prefixesToRemove)
         {

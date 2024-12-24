@@ -1,6 +1,5 @@
 ﻿using System.Buffers;
 using System.Collections.Concurrent;
-using System.Diagnostics;
 
 using StreamMaster.Streams.Domain.Events;
 using StreamMaster.Streams.Domain.Statistics;
@@ -11,7 +10,7 @@ namespace StreamMaster.Streams.Broadcasters;
 /// <summary>
 /// Represents a source broadcaster that manages the streaming of data to multiple channel broadcasters.
 /// </summary>
-public class SourceBroadcaster(ILogger<ISourceBroadcaster> logger, IStreamFactory streamFactory, SMStreamInfo smStreamInfo)
+public class SourceBroadcaster(ILogger<ISourceBroadcaster> logger, IOptionsMonitor<Setting> settings, IStreamFactory streamFactory, SMStreamInfo smStreamInfo)
     : ISourceBroadcaster, IDisposable
 {
     private int _isStopped;
@@ -104,7 +103,6 @@ public class SourceBroadcaster(ILogger<ISourceBroadcaster> logger, IStreamFactor
     /// <inheritdoc/>
     public async Task RunPipelineAsync(Stream sourceStream, int bufferSize = 8192, CancellationToken cancellationToken = default)
     {
-        Stopwatch stopwatch = new();
         byte[] buffer = ArrayPool<byte>.Shared.Rent(bufferSize);
 
         try
@@ -123,13 +121,37 @@ public class SourceBroadcaster(ILogger<ISourceBroadcaster> logger, IStreamFactor
                     break;
                 }
 
-                //stopwatch.Restart();
-                //int bytesRead = await sourceStream.ReadAsync(buffer.AsMemory(0, bufferSize), cancellationToken).ConfigureAwait(false);
-                //stopwatch.Stop();
-
-                int bytesRead = await StreamMetricsRecorder.RecordMetricsAsync(
+                int bytesRead;
+                if (settings.CurrentValue.ReadTimeOutMs > 0)
+                {
+                    using CancellationTokenSource timeoutCts = new(TimeSpan.FromMilliseconds(settings.CurrentValue.ReadTimeOutMs));
+                    using CancellationTokenSource linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutCts.Token);
+                    try
+                    {
+                        bytesRead = await StreamMetricsRecorder.RecordMetricsAsync(
+                            () => sourceStream.ReadAsync(buffer.AsMemory(0, bufferSize), linkedCts.Token),
+                            linkedCts.Token);
+                    }
+                    catch (OperationCanceledException) when (timeoutCts.Token.IsCancellationRequested)
+                    {
+                        logger.LogWarning("Read operation timed out.");
+                        break;
+                    }
+                }
+                else
+                {
+                    try
+                    {
+                        bytesRead = await StreamMetricsRecorder.RecordMetricsAsync(
                             () => sourceStream.ReadAsync(buffer.AsMemory(0, bufferSize), cancellationToken),
                             cancellationToken);
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        logger.LogWarning("Read operation was cancelled.");
+                        break;
+                    }
+                }
 
                 if (bytesRead == 0)
                 {
@@ -137,20 +159,18 @@ public class SourceBroadcaster(ILogger<ISourceBroadcaster> logger, IStreamFactor
                     break;
                 }
 
-                //StreamMetricsRecorder.RecordMetrics(bytesRead, stopwatch.Elapsed.TotalMilliseconds);
-
                 IEnumerable<Task> tasks = ChannelBroadcasters.Select(async broadcaster =>
-                {
-                    try
-                    {
-                        await broadcaster.Value.StreamDataToClientsAsync(buffer.AsMemory(0, bytesRead), cancellationToken).ConfigureAwait(false);
-                    }
-                    catch (Exception ex)
-                    {
-                        logger.LogError(ex, "Error streaming data to broadcaster {Id}.", broadcaster.Key);
-                        ChannelBroadcasters.TryRemove(broadcaster.Key, out _);
-                    }
-                });
+              {
+                  try
+                  {
+                      await broadcaster.Value.StreamDataToClientsAsync(buffer.AsMemory(0, bytesRead), cancellationToken).ConfigureAwait(false);
+                  }
+                  catch (Exception ex)
+                  {
+                      logger.LogError(ex, "Error streaming data to broadcaster {Id}.", broadcaster.Key);
+                      ChannelBroadcasters.TryRemove(broadcaster.Key, out _);
+                  }
+              });
 
                 await Task.WhenAll(tasks).ConfigureAwait(false);
             }

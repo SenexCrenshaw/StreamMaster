@@ -53,11 +53,6 @@ public partial class UpdateSettingRequestHandler(
         //    destination.SeriesPosterArt = source.SeriesPosterArt.Value;
         //}
 
-        //if (source.SeriesWsArt.HasValue)
-        //{
-        //    destination.SeriesWsArt = source.SeriesWsArt.Value;
-        //}
-
         if (source.SeriesPosterAspect != null)
         {
             destination.SeriesPosterAspect = source.SeriesPosterAspect;
@@ -224,6 +219,16 @@ public partial class UpdateSettingRequestHandler(
         if (!string.IsNullOrEmpty(request.Parameters.M3U8OutPutProfile))
         {
             currentSetting.M3U8OutPutProfile = request.Parameters.M3U8OutPutProfile;
+        }
+
+        if (request.Parameters.StreamStartTimeoutMs.HasValue)
+        {
+            currentSetting.StreamStartTimeoutMs = request.Parameters.StreamStartTimeoutMs.Value;
+        }
+
+        if (request.Parameters.ReadTimeOutMs.HasValue)
+        {
+            currentSetting.ReadTimeOutMs = request.Parameters.ReadTimeOutMs.Value;
         }
 
         if (request.Parameters.PrettyEPG.HasValue)

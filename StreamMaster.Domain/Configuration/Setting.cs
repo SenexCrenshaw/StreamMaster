@@ -8,6 +8,8 @@ public class BaseSettings
     }
     public bool DeleteOldSTRMFiles { get; set; } = true;
 
+    public int ReadTimeOutMs { get; set; } = 0;
+    public int StreamStartTimeoutMs { get; set; } = 0;
 
     //public int DefaultPort { get; set; } = 7095;
     //public int DefaultSSLPort { get; set; } = 7096;
@@ -69,6 +71,4 @@ public class Setting : StreamSettings
     public string ServerKey { get; set; } = Guid.NewGuid().ToString().Replace("-", "");
 
     public int DBBatchSize { get; set; } = 100;
-    public int ReadTimeOutMs { get; set; } = 0;
-    public int StreamStartTimeoutMs { get; set; } = 0;
 }

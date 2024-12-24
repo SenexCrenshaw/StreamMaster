@@ -76,7 +76,7 @@ public class SourceBroadcasterService(
                 }
             }
 
-            sourceBroadcaster = new SourceBroadcaster(sourceBroadcasterLogger, streamFactory, smStreamInfo);
+            sourceBroadcaster = new SourceBroadcaster(sourceBroadcasterLogger, settings, streamFactory, smStreamInfo);
             logger.LogInformation("Created new source stream for: {Id} {Name}", smStreamInfo.Id, smStreamInfo.Name);
 
             await setupBroadcaster(sourceBroadcaster, channelBroadcaster, cancellationToken).ConfigureAwait(false);

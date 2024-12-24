@@ -6,7 +6,7 @@ namespace StreamMaster.Streams.Streams;
 /// <summary>
 /// Handles the creation and management of multi-view playlist streams.
 /// </summary>
-public class MultiViewPlayListStream(ILogger<MultiViewPlayListStream> logger, ICacheManager cacheManager, IOptionsMonitor<Setting> settings) : IMultiViewPlayListStream
+public class MultiViewPlayListStream(ILogger<MultiViewPlayListStream> logger, ICacheManager cacheManager) : IMultiViewPlayListStream
 {
     /// <inheritdoc/>
     public Task<GetStreamResult> HandleStream(IChannelBroadcaster channelBroadcaster, CancellationToken cancellationToken)

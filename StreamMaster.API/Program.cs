@@ -179,7 +179,6 @@ builder.Services.AddInfrastructureServicesEx();
 builder.Services.AddStreamsServices();
 builder.Services.AddCustomPlayListServices();
 
-
 builder.Services.AddWebUIServices(builder, setting?.EnableDBDebug ?? false);
 
 builder.Services.Configure<RouteOptions>(options => options.LowercaseUrls = true);

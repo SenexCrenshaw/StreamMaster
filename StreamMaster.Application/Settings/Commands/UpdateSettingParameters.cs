@@ -8,7 +8,8 @@ public class UpdateSettingParameters
     public bool? BackupEnabled { get; set; }
     public int? BackupVersionsToKeep { get; set; }
     public int? BackupInterval { get; set; }
-
+    public int? ReadTimeOutMs { get; set; }
+    public int? StreamStartTimeoutMs { get; set; }
     //public int? DefaultPort { get; set; }
     //public int? DefaultSSLPort { get; set; }
 

@@ -269,6 +269,7 @@ export interface SettingDto
 	MaxStreamReStart: number;
 	NameRegex?: string[];
 	PrettyEPG: boolean;
+	ReadTimeOutMs: number;
 	Release: string;
 	SDSettings: SDSettings;
 	ShowClientHostNames: boolean;
@@ -277,6 +278,7 @@ export interface SettingDto
 	ShutDownDelay: number;
 	SSLCertPassword: string;
 	SSLCertPath: string;
+	StreamStartTimeoutMs: number;
 	STRMBaseURL: string;
 	UiFolder: string;
 	UrlBase: string;
@@ -1165,6 +1167,7 @@ export interface UpdateSettingParameters
 	MaxLogFileSizeMB?: number;
 	NameRegex?: string[];
 	PrettyEPG?: boolean;
+	ReadTimeOutMs?: number;
 	SDSettings?: SDSettingsRequest;
 	ShowClientHostNames?: boolean;
 	ShowIntros?: string;
@@ -1172,6 +1175,7 @@ export interface UpdateSettingParameters
 	ShutDownDelay?: number;
 	SSLCertPassword?: string;
 	SSLCertPath?: string;
+	StreamStartTimeoutMs?: number;
 	STRMBaseURL?: string;
 }
 export interface UpdateSettingRequest
