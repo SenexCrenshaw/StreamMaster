@@ -9,8 +9,8 @@ public class UpdateSettingParameters
     public int? BackupVersionsToKeep { get; set; }
     public int? BackupInterval { get; set; }
 
-    public int? DefaultPort { get; set; }
-    public int? DefaultSSLPort { get; set; }
+    //public int? DefaultPort { get; set; }
+    //public int? DefaultSSLPort { get; set; }
 
     [TsProperty(ForceNullable = true)]
     public SDSettingsRequest? SDSettings { get; set; }

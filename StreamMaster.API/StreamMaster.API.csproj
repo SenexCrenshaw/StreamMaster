@@ -76,6 +76,18 @@
     <RtAdditionalAssembly Include="StreamMaster.Streams.Domain" />
     <RtAdditionalAssembly Include="StreamMaster.PlayList" />
   </ItemGroup>
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <TypeScriptTarget>ESNext</TypeScriptTarget>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
+    <TypeScriptTarget>ESNext</TypeScriptTarget>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <TypeScriptTarget>ESNext</TypeScriptTarget>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
+    <TypeScriptTarget>ESNext</TypeScriptTarget>
+  </PropertyGroup>
 	<PropertyGroup>
 		<EnableStaticWebAssets>false</EnableStaticWebAssets>
 	</PropertyGroup>

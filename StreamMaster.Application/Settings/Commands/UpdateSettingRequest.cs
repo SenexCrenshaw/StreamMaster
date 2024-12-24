@@ -236,15 +236,15 @@ public partial class UpdateSettingRequestHandler(
             currentSetting.PrettyEPG = request.Parameters.PrettyEPG.Value;
         }
 
-        if (request.Parameters.DefaultPort.HasValue)
-        {
-            currentSetting.DefaultPort = request.Parameters.DefaultPort.Value;
-        }
+        //if (request.Parameters.DefaultPort.HasValue)
+        //{
+        //    currentSetting.DefaultPort = request.Parameters.DefaultPort.Value;
+        //}
 
-        if (request.Parameters.DefaultSSLPort.HasValue)
-        {
-            currentSetting.DefaultSSLPort = request.Parameters.DefaultSSLPort.Value;
-        }
+        //if (request.Parameters.DefaultSSLPort.HasValue)
+        //{
+        //    currentSetting.DefaultSSLPort = request.Parameters.DefaultSSLPort.Value;
+        //}
 
         if (!string.IsNullOrEmpty(request.Parameters.ShowIntros))
         {

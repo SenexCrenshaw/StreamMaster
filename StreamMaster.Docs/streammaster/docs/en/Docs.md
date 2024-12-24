@@ -7,6 +7,7 @@ This document outlines the steps to set up and manage documentation for the [Str
 The documentation is the first thing users and developers refer to when using or contributing to StreamMaster. By helping to improve and maintain the documentation, you are ensuring that StreamMaster remains accessible and easy to use for the community.
 
 Your contributions to the documentation:
+
 - Help others learn and use StreamMaster more effectively.
 - Improve clarity for non-native English speakers through better i18n support.
 - Enable developers to more easily contribute to the project.
@@ -22,7 +23,7 @@ To generate and serve documentation locally, you will need Python installed. Mak
 To install MkDocs and the required plugins for i18n and theming, run the following command:
 
 ```bash
-python -m pip install mkdocs mkdocs-i18n mkdocs-material mkdocs-static-i18n
+python -m pip install mkdocs mkdocs-i18n mkdocs-material mkdocs-static-i18n mkdocs-include-markdown-plugin
 ```
 
 This installs the following:

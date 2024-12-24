@@ -48,9 +48,9 @@ namespace StreamMaster.Domain.Configuration
 
         #region Database Configuration Properties
 
-        /// <summary>
-        /// Database name, fetched from environment variable or default if not set.
-        /// </summary>
+        public static string DEFAULT_PORT => GetEnvironmentVariableOrDefault("DEFAULT_PORT", "7095");
+        public static string DEFAULT_SSL_PORT => GetEnvironmentVariableOrDefault("DEFAULT_SSL_PORT", "7096");
+
         public static string DBName => GetEnvironmentVariableOrDefault("POSTGRES_DB", "StreamMaster");
 
         public static string DBHost => GetEnvironmentVariableOrDefault("POSTGRES_HOST", "127.0.0.1");

@@ -209,6 +209,9 @@ chown ${PUID:-0}:${PGID:-0} '/config/tv-logos' 2>/dev/null
 # Pretty printing the configuration
 echo "Configuration:"
 echo "--------------"
+echo "HOST:"
+echo "  Default Port: $DEFAULT_PORT"
+echo "  Default SSL Port: $DEFAULT_SSL_PORT"
 echo "PGADMIN:"
 echo "  Platform Type: $PGADMIN_PLATFORM_TYPE"
 echo "  Setup Email: $PGADMIN_SETUP_EMAIL"

@@ -145,11 +145,11 @@ if (!bool.TryParse(builder.Configuration["EnableSSL"], out enableSsl))
 
 Setting? setting = SettingsHelper.GetSetting<Setting>(BuildInfo.SettingsFile);
 
-List<string> urls = [$"http://0.0.0.0:{setting!.DefaultPort}"];
+List<string> urls = [$"http://0.0.0.0:{BuildInfo.DEFAULT_PORT}"];
 
 if (enableSsl && !string.IsNullOrEmpty(sslCertPath))
 {
-    urls.Add($"https://0.0.0.0:{setting!.DefaultSSLPort}");
+    urls.Add($"https://0.0.0.0:{BuildInfo.DEFAULT_SSL_PORT}");
 }
 
 builder.WebHost.UseUrls([.. urls]);

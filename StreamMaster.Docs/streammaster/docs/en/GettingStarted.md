@@ -57,6 +57,8 @@ services:
       - 7095:7095
       - 7096:7096 # Optional, for SM to host SSL
     environment:
+      DEFAULT_PORT: 7095 # Default
+      DEFAULT_SSL_PORT: 7096 # Default
       PUID: 1000
       PGID: 1000
       POSTGRES_USER: postgres # Default
@@ -86,11 +88,15 @@ services:
 
 ### Configuration Explained 🔍
 
-- **Image**: Specifies the StreamMaster image to use.
+- **Image**: Specifies the StreamMaster image to use. `senexcrenshaw/streammaster:latest`
 - **Ports**:
-  - `7095`: The default HTTP port for StreamMaster’s web interface.
-  - `7096`: The HTTPS (SSL) port (optional).
-- **Environment Variables**: The following environment variables are set to default values, which can be customized as needed.
+  - `7095`: The default HTTP port for StreamMaster’s web interface (default: `7095`).
+    _Make sure port matches the `DEFAULT_PORT`._
+  - `7096`: The HTTPS (SSL) port (optional, default: `7096`).
+    _Make sure port matches the `DEFAULT_SSL_PORT`._
+- **Environment Variables**: The following environment variables are set
+  - `DEFAULT_PORT`: The default HTTP port for StreamMaster’s web interface (default: `7095`).
+  - `DEFAULT_SSL_PORT`: The HTTPS (SSL) port (optional, default: `7096`).
   - `PUID` and `PGID`: Set the user and group IDs that the container will use, ensuring file permissions (default: `1000`).
   - `POSTGRES_USER`: Defines the PostgreSQL database user (default: `postgres`).
   - `POSTGRES_PASSWORD`: Password for the PostgreSQL user (default: `sm123`).

@@ -5,11 +5,9 @@
       "launchBrowser": true,
       "launchUrl": "swagger",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development",
-        "ASPNETCORE_URLS": "http://+:7095",
-        "POSTGRES_HOST": "127.0.0.1"
+        "ASPNETCORE_ENVIRONMENT": "Development"
       },
-      "dotnetRunMessages": true,      
+      "dotnetRunMessages": true,
       "nativeDebugging": false,
       "hotReloadEnabled": false
     },
@@ -22,13 +20,6 @@
       },
       "dotnetRunMessages": true,
       "applicationUrl": "https://localhost:7095"
-    },
-    "IIS Express": {
-      "commandName": "IISExpress",
-      "launchUrl": "swagger",
-      "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
-      }
     },
     "Docker": {
       "commandName": "Docker",
