@@ -42,9 +42,13 @@ const IconSelector: React.FC<IconSelectorProps> = ({
     const selectedIcon = query.data?.find((icon) => icon.Source === value);
     setIconSource(value);
     setIconDto(selectedIcon);
+    if (value === '') {
+      console.log('IconSelector: value is empty');
+    }
+    console.log(value);
   }, [value, query.data]);
 
-  const loading = useMemo(() => query.isLoading || query.isError || !query.data, [query.isLoading, query.isError, query.data]);
+  // const loading = useMemo(() => query.isLoading || query.isError || !query.data, [query.isLoading, query.isError, query.data]);
 
   const cacheBustedUrl = useCallback((iconUrl: string) => {
     const uniqueTimestamp = Date.now(); // Generate a unique timestamp
@@ -128,10 +132,6 @@ const IconSelector: React.FC<IconSelectorProps> = ({
       </div>
     );
   }
-
-  // if (loading) {
-  //   return <div className="iconselector m-0 p-0">{query.isError ? <span>Error loading icons</span> : <ProgressSpinner />}</div>;
-  // }
 
   return (
     <div className={className}>

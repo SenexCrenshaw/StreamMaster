@@ -5,7 +5,9 @@
       "launchBrowser": true,
       "launchUrl": "swagger",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ASPNETCORE_URLS": "http://0.0.0.0:7095",
+        "ASPNETCORE_HTTPS_PORT": ""
       },
       "dotnetRunMessages": true,
       "nativeDebugging": false,
