@@ -66,6 +66,8 @@ const MessagesEn: messages_enType = {
   formsAuthRequiresAdminUserName: 'Forms Authentication requires an Admin Username',
   general: 'General',
   DefaultCommandProfileName: 'Default Command Profile',
+  DefaultPort: 'Port',
+  DefaultSSLPort: 'SSL Port',
   DefaultOutputProfileName: 'Default Output Profile',
   M3U8OutPutProfile: 'Default M3U8 Output Profile',
   GlobalStreamLimit: 'Global Stream Limit',

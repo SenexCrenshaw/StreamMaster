@@ -22,6 +22,7 @@ interface NumberEditorTemplateProperties {
   readonly resetValue?: number | undefined;
   readonly showButtons?: boolean;
   readonly showSave?: boolean;
+  readonly showComma?: boolean;
   readonly suffix?: string | undefined;
   readonly tooltip?: string | undefined;
   readonly tooltipOptions?: TooltipOptions | undefined;
@@ -43,6 +44,7 @@ const NumberEditor = ({
   onSave,
   prefix,
   showButtons,
+  showComma = true,
   suffix,
   tooltip,
   tooltipOptions,
@@ -170,6 +172,7 @@ const NumberEditor = ({
       <div ref={divReference} className={getDiv}>
         {label && labelInline && <div className="w-12">{label.toUpperCase()}</div>}
         <InputNumber
+          useGrouping={showComma}
           className={inputGetDiv}
           disabled={isLoading}
           min={min}

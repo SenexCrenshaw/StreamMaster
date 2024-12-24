@@ -5,6 +5,8 @@ default_dbuser="postgres"
 default_dbpassword="sm123"
 default_db="StreamMaster"
 default_host="127.0.0.1"
+default_port=7095
+default_ssl_port=7096
 default_set_perms=1
 
 # Handling POSTGRES_USER and POSTGRES_USER_FILE
@@ -35,6 +37,9 @@ export PGDATA=/config/DB
 export POSTGRES_HOST="${POSTGRES_HOST:-$default_host}"
 export POSTGRES_DB="${POSTGRES_DB:-$default_db}"
 export POSTGRES_SET_PERMS="${POSTGRES_SET_PERMS:-$default_set_perms}"
+
+export DEFAULT_PORT="${DEFAULT_PORT:-$default_port}"
+export DEFAULT_SSL_PORT="${DEFAULT_SSL_PORT:-$default_ssl_port}"
 
 # Function to determine if host is local
 is_local() {

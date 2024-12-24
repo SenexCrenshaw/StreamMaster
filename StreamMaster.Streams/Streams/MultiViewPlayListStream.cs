@@ -6,7 +6,7 @@ namespace StreamMaster.Streams.Streams;
 /// <summary>
 /// Handles the creation and management of multi-view playlist streams.
 /// </summary>
-public class MultiViewPlayListStream(ILogger<MultiViewPlayListStream> logger, ICacheManager cacheManager) : IMultiViewPlayListStream
+public class MultiViewPlayListStream(ILogger<MultiViewPlayListStream> logger, ICacheManager cacheManager, IOptionsMonitor<Setting> settings) : IMultiViewPlayListStream
 {
     /// <inheritdoc/>
     public Task<GetStreamResult> HandleStream(IChannelBroadcaster channelBroadcaster, CancellationToken cancellationToken)
@@ -87,7 +87,7 @@ public class MultiViewPlayListStream(ILogger<MultiViewPlayListStream> logger, IC
 
         foreach (SMChannelDto channel in channelBroadcaster.SMChannel.SMChannelDtos)
         {
-            args.Append($"-i \"http://localhost:7095/v/{cacheManager.DefaultSG!.Id}/{channel.Id}\" ");
+            args.Append($"-i \"http://localhost:{settings.CurrentValue.DefaultPort}/ v/{cacheManager.DefaultSG!.Id}/{channel.Id}\" ");
         }
 
         const string filterComplex = "[0:v]scale=960:540[top_left]; [1:v]scale=960:540[top_right]; [2:v]scale=960:540[bottom_left]; [3:v]scale=960:540[bottom_right]; [top_left][top_right]hstack=inputs=2[top]; [bottom_left][bottom_right]hstack=inputs=2[bottom]; [top][bottom]vstack=inputs=2[out]";

@@ -13,9 +13,11 @@ export function GeneralSettings(): React.ReactElement {
     <BaseSettings title="GENERAL">
       <>
         {GetInputTextLine({ field: 'DeviceID' })}
-        {GetCheckBoxLine({ field: 'CleanURLs' })}
+        {/* {GetCheckBoxLine({ field: 'CleanURLs' })} */}
         {GetInputTextLine({ field: 'FFMPegExecutable' })}
         {GetInputTextLine({ field: 'FFProbeExecutable' })}
+        {GetInputNumberLine({ field: 'DefaultPort', max: 65535, min: 1, showComma: false })}
+        {GetInputNumberLine({ field: 'DefaultSSLPort', max: 65535, min: 1, showComma: false })}
         {GetCheckBoxLine({ field: 'EnableSSL' })}
         {currentSetting?.EnableSSL === true && (
           <>

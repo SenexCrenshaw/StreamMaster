@@ -9,8 +9,7 @@
         "ASPNETCORE_URLS": "http://+:7095",
         "POSTGRES_HOST": "127.0.0.1"
       },
-      "dotnetRunMessages": true,
-      "applicationUrl": "http://10.6.10.92:7095",
+      "dotnetRunMessages": true,      
       "nativeDebugging": false,
       "hotReloadEnabled": false
     },

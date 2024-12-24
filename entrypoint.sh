@@ -5,6 +5,10 @@ group_name="nonRootGroup"
 
 . /env.sh
 
+echo "{
+  \"defaultPort\": $DEFAULT_PORT
+}" >/app/wwwroot/config.json
+
 # Function to check if a specific MigrationId exists in the __EFMigrationsHistory table
 check_migration_exists() {
     local migration_id=$1

@@ -143,11 +143,13 @@ if (!bool.TryParse(builder.Configuration["EnableSSL"], out enableSsl))
 {
 }
 
-List<string> urls = ["http://0.0.0.0:7095"];
+Setting? setting = SettingsHelper.GetSetting<Setting>(BuildInfo.SettingsFile);
+
+List<string> urls = [$"http://0.0.0.0:{setting!.DefaultPort}"];
 
 if (enableSsl && !string.IsNullOrEmpty(sslCertPath))
 {
-    urls.Add("https://0.0.0.0:7096");
+    urls.Add($"https://0.0.0.0:{setting!.DefaultSSLPort}");
 }
 
 builder.WebHost.UseUrls([.. urls]);
@@ -177,7 +179,6 @@ builder.Services.AddInfrastructureServicesEx();
 builder.Services.AddStreamsServices();
 builder.Services.AddCustomPlayListServices();
 
-Setting? setting = SettingsHelper.GetSetting<Setting>(BuildInfo.SettingsFile);
 
 builder.Services.AddWebUIServices(builder, setting?.EnableDBDebug ?? false);
 

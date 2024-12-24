@@ -22,6 +22,8 @@ const help_en: help_enType = {
   // ClientUserAgent: 'Client User Agent used for downloads, epg/m3u/icons/schedules direct',
   development: 'Development',
   DefaultCompression: 'Default Compression for m3u/epg files',
+  DefaultPort: 'Default Port, Restart Required',
+  DefaultSSLPort: 'Default SSL Port, Restart Required',
   DeviceID: 'HDHR Device ID and capability ID',
   DummyRegex: 'EPG will be set to dummy if this matches the channel EPG',
   EnableSSL: 'Enable SSL',

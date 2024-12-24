@@ -250,6 +250,8 @@ export interface SettingDto
 	DefaultCompression: string;
 	DefaultLogo: string;
 	DefaultOutputProfileName: string;
+	DefaultPort: number;
+	DefaultSSLPort: number;
 	DeleteOldSTRMFiles: boolean;
 	DeviceID: string;
 	EnableDBDebug: boolean;
@@ -1150,6 +1152,8 @@ export interface UpdateSettingParameters
 	DefaultCommandProfileName?: string;
 	DefaultCompression?: string;
 	DefaultOutputProfileName?: string;
+	DefaultPort?: number;
+	DefaultSSLPort?: number;
 	DeleteOldSTRMFiles?: boolean;
 	DeviceID?: string;
 	EnableSSL?: boolean;

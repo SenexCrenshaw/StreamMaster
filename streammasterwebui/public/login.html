@@ -6,25 +6,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
-
-    <!-- Chrome, Opera, and Firefox OS -->
     <meta name="theme-color" content="#460000" />
-    <!-- Windows Phone -->
     <meta name="msapplication-navbutton-color" content="#464b51" />
-
     <meta name="description" content="Stream Master" />
 
+    <!-- Icons and Manifest -->
     <link rel="apple-touch-icon" sizes="180x180" href="/images/StreamMasterx32.png" />
     <link rel="icon" type="image/png" sizes="32x32" href="/images/StreamMasterx32.png" />
-
-    <link rel="manifest" sizes="180x180" href="/manifest.json" crossorigin="use-credentials" />
-    <link rel="mask-icon" sizes="180x180" href="/images/StreamMasterx32.png" color="#00ccff" />
-    <link rel="shortcut icon" type="image/ico" href="/favicon.ico" data-no-hash />
+    <link rel="manifest" href="/manifest.json" crossorigin="use-credentials" />
+    <link rel="shortcut icon" type="image/ico" href="/favicon.ico" />
     <meta name="msapplication-config" content="/browserconfig.xml" />
 
-    <link rel="stylesheet" type="text/css" href="/Content/styles.css" />
-    <link rel="stylesheet" type="text/css" href="/Content/Fonts/fonts.css" />
+    <!-- Styles -->
+    <link rel="stylesheet" href="/Content/styles.css" />
+    <link rel="stylesheet" href="/Content/Fonts/fonts.css" />
     <link rel="stylesheet" href="https://unpkg.com/primeflex@latest/primeflex.css">
+
     <title>Login - Stream Master</title>
 
     <style>
@@ -37,6 +34,8 @@
         .center {
             display: flex;
             justify-content: center;
+            align-items: center;
+            min-height: 100vh;
         }
 
         .content {
@@ -49,29 +48,24 @@
         }
 
         .panel {
-            margin-top: 50px;
             border-radius: 4px;
+            background-color: #21282c;
+            color: white;
         }
 
         .panel-header {
             display: flex;
             justify-content: center;
             padding: 10px;
+            background-color: #263238;
             border-top-left-radius: 4px;
             border-top-right-radius: 4px;
-            background-color: #464b51;
         }
 
         .panel-body {
             padding: 20px;
-            border-bottom-right-radius: 4px;
             border-bottom-left-radius: 4px;
-            background-color: #fff;
-        }
-
-        .sign-in {
-            padding: 10px 0;
-            text-align: center;
+            border-bottom-right-radius: 4px;
         }
 
         .form-group {
@@ -79,42 +73,31 @@
         }
 
         .form-input {
-            box-sizing: border-box;
             padding: 6px 16px;
             width: 100%;
             height: 35px;
             border: 1px solid #dde6e9;
             border-radius: 4px;
-            box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
         }
 
         .form-input:focus {
-            outline: 0;
             border-color: #66afe9;
-            box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(102, 175, 233, 0.6);
+            outline: none;
         }
 
         .button {
-            overflow: hidden;
             margin-top: 20px;
-            padding: 10px 0;
             width: 100%;
-            border: 1px solid;
-            border-color: #5899eb;
-            border-radius: 4px;
-            background-color: #5d9cec;
-            color: #fff;
-            vertical-align: middle;
+            padding: 10px;
+            background-color: #6dc831;
+            color: white;
             text-align: center;
-            white-space: nowrap;
-            line-height: normal;
+            border-radius: 4px;
         }
 
         .button:hover {
-            border-color: #3483e7;
-            background-color: #4b91ea;
-            color: #fff;
-            text-decoration: none;
+            background-color: #5cb328;
+            cursor: pointer;
         }
 
         .copy {
@@ -123,30 +106,8 @@
             font-size: 14px;
         }
 
-        .remember-me-container {
-            display: flex;
-            justify-content: space-between;
-            line-height: 25px;
-        }
-
-        .remember-me {
-            font-size: 14px;
-        }
-
-        .login-failed {
-            margin-top: 20px;
-            color: #f05050;
-            font-size: 14px;
-        }
-
         .hidden {
             display: none;
-        }
-
-        @media only screen and (min-device-width: 375px) and (max-device-width: 812px) {
-            .form-input {
-                font-size: 16px;
-            }
         }
     </style>
 </head>
@@ -155,88 +116,78 @@
     <div class="center">
         <div class="content">
             <div class="panel">
-                <div class="panel-header" style="background-color: #263238">
-                    <img src="/images/streammaster_logo.png" alt="Image" class="logo" />
+                <div class="panel-header">
+                    <img src="/images/streammaster_logo.png" alt="Stream Master Logo" class="logo" />
                 </div>
-
-                <div class="panel-body" style="background-color: #21282c;">
+                <div class="panel-body">
                     <div class="sign-in">Log In</div>
-
-                    <form role="form" data-parsley-validate="" novalidate="" class="mb-lg" method="POST">
+                    <form role="form" novalidate method="POST">
                         <div class="form-group">
-                            <input type="email" name="username" class="form-input" placeholder="Username"
-                                autocomplete="off" pattern=".{1,}" required title="User name is required"
-                                autofocus="true" autocapitalize="false" />
+                            <input type="email" name="username" class="form-input" placeholder="Username" required />
                         </div>
-
                         <div class="form-group">
                             <input type="password" name="password" class="form-input" placeholder="Password" required />
                         </div>
-                        <button type="submit" class="button" style="background-color: #6dc831ee; color: white">Log
-                            In</button>
-
-                        <div id="login-failed" class="login-failed hidden">Incorrect Username or Password</div>
+                        <button type="submit" class="button">Log In</button>
+                        <div id="login-failed" class="hidden">Incorrect Username or Password</div>
                     </form>
                 </div>
             </div>
-
-            <div id="copy" class="copy hidden">
-                <span>&copy;</span>
-                <span id="year"></span>
-                <span>-</span>
-                <span>Stream Master</span>
+            <div id="copy" class="hidden copy">
+                <span>&copy;</span> <span id="year"></span> - Stream Master
             </div>
         </div>
     </div>
-</body>
 
-<script type="text/javascript">
-    console.log("data", data);
-    // Function to get query parameters from the URL
-    function getQueryParam(param) {
-        const params = new URLSearchParams(window.location.search);
-        return params.get(param);
-    }
+    <script>
+        const loadConfig = () => {
+            const request = new XMLHttpRequest();
+            request.open('GET', '/config.json', false); // Synchronous request
+            request.send(null);
 
-    const isClient = typeof window !== 'undefined';
-    const isDev = process.env.NODE_ENV === 'development';
-    const baseHostURL = isClient && !isDev ? `${window.location.protocol}//${window.location.host}` : 'http://127.0.0.1:7095';
-
-    // Check if user is authenticated
-    (async () => {
-        try {
-            const response = await fetch(baseHostURL + '/needAuth', {
-                method: 'GET',
-                credentials: 'include', // Send cookies with the request if applicable
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            const data = await response.json();
-            console.log("data", data);
-            if (data === false) {
-                // If `needAuth` is false, user is already authenticated - redirect
-                const returnUrl = getQueryParam('ReturnUrl');
-                window.location.href = returnUrl ? decodeURIComponent(returnUrl) : '/editor/streams'; // Replace '/home' with your default landing page
-                return;
+            if (request.status === 200) {
+                return JSON.parse(request.responseText);
+            } else {
+                throw new Error(`Failed to load config: ${request.status}`);
             }
-        } catch (error) {
-            console.error('Error checking authentication status:', error);
-        }
+        };
 
-        // Set up the rest of the login page only if authentication is needed
-        var yearSpan = document.getElementById('year');
-        yearSpan.innerHTML = new Date().getFullYear();
+        const getQueryParam = (param) => new URLSearchParams(window.location.search).get(param);
 
-        var copyDiv = document.getElementById('copy');
-        copyDiv.classList.remove('hidden');
+        const isClient = typeof window !== 'undefined';
+        const isDev = process.env.NODE_ENV === 'development';
+        const config = loadConfig();
+        const defaultPort = config.defaultPort;
+        const baseHostURL = isClient && !isDev
+            ? `${window.location.protocol}//${window.location.host}`
+            : `http://127.0.0.1:${defaultPort}`;
 
-        if (window.location.search.indexOf('loginFailed=true') > -1) {
-            var loginFailedDiv = document.getElementById('login-failed');
-            loginFailedDiv.classList.remove('hidden');
-        }
-    })();
-</script>
+        (async () => {
+            try {
+                const response = await fetch(baseHostURL + '/needAuth', {
+                    method: 'GET',
+                    credentials: 'include',
+                    headers: { 'Content-Type': 'application/json' },
+                });
+                const data = await response.json();
+
+                if (!data) {
+                    const returnUrl = getQueryParam('ReturnUrl');
+                    window.location.href = returnUrl ? decodeURIComponent(returnUrl) : '/editor/streams';
+                    return;
+                }
+            } catch (error) {
+                console.error('Error checking authentication status:', error);
+            }
+
+            document.getElementById('year').textContent = new Date().getFullYear();
+            document.getElementById('copy').classList.remove('hidden');
+
+            if (window.location.search.includes('loginFailed=true')) {
+                document.getElementById('login-failed').classList.remove('hidden');
+            }
+        })();
+    </script>
+</body>
 
 </html>

@@ -13,6 +13,8 @@ const defaultSetting: DefaultSettingType = {
   CleanURLs: 'true',
   ClientReadTimeOutSeconds: '10',
   ClientUserAgent: 'VLC/3.0.20-git LibVLC/3.0.20-git',
+  DefaultPort: '7095',
+  DefaultSSLPort: '7096',
   M3U8OutPutProfile: 'SMFFMPEG',
   DeviceID: 'device1',
   EnablePrometheus: 'false',

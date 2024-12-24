@@ -42,50 +42,37 @@
     -->
 </body>
 
-<script type="text/javascript">
-    // Function to get query parameters from the URL
-    function getQueryParam(param) {
-        const params = new URLSearchParams(window.location.search);
-        return params.get(param);
-    }
+<script type="module">
+    import { baseHostURL, isClient, isDev, defaultPort } from './settings.js';
 
-    const isClient = typeof window !== 'undefined';
-    const isDev = process.env.NODE_ENV === 'development';
-    const baseHostURL = isClient && !isDev ? `${window.location.protocol}//${window.location.host}` : 'http://127.0.0.1:7095';
-
-    // Check if user is authenticated
     (async () => {
+        console.log('Base Host URL:', baseHostURL);
+        console.log('Is Client:', isClient);
+        console.log('Is Development:', isDev);
+
         try {
-            console.log('window.location.search:', window.location.search)
             const response = await fetch(baseHostURL + '/needAuth', {
                 method: 'GET',
-                credentials: 'include', // Send cookies with the request if applicable
+                credentials: 'include',
                 headers: {
-                    'Content-Type': 'application/json'
-                }
+                    'Content-Type': 'application/json',
+                },
             });
 
             const data = await response.json();
 
             if (data === true) {
-                // If `needAuth` is false, user is already authenticated - redirect
-                const returnUrl = getQueryParam('ReturnUrl');
-
-                window.location.href = '/login?ReturnUrl=' + returnUrl;
-                return;
+                const returnUrl = new URLSearchParams(window.location.search).get('ReturnUrl');
+                window.location.href = `/login?ReturnUrl=${returnUrl}`;
+            } else {
+                document.getElementById('year').innerHTML = new Date().getFullYear();
+                document.getElementById('copy').classList.remove('hidden');
             }
         } catch (error) {
             console.error('Error checking authentication status:', error);
         }
-
-        // Set up the rest of the login page only if authentication is needed
-        var yearSpan = document.getElementById('year');
-        yearSpan.innerHTML = new Date().getFullYear();
-
-        var copyDiv = document.getElementById('copy');
-        copyDiv.classList.remove('hidden');
-
     })();
 </script>
+
 
 </html>

@@ -25,6 +25,7 @@ RUN --mount=type=cache,id=apt-$TARGETARCH$TARGETVARIANT,sharing=locked,target=/v
     && apt-get install -yq --no-install-recommends \
     xz-utils \
     fuse \
+    libgdiplus \
     vlc-bin \
     gosu \
     postgresql \
