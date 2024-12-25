@@ -7,7 +7,7 @@ group_name="nonRootGroup"
 
 echo "{
   \"defaultPort\": $DEFAULT_PORT,
-  \"defaultBaseUrl\": $BASE_URL
+  \"defaultBaseUrl\": \"${BASE_URL}\"
 }" >/app/wwwroot/config.json
 
 # Function to check if a specific MigrationId exists in the __EFMigrationsHistory table
