@@ -256,7 +256,7 @@ namespace StreamMaster.Streams.Broadcasters
                 int count = sourceBroadcaster.ChannelBroadcasters.Count(a => a.Key != "VideoInfo");
                 if (count == 0)
                 {
-                    int delay = settings.CurrentValue.ShutDownDelay;
+                    int delay = settings.CurrentValue.StreamShutDownDelayMs;
                     if (delay > 0)
                     {
                         await Task.Delay(delay, cancellationToken).ConfigureAwait(false);

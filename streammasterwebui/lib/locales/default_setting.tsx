@@ -32,7 +32,8 @@ const defaultSetting: DefaultSettingType = {
   MaxLogFileSizeMB: '1',
   ShowClientHostNames: 'false',
   StreamingClientUserAgent: 'VLC/3.0.20-git LibVLC/3.0.20-git',
-  StreamingProxyType: 'System Default'
+  StreamingProxyType: 'System Default',
+  StreamShutDownDelayMs: '1000 - 1 Second'
 };
 
 export const getDefaultSetting = (key: string): string => defaultSetting[key] ?? '';

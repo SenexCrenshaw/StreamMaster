@@ -127,7 +127,7 @@ const MessagesEn: messages_enType = {
   user: 'User',
   VideoStreamAlwaysUseEPGLogo: 'Always use EPG Logo',
   visible: 'Visible',
-  ShutDownDelay: 'Shutdown Delay (ms)'
+  StreamShutDownDelayMs: 'Shutdown Delay (ms)'
 };
 
 export default MessagesEn;

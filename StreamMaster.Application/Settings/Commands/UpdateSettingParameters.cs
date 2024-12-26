@@ -8,10 +8,6 @@ public class UpdateSettingParameters
     public bool? BackupEnabled { get; set; }
     public int? BackupVersionsToKeep { get; set; }
     public int? BackupInterval { get; set; }
-    public int? ReadTimeOutMs { get; set; }
-    public int? StreamStartTimeoutMs { get; set; }
-    //public int? DefaultPort { get; set; }
-    //public int? DefaultSSLPort { get; set; }
 
     [TsProperty(ForceNullable = true)]
     public SDSettingsRequest? SDSettings { get; set; }
@@ -22,17 +18,19 @@ public class UpdateSettingParameters
     public string? M3U8OutPutProfile { get; set; }
     public string? AdminPassword { get; set; }
     public string? AdminUserName { get; set; }
-    //public string? ApiKey { get; set; }
 
-    public int? ClientReadTimeOutSeconds { get; set; }
+    public int? StreamReadTimeOutMs { get; set; }
+    public int? StreamStartTimeoutMs { get; set; }
+    public int? ClientReadTimeoutMs { get; set; }
+    public int? StreamRetryLimit { get; set; }
+    public int? StreamShutDownDelayMs { get; set; }
+
     public string? AuthenticationMethod { get; set; }
     public bool? LogoCache { get; set; }
     public bool? CleanURLs { get; set; }
     public string? ClientUserAgent { get; set; }
     public string? DeviceID { get; set; }
     public bool? EnableSSL { get; set; }
-
-    public int? ShutDownDelay { get; set; }
     public bool? ShowMessageVideos { get; set; }
 
     public string? FFMPegExecutable { get; set; }

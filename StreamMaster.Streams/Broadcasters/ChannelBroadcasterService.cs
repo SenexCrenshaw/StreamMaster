@@ -92,7 +92,7 @@ public class ChannelBroadcasterService(
         channelBroadcaster.Shutdown = true;
 
         int delay = channelBroadcaster.SMStreamInfo != null && !channelBroadcaster.ClientConfigurationsEmpty && !streamLimitsService.IsLimited(channelBroadcaster.SMStreamInfo.Id)
-            ? settings.CurrentValue.ShutDownDelay
+            ? settings.CurrentValue.StreamShutDownDelayMs
             : 0;
 
         if (delay > 0)

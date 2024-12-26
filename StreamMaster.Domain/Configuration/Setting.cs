@@ -43,7 +43,7 @@ public class BaseSettings
     public string ShowIntros { get; set; } = "None";
     public string SSLCertPassword { get; set; } = string.Empty;
     public string SSLCertPath { get; set; } = string.Empty;
-    public int ShutDownDelay { get; set; } = 1000;
+
     public string UiFolder { get; set; } = "wwwroot";
     public bool VideoStreamAlwaysUseEPGLogo { get; set; } = true;
 }
@@ -57,6 +57,7 @@ public class StreamSettings : BaseSettings
     public int StreamStartTimeoutMs { get; set; } = 0;
     public int ClientReadTimeoutMs { get; set; } = 0;
     public int StreamRetryLimit { get; set; } = 3;
+    public int StreamShutDownDelayMs { get; set; } = 1000;
 
     public string FFMPegExecutable { get; set; } = "ffmpeg";
     public string FFProbeExecutable { get; set; } = "ffprobe";

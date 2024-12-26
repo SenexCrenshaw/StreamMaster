@@ -226,11 +226,6 @@ public partial class UpdateSettingRequestHandler(
             currentSetting.StreamStartTimeoutMs = request.Parameters.StreamStartTimeoutMs.Value;
         }
 
-        if (request.Parameters.ReadTimeOutMs.HasValue)
-        {
-            currentSetting.StreamReadTimeOutMs = request.Parameters.ReadTimeOutMs.Value;
-        }
-
         if (request.Parameters.PrettyEPG.HasValue)
         {
             currentSetting.PrettyEPG = request.Parameters.PrettyEPG.Value;
@@ -240,16 +235,6 @@ public partial class UpdateSettingRequestHandler(
         {
             currentSetting.PrettyEPG = request.Parameters.PrettyEPG.Value;
         }
-
-        //if (request.Parameters.DefaultPort.HasValue)
-        //{
-        //    currentSetting.DefaultPort = request.Parameters.DefaultPort.Value;
-        //}
-
-        //if (request.Parameters.DefaultSSLPort.HasValue)
-        //{
-        //    currentSetting.DefaultSSLPort = request.Parameters.DefaultSSLPort.Value;
-        //}
 
         if (!string.IsNullOrEmpty(request.Parameters.ShowIntros))
         {
@@ -271,19 +256,36 @@ public partial class UpdateSettingRequestHandler(
             currentSetting.MaxLogFileSizeMB = request.Parameters.MaxLogFileSizeMB.Value;
         }
 
-        if (request.Parameters.ClientReadTimeOutSeconds.HasValue)
+        #region Streams
+        if (request.Parameters.StreamReadTimeOutMs.HasValue)
         {
-            currentSetting.ClientReadTimeoutMs = request.Parameters.ClientReadTimeOutSeconds.Value;
+            currentSetting.StreamReadTimeOutMs = request.Parameters.StreamReadTimeOutMs.Value;
         }
+
+        if (request.Parameters.StreamStartTimeoutMs.HasValue)
+        {
+            currentSetting.StreamStartTimeoutMs = request.Parameters.StreamStartTimeoutMs.Value;
+        }
+
+        if (request.Parameters.ClientReadTimeoutMs.HasValue)
+        {
+            currentSetting.ClientReadTimeoutMs = request.Parameters.ClientReadTimeoutMs.Value;
+        }
+
+        if (request.Parameters.StreamShutDownDelayMs.HasValue)
+        {
+            currentSetting.StreamShutDownDelayMs = request.Parameters.StreamShutDownDelayMs.Value;
+        }
+
+        if (request.Parameters.StreamRetryLimit.HasValue)
+        {
+            currentSetting.StreamRetryLimit = request.Parameters.StreamRetryLimit.Value;
+        }
+        #endregion
 
         if (request.Parameters.BackupEnabled.HasValue)
         {
             currentSetting.BackupEnabled = request.Parameters.BackupEnabled.Value;
-        }
-
-        if (request.Parameters.ShutDownDelay.HasValue)
-        {
-            currentSetting.ShutDownDelay = request.Parameters.ShutDownDelay.Value;
         }
 
         if (request.Parameters.AutoSetEPG.HasValue)

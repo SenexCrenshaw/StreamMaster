@@ -53,7 +53,7 @@ const help_en: help_enType = {
   sdUserName: 'Username',
   settings: 'Settings',
   signin: 'Sign In',
-  ShutDownDelay: 'Stream Shutdown Delay in miliseconds once all clients have stopped watching',
+  StreamShutDownDelayMs: 'Stream Shutdown Delay in miliseconds once all clients have stopped watching',
   signInSuccessful: 'Sign In Successful',
   signInUnSuccessful: 'Sign In Unsuccessful',
   signout: 'Sign Out',

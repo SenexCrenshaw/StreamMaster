@@ -274,11 +274,11 @@ export interface SettingDto
 	ShowClientHostNames: boolean;
 	ShowIntros: string;
 	ShowMessageVideos: boolean;
-	ShutDownDelay: number;
 	SSLCertPassword: string;
 	SSLCertPath: string;
 	StreamReadTimeOutMs: number;
 	StreamRetryLimit: number;
+	StreamShutDownDelayMs: number;
 	StreamStartTimeoutMs: number;
 	STRMBaseURL: string;
 	UiFolder: string;
@@ -1154,7 +1154,7 @@ export interface UpdateSettingParameters
 	BackupInterval?: number;
 	BackupVersionsToKeep?: number;
 	CleanURLs?: boolean;
-	ClientReadTimeOutSeconds?: number;
+	ClientReadTimeoutMs?: number;
 	ClientUserAgent?: string;
 	DefaultCommandProfileName?: string;
 	DefaultCompression?: string;
@@ -1174,14 +1174,15 @@ export interface UpdateSettingParameters
 	MaxLogFileSizeMB?: number;
 	NameRegex?: string[];
 	PrettyEPG?: boolean;
-	ReadTimeOutMs?: number;
 	SDSettings?: SDSettingsRequest;
 	ShowClientHostNames?: boolean;
 	ShowIntros?: string;
 	ShowMessageVideos?: boolean;
-	ShutDownDelay?: number;
 	SSLCertPassword?: string;
 	SSLCertPath?: string;
+	StreamReadTimeOutMs?: number;
+	StreamRetryLimit?: number;
+	StreamShutDownDelayMs?: number;
 	StreamStartTimeoutMs?: number;
 	STRMBaseURL?: string;
 }
