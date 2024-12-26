@@ -7,14 +7,7 @@ public class BaseSettings
         AuthenticationMethod = "None";
     }
     public bool DeleteOldSTRMFiles { get; set; } = true;
-
-    public int ReadTimeOutMs { get; set; } = 0;
-    public int StreamStartTimeoutMs { get; set; } = 0;
-
-    //public int DefaultPort { get; set; } = 7095;
-    //public int DefaultSSLPort { get; set; } = 7096;
     public string STRMBaseURL { get; set; } = "http://localhost:7095";
-
     public string APIKey { get; set; } = Guid.NewGuid().ToString().Replace("-", "");
     public string AdminPassword { get; set; } = string.Empty;
     public string AdminUserName { get; set; } = string.Empty;
@@ -59,7 +52,12 @@ public class StreamSettings : BaseSettings
 {
     public string DefaultCommandProfileName { get; set; } = "Default";
     public string DefaultOutputProfileName { get; set; } = "Default";
-    public int ClientReadTimeOutSeconds { get; set; } = 20;
+
+    public int StreamReadTimeOutMs { get; set; } = 0;
+    public int StreamStartTimeoutMs { get; set; } = 0;
+    public int ClientReadTimeoutMs { get; set; } = 0;
+    public int StreamRetryLimit { get; set; } = 3;
+
     public string FFMPegExecutable { get; set; } = "ffmpeg";
     public string FFProbeExecutable { get; set; } = "ffprobe";
 }

@@ -15,9 +15,10 @@ namespace StreamMaster.Streams.Broadcasters;
 /// <param name="logger">The logger for logging events.</param>
 /// <param name="smChannelDto">The channel data transfer object.</param>
 /// <param name="streamGroupProfileId">The stream group profile ID.</param>
-public sealed class ChannelBroadcaster(ILogger<IChannelBroadcaster> logger, SMChannelDto smChannelDto, int streamGroupProfileId) : IChannelBroadcaster, IDisposable
+public sealed class ChannelBroadcaster(ILogger<IChannelBroadcaster> logger, IOptionsMonitor<Setting> settings, SMChannelDto smChannelDto, int streamGroupProfileId)
+    : IChannelBroadcaster, IDisposable
 {
-    private ISourceBroadcaster? SourceBroadcaster;
+    //private ISourceBroadcaster? SourceBroadcaster;
     private readonly Dubcer? Dubcer = null;
 
     /// <summary>
@@ -57,7 +58,21 @@ public sealed class ChannelBroadcaster(ILogger<IChannelBroadcaster> logger, SMCh
     /// <inheritdoc/>
     public async Task StreamDataToClientsAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken)
     {
-        IEnumerable<Task> tasks = Clients.Values.Select(client => StreamDataToClientAsync(client, buffer, cancellationToken));
+        List<IClientConfiguration> clientSnapshot = [.. Clients.Values];
+        using SemaphoreSlim semaphore = new(25); // Limit to 25 concurrent streams
+        IEnumerable<Task> tasks = clientSnapshot.Select(async client =>
+        {
+            await semaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
+            try
+            {
+                await StreamDataToClientAsync(client, buffer, cancellationToken).ConfigureAwait(false);
+            }
+            finally
+            {
+                semaphore.Release();
+            }
+        });
+
         try
         {
             await Task.WhenAll(tasks).ConfigureAwait(false);
@@ -68,16 +83,43 @@ public sealed class ChannelBroadcaster(ILogger<IChannelBroadcaster> logger, SMCh
         }
     }
 
-    private async Task StreamDataToClientAsync(IClientConfiguration client, ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken)
+    private async Task StreamDataToClientAsync(IClientConfiguration client, ReadOnlyMemory<byte> buffer, CancellationToken globalCancellationToken)
     {
+        // Create a linked cancellation token source, only if timeout is required
+        using CancellationTokenSource? clientCts = settings.CurrentValue.ClientReadTimeoutMs > 0
+            ? CancellationTokenSource.CreateLinkedTokenSource(globalCancellationToken)
+            : null;
+
+        // Apply timeout if configured
+        clientCts?.CancelAfter(settings.CurrentValue.ClientReadTimeoutMs);
+
         try
         {
+            if (client.IsStopped)
+            {
+                return;
+            }
+
+            if (client.Pipe.Writer.UnflushedBytes > 10 * 1024 * 1024)
+            {
+                logger.LogWarning("Client {ClientId} is too slow. Dropping client.", client.UniqueRequestId);
+                client.Stop();
+                Clients.TryRemove(client.UniqueRequestId, out _);
+                return;
+            }
+
+            // Use the appropriate cancellation token
+            CancellationToken cancellationToken = clientCts?.Token ?? globalCancellationToken;
+
+            // Stream data to the client
             await client.Pipe.Writer.WriteAsync(buffer, cancellationToken).ConfigureAwait(false);
             await client.Pipe.Writer.FlushAsync(cancellationToken).ConfigureAwait(false);
         }
-        catch (OperationCanceledException)
+        catch (OperationCanceledException) when (clientCts?.Token.IsCancellationRequested == true)
         {
-            logger.LogInformation("Streaming operation canceled for client {ClientId}.", client.UniqueRequestId);
+            logger.LogInformation("Streaming to client {ClientId} canceled due to timeout.", client.UniqueRequestId);
+            client.Stop();
+            Clients.TryRemove(client.UniqueRequestId, out _);
         }
         catch (Exception ex)
         {
@@ -139,16 +181,16 @@ public sealed class ChannelBroadcaster(ILogger<IChannelBroadcaster> logger, SMCh
         IsGlobal = true;
     }
 
-    /// <summary>
-    /// Sets the source channel broadcaster for this channel.
-    /// </summary>
-    /// <param name="sourceChannelBroadcaster">The source channel broadcaster to set.</param>
-    public void SetSourceChannelBroadcaster(ISourceBroadcaster sourceChannelBroadcaster)
-    {
-        SourceBroadcaster?.RemoveChannelBroadcaster(Id);
-        SourceBroadcaster = sourceChannelBroadcaster;
-        sourceChannelBroadcaster.AddChannelBroadcaster(this);
-    }
+    ///// <summary>
+    ///// Sets the source channel broadcaster for this channel.
+    ///// </summary>
+    ///// <param name="sourceChannelBroadcaster">The source channel broadcaster to set.</param>
+    //public void SetSourceBroadcaster(ISourceBroadcaster sourceChannelBroadcaster)
+    //{
+    //    //SourceBroadcaster?.RemoveChannelBroadcaster(Id);
+    //    //SourceBroadcaster = sourceChannelBroadcaster;
+    //    sourceChannelBroadcaster.AddChannelBroadcaster(this);
+    //}
 
     public int IntroIndex { get; set; }
     public bool PlayedIntro { get; set; }

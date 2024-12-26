@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using StreamMaster.Application.EPG.Commands;
 using StreamMaster.Application.EPG.Queries;
 
-namespace StreamMaster.Application.EPG.Controllers
+namespace StreamMaster.Application.EPG
 {
     [Authorize]
     public partial class EPGController(ILogger<EPGController> _logger) : ApiControllerBase, IEPGController

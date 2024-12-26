@@ -1,8 +1,9 @@
 ﻿using System.Collections.Concurrent;
 
+using StreamMaster.Domain.Events;
 using StreamMaster.Domain.Models;
 using StreamMaster.Streams.Domain.Events;
-using StreamMaster.Streams.Domain.Statistics;
+using StreamMaster.Streams.Domain.Metrics;
 
 namespace StreamMaster.Streams.Domain.Interfaces;
 
@@ -11,6 +12,8 @@ namespace StreamMaster.Streams.Domain.Interfaces;
 /// </summary>
 public interface ISourceBroadcaster
 {
+    bool IsStopped { get; }
+    bool IsMultiView { get; set; }
     /// <summary>
     /// Gets the metrics associated with the source stream.
     /// </summary>
@@ -30,9 +33,9 @@ public interface ISourceBroadcaster
     /// <summary>
     /// Adds a channel broadcaster to this source broadcaster by its unique identifier.
     /// </summary>
-    /// <param name="id">The unique identifier of the channel broadcaster.</param>
-    /// <param name="channelBroadcaster">The channel broadcaster to add.</param>
-    void AddChannelBroadcaster(string id, IStreamDataToClients channelBroadcaster);
+    /// <param name="id">The unique identifier of the broadcaster.</param>
+    /// <param name="streamDataToClients">The broadcaster to add.</param>
+    void AddChannelBroadcaster(string id, IStreamDataToClients streamDataToClients);
 
     /// <summary>
     /// Removes a channel broadcaster from this source broadcaster.
@@ -66,8 +69,8 @@ public interface ISourceBroadcaster
     /// <param name="smStreamInfo">The channel broadcaster for which to set the source stream.</param>
     /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
-    Task SetSourceStreamAsync(SMStreamInfo smStreamInfo, CancellationToken cancellationToken);
-    Task SetSourceMultiViewStreamAsync(IChannelBroadcaster channelBroadcaster, CancellationToken cancellationToken);
+    Task<long> SetSourceStreamAsync(SMStreamInfo smStreamInfo, CancellationToken cancellationToken);
+    Task<long> SetSourceMultiViewStreamAsync(IChannelBroadcaster channelBroadcaster, CancellationToken cancellationToken);
     /// <summary>
     /// Gets the unique identifier for this source broadcaster.
     /// </summary>
@@ -76,5 +79,7 @@ public interface ISourceBroadcaster
     /// <summary>
     /// Occurs when the source broadcaster stops streaming.
     /// </summary>
-    event EventHandler<StreamBroadcasterStopped> StreamBroadcasterStopped;
+    event AsyncEventHandler<StreamBroadcasterStopped> OnStreamBroadcasterStopped;
+
+    public SMStreamInfo SMStreamInfo { get; }
 }

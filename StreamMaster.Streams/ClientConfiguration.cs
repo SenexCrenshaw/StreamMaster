@@ -5,7 +5,7 @@ using System.Text.Json.Serialization;
 
 using Microsoft.AspNetCore.Http;
 
-using StreamMaster.Streams.Domain.Statistics;
+using StreamMaster.Streams.Domain.Metrics;
 using StreamMaster.Streams.Services;
 
 namespace StreamMaster.Streams;
@@ -53,11 +53,13 @@ public class ClientConfiguration : IClientConfiguration, IDisposable
         ClientCancellationToken = cancellationToken;
 
         // Initialize inactivity timer if timeout is set
-        if (settings.CurrentValue.ClientReadTimeOutSeconds > 0)
+        if (settings.CurrentValue.ClientReadTimeoutMs > 0)
         {
             inactivityTimer = new Timer(_ => inactivityCts.Cancel(), null, Timeout.Infinite, Timeout.Infinite);
         }
     }
+
+    public bool IsStopped { get; private set; }
 
     /// <inheritdoc/>
     public StreamHandlerMetrics Metrics => StreamMetricsRecorder.Metrics;
@@ -134,9 +136,9 @@ public class ClientConfiguration : IClientConfiguration, IDisposable
 
         try
         {
-            while (!ClientCancellationToken.IsCancellationRequested)
+            while (!ClientCancellationToken.IsCancellationRequested && !IsStopped)
             {
-                inactivityTimer?.Change(Settings.CurrentValue.ClientReadTimeOutSeconds * 1000, Timeout.Infinite);
+                inactivityTimer?.Change(Settings.CurrentValue.ClientReadTimeoutMs, Timeout.Infinite);
 
                 await StreamMetricsRecorder.RecordMetricsAsync(
                     async () =>
@@ -147,7 +149,7 @@ public class ClientConfiguration : IClientConfiguration, IDisposable
                         foreach (ReadOnlyMemory<byte> segment in buffer)
                         {
                             await Response.Body.WriteAsync(segment, ClientCancellationToken).ConfigureAwait(false);
-                            inactivityTimer?.Change(Settings.CurrentValue.ClientReadTimeOutSeconds * 1000, Timeout.Infinite);
+                            inactivityTimer?.Change(Settings.CurrentValue.ClientReadTimeoutMs, Timeout.Infinite);
                         }
 
                         Pipe.Reader.AdvanceTo(buffer.End);
@@ -166,20 +168,14 @@ public class ClientConfiguration : IClientConfiguration, IDisposable
         catch (OperationCanceledException) when (ClientCancellationToken.IsCancellationRequested)
         {
             logger.LogInformation("Streaming canceled for client {ClientId}.", UniqueRequestId);
-            //OnClientStopped?.Invoke(this, EventArgs.Empty);
-            //Stop();
         }
         catch (OperationCanceledException) when (inactivityCts.IsCancellationRequested)
         {
             logger.LogWarning("Client {ClientId} inactive for too long and has been canceled.", UniqueRequestId);
-            //OnClientStopped?.Invoke(this, EventArgs.Empty);
-            //Stop();
         }
         catch (Exception ex)
         {
             logger.LogError(ex, "Unexpected error during streaming for client {ClientId}.", UniqueRequestId);
-            //OnClientStopped?.Invoke(this, EventArgs.Empty);
-            //Stop();
         }
         finally
         {
@@ -195,6 +191,7 @@ public class ClientConfiguration : IClientConfiguration, IDisposable
     /// </summary>
     public void Dispose()
     {
+        IsStopped = true;
         if (disposed)
         {
             return;

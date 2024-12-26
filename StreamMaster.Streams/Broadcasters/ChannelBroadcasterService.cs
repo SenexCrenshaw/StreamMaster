@@ -47,7 +47,7 @@ public class ChannelBroadcasterService(
                 }
             }
 
-            channelBroadcaster = new ChannelBroadcaster(channelStatusLogger, config.SMChannel, streamGroupProfileId);
+            channelBroadcaster = new ChannelBroadcaster(channelStatusLogger, settings, config.SMChannel, streamGroupProfileId);
 
             logger.LogInformation("Created new channel for: {Id} {Name}", config.SMChannel.Id, config.SMChannel.Name);
 

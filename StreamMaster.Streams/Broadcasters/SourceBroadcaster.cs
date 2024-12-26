@@ -1,8 +1,10 @@
 ﻿using System.Buffers;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 
+using StreamMaster.Domain.Events;
 using StreamMaster.Streams.Domain.Events;
-using StreamMaster.Streams.Domain.Statistics;
+using StreamMaster.Streams.Domain.Metrics;
 using StreamMaster.Streams.Services;
 
 namespace StreamMaster.Streams.Broadcasters;
@@ -10,34 +12,38 @@ namespace StreamMaster.Streams.Broadcasters;
 /// <summary>
 /// Represents a source broadcaster that manages the streaming of data to multiple channel broadcasters.
 /// </summary>
-public class SourceBroadcaster(ILogger<ISourceBroadcaster> logger, IOptionsMonitor<Setting> settings, IStreamFactory streamFactory, SMStreamInfo smStreamInfo)
+public class SourceBroadcaster(ILogger<ISourceBroadcaster> logger, IOptionsMonitor<Setting> settings, IStreamFactory streamFactory, SMStreamInfo intSMStreamInfo)
     : ISourceBroadcaster, IDisposable
 {
     private int _isStopped;
+
+    public bool IsStopped => _isStopped == 1;
     private readonly StreamMetricsRecorder StreamMetricsRecorder = new();
     private readonly SemaphoreSlim _stopLock = new(1, 1);
 
     private Task? _streamingTask;
     private CancellationTokenSource? _cancellationTokenSource;
     private readonly TaskCompletionSource<bool> _broadcasterAddedTcs = new(TaskCreationOptions.RunContinuationsAsynchronously);
+    public SMStreamInfo SMStreamInfo { get; private set; } = intSMStreamInfo;
 
     /// <inheritdoc/>
     public StreamHandlerMetrics Metrics => StreamMetricsRecorder.Metrics;
+    public bool IsMultiView { get; set; }
 
     /// <inheritdoc/>
     public ConcurrentDictionary<string, IStreamDataToClients> ChannelBroadcasters { get; } = new();
 
     /// <inheritdoc/>
-    public event EventHandler<StreamBroadcasterStopped>? StreamBroadcasterStopped;
+    public event AsyncEventHandler<StreamBroadcasterStopped>? OnStreamBroadcasterStopped;
 
     /// <inheritdoc/>
     public bool IsFailed { get; }
 
     /// <inheritdoc/>
-    public string Id => smStreamInfo.Url;
+    public string Id => SMStreamInfo.Url;
 
     /// <inheritdoc/>
-    public string Name => smStreamInfo.Name;
+    public string Name => SMStreamInfo.Name;
 
     /// <inheritdoc/>
     public void AddChannelBroadcaster(IChannelBroadcaster channelBroadcaster)
@@ -47,9 +53,10 @@ public class SourceBroadcaster(ILogger<ISourceBroadcaster> logger, IOptionsMonit
     }
 
     /// <inheritdoc/>
-    public void AddChannelBroadcaster(string id, IStreamDataToClients channelBroadcaster)
+    public void AddChannelBroadcaster(string Id, IStreamDataToClients channelBroadcaster)
     {
-        ChannelBroadcasters.TryAdd(id, channelBroadcaster);
+        ChannelBroadcasters.TryAdd(Id, channelBroadcaster);
+        _broadcasterAddedTcs.TrySetResult(true);
     }
 
     /// <inheritdoc/>
@@ -63,41 +70,62 @@ public class SourceBroadcaster(ILogger<ISourceBroadcaster> logger, IOptionsMonit
     {
         return ChannelBroadcasters.TryRemove(Id, out _);
     }
-    public async Task SetSourceMultiViewStreamAsync(IChannelBroadcaster channelBroadcaster, CancellationToken cancellationToken)
+    public async Task<long> SetSourceMultiViewStreamAsync(IChannelBroadcaster channelBroadcaster, CancellationToken cancellationToken)
     {
-        logger.LogInformation("Setting source stream {Name} to {StreamName}", Name, smStreamInfo.Name);
+        logger.LogInformation("Setting source stream {Name} to {StreamName}", Name, SMStreamInfo.Name);
 
-        (Stream? stream, int processId, ProxyStreamError? error) =
-            await streamFactory.GetMultiViewPlayListStream(channelBroadcaster, cancellationToken).ConfigureAwait(false);
-
-        if (stream == null || error != null)
+        Stopwatch stopwatch = Stopwatch.StartNew();
+        try
         {
-            logger.LogError("Could not create source stream for channel broadcaster: {Id} {Name} {Error}", smStreamInfo.Id, smStreamInfo.Name, error?.Message);
-            return;
-        }
+            (Stream? stream, int processId, ProxyStreamError? error) =
+                await streamFactory.GetMultiViewPlayListStream(channelBroadcaster, cancellationToken).ConfigureAwait(false);
+            stopwatch.Stop();
+            if (stream == null || error != null)
+            {
+                logger.LogError("Could not create source stream for channel broadcaster: {Id} {Name} {Error}", SMStreamInfo.Id, SMStreamInfo.Name, error?.Message);
+                return 0;
+            }
 
-        // Start a new streaming task
-        _cancellationTokenSource = new CancellationTokenSource();
-        _streamingTask = Task.Run(() => RunPipelineAsync(stream, cancellationToken: _cancellationTokenSource.Token), _cancellationTokenSource.Token);
+            // Start a new streaming task
+            _cancellationTokenSource = new CancellationTokenSource();
+            _streamingTask = Task.Run(() => RunPipelineAsync(stream, cancellationToken: _cancellationTokenSource.Token), _cancellationTokenSource.Token);
+            return stopwatch.ElapsedMilliseconds;
+        }
+        finally
+        {
+            stopwatch.Stop();
+        }
     }
 
     /// <inheritdoc/>
-    public async Task SetSourceStreamAsync(SMStreamInfo smStreamInfo, CancellationToken cancellationToken)
+    public async Task<long> SetSourceStreamAsync(SMStreamInfo SMStreamInfo, CancellationToken cancellationToken)
     {
-        logger.LogInformation("Setting source stream {Name} to {StreamName}", Name, smStreamInfo.Name);
+        logger.LogInformation("Setting source stream {Name} to {StreamName}", Name, SMStreamInfo.Name);
 
-        (Stream? stream, int processId, ProxyStreamError? error) =
-            await streamFactory.GetStream(smStreamInfo, cancellationToken).ConfigureAwait(false);
+        this.SMStreamInfo = SMStreamInfo;
 
-        if (stream == null || error != null)
+        Stopwatch stopwatch = Stopwatch.StartNew();
+        try
         {
-            logger.LogError("Could not create source stream for channel broadcaster: {Id} {Name} {Error}", smStreamInfo.Id, smStreamInfo.Name, error?.Message);
-            return;
-        }
 
-        // Start a new streaming task
-        _cancellationTokenSource = new CancellationTokenSource();
-        _streamingTask = Task.Run(() => RunPipelineAsync(stream, cancellationToken: _cancellationTokenSource.Token), _cancellationTokenSource.Token);
+            (Stream? stream, int processId, ProxyStreamError? error) =
+                await streamFactory.GetStream(SMStreamInfo, cancellationToken).ConfigureAwait(false);
+            stopwatch.Stop();
+            if (stream == null || error != null)
+            {
+                logger.LogError("Could not create source stream for channel broadcaster: {Id} {Name} {Error}", SMStreamInfo.Id, SMStreamInfo.Name, error?.Message);
+                return 0;
+            }
+
+            // Start a new streaming task
+            _cancellationTokenSource = new CancellationTokenSource();
+            _streamingTask = Task.Run(() => RunPipelineAsync(stream, cancellationToken: _cancellationTokenSource.Token), _cancellationTokenSource.Token);
+            return stopwatch.ElapsedMilliseconds;
+        }
+        finally
+        {
+            stopwatch.Stop();
+        }
     }
 
     /// <inheritdoc/>
@@ -109,7 +137,6 @@ public class SourceBroadcaster(ILogger<ISourceBroadcaster> logger, IOptionsMonit
         {
             if (ChannelBroadcasters.IsEmpty)
             {
-                //logger.LogInformation("Waiting for the first broadcaster to be added...");
                 await _broadcasterAddedTcs.Task.ConfigureAwait(false);
             }
 
@@ -122,35 +149,36 @@ public class SourceBroadcaster(ILogger<ISourceBroadcaster> logger, IOptionsMonit
                 }
 
                 int bytesRead;
-                if (settings.CurrentValue.ReadTimeOutMs > 0)
+                CancellationTokenSource? timeoutCts = null;
+                try
                 {
-                    using CancellationTokenSource timeoutCts = new(TimeSpan.FromMilliseconds(settings.CurrentValue.ReadTimeOutMs));
-                    using CancellationTokenSource linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutCts.Token);
-                    try
+                    // Create timeout only if StreamReadTimeOutMs > 0
+                    if (settings.CurrentValue.StreamReadTimeOutMs > 0)
                     {
-                        bytesRead = await StreamMetricsRecorder.RecordMetricsAsync(
-                            () => sourceStream.ReadAsync(buffer.AsMemory(0, bufferSize), linkedCts.Token),
-                            linkedCts.Token);
+                        timeoutCts = new CancellationTokenSource(TimeSpan.FromMilliseconds(settings.CurrentValue.StreamReadTimeOutMs));
                     }
-                    catch (OperationCanceledException) when (timeoutCts.Token.IsCancellationRequested)
-                    {
-                        logger.LogWarning("Read operation timed out.");
-                        break;
-                    }
+
+                    using CancellationTokenSource linkedCts = timeoutCts is not null
+            ? CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutCts.Token)
+            : CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+
+                    bytesRead = await StreamMetricsRecorder.RecordMetricsAsync(
+                        () => sourceStream.ReadAsync(buffer.AsMemory(0, bufferSize), linkedCts.Token),
+                        linkedCts.Token);
                 }
-                else
+                catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
                 {
-                    try
-                    {
-                        bytesRead = await StreamMetricsRecorder.RecordMetricsAsync(
-                            () => sourceStream.ReadAsync(buffer.AsMemory(0, bufferSize), cancellationToken),
-                            cancellationToken);
-                    }
-                    catch (OperationCanceledException)
-                    {
-                        logger.LogWarning("Read operation was cancelled.");
-                        break;
-                    }
+                    logger.LogWarning("Read operation was cancelled by global cancellation.");
+                    break;
+                }
+                catch (OperationCanceledException) when (timeoutCts?.Token.IsCancellationRequested == true)
+                {
+                    logger.LogWarning("Read operation timed out after 500ms.");
+                    break;
+                }
+                finally
+                {
+                    timeoutCts?.Dispose(); // Ensure timeoutCts is disposed
                 }
 
                 if (bytesRead == 0)
@@ -159,18 +187,25 @@ public class SourceBroadcaster(ILogger<ISourceBroadcaster> logger, IOptionsMonit
                     break;
                 }
 
-                IEnumerable<Task> tasks = ChannelBroadcasters.Select(async broadcaster =>
-              {
-                  try
-                  {
-                      await broadcaster.Value.StreamDataToClientsAsync(buffer.AsMemory(0, bytesRead), cancellationToken).ConfigureAwait(false);
-                  }
-                  catch (Exception ex)
-                  {
-                      logger.LogError(ex, "Error streaming data to broadcaster {Id}.", broadcaster.Key);
-                      ChannelBroadcasters.TryRemove(broadcaster.Key, out _);
-                  }
-              });
+                List<KeyValuePair<string, IStreamDataToClients>> broadcastersSnapshot = [.. ChannelBroadcasters];
+                using SemaphoreSlim semaphore = new(10); // Limit concurrency to 10
+                IEnumerable<Task> tasks = broadcastersSnapshot.Select(async broadcaster =>
+                {
+                    await semaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
+                    try
+                    {
+                        await broadcaster.Value.StreamDataToClientsAsync(buffer.AsMemory(0, bytesRead), cancellationToken).ConfigureAwait(false);
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.LogError(ex, "Error streaming data to broadcaster {Id}.", broadcaster.Key);
+                        ChannelBroadcasters.TryRemove(broadcaster.Key, out _);
+                    }
+                    finally
+                    {
+                        semaphore.Release();
+                    }
+                });
 
                 await Task.WhenAll(tasks).ConfigureAwait(false);
             }
@@ -182,14 +217,23 @@ public class SourceBroadcaster(ILogger<ISourceBroadcaster> logger, IOptionsMonit
         finally
         {
             ArrayPool<byte>.Shared.Return(buffer);
-            ChannelBroadcasters.Clear();
-            await sourceStream.DisposeAsync().ConfigureAwait(false);
 
             if (Interlocked.CompareExchange(ref _isStopped, 1, 0) == 0)
             {
                 logger.LogInformation("Source Broadcaster stopped: {Name}", Name);
-                StreamBroadcasterStopped?.Invoke(this, new StreamBroadcasterStopped(Id, Name));
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    logger.LogInformation("Source Broadcaster stopped due to cancellation: {Name}", Name);
+                }
+                else
+                if (OnStreamBroadcasterStopped != null)
+                {
+                    await OnStreamBroadcasterStopped.Invoke(this, new StreamBroadcasterStopped(Id, Name));
+                }
             }
+
+            ChannelBroadcasters.Clear();
+            await sourceStream.DisposeAsync().ConfigureAwait(false);
         }
     }
 

@@ -1,13 +1,13 @@
-﻿using Reinforced.Typings.Attributes;
+﻿using System.Collections.Concurrent;
+
+using Reinforced.Typings.Attributes;
 
 using StreamMaster.Domain.Extensions;
 
-using System.Collections.Concurrent;
-
-namespace StreamMaster.Streams.Domain.Statistics;
+namespace StreamMaster.Streams.Domain.Metrics;
 
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public class BPSStatistics : ClientStatistics
+public class BPSMetrics
 {
     private const int SlidingWindowSeconds = 10; // Window size in seconds for average calculation
     private readonly ConcurrentQueue<(DateTimeOffset Timestamp, long BytesRead, long BytesWritten)> _recentData = new();
@@ -15,8 +15,17 @@ public class BPSStatistics : ClientStatistics
     public double BitsPerSecond { get; set; }
     public long BytesRead { get; set; }
     public long BytesWritten { get; set; }
+    public int Clients { get; set; }
+    public void DecrementClient()
+    {
+        --Clients;
+    }
+    public void IncrementClient()
+    {
+        ++Clients;
+    }
 
-    public override void UpdateValues()
+    public void UpdateValues()
     {
         if (IsSet)
         {
@@ -39,19 +48,19 @@ public class BPSStatistics : ClientStatistics
         // Calculate BitsPerSecond over the sliding window
         BitsPerSecond = elapsedTimeInSeconds > 0 ? (totalBytesRead + totalBytesWritten) * 8 / elapsedTimeInSeconds : 0;
 
-        base.UpdateValues();
+        TimeSpan elapsedTime = new(0);
+        if (StartTime != DateTimeOffset.MinValue)
+        {
+            elapsedTime = SMDT.UtcNow - StartTime;
+        }
+        ElapsedTime = $"{elapsedTime.Days} {elapsedTime.Hours:00}:{elapsedTime.Minutes:00}:{elapsedTime.Seconds:00}";
     }
+    public DateTimeOffset StartTime { get; set; }
+    public string ElapsedTime { get; set; } = string.Empty;
 
-    public void UpdateStatistic(StreamStreamingStatistic stat)
+    public BPSMetrics Copy()
     {
-        BytesRead = stat.BytesRead;
-        BytesWritten = stat.BytesWritten;
-        BitsPerSecond = stat.BitsPerSecond;
-    }
-
-    public BPSStatistics Copy()
-    {
-        return new BPSStatistics
+        return new BPSMetrics
         {
             BitsPerSecond = BitsPerSecond,
             BytesRead = BytesRead,

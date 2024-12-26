@@ -31,7 +31,6 @@ namespace StreamMaster.Infrastructure.Services.Frontend.Mappers
                  )
                  );
 
-
             return test;
         }
 
@@ -43,12 +42,10 @@ namespace StreamMaster.Infrastructure.Services.Frontend.Mappers
             return Task.FromResult(baseDir + path);
         }
 
-
-
-        public string NormalizeUrl(string resourceUrl)
+        public static string NormalizeUrl(string resourceUrl)
         {
             // List of prefixes to look for
-            string[] validPrefixes = new[] { "/static/", "/content/", "/assets/" };
+            string[] validPrefixes = ["/static/", "/content/", "/assets/"];
 
             foreach (string? prefix in validPrefixes)
             {
@@ -63,6 +60,5 @@ namespace StreamMaster.Infrastructure.Services.Frontend.Mappers
             // If no valid prefix is found, return the original URL
             return resourceUrl;
         }
-
     }
 }

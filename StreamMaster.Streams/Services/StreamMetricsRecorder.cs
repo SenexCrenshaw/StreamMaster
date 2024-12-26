@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Diagnostics.Metrics;
 
 using StreamMaster.Domain.Extensions;
-using StreamMaster.Streams.Domain.Statistics;
+using StreamMaster.Streams.Domain.Metrics;
 
 namespace StreamMaster.Streams.Services;
 
@@ -16,7 +16,7 @@ public class StreamMetricsRecorder : IStreamMetricsRecorder, IDisposable
     private readonly Counter<long> _bytesReadCounter;
     private readonly Histogram<double> _kbpsHistogram;
     private readonly Histogram<double> _latencyHistogram;
-    private readonly BPSStatistics _bpsStatistics = new();
+    private readonly BPSMetrics _bpsStatistics = new();
     private readonly ConcurrentQueue<double> _latencies = new();
     private readonly DateTime _startTime = SMDT.UtcNow;
 

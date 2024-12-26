@@ -1,7 +1,7 @@
 ﻿using Reinforced.Typings.Attributes;
 
 using StreamMaster.Domain.Attributes;
-using StreamMaster.Streams.Domain.Statistics;
+using StreamMaster.Streams.Domain.Metrics;
 
 namespace StreamMaster.Streams.Domain.Models
 {

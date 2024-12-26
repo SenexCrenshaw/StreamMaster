@@ -1,4 +1,4 @@
-﻿using StreamMaster.Streams.Domain.Statistics;
+﻿using StreamMaster.Streams.Domain.Metrics;
 
 using System.Xml.Serialization;
 

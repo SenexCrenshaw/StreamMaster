@@ -123,6 +123,7 @@ namespace StreamMaster.Domain.Configuration
         public static readonly int BufferSize = 4096;
 
         public static readonly string DataFolder = Path.Combine(AppDataFolder, "DB");
+
         public static readonly string CacheFolder = Path.Combine(AppDataFolder, "Cache");
         public static readonly string LogFolder = Path.Combine(AppDataFolder, "Logs");
         public static readonly string PlayListFolder = Path.Combine(AppDataFolder, "PlayLists");
@@ -135,7 +136,7 @@ namespace StreamMaster.Domain.Configuration
 
         public static readonly int SDCacheDurationDays = 14;
 
-        //public static readonly string ProgrammeIconDataFolder = Path.Combine(CacheFolder, "ProgrammeIcons");
+        public static readonly string StreamHealthFolder = Path.Combine(CacheFolder, "StreamHealth");
         public static readonly string SDJSONFolder = Path.Combine(CacheFolder, "SDJson");
 
         public static readonly string SDXMLFile = Path.Combine(SDJSONFolder, "streammaster.xmltv");

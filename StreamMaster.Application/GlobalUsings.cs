@@ -40,6 +40,3 @@ global using StreamMaster.SchedulesDirect.Domain.JsonClasses;
 global using StreamMaster.SchedulesDirect.Domain.Models;
 global using StreamMaster.Streams.Domain.Interfaces;
 global using StreamMaster.Streams.Domain.Models;
-global using StreamMaster.Streams.Domain.Statistics;
-
-global using X.PagedList;

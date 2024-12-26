@@ -6,8 +6,6 @@ using System.Text.Json.Serialization;
 using MediatR;
 
 using Microsoft.AspNetCore.HttpOverrides;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ApplicationModels;
 
 using Reinforced.Typings.Attributes;
 
@@ -351,61 +349,6 @@ static X509Certificate2 ValidateSslCertificate(string cert, string password)
     }
 }
 
-string basePath = Environment.GetEnvironmentVariable("PATH_BASE") ?? "sm/api";
+string basePath = Environment.GetEnvironmentVariable("PATH_BASE") ?? "";
 
-builder.Services.AddControllers().AddMvcOptions(options =>
-{
-    options.Conventions.Add(new RoutePrefixConvention(basePath));
-});
-
-public class RoutePrefixConvention : IApplicationModelConvention
-{
-    private readonly string _routePrefix;
-
-    public RoutePrefixConvention(string routePrefix)
-    {
-        _routePrefix = routePrefix;
-    }
-
-    public void Apply(ApplicationModel application)
-    {
-        foreach (ControllerModel controller in application.Controllers)
-        {
-            foreach (SelectorModel selector in controller.Selectors)
-            {
-                if (selector.AttributeRouteModel != null)
-                {
-                    selector.AttributeRouteModel.Template = $"{_routePrefix}/{selector.AttributeRouteModel.Template}";
-                }
-            }
-        }
-    }
-}
-
-
-public class GlobalRoutePrefixConvention : IApplicationModelConvention
-{
-    private readonly string _globalPrefix;
-
-    public GlobalRoutePrefixConvention(string prefix)
-    {
-        _globalPrefix = prefix;
-    }
-
-    public void Apply(ApplicationModel application)
-    {
-        foreach (ControllerModel controller in application.Controllers)
-        {
-            foreach (SelectorModel selector in controller.Selectors)
-            {
-                if (selector.AttributeRouteModel != null)
-                {
-                    // Prepend the prefix to existing routes
-                    selector.AttributeRouteModel = AttributeRouteModel.CombineAttributeRouteModel(
-                        new AttributeRouteModel(new RouteAttribute(_globalPrefix)),
-                        selector.AttributeRouteModel);
-                }
-            }
-        }
-    }
-}
+builder.Services.AddControllers().AddMvcOptions(options => options.Conventions.Add(new RoutePrefixConvention(basePath)));

@@ -34,7 +34,7 @@ public sealed class ChannelService : IChannelService
         _sourceBroadcasterService = sourceBroadcasterService;
         _switchToNextStreamService = switchToNextStreamService;
         this.logger = logger;
-        _sourceBroadcasterService.OnStreamBroadcasterStoppedEvent += StreamBroadcasterService_OnStreamBroadcasterStoppedEventAsync;
+        _sourceBroadcasterService.OnStreamBroadcasterStopped += StreamBroadcasterService_OnStreamBroadcasterStoppedEventAsync;
         _channelBroadcasterService.OnChannelBroadcasterStoppedEvent += ChannelBroadscasterService_OnChannelBroadcasterStoppedEventAsync;
     }
 
@@ -368,9 +368,9 @@ public sealed class ChannelService : IChannelService
             return false;
         }
 
-        ISourceBroadcaster? sourceChannelBroadcaster = null;
+        ISourceBroadcaster? sourceBroadcaster = null;
 
-        while (sourceChannelBroadcaster == null)
+        while (sourceBroadcaster == null)
         {
             logger.LogDebug("Starting SwitchToNextStream with channelBroadcaster: {channelBroadcaster} and overrideNextVideoStreamId: {overrideNextVideoStreamId}", channelBroadcaster, overrideSMStreamId);
 
@@ -382,23 +382,22 @@ public sealed class ChannelService : IChannelService
                 return false;
             }
 
-            sourceChannelBroadcaster = await _sourceBroadcasterService.GetOrCreateStreamBroadcasterAsync(channelBroadcaster.SMStreamInfo, CancellationToken.None).ConfigureAwait(false);
+            sourceBroadcaster = await _sourceBroadcasterService.GetOrCreateStreamBroadcasterAsync(channelBroadcaster.SMStreamInfo, CancellationToken.None).ConfigureAwait(false);
 
-            if (sourceChannelBroadcaster != null)
+            if (sourceBroadcaster != null)
             {
                 break;
             }
         }
 
-        if (sourceChannelBroadcaster == null)
+        if (sourceBroadcaster == null)
         {
             logger.LogDebug("Exiting, Source Channel Distributor is null");
             channelBroadcaster.FailoverInProgress = false;
             return false;
         }
 
-        channelBroadcaster.SetSourceChannelBroadcaster(sourceChannelBroadcaster);
-
+        sourceBroadcaster.AddChannelBroadcaster(channelBroadcaster);
         channelBroadcaster.FailoverInProgress = false;
 
         logger.LogDebug("Finished SwitchToNextStream");
@@ -426,16 +425,16 @@ public sealed class ChannelService : IChannelService
 
         channelBroadcaster.SetSMStreamInfo(smStreamInfo);
 
-        ISourceBroadcaster? sourceChannelBroadcaster = await _sourceBroadcasterService.GetOrCreateMultiViewStreamBroadcasterAsync(channelBroadcaster, CancellationToken.None).ConfigureAwait(false);
+        ISourceBroadcaster? sourceBroadcaster = await _sourceBroadcasterService.GetOrCreateMultiViewStreamBroadcasterAsync(channelBroadcaster, CancellationToken.None).ConfigureAwait(false);
 
-        if (sourceChannelBroadcaster == null)
+        if (sourceBroadcaster == null)
         {
             logger.LogDebug("Exiting, Source Channel Distributor is null");
             channelBroadcaster.FailoverInProgress = false;
             return false;
         }
 
-        channelBroadcaster.SetSourceChannelBroadcaster(sourceChannelBroadcaster);
+        sourceBroadcaster.AddChannelBroadcaster(channelBroadcaster);
 
         channelBroadcaster.FailoverInProgress = false;
 
@@ -470,7 +469,7 @@ public sealed class ChannelService : IChannelService
                 _cacheManager.ChannelBroadcasters.Clear();
 
                 // Unsubscribe events
-                _sourceBroadcasterService.OnStreamBroadcasterStoppedEvent -= StreamBroadcasterService_OnStreamBroadcasterStoppedEventAsync;
+                _sourceBroadcasterService.OnStreamBroadcasterStopped -= StreamBroadcasterService_OnStreamBroadcasterStoppedEventAsync;
                 _channelBroadcasterService.OnChannelBroadcasterStoppedEvent -= ChannelBroadscasterService_OnChannelBroadcasterStoppedEventAsync;
             }
             catch (Exception ex)

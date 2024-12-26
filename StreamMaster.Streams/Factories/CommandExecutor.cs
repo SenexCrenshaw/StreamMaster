@@ -55,7 +55,7 @@ public class CommandExecutor(ILogger<CommandExecutor> logger) : ICommandExecutor
                 }
             };
             _process.BeginErrorReadLine();
-            _process.Exited += _process_Exited;
+            _process.Exited += Process_Exited;
 
             stopwatch.Stop();
             logger.LogInformation("Opened command with args \"{options}\" in {ElapsedMilliseconds} ms", commandProfile.Command + ' ' + commandProfile.Parameters, stopwatch.ElapsedMilliseconds);
@@ -80,7 +80,7 @@ public class CommandExecutor(ILogger<CommandExecutor> logger) : ICommandExecutor
         }
     }
 
-    private void _process_Exited(object? sender, EventArgs e)
+    private void Process_Exited(object? sender, EventArgs e)
     {
         if (_process != null)
         {

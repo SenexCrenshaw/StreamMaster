@@ -53,12 +53,6 @@ public interface IChannelBroadcaster : IStreamStatus, IStreamDataToClients
     void SetIsGlobal();
 
     /// <summary>
-    /// Sets the source channel broadcaster for this channel.
-    /// </summary>
-    /// <param name="sourceChannelBroadcaster">The source channel broadcaster to set.</param>
-    void SetSourceChannelBroadcaster(ISourceBroadcaster sourceChannelBroadcaster);
-
-    /// <summary>
     /// Gets or sets a value indicating whether the broadcaster is global.
     /// </summary>
     bool IsGlobal { get; set; }

@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 using Microsoft.AspNetCore.Http;
 
-using StreamMaster.Streams.Domain.Statistics;
+using StreamMaster.Streams.Domain.Metrics;
 
 namespace StreamMaster.Streams.Domain.Interfaces;
 
@@ -62,6 +62,7 @@ public interface IClientConfiguration : IDisposable
     /// Gets the unique request identifier for the client.
     /// </summary>
     string UniqueRequestId { get; }
+    bool IsStopped { get; }
 
     /// <summary>
     /// Stops the client and releases associated resources.

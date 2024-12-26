@@ -228,7 +228,7 @@ public partial class UpdateSettingRequestHandler(
 
         if (request.Parameters.ReadTimeOutMs.HasValue)
         {
-            currentSetting.ReadTimeOutMs = request.Parameters.ReadTimeOutMs.Value;
+            currentSetting.StreamReadTimeOutMs = request.Parameters.ReadTimeOutMs.Value;
         }
 
         if (request.Parameters.PrettyEPG.HasValue)
@@ -273,7 +273,7 @@ public partial class UpdateSettingRequestHandler(
 
         if (request.Parameters.ClientReadTimeOutSeconds.HasValue)
         {
-            currentSetting.ClientReadTimeOutSeconds = request.Parameters.ClientReadTimeOutSeconds.Value;
+            currentSetting.ClientReadTimeoutMs = request.Parameters.ClientReadTimeOutSeconds.Value;
         }
 
         if (request.Parameters.BackupEnabled.HasValue)

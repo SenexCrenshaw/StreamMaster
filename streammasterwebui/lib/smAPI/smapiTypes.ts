@@ -244,7 +244,7 @@ export interface SettingDto
 	BackupInterval: number;
 	BackupVersionsToKeep: number;
 	CleanURLs: boolean;
-	ClientReadTimeOutSeconds: number;
+	ClientReadTimeoutMs: number;
 	ClientUserAgent: string;
 	DefaultCommandProfileName: string;
 	DefaultCompression: string;
@@ -269,7 +269,6 @@ export interface SettingDto
 	MaxStreamReStart: number;
 	NameRegex?: string[];
 	PrettyEPG: boolean;
-	ReadTimeOutMs: number;
 	Release: string;
 	SDSettings: SDSettings;
 	ShowClientHostNames: boolean;
@@ -278,6 +277,8 @@ export interface SettingDto
 	ShutDownDelay: number;
 	SSLCertPassword: string;
 	SSLCertPath: string;
+	StreamReadTimeOutMs: number;
+	StreamRetryLimit: number;
 	StreamStartTimeoutMs: number;
 	STRMBaseURL: string;
 	UiFolder: string;
@@ -1533,83 +1534,6 @@ export interface UpdateChannelGroupsRequest
 {
 	UpdateChannelGroupRequests: UpdateChannelGroupRequest[];
 }
-export interface BaseStatistics
-{
-	ElapsedTime: string;
-	StartTime: any;
-}
-export interface BPSStatistics
-{
-	BitsPerSecond: number;
-	BytesRead: number;
-	BytesWritten: number;
-	Clients: number;
-	ElapsedTime: string;
-	IsSet: boolean;
-	StartTime: any;
-}
-export interface ChannelStreamingStatistics
-{
-	BitsPerSecond: number;
-	BytesRead: number;
-	BytesWritten: number;
-	ChannelLogo?: string;
-	ChannelName: string;
-	ChannelUrl: string;
-	Clients: number;
-	CurrentRank: number;
-	CurrentStreamId: string;
-	ElapsedTime: string;
-	Id: number;
-	IsSet: boolean;
-	StartTime: any;
-	StreamStreamingStatistics: StreamStreamingStatistic[];
-}
-export interface ClientStatistics
-{
-	Clients: number;
-	ElapsedTime: string;
-	StartTime: any;
-}
-export interface ClientStreamingStatistics
-{
-	BitsPerSecond: number;
-	BytesRead: number;
-	BytesWritten: number;
-	ChannelId: number;
-	ChannelName: string;
-	ClientAgent: string;
-	ClientIPAddress: string;
-	Clients: number;
-	ElapsedTime: string;
-	IsSet: boolean;
-	StartTime: any;
-	UniqueRequestId: string;
-}
-export interface StreamHandlerMetrics
-{
-	AverageLatency: number;
-	BytesRead: number;
-	BytesWritten: number;
-	ErrorCount: number;
-	Kbps: number;
-	StartTime: any;
-}
-export interface StreamStreamingStatistic
-{
-	BitsPerSecond: number;
-	BytesRead: number;
-	BytesWritten: number;
-	Clients: number;
-	ElapsedTime: string;
-	Id: string;
-	IsSet: boolean;
-	Rank: number;
-	StartTime: any;
-	StreamLogo?: string;
-	StreamName: string;
-	StreamUrl?: string;
-}
 export interface ChannelMetric
 {
 	ChannelLogo?: string;
@@ -1641,6 +1565,25 @@ export interface ClientStreamsDto
 	SMChannelId: string;
 	SMStreamId: string;
 	StreamLogo?: string;
+}
+export interface BPSMetrics
+{
+	BitsPerSecond: number;
+	BytesRead: number;
+	BytesWritten: number;
+	Clients: number;
+	ElapsedTime: string;
+	IsSet: boolean;
+	StartTime: any;
+}
+export interface StreamHandlerMetrics
+{
+	AverageLatency: number;
+	BytesRead: number;
+	BytesWritten: number;
+	ErrorCount: number;
+	Kbps: number;
+	StartTime: any;
 }
 export interface CustomStreamNfo
 {

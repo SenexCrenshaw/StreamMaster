@@ -2,7 +2,7 @@
 
 using StreamMaster.Domain.Attributes;
 
-namespace StreamMaster.Streams.Domain.Statistics;
+namespace StreamMaster.Streams.Domain.Metrics;
 
 [RequireAll]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]

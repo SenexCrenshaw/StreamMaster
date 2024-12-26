@@ -1,6 +1,7 @@
 ﻿using StreamMaster.Domain.Events;
 using StreamMaster.Domain.Models;
 using StreamMaster.Streams.Domain.Events;
+using StreamMaster.Streams.Domain.Metrics;
 
 namespace StreamMaster.Streams.Domain.Interfaces;
 
@@ -9,10 +10,13 @@ namespace StreamMaster.Streams.Domain.Interfaces;
 /// </summary>
 public interface ISourceBroadcasterService
 {
+    StreamConnectionMetrics? GetStreamMetrics(string key);
+    List<StreamConnectionMetrics> GetAllStreamMetrics();
+
     /// <summary>
     /// Occurs when a source broadcaster is stopped.
     /// </summary>
-    event AsyncEventHandler<StreamBroadcasterStopped>? OnStreamBroadcasterStoppedEvent;
+    event AsyncEventHandler<StreamBroadcasterStopped>? OnStreamBroadcasterStopped;
 
     /// <summary>
     /// Gets a source broadcaster by its string key.
@@ -36,7 +40,7 @@ public interface ISourceBroadcasterService
     /// </summary>
     /// <param name="key">The string key of the source broadcaster.</param>
     /// <returns>A task representing the asynchronous operation. Returns <c>true</c> if the source broadcaster was stopped and unregistered; otherwise, <c>false</c>.</returns>
-    Task<bool> StopAndUnRegisterSourceBroadcasterAsync(string key);
+    Task<bool> StopAndUnRegisterSourceBroadCasterAsync(string key);
 
     /// <summary>
     /// Gets all source broadcasters.
