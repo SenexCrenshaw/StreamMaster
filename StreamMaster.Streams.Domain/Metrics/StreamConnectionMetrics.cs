@@ -9,7 +9,7 @@ public class StreamConnectionMetrics
     public StreamConnectionMetric StreamConnectionMetric { get; }
 
     private int startCount = 0;
-    private TimeSpan totalReconnectTime = TimeSpan.Zero;
+    private readonly TimeSpan totalReconnectTime = TimeSpan.Zero;
     private readonly Lock lockObj = new();
 
     private static readonly SemaphoreSlim SaveSemaphore = new(1, 1);
@@ -95,22 +95,7 @@ public class StreamConnectionMetrics
         lock (lockObj)
         {
             StreamConnectionMetric.TotalConnectionAttempts++;
-            if (!wasSuccessful)
-            {
-                StreamConnectionMetric.DisconnectCount++;
-            }
-        }
-        SignalMetricsChanged();
-    }
 
-    public void RecordReconnectTime(TimeSpan reconnectTime)
-    {
-        lock (lockObj)
-        {
-            totalReconnectTime += reconnectTime;
-            StreamConnectionMetric.AverageReconnectTime = StreamConnectionMetric.RetryCount > 0
-                ? totalReconnectTime.TotalSeconds / StreamConnectionMetric.RetryCount
-                : 0;
         }
         SignalMetricsChanged();
     }
