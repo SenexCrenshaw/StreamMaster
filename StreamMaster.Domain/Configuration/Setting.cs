@@ -56,7 +56,7 @@ public class StreamSettings : BaseSettings
     public int StreamReadTimeOutMs { get; set; } = 0;
     public int StreamStartTimeoutMs { get; set; } = 0;
     public int ClientReadTimeoutMs { get; set; } = 0;
-    public int StreamRetryLimit { get; set; } = 3;
+    public int StreamRetryLimit { get; set; } = 1;
     public int StreamShutDownDelayMs { get; set; } = 1000;
 
     public string FFMPegExecutable { get; set; } = "ffmpeg";
