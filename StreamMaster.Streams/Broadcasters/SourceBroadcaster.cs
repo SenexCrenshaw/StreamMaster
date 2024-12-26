@@ -107,7 +107,6 @@ public class SourceBroadcaster(ILogger<ISourceBroadcaster> logger, IOptionsMonit
         Stopwatch stopwatch = Stopwatch.StartNew();
         try
         {
-
             (Stream? stream, int processId, ProxyStreamError? error) =
                 await streamFactory.GetStream(SMStreamInfo, cancellationToken).ConfigureAwait(false);
             stopwatch.Stop();

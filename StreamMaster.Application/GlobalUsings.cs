@@ -29,7 +29,6 @@ global using StreamMaster.Domain.Logging;
 global using StreamMaster.Domain.Models;
 global using StreamMaster.Domain.Pagination;
 global using StreamMaster.Domain.Repository;
-
 global using StreamMaster.Domain.Services;
 global using StreamMaster.Domain.XmltvXml;
 global using StreamMaster.PlayList;
@@ -39,4 +38,5 @@ global using StreamMaster.SchedulesDirect.Domain.Interfaces;
 global using StreamMaster.SchedulesDirect.Domain.JsonClasses;
 global using StreamMaster.SchedulesDirect.Domain.Models;
 global using StreamMaster.Streams.Domain.Interfaces;
+global using StreamMaster.Streams.Domain.Metrics;
 global using StreamMaster.Streams.Domain.Models;

@@ -271,14 +271,14 @@ namespace StreamMaster.Streams.Broadcasters
             }
         }
 
-        public StreamConnectionMetrics? GetStreamMetrics(string key)
+        public StreamConnectionMetric? GetStreamConnectionMetric(string key)
         {
-            return sourceStreamHandlerMetrics.TryGetValue(key, out StreamConnectionMetrics? metrics) ? metrics : null;
+            return sourceStreamHandlerMetrics.TryGetValue(key, out StreamConnectionMetrics? metrics) ? metrics.StreamConnectionMetric : null;
         }
 
-        public List<StreamConnectionMetrics> GetAllStreamMetrics()
+        public List<StreamConnectionMetric> GetStreamConnectionMetrics()
         {
-            return [.. sourceStreamHandlerMetrics.Values];
+            return [.. sourceStreamHandlerMetrics.Values.Select(a => a.StreamConnectionMetric)];
         }
 
         /// <inheritdoc />

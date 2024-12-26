@@ -66,8 +66,14 @@ export function StreamingSettings(): React.ReactElement {
 
   return (
     <BaseSettings title="STREAMING">
-      {GetInputNumberLine({ field: 'ClientReadTimeOutSeconds' })}
+      {GetInputNumberLine({ field: 'StreamStartTimeoutMs', max: 999999 })}
+      {GetInputNumberLine({ field: 'StreamReadTimeOutMs', max: 999999 })}
+      {GetInputNumberLine({ field: 'StreamRetryLimit', max: 999999 })}
+      {GetInputNumberLine({ field: 'ClientReadTimeoutMs', max: 999999 })}
+      {GetInputNumberLine({ field: 'ShutDownDelay', max: 999999 })}
+
       {GetInputNumberLine({ field: 'GlobalStreamLimit' })}
+
       {GetInputTextLine({ field: 'ClientUserAgent' })}
       {GetCheckBoxLine({ field: 'ShowClientHostNames' })}
       {GetDropDownLine({ field: 'ShowIntros', options: getIntroOptions() })}
@@ -75,7 +81,6 @@ export function StreamingSettings(): React.ReactElement {
       {GetDropDownLine({ field: 'DefaultCommandProfileName', options: DefaultCommandProfileNameOptions })}
       {GetDropDownLine({ field: 'DefaultOutputProfileName', options: DefaultOutputProfileNameOptions })}
       {/* {GetDropDownLine({ field: 'M3U8OutPutProfile', options: DefaultCommandProfileNameOptions })} */}
-      {GetInputNumberLine({ field: 'ShutDownDelay', max: 999999 })}
     </BaseSettings>
   );
 }

@@ -9,7 +9,7 @@ export const fetchGetOutputProfile = createAsyncThunk('cache/getGetOutputProfile
   try {
     if (isSkipToken(param))
     {
-        Logger.error('Skipping GetEPGFilePreviewById');
+        Logger.error('Skipping GetOutputProfile');
         return undefined;
     }
     Logger.debug('Fetching GetOutputProfile');

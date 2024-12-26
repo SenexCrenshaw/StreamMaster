@@ -1,17 +1,17 @@
-import { GetDownloadServiceStatus } from '@lib/smAPI/General/GeneralCommands';
+import { GetStreamConnectionMetrics } from '@lib/smAPI/Statistics/StatisticsCommands';
 import { Logger } from '@lib/common/logger';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 
 
-export const fetchGetDownloadServiceStatus = createAsyncThunk('cache/getGetDownloadServiceStatus', async (_: void, thunkAPI) => {
+export const fetchGetStreamConnectionMetrics = createAsyncThunk('cache/getGetStreamConnectionMetrics', async (_: void, thunkAPI) => {
   try {
-    Logger.debug('Fetching GetDownloadServiceStatus');
+    Logger.debug('Fetching GetStreamConnectionMetrics');
     const fetchDebug = localStorage.getItem('fetchDebug');
     const start = performance.now();
-    const response = await GetDownloadServiceStatus();
+    const response = await GetStreamConnectionMetrics();
     if (fetchDebug) {
       const duration = performance.now() - start;
-      Logger.debug(`Fetch GetDownloadServiceStatus completed in ${duration.toFixed(2)}ms`);
+      Logger.debug(`Fetch GetStreamConnectionMetrics completed in ${duration.toFixed(2)}ms`);
     }
 
     return {param: _, value: response };

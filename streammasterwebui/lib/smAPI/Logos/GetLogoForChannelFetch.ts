@@ -9,7 +9,7 @@ export const fetchGetLogoForChannel = createAsyncThunk('cache/getGetLogoForChann
   try {
     if (isSkipToken(param))
     {
-        Logger.error('Skipping GetEPGFilePreviewById');
+        Logger.error('Skipping GetLogoForChannel');
         return undefined;
     }
     Logger.debug('Fetching GetLogoForChannel');

@@ -9,7 +9,7 @@ export const fetchGetLineupPreviewChannel = createAsyncThunk('cache/getGetLineup
   try {
     if (isSkipToken(param))
     {
-        Logger.error('Skipping GetEPGFilePreviewById');
+        Logger.error('Skipping GetLineupPreviewChannel');
         return undefined;
     }
     Logger.debug('Fetching GetLineupPreviewChannel');

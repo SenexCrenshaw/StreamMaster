@@ -5,7 +5,7 @@ interface help_enType {
 
 const help_en: help_enType = {
   AppendChannelName: 'Append the channel name to the M3U URL',
-  ClientReadTimeOutSeconds: 'Client Read Timeout in seconds',
+  ClientReadTimeoutMs: 'Client Read Timeout MS',
   'sdSettings.alternateSEFormat': 'True: "S{0}:E{1} "  False: "s{0:D2}e{1:D2} ";',
   'SDSettings.MaxSubscribedLineups': 'Max Allowed Subscribed Lineups',
   APIKey: 'API Key',
@@ -32,8 +32,10 @@ const help_en: help_enType = {
   FFProbeExecutable: 'FFMProbe Executable. The name will be searched in /config and then use the containers path',
   FFMpegOptions: "'{streamUrl}' will be replaced with the stream URL.",
   filesEPG: 'Files / EPG',
-  ReadTimeOutMs: 'Stream Read Timeout in MS',
-  StreamStartTimeoutMs: 'Stream Start Timeout in MS',
+  StreamRetryLimit: 'How many times to retry a stream',
+  StreamReadTimeOutMs: 'Time to wait to read from the source stream in MS',
+  StreamStartTimeoutMs: 'Time to wait to start the source stream in MS',
+
   general: 'General',
   GlobalStreamLimit: 'Limit for Custom Streams that do not belong to a M3U playlist',
   keywordSearch: 'Keyword Search',

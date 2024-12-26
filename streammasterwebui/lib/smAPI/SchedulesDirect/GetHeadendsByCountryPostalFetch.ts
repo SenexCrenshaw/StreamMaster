@@ -9,7 +9,7 @@ export const fetchGetHeadendsByCountryPostal = createAsyncThunk('cache/getGetHea
   try {
     if (isSkipToken(param))
     {
-        Logger.error('Skipping GetEPGFilePreviewById');
+        Logger.error('Skipping GetHeadendsByCountryPostal');
         return undefined;
     }
     Logger.debug('Fetching GetHeadendsByCountryPostal');

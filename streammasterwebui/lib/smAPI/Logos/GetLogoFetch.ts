@@ -9,7 +9,7 @@ export const fetchGetLogo = createAsyncThunk('cache/getGetLogo', async (param: G
   try {
     if (isSkipToken(param))
     {
-        Logger.error('Skipping GetEPGFilePreviewById');
+        Logger.error('Skipping GetLogo');
         return undefined;
     }
     Logger.debug('Fetching GetLogo');

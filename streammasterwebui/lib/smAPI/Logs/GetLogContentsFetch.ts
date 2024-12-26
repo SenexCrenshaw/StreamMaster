@@ -9,7 +9,7 @@ export const fetchGetLogContents = createAsyncThunk('cache/getGetLogContents', a
   try {
     if (isSkipToken(param))
     {
-        Logger.error('Skipping GetEPGFilePreviewById');
+        Logger.error('Skipping GetLogContents');
         return undefined;
     }
     Logger.debug('Fetching GetLogContents');

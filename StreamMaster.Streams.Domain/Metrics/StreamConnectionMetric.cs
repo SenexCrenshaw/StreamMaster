@@ -1,6 +1,6 @@
 ﻿namespace StreamMaster.Streams.Domain.Metrics;
 
-public class StreamConnectionMetric(string StreamUrl)
+public class StreamConnectionMetric(string? StreamUrl = null)
 {
     public TimeSpan AvgConnectionTime { get; set; }
     public DateTime? LastSuccessConnect { get; set; }
@@ -10,6 +10,6 @@ public class StreamConnectionMetric(string StreamUrl)
     public int TotalConnectionAttempts { get; set; }
     public int DisconnectCount { get; set; }
     public double AverageReconnectTime { get; set; }
-    public string StreamUrl { get; } = StreamUrl;
+    public string StreamUrl { get; } = StreamUrl ?? "";
     public DateTime LastStartTime { get; set; } = DateTime.UtcNow;
 }

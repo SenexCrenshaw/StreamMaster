@@ -222,6 +222,7 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
         }
 
         await hub.Clients.All.DataRefresh("GetChannelMetrics");
+        await hub.Clients.All.DataRefresh("GetStreamConnectionMetrics");
         await hub.Clients.All.DataRefresh("GetVideoInfos");
     }
 
