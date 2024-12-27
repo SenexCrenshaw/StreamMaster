@@ -242,7 +242,7 @@ namespace StreamMaster.Streams.Broadcasters
         /// <summary>
         /// Checks all broadcasters; if any have zero active channels (excluding VideoInfo), schedule them for shutdown.
         /// </summary>
-        private async Task CheckForEmptyBroadcastersAsync(CancellationToken cancellationToken = default)
+        private async Task CheckForEmptySourceBroadcastersAsync(CancellationToken cancellationToken = default)
         {
             foreach (ISourceBroadcaster sourceBroadcaster in sourceBroadcasters.Values)
             {
@@ -284,7 +284,7 @@ namespace StreamMaster.Streams.Broadcasters
 
             if (sourceBroadcaster?.RemoveChannelBroadcaster(channelBroadcasterId) == true)
             {
-                await CheckForEmptyBroadcastersAsync().ConfigureAwait(false);
+                await CheckForEmptySourceBroadcastersAsync().ConfigureAwait(false);
             }
         }
     }

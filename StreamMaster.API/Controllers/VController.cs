@@ -92,7 +92,7 @@ public class VsController(ILogger<VsController> logger, IVideoService videoServi
         {
             try
             {
-                logger.LogInformation("Client UnregisterClient {UniqueRequestId} {name} disposing", _config.UniqueRequestId, _config.SMChannel.Name);
+                logger.LogInformation("Unregistered Client {UniqueRequestId} {name} disposing", _config.UniqueRequestId, _config.SMChannel.Name);
 
                 // Complete the HTTP response
                 if (!_config.Response.HasStarted)

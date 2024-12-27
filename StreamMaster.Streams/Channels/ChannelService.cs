@@ -139,8 +139,8 @@ public sealed class ChannelService : IChannelService
 
     public async Task StopChannelAsync(int channelId)
     {
-        await _channelBroadcasterService.StopChannelBroadcasterAsync(channelId);
-        await _sourceBroadcasterService.UnRegisterChannelBroadcasterAsync(channelId);
+        await _channelBroadcasterService.StopChannelBroadcasterAsync(channelId, true);
+        //await _sourceBroadcasterService.UnRegisterChannelBroadcasterAsync(channelId);
     }
 
     public IClientConfiguration? GetClientStreamerConfiguration(string uniqueRequestId)

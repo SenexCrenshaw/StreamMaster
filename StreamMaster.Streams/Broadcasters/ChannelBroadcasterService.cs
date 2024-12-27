@@ -70,14 +70,14 @@ public class ChannelBroadcasterService(
     }
 
     /// <inheritdoc/>
-    public async Task StopChannelBroadcasterAsync(int channelBroadcasterId)
+    public async Task StopChannelBroadcasterAsync(int channelBroadcasterId, bool? removeClients = false)
     {
         if (!cacheManager.ChannelBroadcasters.TryGetValue(channelBroadcasterId, out IChannelBroadcaster? channelBroadcaster))
         {
             return;
         }
 
-        int delay = channelBroadcaster.SMStreamInfo != null //&& !channelBroadcaster.ClientConfigurationsEmpty && !streamLimitsService.IsLimited(channelBroadcaster.SMStreamInfo.Id)
+        int delay = removeClients == true ? 0 : channelBroadcaster.SMStreamInfo != null //&& !channelBroadcaster.ClientConfigurationsEmpty && !streamLimitsService.IsLimited(channelBroadcaster.SMStreamInfo.Id)
             ? settings.CurrentValue.StreamShutDownDelayMs
             : 0;
 
@@ -104,8 +104,15 @@ public class ChannelBroadcasterService(
             channelBroadcaster.Shutdown = true;
             foreach (IClientConfiguration client in channelBroadcaster.Clients.Values)
             {
-                await UnRegisterClientAsync(client.UniqueRequestId).ConfigureAwait(false);
-                client.Stop();
+                if (channelBroadcaster.RemoveClient(client.UniqueRequestId))
+                {
+                    logger.LogDebug("Client configuration for {UniqueRequestId} removed", client.UniqueRequestId);
+                    //if (channelBroadcaster.ClientConfigurationsEmpty)
+                    //{
+                    //    await StopChannelBroadcasterAsync(channelBroadcaster).ConfigureAwait(false);
+                    //}
+                }
+
             }
 
             channelBroadcaster.Shutdown = true;

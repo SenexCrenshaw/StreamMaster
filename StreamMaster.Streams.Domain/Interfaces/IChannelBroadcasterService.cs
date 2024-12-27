@@ -31,7 +31,7 @@ public interface IChannelBroadcasterService : IDisposable
     /// Stops a channel broadcaster asynchronously by its ID.
     /// </summary>
     /// <param name="channelBroadcasterId">The unique identifier of the channel broadcaster to stop.</param>
-    Task StopChannelBroadcasterAsync(int channelBroadcasterId);
+    Task StopChannelBroadcasterAsync(int channelBroadcasterId, bool? removeClients = false);
 
     /// <summary>
     /// Unregisters a client asynchronously by its unique request ID.
