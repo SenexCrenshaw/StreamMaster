@@ -131,7 +131,8 @@ public class SourceBroadcaster(ILogger<ISourceBroadcaster> logger, IOptionsMonit
     public async Task RunPipelineAsync(Stream sourceStream, int bufferSize = 8192, CancellationToken cancellationToken = default)
     {
         byte[] buffer = ArrayPool<byte>.Shared.Rent(bufferSize);
-
+        CancellationTokenSource? timeoutCts = null;
+        CancellationTokenSource? linkedCts = null;
         try
         {
             if (ChannelBroadcasters.IsEmpty)
@@ -148,7 +149,7 @@ public class SourceBroadcaster(ILogger<ISourceBroadcaster> logger, IOptionsMonit
                 }
 
                 int bytesRead;
-                CancellationTokenSource? timeoutCts = null;
+
                 try
                 {
                     // Create timeout only if StreamReadTimeOutMs > 0
@@ -157,7 +158,7 @@ public class SourceBroadcaster(ILogger<ISourceBroadcaster> logger, IOptionsMonit
                         timeoutCts = new CancellationTokenSource(TimeSpan.FromMilliseconds(settings.CurrentValue.StreamReadTimeOutMs));
                     }
 
-                    using CancellationTokenSource linkedCts = timeoutCts is not null
+                    linkedCts = timeoutCts is not null
             ? CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutCts.Token)
             : CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
 
@@ -220,14 +221,14 @@ public class SourceBroadcaster(ILogger<ISourceBroadcaster> logger, IOptionsMonit
             if (Interlocked.CompareExchange(ref _isStopped, 1, 0) == 0)
             {
                 logger.LogInformation("Source Broadcaster stopped: {Name}", Name);
-                if (cancellationToken.IsCancellationRequested)
-                {
-                    logger.LogInformation("Source Broadcaster stopped due to cancellation: {Name}", Name);
-                }
-                else
+                //if (cancellationToken.IsCancellationRequested)
+                //{
+                //    logger.LogInformation("Source Broadcaster stopped due to cancellation: {Name}", Name);
+                //}
+                //else
                 if (OnStreamBroadcasterStopped != null)
                 {
-                    await OnStreamBroadcasterStopped.Invoke(this, new StreamBroadcasterStopped(Id, Name));
+                    await OnStreamBroadcasterStopped.Invoke(this, new StreamBroadcasterStopped(Id, Name, cancellationToken.IsCancellationRequested));
                 }
             }
 

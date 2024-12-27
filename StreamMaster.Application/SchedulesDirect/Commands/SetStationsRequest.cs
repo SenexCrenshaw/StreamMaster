@@ -59,6 +59,8 @@ public class SetStationsHandler(ILogger<SetStationsRequest> logger, IDataRefresh
 
         if (changed)
         {
+            //SettingsHelper.UpdateSetting(updateSetting.SDSettings);
+
             _ = await Sender.Send(new UpdateSettingRequest(updateSetting), cancellationToken).ConfigureAwait(false);
 
             //schedulesDirect.ResetCache("SubscribedLineups");

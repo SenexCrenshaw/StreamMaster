@@ -188,7 +188,7 @@ namespace StreamMaster.Streams.Broadcasters
             StreamConnectionMetricManager metrics = sourceStreamHandlerMetrics[e.Id];
             int currentRetry = metrics.GetRetryCount();
 
-            if (!sourceBroadcaster.IsMultiView && currentRetry < settings.CurrentValue.StreamRetryLimit)
+            if (!e.IsCancelled && !sourceBroadcaster.IsMultiView && currentRetry < settings.CurrentValue.StreamRetryLimit)
             {
                 metrics.IncrementRetryCount();
 
