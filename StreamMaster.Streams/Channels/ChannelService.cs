@@ -431,7 +431,7 @@ public sealed class ChannelService : IChannelService
 
     public async Task UnRegisterClientAsync(string uniqueRequestId, CancellationToken cancellationToken = default)
     {
-        await _channelBroadcasterService.UnRegisterClientAsync(uniqueRequestId, cancellationToken);
+        await _channelBroadcasterService.UnRegisterClientAsync(uniqueRequestId, false, cancellationToken);
     }
 
     /// <inheritdoc/>

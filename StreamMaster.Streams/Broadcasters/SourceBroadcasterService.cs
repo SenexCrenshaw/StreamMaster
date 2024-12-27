@@ -188,7 +188,7 @@ namespace StreamMaster.Streams.Broadcasters
             StreamConnectionMetricManager metrics = sourceStreamHandlerMetrics[e.Id];
             int currentRetry = metrics.GetRetryCount();
 
-            if (!e.IsCancelled && !sourceBroadcaster.IsMultiView && currentRetry < settings.CurrentValue.StreamRetryLimit)
+            if (!e.IsCancelled && !sourceBroadcaster.ChannelBroadcasters.IsEmpty && !sourceBroadcaster.IsMultiView && currentRetry < settings.CurrentValue.StreamRetryLimit)
             {
                 metrics.IncrementRetryCount();
 
@@ -199,7 +199,7 @@ namespace StreamMaster.Streams.Broadcasters
                 SMStreamInfo smStreamInfo = sourceBroadcaster.SMStreamInfo;
 
                 //await sourceBroadcaster.StopAsync().ConfigureAwait(false);
-                await Task.Delay(100);
+                await Task.Delay(250);
 
                 ISourceBroadcaster? newBroadcaster = await GetOrCreateSourceBroadcasterInternalAsync(
                     smStreamInfo,
@@ -210,7 +210,6 @@ namespace StreamMaster.Streams.Broadcasters
                     false,
                     CancellationToken.None
                 ).ConfigureAwait(false);
-
 
                 StreamConnectionMetricManager metrics2 = sourceStreamHandlerMetrics.GetOrAdd(smStreamInfo.Url, _ => new StreamConnectionMetricManager(smStreamInfo.Id, smStreamInfo.Url));
 

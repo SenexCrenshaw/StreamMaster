@@ -221,24 +221,16 @@ public class SourceBroadcaster(ILogger<ISourceBroadcaster> logger, IOptionsMonit
         {
             ArrayPool<byte>.Shared.Return(buffer);
 
-            //if (Interlocked.Equals(_isStopped, 0))
-            //{
             logger.LogInformation("Source Broadcaster stopped: {Name}", Name);
-            //if (cancellationToken.IsCancellationRequested)
-            //{
-            //    logger.LogInformation("Source Broadcaster stopped due to cancellation: {Name}", Name);
-            //}
-            //else
+
             if (OnStreamBroadcasterStopped != null)
             {
                 await OnStreamBroadcasterStopped.Invoke(this, new SourceBroadcasterStopped(Id, Name, Interlocked.Equals(_isStopped, 1)));
             }
-            //}
         }
 
         ChannelBroadcasters.Clear();
         await sourceStream.DisposeAsync().ConfigureAwait(false);
-        //}
     }
 
     /// <inheritdoc/>

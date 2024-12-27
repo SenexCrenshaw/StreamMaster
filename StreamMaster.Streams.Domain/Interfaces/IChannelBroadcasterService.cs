@@ -24,7 +24,7 @@ public interface IChannelBroadcasterService : IDisposable
     /// Stops a channel broadcaster asynchronously.
     /// </summary>
     /// <param name="channelBroadcaster">The channel broadcaster to stop.</param>
-    Task StopChannelBroadcasterAsync(IChannelBroadcaster channelBroadcaster);
+    Task StopChannelBroadcasterAsync(IChannelBroadcaster channelBroadcaster, bool? removeClients = false);
 
     /// <summary>
     /// Stops a channel broadcaster asynchronously by its ID.
@@ -36,7 +36,8 @@ public interface IChannelBroadcasterService : IDisposable
     /// Unregisters a client asynchronously by its unique request ID.
     /// </summary>
     /// <param name="uniqueRequestId">The unique request ID of the client.</param>
+    /// /// <param name="noDelay">Shutdown immediate.</param>
     /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
-    Task UnRegisterClientAsync(string uniqueRequestId, CancellationToken cancellationToken = default);
+    Task UnRegisterClientAsync(string uniqueRequestId, bool noDelay, CancellationToken cancellationToken = default);
 }

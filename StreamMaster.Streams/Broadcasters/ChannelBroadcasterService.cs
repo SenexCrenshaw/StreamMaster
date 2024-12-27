@@ -63,13 +63,13 @@ public class ChannelBroadcasterService(
     }
 
     /// <inheritdoc/>
-    public async Task StopChannelBroadcasterAsync(IChannelBroadcaster channelBroadcaster)
+    public async Task StopChannelBroadcasterAsync(IChannelBroadcaster channelBroadcaster, bool? noDelay = false)
     {
-        await StopChannelBroadcasterAsync(channelBroadcaster.Id).ConfigureAwait(false);
+        await StopChannelBroadcasterAsync(channelBroadcaster.Id, noDelay).ConfigureAwait(false);
     }
 
     /// <inheritdoc/>
-    public async Task StopChannelBroadcasterAsync(int channelBroadcasterId, bool? removeClients = false)
+    public async Task StopChannelBroadcasterAsync(int channelBroadcasterId, bool? noDelay = false)
     {
         await channelLockService.AcquireLockAsync(channelBroadcasterId).ConfigureAwait(false);
 
@@ -79,7 +79,7 @@ public class ChannelBroadcasterService(
             return;
         }
 
-        int delay = removeClients == true ? 0 : channelBroadcaster.SMStreamInfo != null //&& !channelBroadcaster.ClientConfigurationsEmpty && !streamLimitsService.IsLimited(channelBroadcaster.SMStreamInfo.Id)
+        int delay = noDelay == true ? 0 : channelBroadcaster.SMStreamInfo != null //&& !channelBroadcaster.ClientConfigurationsEmpty && !streamLimitsService.IsLimited(channelBroadcaster.SMStreamInfo.Id)
             ? settings.CurrentValue.StreamShutDownDelayMs
             : 0;
 
@@ -91,8 +91,6 @@ public class ChannelBroadcasterService(
         {
             await UnRegisterChannelAsync(channelBroadcaster.SMChannel.Id).ConfigureAwait(false);
         }
-
-
     }
 
     private async Task<bool> UnRegisterChannelAfterDelayAsync(IChannelBroadcaster channelBroadcaster, TimeSpan delay, CancellationToken cancellationToken)
@@ -105,7 +103,6 @@ public class ChannelBroadcasterService(
 
     private async Task<bool> UnRegisterChannelAsync(int channelBroadcasterId)
     {
-
         if (cacheManager.ChannelBroadcasters.TryRemove(channelBroadcasterId, out IChannelBroadcaster? channelBroadcaster))
         {
             channelBroadcaster.Shutdown = true;
@@ -114,10 +111,10 @@ public class ChannelBroadcasterService(
                 if (channelBroadcaster.RemoveClient(client.UniqueRequestId))
                 {
                     logger.LogDebug("Client configuration for {UniqueRequestId} removed", client.UniqueRequestId);
-                    //if (channelBroadcaster.ClientConfigurationsEmpty)
-                    //{
-                    //    await StopChannelBroadcasterAsync(channelBroadcaster).ConfigureAwait(false);
-                    //}
+                    if (channelBroadcaster.ClientConfigurationsEmpty)
+                    {
+                        await StopChannelBroadcasterAsync(channelBroadcaster).ConfigureAwait(false);
+                    }
                 }
             }
 
@@ -136,11 +133,10 @@ public class ChannelBroadcasterService(
         }
 
         return false;
-
     }
 
     /// <inheritdoc/>
-    public async Task UnRegisterClientAsync(string uniqueRequestId, CancellationToken cancellationToken = default)
+    public async Task UnRegisterClientAsync(string uniqueRequestId, bool noDelay, CancellationToken cancellationToken = default)
     {
         foreach (IChannelBroadcaster channelBroadcaster in cacheManager.ChannelBroadcasters.Values)
         {
@@ -149,7 +145,7 @@ public class ChannelBroadcasterService(
                 logger.LogDebug("Client configuration for {UniqueRequestId} removed", uniqueRequestId);
                 if (channelBroadcaster.ClientConfigurationsEmpty)
                 {
-                    await StopChannelBroadcasterAsync(channelBroadcaster).ConfigureAwait(false);
+                    await StopChannelBroadcasterAsync(channelBroadcaster, noDelay).ConfigureAwait(false);
                 }
             }
         }
