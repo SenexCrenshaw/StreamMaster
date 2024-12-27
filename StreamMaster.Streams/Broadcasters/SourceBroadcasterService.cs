@@ -199,7 +199,7 @@ namespace StreamMaster.Streams.Broadcasters
                 SMStreamInfo smStreamInfo = sourceBroadcaster.SMStreamInfo;
 
                 //await sourceBroadcaster.StopAsync().ConfigureAwait(false);
-                //await Task.Delay(50);
+                await Task.Delay(100);
 
                 ISourceBroadcaster? newBroadcaster = await GetOrCreateSourceBroadcasterInternalAsync(
                     smStreamInfo,
@@ -210,6 +210,9 @@ namespace StreamMaster.Streams.Broadcasters
                     false,
                     CancellationToken.None
                 ).ConfigureAwait(false);
+
+
+                StreamConnectionMetricManager metrics2 = sourceStreamHandlerMetrics.GetOrAdd(smStreamInfo.Url, _ => new StreamConnectionMetricManager(smStreamInfo.Id, smStreamInfo.Url));
 
                 if (newBroadcaster != null)
                 {

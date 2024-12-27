@@ -12,7 +12,6 @@ public class ChannelBroadcasterService(
     ILogger<ChannelBroadcasterService> logger,
     ICacheManager cacheManager,
     IOptionsMonitor<Setting> settings,
-    IStreamLimitsService streamLimitsService,
     ISourceBroadcasterService sourceBroadcasterService,
     ILogger<IChannelBroadcaster> channelStatusLogger
     ) : IChannelBroadcasterService, IDisposable
@@ -72,8 +71,11 @@ public class ChannelBroadcasterService(
     /// <inheritdoc/>
     public async Task StopChannelBroadcasterAsync(int channelBroadcasterId, bool? removeClients = false)
     {
+        await channelLockService.AcquireLockAsync(channelBroadcasterId).ConfigureAwait(false);
+
         if (!cacheManager.ChannelBroadcasters.TryGetValue(channelBroadcasterId, out IChannelBroadcaster? channelBroadcaster))
         {
+            channelLockService.ReleaseLock(channelBroadcasterId);
             return;
         }
 
@@ -89,16 +91,21 @@ public class ChannelBroadcasterService(
         {
             await UnRegisterChannelAsync(channelBroadcaster.SMChannel.Id).ConfigureAwait(false);
         }
+
+
     }
 
     private async Task<bool> UnRegisterChannelAfterDelayAsync(IChannelBroadcaster channelBroadcaster, TimeSpan delay, CancellationToken cancellationToken)
     {
         await Task.Delay(delay, cancellationToken).ConfigureAwait(false);
-        return channelBroadcaster.Clients.IsEmpty && await UnRegisterChannelAsync(channelBroadcaster.SMChannel.Id).ConfigureAwait(false);
+        bool ret = channelBroadcaster.Clients.IsEmpty && await UnRegisterChannelAsync(channelBroadcaster.SMChannel.Id).ConfigureAwait(false);
+        channelLockService.ReleaseLock(channelBroadcaster.Id);
+        return ret;
     }
 
     private async Task<bool> UnRegisterChannelAsync(int channelBroadcasterId)
     {
+
         if (cacheManager.ChannelBroadcasters.TryRemove(channelBroadcasterId, out IChannelBroadcaster? channelBroadcaster))
         {
             channelBroadcaster.Shutdown = true;
@@ -112,7 +119,6 @@ public class ChannelBroadcasterService(
                     //    await StopChannelBroadcasterAsync(channelBroadcaster).ConfigureAwait(false);
                     //}
                 }
-
             }
 
             channelBroadcaster.Shutdown = true;
@@ -124,11 +130,13 @@ public class ChannelBroadcasterService(
                 await sourceBroadcasterService.UnRegisterChannelBroadcasterAsync(channelBroadcaster.Id);
             }
 
+            channelLockService.ReleaseLock(channelBroadcaster.Id);
             channelLockService.RemoveLock(channelBroadcasterId);
             return true;
         }
 
         return false;
+
     }
 
     /// <inheritdoc/>

@@ -88,7 +88,7 @@ public class SourceBroadcaster(ILogger<ISourceBroadcaster> logger, IOptionsMonit
 
             // Start a new streaming task
             _cancellationTokenSource = new CancellationTokenSource();
-            _streamingTask = Task.Run(() => RunPipelineAsync(stream, cancellationToken: _cancellationTokenSource.Token), _cancellationTokenSource.Token);
+            _streamingTask = Task.Run(() => RunPipelineAsync(stream, SMStreamInfo.Name, cancellationToken: _cancellationTokenSource.Token), _cancellationTokenSource.Token);
             return stopwatch.ElapsedMilliseconds;
         }
         finally
@@ -118,7 +118,7 @@ public class SourceBroadcaster(ILogger<ISourceBroadcaster> logger, IOptionsMonit
 
             // Start a new streaming task
             _cancellationTokenSource = new CancellationTokenSource();
-            _streamingTask = Task.Run(() => RunPipelineAsync(stream, cancellationToken: _cancellationTokenSource.Token), _cancellationTokenSource.Token);
+            _streamingTask = Task.Run(() => RunPipelineAsync(stream, SMStreamInfo.Name, cancellationToken: _cancellationTokenSource.Token), _cancellationTokenSource.Token);
             return stopwatch.ElapsedMilliseconds;
         }
         finally
@@ -128,11 +128,13 @@ public class SourceBroadcaster(ILogger<ISourceBroadcaster> logger, IOptionsMonit
     }
 
     /// <inheritdoc/>
-    public async Task RunPipelineAsync(Stream sourceStream, int bufferSize = 8192, CancellationToken cancellationToken = default)
+    private async Task RunPipelineAsync(Stream sourceStream, string name, int bufferSize = 8192, CancellationToken cancellationToken = default)
     {
         byte[] buffer = ArrayPool<byte>.Shared.Rent(bufferSize);
         CancellationTokenSource? timeoutCts = null;
         CancellationTokenSource? linkedCts = null;
+        logger.LogInformation("RunPipelineAsync {Name}", name);
+
         try
         {
             if (ChannelBroadcasters.IsEmpty)

@@ -5,7 +5,6 @@
 /// </summary>
 public interface IChannelBroadcasterService : IDisposable
 {
-
     /// <summary>
     /// Gets all channel broadcasters currently managed by the service.
     /// </summary>
