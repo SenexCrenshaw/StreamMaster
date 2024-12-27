@@ -93,7 +93,7 @@ public sealed class ChannelService : IChannelService
     {
         if (sender is ISourceBroadcaster sourceBroadcaster)
         {
-            logger.LogInformation("Streaming Stopped Event for stream Id: {StreamName}", e.Name);
+            //logger.LogInformation("Streaming Stopped Event for stream Id: {StreamName}", e.Name);
 
             List<IChannelBroadcaster> channelBroadcasters = [.. _cacheManager.ChannelBroadcasters.Values.Where(a => a.SMStreamInfo?.Url == e.Id)];
 

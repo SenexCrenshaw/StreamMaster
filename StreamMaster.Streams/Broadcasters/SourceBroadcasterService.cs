@@ -192,8 +192,8 @@ namespace StreamMaster.Streams.Broadcasters
             {
                 metrics.IncrementRetryCount();
 
-                logger.LogInformation("Retrying stream {Id} {RetryCount}/{RetryLimit}.",
-                                  e.Id, currentRetry, settings.CurrentValue.StreamRetryLimit);
+                logger.LogInformation("Retrying stream {Name} {RetryCount}/{RetryLimit}.",
+                                  sourceBroadcaster.SMStreamInfo.Name, currentRetry, settings.CurrentValue.StreamRetryLimit);
 
                 List<KeyValuePair<string, IStreamDataToClients>> channelBroadcasters = [.. sourceBroadcaster.ChannelBroadcasters];
                 SMStreamInfo smStreamInfo = sourceBroadcaster.SMStreamInfo;
@@ -223,11 +223,11 @@ namespace StreamMaster.Streams.Broadcasters
             {
                 if (currentRetry >= settings.CurrentValue.StreamRetryLimit)
                 {
-                    logger.LogInformation("Stream {Id} retry limit ({currentRetry}) reached.", e.Id, currentRetry);
+                    logger.LogInformation("Stream {Name} retry limit ({currentRetry}) reached.", sourceBroadcaster.SMStreamInfo.Name, currentRetry);
                 }
                 else
                 {
-                    logger.LogInformation("Stream {Id} stopped.", e.Id);
+                    logger.LogInformation("Stream {Name} stopped.", sourceBroadcaster.SMStreamInfo.Name);
                 }
 
                 await StopAndUnRegisterSourceBroadCasterAsync(e.Id).ConfigureAwait(false);
