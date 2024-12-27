@@ -79,7 +79,7 @@ public interface ISourceBroadcaster
     /// <summary>
     /// Occurs when the source broadcaster stops streaming.
     /// </summary>
-    event AsyncEventHandler<StreamBroadcasterStopped> OnStreamBroadcasterStopped;
+    event AsyncEventHandler<SourceBroadcasterStopped> OnStreamBroadcasterStopped;
 
     public SMStreamInfo SMStreamInfo { get; }
 }

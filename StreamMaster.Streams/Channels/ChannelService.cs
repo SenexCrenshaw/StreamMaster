@@ -35,7 +35,6 @@ public sealed class ChannelService : IChannelService
         _switchToNextStreamService = switchToNextStreamService;
         this.logger = logger;
         _sourceBroadcasterService.OnStreamBroadcasterStopped += StreamBroadcasterService_OnStreamBroadcasterStoppedEventAsync;
-        _channelBroadcasterService.OnChannelBroadcasterStoppedEvent += ChannelBroadscasterService_OnChannelBroadcasterStoppedEventAsync;
     }
 
     /// <inheritdoc/>
@@ -90,19 +89,7 @@ public sealed class ChannelService : IChannelService
         logger.LogWarning("Channel with playing SM stream ID {playingSMStreamId} not found", playingSMStreamId);
     }
 
-    private async Task ChannelBroadscasterService_OnChannelBroadcasterStoppedEventAsync(object? sender, ChannelBroadcasterStopped e)
-    {
-        if (sender is IChannelBroadcaster channelBroadcaster)
-        {
-            logger.LogInformation("Channel Stopped Event for channel Id: {StreamName}", e.Name);
-            if (channelBroadcaster.SMStreamInfo != null)
-            {
-                await _sourceBroadcasterService.UnRegisterChannelBroadcasterAsync(channelBroadcaster.Id);
-            }
-        }
-    }
-
-    private async Task StreamBroadcasterService_OnStreamBroadcasterStoppedEventAsync(object? sender, StreamBroadcasterStopped e)
+    private async Task StreamBroadcasterService_OnStreamBroadcasterStoppedEventAsync(object? sender, SourceBroadcasterStopped e)
     {
         if (sender is ISourceBroadcaster sourceBroadcaster)
         {
@@ -152,7 +139,7 @@ public sealed class ChannelService : IChannelService
 
     public async Task StopChannelAsync(int channelId)
     {
-        await _channelBroadcasterService.StopChannelAsync(channelId);
+        await _channelBroadcasterService.StopChannelBroadcasterAsync(channelId);
         await _sourceBroadcasterService.UnRegisterChannelBroadcasterAsync(channelId);
     }
 
@@ -269,7 +256,7 @@ public sealed class ChannelService : IChannelService
             //{
             //    if (channelBroadcaster.SMStreamInfo == null)
             //    {
-            //        await StopChannelAsync(channelBroadcaster.Id);
+            //        await StopChannelBroadcasterAsync(channelBroadcaster.Id);
             //        clientConfiguration.Stop();
             //        return null;
             //    }
@@ -283,7 +270,7 @@ public sealed class ChannelService : IChannelService
             //        {
             //            logger.LogError("SwitchChannelToNextStream failed for {UniqueRequestId} {ChannelVideoStreamId} {name}", clientConfiguration.UniqueRequestId, clientConfiguration.SMChannel.Id, clientConfiguration.SMChannel.Name);
 
-            //            await StopChannelAsync(channelBroadcaster.Id);
+            //            await StopChannelBroadcasterAsync(channelBroadcaster.Id);
             //            clientConfiguration.Stop();
             //            return null;
             //        }
@@ -470,7 +457,6 @@ public sealed class ChannelService : IChannelService
 
                 // Unsubscribe events
                 _sourceBroadcasterService.OnStreamBroadcasterStopped -= StreamBroadcasterService_OnStreamBroadcasterStoppedEventAsync;
-                _channelBroadcasterService.OnChannelBroadcasterStoppedEvent -= ChannelBroadscasterService_OnChannelBroadcasterStoppedEventAsync;
             }
             catch (Exception ex)
             {

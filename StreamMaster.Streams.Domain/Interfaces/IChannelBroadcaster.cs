@@ -1,8 +1,6 @@
 ﻿
 using System.Collections.Concurrent;
 
-using StreamMaster.Streams.Domain.Events;
-
 namespace StreamMaster.Streams.Domain.Interfaces;
 /// <summary>
 /// Provides methods and properties to manage the status and configuration of a channel broadcaster.
@@ -42,10 +40,10 @@ public interface IChannelBroadcaster : IStreamStatus, IStreamDataToClients
     /// </summary>
     int Id { get; }
 
-    /// <summary>
-    /// Occurs when the channel broadcaster is stopped.
-    /// </summary>
-    event EventHandler<ChannelBroadcasterStopped>? OnChannelBroadcasterStoppedEvent;
+    ///// <summary>
+    ///// Occurs when the channel broadcaster is stopped.
+    ///// </summary>
+    //event EventHandler<ChannelBroadcasterStopped>? OnChannelBroadcasterStoppedEvent;
 
     /// <summary>
     /// Marks the channel broadcaster as global.

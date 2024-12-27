@@ -1,7 +1,6 @@
 ﻿using System.Collections.Concurrent;
 
 using StreamMaster.PlayList.Models;
-using StreamMaster.Streams.Domain.Events;
 using StreamMaster.Streams.Services;
 
 namespace StreamMaster.Streams.Broadcasters;
@@ -24,7 +23,7 @@ public sealed class ChannelBroadcaster(ILogger<IChannelBroadcaster> logger, IOpt
     /// <summary>
     /// Event triggered when the channel broadcaster is stopped.
     /// </summary>
-    public event EventHandler<ChannelBroadcasterStopped>? OnChannelBroadcasterStoppedEvent;
+    //public event EventHandler<ChannelBroadcasterStopped>? OnChannelBroadcasterStoppedEvent;
 
     /// <summary>
     /// Gets the dictionary of clients connected to this channel.
@@ -150,9 +149,8 @@ public sealed class ChannelBroadcaster(ILogger<IChannelBroadcaster> logger, IOpt
     public void Stop()
     {
         logger.LogInformation("Channel Broadcaster stopped: {Name}", Name);
-
         Dubcer?.Stop();
-        OnChannelBroadcasterStoppedEvent?.Invoke(this, new ChannelBroadcasterStopped(Id, Name));
+        //OnChannelBroadcasterStoppedEvent?.Invoke(this, new ChannelBroadcasterStopped(Id, Name));
     }
 
     /// <summary>
@@ -180,17 +178,6 @@ public sealed class ChannelBroadcaster(ILogger<IChannelBroadcaster> logger, IOpt
     {
         IsGlobal = true;
     }
-
-    ///// <summary>
-    ///// Sets the source channel broadcaster for this channel.
-    ///// </summary>
-    ///// <param name="sourceChannelBroadcaster">The source channel broadcaster to set.</param>
-    //public void SetSourceBroadcaster(ISourceBroadcaster sourceChannelBroadcaster)
-    //{
-    //    //SourceBroadcaster?.RemoveChannelBroadcaster(Id);
-    //    //SourceBroadcaster = sourceChannelBroadcaster;
-    //    sourceChannelBroadcaster.AddChannelBroadcaster(this);
-    //}
 
     public int IntroIndex { get; set; }
     public bool PlayedIntro { get; set; }

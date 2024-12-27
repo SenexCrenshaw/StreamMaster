@@ -167,7 +167,7 @@ public class ClientConfiguration : IClientConfiguration, IDisposable
         }
         catch (OperationCanceledException) when (ClientCancellationToken.IsCancellationRequested)
         {
-            logger.LogInformation("Streaming canceled for client {ClientId}.", UniqueRequestId);
+            logger.LogInformation("Streaming to client {ClientId} stopped.", UniqueRequestId);
         }
         catch (OperationCanceledException) when (inactivityCts.IsCancellationRequested)
         {

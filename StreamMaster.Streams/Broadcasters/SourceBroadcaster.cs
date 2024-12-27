@@ -15,7 +15,7 @@ namespace StreamMaster.Streams.Broadcasters;
 public class SourceBroadcaster(ILogger<ISourceBroadcaster> logger, IOptionsMonitor<Setting> settings, IStreamFactory streamFactory, SMStreamInfo intSMStreamInfo)
     : ISourceBroadcaster, IDisposable
 {
-    private int _isStopped;
+    private int _isStopped = 0;
 
     public bool IsStopped => _isStopped == 1;
     private readonly StreamMetricsRecorder StreamMetricsRecorder = new();
@@ -34,7 +34,7 @@ public class SourceBroadcaster(ILogger<ISourceBroadcaster> logger, IOptionsMonit
     public ConcurrentDictionary<string, IStreamDataToClients> ChannelBroadcasters { get; } = new();
 
     /// <inheritdoc/>
-    public event AsyncEventHandler<StreamBroadcasterStopped>? OnStreamBroadcasterStopped;
+    public event AsyncEventHandler<SourceBroadcasterStopped>? OnStreamBroadcasterStopped;
 
     /// <inheritdoc/>
     public bool IsFailed { get; }
@@ -168,16 +168,17 @@ public class SourceBroadcaster(ILogger<ISourceBroadcaster> logger, IOptionsMonit
                 }
                 catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
                 {
-                    logger.LogWarning("Read operation was cancelled by global cancellation.");
+                    logger.LogWarning("Read operation was cancelled.");
                     break;
                 }
                 catch (OperationCanceledException) when (timeoutCts?.Token.IsCancellationRequested == true)
                 {
-                    logger.LogWarning("Read operation timed out after 500ms.");
+                    logger.LogWarning("Read operation timed out after {ms}ms.", settings.CurrentValue.StreamReadTimeOutMs);
                     break;
                 }
                 finally
                 {
+                    linkedCts?.Dispose();
                     timeoutCts?.Dispose(); // Ensure timeoutCts is disposed
                 }
 
@@ -218,59 +219,63 @@ public class SourceBroadcaster(ILogger<ISourceBroadcaster> logger, IOptionsMonit
         {
             ArrayPool<byte>.Shared.Return(buffer);
 
-            if (Interlocked.CompareExchange(ref _isStopped, 1, 0) == 0)
+            //if (Interlocked.Equals(_isStopped, 0))
+            //{
+            logger.LogInformation("Source Broadcaster stopped: {Name}", Name);
+            //if (cancellationToken.IsCancellationRequested)
+            //{
+            //    logger.LogInformation("Source Broadcaster stopped due to cancellation: {Name}", Name);
+            //}
+            //else
+            if (OnStreamBroadcasterStopped != null)
             {
-                logger.LogInformation("Source Broadcaster stopped: {Name}", Name);
-                //if (cancellationToken.IsCancellationRequested)
-                //{
-                //    logger.LogInformation("Source Broadcaster stopped due to cancellation: {Name}", Name);
-                //}
-                //else
-                if (OnStreamBroadcasterStopped != null)
-                {
-                    await OnStreamBroadcasterStopped.Invoke(this, new StreamBroadcasterStopped(Id, Name, cancellationToken.IsCancellationRequested));
-                }
+                await OnStreamBroadcasterStopped.Invoke(this, new SourceBroadcasterStopped(Id, Name, Interlocked.Equals(_isStopped, 1)));
             }
-
-            ChannelBroadcasters.Clear();
-            await sourceStream.DisposeAsync().ConfigureAwait(false);
+            //}
         }
+
+        ChannelBroadcasters.Clear();
+        await sourceStream.DisposeAsync().ConfigureAwait(false);
+        //}
     }
 
     /// <inheritdoc/>
     public async Task StopAsync()
     {
-        await _stopLock.WaitAsync().ConfigureAwait(false);
+        //await _stopLock.WaitAsync().ConfigureAwait(false);
         try
         {
-            if (_isStopped == 1)
+            if (Interlocked.CompareExchange(ref _isStopped, 1, 0) == 0 && _cancellationTokenSource?.IsCancellationRequested != true)
             {
-                return;
+                _cancellationTokenSource?.Cancel();
+
+                //if (OnStreamBroadcasterStopped != null)
+                //{
+                //    await OnStreamBroadcasterStopped.Invoke(this, new SourceBroadcasterStopped(Id, Name, true));
+                //}
+
+                if (_streamingTask != null)
+                {
+                    try
+                    {
+                        await _streamingTask.ConfigureAwait(false);
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        // Expected during cancellation
+                    }
+                }
+
+                _cancellationTokenSource?.Dispose();
+                _cancellationTokenSource = null;
+                _streamingTask = null;
             }
 
-            _cancellationTokenSource?.Cancel();
-
-            if (_streamingTask != null)
-            {
-                try
-                {
-                    await _streamingTask.ConfigureAwait(false);
-                }
-                catch (OperationCanceledException)
-                {
-                    // Expected during cancellation
-                }
-            }
-
-            _cancellationTokenSource?.Dispose();
-            _cancellationTokenSource = null;
-            _streamingTask = null;
-
-            logger.LogInformation("Streaming task stopped.");
+            logger.LogInformation("Streaming stopped.");
         }
         finally
         {
-            _stopLock.Release();
+            //_stopLock.Release();
         }
     }
 

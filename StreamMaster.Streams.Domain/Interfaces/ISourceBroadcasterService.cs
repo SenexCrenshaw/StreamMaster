@@ -16,7 +16,7 @@ public interface ISourceBroadcasterService
     /// <summary>
     /// Occurs when a source broadcaster is stopped.
     /// </summary>
-    event AsyncEventHandler<StreamBroadcasterStopped>? OnStreamBroadcasterStopped;
+    event AsyncEventHandler<SourceBroadcasterStopped>? OnStreamBroadcasterStopped;
 
     /// <summary>
     /// Gets a source broadcaster by its string key.

@@ -1,17 +1,10 @@
-﻿using StreamMaster.Domain.Events;
-using StreamMaster.Streams.Domain.Events;
-
-namespace StreamMaster.Streams.Domain.Interfaces;
+﻿namespace StreamMaster.Streams.Domain.Interfaces;
 
 /// <summary>
 /// Defines methods and events for managing channel broadcasters and their clients.
 /// </summary>
 public interface IChannelBroadcasterService : IDisposable
 {
-    /// <summary>
-    /// Occurs when a channel broadcaster is stopped.
-    /// </summary>
-    event AsyncEventHandler<ChannelBroadcasterStopped>? OnChannelBroadcasterStoppedEvent;
 
     /// <summary>
     /// Gets all channel broadcasters currently managed by the service.
@@ -32,13 +25,13 @@ public interface IChannelBroadcasterService : IDisposable
     /// Stops a channel broadcaster asynchronously.
     /// </summary>
     /// <param name="channelBroadcaster">The channel broadcaster to stop.</param>
-    Task StopChannelAsync(IChannelBroadcaster channelBroadcaster);
+    Task StopChannelBroadcasterAsync(IChannelBroadcaster channelBroadcaster);
 
     /// <summary>
     /// Stops a channel broadcaster asynchronously by its ID.
     /// </summary>
     /// <param name="channelBroadcasterId">The unique identifier of the channel broadcaster to stop.</param>
-    Task StopChannelAsync(int channelBroadcasterId);
+    Task StopChannelBroadcasterAsync(int channelBroadcasterId);
 
     /// <summary>
     /// Unregisters a client asynchronously by its unique request ID.
