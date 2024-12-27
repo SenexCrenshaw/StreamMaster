@@ -1,18 +1,16 @@
-﻿using StreamMaster.Streams.Domain.Metrics;
-
-namespace StreamMaster.Application.Statistics.Queries;
+﻿namespace StreamMaster.Application.Statistics.Queries;
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record GetStreamConnectionMetricsRequest() : IRequest<DataResponse<List<StreamConnectionMetric>>>;
+public record GetStreamConnectionMetricDatasRequest() : IRequest<DataResponse<List<StreamConnectionMetricData>>>;
 
-internal class GetStreamConnectionMetricsRequestHandler(
+internal class GetStreamConnectionMetricDatasRequestHandler(
 
     ISourceBroadcasterService sourceBroadcasterService)
-    : IRequestHandler<GetStreamConnectionMetricsRequest, DataResponse<List<StreamConnectionMetric>>>
+    : IRequestHandler<GetStreamConnectionMetricDatasRequest, DataResponse<List<StreamConnectionMetricData>>>
 {
-    public Task<DataResponse<List<StreamConnectionMetric>>> Handle(GetStreamConnectionMetricsRequest request, CancellationToken cancellationToken)
+    public Task<DataResponse<List<StreamConnectionMetricData>>> Handle(GetStreamConnectionMetricDatasRequest request, CancellationToken cancellationToken)
     {
-        return Task.FromResult(DataResponse<List<StreamConnectionMetric>>.Success(sourceBroadcasterService.GetStreamConnectionMetrics()));
+        return Task.FromResult(DataResponse<List<StreamConnectionMetricData>>.Success(sourceBroadcasterService.GetStreamConnectionMetrics()));
     }
 }

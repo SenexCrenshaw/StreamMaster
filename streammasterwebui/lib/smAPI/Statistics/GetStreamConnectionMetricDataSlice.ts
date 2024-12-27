@@ -1,11 +1,11 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import { Logger } from '@lib/common/logger';
-import {FieldData, StreamConnectionMetric } from '@lib/smAPI/smapiTypes';
-import { fetchGetStreamConnectionMetric } from '@lib/smAPI/Statistics/GetStreamConnectionMetricFetch';
+import {FieldData, StreamConnectionMetricData } from '@lib/smAPI/smapiTypes';
+import { fetchGetStreamConnectionMetricData } from '@lib/smAPI/Statistics/GetStreamConnectionMetricDataFetch';
 
 
 interface QueryState {
-  data: Record<string, StreamConnectionMetric | undefined>;
+  data: Record<string, StreamConnectionMetricData | undefined>;
   error: Record<string, string | undefined>;
   isError: Record<string, boolean>;
   isForced: boolean;
@@ -20,13 +20,13 @@ const initialState: QueryState = {
   isLoading: {}
 };
 
-const getStreamConnectionMetricSlice = createSlice({
+const getStreamConnectionMetricDataSlice = createSlice({
   initialState,
-  name: 'GetStreamConnectionMetric',
+  name: 'GetStreamConnectionMetricData',
   reducers: {
     clear: (state) => {
       state = initialState;
-      Logger.debug('GetStreamConnectionMetric clear');
+      Logger.debug('GetStreamConnectionMetricData clear');
     },
 
     clearByTag: (state, action: PayloadAction<{ tag: string }>) => {
@@ -36,7 +36,7 @@ const getStreamConnectionMetricSlice = createSlice({
           state.data[key] = undefined;
         }
       }
-      Logger.debug('GetStreamConnectionMetric clearByTag');
+      Logger.debug('GetStreamConnectionMetricData clearByTag');
     },
 
     setField: (state, action: PayloadAction<{ fieldData: FieldData }>) => {
@@ -46,7 +46,7 @@ const getStreamConnectionMetricSlice = createSlice({
         state.data[fieldData.Id] = fieldData.Value;
         return;
       }
-      Logger.debug('GetStreamConnectionMetric setField');
+      Logger.debug('GetStreamConnectionMetricData setField');
     },
     setIsForced: (state, action: PayloadAction<{ force: boolean }>) => {
       const { force } = action.payload;
@@ -59,7 +59,7 @@ const getStreamConnectionMetricSlice = createSlice({
         }
       }
       state.data = updatedData;
-      Logger.debug('GetStreamConnectionMetric  setIsForced ', force);
+      Logger.debug('GetStreamConnectionMetricData  setIsForced ', force);
     },
     setIsLoading: (state, action: PayloadAction<{ param: string; isLoading: boolean }>) => {
       const { param, isLoading } = action.payload;
@@ -71,20 +71,20 @@ const getStreamConnectionMetricSlice = createSlice({
           state.isLoading[key] = action.payload.isLoading;
         }
       }
-      Logger.debug('GetStreamConnectionMetric setIsLoading ', action.payload.isLoading);
+      Logger.debug('GetStreamConnectionMetricData setIsLoading ', action.payload.isLoading);
     }
   },
 
   extraReducers: (builder) => {
     builder
-      .addCase(fetchGetStreamConnectionMetric.pending, (state, action) => {
+      .addCase(fetchGetStreamConnectionMetricData.pending, (state, action) => {
         const paramString = JSON.stringify(action.meta.arg);
         state.isLoading[paramString] = true;
         state.isError[paramString] = false;
         state.isForced = false;
         state.error[paramString] = undefined;
       })
-      .addCase(fetchGetStreamConnectionMetric.fulfilled, (state, action) => {
+      .addCase(fetchGetStreamConnectionMetricData.fulfilled, (state, action) => {
         if (action.payload) {
           const { param, value } = action.payload;
           const paramString = JSON.stringify(param);
@@ -96,7 +96,7 @@ const getStreamConnectionMetricSlice = createSlice({
           state.isForced = false;
         }
       })
-      .addCase(fetchGetStreamConnectionMetric.rejected, (state, action) => {
+      .addCase(fetchGetStreamConnectionMetricData.rejected, (state, action) => {
         const paramString = JSON.stringify(action.meta.arg);
         state.error[paramString] = action.error.message || 'Failed to fetch';
         state.isError[paramString] = true;
@@ -108,5 +108,5 @@ const getStreamConnectionMetricSlice = createSlice({
   }
 });
 
-export const { clear, clearByTag, setIsLoading, setIsForced, setField } = getStreamConnectionMetricSlice.actions;
-export default getStreamConnectionMetricSlice.reducer;
+export const { clear, clearByTag, setIsLoading, setIsForced, setField } = getStreamConnectionMetricDataSlice.actions;
+export default getStreamConnectionMetricDataSlice.reducer;

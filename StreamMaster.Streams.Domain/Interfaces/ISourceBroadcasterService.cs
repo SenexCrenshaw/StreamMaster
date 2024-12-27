@@ -10,8 +10,8 @@ namespace StreamMaster.Streams.Domain.Interfaces;
 /// </summary>
 public interface ISourceBroadcasterService
 {
-    StreamConnectionMetric? GetStreamConnectionMetric(string key);
-    List<StreamConnectionMetric> GetStreamConnectionMetrics();
+    StreamConnectionMetricData? GetStreamConnectionMetricData(string key);
+    List<StreamConnectionMetricData> GetStreamConnectionMetrics();
 
     /// <summary>
     /// Occurs when a source broadcaster is stopped.

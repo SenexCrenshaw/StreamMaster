@@ -25,7 +25,7 @@ import { setIsForced as GetSMChannelNamesSetIsForced } from '@lib/smAPI/SMChanne
 import { setIsForced as GetSMTasksSetIsForced } from '@lib/smAPI/SMTasks/GetSMTasksSlice';
 import { setIsForced as GetStationChannelNamesSetIsForced } from '@lib/smAPI/SchedulesDirect/GetStationChannelNamesSlice';
 import { setIsForced as GetStationPreviewsSetIsForced } from '@lib/smAPI/SchedulesDirect/GetStationPreviewsSlice';
-import { setIsForced as GetStreamConnectionMetricsSetIsForced } from '@lib/smAPI/Statistics/GetStreamConnectionMetricsSlice';
+import { setIsForced as GetStreamConnectionMetricDatasSetIsForced } from '@lib/smAPI/Statistics/GetStreamConnectionMetricDatasSlice';
 import { setIsForced as GetStreamGroupProfilesSetIsForced } from '@lib/smAPI/StreamGroups/GetStreamGroupProfilesSlice';
 import { setIsForced as GetStreamGroupsSetIsForced } from '@lib/smAPI/StreamGroups/GetStreamGroupsSlice';
 import { setIsForced as GetSubScribedHeadendsSetIsForced } from '@lib/smAPI/SchedulesDirect/GetSubScribedHeadendsSlice';
@@ -62,7 +62,7 @@ export const DataRefreshAll = () => {
   store.dispatch(GetSMTasksSetIsForced({ force: true }));
   store.dispatch(GetStationChannelNamesSetIsForced({ force: true }));
   store.dispatch(GetStationPreviewsSetIsForced({ force: true }));
-  store.dispatch(GetStreamConnectionMetricsSetIsForced({ force: true }));
+  store.dispatch(GetStreamConnectionMetricDatasSetIsForced({ force: true }));
   store.dispatch(GetStreamGroupProfilesSetIsForced({ force: true }));
   store.dispatch(GetStreamGroupsSetIsForced({ force: true }));
   store.dispatch(GetSubScribedHeadendsSetIsForced({ force: true }));

@@ -1,23 +1,23 @@
 import { isSkipToken } from '@lib/common/isSkipToken';
 import SignalRService from '@lib/signalr/SignalRService';
-import { ChannelMetric,StreamConnectionMetric,VideoInfo,VideoInfoDto,GetStreamConnectionMetricRequest,GetVideoInfoRequest } from '@lib/smAPI/smapiTypes';
+import { ChannelMetric,StreamConnectionMetricData,VideoInfo,VideoInfoDto,GetStreamConnectionMetricDataRequest,GetVideoInfoRequest } from '@lib/smAPI/smapiTypes';
 
 export const GetChannelMetrics = async (): Promise<ChannelMetric[] | undefined> => {
   const signalRService = SignalRService.getInstance();
   return await signalRService.invokeHubCommand<ChannelMetric[]>('GetChannelMetrics');
 };
 
-export const GetStreamConnectionMetric = async (request: GetStreamConnectionMetricRequest): Promise<StreamConnectionMetric | undefined> => {
+export const GetStreamConnectionMetricData = async (request: GetStreamConnectionMetricDataRequest): Promise<StreamConnectionMetricData | undefined> => {
   if ( request === undefined ) {
     return undefined;
   }
   const signalRService = SignalRService.getInstance();
-  return await signalRService.invokeHubCommand<StreamConnectionMetric>('GetStreamConnectionMetric', request);
+  return await signalRService.invokeHubCommand<StreamConnectionMetricData>('GetStreamConnectionMetricData', request);
 };
 
-export const GetStreamConnectionMetrics = async (): Promise<StreamConnectionMetric[] | undefined> => {
+export const GetStreamConnectionMetricDatas = async (): Promise<StreamConnectionMetricData[] | undefined> => {
   const signalRService = SignalRService.getInstance();
-  return await signalRService.invokeHubCommand<StreamConnectionMetric[]>('GetStreamConnectionMetrics');
+  return await signalRService.invokeHubCommand<StreamConnectionMetricData[]>('GetStreamConnectionMetricDatas');
 };
 
 export const GetVideoInfo = async (request: GetVideoInfoRequest): Promise<VideoInfo | undefined> => {

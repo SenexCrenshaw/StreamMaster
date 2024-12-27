@@ -822,11 +822,11 @@ export interface RemoveSMChannelFromStreamGroupRequest
 export interface GetChannelMetricsRequest
 {
 }
-export interface GetStreamConnectionMetricRequest
+export interface GetStreamConnectionMetricDataRequest
 {
 	Id: string;
 }
-export interface GetStreamConnectionMetricsRequest
+export interface GetStreamConnectionMetricDatasRequest
 {
 }
 export interface GetVideoInfoRequest

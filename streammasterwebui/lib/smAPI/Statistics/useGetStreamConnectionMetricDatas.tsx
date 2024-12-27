@@ -1,13 +1,13 @@
 import { QueryHookResult } from '@lib/apiDefs';
 import store, { RootState } from '@lib/redux/store';
 import { useAppDispatch, useAppSelector } from '@lib/redux/hooks';
-import { clear, clearByTag, setField, setIsForced, setIsLoading } from './GetStreamConnectionMetricsSlice';
+import { clear, clearByTag, setField, setIsForced, setIsLoading } from './GetStreamConnectionMetricDatasSlice';
 import { useCallback,useEffect } from 'react';
 import { useSMContext } from '@lib/context/SMProvider';
-import { fetchGetStreamConnectionMetrics } from './GetStreamConnectionMetricsFetch';
-import {FieldData, StreamConnectionMetric } from '@lib/smAPI/smapiTypes';
+import { fetchGetStreamConnectionMetricDatas } from './GetStreamConnectionMetricDatasFetch';
+import {FieldData, StreamConnectionMetricData } from '@lib/smAPI/smapiTypes';
 
-interface ExtendedQueryHookResult extends QueryHookResult<StreamConnectionMetric[] | undefined> {}
+interface ExtendedQueryHookResult extends QueryHookResult<StreamConnectionMetricData[] | undefined> {}
 interface Result extends ExtendedQueryHookResult {
   Clear: () => void;
   ClearByTag: (tag: string) => void;
@@ -15,10 +15,10 @@ interface Result extends ExtendedQueryHookResult {
   SetIsForced: (force: boolean) => void;
   SetIsLoading: (isLoading: boolean, query: string) => void;
 }
-const useGetStreamConnectionMetrics = (): Result => {
+const useGetStreamConnectionMetricDatas = (): Result => {
   const { isSystemReady } = useSMContext();
   const dispatch = useAppDispatch();
-  const isForced = useAppSelector((state) => state.GetStreamConnectionMetrics.isForced ?? false);
+  const isForced = useAppSelector((state) => state.GetStreamConnectionMetricDatas.isForced ?? false);
 
   const SetIsForced = useCallback(
     (forceRefresh: boolean): void => {
@@ -42,28 +42,28 @@ const SetIsLoading = useCallback(
   [dispatch]
 );
 const selectData = (state: RootState) => {
-    return state.GetStreamConnectionMetrics.data;
+    return state.GetStreamConnectionMetricDatas.data;
   };
 const data = useAppSelector(selectData);
 
 const selectError = (state: RootState) => {
-    return state.GetStreamConnectionMetrics.error;
+    return state.GetStreamConnectionMetricDatas.error;
   };
 const error = useAppSelector(selectError);
 
 const selectIsError = (state: RootState) => {
-    return state.GetStreamConnectionMetrics.isError;
+    return state.GetStreamConnectionMetricDatas.isError;
   };
 const isError = useAppSelector(selectIsError);
 
 const selectIsLoading = (state: RootState) => {
-    return state.GetStreamConnectionMetrics.isLoading;
+    return state.GetStreamConnectionMetricDatas.isLoading;
   };
 const isLoading = useAppSelector(selectIsLoading);
 
 
   useEffect(() => {
-    const state = store.getState().GetStreamConnectionMetrics;
+    const state = store.getState().GetStreamConnectionMetricDatas;
     if (data === undefined && state.isLoading !== true && state.isForced !== true) {
       SetIsForced(true);
     }
@@ -71,12 +71,12 @@ const isLoading = useAppSelector(selectIsLoading);
 
 useEffect(() => {
     if (!isSystemReady) return;
-  const state = store.getState().GetStreamConnectionMetrics;
+  const state = store.getState().GetStreamConnectionMetricDatas;
   if (state.isLoading) return;
   if (data !== undefined && !isForced) return;
 
   SetIsLoading(true);
-  dispatch(fetchGetStreamConnectionMetrics());
+  dispatch(fetchGetStreamConnectionMetricDatas());
 }, [SetIsLoading, data, dispatch, isForced, isSystemReady]);
 
 const SetField = (fieldData: FieldData): void => {
@@ -100,4 +100,4 @@ return {
 };
 };
 
-export default useGetStreamConnectionMetrics;
+export default useGetStreamConnectionMetricDatas;

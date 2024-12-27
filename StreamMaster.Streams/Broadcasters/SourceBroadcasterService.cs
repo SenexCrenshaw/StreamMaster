@@ -18,9 +18,8 @@ namespace StreamMaster.Streams.Broadcasters
         : ISourceBroadcasterService
     {
         private readonly ConcurrentDictionary<string, ISourceBroadcaster> sourceBroadcasters = new();
-        private readonly ConcurrentDictionary<string, int> sourceBroadcasterRetries = new();
         private readonly SemaphoreSlim getOrCreateStreamDistributorSlim = new(1, 1);
-        private readonly ConcurrentDictionary<string, StreamConnectionMetrics> sourceStreamHandlerMetrics = new();
+        private readonly ConcurrentDictionary<string, StreamConnectionMetricManager> sourceStreamHandlerMetrics = new();
 
         /// <inheritdoc />
         public event AsyncEventHandler<StreamBroadcasterStopped>? OnStreamBroadcasterStopped;
@@ -107,9 +106,7 @@ namespace StreamMaster.Streams.Broadcasters
                     }
                 }
 
-                SourceBroadcaster? sourceBroadcaster = await StartStreamAsync(smStreamInfo, channelBroadcaster, setupBroadcaster, cancellationToken);
-
-                return sourceBroadcaster;
+                return await StartStreamAsync(smStreamInfo, channelBroadcaster, setupBroadcaster, cancellationToken);
             }
             finally
             {
@@ -124,25 +121,20 @@ namespace StreamMaster.Streams.Broadcasters
             CancellationToken cancellationToken
             )
         {
-            StreamConnectionMetrics metrics = sourceStreamHandlerMetrics.GetOrAdd(smStreamInfo.Url, _ => new StreamConnectionMetrics(smStreamInfo.Id, smStreamInfo.Url));
-
             SourceBroadcaster sourceBroadcaster = new(sourceBroadcasterLogger, settings, streamFactory, smStreamInfo)
             {
                 IsMultiView = channelBroadcaster != null
             };
             logger.LogInformation("Created new source stream for: {Id} {Name}", smStreamInfo.Id, smStreamInfo.Name);
 
+            StreamConnectionMetricManager metrics = sourceStreamHandlerMetrics.GetOrAdd(smStreamInfo.Url, _ => new StreamConnectionMetricManager(smStreamInfo.Id, smStreamInfo.Url));
+
             long connectionTime = await setupBroadcaster(sourceBroadcaster, channelBroadcaster, cancellationToken).ConfigureAwait(false);
+            metrics.RecordConnectionAttempt(connectionTime: connectionTime);
             if (connectionTime == 0)
             {
-                metrics.RecordConnectionAttempt(wasSuccessful: false);
-                metrics.RecordError();
-                //await StopAndUnRegisterSourceBroadCasterAsync(smStreamInfo.Url).ConfigureAwait(false);
                 return null;
             }
-
-            metrics.RecordConnectionAttempt(wasSuccessful: true);
-            metrics.RecordSuccessConnect(connectionTime);
 
             sourceBroadcaster.OnStreamBroadcasterStopped += OnStreamBroadcasterStoppedEvent;
 
@@ -193,14 +185,11 @@ namespace StreamMaster.Streams.Broadcasters
                 return;
             }
 
-            StreamConnectionMetrics metrics = sourceStreamHandlerMetrics[e.Id];
-
-            int currentRetry = sourceBroadcasterRetries.GetOrAdd(e.Id, 0);
+            StreamConnectionMetricManager metrics = sourceStreamHandlerMetrics[e.Id];
+            int currentRetry = metrics.GetRetryCount();
 
             if (!sourceBroadcaster.IsMultiView && currentRetry < settings.CurrentValue.StreamRetryLimit)
             {
-                currentRetry++;
-                sourceBroadcasterRetries[e.Id] = currentRetry;
                 metrics.IncrementRetryCount();
 
                 logger.LogWarning("Retrying stream {Id} after failure. Attempt {RetryCount}/{RetryLimit}.",
@@ -232,10 +221,7 @@ namespace StreamMaster.Streams.Broadcasters
             }
             else
             {
-                sourceBroadcasterRetries.TryRemove(e.Id, out _);
-                metrics.RecordError();
-
-                logger.LogError("Stream {Id} failed and reached retry limit.", e.Id);
+                logger.LogError("Stream {Id} stopped and/or reached retry limit. {currentRetry}", e.Id, currentRetry);
 
                 await StopAndUnRegisterSourceBroadCasterAsync(e.Id).ConfigureAwait(false);
 
@@ -271,14 +257,14 @@ namespace StreamMaster.Streams.Broadcasters
             }
         }
 
-        public StreamConnectionMetric? GetStreamConnectionMetric(string key)
+        public StreamConnectionMetricData? GetStreamConnectionMetricData(string key)
         {
-            return sourceStreamHandlerMetrics.TryGetValue(key, out StreamConnectionMetrics? metrics) ? metrics.StreamConnectionMetric : null;
+            return sourceStreamHandlerMetrics.TryGetValue(key, out StreamConnectionMetricManager? metrics) ? metrics.MetricData : null;
         }
 
-        public List<StreamConnectionMetric> GetStreamConnectionMetrics()
+        public List<StreamConnectionMetricData> GetStreamConnectionMetrics()
         {
-            return [.. sourceStreamHandlerMetrics.Values.Select(a => a.StreamConnectionMetric)];
+            return [.. sourceStreamHandlerMetrics.Values.Select(a => a.MetricData)];
         }
 
         /// <inheritdoc />

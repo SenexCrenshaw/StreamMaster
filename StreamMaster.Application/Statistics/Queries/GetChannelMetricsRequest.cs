@@ -63,7 +63,7 @@ internal class GetChannelMetricsRequestHandler(
                 continue;
             }
 
-            SMStream? currentStream = smChannel.SMStreams.ElementAtOrDefault(smChannel.CurrentRank)?.SMStream;
+            SMStream? currentStream = smChannel.SMStreams.FirstOrDefault(a => a.Rank == smChannel.CurrentRank)?.SMStream;
             if (currentStream == null)
             {
                 continue;
