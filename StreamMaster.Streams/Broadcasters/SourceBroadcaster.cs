@@ -12,7 +12,7 @@ namespace StreamMaster.Streams.Broadcasters;
 /// <summary>
 /// Represents a source broadcaster that manages the streaming of data to multiple channel broadcasters.
 /// </summary>
-public class SourceBroadcaster(ILogger<ISourceBroadcaster> logger, IOptionsMonitor<Setting> settings, IStreamFactory streamFactory, SMStreamInfo intSMStreamInfo)
+public class SourceBroadcaster(ILogger<ISourceBroadcaster> logger, IOptionsMonitor<Setting> settings, IStreamFactory streamFactory, SMStreamInfo intSMStreamInfo, CancellationToken cancellationToken)
     : ISourceBroadcaster, IDisposable
 {
     private int _isStopped = 0;
@@ -29,7 +29,7 @@ public class SourceBroadcaster(ILogger<ISourceBroadcaster> logger, IOptionsMonit
     /// <inheritdoc/>
     public StreamHandlerMetrics Metrics => StreamMetricsRecorder.Metrics;
     public bool IsMultiView { get; set; }
-
+    public CancellationToken CancellationToken { get; } = cancellationToken;
     /// <inheritdoc/>
     public ConcurrentDictionary<string, IStreamDataToClients> ChannelBroadcasters { get; } = new();
 
@@ -131,8 +131,7 @@ public class SourceBroadcaster(ILogger<ISourceBroadcaster> logger, IOptionsMonit
     private async Task RunPipelineAsync(Stream sourceStream, string name, int bufferSize = 8192, CancellationToken cancellationToken = default)
     {
         byte[] buffer = ArrayPool<byte>.Shared.Rent(bufferSize);
-        CancellationTokenSource? timeoutCts = null;
-        CancellationTokenSource? linkedCts = null;
+
         logger.LogInformation("RunPipelineAsync {Name}", name);
 
         try
@@ -151,7 +150,8 @@ public class SourceBroadcaster(ILogger<ISourceBroadcaster> logger, IOptionsMonit
                 }
 
                 int bytesRead;
-
+                CancellationTokenSource? timeoutCts = null;
+                CancellationTokenSource? linkedCts = null;
                 try
                 {
                     // Create timeout only if StreamReadTimeOutMs > 0
@@ -181,7 +181,7 @@ public class SourceBroadcaster(ILogger<ISourceBroadcaster> logger, IOptionsMonit
                 finally
                 {
                     linkedCts?.Dispose();
-                    timeoutCts?.Dispose(); // Ensure timeoutCts is disposed
+                    timeoutCts?.Dispose();
                 }
 
                 if (bytesRead == 0)
@@ -221,61 +221,44 @@ public class SourceBroadcaster(ILogger<ISourceBroadcaster> logger, IOptionsMonit
         {
             ArrayPool<byte>.Shared.Return(buffer);
 
-            logger.LogInformation("Source Broadcaster stopped: {Name}", Name);
 
-            if (OnStreamBroadcasterStopped != null)
-            {
-                await OnStreamBroadcasterStopped.Invoke(this, new SourceBroadcasterStopped(Id, Name, Interlocked.Equals(_isStopped, 1)));
-            }
         }
 
-        ChannelBroadcasters.Clear();
         await sourceStream.DisposeAsync().ConfigureAwait(false);
+
+        logger.LogInformation("Source Broadcaster stopped: {Name}", Name);
+
+        if (OnStreamBroadcasterStopped is not null)
+        {
+            _ = OnStreamBroadcasterStopped.Invoke(this, new SourceBroadcasterStopped(Id, Name, Volatile.Read(ref _isStopped) == 1));
+        }
     }
 
-    /// <inheritdoc/>
     public async Task StopAsync()
     {
-        //await _stopLock.WaitAsync().ConfigureAwait(false);
+        await _stopLock.WaitAsync().ConfigureAwait(false);
         try
         {
-            if (Interlocked.CompareExchange(ref _isStopped, 1, 0) == 0 && _cancellationTokenSource?.IsCancellationRequested != true)
+            if (Interlocked.CompareExchange(ref _isStopped, 1, 0) == 0)
             {
-                _cancellationTokenSource?.Cancel();
-
-                //if (OnStreamBroadcasterStopped != null)
-                //{
-                //    await OnStreamBroadcasterStopped.Invoke(this, new SourceBroadcasterStopped(Id, Name, true));
-                //}
-
-                if (_streamingTask != null)
+                if (_cancellationTokenSource?.IsCancellationRequested != true)
                 {
-                    try
-                    {
-                        await _streamingTask.ConfigureAwait(false);
-                    }
-                    catch (OperationCanceledException)
-                    {
-                        // Expected during cancellation
-                    }
+                    _cancellationTokenSource?.Cancel();
                 }
-
-                _cancellationTokenSource?.Dispose();
-                _cancellationTokenSource = null;
-                _streamingTask = null;
             }
-
-            logger.LogInformation("Streaming stopped.");
         }
         finally
         {
-            //_stopLock.Release();
+            _stopLock.Release();
         }
     }
 
     /// <inheritdoc/>
     public void Dispose()
     {
+        ChannelBroadcasters.Clear();
+        _streamingTask?.Dispose();
+        _cancellationTokenSource?.Dispose();
         StopAsync().GetAwaiter().GetResult();
         _stopLock.Dispose();
         GC.SuppressFinalize(this);

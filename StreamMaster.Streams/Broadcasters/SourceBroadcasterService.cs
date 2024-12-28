@@ -121,7 +121,7 @@ namespace StreamMaster.Streams.Broadcasters
             CancellationToken cancellationToken
             )
         {
-            SourceBroadcaster sourceBroadcaster = new(sourceBroadcasterLogger, settings, streamFactory, smStreamInfo)
+            SourceBroadcaster sourceBroadcaster = new(sourceBroadcasterLogger, settings, streamFactory, smStreamInfo, cancellationToken)
             {
                 IsMultiView = channelBroadcaster != null
             };
@@ -198,20 +198,17 @@ namespace StreamMaster.Streams.Broadcasters
                 List<KeyValuePair<string, IStreamDataToClients>> channelBroadcasters = [.. sourceBroadcaster.ChannelBroadcasters];
                 SMStreamInfo smStreamInfo = sourceBroadcaster.SMStreamInfo;
 
-                //await sourceBroadcaster.StopAsync().ConfigureAwait(false);
-                await Task.Delay(250);
+                await StopAndUnRegisterSourceBroadCasterAsync(e.Id).ConfigureAwait(false);
 
                 ISourceBroadcaster? newBroadcaster = await GetOrCreateSourceBroadcasterInternalAsync(
-                    smStreamInfo,
-                    channelBroadcaster: null,
-                    async (newSourceBroadcaster, _, token) => await newSourceBroadcaster
-                        .SetSourceStreamAsync(smStreamInfo, token)
-                        .ConfigureAwait(false),
-                    false,
-                    CancellationToken.None
-                ).ConfigureAwait(false);
-
-                StreamConnectionMetricManager metrics2 = sourceStreamHandlerMetrics.GetOrAdd(smStreamInfo.Url, _ => new StreamConnectionMetricManager(smStreamInfo.Id, smStreamInfo.Url));
+                      smStreamInfo,
+                      channelBroadcaster: null,
+                      async (sourceBroadcaster, _, token) => await sourceBroadcaster
+                          .SetSourceStreamAsync(smStreamInfo, token)
+                          .ConfigureAwait(false),
+                      true,
+                      sourceBroadcaster.CancellationToken
+                  ).ConfigureAwait(false);
 
                 if (newBroadcaster != null)
                 {

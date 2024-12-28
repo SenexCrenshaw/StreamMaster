@@ -106,26 +106,23 @@ public class ChannelBroadcasterService(
         if (cacheManager.ChannelBroadcasters.TryRemove(channelBroadcasterId, out IChannelBroadcaster? channelBroadcaster))
         {
             channelBroadcaster.Shutdown = true;
+            await sourceBroadcasterService.UnRegisterChannelBroadcasterAsync(channelBroadcaster.Id);
+
             foreach (IClientConfiguration client in channelBroadcaster.Clients.Values)
             {
                 if (channelBroadcaster.RemoveClient(client.UniqueRequestId))
                 {
                     logger.LogDebug("Client configuration for {UniqueRequestId} removed", client.UniqueRequestId);
-                    if (channelBroadcaster.ClientConfigurationsEmpty)
-                    {
-                        await StopChannelBroadcasterAsync(channelBroadcaster).ConfigureAwait(false);
-                    }
+                    //if (channelBroadcaster.ClientConfigurationsEmpty)
+                    //{
+                    //    sourceBroadcasterService.UnRegisterChannelBroadcasterAsync(channelBroadcaster.Id);
+                    //}
                 }
             }
 
             channelBroadcaster.Shutdown = true;
 
             channelBroadcaster.Stop();
-
-            if (channelBroadcaster.SMStreamInfo != null)
-            {
-                await sourceBroadcasterService.UnRegisterChannelBroadcasterAsync(channelBroadcaster.Id);
-            }
 
             channelLockService.ReleaseLock(channelBroadcaster.Id);
             channelLockService.RemoveLock(channelBroadcasterId);
@@ -143,6 +140,11 @@ public class ChannelBroadcasterService(
             if (channelBroadcaster.RemoveClient(uniqueRequestId))
             {
                 logger.LogDebug("Client configuration for {UniqueRequestId} removed", uniqueRequestId);
+                //if (channelBroadcaster.ClientConfigurationsEmpty)
+                //{
+                //    await sourceBroadcasterService.UnRegisterChannelBroadcasterAsync(channelBroadcaster.Id);
+                //    StopAndUnRegisterSourceBroadCasterAsync
+                //}
                 if (channelBroadcaster.ClientConfigurationsEmpty)
                 {
                     await StopChannelBroadcasterAsync(channelBroadcaster, noDelay).ConfigureAwait(false);
