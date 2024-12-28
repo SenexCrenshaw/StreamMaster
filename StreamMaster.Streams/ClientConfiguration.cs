@@ -173,6 +173,10 @@ public class ClientConfiguration : IClientConfiguration, IDisposable
         {
             logger.LogWarning("Client {ClientId} inactive for too long and has been canceled.", UniqueRequestId);
         }
+        catch (ObjectDisposedException)
+        {
+
+        }
         catch (Exception ex)
         {
             logger.LogError(ex, "Unexpected error during streaming for client {ClientId}.", UniqueRequestId);
