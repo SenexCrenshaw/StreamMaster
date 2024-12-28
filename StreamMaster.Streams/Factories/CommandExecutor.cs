@@ -43,6 +43,9 @@ public class CommandExecutor(ILogger<CommandExecutor> logger) : ICommandExecutor
             string stderrFilePath = Path.Combine(BuildInfo.CommandErrorFolder, $"stderr_{_process.Id}.log");
             errorWriter = new StreamWriter(stderrFilePath, append: true, Encoding.UTF8);
 
+            // Clean up older logs to keep only the latest 10
+            CleanupOldLogs(BuildInfo.CommandErrorFolder, 10);
+
             _process.ErrorDataReceived += (_, e) =>
             {
                 if (!string.IsNullOrWhiteSpace(e.Data))
@@ -77,6 +80,43 @@ public class CommandExecutor(ILogger<CommandExecutor> logger) : ICommandExecutor
         finally
         {
             stopwatch.Stop();
+        }
+    }
+
+    private void CleanupOldLogs(string directoryPath, int maxLogsToKeep)
+    {
+        try
+        {
+            if (!Directory.Exists(directoryPath))
+            {
+                return;
+            }
+
+            List<FileInfo> logFiles = new DirectoryInfo(directoryPath)
+                .GetFiles("stderr_*.log")
+                .OrderByDescending(f => f.CreationTime)
+                .ToList();
+
+            if (logFiles.Count <= maxLogsToKeep)
+            {
+                return; // Nothing to clean up
+            }
+
+            foreach (FileInfo? file in logFiles.Skip(maxLogsToKeep))
+            {
+                try
+                {
+                    file.Delete();
+                }
+                catch (Exception ex)
+                {
+                    logger.LogWarning(ex, "Failed to delete old log file: {FileName}", file.FullName);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error cleaning up old logs in directory: {Directory}", directoryPath);
         }
     }
 

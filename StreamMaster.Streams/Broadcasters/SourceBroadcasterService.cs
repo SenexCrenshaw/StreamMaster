@@ -120,7 +120,7 @@ namespace StreamMaster.Streams.Broadcasters
             CancellationToken cancellationToken
             )
         {
-            StreamConnectionMetricManager metrics = streamConnectionService.GetOrAdd(smStreamInfo.Id, smStreamInfo.Url);
+            StreamConnectionMetricManager metrics = streamConnectionService.GetOrAdd(FileUtil.EncodeToMD5(smStreamInfo.Url), smStreamInfo.Url);
 
             SourceBroadcaster sourceBroadcaster = new(sourceBroadcasterLogger, metrics, settings, streamFactory, smStreamInfo, cancellationToken)
             {
@@ -187,52 +187,46 @@ namespace StreamMaster.Streams.Broadcasters
 
             if (!sourceBroadcaster.IsFailed && !e.IsCancelled && !sourceBroadcaster.ChannelBroadcasters.IsEmpty && !sourceBroadcaster.IsMultiView)
             {
-                StreamConnectionMetricManager? metrics = streamConnectionService.Get(e.Id);
-                if (metrics is not null)
+
+                int currentRetry = sourceBroadcaster.MetricManager.GetRetryCount();
+
+                if (currentRetry >= settings.CurrentValue.StreamRetryLimit)
                 {
-                    int currentRetry = metrics.GetRetryCount();
-
-                    if (currentRetry >= settings.CurrentValue.StreamRetryLimit)
-                    {
-                        logger.LogInformation("Stream {Name} retry limit ({currentRetry}) reached.", sourceBroadcaster.SMStreamInfo.Name, currentRetry);
-                        metrics.RecordError();
-                    }
-                    else
-                    {
-                        metrics.IncrementRetryCount();
-
-                        logger.LogInformation("Retrying stream {Name} {RetryCount}/{RetryLimit}.",
-                                          sourceBroadcaster.SMStreamInfo.Name, currentRetry, settings.CurrentValue.StreamRetryLimit);
-
-                        List<KeyValuePair<string, IStreamDataToClients>> channelBroadcasters = [.. sourceBroadcaster.ChannelBroadcasters];
-                        SMStreamInfo smStreamInfo = sourceBroadcaster.SMStreamInfo;
-
-                        await StopAndUnRegisterSourceBroadCasterAsync(e.Id).ConfigureAwait(false);
-
-                        ISourceBroadcaster? newBroadcaster = await GetOrCreateSourceBroadcasterInternalAsync(
-                              smStreamInfo,
-                              channelBroadcaster: null,
-                              async (sourceBroadcaster, _, token) => await sourceBroadcaster
-                                  .SetSourceStreamAsync(smStreamInfo, token)
-                                  .ConfigureAwait(false),
-                              true,
-                              sourceBroadcaster.CancellationToken
-                          ).ConfigureAwait(false);
-
-                        if (newBroadcaster != null)
-                        {
-                            foreach (KeyValuePair<string, IStreamDataToClients> channelBroadcaster in channelBroadcasters)
-                            {
-                                newBroadcaster.AddChannelBroadcaster(channelBroadcaster.Key, channelBroadcaster.Value);
-                            }
-                        }
-                        return;
-                    }
+                    logger.LogInformation("Stream {Name} retry limit ({currentRetry}) reached.", sourceBroadcaster.SMStreamInfo.Name, currentRetry);
+                    sourceBroadcaster.MetricManager.RecordError();
                 }
                 else
                 {
-                    logger.LogWarning("Stream {Name} metrics not found.", sourceBroadcaster.SMStreamInfo.Name);
+                    sourceBroadcaster.MetricManager.IncrementRetryCount();
+
+                    logger.LogInformation("Retrying stream {Name} {RetryCount}/{RetryLimit}.",
+                                      sourceBroadcaster.SMStreamInfo.Name, currentRetry, settings.CurrentValue.StreamRetryLimit);
+
+                    List<KeyValuePair<string, IStreamDataToClients>> channelBroadcasters = [.. sourceBroadcaster.ChannelBroadcasters];
+                    SMStreamInfo smStreamInfo = sourceBroadcaster.SMStreamInfo;
+
+                    await StopAndUnRegisterSourceBroadCasterAsync(e.Id).ConfigureAwait(false);
+
+                    ISourceBroadcaster? newBroadcaster = await GetOrCreateSourceBroadcasterInternalAsync(
+                          smStreamInfo,
+                          channelBroadcaster: null,
+                          async (sourceBroadcaster, _, token) => await sourceBroadcaster
+                              .SetSourceStreamAsync(smStreamInfo, token)
+                              .ConfigureAwait(false),
+                          true,
+                          sourceBroadcaster.CancellationToken
+                      ).ConfigureAwait(false);
+
+                    if (newBroadcaster != null)
+                    {
+                        foreach (KeyValuePair<string, IStreamDataToClients> channelBroadcaster in channelBroadcasters)
+                        {
+                            newBroadcaster.AddChannelBroadcaster(channelBroadcaster.Key, channelBroadcaster.Value);
+                        }
+                    }
+                    return;
                 }
+
             }
 
             logger.LogInformation("Stream {Name} stopped.", sourceBroadcaster.SMStreamInfo.Name);

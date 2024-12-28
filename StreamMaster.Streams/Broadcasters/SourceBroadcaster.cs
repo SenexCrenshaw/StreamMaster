@@ -18,6 +18,7 @@ public class SourceBroadcaster(ILogger<ISourceBroadcaster> logger, StreamConnect
     private int _isStopped = 0;
 
     public bool IsStopped => _isStopped == 1;
+    public StreamConnectionMetricManager MetricManager => streamConnectionMetricManager;
 
     private readonly StreamMetricsRecorder StreamMetricsRecorder = new();
     private readonly SemaphoreSlim _stopLock = new(1, 1);

@@ -12,6 +12,7 @@ namespace StreamMaster.Streams.Domain.Interfaces;
 /// </summary>
 public interface ISourceBroadcaster
 {
+    StreamConnectionMetricManager MetricManager { get; }
     CancellationToken CancellationToken { get; }
     bool IsStopped { get; }
     bool IsMultiView { get; set; }
