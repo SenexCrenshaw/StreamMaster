@@ -54,6 +54,8 @@ public class StreamConnectionService : IStreamConnectionService
 
     public StreamConnectionMetricManager GetOrAdd(string id, string streamUrl)
     {
-        return streamConnectionMetrics.GetOrAdd(id, _ => new StreamConnectionMetricManager(id, streamUrl));
+        StreamConnectionMetricManager ret = streamConnectionMetrics.GetOrAdd(id, _ => new StreamConnectionMetricManager(id, streamUrl));
+        ret.SetLastConnectionAttemptTime();
+        return ret;
     }
 }

@@ -45,7 +45,7 @@ public class StreamConnectionMetricManager
         SignalMetricsChanged();
     }
 
-    public void SetRetyTime()
+    public void SetLastConnectionAttemptTime()
     {
         lock (lockObj)
         {

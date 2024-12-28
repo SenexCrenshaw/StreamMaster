@@ -50,7 +50,7 @@ public sealed class SwitchToNextStreamService(
                 logger.LogInformation("Stream {Name} retry limit ({currentRetry}) reached.", smStream.Name, currentRetry);
                 return false;
             }
-            metricData.SetRetyTime();
+            metricData.SetLastConnectionAttemptTime();
         }
 
         return streamLimitsService.IsLimited(smStream)
