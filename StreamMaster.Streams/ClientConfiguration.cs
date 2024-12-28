@@ -175,7 +175,6 @@ public class ClientConfiguration : IClientConfiguration, IDisposable
         }
         catch (ObjectDisposedException)
         {
-
         }
         catch (Exception ex)
         {

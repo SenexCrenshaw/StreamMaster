@@ -1,7 +1,6 @@
 ﻿using StreamMaster.Domain.Events;
 using StreamMaster.Domain.Models;
 using StreamMaster.Streams.Domain.Events;
-using StreamMaster.Streams.Domain.Metrics;
 
 namespace StreamMaster.Streams.Domain.Interfaces;
 
@@ -10,9 +9,6 @@ namespace StreamMaster.Streams.Domain.Interfaces;
 /// </summary>
 public interface ISourceBroadcasterService
 {
-    StreamConnectionMetricData? GetStreamConnectionMetricData(string key);
-    List<StreamConnectionMetricData> GetStreamConnectionMetrics();
-
     /// <summary>
     /// Occurs when a source broadcaster is stopped.
     /// </summary>

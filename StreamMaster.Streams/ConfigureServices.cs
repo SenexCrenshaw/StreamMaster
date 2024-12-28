@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using StreamMaster.Streams.Broadcasters;
 using StreamMaster.Streams.Channels;
 using StreamMaster.Streams.Domain;
+using StreamMaster.Streams.Domain.Metrics;
 using StreamMaster.Streams.Factories;
 using StreamMaster.Streams.Plugins;
 using StreamMaster.Streams.Services;
@@ -14,7 +15,7 @@ public static class ConfigureServices
 {
     public static IServiceCollection AddStreamsServices(this IServiceCollection services)
     {
-        //services.AddSingleton<IChannelManager, ChannelManager>();
+        services.AddSingleton<IStreamConnectionService, StreamConnectionService>();
         services.AddSingleton<IChannelService, ChannelService>();
         services.AddSingleton<IStreamFactory, StreamFactory>();
         services.AddTransient<ICommandExecutor, CommandExecutor>();

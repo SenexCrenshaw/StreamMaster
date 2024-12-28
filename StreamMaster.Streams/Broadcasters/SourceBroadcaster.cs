@@ -12,12 +12,13 @@ namespace StreamMaster.Streams.Broadcasters;
 /// <summary>
 /// Represents a source broadcaster that manages the streaming of data to multiple channel broadcasters.
 /// </summary>
-public class SourceBroadcaster(ILogger<ISourceBroadcaster> logger, IOptionsMonitor<Setting> settings, IStreamFactory streamFactory, SMStreamInfo intSMStreamInfo, CancellationToken cancellationToken)
+public class SourceBroadcaster(ILogger<ISourceBroadcaster> logger, StreamConnectionMetricManager streamConnectionMetricManager, IOptionsMonitor<Setting> settings, IStreamFactory streamFactory, SMStreamInfo intSMStreamInfo, CancellationToken cancellationToken)
     : ISourceBroadcaster, IDisposable
 {
     private int _isStopped = 0;
 
     public bool IsStopped => _isStopped == 1;
+
     private readonly StreamMetricsRecorder StreamMetricsRecorder = new();
     private readonly SemaphoreSlim _stopLock = new(1, 1);
 
@@ -37,7 +38,7 @@ public class SourceBroadcaster(ILogger<ISourceBroadcaster> logger, IOptionsMonit
     public event AsyncEventHandler<SourceBroadcasterStopped>? OnStreamBroadcasterStopped;
 
     /// <inheritdoc/>
-    public bool IsFailed { get; }
+    public bool IsFailed { get; private set; }
 
     /// <inheritdoc/>
     public string Id => SMStreamInfo.Url;
@@ -133,7 +134,8 @@ public class SourceBroadcaster(ILogger<ISourceBroadcaster> logger, IOptionsMonit
         byte[] buffer = ArrayPool<byte>.Shared.Rent(bufferSize);
 
         logger.LogInformation("RunPipelineAsync {Name}", name);
-
+        bool hasReadData = false;
+        bool recorded = false;
         try
         {
             if (ChannelBroadcasters.IsEmpty)
@@ -181,6 +183,7 @@ public class SourceBroadcaster(ILogger<ISourceBroadcaster> logger, IOptionsMonit
                 catch (Exception ex)
                 {
                     logger.LogError(ex, "Read operation exception");
+
                     break;
                 }
                 finally
@@ -191,9 +194,26 @@ public class SourceBroadcaster(ILogger<ISourceBroadcaster> logger, IOptionsMonit
 
                 if (bytesRead == 0)
                 {
-                    logger.LogInformation("End of the source stream.");
+                    if (!hasReadData)
+                    {
+                        streamConnectionMetricManager.RecordError();
+                        logger.LogError("Source stream connection failed");
+                        IsFailed = true;
+                    }
+                    else
+                    {
+                        logger.LogError("Source stream read error: Stream closed unexpectedly");
+                    }
                     break;
                 }
+
+                if (!recorded)
+                {
+                    recorded = true;
+                    streamConnectionMetricManager.RecordSuccessConnect();
+                }
+
+                hasReadData = true;
 
                 List<KeyValuePair<string, IStreamDataToClients>> broadcastersSnapshot = [.. ChannelBroadcasters];
                 using SemaphoreSlim semaphore = new(10); // Limit concurrency to 10

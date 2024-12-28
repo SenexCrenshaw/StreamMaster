@@ -2,7 +2,6 @@
 
 public class StreamConnectionMetricData(string? StreamUrl = null)
 {
-    public long TimeToConnectMs { get; set; }
     public DateTime? LastSuccessConnect { get; set; }
     public DateTime? LastErrorTime { get; set; }
     public DateTime? LastRetryTime { get; set; }

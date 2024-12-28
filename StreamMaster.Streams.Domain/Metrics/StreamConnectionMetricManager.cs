@@ -16,11 +16,10 @@ public class StreamConnectionMetricManager
         MetricData = StreamConnectionMetricSerializer.Load(metricsFilePath, streamUrl);
     }
 
-    public void RecordSuccessConnect(long connectionTime)
+    public void RecordSuccessConnect()
     {
         lock (lockObj)
         {
-            MetricData.TimeToConnectMs = connectionTime;
             MetricData.LastSuccessConnect = DateTime.UtcNow;
             MetricData.RetryCount = 0;
         }
@@ -54,19 +53,11 @@ public class StreamConnectionMetricManager
         }
     }
 
-    public void RecordConnectionAttempt(long connectionTime)
+    public void RecordConnectionAttempt()
     {
         lock (lockObj)
         {
             MetricData.TotalConnectionAttempts++;
-            if (connectionTime != 0)
-            {
-                RecordSuccessConnect(connectionTime);
-            }
-            else
-            {
-                RecordError();
-            }
         }
         SignalMetricsChanged();
     }

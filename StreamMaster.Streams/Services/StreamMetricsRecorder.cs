@@ -44,6 +44,13 @@ public class StreamMetricsRecorder : IStreamMetricsRecorder, IDisposable
         {
             bytesRead = await action().ConfigureAwait(false);
         }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            Debug.WriteLine(ex);
+        }
+        catch (Exception)
+        {
+        }
         finally
         {
             stopwatch.Stop();
