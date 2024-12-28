@@ -48,8 +48,9 @@ public class StreamMetricsRecorder : IStreamMetricsRecorder, IDisposable
         {
             Debug.WriteLine(ex);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            Debug.WriteLine(ex);
         }
         finally
         {

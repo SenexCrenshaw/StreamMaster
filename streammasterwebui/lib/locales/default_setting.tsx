@@ -23,6 +23,7 @@ const defaultSetting: DefaultSettingType = {
   FFMpegOptions: '-hide_banner -loglevel error -i {streamUrl} -c copy -f mpegts pipe:1',
   FFProbeExecutable: 'ffprobe',
   ReadTimeOutMs: '0 - Disabled',
+  StreamRetryHours: '1',
   StreamStartTimeoutMs: '0 - Disabled',
   StreamReadTimeOutMs: '0 - Disabled',
   StreamRetryLimit: '3',

@@ -359,7 +359,7 @@ public sealed class ChannelService : IChannelService
             {
                 logger.LogDebug("Exiting SwitchToNextStream with false due to smStream being null");
                 channelBroadcaster.FailoverInProgress = false;
-                return false;
+                continue;
             }
 
             sourceBroadcaster = await _sourceBroadcasterService.GetOrCreateStreamBroadcasterAsync(channelBroadcaster.SMStreamInfo, CancellationToken.None).ConfigureAwait(false);

@@ -71,6 +71,7 @@ export function StreamingSettings(): React.ReactElement {
       {GetInputNumberLine({ field: 'StreamRetryLimit', max: 999999 })}
       {GetInputNumberLine({ field: 'ClientReadTimeoutMs', max: 999999 })}
       {GetInputNumberLine({ field: 'StreamShutDownDelayMs', max: 999999 })}
+      {GetInputNumberLine({ field: 'StreamRetryHours', max: 999999 })}
 
       {GetInputNumberLine({ field: 'GlobalStreamLimit' })}
 

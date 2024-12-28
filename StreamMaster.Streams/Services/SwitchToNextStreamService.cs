@@ -16,6 +16,7 @@ public sealed class SwitchToNextStreamService(
     IServiceProvider serviceProvider,
     IIntroPlayListBuilder introPlayListBuilder,
     ICustomPlayListBuilder customPlayListBuilder,
+        IStreamConnectionService streamConnectionService,
     IOptionsMonitor<Setting> settingsMonitor) : ISwitchToNextStreamService
 {
     /// <inheritdoc/>
@@ -37,6 +38,18 @@ public sealed class SwitchToNextStreamService(
         {
             HandleStreamNotFound(channelStatus);
             return false;
+        }
+
+        Domain.Metrics.StreamConnectionMetricManager? test = streamConnectionService.Get(smStream.Id);
+        if (test is not null)
+        {
+            int currentRetry = test.GetRetryCount();
+
+            if (currentRetry >= settings.StreamRetryLimit && test.MetricData.LastRetryTime is not null && test.MetricData.LastRetryTime.Value.AddHours(settings.StreamRetryHours) > DateTime.UtcNow)
+            {
+                logger.LogInformation("Stream {Name} retry limit ({currentRetry}) reached.", smStream.Name, currentRetry);
+                return false;
+            }
         }
 
         return streamLimitsService.IsLimited(smStream)

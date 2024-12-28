@@ -24,6 +24,7 @@ public class UpdateSettingParameters
     public int? ClientReadTimeoutMs { get; set; }
     public int? StreamRetryLimit { get; set; }
     public int? StreamShutDownDelayMs { get; set; }
+    public int? StreamRetryHours { get; set; }
 
     public string? AuthenticationMethod { get; set; }
     public bool? LogoCache { get; set; }

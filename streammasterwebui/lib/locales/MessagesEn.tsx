@@ -66,6 +66,7 @@ const MessagesEn: messages_enType = {
   StreamRetryLimit: 'Stream Retry Limit',
   StreamReadTimeOutMs: 'Stream Read Timeout',
   StreamStartTimeoutMs: 'Stream Start Timeout',
+  StreamRetryHours: 'Stream Retry Hours',
   filesEPGM3U: 'Files / EPG / M3U',
   formsAuthRequiresAdminUserName: 'Forms Authentication requires an Admin Username',
   general: 'General',

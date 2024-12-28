@@ -277,6 +277,7 @@ export interface SettingDto
 	SSLCertPassword: string;
 	SSLCertPath: string;
 	StreamReadTimeOutMs: number;
+	StreamRetryHours: number;
 	StreamRetryLimit: number;
 	StreamShutDownDelayMs: number;
 	StreamStartTimeoutMs: number;
@@ -1181,6 +1182,7 @@ export interface UpdateSettingParameters
 	SSLCertPassword?: string;
 	SSLCertPath?: string;
 	StreamReadTimeOutMs?: number;
+	StreamRetryHours?: number;
 	StreamRetryLimit?: number;
 	StreamShutDownDelayMs?: number;
 	StreamStartTimeoutMs?: number;

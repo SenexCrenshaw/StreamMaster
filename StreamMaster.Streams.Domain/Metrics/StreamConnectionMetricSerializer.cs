@@ -6,23 +6,23 @@ namespace StreamMaster.Streams.Domain.Metrics;
 
 public static class StreamConnectionMetricSerializer
 {
-    public static StreamConnectionMetricData Load(string filePath, string streamUrl)
+    public static StreamConnectionMetricData? Load(string filePath, string? streamUrl = null)
     {
         if (!File.Exists(filePath))
         {
-            return new StreamConnectionMetricData(streamUrl);
+            return streamUrl is null ? null : new StreamConnectionMetricData(streamUrl);
         }
 
         try
         {
             using FileStream openStream = File.OpenRead(filePath);
             return JsonSerializer.Deserialize<StreamConnectionMetricData>(openStream) ??
-                   new StreamConnectionMetricData(streamUrl);
+                   (streamUrl is null ? null : new StreamConnectionMetricData(streamUrl));
         }
         catch (Exception ex)
         {
             Console.Error.WriteLine($"Error loading metrics from {filePath}: {ex}");
-            return new StreamConnectionMetricData(streamUrl);
+            return streamUrl is null ? null : new StreamConnectionMetricData(streamUrl);
         }
     }
 

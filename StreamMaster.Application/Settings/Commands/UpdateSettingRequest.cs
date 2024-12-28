@@ -385,6 +385,11 @@ public partial class UpdateSettingRequestHandler(
             currentSetting.NameRegex = request.Parameters.NameRegex;
         }
 
+        if (request.Parameters.StreamRetryHours.HasValue && request.Parameters.StreamRetryHours >= 0)
+        {
+            currentSetting.StreamRetryHours = request.Parameters.StreamRetryHours.Value;
+        }
+
         if (request.Parameters.AuthenticationMethod != null && request.Parameters.AuthenticationMethod != currentSetting.AuthenticationMethod)
         {
             needsLogOut = true;

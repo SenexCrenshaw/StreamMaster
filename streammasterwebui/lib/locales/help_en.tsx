@@ -35,7 +35,7 @@ const help_en: help_enType = {
   StreamRetryLimit: 'How many times to retry a stream',
   StreamReadTimeOutMs: 'Time to wait to read from the source stream in MS',
   StreamStartTimeoutMs: 'Time to wait to start the source stream in MS',
-
+  StreamRetryHours: 'How many hours to wait before retrying a stream',
   general: 'General',
   GlobalStreamLimit: 'Limit for Custom Streams that do not belong to a M3U playlist',
   keywordSearch: 'Keyword Search',

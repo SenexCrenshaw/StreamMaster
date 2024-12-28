@@ -128,7 +128,6 @@ namespace StreamMaster.Streams.Broadcasters
             };
             logger.LogInformation("Created new source stream for: {Id} {Name}", smStreamInfo.Id, smStreamInfo.Name);
 
-
             long connectionTime = await setupBroadcaster(sourceBroadcaster, channelBroadcaster, cancellationToken).ConfigureAwait(false);
             metrics.RecordConnectionAttempt();
             if (connectionTime == 0)
@@ -187,7 +186,6 @@ namespace StreamMaster.Streams.Broadcasters
 
             if (!sourceBroadcaster.IsFailed && !e.IsCancelled && !sourceBroadcaster.ChannelBroadcasters.IsEmpty && !sourceBroadcaster.IsMultiView)
             {
-
                 int currentRetry = sourceBroadcaster.MetricManager.GetRetryCount();
 
                 if (currentRetry >= settings.CurrentValue.StreamRetryLimit)
@@ -226,7 +224,6 @@ namespace StreamMaster.Streams.Broadcasters
                     }
                     return;
                 }
-
             }
 
             logger.LogInformation("Stream {Name} stopped.", sourceBroadcaster.SMStreamInfo.Name);

@@ -13,7 +13,17 @@ public class StreamConnectionMetricManager
     public StreamConnectionMetricManager(string id, string streamUrl)
     {
         metricsFilePath = Path.Combine(BuildInfo.StreamHealthFolder, $"{id}.json");
-        MetricData = StreamConnectionMetricSerializer.Load(metricsFilePath, streamUrl);
+
+        StreamConnectionMetricData? metricData = StreamConnectionMetricSerializer.Load(metricsFilePath, streamUrl);
+        if (metricData is not null)
+        {
+            MetricData = metricData;
+        }
+        else
+        {
+            MetricData = new StreamConnectionMetricData(streamUrl);
+            SignalMetricsChanged();
+        }
     }
 
     public void RecordSuccessConnect()
