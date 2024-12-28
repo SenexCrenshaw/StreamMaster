@@ -11,7 +11,7 @@ public sealed class ChannelService : IChannelService
     private readonly ISourceBroadcasterService _sourceBroadcasterService;
     private readonly IChannelBroadcasterService _channelBroadcasterService;
     private readonly IStreamLimitsService _streamLimitsService;
-    private readonly ChannelLockService _channelLockService = new();
+    private readonly ChannelLockService<int> _channelLockService = new();
     private readonly ICacheManager _cacheManager;
     private readonly IMessageService messageService;
     private readonly Lock _disposeLock = new();
@@ -330,13 +330,6 @@ public sealed class ChannelService : IChannelService
     {
         return [.. _cacheManager.ChannelBroadcasters.Values];
     }
-
-    //private static bool ChannelHasStreamsOrChannels(SMChannel smChannel)
-    //{
-    //    return smChannel.SMChannelType == StreamMaster.Domain.Enums.SMChannelTypeEnum.MultiView
-    //        ? smChannel.SMChannels.Count > 0
-    //        : smChannel.SMStreams.Count > 0 && !string.IsNullOrEmpty(smChannel.SMStreams.First().SMStream!.Url);
-    //}
 
     public bool HasChannel(int smChannelId)
     {

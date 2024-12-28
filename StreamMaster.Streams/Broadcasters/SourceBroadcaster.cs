@@ -128,7 +128,7 @@ public class SourceBroadcaster(ILogger<ISourceBroadcaster> logger, IOptionsMonit
     }
 
     /// <inheritdoc/>
-    private async Task RunPipelineAsync(Stream sourceStream, string name, int bufferSize = 8192, CancellationToken cancellationToken = default)
+    private async Task RunPipelineAsync(Stream sourceStream, string name, int bufferSize = 16 * 1024, CancellationToken cancellationToken = default)
     {
         byte[] buffer = ArrayPool<byte>.Shared.Rent(bufferSize);
 
@@ -161,8 +161,8 @@ public class SourceBroadcaster(ILogger<ISourceBroadcaster> logger, IOptionsMonit
                     }
 
                     linkedCts = timeoutCts is not null
-            ? CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutCts.Token)
-            : CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+                                ? CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutCts.Token)
+                                : CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
 
                     bytesRead = await StreamMetricsRecorder.RecordMetricsAsync(
                         () => sourceStream.ReadAsync(buffer.AsMemory(0, bufferSize), linkedCts.Token),
@@ -220,8 +220,6 @@ public class SourceBroadcaster(ILogger<ISourceBroadcaster> logger, IOptionsMonit
         finally
         {
             ArrayPool<byte>.Shared.Return(buffer);
-
-
         }
 
         await sourceStream.DisposeAsync().ConfigureAwait(false);

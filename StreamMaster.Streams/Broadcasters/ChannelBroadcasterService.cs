@@ -18,7 +18,7 @@ public class ChannelBroadcasterService(
 {
     //private readonly ConcurrentDictionary<int, SemaphoreSlim> channelSemaphores = new();
 
-    private readonly ChannelLockService channelLockService = new();
+    private readonly ChannelLockService<int> channelLockService = new();
     private bool disposed;
 
     /// <inheritdoc/>

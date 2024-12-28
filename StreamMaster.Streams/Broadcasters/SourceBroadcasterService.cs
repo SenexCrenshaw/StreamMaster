@@ -3,6 +3,7 @@
 using StreamMaster.Domain.Events;
 using StreamMaster.Streams.Domain.Events;
 using StreamMaster.Streams.Domain.Metrics;
+using StreamMaster.Streams.Services;
 
 namespace StreamMaster.Streams.Broadcasters
 {
@@ -17,8 +18,8 @@ namespace StreamMaster.Streams.Broadcasters
         IStreamFactory streamFactory)
         : ISourceBroadcasterService
     {
+        private readonly ChannelLockService<string> channelLockService = new();
         private readonly ConcurrentDictionary<string, ISourceBroadcaster> sourceBroadcasters = new();
-        private readonly SemaphoreSlim getOrCreateStreamDistributorSlim = new(1, 1);
         private readonly ConcurrentDictionary<string, StreamConnectionMetricManager> sourceStreamHandlerMetrics = new();
 
         /// <inheritdoc />
@@ -88,9 +89,7 @@ namespace StreamMaster.Streams.Broadcasters
             {
                 return null;
             }
-
-            await getOrCreateStreamDistributorSlim.WaitAsync(cancellationToken).ConfigureAwait(false);
-
+            await channelLockService.AcquireLockAsync(smStreamInfo.Id);
             try
             {
                 if (reUseExisting && sourceBroadcasters.TryGetValue(smStreamInfo.Url, out ISourceBroadcaster? existingBroadcaster))
@@ -110,7 +109,7 @@ namespace StreamMaster.Streams.Broadcasters
             }
             finally
             {
-                getOrCreateStreamDistributorSlim.Release();
+                channelLockService.ReleaseLock(smStreamInfo.Id);
             }
         }
 
