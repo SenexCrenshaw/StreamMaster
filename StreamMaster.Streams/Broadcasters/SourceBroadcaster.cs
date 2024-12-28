@@ -178,6 +178,11 @@ public class SourceBroadcaster(ILogger<ISourceBroadcaster> logger, IOptionsMonit
                     logger.LogWarning("Read operation timed out after {ms}ms.", settings.CurrentValue.StreamReadTimeOutMs);
                     break;
                 }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, "Read operation exception");
+                    break;
+                }
                 finally
                 {
                     linkedCts?.Dispose();
@@ -220,15 +225,17 @@ public class SourceBroadcaster(ILogger<ISourceBroadcaster> logger, IOptionsMonit
         finally
         {
             ArrayPool<byte>.Shared.Return(buffer);
-        }
+            if (sourceStream is not null)
+            {
+                await sourceStream.DisposeAsync().ConfigureAwait(false);
+            }
 
-        await sourceStream.DisposeAsync().ConfigureAwait(false);
+            logger.LogInformation("Source Broadcaster stopped: {Name}", Name);
 
-        logger.LogInformation("Source Broadcaster stopped: {Name}", Name);
-
-        if (OnStreamBroadcasterStopped is not null)
-        {
-            _ = OnStreamBroadcasterStopped.Invoke(this, new SourceBroadcasterStopped(Id, Name, Volatile.Read(ref _isStopped) == 1));
+            if (OnStreamBroadcasterStopped is not null)
+            {
+                _ = OnStreamBroadcasterStopped.Invoke(this, new SourceBroadcasterStopped(Id, Name, Volatile.Read(ref _isStopped) == 1));
+            }
         }
     }
 

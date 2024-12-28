@@ -184,49 +184,51 @@ namespace StreamMaster.Streams.Broadcasters
                 return;
             }
 
-            StreamConnectionMetricManager metrics = sourceStreamHandlerMetrics[e.Id];
-            int currentRetry = metrics.GetRetryCount();
-
-            if (!e.IsCancelled && !sourceBroadcaster.ChannelBroadcasters.IsEmpty && !sourceBroadcaster.IsMultiView && currentRetry < settings.CurrentValue.StreamRetryLimit)
+            if (!e.IsCancelled && !sourceBroadcaster.ChannelBroadcasters.IsEmpty && !sourceBroadcaster.IsMultiView)
             {
-                metrics.IncrementRetryCount();
 
-                logger.LogInformation("Retrying stream {Name} {RetryCount}/{RetryLimit}.",
-                                  sourceBroadcaster.SMStreamInfo.Name, currentRetry, settings.CurrentValue.StreamRetryLimit);
+                StreamConnectionMetricManager metrics = sourceStreamHandlerMetrics[e.Id];
+                int currentRetry = metrics.GetRetryCount();
 
-                List<KeyValuePair<string, IStreamDataToClients>> channelBroadcasters = [.. sourceBroadcaster.ChannelBroadcasters];
-                SMStreamInfo smStreamInfo = sourceBroadcaster.SMStreamInfo;
-
-                await StopAndUnRegisterSourceBroadCasterAsync(e.Id).ConfigureAwait(false);
-
-                ISourceBroadcaster? newBroadcaster = await GetOrCreateSourceBroadcasterInternalAsync(
-                      smStreamInfo,
-                      channelBroadcaster: null,
-                      async (sourceBroadcaster, _, token) => await sourceBroadcaster
-                          .SetSourceStreamAsync(smStreamInfo, token)
-                          .ConfigureAwait(false),
-                      true,
-                      sourceBroadcaster.CancellationToken
-                  ).ConfigureAwait(false);
-
-                if (newBroadcaster != null)
+                if (currentRetry < settings.CurrentValue.StreamRetryLimit)
                 {
-                    foreach (KeyValuePair<string, IStreamDataToClients> channelBroadcaster in channelBroadcasters)
+                    metrics.IncrementRetryCount();
+
+                    logger.LogInformation("Retrying stream {Name} {RetryCount}/{RetryLimit}.",
+                                      sourceBroadcaster.SMStreamInfo.Name, currentRetry, settings.CurrentValue.StreamRetryLimit);
+
+                    List<KeyValuePair<string, IStreamDataToClients>> channelBroadcasters = [.. sourceBroadcaster.ChannelBroadcasters];
+                    SMStreamInfo smStreamInfo = sourceBroadcaster.SMStreamInfo;
+
+                    await StopAndUnRegisterSourceBroadCasterAsync(e.Id).ConfigureAwait(false);
+
+                    ISourceBroadcaster? newBroadcaster = await GetOrCreateSourceBroadcasterInternalAsync(
+                          smStreamInfo,
+                          channelBroadcaster: null,
+                          async (sourceBroadcaster, _, token) => await sourceBroadcaster
+                              .SetSourceStreamAsync(smStreamInfo, token)
+                              .ConfigureAwait(false),
+                          true,
+                          sourceBroadcaster.CancellationToken
+                      ).ConfigureAwait(false);
+
+                    if (newBroadcaster != null)
                     {
-                        newBroadcaster.AddChannelBroadcaster(channelBroadcaster.Key, channelBroadcaster.Value);
+                        foreach (KeyValuePair<string, IStreamDataToClients> channelBroadcaster in channelBroadcasters)
+                        {
+                            newBroadcaster.AddChannelBroadcaster(channelBroadcaster.Key, channelBroadcaster.Value);
+                        }
                     }
+                }
+                else
+                {
+                    logger.LogInformation("Stream {Name} retry limit ({currentRetry}) reached.", sourceBroadcaster.SMStreamInfo.Name, currentRetry);
                 }
             }
             else
             {
-                if (currentRetry >= settings.CurrentValue.StreamRetryLimit)
-                {
-                    logger.LogInformation("Stream {Name} retry limit ({currentRetry}) reached.", sourceBroadcaster.SMStreamInfo.Name, currentRetry);
-                }
-                else
-                {
-                    logger.LogInformation("Stream {Name} stopped.", sourceBroadcaster.SMStreamInfo.Name);
-                }
+
+                logger.LogInformation("Stream {Name} stopped.", sourceBroadcaster.SMStreamInfo.Name);
 
                 await StopAndUnRegisterSourceBroadCasterAsync(e.Id).ConfigureAwait(false);
 
