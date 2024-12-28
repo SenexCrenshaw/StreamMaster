@@ -40,16 +40,17 @@ public sealed class SwitchToNextStreamService(
             return false;
         }
 
-        Domain.Metrics.StreamConnectionMetricManager? test = streamConnectionService.Get(smStream.Id);
-        if (test is not null)
+        Domain.Metrics.StreamConnectionMetricManager? metricData = streamConnectionService.Get(smStream.Id);
+        if (metricData is not null)
         {
-            int currentRetry = test.GetRetryCount();
+            int currentRetry = metricData.GetRetryCount();
 
-            if (currentRetry >= settings.StreamRetryLimit && test.MetricData.LastRetryTime is not null && test.MetricData.LastRetryTime.Value.AddHours(settings.StreamRetryHours) > DateTime.UtcNow)
+            if (currentRetry >= settings.StreamRetryLimit && metricData.MetricData.LastConnectionAttemptTime is not null && metricData.MetricData.LastConnectionAttemptTime.Value.AddHours(settings.StreamRetryHours) > DateTime.UtcNow)
             {
                 logger.LogInformation("Stream {Name} retry limit ({currentRetry}) reached.", smStream.Name, currentRetry);
                 return false;
             }
+            metricData.SetRetyTime();
         }
 
         return streamLimitsService.IsLimited(smStream)

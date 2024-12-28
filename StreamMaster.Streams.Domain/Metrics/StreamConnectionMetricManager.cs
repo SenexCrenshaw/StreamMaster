@@ -30,7 +30,7 @@ public class StreamConnectionMetricManager
     {
         lock (lockObj)
         {
-            MetricData.LastSuccessConnect = DateTime.UtcNow;
+            MetricData.LastSuccessConnectTime = DateTime.UtcNow;
             MetricData.RetryCount = 0;
         }
         SignalMetricsChanged();
@@ -45,12 +45,21 @@ public class StreamConnectionMetricManager
         SignalMetricsChanged();
     }
 
+    public void SetRetyTime()
+    {
+        lock (lockObj)
+        {
+            MetricData.LastConnectionAttemptTime = DateTime.UtcNow;
+        }
+        SignalMetricsChanged();
+    }
+
     public void IncrementRetryCount()
     {
         lock (lockObj)
         {
             MetricData.RetryCount++;
-            MetricData.LastRetryTime = DateTime.UtcNow;
+            MetricData.LastConnectionAttemptTime = DateTime.UtcNow;
         }
         SignalMetricsChanged();
     }
