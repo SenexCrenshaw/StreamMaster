@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -15,6 +15,11 @@
     <None Remove="Configurations\**" />
     <None Remove="Extensions\**" />
   </ItemGroup>
+	<ItemGroup>
+		<Content Include="Scripts\CreateOrUpdateSMStreamsAndChannels.sql">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
   <ItemGroup>
     <PackageReference Include="Azure.Identity" Version="1.13.1" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.11.0" />
@@ -43,5 +48,10 @@
     <AdditionalFiles Include="..\DependencyValidation1\DependencyValidation1.layerdiagram" Link="DependencyValidation1.layerdiagram">
       <Visible>False</Visible>
     </AdditionalFiles>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Scripts\CreateOrUpdateSMStreamsAndChannels.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 </Project>

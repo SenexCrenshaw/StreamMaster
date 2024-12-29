@@ -19,7 +19,7 @@ namespace StreamMaster.Infrastructure.EF.PGSQL
 
         public new void MigrateData()
         {
-            CheckFunctions();
+            ApplyCustomSqlScripts();
 
             string? currentMigration = Database.GetAppliedMigrations().LastOrDefault();
             if (currentMigration == null)
@@ -39,6 +39,23 @@ namespace StreamMaster.Infrastructure.EF.PGSQL
             //}
             return;
         }
+
+        public  void ApplyCustomSqlScripts()
+        {
+
+            var scriptPath = Path.Combine(AppContext.BaseDirectory, "Scripts", "CreateOrUpdateSMStreamsAndChannels.sql");
+
+            if (!File.Exists(scriptPath))
+            {
+                throw new FileNotFoundException($"SQL script file not found: {scriptPath}");
+            }
+
+            var scriptContent = File.ReadAllText(scriptPath);
+
+            // Execute the SQL script
+            Database.ExecuteSqlRaw(scriptContent);
+        }
+
 
         private void CheckFunctions()
         {
