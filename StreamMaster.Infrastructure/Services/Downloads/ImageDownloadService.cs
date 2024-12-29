@@ -264,7 +264,7 @@ namespace StreamMaster.Infrastructure.Services.Downloads
             {
                 return false;
             }
-
+           
             try
             {
                 HttpResponseMessage? response = logoInfo.IsSchedulesDirect
