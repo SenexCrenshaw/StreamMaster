@@ -72,6 +72,7 @@
     <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="9.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.0" />
+    <PackageReference Include="Npgsql" Version="9.0.2" />
     <PackageReference Include="Svg" Version="3.4.7" />
     <PackageReference Include="X.PagedList" Version="10.5.7" />
   </ItemGroup>

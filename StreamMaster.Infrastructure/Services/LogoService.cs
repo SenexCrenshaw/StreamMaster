@@ -144,6 +144,10 @@ public class LogoService(ICustomPlayListBuilder customPlayListBuilder, IHttpCont
             await channelsQuery.AsAsyncEnumerable()
                 .ForEachAsync(degreeOfParallelism, channel =>
                 {
+                    if (string.IsNullOrEmpty(channel.Logo) || !channel.Logo.IsValidUrl())
+                    {
+                        return Task.CompletedTask;
+                    }
                     AddLogoToCache(channel.Logo, channel.Name, channel.M3UFileId, SMFileTypes.Logo, OG: true);
                     LogoInfo logoInfo = new(channel.Name, channel.Logo);
                     imageDownloadQueue.EnqueueLogo(logoInfo);

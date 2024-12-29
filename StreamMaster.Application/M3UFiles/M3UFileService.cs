@@ -1,13 +1,16 @@
-﻿using System.Collections.Concurrent;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 
 using Microsoft.AspNetCore.Http;
 
+using Npgsql;
+
+using NpgsqlTypes;
+
 namespace StreamMaster.Application.M3UFiles;
 
-public class M3UFileService(ILogger<M3UFileService> logger, IFileUtilService fileUtilService, IM3UToSMStreamsService m3UtoSMStreamsService, IJobStatusService jobStatusService, IOptionsMonitor<Setting> _settings, IMessageService messageService, IRepositoryWrapper repositoryWrapper, IRepositoryContext repositoryContext)
+public class M3UFileService(ILogger<M3UFileService> logger, IFileUtilService fileUtilService, IM3UToSMStreamsService m3UtoSMStreamsService, IJobStatusService jobStatusService, IOptionsMonitor<Setting> settings, IMessageService messageService, IRepositoryWrapper repositoryWrapper, IRepositoryContext repositoryContext)
     : IM3UFileService
 {
     public async Task<DataResponse<List<M3UFileDto>>> GetM3UFilesNeedUpdatingAsync()
@@ -195,7 +198,7 @@ public class M3UFileService(ILogger<M3UFileService> logger, IFileUtilService fil
             return;
         }
 
-        (List<string> cgs, int count, List<DupInfo>? dupInfos, int removedCount) = await ProcessStreamsConcurrently(streams!, m3uFile);
+        (List<string> cgs, int count, List<DupInfo>? dupInfos, int removedCount) = await ProcessStreamsConcurrentlyOptimized(streams!, m3uFile);
 
         m3uFile.LastUpdated = SMDT.UtcNow;
         m3uFile.StreamCount = count;
@@ -215,59 +218,73 @@ public class M3UFileService(ILogger<M3UFileService> logger, IFileUtilService fil
         await UpdateChannelGroups(cgs);
     }
 
-    private async Task<(List<string> cgs, int count, List<DupInfo> dupInfos, int removedCount)> ProcessStreamsConcurrently(IAsyncEnumerable<SMStream> streams, M3UFile m3uFile)
+    private async Task<(List<string> cgs, int count, List<DupInfo> dupInfos, int removedCount)> ProcessStreamsConcurrentlyOptimized(IAsyncEnumerable<SMStream> streams, M3UFile m3uFile)
     {
         List<DupInfo> dupInfos = [];
-
+        HashSet<string> processed = [];
+        HashSet<string> cgs = [];
         int processedCount = 0;
 
-        Dictionary<string, bool> groupLookup = await repositoryWrapper.ChannelGroup.GetQuery().ToDictionaryAsync(g => g.Name, g => g.IsHidden);
-        //HashSet<string> existingStreamIds = (await repositoryWrapper.SMStream.GetQuery(a => a.M3UFileId == m3uFile.Id).Select(a => a.Id).ToListAsync().ConfigureAwait(false)).ToHashSet();
-
-        ConcurrentDictionary<string, bool> processed = new();
-
-        HashSet<string> Cgs = [];
+        // Fetch group lookup
+        Dictionary<string, bool> groupLookup = await repositoryWrapper.ChannelGroup.GetQuery()
+            .ToDictionaryAsync(g => g.Name, g => g.IsHidden)
+            .ConfigureAwait(false);
 
         bool createChannel = m3uFile.SyncChannels;
-
         int streamGroupId = 0;
 
         if (createChannel)
         {
-            StreamGroup? sg = await repositoryWrapper.StreamGroup.FirstOrDefaultAsync(a => a.Name == m3uFile.DefaultStreamGroupName);
-            if (sg != null)
-            {
-                streamGroupId = sg.Id;
-            }
+            StreamGroup? streamGroup = await repositoryWrapper.StreamGroup.FirstOrDefaultAsync(a => a.Name == m3uFile.DefaultStreamGroupName)
+                .ConfigureAwait(false);
+            streamGroupId = streamGroup?.Id ?? 0;
         }
 
-        int batchSize = _settings.CurrentValue.DBBatchSize;// BuildInfo.DBBatchSize;
+        int batchSize = settings.CurrentValue.DBBatchSize;
         List<SMStream> batch = [];
 
-        repositoryContext.ExecuteSqlRaw($"UPDATE public.\"SMStreams\" SET \"NeedsDelete\" = true WHERE \"M3UFileId\" = {m3uFile.Id}");
+        // Mark streams for deletion
+        await repositoryContext.ExecuteSqlRawAsync($"UPDATE public.\"SMStreams\" SET \"NeedsDelete\" = true WHERE \"M3UFileId\" = {m3uFile.Id}")
+            .ConfigureAwait(false);
 
-        Stopwatch stopwatch = Stopwatch.StartNew();
+        Regex? combinedRegex = CreateCombinedRegex(settings.CurrentValue.NameRegex);
+
         Stopwatch mainStopwatch = Stopwatch.StartNew();
-        await foreach (SMStream stream in streams)
+        Stopwatch logStopwatch = Stopwatch.StartNew();
+        //Stopwatch batchProcessStopwatch = Stopwatch.StartNew();
+        //Stopwatch batchBuildStopwatch = Stopwatch.StartNew();
+        int lastProcessedCount = 0;
+        await foreach (SMStream? stream in streams.ConfigureAwait(false))
         {
             Interlocked.Increment(ref processedCount);
-            if (_settings.CurrentValue.NameRegex.Count > 0)
+
+            // Periodic logging
+            if (processedCount % 10_000 == 0)
             {
-                foreach (string regex in _settings.CurrentValue.NameRegex)
-                {
-                    if (Regex.IsMatch(stream.Name, regex, RegexOptions.IgnoreCase))
-                    {
-                        continue;
-                    }
-                }
+                int intervalCount = processedCount - lastProcessedCount;
+                int intervalRate = (int)(intervalCount / logStopwatch.Elapsed.TotalSeconds);
+                lastProcessedCount = processedCount;
+
+                logger.LogInformation("Processed {intervalCount}/{processedCount} streams in {elapsed}ms at {intervalRate} streams/sec",
+                    intervalCount, processedCount, logStopwatch.ElapsedMilliseconds, intervalRate);
+                logStopwatch.Restart();
             }
 
-            if (processed.TryAdd(stream.Id, true))
+            // Skip stream names matching the regex
+            if (combinedRegex?.IsMatch(stream.Name) == true)
             {
-                Cgs.Add(stream.Group);
-                groupLookup.TryGetValue(stream.Group, out bool hidden);
+                continue;
+            }
 
-                stream.IsHidden = hidden;
+            if (processed.Add(stream.Id)) // Use HashSet instead of ConcurrentDictionary
+            {
+                cgs.Add(stream.Group);
+
+                if (groupLookup.TryGetValue(stream.Group, out bool hidden))
+                {
+                    stream.IsHidden = hidden;
+                }
+
                 stream.FilePosition = processedCount;
                 stream.M3UFileName = m3uFile.Name;
 
@@ -278,15 +295,14 @@ public class M3UFileService(ILogger<M3UFileService> logger, IFileUtilService fil
 
                 batch.Add(stream);
 
+                // Process batch if full
                 if (batch.Count >= batchSize)
                 {
-                    List<int> smChannelIds = await ExecuteCreateSmStreamsAndChannelsAsync(batch, m3uFile.Id, m3uFile.Name, streamGroupId, m3uFile.SyncChannels);
-                    if (smChannelIds.Count > 0)
-                    {
-                        await repositoryWrapper.SMChannel.AutoSetEPGFromIds(smChannelIds, CancellationToken.None);
-                        await repositoryWrapper.SaveAsync();
-                    }
-                    batch.Clear();
+                    await ProcessBatchAsync(batch, m3uFile.Id, m3uFile.Name, streamGroupId, createChannel).ConfigureAwait(false);
+                    //batchProcessStopwatch.Stop();
+                    //logger.LogInformation("Processed {batch.Count} streams in {batchStopwatch.ElapsedMilliseconds} MS", batch.Count, batchProcessStopwatch.ElapsedMilliseconds);
+                    //batchProcessStopwatch.Restart();
+                    batch = [];
                 }
             }
             else
@@ -299,47 +315,62 @@ public class M3UFileService(ILogger<M3UFileService> logger, IFileUtilService fil
                     FilePosition = stream.FilePosition
                 });
             }
-
-            if (processedCount % 10000 == 0)
-            {
-                int streamPerSecond = (int)(10000 / stopwatch.Elapsed.TotalSeconds);
-                logger.LogInformation("Processing {processedCount} streams in {elapsed}ms / {streamPerSecond} streams per second ", processedCount, stopwatch.ElapsedMilliseconds, streamPerSecond);
-                stopwatch.Restart();
-            }
         }
 
-        // Process any remaining streams in the batch
+        // Process remaining batch
         if (batch.Count > 0)
         {
-            List<int> smChannelIds = await ExecuteCreateSmStreamsAndChannelsAsync(batch, m3uFile.Id, m3uFile.Name, streamGroupId, m3uFile.SyncChannels);
-            if (smChannelIds.Count > 0)
-            {
-                await repositoryWrapper.SMChannel.AutoSetEPGFromIds(smChannelIds, CancellationToken.None);
-                await repositoryWrapper.SaveAsync();
-            }
-            batch.Clear();
+            await ProcessBatchAsync(batch, m3uFile.Id, m3uFile.Name, streamGroupId, createChannel).ConfigureAwait(false);
         }
-        batch.Clear();
 
+        // Remove marked streams
         IQueryable<SMStream> toDelete = repositoryWrapper.SMStream.GetQuery(a => a.M3UFileId == m3uFile.Id && a.NeedsDelete);
-        if (await toDelete.AnyAsync().ConfigureAwait(false))
+        int removedCount = await toDelete.CountAsync().ConfigureAwait(false);
+
+        if (removedCount > 0)
         {
             await repositoryWrapper.SMStream.BulkDeleteAsync(toDelete).ConfigureAwait(false);
         }
+
         mainStopwatch.Stop();
         logger.LogInformation("Processed {processedCount} streams in {elapsed}ms", processedCount, mainStopwatch.ElapsedMilliseconds);
-        return (Cgs.ToList(), processedCount, dupInfos, toDelete.Count());
+
+        return (cgs.ToList(), processedCount, dupInfos, removedCount);
+    }
+
+    private static Regex? CreateCombinedRegex(IEnumerable<string> patterns)
+    {
+        if (patterns?.Any() != true)
+        {
+            // Return a regex that never matches anything
+            return null;
+        }
+
+        // Combine patterns into a single regex
+        return new Regex(string.Join("|", patterns.Select(Regex.Escape)), RegexOptions.IgnoreCase | RegexOptions.Compiled);
+    }
+
+    private async Task ProcessBatchAsync(List<SMStream> batch, int m3uFileId, string m3uFileName, int streamGroupId, bool createChannel)
+    {
+        List<int> smChannelIds = await ExecuteCreateSmStreamsAndChannelsAsync(batch, m3uFileId, m3uFileName, streamGroupId, createChannel).ConfigureAwait(false);
+
+        if (settings.CurrentValue.AutoSetEPG && smChannelIds.Count > 0)
+        {
+            await repositoryWrapper.SMChannel.AutoSetEPGFromIds(smChannelIds, CancellationToken.None).ConfigureAwait(false);
+            await repositoryWrapper.SaveAsync().ConfigureAwait(false);
+        }
     }
 
     private async Task<List<int>> ExecuteCreateSmStreamsAndChannelsAsync(List<SMStream> streams, int m3uFileId, string m3uFileName, int streamGroupId, bool createChannels)
     {
         // Generate the SQL command manually
-        string sqlCommand = GenerateBatchSqlCommandForDebugging(streams, m3uFileId, m3uFileName, streamGroupId, createChannels);
-
+        List<NpgsqlParameter> parameters = GenerateBatchSqlCommandWithParameters(streams, m3uFileId, m3uFileName, streamGroupId, createChannels, settings.CurrentValue.AutoSetEPG);
+        // string sqlCommand2 = GenerateBatchSqlCommandForDebugging(streams, m3uFileId, m3uFileName, streamGroupId, createChannels, settings.CurrentValue.AutoSetEPG);
         try
         {
             // Execute the SQL command and retrieve the list of channel IDs
-            return await repositoryContext.SqlQueryRaw<int>(sqlCommand).ToListAsync();
+            return await repositoryContext.SqlQueryRaw<int>(sqlCommand, [.. parameters]).ToListAsync();
+            //return await repositoryContext.SqlQueryRaw<int>(sqlCommand2).ToListAsync();
         }
         catch (Exception ex)
         {
@@ -350,7 +381,7 @@ public class M3UFileService(ILogger<M3UFileService> logger, IFileUtilService fil
         return [];
     }
 
-    private static string GenerateBatchSqlCommandForDebugging(List<SMStream> streams, int m3uFileId, string m3uFileName, int streamGroupId, bool createChannels)
+    private static string GenerateBatchSqlCommandForDebugging(List<SMStream> streams, int m3uFileId, string m3uFileName, int streamGroupId, bool createChannels, bool returnResults)
     {
         string[] ids = [.. streams.Select(s => $"'{EscapeString(s.Id)}'")];
         string[] filePositions = [.. streams.Select(s => s.FilePosition.ToString())];
@@ -369,27 +400,28 @@ public class M3UFileService(ILogger<M3UFileService> logger, IFileUtilService fil
 
         // Construct the SQL command to call the function
         string sqlCommand = $@"
-    SELECT * FROM public.create_or_update_smstreams_and_channels(
-        ARRAY[{string.Join(", ", ids)}]::TEXT[],
-        ARRAY[{string.Join(", ", filePositions)}]::INTEGER[],
-        ARRAY[{string.Join(", ", channelNumbers)}]::INTEGER[],
-        ARRAY[{string.Join(", ", groups)}]::CITEXT[],
-        ARRAY[{string.Join(", ", epgIds)}]::CITEXT[],
-        ARRAY[{string.Join(", ", logos)}]::CITEXT[],
-        ARRAY[{string.Join(", ", names)}]::CITEXT[],
-        ARRAY[{string.Join(", ", urls)}]::CITEXT[],
-        ARRAY[{string.Join(", ", stationIds)}]::CITEXT[],
-        ARRAY[{string.Join(", ", channelIds)}]::CITEXT[],
-        ARRAY[{string.Join(", ", channelNames)}]::CITEXT[],
-        ARRAY[{string.Join(", ", extIfs)}]::TEXT[],
-        ARRAY[{string.Join(", ", isHidden)}]::BOOLEAN[], -- Include the IsHidden array
-        ARRAY[{string.Join(", ", tvgNames)}]::CITEXT[], -- Include the TVGName array
-        {m3uFileId}, -- p_m3u_file_id as INTEGER
-        '{EscapeString(m3uFileName)}'::CITEXT,
-        {streamGroupId},
-        {createChannels.ToString().ToUpper()}
-    );
-    ";
+SELECT * FROM public.create_or_update_smstreams_and_channels(
+    ARRAY[{string.Join(", ", ids)}]::TEXT[],
+    ARRAY[{string.Join(", ", filePositions)}]::INTEGER[],
+    ARRAY[{string.Join(", ", channelNumbers)}]::INTEGER[],
+    ARRAY[{string.Join(", ", groups)}]::CITEXT[],
+    ARRAY[{string.Join(", ", epgIds)}]::CITEXT[],
+    ARRAY[{string.Join(", ", logos)}]::CITEXT[],
+    ARRAY[{string.Join(", ", names)}]::CITEXT[],
+    ARRAY[{string.Join(", ", urls)}]::CITEXT[],
+    ARRAY[{string.Join(", ", stationIds)}]::CITEXT[],
+    ARRAY[{string.Join(", ", channelIds)}]::CITEXT[],
+    ARRAY[{string.Join(", ", channelNames)}]::CITEXT[],
+    ARRAY[{string.Join(", ", extIfs)}]::TEXT[],
+    ARRAY[{string.Join(", ", isHidden)}]::BOOLEAN[],
+    ARRAY[{string.Join(", ", tvgNames)}]::CITEXT[],
+    {m3uFileId},
+    '{EscapeString(m3uFileName)}'::CITEXT,
+    {streamGroupId},
+    {createChannels.ToString().ToUpper()},
+    {returnResults.ToString().ToUpper()}
+);
+";
 
         return sqlCommand;
     }
@@ -399,6 +431,64 @@ public class M3UFileService(ILogger<M3UFileService> logger, IFileUtilService fil
         return input.Replace("'", "''")
                           .Replace("{", "[")     // Escape opening curly brace
                           .Replace("}", "]");
+    }
+
+    private const string sqlCommand = @"
+SELECT * FROM public.create_or_update_smstreams_and_channels(
+    @p_ids::TEXT[],
+    @p_file_positions::INTEGER[],
+    @p_channel_numbers::INTEGER[],
+    @p_groups::CITEXT[],
+    @p_epgids::CITEXT[],
+    @p_logos::CITEXT[],
+    @p_names::CITEXT[],
+    @p_urls::CITEXT[],
+    @p_station_ids::CITEXT[],
+    @p_channel_ids::CITEXT[],
+    @p_channel_names::CITEXT[],
+    @p_extifs::TEXT[],
+    @p_is_hidden::BOOLEAN[],
+    @p_tvg_names::CITEXT[],
+    @p_m3u_file_id,
+    @p_m3u_file_name::CITEXT,
+    @p_stream_group_id,
+    @p_create_channels,
+    @p_return_results
+);";
+
+    private static List<NpgsqlParameter> GenerateBatchSqlCommandWithParameters(
+    List<SMStream> streams, int m3uFileId, string m3uFileName, int streamGroupId, bool createChannels, bool returnResults)
+    {
+        // Define the SQL command with placeholders
+
+#pragma warning disable RCS1130 // Bitwise operation on enum without Flags attribute
+        List<NpgsqlParameter> parameters =
+        [
+        new NpgsqlParameter("p_ids", NpgsqlDbType.Array | NpgsqlDbType.Text) { Value = streams.Select(s => s.Id).ToArray() },
+        new NpgsqlParameter("p_file_positions", NpgsqlDbType.Array | NpgsqlDbType.Integer) { Value = streams.Select(s => s.FilePosition).ToArray() },
+        new NpgsqlParameter("p_channel_numbers", NpgsqlDbType.Array | NpgsqlDbType.Integer) { Value = streams.Select(s => s.ChannelNumber).ToArray() },
+        new NpgsqlParameter("p_groups", NpgsqlDbType.Array | NpgsqlDbType.Citext) { Value = streams.Select(s => s.Group).ToArray() },
+        new NpgsqlParameter("p_epgids", NpgsqlDbType.Array | NpgsqlDbType.Citext) { Value = streams.Select(s => s.EPGID).ToArray() },
+        new NpgsqlParameter("p_logos", NpgsqlDbType.Array | NpgsqlDbType.Citext) { Value = streams.Select(s => s.Logo).ToArray() },
+        new NpgsqlParameter("p_names", NpgsqlDbType.Array | NpgsqlDbType.Citext) { Value = streams.Select(s => s.Name).ToArray() },
+        new NpgsqlParameter("p_urls", NpgsqlDbType.Array | NpgsqlDbType.Citext) { Value = streams.Select(s => s.Url).ToArray() },
+        new NpgsqlParameter("p_station_ids", NpgsqlDbType.Array | NpgsqlDbType.Citext) { Value = streams.Select(s => s.StationId).ToArray() },
+        new NpgsqlParameter("p_channel_ids", NpgsqlDbType.Array | NpgsqlDbType.Citext) { Value = streams.Select(s => s.ChannelId).ToArray() },
+        new NpgsqlParameter("p_channel_names", NpgsqlDbType.Array | NpgsqlDbType.Citext) { Value = streams.Select(s => s.ChannelName).ToArray() },
+        new NpgsqlParameter("p_extifs", NpgsqlDbType.Array | NpgsqlDbType.Text) { Value = streams.Select(s => s.ExtInf ?? "-1").ToArray() },
+        new NpgsqlParameter("p_is_hidden", NpgsqlDbType.Array | NpgsqlDbType.Boolean) { Value = streams.Select(s => s.IsHidden).ToArray() },
+        new NpgsqlParameter("p_tvg_names", NpgsqlDbType.Array | NpgsqlDbType.Citext) { Value = streams.Select(s => s.TVGName).ToArray() },
+
+        // Create parameters for scalar values
+        new NpgsqlParameter("p_m3u_file_id", NpgsqlDbType.Integer) { Value = m3uFileId },
+        new NpgsqlParameter("p_m3u_file_name", NpgsqlDbType.Citext) { Value = m3uFileName },
+        new NpgsqlParameter("p_stream_group_id", NpgsqlDbType.Integer) { Value = streamGroupId },
+        new NpgsqlParameter("p_create_channels", NpgsqlDbType.Boolean) { Value = createChannels },
+        new NpgsqlParameter("p_return_results", NpgsqlDbType.Boolean) { Value = returnResults }
+    ];
+#pragma warning restore RCS1130 // Bitwise operation on enum without Flags attribute
+
+        return parameters;
     }
 
     private static bool ShouldUpdate(M3UFile m3uFile, List<string> VODTags)

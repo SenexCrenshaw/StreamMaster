@@ -92,10 +92,9 @@ public class CommandExecutor(ILogger<CommandExecutor> logger) : ICommandExecutor
                 return;
             }
 
-            List<FileInfo> logFiles = new DirectoryInfo(directoryPath)
+            List<FileInfo> logFiles = [.. new DirectoryInfo(directoryPath)
                 .GetFiles("stderr_*.log")
-                .OrderByDescending(f => f.CreationTime)
-                .ToList();
+                .OrderByDescending(f => f.CreationTime)];
 
             if (logFiles.Count <= maxLogsToKeep)
             {

@@ -153,6 +153,7 @@ public class BaseRepositoryContext(DbContextOptions options)
         modelBuilder.UseIdentityAlwaysColumns();
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(BaseRepositoryContext).Assembly);
 
+        // Existing indexes
         _ = modelBuilder.Entity<ChannelGroup>()
             .HasIndex(e => e.Name)
             .HasDatabaseName("idx_Name");
@@ -209,6 +210,15 @@ public class BaseRepositoryContext(DbContextOptions options)
             .HasIndex(e => e.Url)
             .HasDatabaseName("idx_epgfiles_url");
 
+        _ = modelBuilder.Entity<SMStream>()
+            .HasIndex(e => e.M3UFileId)
+            .HasDatabaseName("idx_smstreams_m3ufileid");
+
+        _ = modelBuilder.Entity<SMStream>()
+            .HasIndex(e => new { e.NeedsDelete, e.M3UFileId })
+            .HasDatabaseName("idx_smstreams_needsdelete_m3ufileid");
+
+        // Ensure UTC DateTime Conversion
         modelBuilder.ApplyUtcDateTimeConverter();
 
         base.OnModelCreating(modelBuilder);

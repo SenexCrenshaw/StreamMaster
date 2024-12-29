@@ -41,13 +41,6 @@ public class MiscController(IImageDownloadService imageDownloadService, ICacheMa
         return Ok();
     }
 
-    //[HttpGet]
-    //[Route("[action]")]
-    //public ActionResult<IDictionary<string, IStreamHandlerMetrics>> GetAggregatedMetrics()
-    //{
-    //    IDictionary<string, IStreamHandlerMetrics> metrics = channelDistributorService.GetMetrics();
-    //    return Ok(metrics);
-    //}
 
     [HttpGet]
     [Route("[action]")]
@@ -58,7 +51,7 @@ public class MiscController(IImageDownloadService imageDownloadService, ICacheMa
         for (int i = 0; i < numberOfStreams; i++)
         {
             string id = Guid.NewGuid().ToString();
-            lines.Add($"#EXTINF:-1 tvg-id=\"Channel_{i}\" tvg-name=\"Channel {i}\" tvg-chno=\"{i}\" tvg-logo=\"https://logo{i}.png\" group-title=\"TEST CHANNEL GROUP\", Channel {i}");
+            lines.Add($"#EXTINF:-1 tvg-id=\"Channel_{i}\" tvg-name=\"Channel {i}\" tvg-chno=\"{i}\" tvg-logo=\"logo{i}.png\" group-title=\"TEST CHANNEL GROUP\", Channel {i}");
             lines.Add($"http://channelfake.test/live/{id}.ts");
         }
 

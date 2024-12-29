@@ -11,9 +11,10 @@ public class RefreshM3UFileRequestHandler(ILogger<RefreshM3UFileRequest> Logger,
     public async Task<APIResponse> Handle(RefreshM3UFileRequest request, CancellationToken cancellationToken)
     {
         JobStatusManager jobManager = jobStatusService.GetJobManagerRefreshM3U(request.Id);
+        JobStatusManager jobManagerProcess = jobStatusService.GetJobManagerProcessM3U(request.Id);
         try
         {
-            if (jobManager.IsRunning)
+            if (jobManager.IsRunning || jobManagerProcess.IsRunning)
             {
                 return APIResponse.NotFound;
             }
@@ -57,20 +58,6 @@ public class RefreshM3UFileRequestHandler(ILogger<RefreshM3UFileRequest> Logger,
                         return APIResponse.ErrorWithMessage($"M3U '{m3uFile.Name}' format is not supported");
                     }
                 }
-
-                //List<SMStream>? streams = await m3uFile.GetSMStreamsFromM3U(Logger);
-                //if (streams == null)
-                //{
-                //    Logger.LogCritical("Exception M3U {fullName} format is not supported", fullName);
-                //    await messageService.SendError($"Exception M3U {fullName} format is not supported");
-                //    //Bad M3U
-                //    if (File.Exists(fullName))
-                //    {
-                //        File.Delete(fullName);
-                //    }
-                //    jobManager.SetError();
-                //    return APIResponse.NotFound;
-                //}
             }
 
             m3uFile.DownloadErrors = 0;

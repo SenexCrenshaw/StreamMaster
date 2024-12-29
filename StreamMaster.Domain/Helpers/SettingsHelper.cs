@@ -55,12 +55,6 @@ public static class SettingsHelper
             dir = Path.GetDirectoryName(fileName);
         }
 
-        //if (typeof(HLSSettings).IsAssignableFrom(setting.GetType()))
-        //{
-        //    fileName = BuildInfo.HLSSettingsFile;
-        //    dir = Path.GetDirectoryName(fileName);
-        //}
-
         if (typeof(SDSettings).IsAssignableFrom(setting.GetType()))
         {
             fileName = BuildInfo.SDSettingsFile;
@@ -84,7 +78,7 @@ public static class SettingsHelper
             _ = Directory.CreateDirectory(dir);
         }
 
-        string jsonString = JsonSerializer.Serialize(setting, new JsonSerializerOptions { WriteIndented = true });
+        string jsonString = JsonSerializer.Serialize(setting, BuildInfo.JsonIndentOptions);
         File.WriteAllText(fileName, jsonString);
     }
 }

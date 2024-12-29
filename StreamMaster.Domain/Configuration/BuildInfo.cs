@@ -10,8 +10,8 @@ namespace StreamMaster.Domain.Configuration
     /// </summary>
     public static class BuildInfo
     {
-        public static readonly JsonSerializerOptions JsonIndentOptions = new() { WriteIndented = true };
-        public static readonly JsonSerializerOptions JsonIndentOptionsWhenWritingNull = new() { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull, WriteIndented = false };
+        public static readonly JsonSerializerOptions JsonIndentOptions = new() { TypeInfoResolver = new AlphabeticalJsonTypeInfoResolver(), WriteIndented = true };
+        public static readonly JsonSerializerOptions JsonIndentOptionsWhenWritingNull = new() { TypeInfoResolver = new AlphabeticalJsonTypeInfoResolver(), DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull, WriteIndented = false };
 
         static BuildInfo()
         {

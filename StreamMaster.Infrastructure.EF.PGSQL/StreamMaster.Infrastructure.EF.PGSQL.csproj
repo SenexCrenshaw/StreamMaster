@@ -15,11 +15,7 @@
     <None Remove="Configurations\**" />
     <None Remove="Extensions\**" />
   </ItemGroup>
-	<ItemGroup>
-		<Content Include="Scripts\CreateOrUpdateSMStreamsAndChannels.sql">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</Content>
-	</ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="Azure.Identity" Version="1.13.1" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.11.0" />
@@ -50,7 +46,7 @@
     </AdditionalFiles>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Scripts\CreateOrUpdateSMStreamsAndChannels.sql">
+    <Content Include="Scripts\create_or_update_smstreams_and_channels.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

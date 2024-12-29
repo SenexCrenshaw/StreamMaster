@@ -1360,6 +1360,9 @@ export interface RefreshM3UFileRequest
 	ForceRun: boolean;
 	Id: number;
 }
+export interface ScanDirectoryForM3UFilesRequestHandler
+{
+}
 export interface SyncChannelsRequest
 {
 	Group?: string;

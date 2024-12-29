@@ -1,6 +1,5 @@
 ﻿using System.Linq.Expressions;
 
-using StreamMaster.Domain.API;
 using StreamMaster.Domain.Pagination;
 
 namespace StreamMaster.Domain.Repository;
@@ -28,18 +27,13 @@ public interface ISMChannelsRepository : IRepositoryBase<SMChannel>
     new IQueryable<SMChannel> GetQuery(Expression<Func<SMChannel, bool>> expression, bool tracking = false);
     new IQueryable<SMChannel> GetQuery(bool tracking = false);
 
-    //// Stream Management
-    //Task<APIResponse> AddSMStreamToSMChannel(int SMChannelId, string SMStreamId, int? Rank);
-    //Task<APIResponse> RemoveSMStreamFromSMChannel(int SMChannelId, string SMStreamId);
-    //Task<APIResponse> SetSMStreamRanks(List<SMChannelStreamRankRequest> request);
-
     // Channel Number Management
     Task<IdIntResultWithResponse> AutoSetSMChannelNumbersFromParameters(int streamGroupId, QueryStringParameters parameters, int? startingNumber, bool? overwriteExisting);
     Task<IdIntResultWithResponse> AutoSetSMChannelNumbersRequest(int streamGroupId, List<int> SMChannelIds, int? startingNumber, bool? overwriteExisting);
     Task<APIResponse> SetSMChannelChannelNumber(int sMChannelId, int channelNumber);
 
     // Channel EPG Management
-    Task<List<FieldData>> AutoSetEPGs(List<SMChannel> smChannels, bool skipSave, CancellationToken cancellationToken);
+    Task<List<FieldData>> AutoSetEPGs(IQueryable<SMChannel> smChannels, bool skipSave, CancellationToken cancellationToken);
     Task<List<FieldData>> AutoSetEPGFromIds(List<int> ids, CancellationToken cancellationToken);
     Task<List<FieldData>> AutoSetEPGFromParameters(QueryStringParameters parameters, CancellationToken cancellationToken);
     Task<APIResponse> SetSMChannelEPGID(int sMChannelId, string EPGId);

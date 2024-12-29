@@ -32,32 +32,40 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IEpgM
 
     public async Task<List<FieldData>> AutoSetEPGFromIds(List<int> ids, CancellationToken cancellationToken)
     {
-        List<SMChannel> smChannels = await GetQuery(a => ids.Contains(a.Id)).ToListAsync(cancellationToken: cancellationToken);
+        IQueryable<SMChannel> smChannels = GetQuery(a => ids.Contains(a.Id));
         return await AutoSetEPGs(smChannels, false, cancellationToken).ConfigureAwait(false);
     }
 
     public async Task<List<FieldData>> AutoSetEPGFromParameters(QueryStringParameters parameters, CancellationToken cancellationToken)
     {
         IQueryable<SMChannel> results = await GetPagedSMChannelsQueryableAsync(parameters);
-        return await AutoSetEPGs(await results.ToListAsync(cancellationToken: cancellationToken), false, cancellationToken).ConfigureAwait(false);
+        return await AutoSetEPGs(results, false, cancellationToken).ConfigureAwait(false);
     }
-
-    public async Task<List<FieldData>> AutoSetEPGs(List<SMChannel> smChannels, bool skipSave, CancellationToken cancellationToken)
+    public async Task<List<FieldData>> AutoSetEPGs(IQueryable<SMChannel> smChannels, bool skipSave, CancellationToken cancellationToken)
     {
-        List<StationChannelName> stationChannelNames = [.. schedulesDirectDataService.GetStationChannelNames().OrderBy(a => a.Channel)];
+        // Apply filtering in the database (deferred execution until ToListAsync is called)
+        IQueryable<SMChannel> filteredChannels = smChannels.Where(channel => channel.EPGId != "Dummy");
 
-        HashSet<string> toMatch = [.. stationChannelNames.Select(a => a.DisplayName).Distinct()];
+        // Materialize filtered channels for parallel processing
+        List<SMChannel> smChannelsList = await filteredChannels.ToListAsync(cancellationToken).ConfigureAwait(false);
+
+        // Cache station channel names into a list for reuse
+        List<StationChannelName> stationChannelNames = [.. schedulesDirectDataService.GetStationChannelNames()];
+        if (stationChannelNames.Count == 0)
+        {
+            return [];
+        }
+
+        // Prepare data structures for concurrent operations
+        HashSet<string> toMatch = [.. stationChannelNames.Select(a => a.DisplayName)];
         string toMatchString = string.Join(',', toMatch);
-
-        ConcurrentBag<FieldData> fds = []; // Use ConcurrentBag for thread-safe operations
-
-        List<StationChannelName> stationChannelList = [.. stationChannelNames];
-
+        ConcurrentBag<FieldData> fieldDataBag = [];
         ConcurrentQueue<SMChannel> entitiesToUpdate = new();
 
-        await Parallel.ForEachAsync(smChannels, cancellationToken, async (smChannel, ct) =>
+        // Parallel processing of SMChannels
+        await Parallel.ForEachAsync(smChannelsList, cancellationToken, async (smChannel, ct) =>
         {
-            if (ct.IsCancellationRequested || smChannel.EPGId == "Dummy")
+            if (ct.IsCancellationRequested)
             {
                 return;
             }
@@ -75,17 +83,17 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IEpgM
                 return;
             }
 
-            StationChannelName? test = await epgMatcher.MatchAsync(smChannel, ct).ConfigureAwait(false);
-            if (test is not null)
+            StationChannelName? match = await epgMatcher.MatchAsync(smChannel, ct).ConfigureAwait(false);
+            if (match is not null)
             {
-                smChannel.EPGId = test.Id;
+                smChannel.EPGId = match.Id;
 
                 entitiesToUpdate.Enqueue(smChannel);
 
-                fds.Add(new FieldData(SMChannel.APIName, smChannel.Id, "EPGId", smChannel.EPGId));
+                fieldDataBag.Add(new FieldData(SMChannel.APIName, smChannel.Id, "EPGId", smChannel.EPGId));
                 if (settings.CurrentValue.VideoStreamAlwaysUseEPGLogo && SetVideoStreamLogoFromEPG(smChannel))
                 {
-                    fds.Add(new FieldData(SMChannel.APIName, smChannel.Id, "Logo", smChannel.Logo));
+                    fieldDataBag.Add(new FieldData(SMChannel.APIName, smChannel.Id, "Logo", smChannel.Logo));
                 }
             }
         }).ConfigureAwait(false);
@@ -95,12 +103,14 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IEpgM
             return [];
         }
 
-        // After this line, all channels have been processed.
+        // Batch update database
         using (IServiceScope scope = serviceProvider.CreateScope())
         {
             PGSQLRepositoryContext context = scope.ServiceProvider.GetRequiredService<PGSQLRepositoryContext>();
 
-            foreach (SMChannel smChannel in entitiesToUpdate)
+            List<SMChannel> updatedEntities = [.. entitiesToUpdate];
+
+            foreach (SMChannel smChannel in updatedEntities)
             {
                 context.SMChannels.Attach(smChannel);
                 context.Entry(smChannel).State = EntityState.Modified;
@@ -109,13 +119,94 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IEpgM
             await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         }
 
-        if (!skipSave && !fds.IsEmpty)
+        // Save additional changes if not skipped
+        if (!skipSave && !fieldDataBag.IsEmpty)
         {
             _ = await RepositoryContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         }
 
-        return [.. fds];
+        return [.. fieldDataBag];
     }
+
+    //public async Task<List<FieldData>> AutoSetEPGs(List<SMChannel> smChannels, bool skipSave, CancellationToken cancellationToken)
+    //{
+    //    IEnumerable<StationChannelName> stationChannelNames = schedulesDirectDataService.GetStationChannelNames();// [.. schedulesDirectDataService.GetStationChannelNames().OrderBy(a => a.Channel)];
+
+    //    if (!stationChannelNames.Any())
+    //    {
+    //        return [];
+    //    }
+
+    //    HashSet<string> toMatch = [.. stationChannelNames.Select(a => a.DisplayName).Distinct()];
+    //    string toMatchString = string.Join(',', toMatch);
+
+    //    ConcurrentBag<FieldData> fds = []; // Use ConcurrentBag for thread-safe operations
+
+    //    List<StationChannelName> stationChannelList = [.. stationChannelNames];
+
+    //    ConcurrentQueue<SMChannel> entitiesToUpdate = new();
+
+    //    await Parallel.ForEachAsync(smChannels, cancellationToken, async (smChannel, ct) =>
+    //    {
+    //        if (ct.IsCancellationRequested || smChannel.EPGId == "Dummy")
+    //        {
+    //            return;
+    //        }
+
+    //        string stationId = smChannel.EPGId;
+    //        int epgNumber = EPGHelper.DummyId;
+
+    //        if (EPGHelper.IsValidEPGId(smChannel.EPGId))
+    //        {
+    //            (epgNumber, stationId) = smChannel.EPGId.ExtractEPGNumberAndStationId();
+    //        }
+
+    //        if (epgNumber < EPGHelper.DummyId)
+    //        {
+    //            return;
+    //        }
+
+    //        StationChannelName? test = await epgMatcher.MatchAsync(smChannel, ct).ConfigureAwait(false);
+    //        if (test is not null)
+    //        {
+    //            smChannel.EPGId = test.Id;
+
+    //            entitiesToUpdate.Enqueue(smChannel);
+
+    //            fds.Add(new FieldData(SMChannel.APIName, smChannel.Id, "EPGId", smChannel.EPGId));
+    //            if (settings.CurrentValue.VideoStreamAlwaysUseEPGLogo && SetVideoStreamLogoFromEPG(smChannel))
+    //            {
+    //                fds.Add(new FieldData(SMChannel.APIName, smChannel.Id, "Logo", smChannel.Logo));
+    //            }
+    //        }
+    //    }).ConfigureAwait(false);
+
+    //    if (entitiesToUpdate.IsEmpty)
+    //    {
+    //        return [];
+    //    }
+
+    //    // After this line, all channels have been processed.
+    //    using (IServiceScope scope = serviceProvider.CreateScope())
+    //    {
+    //        PGSQLRepositoryContext context = scope.ServiceProvider.GetRequiredService<PGSQLRepositoryContext>();
+
+    //        foreach (SMChannel smChannel in entitiesToUpdate)
+    //        {
+    //            context.SMChannels.Attach(smChannel);
+    //            context.Entry(smChannel).State = EntityState.Modified;
+    //        }
+
+    //        await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+    //    }
+
+    //    if (!skipSave && !fds.IsEmpty)
+    //    {
+    //        _ = await RepositoryContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+    //    }
+
+    //    return [.. fds];
+    //}
 
     public async Task<IdIntResultWithResponse> AutoSetSMChannelNumbersFromParameters(int streamGroupId, QueryStringParameters Parameters, int? StartingNumber, bool? OverwriteExisting)
     {
@@ -687,7 +778,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IEpgM
             if (settings.CurrentValue.AutoSetEPG)
             {
                 Stopwatch AutoSetEPGStopwatch = Stopwatch.StartNew();
-                _ = await AutoSetEPGs(batch, true, CancellationToken.None).ConfigureAwait(false);
+                _ = await AutoSetEPGs(batch.AsQueryable(), true, CancellationToken.None).ConfigureAwait(false);
                 AutoSetEPGStopwatch.Stop();
                 logger.LogInformation("AutoSet {count} channels have been processed in {elapsed}ms.", batch.Count, AutoSetEPGStopwatch.ElapsedMilliseconds);
                 await RepositoryContext.SaveChangesAsync().ConfigureAwait(false);

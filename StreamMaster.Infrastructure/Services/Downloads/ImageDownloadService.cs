@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Dto;
 using StreamMaster.Domain.Enums;
+using StreamMaster.Domain.Extensions;
 using StreamMaster.Domain.Helpers;
 using StreamMaster.SchedulesDirect.Domain.Interfaces;
 using StreamMaster.SchedulesDirect.Domain.JsonClasses;
@@ -217,7 +218,7 @@ namespace StreamMaster.Infrastructure.Services.Downloads
 
                 try
                 {
-                    if (logoInfo.Url.StartsWith("http") && !string.IsNullOrEmpty(logoInfo.FullPath))
+                    if (logoInfo.Url.IsValidUrl() && !string.IsNullOrEmpty(logoInfo.FullPath))
                     {
                         if (!File.Exists(logoInfo.FullPath))
                         {
@@ -264,7 +265,12 @@ namespace StreamMaster.Infrastructure.Services.Downloads
             {
                 return false;
             }
-           
+
+            if (!logoInfo.Url.IsValidUrl() && !string.IsNullOrEmpty(logoInfo.FullPath))
+            {
+                return true;
+            }
+
             try
             {
                 HttpResponseMessage? response = logoInfo.IsSchedulesDirect

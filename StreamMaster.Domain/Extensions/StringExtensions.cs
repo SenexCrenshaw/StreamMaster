@@ -6,6 +6,18 @@ namespace StreamMaster.Domain.Extensions;
 
 public static class StringExtensions
 {
+    /// <summary>
+    /// Validates if a given string is a valid URL with an HTTP or HTTPS scheme.
+    /// </summary>
+    /// <param name="url">The URL string to validate.</param>
+    /// <returns>True if the URL is valid, otherwise false.</returns>
+    public static bool IsValidUrl(this string url)
+    {
+        return !string.IsNullOrEmpty(url)
+&& Uri.TryCreate(url, UriKind.Absolute, out Uri? uriResult)
+               && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
+    }
+
     public static string ExtractPath(this string fullPath, string basePath)
     {
         if (string.IsNullOrEmpty(fullPath))
