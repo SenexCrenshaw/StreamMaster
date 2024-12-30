@@ -41,7 +41,6 @@ public class MiscController(IImageDownloadService imageDownloadService, ICacheMa
         return Ok();
     }
 
-
     [HttpGet]
     [Route("[action]")]
     public IActionResult GetTestM3U(int numberOfStreams)

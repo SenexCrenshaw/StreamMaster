@@ -28,7 +28,7 @@ namespace StreamMaster.Application.Statistics.Controllers
         {
             try
             {
-            var ret = await APIStatsLogger.DebugAPI(Sender.Send(new GetDownloadServiceStatusRequest())).ConfigureAwait(false);
+            var ret = await Sender.Send(new GetDownloadServiceStatusRequest()).ConfigureAwait(false);
              return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetDownloadServiceStatus.", statusCode: 500) : Ok(ret.Data?? new());
             }
             catch (Exception ex)
@@ -156,7 +156,7 @@ namespace StreamMaster.Application.Hubs
         }
         public async Task<ImageDownloadServiceStatus> GetDownloadServiceStatus()
         {
-             var ret = await APIStatsLogger.DebugAPI(Sender.Send(new GetDownloadServiceStatusRequest())).ConfigureAwait(false);
+             var ret = await Sender.Send(new GetDownloadServiceStatusRequest()).ConfigureAwait(false);
             return ret.Data?? new();
         }
         public async Task<bool> GetIsSystemReady()

@@ -201,7 +201,6 @@ public static class CSharpGenerator
                     else
                     {
                         hubContent.AppendLine($"            var ret = await APIStatsLogger.DebugAPI(Sender.Send(new {method.SingalRFunction}({method.ParameterNames}))).ConfigureAwait(false);");
-
                     }
                     hubContent.AppendLine($"            return ret{nullReturn};");
                     IhubContent.AppendLine($"        Task<PagedResponse<{toReturn}>> {method.Name}({method.Parameter});");
@@ -228,7 +227,6 @@ public static class CSharpGenerator
                     if (method.NoDebug)
                     {
                         hubContent.AppendLine($"             var ret = await Sender.Send(new {method.SingalRFunction}({method.ParameterNames})).ConfigureAwait(false);");
-
                     }
                     else
                     {

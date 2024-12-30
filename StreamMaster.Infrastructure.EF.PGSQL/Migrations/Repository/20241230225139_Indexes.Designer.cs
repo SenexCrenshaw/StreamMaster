@@ -13,7 +13,7 @@ using StreamMaster.Infrastructure.EF.PGSQL;
 namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
 {
     [DbContext(typeof(PGSQLRepositoryContext))]
-    [Migration("20241230184537_Indexes")]
+    [Migration("20241230225139_Indexes")]
     partial class Indexes
     {
         /// <inheritdoc />
