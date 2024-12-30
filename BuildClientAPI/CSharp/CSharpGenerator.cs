@@ -72,7 +72,7 @@ public static class CSharpGenerator
                     }
                 }
             }
-            if (method.Name == "GetCustomPlayList")
+            if (method.Name.ContainsIgnoreCase("GetIsSystemReady"))
             {
             }
 
@@ -81,34 +81,38 @@ public static class CSharpGenerator
                 controllerContent.AppendLine($"        {httpMethodLine}");
                 controllerContent.AppendLine($"        {route}");
 
-                //if (method.Name == "GetEPGColors")
-                //{
-                //}
-
-                //if (method.ReturnType.Equals("APIResponse?") )
-                //{
-                //    method.ReturnType = method.ReturnType[..^1];
-                //}
-
                 if (method.IsGetPaged)
                 {
                     const string fromQ = "[FromQuery] ";
                     controllerContent.AppendLine($"        public async Task<ActionResult<PagedResponse<{toReturn}>>> {method.Name}({fromQ}{method.Parameter})");
                     controllerContent.AppendLine("        {");
-                    controllerContent.AppendLine($"            var ret = await Sender.Send(new {method.SingalRFunction}({method.ParameterNames})).ConfigureAwait(false);");
+                    if (method.NoDebug)
+                    {
+                        controllerContent.AppendLine($"            var ret = await Sender.Send(new {method.SingalRFunction}({method.ParameterNames})).ConfigureAwait(false);");
+                    }
+                    else
+                    {
+                        controllerContent.AppendLine($"            var ret = await APIStatsLogger.DebugAPI(Sender.Send(new {method.SingalRFunction}({method.ParameterNames}))).ConfigureAwait(false);");
+                    }
                     controllerContent.AppendLine($"            return ret{nullReturn};");
                     IcontrollerContent.AppendLine($"        Task<ActionResult<PagedResponse<{toReturn}>>> {method.Name}({method.Parameter});");
                 }
                 else if (method.IsGetCached)
                 {
                     const string fromQ = "[FromQuery] ";
-
                     needsLogger = true;
                     controllerContent.AppendLine($"        public async Task<ActionResult<{toReturn}>> {method.Name}({fromQ}{method.Name}Request request)");
                     controllerContent.AppendLine("        {");
                     controllerContent.AppendLine("            try");
                     controllerContent.AppendLine("            {");
-                    controllerContent.AppendLine("            var ret = await Sender.Send(request).ConfigureAwait(false);");
+                    if (method.NoDebug)
+                    {
+                        controllerContent.AppendLine("            var ret = await Sender.Send(request).ConfigureAwait(false);");
+                    }
+                    else
+                    {
+                        controllerContent.AppendLine("            var ret = await APIStatsLogger.DebugAPI(Sender.Send(request)).ConfigureAwait(false);");
+                    }
                     controllerContent.AppendLine($"             return ret.IsError ? Problem(detail: \"An unexpected error occurred retrieving {method.Name}.\", statusCode: 500) : Ok(ret.Data{nullReturn});");
                     controllerContent.AppendLine("            }");
                     controllerContent.AppendLine("            catch (Exception ex)");
@@ -121,15 +125,19 @@ public static class CSharpGenerator
                 }
                 else if (method.IsGet)
                 {
-                    if (method.Name == "GetIcons")
-                    {
-                    }
                     needsLogger = true;
                     controllerContent.AppendLine($"        public async Task<ActionResult<{toReturn}>> {method.Name}({method.Parameter})");
                     controllerContent.AppendLine("        {");
                     controllerContent.AppendLine("            try");
                     controllerContent.AppendLine("            {");
-                    controllerContent.AppendLine($"            var ret = await Sender.Send(new {method.SingalRFunction}({method.ParameterNames})).ConfigureAwait(false);");
+                    if (method.NoDebug)
+                    {
+                        controllerContent.AppendLine($"            var ret = await Sender.Send(new {method.SingalRFunction}({method.ParameterNames})).ConfigureAwait(false);");
+                    }
+                    else
+                    {
+                        controllerContent.AppendLine($"            var ret = await APIStatsLogger.DebugAPI(Sender.Send(new {method.SingalRFunction}({method.ParameterNames}))).ConfigureAwait(false);");
+                    }
                     controllerContent.AppendLine($"             return ret.IsError ? Problem(detail: \"An unexpected error occurred retrieving {method.Name}.\", statusCode: 500) : Ok(ret.Data{nullReturn});");
                     controllerContent.AppendLine("            }");
                     controllerContent.AppendLine("            catch (Exception ex)");
@@ -151,7 +159,14 @@ public static class CSharpGenerator
                 {
                     controllerContent.AppendLine($"        public async Task<ActionResult<{toReturn}>> {method.Name}({parameterLine})");
                     controllerContent.AppendLine("        {");
-                    controllerContent.AppendLine($"            var ret = await Sender.Send({toSend}).ConfigureAwait(false);");
+                    if (method.NoDebug)
+                    {
+                        controllerContent.AppendLine($"            var ret = await Sender.Send({toSend}).ConfigureAwait(false);");
+                    }
+                    else
+                    {
+                        controllerContent.AppendLine($"            var ret = await APIStatsLogger.DebugAPI(Sender.Send({toSend})).ConfigureAwait(false);");
+                    }
                     if (method.IsReturnNull)
                     {
                         controllerContent.AppendLine("            return ret == null ? NotFound(ret) : Ok(ret);");
@@ -179,7 +194,15 @@ public static class CSharpGenerator
                 {
                     hubContent.AppendLine($"        public async Task<PagedResponse<{toReturn}>> {method.Name}({method.Parameter})");
                     hubContent.AppendLine("        {");
-                    hubContent.AppendLine($"            var ret = await Sender.Send(new {method.SingalRFunction}({method.ParameterNames})).ConfigureAwait(false);");
+                    if (method.NoDebug)
+                    {
+                        hubContent.AppendLine($"            var ret = await Sender.Send(new {method.SingalRFunction}({method.ParameterNames})).ConfigureAwait(false);");
+                    }
+                    else
+                    {
+                        hubContent.AppendLine($"            var ret = await APIStatsLogger.DebugAPI(Sender.Send(new {method.SingalRFunction}({method.ParameterNames}))).ConfigureAwait(false);");
+
+                    }
                     hubContent.AppendLine($"            return ret{nullReturn};");
                     IhubContent.AppendLine($"        Task<PagedResponse<{toReturn}>> {method.Name}({method.Parameter});");
                 }
@@ -187,7 +210,14 @@ public static class CSharpGenerator
                 {
                     hubContent.AppendLine($"        public async Task<{toReturn}> {method.Name}({method.Name}Request request)");
                     hubContent.AppendLine("        {");
-                    hubContent.AppendLine("             var ret = await Sender.Send(request).ConfigureAwait(false);");
+                    if (method.NoDebug)
+                    {
+                        hubContent.AppendLine("             var ret = await Sender.Send(request).ConfigureAwait(false);");
+                    }
+                    else
+                    {
+                        hubContent.AppendLine("             var ret = await APIStatsLogger.DebugAPI(Sender.Send(request)).ConfigureAwait(false);");
+                    }
                     hubContent.AppendLine($"            return ret.Data{nullReturn};");
                     IhubContent.AppendLine($"        Task<{toReturn}> {method.Name}({method.Name}Request request);");
                 }
@@ -195,7 +225,15 @@ public static class CSharpGenerator
                 {
                     hubContent.AppendLine($"        public async Task<{toReturn}> {method.Name}({method.Parameter})");
                     hubContent.AppendLine("        {");
-                    hubContent.AppendLine($"             var ret = await Sender.Send(new {method.SingalRFunction}({method.ParameterNames})).ConfigureAwait(false);");
+                    if (method.NoDebug)
+                    {
+                        hubContent.AppendLine($"             var ret = await Sender.Send(new {method.SingalRFunction}({method.ParameterNames})).ConfigureAwait(false);");
+
+                    }
+                    else
+                    {
+                        hubContent.AppendLine($"             var ret = await APIStatsLogger.DebugAPI(Sender.Send(new {method.SingalRFunction}({method.ParameterNames}))).ConfigureAwait(false);");
+                    }
                     hubContent.AppendLine($"            return ret.Data{nullReturn};");
                     IhubContent.AppendLine($"        Task<{toReturn}> {method.Name}({method.Parameter});");
                 }
@@ -211,7 +249,14 @@ public static class CSharpGenerator
                 {
                     hubContent.AppendLine($"        public async Task<{toReturn}> {method.Name}({parameterLine})");
                     hubContent.AppendLine("        {");
-                    hubContent.AppendLine($"            var ret = await Sender.Send({toSend}).ConfigureAwait(false);");
+                    if (method.NoDebug)
+                    {
+                        hubContent.AppendLine($"            var ret = await Sender.Send({toSend}).ConfigureAwait(false);");
+                    }
+                    else
+                    {
+                        hubContent.AppendLine($"            var ret = await APIStatsLogger.DebugAPI(Sender.Send({toSend})).ConfigureAwait(false);");
+                    }
                     hubContent.AppendLine($"            return ret{nullReturn};");
                     IhubContent.AppendLine($"        Task<{toReturn}> {method.Name}({parameterLine});");
                 }

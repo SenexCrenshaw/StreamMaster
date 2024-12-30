@@ -9,7 +9,7 @@ import GetCommandProfilesReducer from '@lib/smAPI/Profiles/GetCommandProfilesSli
 import GetCustomLogosReducer from '@lib/smAPI/Logos/GetCustomLogosSlice';
 import GetCustomPlayListReducer from '@lib/smAPI/Custom/GetCustomPlayListSlice';
 import GetCustomPlayListsReducer from '@lib/smAPI/Custom/GetCustomPlayListsSlice';
-import GetDownloadServiceStatusReducer from '@lib/smAPI/General/GetDownloadServiceStatusSlice';
+import GetDownloadServiceStatusReducer from '@lib/smAPI/Statistics/GetDownloadServiceStatusSlice';
 import GetEPGColorsReducer from '@lib/smAPI/EPG/GetEPGColorsSlice';
 import GetEPGFileNamesReducer from '@lib/smAPI/EPGFiles/GetEPGFileNamesSlice';
 import GetEPGFilePreviewByIdReducer from '@lib/smAPI/EPGFiles/GetEPGFilePreviewByIdSlice';
@@ -18,7 +18,7 @@ import GetEPGNextEPGNumberReducer from '@lib/smAPI/EPGFiles/GetEPGNextEPGNumberS
 import GetHeadendsByCountryPostalReducer from '@lib/smAPI/SchedulesDirect/GetHeadendsByCountryPostalSlice';
 import GetHeadendsToViewReducer from '@lib/smAPI/SchedulesDirect/GetHeadendsToViewSlice';
 import GetIntroPlayListsReducer from '@lib/smAPI/Custom/GetIntroPlayListsSlice';
-import GetIsSystemReadyReducer from '@lib/smAPI/General/GetIsSystemReadySlice';
+import GetIsSystemReadyReducer from '@lib/smAPI/Statistics/GetIsSystemReadySlice';
 import GetLineupPreviewChannelReducer from '@lib/smAPI/SchedulesDirect/GetLineupPreviewChannelSlice';
 import GetLogContentsReducer from '@lib/smAPI/Logs/GetLogContentsSlice';
 import GetLogNamesReducer from '@lib/smAPI/Logs/GetLogNamesSlice';
@@ -38,8 +38,8 @@ import GetPagedStreamGroupsReducer from '@lib/smAPI/StreamGroups/GetPagedStreamG
 import GetSelectedStationIdsReducer from '@lib/smAPI/SchedulesDirect/GetSelectedStationIdsSlice';
 import GetSettingsReducer from '@lib/smAPI/Settings/GetSettingsSlice';
 import GetSMChannelChannelsReducer from '@lib/smAPI/SMChannelChannelLinks/GetSMChannelChannelsSlice';
-import GetSMChannelNamesReducer from '@lib/smAPI/SMChannels/GetSMChannelNamesSlice';
 import GetSMChannelStreamsReducer from '@lib/smAPI/SMChannelStreamLinks/GetSMChannelStreamsSlice';
+import GetSMChannelUniqueNameReducer from '@lib/smAPI/SMChannels/GetSMChannelUniqueNameSlice';
 import GetSMTasksReducer from '@lib/smAPI/SMTasks/GetSMTasksSlice';
 import GetStationChannelNamesReducer from '@lib/smAPI/SchedulesDirect/GetStationChannelNamesSlice';
 import GetStationPreviewsReducer from '@lib/smAPI/SchedulesDirect/GetStationPreviewsSlice';
@@ -51,11 +51,10 @@ import GetStreamGroupsReducer from '@lib/smAPI/StreamGroups/GetStreamGroupsSlice
 import GetStreamGroupSMChannelsReducer from '@lib/smAPI/StreamGroupSMChannelLinks/GetStreamGroupSMChannelsSlice';
 import GetSubScribedHeadendsReducer from '@lib/smAPI/SchedulesDirect/GetSubScribedHeadendsSlice';
 import GetSubscribedLineupsReducer from '@lib/smAPI/SchedulesDirect/GetSubscribedLineupsSlice';
-import GetSystemStatusReducer from '@lib/smAPI/General/GetSystemStatusSlice';
-import GetTaskIsRunningReducer from '@lib/smAPI/General/GetTaskIsRunningSlice';
+import GetSystemStatusReducer from '@lib/smAPI/Statistics/GetSystemStatusSlice';
+import GetTaskIsRunningReducer from '@lib/smAPI/Statistics/GetTaskIsRunningSlice';
 import GetVideoInfoReducer from '@lib/smAPI/Statistics/GetVideoInfoSlice';
 import GetVideoInfosReducer from '@lib/smAPI/Statistics/GetVideoInfosSlice';
-import GetVideoStreamNamesAndUrlsReducer from '@lib/smAPI/SMChannels/GetVideoStreamNamesAndUrlsSlice';
 import GetVsReducer from '@lib/smAPI/Vs/GetVsSlice';
 import isTrue from '@lib/redux/hooks/isTrue';
 import loading from '@lib/redux/hooks/loading';
@@ -187,8 +186,8 @@ export const rootReducer = combineReducers({
   GetSelectedStationIds: GetSelectedStationIdsReducer,
   GetSettings: GetSettingsReducer,
   GetSMChannelChannels: GetSMChannelChannelsReducer,
-  GetSMChannelNames: GetSMChannelNamesReducer,
   GetSMChannelStreams: GetSMChannelStreamsReducer,
+  GetSMChannelUniqueName: GetSMChannelUniqueNameReducer,
   GetSMTasks: GetSMTasksReducer,
   GetStationChannelNames: GetStationChannelNamesReducer,
   GetStationPreviews: GetStationPreviewsReducer,
@@ -204,7 +203,6 @@ export const rootReducer = combineReducers({
   GetTaskIsRunning: GetTaskIsRunningReducer,
   GetVideoInfo: GetVideoInfoReducer,
   GetVideoInfos: GetVideoInfosReducer,
-  GetVideoStreamNamesAndUrls: GetVideoStreamNamesAndUrlsReducer,
   GetVs: GetVsReducer,
   isTrue: persistReducer(isTrueConfig, isTrue),
   loading: loading,

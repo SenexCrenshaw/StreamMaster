@@ -15,7 +15,6 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
         await RefreshCustom(true);
         await RefreshEPG(true);
         await RefreshEPGFiles(true);
-        await RefreshGeneral(true);
         await RefreshLogos(true);
         await RefreshLogs(true);
         await RefreshM3UFiles(true);
@@ -77,19 +76,6 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
         await hub.Clients.All.DataRefresh("GetEPGFiles");
         await hub.Clients.All.DataRefresh("GetEPGNextEPGNumber");
         await hub.Clients.All.DataRefresh("GetPagedEPGFiles");
-    }
-
-    public async Task RefreshGeneral(bool alwaysRun = false)
-    {
-        if (!alwaysRun && !BuildInfo.IsSystemReady)
-        {
-            return;
-        }
-
-        await hub.Clients.All.DataRefresh("GetDownloadServiceStatus");
-        await hub.Clients.All.DataRefresh("GetIsSystemReady");
-        await hub.Clients.All.DataRefresh("GetSystemStatus");
-        await hub.Clients.All.DataRefresh("GetTaskIsRunning");
     }
 
     public async Task RefreshLogos(bool alwaysRun = false)
@@ -180,8 +166,6 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
         }
 
         await hub.Clients.All.DataRefresh("GetPagedSMChannels");
-        await hub.Clients.All.DataRefresh("GetSMChannelNames");
-        await hub.Clients.All.DataRefresh("GetVideoStreamNamesAndUrls");
     }
 
     public async Task RefreshSMChannelStreamLinks(bool alwaysRun = false)
@@ -222,7 +206,11 @@ public partial class DataRefreshService(IHubContext<StreamMasterHub, IStreamMast
         }
 
         await hub.Clients.All.DataRefresh("GetChannelMetrics");
+        await hub.Clients.All.DataRefresh("GetDownloadServiceStatus");
+        await hub.Clients.All.DataRefresh("GetIsSystemReady");
         await hub.Clients.All.DataRefresh("GetStreamConnectionMetricDatas");
+        await hub.Clients.All.DataRefresh("GetSystemStatus");
+        await hub.Clients.All.DataRefresh("GetTaskIsRunning");
         await hub.Clients.All.DataRefresh("GetVideoInfos");
     }
 

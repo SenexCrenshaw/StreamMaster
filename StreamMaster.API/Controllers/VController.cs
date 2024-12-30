@@ -74,7 +74,7 @@ public class VsController(ILogger<VsController> logger, IVideoService videoServi
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, $"Error processing stream request. Parameters: encodedIds={encodedIds}, smChannelId={smChannelId}, streamGroupProfileId={streamGroupProfileId}");
+            logger.LogError(ex, "Error processing stream request. Parameters: encodedIds={encodedIds}, smChannelId={smChannelId}, streamGroupProfileId={streamGroupProfileId}", encodedIds, smChannelId, streamGroupProfileId);
             return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing the request.");
         }
     }

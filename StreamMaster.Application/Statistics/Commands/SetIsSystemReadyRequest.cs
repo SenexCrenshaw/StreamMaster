@@ -1,4 +1,4 @@
-﻿namespace StreamMaster.Application.General.Commands;
+﻿namespace StreamMaster.Application.Statistics.Commands;
 
 public record SetIsSystemReadyRequest(bool IsSystemReady) : IRequest;
 

@@ -3,9 +3,8 @@ import SMPopUp from '@components/sm/SMPopUp';
 import { useIsTrue } from '@lib/redux/hooks/isTrue';
 
 import { CopySMChannel } from '@lib/smAPI/SMChannels/SMChannelsCommands';
-import useGetSMChannelNames from '@lib/smAPI/SMChannels/useGetSMChannelNames';
 import { CopySMChannelRequest, SMChannelDto } from '@lib/smAPI/smapiTypes';
-import React, { useCallback, useEffect } from 'react';
+import React from 'react';
 
 interface CloneSMChannelDialogProperties {
   label: string;
@@ -14,35 +13,22 @@ interface CloneSMChannelDialogProperties {
 }
 
 const CloneSMChannelDialog = ({ label, onHide, smChannel }: CloneSMChannelDialogProperties) => {
-  const smQuery = useGetSMChannelNames();
   const { isTrue: smTableIsSimple } = useIsTrue('isSimple');
   const [newName, setNewName] = React.useState<string>('');
 
-  const getUniqueName = useCallback(
-    (name: string): string => {
-      if (!smQuery.data) {
-        return name;
-      }
-
-      let uniqueName = name;
-      let counter = 1;
-
-      while (smQuery.data.some((x) => x === uniqueName)) {
-        uniqueName = `${name}.${counter}`;
-        counter++;
-      }
-
-      return uniqueName;
-    },
-    [smQuery.data]
-  );
-
-  useEffect(() => {
-    if (smChannel) {
-      const t = getUniqueName(smChannel.Name);
-      setNewName(t);
-    }
-  }, [getUniqueName, smChannel]);
+  // useEffect(() => {
+  //   if (smChannel) {
+  //     GetSMChannelUniqueName({ SMChannelName: smChannel.Name } as GetSMChannelUniqueNameRequest)
+  //       .then((response) => {
+  //         if (response) {
+  //           setNewName(response);
+  //         }
+  //       })
+  //       .catch((error) => {
+  //         console.error(error);
+  //       });
+  //   }
+  // }, [smChannel]);
 
   const ReturnToParent = React.useCallback(() => {
     onHide?.();
@@ -56,8 +42,8 @@ const CloneSMChannelDialog = ({ label, onHide, smChannel }: CloneSMChannelDialog
     const request = {} as CopySMChannelRequest;
     request.SMChannelId = smChannel.Id;
 
-    const t = getUniqueName(newName);
-    request.NewName = t;
+    // const t = getUniqueName(newName);
+    request.NewName = newName;
 
     CopySMChannel(request)
       .then(() => {})
@@ -67,7 +53,7 @@ const CloneSMChannelDialog = ({ label, onHide, smChannel }: CloneSMChannelDialog
       .finally(() => {
         ReturnToParent();
       });
-  }, [ReturnToParent, getUniqueName, newName, smChannel]);
+  }, [ReturnToParent, newName, smChannel]);
 
   return (
     <SMPopUp

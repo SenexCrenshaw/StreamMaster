@@ -1,7 +1,7 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import { Logger } from '@lib/common/logger';
 import {FieldData,  } from '@lib/smAPI/smapiTypes';
-import { fetchGetTaskIsRunning } from '@lib/smAPI/General/GetTaskIsRunningFetch';
+import { fetchGetTaskIsRunning } from '@lib/smAPI/Statistics/GetTaskIsRunningFetch';
 import { updateFieldInData } from '@lib/redux/updateFieldInData';
 
 

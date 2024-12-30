@@ -1,17 +1,17 @@
-import { GetSMChannelNames } from '@lib/smAPI/SMChannels/SMChannelsCommands';
+import { GetIsSystemReady } from '@lib/smAPI/Statistics/StatisticsCommands';
 import { Logger } from '@lib/common/logger';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 
 
-export const fetchGetSMChannelNames = createAsyncThunk('cache/getGetSMChannelNames', async (_: void, thunkAPI) => {
+export const fetchGetIsSystemReady = createAsyncThunk('cache/getGetIsSystemReady', async (_: void, thunkAPI) => {
   try {
-    Logger.debug('Fetching GetSMChannelNames');
+    Logger.debug('Fetching GetIsSystemReady');
     const fetchDebug = localStorage.getItem('fetchDebug');
     const start = performance.now();
-    const response = await GetSMChannelNames();
+    const response = await GetIsSystemReady();
     if (fetchDebug) {
       const duration = performance.now() - start;
-      Logger.debug(`Fetch GetSMChannelNames completed in ${duration.toFixed(2)}ms`);
+      Logger.debug(`Fetch GetIsSystemReady completed in ${duration.toFixed(2)}ms`);
     }
 
     return {param: _, value: response };

@@ -14,7 +14,7 @@ namespace StreamMaster.Application.EPGFiles.Controllers
         {
             try
             {
-            var ret = await Sender.Send(new GetEPGFileNamesRequest()).ConfigureAwait(false);
+            var ret = await APIStatsLogger.DebugAPI(Sender.Send(new GetEPGFileNamesRequest())).ConfigureAwait(false);
              return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetEPGFileNames.", statusCode: 500) : Ok(ret.Data?? []);
             }
             catch (Exception ex)
@@ -29,7 +29,7 @@ namespace StreamMaster.Application.EPGFiles.Controllers
         {
             try
             {
-            var ret = await Sender.Send(request).ConfigureAwait(false);
+            var ret = await APIStatsLogger.DebugAPI(Sender.Send(request)).ConfigureAwait(false);
              return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetEPGFilePreviewById.", statusCode: 500) : Ok(ret.Data?? []);
             }
             catch (Exception ex)
@@ -44,7 +44,7 @@ namespace StreamMaster.Application.EPGFiles.Controllers
         {
             try
             {
-            var ret = await Sender.Send(new GetEPGFilesRequest()).ConfigureAwait(false);
+            var ret = await APIStatsLogger.DebugAPI(Sender.Send(new GetEPGFilesRequest())).ConfigureAwait(false);
              return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetEPGFiles.", statusCode: 500) : Ok(ret.Data?? []);
             }
             catch (Exception ex)
@@ -59,7 +59,7 @@ namespace StreamMaster.Application.EPGFiles.Controllers
         {
             try
             {
-            var ret = await Sender.Send(new GetEPGNextEPGNumberRequest()).ConfigureAwait(false);
+            var ret = await APIStatsLogger.DebugAPI(Sender.Send(new GetEPGNextEPGNumberRequest())).ConfigureAwait(false);
              return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetEPGNextEPGNumber.", statusCode: 500) : Ok(ret.Data);
             }
             catch (Exception ex)
@@ -72,42 +72,42 @@ namespace StreamMaster.Application.EPGFiles.Controllers
         [Route("[action]")]
         public async Task<ActionResult<PagedResponse<EPGFileDto>>> GetPagedEPGFiles([FromQuery] QueryStringParameters Parameters)
         {
-            var ret = await Sender.Send(new GetPagedEPGFilesRequest(Parameters)).ConfigureAwait(false);
+            var ret = await APIStatsLogger.DebugAPI(Sender.Send(new GetPagedEPGFilesRequest(Parameters))).ConfigureAwait(false);
             return ret?? new();
         }
         [HttpPost]
         [Route("[action]")]
         public async Task<ActionResult<APIResponse?>> CreateEPGFile(CreateEPGFileRequest request)
         {
-            var ret = await Sender.Send(request).ConfigureAwait(false);
+            var ret = await APIStatsLogger.DebugAPI(Sender.Send(request)).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
         }
         [HttpDelete]
         [Route("[action]")]
         public async Task<ActionResult<APIResponse?>> DeleteEPGFile(DeleteEPGFileRequest request)
         {
-            var ret = await Sender.Send(request).ConfigureAwait(false);
+            var ret = await APIStatsLogger.DebugAPI(Sender.Send(request)).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
         }
         [HttpPatch]
         [Route("[action]")]
         public async Task<ActionResult<APIResponse?>> ProcessEPGFile(ProcessEPGFileRequest request)
         {
-            var ret = await Sender.Send(request).ConfigureAwait(false);
+            var ret = await APIStatsLogger.DebugAPI(Sender.Send(request)).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
         }
         [HttpPatch]
         [Route("[action]")]
         public async Task<ActionResult<APIResponse?>> RefreshEPGFile(RefreshEPGFileRequest request)
         {
-            var ret = await Sender.Send(request).ConfigureAwait(false);
+            var ret = await APIStatsLogger.DebugAPI(Sender.Send(request)).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
         }
         [HttpPatch]
         [Route("[action]")]
         public async Task<ActionResult<APIResponse?>> UpdateEPGFile(UpdateEPGFileRequest request)
         {
-            var ret = await Sender.Send(request).ConfigureAwait(false);
+            var ret = await APIStatsLogger.DebugAPI(Sender.Send(request)).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
         }
     }
@@ -119,52 +119,52 @@ namespace StreamMaster.Application.Hubs
     {
         public async Task<List<string>> GetEPGFileNames()
         {
-             var ret = await Sender.Send(new GetEPGFileNamesRequest()).ConfigureAwait(false);
+             var ret = await APIStatsLogger.DebugAPI(Sender.Send(new GetEPGFileNamesRequest())).ConfigureAwait(false);
             return ret.Data?? [];
         }
         public async Task<List<EPGFilePreviewDto>> GetEPGFilePreviewById(GetEPGFilePreviewByIdRequest request)
         {
-             var ret = await Sender.Send(request).ConfigureAwait(false);
+             var ret = await APIStatsLogger.DebugAPI(Sender.Send(request)).ConfigureAwait(false);
             return ret.Data?? [];
         }
         public async Task<List<EPGFileDto>> GetEPGFiles()
         {
-             var ret = await Sender.Send(new GetEPGFilesRequest()).ConfigureAwait(false);
+             var ret = await APIStatsLogger.DebugAPI(Sender.Send(new GetEPGFilesRequest())).ConfigureAwait(false);
             return ret.Data?? [];
         }
         public async Task<int> GetEPGNextEPGNumber()
         {
-             var ret = await Sender.Send(new GetEPGNextEPGNumberRequest()).ConfigureAwait(false);
+             var ret = await APIStatsLogger.DebugAPI(Sender.Send(new GetEPGNextEPGNumberRequest())).ConfigureAwait(false);
             return ret.Data;
         }
         public async Task<PagedResponse<EPGFileDto>> GetPagedEPGFiles(QueryStringParameters Parameters)
         {
-            var ret = await Sender.Send(new GetPagedEPGFilesRequest(Parameters)).ConfigureAwait(false);
+            var ret = await APIStatsLogger.DebugAPI(Sender.Send(new GetPagedEPGFilesRequest(Parameters))).ConfigureAwait(false);
             return ret?? new();
         }
         public async Task<APIResponse?> CreateEPGFile(CreateEPGFileRequest request)
         {
-            var ret = await Sender.Send(request).ConfigureAwait(false);
+            var ret = await APIStatsLogger.DebugAPI(Sender.Send(request)).ConfigureAwait(false);
             return ret;
         }
         public async Task<APIResponse?> DeleteEPGFile(DeleteEPGFileRequest request)
         {
-            var ret = await Sender.Send(request).ConfigureAwait(false);
+            var ret = await APIStatsLogger.DebugAPI(Sender.Send(request)).ConfigureAwait(false);
             return ret;
         }
         public async Task<APIResponse?> ProcessEPGFile(ProcessEPGFileRequest request)
         {
-            var ret = await Sender.Send(request).ConfigureAwait(false);
+            var ret = await APIStatsLogger.DebugAPI(Sender.Send(request)).ConfigureAwait(false);
             return ret;
         }
         public async Task<APIResponse?> RefreshEPGFile(RefreshEPGFileRequest request)
         {
-            var ret = await Sender.Send(request).ConfigureAwait(false);
+            var ret = await APIStatsLogger.DebugAPI(Sender.Send(request)).ConfigureAwait(false);
             return ret;
         }
         public async Task<APIResponse?> UpdateEPGFile(UpdateEPGFileRequest request)
         {
-            var ret = await Sender.Send(request).ConfigureAwait(false);
+            var ret = await APIStatsLogger.DebugAPI(Sender.Send(request)).ConfigureAwait(false);
             return ret;
         }
     }

@@ -27,7 +27,7 @@ namespace StreamMaster.Application.SMTasks.Controllers
         [Route("[action]")]
         public async Task<ActionResult<APIResponse?>> SendSMTasks(SendSMTasksRequest request)
         {
-            var ret = await Sender.Send(request).ConfigureAwait(false);
+            var ret = await APIStatsLogger.DebugAPI(Sender.Send(request)).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
         }
     }
@@ -44,7 +44,7 @@ namespace StreamMaster.Application.Hubs
         }
         public async Task<APIResponse?> SendSMTasks(SendSMTasksRequest request)
         {
-            var ret = await Sender.Send(request).ConfigureAwait(false);
+            var ret = await APIStatsLogger.DebugAPI(Sender.Send(request)).ConfigureAwait(false);
             return ret;
         }
     }

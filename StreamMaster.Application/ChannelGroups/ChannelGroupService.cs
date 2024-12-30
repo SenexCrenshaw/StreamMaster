@@ -1,9 +1,12 @@
 ﻿namespace StreamMaster.Application.ChannelGroups;
 
-public class ChannelGroupService(ILogger<ChannelGroupService> _logger, IRepositoryWrapper repositoryWrapper) : IChannelGroupService
-
+public class ChannelGroupService(ILogger<ChannelGroupService> _logger, IRepositoryContext repositoryContext, IRepositoryWrapper repositoryWrapper) : IChannelGroupService
 {
     public async Task UpdateChannelGroupCountsRequestAsync(List<ChannelGroup>? ChannelGroups = null)
+    {
+        await repositoryContext.ExecuteSqlRawAsync("SELECT update_channel_group_counts()");
+    }
+    public async Task UpdateChannelGroupCountsRequestAsyncOld(List<ChannelGroup>? ChannelGroups = null)
     {
         try
         {

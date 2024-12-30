@@ -38,14 +38,17 @@
     <ProjectReference Include="..\StreamMaster.Infrastructure.EF.Base\StreamMaster.Infrastructure.EF.Base.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Migrations\" />
-  </ItemGroup>
-  <ItemGroup>
     <AdditionalFiles Include="..\DependencyValidation1\DependencyValidation1.layerdiagram" Link="DependencyValidation1.layerdiagram">
       <Visible>False</Visible>
     </AdditionalFiles>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Scripts\get_unique_smchannel_name.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Scripts\update_channel_group_counts.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Scripts\create_or_update_smstreams_and_channels.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

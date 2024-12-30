@@ -246,6 +246,7 @@ export interface SettingDto
 	CleanURLs: boolean;
 	ClientReadTimeoutMs: number;
 	ClientUserAgent: string;
+	DebugAPI: boolean;
 	DefaultCommandProfileName: string;
 	DefaultCompression: string;
 	DefaultLogo: string;
@@ -823,11 +824,23 @@ export interface RemoveSMChannelFromStreamGroupRequest
 export interface GetChannelMetricsRequest
 {
 }
+export interface GetDownloadServiceStatusRequest
+{
+}
+export interface GetIsSystemReadyRequest
+{
+}
 export interface GetStreamConnectionMetricDataRequest
 {
 	Id: string;
 }
 export interface GetStreamConnectionMetricDatasRequest
+{
+}
+export interface GetSystemStatusRequest
+{
+}
+export interface GetTaskIsRunningRequest
 {
 }
 export interface GetVideoInfoRequest
@@ -923,11 +936,9 @@ export interface GetPagedSMChannelsRequest
 {
 	Parameters: QueryStringParameters;
 }
-export interface GetSMChannelNamesRequest
+export interface GetSMChannelUniqueNameRequest
 {
-}
-export interface GetVideoStreamNamesAndUrlsRequest
-{
+	SMChannelName: string;
 }
 export interface IdNameUrl
 {
@@ -1157,6 +1168,7 @@ export interface UpdateSettingParameters
 	CleanURLs?: boolean;
 	ClientReadTimeoutMs?: number;
 	ClientUserAgent?: string;
+	DebugAPI?: boolean;
 	DefaultCommandProfileName?: string;
 	DefaultCompression?: string;
 	DefaultOutputProfileName?: string;
@@ -1413,18 +1425,6 @@ export interface AddCustomLogoRequest
 export interface RemoveCustomLogoRequest
 {
 	Source: string;
-}
-export interface GetDownloadServiceStatusRequest
-{
-}
-export interface GetIsSystemReadyRequest
-{
-}
-export interface GetSystemStatusRequest
-{
-}
-export interface GetTaskIsRunningRequest
-{
 }
 export interface SetTestTaskRequest
 {

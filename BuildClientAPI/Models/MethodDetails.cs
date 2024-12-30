@@ -6,7 +6,7 @@ public class MethodDetails
     public string Parameter { get; set; } = string.Empty;
     public string ParameterNames { get; set; } = string.Empty;
     public bool JustHub { get; set; }
-
+    public bool NoDebug { get; set; }
     public string TsParameter { get; set; } = string.Empty;
     public bool IsGetPaged { get; internal set; }
     public bool JustController { get; internal set; }

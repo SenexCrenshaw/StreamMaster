@@ -14,6 +14,7 @@ using StreamMaster.Application.Logos.Commands;
 using StreamMaster.Application.M3UFiles.Commands;
 using StreamMaster.Application.SchedulesDirect.Commands;
 using StreamMaster.Application.Services;
+using StreamMaster.Application.Statistics.Commands;
 using StreamMaster.Application.StreamGroups.Commands;
 using StreamMaster.Domain.Enums;
 

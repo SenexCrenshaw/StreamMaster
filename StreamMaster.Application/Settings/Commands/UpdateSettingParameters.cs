@@ -8,7 +8,7 @@ public class UpdateSettingParameters
     public bool? BackupEnabled { get; set; }
     public int? BackupVersionsToKeep { get; set; }
     public int? BackupInterval { get; set; }
-
+    public bool? DebugAPI { get; set; }
     [TsProperty(ForceNullable = true)]
     public SDSettingsRequest? SDSettings { get; set; }
     public bool? DeleteOldSTRMFiles { get; set; }

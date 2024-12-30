@@ -14,7 +14,7 @@ namespace StreamMaster.Application.SMChannelStreamLinks.Controllers
         {
             try
             {
-            var ret = await Sender.Send(request).ConfigureAwait(false);
+            var ret = await APIStatsLogger.DebugAPI(Sender.Send(request)).ConfigureAwait(false);
              return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetSMChannelStreams.", statusCode: 500) : Ok(ret.Data?? []);
             }
             catch (Exception ex)
@@ -27,21 +27,21 @@ namespace StreamMaster.Application.SMChannelStreamLinks.Controllers
         [Route("[action]")]
         public async Task<ActionResult<APIResponse?>> AddSMStreamToSMChannel(AddSMStreamToSMChannelRequest request)
         {
-            var ret = await Sender.Send(request).ConfigureAwait(false);
+            var ret = await APIStatsLogger.DebugAPI(Sender.Send(request)).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
         }
         [HttpDelete]
         [Route("[action]")]
         public async Task<ActionResult<APIResponse?>> RemoveSMStreamFromSMChannel(RemoveSMStreamFromSMChannelRequest request)
         {
-            var ret = await Sender.Send(request).ConfigureAwait(false);
+            var ret = await APIStatsLogger.DebugAPI(Sender.Send(request)).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
         }
         [HttpPatch]
         [Route("[action]")]
         public async Task<ActionResult<APIResponse?>> SetSMStreamRanks(SetSMStreamRanksRequest request)
         {
-            var ret = await Sender.Send(request).ConfigureAwait(false);
+            var ret = await APIStatsLogger.DebugAPI(Sender.Send(request)).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
         }
     }
@@ -53,22 +53,22 @@ namespace StreamMaster.Application.Hubs
     {
         public async Task<List<SMStreamDto>> GetSMChannelStreams(GetSMChannelStreamsRequest request)
         {
-             var ret = await Sender.Send(request).ConfigureAwait(false);
+             var ret = await APIStatsLogger.DebugAPI(Sender.Send(request)).ConfigureAwait(false);
             return ret.Data?? [];
         }
         public async Task<APIResponse?> AddSMStreamToSMChannel(AddSMStreamToSMChannelRequest request)
         {
-            var ret = await Sender.Send(request).ConfigureAwait(false);
+            var ret = await APIStatsLogger.DebugAPI(Sender.Send(request)).ConfigureAwait(false);
             return ret;
         }
         public async Task<APIResponse?> RemoveSMStreamFromSMChannel(RemoveSMStreamFromSMChannelRequest request)
         {
-            var ret = await Sender.Send(request).ConfigureAwait(false);
+            var ret = await APIStatsLogger.DebugAPI(Sender.Send(request)).ConfigureAwait(false);
             return ret;
         }
         public async Task<APIResponse?> SetSMStreamRanks(SetSMStreamRanksRequest request)
         {
-            var ret = await Sender.Send(request).ConfigureAwait(false);
+            var ret = await APIStatsLogger.DebugAPI(Sender.Send(request)).ConfigureAwait(false);
             return ret;
         }
     }

@@ -132,6 +132,7 @@ namespace BuildClientAPI
                         IsGetPaged = name.StartsWith("GetPaged"),
                         IsTask = smapiAttribute.IsTask,
                         JustHub = smapiAttribute.JustHub,
+                        NoDebug = smapiAttribute.NoDebug,
                         JustController = smapiAttribute.JustController,
                         Pertsist = smapiAttribute.Persist,
                         SingalRFunction = parameter,

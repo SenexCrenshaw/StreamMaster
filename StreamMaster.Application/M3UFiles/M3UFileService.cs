@@ -381,58 +381,6 @@ public class M3UFileService(ILogger<M3UFileService> logger, IFileUtilService fil
         return [];
     }
 
-    private static string GenerateBatchSqlCommandForDebugging(List<SMStream> streams, int m3uFileId, string m3uFileName, int streamGroupId, bool createChannels, bool returnResults)
-    {
-        string[] ids = [.. streams.Select(s => $"'{EscapeString(s.Id)}'")];
-        string[] filePositions = [.. streams.Select(s => s.FilePosition.ToString())];
-        string[] channelNumbers = [.. streams.Select(s => s.ChannelNumber.ToString())];
-        string[] groups = [.. streams.Select(s => $"'{EscapeString(s.Group)}'")];
-        string[] epgIds = [.. streams.Select(s => $"'{EscapeString(s.EPGID)}'")];
-        string[] logos = [.. streams.Select(s => $"'{EscapeString(s.Logo)}'")];
-        string[] names = [.. streams.Select(s => $"'{EscapeString(s.Name)}'")];
-        string[] urls = [.. streams.Select(s => $"'{EscapeString(s.Url)}'")];
-        string[] stationIds = [.. streams.Select(s => $"'{EscapeString(s.StationId)}'")];
-        string[] channelIds = [.. streams.Select(s => $"'{EscapeString(s.ChannelId)}'")];
-        string[] channelNames = [.. streams.Select(s => $"'{EscapeString(s.ChannelName)}'")];
-        string[] extIfs = [.. streams.Select(s => $"'{EscapeString(s.ExtInf ?? "-1")}'")];
-        string[] isHidden = [.. streams.Select(s => s.IsHidden.ToString().ToUpper())]; // Add IsHidden as a boolean array
-        string[] tvgNames = [.. streams.Select(s => $"'{EscapeString(s.TVGName)}'")]; // Add TVGName array
-
-        // Construct the SQL command to call the function
-        string sqlCommand = $@"
-SELECT * FROM public.create_or_update_smstreams_and_channels(
-    ARRAY[{string.Join(", ", ids)}]::TEXT[],
-    ARRAY[{string.Join(", ", filePositions)}]::INTEGER[],
-    ARRAY[{string.Join(", ", channelNumbers)}]::INTEGER[],
-    ARRAY[{string.Join(", ", groups)}]::CITEXT[],
-    ARRAY[{string.Join(", ", epgIds)}]::CITEXT[],
-    ARRAY[{string.Join(", ", logos)}]::CITEXT[],
-    ARRAY[{string.Join(", ", names)}]::CITEXT[],
-    ARRAY[{string.Join(", ", urls)}]::CITEXT[],
-    ARRAY[{string.Join(", ", stationIds)}]::CITEXT[],
-    ARRAY[{string.Join(", ", channelIds)}]::CITEXT[],
-    ARRAY[{string.Join(", ", channelNames)}]::CITEXT[],
-    ARRAY[{string.Join(", ", extIfs)}]::TEXT[],
-    ARRAY[{string.Join(", ", isHidden)}]::BOOLEAN[],
-    ARRAY[{string.Join(", ", tvgNames)}]::CITEXT[],
-    {m3uFileId},
-    '{EscapeString(m3uFileName)}'::CITEXT,
-    {streamGroupId},
-    {createChannels.ToString().ToUpper()},
-    {returnResults.ToString().ToUpper()}
-);
-";
-
-        return sqlCommand;
-    }
-
-    private static string EscapeString(string input)
-    {
-        return input.Replace("'", "''")
-                          .Replace("{", "[")     // Escape opening curly brace
-                          .Replace("}", "]");
-    }
-
     private const string sqlCommand = @"
 SELECT * FROM public.create_or_update_smstreams_and_channels(
     @p_ids::TEXT[],

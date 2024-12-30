@@ -334,6 +334,9 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
                     b.HasIndex("BaseStreamID")
                         .HasDatabaseName("idx_smchannels_basestreamid");
 
+                    b.HasIndex("Group")
+                        .HasDatabaseName("idx_smchannels_group");
+
                     b.HasIndex("Id")
                         .IsUnique()
                         .HasDatabaseName("idx_smchannels_id");
@@ -474,6 +477,9 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Group")
+                        .HasDatabaseName("idx_smstreams_group");
+
                     b.HasIndex("Id")
                         .IsUnique()
                         .HasDatabaseName("idx_smstreams_id");
@@ -483,6 +489,9 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
 
                     b.HasIndex("Name")
                         .HasDatabaseName("idx_SMStreamName");
+
+                    b.HasIndex("Group", "IsHidden")
+                        .HasDatabaseName("idx_smstreams_group_ishidden");
 
                     b.HasIndex("NeedsDelete", "M3UFileId")
                         .HasDatabaseName("idx_smstreams_needsdelete_m3ufileid");

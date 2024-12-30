@@ -14,8 +14,13 @@ public class RefreshM3UFileRequestHandler(ILogger<RefreshM3UFileRequest> Logger,
         JobStatusManager jobManagerProcess = jobStatusService.GetJobManagerProcessM3U(request.Id);
         try
         {
-            if (jobManager.IsRunning || jobManagerProcess.IsRunning)
+            if (jobManager.IsRunning)
             {
+                return APIResponse.NotFound;
+            }
+            if (jobManagerProcess.IsRunning)
+            {
+                Logger.LogInformation("M3U is processing, skipping refresh");
                 return APIResponse.NotFound;
             }
             jobManager.Start();

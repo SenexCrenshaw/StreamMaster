@@ -1,6 +1,6 @@
-﻿namespace StreamMaster.Application.General.Queries;
+﻿namespace StreamMaster.Application.Statistics.Queries;
 
-[SMAPI]
+[SMAPI(NoDebug = true)]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record GetIsSystemReadyRequest : IRequest<DataResponse<bool>>;
 

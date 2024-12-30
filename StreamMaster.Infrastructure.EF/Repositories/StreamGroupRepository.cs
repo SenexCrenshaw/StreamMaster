@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using AutoMapper.QueryableExtensions;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
@@ -26,31 +25,31 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
         PagedResponse<StreamGroupDto> ret = await query.GetPagedResponseAsync<StreamGroup, StreamGroupDto>(Parameters.PageNumber, Parameters.PageSize, mapper)
                           .ConfigureAwait(false);
 
-        SetStreamGroupsLinks(ret.Data!);
+        await SetStreamGroupsLinks(ret.Data!);
         return ret;
     }
 
-    public void SetStreamGroupsLinks(List<StreamGroupDto> streamGroupDTOs)
+    public async Task SetStreamGroupsLinks(List<StreamGroupDto> streamGroupDTOs)
     {
         string Url = httpContextAccessor.GetUrl();
 
         foreach (StreamGroupDto sg in streamGroupDTOs)
         {
-            SetStreamGroupLinks(sg, Url);
+            await SetStreamGroupLinks(sg, Url);
         }
     }
 
-    private void SetStreamGroupsLink(StreamGroupDto streamGroupDto)
+    private async Task SetStreamGroupsLink(StreamGroupDto streamGroupDto)
     {
         string Url = httpContextAccessor.GetUrl();
-        SetStreamGroupLinks(streamGroupDto, Url);
+        await SetStreamGroupLinks(streamGroupDto, Url);
     }
 
-    private void SetStreamGroupLinks(StreamGroupDto streamGroupDto, string Url)
+    private async Task SetStreamGroupLinks(StreamGroupDto streamGroupDto, string Url)
     {
         Setting Settings = intSettings.CurrentValue;
-        StreamGroup? sg = Repository.StreamGroup.GetQuery().FirstOrDefault(a => a.Id == streamGroupDto.Id);
-        if (sg == null)
+        bool sgExists = await Repository.StreamGroup.GetQuery().AnyAsync(a => a.Id == streamGroupDto.Id);
+        if (!sgExists)
         {
             return;
         }
@@ -104,7 +103,7 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
         }
 
         StreamGroupDto ret = mapper.Map<StreamGroupDto>(streamGroup);
-        SetStreamGroupsLink(ret);
+        await SetStreamGroupsLink(ret);
         return ret;
     }
 
@@ -126,7 +125,7 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
         }
 
         StreamGroupDto ret = mapper.Map<StreamGroupDto>(streamGroup);
-        SetStreamGroupsLink(ret);
+        await SetStreamGroupsLink(ret);
         return ret;
     }
 
@@ -143,13 +142,10 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
 
     public async Task<List<StreamGroupDto>> GetStreamGroups(CancellationToken cancellationToken)
     {
-        List<StreamGroupDto> ret = await GetQuery()
-            .OrderBy(a => a.Name)
-                   .ProjectTo<StreamGroupDto>(mapper.ConfigurationProvider)
-                   .ToListAsync(cancellationToken: cancellationToken)
-                   .ConfigureAwait(false);
+        List<StreamGroup> sgs = await GetQuery().OrderBy(a => a.Name).ToListAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
+        List<StreamGroupDto> ret = mapper.Map<List<StreamGroupDto>>(sgs);
 
-        SetStreamGroupsLinks(ret);
+        await SetStreamGroupsLinks(ret);
         return ret;
     }
 
@@ -213,7 +209,7 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
         _ = await RepositoryContext.SaveChangesAsync();
         StreamGroupDto ret = mapper.Map<StreamGroupDto>(streamGroup);
 
-        SetStreamGroupsLink(ret);
+        await SetStreamGroupsLink(ret);
 
         return ret;
     }
@@ -233,11 +229,18 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
         return FirstOrDefault(a => a.Id == streamGroupId, tracking: false);
     }
 
+    //public override IQueryable<StreamGroup> GetQuery(bool tracking = false)
+    //{
+    //    return tracking
+    //        ? base.GetQuery(tracking).Include(a => a.SMChannels).ThenInclude(a => a.SMChannel).Include(a => a.StreamGroupProfiles)
+    //        : base.GetQuery(tracking).Include(a => a.SMChannels).ThenInclude(a => a.SMChannel).Include(a => a.StreamGroupProfiles).AsNoTracking();
+    //}
+
     public override IQueryable<StreamGroup> GetQuery(bool tracking = false)
     {
         return tracking
-            ? base.GetQuery(tracking).Include(a => a.SMChannels).ThenInclude(a => a.SMChannel).Include(a => a.StreamGroupProfiles)
-            : base.GetQuery(tracking).Include(a => a.SMChannels).ThenInclude(a => a.SMChannel).Include(a => a.StreamGroupProfiles).AsNoTracking();
+            ? base.GetQuery(tracking).Include(a => a.StreamGroupProfiles)
+            : base.GetQuery(tracking).Include(a => a.StreamGroupProfiles).AsNoTracking();
     }
 
     public override IQueryable<StreamGroup> GetQuery(QueryStringParameters parameters, bool tracking = false)

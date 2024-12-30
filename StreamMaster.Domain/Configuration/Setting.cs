@@ -6,6 +6,7 @@ public class BaseSettings
     {
         AuthenticationMethod = "None";
     }
+    public bool DebugAPI { get; set; }
     public bool DeleteOldSTRMFiles { get; set; } = true;
     public string STRMBaseURL { get; set; } = "http://localhost:7095";
     public string APIKey { get; set; } = Guid.NewGuid().ToString().Replace("-", "");

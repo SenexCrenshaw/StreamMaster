@@ -13,7 +13,7 @@ namespace StreamMaster.Application.Vs.Controllers
         {
             try
             {
-            var ret = await Sender.Send(request).ConfigureAwait(false);
+            var ret = await APIStatsLogger.DebugAPI(Sender.Send(request)).ConfigureAwait(false);
              return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetVs.", statusCode: 500) : Ok(ret.Data?? []);
             }
             catch (Exception ex)
@@ -31,7 +31,7 @@ namespace StreamMaster.Application.Hubs
     {
         public async Task<List<V>> GetVs(GetVsRequest request)
         {
-             var ret = await Sender.Send(request).ConfigureAwait(false);
+             var ret = await APIStatsLogger.DebugAPI(Sender.Send(request)).ConfigureAwait(false);
             return ret.Data?? [];
         }
     }

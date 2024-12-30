@@ -1,58 +1,58 @@
-﻿using System.Web;
+﻿//using System.Web;
 
-using Microsoft.AspNetCore.Http;
+//using Microsoft.AspNetCore.Http;
 
-namespace StreamMaster.Application.SMChannels.Queries;
+//namespace StreamMaster.Application.SMChannels.Queries;
 
-[SMAPI]
-[TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record GetVideoStreamNamesAndUrlsRequest() : IRequest<DataResponse<List<IdNameUrl>>>;
+//[SMAPI]
+//[TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
+//public record GetVideoStreamNamesAndUrlsRequest() : IRequest<DataResponse<List<IdNameUrl>>>;
 
-internal class GetVideoStreamNamesAndUrlsHandler(IRepositoryWrapper Repository, IStreamGroupService streamGroupService, IHttpContextAccessor httpContextAccessor)
-    : IRequestHandler<GetVideoStreamNamesAndUrlsRequest, DataResponse<List<IdNameUrl>>>
-{
-    public async Task<DataResponse<List<IdNameUrl>>> Handle(GetVideoStreamNamesAndUrlsRequest request, CancellationToken cancellationToken)
-    {
-        string url = httpContextAccessor.GetUrl();
+//internal class GetVideoStreamNamesAndUrlsHandler(IRepositoryWrapper Repository, IStreamGroupService streamGroupService, IHttpContextAccessor httpContextAccessor)
+//    : IRequestHandler<GetVideoStreamNamesAndUrlsRequest, DataResponse<List<IdNameUrl>>>
+//{
+//    public async Task<DataResponse<List<IdNameUrl>>> Handle(GetVideoStreamNamesAndUrlsRequest request, CancellationToken cancellationToken)
+//    {
+//        string url = httpContextAccessor.GetUrl();
 
-        int defaultStreamGroupId = await streamGroupService.GetDefaultSGIdAsync();
-        StreamGroupProfile streamGroupProfile = await streamGroupService.GetDefaultStreamGroupProfileAsync();
+//        int defaultStreamGroupId = await streamGroupService.GetDefaultSGIdAsync();
+//        StreamGroupProfile streamGroupProfile = await streamGroupService.GetDefaultStreamGroupProfileAsync();
 
-        List<IdNameUrl> ret = [];
+//        List<IdNameUrl> ret = [];
 
-        IOrderedQueryable<SMChannel> Q = Repository.SMChannel.GetQuery()
-         .Where(vs => !vs.IsHidden)
-         .OrderBy(vs => vs.ChannelNumber);
+//        IOrderedQueryable<SMChannel> Q = Repository.SMChannel.GetQuery()
+//         .Where(vs => !vs.IsHidden)
+//         .OrderBy(vs => vs.ChannelNumber);
 
-        List<Task<IdNameUrl>> tasks = [];
+//        List<Task<IdNameUrl>> tasks = [];
 
-        foreach (SMChannel smChannel in Q)
-        {
-            string Url = await GetVideoStreamUrlAsync(smChannel.Name, smChannel.Id, defaultStreamGroupId, streamGroupProfile.Id, url);
-            IdNameUrl idNameUrl = new(smChannel.Id, smChannel.Name, Url);
-            ret.Add(idNameUrl);
-        }
-        //{
-        //    string Url = await GetVideoStreamUrlAsync(smChannel.Name, smChannel.Id, defaultStreamGroupId, streamGroupProfile.Id, url);
-        //    IdNameUrl idNameUrl = new(smChannel.Id, smChannel.Name, Url);
-        //    lock (tasks)
-        //    {
-        //        tasks.Add(Task.FromResult(idNameUrl));
-        //    }
-        //});
+//        foreach (SMChannel smChannel in Q)
+//        {
+//            string Url = await GetVideoStreamUrlAsync(smChannel.Name, smChannel.Id, defaultStreamGroupId, streamGroupProfile.Id, url);
+//            IdNameUrl idNameUrl = new(smChannel.Id, smChannel.Name, Url);
+//            ret.Add(idNameUrl);
+//        }
+//        //{
+//        //    string Url = await GetVideoStreamUrlAsync(smChannel.Name, smChannel.Id, defaultStreamGroupId, streamGroupProfile.Id, url);
+//        //    IdNameUrl idNameUrl = new(smChannel.Id, smChannel.Name, Url);
+//        //    lock (tasks)
+//        //    {
+//        //        tasks.Add(Task.FromResult(idNameUrl));
+//        //    }
+//        //});
 
-        //ret.AddRange(await Task.WhenAll(tasks));
+//        //ret.AddRange(await Task.WhenAll(tasks));
 
-        return DataResponse<List<IdNameUrl>>.Success(ret);
-    }
-    private async Task<string> GetVideoStreamUrlAsync(string name, int smId, int sgId, int sgPId, string url)
-    {
-        string cleanName = HttpUtility.UrlEncode(name);
+//        return DataResponse<List<IdNameUrl>>.Success(ret);
+//    }
+//    private async Task<string> GetVideoStreamUrlAsync(string name, int smId, int sgId, int sgPId, string url)
+//    {
+//        string cleanName = HttpUtility.UrlEncode(name);
 
-        string? encodedString = await streamGroupService.EncodeStreamGroupIdProfileIdChannelIdAsync(sgId, sgPId, smId);
+//        string? encodedString = await streamGroupService.EncodeStreamGroupIdProfileIdChannelIdAsync(sgId, sgPId, smId);
 
-        string videoUrl = $"{url}{BuildInfo.PATH_BASE}/api/videostreams/stream/{encodedString}/{cleanName}";
+//        string videoUrl = $"{url}{BuildInfo.PATH_BASE}/api/videostreams/stream/{encodedString}/{cleanName}";
 
-        return videoUrl;
-    }
-}
+//        return videoUrl;
+//    }
+//}

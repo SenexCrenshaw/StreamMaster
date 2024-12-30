@@ -153,15 +153,52 @@ public class BaseRepositoryContext(DbContextOptions options)
         modelBuilder.UseIdentityAlwaysColumns();
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(BaseRepositoryContext).Assembly);
 
-        // Existing indexes
+        // Apply configurations
+
+        ConfigureChannelGroup(modelBuilder);
+
+        ConfigureSMChannel(modelBuilder);
+
+        ConfigureSMStream(modelBuilder);
+
+        ConfigureSMChannelStreamLink(modelBuilder);
+
+        ConfigureStreamGroup(modelBuilder);
+
+        ConfigureStreamGroupSMChannelLink(modelBuilder);
+
+        ConfigureEPGFile(modelBuilder);
+
+        // Ensure UTC DateTime Conversion
+        modelBuilder.ApplyUtcDateTimeConverter();
+
+        base.OnModelCreating(modelBuilder);
+    }
+
+    #region ChannelGroup Configuration
+    private static void ConfigureChannelGroup(ModelBuilder modelBuilder)
+    {
         _ = modelBuilder.Entity<ChannelGroup>()
             .HasIndex(e => e.Name)
             .HasDatabaseName("idx_Name");
 
+        _ = modelBuilder.Entity<ChannelGroup>()
+            .HasIndex(e => new { e.Name, e.IsHidden })
+            .HasDatabaseName("idx_Name_IsHidden");
+    }
+    #endregion
+
+    #region SMChannel Configuration
+    private static void ConfigureSMChannel(ModelBuilder modelBuilder)
+    {
         _ = modelBuilder.Entity<SMChannel>()
             .HasIndex(e => e.Id)
             .HasDatabaseName("idx_smchannels_id")
             .IsUnique();
+
+        _ = modelBuilder.Entity<SMChannel>()
+            .HasIndex(e => e.Group)
+            .HasDatabaseName("idx_smchannels_group");
 
         _ = modelBuilder.Entity<SMChannel>()
             .HasIndex(e => e.BaseStreamID)
@@ -174,6 +211,15 @@ public class BaseRepositoryContext(DbContextOptions options)
         _ = modelBuilder.Entity<SMChannel>()
             .HasIndex(e => new { e.ChannelNumber, e.Id })
             .HasDatabaseName("idx_smchannels_channelnumber_id");
+    }
+    #endregion
+
+    #region SMStream Configuration
+    private static void ConfigureSMStream(ModelBuilder modelBuilder)
+    {
+        _ = modelBuilder.Entity<SMStream>()
+            .HasIndex(e => e.Name)
+            .HasDatabaseName("idx_smstreams_name");
 
         _ = modelBuilder.Entity<SMStream>()
             .HasIndex(e => e.Id)
@@ -184,31 +230,13 @@ public class BaseRepositoryContext(DbContextOptions options)
             .HasIndex(e => e.Name)
             .HasDatabaseName("idx_SMStreamName");
 
-        _ = modelBuilder.Entity<SMChannelStreamLink>()
-            .HasIndex(e => new { e.SMChannelId, e.SMStreamId })
-            .HasDatabaseName("idx_smchannelstreamlinks_smchannelid_smstreamid")
-            .IsUnique();
+        _ = modelBuilder.Entity<SMStream>()
+            .HasIndex(e => e.Group)
+            .HasDatabaseName("idx_smstreams_group");
 
-        _ = modelBuilder.Entity<SMChannelStreamLink>()
-            .HasIndex(e => new { e.SMChannelId, e.Rank })
-            .HasDatabaseName("idx_smchannelstreamlinks_smchannelid_rank");
-
-        _ = modelBuilder.Entity<StreamGroupSMChannelLink>()
-            .HasIndex(e => new { e.SMChannelId, e.StreamGroupId })
-            .HasDatabaseName("idx_streamgroupsmchannellink_smchannelid_streamgroupid")
-            .IsUnique();
-
-        _ = modelBuilder.Entity<StreamGroup>()
-            .HasIndex(e => new { e.Name, e.Id })
-            .HasDatabaseName("idx_streamgroups_name_id");
-
-        _ = modelBuilder.Entity<ChannelGroup>()
-            .HasIndex(e => new { e.Name, e.IsHidden })
-            .HasDatabaseName("idx_Name_IsHidden");
-
-        _ = modelBuilder.Entity<EPGFile>()
-            .HasIndex(e => e.Url)
-            .HasDatabaseName("idx_epgfiles_url");
+        _ = modelBuilder.Entity<SMStream>()
+            .HasIndex(e => new { e.Group, e.IsHidden })
+            .HasDatabaseName("idx_smstreams_group_ishidden");
 
         _ = modelBuilder.Entity<SMStream>()
             .HasIndex(e => e.M3UFileId)
@@ -217,10 +245,49 @@ public class BaseRepositoryContext(DbContextOptions options)
         _ = modelBuilder.Entity<SMStream>()
             .HasIndex(e => new { e.NeedsDelete, e.M3UFileId })
             .HasDatabaseName("idx_smstreams_needsdelete_m3ufileid");
-
-        // Ensure UTC DateTime Conversion
-        modelBuilder.ApplyUtcDateTimeConverter();
-
-        base.OnModelCreating(modelBuilder);
     }
+    #endregion
+
+    #region SMChannelStreamLink Configuration
+    private static void ConfigureSMChannelStreamLink(ModelBuilder modelBuilder)
+    {
+        _ = modelBuilder.Entity<SMChannelStreamLink>()
+            .HasIndex(e => new { e.SMChannelId, e.SMStreamId })
+            .HasDatabaseName("idx_smchannelstreamlinks_smchannelid_smstreamid")
+            .IsUnique();
+
+        _ = modelBuilder.Entity<SMChannelStreamLink>()
+            .HasIndex(e => new { e.SMChannelId, e.Rank })
+            .HasDatabaseName("idx_smchannelstreamlinks_smchannelid_rank");
+    }
+    #endregion
+
+    #region StreamGroup Configuration
+    private static void ConfigureStreamGroup(ModelBuilder modelBuilder)
+    {
+        _ = modelBuilder.Entity<StreamGroup>()
+            .HasIndex(e => new { e.Name, e.Id })
+            .HasDatabaseName("idx_streamgroups_name_id");
+    }
+    #endregion
+
+    #region StreamGroupSMChannelLink Configuration
+    private static void ConfigureStreamGroupSMChannelLink(ModelBuilder modelBuilder)
+    {
+        _ = modelBuilder.Entity<StreamGroupSMChannelLink>()
+            .HasIndex(e => new { e.SMChannelId, e.StreamGroupId })
+            .HasDatabaseName("idx_streamgroupsmchannellink_smchannelid_streamgroupid")
+            .IsUnique();
+    }
+    #endregion
+
+    #region EPGFile Configuration
+    private static void ConfigureEPGFile(ModelBuilder modelBuilder)
+    {
+        _ = modelBuilder.Entity<EPGFile>()
+            .HasIndex(e => e.Url)
+            .HasDatabaseName("idx_epgfiles_url");
+    }
+    #endregion
+
 }

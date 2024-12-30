@@ -13,7 +13,7 @@ namespace StreamMaster.Application.Logs.Controllers
         {
             try
             {
-            var ret = await Sender.Send(request).ConfigureAwait(false);
+            var ret = await APIStatsLogger.DebugAPI(Sender.Send(request)).ConfigureAwait(false);
              return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetLogContents.", statusCode: 500) : Ok(ret.Data?? string.Empty);
             }
             catch (Exception ex)
@@ -28,7 +28,7 @@ namespace StreamMaster.Application.Logs.Controllers
         {
             try
             {
-            var ret = await Sender.Send(new GetLogNamesRequest()).ConfigureAwait(false);
+            var ret = await APIStatsLogger.DebugAPI(Sender.Send(new GetLogNamesRequest())).ConfigureAwait(false);
              return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetLogNames.", statusCode: 500) : Ok(ret.Data?? []);
             }
             catch (Exception ex)
@@ -46,12 +46,12 @@ namespace StreamMaster.Application.Hubs
     {
         public async Task<string> GetLogContents(GetLogContentsRequest request)
         {
-             var ret = await Sender.Send(request).ConfigureAwait(false);
+             var ret = await APIStatsLogger.DebugAPI(Sender.Send(request)).ConfigureAwait(false);
             return ret.Data?? string.Empty;
         }
         public async Task<List<string>> GetLogNames()
         {
-             var ret = await Sender.Send(new GetLogNamesRequest()).ConfigureAwait(false);
+             var ret = await APIStatsLogger.DebugAPI(Sender.Send(new GetLogNamesRequest())).ConfigureAwait(false);
             return ret.Data?? [];
         }
     }

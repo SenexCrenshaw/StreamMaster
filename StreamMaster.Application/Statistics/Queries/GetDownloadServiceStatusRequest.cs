@@ -1,4 +1,4 @@
-﻿namespace StreamMaster.Application.General.Queries;
+﻿namespace StreamMaster.Application.Statistics.Queries;
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]

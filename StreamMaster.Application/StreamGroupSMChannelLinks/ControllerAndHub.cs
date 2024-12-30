@@ -14,7 +14,7 @@ namespace StreamMaster.Application.StreamGroupSMChannelLinks.Controllers
         {
             try
             {
-            var ret = await Sender.Send(request).ConfigureAwait(false);
+            var ret = await APIStatsLogger.DebugAPI(Sender.Send(request)).ConfigureAwait(false);
              return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetStreamGroupSMChannels.", statusCode: 500) : Ok(ret.Data?? []);
             }
             catch (Exception ex)
@@ -27,28 +27,28 @@ namespace StreamMaster.Application.StreamGroupSMChannelLinks.Controllers
         [Route("[action]")]
         public async Task<ActionResult<APIResponse?>> AddSMChannelsToStreamGroupByParameters(AddSMChannelsToStreamGroupByParametersRequest request)
         {
-            var ret = await Sender.Send(request).ConfigureAwait(false);
+            var ret = await APIStatsLogger.DebugAPI(Sender.Send(request)).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
         }
         [HttpPatch]
         [Route("[action]")]
         public async Task<ActionResult<APIResponse?>> AddSMChannelsToStreamGroup(AddSMChannelsToStreamGroupRequest request)
         {
-            var ret = await Sender.Send(request).ConfigureAwait(false);
+            var ret = await APIStatsLogger.DebugAPI(Sender.Send(request)).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
         }
         [HttpPatch]
         [Route("[action]")]
         public async Task<ActionResult<APIResponse?>> AddSMChannelToStreamGroup(AddSMChannelToStreamGroupRequest request)
         {
-            var ret = await Sender.Send(request).ConfigureAwait(false);
+            var ret = await APIStatsLogger.DebugAPI(Sender.Send(request)).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
         }
         [HttpDelete]
         [Route("[action]")]
         public async Task<ActionResult<APIResponse?>> RemoveSMChannelFromStreamGroup(RemoveSMChannelFromStreamGroupRequest request)
         {
-            var ret = await Sender.Send(request).ConfigureAwait(false);
+            var ret = await APIStatsLogger.DebugAPI(Sender.Send(request)).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
         }
     }
@@ -60,27 +60,27 @@ namespace StreamMaster.Application.Hubs
     {
         public async Task<List<SMChannelDto>> GetStreamGroupSMChannels(GetStreamGroupSMChannelsRequest request)
         {
-             var ret = await Sender.Send(request).ConfigureAwait(false);
+             var ret = await APIStatsLogger.DebugAPI(Sender.Send(request)).ConfigureAwait(false);
             return ret.Data?? [];
         }
         public async Task<APIResponse?> AddSMChannelsToStreamGroupByParameters(AddSMChannelsToStreamGroupByParametersRequest request)
         {
-            var ret = await Sender.Send(request).ConfigureAwait(false);
+            var ret = await APIStatsLogger.DebugAPI(Sender.Send(request)).ConfigureAwait(false);
             return ret;
         }
         public async Task<APIResponse?> AddSMChannelsToStreamGroup(AddSMChannelsToStreamGroupRequest request)
         {
-            var ret = await Sender.Send(request).ConfigureAwait(false);
+            var ret = await APIStatsLogger.DebugAPI(Sender.Send(request)).ConfigureAwait(false);
             return ret;
         }
         public async Task<APIResponse?> AddSMChannelToStreamGroup(AddSMChannelToStreamGroupRequest request)
         {
-            var ret = await Sender.Send(request).ConfigureAwait(false);
+            var ret = await APIStatsLogger.DebugAPI(Sender.Send(request)).ConfigureAwait(false);
             return ret;
         }
         public async Task<APIResponse?> RemoveSMChannelFromStreamGroup(RemoveSMChannelFromStreamGroupRequest request)
         {
-            var ret = await Sender.Send(request).ConfigureAwait(false);
+            var ret = await APIStatsLogger.DebugAPI(Sender.Send(request)).ConfigureAwait(false);
             return ret;
         }
     }

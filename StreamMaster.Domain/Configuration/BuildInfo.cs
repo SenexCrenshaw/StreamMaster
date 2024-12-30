@@ -131,6 +131,7 @@ namespace StreamMaster.Domain.Configuration
         public static readonly string CommandErrorFolder = Path.Combine(AppDataFolder, "CommandLogs");
 
         public static readonly string OnDemandFolder = Path.Combine(AppDataFolder, "OnDemand");
+        public static readonly string APIStatsFolder = Path.Combine(AppDataFolder, "APIStats");
 
         public static readonly string DupDataFolder = Path.Combine(CacheFolder, "DuplicateStreamLists");
 

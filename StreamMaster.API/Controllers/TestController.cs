@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-using StreamMaster.Application.General.Commands;
 using StreamMaster.Application.M3UFiles.Commands;
 using StreamMaster.Application.Services;
+using StreamMaster.Application.Statistics.Commands;
 
 namespace StreamMaster.API.Controllers;
 

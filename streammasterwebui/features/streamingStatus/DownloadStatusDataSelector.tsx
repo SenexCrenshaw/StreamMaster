@@ -1,6 +1,6 @@
 import React from 'react';
 
-import useGetDownloadServiceStatus from '@lib/smAPI/General/useGetDownloadServiceStatus';
+import useGetDownloadServiceStatus from '@lib/smAPI/Statistics/useGetDownloadServiceStatus';
 import DownloadStatusView from './DownloadStatusView';
 
 const DownloadStatusDataSelector = () => {

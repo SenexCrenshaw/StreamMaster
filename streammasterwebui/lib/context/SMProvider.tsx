@@ -1,9 +1,9 @@
 import SMLoader from '@components/loader/SMLoader';
 import { Logger } from '@lib/common/logger';
-import { GetIsSystemReady } from '@lib/smAPI/General/GeneralCommands';
-import useGetTaskIsRunning from '@lib/smAPI/General/useGetTaskIsRunning';
 import useGetSettings from '@lib/smAPI/Settings/useGetSettings';
 import { SettingDto } from '@lib/smAPI/smapiTypes';
+import { GetIsSystemReady } from '@lib/smAPI/Statistics/StatisticsCommands';
+import useGetTaskIsRunning from '@lib/smAPI/Statistics/useGetTaskIsRunning';
 import { BlockUI } from 'primereact/blockui';
 import { useLocalStorage } from 'primereact/hooks';
 import React, { ReactNode, createContext, useCallback, useContext, useEffect, useState } from 'react';

@@ -226,6 +226,11 @@ public partial class UpdateSettingRequestHandler(
             currentSetting.StreamStartTimeoutMs = request.Parameters.StreamStartTimeoutMs.Value;
         }
 
+        if (request.Parameters.DebugAPI.HasValue)
+        {
+            currentSetting.DebugAPI = request.Parameters.DebugAPI.Value;
+        }
+
         if (request.Parameters.PrettyEPG.HasValue)
         {
             currentSetting.PrettyEPG = request.Parameters.PrettyEPG.Value;

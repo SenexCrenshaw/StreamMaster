@@ -2,7 +2,7 @@
 
 namespace StreamMaster.Application.SMTasks.Queries;
 
-[SMAPI]
+[SMAPI(NoDebug = true)]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record GetSMTasksRequest() : IRequest<DataResponse<List<SMTask>>>;
 

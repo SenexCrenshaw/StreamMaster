@@ -14,7 +14,7 @@ namespace StreamMaster.Application.Logos.Controllers
         {
             try
             {
-            var ret = await Sender.Send(new GetCustomLogosRequest()).ConfigureAwait(false);
+            var ret = await APIStatsLogger.DebugAPI(Sender.Send(new GetCustomLogosRequest())).ConfigureAwait(false);
              return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetCustomLogos.", statusCode: 500) : Ok(ret.Data?? []);
             }
             catch (Exception ex)
@@ -29,7 +29,7 @@ namespace StreamMaster.Application.Logos.Controllers
         {
             try
             {
-            var ret = await Sender.Send(request).ConfigureAwait(false);
+            var ret = await APIStatsLogger.DebugAPI(Sender.Send(request)).ConfigureAwait(false);
              return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetLogoForChannel.", statusCode: 500) : Ok(ret.Data?? new());
             }
             catch (Exception ex)
@@ -44,7 +44,7 @@ namespace StreamMaster.Application.Logos.Controllers
         {
             try
             {
-            var ret = await Sender.Send(request).ConfigureAwait(false);
+            var ret = await APIStatsLogger.DebugAPI(Sender.Send(request)).ConfigureAwait(false);
              return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetLogo.", statusCode: 500) : Ok(ret.Data?? new());
             }
             catch (Exception ex)
@@ -59,7 +59,7 @@ namespace StreamMaster.Application.Logos.Controllers
         {
             try
             {
-            var ret = await Sender.Send(new GetLogosRequest()).ConfigureAwait(false);
+            var ret = await APIStatsLogger.DebugAPI(Sender.Send(new GetLogosRequest())).ConfigureAwait(false);
              return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetLogos.", statusCode: 500) : Ok(ret.Data?? []);
             }
             catch (Exception ex)
@@ -72,14 +72,14 @@ namespace StreamMaster.Application.Logos.Controllers
         [Route("[action]")]
         public async Task<ActionResult<APIResponse?>> AddCustomLogo(AddCustomLogoRequest request)
         {
-            var ret = await Sender.Send(request).ConfigureAwait(false);
+            var ret = await APIStatsLogger.DebugAPI(Sender.Send(request)).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
         }
         [HttpDelete]
         [Route("[action]")]
         public async Task<ActionResult<APIResponse?>> RemoveCustomLogo(RemoveCustomLogoRequest request)
         {
-            var ret = await Sender.Send(request).ConfigureAwait(false);
+            var ret = await APIStatsLogger.DebugAPI(Sender.Send(request)).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
         }
     }
@@ -91,32 +91,32 @@ namespace StreamMaster.Application.Hubs
     {
         public async Task<List<CustomLogoDto>> GetCustomLogos()
         {
-             var ret = await Sender.Send(new GetCustomLogosRequest()).ConfigureAwait(false);
+             var ret = await APIStatsLogger.DebugAPI(Sender.Send(new GetCustomLogosRequest())).ConfigureAwait(false);
             return ret.Data?? [];
         }
         public async Task<LogoDto> GetLogoForChannel(GetLogoForChannelRequest request)
         {
-             var ret = await Sender.Send(request).ConfigureAwait(false);
+             var ret = await APIStatsLogger.DebugAPI(Sender.Send(request)).ConfigureAwait(false);
             return ret.Data?? new();
         }
         public async Task<LogoDto> GetLogo(GetLogoRequest request)
         {
-             var ret = await Sender.Send(request).ConfigureAwait(false);
+             var ret = await APIStatsLogger.DebugAPI(Sender.Send(request)).ConfigureAwait(false);
             return ret.Data?? new();
         }
         public async Task<List<CustomLogoDto>> GetLogos()
         {
-             var ret = await Sender.Send(new GetLogosRequest()).ConfigureAwait(false);
+             var ret = await APIStatsLogger.DebugAPI(Sender.Send(new GetLogosRequest())).ConfigureAwait(false);
             return ret.Data?? [];
         }
         public async Task<APIResponse?> AddCustomLogo(AddCustomLogoRequest request)
         {
-            var ret = await Sender.Send(request).ConfigureAwait(false);
+            var ret = await APIStatsLogger.DebugAPI(Sender.Send(request)).ConfigureAwait(false);
             return ret;
         }
         public async Task<APIResponse?> RemoveCustomLogo(RemoveCustomLogoRequest request)
         {
-            var ret = await Sender.Send(request).ConfigureAwait(false);
+            var ret = await APIStatsLogger.DebugAPI(Sender.Send(request)).ConfigureAwait(false);
             return ret;
         }
     }

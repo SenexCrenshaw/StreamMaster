@@ -14,7 +14,7 @@ namespace StreamMaster.Application.Settings.Controllers
         {
             try
             {
-            var ret = await Sender.Send(new GetSettingsRequest()).ConfigureAwait(false);
+            var ret = await APIStatsLogger.DebugAPI(Sender.Send(new GetSettingsRequest())).ConfigureAwait(false);
              return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetSettings.", statusCode: 500) : Ok(ret.Data?? new());
             }
             catch (Exception ex)
@@ -27,7 +27,7 @@ namespace StreamMaster.Application.Settings.Controllers
         [Route("[action]")]
         public async Task<ActionResult<UpdateSettingResponse?>> UpdateSetting(UpdateSettingRequest request)
         {
-            var ret = await Sender.Send(request).ConfigureAwait(false);
+            var ret = await APIStatsLogger.DebugAPI(Sender.Send(request)).ConfigureAwait(false);
             return ret == null ? NotFound(ret) : Ok(ret);
         }
     }
@@ -39,12 +39,12 @@ namespace StreamMaster.Application.Hubs
     {
         public async Task<SettingDto> GetSettings()
         {
-             var ret = await Sender.Send(new GetSettingsRequest()).ConfigureAwait(false);
+             var ret = await APIStatsLogger.DebugAPI(Sender.Send(new GetSettingsRequest())).ConfigureAwait(false);
             return ret.Data?? new();
         }
         public async Task<UpdateSettingResponse?> UpdateSetting(UpdateSettingRequest request)
         {
-            var ret = await Sender.Send(request).ConfigureAwait(false);
+            var ret = await APIStatsLogger.DebugAPI(Sender.Send(request)).ConfigureAwait(false);
             return ret;
         }
     }

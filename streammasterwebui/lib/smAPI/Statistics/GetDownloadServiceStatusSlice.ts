@@ -1,12 +1,12 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import { Logger } from '@lib/common/logger';
-import {FieldData, SDSystemStatus } from '@lib/smAPI/smapiTypes';
-import { fetchGetSystemStatus } from '@lib/smAPI/General/GetSystemStatusFetch';
+import {FieldData, ImageDownloadServiceStatus } from '@lib/smAPI/smapiTypes';
+import { fetchGetDownloadServiceStatus } from '@lib/smAPI/Statistics/GetDownloadServiceStatusFetch';
 import { updateFieldInData } from '@lib/redux/updateFieldInData';
 
 
 interface QueryState {
-  data: SDSystemStatus | undefined;
+  data: ImageDownloadServiceStatus | undefined;
   error: string | undefined;
   isError: boolean;
   isForced: boolean;
@@ -21,45 +21,45 @@ const initialState: QueryState = {
   isLoading: false
 };
 
-const getSystemStatusSlice = createSlice({
+const getDownloadServiceStatusSlice = createSlice({
   initialState,
-  name: 'GetSystemStatus',
+  name: 'GetDownloadServiceStatus',
   reducers: {
     clear: (state) => {
       state = initialState;
-      Logger.debug('GetSystemStatus clear');
+      Logger.debug('GetDownloadServiceStatus clear');
     },
 
     clearByTag: (state, action: PayloadAction<{ tag: string }>) => {
       state.data = undefined;
-      Logger.debug('GetSystemStatus clearByTag');
+      Logger.debug('GetDownloadServiceStatus clearByTag');
     },
 
     setField: (state, action: PayloadAction<{ fieldData: FieldData }>) => {
       const { fieldData } = action.payload;
       state.data = updateFieldInData(state.data, fieldData);
-      Logger.debug('GetSystemStatus setField');
+      Logger.debug('GetDownloadServiceStatus setField');
     },
     setIsForced: (state, action: PayloadAction<{ force: boolean }>) => {
       const { force } = action.payload;
       state.isForced = force;
-      Logger.debug('GetSystemStatus  setIsForced ', force);
+      Logger.debug('GetDownloadServiceStatus  setIsForced ', force);
     },
     setIsLoading: (state, action: PayloadAction<{isLoading: boolean }>) => {
       state.isLoading = action.payload.isLoading;
-      Logger.debug('GetSystemStatus setIsLoading ', action.payload.isLoading);
+      Logger.debug('GetDownloadServiceStatus setIsLoading ', action.payload.isLoading);
     }
 },
 
   extraReducers: (builder) => {
     builder
-      .addCase(fetchGetSystemStatus.pending, (state, action) => {
+      .addCase(fetchGetDownloadServiceStatus.pending, (state, action) => {
         state.isLoading = true;
         state.isError = false;
         state.error = undefined;
         state.isForced = false;
       })
-      .addCase(fetchGetSystemStatus.fulfilled, (state, action) => {
+      .addCase(fetchGetDownloadServiceStatus.fulfilled, (state, action) => {
         if (action.payload) {
           const { value } = action.payload;
           state.data = value ?? undefined;
@@ -70,7 +70,7 @@ const getSystemStatusSlice = createSlice({
           state.isForced = false;
         }
       })
-      .addCase(fetchGetSystemStatus.rejected, (state, action) => {
+      .addCase(fetchGetDownloadServiceStatus.rejected, (state, action) => {
         state.error = action.error.message || 'Failed to fetch';
         state.isError = true;
         setIsLoading({ isLoading: false });
@@ -81,5 +81,5 @@ const getSystemStatusSlice = createSlice({
   }
 });
 
-export const { clear, clearByTag, setIsLoading, setIsForced, setField } = getSystemStatusSlice.actions;
-export default getSystemStatusSlice.reducer;
+export const { clear, clearByTag, setIsLoading, setIsForced, setField } = getDownloadServiceStatusSlice.actions;
+export default getDownloadServiceStatusSlice.reducer;

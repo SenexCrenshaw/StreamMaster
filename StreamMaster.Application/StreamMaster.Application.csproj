@@ -82,4 +82,7 @@
     <ProjectReference Include="..\StreamMaster.SchedulesDirect\StreamMaster.SchedulesDirect.csproj" />
     <ProjectReference Include="..\StreamMaster.Streams.Domain\StreamMaster.Streams.Domain.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="General\Queries\" />
+  </ItemGroup>
 </Project>

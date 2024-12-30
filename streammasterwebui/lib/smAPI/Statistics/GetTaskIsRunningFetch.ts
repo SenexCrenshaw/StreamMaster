@@ -1,4 +1,4 @@
-import { GetTaskIsRunning } from '@lib/smAPI/General/GeneralCommands';
+import { GetTaskIsRunning } from '@lib/smAPI/Statistics/StatisticsCommands';
 import { Logger } from '@lib/common/logger';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 
