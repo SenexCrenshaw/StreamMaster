@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Helpers;
@@ -6,7 +7,7 @@ using StreamMaster.Infrastructure.EF.Base;
 
 namespace StreamMaster.Infrastructure.EF.PGSQL
 {
-    public partial class PGSQLRepositoryContext(DbContextOptions<PGSQLRepositoryContext> options) : BaseRepositoryContext(options)
+    public partial class PGSQLRepositoryContext(DbContextOptions<PGSQLRepositoryContext> options, ILogger<PGSQLRepositoryContext> logger) : BaseRepositoryContext(options)
     {
         public static string DbConnectionString => $"Host={BuildInfo.DBHost};Database={BuildInfo.DBName};Username={BuildInfo.DBUser};Password={BuildInfo.DBPassword}";
 
@@ -63,7 +64,8 @@ namespace StreamMaster.Infrastructure.EF.PGSQL
                 string scriptContent = File.ReadAllText(filePath);
 
                 // Log or indicate the file being executed
-                Console.WriteLine($"Executing script: {Path.GetFileName(filePath)}");
+                //Console.WriteLine($"Executing script: {Path.GetFileName(filePath)}");
+                logger.LogInformation($"Executing script: {Path.GetFileName(filePath)}");
 
                 try
                 {

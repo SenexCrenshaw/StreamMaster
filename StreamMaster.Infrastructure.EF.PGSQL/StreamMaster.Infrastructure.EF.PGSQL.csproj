@@ -15,6 +15,14 @@
     <None Remove="Configurations\**" />
     <None Remove="Extensions\**" />
   </ItemGroup>
+  <ItemGroup>
+    <None Remove="Scripts\epgfile_indexes.sql" />
+    <None Remove="Scripts\smchannelstreamlink_indexes.sql" />
+    <None Remove="Scripts\smchannel_indexes.sql" />
+    <None Remove="Scripts\smstream_indexes.sql" />
+    <None Remove="Scripts\streamgroupsmchannellink_indexes.sql" />
+    <None Remove="Scripts\streamgroup_indexes.sql" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Azure.Identity" Version="1.13.1" />
@@ -43,7 +51,30 @@
     </AdditionalFiles>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Scripts\channelgroup_indexes.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Scripts\epgfile_indexes.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
     <Content Include="Scripts\get_unique_smchannel_name.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Scripts\smchannelstreamlink_indexes.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Scripts\smchannel_indexes.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Scripts\smstream_indexes.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Scripts\streamgroupsmchannellink_indexes.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Scripts\streamgroup_indexes.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Scripts\update_channel_group_counts.sql">

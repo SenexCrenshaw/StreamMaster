@@ -155,19 +155,19 @@ public class BaseRepositoryContext(DbContextOptions options)
 
         // Apply configurations
 
-        ConfigureChannelGroup(modelBuilder);
+        //ConfigureChannelGroup(modelBuilder);
 
-        ConfigureSMChannel(modelBuilder);
+        //ConfigureSMChannel(modelBuilder);
 
-        ConfigureSMStream(modelBuilder);
+        //ConfigureSMStream(modelBuilder);
 
-        ConfigureSMChannelStreamLink(modelBuilder);
+        //ConfigureSMChannelStreamLink(modelBuilder);
 
-        ConfigureStreamGroup(modelBuilder);
+        //ConfigureStreamGroup(modelBuilder);
 
-        ConfigureStreamGroupSMChannelLink(modelBuilder);
+        //ConfigureStreamGroupSMChannelLink(modelBuilder);
 
-        ConfigureEPGFile(modelBuilder);
+        //ConfigureEPGFile(modelBuilder);
 
         // Ensure UTC DateTime Conversion
         modelBuilder.ApplyUtcDateTimeConverter();

@@ -17,4 +17,4 @@ BEGIN
     ) AS sq
     WHERE cg."Name" = sq."ChannelGroupName";
 END;
-$$ LANGUAGE plpgsql STABLE;
+$$ LANGUAGE plpgsql;

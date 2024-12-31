@@ -19,7 +19,7 @@ CREATE OR REPLACE FUNCTION public.create_or_update_smstreams_and_channels(
     p_create_channels boolean,
     p_return_results boolean -- New parameter
 ) RETURNS TABLE(channel_id integer)
-LANGUAGE 'plpgsql' STABLE
+LANGUAGE 'plpgsql'
 AS $BODY$
 BEGIN
     -- Step 1: Upsert Streams in batch
