@@ -51,6 +51,9 @@
     </AdditionalFiles>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Scripts\cleanup_migrations.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Scripts\channelgroup_indexes.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
