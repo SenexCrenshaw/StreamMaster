@@ -857,7 +857,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IEpgM
 
                 // Call the PostgreSQL function for the current batch
                 await RepositoryContext.ExecuteSqlRawAsync(
-                    $"SELECT * FROM delete_sm_channels(ARRAY[{channelIdsString}]::INTEGER[])").ConfigureAwait(false);
+                    $"SELECT * FROM public.delete_sm_channels(ARRAY[{channelIdsString}]::INTEGER[])").ConfigureAwait(false);
 
                 deletedIds.AddRange(batch);
             }
