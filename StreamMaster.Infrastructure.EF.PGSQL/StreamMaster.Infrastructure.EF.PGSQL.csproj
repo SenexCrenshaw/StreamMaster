@@ -16,6 +16,7 @@
     <None Remove="Extensions\**" />
   </ItemGroup>
   <ItemGroup>
+    <None Remove="Scripts\delete_sm_channels.sql" />
     <None Remove="Scripts\epgfile_indexes.sql" />
     <None Remove="Scripts\smchannelstreamlink_indexes.sql" />
     <None Remove="Scripts\smchannel_indexes.sql" />
@@ -55,6 +56,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Scripts\channelgroup_indexes.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Scripts\delete_sm_channels.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Scripts\epgfile_indexes.sql">

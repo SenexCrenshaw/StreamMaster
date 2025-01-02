@@ -8,13 +8,12 @@ internal class DeleteSMChannelsFromParametersRequestHandler(IRepositoryWrapper R
 {
     public async Task<APIResponse> Handle(DeleteSMChannelsFromParametersRequest request, CancellationToken cancellationToken)
     {
-        List<int> ids = await Repository.SMChannel.DeleteSMChannelsFromParameters(request.Parameters).ConfigureAwait(false);
+        await Repository.SMChannel.DeleteSMChannelsFromParameters(request.Parameters).ConfigureAwait(false);
 
-        if (ids.Count != 0)
-        {
-            await dataRefreshService.RefreshAllSMChannels();
-            await sMWebSocketManager.BroadcastReloadAsync();
-        }
+
+        await dataRefreshService.RefreshAllSMChannels();
+        await sMWebSocketManager.BroadcastReloadAsync();
+
 
         return APIResponse.Success;
     }

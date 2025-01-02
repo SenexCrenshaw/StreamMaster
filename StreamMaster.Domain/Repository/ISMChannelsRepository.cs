@@ -12,7 +12,7 @@ public interface ISMChannelsRepository : IRepositoryBase<SMChannel>
     Task<APIResponse> CreateSMChannelsFromStreams(List<string> streamIds, int? AddToStreamGroupId);
     Task<APIResponse> DeleteSMChannel(int smChannelId);
     Task<APIResponse> DeleteSMChannels(List<int> smChannelIds);
-    Task<List<int>> DeleteSMChannelsFromParameters(QueryStringParameters Parameters);
+    Task DeleteSMChannelsFromParameters(QueryStringParameters Parameters);
 
     // Channel Retrieval
     SMChannel? GetSMChannel(int smChannelId);

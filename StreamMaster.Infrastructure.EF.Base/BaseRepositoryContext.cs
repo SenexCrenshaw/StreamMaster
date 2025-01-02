@@ -153,22 +153,6 @@ public class BaseRepositoryContext(DbContextOptions options)
         modelBuilder.UseIdentityAlwaysColumns();
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(BaseRepositoryContext).Assembly);
 
-        // Apply configurations
-
-        //ConfigureChannelGroup(modelBuilder);
-
-        //ConfigureSMChannel(modelBuilder);
-
-        //ConfigureSMStream(modelBuilder);
-
-        //ConfigureSMChannelStreamLink(modelBuilder);
-
-        //ConfigureStreamGroup(modelBuilder);
-
-        //ConfigureStreamGroupSMChannelLink(modelBuilder);
-
-        //ConfigureEPGFile(modelBuilder);
-
         // Ensure UTC DateTime Conversion
         modelBuilder.ApplyUtcDateTimeConverter();
 

@@ -383,16 +383,17 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IEpgM
             return APIResponse.NotFound;
         }
 
-        _ = await DeleteSMChannelsAsync(toDelete);
+        await DeleteSMChannelsAsync(toDelete);
 
         return APIResponse.Success;
     }
 
-    public async Task<List<int>> DeleteSMChannelsFromParameters(QueryStringParameters parameters)
+    public async Task DeleteSMChannelsFromParameters(QueryStringParameters parameters)
     {
         IQueryable<SMChannel> queryableChannels = await GetPagedSMChannelsQueryableAsync(parameters).ConfigureAwait(false);
         IQueryable<SMChannel> toDelete = queryableChannels.Where(a => a.SMChannelType == SMChannelTypeEnum.Regular && !a.IsSystem);
-        return await DeleteSMChannelsAsync(toDelete).ConfigureAwait(false);
+        await DeleteSMChannelsAsync(toDelete).ConfigureAwait(false);
+        return;
     }
 
     public async Task<PagedResponse<SMChannelDto>> GetPagedSMChannels(QueryStringParameters parameters)
@@ -835,11 +836,9 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IEpgM
     }
 
     [LogExecutionTimeAspect]
-    private async Task<List<int>> DeleteSMChannelsAsync(IQueryable<SMChannel> channels)
+    private async Task DeleteSMChannelsAsync(IQueryable<SMChannel> channels)
     {
-        const int batchSize = 1000; // Adjust batch size based on your system's capacity
-        List<int> deletedIds = [];
-
+        int batchSize = settings.CurrentValue.DBBatchSize;
         try
         {
             // Get all channel IDs as a list
@@ -847,7 +846,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IEpgM
 
             if (channelIds.Count == 0)
             {
-                return deletedIds;
+                return;
             }
 
             // Process in batches
@@ -855,19 +854,20 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IEpgM
             {
                 string channelIdsString = string.Join(",", batch);
 
-                // Call the PostgreSQL function for the current batch
-                await RepositoryContext.ExecuteSqlRawAsync(
-                    $"SELECT * FROM public.delete_sm_channels(ARRAY[{channelIdsString}]::INTEGER[])").ConfigureAwait(false);
+                string sql = $"SELECT delete_sm_channels(ARRAY[{channelIdsString}]::INTEGER[])";
 
-                deletedIds.AddRange(batch);
+                // Call the PostgreSQL function for the current batch
+                RepositoryContext.ExecuteSqlRaw(sql);
+
+
             }
 
-            return deletedIds;
+            return;
         }
         catch (Exception ex)
         {
             logger.LogError(ex, "Error deleting SMChannels");
-            return [];
+            return;
         }
     }
 
