@@ -54,7 +54,7 @@ BEGIN
     -- Step 2: Conditionally Create Channels
     IF p_create_channels THEN
         -- Step 2.1: Use a temporary table to store new channel IDs
-        CREATE TEMP TABLE temp_channel_ids ("Id" integer) ON COMMIT DROP;
+        CREATE TEMP TABLE temp_channel_ids ("Id" integer, "BaseStreamID" text) ON COMMIT DROP;
 
         -- Use a WITH clause to select and insert into the temporary table
         WITH inserted_channels AS (
@@ -72,12 +72,19 @@ BEGIN
             INNER JOIN "SMStreams" s ON s."Id" = p_ids[i]
             LEFT JOIN "SMChannels" c ON c."BaseStreamID" = s."Id"
             WHERE c."Id" IS NULL
-            RETURNING "Id"
+            RETURNING "Id", "BaseStreamID"
         )
-        INSERT INTO temp_channel_ids ("Id")
-        SELECT "Id" FROM inserted_channels;
+        INSERT INTO temp_channel_ids ("Id", "BaseStreamID")
+        SELECT "Id", "BaseStreamID" FROM inserted_channels;
 
-        -- Step 3: Batch Link to StreamGroupSMChannelLink
+        -- Step 3: Insert into SMChannelStreamLinks for newly created channels
+        INSERT INTO public."SMChannelStreamLinks"(
+            "SMChannelId", "SMStreamId", "Rank"
+        )
+        SELECT t."Id", t."BaseStreamID", 0
+        FROM temp_channel_ids t;
+
+        -- Step 4: Batch Link to StreamGroupSMChannelLink
         IF p_stream_group_id != 0 THEN
             INSERT INTO "StreamGroupSMChannelLink" (
                 "SMChannelId", "StreamGroupId", "IsReadOnly", "Rank"
