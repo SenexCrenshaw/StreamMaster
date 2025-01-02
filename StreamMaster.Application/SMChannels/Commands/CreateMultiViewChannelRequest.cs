@@ -13,7 +13,7 @@ public record CreateMultiViewChannelRequest(
     ) : IRequest<APIResponse>;
 
 [LogExecutionTimeAspect]
-public class CreateMultiViewChannelRequestHandler(ILogger<CreateMultiViewChannelRequest> Logger, IMessageService messageService, IDataRefreshService dataRefreshService, IRepositoryWrapper Repository)
+public class CreateMultiViewChannelRequestHandler(ILogger<CreateMultiViewChannelRequest> Logger,ISMWebSocketManager sMWebSocketManager, IMessageService messageService, IDataRefreshService dataRefreshService, IRepositoryWrapper Repository)
     : IRequestHandler<CreateMultiViewChannelRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(CreateMultiViewChannelRequest request, CancellationToken cancellationToken)
@@ -58,6 +58,7 @@ public class CreateMultiViewChannelRequestHandler(ILogger<CreateMultiViewChannel
 
             await dataRefreshService.RefreshAllSMChannels();
             await messageService.SendSuccess("Channel Added", $"Channel '{request.Name}' added successfully");
+            await sMWebSocketManager.BroadcastReloadAsync();
             return APIResponse.Success;
         }
         catch (Exception exception)

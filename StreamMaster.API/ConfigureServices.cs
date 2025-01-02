@@ -20,6 +20,7 @@ using StreamMaster.Application.Services;
 using StreamMaster.Domain.Logging;
 using StreamMaster.Infrastructure.Authentication;
 using StreamMaster.Infrastructure.EF.PGSQL;
+using StreamMaster.Infrastructure.Services;
 using StreamMaster.Infrastructure.Services.Frontend;
 using StreamMaster.Infrastructure.Services.QueueService;
 
@@ -40,7 +41,7 @@ public static class ConfigureServices
         //});
         //services.AddSingleton<ILoggerFactory, LoggerFactory>();
 
-        builder.Services.AddSingleton<SMWebSocketManager>();
+        builder.Services.AddSingleton<ISMWebSocketManager, SMWebSocketManager>();
 
         services.AddLogging(loggingBuilder =>
         {

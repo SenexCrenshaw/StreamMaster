@@ -4,7 +4,7 @@
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record DeleteSMChannelsFromParametersRequest(QueryStringParameters Parameters) : IRequest<APIResponse>;
 
-internal class DeleteSMChannelsFromParametersRequestHandler(IRepositoryWrapper Repository, IDataRefreshService dataRefreshService) : IRequestHandler<DeleteSMChannelsFromParametersRequest, APIResponse>
+internal class DeleteSMChannelsFromParametersRequestHandler(IRepositoryWrapper Repository, ISMWebSocketManager sMWebSocketManager, IDataRefreshService dataRefreshService) : IRequestHandler<DeleteSMChannelsFromParametersRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(DeleteSMChannelsFromParametersRequest request, CancellationToken cancellationToken)
     {
@@ -13,6 +13,7 @@ internal class DeleteSMChannelsFromParametersRequestHandler(IRepositoryWrapper R
         if (ids.Count != 0)
         {
             await dataRefreshService.RefreshAllSMChannels();
+            await sMWebSocketManager.BroadcastReloadAsync();
         }
 
         return APIResponse.Success;

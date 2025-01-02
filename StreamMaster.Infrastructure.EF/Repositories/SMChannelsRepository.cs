@@ -13,6 +13,7 @@ using StreamMaster.Application.Common;
 using StreamMaster.Application.Interfaces;
 using StreamMaster.Domain.API;
 using StreamMaster.Domain.Configuration;
+using StreamMaster.Domain.Exceptions;
 using StreamMaster.Domain.Filtering;
 using StreamMaster.Domain.Helpers;
 using StreamMaster.Domain.XmltvXml;
@@ -20,7 +21,6 @@ using StreamMaster.EPG;
 using StreamMaster.Infrastructure.EF.PGSQL;
 using StreamMaster.SchedulesDirect.Domain.Interfaces;
 using StreamMaster.Streams.Domain.Interfaces;
-
 namespace StreamMaster.Infrastructure.EF.Repositories;
 
 public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IEpgMatcher epgMatcher, ILogoService logoService, ICacheManager cacheManager, IImageDownloadService imageDownloadService, IImageDownloadQueue imageDownloadQueue, IServiceProvider serviceProvider, IRepositoryWrapper repository, IRepositoryContext repositoryContext, IMapper mapper, IOptionsMonitor<Setting> settings, IOptionsMonitor<CommandProfileDict> intProfileSettings, ISchedulesDirectDataService schedulesDirectDataService)
@@ -837,26 +837,38 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IEpgM
     [LogExecutionTimeAspect]
     private async Task<List<int>> DeleteSMChannelsAsync(IQueryable<SMChannel> channels)
     {
-        if (!channels.Any())
-        {
-            return [];
-        }
+        const int batchSize = 1000; // Adjust batch size based on your system's capacity
+        List<int> deletedIds = [];
+
         try
         {
-            List<SMChannel> a = [.. channels];
-            List<int> ret = [.. a.Select(a => a.Id)];
-            IQueryable<SMChannelStreamLink> linksToDelete = repository.SMChannelStreamLink.GetQuery(true).Where(a => ret.Contains(a.SMChannelId));
-            await repository.SMChannelStreamLink.DeleteSMChannelStreamLinks(linksToDelete);
-            _ = await SaveChangesAsync();
-            await BulkDeleteAsync(a);
-            _ = await SaveChangesAsync();
-            return ret;
+            // Get all channel IDs as a list
+            List<int> channelIds = await channels.Select(a => a.Id).ToListAsync().ConfigureAwait(false);
+
+            if (channelIds.Count == 0)
+            {
+                return deletedIds;
+            }
+
+            // Process in batches
+            foreach (IEnumerable<int> batch in channelIds.Batch(batchSize))
+            {
+                string channelIdsString = string.Join(",", batch);
+
+                // Call the PostgreSQL function for the current batch
+                await RepositoryContext.ExecuteSqlRawAsync(
+                    $"SELECT * FROM delete_sm_channels(ARRAY[{channelIdsString}]::INTEGER[])").ConfigureAwait(false);
+
+                deletedIds.AddRange(batch);
+            }
+
+            return deletedIds;
         }
         catch (Exception ex)
         {
             logger.LogError(ex, "Error deleting SMChannels");
+            return [];
         }
-        return [];
     }
 
     private string GetName(SMStream smStream)

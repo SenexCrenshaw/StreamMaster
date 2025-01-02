@@ -342,7 +342,7 @@ namespace StreamMaster.Infrastructure.Services.Downloads
             }
             catch (Exception ex)
             {
-                logger.LogError("Failed to download image from {Url} {Message}", logoInfo.Url, ex.InnerException?.Message);
+                logger.LogDebug("Failed to download image from {Url} {Message}", logoInfo.Url, ex.InnerException?.Message);
             }
             return false;
         }

@@ -223,7 +223,7 @@ public class M3UFileService(ILogger<M3UFileService> logger, IFileUtilService fil
         List<DupInfo> dupInfos = [];
         HashSet<string> processed = [];
         HashSet<string> cgs = [];
-        int processedCount = 0;
+        int processedCount = -1;
 
         // Fetch group lookup
         Dictionary<string, bool> groupLookup = await repositoryWrapper.ChannelGroup.GetQuery()

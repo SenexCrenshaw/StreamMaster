@@ -4,7 +4,7 @@
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record CopySMChannelRequest(int SMChannelId, string NewName) : IRequest<APIResponse>;
 
-internal class CopySMChannelRequestHandler(IRepositoryWrapper Repository, IMessageService messageService, IDataRefreshService dataRefreshService)
+internal class CopySMChannelRequestHandler(IRepositoryWrapper Repository,ISMWebSocketManager sMWebSocketManager, IMessageService messageService, IDataRefreshService dataRefreshService)
     : IRequestHandler<CopySMChannelRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(CopySMChannelRequest request, CancellationToken cancellationToken)
@@ -17,6 +17,7 @@ internal class CopySMChannelRequestHandler(IRepositoryWrapper Repository, IMessa
         else
         {
             await dataRefreshService.RefreshAllSMChannels();
+            await sMWebSocketManager.BroadcastReloadAsync();
             await messageService.SendSuccess("Copied channel");
         }
         return ret;

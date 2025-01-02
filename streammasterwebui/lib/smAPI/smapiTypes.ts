@@ -700,6 +700,9 @@ export interface HeadendDto
 	PostCode: string;
 	Transport: string;
 }
+export interface TriggerReloadRequest
+{
+}
 export interface GetVsRequest
 {
 	StreamGroupId?: number;

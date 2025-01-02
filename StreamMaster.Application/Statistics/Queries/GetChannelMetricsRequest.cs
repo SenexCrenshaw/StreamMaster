@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace StreamMaster.Application.Statistics.Queries;
 
-[SMAPI]
+[SMAPI(NoDebug = true)]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record GetChannelMetricsRequest() : IRequest<DataResponse<List<ChannelMetric>>>;
 

@@ -13,7 +13,7 @@ namespace StreamMaster.Application.Statistics.Controllers
         {
             try
             {
-            var ret = await APIStatsLogger.DebugAPI(Sender.Send(new GetChannelMetricsRequest())).ConfigureAwait(false);
+            var ret = await Sender.Send(new GetChannelMetricsRequest()).ConfigureAwait(false);
              return ret.IsError ? Problem(detail: "An unexpected error occurred retrieving GetChannelMetrics.", statusCode: 500) : Ok(ret.Data?? []);
             }
             catch (Exception ex)
@@ -151,7 +151,7 @@ namespace StreamMaster.Application.Hubs
     {
         public async Task<List<ChannelMetric>> GetChannelMetrics()
         {
-             var ret = await APIStatsLogger.DebugAPI(Sender.Send(new GetChannelMetricsRequest())).ConfigureAwait(false);
+             var ret = await Sender.Send(new GetChannelMetricsRequest()).ConfigureAwait(false);
             return ret.Data?? [];
         }
         public async Task<ImageDownloadServiceStatus> GetDownloadServiceStatus()

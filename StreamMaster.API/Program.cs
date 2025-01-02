@@ -10,7 +10,6 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Reinforced.Typings.Attributes;
 
 using StreamMaster.API;
-using StreamMaster.API.Services;
 using StreamMaster.Application;
 using StreamMaster.Application.Hubs;
 using StreamMaster.Application.Statistics.Commands;
@@ -275,7 +274,7 @@ app.UseStaticFiles();
 app.UseRouting();
 
 // Initialize SMWebSocketManager
-SMWebSocketManager smWebSocketManager = app.Services.GetRequiredService<SMWebSocketManager>();
+ISMWebSocketManager smWebSocketManager = app.Services.GetRequiredService<ISMWebSocketManager>();
 
 app.UseWebSockets();
 

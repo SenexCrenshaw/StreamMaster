@@ -28,7 +28,8 @@ public static partial class FilterHelper<T> where T : class
 
         // Log the query for debugging purposes
         // Replace this with your logging system
-        Console.WriteLine(query.ToQueryString());
+
+        string toRUnb = query.ToQueryString();
 
         return query;
     }

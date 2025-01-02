@@ -3,8 +3,10 @@ using System.Collections.Concurrent;
 using System.Net.WebSockets;
 using System.Text;
 
-namespace StreamMaster.API.Services;
-public class SMWebSocketManager
+using Microsoft.AspNetCore.Http;
+
+namespace StreamMaster.Infrastructure.Services;
+public class SMWebSocketManager : ISMWebSocketManager
 {
     private readonly ConcurrentDictionary<Guid, WebSocket> _clients = new();
 
