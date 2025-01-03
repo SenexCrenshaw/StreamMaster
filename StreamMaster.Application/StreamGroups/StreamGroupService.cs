@@ -667,11 +667,11 @@ public partial class StreamGroupService(IHttpContextAccessor httpContextAccessor
             .FirstOrDefaultAsync(a => a.StreamGroupId == defaultStreamGroup.Id && a.ProfileName == "Default").ConfigureAwait(false) ?? throw new Exception("Default stream group not found.");
     }
 
-    public async Task<Dictionary<int, SGFS>> GetSMFS(List<int> sgProfileIds, bool isShort, CancellationToken cancellationToken)
+    public async Task<Dictionary<int, SGFS>> GetSMFS(List<int>? sgProfileIds, bool isShort, CancellationToken cancellationToken)
     {
         ConcurrentDictionary<int, SGFS> sgFiles = [];
 
-        if (sgProfileIds.Contains(0))
+        if (sgProfileIds?.Contains(0) != false)
         {
             int defaultSGId = await GetDefaultSGIdAsync();
             sgProfileIds = await repositoryWrapper.StreamGroupProfile.GetQuery().Where(a => a.Id != defaultSGId).Select(a => a.Id).ToListAsync(cancellationToken: cancellationToken);
@@ -741,6 +741,6 @@ public partial class StreamGroupService(IHttpContextAccessor httpContextAccessor
         }
 
         // Return the cleaned-up name
-        return name;
+        return name.Trim();
     }
 }

@@ -25,24 +25,15 @@ public class FilesController(ILogger<FilesController> logger, IHttpContextAccess
     }
 
     [AllowAnonymous]
-    [Route("[action]/{APIKey}/{encodedIds}")]
-    [Route("[action]/{APIKey}/{encodedIds}/{isShort}")]
-
+    [Route("[action]/{APIKey}")]
+    [Route("[action]/{APIKey}/{isShort?}")]
+    [Route("[action]/{APIKey}/{isShort?}/{encodedIds?}")]
     public async Task<ActionResult<Dictionary<int, SGFS>>> GetSMFS(
-        string encodedIds,
         string APIKey,
+        string? encodedIds = null,
         bool? isShort = null,
         CancellationToken cancellationToken = default)
     {
-        List<int>? sgProfileIds;
-
-        bool intShort = isShort ?? false;
-
-        if (string.IsNullOrEmpty(encodedIds))
-        {
-            logger.LogWarning("Invalid request: Missing required parameters.");
-            return NotFound();
-        }
 
         if (string.IsNullOrEmpty(APIKey) || !APIKey.Equals(settings.CurrentValue.APIKey))
         {
@@ -50,22 +41,46 @@ public class FilesController(ILogger<FilesController> logger, IHttpContextAccess
             return Unauthorized();
         }
 
-        sgProfileIds = int.TryParse(encodedIds, out int testInt)
-            ? [testInt]
-            : encodedIds.Contains(',')
-                  ? [.. encodedIds.Split(',').Select(int.Parse)]
-                  : streamGroupService.DecodeProfileIds(encodedIds);
+        List<int>? sgProfileIds = null;
 
-        if (sgProfileIds is null)
+        if (!string.IsNullOrEmpty(encodedIds))
         {
-            logger.LogWarning("Invalid request: Missing required parameters.");
-            return NotFound();
+            sgProfileIds = int.TryParse(encodedIds, out int testInt)
+                ? [testInt]
+                : encodedIds.Contains(',')
+                      ? [.. encodedIds.Split(',').Select(int.Parse)]
+                      : streamGroupService.DecodeProfileIds(encodedIds);
+
+            if (sgProfileIds is null)
+            {
+                //logger.LogWarning("Invalid request: Missing required parameters.");
+                return NotFound();
+            }
         }
 
         Dictionary<int, SGFS> smfs = await streamGroupService.GetSMFS(sgProfileIds, isShort ?? false, cancellationToken);
 
         return smfs;
     }
+
+    //[AllowAnonymous]
+    //[Route("[action]/{APIKey}/")]
+    //[Route("[action]/{APIKey}//{isShort}")]
+    //public async Task<ActionResult<Dictionary<int, SGFS>>> GetSMFS(
+    //    string APIKey,
+    //    bool isShort,
+    //    CancellationToken cancellationToken = default)
+    //{
+    //    if (string.IsNullOrEmpty(APIKey) || !APIKey.Equals(settings.CurrentValue.APIKey))
+    //    {
+    //        logger.LogWarning("Invalid request: Invalid API Key.");
+    //        return Unauthorized();
+    //    }
+
+    //    Dictionary<int, SGFS> smfs = await streamGroupService.GetSMFS(null, isShort, cancellationToken);
+
+    //    return smfs;
+    //}
 
     [AllowAnonymous]
     [Route("sm/{smChannelId}")]

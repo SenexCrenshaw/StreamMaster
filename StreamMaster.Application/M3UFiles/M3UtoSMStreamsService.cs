@@ -5,6 +5,7 @@ namespace StreamMaster.Application.M3UFiles;
 
 public partial class M3UToSMStreamsService(ILogger<M3UToSMStreamsService> logger, IFileUtilService fileUtilService) : IM3UToSMStreamsService
 {
+
     public async IAsyncEnumerable<SMStream?> GetSMStreamsFromM3U(M3UFile m3UFile)
     {
         if (m3UFile.VODTags.Count != 0)
@@ -47,6 +48,11 @@ public partial class M3UToSMStreamsService(ILogger<M3UToSMStreamsService> logger
                 continue;
             }
 
+            if (line.ContainsIgnoreCase("Druzyna"))
+            {
+                int aa = 1;
+            }
+
             if (line.StartsWith("#EXTINF"))
             {
                 // Process the previous segment
@@ -77,10 +83,71 @@ public partial class M3UToSMStreamsService(ILogger<M3UToSMStreamsService> logger
                     continue;
                 }
             }
+            else if (line.StartsWith("#EXTGRP"))
+            {
+                // Append EXTGRP to the segment
+                segmentBuilder.AppendLine(line);
+                continue;
+            }
 
             // Add the current line to the segment being built
             segmentBuilder.AppendLine(line);
         }
+
+        // Process the last segment
+        if (segmentBuilder.Length > 0)
+        {
+            SMStream? smStream = ProcessSegment(segmentNumber, segmentBuilder.ToString(), m3UFile, logger);
+            if (smStream != null)
+            {
+                yield return smStream;
+            }
+        }
+
+
+        //while (!reader.EndOfStream)
+        //{
+        //    string? line = await reader.ReadLineAsync();
+
+        //    if (string.IsNullOrWhiteSpace(line) || line.StartsWithIgnoreCase("#EXTM3U"))
+        //    {
+        //        continue;
+        //    }
+
+        //    if (line.StartsWith("#EXTINF"))
+        //    {
+        //        // Process the previous segment
+        //        if (segmentBuilder.Length > 0)
+        //        {
+        //            if (clientUserAgent != null)
+        //            {
+        //                int commadIndex = segmentBuilder.ToString().LastIndexOf(',');
+        //                segmentBuilder.Insert(commadIndex, $" clientUserAgent=\"{clientUserAgent}\" ");
+        //            }
+
+        //            SMStream? smStream = ProcessSegment(segmentNumber++, segmentBuilder.ToString(), m3UFile, logger);
+
+        //            segmentBuilder.Clear();
+        //            clientUserAgent = null;
+
+        //            if (smStream != null)
+        //            {
+        //                yield return smStream;
+        //            }
+        //        }
+        //    }
+        //    else if (line.StartsWith("#EXTVLCOPT"))
+        //    {
+        //        if (line.StartsWith("#EXTVLCOPT:http-user-agent"))
+        //        {
+        //            clientUserAgent = line.Replace("#EXTVLCOPT:http-user-agent=", "");
+        //            continue;
+        //        }
+        //    }
+
+        //    // Add the current line to the segment being built
+        //    segmentBuilder.AppendLine(line);
+        //}
 
         // Process the last segment
         if (segmentBuilder.Length > 0)
@@ -134,15 +201,15 @@ public partial class M3UToSMStreamsService(ILogger<M3UToSMStreamsService> logger
             M3UKey.URL => smStream.Url,
             M3UKey.CUID => smStream.CUID,
             M3UKey.ChannelId => smStream.ChannelId,
-            M3UKey.TvgID => smStream?.EPGID,
-            M3UKey.TvgName => smStream.TVGName,
+            M3UKey.TvgID => smStream.EPGID,
+            M3UKey.TvgName => string.IsNullOrEmpty(smStream.TVGName) ? smStream.Name : smStream.TVGName,
             M3UKey.Name => smStream.Name,
             M3UKey.TvgName_TvgID =>
-            (!string.IsNullOrEmpty(smStream?.TVGName) && !string.IsNullOrEmpty(smStream?.EPGID))
+            (!string.IsNullOrEmpty(smStream.TVGName) && !string.IsNullOrEmpty(smStream.EPGID))
                 ? $"{smStream.TVGName}_{smStream.EPGID}"
                 : null,
             M3UKey.Name_TvgID =>
-        (!string.IsNullOrEmpty(smStream?.Name) && !string.IsNullOrEmpty(smStream?.EPGID))
+        (!string.IsNullOrEmpty(smStream.Name) && !string.IsNullOrEmpty(smStream.EPGID))
             ? $"{smStream.Name}_{smStream.EPGID}"
             : null,
             _ => throw new ArgumentOutOfRangeException(nameof(m3uKey), m3uKey, null),

@@ -8,7 +8,7 @@ public interface IStreamGroupService
 {
     List<int>? DecodeProfileIds(string encryptedString);
     string EncodeProfileIds(List<int> streamGroupProfileIds);
-    Task<Dictionary<int, SGFS>> GetSMFS(List<int> sgProfileIds, bool isShort, CancellationToken cancellationToken);
+    Task<Dictionary<int, SGFS>> GetSMFS(List<int>? sgProfileIds, bool isShort, CancellationToken cancellationToken);
     Task SyncSTRMFilesAsync(CancellationToken cancellationToken);
     Task SyncSGSTRMFilesAsync(StreamGroup streamGroup, CancellationToken cancellationToken);
 
