@@ -59,7 +59,7 @@ services:
     environment:
       PUID: 1000
       PGID: 1000
-      POSTGRES_USER: postgres # Default
+      POSTGRES_USER: sm # Default
       POSTGRES_PASSWORD: sm123 # Default
       PGDATA: /config/DB # Default
       POSTGRES_HOST: 127.0.0.1 # Default
