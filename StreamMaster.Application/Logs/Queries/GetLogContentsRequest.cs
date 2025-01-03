@@ -4,7 +4,7 @@ namespace StreamMaster.Application.Logs.Queries;
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record GetLogContentsRequest(string logName) : IRequest<DataResponse<string>>;
+public record GetLogContentsRequest(string LogName) : IRequest<DataResponse<string>>;
 
 public class GetLogContentsRequestHandler()
     : IRequestHandler<GetLogContentsRequest, DataResponse<string>>
@@ -16,7 +16,7 @@ public class GetLogContentsRequestHandler()
         {
             return DataResponse<string>.Success("");
         }
-        string filePath = Path.Combine(BuildInfo.LogFolder, request.logName);
+        string filePath = Path.Combine(BuildInfo.LogFolder, request.LogName);
         if (!File.Exists(filePath))
         {
             return DataResponse<string>.Success("");

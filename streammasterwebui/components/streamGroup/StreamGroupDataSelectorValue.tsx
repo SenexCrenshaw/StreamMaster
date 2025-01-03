@@ -62,6 +62,10 @@ const StreamGroupDataSelectorValue = ({ id, streamGroupDto }: StreamGroupDataSel
     [update]
   );
 
+  const idTemplate = useCallback((rowData: StreamGroupProfileDto) => {
+    return <div className="text-container pl-1">{rowData.Id}</div>;
+  }, []);
+
   const fileProfileTemplate = useCallback(
     (rowData: StreamGroupProfile) => {
       var found = streamGroupDto.StreamGroupProfiles.find((x) => x.Id === rowData.Id);
@@ -107,7 +111,8 @@ const StreamGroupDataSelectorValue = ({ id, streamGroupDto }: StreamGroupDataSel
 
   const columns = useMemo(
     (): ColumnMeta[] => [
-      { bodyTemplate: nameTemplate, header: 'Profile Name', field: 'Name', sortable: false, width: 80 },
+      { bodyTemplate: idTemplate, field: 'Id', sortable: false, width: 8 },
+      { bodyTemplate: nameTemplate, field: 'Name', header: 'Profile Name', sortable: false, width: 80 },
       { bodyTemplate: fileProfileTemplate, field: 'OutputProfileName', header: 'Output Profile', sortable: false, width: 50 },
       { bodyTemplate: CommandProfileTemplate, field: 'CommandProfileName', header: 'Command Profile', sortable: false, width: 50 },
       {

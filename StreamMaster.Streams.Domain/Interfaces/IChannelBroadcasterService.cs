@@ -1,47 +1,43 @@
-﻿using StreamMaster.Domain.Events;
-using StreamMaster.Streams.Domain.Events;
+﻿namespace StreamMaster.Streams.Domain.Interfaces;
 
-namespace StreamMaster.Streams.Domain.Interfaces
+/// <summary>
+/// Defines methods and events for managing channel broadcasters and their clients.
+/// </summary>
+public interface IChannelBroadcasterService : IDisposable
 {
-    public interface IChannelBroadcasterService
-    {
-        /// <summary>
-        /// Unregisters a client asynchronously by its unique request ID.
-        /// </summary>
-        /// <param name="uniqueRequestId">The unique request ID of the client.</param>
-        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
-        /// <returns><c>true</c> if the client was unregistered successfully; otherwise, <c>false</c>.</returns>
-        Task<bool> UnRegisterClientAsync(string uniqueRequestId, CancellationToken cancellationToken = default);
+    /// <summary>
+    /// Gets all channel broadcasters currently managed by the service.
+    /// </summary>
+    /// <returns>A list of all channel broadcasters.</returns>
+    List<IChannelBroadcaster> GetChannelBroadcasters();
 
-        Task StopChannelAsync(IChannelBroadcaster channelBroadcaster);
-        Task StopChannelAsync(int channelBroadcasterId);
+    /// <summary>
+    /// Gets or creates a channel broadcaster asynchronously.
+    /// </summary>
+    /// <param name="config">The client configuration for the channel broadcaster.</param>
+    /// <param name="streamGroupProfileId">The ID of the stream group profile associated with the channel.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>The created or existing channel broadcaster.</returns>
+    Task<IChannelBroadcaster> GetOrCreateChannelBroadcasterAsync(IClientConfiguration config, int streamGroupProfileId, CancellationToken cancellationToken);
 
-        //Task<bool> UnRegisterChannelAfterDelayAsync(IChannelBroadcaster channelBroadcaster, TimeSpan delay, CancellationToken cancellationToken);
-        //Task<bool> UnRegisterChannelAsync(int channelBroadcasterId);
-        /// <summary>
-        /// Gets or creates a channel status channel asynchronously.
-        /// </summary>
-        /// <param name="config">The client configuration.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>The channel status channel if created; otherwise, <c>null</c>.</returns>
-        Task<IChannelBroadcaster> GetOrCreateChannelBroadcasterAsync(IClientConfiguration config, int streamGroupProfileId, CancellationToken cancellationToken);
+    /// <summary>
+    /// Stops a channel broadcaster asynchronously.
+    /// </summary>
+    /// <param name="channelBroadcaster">The channel broadcaster to stop.</param>
+    Task StopChannelBroadcasterAsync(IChannelBroadcaster channelBroadcaster, bool? removeClients = false);
 
-        /// <summary>
-        /// Gets aggregated metrics for all channel distributors.
-        /// </summary>
-        /// <returns>A dictionary of aggregated metrics for all channel distributors.</returns>
-        IDictionary<int, IStreamHandlerMetrics> GetMetrics();
+    /// <summary>
+    /// Stops a channel broadcaster asynchronously by its ID.
+    /// </summary>
+    /// <param name="channelBroadcasterId">The unique identifier of the channel broadcaster to stop.</param>
+    Task StopChannelBroadcasterAsync(int channelBroadcasterId, bool? removeClients = false);
 
-        /// <summary>
-        /// Gets all channel statuses.
-        /// </summary>
-        /// <returns>A list of all channel statuses.</returns>
-        List<IChannelBroadcaster> GetChannelBroadcasters();
-
-        /// <summary>
-        /// Occurs when a channel status is stopped.
-        /// </summary>
-        event AsyncEventHandler<ChannelBroascasterStopped>? _OnChannelBroadcasterStoppedEvent;
-
-    }
+    /// <summary>
+    /// Unregisters a client asynchronously by its unique request ID.
+    /// </summary>
+    /// <param name="uniqueRequestId">The unique request ID of the client.</param>
+    /// /// <param name="noDelay">Shutdown immediate.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    Task UnRegisterClientAsync(string uniqueRequestId, bool noDelay, CancellationToken cancellationToken = default);
 }

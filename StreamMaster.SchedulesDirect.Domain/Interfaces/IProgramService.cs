@@ -1,7 +1,7 @@
 ﻿namespace StreamMaster.SchedulesDirect.Domain.Interfaces
 {
-    public interface IProgramService : IEPGCached, IDisposable
+    public interface IProgramService : IDisposable, IEPGCached
     {
-        Task<bool> BuildAllProgramEntries(CancellationToken cancellationToken);
+        Task<bool> BuildProgramEntriesAsync(CancellationToken cancellationToken);
     }
 }

@@ -5,6 +5,7 @@ interface messages_enType {
 }
 
 const MessagesEn: messages_enType = {
+  AppendChannelName: 'Append Channel Name',
   'SDSettings.AlternateLogoStyle': 'Alternate Logo Style',
   'SDSettings.AlternateSEFormat': 'Alternate Season/Episode Format',
   'SDSettings.AppendEpisodeDesc': 'Append Season & Episode #s to the Program Description',
@@ -33,7 +34,7 @@ const MessagesEn: messages_enType = {
   AdminUserName: 'Admin Username',
   ShowIntros: 'Show Intros',
   all: 'All',
-  ApiKey: 'API Key',
+  APIKey: 'API Key',
   authentication: 'Authentication',
   AuthenticationMethod: 'Method',
   auto: 'Auto',
@@ -59,11 +60,19 @@ const MessagesEn: messages_enType = {
   EnableSSL: 'Enable SSL',
   FFProbeExecutable: 'FFProbe Executable',
   FFMPegExecutable: 'FFMPeg Executable',
+  STRMBaseURL: 'STRM Base URL',
   FFMpegOptions: 'FFMPeg Options',
+  ReadTimeOutMs: 'Read Timeout',
+  StreamRetryLimit: 'Stream Retry Limit',
+  StreamReadTimeOutMs: 'Stream Read Timeout',
+  StreamStartTimeoutMs: 'Stream Start Timeout',
+  StreamRetryHours: 'Stream Retry Hours',
   filesEPGM3U: 'Files / EPG / M3U',
   formsAuthRequiresAdminUserName: 'Forms Authentication requires an Admin Username',
   general: 'General',
   DefaultCommandProfileName: 'Default Command Profile',
+  DefaultPort: 'Port',
+  DefaultSSLPort: 'SSL Port',
   DefaultOutputProfileName: 'Default Output Profile',
   M3U8OutPutProfile: 'Default M3U8 Output Profile',
   GlobalStreamLimit: 'Global Stream Limit',
@@ -88,7 +97,7 @@ const MessagesEn: messages_enType = {
   nameregexSettings: 'Name Blacklist',
   Numbers: '#s',
   ok: 'OK',
-  ClientReadTimeOutSeconds: 'Client Read Timeout',
+  ClientReadTimeoutMs: 'Client Read Timeout',
   overWriteM3UChannels: 'Overwrite M3U Channels #s',
   password: 'Password',
   playlist: 'Playlist',
@@ -119,7 +128,7 @@ const MessagesEn: messages_enType = {
   user: 'User',
   VideoStreamAlwaysUseEPGLogo: 'Always use EPG Logo',
   visible: 'Visible',
-  ShutDownDelay: 'Shutdown Delay (ms)'
+  StreamShutDownDelayMs: 'Shutdown Delay (ms)'
 };
 
 export default MessagesEn;

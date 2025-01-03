@@ -3,12 +3,16 @@ using StreamMaster.Domain.Enums;
 
 namespace StreamMaster.Infrastructure.Services.QueueService;
 
-
 public partial class BackgroundTaskQueue : IEPGFileTasks
 {
     public async ValueTask ProcessEPGFile(int EPGFileId, CancellationToken cancellationToken = default)
     {
         await QueueAsync(SMQueCommand.ProcessEPGFile, EPGFileId, cancellationToken).ConfigureAwait(false);
+    }
+
+    public async ValueTask EPGRemovedExpiredKeys(CancellationToken cancellationToken = default)
+    {
+        await QueueAsync(SMQueCommand.EPGRemovedExpiredKeys, cancellationToken).ConfigureAwait(false);
     }
 
     public async ValueTask ScanDirectoryForEPGFiles(CancellationToken cancellationToken = default)

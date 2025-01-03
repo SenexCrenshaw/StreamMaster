@@ -1,14 +1,13 @@
-﻿using StreamMaster.Domain.Helpers;
+﻿using System.Globalization;
 
-using System.Globalization;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+
+using StreamMaster.Domain.Helpers;
 
 namespace StreamMaster.SchedulesDirect.Converters
 {
-    public class XmltvProgramBuilder(
-        IOptionsMonitor<SDSettings> sdSettingsMonitor,
-        ILogoService logoService,
-        IReadOnlyDictionary<int, SeriesInfo> seriesDict,
-        IReadOnlyDictionary<string, string> keywordDict)
+    public class XmltvProgramBuilder(IOptionsMonitor<SDSettings> sdSettingsMonitor, IProgramRepository programRepository)
+        : IXmltvProgramBuilder
     {
         private static readonly string[] TvRatings =
         [
@@ -29,19 +28,21 @@ namespace StreamMaster.SchedulesDirect.Converters
             MxfProgram mxfProgram = scheduleEntry.mxfProgram;
             SDSettings sdSettings = sdSettingsMonitor.CurrentValue;
 
+            DateTime startDT = scheduleEntry.StartTime.AddMinutes(timeShift);
+
             XmltvProgramme programme = new()
             {
-                Start = FormatDateTime(scheduleEntry.StartTime.AddMinutes(timeShift)),
-                Stop = FormatDateTime(scheduleEntry.StartTime.AddMinutes(timeShift).AddSeconds(scheduleEntry.Duration)),
+                Start = FormatDateTime(startDT),
+                Stop = FormatDateTime(startDT.AddSeconds(scheduleEntry.Duration)),
                 Channel = channelId,
                 Titles = ConvertToXmltvTextList(mxfProgram.Title),
                 SubTitles = ConvertToXmltvTextList(mxfProgram.EpisodeTitle),
                 Descriptions = ConvertToXmltvTextList(GetFullDescription(mxfProgram, scheduleEntry, sdSettings)),
                 Credits = BuildProgramCredits(mxfProgram),
                 Date = BuildProgramDate(mxfProgram),
-                Categories = BuildProgramCategories(mxfProgram),
+                //Categories = BuildProgramCategories(mxfProgram),
                 Language = ConvertToXmltvText(mxfProgram.Language),
-                Icons = BuildProgramIcons(mxfProgram, baseUrl),
+                Icons = BuildProgramIcons(scheduleEntry, baseUrl),
                 EpisodeNums = BuildEpisodeNumbers(scheduleEntry),
                 Video = BuildProgramVideo(scheduleEntry),
                 Audio = BuildProgramAudio(scheduleEntry),
@@ -241,12 +242,12 @@ namespace StreamMaster.SchedulesDirect.Converters
 
         private static List<string>? MxfPersonRankToXmltvCrew(List<MxfPersonRank>? mxfPersons)
         {
-            return mxfPersons?.Select(person => person.Name).ToList();
+            return mxfPersons?.Where(person => person.Name is not null).Select(person => person.Name!).ToList();
         }
 
         private static List<XmltvActor>? MxfPersonRankToXmltvActors(List<MxfPersonRank>? mxfPersons)
         {
-            return mxfPersons?.Select(person => new XmltvActor { Actor = person.Name, Role = person.Character }).ToList();
+            return mxfPersons?.Where(a => a.Name is not null).Select(person => new XmltvActor { Actor = person.Name!, Role = person.Character }).ToList();
         }
 
         private static string? BuildProgramDate(MxfProgram mxfProgram)
@@ -256,81 +257,90 @@ namespace StreamMaster.SchedulesDirect.Converters
                 : !string.IsNullOrEmpty(mxfProgram.OriginalAirdate) ? DateTime.Parse(mxfProgram.OriginalAirdate).ToString("yyyyMMdd") : null;
         }
 
-        private List<XmltvText>? BuildProgramCategories(MxfProgram mxfProgram)
-        {
-            if (string.IsNullOrEmpty(mxfProgram.Keywords))
-            {
-                return null;
-            }
+        //private List<XmltvText>? BuildProgramCategories(MxfProgram mxfProgram)
+        //{
+        //    if (string.IsNullOrEmpty(mxfProgram.Keywords))
+        //    {
+        //        return null;
+        //    }
 
-            List<string> categories = [];
+        //    List<string> categories = [];
 
-            foreach (string keywordId in mxfProgram.Keywords.Split(','))
-            {
-                if (keywordDict.TryGetValue(keywordId, out string? word))
-                {
-                    categories.Add(word);
-                }
-            }
+        //    foreach (string keywordId in mxfProgram.Keywords.Split(','))
+        //    {
+        //        if (keywordDict.TryGetValue(keywordId, out string? word))
+        //        {
+        //            categories.Add(word);
+        //        }
+        //    }
 
-            if (categories.Remove("Movies"))
-            {
-                if (!categories.Contains("Movie"))
-                {
-                    categories.Add("Movie");
-                }
-            }
+        //    if (categories.Remove("Movies"))
+        //    {
+        //        if (!categories.Contains("Movie"))
+        //        {
+        //            categories.Add("Movie");
+        //        }
+        //    }
 
-            // Remove "Kids" if "Children" is also present
-            if (categories.Contains("Children"))
-            {
-                categories.Remove("Kids");
-            }
+        //    // Remove "Kids" if "Children" is also present
+        //    if (categories.Contains("Children"))
+        //    {
+        //        _ = categories.Remove("Kids");
+        //    }
 
-            return categories.Count == 0 ? null : categories.ConvertAll(category => new XmltvText { Text = category });
-        }
+        //    return categories.Count == 0 ? null : categories.ConvertAll(category => new XmltvText { Text = category });
+        //}
 
-        private List<XmltvIcon>? BuildProgramIcons(MxfProgram mxfProgram, string baseUrl)
+        private List<XmltvIcon>? BuildProgramIcons(MxfScheduleEntry scheduleEntry, string baseUrl)
         {
             SDSettings sdSettings = sdSettingsMonitor.CurrentValue;
 
-            if (sdSettings.XmltvSingleImage || !mxfProgram.extras.ContainsKey("artwork"))
-            {
-                // Use the first available image URL
-                string? url = mxfProgram.mxfGuideImage?.ImageUrl ??
-                              mxfProgram.mxfSeason?.mxfGuideImage?.ImageUrl ??
-                              mxfProgram.mxfSeriesInfo?.MxfGuideImage?.ImageUrl;
+            MxfProgram? mxfProgram = programRepository.FindProgram(scheduleEntry.mxfProgram.ProgramId);
 
-                return url != null ?
-                [
-                    new XmltvIcon
-                    {
-                        Src = logoService.GetLogoUrl( url, baseUrl),// _iconHelper.GetIconUrl(mxfProgram.EPGNumber, url, ""),
-                        // Height and Width can be set if available
-                    }
-                ] : null;
-            }
-
-            // Retrieve artwork from the program, season, or series info
-            List<ProgramArtwork>? artwork = mxfProgram.extras.GetValueOrDefault("artwork") as List<ProgramArtwork> ??
-                                            mxfProgram.mxfSeason?.extras.GetValueOrDefault("artwork") as List<ProgramArtwork> ??
-                                            mxfProgram.mxfSeriesInfo?.Extras.GetValueOrDefault("artwork") as List<ProgramArtwork>;
-
-            if (artwork == null)
+            if (mxfProgram == null)
             {
                 return null;
             }
 
-            // Convert artwork to XmltvIcon list
-            return artwork.ConvertAll(image => new XmltvIcon
+            if (mxfProgram.ArtWorks.Count == 0)
             {
-                Src = logoService.GetLogoUrl(image.Uri, baseUrl),//_iconHelper.GetIconUrl(mxfProgram.EPGNumber, image.Uri, ""),
-                Height = image.Height,
-                Width = image.Width
-            });
+                return null;
+            }
+
+            // Ensure baseUrl ends with '/'
+            baseUrl = !string.IsNullOrEmpty(baseUrl) && !baseUrl.EndsWith('/')
+                ? $"{baseUrl}/"
+                : baseUrl;
+
+            // Handle single image setting
+            if (sdSettings.XmltvSingleImage)
+            {
+                ProgramArtwork? firstArtwork = mxfProgram.ArtWorks.FirstOrDefault();
+                return firstArtwork is not null
+                    ?
+                    [
+                new XmltvIcon
+                {
+                    Src = $"{baseUrl}{firstArtwork.Uri}",
+                    Width = firstArtwork.Width ?? 0,
+                    Height = firstArtwork.Height ?? 0
+                }
+                    ]
+                    : null;
+            }
+
+            // Map all artworks to XmltvIcons
+            return mxfProgram.ArtWorks
+                .ConvertAll(art => new XmltvIcon
+                {
+                    Src = $"{baseUrl}{art.Uri}",
+                    Width = art.Width ?? 0,
+                    Height = art.Height ?? 0
+                })
+;
         }
 
-        private List<XmltvEpisodeNum>? BuildEpisodeNumbers(MxfScheduleEntry scheduleEntry)
+        private static List<XmltvEpisodeNum>? BuildEpisodeNumbers(MxfScheduleEntry scheduleEntry)
         {
             List<XmltvEpisodeNum> list = [];
             MxfProgram mxfProgram = scheduleEntry.mxfProgram;
@@ -369,15 +379,15 @@ namespace StreamMaster.SchedulesDirect.Converters
                 }
             }
 
-            if (mxfProgram.Series != null)
-            {
-                if (int.TryParse(mxfProgram.Series[2..], out int seriesIndex) &&
-                    seriesDict.TryGetValue(seriesIndex - 1, out SeriesInfo? mxfSeriesInfo) &&
-                    mxfSeriesInfo.Extras.TryGetValue("tvdb", out dynamic? value))
-                {
-                    list.Add(new XmltvEpisodeNum { System = "thetvdb.com", Text = $"series/{value}" });
-                }
-            }
+            //if (mxfProgram.Series != null)
+            //{
+            //    if (int.TryParse(mxfProgram.Series[2..], out int seriesIndex) &&
+            //        seriesDict.TryGetValue(seriesIndex - 1, out SeriesInfo? mxfSeriesInfo) &&
+            //        mxfSeriesInfo.Extras.TryGetValue("tvdb", out dynamic? value))
+            //    {
+            //        list.Add(new XmltvEpisodeNum { System = "thetvdb.com", Text = $"series/{value}" });
+            //    }
+            //}
 
             return list.Count > 0 ? list : null;
         }
@@ -492,7 +502,7 @@ namespace StreamMaster.SchedulesDirect.Converters
                 }
             }
 
-            if (scheduleEntry.mxfProgram.extras.TryGetValue("ratings", out dynamic? valueRatings))
+            if (scheduleEntry.mxfProgram.Extras.TryGetValue("ratings", out dynamic? valueRatings))
             {
                 foreach (KeyValuePair<string, string> rating in (Dictionary<string, string>)valueRatings)
                 {

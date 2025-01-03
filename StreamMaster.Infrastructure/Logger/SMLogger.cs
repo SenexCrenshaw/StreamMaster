@@ -4,16 +4,11 @@ using StreamMaster.Domain.Extensions;
 
 namespace StreamMaster.Infrastructure.Logger;
 
-public class SMLogger : ILogger
+public class SMLogger(IFileLoggingServiceFactory factory) : ILogger
 {
-    private readonly IFileLoggingService _logging;
+    private readonly IFileLoggingService _logging = factory.Create("SMLogger");
 
-    public SMLogger(IFileLoggingServiceFactory factory)
-    {
-        _logging = factory.Create("SMLogger");
-    }
-
-    public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
+    public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
     {
         if (!IsEnabled(logLevel))
         {
@@ -24,15 +19,13 @@ public class SMLogger : ILogger
         _logging.EnqueueLogEntry(logEntry);
     }
 
-    public IDisposable BeginScope<TState>(TState state)
+    public IDisposable? BeginScope<TState>(TState state) where TState : notnull
     {
-        return null; // If you have a scope to handle, return an object that implements IDisposable
+        return null;
     }
 
     public bool IsEnabled(LogLevel logLevel)
     {
-        // Determine if the log level should be enabled or not (you can set your
-        // criteria here)
         return true;
     }
 
@@ -43,15 +36,15 @@ public class SMLogger : ILogger
     //        return;
     //    }
 
-    //    // Format the log message
-    //    string message = formatter(state, exception);
+    //    // Format the log Message
+    //    string Message = formatter(state, exception);
 
     //    // Save the log entry to the SQLite database
     //    using LogDbContext db = new();
     //    db.LogEntries.GetOrAdd(new LogEntry
     //    {
     //        LogLevel = logLevel,
-    //        MessageId = message,
+    //        MessageId = Message,
     //        TimeStamp = DateTime.Now
     //    });
 
@@ -80,8 +73,13 @@ public class SMLogger : ILogger
     //    _logQueue.Enqueue(logEntry);
     //}
 
-    private static string FormatLogEntry<TState>(LogLevel logLevel, EventId eventId, TState? state, Exception exception, Func<TState, Exception, string> formatter)
+    private static string FormatLogEntry<TState>(LogLevel logLevel, EventId eventId, TState? state, Exception? exception, Func<TState, Exception?, string> formatter)
     {
+        if (state == null)
+        {
+            return string.Empty;
+        }
+
         string message = formatter(state, exception);
 
         // Format the log entry as CSV, including the EventId

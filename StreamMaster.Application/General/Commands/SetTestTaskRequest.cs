@@ -8,7 +8,7 @@ public class SetTestTaskRequestHandler() : IRequestHandler<SetTestTaskRequest, A
 {
     public async Task<APIResponse> Handle(SetTestTaskRequest request, CancellationToken cancellationToken)
     {
-        await Task.Delay(1000 * request.DelayInSeconds);
+        await Task.Delay(1000 * request.DelayInSeconds, cancellationToken);
         return APIResponse.Ok;
     }
 }

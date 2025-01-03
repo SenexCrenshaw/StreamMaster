@@ -3,4 +3,4 @@
 namespace StreamMaster.Domain.Models;
 
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record SMMessage(string Severity, string Summary, string? Detail) { }
+public record SMMessage(string Severity, string Summary, string? Detail);

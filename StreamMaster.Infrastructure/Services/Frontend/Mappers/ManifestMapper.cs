@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 
 using StreamMaster.Domain.Configuration;
+using StreamMaster.Domain.Extensions;
 
 namespace StreamMaster.Infrastructure.Services.Frontend.Mappers
 {
@@ -10,16 +11,15 @@ namespace StreamMaster.Infrastructure.Services.Frontend.Mappers
 
         public override bool CanHandle(string resourceUrl)
         {
-            return resourceUrl.StartsWith("/Content/Images/Icons/manifest");
+            return resourceUrl.ContainsIgnoreCase("/Content/Images/Icons/manifest");
         }
 
-        public override async Task<string> Map(string resourceUrl)
+        public override Task<string> MapAsync(string resourceUrl)
         {
-
             string path = resourceUrl.Replace('/', Path.DirectorySeparatorChar);
             path = path.Trim(Path.DirectorySeparatorChar);
 
-            return Path.ChangeExtension(Path.Combine(BuildInfo.StartUpPath, settings.UiFolder, path), "json");
+            return Task.FromResult(Path.ChangeExtension(Path.Combine(BuildInfo.StartUpPath, settings.UiFolder, path), "json"));
         }
     }
 }

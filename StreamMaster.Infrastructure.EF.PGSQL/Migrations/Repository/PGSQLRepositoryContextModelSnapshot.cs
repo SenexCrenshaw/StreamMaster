@@ -18,7 +18,7 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.10")
+                .HasAnnotation("ProductVersion", "9.0.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.HasPostgresExtension(modelBuilder, "citext");
@@ -79,12 +79,6 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Name")
-                        .HasDatabaseName("idx_Name");
-
-                    b.HasIndex("Name", "IsHidden")
-                        .HasDatabaseName("idx_Name_IsHidden");
-
                     b.ToTable("ChannelGroups");
                 });
 
@@ -107,10 +101,6 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
                         .HasColumnType("citext");
 
                     b.Property<string>("ContentType")
-                        .IsRequired()
-                        .HasColumnType("citext");
-
-                    b.Property<string>("DirectoryLocation")
                         .IsRequired()
                         .HasColumnType("citext");
 
@@ -164,9 +154,6 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Url")
-                        .HasDatabaseName("idx_epgfiles_url");
-
                     b.ToTable("EPGFiles");
                 });
 
@@ -190,10 +177,6 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
 
                     b.Property<string>("DefaultStreamGroupName")
                         .HasColumnType("text");
-
-                    b.Property<string>("DirectoryLocation")
-                        .IsRequired()
-                        .HasColumnType("citext");
 
                     b.Property<int>("DownloadErrors")
                         .HasColumnType("integer");
@@ -255,7 +238,7 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
                     b.Property<string>("Url")
                         .HasColumnType("citext");
 
-                    b.Property<List<string>>("VODTags")
+                    b.PrimitiveCollection<List<string>>("VODTags")
                         .IsRequired()
                         .HasColumnType("text[]");
 
@@ -339,19 +322,6 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
 
                     b.HasKey("Id");
 
-                    b.HasIndex("BaseStreamID")
-                        .HasDatabaseName("idx_smchannels_basestreamid");
-
-                    b.HasIndex("Id")
-                        .IsUnique()
-                        .HasDatabaseName("idx_smchannels_id");
-
-                    b.HasIndex("Name")
-                        .HasDatabaseName("idx_SMChannelName");
-
-                    b.HasIndex("ChannelNumber", "Id")
-                        .HasDatabaseName("idx_smchannels_channelnumber_id");
-
                     b.ToTable("SMChannels");
                 });
 
@@ -388,13 +358,6 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
 
                     b.HasIndex("SMStreamId");
 
-                    b.HasIndex("SMChannelId", "Rank")
-                        .HasDatabaseName("idx_smchannelstreamlinks_smchannelid_rank");
-
-                    b.HasIndex("SMChannelId", "SMStreamId")
-                        .IsUnique()
-                        .HasDatabaseName("idx_smchannelstreamlinks_smchannelid_smstreamid");
-
                     b.ToTable("SMChannelStreamLinks");
                 });
 
@@ -427,6 +390,9 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
                     b.Property<string>("EPGID")
                         .IsRequired()
                         .HasColumnType("citext");
+
+                    b.Property<string>("ExtInf")
+                        .HasColumnType("text");
 
                     b.Property<int>("FilePosition")
                         .HasColumnType("integer");
@@ -479,13 +445,6 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Id")
-                        .IsUnique()
-                        .HasDatabaseName("idx_smstreams_id");
-
-                    b.HasIndex("Name")
-                        .HasDatabaseName("idx_SMStreamName");
-
                     b.ToTable("SMStreams");
                 });
 
@@ -496,6 +455,9 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityAlwaysColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("CreateSTRM")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("DeviceID")
                         .IsRequired()
@@ -519,9 +481,6 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("Name", "Id")
-                        .HasDatabaseName("idx_streamgroups_name_id");
 
                     b.ToTable("StreamGroups");
                 });
@@ -587,9 +546,7 @@ namespace StreamMaster.Infrastructure.EF.PGSQL.Migrations.Repository
 
                     b.HasKey("StreamGroupId", "SMChannelId");
 
-                    b.HasIndex("SMChannelId", "StreamGroupId")
-                        .IsUnique()
-                        .HasDatabaseName("idx_streamgroupsmchannellink_smchannelid_streamgroupid");
+                    b.HasIndex("SMChannelId");
 
                     b.ToTable("StreamGroupSMChannelLink");
                 });

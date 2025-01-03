@@ -7,7 +7,7 @@ namespace StreamMaster.Application.EPGFiles.Commands;
 public record CreateEPGFileRequest(string Name, string FileName, int EPGNumber, int? TimeShift, int? HoursToUpdate, string? UrlSource, string? Color)
     : IRequest<APIResponse>;
 
-public class CreateEPGFileRequestHandler(ILogger<CreateEPGFileRequest> Logger, IEPGFileService ePGFileService, IFileUtilService fileUtilService, IDataRefreshService dataRefreshService, IMessageService messageService, IXmltv2Mxf xmltv2Mxf, IRepositoryWrapper Repository, IMapper Mapper, IPublisher Publisher)
+public class CreateEPGFileRequestHandler(ILogger<CreateEPGFileRequest> Logger, IEPGFileService ePGFileService, IFileUtilService fileUtilService, IDataRefreshService dataRefreshService, IMessageService messageService, IRepositoryWrapper Repository, IMapper Mapper, IPublisher Publisher)
     : IRequestHandler<CreateEPGFileRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(CreateEPGFileRequest request, CancellationToken cancellationToken)
@@ -39,8 +39,8 @@ public class CreateEPGFileRequestHandler(ILogger<CreateEPGFileRequest> Logger, I
                 return APIResponse.ErrorWithMessage($"Exception M3U From URL '{ex}'");
             }
 
-            XMLTV? tv = await xmltv2Mxf.ConvertToXMLTVAsync(fullName, epgFile.EPGNumber);
-            if (tv == null)
+            (int channelCount, int programCount) = await fileUtilService.ReadXmlCountsFromFileAsync(fullName, epgFile.EPGNumber);
+            if (channelCount == -1)
             {
                 fileUtilService.CleanUpFile(fullName);
                 Logger.LogCritical("Exception EPG '{name}' format is not supported", request.Name);
@@ -50,8 +50,8 @@ public class CreateEPGFileRequestHandler(ILogger<CreateEPGFileRequest> Logger, I
 
             epgFile.LastDownloaded = File.GetLastWriteTime(fullName);
             epgFile.FileExists = true;
-            epgFile.ChannelCount = (tv.Channels?.Count) ?? 0;
-            epgFile.ProgrammeCount = (tv.Programs?.Count) ?? 0;
+            epgFile.ChannelCount = channelCount;
+            epgFile.ProgrammeCount = programCount;
 
             Repository.EPGFile.CreateEPGFile(epgFile);
             _ = await Repository.SaveAsync().ConfigureAwait(false);

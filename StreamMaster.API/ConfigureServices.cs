@@ -1,3 +1,5 @@
+using System.Reflection;
+
 using FluentValidation.AspNetCore;
 
 using MediatR;
@@ -18,10 +20,9 @@ using StreamMaster.Application.Services;
 using StreamMaster.Domain.Logging;
 using StreamMaster.Infrastructure.Authentication;
 using StreamMaster.Infrastructure.EF.PGSQL;
+using StreamMaster.Infrastructure.Services;
 using StreamMaster.Infrastructure.Services.Frontend;
 using StreamMaster.Infrastructure.Services.QueueService;
-
-using System.Reflection;
 
 namespace StreamMaster.API;
 
@@ -39,6 +40,9 @@ public static class ConfigureServices
         //    return factory.Create("SMLogger");
         //});
         //services.AddSingleton<ILoggerFactory, LoggerFactory>();
+
+        builder.Services.AddSingleton<ISMWebSocketManager, SMWebSocketManager>();
+
         services.AddLogging(loggingBuilder =>
         {
             string test = DbLoggerCategory.Database.Command.Name;
@@ -100,7 +104,7 @@ public static class ConfigureServices
 
         services.AddSession();
 
-        services.AddDatabaseDeveloperPageExceptionFilter();
+        //services.AddDatabaseDeveloperPageExceptionFilter();
 
         Assembly assembly = Assembly.Load("StreamMaster.Application");
 
@@ -155,7 +159,7 @@ public static class ConfigureServices
         });
 
         services.AddHostedService<PostStartup>();
-        services.AddSingleton<PostStartup>();
+        //services.AddSingleton<PostStartup>();
 
         services.AddAppAuthenticationAndAuthorization();
 

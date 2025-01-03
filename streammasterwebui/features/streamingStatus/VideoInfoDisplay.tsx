@@ -1,5 +1,5 @@
 import SMPopUp from '@components/sm/SMPopUp';
-import { JsonEditor } from 'json-edit-react';
+import { githubDarkTheme, JsonEditor } from 'json-edit-react';
 import { ScrollPanel } from 'primereact/scrollpanel';
 import { useMemo } from 'react';
 
@@ -12,7 +12,7 @@ export const VideoInfoDisplay: React.FC<VideoInfoProps> = ({ name, videoInfo }) 
   const getContent = useMemo(() => {
     if (!videoInfo) return <div>Loading...</div>;
     let jsonObject = JSON.parse(videoInfo);
-    return <JsonEditor data={jsonObject} restrictEdit restrictDelete restrictAdd theme="githubDark" />;
+    return <JsonEditor data={jsonObject} restrictEdit restrictDelete restrictAdd theme={githubDarkTheme} />;
   }, [videoInfo]);
 
   return (

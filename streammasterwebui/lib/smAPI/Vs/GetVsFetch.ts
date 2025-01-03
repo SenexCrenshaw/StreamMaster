@@ -9,7 +9,7 @@ export const fetchGetVs = createAsyncThunk('cache/getGetVs', async (param: GetVs
   try {
     if (isSkipToken(param))
     {
-        Logger.error('Skipping GetEPGFilePreviewById');
+        Logger.error('Skipping GetVs');
         return undefined;
     }
     Logger.debug('Fetching GetVs');

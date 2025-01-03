@@ -1,7 +1,6 @@
 ﻿namespace StreamMaster.Application.SMStreams.Commands;
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public record ClearByTag(string Entity, string Tag) { }
-
+public record ClearByTag(string Entity, string Tag);
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]

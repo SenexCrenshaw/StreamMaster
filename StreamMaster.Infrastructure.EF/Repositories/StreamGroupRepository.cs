@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using AutoMapper.QueryableExtensions;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
@@ -8,6 +7,7 @@ using StreamMaster.Application.Interfaces;
 using StreamMaster.Domain.API;
 using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Filtering;
+
 namespace StreamMaster.Infrastructure.EF.Repositories;
 
 public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepositoryWrapper Repository, IRepositoryContext repositoryContext, IMapper mapper, IOptionsMonitor<Setting> intSettings, ICryptoService cryptoService, IHttpContextAccessor httpContextAccessor)
@@ -25,31 +25,31 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
         PagedResponse<StreamGroupDto> ret = await query.GetPagedResponseAsync<StreamGroup, StreamGroupDto>(Parameters.PageNumber, Parameters.PageSize, mapper)
                           .ConfigureAwait(false);
 
-        SetStreamGroupsLinks(ret.Data);
+        await SetStreamGroupsLinks(ret.Data!);
         return ret;
     }
 
-    public void SetStreamGroupsLinks(List<StreamGroupDto> streamGroupDTOs)
+    public async Task SetStreamGroupsLinks(List<StreamGroupDto> streamGroupDTOs)
     {
         string Url = httpContextAccessor.GetUrl();
 
         foreach (StreamGroupDto sg in streamGroupDTOs)
         {
-            SetStreamGroupLinks(sg, Url);
+            await SetStreamGroupLinks(sg, Url);
         }
     }
 
-    private void SetStreamGroupsLink(StreamGroupDto streamGroupDto)
+    private async Task SetStreamGroupsLink(StreamGroupDto streamGroupDto)
     {
         string Url = httpContextAccessor.GetUrl();
-        SetStreamGroupLinks(streamGroupDto, Url);
+        await SetStreamGroupLinks(streamGroupDto, Url);
     }
 
-    private void SetStreamGroupLinks(StreamGroupDto streamGroupDto, string Url)
+    private async Task SetStreamGroupLinks(StreamGroupDto streamGroupDto, string Url)
     {
         Setting Settings = intSettings.CurrentValue;
-        StreamGroup? sg = Repository.StreamGroup.GetQuery().FirstOrDefault(a => a.Id == streamGroupDto.Id);
-        if (sg == null)
+        bool sgExists = await Repository.StreamGroup.GetQuery().AnyAsync(a => a.Id == streamGroupDto.Id);
+        if (!sgExists)
         {
             return;
         }
@@ -71,10 +71,9 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
                 streamGroupProfile.HDHRLink = $"{Url}/api/streamgroups/{EncodedString}";
                 streamGroupProfile.M3ULink = $"{Url}/api/streamgroups/{EncodedString}/m3u.m3u";
                 streamGroupProfile.XMLLink = $"{Url}/api/streamgroups/{EncodedString}/epg.xml";
-
             }
 
-            StreamGroupProfileDto defaultProfile = streamGroupDto.StreamGroupProfiles.First(a => a.ProfileName.Equals("default", StringComparison.CurrentCultureIgnoreCase));
+            StreamGroupProfileDto defaultProfile = streamGroupDto.StreamGroupProfiles.First(a => a.ProfileName.EqualsIgnoreCase("default"));
 
             streamGroupDto.ShortHDHRLink = $"{Url}/s/{defaultProfile.Id}";
             streamGroupDto.ShortM3ULink = $"{Url}/s/{defaultProfile.Id}.m3u";
@@ -83,7 +82,6 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
             streamGroupDto.HDHRLink = defaultProfile.HDHRLink;
             streamGroupDto.M3ULink = defaultProfile.M3ULink;
             streamGroupDto.XMLLink = defaultProfile.XMLLink;
-
         }
     }
 
@@ -105,10 +103,11 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
         }
 
         StreamGroupDto ret = mapper.Map<StreamGroupDto>(streamGroup);
-        SetStreamGroupsLink(ret);
+        await SetStreamGroupsLink(ret);
         return ret;
     }
-    public async Task<StreamGroupDto?> GetStreamGroupById(int streamGroupId)
+
+    public async Task<StreamGroupDto?> GetStreamGroupByIdAsync(int streamGroupId)
     {
         if (streamGroupId == 0)
         {
@@ -126,7 +125,7 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
         }
 
         StreamGroupDto ret = mapper.Map<StreamGroupDto>(streamGroup);
-        SetStreamGroupsLink(ret);
+        await SetStreamGroupsLink(ret);
         return ret;
     }
 
@@ -143,13 +142,10 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
 
     public async Task<List<StreamGroupDto>> GetStreamGroups(CancellationToken cancellationToken)
     {
-        List<StreamGroupDto> ret = await GetQuery()
-            .OrderBy(a => a.Name)
-                   .ProjectTo<StreamGroupDto>(mapper.ConfigurationProvider)
-                   .ToListAsync(cancellationToken: cancellationToken)
-                   .ConfigureAwait(false);
+        List<StreamGroup> sgs = await GetQuery().OrderBy(a => a.Name).ToListAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
+        List<StreamGroupDto> ret = mapper.Map<List<StreamGroupDto>>(sgs);
 
-        SetStreamGroupsLinks(ret);
+        await SetStreamGroupsLinks(ret);
         return ret;
     }
 
@@ -181,7 +177,7 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
         return streamGroup.Id;
     }
 
-    public async Task<StreamGroupDto?> UpdateStreamGroup(int StreamGroupId, string? NewName, string? DeviceID, string? GroupKey)//, bool? AutoSetChannelNumbers, bool? IgnoreExistingChannelNumbers, int? StartingChannelNumber)
+    public async Task<StreamGroupDto?> UpdateStreamGroup(int StreamGroupId, string? NewName, string? DeviceID, string? GroupKey, bool? CreateSTRM)
     {
         StreamGroup? streamGroup = await FirstOrDefaultAsync(c => c.Id == StreamGroupId);
         if (streamGroup == null)
@@ -204,26 +200,16 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
             streamGroup.DeviceID = DeviceID;
         }
 
-        //if (StartingChannelNumber.HasValue)
-        //{
-        //    streamGroup.StartingChannelNumber = StartingChannelNumber.Value;
-        //}
-
-        //if (IgnoreExistingChannelNumbers.HasValue)
-        //{
-        //    streamGroup.IgnoreExistingChannelNumbers = IgnoreExistingChannelNumbers.Value;
-        //}
-
-        //if (AutoSetChannelNumbers.HasValue)
-        //{
-        //    streamGroup.AutoSetChannelNumbers = AutoSetChannelNumbers.Value;
-        //}
+        if (CreateSTRM.HasValue)
+        {
+            streamGroup.CreateSTRM = CreateSTRM.Value;
+        }
 
         Update(streamGroup);
         _ = await RepositoryContext.SaveChangesAsync();
         StreamGroupDto ret = mapper.Map<StreamGroupDto>(streamGroup);
 
-        SetStreamGroupsLink(ret);
+        await SetStreamGroupsLink(ret);
 
         return ret;
     }
@@ -243,11 +229,18 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, IRepos
         return FirstOrDefault(a => a.Id == streamGroupId, tracking: false);
     }
 
+    //public override IQueryable<StreamGroup> GetQuery(bool tracking = false)
+    //{
+    //    return tracking
+    //        ? base.GetQuery(tracking).Include(a => a.SMChannels).ThenInclude(a => a.SMChannel).Include(a => a.StreamGroupProfiles)
+    //        : base.GetQuery(tracking).Include(a => a.SMChannels).ThenInclude(a => a.SMChannel).Include(a => a.StreamGroupProfiles).AsNoTracking();
+    //}
+
     public override IQueryable<StreamGroup> GetQuery(bool tracking = false)
     {
         return tracking
-            ? base.GetQuery(tracking).Include(a => a.SMChannels).ThenInclude(a => a.SMChannel).Include(a => a.StreamGroupProfiles)
-            : base.GetQuery(tracking).Include(a => a.SMChannels).ThenInclude(a => a.SMChannel).Include(a => a.StreamGroupProfiles).AsNoTracking();
+            ? base.GetQuery(tracking).Include(a => a.StreamGroupProfiles)
+            : base.GetQuery(tracking).Include(a => a.StreamGroupProfiles).AsNoTracking();
     }
 
     public override IQueryable<StreamGroup> GetQuery(QueryStringParameters parameters, bool tracking = false)

@@ -1,11 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Text;
+
+using Microsoft.EntityFrameworkCore;
 
 using Npgsql;
 
 using StreamMaster.Domain.API;
 using StreamMaster.Domain.Exceptions;
-
-using System.Text;
 
 namespace StreamMaster.Infrastructure.EF.Repositories;
 
@@ -19,11 +19,11 @@ public class StreamGroupSMChannelLinkRepository(ILogger<StreamGroupSMChannelLink
             return;
         }
 
-        int batchSize = 50;
+        const int batchSize = 50;
         // Break the smChannelIds list into batches
         for (int i = 0; i < smChannelIds.Count; i += batchSize)
         {
-            List<int> batch = smChannelIds.Skip(i).Take(batchSize).ToList();
+            List<int> batch = [.. smChannelIds.Skip(i).Take(batchSize)];
             await InsertBatchAsync(streamGroupId, batch);
         }
 
@@ -135,6 +135,8 @@ public class StreamGroupSMChannelLinkRepository(ILogger<StreamGroupSMChannelLink
 
         return APIResponse.Success;
     }
+
+    public IQueryable<StreamGroupSMChannelLink> GetQueryNoTracking => base.GetQuery(false).Include(a => a.SMChannel).AsNoTracking();
 
     public override IQueryable<StreamGroupSMChannelLink> GetQuery(bool tracking = false)
     {

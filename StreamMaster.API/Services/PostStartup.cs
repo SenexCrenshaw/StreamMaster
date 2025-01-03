@@ -27,7 +27,7 @@ public class PostStartup(ILogger<PostStartup> logger, IServiceProvider servicePr
 
         await taskQueue.EPGSync(cancellationToken).ConfigureAwait(false);
 
-        await taskQueue.ReadDirectoryLogos(cancellationToken).ConfigureAwait(false);
+        await taskQueue.ScanForTvLogos(cancellationToken).ConfigureAwait(false);
 
         await taskQueue.ScanDirectoryForEPGFiles(cancellationToken).ConfigureAwait(false);
 
@@ -35,9 +35,11 @@ public class PostStartup(ILogger<PostStartup> logger, IServiceProvider servicePr
 
         await taskQueue.ScanDirectoryForM3UFiles(cancellationToken).ConfigureAwait(false);
 
-        //await taskQueue.UpdateChannelGroupCounts(cancellationToken).ConfigureAwait(false);
+        await taskQueue.CacheChannelLogos(cancellationToken).ConfigureAwait(false);
 
-        await taskQueue.BuildLogoCaches(cancellationToken).ConfigureAwait(false);
+        await taskQueue.CacheStreamLogos(cancellationToken).ConfigureAwait(false);
+
+        await taskQueue.CreateSTRMFiles(cancellationToken).ConfigureAwait(false);
 
         while (taskQueue.HasJobs())
         {
@@ -47,6 +49,5 @@ public class PostStartup(ILogger<PostStartup> logger, IServiceProvider servicePr
         //await dataRefreshService.RefreshAll();
 
         await taskQueue.SetIsSystemReady(true, cancellationToken).ConfigureAwait(false);
-
     }
 }

@@ -352,7 +352,11 @@ export const FormatDuration = ({ duration }: { duration: string | undefined }) =
 };
 
 function getApiUrl(path: SMFileTypes, originalUrl: string): string {
-  return `${isDevelopment ? baseHostURL : ''}/api/files/${path}/${encodeURIComponent(originalUrl)}`;
+  if (originalUrl.startsWith('/api/files')) {
+    return `${isDevelopment ? baseHostURL : ''}${originalUrl}`;
+  }
+  //  return `${isDevelopment ? baseHostURL : ''}/api/files/${path}/${encodeURIComponent(originalUrl)}`;
+  return `${isDevelopment ? baseHostURL : ''}/api/files/${encodeURIComponent(originalUrl)}`;
 }
 
 export function findDifferenceStationIdLineUps(firstArray: StationIdLineup[], secondArray: StationIdLineup[]): StationIdLineup[] {
@@ -380,33 +384,34 @@ export function findDifferenceStationIdLineUps(firstArray: StationIdLineup[], se
 //   return true;
 // };
 
-export function getIconUrl(iconOriginalSource: string | null | undefined, defaultIcon: string, cacheIcon: boolean, fileType: SMFileTypes | null): string {
-  if (!iconOriginalSource || iconOriginalSource === '') {
-    iconOriginalSource = `${isDevelopment ? `${baseHostURL}/` : '/'}${defaultIcon}`;
-  }
+// export function getIconUrl(iconOriginalSource: string | null | undefined, defaultIcon: string, cacheIcon: boolean): string {
+//   if (!iconOriginalSource || iconOriginalSource === '') {
+//     iconOriginalSource = `${isDevelopment ? `${baseHostURL}/` : '/'}${defaultIcon}`;
+//   }
 
-  const originalUrl = iconOriginalSource;
+//   const originalUrl = iconOriginalSource;
 
-  if (iconOriginalSource.startsWith('/')) {
-    iconOriginalSource = iconOriginalSource.slice(1);
-  }
+//   if (iconOriginalSource.startsWith('/')) {
+//     iconOriginalSource = iconOriginalSource.slice(1);
+//   }
 
-  const customPlayListString = SMFileTypes[SMFileTypes.CustomPlayList];
-  if (fileType !== null && (fileType === SMFileTypes.CustomPlayList || fileType.toString() === customPlayListString)) {
-    iconOriginalSource = getApiUrl(SMFileTypes.CustomPlayList, originalUrl);
-    return iconOriginalSource;
-  }
+//   //Custom
+//   // const customPlayListString = SMFileTypes[SMFileTypes.CustomPlayList];
+//   // if (fileType !== null && (fileType === SMFileTypes.CustomPlayList || fileType.toString() === customPlayListString)) {
+//   //   iconOriginalSource = getApiUrl(SMFileTypes.CustomPlayList, originalUrl);
+//   //   return iconOriginalSource;
+//   // }
 
-  if (iconOriginalSource.startsWith('images/')) {
-    iconOriginalSource = `${isDevelopment ? `${baseHostURL}/` : '/'}${iconOriginalSource}`;
-  } else if (!iconOriginalSource.startsWith('http')) {
-    iconOriginalSource = getApiUrl(SMFileTypes.TvLogo, originalUrl);
-  } else if (cacheIcon) {
-    iconOriginalSource = getApiUrl(SMFileTypes.Logo, originalUrl);
-  }
+//   if (iconOriginalSource.startsWith('images/')) {
+//     iconOriginalSource = `${isDevelopment ? `${baseHostURL}/` : '/'}${iconOriginalSource}`;
+//   } else if (!iconOriginalSource.startsWith('http')) {
+//     iconOriginalSource = getApiUrl(SMFileTypes.TvLogo, originalUrl);
+//   } else if (cacheIcon) {
+//     iconOriginalSource = getApiUrl(SMFileTypes.Logo, originalUrl);
+//   }
 
-  return iconOriginalSource;
-}
+//   return iconOriginalSource;
+// }
 
 export const isNumber = (value: any): value is number => {
   return typeof value === 'number' && !isNaN(value);

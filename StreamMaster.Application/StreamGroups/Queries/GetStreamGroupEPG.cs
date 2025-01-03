@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-
-using System.Xml;
+﻿using System.Xml;
 using System.Xml.Serialization;
 
 using static StreamMaster.Domain.Common.GetStreamGroupEPGHandler;
@@ -9,42 +7,27 @@ namespace StreamMaster.Application.StreamGroups.Queries;
 
 [RequireAll]
 public record GetStreamGroupEPG(int StreamGroupProfileId) : IRequest<string>;
-public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, IProfileService profileService, IStreamGroupService streamGroupService, IEPGHelper epgHelper, IXMLTVBuilder xMLTVBuilder, ISchedulesDirectDataService schedulesDirectDataService, IOptionsMonitor<Setting> intSettings)
+public class GetStreamGroupEPGHandler(IStreamGroupService streamGroupService, IXMLTVBuilder xMLTVBuilder, IOptionsMonitor<Setting> intSettings)
     : IRequestHandler<GetStreamGroupEPG, string>
 {
     [LogExecutionTimeAspect]
     public async Task<string> Handle(GetStreamGroupEPG request, CancellationToken cancellationToken)
     {
-        (List<VideoStreamConfig> videoStreamConfigs, StreamGroupProfile streamGroupProfile) = await streamGroupService.GetStreamGroupVideoConfigs(request.StreamGroupProfileId);
+        (List<VideoStreamConfig> videoStreamConfigs, StreamGroupProfile streamGroupProfile) = await streamGroupService.GetStreamGroupVideoConfigsAsync(request.StreamGroupProfileId);
 
         if (videoStreamConfigs is null || streamGroupProfile is null)
         {
             return string.Empty;
         }
 
-        ConcurrentHashSet<string> epgids = [];
-
-        ISchedulesDirectData dummyData = schedulesDirectDataService.DummyData();
+        HashSet<string> epgIds = [];
 
         foreach (VideoStreamConfig videoStreamConfig in videoStreamConfigs)
         {
-            videoStreamConfig.IsDummy = epgHelper.IsDummy(videoStreamConfig.EPGId);
-
-            if (videoStreamConfig.IsDummy)
-            {
-                videoStreamConfig.EPGId = $"{EPGHelper.DummyId}-{videoStreamConfig.Id}";
-
-                _ = dummyData.FindOrCreateDummyService(videoStreamConfig.EPGId, videoStreamConfig);
-            }
-
-            if (!epgids.Add(videoStreamConfig.EPGId))
-            {
-                videoStreamConfig.IsDuplicate = true;
-            }
+            videoStreamConfig.IsDuplicate = !epgIds.Add(videoStreamConfig.EPGId);
         }
-        OutputProfileDto outputProfile = profileService.GetOutputProfile(streamGroupProfile.OutputProfileName);
 
-        XMLTV epgData = xMLTVBuilder.CreateXmlTv(httpContextAccessor.GetUrl(), videoStreamConfigs, outputProfile) ?? new XMLTV();
+        XMLTV epgData = await xMLTVBuilder.CreateXmlTv(videoStreamConfigs,cancellationToken) ?? new XMLTV();
 
         return SerializeXMLTVData(epgData);
     }

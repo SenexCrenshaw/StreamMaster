@@ -25,7 +25,7 @@ export const M3UFileCreateDialog = ({ onHide, onUploadComplete, showButton }: M3
     () =>
       ({
         HoursToUpdate: 72,
-        M3UKey: 'URL',
+        M3UKey: 'TvgName',
         M3UName: 'Name',
         M3U8OutPutProfile: 'SMFFMPEG',
         MaxStreamCount: 1,

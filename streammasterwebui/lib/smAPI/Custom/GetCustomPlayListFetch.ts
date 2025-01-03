@@ -9,7 +9,7 @@ export const fetchGetCustomPlayList = createAsyncThunk('cache/getGetCustomPlayLi
   try {
     if (isSkipToken(param))
     {
-        Logger.error('Skipping GetEPGFilePreviewById');
+        Logger.error('Skipping GetCustomPlayList');
         return undefined;
     }
     Logger.debug('Fetching GetCustomPlayList');

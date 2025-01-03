@@ -13,17 +13,16 @@ namespace StreamMaster.Infrastructure.Services.Frontend.Mappers
         {
             resourceUrl = resourceUrl.ToLowerInvariant();
 
-            return !resourceUrl.StartsWith("/content") &&
-                   !resourceUrl.StartsWith("/mediacover") &&
+            return !resourceUrl.Contains("/content") &&
+                   !resourceUrl.Contains("/mediacover") &&
                    !resourceUrl.Contains('.') &&
-                   !resourceUrl.StartsWith("/login");
+                   !resourceUrl.Contains("/login");
         }
 
-        public override async Task<string> Map(string resourceUrl)
+        public override Task<string> MapAsync(string resourceUrl)
         {
-
             string HtmlPath = Path.Combine(BuildInfo.StartUpPath, settings.UiFolder, "index.html");
-            return HtmlPath;
+            return Task.FromResult(HtmlPath);
         }
     }
 }

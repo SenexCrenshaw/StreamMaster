@@ -3,6 +3,4 @@
 namespace StreamMaster.Domain.API;
 
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
-public class NoClass
-{
-}
+public class NoClass;

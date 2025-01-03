@@ -1,10 +1,10 @@
 import ResetButton from '@components/buttons/ResetButton';
 import SMPopUp, { SMPopUpRef } from '@components/sm/SMPopUp';
 import { getRandomColorHex } from '@lib/common/colors';
+import { EPGFileDto } from '@lib/smAPI/smapiTypes';
 import { FileUpload } from 'primereact/fileupload';
 import React, { useCallback, useRef } from 'react';
 import EPGFileDialog, { EPGFileDialogRef } from './EPGFileDialog';
-import { EPGFileDto } from '@lib/smAPI/smapiTypes';
 
 export interface EPGFileCreateDialogProperties {
   readonly onHide?: (didUpload: boolean) => void;

@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Runtime.CompilerServices;
+
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace StreamMaster.Application.Common;
@@ -9,13 +11,22 @@ public abstract class ApiControllerBase : ControllerBase
     private IMediator _mediator = null!;
     private ISender _sender = null!;
     private IOptionsMonitor<Setting> _settingsMonitor = null!;
-    private IOptionsMonitor<HLSSettings> _hlsSettingsMonitor = null!;
     private IRepositoryWrapper _repositoryWrapper = null!;
     private IStreamGroupService _streamGroupService = null!;
     private ICryptoService _cryptoService = null!;
+    private IAPIStatsLogger _aPIStatsLogger = null!;
+
+    protected async Task<T> DebugAPI<T>(Task<T> task, ILogger logger, [CallerMemberName] string callerName = "")
+    {
+        return await DebugAPIHelper.DebugAPI(task, logger, SettingsMonitor.CurrentValue.DebugAPI, callerName);
+    }
+
+    protected IAPIStatsLogger APIStatsLogger =>
+    _aPIStatsLogger ??= HttpContext.RequestServices.GetRequiredService<IAPIStatsLogger>();
 
     protected ICryptoService CryptoService =>
      _cryptoService ??= HttpContext.RequestServices.GetRequiredService<ICryptoService>();
+
     protected IStreamGroupService StreamGroupService =>
         _streamGroupService ??= HttpContext.RequestServices.GetRequiredService<IStreamGroupService>();
 
@@ -23,17 +34,6 @@ public abstract class ApiControllerBase : ControllerBase
     /// Gets the current settings.
     /// </summary>
     protected Setting Settings => SettingsMonitor.CurrentValue;
-
-    /// <summary>
-    /// Gets the current HLS settings.
-    /// </summary>
-    protected HLSSettings HLSSettings => HlsSettingsMonitor.CurrentValue;
-
-    ///// <summary>
-    ///// Gets the hub context for streaming.
-    ///// </summary>
-    //protected IHubContext<StreamMasterHub, IStreamMasterHub> HubContext =>
-    //    _hubContext ??= HttpContext.RequestServices.GetRequiredService<IHubContext<StreamMasterHub, IStreamMasterHub>>();
 
     /// <summary>
     /// Gets the repository wrapper.
@@ -46,12 +46,6 @@ public abstract class ApiControllerBase : ControllerBase
     /// </summary>
     private IOptionsMonitor<Setting> SettingsMonitor =>
         _settingsMonitor ??= HttpContext.RequestServices.GetRequiredService<IOptionsMonitor<Setting>>();
-
-    /// <summary>
-    /// Gets the HLS settings monitor, initializing it if necessary.
-    /// </summary>
-    private IOptionsMonitor<HLSSettings> HlsSettingsMonitor =>
-        _hlsSettingsMonitor ??= HttpContext.RequestServices.GetRequiredService<IOptionsMonitor<HLSSettings>>();
 
     /// <summary>
     /// Gets the sender, initializing it if necessary.

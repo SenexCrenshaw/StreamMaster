@@ -20,6 +20,7 @@ const SMPopUp = forwardRef<SMPopUpRef, SMPopUpProperties>(
       children,
       contentWidthSize = '2',
       disabled = false,
+      noFullScreen = false,
       noCloseButton = true,
       isPopupLoading = false,
       onCloseClick,
@@ -65,6 +66,8 @@ const SMPopUp = forwardRef<SMPopUpRef, SMPopUpProperties>(
     return (
       <SMOverlay
         ref={overlayRef}
+        buttonDisabled={disabled}
+        noFullScreen={noFullScreen}
         noCloseButton={noCloseButton}
         isOverLayLoading={isPopupLoading}
         contentWidthSize={contentWidthSize}

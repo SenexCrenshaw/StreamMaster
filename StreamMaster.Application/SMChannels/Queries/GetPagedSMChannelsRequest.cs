@@ -1,6 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System.Web;
 
-using System.Web;
+using Microsoft.AspNetCore.Http;
 
 namespace StreamMaster.Application.SMChannels.Queries;
 
@@ -8,7 +8,7 @@ namespace StreamMaster.Application.SMChannels.Queries;
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record GetPagedSMChannelsRequest(QueryStringParameters Parameters) : IRequest<PagedResponse<SMChannelDto>>;
 
-internal class GetPagedSMChannelsRequestHandler(IRepositoryWrapper Repository, ILogoService logoSerice, IStreamGroupService streamGroupService, IHttpContextAccessor httpContextAccessor)
+internal class GetPagedSMChannelsRequestHandler(IRepositoryWrapper Repository, IStreamGroupService streamGroupService, IHttpContextAccessor httpContextAccessor)
     : IRequestHandler<GetPagedSMChannelsRequest, PagedResponse<SMChannelDto>>
 {
     public async Task<PagedResponse<SMChannelDto>> Handle(GetPagedSMChannelsRequest request, CancellationToken cancellationToken)
@@ -33,39 +33,21 @@ internal class GetPagedSMChannelsRequestHandler(IRepositoryWrapper Repository, I
 
         StreamGroupProfile streamGroupProfile = await streamGroupService.GetDefaultStreamGroupProfileAsync();
 
+        if (res.Data is null)
+        {
+            return res;
+        }
         foreach (SMChannelDto channel in res.Data)
         {
             await Repository.SMChannelStreamLink.UpdateSMChannelDtoRanks(channel);
             await Repository.SMChannelChannelLink.UpdateSMChannelDtoRanks(channel);
-            //List<SMChannelStreamLink> links = [.. Repository.SMChannelStreamLink.GetQuery(true).Where(a => a.SMChannelId == channel.Id)];
 
-            //foreach (SMStreamDto stream in channel.SMStreamDtos)
-            //{
-            //    SMChannelStreamLink? link = links.Find(a => a.SMStreamId == stream.Id);
+            //SMStreamTypeEnum sType = channel.M3UFileId == EPGHelper.CustomPlayListId ? SMStreamTypeEnum.CustomPlayList : SMStreamTypeEnum.Regular;
 
-            //    if (link != null)
-            //    {
-            //        stream.Rank = link.Rank;
-            //    }
-            //}
-
-            //await Repository.SMChannelChannelLink.UpdateSMChannelDtoRanks(channel);
-            //List<SMChannelChannelLink> channelLinks = await Repository.SMChannelChannelLink.GetQuery(true).Where(a => a.ParentSMChannelId == channel.Id).ToListAsync();
-
-            //foreach (SMChannelDto parentChannel in channel.SMChannelDtos)
-            //{
-            //    SMChannelChannelLink? link = channelLinks.Find(a => a.ParentSMChannelId == channel.Id && a.SMChannelId == parentChannel.Id);
-
-            //    if (link != null)
-            //    {
-            //        parentChannel.Rank = link.Rank;
-            //    }
-            //}
-
-            channel.Logo = logoSerice.GetLogoUrl(channel.Logo, Url);
+            ////channel.ChannelLogo = channel.ChannelLogo;// logoSerice.GetLogoUrl(channel.ChannelLogo, "", sType);
             channel.SMStreamDtos = [.. channel.SMStreamDtos.OrderBy(a => a.Rank)];
             channel.SMChannelDtos = [.. channel.SMChannelDtos.OrderBy(a => a.Rank)];
-            channel.StreamGroupIds = channel.StreamGroups.Select(a => a.StreamGroupId).ToList();
+            channel.StreamGroupIds = [.. channel.StreamGroups.Select(a => a.StreamGroupId)];
 
             string videoUrl = await GetVideoStreamUrlAsync(channel.Name, channel.Id, sgId, streamGroupProfile.Id, Url);// $"{Url}/api/videostreams/stream/{EncodedString}/{channel.Name.ToCleanFileString()}";
             channel.StreamUrl = videoUrl;// JsonSerializer.Serialize(videoUrl);
@@ -81,7 +63,7 @@ internal class GetPagedSMChannelsRequestHandler(IRepositoryWrapper Repository, I
 
         string? encodedString = await streamGroupService.EncodeStreamGroupIdProfileIdChannelIdAsync(sgId, sgPId, smChannelId);
 
-        string videoUrl = $"{url}/api/videostreams/stream/{encodedString}/{cleanName}";
+        string videoUrl = $"{url}{BuildInfo.PATH_BASE}/api/videostreams/stream/{encodedString}/{cleanName}";
 
         return videoUrl;
     }

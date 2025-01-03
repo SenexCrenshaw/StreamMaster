@@ -1,17 +1,27 @@
 import SMPopUp from '@components/sm/SMPopUp';
 import SMDataTable from '@components/smDataTable/SMDataTable';
 import { ColumnMeta } from '@components/smDataTable/types/ColumnMeta';
-import useGetEPGFilePreviewById from '@lib/smAPI/EPGFiles/useGetEPGFilePreviewById';
+import { GetEPGFilePreviewById } from '@lib/smAPI/EPGFiles/EPGFilesCommands';
 import { EPGFileDto, EPGFilePreviewDto } from '@lib/smAPI/smapiTypes';
-import { skipToken } from '@reduxjs/toolkit/query';
-import { memo, useMemo } from 'react';
+import { useMemo, useState } from 'react';
 
 interface EPGPreviewDialogProperties {
   readonly selectedFile: EPGFileDto;
 }
 
 const EPGPreviewDialog = ({ selectedFile }: EPGPreviewDialogProperties) => {
-  const epgFilesGetEpgFilePreviewByIdQuery = useGetEPGFilePreviewById(selectedFile ? { Id: selectedFile.Id } : skipToken);
+  const [dataSource, setDataSource] = useState<EPGFilePreviewDto[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  async function getData() {
+    await GetEPGFilePreviewById({ Id: selectedFile.Id })
+      .then((response) => {
+        setDataSource(response ?? []);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  }
 
   function imageBodyTemplate(data: EPGFilePreviewDto) {
     if (!data?.ChannelLogo || data.ChannelLogo === '') {
@@ -28,7 +38,7 @@ const EPGPreviewDialog = ({ selectedFile }: EPGPreviewDialogProperties) => {
   const columns = useMemo(
     (): ColumnMeta[] => [
       { bodyTemplate: imageBodyTemplate, field: 'ChannelLogo', fieldType: 'image', width: 8 },
-      { field: 'ChannelNumber', filter: true, header: 'Station Id', sortable: true },
+      { field: 'Id', filter: true, header: 'Channel Id', sortable: true },
       { field: 'ChannelName', filter: true, sortable: true }
     ],
     []
@@ -42,15 +52,18 @@ const EPGPreviewDialog = ({ selectedFile }: EPGPreviewDialogProperties) => {
       info=""
       modal
       modalCentered
+      onOpen={() => {
+        getData();
+      }}
       title={selectedFile ? 'EPG Preview : ' + selectedFile.Name : 'EPG Preview'}
     >
       <SMDataTable
         columns={columns}
-        dataSource={epgFilesGetEpgFilePreviewByIdQuery.data}
+        dataSource={dataSource}
         defaultSortField="ChannelName"
         enablePaginator
         id="epgPreviewTable"
-        isLoading={epgFilesGetEpgFilePreviewByIdQuery.isLoading}
+        isLoading={isLoading}
         noSourceHeader
         lazy
         style={{ height: 'calc(50vh)' }}
@@ -59,4 +72,4 @@ const EPGPreviewDialog = ({ selectedFile }: EPGPreviewDialogProperties) => {
   );
 };
 
-export default memo(EPGPreviewDialog);
+export default EPGPreviewDialog;

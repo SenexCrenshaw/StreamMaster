@@ -1,7 +1,4 @@
-﻿using StreamMaster.Streams.Domain.Helpers;
-
-using System.Collections.Concurrent;
-using System.Threading.Channels;
+﻿using System.Collections.Concurrent;
 
 namespace StreamMaster.Streams.Plugins
 {
@@ -11,8 +8,11 @@ namespace StreamMaster.Streams.Plugins
         public ConcurrentDictionary<string, VideoInfo> VideoInfos { get; } = new();
         private ConcurrentDictionary<string, VideoInfoPlugin> VideoInfoPlugins { get; } = new();
 
+        private ISourceBroadcaster? SourceBroadcaster = null;
+
         public void Stop()
         {
+            SourceBroadcaster?.RemoveChannelBroadcaster("VideoInfo");
             foreach (VideoInfoPlugin videoInfoPlugin in VideoInfoPlugins.Values)
             {
                 videoInfoPlugin.Stop();
@@ -36,16 +36,19 @@ namespace StreamMaster.Streams.Plugins
 
         public void SetSourceChannel(ISourceBroadcaster sourceBroadcaster, string Id, string Name)
         {
-            Channel<byte[]> channel = ChannelHelper.GetChannel(200, BoundedChannelFullMode.DropOldest);
-
-            sourceBroadcaster.AddChannelStreamer("VideoInfo", channel);
-
+            SourceBroadcaster = sourceBroadcaster;
             if (!VideoInfoPlugins.TryGetValue(Id, out VideoInfoPlugin? videoInfoPlugin))
             {
                 logger.LogInformation("Video info service started for {Name}", Name);
-                videoInfoPlugin = new VideoInfoPlugin(pluginLogger, intSettings, channel, Id, Name);
+
+                // Pass the PipeReader to the VideoInfoPlugin
+                videoInfoPlugin = new VideoInfoPlugin(pluginLogger, intSettings, Id, Name);
                 videoInfoPlugin.VideoInfoUpdated += OnVideoInfoUpdated;
                 VideoInfoPlugins.TryAdd(Id, videoInfoPlugin);
+
+                videoInfoPlugin.Start();
+                // Add the PipeWriter to the broadcaster
+                sourceBroadcaster.AddChannelBroadcaster("VideoInfo", videoInfoPlugin);
             }
         }
 

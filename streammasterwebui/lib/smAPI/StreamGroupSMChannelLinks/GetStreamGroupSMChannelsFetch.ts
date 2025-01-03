@@ -9,7 +9,7 @@ export const fetchGetStreamGroupSMChannels = createAsyncThunk('cache/getGetStrea
   try {
     if (isSkipToken(param))
     {
-        Logger.error('Skipping GetEPGFilePreviewById');
+        Logger.error('Skipping GetStreamGroupSMChannels');
         return undefined;
     }
     Logger.debug('Fetching GetStreamGroupSMChannels');

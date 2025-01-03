@@ -1,11 +1,13 @@
 ﻿namespace StreamMaster.Application.ChannelGroups;
 
-public class ChannelGroupService(ILogger<ChannelGroupService> _logger, IRepositoryWrapper repositoryWrapper) : IChannelGroupService
-
+public class ChannelGroupService(ILogger<ChannelGroupService> _logger, IRepositoryContext repositoryContext, IRepositoryWrapper repositoryWrapper) : IChannelGroupService
 {
     public async Task UpdateChannelGroupCountsRequestAsync(List<ChannelGroup>? ChannelGroups = null)
     {
-
+        await repositoryContext.ExecuteSqlRawAsync("SELECT update_channel_group_counts()");
+    }
+    public async Task UpdateChannelGroupCountsRequestAsyncOld(List<ChannelGroup>? ChannelGroups = null)
+    {
         try
         {
             List<ChannelGroup> cgs = ChannelGroups == null || ChannelGroups.Count == 0
@@ -25,7 +27,7 @@ public class ChannelGroupService(ILogger<ChannelGroupService> _logger, IReposito
                         continue;
                     }
 
-                    List<SMStream> relevantStreams = smStreams.Where(vs => vs.Group == cg.Name).ToList();
+                    List<SMStream> relevantStreams = [.. smStreams.Where(vs => vs.Group == cg.Name)];
 
                     var counts = relevantStreams.GroupBy(vs => vs.IsHidden).Select(g => new { IsHidden = g.Key, Count = g.Count() }).ToList();
                     int totalCount = counts.Sum(c => c.Count);
@@ -69,5 +71,4 @@ public class ChannelGroupService(ILogger<ChannelGroupService> _logger, IReposito
             throw;
         }
     }
-
 }

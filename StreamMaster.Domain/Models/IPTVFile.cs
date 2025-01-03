@@ -1,18 +1,16 @@
-﻿using StreamMaster.Domain.Extensions;
-
-namespace StreamMaster.Domain.Models;
+﻿namespace StreamMaster.Domain.Models;
 
 public abstract class IPTVFile : BaseEntity
 {
     private string name = string.Empty;
 
-    public IPTVFile()
-    {
-        LastUpdated = SMDT.UtcNow;
-        LastModified = LastUpdated;
-    }
+    //public IPTVFile()
+    //{
+    //    LastUpdated = SMDT.UtcNow;
+    //    LastModified = LastUpdated;
+    //}
 
-    public IPTVFile(string fileSource)
+    protected IPTVFile(string fileSource)
     {
         FileSource = fileSource;
         FileName = fileSource;

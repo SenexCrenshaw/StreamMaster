@@ -3,31 +3,35 @@
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public class UpdateSettingParameters
 {
+    public string? STRMBaseURL { get; set; }
     public bool? AutoSetEPG { get; set; }
     public bool? BackupEnabled { get; set; }
     public int? BackupVersionsToKeep { get; set; }
     public int? BackupInterval { get; set; }
-
+    public bool? DebugAPI { get; set; }
     [TsProperty(ForceNullable = true)]
     public SDSettingsRequest? SDSettings { get; set; }
-
+    public bool? DeleteOldSTRMFiles { get; set; }
     public bool? ShowClientHostNames { get; set; }
     public int? IconCacheExpirationDays { get; set; }
     public string? DefaultCompression { get; set; }
     public string? M3U8OutPutProfile { get; set; }
     public string? AdminPassword { get; set; }
     public string? AdminUserName { get; set; }
-    //public string? ApiKey { get; set; }
 
-    public int? ClientReadTimeOutSeconds { get; set; }
+    public int? StreamReadTimeOutMs { get; set; }
+    public int? StreamStartTimeoutMs { get; set; }
+    public int? ClientReadTimeoutMs { get; set; }
+    public int? StreamRetryLimit { get; set; }
+    public int? StreamShutDownDelayMs { get; set; }
+    public int? StreamRetryHours { get; set; }
+
     public string? AuthenticationMethod { get; set; }
-    public string? LogoCache { get; set; }
+    public bool? LogoCache { get; set; }
     public bool? CleanURLs { get; set; }
     public string? ClientUserAgent { get; set; }
     public string? DeviceID { get; set; }
     public bool? EnableSSL { get; set; }
-
-    public int? ShutDownDelay { get; set; }
     public bool? ShowMessageVideos { get; set; }
 
     public string? FFMPegExecutable { get; set; }

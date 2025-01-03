@@ -1,3 +1,12 @@
+export interface StationChannelName
+{
+	Channel: string;
+	ChannelName: string;
+	DisplayName: string;
+	EPGNumber: number;
+	Id: string;
+	Logo: string;
+}
 export interface QueryStringParameters
 {
 	JSONArgumentString?: string;
@@ -28,17 +37,16 @@ export interface FieldData
 export interface ImageDownloadServiceStatus
 {
 	Id: number;
-	TotalNameLogo: number;
-	TotalNameLogoAlreadyExists: number;
-	TotalNameLogoDownloadAttempts: number;
-	TotalNameLogoErrors: number;
-	TotalNameLogoSuccessful: number;
-	TotalProgramMetadata: number;
-	TotalProgramMetadataAlreadyExists: number;
-	TotalProgramMetadataDownloadAttempts: number;
-	TotalProgramMetadataDownloaded: number;
-	TotalProgramMetadataErrors: number;
-	TotalProgramMetadataNoArt: number;
+	Logos: DownloadStats;
+	ProgramLogos: DownloadStats;
+}
+export interface DownloadStats
+{
+	AlreadyExists: number;
+	Attempts: number;
+	Errors: number;
+	Queue: number;
+	Successful: number;
 }
 export interface SMMessage
 {
@@ -176,17 +184,26 @@ export interface EPGFilePreviewDto
 {
 	ChannelLogo: string;
 	ChannelName: string;
-	ChannelNumber: string;
 	Id: string;
 }
-export interface LogoFileDto
+export interface LogoDto
 {
-	Extension: string;
-	FileId: number;
+	ContentType: string;
+	FileName: string;
+	Image: number[];
+	Url: string;
+}
+export interface LogoInfo
+{
+	Ext: string;
+	FileName: string;
+	FullPath: string;
 	Id: string;
+	IsSchedulesDirect: boolean;
+	IsSVG: boolean;
 	Name: string;
 	SMFileType: SMFileTypes;
-	Source: string;
+	Url: string;
 }
 export interface M3UFileDto
 {
@@ -212,13 +229,6 @@ export interface M3UFileDto
 	Url: string;
 	VODTags: string[];
 }
-export interface NameLogo
-{
-	Id: number;
-	Logo: string;
-	Name: string;
-	SMFileType: SMFileTypes;
-}
 export interface SDSystemStatus
 {
 	IsSystemReady: boolean;
@@ -227,18 +237,21 @@ export interface SettingDto
 {
 	AdminPassword: string;
 	AdminUserName: string;
+	APIKey: string;
 	AuthenticationMethod: string;
 	AutoSetEPG: boolean;
 	BackupEnabled: boolean;
 	BackupInterval: number;
 	BackupVersionsToKeep: number;
 	CleanURLs: boolean;
-	ClientReadTimeOutSeconds: number;
+	ClientReadTimeoutMs: number;
 	ClientUserAgent: string;
+	DebugAPI: boolean;
 	DefaultCommandProfileName: string;
 	DefaultCompression: string;
 	DefaultLogo: string;
 	DefaultOutputProfileName: string;
+	DeleteOldSTRMFiles: boolean;
 	DeviceID: string;
 	EnableDBDebug: boolean;
 	EnableSSL: boolean;
@@ -247,7 +260,7 @@ export interface SettingDto
 	GlobalStreamLimit: number;
 	IconCacheExpirationDays: number;
 	IsDebug: boolean;
-	LogoCache: string;
+	LogoCache: boolean;
 	M3U8OutPutProfile: string;
 	MaxConcurrentDownloads: number;
 	MaxConnectRetry: number;
@@ -262,11 +275,15 @@ export interface SettingDto
 	ShowClientHostNames: boolean;
 	ShowIntros: string;
 	ShowMessageVideos: boolean;
-	ShutDownDelay: number;
 	SSLCertPassword: string;
 	SSLCertPath: string;
+	StreamReadTimeOutMs: number;
+	StreamRetryHours: number;
+	StreamRetryLimit: number;
+	StreamShutDownDelayMs: number;
+	StreamStartTimeoutMs: number;
+	STRMBaseURL: string;
 	UiFolder: string;
-	UrlBase: string;
 	Version: string;
 	VideoStreamAlwaysUseEPGLogo: boolean;
 }
@@ -303,13 +320,14 @@ export interface SMStreamDto
 {
 	APIName: string;
 	ChannelId: string;
-	ChannelMembership: NameLogo[];
+	ChannelMembership: LogoInfo[];
 	ChannelName: string;
 	ChannelNumber: number;
 	ClientUserAgent?: string;
 	CommandProfileName?: string;
 	CUID: string;
 	EPGID: string;
+	ExtInf?: string;
 	FilePosition: number;
 	Group: string;
 	Id: string;
@@ -332,6 +350,7 @@ export interface StreamGroupDto
 {
 	AutoSetChannelNumbers: boolean;
 	ChannelCount: number;
+	CreateSTRM: boolean;
 	DeviceID: string;
 	GroupKey: string;
 	HDHRLink: string;
@@ -362,6 +381,28 @@ export interface CommandProfileDto
 	IsReadOnly: boolean;
 	Parameters: string;
 	ProfileName: string;
+}
+export interface CustomLogo
+{
+	APIName: string;
+	FileId: number;
+	IsReadOnly: boolean;
+	Name: string;
+	Value: string;
+}
+export interface CustomLogoDto
+{
+	APIName: string;
+	FileId: number;
+	IsReadOnly: boolean;
+	Name: string;
+	Source: string;
+	Value: string;
+}
+export interface CustomLogoRequest
+{
+	Name: string;
+	Source: string;
 }
 export interface HLSSettings
 {
@@ -403,9 +444,13 @@ export interface SDSettings
 	AlternateSEFormat: boolean;
 	AppendEpisodeDesc: boolean;
 	ArtworkSize: string;
+	EpisodeAppendProgramDescription: boolean;
+	EpisodeImages: boolean;
 	ExcludeCastAndCrew: boolean;
 	HeadendsToView: any[];
 	MaxSubscribedLineups: number;
+	MovieImages: boolean;
+	MoviePosterAspect: string;
 	PreferredLogoStyle: string;
 	PrefixEpisodeDescription: boolean;
 	PrefixEpisodeTitle: boolean;
@@ -417,10 +462,10 @@ export interface SDSettings
 	SDStationIds: StationIdLineup[];
 	SDTooManyRequestsSuspend: any;
 	SDUserName: string;
-	SeasonEventImages: boolean;
-	SeriesPosterArt: boolean;
+	SeasonImages: boolean;
+	SeriesImages: boolean;
 	SeriesPosterAspect: string;
-	SeriesWsArt: boolean;
+	SportsImages: boolean;
 	XmltvAddFillerData: boolean;
 	XmltvExtendedInfoInTitleDescriptions: boolean;
 	XmltvFillerProgramLength: number;
@@ -446,10 +491,10 @@ export interface SDSettingsRequest
 	SDPostalCode?: string;
 	SDStationIds?: StationIdLineup[];
 	SDUserName?: string;
-	SeasonEventImages?: boolean;
-	SeriesPosterArt?: boolean;
+	SeasonImages?: boolean;
+	SeriesImages?: boolean;
 	SeriesPosterAspect?: string;
-	SeriesWsArt?: boolean;
+	SportsImages?: boolean;
 	XmltvAddFillerData?: boolean;
 	XmltvExtendedInfoInTitleDescriptions?: boolean;
 	XmltvFillerProgramLength?: number;
@@ -459,7 +504,7 @@ export interface SDSettingsRequest
 export interface UpdateSettingResponse
 {
 	NeedsLogOut: boolean;
-	Settings: SettingDto;
+	Settings?: SettingDto;
 }
 export interface APIResponse
 {
@@ -470,14 +515,14 @@ export interface APIResponse
 }
 export interface DataResponse<T>
 {
-	_totalItemCount?: number;
 	Count: number;
-	Data: T;
+	Data?: T;
 	ErrorMessage?: string;
 	IsError: boolean;
 	Message?: string;
 	NotFound: DataResponse<T>;
 	Ok: DataResponse<T>;
+	totalItemCount?: number;
 	TotalItemCount: number;
 }
 export interface NoClass
@@ -485,9 +530,8 @@ export interface NoClass
 }
 export interface PagedResponse<T>
 {
-	_totalItemCount?: number;
 	Count: number;
-	Data: T[];
+	Data?: T[];
 	ErrorMessage?: string;
 	First: number;
 	IsError: boolean;
@@ -496,40 +540,73 @@ export interface PagedResponse<T>
 	Ok: DataResponse<T[]>;
 	PageNumber: number;
 	PageSize: number;
+	totalItemCount?: number;
 	TotalItemCount: number;
 	TotalPageCount: number;
 }
 export interface CountryData
 {
-	Countries: Country[];
-	Id: string;
-	Key: string;
+	Countries?: Country[];
+	Id?: string;
+	Key?: string;
+}
+export interface LineupResult
+{
+	Map?: Map[];
+	Metadata?: Metadata;
+	Stations: Station[];
 }
 export interface Logo
 {
+	Category: string;
 	Height: number;
-	Md5: string;
-	URL: string;
+	Md5?: string;
+	Source: string;
+	Url: string;
 	Width: number;
 }
-export interface StationChannelName
+export interface Map
 {
+	AtscMajor?: number;
+	AtscMinor?: number;
 	Channel: string;
-	ChannelName: string;
-	DisplayName: string;
-	Id: string;
+	StationId?: string;
+	UhfVhf?: number;
+}
+export interface Metadata
+{
+	Lineup?: string;
+	Modified?: any;
+	Modulation: string;
+	Transport?: string;
+}
+export interface Station
+{
+	Affiliate?: string;
+	Broadcaster?: any;
+	BroadcastLanguage?: string[];
+	Callsign?: string;
+	Country?: string;
+	DescriptionLanguage?: string[];
+	IsCommercialFree?: boolean;
+	Lineup: string;
+	Logo?: Logo;
+	Name?: string;
+	PostalCode?: string;
+	StationId?: string;
+	StationLogos: Logo[];
 }
 export interface StationPreview
 {
-	Affiliate: string;
-	Callsign: string;
-	Country: string;
-	Id: string;
-	Lineup: string;
-	Logo: Logo;
-	Name: string;
-	PostalCode: string;
-	StationId: string;
+	Affiliate?: string;
+	Callsign?: string;
+	Country?: string;
+	Id?: string;
+	Lineup?: string;
+	Logo?: Logo;
+	Name?: string;
+	PostalCode?: string;
+	StationId?: string;
 }
 export interface Country
 {
@@ -548,26 +625,6 @@ export interface BaseResponse
 	ServerId: string;
 	Uuid: string;
 }
-export interface LineupPreviewChannel
-{
-	Affiliate: string;
-	Callsign: string;
-	Channel: string;
-	Id: number;
-	Name: string;
-}
-export interface StationChannelMap
-{
-	Id: any;
-	Map: LineupChannelStation[];
-	Metadata?: LineupMetadata;
-	Stations: LineupStation[];
-}
-export interface LineupChannelStation
-{
-	Channel: string;
-	StationId: string;
-}
 export interface LineupChannel
 {
 	AtscMajor?: number;
@@ -579,59 +636,31 @@ export interface LineupChannel
 	ChannelNumber: string;
 	DeliverySystem: string;
 	Fec: string;
-	FrequencyHz?: number;
+	FrequencyHz: number;
 	LogicalChannelNumber: string;
 	MatchName: string;
 	MatchType: string;
 	ModulationSystem: string;
-	myChannelNumber: number;
-	myChannelSubnumber: number;
-	NetworkId?: number;
+	MyChannelNumber: number;
+	MyChannelSubnumber: number;
+	NetworkId: number;
 	Polarization: string;
 	ProviderCallsign: string;
 	ProviderChannel: string;
-	ServiceId?: number;
+	ServiceId: number;
 	StationId: string;
-	Symbolrate?: number;
-	TransportId?: number;
+	Symbolrate: number;
+	TransportId: number;
 	UhfVhf?: number;
 	VirtualChannel: string;
 }
-export interface LineupStation
+export interface LineupPreviewChannel
 {
 	Affiliate: string;
-	Broadcaster: StationBroadcaster;
-	BroadcastLanguage: string[];
 	Callsign: string;
-	DescriptionLanguage: string[];
-	IsCommercialFree?: boolean;
-	Logo: StationImage;
+	Channel: string;
+	Id: number;
 	Name: string;
-	StationId: string;
-	StationLogos: StationImage[];
-}
-export interface StationImage
-{
-	Category: string;
-	Height: number;
-	Md5: string;
-	Source: string;
-	Url: string;
-	Width: number;
-}
-export interface StationBroadcaster
-{
-	City: string;
-	Country: string;
-	Postalcode: string;
-	State: string;
-}
-export interface LineupMetadata
-{
-	Lineup: string;
-	Modified: string;
-	Modulation: string;
-	Transport: string;
 }
 export interface LineupResponse
 {
@@ -642,6 +671,13 @@ export interface LineupResponse
 	Response: string;
 	ServerId: string;
 	Uuid: string;
+}
+export interface StationBroadcaster
+{
+	City: string;
+	Country: string;
+	Postalcode: string;
+	State: string;
 }
 export interface SubscribedLineup
 {
@@ -663,6 +699,9 @@ export interface HeadendDto
 	Name: string;
 	PostCode: string;
 	Transport: string;
+}
+export interface TriggerReloadRequest
+{
 }
 export interface GetVsRequest
 {
@@ -696,6 +735,17 @@ export interface MoveToNextStreamRequest
 {
 	SMChannelId: number;
 }
+export interface SGFS
+{
+	Name: string;
+	SMFS: SMFile[];
+	Url: string;
+}
+export interface SMFile
+{
+	Name: string;
+	Url: string;
+}
 export interface GetPagedStreamGroupsRequest
 {
 	Parameters: QueryStringParameters;
@@ -720,6 +770,7 @@ export interface AddProfileToStreamGroupRequest
 export interface CreateStreamGroupRequest
 {
 	CommandProfileName?: string;
+	CreateSTRM?: boolean;
 	GroupKey?: string;
 	Name: string;
 	OutputProfileName?: string;
@@ -743,6 +794,7 @@ export interface UpdateStreamGroupProfileRequest
 }
 export interface UpdateStreamGroupRequest
 {
+	CreateSTRM?: boolean;
 	DeviceID?: string;
 	GroupKey?: string;
 	NewName?: string;
@@ -773,6 +825,25 @@ export interface RemoveSMChannelFromStreamGroupRequest
 	StreamGroupId: number;
 }
 export interface GetChannelMetricsRequest
+{
+}
+export interface GetDownloadServiceStatusRequest
+{
+}
+export interface GetIsSystemReadyRequest
+{
+}
+export interface GetStreamConnectionMetricDataRequest
+{
+	Id: string;
+}
+export interface GetStreamConnectionMetricDatasRequest
+{
+}
+export interface GetSystemStatusRequest
+{
+}
+export interface GetTaskIsRunningRequest
 {
 }
 export interface GetVideoInfoRequest
@@ -868,14 +939,9 @@ export interface GetPagedSMChannelsRequest
 {
 	Parameters: QueryStringParameters;
 }
-export interface GetSMChannelNameLogosRequest
+export interface GetSMChannelUniqueNameRequest
 {
-}
-export interface GetSMChannelNamesRequest
-{
-}
-export interface GetVideoStreamNamesAndUrlsRequest
-{
+	SMChannelName: string;
 }
 export interface IdNameUrl
 {
@@ -1103,18 +1169,20 @@ export interface UpdateSettingParameters
 	BackupInterval?: number;
 	BackupVersionsToKeep?: number;
 	CleanURLs?: boolean;
-	ClientReadTimeOutSeconds?: number;
+	ClientReadTimeoutMs?: number;
 	ClientUserAgent?: string;
+	DebugAPI?: boolean;
 	DefaultCommandProfileName?: string;
 	DefaultCompression?: string;
 	DefaultOutputProfileName?: string;
+	DeleteOldSTRMFiles?: boolean;
 	DeviceID?: string;
 	EnableSSL?: boolean;
 	FFMPegExecutable?: string;
 	FFProbeExecutable?: string;
 	GlobalStreamLimit?: number;
 	IconCacheExpirationDays?: number;
-	LogoCache?: string;
+	LogoCache?: boolean;
 	M3U8OutPutProfile?: string;
 	MaxConnectRetry?: number;
 	MaxConnectRetryTimeMS?: number;
@@ -1126,9 +1194,14 @@ export interface UpdateSettingParameters
 	ShowClientHostNames?: boolean;
 	ShowIntros?: string;
 	ShowMessageVideos?: boolean;
-	ShutDownDelay?: number;
 	SSLCertPassword?: string;
 	SSLCertPath?: string;
+	StreamReadTimeOutMs?: number;
+	StreamRetryHours?: number;
+	StreamRetryLimit?: number;
+	StreamShutDownDelayMs?: number;
+	StreamStartTimeoutMs?: number;
+	STRMBaseURL?: string;
 }
 export interface UpdateSettingRequest
 {
@@ -1280,7 +1353,7 @@ export interface CreateM3UFileRequest
 	M3U8OutPutProfile?: string;
 	M3UKey?: M3UKey;
 	M3UName?: M3UField;
-	MaxStreamCount: number;
+	MaxStreamCount?: number;
 	Name: string;
 	StartingChannelNumber?: number;
 	SyncChannels?: boolean;
@@ -1301,6 +1374,9 @@ export interface RefreshM3UFileRequest
 {
 	ForceRun: boolean;
 	Id: number;
+}
+export interface ScanDirectoryForM3UFilesRequestHandler
+{
 }
 export interface SyncChannelsRequest
 {
@@ -1325,25 +1401,33 @@ export interface UpdateM3UFileRequest
 }
 export interface GetLogContentsRequest
 {
-	logName: string;
+	LogName: string;
 }
 export interface GetLogNamesRequest
 {
 }
+export interface GetCustomLogosRequest
+{
+}
+export interface GetLogoForChannelRequest
+{
+	SMChannelId: number;
+}
+export interface GetLogoRequest
+{
+	Url: string;
+}
 export interface GetLogosRequest
 {
 }
-export interface GetDownloadServiceStatusRequest
+export interface AddCustomLogoRequest
 {
+	Name: string;
+	Source: string;
 }
-export interface GetIsSystemReadyRequest
+export interface RemoveCustomLogoRequest
 {
-}
-export interface GetSystemStatusRequest
-{
-}
-export interface GetTaskIsRunningRequest
-{
+	Source: string;
 }
 export interface SetTestTaskRequest
 {
@@ -1466,58 +1550,47 @@ export interface UpdateChannelGroupsRequest
 {
 	UpdateChannelGroupRequests: UpdateChannelGroupRequest[];
 }
-export interface BaseStatistics
+export interface ChannelMetric
 {
-	ElapsedTime: string;
-	StartTime: any;
-}
-export interface BPSStatistics
-{
-	BitsPerSecond: number;
-	BytesRead: number;
-	BytesWritten: number;
-	Clients: number;
-	ElapsedTime: string;
-	IsSet: boolean;
-	StartTime: any;
-}
-export interface ChannelStreamingStatistics
-{
-	BitsPerSecond: number;
-	BytesRead: number;
-	BytesWritten: number;
 	ChannelLogo?: string;
-	ChannelName: string;
-	ChannelUrl: string;
-	Clients: number;
-	CurrentRank: number;
-	CurrentStreamId: string;
-	ElapsedTime: string;
-	Id: number;
-	IsSet: boolean;
-	StartTime: any;
-	StreamStreamingStatistics: StreamStreamingStatistic[];
+	ClientStreams: ClientStreamsDto[];
+	Id: string;
+	IsFailed: boolean;
+	Metrics: StreamHandlerMetrics;
+	Name: string;
+	SMStreamInfo?: SMStreamInfo;
+	SourceName: string;
+	StreamLogo?: string;
+	VideoInfo?: string;
 }
-export interface ClientStatistics
+export interface ClientChannelDto
 {
-	Clients: number;
-	ElapsedTime: string;
-	StartTime: any;
+	ClientIPAddress?: string;
+	ClientUserAgent?: string;
+	Logo?: string;
+	Name: string;
+	SMChannelId: number;
 }
-export interface ClientStreamingStatistics
+export interface ClientStreamsDto
+{
+	ChannelLogo?: string;
+	ClientIPAddress?: string;
+	ClientUserAgent?: string;
+	Metrics?: StreamHandlerMetrics;
+	Name: string;
+	SMChannelId: string;
+	SMStreamId: string;
+	StreamLogo?: string;
+}
+export interface BPSMetrics
 {
 	BitsPerSecond: number;
 	BytesRead: number;
 	BytesWritten: number;
-	ChannelId: number;
-	ChannelName: string;
-	ClientAgent: string;
-	ClientIPAddress: string;
 	Clients: number;
 	ElapsedTime: string;
 	IsSet: boolean;
 	StartTime: any;
-	UniqueRequestId: string;
 }
 export interface StreamHandlerMetrics
 {
@@ -1528,53 +1601,6 @@ export interface StreamHandlerMetrics
 	Kbps: number;
 	StartTime: any;
 }
-export interface StreamStreamingStatistic
-{
-	BitsPerSecond: number;
-	BytesRead: number;
-	BytesWritten: number;
-	Clients: number;
-	ElapsedTime: string;
-	Id: string;
-	IsSet: boolean;
-	Rank: number;
-	StartTime: any;
-	StreamLogo?: string;
-	StreamName: string;
-	StreamUrl?: string;
-}
-export interface ChannelMetric
-{
-	ChannelItemBackLog: number;
-	ClientChannels: ClientChannelDto[];
-	ClientStreams: ClientStreamsDto[];
-	Id: string;
-	IsFailed: boolean;
-	Logo?: string;
-	Metrics: StreamHandlerMetrics;
-	Name: string;
-	SMStreamInfo?: SMStreamInfo;
-	SourceName: string;
-	TotalBytesInBuffer: number;
-	VideoInfo?: string;
-}
-export interface ClientChannelDto
-{
-	ClientIPAddress?: string;
-	ClientUserAgent?: string;
-	Logo?: string;
-	Metrics?: StreamHandlerMetrics;
-	Name: string;
-	SMChannelId: number;
-}
-export interface ClientStreamsDto
-{
-	ClientIPAddress?: string;
-	ClientUserAgent?: string;
-	Logo?: string;
-	Name: string;
-	SMStreamId: string;
-}
 export interface CustomStreamNfo
 {
 	Movie: Movie;
@@ -1583,16 +1609,16 @@ export interface CustomStreamNfo
 export interface Actor
 {
 	Name: string;
-	Order: string;
-	Role: string;
-	Thumb: string;
+	Order?: string;
+	Role?: string;
+	Thumb?: string;
 }
 export interface Audio
 {
-	Bitrate: string;
-	Channels: string;
-	Codec: string;
-	Language: string;
+	Bitrate?: string;
+	Channels?: string;
+	Codec?: string;
+	Language?: string;
 }
 export interface CustomPlayList
 {
@@ -1603,98 +1629,98 @@ export interface CustomPlayList
 }
 export interface Fanart
 {
-	Thumb: Thumb;
+	Thumb?: Thumb;
 }
 export interface Fileinfo
 {
-	Streamdetails: Streamdetails;
+	Streamdetails?: Streamdetails;
 }
 export interface Movie
 {
-	Actors: Actor[];
-	Artworks: string[];
-	Country: string;
-	Credits: string[];
-	Criticrating: string;
-	Directors: string[];
-	Fanart: Fanart;
-	Fileinfo: Fileinfo;
-	Genres: string[];
-	Id: string;
-	Lastplayed: string;
-	Mpaa: string;
-	Originaltitle: string;
-	Outline: string;
-	Playcount: string;
-	Plot: string;
+	Actors?: Actor[];
+	Artworks?: string[];
+	Country?: string;
+	Credits?: string[];
+	Criticrating?: string;
+	Directors?: string[];
+	Fanart?: Fanart;
+	Fileinfo?: Fileinfo;
+	Genres?: string[];
+	Id?: string;
+	Lastplayed?: string;
+	Mpaa?: string;
+	Originaltitle?: string;
+	Outline?: string;
+	Playcount?: string;
+	Plot?: string;
 	Premiered: string;
-	Rating: string;
-	Ratings: Ratings;
+	Rating?: string;
+	Ratings?: Ratings;
 	Runtime: number;
-	Set: Set;
-	Sorttitle: string;
-	Status: string;
-	Studio: string;
-	Tagline: string;
-	Thumb: Thumb;
+	Set?: Set;
+	Sorttitle?: string;
+	Status?: string;
+	Studio?: string;
+	Tagline?: string;
+	Thumb?: Thumb;
 	Title: string;
-	Top250: string;
-	Trailers: string[];
-	Uniqueids: Uniqueid[];
-	Userrating: string;
-	Watched: string;
-	Year: string;
+	Top250?: string;
+	Trailers?: string[];
+	Uniqueids?: Uniqueid[];
+	Userrating?: string;
+	Watched?: string;
+	Year?: string;
 }
 export interface Rating
 {
-	Default: string;
-	Max: string;
-	Name: string;
+	Default?: string;
+	Max?: string;
+	Name?: string;
 	Value: string;
-	Votes: string;
+	Votes?: string;
 }
 export interface Ratings
 {
-	Rating: Rating[];
+	Rating?: Rating[];
 }
 export interface Set
 {
-	Name: string;
-	Overview: string;
+	Name?: string;
+	Overview?: string;
 }
 export interface Streamdetails
 {
-	Audio: Audio;
-	Subtitle: Subtitle;
-	Video: Video;
+	Audio?: Audio;
+	Subtitle?: Subtitle;
+	Video?: Video;
 }
 export interface Subtitle
 {
-	Language: string;
+	Language?: string;
 }
 export interface Thumb
 {
-	Aspect: string;
-	Preview: string;
-	Text: string;
+	Aspect?: string;
+	Preview?: string;
+	Text?: string;
 }
 export interface Uniqueid
 {
-	Default: string;
-	Text: string;
-	Type: string;
+	Default?: string;
+	Text?: string;
+	Type?: string;
 }
 export interface Video
 {
-	Aspect: string;
-	Bitrate: string;
-	Codec: string;
-	Duration: string;
-	Durationinseconds: string;
-	Framerate: string;
-	Height: string;
-	Scantype: string;
-	Width: string;
+	Aspect?: string;
+	Bitrate?: string;
+	Codec?: string;
+	Duration?: string;
+	Durationinseconds?: string;
+	Framerate?: string;
+	Height?: string;
+	Scantype?: string;
+	Width?: string;
 }
 export enum AuthenticationType {
 	None = 0,
@@ -1711,7 +1737,8 @@ export enum JobType {
 	TimerEPG = 7,
 	SDSync = 8,
 	Backup = 9,
-	TimerBackup = 10
+	TimerBackup = 10,
+	EPGRemovedExpiredKeys = 11
 }
 export enum M3UField {
 	ChannelId = 0,
@@ -1754,14 +1781,13 @@ export enum SMFileTypes {
 	HDHR = 2,
 	Channel = 3,
 	M3UStream = 4,
-	Logo = 5,
-	Image = 6,
-	TvLogo = 7,
-	CustomLogo = 9,
-	SDImage = 10,
-	SDStationLogo = 11,
-	CustomPlayList = 12,
-	CustomPlayListLogo = 13
+	Image = 5,
+	TvLogo = 6,
+	Logo = 7,
+	CustomLogo = 8,
+	CustomPlayList = 9,
+	CustomPlayListLogo = 10,
+	ProgramLogo = 11
 }
 export enum ValidM3USetting {
 	NotMapped = 0,

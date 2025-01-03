@@ -2,7 +2,6 @@
 
 namespace StreamMaster.Domain.Extensions;
 
-
 /// <summary>
 /// Represents a thread-safe set of values.
 /// </summary>
@@ -13,8 +12,8 @@ namespace StreamMaster.Domain.Extensions;
 /// <param name="collection">The collection whose elements are copied to the new set.</param>
 public class ConcurrentHashSet<T>(IEnumerable<T>? collection = null) : IEnumerable<T>
 {
-    private readonly HashSet<T> _hashSet = collection is null ? ([]) : new HashSet<T>(collection);
-    private readonly object _lock = new();
+    private readonly HashSet<T> _hashSet = collection is null ? ([]) : [.. collection];
+    private readonly Lock _lock = new();
 
     /// <summary>
     /// Adds all elements in the specified collection to the current set.
@@ -94,7 +93,7 @@ public class ConcurrentHashSet<T>(IEnumerable<T>? collection = null) : IEnumerab
     {
         lock (_lock)
         {
-            HashSet<T> snapshot = new(_hashSet);
+            HashSet<T> snapshot = [.. _hashSet];
             return snapshot.GetEnumerator();
         }
     }

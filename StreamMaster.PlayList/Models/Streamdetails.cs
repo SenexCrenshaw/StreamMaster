@@ -8,9 +8,9 @@ namespace StreamMaster.PlayList.Models;
 public class Streamdetails
 {
     [XmlElement(ElementName = "video")]
-    public Video Video { get; set; }
+    public Video? Video { get; set; }
     [XmlElement(ElementName = "audio")]
-    public Audio Audio { get; set; }
+    public Audio? Audio { get; set; }
     [XmlElement(ElementName = "subtitle")]
-    public Subtitle Subtitle { get; set; }
+    public Subtitle? Subtitle { get; set; }
 }

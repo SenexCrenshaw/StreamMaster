@@ -1,125 +1,154 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.StaticFiles;
-using Microsoft.Extensions.Caching.Memory;
 
-using StreamMaster.API.Interfaces;
-using StreamMaster.Domain.Enums;
-
-using System.Text;
-using System.Web;
+using StreamMaster.Application.Common.Extensions;
+using StreamMaster.Application.StreamGroups;
+using StreamMaster.Domain.Extensions;
 
 namespace StreamMaster.API.Controllers;
 
-public class FilesController(IMemoryCache memoryCache, ILogoService logoService, IContentTypeProvider mimeTypeProvider) : ApiControllerBase, IFileController
+[V1ApiController("api/[controller]")]
+public class FilesController(ILogger<FilesController> logger, IHttpContextAccessor httpContextAccessor, IOptionsMonitor<Setting> settings, IStreamGroupService streamGroupService, ILogoService logoService) : ControllerBase
 {
     [AllowAnonymous]
-    [Route("{filetype}/{source}")]
-
-    public async Task<IActionResult> GetFile(string source, SMFileTypes filetype, CancellationToken cancellationToken)
+    [Route("{source}")]
+    public async Task<IActionResult> GetLogo(string source, CancellationToken cancellationToken)
     {
-        string sourceDecoded;
-        if (IsBase64String(source))
+        if (string.IsNullOrEmpty(source) || source == "noimage.png" || source.EndsWithIgnoreCase("default.png"))
         {
-            try
+            return Redirect($"{BuildInfo.PATH_BASE}/" + settings.CurrentValue.DefaultLogo);
+        }
+
+        (FileStream? fileStream, string? FileName, string? ContentType) = await logoService.GetLogoAsync(source, cancellationToken).ConfigureAwait(false);
+
+        return fileStream == null ? Redirect($"{BuildInfo.PATH_BASE}/" + FileName ?? settings.CurrentValue.DefaultLogo) : File(fileStream, ContentType ?? "application/octet-stream", FileName);
+    }
+
+    [AllowAnonymous]
+    [Route("[action]/{APIKey}")]
+    [Route("[action]/{APIKey}/{isShort?}")]
+    [Route("[action]/{APIKey}/{isShort?}/{encodedIds?}")]
+    public async Task<ActionResult<Dictionary<int, SGFS>>> GetSMFS(
+        string APIKey,
+        string? encodedIds = null,
+        bool? isShort = null,
+        CancellationToken cancellationToken = default)
+    {
+
+        if (string.IsNullOrEmpty(APIKey) || !APIKey.Equals(settings.CurrentValue.APIKey))
+        {
+            logger.LogWarning("Invalid request: Invalid API Key.");
+            return Unauthorized();
+        }
+
+        List<int>? sgProfileIds = null;
+
+        if (!string.IsNullOrEmpty(encodedIds))
+        {
+            sgProfileIds = int.TryParse(encodedIds, out int testInt)
+                ? [testInt]
+                : encodedIds.Contains(',')
+                      ? [.. encodedIds.Split(',').Select(int.Parse)]
+                      : streamGroupService.DecodeProfileIds(encodedIds);
+
+            if (sgProfileIds is null)
             {
-                sourceDecoded = Encoding.UTF8.GetString(Convert.FromBase64String(source));
-            }
-            catch (FormatException)
-            {
-                // Handle cases where the base64 string might be improperly formatted
-                sourceDecoded = HttpUtility.UrlDecode(source);
+                //logger.LogWarning("Invalid request: Missing required parameters.");
+                return NotFound();
             }
         }
-        else
-        {
-            sourceDecoded = HttpUtility.UrlDecode(source);
-        }
 
-        if (sourceDecoded == "noimage.png")
-        {
-            return Redirect("/images/default.png");
-        }
+        Dictionary<int, SGFS> smfs = await streamGroupService.GetSMFS(sgProfileIds, isShort ?? false, cancellationToken);
 
-        // string sourceDecoded = HttpUtility.UrlDecode(source);
-        //string sourceDecoded = Encoding.UTF8.GetString(Convert.FromBase64String(source));
-        if (source == "noimage.png")
-        {
-            return Redirect("/images/default.png");
-        }
-
-        (byte[]? image, string? fileName) = await GetCacheEntryAsync(sourceDecoded, filetype, cancellationToken).ConfigureAwait(false);
-        if (image == null || fileName == null)
-        {
-            return Redirect(sourceDecoded);
-        }
-
-        string contentType = GetContentType(sourceDecoded);
-        return File(image, contentType, fileName);
+        return smfs;
     }
 
-    private static bool IsBase64String(string base64)
+    //[AllowAnonymous]
+    //[Route("[action]/{APIKey}/")]
+    //[Route("[action]/{APIKey}//{isShort}")]
+    //public async Task<ActionResult<Dictionary<int, SGFS>>> GetSMFS(
+    //    string APIKey,
+    //    bool isShort,
+    //    CancellationToken cancellationToken = default)
+    //{
+    //    if (string.IsNullOrEmpty(APIKey) || !APIKey.Equals(settings.CurrentValue.APIKey))
+    //    {
+    //        logger.LogWarning("Invalid request: Invalid API Key.");
+    //        return Unauthorized();
+    //    }
+
+    //    Dictionary<int, SGFS> smfs = await streamGroupService.GetSMFS(null, isShort, cancellationToken);
+
+    //    return smfs;
+    //}
+
+    [AllowAnonymous]
+    [Route("sm/{smChannelId}")]
+    public async Task<IActionResult> GetSMChannelLogo(int smChannelId, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrEmpty(base64) || base64.Length % 4 != 0)
+        string baseUrl = string.IsNullOrEmpty(BuildInfo.PATH_BASE) ? httpContextAccessor.GetUrl() : $"{BuildInfo.PATH_BASE}";
+
+        if (smChannelId < 0)
         {
-            return false;
+            return Redirect(baseUrl + settings.CurrentValue.DefaultLogo);
         }
 
-        try
-        {
-            // Attempt to convert; if it fails, it's not a valid base64 string
-            Convert.FromBase64String(base64);
-            return true;
-        }
-        catch (FormatException)
-        {
-            return false;
-        }
+        (FileStream? fileStream, string? FileName, string? ContentType) = await logoService.GetLogoForChannelAsync(smChannelId, cancellationToken).ConfigureAwait(false);
+
+        return fileStream == null ? Redirect(FileName ?? baseUrl + settings.CurrentValue.DefaultLogo) : File(fileStream, ContentType ?? "application/octet-stream", FileName);
     }
 
-    private async Task<(byte[]? image, string? fileName)> GetCacheEntryAsync(string URL, SMFileTypes fileType, CancellationToken cancellationToken)
+    //Program ChannelLogo
+    [AllowAnonymous]
+    [Route("pr/{source}")]
+    public async Task<IActionResult> GetProgramLogo(string source, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrEmpty(URL))
+        //string baseUrl = httpContextAccessor.GetUrl();
+        string baseUrl = string.IsNullOrEmpty(BuildInfo.PATH_BASE) ? httpContextAccessor.GetUrl() : $"{BuildInfo.PATH_BASE}";
+
+        if (string.IsNullOrEmpty(source) || source == "noimage.png" || source.EndsWithIgnoreCase("default.png"))
         {
-            return (null, null);
+            return Redirect(baseUrl + settings.CurrentValue.DefaultLogo);
         }
 
-        //string source = HttpUtility.UrlDecode(URL);
-        //string fileName = "";
-        //string returnName = "";
+        (FileStream? fileStream, string? FileName, string? ContentType) = await logoService.GetProgramLogoAsync(source, cancellationToken).ConfigureAwait(false);
 
-
-        ImagePath? imagePath = logoService.GetValidImagePath(URL, fileType);
-        if (imagePath == null)
-        {
-            return (null, null);
-        }
-
-        if (System.IO.File.Exists(imagePath.FullPath))
-        {
-            byte[] ret = await System.IO.File.ReadAllBytesAsync(imagePath.FullPath).ConfigureAwait(false);
-            return (ret, imagePath.ReturnName);
-        }
-
-        return (null, null);
+        return fileStream == null ? Redirect(FileName ?? baseUrl + settings.CurrentValue.DefaultLogo) : File(fileStream, ContentType ?? "application/octet-stream", FileName);
     }
 
-    private string GetContentType(string fileName)
+    //Custom ChannelLogo
+    [AllowAnonymous]
+    [Route("cu/{source}")]
+    public async Task<IActionResult> GetCustomLogo(string source, CancellationToken cancellationToken)
     {
-        string cacheKey = $"ContentType-{fileName}";
+        //string baseUrl = httpContextAccessor.GetUrl();
+        string baseUrl = string.IsNullOrEmpty(BuildInfo.PATH_BASE) ? httpContextAccessor.GetUrl() : $"{BuildInfo.PATH_BASE}";
 
-        if (!memoryCache.TryGetValue(cacheKey, out string? contentType))
+        if (string.IsNullOrEmpty(source) || source == "noimage.png" || source.EndsWithIgnoreCase("default.png"))
         {
-            if (!mimeTypeProvider.TryGetContentType(fileName, out contentType))
-            {
-                contentType = "application/octet-stream";
-            }
-            contentType ??= "application/octet-stream";
-
-            memoryCache.Set(cacheKey, contentType, CacheManagerExtensions.NeverRemoveCacheEntryOptions);
+            return Redirect(baseUrl + settings.CurrentValue.DefaultLogo);
         }
 
-        return contentType ?? "application/octet-stream";
+        (FileStream? fileStream, string? FileName, string? ContentType) = await logoService.GetCustomLogoAsync(source, cancellationToken).ConfigureAwait(false);
+
+        return fileStream == null ? Redirect(FileName ?? baseUrl + settings.CurrentValue.DefaultLogo) : File(fileStream, ContentType ?? "application/octet-stream", FileName);
     }
 
+    //TVLogo
+    [AllowAnonymous]
+    [Route("tv/{source}")]
+    public async Task<IActionResult> GetTvLogo(string source, CancellationToken cancellationToken)
+    {
+        //string baseUrl = httpContextAccessor.GetUrl();
+        string baseUrl = string.IsNullOrEmpty(BuildInfo.PATH_BASE) ? httpContextAccessor.GetUrl() : $"{BuildInfo.PATH_BASE}";
+
+        if (string.IsNullOrEmpty(source) || source == "noimage.png" || source.EndsWithIgnoreCase("default.png"))
+        {
+            return Redirect(baseUrl + settings.CurrentValue.DefaultLogo);
+        }
+
+        (FileStream? fileStream, string? FileName, string? ContentType) = await logoService.GetTVLogoAsync(source, cancellationToken).ConfigureAwait(false);
+
+        return fileStream == null ? Redirect(FileName ?? baseUrl + settings.CurrentValue.DefaultLogo) : File(fileStream, ContentType ?? "application/octet-stream", FileName);
+    }
 }

@@ -5,7 +5,7 @@ namespace StreamMaster.Domain.Dto;
 [RequireAll]
 public class BaseFileDto
 {
-    public string Source { get; set; }
+    public string Source { get; set; } = string.Empty;
     public bool AutoUpdate { get; set; }
     public string Description { get; set; } = string.Empty;
     public int DownloadErrors { get; set; }

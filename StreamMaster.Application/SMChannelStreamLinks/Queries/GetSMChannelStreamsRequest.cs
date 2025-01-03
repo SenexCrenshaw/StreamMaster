@@ -13,7 +13,6 @@ internal class GetSMChannelStreamssRequestHandler(IRepositoryWrapper Repository,
         if (channel == null)
         {
             return DataResponse<List<SMStreamDto>>.ErrorWithMessage("Failed to retreieve");
-
         }
 
         List<SMChannelStreamLink> links = [.. Repository.SMChannelStreamLink.GetQuery(true).Where(a => a.SMChannelId == request.SMChannelId)];
@@ -32,6 +31,4 @@ internal class GetSMChannelStreamssRequestHandler(IRepositoryWrapper Repository,
 
         return await Task.FromResult(DataResponse<List<SMStreamDto>>.Success([.. ret.OrderBy(a => a.Rank)]));
     }
-
-
 }

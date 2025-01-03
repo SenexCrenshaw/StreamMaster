@@ -10,16 +10,13 @@ public class AddOutputProfileRequestHandler(ILogger<AddOutputProfileRequest> Log
     IOptionsMonitor<OutputProfileDict> intProfileSettings, IDataRefreshService dataRefreshService)
 : IRequestHandler<AddOutputProfileRequest, APIResponse>
 {
-
-
     public async Task<APIResponse> Handle(AddOutputProfileRequest request, CancellationToken cancellationToken)
     {
         OutputProfileDict profileSettings = intProfileSettings.CurrentValue;
 
-        List<string> badNames = profileSettings.Profiles
+        List<string> badNames = [.. profileSettings.Profiles
             .Where(kvp => kvp.Value.IsReadOnly)
-            .Select(kvp => kvp.Key)
-            .ToList();
+            .Select(kvp => kvp.Key)];
 
         if (badNames.Contains(request.OutputProfileDto.Name, StringComparer.OrdinalIgnoreCase))
         {
@@ -37,7 +34,6 @@ public class AddOutputProfileRequestHandler(ILogger<AddOutputProfileRequest> Log
             profileSettings.AddProfile(request.OutputProfileDto.Name, request.OutputProfileDto);
         }
 
-
         Logger.LogInformation("AddOutputProfileRequest");
 
         SettingsHelper.UpdateSetting(profileSettings);
@@ -47,5 +43,4 @@ public class AddOutputProfileRequestHandler(ILogger<AddOutputProfileRequest> Log
         await dataRefreshService.RefreshOutputProfiles();
         return APIResponse.Ok;
     }
-
 }

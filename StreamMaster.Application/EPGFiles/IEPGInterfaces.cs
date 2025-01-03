@@ -6,7 +6,6 @@ namespace StreamMaster.Application.EPGFiles;
 
 public interface IEPGFileController
 {
-
     Task<ActionResult<int>> GetEPGNextEPGNumber();
     Task<ActionResult<List<EPGColorDto>>> GetEPGColors();
     Task<ActionResult<List<EPGFilePreviewDto>>> GetEPGFilePreviewById(int id);
@@ -50,6 +49,8 @@ public interface IEPGFileHub
 public interface IEPGFileTasks
 {
     ValueTask EPGSync(CancellationToken cancellationToken = default);
+
+    ValueTask EPGRemovedExpiredKeys(CancellationToken cancellationToken = default);
     ValueTask ProcessEPGFile(int EPGFileId, CancellationToken cancellationToken = default);
 
     ValueTask ScanDirectoryForEPGFiles(CancellationToken cancellationToken = default);

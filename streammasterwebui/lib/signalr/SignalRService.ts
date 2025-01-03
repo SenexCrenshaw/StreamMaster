@@ -9,7 +9,7 @@ import { MessagePackHubProtocol } from '@microsoft/signalr-protocol-msgpack';
 class SignalRService extends EventTarget {
   private static instance: SignalRService;
   public hubConnection: HubConnection;
-  private blacklistedMethods: string[] = ['GetLog', 'GetIconFromSource'];
+  private blacklistedMethods: string[] = ['GetLog', 'GetIconFromSource', 'GetDownloadServiceStatus'];
   private whitelistedMethods: string[] = [];
   private listenerCounts: Map<string, number> = new Map<string, number>();
 

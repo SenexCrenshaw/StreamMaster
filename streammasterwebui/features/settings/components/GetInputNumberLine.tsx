@@ -12,6 +12,7 @@ import { GetLine } from './GetLine'; // Import the GetLine function
 interface InputNumberLineProps extends SettingsInterface {
   min?: number | null;
   max?: number | null;
+  showComma?: boolean;
 }
 
 export function GetInputNumberLine({ ...props }: InputNumberLineProps): React.ReactElement {
@@ -38,6 +39,7 @@ export function GetInputNumberLine({ ...props }: InputNumberLineProps): React.Re
             e !== undefined && updateStateAndRequest?.({ [props.field]: e });
           }}
           showButtons
+          showComma={props.showComma}
           value={currentSetting ? getRecord<SettingDto, number>(props.field, currentSetting) : undefined}
         />
       </div>

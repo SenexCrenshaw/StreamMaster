@@ -1,11 +1,11 @@
+using System.Security.Claims;
+
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 using StreamMaster.Domain.Enums;
 using StreamMaster.Infrastructure.Authentication;
-
-using System.Security.Claims;
 
 using IAuthenticationService = StreamMaster.Infrastructure.Authentication.IAuthenticationService;
 
@@ -16,7 +16,6 @@ namespace StreamMaster.API.Controllers
     [ApiController]
     public class AuthenticationController(IAuthenticationService authService, IDataRefreshService dataRefreshService, IOptionsMonitor<Setting> settings) : Controller
     {
-
         [AllowAnonymous]
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromForm] LoginResource resource, [FromQuery] string? ReturnUrl = null)
@@ -43,9 +42,9 @@ namespace StreamMaster.API.Controllers
             await HttpContext.SignInAsync(nameof(AuthenticationType.Forms), new ClaimsPrincipal(new ClaimsIdentity(claims, "Cookies", "user", "identifier")), authProperties);
             if (string.IsNullOrEmpty(ReturnUrl))
             {
-                ReturnUrl = "/";
+                ReturnUrl = BuildInfo.PATH_BASE + "/";
             }
-            return Redirect(settings.CurrentValue.UrlBase + ReturnUrl);
+            return Redirect(BuildInfo.PATH_BASE + ReturnUrl);
         }
 
         [HttpGet("logout")]
@@ -54,7 +53,7 @@ namespace StreamMaster.API.Controllers
             authService.Logout(HttpContext);
             await HttpContext.SignOutAsync(nameof(AuthenticationType.Forms));
             await dataRefreshService.AuthLogOut();
-            return Redirect(settings.CurrentValue.UrlBase + "/");
+            return Redirect(BuildInfo.PATH_BASE + "/");
         }
 
         [HttpGet("needAuth")]
@@ -65,7 +64,7 @@ namespace StreamMaster.API.Controllers
                 return Ok(false);
             }
             bool a = HttpContext.User?.Identity?.IsAuthenticated == true;
-            if (a == true)
+            if (a)
             {
                 //hey now
                 return Ok(false);

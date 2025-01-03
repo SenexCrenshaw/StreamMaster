@@ -1,6 +1,6 @@
-﻿using StreamMaster.Domain.Configuration;
+﻿using System.Text.Json;
 
-using System.Text.Json;
+using StreamMaster.Domain.Configuration;
 
 namespace StreamMaster.Domain.Helpers;
 
@@ -25,7 +25,7 @@ public static class SettingsHelper
                 ret = JsonSerializer.Deserialize<T>(jsonString);
                 return ret != null ? ret : default;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return default;
             }
@@ -49,18 +49,11 @@ public static class SettingsHelper
             dir = Path.GetDirectoryName(fileName);
         }
 
-
         if (typeof(OutputProfileDict).IsAssignableFrom(setting.GetType()))
         {
             fileName = BuildInfo.OutputProfileSettingsFile;
             dir = Path.GetDirectoryName(fileName);
         }
-
-        //if (typeof(HLSSettings).IsAssignableFrom(setting.GetType()))
-        //{
-        //    fileName = BuildInfo.HLSSettingsFile;
-        //    dir = Path.GetDirectoryName(fileName);
-        //}
 
         if (typeof(SDSettings).IsAssignableFrom(setting.GetType()))
         {
@@ -68,8 +61,15 @@ public static class SettingsHelper
             dir = Path.GetDirectoryName(fileName);
         }
 
+        if (typeof(CustomLogoDict).IsAssignableFrom(setting.GetType()))
+        {
+            fileName = BuildInfo.CustomLogosSettingsFile;
+            dir = Path.GetDirectoryName(fileName);
+        }
+
         if (string.IsNullOrEmpty(dir))
         {
+            Console.Error.WriteLine("Unknown setting type {Name}", setting.GetType());
             return;
         }
 
@@ -78,7 +78,7 @@ public static class SettingsHelper
             _ = Directory.CreateDirectory(dir);
         }
 
-        string jsonString = JsonSerializer.Serialize(setting, new JsonSerializerOptions { WriteIndented = true });
+        string jsonString = JsonSerializer.Serialize(setting, BuildInfo.JsonIndentOptions);
         File.WriteAllText(fileName, jsonString);
     }
 }

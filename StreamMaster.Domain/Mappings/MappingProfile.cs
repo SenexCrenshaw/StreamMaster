@@ -42,23 +42,22 @@ public class IPTVApplicationProfile : Profile
     public IPTVApplicationProfile()
     {
         ApplyMappingsFromAssembly(Assembly.GetExecutingAssembly());
-
     }
 
     private void ApplyMappingsFromAssembly(Assembly assembly)
     {
         Type mapFromType = typeof(IMapFrom<>);
 
-        string mappingMethodName = nameof(IMapFrom<object>.Mapping);
+        const string mappingMethodName = nameof(IMapFrom<object>.Mapping);
 
         bool HasInterface(Type t)
         {
             return t.IsGenericType && t.GetGenericTypeDefinition() == mapFromType;
         }
 
-        List<Type> types = assembly.GetExportedTypes().Where(t => t.GetInterfaces().Any(HasInterface)).ToList();
+        List<Type> types = [.. assembly.GetExportedTypes().Where(t => t.GetInterfaces().Any(HasInterface))];
 
-        Type[] argumentTypes = new Type[] { typeof(Profile) };
+        Type[] argumentTypes = [typeof(Profile)];
 
         foreach (Type? type in types)
         {
@@ -68,12 +67,12 @@ public class IPTVApplicationProfile : Profile
 
             if (methodInfo != null)
             {
-                methodInfo.Invoke(instance, new object[] { this });
+                methodInfo.Invoke(instance, [this]);
                 ApplyIgnoreMapAttribute(type);
             }
             else
             {
-                List<Type> interfaces = type.GetInterfaces().Where(HasInterface).ToList();
+                List<Type> interfaces = [.. type.GetInterfaces().Where(HasInterface)];
 
                 if (interfaces.Count > 0)
                 {
@@ -81,7 +80,7 @@ public class IPTVApplicationProfile : Profile
                     {
                         MethodInfo? interfaceMethodInfo = @interface.GetMethod(mappingMethodName, argumentTypes);
 
-                        interfaceMethodInfo?.Invoke(instance, new object[] { this });
+                        interfaceMethodInfo?.Invoke(instance, [this]);
                         ApplyIgnoreMapAttribute(type);
                     }
                 }

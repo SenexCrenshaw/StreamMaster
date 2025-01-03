@@ -1,296 +1,540 @@
-﻿using AutoMapper;
+﻿using System.Collections.Concurrent;
+using System.Diagnostics;
+using System.Web;
 
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.StaticFiles;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
+using StreamMaster.Application.Common;
+using StreamMaster.Application.Common.Extensions;
 using StreamMaster.Domain.API;
-using StreamMaster.Domain.Common;
 using StreamMaster.Domain.Configuration;
+using StreamMaster.Domain.Crypto;
 using StreamMaster.Domain.Dto;
 using StreamMaster.Domain.Enums;
 using StreamMaster.Domain.Extensions;
+using StreamMaster.Domain.Helpers;
+using StreamMaster.Domain.Repository;
+using StreamMaster.Domain.XmltvXml;
 using StreamMaster.PlayList;
+using StreamMaster.PlayList.Models;
 using StreamMaster.SchedulesDirect.Domain.Interfaces;
 
-using System.Collections.Concurrent;
-using System.Diagnostics;
-using System.Text;
-using System.Web;
-
 namespace StreamMaster.Infrastructure.Services;
-public class LogoService(IMapper mapper, ICustomPlayListBuilder customPlayListBuilder, IImageDownloadQueue imageDownloadQueue, IServiceProvider serviceProvider, IDataRefreshService dataRefreshService, IOptionsMonitor<Setting> _settings, ILogger<LogoService> logger)
+
+public class LogoService(ICustomPlayListBuilder customPlayListBuilder, IHttpContextAccessor httpContextAccessor, IOptionsMonitor<Setting> settings, IOptionsMonitor<CustomLogoDict> customLogos, IImageDownloadService imageDownloadService, IContentTypeProvider mimeTypeProvider, IMemoryCache memoryCache, IImageDownloadQueue imageDownloadQueue, IServiceProvider serviceProvider, IDataRefreshService dataRefreshService, ILogger<LogoService> logger)
     : ILogoService
 {
-    private ConcurrentDictionary<string, LogoFileDto> Logos { get; } = [];
-    private ConcurrentDictionary<string, TvLogoFile> TvLogos { get; set; } = [];
+    private ConcurrentDictionary<string, CustomLogoDto> Logos { get; } = [];
+    private static readonly SemaphoreSlim scantvLogoSemaphore = new(1, 1);
 
-    public void CacheSMChannelLogos()
+    public List<XmltvProgramme> GetXmltvProgrammeForPeriod(VideoStreamConfig videoStreamConfig, DateTime startDate, int days, string baseUrl)
     {
-        if (!string.Equals(_settings.CurrentValue.LogoCache, "Cache", StringComparison.OrdinalIgnoreCase))
+        List<(Movie Movie, DateTime StartTime, DateTime EndTime)> movies = customPlayListBuilder.GetMoviesForPeriod(videoStreamConfig.Name, startDate, days);
+        List<XmltvProgramme> ret = [];
+        foreach ((Movie Movie, DateTime StartTime, DateTime EndTime) x in movies)
+        {
+            XmltvProgramme programme = XmltvProgrammeConverter.ConvertMovieToXmltvProgramme(x.Movie, videoStreamConfig.EPGId, x.StartTime, x.EndTime);
+            if (x.Movie.Thumb is not null && !string.IsNullOrEmpty(x.Movie.Thumb.Text))
+            {
+                string src = $"/api/files/smChannelLogo/{videoStreamConfig.ChannelNumber}";// GetLogoUrl(x.Movie.Thumb.Text, baseUrl, SMStreamTypeEnum.CustomPlayList);
+                programme.Icons = [new XmltvIcon { Src = src }];
+            }
+            ret.Add(programme);
+        }
+        return ret;
+    }
+
+    #region Custom Logo
+
+    public string AddCustomLogo(string Name, string Source)
+    {
+        Source = ImageConverter.ConvertDataToPNG(Name, Source);
+
+        customLogos.CurrentValue.AddCustomLogo(Source.ToUrlSafeBase64String(), Name);
+
+        AddLogoToCache(Source, Name, smFileType: SMFileTypes.CustomLogo);
+
+        SettingsHelper.UpdateSetting(customLogos.CurrentValue);
+        return Source;
+    }
+
+    public void RemoveCustomLogo(string Source)
+    {
+        if (!ImageConverter.IsCustomSource(Source))
+        {
+            customLogos.CurrentValue.RemoveProfile(Source);
+            SettingsHelper.UpdateSetting(customLogos.CurrentValue);
+        }
+
+        string toTest = Source.ToUrlSafeBase64String();
+        CustomLogo? test = customLogos.CurrentValue.GetCustomLogo(toTest);
+        if (test?.IsReadOnly != false)
         {
             return;
         }
+        customLogos.CurrentValue.RemoveProfile(toTest);
 
+        SettingsHelper.UpdateSetting(customLogos.CurrentValue);
+
+        Source = Source.Remove(0, 14);
+
+        ImagePath? imagePath = GetValidImagePath(Source, SMFileTypes.CustomLogo);
+        if (imagePath is null)
+        {
+            return;
+        }
+        if (File.Exists(imagePath.FullPath))
+        {
+            File.Delete(imagePath.FullPath);
+        }
+    }
+
+    #endregion Custom Logo
+
+    public string GetLogoUrl(SMChannel smChannel, string baseUrl)
+    {
+        return settings.CurrentValue.LogoCache || !smChannel.Logo.StartsWithIgnoreCase("http")
+            ? $"{baseUrl}{BuildInfo.PATH_BASE}/api/files/sm/{smChannel.Id}"
+            : smChannel.Logo;
+    }
+
+    public string GetLogoUrl(SMChannel smChannel)
+    {
+        string baseUrl = httpContextAccessor.GetUrl();
+
+        return GetLogoUrl(smChannel, baseUrl);
+    }
+
+    public string GetLogoUrl(XmltvChannel xmltvChannel)
+    {
+        string baseUrl = httpContextAccessor.GetUrl();
+        return xmltvChannel.Icons is null || xmltvChannel.Icons.Count == 0
+            ? "/" + settings.CurrentValue.DefaultLogo
+            : GetLogoUrl(xmltvChannel.Id, xmltvChannel.Icons[0].Src, baseUrl);
+    }
+
+    private string GetLogoUrl(string Id, string Logo, string baseUrl)
+    {
+        return settings.CurrentValue.LogoCache || !Logo.StartsWithIgnoreCase("http")
+            ? $"{baseUrl}/api/files/sm/{Id}"
+            : Logo;
+    }
+
+    public async Task<DataResponse<bool>> CacheSMChannelLogosAsync(CancellationToken cancellationToken)
+    {
         using IServiceScope scope = serviceProvider.CreateScope();
-        ISMChannelService smChannelService = scope.ServiceProvider.GetRequiredService<ISMChannelService>();
+        ISMChannelService channelService = scope.ServiceProvider.GetRequiredService<ISMChannelService>();
 
-        IQueryable<NameLogo> smChannelsLogos = smChannelService.GetNameLogos();
+        IQueryable<SMChannel> channelsQuery = channelService.GetSMStreamLogos(true);
 
-        foreach (NameLogo smChannelsLogo in smChannelsLogos)
-        {
-            imageDownloadQueue.EnqueueNameLogo(smChannelsLogo);
-        }
-    }
-
-    private static string? GetCachedFile(string source, SMFileTypes smFileType)
-    {
-        FileDefinition? fd = FileDefinitions.GetFileDefinition(smFileType);
-        if (fd is null)
-        {
-            return null;
-        }
-
-        string ext = Path.GetExtension(source) ?? fd.DefaultExtension;
-
-        string fileName = FileUtil.EncodeToMD5(source) + ext;
-        string subDir = char.ToLower(fileName[0]).ToString();
-
-        string fullPath = Path.Combine(fd.DirectoryLocation, subDir, fileName);
-
-        return !File.Exists(fullPath) ? null : fullPath;
-    }
-    public string GetLogoUrl(string logoSource, string baseUrl)
-    {
-        if (string.IsNullOrEmpty(logoSource))
-        {
-            return $"{baseUrl}{_settings.CurrentValue.DefaultLogo}";
-        }
-
-        if (logoSource.StartsWith('/'))
-        {
-            logoSource = logoSource[1..];
-        }
-
-        if (logoSource.StartsWith(BuildInfo.CustomPlayListFolder))
-        {
-            return GetApiUrl(baseUrl, logoSource, SMFileTypes.CustomLogo);
-        }
-
-        if (logoSource.StartsWith("images/"))
-        {
-            return $"{baseUrl}/{logoSource}";
-        }
-        else if (!logoSource.StartsWith("http"))
-        {
-            return GetApiUrl(baseUrl, logoSource, SMFileTypes.TvLogo);
-        }
-        else if (string.Equals(_settings.CurrentValue.LogoCache, "cache", StringComparison.OrdinalIgnoreCase))
-        {
-            return GetApiUrl(baseUrl, logoSource, SMFileTypes.Logo);
-        }
-
-        return logoSource;
-    }
-    private static string GetApiUrl(string url, string source, SMFileTypes path)
-    {
-        if (source.Contains("ZjBhMjNhMDhkYjc"))
-        {
-            int aaa = 1;
-        }
-
-        string encodedPath = Convert.ToBase64String(Encoding.UTF8.GetBytes(source));
-
-        if (encodedPath.Contains("ZjBhMjNhMDhkYjc"))
-        {
-            int aaa = 1;
-
-        }
-        return $"{url}/api/files/{(int)path}/{encodedPath}";
-    }
-
-    public async Task<DataResponse<bool>> BuildLogosCacheFromSMStreamsAsync(CancellationToken cancellationToken)
-    {
-        if (_settings.CurrentValue.LogoCache != "Cache")
+        if (!await channelsQuery.AnyAsync(cancellationToken).ConfigureAwait(false))
         {
             return DataResponse.False;
         }
 
-        using IServiceScope scope = serviceProvider.CreateScope();
-        ISMStreamService smStreamService = scope.ServiceProvider.GetRequiredService<ISMStreamService>();
-
-        IQueryable<SMStream> streams = smStreamService.GetSMStreamLogos(true);
-
-        if (!streams.Any()) { return DataResponse.False; }
-
-        int totalCount = streams.Count();
-
-        ParallelOptions parallelOptions = new()
+        try
         {
-            CancellationToken = cancellationToken,
-            MaxDegreeOfParallelism = Environment.ProcessorCount
-        };
+            int degreeOfParallelism = Environment.ProcessorCount;
 
-        _ = Parallel.ForEach(streams, parallelOptions, stream =>
+            await channelsQuery.AsAsyncEnumerable()
+                .ForEachAsync(degreeOfParallelism, channel =>
+                {
+                    if (string.IsNullOrEmpty(channel.Logo) || !channel.Logo.IsValidUrl())
+                    {
+                        return Task.CompletedTask;
+                    }
+                    AddLogoToCache(channel.Logo, channel.Name, channel.M3UFileId, SMFileTypes.Logo, OG: true);
+                    LogoInfo logoInfo = new(channel.Name, channel.Logo);
+                    imageDownloadQueue.EnqueueLogo(logoInfo);
+                    return Task.CompletedTask;
+                }, cancellationToken)
+                .ConfigureAwait(false);
+
+            await dataRefreshService.RefreshLogos().ConfigureAwait(false);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            if (cancellationToken.IsCancellationRequested) { return; }
+            logger.LogError(ex, "An error occurred while building logos cache from SM streams.");
+            return DataResponse.False;
+        }
 
-            string source = HttpUtility.UrlDecode(stream.Logo);
-
-            LogoFileDto logo = ToLogoFileDto(source, stream.Name, stream.M3UFileId, FileDefinitions.Logo);
-            AddLogo(logo);
-        });
-        await dataRefreshService.RefreshLogos();
         return DataResponse.True;
     }
 
-    private static LogoFileDto ToLogoFileDto(string sourceUrl, string? recommendedName, int fileId, FileDefinition fileDefinition)
+    public async Task<DataResponse<bool>> AddSMStreamLogosAsync(CancellationToken cancellationToken)
     {
-        string source = HttpUtility.UrlDecode(sourceUrl);
-        string ext = Path.GetExtension(source)?.TrimStart('.') ?? string.Empty;
+        using IServiceScope scope = serviceProvider.CreateScope();
+        ISMStreamService smStreamService = scope.ServiceProvider.GetRequiredService<ISMStreamService>();
 
-        string name;
-        if (!string.IsNullOrEmpty(recommendedName))
+        IQueryable<SMStream> streamsQuery = smStreamService.GetSMStreamLogos(true);
+
+        if (!await streamsQuery.AnyAsync(cancellationToken).ConfigureAwait(false))
         {
-            name = string.Join("_", recommendedName.Split(Path.GetInvalidFileNameChars())) + $".{ext}";
-            //fullName = $"{fileDefinition.DirectoryLocation}{name}";
+            return DataResponse.False;
+        }
+
+        try
+        {
+            int degreeOfParallelism = Environment.ProcessorCount;
+
+            await streamsQuery.AsAsyncEnumerable()
+                .ForEachAsync(degreeOfParallelism, stream =>
+                {
+                    // Ensure thread safety in AddLogoToCache
+                    AddLogoToCache(stream.Logo, stream.Name, stream.M3UFileId, SMFileTypes.Logo, OG: true);
+                    return Task.CompletedTask;
+                }, cancellationToken)
+                .ConfigureAwait(false);
+
+            await dataRefreshService.RefreshLogos().ConfigureAwait(false);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            logger.LogError(ex, "An error occurred while building logos cache from SM streams.");
+            return DataResponse.False;
+        }
+
+        return DataResponse.True;
+    }
+
+    public async Task<(FileStream? fileStream, string? FileName, string? ContentType)> GetLogoAsync(string fileName, CancellationToken cancellationToken)
+    {
+        if (fileName.IsRedirect())
+        {
+            return (null, fileName, null);
+        }
+
+        string? imagePath = fileName.GetLogoImageFullPath();
+
+        if (imagePath == null || !File.Exists(imagePath))
+        {
+            return (null, null, null);
+        }
+
+        try
+        {
+            (FileStream? fileStream, string? FileName, string? ContentType) result = await GetLogoStreamAsync(imagePath, fileName, cancellationToken);
+            return result;
+        }
+        catch
+        {
+            return (null, null, null);
+        }
+    }
+
+    public async Task<(FileStream? fileStream, string? FileName, string? ContentType)> GetProgramLogoAsync(string fileName, CancellationToken cancellationToken)
+    {
+        try
+        {
+            if (fileName.IsRedirect())
+            {
+                return (null, fileName, null);
+            }
+
+            string? imagePath = fileName.GetProgramLogoFullPath();
+
+            return imagePath == null || !File.Exists(imagePath)
+                ? ((FileStream? fileStream, string? FileName, string? ContentType))(null, null, null)
+                : await ThingAsync(fileName, imagePath, cancellationToken).ConfigureAwait(false);
+        }
+        catch
+        {
+            return (null, null, null);
+        }
+    }
+
+    public async Task<(FileStream? fileStream, string? FileName, string? ContentType)> GetLogoForChannelAsync(int SMChannelId, CancellationToken cancellationToken)
+    {
+        IServiceScope scope = serviceProvider.CreateScope();
+        IRepositoryWrapper repositoryWrapper = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
+
+        SMChannel? channel = repositoryWrapper.SMChannel.GetSMChannel(SMChannelId);
+        if (channel == null || string.IsNullOrEmpty(channel.Logo))
+        {
+            return (null, null, null);
+        }
+
+        if (channel.Logo.IsRedirect())
+        {
+            return (null, channel.Logo, null);
+        }
+
+        string fileName;
+        if (channel.Logo.StartsWithIgnoreCase("/api/files/cu/"))
+        {
+            fileName = channel.Logo.Remove(0, 14);
+            return await GetCustomLogoAsync(fileName, cancellationToken);
         }
         else
         {
-            (_, name) = fileDefinition.DirectoryLocation.GetRandomFileName($".{ext}");
+            string test = LogoInfo.Cleanup(channel.Logo);
+            fileName = test.StartsWithIgnoreCase("http") ? test.GenerateFNV1aHash() : test;
         }
 
-        LogoFileDto icon = new()
+        (FileStream? fileStream, string? FileName, string? ContentType) ret = await GetLogoAsync(fileName, cancellationToken);
+
+        return ret;
+    }
+
+    public async Task<(FileStream? fileStream, string? FileName, string? ContentType)> GetCustomLogoAsync(string Source, CancellationToken cancellationToken)
+    {
+        string toTest = $"/api/files/cu/{Source}".ToUrlSafeBase64String();
+
+        CustomLogo? test = customLogos.CurrentValue.GetCustomLogo(toTest);
+        if (test is null)
         {
-            Source = source,
-            Extension = ext,
-            Name = Path.GetFileNameWithoutExtension(name),
-            SMFileType = fileDefinition.SMFileType,
-            FileId = fileId
+            return (null, null, null);
+        }
+
+        ImagePath? imagePath = GetValidImagePath(Source, SMFileTypes.CustomLogo);
+
+        if (imagePath == null || !File.Exists(imagePath.FullPath))
+        {
+            return (null, null, null);
+        }
+
+        try
+        {
+            (FileStream? fileStream, string? FileName, string? ContentType) result = await GetLogoStreamAsync(imagePath.FullPath, Source, cancellationToken);
+            return result;
+        }
+        catch
+        {
+            return (null, null, null);
+        }
+    }
+
+    private static async Task<FileStream?> GetFileStreamAsync(string imagePath)
+    {
+        try
+        {
+            FileStream fileStream = new(imagePath, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, FileOptions.Asynchronous);
+            await Task.CompletedTask.ConfigureAwait(false);
+
+            return fileStream;
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    private async Task<(FileStream? fileStream, string? FileName, string? ContentType)> GetLogoStreamAsync(string imagePath, string fileName, CancellationToken cancellationToken)
+    {
+        try
+        {
+            return fileName.IsRedirect() ? ((FileStream? fileStream, string? FileName, string? ContentType))(null, null, null) : await ThingAsync(fileName, imagePath, cancellationToken).ConfigureAwait(false);
+        }
+        catch
+        {
+            return (null, null, null);
+        }
+    }
+
+    private async Task<(FileStream? fileStream, string? FileName, string? ContentType)> ThingAsync(string fileName, string imagePath, CancellationToken cancellationToken)
+    {
+        try
+        {
+            if (fileName.IsRedirect())
+            {
+                return (null, null, null);
+            }
+
+            imagePath = imagePath.GetPNGPath();
+            fileName = fileName.GetPNGPath();
+
+            if (imagePath == null || !File.Exists(imagePath))
+            {
+                return (null, null, null);
+            }
+
+            FileStream? fileStream = null;
+
+            if (File.Exists(imagePath))
+            {
+                fileStream = await GetFileStreamAsync(imagePath).ConfigureAwait(false);
+            }
+
+            if (fileStream == null)
+            {
+                LogoInfo logoInfo = new(fileName)
+                {
+                    IsSchedulesDirect = true
+                };
+                if (!string.IsNullOrEmpty(logoInfo.FullPath))
+                {
+                    if (await imageDownloadService.DownloadImageAsync(logoInfo, cancellationToken).ConfigureAwait(false))
+                    {
+                        fileStream = await GetFileStreamAsync(imagePath).ConfigureAwait(false);
+                    }
+                }
+                if (fileStream == null)
+                {
+                    return (null, null, null);
+                }
+            }
+
+            string contentType = GetContentType(fileName);
+
+            // Ensure the file is ready to be read asynchronously
+            await Task.CompletedTask.ConfigureAwait(false);
+
+            return (fileStream, fileName, contentType);
+        }
+        catch
+        {
+            return (null, null, null);
+        }
+    }
+
+    public static readonly MemoryCacheEntryOptions NeverRemoveCacheEntryOptions = new MemoryCacheEntryOptions().SetPriority(CacheItemPriority.NeverRemove);
+
+    private string GetContentType(string fileName)
+    {
+        string cacheKey = $"ContentType-{fileName}";
+
+        if (!memoryCache.TryGetValue(cacheKey, out string? contentType))
+        {
+            if (!mimeTypeProvider.TryGetContentType(fileName, out contentType))
+            {
+                contentType = "application/octet-stream";
+            }
+            contentType ??= "application/octet-stream";
+
+            _ = memoryCache.Set(cacheKey, contentType, NeverRemoveCacheEntryOptions);
+        }
+
+        return contentType ?? "application/octet-stream";
+    }
+
+    private static string? GetCachedFile(string source, SMFileTypes smFileType)
+    {
+        string? fullPath = source.GetImageFullPath(smFileType);
+
+        return string.IsNullOrEmpty(fullPath) ? null : !File.Exists(fullPath) ? null : fullPath;
+    }
+
+    public void CacheLogo(CustomLogoDto logoFile, bool OG = false)
+    {
+        if (!OG)
+        {
+            string url = $"/api/files/5/{logoFile.Source}";
+            logoFile.Source = url;
+        }
+
+        Logos.TryAdd(logoFile.Source, logoFile);
+    }
+
+    public void AddLogoToCache(string URL, string title, int FileId = -1, SMFileTypes smFileType = SMFileTypes.Logo, bool OG = false)
+    {
+        if (string.IsNullOrEmpty(URL))
+        {
+            return;
+        }
+
+        string sourceKey = OG ? URL : URL.GenerateFNV1aHash();
+
+        CustomLogoDto logoFile = new()
+        {
+            Source = sourceKey,
+            Value = URL,
+            Name = title
         };
 
-        return icon;
+        CacheLogo(logoFile, OG);
     }
-
-    public void AddLogo(LogoFileDto LogoFile)
-    {
-        _ = Logos.TryAdd(LogoFile.Source, LogoFile);
-    }
-
-    public void AddLogo(string artworkUri, string title)
-    {
-        if (string.IsNullOrEmpty(artworkUri))
-        {
-            return;
-        }
-
-        List<LogoFileDto> logos = GetLogos();
-
-        if (logos.Any(a => a.SMFileType == SMFileTypes.SDImage && a.Source == artworkUri))
-        {
-            return;
-        }
-
-        AddLogo(new LogoFileDto { Source = artworkUri, SMFileType = SMFileTypes.SDImage, Name = title });
-    }
-
-    //public void AddIcons(List<LogoFileDto> newIconFiles)
-    //{
-    //    IEnumerable<LogoFileDto> missingIcons = newIconFiles.Except(Logos.Values, new IconFileDtoComparer());
-    //    missingIcons = missingIcons.Distinct(new IconFileDtoComparer());
-
-    //    foreach (LogoFileDto LogoFile in missingIcons)
-    //    {
-    //        AddLogo(LogoFile);
-    //    }
-    //}
 
     public void ClearLogos()
     {
         Logos.Clear();
     }
 
-    public List<TvLogoFile> GetTvLogos()
+    public CustomLogoDto? GetLogoBySource(string source)
     {
-        return [.. TvLogos.Values];
+        return Logos.TryGetValue(source.GenerateFNV1aHash(), out CustomLogoDto? logo) ? logo : null;
     }
 
-    public void ClearTvLogos()
+    public ImagePath? GetValidImagePath(string URL, SMFileTypes fileType, bool? checkExists = true)
     {
-        TvLogos.Clear();
-    }
+        string url = HttpUtility.UrlDecode(URL);
 
-    public LogoFileDto? GetLogoBySource(string source)
-    {
-        return Logos.TryGetValue(source, out LogoFileDto? logo) ? logo : null;
-    }
-
-    public ImagePath? GetValidImagePath(string baseURL, SMFileTypes? fileType = null)
-    {
-        string url = HttpUtility.UrlDecode(baseURL);
-
-        if (fileType == SMFileTypes.Logo)
+        if (fileType == SMFileTypes.CustomLogo)
         {
             string LogoReturnName = Path.GetFileName(url);
-            string? cachedFile = GetCachedFile(url, SMFileTypes.Logo);
-            if (cachedFile != null)
-            {
-                return new ImagePath
+            string? cachedFile = GetCachedFile(url, fileType);
+            return cachedFile != null
+                ? new ImagePath
+                {
+                    ReturnName = LogoReturnName,
+                    FullPath = cachedFile,
+                    SMFileType = SMFileTypes.CustomLogo
+                }
+                : null;
+        }
+
+        if (fileType == SMFileTypes.ProgramLogo)
+        {
+            string LogoReturnName = Path.GetFileName(url);
+            string? cachedFile = GetCachedFile(url, fileType);
+            return cachedFile != null
+                ? new ImagePath
                 {
                     ReturnName = LogoReturnName,
                     FullPath = cachedFile,
                     SMFileType = SMFileTypes.Logo
-                };
-            }
+                }
+                : null;
         }
 
-        if (fileType == SMFileTypes.CustomPlayListLogo)
+        if (fileType == SMFileTypes.Logo)
         {
-            string fullPath = BuildInfo.CustomPlayListFolder + baseURL;
-            if (File.Exists(fullPath))
-            {
-                return new ImagePath
+            string LogoReturnName = Path.GetFileName(url);
+            string? cachedFile = GetCachedFile(url, fileType);
+            return cachedFile != null
+                ? new ImagePath
+                {
+                    ReturnName = LogoReturnName,
+                    FullPath = cachedFile,
+                    SMFileType = SMFileTypes.Logo
+                }
+                : null;
+        }
+
+        if (fileType is SMFileTypes.CustomPlayListLogo or SMFileTypes.CustomPlayList)
+        {
+            string fullPath = BuildInfo.CustomPlayListFolder + URL;
+            return File.Exists(fullPath)
+                ? new ImagePath
                 {
                     ReturnName = Path.GetFileName(fullPath),
                     FullPath = fullPath,
                     SMFileType = SMFileTypes.CustomPlayListLogo
-                };
-            }
+                }
+                : null;
         }
 
-        if (fileType == SMFileTypes.CustomPlayList)
+        if (fileType is SMFileTypes.TvLogo)
         {
-            string customPlayListfileName = Path.GetFileNameWithoutExtension(baseURL);
-            _ = customPlayListBuilder.GetCustomPlayList(customPlayListfileName);
-            string fullPath = Path.Combine(BuildInfo.CustomPlayListFolder, customPlayListfileName, baseURL);
-            if (File.Exists(fullPath))
-            {
-                return new ImagePath
+            string fullPath = BuildInfo.TVLogoFolder + "/" + URL;
+            return File.Exists(fullPath)
+                ? new ImagePath
                 {
                     ReturnName = Path.GetFileName(fullPath),
                     FullPath = fullPath,
-                    SMFileType = SMFileTypes.CustomPlayList
-                };
-            }
-        }
-
-        if (!url.StartsWith("http"))
-        {
-            string? fullPath = url.GetSDImageFullPath();
-            if (fullPath != null && File.Exists(fullPath))
-            {
-                return new ImagePath
-                {
-                    ReturnName = Path.GetFileName(fullPath),
-                    FullPath = fullPath,
-                    SMFileType = SMFileTypes.SDImage
-                };
-            }
+                    SMFileType = SMFileTypes.TvLogo
+                }
+                : null;
         }
 
         string returnName;
-        if (TvLogos.TryGetValue(url, out TvLogoFile? cache))
+        if (Logos.TryGetValue(url, out CustomLogoDto? cache))
         {
-            returnName = cache.Source;
+            returnName = cache.Value;
             string tvLogosFileName = Path.Combine(BuildInfo.TVLogoFolder, returnName);
             return new ImagePath
             {
@@ -301,8 +545,9 @@ public class LogoService(IMapper mapper, ICustomPlayListBuilder customPlayListBu
         }
 
         Stopwatch sw = Stopwatch.StartNew();
-        LogoFileDto? logo = GetLogoBySource(url);
-
+        CustomLogoDto? logo = GetLogoBySource(url);
+        //_ = GetValidImagePath(baseUrl, fileType);
+        //_ = GetValidImagePath(baseUrl, SMFileTypes.SDImage);
         if (logo is null)
         {
             sw.Stop();
@@ -315,7 +560,7 @@ public class LogoService(IMapper mapper, ICustomPlayListBuilder customPlayListBu
 
         FileDefinition fd = FileDefinitions.Logo;
 
-        returnName = $"{logo.Name}.{logo.Extension}";
+        returnName = $"{logo.Name}";
         string fileName = Path.Combine(fd.DirectoryLocation, returnName);
 
         return File.Exists(fileName)
@@ -328,75 +573,120 @@ public class LogoService(IMapper mapper, ICustomPlayListBuilder customPlayListBu
             : null;
     }
 
-    public List<LogoFileDto> GetLogos(SMFileTypes? SMFileType = null)
+    public List<CustomLogoDto> GetLogos()
     {
-        List<LogoFileDto> logos = [];
-
-        if (SMFileType != null)
-        {
-            logos = Logos.Values.Where(a => a.SMFileType == SMFileType).ToList();
-        }
-        else
-        {
-            logos = mapper.Map<List<LogoFileDto>>(TvLogos.Values);
-            logos.AddRange(Logos.Values);
-        }
-
-        List<LogoFileDto> test = logos.Where(a => a.Name.Contains("Wick") || a.SMFileType == SMFileTypes.CustomPlayList).ToList();
-        IOrderedEnumerable<LogoFileDto> ret = logos.OrderBy(a => a.Name);
-
+        IEnumerable<CustomLogoDto> masterLogos = customLogos.CurrentValue.GetCustomLogosDto().Concat(Logos.Values);
+        IOrderedEnumerable<CustomLogoDto> ret = masterLogos.OrderBy(a => a.Name);
         return [.. ret];
     }
 
-    public async Task<bool> ReadDirectoryTVLogos(CancellationToken cancellationToken = default)
+    public async Task<bool> ScanForTvLogosAsync(CancellationToken cancellationToken = default)
     {
-
-        TvLogos = new ConcurrentDictionary<string, TvLogoFile>(
-    [
-        new(
-            BuildInfo.LogoDefault,
-            new TvLogoFile
-            {
-                Id = 0,
-                Source = BuildInfo.LogoDefault,
-                FileExists = true,
-                Name = "Default Logo"
-            }
-        ),
-        new (
-            "/images/StreamMaster.png",
-            new TvLogoFile
-            {
-                Id = 1,
-                Source = "/images/streammaster_logo.png",
-                FileExists = true,
-                Name = "Stream Master"
-            }
-        )
-    ]);
-
-        FileDefinition fd = FileDefinitions.TVLogo;
-        if (!Directory.Exists(fd.DirectoryLocation))
+        await scantvLogoSemaphore.WaitAsync(cancellationToken);
+        try
         {
-            return false;
+            FileDefinition fd = FileDefinitions.TVLogo;
+            if (!Directory.Exists(fd.DirectoryLocation))
+            {
+                return false;
+            }
+
+            DirectoryInfo dirInfo = new(BuildInfo.TVLogoFolder);
+
+            await UpdateTVLogosFromDirectoryAsync(dirInfo, dirInfo.FullName, cancellationToken).ConfigureAwait(false);
+
+            return true;
+        }
+        finally
+        {
+            scantvLogoSemaphore.Release();
+        }
+    }
+
+    public async Task<(FileStream? fileStream, string? FileName, string? ContentType)> GetTVLogoAsync(string Source, CancellationToken cancellationToken)
+    {
+        string ext = Path.GetExtension(Source);
+        string name = Path.GetFileNameWithoutExtension(Source);
+        string toTest = $"/api/files/tv/{Source}";
+        CustomLogoDto? test = Logos.Values.FirstOrDefault(a => a.Source == toTest);
+        if (test is null)
+        {
+            return (null, null, null);
         }
 
-        DirectoryInfo dirInfo = new(BuildInfo.TVLogoFolder);
+        string fileName = name.FromUrlSafeBase64String();
 
+        ImagePath? imagePath = GetValidImagePath(fileName, SMFileTypes.TvLogo);
 
-        List<TvLogoFile> tvLogoFiles = await FileUtil.GetTVLogosFromDirectory(dirInfo, dirInfo.FullName, TvLogos.Count, cancellationToken).ConfigureAwait(false);
-
-        foreach (TvLogoFile tvLogoFile in tvLogoFiles)
+        if (imagePath == null || !File.Exists(imagePath.FullPath))
         {
-            _ = TvLogos.TryAdd(tvLogoFile.Source, tvLogoFile);
+            return (null, null, null);
         }
 
-        return true;
+        try
+        {
+            (FileStream? fileStream, string? FileName, string? ContentType) result = await GetLogoStreamAsync(imagePath.FullPath, Source, cancellationToken);
+            return result;
+        }
+        catch
+        {
+            return (null, null, null);
+        }
+    }
+
+    public async Task UpdateTVLogosFromDirectoryAsync(DirectoryInfo dirInfo, string tvLogosLocation, CancellationToken cancellationToken = default)
+    {
+        foreach (FileInfo file in dirInfo.GetFiles("*png"))
+        {
+            if (cancellationToken.IsCancellationRequested)
+            {
+                break;
+            }
+
+            string basePath = dirInfo.FullName.Replace(tvLogosLocation, "");
+            if (basePath.StartsWith(Path.DirectorySeparatorChar))
+            {
+                basePath = basePath.Remove(0, 1);
+            }
+
+            string? name = Path.GetFileNameWithoutExtension(file.Name);
+            if (name is null)
+            {
+                continue;
+            }
+            string basename = basePath.Replace(Path.DirectorySeparatorChar, ' ');
+            string title = $"{basename}-{name}";
+
+            string url = Path.Combine(basePath, file.Name).ToUrlSafeBase64String();
+            url += Path.GetExtension(file.Name);
+
+            string realUrl = $"/api/files/tv/{url}";
+
+            CustomLogoDto tvLogo = new()
+            {
+                Source = realUrl,
+                Value = realUrl,
+                Name = title
+            };
+
+            CacheLogo(tvLogo, true);
+        }
+
+        foreach (DirectoryInfo newDir in dirInfo.GetDirectories())
+        {
+            if (cancellationToken.IsCancellationRequested)
+            {
+                break;
+            }
+            await UpdateTVLogosFromDirectoryAsync(newDir, tvLogosLocation, cancellationToken).ConfigureAwait(false);
+        }
+
+        return;
     }
 
     public void RemoveLogosByM3UFileId(int id)
     {
-        foreach (KeyValuePair<string, LogoFileDto> logo in Logos.Where(a => a.Value.FileId == id))
+        foreach (KeyValuePair<string, CustomLogoDto> logo in Logos.Where(a => a.Value.FileId == id))
         {
             _ = Logos.TryRemove(logo.Key, out _);
         }

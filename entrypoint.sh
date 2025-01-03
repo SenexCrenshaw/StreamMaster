@@ -5,6 +5,11 @@ group_name="nonRootGroup"
 
 . /env.sh
 
+echo "{
+  \"defaultPort\": $DEFAULT_PORT,
+  \"defaultBaseUrl\": \"${BASE_URL}\"
+}" >/app/wwwroot/config.json
+
 # Function to check if a specific MigrationId exists in the __EFMigrationsHistory table
 check_migration_exists() {
     local migration_id=$1
@@ -39,8 +44,8 @@ perform_migration_update() {
         psql -U $POSTGRES_USER -d $POSTGRES_DB -h $POSTGRES_HOST -c "INSERT INTO public.\"__EFMigrationsHistory\"(\"MigrationId\", \"ProductVersion\") VALUES ('$new_migration_id', '$product_version');"
 
         echo "MigrationId updated to $new_migration_id with ProductVersion $product_version."
-    else
-        echo "MigrationId $migration_id_to_check does not exist. No changes made."
+    # else
+    #     echo "MigrationId $migration_id_to_check does not exist. No changes made."
     fi
 }
 
@@ -205,6 +210,9 @@ chown ${PUID:-0}:${PGID:-0} '/config/tv-logos' 2>/dev/null
 # Pretty printing the configuration
 echo "Configuration:"
 echo "--------------"
+echo "HOST:"
+echo "  Default Port: $DEFAULT_PORT"
+echo "  Default SSL Port: $DEFAULT_SSL_PORT"
 echo "PGADMIN:"
 echo "  Platform Type: $PGADMIN_PLATFORM_TYPE"
 echo "  Setup Email: $PGADMIN_SETUP_EMAIL"

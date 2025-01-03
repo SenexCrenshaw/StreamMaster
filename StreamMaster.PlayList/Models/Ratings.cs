@@ -8,5 +8,5 @@ namespace StreamMaster.PlayList.Models;
 public class Ratings
 {
     [XmlElement(ElementName = "rating")]
-    public List<Rating> Rating { get; set; }
+    public List<Rating>? Rating { get; set; }
 }

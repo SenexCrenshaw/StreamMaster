@@ -34,7 +34,7 @@ export function GetLine({ value, help, defaultSetting }: GetLineProps): React.Re
     <div className="settings-line w-full flex w-full justify-content-between">
       <div className="sm-w-11">{value}</div>
 
-      <SMPopUp buttonClassName="icon-orange" icon="pi-question-circle">
+      <SMPopUp buttonClassName="icon-orange" icon="pi-question-circle" placement="bottom-end">
         {getInfo}
       </SMPopUp>
     </div>

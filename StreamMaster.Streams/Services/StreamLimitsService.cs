@@ -1,8 +1,8 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using System.Collections.Concurrent;
+
+using Microsoft.Extensions.DependencyInjection;
 
 using StreamMaster.Domain.Enums;
-
-using System.Collections.Concurrent;
 
 namespace StreamMaster.Streams.Services;
 
@@ -33,9 +33,7 @@ public class StreamLimitsService(ILogger<StreamLimitsService> logger, ICacheMana
     private (int currentStreamCount, int maxStreamCount) GetStreamCountsForM3UFile(int M3UFileId)
     {
         ConcurrentDictionary<int, int> M3UStreamCount = new();
-        List<IChannelBroadcaster> channelStatuses = CacheManager.ChannelBroadcasters.Values
-               .Where(a => a.SMStreamInfo != null)
-               .ToList();
+        List<IChannelBroadcaster> channelStatuses = [.. CacheManager.ChannelBroadcasters.Values.Where(a => a.SMStreamInfo != null)];
 
         foreach (IChannelBroadcaster channelStatus in channelStatuses)
         {

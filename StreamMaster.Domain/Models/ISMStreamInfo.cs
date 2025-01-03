@@ -65,7 +65,7 @@ namespace StreamMaster.Domain.Models
         ///// <value>
         ///// An <see cref="int"/> representing the delay in seconds before the stream shuts down.
         ///// </value>
-        //int ShutDownDelay { get; set; }
+        //int StreamShutDownDelayMs { get; set; }
 
         /// <summary>
         /// Gets or sets the type of the SM channel.

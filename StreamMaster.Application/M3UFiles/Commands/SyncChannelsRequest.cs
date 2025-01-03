@@ -13,7 +13,6 @@ internal class SyncChannelsRequestHandler(ILogger<SyncChannelsRequest> logger, I
     {
         try
         {
-
             M3UFile? m3uFile = await Repository.M3UFile.GetM3UFileAsync(request.M3UFileId).ConfigureAwait(false);
             if (m3uFile == null)
             {
@@ -27,7 +26,7 @@ internal class SyncChannelsRequestHandler(ILogger<SyncChannelsRequest> logger, I
                 return APIResponse.ErrorWithMessage("Sync Channels not set");
             }
 
-            int? sgId = null; ;
+            int? sgId = null;
             if (m3uFile.DefaultStreamGroupName != null)
             {
                 StreamGroupDto? sg = await Repository.StreamGroup.GetStreamGroupByName(m3uFile.DefaultStreamGroupName);
@@ -42,20 +41,20 @@ internal class SyncChannelsRequestHandler(ILogger<SyncChannelsRequest> logger, I
 
             // Get the stream IDs as strings
             List<string> streamIds = await streams.Select(s => s.Id).ToListAsync(cancellationToken).ConfigureAwait(false);
-            List<string?> existingChannelStreamIds = await existingSMChannels.Select(c => c.BaseStreamID).ToListAsync(cancellationToken).ConfigureAwait(false);
+            List<string> existingChannelStreamIds = await existingSMChannels.Select(c => c.BaseStreamID).ToListAsync(cancellationToken).ConfigureAwait(false);
 
             // Filter out null values and convert to List<string>
-            List<string> existingChannelStreamIdsNonNull = existingChannelStreamIds.OfType<string>().ToList();
+            List<string> existingChannelStreamIdsNonNull = [.. existingChannelStreamIds.OfType<string>()];
 
             // Identify streams that exist both in streams and in existingSMChannels (intersection)
-            List<string> existingStreamsIDsInDb = streamIds.Intersect(existingChannelStreamIdsNonNull).ToList();
+            List<string> existingStreamsIDsInDb = [.. streamIds.Intersect(existingChannelStreamIdsNonNull)];
             List<SMStream> existingStreamsInDb = [.. streams.Where(a => existingStreamsIDsInDb.Contains(a.Id))];
 
             // Identify streams to be created (in streams but not in existingSMChannels)
-            List<string> streamsToBeCreated = streamIds.Except(existingChannelStreamIdsNonNull).ToList();
+            List<string> streamsToBeCreated = [.. streamIds.Except(existingChannelStreamIdsNonNull)];
 
             // Identify streams to be deleted (in existingSMChannels but not in streams)
-            List<string> streamsToBeDeleted = existingChannelStreamIdsNonNull.Except(streamIds).ToList();
+            List<string> streamsToBeDeleted = [.. existingChannelStreamIdsNonNull.Except(streamIds)];
 
             if (streamsToBeCreated.Count != 0)
             {
@@ -69,7 +68,7 @@ internal class SyncChannelsRequestHandler(ILogger<SyncChannelsRequest> logger, I
 
                 _ = await sender.Send(new DeleteSMChannelsRequest(smChannelIds), cancellationToken).ConfigureAwait(false);
             }
-            bool changed = false;
+            const bool changed = false;
 
             if (streamsToBeCreated.Count != 0 || streamsToBeDeleted.Count != 0 || changed)
             {

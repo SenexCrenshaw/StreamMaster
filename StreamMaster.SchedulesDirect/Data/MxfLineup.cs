@@ -10,25 +10,14 @@ public partial class SchedulesDirectData
 
     public MxfLineup FindOrCreateLineup(string lineupId, string lineupName)
     {
-        return Lineups.FindOrCreate(lineupId, key => new MxfLineup(Lineups.Count + 1, lineupId, lineupName));
+        return Lineups.FindOrCreate(lineupId, _ => new MxfLineup(Lineups.Count + 1, lineupId, lineupName));
     }
 
     public void RemoveLineup(string lineupId)
     {
-        if (!Lineups.ContainsKey(lineupId))
+        if (!Lineups.TryRemove(lineupId, out MxfLineup? lineup) || lineup == null)
         {
-            Console.WriteLine($"Lineup not found {lineupId}");
-            return;
+            Console.WriteLine($"Lineup not found: {lineupId}");
         }
-        MxfLineup lineup = Lineups[lineupId];
-        if (lineup == null)
-        {
-            Console.WriteLine($"Lineup not found {lineupId}");
-            return;
-        }
-
-        Lineups.TryRemove(lineupId, out _);
-
-
     }
 }

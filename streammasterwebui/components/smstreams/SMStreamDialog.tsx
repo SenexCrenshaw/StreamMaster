@@ -92,6 +92,10 @@ const SMStreamDialog = forwardRef<SMStreamDialogRef, SMStreamDialogProperties>((
       return true;
     }
 
+    if (request.Logo !== orig.Logo) {
+      return true;
+    }
+
     if (request.CommandProfileName !== orig.CommandProfileName) {
       return true;
     }

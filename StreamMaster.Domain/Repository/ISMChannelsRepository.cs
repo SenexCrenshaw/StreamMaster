@@ -1,7 +1,6 @@
-﻿using StreamMaster.Domain.API;
-using StreamMaster.Domain.Pagination;
+﻿using System.Linq.Expressions;
 
-using System.Linq.Expressions;
+using StreamMaster.Domain.Pagination;
 
 namespace StreamMaster.Domain.Repository;
 
@@ -13,7 +12,7 @@ public interface ISMChannelsRepository : IRepositoryBase<SMChannel>
     Task<APIResponse> CreateSMChannelsFromStreams(List<string> streamIds, int? AddToStreamGroupId);
     Task<APIResponse> DeleteSMChannel(int smChannelId);
     Task<APIResponse> DeleteSMChannels(List<int> smChannelIds);
-    Task<List<int>> DeleteSMChannelsFromParameters(QueryStringParameters Parameters);
+    Task DeleteSMChannelsFromParameters(QueryStringParameters Parameters);
 
     // Channel Retrieval
     SMChannel? GetSMChannel(int smChannelId);
@@ -22,16 +21,11 @@ public interface ISMChannelsRepository : IRepositoryBase<SMChannel>
     Task<List<SMChannel>> GetSMChannelsFromStreamGroup(int streamGroupId);
     PagedResponse<SMChannelDto> CreateEmptyPagedResponse();
     Task<PagedResponse<SMChannelDto>> GetPagedSMChannels(QueryStringParameters Parameters);
-    IQueryable<SMChannel> GetPagedSMChannelsQueryable(QueryStringParameters parameters, bool? tracking = false);
+    Task<IQueryable<SMChannel>> GetPagedSMChannelsQueryableAsync(QueryStringParameters parameters, bool? tracking = false);
 
     // Custom Queries
     new IQueryable<SMChannel> GetQuery(Expression<Func<SMChannel, bool>> expression, bool tracking = false);
     new IQueryable<SMChannel> GetQuery(bool tracking = false);
-
-    //// Stream Management
-    //Task<APIResponse> AddSMStreamToSMChannel(int SMChannelId, string SMStreamId, int? Rank);
-    //Task<APIResponse> RemoveSMStreamFromSMChannel(int SMChannelId, string SMStreamId);
-    //Task<APIResponse> SetSMStreamRanks(List<SMChannelStreamRankRequest> request);
 
     // Channel Number Management
     Task<IdIntResultWithResponse> AutoSetSMChannelNumbersFromParameters(int streamGroupId, QueryStringParameters parameters, int? startingNumber, bool? overwriteExisting);
@@ -39,7 +33,7 @@ public interface ISMChannelsRepository : IRepositoryBase<SMChannel>
     Task<APIResponse> SetSMChannelChannelNumber(int sMChannelId, int channelNumber);
 
     // Channel EPG Management
-    Task<List<FieldData>> AutoSetEPGs(List<SMChannel> smChannels, bool skipSave, CancellationToken cancellationToken);
+    Task<List<FieldData>> AutoSetEPGs(IQueryable<SMChannel> smChannels, bool skipSave, CancellationToken cancellationToken);
     Task<List<FieldData>> AutoSetEPGFromIds(List<int> ids, CancellationToken cancellationToken);
     Task<List<FieldData>> AutoSetEPGFromParameters(QueryStringParameters parameters, CancellationToken cancellationToken);
     Task<APIResponse> SetSMChannelEPGID(int sMChannelId, string EPGId);
@@ -63,7 +57,7 @@ public interface ISMChannelsRepository : IRepositoryBase<SMChannel>
     // Channel Cloning
     Task<APIResponse> CloneSMChannel(int SMChannelId, string newName);
 
-    // Channel Logo Management
+    // Channel SMLogoUrl Management
     Task<APIResponse> SetSMChannelLogo(int SMChannelId, string logo);
     Task<List<FieldData>> SetSMChannelsLogoFromEPGFromIds(List<int> ids, CancellationToken cancellationToken);
     Task<List<FieldData>> SetSMChannelsLogoFromEPGFromParameters(QueryStringParameters parameters, CancellationToken cancellationToken);

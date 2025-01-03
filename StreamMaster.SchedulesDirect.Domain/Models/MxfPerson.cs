@@ -29,7 +29,7 @@ public class MxfPerson
     /// The maximum length is 160 characters.
     /// </summary>
     [XmlAttribute("name")]
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     /// <summary>
     /// A unique ID that will remain consistent between multiple versions of this document.

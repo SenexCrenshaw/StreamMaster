@@ -1,19 +1,22 @@
 import react from '@vitejs/plugin-react';
-import { visualizer } from 'rollup-plugin-visualizer';
 import path from 'node:path';
-import viteCompression from 'vite-plugin-compression';
+import { visualizer } from 'rollup-plugin-visualizer';
+// import viteCompression from 'vite-plugin-compression';
 
 import { builtinModules } from 'module';
 import { defineConfig } from 'vite';
 
 export default defineConfig({
   appType: 'spa',
-
+  base: './',
   build: {
     emptyOutDir: true,
     rollupOptions: {
       external: builtinModules,
       output: {
+        assetFileNames: 'assets/[name].[hash][extname]',
+        chunkFileNames: 'assets/[name].[hash].js',
+        entryFileNames: 'assets/[name].[hash].js',
         manualChunks: (id): any => {
           console.log(id);
           if (id.includes('node_modules')) {
@@ -38,7 +41,7 @@ export default defineConfig({
     }
   },
   clearScreen: true,
-  plugins: [react(), visualizer(), viteCompression()],
+  plugins: [react(), visualizer()],
   resolve: {
     alias: {
       '@': path.resolve('./'),

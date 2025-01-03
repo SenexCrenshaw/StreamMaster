@@ -1,10 +1,12 @@
-﻿namespace StreamMaster.Application.M3UFiles.Commands;
+﻿using StreamMaster.Application.Services;
+
+namespace StreamMaster.Application.M3UFiles.Commands;
 
 [SMAPI]
 [TsInterface(AutoI = false, IncludeNamespace = false, FlattenHierarchy = true, AutoExportMethods = false)]
 public record ProcessM3UFileRequest(int M3UFileId, bool ForceRun = false) : IRequest<APIResponse>;
 
-internal class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger, IM3UFileService m3UFileService, IChannelGroupService channelGroupService, IMessageService messageService, IDataRefreshService dataRefreshService)
+internal class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger, IBackgroundTaskQueue taskQueue, IM3UFileService m3UFileService, IChannelGroupService channelGroupService, IMessageService messageService, IDataRefreshService dataRefreshService)
     : IRequestHandler<ProcessM3UFileRequest, APIResponse>
 {
     public async Task<APIResponse> Handle(ProcessM3UFileRequest request, CancellationToken cancellationToken)
@@ -28,7 +30,7 @@ internal class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logge
             await channelGroupService.UpdateChannelGroupCountsRequestAsync();
 
             await dataRefreshService.RefreshAllM3U();
-
+            await taskQueue.CreateSTRMFiles(cancellationToken).ConfigureAwait(false);
             await messageService.SendSuccess("Processed M3U '" + m3uFile.Name + "' successfully");
             return APIResponse.Success;
         }

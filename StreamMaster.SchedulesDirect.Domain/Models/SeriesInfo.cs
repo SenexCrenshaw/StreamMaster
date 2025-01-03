@@ -2,43 +2,27 @@
 
 namespace StreamMaster.SchedulesDirect.Domain.Models
 {
-    public class SeriesInfo
+    public class SeriesInfo : BaseArt
     {
-        public string SeriesId { get; }
+        public string SeriesId { get; } = string.Empty;
 
         private DateTime _seriesStartDate = DateTime.MinValue;
         private DateTime _seriesEndDate = DateTime.MinValue;
 
-        [XmlIgnore]
-        public int Index { get; private set; }
-
-        private string _uid;
-        private string _guideImage;
+        private string? _uid;
 
         [XmlIgnore]
-        public string ProtoTypicalProgram { get; private set; }
+        public string? ProgramId { get; }
 
         [XmlIgnore]
-        public MxfGuideImage MxfGuideImage { get; set; }
-
-        [XmlIgnore]
-        public Dictionary<string, dynamic> Extras { get; private set; } = [];
-
-        public SeriesInfo(int index, string seriesId, string? protoTypicalProgram = null)
+        public Dictionary<string, dynamic> Extras { get; } = [];
+        public SeriesInfo(string seriesId, string? programId = null)
         {
-            Index = index;
             SeriesId = seriesId;
-            ProtoTypicalProgram = protoTypicalProgram ?? string.Empty;
+            ProgramId = programId ?? string.Empty;
         }
 
-        private SeriesInfo() { } // Parameterless constructor for serialization
-
-        [XmlAttribute("id")]
-        public string Id
-        {
-            get => $"si{Index}";
-            set => Index = int.Parse(value[2..]);
-        }
+        public SeriesInfo() { } // Parameterless constructor for serialization
 
         [XmlAttribute("uid")]
         public string Uid
@@ -48,16 +32,16 @@ namespace StreamMaster.SchedulesDirect.Domain.Models
         }
 
         [XmlAttribute("title")]
-        public string Title { get; set; }
+        public string Title { get; set; } = string.Empty;
 
         [XmlAttribute("shortTitle")]
-        public string ShortTitle { get; set; }
+        public string? ShortTitle { get; set; }
 
         [XmlAttribute("description")]
-        public string Description { get; set; }
+        public string? Description { get; set; }
 
         [XmlAttribute("shortDescription")]
-        public string ShortDescription { get; set; }
+        public string? ShortDescription { get; set; }
 
         [XmlAttribute("startAirdate")]
         public string? StartAirdate
@@ -73,14 +57,7 @@ namespace StreamMaster.SchedulesDirect.Domain.Models
             set => _ = DateTime.TryParse(value, out _seriesEndDate);
         }
 
-        [XmlAttribute("guideImage")]
-        public string GuideImage
-        {
-            get => _guideImage ?? MxfGuideImage?.Id ?? string.Empty;
-            set => _guideImage = value;
-        }
-
         [XmlAttribute("studio")]
-        public string Studio { get; set; }
+        public string? Studio { get; set; }
     }
 }

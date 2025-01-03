@@ -1,14 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-using StreamMaster.Application.General.Commands;
 using StreamMaster.Application.M3UFiles.Commands;
 using StreamMaster.Application.Services;
+using StreamMaster.Application.Statistics.Commands;
 
 namespace StreamMaster.API.Controllers;
 
-public class TestController(IBackgroundTaskQueue backgroundTaskQueue, IChannelGroupService channelGroupService) : ApiControllerBase
+public class TestController(IBackgroundTaskQueue backgroundTaskQueue, ILogoService logoService, IChannelGroupService channelGroupService) : ApiControllerBase
 {
-
     [HttpPut]
     [Route("[action]")]
     public async Task<IActionResult> ScanDirectoryForM3UFiles()
@@ -19,13 +18,19 @@ public class TestController(IBackgroundTaskQueue backgroundTaskQueue, IChannelGr
 
     [HttpPut]
     [Route("[action]")]
+    public async Task<IActionResult> ScanForTvLogos()
+    {
+        await logoService.ScanForTvLogosAsync();
+        return Ok();
+    }
+
+    [HttpPut]
+    [Route("[action]")]
     public async Task<ActionResult> AddTestTask(int DelayInSeconds)
     {
         await backgroundTaskQueue.SetTestTask(DelayInSeconds);
         return Ok();
     }
-
-
 
     [HttpPut]
     [Route("[action]")]
@@ -42,7 +47,4 @@ public class TestController(IBackgroundTaskQueue backgroundTaskQueue, IChannelGr
         await channelGroupService.UpdateChannelGroupCountsRequestAsync().ConfigureAwait(false);
         return Ok();
     }
-
-
-
 }

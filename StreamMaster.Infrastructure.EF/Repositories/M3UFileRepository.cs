@@ -25,7 +25,6 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, IRepository
             throw new ArgumentNullException(nameof(m3uFile));
         }
         Create(m3uFile);
-
     }
 
     /// <inheritdoc/>
@@ -71,7 +70,7 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, IRepository
         }
 
         // Normalize source by removing .gz or .zip extensions if present
-        string normalizedSource = source.EndsWith(".gz", StringComparison.OrdinalIgnoreCase) || source.EndsWith(".zip", StringComparison.OrdinalIgnoreCase)
+        string normalizedSource = source.EndsWithIgnoreCase(".gz") || source.EndsWithIgnoreCase(".zip")
             ? Path.GetFileNameWithoutExtension(source)
             : source;
 
@@ -137,12 +136,11 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, IRepository
             .ToListAsync()
             .ConfigureAwait(false);
 
-
-        HashSet<M3UFileDto> toUpdate = filesWithoutUrl.Where(m3uFile => m3uFile.LastWrite() >= m3uFile.LastUpdated).Select(mapper.Map<M3UFileDto>).ToHashSet();
+        HashSet<M3UFileDto> toUpdate = [.. filesWithoutUrl.Where(m3uFile => m3uFile.LastWrite() >= m3uFile.LastUpdated).Select(mapper.Map<M3UFileDto>)];
 
         if (toUpdate.Count > 0)
         {
-            logger.LogInformation("Found {toUpdate.Count} M3U files that need updating based on LastWrite and LastUpdated criteria.");
+            logger.LogInformation("Found {toUpdate.Count} M3U files that need updating based on LastWrite and LastUpdated criteria.", toUpdate.Count);
         }
 
         List<M3UFileDto> ret = await GetQuery(a =>
@@ -153,7 +151,7 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, IRepository
 
         if (ret.Count > 0)
         {
-            logger.LogInformation("Found {ret.Count} M3U files that need updating based on LastDownloaded criteria.");
+            logger.LogInformation("Found {ret.Count} M3U files that need updating based on LastDownloaded criteria.", ret.Count);
             foreach (M3UFileDto r in ret)
             {
                 toUpdate.Add(r);
@@ -168,16 +166,15 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, IRepository
 
         if (ret.Count > 0)
         {
-            logger.LogInformation("Found {ret.Count} M3U files that need updating based on LastUpdated criteria.");
+            logger.LogInformation("Found {ret.Count} M3U files that need updating based on LastUpdated criteria.", ret.Count);
             foreach (M3UFileDto r in ret)
             {
                 toUpdate.Add(r);
             }
         }
 
-        return toUpdate.ToList();
+        return [.. toUpdate];
     }
-
 
     public IQueryable<M3UFile> GetM3UFileQuery()
     {
@@ -228,11 +225,11 @@ public class M3UFileRepository(ILogger<M3UFileRepository> intLogger, IRepository
     //        existingStream.EPGID = stream.EPGID;
     //    }
 
-    //    if (existingStream.Logo != stream.Logo)
+    //    if (existingStream.SMLogoUrl != stream.SMLogoUrl)
     //    {
     //        changed = true;
 
-    //        existingStream.Logo = stream.Logo;
+    //        existingStream.SMLogoUrl = stream.SMLogoUrl;
     //    }
 
     //    if (existingStream.Url != stream.Url)

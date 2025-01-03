@@ -9,7 +9,7 @@ export const fetchGetVideoInfo = createAsyncThunk('cache/getGetVideoInfo', async
   try {
     if (isSkipToken(param))
     {
-        Logger.error('Skipping GetEPGFilePreviewById');
+        Logger.error('Skipping GetVideoInfo');
         return undefined;
     }
     Logger.debug('Fetching GetVideoInfo');

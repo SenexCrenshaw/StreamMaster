@@ -9,7 +9,6 @@ public record UpdateSettingRequest(UpdateSettingParameters Parameters) : IReques
 
 public partial class UpdateSettingRequestHandler(
     IOptionsMonitor<SDSettings> intsdsettings,
-    ILogoService logoService,
     ILogger<UpdateSettingRequest> Logger,
     IMapper Mapper,
     IBackgroundTaskQueue backgroundTaskQueue,
@@ -49,15 +48,10 @@ public partial class UpdateSettingRequestHandler(
             destination.AlternateLogoStyle = source.AlternateLogoStyle;
         }
 
-        if (source.SeriesPosterArt.HasValue)
-        {
-            destination.SeriesPosterArt = source.SeriesPosterArt.Value;
-        }
-
-        if (source.SeriesWsArt.HasValue)
-        {
-            destination.SeriesWsArt = source.SeriesWsArt.Value;
-        }
+        //if (source.SeriesPosterArt.HasValue)
+        //{
+        //    destination.SeriesPosterArt = source.SeriesPosterArt.Value;
+        //}
 
         if (source.SeriesPosterAspect != null)
         {
@@ -126,17 +120,27 @@ public partial class UpdateSettingRequestHandler(
 
         if (source.HeadendsToView != null)
         {
-            destination.HeadendsToView = new List<HeadendToView>(source.HeadendsToView);
+            destination.HeadendsToView = [.. source.HeadendsToView];
         }
 
         if (source.SDStationIds != null)
         {
-            destination.SDStationIds = new List<StationIdLineup>(source.SDStationIds);
+            destination.SDStationIds = [.. source.SDStationIds];
         }
 
-        if (source.SeasonEventImages.HasValue)
+        if (source.SeasonImages.HasValue)
         {
-            destination.SeasonEventImages = source.SeasonEventImages.Value;
+            destination.SeasonImages = source.SeasonImages.Value;
+        }
+
+        if (source.SeasonImages.HasValue)
+        {
+            destination.SeasonImages = source.SeasonImages.Value;
+        }
+
+        if (source.SportsImages.HasValue)
+        {
+            destination.SportsImages = source.SportsImages.Value;
         }
 
         if (source.XmltvAddFillerData.HasValue)
@@ -178,15 +182,9 @@ public partial class UpdateSettingRequestHandler(
             return false;
         }
 
-        if (request.Parameters.LogoCache != null)
+        if (request.Parameters.LogoCache.HasValue)
         {
-            currentSetting.LogoCache = request.Parameters.LogoCache.ToLowerInvariant() switch
-            {
-                "redirect" => "Redirect",
-                "cache" => "Cache",
-                _ => "None",
-            };
-            await logoService.BuildLogosCacheFromSMStreamsAsync(CancellationToken.None);
+            currentSetting.LogoCache = request.Parameters.LogoCache.Value;
         }
 
         if (request.Parameters.CleanURLs.HasValue)
@@ -223,6 +221,21 @@ public partial class UpdateSettingRequestHandler(
             currentSetting.M3U8OutPutProfile = request.Parameters.M3U8OutPutProfile;
         }
 
+        if (request.Parameters.StreamStartTimeoutMs.HasValue)
+        {
+            currentSetting.StreamStartTimeoutMs = request.Parameters.StreamStartTimeoutMs.Value;
+        }
+
+        if (request.Parameters.DebugAPI.HasValue)
+        {
+            currentSetting.DebugAPI = request.Parameters.DebugAPI.Value;
+        }
+
+        if (request.Parameters.PrettyEPG.HasValue)
+        {
+            currentSetting.PrettyEPG = request.Parameters.PrettyEPG.Value;
+        }
+
         if (request.Parameters.PrettyEPG.HasValue)
         {
             currentSetting.PrettyEPG = request.Parameters.PrettyEPG.Value;
@@ -231,6 +244,11 @@ public partial class UpdateSettingRequestHandler(
         if (!string.IsNullOrEmpty(request.Parameters.ShowIntros))
         {
             currentSetting.ShowIntros = request.Parameters.ShowIntros;
+        }
+
+        if (!string.IsNullOrEmpty(request.Parameters.STRMBaseURL))
+        {
+            currentSetting.STRMBaseURL = request.Parameters.STRMBaseURL;
         }
 
         if (request.Parameters.MaxLogFiles.HasValue)
@@ -243,19 +261,36 @@ public partial class UpdateSettingRequestHandler(
             currentSetting.MaxLogFileSizeMB = request.Parameters.MaxLogFileSizeMB.Value;
         }
 
-        if (request.Parameters.ClientReadTimeOutSeconds.HasValue)
+        #region Streams
+        if (request.Parameters.StreamReadTimeOutMs.HasValue)
         {
-            currentSetting.ClientReadTimeOutSeconds = request.Parameters.ClientReadTimeOutSeconds.Value;
+            currentSetting.StreamReadTimeOutMs = request.Parameters.StreamReadTimeOutMs.Value;
         }
+
+        if (request.Parameters.StreamStartTimeoutMs.HasValue)
+        {
+            currentSetting.StreamStartTimeoutMs = request.Parameters.StreamStartTimeoutMs.Value;
+        }
+
+        if (request.Parameters.ClientReadTimeoutMs.HasValue)
+        {
+            currentSetting.ClientReadTimeoutMs = request.Parameters.ClientReadTimeoutMs.Value;
+        }
+
+        if (request.Parameters.StreamShutDownDelayMs.HasValue)
+        {
+            currentSetting.StreamShutDownDelayMs = request.Parameters.StreamShutDownDelayMs.Value;
+        }
+
+        if (request.Parameters.StreamRetryLimit.HasValue)
+        {
+            currentSetting.StreamRetryLimit = request.Parameters.StreamRetryLimit.Value;
+        }
+        #endregion
 
         if (request.Parameters.BackupEnabled.HasValue)
         {
             currentSetting.BackupEnabled = request.Parameters.BackupEnabled.Value;
-        }
-
-        if (request.Parameters.ShutDownDelay.HasValue)
-        {
-            currentSetting.ShutDownDelay = request.Parameters.ShutDownDelay.Value;
         }
 
         if (request.Parameters.AutoSetEPG.HasValue)
@@ -353,6 +388,11 @@ public partial class UpdateSettingRequestHandler(
         if (request.Parameters.NameRegex != null)
         {
             currentSetting.NameRegex = request.Parameters.NameRegex;
+        }
+
+        if (request.Parameters.StreamRetryHours.HasValue && request.Parameters.StreamRetryHours >= 0)
+        {
+            currentSetting.StreamRetryHours = request.Parameters.StreamRetryHours.Value;
         }
 
         if (request.Parameters.AuthenticationMethod != null && request.Parameters.AuthenticationMethod != currentSetting.AuthenticationMethod)

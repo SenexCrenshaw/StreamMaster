@@ -24,10 +24,10 @@ namespace StreamMaster.Infrastructure.Middleware
             }
 
             if (
-                request.Path.StartsWithSegments("/api/", StringComparison.CurrentCultureIgnoreCase) ||
-                request.Path.StartsWithSegments("/s/", StringComparison.CurrentCultureIgnoreCase) ||
-                request.Path.StartsWithSegments("/v/", StringComparison.CurrentCultureIgnoreCase) ||
-                request.Path.StartsWithSegments("/m/", StringComparison.CurrentCultureIgnoreCase)
+                request.Path.StartsWithSegments("/api/", BuildInfo.StringComparison) ||
+                request.Path.StartsWithSegments("/s/", BuildInfo.StringComparison) ||
+                request.Path.StartsWithSegments("/v/", BuildInfo.StringComparison) ||
+                request.Path.StartsWithSegments("/m/", BuildInfo.StringComparison)
                 )
             {
                 //if (request.Path.ToString().ContainsIgnoreCase("/MediaCover"))
@@ -38,7 +38,7 @@ namespace StreamMaster.Infrastructure.Middleware
                 return false;
             }
 
-            if (request.Path.StartsWithSegments("/streammasterhub", StringComparison.CurrentCultureIgnoreCase))
+            if (request.Path.StartsWithSegments("/streammasterhub", BuildInfo.StringComparison))
             {
                 return false;
             }

@@ -1,244 +1,205 @@
-﻿using StreamMaster.Domain.Extensions;
-
-using System.Diagnostics;
+﻿using System.Diagnostics;
+using System.IO.Pipelines;
 using System.Text.Json;
-using System.Threading.Channels;
 
-namespace StreamMaster.Streams.Plugins
+using StreamMaster.Domain.Extensions;
+
+namespace StreamMaster.Streams.Plugins;
+
+/// <summary>
+/// A plugin to extract and process video information from a data stream.
+/// </summary>
+/// <remarks>
+/// Initializes a new instance of the <see cref="VideoInfoPlugin"/> class.
+/// </remarks>
+/// <param name="logger">Logger instance for logging events.</param>
+/// <param name="settingsMonitor">Monitor for application settings.</param>
+/// <param name="id">Unique identifier for the plugin.</param>
+/// <param name="name">Name of the video source.</param>
+/// <param name="bufferSize">The buffer size for storing video data.</param>
+public class VideoInfoPlugin(
+    ILogger<VideoInfoPlugin> logger,
+    IOptionsMonitor<Setting> settingsMonitor,
+    string id,
+    string name,
+    int bufferSize = 128 * 1024) : IStreamDataToClients, IDisposable
 {
-    public class VideoInfoEventArgs(VideoInfo videoInfo, string id) : EventArgs
+    private readonly CircularBuffer _circularBuffer = new(bufferSize);
+    private readonly CancellationTokenSource _cancellationTokenSource = new();
+
+    /// <summary>
+    /// Starts the video information processing loop.
+    /// </summary>
+    public void Start()
     {
-        public VideoInfo VideoInfo { get; } = videoInfo;
-        public string Id { get; } = id;
+        _ = StartVideoInfoLoopAsync();
     }
 
-    //
-    public class VideoInfoPlugin : IDisposable
+    /// <summary>
+    /// Pipe for streaming data to clients.
+    /// </summary>
+    public Pipe Pipe { get; } = new();
+
+    /// <summary>
+    /// Event triggered when video information is updated.
+    /// </summary>
+    public event EventHandler<VideoInfoEventArgs>? VideoInfoUpdated;
+
+    /// <summary>
+    /// Streams data to clients by writing it into the circular buffer.
+    /// </summary>
+    /// <param name="buffer">The data to stream.</param>
+    /// <param name="cancellationToken">Token to cancel the operation.</param>
+    public Task StreamDataToClientsAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken)
     {
-        private readonly ILogger<VideoInfoPlugin> _logger;
-        private readonly IOptionsMonitor<Setting> _settingsMonitor;
-        private readonly ChannelReader<byte[]> _channelReader;
-        private readonly string name;
-        private readonly string id;
-        private readonly CancellationTokenSource cancellationTokenSource = new();
-        private readonly Task? videoInfoTask;
+        _circularBuffer.Write(buffer.Span);
+        return Task.CompletedTask;
+    }
 
-        public event EventHandler<VideoInfoEventArgs>? VideoInfoUpdated;
+    private async Task StartVideoInfoLoopAsync()
+    {
+        CancellationToken cancellationToken = _cancellationTokenSource.Token;
 
-        public VideoInfoPlugin(ILogger<VideoInfoPlugin> logger, IOptionsMonitor<Setting> settingsMonitor, ChannelReader<byte[]> channelReader, string id, string name)
+        TimeSpan initialDelay = TimeSpan.FromSeconds(15);
+        TimeSpan normalDelay = TimeSpan.FromMinutes(5);
+        TimeSpan errorDelay = TimeSpan.FromMinutes(15);
+
+        try
         {
-            this.id = id;
-            this.name = name;
-            _logger = logger;
-            _settingsMonitor = settingsMonitor;
-            _channelReader = channelReader;
+            await Task.Delay(initialDelay, cancellationToken);
 
-            // Start the background task
-            videoInfoTask = StartVideoInfoLoopAsync(cancellationTokenSource.Token);
-        }
-
-        private async Task StartVideoInfoLoopAsync(CancellationToken cancellationToken)
-        {
-            TimeSpan initialDelay = TimeSpan.FromSeconds(15);
-            TimeSpan normalDelay = TimeSpan.FromMinutes(5);
-            TimeSpan errorDelay = TimeSpan.FromMinutes(1);
-
-            try
+            while (!cancellationToken.IsCancellationRequested)
             {
-                await Task.Delay(initialDelay, cancellationToken);
-
-                while (!cancellationToken.IsCancellationRequested)
+                try
                 {
-                    VideoInfo? videoInfo = null;
-                    try
+                    if (_circularBuffer.IsFull)
                     {
-                        videoInfo = await GetVideoInfoAsync(_channelReader, cancellationToken);
+                        ReadOnlyMemory<byte> readableData = _circularBuffer.ReadAll();
+                        if (!readableData.IsEmpty)
+                        {
+                            VideoInfo? videoInfo = await ExtractVideoInfoAsync(readableData, cancellationToken);
+                            _circularBuffer.MarkRead(readableData.Length);
 
-                        if (videoInfo != null)
-                        {
-                            OnVideoInfoUpdated(videoInfo);
-                            await Task.Delay(normalDelay, cancellationToken);
-                        }
-                        else
-                        {
-                            await Task.Delay(errorDelay, cancellationToken);
+                            if (videoInfo != null)
+                            {
+                                OnVideoInfoUpdated(videoInfo);
+                                await Task.Delay(normalDelay, cancellationToken);
+                            }
                         }
                     }
-                    catch (Exception ex) when (ex is not OperationCanceledException)
+                    else
                     {
-                        _logger.LogError(ex, "Error getting video info for {name}", name);
                         await Task.Delay(errorDelay, cancellationToken);
                     }
                 }
-            }
-            catch (OperationCanceledException)
-            {
-                // Handle the cancellation gracefully, no need to log TaskCanceledException
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Unexpected error in video info loop for {name}", name);
+                catch (Exception ex) when (ex is not OperationCanceledException)
+                {
+                    logger.LogError(ex, "Error processing video info for {Name}", name);
+                    await Task.Delay(errorDelay, cancellationToken);
+                }
             }
         }
-
-        private async Task<VideoInfo?> GetVideoInfoAsync(ChannelReader<byte[]> channelReader, CancellationToken cancellationToken)
+        catch (OperationCanceledException)
         {
-            try
+            // Graceful cancellation
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Unexpected error in video info loop for {Name}", name);
+        }
+    }
+
+    private async Task<VideoInfo?> ExtractVideoInfoAsync(ReadOnlyMemory<byte> videoMemory, CancellationToken cancellationToken)
+    {
+        try
+        {
+            Setting settings = settingsMonitor.CurrentValue;
+            string? ffProbeExec = FileUtil.GetExec(settings.FFProbeExecutable);
+
+            if (string.IsNullOrEmpty(ffProbeExec))
             {
-                Setting settings = _settingsMonitor.CurrentValue;
-                string? ffProbeExec = FileUtil.GetExec(settings.FFProbeExecutable);
-
-                if (string.IsNullOrEmpty(ffProbeExec))
-                {
-                    _logger.LogError("FFProbe executable \"{settings.FFProbeExecutable}\" not found.", settings.FFProbeExecutable);
-                    return null;
-                }
-
-                byte[] videoMemory = await ReadChannelDataAsync(channelReader, 128 * 1024, cancellationToken);
-                const string options = "-loglevel error -print_format json -show_format -sexagesimal -show_streams - ";
-                ProcessStartInfo startInfo = new()
-                {
-                    FileName = ffProbeExec,
-                    Arguments = options,
-                    CreateNoWindow = true,
-                    UseShellExecute = false,
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
-                    RedirectStandardInput = true,
-                };
-
-                using Process? ffprobeProcess = Process.Start(startInfo);
-                if (ffprobeProcess == null)
-                {
-                    _logger.LogError("Failed to start ffprobe process");
-                    return null;
-                }
-
-                await using Timer timer = new(_ =>
-                {
-                    if (ffprobeProcess?.HasExited == false)
-                    {
-                        _logger.LogError("FFprobe timeout");
-                        ffprobeProcess.Kill();
-                    }
-                }, null, 60000, Timeout.Infinite);
-
-                try
-                {
-                    await using (Stream stdin = ffprobeProcess.StandardInput.BaseStream)
-                    {
-                        await stdin.WriteAsync(videoMemory, cancellationToken).ConfigureAwait(false);
-                        await stdin.FlushAsync(cancellationToken).ConfigureAwait(false);
-                    }
-                    //_logger.LogError("Written FFProbe data");
-                    string output = await ffprobeProcess.StandardOutput.ReadToEndAsync(cancellationToken).ConfigureAwait(false);
-                    await ffprobeProcess.WaitForExitAsync(cancellationToken).ConfigureAwait(false);
-
-                    timer.Dispose();
-
-                    if (string.IsNullOrEmpty(output))
-                    {
-                        _logger.LogError("Failed to get FFProbe output: {output}", output);
-                        return null;
-                    }
-
-                    using JsonDocument document = JsonDocument.Parse(output);
-
-                    string formattedJsonString = JsonSerializer.Serialize(document.RootElement, BuildInfo.JsonIndentOptions);
-
-                    return new VideoInfo { JsonOutput = formattedJsonString, StreamId = id, StreamName = name, Created = SMDT.UtcNow };
-                }
-                finally
-                {
-                    if (ffprobeProcess != null)
-                    {
-                        if (!ffprobeProcess.HasExited)
-                        {
-                            ffprobeProcess?.Kill();
-                        }
-                        ffprobeProcess?.Dispose();
-                    }
-                    timer.Dispose();
-                }
-            }
-            catch (Exception ex) when (ex is not OperationCanceledException)
-            {
-                //_logger.LogError(ex, "Exception occurred in GetVideoInfoAsync. Trying again in 1 minute");
+                logger.LogError("FFProbe executable not found.");
                 return null;
             }
-        }
 
-        private static async Task<byte[]> ReadChannelDataAsync(ChannelReader<byte[]> channelReader, int maxSize, CancellationToken cancellationToken)
-        {
-            try
+            const string options = "-loglevel error -print_format json -show_format -sexagesimal -show_streams -";
+            ProcessStartInfo startInfo = new()
             {
-                byte[] buffer = new byte[maxSize];
-                int totalBytesRead = 0;
+                FileName = ffProbeExec,
+                Arguments = options,
+                CreateNoWindow = true,
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                RedirectStandardInput = true,
+            };
 
-                while (totalBytesRead < maxSize && await channelReader.WaitToReadAsync(cancellationToken).ConfigureAwait(false))
-                {
-                    while (channelReader.TryRead(out byte[]? data))
-                    {
-                        int bytesToCopy = Math.Min(data.Length, maxSize - totalBytesRead);
-                        Array.Copy(data, 0, buffer, totalBytesRead, bytesToCopy);
-                        totalBytesRead += bytesToCopy;
-
-                        if (totalBytesRead >= maxSize)
-                        {
-                            return buffer;
-                        }
-                    }
-                }
-
-                // If the buffer is not completely filled, return the filled portion
-                if (totalBytesRead < maxSize)
-                {
-                    byte[] result = new byte[totalBytesRead];
-                    Array.Copy(buffer, result, totalBytesRead);
-                    return result;
-                }
-
-                return buffer;
-            }
-            catch (Exception ex)
+            using Process? ffprobeProcess = Process.Start(startInfo);
+            if (ffprobeProcess == null)
             {
-                // Log error and return an empty buffer
-                Console.WriteLine($"Error reading channel data: {ex.Message}");
-                return [];
+                logger.LogError("Failed to start FFProbe process.");
+                return null;
             }
-        }
 
-        protected virtual void OnVideoInfoUpdated(VideoInfo videoInfo)
-        {
-            VideoInfoUpdated?.Invoke(this, new VideoInfoEventArgs(videoInfo, id));
-        }
-
-        public void Stop()
-        {
-            if (!cancellationTokenSource.IsCancellationRequested)
+            await using (Stream stdin = ffprobeProcess.StandardInput.BaseStream)
             {
-                cancellationTokenSource.Cancel();
-                _logger.LogInformation("Stop requested for video info plugin {name}", name);
-
-                if (videoInfoTask != null)
-                {
-                    try
-                    {
-                        videoInfoTask.Wait();  // Wait for the task to complete
-                    }
-                    catch (AggregateException ex) when (ex.InnerException is TaskCanceledException)
-                    {
-                        // Handle the expected task cancellation without logging
-                    }
-                }
+                await stdin.WriteAsync(videoMemory, cancellationToken).ConfigureAwait(false);
+                await stdin.FlushAsync(cancellationToken).ConfigureAwait(false);
             }
-        }
 
-        public void Dispose()
-        {
-            Stop();
-            cancellationTokenSource.Dispose();
-            GC.SuppressFinalize(this);
+            string output = await ffprobeProcess.StandardOutput.ReadToEndAsync(cancellationToken).ConfigureAwait(false);
+            await ffprobeProcess.WaitForExitAsync(cancellationToken).ConfigureAwait(false);
+
+            if (string.IsNullOrEmpty(output))
+            {
+                logger.LogError("No output received from FFProbe.");
+                return null;
+            }
+
+            using JsonDocument document = JsonDocument.Parse(output);
+            string formattedJson = JsonSerializer.Serialize(document.RootElement, BuildInfo.JsonIndentOptions);
+
+            return new VideoInfo
+            {
+                JsonOutput = formattedJson,
+                StreamId = id,
+                StreamName = name,
+                Created = SMDT.UtcNow
+            };
         }
+        catch (OperationCanceledException)
+        {
+            return null;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error extracting video info for {Name}", name);
+            return null;
+        }
+    }
+
+    protected virtual void OnVideoInfoUpdated(VideoInfo videoInfo)
+    {
+        VideoInfoUpdated?.Invoke(this, new VideoInfoEventArgs(videoInfo, id));
+    }
+
+    /// <summary>
+    /// Stops the video info loop and releases resources.
+    /// </summary>
+    public void Stop()
+    {
+        _cancellationTokenSource.Cancel();
+        Pipe.Writer.Complete();
+        Pipe.Reader.Complete();
+    }
+
+    /// <summary>
+    /// Disposes the plugin and releases resources.
+    /// </summary>
+    public void Dispose()
+    {
+        Stop();
+        _cancellationTokenSource.Dispose();
+        GC.SuppressFinalize(this);
     }
 }

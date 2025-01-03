@@ -10,6 +10,7 @@ public interface IStreamMasterHub
     Task SetField(List<FieldData> fieldData);
     Task ClearByTag(ClearByTag result);
     Task DataRefresh(string entityName);
+    Task SendStatus(ImageDownloadServiceStatus status);
     Task SendMessage(SMMessage smMessage);
     Task SendSMTasks(List<SMTask> smTask);
 }

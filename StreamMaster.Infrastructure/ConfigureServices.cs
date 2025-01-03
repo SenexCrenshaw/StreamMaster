@@ -1,4 +1,7 @@
+using System.Reflection;
+
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 using StreamMaster.Domain.Helpers;
 using StreamMaster.Infrastructure.Logger;
@@ -7,10 +10,6 @@ using StreamMaster.Infrastructure.Services;
 using StreamMaster.Infrastructure.Services.Downloads;
 using StreamMaster.Infrastructure.Services.Frontend.Mappers;
 using StreamMaster.SchedulesDirect.Domain.Interfaces;
-using StreamMaster.Streams.Domain.Interfaces;
-using StreamMaster.Streams.Services;
-
-using System.Reflection;
 
 namespace StreamMaster.Infrastructure;
 
@@ -26,26 +25,9 @@ public static class ConfigureServices
         _ = services.AddSingleton<IJobStatusService, JobStatusService>();
         _ = services.AddSingleton<IEPGHelper, EPGHelper>();
         _ = services.AddSingleton<IFileLoggingServiceFactory, FileLoggingServiceFactory>();
-        _ = services.AddSingleton<IStreamTracker, StreamTracker>();
         _ = services.AddSingleton<IMessageService, MessageService>();
         _ = services.AddSingleton<IDataRefreshService, DataRefreshService>();
         _ = services.AddSingleton<IFileUtilService, FileUtilService>();
-
-        // If needed, you can also pre-register specific instances
-        //_ = services.AddSingleton(provider =>
-        //{
-        //    IFileLoggingServiceFactory factory = provider.GetRequiredService<IFileLoggingServiceFactory>();
-        //    return factory.Create("FileLogger");
-        //});
-
-        //_ = services.AddSingleton(provider =>
-        //{
-        //    IFileLoggingServiceFactory factory = provider.GetRequiredService<IFileLoggingServiceFactory>();
-        //    return factory.Create("FileLoggerDebug");
-        //});
-
-        services.AddSingleton<IAccessTracker, AccessTracker>();
-        //services.AddHostedService<InactiveStreamMonitor>();
 
         _ = services.AddAutoMapper(
             Assembly.Load("StreamMaster.Domain"),
@@ -74,8 +56,6 @@ public static class ConfigureServices
 
         _ = services.AddHostedService<TimerService>();
 
-        //_ = services.AddHostedService<ImageDownloadService>();
-
         // Dynamically find and register services implementing IMapHttpRequestsToDisk
         Assembly assembly = Assembly.GetExecutingAssembly();
         IEnumerable<Type> mapHttpRequestsToDiskImplementations = assembly.GetTypes()
@@ -90,11 +70,9 @@ public static class ConfigureServices
             _ = services.AddSingleton(typeof(IMapHttpRequestsToDisk), implementation);
         }
 
-        //_ = services.AddSingleton<IBroadcastService, BroadcastService>();
+        services.AddSingleton<IImageDownloadService, ImageDownloadService>();
+        services.AddSingleton<IHostedService>(provider => provider.GetRequiredService<IImageDownloadService>());
 
-        //_ = services.AddHostedService<TimerService>();
-
-        _ = services.AddSingleton<IImageDownloadService, ImageDownloadService>();
         return services;
     }
 }

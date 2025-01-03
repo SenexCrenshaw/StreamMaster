@@ -1,5 +1,10 @@
 ﻿using System.Text;
 
+using BuildClientAPI.Models;
+
+using StreamMaster.Domain.Extensions;
+namespace BuildClientAPI.CSharp;
+
 public static class CSharpGenerator
 {
     public static void GenerateFile(string namespaceName, List<MethodDetails> methods, string filePath, string IFilePath)
@@ -35,12 +40,39 @@ public static class CSharpGenerator
                 httpAttribute = "HttpPost";
             }
 
-            string route = $"[Route(\"[action]\")]";
+            const string route = "[Route(\"[action]\")]";
             string httpMethodLine = $"[{httpAttribute}]";
             string parameterLine = string.IsNullOrEmpty(method.Parameter) ? "" : $"{method.Name}Request request";
             string toSend = string.IsNullOrEmpty(method.Parameter) ? $"new {method.SingalRFunction}()" : "request";
+            string toReturn = method.ReturnType;
+            string nullReturn = "";
 
-            if (method.Name == "SendSMTaskRequest")
+            if ((method.IsGet || method.IsGetPaged) && method.IsReturnNull)
+            {
+                if (!method.IsReturnNull)
+                {
+                }
+                nullReturn = toReturn.Contains("List<") ? "?? []" : "?? new()";
+                toReturn = method.ReturnType[..^1];
+                if (!method.IsList)
+                {
+                    Console.WriteLine(toReturn);
+                    if (toReturn.EqualsIgnoreCase("string"))
+                    {
+                        nullReturn = "?? string.Empty";
+                    }
+                    if (toReturn.EqualsIgnoreCase("bool"))
+                    {
+                        nullReturn = "?? false";
+                    }
+
+                    if (toReturn.EqualsIgnoreCase("int"))
+                    {
+                        nullReturn = "?? 0";
+                    }
+                }
+            }
+            if (method.Name.ContainsIgnoreCase("GetIsSystemReady"))
             {
             }
 
@@ -49,158 +81,188 @@ public static class CSharpGenerator
                 controllerContent.AppendLine($"        {httpMethodLine}");
                 controllerContent.AppendLine($"        {route}");
 
-                if (method.Name == "GetIcons")
-                {
-                }
-
-                if (method.ReturnType.Equals("APIResponse?") || (method.IsGet && method.ReturnType.EndsWith("?")))
-                {
-                    method.ReturnType = method.ReturnType[..^1];
-                }
-
                 if (method.IsGetPaged)
                 {
-                    string fromQ = "[FromQuery] ";
-                    controllerContent.AppendLine($"        public async Task<ActionResult<PagedResponse<{method.ReturnType}>>> {method.Name}({fromQ}{method.Parameter})");
-                    controllerContent.AppendLine($"        {{");
-                    controllerContent.AppendLine($"            PagedResponse<{method.ReturnType}> ret = await Sender.Send(new {method.SingalRFunction}({method.ParameterNames})).ConfigureAwait(false);");
-                    controllerContent.AppendLine($"            return ret;");
-                    IcontrollerContent.AppendLine($"        Task<ActionResult<PagedResponse<{method.ReturnType}>>> {method.Name}({method.Parameter});");
-                }
-                else if (method.IsGetCached)
-                {
-                    string fromQ = "[FromQuery] ";
-                    //if (method.ProfileName == "GetLogos")
-                    //{
-                    //    int aa = 1;
-                    //     fromQ = "[FromQuery] ";
-                    //}
-                    //else
-                    //{
-
-                    //}
-                    needsLogger = true;
-                    controllerContent.AppendLine($"        public async Task<ActionResult<{method.ReturnType}>> {method.Name}({fromQ}{method.Name}Request request)");
-                    controllerContent.AppendLine($"        {{");
-                    controllerContent.AppendLine($"            try");
-                    controllerContent.AppendLine($"            {{");
-                    controllerContent.AppendLine($"            DataResponse<{method.ReturnType}> ret = await Sender.Send(request).ConfigureAwait(false);");
-                    controllerContent.AppendLine($"             return ret.IsError ? Problem(detail: \"An unexpected error occurred retrieving {method.Name}.\", statusCode: 500) : Ok(ret.Data);");
-                    controllerContent.AppendLine($"            }}");
-                    controllerContent.AppendLine($"            catch (Exception ex)");
-                    controllerContent.AppendLine($"            {{");
-                    controllerContent.AppendLine($"                _logger.LogError(ex, \"An unexpected error occurred while processing the request to get {method.Name}.\");");
-                    controllerContent.AppendLine($"                return Problem(detail: \"An unexpected error occurred. Please try again later.\", statusCode: 500);");
-                    controllerContent.AppendLine($"            }}");
-
-                    IcontrollerContent.AppendLine($"        Task<ActionResult<{method.ReturnType}>> {method.Name}({method.Name}Request request);");
-                }
-                else if (method.IsGet)
-                {
-                    if (method.Name == "GetIcons")
+                    const string fromQ = "[FromQuery] ";
+                    controllerContent.AppendLine($"        public async Task<ActionResult<PagedResponse<{toReturn}>>> {method.Name}({fromQ}{method.Parameter})");
+                    controllerContent.AppendLine("        {");
+                    if (method.NoDebug)
                     {
-                    }
-                    needsLogger = true;
-                    controllerContent.AppendLine($"        public async Task<ActionResult<{method.ReturnType}>> {method.Name}({method.Parameter})");
-                    controllerContent.AppendLine($"        {{");
-                    controllerContent.AppendLine($"            try");
-                    controllerContent.AppendLine($"            {{");
-                    controllerContent.AppendLine($"            DataResponse<{method.ReturnType}> ret = await Sender.Send(new {method.SingalRFunction}({method.ParameterNames})).ConfigureAwait(false);");
-                    controllerContent.AppendLine($"             return ret.IsError ? Problem(detail: \"An unexpected error occurred retrieving {method.Name}.\", statusCode: 500) : Ok(ret.Data);");
-                    controllerContent.AppendLine($"            }}");
-                    controllerContent.AppendLine($"            catch (Exception ex)");
-                    controllerContent.AppendLine($"            {{");
-                    controllerContent.AppendLine($"                _logger.LogError(ex, \"An unexpected error occurred while processing the request to get {method.Name}.\");");
-                    controllerContent.AppendLine($"                return Problem(detail: \"An unexpected error occurred. Please try again later.\", statusCode: 500);");
-                    controllerContent.AppendLine($"            }}");
-
-                    IcontrollerContent.AppendLine($"        Task<ActionResult<{method.ReturnType}>> {method.Name}({method.Parameter});");
-                }
-                else if (method.IsTask)
-                {
-                    controllerContent.AppendLine($"        public async Task<{method.ReturnType}> {method.Name}({method.TsParameter} request)");
-                    controllerContent.AppendLine($"        {{");
-                    controllerContent.AppendLine($"            {method.ReturnType} ret = await taskQueue{method.Name}(request).ConfigureAwait(false);");
-                    IcontrollerContent.AppendLine($"        Task<{method.ReturnType}> {method.Name}({method.Name}Request request);");
-                }
-                else
-                {
-
-                    controllerContent.AppendLine($"        public async Task<ActionResult<{method.ReturnType}>> {method.Name}({parameterLine})");
-                    controllerContent.AppendLine($"        {{");
-                    controllerContent.AppendLine($"            {method.ReturnType} ret = await Sender.Send({toSend}).ConfigureAwait(false);");
-                    if (method.IsReturnNull)
-                    {
-                        controllerContent.AppendLine($"            return ret == null ? NotFound(ret) : Ok(ret);");
+                        controllerContent.AppendLine($"            var ret = await Sender.Send(new {method.SingalRFunction}({method.ParameterNames})).ConfigureAwait(false);");
                     }
                     else
                     {
-                        controllerContent.AppendLine($"            return Ok(ret);");
+                        controllerContent.AppendLine($"            var ret = await APIStatsLogger.DebugAPI(Sender.Send(new {method.SingalRFunction}({method.ParameterNames}))).ConfigureAwait(false);");
                     }
-                    IcontrollerContent.AppendLine($"        Task<ActionResult<{method.ReturnType}>> {method.Name}({parameterLine});");
+                    controllerContent.AppendLine($"            return ret{nullReturn};");
+                    IcontrollerContent.AppendLine($"        Task<ActionResult<PagedResponse<{toReturn}>>> {method.Name}({method.Parameter});");
+                }
+                else if (method.IsGetCached)
+                {
+                    const string fromQ = "[FromQuery] ";
+                    needsLogger = true;
+                    controllerContent.AppendLine($"        public async Task<ActionResult<{toReturn}>> {method.Name}({fromQ}{method.Name}Request request)");
+                    controllerContent.AppendLine("        {");
+                    controllerContent.AppendLine("            try");
+                    controllerContent.AppendLine("            {");
+                    if (method.NoDebug)
+                    {
+                        controllerContent.AppendLine("            var ret = await Sender.Send(request).ConfigureAwait(false);");
+                    }
+                    else
+                    {
+                        controllerContent.AppendLine("            var ret = await APIStatsLogger.DebugAPI(Sender.Send(request)).ConfigureAwait(false);");
+                    }
+                    controllerContent.AppendLine($"             return ret.IsError ? Problem(detail: \"An unexpected error occurred retrieving {method.Name}.\", statusCode: 500) : Ok(ret.Data{nullReturn});");
+                    controllerContent.AppendLine("            }");
+                    controllerContent.AppendLine("            catch (Exception ex)");
+                    controllerContent.AppendLine("            {");
+                    controllerContent.AppendLine($"                _logger.LogError(ex, \"An unexpected error occurred while processing the request to get {method.Name}.\");");
+                    controllerContent.AppendLine("                return Problem(detail: \"An unexpected error occurred. Please try again later.\", statusCode: 500);");
+                    controllerContent.AppendLine("            }");
+
+                    IcontrollerContent.AppendLine($"        Task<ActionResult<{toReturn}>> {method.Name}({method.Name}Request request);");
+                }
+                else if (method.IsGet)
+                {
+                    needsLogger = true;
+                    controllerContent.AppendLine($"        public async Task<ActionResult<{toReturn}>> {method.Name}({method.Parameter})");
+                    controllerContent.AppendLine("        {");
+                    controllerContent.AppendLine("            try");
+                    controllerContent.AppendLine("            {");
+                    if (method.NoDebug)
+                    {
+                        controllerContent.AppendLine($"            var ret = await Sender.Send(new {method.SingalRFunction}({method.ParameterNames})).ConfigureAwait(false);");
+                    }
+                    else
+                    {
+                        controllerContent.AppendLine($"            var ret = await APIStatsLogger.DebugAPI(Sender.Send(new {method.SingalRFunction}({method.ParameterNames}))).ConfigureAwait(false);");
+                    }
+                    controllerContent.AppendLine($"             return ret.IsError ? Problem(detail: \"An unexpected error occurred retrieving {method.Name}.\", statusCode: 500) : Ok(ret.Data{nullReturn});");
+                    controllerContent.AppendLine("            }");
+                    controllerContent.AppendLine("            catch (Exception ex)");
+                    controllerContent.AppendLine("            {");
+                    controllerContent.AppendLine($"                _logger.LogError(ex, \"An unexpected error occurred while processing the request to get {method.Name}.\");");
+                    controllerContent.AppendLine("                return Problem(detail: \"An unexpected error occurred. Please try again later.\", statusCode: 500);");
+                    controllerContent.AppendLine("            }");
+
+                    IcontrollerContent.AppendLine($"        Task<ActionResult<{toReturn}>> {method.Name}({method.Parameter});");
+                }
+                else if (method.IsTask)
+                {
+                    controllerContent.AppendLine($"        public async Task<{toReturn}> {method.Name}({method.TsParameter} request)");
+                    controllerContent.AppendLine("        {");
+                    controllerContent.AppendLine($"            var ret = await taskQueue{method.Name}(request).ConfigureAwait(false);");
+                    IcontrollerContent.AppendLine($"        Task<{toReturn}> {method.Name}({method.Name}Request request);");
+                }
+                else
+                {
+                    controllerContent.AppendLine($"        public async Task<ActionResult<{toReturn}>> {method.Name}({parameterLine})");
+                    controllerContent.AppendLine("        {");
+                    if (method.NoDebug)
+                    {
+                        controllerContent.AppendLine($"            var ret = await Sender.Send({toSend}).ConfigureAwait(false);");
+                    }
+                    else
+                    {
+                        controllerContent.AppendLine($"            var ret = await APIStatsLogger.DebugAPI(Sender.Send({toSend})).ConfigureAwait(false);");
+                    }
+                    if (method.IsReturnNull)
+                    {
+                        controllerContent.AppendLine("            return ret == null ? NotFound(ret) : Ok(ret);");
+                    }
+                    else
+                    {
+                        controllerContent.AppendLine("            return Ok(ret);");
+                    }
+                    IcontrollerContent.AppendLine($"        Task<ActionResult<{toReturn}>> {method.Name}({parameterLine});");
                 }
 
-                controllerContent.AppendLine($"        }}");
-                controllerContent.AppendLine();
+                controllerContent.AppendLine("        }");
+                //controllerContent.AppendLine();
             }
 
             // Hub method signature (if applicable)
             if (!method.JustController)
             {
-                if (method.ReturnType.Equals("APIResponse?") || (method.IsGet && method.ReturnType.EndsWith("?")))
+                if (method.ReturnType.Equals("APIResponse?") || (method.IsGet && method.ReturnType.EndsWith(value: '?')))
                 {
                     method.ReturnType = method.ReturnType[..^1];
                 }
 
-
                 if (method.IsGetPaged)
                 {
-                    hubContent.AppendLine($"        public async Task<PagedResponse<{method.ReturnType}>> {method.Name}({method.Parameter})");
-                    hubContent.AppendLine($"        {{");
-                    hubContent.AppendLine($"            PagedResponse<{method.ReturnType}> ret = await Sender.Send(new {method.SingalRFunction}({method.ParameterNames})).ConfigureAwait(false);");
-                    hubContent.AppendLine($"            return ret;");
-                    IhubContent.AppendLine($"        Task<PagedResponse<{method.ReturnType}>> {method.Name}({method.Parameter});");
+                    hubContent.AppendLine($"        public async Task<PagedResponse<{toReturn}>> {method.Name}({method.Parameter})");
+                    hubContent.AppendLine("        {");
+                    if (method.NoDebug)
+                    {
+                        hubContent.AppendLine($"            var ret = await Sender.Send(new {method.SingalRFunction}({method.ParameterNames})).ConfigureAwait(false);");
+                    }
+                    else
+                    {
+                        hubContent.AppendLine($"            var ret = await APIStatsLogger.DebugAPI(Sender.Send(new {method.SingalRFunction}({method.ParameterNames}))).ConfigureAwait(false);");
+                    }
+                    hubContent.AppendLine($"            return ret{nullReturn};");
+                    IhubContent.AppendLine($"        Task<PagedResponse<{toReturn}>> {method.Name}({method.Parameter});");
                 }
                 else if (method.IsGetCached)
                 {
-                    hubContent.AppendLine($"        public async Task<{method.ReturnType}> {method.Name}({method.Name}Request request)");
-                    hubContent.AppendLine($"        {{");
-                    hubContent.AppendLine($"             DataResponse<{method.ReturnType}> ret = await Sender.Send(request).ConfigureAwait(false);");
-                    hubContent.AppendLine($"            return ret.Data;");
-                    IhubContent.AppendLine($"        Task<{method.ReturnType}> {method.Name}({method.Name}Request request);");
+                    hubContent.AppendLine($"        public async Task<{toReturn}> {method.Name}({method.Name}Request request)");
+                    hubContent.AppendLine("        {");
+                    if (method.NoDebug)
+                    {
+                        hubContent.AppendLine("             var ret = await Sender.Send(request).ConfigureAwait(false);");
+                    }
+                    else
+                    {
+                        hubContent.AppendLine("             var ret = await APIStatsLogger.DebugAPI(Sender.Send(request)).ConfigureAwait(false);");
+                    }
+                    hubContent.AppendLine($"            return ret.Data{nullReturn};");
+                    IhubContent.AppendLine($"        Task<{toReturn}> {method.Name}({method.Name}Request request);");
                 }
                 else if (method.IsGet)
                 {
-                    hubContent.AppendLine($"        public async Task<{method.ReturnType}> {method.Name}({method.Parameter})");
-                    hubContent.AppendLine($"        {{");
-                    hubContent.AppendLine($"             DataResponse<{method.ReturnType}> ret = await Sender.Send(new {method.SingalRFunction}({method.ParameterNames})).ConfigureAwait(false);");
-                    hubContent.AppendLine($"            return ret.Data;");
-                    IhubContent.AppendLine($"        Task<{method.ReturnType}> {method.Name}({method.Parameter});");
+                    hubContent.AppendLine($"        public async Task<{toReturn}> {method.Name}({method.Parameter})");
+                    hubContent.AppendLine("        {");
+                    if (method.NoDebug)
+                    {
+                        hubContent.AppendLine($"             var ret = await Sender.Send(new {method.SingalRFunction}({method.ParameterNames})).ConfigureAwait(false);");
+                    }
+                    else
+                    {
+                        hubContent.AppendLine($"             var ret = await APIStatsLogger.DebugAPI(Sender.Send(new {method.SingalRFunction}({method.ParameterNames}))).ConfigureAwait(false);");
+                    }
+                    hubContent.AppendLine($"            return ret.Data{nullReturn};");
+                    IhubContent.AppendLine($"        Task<{toReturn}> {method.Name}({method.Parameter});");
                 }
                 else if (method.IsTask)
                 {
-                    hubContent.AppendLine($"        public async Task<{method.ReturnType}> {method.Name}({method.Name}Request request)");
-                    hubContent.AppendLine($"        {{");
+                    hubContent.AppendLine($"        public async Task<{toReturn}> {method.Name}({method.Name}Request request)");
+                    hubContent.AppendLine("        {");
                     hubContent.AppendLine($"            await taskQueue.{method.Name}(request).ConfigureAwait(false);");
-                    IhubContent.AppendLine($"        Task<{method.ReturnType}> {method.Name}({method.Name}Request request);");
-                    hubContent.AppendLine($"            return APIResponse.Ok;");
+                    hubContent.AppendLine("            return APIResponse.Ok;");
+                    IhubContent.AppendLine($"        Task<{toReturn}> {method.Name}({method.Name}Request request);");
                 }
                 else
                 {
-                    hubContent.AppendLine($"        public async Task<{method.ReturnType}> {method.Name}({parameterLine})");
-                    hubContent.AppendLine($"        {{");
-                    hubContent.AppendLine($"            {method.ReturnType} ret = await Sender.Send({toSend}).ConfigureAwait(false);");
-                    IhubContent.AppendLine($"        Task<{method.ReturnType}> {method.Name}({parameterLine});");
-                    hubContent.AppendLine($"            return ret;");
+                    hubContent.AppendLine($"        public async Task<{toReturn}> {method.Name}({parameterLine})");
+                    hubContent.AppendLine("        {");
+                    if (method.NoDebug)
+                    {
+                        hubContent.AppendLine($"            var ret = await Sender.Send({toSend}).ConfigureAwait(false);");
+                    }
+                    else
+                    {
+                        hubContent.AppendLine($"            var ret = await APIStatsLogger.DebugAPI(Sender.Send({toSend})).ConfigureAwait(false);");
+                    }
+                    hubContent.AppendLine($"            return ret{nullReturn};");
+                    IhubContent.AppendLine($"        Task<{toReturn}> {method.Name}({parameterLine});");
                 }
 
-                hubContent.AppendLine($"        }}");
-                hubContent.AppendLine();
+                hubContent.AppendLine("        }");
+                //hubContent.AppendLine();
             }
         }
-
-        string assssa = controllerContent.ToString();
-
 
         WriteControllerAndHub(filePath, namespaceName, controllerContent, hubContent, needsQueryInclude, needsCommandInclude, needsLogger);
         WriteIControllerAndHub(IFilePath, namespaceName, IcontrollerContent, IhubContent, needsQueryInclude, needsCommandInclude);
@@ -224,7 +286,7 @@ public static class CSharpGenerator
 namespace StreamMaster.Application.{namespaceName}
 {{
     public interface I{namespaceName}Controller
-    {{        
+    {{
 {IControllerContent}    }}
 }}
 
@@ -265,8 +327,7 @@ namespace StreamMaster.Application.{ns}
 {{
     [Authorize]
     public partial class {namespaceName}Controller({logger}) : ApiControllerBase, I{namespaceName}Controller
-    {{        
-
+    {{
 {controllerContent}    }}
 }}
 

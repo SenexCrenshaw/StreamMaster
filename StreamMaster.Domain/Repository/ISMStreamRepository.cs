@@ -1,12 +1,12 @@
-﻿using StreamMaster.Domain.API;
-using StreamMaster.Domain.Pagination;
+﻿using System.Linq.Expressions;
 
-using System.Linq.Expressions;
+using StreamMaster.Domain.Pagination;
 
 namespace StreamMaster.Domain.Repository;
 
 public interface ISMStreamRepository : IRepositoryBase<SMStream>
 {
+    Task<SMStreamDto?> GetSMStreamAsync(string streamId);
     SMStream? GetSMStreamById(string streamId);
     Task ChangeGroupName(string oldGroupName, string newGroupName);
 
@@ -35,5 +35,4 @@ public interface ISMStreamRepository : IRepositoryBase<SMStream>
     Task<SMStreamDto?> ToggleSMStreamVisibleById(string id, CancellationToken cancellationToken);
 
     Task<List<FieldData>> ToggleSMStreamVisibleByParameters(QueryStringParameters parameters, CancellationToken cancellationToken);
-
 }

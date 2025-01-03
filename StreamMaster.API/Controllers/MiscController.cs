@@ -1,24 +1,26 @@
-﻿using Microsoft.AspNetCore.Mvc;
-
-using StreamMaster.SchedulesDirect.Domain.XmltvXml;
-using StreamMaster.Streams.Handlers;
-
-using System.Globalization;
+﻿using System.Globalization;
 using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
+
+using Microsoft.AspNetCore.Mvc;
+
+using StreamMaster.Domain.Extensions;
+using StreamMaster.Domain.XmltvXml;
+using StreamMaster.Streams.Broadcasters;
 
 using static StreamMaster.Domain.Common.GetStreamGroupEPGHandler;
 
 namespace StreamMaster.API.Controllers;
 
-public class MiscController(IImageDownloadService imageDownloadService, ILogoService logoService, ISourceBroadcasterService channelDistributorService) : ApiControllerBase
+public class MiscController(IImageDownloadService imageDownloadService, ICacheManager cacheManager, ILogoService logoService, ISourceBroadcasterService channelDistributorService)
+    : ApiControllerBase
 {
     [HttpGet]
     [Route("[action]")]
     public ActionResult<ImageDownloadServiceStatus> GetDownloadServiceStatus()
     {
-        return Ok(imageDownloadService.imageDownloadServiceStatus);
+        return Ok(imageDownloadService.ImageDownloadServiceStatus);
     }
 
     [HttpGet]
@@ -31,18 +33,12 @@ public class MiscController(IImageDownloadService imageDownloadService, ILogoSer
 
     [HttpGet]
     [Route("[action]")]
-    public IActionResult CacheSMChannelIcons()
+    public async Task<IActionResult> CacheSIcons(CancellationToken cancellationToken)
     {
-        logoService.CacheSMChannelLogos();
-        return Ok();
-    }
+        await logoService.CacheSMChannelLogosAsync(cancellationToken);
+        await logoService.AddSMStreamLogosAsync(cancellationToken);
 
-    [HttpGet]
-    [Route("[action]")]
-    public ActionResult<IDictionary<string, IStreamHandlerMetrics>> GetAggregatedMetrics()
-    {
-        IDictionary<string, IStreamHandlerMetrics> metrics = channelDistributorService.GetMetrics();
-        return Ok(metrics);
+        return Ok();
     }
 
     [HttpGet]
@@ -54,7 +50,7 @@ public class MiscController(IImageDownloadService imageDownloadService, ILogoSer
         for (int i = 0; i < numberOfStreams; i++)
         {
             string id = Guid.NewGuid().ToString();
-            lines.Add($"#EXTINF:-1 tvg-id=\"Channel_{i}\" tvg-name=\"Channel {i}\" tvg-chno=\"{i}\" tvg-logo=\"https://logo{i}.png\" group-title=\"TEST CHANNEL GROUP\", Channel {i}");
+            lines.Add($"#EXTINF:-1 tvg-id=\"Channel_{i}\" tvg-name=\"Channel {i}\" tvg-chno=\"{i}\" tvg-logo=\"logo{i}.png\" group-title=\"TEST CHANNEL GROUP\", Channel {i}");
             lines.Add($"http://channelfake.test/live/{id}.ts");
         }
 
@@ -83,11 +79,13 @@ public class MiscController(IImageDownloadService imageDownloadService, ILogoSer
 
         for (int i = 0; i < NumberOfChannels; i++)
         {
+            StationChannelName? sn = cacheManager.GetStationChannelNames.GetRandomEntry();
+
             xmltv.Channels.Add(new XmltvChannel
             {
                 Id = $"Channel_{i}",
                 DisplayNames = [new XmltvText { Language = "en", Text = $"Channel_{i}" }],
-                Icons = [new XmltvIcon { Src = $"http://broken.com/Channel_{i}" }],
+                Icons = [new XmltvIcon { Src = sn?.Logo ?? "" }],
             });
         }
 
@@ -101,13 +99,15 @@ public class MiscController(IImageDownloadService imageDownloadService, ILogoSer
 
             for (int i = 0; i < NumberOfChannels; i++)
             {
+                StationChannelName? sn = cacheManager.GetStationChannelNames.GetRandomEntry();
                 xmltv.Programs.Add(new XmltvProgramme
                 {
                     Start = Start,
                     Stop = Stop,
                     Channel = $"Channel_{i}",
                     Titles = [new XmltvText { Language = "en", Text = $"Programme_{i} {Start}" }],
-                    Descriptions = [new XmltvText { Language = "en", Text = $"Description_{i} {Start}" }]
+                    Descriptions = [new XmltvText { Language = "en", Text = $"Description_{i} {Start}" }],
+                    Icons = [new XmltvIcon { Src = sn?.Logo ?? "" }],
                 });
             }
         }

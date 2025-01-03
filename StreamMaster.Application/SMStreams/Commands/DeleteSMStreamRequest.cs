@@ -15,7 +15,7 @@ public class DeleteSMStreamRequestHandler(IMessageService messageService, IDataR
             return APIResponse.NotFound;
         }
 
-        SMStream? smStream = await Repository.SMStream.FirstOrDefaultAsync(a => a.Id == request.SMStreamId).ConfigureAwait(false);
+        SMStream? smStream = await Repository.SMStream.FirstOrDefaultAsync(a => a.Id == request.SMStreamId, cancellationToken: cancellationToken).ConfigureAwait(false);
         if (smStream == null)
         {
             return APIResponse.NotFound;
@@ -28,5 +28,4 @@ public class DeleteSMStreamRequestHandler(IMessageService messageService, IDataR
         await messageService.SendSuccess("Stream deleted", $"Stream '{smStream.Name}' successfully");
         return APIResponse.Success;
     }
-
 }

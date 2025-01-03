@@ -82,7 +82,7 @@ public class OsInfo : IOsInfo
             }
             catch (Exception e)
             {
-                Console.WriteLine("Couldn't get OS Version info: ", e.Message);
+                Console.WriteLine($"Couldn't get OS Version info: {e.Message}");
             }
 
             if (osInfo != null)
@@ -149,6 +149,10 @@ public class OsInfo : IOsInfo
             using Process? p = Process.Start(processStartInfo);
             // To avoid deadlocks, always read the output stream first and
             // then wait.
+            if (p is null)
+            {
+                return "";
+            }
             output = p.StandardOutput.ReadToEnd();
 
             _ = p.WaitForExit(1000);
