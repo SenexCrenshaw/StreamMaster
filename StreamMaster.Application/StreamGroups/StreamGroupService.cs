@@ -243,7 +243,11 @@ public partial class StreamGroupService(IHttpContextAccessor httpContextAccessor
                  ? $"{baseUrl}/v/{videoStreamConfig.StreamGroupProfileId}/{videoStreamConfig.Id}"
                  : $"{baseUrl}/v/{videoStreamConfig.EncodedString}";
 
-        if (!File.Exists(strmFullName) || File.ReadAllText(strmFullName) != videoUrl)
+        //if (!File.Exists(strmFullName) || File.ReadAllText(strmFullName) != videoUrl)
+        //{
+        //    File.WriteAllText(strmFullName, videoUrl);
+        //}
+        if (!File.Exists(strmFullName)) // ||  File.ReadAllText(strmFullName) != videoUrl)
         {
             File.WriteAllText(strmFullName, videoUrl);
         }
