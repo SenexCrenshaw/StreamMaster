@@ -235,7 +235,7 @@ public partial class StreamGroupService(IHttpContextAccessor httpContextAccessor
 
     private void WriteSTRMFile(StreamGroup streamGroup, VideoStreamConfig videoStreamConfig, bool IsShort = true)
     {
-        //FIX
+
         string baseUrl = settings.CurrentValue.STRMBaseURL;
         string strmFullName = GetSTRMPath(streamGroup, videoStreamConfig);
 
@@ -243,7 +243,10 @@ public partial class StreamGroupService(IHttpContextAccessor httpContextAccessor
                  ? $"{baseUrl}/v/{videoStreamConfig.StreamGroupProfileId}/{videoStreamConfig.Id}"
                  : $"{baseUrl}/v/{videoStreamConfig.EncodedString}";
 
-        File.WriteAllText(strmFullName, videoUrl);
+        if (!File.Exists(strmFullName) || File.ReadAllText(strmFullName) != videoUrl)
+        {
+            File.WriteAllText(strmFullName, videoUrl);
+        }
     }
 
     private static string GetSTRMDirectory(StreamGroup streamGroup, VideoStreamConfig config)
