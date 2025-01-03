@@ -44,8 +44,8 @@ perform_migration_update() {
         psql -U $POSTGRES_USER -d $POSTGRES_DB -h $POSTGRES_HOST -c "INSERT INTO public.\"__EFMigrationsHistory\"(\"MigrationId\", \"ProductVersion\") VALUES ('$new_migration_id', '$product_version');"
 
         echo "MigrationId updated to $new_migration_id with ProductVersion $product_version."
-    else
-        echo "MigrationId $migration_id_to_check does not exist. No changes made."
+    # else
+    #     echo "MigrationId $migration_id_to_check does not exist. No changes made."
     fi
 }
 
