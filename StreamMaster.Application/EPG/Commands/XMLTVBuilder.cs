@@ -302,20 +302,13 @@ public class XMLTVBuilder(
             {
                 foreach (XmltvProgramme? program in matchingPrograms)
                 {
-                    XmltvProgramme updatedProgram = new()
+                    program.Channel = videoStreamConfig.OutputProfile!.Id;
+                    program.Icons = program.Icons?.Select(icon => new XmltvIcon
                     {
-                        Channel = videoStreamConfig.OutputProfile!.Id,
-                        Start = program.Start,
-                        Stop = program.Stop,
-                        Titles = program.Titles,
-                        Descriptions = program.Descriptions,
-                        Icons = program.Icons?.Select(icon => new XmltvIcon
-                        {
-                            Src = $"{baseUrl}/api/files/pr/{icon.Src.GenerateFNV1aHash()}"
-                        }).ToList()
-                    };
+                        Src = $"{baseUrl}/api/files/pr/{icon.Src.GenerateFNV1aHash()}"
+                    }).ToList();
 
-                    newProgrammes.Add(updatedProgram);
+                    newProgrammes.Add(program);
                 }
             }
         }
