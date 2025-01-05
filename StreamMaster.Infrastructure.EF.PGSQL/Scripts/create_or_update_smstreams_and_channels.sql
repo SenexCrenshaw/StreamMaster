@@ -49,7 +49,7 @@ BEGIN
         "ChannelId" = EXCLUDED."ChannelId",
         "ChannelName" = EXCLUDED."ChannelName",
         "TVGName" = EXCLUDED."TVGName",
-        "ExtInf" = EXCLUDED."ExtInf";
+        "ExtInf" = EXCLUDED."ExtInf",
         "NeedsDelete" = false;
 
     -- Step 2: Conditionally Create Channels
