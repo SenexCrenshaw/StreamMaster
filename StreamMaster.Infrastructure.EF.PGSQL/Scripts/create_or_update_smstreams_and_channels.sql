@@ -50,6 +50,7 @@ BEGIN
         "ChannelName" = EXCLUDED."ChannelName",
         "TVGName" = EXCLUDED."TVGName",
         "ExtInf" = EXCLUDED."ExtInf";
+        "NeedsDelete" = false;
 
     -- Step 2: Conditionally Create Channels
     IF p_create_channels THEN
