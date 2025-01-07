@@ -282,33 +282,33 @@ public class XMLTVBuilder(
         {
             if (channelsById.TryGetValue(videoStreamConfig.EPGId, out List<XmltvChannel>? matchingChannels))
             {
-                foreach (XmltvChannel? channel in matchingChannels)
-                {
-                    XmltvChannel updatedChannel = new()
-                    {
-                        Id = videoStreamConfig.OutputProfile!.Id,
-                        DisplayNames = channel.DisplayNames, // Reuse immutable properties
-                        Icons = channel.Icons?.Select(_ => new XmltvIcon
-                        {
-                            Src = videoStreamConfig.Logo // Update logo with the provided one
-                        }).ToList()
-                    };
+                XmltvChannel xmlChannel = matchingChannels[0];
 
-                    newChannels.Add(updatedChannel);
-                }
+                XmltvChannel updatedChannel = new()
+                {
+                    Id = videoStreamConfig.OutputProfile!.Id,
+                    DisplayNames = xmlChannel.DisplayNames, // Reuse immutable properties
+                    Icons = xmlChannel.Icons?.Select(_ => new XmltvIcon
+                    {
+                        Src = videoStreamConfig.Logo // Update logo with the provided one
+                    }).ToList()
+                };
+                newChannels.Add(updatedChannel);
             }
 
             if (programsByChannel.TryGetValue(videoStreamConfig.EPGId, out List<XmltvProgramme>? matchingPrograms))
             {
                 foreach (XmltvProgramme? program in matchingPrograms)
                 {
-                    program.Channel = videoStreamConfig.OutputProfile!.Id;
-                    program.Icons = program.Icons?.Select(icon => new XmltvIcon
+                    XmltvProgramme newProgram = program.DeepCopy();
+
+                    newProgram.Channel = videoStreamConfig.OutputProfile!.Id;
+                    newProgram.Icons = program.Icons?.Select(icon => new XmltvIcon
                     {
                         Src = $"{baseUrl}/api/files/pr/{icon.Src.GenerateFNV1aHash()}"
                     }).ToList();
 
-                    newProgrammes.Add(program);
+                    newProgrammes.Add(newProgram);
                 }
             }
         }
