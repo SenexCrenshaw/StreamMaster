@@ -11,6 +11,7 @@ import { SetStations } from '@lib/smAPI/SchedulesDirect/SchedulesDirectCommands'
 import useGetSelectedStationIds from '@lib/smAPI/SchedulesDirect/useGetSelectedStationIds';
 import useGetStationPreviews from '@lib/smAPI/SchedulesDirect/useGetStationPreviews';
 import { SetStationsRequest, StationPreview, StationRequest } from '@lib/smAPI/smapiTypes';
+import { Tooltip } from 'primereact/tooltip';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const SchedulesDirectStationDataSelector = () => {
@@ -101,10 +102,12 @@ const SchedulesDirectStationDataSelector = () => {
 
       const request = {} as SetStationsRequest;
 
-      request.Requests = selectedItems.map((station) => {
-        const request: StationRequest = { Lineup: station.Lineup, StationId: station.StationId };
-        return request;
-      });
+      request.Requests = selectedItems
+        .filter((a) => a.Lineup !== undefined && a.StationId !== undefined)
+        .map((station) => {
+          const request: StationRequest = { Lineup: station.Lineup!, StationId: station.StationId! };
+          return request;
+        });
 
       SetStations(request)
         .then(() => {})
@@ -130,6 +133,28 @@ const SchedulesDirectStationDataSelector = () => {
     );
   }
 
+  function nameTemplate(data: StationPreview) {
+    if (!data?.Name || data.Name === '') {
+      return <div />;
+    }
+
+    return (
+      <>
+        <Tooltip target=".custom-target-icon" />
+        <span
+          className="custom-target-icon text-xs text-container"
+          data-pr-hidedelay={100}
+          data-pr-position="left"
+          // data-pr-at="left"
+          data-pr-showdelay={500}
+          data-pr-tooltip={data.Name}
+        >
+          {data.Name}
+        </span>
+      </>
+    );
+  }
+
   const columns = useMemo((): ColumnMeta[] => {
     const columnConfigs: ColumnMeta[] = [
       { field: 'StationId', filter: true, header: 'Station Id', sortable: true, width: 40 },
@@ -137,9 +162,9 @@ const SchedulesDirectStationDataSelector = () => {
     ];
     // // columnConfigs.push(channelGroupConfig);
     columnConfigs.push(lineUpColumnConfig);
-    columnConfigs.push({ field: 'Name', filter: true, sortable: true, width: 100 });
+    columnConfigs.push({ bodyTemplate: nameTemplate, field: 'Name', filter: true, sortable: true, width: 150 });
     columnConfigs.push({ field: 'Callsign', filter: true, header: 'Call Sign', sortable: true, width: 50 });
-    columnConfigs.push({ field: 'Affiliate', filter: true, sortable: true, width: 80 });
+    columnConfigs.push({ field: 'Affiliate', filter: true, sortable: true, width: 60 });
 
     return columnConfigs;
   }, [lineUpColumnConfig]);

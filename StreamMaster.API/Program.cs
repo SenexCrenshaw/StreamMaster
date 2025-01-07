@@ -23,6 +23,7 @@ using StreamMaster.PlayList;
 using StreamMaster.SchedulesDirect;
 using StreamMaster.SchedulesDirect.Services;
 using StreamMaster.Streams;
+using StreamMaster.WebDav;
 
 [assembly: TsGlobal(CamelCaseForProperties = false, CamelCaseForMethods = false, UseModules = true, DiscardNamespacesWhenUsingModules = true, AutoOptionalProperties = true, WriteWarningComment = false, ReorderMembers = true)]
 DirectoryHelper.CreateApplicationDirectories();
@@ -168,6 +169,7 @@ if (!string.IsNullOrEmpty(sslCertPath))
 
 // GetOrAdd services to the container.
 builder.Services.AddEPGServices();
+builder.Services.AddWebDavServices();
 builder.Services.AddSchedulesDirectAPIServices();
 builder.Services.AddSchedulesDirectServices();
 builder.Services.AddApplicationServices();
@@ -280,6 +282,13 @@ app.UseWebSockets();
 
 // WebSocket Endpoint
 app.Map("/ws", smWebSocketManager.HandleWebSocketAsync);
+
+//app.Map("/webdav", webDavApp =>
+//{
+//    webDavApp.UseMiddleware<WebDavMiddleware>();
+//});
+
+//app.UseMiddleware<WebDavMiddleware>();
 
 // HTTP Endpoint to Trigger Reload
 app.MapPost("/trigger-reload", async () =>

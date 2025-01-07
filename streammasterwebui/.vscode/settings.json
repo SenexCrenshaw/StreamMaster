@@ -85,5 +85,8 @@
   "typescript.suggest.autoImports": true,
   "[scss]": {
     "editor.defaultFormatter": "vscode.css-language-features"
+  },
+  "[xml]": {
+    "editor.defaultFormatter": "DotJoshJohnson.xml"
   }
 }

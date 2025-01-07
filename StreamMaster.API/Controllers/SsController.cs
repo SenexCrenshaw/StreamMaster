@@ -91,7 +91,6 @@ public class SsController(ISender Sender, IStreamGroupService streamGroupService
     [HttpGet]
     [Route("{streamGroupProfileId}/epg.xml")]
     [Route("{streamGroupProfileId}.xml")]
-    //[Route("{streamGroupId}/{streamGroupProfileId}/epg.xml")]
     public async Task<IActionResult> GetStreamGroupEPG(int streamGroupProfileId)
     {
         //if (!streamGroupId.HasValue)
@@ -109,13 +108,8 @@ public class SsController(ISender Sender, IStreamGroupService streamGroupService
     [HttpGet]
     [Route("{streamGroupProfileId}/m3u.m3u")]
     [Route("{streamGroupProfileId}.m3u")]
-    //[Route("{streamGroupId}/{streamGroupProfileId}/m3u.m3u")]
     public async Task<IActionResult> GetStreamGroupM3U(int streamGroupProfileId)
     {
-        //if (!streamGroupId.HasValue)
-        //{
-        //    streamGroupId = await streamGroupService.GetStreamGroupIdFromstreamGroupProfileIdAsync(streamGroupProfileId).ConfigureAwait(false);
-        //}
         string data = await Sender.Send(new GetStreamGroupM3U(streamGroupProfileId, true)).ConfigureAwait(false);
 
         return new FileContentResult(Encoding.UTF8.GetBytes(data), "application/x-mpegURL")

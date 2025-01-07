@@ -68,6 +68,7 @@
     <ProjectReference Include="..\StreamMaster.PlayList\StreamMaster.PlayList.csproj" />
     <ProjectReference Include="..\StreamMaster.SchedulesDirect.Services\StreamMaster.SchedulesDirect.Services.csproj" />
     <ProjectReference Include="..\StreamMaster.Streams\StreamMaster.Streams.csproj" />
+    <ProjectReference Include="..\StreamMaster.WebDav\StreamMaster.WebDav.csproj" />
   </ItemGroup>
   <ItemGroup>
     <RtAdditionalAssembly Include="StreamMaster.Domain" />
