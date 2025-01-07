@@ -249,6 +249,7 @@ namespace StreamMaster.Streams.Broadcasters
                     int delay = settings.CurrentValue.StreamShutDownDelayMs;
                     if (delay > 0)
                     {
+                        logger.LogInformation("Delaying shutdown {StreamShutDownDelayMs}ms of source stream: {Id} {Name}", delay, sourceBroadcaster.SMStreamInfo.Id, sourceBroadcaster.SMStreamInfo.Name);
                         await Task.Delay(delay, cancellationToken).ConfigureAwait(false);
                     }
 

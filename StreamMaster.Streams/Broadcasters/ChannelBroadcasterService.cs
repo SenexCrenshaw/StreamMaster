@@ -125,7 +125,7 @@ public class ChannelBroadcasterService(
 
             channelBroadcaster.Stop();
 
-            channelLockService.ReleaseLock(channelBroadcaster.Id);
+            //channelLockService.ReleaseLock(channelBroadcaster.Id);
             channelLockService.RemoveLock(channelBroadcasterId);
             return true;
         }

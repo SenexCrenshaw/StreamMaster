@@ -203,7 +203,7 @@ public class SourceBroadcaster(ILogger<ISourceBroadcaster> logger, StreamConnect
                     }
                     else
                     {
-                        logger.LogError("Source stream read error: Stream closed unexpectedly");
+                        logger.LogError("Source stream read error: Stream closed");
                     }
                     break;
                 }

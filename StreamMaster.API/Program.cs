@@ -283,11 +283,6 @@ app.UseWebSockets();
 // WebSocket Endpoint
 app.Map("/ws", smWebSocketManager.HandleWebSocketAsync);
 
-//app.Map("/webdav", webDavApp =>
-//{
-//    webDavApp.UseMiddleware<WebDavMiddleware>();
-//});
-
 //app.UseMiddleware<WebDavMiddleware>();
 
 // HTTP Endpoint to Trigger Reload

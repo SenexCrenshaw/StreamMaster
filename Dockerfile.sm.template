@@ -37,5 +37,15 @@ RUN echo "Publishing .NET application..." && \
     dotnet publish --no-restore "StreamMaster.API.csproj" -c Debug -o /app/publish /p:UseAppHost=false -a $TARGETARCH --verbosity m && \
     echo ".NET publish completed successfully." || echo "Error during .NET publish!"
 
+# Download the latest release .deb from GitHub using curl
+RUN echo "Fetching the latest release from GitHub..." && \
+    LATEST_RELEASE_URL=$(curl -s https://api.github.com/repos/SenexCrenshaw/SMFS/releases/latest | jq -r '.assets[] | select(.name | endswith(".deb")).browser_download_url') && \
+    echo "Downloading .deb package from: $LATEST_RELEASE_URL" && \
+    curl -L -o /tmp/smfs_latest.deb "$LATEST_RELEASE_URL" && \
+    echo "Installing the downloaded .deb package..." && \
+    apt-get update && \
+    dpkg -i /tmp/smfs_latest.deb || apt-get install -f -y && \
+    rm -rf /tmp/smfs_latest.deb
+
 # Clean up source files
 RUN rm -rf /src
