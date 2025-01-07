@@ -287,7 +287,9 @@ public class XMLTVBuilder(
                 XmltvChannel updatedChannel = new()
                 {
                     Id = videoStreamConfig.OutputProfile!.Id,
-                    DisplayNames = xmlChannel.DisplayNames, // Reuse immutable properties
+                    DisplayNames = xmlChannel.DisplayNames?.Count > 0
+                    ? [xmlChannel.DisplayNames[0]]
+                    : [new XmltvText(videoStreamConfig.OutputProfile!.Id)], // Reuse immutable properties
                     Icons = xmlChannel.Icons?.Select(_ => new XmltvIcon
                     {
                         Src = videoStreamConfig.Logo // Update logo with the provided one
