@@ -63,25 +63,6 @@ public class FilesController(ILogger<FilesController> logger, IHttpContextAccess
         return smfs;
     }
 
-    //[AllowAnonymous]
-    //[Route("[action]/{APIKey}/")]
-    //[Route("[action]/{APIKey}//{isShort}")]
-    //public async Task<ActionResult<Dictionary<int, SGFS>>> GetSMFS(
-    //    string APIKey,
-    //    bool isShort,
-    //    CancellationToken cancellationToken = default)
-    //{
-    //    if (string.IsNullOrEmpty(APIKey) || !APIKey.Equals(settings.CurrentValue.APIKey))
-    //    {
-    //        logger.LogWarning("Invalid request: Invalid API Key.");
-    //        return Unauthorized();
-    //    }
-
-    //    Dictionary<int, SGFS> smfs = await streamGroupService.GetSMFS(null, isShort, cancellationToken);
-
-    //    return smfs;
-    //}
-
     [AllowAnonymous]
     [Route("sm/{smChannelId}")]
     public async Task<IActionResult> GetSMChannelLogo(int smChannelId, CancellationToken cancellationToken)

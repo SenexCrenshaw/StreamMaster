@@ -45,7 +45,7 @@ public sealed class SwitchToNextStreamService(
         {
             int currentRetry = metricData.GetRetryCount();
 
-            if (currentRetry >= settings.StreamRetryLimit && metricData.MetricData.LastConnectionAttemptTime is not null && metricData.MetricData.LastConnectionAttemptTime.Value.AddHours(settings.StreamRetryHours) > DateTime.UtcNow)
+            if (settings.StreamRetryLimit != 0 && currentRetry >= settings.StreamRetryLimit && metricData.MetricData.LastConnectionAttemptTime is not null && metricData.MetricData.LastConnectionAttemptTime.Value.AddHours(settings.StreamRetryHours) > DateTime.UtcNow)
             {
                 logger.LogInformation("Stream {Name} retry limit ({currentRetry}) reached.", smStream.Name, currentRetry);
                 return false;

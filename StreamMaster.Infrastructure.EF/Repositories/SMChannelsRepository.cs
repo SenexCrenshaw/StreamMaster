@@ -604,7 +604,8 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IEpgM
                 logo.StartsWithIgnoreCase("http") ||
                  logo.StartsWithIgnoreCase("/images/") ||
                 logo.StartsWithIgnoreCase("data:") ||
-                logo.StartsWithIgnoreCase("/api/files/cu/")
+                logo.StartsWithIgnoreCase("/api/files/cu/") ||
+                logo.StartsWithIgnoreCase("/api/files/tv/")
                 )
              )
         {

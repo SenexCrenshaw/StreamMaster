@@ -270,6 +270,11 @@ public class LogoService(ICustomPlayListBuilder customPlayListBuilder, IHttpCont
             fileName = channel.Logo.Remove(0, 14);
             return await GetCustomLogoAsync(fileName, cancellationToken);
         }
+        else if (channel.Logo.StartsWithIgnoreCase("/api/files/tv/"))
+        {
+            fileName = channel.Logo.Remove(0, 14);
+            return await GetTVLogoAsync(fileName, cancellationToken);
+        }
         else
         {
             string test = LogoInfo.Cleanup(channel.Logo);
