@@ -38,7 +38,6 @@ const getLogosSlice = createSlice({
     setField: (state, action: PayloadAction<{ fieldData: FieldData }>) => {
       const { fieldData } = action.payload;
       state.data = updateFieldInData(state.data, fieldData);
-      Logger.debug('GetLogos setField');
     },
     setIsForced: (state, action: PayloadAction<{ force: boolean }>) => {
       const { force } = action.payload;
@@ -47,7 +46,6 @@ const getLogosSlice = createSlice({
     },
     setIsLoading: (state, action: PayloadAction<{isLoading: boolean }>) => {
       state.isLoading = action.payload.isLoading;
-      Logger.debug('GetLogos setIsLoading ', action.payload.isLoading);
     }
 },
 

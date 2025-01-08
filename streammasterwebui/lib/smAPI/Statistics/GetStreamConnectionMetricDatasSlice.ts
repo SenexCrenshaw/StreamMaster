@@ -38,7 +38,6 @@ const getStreamConnectionMetricDatasSlice = createSlice({
     setField: (state, action: PayloadAction<{ fieldData: FieldData }>) => {
       const { fieldData } = action.payload;
       state.data = updateFieldInData(state.data, fieldData);
-      Logger.debug('GetStreamConnectionMetricDatas setField');
     },
     setIsForced: (state, action: PayloadAction<{ force: boolean }>) => {
       const { force } = action.payload;
@@ -47,7 +46,6 @@ const getStreamConnectionMetricDatasSlice = createSlice({
     },
     setIsLoading: (state, action: PayloadAction<{isLoading: boolean }>) => {
       state.isLoading = action.payload.isLoading;
-      Logger.debug('GetStreamConnectionMetricDatas setIsLoading ', action.payload.isLoading);
     }
 },
 

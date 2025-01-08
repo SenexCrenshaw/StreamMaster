@@ -26,6 +26,8 @@ public class VideoStreamConfig
     /// </summary>
     public string Logo { get; set; } = string.Empty;
 
+    public string OGLogo { get; set; } = string.Empty;
+
     /// <summary>
     /// Gets or sets the group to which the channel belongs.
     /// </summary>

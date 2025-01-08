@@ -36,7 +36,6 @@ const getSMChannelStreamsSlice = createSlice({
           state.data[key] = undefined;
         }
       }
-      Logger.debug('GetSMChannelStreams clearByTag');
     },
 
     setField: (state, action: PayloadAction<{ fieldData: FieldData }>) => {
@@ -46,7 +45,6 @@ const getSMChannelStreamsSlice = createSlice({
         state.data[fieldData.Id] = fieldData.Value;
         return;
       }
-      Logger.debug('GetSMChannelStreams setField');
     },
     setIsForced: (state, action: PayloadAction<{ force: boolean }>) => {
       const { force } = action.payload;
@@ -59,7 +57,6 @@ const getSMChannelStreamsSlice = createSlice({
         }
       }
       state.data = updatedData;
-      Logger.debug('GetSMChannelStreams  setIsForced ', force);
     },
     setIsLoading: (state, action: PayloadAction<{ param: string; isLoading: boolean }>) => {
       const { param, isLoading } = action.payload;
@@ -71,7 +68,6 @@ const getSMChannelStreamsSlice = createSlice({
           state.isLoading[key] = action.payload.isLoading;
         }
       }
-      Logger.debug('GetSMChannelStreams setIsLoading ', action.payload.isLoading);
     }
   },
 

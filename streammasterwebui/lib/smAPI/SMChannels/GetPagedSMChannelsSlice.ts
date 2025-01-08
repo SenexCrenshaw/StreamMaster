@@ -55,7 +55,6 @@ const getPagedSMChannelsSlice = createSlice({
           state.data[key] = updatePagedResponseFieldInData(state.data[key], fieldData);
         }
       }
-      Logger.debug('GetPagedSMChannels setField');
     },
     setIsForced: (state, action: PayloadAction<{ force: boolean }>) => {
       const { force } = action.payload;
@@ -68,7 +67,6 @@ const getPagedSMChannelsSlice = createSlice({
         }
       }
       state.data = updatedData;
-      Logger.debug('GetPagedSMChannels  setIsForced ', force);
     },
     setIsLoading: (state, action: PayloadAction<{ query: string; isLoading: boolean }>) => {
       const { query, isLoading } = action.payload;
@@ -79,7 +77,6 @@ const getPagedSMChannelsSlice = createSlice({
           state.isLoading[key] = action.payload.isLoading;
         }
       }
-      Logger.debug('GetPagedSMChannels setIsLoading ', action.payload.isLoading);
     }
   },
 

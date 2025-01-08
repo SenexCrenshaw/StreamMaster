@@ -36,7 +36,6 @@ const getLogoSlice = createSlice({
           state.data[key] = undefined;
         }
       }
-      Logger.debug('GetLogo clearByTag');
     },
 
     setField: (state, action: PayloadAction<{ fieldData: FieldData }>) => {
@@ -46,7 +45,6 @@ const getLogoSlice = createSlice({
         state.data[fieldData.Id] = fieldData.Value;
         return;
       }
-      Logger.debug('GetLogo setField');
     },
     setIsForced: (state, action: PayloadAction<{ force: boolean }>) => {
       const { force } = action.payload;
@@ -59,7 +57,6 @@ const getLogoSlice = createSlice({
         }
       }
       state.data = updatedData;
-      Logger.debug('GetLogo  setIsForced ', force);
     },
     setIsLoading: (state, action: PayloadAction<{ param: string; isLoading: boolean }>) => {
       const { param, isLoading } = action.payload;
@@ -71,7 +68,6 @@ const getLogoSlice = createSlice({
           state.isLoading[key] = action.payload.isLoading;
         }
       }
-      Logger.debug('GetLogo setIsLoading ', action.payload.isLoading);
     }
   },
 

@@ -1,7 +1,9 @@
 ﻿using System.Text;
 
 using BuildClientAPI.Models;
+
 namespace BuildClientAPI.TS;
+
 public static class TypeScriptSliceGenerator
 {
     public static void GenerateFile(List<MethodDetails> methods, string path)
@@ -187,7 +189,10 @@ const initialState: QueryState = {{
             content.AppendLine("          state.data[key] = updatePagedResponseFieldInData(state.data[key], fieldData);");
             content.AppendLine("        }");
             content.AppendLine("      }");
-            content.AppendLine($"      Logger.debug('{method.Name} setField');");
+            if (method.NoDebug)
+            {
+                content.AppendLine($"      Logger.debug('{method.Name} setField');");
+            }
             content.AppendLine("    },");
 
             content.AppendLine("    setIsForced: (state, action: PayloadAction<{ force: boolean }>) => {");
@@ -201,7 +206,10 @@ const initialState: QueryState = {{
             content.AppendLine("        }");
             content.AppendLine("      }");
             content.AppendLine("      state.data = updatedData;");
-            content.AppendLine($"      Logger.debug('{method.Name}  setIsForced ', force);");
+            if (method.NoDebug)
+            {
+                content.AppendLine($"      Logger.debug('{method.Name} setIsForced ', force);");
+            }
             content.AppendLine("    },");
 
             content.AppendLine("    setIsLoading: (state, action: PayloadAction<{ query: string; isLoading: boolean }>) => {");
@@ -213,7 +221,10 @@ const initialState: QueryState = {{
             content.AppendLine("          state.isLoading[key] = action.payload.isLoading;");
             content.AppendLine("        }");
             content.AppendLine("      }");
-            content.AppendLine($"      Logger.debug('{method.Name} setIsLoading ', action.payload.isLoading);");
+            if (method.NoDebug)
+            {
+                content.AppendLine($"      Logger.debug('{method.Name} setIsLoading ', action.payload.isLoading);");
+            }
             content.AppendLine("    }");
 
             content.AppendLine("  },");
@@ -228,7 +239,10 @@ const initialState: QueryState = {{
             content.AppendLine("          state.data[key] = undefined;");
             content.AppendLine("        }");
             content.AppendLine("      }");
-            content.AppendLine($"      Logger.debug('{method.Name} clearByTag');");
+            if (method.NoDebug)
+            {
+                content.AppendLine($"      Logger.debug('{method.Name} clearByTag');");
+            }
             content.AppendLine("    },");
             content.AppendLine();
 
@@ -240,8 +254,10 @@ const initialState: QueryState = {{
             content.AppendLine("        state.data[fieldData.Id] = fieldData.Value;");
             content.AppendLine("        return;");
             content.AppendLine("      }");
-
-            content.AppendLine($"      Logger.debug('{method.Name} setField');");
+            if (method.NoDebug)
+            {
+                content.AppendLine($"      Logger.debug('{method.Name} setField');");
+            }
             content.AppendLine("    },");
 
             content.AppendLine("    setIsForced: (state, action: PayloadAction<{ force: boolean }>) => {");
@@ -255,7 +271,10 @@ const initialState: QueryState = {{
             content.AppendLine("        }");
             content.AppendLine("      }");
             content.AppendLine("      state.data = updatedData;");
-            content.AppendLine($"      Logger.debug('{method.Name}  setIsForced ', force);");
+            if (method.NoDebug)
+            {
+                content.AppendLine($"      Logger.debug('{method.Name}  setIsForced ', force);");
+            }
             content.AppendLine("    },");
 
             content.AppendLine("    setIsLoading: (state, action: PayloadAction<{ param: string; isLoading: boolean }>) => {");
@@ -268,7 +287,10 @@ const initialState: QueryState = {{
             content.AppendLine("          state.isLoading[key] = action.payload.isLoading;");
             content.AppendLine("        }");
             content.AppendLine("      }");
-            content.AppendLine($"      Logger.debug('{method.Name} setIsLoading ', action.payload.isLoading);");
+            if (method.NoDebug)
+            {
+                content.AppendLine($"      Logger.debug('{method.Name} setIsLoading ', action.payload.isLoading);");
+            }
             content.AppendLine("    }");
 
             content.AppendLine("  },");
@@ -284,7 +306,10 @@ const initialState: QueryState = {{
         content.AppendLine("    setField: (state, action: PayloadAction<{ fieldData: FieldData }>) => {");
         content.AppendLine("      const { fieldData } = action.payload;");
         content.AppendLine("      state.data = updateFieldInData(state.data, fieldData);");
-        content.AppendLine($"      Logger.debug('{method.Name} setField');");
+        if (method.NoDebug)
+        {
+            content.AppendLine($"      Logger.debug('{method.Name} setField');");
+        }
         content.AppendLine("    },");
 
         content.AppendLine("    setIsForced: (state, action: PayloadAction<{ force: boolean }>) => {");
@@ -296,7 +321,10 @@ const initialState: QueryState = {{
 
         content.AppendLine("    setIsLoading: (state, action: PayloadAction<{isLoading: boolean }>) => {");
         content.AppendLine("      state.isLoading = action.payload.isLoading;");
-        content.AppendLine($"      Logger.debug('{method.Name} setIsLoading ', action.payload.isLoading);");
+        if (method.NoDebug)
+        {
+            content.AppendLine($"      Logger.debug('{method.Name} setIsLoading ', action.payload.isLoading);");
+        }
         content.AppendLine("    }");
 
         content.AppendLine("},");

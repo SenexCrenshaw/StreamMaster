@@ -12,7 +12,7 @@ public class EncodedData
     public string CleanName { get; set; } = string.Empty;
 }
 
-public class GetStreamGroupM3UHandler(IStreamGroupService streamGroupService)
+public class GetStreamGroupM3UHandler(IStreamGroupService streamGroupService, IOptionsMonitor<Setting> settings)
     : IRequestHandler<GetStreamGroupM3U, string>
 {
     //private const string DefaultReturn = "#EXTM3U\r\n";
@@ -61,7 +61,7 @@ public class GetStreamGroupM3UHandler(IStreamGroupService streamGroupService)
         return ret.ToString();
     }
 
-    private static (int ChNo, string m3uLine) BuildM3ULineForVideoStream(VideoStreamConfig videoStreamConfig, bool IsShort)
+    private (int ChNo, string m3uLine) BuildM3ULineForVideoStream(VideoStreamConfig videoStreamConfig, bool IsShort)
     {
         if (videoStreamConfig.OutputProfile is null || string.IsNullOrEmpty(videoStreamConfig.EncodedString) || string.IsNullOrEmpty(videoStreamConfig.CleanName))
         {
@@ -120,7 +120,8 @@ public class GetStreamGroupM3UHandler(IStreamGroupService streamGroupService)
 
         if (videoStreamConfig.OutputProfile.EnableIcon)
         {
-            fieldList.Add($"tvg-logo=\"{videoStreamConfig.Logo}\"");
+            string logo = settings.CurrentValue.LogoCache ? videoStreamConfig.Logo : videoStreamConfig.OGLogo;
+            fieldList.Add($"tvg-logo=\"{logo}\"");
         }
 
         string lines = string.Join(" ", [.. fieldList.Order()]);

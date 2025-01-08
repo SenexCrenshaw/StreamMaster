@@ -23,7 +23,7 @@ public class EPGFileService(IRepositoryWrapper repositoryWrapper, IFileUtilServi
     public async Task GetProgramsFromEPG()
     {
         List<EPGFile> epgFiles = await GetEPGFilesAsync();
-        List<StationChannelName> channelNames = [];// schedulesDirectDataService.GetStationChannelNames().ToList();
+        List<StationChannelName> channelNames = [];
 
         foreach (EPGFile epgFile in epgFiles)
         {

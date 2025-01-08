@@ -51,21 +51,21 @@ public class SchedulesDirectDataService()
             return data;
         });
 
-    public IEnumerable<StationChannelName> GetStationChannelNames()
-    {
-        List<StationChannelName> ret = [];
+    //public IEnumerable<StationChannelName> GetStationChannelNames()
+    //{
+    //    List<StationChannelName> ret = [];
 
-        foreach (MxfService station in AllServices.Where(a => !a.StationId.StartsWith("DUMMY-")))
-        {
-            string channelNameSuffix = station.CallSign;
+    //    foreach (MxfService station in AllServices.Where(a => !a.StationId.StartsWith("DUMMY-")))
+    //    {
+    //        string channelNameSuffix = station.CallSign;
 
-            StationChannelName stationChannelName = new(station.StationId, $"[{station.CallSign}] {station.Name}", station.CallSign, "", EPGHelper.SchedulesDirectId);
+    //        StationChannelName stationChannelName = new(station.StationId, $"[{station.CallSign}] {station.Name}", station.CallSign, "", EPGHelper.SchedulesDirectId);
 
-            ret.Add(stationChannelName);
-        }
+    //        ret.Add(stationChannelName);
+    //    }
 
-        return ret.OrderBy(a => a.DisplayName, StringComparer.OrdinalIgnoreCase);
-    }
+    //    return ret.OrderBy(a => a.DisplayName, StringComparer.OrdinalIgnoreCase);
+    //}
 
     public ICustomStreamData CustomStreamData()
     {

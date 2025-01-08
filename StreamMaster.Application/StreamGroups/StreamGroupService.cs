@@ -436,12 +436,14 @@ public partial class StreamGroupService(IHttpContextAccessor httpContextAccessor
 
             if (videoStreamConfig != null)
             {
+                string logo = settings.CurrentValue.LogoCache ? videoStreamConfig.Logo : videoStreamConfig.OGLogo;
+
                 ret.Add(new SGLineup
                 {
                     GuideName = videoStreamConfig.Name,
                     GuideNumber = videoStreamConfig.ChannelNumber.ToString(),
                     Station = videoStreamConfig.ChannelNumber.ToString(),
-                    Logo = videoStreamConfig.Logo,
+                    Logo = logo,
                     URL = videoUrl
                 });
             }
@@ -590,6 +592,7 @@ public partial class StreamGroupService(IHttpContextAccessor httpContextAccessor
                 StreamGroupProfileId = streamGroupProfile.Id,
                 EPGId = stationId,
                 Logo = logo,
+                OGLogo = smChannel.Logo,
                 Group = smChannel.Group,
                 ChannelNumber = smChannel.ChannelNumber,
                 TimeShift = smChannel.TimeShift,

@@ -36,7 +36,6 @@ const getVideoInfoSlice = createSlice({
           state.data[key] = undefined;
         }
       }
-      Logger.debug('GetVideoInfo clearByTag');
     },
 
     setField: (state, action: PayloadAction<{ fieldData: FieldData }>) => {
@@ -46,7 +45,6 @@ const getVideoInfoSlice = createSlice({
         state.data[fieldData.Id] = fieldData.Value;
         return;
       }
-      Logger.debug('GetVideoInfo setField');
     },
     setIsForced: (state, action: PayloadAction<{ force: boolean }>) => {
       const { force } = action.payload;
@@ -59,7 +57,6 @@ const getVideoInfoSlice = createSlice({
         }
       }
       state.data = updatedData;
-      Logger.debug('GetVideoInfo  setIsForced ', force);
     },
     setIsLoading: (state, action: PayloadAction<{ param: string; isLoading: boolean }>) => {
       const { param, isLoading } = action.payload;
@@ -71,7 +68,6 @@ const getVideoInfoSlice = createSlice({
           state.isLoading[key] = action.payload.isLoading;
         }
       }
-      Logger.debug('GetVideoInfo setIsLoading ', action.payload.isLoading);
     }
   },
 

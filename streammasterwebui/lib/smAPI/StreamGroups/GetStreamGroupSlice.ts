@@ -36,7 +36,6 @@ const getStreamGroupSlice = createSlice({
           state.data[key] = undefined;
         }
       }
-      Logger.debug('GetStreamGroup clearByTag');
     },
 
     setField: (state, action: PayloadAction<{ fieldData: FieldData }>) => {
@@ -46,7 +45,6 @@ const getStreamGroupSlice = createSlice({
         state.data[fieldData.Id] = fieldData.Value;
         return;
       }
-      Logger.debug('GetStreamGroup setField');
     },
     setIsForced: (state, action: PayloadAction<{ force: boolean }>) => {
       const { force } = action.payload;
@@ -59,7 +57,6 @@ const getStreamGroupSlice = createSlice({
         }
       }
       state.data = updatedData;
-      Logger.debug('GetStreamGroup  setIsForced ', force);
     },
     setIsLoading: (state, action: PayloadAction<{ param: string; isLoading: boolean }>) => {
       const { param, isLoading } = action.payload;
@@ -71,7 +68,6 @@ const getStreamGroupSlice = createSlice({
           state.isLoading[key] = action.payload.isLoading;
         }
       }
-      Logger.debug('GetStreamGroup setIsLoading ', action.payload.isLoading);
     }
   },
 

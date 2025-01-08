@@ -6,11 +6,14 @@ using System.Text.Json;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 
+using MediatR;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
 using StreamMaster.Application.Common;
 using StreamMaster.Application.Interfaces;
+using StreamMaster.Application.SchedulesDirect.Queries;
 using StreamMaster.Domain.API;
 using StreamMaster.Domain.Configuration;
 using StreamMaster.Domain.Exceptions;
@@ -21,9 +24,10 @@ using StreamMaster.EPG;
 using StreamMaster.Infrastructure.EF.PGSQL;
 using StreamMaster.SchedulesDirect.Domain.Interfaces;
 using StreamMaster.Streams.Domain.Interfaces;
+
 namespace StreamMaster.Infrastructure.EF.Repositories;
 
-public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IEpgMatcher epgMatcher, ILogoService logoService, ICacheManager cacheManager, IImageDownloadService imageDownloadService, IImageDownloadQueue imageDownloadQueue, IServiceProvider serviceProvider, IRepositoryWrapper repository, IRepositoryContext repositoryContext, IMapper mapper, IOptionsMonitor<Setting> settings, IOptionsMonitor<CommandProfileDict> intProfileSettings, ISchedulesDirectDataService schedulesDirectDataService)
+public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, ISender sender, IEpgMatcher epgMatcher, ILogoService logoService, ICacheManager cacheManager, IImageDownloadService imageDownloadService, IImageDownloadQueue imageDownloadQueue, IServiceProvider serviceProvider, IRepositoryWrapper repository, IRepositoryContext repositoryContext, IMapper mapper, IOptionsMonitor<Setting> settings, IOptionsMonitor<CommandProfileDict> intProfileSettings)
     : RepositoryBase<SMChannel>(repositoryContext, intLogger), ISMChannelsRepository
 {
     private int currentChannelNumber;
@@ -41,6 +45,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IEpgM
         IQueryable<SMChannel> results = await GetPagedSMChannelsQueryableAsync(parameters);
         return await AutoSetEPGs(results, false, cancellationToken).ConfigureAwait(false);
     }
+
     public async Task<List<FieldData>> AutoSetEPGs(IQueryable<SMChannel> smChannels, bool skipSave, CancellationToken cancellationToken)
     {
         // Apply filtering in the database (deferred execution until ToListAsync is called)
@@ -50,12 +55,15 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IEpgM
         List<SMChannel> smChannelsList = await filteredChannels.ToListAsync(cancellationToken).ConfigureAwait(false);
 
         // Cache station channel names into a list for reuse
-        List<StationChannelName> stationChannelNames = [.. schedulesDirectDataService.GetStationChannelNames()];
-        if (stationChannelNames.Count == 0)
+        DataResponse<List<StationChannelName>> stationChannelNamesResponse = await sender.Send(new GetStationChannelNamesRequest(), cancellationToken);// [.. schedulesDirectDataService.GetStationChannelNames()];
+
+        if (stationChannelNamesResponse.Data is null || stationChannelNamesResponse.Data.Count == 0)
         {
             return [];
         }
 
+        List<StationChannelName> stationChannelNames = stationChannelNamesResponse.Data;
+        string json = JsonSerializer.Serialize(stationChannelNames);
         // Prepare data structures for concurrent operations
         HashSet<string> toMatch = [.. stationChannelNames.Select(a => a.DisplayName)];
         string toMatchString = string.Join(',', toMatch);
@@ -431,7 +439,7 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IEpgM
                 return query;
             }
 
-            // Filter for "inSG" 
+            // Filter for "inSG"
             DataTableFilterMetaData? inSGFilter = filters.FirstOrDefault(a => a.MatchMode == "inSG");
             if (inSGFilter?.Value is JsonElement inSGJsonElement)
             {
@@ -859,8 +867,6 @@ public class SMChannelsRepository(ILogger<SMChannelsRepository> intLogger, IEpgM
 
                 // Call the PostgreSQL function for the current batch
                 RepositoryContext.ExecuteSqlRaw(sql);
-
-
             }
 
             return;

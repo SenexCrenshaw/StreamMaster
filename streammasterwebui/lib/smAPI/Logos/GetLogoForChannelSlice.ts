@@ -36,7 +36,6 @@ const getLogoForChannelSlice = createSlice({
           state.data[key] = undefined;
         }
       }
-      Logger.debug('GetLogoForChannel clearByTag');
     },
 
     setField: (state, action: PayloadAction<{ fieldData: FieldData }>) => {
@@ -46,7 +45,6 @@ const getLogoForChannelSlice = createSlice({
         state.data[fieldData.Id] = fieldData.Value;
         return;
       }
-      Logger.debug('GetLogoForChannel setField');
     },
     setIsForced: (state, action: PayloadAction<{ force: boolean }>) => {
       const { force } = action.payload;
@@ -59,7 +57,6 @@ const getLogoForChannelSlice = createSlice({
         }
       }
       state.data = updatedData;
-      Logger.debug('GetLogoForChannel  setIsForced ', force);
     },
     setIsLoading: (state, action: PayloadAction<{ param: string; isLoading: boolean }>) => {
       const { param, isLoading } = action.payload;
@@ -71,7 +68,6 @@ const getLogoForChannelSlice = createSlice({
           state.isLoading[key] = action.payload.isLoading;
         }
       }
-      Logger.debug('GetLogoForChannel setIsLoading ', action.payload.isLoading);
     }
   },
 

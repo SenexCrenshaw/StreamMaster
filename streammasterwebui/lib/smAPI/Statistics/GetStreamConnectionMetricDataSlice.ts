@@ -36,7 +36,6 @@ const getStreamConnectionMetricDataSlice = createSlice({
           state.data[key] = undefined;
         }
       }
-      Logger.debug('GetStreamConnectionMetricData clearByTag');
     },
 
     setField: (state, action: PayloadAction<{ fieldData: FieldData }>) => {
@@ -46,7 +45,6 @@ const getStreamConnectionMetricDataSlice = createSlice({
         state.data[fieldData.Id] = fieldData.Value;
         return;
       }
-      Logger.debug('GetStreamConnectionMetricData setField');
     },
     setIsForced: (state, action: PayloadAction<{ force: boolean }>) => {
       const { force } = action.payload;
@@ -59,7 +57,6 @@ const getStreamConnectionMetricDataSlice = createSlice({
         }
       }
       state.data = updatedData;
-      Logger.debug('GetStreamConnectionMetricData  setIsForced ', force);
     },
     setIsLoading: (state, action: PayloadAction<{ param: string; isLoading: boolean }>) => {
       const { param, isLoading } = action.payload;
@@ -71,7 +68,6 @@ const getStreamConnectionMetricDataSlice = createSlice({
           state.isLoading[key] = action.payload.isLoading;
         }
       }
-      Logger.debug('GetStreamConnectionMetricData setIsLoading ', action.payload.isLoading);
     }
   },
 

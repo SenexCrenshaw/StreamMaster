@@ -10,6 +10,7 @@ namespace StreamMaster.Application.EPG.Commands;
 
 public class XMLTVBuilder(
     IOptionsMonitor<SDSettings> sdSettingsMonitor,
+    IOptionsMonitor<Setting> settings,
     IEPGService EPGService,
     ILogoService logoService,
     IFileUtilService fileUtilService,
@@ -140,12 +141,12 @@ public class XMLTVBuilder(
             {
                 return;
             }
-
+            string logo = settings.CurrentValue.LogoCache ? config.Logo : config.OGLogo;
             XmltvChannel channel = new()
             {
                 Id = config.OutputProfile.Id,
                 DisplayNames = [new XmltvText { Text = config.Name }],
-                Icons = [new XmltvIcon { Src = config.Logo }]
+                Icons = [new XmltvIcon { Src = logo }]
             };
             channels.Add(channel);
 
@@ -292,7 +293,7 @@ public class XMLTVBuilder(
                     : [new XmltvText(videoStreamConfig.OutputProfile!.Id)], // Reuse immutable properties
                     Icons = xmlChannel.Icons?.Select(_ => new XmltvIcon
                     {
-                        Src = videoStreamConfig.Logo // Update logo with the provided one
+                        Src = settings.CurrentValue.LogoCache ? videoStreamConfig.Logo : videoStreamConfig.OGLogo// Update logo with the provided one
                     }).ToList()
                 };
                 newChannels.Add(updatedChannel);

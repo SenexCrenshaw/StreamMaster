@@ -36,7 +36,6 @@ const getLineupPreviewChannelSlice = createSlice({
           state.data[key] = undefined;
         }
       }
-      Logger.debug('GetLineupPreviewChannel clearByTag');
     },
 
     setField: (state, action: PayloadAction<{ fieldData: FieldData }>) => {
@@ -46,7 +45,6 @@ const getLineupPreviewChannelSlice = createSlice({
         state.data[fieldData.Id] = fieldData.Value;
         return;
       }
-      Logger.debug('GetLineupPreviewChannel setField');
     },
     setIsForced: (state, action: PayloadAction<{ force: boolean }>) => {
       const { force } = action.payload;
@@ -59,7 +57,6 @@ const getLineupPreviewChannelSlice = createSlice({
         }
       }
       state.data = updatedData;
-      Logger.debug('GetLineupPreviewChannel  setIsForced ', force);
     },
     setIsLoading: (state, action: PayloadAction<{ param: string; isLoading: boolean }>) => {
       const { param, isLoading } = action.payload;
@@ -71,7 +68,6 @@ const getLineupPreviewChannelSlice = createSlice({
           state.isLoading[key] = action.payload.isLoading;
         }
       }
-      Logger.debug('GetLineupPreviewChannel setIsLoading ', action.payload.isLoading);
     }
   },
 
