@@ -1,32 +1,22 @@
 ﻿using System.Collections.Concurrent;
-using System.Text.Json;
 
 using StreamMaster.Domain.Helpers;
-using StreamMaster.Domain.Models;
 using StreamMaster.Domain.XmltvXml;
-using StreamMaster.Streams.Domain.Interfaces;
 
-namespace StreamMaster.EPG
+namespace AutoMatchEPGTester
 {
     /// <summary>
     /// IEpgMatcher that logs everything, compares group vs. global,
     /// uses 2-tier scoring, AND an extra tie-break for exact channelName matches.
     /// </summary>
-    public sealed class EpgMatcher(ICacheManager cacheManager) : IEpgMatcher
+    public static class EpgMatcher
     {
         /// <inheritdoc/>
-        public async Task<StationChannelName?> MatchAsync(SMChannel channel, CancellationToken cancellationToken)
-        {
-            return await MatchAsync(channel.Name, channel.EPGId, cacheManager.StationChannelNames);
-        }
-
         public static async Task<StationChannelName?> MatchAsync(
     string channelName,
     string channelEPGID,
     ConcurrentDictionary<int, List<StationChannelName>> StationChannelNames)
         {
-            string json = JsonSerializer.Serialize(StationChannelNames);
-
             string inputName = channelName?.Trim().ToLowerInvariant() ?? string.Empty;
             Console.WriteLine($"[DEBUG] Input channel name: '{channelName}' => normalized to '{inputName}'");
             Console.WriteLine($"[DEBUG] Input EPG ID: {channelEPGID}");

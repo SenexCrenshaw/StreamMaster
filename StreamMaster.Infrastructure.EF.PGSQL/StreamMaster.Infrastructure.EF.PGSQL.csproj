@@ -52,6 +52,9 @@
     </AdditionalFiles>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Scripts\fixsmchannels.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Scripts\cleanup_migrations.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
