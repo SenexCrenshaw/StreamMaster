@@ -1,4 +1,0 @@
-{
-  "dotnet.defaultSolution": "StreamMaster.sln",
-  "conventionalCommits.scopes": ["build"]
-}

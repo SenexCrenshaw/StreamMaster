@@ -1,8 +1,0 @@
-{
-  "profiles": {
-    "StreamMaster.Domain": {
-      "commandName": "Project",
-      "hotReloadEnabled": false
-    }
-  }
-}
