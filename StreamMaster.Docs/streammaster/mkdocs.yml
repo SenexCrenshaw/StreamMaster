@@ -1,0 +1,80 @@
+# streammaster\mkdocs.yml
+site_name: Stream Master
+extra:
+  generator: false
+repo_url: https://github.com/SenexCrenshaw/StreamMaster
+theme:
+  name: "material"
+  logo: "assets/sm_logo.png"
+  features:
+    - content.code.copy
+  palette:
+    # Palette toggle for light mode
+    - scheme: default
+      primary: deep orange
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+
+    # Palette toggle for dark mode
+    - scheme: slate
+      primary: deep orange
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+nav:
+  - Home 🏠: index.md
+  - Getting Started 🚀: GettingStarted.md
+  - Auth 🔑: Auth.md
+  - EPG/XML Files 📅: EPG.md
+  - M3U Files 📜: M3U.md
+  - Schedules Direct 📅: SD.md
+  - StreamGroup 📺: StreamGroup.md
+  - Profiles 🧑‍💻:
+      - CommandProfiles.md
+      - OutputProfiles.md
+  - Backup & Restore 🗄️: BackupRestore.md
+  - Settings ⚙️: Settings.md
+  - Docs 📘: Docs.md
+  - M3U Output Attributes 🎬: M3U_Output_Attributes.md
+
+  - Contributors 🌟: Contributors.md
+
+plugins:
+  - search
+  - include-markdown
+  - i18n:
+      docs_structure: folder
+      languages:
+        - locale: en
+          default: true
+          name: English
+          build: true
+        - locale: es
+          name: Spanish
+          build: true
+        - locale: fr
+          name: French
+          build: true
+        - locale: de
+          name: German
+          build: true
+        - locale: pt
+          name: Portuguese
+          build: true
+        - locale: da
+          name: Danish
+          build: true
+        - locale: sv
+          name: Swedish
+          build: true
+        - locale: nb
+          name: Norwegian Bokmål
+          build: true
+        - locale: fi
+          name: Finnish
+          build: true
+        - locale: is
+          name: Icelandic
+          build: true
+site_url: "https://senexcrenshaw.github.io/StreamMaster/"
