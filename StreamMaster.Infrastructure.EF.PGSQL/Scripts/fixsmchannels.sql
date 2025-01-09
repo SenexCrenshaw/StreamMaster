@@ -11,4 +11,9 @@ WHERE
         FROM public."SMChannelStreamLinks" l
         WHERE l."SMChannelId" = c."Id"
           AND l."SMStreamId" = c."BaseStreamID"
+    )
+    AND EXISTS (
+        SELECT 1
+        FROM public."SMStreams" s
+        WHERE s."Id" = c."BaseStreamID"
     );
